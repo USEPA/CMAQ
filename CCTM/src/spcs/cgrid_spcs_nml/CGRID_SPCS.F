@@ -244,7 +244,13 @@ c-------------------------------------------------------------------------------
             N_GC_SPC = 0                                                                     
             DO IGC = 1,SPC_DIM                                                              
                 IF ( GC_SPECIES_DATA( IGC )%SPECIES_NAME .EQ. '' ) EXIT                      
-                N_GC_SPC = IGC                                                               
+                N_GC_SPC = IGC
+                IF ( GC_SPECIES_DATA( IGC )%ICBC_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%ICBC_FAC = 0.
+                IF ( GC_SPECIES_DATA( IGC )%DEPV_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%DEPV_FAC = 0.
+                IF ( GC_SPECIES_DATA( IGC )%SCAV_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%SCAV_FAC = 0.
             END DO                                                                           
                                                                                              
             ! Allocate and Initialize Permanent Variables
@@ -387,6 +393,12 @@ c-------------------------------------------------------------------------------
             DO IAE = 1,SPC_DIM
                 IF ( AE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
                 N_AE_SPC = IAE
+                IF ( AE_SPECIES_DATA( IAE )%ICBC_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%ICBC_FAC = 0.
+                IF ( AE_SPECIES_DATA( IAE )%DEPV_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%DEPV_FAC = 0.
+                IF ( AE_SPECIES_DATA( IAE )%SCAV_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%SCAV_FAC = 0.
             END DO
 
             ! Allocate and Initialize Permanent Variables
@@ -519,6 +531,12 @@ c-------------------------------------------------------------------------------
             DO INR = 1,SPC_DIM
                 IF ( NR_SPECIES_DATA( INR )%SPECIES_NAME .EQ. '' ) EXIT
                 N_NR_SPC = INR
+                IF ( NR_SPECIES_DATA( INR )%ICBC_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%ICBC_FAC = 0.
+                IF ( NR_SPECIES_DATA( INR )%DEPV_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%DEPV_FAC = 0.
+                IF ( NR_SPECIES_DATA( INR )%SCAV_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%SCAV_FAC = 0.
             END DO
 
             ! Allocate and Initialize Permanent Variables
@@ -660,6 +678,12 @@ c-------------------------------------------------------------------------------
             DO ITR = 1,SPC_DIM
                 IF ( TR_SPECIES_DATA( ITR )%SPECIES_NAME .EQ. '' ) EXIT
                 N_TR_SPC = ITR
+                IF ( TR_SPECIES_DATA( ITR )%ICBC_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%ICBC_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%DEPV_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%DEPV_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%SCAV_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%SCAV_FAC = 0.
             END DO
 
             ! Allocate and Initialize Permanent Variables
