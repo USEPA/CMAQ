@@ -49,5 +49,5 @@ NR_SPECIES_DATA =
 'METHCHLORIDE'   , 50.40   ,       ,    ,                  ,1    ,'METHCHLORIDE'    ,1   ,               ,          ,'Yes' ,      ,'Yes' ,'Yes',         
 'CARBSULFIDE'    , 60.10   ,       ,    ,'VD_CARBSULFIDE'  ,1    ,'CARBSULFIDE'     ,1   ,               ,          ,'Yes' ,'Yes' ,'Yes' ,'Yes',         
 'CHLOROPRENE'    , 88.50   ,       ,    ,                  ,     ,'CHLOROPRENE'     ,1   ,               ,          ,'Yes' ,      ,'Yes' ,'Yes',         
-'ETHYLBENZENE'   ,106.00   ,       ,    ,                  ,     ,'ETHYLBENZENE'    ,1   ,               ,          ,'Yes' ,      ,      ,'Yes'          
+'ETHYLBENZENE'   ,106.00   ,       ,    ,                  ,     ,'ETHYLBENZENE'    ,1   ,               ,          ,'Yes' ,      ,      ,'Yes',          
 /

@@ -212,5 +212,5 @@ GC_SPECIES_DATA =
 'VSVOO2'        ,135.00   ,       ,    ,'VD_ORA'          ,1    ,'ADIPIC_ACID'     ,1   ,'VSVOO2'       ,          ,'Yes' ,'Yes' ,'Yes' ,'Yes',         
 'VSVOO3'        ,134.00   ,       ,    ,'VD_ORA'          ,1    ,'ADIPIC_ACID'     ,1   ,'VSVOO3'       ,          ,'Yes' ,'Yes' ,'Yes' ,'Yes',         
 'PCVOC'         ,170.00   ,       ,    ,'VD_GEN_ALD'      ,1    ,'GENERIC_ALDEHYDE',1   ,               ,          ,'Yes' ,'Yes' ,'Yes' ,'Yes',         
-'PCSOARXN'      ,170.00   ,       ,    ,                  ,     ,                  ,    ,'PCSOARXN'     ,          ,      ,      ,      ,''             
+'PCSOARXN'      ,170.00   ,       ,    ,                  ,     ,                  ,    ,'PCSOARXN'     ,          ,      ,      ,      ,''   ,
 /

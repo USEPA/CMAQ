@@ -121,5 +121,5 @@ AE_SPECIES_DATA =
 'APHGK'    ,200.50   ,       ,    ,'VMASSC'    ,1   ,'TRACER_COARSE',1   ,'PHG_COARSE'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'AASI'     , 74.92   ,       ,    ,'VMASSI'    ,1   ,'TRACER_AITKEN',1   ,'TRACER_AITKEN','Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'AASJ'     , 74.92   ,       ,    ,'VMASSJ'    ,1   ,'TRACER_ACCUM' ,1   ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
-'AASK'     , 74.92   ,       ,    ,'VMASSC'    ,1   ,'TRACER_COARSE',1   ,'TRACER_COARSE','Yes'   ,'Yes'   ,'Yes'   ,'Yes'   
+'AASK'     , 74.92   ,       ,    ,'VMASSC'    ,1   ,'TRACER_COARSE',1   ,'TRACER_COARSE','Yes'   ,'Yes'   ,'Yes'   ,'Yes',   
 /

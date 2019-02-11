@@ -20,5 +20,5 @@ NR_SPECIES_DATA =
 'SVISO1'         ,132.0    ,       ,    ,'VD_SVISO1'       ,1    ,'SVISO1'          ,1   ,'SVISO1'       ,          ,'Yes' ,'Yes' ,'Yes' ,'Yes',         
 'SVISO2'         ,133.0    ,       ,    ,'VD_SVISO2'       ,1    ,'SVISO2'          ,1   ,'SVISO2'       ,          ,'Yes' ,'Yes' ,'Yes' ,'Yes',         
 'SVSQT'          ,273.0    ,       ,    ,'VD_SVSQT'        ,1    ,'SVSQT'           ,1   ,'SVSQT'        ,          ,'Yes' ,'Yes' ,'Yes' ,'Yes',         
-'LVPCSOG'        ,170.0    ,       ,    ,'VD_LVPCSOG'      ,1    ,'ADIPIC_ACID'     ,1   ,'LVPCSOG'      ,          ,'Yes' ,      ,      ,'Yes'          
+'LVPCSOG'        ,170.0    ,       ,    ,'VD_LVPCSOG'      ,1    ,'ADIPIC_ACID'     ,1   ,'LVPCSOG'      ,          ,'Yes' ,      ,      ,'Yes',
 /

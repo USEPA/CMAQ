@@ -130,5 +130,5 @@ GC_SPECIES_DATA =
 'TOLU'          , 92.0    ,       ,    ,'VD_TOL'          ,1    ,'TOLUENE'         ,1   ,               ,          ,'Yes' ,'Yes' ,      ,'Yes',         
 'HG'            ,200.6    ,       ,    ,'VD_HG'           ,1    ,'HG'              ,1   ,               ,'HG'      ,'Yes' ,'Yes' ,'Yes' ,'Yes',         
 'HGIIAER'       ,200.6    ,       ,    ,                  ,     ,                  ,    ,'PHGRXN'       ,          ,      ,      ,      ,     ,         
-'HGIIGAS'       ,271.5    ,       ,    ,'VD_HGIIGAS'      ,1    ,'HGIIGAS'         ,1   ,               ,'HGIIGAS' ,'Yes' ,'Yes' ,'Yes' ,'Yes'          
+'HGIIGAS'       ,271.5    ,       ,    ,'VD_HGIIGAS'      ,1    ,'HGIIGAS'         ,1   ,               ,'HGIIGAS' ,'Yes' ,'Yes' ,'Yes' ,'Yes', 
 /

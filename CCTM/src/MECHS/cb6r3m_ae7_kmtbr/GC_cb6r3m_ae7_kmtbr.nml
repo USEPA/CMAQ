@@ -163,5 +163,5 @@ GC_SPECIES_DATA =
 'IBR'           ,206.8    ,       ,    ,'VD_IBR'          ,1    ,'IBR'             ,1   ,               ,          ,'Yes' ,      ,      ,'Yes',         
 'MI2'           ,267.8    ,       ,    ,'VD_MI2'          ,1    ,'MI2'             ,1   ,               ,          ,'Yes' ,      ,      ,'Yes',         
 'MIB'           ,219.9    ,       ,    ,'VD_MIB'          ,1    ,'MIB'             ,1   ,               ,          ,'Yes' ,      ,      ,'Yes',         
-'MIC'           ,176.4    ,       ,    ,'VD_MIC'          ,1    ,'MIC'             ,1   ,               ,          ,'Yes' ,      ,      ,'Yes'          
+'MIC'           ,176.4    ,       ,    ,'VD_MIC'          ,1    ,'MIC'             ,1   ,               ,          ,'Yes' ,      ,      ,'Yes',
 /
