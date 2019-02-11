@@ -20,6 +20,7 @@
             INTEGER J1, J2              ! SURROGATE TYPE 2 COUNTERS
             INTEGER K1, K2, K3, K4, K5  ! CONTROL TYPE COUNTERS
             INTEGER ICALL
+            INTEGER LOGDEV
 
             LOGICAL :: ORDER = .TRUE.
             LOGICAL :: FOUND = .TRUE.
@@ -39,6 +40,7 @@
             IF( INITIALIZED )RETURN
 
             INITIALIZED = .TRUE.
+            LOGDEV      =  INIT3()
             SUCCESS     = .TRUE.
 
 
@@ -98,81 +100,85 @@
 ! determine if mechanism species are in cgrid species
 
             DO I = 1, NUMB_MECH_SPC
-! set species informations arrays using SPECIES_LIST array before mapping
-               CHEMISTRY_SPC( I ) = SPECIES_LIST( I )%CHEMISTRY_SPC
-               CGRID_INDEX  ( I ) = SPECIES_LIST( I )%CGRID_INDEX
-               SPECIES_TYPE ( I ) = SPECIES_LIST( I )%SPECIES_TYPE
-               CONVERT_CONC ( I ) = SPECIES_LIST( I )%CONVERT_CONC
-               SPECIES_MOLWT( I ) = SPECIES_LIST( I )%SPECIES_MOLWT
-
-               I1 = INDEX1R( CHEMISTRY_SPC( I ), (NSPCSD-1), CGRID_SPC )
+               I1 = INDEX1R( SPECIES_LIST%CHEMISTRY_SPC( I ), (NSPCSD-1), CGRID_SPC )
                IF ( I1 .LT. 1 ) THEN
                   FOUND = .FALSE.
                ELSE
                   FOUND = .TRUE.
                   IF( .NOT. MAPPED_TO_CGRID )THEN
-                      CGRID_INDEX( I )   = NML_INDEX( I1 )
-                      SPECIES_TYPE( I )  = NML_TYPE ( I1 )
-                      SPECIES_MOLWT( I ) = NML_MOLWT( I1 )
-                      CONVERT_CONC( I )  = NML_CONVERT( I1 )
+                      SPECIES_LIST%CGRID_INDEX( I )   = NML_INDEX( I1 )
+                      SPECIES_LIST%SPECIES_TYPE( I )  = NML_TYPE ( I1 )
+                      SPECIES_LIST%SPECIES_MOLWT( I ) = NML_MOLWT( I1 )
+                      SPECIES_LIST%CONVERT_CONC( I )  = NML_CONVERT( I1 )
                   ELSE
-                      IF(CGRID_INDEX( I ) .NE. NML_INDEX( I1 ))THEN
+                      IF(SPECIES_LIST%CGRID_INDEX( I ) .NE. NML_INDEX( I1 ))THEN
                          SUCCESS = .FALSE.
-                         XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
+                         XMSG = '*** For Species ' // TRIM( SPECIES_LIST%CHEMISTRY_SPC( I ) ) &
     &                        // ' cgrid index does not match mechanism value.'
                          WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
                          WRITE( XMSG,'(A,I3,1X,I3)')'CGRID Indices: Mechanism and NML Values are ',    &
-    &                    CGRID_INDEX( I ),NML_INDEX( I1 )
+    &                    SPECIES_LIST%CGRID_INDEX( I ),NML_INDEX( I1 )
                          WRITE( LOGDEV,'( 5X, A )' )XMSG
                       END IF
-                      IF(CONVERT_CONC( I ) .NEQV. NML_CONVERT( I1 ))THEN
+                      IF(SPECIES_LIST%CONVERT_CONC( I ) .NEQV. NML_CONVERT( I1 ))THEN
                          SUCCESS = .FALSE.
-                         XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
+                         XMSG = '*** For Species ' // TRIM( SPECIES_LIST%CHEMISTRY_SPC( I ) ) &
     &                        // ' species unit conversion flag does not match mechanism value.'
                          WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
                          WRITE( XMSG,'(A,1X,L21X,L2)')'CONVERSION FLAGS: Mechanism and NML Values are ', &
-    &                    CONVERT_CONC( I ),NML_CONVERT( I1 )
+    &                    SPECIES_LIST%CONVERT_CONC( I ),NML_CONVERT( I1 )
                          WRITE( LOGDEV,'( 5X, A )' )XMSG
                          WRITE( XMSG,'(A,1X,A3,1X,A3)')'SPECIES TYPE: Mechanism and NML Values are ',    &
-    &                    SPECIES_TYPE( I ),NML_TYPE( I1 )
+    &                    SPECIES_LIST%SPECIES_TYPE( I ),NML_TYPE( I1 )
                          WRITE( LOGDEV,'( 5X, A )' )XMSG
                       END IF
-                      DELTA = ( SPECIES_MOLWT( I ) - NML_MOLWT( I1 ) )/MAX(NML_MOLWT( I1 ),1.0E-20)
+                      DELTA = ( SPECIES_LIST%SPECIES_MOLWT( I ) - NML_MOLWT( I1 ) )  &
+    &                       /   MAX( NML_MOLWT( I1 ), 1.0E-20 )
                       IF( ABS( DELTA ) .GE. 0.05 )THEN
-                         IF( CONVERT_CONC( I ) )SUCCESS = .FALSE.
-                         XMSG = '*** For Species ' // TRIM( CHEMISTRY_SPC( I ) ) &
+                         IF( SPECIES_LIST%CONVERT_CONC( I ) )SUCCESS = .FALSE.
+                         XMSG = '*** For Species ' // TRIM( SPECIES_LIST%CHEMISTRY_SPC( I ) ) &
     &                        // ' species molecular weight does not match mechanism value.'
                          WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
                          WRITE( XMSG,'(A,2(ES12.4,1X))')'Molecular Weight: Mechanism and NML Values are ', &
-    &                    SPECIES_MOLWT( I ), NML_MOLWT( I1 )
+    &                    SPECIES_LIST%SPECIES_MOLWT( I ), NML_MOLWT( I1 )
                          WRITE( LOGDEV,'( 5X, A )' )XMSG
                       END IF
                  END IF
               END IF
-              IF( INDEX( CHEMISTRY_SPC( I ), 'SRF') .GT. 0 )THEN
+              IF( INDEX( SPECIES_LIST%CHEMISTRY_SPC( I ), 'SRF') .GT. 0 )THEN
                   SUCCESS = .FALSE.
                   XMSG = '*** reactions cannot use modal aerosol surface area as species'
                   WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
-                  XMSG = TRIM( CHEMISTRY_SPC( I ) )
+                  XMSG = TRIM( SPECIES_LIST%CHEMISTRY_SPC( I ) )
                   WRITE( LOGDEV,'( 2X, A )' ) TRIM( XMSG )
               END IF
-              IF( INDEX( CHEMISTRY_SPC( I ), 'NUM') .GT. 0 )THEN
+              IF( INDEX( SPECIES_LIST%CHEMISTRY_SPC( I ), 'NUM') .GT. 0 )THEN
                   SUCCESS = .FALSE.
                   XMSG = '*** reactions cannot use modal aerosol number density as species'
                   WRITE( LOGDEV,'( /5X, A )' ) TRIM( XMSG )
-                  XMSG = TRIM( CHEMISTRY_SPC( I ) )
+                  XMSG = TRIM( SPECIES_LIST%CHEMISTRY_SPC( I ) )
                   WRITE( LOGDEV,'( 2X, A )' ) TRIM( XMSG )
               END IF
               IF ( .NOT. FOUND ) THEN
                  XMSG = 'Fatal error: Mechanism Species found not in species namelist:'
                  WRITE( LOGDEV,'( /5X, A )', ADVANCE = 'NO' ) TRIM( XMSG )
-                 XMSG = TRIM( CHEMISTRY_SPC( I ) )
+                 XMSG = TRIM( SPECIES_LIST%CHEMISTRY_SPC( I ) )
                  WRITE( LOGDEV,'( 2X, A )' ) TRIM( XMSG )
                  SUCCESS = .FALSE.
               END IF
             END DO
 
-            IF( SUCCESS )RETURN
+
+            IF( SUCCESS )THEN
+               DO I = 1, NUMB_MECH_SPC
+                  CGRID_INDEX( I )   = SPECIES_LIST%CGRID_INDEX( I ) 
+                  SPECIES_TYPE( I )  = SPECIES_LIST%SPECIES_TYPE( I )
+                  SPECIES_MOLWT( I ) = SPECIES_LIST%SPECIES_MOLWT( I )
+                  CONVERT_CONC( I )  = SPECIES_LIST%CONVERT_CONC( I )
+               END DO
+	       RETURN
+	    END IF 
+
 
             WRITE(LOGDEV,99901)TRIM( MECHNAME )
             XMSG = 'The FATAL errors found in namelist used. Check ' &

@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 27, 2018
+C  REVISION HISTORY: Created by EBI solver program, Feb  1, 2019
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -163,8 +163,8 @@ C for INTERPX
            REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
          END SUBROUTINE FINAL_DEGRADE
          SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
-           REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
-         END SUBROUTINE HETCHEM_UPDATE_AERO  
+           REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
+         END SUBROUTINE HETCHEM_UPDATE_AERO
       END INTERFACE
 
 C**********************************************************************
@@ -439,6 +439,7 @@ c..Load ICs
 
 c..Set physical quantities
                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
+               DENSITY( NCELL )  = REAL( DENS( C,R,L ), 8)
 !                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)

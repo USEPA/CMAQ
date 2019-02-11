@@ -76,14 +76,37 @@ C=======================================================================
       INTEGER,         INTENT( IN )    :: NXX
       CHARACTER( 16 ), INTENT( INOUT ) :: LABEL( :,: )
 
+      INTERFACE 
+        SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+        END SUBROUTINE RDLINE
+        SUBROUTINE GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+        END SUBROUTINE GETCHAR
+        SUBROUTINE GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
+         INTEGER,         INTENT( IN )    :: IMECH   ! IO unit for mechanism file
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR     ! current character from buffer
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF   ! string read from mechanism file
+         INTEGER,         INTENT( INOUT ) :: LPOINT  ! character position in INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL    ! end of line position
+         REAL( 8 ),       INTENT( OUT )   :: NUMBER  ! number from file
+        END SUBROUTINE GETREAL
+      END INTERFACE
+
 C...local variable
 
       REAL( 8 )          ::  NUMBER
       CHARACTER( 16 )    :: TAG
       INTEGER            :: NDX
-      INTEGER, EXTERNAL :: INDEX1
+      INTEGER, EXTERNAL  :: INDEX1
 
-      INTEGER NUMANDS, NUMREALS, IRX
+      INTEGER            :: NUMANDS, NUMREALS, IRX
+      INTEGER            :: LSTART, LSTOP
       
       INTEGER,  SAVE    :: IH = 0
       
@@ -222,7 +245,6 @@ C '#' or '%' signals beginning of part of line that has rate constant data
 
          IF ( CHR .EQ. '~' ) THEN        ! heteorogeneous rx
             KTYPE( NXX ) = -1
-            print*,'Reactions #', NXX,' is heterogeneous'
             IRXBITS( NXX ) = IBSET ( IRXBITS( NXX ), 0 )
             IH = IH + 1
             IHETERO( IH,1 ) = NXX
@@ -343,8 +365,53 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
          IF ( CHR .EQ. ';' ) GO TO 901
 
       ELSE IF ( CHR .EQ. '%' ) THEN
-
          CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         IF ( CHR .EQ. '4' )THEN
+            KTYPE( NXX ) = 13
+            NRATE_STRING = NRATE_STRING + 1
+            KSTRING( NRATE_STRING )      = NXX
+            CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+            IF ( CHR .NE. '#' ) THEN
+               WRITE( *,'(A,1X,A)')'CHR is ',CHR
+               WRITE( *,2023 ) NXX, INBUF(LPOINT:IEOL)
+               STOP
+            END IF
+            LSTART = LPOINT + 1
+            RATE_STRING( NRATE_STRING ) = ''
+            READ_RATE_STRING: DO 
+!               IF( INBUF(IEOL:IEOL) .NE. ';' )THEN
+!                  WRITE( *,'(A)')'Line must end with semi-colon and not pass column 81' 
+!                  WRITE( *,2032 ) NXX, INBUF
+!                 STOP
+!               END IF
+
+               CHR = INBUF(IEOL:IEOL)
+               LSTOP = IEOL
+               IF( CHR .EQ. ';' )LSTOP = LSTOP - 1
+               
+               NDX = LEN_TRIM( INBUF( LSTART:LSTOP ) )
+     &             + LEN_TRIM( RATE_STRING( NRATE_STRING ) )
+               IF( NDX .GT. 81 )THEN
+                   WRITE( *,'(A)')'Rate String exceeds 81 characters' 
+                   WRITE( *,2036 ) TRIM(INBUF)
+                   STOP
+               END IF
+
+               RATE_STRING( NRATE_STRING )  = TRIM( RATE_STRING( NRATE_STRING ) ) 
+     &                                      // TRIM( INBUF(LSTART:LSTOP) )
+
+               PRINT*,TRIM(RATE_STRING( NRATE_STRING ))
+
+               IF( LSTOP .NE. IEOL )EXIT
+               LPOINT = LSTOP
+               CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+               LSTART = LPOINT
+            END DO READ_RATE_STRING
+            LPOINT = IEOL - 1 
+            CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+            GO TO 901
+         END IF
+
          IF ( CHR .EQ. '1' ) THEN
             CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
             IF ( CHR .NE. '#' ) THEN
@@ -477,6 +544,9 @@ C                 IPH(IP,2) to be resolved in caller (CHEMMECH.f)
 
          ELSE IF ( CHR .EQ. 'H' .OR. CHR .EQ. 'h' )THEN
             CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+! set to photolysis rate values because depends on sunlight
+            IRXBITS( NXX ) = 0
+            IRXBITS( NXX ) = IBSET ( IRXBITS( NXX ), 1 )
             KTYPE( NXX )        = 12
             NFALLOFF            = NFALLOFF + 1
             IRRFALL( NFALLOFF ) = NXX
@@ -583,6 +653,7 @@ C           reverse equil. rx and 1st order: must undo forward rx conversion
       END IF     ! NUMANDS .EQ. 0            
       RETURN
 
+
 2001  FORMAT( / 5X, '*** ERROR: ',
      &              'Incorrect symbol following first #A'
      &        / 5X, 'Processing for reaction number:', I6
@@ -632,7 +703,7 @@ C           reverse equil. rx and 1st order: must undo forward rx conversion
      &        / 5X, 'Processing for reaction number:', I6
      &        / 5X, 'Last line read was:' / A81 )
 2023  FORMAT( / 5X, '*** ERROR: ',
-     &              '# must follow 1 or 2 0r 3 Or H in % reactions'
+     &              '# must follow 1 or 2 or 3 or 4 or H in % reactions'
      &        / 5X, 'Processing for reaction number:', I6
      &        / 5X, 'Last line read was:' / A81 )
 2043  FORMAT( / 5X, '*** ERROR: ',
@@ -656,7 +727,11 @@ C           reverse equil. rx and 1st order: must undo forward rx conversion
      &        / 5X, 'Processing for reaction number:', I6
      &        / 5X, 'Last line read was:' / A81 )
 2031  FORMAT( / 5X, '*** ERROR: ',
-     &              '1 or 2 or 3 must follow % in special reactions'
+     &              '1 or 2 or 3 or 4 or H must follow % in rate expressions'
+     &        / 5X, 'Processing for reaction number:', I6
+     &        / 5X, 'Last line read was:' / A81 )
+2032  FORMAT( / 5X, '*** ERROR: ',
+     &              'incorrect symbol at end of reaction'
      &        / 5X, 'Processing for reaction number:', I6
      &        / 5X, 'Last line read was:' / A81 )
 2033  FORMAT( / 5X, '*** ERROR: ',
@@ -671,6 +746,8 @@ C           reverse equil. rx and 1st order: must undo forward rx conversion
      &              '* expected as alternate photolysis dependency reaction'
      &        / 5X, 'Processing for reaction number:', I6
      &        / 5X, 'Last line read was:' / A81 )
+2036  FORMAT( / 5X, '*** ERROR: ',
+     &        / 5X, 'Last line read was:' / A )
 2041  FORMAT( / 5X, '*** ERROR: ',
      &              '; Special rate coefficient not found in Special Table'
      &        / 5X, 'Processing for reaction number:', I6

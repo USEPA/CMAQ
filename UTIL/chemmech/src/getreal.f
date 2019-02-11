@@ -44,8 +44,8 @@ C=======================================================================
       IMPLICIT NONE
 
       INTEGER,         INTENT( IN )    :: IMECH   ! IO unit for mechanism file
-      CHARACTER(  1 ), INTENT( INOUT ) :: CHR     ! current character from buffer
-      CHARACTER( 81 ), INTENT( INOUT ) :: INBUF   ! string read from mechanism file
+      CHARACTER*( * ), INTENT( INOUT ) :: CHR     ! current character from buffer
+      CHARACTER*( * ), INTENT( INOUT ) :: INBUF   ! string read from mechanism file
       INTEGER,         INTENT( INOUT ) :: LPOINT  ! character position in INBUF
       INTEGER,         INTENT( INOUT ) :: IEOL    ! end of line position
       REAL( 8 ),       INTENT( OUT )   :: NUMBER  ! number from file
@@ -54,6 +54,27 @@ C=======================================================================
       CHARACTER( 17 ) :: NUMSTRING 
       INTEGER         :: START, LENGTH, NUMSIGNS
       REAL            :: LOCAL_NUMBER
+
+      INTERFACE 
+        SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+        END SUBROUTINE RDLINE
+        SUBROUTINE GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+        END SUBROUTINE GETCHAR
+        SUBROUTINE GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, LABEL )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+         CHARACTER*( * ), INTENT( INOUT ) :: LABEL
+        END SUBROUTINE GETLABEL
+      END INTERFACE
 
       START = LPOINT
       LENGTH = 0
@@ -112,7 +133,7 @@ c end of the numeric string
          LENGTH = LENGTH + 1
       END IF
       NUMSTRING = NUMSTRING( 1:LENGTH ) // 'D0'
-       READ ( NUMSTRING( 1:LENGTH ),'(D15.4)' ) NUMBER
+       READ ( NUMSTRING( 1:LENGTH ), * ) NUMBER
 !      READ( NUMSTRING( 1:LENGTH ), * )LOCAL_NUMBER
       IF( LZERO )THEN
          NUMBER = 0.0D+0

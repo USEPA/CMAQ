@@ -82,7 +82,7 @@ c...Allocatable arrays
       REAL( 8 ), ALLOCATABLE :: RKI( :,: )         ! Rate constants 
       REAL( 8 ), ALLOCATABLE :: ATOL( : )          ! Species absolute tolerances 
       REAL( 8 ), ALLOCATABLE :: RTOL( : )          ! Species relative tolerances 
-      REAL( 8 ), ALLOCATABLE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
+      REAL,      ALLOCATABLE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
       REAL( 8 ), ALLOCATABLE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
       REAL( 8 ), ALLOCATABLE :: Y( :,: )           ! Species concentrations
       REAL( 8 ), ALLOCATABLE :: Y_DEGRADE( :,: )   ! Concentration for degradation
@@ -170,7 +170,7 @@ C Domain decomposition info from CONC file
       REAL( 8 ), ALLOCATABLE :: BLKPRES( : )      ! Cell press, Pa
       REAL( 8 ), ALLOCATABLE :: BLKCH2O( : )      ! Cell water conc, ppm
       REAL( 8 ), ALLOCATABLE :: BLKDENS( : )      ! Cell air density, kg/m^3
-      REAL( 8 ), ALLOCATABLE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
+      REAL,      ALLOCATABLE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
 
       INTEGER :: NJPHOT                           ! Number of J-values set in PHOT
       REAL( 8 ),  ALLOCATABLE :: RJBLK( :,: )     ! J-values for each cell in block

@@ -24,11 +24,11 @@ C
 C  FUNCTION: To solve for the concentration of HO, HO2, HONO, and
 C            HNO4 alebraically.
 C
-C  PRECONDITIONS: For the racm2 family of mechanisms
+C  PRECONDITIONS: For the RACM2 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
+C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -359,7 +359,6 @@ c..HO loss terms not in R5_4 & R19_4
      &   +                 RKI(    77 ) * YC ( OLT      )   ! HO+OLT=OLTP
      &   +                 RKI(    78 ) * YC ( OLI      )   ! HO+OLI=OLIP
      &   +                 RKI(    79 ) * YC ( DIEN     )   ! HO+DIEN=OLIP
-     &   +    2.9802D-08 * RKI(    80 ) * YC ( ACE      )   ! HO+ACE=0.3500D+...
      &   +    3.5200D-01 * RKI(    81 ) * YC ( BENZENE  )   ! HO+BENZENE=...
      &   +    8.2300D-01 * RKI(    82 ) * YC ( TOL      )   ! HO+TOL=0.1770D+...
      &   +    8.2300D-01 * RKI(    83 ) * YC ( XYM      )   ! HO+XYM=0.1770D+...
