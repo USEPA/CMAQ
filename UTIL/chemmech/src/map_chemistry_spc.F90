@@ -98,6 +98,13 @@
 ! determine if mechanism species are in cgrid species
 
             DO I = 1, NUMB_MECH_SPC
+! set species informations arrays using SPECIES_LIST array before mapping
+               CHEMISTRY_SPC( I ) = SPECIES_LIST( I )%CHEMISTRY_SPC
+               CGRID_INDEX  ( I ) = SPECIES_LIST( I )%CGRID_INDEX
+               SPECIES_TYPE ( I ) = SPECIES_LIST( I )%SPECIES_TYPE
+               CONVERT_CONC ( I ) = SPECIES_LIST( I )%CONVERT_CONC
+               SPECIES_MOLWT( I ) = SPECIES_LIST( I )%SPECIES_MOLWT
+
                I1 = INDEX1R( CHEMISTRY_SPC( I ), (NSPCSD-1), CGRID_SPC )
                IF ( I1 .LT. 1 ) THEN
                   FOUND = .FALSE.

@@ -1632,8 +1632,9 @@ C and allowing the model to proceed.
 
          LERROR = .FALSE.
          DO ISRM = 1,N_EM_SRM
+             N = EM_FILE_SURR( ISRM )%LEN
              N_UNUSED = COUNT( .NOT.EM_FILE_SURR( ISRM )%USED( : )
-     &                         .AND. EM_FILE_SURR(ISRM)%ARRY( : ) .NE. 'NOT_AVAILABLE'  )
+     &                         .AND. EM_FILE_SURR(ISRM)%ARRY( 1:N ) .NE. 'NOT_AVAILABLE'  )
              WRITE( LOGDEV, '(5x,4A,I2,A)' ), TRIM( EM_FILE_LAB( ISRM )),' | ',
      &              TRIM(EM_FILE_DESC( ISRM )),': ', N_UNUSED,' unused surrogates.'
              IF ( N_UNUSED .GT. 0 ) THEN

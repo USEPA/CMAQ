@@ -50,17 +50,36 @@ C==============================================================================
       
       IMPLICIT NONE
 
-      CHARACTER(  1 ) :: CHR
-      CHARACTER( 81 ) :: INBUF, WRDBUF
-      INTEGER         :: IMECH, IEOL, LPOINT
-      CHARACTER( 16 ) :: WORD
+      CHARACTER*( * ), INTENT( INOUT ) :: CHR
+      CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+      INTEGER,         INTENT( IN )    :: IMECH
+      INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+      CHARACTER*( * ), INTENT(  OUT  ) :: WORD
 !local:      
       INTEGER         :: START, LENWRD
       LOGICAL         :: VALWRDCHR
+      CHARACTER(256 ) :: WRDBUF
+
+      INTERFACE 
+       SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+       END SUBROUTINE RDLINE
+        SUBROUTINE GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+        END SUBROUTINE GETCHAR
+      END INTERFACE
+
+      START  = LEN( INBUF )
+      WRDBUF = ' '
+      WRDBUF(1:START) = INBUF(1:START)
 
       LENWRD = 0
       START = LPOINT
-      WRDBUF = INBUF
 C check for valid starting character
       IF ( ( CHR .LT. 'A' .OR. CHR .GT. 'Z' ) .AND. 
      &     ( CHR .LT. 'a' .OR. CHR .GT. 'z' ) ) THEN
@@ -68,6 +87,7 @@ C check for valid starting character
          STOP
       END IF
 101   CONTINUE
+C Return word if chr is word separator
       LENWRD = LENWRD + 1
       LPOINT = LPOINT + 1
       IF ( LPOINT .GT. IEOL ) THEN
@@ -88,6 +108,11 @@ C character (as kludge terminator!)
       IF ( VALWRDCHR( CHR ) ) THEN
          GO TO 101
       ELSE
+         IF( CHR .EQ. '=' .OR. CHR .EQ. '+' .OR. CHR .EQ. '-' )THEN
+	   IF( LENWRD .GT. 0 )RETURN
+           WRITE( *,2003 ) WRDBUF
+           STOP
+         END IF
          IF ( CHR .NE. ' ' .AND.
      &        CHR .NE. ',' .AND.
      &        CHR .NE. '[' .AND.

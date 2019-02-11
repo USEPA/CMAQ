@@ -45,10 +45,11 @@ C           26 Sep 2016: D. Wong: removed unnecessary use module statements
 C           29 Dec 2015: H.Pye: added new monoterpene SOA surrogates
 C           06 Aug 2018: M.Qin: added new lumped anthropogenic semivolatiles
 C           16 Aug 2018: G. Sarwar: added ClNO3 and FMBR, and updated INO3 and BRNO3 name changes
+C           21 Nov 2018: G. Srawar: added several halogen species
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 163
+      INTEGER, PARAMETER :: LTOTG = 178
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -246,6 +247,21 @@ C-------------------------------------------------------------------------------
          DEPSPC( 161) = 'SVAVB4         '
          DEPSPC( 162) = 'CLNO3           '
          DEPSPC( 163) = 'FMBR            '
+         DEPSPC( 164) = 'I2             '
+         DEPSPC( 165) = 'CH3I           '
+         DEPSPC( 166) = 'ICL            '
+         DEPSPC( 167) = 'IBR            '
+         DEPSPC( 168) = 'MI2            '
+         DEPSPC( 169) = 'MIB            '
+         DEPSPC( 170) = 'MIC            '
+         DEPSPC( 171) = 'BR2            '
+         DEPSPC( 172) = 'MB3            '
+         DEPSPC( 173) = 'CH3BR          '
+         DEPSPC( 174) = 'MB2            '
+         DEPSPC( 175) = 'MB2C           '
+         DEPSPC( 176) = 'MBC2           '
+         DEPSPC( 177) = 'MBC            '
+         DEPSPC( 178) = 'CLO            '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

@@ -28,6 +28,7 @@ C      gas emissions
 C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
 C   20 Feb 18: G. Sarwar: removed Br2, added DMS, and revised estimates of 
 C              halocarbon and HOI/I2 emissions
+C   04 Dec 18: G. Srawar: updated local time calculation
 
       USE RUNTIME_VARS
       USE HGRD_DEFN
@@ -366,6 +367,7 @@ C Key Subroutines/Functions Called:  NONE
 C Revision History:
 C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version from sea salt diagnostic file
 C   20 Feb 18: G. Sarwar: removed Br2, added DMS, and revised estimates of halocarbon and HOI/I2 emissions
+C   04 Dec 18: G. Srawar: updated local time calculation
 C
 CReferences:
 C MacDonald, S. M., Gómez Martín, J. C., Chance, R., Warriner, S., Saiz-Lopez, A., Carpenter, L. J.,
@@ -373,7 +375,7 @@ C and Plane, J. M. C.: A laboratory characterisation of inorganic iodine emissio
 C surface: dependence on oceanic variables and parameterisation for global modelling, Atmos. Chem.
 C Phys., 14, 5841-5852, doi:10.5194/acp-14-5841-2014, 2014.
 C
-C Sherwen, T., Evans, M. J., Carpenter, L. J., Andrews, S. J., Lidster, R. T., Dix, B., Koenig, T. K., 
+C	Sherwen, T., Evans, M. J., Carpenter, L. J., Andrews, S. J., Lidster, R. T., Dix, B., Koenig, T. K., 
 C Sinreich, R., Ortega, I., Volkamer, R., Saiz-Lopez, A., Prados-Roman, C., Mahajan, A. S., and Ordóñez, C.: 
 C Iodine's impact on tropospheric oxidants: a global model study in GEOS-Chem. Atmos. Chem. Phys., 2016, 16, 1161-1186.
 
@@ -447,6 +449,7 @@ C Local Variables:
             INTEGER         :: LOGUNIT
             INTEGER         :: NVARS, NSTEPS
             INTEGER         :: LOCHR
+            INTEGER         :: OFF_SET
             INTEGER, SAVE   :: WSTEP  = 0                      ! local write counter
             INTEGER         :: MDATE, MTIME                    ! MGEM write date&time
  
@@ -482,7 +485,7 @@ C calculate grid-cell area
              FIRST_TIME = .FALSE.
            END IF
 
-           CURRHR = 1.0E-4 * REAL( JTIME )
+           CURRHR = REAL ( TIME2SEC( JTIME ) ) / 3600.0
 
 C Assume MET_CRO_2D file is already opened
 
@@ -610,9 +613,11 @@ C.. calculate iodide in water
        KT = KW * (1.0 - GAMMA)
 
 C.. calculate local hour
-                     LOCHR = NINT(CURRHR + LON * LON2TZ )
-                     IF (LOCHR .LT.  1) LOCHR = LOCHR + 24
-                     IF (LOCHR .GT. 24) LOCHR = LOCHR - 24
+                     OFF_SET = NINT(LON * LON2TZ )
+                     LOCHR =  INT(CURRHR + OFF_SET )
+
+                     IF (LOCHR .LT.  0) LOCHR = LOCHR + 24
+                     IF (LOCHR .GT. 23) LOCHR = LOCHR - 24
 
                      DUMMY = 2.50E-8 * MARINE_AREA * FHRLY(LOCHR) * CHLA * SECS2HR  
 

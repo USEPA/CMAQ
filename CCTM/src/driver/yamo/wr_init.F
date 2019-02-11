@@ -43,7 +43,7 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID    ! file name parameters
-
+      
 C Arguments:
 
       REAL, POINTER :: CGRID( :,:,:,: )  ! for initial CONC
@@ -179,19 +179,41 @@ C (inital data assumed to be in correct output units)
      &                SPC, V, TRIM( C_TR_SPC( SPC ) )
 
       END DO
-
-      IF ( W_VEL ) THEN   ! for W_YAMO
-
-         WRITE( LOGDEV,'( /5X, "Derived Vert Vel Comp", A )' ) SSTR // ' W_VEL'
-
-         DBUFF = 0.0
-
+ 
+      IF ( L_CONC_WVEL ) THEN   ! for W_YAMO
+         DBUFF = BADVAL3
          IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL',
      &                      JDATE, JTIME, DBUFF ) ) THEN
-            XMSG = 'Could not write W_VEL to ' // CTM_CONC_1
+            XMSG = 'Could not write Vertical Velocity (W_VEL) to ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+      END IF
+ 
+      IF ( L_CONC_RH ) THEN   ! for Relative Humidity
+         DBUFF = BADVAL3
+         IF ( .NOT. WRITE3( CTM_CONC_1, 'RH',
+     &                      JDATE, JTIME, DBUFF ) ) THEN
+            XMSG = 'Could not write Relative Humidity to ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      END IF
 
+      IF ( L_CONC_TA ) THEN   ! for Temperature
+         DBUFF = BADVAL3
+         IF ( .NOT. WRITE3( CTM_CONC_1, 'TA',
+     &                      JDATE, JTIME, DBUFF ) ) THEN
+            XMSG = 'Could not write Temperature to ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      END IF
+
+      IF ( L_CONC_PRES ) THEN   ! for Pressure
+         DBUFF = BADVAL3
+         IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES',
+     &                      JDATE, JTIME, DBUFF ) ) THEN
+            XMSG = 'Could not write Pressure to ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
       END IF
 
       DEALLOCATE ( DBUFF )

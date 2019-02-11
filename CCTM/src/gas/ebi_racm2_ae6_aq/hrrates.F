@@ -23,11 +23,11 @@ C***********************************************************************
 C
 C  FUNCTION: To calculate rates of reactions
 C
-C  PRECONDITIONS: For the racm2 family of mechanisms
+C  PRECONDITIONS: For the RACM2 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
+C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
 C
 C***********************************************************************
       USE HRDATA

@@ -503,7 +503,7 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------          
 
          Subroutine Get_Flux( cNH3, rwetsfc, rgw, r, c, l, pvd, lnh3,
-     &                         rb,rinc,rstom, delta,rgnd,fdep)
+     &                         rb,rinc,rstom, delta,rgnd,femis)
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
@@ -529,7 +529,7 @@ C-------------------------------------------------------------------------------
          
          Real,    Intent( OUT ) :: pvd
          Real,    Intent( OUT ) :: lnh3
-         Real,    Intent( OUT ) :: fdep
+         Real,    Intent( OUT ) :: femis
          
          Real( 8 )              :: aq           ! Quadradic equation variable
          Real( 8 )              :: bq           ! Quadradic equation variable
@@ -573,6 +573,7 @@ C-------------------------------------------------------------------------------
          Real                   :: frac_sol1    ! Fraction of NHx in solution layer 1
          Real                   :: frac_sol2    ! Fraction of NHx in solution layer 2
          Real                   :: cnh3cdep
+         Real                   :: cnh3cemis, rcut, gwd
 
          canfrac = 0.5    !exp(-1.)   
 
@@ -701,11 +702,15 @@ C-------------------------------------------------------------------------------
            
 ! if the compensation point less than zero reset it to zero
             cnh3c = max( cnh3c, 0.0 )   
-!------find deposition flux by setting ground and stom comp points to zero
-             qq    = ga * cnh3  
-             bq    = rwmb * gt + MET_DATA%LAI( c,r ) * ( 1.0 - delta ) - rwx * qq 
-             cq    = -rwmb * qq
-            cnh3cdep = (-bq + sqrt( bq**2 - 4.0d0 * aq * cq))/(2.0d0 * aq) 
+
+!-- compute emission component using cnh3c from bidi flux for Rcut
+!         rcut = rwm + rwx*(cnh3c+1.) + (100.0-max(MET_DATA%RH( c,r ),60.0) + Rb) * MET_DATA%LAI( c,r )
+            rcut = rwmb + rwx* cnh3c
+            gwd = ( 1.0 - delta )* MET_DATA%LAI( c,r )/rcut
+            cnh3cemis = (gsb * cnh3s + gg1 * cnh3g)/( gt + gwd)
+         else
+            cnh3c = 0.0
+            cnh3cemis = 0.0
 
          End If  ! lai > 0.0
 
@@ -716,7 +721,7 @@ C-------------------------------------------------------------------------------
 
          pvd  = cnh3c * ga * MET_DATA%VEG( c,r )                  ! microg/m2/s
          lnh3  = vdg + MET_DATA%VEG( c,r ) * ( ga - vdg )
-         fdep  = ga*(cnh3-cnh3cdep)*MET_DATA%VEG( c,r )+(1-MET_DATA%VEG( c,r ))*vdg*cnh3
+         femis  = ga*(cnh3cemis)*MET_DATA%VEG( c,r ) 
 
 !         if(r.eq.18.and.c.eq.27) then
 !            Write(Logdev,*) ' Bidi-Epic conc'
