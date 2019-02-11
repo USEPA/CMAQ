@@ -7,7 +7,7 @@ of their emission streams. For additional questions, contact Ben Murphy (murphy.
 
 ### Definitions of Terms
 - Stream: an Online emission source or a group of sources processed offline and read into CMAQ from one file. Common
-examples of streams include biogenic VOCs, mobile sources, winf-blown dust, prescribed fires, electric-generating units,
+examples of streams include biogenic VOCs, mobile sources, wind-blown dust, prescribed fires, electric-generating units,
 residential heating, etc.  
 - Species: A variable representing a chemical compound or group of compounds in CMAQ.  
 - Surrogate: A variable representing a chemical compound or group of compounds on an emission Stream.  
@@ -28,7 +28,7 @@ residential heating, etc.
 - [10. Apply scaling while conserving moles or mass](#scale_moles_mass)  
 - [11. Apply scaling with spatial dependence](#apply_mask)  
 - [A1. Appendix: Example Emission Control File])#appendix1
-- [A2. Appendix: Example Emissions Sectino of CCTM RunScript File])#appendix2
+- [A2. Appendix: Example Emissions Section of CCTM RunScript File])#appendix2
 
 
 <a id=zero_out></a>
@@ -196,7 +196,7 @@ Reminder: gas-phase emission rates are usually provided to CMAQ in molar units w
 
 <a id=apply_mask></a>
 ### 11. Apply scaling with spatial dependence
-The user may apply a scale factor to a specific area of the domain by identifying the name of the mask to be used in the emission rule. For example, this rule increases all emisisons in "KENTUCKY" by 50%:
+The user may apply a scale factor to a specific area of the domain by identifying the name of the mask to be used in the emission rule. For example, this rule increases all emissions in "KENTUCKY" by 50%:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -349,14 +349,14 @@ This is just an example of defining one mask named "KENTUCKY". For a complete ex
 !                 whole domain, or "EVERYWHERE". It is included in this file   !
 !                 for transparency but should always be commented out.         !
 !      'File  - With this label, the user identifies the file that the data for!
-!       Label'  this region is stored on. The CMAQ runscript should provide the!
+!       Label'  this region is stored on. The CMAQ RunScript should provide the!
 !               path to this file using the environment variable construct. For!
 !               example, to refer to file "CMAQ_REGIONS" with path             !
 !               "/home/user/data/cmaq/cmaq_region_file.nc" the specification in!
-!               the CMAQ runscript would look like:                            !
+!               the CMAQ RunScript would look like:                            !
 !                  SETENV CMAQ_REGIONS /home/user/data/cmaq/cmaq_region_file.nc!
 !               Note that an unlimited number of files can be used here, but   !
-!               each must contain a path for reference in the runscript.       !
+!               each must contain a path for reference in the RunScript.       !
 !      'Variable  - This label identifies the variable on the region file that !
 !        on File'   should be used to populate this particular region. Each    !
 !                   variable should be of type real and have dimensions equal  !
