@@ -20,7 +20,6 @@ C LOCAL
       INTEGER         :: WREXT_INDEX(  MSPECTERMS)
 
       INTEGER, EXTERNAL :: JUNIT
-      EXTERNAL NAMEVAL
  
       CHARACTER( 20 ) :: BUFF20( MAXRXNUM )
 
@@ -239,7 +238,11 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
         
          DO I = 1, MSPECTERMS
             IF( INDEX_CTERM( ISPC, I) .GT. 0 )THEN
-               WREXT_INDEX( I ) = INDEX_CTERM( ISPC, I)
+               IF( REORDER_SPECIES )THEN
+                   WREXT_INDEX( I ) = IOLD2NEW( INDEX_CTERM( ISPC, I) )
+               ELSE
+                   WREXT_INDEX( I ) = INDEX_CTERM( ISPC, I)
+               END IF
             ELSE
                WREXT_INDEX( I ) = 0 
             END IF

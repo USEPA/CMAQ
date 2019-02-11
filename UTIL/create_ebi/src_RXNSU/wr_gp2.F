@@ -220,7 +220,7 @@ C           PRINT*,'For reaction ',N,', ', P, OH
 
 C         IF ( IRR( N, 1 ) .NE. O1D .OR. IRR( N, 4 ) .NE. OH ) CYCLE 
 
-         COEFF = REAL( SC( N, 1 ), 8 )
+         COEFF = SC( N, 1 )
 
          NPOS  = 20
          RPOS1 = O1D
@@ -266,7 +266,7 @@ C           PRINT*,'For reaction ',N,', ', P, HO2
             PRINT*,' Found HO2 production via O1D in reaction #',N
          END IF
 
-         COEFF = REAL( SC( N, 1 ), 8 )
+         COEFF = SC( N, 1 )
 
          NPOS  = 20
          RPOS1 = O1D
@@ -954,7 +954,7 @@ c..Determine the rxn to include & get the coefficient for the loss term
      &       ROH - POH  .GT.  PHO2 - RHO2 )           ! Rxns w/ Loh > 0 &
      &      COEFF =  ROH - POH - ( PHO2 - RHO2 )      ! Pho2 > 0
 
-         IF( COEFF .EQ. 0.0D0 ) CYCLE
+         IF( ABS( COEFF ) .LT. 1.0D-8 ) CYCLE
 
 c..call routine to create output line & write it
          NPOS  = 20
@@ -1292,7 +1292,7 @@ c..Build line for the A term (coefficient of [HO2]**2 )
      & 'c..', A, ' loss terms not included in R4_19' )
 
 94280 FORMAT( 
-     & 'c..', A, ' loss terms not inluded in R5_21' )
+     & 'c..', A, ' loss terms not included in R5_21' )
 
 95000 FORMAT( 
      & 'c..solve quadratic equation for ', A )

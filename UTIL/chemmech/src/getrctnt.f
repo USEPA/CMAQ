@@ -33,8 +33,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
      &                      NXX, NS, SPCLIS, SPC1RX,
      &                      ICOL, 
-     &                      LABEL, N_DROP_SPC, DROP_SPC ) ! ,
-!     &                      N_SS_SPC, SS_SPC, SS_RCT_COEF ) ! , IRR, SC )
+     &                      LABEL, N_DROP_SPC, DROP_SPC )
  
 
 C=======================================================================
@@ -95,6 +94,29 @@ c..STEADY_STATE related variables
       INTEGER, SAVE   :: FIXED_SPC_COUNT
 
       INTEGER, EXTERNAL :: INDEX1
+
+      INTERFACE 
+        SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+        END SUBROUTINE RDLINE
+        SUBROUTINE GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT(  OUT  ) :: WORD
+        END SUBROUTINE GETWORD
+        SUBROUTINE LKUPSPEC ( NS, SPECIES, SPCLIS, NXX, SPC1RX, NSPEC )
+         INTEGER,         INTENT(INOUT) :: NS
+         INTEGER,         INTENT( OUT ) :: NSPEC
+         INTEGER,         INTENT(INOUT) :: SPC1RX( : )
+         INTEGER,         INTENT(  IN ) :: NXX
+         CHARACTER*( * ), INTENT(  IN ) :: SPECIES
+         CHARACTER*( * ), INTENT(INOUT) :: SPCLIS( : )
+        END SUBROUTINE LKUPSPEC
+      END INTERFACE
 
       IF( REACTION_IDX .NE. NXX )THEN
           REACTION_IDX  = NXX
@@ -180,6 +202,8 @@ c..skip steady-state species, but sum coefficients for each reaction
       ELSE
          IORDER( NXX ) = 0
       END IF      ! CHR .NE. '='
+
+!      PRINT*,CHR
 
       RETURN
 2001  FORMAT( / 5X, '*** ERROR: Too many reactants read in -- max=3'

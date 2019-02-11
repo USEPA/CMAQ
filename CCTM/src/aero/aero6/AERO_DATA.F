@@ -686,6 +686,11 @@ C Private variables for loading from and unloading to CGRID array
       REAL, ALLOCATABLE :: NPF_BUDGET( : )
       REAL, ALLOCATABLE :: GROWTH_BUDGET( : )
 
+! Initial Reference Values for M2 and M3 used for Heterogenous Chemistry
+! Module.
+      REAL( 8 ), ALLOCATABLE :: CHEM_M2DRY_INIT( :,:,:,: ),
+     &                          CHEM_M3DRY_INIT( :,:,:,: )
+
       Contains
 
 C-----------------------------------------------------------------------
@@ -789,8 +794,8 @@ C Build mapping to CGRID for each species in the master AeroList
                   ! namelist is not matching the standing
                   ! molecular weight, throw an error
                   xmsg = 'The molecular weight of ' // Trim( sn )
-     &                   // ' is different from that of the same species'
-     &                   // ' in the same or another mode.'
+     &                  // ' is different from that of the same species'
+     &                  // ' in the same or another mode.'
                   Call m3warn( pname, 0, 0, xmsg )
                   Write( xmsg,* ) 'New Value(', n, ') = ', ae_molwt( n ),
      &                            'Expected value(', spc, ')= ', mole_weight( spc )
@@ -987,17 +992,18 @@ C compute aeromode_minNum and aeromode_minM2
 
       if( AE_eflag )Then
          Write(logdev,99901) Trim( mechname )
-             xmsg = 'The FATAL errors found in namelist used. Check '
-     &         //  'the log of exiting processor if more details are needed.'
+          xmsg = 'The FATAL errors found in namelist used. Check '
+     &    //  'the log of exiting processor if more details are needed.'
          Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If 
 
       mapped = .True.
 
 
-99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that ' 
-     &     /  'this AE namelist contains the above required data as the file in '
-     &     /  'the respository version of the mechanism: ', a )
+99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that' 
+     &  /' this AE namelist contains the above required data '
+     &  / 'as the file in '
+     &  /'the respository version of the mechanism: ', a )
       Return
       End Subroutine map_aero
 
@@ -1212,7 +1218,8 @@ C Find the substring vname in aerospc( spc )%name( n )
          Return
       End If
 
-      xmsg = 'Required Species ' // Trim( vname ) // ' Not found in AE namelist'
+      xmsg = 'Required Species ' // Trim( vname ) // 
+     &       ' Not found in AE namelist'
       AE_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
 
@@ -1493,6 +1500,5 @@ C Local variables:
       ENDDO
 
       End Subroutine CHECK_AERO_ICBC
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       End Module aero_data
