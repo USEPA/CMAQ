@@ -49,7 +49,7 @@ set CompileBLDMAKE                     #> Recompile the BLDMAKE utility from sou
                                        #>   comment out to use an existing BLDMAKE executable
 set CopySrc                            #> copy the source files into the build directory
 #set CopySrcTree                       #> copy the source files and directory tree into the build directory
-#set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
+set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
                                        #>   comment out to compile the model (default if not set)
 set ParOpt                             #> uncomment to build a multiple processor (MPI) executable; 
                                        #>   comment out for a single processor (serial) executable
@@ -63,7 +63,7 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   comment out for off-line chemistry 
 
 #> Potential vorticity free-troposphere O3 scaling
-#set potvortO3
+ set potvortO3
 
 #========================================================================
 #> CCTM Science Modules

@@ -98,7 +98,7 @@ TYPE_MATRIX =
 'CL2:71:VD_CL2:1:::CL2:1:::Yes:Yes:Yes:Yes',
 'CL:35.5::::::::::::Yes',
 'HOCL:52.5:VD_HOCL:1:::HOCL:1:::Yes:Yes:Yes:Yes',
-'CLO:51.5::::::::::::Yes',
+'CLO:51.5:VD_CLO:1:::CLO:1:::YES:::Yes',
 'FMCL:64.5:VD_FMCL:1:::FMCL:1:::Yes:Yes:Yes:Yes',
 'HCL:36.5:VD_HCL:1:::HCL:1:HCL:HCL:Yes:Yes:Yes:Yes',
 'CLNO2:81.5:VD_CLNO2:1:::NITRYL_CHLORIDE:1:::Yes:Yes::Yes',
