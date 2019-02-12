@@ -464,7 +464,7 @@ C                                                     Aitken  accum   coarse
      &   emis_table( 'Magnesium     ', 'AMG     ', (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
      &   emis_table( 'Potassium     ', 'AK      ', (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
      &   emis_table( 'SeaSalt_Cation', 'ASEACAT ', (/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
-     &   emis_table( 'Chromium IV   ', 'ACR_VI  ', (/ 0.0, 5.95E-9, 5.95E-9/) ),   ! accumulation and coarse mode Hexavalent Chromium
+     &   emis_table( 'Chromium VI   ', 'ACR_VI  ', (/ 0.0, 5.95E-9, 5.95E-9/) ),   ! accumulation and coarse mode Hexavalent Chromium
      &   emis_table( 'Nickel        ', 'ANI     ', (/ 0.0, 1.34E-8, 1.34E-8/) ),   ! accumulation and coarse mode Nickle
      &   emis_table( 'Arsenic       ', 'AAS     ', (/ 0.0, 4.93E-8, 4.93E-8/) ),   ! accumulation and coarse mode Arsenic
      &   emis_table( 'Beryllium     ', 'ABE     ', (/ 0.0, 5.2E-11, 5.2E-11/) ),   ! accumulation and coarse mode Beryllium
