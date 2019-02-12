@@ -68,13 +68,29 @@
 !         'Basis' - Specifies whether to conserve moles or mass when           !
 !                   performing scaling operations. CMAQ has a lookup table of  !
 !                   molecular weights for known emission surrogate species     !
-!                   and can use these to translate molar and mass emission     !
-!                   rates from the input file to the CMAQ species. CMAQ de-    !
-!                   termines the units of the emission surrogate species by    !
-!                   reading the file header (i.e. it is important the units    !
-!                   are accurate. Options for input are:                       !
-!                          'MASS' - Conserve Mass                              !
-!                          'MOLE' - Conserve Moles                             !
+!                   located in the EMIS_VARS module and can use these, along   !
+!                   with the CMAQ species molecular weights in the GC, AE, and !
+!                   NR namelists to translate molar and mass emission rates    !
+!                   from the input file to the CMAQ species. CMAQ determines   !
+!                   the units of the emission surrogate species by reading the !
+!                   file header (i.e. it is important the units are accurate). !
+!                   Options for input are:                                     !
+!                          'MOLE' - Conserve Moles. Ex:If a particle species in!
+!                                   g/s is scaled to a gas in mol/s, the par-  !
+!                                   ticle molecular weight will be used to     !
+!                                   convert mol/s from the gas to g/s and then !
+!                                   applied directly.                          ! 
+!                          'MASS' - Conserve Mass. Ex: If a particle species in!
+!                                   g/s is scaled to a gas in mol/s, the gas   !
+!                                   molecular weight will be used to convert   !
+!                                   mol/s to g/s and then applied to the       !
+!                                   particle species. Alternatively, if a gas  !
+!                                   species is scaled to a gas surrogate and   !
+!                                   mass is chosen as the basis, CMAQ will     !
+!                                   multiply the emissions by the surrogate    !
+!                                   molecular weight and divide by the         !
+!                                   species molecular weight, maintaining      !
+!                                   mol/s.                                     !
 !                          'UNIT' - Ignore molecular weight conversions and    !
 !                                   apply emission rate directly regardless    !
 !                                   of units.                                  !
@@ -97,7 +113,10 @@
  ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
  !  Label      |               |Surrogate| Species      |Mode  |Factor|      |     
                                                                              
-                            !> DEFAULT MAPPING <!                   
+                            !> DEFAULT MAPPING <!                  
+   ! Note: Without default mapping for a species, 
+   !       there is no emission of that species.
+
    ! Default Gases                                                                  
    'EVERYWHERE', 'ALL'         ,'NO2'    ,'NO2'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NO'     ,'NO'          ,'GAS'  ,1.  ,'UNIT','a', 
@@ -180,6 +199,10 @@
    'EVERYWHERE', 'ALL'         ,'PMC'    ,'AH2O'    ,'COARSE',0.00032,'UNIT','a', 
 
    ! VBS Primary Organic Particle and Vapor Scaling
+   ! --> Nonvolatile POA
+   !'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'        ,'FINE',1.   ,'MASS','a', 
+   !'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'      ,'FINE',1.   ,'MASS','a', 
+   ! --> Semivolatile POA
    'EVERYWHERE', 'ALL'         ,'POC'    ,'VLVPO1'      ,'GAS' ,0.   ,'MASS','a', 
    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VLVPO1'      ,'GAS' ,0.   ,'MASS','a', 
    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1'      ,'GAS' ,0.045,'MASS','a', 
@@ -216,8 +239,6 @@
    'EVERYWHERE', 'ALL'    ,'PMFINE_CA'   ,'ACA'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_MG'   ,'AMG'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_K'    ,'AK'          ,'FINE',1.   ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_FE'   ,'AFE'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_AL'   ,'AAL'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_SI'   ,'ASI'         ,'FINE',1.   ,'UNIT','a', 
@@ -226,6 +247,14 @@
    'EVERYWHERE', 'ALL'    ,'PMFINE_H2O'  ,'AH2O'        ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_OTHR' ,'AOTHR'       ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_BR'   ,'ABR'         ,'FINE',1.   ,'UNIT','a', 
+
+   ! --> Nonvolatile POA
+   !'EVERYWHERE', 'ALL'    ,'PMFINE_POC' ,'APOC'         ,'FINE',1.   ,'UNIT','a', 
+   !'EVERYWHERE', 'ALL'   ,'PMFINE_PNCOM','APNCOM'       ,'FINE',1.   ,'UNIT','a', 
+   ! --> Semivolatile POA
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
+
    ! Coarse Components                                               
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_SO4','ASO4'      ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_NO3','ANO3'      ,'COARSE',1.   ,'UNIT','a', 
@@ -247,8 +276,6 @@
                                                                                  ! from gasoline vehicles
                                                                                  ! by a factor of 2
  ! 'EVERYWHERE','FIRES'        ,'POC'    ,'ALL'         ,'ALL' ,0.5  ,'MASS','m',!Scale all Organic Carbon 
-                                                                                 ! mass from fires by 50%
- ! 'EVERYWHERE','FIRES'        ,'PNCOM'  ,'ALL'         ,'ALL' ,0.5  ,'MASS','m',!Scale all Organic Non-Carbon 
                                                                                  ! mass from fires by 50%
  ! 'EVERYWHERE','FIRES'        ,'PNCOM'  ,'ALL'         ,'ALL' ,0.5  ,'MASS','m',!Scale all Organic Non-Carbon 
                                                                                  ! mass from fires by 50%

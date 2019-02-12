@@ -87,8 +87,8 @@
 !                                   particle species. Alternatively, if a gas  !
 !                                   species is scaled to a gas surrogate and   !
 !                                   mass is chosen as the basis, CMAQ will     !
-!                                   divide the emissions by the surrogate      !
-!                                   molecular weight and multiply by the       !
+!                                   multiply the emissions by the surrogate    !
+!                                   molecular weight and divide by the         !
 !                                   species molecular weight, maintaining      !
 !                                   mol/s.                                     !
 !                          'UNIT' - Ignore molecular weight conversions and    !

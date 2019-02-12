@@ -68,13 +68,29 @@
 !         'Basis' - Specifies whether to conserve moles or mass when           !
 !                   performing scaling operations. CMAQ has a lookup table of  !
 !                   molecular weights for known emission surrogate species     !
-!                   and can use these to translate molar and mass emission     !
-!                   rates from the input file to the CMAQ species. CMAQ de-    !
-!                   termines the units of the emission surrogate species by    !
-!                   reading the file header (i.e. it is important the units    !
-!                   are accurate. Options for input are:                       !
-!                          'MASS' - Conserve Mass                              !
-!                          'MOLE' - Conserve Moles                             !
+!                   located in the EMIS_VARS module and can use these, along   !
+!                   with the CMAQ species molecular weights in the GC, AE, and !
+!                   NR namelists to translate molar and mass emission rates    !
+!                   from the input file to the CMAQ species. CMAQ determines   !
+!                   the units of the emission surrogate species by reading the !
+!                   file header (i.e. it is important the units are accurate). !
+!                   Options for input are:                                     !
+!                          'MOLE' - Conserve Moles. Ex:If a particle species in!
+!                                   g/s is scaled to a gas in mol/s, the par-  !
+!                                   ticle molecular weight will be used to     !
+!                                   convert mol/s from the gas to g/s and then !
+!                                   applied directly.                          ! 
+!                          'MASS' - Conserve Mass. Ex: If a particle species in!
+!                                   g/s is scaled to a gas in mol/s, the gas   !
+!                                   molecular weight will be used to convert   !
+!                                   mol/s to g/s and then applied to the       !
+!                                   particle species. Alternatively, if a gas  !
+!                                   species is scaled to a gas surrogate and   !
+!                                   mass is chosen as the basis, CMAQ will     !
+!                                   multiply the emissions by the surrogate    !
+!                                   molecular weight and divide by the         !
+!                                   species molecular weight, maintaining      !
+!                                   mol/s.                                     !
 !                          'UNIT' - Ignore molecular weight conversions and    !
 !                                   apply emission rate directly regardless    !
 !                                   of units.                                  !
@@ -97,48 +113,59 @@
  ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
  !  Label      |               |Surrogate| Species      |Mode  |Factor|      |     
                                                                              
-                            !> DEFAULT MAPPING <!                   
+                            !> DEFAULT MAPPING <!                  
+   ! Note: Without default mapping for a species, 
+   !       there is no emission of that species.
+
    ! Default Gases                                                                  
    'EVERYWHERE', 'ALL'         ,'NO2'    ,'NO2'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'NO'     ,'NO'          ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'HONO'   ,'HONO'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'SO2'    ,'SO2'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'AACD'   ,'AACD'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'ALD2'   ,'ALD2'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'FORM'   ,'FORM'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'MEOH'   ,'MEOH'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'FACD'   ,'FACD'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HCHO'   ,'HCHO'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'CO'     ,'CO'          ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'ALDX'   ,'ALDX'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'ETHA'   ,'ETHA'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'ETOH'   ,'ETOH'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ACD'    ,'ACD'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ALD'    ,'ALD'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ACT'    ,'ACT'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'UALD'   ,'UALD'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'KET'    ,'KET'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'PAR'    ,'PAR'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'ACET'   ,'ACET'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'PRPA'   ,'PRPA'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'ETHY'   ,'ETHY'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'ETH'    ,'ETH'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'OLE'    ,'OLE'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'IOLE'   ,'IOLE'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'ISOP'   ,'ISOP'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'APIN'   ,'APIN'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'TERP'   ,'TERP'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'BENZ'   ,'BENZENE'     ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'XYLMN'  ,'XYLMN'       ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'NAPH'   ,'NAPH'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'CH4'    ,'ECH4'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'CL2'    ,'CL2'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'HCL'    ,'HCL'         ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'SESQ'   ,'SESQ'        ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'         ,'SOAALK' ,'SOAALK'      ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACROLEIN'    ,'GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'    ,'ALD2_PRIMARY','ALD2_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'    ,'FORM_PRIMARY','FORM_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACRO_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'     ,'BUTADIENE13','BUTADIENE13' ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MEK'    ,'MEK'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HKET'   ,'HKET'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MACR'   ,'MACR'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MVK'    ,'MVK'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'GLY'    ,'GLY'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MGLY'   ,'MGLY'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'BALD'   ,'BALD'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SO2'    ,'SO2'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETH'    ,'ETH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HC3'    ,'HC3'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HC5'    ,'HC5'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HC8'    ,'HC8'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETE'    ,'ETE'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'OLT'    ,'OLT'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'OLI'    ,'OLI'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'DIEN'   ,'DIEN'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ACE'    ,'ACE'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ORA1'   ,'ORA1'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'BEN'    ,'BENZENE'     ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'PHEN'   ,'PHEN'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'CSL'    ,'CSL'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYM'    ,'XYM'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYP'    ,'XYP'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'XYO'    ,'XYO'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ISO'    ,'ISO'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'API'    ,'API'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'LIM'    ,'LIM'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'MOH'    ,'MOH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'EOH'    ,'EOH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ROH'    ,'ROH'         ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ETEG'   ,'ETEG'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'ORA2'   ,'ORA2'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SESQ'   ,'SESQ'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NAPH'   ,'NAPH'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SOAALK' ,'SOAALK'      ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'NH3'    ,'NH3'         ,'GAS'  ,1.  ,'UNIT','a', 
 
    ! Default Aerosols
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
@@ -241,8 +268,6 @@
                                                                                  ! from gasoline vehicles
                                                                                  ! by a factor of 2
  ! 'EVERYWHERE','FIRES'        ,'POC'    ,'ALL'         ,'ALL' ,0.5  ,'MASS','m',!Scale all Organic Carbon 
-                                                                                 ! mass from fires by 50%
- ! 'EVERYWHERE','FIRES'        ,'PNCOM'  ,'ALL'         ,'ALL' ,0.5  ,'MASS','m',!Scale all Organic Non-Carbon 
                                                                                  ! mass from fires by 50%
  ! 'EVERYWHERE','FIRES'        ,'PNCOM'  ,'ALL'         ,'ALL' ,0.5  ,'MASS','m',!Scale all Organic Non-Carbon 
                                                                                  ! mass from fires by 50%
