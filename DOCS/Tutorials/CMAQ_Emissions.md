@@ -27,8 +27,8 @@ residential heating, etc.
 - [9. Scale all species except one by a common factor](#scale_all_but_one)  
 - [10. Apply scaling while conserving moles or mass](#scale_moles_mass)  
 - [11. Apply scaling with spatial dependence](#apply_mask)  
-- [A1. Appendix: Example Emission Control File])#appendix1
-- [A2. Appendix: Example Emissions Section of CCTM RunScript File])#appendix2
+- [A1. Appendix: Example Emission Control File](#appendix1)
+- [A2. Appendix: Example Emissions Section of CCTM RunScript File](#appendix2)
 
 
 <a id=zero_out></a>
