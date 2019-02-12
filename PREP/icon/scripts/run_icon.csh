@@ -91,7 +91,7 @@
  if ( $ICON_TYPE == regrid ) then
     setenv CTM_CONC_1 /asm1/ROMO/global/CMAQv5.2/2016fe_hemi_cb6_16jh/108km/output/CONC/CCTM_CONC_v521_intel17.0_HEMIS_cb6_20160701
     setenv MET_CRO_3D_CRS /asm1/ROMO/met/MCIP/WRFv3.8_108NHEMI2_2016_44aL/v4.3/METCRO3D.108NHEMI2.44L.160701
-    setenv MET_CRO_3D_FIN /work/MOD3DEV/cmaq_benchmark/SE52BENCH/multi_day/cctm_input/met/mcip/METBDY3D_110701.nc
+    setenv MET_CRO_3D_FIN /work/MOD3DEV/cmaq_benchmark/SE52BENCH/multi_day/cctm_input/met/mcip/METCRO3D_110701.nc
     setenv SDATE           ${DATE}
     setenv STIME           000000
  endif
