@@ -94,7 +94,7 @@ C Aerosol deposition arrays
          SUBROUTINE INIT_STAGE ( JDATE, JTIME )
 
 C-----------------------------------------------------------------------
-C  This subroutine sets up the mapping and options for the TAGX gaseous 
+C  This subroutine sets up the mapping and options for the STAGE gaseous 
 C  and aerosol exchange subroutines. 
 C-----------------------------------------------------------------------
          USE NH3_BIDI_MOD
@@ -359,7 +359,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
 ! Liquid snow fraction modeled as a system dominated by van der Walls forces following Dash et al. 1999 S. Rep. Prog. Phys. 
 ! with a maximum fraction of the disordered interface acting as an aqueous solution as 20% following Conklin et al 1993 with
 ! the negligible impact of the disordered interface depth of 2 nm following Roth et al 2004. The 2 nm depth was approximated 
-! to be around 263 interpolated from figure 3 in Huthwelker et al 2006 doi:10.1021/cr020506v
+! to be around 263 degrees Celsius interpolated from figure 3 in Huthwelker et al 2006 doi:10.1021/cr020506v
          IF( snow .GT. 0.0 ) Then
             IF( stdtemp-temp_g .GT. 0.002 ) THEN
                melt_snow = 0.025 / (stdtemp-temp_g)**(1.0/3.0)
