@@ -4,7 +4,19 @@
 
 <!-- END COMMENT -->
 
+** >> Comment <<** Shorten [entire chapter] and merge with Chapter 5
+
+** >> Comment <<** In general it is a good idea to help users understand how to go about making their own set of input files for a new CMAQ simulation but I am not sure the information in this section helps out with that a whole lot since this largely involves running WRF and making decisions there in terms of domain size, vertical grid structure, and simulation period.
+
+** >> Comment <<** I think this section could be condensed keeping more of the information on ICON and BCON processing (especially starting from global/hemispheric models like GEOS-CHEM or H-CMAQ) and put as a subsection in the Programs section.
+
+** >> Comment <<** I think this section could be moved elsewhere.
+
+** >> Comment <<** What's missing is an actual example. Like setting up the model for Mexico City or Thailand or something. Let's ask CMAS to augment this with tutorials from their trainings. And let's also invite users from South America or Asia to help revise it.
+
 # Developing New CMAQ Simulations #
+
+** >> Comment <<** "Developing New CMAQ Simulations" and "General Introduction to Model Building" largely repeat themselves.
 
 For application users of CMAQ, the CMAQ model builder Bldmake is used only at the beginning of a simulation to compile executables for a specific science configuration. Since the horizontal grid and vertical layer structure are defined dynamically at execution of the model, there is typically no need to recompile the programs when changing these parameters. Compilation is required only when either developing CMAQ simulations for the first time or when the chemistry/science configuration within the model is changed.
 
@@ -29,6 +41,8 @@ Configuring New Simulations
 ---------------------------
 
 The reason for modeling a particular time period evolves from a research question, such as determining why a severe air pollution episode happened, or studying the dominant sources of visibility degradation in a specific geographic region. Once a modeling episode is selected, several steps must be taken before CMAQ can be run.
+
+** >> Comment <<** In "Configuring New Simulations", there are MANY more steps than the 6 listed here, unfortunately. And many of the steps are dependent on the science options that the user wants to invoke.
 
 1. Run and evaluate the WRF meteorology model for the episode of interest
 2. Convert the WRF data for input to SMOKE and CMAQ using MCIP
@@ -56,7 +70,9 @@ To configure a new CMAQ simulation, the following steps must be taken to set up 
 -   Produce emissions and meteorology data on a consistent horizontal model grid to be modeled with CCTM
 -   Create a GRIDDESC file that defines the horizontal model grid
 -   Generate ICs and BCs on the horizontal model grid; for nested simulations, generate BCs from a parent grid
--   Configure the CCTM script to use the GRIDDESC file and input data on the desired horizontal model grid
+-   Configure the CCTM script to use the GRIDDESC file and input data on the desired horizontal model grid.
+
+** >> Comment <<** For horizontal and vertical structure, there is little guidance on how to modify it so that one can make things consistent. For example, using PseudoNetCDF. This should be added to Chapter 9.
 
 ### Defining a new vertical layer structure
 
@@ -68,12 +84,12 @@ The temporal extent of a CMAQ simulation is limited by the availability of input
 
 The model output time step and run length of each CMAQ simulation are flexible and can be configured in the run script for the applicable CMAQ program. For CCTM, it is possible to have output files with a different number of time steps than the corresponding meteorology or emission input data. For example, it is common to have input meteorology files in 4- or 5-day intervals, input emission files in 1- or 2-day intervals, and CCTM output files in 1-day intervals. The CMAQ scripts allow the user to configure the model to output data with any number of time steps. The number of CCTM output time steps does not need to correspond with the input meteorology and emissions output time steps. To keep CMAQ output file sizes manageable, CMAQ output is typically stored in 1‑day (24‑hour) blocks.
 
-To configure a new CMAQ simulation, the follow steps must be taken to set up the modeling time period:
+To configure a new CMAQ simulation, the following steps must be taken to set up the modeling time period:
 
 -   Produce emissions and meteorology data for the time period to be modeled with CMAQ. When deciding upon a modeling period, it is necessary to have a “spin-up” interval prior to the beginning of the initial time of interest. The spin-up period is a sequence of days at the beginning of an air quality simulation that are not used in the analysis of the modeling results. These days are simulated to minimize the impacts of the initial conditions on the CCTM modeling results. Spin-up periods vary in length depending on the size of the modeling domain, the magnitude of the emissions sources within the modeling domain, and the pollutants being studied. As a general rule of thumb for regional modeling, a period of at least 10 days should be considered for a spin-up period.
--   Generate ICs for the first time step of the CCTM simulation; if running multiple days in sequence, configure the CCTM run script to use the ICs from ICON for the first model day and to initialize the subsequent days with the previous day’s CCTM output
--   Generate either time-independent BCs for the grid to be modeled, or for a nested simulation generate temporally resolved BCs for the model time period from CCTM outputs for the parent grid
--   Configure the CCTM run script to loop through the days to be modeled, using the correct input files for each model day and writing output files with the desired number of time steps
+-   Generate ICs for the first time step of the CCTM simulation; if running multiple days in sequence, configure the CCTM run script to use the ICs from ICON for the first model day and to initialize the subsequent days with the previous day’s CCTM output.
+-   Generate either time-independent BCs for the grid to be modeled, or for a nested simulation generate temporally resolved BCs for the model time period from CCTM outputs for the parent grid.
+-   Configure the CCTM run script to loop through the days to be modeled, using the correct input files for each model day and writing output files with the desired number of time steps.
 
 ### Initial and boundary conditions
 
@@ -81,13 +97,19 @@ After preparing the meteorology and emissions input data files and determining t
 
 As described in Chapter 5, there are two types of input concentrations for ICON and BCON: either (1) tabulated tropospheric vertical profiles or (2) three-dimensional fields from a previous CMAQ or larger-scale CTM simulation, such as GEOS-Chem(2009) or MOZART (2009). The input file type to use for ICON and BCON depends on whether the simulation is a restart of a previous run and/or whether the simulation is a nest of a larger parent grid. The same chemical mechanism must be selected for ICON, BCON, and CCTM. Both ICON and BCON assume that the input species concentrations are for the selected mechanism. Refer to Chapter 5 for information on how to configure ICON and BCON for the two input file types.
 
+** >> Comment <<** Not all of the information in the ICON and BCON discussion is up-to-date.
+
 Standard operation of CMAQ uses boundary conditions that are extracted from a global model, such as GEOS-Chem or MOZART for the outermost modeling domain. Nested grids use temporally resolved boundary conditions extracted from the results of a parent-grid CCTM simulation. The initial conditions produced by ICON are time independent for the first spin-up day. If the initial conditions were generated from vertical profile data then they will also be spatially uniform, meaning that for a given layer they will contain the same concentration in every grid cell. The remaining days of a simulation should use spatially heterogeneous output from the previous day’s CCTM simulation to initialize each day. See [Figure 10‑1](Figure10-1) for a schematic of the initial and boundary conditions used for a CCTM simulation with a two‑day spin-up followed by a two‑day period of interest. In this example, each of the days was run separately.
+
+** >> Comment <<** Conceptually, I like Fig. 10-1, but it needs to be a bit better explained in conjunction with roles of ICON/BCON.
+
+** >> Comment <<** Figure 10-1: do ICON and BCON also need input about output vertical resolution when applying profile data?
 
 <a id=Figure10-1></a>
 
 ![](./images/Figure10-1.png "Figure10-1.png")
 
- **Figure 10-1. 36-km four-day modeling period IC/BC schematic** 
+ **Figure 10-1. 36-km four-day modeling period IC/BC schematic**
 
 When using a nested-grid configuration, the fine-grid-resolution grids can use time-varying boundary conditions generated by BCON with input from time-varying output concentrations from the coarse-grid CCTM simulation. The initial conditions for start-up of the fine grid are also generated using concentrations from the coarse grid. Subsequent runs in the period of interest use the last hour of the concentration file generated from the previous day’s run. See [Figure 10‑2](#Figure8-2) for an example of a one-way, nested simulation. This example uses initial and boundary conditions from the coarser 36‑km grid simulation to perform the nested, finer-grid simulation for the same two‑day period of interest.
 
@@ -95,15 +117,29 @@ When using a nested-grid configuration, the fine-grid-resolution grids can use t
 
 ![](./images/Figure10-2.png "Figure10-2.png")
 
- **Figure 10-2. 12-km nested two-day modeling period IC/BC schematic** 
+**Figure 10-2. 12-km nested two-day modeling period IC/BC schematic**
 
 ### Input/output file names and locations
 
-Configuring the CMAQ run scripts for a new simulation involves creating an application identifier to use in the name of the CMAQ outputs and to specify the correct input and output file names and locations on the system where CMAQ will be run. Application identifiers are selected to uniquely identify the output files with respect to the simulation. For example if you are running a base simulation for the year 2007, a simulation identifier, or APPL setting in CMAQ terms, could be Base07. For time-dependent output files, a date identifier is commonly added to the file name to identify the time period covered by the file. Following the previous example, if you configured a simulation to run on January 5, 2007 (Julian date 2007005), an example file name for a CMAQ version 5.2.1 CCTM concentration file would be CCTMv521.CONC.Base07.2007005.ncf. Additional identifying information, such as the chemistry mechanism name, versioning identifiers for the input meteorology and emissions, and the operating system version (i.e. Linux2_x86_64) are also commonly added to CMAQ output file names.
+** >> Comment <<** Revise "Input/output file names and locations" section so it's consistent with current standard.
 
-Before starting a new CMAQ simulation, the user needs to confirm the existence of the input files for all of the CMAQ programs, and to check the names of the output files and directory locations. A common error that occurs with all of the CMAQ programs is an execution failure caused by missing or misnamed input files.
+Configuring the CMAQ run scripts for a new simulation involves creating an application identifier to use in the name of the CMAQ outputs and to specify the correct input and output file names and locations on the system where CMAQ will be run. Application identifiers are selected to uniquely identify the output files with respect to the simulation. For example, if you are running a base simulation for the year 2007, a simulation identifier, or APPL setting in CMAQ terms, could be Base07. For time-dependent output files, a date identifier is commonly added to the file name to identify the time period covered by the file. Following the previous example, if you configured a simulation to run on January 5, 2007 (Julian date 2007005), an example file name for a CMAQ version 5.2.1 CCTM concentration file would be CCTMv521.CONC.Base07.2007005.ncf. Additional identifying information, such as the chemistry mechanism name, versioning identifiers for the input meteorology and emissions, and the operating system version (i.e. Linux2_x86_64) are also commonly added to CMAQ output file names.
+
+Before starting a new CMAQ simulation, the user needs to confirm the existence of the input files for all of the CMAQ programs, and check the names of the output files and directory locations. A common error that occurs with all of the CMAQ programs is an execution failure caused by missing or misnamed input files.
 
 ### Science option configuration
+
+** >> Comment <<** "Science Option Configuration" - remove this section. This section should focus on:
+  a) Running MCIP - explaining different compatibility issues between WRF and CMAQ (e.g. PX vs NOAH, etc.)
+  b) Nesting from larger grids including Hemispheric CMAQ, GeosCHEM, and MPAS
+  c) Running ICON - chemical mechanism issues
+  d) Running BCON - chemical mechanism issues
+  e) Getting BEIS inputs
+  f) Getting DUST inputs
+  g) Getting EPIC/BiDi inputs
+  h) Getting land use inputs
+  i) Getting an OCEAN file
+  j) Getting Emissions - link to SMOKE
 
 The CMAQ scripts as they are distributed use a default science option configuration. While this default configuration is acceptable for all applications of the model, it is not the only configura­tion that can be used with CMAQ. The ICON and BCON science options depend on the nature of the input data, the chemical mechanism chosen, and whether one-way nests are being used. The CCTM science configuration presents the largest number of combinations of different transport algorithms, chemistry options, and special features, such as process analysis. To see a choice of all the different options available for configuring CCTM, refer to [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md).
 

@@ -1,10 +1,14 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_OGD_ch08_input_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)
+[<< Previous Chapter](CMAQ_OGD_ch08_input_and_output_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)
 
 <!-- END COMMENT -->
 
+** >> Comment <<** Overall I think most of this information belongs in other sections rather than in a standalone section. Perhaps we need a new section where some of the setup information should be captured, e.g., "Getting Started with CMAQ" or "Before You Run CMAQ".
+
 # Defining Grids, Layers, and Chemistry #
+
+** >> Comment <<** Although MCIP is not explicitly listed here, need to make it more clear that some parts pertain to MCIP (such as the grid structure) and others do not (such as the layers and the chemistry).
 
 This chapter describes how to define new horizontal grids, vertical layers, and chemical mechanisms in CMAQ. These specifications apply to multiple programs in the CMAQ modeling system, including ICON, BCON, JPROC, and CCTM. When configuring new simulations, users must define the location, extent, and structure of the horizontal and vertical grids, and the chemical mechanism for representing pollutant chemical transformations. CMAQ contains several default options for these parameters that can be used as templates for setting up new configurations. Before deciding to create definitions for new grids and mechanisms, check to see whether the existing options are sufficient for your model simulation. If a predefined choice is not appro­priate, then follow the steps described in this section to create a new definition.
 
@@ -13,7 +17,7 @@ Once you have configured a simulation that is suitable for your purposes in term
 Grids and coordinate systems
 ----------------------------
 
-CMAQ is a three-dimensional Eulerian air quality model. The *domain* of a model run (the extent of its area of interest) is divided into three-dimensional cells (or [*voxels*](http://en.wikipedia.org/wiki/Voxel)), the boundaries of which (the *grid* of the domain) must be rigorously and consistently defined for all functional components of the model (e.g., chemistry, emissions, meteorology). Mathematical algorithms describing atmospheric transport and air/surface exchange govern the flow of material into and out of each grid cell. Mathematical algorithms describing chemical reactions and aerosol dynamics govern the production and loss of material contained in each grid cell.
+CMAQ is a three-dimensional Eulerian air quality model. The *domain* of a model run (the extent of its area of interest) is divided into three-dimensional cells, the boundaries of which (the *grid* of the domain) must be rigorously and consistently defined for all functional components of the model (e.g., chemistry, emissions, meteorology). Mathematical algorithms describing atmospheric transport and air/surface exchange govern the flow of material into and out of each grid cell. Mathematical algorithms describing chemical reactions and aerosol dynamics govern the production and loss of material contained in each grid cell.
 
 Horizontal (or *2D*) and vertical components of a model run's grid are treated differently. The horizontal grid specification (setting the *x* and *y* dimensions) must be *regular*: the horizontal projection of each grid cell (sometimes referred to as a *pixel*) has the same resolution, and the boundaries of each pixel are time-invariant. By contrast, the vertical grid specification (setting the *z* dimension) need not be regular; it can vary in space and time.
 
@@ -21,7 +25,11 @@ After determining the horizontal and vertical extent of the domain of interest, 
 
 ### Supported CMAQ Coordinate Systems
 
-Specifications for CMAQ and MCIP grids are governed by [I/O API grid conventions](https://www.cmascenter.org/ioapi/documentation/all_versions/html/GRIDS.html). The choice of horizontal coordinate system, or map projection, for CMAQ is governed by the input emissions inventories and meteorological model fields, which must agree. [WRF/ARW](http://www.wrf-model.org) support the [Lambert Conformal](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection), [Polar Stereographic](https://en.wikipedia.org/wiki/Universal_polar_stereographic_coordinate_system), and [Mercator](https://en.wikipedia.org/wiki/Mercator_projection) projections, which can be directly passed to CMAQ.
+** >> Comment <<** Linking to Wikipedia is really in bad form.
+
+** >> Comment <<** WRF also supports lat/lon, but we have not tested it with CMAQ.  (We probably should.)
+
+The choice of horizontal coordinate system, or map projection, for CMAQ is governed by the input emissions inventories and meteorological model fields, which must agree. [WRF/ARW](http://www.wrf-model.org) support the [Lambert Conformal](https://en.wikipedia.org/wiki/Lambert_conformal_conic_projection), [Polar Stereographic](https://en.wikipedia.org/wiki/Universal_polar_stereographic_coordinate_system), and [Mercator](https://en.wikipedia.org/wiki/Mercator_projection) projections, which can be directly passed to CMAQ.
 
 ### Horizontal Grids
 
@@ -31,19 +39,21 @@ The extent of the horizontal grid used in CMAQ is limited by the size of the dom
 
 #### CMAQ horizontal grid conventions
 
+** >> Comment <<** Figure is not labeled with a figure number. Figure REALLY needs to be updated because "dot" points are MM5-based. (They are not "dot cells".) EDSS predates SMOKE. (!) This figure (or its replacement) needs to be much better explained.
+
 Grid conventions are specified (at length) by the [I/O API](https://www.cmascenter.org/ioapi/documentation/all_versions/html/GRIDS.html). In summary, users should be aware that CMAQ uses both "cross-point" and "dot-point" grids.
 
 <a id=Figure9-1></a>
 
 ![Figure 9-1. relating cross and dot grids](./images/CMAQ_IOAPI_dot_and_point_grids.jpeg)
 
-"Cross-point" is often abbreviated *CRO*, as in `GRID_CRO_2D`. "Dot-point" is often abbreviated *DOT*, as in `MET_DOT_3D`. Similarly, the user should be aware of the grid's [projection](https://en.wikipedia.org/wiki/Map_projection) units. Usually meters, except when using [lat-lon coordinate systems](https://en.wikipedia.org/wiki/Geographic_coordinates#Geographic_latitude_and_longitude).
+"Cross-point" is often abbreviated *CRO*, as in `GRID_CRO_2D`. "Dot-point" is often abbreviated *DOT*, as in `MET_DOT_3D`. Similarly, the user should be aware of the grid's [projection](https://en.wikipedia.org/wiki/Map_projection) units—usually meters, except when using [lat-lon coordinate systems](https://en.wikipedia.org/wiki/Geographic_coordinates#Geographic_latitude_and_longitude).
 
 The terms associated with I/O API grid definitions are listed in [Table 9-1](#Table9-1).
 
 <a id=Table9-1></a>
 
- **Table 9-1. I/O API Grid Type Terms** 
+ **Table 9-1. I/O API Grid Type Terms**
 
 |Term|Definition|
 |------------|-------------------------------------------------------------------------|
@@ -56,6 +66,8 @@ The terms associated with I/O API grid definitions are listed in [Table 9-1](#Ta
 |`NROWS`|number of grid rows, dimensionality in the Y direction|
 
 CMAQ is distributed with a GRIDDESC file that contains a definition for a 12-km grid covering California that uses a Lambert Conformal Conic projection. The definition of this grid is below.
+
+** >> Comment <<** The benchmark domain is not California anymore.  Not sure that this information belongs here anyway.
 
 - Coordinate: Lambert Conformal
 - Latitude 0: 40.0
@@ -74,6 +86,8 @@ CMAQ is distributed with a GRIDDESC file that contains a definition for a 12-km 
 
 Creating a grid in CMAQ involves simply adding a few lines of text to the GRIDDESC file. Using a combination of the [I/O API GRIDDESC file format documentation](https://www.cmascenter.org/ioapi/documentation/all_versions/html/GRIDDESC.html) and existing grid definitions as examples, new grids can be defined for CMAQ by adding a coordinate and grid description to the GRIDDESC file. Set the GRID_NAME environment variable in the CMAQ run scripts to point to the name of the new grid.
 
+** >> Comment <<** This information seems to fit better in the MCIP section.
+
 The most common situation for creating a new CMAQ grid definition is encountered when using meteorology and/or emissions data that have not yet been modeled with CMAQ. WRF‑ARW outputs can be run through MCIP to generate a GRIDDESC file that can be input directly to both CMAQ and SMOKE. MCIP includes a set of variables for trimming boundary cells from the WRF output, windowing the WRF domain, and setting the reference latitude of the projection. A description of the MCIP variables is provided in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md). The MCIP variables for defining horizontal grids are provided below.
 
 -   **BTRIM**: Sets the number of boundary points to remove on each of the four horizontal sides of the MCIP domain. Setting BTRIM = 0 will specify the maximum extent of the input meteorology domain. To remove the WRF‑ARW lateral boundaries, set BTRIM = 5 (recommended). For windowing a subset domain of the input meteorology, set BTRIM = -1; this setting causes BTRIM to be replaced by the information provided by X0, Y0, NCOLS, and NROWS (see below).
@@ -90,9 +104,11 @@ The most common situation for creating a new CMAQ grid definition is encountered
 
 #### Example BTRIM Calculation
 
-Figure 9-2 shows an example of how the BTRIM calculation works for windowing WRF data. The 12-km grid resolution WRF domain has a lower left corner that is offset from the projection center by 600,000 m West and 1,680,000 m South.  The CMAQ/MCIP output domain has an offset (lower left corner) that is 108,000 m East and 1,620,000 m South of the projection center.
+Figure 9-2 shows an example of how the BTRIM calculation works for windowing WRF data. The 12-km grid resolution WRF domain has a lower left corner that is offset from the projection center by 600,000 m West and 1,680,000 m South. The CMAQ/MCIP output domain has an offset (lower left corner) that is 108,000 m East and 1,620,000 m South of the projection center.
 
 The MCIP variables X0 and Y0 set the number of grid cells to "trim" from the WRF to domain to get to the MCIP domain lower left corner. Adding "1" in each of these calculations accounts for the addition of the MCIP lateral boundary.
+
+** >> Comment <<** This explanation is terrible and more complicated than it needs to be.
 
 ```
 `X0 = |(WRF X origin - MCIP X origin)|/(Grid Resolution) + 1`
@@ -110,6 +126,8 @@ The MCIP variables X0 and Y0 set the number of grid cells to "trim" from the WRF
 
 #### Further information on horizontal grids
 
+** >> Comment <<** Delete. This is not necessary and only partially accurate.
+
 -  If the meteorology data have already been processed by MCIP and the GRIDDESC file is missing, the grid definition of the input meteorology (and emissions) can be determined by using the netCDF utility *ncdump* to view the header of one of the I/O API files and then use that information to manually create a GRIDDESC file.
 -   Horizontal grid dimensions should be no smaller than 30 rows and 30 columns.
 -   External boundary thickness should be set to “1”.
@@ -117,14 +135,24 @@ The MCIP variables X0 and Y0 set the number of grid cells to "trim" from the WRF
 -   Horizontal grid spacing for the parent meteorology grid often has a 3:1 ratio, although other ratios have been employed.
 
 CMAQ Vertical Layers
+
+** >> Comment <<** Model top has been at least 50 hPa for a very long time.
 -----------
-The vertical structure of CMAQ is inherited from the model used to prepare the meteorological information. WRF-ARW uses a sigma coordinate that is based upon surface pressure, not sea level pressure, and a pressure at the top boundary (e.g., 100 hecto-Pascals). The sigma coordinate is terrain following. Because WRF-ARW is a nonhydrostatic model, the vertical coordinate is time varying.
+The vertical structure of CMAQ is inherited from the model used to prepare the meteorological information. WRF-ARW uses a sigma coordinate that is based upon surface pressure, not sea level pressure, and a pressure at the top boundary (e.g., 100 hecto-Pascals). The sigma coordinate is terrain following. WRF is a non-hydrostatic model with a time-varying vertical coordinate.
 
 ### Vertical layer resolution
+
+** >> Comment <<** At this point, increasing the vertical resolution is probably a moot point because the user likely already has some WRF output. You'd want this information before you run WRF!
 
 Resolving the surface boundary layer requires high resolution (i.e., shallow vertical layers) near the surface for meteorological simulations. To determine mass exchange between the boundary layer and free troposphere, high resolution near the boundary layer top is also preferable. In addition, different cloud parameter­izations may perform differently depending on the layering structure. Layer definitions should be appropriate for the topographic features of the simulation domain. Aerodynamic resistance, which influences dry deposition velocities, is a function of layer thickness and the boundary layer stability. For emissions processing, the layer thickness affects the plume rise from major stacks. The vertical extent of the surface-based emission effects is determined by the thickness of the lowest model layer for CCTM. For consistency, CCTM should use the same vertical resolution as the meteorological model used to prepare the input data.
 
 ### Further information on vertical layers
+
+** >> Comment <<** bullet 1:  This is really misleading and confusing.
+
+** >> Comment <<** bullet 2:  While I absolutely agree with this, I think OAQPS still collapses layers.  We have no published research to back this up, so we may want to soften this statement.
+
+** >> Comment <<** bullet 3:  This is obvious, and I recommend deleting it.  Reading bullets 2 and 3 back-to-back creates an unnecessary conundrum for the users.
 
 -   CMAQ redefines the vertical coordinates to monotonically increase with height, a capability necessary to handle a generalized coordinate system.
 -   Although MCIP may be used to reduce the number of vertical layers by collapsing layers, this is ***not recommended,*** as dynamical inconsistencies can develop and lead to misleading results. This is particularly true when cloud processes are important.
@@ -132,6 +160,8 @@ Resolving the surface boundary layer requires high resolution (i.e., shallow ver
 -   Computational limits arise from the Courant number limitation of vertical advection and diffusion processes. When using K-theory, a very shallow layer definition increases CPU time tremendously under the convective conditions.
 
 ### References for grid and vertical coordinate system topics
+
+** >> Comment <<** Otte and Pleim is 2010, not 2009.  It seems like we should add the references within the chapter rather than hyperlinks in a sub-subsection.
 
 - [On The Definition of Horizontal and Vertical Grids and Coordinates for Models-3](https://www.cmascenter.org/ioapi/documentation/all_versions/html/GRIDS.html)
 -   [Chapter 12 (MCIP) of the 1999 Models-3/CMAQ Science document](http://www.cmascenter.org/cmaq/science_documentation/pdf/ch12.pdf)
@@ -151,7 +181,7 @@ To select a predefined mechanism configuration in CMAQ, set the *Mechanism* vari
 
 Creating or modifying mechanisms in CMAQ requires the use of the CMAQ chemical mecha­nism compiler, CHEMMECH, to produce the required Fortran source (F90) and namelist files. CHEMMECH translates an ASCII mechanism listing to the F90 and namelist files required by CMAQ. Like all of the CMAQ preprocessors, CHEMMECH is a Fortran program that must be compiled prior to use. Distributed with a Makefile for compilation and run scripts for execution, CHEMMECH reads a mechanism definition (mech.def) file and outputs the mechanism F90 and namelist files. See Chapter 7 for a description of CHEMMECH.
 
-To modify an existing mechanism, copy the mech.def file that is contained in one of the existing mechanism directories to a new directory and modify the mech.def file accordingly. Provide this modified mechanism definition file to CHEMMECH as input to produce the mechanism F90 and namleist files needed to compile CMAQ.  
+To modify an existing mechanism, copy the mech.def file that is contained in one of the existing mechanism directories to a new directory and modify the mech.def file accordingly. Provide this modified mechanism definition file to CHEMMECH as input to produce the mechanism F90 and namelist files needed to compile CMAQ.  
 
 To invoke this new mechanism in CMAQ, set the *Mechanism* variable in the CMAQ build scripts to the name of the new mechanism directory and compile new executables.
 
@@ -161,20 +191,20 @@ To create a new mechanism for CMAQ, follow a procedure similar to the above for 
 
 The species namelist files define the parameters of the gas, aerosol, non-reactive, and tracer species simulated by the model. The CMAQ programs read the namelist files during execution to define the sources and processes that impact the simulated concentrations of each of the model output species. The namelist files can be used to apply uniform scaling factors by model species for major model processes. For example, emissions of NO can be reduced by 50% across the board by applying a factor of 0.5 to the emissions scalar column of the gas-phase species namelist file. Similarly, the boundary conditions of O<sub>3</sub> can be increased by 50% by applying a factor of 1.5 to the boundary conditions scalar column of the gas-phase species namelist file.
 
-See [Chapter 8](CMAQ_OGD_ch08_input_files.md) for a description of the format of the namelist file.
+See [Chapter 8](CMAQ_OGD_ch08_input_and_output_files.md) for a description of the format of the namelist file.
 
-When mechanisms are modified or created in CMAQ, new namelist files must be created that include the new species in the mechanism. As described above, the program CHEMMECH will generate namelist files from a mech.def mechanism definition file.  Alternatively, existing namelist files can be used as templates to guide the manual creation of new files.
+When mechanisms are modified or created in CMAQ, new namelist files must be created that include the new species in the mechanism. As described above, the program CHEMMECH will generate namelist files from a mech.def mechanism definition file. Alternatively, existing namelist files can be used as templates to guide the manual creation of new files.
 
 ### Further information on chemical mechanisms
 
 -   The same chemical mechanism must be used for CCTM and all of the mechanism-dependent input processors that are part of the CMAQ system.
--   The Euler Backward Iterative (EBI) chemistry solver is mechanism-dependent. If a chemical mechanism is modified, then new EBI solver source code must be generated based on the mechanism definition. The CMAQ utility program CREATE_EBI reads the output from CHEMMECH to generate new EBI solver source code. 
+-   The Euler Backward Iterative (EBI) chemistry solver is mechanism-dependent. If a chemical mechanism is modified, then new EBI solver source code must be generated based on the mechanism definition. The CMAQ utility program CREATE_EBI reads the output from CHEMMECH to generate new EBI solver source code.
 -   The Rosenbrock and SMVGEAR solvers are mechanism-independent choices of chemistry solvers for the CCTM.
 -   When adding new species to CMAQ, it is important to check that the sources of these new species into the modeling domain are accounted for correctly in the mechanism definition files. If species are added to the domain through the emissions files, the namelist files that define the mechanism species must contain these new species.
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_OGD_ch08_input_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)<br>
+[<< Previous Chapter](CMAQ_OGD_ch08_input_and_output_files.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch10_new_simulation.md)<br>
 CMAQ Operational Guidance Document (c) 2016<br>
 
 <!-- END COMMENT -->
