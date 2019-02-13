@@ -62,7 +62,7 @@ C**********************************************************************
 
          DO P = 1, NPRDCT( NRX )
             IF( IRR( NRX, P + MXRCT ) .EQ. SPINDX ) SUMC = SUMC + 
-     &          REAL( SC( NRX, P ), 8 )
+     &          SC( NRX, P )
          END DO
 
          RETURN
@@ -273,7 +273,7 @@ c..Load product species data into work arrays
       DO P = 1, NPRDCT( IRX )
          PINDX( P ) = IRR( IRX, P + 3 )
          PSPEC( P ) = SPECIES( IRR( IRX, P + 3 ) )
-         YCOEF( P ) = REAL( SC( IRX, P ), 8 )
+         YCOEF( P ) = SC( IRX, P )
       END DO
 
 

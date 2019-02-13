@@ -23,13 +23,13 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the cb6r3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
+C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -67,15 +67,15 @@ C***********************************************************************
       N_SPCL_RKS =   0
       ALLOCATE( RKI( NRXNS ),
      &          RKI_SAV( MAX_CELLS_EBI, NRXNS ),
-     &          FORWARD_CONV( N_SPEC),
-     &          REVERSE_CONV( N_SPEC),
+     &          FORWARD_CONV( NUMB_MECH_SPC),
+     &          REVERSE_CONV( NUMB_MECH_SPC),
      &          RXRAT( NRXNS ),
-     &          RTOL( N_SPEC),
-     &          YC(   N_SPEC),
-     &          YC0(  N_SPEC),
-     &          YCP(  N_SPEC),
-     &          PROD( N_SPEC),
-     &          LOSS( N_SPEC),
+     &          RTOL( NUMB_MECH_SPC),
+     &          YC(   NUMB_MECH_SPC),
+     &          YC0(  NUMB_MECH_SPC),
+     &          YCP(  NUMB_MECH_SPC),
+     &          PROD( NUMB_MECH_SPC),
+     &          LOSS( NUMB_MECH_SPC),
      &          PNEG( N_SPEC),
      &          STAT = IOS )
 
@@ -88,6 +88,7 @@ C***********************************************************************
        ALLOCATE( ATMPRES( MAX_CELLS_EBI ),
      &           H2O    ( MAX_CELLS_EBI ),
      &           TEMP   ( MAX_CELLS_EBI ),
+     &           DENSITY( MAX_CELLS_EBI ),
      &           HET    ( MAX_CELLS_EBI, NHETERO ),
      &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ),
      &           LAND   ( MAX_CELLS_EBI ) ,
@@ -99,12 +100,12 @@ C***********************************************************************
        END IF
 
        IF( NSPECIAL .GT. 0 )THEN
-          ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
+          ALLOCATE( SYC( MAX_CELLS_EBI, NUMB_MECH_SPC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating SYC'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
           END IF
-          ALLOCATE( IOLD2NEW( N_SPEC, 1 ), STAT = IOS )
+          ALLOCATE( IOLD2NEW( NUMB_MECH_SPC, 1 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating IOLD2NEW'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )

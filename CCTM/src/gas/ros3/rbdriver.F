@@ -244,6 +244,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          CALL RBINIT
          CALL RBSPARSE( )
+         CALL RESET_SPECIES_POINTERS( IOLD2NEW )
+
          NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
 
 C...Initialize and report data
@@ -503,7 +505,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             LEV = CLEV( CELLNUM )
             BLKTEMP( NCELL ) = REAL( TA( COL,ROW,LEV ), 8 )
             BLKDENS( NCELL ) = REAL( DENS( COL,ROW,LEV ), 8 )
-            BLKSVOL( NCELL ) = REAL( 1.0 / BLKDENS( NCELL ), 8 )
+            BLKSVOL( NCELL ) = 1.0 /  DENS( COL,ROW,LEV )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
             BLKCH2O( NCELL ) = REAL( MAX( QV_TO_PPM * QV( COL,ROW,LEV ), 0.0 ), 8)
             IF( LAND_ZONE( COL,ROW ) .OR. SEAICE (COL,ROW) .GT. 0.0 )THEN
