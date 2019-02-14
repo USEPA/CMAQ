@@ -43,11 +43,25 @@ C==============================================================================
       USE MECHANISM_PARMS
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
 
-      CHARACTER(  1 ) :: CHR
-      CHARACTER( 81 ) :: INBUF
-      INTEGER IMECH, LPOINT, IEOL
+      CHARACTER*( * ), INTENT( INOUT ) :: CHR
+      CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+      INTEGER,         INTENT( IN )    :: IMECH
+      INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+
+      INTERFACE 
+        SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+        END SUBROUTINE RDLINE
+        SUBROUTINE EATCOM ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+        END SUBROUTINE EATCOM
+      END INTERFACE
 
 101   CONTINUE
       LPOINT = LPOINT + 1

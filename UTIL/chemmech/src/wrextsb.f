@@ -39,6 +39,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       IMPLICIT NONE
 
       USE MECHANISM_DATA
+      USE GET_ENV_VARS
       
       IMPLICIT NONE
 !      INCLUDE 'PARMS.e'
@@ -62,7 +63,6 @@ C Local Variables
       INTEGER ISPC
 
       INTEGER, EXTERNAL :: JUNIT
-      EXTERNAL NAMEVAL
  
       CHARACTER( 120 ) :: EQNAME_SPCS
       CHARACTER( 120 ) :: EQNAME_ADVS
@@ -81,9 +81,9 @@ C-----------------------------------------------------------------------
       EXUNIT_SPCS = JUNIT()
       EXUNIT_ADVS = JUNIT()
 
-C symbolic link locates "EXFLNM_..."; setenv requires INQUIRE (NAMEVAL):
-      CALL NAMEVAL ( EXFLNM_SPCS, EQNAME_SPCS )
-      CALL NAMEVAL ( EXFLNM_ADVS, EQNAME_ADVS )
+C symbolic link locates "EXFLNM_..."; setenv requires INQUIRE (VALUE_NAME):
+      CALL VALUE_NAME ( EXFLNM_SPCS, EQNAME_SPCS )
+      CALL VALUE_NAME ( EXFLNM_ADVS, EQNAME_ADVS )
 
       OPEN ( UNIT = EXUNIT_SPCS, FILE = EQNAME_SPCS, STATUS = 'UNKNOWN' )
       OPEN ( UNIT = EXUNIT_ADVS, FILE = EQNAME_ADVS, STATUS = 'UNKNOWN' )

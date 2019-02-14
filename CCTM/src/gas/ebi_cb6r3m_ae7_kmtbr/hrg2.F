@@ -28,7 +28,7 @@ C  PRECONDITIONS: For the CB6R3M family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 27, 2018
+C  REVISION HISTORY: Created by EBI solver program, Feb  1, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -358,7 +358,7 @@ c..HONO loss terms not included in R4_19
 
       L19   = 1.0D0 + L19 * DTC + R4_19
 
-c..PNA loss terms not inluded in R5_21
+c..PNA loss terms not included in R5_21
       L21 =    4.1000D-01 * RKI(    50 )                         ! PNA=0.5900D+...
      &    +                 RKI(    51 ) * YC ( OH           )   ! PNA+OH=NO2
 

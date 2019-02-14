@@ -303,7 +303,7 @@ C......................................................................
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKPRES( : )      ! Cell press, Pa
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKCH2O( : )      ! Cell water conc, ppm
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKDENS( : )      ! Cell air denisty, kg/m^3
-      REAL( 8 ), ALLOCATABLE, SAVE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
+      REAL,      ALLOCATABLE, SAVE :: BLKSVOL( : )      ! Cell air specific volume, m^3/kg
       REAL( 8 ), ALLOCATABLE, SAVE :: RJBLK( :,: )      ! J-values for each cell in block
       REAL( 8 ), ALLOCATABLE, SAVE :: BLKHET( :, : )    ! heterogeneous rate in block
 
@@ -324,7 +324,7 @@ C......................................................................
       REAL( 8 ), ALLOCATABLE, SAVE :: RXRAT( :,: )    ! Reaction rates for each cell
 
 
-      REAL( 8 ), ALLOCATABLE, SAVE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
+      REAL,      ALLOCATABLE, SAVE :: FORWARD_CONV( : )  ! CGRID to CHEM Species conversion factor 
       REAL( 8 ), ALLOCATABLE, SAVE :: REVERSE_CONV( : )  ! CHEM to CGRID Species conversion factor
 
 C........................... end GRVARS3.EXT ..........................
@@ -499,8 +499,8 @@ c..cell & solver data
           END IF
 
           DO N = 1, NUMB_MECH_SPC
-             FORWARD_CONV( N ) = 1.0D-3 * MWAIR / SPECIES_MOLWT( N )
-             REVERSE_CONV( N ) = 1.0D+3 / MWAIR * SPECIES_MOLWT( N )
+             FORWARD_CONV( N ) = 1.0E-3 * MWAIR / REAL( SPECIES_MOLWT( N ) )
+             REVERSE_CONV( N ) = REAL( 1.0 / FORWARD_CONV( N ), 8 )
           END DO
 
           ALLOCATE( NKUSERAT( NRXNS,NCS2 ),
