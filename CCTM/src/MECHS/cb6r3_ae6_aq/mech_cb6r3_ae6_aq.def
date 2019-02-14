@@ -375,7 +375,6 @@ REACTIONS[CM] =
 ! heterogeneous reactions from CB05eh51
 
 <HET_CLNO3_WAJ> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAJ>;
-<HET_CLNO3_WAK> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAK>;
 
 
 ! SOA precursors added from CB05tucl
