@@ -215,11 +215,15 @@ CONTAINS
       DT     = TAUCLD
       TEND = TSTART + DT
       RTOL = 1.0D-02
-      ATOL = 1.0D+02  ! was 1.d-02
+      ATOL = 1.0D-02
      
       RTOL( ind_L_H2O2 ) = 1.0d-3
       RTOL( ind_L_MGLY ) = 1.0d-3
       RTOL( ind_L_GLY )  = 1.0d-3
+      
+      RTOL( ind_L_NH4PLUS )  = 1.0d-3
+      RTOL( ind_G_HCL )  = 1.0d-3      
+      ATOL( ind_L_HOBR ) = 1.0d-8
 
       DDIAM = 1.6D-5 ! Droplet diameter (meters)
 
