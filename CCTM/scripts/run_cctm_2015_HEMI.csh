@@ -165,9 +165,6 @@ setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore 
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS N        #> calculate in-line biogenic emissions [ default: N ]
                              #>    [ default: N ]
-setenv CTM_ZERO_PCSOA Y      #> zero out emissions of VOC precursor for pcSOA formation.
-                             #>    The CMAQ dev team recommends leaving pcSOA mass in the
-                             #>    model for production runs. [ default: N ]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
