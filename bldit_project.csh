@@ -16,6 +16,7 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
+
  set CMAQ_HOME = /home/user/CMAQ_Project
 
 
