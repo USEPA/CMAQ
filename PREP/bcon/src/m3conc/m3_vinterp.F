@@ -25,9 +25,10 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE VINTERP( LOGUNIT, JDATE, JTIME, NCOLS_IN, NROWS_IN,
-     &                    NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN,
-     &                    BCVI, CTM_FL_NAME )
+      SUBROUTINE M3_VINTERP( LOGUNIT, JDATE, JTIME, 
+     &                       NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN, 
+     &                       COL_LOC, ROW_LOC, 
+     &                       BCIN, BCVI, CTM_FL_NAME )
 
 C*************************************************************************
  
@@ -101,7 +102,7 @@ C Local Variables:
       CHARACTER( 20 ) :: CHR1       ! Value of variable 1 in character data
       CHARACTER( 20 ) :: CHR2       ! Value of variable 1 in character data
       CHARACTER( 80 ) :: MSG        ! Log message
-      CHARACTER( 16 ) :: PNAME = 'VINTERP'  ! Procedure Name
+      CHARACTER( 16 ) :: PNAME = 'M3_VINTERP'  ! Procedure Name
       CHARACTER( 16 ) :: VNAME      ! Variable Name
 
       INTEGER C              ! Loop indices for columns
@@ -131,7 +132,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
             MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
      &         // ' file'
-            CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
          END IF
 
 C Determine type of interpolation to use: linear or rational function
@@ -253,7 +254,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
             MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
      &         // ' file'
-            CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
          END IF
 
          DO V = 1, NSPCS_IN    
@@ -304,15 +305,15 @@ C Get the layer mid-point heights
       VNAME = 'ZH'
       IF ( .NOT. READ3( MET_BDY_3D_FIN, VNAME, ALLAYS3, JDATE, JTIME,
      &                  HT_BNDY ) ) THEN
-         MSG = 'Could not read layer heights form file  ' // MET_BDY_3D_FIN 
-         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+         MSG = 'Could not read layer heights from file ' // MET_BDY_3D_FIN 
+         CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
 
       VNAME = 'ZH'
       IF ( .NOT. READ3( MET_CRO_3D_CRS, VNAME, ALLAYS3, JDATE, JTIME,
      &                  HT_CTM ) ) THEN
-         MSG = 'Could not read layer heights form file  ' // MET_CRO_3D_CRS 
-         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+         MSG = 'Could not read layer heights from file ' // MET_CRO_3D_CRS 
+         CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
 
 C Do the interpolation

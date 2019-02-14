@@ -170,18 +170,18 @@
 !C Populate Emissions Species Record
          EM_FILE_SURR( ILTSRM )%LEN = 1
          ALLOCATE( EM_FILE_SURR( ILTSRM )%ARRY ( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%CMAQ ( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%UNITS( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%PHASE( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%MW   ( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%USED ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%CONV ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%BASIS( 1 ) )
          
          EM_FILE_SURR( ILTSRM )%ARRY  = "NO"
-         EM_FILE_SURR( ILTSRM )%CMAQ  = "NO"
          EM_FILE_SURR( ILTSRM )%UNITS = 'MOLES/S'
-         EM_FILE_SURR( ILTSRM )%PHASE = 'GAS'
-         EM_FILE_SURR( ILTSRM )%MW    = 0.0
+         EM_FILE_SURR( ILTSRM )%MW    = 30.0
          EM_FILE_SURR( ILTSRM )%USED  = .FALSE.
+         EM_FILE_SURR( ILTSRM )%CONV  = 1.0
+         EM_FILE_SURR( ILTSRM )%BASIS = 'MOLE'
  
 !C Read in scenario time/date
          NSTEPS = RUNLEN / TSTEP           ! initscen guarantees divisibility

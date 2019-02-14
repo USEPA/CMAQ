@@ -48,11 +48,11 @@
       TYPE EM_SURR_TYPE
           INTEGER         :: LEN    ! Length of Sub-Vector
           CHARACTER( 16 ), ALLOCATABLE :: ARRY( : )   ! Surrogate Name
-          CHARACTER( 16 ), ALLOCATABLE :: CMAQ( : )   ! Default Destination Species
           CHARACTER( 16 ), ALLOCATABLE :: UNITS( : )  ! Units determined from input files
-          CHARACTER( 16 ), ALLOCATABLE :: PHASE( : )  ! Default Destination Size Dist or Phase
           REAL,            ALLOCATABLE :: MW( : )     ! Default MW from SPECIATE/SMOKE/MOVE
           LOGICAL,         ALLOCATABLE :: USED( : )   ! Whether or not the surrogate is used in CMAQ
+          Real,            ALLOCATABLE :: CONV( : )   ! Conversion factor to account for kg -> g or hr -> s
+          CHARACTER( 4 ),  ALLOCATABLE :: BASIS( : )  ! 'MOLE' or 'MASS'
       END TYPE EM_SURR_TYPE
       TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each stream file
 
@@ -113,10 +113,6 @@
 
       INTEGER, ALLOCATABLE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : ), MAP_EMtoGAS( : )
 
-      CHARACTER( 16 ), ALLOCATABLE :: EMIS_AER_UNITS( : )   ! Initialize Aerosol Units with no value
-      CHARACTER( 16 ), ALLOCATABLE :: EMIS_GAS_UNITS( : )   ! Initialize Vapor Units with no value
-      REAL, ALLOCATABLE            :: CONVEM_GAS( : ), CONVEM_PM_MASS( : )
-     
       ! Define Data Structure for Storing Emission Control Namelist
       ! Options                               
       TYPE EM_RULE_REG
@@ -149,180 +145,173 @@
       INTEGER, PARAMETER :: N_SD_REG = 200
       TYPE( SD_RULE ), ALLOCATABLE :: SD_NML( : )
 
-      LOGICAL :: DefaultScaling      = .TRUE.
       LOGICAL :: Guard_BiogenicVOC   = .FALSE.
       LOGICAL :: Guard_MarineGas     = .FALSE.
       LOGICAL :: Guard_LightningNO   = .FALSE.
       LOGICAL :: Guard_WindBlownDust = .FALSE.
       LOGICAL :: Guard_SeaSpray      = .FALSE.
  
-      ! Create Map from CMAQ Species Names to Common Surrogate
-      ! Names on Emissions Input Files. Also include default aerosol mode
-      ! for aerosols and molecular weight assumed in SPECIATE/SMOKE/MOVES.
-      ! In order to match Emissions surrogates to transported CMAQ
-      ! species, the code will first look for the name that matches the
-      ! surrogate completely, then it will look for a species name that
-      ! matches the alternate default, stored here in the CMAQ
-      ! sub-vector.
+      ! Create Lookup table of Molecular Weight for likely emission
+      ! surrogate species. These values are used to compute mole <-> mass
+      ! conversions if requested. 
       Type emis_legend
-          Character( 16 ) :: SURR  ! Emissions Surrogate Species
-          Character( 16 ) :: CMAQ  ! Destination CMAQ Internal Species
-          Character( 16 ) :: PHASE ! Surrogate Emission Mode
+          Character( 16 ) :: NAME  ! Emissions Surrogate Species
           REAL            :: MW    ! Emissions Surrogate Molecular Weight [g mol-1]
       End Type emis_legend
       
-      Integer, Parameter :: N_Map_EMIStoCMAQ = 149
+      Integer, Parameter :: N_EMIS_SURR_TABLE = 150
       Type ( emis_legend ), Parameter :: 
-     &  Map_EMIStoCMAQ( N_Map_EMIStoCMAQ ) = (/
-     &    emis_legend( 'NO2          ' ,'NO2         ','GAS   ',046.0 ),
-     &    emis_legend( 'NO           ' ,'NO          ','GAS   ',030.0 ),
-     &    emis_legend( 'HONO         ' ,'HONO        ','GAS   ',047.0 ),
-     &    emis_legend( 'SO2          ' ,'SO2         ','GAS   ',064.0 ),
-     &    emis_legend( 'SULF         ' ,'SULF        ','GAS   ',098.0 ),
-     &    emis_legend( 'NH3          ' ,'NH3         ','GAS   ',017.0 ),
-     &    emis_legend( 'NH3_FERT     ' ,'NH3_FERT    ','GAS   ',017.0 ),
-     &    emis_legend( 'CO           ' ,'CO          ','GAS   ',028.0 ),
-     &    emis_legend( 'PACD         ' ,'RCOOH       ','GAS   ',076.0 ),
-     &    emis_legend( 'AACD         ' ,'CCOOH       ','GAS   ',060.1 ),
-     &    emis_legend( 'ALD2         ' ,'ALD2        ','GAS   ',044.0 ),
-     &    emis_legend( 'FORM         ' ,'FORM        ','GAS   ',030.0 ),
-     &    emis_legend( 'HCHO         ' ,'HCHO_PRIMARY','GAS   ',030.0 ),
-     &    emis_legend( 'MEOH         ' ,'MEOH        ','GAS   ',032.0 ),
-     &    emis_legend( 'FACD         ' ,'HCOOH       ','GAS   ',046.0 ),
-     &    emis_legend( 'ALDX         ' ,'ALDX        ','GAS   ',058.1 ),
-     &    emis_legend( 'GLYXL        ' ,'GLY         ','GAS   ',058.0 ),
-     &    emis_legend( 'GLY          ' ,'GLY         ','GAS   ',058.0 ),
-     &    emis_legend( 'MGLY         ' ,'MGLY        ','GAS   ',072.1 ),
-     &    emis_legend( 'ETHA         ' ,'ETHA        ','GAS   ',030.1 ),
-     &    emis_legend( 'ETH          ' ,'ETH         ','GAS   ',028.0 ),
-     &    emis_legend( 'ETE          ' ,'ETE         ','GAS   ',028.0 ),
-     &    emis_legend( 'HC3          ' ,'HC3         ','GAS   ',044.0 ),
-     &    emis_legend( 'HC5          ' ,'HC5         ','GAS   ',072.0 ),
-     &    emis_legend( 'HC8          ' ,'HC8         ','GAS   ',114.0 ),
-     &    emis_legend( 'OLT          ' ,'OLT         ','GAS   ',042.0 ),
-     &    emis_legend( 'OLI          ' ,'OLI         ','GAS   ',068.0 ),
-     &    emis_legend( 'DIEN         ' ,'DIEN        ','GAS   ',054.0 ),
-     &    emis_legend( 'ACE          ' ,'ACE         ','GAS   ',026.0 ),
-     &    emis_legend( 'ORA1         ' ,'ORA1        ','GAS   ',046.0 ),
-     &    emis_legend( 'ORA2         ' ,'ORA2        ','GAS   ',060.0 ),
-     &    emis_legend( 'ETOH         ' ,'ETOH        ','GAS   ',046.1 ),
-     &    emis_legend( 'KET          ' ,'KET         ','GAS   ',072.1 ),
-     &    emis_legend( 'PAR          ' ,'PAR         ','GAS   ',014.0 ),
-     &    emis_legend( 'ACET         ' ,'ACETONE     ','GAS   ',058.1 ),
-     &    emis_legend( 'ACD          ' ,'ACD         ','GAS   ',044.0 ),
-     &    emis_legend( 'ALD          ' ,'ALD         ','GAS   ',058.0 ),
-     &    emis_legend( 'ACT          ' ,'ACT         ','GAS   ',058.0 ),
-     &    emis_legend( 'UALD         ' ,'UALD        ','GAS   ',084.0 ),
-     &    emis_legend( 'HKET         ' ,'HKET        ','GAS   ',074.0 ),
-     &    emis_legend( 'PRPA         ' ,'PRPA        ','GAS   ',044.1 ),
-     &    emis_legend( 'ETHY         ' ,'ETHY        ','GAS   ',026.0 ),
-     &    emis_legend( 'OLE          ' ,'OLE         ','GAS   ',042.1 ),
-     &    emis_legend( 'IOLE         ' ,'IOLE        ','GAS   ',056.1 ),
-     &    emis_legend( 'OLE1         ' ,'OLE1        ','GAS   ',072.3 ),
-     &    emis_legend( 'OLE2         ' ,'OLE2        ','GAS   ',075.8 ),
-     &    emis_legend( 'RNO3         ' ,'RNO3        ','GAS   ',147.2 ),
-     &    emis_legend( 'CCHO         ' ,'CCHO_PRIMARY','GAS   ',044.1 ),
-     &    emis_legend( 'RCHO         ' ,'RCHO        ','GAS   ',058.1 ),
-     &    emis_legend( 'ALK1         ' ,'ALK1        ','GAS   ',030.1 ),
-     &    emis_legend( 'ALK2         ' ,'ALK2        ','GAS   ',036.7 ),
-     &    emis_legend( 'ALK3         ' ,'ALK3        ','GAS   ',058.6 ),
-     &    emis_legend( 'ALK4         ' ,'ALK4        ','GAS   ',077.6 ),
-     &    emis_legend( 'ALK5         ' ,'ALK5        ','GAS   ',118.9 ),
-     &    emis_legend( 'MEK          ' ,'MEK         ','GAS   ',072.1 ),
-     &    emis_legend( 'BACL         ' ,'BACL        ','GAS   ',086.1 ),
-     &    emis_legend( 'BALD         ' ,'BALD        ','GAS   ',106.1 ),
-     &    emis_legend( 'MACR         ' ,'MACR        ','GAS   ',070.1 ),
-     &    emis_legend( 'MVK          ' ,'MVK         ','GAS   ',070.1 ),
-     &    emis_legend( 'IPRD         ' ,'IPRD        ','GAS   ',100.1 ),
-     &    emis_legend( 'PRD2         ' ,'PRD2        ','GAS   ',116.2 ),
-     &    emis_legend( 'ISOP         ' ,'ISOPRENE    ','GAS   ',068.1 ),
-     &    emis_legend( 'ISO          ' ,'ISO         ','GAS   ',068.1 ),
-     &    emis_legend( 'TERP         ' ,'TERP        ','GAS   ',136.2 ),
-     &    emis_legend( 'APIN         ' ,'APIN        ','GAS   ',136.2 ),
-     &    emis_legend( 'API          ' ,'API         ','GAS   ',136.2 ),
-     &    emis_legend( 'LIM          ' ,'LIM         ','GAS   ',136.2 ),
-     &    emis_legend( 'SESQ         ' ,'SESQ        ','GAS   ',204.0 ),
-     &    emis_legend( 'BENZ         ' ,'BENZENE     ','GAS   ',078.1 ),
-     &    emis_legend( 'BEN          ' ,'BENZENE     ','GAS   ',078.1 ),
-     &    emis_legend( 'PHEN         ' ,'PHEN        ','GAS   ',094.0 ),
-     &    emis_legend( 'CRES         ' ,'CRES        ','GAS   ',108.1 ),
-     &    emis_legend( 'CSL          ' ,'CSL         ','GAS   ',108.0 ),
-     &    emis_legend( 'TOL          ' ,'TOL         ','GAS   ',092.1 ),
-     &    emis_legend( 'XYM          ' ,'XYM         ','GAS   ',106.0 ),
-     &    emis_legend( 'XYP          ' ,'XYP         ','GAS   ',106.0 ),
-     &    emis_legend( 'XYO          ' ,'XYO         ','GAS   ',106.0 ),
-     &    emis_legend( 'XYLMN        ' ,'XYLMN       ','GAS   ',106.2 ),
-     &    emis_legend( 'MXYL         ' ,'MXYL        ','GAS   ',106.2 ),
-     &    emis_legend( 'OXYL         ' ,'OXYL        ','GAS   ',106.2 ),
-     &    emis_legend( 'PXYL         ' ,'PXYL        ','GAS   ',106.2 ),
-     &    emis_legend( 'ARO1         ' ,'ARO1        ','GAS   ',095.2 ),
-     &    emis_legend( 'ARO2MN       ' ,'ARO2MN      ','GAS   ',118.7 ),
-     &    emis_legend( 'NAPH         ' ,'NAPHTHAL    ','GAS   ',128.2 ),
-     &    emis_legend( 'B124         ' ,'TMBENZ124   ','GAS   ',120.2 ),
-     &    emis_legend( 'CH4          ' ,'ECH4        ','GAS   ',016.0 ),
-     &    emis_legend( 'CL2          ' ,'CL2         ','GAS   ',071.0 ),
-     &    emis_legend( 'HCL          ' ,'HCL         ','GAS   ',036.5 ),
-     &    emis_legend( 'SOAALK       ' ,'SOAALK      ','GAS   ',112.0 ),
-     &    emis_legend( 'FORM_PRIMARY ' ,'FORM_PRIMARY','GAS   ',030.0 ),
-     &    emis_legend( 'ALD2_PRIMARY ' ,'ALD2_PRIMARY','GAS   ',044.0 ),
-     &    emis_legend( 'BUTADIENE13  ' ,'BUTADIENE13 ','GAS   ',054.0 ),
-     &    emis_legend( 'ACRO         ' ,'ACROLEIN    ','GAS   ',056.1 ),
-     &    emis_legend( 'ACROLEIN     ' ,'ACRO_PRIMARY','GAS   ',056.1 ),
-     &    emis_legend( 'TOLU         ' ,'TOLUENE     ','GAS   ',092.0 ),
-     &    emis_legend( 'HGNRVA       ' ,'HG          ','GAS   ',200.6 ),
-     &    emis_legend( 'HGIIGAS      ' ,'HGIIGAS     ','GAS   ',200.6 ),
-     &    emis_legend( 'ETHE         ' ,'ETHENE      ','GAS   ',028.1 ),
-     &    emis_legend( 'PRPE         ' ,'PROPENE     ','GAS   ',042.1 ),
-     &    emis_legend( '13BDE        ' ,'BUTADIENE13 ','GAS   ',054.1 ),
-     &    emis_legend( 'ACYE         ' ,'ACETYLENE   ','GAS   ',026.0 ),
-     &    emis_legend( 'MOH          ' ,'MOH         ','GAS   ',032.0 ),
-     &    emis_legend( 'EOH          ' ,'EOH         ','GAS   ',046.0 ),
-     &    emis_legend( 'ROH          ' ,'ROH         ','GAS   ',060.0 ),
-     &    emis_legend( 'ETEG         ' ,'ETEG        ','GAS   ',062.0 ),
-     &    emis_legend( 'PSO4         ' ,'ASO4        ','FINE  ',096.0 ),
-     &    emis_legend( 'PNO3         ' ,'ANO3        ','FINE  ',062.0 ),
-     &    emis_legend( 'PNH4         ' ,'ANH4        ','FINE  ',018.0 ),
-     &    emis_legend( 'PEC          ' ,'AEC         ','FINE  ',012.0 ),
-     &    emis_legend( 'POC          ' ,'APOC        ','FINE  ',220.0 ),
-     &    emis_legend( 'PNCOM        ' ,'APNCOM      ','FINE  ',220.0 ),
-     &    emis_legend( 'PMOTHR       ' ,'AOTHR       ','FINE  ',200.0 ),
-     &    emis_legend( 'PFE          ' ,'AFE         ','FINE  ',055.8 ),
-     &    emis_legend( 'PAL          ' ,'AAL         ','FINE  ',027.0 ),
-     &    emis_legend( 'PSI          ' ,'ASI         ','FINE  ',028.1 ),
-     &    emis_legend( 'PTI          ' ,'ATI         ','FINE  ',047.9 ),
-     &    emis_legend( 'PCA          ' ,'ACA         ','FINE  ',040.1 ),
-     &    emis_legend( 'PMG          ' ,'AMG         ','FINE  ',024.3 ),
-     &    emis_legend( 'PK           ' ,'AK          ','FINE  ',039.1 ),
-     &    emis_legend( 'PMN          ' ,'AMN         ','FINE  ',054.9 ),
-     &    emis_legend( 'PH2O         ' ,'AH2O        ','FINE  ',018.0 ),
-     &    emis_legend( 'PNA          ' ,'ANA         ','FINE  ',023.0 ),
-     &    emis_legend( 'PCL          ' ,'ACL         ','FINE  ',035.5 ),
-     &    emis_legend( 'PMC          ' ,'ACORS       ','COARSE',100.0 ),
-     &    emis_legend( 'ASOIL        ' ,'ASOIL       ','COARSE',100.0 ),
-     &    emis_legend( 'ASEACAT      ' ,'ASEACAT     ','COARSE',023.75),
-     &    emis_legend( 'NICKEL_F     ' ,'ANI         ','FINE  ',058.7 ),
-     &    emis_legend( 'NICKEL_C     ' ,'ANI         ','COARSE',058.7 ),
-     &    emis_legend( 'CHROMEHEX_F  ' ,'ACR_VI      ','FINE  ',052.0 ),
-     &    emis_legend( 'CHROMEHEX_C  ' ,'ACR_VI      ','COARSE',052.0 ),
-     &    emis_legend( 'CHROMTRI_F   ' ,'ACR_III     ','FINE  ',052.0 ),
-     &    emis_legend( 'CHROMTRI_C   ' ,'ACR_III     ','COARSE',052.0 ),
-     &    emis_legend( 'BERYLLIUM_F  ' ,'ABE         ','FINE  ',009.0 ),
-     &    emis_legend( 'BERYLLIUM_C  ' ,'ABE         ','COARSE',009.0 ),
-     &    emis_legend( 'LEAD_F       ' ,'APB         ','FINE  ',207.2 ),
-     &    emis_legend( 'LEAD_C       ' ,'APB         ','COARSE',207.2 ),
-     &    emis_legend( 'DIESEL_PMFINE' ,'ADE_OTHR    ','FINE  ',200.0 ),
-     &    emis_legend( 'DIESEL_PMEC  ' ,'ADE_EC      ','FINE  ',012.0 ),
-     &    emis_legend( 'DIESEL_PMOC  ' ,'ADE_OC      ','FINE  ',220.0 ),
-     &    emis_legend( 'DIESEL_PMNO3 ' ,'ADE_NO3     ','FINE  ',062.0 ),
-     &    emis_legend( 'DIESEL_PMSO4 ' ,'ADE_SO4     ','FINE  ',096.0 ),
-     &    emis_legend( 'DIESEL_PMC   ' ,'ADE_CORS    ','COARSE',100.0 ),
-     &    emis_legend( 'CADMIUM_F    ' ,'ACD         ','FINE  ',112.4 ),
-     &    emis_legend( 'CADMIUM_C    ' ,'ACD         ','COARSE',112.4 ),
-     &    emis_legend( 'MANGANESE_F  ' ,'AMN_HAPS    ','FINE  ',054.9 ),
-     &    emis_legend( 'MANGANESE_C  ' ,'AMN_HAPS    ','COARSE',054.9 ),
-     &    emis_legend( 'ARSENIC_F    ' ,'AAS         ','FINE  ',074.92),
-     &    emis_legend( 'ARSENIC_C    ' ,'AAS         ','COARSE',074.92),
-     &    emis_legend( 'PHGI         ' ,'APHG        ','FINE  ',200.5 )  /)
+     &  EMIS_SURR_TABLE( N_EMIS_SURR_TABLE ) = (/
+     &    emis_legend( 'NO2          ' ,046.0 ),
+     &    emis_legend( 'NO           ' ,030.0 ),
+     &    emis_legend( 'HONO         ' ,047.0 ),
+     &    emis_legend( 'SO2          ' ,064.0 ),
+     &    emis_legend( 'SULF         ' ,098.0 ),
+     &    emis_legend( 'NH3          ' ,017.0 ),
+     &    emis_legend( 'NH3_FERT     ' ,017.0 ),
+     &    emis_legend( 'CO           ' ,028.0 ),
+     &    emis_legend( 'PACD         ' ,076.0 ),
+     &    emis_legend( 'AACD         ' ,060.1 ),
+     &    emis_legend( 'ALD2         ' ,044.0 ),
+     &    emis_legend( 'FORM         ' ,030.0 ),
+     &    emis_legend( 'HCHO         ' ,030.0 ),
+     &    emis_legend( 'MEOH         ' ,032.0 ),
+     &    emis_legend( 'FACD         ' ,046.0 ),
+     &    emis_legend( 'ALDX         ' ,058.1 ),
+     &    emis_legend( 'GLYXL        ' ,058.0 ),
+     &    emis_legend( 'GLY          ' ,058.0 ),
+     &    emis_legend( 'MGLY         ' ,072.1 ),
+     &    emis_legend( 'ETHA         ' ,030.1 ),
+     &    emis_legend( 'ETH          ' ,028.0 ),
+     &    emis_legend( 'ETE          ' ,028.0 ),
+     &    emis_legend( 'HC3          ' ,044.0 ),
+     &    emis_legend( 'HC5          ' ,072.0 ),
+     &    emis_legend( 'HC8          ' ,114.0 ),
+     &    emis_legend( 'OLT          ' ,042.0 ),
+     &    emis_legend( 'OLI          ' ,068.0 ),
+     &    emis_legend( 'DIEN         ' ,054.0 ),
+     &    emis_legend( 'ACE          ' ,026.0 ),
+     &    emis_legend( 'ORA1         ' ,046.0 ),
+     &    emis_legend( 'ORA2         ' ,060.0 ),
+     &    emis_legend( 'ETOH         ' ,046.1 ),
+     &    emis_legend( 'KET          ' ,072.1 ),
+     &    emis_legend( 'PAR          ' ,014.0 ),
+     &    emis_legend( 'ACET         ' ,058.1 ),
+     &    emis_legend( 'ACD          ' ,044.0 ),
+     &    emis_legend( 'ALD          ' ,058.0 ),
+     &    emis_legend( 'ACT          ' ,058.0 ),
+     &    emis_legend( 'UALD         ' ,084.0 ),
+     &    emis_legend( 'HKET         ' ,074.0 ),
+     &    emis_legend( 'PRPA         ' ,044.1 ),
+     &    emis_legend( 'ETHY         ' ,026.0 ),
+     &    emis_legend( 'OLE          ' ,042.1 ),
+     &    emis_legend( 'IOLE         ' ,056.1 ),
+     &    emis_legend( 'OLE1         ' ,072.3 ),
+     &    emis_legend( 'OLE2         ' ,075.8 ),
+     &    emis_legend( 'RNO3         ' ,147.2 ),
+     &    emis_legend( 'CCHO         ' ,044.1 ),
+     &    emis_legend( 'RCHO         ' ,058.1 ),
+     &    emis_legend( 'ALK1         ' ,030.1 ),
+     &    emis_legend( 'ALK2         ' ,036.7 ),
+     &    emis_legend( 'ALK3         ' ,058.6 ),
+     &    emis_legend( 'ALK4         ' ,077.6 ),
+     &    emis_legend( 'ALK5         ' ,118.9 ),
+     &    emis_legend( 'MEK          ' ,072.1 ),
+     &    emis_legend( 'BACL         ' ,086.1 ),
+     &    emis_legend( 'BALD         ' ,106.1 ),
+     &    emis_legend( 'MACR         ' ,070.1 ),
+     &    emis_legend( 'MVK          ' ,070.1 ),
+     &    emis_legend( 'IPRD         ' ,100.1 ),
+     &    emis_legend( 'PRD2         ' ,116.2 ),
+     &    emis_legend( 'ISOP         ' ,068.1 ),
+     &    emis_legend( 'ISO          ' ,068.1 ),
+     &    emis_legend( 'TERP         ' ,136.2 ),
+     &    emis_legend( 'APIN         ' ,136.2 ),
+     &    emis_legend( 'API          ' ,136.2 ),
+     &    emis_legend( 'LIM          ' ,136.2 ),
+     &    emis_legend( 'SESQ         ' ,204.0 ),
+     &    emis_legend( 'BENZ         ' ,078.1 ),
+     &    emis_legend( 'BEN          ' ,078.1 ),
+     &    emis_legend( 'BENZENE      ' ,078.1 ),
+     &    emis_legend( 'PHEN         ' ,094.0 ),
+     &    emis_legend( 'CRES         ' ,108.1 ),
+     &    emis_legend( 'CSL          ' ,108.0 ),
+     &    emis_legend( 'TOL          ' ,092.1 ),
+     &    emis_legend( 'XYM          ' ,106.0 ),
+     &    emis_legend( 'XYP          ' ,106.0 ),
+     &    emis_legend( 'XYO          ' ,106.0 ),
+     &    emis_legend( 'XYLMN        ' ,106.2 ),
+     &    emis_legend( 'MXYL         ' ,106.2 ),
+     &    emis_legend( 'OXYL         ' ,106.2 ),
+     &    emis_legend( 'PXYL         ' ,106.2 ),
+     &    emis_legend( 'ARO1         ' ,095.2 ),
+     &    emis_legend( 'ARO2MN       ' ,118.7 ),
+     &    emis_legend( 'NAPH         ' ,128.2 ),
+     &    emis_legend( 'B124         ' ,120.2 ),
+     &    emis_legend( 'CH4          ' ,016.0 ),
+     &    emis_legend( 'CL2          ' ,071.0 ),
+     &    emis_legend( 'HCL          ' ,036.5 ),
+     &    emis_legend( 'SOAALK       ' ,112.0 ),
+     &    emis_legend( 'FORM_PRIMARY ' ,030.0 ),
+     &    emis_legend( 'ALD2_PRIMARY ' ,044.0 ),
+     &    emis_legend( 'BUTADIENE13  ' ,054.0 ),
+     &    emis_legend( 'ACRO         ' ,056.1 ),
+     &    emis_legend( 'ACROLEIN     ' ,056.1 ),
+     &    emis_legend( 'TOLU         ' ,092.0 ),
+     &    emis_legend( 'HGNRVA       ' ,200.6 ),
+     &    emis_legend( 'HGIIGAS      ' ,200.6 ),
+     &    emis_legend( 'ETHE         ' ,028.1 ),
+     &    emis_legend( 'PRPE         ' ,042.1 ),
+     &    emis_legend( '13BDE        ' ,054.1 ),
+     &    emis_legend( 'ACYE         ' ,026.0 ),
+     &    emis_legend( 'MOH          ' ,032.0 ),
+     &    emis_legend( 'EOH          ' ,046.0 ),
+     &    emis_legend( 'ROH          ' ,060.0 ),
+     &    emis_legend( 'ETEG         ' ,062.0 ),
+     &    emis_legend( 'PSO4         ' ,096.0 ),
+     &    emis_legend( 'PNO3         ' ,062.0 ),
+     &    emis_legend( 'PNH4         ' ,018.0 ),
+     &    emis_legend( 'PEC          ' ,012.0 ),
+     &    emis_legend( 'POC          ' ,220.0 ),
+     &    emis_legend( 'PNCOM        ' ,220.0 ),
+     &    emis_legend( 'PMOTHR       ' ,200.0 ),
+     &    emis_legend( 'PFE          ' ,055.8 ),
+     &    emis_legend( 'PAL          ' ,027.0 ),
+     &    emis_legend( 'PSI          ' ,028.1 ),
+     &    emis_legend( 'PTI          ' ,047.9 ),
+     &    emis_legend( 'PCA          ' ,040.1 ),
+     &    emis_legend( 'PMG          ' ,024.3 ),
+     &    emis_legend( 'PK           ' ,039.1 ),
+     &    emis_legend( 'PMN          ' ,054.9 ),
+     &    emis_legend( 'PH2O         ' ,018.0 ),
+     &    emis_legend( 'PNA          ' ,023.0 ),
+     &    emis_legend( 'PCL          ' ,035.5 ),
+     &    emis_legend( 'PMC          ' ,100.0 ),
+     &    emis_legend( 'ASOIL        ' ,100.0 ),
+     &    emis_legend( 'ASEACAT      ' ,023.75),
+     &    emis_legend( 'NICKEL_F     ' ,058.7 ),
+     &    emis_legend( 'NICKEL_C     ' ,058.7 ),
+     &    emis_legend( 'CHROMEHEX_F  ' ,052.0 ),
+     &    emis_legend( 'CHROMEHEX_C  ' ,052.0 ),
+     &    emis_legend( 'CHROMTRI_F   ' ,052.0 ),
+     &    emis_legend( 'CHROMTRI_C   ' ,052.0 ),
+     &    emis_legend( 'BERYLLIUM_F  ' ,009.0 ),
+     &    emis_legend( 'BERYLLIUM_C  ' ,009.0 ),
+     &    emis_legend( 'LEAD_F       ' ,207.2 ),
+     &    emis_legend( 'LEAD_C       ' ,207.2 ),
+     &    emis_legend( 'DIESEL_PMFINE' ,200.0 ),
+     &    emis_legend( 'DIESEL_PMEC  ' ,012.0 ),
+     &    emis_legend( 'DIESEL_PMOC  ' ,220.0 ),
+     &    emis_legend( 'DIESEL_PMNO3 ' ,062.0 ),
+     &    emis_legend( 'DIESEL_PMSO4 ' ,096.0 ),
+     &    emis_legend( 'DIESEL_PMC   ' ,100.0 ),
+     &    emis_legend( 'CADMIUM_F    ' ,112.4 ),
+     &    emis_legend( 'CADMIUM_C    ' ,112.4 ),
+     &    emis_legend( 'MANGANESE_F  ' ,054.9 ),
+     &    emis_legend( 'MANGANESE_C  ' ,054.9 ),
+     &    emis_legend( 'ARSENIC_F    ' ,074.92),
+     &    emis_legend( 'ARSENIC_C    ' ,074.92),
+     &    emis_legend( 'PHGI         ' ,200.5 )  /)
 
       CONTAINS
 
@@ -382,7 +371,7 @@
          IDX = INDEX1( RULE_STREAM, N_EM_SRM, EM_FILE_LAB ) 
          IF ( IDX .NE. 0 ) THEN
            EM_STREAM_RULE( IDX ) = .TRUE.
-         ELSE
+         ELSE IF ( RULE_STREAM .NE. 'WBDUST' .AND. RULE_STREAM .NE. 'SEASPRAY' ) THEN
            WRITE( LOGDEV, * )
            WRITE( LOGDEV, '(/,3A,I3,/,2A,/,2A)' ),
      &         'The Emissions Stream Label (',TRIM( RULE_STREAM ),
@@ -408,12 +397,6 @@
 !     speciated compounds.
 !-----------------------------------------------------------------------
 
-      USE AERO_DATA, ONLY: ACORSEM_ASO4_FAC, ACORSEM_ANO3_FAC,
-     &                     ACORSEM_ACL_FAC,  ACORSEM_AH2O_FAC,
-     &                     ACORSEM_RENORM,   POA_OP_VF,
-     &                     POA_AMF, POG_AMF, PCVOC_FAC
-      USE RXNS_DATA, ONLY: MECHNAME
-
       IMPLICIT NONE
 
       INTEGER,         INTENT( INOUT ) :: N_EM_RULE
@@ -425,351 +408,18 @@
  
       ! Add a rule For Removing Fertilizer Ammonia if BiDi is
       ! activated and the user has requested the correction
-         IF ( ABFLUX .AND. BIDI_FERT_NH3 ) THEN
+         IF ( ABFLUX ) THEN
             N_EM_RULE_B = N_EM_RULE_B + 1
             EM_NML_B(N_EM_RULE_B)%SPEC  = 'NH3'
             EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
             EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
             EM_NML_B(N_EM_RULE_B)%SURR  = 'NH3_FERT'
             EM_NML_B(N_EM_RULE_B)%FAC   = -1.0
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MOLE'
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
             EM_NML_B(N_EM_RULE_B)%OP    = 'a'
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
          END IF
 
-      ! Add rules for moving sulfuric acid emissions from the gas phase
-      ! to the aerosol phase
-         N_EM_RULE_B = N_EM_RULE_B + 1
-         EM_NML_B(N_EM_RULE_B)%SPEC  = 'SULF'
-         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-         EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-         EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
-         EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
-         EM_NML_B(N_EM_RULE_B)%BASIS = 'MOLE'
-         EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
-         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-
-         N_EM_RULE_B = N_EM_RULE_B + 1
-         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4'
-         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-         EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-         EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
-         EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
-         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-
-      ! Add rules for speciating coarse PM from Anthropogenic Streams
-      !  Coarse-Mode Sulfate
-         N_EM_RULE_B = N_EM_RULE_B + 1
-         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4'
-         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
-         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
-         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-
-      !  Coarse-Mode Nitrate
-         N_EM_RULE_B = N_EM_RULE_B + 1
-         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ANO3'
-         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
-         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ANO3_FAC, 4 )
-         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-
-      !  Coarse-Mode Chloride
-         N_EM_RULE_B = N_EM_RULE_B + 1
-         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ACL'
-         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
-         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ACL_FAC, 4 ) 
-         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
-
-      !  Coarse-Mode Water
-         N_EM_RULE_B = N_EM_RULE_B + 1
-         EM_NML_B(N_EM_RULE_B)%SPEC  = 'AH2O'
-         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
-         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_AH2O_FAC, 4 )
-         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-         EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
- 
-      !  Anthropogenic Coarse-Mode Other
-         N_EM_RULE_B = N_EM_RULE_B + 1
-         EM_NML_B(N_EM_RULE_B)%SPEC  = 'ACORS'
-         EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-         EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
-         EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
-         EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_RENORM, 4 )
-         EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-         EM_NML_B(N_EM_RULE_B)%OP    = 'm' 
-         EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
- 
-      ! Volatility Basis Set Scaling for Use with Semivolatile POA
-      ! Mechanisms
-         IF ( INDEX( MECHNAME, 'NVPOA' ) .EQ. 0 ) THEN
-
-
-            ! VLVPO1 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VLVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POG_AMF(1)
-            ! VLVPO1 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VLVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POG_AMF(1)
-
-            ! VSVPO1 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POG_AMF(2)
-            ! VSVPO1 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POG_AMF(2)
-
-            ! VSVPO2 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO2'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POG_AMF(3)
-            ! VSVPO2 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO2'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POG_AMF(3)
-
-            ! VSVPO3 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO3'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POG_AMF(4)
-            ! VSVPO3 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VSVPO3'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POG_AMF(4)
-
-            ! VIVPO1 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VIVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POG_AMF(5)
-            ! VIVPO1 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'VIVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POG_AMF(5)
-
-            ! ALVPO1 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POA_AMF(1)
-            ! ALVPO1 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ALVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(1) * POA_AMF(1)
-
-            ! ASVPO1 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POA_AMF(2)
-            ! ASVPO1 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(2) * POA_AMF(2)
-
-            ! ASVPO2 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO2'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POA_AMF(3)
-            ! ASVPO2 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO2'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(3) * POA_AMF(3)
-
-            ! ASVPO3 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO3'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POA_AMF(4)
-            ! ASVPO3 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASVPO3'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(4) * POA_AMF(4)
-
-            ! AIVPO1 <- POC
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'AIVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
-            ! AIVPO1 <- PNCOM
-            N_EM_RULE_B = N_EM_RULE_B + 1
-            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-            EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-            EM_NML_B(N_EM_RULE_B)%SPEC  = 'AIVPO1'
-            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
-            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-            EM_NML_B(N_EM_RULE_B)%FAC   = POA_OP_VF(5) * POA_AMF(5)
-          
-            IF ( .NOT. ZERO_PCSOA ) THEN
-              ! PCVOC <- POC
-              N_EM_RULE_B = N_EM_RULE_B + 1
-              EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-              EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-              EM_NML_B(N_EM_RULE_B)%SURR  = 'POC'
-              EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
-              EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-              EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-              EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-              EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
-              ! PCVOC <- PNCOM
-              N_EM_RULE_B = N_EM_RULE_B + 1
-              EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-              EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
-              EM_NML_B(N_EM_RULE_B)%SURR  = 'PNCOM'
-              EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
-              EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-              EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-              EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
-              EM_NML_B(N_EM_RULE_B)%FAC   = PCVOC_FAC
-              ! PCVOC is turned off for Fires
-              DO ISRM = 1,N_EM_SRM
-                IF ( EM_FILE_FIRE( ISRM ) ) THEN
-                  N_EM_RULE_B = N_EM_RULE_B + 1
-                  EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE' 
-                  EM_NML_B(N_EM_RULE_B)%STREAM= EM_FILE_LAB( ISRM )
-                  EM_NML_B(N_EM_RULE_B)%SURR  = 'ALL'
-                  EM_NML_B(N_EM_RULE_B)%SPEC  = 'PCVOC'
-                  EM_NML_B(N_EM_RULE_B)%PHASE = 'GAS'
-                  EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
-                  EM_NML_B(N_EM_RULE_B)%OP    = 'o' 
-                  EM_NML_B(N_EM_RULE_B)%FAC   = 0.0
-                END IF
-              END DO
-            END IF
-         END IF
-
-      ! [ INSERT MORE DEFAULT RULES HERE AS DESIRED ]
-          
       ! Add Rules to Existing List at Beginning
          N_EM_RULE = N_EM_RULE + N_EM_RULE_B
          DO IRULE = N_EM_RULE, N_EM_RULE_B+1, -1
@@ -965,7 +615,7 @@
          INTEGER          :: STAT
 
          ! Define General Parameters in Emission Control Namelist
-         NAMELIST / GeneralSpecs / DefaultScaling, Guard_BiogenicVOC,
+         NAMELIST / GeneralSpecs / Guard_BiogenicVOC,
      &              Guard_MarineGas, Guard_LightningNO, Guard_WindBlownDust,
      &              Guard_SeaSpray
 
@@ -1001,7 +651,6 @@
      &              'You have chosen not to indicate the location of an',
      &              'Emission Control namelist file. Default settings ',
      &              'will be assumed.'
-             DefaultScaling      = .TRUE.
              Guard_BiogenicVOC   = .FALSE.
              Guard_MarineGas     = .FALSE.
              Guard_LightningNO   = .FALSE.
@@ -1030,7 +679,6 @@
      &              'GeneralSpecs section of the Emissions Control ',
      &              'Namelist. Default values for this section will be ',
      &              'assumed.'
-             DefaultScaling      = .TRUE.
              Guard_BiogenicVOC   = .FALSE.
              Guard_MarineGas     = .FALSE.
              Guard_LightningNO   = .FALSE.
