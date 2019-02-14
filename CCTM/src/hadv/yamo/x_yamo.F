@@ -305,7 +305,7 @@ C Get the contravariant x1 velocity component
 
 C check adjusted velocities for Courant limited max timestep
             IF (VELX(COL) .NE. 0.0) THEN
-               DTCFL = MIN ( DTCFL, 0.9 * DX1 / ABS( VELX( COL ) ) )
+               DTCFL = MIN ( DTCFL, 0.99 * DX1 / ABS( VELX( COL ) ) )
             END IF
 
          END DO   ! COL
