@@ -42,12 +42,13 @@ C     01/24/02 Steve Howard (Jeff Young) - dynamic allocation
 C     12/13/04 J.Young: vert dyn alloc - Use VGRD_DEFN
 C     09 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C     21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
+C     06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
                     
 C***********************************************************************
 
       USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN   ! vertical layer specifications
-      USE UTILIO_DEFN
+      USE M3UTILIO    ! IOAPI module
       USE IC_PARMS    ! ICON parameters
 
       IMPLICIT NONE     
