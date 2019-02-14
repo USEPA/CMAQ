@@ -49,7 +49,7 @@
 #   WorkDir    = Working Directory for Fortran links and namelist
 #-----------------------------------------------------------------------
 
-source $CMAQ_HOME/config.cmaq
+source $CMAQ_HOME/config_cmaq.csh
 
 set APPL       = 110702   
 set CoordName  = LamCon_40N_97W # 16-character maximum
