@@ -161,9 +161,6 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore if CTM_ILDEPV = N
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_ZERO_PCSOA N      #> zero out emissions of VOC precursor for pcSOA formation.
-                             #>    The CMAQ dev team recommends leaving pcSOA mass in the
-                             #>    model for production runs. [ default: N ]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -309,7 +306,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
 
   #> Emissions Control File
-  setenv EMISSCTRL_NML ${WORKDIR}/EmissCtrl.nml
+  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
   #> Spatial Masks For Emissions Scaling
   setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
