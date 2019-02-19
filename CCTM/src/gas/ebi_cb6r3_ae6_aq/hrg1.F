@@ -29,7 +29,7 @@ C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, Feb 12, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C   01 Jun 18 B.Hutzell: replaced steady solution for O1D with backward Euler
@@ -204,7 +204,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI(   193 ) * YC ( CRO          )   ! NO2+CRO=CRON
      &   +                 RKI(   209 ) * YC ( OPO3         )   ! NO2+OPO3=OPAN
      &   +                 RKI(   248 ) * YC ( CLO          )   ! NO2+CLO=CLNO3
-     &   +                 RKI(   273 )                         ! NO2=0.5000D+...
+     &   +                 RKI(   272 )                         ! NO2=0.5000D+...
       L2     = 1.0D0 + L2 * DTC
 
 
@@ -235,7 +235,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &   +                 RKI(   200 ) * YC ( XOPN         )   ! O3+XOPN=0.1200D+...
      &   +                 RKI(   204 ) * YC ( OPEN         )   ! O3+OPEN=0.1400D+...
      &   +                 RKI(   223 ) * YC ( CL           )   ! O3+CL=CLO
-     &   +                 RKI(   274 )                         ! O3=
+     &   +                 RKI(   273 )                         ! O3=
       L3    = 1.0D0 + L3 * DTC
 
 

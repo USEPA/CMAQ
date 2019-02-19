@@ -1,7 +1,6 @@
 &AE_nml
 
 AE_SPECIES_DATA = 
-
 !SPECIES   ,MOLWT    ,ICBC   ,FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC    
 'ASO4J'    , 96.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'SO4_ACCUM'    , 1  ,'SO4_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'ASO4I'    , 96.00   ,''     ,-1  ,'VMASSI'    , 1  ,'SO4_AITKEN'   , 1  ,'SO4_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
@@ -109,7 +108,7 @@ AE_SPECIES_DATA =
 'ADE_OCJ'  ,220.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'ADE_NO3J' , 62.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'ADE_SO4J' , 96.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
-'ADE_K'    ,100.00   ,''     ,-1  ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'TRACER_COARSE','Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
+'ADE_CORS' ,100.00   ,''     ,-1  ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'TRACER_COARSE','Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'ACDI'     ,112.40   ,''     ,-1  ,'VMASSI'    , 1  ,'TRACER_AITKEN', 1  ,'TRACER_AITKEN','Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'ACDJ'     ,112.40   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',  
 'ACDK'     ,112.40   ,''     ,-1  ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'TRACER_COARSE','Yes'   ,'Yes'   ,'Yes'   ,'Yes',  

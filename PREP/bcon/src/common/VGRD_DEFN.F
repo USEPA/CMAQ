@@ -32,6 +32,9 @@ C Revision History: Jeff Young: 6 Dec 04: created
 C                              26 Jul 06: comments in line with PARMS3.EXT
 C                   J.Young    13 Jul 11: Replaced I/O API include files
 C                                         with M3UTILIO
+C                   S.Roselle  21 Sep 18: Use MET_BDY_3D_FIN to get layer
+C                                         structure instead of requiring
+C                                         a separate LAYER_FILE
 C.......................................................................
 
       IMPLICIT NONE
@@ -98,7 +101,7 @@ C-----------------------------------------------------------------------
 !           integer, save :: logdev
             LOGICAL, SAVE :: FIRSTIME = .TRUE.
             CHARACTER( 96 ) :: XMSG = ' '
-            CHARACTER( 16 ) :: LAYER_FILE = 'LAYER_FILE'
+            CHARACTER( 16 ) :: LAYER_FILE = 'MET_BDY_3D_FIN'
 
             INTEGER L, ALLOCSTAT
 
