@@ -55,7 +55,7 @@ C     26 June 2014 J.Bash: initial implementation
 
       Type( Map_Type ), Save :: Map_Data 
 
-      INTEGER, PARAMETER :: dep_gas_all = 162
+      INTEGER, PARAMETER :: dep_gas_all = 177
       INTEGER, PARAMETER :: LCMP = 8
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
@@ -71,7 +71,7 @@ C     26 June 2014 J.Bash: initial implementation
 
       CHARACTER( 16 ), Parameter    :: DEPV_METHOD = 'STAGE'
 
-      DATA vd_name(  1), rel_rx(  1), f0(  1), LeBasM(  1), M_ac(  1) / 'SO2          ',   10.0, 0.0,  35.0, 0.11 / 
+      DATA vd_name(  1), rel_rx(  1), f0(  1), LeBasM(  1), M_ac(  1) / 'SO2          ',   32.8, 0.0,  35.0, 0.11 / ! apperent reactivity derrived from Duke Forest fluxes measurments (Bash et al in prep)
       DATA vd_name(  2), rel_rx(  2), f0(  2), LeBasM(  2), M_ac(  2) / 'SULF         ', 8000.0, 0.0,  49.0, 0.12 /
       DATA vd_name(  3), rel_rx(  3), f0(  3), LeBasM(  3), M_ac(  3) / 'NO2          ',    2.0, 0.1,  21.0,1.5e-3/
       DATA vd_name(  4), rel_rx(  4), f0(  4), LeBasM(  4), M_ac(  4) / 'NO           ',    2.0, 0.0,  14.0,1.0e-3/
@@ -233,6 +233,21 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(160), rel_rx(160), f0(160), LeBasM(160), M_ac(160) / 'SVAVB4       ',    20.8, 0.0,  162.7, 0.444/ ! SVAVB4
       DATA vd_name(161), rel_rx(161), f0(161), LeBasM(161), M_ac(161) / 'CLNO3        ',     8.0, 0.0,   65.1, 0.420/ ! CLNO3
       DATA vd_name(162), rel_rx(162), f0(162), LeBasM(162), M_ac(162) / 'FMBR         ',    10.0, 0.0,   52.9, 0.420/ ! FMBR
+      DATA vd_name(163), rel_rx(163), f0(163), LeBasM(163), M_ac(163) / 'I2           ',     4.0, 0.0,   77.0, 0.420/ ! I2
+      DATA vd_name(164), rel_rx(164), f0(164), LeBasM(164), M_ac(164) / 'CH3I         ',     2.0, 0.0,   66.5, 0.420/ ! CH3I
+      DATA vd_name(165), rel_rx(165), f0(165), LeBasM(165), M_ac(165) / 'ICL          ',     4.0, 0.0,   63.0, 0.420/ ! ICL
+      DATA vd_name(166), rel_rx(166), f0(166), LeBasM(166), M_ac(166) / 'IBR          ',     4.0, 0.0,   70.0, 0.420/ ! IBR
+      DATA vd_name(167), rel_rx(167), f0(167), LeBasM(167), M_ac(167) / 'MI2          ',     2.0, 0.0,   98.0, 0.420/ ! MI2
+      DATA vd_name(168), rel_rx(168), f0(168), LeBasM(168), M_ac(168) / 'MIB          ',     2.0, 0.0,   91.0, 0.420/ ! MIB
+      DATA vd_name(169), rel_rx(169), f0(169), LeBasM(169), M_ac(169) / 'MIC          ',     2.0, 0.0,   84.0, 0.420/ ! MIC
+      DATA vd_name(170), rel_rx(170), f0(170), LeBasM(170), M_ac(170) / 'BR2          ',     2.0, 0.0,   63.0, 0.420/ ! BR2
+      DATA vd_name(171), rel_rx(171), f0(171), LeBasM(171), M_ac(171) / 'BR3          ',     2.0, 0.0,  108.5, 0.420/ ! BR3
+      DATA vd_name(172), rel_rx(172), f0(172), LeBasM(172), M_ac(172) / 'CH3BR        ',     2.0, 0.0,   59.5, 0.420/ ! CH3BR
+      DATA vd_name(173), rel_rx(173), f0(173), LeBasM(173), M_ac(173) / 'MB2          ',     2.0, 0.0,   84.0, 0.420/ ! MB2
+      DATA vd_name(174), rel_rx(174), f0(174), LeBasM(174), M_ac(174) / 'MB2C         ',     2.0, 0.0,  101.5, 0.420/ ! MB2C
+      DATA vd_name(175), rel_rx(175), f0(175), LeBasM(175), M_ac(175) / 'MBC2         ',     2.0, 0.0,   94.5, 0.420/ ! MBC2
+      DATA vd_name(176), rel_rx(176), f0(176), LeBasM(176), M_ac(176) / 'MBC          ',     2.0, 0.0,   77.0, 0.420/ ! MBC
+      DATA vd_name(177), rel_rx(177), f0(177), LeBasM(177), M_ac(177) / 'CLO          ',     8.0, 0.0,   31.5, 0.420/ ! CLO
 
       Contains
          SUBROUTINE Map_STAGE 

@@ -27,8 +27,8 @@ residential heating, etc.
 - [9. Scale all species except one by a common factor](#scale_all_but_one)  
 - [10. Apply scaling while conserving moles or mass](#scale_moles_mass)  
 - [11. Apply scaling with spatial dependence](#apply_mask)  
-- [A1. Appendix: Example Emission Control File])#appendix1
-- [A2. Appendix: Example Emissions Section of CCTM RunScript File])#appendix2
+- [A1. Appendix: Example Emission Control File](#appendix1)
+- [A2. Appendix: Example Emissions Section of CCTM RunScript File](#appendix2)
 
 
 <a id=zero_out></a>
@@ -192,7 +192,14 @@ The user may elect to conserve moles or mass instead of applying factors directl
 ```
 will add 15% of CO emissions to the emissions of fine-mode particulate nitrate, but the scale factor will also be adjusted by multiplying by the molecular weight of CO in order to conserve mass.
 
-Reminder: gas-phase emission rates are usually provided to CMAQ in molar units while particle emissions are usually provided in mass. Note that if the user scales a particle species to a gas surrogate, or vice-versa, it is important in most cases to choose "MOLE" or "MASS" for the Basis in order to ensure proper unit conversions.
+Reminder: gas-phase emission rates are usually provided to CMAQ in molar units while particle emissions are usually provided in mass. Note that if the user scales a particle species to a gas surrogate, or vice-versa, it is important in most cases to choose either "MASS" or "MOLE" appropriately for the Basis in order to ensure proper unit conversions. 
+
+If the user is scaling one gas species to another gas surrogate, both will likely have molar emissions units. In this case, selecting "MOLE" as the basis will be equivalent to selecting "UNIT". In other words, there will be no modification of the user-defined scale factor due to unit conversion concerns. If however, "MASS" is selected, then the scale factor will be modified by first multiplying by the molecular weight of the surrogate and then dividing by the molecular weight of the CMAQ species.
+```
+! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+!  Label      |               |Surrogate| Species      |Mode  |Factor|      |
+'EVERYWHERE'  , 'All'         ,'CO'     ,'ETHYLBENZ'   ,'GAS' ,0.003 ,'MASS','a',
+```
 
 <a id=apply_mask></a>
 ### 11. Apply scaling with spatial dependence

@@ -109,6 +109,8 @@ C                      - renamed DIAM to PMDIAG
 C  D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVG_FILE_ENDTIME
 C                      - updated the way to define NUM_PMDIAG_SPC
 C                      - set CTM_PMDIAG default value to .TRUE.
+C  D. Wong 31 Jan 2019 - adopted the idea to process all twoway related environment
+C                        variables in one place
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -133,6 +135,9 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PMDIAG_DATA_MODULE, ONLY: NUM_PMDIAG_SPC, A_PMDIAG_SPC_MAP, PMDIAG_SPC_RECORD
       USE RUNTIME_VARS, ONLY: LOGDEV, PMDIAG, APMDIAG, APMDIAG_ZHI, END_TIME
       USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF
+#ifdef twoway
+      USE twoway_data_module
+#endif
 
       IMPLICIT NONE
 

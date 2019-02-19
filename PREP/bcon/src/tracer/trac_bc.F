@@ -47,7 +47,6 @@ C***********************************************************************
 
       USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN    ! vertical layer specifications
-      USE CGRID_SPCS   ! CGRID mechanism species
       USE BC_PARMS     ! BCON parameters
 
       IMPLICIT NONE     
