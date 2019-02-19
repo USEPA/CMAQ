@@ -193,7 +193,7 @@ C-------------------------------------------------------------------------------
       End Type spcs_list_type
 
       Type( spcs_list_type ), Parameter :: aerolist( n_aerolist ) = (/
-C                                                              Visidx_Large
+C                                                             Visidx_Large
 C                                          no_M2Wet Tracer        |
 C                     ---Name---                  | | Charge      | OM           
 C                               Min_Concs Density | |   | Visidx  |  |  OptSurr  korg  
@@ -244,8 +244,8 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
      & spcs_list_type('ASOIL   ', cm_set, 2600.0, F,F,  0,  0.6, 0.6,F, 'DUST  ', 0.00), ! Soil
      & spcs_list_type('ACORS   ', cm_cor, 2200.0, F,F,  0,  0.6, 0.6,F, 'DUST  ', 0.00), ! Coarse PM
      & spcs_list_type('ASEACAT ', cm_cor, 2200.0, F,F,  1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! SeaSpray Cations        
-                                                                                 
-       ! Associated with ae6i                                                         
+                                                                                   
+       ! Associated with ae6i                                                           
      & spcs_list_type('AMTNO3  ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.11), ! Monoterpene Nitrate SOA
      & spcs_list_type('AISOPNN ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.32), ! Isoprene Nitrate SOA
      & spcs_list_type('AMTHYD  ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), ! 
@@ -1197,9 +1197,13 @@ C Local Variables:
 
       idx = 0
 C Find the substring vname in aerospc( spc )%name( n )
-      Do n = 1, n_mode
-         Do spc = 1, n_aerospc
-            If ( Index( aerospc( spc )%name( n ), trim(vname) ) .Gt. 0 ) Then
+      Do spc = 1, n_aerospc
+         If ( aerospc( spc )%bulkname .eq. vname ) Then
+            idx = spc
+            Return
+         End If
+         Do n = 1, n_mode
+            If ( aerospc( spc )%name( n ) .eq. vname ) Then
                idx = spc
                Return
             End If
