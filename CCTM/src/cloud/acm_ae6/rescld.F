@@ -199,11 +199,14 @@ C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 20
       LOGICAL       DARK                            ! DARK = TRUE is night,  DARK = FALSE is day
 
 #ifdef isam
-      INTEGER, SAVE :: S_SO2, S_SO4J, S_SULF
-      INTEGER, SAVE :: C_SO2, C_SO4J, C_SULF
+      INTEGER, SAVE           :: S_SO2, S_SO4J, S_SULF
+      INTEGER, SAVE           :: C_SO2, C_SO4J, C_SULF
       REAL, ALLOCATABLE, SAVE :: SA_POLC   ( :,: )
       REAL, ALLOCATABLE, SAVE :: SA_CEND   ( :,: )
-      INTEGER CSPC
+      INTEGER                 :: CSPC
+      REAL, ALLOCATABLE, SAVE :: SA_DS4    ( : )
+      REAL                    :: SA_SUM
+      REAL, ALLOCATABLE, SAVE :: SA_REMOV  ( :,: )
 #endif
 
 C...........External Functions:
@@ -356,6 +359,8 @@ C...  the met timestep in hours
 
         ALLOCATE ( SA_POLC  ( NSPC_SA, NTAG_SA ),
      &             SA_CEND  ( NSPC_SA, NTAG_SA ),
+     &             SA_DS4   ( NTAG_SA ),
+     &             SA_REMOV ( NSPC_SA, NTAG_SA ),
      &             STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating SA_POLC or SA_CEND'
@@ -652,9 +657,25 @@ C...  per mole air
                   DO ITAG = 1, NTAG_SA
                     SA_POLC( SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG )
                     SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
+                    SA_REMOV( SPC, ITAG ) = 0.0
                   END DO
                 END DO
 #endif 
+
+            IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
+               write(logdev,*) "STARTING RESCLD"
+               write(logdev,*) " LAYER = ", LAY
+
+               write(logdev,*) "POLC SO2,SO4,SULF"
+               write(logdev,*)POLC(C_SO2),POLC(C_SO4J),POLC(C_SULF)
+               write(logdev,*) "SA_POLC SO2"
+               write(logdev,*) SA_POLC(S_SO2,:)
+               write(logdev,*) "SA_POLC SO4"
+               write(logdev,*) SA_POLC(S_SO4J,:)
+               write(logdev,*) "SA_POLC SULF"
+               write(logdev,*) SA_POLC(S_SULF,:)
+           END IF
+
 
 C...perform scavenging and aqueous chemistry within the cloud
 C...  and re-adjust the ending and removed amounts for those species
@@ -668,15 +689,37 @@ C...  that were scavenged or that participated in cloud chemistry
 #ifdef isam
                 DO SPC = 1, NSPC_SA
                   CSPC = SPC_INDEX(SPC,2)
-                  DO ITAG = 1, NTAG_SA
-                    IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+                  IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+                    DO ITAG = 1, NTAG_SA
                       SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
      &                                     * CEND( CSPC )
      &                                     / POLC( CSPC )
-                    END IF
-                  END DO
+                      SA_REMOV( SPC, ITAG ) = SA_POLC( SPC, ITAG )
+     &                                      * REMOV( CSPC )
+     &                                      / POLC( CSPC )
+                    END DO
+                  ELSE
+                    DO ITAG = 1, NTAG_SA
+                      SA_CEND( SPC, ITAG ) = 1.0E-30
+                    END DO
+                  END IF
                 END DO
 #endif
+
+
+            IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
+               write(logdev,*) "AFTER SCAVWDEP"
+               write(logdev,*) "CEND SO2,SO4,SULF"
+               write(logdev,*)CEND(C_SO2),CEND(C_SO4J),CEND(C_SULF)
+               write(logdev,*) "SA_CEND SO2"
+               write(logdev,*) SA_CEND(S_SO2,:)
+               write(logdev,*) "SA_CEND SO4"
+               write(logdev,*) SA_CEND(S_SO4J,:)
+               write(logdev,*) "SA_CEND SULF"
+               write(logdev,*) SA_CEND(S_SULF,:)
+           END IF
+
+
 
 C...if the liquid water content is above the specified threshold
 C...  then perform the aqueous chemistry within the cloud and
@@ -706,60 +749,68 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
      &                          ALFA2, ALFA3, DARK )
 
 #ifdef isam
-
-
-c                 IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
-
-c                   write(logdev,*) C_SO2, C_SO4J, C_SULF
-c                   write(logdev,*) S_SO2, S_SO4J, S_SULF
-
-c                   write(logdev,*) " =-=-=-=-=-=-=-=-=-=-=-=-= "
-c                   write(logdev,*) "BEFORE, LAY = ", LAY
-c                   write(logdev,*) "POLC( C_SO2  ) = ",POLC( C_SO2 )
-c                   write(logdev,*) "POLC( C_SO4J ) = ",POLC( C_SO4J )
-c                   write(logdev,*) "POLC( C_SULF ) = ",POLC( C_SULF )
-c                   write(logdev,*) "SA_POLC( S_SO2  ) = ",SA_POLC( S_SO2,:  )
-c                   write(logdev,*) "SA_POLC( S_SO4J ) = ",SA_POLC( S_SO4J,: )
-c                   write(logdev,*) "SA_POLC( S_SULF ) = ",SA_POLC( S_SULF,: )
-c                 END IF
+                  IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
+                    write(logdev,*) "DS4_SAVE=",DS4_SAVE
+                    write(logdev,*) "DEPSUM_SAVE=",DEPSUM_SAVE
+                  END IF
 
                   DO SPC = 1, NSPC_SA ! general case
                     CSPC = SPC_INDEX(SPC,2)
                     DO ITAG = 1, NTAG_SA
                       IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
                         SA_CEND( SPC, ITAG ) = SA_POLC( SPC,ITAG )
-     &                                     * CEND( CSPC )
-     &                                     / POLC( CSPC )
+     &                                       * CEND( CSPC )
+     &                                       / POLC( CSPC )
+                        SA_REMOV( SPC, ITAG ) = SA_POLC( SPC, ITAG )
+     &                                        * REMOV( CSPC )
+     &                                        / POLC( CSPC )
                       END IF
                     END DO
                   END DO
 
                   IF (S_SO4J .NE. 0 ) THEN ! sulfate case
-                    DO ITAG = 1, NTAG_SA
-                      SA_CEND( S_SO4J,ITAG ) = SA_POLC( S_SO4J,ITAG )
-     &                        + DS4_SAVE
-     &                        * ( SA_POLC( S_SO2,ITAG ) + SA_POLC( S_SULF,ITAG ) ) 
-c    &                        / ( POLC( C_SO2 ) + POLC ( C_SULF ) )  
-     &                        / ( SUM( SA_POLC( S_SO2,: ) ) + SUM( SA_POLC( S_SULF,: ) ) ) 
-     &                        - DEPSUM_SAVE
-     &                        * SA_POLC( S_SO4J,ITAG )
-c    &                        / POLC( C_SO4J )
-     &                        / ( SUM( SA_POLC( S_SO4J,: ) ) )
-                      SA_CEND( S_SO4J,ITAG ) = MAX( SA_CEND( S_SO4J,ITAG ), 1.E-30) 
+
+                    DO ITAG = 1, NTAG_SA  ! sulfate from H2SO4
+                      SA_DS4( ITAG ) = SA_POLC( S_SULF,ITAG )
+                      SA_CEND( S_SULF,ITAG )  = 1.0E-30
                     END DO
+
+                    DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) !sulfate produced from SO2
+
+                    DO ITAG = 1, NTAG_SA
+                      SA_DS4( ITAG ) = SA_DS4( ITAG ) + DS4_SAVE ! total sulfate produced
+     &                               * SA_POLC( S_SO2,ITAG )
+     &                               / SUM ( SA_POLC( S_SO2,: ) )
+                      SA_CEND( S_SO4J,ITAG ) = SA_POLC( S_SO4J,ITAG )  ! sulfate before removal
+     &                                       + SA_DS4( ITAG )
+                    END DO
+ 
+                    SA_SUM = SUM ( SA_CEND( S_SO4J,: ) ) ! total apportioned sulfate before removal
+
+                    DO ITAG = 1, NTAG_SA ! final sulfate removal and concentration
+                      SA_REMOV( S_SO4J,ITAG ) = REMOV_SAVE
+     &                                        * SA_CEND( S_SO4J,ITAG )
+     &                                        / SA_SUM
+                      SA_CEND( S_SO4J,ITAG ) = SA_CEND( S_SO4J,ITAG )
+     &                                       - DEPSUM_SAVE
+     &                                       * SA_CEND( S_SO4J,ITAG )
+     &                                       / SA_SUM
+                      SA_CEND( S_SO4J,ITAG ) = MAX ( SA_CEND( S_SO4J,ITAG ), 1.0E-30 )
+                    END DO
+          
+            IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
+               write(logdev,*) "AFTER SCAVWDEP"
+               write(logdev,*) "CEND SO2,SO4,SULF"
+               write(logdev,*)CEND(C_SO2),CEND(C_SO4J),CEND(C_SULF)
+               write(logdev,*) "SA_CEND SO2"
+               write(logdev,*) SA_CEND(S_SO2,:)
+               write(logdev,*) "SA_CEND SO4"
+               write(logdev,*) SA_CEND(S_SO4J,:)
+               write(logdev,*) "SA_CEND SULF"
+               write(logdev,*) SA_CEND(S_SULF,:)
+           END IF
+
                   END IF
-
-c                 IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
-c                   write(logdev,*) " =-=-=-=-=-=-=-=-=-=-=-=-= "
-c                   write(logdev,*) "AFTER, LAY = ", LAY
-c                   write(logdev,*) "CEND( C_SO2  ) = ",CEND( C_SO2 )
-c                   write(logdev,*) "CEND( C_SO4J ) = ",CEND( C_SO4J )
-c                   write(logdev,*) "CEND( C_SULF ) = ",CEND( C_SULF )
-c                   write(logdev,*) "SA_CEND( S_SO2  ) = ",SA_CEND( S_SO2,:  )
-c                   write(logdev,*) "SA_CEND( S_SO4J ) = ",SA_CEND( S_SO4J,: )
-c                   write(logdev,*) "SA_CEND( S_SULF ) = ",SA_CEND( S_SULF,: )
-c                 END IF
-
 
 #endif
 
@@ -777,6 +828,16 @@ C...  for gases
                   SPC = SPC + 1
                   REMOV( VAR ) = REMOV( VAR ) * GC_MOLWT( SPC )
      &                         * M2PHA_OVER_GPKG
+#ifdef isam
+                  CSPC = 0
+                  CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
+                  IF ( CSPC .GT. 0 ) THEN
+                    DO ITAG = 1, NTAG_SA
+                      SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * GC_MOLWT( SPC )
+     &                                      * M2PHA_OVER_GPKG
+                    END DO
+                  END IF
+#endif
                 END DO
 
 C...  for aerosols
@@ -793,6 +854,16 @@ C...  for aerosols
                   ELSE
                     REMOV( VAR ) = REMOV( VAR ) * M2PHA
                   END IF
+#ifdef isam
+                  CSPC = 0
+                  CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
+                  IF ( CSPC .GT. 0 ) THEN
+                    DO ITAG = 1, NTAG_SA
+                      SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * AE_MOLWT( SPC )
+     &                                      * M2PHA_OVER_GPKG
+                    END DO
+                  END IF
+#endif
                 END DO
 
 C...  for non-reactives
@@ -804,6 +875,16 @@ C...  for non-reactives
                   SPC = SPC + 1
                   REMOV( VAR ) = REMOV( VAR ) * NR_MOLWT( SPC )
      &                         * M2PHA_OVER_GPKG
+#ifdef isam
+                  CSPC = 0
+                  CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
+                  IF ( CSPC .GT. 0 ) THEN
+                    DO ITAG = 1, NTAG_SA
+                      SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * NR_MOLWT( SPC )
+     &                                      * M2PHA_OVER_GPKG
+                    END DO
+                  END IF
+#endif
                 END DO
 
 C...  for tracers
@@ -828,7 +909,7 @@ C...load H+ concentration into the deposition array as well
 
                 DEP( COL, ROW, N_SPC_WDEP+1 ) =
      &                         DEP( COL, ROW, N_SPC_WDEP+1 ) + REMOVAC
-
+ 
 C...set cgrid to the ending concentrations
 
                 DO SPC = 1, NSPCSD
@@ -839,13 +920,9 @@ C...set cgrid to the ending concentrations
 
 #ifdef isam
                 DO SPC = 1, NSPC_SA
-                  CSPC = SPC_INDEX(SPC,2)
                   DO ITAG = 1, NTAG_SA
                     SA_DEP( COL, ROW, SPC, ITAG ) = SA_DEP( COL, ROW, SPC, ITAG )
-     &                                    + ( REMOV ( CSPC )
-     &                                    *   SA_POLC( SPC, ITAG )
-     &                                    /   POLC( CSPC ) )
-
+     &                                    + SA_REMOV( SPC, ITAG )
                     ISAM( COL,ROW,LAY,SPC,ITAG ) = SA_CEND( SPC, ITAG )
                   END DO
                 END DO

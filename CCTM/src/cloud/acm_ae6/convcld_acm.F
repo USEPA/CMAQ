@@ -434,6 +434,9 @@ C...........Statement Functions
       INTEGER CSPC
 
       REAL BLNC
+      REAL                    :: SA_SUM
+
+
 #endif
 
 
@@ -1692,7 +1695,6 @@ C...Finally, get in cloud pollutant concentrations in mol sp per mol air
 #ifdef isam
           DO SPC = 1, NSPC_SA
              CSPC = SPC_INDEX(SPC,2)
-
              IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
                 DO ITAG = 1, NTAG_SA
                    SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
@@ -1781,16 +1783,16 @@ C...convert mean photolysis rates to 1/sec
      &                                       + SA_DS4( ITAG )
               END DO
 
-              CONDIS = SUM ( SA_CEND( S_SO4J,: ) ) ! total apportioned sulfate before removal
+              SA_SUM = SUM ( SA_CEND( S_SO4J,: ) ) ! total apportioned sulfate before removal
  
               DO ITAG = 1, NTAG_SA ! final sulfate removal and concentration
                 SA_REMOV( S_SO4J,ITAG ) = REMOV_SAVE
      &                                  * SA_CEND( S_SO4J,ITAG )
-     &                                  / CONDIS
+     &                                  / SA_SUM
                 SA_CEND( S_SO4J,ITAG ) = SA_CEND( S_SO4J,ITAG )
      &                                 - DEPSUM_SAVE
      &                                 * SA_CEND( S_SO4J,ITAG )
-     &                                 / CONDIS
+     &                                 / SA_SUM
                 SA_CEND( S_SO4J,ITAG ) = MAX ( SA_CEND( S_SO4J,ITAG ), 1.0E-30 )
               END DO
 
@@ -1800,8 +1802,9 @@ C...convert mean photolysis rates to 1/sec
           END IF
 
           DO SPC = 1, NSPCSD
-            IF ( CEND( SPC ) .LT. 0.0 ) WRITE( LOGDEV,* ) ' CEND,R,C,SP=',
-     &                                  CEND( SPC ), ROW, COL, SPC
+            IF ( CEND( SPC ) .LT. 0.0 ) 
+     &                               WRITE( LOGDEV,* ) ' CEND,R,C,SP=',
+     &                               CEND( SPC ), ROW, COL, SPC
           END DO
 
 C...weight the removed amount by the cloud fraction and convert
@@ -1925,7 +1928,7 @@ C...   include raining region below cld base
                 END IF
               END DO
 #ifdef isam
-              DO SPC = 1, NSPC_SA
+              DO SPC = 1, NSPC_SA ! general case
                 CSPC = SPC_INDEX(SPC,2)
 
                 DO ITAG = 1, NTAG_SA
@@ -1949,7 +1952,7 @@ C...   include raining region below cld base
      &                    + SA_PCLD( S_SO4J,LAY,ITAG ) * CEND( C_SO4J ) / MAX( POLC( C_SO4J ), CONCMINL( C_SO4J,LAY ) )
                   IF ( SA_INCLOUD( ITAG ) .LT. 0.0 ) THEN
                     CONDIS = CONDIS + SA_INCLOUD( ITAG )
-c                   SA_INCLOUD( ITAG )  = 0.0
+                    SA_INCLOUD( ITAG )  = 0.0
                   END IF
                 END DO
 
@@ -1957,7 +1960,7 @@ c                   SA_INCLOUD( ITAG )  = 0.0
                   BLNC = ( CONDIS + SUM( SA_INCLOUD( : ) ) ) / SUM( SA_INCLOUD( : ) )
                   DO ITAG = 1, NTAG_SA
                     IF ( SA_INCLOUD( ITAG ) .GT. 0.0 ) THEN
-c                     SA_INCLOUD( ITAG ) = BLNC * SA_INCLOUD( ITAG )
+                      SA_INCLOUD( ITAG ) = BLNC * SA_INCLOUD( ITAG )
                     END IF
                   END DO
                 END IF
@@ -1966,7 +1969,7 @@ c                     SA_INCLOUD( ITAG ) = BLNC * SA_INCLOUD( ITAG )
                   OUTCLOUD = SA_PCLD( S_SO4J,LAY,ITAG )
                   ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = FRAC * SA_INCLOUD( ITAG )
      &                                       + ( 1.0 - FRAC ) * OUTCLOUD
-c                 ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = MAX( ISAM( COL,ROW,LAY,S_SO4J,ITAG ), 1.0E-30 )
+                  ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = MAX( ISAM( COL,ROW,LAY,S_SO4J,ITAG ), 1.0E-30 )
                 END DO
 
               END IF
@@ -2004,7 +2007,7 @@ C...Now do changes in cloudy layers:
               END IF
             END DO
 #ifdef isam
-            DO SPC = 1, NSPC_SA
+            DO SPC = 1, NSPC_SA ! general case
               CSPC = SPC_INDEX(SPC,2)
 
               DO ITAG = 1, NTAG_SA
@@ -2019,7 +2022,6 @@ C...Now do changes in cloudy layers:
      &                                       + ( 1.0 - FRAC ) * OUTCLOUD
               END DO
             END DO
-
 
             IF (S_SO4J .NE. 0 ) THEN ! sulfate case
               DO ITAG = 1, NTAG_SA

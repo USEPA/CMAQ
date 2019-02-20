@@ -524,12 +524,12 @@ C...compute cloud effects for the resolved clouds and resolved rainwater
 C...compute iloud effects for convective (subgrid) clouds
 
 #ifdef isam
-c     CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-c    &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS,
-c    &                   CONV_SADEP )
+      CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+     &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS,
+     &                   CONV_SADEP )
 #else
-c     CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-c    &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
+      CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+     &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
 #endif
 
 C...now check to see if it's time to write the deposition file
