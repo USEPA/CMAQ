@@ -43,11 +43,14 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                      removed deprecated TRIMLEN
 C   16 Sep 11 S.Roselle: for Pleim`s zadv-wrf blend
 C   11 Oct 11 J.Young: eliminate ppmv_msmr
+C   01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all
+C                     MY_N clauses
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      use CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE   
 
@@ -90,9 +93,6 @@ C Local Variables:
       INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m**2/m**3 species
 
       INTEGER     ALLOCSTAT
-      INTEGER     GXOFF, GYOFF          ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       INTEGER     OFF              ! loop offset to CGRID species
       INTEGER     C, R, L, SPC, V  ! loop counters
@@ -136,30 +136,13 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
 
          END if
 
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
       END IF       ! if firstime
 
 C Read Jacobian X Air Density (Jacobian =  sq. root det. metric tensor)
 
-      VNAME = 'DENSA_J'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    JDATE, JTIME,
-     &                    RHOJ ) ) THEN
-         XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENSA_J', jdate, jtime, RHOJ)
  
-      VNAME = 'JACOBM'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    JDATE, JTIME,
-     &                    JACOBM ) ) THEN
-         XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('JACOBM', jdate, jtime, JACOBM)
 
 C couple for advection - use density times the square root of the determinant
 C of the metric tensor (the Jacobian) = RHOJ
@@ -170,8 +153,8 @@ C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing rati
          DO V = 1, N_GC_TRNS
             SPC = OFF + GC_TRNS_MAP( V )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * RHOJ( C,R,L )
                   END DO
                END DO
@@ -182,8 +165,8 @@ C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing rati
 C initialize RhoJ from MCIP - done once per sync step
       RHOJ_LOC = GC_STRT + N_GC_SPC
       DO L = 1, NLAYS
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                CGRID( C,R,L,RHOJ_LOC ) = RHOJ( C,R,L )
             END DO
          END DO
@@ -195,8 +178,8 @@ C CGRID in ug/m**3 -> ("total" Jacobian [m]) X [Kg/m**3]
          DO V = 1, NQAE
             SPC = OFF + AE_TRNS_MAP( QAE( V ) )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = JACOBM( C,R,L ) * CGRID( C,R,L,SPC ) / CONV
                   END DO
                END DO
@@ -209,8 +192,8 @@ C CGRID in #/m**3 -> ("total" Jacobian [m]) X [#/m**3]
          DO V = 1, NNAE
             SPC = OFF + AE_TRNS_MAP( NAE( V ) )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = JACOBM( C,R,L ) * CGRID( C,R,L,SPC )
                   END DO
                END DO
@@ -223,8 +206,8 @@ C CGRID in m**2/m**3 -> ("total" Jacobian [m]) X [m**2/m**3]
          DO V = 1, NSAE
             SPC = OFF + AE_TRNS_MAP( SAE( V ) )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = JACOBM( C,R,L ) * CGRID( C,R,L,SPC )
                   END DO
                END DO
@@ -238,8 +221,8 @@ C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing rati
          DO V = 1, N_NR_TRNS
             SPC = OFF + NR_TRNS_MAP( V )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * RHOJ( C,R,L )
                   END DO
                END DO
@@ -253,8 +236,8 @@ C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing rati
          DO V = 1, N_TR_SPC
             SPC = OFF + V
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) * RHOJ( C,R,L )
                   END DO
                END DO
@@ -269,20 +252,13 @@ C entry DECOUPLE
  
       ENTRY DECOUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
 
-      VNAME = 'JACOBM'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    JDATE, JTIME,
-     &                    JACOBM ) ) THEN
-         XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('JACOBM', jdate, jtime, JACOBM)
  
 C retrieve transported RhoJ
       RHOJ_LOC = GC_STRT + N_GC_SPC
       DO L = 1, NLAYS
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                RHOJ( C,R,L ) = CGRID( C,R,L,RHOJ_LOC )
             END DO
          END DO
@@ -296,8 +272,8 @@ C CGRID in mixing ratio [ppmV] X (air density X "total" Jacobian) -> mixing rati
          DO V = 1, N_GC_TRNS
             SPC = OFF + GC_TRNS_MAP( V )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / RHOJ( C,R,L )
                   END DO
                END DO
@@ -311,8 +287,8 @@ C CGRID in Jacobian [m]) X [Kg/m**3] -> [ug/m**3]
          DO V = 1, NQAE
             SPC = OFF + AE_TRNS_MAP( QAE( V ) )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = CONV * CGRID( C,R,L,SPC ) / JACOBM( C,R,L )
                   END DO
                END DO
@@ -325,8 +301,8 @@ C CGRID in Jacobian [m] X [#/m**3] -> #/m**3
          DO V = 1, NNAE
             SPC = OFF + AE_TRNS_MAP( NAE( V ) )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / JACOBM( C,R,L )
                   END DO
                END DO
@@ -339,8 +315,8 @@ C CGRID in Jacobian [m] X [m**2/m**3] -> m**2/m**3
          DO V = 1, NSAE
             SPC = OFF + AE_TRNS_MAP( SAE( V ) )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / JACOBM( C,R,L )
                   END DO
                END DO
@@ -354,8 +330,8 @@ C CGRID in mixing ratio [ppmV] X (air density X "total" jacobian) -> mixing rati
          DO V = 1, N_NR_TRNS
             SPC = OFF + NR_TRNS_MAP( V )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / RHOJ( C,R,L )
                   END DO
                END DO
@@ -369,8 +345,8 @@ C CGRID in mixing ratio [ppmV] X (air density X "total" jacobian) -> mixing rati
          DO V = 1, N_TR_SPC
             SPC = OFF + V
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,SPC ) = CGRID( C,R,L,SPC ) / RHOJ( C,R,L )
                   END DO
                END DO

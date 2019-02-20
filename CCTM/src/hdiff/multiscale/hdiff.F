@@ -69,6 +69,7 @@ C    21 Jun 10 J.Young: convert for Namelist redesign
 C    16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
 C    29 Nov 17 D.Wong: removed all SWAP routines and replaced with SE_COMM
+C    01 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -324,8 +325,8 @@ C Loop over species, layers, nsteps
 
 C Load working array (CGRID is coupled, CONC is mixing ratio)
 
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CONC( C,R ) = CGRID( C,R,L,D2C ) / RHOJ( C,R,L )
                   END DO
                END DO
@@ -342,8 +343,8 @@ C Load working array (CGRID is coupled, CONC is mixing ratio)
 
 C Update CGRID
 
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
 
                      CGRID( C,R,L,D2C ) = RHOJ( C,R,L ) * CONC( C,R )
      &                                  + DTDX1S

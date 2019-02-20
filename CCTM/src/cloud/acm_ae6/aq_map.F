@@ -44,6 +44,7 @@ C                       needed for sulfur oxidation via metal catalysis
 C       8 09/10/11 wth  adapted for multiple pollutant model, i.e., Gas phase mercury 
 C                       PM mercury and tracer species
 C       07 Jul 14  wth: replaced mechanism include file(s) with fortran module
+C       01 Feb 19 D.Wong: replaced run time dynamic arrays with allocatable arrays
  
 C  Called by:  RADMCLD and RESCLD
  
@@ -121,6 +122,7 @@ C Local Variables (scalars):
       INTEGER       ISRG                ! surrogate loop counter
       INTEGER       PNTR                ! relative pointer variable
       INTEGER       SPC                 ! liquid species loop counter
+      INTEGER ::    STAT
 
       REAL( 8 )  :: BETASO4
       REAL       :: EALFA2T             ! EXP( -ALFA2 * TAUCLD )
@@ -128,10 +130,10 @@ C Local Variables (scalars):
       REAL( 8 )  :: M3OLD( NMODES )     ! modal mass at time 0
 
       REAL       :: HPWDEP                        ! hydrogen wet dep (mm mol/liter)
-      REAL( 8 )  :: GAS    ( NGAS )               ! gas phase conc (mol/mol)
-      REAL( 8 )  :: GASWDEP( NGAS )               ! gas phase wet dep array (mm mol/liter)
-      REAL( 8 )  :: AEROSOL( MAX_NAER, NMODES)        ! aerosol conc (mol/mol)
-      REAL( 8 )  :: AERWDEP( MAX_NAER, NMODES)        ! aerosol wet dep array (mm mol/liter)
+      REAL( 8 ), ALLOCATABLE, SAVE :: GAS    ( : )    ! gas phase conc (mol/mol)
+      REAL( 8 ), ALLOCATABLE, SAVE :: GASWDEP( : )    ! gas phase wet dep array (mm mol/liter)
+      REAL( 8 ), ALLOCATABLE, SAVE :: AEROSOL( :, :)  ! aerosol conc (mol/mol)
+      REAL( 8 ), ALLOCATABLE, SAVE :: AERWDEP( :, :)  ! aerosol wet dep array (mm mol/liter)
       REAL( 8 )  :: WSRGGAS( NGAS, MXSRG)             ! weights for surrogate
       REAL( 8 )  :: WSRGAER( MAX_NAER, NMODES, MXSRG) ! weights for surrogate
 
@@ -177,6 +179,16 @@ C...  event-statistics variables.
         FIRSTIME = .FALSE.
 
         CALL AQ_DATA_INIT()      
+
+        ALLOCATE ( GAS    ( NGAS ),
+     &             GASWDEP( NGAS ),
+     &             AEROSOL( NAER, NMODES),
+     &             AERWDEP( NAER, NMODES),
+     &             STAT = STAT)
+        IF (STAT .NE. 0) THEN
+           WRITE (LOGDEV, *) ' ERROR: Not able to allocate memory for GAS array'
+           STOP
+        END IF
 
       END IF
 

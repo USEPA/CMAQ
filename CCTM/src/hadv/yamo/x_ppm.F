@@ -41,6 +41,7 @@ C   21 Jun 2010: Jeff Young: convert for Namelist redesign
 C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
 C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
 C   29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
+C    1 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -148,8 +149,8 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
-         EFX = MY_NCOLS + 1
-         WFX = 2 * MY_NCOLS + MY_NROWS + 4
+         EFX = NCOLS + 1
+         WFX = 2 * NCOLS + NROWS + 4
 
 C Get dx1 from HGRD_DEFN module
 
@@ -163,8 +164,8 @@ C Get dx1 from HGRD_DEFN module
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
 
-         ALLOCATE ( CONX( 1-SWP:MY_NCOLS+SWP,N_SPC_ADV ),
-     &              VELX( MY_NCOLS+1 ), STAT = ALLOCSTAT ) ! Vel along a row
+         ALLOCATE ( CONX( 1-SWP:NCOLS+SWP,N_SPC_ADV ),
+     &              VELX( NCOLS+1 ), STAT = ALLOCSTAT ) ! Vel along a row
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VELX, or CONX'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
@@ -177,9 +178,9 @@ C Get dx1 from HGRD_DEFN module
          END IF
 
 #ifdef parallel
-         ALLOCATE ( HALO_EAST( SWP,MY_NROWS,N_SPC_ADV ),
-     &              HALO_WEST( SWP,MY_NROWS,N_SPC_ADV ),
-     &              BUF_EW   ( SWP,MY_NROWS,N_SPC_ADV ), STAT = ALLOCSTAT )
+         ALLOCATE ( HALO_EAST( SWP,NROWS,N_SPC_ADV ),
+     &              HALO_WEST( SWP,NROWS,N_SPC_ADV ),
+     &              BUF_EW   ( SWP,NROWS,N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating HALO_EAST, HALO_WEST, or BUF_EW'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
@@ -227,10 +228,10 @@ C Get the contravariant x1 velocity component
       CALL SUBST_COMM (UHAT, DSPL_N0_E1_S0_W0, DRCN_E)
 
 #ifdef parallel
-      EAST_COL = MY_NCOLS - SWP
+      EAST_COL = NCOLS - SWP
       DO SPC = 1, N_SPC_ADV
          A2C = ADV_MAP( SPC )
-         DO ROW = 1, MY_NROWS
+         DO ROW = 1, NROWS
             DO COL = 1, SWP
                HALO_WEST( COL,ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
                HALO_EAST( COL,ROW,SPC ) = CGRID( EAST_COL+COL,ROW,LVL,A2C )
@@ -243,23 +244,23 @@ C Get the contravariant x1 velocity component
       CALL SUBST_COMM (BUF_EW,    HALO_WEST, DSPL_N0_E0_S0_W1, DRCN_W)
 #endif
 
-      DO 233 ROW = 1, MY_NROWS
+      DO 233 ROW = 1, NROWS
 
-         DO COL = 1, MY_NCOLS+1
+         DO COL = 1, NCOLS+1
             VELX( COL ) = UHAT( COL,ROW )
          END DO
 
          DO SPC = 1, N_SPC_ADV
 
             A2C = ADV_MAP( SPC )
-            DO COL = 1, MY_NCOLS
+            DO COL = 1, NCOLS
                CONX( COL,SPC ) = CGRID( COL,ROW,LVL,A2C )
             END DO
 
 #ifdef parallel
             DO COL = 1, SWP
                CONX( COL-SWP,SPC )      = HALO_WEST( COL,ROW,SPC )
-               CONX( MY_NCOLS+COL,SPC ) = HALO_EAST( COL,ROW,SPC )
+               CONX( NCOLS+COL,SPC ) = HALO_EAST( COL,ROW,SPC )
             END DO
 #endif
 
@@ -278,12 +279,12 @@ C West boundary
 C East boundary
 
             IF ( BNDY_PE_HIX ) THEN
-               IF ( VELX( MY_NCOLS+1 ) .GT. 0.0 ) THEN     ! outflow
-                  CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) =
-     &               ZFDBC ( CONX( MY_NCOLS,SPC ), CONX( MY_NCOLS-1,SPC ),
-     &                       VELX( MY_NCOLS+1 ),   VELX( MY_NCOLS ) )
+               IF ( VELX( NCOLS+1 ) .GT. 0.0 ) THEN     ! outflow
+                  CONX( NCOLS+1:NCOLS+SWP,SPC ) =
+     &               ZFDBC ( CONX( NCOLS,SPC ), CONX( NCOLS-1,SPC ),
+     &                       VELX( NCOLS+1 ),   VELX( NCOLS ) )
                ELSE    ! inflow
-                  CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = BCON( EFX+ROW,SPC )
+                  CONX( NCOLS+1:NCOLS+SWP,SPC ) = BCON( EFX+ROW,SPC )
                END IF
             END IF
 
@@ -291,11 +292,11 @@ C East boundary
 
 C PPM scheme
 
-         CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DT, DX1, 'C' )
+         CALL HPPM ( NCOLS, NROWS, CONX, VELX, DT, DX1, 'C' )
 
          DO SPC = 1, N_SPC_ADV
             A2C = ADV_MAP( SPC )
-            DO COL = 1, MY_NCOLS
+            DO COL = 1, NCOLS
                CGRID( COL,ROW,LVL,A2C ) = CONX( COL,SPC )
             END DO
          END DO

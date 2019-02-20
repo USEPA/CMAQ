@@ -58,6 +58,8 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   28 Jul 11 David Wong: set REVERT to .false. for twoway model case since
 C                         buffered file has only two time steps data
+C   01 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -67,6 +69,9 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE)
 #endif
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var, window
+!    &                              STRTCOLMC2,  ENDCOLMC2,  STRTROWMC2,  ENDROWMC2
+
 
       IMPLICIT NONE
 
@@ -121,14 +126,11 @@ C local variables:
  
       CHARACTER( 8 ), SAVE :: COMMSTR
 
-      INTEGER GXOFF, GYOFF ! global origin offset from file
-      LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
-                                        ! processing domain
-      INTEGER       :: NCOLSDENS, NROWSDENS       ! local for DENSJ_BUF
+!     INTEGER       :: NCOLSDENS, NROWSDENS       ! local for DENSJ_BUF
 C for INTERPX
-      INTEGER, SAVE :: STRTCOL,   ENDCOL,   STRTROW,   ENDROW
-      INTEGER       :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
-      INTEGER, SAVE :: STRTCOLMD, ENDCOLMD, STRTROWMD, ENDROWMD
+!     INTEGER, SAVE :: STRTCOL,   ENDCOL,   STRTROW,   ENDROW
+!     INTEGER       :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
+!     INTEGER, SAVE :: STRTCOLMD, ENDCOLMD, STRTROWMD, ENDROWMD
 
 C-----------------------------------------------------------------------
 
@@ -168,36 +170,7 @@ C Get/compute DX1 & DX2
          RDX1 = 1.0 / DX1
          RDX2 = 1.0 / DX2
 
-         CALL SUBHFILE ( MET_DOT_3D, GXOFF, GYOFF,
-     &                   STRTCOLMD, ENDCOLMD, STRTROWMD, ENDROWMD )
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
-
-         NCOLSDENS = ENDCOLMC - STRTCOLMC + 1
-         NROWSDENS = ENDROWMC - STRTROWMC + 1
-
-         IF ( NCOLSDENS .NE. MY_NCOLS .OR.
-     &        NROWSDENS .NE. MY_NROWS ) THEN
-            WRITE( XMSG,'( A, 4I8 )' ) 'Local Columns or Rows incorrect',
-     &      NCOLSDENS, MY_NCOLS, NROWSDENS, MY_NROWS
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C currently not implemented: case where only one origin component matches file's
-         IF ( GXOFF .NE. 0 .AND. GYOFF .NE. 0 ) THEN
-            WINDOW = .TRUE. ! windowing from file
-            STRTCOL = STRTCOLMC - 1
-            ENDCOL  = ENDCOLMC  + 1
-            STRTROW = STRTROWMC - 1
-            ENDROW  = ENDROWMC  + 1
-         ELSE
-            STRTCOL = STRTCOLMC
-            ENDCOL  = ENDCOLMC
-            STRTROW = STRTROWMC
-            ENDROW  = ENDROWMC
-         END IF
-
-         ALLOCATE ( DENSJ( 0:MY_NCOLS+1,0:MY_NROWS+1,NLAYS ), STAT = ALLOCSTAT )
+         ALLOCATE ( DENSJ( 0:NCOLS+1,0:NROWS+1,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DENSJ'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -205,7 +178,7 @@ C currently not implemented: case where only one origin component matches file's
 
          IF ( .NOT. WINDOW ) THEN
 
-            ALLOCATE ( DENSJ_BUF( NCOLSDENS,NROWSDENS,NLAYS ),STAT = ALLOCSTAT )
+            ALLOCATE ( DENSJ_BUF( ncols, nrows, NLAYS ),STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DENSJ_BUF'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -259,37 +232,19 @@ C Interpolate Jacobian X Air Density
  
       IF ( WINDOW ) THEN
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPX ( MET_CRO_3D, VNAME, PNAME,
-     &                        STRTCOL,ENDCOL, STRTROW,ENDROW, 1,NLAYS,
-     &                        MDATE, MTIME, DENSJ ) ) THEN
-            XMSG = 'Could not read ' // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ)
 
       ELSE  ! need to extend data from bndy file
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPX ( MET_CRO_3D, VNAME, PNAME,
-     &                        STRTCOL,ENDCOL, STRTROW,ENDROW, 1,NLAYS,
-     &                        MDATE, MTIME, DENSJ_BUF ) ) THEN
-            XMSG = 'Could not read ' // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BUF)
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
-     &                        MDATE, MTIME, NBNDY*NLAYS,
-     &                        DENSJ_BND ) ) THEN
-            XMSG = 'Could not read ' // TRIM( VNAME ) // ' from ' // MET_BDY_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BND, 'b')
 
 C Load DENSJ array
 
          DO L = 1, NLAYS
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   DENSJ( C,R,L ) = DENSJ_BUF( C,R,L )
                END DO
             END DO
@@ -300,24 +255,24 @@ C Fill in DENSJ array for boundaries
          DO L = 1, NLAYS
             BND = 0
             DO R = 0, 0
-               DO C = 1, MY_NCOLS+1
+               DO C = 1, NCOLS+1
                   BND = BND + 1
                   DENSJ( C,R,L ) = DENSJ_BND( BND,L )  ! South
                END DO
             END DO
-            DO R = 1, MY_NROWS+1
-               DO C = MY_NCOLS+1, MY_NCOLS+1
+            DO R = 1, NROWS+1
+               DO C = NCOLS+1, NCOLS+1
                   BND = BND + 1
                   DENSJ( C,R,L ) = DENSJ_BND( BND,L )  ! East
                END DO
             END DO
-            DO R = MY_NROWS+1, MY_NROWS+1
-               DO C = 0, MY_NCOLS
+            DO R = NROWS+1, NROWS+1
+               DO C = 0, NCOLS
                   BND = BND + 1
                   DENSJ( C,R,L ) = DENSJ_BND( BND,L )  ! North
                END DO
             END DO
-            DO R = 0, MY_NROWS
+            DO R = 0, NROWS
                DO C = 0, 0
                   BND = BND + 1
                   DENSJ( C,R,L ) = DENSJ_BND( BND,L )  ! West
@@ -330,21 +285,9 @@ C Fill in DENSJ array for boundaries
 C Interpolate Contravariant Velocity components (already at flux points)
 C X Jacobian X Air Density
 
-      VNAME = 'UHAT_JD'   ! x1 component of CX-vel * Jacobian * air density
-      IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-     &                     STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, 1,NLAYS,
-     &                     MDATE, MTIME, UWIND ) ) THEN
-         XMSG = 'Could not read ' // TRIM( VNAME ) // ' from ' // MET_DOT_3D
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('UHAT_JD', mdate, mtime, UWIND)
 
-      VNAME = 'VHAT_JD'   ! x2 component of CX-vel * Jacobian * air density
-      IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-     &                     STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, 1,NLAYS,
-     &                     MDATE, MTIME, VWIND ) ) THEN
-         XMSG = 'Could not read ' // TRIM( VNAME ) // ' from ' // MET_DOT_3D
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('VHAT_JD', mdate, mtime, VWIND)
 
 C Obtain flux point values of Jacobian * air density and retrieve
 C contravariant velocities 
@@ -354,8 +297,8 @@ C define communication pattern
 
       CALL SUBST_COMM ( DENSJ, DSPL_N0_E0_S0_W1, DRCN_W, COMMSTR )
       DO L = 1, NLAYS
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS+1
+         DO R = 1, NROWS
+            DO C = 1, NCOLS+1
                DJ = 0.5 * ( DENSJ( C,R,L ) + DENSJ( C-1,R,L ) )
                UWIND( C,R,L ) = UWIND( C,R,L ) / DJ
             END DO
@@ -367,8 +310,8 @@ C define communication pattern
 
       CALL SUBST_COMM ( DENSJ, DSPL_N0_E0_S1_W0, DRCN_S, COMMSTR )
       DO L = 1, NLAYS
-         DO R = 1, MY_NROWS+1
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS+1
+            DO C = 1, NCOLS
                DJ = 0.5 * ( DENSJ( C,R,L ) + DENSJ( C,R-1,L ) )
                VWIND( C,R,L ) = VWIND( C,R,L ) / DJ
             END DO
@@ -388,9 +331,9 @@ C Compute horizontal divergence
 #endif
 
       DO L = 1, NLAYS
-         DO R = 1, MY_NROWS
+         DO R = 1, NROWS
             R1 = R + 1
-            DO C = 1, MY_NCOLS
+            DO C = 1, NCOLS
                C1 = C + 1
                HDIV( C,R,L ) = ( UWIND( C1,R,L ) - UWIND( C,R,L ) ) * RDX1
      &                       + ( VWIND( C,R1,L ) - VWIND( C,R,L ) ) * RDX2

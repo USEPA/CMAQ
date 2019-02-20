@@ -56,25 +56,14 @@
 C                   J. Bash:   Nov   7 14:  Modified for the restructuring of vidff.
 !                   J. Pleim   Dec   2016:  Revised bidi using gamma from EPIC every day with no mosaic
 !                   J. Pleim   April 2018:  Estimate available NH3 frac according to EPIC
+!                   D. Wong    Feb.  1 19:  Implemented centralized I/O approach, removed all MY_N
+!                                           clauses, and created a new module beld_data_module 
+!                                           (model_data_module.F) to hold some of information
+!                                           originally stored here to avoid cyclic dependence
 C-------------------------------------------------------------------------------
 
       Implicit None
 ! shared variables
-
-! Private variables used in this module and subroutines  
-      Real, Save, Allocatable, Private :: NH4ps1 ( :,:,: ) ! Total Soil NH4 from EPIC
-      Real, Save, Allocatable, Private :: NH4ps2 ( :,:,: ) 
-      Real, Save, Allocatable, Private :: pHs1   ( :,:,: )
-      Real, Save, Allocatable, Private :: pHs2   ( :,:,: )  
-      Real, Save, Allocatable, Private :: por1   ( :,:,: )
-      Real, Save, Allocatable, Private :: por2   ( :,:,: )  
-      Real, Save, Allocatable, Private :: wp1    ( :,:,: )
-      Real, Save, Allocatable, Private :: wp2    ( :,:,: )  
-      Real, Save, Allocatable, Private :: wep1   ( :,:,: )
-      Real, Save, Allocatable, Private :: wep2   ( :,:,: )  
-      Real, Save, Allocatable, Private :: dep2   ( :,:,: ) 
-      Real, Save, Allocatable, Private :: cec1   ( :,:,: )
-      Real, Save, Allocatable, Private :: cec2   ( :,:,: )  
 
       Real, Save, Allocatable :: fcec1  ( :,: ) ! Volatility function of CEC from EPIC (Williams 1995) in L1
       Real, Save, Allocatable :: fcec2  ( :,: ) ! Volatility function of CEC from EPIC (Williams 1995) in L2
@@ -89,6 +78,7 @@ C-------------------------------------------------------------------------------
          Use HGRD_DEFN           ! horizontal grid specifications
          Use UTILIO_DEFN         
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
+         Use beld_data_module
 
          Implicit None 
 ! Includes
@@ -100,14 +90,12 @@ C-------------------------------------------------------------------------------
          Integer, Intent( In )  :: jdate
          Integer, Intent( In )  :: jtime   
          Integer                :: c,r,l,k
-         Integer, Parameter :: e2c_cats = 42   ! number of crop catigories
          Integer            :: gxoff, gyoff    ! global origin offset from file
          integer            :: strtcol, endcol, strtrow, endrow
          integer            :: strtcol_medi,  endcol_medi,  strtrow_medi,  endrow_medi
          integer            :: strtcol_fert,  endcol_fert,  strtrow_fert,  endrow_fert
          integer            :: strtcol_beld,  endcol_beld,  strtrow_beld,  endrow_beld
   
-         Real,       Allocatable :: Beld_ag ( :,:,: )        
          Real                    :: Tot_Ag          ! total ag in the grid cell    
          Real, Parameter :: conv   = 7.142857e-06   ! ha/m**2 * mol/g N 
          Real            :: pHfac1
@@ -119,51 +107,6 @@ C-------------------------------------------------------------------------------
          Character( 16 ), Parameter :: pname = 'Init_ABFlux' 
          Character( 16 )            :: vname
          Character( 96 )            :: xmsg = ' '
-         Character( 20 )            :: Beld_Names( e2c_cats )
-C Some compilers do not pad with blank characters in data initialization
-C                          '12345678901234567890'
-         Data Beld_Names / 'Hay                 ',  !  1
-     &                     'Hay_ir              ',  !  2
-     &                     'Alfalfa             ',  !  3
-     &                     'Alfalfa_ir          ',  !  4
-     &                     'Other_Grass         ',  !  5
-     &                     'Other_Grass_ir      ',  !  6
-     &                     'Barley              ',  !  7
-     &                     'Barley_ir           ',  !  8
-     &                     'BeansEdible         ',  !  9
-     &                     'BeansEdible_ir      ',  ! 10
-     &                     'CornGrain           ',  ! 11
-     &                     'CornGrain_ir        ',  ! 12
-     &                     'CornSilage          ',  ! 13
-     &                     'CornSilage_ir       ',  ! 14
-     &                     'Cotton              ',  ! 15
-     &                     'Cotton_ir           ',  ! 16
-     &                     'Oats                ',  ! 17
-     &                     'Oats_ir             ',  ! 18
-     &                     'Peanuts             ',  ! 19
-     &                     'Peanuts_ir          ',  ! 20
-     &                     'Potatoes            ',  ! 21
-     &                     'Potatoes_ir         ',  ! 22
-     &                     'Rice                ',  ! 23
-     &                     'Rice_ir             ',  ! 24
-     &                     'Rye                 ',  ! 25
-     &                     'Rye_ir              ',  ! 26
-     &                     'SorghumGrain        ',  ! 27
-     &                     'SorghumGrain_ir     ',  ! 28
-     &                     'SorghumSilage       ',  ! 29
-     &                     'SorghumSilage_ir    ',  ! 30
-     &                     'Soybeans            ',  ! 31
-     &                     'Soybeans_ir         ',  ! 32
-     &                     'Wheat_Spring        ',  ! 33
-     &                     'Wheat_Spring_ir     ',  ! 34
-     &                     'Wheat_Winter        ',  ! 35
-     &                     'Wheat_Winter_ir     ',  ! 36
-     &                     'Other_Crop          ',  ! 37
-     &                     'Other_Crop_ir       ',  ! 38
-     &                     'Canola              ',  ! 39
-     &                     'Canola_ir           ',  ! 40
-     &                     'Beans               ',  ! 41
-     &                     'Beans_ir            ' / ! 42
  
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
@@ -190,220 +133,37 @@ C                          '12345678901234567890'
                C_gam = 630.0
          End Select           
                   
-! get soil pH to estimate the emissions potential
-! time in the files is not the same    
-         If ( .Not. Open3( E2C_SOIL, fsread3, pname ) ) Then
-           xmsg = 'Could not open '// E2C_SOIL // ' file'
-           Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
-         End If
-
-         Call Subhfile ( E2C_SOIL, gxoff, gyoff, strtcol, endcol, strtrow, endrow )
-
-         If ( .Not. Allocated ( pHs1 ) ) Then
-            Allocate ( pHs1 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-
-         vname = 'L1_PH'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, pHs1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-         If ( .Not. Allocated ( pHs2 ) ) Then
-            Allocate ( pHs2 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-         
-         vname = 'L2_PH'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, pHs2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-!-- additional input from soil file
-         If ( .Not. Allocated ( por1 ) ) Then
-            Allocate ( por1 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-
-         vname = 'L1_Porosity'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, por1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-         If ( .Not. Allocated ( por2 ) ) Then
-            Allocate ( por2 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-         
-         vname = 'L2_Porosity'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, por2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-
-         If ( .Not. Allocated ( wp1 ) ) Then
-            Allocate ( wp1 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-
-         vname = 'L1_Wilt_P'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, wp1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-
-         If ( .Not. Allocated ( wp2 ) ) Then
-            Allocate ( wp2 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-         
-         vname = 'L2_Wilt_P'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, wp2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-
-         If ( .Not. Allocated ( cec1 ) ) Then
-            Allocate ( cec1 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-
-         vname = 'L1_Cation'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, cec1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-
-         If ( .Not. Allocated ( cec2 ) ) Then
-            Allocate ( cec2 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-         
-         vname = 'L2_Cation'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, cec2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-
-
-! get BELD4 land use types time independent files. 
-         If ( .Not. Open3( BELD4_LU, fsread3, pname ) ) Then
-           xmsg = 'Could not open '// BELD4_LU // ' file'
-           Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
-         End If                
-         If ( .Not. Allocated ( Beld_ag ) ) Then
-            Allocate ( Beld_ag ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-         Call Subhfile ( BELD4_LU, gxoff, gyoff, strtcol_beld, endcol_beld, 
-     &                   strtrow_beld, endrow_beld )
-
-         Do k = 1, e2c_cats
-            vname = BELD_Names(k)
-            If ( .Not. Interpx ( BELD4_LU, vname, pname, strtcol_beld, endcol_beld,
-     &                           strtrow_beld, endrow_beld, 1, 1, jdate, jtime,
-     &                           Beld_ag( :,:,k ) ) ) Then   
-               Write( xmsg,9001 ) vname, BELD4_LU
-               Go To 1001
-            End If
-         End Do
          Beld_ag = 0.01 * Beld_ag   ! convert to fraction
 
 ! Allocate variable needed soil processes 
          If ( .Not. Allocated ( gamma1 ) ) Then
-            Allocate ( gamma1 ( my_ncols,my_nrows ) )
+            Allocate ( gamma1 ( ncols,nrows ) )
          End If
          gamma1 = 0.0
          If ( .Not. Allocated ( gamma2 ) ) Then
-            Allocate ( gamma2 ( my_ncols,my_nrows ) )
+            Allocate ( gamma2 ( ncols,nrows ) )
          End If
          gamma2 = 0.0
          If ( .Not. Allocated ( MHp1 ) ) Then
-            Allocate ( MHp1 ( my_ncols,my_nrows ) )
+            Allocate ( MHp1 ( ncols,nrows ) )
          End If         
          MHp1 = 0.0
          If ( .Not. Allocated ( MHp2 ) ) Then
-            Allocate ( MHp2 ( my_ncols,my_nrows ) )
+            Allocate ( MHp2 ( ncols,nrows ) )
          End If
          MHp2 = 0.0
          If ( .Not. Allocated ( fcec1 ) ) Then
-            Allocate ( fcec1 ( my_ncols,my_nrows ) )
+            Allocate ( fcec1 ( ncols,nrows ) )
          End If
          fcec1 = 0.0
          If ( .Not. Allocated ( fcec2 ) ) Then
-            Allocate ( fcec2 ( my_ncols,my_nrows ) )
+            Allocate ( fcec2 ( ncols,nrows ) )
          End If
          fcec2 = 0.0
 
-
-!----> Get Gamma from EPIC input every day <--  
-!    
-         If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
-           xmsg = 'Could not open '// E2C_FERT // ' file'
-           Call M3exit ( pname, 0, 0, xmsg, xstat1 )
-         End If                  
-    
-         Call Subhfile ( E2C_FERT, gxoff, gyoff, strtcol_fert, endcol_fert, 
-     &                   strtrow_fert, endrow_fert )
-             
-            If ( .Not. Allocated ( NH4ps1 ) ) Then
-               Allocate ( NH4ps1 ( my_ncols,my_nrows,e2c_cats ) )
-            End If
-            NH4ps1 = 0.0
-            If ( .Not. Allocated ( NH4ps2 ) ) Then
-               Allocate ( NH4ps2 ( my_ncols,my_nrows,e2c_cats ) )
-            End If
-            NH4ps2 = 0.0  
-
-            vname = 'L1_NH3'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, NH4ps1) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-            vname = 'L2_NH3'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, NH4ps2) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-
-!-- Get soil moisture and depth (L2) from EPIC 
-            If ( .Not. Allocated ( wep1 ) ) Then
-               Allocate ( wep1 ( my_ncols,my_nrows,e2c_cats ) )
-            End If
-
-            If ( .Not. Allocated ( wep2 ) ) Then
-               Allocate ( wep2 ( my_ncols,my_nrows,e2c_cats ) )
-            End If
- 
-            If ( .Not. Allocated ( dep2 ) ) Then
-               Allocate ( dep2 ( my_ncols,my_nrows,e2c_cats ) )
-            End If
-
-
-            vname = 'L1_SW'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, wep1) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-            vname = 'L2_SW'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, wep2) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-            vname = 'L2_DEP'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, dep2) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-
-
          ! parameters
-            Do r = 1, my_nrows
-               Do c = 1, my_ncols
+            Do r = 1, nrows
+               Do c = 1, ncols
                   Tot_Ag = 0.0      
                   tcec1   = 0.0    
                   tcec2   = 0.0

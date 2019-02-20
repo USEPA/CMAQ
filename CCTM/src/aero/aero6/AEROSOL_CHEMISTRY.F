@@ -35,6 +35,7 @@
 ! 23 May 16 D. Wong: Allow for calculation for APMDIAG even if PMDIAG is turned off.
 ! 10 Jun 16 B.Hutzell: reduce occurrences of numerical underflow
 ! 17 Jul 18 G. Sarwar: Added heterogeneous uptakes of CLNO3, bromine and iodine species
+! 01 Feb 19 David Wong: removed MY_N clauses
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -804,12 +805,12 @@ C ***  Map to acids/nucleophiles for epoxide uptake
      
 C *** Calculate rate constants at each grid cell location
       LOOP_LAY: DO L = 1, NLAYS
-         LOOP_ROW: DO R = 1, MY_NROWS
-            LOOP_COL: DO C = 1, MY_NCOLS
+         LOOP_ROW: DO R = 1, NROWS
+            LOOP_COL: DO C = 1, NCOLS
      
 #ifdef verbose_aerosol_chemistry        
-               IF ( L .EQ. 1 .AND. R .EQ. INT(MY_NROWS/2)+1 .AND.
-     &              C .EQ. INT(MY_NCOLS/2)+1 ) THEN
+               IF ( L .EQ. 1 .AND. R .EQ. INT(NROWS/2)+1 .AND.
+     &              C .EQ. INT(NCOLS/2)+1 ) THEN
                   DUMP_CELL = .TRUE.
                ELSE
                   DUMP_CELL = .FALSE.

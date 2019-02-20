@@ -29,6 +29,7 @@ C   26 Sep 16: D. Wong: removed repeated SEAICE interpx statement
 C   20 Feb 18: G. Sarwar: removed Br2, added DMS, and revised estimates of 
 C              halocarbon and HOI/I2 emissions
 C   04 Dec 18: G. Srawar: updated local time calculation
+C   01 Feb 19: D. Wong: Implemented centralized I/O approach
 
       USE RUNTIME_VARS
       USE HGRD_DEFN
@@ -60,9 +61,6 @@ C Variables for the marine gas diagnostic file
       CHARACTER( 16 ), ALLOCATABLE :: WRMG_SPC( : )   ! species names
 
 C Variables for handling marine gas emissions
-      REAL,    ALLOCATABLE, SAVE :: OCEAN( :,: )   ! fractional sea water
-      REAL,    ALLOCATABLE, SAVE :: SZONE( :,: )   ! fractional sea
-      REAL,    ALLOCATABLE, SAVE :: CHLR( :,: )    ! chlorophyll
       REAL,    ALLOCATABLE, SAVE :: DMSL( :,: )    ! DMS in sea-water (nM)
 
       CHARACTER( 16 ) :: MG_SPC( NMGSPC)           ! emitted species
@@ -121,6 +119,7 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
             USE HGRD_DEFN
             USE CGRID_SPCS
             USE RXNS_DATA
+            USE CENTRALIZED_IO_MODULE
 
             IMPLICIT NONE
             INCLUDE SUBST_CONST                                     ! constants
@@ -171,57 +170,17 @@ C Allocate MG arrays using NMGSPC value
                SUCCESS = .FALSE.; RETURN
             END IF
 
-            ALLOCATE ( OCEAN( NCOLS,NROWS ),
-     &                 SZONE( NCOLS,NROWS ),
-     &                 CHLR( NCOLS,NROWS ),
-     &                 DMSL( NCOLS,NROWS ),
-     &                 TSEASFC( NCOLS,NROWS ),
+            ALLOCATE ( TSEASFC( NCOLS,NROWS ),
      &                 U10( NCOLS,NROWS ),
      &                 ILON( NCOLS,NROWS ),
      &                 SEAICE( NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
-              XMSG = '*** OCEAN,SZONE,TSEASFC,CHLR, or WSPD10 memory'
+              XMSG = '*** DMSL, TSEASFC, U10, ILON or SEAICE memory'
               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
               SUCCESS = .FALSE.; RETURN
             END IF
 
-C Open the ocean file, which contains the ocean and surf-zone fractions
-            IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
-               XMSG = 'Open failure for ' // OCEAN_1
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
-     &                      STRTCOL_O1, ENDCOL_O1, STRTROW_O1, ENDROW_O1 )
-
-C Open the 3D cross-point met file
-            IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
-               XMSG = 'Open failure for ' // MET_CRO_3D
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                      STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-C Open the grid file, with contains latitude and longitude
-            IF ( .NOT. OPEN3( GRID_CRO_2D, FSREAD3, PNAME ) ) THEN
-               XMSG = 'Open failure for ' // GRID_CRO_2D
-               CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                      STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-
-C Read longitude from the grid file
-           IF ( .NOT. INTERPX( GRID_CRO_2D, 'LON', PNAME,
-     &                         STRTCOLGC2,ENDCOLGC2,STRTROWGC2,ENDROWGC2,
-     &                         1, 1, 0, 0, ILON ) ) THEN
-              XMSG = 'Could not interpolate LON from ' // GRID_CRO_2D
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-           END IF
+            ilon = lon
 
 C Get index for surface ozone concentration 
             VARNM = 'O3'
@@ -375,7 +334,7 @@ C and Plane, J. M. C.: A laboratory characterisation of inorganic iodine emissio
 C surface: dependence on oceanic variables and parameterisation for global modelling, Atmos. Chem.
 C Phys., 14, 5841-5852, doi:10.5194/acp-14-5841-2014, 2014.
 C
-C	Sherwen, T., Evans, M. J., Carpenter, L. J., Andrews, S. J., Lidster, R. T., Dix, B., Koenig, T. K., 
+C     Sherwen, T., Evans, M. J., Carpenter, L. J., Andrews, S. J., Lidster, R. T., Dix, B., Koenig, T. K., 
 C Sinreich, R., Ortega, I., Volkamer, R., Saiz-Lopez, A., Prados-Roman, C., Mahajan, A. S., and Ordóñez, C.: 
 C Iodine's impact on tropospheric oxidants: a global model study in GEOS-Chem. Atmos. Chem. Phys., 2016, 16, 1161-1186.
 
@@ -386,6 +345,7 @@ C-----------------------------------------------------------------------
             USE CGRID_SPCS     ! CGRID mechanism species
             USE PCGRID_DEFN    ! get cgrid
             USE GRID_CONF
+            USE CENTRALIZED_IO_MODULE
 
             IMPLICIT NONE
 
@@ -459,7 +419,7 @@ C Local Variables:
             REAL            :: DUMMY                           ! dummy variable for calculating marine gas emission
 !            REAL            :: WDSCALO                         ! WDSCALO: 10 meter wind-speed-dependent scaling factors for emissions flux functions
 !            REAL            :: SSTSCALO                        ! SSTSCALO: SST-dependent scaling factor for emissions from Jaegle et al. (2011) (SST in Celsius)
-            REAL            :: LON                             ! grid-cell longitude
+            REAL            :: LOC_LON                         ! grid-cell longitude
             REAL            :: WSPD10                          ! wind speed
             REAL            :: WSPD10_M5                       ! wind speed with a minimum speed of 5 m/s (used for HOI and I2 emission calculation)
             REAL            :: MARINE_AREA                     ! marine fraction of surface and later marine surface area
@@ -489,74 +449,19 @@ C calculate grid-cell area
 
 C Assume MET_CRO_2D file is already opened
 
-           IF ( .NOT. INTERPX( MET_CRO_2D, 'WSPD10', PNAME,
-     &                         STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                         1,1, JDATE, JTIME, U10 ) ) THEN
-              XMSG = 'Could not find WSPD10 in ' // MET_CRO_2D //
-     &               ' search for WIND10.'
-              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-              IF ( .NOT. INTERPX( MET_CRO_2D, 'WIND10', PNAME,
-     &                            STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                            1,1, JDATE, JTIME, U10 ) ) THEN
-                 XMSG = 'Could not find WIND10 or WSPD10 in ' // MET_CRO_2D
-                 CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-              END IF
+           IF (WSPD10_AVAIL) THEN
+              call interpolate_var ('WSPD10', jdate, jtime, U10)
+           ELSE
+              call interpolate_var ('WIND10', jdate, jtime, U10)
            END IF
 
-           IF ( .NOT. INTERPX( MET_CRO_2D, 'TSEASFC', PNAME,
-     &                         STRTCOLMC3,ENDCOLMC3,STRTROWMC3,ENDROWMC3,
-     &                         1,1, JDATE, JTIME, TSEASFC ) ) THEN
-              XMSG = 'Could not find TSEASFC in ' // MET_CRO_2D //
-     &                ' search for TEMPG.'
-              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-              IF ( .NOT. INTERPX( MET_CRO_2D, 'TEMPG', PNAME,
-     &                            STRTCOLMC3,ENDCOLMC3,STRTROWMC3,ENDROWMC3,
-     &                            1,1, JDATE, JTIME, TSEASFC ) ) THEN
-                 XMSG = 'Could not find TEMPG or TSEASFC in ' //MET_CRO_2D
-                 CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-              END IF
+           IF (TSEASFC_AVAIL) THEN
+              call interpolate_var ('TSEASFC', jdate, jtime, TSEASFC)
+           ELSE
+              call interpolate_var ('TEMPG', jdate, jtime, TSEASFC)
            END IF
 
-           IF ( .NOT. INTERPX( MET_CRO_2D, 'SEAICE', PNAME,
-     &                         STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                         1,1, JDATE, JTIME, SEAICE ) ) THEN
-              XMSG = 'Could not find SEAICE in ' // MET_CRO_2D //
-     &               ' search for SEAICE '
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-           END IF
-
-C Read fractional seawater and surf-zone coverage from the OCEAN file.
-C Store results in the OCEAN and SZONE arrays.
-           IF ( .NOT. INTERPX( OCEAN_1, 'OPEN', PNAME,
-     &                         STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                         1,1, JDATE, JTIME, OCEAN ) ) THEN
-              XMSG = 'Could not interpolate OPEN from ' // OCEAN_1
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-           END IF
-
-           IF ( .NOT. INTERPX( OCEAN_1, 'SURF', PNAME,
-     &                         STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                          1,1, JDATE, JTIME, SZONE ) ) THEN
-              XMSG = 'Could not interpolate SURF from ' // OCEAN_1 //
-     &               '.  Surf-zone emissions set to zero.'
-              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-           END IF
-
-           IF ( .NOT. INTERPX( OCEAN_1, 'CHLO', PNAME,
-     &                         STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                         1,1, JDATE, JTIME, CHLR ) ) THEN
-              XMSG = 'Could not interpolate CHLO from ' // OCEAN_1 //
-     &               '.  Chlorophyll-a concentrations set to zero.'
-              CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-           END IF
-
-            IF ( .NOT. INTERPX( OCEAN_1, 'DMS', PNAME,
-     &                          STRTCOL_O1,ENDCOL_O1, STRTROW_O1,ENDROW_O1,
-     &                          1,1, JDATE, JTIME, DMSL ) ) THEN
-               XMSG = 'Could not interpolate DMSL from ' // OCEAN_1 //
-     &                '.  DMSL concentrations set to zero.'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            END IF
+           call interpolate_var ('SEAICE', jdate, jtime, SEAICE)
 
           IF ( MGEMDIAG .AND. WSTEP .EQ. 0 ) MGBF = 0.0
 
@@ -574,7 +479,7 @@ C Initialize marine gas output buffer
                      SST       = TSEASFC (C,R)
 !                    SSTC    = SST - 273.15
                      SSTC      = MIN( (SST - 273.15), 30.0)                          
-                     LON       = ILON (C,R)
+                     LOC_LON   = ILON (C,R)
                      O3       = 1000.0 * CGRID(C, R, 1, LGC_O3)
                      DMS_L     = DMSL( C, R )   
 
@@ -613,7 +518,7 @@ C.. calculate iodide in water
        KT = KW * (1.0 - GAMMA)
 
 C.. calculate local hour
-                     OFF_SET = NINT(LON * LON2TZ )
+                     OFF_SET = NINT(LOC_LON * LON2TZ )
                      LOCHR =  INT(CURRHR + OFF_SET )
 
                      IF (LOCHR .LT.  0) LOCHR = LOCHR + 24

@@ -90,6 +90,9 @@ C                      new hveloc to add hdiv and replace hcontvel
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   10 May 11 D.Wong: incorporated twoway model implementation
 C    6 Apr 12 J.Young: changed default HDIV_LIM to 0.9; made CFL an env var
+C    1 Nov 18 David Wong: removed MY_N clause for NCOLS and NROWS
+C    1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -99,6 +102,7 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_MAX_MODULE, NOOP_UTIL_MODULE)
 #endif
+      USE centralized_io_module
 
       IMPLICIT NONE
 
@@ -215,25 +219,14 @@ C-----------------------------------------------------------------------
          ADVLAYR = L
          WRITE( LOGDEV,92005 ) ADVLAYR
 
-C Open wind field file and get header data
-         IF ( .NOT. OPEN3( MET_DOT_3D, FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open ' // MET_DOT_3D // ' file'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT0 )
-         END IF
-
-         IF ( .NOT. DESC3( MET_DOT_3D ) ) THEN
-            XMSG = 'Could not get ' // MET_DOT_3D // ' file description'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         SDATE = SDATE3D
-         STIME = STIME3D
-         FSTEP = TSTEP3D
+         SDATE = file_sdate(f_met_dot_3d)
+         STIME = file_stime(f_met_dot_3d)
+         FSTEP = file_tstep(f_met_dot_3d)
 
 C Check file data against COORD.EXT
 
-         IF ( ABS( XCELL3D - XCELL_GD ) .GT. TOL .OR.
-     &        ABS( YCELL3D - YCELL_GD ) .GT. TOL      ) THEN
+         IF ( ABS( file_xcell(f_met_dot_3d) - XCELL_GD ) .GT. TOL .OR.
+     &        ABS( file_ycell(f_met_dot_3d) - YCELL_GD ) .GT. TOL      ) THEN
             WRITE( LOGDEV,* ) 'XCELL3D, XCELL_GD, YCELL3D, YCELL_GD: '
             WRITE( LOGDEV,* ) XCELL3D, XCELL_GD, YCELL3D,YCELL_GD
             XMSG = 'File grid sizes do not match CTM domain definition'
@@ -279,8 +272,8 @@ C Get the time of starting wind field: do not interpolate
          DO L = 1, NLAYS
             WIND_IDX_BEG( L ) = 0.0
             MX_HDIV_BEG( L ) = 0.0
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   WIND_IDX_BEG( L ) = MAX( WIND_IDX_BEG( L ),
      &                                     ABS( UWIND( C,R,L ) ) * IDX1,
      &                                     ABS( VWIND( C,R,L ) ) * IDX2 )
@@ -354,8 +347,8 @@ C Get the next wind field: do not interpolate
       DO L = 1, NLAYS
          WIND_IDX_END( L ) = 0.0
          MX_HDIV_END( L ) = 0.0
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                WIND_IDX_END( L ) = MAX( WIND_IDX_END( L ),
      &                                  ABS( UWIND( C,R,L ) ) * IDX1,
      &                                  ABS( VWIND( C,R,L ) ) * IDX2 )

@@ -43,6 +43,8 @@ C H.Pye 05/22/11: added ALK5RXN to precursor list for SAPRC mechanisms
  
 C JY  06/08/12 remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
 C H. Pye 09/2014: added alkane and PAH SOA precursor
+
+C D.Wong  02/01/19 added one more variable in the USE clause
 C-----------------------------------------------------------------------
 
       Implicit None
@@ -139,7 +141,7 @@ C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C----------------------------------------------------------------------
 
       Use rxns_data, only:  mechname
-      Use aero_data, only: ae6hg
+      Use aero_data, only: ae6hg, aphgj_idx
       Use cgrid_spcs, only: n_gc_g2ae, gc_g2ae, gc_g2ae_map, gc_molwt, gc_strt,
      &                      n_nr_n2ae, nr_n2ae, nr_n2ae_map, nr_molwt, nr_strt
       Use utilio_defn, only: index1, xstat3
