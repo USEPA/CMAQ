@@ -92,8 +92,8 @@ C-----------------------------------------------------------------------
 
       Type( oa_type ), Save :: oa_list( n_oa_list ) = (/
 
-      !         OA          Vapor       Rxn Cntr     Alpha   CStar     Enth-   Nonvol-     
-      !         Name        Name        Name                            alpy    atile        
+      !         PM          Vapor       Rxn Cntr     Alpha   CStar^    Enth-   Nonvol-     
+      !         Name        Name        Name*                           alpy    atile        
       !        ----------  ----------  ----------   ------  --------  -------  -----    
      & oa_type('AALK1  ', 'SVALK1  ', 'ALKRXN  ',  0.0334,   0.1472,  53.0E3,   F ),
      & oa_type('AALK2  ', 'SVALK2  ', 'ALKRXN  ',  0.2164,  51.8775,  53.0E3,   F ),
@@ -151,6 +151,11 @@ C-----------------------------------------------------------------------
      & oa_type('AAVB4  ', 'SVAVB4  ', '        ',  0.0000,  100.000,  18.0E3,   F ),
      & oa_type('AOLGA  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0,   T ),
      & oa_type('AOLGB  ', '        ', '        ',  0.0000,   1.e-10,   1.0E0,   T ) /)
+      ! Table Comments:
+      ! *Reaction Counters are only needed if the vapor species is not formed
+      !  directly in the gas-phase chemistry mechanism.
+      ! ^Nonvolatile species are given a default C* of 1e-10 ug/m3 and
+      !  enthalpy of vaporization equal to 1 kJ/mol.
 
       ! Identify Species Required for Isoprene and Monoterpene Chemistry
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SVISO1'
@@ -178,11 +183,14 @@ C-----------------------------------------------------------------------
 
       ! Variables for saving properties and concentrations of organic
       ! compounds
-      Real, Allocatable    :: oa_mw    ( : )   ! Molecular weights
-      Real, Allocatable    :: og_mw    ( : )   ! Molecular weights
-      Real, Allocatable    :: rog_mw   ( : )   ! Molecular weights
-      Real, Allocatable    :: og_conc  ( : )   ! vapor concentration
-      Real, Allocatable    :: rog_dconc( : )   ! vapor concentration
+      !   Molecular Weights
+          Real, Allocatable    :: op_mw    ( : )   ! PM species
+          Real, Allocatable    :: og_mw    ( : )   ! Vapor Species
+          Real, Allocatable    :: rog_mw   ( : )   ! Precursor Species
+                                                   ! that are linked to yields
+      !   Concentrations
+          Real, Allocatable    :: og_conc  ( : )   ! Vapors
+          Real, Allocatable    :: rog_dconc( : )   ! Reaction counters
 
       ! Variables for mapping OA to aerosol and CGRID arrays
       Integer, Allocatable :: map_OAtoAERO( : )    ! organic aerosol pointers to aerospc
@@ -192,7 +200,6 @@ C-----------------------------------------------------------------------
                                                    ! in aerosol array
       ! Variables for controlling behavior of OA module
       Logical, Private, Save :: mapped              = .False.
-      Logical, Private, Save :: IEPOX_SOA_mechanism = .False. ! IEPOX uptake in mechanism reactions?
       Logical, Private, Save :: RXNS_eflag          = .False. ! error flag for RXNS modules used
       Logical, Private, Save :: OA_eflag            = .False. ! error flag for soa_defn
       Character( 16 ), Private, Save :: pname = 'SOA_DEFN        '
@@ -241,8 +248,6 @@ C-----------------------------------------------------------------------
       Integer         :: spc
       Integer         :: map_OAtoOAlist( 200 )
 
-      Real, Save :: alk_factor = 1.00
-
       ! Map All OA Species and Load Properties
       If ( .Not. mapped ) Then
           mapped = .TRUE.
@@ -262,7 +267,7 @@ C-----------------------------------------------------------------------
           ! Allocate the OA property and mapping variables now that the
           ! number of active OA species has been determined.
           Allocate ( oaspc  ( n_oa ))
-          Allocate ( oa_mw  ( n_oa ))
+          Allocate ( op_mw  ( n_oa ))
           Allocate ( og_mw  ( n_oa ))
           Allocate ( rog_mw ( n_oa ))
           Allocate ( og_conc( n_oa ))
@@ -274,14 +279,14 @@ C-----------------------------------------------------------------------
 
           ! Initialize and populate key OA variables
           map_OAtoAERO = 0
-          oa_mw = 200.0
+          op_mw = 200.0
           lnonvol_oa = .false.
           Do spc = 1,n_oa
              oaspc( spc ) = oa_list( map_OAtoOAlist( spc ) )
              map_OAtoAERO( spc ) = findAero( oaspc( spc )%name, .True. )
              If( map_OAtoAERO( spc ) .Lt. 1 ) 
      &           write(logdev,99904) Trim( oaspc( spc )%name )
-             oa_mw( spc ) = aerospc_mw( map_OAtoAERO( spc ) )
+             op_mw( spc ) = aerospc_mw( map_OAtoAERO( spc ) )
              lnonvol_oa( map_OAtoAERo( spc ) ) = oaspc( spc )%nonvol
           End Do
 
@@ -824,11 +829,12 @@ C Key Subroutines/Functions called:  newt, soabisection
       Character(16), Allocatable, Save :: svname( : )
       Real, Allocatable, Save          :: svmw( : ), svmw_inv( : )
       Real, Allocatable, Save          :: c0    ( : ) ! cstar at AIRTEMP [ ug/m3 ]
-      Real, Allocatable, Save          :: caer0 ( : ) ! SVOC conc before current time step [ ug/m3 ]
-      Real, Allocatable, Save          :: ctoti ( : ) ! SVOC conc before current time step [ ug/m3 ]
-      Real, Allocatable, Save          :: prod  ( : ) ! SVOC generated during current step [ ug/m3 ]
-      Real, Allocatable, Save          :: ctotf ( : ) ! SVOC conc after current time step [ ug/m3 ]
-      Real, Allocatable, Save          :: caer  ( : ) ! SVOC conc in aerosol phase [ ug/m3 ]
+      Real, Allocatable, Save          :: caer0 ( : ) ! Particle conc before current time step [ ug/m3 ]
+      Real, Allocatable, Save          :: ctoti ( : ) ! Total (g+p) conc before current time step [ ug/m3 ]
+      Real, Allocatable, Save          :: prod  ( : ) ! Total G+P produced during current step [ ug/m3 ]
+      Real, Allocatable, Save          :: ctotf ( : ) ! Total conc after current time step [ ug/m3 ]
+      Real, Allocatable, Save          :: caer  ( : ) ! Particle conc in aerosol phase after current 
+                                                      !  step [ ug/m3 ]
 
       ! Variables for computing the budget
       REAL :: CBUDGET0_NUM ( N_MODE )
@@ -870,7 +876,7 @@ C-----------------------------------------------------------------------
          ! for semivolatile species partitioning variables.
          Allocate( rog_ppm2ug( n_oa ), mw_inv( n_oa ) )
          rog_ppm2ug( : ) = ROG_mw( : ) * convfac_298
-         mw_inv( : ) = 1.0 / oa_mw( : )
+         mw_inv( : ) = 1.0 / op_mw( : )
 
          nsvol = count( .not.oaspc( : )%nonvol )
          Allocate( svname( nsvol ), svmw( nsvol ), svmw_inv( nsvol ),
@@ -917,7 +923,7 @@ C-----------------------------------------------------------------------
 
         Do i = 1, n_oa
           If ( aero_missing( map_OAtoAERO( i ),im ) .or.
-     &         oaspc(i)%cstar .lt. 1.0e-6 ) Cycle
+     &         oaspc(i)%nonvol ) Cycle
           
           Call HCOND3( m0_init( im ), m1wet_init( im ),
      &                 m2wet_initD( im ), Dv_org, alphorg, 
@@ -962,7 +968,7 @@ C-----------------------------------------------------------------------
                        ! or not OA partitioning is even likely.
       upb = 0.0  ! Upper bound for bisection method
 
-      ! Compute the number of nonvolaitle and total organic compound
+      ! Compute the number of nonvolatile and total organic compound
       ! moles in the system
       nsvol    = 0
       totorgnv = sum( sum( aerospc_conc( :,1:2 ),2 ) / aerospc_mw( : ), 
@@ -996,9 +1002,11 @@ C-----------------------------------------------------------------------
      &              / (totorg + c0( nsvol ) * mw_inv( i ) ) 
 
           caer( nsvol )  = ctotf( nsvol ) * faer           ! initial amount in aerosol
-          upb        = upb + ctotf( nsvol ) * mw_inv( i )  ! upper: all moles (semi and nonvolatile) 
+          upb        = upb + ctotf( nsvol ) * mw_inv( i )  ! upper bound: just semivolatile
+                                                           !  moles for now. Nonvolatile moles 
+                                                           !  will be added later.
           svmw_inv( nsvol ) = mw_inv( i )
-          svmw( nsvol ) = oa_mw( i )
+          svmw( nsvol ) = op_mw( i )
         end if
       End Do
 
@@ -1174,49 +1182,6 @@ C-----------------------------------------------------------------------
          End If
 
       End If ! End organic water uptake
-
-      ! Acid-induced Isoprene SOA if IEPOX uptake is not considered mechanism reactions
-      If ( .Not. IEPOX_SOA_mechanism ) Then
-
-      ! Particle-phase acidity is parameterized by the air concentration of hydrogen
-      ! ion in the particle phase (hplus).  This is computed by electroneutrality,
-      ! and is bounded so that it cannot fall below zero (acid-neutral) nor above the
-      ! range of experimental conditions (530 nmol/m3) tested by Surratt et al.
-      ! (2007).  In future code updates, molecular weights of inorganic ions should
-      ! be inherited from include or namelist files to avoid hard-coded values.
-
-      hplus = 0.0
-      Do i = 1, n_aerospc
-         If ( aerospc( i )%tracer ) Cycle
-         hplus = hplus - 1000.0 * aerospc( i )%charge * aerospc_conc( i,2 )
-     &         / aerospc_mw( i )
-      End Do
-      hplus = Min( 530.0, Max ( 0.0, hplus ) ) ! restrict extrapolation
-
-      ! Compute amount of acid-enhanced isoprene SOA that is produced during the current
-      ! time step (xiso3) using the normalized expression derived from Surratt et al. (2007)
-      aiso12 = aerospc_conc( aiso1_idx, 2 ) + aerospc_conc( aiso2_idx, 2 )
-      xiso3  = kacid * hplus * aiso12 - aerospc_conc( aiso3_idx,2 )
-
-      ! Update CBLK(VISO3J) while conserving the total concentration of low-volatility
-      ! isoprene-derived products.  Since the acid-enhanced product is assumed to be
-      ! non-volatile, only positive values of xiso3 are considered below.  Also, xiso3
-      ! is not allowed to exceed the vapor-phase concentration of isoprene SVOC.  We assume
-      ! the xiso3 mass is depleted from the 2 vapor-phase isoprene products in quantities
-      ! proportional to their equilibrium concentrations.  The factor of 2.7/1.6 accounts
-      ! for the enhancement in the OM/OC ratio when isoprene SOA is formed in the presence
-      ! of SO2, based on the lab experiments of Kleindienst et al. (2007)
-
-      If ( xiso3 .Gt. 0.0 ) Then
-         vviso = og_conc( iso1_idx ) + og_conc( iso2_idx )
-         xiso3  = Min( xiso3, vviso )
-         aerospc_conc( aiso3_idx,2 ) = aerospc_conc( aiso3_idx,2 ) + xiso3 * ( 2.7 / 1.6 )
-         isofrac = og_conc( iso1_idx ) / vviso
-         og_conc( iso1_idx ) = og_conc( iso1_idx ) - isofrac * xiso3
-         og_conc( iso2_idx ) = og_conc( iso2_idx ) - ( 1.0 - isofrac ) * xiso3
-      End If
-
-      End If ! IEPOX not present for uptake
 
       ! Update 3rd moment, 2nd moment, and Dg in CBLK array by assuming that SOA
       ! condensation/evaporation does not affect the geometric standard deviation.
