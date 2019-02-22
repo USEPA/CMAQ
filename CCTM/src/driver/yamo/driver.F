@@ -595,39 +595,7 @@ C science process sequence:
          DIVFAC = 0.5 / FLOAT( myNREPS )
          myNREPS = 0
 #endif
-<<<<<<< HEAD
-            DO V = 1, N_ASPCS
-               S = AVG_CONC_MAP( V )
-               L = 0
-               DO K = ACONC_BLEV, ACONC_ELEV
-                  L = L + 1
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
-                        AGRID( C,R,L,V ) = DIVFAC * ( AGRID( C,R,L,V )
-     &                                   -            CGRID( C,R,K,S ) )
-                     END DO
-                  END DO
-               END DO
-            END DO
 
-#ifdef isam
-            DO ITAG = 1, NTAG_SA ! average isam
-               DO V = 1, NSPC_SA
-                  L = 0
-                  DO K = AISAM_BLEV, AISAM_ELEV
-                     L = L + 1
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
-                           AISAM( C,R,L,V,ITAG ) = DIVFAC * ( AISAM(C,R,L,V,ITAG ) 
-     &                                           -            ISAM( C,R,K,V,ITAG ) )
-                        END DO
-                     END DO
-                  END DO
-               END DO
-            END DO
-#endif
-
-=======
          DO V = 1, N_ASPCS
             S = AVG_CONC_MAP( V )
             AGRID( :,:,:,V ) = DIVFAC * ( AGRID( :,:,:,V )
@@ -641,8 +609,24 @@ C science process sequence:
      &         AVG_TA( :,:,: ) = DIVFAC * ( AVG_TA - MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV ) )
          IF ( L_ACONC_PRES ) 
      &         AVG_PRES( :,:,: ) = DIVFAC * ( AVG_PRES - MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV ) )
-             
->>>>>>> master
+
+#ifdef isam
+            DO ITAG = 1, NTAG_SA ! average isam
+               DO V = 1, NSPC_SA
+                  L = 0
+                  DO K = AISAM_BLEV, AISAM_ELEV
+                     L = L + 1
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           AISAM( C,R,L,V,ITAG ) = DIVFAC * ( AISAM(C,R,L,V,ITAG )
+     &                                           -            ISAM( C,R,K,V,ITAG ) )
+                        END DO
+                     END DO
+                  END DO
+               END DO
+            END DO
+#endif
+
 #ifdef twoway
          END IF
 #endif
@@ -663,11 +647,7 @@ C write conc fields
 #endif
             CALL WR_CONC ( JDATE, JTIME, TSTEP( 1 ) )
 #ifdef parallel
-<<<<<<< HEAD
-            IF ( LVEXT ) CALL WR_VEXT ( JDATE, JTIME, TSTEP( 1 ) )
-=======
             IF ( LVEXT ) CALL WR_VEXT ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
->>>>>>> master
 #endif
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
 #ifdef isam
