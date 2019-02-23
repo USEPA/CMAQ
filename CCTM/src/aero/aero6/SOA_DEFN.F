@@ -1048,7 +1048,7 @@ C-----------------------------------------------------------------------
           !         Solve for total number of organic moles in aerosol (hotp 7/5/11)
           lowb      = totorgnv   ! lower: moles of nonvolatile
           upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-          upb       = upb * ( 1.0 + 1e-7*nsvol ) ! prevent numerical issues
+          upb       = upb * ( 1.0 + 1e-7*n_oa ) ! prevent numerical issues
           If ( abs( upb - lowb ) .Lt. threshmin ) Then
             ! no SOA to partition
             orgmoles = ( lowb + upb ) / 2.0
