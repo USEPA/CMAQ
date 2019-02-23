@@ -80,6 +80,21 @@ C Variables for handling marine gas emissions
      &                 'HOI             ',
      &                 'DMS             ' /
 
+       REAL :: MG_MW( NMGSPC )                    ! emitted species molecular weight (g/mol)
+
+       DATA MG_MW   / 252.7,
+     &                173.8,
+     &                129.4,
+     &                208.3,
+     &                243.8,
+     &                141.9,
+     &                176.4,
+     &                219.9,
+     &                267.8,
+     &                253.8,
+     &                143.9,
+     &                62.0     /
+
 C Variables interpolated from the meteorological input files
       REAL,    ALLOCATABLE, SAVE :: U10( :,: )      ! wind speed at 10m [m/s]
       REAL,    ALLOCATABLE, SAVE :: TSEASFC( :,: )  ! sea surface temp K
@@ -136,18 +151,18 @@ C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT
 C Allocate MG arrays using NMGSPC value
             EM_FILE_SURR( IMGSRM )%LEN = NMGSPC
             ALLOCATE( EM_FILE_SURR( IMGSRM )%ARRY ( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%CMAQ ( NMGSPC ) )
             ALLOCATE( EM_FILE_SURR( IMGSRM )%UNITS( NMGSPC ) )
-            ALLOCATE( EM_FILE_SURR( IMGSRM )%PHASE( NMGSPC ) )
             ALLOCATE( EM_FILE_SURR( IMGSRM )%MW   ( NMGSPC ) )
             ALLOCATE( EM_FILE_SURR( IMGSRM )%USED ( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRM )%CONV ( NMGSPC ) )
+            ALLOCATE( EM_FILE_SURR( IMGSRM )%BASIS( NMGSPC ) )
             
             EM_FILE_SURR( IMGSRM )%ARRY  = MG_SPC
-            EM_FILE_SURR( IMGSRM )%CMAQ  = MG_SPC
             EM_FILE_SURR( IMGSRM )%UNITS = 'MOLES/S'
-            EM_FILE_SURR( IMGSRM )%PHASE = 'GAS'
-            EM_FILE_SURR( IMGSRM )%MW    = 0.0
+            EM_FILE_SURR( IMGSRM )%MW    = MG_MW
             EM_FILE_SURR( IMGSRM )%USED  = .FALSE.
+            EM_FILE_SURR( IMGSRM )%CONV  = 1.0
+            EM_FILE_SURR( IMGSRM )%BASIS = 'MOLE'
 
             ALLOCATE ( VDEMIS_MG( NMGSPC,NCOLS,NROWS), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
@@ -400,7 +415,7 @@ C.. Define Marine Gas indices
             REAL, PARAMETER :: SECS2HR = 1.0 / 3600.0          ! hour per seconds
             REAL, PARAMETER :: C_FACT  = 1.0E-9 /(24.0*3600.0) ! factor to convert nmole/m2/day to mole/m2/sec
             REAL, PARAMETER :: LON2TZ  = 1.0 / 15.0            ! longitude to time zone, 1/degrees
-            REAL, PARAMETER :: FHRLY(24) =
+            REAL, PARAMETER :: FHRLY(0:23) =
      &                         ( / 0.032, 0.032, 0.032, 0.033, 0.034, 0.036,
      &                             0.039, 0.044, 0.051, 0.057, 0.062, 0.064,
      &                             0.062, 0.057, 0.051, 0.044, 0.039, 0.036,

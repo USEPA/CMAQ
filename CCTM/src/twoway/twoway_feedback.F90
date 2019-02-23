@@ -15,6 +15,9 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 !           22 Nov 2016  Constructed water soluble and insoluble list dynamically
 !                        based on a given chemical mechanism and AE scheme
 !           17 Jan 2017  Replace 3 with n_mode for robustness
+!           31 Jan 2019  (David Wong)
+!              -- adopted the idea to process all twoway related environment
+!                 variables in one place
 !===============================================================================
 
   USE twoway_header_data_module
@@ -41,12 +44,12 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 
     character (len = 4), save :: pe_str
 
-       allocate (cmaq_wrf_c_send_to(0:9, 0:nprocs-1),              &
-                 cmaq_wrf_c_recv_from(0:9, 0:nprocs-1),            &
-                 cmaq_wrf_c_send_index_g(9*3, 2, 0:nprocs-1),      &   ! starting and ending dimension, dimenionality
-                 cmaq_wrf_c_send_index_l(9*3, 2, 0:nprocs-1),      &   ! starting and ending dimension, dimenionality
-                 cmaq_wrf_c_recv_index_g(9*3, 2, 0:nprocs-1),      &   ! starting and ending dimension, dimenionality
-                 cmaq_wrf_c_recv_index_l(9*3, 2, 0:nprocs-1),      &   ! starting and ending dimension, dimenionality
+       allocate (cmaq_wrf_c_send_to(0:9, 0:twoway_nprocs-1),              &
+                 cmaq_wrf_c_recv_from(0:9, 0:twoway_nprocs-1),            &
+                 cmaq_wrf_c_send_index_g(9*3, 2, 0:twoway_nprocs-1),      &   ! starting and ending dimension, dimenionality
+                 cmaq_wrf_c_send_index_l(9*3, 2, 0:twoway_nprocs-1),      &   ! starting and ending dimension, dimenionality
+                 cmaq_wrf_c_recv_index_g(9*3, 2, 0:twoway_nprocs-1),      &   ! starting and ending dimension, dimenionality
+                 cmaq_wrf_c_recv_index_l(9*3, 2, 0:twoway_nprocs-1),      &   ! starting and ending dimension, dimenionality
                  stat=stat) 
        if (stat .ne. 0) then
           print *, ' Error: Allocating communication indices arrays'
@@ -83,7 +86,6 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
              print *, ' Error: Could not open file ', trim(feedback_fname)
           end if
        end if
-
 
 ! The water soluble and insoluble lists are actually used to differentiate between two
 ! refractive index values. They do not necessarily align completely with water soluble
@@ -502,7 +504,7 @@ SUBROUTINE feedback_read (grid, jdate, jtime)
      allocate ( feedback_data_wrf (wrf_c_ncols, wrf_c_nrows, nlays3d, nvars3d), stat=stat)
      allocate ( feedback_data_cmaq (cmaq_c_ncols, cmaq_c_nrows, nlays3d, nvars3d), stat=stat)
 
-     if ((nprocs - mype) .le. npcol) then
+     if ((twoway_nprocs - mype) .le. npcol) then
         north_bndy_pe = .true.
      end if
 

@@ -74,7 +74,7 @@
       ! local variables
       Character( FLD_LEN ) :: cmdline
 
-      cmdline = 'rm ' // Trim(file)
+      cmdline = 'rm -f ' // Trim(file)
 
       status = system( Trim(cmdline) )
       If ( status .Ne. 0 ) Then

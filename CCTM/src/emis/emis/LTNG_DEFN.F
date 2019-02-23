@@ -50,6 +50,11 @@
 !C                       * called SUBHFILE only once to improve code efficiency
 !C  13 Jun 2018 D. Kang: Changes to accommodate the twoway WRF-CMAQ coupled model 
 !C                       with/without data passing (lightning assimilation and NO emissions)
+!C   5 Feb 2019 D. Kang: Changed the Lightning flash variable name (NLDNstrk) and make it 
+!C                       consistent with the name (LNT) used in lightning assimilation;
+!C                       In the meantime, it still can read the files with old name by 
+!C                       defining a LT_NAME variable. A bug fix related to read RC variable
+!C                       from met input file is also implemented.
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -65,7 +70,7 @@
       PRIVATE
 
 !C lightning log linear regression parameters with RC 
-      REAL                       :: SQUAREKM
+      REAL,                 SAVE :: SQUAREKM
       REAL,                 SAVE :: SCL_FACTOR
 
       INTEGER,              SAVE :: LTLYRS     ! no. of emissions layers
@@ -80,6 +85,7 @@
       CHARACTER( 16 ),      SAVE :: MNAME
       CHARACTER( 16 ),      SAVE :: RNAME
       CHARACTER( 16 ),      SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
+      CHARACTER( 16 ),      SAVE :: LT_NAME       ! LNT name: old is NLDNstrk and new is LNT
 
 !C allocate these if LTNG_FNAME = 'InLine'
       REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC     ( :,: ) ! surface pressure
@@ -99,13 +105,13 @@
       INTEGER,              SAVE :: NTICS = 0 ! no. of substeps within an output tstep
       INTEGER,              SAVE :: MTICS = 0 ! temporary sub for NTICS before it set to 0 
       INTEGER,              SAVE :: LDATE     ! test date to update emissions diag avg
-      INTEGER                    :: LTIME     ! test time to update emissions diag avg
+      INTEGER,              SAVE :: LTIME     ! test time to update emissions diag avg
       INTEGER                    :: FTIME     ! Start time to Write to Diagnostic files
 
       INTEGER,              SAVE :: GXOFF, GYOFF   ! global origin offset from file
       INTEGER,              SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
-      INTEGER                    :: LT_TSTEP
+      INTEGER,              SAVE :: LT_TSTEP
 
       CONTAINS
 
@@ -164,18 +170,18 @@
 !C Populate Emissions Species Record
          EM_FILE_SURR( ILTSRM )%LEN = 1
          ALLOCATE( EM_FILE_SURR( ILTSRM )%ARRY ( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%CMAQ ( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%UNITS( 1 ) )
-         ALLOCATE( EM_FILE_SURR( ILTSRM )%PHASE( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%MW   ( 1 ) )
          ALLOCATE( EM_FILE_SURR( ILTSRM )%USED ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%CONV ( 1 ) )
+         ALLOCATE( EM_FILE_SURR( ILTSRM )%BASIS( 1 ) )
          
          EM_FILE_SURR( ILTSRM )%ARRY  = "NO"
-         EM_FILE_SURR( ILTSRM )%CMAQ  = "NO"
          EM_FILE_SURR( ILTSRM )%UNITS = 'MOLES/S'
-         EM_FILE_SURR( ILTSRM )%PHASE = 'GAS'
-         EM_FILE_SURR( ILTSRM )%MW    = 0.0
+         EM_FILE_SURR( ILTSRM )%MW    = 30.0
          EM_FILE_SURR( ILTSRM )%USED  = .FALSE.
+         EM_FILE_SURR( ILTSRM )%CONV  = 1.0
+         EM_FILE_SURR( ILTSRM )%BASIS = 'MOLE'
  
 !C Read in scenario time/date
          NSTEPS = RUNLEN / TSTEP           ! initscen guarantees divisibility
@@ -236,7 +242,19 @@
      &                    'Enter name for gridded met input file',
      &                    FSREAD3, 'MET_CRO_2D', PNAME )
 !C Read description of normalized emissions file
-            IF ( NLDNSTRIKE ) THEN
+           IF ( .NOT. DESC3( RNAME ) ) THEN
+                  XMSG = 'Could not get description of file "'
+     &                 // TRIM( RNAME ) // '"'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+           END IF
+           SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
+           IF ( SPC .GT. 0 ) THEN
+               RC_NAME = 'RCA'
+           ELSE
+               RC_NAME = 'RC'
+           END IF
+           IF ( NLDNSTRIKE ) THEN
                   XMSG = 'Using hourly NLDN Strike data'
                   CALL M3MSG2( XMSG )
                   ANAME = PROMPTMFILE(
@@ -247,6 +265,12 @@
      &                 // TRIM( ANAME ) // '"'
                   CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                   SUCCESS = .FALSE.; RETURN
+               END IF
+               SPC = INDEX1( 'NLDNstrk', NVARS3D, VNAME3D )
+               IF ( SPC .GT. 0 ) THEN
+                  LT_NAME = 'NLDNstrk'
+               ELSE
+                  LT_NAME = 'LNT'
                END IF
 
                LT_TSTEP = TIME2SEC ( TSTEP3D )
@@ -271,12 +295,6 @@
 !C Set up vertical layers
             ALLOCATE( VGLVSLT( 0:EMLAYS ), STAT = STATUS )
             CALL CHECKMEM( STATUS, 'VGLVSLT', PNAME )
-            SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
-            IF ( SPC .GT. 0 ) THEN
-               RC_NAME = 'RCA'
-            ELSE
-               RC_NAME = 'RC'
-            END IF
 
             ALLOCATE( ICCG        ( NCOLS,NROWS ),
      &                   OCEAN_MASK  ( NCOLS,NROWS ),
@@ -520,7 +538,7 @@
          LOGICAL,     SAVE :: R_READY = .TRUE.
          LOGICAL,     SAVE :: wrf_assim = .FALSE.
          INTEGER,     SAVE :: TOT_TSTEP
-         LOGICAL           :: FIRSTIME = .TRUE.
+         LOGICAL,     SAVE :: FIRSTIME = .TRUE.
 
 C statement function for ERF approximation
          REAL              :: ERF                ! ERF approx. statement function

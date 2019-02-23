@@ -63,7 +63,6 @@ C=======================================================================
          CHARACTER( 120 )      :: XMSG = ' '
 
          INTEGER N_SPC
-         REAL    CONVEM               ! conversion for emissions rates to Kg/s
          INTEGER V, K, STATUS
 
 C-----------------------------------------------------------------------

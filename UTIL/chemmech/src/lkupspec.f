@@ -42,17 +42,22 @@ C=======================================================================
       USE MECHANISM_DATA
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
-      INTEGER NS, NSPEC, ISPC
-      INTEGER NXX, SPC1RX( MAXSPEC )
-      CHARACTER( 16 ) :: SPECIES, SPCLIS( MAXSPEC )
+! Arguments:
+      INTEGER,         INTENT(INOUT) :: NS
+      INTEGER,         INTENT( OUT ) :: NSPEC
+      INTEGER,         INTENT(INOUT) :: SPC1RX( : )
+      INTEGER,         INTENT(  IN ) :: NXX
+      CHARACTER*( * ), INTENT(  IN ) :: SPECIES
+      CHARACTER*( * ), INTENT(INOUT) :: SPCLIS( : )
+! Local:
+      INTEGER :: ISPC
 
-      DO 101 ISPC = 1, NS
-      IF ( SPECIES .EQ. SPCLIS( ISPC ) ) THEN   ! found
-         NSPEC = ISPC
-         RETURN
-      END IF
-101   CONTINUE
+      DO ISPC = 1, NS
+         IF ( SPECIES .EQ. SPCLIS( ISPC ) ) THEN   ! found
+            NSPEC = ISPC
+            RETURN
+         END IF
+101   END DO
       NS = NS + 1                           ! not found
       IF ( NS .GT. MAXSPEC ) THEN
          WRITE( *,2001 ) MAXSPEC
