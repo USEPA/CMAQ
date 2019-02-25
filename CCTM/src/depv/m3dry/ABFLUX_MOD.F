@@ -80,7 +80,7 @@ C-------------------------------------------------------------------------------
       Real, Save, Allocatable :: fcec2  ( :,: ) ! Volatility function of CEC from EPIC (Williams 1995) in L2
       
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter      
-      Real, Parameter,         Private :: maxgam   = 1.0e6 ! maximum soil gamm. It is assumed that any excess NH4 would form salts
+      Real, Parameter,         Private :: maxgam   = 1.0e6 ! removed 200000 limit since I can't find any justification
       Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
      
       Contains 
@@ -642,8 +642,8 @@ C-------------------------------------------------------------------------------
 !---- Gamma soil 
                   Case( 'AG','AGMOS' ) ! Ag
                       if (fcec1(c,r).gt. 0.299 ) Then                
-                        frac_sol1= fcec1(c,r) !* 0.6  ! scale EPIC cec func to give .55 at Lillington
-                        frac_sol2= fcec2(c,r) !* 0.6
+                        frac_sol1= fcec1(c,r) 
+                        frac_sol2= fcec2(c,r)
                       else
                         frac_sol1= 0.55
                         frac_sol2= 0.55

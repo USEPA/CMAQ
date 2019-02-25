@@ -16,7 +16,7 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
- set CMAQ_HOME = /work/MOD3DEV/pleim/cmaq53/master_Feb23
+ set CMAQ_HOME = /work/MOD3DEV/pleim/cmaq53/master_Feb25
 
 
 #> This section allows users to choose explicitly which tools
