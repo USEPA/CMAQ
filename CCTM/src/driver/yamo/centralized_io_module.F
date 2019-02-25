@@ -3869,16 +3869,17 @@ C   mminlu and num_land_cat are WRF global variables
              else
                 extra_c = 0
                 extra_r = 0
-                if (cio_grid_var_name(var_loc, 2) .eq. '3') then
-                    extra_c = x_cro_ncols - size(data, 1)
-                    extra_r = x_cro_nrows - size(data, 2)
-                    col_size = cro_ncols
-                    dot = 0
-                else if (cio_grid_var_name(var_loc, 2) .eq. 'd') then
+
+                if (cio_grid_var_name(var_loc, 2) .eq. 'd') then
                     extra_c = x_dot_ncols - size(data, 1)
                     extra_r = x_dot_nrows - size(data, 2)
                     col_size = dot_ncols
                     dot = 1
+                else
+                    extra_c = x_cro_ncols - size(data, 1)
+                    extra_r = x_cro_nrows - size(data, 2)
+                    col_size = cro_ncols
+                    dot = 0
                 end if
 
                 adj2 = extra_c
