@@ -72,6 +72,8 @@
 
       Close (unit=lfn)
 
+! Delete Stray temp.* files
+      Call deletefile( 'temp.*', status )
 ! If not makefile only (makefo), Then run the make command to compile
       If ( .not. makefo ) Then
         Call RunMake( status )
@@ -310,7 +312,10 @@
       Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
       Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
       Write( lfn, '("#",/,"#   Command-Line Options:      ")' ) 
-      Write( lfn, '("#      DEBUG=TRUE -- turn on debug flags ")' ) 
+      Write( lfn, '("#      DEBUG = TRUE or true -- turn on debug flags ")' ) 
+      Write( lfn, '("#  OR  debug = true or TRUE -- turn on debug flags ")' ) 
+      Write( lfn, '("#  Can set either variable by using the setenv command for")' ) 
+      Write( lfn, '("#  a debugging session with multiple compilations")' ) 
       Write( lfn, '("#")' ) 
       Write( lfn, '("#------------------------------------------------- ")' ) 
 
@@ -334,7 +339,11 @@
       Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
       Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
 
-      Write( lfn, '(/" ifeq ""$(DEBUG)"" ""TRUE"" ")' )
+      Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true ))")')
+      Write( lfn, '( "     DEBUG = TRUE")' )
+      Write( lfn, '( " endif")' )
+      
+      Write( lfn, '(/" ifneq (,$(filter $(DEBUG), TRUE true ))")')
       Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
       Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
 

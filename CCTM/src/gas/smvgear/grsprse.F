@@ -632,7 +632,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   JARRP(  NK, NPR, NCS12 ) = IAR
                   JPIAL(  NK, NPR, NCS12 ) = IAL
                   ICOEFF( NK, NPR, NCS12 ) = 0
-                  IF( ABS( SC( NK, IAP ) - 1.0 ) .GT. 1.0E-06 ) THEN
+                  IF( ABS( SC( NK, IAP ) - 1.0D0 ) .GT. 1.0D-06 ) THEN
                      ICOEFF( NK, NPR, NCS12 ) = IAP
                   ENDIF
                   NDPMAX = MAX( NPR, NDPMAX )

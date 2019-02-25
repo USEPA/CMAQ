@@ -1,0 +1,24 @@
+#
+#
+# Aerosol toxics species for multipollutant mechanism, extracted from
+#   legacy ICON profile
+# Profile Source:  Bill Hutzell (hutzell.bill@epa.gov)
+#   
+# Vertical layers: 6
+# Meteorological fields:
+#   ZF taken from CMAQ science document, page 12-22 (EPA/600/R-99/030)
+#   ZH calculated from ZF
+# Chemical mechanism: Multipollutant
+# Top level pressure: assumed to be 100mb
+# The vertical sigma levels: 1.00,0.98,0.93,0.84,0.60,0.30,0.00
+VNAME,UNITS,LAYER01,LAYER02,LAYER03,LAYER04,LAYER05,LAYER06
+"ZF","m",152.0,544.0,1289.0,3600.0,7621.0,16069.0
+"ZH","m",76.0,348.0,916.5,2444.5,5610.5,11845.0
+"ANIJ","ug m-3",9.508E-05,8.090E-05,5.332E-05,2.387E-05,5.912E-06,5.912E-06
+"ACR_IIIJ","ug m-3",7.500E-06,6.382E-06,4.206E-06,1.883E-06,4.663E-07,4.663E-07
+"ACR_VIJ","ug m-3",7.500E-06,6.382E-06,4.206E-06,1.883E-06,4.663E-07,4.663E-07
+"APBJ","ug m-3",1.409E-05,1.199E-05,7.899E-06,3.536E-06,8.758E-07,8.758E-07
+"APBK","ug m-3",9.390E-06,7.990E-06,5.266E-06,2.357E-06,5.839E-07,5.839E-07
+"ACDJ","ug m-3",1.761E-06,1.498E-06,9.874E-07,4.420E-07,1.095E-07,1.095E-07
+"AMN_HAPSJ","ug m-3",9.390E-05,7.990E-05,5.266E-05,2.357E-05,5.839E-06,5.839E-06
+"AMN_HAPSK","ug m-3",1.409E-04,1.199E-04,7.899E-05,3.536E-05,8.758E-06,8.758E-06

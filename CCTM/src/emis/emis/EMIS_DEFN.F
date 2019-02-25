@@ -290,30 +290,21 @@ C Retrieve Emissions from All Stream Types
                NL = EM_GRID_LAYS( ISRM )
                CALL GRIDEMIS( JDATE, JTIME, TSTEP, EM_FILE_NAME( ISRM ), 
      &                        NL, ISRM, VDEMIS_READ )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND. 
-     &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1:NL,:,: ) = CONVEM_GAS( ISRM ) * VDEMIS_READ( ISTR,1:NL,:,: ) 
-               END FORALL
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
 
              ! Retrieve Point Source Emissions Streams
              CASE ( 2 )
+               NL = 1
                CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR( :,ISRM ), ISRM, VDEMIS_READ, NL )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND.
-     &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1:NL,:,: ) = CONVEM_GAS( ISRM ) * VDEMIS_READ( ISTR,1:NL,:,: ) 
-               END FORALL
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
              
              CASE ( 4 )
                NL = 1
                CALL GET_BEIS ( JDATE, JTIME, TSTEP )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND.
-     &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1,:,: ) = CONVEM_GAS( ISRM ) *
-     &                         VDEMIS_BI( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
+                  VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_BI( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
@@ -321,10 +312,8 @@ C Retrieve Emissions from All Stream Types
              CASE ( 5 )
                NL = 1
                CALL GET_MGEMIS ( JDATE, JTIME, TSTEP, CGRID )
-               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND. 
-     &                 MAP_EMtoGAS( ISTR ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1,:,: ) = CONVEM_GAS( ISRM ) *
-     &                          VDEMIS_MG( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
+               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
+                  VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_MG( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
@@ -332,12 +321,10 @@ C Retrieve Emissions from All Stream Types
              CASE ( 6 )
                NL = EMLAYS
                CALL GET_LTNG ( JDATE, JTIME, TSTEP )
-               DO ISTR = 1,N_EMIS_ISTR
-                  IF ( MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 .AND. MAP_EMtoGAS( ISTR ) .GT. 0 ) THEN
-                    DO L = 1,EMLAYS
-                      VDEMIS_READ( ISTR,L,:,: ) = VDEMIS_LT( :,:,L ) * CONVEM_GAS( ISRM )
-                    END DO
-                  END IF
+               DO L = 1,NL
+                  FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
+                     VDEMIS_READ( ISTR,L,:,: ) = VDEMIS_LT( :,:,L ) 
+                  END FORALL
                END DO
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
 
@@ -346,8 +333,7 @@ C Retrieve Emissions from All Stream Types
                NL = 1
                CALL GET_SSEMIS ( JDATE, JTIME, TSTEP, CELLVOL( 1 ), CELLHGT( 1 ) )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1,:,: ) = 
-     &                  SSOUTM( MAP_EMtoSURR( ISTR,ISRM ),MAP_EMtoMODE( ISTR ),:,: ) 
+                  VDEMIS_READ( ISTR,1,:,: ) = SSOUTM( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
@@ -357,8 +343,7 @@ C Retrieve Emissions from All Stream Types
                NL = 1
                CALL GET_DUST_EMIS ( JDATE, JTIME, TSTEP, Met_data%RJACM( :,:,1 ), CELLHGT( 1 ) )
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
-                  VDEMIS_READ( ISTR,1,:,: ) = 
-     &                  DUSTOUTM( MAP_EMtoSURR( ISTR,ISRM ),MAP_EMtoMODE( ISTR ),:,: ) 
+                  VDEMIS_READ( ISTR,1,:,: ) = DUSTOUTM( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
@@ -675,10 +660,10 @@ C-----------------------------------------------------------------------
       ! Convert All Emissions to Units Appropriate for the Dispersion Solver
       CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL ) 
       DO L = 1,NL
-        CNVTC( L,:,: ) = CNVTI( L ) * Met_Data%RRHOJ( :,:,L )       ! Gas:       kmol/s -> ppmv/s
-        CONVM( L,:,: ) = MWAIR / GPKG / Met_Data%DENS( :,:,L ) ! Aer. Mass: umol/m3/s -> ppmv/s
-      END DO
-      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) * RAVO * 1.0E+06                ! Aer. Num:  N/m3/s -> N/molec/s
+        CNVTC( L,:,: ) = 1.0E-3 * CNVTI( L ) * Met_Data%RRHOJ( :,:,L )  ! Gas Moles:   mol/s -> ppmv/s
+        CONVM( L,:,: ) = MWAIR / GPKG / Met_Data%DENS( :,:,L ) !m3/mol  ! Aer. Mass:   umol/m3/s -> ppmv/s
+      END DO                                                                         ! m2/m3/s -> m2/mol/s
+      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) * RAVO * 1.0E+06            ! Aer. Num:    N/m3/s -> N/molec/s
       
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
       !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
@@ -816,9 +801,9 @@ C-----------------------------------------------------------------------
       ! Convert All Emissions to Units Appropriate for the Dispersion Solver
       CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL ) 
       DO L = 1,NL
-        CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) )   ! Gas:       kmol/s -> ppmv/s
-        CONVM( L,:,: ) = 1.0 / MWAIR * GPKG * Met_Data%DENS( :,:,L )        ! Aer. Mass: ppmv/s -> umol/m3/s
-      END DO
+        CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) )   ! Gas Moles: ppmv/s -> mol/s
+        CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )      ! Aer. Mass: ppmv/s -> umol/s
+      END DO                                                                           ! m2/mol/s -> m2/m3/s
       CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) / RAVO / 1.0E+12                ! Aer. Num:  N/molec/s -> N/cm3/s
       
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
@@ -849,7 +834,7 @@ C-----------------------------------------------------------------------
 
             ! Sum the column if requested
             IF ( EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) THEN
-                VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),3 )
+                VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),1 )
                 LAYS = 1
             END IF
 
@@ -935,6 +920,7 @@ C-----------------------------------------------------------------------
          REAL, ALLOCATABLE :: EM_FAC_BULK( :,:,: )
          CHARACTER( 1 ), ALLOCATABLE :: EM_OP( :,:,: )
          CHARACTER( 4 ), ALLOCATABLE :: EM_BASIS( :,:,: )
+         REAL,  ALLOCATABLE          :: EM_CONV( :,:,: )
          INTEGER, ALLOCATABLE :: EM_REG( :,:,: )
          INTEGER             :: N_EM_RULE
 
@@ -968,29 +954,41 @@ C and allowing the model to proceed.
      &           ISRM .EQ. IDUSTSRM.OR. ISRM .EQ. ILTSRM  .OR.
      &           ISRM .EQ. IMGSRM ) CYCLE
 
-            ALLOCATE( EM_FILE_SURR( ISRM )%CMAQ ( EM_FILE_SURR( ISRM )%LEN ) )
-            ALLOCATE( EM_FILE_SURR( ISRM )%PHASE( EM_FILE_SURR( ISRM )%LEN ) )
             ALLOCATE( EM_FILE_SURR( ISRM )%MW   ( EM_FILE_SURR( ISRM )%LEN ) )
             ALLOCATE( EM_FILE_SURR( ISRM )%USED ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%CONV ( EM_FILE_SURR( ISRM )%LEN ) )
+            ALLOCATE( EM_FILE_SURR( ISRM )%BASIS( EM_FILE_SURR( ISRM )%LEN ) )
             EM_FILE_SURR( ISRM )%USED = .FALSE.
 
             DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
+               ! Assign Default Molecular Weight to Each Surrogate Species
                B = EM_FILE_SURR( ISRM )%ARRY( ISUR )
-               IA  = INDEX1( B, N_MAP_EMIStoCMAQ, MAP_EMIStoCMAQ( : )%SURR )
+               IA  = INDEX1( B, N_EMIS_SURR_TABLE, EMIS_SURR_TABLE( : )%NAME )
                IF ( IA .GT. 0 ) THEN
-                  EM_FILE_SURR( ISRM )%CMAQ ( ISUR ) = MAP_EMIStoCMAQ( IA )%CMAQ
-                  EM_FILE_SURR( ISRM )%PHASE( ISUR ) = MAP_EMIStoCMAQ( IA )%PHASE
-                  EM_FILE_SURR( ISRM )%MW   ( ISUR ) = MAP_EMIStoCMAQ( IA )%MW
+                  EM_FILE_SURR( ISRM )%MW   ( ISUR ) = EMIS_SURR_TABLE( IA )%MW
                ELSE
                   ! Surrogate is not calculated online nor does it
                   ! belong to the default list of commonly used
                   ! surrogates.
-                  EM_FILE_SURR( ISRM )%CMAQ ( ISUR ) = B
-                  EM_FILE_SURR( ISRM )%PHASE( ISUR ) = 'N/A'
                   EM_FILE_SURR( ISRM )%MW   ( ISUR ) = 1.0
                END IF
             END DO
+
          END DO
+
+         DO ISRM = 1,N_EM_SRM
+            DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
+               ! Check Units and Assign Conversion Factors for
+               ! translating [kmol or umol] -> mol, [kg or mg] -> g, and
+               ! [s, min, hr] -> s
+               CALL CHECK_EMIS_UNITS( ISRM, ISUR, 
+     &                                EM_FILE_SURR( ISRM )%ARRY ( ISUR ),
+     &                                EM_FILE_SURR( ISRM )%UNITS( ISUR ), 
+     &                                EM_FILE_SURR( ISRM )%CONV ( ISUR ),
+     &                                EM_FILE_SURR( ISRM )%BASIS( ISUR ) )
+            END DO
+         END DO
+
 
 ! Set up Stream <-> Size Distribution relationship. This routine
 ! populates the EM_STREAM_SIZE structure which tells the logic below which
@@ -998,7 +996,6 @@ C and allowing the model to proceed.
          CALL EM_SD_INIT( JDATE, JTIME )
          
 ! Process Default Emissions Mapping (if requested in namelist; i.e. 
-! DefaultScaling = TRUE) 
          ALLOCATE( EM_SPEC( NISTR0 ) )                ! CMAQ Species Names
          EM_SPEC = ""
          ALLOCATE( EM_SURR( NISTR0,N_EM_SRM ) )       ! Surrogate Name
@@ -1013,6 +1010,8 @@ C and allowing the model to proceed.
          EM_REG = 1                                            !   Output. Ignores aero_split and unit conversion
          ALLOCATE( EM_BASIS ( NISTR0,N_EM_SRM,N_SCALEFAC ) )   ! Mass or Mole Basis for Conversion
          EM_BASIS = ""
+         ALLOCATE( EM_CONV ( NISTR0,N_EM_SRM,N_SCALEFAC ) )   ! Mass or Mole Basis for Conversion
+         EM_CONV = 1.0
          ALLOCATE( MAP_EMtoDIFF( NISTR0 ) )           ! Map from Emissions Species 
          MAP_EMtoDIFF = 0                             !   to Diffusion Vector
          ALLOCATE( MAP_EMtoSURR( NISTR0,N_EM_SRM ) )  ! Map from Emissions Species 
@@ -1042,125 +1041,6 @@ C and allowing the model to proceed.
          N_EMIS_ISTR = 0
          SPECNAME = ''
 
-         IF ( DefaultScaling ) THEN
-            DO IDIFF = 1,N_SPC_DIFF
-              DO ISRM = 1,N_EM_SRM
-
-                 ! First Look for The Transported Species Name in the
-                 ! Emissions Surrogate List. Then look for it on the
-                 ! alternate list.
-                 JDX = 0; JM  = 0; JSD = 0; JEM = 0
-
-                 DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
-                   IF ( EM_FILE_SURR( ISRM )%PHASE( ISUR ) .EQ. 'N/A' ) CYCLE
-
-                   SN = EM_FILE_SURR( ISRM )%ARRY( ISUR )
-                   SM = EM_FILE_SURR( ISRM )%CMAQ( ISUR )
-                   ! Find Out which CMAQ aerosol modes are available
-                   ! for this surrogate as a function of its streams
-                   ! and emission mode
-                   IF ( EM_FILE_SURR( ISRM )%PHASE( ISUR ) .EQ. 'GAS' ) THEN ! Gas Surrogate
-                     IF ( .NOT.DIFF_MASK_AERO( IDIFF )       .AND.           ! Gas CMAQ Species
-     &                   ( TRIM( SN ) .EQ. DIFF_SPC( IDIFF ) .OR.            ! Name Match
-     &                     TRIM( SM ) .EQ. DIFF_SPC( IDIFF ) )    ) THEN
-                       JDX = ISUR
-                       JSD = 1    ! 1 is Always the Gas Phase in the Sector Size Distribution Vector
-                       JEM = 0    ! 0 is Always the gas phase in the Size Dist Reference List
-                       ! Update Molecular Weight of the surrogate if it
-                       ! is not already set
-                       IF ( EM_FILE_SURR( ISRM )%MW( ISUR ) .EQ. 0. )
-     &                      EM_FILE_SURR( ISRM )%MW( ISUR ) = DIFF_MW( IDIFF )
-                     END IF
-                   ELSEIF ( DIFF_MASK_AERO( IDIFF ) ) THEN  ! Aerosol CMAQ Species and Surrogate
-                     ISD = INDEX1( EM_FILE_SURR( ISRM )%PHASE( ISUR ), 
-     &                             EM_STREAM_SIZE( ISRM )%LEN, EM_STREAM_SIZE( ISRM )%NAME )
-                     IEM = EM_STREAM_SIZE( ISRM )%REF( ISD )
-                     
-                     ! Cycle through model aerosol modes and find ones that apply 
-                     ! to this size distribution
-                     DO IM = 1,N_MODE
-                       IF ( EM_STREAM_SIZE( ISRM )%FACNUM( ISD,IM ) .GT. 0.0 ) THEN
-                         ! The surrogate mode ISD may be mapped to
-                         ! CMAQ Model Mode IM
-                         IF ( TRIM( SN )//MODESUFF( IM ) .EQ. DIFF_SPC( IDIFF ) .OR.
-     &                        TRIM( SM )//MODESUFF( IM ) .EQ. DIFF_SPC( IDIFF ) .OR.
-     &                        TRIM( SN ) .EQ. DIFF_SPC( IDIFF )                 .OR.
-     &                        TRIM( SM ) .EQ. DIFF_SPC( IDIFF )             ) THEN 
-                           JDX = ISUR   ! Save the surrogate index for mapping below
-                           JM  = IM     ! Save this mode value for mapping below
-                           JSD = ISD    ! Save the surrogate mode for mapping below
-                           JEM = IEM    ! Save the reference size distribution index 
-                                        !   for mapping below
-                           ! Update Molecular Weight of the surrogate if it
-                           ! is not already set
-                           IF ( EM_FILE_SURR( ISRM )%MW( ISUR ) .EQ. 0. )
-     &                          EM_FILE_SURR( ISRM )%MW( ISUR ) = DIFF_MW( IDIFF )
-                         END IF
-                       END IF
-                     END DO
-                   END IF
-                 END DO
-
-                 ! Populate Entry in Emissions Instructions if a Match was Found
-                 IF ( JDX .GT. 0 ) THEN
-                    ! A Surrogate Matches a Transported Species. If both the Species 
-                    ! and Surrogate Match a Previously Defined Instruction, then add 
-                    ! the scale factor to that entry under the relevant stream number.
-                    SPECNAME = DIFF_SPC( IDIFF )
-                    IF ( N_EMIS_ISTR .NE. 0 ) SPECNAME = EM_SPEC( N_EMIS_ISTR )
-                    IF ( DIFF_SPC( IDIFF ) .NE. SPECNAME .OR. 
-     &                   N_EMIS_ISTR .EQ. 0 ) THEN
-                       
-                       ! Create A New Instruction
-                       N_EMIS_ISTR = N_EMIS_ISTR + 1
-                       EM_SPEC( N_EMIS_ISTR ) = DIFF_SPC( IDIFF )
-                       MAP_EMtoDIFF( N_EMIS_ISTR ) = IDIFF
-
-                       ! Link Row to the Aerosol Module. These CMAQ
-                       ! species names should already include aerosol
-                       ! mode suffixes (like I, J, or K) so search for
-                       ! the entire name.
-                       IF ( DIFF_MASK_AERO( IDIFF ) ) THEN 
-                         IAERO = INDEX1( EM_SPEC( N_EMIS_ISTR ), N_AEROSPC, 
-     &                                   AEROSPC%NAME( JM ) )
-                         MAP_EMtoAERO( N_EMIS_ISTR ) = IAERO
-                         MAP_EMtoMODE( N_EMIS_ISTR ) = JM
-                       ELSE 
-                         MAP_EMtoGAS( N_EMIS_ISTR ) = IDIFF
-                       END IF
-                    END IF
- 
-                    ! Only apply an aerosol size-split parameter if this
-                    ! species is an aerosol and not from dust or sea spray
-                    ! sectors
-                    AERO_SPLIT = 1.0
-                    IF ( DIFF_MASK_AERO( IDIFF ) .AND. ISRM .NE. IDUSTSRM .AND.
-     &                       ISRM .NE. ISEASRM ) 
-     &                   AERO_SPLIT = SD_SPLIT( IDIFF, JEM )
-
-                    ! Update the Surrogate of an Existing Instruction
-                    EM_FILE_SURR( ISRM )%USED( JDX ) = .TRUE.
-                    EM_SURR( N_EMIS_ISTR, ISRM ) = EM_FILE_SURR( ISRM )%ARRY( JDX )
-                    MAP_EMtoSURR( N_EMIS_ISTR, ISRM ) = JDX
-                    MAP_EMtoSD( N_EMIS_ISTR, ISRM ) = JSD
-                    EM_FILE_DIFF( IDIFF,ISRM ) = .TRUE.
-
-                    EM_FAC ( N_EMIS_ISTR, ISRM, 1 ) = 1.0 * AERO_SPLIT
-                    EM_FAC_BULK ( N_EMIS_ISTR, ISRM, 1 ) = 1.0
-                    EM_REG( N_EMIS_ISTR, ISRM, 1 ) = 1
-                    EM_OP( N_EMIS_ISTR, ISRM, 1 )  = 'a'
-
-                    IF ( DIFF_MASK_AERO( IDIFF ) ) THEN
-                         EM_BASIS ( N_EMIS_ISTR, ISRM, 1 ) = 'MASS'
-                    ELSE
-                         EM_BASIS ( N_EMIS_ISTR, ISRM, 1 ) = 'MOLE'
-                    END IF
-
-                 END IF
-               END DO
-            END DO
-         END IF
-         
 ! Insert Emissions Instructions for Aerosol Number and Surface Area,
 ! if at least one aerosol species is being transported
          IF ( COUNT( DIFF_MASK_AERO ) .GT. 0 ) THEN
@@ -1169,7 +1049,8 @@ C and allowing the model to proceed.
                EM_SPEC( N_EMIS_ISTR+1 ) = AEROMODE( IM )%NUM_NAME
                EM_FAC ( N_EMIS_ISTR+1,:,1 ) = 1.0
                EM_FAC_BULK ( N_EMIS_ISTR+1,:,1 ) = 1.0        
-               EM_BASIS( N_EMIS_ISTR+1,:,1 ) = ''
+               EM_BASIS( N_EMIS_ISTR+1,:,1 ) = 'UNIT'
+               EM_CONV( N_EMIS_ISTR+1,:,1 ) = 1.0
                EM_OP ( N_EMIS_ISTR+1,:,1 ) = "a"
                EM_REG ( N_EMIS_ISTR+1,:,1 ) = 1
                MAP_NUMtoEM( IM ) = N_EMIS_ISTR+1
@@ -1182,7 +1063,8 @@ C and allowing the model to proceed.
                EM_SPEC( N_EMIS_ISTR+2 ) = AEROMODE( IM )%SRF_NAME
                EM_FAC ( N_EMIS_ISTR+2,:,1 ) = 1.0
                EM_FAC_BULK ( N_EMIS_ISTR+2,:,1 ) = 1.0         
-               EM_BASIS( N_EMIS_ISTR+2,:,1 ) = ''
+               EM_BASIS( N_EMIS_ISTR+2,:,1 ) = 'UNIT'
+               EM_CONV( N_EMIS_ISTR+2,:,1 ) = 1.0
                EM_OP ( N_EMIS_ISTR+1,:,1 ) = "a"
                EM_REG ( N_EMIS_ISTR+1,:,1 ) = 1
                MAP_SRFtoEM( IM ) = N_EMIS_ISTR+2
@@ -1204,7 +1086,7 @@ C and allowing the model to proceed.
          END DO
 
          ! Implement Default Scaling Rules that will Always Be Applied
-         IF ( DefaultScaling ) CALL CUSTOM_EM_RULES( N_EM_RULE )
+         CALL CUSTOM_EM_RULES( N_EM_RULE )
 
 
          ! Allocate Rule->Instruction Transform Masks
@@ -1358,6 +1240,10 @@ C and allowing the model to proceed.
                  ! Expand the Rule to Apply to All Phases and Modes
                  EM_PHASE_RULE( ISRM )%ARRY = .TRUE.
                  LERROR = .FALSE.
+              ELSE IF ( EM_NML( IRULE )%PHASE .EQ. 'AERO' ) THEN
+                 ! Expand the Rule to Apply to All Aerosol Modes
+                 EM_PHASE_RULE( ISRM )%ARRY(2:) = .TRUE.
+                 LERROR = .FALSE.
               ELSE
                  ! Find the Specific Phase/Mode this Rule Identifies
                  IDX = INDEX1( EM_NML( IRULE )%PHASE, EM_STREAM_SIZE( ISRM )%LEN, 
@@ -1440,9 +1326,17 @@ C and allowing the model to proceed.
                   DO ISD = 1,EM_STREAM_SIZE( ISRM )%LEN
                   IF ( EM_PHASE_RULE( ISRM )%ARRY( ISD ) ) THEN
 
-                    ! Test to make sure if this is an aerosol species
-                    ! that the size distirbution will actually populate it
                     LTEST = .TRUE.
+                    
+                    ! Test to make sure that if this is a Gas CMAQ species,
+                    ! the aerosol-relevant 'phases' are not added as well.
+                    IF ( .NOT. DIFF_MASK_AERO( IDIFF ) .AND. 
+     &                   EM_STREAM_SIZE( ISRM )%NAME( ISD ) .NE. 'GAS' )
+     &                 LTEST = .FALSE.
+
+                    ! Test to make sure if this is an aerosol species
+                    ! that the 'phase/mode' selection will actually populate 
+                    ! this CMAQ species, DIFF_SPC( IDIFF )
                     IF ( DIFF_MASK_AERO( IDIFF ) ) THEN
                         DO IAERO = 1,N_AEROSPC
                            IM = INDEX1( DIFF_SPC( IDIFF ), N_MODE,
@@ -1454,8 +1348,31 @@ C and allowing the model to proceed.
                         END DO
                     END IF
 
+                    ! Test to confirm that if the 'ALL' keyword was used
+                    ! for the Surrogate or the Species field, then only
+                    ! exact matches or existing relationships should be
+                    ! populated.
+                    IF ( (EM_NML( IRULE )%SURR .EQ. 'ALL' .OR. 
+     &                    EM_NML( IRULE )%SPEC .EQ. 'ALL' .OR.
+     &                    EM_NML( IRULE )%PHASE.EQ. 'ALL' .OR.
+     &                    EM_NML( IRULE )%PHASE.EQ. 'AERO'     ) .AND.
+     &                   (EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 
+     &                    DIFF_SPC( IDIFF ) ) ) THEN
+                      ! Look for this relationship in at least one
+                      ! of the existing instructions
+                      LTEST = .FALSE.
+                      DO ISTRN = 1,N_EMIS_ISTR
+                          IF ( EM_SPEC( ISTRN ) .EQ. DIFF_SPC( IDIFF ) .AND.
+     &                         EM_SURR( ISTRN,ISRM ) .EQ. 
+     &                           EM_FILE_SURR( ISRM )%ARRY( ISUR ) ) THEN
+                            LTEST = .TRUE.
+                          END IF
+                      END DO
+                    END IF
+
                     ! Add an Instruction for this combination of CMAQ
-                    ! Species, Stream, Surrogate, and Phase
+                    ! Species, Stream, Surrogate, and Phase if the test
+                    ! for validity (LTEST) is still TRUE
                     IF ( LTEST ) THEN
                       N_COMMANDS = N_COMMANDS + 1
                       RULE_ISTR_IDIFF( N_COMMANDS ) = IDIFF
@@ -1510,7 +1427,7 @@ C and allowing the model to proceed.
                     EM_SPEC( ISTR ) = RULE_ISTR_SPEC( IC )
                     MAP_EMtoDIFF( ISTR ) = RULE_ISTR_IDIFF( IC )
 
-                    ! Link this row to the Aerosol Module.
+                    ! Link this row to the Aerosol or Gas Species
                     IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) ) THEN
                       DO IAERO = 1,N_AEROSPC
                         JM = INDEX1( EM_SPEC( ISTR ), N_MODE, AEROSPC( IAERO )%NAME( : ) )
@@ -1555,6 +1472,7 @@ C and allowing the model to proceed.
                         EM_OP( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%OP
                         CALL CHECK_BASIS( EM_NML( IRULE )%BASIS, IRULE )
                         EM_BASIS( ISTR, ISRM, IFAC )  = EM_NML( IRULE )%BASIS
+                        EM_CONV( ISTR, ISRM, IFAC )  = EM_FILE_SURR( ISRM )%CONV( ISUR )
                         EXIT
                      END IF
                   END DO
@@ -1571,6 +1489,7 @@ C and allowing the model to proceed.
                       IF ( EM_SURR( ISTR, ISRM ) .EQ. RULE_ISTR_SURR( IC ) .AND.
      &                     MAP_EMtoSD( ISTR,ISRM ) .EQ. RULE_ISTR_PHASE( IC ) ) THEN
                   
+                        ISUR = RULE_ISTR_ISUR( IC )
                         IEM = EM_STREAM_SIZE( ISRM )%REF( RULE_ISTR_PHASE( IC ) )
                         AERO_SPLIT = 1.0
                         IF ( DIFF_MASK_AERO( RULE_ISTR_IDIFF( IC ) ) .AND.
@@ -1581,13 +1500,14 @@ C and allowing the model to proceed.
                         ! that the scale factor can be added.
                         DO IFAC = 1,N_SCALEFAC
                           IF ( EM_OP( ISTR, ISRM, IFAC ) .EQ. '' ) THEN
-                              EM_FAC ( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%FAC * AERO_SPLIT
+                             EM_FAC ( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%FAC * AERO_SPLIT
                              EM_FAC_BULK ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC
                              EM_REG( ISTR, ISRM, IFAC )       = REGNUM
                              CALL CHECK_OP( EM_NML( IRULE )%OP, IRULE )
                              EM_OP( ISTR, ISRM, IFAC )        = EM_NML( IRULE )%OP
                              CALL CHECK_BASIS( EM_NML( IRULE )%BASIS, IRULE )
                              EM_BASIS( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%BASIS
+                             EM_CONV( ISTR, ISRM, IFAC )      = EM_FILE_SURR( ISRM )%CONV( ISUR )
                              EXIT
                           END IF
                         END DO
@@ -1658,8 +1578,10 @@ C and allowing the model to proceed.
                  END SELECT
 
                  BASIS_FAC = 1.0
-                 IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MOLE' ) THEN
-                     IF ( EM_FILE_SURR( ISRM )%PHASE( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'GAS' ) THEN
+                 IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'UNIT' ) THEN
+                     BASIS_FAC = BASIS_FAC
+                 ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MOLE' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%BASIS( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'MOLE' ) THEN
                         BASIS_FAC = BASIS_FAC
                      ELSE
                         ! Convert surrogate emission rate to moles
@@ -1672,7 +1594,7 @@ C and allowing the model to proceed.
                         BASIS_FAC = BASIS_FAC * SPEC_MW
                      END IF
                  ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MASS' ) THEN
-                     IF ( EM_FILE_SURR( ISRM )%PHASE( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'GAS' ) THEN
+                     IF ( EM_FILE_SURR( ISRM )%BASIS( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'MOLE' ) THEN
                         ! Convert surrogate emission rate to mass
                         BASIS_FAC = BASIS_FAC * SURR_MW  
                      ELSE
@@ -1690,6 +1612,7 @@ C and allowing the model to proceed.
                  IF ( EM_FAC_ST( ISTR,ISRM )%OP( IFAC ) .NE. 2 ) 
      &                EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) = 
      &                     EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) * BASIS_FAC
+     &                       * EM_CONV( ISTR, ISRM, IFAC )
                END DO
 
                END IF
@@ -1709,14 +1632,17 @@ C and allowing the model to proceed.
 
          LERROR = .FALSE.
          DO ISRM = 1,N_EM_SRM
-             N_UNUSED = COUNT( .NOT. EM_FILE_SURR( ISRM )%USED( : ) )
+             N = EM_FILE_SURR( ISRM )%LEN
+             N_UNUSED = COUNT( .NOT.EM_FILE_SURR( ISRM )%USED( : )
+     &                         .AND. EM_FILE_SURR(ISRM)%ARRY( 1:N ) .NE. 'NOT_AVAILABLE'  )
              WRITE( LOGDEV, '(5x,4A,I2,A)' ), TRIM( EM_FILE_LAB( ISRM )),' | ',
      &              TRIM(EM_FILE_DESC( ISRM )),': ', N_UNUSED,' unused surrogates.'
              IF ( N_UNUSED .GT. 0 ) THEN
                  LERROR = .TRUE.
 
                  DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
-                   IF ( .NOT. EM_FILE_SURR( ISRM )%USED( ISUR ) ) 
+                   IF ( .NOT.EM_FILE_SURR( ISRM )%USED( ISUR )
+     &                  .AND.EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 'NOT_AVAILABLE' ) 
      &               WRITE( LOGDEV, '(10x,A)'), EM_FILE_SURR( ISRM )%ARRY( ISUR )
                  END DO
              END IF
@@ -1842,6 +1768,124 @@ C and allowing the model to proceed.
       END SUBROUTINE EMIS_SPC_MAP
 
 !-----------------------------------------------------------------------
+         SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS )
+
+! This subroutine checks for invalid values of the operation parameter 
+! in the rules from the emission control list
+
+         IMPLICIT NONE
+
+         REAL, INTENT( OUT )              :: CONV
+         CHARACTER( 4 ) , INTENT( OUT )   :: BASIS
+         CHARACTER( 16 ), INTENT( INOUT ) :: UNITS
+         INTEGER, INTENT( IN )            :: ISRM
+         INTEGER, INTENT( IN )            :: ISUR
+         CHARACTER( 16 ), INTENT( IN )    :: SPEC
+         CHARACTER( 200 )      :: XMSG
+         INTEGER               :: X, SLASH_IND
+
+         CONV = 1.0
+
+         CALL UPCASE( UNITS )
+
+         ! Find Break between numerator and denominator. If it's not a
+         ! slash, then it should be the first space
+         SLASH_IND = INDEX( UNITS, '/' )
+         IF ( SLASH_IND .EQ. 0 ) SLASH_IND = INDEX( UNITS, ' ' )
+         X = SLASH_IND - 1
+
+         ! Check for Molar or Mass Units
+         IF ( UNITS(1:X) .EQ. 'MOLE' .OR. UNITS(1:X) .EQ. 'MOLES' .OR.
+     &        UNITS(1:X) .EQ. 'MOL' ) THEN
+            ! No Conversion Needed for Moles to Moles
+            CONV = 1.0 
+            BASIS = 'MOLE'
+         ELSE IF ( UNITS(1:X) .EQ. 'KMOLE' .OR. UNITS(1:X) .EQ. 'KMOLES' .OR.
+     &             UNITS(1:X) .EQ. 'KMOL' ) THEN
+            ! Convert kmol to mol
+            CONV = 1000.0
+            BASIS = 'MOLE'
+         ELSE IF ( UNITS(1:X) .EQ. 'MMOLE' .OR. UNITS(1:X) .EQ. 'MMOLES' .OR.
+     &             UNITS(1:X) .EQ. 'MMOL' ) THEN
+            ! Convert mmol to mol
+            CONV = 1.0e-3
+            BASIS = 'MOLE'
+         ELSE IF ( UNITS(1:X) .EQ. 'UMOLE' .OR. UNITS(1:X) .EQ. 'UMOLES' .OR.
+     &             UNITS(1:X) .EQ. 'UMOL' ) THEN
+            ! Convert umol to mol
+            CONV = 1.0e-6
+            BASIS = 'MOLE'
+         ELSE IF ( UNITS(1:X) .EQ. 'GRAM' .OR. UNITS(1:X) .EQ. 'GRAMS' .OR.
+     &             UNITS(1:X) .EQ. 'G'    .OR. UNITS(1:X) .EQ. 'GM'    .OR.
+     &             UNITS(1:X) .EQ. 'GMS'  .OR. UNITS(1:X) .EQ. 'GS'  ) THEN
+            ! No Conversion Needed for Grams to Grams
+            CONV = 1.0
+            BASIS = 'MASS'
+         ELSE IF ( UNITS(1:X) .EQ. 'KGRAM' .OR. UNITS(1:X) .EQ. 'KGRAMS' .OR.
+     &             UNITS(1:X) .EQ. 'KG'    .OR. UNITS(1:X) .EQ. 'KGM'    .OR.
+     &             UNITS(1:X) .EQ. 'KGMS'  .OR. UNITS(1:X) .EQ. 'KGS' ) THEN
+            ! Convert kg -> g
+            CONV = 1000.0
+            BASIS = 'MASS'
+         ELSE IF ( UNITS(1:X) .EQ. 'MGRAM' .OR. UNITS(1:X) .EQ. 'MGRAMS' .OR.
+     &             UNITS(1:X) .EQ. 'MG'    .OR. UNITS(1:X) .EQ. 'MGM'    .OR.
+     &             UNITS(1:X) .EQ. 'MGMS'  .OR. UNITS(1:X) .EQ. 'MGS' ) THEN
+            ! Convert mg -> g
+            CONV = 1.0e-3
+            BASIS = 'MASS'
+         ELSE IF ( UNITS(1:X) .EQ. 'UGRAM' .OR. UNITS(1:X) .EQ. 'UGRAMS' .OR.
+     &             UNITS(1:X) .EQ. 'UG'    .OR. UNITS(1:X) .EQ. 'UGM'    .OR.
+     &             UNITS(1:X) .EQ. 'UGMS'  .OR. UNITS(1:X) .EQ. 'UGS' ) THEN
+            ! Convert ug -> g
+            CONV = 1.0e-6
+            BASIS = 'MASS'
+         ELSE IF ( UNITS(1:X) .EQ. 'NGRAM' .OR. UNITS(1:X) .EQ. 'NGRAMS' .OR.
+     &             UNITS(1:X) .EQ. 'NG'    .OR. UNITS(1:X) .EQ. 'NGM'    .OR.
+     &             UNITS(1:X) .EQ. 'NGMS'  .OR. UNITS(1:X) .EQ. 'NGS' ) THEN
+            ! Convert ng -> g
+            CONV = 1.0e-9
+            BASIS = 'MASS'
+         ELSE
+            WRITE( XMSG,'(A,A16,A,/,I3,A11,A16,A,/,A)' ),
+     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
+     &              'Please correct them to proceed.'
+            CALL LOG_MESSAGE( OUTDEV, XMSG )
+            STOP
+         END IF
+          
+         ! Check for Time Units
+         X = X + 2
+         IF ( UNITS(X:) .EQ. 'S' .OR. UNITS(X:) .EQ. 'S-1' .OR.
+     &        UNITS(X:) .EQ. 'SEC'.OR.UNITS(X:) .EQ. 'SEC-1' .OR.
+     &        UNITS(X:) .EQ. 'SECOND'.OR.UNITS(X:) .EQ. 'SECOND-1' .OR.
+     &        UNITS(X:) .EQ. 'SECONDS'.OR.UNITS(X:) .EQ. 'SECONDS-1' ) THEN
+            ! No Conversion Necessary for seconds -> seconds
+            CONV = CONV * 1.0
+         ELSE IF ( UNITS(X:) .EQ. 'H' .OR. UNITS(X:) .EQ. 'H-1' .OR.
+     &             UNITS(X:) .EQ. 'HR'.OR.UNITS(X:) .EQ. 'HR-1' .OR.
+     &             UNITS(X:) .EQ. 'HOUR'.OR.UNITS(X:) .EQ. 'HOUR-1' .OR.
+     &             UNITS(X:) .EQ. 'HOURS'.OR.UNITS(X:) .EQ. 'HOURS-1' ) THEN
+            ! Convert hours -> seconds
+            CONV = CONV * 3600.0
+         ELSE IF ( UNITS(X:) .EQ. 'M' .OR. UNITS(X:) .EQ. 'M-1' .OR.
+     &             UNITS(X:) .EQ. 'MIN'.OR.UNITS(X:) .EQ. 'MIN-1' .OR.
+     &             UNITS(X:) .EQ. 'MINUTE'.OR.UNITS(X:) .EQ. 'MINUTE-1' .OR.
+     &             UNITS(X:) .EQ. 'MINUTES'.OR.UNITS(X:) .EQ. 'MINUTES-1' ) THEN
+            ! Convert hours -> seconds
+            CONV = CONV * 60.0
+         ELSE
+            WRITE( XMSG,'(A,A,A,I3,A11,A,A,A)' ),
+     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
+     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
+     &              'Please correct them to proceed.'
+            CALL LOG_MESSAGE( OUTDEV, XMSG )
+            STOP
+         END IF
+
+         END SUBROUTINE CHECK_EMIS_UNITS
+ 
+!-----------------------------------------------------------------------
          SUBROUTINE CHECK_OP( OP, IRULE )
 
 ! This subroutine checks for invalid values of the operation parameter 
@@ -1887,6 +1931,9 @@ C and allowing the model to proceed.
          ELSE IF ( BASIS .EQ. 'mass' .OR. BASIS .EQ. 'MASS' .OR.
      &             BASIS .EQ. 'Mass' ) THEN
              BASIS = 'MASS'
+         ELSE IF ( BASIS .EQ. 'unit' .OR. BASIS .EQ. 'UNIT' .OR.
+     &             BASIS .EQ. 'Unit' ) THEN
+             BASIS = 'UNIT'
          ELSE
              WRITE( XMSG,'(A,I3,A,A4)' ),
      &              'ERROR: BASIS parameter for rule ',IRULE,
@@ -1980,17 +2027,11 @@ C and allowing the model to proceed.
          Allocate( MAP_PTtoISRM  ( NPTGRPS ) )
          Allocate( EM_FILE_SURR  ( N_EM_SRM ) )
          Allocate( EM_GRID_LAYS  ( N_EM_SRM ) )
-         Allocate( CONVEM_GAS    ( N_EM_SRM ) )
-         Allocate( CONVEM_PM_MASS( N_EM_SRM ) )
-         Allocate( EMIS_GAS_UNITS( N_EM_SRM ) )
-         Allocate( EMIS_AER_UNITS( N_EM_SRM ) )
  
 C Assign Attributes to Emission File Records. Other records will be 
 C populated in individual subroutines. For example, opemis and
 C stkemis_init.
          ISRM = 0
-         EMIS_GAS_UNITS = "Unknown"
-         EMIS_AER_UNITS = "Unknown"
          EM_FILE_LAPPLY = .TRUE.
          EM_FILE_DATE_OVRD = EMIS_DATE_OVRD
          EM_FILE_DATE   = JDATE
@@ -2051,9 +2092,6 @@ C stkemis_init.
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) ) 
 
-              ! Set Unit Conversions for Gas and Particle Phase Species
-              CONVEM_GAS( ISRM ) = 1.0
-              CONVEM_PM_MASS ( ISRM ) = 1.0
            END DO
          END IF
          
@@ -2102,9 +2140,6 @@ C stkemis_init.
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
-              ! Set Unit Conversions for Gas and Particle Phase Species
-              CONVEM_GAS( ISRM ) = 1.0
-              CONVEM_PM_MASS ( ISRM ) = 1.0
            END DO
          END IF
          
@@ -2141,9 +2176,6 @@ C stkemis_init.
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
      &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
-              ! Set Unit Conversions for Gas and Particle Phase Species
-              CONVEM_GAS( ISRM ) = 1.0
-              CONVEM_PM_MASS ( ISRM ) = 1.0
            END DO
          ELSE
            EM_TRAC = .FALSE.
@@ -2156,9 +2188,6 @@ C stkemis_init.
              EM_FILE_ITYPE( ISRM ) = 4
              EM_FILE_LAB ( ISRM ) = 'BIOG'
              EM_FILE_DESC( ISRM ) = 'Biogenic Emissions'
-             CONVEM_GAS( ISRM ) = 1.0E-3
-             CONVEM_PM_MASS ( ISRM ) = 1.0
-             EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
              ! Retrieve Toggle for Outputing Biogenic Emissions
              ! Diagnostic File
@@ -2178,9 +2207,6 @@ C stkemis_init.
              EM_FILE_ITYPE( ISRM ) = 5
              EM_FILE_LAB ( ISRM ) = 'MGEM'
              EM_FILE_DESC( ISRM ) = 'Marine Gas Emissions'
-             CONVEM_GAS( ISRM ) = 1.0E-3        ! mol/s -> kmol/s
-             CONVEM_PM_MASS ( ISRM ) = 1.0
-             EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
              ! Retrieve Toggle for Outputing Marine Gas Emissions
              ! Diagnostic File
@@ -2200,9 +2226,6 @@ C stkemis_init.
              EM_FILE_ITYPE( ISRM ) = 6
              EM_FILE_LAB ( ISRM ) = 'LTNG'
              EM_FILE_DESC( ISRM ) = 'Lightning NO Emissions'
-             CONVEM_GAS( ISRM ) = 1.0E-3
-             CONVEM_PM_MASS ( ISRM ) = 1.0
-             EMIS_GAS_UNITS( ISRM ) = "Unknown"
 
              ! Retrieve Toggle for Outputing Lightning NO Emissions
              ! Diagnostic File
@@ -2222,9 +2245,6 @@ C stkemis_init.
              EM_FILE_ITYPE( ISRM ) = 7
              EM_FILE_LAB ( ISRM ) = 'SEASPRAY'
              EM_FILE_DESC( ISRM ) = 'Sea Spray Aerosol Emissions'
-             CONVEM_GAS( ISRM ) = 1.0
-             CONVEM_PM_MASS ( ISRM ) = MGPG
-             EMIS_AER_UNITS( ISRM ) = "g m-3 s-1"
              
              ! Retrieve Toggle for Outputing Sea Spray Aerosol Emissions
              ! Diagnostic File
@@ -2244,9 +2264,6 @@ C stkemis_init.
              EM_FILE_ITYPE( ISRM ) = 8
              EM_FILE_LAB ( ISRM ) = 'WBDUST'
              EM_FILE_DESC( ISRM ) = 'Wind-Blown Dust Emissions'
-             CONVEM_GAS( ISRM ) = 1.0
-             CONVEM_PM_MASS ( ISRM ) = MGPG
-             EMIS_AER_UNITS( ISRM ) = "g m-3 s-1"
              
              ! Retrieve Toggle for Outputing Wind-Blown Dust Emissions
              ! Diagnostic File

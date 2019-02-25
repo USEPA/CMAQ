@@ -103,7 +103,6 @@
     cp CCTM/scripts/run_cctm_2015_HEMI.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2015_HEMI.csh
     cp CCTM/scripts/run_cctm_2016_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2016_12US1.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
-    cp CCTM/scripts/EmissCtrl.nml $CMAQ_HOME/CCTM/scripts/EmissCtrl.nml
  endif
 
 #===============================================================================

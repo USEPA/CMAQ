@@ -39,11 +39,12 @@ C  Key Subroutines/Functions Called: None
 C  Revision History: Prototype created by Jerry Gipson, May, 1999
 C    08 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
- 
+C    06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+
 C***********************************************************************
 
-      USE UTILIO_DEFN
-      USE IC_PARMS     ! ICON parameters
+      USE M3UTILIO   ! IOAPI module
+      USE IC_PARMS   ! ICON parameters
 
       IMPLICIT NONE     
 
@@ -61,7 +62,7 @@ C Parameters: None
 C External Functions: None
 
 C Local Variables:
-      CHARACTER( 80 ) :: MSG          ! Log message
+      CHARACTER( 80 ) :: MSG  = ' '   ! Log message
       CHARACTER( 16 ) :: PNAME = 'CK_CTMMET_FL'  ! Procedure Name
       CHARACTER( 15 ) :: VAL1         ! Character value of real
       CHARACTER( 15 ) :: VAL2         ! Character value of real
