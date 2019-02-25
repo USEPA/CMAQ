@@ -1173,14 +1173,19 @@
 
       CASE ( 2 ) 
           ! Write out the time to complete the entire master time step
-          WRITE( XMSG, '(2x,A41,F6.1,A8)' ),'Master Time Step Processing Completed in ',
+          WRITE( XMSG, '(7x,A16)' ),'Master Time Step'
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+#ifndef twoway
+          IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+#endif
+          WRITE( XMSG, '(7x,A24,F6.1,A8)' ),'Processing completed... ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
 
       CASE ( 3 ) 
           ! Write out the time to complete the output procedure
-          WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Results to Output Files...',
+          WRITE( XMSG, '(1x,A32,F4.1,A)' ), '=--> Data Output completed...   ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
