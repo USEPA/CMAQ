@@ -85,7 +85,7 @@ echo 'Start Model Run At ' `date`
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  16; @ NPROW =  8
+   @ NPCOL  =  8; @ NPROW =  8
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -397,8 +397,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv USE_NLDN  Y        #> use hourly NLDN strike file [ default: Y ]
      if ( $USE_NLDN == Y ) then
         setenv NLDN_STRIKES ${IN_LTpath}/NLDN.12US1.${YYYYMMDD}.ioapi
-     else
-        setenv LOG_START 2.0   #> RC value to transit linear to log linear
      endif
      setenv LTNGPARMS_FILE ${IN_LTpath}/LTNG_AllParms_12US1.ncf #> lightning parameter file; ignore if LTNGPARAM = N
   endif
