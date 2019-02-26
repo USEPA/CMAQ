@@ -271,7 +271,7 @@ C...Initialize and report data
          
          DO ROW = 1, NROWS
             DO COL = 1, NCOLS
-               IF( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 )THEN
+               IF( OCEAN( COL,ROW ) + SZONE( COL,ROW ) .GT. 0.0 )THEN
                    LAND_ZONE( COL,ROW ) = .FALSE.
                ELSE
                    LAND_ZONE( COL,ROW ) = .TRUE.
