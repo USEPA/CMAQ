@@ -2917,11 +2917,11 @@ C ----------------------- Begin solution -------------------------------
 C *** First Calculate Parameters of Dry Distributiuon since this is more
 C     applicable in general to AMS measurements.
       M3SUBT = ( 1.0E-9 * F6PI / RHO_H2O ) * M_H2O        ! m3 m-3
-      M3_DRY = M3_WET - M3SUBT              ! m3 m-3
+      M3_DRY = Max(M3_WET - M3SUBT, 0.0) + EPSILON(0.0)   ! m3 m-3 
       M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWOTHIRDS  ! m2 m-3
 
       M_WET = M3_WET * 1.0E+9 * PI6 * RHOP ! ug m-3
-      M_DRY = M_WET - M_H2O                ! ug m-3
+      M_DRY = M_WET - M_H2O + EPSILON(0.0) ! m3 m-3 
 
       DRY_DENS = M_DRY / M3_DRY * F6PI * 1.0E-9   ! kg m-3
 
