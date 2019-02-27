@@ -220,7 +220,11 @@ CONTAINS
                     * VAR( ind_L_HSO3MIN ) &
                     + kO33 * VAR( ind_L_SO3MIN2 ) ) * PHI2
 
-               q1 = DDIAM / 2.0D0 * SQRT( kO3T / DAQ )  ! diffuso-reactive param
+               IF(kO3T .LT. 0.d0) THEN
+	          q1 = 0.d0
+	       ELSE	
+                  q1 = DDIAM / 2.0D0 * SQRT( kO3T / DAQ )  ! diffuso-reactive parameter  
+	       END IF
 
                IF ( q1 .GT. 1.0D-3 ) THEN
                   IF ( q1 .LE. 100.0D0 ) THEN
@@ -299,8 +303,12 @@ REAL( kind=dp )FUNCTION KIEPOX ( KH, KHSO4, TYPE )
                   KIEPOXT = KIEPOXT + (K1 + K2) * VAR( ind_L_IEOS ) &
                           * PHI2     ! IEPOX + IEOS
                ENDIF
-     
-               q1 = DDIAM/2.0D0 * SQRT( KIEPOXT / DAQ )
+	       
+	       IF(KIEPOXT .LT. 0.d0) THEN
+	          q1 = 0.d0
+	       ELSE	
+                  q1 = DDIAM/2.0D0 * SQRT( KIEPOXT / DAQ )  ! diffuso-reactive parameter  
+	       END IF
        
                IF ( q1 .GT. 1.0D-3 ) THEN
                   IF ( q1 .LE. 100.0D0 ) THEN
@@ -325,9 +333,13 @@ REAL( kind=dp )FUNCTION KIEPOX ( KH, KHSO4, TYPE )
                K2 = 2.92D-6 * VAR( ind_L_HSO4MIN ) * PHI2        
                KMAET = KMAET + (K1 + K2) * VAR( ind_L_SO4MIN2 ) &
                      * PHI2  ! MAE/HMML + SO4
-    
-               q1 = DDIAM/2.0D0 * SQRT( KMAET / DAQ )
-        
+	       
+	       IF(KMAET .LT. 0.d0) THEN
+	          q1 = 0.d0
+	       ELSE	
+                  q1 = DDIAM/2.0D0 * SQRT( KMAET / DAQ )  ! diffuso-reactive parameter  
+	       END IF
+
                IF ( q1 .GT. 1.0D-3 ) THEN
                   IF ( q1 .LE. 100.0D0 ) THEN
                      COTHq = ( EXP( 2 * q1 ) + 1 ) / ( EXP( 2 * q1 ) - 1 )
