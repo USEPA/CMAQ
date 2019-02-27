@@ -279,8 +279,6 @@ C...Initialize and report data
              END DO
          END DO
 
-         DEALLOCATE( OPEN_ZONE, SURF_ZONE )
-
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
      &             SEAICE( NCOLS, NROWS ) )
