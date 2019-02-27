@@ -9,32 +9,32 @@
 
 ## Disclaimer
 
-** >>COMMENT<< ** Ensure that the Disclaimer reflects current EPA/ORD language.  
+**>>COMMENT<< ** Ensure that the Disclaimer reflects current EPA/ORD language.  
 
 The information in this operational guidance document has been funded wholly or in part by the United States Environmental Protection Agency (EPA). The draft version of this document has not been subjected to the Agency’s peer and administrative review, nor has it been approved for publication as an EPA document. The draft document has been subjected to review by the Community Modeling and Analysis System Center only; this content has not yet been approved by the EPA. Mention of trade names or commercial products does not constitute endorsement or recommendation for use.
 
 ## Introduction and Goals
 
-** >>COMMENT<< ** para 1: Add reference for CAA, and update reference for NAAQS.
+**>>COMMENT<<** para 1: Add reference for CAA, and update reference for NAAQS.
 
-** >>COMMENT<< ** para 1: : Not sure "ambient" is the right word here.
+**>>COMMENT<<** para 1: : Not sure "ambient" is the right word here.
 
-** >>COMMENT<< ** para 2: Explain why single-pollutant models are insufficient.
+**>>COMMENT<<** para 2: Explain why single-pollutant models are insufficient.
 
-** >>COMMENT<< ** para 2: "indirect exposure to air toxics" is vague
+**>>COMMENT<<** para 2: "indirect exposure to air toxics" is vague
 
 
 Under the authority of the Clean Air Act, the U.S. Environmental Protection Agency (EPA) has established National Ambient Air Quality Standards (NAAQS) (EPA, 2008). These standards are designed to protect human health and the environment from high levels of criteria pollutants, such as ozone and particulate matter. Meeting the NAAQS often requires the use of controls on sources of air pollutants. The complex nature of air pollution scenarios requires control strategies to be effective for a variety of air pollutants, geographic regions, and scales. As part of the effort to decrease ambient concentrations of criteria pollutants, the EPA has approved air quality simulation models for use at regional, state, and local scales within the United States. The models have been applied to estimate the ability of various control strategies to improve air quality and ensure cost-effective results.
 
 Because some emission sources contribute to the ambient levels of more than one pollutant and can affect an entire region on various time scales, an integrated modeling approach capable of handling multiple air pollutants and spatiotemporal scales was needed to isolate control strategies that improve overall air quality in a cost-effective manner. The [EPA Community Multiscale Air Quality (CMAQ) modeling system](http://www.epa.gov/cmaq) was formulated and designed to facilitate extensions needed to examine emerging linked multi-pollutants air pollution issues. The source code for CMAQ is available through a publicly-accessible, version-controlled git repository on [GitHub](www.github.com/usepa/cmaq) where interested parties may obtain the open-source software and contribute to enhancements of the model. CMAQ is designed for applications ranging from regulatory and policy analysis to probing and understanding the complex interactions of atmospheric chemistry and physics. It is a three\-dimensional Eulerian (i.e., gridded) atmospheric chemistry and transport modeling system that simulates ozone, particulate matter (PM), toxic airborne pollutants, visibility, and acidic and nutrient pollutant species throughout the troposphere. Designed as a “one-atmosphere” model, CMAQ can address the complex couplings among several air quality issues simultaneously across spatial scales ranging from local to hemispheric.
 
-** >>COMMENT<< ** bulleted text:  Seems really out-of-place here to get to this level of detail.
+**>>COMMENT<<** bulleted text:  Seems really out-of-place here to get to this level of detail.
 
-** >>COMMENT<< ** emissions para: Double-check that these chemical mechanisms are all still supported.
+**>>COMMENT<<** emissions para: Double-check that these chemical mechanisms are all still supported.
 
-** >>COMMENT<< **  Should information be provided about where to go for information on advanced configurations? 
+**>>COMMENT<<**  Should information be provided about where to go for information on advanced configurations? 
 
-** >>COMMENT<< **   will the I/O discussion also apply to David's new I/O?
+**>>COMMENT<<**   will the I/O discussion also apply to David's new I/O?
 
 Air quality models integrate our understandings of the complex processes that affect the concentrations of pollutants in the atmosphere. Establishing the relationships among meteorology, chemical transformations, emissions of chemical species, and removal processes in the context of atmospheric pollutants is the fundamental goal of an air quality model (Seinfeld and Pandis, 1998). CMAQ uses coupled mathematical representations of actual chemical and physical processes to simulate air quality. The model is formulated to conserve mass in the 3-D atmosphere within the modeled domain. The resultant partial differential governing equation is numerically solved over a 3-D grid discretizing the geographic domain of interest. A model grid is an *x\-y\-z* array that is fixed in space and covers a particular domain (i.e., a geographic area of interest). CMAQ therefore belongs to the Eulerian class of mathematical models that calculate a mass balance within each grid cell by solving the transport across each cell boundary and chemical transformations within each cell during a given time period. As a framework for simulating the interactions of multiple complex atmospheric processes, CMAQ thus requires two primary types of inputs: meteorological information, and emission rates from sources of emissions that affect the modeled air pollutant species.
 
@@ -61,42 +61,38 @@ CMAQ was designed from the start as a community model. “Community modeling” 
 7.  *Computational Efficiency*. Provide scientifically acceptable results without compromising the speed at which the results are generated
 8.  *Open-Source Design*. Enable no-cost distribution and application by the modeling community
 
-[CMAQ UG List Tables and Figures](CMAQ_UG_tables_figures.md)
---
-
-[CMAQ UG Acronyms](CMAQ_UG_acronyms.md)
 
 ## Brief History
 
-[Additional "Brief History" text can be taken from Introduction section above.]
+**>>COMMENT<<** Note: Additional "Brief History" text can be taken from Introduction section above.
 
 The Community Multiscale Air Quality (CMAQ) modeling system is being developed and maintained under the leadership of the [EPA National Exposure Research Laboratory](https://www.epa.gov/aboutepa/about-national-exposure-research-laboratory-nerl) in Research Triangle Park, NC. CMAQ represents nearly three decades of research in atmospheric modeling and has been in active development since the early 1990s. The first public release of CMAQ was in 1998 to enable use by air quality scientists, policy makers, and stakeholder groups to address multiscale, multipollutant air quality concerns.
 
 ## Features
 
-** >>COMMENT<< ** This whole section does not fit with the concept of a "Science Overview".  Many of these features were special to CMAQ when first developed but are pretty standard in CTMs now and CMAQ is no longer unique.
+**>>COMMENT<<** This whole section does not fit with the concept of a "Science Overview".  Many of these features were special to CMAQ when first developed but are pretty standard in CTMs now and CMAQ is no longer unique.
 
-** >>COMMENT<< ** Needs to be dramatically shortened to remove history (*really* old) and flexibility/modularity stuff.
+**>>COMMENT<<** Needs to be dramatically shortened to remove history (*really* old) and flexibility/modularity stuff.
 
 As noted previously, early air quality model development resulted in separate air quality models that addressed single pollutants and issues, such as ozone or acid deposition. These models had little or no flexibility to be updated with advances in science or to accommodate new regulations. CMAQ was therefore designed to have more adaptability and flexibility for different applications and for changing or improving the modeling methodology. Within the context of the model’s science, the following subsections discuss CMAQ’s design in terms of (1) accommodating multiple pollutants and multiple scales, (2) providing flexibility through modularity, and (3) reducing the potential for model simulation error.
 
 As a community model, CMAQ is able to leverage the expertise of model developers in many areas of atmospheric science. This facilitates improving and enhancing the CMAQ modeling system as the state-of-the-science evolves.
 
-** >>COMMENT<< **  This information does not need to be in a separate chapter.  Most of it is redundant with information found in Chapters 1 and 2.  The only new information seems to be links to release notes.
+**>>COMMENT<<**  This information does not need to be in a separate chapter.  Most of it is redundant with information found in Chapters 1 and 2.  The only new information seems to be links to release notes.
 
-** >>COMMENT<< **  suggest deleting "independent but" in first bullet
+**>>COMMENT<<**  suggest deleting "independent but" in first bullet
 
-** >>COMMENT<< ** If this information is retained somewhere, need to explain regulatory applications and SIPs.  Be generic for international user community.
+**>>COMMENT<<** If this information is retained somewhere, need to explain regulatory applications and SIPs.  Be generic for international user community.
 
-** >>COMMENT<< ** bullet 2:  Delete.  All of the modularity/flexibility jargon drove the original design and is not necessarily applicable today.  We certainly do not optimize model performance for anyone.
+**>>COMMENT<<** bullet 2:  Delete.  All of the modularity/flexibility jargon drove the original design and is not necessarily applicable today.  We certainly do not optimize model performance for anyone.
 
-** >>COMMENT<< ** bullet 5:  The community aspect is not necessarily true (and it never really was).  In principle, the community really relies on a single, centralized development group.
+**>>COMMENT<<** bullet 5:  The community aspect is not necessarily true (and it never really was).  In principle, the community really relies on a single, centralized development group.
 
-** >>COMMENT<< ** bullet 6:  The first sentence on training is misleading.  It implies that you can get online training from CMAS, which only appears to be true for SMOKE.  The vast majority of the training is in-residence for a fee.
+**>>COMMENT<<** bullet 6:  The first sentence on training is misleading.  It implies that you can get online training from CMAS, which only appears to be true for SMOKE.  The vast majority of the training is in-residence for a fee.
 
-** >>COMMENT<< ** bullet 6:  The link for "support resource" appears to be broken.
+**>>COMMENT<<** bullet 6:  The link for "support resource" appears to be broken.
 
-** >>COMMENT<< ** Add a bullet about the user forum for support and to exchange development ideas.
+**>>COMMENT<<** Add a bullet about the user forum for support and to exchange development ideas.
 
 **>>COMMENT<<** Update or remove reference to chapter 13 from old user's document
 
@@ -110,15 +106,15 @@ The CMAQ modeling system provides a variety of important features to users who a
 -   A comprehensive training program is available through the Community Modeling and Analysis System (CMAS) Center [website](http://www.cmascenter.org). The CMAS Center is a [support resource](CMAQ_OGD_ch13_support.md) for users of CMAQ and other modeling systems.
 -   Members of the large, international community of users connected through the CMAS Center help each other by sharing data and experiences and providing technical support.
 
-** >>COMMENT<< ** Remove opening clause "Designed under a community modeling paradigm", and delete "with a modular…"
+**>>COMMENT<<** Remove opening clause "Designed under a community modeling paradigm", and delete "with a modular…"
 
-** >>COMMENT<< **  Remove references to I/O API and netCDF.  This will get blurry really soon.
+**>>COMMENT<<**  Remove references to I/O API and netCDF.  This will get blurry really soon.
 
-** >>COMMENT<< **  should rework the IO discussion to convey that the system employs flexible I/O and internal data structures that facilitate its modularity and extensibility
+**>>COMMENT<<**  should rework the IO discussion to convey that the system employs flexible I/O and internal data structures that facilitate its modularity and extensibility
 
-** >>COMMENT<< **  Actually, if this material is retained somewhere, consider shortening the opening material to simply say: "CMAQ is distributed as open-source software.  CMAQ provides the following features to scientists interested in developing new algorithms or adding science to the model:"
+**>>COMMENT<<**  Actually, if this material is retained somewhere, consider shortening the opening material to simply say: "CMAQ is distributed as open-source software.  CMAQ provides the following features to scientists interested in developing new algorithms or adding science to the model:"
 
-** >>COMMENT<< **  Combine bullets 1 and 2, and delete bullet 3.
+**>>COMMENT<<**  Combine bullets 1 and 2, and delete bullet 3.
 
 Designed under a community-modeling paradigm, CMAQ is distributed as open-source software engineered with a modular code design to facilitate decentralized development. Built around a layered [I/O API](https://www.cmascenter.org/ioapi) and [netCDF](http://www.unidata.ucar.edu/software/netcdf) code framework, CMAQ provides a flexible platform for testing new science algorithms, chemistry representations, and optimization techniques. CMAQ provides the following features to scientists interested in developing new algorithms or adding science to the model:
 
@@ -132,12 +128,12 @@ Designed under a community-modeling paradigm, CMAQ is distributed as open-source
 ## New Features in CMAQv5.3
 
 ## System Recommendations
-[Add something about system recommendations so that people know they won't be running this on a PC]
+**>>COMMENT<<** Note: Add something about system recommendations so that people know they won't be running this on a PC.
 
 ## CMAQ Support Resources
-[condense these sections, and add information on resources on EPA website and GitHub]
+**>>COMMENT<<** Condense these sections, and add information on resources on EPA website and GitHub
 
-** >>COMMENT<< ** This information should be greatly condensed and moved to one of the beginning sections so people realize these options are available for training and help on running CMAQ.  It does not need to be its own chapter.
+**>>COMMENT<<** This information should be greatly condensed and moved to one of the beginning sections so people realize these options are available for training and help on running CMAQ.  It does not need to be its own chapter.
 
 
 To support the CMAQ user community, EPA and the University of North Carolina at Chapel Hill host the [Community Modeling and Analysis System (CMAS) Center](http://www.cmascenter.org/), which distributes CMAQ software, develops cloud-based platforms for running CMAQ and analyzing outputs, and provides new user training on the CMAQ modeling system. The CMAS Center offers an e-mail help desk and an online forum to allow users to connect with model developers and other model users around the world.
@@ -148,6 +144,17 @@ The following activities are available through the CMAS Center:
 -   [Online help desk](https://www.cmascenter.org/help-desk.cfm) - Get help with the supported CMAS products
 -   [Online user forum](https://forum.cmascenter.org) -  Post questions and search through previous posts for helpful tips
 -   [Model clearinghouse](https://www.cmascenter.org/download.cfm) - Download the supported CMAS products
+
+
+
+
+
+___
+
+[CMAQ User's Guide List of Tables and Figures](CMAQ_UG_tables_figures.md)
+
+[CMAQ User's Guide Acronyms](CMAQ_UG_acronyms.md)
+___
 
 <!-- BEGIN COMMENT -->
 
