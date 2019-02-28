@@ -267,7 +267,7 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & spcs_list_type('AMT7    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.06), ! MT SOA Highest Volatility
                                                                                         
        ! ae6i and cb6                                                                   
-     & spcs_list_type('AGLY    ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Glyoxal SOA
+     & spcs_list_type('AGLY    ', cm_set, 1400.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Glyoxal SOA
                                                                                         
        ! Semivolatile POA                                                               
      & spcs_list_type('ALVPO1  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.05), ! LV-POA
@@ -464,7 +464,7 @@ C                                                              fine    coarse
      &   emis_table( 'Magnesium     ',   'MG     ',  24.3, (/ 0.03680, 0.0    /) ),   ! Magnesium
      &   emis_table( 'Potassium     ',   'K      ',  39.1, (/ 0.01140, 0.0    /) ),   ! Potassium
      &   emis_table( 'SeaSalt_Cation',   'SEACAT ',  23.75,(/ 0.0    , 0.36860/) ),   ! Sea-Salt Cations
-     &   emis_table( 'Chromium IV   ',   'CR_VI  ',  52.0, (/ 5.95E-9, 5.95E-9/) ),   ! Hexavalent Chromium
+     &   emis_table( 'Chromium VI   ',   'CR_VI  ',  52.0, (/ 5.95E-9, 5.95E-9/) ),   ! Hexavalent Chromium
      &   emis_table( 'Nickel        ',   'NI     ',  58.7, (/ 1.34E-8, 1.34E-8/) ),   ! Nickle
      &   emis_table( 'Arsenic       ',   'AS     ',  74.92,(/ 4.93E-8, 4.93E-8/) ),   ! Arsenic
      &   emis_table( 'Beryllium     ',   'BE     ',   9.0, (/ 5.2E-11, 5.2E-11/) ),   ! Beryllium

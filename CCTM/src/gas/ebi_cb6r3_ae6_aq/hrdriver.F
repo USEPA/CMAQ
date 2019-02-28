@@ -17,7 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
        SUBROUTINE CHEM( CGRID, JDATE, JTIME, TSTEP )
 C**********************************************************************
 C
@@ -28,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 11, 2019
+C  REVISION HISTORY: Created by EBI solver program, Feb 27, 2019
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -74,7 +73,7 @@ C**********************************************************************
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
-      USE CENTRALIZED_IO_MODULE, only : interpolate_var, ocean, szone
+      USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 
       IMPLICIT NONE
 
@@ -137,13 +136,6 @@ C..Scratch Local Variables:
 
       REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
 
-
-      INTEGER       :: GXOFF, GYOFF            ! global origin offset from file
-
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       INTERFACE
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
@@ -166,9 +158,9 @@ C for INTERPX
          SUBROUTINE FINAL_DEGRADE( CBLK )
            REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
          END SUBROUTINE FINAL_DEGRADE
-         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID ) 
-           REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
-         END SUBROUTINE HETCHEM_UPDATE_AERO
+        SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
+           REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
+        END SUBROUTINE HETCHEM_UPDATE_AERO
       END INTERFACE
 
 C**********************************************************************
@@ -180,9 +172,9 @@ c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
 
-         IF( MECHNAME .NE. 'CB6R3_AE7_AQ' ) THEN
+         IF( MECHNAME .NE. 'CB6R3_AE6_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
-     &            // ' the CB6R3_AE7_AQ chemical mechanism'
+     &            // ' the CB6R3_AE6_AQ chemical mechanism'
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
@@ -317,23 +309,23 @@ C.. Compute number of time step loops and step size for EBI solver
 
 C.. Get fractional seaice coverage from the METCRO2D file.
 
-      call interpolate_var ('SEAICE', middate, midtime, SEAICE)
+      CALL INTERPOLATE_VAR ('SEAICE', MIDDATE, MIDTIME, SEAICE)
 
 C.. Get ambient temperature in K
 
-      call interpolate_var ('TA', middate, midtime, TA)
+      CALL INTERPOLATE_VAR ('TA', MIDDATE, MIDTIME, TA)
 
 C.. Get specific humidity in Kg H2O / Kg air
-      call interpolate_var ('QV', middate, midtime, QV)
+      CALL INTERPOLATE_VAR ('QV', MIDDATE, MIDTIME, QV)
 
 ! Get ambient MASS DENSITY in Kg/m^3
-      call interpolate_var ('DENS', middate, midtime, DENS)
+      CALL INTERPOLATE_VAR ('DENS', MIDDATE, MIDTIME, DENS)
 
 C.. Get pressure in Pascals
-      call interpolate_var ('PRES', middate, midtime, PRES)
+      CALL INTERPOLATE_VAR ('PRES', MIDDATE, MIDTIME, PRES)
 
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
-      CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
+      CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells
