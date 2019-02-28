@@ -27,6 +27,7 @@ C OPASX_MEDIA - Opens the output file for NH4+ and H+ in the soil water solution
 C               
 C Revision History: J. Bash Mar 15 11: Created
 C                   J. Bash May 11 11: Updated for CMAQ 5.0
+C                   D. Wong Feb 01 19: removed all MY_N clauses
 
       Implicit None
 ! Private variables
@@ -460,7 +461,7 @@ C--------------------------------------------------------------------------
 
          Logical, Save :: FIRSTIME = .TRUE.
 
-         Real          WRMC( My_NCols,My_NRows )         ! media write buffer
+         Real          WRMC( NCols,NRows )         ! media write buffer
          Integer V, R, C
 
          Character( 16 ) :: PNAME = 'WRASX_MEDIA     '
@@ -473,8 +474,8 @@ C--------------------------------------------------------------------------
          End If
          
          If ( ABFLUX ) Then
-            Do R = 1, My_NRows
-               Do C = 1, My_NCols
+            Do R = 1, NRows
+               Do C = 1, NCols
                   CMedia( C,R,N_Hg+1 ) = Gamma1( C,R )
                   CMedia( C,R,N_Hg+2 ) = Gamma2( C,R )
                   CMedia( C,R,N_Hg+3 ) = MHp1( C,R )
@@ -496,8 +497,8 @@ C--------------------------------------------------------------------------
 #endif
          
          Do V = 1, N_TOT ! species/media loop
-            Do R = 1, My_NRows ! row loop
-               Do C = 1,My_NCols  ! column loop
+            Do R = 1, NRows ! row loop
+               Do C = 1,NCols  ! column loop
                   WRMC( C, R ) = CMEDIA( C,R,V  )
                End Do
             End Do

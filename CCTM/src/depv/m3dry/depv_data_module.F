@@ -25,7 +25,7 @@
 !  01 Feb 2019 D.Wong initial implementation, 
 !------------------------------------------------------------------------!
 
-          module beld_data_module
+          module depv_data_module
 
             implicit none
 
@@ -95,4 +95,4 @@
             real, Allocatable :: wep2    ( :,:,: )
             real, Allocatable :: dep2    ( :,:,: )
 
-          end module beld_data_module
+          end module depv_data_module

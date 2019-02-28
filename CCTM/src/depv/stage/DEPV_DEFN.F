@@ -55,6 +55,7 @@ C   Aug 2015 D. Wong:    Replaced MYPE with IO_PE_INCLUSIVE to facilitate
 C                          parallel I/O implementation
 C                        Added a block of code to let non I/O processors to
 C                          open CTM_DEPV_DIAG in parallel I/O implementation
+C   Feb 2019 D. Wong:    removed all MY_N clauses
 C-------------------------------------------------------------------------------
 
       IMPLICIT NONE
@@ -273,7 +274,7 @@ C set dry dep conversion factor (done here so that vdiff doesn`t need the includ
 
 C Initialize
          IF ( N_AE_DEPV .GT. 0 ) THEN
-            ALLOCATE ( ADEPV( N_AE_DEPV,MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+            ALLOCATE ( ADEPV( N_AE_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ADEPV'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -464,7 +465,7 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
 
             IF ( DEPV_DIAG ) THEN
 
-               ALLOCATE ( DBUFF( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+               ALLOCATE ( DBUFF( NCOLS,NROWS ), STAT = ALLOCSTAT )
                IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DBUFF'
                   CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -483,7 +484,7 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
             
             IF ( MOSAIC ) THEN
 
-               ALLOCATE ( DBUFF3( MY_NCOLS,MY_NROWS,N_LUFRAC ), STAT = ALLOCSTAT )
+               ALLOCATE ( DBUFF3( NCOLS,NROWS,N_LUFRAC ), STAT = ALLOCSTAT )
                IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DBUFF3'
                   CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -601,8 +602,8 @@ C-----------------------------------------------------------------------
      &               2x, 'depvel_gas', 4x, 'depv', 9x, 'pvd', 10x, 'pldv' )
 #endif
             DTSEC  = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   CALL GAS_X ( JDATE, JTIME, DTSEC, C, R, CGRIDL1( :,C, R ), PVD( :,C,R ), CMP( :,C,R ), DEPVEL_GAS( :,C,R ) )
                   IF ( N_AE_DEPV .GT. 0 ) CALL AERO_X( CGRID, JDATE, JTIME, TSTEP( 1 ), ADEPV( :,C,R ), C, R )
                END DO
@@ -613,8 +614,8 @@ C-----------------------------------------------------------------------
             DO V = STRT, FINI
                N = N + 1
                NDX = GAS_DEPV_SUR( N )
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DEPV( V,C,R ) = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
 #ifdef Verbose
@@ -644,8 +645,8 @@ C-----------------------------------------------------------------------
             DO V = STRT, FINI
                N = N + 1
                NDX = GAS_DEPV_SUR( N+N_GC_DEPV )
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DEPV( V,C,R ) = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
 #ifdef Verbose
@@ -674,8 +675,8 @@ C-----------------------------------------------------------------------
                N = N + 1
                NDX = GAS_DEPV_SUR( N + N_GC_DEPV + N_NR_DEPV )
 
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DEPV( V,C,R ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
 #ifdef Verbose
@@ -709,8 +710,8 @@ C-----------------------------------------------------------------------
             STRT = N_GC_DEPV + 1
             FINI = N_GC_DEPV + N_AE_DEPV
 
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   N = 0
                   DO V = STRT, FINI
                      N = N + 1
@@ -785,8 +786,8 @@ C-----------------------------------------------------------------------
                   IF ( GAS_DEPV_FOUND( N ) ) THEN
                      NDX = GAS_DEPV_SUR( N )
 
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            DBUFF( C,R ) = 100.0 * DEPV( N,C,R )   ! cm/sec
                         END DO
                      END DO
@@ -807,8 +808,8 @@ C-----------------------------------------------------------------------
                   IF ( GAS_DEPV_FOUND( N ) ) THEN
                      NDX = GAS_DEPV_SUR( N )
 
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            DBUFF( C,R ) = 100.0 * DEPV( N+N_AE_DEPV,C,R )   ! cm/sec
                         END DO
                      END DO
@@ -826,8 +827,8 @@ C-----------------------------------------------------------------------
 
                   NDX = AER_DEPV_SUR( N )
 
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBUFF( C,R ) = 100.0 * ADEPV( NDX,C,R )   ! cm/sec
                      END DO
                   END DO
@@ -873,8 +874,8 @@ C-----------------------------------------------------------------------
                   IF ( GAS_DEPV_FOUND( N ) ) THEN
                      NDX = GAS_DEPV_SUR( N )
 
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            DO J = 1, N_LUFRAC
                               DBUFF3( C,R,J ) = 100.0 * DEPVJ( J,N,C,R )   ! cm/sec
                            END DO
@@ -887,8 +888,8 @@ C-----------------------------------------------------------------------
                      END IF
 
                      IF ( FST ) THEN
-                        DO R = 1, MY_NROWS
-                           DO C = 1, MY_NCOLS
+                        DO R = 1, NROWS
+                           DO C = 1, NCOLS
                               DO J = 1, N_LUFRAC
                                  DBUFF3( C,R,J ) = 100.0 * DEPVJ_FST( J,N,C,R )   ! cm/sec
                               END DO
@@ -910,8 +911,8 @@ C-----------------------------------------------------------------------
                   IF ( GAS_DEPV_FOUND( N ) ) THEN
                      NDX = GAS_DEPV_SUR( N )
 
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            DO J = 1, N_LUFRAC
                               DBUFF3( C,R,J ) = 100.0 * DEPVJ( J,N+N_AE_DEPV,C,R )   ! cm/sec
                            END DO
@@ -924,8 +925,8 @@ C-----------------------------------------------------------------------
                      END IF
 
                      IF ( FST ) THEN
-                        DO R = 1, MY_NROWS
-                           DO C = 1, MY_NCOLS
+                        DO R = 1, NROWS
+                           DO C = 1, NCOLS
                               DO J = 1, N_LUFRAC
                                  DBUFF3( C,R,J ) = 100.0 * DEPVJ_FST( J,N+N_AE_DEPV,C,R )   ! cm/sec
                               END DO
@@ -946,8 +947,8 @@ C-----------------------------------------------------------------------
 
                   NDX = AER_DEPV_SUR( N )
 
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DO J = 1, N_LUFRAC
                            DBUFF3( C,R,J ) = 100.0 * Tile_Data%ADEPVJ( J,NDX,C,R )   ! cm/sec
                         END DO
@@ -960,8 +961,8 @@ C-----------------------------------------------------------------------
                   END IF
 
                   IF ( FST ) THEN
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            DO J = 1, N_LUFRAC
                               DBUFF3( C,R,J ) = 0.0   ! no stomatal flux for aerosols
                            END DO
@@ -978,7 +979,7 @@ C-----------------------------------------------------------------------
 
 !             write LAI for each LUC to file
                DBUFF3 = 0.0
-               FORALL( R = 1:MY_NROWS, C = 1:MY_NCOLS,
+               FORALL( R = 1:NROWS, C = 1:NCOLS,
      &                 J = 1:N_LUFRAC, GRID_DATA%LUFRAC( C,R,J ) .GT. 0.0 )
                   DBUFF3( C,R,J ) = Mosaic_Data%LAI( C,R,J )
                END FORALL

@@ -57,7 +57,7 @@ C                   J. Bash:   Nov   7 14:  Modified for the restructuring of vi
 !                   J. Pleim   Dec   2016:  Revised bidi using gamma from EPIC every day with no mosaic
 !                   J. Pleim   April 2018:  Estimate available NH3 frac according to EPIC
 !                   D. Wong    Feb.  1 19:  Implemented centralized I/O approach, removed all MY_N
-!                                           clauses, and created a new module beld_data_module 
+!                                           clauses, and created a new module depv_data_module 
 !                                           (model_data_module.F) to hold some of information
 !                                           originally stored here to avoid cyclic dependence
 C-------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ C-------------------------------------------------------------------------------
          Use HGRD_DEFN           ! horizontal grid specifications
          Use UTILIO_DEFN         
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
-         Use beld_data_module
+         Use depv_data_module
 
          Implicit None 
 ! Includes

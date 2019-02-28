@@ -41,6 +41,7 @@ C           convective PBL, with the ACM1 matrix solver followed by the tridiago
 C           matrix solver
 C   30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
+C   10 Feb 19 D.Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -245,8 +246,8 @@ C set auxiliary depv arrays
 
 C ------------------------------------------- Row, Col LOOPS -----------
 
-      DO 345 R = 1, MY_NROWS
-      DO 344 C = 1, MY_NCOLS
+      DO 345 R = 1, NROWS
+      DO 344 C = 1, NCOLS
 
 C for ACM time step
          DTLIM = DTSEC

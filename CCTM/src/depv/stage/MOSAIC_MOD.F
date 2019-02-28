@@ -32,6 +32,7 @@ C                   J. Bash:   Nov 07  2014: Modified for the restructuring of v
 C                                            mosaic variables were moved to ASX_DATA_MOD. 
 C                                            Algorithms were restuctured using fortran 95 
 C                                            array construcs for readability.
+C                   D. Wong:   Feb 10  2019: removed all MY_N clauses
 C-------------------------------------------------------------------------------
 
       Implicit None
@@ -115,26 +116,26 @@ C...include files
          Integer :: strtcolgc2, endcolgc2, strtrowgc2, endrowgc2
                                                                                                   
 ! Allocate buffers
-         ALLOCATE ( BUFF2D_1( my_ncols,my_nrows ),
-     &              BUFF2D_2( my_ncols,my_nrows ), STAT = ALLOCSTAT )
+         ALLOCATE ( BUFF2D_1( ncols,nrows ),
+     &              BUFF2D_2( ncols,nrows ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating 2D Buffers'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
          
-         ALLOCATE ( fseas          ( my_ncols,my_nrows ),
-     &              total_frac     ( my_ncols,my_nrows ),
-     &              sum_mos_frac   ( my_ncols,my_nrows ),
-     &              sum_crop_frac  ( my_ncols,my_nrows ), 
-     &              sum_mos_lai    ( my_ncols,my_nrows ), 
-     &              sum_nat_lai    ( my_ncols,my_nrows ), 
-     &              new_sum_nat_lai( my_ncols,my_nrows ),
-     &              lai_crop       ( my_ncols,my_nrows ),
-     &              znotc          ( my_ncols,my_nrows ),
-     &              US             ( my_ncols,my_nrows ),
-     &              VS             ( my_ncols,my_nrows ),
-     &              WSPD2          ( my_ncols,my_nrows ), 
-     &              RICH           ( my_ncols,my_nrows ), STAT = ALLOCSTAT )
+         ALLOCATE ( fseas          ( ncols,nrows ),
+     &              total_frac     ( ncols,nrows ),
+     &              sum_mos_frac   ( ncols,nrows ),
+     &              sum_crop_frac  ( ncols,nrows ), 
+     &              sum_mos_lai    ( ncols,nrows ), 
+     &              sum_nat_lai    ( ncols,nrows ), 
+     &              new_sum_nat_lai( ncols,nrows ),
+     &              lai_crop       ( ncols,nrows ),
+     &              znotc          ( ncols,nrows ),
+     &              US             ( ncols,nrows ),
+     &              VS             ( ncols,nrows ),
+     &              WSPD2          ( ncols,nrows ), 
+     &              RICH           ( ncols,nrows ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC variables'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -144,16 +145,16 @@ C...include files
 ! placeholder to read namelist for lu agrigation and dep species output
 !---------------------------------------------------------------------------------------------------
 
-         Allocate ( Tile_Data%depvel_gasj( n_lufrac,dep_gas_all,my_ncols,my_nrows ),
-     &              Tile_Data%adepvj     ( n_lufrac,N_AE_DEPV,my_ncols,my_nrows   ), 
-     &              Tile_Data%pol        ( n_lufrac,dep_gas_all,my_ncols,my_nrows ), STAT = ALLOCSTAT )   
+         Allocate ( Tile_Data%depvel_gasj( n_lufrac,dep_gas_all,ncols,nrows ),
+     &              Tile_Data%adepvj     ( n_lufrac,N_AE_DEPV,ncols,nrows   ), 
+     &              Tile_Data%pol        ( n_lufrac,dep_gas_all,ncols,nrows ), STAT = ALLOCSTAT )   
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC deposition velocities'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
          If( FST ) Then
-            Allocate ( Tile_Data%vd_fst_gasj( n_lufrac,dep_gas_all,my_ncols,my_nrows ), STAT = ALLOCSTAT )   
+            Allocate ( Tile_Data%vd_fst_gasj( n_lufrac,dep_gas_all,ncols,nrows ), STAT = ALLOCSTAT )   
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating FST deposition velocities'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -483,10 +484,10 @@ C from param.F
          EP1   = 0.608
          ROVG  = RDGAS / GRAV
 
-         US = 0.25 * (UWIND(1:my_ncols,1:my_nrows,    1) + UWIND(2:(my_ncols+1),1:my_nrows,    1) +
-     &                UWIND(1:my_ncols,2:(my_nrows+1),1) + UWIND(2:(my_ncols+1),2:(my_nrows+1),1))
-         VS = 0.25 * (VWIND(1:my_ncols,1:my_nrows,    1) + VWIND(2:(my_ncols+1),1:my_nrows,    1) +
-     &                VWIND(1:my_ncols,2:(my_nrows+1),1) + VWIND(2:(my_ncols+1),2:(my_nrows+1),1))
+         US = 0.25 * (UWIND(1:ncols,1:nrows,    1) + UWIND(2:(ncols+1),1:nrows,    1) +
+     &                UWIND(1:ncols,2:(nrows+1),1) + UWIND(2:(ncols+1),2:(nrows+1),1))
+         VS = 0.25 * (VWIND(1:ncols,1:nrows,    1) + VWIND(2:(ncols+1),1:nrows,    1) +
+     &                VWIND(1:ncols,2:(nrows+1),1) + VWIND(2:(ncols+1),2:(nrows+1),1))
 
 C..... beta method, Lee & Pielke (JAM,May1992)
 C-- compute sfc rh from soil moisture
@@ -671,8 +672,8 @@ C*******************************************************************************
          Real            :: mean_mos_rst            ! area weighted mean Rst
          Integer         :: c, r, j                 ! loop induction variables
         
-         DO c = 1, MY_NCOLS
-            DO r = 1, MY_NROWS
+         DO c = 1, NCOLS
+            DO r = 1, NROWS
               mean_mos_rst = 0.0
               If(LWMASK( c,r ) .EQ. 0.0 ) Cycle
 !-SOIL MOISTURE

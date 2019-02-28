@@ -22,6 +22,7 @@
 
 ! Revision History:
 !  02/01/19, D. Wong: initial implementation
+!  02/11/19, D. Wong: Updated to accommodate STAGE option
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -157,8 +158,9 @@
      &             LH_AVAIL,                ! flag for LH, two meter mixing ratio available in MET_CRO_2D
      &             HAS_SEAICE,              ! flag for SEAICE in MET_CRO_2D
      &             WR_AVAIL,                ! flag for WR, canopy wetness available in MET_CRO_2D
-     &             INIT_MEDC_1_AVAIL,       ! file INIT_MEDC_1 is available
-     &             E2C_FERT_AVAIL           ! file E2C_FERT is available
+     &             MEDC_AVAIL,              ! file INIT_MEDC_1 is available
+     &             E2C_FERT_AVAIL,          ! file E2C_FERT is available
+     &             GMN_AVAIL                ! variable GMN exist or not
 
 ! Met data is large enough to cover boundary and no MET_BDY_3D will be used
         logical :: window
@@ -1185,47 +1187,31 @@ C Read the various categories of normalized emissions
         end subroutine b3grd_setup
 
 ! -------------------------------------------------------------------------
-        subroutine beld_data_setup
+        subroutine depv_data_setup
 
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
-          use beld_data_module
+          use depv_data_module
 
-          INCLUDE SUBST_FILES_ID             ! file name parameters
+          INCLUDE SUBST_FILES_ID  ! file name parameters
 
-          Character( 40 ), parameter :: pname = 'beld_data_setup'
+          Character( 40 ), parameter :: pname = 'depv_data_setup'
 
           CHARACTER( 256 ) :: MESG
           CHARACTER( 16 ) :: vname
-          INTEGER :: STAT, i, j, k
+          INTEGER :: STAT, i, j, k, jdate_yest
 
           Allocate ( Beld_ag ( ncols, nrows, e2c_cats ),
-! for E2C_SOIL file
-     &               pHs1 ( ncols, nrows, e2c_cats ),
-     &               pHs2 ( ncols, nrows, e2c_cats ),
-     &               por1 ( ncols, nrows, e2c_cats ),
-     &               por2 ( ncols, nrows, e2c_cats ),
-     &               wp1  ( ncols, nrows, e2c_cats ),
-     &               wp2  ( ncols, nrows, e2c_cats ),
-     &               cec1 ( ncols, nrows, e2c_cats ),
-     &               cec2 ( ncols, nrows, e2c_cats ),
-! for E2C_FERT file
-     &               NH4ps1 ( ncols, nrows, e2c_cats ),
-     &               NH4ps2 ( ncols, nrows, e2c_cats ),
-     &               wep1   ( ncols, nrows, e2c_cats ),
-     &               wep2   ( ncols, nrows, e2c_cats ),
-     &               dep2   ( ncols, nrows, e2c_cats ),
+     &               pHs1 ( ncols, nrows, e2c_cats ),      ! for E2C_SOIL file
+     &               pHs2 ( ncols, nrows, e2c_cats ),      ! for E2C_SOIL file
+     &               NH4ps1 ( ncols, nrows, e2c_cats ),    ! for E2C_FERT file
+     &               NH4ps2 ( ncols, nrows, e2c_cats ),    ! for E2C_FERT file
      &               STAT=STAT )
 
           IF ( .NOT. OPEN3( BELD4_LU, FSREAD3, PNAME ) ) THEN
              mesg = 'Could not open ' // trim(BELD4_LU) // ' file'
              CALL M3MESG( mesg )
           END IF
-
-!         IF ( .NOT. DESC3( BELD4_LU ) ) THEN
-!            mesg = 'Could not get ' // trim(BELD4_LU) // ' file description'
-!            CALL M3MESG( mesg )
-!         END IF
 
           Do k = 1, e2c_cats
              vname = BELD_Names(k)
@@ -1260,6 +1246,15 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
+#ifdef m3dry_opt
+          Allocate ( por1 ( ncols, nrows, e2c_cats ),
+     &               por2 ( ncols, nrows, e2c_cats ),
+     &               wp1  ( ncols, nrows, e2c_cats ),
+     &               wp2  ( ncols, nrows, e2c_cats ),
+     &               cec1 ( ncols, nrows, e2c_cats ),
+     &               cec2 ( ncols, nrows, e2c_cats ),
+     &               STAT=STAT )
+
           vname = 'L1_Porosity'
           If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                         STRTCOLGC2, ENDCOLGC2, 0, 0, por1 ) ) Then
@@ -1268,6 +1263,7 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
+          vname = 'L2_Porosity'
           If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                         STRTCOLGC2, ENDCOLGC2, 0, 0, por2 ) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
@@ -1306,16 +1302,32 @@ C Read the various categories of normalized emissions
      &              '" from file "' // TRIM( E2C_SOIL ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
+#endif
  
 ! for E2C_FERT file
           If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
-            mesg = 'Could not open '// E2C_FERT // ' file'
-            Call M3exit ( pname, 0, 0, mesg, xstat1 )
+             mesg = 'Could not open '// E2C_FERT // ' file'
+             Call M3exit ( pname, 0, 0, mesg, xstat1 )
           End If
+
+          IF ( .NOT. DESC3( E2C_FERT ) ) THEN
+             MESG = 'Could not get description of file "' //
+     &               TRIM( E2C_FERT ) // '"'
+             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+          END IF
+
+          GMN_AVAIL = .false.
+          if (index1 ('GMN', nvars3d, vname3d) .gt. 0) then
+             GMN_AVAIL = .true.
+          end if
+
+          Allocate ( NH4ps1     ( ncols,nrows,e2c_cats ),
+     &               NH4ps2     ( ncols,nrows,e2c_cats ),
+     &               STAT=STAT )
 
           vname = 'L1_NH3'
           If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
-     &                     STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, NH4ps1) ) Then
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, NH4ps1) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_FERT ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -1323,15 +1335,22 @@ C Read the various categories of normalized emissions
 
           vname = 'L2_NH3'
           If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
-     &                     STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, NH4ps2) ) Then
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, NH4ps2) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_FERT ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
+#ifdef m3dry_opt
+
+          Allocate ( wep1 ( ncols, nrows, e2c_cats ),
+     &               wep2 ( ncols, nrows, e2c_cats ),
+     &               dep2 ( ncols, nrows, e2c_cats ),
+     &               STAT=STAT )
+
           vname = 'L1_SW'
           If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
-     &                     STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, wep1)) Then
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, wep1)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_FERT ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -1339,7 +1358,7 @@ C Read the various categories of normalized emissions
 
           vname = 'L2_SW'
           If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
-     &                     STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, wep2)) Then
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, wep2)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_FERT ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
@@ -1347,13 +1366,172 @@ C Read the various categories of normalized emissions
 
           vname = 'L2_DEP'
           If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
-     &                     STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, dep2)) Then
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, dep2)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
      &              '" from file "' // TRIM( E2C_FERT ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
+#else
+          Allocate( Nit1       ( ncols,nrows,e2c_cats ),
+     &              Nit2       ( ncols,nrows,e2c_cats ),
+     &              L1_ON      ( ncols,nrows,e2c_cats ),
+     &              L2_ON      ( ncols,nrows,e2c_cats ),
+     &              BDc1       ( ncols,nrows,e2c_cats ),
+     &              BDc2       ( ncols,nrows,e2c_cats ),
+     &              STAT=STAT )
 
-        end subroutine beld_data_setup
+          vname = 'L1_NITR'
+          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, Nit1 ) ) Then
+             Write( mesg,9001 ) vname, E2C_FERT
+             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+          End If
+
+          vname = 'L2_NITR'
+          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, Nit2 ) ) Then
+             Write( mesg,9001 ) vname, E2C_FERT
+             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+          End If
+
+          vname = 'L1_ON'
+          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, L1_ON ) ) Then
+             Write( mesg,9001 ) vname, E2C_FERT
+             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+          End If
+
+          vname = 'L2_ON'
+          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, L2_ON ) ) Then
+             Write( mesg,9001 ) vname, E2C_FERT
+             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+          End If
+
+          vname = 'L1_BD'
+          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, BDc1 ) ) Then
+             Write( mesg,9001 ) vname, E2C_FERT
+             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+          End If
+
+          vname = 'L2_BD'
+          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, BDc2 ) ) Then
+             Write( mesg,9001 ) vname, E2C_FERT
+             CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+          End If
+
+          If ( GMN_AVAIL ) Then ! Using Fest-C 1.4 output
+             Allocate( GMN     ( ncols,nrows,e2c_cats ), STAT = STAT )
+             If ( STAT .Ne. 0 ) Then
+                mesg = 'Failure allocating GMN'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             End If
+
+             vname = 'GMN'
+             If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, GMN ) ) Then
+                Write( mesg,9001 ) vname, E2C_FERT
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             End If
+
+          End If
+
+          Allocate( gamma1     ( ncols,nrows ),
+     &              gamma2     ( ncols,nrows ),
+     &              F1_NH4     ( ncols,nrows,e2c_cats ),
+     &              F2_NH4     ( ncols,nrows,e2c_cats ),
+     &              STAT=STAT )
+
+          if ( MEDC_AVAIL ) then
+             vname = 'Gamma1'
+             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, STRTROWGC2, ENDROWGC2, 
+     &                            STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, gamma1 ) ) Then
+                Write( mesg,9001 ) vname, INIT_MEDC_1
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             End If
+
+             vname = 'Gamma2'
+             If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, STRTROWGC2, ENDROWGC2, 
+     &                            STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, gamma2 ) ) Then
+                Write( mesg,9001 ) vname, INIT_MEDC_1
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             End If
+
+             vname = 'L1_ANH3'
+             If ( .Not. Xtract3 ( E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                            STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F1_NH4 ) ) Then
+                Write( mesg,9001 ) vname, E2C_FERT
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             End If
+
+             vname = 'L2_ANH3'
+             If ( .Not. Xtract3 ( E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                            STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F2_NH4 ) ) Then
+                Write( mesg,9001 ) vname, E2C_FERT
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             End If
+
+             If( .not. GMN_AVAIL ) Then
+
+                Allocate( L1_ON_Yest ( ncols,nrows,e2c_cats ),
+     &                    L2_ON_Yest ( ncols,nrows,e2c_cats ),
+     &                    F1_ON      ( ncols,nrows,e2c_cats ),
+     &                    F2_ON      ( ncols,nrows,e2c_cats ),
+     &                    STAT = STAT )
+                If ( STAT .Ne. 0 ) Then
+                   mesg = 'Failure allocating organic N vars'
+                   Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+                End If
+
+                If( MOD(cio_model_sdate,1000) .Eq. 1 ) Then
+                   If( MOD(cio_model_sdate,4000) .Eq. 0 .And. 
+     &                 MOD(cio_model_sdate,100000) .Eq. 0 .And. 
+     &                 MOD(cio_model_sdate,400000) .Eq. 0) Then
+                      jdate_yest = (INT(cio_model_sdate/1000)-1)*1000+366
+                   Else ! not a leap year
+                      jdate_yest = (INT(cio_model_sdate/1000)-1)*1000+365
+                   End If
+                Else
+                   jdate_yest = cio_model_sdate-1
+                End If
+
+               vname = 'L1_AON'
+               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                             STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F1_ON ) ) Then
+                  Write( mesg,9001 ) vname, E2C_FERT
+                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+               End If
+
+               vname = 'L2_AON'
+               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                             STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F2_ON ) ) Then
+                  Write( mesg,9001 ) vname, E2C_FERT
+                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+               End If
+
+               vname = 'L1_ON'
+               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                             STRTCOLGC2, ENDCOLGC2, jdate_yest, 0, L1_ON_Yest ) ) Then
+                  Write( mesg,9001 ) vname, E2C_FERT
+                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+               End If
+
+               vname = 'L2_ON'
+               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                             STRTCOLGC2, ENDCOLGC2, jdate_yest, 0, L2_ON_Yest ) ) Then
+                  Write( mesg,9001 ) vname, E2C_FERT
+                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+               End If
+             end if    ! .not. GMN_AVAIL
+          end if   ! MEDC_AVAIL
+
+9001      Format( 'Failure reading ', a, 1x, 'from ', a )
+
+#endif
+
+        end subroutine depv_data_setup
 
 ! -------------------------------------------------------------------------
         subroutine wb_dust_setup
@@ -1867,124 +2045,6 @@ C Read the various categories of normalized emissions
           End If
 
         end subroutine retrieve_ltng_param_data
-
-! -------------------------------------------------------------------------
-        subroutine retrieve_abflux_data
-
-          USE UTILIO_DEFN
-          USE HGRD_DEFN
-!         USE ABFlux_Mod
-
-          INCLUDE SUBST_FILES_ID             ! file name parameters
-
-          Character( 40 ), parameter :: pname = 'retrieve_abflux_data'
-
-          INTEGER          :: STAT
-          CHARACTER( 120 ) :: XMSG = ' '
-          integer :: k
-
-!         allocate (Beld_ag(ncols, nrows, e2c_cats), 
-!    &              STAT=STAT)
-!         IF ( STAT .NE. 0 ) THEN
-!            XMSG = 'Failure allocating Beld_ag array'
-!            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
-!         END IF
-
-          IF ( .NOT. OPEN3( BELD4_LU, FSREAD3, PNAME ) ) THEN
-             XMSG = 'Open failure for ' // BELD4_LU
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          END IF
-
-!         Do k = 1, e2c_cats
-!            If ( .Not. XTRACT3 ( BELD4_LU, BELD_Names(k), pname, 
-!    &                            1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-!    &                            0, 0, Beld_ag( :,:,k ) ) ) Then
-!               XMSG = 'Failure reading ' // BELD_Names(k) // ' from ' // BELD4_LU
-!               Call M3exit( pname, 0, 0, xmsg, xstat1 )
-!            End If
-!         End Do
-
-          INIT_MEDC_1_AVAIL = .true.
-          If ( .Not. Open3( INIT_MEDC_1, fsread3, pname ) ) Then
-             INIT_MEDC_1_AVAIL = .false.
-             E2C_FERT_AVAIL = .true.
-             If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
-                XMSG = 'Open failure for ' // E2C_FERT
-                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-                E2C_FERT_AVAIL = .false.
-             END IF
-          END IF
-
-          if (E2C_FERT_AVAIL) then
-!            allocate (NH4ps1(ncols, nrows, e2c_cats), 
-!    &                 NH4ps2(ncols, nrows, e2c_cats), 
-!    &                 STAT=STAT)
-!            IF ( STAT .NE. 0 ) THEN
-!               XMSG = 'Failure allocating NH4ps1 and NH4ps2 array'
-!               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
-!            END IF
-!            NH4ps1 = 0.0
-!            NH4ps2 = 0.0
-
-!            If ( .Not. XTRACT3 ( E2C_FERT, 'L1_NH3', pname, 
-!    &                            1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-!    &                            0, 0, NH4ps1) ) then
-!               XMSG = 'Failure reading L1_NH3 from ' // E2C_FERT
-!               Call M3exit( pname, 0, 0, xmsg, xstat1 )
-!            End If
-
-!            If ( .Not. XTRACT3 ( E2C_FERT, 'L2_NH3', pname, 
-!    &                            1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-!    &                            0, 0, NH4ps2) ) then
-!               XMSG = 'Failure reading L2_NH3 from ' // E2C_FERT
-!               Call M3exit( pname, 0, 0, xmsg, xstat1 )
-!            End If
-!         else
-!            allocate (gamma1(ncols, nrows), 
-!    &                 gamma2(ncols, nrows), 
-!    &                 MHp1(ncols, nrows), 
-!    &                 MHp2(ncols, nrows), 
-!    &                 STAT=STAT)
-!            IF ( STAT .NE. 0 ) THEN
-!               XMSG = 'Failure allocating gamma1, gamma2, MHp1 and MHp2 array'
-!               CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
-!            END IF
-!            gamma1 = 0.0
-!            gamma2 = 0.0
-!            MHp1   = 0.0
-!            MHp2   = 0.0
-
-!            If ( .Not. XTRACT3 ( INIT_MEDC_1, 'Gamma1', pname, 
-!    &                            1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-!    &                            0, 0, gamma1) ) then
-!               XMSG = 'Failure reading Gamma1 from ' // INIT_MEDC_1
-!               Call M3exit( pname, 0, 0, xmsg, xstat1 )
-!            End If
-
-!            If ( .Not. XTRACT3 ( INIT_MEDC_1, 'Gamma2', pname, 
-!    &                            1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-!    &                            0, 0, gamma2) ) then
-!               XMSG = 'Failure reading Gamma2 from ' // INIT_MEDC_1
-!               Call M3exit( pname, 0, 0, xmsg, xstat1 )
-!            End If
-
-!            If ( .Not. XTRACT3 ( INIT_MEDC_1, 'MHpsl1', pname, 
-!    &                            1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-!    &                            0, 0, MHp1) ) then
-!               XMSG = 'Failure reading MHpsl1 from ' // INIT_MEDC_1
-!               Call M3exit( pname, 0, 0, xmsg, xstat1 )
-!            End If
-
-!            If ( .Not. XTRACT3 ( INIT_MEDC_1, 'MHpsl2', pname, 
-!    &                            1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-!    &                            0, 0, MHp2) ) then
-!               XMSG = 'Failure reading MHpsl2 from ' // INIT_MEDC_1
-!               Call M3exit( pname, 0, 0, xmsg, xstat1 )
-!            End If
-
-          end if
-
-        end subroutine retrieve_abflux_data
 
 ! -------------------------------------------------------------------------
         subroutine retrieve_time_dep_gridded_data (jdate, jtime, vname)
@@ -2645,6 +2705,8 @@ C   mminlu and num_land_cat are WRF global variables
           USE HGRD_DEFN
           use cgrid_spcs, only : GC_DDEP, N_GC_DDEP
 
+          INCLUDE SUBST_FILES_ID             ! file name parameters
+
           Character( 40 ), parameter :: pname = 'centralized_io_init'
 
           logical, save :: first_time = .true.
@@ -2667,6 +2729,17 @@ C   mminlu and num_land_cat are WRF global variables
 
              cio_LTNG_NO = LTNG_NO
 
+             MEDC_AVAIL = .true.
+             If ( .Not. Open3( INIT_MEDC_1, fsread3, pname ) ) Then
+                MEDC_AVAIL = .false.
+                E2C_FERT_AVAIL = .true.
+                If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
+                   XMSG = 'Open failure for ' // E2C_FERT
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                   E2C_FERT_AVAIL = .false.
+                END IF
+             END IF
+
              call gridded_files_setup
 
              call boundary_files_setup
@@ -2679,7 +2752,7 @@ C   mminlu and num_land_cat are WRF global variables
              end if
 
              if (ABFLUX) then
-                call beld_data_setup
+                call depv_data_setup
              end if
 
              if (WB_DUST) then
@@ -2707,10 +2780,6 @@ C   mminlu and num_land_cat are WRF global variables
 
              if (cio_LTNG_NO) then
                 call retrieve_ltng_param_data (cio_model_sdate, cio_model_stime)
-             end if
-
-             if (abflux) then
-                call retrieve_abflux_data
              end if
 
           end if
@@ -3660,6 +3729,7 @@ C   mminlu and num_land_cat are WRF global variables
              if ((cio_bndy_data_tstamp(1, 2, var_loc) .eq. date) .and.
      &           (cio_bndy_data_tstamp(2, 2, var_loc) .eq. time)) then
                 count = count + 1
+          write (cio_logdev, '(a17, i15, i8, 1x, a16)') ' ==d== count 2db ', count, time, vname
              else
 
                 cio_bndy_data_tstamp(1, 2, var_loc) = date
