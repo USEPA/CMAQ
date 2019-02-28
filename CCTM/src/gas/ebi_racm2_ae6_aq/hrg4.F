@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the RACM2 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************

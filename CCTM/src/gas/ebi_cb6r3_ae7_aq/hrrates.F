@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 11, 2019
+C  REVISION HISTORY: Created by EBI solver program, Feb 27, 2019
 C
 C***********************************************************************
       USE HRDATA
