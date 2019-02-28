@@ -620,7 +620,7 @@ C statement function for ERF approximation
 
             IF( R_READY ) THEN
                IF ( NLDNSTRIKE ) THEN
-                  IF ( .NOT. XTRACT3( ANAME, "NLDNstrk", 1, 1,
+                  IF ( .NOT. XTRACT3( ANAME, LT_NAME, 1, 1,
      &                          STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3, 
      &                             LDATE, LTIME, NLDN_STRIKE ) ) THEN
                         XMSG = 'Could not read NLDN_STRIKE from' // TRIM( ANAME )
