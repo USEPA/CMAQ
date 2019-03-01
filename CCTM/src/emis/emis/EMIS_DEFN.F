@@ -354,7 +354,6 @@ C Retrieve Emissions from All Stream Types
            ! values, write out diagnostic file (if requested) and apply
            ! emissions to output array
            CALL EMISS_CONV_DIFF( VDEMIS_SCALED, NL, VDEMIS_CONV )
-           ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM, NL )
            IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
      &                     CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM, NL )
 
@@ -362,6 +361,7 @@ C Retrieve Emissions from All Stream Types
      &          VDEMIS_DIFF( :,1:NL,:,: ) = VDEMIS_DIFF( :,1:NL,:,: ) + VDEMIS_CONV( :,1:NL,:,: )
  
          END DO  
+         ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, 1, EMLAYS )
          END IF
 
          RETURN
@@ -731,9 +731,8 @@ C-----------------------------------------------------------------------
           ALOC = MINLOC( VDEMIS( :,1:NL,:,: ) )
           ISPC = ALOC( 1 )
 
-          WRITE( LOGDEV, '(/,5x,A,ES10.3,A,/,5x,5A,/,5x,A)' ),
+          WRITE( LOGDEV, '(/,5x,A,ES10.3,A,/,5x,3A,/,5x,A)' ),
      &      'ERROR: Invalid Negative emission rate ', EMIS_MIN, ' has been ',
-     &      ' detected from ', TRIM(EM_FILE_LAB( ISRM )), 
      &      ' for CMAQ species ',TRIM(DIFF_SPC( ISPC )),'.',
      &      'Please inspect the Emission Control Namelist File.'
           XMSG = 'Negative Emissions Detected'
