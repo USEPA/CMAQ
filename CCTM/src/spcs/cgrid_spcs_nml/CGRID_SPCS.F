@@ -714,7 +714,7 @@ c-------------------------------------------------------------------------------
             TR_conc = bl; TR_conc_map = 0                      !  .
 
             ! Pass Data from TR Namelist to Internal Variables
-            N_TR_SPC = 0;  N_TR_ICBC = 0; N_TR_DEPV = 0; N_TR_SCAV = 0
+            N_TR_ICBC = 0; N_TR_DEPV = 0; N_TR_SCAV = 0
             N_TR_T2AE = 0; N_TR_T2AQ = 0; N_TR_ADV = 0; N_TR_DDEP = 0; N_TR_WDEP = 0
             N_TR_CONC = 0; N_TR_DIFF = 0
 
@@ -803,7 +803,7 @@ c-------------------------------------------------------------------------------
                 
             END DO
 
-            TR_STRT   = AE_FINI + 1
+            TR_STRT   = NR_FINI + 1
             TR_FINI   = TR_STRT + N_TR_SPC - 1
  
 
