@@ -2921,7 +2921,7 @@ C     applicable in general to AMS measurements.
       M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWOTHIRDS  ! m2 m-3
 
       M_WET = M3_WET * 1.0E+9 * PI6 * RHOP ! ug m-3
-      M_DRY = M_WET - M_H2O + EPSILON(0.0) ! m3 m-3 
+      M_DRY = Max(M_WET - M_H2O, 0.0) + EPSILON(0.0) ! m3 m-3 
 
       DRY_DENS = M_DRY / M3_DRY * F6PI * 1.0E-9   ! kg m-3
 
