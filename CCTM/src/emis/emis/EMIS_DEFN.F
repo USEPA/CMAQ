@@ -361,7 +361,7 @@ C Retrieve Emissions from All Stream Types
      &          VDEMIS_DIFF( :,1:NL,:,: ) = VDEMIS_DIFF( :,1:NL,:,: ) + VDEMIS_CONV( :,1:NL,:,: )
  
          END DO  
-         ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, 1, EMLAYS )
+         ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
          END IF
 
          RETURN
