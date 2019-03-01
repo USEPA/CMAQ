@@ -828,7 +828,6 @@ C..Includes:
 C..Functions:
 
 C..Parameters:
-      Real, Parameter :: cmin = 1.0E-34   ! minimum concentration for most species
 
 C..Arguments:
       Real, Intent( Out ) :: aeconcmin( : ) ! array of minimum concentrations
@@ -848,7 +847,7 @@ C..Local Variables:
          aeconcmin( spc ) = aeromode_minNum( m ) * mwair * 1.0E-3
 
          spc = index1( aeromode( m )%srf_name, n_ae_spc, ae_spc )
-         aeconcmin( spc ) = aeromode_minM2( m ) * pi * mwair * 1.0E-3
+         aeconcmin( spc ) = aeromode_minM2( m ) * mwair * 1.0E-3
       End Do
 
       ! compute minimums for aerosol species
@@ -858,7 +857,6 @@ C..Local Variables:
                spc = index1( aerospc( n )%name( m ), n_ae_spc, ae_spc )
                If ( spc .Ne. 0 ) Then
                   aeconcmin( spc ) = aerospc( n )%min_conc( m ) * mwair * 1.0E-9 / ae_molwt( spc )
-                  aeconcmin( spc ) = Max( aeconcmin( spc ), cmin )
                End If
             End If
          End Do
