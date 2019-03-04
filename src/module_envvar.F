@@ -175,15 +175,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LUSE_PREV_DATE  = GET_ENV_FLAG( USE_PREV_DATE, ENV_DESC, LUSE_PREV_DATE, IO_STATUS )
 
          LUSE_NEIGHBORS  = .FALSE.
-         ENV_DESC = 'replace missing values with weigthed average of nearest neighbors'
+         ENV_DESC = 'replace missing values with weighted average of nearest neighbors'
          LUSE_NEIGHBORS  = GET_ENV_FLAG( USE_NEIGHBORS, ENV_DESC, LUSE_NEIGHBORS, IO_STATUS )
 
          IF( LERROR )THEN
             WRITE(LOGDEV,'(a)')'See above error in environment variables'
             STOP
          END IF
-         write(*,'(/1x,a)') 'press RETURN to continue...'  
-         read(*,*)  
 
          RETURN
 
