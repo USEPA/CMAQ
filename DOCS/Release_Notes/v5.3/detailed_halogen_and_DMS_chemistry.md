@@ -20,9 +20,9 @@ Model sensitivity runs were completed with CB6r3 (without detailed halogen and D
 
 Revised implementation
 
-Model sensitivity runs were completed with the existing and revised CB6r3m over the Northern Hemisphere for a winter (January – 2016) and a summer month (August – 2016). Over the seawater, the revised halogen chemistry increases winter-time monthly-mean ozone by up to ~4.0 ppbv [Figure 4(a)] and summer-time ozone by up to ~6.0 ppbv [Figure 4(b)]. Over the US, the revised halogen chemistry increases wintertime ozone by <1.5 ppbv and summertime ozone by <0.5 ppbv. CMAQv53 under-estimates winter-time ozone while overestimating ozone in summer. The revised halogen chemistry increases ozone over the US which contributes to the improvement of wintertime model performance without substantially affecting the summertime performance. 
+Model sensitivity runs were completed with the existing and revised CB6r3m over the Northern Hemisphere for a winter (January – 2016) and a summer month (August – 2016). Over the seawater, the revised halogen chemistry increases winter-time monthly-mean ozone by up to ~4.0 ppbv and summer-time ozone by up to ~6.0 ppbv. Over the US, the revised halogen chemistry increases wintertime ozone by <1.5 ppbv and summertime ozone by <0.5 ppbv. CMAQv53 under-estimates winter-time ozone while overestimating ozone in summer. The revised halogen chemistry increases ozone over the US which contributes to the improvement of wintertime model performance without substantially affecting the summertime performance. 
 
-The revised halogen chemistry changes both winter-time and summer-time sulfate by small margins in some locations (<0.13 ug/m3). However, the impacts over the US is small [Figure 5(a) and 5(b)]. 
+The revised halogen chemistry changes both winter-time and summer-time sulfate by small margins in some locations (<0.13 ug/m3). However, the impacts over the US is small. 
 
 ![Ozone](ozone_impact.jpg) 
 Figure 1: Impact of halogen chemistry on ozone (three-month average).
@@ -33,92 +33,83 @@ Figure 2: Impact of halogen chemistry on sulfur dioxide (three-month average).
 ![SO4](sulfate_impact.jpg) 
 Figure 3: Impact of halogen chemistry on sulfate (three-month average).
 
-
-
-Figure 4: Impact of the halogen chemistry changes on ozone (a) January (b) August 
-
-
-
-Figure 5: Impact of the halogen chemistry changes on sulfate (a) January (b) August
-
-
 ## Affected Files
 
 Initial implementation
 
-CCTM/scripts/bldit_cctm.csh
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/AE_cb6r3m_ae7_kmtbr.nml
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/CSQY_DATA_cb6r3m_ae7_kmtbr
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/GC_cb6r3m_ae7_kmtbr.nml
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/NR_cb6r3m_ae7_kmtbr.nml
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_DATA_MODULE.F90
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_FUNC_MODULE.F90
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/SpecDef_Dep_cb6r3m_ae7_kmtbr.txt
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/SpecDef_cb6r3m_ae7_kmtbr.txt
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
-CCTM/src/aero/aero6/AEROSOL_CHEMISTRY.F
-CCTM/src/aero/aero6/AERO_DATA.F
-CCTM/src/aero/aero6/SOA_DEFN.F
-CCTM/src/cloud/acm_ae6/hlconst.F
-CCTM/src/cloud/acm_ae7_kmtbr/AQ_DATA.F
-CCTM/src/cloud/acm_ae7_kmtbr/acmcld.f
-CCTM/src/cloud/acm_ae7_kmtbr/aq_map.F
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Function.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Global.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Initialize.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Integrator.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Jacobian.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_JacobianSP.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_LinearAlgebra.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Model.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Parameters.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Precision.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Rates.F90
-CCTM/src/cloud/acm_ae7_kmtbr/aqchem_kmt.F90
-CCTM/src/cloud/acm_ae7_kmtbr/cldproc_acm.F
-CCTM/src/cloud/acm_ae7_kmtbr/convcld_acm.F
-CCTM/src/cloud/acm_ae7_kmtbr/getalpha.F
-CCTM/src/cloud/acm_ae7_kmtbr/hlconst.F
-CCTM/src/cloud/acm_ae7_kmtbr/indexn.f
-CCTM/src/cloud/acm_ae7_kmtbr/opwdep.F
-CCTM/src/cloud/acm_ae7_kmtbr/rescld.F
-CCTM/src/cloud/acm_ae7_kmtbr/scavwdep.F
-CCTM/src/depv/m3dry/DEPVVARS.F
-CCTM/src/emis/emis/BIOG_EMIS.F
-CCTM/src/emis/emis/EMIS_DEFN.F
-CCTM/src/emis/emis/MGEMIS.F
-CCTM/src/emis/emis/SSEMIS.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/DEGRADE_SETUP_TOX.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/degrade.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/degrade_data.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/final_degrade.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/find_degraded.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrdata_mod.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrdriver.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrg1.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrg2.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrg3.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrg4.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrinit.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrprodloss.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrrates.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrsolver.F
-CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/init_degrade.F
-CCTM/src/vdiff/acm2_m3dry/ASX_DATA_MOD.F
-UTIL/inline_phot_preproc/photolysis_CSQY_data/COHBR_JPL2010
-UTIL/inline_phot_preproc/photolysis_CSQY_data/IBR_IUPAC10
-UTIL/inline_phot_preproc/photolysis_CSQY_data/IONO2_06
+* CCTM/scripts/bldit_cctm.csh
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/AE_cb6r3m_ae7_kmtbr.nml
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/CSQY_DATA_cb6r3m_ae7_kmtbr
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/GC_cb6r3m_ae7_kmtbr.nml
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/NR_cb6r3m_ae7_kmtbr.nml
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_DATA_MODULE.F90
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_FUNC_MODULE.F90
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/SpecDef_Dep_cb6r3m_ae7_kmtbr.txt
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/SpecDef_cb6r3m_ae7_kmtbr.txt
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
+* CCTM/src/aero/aero6/AEROSOL_CHEMISTRY.F
+* CCTM/src/aero/aero6/AERO_DATA.F
+* CCTM/src/aero/aero6/SOA_DEFN.F
+* CCTM/src/cloud/acm_ae6/hlconst.F
+* CCTM/src/cloud/acm_ae7_kmtbr/AQ_DATA.F
+* CCTM/src/cloud/acm_ae7_kmtbr/acmcld.f
+* CCTM/src/cloud/acm_ae7_kmtbr/aq_map.F
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Function.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Global.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Initialize.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Integrator.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Jacobian.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_JacobianSP.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_LinearAlgebra.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Model.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Parameters.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Precision.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_Rates.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/aqchem_kmt.F90
+* CCTM/src/cloud/acm_ae7_kmtbr/cldproc_acm.F
+* CCTM/src/cloud/acm_ae7_kmtbr/convcld_acm.F
+* CCTM/src/cloud/acm_ae7_kmtbr/getalpha.F
+* CCTM/src/cloud/acm_ae7_kmtbr/hlconst.F
+* CCTM/src/cloud/acm_ae7_kmtbr/indexn.f
+* CCTM/src/cloud/acm_ae7_kmtbr/opwdep.F
+* CCTM/src/cloud/acm_ae7_kmtbr/rescld.F
+* CCTM/src/cloud/acm_ae7_kmtbr/scavwdep.F
+* CCTM/src/depv/m3dry/DEPVVARS.F
+* CCTM/src/emis/emis/BIOG_EMIS.F
+* CCTM/src/emis/emis/EMIS_DEFN.F
+* CCTM/src/emis/emis/MGEMIS.F
+* CCTM/src/emis/emis/SSEMIS.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/DEGRADE_SETUP_TOX.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/degrade.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/degrade_data.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/final_degrade.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/find_degraded.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrdata_mod.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrdriver.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrg1.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrg2.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrg3.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrg4.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrinit.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrprodloss.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrrates.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/hrsolver.F
+* CCTM/src/gas/ebi_cb6r3m_ae7_kmtbr/init_degrade.F
+* CCTM/src/vdiff/acm2_m3dry/ASX_DATA_MOD.F
+* UTIL/inline_phot_preproc/photolysis_CSQY_data/COHBR_JPL2010
+* UTIL/inline_phot_preproc/photolysis_CSQY_data/IBR_IUPAC10
+* UTIL/inline_phot_preproc/photolysis_CSQY_data/IONO2_06
 
 Revised implementation
 
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/GC_cb6r3m_ae7_kmtbr.nml
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_DATA_MODULE.F90
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_FUNC_MODULE.F90
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
-CCTM/src/cloud/acm_ae6/hlconst.F
-CCTM/src/depv/m3dry/DEPVVARS.F
-CCTM/src/emis/emis/MGEMIS.F
-CCTM/src/vdiff/acm2_m3dry/ASX_DATA_MOD.F
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/GC_cb6r3m_ae7_kmtbr.nml
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_DATA_MODULE.F90
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_FUNC_MODULE.F90
+* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
+* CCTM/src/cloud/acm_ae6/hlconst.F
+* CCTM/src/depv/m3dry/DEPVVARS.F
+* CCTM/src/emis/emis/MGEMIS.F
+* CCTM/src/vdiff/acm2_m3dry/ASX_DATA_MOD.F
 
 ## References
 
