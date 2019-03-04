@@ -288,7 +288,7 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
           END IF
         END DO
       END DO
-      MW_wmean_old = MW_wmean_old / M3OLD
+      MW_wmean_old(2:N_MODE) = MW_wmean_old(2:N_MODE) / M3OLD(2:N_MODE)
 
 C...perform aqueous-phase chemistry calculations
 
@@ -349,7 +349,7 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
           END IF
         END DO
       END DO
-      MW_wmean_new = MW_wmean_new / M3NEW
+      MW_wmean_new(2:N_MODE) = MW_wmean_new(2:N_MODE) / M3NEW(2:N_MODE)
 
 C...check for minimums
 C...ug/m3*m3/mol_air*1e-6g/ug*mol_aer/g=> mol_aer/mol_air
