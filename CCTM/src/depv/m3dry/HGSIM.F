@@ -214,7 +214,7 @@ C--------------------------------------------------------------------------
 !         END SELECT
 
 C **** Read in saved surface layer concentrations
-         IF ( .NOT. OPEN3( INIT_MEDC_1, FSREAD3, PNAME ) ) THEN
+         IF ( .NOT. MEDC_AVAIL ) THEN
             INIT_ASX = .TRUE.
             INIT_ATX = .TRUE.
 
