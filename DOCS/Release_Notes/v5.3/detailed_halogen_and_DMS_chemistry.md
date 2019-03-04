@@ -3,10 +3,26 @@
 **Author/P.O.C.:** [Golam Sarwar](mailto:sarwar.golam@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
+
+Initial implementation
+
 Detailed halogen (bromine and iodine) chemistry was previously incorporated into the CB05 chemical mechanism. Now, the detailed halogen chemistry is combined with CB6r3 and implemented into the CMAQ model. It contains 38 gas-phase reactions and 8 heterogeneous reactions for bromine chemistry and 44 gas-phase reactions and 20 heterogeneous reactions for iodine chemistry. Dimethyl sulfide (DMS) chemistry is also combined with CB6r3 and implemented into the CMAQ model. It contains 7 gas-phase reactions involving DMS and oxidants. The combined chemical mechanism containing CB6r3, detailed halogen and DMS chemistry is named as CB6r3m. It is primarily intended for use in the hemispheric CMAQ model though it can be used in the regional version of the model.
 
+Revised implementation
+
+The detailed halogen chemistry is revised for following changes: (a) removing several heterogeneous reactions over coarse-mode aerosols (2) implementing dry deposition of several halogen species, and (3) fixing several molecular diffusivities, Le Bas molar volume, and calculation for temporal allocation of halocarbon emissions. An updated EBI solver is also developed since the halogen chemistry is revised.  
+
 ## Significance and Impact
+
+Initial implementation
+
 Model sensitivity runs were completed with CB6r3 (without detailed halogen and DMS chemistry) and CB6r3m (with detailed halogen and DMS chemistry) over the Northern Hemisphere for three months in 2015 (October-December). It reduces ozone by 3-15 ppbv (Figure 1) and increases sulfur dioxide by 20-160 pptv (Figure 2) and sulfate by 0.1-0.8 ug/m3 (Figure 3) over much of the seawater. It reduces ozone and increases sulfate over land by much smaller margins than over seawater.
+
+Revised implementation
+
+Model sensitivity runs were completed with the existing and revised CB6r3m over the Northern Hemisphere for a winter (January – 2016) and a summer month (August – 2016). Over the seawater, the revised halogen chemistry increases winter-time monthly-mean ozone by up to ~4.0 ppbv [Figure 4(a)] and summer-time ozone by up to ~6.0 ppbv [Figure 4(b)]. Over the US, the revised halogen chemistry increases wintertime ozone by <1.5 ppbv and summertime ozone by <0.5 ppbv. CMAQv53 under-estimates winter-time ozone while overestimating ozone in summer. The revised halogen chemistry increases ozone over the US which contributes to the improvement of wintertime model performance without substantially affecting the summertime performance. 
+
+The revised halogen chemistry changes both winter-time and summer-time sulfate by small margins in some locations (<0.13 ug/m3). However, the impacts over the US is small [Figure 5(a) and 5(b)]. 
 
 ![Ozone](ozone_impact.jpg) 
 Figure 1: Impact of halogen chemistry on ozone (three-month average).
@@ -19,7 +35,17 @@ Figure 3: Impact of halogen chemistry on sulfate (three-month average).
 
 
 
+Figure 4: Impact of the halogen chemistry changes on ozone (a) January (b) August 
+
+
+
+Figure 5: Impact of the halogen chemistry changes on sulfate (a) January (b) August
+
+
 ## Affected Files
+
+Initial implementation
+
 CCTM/scripts/bldit_cctm.csh
 CCTM/src/MECHS/cb6r3m_ae7_kmtbr/AE_cb6r3m_ae7_kmtbr.nml
 CCTM/src/MECHS/cb6r3m_ae7_kmtbr/CSQY_DATA_cb6r3m_ae7_kmtbr
@@ -83,7 +109,19 @@ UTIL/inline_phot_preproc/photolysis_CSQY_data/COHBR_JPL2010
 UTIL/inline_phot_preproc/photolysis_CSQY_data/IBR_IUPAC10
 UTIL/inline_phot_preproc/photolysis_CSQY_data/IONO2_06
 
+Revised implementation
+
+CCTM/src/MECHS/cb6r3m_ae7_kmtbr/GC_cb6r3m_ae7_kmtbr.nml
+CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_DATA_MODULE.F90
+CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_FUNC_MODULE.F90
+CCTM/src/MECHS/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
+CCTM/src/cloud/acm_ae6/hlconst.F
+CCTM/src/depv/m3dry/DEPVVARS.F
+CCTM/src/emis/emis/MGEMIS.F
+CCTM/src/vdiff/acm2_m3dry/ASX_DATA_MOD.F
+
 ## References
+
 1.	Sarwar, G., Gantt, B.; Schwede, D.; Foley, K.; Mathur, R.; Saiz-Lopez, A. Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, Environmental Science & Technology, 2015, 49(15):9203-9211.
 2.	Saiz-Lopez, A.; Fernandez, R. P.; Ordóñez, C.; Kinnison, D. E.; Gómez Martín, J. C.; Lamarque, J.-F.; Tilmes, S. Iodine chemistry in the troposphere and its effect on ozone. Atmos. Chem. Phys., 2014, 14, 13119-13143.
 3.	Fernandez, R. P.; Salawitch, R. J.; Kinnison, D. E.; Lamarque, J.-F.; Saiz-Lopez, A. Bromine partitioning in the tropical tropopause layer: implications for stratospheric injection. Atmospheric Chemistry and Physics, 2014, 14, 13391-13410. 
@@ -98,10 +136,19 @@ UTIL/inline_phot_preproc/photolysis_CSQY_data/IONO2_06
 ## Internal Records:
 #### Relevant Pull Requests:
 [PR #362](https://github.com/usepa/cmaq_dev/pull/362)
+
+[PR #433](https://github.com/usepa/cmaq_dev/pull/433)
+
 #### Commit IDs:
+Initial Implementation
+
 e071d336de4e98b37e7d0d7b23b73f81f4daf79b
 66f076fbb441e4d75e9ee55821da1cd63bf4a4d9
 4e95eac60e9c78b27faf0c5e6d1c51b0b15cf7db
 81edc0a978469bf9ea4e917f9de592921431134d
+
+Revised Implementation
+
+2d7d094b1cfa8b5432950d3719e0ce94082eba50
 
 -----
