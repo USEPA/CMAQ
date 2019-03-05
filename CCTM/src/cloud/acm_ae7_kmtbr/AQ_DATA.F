@@ -839,8 +839,6 @@ C..Local Variables:
       Integer n        ! aerospc loop counter
       Integer spc      ! species loop counter
 
-      aeconcmin = cmin
-
       ! compute minimums for numbers and surfaces
       Do m = 1, n_mode
          spc = index1( aeromode( m )%num_name, n_ae_spc, ae_spc )
