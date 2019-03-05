@@ -566,7 +566,16 @@ kron: DO WHILE (T < TEND)
           AERWDEP( LCL, ACC ) = FCLACC * VAR( ind_WD_CLMIN )
           AEROSOL( LCL, COR ) = ( 1.0d0 - FCLACC ) * VAR( ind_L_CLMIN ) * INVCFAC
       END IF      
-        
+
+!     If there was significant loss of CL- via chem rxn, make sure analytically  
+!     calculated coarse aerosol Cl- is not more than total Cl- available 
+
+      IF( AEROSOL( LCL, COR ) .GT. VAR( ind_L_CLMIN ) * INVCFAC ) THEN
+          AEROSOL( LCL, COR ) = ( 1.0d0 - FCLACC ) * VAR( ind_L_CLMIN ) * INVCFAC
+          AERWDEP( LCL, COR ) = ( 1.0d0 - FCLACC ) * VAR( ind_WD_CLMIN )
+          AERWDEP( LCL, ACC ) = FCLACC * VAR( ind_WD_CLMIN )
+      END IF
+              
 !...AEROSOL species, accumulation mode
            
       AEROSOL( LPRI, ACC )  = VAR( ind_L_PRIACC ) * INVCFAC
