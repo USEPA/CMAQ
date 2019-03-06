@@ -325,7 +325,7 @@ C.. Get pressure in Pascals
       CALL INTERPOLATE_VAR ('PRES', MIDDATE, MIDTIME, PRES)
 
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
-      CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
+      CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells

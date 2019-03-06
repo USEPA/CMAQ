@@ -23,6 +23,9 @@
 ! Revision History:
 !  02/01/19, D. Wong: initial implementation
 !  02/11/19, D. Wong: Updated to accommodate STAGE option
+!  03/06/19, D. Wong: fixed a bug to handle 3D emission data structure
+!                     correctly and fixed a bug to deal with the case of
+!                     ABFLUX turned off
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -2732,12 +2735,16 @@ C   mminlu and num_land_cat are WRF global variables
              MEDC_AVAIL = .true.
              If ( .Not. Open3( INIT_MEDC_1, fsread3, pname ) ) Then
                 MEDC_AVAIL = .false.
-                E2C_FERT_AVAIL = .true.
-                If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
-                   XMSG = 'Open failure for ' // E2C_FERT
-                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                if (abflux) then
+                   E2C_FERT_AVAIL = .true.
+                   If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
+                      XMSG = 'Open failure for ' // E2C_FERT
+                      Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                      E2C_FERT_AVAIL = .false.
+                   END IF
+                else
                    E2C_FERT_AVAIL = .false.
-                END IF
+                end if
              END IF
 
              call gridded_files_setup
@@ -3951,18 +3958,22 @@ C   mminlu and num_land_cat are WRF global variables
                     dot = 0
                 end if
 
-                adj2 = extra_c
-                adj3 = extra_r * col_size + extra_c
-                if (north_pe .and. east_pe) then
-                   adj3 = 0
-                else if (north_pe) then
-                   adj3 = adj3 - 1
+                if ((cio_grid_var_name(var_loc, 2) .ne. 'e') .and.
+     &              (cio_grid_var_name(var_loc, 2) .ne. 'E')) then
+                   adj2 = extra_c
+                   adj3 = extra_r * col_size + extra_c
+                   if (north_pe .and. east_pe) then
+                      adj3 = 0
+                   else if (north_pe) then
+                      adj3 = adj3 - 1
+                   end if
                 end if
 
              end if
 
              store_beg_ind = cio_grid_data_inx(1,2,var_loc)
              m = store_beg_ind - 1 + adj1
+
              do k = beg_k, end_k
                 do r = 1, size(data,2)
                    do c = 1, size(data,1)
