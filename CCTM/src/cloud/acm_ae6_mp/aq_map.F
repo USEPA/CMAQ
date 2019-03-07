@@ -133,8 +133,8 @@ C Local Variables (scalars):
       REAL       :: EALFA2T             ! EXP( -ALFA2 * TAUCLD )
       REAL( 8 )  :: M3NEW( NMODES )     ! modal mass at time t
       REAL( 8 )  :: M3OLD( NMODES )     ! modal mass at time 0
-      REAL( 8 )  :: MW_wmean_old( NMODES ) ! concentration weighted molecular weight g/mol
-      REAL( 8 )  :: MW_wmean_new( NMODES ) ! concentration weighted molecular weight g/mol
+      REAL( 8 )  :: Dens_wmean_old( NMODES ) ! concentration weighted molecular weight g/mol
+      REAL( 8 )  :: Dens_wmean_new( NMODES ) ! concentration weighted molecular weight g/mol
 
       REAL       :: HPWDEP                        ! hydrogen wet dep (mm mol/liter)
       REAL( 8 )  :: GAS    ( NGAS )               ! gas phase conc (mol/mol)
@@ -279,7 +279,7 @@ C     into aerospc_conc in aero_data module
 C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the division)
 
       M3OLD = 0.0
-      MW_wmean_old = 0.0
+      Dens_wmean_old = 0.0
       DO IMODE = 2, N_MODE
 
         DO SPC = 1, N_AEROSPC
@@ -289,13 +289,12 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
              M3OLD( IMODE ) = M3OLD( IMODE )
      &                      + ( AEROSPC_CONC( SPC,IMODE ) * AEROSPC_MW( SPC )
      &                      / AEROSPC( SPC )%DENSITY )
-             MW_wmean_old( IMODE ) = MW_wmean_old( IMODE )  
-     &                      + ( AEROSPC_CONC( SPC,IMODE ) * AEROSPC_MW( SPC )**2
-     &                      / AEROSPC( SPC )%DENSITY )
+             Dens_wmean_old( IMODE ) = Dens_wmean_old( IMODE )  
+     &                      + AEROSPC_CONC( SPC,IMODE ) * AEROSPC_MW( SPC )
           END IF
         END DO
       END DO
-      MW_wmean_old(2:N_MODE) = MW_wmean_old(2:N_MODE) / M3OLD(2:N_MODE)
+      Dens_wmean_old(2:N_MODE) = Dens_wmean_old(2:N_MODE) / M3OLD(2:N_MODE)
 
 C...perform aqueous-phase chemistry calculations
 
@@ -340,7 +339,7 @@ C     into aerospc_conc in aero_data module
 C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the division)
 
       M3NEW = 0.0
-      MW_wmean_new = 0.0
+      Dens_wmean_new = 0.0
       DO IMODE = 2, N_MODE
 
         DO SPC = 1, N_AEROSPC
@@ -350,19 +349,18 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
              M3NEW( IMODE ) = M3NEW( IMODE )
      &                      + ( AEROSPC_CONC( SPC,IMODE ) * AEROSPC_MW( SPC )
      &                      / AEROSPC( SPC )%DENSITY )
-             MW_wmean_new( IMODE ) = MW_wmean_new( IMODE )  
-     &                      + ( AEROSPC_CONC( SPC,IMODE ) * AEROSPC_MW( SPC )**2
-     &                      / AEROSPC( SPC )%DENSITY )
+             Dens_wmean_new( IMODE ) = Dens_wmean_new( IMODE )  
+     &                      + AEROSPC_CONC( SPC,IMODE ) * AEROSPC_MW( SPC )
           END IF
         END DO
       END DO
-      MW_wmean_new(2:N_MODE) = MW_wmean_new(2:N_MODE) / M3NEW(2:N_MODE)
+      Dens_wmean_new(2:N_MODE) = Dens_wmean_new(2:N_MODE) / M3NEW(2:N_MODE)
 
 C...check for minimums
-
+C...ug/m3*m3/mol_air*1e-9kg/ug*m3/kg=> m3/mol_air
       DO IMODE = 2, N_MODE
-        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND * 1.0d-6 / ( MW_wmean_old( IMODE ) * AIRM / CTHK1 ) )
-        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIND * 1.0d-6 / ( MW_wmean_new( IMODE ) * AIRM / CTHK1 ) )
+        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_old( IMODE ) * AIRM / CTHK1 ) )
+        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_new( IMODE ) * AIRM / CTHK1 ) )
         CEND( AERONUM_MAP( IMODE ) ) = MAX( CEND( AERONUM_MAP( IMODE ) ), 
      &                                 aeromode_minNum( IMODE )/ (AIRM/CTHK1) ) ! min #/mol 
       END DO
