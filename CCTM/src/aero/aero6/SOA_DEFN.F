@@ -257,7 +257,7 @@ C-----------------------------------------------------------------------
           ! available from the OA_LIST table. 
           n_oa = 0
           Do spc = 1,n_oa_list
-             n = findAero( oa_list( spc )%name, .True. )
+             n = findAero( oa_list( spc )%name, .False. )
              If ( n .Gt. 0 ) Then
                n_oa = n_oa + 1
                map_OAtoOAlist( n_oa ) = spc
@@ -970,7 +970,6 @@ C-----------------------------------------------------------------------
 
       ! Compute the number of nonvolatile and total organic compound
       ! moles in the system
-      nsvol    = 0
       totorgnv = sum( sum( aerospc_conc( :,1:2 ),2 ) / aerospc_mw( : ), 
      &                     mask=lnonvol_oa( : ) )  
       totorg   = sum( sum( aerospc_conc( :,1:2 ),2 ) * aerospc_mwinv( : ), 
@@ -978,6 +977,7 @@ C-----------------------------------------------------------------------
 
       ! Calculate the Initial Partitioning of Each Semivolatile
       ! Compound
+      nsvol    = 0
       Do i = 1, n_oa
         n = map_OAtoAERO( i )
         if ( .not.oaspc( i )%nonvol ) Then
@@ -1048,7 +1048,7 @@ C-----------------------------------------------------------------------
           !         Solve for total number of organic moles in aerosol (hotp 7/5/11)
           lowb      = totorgnv   ! lower: moles of nonvolatile
           upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-          upb       = upb * ( 1.0 + 1e-7*n_oa ) ! prevent numerical issues
+          upb       = upb * ( 1.0 + 1.e-7*n_oa + 2.0 ) ! prevent numerical issues
           If ( abs( upb - lowb ) .Lt. threshmin ) Then
             ! no SOA to partition
             orgmoles = ( lowb + upb ) / 2.0
