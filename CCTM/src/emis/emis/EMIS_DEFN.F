@@ -1120,6 +1120,7 @@ C and allowing the model to proceed.
             ! First error check and expand the stream field
             ! This subroutine returns a logical vector, EM_STREAM_RULE,
             ! which identifies which streams are affected by this rule.
+            LREMOVE = .FALSE.
             CALL INTERPRET_EM_RULE_STREAM( EM_NML( IRULE )%STREAM, IRULE, 
      &              EM_STREAM_RULE, LREMOVE )
             IF ( LREMOVE ) CYCLE
