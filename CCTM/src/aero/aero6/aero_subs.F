@@ -2828,7 +2828,7 @@ C  and coworkers  (http://cires1.colorado.edu/jimenez-group/wiki/index.php/
 C  FAQ_for_AMS_Data_Users#What_is_the_size_cut_of_AMS_measurements.3F).
 C  The AMS measures Vacuum Aerodynamic Diameter (D_va) because the pressure is
 C  so low in the instrument. This curve (also described in Ensberg et
-C  al., 2004)  includes the following (Note: before applying the curve,
+C  al., 2013)  includes the following (Note: before applying the curve,
 C  the bounds must be converted to Stokes Diameter):
 C     D_va < 0.04 um: 0% transmission (T)
 C     0.04 < D_va < 0.1 um:  T% = 1666.6 * (D_va - 0.04)   (1)
@@ -2859,7 +2859,7 @@ C         Cc( ) - Cunningham Slip Correction of a particular diameter
 C         X   - Shape factor = (NonSpherical Drag Force)/(Spherical Drag Force)
 C       Vacuum Aerodynamic -> Volume Equivalent (DeCarlo et al., 2004)
 C         D_ve = D_va * ro0/ro * X
-C             (If X = 1 (i.e. spehrical), then D_st = D_ve = D_va * ro0/ro )
+C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_va * ro0/ro )
  
 C  Key Functions called:  ERF
  
@@ -2870,7 +2870,7 @@ C  References:
 C   1. DeCarlo et al., Particle Morphology and Density Characterization
 C   by Combined Mobility and Aerodynamic Diameter Measurements. Part 1:
 C   Theory, Aerosol Sci. and Technology, 38:1185-1205, 2004
-C   2. Ensberg et al., Inorganic and black carbin aerosols in the Los
+C   2. Ensberg et al., Inorganic and black carbon aerosols in the Los
 C   Angeles Basin during CalNex, Journ. Geophys. Res., 2013.
 
 C-----------------------------------------------------------------------
@@ -2883,7 +2883,7 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_CONST    ! for PI
 
 C    Input variables
-      REAL, INTENT( IN ) :: M3_WET  ! Third Moment of Wet Distirbution (m3/m3)
+      REAL, INTENT( IN ) :: M3_WET  ! Third Moment of Wet Distribution (m3/m3)
       REAL, INTENT( IN ) :: M2_WET  ! Second Moment of Wet Distribution (m2/m3)
       REAL, INTENT( IN ) :: M0      ! Number of Particles in Distribution (N/m3)
       REAL, INTENT( IN ) :: M_H2O   ! Mass Conc. of Water in Particles (ug/m3)
@@ -2914,14 +2914,14 @@ C *** Error function approximation, from Meng & Seinfeld (1994)
 
 C ----------------------- Begin solution -------------------------------
 
-C *** First Calculate Parameters of Dry Distributiuon since this is more
+C *** First Calculate Parameters of Dry Distribution since this is more
 C     applicable in general to AMS measurements.
       M3SUBT = ( 1.0E-9 * F6PI / RHO_H2O ) * M_H2O        ! m3 m-3
-      M3_DRY = M3_WET - M3SUBT              ! m3 m-3
+      M3_DRY = Max(M3_WET - M3SUBT, 0.0) + EPSILON(0.0)   ! m3 m-3 
       M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWOTHIRDS  ! m2 m-3
 
       M_WET = M3_WET * 1.0E+9 * PI6 * RHOP ! ug m-3
-      M_DRY = M_WET - M_H2O                ! ug m-3
+      M_DRY = Max(M_WET - M_H2O, 0.0) + EPSILON(0.0) ! m3 m-3 
 
       DRY_DENS = M_DRY / M3_DRY * F6PI * 1.0E-9   ! kg m-3
 
@@ -2939,7 +2939,7 @@ C     applicable in general to AMS measurements.
       DGv = EXP( LOG( DG ) + 3.0 * L2SG )
 
 C *** Calculate Transmission Fractions for AMS with Vacuum Aerodynamic
-C     Cutoffs. This approzimation is split into a piecewise function (see
+C     Cutoffs. This approximation is split into a piecewise function (see
 C     Appendix B in Ensberg et al., 2013).
       fAMS = 0.0
       DENSFAC = 1.0E+03 / DRY_DENS  ! Density Correction Factor
