@@ -3736,7 +3736,6 @@ C   mminlu and num_land_cat are WRF global variables
              if ((cio_bndy_data_tstamp(1, 2, var_loc) .eq. date) .and.
      &           (cio_bndy_data_tstamp(2, 2, var_loc) .eq. time)) then
                 count = count + 1
-          write (cio_logdev, '(a17, i15, i8, 1x, a16)') ' ==d== count 2db ', count, time, vname
              else
 
                 cio_bndy_data_tstamp(1, 2, var_loc) = date
