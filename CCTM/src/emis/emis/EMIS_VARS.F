@@ -385,8 +385,6 @@
      &         'labels provided to CMAQ. Please check the runscript against ',
      &         'your emissions control inputs','to confirm that this stream ',
      &         'should be ignored.'
-           XMSG = 'Error in Emissions Map Processing.'
-           CALL M3WARN( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
 
            ! Remove this rule from the list of rules
            LREMOVE = .TRUE.
