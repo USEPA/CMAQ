@@ -80,7 +80,7 @@ C-------------------------------------------------------------------------------
       Real, Save, Allocatable :: fcec2  ( :,: ) ! Volatility function of CEC from EPIC (Williams 1995) in L2
       
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter      
-      Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
+      Real, Parameter,         Private :: maxgam   = 1.0e6 ! removed 200000 limit since I can't find any justification
       Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
      
       Contains 
@@ -642,8 +642,8 @@ C-------------------------------------------------------------------------------
 !---- Gamma soil 
                   Case( 'AG','AGMOS' ) ! Ag
                       if (fcec1(c,r).gt. 0.299 ) Then                
-                        frac_sol1= fcec1(c,r) * 0.6  ! scale EPIC cec func to give .55 at Lillington
-                        frac_sol2= fcec2(c,r) * 0.6
+                        frac_sol1= fcec1(c,r) 
+                        frac_sol2= fcec2(c,r)
                       else
                         frac_sol1= 0.55
                         frac_sol2= 0.55
@@ -669,7 +669,7 @@ C-------------------------------------------------------------------------------
                      cnh3g2j = Min( natgam , maxgam )
                End Select
                cnh3g1  = cnh3g1 + GRID_DATA%LUFRAC( c,r,j ) * cnh3g1j             
-               cnh3g1  = cnh3g1 + GRID_DATA%LUFRAC( c,r,j ) * cnh3g1j
+               cnh3g2  = cnh3g2 + GRID_DATA%LUFRAC( c,r,j ) * cnh3g2j
                cnh3s   = cnh3s  + GRID_DATA%LUFRAC( c,r,j ) * cnh3sj
             End If
          End Do
@@ -679,7 +679,7 @@ C-------------------------------------------------------------------------------
          cnh3s = cnh3s / (1.0 - watfrac)   ! Land only (microgram/m3)
          if(agfrac.GT.0.5.and.gamma1( c,r ).gt.50000.) then
             write(logdev,*) ' frac_sol1',frac_sol1,' cnh3g1',cnh3g1,' gamma1',gamma1( c,r )
-            write(logdev,*) ' c,r=',c,r
+            write(logdev,*) ' c,r=',c,r,' gamma2',gamma2( c,r )
          endif
 101      Continue
 

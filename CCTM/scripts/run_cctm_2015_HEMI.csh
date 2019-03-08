@@ -367,7 +367,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv GR_EM_DTOVRD_001 F
 
   #> In-line point emissions configuration
-  setenv N_EMIS_PT 5          #> Number of elevated source groups
+  setenv N_EMIS_PT 0          #> Number of elevated source groups
 
   set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g              # Stack Group Version Label
   set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g  # Stack Emission Version Label
@@ -417,8 +417,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv USE_NLDN  Y        #> use hourly NLDN strike file [ default: Y ]
      if ( $USE_NLDN == Y ) then
         setenv NLDN_STRIKES ${IN_LTpath}/NLDN.12US1.${YYYYMMDD}_bench.nc
-     else
-        setenv LOG_START 2.0   #> RC value to transition from linear to log linear
      endif
      setenv LTNGPARMS_FILE ${IN_LTpath}/LTNG_AllParms_12US1_bench.nc #> lightning parameter file
   endif
