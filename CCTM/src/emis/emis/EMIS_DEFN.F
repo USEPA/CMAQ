@@ -921,7 +921,8 @@ C-----------------------------------------------------------------------
          CHARACTER( 4 ), ALLOCATABLE :: EM_BASIS( :,:,: )
          REAL,  ALLOCATABLE          :: EM_CONV( :,:,: )
          INTEGER, ALLOCATABLE :: EM_REG( :,:,: )
-         INTEGER             :: N_EM_RULE
+         INTEGER              :: N_EM_RULE
+         LOGICAL              :: LREMOVE
 
 C Retrieve Environment Variable Letting User Ignore this Check
 C and allowing the model to proceed.
@@ -1119,7 +1120,9 @@ C and allowing the model to proceed.
             ! First error check and expand the stream field
             ! This subroutine returns a logical vector, EM_STREAM_RULE,
             ! which identifies which streams are affected by this rule.
-            CALL INTERPRET_EM_RULE_STREAM( EM_NML( IRULE )%STREAM, IRULE, EM_STREAM_RULE )
+            CALL INTERPRET_EM_RULE_STREAM( EM_NML( IRULE )%STREAM, IRULE, 
+     &              EM_STREAM_RULE, LREMOVE )
+            IF ( LREMOVE ) CYCLE
 
             !------   ------   ------   ------   ------   ----  
             ! Now error check and expand the surrogate field
@@ -1163,14 +1166,14 @@ C and allowing the model to proceed.
                  XMSG = 'For optimal predictions, all surrogates '
      &                //'should be found on at least one stream.'
                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                 CYCLE
               ELSE     
                  WRITE( LOGDEV, '(A,/,2A,/,8(/,A))') 
      &                  '*****************************ERROR***************************************:',
      &                  'The emission surrogate ',TRIM( EM_NML( IRULE )%SURR ),
      &                  ' is not found in any of the emission streams.',
      &                  'Use one of the below options to continue.', 
-     &                  '1) Change or remove the missing GC, NR and TR emissions surrogates from the',
-     &                  'namelists where they are defined.', 
+     &                  '1) Change or remove this emission rule so that it refers to an existing surrogate.', 
      &                  'or',
      &                  '2) Change CTM_EMISCHK environment variable to False (F) in the runscript',
      &                  'if model predictions are acceptable without using the above emissions.',
