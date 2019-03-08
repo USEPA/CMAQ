@@ -283,7 +283,7 @@ C-----------------------------------------------------------------------
           lnonvol_oa = .false.
           Do spc = 1,n_oa
              oaspc( spc ) = oa_list( map_OAtoOAlist( spc ) )
-             map_OAtoAERO( spc ) = findAero( oaspc( spc )%name, .True. )
+             map_OAtoAERO( spc ) = findAero( oaspc( spc )%name, .False. )
              If( map_OAtoAERO( spc ) .Lt. 1 ) 
      &           write(logdev,99904) Trim( oaspc( spc )%name )
              op_mw( spc ) = aerospc_mw( map_OAtoAERO( spc ) )
