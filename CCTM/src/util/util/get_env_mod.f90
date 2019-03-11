@@ -72,10 +72,12 @@
              regular = .true.
           end if
 
-          if (default) then
-             write( loc_logdev, '(A16,2x,A,2x,i10, 1x, a9)' ), env_var,'|', env_value, '(default)'
-          else if (regular) then
-             write( loc_logdev, '(A16,2x,A,2x,i10)' ), env_var,'|', env_value
+          if ( loc_logdev .gt. 0 ) then
+             if (default) then
+                write( loc_logdev, '(A16,2x,A,2x,i10, 1x, a9)' ), env_var,'|', env_value, '(default)'
+             else if (regular) then
+                write( loc_logdev, '(A16,2x,A,2x,i10)' ), env_var,'|', env_value
+             end if
           end if
 
         end subroutine get_env_int
@@ -110,10 +112,12 @@
              regular = .true.
           end if
 
-          if (default) then
-             write( loc_logdev, '(A16,2x,A,2x,e10.3, 1x, a9)' ), env_var,'|', env_value, '(default)'
-          else if (regular) then
-             write( loc_logdev, '(A16,2x,A,2x,e10.3)' ), env_var,'|', env_value
+          if ( loc_logdev .gt. 0 ) then
+             if (default) then
+                write( loc_logdev, '(A16,2x,A,2x,e10.3, 1x, a9)' ), env_var,'|', env_value, '(default)'
+             else if (regular) then
+                write( loc_logdev, '(A16,2x,A,2x,e10.3)' ), env_var,'|', env_value
+             end if
           end if
 
         end subroutine get_env_float
@@ -148,10 +152,12 @@
              regular = .true.
           end if
 
-          if (default) then
-             write( loc_logdev, '(A16,2x,A,2x,e10.3, 1x, a9)' ), env_var,'|', env_value, '(default)'
-          else if (regular) then
-             write( loc_logdev, '(A16,2x,A,2x,e10.3)' ), env_var,'|', env_value
+          if ( loc_logdev .gt. 0 ) then
+             if (default) then
+                write( loc_logdev, '(A16,2x,A,2x,e10.3, 1x, a9)' ), env_var,'|', env_value, '(default)' 
+             else if (regular) then
+                write( loc_logdev, '(A16,2x,A,2x,e10.3)' ), env_var,'|', env_value
+             end if
           end if
 
         end subroutine get_env_double
@@ -187,17 +193,19 @@
              regular = .true.
           end if
 
-          length = len_trim(env_value)
-          if (default) then
-             if (length .eq. 0) then
-                write( loc_logdev, '(A16, 2x, A, 13x, a9)') env_var, '|', '(default)'
-             else
-                write (myfmt, '(a18, i3.3, a9)') '(A16, 2x, A, 2x, A', length, ', 1x, a9)'
-                write( loc_logdev, myfmt) env_var, '|', env_value, '(default)'
+          if ( loc_logdev .gt. 0 ) then
+             length = len_trim(env_value)
+             if (default) then
+                if (length .eq. 0) then
+                   write( loc_logdev, '(A16, 2x, A, 13x, a9)') env_var, '|', '(default)'
+                else
+                   write (myfmt, '(a18, i3.3, a9)') '(A16, 2x, A, 2x, A', length, ', 1x, a9)'
+                   write( loc_logdev, myfmt) env_var, '|', env_value, '(default)'
+                end if
+             else if (regular) then
+                write (myfmt, '(a18, i3.3, a1)') '(A16, 2x, A, 2x, A', length, ')'
+                write( loc_logdev, myfmt) env_var,'|', env_value
              end if
-          else if (regular) then
-             write (myfmt, '(a18, i3.3, a1)') '(A16, 2x, A, 2x, A', length, ')'
-             write( loc_logdev, myfmt) env_var,'|', env_value
           end if
 
         end subroutine get_env_char
@@ -269,16 +277,18 @@
              default = .true.
           end if
 
-          if (default) then
-             write( loc_logdev, '(A16,2x,A,10x,L, 1x, a9)' ), env_var,'|', env_value, '(default)'
-          else if (regular) then
-             write( loc_logdev, '(A16,2x,A,10x,L)' ), env_var,'|', env_value
+          if ( loc_logdev .gt. 0 ) then
+             if (default) then
+                write( loc_logdev, '(A16,2x,A,10x,L, 1x, a9)' ), env_var,'|', env_value, '(default)'
+             else if (regular) then
+                write( loc_logdev, '(A16,2x,A,10x,L)' ), env_var,'|', env_value
+             end if
           end if
 
         end subroutine get_env_logical
 
 ! --------------------------------------------------------------------------------
-        subroutine get_envlist ( env_var, nvars, val_list )
+        subroutine get_envlist ( env_var, nvars, val_list, logdev )
 
 ! get a list env var (quoted string of items delimited by white space,
 ! commas or semi-colons) and parse out the items into variables. Two data
@@ -293,7 +303,7 @@
 ! 6)   setenv BLAY_ELAY "1 5"
 
 ! In example (1), not only parse out the named items "O3", "NO" and "NO2",
-! but also obtain the count on the number of itmes (=3).
+! but also obtain the count on the number of items (=3).
 
 ! Revision: 2013/02/11 David Wong: increased the max env var length from 256 to 1000
 ! 13 Dec 2013 J.Young: 1000 breaks BUFLEN in IOAPI's envgets.c. Change to 512.
@@ -303,6 +313,7 @@
           character( * ),  intent ( in )  :: env_var
           integer,         intent ( out ) :: nvars
           character( 16 ), intent ( out ) :: val_list( : )
+          integer, intent(in), optional :: logdev
 
           integer             :: max_len
           character( 16 )     :: pname = 'GET_ENVLIST'
@@ -313,9 +324,17 @@
           integer :: jp( 16*size( val_list ) ), kp( 16*size( val_list ) ), status
           integer ip, v
 
-          max_len = 16 * size( val_list )
+          integer :: loc_logdev
+ 
+          if (present(logdev)) then
+             loc_logdev = logdev
+          else
+             loc_logdev = 6
+          end if
 
-          call get_env( e_val, env_var, ' ', 6 )
+           max_len = 16 * size( val_list )
+
+          call get_env( e_val, env_var, ' ', loc_logdev )
 
           if ( env_var .eq. " " ) then
              xmsg = 'Environment variable ' // env_var // ' not set'
