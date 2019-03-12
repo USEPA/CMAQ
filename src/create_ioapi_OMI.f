@@ -79,10 +79,10 @@ C...  the photolysis diagnostic file
          P_ALP3D = 0
          P_BET3D = 0
          P_GAM3D = 0
-         XORIG3D = -180.0
-         YORIG3D =  -90.0
-         YCELL3D = 180.0 / REAL( NLAT, 4 )
-         XCELL3D = 360.0 / REAL( NLON, 4 )
+         XORIG3D = -180.0D0
+         YORIG3D =  -90.0D0
+         YCELL3D = REAL( 180.0 / REAL( NLAT, 4 ),8 )
+         XCELL3D = REAL( 360.0 / REAL( NLON, 4 ),8 )
          VGTYP3D = 7
          VGTOP3D = 5000
 

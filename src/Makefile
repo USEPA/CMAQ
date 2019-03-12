@@ -5,7 +5,7 @@ PROGRAM = ro3_mod_env
 ifndef COMPILER
   COMPILER = intel
 # COMPILER = pgi
-# COMPILER = gfort
+# COMPILER = gcc
 endif
  
 ifneq (,$(filter $(debug), TRUE true ))

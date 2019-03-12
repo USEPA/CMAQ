@@ -113,9 +113,9 @@
           CHARACTER( 16 ), INTENT( IN ) :: FILE_NAME  ! name of file 
           INTEGER,         INTENT( IN ) :: JDATE      ! Start date of file, YYYYDDD
         END SUBROUTINE CREATE_EXTEND_OMI
-        subroutine viz_o3totcol ( jdate )
-          integer, intent( in ) :: jdate      ! Julian day of the year (yyyyddd)
-        end subroutine viz_o3totcol
+!       subroutine viz_o3totcol ( jdate )
+!         integer, intent( in ) :: jdate      ! Julian day of the year (yyyyddd)
+!       end subroutine viz_o3totcol
         Subroutine fill( lat, lon, values, limit )
           real( 8 ), intent( in )    :: lat( : )      ! latitude, radians
           real( 8 ), intent( in )    :: lon( : )      ! longitude (0 to 2PI), radians
@@ -399,7 +399,7 @@
         If( jdate_next .ne. JDATE( J ) )Then
 ! write out interpolation values 
               delta_date = Delta_julian( jdate_next, JDATE( J ) )
-              OZ_ADJUST = ( OZ_IOAPI - IOAPI_PREV )/( delta_date  + 1 )
+              OZ_ADJUST = ( OZ_IOAPI - IOAPI_PREV )/REAL( delta_date  + 1 )
               Do ldate = 1, delta_date
                  IOAPI_PREV = OZ_ADJUST + IOAPI_PREV
                  IF ( .NOT. WRITE3( OMI_FILE_NCF, 'OZONE_COLUMN', jdate_next, 0,
@@ -451,21 +451,19 @@
         jdate_prev = jdate( j )
 
         i_ = 0
-        lat_ = 0.0
-        lon_ = 0.0
+        lat_ = 0.0d0
+        lon_ = 0.0d0
         oz_  = 0.0d0
         do 490 i = 1,nlatitude
            i_ = i_ + 1
-           lat_(i_) = lat_omi( i ) ! lat   
-              
+           lat_(i_) = real( lat_omi( i ),8 ) ! lat                 
            j_ = 0
           do 470 k = 1,nlongitude
              j_ = j_ + 1
-            lon_(j_) = lon_omi( k )  ! lon
+             lon_(j_)   = real( lon_omi( k ),8 )  ! lon
              oz_(i_,j_) = max( -1.0d0, oz(i,k) )
 470       continue
 490     continue
-!        pause
         i_max = i_
         j_max = j_
 
@@ -473,7 +471,7 @@
 
         do i = 1, 2*nlatitude-1
            do k = 1, 2*nlongitude
-              oz_extend( k, 2*nlatitude - i  ) = real( oz_expand( i,k ), 4 )
+              oz_extend( k, 2*nlatitude - i  ) = oz_expand( i,k )
            end do
         end do
 
@@ -500,7 +498,7 @@
 !       end do
 
         call extract_o3_cmaq ( jdate(j), yrfrac_(j), lat_expand, lon_expand, oz_expand )
-        call viz_o3totcol ( jdate(j) )
+!       call viz_o3totcol ( jdate(j) )
 
         oz_prev  = oz
 
@@ -628,7 +626,7 @@
          subroutine get_mean()
             Implicit None
             
-            real(8), parameter :: zero_limit = 3.1416
+            real(8), parameter :: zero_limit = 3.1416d0
 
             real(8), allocatable  :: weigth(:,:)
             
@@ -730,6 +728,7 @@
           Stop
 9503      write(6,'(2a)')'Premature File End in ',Trim( OMI_filename(n) )
           write(6,'(a,i7)')'at line number: ',line_number-1
+          print*,'Last line read: ',Trim(file_line)
           write(6,'(a,i7)')'Expected number of lines: ',
      &    nlatitude*int(nlongitude/25)+nlatitude+3
           Stop
@@ -948,59 +947,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
         End Do
       End Function Delta_Julian
 !***********************************************************************
-!***********************************************************************
-      subroutine yrmody_2_yrfrac(year,month,day,yrfrac)
-      implicit none
-
-      integer, intent(in)  :: year,month,day
-      real(8), intent(out) :: yrfrac
-
-      real( 8 ) :: days, days_feb, days_year
-      logical   :: Leap_Year
- 
-      Leap_Year = ( ( mod(year,4) .eq. 0 )
-     &              .And. ( mod(year,100) .ne. 0 )
-     &                 .Or. ( mod(year,400) .eq. 0  ))
-
-      if( Leap_Year )then
-         days_feb = 60.0d0
-         days_year = 366.0d0
-      else
-         days_feb  = 59.0d0
-         days_year = 365.0d0
-      endif
-      select case (month)
-       case(1)
-         days = 0.0d0
-       case(2)
-         days = 31.0d0
-       case(3)
-         days = 31.0d0 + days_feb
-       case(4)
-         days = 62.0d0 + days_feb
-       case(5)
-        days =  92.0d0 + days_feb
-       case(6)
-         days = 123.0d0 + days_feb
-       case(7)
-         days = 153.0d0 + days_feb
-       case(8)
-         days = 184.0d0 + days_feb
-       case(9)
-         days = 215.0d0 + days_feb
-       case(10)
-         days = 245.0d0 + days_feb
-       case(11)
-         days = 276.0d0 + days_feb
-       case(12)
-         days = 306.0d0 + days_feb
-       end select
-       
-!       frac = min((365.d0/366.d0),((real(days,8)+real(day-1,8))/365.d0))
-       yrfrac = real(year,8) + (day+real(day,8)+days)/days_year
-       									
-      return
-      end  subroutine yrmody_2_yrfrac   
+  
       subroutine o3tot_cmaq ( date, latitude, longitude, ozone_omi )
 
 !----------------------------------------------------------------------
@@ -1212,7 +1159,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
               flag( 2 ) = x2 * ( 1.0 - x3 )
             end if
 
-            if ( ozone_omi( ilat+1, jlon ) .le. 0.0 ) then
+            if ( ozone_omi( ilat+1, jlon ) .le. 0.0d0 ) then
 !              ozone_omi( ilat+1, ilon+1 ) = 0.0
               flag( 3 ) = 0.0
             else
@@ -1252,7 +1199,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
 
       do 590 i = 1,nlat          
        write(io_unit,555)date,lat(i),(nint( ozone(i,j) ),j=1,nlon)       
-590   continue	     	
+590   continue
 
       close( io_unit )
       return
@@ -1518,7 +1465,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
       If( jdate_expect .ne. jdate )Then
 ! write interpolated values up to current date
          delta_date = Delta_julian( jdate_expect, jdate )
-         viz_adjust = ( ozone_viz - viz_prev )/(delta_date + 1)
+         viz_adjust = ( ozone_viz - viz_prev )/real(delta_date + 1)
 
          Do j = 1, delta_date
             viz_prev = viz_prev + viz_adjust
@@ -1576,7 +1523,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
           nlat = size( lat )
           nlon = size( lon )
           
-          cut_off = sin( 0.5*limit ) * sin( 0.5*limit )
+          cut_off = sin( 0.5d0*limit ) * sin( 0.5d0*limit )
 
           do i = 1, nlat
              do j = 1, nlon

@@ -79,10 +79,10 @@ C...  the photolysis diagnostic file
          P_ALP3D = 0
          P_BET3D = 0
          P_GAM3D = 0
-         XCELL3D = 360.0 / REAL( NCOLS3D )  ! 22.5 if ncols3d = 16
-         YCELL3D = ABS(LAT(1)-LAT(NROWS3D))/REAL(NROWS3D-1) ! 10.0 if nrows3d = 17
-         XORIG3D = -180.0 
-         YORIG3D = LAT( NROWS3D )
+         XCELL3D = REAL( 360.0 / REAL( NCOLS3D ),8 )                  ! 22.5 if ncols3d = 16
+         YCELL3D = REAL( ABS(LAT(1)-LAT(NROWS3D))/REAL(NROWS3D-1),8 ) ! 10.0 if nrows3d = 17
+         XORIG3D = -180.0D0 
+         YORIG3D = REAL( LAT( NROWS3D ),8 )
          VGTYP3D = 7
          VGTOP3D = 5000
 
