@@ -684,8 +684,8 @@ C Private variables for loading from and unloading to CGRID array
 
 ! Initial Reference Values for M2 and M3 used for Heterogenous Chemistry
 ! Module.
-      REAL( 8 ), ALLOCATABLE :: CHEM_M2DRY_INIT( :,:,:,: ),
-     &                          CHEM_M3DRY_INIT( :,:,:,: )
+      REAL( 8 ), ALLOCATABLE, SAVE :: CHEM_M2DRY_INIT( :,:,:,: ),
+     &                                CHEM_M3DRY_INIT( :,:,:,: )
 
       Contains
 

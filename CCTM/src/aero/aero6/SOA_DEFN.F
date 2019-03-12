@@ -294,6 +294,7 @@ C-----------------------------------------------------------------------
           ! GC Namelist. When a match is found, populate the properties
           ! of that counter species.
           map_ROGtoCGRID = 0
+          ROG_mw = 200.0
           Do spc = 1, n_oa
             If( oaspc( spc )%ctr_name == '' ) Cycle
             g = index1( oaspc( spc )%ctr_name, n_gc_spc, gc_spc )
@@ -970,6 +971,7 @@ C-----------------------------------------------------------------------
 
       ! Compute the number of nonvolatile and total organic compound
       ! moles in the system
+      nsvol    = 0
       totorgnv = sum( sum( aerospc_conc( :,1:2 ),2 ) / aerospc_mw( : ), 
      &                     mask=lnonvol_oa( : ) )  
       totorg   = sum( sum( aerospc_conc( :,1:2 ),2 ) * aerospc_mwinv( : ), 
@@ -977,7 +979,6 @@ C-----------------------------------------------------------------------
 
       ! Calculate the Initial Partitioning of Each Semivolatile
       ! Compound
-      nsvol    = 0
       Do i = 1, n_oa
         n = map_OAtoAERO( i )
         if ( .not.oaspc( i )%nonvol ) Then
@@ -1077,6 +1078,8 @@ C-----------------------------------------------------------------------
               Write( logdev,* ) 'caer less than evapmin for OA species: ', 
      &                              oaspc( i )%name, ' ', caer( nsvol ),
      &                              ' reset to evapmin'
+              ctotf( nsvol ) = ctotf( nsvol ) + max( caer( nsvol ), evapmin )
+     &                           - caer( nsvol )
               caer( nsvol ) = max( caer( nsvol ), evapmin )
            End If
 
