@@ -69,4 +69,8 @@ Runtime Options
 | NLAT_OMI      | Number of latitude points in output. Value should be odd and equal or greater than 17 | 17 |
 | NLON_OMI      | Number of longitude points in output. Value should be odd and equal or greater than 17 | 17 |
 | LAT_BORDER    | Degrees between the first latitude point from adjacent pole. Value cannot be less than observation | 10 |
+| OMI_FULL_DAT  | Raw OMI data (ASCII) | None |
+| OMI_FULL_NCF  | Raw OMI data in IOAPI format for visualation| None |
+| OMI_CMAQ_DAT  | Processed OMI_DAT file (ASCII) for the CMAQ model  | None |
+| OMI_FULL_NCF  | Processed  OMI_DAT in IOAPI format for visualation | None |
 
