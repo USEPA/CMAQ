@@ -2912,12 +2912,8 @@ C   mminlu and num_land_cat are WRF global variables
                            EM_REGIONS( N_EM_RGN )%FILE    = EM_REG_READ( IREAD )%FILE
                            EM_REGIONS( N_EM_RGN )%FILENUM = EM_REG_READ( IREAD )%FILENUM
 
-                           IF ( .NOT. INTERPX( FILENAMES( IFILE ), VNAME3D(IVAR), 
-     &                          PNAME, STARTCOL, ENDCOL, STARTROW, ENDROW, 1, 1,
-     &                          SDATE3D, STIME3D, EM_REG_FAC( 1,1,N_EM_RGN ) ) )
-     &                          CALL M3ERR( PNAME, SDATE3D, STIME3D,
-     &                              'Could not read ' // VNAME //
-     &                              'from ' // FILENAMES( IFILE ) // ' file', .TRUE. )
+                           call interpolate_var (VNAME3D(IVAR), SDATE3D, STIME3D, EM_REG_FAC(:,:,N_EM_RGN))
+
                         END DO
                      END IF
                   ELSE
@@ -2926,12 +2922,7 @@ C   mminlu and num_land_cat are WRF global variables
                      EM_REGIONS( N_EM_RGN ) = EM_REG_READ( IREAD )
                      VNAME = EM_REG_READ( IREAD )%VAR
 
-                     IF ( .NOT. INTERPX( FILENAMES( IFILE ), VNAME, PNAME,
-     &                    STARTCOL, ENDCOL, STARTROW, ENDROW, 1, 1,
-     &                    SDATE3D, STIME3D, EM_REG_FAC( 1,1,N_EM_RGN ) ) )
-     &                    CALL M3ERR( PNAME, SDATE3D, STIME3D,
-     &                        'Could not read ' // VNAME //
-     &                        'from ' // FILENAMES( IFILE ) // ' file', .TRUE. )
+                     call interpolate_var (VNAME, SDATE3D, STIME3D, EM_REG_FAC(:,:,N_EM_RGN))
                   END IF
               END IF
           END DO
