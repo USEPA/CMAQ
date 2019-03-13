@@ -1,1 +1,0 @@
-../../../../CCTM/src/spcs/cgrid_spcs_nml/CGRID_SPCS.F

@@ -164,64 +164,6 @@ C-----------------------------------------------------------------------
                END DO
             END IF
 
-            ! Check Units for Consistency 
-            ! EMIS_GAS_UNITS and EMIS_AER_UNITS are initalized in
-            ! EMIS_VARS
-            DO J = 1,EM_FILE_SURR( ISRM )%LEN
-              ! Check if Diffused Species are on the file list
-              X = INDEX1( EM_FILE_SURR( ISRM )%ARRY( J ), N_MAP_EMIStoCMAQ, 
-     &                    MAP_EMIStoCMAQ( : )%SURR )
-              IF ( X .NE. 0 ) THEN
-                  ! A match has been found
-                  UNITSCK = EM_FILE_SURR( ISRM )%UNITS( J )
-                  CALL UPCASE( UNITSCK )
-
-                  IF ( MAP_EMIStoCMAQ( X )%PHASE .NE. 'GAS' ) THEN
-                     ! Aerosol Species
-                     IF ( EMIS_AER_UNITS( ISRM ) .EQ. 'Unknown' ) 
-     &                    EMIS_AER_UNITS( ISRM ) = UNITSCK
-                     IF ( UNITSCK .NE. EMIS_AER_UNITS( ISRM ) ) THEN
-                         WRITE( XMSG, '(A,A,A,A,A,A)' ), 'The aerosol units for ', 
-     &                          TRIM(EM_FILE_DESC( ISRM )),' are inconsistent: ',
-     &                          TRIM(EMIS_AER_UNITS( ISRM )),' | ',TRIM(UNITSCK)
-                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                     END IF
-
-                     IF ( EMIS_AER_UNITS( ISRM ) .EQ. 'G/S' )   
-     &                    CONVEM_PM_MASS( ISRM ) = MGPG  ! g/s -> ug/s
-                     IF ( EMIS_AER_UNITS( ISRM ) .EQ. 'KG/HR' ) 
-     &                    CONVEM_PM_MASS( ISRM ) = GPKG * MGPG / 3600. ! kg/hr -> ug/s
-                  ELSE
-                     !Gas Species
-                     IF ( EMIS_GAS_UNITS( ISRM ) .EQ. 'Unknown' ) 
-     &                    EMIS_GAS_UNITS( ISRM ) = UNITSCK
-                     IF ( UNITSCK .NE. EMIS_GAS_UNITS( ISRM ) ) THEN
-                         WRITE( XMSG, '(A,A,A,A,A,A)' ), 'The gas units for ', 
-     &                          TRIM(EM_FILE_DESC( ISRM )),' are inconsistent: ',
-     &                          TRIM(EMIS_GAS_UNITS( ISRM )),' | ',TRIM(UNITSCK)
-                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                     END IF
-
-                     IF ( EMIS_GAS_UNITS( ISRM ) .EQ. 'MOLES/S'   .OR.
-     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOLES/SEC' .OR.
-     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOLE/S'    .OR.
-     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOLE/SEC'  .OR.
-     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOL/S'     .OR.
-     &                    EMIS_GAS_UNITS( ISRM ) .EQ. 'MOL/SEC'   
-     &                ) THEN
-                           CONVEM_GAS( ISRM ) = 1.0E-3  ! mol/s -> kmol/s
-                     ELSE
-                         WRITE( XMSG, '(A,A,A,A,A)' ), 'The gas units for ', 
-     &                          TRIM(EM_FILE_DESC( ISRM )),' are not expected: ',
-     &                          TRIM(EMIS_GAS_UNITS( ISRM )),'. They should be MOLE/S.'
-                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                     END IF
-                   END IF
-                 END IF
-
-            END DO
-       
-
          END DO
 
          RETURN

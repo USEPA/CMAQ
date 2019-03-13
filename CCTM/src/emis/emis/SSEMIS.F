@@ -52,7 +52,7 @@ C Position of H2O in sea-salt emission arrays
 C Variables for the sea-salt diagnostic file
       INTEGER :: NSSDIAG                ! number of species in sea-salt
                                         ! diagnostic emission file
-      Real,    ALLOCATABLE, SAVE :: SSOUTM( :,:,:,: )! SeaSpray Mass Emiss Rate [ug/m3/s]
+      Real,    ALLOCATABLE, SAVE :: SSOUTM( :,:,: )  ! SeaSpray Mass Emiss Rate [ug/m3/s]
       Real,    ALLOCATABLE, SAVE :: SSOUTN( :,:,: )  ! SeaSpray Number Emiss Rate [1/m3/s]
       Real,    ALLOCATABLE, SAVE :: SSOUTS( :,:,: )  ! SeaSpray Surface Area Emiss Rate [m2/m3/s]
       REAL,    ALLOCATABLE       :: SSOUTD( : )   ! emission rates
@@ -297,53 +297,39 @@ C Map aerospc data
 
             CALL LOG_MESSAGE( LOGDEV, 'Initialize Sea Spray Aerosol Emissions' )
 
-            ! Map The Sea-Salt Species to the AeroSpc Array
-            ALLOCATE( MAP_SEAtoAERO( NSEA_SPC ) )
-            MAP_SEAtoAERO = 0
-
-            DO ISEA = 1, NSEA_SPC
-
-               ! Map to aerosol chemical species table 
-               ! This is just for retrieving the aerosol density later
-               DO SPC = 1,N_AEROSPC
-                  DO IM = 2,N_MODE
-                     SN = TRIM( SEA_SPC( ISEA )%NAME ) // MODESUFF( IM )
-                     IF ( SN .Eq. AEROSPC( SPC )%NAME( 2 ) .OR.
-     &                    SN .Eq. AEROSPC( SPC )%NAME( 3 ) .OR. 
-     &                    SEA_SPC( ISEA )%NAME .Eq. AEROSPC( SPC )%NAME( 3 ) )
-     &                     MAP_SEAtoAERO( ISEA ) = SPC
-                  End Do
-               End Do
-
-            End Do
- 
             ! Specify H2O in mapping
             KH2O = NSEA_SPC
-
 
 C Populate Master Emissions Map Vector So That Diagnostics 
 C can be printed in EMIS_MAP
             NSSSPC = NSEA_SPC
-            Em_File_Surr( iseasrm )%len = nssspc
-            Allocate( Em_File_Surr( iseasrm )%arry ( nssspc ) )
-            Allocate( Em_File_Surr( iseasrm )%cmaq ( nssspc ) )
-            Allocate( Em_File_Surr( iseasrm )%units( nssspc ) )
-            Allocate( Em_File_Surr( iseasrm )%phase( nssspc ) )
-            Allocate( Em_File_Surr( iseasrm )%mw   ( nssspc ) )
-            Allocate( Em_File_Surr( iseasrm )%used ( nssspc ) )
+            Em_File_Surr( iseasrm )%len = nssspc*2
+            Allocate( Em_File_Surr( iseasrm )%arry ( nssspc*2 ) )
+            Allocate( Em_File_Surr( iseasrm )%units( nssspc*2 ) )
+            Allocate( Em_File_Surr( iseasrm )%mw   ( nssspc*2 ) )
+            Allocate( Em_File_Surr( iseasrm )%used ( nssspc*2 ) )
+            Allocate( Em_File_Surr( iseasrm )%conv ( nssspc*2 ) )
+            Allocate( Em_File_Surr( iseasrm )%basis( nssspc*2 ) )
+            Em_File_Surr( iseasrm )%arry( : ) = 'NOT_AVAILABLE'
             do i = 1,nssspc
-               Em_File_Surr( iseasrm )%arry( i )  = sea_spc(i)%name
-               Em_File_Surr( iseasrm )%cmaq( i )  = sea_spc(i)%name
-               Em_File_Surr( iseasrm )%units( i ) = 'G/S'
-               Em_File_Surr( iseasrm )%phase( i ) = 'AERO'
-               Em_File_Surr( iseasrm )%mw   ( i ) = 0.
-               Em_File_Surr( iseasrm )%used ( i ) = .FALSE.
+              IF ( sea_spc( i )%spcfac(1) .NE. 0.0 .or. i .EQ. nssspc ) 
+     &           Em_File_Surr( iseasrm )%arry( i )  =
+     &                         "PMFINE_" // sea_spc(i)%name
+              IF ( sea_spc( i )%spcfac(2) .NE. 0.0 .or. i .EQ. nssspc ) 
+     &           Em_File_Surr( iseasrm )%arry( i+nssspc )  =
+     &                         "PMCOARSE_" // sea_spc(i)%name
+               Em_File_Surr( iseasrm )%mw   ( i ) = sea_spc(i)%mw
+               Em_File_Surr( iseasrm )%mw   ( i+nssspc ) = sea_spc(i)%mw
             end do
+            Em_File_Surr( iseasrm )%units( : ) = 'G/S'
+            Em_File_Surr( iseasrm )%used ( : ) = .FALSE.
+            Em_File_Surr( iseasrm )%conv ( : ) = 1.0
+            Em_File_Surr( iseasrm )%basis( : ) = 'MASS'
  
 C Allocate SS arrays using NSSSPC value
-            ALLOCATE ( SSOUTM( NSSSPC,N_MODE,NCOLS,NROWS ),
-     &                 SSOUTN( N_MODE,NCOLS,NROWS ),
-     &                 SSOUTS( N_MODE,NCOLS,NROWS ), 
+            ALLOCATE ( SSOUTM( NSSSPC*2,NCOLS,NROWS ),
+     &                 SSOUTN( 2,NCOLS,NROWS ),
+     &                 SSOUTS( 2,NCOLS,NROWS ), 
      &                 SEA_FACTNUM( N_MODE,NCOLS,NROWS ),
      &                 SEA_FACTSRF( N_MODE,NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
@@ -375,7 +361,7 @@ C Allocate diagnostic arrays
 
 C Build diagnostic file write buffer (WRSS_SPC) array
                NSSDIAG = 0
-               DO N = 2, N_MODE
+               DO N = 1, 2
                   DO S = 1, NSSSPC
                      IF ( SEA_SPC( S )%SPCFAC( N ) .GT. 0.0 ) THEN
                         NSSDIAG = NSSDIAG + 1
@@ -388,16 +374,16 @@ C Include H2O
                END DO
 
 C Include Mode NUMBER to diagnostic
-               DO N = 2, N_MODE
-                  NSSDIAG = NSSDIAG + 1
-                  WRSS_SPC( NSSDIAG ) = AEROMODE( N )%NUM_NAME
-               END DO
+               NSSDIAG = NSSDIAG + 1
+               WRSS_SPC( NSSDIAG ) = "NUMFINE"
+               NSSDIAG = NSSDIAG + 1
+               WRSS_SPC( NSSDIAG ) = "NUMCOARSE"
  
 C Include Mode SURFACE_AREA to diagnostic
-               DO N = 2, N_MODE
-                  NSSDIAG = NSSDIAG + 1
-                  WRSS_SPC( NSSDIAG ) = AEROMODE( N )%SRF_NAME
-               END DO
+               NSSDIAG = NSSDIAG + 1
+               WRSS_SPC( NSSDIAG ) = "SRFFINE"
+               NSSDIAG = NSSDIAG + 1
+               WRSS_SPC( NSSDIAG ) = "SRFCOARSE"
 
 C Open the sea-salt emission dignostic file
                IF ( IO_PE_INCLUSIVE ) CALL OPSSEMIS ( STDATE, STTIME, TSTEP, NSSDIAG, WRSS_SPC )
@@ -628,7 +614,7 @@ C Variables for calculating solute mass fraction & size-correction factors
             REAL( 8 ) :: XSW              ! fractional solute weight fraction
 
 C Density of dry sea salt [kg/m3] using volume additivity
-            REAL( 8 )       :: RHOSW( N_MODE )  ! sea-salt particle density at ambient RH [g/m3]
+            REAL( 8 )       :: RHOSW( 2 ) ! sea-salt particle density at ambient RH [g/m3]
 
 C Maximum and minimum diameters for emission-flux integrations [m]
             REAL, PARAMETER :: DPMAX = 20.0E-6 ! upper limit used for the
@@ -717,9 +703,9 @@ C Initialize sea-salt output buffer
                      SST     = max(Met_Data%TSEASFC( C,R ) - 273.15, 0.0 )
                      RLAY1HT = Met_Data%RJACM ( C,R,1 ) / CELLHGT
                   ELSE
-                     DO N = 1, N_MODE
+                     DO N = 1, 2
                         DO S = 1, NSSSPC
-                           SSOUTM( S,N,C,R ) = 0.0
+                           SSOUTM( (N-1)*NSSSPC+S,C,R ) = 0.0
                         END DO
                         SSOUTN( N,C,R ) = 0.0
                         SSOUTS( N,C,R ) = 0.0
@@ -761,9 +747,9 @@ C Calculate solute mass fraction using Equation 1 of Zhang et al.
 
 C Calculate sea-salt-particle density [g/m3] at ambient RH, assuming
 C volume additivity of dry salt plus water
-                  RHOSW( 2 ) = 1.0D+3 
+                  RHOSW( 1 ) = 1.0D+3 
      &                  / ( XSW / SEASPRAY_DENS( 2 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
-                  RHOSW( 3 ) = 1.0D+3 
+                  RHOSW( 2 ) = 1.0D+3 
      &                  / ( XSW / SEASPRAY_DENS( 3 ) + ( 1.0D0 - XSW ) * SPECIFIC_VOL_H2O )
 
 C Set minimum and maximum diameters for integration using the size-
@@ -845,27 +831,26 @@ C scaling for wind speed, dividing by grid-cell height, and multiplying
 C by particle density.  Multiply by chemical speciation factors to
 C obtain speciated mass emissions.
 
-                  ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * REAL( RHOSW( 2 ), 4 )
+                  ESEASJ = VFLXRH * FRACMJ * WDSCALO * RLAY1HT * REAL( RHOSW( 1 ), 4 )
 
-                  ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * REAL( RHOSW( 3 ), 4 )
+                  ESEASK = VFLXRH * FRACMK * WDSCALO * RLAY1HT * REAL( RHOSW( 2 ), 4 )
 
                   DO S = 1, NSSSPC
-                     SSOUTM( S,1,C,R ) = 0.0
                      IF ( S .EQ. KH2O ) THEN    ! Water
-                        SSOUTM( S,2,C,R ) = ESEASJ * REAL( ( 1.0D0 - XSW ), 4 )
-                        SSOUTM( S,3,C,R ) = ESEASK * REAL( ( 1.0D0 - XSW ), 4 )
+                        SSOUTM( S,C,R ) = ESEASJ * REAL( ( 1.0D0 - XSW ), 4 )
+                        SSOUTM( S+NSSSPC,C,R ) = ESEASK * REAL( ( 1.0D0 - XSW ), 4 )
                      ELSE
-                        SSOUTM( S,2,C,R ) = ESEASJ * REAL( XSW, 4 )
+                        SSOUTM( S,C,R ) = ESEASJ * REAL( XSW, 4 )
+     &                                    * SEA_SPC( S )%SPCFAC( 1 )
+                        SSOUTM( S+NSSSPC,C,R ) = ESEASK * REAL( XSW, 4 )
      &                                    * SEA_SPC( S )%SPCFAC( 2 )
-                        SSOUTM( S,3,C,R ) = ESEASK * REAL( XSW, 4 )
-     &                                    * SEA_SPC( S )%SPCFAC( 3 )
                      END IF
 
                   END DO
 
 C Calculate mode-specific 3rd moment emission rates [m3/m3/s]
-                  M3J = ESEASJ * F6PI / REAL( RHOSW( 2 ), 4 )
-                  M3K = ESEASK * F6PI / REAL( RHOSW( 3 ), 4 )
+                  M3J = ESEASJ * F6PI / REAL( RHOSW( 1 ), 4 )
+                  M3K = ESEASK * F6PI / REAL( RHOSW( 2 ), 4 )
 
 C Calculate factors for converting 3rd moment emission rates into number
 C and 2nd moment emission rates.  See Equations 7b and 7c of Binkowski &
@@ -876,9 +861,8 @@ C Roselle (2003)
                   FACTM2K  = EXP( 0.5 * LNSGK * LNSGK ) / DGVKRH 
 
 C Calculate mode-specific emission rates of particle number [1/s]
-                  SSOUTN( 1,C,R ) = 0.0
-                  SSOUTN( 2,C,R ) = M3J * FACTNUMJ
-                  SSOUTN( 3,C,R ) = M3K * FACTNUMK
+                  SSOUTN( 1,C,R ) = M3J * FACTNUMJ
+                  SSOUTN( 2,C,R ) = M3K * FACTNUMK
 
 C Calculate mode-specific dry surface area emission rates [m2/m3/s].  
 C Subtract water from 3rd moment to obtain dry 3rd moment emission rate.  
@@ -886,17 +870,16 @@ C Calculate dry 2nd moment while holding the standard deviation constant.
 C Multiply dry 2nd moment by PI to obtain dry surface area emission rate.
                   WET_M3J = M3J 
                   WET_M2J = M3J * FACTM2J
-                  DRY_M3J = WET_M3J - F6PI * SSOUTM( KH2O,2,C,R ) * 1.0E-06
+                  DRY_M3J = WET_M3J - F6PI * SSOUTM( KH2O,C,R ) * 1.0E-06
                   DRY_M2J = WET_M2J * ( DRY_M3J / WET_M3J ) ** TWO3
 
                   WET_M3K = M3K
                   WET_M2K = M3K * FACTM2K
-                  DRY_M3K = WET_M3K - F6PI * SSOUTM( KH2O,3,C,R ) * 1.0E-06
+                  DRY_M3K = WET_M3K - F6PI * SSOUTM( KH2O+NSSSPC,C,R ) * 1.0E-06
                   DRY_M2K = WET_M2K * ( DRY_M3K / WET_M3K ) ** TWO3
 
-                  SSOUTS( 1,C,R ) = 0.0
-                  SSOUTS( 2,C,R ) = PI * DRY_M2J
-                  SSOUTS( 3,C,R ) = PI * DRY_M2K
+                  SSOUTS( 1,C,R ) = PI * DRY_M2J
+                  SSOUTS( 2,C,R ) = PI * DRY_M2K
 
 ! Propagate Number and Surface Area Scaling Factors back to Emissions
 ! Module so that the sea spray emissions can be scaled appropriately            
@@ -904,27 +887,27 @@ C Multiply dry 2nd moment by PI to obtain dry surface area emission rate.
                   SEA_FACTNUM( 2,C,R ) = FACTNUMJ
                   SEA_FACTNUM( 3,C,R ) = FACTNUMK
                   SEA_FACTSRF( 1,C,R ) = 0.0
-                  SEA_FACTSRF( 2,C,R ) = SSOUTS( 2,C,R ) / M3J
-                  SEA_FACTSRF( 3,C,R ) = SSOUTS( 3,C,R ) / M3K
+                  SEA_FACTSRF( 2,C,R ) = SSOUTS( 1,C,R ) / M3J
+                  SEA_FACTSRF( 3,C,R ) = SSOUTS( 2,C,R ) / M3K
 
 C Update the SSBF array, for writing the diagnostic sea-salt-emission file.
                   IF ( SSEMDIAG ) THEN
                      V = 0
-                     DO N = 2, 3
+                     DO N = 1, 2
                         DO S = 1, NSSSPC
                            IF ( S .EQ. KH2O .OR. SEA_SPC( S )%SPCFAC( N ) .GT. 0 ) THEN
                               V = V + 1
-                              SSOUTD( V ) = SSOUTM( S,N,C,R )
+                              SSOUTD( V ) = SSOUTM( (N-1)*NSSSPC+S,C,R )
                            END IF
                         END DO
                      END DO
 
-                     DO N = 2, 3
+                     DO N = 1, 2
                         V = V + 1
                         SSOUTD( V ) = SSOUTN( N,C,R )
                      END DO
 
-                     DO N = 2, 3
+                     DO N = 1, 2
                         V = V + 1
                         SSOUTD( V ) = SSOUTS( N,C,R )
                      END DO

@@ -93,6 +93,9 @@ c control species
      &                                      gc_wdep_map( : ), ae_wdep_map( : ), nr_wdep_map( : ), tr_wdep_map( : ),
      &                                      gc_conc_map( : ), ae_conc_map( : ), nr_conc_map( : ), tr_conc_map( : )
 
+      LOGICAL :: LTRNS, LDDEP, LWDEP, LCONC, LADVC, LDIFF
+
+
       INTEGER, SAVE              :: N_CGRID_SPC
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME     ( : )
       REAL,    ALLOCATABLE, SAVE :: CGRID_MW       ( : )
@@ -138,11 +141,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
             logical success
             integer, save :: dev_gc_nml, dev_ae_nml, dev_nr_nml, dev_tr_nml
-            integer i, ios
-            integer i1, i2, i3, i4      ! surrogate type 1 counters
-            integer j1, j2              ! surrogate type 2 counters
-            integer k1, k2, k3, k4, k5  ! control type counters
-            integer icall
+            integer i, ios, IGC, IAE, INR, ITR
             character(  1 ), parameter :: bl = ' '
             integer, parameter :: spc_dim = 1000
             logical :: order = .true., found = .true.
@@ -150,106 +149,122 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             INTEGER :: ISPC, IGRID
 
 c namelist variables
+            ! Namelist Registry Format for Gases, Nonractives and Tracers
+            TYPE SPECIES_DATA_REG_1
+                CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
+                REAL            :: MOLWT         ! g mol-1
+                CHARACTER( 16 ) :: ICBC_SURR     ! ICBC Surrogate
+                REAL            :: ICBC_FAC      ! ICBC Scale Factor
+                CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
+                REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
+                CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
+                REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
+                CHARACTER( 16 ) :: AERO_SURR     ! Aerosol Module Surrogate
+                CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
+                CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport?
+                CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
+                CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
+                CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
+            END TYPE SPECIES_DATA_REG_1
 
-            integer n_surr1, n_surr2, n_ctrl
-            character( 256 ) :: type_header, type_matrix( spc_dim )
-            namelist / GC_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
-            namelist / AE_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
-            namelist / NR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
-            namelist / TR_nml / n_surr1, n_surr2, n_ctrl, type_header, type_matrix
-
-
-c intialize the surr1 table
-            character( 4 ) :: surr1( 4 )
-            integer :: surr1_ndx( 4 )
-            integer :: emis_ndx, icbc_ndx, depv_ndx, scav_ndx
-c intialize the surr2 table
-            character( 4 ) :: gc_surr2( 2 )
-            integer :: gc_surr2_ndx( 2 )
-            integer :: g2ae_ndx, g2aq_ndx
-            character( 4 ) :: ae_surr2( 1 ) = (/ 'A2AQ' /)
-            integer :: ae_surr2_ndx( 1 ) = (/ 1 /)
-            integer :: a2aq_ndx
-            character( 4 ) :: nr_surr2( 2 )
-            integer :: nr_surr2_ndx( 2 )
-            integer :: n2ae_ndx, n2aq_ndx
-            character( 4 ) :: tr_surr2( 2 )
-            integer :: tr_surr2_ndx( 2 )
-            integer :: t2ae_ndx, t2aq_ndx
-c intialize the ctrl table
-            character( 4 ) :: ctrl( 5 )
-            integer :: ctrl_ndx( 5 )
-            integer :: trns_ndx, ddep_ndx, wdep_ndx, conc_ndx
-            integer :: adv_ndx, diff_ndx   ! for tr species
-
-c species table structures
-
-            type ( base_type )               :: mc_base
-            type ( surr1_type ), allocatable :: mc_surr1( : )
-            type ( surr2_type ), allocatable :: mc_surr2( : )
-            type ( ctrl_type ),  allocatable :: mc_ctrl ( : )
-
-            type ( base_type )  :: mc_base_init  = base_type ( ' ', 0.0 )
-            type ( surr1_type ) :: mc_surr1_init = surr1_type( ' ', 0, 0.0 )
-            type ( surr2_type ) :: mc_surr2_init = surr2_type( ' ', 0 )
-            type ( ctrl_type )  :: mc_ctrl_init  = ctrl_type ( ' ', 0 )
+            ! Namelist Registry Format for Aerosols
+            TYPE SPECIES_DATA_REG_2
+                CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
+                REAL            :: MOLWT         ! g mol-1
+                CHARACTER( 16 ) :: ICBC_SURR     ! ICBC Surrogate
+                REAL            :: ICBC_FAC      ! ICBC Scale Factor
+                CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
+                REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
+                CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
+                REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
+                CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
+                CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport?
+                CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
+                CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
+                CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
+            END TYPE SPECIES_DATA_REG_2
+ 
+            ! Namelist Registry Format for Tracers
+            TYPE SPECIES_DATA_REG_3
+                CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
+                REAL            :: MOLWT         ! g mol-1
+                CHARACTER( 16 ) :: ICBC_SURR     ! ICBC Surrogate
+                REAL            :: ICBC_FAC      ! ICBC Scale Factor
+                CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
+                REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
+                CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
+                REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
+                CHARACTER( 16 ) :: AERO_SURR     ! Aerosol Module Surrogate
+                CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
+                CHARACTER( 16 ) :: ADVC_FLAG     ! Do Advection?
+                CHARACTER( 16 ) :: DIFF_FLAG     ! Do Dispersion (i.e. Diffusion)?
+                CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
+                CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
+                CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
+            END TYPE SPECIES_DATA_REG_3
+ 
+            TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: GC_SPECIES_DATA(:)
+            TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: AE_SPECIES_DATA(:)
+            TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: NR_SPECIES_DATA(:)
+            TYPE (SPECIES_DATA_REG_3), ALLOCATABLE :: TR_SPECIES_DATA(:)
+ 
+            namelist / GC_NML / GC_SPECIES_DATA
+            namelist / AE_NML / AE_SPECIES_DATA
+            namelist / NR_NML / NR_SPECIES_DATA
+            namelist / TR_NML / TR_SPECIES_DATA
 
 c----------------------------------------------------------------------------------------
             success = .true.
 
             CALL LOG_HEADING( LOGDEV, "Retrieve Species Namelist" )
 
-c from namelist files
-            type_header = bl
-            type_matrix = bl   ! array assignment
-
-            dev_gc_nml = junit()
-            open( file = trim( gc_namelist ), unit = dev_gc_nml,
-     &            status = 'old', position = 'rewind' )
-            read( nml = GC_nml, unit = dev_gc_nml ) 
-
-c create the surr1 table from the namelist header
-            surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
-            surr1( 2 ) = 'DEPV'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
-            surr1( 3 ) = 'SCAV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
-c establish surr1 order in the namelist header (surr1 possibly rearranged)
-            call bubble( 3, surr1_ndx, surr1 )   ! short sort on surr1_ndx
-            icbc_ndx = index1a( 'ICBC', 3, surr1 )
-            depv_ndx = index1a( 'DEPV', 3, surr1 )
-            scav_ndx = index1a( 'SCAV', 3, surr1 )
-
-c create the surr2 table from the namelist header
-            gc_surr2( 1 ) = 'G2AE'; gc_surr2_ndx( 1 ) = index( type_header, trim( gc_surr2( 1 ) ) )
-            gc_surr2( 2 ) = 'G2AQ'; gc_surr2_ndx( 2 ) = index( type_header, trim( gc_surr2( 2 ) ) )
-c establish surr2 order in the namelist header (surr2 possibly rearranged)
-            call bubble( 2, gc_surr2_ndx, gc_surr2 )   ! short sort on surr2_ndx
-            g2ae_ndx = index1a( 'G2AE', 2, gc_surr2 )
-            g2aq_ndx = index1a( 'G2AQ', 2, gc_surr2 )
-
-c create the ctrl table from the namelist header
-            ctrl( 1 ) = 'TRNS'; ctrl_ndx( 1 ) = index( type_header, trim( ctrl( 1 ) ) )
-            ctrl( 2 ) = 'DDEP'; ctrl_ndx( 2 ) = index( type_header, trim( ctrl( 2 ) ) )
-            ctrl( 3 ) = 'WDEP'; ctrl_ndx( 3 ) = index( type_header, trim( ctrl( 3 ) ) )
-            ctrl( 4 ) = 'CONC'; ctrl_ndx( 4 ) = index( type_header, trim( ctrl( 4 ) ) )
-c establish ctrl order in the namelist header (ctrl possibly rearranged)
-            call bubble( 4, ctrl_ndx, ctrl )   ! short sort on ctrl_ndx
-            trns_ndx = index1a( 'TRNS', 4, ctrl )
-            ddep_ndx = index1a( 'DDEP', 4, ctrl )
-            wdep_ndx = index1a( 'WDEP', 4, ctrl )
-            conc_ndx = index1a( 'CONC', 4, ctrl )
-
-c the surrogate and ctrl arrays active dimensions not known a priori
+            ! Gas (GC) Namelist
+            ALLOCATE( GC_SPECIES_DATA( SPC_DIM ), STAT=IOS )
+            GC_SPECIES_DATA%SPECIES_NAME = ''
+            GC_SPECIES_DATA%MOLWT = 0.
+            GC_SPECIES_DATA%ICBC_SURR = ''
+            GC_SPECIES_DATA%ICBC_FAC = 0.
+            GC_SPECIES_DATA%DEPV_SURR = ''
+            GC_SPECIES_DATA%DEPV_FAC = 0.
+            GC_SPECIES_DATA%SCAV_SURR = ''
+            GC_SPECIES_DATA%SCAV_FAC = 0.
+            GC_SPECIES_DATA%AERO_SURR = ''
+            GC_SPECIES_DATA%CLOUD_SURR = ''
+            GC_SPECIES_DATA%TRNS_FLAG = ''
+            GC_SPECIES_DATA%DDEP_FLAG = ''
+            GC_SPECIES_DATA%WDEP_FLAG = ''
+            GC_SPECIES_DATA%CONC_FLAG = ''
+                                                                                             
+            dev_gc_nml = junit()                                                             
+            open( file = trim( gc_namelist ), unit = dev_gc_nml,                             
+     &            status = 'old', position = 'rewind' )                                      
+            read( nml = GC_nml, unit = dev_gc_nml )                                          
+                                                                                             
+            ! Determine Number of Gas Species                                                
+            N_GC_SPC = 0                                                                     
+            DO IGC = 1,SPC_DIM                                                              
+                IF ( GC_SPECIES_DATA( IGC )%SPECIES_NAME .EQ. '' ) EXIT                      
+                N_GC_SPC = IGC
+                IF ( GC_SPECIES_DATA( IGC )%ICBC_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%ICBC_FAC = 0.
+                IF ( GC_SPECIES_DATA( IGC )%DEPV_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%DEPV_FAC = 0.
+                IF ( GC_SPECIES_DATA( IGC )%SCAV_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%SCAV_FAC = 0.
+            END DO                                                                           
+                                                                                             
+            ! Allocate and Initialize Permanent Variables
             allocate ( 
-     &      gc_spc( spc_dim ), gc_molwt( spc_dim ),
-     &      gc_icbc( spc_dim ), gc_icbc_map( spc_dim ), gc_icbc_fac( spc_dim ),
-     &      gc_depv( spc_dim ), gc_depv_map( spc_dim ), gc_depv_fac( spc_dim ),
-     &      gc_scav( spc_dim ), gc_scav_map( spc_dim ), gc_scav_fac( spc_dim ),
-     &      gc_g2ae( spc_dim ), gc_g2ae_map( spc_dim ),
-     &      gc_g2aq( spc_dim ), gc_g2aq_map( spc_dim ),
-     &      gc_trns( spc_dim ), gc_trns_map( spc_dim ),
-     &      gc_ddep( spc_dim ), gc_ddep_map( spc_dim ),
-     &      gc_wdep( spc_dim ), gc_wdep_map( spc_dim ),
-     &      gc_conc( spc_dim ), gc_conc_map( spc_dim ),
+     &      gc_spc( n_gc_spc+1 ), gc_molwt( n_gc_spc+1 ),
+     &      gc_icbc( n_gc_spc+1 ), gc_icbc_map( n_gc_spc+1 ), gc_icbc_fac( n_gc_spc+1 ),
+     &      gc_depv( n_gc_spc+1 ), gc_depv_map( n_gc_spc+1 ), gc_depv_fac( n_gc_spc+1 ),
+     &      gc_scav( n_gc_spc+1 ), gc_scav_map( n_gc_spc+1 ), gc_scav_fac( n_gc_spc+1 ),
+     &      gc_g2ae( n_gc_spc+1 ), gc_g2ae_map( n_gc_spc+1 ),
+     &      gc_g2aq( n_gc_spc+1 ), gc_g2aq_map( n_gc_spc+1 ),
+     &      gc_trns( n_gc_spc+1 ), gc_trns_map( n_gc_spc+1 ),
+     &      gc_ddep( n_gc_spc+1 ), gc_ddep_map( n_gc_spc+1 ),
+     &      gc_wdep( n_gc_spc+1 ), gc_wdep_map( n_gc_spc+1 ),
+     &      gc_conc( n_gc_spc+1 ), gc_conc_map( n_gc_spc+1 ),
      &      stat = ios )
 
             gc_spc = bl; gc_molwt = 0.0                        !  .
@@ -263,162 +278,140 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             gc_wdep = bl; gc_wdep_map = 0                      !  .
             gc_conc = bl; gc_conc_map = 0                      !  .
 
-            allocate ( mc_surr1( n_surr1 ),
-     &                 mc_surr2( n_surr2 ),
-     &                 mc_ctrl( n_ctrl ), stat = ios )
 
-            mc_base  = mc_base_init    ! structure assignment
-            mc_surr1 = mc_surr1_init   ! array structure assignment
-            mc_surr2 = mc_surr2_init   ! array structure assignment
-            mc_ctrl  = mc_ctrl_init    ! array structure assignment
+            ! Pass Data from GC Namelist to Internal Variables
+            N_GC_ICBC = 0; N_GC_DEPV = 0; N_GC_SCAV = 0
+            N_GC_G2AE = 0; N_GC_G2AQ = 0; N_GC_TRNS = 0; N_GC_DDEP = 0; N_GC_WDEP = 0
+            N_GC_CONC = 0
 
-            i1 = 0; i2 = 0; i3 = 0; i4 = 0
-            j1 = 0; j2 = 0
-            k1 = 0; k2 = 0; k3 = 0; k4 = 0
-            icall = 0
-            
-            do i = 1, spc_dim
-               if ( type_matrix( i ) .eq. bl ) then
-                  n_gc_spc = i - 1; exit
-               end if
-               call get_list( icall, type_matrix( i ), mc_base,
-     &                        n_surr1, mc_surr1, n_surr2, mc_surr2,
-     &                        n_ctrl, mc_ctrl )
-               gc_spc( i ) = mc_base%name
-               gc_molwt( i ) = mc_base%mw
+            DO IGC = 1,N_GC_SPC
+                
+                GC_SPC( IGC )      = GC_SPECIES_DATA( IGC )%SPECIES_NAME
+                GC_MOLWT( IGC )    = GC_SPECIES_DATA( IGC )%MOLWT
 
-               if ( icbc_ndx .gt. 0 ) then
-                  if ( mc_surr1( icbc_ndx )%name .ne. bl ) then
-                     i2 = i2 + 1
-                     gc_icbc( i2 )     = mc_surr1( icbc_ndx )%name
-                     gc_icbc_map( i2 ) = mc_surr1( icbc_ndx )%map
-                     gc_icbc_fac( i2 ) = mc_surr1( icbc_ndx )%fac
-                  end if
-               end if
-               if ( depv_ndx .gt. 0 ) then
-                  if ( mc_surr1( depv_ndx )%name .ne. bl ) then
-                     i3 = i3 + 1
-                     gc_depv( i3 )     = mc_surr1( depv_ndx )%name
-                     gc_depv_map( i3 ) = mc_surr1( depv_ndx )%map
-                     gc_depv_fac( i3 ) = mc_surr1( depv_ndx )%fac
-                  end if
-               end if
-               if ( scav_ndx .gt. 0 ) then
-                  if ( mc_surr1( scav_ndx )%name .ne. bl ) then
-                     i4 = i4 + 1
-                     gc_scav( i4 )     = mc_surr1( scav_ndx )%name
-                     gc_scav_map( i4 ) = mc_surr1( scav_ndx )%map
-                     gc_scav_fac( i4 ) = mc_surr1( scav_ndx )%fac
-                  end if
-               end if
-
-               if ( g2ae_ndx .ne. 0 ) then
-                  if ( mc_surr2( g2ae_ndx )%name .ne. bl ) then
-                     j1 = j1 + 1
-                     gc_g2ae( j1 )     = mc_surr2( g2ae_ndx )%name
-                     gc_g2ae_map( j1 ) = mc_surr2( g2ae_ndx )%map
-                  end if
-              end if
-               if ( g2aq_ndx .ne. 0 ) then
-                  if ( mc_surr2( g2aq_ndx )%name .ne. bl ) then
-                     j2 = j2 + 1
-                     gc_g2aq( j2 )     = mc_surr2( g2aq_ndx )%name
-                     gc_g2aq_map( j2 ) = mc_surr2( g2aq_ndx )%map
-                  end if
-               end if
-
-               if ( trns_ndx .ne. 0 ) then
-                  if ( mc_ctrl( trns_ndx )%name .ne. bl ) then
-                     k1 = k1 + 1
-                     gc_trns( k1 )     = mc_ctrl( trns_ndx )%name
-                     gc_trns_map( k1 ) = mc_ctrl( trns_ndx )%map
-                  end if
-               end if
-               if ( ddep_ndx .ne. 0 ) then
-                  if ( mc_ctrl( ddep_ndx )%name .ne. bl ) then
-                     k2 = k2 + 1
-                     gc_ddep( k2 )     = mc_ctrl( ddep_ndx )%name
-                     gc_ddep_map( k2 ) = mc_ctrl( ddep_ndx )%map
-                  end if
-               end if
-               if ( wdep_ndx .ne. 0 ) then
-                  if ( mc_ctrl( wdep_ndx )%name .ne. bl ) then
-                     k3 = k3 + 1
-                     gc_wdep( k3 )     = mc_ctrl( wdep_ndx )%name
-                     gc_wdep_map( k3 ) = mc_ctrl( wdep_ndx )%map
-                  end if
-               end if
-               if ( conc_ndx .ne. 0 ) then
-                  if ( mc_ctrl( conc_ndx )%name .ne. bl ) then
-                     k4 = k4 + 1
-                     gc_conc( k4 )     = mc_ctrl( conc_ndx )%name
-                     gc_conc_map( k4 ) = mc_ctrl( conc_ndx )%map
-                  end if
-               end if
-            end do
-
-            n_gc_icbc = i2
-            n_gc_depv = i3
-            n_gc_scav = i4
-            n_gc_g2ae = j1
-            n_gc_g2aq = j2
-            n_gc_trns = k1
-            n_gc_ddep = k2
-            n_gc_wdep = k3
-            n_gc_conc = k4
-
+                ! Gas ICBCs
+                IF ( GC_SPECIES_DATA( IGC )%ICBC_SURR .NE. '' ) THEN
+                    N_GC_ICBC = N_GC_ICBC + 1
+                    GC_ICBC( N_GC_ICBC )     = GC_SPECIES_DATA( IGC )%ICBC_SURR 
+                    GC_ICBC_MAP( N_GC_ICBC ) = IGC
+                    GC_ICBC_FAC( N_GC_ICBC ) = GC_SPECIES_DATA( IGC )%ICBC_FAC
+                END IF
+                
+                ! Gas Dry Deposition Surrogates
+                IF ( GC_SPECIES_DATA( IGC )%DEPV_SURR .NE. '' ) THEN
+                    N_GC_DEPV = N_GC_DEPV + 1
+                    GC_DEPV( N_GC_DEPV )     = GC_SPECIES_DATA( IGC )%DEPV_SURR 
+                    GC_DEPV_MAP( N_GC_DEPV ) = IGC
+                    GC_DEPV_FAC( N_GC_DEPV ) = GC_SPECIES_DATA( IGC )%DEPV_FAC
+                END IF
                  
-            gc_fini = gc_strt + n_gc_spc - 1
-            n_gc_spcd = gc_fini + 1
+                ! Gas Wet Scavenging Surrogates
+                IF ( GC_SPECIES_DATA( IGC )%SCAV_SURR .NE. '' ) THEN
+                    N_GC_SCAV = N_GC_SCAV + 1
+                    GC_SCAV( N_GC_SCAV )     = GC_SPECIES_DATA( IGC )%SCAV_SURR 
+                    GC_SCAV_MAP( N_GC_SCAV ) = IGC
+                    GC_SCAV_FAC( N_GC_SCAV ) = GC_SPECIES_DATA( IGC )%SCAV_FAC
+                END IF
+                
+                ! Gas -to-Aerosol Module Surrogates
+                IF ( GC_SPECIES_DATA( IGC )%AERO_SURR .NE. '' ) THEN
+                    N_GC_G2AE = N_GC_G2AE + 1
+                    GC_G2AE( N_GC_G2AE )     = GC_SPECIES_DATA( IGC )%AERO_SURR 
+                    GC_G2AE_MAP( N_GC_G2AE ) = IGC
+                END IF
+                
+                ! Gas -to-Cloud Chemistry Surrogates
+                IF ( GC_SPECIES_DATA( IGC )%CLOUD_SURR .NE. '' ) THEN
+                    N_GC_G2AQ = N_GC_G2AQ + 1
+                    GC_G2AQ( N_GC_G2AQ )     = GC_SPECIES_DATA( IGC )%CLOUD_SURR 
+                    GC_G2AQ_MAP( N_GC_G2AQ ) = IGC
+                END IF
+                
+                ! Gas - Perform Transport
+                LTRNS = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%TRNS_FLAG )
+                IF ( LTRNS ) THEN
+                    N_GC_TRNS = N_GC_TRNS + 1
+                    GC_TRNS( N_GC_TRNS )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
+                    GC_TRNS_MAP( N_GC_TRNS ) = IGC
+                END IF
+                
+                ! Gas - Output Deposition Velocity
+                LDDEP = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%DDEP_FLAG )
+                IF ( LDDEP ) THEN
+                    N_GC_DDEP = N_GC_DDEP + 1
+                    GC_DDEP( N_GC_DDEP )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
+                    GC_DDEP_MAP( N_GC_DDEP ) = IGC
+                END IF
+                
+                ! Gas - Output Wet Scavenging Flux
+                LWDEP = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%WDEP_FLAG )
+                IF ( LWDEP ) THEN
+                    N_GC_WDEP = N_GC_WDEP + 1
+                    GC_WDEP( N_GC_WDEP )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
+                    GC_WDEP_MAP( N_GC_WDEP ) = IGC
+                END IF
+                
+                ! Gas - Output Concentration Field
+                LCONC = GET_LOGICAL_NML( GC_SPECIES_DATA( IGC )%CONC_FLAG )
+                IF ( LCONC ) THEN
+                    N_GC_CONC = N_GC_CONC + 1
+                    GC_CONC( N_GC_CONC )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
+                    GC_CONC_MAP( N_GC_CONC ) = IGC
+                END IF
+                
+            END DO
 
-            deallocate ( mc_surr1, mc_surr2, mc_ctrl, stat = ios )
+            GC_FINI   = GC_STRT + N_GC_SPC - 1
+            N_GC_SPCD = GC_FINI + 1
 
-            type_header = bl
-            type_matrix = bl   ! array assignment
+
+
+            ! Aerosol (AE) Namelist
+            ALLOCATE( AE_SPECIES_DATA( SPC_DIM ), STAT=IOS )
+            AE_SPECIES_DATA%SPECIES_NAME = ''
+            AE_SPECIES_DATA%MOLWT = 0.
+            AE_SPECIES_DATA%ICBC_SURR = ''
+            AE_SPECIES_DATA%ICBC_FAC = 0.
+            AE_SPECIES_DATA%DEPV_SURR = ''
+            AE_SPECIES_DATA%DEPV_FAC = 0.
+            AE_SPECIES_DATA%SCAV_SURR = ''
+            AE_SPECIES_DATA%SCAV_FAC = 0.
+            AE_SPECIES_DATA%CLOUD_SURR = ''
+            AE_SPECIES_DATA%TRNS_FLAG = ''
+            AE_SPECIES_DATA%DDEP_FLAG = ''
+            AE_SPECIES_DATA%WDEP_FLAG = ''
+            AE_SPECIES_DATA%CONC_FLAG = ''
+                                                                                             
 
             dev_ae_nml = junit()
             open( file = trim( ae_namelist ), unit = dev_ae_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = AE_nml, unit = dev_ae_nml ) 
 
-c create the surr1 table from the namelist header
-            surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
-            surr1( 2 ) = 'DEPV'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
-            surr1( 3 ) = 'SCAV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
-c establish surr1 order in the namelist header (surr1 possibly rearranged)
-            call bubble( 3, surr1_ndx, surr1 )   ! short sort on surr1_ndx
-            icbc_ndx = index1a( 'ICBC', 3, surr1 )
-            depv_ndx = index1a( 'DEPV', 3, surr1 )
-            scav_ndx = index1a( 'SCAV', 3, surr1 )
+            ! Determine Number of Gas Species
+            N_AE_SPC = 0
+            DO IAE = 1,SPC_DIM
+                IF ( AE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
+                N_AE_SPC = IAE
+                IF ( AE_SPECIES_DATA( IAE )%ICBC_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%ICBC_FAC = 0.
+                IF ( AE_SPECIES_DATA( IAE )%DEPV_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%DEPV_FAC = 0.
+                IF ( AE_SPECIES_DATA( IAE )%SCAV_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%SCAV_FAC = 0.
+            END DO
 
-c create the surr2 table from the namelist header
-            ae_surr2_ndx( 1 ) = index( type_header, 'A2AQ' )
-c establish surr2 order in the namelist header
-            a2aq_ndx = 1
-
-c create the ctrl table from the namelist header
-            ctrl( 1 ) = 'TRNS'; ctrl_ndx( 1 ) = index( type_header, trim( ctrl( 1 ) ) )
-            ctrl( 2 ) = 'DDEP'; ctrl_ndx( 2 ) = index( type_header, trim( ctrl( 2 ) ) )
-            ctrl( 3 ) = 'WDEP'; ctrl_ndx( 3 ) = index( type_header, trim( ctrl( 3 ) ) )
-            ctrl( 4 ) = 'CONC'; ctrl_ndx( 4 ) = index( type_header, trim( ctrl( 4 ) ) )
-c establish ctrl order in the namelist header (ctrl possibly rearranged)
-            call bubble( 4, ctrl_ndx, ctrl )   ! short sort on ctrl_ndx
-            trns_ndx = index1a( 'TRNS', 4, ctrl )
-            ddep_ndx = index1a( 'DDEP', 4, ctrl )
-            wdep_ndx = index1a( 'WDEP', 4, ctrl )
-            conc_ndx = index1a( 'CONC', 4, ctrl )
-
-c the surrogate and ctrl arrays active dimensions not known a priori
+            ! Allocate and Initialize Permanent Variables
             allocate ( 
-     &      ae_spc( spc_dim ), ae_molwt( spc_dim ),
-     &      ae_icbc( spc_dim ), ae_icbc_map( spc_dim ), ae_icbc_fac( spc_dim ),
-     &      ae_depv( spc_dim ), ae_depv_map( spc_dim ), ae_depv_fac( spc_dim ),
-     &      ae_scav( spc_dim ), ae_scav_map( spc_dim ), ae_scav_fac( spc_dim ),
-     &      ae_a2aq( spc_dim ), ae_a2aq_map( spc_dim ),
-     &      ae_trns( spc_dim ), ae_trns_map( spc_dim ),
-     &      ae_ddep( spc_dim ), ae_ddep_map( spc_dim ),
-     &      ae_wdep( spc_dim ), ae_wdep_map( spc_dim ),
-     &      ae_conc( spc_dim ), ae_conc_map( spc_dim ),
+     &      ae_spc( n_ae_spc ), ae_molwt( n_ae_spc ),
+     &      ae_icbc( n_ae_spc ), ae_icbc_map( n_ae_spc ), ae_icbc_fac( n_ae_spc ),
+     &      ae_depv( n_ae_spc ), ae_depv_map( n_ae_spc ), ae_depv_fac( n_ae_spc ),
+     &      ae_scav( n_ae_spc ), ae_scav_map( n_ae_spc ), ae_scav_fac( n_ae_spc ),
+     &      ae_a2aq( n_ae_spc ), ae_a2aq_map( n_ae_spc ),
+     &      ae_trns( n_ae_spc ), ae_trns_map( n_ae_spc ),
+     &      ae_ddep( n_ae_spc ), ae_ddep_map( n_ae_spc ),
+     &      ae_wdep( n_ae_spc ), ae_wdep_map( n_ae_spc ),
+     &      ae_conc( n_ae_spc ), ae_conc_map( n_ae_spc ),
      &      stat = ios )
 
             ae_spc = bl; ae_molwt = 0.0                        !  .
@@ -431,465 +424,391 @@ c the surrogate and ctrl arrays active dimensions not known a priori
             ae_wdep = bl; ae_wdep_map = 0                      !  .
             ae_conc = bl; ae_conc_map = 0                      !  .
 
-            allocate ( mc_surr1( n_surr1 ),
-     &                 mc_surr2( n_surr2 ),
-     &                 mc_ctrl( n_ctrl ), stat = ios )
+            ! Pass Data from AE Namelist to Internal Variables
+            N_AE_ICBC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
+            N_AE_A2AQ = 0; N_AE_TRNS = 0; N_AE_DDEP = 0; N_AE_WDEP = 0
+            N_AE_CONC = 0
 
-            mc_base  = mc_base_init    ! structure assignment
-            mc_surr1 = mc_surr1_init   ! array structure assignment
-            mc_surr2 = mc_surr2_init   ! array structure assignment
-            mc_ctrl  = mc_ctrl_init    ! array structure assignment
+            DO IAE = 1,N_AE_SPC
 
-            i1 = 0; i2 = 0; i3 = 0; i4 = 0
-            j1 = 0; j2 = 0
-            k1 = 0; k2 = 0; k3 = 0; k4 = 0
-            icall = 0
-            
-            do i = 1, spc_dim
-               if ( type_matrix( i ) .eq. bl ) then
-                  n_ae_spc = i - 1
-                  exit
-               end if
-               call get_list( icall, type_matrix( i ), mc_base,
-     &                        n_surr1, mc_surr1, n_surr2, mc_surr2,
-     &                        n_ctrl, mc_ctrl )
-               ae_spc( i ) = mc_base%name
-               ae_molwt( i ) = mc_base%mw
+                AE_SPC( IAE )      = AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                AE_MOLWT( IAE )    = AE_SPECIES_DATA( IAE )%MOLWT
 
-               if ( icbc_ndx .ne. 0 ) then
-                  if ( mc_surr1( icbc_ndx )%name .ne. bl ) then
-                     i2 = i2 + 1
-                     ae_icbc( i2 )     = mc_surr1( icbc_ndx )%name
-                     ae_icbc_map( i2 ) = mc_surr1( icbc_ndx )%map
-                     ae_icbc_fac( i2 ) = mc_surr1( icbc_ndx )%fac
-                  end if
-               end if
-               if ( depv_ndx .ne. 0 ) then
-                  if ( mc_surr1( depv_ndx )%name .ne. bl ) then
-                     i3 = i3 + 1
-                     ae_depv( i3 )     = mc_surr1( depv_ndx )%name
-                     ae_depv_map( i3 ) = mc_surr1( depv_ndx )%map
-                     ae_depv_fac( i3 ) = mc_surr1( depv_ndx )%fac
-                  end if
-               end if
-               if ( scav_ndx .ne. 0 ) then
-                  if ( mc_surr1( scav_ndx )%name .ne. bl ) then
-                     i4 = i4 + 1
-                     ae_scav( i4 )     = mc_surr1( scav_ndx )%name
-                     ae_scav_map( i4 ) = mc_surr1( scav_ndx )%map
-                     ae_scav_fac( i4 ) = mc_surr1( scav_ndx )%fac
-                  end if
-               end if
+                ! Aerosol ICBCs
+                IF ( AE_SPECIES_DATA( IAE )%ICBC_SURR .NE. '' ) THEN
+                    N_AE_ICBC = N_AE_ICBC + 1
+                    AE_ICBC( N_AE_ICBC )     = AE_SPECIES_DATA( IAE )%ICBC_SURR 
+                    AE_ICBC_MAP( N_AE_ICBC ) = IAE
+                    AE_ICBC_FAC( N_AE_ICBC ) = AE_SPECIES_DATA( IAE )%ICBC_FAC
+                END IF
+                
+                ! Aerosol Dry Deposition Surrogates
+                IF ( AE_SPECIES_DATA( IAE )%DEPV_SURR .NE. '' ) THEN
+                    N_AE_DEPV = N_AE_DEPV + 1
+                    AE_DEPV( N_AE_DEPV )     = AE_SPECIES_DATA( IAE )%DEPV_SURR 
+                    AE_DEPV_MAP( N_AE_DEPV ) = IAE
+                    AE_DEPV_FAC( N_AE_DEPV ) = AE_SPECIES_DATA( IAE )%DEPV_FAC
+                END IF
+                 
+                ! Aerosol Wet Scavenging Surrogates
+                IF ( AE_SPECIES_DATA( IAE )%SCAV_SURR .NE. '' ) THEN
+                    N_AE_SCAV = N_AE_SCAV + 1
+                    AE_SCAV( N_AE_SCAV )     = AE_SPECIES_DATA( IAE )%SCAV_SURR 
+                    AE_SCAV_MAP( N_AE_SCAV ) = IAE
+                    AE_SCAV_FAC( N_AE_SCAV ) = AE_SPECIES_DATA( IAE )%SCAV_FAC
+                END IF
+                
+                ! Aerosol -to-Cloud Chemistry Surrogates
+                IF ( AE_SPECIES_DATA( IAE )%CLOUD_SURR .NE. '' ) THEN
+                    N_AE_A2AQ = N_AE_A2AQ + 1
+                    AE_A2AQ( N_AE_A2AQ )     = AE_SPECIES_DATA( IAE )%CLOUD_SURR 
+                    AE_A2AQ_MAP( N_AE_A2AQ ) = IAE
+                END IF
+                
+                ! Aerosol - Perform Transport
+                LTRNS = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%TRNS_FLAG )
+                IF ( LTRNS ) THEN
+                    N_AE_TRNS = N_AE_TRNS + 1
+                    AE_TRNS( N_AE_TRNS )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                    AE_TRNS_MAP( N_AE_TRNS ) = IAE
+                END IF
+                
+                ! Aerosol - Output Deposition Velocity
+                LDDEP = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%DDEP_FLAG )
+                IF ( LDDEP ) THEN
+                    N_AE_DDEP = N_AE_DDEP + 1
+                    AE_DDEP( N_AE_DDEP )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                    AE_DDEP_MAP( N_AE_DDEP ) = IAE
+                END IF
+                
+                ! Aerosol - Output Wet Scavenging Flux
+                LWDEP = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%WDEP_FLAG )
+                IF ( LWDEP ) THEN
+                    N_AE_WDEP = N_AE_WDEP + 1
+                    AE_WDEP( N_AE_WDEP )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                    AE_WDEP_MAP( N_AE_WDEP ) = IAE
+                END IF
+                
+                ! Aerosol - Output Concentration Field
+                LCONC = GET_LOGICAL_NML( AE_SPECIES_DATA( IAE )%CONC_FLAG )
+                IF ( LCONC ) THEN
+                    N_AE_CONC = N_AE_CONC + 1
+                    AE_CONC( N_AE_CONC )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                    AE_CONC_MAP( N_AE_CONC ) = IAE
+                END IF
+                
+            END DO
 
-               if ( a2aq_ndx .ne. 0 ) then
-                  if ( mc_surr2( a2aq_ndx )%name .ne. bl ) then
-                     j2 = j2 + 1
-                     ae_a2aq( j2 )     = mc_surr2( a2aq_ndx )%name
-                     ae_a2aq_map( j2 ) = mc_surr2( a2aq_ndx )%map
-                  end if
-               end if
+            AE_STRT   = GC_FINI + 2
+            AE_FINI   = AE_STRT + N_AE_SPC - 1
+ 
 
-               if ( trns_ndx .ne. 0 ) then
-                  if ( mc_ctrl( trns_ndx )%name .ne. bl ) then
-                     k1 = k1 + 1
-                     ae_trns( k1 )     = mc_ctrl( trns_ndx )%name
-                     ae_trns_map( k1 ) = mc_ctrl( trns_ndx )%map
-                  end if
-               end if
-               if ( ddep_ndx .ne. 0 ) then
-                  if ( mc_ctrl( ddep_ndx )%name .ne. bl ) then
-                     k2 = k2 + 1
-                     ae_ddep( k2 )     = mc_ctrl( ddep_ndx )%name
-                     ae_ddep_map( k2 ) = mc_ctrl( ddep_ndx )%map
-                  end if
-               end if
-               if ( wdep_ndx .ne. 0 ) then
-                  if ( mc_ctrl( wdep_ndx )%name .ne. bl ) then
-                     k3 = k3 + 1
-                     ae_wdep( k3 )     = mc_ctrl( wdep_ndx )%name
-                     ae_wdep_map( k3 ) = mc_ctrl( wdep_ndx )%map
-                  end if
-               end if
-               if ( conc_ndx .ne. 0 ) then
-                  if ( mc_ctrl( conc_ndx )%name .ne. bl ) then
-                     k4 = k4 + 1
-                     ae_conc( k4 )     = mc_ctrl( conc_ndx )%name
-                     ae_conc_map( k4 ) = mc_ctrl( conc_ndx )%map
-                  end if
-               end if
-            end do
 
-            n_ae_icbc = i2
-            n_ae_depv = i3
-            n_ae_scav = i4
-            n_ae_a2aq = j2
-            n_ae_trns = k1
-            n_ae_ddep = k2
-            n_ae_wdep = k3
-            n_ae_conc = k4
-
-            ae_strt = gc_fini + 2
-            ae_fini = ae_strt + n_ae_spc - 1
-
-            deallocate ( mc_surr1, mc_surr2, mc_ctrl, stat = ios )
-
-            type_header = bl
-            type_matrix = bl   ! array assignment
+            ! Nonreactive (NR) Namelist
+            ALLOCATE( NR_SPECIES_DATA( SPC_DIM ), STAT=IOS )
+            NR_SPECIES_DATA%SPECIES_NAME = ''
+            NR_SPECIES_DATA%MOLWT = 0.
+            NR_SPECIES_DATA%ICBC_SURR = ''
+            NR_SPECIES_DATA%ICBC_FAC = 0.
+            NR_SPECIES_DATA%DEPV_SURR = ''
+            NR_SPECIES_DATA%DEPV_FAC = 0.
+            NR_SPECIES_DATA%SCAV_SURR = ''
+            NR_SPECIES_DATA%SCAV_FAC = 0.
+            NR_SPECIES_DATA%AERO_SURR = ''
+            NR_SPECIES_DATA%CLOUD_SURR = ''
+            NR_SPECIES_DATA%TRNS_FLAG = ''
+            NR_SPECIES_DATA%DDEP_FLAG = ''
+            NR_SPECIES_DATA%WDEP_FLAG = ''
+            NR_SPECIES_DATA%CONC_FLAG = ''
 
             dev_nr_nml = junit()
             open( file = trim( nr_namelist ), unit = dev_nr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = NR_nml, unit = dev_nr_nml ) 
+           
+            ! Determine Number of Gas Species
+            N_NR_SPC = 0
+            DO INR = 1,SPC_DIM
+                IF ( NR_SPECIES_DATA( INR )%SPECIES_NAME .EQ. '' ) EXIT
+                N_NR_SPC = INR
+                IF ( NR_SPECIES_DATA( INR )%ICBC_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%ICBC_FAC = 0.
+                IF ( NR_SPECIES_DATA( INR )%DEPV_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%DEPV_FAC = 0.
+                IF ( NR_SPECIES_DATA( INR )%SCAV_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%SCAV_FAC = 0.
+            END DO
 
-c create the surr1 table from the namelist header
-            surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
-            surr1( 2 ) = 'DEPV'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
-            surr1( 3 ) = 'SCAV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
-c establish surr1 order in the namelist header (surr1 possibly rearranged)
-            call bubble( 3, surr1_ndx, surr1 )   ! short sort on surr1_ndx
-            icbc_ndx = index1a( 'ICBC', 3, surr1 )
-            depv_ndx = index1a( 'DEPV', 3, surr1 )
-            scav_ndx = index1a( 'SCAV', 3, surr1 )
-
-c create the surr2 table from the namelist header
-            nr_surr2( 1 ) = 'N2AE'; nr_surr2_ndx( 1 ) = index( type_header, trim( nr_surr2( 1 ) ) )
-            nr_surr2( 2 ) = 'N2AQ'; nr_surr2_ndx( 2 ) = index( type_header, trim( nr_surr2( 2 ) ) )
-c establish surr2 order in the namelist header (surr2 possibly rearranged)
-            call bubble( 2, nr_surr2_ndx, nr_surr2 )   ! short sort on surr2_ndx
-            n2ae_ndx = index1a( 'N2AE', 2, nr_surr2 )
-            n2aq_ndx = index1a( 'N2AQ', 2, nr_surr2 )
-
-c create the ctrl table from the namelist header
-            ctrl( 1 ) = 'TRNS'; ctrl_ndx( 1 ) = index( type_header, trim( ctrl( 1 ) ) )
-            ctrl( 2 ) = 'DDEP'; ctrl_ndx( 2 ) = index( type_header, trim( ctrl( 2 ) ) )
-            ctrl( 3 ) = 'WDEP'; ctrl_ndx( 3 ) = index( type_header, trim( ctrl( 3 ) ) )
-            ctrl( 4 ) = 'CONC'; ctrl_ndx( 4 ) = index( type_header, trim( ctrl( 4 ) ) )
-c establish ctrl order in the namelist header (ctrl possibly rearranged)
-            call bubble( 4, ctrl_ndx, ctrl )   ! short sort on ctrl_ndx
-            trns_ndx = index1a( 'TRNS', 4, ctrl )
-            ddep_ndx = index1a( 'DDEP', 4, ctrl )
-            wdep_ndx = index1a( 'WDEP', 4, ctrl )
-            conc_ndx = index1a( 'CONC', 4, ctrl )
-
-c the surrogate and ctrl arrays active dimensions not known a priori
+            ! Allocate and Initialize Permanent Variables
             allocate ( 
-     &      nr_spc( spc_dim ), nr_molwt( spc_dim ),
-     &      nr_icbc( spc_dim ), nr_icbc_map( spc_dim ), nr_icbc_fac( spc_dim ),
-     &      nr_depv( spc_dim ), nr_depv_map( spc_dim ), nr_depv_fac( spc_dim ),
-     &      nr_scav( spc_dim ), nr_scav_map( spc_dim ), nr_scav_fac( spc_dim ),
-     &      nr_n2ae( spc_dim ), nr_n2ae_map( spc_dim ),
-     &      nr_n2aq( spc_dim ), nr_n2aq_map( spc_dim ),
-     &      nr_trns( spc_dim ), nr_trns_map( spc_dim ),
-     &      nr_ddep( spc_dim ), nr_ddep_map( spc_dim ),
-     &      nr_wdep( spc_dim ), nr_wdep_map( spc_dim ),
-     &      nr_conc( spc_dim ), nr_conc_map( spc_dim ),
+     &      NR_spc( n_nr_spc ), NR_molwt( n_nr_spc ),
+     &      NR_icbc( n_nr_spc ), NR_icbc_map( n_nr_spc ), NR_icbc_fac( n_nr_spc ),
+     &      NR_depv( n_nr_spc ), NR_depv_map( n_nr_spc ), NR_depv_fac( n_nr_spc ),
+     &      NR_scav( n_nr_spc ), NR_scav_map( n_nr_spc ), NR_scav_fac( n_nr_spc ),
+     &      NR_n2ae( n_nr_spc ), NR_n2ae_map( n_nr_spc ),
+     &      NR_n2aq( n_nr_spc ), NR_n2aq_map( n_nr_spc ),
+     &      NR_trns( n_nr_spc ), NR_trns_map( n_nr_spc ),
+     &      NR_ddep( n_nr_spc ), NR_ddep_map( n_nr_spc ),
+     &      NR_wdep( n_nr_spc ), NR_wdep_map( n_nr_spc ),
+     &      NR_conc( n_nr_spc ), NR_conc_map( n_nr_spc ),
      &      stat = ios )
 
-            nr_spc = bl; nr_molwt = 0.0                        !  .
-            nr_icbc = bl; nr_icbc_map = 0; nr_icbc_fac = 0.0   !  .
-            nr_depv = bl; nr_depv_map = 0; nr_depv_fac = 0.0   !  .
-            nr_scav = bl; nr_scav_map = 0; nr_scav_fac = 0.0   ! array
-            nr_n2ae = bl; nr_n2ae_map = 0                      !  .
-            nr_n2aq = bl; nr_n2aq_map = 0                      ! assignments
-            nr_trns = bl; nr_trns_map = 0                      !  .
-            nr_ddep = bl; nr_ddep_map = 0                      !  .
-            nr_wdep = bl; nr_wdep_map = 0                      !  .
-            nr_conc = bl; nr_conc_map = 0                      !  .
+            NR_spc = bl; NR_molwt = 0.0                        !  .
+            NR_icbc = bl; NR_icbc_map = 0; NR_icbc_fac = 0.0   !  .
+            NR_depv = bl; NR_depv_map = 0; NR_depv_fac = 0.0   !  .
+            NR_scav = bl; NR_scav_map = 0; NR_scav_fac = 0.0   ! array
+            NR_n2ae = bl; NR_n2ae_map = 0                      !  .
+            NR_n2aq = bl; NR_n2aq_map = 0                      !  .
+            NR_trns = bl; NR_trns_map = 0                      ! assignments
+            NR_ddep = bl; NR_ddep_map = 0                      !  .
+            NR_wdep = bl; NR_wdep_map = 0                      !  .
+            NR_conc = bl; NR_conc_map = 0                      !  .
 
-            allocate ( mc_surr1( n_surr1 ),
-     &                 mc_surr2( n_surr2 ),
-     &                 mc_ctrl( n_ctrl ), stat = ios )
+            ! Pass Data from NR Namelist to Internal Variables
+            N_NR_ICBC = 0; N_NR_DEPV = 0; N_NR_SCAV = 0
+            N_NR_N2AE = 0; N_NR_N2AQ = 0; N_NR_TRNS = 0; N_NR_DDEP = 0; N_NR_WDEP = 0
+            N_NR_CONC = 0
 
-            mc_base  = mc_base_init    ! structure assignment
-            mc_surr1 = mc_surr1_init   ! array structure assignment
-            mc_surr2 = mc_surr2_init   ! array structure assignment
-            mc_ctrl  = mc_ctrl_init    ! array structure assignment
+            DO INR = 1,N_NR_SPC
 
-            i1 = 0; i2 = 0; i3 = 0; i4 = 0
-            j1 = 0; j2 = 0
-            k1 = 0; k2 = 0; k3 = 0; k4 = 0
-            icall = 0
-            
-            do i = 1, spc_dim
-               if ( type_matrix( i ) .eq. bl ) then
-                  n_nr_spc = i - 1
-                  exit
-               end if
-               call get_list( icall, type_matrix( i ), mc_base,
-     &                        n_surr1, mc_surr1, n_surr2, mc_surr2,
-     &                        n_ctrl, mc_ctrl )
-               nr_spc( i ) = mc_base%name
-               nr_molwt( i ) = mc_base%mw
+                NR_SPC( INR )      = NR_SPECIES_DATA( INR )%SPECIES_NAME
+                NR_MOLWT( INR )    = NR_SPECIES_DATA( INR )%MOLWT
 
-               if ( icbc_ndx .gt. 0 ) then
-                  if ( mc_surr1( icbc_ndx )%name .ne. bl ) then
-                     i2 = i2 + 1
-                     nr_icbc( i2 )     = mc_surr1( icbc_ndx )%name
-                     nr_icbc_map( i2 ) = mc_surr1( icbc_ndx )%map
-                     nr_icbc_fac( i2 ) = mc_surr1( icbc_ndx )%fac
-                  end if
-               end if
-               if ( depv_ndx .gt. 0 ) then
-                  if ( mc_surr1( depv_ndx )%name .ne. bl ) then
-                     i3 = i3 + 1
-                     nr_depv( i3 )     = mc_surr1( depv_ndx )%name
-                     nr_depv_map( i3 ) = mc_surr1( depv_ndx )%map
-                     nr_depv_fac( i3 ) = mc_surr1( depv_ndx )%fac
-                  end if
-               end if
-               if ( scav_ndx .gt. 0 ) then
-                  if ( mc_surr1( scav_ndx )%name .ne. bl ) then
-                     i4 = i4 + 1
-                     nr_scav( i4 )     = mc_surr1( scav_ndx )%name
-                     nr_scav_map( i4 ) = mc_surr1( scav_ndx )%map
-                     nr_scav_fac( i4 ) = mc_surr1( scav_ndx )%fac
-                  end if
-               end if
+                ! Nonreactive ICBCs
+                IF ( NR_SPECIES_DATA( INR )%ICBC_SURR .NE. '' ) THEN
+                    N_NR_ICBC = N_NR_ICBC + 1
+                    NR_ICBC( N_NR_ICBC )     = NR_SPECIES_DATA( INR )%ICBC_SURR 
+                    NR_ICBC_MAP( N_NR_ICBC ) = INR
+                    NR_ICBC_FAC( N_NR_ICBC ) = NR_SPECIES_DATA( INR )%ICBC_FAC
+                END IF
+                
+                ! Nonreactive Dry Deposition Surrogates
+                IF ( NR_SPECIES_DATA( INR )%DEPV_SURR .NE. '' ) THEN
+                    N_NR_DEPV = N_NR_DEPV + 1
+                    NR_DEPV( N_NR_DEPV )     = NR_SPECIES_DATA( INR )%DEPV_SURR 
+                    NR_DEPV_MAP( N_NR_DEPV ) = INR
+                    NR_DEPV_FAC( N_NR_DEPV ) = NR_SPECIES_DATA( INR )%DEPV_FAC
+                END IF
+                 
+                ! Nonreactive Wet Scavenging Surrogates
+                IF ( NR_SPECIES_DATA( INR )%SCAV_SURR .NE. '' ) THEN
+                    N_NR_SCAV = N_NR_SCAV + 1
+                    NR_SCAV( N_NR_SCAV )     = NR_SPECIES_DATA( INR )%SCAV_SURR 
+                    NR_SCAV_MAP( N_NR_SCAV ) = INR
+                    NR_SCAV_FAC( N_NR_SCAV ) = NR_SPECIES_DATA( INR )%SCAV_FAC
+                END IF
+ 
+                ! Nonreactive -to-Aerosol Module Surrogates
+                IF ( NR_SPECIES_DATA( INR )%AERO_SURR .NE. '' ) THEN
+                    N_NR_N2AE = N_NR_N2AE + 1
+                    NR_N2AE( N_NR_N2AE )     = NR_SPECIES_DATA( INR )%AERO_SURR 
+                    NR_N2AE_MAP( N_NR_N2AE ) = INR
+                END IF
+                
+                ! Nonreactive -to-Cloud Chemistry Surrogates
+                IF ( NR_SPECIES_DATA( INR )%CLOUD_SURR .NE. '' ) THEN
+                    N_NR_N2AQ = N_NR_N2AQ + 1
+                    NR_N2AQ( N_NR_N2AQ )     = NR_SPECIES_DATA( INR )%CLOUD_SURR 
+                    NR_N2AQ_MAP( N_NR_N2AQ ) = INR
+                END IF
+                
+                ! Nonreactive - Perform Transport
+                LTRNS = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%TRNS_FLAG )
+                IF ( LTRNS ) THEN
+                    N_NR_TRNS = N_NR_TRNS + 1
+                    NR_TRNS( N_NR_TRNS )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
+                    NR_TRNS_MAP( N_NR_TRNS ) = INR
+                END IF
+                
+                ! Nonreactive - Output Deposition Velocity
+                LDDEP = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%DDEP_FLAG )
+                IF ( LDDEP ) THEN
+                    N_NR_DDEP = N_NR_DDEP + 1
+                    NR_DDEP( N_NR_DDEP )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
+                    NR_DDEP_MAP( N_NR_DDEP ) = INR
+                END IF
+                
+                ! Nonreactive - Output Wet Scavenging Flux
+                LWDEP = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%WDEP_FLAG )
+                IF ( LWDEP ) THEN
+                    N_NR_WDEP = N_NR_WDEP + 1
+                    NR_WDEP( N_NR_WDEP )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
+                    NR_WDEP_MAP( N_NR_WDEP ) = INR
+                END IF
+                
+                ! Nonreactive - Output Concentration Field
+                LCONC = GET_LOGICAL_NML( NR_SPECIES_DATA( INR )%CONC_FLAG )
+                IF ( LCONC ) THEN
+                    N_NR_CONC = N_NR_CONC + 1
+                    NR_CONC( N_NR_CONC )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
+                    NR_CONC_MAP( N_NR_CONC ) = INR
+                END IF
+                
+            END DO
 
-               if ( n2ae_ndx .ne. 0 ) then
-                  if ( mc_surr2( n2ae_ndx )%name .ne. bl ) then
-                     j1 = j1 + 1
-                     nr_n2ae( j1 )     = mc_surr2( n2ae_ndx )%name
-                     nr_n2ae_map( j1 ) = mc_surr2( n2ae_ndx )%map
-                  end if
-              end if
-               if ( n2aq_ndx .ne. 0 ) then
-                  if ( mc_surr2( n2aq_ndx )%name .ne. bl ) then
-                     j2 = j2 + 1
-                     nr_n2aq( j2 )     = mc_surr2( n2aq_ndx )%name
-                     nr_n2aq_map( j2 ) = mc_surr2( n2aq_ndx )%map
-                  end if
-               end if
+            NR_STRT   = AE_FINI + 1
+            NR_FINI   = NR_STRT + N_NR_SPC - 1
+ 
 
-               if ( trns_ndx .ne. 0 ) then
-                  if ( mc_ctrl( trns_ndx )%name .ne. bl ) then
-                     k1 = k1 + 1
-                     nr_trns( k1 )     = mc_ctrl( trns_ndx )%name
-                     nr_trns_map( k1 ) = mc_ctrl( trns_ndx )%map
-                  end if
-               end if
-               if ( ddep_ndx .ne. 0 ) then
-                  if ( mc_ctrl( ddep_ndx )%name .ne. bl ) then
-                     k2 = k2 + 1
-                     nr_ddep( k2 )     = mc_ctrl( ddep_ndx )%name
-                     nr_ddep_map( k2 ) = mc_ctrl( ddep_ndx )%map
-                  end if
-               end if
-               if ( wdep_ndx .ne. 0 ) then
-                  if ( mc_ctrl( wdep_ndx )%name .ne. bl ) then
-                     k3 = k3 + 1
-                     nr_wdep( k3 )     = mc_ctrl( wdep_ndx )%name
-                     nr_wdep_map( k3 ) = mc_ctrl( wdep_ndx )%map
-                  end if
-               end if
-               if ( conc_ndx .ne. 0 ) then
-                  if ( mc_ctrl( conc_ndx )%name .ne. bl ) then
-                     k4 = k4 + 1
-                     nr_conc( k4 )     = mc_ctrl( conc_ndx )%name
-                     nr_conc_map( k4 ) = mc_ctrl( conc_ndx )%map
-                  end if
-               end if
-            end do
-
-            n_nr_icbc = i2
-            n_nr_depv = i3
-            n_nr_scav = i4
-            n_nr_n2ae = j1
-            n_nr_n2aq = j2
-            n_nr_trns = k1
-            n_nr_ddep = k2
-            n_nr_wdep = k3
-            n_nr_conc = k4
-
-            nr_strt = ae_fini + 1
-            nr_fini = nr_strt + n_nr_spc - 1
-
-            deallocate ( mc_surr1, mc_surr2, mc_ctrl, stat = ios )
-
-
-            type_header = bl
-            type_matrix = bl   ! array assignment
+            ! Tracer (TR) Namelists
+            ALLOCATE( TR_SPECIES_DATA( SPC_DIM ), STAT=IOS )
+            TR_SPECIES_DATA%SPECIES_NAME = ''
+            TR_SPECIES_DATA%MOLWT = 0.
+            TR_SPECIES_DATA%ICBC_SURR = ''
+            TR_SPECIES_DATA%ICBC_FAC = 0.
+            TR_SPECIES_DATA%DEPV_SURR = ''
+            TR_SPECIES_DATA%DEPV_FAC = 0.
+            TR_SPECIES_DATA%SCAV_SURR = ''
+            TR_SPECIES_DATA%SCAV_FAC = 0.
+            TR_SPECIES_DATA%AERO_SURR = ''
+            TR_SPECIES_DATA%CLOUD_SURR = ''
+            TR_SPECIES_DATA%ADVC_FLAG = ''
+            TR_SPECIES_DATA%DIFF_FLAG = ''
+            TR_SPECIES_DATA%DDEP_FLAG = ''
+            TR_SPECIES_DATA%WDEP_FLAG = ''
+            TR_SPECIES_DATA%CONC_FLAG = ''
 
             dev_tr_nml = junit()
             open( file = trim( tr_namelist ), unit = dev_tr_nml,
      &            status = 'old', position = 'rewind' )
             read( nml = TR_nml, unit = dev_tr_nml )
 
-c create the surr1 table from the namelist header
-            surr1( 1 ) = 'ICBC'; surr1_ndx( 1 ) = index( type_header, trim( surr1( 1 ) ) )
-            surr1( 2 ) = 'DEPV'; surr1_ndx( 2 ) = index( type_header, trim( surr1( 2 ) ) )
-            surr1( 3 ) = 'SCAV'; surr1_ndx( 3 ) = index( type_header, trim( surr1( 3 ) ) )
-c establish surr1 order in the namelist header (surr1 possibly rearranged)
-            call bubble( 3, surr1_ndx, surr1 )   ! short sort on surr1_ndx
-            icbc_ndx = index1a( 'ICBC', 3, surr1 )
-            depv_ndx = index1a( 'DEPV', 3, surr1 )
-            scav_ndx = index1a( 'SCAV', 3, surr1 )
+            ! Determine Number of Gas Species
+            N_TR_SPC = 0
+            DO ITR = 1,SPC_DIM
+                IF ( TR_SPECIES_DATA( ITR )%SPECIES_NAME .EQ. '' ) EXIT
+                N_TR_SPC = ITR
+                IF ( TR_SPECIES_DATA( ITR )%ICBC_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%ICBC_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%DEPV_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%DEPV_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%SCAV_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%SCAV_FAC = 0.
+            END DO
 
-c create the surr2 table from the namelist header
-            tr_surr2( 1 ) = 'T2AE'; tr_surr2_ndx( 1 ) = index( type_header, trim( tr_surr2( 1 ) ) )
-            tr_surr2( 2 ) = 'T2AQ'; tr_surr2_ndx( 2 ) = index( type_header, trim( tr_surr2( 2 ) ) )
-c establish surr2 order in the namelist header (surr2 possibly rearranged)
-            call bubble( 2, tr_surr2_ndx, tr_surr2 )   ! short sort on surr2_ndx
-            t2ae_ndx = index1a( 'T2AE', 2, tr_surr2 )
-            t2aq_ndx = index1a( 'T2AQ', 2, tr_surr2 )
-
-c create the ctrl table from the namelist header
-            ctrl( 1 ) = 'ADV';  ctrl_ndx( 1 ) = index( type_header, trim( ctrl( 1 ) ) )
-            ctrl( 2 ) = 'DIFF'; ctrl_ndx( 2 ) = index( type_header, trim( ctrl( 2 ) ) )
-            ctrl( 3 ) = 'DDEP'; ctrl_ndx( 3 ) = index( type_header, trim( ctrl( 3 ) ) )
-            ctrl( 4 ) = 'WDEP'; ctrl_ndx( 4 ) = index( type_header, trim( ctrl( 4 ) ) )
-            ctrl( 5 ) = 'CONC'; ctrl_ndx( 5 ) = index( type_header, trim( ctrl( 5 ) ) )
-c establish ctrl order in the namelist header (ctrl possibly rearranged)
-            call bubble( 5, ctrl_ndx, ctrl )   ! short sort on ctrl_ndx
-            adv_ndx  = index1a( 'ADV', 5, ctrl )
-            diff_ndx = index1a( 'DIFF', 5, ctrl )
-            ddep_ndx = index1a( 'DDEP', 5, ctrl )
-            wdep_ndx = index1a( 'WDEP', 5, ctrl )
-            conc_ndx = index1a( 'CONC', 5, ctrl )
-
-c the surrogate and ctrl arrays active dimensions not known a priori
-            allocate (
-     &      tr_spc( spc_dim ), tr_molwt( spc_dim ),
-     &      tr_icbc( spc_dim ), tr_icbc_map( spc_dim ), tr_icbc_fac( spc_dim ),
-     &      tr_depv( spc_dim ), tr_depv_map( spc_dim ), tr_depv_fac( spc_dim ),
-     &      tr_scav( spc_dim ), tr_scav_map( spc_dim ), tr_scav_fac( spc_dim ),
-     &      tr_t2ae( spc_dim ), tr_t2ae_map( spc_dim ),
-     &      tr_t2aq( spc_dim ), tr_t2aq_map( spc_dim ),
-     &      tr_adv ( spc_dim ), tr_adv_map ( spc_dim ),
-     &      tr_diff( spc_dim ), tr_diff_map( spc_dim ),
-     &      tr_ddep( spc_dim ), tr_ddep_map( spc_dim ),
-     &      tr_wdep( spc_dim ), tr_wdep_map( spc_dim ),
-     &      tr_conc( spc_dim ), tr_conc_map( spc_dim ),
+            ! Allocate and Initialize Permanent Variables
+            allocate ( 
+     &      TR_spc( n_tr_spc ), TR_molwt( n_tr_spc ),
+     &      TR_icbc( n_tr_spc ), TR_icbc_map( n_tr_spc ), TR_icbc_fac( n_tr_spc ),
+     &      TR_depv( n_tr_spc ), TR_depv_map( n_tr_spc ), TR_depv_fac( n_tr_spc ),
+     &      TR_scav( n_tr_spc ), TR_scav_map( n_tr_spc ), TR_scav_fac( n_tr_spc ),
+     &      TR_t2ae( n_tr_spc ), TR_t2ae_map( n_tr_spc ),
+     &      TR_t2aq( n_tr_spc ), TR_t2aq_map( n_tr_spc ),
+     &      TR_adv( n_tr_spc ),  TR_adv_map( n_tr_spc ),
+     &      TR_diff( n_tr_spc ), TR_diff_map( n_tr_spc ),
+     &      TR_ddep( n_tr_spc ), TR_ddep_map( n_tr_spc ),
+     &      TR_wdep( n_tr_spc ), TR_wdep_map( n_tr_spc ),
+     &      TR_conc( n_tr_spc ), TR_conc_map( n_tr_spc ),
      &      stat = ios )
 
-            tr_spc = bl; tr_molwt = 0.0                        !  .
-            tr_icbc = bl; tr_icbc_map = 0; tr_icbc_fac = 0.0   !  .
-            tr_depv = bl; tr_depv_map = 0; tr_depv_fac = 0.0   !  .
-            tr_scav = bl; tr_scav_map = 0; tr_scav_fac = 0.0   ! array
-            tr_t2ae = bl; tr_t2ae_map = 0                      !  .
-            tr_t2aq = bl; tr_t2aq_map = 0                      ! assignments
-            tr_adv  = bl; tr_adv_map  = 0                      !  .
-            tr_diff = bl; tr_diff_map = 0                      !  .
-            tr_ddep = bl; tr_ddep_map = 0                      !  .
-            tr_wdep = bl; tr_wdep_map = 0                      !  .
-            tr_conc = bl; tr_conc_map = 0                      !  .
+            TR_spc = bl; TR_molwt = 0.0                        !  .
+            TR_icbc = bl; TR_icbc_map = 0; TR_icbc_fac = 0.0   !  .
+            TR_depv = bl; TR_depv_map = 0; TR_depv_fac = 0.0   !  .
+            TR_scav = bl; TR_scav_map = 0; TR_scav_fac = 0.0   ! array
+            TR_t2ae = bl; TR_t2ae_map = 0                      !  .
+            TR_t2aq = bl; TR_t2aq_map = 0                      !  .
+            TR_adv  = bl; TR_adv_map = 0                       ! assignments
+            TR_diff = bl; TR_diff_map = 0                      ! assignments
+            TR_ddep = bl; TR_ddep_map = 0                      !  .
+            TR_wdep = bl; TR_wdep_map = 0                      !  .
+            TR_conc = bl; TR_conc_map = 0                      !  .
 
-            allocate ( mc_surr1( n_surr1 ),
-     &                 mc_surr2( n_surr2 ),
-     &                 mc_ctrl( n_ctrl ), stat = ios )
+            ! Pass Data from TR Namelist to Internal Variables
+            N_TR_ICBC = 0; N_TR_DEPV = 0; N_TR_SCAV = 0
+            N_TR_T2AE = 0; N_TR_T2AQ = 0; N_TR_ADV = 0; N_TR_DDEP = 0; N_TR_WDEP = 0
+            N_TR_CONC = 0; N_TR_DIFF = 0
 
-            mc_base  = mc_base_init    ! structure assignment
-            mc_surr1 = mc_surr1_init   ! array structure assignment
-            mc_surr2 = mc_surr2_init   ! array structure assignment
-            mc_ctrl  = mc_ctrl_init    ! array structure assignment
+            DO ITR = 1,N_TR_SPC
 
-            i1 = 0; i2 = 0; i3 = 0; i4 = 0
-            j1 = 0; j2 = 0
-            k1 = 0; k2 = 0; k3 = 0; k4 = 0; k5 = 0
-            icall = 0
-            
-            do i = 1, spc_dim
-               if ( type_matrix( i ) .eq. bl ) then
-                  n_tr_spc = i - 1; exit
-               end if
-               call get_list( icall, type_matrix( i ), mc_base,
-     &                        n_surr1, mc_surr1, n_surr2, mc_surr2,
-     &                        n_ctrl, mc_ctrl )
-               tr_spc( i ) = mc_base%name
-               tr_molwt( i ) = mc_base%mw
+                TR_SPC( ITR )      = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                TR_MOLWT( ITR )    = TR_SPECIES_DATA( ITR )%MOLWT
 
-               if ( icbc_ndx .gt. 0 ) then
-                  if ( mc_surr1( icbc_ndx )%name .ne. bl ) then
-                     i2 = i2 + 1
-                     tr_icbc( i2 )     = mc_surr1( icbc_ndx )%name
-                     tr_icbc_map( i2 ) = mc_surr1( icbc_ndx )%map
-                     tr_icbc_fac( i2 ) = mc_surr1( icbc_ndx )%fac
-                  end if
-               end if
-               if ( depv_ndx .gt. 0 ) then
-                  if ( mc_surr1( depv_ndx )%name .ne. bl ) then
-                     i3 = i3 + 1
-                     tr_depv( i3 )     = mc_surr1( depv_ndx )%name
-                     tr_depv_map( i3 ) = mc_surr1( depv_ndx )%map
-                     tr_depv_fac( i3 ) = mc_surr1( depv_ndx )%fac
-                  end if
-               end if
-               if ( scav_ndx .gt. 0 ) then
-                  if ( mc_surr1( scav_ndx )%name .ne. bl ) then
-                     i4 = i4 + 1
-                     tr_scav( i4 )     = mc_surr1( scav_ndx )%name
-                     tr_scav_map( i4 ) = mc_surr1( scav_ndx )%map
-                     tr_scav_fac( i4 ) = mc_surr1( scav_ndx )%fac
-                  end if
-               end if
+                ! Tracer ICBCs
+                IF ( TR_SPECIES_DATA( ITR )%ICBC_SURR .NE. '' ) THEN
+                    N_TR_ICBC = N_TR_ICBC + 1
+                    TR_ICBC( N_TR_ICBC )     = TR_SPECIES_DATA( ITR )%ICBC_SURR 
+                    TR_ICBC_MAP( N_TR_ICBC ) = ITR
+                    TR_ICBC_FAC( N_TR_ICBC ) = TR_SPECIES_DATA( ITR )%ICBC_FAC
+                END IF
+                
+                ! Tracer Dry Deposition Surrogates
+                IF ( TR_SPECIES_DATA( ITR )%DEPV_SURR .NE. '' ) THEN
+                    N_TR_DEPV = N_TR_DEPV + 1
+                    TR_DEPV( N_TR_DEPV )     = TR_SPECIES_DATA( ITR )%DEPV_SURR 
+                    TR_DEPV_MAP( N_TR_DEPV ) = ITR
+                    TR_DEPV_FAC( N_TR_DEPV ) = TR_SPECIES_DATA( ITR )%DEPV_FAC
+                END IF
+                 
+                ! Tracer Wet Scavenging Surrogates
+                IF ( TR_SPECIES_DATA( ITR )%SCAV_SURR .NE. '' ) THEN
+                    N_TR_SCAV = N_TR_SCAV + 1
+                    TR_SCAV( N_TR_SCAV )     = TR_SPECIES_DATA( ITR )%SCAV_SURR 
+                    TR_SCAV_MAP( N_TR_SCAV ) = ITR
+                    TR_SCAV_FAC( N_TR_SCAV ) = TR_SPECIES_DATA( ITR )%SCAV_FAC
+                END IF
+ 
+                ! Tracer -to-Aerosol Module Surrogates
+                IF ( TR_SPECIES_DATA( ITR )%AERO_SURR .NE. '' ) THEN
+                    N_TR_T2AE = N_TR_T2AE + 1
+                    TR_T2AE( N_TR_T2AE )     = TR_SPECIES_DATA( ITR )%AERO_SURR 
+                    TR_T2AE_MAP( N_TR_T2AE ) = ITR
+                END IF
+                
+                ! Tracer -to-Cloud Chemistry Surrogates
+                IF ( TR_SPECIES_DATA( ITR )%CLOUD_SURR .NE. '' ) THEN
+                    N_TR_T2AQ = N_TR_T2AQ + 1
+                    TR_T2AQ( N_TR_T2AQ )     = TR_SPECIES_DATA( ITR )%CLOUD_SURR 
+                    TR_T2AQ_MAP( N_TR_T2AQ ) = ITR
+                END IF
+                
+                ! Tracer - Perform Advection?
+                LADVC = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%ADVC_FLAG )
+                IF ( LADVC ) THEN
+                    N_TR_ADV = N_TR_ADV + 1
+                    TR_ADV( N_TR_ADV )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_ADV_MAP( N_TR_ADV ) = ITR
+                END IF
+                
+                ! Tracer - Perform Dispersion (i.e. Diffusion)?
+                LDIFF = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%DIFF_FLAG )
+                IF ( LDIFF ) THEN
+                    N_TR_DIFF = N_TR_DIFF + 1
+                    TR_DIFF( N_TR_DIFF )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_DIFF_MAP( N_TR_DIFF ) = ITR
+                END IF
+                
+                ! Tracer - Output Deposition Velocity
+                LDDEP = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%DDEP_FLAG )
+                IF ( LDDEP ) THEN
+                    N_TR_DDEP = N_TR_DDEP + 1
+                    TR_DDEP( N_TR_DDEP )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_DDEP_MAP( N_TR_DDEP ) = ITR
+                END IF
+                
+                ! Tracer - Output Wet Scavenging Flux
+                LWDEP = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%WDEP_FLAG )
+                IF ( LWDEP ) THEN
+                    N_TR_WDEP = N_TR_WDEP + 1
+                    TR_WDEP( N_TR_WDEP )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_WDEP_MAP( N_TR_WDEP ) = ITR
+                END IF
+                
+                ! Tracer - Output Concentration Field
+                LCONC = GET_LOGICAL_NML( TR_SPECIES_DATA( ITR )%CONC_FLAG )
+                IF ( LCONC ) THEN
+                    N_TR_CONC = N_TR_CONC + 1
+                    TR_CONC( N_TR_CONC )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
+                    TR_CONC_MAP( N_TR_CONC ) = ITR
+                END IF
+                
+            END DO
 
-               if ( t2ae_ndx .ne. 0 ) then
-                  if ( mc_surr2( t2ae_ndx )%name .ne. bl ) then
-                     j1 = j1 + 1
-                     tr_t2ae( j1 )     = mc_surr2( t2ae_ndx )%name
-                     tr_t2ae_map( j1 ) = mc_surr2( t2ae_ndx )%map
-                  end if
-               end if
-               if ( t2aq_ndx .ne. 0 ) then
-                  if ( mc_surr2( t2aq_ndx )%name .ne. bl ) then
-                     j2 = j2 + 1
-                     tr_t2aq( j2 )     = mc_surr2( t2aq_ndx )%name
-                     tr_t2aq_map( j2 ) = mc_surr2( t2aq_ndx )%map
-                  end if
-               end if
+            TR_STRT   = NR_FINI + 1
+            TR_FINI   = TR_STRT + N_TR_SPC - 1
+ 
 
-               if ( adv_ndx .ne. 0 ) then
-                  if ( mc_ctrl( adv_ndx )%name .ne. bl ) then
-                     k1 = k1 + 1
-                     tr_adv( k1 )     = mc_ctrl( adv_ndx )%name
-                     tr_adv_map( k1 ) = mc_ctrl( adv_ndx )%map
-                  end if
-               end if
-               if ( diff_ndx .ne. 0 ) then
-                  if ( mc_ctrl( diff_ndx )%name .ne. bl ) then
-                     k2 = k2 + 1
-                     tr_diff( k2 )     = mc_ctrl( diff_ndx )%name
-                     tr_diff_map( k2 ) = mc_ctrl( diff_ndx )%map
-                  end if
-               end if
-               if ( ddep_ndx .ne. 0 ) then
-                  if ( mc_ctrl( ddep_ndx )%name .ne. bl ) then
-                     k3 = k3 + 1
-                     tr_ddep( k3 )     = mc_ctrl( ddep_ndx )%name
-                     tr_ddep_map( k3 ) = mc_ctrl( ddep_ndx )%map
-                  end if
-               end if
-               if ( wdep_ndx .ne. 0 ) then
-                  if ( mc_ctrl( wdep_ndx )%name .ne. bl ) then
-                     k4 = k4 + 1
-                     tr_wdep( k4 )     = mc_ctrl( wdep_ndx )%name
-                     tr_wdep_map( k4 ) = mc_ctrl( wdep_ndx )%map
-                  end if
-               end if
-               if ( conc_ndx .ne. 0 ) then
-                  if ( mc_ctrl( conc_ndx )%name .ne. bl ) then
-                     k5 = k5 + 1
-                     tr_conc( k5 )     = mc_ctrl( conc_ndx )%name
-                     tr_conc_map( k5 ) = mc_ctrl( conc_ndx )%map
-                  end if
-               end if
-            end do
-
-            n_tr_icbc = i2
-            n_tr_depv = i3
-            n_tr_scav = i4
-            n_tr_t2ae = j1
-            n_tr_t2aq = j2
-            n_tr_adv  = k1
-            n_tr_diff = k2
-            n_tr_ddep = k3
-            n_tr_wdep = k4
-            n_tr_conc = k5
-
-            tr_strt = nr_fini + 1
-            tr_fini = tr_strt + n_tr_spc - 1
-
-            nspcsd = n_gc_spcd + n_ae_spc + n_nr_spc + n_tr_spc
+            ! Sum Up All Species Across Phases and Types
+            NSPCSD = N_GC_SPCD + N_AE_SPC + N_NR_SPC + N_TR_SPC
             
             ! Move Data To CGRID_xxx Master Arrays
             N_CGRID_SPC = NSPCSD
@@ -942,6 +861,28 @@ c the surrogate and ctrl arrays active dimensions not known a priori
          return
 
          end function cgrid_spcs_init
+
+c----------------------------------------------------------------------------------------
+         FUNCTION GET_LOGICAL_NML( OP_FLAG ) RESULT ( LFLAG )
+
+         IMPLICIT NONE
+
+         CHARACTER( 16 ) :: OP_FLAG
+         LOGICAL         :: LFLAG
+
+         LFLAG = .FALSE.
+
+         IF ( OP_FLAG .EQ. 'yes' .OR. OP_FLAG .EQ. 'Yes' .OR.
+     &        OP_FLAG .EQ. 'YES' .OR. OP_FLAG .EQ. 'Y'   .OR.
+     &        OP_FLAG .EQ. 'y'   .OR. OP_FLAG .EQ. 'T'   .OR.
+     &        OP_FLAG .EQ. 't'   .OR. OP_FLAG .EQ. 'on'  .OR.
+     &        OP_FLAG .EQ. 'On'  .OR. OP_FLAG .EQ. 'ON'  .OR.
+     &        OP_FLAG .EQ. '1'        ) 
+     &     LFLAG = .TRUE.
+   
+         RETURN
+
+         END FUNCTION GET_LOGICAL_NML
 
 c----------------------------------------------------------------------------------------
          subroutine get_list( ic, str_in, base_out,

@@ -45,10 +45,27 @@ C==============================================================================
       USE MECHANISM_PARMS
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
-      CHARACTER(  1 ) :: CHR, DELIM2
-      CHARACTER( 81 ) :: INBUF
-      INTEGER IMECH, IEOL, LPOINT
+
+       CHARACTER*( * ), INTENT( INOUT ) :: CHR
+       CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+       INTEGER,         INTENT( IN )    :: IMECH
+       INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+
+
+       CHARACTER( 1 ) :: DELIM2
+      INTERFACE 
+        SUBROUTINE GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+        END SUBROUTINE GETCHAR
+        SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+        END SUBROUTINE RDLINE
+      END INTERFACE
 
       IF ( CHR .EQ. '(' ) THEN
          DELIM2 = ')'

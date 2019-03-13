@@ -267,7 +267,7 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
      & spcs_list_type('AMT7    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.06), ! MT SOA Highest Volatility
                                                                                         
        ! ae6i and cb6                                                                   
-     & spcs_list_type('AGLY    ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Glyoxal SOA
+     & spcs_list_type('AGLY    ', cm_set, 1400.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Glyoxal SOA
                                                                                         
        ! Semivolatile POA                                                               
      & spcs_list_type('ALVPO1  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.05), ! LV-POA
@@ -320,23 +320,23 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
           Real            :: dgvem( n_mode )  ! meters
           Real            :: sgem ( n_mode )  ! dimensionless
       END TYPE em_aero
-      INTEGER, PARAMETER  :: n_em_aero_ref = 7
+      INTEGER, PARAMETER  :: n_em_aero_ref = 9
 
       TYPE( em_aero ), Parameter :: em_aero_ref( n_em_aero_ref ) = (/
 
-!              ----Name---- -----Split-----    ---Geo. Mean Diameter---    ---Stnd Dev.---
-     & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Default Accum and Aitken Mode
-     & em_aero('ACC_REF   ',(/0.0,1.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Accumulation Mode
-     & em_aero('COARSE_REF',(/0.0,0.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Coarse Mode
-     & em_aero('UNITY_REF ',(/1.0,1.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Used for online sectors (e.g. SeaSpray)
-     & em_aero('ZERO_REF  ',(/0.0,0.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Zero out the emissions
-     & em_aero('WB_DUST   ',(/0.0,0.07,0.93/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Default Dust Parameterization. Currently,
-                                                                                             !  these values are hard-coded in the dust 
-                                                                                             !  routine.
-     & em_aero('SEASPRAY  ',(/0.0,0.05,0.05/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))  ! Default Sea Spray Parameterization is Dynamic. 
-                                                                                             !  The values here are not actually used but
-                                                                                             !  are replaced in SSEMIS when FACNUM and FACSRF
-                                                                                             !  are calculated online.
+!              ----Name----     -----Split-----    ---Geo. Mean Diameter---   ---Stnd Dev.---
+     & em_aero('FINE_REF       ',(/0.1,0.9,0.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Default Accum and Aitken Mode
+     & em_aero('ACC_REF        ',(/0.0,1.0,0.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Accumulation Mode
+     & em_aero('COARSE_REF     ',(/0.0,0.0,1.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Coarse Mode
+     & em_aero('UNITY_REF      ',(/1.0,1.0,1.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Used for online sectors (e.g. SeaSpray)
+     & em_aero('ZERO_REF       ',(/0.0,0.0,0.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Zero out the emissions
+     & em_aero('FINE_WBDUST    ',(/0.0,1.0,0.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Default Fine Wind-Blown Dust Parameterization
+     & em_aero('COARSE_WBDUST  ',(/0.0,0.0,1.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Default Coarse Wind-Blown Dust Param.
+     & em_aero('FINE_SEASPRAY  ',(/0.0,1.0,0.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Fine Sea Spray Parameterization is Dynamic. 
+     & em_aero('COARSE_SEASPRAY',(/0.0,0.0,1.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))  ! Coarse Sea Spray Parameterization is Dynamic. 
+                                                                                                !  The values here are not actually used but
+                                                                                                !  are replaced in SSEMIS when FACNUM and FACSRF
+                                                                                                !  are calculated online.
      & /)
 
 ! Primary Organic Aerosol Volatility Distributions
@@ -369,9 +369,10 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
 C number of lognormal modes in windblown dust aerosol = n_mode
 C - but only accumulation and coarse modes used
       Type emis_table
-         Character( 16 ) :: description
-         Character( 16 ) :: name  
-         Real            :: spcfac( n_mode )
+         Character( 16 ) :: description       ! Species Long Name
+         Character( 16 ) :: name              ! Species Name
+         Real            :: mw                ! Molecular weight (g/mol)
+         Real            :: spcfac( 2 )       ! Speciation Factor for fine and coarse modes (g/g)
       End type emis_table
 
 C For the wind-blown dust speciation factors, we used the median of the Desert Soil
@@ -403,36 +404,36 @@ C maximum number of chemical species in windblown dust aerosol
 
        
       Type( emis_table ) :: dust_spc( ndust_spc ) = (/
-C                    --description-- -- Species --  -------- spcfac --------
-C                                                    Aitken  accum   coarse
-     &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
-     &   emis_table( 'Nitrate       ', 'ANO3    ', (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
-     &   emis_table( 'Chlorine      ', 'ACL     ', (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
-     &   emis_table( 'Ammonium      ', 'ANH4    ', (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
-     &   emis_table( 'Sodium        ', 'ANA     ', (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
-     &   emis_table( 'Calcium       ', 'ACA     ', (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
-     &   emis_table( 'Magnesium     ', 'AMG     ', (/ 0.0, 0.01900, 0.0    /) ),   ! Magnesium
-     &   emis_table( 'Potassium     ', 'AK      ', (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
-     &   emis_table( 'Org. Carbon   ', 'APOC    ', (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
-     &   emis_table( 'NonCarbon Org.', 'APNCOM  ', (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( 'Low-Vol. POA  ', 'ALVPO1  ', (/ 0.0, 0.01501, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( 'Low-Vol. OOA  ', 'ALVOO1  ', (/ 0.0, 2.23E-5, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( 'Black Carbon  ', 'AEC     ', (/ 0.0, 0.0,     0.0    /) ),   ! Black or Elemental Carbon
-     &   emis_table( 'Iron          ', 'AFE     ', (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
-     &   emis_table( 'Aluminum      ', 'AAL     ', (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
-     &   emis_table( 'Silicon       ', 'ASI     ', (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
-     &   emis_table( 'Titanium      ', 'ATI     ', (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
-     &   emis_table( 'Manganese     ', 'AMN     ', (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
-     &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.00541, 0.00637/) ),   ! Water
-     &   emis_table( 'Undefined Mass', 'AOTHR   ', (/ 0.0, 0.48319, 0.0    /) ),   ! Other
-     &   emis_table( 'Non-Anion Dust', 'ASOIL   ', (/ 0.0, 0.0,     0.95358/) ),   ! Non-Anion Dust
-     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 0.00041, 0.00041/) ),   ! Air toxics Manganese J and K mode
-     &   emis_table( 'Nickel        ', 'ANI     ', (/ 0.0, 2.0E-05, 2.0E-05/) ),   ! Nickel J and K mode
-     &   emis_table( 'Chromium III  ', 'ACR_III ', (/ 0.0, 5.6E-05, 5.6E-05/) ),   ! Trivalent Chromium J and K mode
-     &   emis_table( 'Arsenic       ', 'AAS     ', (/ 0.0, 5.5E-06, 5.5E-06/) ),   ! Arsenic J and K mode
-     &   emis_table( 'Lead          ', 'APB     ', (/ 0.0, 1.6E-05, 1.6E-05/) ),   ! Lead J and K mode
-     &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 9.7E-08, 9.7E-08/) ),   ! Cadmium J and K mode
-     &   emis_table( 'Mercury       ', 'APHG    ', (/ 0.0, 1.4E-08, 1.4E-08/) ) /) ! Mercury J and K mode
+C                    --description-- -- Species -- --MW--   ------ spcfac ------
+C                                                             fine    coarse
+     &   emis_table( 'Sulfate       ',  'SO4    ',  96.0, (/ 0.02250, 0.02655/) ),   ! Sulfate
+     &   emis_table( 'Nitrate       ',  'NO3    ',  62.0, (/ 0.00020, 0.00160/) ),   ! Nitrate
+     &   emis_table( 'Chlorine      ',  'CL     ',  35.5, (/ 0.00945, 0.01190/) ),   ! Chlorine
+     &   emis_table( 'Ammonium      ',  'NH4    ',  18.0, (/ 0.00005, 0.0    /) ),   ! Ammonium
+     &   emis_table( 'Sodium        ',  'NA     ',  23.0, (/ 0.03935, 0.0    /) ),   ! Sodium
+     &   emis_table( 'Calcium       ',  'CA     ',  40.1, (/ 0.07940, 0.0    /) ),   ! Calcium
+     &   emis_table( 'Magnesium     ',  'MG     ',  24.3, (/ 0.01900, 0.0    /) ),   ! Magnesium
+     &   emis_table( 'Potassium     ',  'K      ',  39.1, (/ 0.03770, 0.0    /) ),   ! Potassium
+     &   emis_table( 'Org. Carbon   ',  'POC    ', 220.0, (/ 0.01075, 0.0    /) ),   ! Organic Carbon
+     &   emis_table( 'NonCarbon Org.',  'PNCOM  ', 220.0, (/ 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Low-Vol. POA  ',  'LVPO1  ', 218.0, (/ 0.01501, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Low-Vol. OOA  ',  'LVOO1  ', 136.0, (/ 2.23E-5, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Black Carbon  ',  'EC     ',  12.0, (/ 0.0,     0.0    /) ),   ! Black or Elemental Carbon
+     &   emis_table( 'Iron          ',  'FE     ',  55.8, (/ 0.03355, 0.0    /) ),   ! Iron
+     &   emis_table( 'Aluminum      ',  'AL     ',  27.0, (/ 0.05695, 0.0    /) ),   ! Aluminum
+     &   emis_table( 'Silicon       ',  'SI     ',  28.1, (/ 0.19425, 0.0    /) ),   ! Silicon
+     &   emis_table( 'Titanium      ',  'TI     ',  47.9, (/ 0.00280, 0.0    /) ),   ! Titanium
+     &   emis_table( 'Manganese     ',  'MN     ',  54.9, (/ 0.00115, 0.0    /) ),   ! Manganese
+     &   emis_table( 'Water         ',  'H2O    ',  18.0, (/ 0.00541, 0.00637/) ),   ! Water
+     &   emis_table( 'Undefined Mass',  'OTHR   ', 200.0, (/ 0.48319, 0.0    /) ),   ! Other
+     &   emis_table( 'Non-Anion Dust',  'SOIL   ', 100.0, (/ 0.0,     0.95358/) ),   ! Non-Anion Dust
+     &   emis_table( 'Air Toxics Mn ',  'MN_HAPS',  54.9, (/ 0.00041, 0.00041/) ),   ! Air toxics Manganese J and K mode
+     &   emis_table( 'Nickel        ',  'NI     ',  58.7, (/ 2.0E-05, 2.0E-05/) ),   ! Nickel J and K mode
+     &   emis_table( 'Chromium III  ',  'CR_III ',  52.0, (/ 5.6E-05, 5.6E-05/) ),   ! Trivalent Chromium J and K mode
+     &   emis_table( 'Arsenic       ',  'AS     ',  74.92,(/ 5.5E-06, 5.5E-06/) ),   ! Arsenic J and K mode
+     &   emis_table( 'Lead          ',  'PB     ', 207.2, (/ 1.6E-05, 1.6E-05/) ),   ! Lead J and K mode
+     &   emis_table( 'Cadmium       ',  'CD     ', 112.4, (/ 9.7E-08, 9.7E-08/) ),   ! Cadmium J and K mode
+     &   emis_table( 'Mercury       ',  'PHG    ', 200.5, (/ 1.4E-08, 1.4E-08/) ) /) ! Mercury J and K mode
 
       ! Manually Enter the mode-dependent Density of the Dust Particles using the mass fractions in 
       ! the dust_spc table and user-defined densities for each component. You may reference the aerolist 
@@ -441,8 +442,7 @@ C                                                    Aitken  accum   coarse
       ! Make sure to ignore any tracer species when performing this calculation.
       Real, Parameter :: dust_dens( n_mode ) = (/ 2200.0, 2156.55, 2536.92 /)
 
-      INTEGER, ALLOCATABLE, SAVE :: MAP_DUSTtoAERO( : ) 
-      Real, ALLOCATABLE, SAVE    :: DUSTOUTM( :,:,:,: ) ! Wind-Blown Dust Mass Emiss Rate [ug/m3/s]
+      Real, ALLOCATABLE, SAVE    :: DUSTOUTM( :,:,: ) ! Wind-Blown Dust Mass Emiss Rate [ug/m3/s]
       Real, ALLOCATABLE, SAVE    :: DUSTOUTN( :,:,: )   ! Wind-Blown Dust Number Emiss Rate [1/m3/s]
       Real, ALLOCATABLE, SAVE    :: DUSTOUTS( :,:,: )   ! Wind-Blown Dust Surface Area Emiss Rate [m2/m3/s]
 
@@ -455,25 +455,25 @@ C number of chemical species in seawater aerosol composition
       integer, parameter :: nsea_spc = 17
 
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
-C                     -description--  -- Species --  -------- spcfac --------
-C                                                     Aitken  accum   coarse
-     &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
-     &   emis_table( 'Chlorine      ', 'ACL     ', (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
-     &   emis_table( 'Sodium        ', 'ANA     ', (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
-     &   emis_table( 'Calcium       ', 'ACA     ', (/ 0.0, 0.01180, 0.0    /) ),   ! Calcium
-     &   emis_table( 'Magnesium     ', 'AMG     ', (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
-     &   emis_table( 'Potassium     ', 'AK      ', (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
-     &   emis_table( 'SeaSalt_Cation', 'ASEACAT ', (/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
-     &   emis_table( 'Chromium IV   ', 'ACR_VI  ', (/ 0.0, 5.95E-9, 5.95E-9/) ),   ! accumulation and coarse mode Hexavalent Chromium
-     &   emis_table( 'Nickel        ', 'ANI     ', (/ 0.0, 1.34E-8, 1.34E-8/) ),   ! accumulation and coarse mode Nickle
-     &   emis_table( 'Arsenic       ', 'AAS     ', (/ 0.0, 4.93E-8, 4.93E-8/) ),   ! accumulation and coarse mode Arsenic
-     &   emis_table( 'Beryllium     ', 'ABE     ', (/ 0.0, 5.2E-11, 5.2E-11/) ),   ! accumulation and coarse mode Beryllium
-     &   emis_table( 'Mercury       ', 'APHG    ', (/ 0.0, 5.8E-11, 5.8E-11/) ),   ! accumulation and coarse mode Mercury
-     &   emis_table( 'Lead          ', 'APB     ', (/ 0.0, 6.0E-11, 6.0E-11/) ),   ! accumulation and coarse mode Lead
-     &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 1.93E-9, 1.93E-9/) ),   ! accumulation and coarse mode cadmium
-     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 4.7E-11, 4.7E-11/) ),   ! accumulation and coarse mode Air toxics Manganese
-     &   emis_table( 'bromine       ', 'ABR     ', (/ 0.0, 0.00190, 0.00190/) ),   ! Bromine 
-     &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.0    , 0.0    /) ) /) ! Water (uptake is calculated online)
+C                     -description--  -- Species -- --MW--  ------ spcfac ------
+C                                                              fine    coarse
+     &   emis_table( 'Sulfate       ',   'SO4    ',  96.0, (/ 0.07760, 0.07760/) ),   ! Sulfate
+     &   emis_table( 'Chlorine      ',   'CL     ',  35.5, (/ 0.55380, 0.55380/) ),   ! Chlorine
+     &   emis_table( 'Sodium        ',   'NA     ',  23.0, (/ 0.30860, 0.0    /) ),   ! Sodium
+     &   emis_table( 'Calcium       ',   'CA     ',  40.1, (/ 0.01180, 0.0    /) ),   ! Calcium
+     &   emis_table( 'Magnesium     ',   'MG     ',  24.3, (/ 0.03680, 0.0    /) ),   ! Magnesium
+     &   emis_table( 'Potassium     ',   'K      ',  39.1, (/ 0.01140, 0.0    /) ),   ! Potassium
+     &   emis_table( 'SeaSalt_Cation',   'SEACAT ',  23.75,(/ 0.0    , 0.36860/) ),   ! Sea-Salt Cations
+     &   emis_table( 'Chromium VI   ',   'CR_VI  ',  52.0, (/ 5.95E-9, 5.95E-9/) ),   ! Hexavalent Chromium
+     &   emis_table( 'Nickel        ',   'NI     ',  58.7, (/ 1.34E-8, 1.34E-8/) ),   ! Nickle
+     &   emis_table( 'Arsenic       ',   'AS     ',  74.92,(/ 4.93E-8, 4.93E-8/) ),   ! Arsenic
+     &   emis_table( 'Beryllium     ',   'BE     ',   9.0, (/ 5.2E-11, 5.2E-11/) ),   ! Beryllium
+     &   emis_table( 'Mercury       ',   'PHG    ', 200.5, (/ 5.8E-11, 5.8E-11/) ),   ! Mercury
+     &   emis_table( 'Lead          ',   'PB     ', 207.2, (/ 6.0E-11, 6.0E-11/) ),   ! Lead
+     &   emis_table( 'Cadmium       ',   'CD     ', 112.4, (/ 1.93E-9, 1.93E-9/) ),   ! cadmium
+     &   emis_table( 'Air Toxics Mn ',   'MN_HAPS',  54.9, (/ 4.7E-11, 4.7E-11/) ),   ! Air toxics Manganese
+     &   emis_table( 'Bromine       ',   'BR     ',  79.9, (/ 0.00190, 0.00190/) ),   ! Bromine 
+     &   emis_table( 'Water         ',   'H2O    ',  18.0, (/ 0.0    , 0.0    /) ) /) ! Water (uptake is calculated online)
  
       ! MAKE SURE WATER IS THE LAST COMPONENT IN THE TABLE ABOVE OR YOU
       ! WILL ENCOUNTER ISSUES WITH THE SEA SPRAY EMISSIONS MODULE.
@@ -486,8 +486,6 @@ C                                                     Aitken  accum   coarse
       Real, Parameter :: seaspray_dens( n_mode ) = (/ 2162.7, 2162.7, 2162.7 /)
       Real, Parameter :: specific_vol_h2o = 0.001  !Inverse Density of Particulate Water
  
-      INTEGER, ALLOCATABLE, SAVE :: MAP_SEAtoAERO( : )  !
-
 C Constants used for simulating the ionic effects of sea-spray,
 C windblown dust and anthropogenic dust in the coarse mode. These cation
 C species are not transported individually in the domain but their
@@ -686,6 +684,11 @@ C Private variables for loading from and unloading to CGRID array
       REAL, ALLOCATABLE :: NPF_BUDGET( : )
       REAL, ALLOCATABLE :: GROWTH_BUDGET( : )
 
+! Initial Reference Values for M2 and M3 used for Heterogenous Chemistry
+! Module.
+      REAL( 8 ), ALLOCATABLE :: CHEM_M2DRY_INIT( :,:,:,: ),
+     &                          CHEM_M3DRY_INIT( :,:,:,: )
+
       Contains
 
 C-----------------------------------------------------------------------
@@ -789,8 +792,8 @@ C Build mapping to CGRID for each species in the master AeroList
                   ! namelist is not matching the standing
                   ! molecular weight, throw an error
                   xmsg = 'The molecular weight of ' // Trim( sn )
-     &                   // ' is different from that of the same species'
-     &                   // ' in the same or another mode.'
+     &                  // ' is different from that of the same species'
+     &                  // ' in the same or another mode.'
                   Call m3warn( pname, 0, 0, xmsg )
                   Write( xmsg,* ) 'New Value(', n, ') = ', ae_molwt( n ),
      &                            'Expected value(', spc, ')= ', mole_weight( spc )
@@ -987,17 +990,18 @@ C compute aeromode_minNum and aeromode_minM2
 
       if( AE_eflag )Then
          Write(logdev,99901) Trim( mechname )
-             xmsg = 'The FATAL errors found in namelist used. Check '
-     &         //  'the log of exiting processor if more details are needed.'
+          xmsg = 'The FATAL errors found in namelist used. Check '
+     &    //  'the log of exiting processor if more details are needed.'
          Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If 
 
       mapped = .True.
 
 
-99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that ' 
-     &     /  'this AE namelist contains the above required data as the file in '
-     &     /  'the respository version of the mechanism: ', a )
+99901 Format( 'FATAL Error(s) found in the AE namelist used. Check that' 
+     &  /' this AE namelist contains the above required data '
+     &  / 'as the file in '
+     &  /'the respository version of the mechanism: ', a )
       Return
       End Subroutine map_aero
 
@@ -1212,7 +1216,8 @@ C Find the substring vname in aerospc( spc )%name( n )
          Return
       End If
 
-      xmsg = 'Required Species ' // Trim( vname ) // ' Not found in AE namelist'
+      xmsg = 'Required Species ' // Trim( vname ) // 
+     &       ' Not found in AE namelist'
       AE_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
 
@@ -1493,6 +1498,5 @@ C Local variables:
       ENDDO
 
       End Subroutine CHECK_AERO_ICBC
-C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       End Module aero_data

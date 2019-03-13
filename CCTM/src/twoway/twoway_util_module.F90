@@ -4,6 +4,9 @@
 !           11 Jan 2016  David wong
 !              -- increased the string length of griddesc_fname to 500 in routine
 !                 setup_griddesc_file to accommondate long path name
+!           31 Jan 2019  (David Wong)
+!              -- adopted the idea to process all twoway related environment
+!                 variables in one place
 !===============================================================================
 
   module twoway_util_module
@@ -73,6 +76,7 @@
   SUBROUTINE setup_griddesc_file (g_ncols, g_nrows)
 
     USE twoway_header_data_module
+    USE twoway_data_module, only : griddesc_fname, grid_name_str
 
     integer, intent(in) :: g_ncols, g_nrows
 

@@ -6,70 +6,48 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/has/gitrepos/github/CCTM.havalapye.cmaqv52.newstruc/CCTM/src/MECHS/saprc07tic_ae7i_aq/mech_saprc07tic_ae7i_aq.def
+! Source file: /home/hwo/CCTM_git_repository/CCTM/src/MECHS/saprc07tic_ae7i_aq/mech_saprc07tic_ae7i_aq.def
 ! for Mechanism Name: SAPRC07TIC_AE7I_AQ              
 
 ! This file is used to create mechanism data and functions
 
 ! The following are reserved symbols declared in this file:
-!    MECHNAME       = Mechanism name
-!    N_GAS_CHEM_SPC = Total number of gas species in chemical mechanism
-!    NUMB_CHEM_SPC  = Total number of species in chemical mechanism
-!    N_ACT_SP       = Number of active (determined by ODE solver) species in mechanism
-!    GAS_CHEM_SPC   = Names of gas species in chemical mechanism
-!    CHEMISTRY_SPC  = Names of species in chemical mechanism
-!    CGRID_INDEX    = CGRID Index of species in chemical mechanism
-!    SPECIES_TYPE   = Group or type of species 
-!    SPECIES_MOLWT  = Molecular Weight of species (gm/mole)
-!    NRXNS          = Number of mechanism reactions
-!    KUNITS         = Units of mechanism reactions
-!    KTYPE          = Reaction type
-!    IRXBITS        = Bit test mask vector for selected reactions
-!    IORDER         = Order of the reaction
-!    KTN1           = Number of type 1 reactions
-!    KRX1           = Reactions list pointer to type 1 reactions
-!    KTN2           = Number of type 2 reactions
-!    KRX2           = Reactions list pointer to type 2 reactions
-!    KTN3           = Number of type 3 reactions
-!    KRX3           = Reactions list pointer to type 3 reactions
-!    KTN4           = Number of type 4 reactions
-!    KRX4           = Reactions list pointer to type 4 reactions
-!    KTN5           = Number of type 5 reactions
-!    KRX5           = Reactions list pointer to type 5 reactions
-!    KTN6           = Number of type 6 reactions
-!    KRX6           = Reactions list pointer to type 6 reactions
-!    KTN7           = Number of type 7 reactions
-!    KRX7           = Reactions list pointer to type 7 reactions
-
-! The following are reserved symbols declared in this file:
-!    MECHNAME       = Mechanism name
-!    N_GAS_CHEM_SPC = Total number of gas species in chemical mechanism
-!    NUMB_CHEM_SPC  = Total number of species in chemical mechanism
-!    N_ACT_SP       = Number of active (determined by ODE solver) species in mechanism
-!    GAS_CHEM_SPC   = Names of gas species in chemical mechanism
-!    CHEMISTRY_SPC  = Names of species in chemical mechanism
-!    CGRID_INDEX    = CGRID Index of species in chemical mechanism
-!    SPECIES_TYPE   = Group or type of species 
-!    SPECIES_MOLWT  = Molecular Weight of species (gm/mole)
-!    NRXNS          = Number of mechanism reactions
-!    KUNITS         = Units of mechanism reactions
-!    KTYPE          = Reaction type
-!    IRXBITS        = Bit test mask vector for selected reactions
-!    IORDER         = Order of the reaction
-!    KTN1           = Number of type 1 reactions
-!    KRX1           = Reactions list pointer to type 1 reactions
-!    KTN2           = Number of type 2 reactions
-!    KRX2           = Reactions list pointer to type 2 reactions
-!    KTN3           = Number of type 3 reactions
-!    KRX3           = Reactions list pointer to type 3 reactions
-!    KTN4           = Number of type 4 reactions
-!    KRX4           = Reactions list pointer to type 4 reactions
-!    KTN5           = Number of type 5 reactions
-!    KRX5           = Reactions list pointer to type 5 reactions
-!    KTN6           = Number of type 6 reactions
-!    KRX6           = Reactions list pointer to type 6 reactions
-!    KTN7           = Number of type 7 reactions
-!    KRX7           = Reactions list pointer to type 7 reactions
+!    MECHNAME        = Mechanism name
+!    N_GAS_CHEM_SPC  = Total number of gas species in chemical mechanism
+!    NUMB_MECH_SPC   = Total number of species in chemical mechanism
+!    N_ACT_SP        = Number of active (determined by ODE solver) species in mechanism
+!    GAS_CHEM_SPC    = Names of gas species in chemical mechanism
+!    CHEMISTRY_SPC   = Names of species in chemical mechanism
+!    CGRID_INDEX     = CGRID Index of species in chemical mechanism
+!    SPECIES_TYPE    = Group or type of species 
+!    SPECIES_MOLWT   = Molecular Weight of species (gm/mole)
+!    NRXNS           = Number of mechanism reactions
+!    ZERO_REACT_REACTIONS  = number zero reactant reactions
+!    ONE_REACT_REACTIONS   = number one reactant reactions
+!    TWO_REACT_REACTIONS   = number second order reactions
+!    THREE_REACT_REACTIONS = number three reactant reactions
+!    NSUNLIGHT_RXNS  = Number of mechanism reactions requiring sunlight
+!    NTHERMAL_RXNS   = Number of mechanism reactions not requiring sunlight
+!    KUNITS          = Units of mechanism reactions
+!    KTYPE           = Reaction type
+!    IRXBITS         = Bit test mask vector for selected reactions
+!    IORDER          = Order of the reaction
+!    NTERMS_JACOB    = Maximum number of nonzero terms in day/night Jacobian
+!    MSTEPS_JACOB    = Maximum number of LU Decomposition steps to solve each Jacobian
+!    KTN1            = Number of type 1 reactions
+!    KRX1            = Reactions list pointer to type 1 reactions
+!    KTN2            = Number of type 2 reactions
+!    KRX2            = Reactions list pointer to type 2 reactions
+!    KTN3            = Number of type 3 reactions
+!    KRX3            = Reactions list pointer to type 3 reactions
+!    KTN4            = Number of type 4 reactions
+!    KRX4            = Reactions list pointer to type 4 reactions
+!    KTN5            = Number of type 5 reactions
+!    KRX5            = Reactions list pointer to type 5 reactions
+!    KTN6            = Number of type 6 reactions
+!    KRX6            = Reactions list pointer to type 6 reactions
+!    KTN7            = Number of type 7 reactions
+!    KRX7            = Reactions list pointer to type 7 reactions
 
 !    NWM       = Number of air 3-body reactions
 !    NRXWM     = Reactions list pointer to air 3-body reactions
@@ -116,8 +94,8 @@
       CHARACTER( 16 ) :: SPECIES_TYPE(  NUMB_MECH_SPC )
       INTEGER         :: CGRID_INDEX (  NUMB_MECH_SPC )
       INTEGER         :: TYPE_INDEX  (  NUMB_MECH_SPC )
+      REAL( 8 )       :: SPECIES_MOLWT( NUMB_MECH_SPC )
       LOGICAL         :: CONVERT_CONC(  NUMB_MECH_SPC )
-      REAL            :: SPECIES_MOLWT( NUMB_MECH_SPC )
 
 ! The below character and integer arrays list the model species names used in the 
 ! chemical mechanism. The gas species and their order should agree with 
@@ -335,241 +313,481 @@
 
       LOGICAL   :: HALOGEN_PARAMETER = .TRUE. 
 
-      DATA CHEMISTRY_SPC(   1 ), SPECIES_MOLWT(   1 ) / 'NO2             ',   46.01 /
-      DATA CHEMISTRY_SPC(   2 ), SPECIES_MOLWT(   2 ) / 'NO              ',   30.01 /
-      DATA CHEMISTRY_SPC(   3 ), SPECIES_MOLWT(   3 ) / 'O3P             ',   16.00 /
-      DATA CHEMISTRY_SPC(   4 ), SPECIES_MOLWT(   4 ) / 'O3              ',   48.00 /
-      DATA CHEMISTRY_SPC(   5 ), SPECIES_MOLWT(   5 ) / 'NO3             ',   62.01 /
-      DATA CHEMISTRY_SPC(   6 ), SPECIES_MOLWT(   6 ) / 'N2O5            ',  108.02 /
-      DATA CHEMISTRY_SPC(   7 ), SPECIES_MOLWT(   7 ) / 'HNO3            ',   63.02 /
-      DATA CHEMISTRY_SPC(   8 ), SPECIES_MOLWT(   8 ) / 'O1D             ',   16.00 /
-      DATA CHEMISTRY_SPC(   9 ), SPECIES_MOLWT(   9 ) / 'OH              ',   17.01 /
-      DATA CHEMISTRY_SPC(  10 ), SPECIES_MOLWT(  10 ) / 'HONO            ',   47.02 /
-      DATA CHEMISTRY_SPC(  11 ), SPECIES_MOLWT(  11 ) / 'HO2             ',   33.01 /
-      DATA CHEMISTRY_SPC(  12 ), SPECIES_MOLWT(  12 ) / 'CO              ',   28.01 /
-      DATA CHEMISTRY_SPC(  13 ), SPECIES_MOLWT(  13 ) / 'CO2             ',   44.01 /
-      DATA CHEMISTRY_SPC(  14 ), SPECIES_MOLWT(  14 ) / 'HNO4            ',   79.02 /
-      DATA CHEMISTRY_SPC(  15 ), SPECIES_MOLWT(  15 ) / 'HO2H            ',   34.01 /
-      DATA CHEMISTRY_SPC(  16 ), SPECIES_MOLWT(  16 ) / 'SO2             ',   64.06 /
-      DATA CHEMISTRY_SPC(  17 ), SPECIES_MOLWT(  17 ) / 'SULF            ',   98.08 /
-      DATA CHEMISTRY_SPC(  18 ), SPECIES_MOLWT(  18 ) / 'SULRXN          ',   98.08 /
-      DATA CHEMISTRY_SPC(  19 ), SPECIES_MOLWT(  19 ) / 'MEO2            ',   47.03 /
-      DATA CHEMISTRY_SPC(  20 ), SPECIES_MOLWT(  20 ) / 'HCHO            ',   30.03 /
-      DATA CHEMISTRY_SPC(  21 ), SPECIES_MOLWT(  21 ) / 'COOH            ',   48.04 /
-      DATA CHEMISTRY_SPC(  22 ), SPECIES_MOLWT(  22 ) / 'MEOH            ',   32.04 /
-      DATA CHEMISTRY_SPC(  23 ), SPECIES_MOLWT(  23 ) / 'RO2C            ',    1.00 /
-      DATA CHEMISTRY_SPC(  24 ), SPECIES_MOLWT(  24 ) / 'RO2XC           ',    1.00 /
-      DATA CHEMISTRY_SPC(  25 ), SPECIES_MOLWT(  25 ) / 'MECO3           ',   75.04 /
-      DATA CHEMISTRY_SPC(  26 ), SPECIES_MOLWT(  26 ) / 'PAN             ',  121.05 /
-      DATA CHEMISTRY_SPC(  27 ), SPECIES_MOLWT(  27 ) / 'CCOOOH          ',   76.00 /
-      DATA CHEMISTRY_SPC(  28 ), SPECIES_MOLWT(  28 ) / 'CCOOH           ',   60.05 /
-      DATA CHEMISTRY_SPC(  29 ), SPECIES_MOLWT(  29 ) / 'RCO3            ',   89.07 /
-      DATA CHEMISTRY_SPC(  30 ), SPECIES_MOLWT(  30 ) / 'PAN2            ',  135.08 /
-      DATA CHEMISTRY_SPC(  31 ), SPECIES_MOLWT(  31 ) / 'xHO2            ',   33.01 /
-      DATA CHEMISTRY_SPC(  32 ), SPECIES_MOLWT(  32 ) / 'yROOH           ',   76.10 /
-      DATA CHEMISTRY_SPC(  33 ), SPECIES_MOLWT(  33 ) / 'xCCHO           ',   44.05 /
-      DATA CHEMISTRY_SPC(  34 ), SPECIES_MOLWT(  34 ) / 'RCOOOH          ',   74.08 /
-      DATA CHEMISTRY_SPC(  35 ), SPECIES_MOLWT(  35 ) / 'RCOOH           ',   74.08 /
-      DATA CHEMISTRY_SPC(  36 ), SPECIES_MOLWT(  36 ) / 'BZCO3           ',  137.12 /
-      DATA CHEMISTRY_SPC(  37 ), SPECIES_MOLWT(  37 ) / 'PBZN            ',  183.13 /
-      DATA CHEMISTRY_SPC(  38 ), SPECIES_MOLWT(  38 ) / 'BZO             ',   93.00 /
-      DATA CHEMISTRY_SPC(  39 ), SPECIES_MOLWT(  39 ) / 'MACO3           ',  101.08 /
-      DATA CHEMISTRY_SPC(  40 ), SPECIES_MOLWT(  40 ) / 'MAPAN           ',  147.09 /
-      DATA CHEMISTRY_SPC(  41 ), SPECIES_MOLWT(  41 ) / 'TBUO            ',   73.00 /
-      DATA CHEMISTRY_SPC(  42 ), SPECIES_MOLWT(  42 ) / 'RNO3            ',  147.18 /
-      DATA CHEMISTRY_SPC(  43 ), SPECIES_MOLWT(  43 ) / 'ACETONE         ',   58.08 /
-      DATA CHEMISTRY_SPC(  44 ), SPECIES_MOLWT(  44 ) / 'NPHE            ',  139.11 /
-      DATA CHEMISTRY_SPC(  45 ), SPECIES_MOLWT(  45 ) / 'CRES            ',  108.14 /
-      DATA CHEMISTRY_SPC(  46 ), SPECIES_MOLWT(  46 ) / 'xOH             ',   17.01 /
-      DATA CHEMISTRY_SPC(  47 ), SPECIES_MOLWT(  47 ) / 'xNO2            ',   46.01 /
-      DATA CHEMISTRY_SPC(  48 ), SPECIES_MOLWT(  48 ) / 'xMEO2           ',   47.03 /
-      DATA CHEMISTRY_SPC(  49 ), SPECIES_MOLWT(  49 ) / 'xMECO3          ',   75.04 /
-      DATA CHEMISTRY_SPC(  50 ), SPECIES_MOLWT(  50 ) / 'xRCO3           ',   89.07 /
-      DATA CHEMISTRY_SPC(  51 ), SPECIES_MOLWT(  51 ) / 'xMACO3          ',  101.08 /
-      DATA CHEMISTRY_SPC(  52 ), SPECIES_MOLWT(  52 ) / 'xTBUO           ',   73.00 /
-      DATA CHEMISTRY_SPC(  53 ), SPECIES_MOLWT(  53 ) / 'xCO             ',   28.01 /
-      DATA CHEMISTRY_SPC(  54 ), SPECIES_MOLWT(  54 ) / 'CCHO            ',   44.05 /
-      DATA CHEMISTRY_SPC(  55 ), SPECIES_MOLWT(  55 ) / 'RCHO            ',   58.08 /
-      DATA CHEMISTRY_SPC(  56 ), SPECIES_MOLWT(  56 ) / 'xHCHO           ',   30.03 /
-      DATA CHEMISTRY_SPC(  57 ), SPECIES_MOLWT(  57 ) / 'MEK             ',   72.11 /
-      DATA CHEMISTRY_SPC(  58 ), SPECIES_MOLWT(  58 ) / 'zRNO3           ',  147.18 /
-      DATA CHEMISTRY_SPC(  59 ), SPECIES_MOLWT(  59 ) / 'xRCHO           ',   58.08 /
-      DATA CHEMISTRY_SPC(  60 ), SPECIES_MOLWT(  60 ) / 'HCOOH           ',   46.03 /
-      DATA CHEMISTRY_SPC(  61 ), SPECIES_MOLWT(  61 ) / 'xMGLY           ',   72.07 /
-      DATA CHEMISTRY_SPC(  62 ), SPECIES_MOLWT(  62 ) / 'xBACL           ',   86.09 /
-      DATA CHEMISTRY_SPC(  63 ), SPECIES_MOLWT(  63 ) / 'ROOH            ',   76.10 /
-      DATA CHEMISTRY_SPC(  64 ), SPECIES_MOLWT(  64 ) / 'xPROD2          ',  116.16 /
-      DATA CHEMISTRY_SPC(  65 ), SPECIES_MOLWT(  65 ) / 'R6OOH           ',  118.17 /
-      DATA CHEMISTRY_SPC(  66 ), SPECIES_MOLWT(  66 ) / 'PRD2            ',  116.16 /
-      DATA CHEMISTRY_SPC(  67 ), SPECIES_MOLWT(  67 ) / 'yR6OOH          ',  118.17 /
-      DATA CHEMISTRY_SPC(  68 ), SPECIES_MOLWT(  68 ) / 'RAOOH           ',  188.18 /
-      DATA CHEMISTRY_SPC(  69 ), SPECIES_MOLWT(  69 ) / 'MGLY            ',   72.07 /
-      DATA CHEMISTRY_SPC(  70 ), SPECIES_MOLWT(  70 ) / 'IPRD            ',  100.12 /
-      DATA CHEMISTRY_SPC(  71 ), SPECIES_MOLWT(  71 ) / 'xGLY            ',   58.04 /
-      DATA CHEMISTRY_SPC(  72 ), SPECIES_MOLWT(  72 ) / 'xMEK            ',   72.11 /
-      DATA CHEMISTRY_SPC(  73 ), SPECIES_MOLWT(  73 ) / 'xAFG1           ',   98.10 /
-      DATA CHEMISTRY_SPC(  74 ), SPECIES_MOLWT(  74 ) / 'xAFG2           ',   98.10 /
-      DATA CHEMISTRY_SPC(  75 ), SPECIES_MOLWT(  75 ) / 'GLY             ',   58.04 /
-      DATA CHEMISTRY_SPC(  76 ), SPECIES_MOLWT(  76 ) / 'AFG1            ',   98.10 /
-      DATA CHEMISTRY_SPC(  77 ), SPECIES_MOLWT(  77 ) / 'AFG2            ',   98.10 /
-      DATA CHEMISTRY_SPC(  78 ), SPECIES_MOLWT(  78 ) / 'HCOCO3          ',   89.00 /
-      DATA CHEMISTRY_SPC(  79 ), SPECIES_MOLWT(  79 ) / 'BACL            ',   86.09 /
-      DATA CHEMISTRY_SPC(  80 ), SPECIES_MOLWT(  80 ) / 'BALD            ',  106.13 /
-      DATA CHEMISTRY_SPC(  81 ), SPECIES_MOLWT(  81 ) / 'AFG3            ',  124.14 /
-      DATA CHEMISTRY_SPC(  82 ), SPECIES_MOLWT(  82 ) / 'xIPRD           ',  100.12 /
-      DATA CHEMISTRY_SPC(  83 ), SPECIES_MOLWT(  83 ) / 'MACR            ',   70.09 /
-      DATA CHEMISTRY_SPC(  84 ), SPECIES_MOLWT(  84 ) / 'MVK             ',   70.09 /
-      DATA CHEMISTRY_SPC(  85 ), SPECIES_MOLWT(  85 ) / 'xHOCCHO         ',   60.05 /
-      DATA CHEMISTRY_SPC(  86 ), SPECIES_MOLWT(  86 ) / 'xRNO3           ',  147.18 /
-      DATA CHEMISTRY_SPC(  87 ), SPECIES_MOLWT(  87 ) / 'HOCCHO          ',   60.05 /
-      DATA CHEMISTRY_SPC(  88 ), SPECIES_MOLWT(  88 ) / 'xACETONE        ',   58.08 /
-      DATA CHEMISTRY_SPC(  89 ), SPECIES_MOLWT(  89 ) / 'ACROLEIN        ',   56.06 /
-      DATA CHEMISTRY_SPC(  90 ), SPECIES_MOLWT(  90 ) / 'xBALD           ',  106.13 /
-      DATA CHEMISTRY_SPC(  91 ), SPECIES_MOLWT(  91 ) / 'xAFG3           ',  124.74 /
-      DATA CHEMISTRY_SPC(  92 ), SPECIES_MOLWT(  92 ) / 'xMACR           ',   70.09 /
-      DATA CHEMISTRY_SPC(  93 ), SPECIES_MOLWT(  93 ) / 'xMVK            ',   70.09 /
-      DATA CHEMISTRY_SPC(  94 ), SPECIES_MOLWT(  94 ) / 'xMTNO3          ',  231.00 /
-      DATA CHEMISTRY_SPC(  95 ), SPECIES_MOLWT(  95 ) / 'MTNO3           ',  231.00 /
-      DATA CHEMISTRY_SPC(  96 ), SPECIES_MOLWT(  96 ) / 'IMACO3          ',  101.08 /
-      DATA CHEMISTRY_SPC(  97 ), SPECIES_MOLWT(  97 ) / 'yRAOOH          ',  188.18 /
-      DATA CHEMISTRY_SPC(  98 ), SPECIES_MOLWT(  98 ) / 'zMTNO3          ',  231.00 /
-      DATA CHEMISTRY_SPC(  99 ), SPECIES_MOLWT(  99 ) / 'xACROLEIN       ',   56.06 /
-      DATA CHEMISTRY_SPC( 100 ), SPECIES_MOLWT( 100 ) / 'ETHENE          ',   28.05 /
-      DATA CHEMISTRY_SPC( 101 ), SPECIES_MOLWT( 101 ) / 'PROPENE         ',   42.08 /
-      DATA CHEMISTRY_SPC( 102 ), SPECIES_MOLWT( 102 ) / 'BUTADIENE13     ',   54.09 /
-      DATA CHEMISTRY_SPC( 103 ), SPECIES_MOLWT( 103 ) / 'ISOPRENE        ',   68.12 /
-      DATA CHEMISTRY_SPC( 104 ), SPECIES_MOLWT( 104 ) / 'APIN            ',  136.23 /
-      DATA CHEMISTRY_SPC( 105 ), SPECIES_MOLWT( 105 ) / 'TRPRXN          ',  136.00 /
-      DATA CHEMISTRY_SPC( 106 ), SPECIES_MOLWT( 106 ) / 'ACETYLENE       ',   26.04 /
-      DATA CHEMISTRY_SPC( 107 ), SPECIES_MOLWT( 107 ) / 'BENZENE         ',   78.11 /
-      DATA CHEMISTRY_SPC( 108 ), SPECIES_MOLWT( 108 ) / 'BENZRO2         ',  159.11 /
-      DATA CHEMISTRY_SPC( 109 ), SPECIES_MOLWT( 109 ) / 'TOLUENE         ',   92.14 /
-      DATA CHEMISTRY_SPC( 110 ), SPECIES_MOLWT( 110 ) / 'TOLRO2          ',  172.14 /
-      DATA CHEMISTRY_SPC( 111 ), SPECIES_MOLWT( 111 ) / 'MXYL            ',  106.17 /
-      DATA CHEMISTRY_SPC( 112 ), SPECIES_MOLWT( 112 ) / 'XYLRO2          ',  187.17 /
-      DATA CHEMISTRY_SPC( 113 ), SPECIES_MOLWT( 113 ) / 'OXYL            ',  106.17 /
-      DATA CHEMISTRY_SPC( 114 ), SPECIES_MOLWT( 114 ) / 'PXYL            ',  106.17 /
-      DATA CHEMISTRY_SPC( 115 ), SPECIES_MOLWT( 115 ) / 'TMBENZ124       ',  120.19 /
-      DATA CHEMISTRY_SPC( 116 ), SPECIES_MOLWT( 116 ) / 'ETOH            ',   46.07 /
-      DATA CHEMISTRY_SPC( 117 ), SPECIES_MOLWT( 117 ) / 'ALK1            ',   30.07 /
-      DATA CHEMISTRY_SPC( 118 ), SPECIES_MOLWT( 118 ) / 'ALK2            ',   36.73 /
-      DATA CHEMISTRY_SPC( 119 ), SPECIES_MOLWT( 119 ) / 'ALK3            ',   58.61 /
-      DATA CHEMISTRY_SPC( 120 ), SPECIES_MOLWT( 120 ) / 'ALK4            ',   77.60 /
-      DATA CHEMISTRY_SPC( 121 ), SPECIES_MOLWT( 121 ) / 'ALK5            ',  118.89 /
-      DATA CHEMISTRY_SPC( 122 ), SPECIES_MOLWT( 122 ) / 'SOAALK          ',  112.00 /
-      DATA CHEMISTRY_SPC( 123 ), SPECIES_MOLWT( 123 ) / 'SVAVB2          ',  179.00 /
-      DATA CHEMISTRY_SPC( 124 ), SPECIES_MOLWT( 124 ) / 'SVAVB3          ',  169.00 /
-      DATA CHEMISTRY_SPC( 125 ), SPECIES_MOLWT( 125 ) / 'SVAVB4          ',  158.00 /
-      DATA CHEMISTRY_SPC( 126 ), SPECIES_MOLWT( 126 ) / 'OLE1            ',   72.34 /
-      DATA CHEMISTRY_SPC( 127 ), SPECIES_MOLWT( 127 ) / 'OLE2            ',   75.78 /
-      DATA CHEMISTRY_SPC( 128 ), SPECIES_MOLWT( 128 ) / 'ARO1            ',   95.16 /
-      DATA CHEMISTRY_SPC( 129 ), SPECIES_MOLWT( 129 ) / 'ARO2MN          ',  118.72 /
-      DATA CHEMISTRY_SPC( 130 ), SPECIES_MOLWT( 130 ) / 'NAPHTHAL        ',  128.20 /
-      DATA CHEMISTRY_SPC( 131 ), SPECIES_MOLWT( 131 ) / 'PAHRO2          ',  187.20 /
-      DATA CHEMISTRY_SPC( 132 ), SPECIES_MOLWT( 132 ) / 'TERP            ',  136.24 /
-      DATA CHEMISTRY_SPC( 133 ), SPECIES_MOLWT( 133 ) / 'TERPNRO2        ',  197.00 /
-      DATA CHEMISTRY_SPC( 134 ), SPECIES_MOLWT( 134 ) / 'SESQ            ',  204.35 /
-      DATA CHEMISTRY_SPC( 135 ), SPECIES_MOLWT( 135 ) / 'SESQRXN         ',  204.35 /
-      DATA CHEMISTRY_SPC( 136 ), SPECIES_MOLWT( 136 ) / 'CL2             ',   70.00 /
-      DATA CHEMISTRY_SPC( 137 ), SPECIES_MOLWT( 137 ) / 'CL              ',   35.50 /
-      DATA CHEMISTRY_SPC( 138 ), SPECIES_MOLWT( 138 ) / 'CLNO            ',   65.50 /
-      DATA CHEMISTRY_SPC( 139 ), SPECIES_MOLWT( 139 ) / 'CLONO           ',   81.50 /
-      DATA CHEMISTRY_SPC( 140 ), SPECIES_MOLWT( 140 ) / 'CLNO2           ',   81.50 /
-      DATA CHEMISTRY_SPC( 141 ), SPECIES_MOLWT( 141 ) / 'HCL             ',   36.50 /
-      DATA CHEMISTRY_SPC( 142 ), SPECIES_MOLWT( 142 ) / 'CLO             ',   51.50 /
-      DATA CHEMISTRY_SPC( 143 ), SPECIES_MOLWT( 143 ) / 'CLONO2          ',   97.45 /
-      DATA CHEMISTRY_SPC( 144 ), SPECIES_MOLWT( 144 ) / 'HOCL            ',   52.50 /
-      DATA CHEMISTRY_SPC( 145 ), SPECIES_MOLWT( 145 ) / 'xCL             ',   35.50 /
-      DATA CHEMISTRY_SPC( 146 ), SPECIES_MOLWT( 146 ) / 'xCLCCHO         ',   78.50 /
-      DATA CHEMISTRY_SPC( 147 ), SPECIES_MOLWT( 147 ) / 'xCLACET         ',   92.50 /
-      DATA CHEMISTRY_SPC( 148 ), SPECIES_MOLWT( 148 ) / 'CLCCHO          ',   78.50 /
-      DATA CHEMISTRY_SPC( 149 ), SPECIES_MOLWT( 149 ) / 'CLACET          ',   92.50 /
-      DATA CHEMISTRY_SPC( 150 ), SPECIES_MOLWT( 150 ) / 'CLCHO           ',   64.50 /
-      DATA CHEMISTRY_SPC( 151 ), SPECIES_MOLWT( 151 ) / 'SVAVB1          ',  198.00 /
-      DATA CHEMISTRY_SPC( 152 ), SPECIES_MOLWT( 152 ) / 'HCHO_PRIMARY    ',   30.03 /
-      DATA CHEMISTRY_SPC( 153 ), SPECIES_MOLWT( 153 ) / 'CCHO_PRIMARY    ',   44.05 /
-      DATA CHEMISTRY_SPC( 154 ), SPECIES_MOLWT( 154 ) / 'ACRO_PRIMARY    ',   56.06 /
-      DATA CHEMISTRY_SPC( 155 ), SPECIES_MOLWT( 155 ) / 'ISOPO2          ',  117.10 /
-      DATA CHEMISTRY_SPC( 156 ), SPECIES_MOLWT( 156 ) / 'ISOPRXN         ',   68.00 /
-      DATA CHEMISTRY_SPC( 157 ), SPECIES_MOLWT( 157 ) / 'ISOPND          ',  147.10 /
-      DATA CHEMISTRY_SPC( 158 ), SPECIES_MOLWT( 158 ) / 'ISOPNB          ',  147.10 /
-      DATA CHEMISTRY_SPC( 159 ), SPECIES_MOLWT( 159 ) / 'HC5             ',  100.10 /
-      DATA CHEMISTRY_SPC( 160 ), SPECIES_MOLWT( 160 ) / 'DIBOO           ',  133.10 /
-      DATA CHEMISTRY_SPC( 161 ), SPECIES_MOLWT( 161 ) / 'ISOPOOH         ',  118.10 /
-      DATA CHEMISTRY_SPC( 162 ), SPECIES_MOLWT( 162 ) / 'HPALD           ',  116.12 /
-      DATA CHEMISTRY_SPC( 163 ), SPECIES_MOLWT( 163 ) / 'HACET           ',   74.10 /
-      DATA CHEMISTRY_SPC( 164 ), SPECIES_MOLWT( 164 ) / 'NISOPO2         ',  162.10 /
-      DATA CHEMISTRY_SPC( 165 ), SPECIES_MOLWT( 165 ) / 'NIT1            ',  145.10 /
-      DATA CHEMISTRY_SPC( 166 ), SPECIES_MOLWT( 166 ) / 'NISOPOOH        ',  163.13 /
-      DATA CHEMISTRY_SPC( 167 ), SPECIES_MOLWT( 167 ) / 'HC5OO           ',  149.10 /
-      DATA CHEMISTRY_SPC( 168 ), SPECIES_MOLWT( 168 ) / 'DHMOB           ',  132.10 /
-      DATA CHEMISTRY_SPC( 169 ), SPECIES_MOLWT( 169 ) / 'ISOPNOOD        ',  196.10 /
-      DATA CHEMISTRY_SPC( 170 ), SPECIES_MOLWT( 170 ) / 'PROPNN          ',  119.10 /
-      DATA CHEMISTRY_SPC( 171 ), SPECIES_MOLWT( 171 ) / 'MVKN            ',  149.10 /
-      DATA CHEMISTRY_SPC( 172 ), SPECIES_MOLWT( 172 ) / 'ETHLN           ',  105.00 /
-      DATA CHEMISTRY_SPC( 173 ), SPECIES_MOLWT( 173 ) / 'RNO3I           ',  147.18 /
-      DATA CHEMISTRY_SPC( 174 ), SPECIES_MOLWT( 174 ) / 'ISOPNOOB        ',  196.10 /
-      DATA CHEMISTRY_SPC( 175 ), SPECIES_MOLWT( 175 ) / 'MACRN           ',  149.10 /
-      DATA CHEMISTRY_SPC( 176 ), SPECIES_MOLWT( 176 ) / 'NIT1NO3OOA      ',  176.10 /
-      DATA CHEMISTRY_SPC( 177 ), SPECIES_MOLWT( 177 ) / 'NIT1NO3OOB      ',  239.10 /
-      DATA CHEMISTRY_SPC( 178 ), SPECIES_MOLWT( 178 ) / 'ISOPNN          ',  226.00 /
-      DATA CHEMISTRY_SPC( 179 ), SPECIES_MOLWT( 179 ) / 'NIT1OHOO        ',  194.12 /
-      DATA CHEMISTRY_SPC( 180 ), SPECIES_MOLWT( 180 ) / 'MVKOO           ',  119.10 /
-      DATA CHEMISTRY_SPC( 181 ), SPECIES_MOLWT( 181 ) / 'MACROO          ',  119.10 /
-      DATA CHEMISTRY_SPC( 182 ), SPECIES_MOLWT( 182 ) / 'PYRUACD         ',   88.10 /
-      DATA CHEMISTRY_SPC( 183 ), SPECIES_MOLWT( 183 ) / 'IEPOX           ',  118.13 /
-      DATA CHEMISTRY_SPC( 184 ), SPECIES_MOLWT( 184 ) / 'IEPOXOO         ',  149.12 /
-      DATA CHEMISTRY_SPC( 185 ), SPECIES_MOLWT( 185 ) / 'IMPAA           ',  102.08 /
-      DATA CHEMISTRY_SPC( 186 ), SPECIES_MOLWT( 186 ) / 'IMAPAN          ',  147.09 /
-      DATA CHEMISTRY_SPC( 187 ), SPECIES_MOLWT( 187 ) / 'IMAE            ',  102.00 /
-      DATA CHEMISTRY_SPC( 188 ), SPECIES_MOLWT( 188 ) / 'IHMML           ',  102.00 /
-      DATA CHEMISTRY_SPC( 189 ), SPECIES_MOLWT( 189 ) / 'H2NO3PIJ        ',   64.00 /
-      DATA CHEMISTRY_SPC( 190 ), SPECIES_MOLWT( 190 ) / 'H2NO3PK         ',   64.00 /
-      DATA CHEMISTRY_SPC( 191 ), SPECIES_MOLWT( 191 ) / 'ACLI            ',   35.50 /
-      DATA CHEMISTRY_SPC( 192 ), SPECIES_MOLWT( 192 ) / 'ACLJ            ',   35.50 /
-      DATA CHEMISTRY_SPC( 193 ), SPECIES_MOLWT( 193 ) / 'ACLK            ',   35.50 /
-      DATA CHEMISTRY_SPC( 194 ), SPECIES_MOLWT( 194 ) / 'IEPOXP          ',  118.13 /
-      DATA CHEMISTRY_SPC( 195 ), SPECIES_MOLWT( 195 ) / 'IMAEP           ',  102.00 /
-      DATA CHEMISTRY_SPC( 196 ), SPECIES_MOLWT( 196 ) / 'IHMMLP          ',  102.00 /
-      DATA CHEMISTRY_SPC( 197 ), SPECIES_MOLWT( 197 ) / 'AIETETJ         ',  136.15 /
-      DATA CHEMISTRY_SPC( 198 ), SPECIES_MOLWT( 198 ) / 'AIEOSJ          ',  216.20 /
-      DATA CHEMISTRY_SPC( 199 ), SPECIES_MOLWT( 199 ) / 'ADIMJ           ',  248.23 /
-      DATA CHEMISTRY_SPC( 200 ), SPECIES_MOLWT( 200 ) / 'AIMGAJ          ',  120.10 /
-      DATA CHEMISTRY_SPC( 201 ), SPECIES_MOLWT( 201 ) / 'AIMOSJ          ',  200.16 /
-      DATA CHEMISTRY_SPC( 202 ), SPECIES_MOLWT( 202 ) / 'AISO1J          ',  132.00 /
-      DATA CHEMISTRY_SPC( 203 ), SPECIES_MOLWT( 203 ) / 'AOLGBJ          ',  248.00 /
-      DATA CHEMISTRY_SPC( 204 ), SPECIES_MOLWT( 204 ) / 'AISO2J          ',  133.00 /
-      DATA CHEMISTRY_SPC( 205 ), SPECIES_MOLWT( 205 ) / 'ASQTJ           ',  273.00 /
-      DATA CHEMISTRY_SPC( 206 ), SPECIES_MOLWT( 206 ) / 'AAVB2J          ',  179.00 /
-      DATA CHEMISTRY_SPC( 207 ), SPECIES_MOLWT( 207 ) / 'AOLGAJ          ',  206.00 /
-      DATA CHEMISTRY_SPC( 208 ), SPECIES_MOLWT( 208 ) / 'AAVB3J          ',  169.00 /
-      DATA CHEMISTRY_SPC( 209 ), SPECIES_MOLWT( 209 ) / 'AAVB4J          ',  158.00 /
-      DATA CHEMISTRY_SPC( 210 ), SPECIES_MOLWT( 210 ) / 'PCVOC           ',  170.00 /
-      DATA CHEMISTRY_SPC( 211 ), SPECIES_MOLWT( 211 ) / 'PCSOARXN        ',  170.00 /
-      DATA CHEMISTRY_SPC( 212 ), SPECIES_MOLWT( 212 ) / 'VLVPO1          ',  218.00 /
-      DATA CHEMISTRY_SPC( 213 ), SPECIES_MOLWT( 213 ) / 'VSVPO1          ',  230.00 /
-      DATA CHEMISTRY_SPC( 214 ), SPECIES_MOLWT( 214 ) / 'VSVPO2          ',  241.00 /
-      DATA CHEMISTRY_SPC( 215 ), SPECIES_MOLWT( 215 ) / 'VSVPO3          ',  253.00 /
-      DATA CHEMISTRY_SPC( 216 ), SPECIES_MOLWT( 216 ) / 'VIVPO1          ',  266.00 /
-      DATA CHEMISTRY_SPC( 217 ), SPECIES_MOLWT( 217 ) / 'VLVOO1          ',  136.00 /
-      DATA CHEMISTRY_SPC( 218 ), SPECIES_MOLWT( 218 ) / 'VLVOO2          ',  136.00 /
-      DATA CHEMISTRY_SPC( 219 ), SPECIES_MOLWT( 219 ) / 'VSVOO2          ',  135.00 /
-      DATA CHEMISTRY_SPC( 220 ), SPECIES_MOLWT( 220 ) / 'VSVOO3          ',  134.00 /
-      DATA CHEMISTRY_SPC( 221 ), SPECIES_MOLWT( 221 ) / 'VSVOO1          ',  135.00 /
-      DATA CHEMISTRY_SPC( 222 ), SPECIES_MOLWT( 222 ) / 'AMTNO3J         ',  231.00 /
-      DATA CHEMISTRY_SPC( 223 ), SPECIES_MOLWT( 223 ) / 'AMTHYDJ         ',  186.00 /
-      DATA CHEMISTRY_SPC( 224 ), SPECIES_MOLWT( 224 ) / 'AISOPNNJ        ',  226.00 /
-      DATA CHEMISTRY_SPC( 225 ), SPECIES_MOLWT( 225 ) / 'AGLYJ           ',   66.40 /
 
-
-
-      LOGICAL   :: MAPPED_TO_CGRID   = .FALSE. 
+! The below character and integer arrays list the model species names used in the 
+! chemical mechanism. The gas species and their order should agree with 
+! the GC_SPC array for the gas phase chemistry to work correctly. 
+! If present, the CHEMISTRY_SPC names and species type should agree with the CGRID_SPCS module
 
 
 ! MAPPED_TO_CGRID declares whether CMAQ namelists were used to determine 
 ! the below values of CGRID_INDEX, SPECIES_TYPE, SPECIES_MOLWT, and CONVERT_CONC
       LOGICAL, PARAMETER, PRIVATE :: F = .FALSE.
       LOGICAL, PARAMETER, PRIVATE :: T = .TRUE.
+
+
+      LOGICAL   :: MAPPED_TO_CGRID   = .FALSE. 
+
+      TYPE MEMBER
+         CHARACTER( 16 ) :: CHEMISTRY_SPC
+         INTEGER         :: CGRID_INDEX
+         CHARACTER(  2 ) :: SPECIES_TYPE
+         REAL( 8 )       :: SPECIES_MOLWT
+         LOGICAL         :: CONVERT_CONC
+      END TYPE MEMBER
+      TYPE( MEMBER ) ::  SPECIES_LIST( NUMB_MECH_SPC ) = (/ &
+      & MEMBER("NO2             ",    1, "GC",   46.01D0, F), &
+      & MEMBER("NO              ",    2, "GC",   30.01D0, F), &
+      & MEMBER("O3P             ",    3, "GC",   16.00D0, F), &
+      & MEMBER("O3              ",    4, "GC",   48.00D0, F), &
+      & MEMBER("NO3             ",    5, "GC",   62.01D0, F), &
+      & MEMBER("N2O5            ",    6, "GC",  108.02D0, F), &
+      & MEMBER("HNO3            ",    7, "GC",   63.02D0, F), &
+      & MEMBER("O1D             ",    8, "GC",   16.00D0, F), &
+      & MEMBER("OH              ",    9, "GC",   17.01D0, F), &
+      & MEMBER("HONO            ",   10, "GC",   47.02D0, F), &
+      & MEMBER("HO2             ",   11, "GC",   33.01D0, F), &
+      & MEMBER("CO              ",   12, "GC",   28.01D0, F), &
+      & MEMBER("CO2             ",   13, "GC",   44.01D0, F), &
+      & MEMBER("HNO4            ",   14, "GC",   79.02D0, F), &
+      & MEMBER("HO2H            ",   15, "GC",   34.01D0, F), &
+      & MEMBER("SO2             ",   16, "GC",   64.06D0, F), &
+      & MEMBER("SULF            ",   17, "GC",   98.08D0, F), &
+      & MEMBER("SULRXN          ",   18, "GC",   98.08D0, F), &
+      & MEMBER("MEO2            ",   19, "GC",   47.03D0, F), &
+      & MEMBER("HCHO            ",   20, "GC",   30.03D0, F), &
+      & MEMBER("COOH            ",   21, "GC",   48.04D0, F), &
+      & MEMBER("MEOH            ",   22, "GC",   32.04D0, F), &
+      & MEMBER("RO2C            ",   23, "GC",    1.00D0, F), &
+      & MEMBER("RO2XC           ",   24, "GC",    1.00D0, F), &
+      & MEMBER("MECO3           ",   25, "GC",   75.04D0, F), &
+      & MEMBER("PAN             ",   26, "GC",  121.05D0, F), &
+      & MEMBER("CCOOOH          ",   27, "GC",   76.00D0, F), &
+      & MEMBER("CCOOH           ",   28, "GC",   60.05D0, F), &
+      & MEMBER("RCO3            ",   29, "GC",   89.07D0, F), &
+      & MEMBER("PAN2            ",   30, "GC",  135.08D0, F), &
+      & MEMBER("xHO2            ",   31, "GC",   33.01D0, F), &
+      & MEMBER("yROOH           ",   32, "GC",   76.10D0, F), &
+      & MEMBER("xCCHO           ",   33, "GC",   44.05D0, F), &
+      & MEMBER("RCOOOH          ",   34, "GC",   74.08D0, F), &
+      & MEMBER("RCOOH           ",   35, "GC",   74.08D0, F), &
+      & MEMBER("BZCO3           ",   36, "GC",  137.12D0, F), &
+      & MEMBER("PBZN            ",   37, "GC",  183.13D0, F), &
+      & MEMBER("BZO             ",   38, "GC",   93.00D0, F), &
+      & MEMBER("MACO3           ",   39, "GC",  101.08D0, F), &
+      & MEMBER("MAPAN           ",   40, "GC",  147.09D0, F), &
+      & MEMBER("TBUO            ",   41, "GC",   73.00D0, F), &
+      & MEMBER("RNO3            ",   42, "GC",  147.18D0, F), &
+      & MEMBER("ACETONE         ",   44, "GC",   58.08D0, F), &
+      & MEMBER("NPHE            ",   45, "GC",  139.11D0, F), &
+      & MEMBER("CRES            ",   46, "GC",  108.14D0, F), &
+      & MEMBER("xOH             ",   47, "GC",   17.01D0, F), &
+      & MEMBER("xNO2            ",   48, "GC",   46.01D0, F), &
+      & MEMBER("xMEO2           ",   49, "GC",   47.03D0, F), &
+      & MEMBER("xMECO3          ",   50, "GC",   75.04D0, F), &
+      & MEMBER("xRCO3           ",   51, "GC",   89.07D0, F), &
+      & MEMBER("xMACO3          ",   52, "GC",  101.08D0, F), &
+      & MEMBER("xTBUO           ",   53, "GC",   73.00D0, F), &
+      & MEMBER("xCO             ",   54, "GC",   28.01D0, F), &
+      & MEMBER("CCHO            ",   55, "GC",   44.05D0, F), &
+      & MEMBER("RCHO            ",   56, "GC",   58.08D0, F), &
+      & MEMBER("xHCHO           ",   57, "GC",   30.03D0, F), &
+      & MEMBER("MEK             ",   58, "GC",   72.11D0, F), &
+      & MEMBER("zRNO3           ",   59, "GC",  147.18D0, F), &
+      & MEMBER("xRCHO           ",   60, "GC",   58.08D0, F), &
+      & MEMBER("HCOOH           ",   61, "GC",   46.03D0, F), &
+      & MEMBER("xMGLY           ",   62, "GC",   72.07D0, F), &
+      & MEMBER("xBACL           ",   63, "GC",   86.09D0, F), &
+      & MEMBER("ROOH            ",   64, "GC",   76.10D0, F), &
+      & MEMBER("xPROD2          ",   65, "GC",  116.16D0, F), &
+      & MEMBER("R6OOH           ",   66, "GC",  118.17D0, F), &
+      & MEMBER("PRD2            ",   67, "GC",  116.16D0, F), &
+      & MEMBER("yR6OOH          ",   68, "GC",  118.17D0, F), &
+      & MEMBER("RAOOH           ",   71, "GC",  188.18D0, F), &
+      & MEMBER("MGLY            ",   72, "GC",   72.07D0, F), &
+      & MEMBER("IPRD            ",   73, "GC",  100.12D0, F), &
+      & MEMBER("xGLY            ",   74, "GC",   58.04D0, F), &
+      & MEMBER("xMEK            ",   75, "GC",   72.11D0, F), &
+      & MEMBER("xAFG1           ",   76, "GC",   98.10D0, F), &
+      & MEMBER("xAFG2           ",   77, "GC",   98.10D0, F), &
+      & MEMBER("GLY             ",   78, "GC",   58.04D0, F), &
+      & MEMBER("AFG1            ",   79, "GC",   98.10D0, F), &
+      & MEMBER("AFG2            ",   80, "GC",   98.10D0, F), &
+      & MEMBER("HCOCO3          ",   81, "GC",   89.00D0, F), &
+      & MEMBER("BACL            ",   82, "GC",   86.09D0, F), &
+      & MEMBER("BALD            ",   83, "GC",  106.13D0, F), &
+      & MEMBER("AFG3            ",   84, "GC",  124.14D0, F), &
+      & MEMBER("xIPRD           ",   85, "GC",  100.12D0, F), &
+      & MEMBER("MACR            ",   86, "GC",   70.09D0, F), &
+      & MEMBER("MVK             ",   87, "GC",   70.09D0, F), &
+      & MEMBER("xHOCCHO         ",   88, "GC",   60.05D0, F), &
+      & MEMBER("xRNO3           ",   89, "GC",  147.18D0, F), &
+      & MEMBER("HOCCHO          ",   90, "GC",   60.05D0, F), &
+      & MEMBER("xACETONE        ",   91, "GC",   58.08D0, F), &
+      & MEMBER("ACROLEIN        ",   92, "GC",   56.06D0, F), &
+      & MEMBER("xBALD           ",   93, "GC",  106.13D0, F), &
+      & MEMBER("xAFG3           ",   94, "GC",  124.74D0, F), &
+      & MEMBER("xMACR           ",   95, "GC",   70.09D0, F), &
+      & MEMBER("xMVK            ",   96, "GC",   70.09D0, F), &
+      & MEMBER("xMTNO3          ",   70, "GC",  231.00D0, F), &
+      & MEMBER("MTNO3           ",   43, "GC",  231.00D0, F), &
+      & MEMBER("IMACO3          ",  180, "GC",  101.08D0, F), &
+      & MEMBER("yRAOOH          ",   97, "GC",  188.18D0, F), &
+      & MEMBER("zMTNO3          ",   69, "GC",  231.00D0, F), &
+      & MEMBER("xACROLEIN       ",   98, "GC",   56.06D0, F), &
+      & MEMBER("ETHENE          ",   99, "GC",   28.05D0, F), &
+      & MEMBER("PROPENE         ",  100, "GC",   42.08D0, F), &
+      & MEMBER("BUTADIENE13     ",  101, "GC",   54.09D0, F), &
+      & MEMBER("ISOPRENE        ",  102, "GC",   68.12D0, F), &
+      & MEMBER("APIN            ",  103, "GC",  136.23D0, F), &
+      & MEMBER("TRPRXN          ",  104, "GC",  136.00D0, F), &
+      & MEMBER("ACETYLENE       ",  105, "GC",   26.04D0, F), &
+      & MEMBER("BENZENE         ",  106, "GC",   78.11D0, F), &
+      & MEMBER("BENZRO2         ",  107, "GC",  159.11D0, F), &
+      & MEMBER("TOLUENE         ",  108, "GC",   92.14D0, F), &
+      & MEMBER("TOLRO2          ",  109, "GC",  172.14D0, F), &
+      & MEMBER("MXYL            ",  110, "GC",  106.17D0, F), &
+      & MEMBER("XYLRO2          ",  111, "GC",  187.17D0, F), &
+      & MEMBER("OXYL            ",  112, "GC",  106.17D0, F), &
+      & MEMBER("PXYL            ",  113, "GC",  106.17D0, F), &
+      & MEMBER("TMBENZ124       ",  114, "GC",  120.19D0, F), &
+      & MEMBER("ETOH            ",  115, "GC",   46.07D0, F), &
+      & MEMBER("ALK1            ",  116, "GC",   30.07D0, F), &
+      & MEMBER("ALK2            ",  117, "GC",   36.73D0, F), &
+      & MEMBER("ALK3            ",  118, "GC",   58.61D0, F), &
+      & MEMBER("ALK4            ",  119, "GC",   77.60D0, F), &
+      & MEMBER("ALK5            ",  120, "GC",  118.89D0, F), &
+      & MEMBER("SOAALK          ",  121, "GC",  112.00D0, F), &
+      & MEMBER("SVAVB2          ",  203, "GC",  179.00D0, F), &
+      & MEMBER("SVAVB3          ",  204, "GC",  169.00D0, F), &
+      & MEMBER("SVAVB4          ",  205, "GC",  158.00D0, F), &
+      & MEMBER("OLE1            ",  122, "GC",   72.34D0, F), &
+      & MEMBER("OLE2            ",  123, "GC",   75.78D0, F), &
+      & MEMBER("ARO1            ",  124, "GC",   95.16D0, F), &
+      & MEMBER("ARO2MN          ",  125, "GC",  118.72D0, F), &
+      & MEMBER("NAPHTHAL        ",  126, "GC",  128.20D0, F), &
+      & MEMBER("PAHRO2          ",  127, "GC",  187.20D0, F), &
+      & MEMBER("TERP            ",  128, "GC",  136.24D0, F), &
+      & MEMBER("TERPNRO2        ",  129, "GC",  197.00D0, F), &
+      & MEMBER("SESQ            ",  130, "GC",  204.35D0, F), &
+      & MEMBER("SESQRXN         ",  131, "GC",  204.35D0, F), &
+      & MEMBER("CL2             ",  132, "GC",   70.00D0, F), &
+      & MEMBER("CL              ",  133, "GC",   35.50D0, F), &
+      & MEMBER("CLNO            ",  134, "GC",   65.50D0, F), &
+      & MEMBER("CLONO           ",  135, "GC",   81.50D0, F), &
+      & MEMBER("CLNO2           ",  136, "GC",   81.50D0, F), &
+      & MEMBER("HCL             ",  137, "GC",   36.50D0, F), &
+      & MEMBER("CLO             ",  138, "GC",   51.50D0, F), &
+      & MEMBER("CLONO2          ",  139, "GC",   97.45D0, F), &
+      & MEMBER("HOCL            ",  140, "GC",   52.50D0, F), &
+      & MEMBER("xCL             ",  141, "GC",   35.50D0, F), &
+      & MEMBER("xCLCCHO         ",  142, "GC",   78.50D0, F), &
+      & MEMBER("xCLACET         ",  143, "GC",   92.50D0, F), &
+      & MEMBER("CLCCHO          ",  144, "GC",   78.50D0, F), &
+      & MEMBER("CLACET          ",  145, "GC",   92.50D0, F), &
+      & MEMBER("CLCHO           ",  146, "GC",   64.50D0, F), &
+      & MEMBER("SVAVB1          ",  202, "GC",  198.00D0, F), &
+      & MEMBER("HCHO_PRIMARY    ",  147, "GC",   30.03D0, F), &
+      & MEMBER("CCHO_PRIMARY    ",  148, "GC",   44.05D0, F), &
+      & MEMBER("ACRO_PRIMARY    ",  149, "GC",   56.06D0, F), &
+      & MEMBER("ISOPO2          ",  150, "GC",  117.10D0, F), &
+      & MEMBER("ISOPRXN         ",  151, "GC",   68.00D0, F), &
+      & MEMBER("ISOPND          ",  152, "GC",  147.10D0, F), &
+      & MEMBER("ISOPNB          ",  153, "GC",  147.10D0, F), &
+      & MEMBER("HC5             ",  154, "GC",  100.10D0, F), &
+      & MEMBER("DIBOO           ",  155, "GC",  133.10D0, F), &
+      & MEMBER("ISOPOOH         ",  156, "GC",  118.10D0, F), &
+      & MEMBER("HPALD           ",  157, "GC",  116.12D0, F), &
+      & MEMBER("HACET           ",  158, "GC",   74.10D0, F), &
+      & MEMBER("NISOPO2         ",  159, "GC",  162.10D0, F), &
+      & MEMBER("NIT1            ",  160, "GC",  145.10D0, F), &
+      & MEMBER("NISOPOOH        ",  161, "GC",  163.13D0, F), &
+      & MEMBER("HC5OO           ",  162, "GC",  149.10D0, F), &
+      & MEMBER("DHMOB           ",  163, "GC",  132.10D0, F), &
+      & MEMBER("ISOPNOOD        ",  164, "GC",  196.10D0, F), &
+      & MEMBER("PROPNN          ",  165, "GC",  119.10D0, F), &
+      & MEMBER("MVKN            ",  166, "GC",  149.10D0, F), &
+      & MEMBER("ETHLN           ",  167, "GC",  105.00D0, F), &
+      & MEMBER("RNO3I           ",  168, "GC",  147.18D0, F), &
+      & MEMBER("ISOPNOOB        ",  169, "GC",  196.10D0, F), &
+      & MEMBER("MACRN           ",  170, "GC",  149.10D0, F), &
+      & MEMBER("NIT1NO3OOA      ",  171, "GC",  176.10D0, F), &
+      & MEMBER("NIT1NO3OOB      ",  172, "GC",  239.10D0, F), &
+      & MEMBER("ISOPNN          ",  173, "GC",  226.00D0, F), &
+      & MEMBER("NIT1OHOO        ",  174, "GC",  194.12D0, F), &
+      & MEMBER("MVKOO           ",  175, "GC",  119.10D0, F), &
+      & MEMBER("MACROO          ",  176, "GC",  119.10D0, F), &
+      & MEMBER("PYRUACD         ",  177, "GC",   88.10D0, F), &
+      & MEMBER("IEPOX           ",  178, "GC",  118.13D0, F), &
+      & MEMBER("IEPOXOO         ",  179, "GC",  149.12D0, F), &
+      & MEMBER("IMPAA           ",  181, "GC",  102.08D0, F), &
+      & MEMBER("IMAPAN          ",  182, "GC",  147.09D0, F), &
+      & MEMBER("IMAE            ",  183, "GC",  102.00D0, F), &
+      & MEMBER("IHMML           ",  184, "GC",  102.00D0, F), &
+      & MEMBER("H2NO3PIJ        ",  185, "GC",   64.00D0, F), &
+      & MEMBER("H2NO3PK         ",  186, "GC",   64.00D0, F), &
+      & MEMBER("ACLI            ",  248, "AE",   35.50D0, T), &
+      & MEMBER("ACLJ            ",  247, "AE",   35.50D0, T), &
+      & MEMBER("ACLK            ",  250, "AE",   35.50D0, T), &
+      & MEMBER("IEPOXP          ",  187, "GC",  118.13D0, F), &
+      & MEMBER("IMAEP           ",  188, "GC",  102.00D0, F), &
+      & MEMBER("IHMMLP          ",  189, "GC",  102.00D0, F), &
+      & MEMBER("AIETETJ         ",  259, "AE",  136.15D0, T), &
+      & MEMBER("AIEOSJ          ",  260, "AE",  216.20D0, T), &
+      & MEMBER("ADIMJ           ",  261, "AE",  248.23D0, T), &
+      & MEMBER("AIMGAJ          ",  262, "AE",  120.10D0, T), &
+      & MEMBER("AIMOSJ          ",  263, "AE",  200.16D0, T), &
+      & MEMBER("AISO1J          ",  214, "AE",  132.00D0, T), &
+      & MEMBER("AOLGBJ          ",  257, "AE",  248.00D0, T), &
+      & MEMBER("AISO2J          ",  215, "AE",  133.00D0, T), &
+      & MEMBER("ASQTJ           ",  218, "AE",  273.00D0, T), &
+      & MEMBER("AAVB2J          ",  284, "AE",  179.00D0, T), &
+      & MEMBER("AOLGAJ          ",  256, "AE",  206.00D0, T), &
+      & MEMBER("AAVB3J          ",  285, "AE",  169.00D0, T), &
+      & MEMBER("AAVB4J          ",  286, "AE",  158.00D0, T), &
+      & MEMBER("PCVOC           ",  200, "GC",  170.00D0, F), &
+      & MEMBER("PCSOARXN        ",  201, "GC",  170.00D0, F), &
+      & MEMBER("VLVPO1          ",  190, "GC",  218.00D0, F), &
+      & MEMBER("VSVPO1          ",  191, "GC",  230.00D0, F), &
+      & MEMBER("VSVPO2          ",  192, "GC",  241.00D0, F), &
+      & MEMBER("VSVPO3          ",  193, "GC",  253.00D0, F), &
+      & MEMBER("VIVPO1          ",  194, "GC",  266.00D0, F), &
+      & MEMBER("VLVOO1          ",  195, "GC",  136.00D0, F), &
+      & MEMBER("VLVOO2          ",  196, "GC",  136.00D0, F), &
+      & MEMBER("VSVOO2          ",  198, "GC",  135.00D0, F), &
+      & MEMBER("VSVOO3          ",  199, "GC",  134.00D0, F), &
+      & MEMBER("VSVOO1          ",  197, "GC",  135.00D0, F), &
+      & MEMBER("AMTNO3J         ",  213, "AE",  231.00D0, T), &
+      & MEMBER("AMTHYDJ         ",  258, "AE",  186.00D0, T), &
+      & MEMBER("AISOPNNJ        ",  217, "AE",  226.00D0, T), &
+      & MEMBER("AGLYJ           ",  264, "AE",   66.40D0, T) /)
+
+      DATA CHEMISTRY_SPC(   1 ), SPECIES_MOLWT(   1 ) / 'NO2             ',   46.01D0 /
+      DATA CHEMISTRY_SPC(   2 ), SPECIES_MOLWT(   2 ) / 'NO              ',   30.01D0 /
+      DATA CHEMISTRY_SPC(   3 ), SPECIES_MOLWT(   3 ) / 'O3P             ',   16.00D0 /
+      DATA CHEMISTRY_SPC(   4 ), SPECIES_MOLWT(   4 ) / 'O3              ',   48.00D0 /
+      DATA CHEMISTRY_SPC(   5 ), SPECIES_MOLWT(   5 ) / 'NO3             ',   62.01D0 /
+      DATA CHEMISTRY_SPC(   6 ), SPECIES_MOLWT(   6 ) / 'N2O5            ',  108.02D0 /
+      DATA CHEMISTRY_SPC(   7 ), SPECIES_MOLWT(   7 ) / 'HNO3            ',   63.02D0 /
+      DATA CHEMISTRY_SPC(   8 ), SPECIES_MOLWT(   8 ) / 'O1D             ',   16.00D0 /
+      DATA CHEMISTRY_SPC(   9 ), SPECIES_MOLWT(   9 ) / 'OH              ',   17.01D0 /
+      DATA CHEMISTRY_SPC(  10 ), SPECIES_MOLWT(  10 ) / 'HONO            ',   47.02D0 /
+      DATA CHEMISTRY_SPC(  11 ), SPECIES_MOLWT(  11 ) / 'HO2             ',   33.01D0 /
+      DATA CHEMISTRY_SPC(  12 ), SPECIES_MOLWT(  12 ) / 'CO              ',   28.01D0 /
+      DATA CHEMISTRY_SPC(  13 ), SPECIES_MOLWT(  13 ) / 'CO2             ',   44.01D0 /
+      DATA CHEMISTRY_SPC(  14 ), SPECIES_MOLWT(  14 ) / 'HNO4            ',   79.02D0 /
+      DATA CHEMISTRY_SPC(  15 ), SPECIES_MOLWT(  15 ) / 'HO2H            ',   34.01D0 /
+      DATA CHEMISTRY_SPC(  16 ), SPECIES_MOLWT(  16 ) / 'SO2             ',   64.06D0 /
+      DATA CHEMISTRY_SPC(  17 ), SPECIES_MOLWT(  17 ) / 'SULF            ',   98.08D0 /
+      DATA CHEMISTRY_SPC(  18 ), SPECIES_MOLWT(  18 ) / 'SULRXN          ',   98.08D0 /
+      DATA CHEMISTRY_SPC(  19 ), SPECIES_MOLWT(  19 ) / 'MEO2            ',   47.03D0 /
+      DATA CHEMISTRY_SPC(  20 ), SPECIES_MOLWT(  20 ) / 'HCHO            ',   30.03D0 /
+      DATA CHEMISTRY_SPC(  21 ), SPECIES_MOLWT(  21 ) / 'COOH            ',   48.04D0 /
+      DATA CHEMISTRY_SPC(  22 ), SPECIES_MOLWT(  22 ) / 'MEOH            ',   32.04D0 /
+      DATA CHEMISTRY_SPC(  23 ), SPECIES_MOLWT(  23 ) / 'RO2C            ',    1.00D0 /
+      DATA CHEMISTRY_SPC(  24 ), SPECIES_MOLWT(  24 ) / 'RO2XC           ',    1.00D0 /
+      DATA CHEMISTRY_SPC(  25 ), SPECIES_MOLWT(  25 ) / 'MECO3           ',   75.04D0 /
+      DATA CHEMISTRY_SPC(  26 ), SPECIES_MOLWT(  26 ) / 'PAN             ',  121.05D0 /
+      DATA CHEMISTRY_SPC(  27 ), SPECIES_MOLWT(  27 ) / 'CCOOOH          ',   76.00D0 /
+      DATA CHEMISTRY_SPC(  28 ), SPECIES_MOLWT(  28 ) / 'CCOOH           ',   60.05D0 /
+      DATA CHEMISTRY_SPC(  29 ), SPECIES_MOLWT(  29 ) / 'RCO3            ',   89.07D0 /
+      DATA CHEMISTRY_SPC(  30 ), SPECIES_MOLWT(  30 ) / 'PAN2            ',  135.08D0 /
+      DATA CHEMISTRY_SPC(  31 ), SPECIES_MOLWT(  31 ) / 'xHO2            ',   33.01D0 /
+      DATA CHEMISTRY_SPC(  32 ), SPECIES_MOLWT(  32 ) / 'yROOH           ',   76.10D0 /
+      DATA CHEMISTRY_SPC(  33 ), SPECIES_MOLWT(  33 ) / 'xCCHO           ',   44.05D0 /
+      DATA CHEMISTRY_SPC(  34 ), SPECIES_MOLWT(  34 ) / 'RCOOOH          ',   74.08D0 /
+      DATA CHEMISTRY_SPC(  35 ), SPECIES_MOLWT(  35 ) / 'RCOOH           ',   74.08D0 /
+      DATA CHEMISTRY_SPC(  36 ), SPECIES_MOLWT(  36 ) / 'BZCO3           ',  137.12D0 /
+      DATA CHEMISTRY_SPC(  37 ), SPECIES_MOLWT(  37 ) / 'PBZN            ',  183.13D0 /
+      DATA CHEMISTRY_SPC(  38 ), SPECIES_MOLWT(  38 ) / 'BZO             ',   93.00D0 /
+      DATA CHEMISTRY_SPC(  39 ), SPECIES_MOLWT(  39 ) / 'MACO3           ',  101.08D0 /
+      DATA CHEMISTRY_SPC(  40 ), SPECIES_MOLWT(  40 ) / 'MAPAN           ',  147.09D0 /
+      DATA CHEMISTRY_SPC(  41 ), SPECIES_MOLWT(  41 ) / 'TBUO            ',   73.00D0 /
+      DATA CHEMISTRY_SPC(  42 ), SPECIES_MOLWT(  42 ) / 'RNO3            ',  147.18D0 /
+      DATA CHEMISTRY_SPC(  43 ), SPECIES_MOLWT(  43 ) / 'ACETONE         ',   58.08D0 /
+      DATA CHEMISTRY_SPC(  44 ), SPECIES_MOLWT(  44 ) / 'NPHE            ',  139.11D0 /
+      DATA CHEMISTRY_SPC(  45 ), SPECIES_MOLWT(  45 ) / 'CRES            ',  108.14D0 /
+      DATA CHEMISTRY_SPC(  46 ), SPECIES_MOLWT(  46 ) / 'xOH             ',   17.01D0 /
+      DATA CHEMISTRY_SPC(  47 ), SPECIES_MOLWT(  47 ) / 'xNO2            ',   46.01D0 /
+      DATA CHEMISTRY_SPC(  48 ), SPECIES_MOLWT(  48 ) / 'xMEO2           ',   47.03D0 /
+      DATA CHEMISTRY_SPC(  49 ), SPECIES_MOLWT(  49 ) / 'xMECO3          ',   75.04D0 /
+      DATA CHEMISTRY_SPC(  50 ), SPECIES_MOLWT(  50 ) / 'xRCO3           ',   89.07D0 /
+      DATA CHEMISTRY_SPC(  51 ), SPECIES_MOLWT(  51 ) / 'xMACO3          ',  101.08D0 /
+      DATA CHEMISTRY_SPC(  52 ), SPECIES_MOLWT(  52 ) / 'xTBUO           ',   73.00D0 /
+      DATA CHEMISTRY_SPC(  53 ), SPECIES_MOLWT(  53 ) / 'xCO             ',   28.01D0 /
+      DATA CHEMISTRY_SPC(  54 ), SPECIES_MOLWT(  54 ) / 'CCHO            ',   44.05D0 /
+      DATA CHEMISTRY_SPC(  55 ), SPECIES_MOLWT(  55 ) / 'RCHO            ',   58.08D0 /
+      DATA CHEMISTRY_SPC(  56 ), SPECIES_MOLWT(  56 ) / 'xHCHO           ',   30.03D0 /
+      DATA CHEMISTRY_SPC(  57 ), SPECIES_MOLWT(  57 ) / 'MEK             ',   72.11D0 /
+      DATA CHEMISTRY_SPC(  58 ), SPECIES_MOLWT(  58 ) / 'zRNO3           ',  147.18D0 /
+      DATA CHEMISTRY_SPC(  59 ), SPECIES_MOLWT(  59 ) / 'xRCHO           ',   58.08D0 /
+      DATA CHEMISTRY_SPC(  60 ), SPECIES_MOLWT(  60 ) / 'HCOOH           ',   46.03D0 /
+      DATA CHEMISTRY_SPC(  61 ), SPECIES_MOLWT(  61 ) / 'xMGLY           ',   72.07D0 /
+      DATA CHEMISTRY_SPC(  62 ), SPECIES_MOLWT(  62 ) / 'xBACL           ',   86.09D0 /
+      DATA CHEMISTRY_SPC(  63 ), SPECIES_MOLWT(  63 ) / 'ROOH            ',   76.10D0 /
+      DATA CHEMISTRY_SPC(  64 ), SPECIES_MOLWT(  64 ) / 'xPROD2          ',  116.16D0 /
+      DATA CHEMISTRY_SPC(  65 ), SPECIES_MOLWT(  65 ) / 'R6OOH           ',  118.17D0 /
+      DATA CHEMISTRY_SPC(  66 ), SPECIES_MOLWT(  66 ) / 'PRD2            ',  116.16D0 /
+      DATA CHEMISTRY_SPC(  67 ), SPECIES_MOLWT(  67 ) / 'yR6OOH          ',  118.17D0 /
+      DATA CHEMISTRY_SPC(  68 ), SPECIES_MOLWT(  68 ) / 'RAOOH           ',  188.18D0 /
+      DATA CHEMISTRY_SPC(  69 ), SPECIES_MOLWT(  69 ) / 'MGLY            ',   72.07D0 /
+      DATA CHEMISTRY_SPC(  70 ), SPECIES_MOLWT(  70 ) / 'IPRD            ',  100.12D0 /
+      DATA CHEMISTRY_SPC(  71 ), SPECIES_MOLWT(  71 ) / 'xGLY            ',   58.04D0 /
+      DATA CHEMISTRY_SPC(  72 ), SPECIES_MOLWT(  72 ) / 'xMEK            ',   72.11D0 /
+      DATA CHEMISTRY_SPC(  73 ), SPECIES_MOLWT(  73 ) / 'xAFG1           ',   98.10D0 /
+      DATA CHEMISTRY_SPC(  74 ), SPECIES_MOLWT(  74 ) / 'xAFG2           ',   98.10D0 /
+      DATA CHEMISTRY_SPC(  75 ), SPECIES_MOLWT(  75 ) / 'GLY             ',   58.04D0 /
+      DATA CHEMISTRY_SPC(  76 ), SPECIES_MOLWT(  76 ) / 'AFG1            ',   98.10D0 /
+      DATA CHEMISTRY_SPC(  77 ), SPECIES_MOLWT(  77 ) / 'AFG2            ',   98.10D0 /
+      DATA CHEMISTRY_SPC(  78 ), SPECIES_MOLWT(  78 ) / 'HCOCO3          ',   89.00D0 /
+      DATA CHEMISTRY_SPC(  79 ), SPECIES_MOLWT(  79 ) / 'BACL            ',   86.09D0 /
+      DATA CHEMISTRY_SPC(  80 ), SPECIES_MOLWT(  80 ) / 'BALD            ',  106.13D0 /
+      DATA CHEMISTRY_SPC(  81 ), SPECIES_MOLWT(  81 ) / 'AFG3            ',  124.14D0 /
+      DATA CHEMISTRY_SPC(  82 ), SPECIES_MOLWT(  82 ) / 'xIPRD           ',  100.12D0 /
+      DATA CHEMISTRY_SPC(  83 ), SPECIES_MOLWT(  83 ) / 'MACR            ',   70.09D0 /
+      DATA CHEMISTRY_SPC(  84 ), SPECIES_MOLWT(  84 ) / 'MVK             ',   70.09D0 /
+      DATA CHEMISTRY_SPC(  85 ), SPECIES_MOLWT(  85 ) / 'xHOCCHO         ',   60.05D0 /
+      DATA CHEMISTRY_SPC(  86 ), SPECIES_MOLWT(  86 ) / 'xRNO3           ',  147.18D0 /
+      DATA CHEMISTRY_SPC(  87 ), SPECIES_MOLWT(  87 ) / 'HOCCHO          ',   60.05D0 /
+      DATA CHEMISTRY_SPC(  88 ), SPECIES_MOLWT(  88 ) / 'xACETONE        ',   58.08D0 /
+      DATA CHEMISTRY_SPC(  89 ), SPECIES_MOLWT(  89 ) / 'ACROLEIN        ',   56.06D0 /
+      DATA CHEMISTRY_SPC(  90 ), SPECIES_MOLWT(  90 ) / 'xBALD           ',  106.13D0 /
+      DATA CHEMISTRY_SPC(  91 ), SPECIES_MOLWT(  91 ) / 'xAFG3           ',  124.74D0 /
+      DATA CHEMISTRY_SPC(  92 ), SPECIES_MOLWT(  92 ) / 'xMACR           ',   70.09D0 /
+      DATA CHEMISTRY_SPC(  93 ), SPECIES_MOLWT(  93 ) / 'xMVK            ',   70.09D0 /
+      DATA CHEMISTRY_SPC(  94 ), SPECIES_MOLWT(  94 ) / 'xMTNO3          ',  231.00D0 /
+      DATA CHEMISTRY_SPC(  95 ), SPECIES_MOLWT(  95 ) / 'MTNO3           ',  231.00D0 /
+      DATA CHEMISTRY_SPC(  96 ), SPECIES_MOLWT(  96 ) / 'IMACO3          ',  101.08D0 /
+      DATA CHEMISTRY_SPC(  97 ), SPECIES_MOLWT(  97 ) / 'yRAOOH          ',  188.18D0 /
+      DATA CHEMISTRY_SPC(  98 ), SPECIES_MOLWT(  98 ) / 'zMTNO3          ',  231.00D0 /
+      DATA CHEMISTRY_SPC(  99 ), SPECIES_MOLWT(  99 ) / 'xACROLEIN       ',   56.06D0 /
+      DATA CHEMISTRY_SPC( 100 ), SPECIES_MOLWT( 100 ) / 'ETHENE          ',   28.05D0 /
+      DATA CHEMISTRY_SPC( 101 ), SPECIES_MOLWT( 101 ) / 'PROPENE         ',   42.08D0 /
+      DATA CHEMISTRY_SPC( 102 ), SPECIES_MOLWT( 102 ) / 'BUTADIENE13     ',   54.09D0 /
+      DATA CHEMISTRY_SPC( 103 ), SPECIES_MOLWT( 103 ) / 'ISOPRENE        ',   68.12D0 /
+      DATA CHEMISTRY_SPC( 104 ), SPECIES_MOLWT( 104 ) / 'APIN            ',  136.23D0 /
+      DATA CHEMISTRY_SPC( 105 ), SPECIES_MOLWT( 105 ) / 'TRPRXN          ',  136.00D0 /
+      DATA CHEMISTRY_SPC( 106 ), SPECIES_MOLWT( 106 ) / 'ACETYLENE       ',   26.04D0 /
+      DATA CHEMISTRY_SPC( 107 ), SPECIES_MOLWT( 107 ) / 'BENZENE         ',   78.11D0 /
+      DATA CHEMISTRY_SPC( 108 ), SPECIES_MOLWT( 108 ) / 'BENZRO2         ',  159.11D0 /
+      DATA CHEMISTRY_SPC( 109 ), SPECIES_MOLWT( 109 ) / 'TOLUENE         ',   92.14D0 /
+      DATA CHEMISTRY_SPC( 110 ), SPECIES_MOLWT( 110 ) / 'TOLRO2          ',  172.14D0 /
+      DATA CHEMISTRY_SPC( 111 ), SPECIES_MOLWT( 111 ) / 'MXYL            ',  106.17D0 /
+      DATA CHEMISTRY_SPC( 112 ), SPECIES_MOLWT( 112 ) / 'XYLRO2          ',  187.17D0 /
+      DATA CHEMISTRY_SPC( 113 ), SPECIES_MOLWT( 113 ) / 'OXYL            ',  106.17D0 /
+      DATA CHEMISTRY_SPC( 114 ), SPECIES_MOLWT( 114 ) / 'PXYL            ',  106.17D0 /
+      DATA CHEMISTRY_SPC( 115 ), SPECIES_MOLWT( 115 ) / 'TMBENZ124       ',  120.19D0 /
+      DATA CHEMISTRY_SPC( 116 ), SPECIES_MOLWT( 116 ) / 'ETOH            ',   46.07D0 /
+      DATA CHEMISTRY_SPC( 117 ), SPECIES_MOLWT( 117 ) / 'ALK1            ',   30.07D0 /
+      DATA CHEMISTRY_SPC( 118 ), SPECIES_MOLWT( 118 ) / 'ALK2            ',   36.73D0 /
+      DATA CHEMISTRY_SPC( 119 ), SPECIES_MOLWT( 119 ) / 'ALK3            ',   58.61D0 /
+      DATA CHEMISTRY_SPC( 120 ), SPECIES_MOLWT( 120 ) / 'ALK4            ',   77.60D0 /
+      DATA CHEMISTRY_SPC( 121 ), SPECIES_MOLWT( 121 ) / 'ALK5            ',  118.89D0 /
+      DATA CHEMISTRY_SPC( 122 ), SPECIES_MOLWT( 122 ) / 'SOAALK          ',  112.00D0 /
+      DATA CHEMISTRY_SPC( 123 ), SPECIES_MOLWT( 123 ) / 'SVAVB2          ',  179.00D0 /
+      DATA CHEMISTRY_SPC( 124 ), SPECIES_MOLWT( 124 ) / 'SVAVB3          ',  169.00D0 /
+      DATA CHEMISTRY_SPC( 125 ), SPECIES_MOLWT( 125 ) / 'SVAVB4          ',  158.00D0 /
+      DATA CHEMISTRY_SPC( 126 ), SPECIES_MOLWT( 126 ) / 'OLE1            ',   72.34D0 /
+      DATA CHEMISTRY_SPC( 127 ), SPECIES_MOLWT( 127 ) / 'OLE2            ',   75.78D0 /
+      DATA CHEMISTRY_SPC( 128 ), SPECIES_MOLWT( 128 ) / 'ARO1            ',   95.16D0 /
+      DATA CHEMISTRY_SPC( 129 ), SPECIES_MOLWT( 129 ) / 'ARO2MN          ',  118.72D0 /
+      DATA CHEMISTRY_SPC( 130 ), SPECIES_MOLWT( 130 ) / 'NAPHTHAL        ',  128.20D0 /
+      DATA CHEMISTRY_SPC( 131 ), SPECIES_MOLWT( 131 ) / 'PAHRO2          ',  187.20D0 /
+      DATA CHEMISTRY_SPC( 132 ), SPECIES_MOLWT( 132 ) / 'TERP            ',  136.24D0 /
+      DATA CHEMISTRY_SPC( 133 ), SPECIES_MOLWT( 133 ) / 'TERPNRO2        ',  197.00D0 /
+      DATA CHEMISTRY_SPC( 134 ), SPECIES_MOLWT( 134 ) / 'SESQ            ',  204.35D0 /
+      DATA CHEMISTRY_SPC( 135 ), SPECIES_MOLWT( 135 ) / 'SESQRXN         ',  204.35D0 /
+      DATA CHEMISTRY_SPC( 136 ), SPECIES_MOLWT( 136 ) / 'CL2             ',   70.00D0 /
+      DATA CHEMISTRY_SPC( 137 ), SPECIES_MOLWT( 137 ) / 'CL              ',   35.50D0 /
+      DATA CHEMISTRY_SPC( 138 ), SPECIES_MOLWT( 138 ) / 'CLNO            ',   65.50D0 /
+      DATA CHEMISTRY_SPC( 139 ), SPECIES_MOLWT( 139 ) / 'CLONO           ',   81.50D0 /
+      DATA CHEMISTRY_SPC( 140 ), SPECIES_MOLWT( 140 ) / 'CLNO2           ',   81.50D0 /
+      DATA CHEMISTRY_SPC( 141 ), SPECIES_MOLWT( 141 ) / 'HCL             ',   36.50D0 /
+      DATA CHEMISTRY_SPC( 142 ), SPECIES_MOLWT( 142 ) / 'CLO             ',   51.50D0 /
+      DATA CHEMISTRY_SPC( 143 ), SPECIES_MOLWT( 143 ) / 'CLONO2          ',   97.45D0 /
+      DATA CHEMISTRY_SPC( 144 ), SPECIES_MOLWT( 144 ) / 'HOCL            ',   52.50D0 /
+      DATA CHEMISTRY_SPC( 145 ), SPECIES_MOLWT( 145 ) / 'xCL             ',   35.50D0 /
+      DATA CHEMISTRY_SPC( 146 ), SPECIES_MOLWT( 146 ) / 'xCLCCHO         ',   78.50D0 /
+      DATA CHEMISTRY_SPC( 147 ), SPECIES_MOLWT( 147 ) / 'xCLACET         ',   92.50D0 /
+      DATA CHEMISTRY_SPC( 148 ), SPECIES_MOLWT( 148 ) / 'CLCCHO          ',   78.50D0 /
+      DATA CHEMISTRY_SPC( 149 ), SPECIES_MOLWT( 149 ) / 'CLACET          ',   92.50D0 /
+      DATA CHEMISTRY_SPC( 150 ), SPECIES_MOLWT( 150 ) / 'CLCHO           ',   64.50D0 /
+      DATA CHEMISTRY_SPC( 151 ), SPECIES_MOLWT( 151 ) / 'SVAVB1          ',  198.00D0 /
+      DATA CHEMISTRY_SPC( 152 ), SPECIES_MOLWT( 152 ) / 'HCHO_PRIMARY    ',   30.03D0 /
+      DATA CHEMISTRY_SPC( 153 ), SPECIES_MOLWT( 153 ) / 'CCHO_PRIMARY    ',   44.05D0 /
+      DATA CHEMISTRY_SPC( 154 ), SPECIES_MOLWT( 154 ) / 'ACRO_PRIMARY    ',   56.06D0 /
+      DATA CHEMISTRY_SPC( 155 ), SPECIES_MOLWT( 155 ) / 'ISOPO2          ',  117.10D0 /
+      DATA CHEMISTRY_SPC( 156 ), SPECIES_MOLWT( 156 ) / 'ISOPRXN         ',   68.00D0 /
+      DATA CHEMISTRY_SPC( 157 ), SPECIES_MOLWT( 157 ) / 'ISOPND          ',  147.10D0 /
+      DATA CHEMISTRY_SPC( 158 ), SPECIES_MOLWT( 158 ) / 'ISOPNB          ',  147.10D0 /
+      DATA CHEMISTRY_SPC( 159 ), SPECIES_MOLWT( 159 ) / 'HC5             ',  100.10D0 /
+      DATA CHEMISTRY_SPC( 160 ), SPECIES_MOLWT( 160 ) / 'DIBOO           ',  133.10D0 /
+      DATA CHEMISTRY_SPC( 161 ), SPECIES_MOLWT( 161 ) / 'ISOPOOH         ',  118.10D0 /
+      DATA CHEMISTRY_SPC( 162 ), SPECIES_MOLWT( 162 ) / 'HPALD           ',  116.12D0 /
+      DATA CHEMISTRY_SPC( 163 ), SPECIES_MOLWT( 163 ) / 'HACET           ',   74.10D0 /
+      DATA CHEMISTRY_SPC( 164 ), SPECIES_MOLWT( 164 ) / 'NISOPO2         ',  162.10D0 /
+      DATA CHEMISTRY_SPC( 165 ), SPECIES_MOLWT( 165 ) / 'NIT1            ',  145.10D0 /
+      DATA CHEMISTRY_SPC( 166 ), SPECIES_MOLWT( 166 ) / 'NISOPOOH        ',  163.13D0 /
+      DATA CHEMISTRY_SPC( 167 ), SPECIES_MOLWT( 167 ) / 'HC5OO           ',  149.10D0 /
+      DATA CHEMISTRY_SPC( 168 ), SPECIES_MOLWT( 168 ) / 'DHMOB           ',  132.10D0 /
+      DATA CHEMISTRY_SPC( 169 ), SPECIES_MOLWT( 169 ) / 'ISOPNOOD        ',  196.10D0 /
+      DATA CHEMISTRY_SPC( 170 ), SPECIES_MOLWT( 170 ) / 'PROPNN          ',  119.10D0 /
+      DATA CHEMISTRY_SPC( 171 ), SPECIES_MOLWT( 171 ) / 'MVKN            ',  149.10D0 /
+      DATA CHEMISTRY_SPC( 172 ), SPECIES_MOLWT( 172 ) / 'ETHLN           ',  105.00D0 /
+      DATA CHEMISTRY_SPC( 173 ), SPECIES_MOLWT( 173 ) / 'RNO3I           ',  147.18D0 /
+      DATA CHEMISTRY_SPC( 174 ), SPECIES_MOLWT( 174 ) / 'ISOPNOOB        ',  196.10D0 /
+      DATA CHEMISTRY_SPC( 175 ), SPECIES_MOLWT( 175 ) / 'MACRN           ',  149.10D0 /
+      DATA CHEMISTRY_SPC( 176 ), SPECIES_MOLWT( 176 ) / 'NIT1NO3OOA      ',  176.10D0 /
+      DATA CHEMISTRY_SPC( 177 ), SPECIES_MOLWT( 177 ) / 'NIT1NO3OOB      ',  239.10D0 /
+      DATA CHEMISTRY_SPC( 178 ), SPECIES_MOLWT( 178 ) / 'ISOPNN          ',  226.00D0 /
+      DATA CHEMISTRY_SPC( 179 ), SPECIES_MOLWT( 179 ) / 'NIT1OHOO        ',  194.12D0 /
+      DATA CHEMISTRY_SPC( 180 ), SPECIES_MOLWT( 180 ) / 'MVKOO           ',  119.10D0 /
+      DATA CHEMISTRY_SPC( 181 ), SPECIES_MOLWT( 181 ) / 'MACROO          ',  119.10D0 /
+      DATA CHEMISTRY_SPC( 182 ), SPECIES_MOLWT( 182 ) / 'PYRUACD         ',   88.10D0 /
+      DATA CHEMISTRY_SPC( 183 ), SPECIES_MOLWT( 183 ) / 'IEPOX           ',  118.13D0 /
+      DATA CHEMISTRY_SPC( 184 ), SPECIES_MOLWT( 184 ) / 'IEPOXOO         ',  149.12D0 /
+      DATA CHEMISTRY_SPC( 185 ), SPECIES_MOLWT( 185 ) / 'IMPAA           ',  102.08D0 /
+      DATA CHEMISTRY_SPC( 186 ), SPECIES_MOLWT( 186 ) / 'IMAPAN          ',  147.09D0 /
+      DATA CHEMISTRY_SPC( 187 ), SPECIES_MOLWT( 187 ) / 'IMAE            ',  102.00D0 /
+      DATA CHEMISTRY_SPC( 188 ), SPECIES_MOLWT( 188 ) / 'IHMML           ',  102.00D0 /
+      DATA CHEMISTRY_SPC( 189 ), SPECIES_MOLWT( 189 ) / 'H2NO3PIJ        ',   64.00D0 /
+      DATA CHEMISTRY_SPC( 190 ), SPECIES_MOLWT( 190 ) / 'H2NO3PK         ',   64.00D0 /
+      DATA CHEMISTRY_SPC( 191 ), SPECIES_MOLWT( 191 ) / 'ACLI            ',   35.50D0 /
+      DATA CHEMISTRY_SPC( 192 ), SPECIES_MOLWT( 192 ) / 'ACLJ            ',   35.50D0 /
+      DATA CHEMISTRY_SPC( 193 ), SPECIES_MOLWT( 193 ) / 'ACLK            ',   35.50D0 /
+      DATA CHEMISTRY_SPC( 194 ), SPECIES_MOLWT( 194 ) / 'IEPOXP          ',  118.13D0 /
+      DATA CHEMISTRY_SPC( 195 ), SPECIES_MOLWT( 195 ) / 'IMAEP           ',  102.00D0 /
+      DATA CHEMISTRY_SPC( 196 ), SPECIES_MOLWT( 196 ) / 'IHMMLP          ',  102.00D0 /
+      DATA CHEMISTRY_SPC( 197 ), SPECIES_MOLWT( 197 ) / 'AIETETJ         ',  136.15D0 /
+      DATA CHEMISTRY_SPC( 198 ), SPECIES_MOLWT( 198 ) / 'AIEOSJ          ',  216.20D0 /
+      DATA CHEMISTRY_SPC( 199 ), SPECIES_MOLWT( 199 ) / 'ADIMJ           ',  248.23D0 /
+      DATA CHEMISTRY_SPC( 200 ), SPECIES_MOLWT( 200 ) / 'AIMGAJ          ',  120.10D0 /
+      DATA CHEMISTRY_SPC( 201 ), SPECIES_MOLWT( 201 ) / 'AIMOSJ          ',  200.16D0 /
+      DATA CHEMISTRY_SPC( 202 ), SPECIES_MOLWT( 202 ) / 'AISO1J          ',  132.00D0 /
+      DATA CHEMISTRY_SPC( 203 ), SPECIES_MOLWT( 203 ) / 'AOLGBJ          ',  248.00D0 /
+      DATA CHEMISTRY_SPC( 204 ), SPECIES_MOLWT( 204 ) / 'AISO2J          ',  133.00D0 /
+      DATA CHEMISTRY_SPC( 205 ), SPECIES_MOLWT( 205 ) / 'ASQTJ           ',  273.00D0 /
+      DATA CHEMISTRY_SPC( 206 ), SPECIES_MOLWT( 206 ) / 'AAVB2J          ',  179.00D0 /
+      DATA CHEMISTRY_SPC( 207 ), SPECIES_MOLWT( 207 ) / 'AOLGAJ          ',  206.00D0 /
+      DATA CHEMISTRY_SPC( 208 ), SPECIES_MOLWT( 208 ) / 'AAVB3J          ',  169.00D0 /
+      DATA CHEMISTRY_SPC( 209 ), SPECIES_MOLWT( 209 ) / 'AAVB4J          ',  158.00D0 /
+      DATA CHEMISTRY_SPC( 210 ), SPECIES_MOLWT( 210 ) / 'PCVOC           ',  170.00D0 /
+      DATA CHEMISTRY_SPC( 211 ), SPECIES_MOLWT( 211 ) / 'PCSOARXN        ',  170.00D0 /
+      DATA CHEMISTRY_SPC( 212 ), SPECIES_MOLWT( 212 ) / 'VLVPO1          ',  218.00D0 /
+      DATA CHEMISTRY_SPC( 213 ), SPECIES_MOLWT( 213 ) / 'VSVPO1          ',  230.00D0 /
+      DATA CHEMISTRY_SPC( 214 ), SPECIES_MOLWT( 214 ) / 'VSVPO2          ',  241.00D0 /
+      DATA CHEMISTRY_SPC( 215 ), SPECIES_MOLWT( 215 ) / 'VSVPO3          ',  253.00D0 /
+      DATA CHEMISTRY_SPC( 216 ), SPECIES_MOLWT( 216 ) / 'VIVPO1          ',  266.00D0 /
+      DATA CHEMISTRY_SPC( 217 ), SPECIES_MOLWT( 217 ) / 'VLVOO1          ',  136.00D0 /
+      DATA CHEMISTRY_SPC( 218 ), SPECIES_MOLWT( 218 ) / 'VLVOO2          ',  136.00D0 /
+      DATA CHEMISTRY_SPC( 219 ), SPECIES_MOLWT( 219 ) / 'VSVOO2          ',  135.00D0 /
+      DATA CHEMISTRY_SPC( 220 ), SPECIES_MOLWT( 220 ) / 'VSVOO3          ',  134.00D0 /
+      DATA CHEMISTRY_SPC( 221 ), SPECIES_MOLWT( 221 ) / 'VSVOO1          ',  135.00D0 /
+      DATA CHEMISTRY_SPC( 222 ), SPECIES_MOLWT( 222 ) / 'AMTNO3J         ',  231.00D0 /
+      DATA CHEMISTRY_SPC( 223 ), SPECIES_MOLWT( 223 ) / 'AMTHYDJ         ',  186.00D0 /
+      DATA CHEMISTRY_SPC( 224 ), SPECIES_MOLWT( 224 ) / 'AISOPNNJ        ',  226.00D0 /
+      DATA CHEMISTRY_SPC( 225 ), SPECIES_MOLWT( 225 ) / 'AGLYJ           ',   66.40D0 /
+
 
       DATA CGRID_INDEX(   1 ), SPECIES_TYPE(   1 ), CONVERT_CONC(   1 ) /    1, 'GC', F /  ! NO2
       DATA CGRID_INDEX(   2 ), SPECIES_TYPE(   2 ), CONVERT_CONC(   2 ) /    2, 'GC', F /  ! NO
@@ -666,7 +884,7 @@
       DATA CGRID_INDEX(  93 ), SPECIES_TYPE(  93 ), CONVERT_CONC(  93 ) /   96, 'GC', F /  ! xMVK
       DATA CGRID_INDEX(  94 ), SPECIES_TYPE(  94 ), CONVERT_CONC(  94 ) /   70, 'GC', F /  ! xMTNO3
       DATA CGRID_INDEX(  95 ), SPECIES_TYPE(  95 ), CONVERT_CONC(  95 ) /   43, 'GC', F /  ! MTNO3
-      DATA CGRID_INDEX(  96 ), SPECIES_TYPE(  96 ), CONVERT_CONC(  96 ) /  181, 'GC', F /  ! IMACO3
+      DATA CGRID_INDEX(  96 ), SPECIES_TYPE(  96 ), CONVERT_CONC(  96 ) /  180, 'GC', F /  ! IMACO3
       DATA CGRID_INDEX(  97 ), SPECIES_TYPE(  97 ), CONVERT_CONC(  97 ) /   97, 'GC', F /  ! yRAOOH
       DATA CGRID_INDEX(  98 ), SPECIES_TYPE(  98 ), CONVERT_CONC(  98 ) /   69, 'GC', F /  ! zMTNO3
       DATA CGRID_INDEX(  99 ), SPECIES_TYPE(  99 ), CONVERT_CONC(  99 ) /   98, 'GC', F /  ! xACROLEIN
@@ -693,119 +911,412 @@
       DATA CGRID_INDEX( 120 ), SPECIES_TYPE( 120 ), CONVERT_CONC( 120 ) /  119, 'GC', F /  ! ALK4
       DATA CGRID_INDEX( 121 ), SPECIES_TYPE( 121 ), CONVERT_CONC( 121 ) /  120, 'GC', F /  ! ALK5
       DATA CGRID_INDEX( 122 ), SPECIES_TYPE( 122 ), CONVERT_CONC( 122 ) /  121, 'GC', F /  ! SOAALK
-      DATA CGRID_INDEX( 123 ), SPECIES_TYPE( 123 ), CONVERT_CONC( 123 ) /  204, 'GC', F /  ! SVAVB2
-      DATA CGRID_INDEX( 124 ), SPECIES_TYPE( 124 ), CONVERT_CONC( 124 ) /  205, 'GC', F /  ! SVAVB3
-      DATA CGRID_INDEX( 125 ), SPECIES_TYPE( 125 ), CONVERT_CONC( 125 ) /  206, 'GC', F /  ! SVAVB4
-      DATA CGRID_INDEX( 126 ), SPECIES_TYPE( 126 ), CONVERT_CONC( 126 ) /  123, 'GC', F /  ! OLE1
-      DATA CGRID_INDEX( 127 ), SPECIES_TYPE( 127 ), CONVERT_CONC( 127 ) /  124, 'GC', F /  ! OLE2
-      DATA CGRID_INDEX( 128 ), SPECIES_TYPE( 128 ), CONVERT_CONC( 128 ) /  125, 'GC', F /  ! ARO1
-      DATA CGRID_INDEX( 129 ), SPECIES_TYPE( 129 ), CONVERT_CONC( 129 ) /  126, 'GC', F /  ! ARO2MN
-      DATA CGRID_INDEX( 130 ), SPECIES_TYPE( 130 ), CONVERT_CONC( 130 ) /  127, 'GC', F /  ! NAPHTHAL
-      DATA CGRID_INDEX( 131 ), SPECIES_TYPE( 131 ), CONVERT_CONC( 131 ) /  128, 'GC', F /  ! PAHRO2
-      DATA CGRID_INDEX( 132 ), SPECIES_TYPE( 132 ), CONVERT_CONC( 132 ) /  129, 'GC', F /  ! TERP
-      DATA CGRID_INDEX( 133 ), SPECIES_TYPE( 133 ), CONVERT_CONC( 133 ) /  130, 'GC', F /  ! TERPNRO2
-      DATA CGRID_INDEX( 134 ), SPECIES_TYPE( 134 ), CONVERT_CONC( 134 ) /  131, 'GC', F /  ! SESQ
-      DATA CGRID_INDEX( 135 ), SPECIES_TYPE( 135 ), CONVERT_CONC( 135 ) /  132, 'GC', F /  ! SESQRXN
-      DATA CGRID_INDEX( 136 ), SPECIES_TYPE( 136 ), CONVERT_CONC( 136 ) /  133, 'GC', F /  ! CL2
-      DATA CGRID_INDEX( 137 ), SPECIES_TYPE( 137 ), CONVERT_CONC( 137 ) /  134, 'GC', F /  ! CL
-      DATA CGRID_INDEX( 138 ), SPECIES_TYPE( 138 ), CONVERT_CONC( 138 ) /  135, 'GC', F /  ! CLNO
-      DATA CGRID_INDEX( 139 ), SPECIES_TYPE( 139 ), CONVERT_CONC( 139 ) /  136, 'GC', F /  ! CLONO
-      DATA CGRID_INDEX( 140 ), SPECIES_TYPE( 140 ), CONVERT_CONC( 140 ) /  137, 'GC', F /  ! CLNO2
-      DATA CGRID_INDEX( 141 ), SPECIES_TYPE( 141 ), CONVERT_CONC( 141 ) /  138, 'GC', F /  ! HCL
-      DATA CGRID_INDEX( 142 ), SPECIES_TYPE( 142 ), CONVERT_CONC( 142 ) /  139, 'GC', F /  ! CLO
-      DATA CGRID_INDEX( 143 ), SPECIES_TYPE( 143 ), CONVERT_CONC( 143 ) /  140, 'GC', F /  ! CLONO2
-      DATA CGRID_INDEX( 144 ), SPECIES_TYPE( 144 ), CONVERT_CONC( 144 ) /  141, 'GC', F /  ! HOCL
-      DATA CGRID_INDEX( 145 ), SPECIES_TYPE( 145 ), CONVERT_CONC( 145 ) /  142, 'GC', F /  ! xCL
-      DATA CGRID_INDEX( 146 ), SPECIES_TYPE( 146 ), CONVERT_CONC( 146 ) /  143, 'GC', F /  ! xCLCCHO
-      DATA CGRID_INDEX( 147 ), SPECIES_TYPE( 147 ), CONVERT_CONC( 147 ) /  144, 'GC', F /  ! xCLACET
-      DATA CGRID_INDEX( 148 ), SPECIES_TYPE( 148 ), CONVERT_CONC( 148 ) /  145, 'GC', F /  ! CLCCHO
-      DATA CGRID_INDEX( 149 ), SPECIES_TYPE( 149 ), CONVERT_CONC( 149 ) /  146, 'GC', F /  ! CLACET
-      DATA CGRID_INDEX( 150 ), SPECIES_TYPE( 150 ), CONVERT_CONC( 150 ) /  147, 'GC', F /  ! CLCHO
-      DATA CGRID_INDEX( 151 ), SPECIES_TYPE( 151 ), CONVERT_CONC( 151 ) /  203, 'GC', F /  ! SVAVB1
-      DATA CGRID_INDEX( 152 ), SPECIES_TYPE( 152 ), CONVERT_CONC( 152 ) /  148, 'GC', F /  ! HCHO_PRIMARY
-      DATA CGRID_INDEX( 153 ), SPECIES_TYPE( 153 ), CONVERT_CONC( 153 ) /  149, 'GC', F /  ! CCHO_PRIMARY
-      DATA CGRID_INDEX( 154 ), SPECIES_TYPE( 154 ), CONVERT_CONC( 154 ) /  150, 'GC', F /  ! ACRO_PRIMARY
-      DATA CGRID_INDEX( 155 ), SPECIES_TYPE( 155 ), CONVERT_CONC( 155 ) /  151, 'GC', F /  ! ISOPO2
-      DATA CGRID_INDEX( 156 ), SPECIES_TYPE( 156 ), CONVERT_CONC( 156 ) /  152, 'GC', F /  ! ISOPRXN
-      DATA CGRID_INDEX( 157 ), SPECIES_TYPE( 157 ), CONVERT_CONC( 157 ) /  153, 'GC', F /  ! ISOPND
-      DATA CGRID_INDEX( 158 ), SPECIES_TYPE( 158 ), CONVERT_CONC( 158 ) /  154, 'GC', F /  ! ISOPNB
-      DATA CGRID_INDEX( 159 ), SPECIES_TYPE( 159 ), CONVERT_CONC( 159 ) /  155, 'GC', F /  ! HC5
-      DATA CGRID_INDEX( 160 ), SPECIES_TYPE( 160 ), CONVERT_CONC( 160 ) /  156, 'GC', F /  ! DIBOO
-      DATA CGRID_INDEX( 161 ), SPECIES_TYPE( 161 ), CONVERT_CONC( 161 ) /  157, 'GC', F /  ! ISOPOOH
-      DATA CGRID_INDEX( 162 ), SPECIES_TYPE( 162 ), CONVERT_CONC( 162 ) /  158, 'GC', F /  ! HPALD
-      DATA CGRID_INDEX( 163 ), SPECIES_TYPE( 163 ), CONVERT_CONC( 163 ) /  159, 'GC', F /  ! HACET
-      DATA CGRID_INDEX( 164 ), SPECIES_TYPE( 164 ), CONVERT_CONC( 164 ) /  160, 'GC', F /  ! NISOPO2
-      DATA CGRID_INDEX( 165 ), SPECIES_TYPE( 165 ), CONVERT_CONC( 165 ) /  161, 'GC', F /  ! NIT1
-      DATA CGRID_INDEX( 166 ), SPECIES_TYPE( 166 ), CONVERT_CONC( 166 ) /  162, 'GC', F /  ! NISOPOOH
-      DATA CGRID_INDEX( 167 ), SPECIES_TYPE( 167 ), CONVERT_CONC( 167 ) /  163, 'GC', F /  ! HC5OO
-      DATA CGRID_INDEX( 168 ), SPECIES_TYPE( 168 ), CONVERT_CONC( 168 ) /  164, 'GC', F /  ! DHMOB
-      DATA CGRID_INDEX( 169 ), SPECIES_TYPE( 169 ), CONVERT_CONC( 169 ) /  165, 'GC', F /  ! ISOPNOOD
-      DATA CGRID_INDEX( 170 ), SPECIES_TYPE( 170 ), CONVERT_CONC( 170 ) /  166, 'GC', F /  ! PROPNN
-      DATA CGRID_INDEX( 171 ), SPECIES_TYPE( 171 ), CONVERT_CONC( 171 ) /  167, 'GC', F /  ! MVKN
-      DATA CGRID_INDEX( 172 ), SPECIES_TYPE( 172 ), CONVERT_CONC( 172 ) /  168, 'GC', F /  ! ETHLN
-      DATA CGRID_INDEX( 173 ), SPECIES_TYPE( 173 ), CONVERT_CONC( 173 ) /  169, 'GC', F /  ! RNO3I
-      DATA CGRID_INDEX( 174 ), SPECIES_TYPE( 174 ), CONVERT_CONC( 174 ) /  170, 'GC', F /  ! ISOPNOOB
-      DATA CGRID_INDEX( 175 ), SPECIES_TYPE( 175 ), CONVERT_CONC( 175 ) /  171, 'GC', F /  ! MACRN
-      DATA CGRID_INDEX( 176 ), SPECIES_TYPE( 176 ), CONVERT_CONC( 176 ) /  172, 'GC', F /  ! NIT1NO3OOA
-      DATA CGRID_INDEX( 177 ), SPECIES_TYPE( 177 ), CONVERT_CONC( 177 ) /  173, 'GC', F /  ! NIT1NO3OOB
-      DATA CGRID_INDEX( 178 ), SPECIES_TYPE( 178 ), CONVERT_CONC( 178 ) /  174, 'GC', F /  ! ISOPNN
-      DATA CGRID_INDEX( 179 ), SPECIES_TYPE( 179 ), CONVERT_CONC( 179 ) /  175, 'GC', F /  ! NIT1OHOO
-      DATA CGRID_INDEX( 180 ), SPECIES_TYPE( 180 ), CONVERT_CONC( 180 ) /  176, 'GC', F /  ! MVKOO
-      DATA CGRID_INDEX( 181 ), SPECIES_TYPE( 181 ), CONVERT_CONC( 181 ) /  177, 'GC', F /  ! MACROO
-      DATA CGRID_INDEX( 182 ), SPECIES_TYPE( 182 ), CONVERT_CONC( 182 ) /  178, 'GC', F /  ! PYRUACD
-      DATA CGRID_INDEX( 183 ), SPECIES_TYPE( 183 ), CONVERT_CONC( 183 ) /  179, 'GC', F /  ! IEPOX
-      DATA CGRID_INDEX( 184 ), SPECIES_TYPE( 184 ), CONVERT_CONC( 184 ) /  180, 'GC', F /  ! IEPOXOO
-      DATA CGRID_INDEX( 185 ), SPECIES_TYPE( 185 ), CONVERT_CONC( 185 ) /  182, 'GC', F /  ! IMPAA
-      DATA CGRID_INDEX( 186 ), SPECIES_TYPE( 186 ), CONVERT_CONC( 186 ) /  183, 'GC', F /  ! IMAPAN
-      DATA CGRID_INDEX( 187 ), SPECIES_TYPE( 187 ), CONVERT_CONC( 187 ) /  184, 'GC', F /  ! IMAE
-      DATA CGRID_INDEX( 188 ), SPECIES_TYPE( 188 ), CONVERT_CONC( 188 ) /  185, 'GC', F /  ! IHMML
-      DATA CGRID_INDEX( 189 ), SPECIES_TYPE( 189 ), CONVERT_CONC( 189 ) /  186, 'GC', F /  ! H2NO3PIJ
-      DATA CGRID_INDEX( 190 ), SPECIES_TYPE( 190 ), CONVERT_CONC( 190 ) /  187, 'GC', F /  ! H2NO3PK
-      DATA CGRID_INDEX( 191 ), SPECIES_TYPE( 191 ), CONVERT_CONC( 191 ) /  249, 'AE', T /  ! ACLI
-      DATA CGRID_INDEX( 192 ), SPECIES_TYPE( 192 ), CONVERT_CONC( 192 ) /  248, 'AE', T /  ! ACLJ
-      DATA CGRID_INDEX( 193 ), SPECIES_TYPE( 193 ), CONVERT_CONC( 193 ) /  251, 'AE', T /  ! ACLK
-      DATA CGRID_INDEX( 194 ), SPECIES_TYPE( 194 ), CONVERT_CONC( 194 ) /  188, 'GC', F /  ! IEPOXP
-      DATA CGRID_INDEX( 195 ), SPECIES_TYPE( 195 ), CONVERT_CONC( 195 ) /  189, 'GC', F /  ! IMAEP
-      DATA CGRID_INDEX( 196 ), SPECIES_TYPE( 196 ), CONVERT_CONC( 196 ) /  190, 'GC', F /  ! IHMMLP
-      DATA CGRID_INDEX( 197 ), SPECIES_TYPE( 197 ), CONVERT_CONC( 197 ) /  260, 'AE', T /  ! AIETETJ
-      DATA CGRID_INDEX( 198 ), SPECIES_TYPE( 198 ), CONVERT_CONC( 198 ) /  261, 'AE', T /  ! AIEOSJ
-      DATA CGRID_INDEX( 199 ), SPECIES_TYPE( 199 ), CONVERT_CONC( 199 ) /  262, 'AE', T /  ! ADIMJ
-      DATA CGRID_INDEX( 200 ), SPECIES_TYPE( 200 ), CONVERT_CONC( 200 ) /  263, 'AE', T /  ! AIMGAJ
-      DATA CGRID_INDEX( 201 ), SPECIES_TYPE( 201 ), CONVERT_CONC( 201 ) /  264, 'AE', T /  ! AIMOSJ
-      DATA CGRID_INDEX( 202 ), SPECIES_TYPE( 202 ), CONVERT_CONC( 202 ) /  215, 'AE', T /  ! AISO1J
-      DATA CGRID_INDEX( 203 ), SPECIES_TYPE( 203 ), CONVERT_CONC( 203 ) /  258, 'AE', T /  ! AOLGBJ
-      DATA CGRID_INDEX( 204 ), SPECIES_TYPE( 204 ), CONVERT_CONC( 204 ) /  216, 'AE', T /  ! AISO2J
-      DATA CGRID_INDEX( 205 ), SPECIES_TYPE( 205 ), CONVERT_CONC( 205 ) /  219, 'AE', T /  ! ASQTJ
-      DATA CGRID_INDEX( 206 ), SPECIES_TYPE( 206 ), CONVERT_CONC( 206 ) /  285, 'AE', T /  ! AAVB2J
-      DATA CGRID_INDEX( 207 ), SPECIES_TYPE( 207 ), CONVERT_CONC( 207 ) /  257, 'AE', T /  ! AOLGAJ
-      DATA CGRID_INDEX( 208 ), SPECIES_TYPE( 208 ), CONVERT_CONC( 208 ) /  286, 'AE', T /  ! AAVB3J
-      DATA CGRID_INDEX( 209 ), SPECIES_TYPE( 209 ), CONVERT_CONC( 209 ) /  287, 'AE', T /  ! AAVB4J
-      DATA CGRID_INDEX( 210 ), SPECIES_TYPE( 210 ), CONVERT_CONC( 210 ) /  201, 'GC', F /  ! PCVOC
-      DATA CGRID_INDEX( 211 ), SPECIES_TYPE( 211 ), CONVERT_CONC( 211 ) /  202, 'GC', F /  ! PCSOARXN
-      DATA CGRID_INDEX( 212 ), SPECIES_TYPE( 212 ), CONVERT_CONC( 212 ) /  191, 'GC', F /  ! VLVPO1
-      DATA CGRID_INDEX( 213 ), SPECIES_TYPE( 213 ), CONVERT_CONC( 213 ) /  192, 'GC', F /  ! VSVPO1
-      DATA CGRID_INDEX( 214 ), SPECIES_TYPE( 214 ), CONVERT_CONC( 214 ) /  193, 'GC', F /  ! VSVPO2
-      DATA CGRID_INDEX( 215 ), SPECIES_TYPE( 215 ), CONVERT_CONC( 215 ) /  194, 'GC', F /  ! VSVPO3
-      DATA CGRID_INDEX( 216 ), SPECIES_TYPE( 216 ), CONVERT_CONC( 216 ) /  195, 'GC', F /  ! VIVPO1
-      DATA CGRID_INDEX( 217 ), SPECIES_TYPE( 217 ), CONVERT_CONC( 217 ) /  196, 'GC', F /  ! VLVOO1
-      DATA CGRID_INDEX( 218 ), SPECIES_TYPE( 218 ), CONVERT_CONC( 218 ) /  197, 'GC', F /  ! VLVOO2
-      DATA CGRID_INDEX( 219 ), SPECIES_TYPE( 219 ), CONVERT_CONC( 219 ) /  199, 'GC', F /  ! VSVOO2
-      DATA CGRID_INDEX( 220 ), SPECIES_TYPE( 220 ), CONVERT_CONC( 220 ) /  200, 'GC', F /  ! VSVOO3
-      DATA CGRID_INDEX( 221 ), SPECIES_TYPE( 221 ), CONVERT_CONC( 221 ) /  198, 'GC', F /  ! VSVOO1
-      DATA CGRID_INDEX( 222 ), SPECIES_TYPE( 222 ), CONVERT_CONC( 222 ) /  214, 'AE', T /  ! AMTNO3J
-      DATA CGRID_INDEX( 223 ), SPECIES_TYPE( 223 ), CONVERT_CONC( 223 ) /  259, 'AE', T /  ! AMTHYDJ
-      DATA CGRID_INDEX( 224 ), SPECIES_TYPE( 224 ), CONVERT_CONC( 224 ) /  218, 'AE', T /  ! AISOPNNJ
-      DATA CGRID_INDEX( 225 ), SPECIES_TYPE( 225 ), CONVERT_CONC( 225 ) /  265, 'AE', T /  ! AGLYJ
+      DATA CGRID_INDEX( 123 ), SPECIES_TYPE( 123 ), CONVERT_CONC( 123 ) /  203, 'GC', F /  ! SVAVB2
+      DATA CGRID_INDEX( 124 ), SPECIES_TYPE( 124 ), CONVERT_CONC( 124 ) /  204, 'GC', F /  ! SVAVB3
+      DATA CGRID_INDEX( 125 ), SPECIES_TYPE( 125 ), CONVERT_CONC( 125 ) /  205, 'GC', F /  ! SVAVB4
+      DATA CGRID_INDEX( 126 ), SPECIES_TYPE( 126 ), CONVERT_CONC( 126 ) /  122, 'GC', F /  ! OLE1
+      DATA CGRID_INDEX( 127 ), SPECIES_TYPE( 127 ), CONVERT_CONC( 127 ) /  123, 'GC', F /  ! OLE2
+      DATA CGRID_INDEX( 128 ), SPECIES_TYPE( 128 ), CONVERT_CONC( 128 ) /  124, 'GC', F /  ! ARO1
+      DATA CGRID_INDEX( 129 ), SPECIES_TYPE( 129 ), CONVERT_CONC( 129 ) /  125, 'GC', F /  ! ARO2MN
+      DATA CGRID_INDEX( 130 ), SPECIES_TYPE( 130 ), CONVERT_CONC( 130 ) /  126, 'GC', F /  ! NAPHTHAL
+      DATA CGRID_INDEX( 131 ), SPECIES_TYPE( 131 ), CONVERT_CONC( 131 ) /  127, 'GC', F /  ! PAHRO2
+      DATA CGRID_INDEX( 132 ), SPECIES_TYPE( 132 ), CONVERT_CONC( 132 ) /  128, 'GC', F /  ! TERP
+      DATA CGRID_INDEX( 133 ), SPECIES_TYPE( 133 ), CONVERT_CONC( 133 ) /  129, 'GC', F /  ! TERPNRO2
+      DATA CGRID_INDEX( 134 ), SPECIES_TYPE( 134 ), CONVERT_CONC( 134 ) /  130, 'GC', F /  ! SESQ
+      DATA CGRID_INDEX( 135 ), SPECIES_TYPE( 135 ), CONVERT_CONC( 135 ) /  131, 'GC', F /  ! SESQRXN
+      DATA CGRID_INDEX( 136 ), SPECIES_TYPE( 136 ), CONVERT_CONC( 136 ) /  132, 'GC', F /  ! CL2
+      DATA CGRID_INDEX( 137 ), SPECIES_TYPE( 137 ), CONVERT_CONC( 137 ) /  133, 'GC', F /  ! CL
+      DATA CGRID_INDEX( 138 ), SPECIES_TYPE( 138 ), CONVERT_CONC( 138 ) /  134, 'GC', F /  ! CLNO
+      DATA CGRID_INDEX( 139 ), SPECIES_TYPE( 139 ), CONVERT_CONC( 139 ) /  135, 'GC', F /  ! CLONO
+      DATA CGRID_INDEX( 140 ), SPECIES_TYPE( 140 ), CONVERT_CONC( 140 ) /  136, 'GC', F /  ! CLNO2
+      DATA CGRID_INDEX( 141 ), SPECIES_TYPE( 141 ), CONVERT_CONC( 141 ) /  137, 'GC', F /  ! HCL
+      DATA CGRID_INDEX( 142 ), SPECIES_TYPE( 142 ), CONVERT_CONC( 142 ) /  138, 'GC', F /  ! CLO
+      DATA CGRID_INDEX( 143 ), SPECIES_TYPE( 143 ), CONVERT_CONC( 143 ) /  139, 'GC', F /  ! CLONO2
+      DATA CGRID_INDEX( 144 ), SPECIES_TYPE( 144 ), CONVERT_CONC( 144 ) /  140, 'GC', F /  ! HOCL
+      DATA CGRID_INDEX( 145 ), SPECIES_TYPE( 145 ), CONVERT_CONC( 145 ) /  141, 'GC', F /  ! xCL
+      DATA CGRID_INDEX( 146 ), SPECIES_TYPE( 146 ), CONVERT_CONC( 146 ) /  142, 'GC', F /  ! xCLCCHO
+      DATA CGRID_INDEX( 147 ), SPECIES_TYPE( 147 ), CONVERT_CONC( 147 ) /  143, 'GC', F /  ! xCLACET
+      DATA CGRID_INDEX( 148 ), SPECIES_TYPE( 148 ), CONVERT_CONC( 148 ) /  144, 'GC', F /  ! CLCCHO
+      DATA CGRID_INDEX( 149 ), SPECIES_TYPE( 149 ), CONVERT_CONC( 149 ) /  145, 'GC', F /  ! CLACET
+      DATA CGRID_INDEX( 150 ), SPECIES_TYPE( 150 ), CONVERT_CONC( 150 ) /  146, 'GC', F /  ! CLCHO
+      DATA CGRID_INDEX( 151 ), SPECIES_TYPE( 151 ), CONVERT_CONC( 151 ) /  202, 'GC', F /  ! SVAVB1
+      DATA CGRID_INDEX( 152 ), SPECIES_TYPE( 152 ), CONVERT_CONC( 152 ) /  147, 'GC', F /  ! HCHO_PRIMARY
+      DATA CGRID_INDEX( 153 ), SPECIES_TYPE( 153 ), CONVERT_CONC( 153 ) /  148, 'GC', F /  ! CCHO_PRIMARY
+      DATA CGRID_INDEX( 154 ), SPECIES_TYPE( 154 ), CONVERT_CONC( 154 ) /  149, 'GC', F /  ! ACRO_PRIMARY
+      DATA CGRID_INDEX( 155 ), SPECIES_TYPE( 155 ), CONVERT_CONC( 155 ) /  150, 'GC', F /  ! ISOPO2
+      DATA CGRID_INDEX( 156 ), SPECIES_TYPE( 156 ), CONVERT_CONC( 156 ) /  151, 'GC', F /  ! ISOPRXN
+      DATA CGRID_INDEX( 157 ), SPECIES_TYPE( 157 ), CONVERT_CONC( 157 ) /  152, 'GC', F /  ! ISOPND
+      DATA CGRID_INDEX( 158 ), SPECIES_TYPE( 158 ), CONVERT_CONC( 158 ) /  153, 'GC', F /  ! ISOPNB
+      DATA CGRID_INDEX( 159 ), SPECIES_TYPE( 159 ), CONVERT_CONC( 159 ) /  154, 'GC', F /  ! HC5
+      DATA CGRID_INDEX( 160 ), SPECIES_TYPE( 160 ), CONVERT_CONC( 160 ) /  155, 'GC', F /  ! DIBOO
+      DATA CGRID_INDEX( 161 ), SPECIES_TYPE( 161 ), CONVERT_CONC( 161 ) /  156, 'GC', F /  ! ISOPOOH
+      DATA CGRID_INDEX( 162 ), SPECIES_TYPE( 162 ), CONVERT_CONC( 162 ) /  157, 'GC', F /  ! HPALD
+      DATA CGRID_INDEX( 163 ), SPECIES_TYPE( 163 ), CONVERT_CONC( 163 ) /  158, 'GC', F /  ! HACET
+      DATA CGRID_INDEX( 164 ), SPECIES_TYPE( 164 ), CONVERT_CONC( 164 ) /  159, 'GC', F /  ! NISOPO2
+      DATA CGRID_INDEX( 165 ), SPECIES_TYPE( 165 ), CONVERT_CONC( 165 ) /  160, 'GC', F /  ! NIT1
+      DATA CGRID_INDEX( 166 ), SPECIES_TYPE( 166 ), CONVERT_CONC( 166 ) /  161, 'GC', F /  ! NISOPOOH
+      DATA CGRID_INDEX( 167 ), SPECIES_TYPE( 167 ), CONVERT_CONC( 167 ) /  162, 'GC', F /  ! HC5OO
+      DATA CGRID_INDEX( 168 ), SPECIES_TYPE( 168 ), CONVERT_CONC( 168 ) /  163, 'GC', F /  ! DHMOB
+      DATA CGRID_INDEX( 169 ), SPECIES_TYPE( 169 ), CONVERT_CONC( 169 ) /  164, 'GC', F /  ! ISOPNOOD
+      DATA CGRID_INDEX( 170 ), SPECIES_TYPE( 170 ), CONVERT_CONC( 170 ) /  165, 'GC', F /  ! PROPNN
+      DATA CGRID_INDEX( 171 ), SPECIES_TYPE( 171 ), CONVERT_CONC( 171 ) /  166, 'GC', F /  ! MVKN
+      DATA CGRID_INDEX( 172 ), SPECIES_TYPE( 172 ), CONVERT_CONC( 172 ) /  167, 'GC', F /  ! ETHLN
+      DATA CGRID_INDEX( 173 ), SPECIES_TYPE( 173 ), CONVERT_CONC( 173 ) /  168, 'GC', F /  ! RNO3I
+      DATA CGRID_INDEX( 174 ), SPECIES_TYPE( 174 ), CONVERT_CONC( 174 ) /  169, 'GC', F /  ! ISOPNOOB
+      DATA CGRID_INDEX( 175 ), SPECIES_TYPE( 175 ), CONVERT_CONC( 175 ) /  170, 'GC', F /  ! MACRN
+      DATA CGRID_INDEX( 176 ), SPECIES_TYPE( 176 ), CONVERT_CONC( 176 ) /  171, 'GC', F /  ! NIT1NO3OOA
+      DATA CGRID_INDEX( 177 ), SPECIES_TYPE( 177 ), CONVERT_CONC( 177 ) /  172, 'GC', F /  ! NIT1NO3OOB
+      DATA CGRID_INDEX( 178 ), SPECIES_TYPE( 178 ), CONVERT_CONC( 178 ) /  173, 'GC', F /  ! ISOPNN
+      DATA CGRID_INDEX( 179 ), SPECIES_TYPE( 179 ), CONVERT_CONC( 179 ) /  174, 'GC', F /  ! NIT1OHOO
+      DATA CGRID_INDEX( 180 ), SPECIES_TYPE( 180 ), CONVERT_CONC( 180 ) /  175, 'GC', F /  ! MVKOO
+      DATA CGRID_INDEX( 181 ), SPECIES_TYPE( 181 ), CONVERT_CONC( 181 ) /  176, 'GC', F /  ! MACROO
+      DATA CGRID_INDEX( 182 ), SPECIES_TYPE( 182 ), CONVERT_CONC( 182 ) /  177, 'GC', F /  ! PYRUACD
+      DATA CGRID_INDEX( 183 ), SPECIES_TYPE( 183 ), CONVERT_CONC( 183 ) /  178, 'GC', F /  ! IEPOX
+      DATA CGRID_INDEX( 184 ), SPECIES_TYPE( 184 ), CONVERT_CONC( 184 ) /  179, 'GC', F /  ! IEPOXOO
+      DATA CGRID_INDEX( 185 ), SPECIES_TYPE( 185 ), CONVERT_CONC( 185 ) /  181, 'GC', F /  ! IMPAA
+      DATA CGRID_INDEX( 186 ), SPECIES_TYPE( 186 ), CONVERT_CONC( 186 ) /  182, 'GC', F /  ! IMAPAN
+      DATA CGRID_INDEX( 187 ), SPECIES_TYPE( 187 ), CONVERT_CONC( 187 ) /  183, 'GC', F /  ! IMAE
+      DATA CGRID_INDEX( 188 ), SPECIES_TYPE( 188 ), CONVERT_CONC( 188 ) /  184, 'GC', F /  ! IHMML
+      DATA CGRID_INDEX( 189 ), SPECIES_TYPE( 189 ), CONVERT_CONC( 189 ) /  185, 'GC', F /  ! H2NO3PIJ
+      DATA CGRID_INDEX( 190 ), SPECIES_TYPE( 190 ), CONVERT_CONC( 190 ) /  186, 'GC', F /  ! H2NO3PK
+      DATA CGRID_INDEX( 191 ), SPECIES_TYPE( 191 ), CONVERT_CONC( 191 ) /  248, 'AE', T /  ! ACLI
+      DATA CGRID_INDEX( 192 ), SPECIES_TYPE( 192 ), CONVERT_CONC( 192 ) /  247, 'AE', T /  ! ACLJ
+      DATA CGRID_INDEX( 193 ), SPECIES_TYPE( 193 ), CONVERT_CONC( 193 ) /  250, 'AE', T /  ! ACLK
+      DATA CGRID_INDEX( 194 ), SPECIES_TYPE( 194 ), CONVERT_CONC( 194 ) /  187, 'GC', F /  ! IEPOXP
+      DATA CGRID_INDEX( 195 ), SPECIES_TYPE( 195 ), CONVERT_CONC( 195 ) /  188, 'GC', F /  ! IMAEP
+      DATA CGRID_INDEX( 196 ), SPECIES_TYPE( 196 ), CONVERT_CONC( 196 ) /  189, 'GC', F /  ! IHMMLP
+      DATA CGRID_INDEX( 197 ), SPECIES_TYPE( 197 ), CONVERT_CONC( 197 ) /  259, 'AE', T /  ! AIETETJ
+      DATA CGRID_INDEX( 198 ), SPECIES_TYPE( 198 ), CONVERT_CONC( 198 ) /  260, 'AE', T /  ! AIEOSJ
+      DATA CGRID_INDEX( 199 ), SPECIES_TYPE( 199 ), CONVERT_CONC( 199 ) /  261, 'AE', T /  ! ADIMJ
+      DATA CGRID_INDEX( 200 ), SPECIES_TYPE( 200 ), CONVERT_CONC( 200 ) /  262, 'AE', T /  ! AIMGAJ
+      DATA CGRID_INDEX( 201 ), SPECIES_TYPE( 201 ), CONVERT_CONC( 201 ) /  263, 'AE', T /  ! AIMOSJ
+      DATA CGRID_INDEX( 202 ), SPECIES_TYPE( 202 ), CONVERT_CONC( 202 ) /  214, 'AE', T /  ! AISO1J
+      DATA CGRID_INDEX( 203 ), SPECIES_TYPE( 203 ), CONVERT_CONC( 203 ) /  257, 'AE', T /  ! AOLGBJ
+      DATA CGRID_INDEX( 204 ), SPECIES_TYPE( 204 ), CONVERT_CONC( 204 ) /  215, 'AE', T /  ! AISO2J
+      DATA CGRID_INDEX( 205 ), SPECIES_TYPE( 205 ), CONVERT_CONC( 205 ) /  218, 'AE', T /  ! ASQTJ
+      DATA CGRID_INDEX( 206 ), SPECIES_TYPE( 206 ), CONVERT_CONC( 206 ) /  284, 'AE', T /  ! AAVB2J
+      DATA CGRID_INDEX( 207 ), SPECIES_TYPE( 207 ), CONVERT_CONC( 207 ) /  256, 'AE', T /  ! AOLGAJ
+      DATA CGRID_INDEX( 208 ), SPECIES_TYPE( 208 ), CONVERT_CONC( 208 ) /  285, 'AE', T /  ! AAVB3J
+      DATA CGRID_INDEX( 209 ), SPECIES_TYPE( 209 ), CONVERT_CONC( 209 ) /  286, 'AE', T /  ! AAVB4J
+      DATA CGRID_INDEX( 210 ), SPECIES_TYPE( 210 ), CONVERT_CONC( 210 ) /  200, 'GC', F /  ! PCVOC
+      DATA CGRID_INDEX( 211 ), SPECIES_TYPE( 211 ), CONVERT_CONC( 211 ) /  201, 'GC', F /  ! PCSOARXN
+      DATA CGRID_INDEX( 212 ), SPECIES_TYPE( 212 ), CONVERT_CONC( 212 ) /  190, 'GC', F /  ! VLVPO1
+      DATA CGRID_INDEX( 213 ), SPECIES_TYPE( 213 ), CONVERT_CONC( 213 ) /  191, 'GC', F /  ! VSVPO1
+      DATA CGRID_INDEX( 214 ), SPECIES_TYPE( 214 ), CONVERT_CONC( 214 ) /  192, 'GC', F /  ! VSVPO2
+      DATA CGRID_INDEX( 215 ), SPECIES_TYPE( 215 ), CONVERT_CONC( 215 ) /  193, 'GC', F /  ! VSVPO3
+      DATA CGRID_INDEX( 216 ), SPECIES_TYPE( 216 ), CONVERT_CONC( 216 ) /  194, 'GC', F /  ! VIVPO1
+      DATA CGRID_INDEX( 217 ), SPECIES_TYPE( 217 ), CONVERT_CONC( 217 ) /  195, 'GC', F /  ! VLVOO1
+      DATA CGRID_INDEX( 218 ), SPECIES_TYPE( 218 ), CONVERT_CONC( 218 ) /  196, 'GC', F /  ! VLVOO2
+      DATA CGRID_INDEX( 219 ), SPECIES_TYPE( 219 ), CONVERT_CONC( 219 ) /  198, 'GC', F /  ! VSVOO2
+      DATA CGRID_INDEX( 220 ), SPECIES_TYPE( 220 ), CONVERT_CONC( 220 ) /  199, 'GC', F /  ! VSVOO3
+      DATA CGRID_INDEX( 221 ), SPECIES_TYPE( 221 ), CONVERT_CONC( 221 ) /  197, 'GC', F /  ! VSVOO1
+      DATA CGRID_INDEX( 222 ), SPECIES_TYPE( 222 ), CONVERT_CONC( 222 ) /  213, 'AE', T /  ! AMTNO3J
+      DATA CGRID_INDEX( 223 ), SPECIES_TYPE( 223 ), CONVERT_CONC( 223 ) /  258, 'AE', T /  ! AMTHYDJ
+      DATA CGRID_INDEX( 224 ), SPECIES_TYPE( 224 ), CONVERT_CONC( 224 ) /  217, 'AE', T /  ! AISOPNNJ
+      DATA CGRID_INDEX( 225 ), SPECIES_TYPE( 225 ), CONVERT_CONC( 225 ) /  264, 'AE', T /  ! AGLYJ
+
+! The below integers define the locations of mechanism species in the solver
+! concentration array.
+
+      INTEGER :: INDEX_NO2          =    1
+      INTEGER :: INDEX_NO           =    2
+      INTEGER :: INDEX_O3P          =    3
+      INTEGER :: INDEX_O3           =    4
+      INTEGER :: INDEX_NO3          =    5
+      INTEGER :: INDEX_N2O5         =    6
+      INTEGER :: INDEX_HNO3         =    7
+      INTEGER :: INDEX_O1D          =    8
+      INTEGER :: INDEX_OH           =    9
+      INTEGER :: INDEX_HONO         =   10
+      INTEGER :: INDEX_HO2          =   11
+      INTEGER :: INDEX_CO           =   12
+      INTEGER :: INDEX_CO2          =   13
+      INTEGER :: INDEX_HNO4         =   14
+      INTEGER :: INDEX_HO2H         =   15
+      INTEGER :: INDEX_SO2          =   16
+      INTEGER :: INDEX_SULF         =   17
+      INTEGER :: INDEX_SULRXN       =   18
+      INTEGER :: INDEX_MEO2         =   19
+      INTEGER :: INDEX_HCHO         =   20
+      INTEGER :: INDEX_COOH         =   21
+      INTEGER :: INDEX_MEOH         =   22
+      INTEGER :: INDEX_RO2C         =   23
+      INTEGER :: INDEX_RO2XC        =   24
+      INTEGER :: INDEX_MECO3        =   25
+      INTEGER :: INDEX_PAN          =   26
+      INTEGER :: INDEX_CCOOOH       =   27
+      INTEGER :: INDEX_CCOOH        =   28
+      INTEGER :: INDEX_RCO3         =   29
+      INTEGER :: INDEX_PAN2         =   30
+      INTEGER :: INDEX_xHO2         =   31
+      INTEGER :: INDEX_yROOH        =   32
+      INTEGER :: INDEX_xCCHO        =   33
+      INTEGER :: INDEX_RCOOOH       =   34
+      INTEGER :: INDEX_RCOOH        =   35
+      INTEGER :: INDEX_BZCO3        =   36
+      INTEGER :: INDEX_PBZN         =   37
+      INTEGER :: INDEX_BZO          =   38
+      INTEGER :: INDEX_MACO3        =   39
+      INTEGER :: INDEX_MAPAN        =   40
+      INTEGER :: INDEX_TBUO         =   41
+      INTEGER :: INDEX_RNO3         =   42
+      INTEGER :: INDEX_ACETONE      =   43
+      INTEGER :: INDEX_NPHE         =   44
+      INTEGER :: INDEX_CRES         =   45
+      INTEGER :: INDEX_xOH          =   46
+      INTEGER :: INDEX_xNO2         =   47
+      INTEGER :: INDEX_xMEO2        =   48
+      INTEGER :: INDEX_xMECO3       =   49
+      INTEGER :: INDEX_xRCO3        =   50
+      INTEGER :: INDEX_xMACO3       =   51
+      INTEGER :: INDEX_xTBUO        =   52
+      INTEGER :: INDEX_xCO          =   53
+      INTEGER :: INDEX_CCHO         =   54
+      INTEGER :: INDEX_RCHO         =   55
+      INTEGER :: INDEX_xHCHO        =   56
+      INTEGER :: INDEX_MEK          =   57
+      INTEGER :: INDEX_zRNO3        =   58
+      INTEGER :: INDEX_xRCHO        =   59
+      INTEGER :: INDEX_HCOOH        =   60
+      INTEGER :: INDEX_xMGLY        =   61
+      INTEGER :: INDEX_xBACL        =   62
+      INTEGER :: INDEX_ROOH         =   63
+      INTEGER :: INDEX_xPROD2       =   64
+      INTEGER :: INDEX_R6OOH        =   65
+      INTEGER :: INDEX_PRD2         =   66
+      INTEGER :: INDEX_yR6OOH       =   67
+      INTEGER :: INDEX_RAOOH        =   68
+      INTEGER :: INDEX_MGLY         =   69
+      INTEGER :: INDEX_IPRD         =   70
+      INTEGER :: INDEX_xGLY         =   71
+      INTEGER :: INDEX_xMEK         =   72
+      INTEGER :: INDEX_xAFG1        =   73
+      INTEGER :: INDEX_xAFG2        =   74
+      INTEGER :: INDEX_GLY          =   75
+      INTEGER :: INDEX_AFG1         =   76
+      INTEGER :: INDEX_AFG2         =   77
+      INTEGER :: INDEX_HCOCO3       =   78
+      INTEGER :: INDEX_BACL         =   79
+      INTEGER :: INDEX_BALD         =   80
+      INTEGER :: INDEX_AFG3         =   81
+      INTEGER :: INDEX_xIPRD        =   82
+      INTEGER :: INDEX_MACR         =   83
+      INTEGER :: INDEX_MVK          =   84
+      INTEGER :: INDEX_xHOCCHO      =   85
+      INTEGER :: INDEX_xRNO3        =   86
+      INTEGER :: INDEX_HOCCHO       =   87
+      INTEGER :: INDEX_xACETONE     =   88
+      INTEGER :: INDEX_ACROLEIN     =   89
+      INTEGER :: INDEX_xBALD        =   90
+      INTEGER :: INDEX_xAFG3        =   91
+      INTEGER :: INDEX_xMACR        =   92
+      INTEGER :: INDEX_xMVK         =   93
+      INTEGER :: INDEX_xMTNO3       =   94
+      INTEGER :: INDEX_MTNO3        =   95
+      INTEGER :: INDEX_IMACO3       =   96
+      INTEGER :: INDEX_yRAOOH       =   97
+      INTEGER :: INDEX_zMTNO3       =   98
+      INTEGER :: INDEX_xACROLEIN    =   99
+      INTEGER :: INDEX_ETHENE       =  100
+      INTEGER :: INDEX_PROPENE      =  101
+      INTEGER :: INDEX_BUTADIENE13  =  102
+      INTEGER :: INDEX_ISOPRENE     =  103
+      INTEGER :: INDEX_APIN         =  104
+      INTEGER :: INDEX_TRPRXN       =  105
+      INTEGER :: INDEX_ACETYLENE    =  106
+      INTEGER :: INDEX_BENZENE      =  107
+      INTEGER :: INDEX_BENZRO2      =  108
+      INTEGER :: INDEX_TOLUENE      =  109
+      INTEGER :: INDEX_TOLRO2       =  110
+      INTEGER :: INDEX_MXYL         =  111
+      INTEGER :: INDEX_XYLRO2       =  112
+      INTEGER :: INDEX_OXYL         =  113
+      INTEGER :: INDEX_PXYL         =  114
+      INTEGER :: INDEX_TMBENZ124    =  115
+      INTEGER :: INDEX_ETOH         =  116
+      INTEGER :: INDEX_ALK1         =  117
+      INTEGER :: INDEX_ALK2         =  118
+      INTEGER :: INDEX_ALK3         =  119
+      INTEGER :: INDEX_ALK4         =  120
+      INTEGER :: INDEX_ALK5         =  121
+      INTEGER :: INDEX_SOAALK       =  122
+      INTEGER :: INDEX_SVAVB2       =  123
+      INTEGER :: INDEX_SVAVB3       =  124
+      INTEGER :: INDEX_SVAVB4       =  125
+      INTEGER :: INDEX_OLE1         =  126
+      INTEGER :: INDEX_OLE2         =  127
+      INTEGER :: INDEX_ARO1         =  128
+      INTEGER :: INDEX_ARO2MN       =  129
+      INTEGER :: INDEX_NAPHTHAL     =  130
+      INTEGER :: INDEX_PAHRO2       =  131
+      INTEGER :: INDEX_TERP         =  132
+      INTEGER :: INDEX_TERPNRO2     =  133
+      INTEGER :: INDEX_SESQ         =  134
+      INTEGER :: INDEX_SESQRXN      =  135
+      INTEGER :: INDEX_CL2          =  136
+      INTEGER :: INDEX_CL           =  137
+      INTEGER :: INDEX_CLNO         =  138
+      INTEGER :: INDEX_CLONO        =  139
+      INTEGER :: INDEX_CLNO2        =  140
+      INTEGER :: INDEX_HCL          =  141
+      INTEGER :: INDEX_CLO          =  142
+      INTEGER :: INDEX_CLONO2       =  143
+      INTEGER :: INDEX_HOCL         =  144
+      INTEGER :: INDEX_xCL          =  145
+      INTEGER :: INDEX_xCLCCHO      =  146
+      INTEGER :: INDEX_xCLACET      =  147
+      INTEGER :: INDEX_CLCCHO       =  148
+      INTEGER :: INDEX_CLACET       =  149
+      INTEGER :: INDEX_CLCHO        =  150
+      INTEGER :: INDEX_SVAVB1       =  151
+      INTEGER :: INDEX_HCHO_PRIMARY =  152
+      INTEGER :: INDEX_CCHO_PRIMARY =  153
+      INTEGER :: INDEX_ACRO_PRIMARY =  154
+      INTEGER :: INDEX_ISOPO2       =  155
+      INTEGER :: INDEX_ISOPRXN      =  156
+      INTEGER :: INDEX_ISOPND       =  157
+      INTEGER :: INDEX_ISOPNB       =  158
+      INTEGER :: INDEX_HC5          =  159
+      INTEGER :: INDEX_DIBOO        =  160
+      INTEGER :: INDEX_ISOPOOH      =  161
+      INTEGER :: INDEX_HPALD        =  162
+      INTEGER :: INDEX_HACET        =  163
+      INTEGER :: INDEX_NISOPO2      =  164
+      INTEGER :: INDEX_NIT1         =  165
+      INTEGER :: INDEX_NISOPOOH     =  166
+      INTEGER :: INDEX_HC5OO        =  167
+      INTEGER :: INDEX_DHMOB        =  168
+      INTEGER :: INDEX_ISOPNOOD     =  169
+      INTEGER :: INDEX_PROPNN       =  170
+      INTEGER :: INDEX_MVKN         =  171
+      INTEGER :: INDEX_ETHLN        =  172
+      INTEGER :: INDEX_RNO3I        =  173
+      INTEGER :: INDEX_ISOPNOOB     =  174
+      INTEGER :: INDEX_MACRN        =  175
+      INTEGER :: INDEX_NIT1NO3OOA   =  176
+      INTEGER :: INDEX_NIT1NO3OOB   =  177
+      INTEGER :: INDEX_ISOPNN       =  178
+      INTEGER :: INDEX_NIT1OHOO     =  179
+      INTEGER :: INDEX_MVKOO        =  180
+      INTEGER :: INDEX_MACROO       =  181
+      INTEGER :: INDEX_PYRUACD      =  182
+      INTEGER :: INDEX_IEPOX        =  183
+      INTEGER :: INDEX_IEPOXOO      =  184
+      INTEGER :: INDEX_IMPAA        =  185
+      INTEGER :: INDEX_IMAPAN       =  186
+      INTEGER :: INDEX_IMAE         =  187
+      INTEGER :: INDEX_IHMML        =  188
+      INTEGER :: INDEX_H2NO3PIJ     =  189
+      INTEGER :: INDEX_H2NO3PK      =  190
+      INTEGER :: INDEX_ACLI         =  191
+      INTEGER :: INDEX_ACLJ         =  192
+      INTEGER :: INDEX_ACLK         =  193
+      INTEGER :: INDEX_IEPOXP       =  194
+      INTEGER :: INDEX_IMAEP        =  195
+      INTEGER :: INDEX_IHMMLP       =  196
+      INTEGER :: INDEX_AIETETJ      =  197
+      INTEGER :: INDEX_AIEOSJ       =  198
+      INTEGER :: INDEX_ADIMJ        =  199
+      INTEGER :: INDEX_AIMGAJ       =  200
+      INTEGER :: INDEX_AIMOSJ       =  201
+      INTEGER :: INDEX_AISO1J       =  202
+      INTEGER :: INDEX_AOLGBJ       =  203
+      INTEGER :: INDEX_AISO2J       =  204
+      INTEGER :: INDEX_ASQTJ        =  205
+      INTEGER :: INDEX_AAVB2J       =  206
+      INTEGER :: INDEX_AOLGAJ       =  207
+      INTEGER :: INDEX_AAVB3J       =  208
+      INTEGER :: INDEX_AAVB4J       =  209
+      INTEGER :: INDEX_PCVOC        =  210
+      INTEGER :: INDEX_PCSOARXN     =  211
+      INTEGER :: INDEX_VLVPO1       =  212
+      INTEGER :: INDEX_VSVPO1       =  213
+      INTEGER :: INDEX_VSVPO2       =  214
+      INTEGER :: INDEX_VSVPO3       =  215
+      INTEGER :: INDEX_VIVPO1       =  216
+      INTEGER :: INDEX_VLVOO1       =  217
+      INTEGER :: INDEX_VLVOO2       =  218
+      INTEGER :: INDEX_VSVOO2       =  219
+      INTEGER :: INDEX_VSVOO3       =  220
+      INTEGER :: INDEX_VSVOO1       =  221
+      INTEGER :: INDEX_AMTNO3J      =  222
+      INTEGER :: INDEX_AMTHYDJ      =  223
+      INTEGER :: INDEX_AISOPNNJ     =  224
+      INTEGER :: INDEX_AGLYJ        =  225
 
       INTEGER, PARAMETER :: N_ACT_SP = 225
 
       INTEGER, PARAMETER :: NRXNS = 925
 
-      INTEGER            :: KUNITS
+      INTEGER, PARAMETER ::     ONE_REACT_REACTIONS =    0
 
-      DATA  KUNITS /   2 /
+      INTEGER, PARAMETER ::     TWO_REACT_REACTIONS =    0
 
-      INTEGER IRXXN
+      INTEGER, PARAMETER ::   THREE_REACT_REACTIONS =    0
+
+      INTEGER, PARAMETER ::    ZERO_REACT_REACTIONS =    0
+
+      LOGICAL, PARAMETER ::       UNITARY_REACTIONS = .FALSE.
+
+      INTEGER, PARAMETER ::         ONE_REACT_START =    0
+
+      INTEGER, PARAMETER ::         ONE_REACT_STOP  =   -1
+
+      LOGICAL, PARAMETER ::       BINARY_REACTIONS  = .FALSE.
+
+      INTEGER, PARAMETER ::         TWO_REACT_START =    0
+
+      INTEGER, PARAMETER ::         TWO_REACT_STOP  =   -1
+
+      LOGICAL, PARAMETER ::       TERNARY_REACTIONS = .FALSE.
+
+      INTEGER, PARAMETER ::       THREE_REACT_START =    0
+
+      INTEGER, PARAMETER ::       THREE_REACT_STOP  =   -1
+
+      LOGICAL, PARAMETER ::       NULL_REACTIONS    = .FALSE.
+
+      INTEGER, PARAMETER ::        ZERO_REACT_START =    0
+
+      INTEGER, PARAMETER ::        ZERO_REACT_STOP  =   -1
+
+      INTEGER, PARAMETER ::        NSUNLIGHT_RXNS   =   66
+
+      INTEGER, PARAMETER ::        NTHERMAL_RXNS    =  859
+
+      INTEGER, PARAMETER ::        KUNITS           =    2
+
+      INTEGER  :: IRXXN
+
+      INTEGER, PARAMETER :: NMPHOT =  65
+      INTEGER            :: IPH( NMPHOT,3 )
+
+      DATA ( IPH( IRXXN,1 ), IRXXN = 1, NMPHOT ) / & 
+     &      1,   16,   17,   18,   19,   23,   28,   34,   41,   65, & ! O   
+     &     75,   86,   98,  194,  195,  199,  202,  205,  207,  213, & ! 1   
+     &    215,  217,  219,  220,  221,  224,  227,  231,  232,  234, & ! 2   
+     &    238,  241,  248,  252,  254,  256,  257,  263,  265,  267, & ! 3   
+     &    587,  589,  592,  593,  600,  601,  605,  627,  630,  694, & ! 4   
+     &    695,  700,  707,  717,  798,  800,  803,  804,  806,  808, & ! 5   
+     &    810,  819,  825,  841,  883/     !  6   
+
+      DATA ( IPH( IRXXN,2 ), IRXXN = 1, NMPHOT ) / & 
+     &      1,    2,    3,    4,    5,    6,    7,    8,    9,   10, & ! O   
+     &     10,   10,   10,   11,   12,   13,   14,   15,   16,   17, & ! 1   
+     &     17,   17,   17,   18,   19,   20,   21,    1,    1,   22, & ! 2   
+     &     23,   23,   24,   25,   16,   26,   27,   28,   29,   29, & ! 3   
+     &     30,   31,   32,   33,   34,   35,   36,   37,   38,   11, & ! 4   
+     &     12,   13,   28,   39,   16,   40,   40,   26,   40,   14, & ! 5   
+     &     20,   17,   25,   10,   26/     !  6   
+
+      DATA ( IPH( IRXXN,3 ), IRXXN = 1, NMPHOT ) / & 
+     &      1,    2,    3,    4,    5,    6,    7,    8,    9,   10, & ! O   
+     &     11,   12,   13,   14,   15,   16,   17,   18,   19,   20, & ! 1   
+     &     21,   22,   23,   24,   25,   26,   27,   28,   29,   30, & ! 2   
+     &     31,   32,   33,   34,   35,   36,   37,   38,   39,   40, & ! 3   
+     &     41,   42,   43,   44,   45,   46,   47,   48,   49,   50, & ! 4   
+     &     51,   52,   53,   54,   55,   56,   57,   58,   59,   60, & ! 5   
+     &     61,   62,   63,   64,   65/     !  6   
 
       REAL( 8 )          :: RTDAT( 3,NRXNS )
 
@@ -1001,10 +1512,14 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 6   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 7   
      &      0,    0,    2,    1,    1,    1,    1,    1,    1,    1, & ! 8   
-     &      1,    0,    1,    1,    1,    1,    1,    1,    1,    1, & ! 9   
+     &      1,    2,    1,    1,    1,    1,    1,    1,    1,    1, & ! 9   
      &      1,    1,    1,    1,    0,    0,    0,    0,    0,    0, & ! O   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 1   
      &      0,    0,    0,    1,    1/     !  2   
+
+      INTEGER, PARAMETER :: NTERMS_JACOB =    50625
+
+      INTEGER, PARAMETER :: NSTEPS_JACOB =     1850
 
       INTEGER            :: IORDER( NRXNS )
 
@@ -1227,7 +1742,7 @@
 
       DATA ( NRXWM( IRXXN ), IRXXN = 1, NWM ) /  & 
      &      2,   21,  588/
-      REAL,    PARAMETER :: ATM_AIR = 1.00000E+06
+      REAL( 8 ),    PARAMETER :: ATM_AIR = 1.00000D+06
 
       INTEGER, PARAMETER :: NWW =   5
       INTEGER            :: NRXWW( NWW )
@@ -1240,27 +1755,27 @@
 
       DATA ( NRXWO2( IRXXN ), IRXXN = 1, NWO2 ) / & 
      &      2,   10/
-      REAL,    PARAMETER :: ATM_O2 = 2.09500E+05
+      REAL( 8 ),    PARAMETER :: ATM_O2 = 2.09500D+05
 
       INTEGER, PARAMETER :: NWN2 =   0
       INTEGER            :: NRXWN2( 1 )
 
       DATA   NRXWN2( 1 ) / 0 /
-      REAL,    PARAMETER :: ATM_N2 = 7.80800E+05
+      REAL( 8 ),    PARAMETER :: ATM_N2 = 7.80800D+05
 
       INTEGER, PARAMETER :: NWCH4 =   2
       INTEGER            :: NRXWCH4( NWCH4 )
 
       DATA ( NRXWCH4( IRXXN ), IRXXN = 1, NWCH4 ) / & 
      &    523,  661/
-      REAL,    PARAMETER :: ATM_CH4 = 1.85000E+00
+      REAL( 8 ),    PARAMETER :: ATM_CH4 = 1.85000D+00
 
       INTEGER, PARAMETER :: NWH2 =   2
       INTEGER            :: NRXWH2( NWH2 )
 
       DATA ( NRXWH2( IRXXN ), IRXXN = 1, NWH2 ) / & 
      &     45,  608/
-      REAL,    PARAMETER :: ATM_H2 = 5.60000E-01
+      REAL( 8 ),    PARAMETER :: ATM_H2 = 5.60000D-01
 
       INTEGER, PARAMETER :: MXPRD =  26
       INTEGER            :: IRR( NRXNS,MXPRD+3 )
@@ -4622,4869 +5137,4869 @@
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & 
      &     1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00/
 
-      REAL               :: SC( NRXNS,MXPRD )
+      REAL( 8 )               :: SC( NRXNS,MXPRD )
 
       DATA ( SC( IRXXN,  1 ), IRXXN = 1, NRXNS ) / & 
-     &        1.00000,    1.00000,    0.00000,    1.00000,    1.00000, & ! O   
-     &        1.00000,    1.00000,    1.00000,    2.00000,    2.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    2.00000,    1.00000, & ! 1   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    2.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 2   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    0.61000,    1.00000, & ! 3   
-     &        1.00000,    1.00000,    1.00000,    0.80000,    2.00000, & ! +   
-     &        2.00000,    1.00000,    0.00000,    1.00000,    1.00000, & ! 4   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        2.00000,    1.00000,    0.00000,    1.00000,    0.50000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.50000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    1.00000,    0.60000, & ! 6   
-     &        1.00000,    0.10500,    1.00000,    0.10000,    1.00000, & ! +   
-     &        1.00000,    2.00000,    1.00000,    1.00000,    0.60000, & ! 7   
-     &        1.00000,    0.30750,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    2.00000,    2.00000,    1.00000,    1.00000, & ! 8   
-     &        0.60000,    1.00000,    0.30750,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    2.00000,    2.00000, & ! 9   
-     &        1.00000,    1.00000,    0.60000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! O   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 1   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 2   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 3   
-     &        1.00000,    1.50000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 4   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    2.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 5   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        2.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 6   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    1.00000,    1.00000, & ! 7   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 8   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    2.00000,    1.00000, & ! 9   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        0.96500,    1.00000,    1.00000,    1.00000,    0.62000, & ! O   
-     &        0.96700,    1.00000,    1.00000,    1.00000,    0.50900, & ! +   
-     &        1.00000,    0.30000,    1.00000,    0.74400,    1.00000, & ! 1   
-     &        0.84000,    1.00000,    0.13900,    1.00000,    2.00000, & ! +   
-     &        1.00000,    0.70000,    1.00000,    1.00000,    1.00000, & ! 2   
-     &        1.00000,    2.00000,    0.20000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.00000,    1.00000, & ! 3   
-     &        0.21700,    0.82600,    1.02300,    0.21700,    0.82600, & ! +   
-     &        1.00000,    0.20600,    0.47100,    0.20800,    1.00000, & ! 4   
-     &        0.16400,    0.45000,    0.40000,    0.28900,    0.28500, & ! +   
-     &        0.15000,    1.23300,    0.47200,    0.91300,    0.18900, & ! 5   
-     &        0.34400,    1.00000,    1.00000,    0.25000,    0.83000, & ! +   
-     &        0.03100,    1.00000,    1.06600,    0.98000,    1.00000, & ! 6   
-     &        0.80600,    1.00000,    1.00000,    1.00000,    0.44000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 7   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 8   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 9   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! O   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 1   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 2   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 3   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 4   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 5   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 6   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 7   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 8   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 9   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! O   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 1   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 2   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 3   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 4   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 5   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 6   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 7   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 8   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 9   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! O   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 1   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.16000, & ! 2   
-     &        1.00000,    0.80000,    0.98400,    0.16500,    0.94900, & ! +   
-     &        0.45000,    0.95100,    0.08000,    0.81500,    0.25000, & ! 3   
-     &        0.06600,    0.25000,    0.79900,    0.00900,    0.05600, & ! +   
-     &        1.00000,    0.30000,    1.50000,    0.57000,    0.18100, & ! 4   
-     &        0.15900,    0.16100,    0.15900,    0.02200,    0.95000, & ! +   
-     &        1.00000,    0.96500,    0.69500,    0.83000,    0.64700, & ! 5   
-     &        1.00000,    0.87100,    0.09500,    0.77200,    0.45000, & ! +   
-     &        0.91200,    0.09400,    0.40000,    0.07900,    0.12300, & ! 6   
-     &        0.07700,    0.07700,    0.73400,    0.07800,    1.00000, & ! +   
-     &        0.82700,    1.00000,    1.53100,    0.26600,    0.26600, & ! 7   
-     &        0.26600,    0.53100,    0.53100,    0.53100,    1.00000, & ! +   
-     &        1.00000,    0.23700,    0.73400,    0.07800,    0.22700, & ! 8   
-     &        0.23700,    2.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 9   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! O   
-     &        0.29000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 1   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    0.40400,    0.48400,    1.28300, & ! 2   
-     &        0.40100,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 3   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 4   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 5   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    0.12400,    0.39000,    0.15000, & ! 6   
-     &        0.54800,    1.00000,    0.89400,    0.86400,    0.86400, & ! +   
-     &        0.86400,    0.83800,    1.00000,    1.00000,    1.00000, & ! 7   
-     &        1.00000,    1.00000,    1.00000,    0.38400,    0.27900, & ! +   
-     &        0.84000,    0.82800,    0.82800,    0.54800,    0.25200, & ! 8   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    0.00000,    0.00000, & ! 9   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! O   
-     &        1.00000,    0.00000,    1.00000,    1.00000,    0.40000, & ! +   
-     &        0.88000,    0.95000,    0.45000,    0.91000,    1.00000, & ! 1   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.70000, & ! +   
-     &        0.70000,    1.00000,    0.60000,    0.60000,    1.20000, & ! 2   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.11700, & ! +   
-     &        0.11700,    1.00000,    0.50000,    1.00000,    0.34000, & ! 3   
-     &        1.00000,    0.17000,    0.17000,    1.00000,    0.36000, & ! +   
-     &        1.00000,    0.60000,    1.00000,    0.30000,    0.30000, & ! 4   
-     &        1.00000,    0.12000,    0.60000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.75000,    1.00000,    1.00000,    1.00000, & ! 5   
-     &        1.00000,    0.94000,    1.00000,    0.70000,    0.70000, & ! +   
-     &        1.00000,    0.30000,    0.34500,    0.91900,    1.00000, & ! 6   
-     &        0.68900,    0.68900,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.50000,    1.00000,    1.00000,    0.62500, & ! 7   
-     &        1.00000,    0.35000,    0.35000,    1.00000,    0.85000, & ! +   
-     &        1.00000,    1.00000,    0.50000,    1.00000,    1.00000, & ! 8   
-     &        0.30750,    1.00000,    2.00000,    1.00000,    1.00000, & ! +   
-     &        2.00000,    1.00000,    1.00000,    2.00000,    1.00000, & ! 9   
-     &        0.75000,    0.75000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.65000, & ! O   
-     &        1.00000,    0.08000,    1.00000,    1.50000,    1.00000, & ! +   
-     &        1.00000,    0.38700,    1.00000,    0.72500,    0.72500, & ! 1   
-     &        0.36300,    0.36300,    0.72500,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.30000,    0.53000,    0.50000,    0.33000, & ! 2   
-     &        0.25000,    1.00000,    0.75000,    1.00000,    2.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    1.00000,    1.00000, & ! 3   
-     &        2.00000,    2.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        0.60000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 4   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 5   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 6   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 7   
-     &        1.00000,    0.03000,    0.00000,    0.00000,    0.83000, & ! +   
-     &        1.00000,    0.18900,    0.34400,    0.50000,    1.00000, & ! 8   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    1.00000,    1.00000, & ! 9   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.50000, & ! O   
-     &        0.50000,    1.50000,    0.90700,    0.92500,    0.94300, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 1   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    1.00000,    1.00000/!2   
+     &     1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! O   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 2.0000D+00, 2.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 2.0000D+00, 1.0000D+00, & ! 1   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 2.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 2   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 6.1000D-01, 1.0000D+00, & ! 3   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 8.0000D-01, 2.0000D+00, & ! +   
+     &     2.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! 4   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     2.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, 6.0000D-01, & ! 6   
+     &     1.0000D+00, 1.0500D-01, 1.0000D+00, 1.0000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 2.0000D+00, 1.0000D+00, 1.0000D+00, 6.0000D-01, & ! 7   
+     &     1.0000D+00, 3.0750D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 2.0000D+00, 2.0000D+00, 1.0000D+00, 1.0000D+00, & ! 8   
+     &     6.0000D-01, 1.0000D+00, 3.0750D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 2.0000D+00, 2.0000D+00, & ! 9   
+     &     1.0000D+00, 1.0000D+00, 6.0000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! O   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 1   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 2   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 3   
+     &     1.0000D+00, 1.5000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 4   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 2.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 5   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     2.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 6   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 1.0000D+00, 1.0000D+00, & ! 7   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 8   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 2.0000D+00, 1.0000D+00, & ! 9   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     9.6500D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 6.2000D-01, & ! O   
+     &     9.6700D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 5.0900D-01, & ! +   
+     &     1.0000D+00, 3.0000D-01, 1.0000D+00, 7.4400D-01, 1.0000D+00, & ! 1   
+     &     8.4000D-01, 1.0000D+00, 1.3900D-01, 1.0000D+00, 2.0000D+00, & ! +   
+     &     1.0000D+00, 7.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 2   
+     &     1.0000D+00, 2.0000D+00, 2.0000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, & ! 3   
+     &     2.1700D-01, 8.2600D-01, 1.0230D+00, 2.1700D-01, 8.2600D-01, & ! +   
+     &     1.0000D+00, 2.0600D-01, 4.7100D-01, 2.0800D-01, 1.0000D+00, & ! 4   
+     &     1.6400D-01, 4.5000D-01, 4.0000D-01, 2.8900D-01, 2.8500D-01, & ! +   
+     &     1.5000D-01, 1.2330D+00, 4.7200D-01, 9.1300D-01, 1.8900D-01, & ! 5   
+     &     3.4400D-01, 1.0000D+00, 1.0000D+00, 2.5000D-01, 8.3000D-01, & ! +   
+     &     3.1000D-02, 1.0000D+00, 1.0660D+00, 9.8000D-01, 1.0000D+00, & ! 6   
+     &     8.0600D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 4.4000D-01, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 7   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 8   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 9   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! O   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 1   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 2   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 3   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 4   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 5   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 6   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 7   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 8   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 9   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! O   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 1   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 2   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 3   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 4   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 5   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 6   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 7   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 8   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 9   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! O   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 1   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.6000D-01, & ! 2   
+     &     1.0000D+00, 8.0000D-01, 9.8400D-01, 1.6500D-01, 9.4900D-01, & ! +   
+     &     4.5000D-01, 9.5100D-01, 8.0000D-02, 8.1500D-01, 2.5000D-01, & ! 3   
+     &     6.6000D-02, 2.5000D-01, 7.9900D-01, 9.0000D-03, 5.6000D-02, & ! +   
+     &     1.0000D+00, 3.0000D-01, 1.5000D+00, 5.7000D-01, 1.8100D-01, & ! 4   
+     &     1.5900D-01, 1.6100D-01, 1.5900D-01, 2.2000D-02, 9.5000D-01, & ! +   
+     &     1.0000D+00, 9.6500D-01, 6.9500D-01, 8.3000D-01, 6.4700D-01, & ! 5   
+     &     1.0000D+00, 8.7100D-01, 9.5000D-02, 7.7200D-01, 4.5000D-01, & ! +   
+     &     9.1200D-01, 9.4000D-02, 4.0000D-01, 7.9000D-02, 1.2300D-01, & ! 6   
+     &     7.7000D-02, 7.7000D-02, 7.3400D-01, 7.8000D-02, 1.0000D+00, & ! +   
+     &     8.2700D-01, 1.0000D+00, 1.5310D+00, 2.6600D-01, 2.6600D-01, & ! 7   
+     &     2.6600D-01, 5.3100D-01, 5.3100D-01, 5.3100D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 2.3700D-01, 7.3400D-01, 7.8000D-02, 2.2700D-01, & ! 8   
+     &     2.3700D-01, 2.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 9   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! O   
+     &     2.9000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 1   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 4.0400D-01, 4.8400D-01, 1.2830D+00, & ! 2   
+     &     4.0100D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 3   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 4   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 5   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.2400D-01, 3.9000D-01, 1.5000D-01, & ! 6   
+     &     5.4800D-01, 1.0000D+00, 8.9400D-01, 8.6400D-01, 8.6400D-01, & ! +   
+     &     8.6400D-01, 8.3800D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 7   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 3.8400D-01, 2.7900D-01, & ! +   
+     &     8.4000D-01, 8.2800D-01, 8.2800D-01, 5.4800D-01, 2.5200D-01, & ! 8   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! O   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, 4.0000D-01, & ! +   
+     &     8.8000D-01, 9.5000D-01, 4.5000D-01, 9.1000D-01, 1.0000D+00, & ! 1   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 7.0000D-01, & ! +   
+     &     7.0000D-01, 1.0000D+00, 6.0000D-01, 6.0000D-01, 1.2000D+00, & ! 2   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.1700D-01, & ! +   
+     &     1.1700D-01, 1.0000D+00, 5.0000D-01, 1.0000D+00, 3.4000D-01, & ! 3   
+     &     1.0000D+00, 1.7000D-01, 1.7000D-01, 1.0000D+00, 3.6000D-01, & ! +   
+     &     1.0000D+00, 6.0000D-01, 1.0000D+00, 3.0000D-01, 3.0000D-01, & ! 4   
+     &     1.0000D+00, 1.2000D-01, 6.0000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 7.5000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 5   
+     &     1.0000D+00, 9.4000D-01, 1.0000D+00, 7.0000D-01, 7.0000D-01, & ! +   
+     &     1.0000D+00, 3.0000D-01, 3.4500D-01, 9.1900D-01, 1.0000D+00, & ! 6   
+     &     6.8900D-01, 6.8900D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 5.0000D-01, 1.0000D+00, 1.0000D+00, 6.2500D-01, & ! 7   
+     &     1.0000D+00, 3.5000D-01, 3.5000D-01, 1.0000D+00, 8.5000D-01, & ! +   
+     &     1.0000D+00, 1.0000D+00, 5.0000D-01, 1.0000D+00, 1.0000D+00, & ! 8   
+     &     3.0750D-01, 1.0000D+00, 2.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     2.0000D+00, 1.0000D+00, 1.0000D+00, 2.0000D+00, 1.0000D+00, & ! 9   
+     &     7.5000D-01, 7.5000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 6.5000D-01, & ! O   
+     &     1.0000D+00, 8.0000D-02, 1.0000D+00, 1.5000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 3.8700D-01, 1.0000D+00, 7.2500D-01, 7.2500D-01, & ! 1   
+     &     3.6300D-01, 3.6300D-01, 7.2500D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 3.0000D-01, 5.3000D-01, 5.0000D-01, 3.3000D-01, & ! 2   
+     &     2.5000D-01, 1.0000D+00, 7.5000D-01, 1.0000D+00, 2.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 1.0000D+00, 1.0000D+00, & ! 3   
+     &     2.0000D+00, 2.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     6.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 4   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 5   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 6   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 7   
+     &     1.0000D+00, 3.0000D-02, 0.0000D+00, 0.0000D+00, 8.3000D-01, & ! +   
+     &     1.0000D+00, 1.8900D-01, 3.4400D-01, 5.0000D-01, 1.0000D+00, & ! 8   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 9   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 5.0000D-01, & ! O   
+     &     5.0000D-01, 1.5000D+00, 9.0700D-01, 9.2500D-01, 9.4300D-01, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 1   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 1.0000D+00, 1.0000D+00/!2   
 
       DATA ( SC( IRXXN,  2 ), IRXXN = 1, NRXNS ) / & 
-     &        1.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    0.00000,    0.00000,    1.00000, & ! 1   
-     &        0.00000,    1.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    0.00000,    0.00000, & ! 2   
-     &        1.00000,    0.00000,    1.00000,    1.00000,    0.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.61000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.80000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! 4   
-     &        1.00000,    0.00000,    0.00000,    1.00000,    1.00000, & ! +   
-     &        2.00000,    0.00000,    0.00000,    0.00000,    0.75000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.75000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.60000, & ! 6   
-     &        1.00000,    0.04500,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    2.00000,    0.00000,    1.00000,    0.60000, & ! 7   
-     &        1.00000,    0.10250,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    0.00000,    1.00000, & ! 8   
-     &        0.60000,    1.00000,    0.10250,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    2.00000,    2.00000, & ! 9   
-     &        0.00000,    1.00000,    0.60000,    0.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    1.00000,    0.00000, & ! O   
-     &        1.00000,    0.50000,    0.50000,    0.50000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.00000, & ! 1   
-     &        1.00000,    0.50000,    0.50000,    0.50000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.00000, & ! 2   
-     &        1.00000,    0.50000,    0.50000,    0.50000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.00000, & ! 3   
-     &        1.00000,    0.00000,    0.50000,    0.50000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.00000, & ! 4   
-     &        1.00000,    0.50000,    0.50000,    0.50000,    0.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.00000, & ! 5   
-     &        1.00000,    0.50000,    0.50000,    0.50000,    1.00000, & ! +   
-     &        0.00000,    1.00000,    1.00000,    1.00000,    0.00000, & ! 6   
-     &        1.00000,    0.50000,    0.50000,    0.50000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    0.00000,    1.00000,    0.00000, & ! 7   
-     &        1.00000,    0.50000,    0.50000,    0.50000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.00000, & ! 8   
-     &        1.00000,    0.50000,    0.50000,    0.50000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.00000, & ! 9   
-     &        1.00000,    1.00000,    0.00000,    1.00000,    1.00000, & ! +   
-     &        0.03500,    1.00000,    1.00000,    1.00000,    1.38000, & ! O   
-     &        0.03900,    1.00000,    1.00000,    1.00000,    0.49100, & ! +   
-     &        1.00000,    0.30000,    1.00000,    0.25100,    1.00000, & ! 1   
-     &        0.22200,    0.14200,    0.14800,    1.00000,    2.00000, & ! +   
-     &        1.00000,    1.40000,    0.70000,    1.00000,    1.00000, & ! 2   
-     &        1.00000,    0.00000,    0.80000,    1.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    1.00000, & ! 3   
-     &        0.72300,    0.52200,    0.17300,    0.72300,    0.52200, & ! +   
-     &        0.00000,    0.73300,    0.55400,    0.10800,    0.00000, & ! 4   
-     &        0.06400,    0.55000,    0.60000,    0.67000,    0.40000, & ! +   
-     &        0.15000,    0.46700,    0.37900,    0.40000,    0.30500, & ! 5   
-     &        0.55400,    2.00000,    1.00000,    0.75000,    0.33000, & ! +   
-     &        0.96700,    0.00000,    0.17800,    0.02000,    1.00000, & ! 6   
-     &        0.19400,    1.00000,    1.00000,    1.00000,    0.44000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 7   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 8   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 9   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! O   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 1   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 2   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 3   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 4   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 5   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 6   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 7   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 8   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 9   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! O   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 1   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 2   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 3   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 4   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.00000,    0.50000, & ! 5   
-     &        0.50000,    0.50000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    0.00000,    0.50000, & ! 6   
-     &        0.50000,    0.50000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    0.00000,    0.50000, & ! 7   
-     &        0.50000,    0.50000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    0.00000,    1.00000,    0.50000, & ! 8   
-     &        0.50000,    0.50000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    0.00000,    1.00000,    0.50000, & ! 9   
-     &        0.50000,    0.50000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    0.00000,    1.00000, & ! O   
-     &        0.50000,    0.50000,    0.50000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    0.00000,    1.00000, & ! 1   
-     &        0.50000,    0.50000,    0.50000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    0.00000,    1.00000,    0.16000, & ! 2   
-     &        1.00000,    0.29000,    0.98400,    0.35000,    0.94900, & ! +   
-     &        0.55000,    1.18900,    0.08000,    0.12000,    0.11700, & ! 3   
-     &        0.26600,    0.24000,    0.00400,    0.10200,    0.64300, & ! +   
-     &        1.00000,    0.70000,    0.50000,    0.29000,    0.45400, & ! 4   
-     &        0.52000,    0.55400,    0.48700,    0.62700,    0.05000, & ! +   
-     &        1.00000,    0.96500,    0.23600,    0.01000,    1.60500, & ! 5   
-     &        0.00600,    0.00100,    0.05700,    1.46300,    0.39000, & ! +   
-     &        0.95300,    0.04100,    0.42600,    0.75100,    0.56600, & ! 6   
-     &        0.61700,    0.61700,    0.06400,    0.04600,    0.00000, & ! +   
-     &        0.68800,    0.00000,    0.42200,    0.71100,    0.71100, & ! 7   
-     &        0.71100,    0.42200,    0.42200,    0.42200,    1.04300, & ! +   
-     &        1.04300,    0.76300,    0.06400,    0.04600,    0.28700, & ! 8   
-     &        0.76300,    0.00000,    0.00000,    1.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    1.00000,    0.00000,    1.00000, & ! 9   
-     &        0.00000,    1.00000,    1.00000,    0.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    0.00000,    1.00000, & ! O   
-     &        1.42000,    0.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.90000,    1.00000,    0.97500,    0.03800, & ! 1   
-     &        0.31400,    0.63000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        0.41400,    0.14500,    0.13900,    0.27400,    0.05300, & ! 2   
-     &        0.08400,    1.00000,    0.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 3   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 4   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    1.00000,    0.50000,    0.50000, & ! 5   
-     &        0.50000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    2.00000,    0.97100,    0.54100,    0.73800, & ! 6   
-     &        0.25200,    1.00000,    0.89400,    0.86400,    0.86400, & ! +   
-     &        0.86400,    0.83800,    0.68800,    1.00000,    0.97000, & ! 7   
-     &        0.83500,    0.82700,    0.64700,    0.87300,    0.45000, & ! +   
-     &        0.84000,    0.82800,    0.82800,    0.25200,    0.06800, & ! 8   
-     &        0.03400,    0.14600,    0.01500,    0.19300,    0.01600, & ! +   
-     &        0.14000,    0.02800,    0.47300,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.26000, & ! +   
-     &        0.12000,    1.12000,    0.37000,    0.75000,    1.00000, & ! 1   
-     &        1.00000,    1.00000,    1.00000,    0.00000,    0.03500, & ! +   
-     &        0.03500,    0.00000,    0.01750,    0.01750,    0.03500, & ! 2   
-     &        1.00000,    0.00000,    0.23400,    0.00000,    0.11700, & ! +   
-     &        0.11700,    1.00000,    0.35000,    0.00000,    0.15000, & ! 3   
-     &        0.00000,    0.07500,    0.07500,    1.00000,    0.29000, & ! +   
-     &        0.00000,    0.60000,    0.00000,    0.30000,    0.30000, & ! 4   
-     &        1.00000,    0.32000,    0.60000,    1.00000,    1.00000, & ! +   
-     &        0.00000,    0.25000,    1.00000,    1.00000,    2.00000, & ! 5   
-     &        1.00000,    0.94000,    0.00000,    0.70000,    0.70000, & ! +   
-     &        1.00000,    0.45000,    0.65500,    0.91900,    0.00000, & ! 6   
-     &        0.68900,    0.68900,    1.00000,    1.00000,    0.00000, & ! +   
-     &        0.26000,    0.26000,    0.52000,    0.00000,    0.62500, & ! 7   
-     &        0.00000,    0.35000,    0.35000,    1.00000,    0.85000, & ! +   
-     &        0.00000,    0.42400,    0.42400,    1.00000,    1.00000, & ! 8   
-     &        0.10250,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        2.00000,    2.00000,    2.00000,    2.00000,    1.00000, & ! 9   
-     &        0.25000,    0.82500,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    0.65000, & ! O   
-     &        1.00000,    0.08000,    1.00000,    0.50000,    1.00000, & ! +   
-     &        1.00000,    0.61300,    0.00000,    0.27500,    0.27500, & ! 1   
-     &        0.13800,    0.13800,    0.27500,    0.91000,    1.00000, & ! +   
-     &        1.00000,    0.70000,    0.47000,    0.50000,    0.67000, & ! 2   
-     &        0.16500,    1.00000,    0.25000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    2.00000,    2.00000, & ! 3   
-     &        2.00000,    2.00000,    1.00000,    0.00000,    1.00000, & ! +   
-     &        0.60000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 4   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 6   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 7   
-     &        1.00000,    0.03000,    0.00000,    0.00000,    0.17000, & ! +   
-     &        0.03800,    0.30500,    0.55400,    0.50000,    1.00000, & ! 8   
-     &        1.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        1.00000,    0.48570,    0.30030,    0.38560,    0.21810, & ! 1   
-     &        0.24120,    0.66640,    0.28580,    0.33030,    0.34440, & ! +   
-     &        0.38860,    1.00000,    0.50000,    0.00000,    0.00000/!2   
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! 1   
+     &     0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 6.1000D-01, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 8.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! 4   
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     2.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 7.5000D-01, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 7.5000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 6.0000D-01, & ! 6   
+     &     1.0000D+00, 4.5000D-02, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 2.0000D+00, 0.0000D+00, 1.0000D+00, 6.0000D-01, & ! 7   
+     &     1.0000D+00, 1.0250D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 0.0000D+00, 1.0000D+00, & ! 8   
+     &     6.0000D-01, 1.0000D+00, 1.0250D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 2.0000D+00, 2.0000D+00, & ! 9   
+     &     0.0000D+00, 1.0000D+00, 6.0000D-01, 0.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! O   
+     &     1.0000D+00, 5.0000D-01, 5.0000D-01, 5.0000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! 1   
+     &     1.0000D+00, 5.0000D-01, 5.0000D-01, 5.0000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! 2   
+     &     1.0000D+00, 5.0000D-01, 5.0000D-01, 5.0000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! 3   
+     &     1.0000D+00, 0.0000D+00, 5.0000D-01, 5.0000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! 4   
+     &     1.0000D+00, 5.0000D-01, 5.0000D-01, 5.0000D-01, 0.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! 5   
+     &     1.0000D+00, 5.0000D-01, 5.0000D-01, 5.0000D-01, 1.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! 6   
+     &     1.0000D+00, 5.0000D-01, 5.0000D-01, 5.0000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! 7   
+     &     1.0000D+00, 5.0000D-01, 5.0000D-01, 5.0000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! 8   
+     &     1.0000D+00, 5.0000D-01, 5.0000D-01, 5.0000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! 9   
+     &     1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     3.5000D-02, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.3800D+00, & ! O   
+     &     3.9000D-02, 1.0000D+00, 1.0000D+00, 1.0000D+00, 4.9100D-01, & ! +   
+     &     1.0000D+00, 3.0000D-01, 1.0000D+00, 2.5100D-01, 1.0000D+00, & ! 1   
+     &     2.2200D-01, 1.4200D-01, 1.4800D-01, 1.0000D+00, 2.0000D+00, & ! +   
+     &     1.0000D+00, 1.4000D+00, 7.0000D-01, 1.0000D+00, 1.0000D+00, & ! 2   
+     &     1.0000D+00, 0.0000D+00, 8.0000D-01, 1.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! 3   
+     &     7.2300D-01, 5.2200D-01, 1.7300D-01, 7.2300D-01, 5.2200D-01, & ! +   
+     &     0.0000D+00, 7.3300D-01, 5.5400D-01, 1.0800D-01, 0.0000D+00, & ! 4   
+     &     6.4000D-02, 5.5000D-01, 6.0000D-01, 6.7000D-01, 4.0000D-01, & ! +   
+     &     1.5000D-01, 4.6700D-01, 3.7900D-01, 4.0000D-01, 3.0500D-01, & ! 5   
+     &     5.5400D-01, 2.0000D+00, 1.0000D+00, 7.5000D-01, 3.3000D-01, & ! +   
+     &     9.6700D-01, 0.0000D+00, 1.7800D-01, 2.0000D-02, 1.0000D+00, & ! 6   
+     &     1.9400D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 4.4000D-01, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 7   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 8   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 9   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! O   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 1   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 2   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 3   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 4   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 5   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 6   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 7   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 8   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 9   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! O   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 1   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 2   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 3   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 4   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 5.0000D-01, & ! 5   
+     &     5.0000D-01, 5.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 5.0000D-01, & ! 6   
+     &     5.0000D-01, 5.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 5.0000D-01, & ! 7   
+     &     5.0000D-01, 5.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, & ! 8   
+     &     5.0000D-01, 5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, & ! 9   
+     &     5.0000D-01, 5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, & ! O   
+     &     5.0000D-01, 5.0000D-01, 5.0000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, & ! 1   
+     &     5.0000D-01, 5.0000D-01, 5.0000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, 1.6000D-01, & ! 2   
+     &     1.0000D+00, 2.9000D-01, 9.8400D-01, 3.5000D-01, 9.4900D-01, & ! +   
+     &     5.5000D-01, 1.1890D+00, 8.0000D-02, 1.2000D-01, 1.1700D-01, & ! 3   
+     &     2.6600D-01, 2.4000D-01, 4.0000D-03, 1.0200D-01, 6.4300D-01, & ! +   
+     &     1.0000D+00, 7.0000D-01, 5.0000D-01, 2.9000D-01, 4.5400D-01, & ! 4   
+     &     5.2000D-01, 5.5400D-01, 4.8700D-01, 6.2700D-01, 5.0000D-02, & ! +   
+     &     1.0000D+00, 9.6500D-01, 2.3600D-01, 1.0000D-02, 1.6050D+00, & ! 5   
+     &     6.0000D-03, 1.0000D-03, 5.7000D-02, 1.4630D+00, 3.9000D-01, & ! +   
+     &     9.5300D-01, 4.1000D-02, 4.2600D-01, 7.5100D-01, 5.6600D-01, & ! 6   
+     &     6.1700D-01, 6.1700D-01, 6.4000D-02, 4.6000D-02, 0.0000D+00, & ! +   
+     &     6.8800D-01, 0.0000D+00, 4.2200D-01, 7.1100D-01, 7.1100D-01, & ! 7   
+     &     7.1100D-01, 4.2200D-01, 4.2200D-01, 4.2200D-01, 1.0430D+00, & ! +   
+     &     1.0430D+00, 7.6300D-01, 6.4000D-02, 4.6000D-02, 2.8700D-01, & ! 8   
+     &     7.6300D-01, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, & ! 9   
+     &     0.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, & ! O   
+     &     1.4200D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 9.0000D-01, 1.0000D+00, 9.7500D-01, 3.8000D-02, & ! 1   
+     &     3.1400D-01, 6.3000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     4.1400D-01, 1.4500D-01, 1.3900D-01, 2.7400D-01, 5.3000D-02, & ! 2   
+     &     8.4000D-02, 1.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 3   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 4   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, 5.0000D-01, & ! 5   
+     &     5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 2.0000D+00, 9.7100D-01, 5.4100D-01, 7.3800D-01, & ! 6   
+     &     2.5200D-01, 1.0000D+00, 8.9400D-01, 8.6400D-01, 8.6400D-01, & ! +   
+     &     8.6400D-01, 8.3800D-01, 6.8800D-01, 1.0000D+00, 9.7000D-01, & ! 7   
+     &     8.3500D-01, 8.2700D-01, 6.4700D-01, 8.7300D-01, 4.5000D-01, & ! +   
+     &     8.4000D-01, 8.2800D-01, 8.2800D-01, 2.5200D-01, 6.8000D-02, & ! 8   
+     &     3.4000D-02, 1.4600D-01, 1.5000D-02, 1.9300D-01, 1.6000D-02, & ! +   
+     &     1.4000D-01, 2.8000D-02, 4.7300D-01, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 2.6000D-01, & ! +   
+     &     1.2000D-01, 1.1200D+00, 3.7000D-01, 7.5000D-01, 1.0000D+00, & ! 1   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 3.5000D-02, & ! +   
+     &     3.5000D-02, 0.0000D+00, 1.7500D-02, 1.7500D-02, 3.5000D-02, & ! 2   
+     &     1.0000D+00, 0.0000D+00, 2.3400D-01, 0.0000D+00, 1.1700D-01, & ! +   
+     &     1.1700D-01, 1.0000D+00, 3.5000D-01, 0.0000D+00, 1.5000D-01, & ! 3   
+     &     0.0000D+00, 7.5000D-02, 7.5000D-02, 1.0000D+00, 2.9000D-01, & ! +   
+     &     0.0000D+00, 6.0000D-01, 0.0000D+00, 3.0000D-01, 3.0000D-01, & ! 4   
+     &     1.0000D+00, 3.2000D-01, 6.0000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 2.5000D-01, 1.0000D+00, 1.0000D+00, 2.0000D+00, & ! 5   
+     &     1.0000D+00, 9.4000D-01, 0.0000D+00, 7.0000D-01, 7.0000D-01, & ! +   
+     &     1.0000D+00, 4.5000D-01, 6.5500D-01, 9.1900D-01, 0.0000D+00, & ! 6   
+     &     6.8900D-01, 6.8900D-01, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     2.6000D-01, 2.6000D-01, 5.2000D-01, 0.0000D+00, 6.2500D-01, & ! 7   
+     &     0.0000D+00, 3.5000D-01, 3.5000D-01, 1.0000D+00, 8.5000D-01, & ! +   
+     &     0.0000D+00, 4.2400D-01, 4.2400D-01, 1.0000D+00, 1.0000D+00, & ! 8   
+     &     1.0250D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     2.0000D+00, 2.0000D+00, 2.0000D+00, 2.0000D+00, 1.0000D+00, & ! 9   
+     &     2.5000D-01, 8.2500D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 6.5000D-01, & ! O   
+     &     1.0000D+00, 8.0000D-02, 1.0000D+00, 5.0000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 6.1300D-01, 0.0000D+00, 2.7500D-01, 2.7500D-01, & ! 1   
+     &     1.3800D-01, 1.3800D-01, 2.7500D-01, 9.1000D-01, 1.0000D+00, & ! +   
+     &     1.0000D+00, 7.0000D-01, 4.7000D-01, 5.0000D-01, 6.7000D-01, & ! 2   
+     &     1.6500D-01, 1.0000D+00, 2.5000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 2.0000D+00, 2.0000D+00, & ! 3   
+     &     2.0000D+00, 2.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, & ! +   
+     &     6.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 4   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 6   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 7   
+     &     1.0000D+00, 3.0000D-02, 0.0000D+00, 0.0000D+00, 1.7000D-01, & ! +   
+     &     3.8000D-02, 3.0500D-01, 5.5400D-01, 5.0000D-01, 1.0000D+00, & ! 8   
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.0000D+00, 4.8570D-01, 3.0030D-01, 3.8560D-01, 2.1810D-01, & ! 1   
+     &     2.4120D-01, 6.6640D-01, 2.8580D-01, 3.3030D-01, 3.4440D-01, & ! +   
+     &     3.8860D-01, 1.0000D+00, 5.0000D-01, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN,  3 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.39000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.20000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! 4   
-     &        1.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.25000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.25000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.40000, & ! 6   
-     &        1.00000,    0.15000,    1.00000,    0.90000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.40000, & ! 7   
-     &        1.00000,    0.15000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    0.00000,    0.00000, & ! 8   
-     &        0.40000,    1.00000,    0.15000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    2.00000, & ! 9   
-     &        0.00000,    0.00000,    0.40000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    1.00000,    0.00000,    1.00000,    0.00000, & ! +   
-     &        0.03500,    1.00000,    0.00000,    1.00000,    0.38000, & ! O   
-     &        0.03900,    1.00000,    0.00000,    0.00000,    0.50900, & ! +   
-     &        0.14300,    0.70000,    1.00000,    0.00400,    1.00000, & ! 1   
-     &        0.02900,    0.78200,    0.58900,    0.50000,    0.00000, & ! +   
-     &        0.00000,    0.30000,    1.40000,    1.00000,    0.00000, & ! 2   
-     &        1.00000,    0.00000,    0.80000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.06000,    0.65200,    0.30500,    0.06000,    0.65200, & ! +   
-     &        0.00000,    0.11700,    0.01300,    0.10000,    0.00000, & ! 4   
-     &        0.05000,    0.00000,    0.60000,    0.67000,    0.04800, & ! +   
-     &        0.79900,    0.30000,    0.02900,    0.60000,    0.01900, & ! 5   
-     &        1.00000,    1.00000,    0.00000,    0.25000,    1.00500, & ! +   
-     &        0.03100,    0.00000,    0.23400,    0.02000,    1.00000, & ! 6   
-     &        0.19400,    1.00000,    1.00000,    1.00000,    0.44000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.50000, & ! 8   
-     &        0.50000,    0.50000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    0.00000,    0.00000,    1.00000,    0.50000, & ! 9   
-     &        0.50000,    0.50000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.61000,    0.51000, & ! 2   
-     &        1.00000,    0.51000,    0.01600,    0.35500,    0.05100, & ! +   
-     &        0.00000,    0.04900,    0.25500,    1.05500,    0.11800, & ! 3   
-     &        0.19200,    0.24000,    1.04200,    0.72800,    0.00700, & ! +   
-     &        0.00000,    0.30000,    1.50000,    0.11600,    0.31200, & ! 4   
-     &        0.23900,    0.19800,    0.27800,    0.23000,    0.05000, & ! +   
-     &        1.00000,    0.03500,    1.25300,    0.01100,    0.35300, & ! 5   
-     &        0.05200,    1.20200,    0.12800,    0.22800,    0.16000, & ! +   
-     &        0.08800,    0.44300,    0.03500,    0.17000,    0.20200, & ! 6   
-     &        0.17800,    0.17800,    1.21100,    0.49900,    0.00000, & ! +   
-     &        0.42400,    0.00000,    0.78600,    0.39300,    0.39300, & ! 7   
-     &        0.39300,    0.78600,    1.78600,    1.78600,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.21100,    0.49900,    0.02600, & ! 8   
-     &        1.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! +   
-     &        1.00000,    0.10000,    1.00000,    0.03900,    0.05500, & ! 1   
-     &        0.68000,    1.26000,    1.00000,    1.00000,    0.00000, & ! +   
-     &        0.58800,    1.07800,    0.14800,    0.21600,    0.05300, & ! 2   
-     &        0.15400,    1.00000,    0.00000,    0.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    0.97100,    1.88400,    0.17700, & ! 6   
-     &        0.06800,    0.00000,    0.10600,    0.13600,    0.13600, & ! +   
-     &        0.13600,    0.16200,    0.31200,    1.00000,    0.97000, & ! 7   
-     &        0.09400,    0.00300,    1.54100,    1.60800,    0.44200, & ! +   
-     &        0.16000,    0.17200,    0.17200,    0.06800,    0.03400, & ! 8   
-     &        0.39200,    0.00000,    0.02300,    0.00000,    0.05100, & ! +   
-     &        0.00000,    0.22500,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.88300, & ! +   
-     &        0.04700,    0.23000,    0.23000,    0.45000,    0.91000, & ! 1   
-     &        0.00000,    0.50000,    0.00000,    0.00000,    0.03500, & ! +   
-     &        0.03500,    0.00000,    0.01750,    0.01750,    0.03500, & ! 2   
-     &        0.70000,    0.00000,    0.23400,    0.00000,    0.10800, & ! +   
-     &        0.10800,    0.23400,    0.79000,    0.00000,    0.44000, & ! 3   
-     &        0.00000,    0.22000,    0.22000,    0.34000,    0.70000, & ! +   
-     &        0.00000,    0.40000,    0.00000,    0.95000,    0.20000, & ! 4   
-     &        0.60000,    0.34000,    0.40000,    1.00000,    1.00000, & ! +   
-     &        0.00000,    0.25000,    1.00000,    1.00000,    1.00000, & ! 5   
-     &        1.00000,    0.94000,    0.00000,    0.30000,    0.30000, & ! +   
-     &        1.00000,    0.85000,    0.00000,    0.01500,    0.00000, & ! 6   
-     &        0.01100,    0.01100,    0.98400,    0.52000,    0.00000, & ! +   
-     &        0.26000,    0.26000,    0.52000,    0.00000,    0.26500, & ! 7   
-     &        0.00000,    0.15000,    0.15000,    0.70000,    0.72000, & ! +   
-     &        0.00000,    0.42400,    0.42400,    1.00000,    1.00000, & ! 8   
-     &        0.15000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    2.00000,    1.00000, & ! 9   
-     &        0.13000,    0.12500,    1.00000,    1.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    2.00000,    0.35000, & ! O   
-     &        1.00000,    0.15000,    1.00000,    0.50000,    0.00000, & ! +   
-     &        0.00000,    0.61300,    0.00000,    0.27500,    0.27500, & ! 1   
-     &        0.13800,    0.13800,    0.27500,    0.75000,    1.00000, & ! +   
-     &        0.00000,    0.70000,    0.00000,    0.50000,    0.34000, & ! 2   
-     &        0.80200,    1.00000,    0.25000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 3   
-     &        2.00000,    2.00000,    1.00000,    0.00000,    0.00000, & ! +   
-     &        0.40000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.81000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.05500,    0.01900,    1.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00620,    0.28620,    0.09500,    0.30630, & ! 1   
-     &        0.20890,    0.01430,    0.39310,    0.22720,    0.27490, & ! +   
-     &        0.24210,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.9000D-01, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! 4   
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5000D-01, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0000D-01, & ! 6   
+     &     1.0000D+00, 1.5000D-01, 1.0000D+00, 9.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0000D-01, & ! 7   
+     &     1.0000D+00, 1.5000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     4.0000D-01, 1.0000D+00, 1.5000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 2.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 4.0000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 1.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     3.5000D-02, 1.0000D+00, 0.0000D+00, 1.0000D+00, 3.8000D-01, & ! O   
+     &     3.9000D-02, 1.0000D+00, 0.0000D+00, 0.0000D+00, 5.0900D-01, & ! +   
+     &     1.4300D-01, 7.0000D-01, 1.0000D+00, 4.0000D-03, 1.0000D+00, & ! 1   
+     &     2.9000D-02, 7.8200D-01, 5.8900D-01, 5.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 3.0000D-01, 1.4000D+00, 1.0000D+00, 0.0000D+00, & ! 2   
+     &     1.0000D+00, 0.0000D+00, 8.0000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     6.0000D-02, 6.5200D-01, 3.0500D-01, 6.0000D-02, 6.5200D-01, & ! +   
+     &     0.0000D+00, 1.1700D-01, 1.3000D-02, 1.0000D-01, 0.0000D+00, & ! 4   
+     &     5.0000D-02, 0.0000D+00, 6.0000D-01, 6.7000D-01, 4.8000D-02, & ! +   
+     &     7.9900D-01, 3.0000D-01, 2.9000D-02, 6.0000D-01, 1.9000D-02, & ! 5   
+     &     1.0000D+00, 1.0000D+00, 0.0000D+00, 2.5000D-01, 1.0050D+00, & ! +   
+     &     3.1000D-02, 0.0000D+00, 2.3400D-01, 2.0000D-02, 1.0000D+00, & ! 6   
+     &     1.9400D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 4.4000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, & ! 8   
+     &     5.0000D-01, 5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 5.0000D-01, & ! 9   
+     &     5.0000D-01, 5.0000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.6100D+00, 5.1000D-01, & ! 2   
+     &     1.0000D+00, 5.1000D-01, 1.6000D-02, 3.5500D-01, 5.1000D-02, & ! +   
+     &     0.0000D+00, 4.9000D-02, 2.5500D-01, 1.0550D+00, 1.1800D-01, & ! 3   
+     &     1.9200D-01, 2.4000D-01, 1.0420D+00, 7.2800D-01, 7.0000D-03, & ! +   
+     &     0.0000D+00, 3.0000D-01, 1.5000D+00, 1.1600D-01, 3.1200D-01, & ! 4   
+     &     2.3900D-01, 1.9800D-01, 2.7800D-01, 2.3000D-01, 5.0000D-02, & ! +   
+     &     1.0000D+00, 3.5000D-02, 1.2530D+00, 1.1000D-02, 3.5300D-01, & ! 5   
+     &     5.2000D-02, 1.2020D+00, 1.2800D-01, 2.2800D-01, 1.6000D-01, & ! +   
+     &     8.8000D-02, 4.4300D-01, 3.5000D-02, 1.7000D-01, 2.0200D-01, & ! 6   
+     &     1.7800D-01, 1.7800D-01, 1.2110D+00, 4.9900D-01, 0.0000D+00, & ! +   
+     &     4.2400D-01, 0.0000D+00, 7.8600D-01, 3.9300D-01, 3.9300D-01, & ! 7   
+     &     3.9300D-01, 7.8600D-01, 1.7860D+00, 1.7860D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.2110D+00, 4.9900D-01, 2.6000D-02, & ! 8   
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D-01, 1.0000D+00, 3.9000D-02, 5.5000D-02, & ! 1   
+     &     6.8000D-01, 1.2600D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     5.8800D-01, 1.0780D+00, 1.4800D-01, 2.1600D-01, 5.3000D-02, & ! 2   
+     &     1.5400D-01, 1.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 9.7100D-01, 1.8840D+00, 1.7700D-01, & ! 6   
+     &     6.8000D-02, 0.0000D+00, 1.0600D-01, 1.3600D-01, 1.3600D-01, & ! +   
+     &     1.3600D-01, 1.6200D-01, 3.1200D-01, 1.0000D+00, 9.7000D-01, & ! 7   
+     &     9.4000D-02, 3.0000D-03, 1.5410D+00, 1.6080D+00, 4.4200D-01, & ! +   
+     &     1.6000D-01, 1.7200D-01, 1.7200D-01, 6.8000D-02, 3.4000D-02, & ! 8   
+     &     3.9200D-01, 0.0000D+00, 2.3000D-02, 0.0000D+00, 5.1000D-02, & ! +   
+     &     0.0000D+00, 2.2500D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 8.8300D-01, & ! +   
+     &     4.7000D-02, 2.3000D-01, 2.3000D-01, 4.5000D-01, 9.1000D-01, & ! 1   
+     &     0.0000D+00, 5.0000D-01, 0.0000D+00, 0.0000D+00, 3.5000D-02, & ! +   
+     &     3.5000D-02, 0.0000D+00, 1.7500D-02, 1.7500D-02, 3.5000D-02, & ! 2   
+     &     7.0000D-01, 0.0000D+00, 2.3400D-01, 0.0000D+00, 1.0800D-01, & ! +   
+     &     1.0800D-01, 2.3400D-01, 7.9000D-01, 0.0000D+00, 4.4000D-01, & ! 3   
+     &     0.0000D+00, 2.2000D-01, 2.2000D-01, 3.4000D-01, 7.0000D-01, & ! +   
+     &     0.0000D+00, 4.0000D-01, 0.0000D+00, 9.5000D-01, 2.0000D-01, & ! 4   
+     &     6.0000D-01, 3.4000D-01, 4.0000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 2.5000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 5   
+     &     1.0000D+00, 9.4000D-01, 0.0000D+00, 3.0000D-01, 3.0000D-01, & ! +   
+     &     1.0000D+00, 8.5000D-01, 0.0000D+00, 1.5000D-02, 0.0000D+00, & ! 6   
+     &     1.1000D-02, 1.1000D-02, 9.8400D-01, 5.2000D-01, 0.0000D+00, & ! +   
+     &     2.6000D-01, 2.6000D-01, 5.2000D-01, 0.0000D+00, 2.6500D-01, & ! 7   
+     &     0.0000D+00, 1.5000D-01, 1.5000D-01, 7.0000D-01, 7.2000D-01, & ! +   
+     &     0.0000D+00, 4.2400D-01, 4.2400D-01, 1.0000D+00, 1.0000D+00, & ! 8   
+     &     1.5000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 2.0000D+00, 1.0000D+00, & ! 9   
+     &     1.3000D-01, 1.2500D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 2.0000D+00, 3.5000D-01, & ! O   
+     &     1.0000D+00, 1.5000D-01, 1.0000D+00, 5.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 6.1300D-01, 0.0000D+00, 2.7500D-01, 2.7500D-01, & ! 1   
+     &     1.3800D-01, 1.3800D-01, 2.7500D-01, 7.5000D-01, 1.0000D+00, & ! +   
+     &     0.0000D+00, 7.0000D-01, 0.0000D+00, 5.0000D-01, 3.4000D-01, & ! 2   
+     &     8.0200D-01, 1.0000D+00, 2.5000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 3   
+     &     2.0000D+00, 2.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     4.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 8.1000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     5.5000D-02, 1.9000D-02, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 6.2000D-03, 2.8620D-01, 9.5000D-02, 3.0630D-01, & ! 1   
+     &     2.0890D-01, 1.4300D-02, 3.9310D-01, 2.2720D-01, 2.7490D-01, & ! +   
+     &     2.4210D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN,  4 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.39000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.40000, & ! 6   
-     &        0.00000,    0.44000,    0.00000,    0.90000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.40000, & ! 7   
-     &        1.00000,    0.44000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    0.00000,    0.00000, & ! 8   
-     &        0.40000,    1.00000,    0.44000,    1.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    1.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.40000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.03500,    1.00000,    0.00000,    1.00000,    0.00000, & ! O   
-     &        0.37600,    1.00000,    0.00000,    0.00000,    0.49100, & ! +   
-     &        0.14200,    0.00000,    0.00000,    0.00400,    0.00000, & ! 1   
-     &        0.02900,    0.07700,    0.12400,    0.50000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.30000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.80000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.06000,    0.52200,    0.50000,    0.06000,    0.52200, & ! +   
-     &        0.00000,    0.11700,    0.25800,    0.45000,    0.00000, & ! 4   
-     &        0.05000,    0.00000,    0.40000,    0.04100,    0.04800, & ! +   
-     &        0.79900,    1.23300,    0.04900,    1.59000,    0.31300, & ! 5   
-     &        0.72100,    0.00000,    0.00000,    0.16700,    0.31000, & ! +   
-     &        0.00200,    0.00000,    0.33000,    0.02000,    0.00000, & ! 6   
-     &        0.11000,    1.00000,    1.00000,    1.00000,    0.44000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.19500,    0.12000, & ! 2   
-     &        1.00000,    0.29000,    0.01600,    0.52500,    0.05100, & ! +   
-     &        0.00000,    0.04900,    0.18500,    0.06500,    0.23500, & ! 3   
-     &        0.19200,    0.01000,    0.19700,    0.00100,    1.05000, & ! +   
-     &        0.00000,    0.30000,    0.50000,    0.29000,    0.45400, & ! 4   
-     &        0.52000,    0.55400,    0.48700,    0.62700,    0.08100, & ! +   
-     &        1.00000,    0.03500,    0.07000,    1.76300,    0.35300, & ! 5   
-     &        0.08100,    0.12800,    0.09000,    0.22800,    0.00000, & ! +   
-     &        0.08800,    0.30700,    1.19300,    0.00000,    0.56600, & ! 6   
-     &        0.61700,    0.61700,    0.20100,    0.20200,    0.00000, & ! +   
-     &        0.22700,    0.00000,    0.42000,    0.71000,    0.21000, & ! 7   
-     &        0.21000,    0.42000,    0.42000,    0.42000,    0.78600, & ! +   
-     &        0.78600,    0.00000,    0.20100,    0.20200,    1.78600, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.10000,    1.00000,    0.03900,    1.28200, & ! 1   
-     &        0.11600,    0.37000,    0.00000,    1.00000,    0.00000, & ! +   
-     &        0.41400,    0.11700,    0.58900,    1.03200,    0.32200, & ! 2   
-     &        0.73000,    1.00000,    0.00000,    0.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    0.02900,    0.06900,    1.16800, & ! 6   
-     &        0.03400,    0.00000,    0.10600,    0.13600,    0.13600, & ! +   
-     &        0.13600,    0.16200,    0.31200,    1.00000,    0.03000, & ! 7   
-     &        1.36100,    0.00400,    0.35200,    0.12700,    0.00100, & ! +   
-     &        0.16000,    0.17200,    0.17200,    0.03400,    0.05000, & ! 8   
-     &        0.00000,    0.00000,    0.06000,    0.00000,    0.04700, & ! +   
-     &        0.00000,    0.19100,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.07000, & ! +   
-     &        0.07300,    0.15000,    0.15000,    0.29000,    0.75000, & ! 1   
-     &        0.00000,    0.50000,    0.00000,    0.00000,    1.30000, & ! +   
-     &        1.30000,    0.00000,    0.15000,    0.15000,    0.30000, & ! 2   
-     &        0.03500,    0.00000,    0.21600,    0.00000,    0.10800, & ! +   
-     &        0.10800,    0.23400,    0.02000,    0.00000,    0.07000, & ! 3   
-     &        0.00000,    0.03500,    0.03500,    0.15000,    0.12000, & ! +   
-     &        0.00000,    0.40000,    0.00000,    0.70000,    0.20000, & ! 4   
-     &        0.60000,    0.08000,    0.00000,    1.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    2.00000,    1.00000, & ! 5   
-     &        0.00000,    0.06000,    0.00000,    0.00000,    0.75000, & ! +   
-     &        1.00000,    0.45000,    0.00000,    0.08100,    0.00000, & ! 6   
-     &        0.31100,    0.31100,    0.98400,    0.52000,    0.00000, & ! +   
-     &        0.24000,    0.24000,    0.48000,    0.00000,    0.26500, & ! 7   
-     &        0.00000,    0.90000,    0.15000,    0.70000,    0.72000, & ! +   
-     &        0.00000,    0.82600,    0.07600,    0.15000,    1.00000, & ! 8   
-     &        0.44000,    1.00000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    2.00000,    0.00000, & ! 9   
-     &        0.52000,    0.10000,    0.00000,    0.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.35000, & ! O   
-     &        0.00000,    0.07000,    1.00000,    0.50000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.27500,    0.27500, & ! 1   
-     &        0.13800,    0.13800,    0.27500,    0.45000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.50000,    0.33000, & ! 2   
-     &        0.03300,    1.00000,    0.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    1.00000,    1.00000,    1.00000, & ! 3   
-     &        2.00000,    2.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.40000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.21000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        1.28200,    0.31300,    0.72100,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00250,    0.00410,    0.13730,    0.01530, & ! 1   
-     &        0.30000,    0.01230,    0.01390,    0.26070,    0.04910, & ! +   
-     &        0.06400,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.9000D-01, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0000D-01, & ! 6   
+     &     0.0000D+00, 4.4000D-01, 0.0000D+00, 9.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0000D-01, & ! 7   
+     &     1.0000D+00, 4.4000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     4.0000D-01, 1.0000D+00, 4.4000D-01, 1.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 4.0000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     3.5000D-02, 1.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! O   
+     &     3.7600D-01, 1.0000D+00, 0.0000D+00, 0.0000D+00, 4.9100D-01, & ! +   
+     &     1.4200D-01, 0.0000D+00, 0.0000D+00, 4.0000D-03, 0.0000D+00, & ! 1   
+     &     2.9000D-02, 7.7000D-02, 1.2400D-01, 5.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 3.0000D-01, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 8.0000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     6.0000D-02, 5.2200D-01, 5.0000D-01, 6.0000D-02, 5.2200D-01, & ! +   
+     &     0.0000D+00, 1.1700D-01, 2.5800D-01, 4.5000D-01, 0.0000D+00, & ! 4   
+     &     5.0000D-02, 0.0000D+00, 4.0000D-01, 4.1000D-02, 4.8000D-02, & ! +   
+     &     7.9900D-01, 1.2330D+00, 4.9000D-02, 1.5900D+00, 3.1300D-01, & ! 5   
+     &     7.2100D-01, 0.0000D+00, 0.0000D+00, 1.6700D-01, 3.1000D-01, & ! +   
+     &     2.0000D-03, 0.0000D+00, 3.3000D-01, 2.0000D-02, 0.0000D+00, & ! 6   
+     &     1.1000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 4.4000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.9500D-01, 1.2000D-01, & ! 2   
+     &     1.0000D+00, 2.9000D-01, 1.6000D-02, 5.2500D-01, 5.1000D-02, & ! +   
+     &     0.0000D+00, 4.9000D-02, 1.8500D-01, 6.5000D-02, 2.3500D-01, & ! 3   
+     &     1.9200D-01, 1.0000D-02, 1.9700D-01, 1.0000D-03, 1.0500D+00, & ! +   
+     &     0.0000D+00, 3.0000D-01, 5.0000D-01, 2.9000D-01, 4.5400D-01, & ! 4   
+     &     5.2000D-01, 5.5400D-01, 4.8700D-01, 6.2700D-01, 8.1000D-02, & ! +   
+     &     1.0000D+00, 3.5000D-02, 7.0000D-02, 1.7630D+00, 3.5300D-01, & ! 5   
+     &     8.1000D-02, 1.2800D-01, 9.0000D-02, 2.2800D-01, 0.0000D+00, & ! +   
+     &     8.8000D-02, 3.0700D-01, 1.1930D+00, 0.0000D+00, 5.6600D-01, & ! 6   
+     &     6.1700D-01, 6.1700D-01, 2.0100D-01, 2.0200D-01, 0.0000D+00, & ! +   
+     &     2.2700D-01, 0.0000D+00, 4.2000D-01, 7.1000D-01, 2.1000D-01, & ! 7   
+     &     2.1000D-01, 4.2000D-01, 4.2000D-01, 4.2000D-01, 7.8600D-01, & ! +   
+     &     7.8600D-01, 0.0000D+00, 2.0100D-01, 2.0200D-01, 1.7860D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D-01, 1.0000D+00, 3.9000D-02, 1.2820D+00, & ! 1   
+     &     1.1600D-01, 3.7000D-01, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     4.1400D-01, 1.1700D-01, 5.8900D-01, 1.0320D+00, 3.2200D-01, & ! 2   
+     &     7.3000D-01, 1.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 2.9000D-02, 6.9000D-02, 1.1680D+00, & ! 6   
+     &     3.4000D-02, 0.0000D+00, 1.0600D-01, 1.3600D-01, 1.3600D-01, & ! +   
+     &     1.3600D-01, 1.6200D-01, 3.1200D-01, 1.0000D+00, 3.0000D-02, & ! 7   
+     &     1.3610D+00, 4.0000D-03, 3.5200D-01, 1.2700D-01, 1.0000D-03, & ! +   
+     &     1.6000D-01, 1.7200D-01, 1.7200D-01, 3.4000D-02, 5.0000D-02, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 6.0000D-02, 0.0000D+00, 4.7000D-02, & ! +   
+     &     0.0000D+00, 1.9100D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 7.0000D-02, & ! +   
+     &     7.3000D-02, 1.5000D-01, 1.5000D-01, 2.9000D-01, 7.5000D-01, & ! 1   
+     &     0.0000D+00, 5.0000D-01, 0.0000D+00, 0.0000D+00, 1.3000D+00, & ! +   
+     &     1.3000D+00, 0.0000D+00, 1.5000D-01, 1.5000D-01, 3.0000D-01, & ! 2   
+     &     3.5000D-02, 0.0000D+00, 2.1600D-01, 0.0000D+00, 1.0800D-01, & ! +   
+     &     1.0800D-01, 2.3400D-01, 2.0000D-02, 0.0000D+00, 7.0000D-02, & ! 3   
+     &     0.0000D+00, 3.5000D-02, 3.5000D-02, 1.5000D-01, 1.2000D-01, & ! +   
+     &     0.0000D+00, 4.0000D-01, 0.0000D+00, 7.0000D-01, 2.0000D-01, & ! 4   
+     &     6.0000D-01, 8.0000D-02, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 2.0000D+00, 1.0000D+00, & ! 5   
+     &     0.0000D+00, 6.0000D-02, 0.0000D+00, 0.0000D+00, 7.5000D-01, & ! +   
+     &     1.0000D+00, 4.5000D-01, 0.0000D+00, 8.1000D-02, 0.0000D+00, & ! 6   
+     &     3.1100D-01, 3.1100D-01, 9.8400D-01, 5.2000D-01, 0.0000D+00, & ! +   
+     &     2.4000D-01, 2.4000D-01, 4.8000D-01, 0.0000D+00, 2.6500D-01, & ! 7   
+     &     0.0000D+00, 9.0000D-01, 1.5000D-01, 7.0000D-01, 7.2000D-01, & ! +   
+     &     0.0000D+00, 8.2600D-01, 7.6000D-02, 1.5000D-01, 1.0000D+00, & ! 8   
+     &     4.4000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 2.0000D+00, 0.0000D+00, & ! 9   
+     &     5.2000D-01, 1.0000D-01, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.5000D-01, & ! O   
+     &     0.0000D+00, 7.0000D-02, 1.0000D+00, 5.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.7500D-01, 2.7500D-01, & ! 1   
+     &     1.3800D-01, 1.3800D-01, 2.7500D-01, 4.5000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 5.0000D-01, 3.3000D-01, & ! 2   
+     &     3.3000D-02, 1.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! 3   
+     &     2.0000D+00, 2.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     4.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 2.1000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.2820D+00, 3.1300D-01, 7.2100D-01, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.5000D-03, 4.1000D-03, 1.3730D-01, 1.5300D-02, & ! 1   
+     &     3.0000D-01, 1.2300D-02, 1.3900D-02, 2.6070D-01, 4.9100D-02, & ! +   
+     &     6.4000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN,  5 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.40000, & ! 6   
-     &        0.00000,    0.44000,    0.00000,    0.90000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.40000, & ! 7   
-     &        1.00000,    0.44000,    1.00000,    1.00000,    1.00000, & ! +   
-     &        1.00000,    1.00000,    2.00000,    0.00000,    0.00000, & ! 8   
-     &        0.40000,    0.00000,    0.44000,    0.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.40000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.03500,    1.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.51000,    1.00000,    0.00000,    0.00000,    0.49100, & ! +   
-     &        0.40000,    0.00000,    0.00000,    0.74400,    0.00000, & ! 1   
-     &        0.84000,    0.07700,    0.12400,    0.50000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.25000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.52100,    0.17400,    0.69500,    0.52100,    0.17400, & ! +   
-     &        0.00000,    0.56100,    0.00700,    0.11700,    0.00000, & ! 4   
-     &        0.47500,    0.00000,    0.00000,    0.04100,    0.49800, & ! +   
-     &        0.05100,    0.30000,    0.47300,    0.08700,    0.97600, & ! 5   
-     &        0.10200,    0.00000,    0.00000,    0.08300,    0.50000, & ! +   
-     &        0.00200,    0.00000,    1.18800,    0.02000,    0.00000, & ! 6   
-     &        0.11000,    1.00000,    0.00000,    0.00000,    0.56000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    1.00000, & ! 2   
-     &        0.00000,    0.51000,    0.98400,    0.21500,    1.00000, & ! +   
-     &        0.00000,    0.70800,    0.50000,    0.06500,    0.01500, & ! 3   
-     &        0.00800,    0.01000,    0.19700,    0.29700,    0.29300, & ! +   
-     &        0.00000,    0.70000,    0.00000,    0.02400,    0.05400, & ! 4   
-     &        0.08200,    0.08700,    0.07600,    0.12100,    0.95000, & ! +   
-     &        0.00000,    0.26100,    0.07000,    0.14900,    0.04000, & ! 5   
-     &        0.00000,    0.12800,    0.00500,    0.01300,    0.00000, & ! +   
-     &        0.17900,    0.15600,    0.14000,    0.00000,    0.11000, & ! 6   
-     &        0.12800,    0.12800,    0.20100,    0.05900,    0.00000, & ! +   
-     &        0.02600,    0.00000,    0.04800,    0.02400,    0.02400, & ! 7   
-     &        0.02400,    0.04800,    0.04800,    0.04800,    0.42000, & ! +   
-     &        0.42000,    0.00000,    0.20100,    0.05900,    0.46000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.10000,    1.00000,    0.84000,    0.20200, & ! 1   
-     &        0.11600,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.10400,    0.11700,    0.12400,    0.02600,    0.62500, & ! 2   
-     &        0.05100,    1.00000,    0.00000,    0.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.02900,    0.06900,    0.08500, & ! 6   
-     &        0.05000,    0.00000,    0.89400,    0.86400,    0.86400, & ! +   
-     &        0.86400,    0.83800,    0.50300,    1.00000,    0.03000, & ! 7   
-     &        0.07000,    1.73700,    0.35200,    0.12700,    1.49200, & ! +   
-     &        0.84000,    0.46900,    0.46900,    0.05000,    0.01600, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.04700, & ! +   
-     &        0.12000,    0.05000,    0.05000,    0.09000,    0.45000, & ! 1   
-     &        0.00000,    0.25000,    0.00000,    0.00000,    0.80000, & ! +   
-     &        0.80000,    0.00000,    0.90000,    0.40000,    0.80000, & ! 2   
-     &        0.03500,    0.00000,    0.21600,    0.00000,    0.14500, & ! +   
-     &        0.14500,    0.21600,    0.35000,    0.00000,    0.13000, & ! 3   
-     &        0.00000,    0.06500,    0.06500,    0.44000,    0.39000, & ! +   
-     &        0.00000,    0.26000,    0.00000,    0.13000,    0.13000, & ! 4   
-     &        0.40000,    0.26000,    0.00000,    1.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    1.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.25000, & ! +   
-     &        0.00000,    0.15000,    0.00000,    0.93400,    0.00000, & ! 6   
-     &        0.70000,    1.20000,    0.01600,    0.48000,    0.00000, & ! +   
-     &        0.24000,    0.24000,    0.48000,    0.00000,    0.26500, & ! 7   
-     &        0.00000,    0.65000,    0.15000,    0.30000,    0.13000, & ! +   
-     &        0.00000,    0.07600,    0.07600,    0.85000,    1.00000, & ! 8   
-     &        0.44000,    1.00000,    1.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    1.00000,    0.00000,    0.00000, & ! 9   
-     &        0.35000,    0.12500,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    1.00000, & ! O   
-     &        0.00000,    0.07000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.12500,    0.12500, & ! 1   
-     &        0.06300,    0.06300,    0.12500,    0.29000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.50000,    0.33000, & ! 2   
-     &        0.03300,    1.00000,    0.00000,    1.00000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    1.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.40000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.57000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.20200,    0.97600,    0.10200,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00260,    0.00350,    0.00050,    0.10430, & ! 1   
-     &        0.20280,    0.12390,    0.10270,    0.07020,    0.25770, & ! +   
-     &        0.03850,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0000D-01, & ! 6   
+     &     0.0000D+00, 4.4000D-01, 0.0000D+00, 9.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0000D-01, & ! 7   
+     &     1.0000D+00, 4.4000D-01, 1.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     1.0000D+00, 1.0000D+00, 2.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     4.0000D-01, 0.0000D+00, 4.4000D-01, 0.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 4.0000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     3.5000D-02, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     5.1000D-01, 1.0000D+00, 0.0000D+00, 0.0000D+00, 4.9100D-01, & ! +   
+     &     4.0000D-01, 0.0000D+00, 0.0000D+00, 7.4400D-01, 0.0000D+00, & ! 1   
+     &     8.4000D-01, 7.7000D-02, 1.2400D-01, 5.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 2.5000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     5.2100D-01, 1.7400D-01, 6.9500D-01, 5.2100D-01, 1.7400D-01, & ! +   
+     &     0.0000D+00, 5.6100D-01, 7.0000D-03, 1.1700D-01, 0.0000D+00, & ! 4   
+     &     4.7500D-01, 0.0000D+00, 0.0000D+00, 4.1000D-02, 4.9800D-01, & ! +   
+     &     5.1000D-02, 3.0000D-01, 4.7300D-01, 8.7000D-02, 9.7600D-01, & ! 5   
+     &     1.0200D-01, 0.0000D+00, 0.0000D+00, 8.3000D-02, 5.0000D-01, & ! +   
+     &     2.0000D-03, 0.0000D+00, 1.1880D+00, 2.0000D-02, 0.0000D+00, & ! 6   
+     &     1.1000D-01, 1.0000D+00, 0.0000D+00, 0.0000D+00, 5.6000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! 2   
+     &     0.0000D+00, 5.1000D-01, 9.8400D-01, 2.1500D-01, 1.0000D+00, & ! +   
+     &     0.0000D+00, 7.0800D-01, 5.0000D-01, 6.5000D-02, 1.5000D-02, & ! 3   
+     &     8.0000D-03, 1.0000D-02, 1.9700D-01, 2.9700D-01, 2.9300D-01, & ! +   
+     &     0.0000D+00, 7.0000D-01, 0.0000D+00, 2.4000D-02, 5.4000D-02, & ! 4   
+     &     8.2000D-02, 8.7000D-02, 7.6000D-02, 1.2100D-01, 9.5000D-01, & ! +   
+     &     0.0000D+00, 2.6100D-01, 7.0000D-02, 1.4900D-01, 4.0000D-02, & ! 5   
+     &     0.0000D+00, 1.2800D-01, 5.0000D-03, 1.3000D-02, 0.0000D+00, & ! +   
+     &     1.7900D-01, 1.5600D-01, 1.4000D-01, 0.0000D+00, 1.1000D-01, & ! 6   
+     &     1.2800D-01, 1.2800D-01, 2.0100D-01, 5.9000D-02, 0.0000D+00, & ! +   
+     &     2.6000D-02, 0.0000D+00, 4.8000D-02, 2.4000D-02, 2.4000D-02, & ! 7   
+     &     2.4000D-02, 4.8000D-02, 4.8000D-02, 4.8000D-02, 4.2000D-01, & ! +   
+     &     4.2000D-01, 0.0000D+00, 2.0100D-01, 5.9000D-02, 4.6000D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D-01, 1.0000D+00, 8.4000D-01, 2.0200D-01, & ! 1   
+     &     1.1600D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.0400D-01, 1.1700D-01, 1.2400D-01, 2.6000D-02, 6.2500D-01, & ! 2   
+     &     5.1000D-02, 1.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 2.9000D-02, 6.9000D-02, 8.5000D-02, & ! 6   
+     &     5.0000D-02, 0.0000D+00, 8.9400D-01, 8.6400D-01, 8.6400D-01, & ! +   
+     &     8.6400D-01, 8.3800D-01, 5.0300D-01, 1.0000D+00, 3.0000D-02, & ! 7   
+     &     7.0000D-02, 1.7370D+00, 3.5200D-01, 1.2700D-01, 1.4920D+00, & ! +   
+     &     8.4000D-01, 4.6900D-01, 4.6900D-01, 5.0000D-02, 1.6000D-02, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.7000D-02, & ! +   
+     &     1.2000D-01, 5.0000D-02, 5.0000D-02, 9.0000D-02, 4.5000D-01, & ! 1   
+     &     0.0000D+00, 2.5000D-01, 0.0000D+00, 0.0000D+00, 8.0000D-01, & ! +   
+     &     8.0000D-01, 0.0000D+00, 9.0000D-01, 4.0000D-01, 8.0000D-01, & ! 2   
+     &     3.5000D-02, 0.0000D+00, 2.1600D-01, 0.0000D+00, 1.4500D-01, & ! +   
+     &     1.4500D-01, 2.1600D-01, 3.5000D-01, 0.0000D+00, 1.3000D-01, & ! 3   
+     &     0.0000D+00, 6.5000D-02, 6.5000D-02, 4.4000D-01, 3.9000D-01, & ! +   
+     &     0.0000D+00, 2.6000D-01, 0.0000D+00, 1.3000D-01, 1.3000D-01, & ! 4   
+     &     4.0000D-01, 2.6000D-01, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5000D-01, & ! +   
+     &     0.0000D+00, 1.5000D-01, 0.0000D+00, 9.3400D-01, 0.0000D+00, & ! 6   
+     &     7.0000D-01, 1.2000D+00, 1.6000D-02, 4.8000D-01, 0.0000D+00, & ! +   
+     &     2.4000D-01, 2.4000D-01, 4.8000D-01, 0.0000D+00, 2.6500D-01, & ! 7   
+     &     0.0000D+00, 6.5000D-01, 1.5000D-01, 3.0000D-01, 1.3000D-01, & ! +   
+     &     0.0000D+00, 7.6000D-02, 7.6000D-02, 8.5000D-01, 1.0000D+00, & ! 8   
+     &     4.4000D-01, 1.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     3.5000D-01, 1.2500D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! O   
+     &     0.0000D+00, 7.0000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.1250D+00, 1.2500D-01, & ! 1   
+     &     6.3000D-02, 6.3000D-02, 1.2500D-01, 2.9000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 5.0000D-01, 3.3000D-01, & ! 2   
+     &     3.3000D-02, 1.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     4.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 5.7000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     2.0200D-01, 9.7600D-01, 1.0200D-01, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.6000D-03, 3.5000D-03, 5.0000D-04, 1.0430D-01, & ! 1   
+     &     2.0280D-01, 1.2390D-01, 1.0270D-01, 7.0200D-02, 2.5770D-01, & ! +   
+     &     3.8500D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN,  6 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.44000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.40000, & ! 7   
-     &        1.00000,    0.44000,    1.00000,    1.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.40000,    0.00000,    0.44000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.40000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.03500,    1.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.07400,    0.00000,    0.00000,    0.00000,    0.49100, & ! +   
-     &        0.45700,    0.00000,    0.00000,    0.23900,    0.00000, & ! 1   
-     &        0.09000,    0.08500,    0.07400,    0.50000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.20100,    0.43200,    0.19500,    0.20100,    0.43200, & ! +   
-     &        0.00000,    0.11700,    0.00700,    0.10000,    0.00000, & ! 4   
-     &        0.12400,    0.00000,    0.00000,    0.33600,    0.14000, & ! +   
-     &        0.05100,    0.46700,    0.07100,    0.08700,    0.17500, & ! 5   
-     &        0.10200,    0.00000,    0.00000,    0.16700,    0.18500, & ! +   
-     &        0.96700,    0.00000,    0.10200,    0.02000,    0.00000, & ! 6   
-     &        0.11000,    0.00000,    0.00000,    0.00000,    0.15000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.37000, & ! 2   
-     &        0.00000,    0.27800,    0.98400,    0.50000,    0.00000, & ! +   
-     &        0.00000,    0.58000,    0.18500,    0.11500,    0.01500, & ! 3   
-     &        0.00800,    0.24000,    0.00200,    1.51100,    0.29300, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.02400,    0.05400, & ! 4   
-     &        0.08200,    0.08700,    0.07600,    0.12100,    0.01000, & ! +   
-     &        0.00000,    0.70400,    0.02600,    0.14900,    0.10600, & ! 5   
-     &        0.00000,    0.58200,    0.00500,    0.00300,    0.00000, & ! +   
-     &        0.83500,    0.00800,    0.14000,    0.00000,    0.11000, & ! 6   
-     &        0.12800,    0.12800,    0.00100,    0.49000,    0.00000, & ! +   
-     &        0.01200,    0.00000,    0.02200,    0.01100,    0.01100, & ! 7   
-     &        0.01100,    0.02200,    0.02200,    0.02200,    0.53100, & ! +   
-     &        0.53100,    0.00000,    0.00100,    0.49000,    0.46000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.10000,    0.00000,    0.08500,    0.20200, & ! 1   
-     &        0.19800,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.48200,    0.14500,    0.12400,    0.02600,    0.94700, & ! 2   
-     &        0.05100,    1.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.12400,    0.86300,    0.08500, & ! 6   
-     &        0.01600,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.68800,    0.00000,    0.48200, & ! 7   
-     &        0.07000,    0.16500,    0.02200,    0.03600,    0.10600, & ! +   
-     &        0.00000,    0.35900,    0.35900,    0.01600,    2.25800, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.66000, & ! +   
-     &        0.12000,    0.06000,    0.06000,    0.11000,    0.29000, & ! 1   
-     &        0.00000,    0.25000,    0.00000,    0.00000,    0.07000, & ! +   
-     &        0.07000,    0.00000,    0.78500,    0.03500,    0.07000, & ! 2   
-     &        0.30000,    0.00000,    0.29000,    0.00000,    0.08500, & ! +   
-     &        0.08500,    0.21600,    0.59000,    0.00000,    0.31000, & ! 3   
-     &        0.00000,    0.15500,    0.15500,    0.07000,    0.03800, & ! +   
-     &        0.00000,    0.14000,    0.00000,    0.07000,    0.07000, & ! 4   
-     &        0.40000,    0.07000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.50000, & ! +   
-     &        0.00000,    0.70000,    0.00000,    0.93400,    0.00000, & ! 6   
-     &        0.00000,    0.75000,    0.01600,    0.48000,    0.00000, & ! +   
-     &        0.50000,    0.50000,    1.00000,    0.00000,    0.11000, & ! 7   
-     &        0.00000,    0.50000,    0.50000,    0.30000,    0.13000, & ! +   
-     &        0.00000,    0.50000,    0.50000,    0.85000,    0.00000, & ! 8   
-     &        0.44000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    1.00000,    0.00000,    0.00000, & ! 9   
-     &        0.16000,    0.20000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.85000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.82500,    0.82500, & ! 1   
-     &        0.91300,    0.41300,    0.82500,    0.09000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.50000,    0.67000, & ! 2   
-     &        0.80200,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    1.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.40000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.19000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.20200,    0.17500,    0.10200,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00230,    0.22390,    0.20510,    0.18930, & ! 1   
-     &        0.04710,    0.18310,    0.20450,    0.11160,    0.07390, & ! +   
-     &        0.26670,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 4.4000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0000D-01, & ! 7   
+     &     1.0000D+00, 4.4000D-01, 1.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     4.0000D-01, 0.0000D+00, 4.4000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 4.0000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     3.5000D-02, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     7.4000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.9100D-01, & ! +   
+     &     4.5700D-01, 0.0000D+00, 0.0000D+00, 2.3900D-01, 0.0000D+00, & ! 1   
+     &     9.0000D-02, 8.5000D-02, 7.4000D-02, 5.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     2.0100D-01, 4.3200D-01, 1.9500D-01, 2.0100D-01, 4.3200D-01, & ! +   
+     &     0.0000D+00, 1.1700D-01, 7.0000D-03, 1.0000D-01, 0.0000D+00, & ! 4   
+     &     1.2400D-01, 0.0000D+00, 0.0000D+00, 3.3600D-01, 1.4000D-01, & ! +   
+     &     5.1000D-02, 4.6700D-01, 7.1000D-02, 8.7000D-02, 1.7500D-01, & ! 5   
+     &     1.0200D-01, 0.0000D+00, 0.0000D+00, 1.6700D-01, 1.8500D-01, & ! +   
+     &     9.6700D-01, 0.0000D+00, 1.0200D-01, 2.0000D-02, 0.0000D+00, & ! 6   
+     &     1.1000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.5000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.7000D-01, & ! 2   
+     &     0.0000D+00, 2.7800D-01, 9.8400D-01, 5.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 5.8000D-01, 1.8500D-01, 1.1500D-01, 1.5000D-02, & ! 3   
+     &     8.0000D-03, 2.4000D-01, 2.0000D-03, 1.5110D+00, 2.9300D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.4000D-02, 5.4000D-02, & ! 4   
+     &     8.2000D-02, 8.7000D-02, 7.6000D-02, 1.2100D-01, 1.0000D-02, & ! +   
+     &     0.0000D+00, 7.0400D-01, 2.6000D-02, 1.4900D-01, 1.0600D-01, & ! 5   
+     &     0.0000D+00, 5.8200D-01, 5.0000D-03, 3.0000D-03, 0.0000D+00, & ! +   
+     &     8.3500D-01, 8.0000D-03, 1.4000D-01, 0.0000D+00, 1.1000D-01, & ! 6   
+     &     1.2800D-01, 1.2800D-01, 1.0000D-03, 4.9000D-01, 0.0000D+00, & ! +   
+     &     1.2000D-02, 0.0000D+00, 2.2000D-02, 1.1000D-02, 1.1000D-02, & ! 7   
+     &     1.1000D-02, 2.2000D-02, 2.2000D-02, 2.2000D-02, 5.3100D-01, & ! +   
+     &     5.3100D-01, 0.0000D+00, 1.0000D-03, 4.9000D-01, 4.6000D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D-01, 0.0000D+00, 8.5000D-02, 2.0200D-01, & ! 1   
+     &     1.9800D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     4.8200D-01, 1.4500D-01, 1.2400D-01, 2.6000D-02, 9.4700D-01, & ! 2   
+     &     5.1000D-02, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.2400D-01, 8.6300D-01, 8.5000D-02, & ! 6   
+     &     1.6000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 6.8800D-01, 0.0000D+00, 4.8200D-01, & ! 7   
+     &     7.0000D-02, 1.6500D-01, 2.2000D-02, 3.6000D-02, 1.0600D-01, & ! +   
+     &     0.0000D+00, 3.5900D-01, 3.5900D-01, 1.6000D-02, 2.2580D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 6.6000D-01, & ! +   
+     &     1.2000D-01, 6.0000D-02, 6.0000D-02, 1.1000D-01, 2.9000D-01, & ! 1   
+     &     0.0000D+00, 2.5000D-01, 0.0000D+00, 0.0000D+00, 7.0000D-02, & ! +   
+     &     7.0000D-02, 0.0000D+00, 7.8500D-01, 3.5000D-02, 7.0000D-02, & ! 2   
+     &     3.0000D-01, 0.0000D+00, 2.9000D-01, 0.0000D+00, 8.5000D-02, & ! +   
+     &     8.5000D-02, 2.1600D-01, 5.9000D-01, 0.0000D+00, 3.1000D-01, & ! 3   
+     &     0.0000D+00, 1.5500D-01, 1.5500D-01, 7.0000D-02, 3.8000D-02, & ! +   
+     &     0.0000D+00, 1.4000D-01, 0.0000D+00, 7.0000D-02, 7.0000D-02, & ! 4   
+     &     4.0000D-01, 7.0000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 5.0000D-01, & ! +   
+     &     0.0000D+00, 7.0000D-01, 0.0000D+00, 9.3400D-01, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 7.5000D-01, 1.6000D-02, 4.8000D-01, 0.0000D+00, & ! +   
+     &     5.0000D-01, 5.0000D-01, 1.0000D+00, 0.0000D+00, 1.1000D-01, & ! 7   
+     &     0.0000D+00, 5.0000D-01, 5.0000D-01, 3.0000D-01, 1.3000D-01, & ! +   
+     &     0.0000D+00, 5.0000D-01, 5.0000D-01, 8.5000D-01, 0.0000D+00, & ! 8   
+     &     4.4000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     1.6000D-01, 2.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 8.5000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 8.2500D-01, 8.2500D-01, & ! 1   
+     &     9.1300D-01, 4.1300D-01, 8.2500D-01, 9.0000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 5.0000D-01, 6.7000D-01, & ! 2   
+     &     8.0200D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     4.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 1.9000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     2.0200D-01, 1.7500D-01, 1.0200D-01, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.3000D-03, 2.2390D-01, 2.0510D-01, 1.8930D-01, & ! 1   
+     &     4.7100D-02, 1.8310D-01, 2.0450D-01, 1.1160D-01, 7.3900D-02, & ! +   
+     &     2.6670D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN,  7 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.40000, & ! 7   
-     &        0.00000,    0.44000,    0.00000,    1.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.44000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.08800,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        1.00000,    0.00000,    0.00000,    0.01200,    0.00000, & ! 1   
-     &        0.04100,    0.14200,    0.14700,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.33400,    0.56800,    0.30500,    0.33400,    0.56800, & ! +   
-     &        0.00000,    0.11400,    0.58000,    0.90000,    0.00000, & ! 4   
-     &        0.05000,    0.00000,    0.00000,    0.05500,    0.12400, & ! +   
-     &        0.57200,    0.23300,    0.07100,    0.30300,    0.17500, & ! 5   
-     &        0.07400,    0.00000,    0.00000,    0.08300,    0.50000, & ! +   
-     &        0.03100,    0.00000,    0.34000,    0.00000,    0.00000, & ! 6   
-     &        0.08400,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.27800,    1.00000,    0.50000,    0.00000, & ! +   
-     &        0.00000,    0.47100,    0.50000,    0.46000,    0.11500, & ! 3   
-     &        0.27500,    0.75000,    0.02200,    0.33700,    0.00500, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.29000,    0.23800, & ! 4   
-     &        0.10000,    0.08400,    0.28600,    0.07400,    0.05000, & ! +   
-     &        0.00000,    1.00000,    0.44500,    0.00200,    0.20900, & ! 5   
-     &        0.00000,    0.01000,    0.30300,    0.03400,    0.00000, & ! +   
-     &        0.51000,    0.21200,    0.07200,    0.00000,    0.15800, & ! 6   
-     &        0.08800,    0.08800,    0.41100,    0.12100,    0.00000, & ! +   
-     &        0.02300,    0.00000,    0.04300,    0.77200,    0.02200, & ! 7   
-     &        0.02200,    0.04300,    0.04300,    0.04300,    0.04800, & ! +   
-     &        0.04800,    0.00000,    0.41100,    0.12100,    0.01200, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.10000,    0.00000,    0.03600,    0.00900, & ! 1   
-     &        0.11600,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.10600,    0.50200,    0.07400,    0.21600,    1.00000, & ! 2   
-     &        0.04200,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.30600,    0.45700,    0.27500, & ! 6   
-     &        2.25800,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.06100,    0.00000,    0.48800, & ! 7   
-     &        0.07800,    0.16500,    0.08000,    0.20600,    0.10600, & ! +   
-     &        0.00000,    0.00000,    0.00000,    2.25800,    0.58200, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.10000, & ! +   
-     &        0.00000,    0.02000,    0.02000,    0.05000,    0.09000, & ! 1   
-     &        0.00000,    1.00000,    0.00000,    0.00000,    0.23000, & ! +   
-     &        0.23000,    0.00000,    0.11500,    0.11500,    0.23000, & ! 2   
-     &        0.80000,    0.00000,    0.17000,    0.00000,    0.54500, & ! +   
-     &        0.54500,    0.29000,    0.15000,    0.00000,    0.31000, & ! 3   
-     &        0.00000,    0.15500,    0.15500,    0.13000,    0.02900, & ! +   
-     &        0.00000,    1.60000,    0.00000,    0.30000,    0.30000, & ! 4   
-     &        0.26000,    0.16000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.70000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.25000,    1.00000,    0.00000,    0.00000, & ! +   
-     &        0.75000,    0.00000,    1.00000,    0.00000,    0.89000, & ! 7   
-     &        0.00000,    0.25000,    0.00000,    0.30000,    0.15000, & ! +   
-     &        0.00000,    0.25000,    0.00000,    0.15000,    0.00000, & ! 8   
-     &        0.44000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.71000,    0.05000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.85000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.20000,    0.20000, & ! 1   
-     &        0.10000,    0.10000,    1.20000,    0.11000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.34000, & ! 2   
-     &        0.54100,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.19000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00900,    0.17500,    0.07400,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.29440,    0.18200,    0.17640,    0.16680, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0000D-01, & ! 7   
+     &     0.0000D+00, 4.4000D-01, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 4.4000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     8.8000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 1.2000D-02, 0.0000D+00, & ! 1   
+     &     4.1000D-02, 1.4200D-01, 1.4700D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     3.3400D-01, 5.6800D-01, 3.0500D-01, 3.3400D-01, 5.6800D-01, & ! +   
+     &     0.0000D+00, 1.1400D-01, 5.8000D-01, 9.0000D-01, 0.0000D+00, & ! 4   
+     &     5.0000D-02, 0.0000D+00, 0.0000D+00, 5.5000D-02, 1.2400D-01, & ! +   
+     &     5.7200D-01, 2.3300D-01, 7.1000D-02, 3.0300D-01, 1.7500D-01, & ! 5   
+     &     7.4000D-02, 0.0000D+00, 0.0000D+00, 8.3000D-02, 5.0000D-01, & ! +   
+     &     3.1000D-02, 0.0000D+00, 3.4000D-01, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     8.4000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 2.7800D-01, 1.0000D+00, 5.0000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 4.7100D-01, 5.0000D-01, 4.6000D-01, 1.1500D-01, & ! 3   
+     &     2.7500D-01, 7.5000D-01, 2.2000D-02, 3.3700D-01, 5.0000D-03, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.9000D-01, 2.3800D-01, & ! 4   
+     &     1.0000D-01, 8.4000D-02, 2.8600D-01, 7.4000D-02, 5.0000D-02, & ! +   
+     &     0.0000D+00, 1.0000D+00, 4.4500D-01, 2.0000D-03, 2.0900D-01, & ! 5   
+     &     0.0000D+00, 1.0000D-02, 3.0300D-01, 3.4000D-02, 0.0000D+00, & ! +   
+     &     5.1000D-01, 2.1200D-01, 7.2000D-02, 0.0000D+00, 1.5800D-01, & ! 6   
+     &     8.8000D-02, 8.8000D-02, 4.1100D-01, 1.2100D-01, 0.0000D+00, & ! +   
+     &     2.3000D-02, 0.0000D+00, 4.3000D-02, 7.7200D-01, 2.2000D-02, & ! 7   
+     &     2.2000D-02, 4.3000D-02, 4.3000D-02, 4.3000D-02, 4.8000D-02, & ! +   
+     &     4.8000D-02, 0.0000D+00, 4.1100D-01, 1.2100D-01, 1.2000D-02, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D-01, 0.0000D+00, 3.6000D-02, 9.0000D-03, & ! 1   
+     &     1.1600D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.0600D-01, 5.0200D-01, 7.4000D-02, 2.1600D-01, 1.0000D+00, & ! 2   
+     &     4.2000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 3.0600D-01, 4.5700D-01, 2.7500D-01, & ! 6   
+     &     2.2580D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 6.1000D-02, 0.0000D+00, 4.8800D-01, & ! 7   
+     &     7.8000D-02, 1.6500D-01, 8.0000D-02, 2.0600D-01, 1.0600D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.2580D+00, 5.8200D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D-01, & ! +   
+     &     0.0000D+00, 2.0000D-02, 2.0000D-02, 5.0000D-02, 9.0000D-02, & ! 1   
+     &     0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, 2.3000D-01, & ! +   
+     &     2.3000D-01, 0.0000D+00, 1.1500D-01, 1.1500D-01, 2.3000D-01, & ! 2   
+     &     8.0000D-01, 0.0000D+00, 1.7000D-01, 0.0000D+00, 5.4500D-01, & ! +   
+     &     5.4500D-01, 2.9000D-01, 1.5000D-01, 0.0000D+00, 3.1000D-01, & ! 3   
+     &     0.0000D+00, 1.5500D-01, 1.5500D-01, 1.3000D-01, 2.9000D-02, & ! +   
+     &     0.0000D+00, 1.6000D+00, 0.0000D+00, 3.0000D-01, 3.0000D-01, & ! 4   
+     &     2.6000D-01, 1.6000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 7.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 2.5000D-01, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     7.5000D-01, 0.0000D+00, 1.0000D+00, 0.0000D+00, 8.9000D-01, & ! 7   
+     &     0.0000D+00, 2.5000D-01, 0.0000D+00, 3.0000D-01, 1.5000D-01, & ! +   
+     &     0.0000D+00, 2.5000D-01, 0.0000D+00, 1.5000D-01, 0.0000D+00, & ! 8   
+     &     4.4000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     7.1000D-01, 5.0000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 8.5000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.0000D-01, 2.0000D-01, & ! 1   
+     &     1.0000D-01, 1.0000D-01, 1.2000D+00, 1.1000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.4000D-01, & ! 2   
+     &     5.4100D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 1.9000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     9.0000D-03, 1.7500D-01, 7.4000D-02, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.9440D-01, 1.8200D-01, 1.7640D-01, 1.6680D-01, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN,  8 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.40000, & ! 7   
-     &        0.00000,    0.44000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.50400,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.01200,    0.00000, & ! 1   
-     &        0.02000,    0.78200,    0.13900,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.40700,    0.65200,    0.00000,    0.40700,    0.65200, & ! +   
-     &        0.00000,    0.27400,    0.19000,    0.33300,    0.00000, & ! 4   
-     &        0.95000,    0.00000,    0.00000,    0.12900,    0.21000, & ! +   
-     &        0.22700,    0.00000,    0.00200,    0.16300,    0.01100, & ! 5   
-     &        0.06100,    0.00000,    0.00000,    0.25000,    0.00000, & ! +   
-     &        0.03100,    0.00000,    0.05000,    0.00000,    0.00000, & ! 6   
-     &        0.08400,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.10000,    0.00000,    0.18500,    0.00000, & ! +   
-     &        0.00000,    1.00000,    0.37500,    0.12000,    0.11500, & ! 3   
-     &        0.12200,    0.25000,    0.77600,    0.33700,    0.00700, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.57000,    0.15100, & ! 4   
-     &        0.38000,    0.23800,    0.11200,    0.40500,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.12200,    0.02900,    0.07100, & ! 5   
-     &        0.00000,    0.00700,    0.08800,    0.77400,    0.00000, & ! +   
-     &        0.14400,    0.00300,    0.57900,    0.00000,    0.10000, & ! 6   
-     &        0.31200,    0.31200,    0.38500,    0.12100,    0.00000, & ! +   
-     &        0.00200,    0.00000,    0.00400,    0.00200,    0.00200, & ! 7   
-     &        0.00200,    0.00400,    0.00400,    0.00400,    0.02200, & ! +   
-     &        0.02200,    0.00000,    0.38500,    0.12100,    0.02300, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.06500,    0.01800, & ! 1   
-     &        0.54100,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.10400,    0.23700,    0.14700,    0.48400,    0.00000, & ! 2   
-     &        0.04200,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.54000,    0.47300,    0.17700, & ! 6   
-     &        0.58200,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.31200,    0.00000,    1.00000, & ! 7   
-     &        0.34000,    0.00300,    0.25800,    0.07200,    0.19000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.58200,    0.58200, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.04300, & ! +   
-     &        0.00000,    0.50000,    0.50000,    1.00000,    0.11000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.25000,    0.25000,    0.50000, & ! 2   
-     &        0.07000,    0.00000,    0.09000,    0.00000,    0.04500, & ! +   
-     &        0.04500,    0.17000,    0.13000,    0.00000,    0.72000, & ! 3   
-     &        0.00000,    1.11000,    0.36000,    0.31000,    0.73000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.50000,    0.50000, & ! 4   
-     &        0.14000,    0.56000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.70000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.25000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    1.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.12500,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.93000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.37500,    0.37500, & ! 1   
-     &        0.93800,    0.18800,    0.37500,    0.05000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.33000, & ! 2   
-     &        0.08200,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.19000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.01800,    0.01100,    0.06100,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.20210,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.0000D-01, & ! 7   
+     &     0.0000D+00, 4.4000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     5.0400D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.2000D-02, 0.0000D+00, & ! 1   
+     &     2.0000D-02, 7.8200D-01, 1.3900D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     4.0700D-01, 6.5200D-01, 0.0000D+00, 4.0700D-01, 6.5200D-01, & ! +   
+     &     0.0000D+00, 2.7400D-01, 1.9000D-01, 3.3300D-01, 0.0000D+00, & ! 4   
+     &     9.5000D-01, 0.0000D+00, 0.0000D+00, 1.2900D-01, 2.1000D-01, & ! +   
+     &     2.2700D-01, 0.0000D+00, 2.0000D-03, 1.6300D-01, 1.1000D-02, & ! 5   
+     &     6.1000D-02, 0.0000D+00, 0.0000D+00, 2.5000D-01, 0.0000D+00, & ! +   
+     &     3.1000D-02, 0.0000D+00, 5.0000D-02, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     8.4000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 1.0000D-01, 0.0000D+00, 1.8500D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 3.7500D-01, 1.2000D-01, 1.1500D-01, & ! 3   
+     &     1.2200D-01, 2.5000D-01, 7.7600D-01, 3.3700D-01, 7.0000D-03, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 5.7000D-01, 1.5100D-01, & ! 4   
+     &     3.8000D-01, 2.3800D-01, 1.1200D-01, 4.0500D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.2200D-01, 2.9000D-02, 7.1000D-02, & ! 5   
+     &     0.0000D+00, 7.0000D-03, 8.8000D-02, 7.7400D-01, 0.0000D+00, & ! +   
+     &     1.4400D-01, 3.0000D-03, 5.7900D-01, 0.0000D+00, 1.0000D-01, & ! 6   
+     &     3.1200D-01, 3.1200D-01, 3.8500D-01, 1.2100D-01, 0.0000D+00, & ! +   
+     &     2.0000D-03, 0.0000D+00, 4.0000D-03, 2.0000D-03, 2.0000D-03, & ! 7   
+     &     2.0000D-03, 4.0000D-03, 4.0000D-03, 4.0000D-03, 2.2000D-02, & ! +   
+     &     2.2000D-02, 0.0000D+00, 3.8500D-01, 1.2100D-01, 2.3000D-02, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 6.5000D-02, 1.8000D-02, & ! 1   
+     &     5.4100D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.0400D-01, 2.3700D-01, 1.4700D-01, 4.8400D-01, 0.0000D+00, & ! 2   
+     &     4.2000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 5.4000D-01, 4.7300D-01, 1.7700D-01, & ! 6   
+     &     5.8200D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 3.1200D-01, 0.0000D+00, 1.0000D+00, & ! 7   
+     &     3.4000D-01, 3.0000D-03, 2.5800D-01, 7.2000D-02, 1.9000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 5.8200D-01, 5.8200D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.3000D-02, & ! +   
+     &     0.0000D+00, 5.0000D-01, 5.0000D-01, 1.0000D+00, 1.1000D-01, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 2.5000D-01, 2.5000D-01, 5.0000D-01, & ! 2   
+     &     7.0000D-02, 0.0000D+00, 9.0000D-02, 0.0000D+00, 4.5000D-02, & ! +   
+     &     4.5000D-02, 1.7000D-01, 1.3000D-01, 0.0000D+00, 7.2000D-01, & ! 3   
+     &     0.0000D+00, 1.1100D+00, 3.6000D-01, 3.1000D-01, 7.3000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 5.0000D-01, 5.0000D-01, & ! 4   
+     &     1.4000D-01, 5.6000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 7.0000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     2.5000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 1.2500D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 9.3000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.7500D-01, 3.7500D-01, & ! 1   
+     &     9.3800D-01, 1.8800D-01, 3.7500D-01, 5.0000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.3000D-01, & ! 2   
+     &     8.2000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 1.9000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.8000D-02, 1.1000D-02, 6.1000D-02, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.0210D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN,  9 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.44000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.37600,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.01200,    0.00000, & ! 1   
-     &        0.07500,    0.02600,    0.56500,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.12900,    0.65200,    0.00000,    0.12900,    0.65200, & ! +   
-     &        0.00000,    0.15300,    0.36600,    0.10000,    0.00000, & ! 4   
-     &        0.35100,    0.00000,    0.00000,    0.01300,    0.02300, & ! +   
-     &        0.21800,    0.00000,    0.21100,    0.78000,    0.42900, & ! 5   
-     &        0.21400,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.03300,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.01200,    0.00000,    0.07500,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.12500,    0.35500,    0.00100, & ! 3   
-     &        0.40000,    0.00000,    0.03400,    0.02900,    0.68400, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.02900,    0.18100, & ! 4   
-     &        0.15900,    0.18500,    0.15900,    0.11200,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.02400,    0.43800,    0.08600, & ! 5   
-     &        0.00000,    0.66600,    0.50000,    0.16900,    0.00000, & ! +   
-     &        0.08000,    0.00300,    0.16300,    0.00000,    0.12300, & ! 6   
-     &        0.13400,    0.13400,    0.03700,    0.24900,    0.00000, & ! +   
-     &        0.40300,    0.00000,    0.74600,    0.37300,    0.37300, & ! 7   
-     &        0.37300,    0.74600,    0.74600,    0.74600,    0.00400, & ! +   
-     &        0.00400,    0.00000,    0.03700,    0.24900,    0.00200, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.07000,    0.01200, & ! 1   
-     &        0.00700,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.19700,    0.18600,    0.13900,    0.27400,    0.00000, & ! 2   
-     &        0.71200,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    1.00000,    0.67100, & ! 6   
-     &        0.58200,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.34300,    0.03400,    0.04400,    0.21500,    0.38300, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.58200,    0.54800, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.08000, & ! +   
-     &        0.00000,    0.25000,    0.00000,    0.00000,    0.05000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.25000,    0.00000,    0.00000, & ! 2   
-     &        0.23000,    0.00000,    0.09000,    0.00000,    1.00000, & ! +   
-     &        0.50000,    0.09000,    0.08000,    0.00000,    0.15000, & ! 3   
-     &        0.00000,    0.07500,    0.07500,    0.31000,    0.01700, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.25000,    0.00000, & ! 4   
-     &        0.60000,    0.28000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.07400,    0.07400, & ! 1   
-     &        0.03700,    0.03700,    0.07400,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.33000, & ! 2   
-     &        0.18000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.01200,    0.42900,    0.21400,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00190,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 4.4000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     3.7600D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.2000D-02, 0.0000D+00, & ! 1   
+     &     7.5000D-02, 2.6000D-02, 5.6500D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     1.2900D-01, 6.5200D-01, 0.0000D+00, 1.2900D-01, 6.5200D-01, & ! +   
+     &     0.0000D+00, 1.5300D-01, 3.6600D-01, 1.0000D-01, 0.0000D+00, & ! 4   
+     &     3.5100D-01, 0.0000D+00, 0.0000D+00, 1.3000D-02, 2.3000D-02, & ! +   
+     &     2.1800D-01, 0.0000D+00, 2.1100D-01, 7.8000D-01, 4.2900D-01, & ! 5   
+     &     2.1400D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     3.3000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 1.2000D-02, 0.0000D+00, 7.5000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.2500D-01, 3.5500D-01, 1.0000D-03, & ! 3   
+     &     4.0000D-01, 0.0000D+00, 3.4000D-02, 2.9000D-02, 6.8400D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.9000D-02, 1.8100D-01, & ! 4   
+     &     1.5900D-01, 1.8500D-01, 1.5900D-01, 1.1200D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 2.4000D-02, 4.3800D-01, 8.6000D-02, & ! 5   
+     &     0.0000D+00, 6.6600D-01, 5.0000D-01, 1.6900D-01, 0.0000D+00, & ! +   
+     &     8.0000D-02, 3.0000D-03, 1.6300D-01, 0.0000D+00, 1.2300D-01, & ! 6   
+     &     1.3400D-01, 1.3400D-01, 3.7000D-02, 2.4900D-01, 0.0000D+00, & ! +   
+     &     4.0300D-01, 0.0000D+00, 7.4600D-01, 3.7300D-01, 3.7300D-01, & ! 7   
+     &     3.7300D-01, 7.4600D-01, 7.4600D-01, 7.4600D-01, 4.0000D-03, & ! +   
+     &     4.0000D-03, 0.0000D+00, 3.7000D-02, 2.4900D-01, 2.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 7.0000D-02, 1.2000D-02, & ! 1   
+     &     7.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.9700D-01, 1.8600D-01, 1.3900D-01, 2.7400D-01, 0.0000D+00, & ! 2   
+     &     7.1200D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, 6.7100D-01, & ! 6   
+     &     5.8200D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     3.4300D-01, 3.4000D-02, 4.4000D-02, 2.1500D-01, 3.8300D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 5.8200D-01, 5.4800D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 8.0000D-02, & ! +   
+     &     0.0000D+00, 2.5000D-01, 0.0000D+00, 0.0000D+00, 5.0000D-02, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 2.5000D-01, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     2.3000D-01, 0.0000D+00, 9.0000D-02, 0.0000D+00, 1.0000D+00, & ! +   
+     &     5.0000D-01, 9.0000D-02, 8.0000D-02, 0.0000D+00, 1.5000D-01, & ! 3   
+     &     0.0000D+00, 7.5000D-02, 7.5000D-02, 3.1000D-01, 1.7000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5000D-01, 0.0000D+00, & ! 4   
+     &     6.0000D-01, 2.8000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 7.4000D-02, 7.4000D-02, & ! 1   
+     &     3.7000D-02, 3.7000D-02, 7.4000D-02, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.3000D-01, & ! 2   
+     &     1.8000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.2000D-02, 4.2900D-01, 2.1400D-01, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.9000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 10 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        1.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.20500,    0.00000, & ! 1   
-     &        0.08400,    0.05800,    0.02400,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.10700,    0.65200,    0.00000,    0.10700,    0.65200, & ! +   
-     &        0.00000,    0.01900,    0.18400,    0.10000,    0.00000, & ! 4   
-     &        0.05000,    0.00000,    0.00000,    0.15000,    0.74200, & ! +   
-     &        0.00800,    0.00000,    0.00100,    1.00000,    0.00100, & ! 5   
-     &        0.23000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.29000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00100, & ! 3   
-     &        0.19200,    0.00000,    0.02000,    0.05100,    0.06900, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.26100,    0.06500, & ! 4   
-     &        0.04100,    0.16100,    0.08800,    0.02200,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.33200,    0.23600,    0.40700, & ! 5   
-     &        0.00000,    0.00700,    0.01100,    0.83100,    0.00000, & ! +   
-     &        0.00200,    0.29900,    0.11600,    0.00000,    0.07200, & ! 6   
-     &        0.07700,    0.07700,    0.00700,    0.06300,    0.00000, & ! +   
-     &        0.23900,    0.00000,    0.44300,    0.22200,    0.22200, & ! 7   
-     &        0.22200,    0.44300,    0.44300,    0.44300,    0.74600, & ! +   
-     &        0.74600,    0.00000,    0.00700,    0.06300,    0.40300, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.84000,    0.05500, & ! 1   
-     &        0.02200,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.28500,    0.67600,    0.56500,    0.27400,    0.00000, & ! 2   
-     &        0.49800,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.06700, & ! 6   
-     &        0.03500,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.07500,    0.28700,    0.04100,    0.01900,    0.31700, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.03500,    0.03500, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.80300, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    1.00000,    0.00000,    0.75000, & ! +   
-     &        0.00000,    0.09000,    0.60000,    0.00000,    1.34000, & ! 3   
-     &        0.00000,    0.17000,    0.17000,    0.72000,    0.36000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.04000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.25100,    0.25100, & ! 1   
-     &        0.12600,    0.12600,    0.25100,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.33000, & ! 2   
-     &        0.54100,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.05500,    0.00100,    0.23000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00230,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.0500D-01, 0.0000D+00, & ! 1   
+     &     8.4000D-02, 5.8000D-02, 2.4000D-02, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     1.0700D-01, 6.5200D-01, 0.0000D+00, 1.0700D-01, 6.5200D-01, & ! +   
+     &     0.0000D+00, 1.9000D-02, 1.8400D-01, 1.0000D-01, 0.0000D+00, & ! 4   
+     &     5.0000D-02, 0.0000D+00, 0.0000D+00, 1.5000D-01, 7.4200D-01, & ! +   
+     &     8.0000D-03, 0.0000D+00, 1.0000D-03, 1.0000D+00, 1.0000D-03, & ! 5   
+     &     2.3000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 2.9000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D-03, & ! 3   
+     &     1.9200D-01, 0.0000D+00, 2.0000D-02, 5.1000D-02, 6.9000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.6100D-01, 6.5000D-02, & ! 4   
+     &     4.1000D-02, 1.6100D-01, 8.8000D-02, 2.2000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 3.3200D-01, 2.3600D-01, 4.0700D-01, & ! 5   
+     &     0.0000D+00, 7.0000D-03, 1.1000D-02, 8.3100D-01, 0.0000D+00, & ! +   
+     &     2.0000D-03, 2.9900D-01, 1.1600D-01, 0.0000D+00, 7.2000D-02, & ! 6   
+     &     7.7000D-02, 7.7000D-02, 7.0000D-03, 6.3000D-02, 0.0000D+00, & ! +   
+     &     2.3900D-01, 0.0000D+00, 4.4300D-01, 2.2200D-01, 2.2200D-01, & ! 7   
+     &     2.2200D-01, 4.4300D-01, 4.4300D-01, 4.4300D-01, 7.4600D-01, & ! +   
+     &     7.4600D-01, 0.0000D+00, 7.0000D-03, 6.3000D-02, 4.0300D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 8.4000D-01, 5.5000D-02, & ! 1   
+     &     2.2000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     2.8500D-01, 6.7600D-01, 5.6500D-01, 2.7400D-01, 0.0000D+00, & ! 2   
+     &     4.9800D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 6.7000D-02, & ! 6   
+     &     3.5000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     7.5000D-02, 2.8700D-01, 4.1000D-02, 1.9000D-02, 3.1700D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.5000D-02, 3.5000D-02, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 8.0300D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 7.5000D-01, & ! +   
+     &     0.0000D+00, 9.0000D-02, 6.0000D-01, 0.0000D+00, 1.3400D+00, & ! 3   
+     &     0.0000D+00, 1.7000D-01, 1.7000D-01, 7.2000D-01, 3.6000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 4.0000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5100D-01, 2.5100D-01, & ! 1   
+     &     1.2600D-01, 1.2600D-01, 2.5100D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.3000D-01, & ! 2   
+     &     5.4100D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     5.5000D-02, 1.0000D-03, 2.3000D-01, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.3000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 11 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.03400,    0.00000, & ! 1   
-     &        0.16000,    0.69800,    0.44800,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.26700,    0.00000,    0.00000,    0.26700,    0.00000, & ! +   
-     &        0.00000,    0.19500,    0.35000,    0.10000,    0.00000, & ! 4   
-     &        0.05000,    0.00000,    0.00000,    0.33200,    0.10000, & ! +   
-     &        0.57200,    0.00000,    0.08300,    0.00000,    0.03600, & ! 5   
-     &        0.07400,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.75000, & ! 3   
-     &        0.20400,    0.00000,    0.02300,    0.01700,    0.00200, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.11600,    0.19500, & ! 4   
-     &        0.33600,    0.04700,    0.04500,    0.03600,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.98300,    0.42600,    1.00000, & ! 5   
-     &        0.00000,    0.03600,    0.50000,    0.00000,    0.00000, & ! +   
-     &        0.01200,    0.16100,    0.00200,    0.00000,    0.18500, & ! 6   
-     &        0.02600,    0.02600,    0.00300,    0.12700,    0.00000, & ! +   
-     &        0.00500,    0.00000,    0.00900,    0.00500,    0.00500, & ! 7   
-     &        0.00500,    0.00900,    0.00900,    0.00900,    0.44300, & ! +   
-     &        0.44300,    0.00000,    0.00300,    0.12700,    0.23900, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.15900, & ! 1   
-     &        0.23700,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.58600,    0.28000,    0.02400,    0.48400,    0.00000, & ! 2   
-     &        0.19500,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    1.00000, & ! 6   
-     &        0.15800,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.25300,    0.41200,    0.37800,    0.03800,    0.08600, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.15800,    0.15800, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.25000, & ! +   
-     &        0.00000,    1.00000,    0.35000,    0.00000,    0.35000, & ! 3   
-     &        0.00000,    0.67500,    0.17500,    0.15000,    0.16000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.28000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    1.00000, & ! 1   
-     &        0.50000,    0.50000,    1.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.83500,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.15900,    0.03600,    0.07400,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.4000D-02, 0.0000D+00, & ! 1   
+     &     1.6000D-01, 6.9800D-01, 4.4800D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     2.6700D-01, 0.0000D+00, 0.0000D+00, 2.6700D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.9500D-01, 3.5000D-01, 1.0000D-01, 0.0000D+00, & ! 4   
+     &     5.0000D-02, 0.0000D+00, 0.0000D+00, 3.3200D-01, 1.0000D-01, & ! +   
+     &     5.7200D-01, 0.0000D+00, 8.3000D-02, 0.0000D+00, 3.6000D-02, & ! 5   
+     &     7.4000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 7.5000D-01, & ! 3   
+     &     2.0400D-01, 0.0000D+00, 2.3000D-02, 1.7000D-02, 2.0000D-03, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.1600D-01, 1.9500D-01, & ! 4   
+     &     3.3600D-01, 4.7000D-02, 4.5000D-02, 3.6000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 9.8300D-01, 4.2600D-01, 1.0000D+00, & ! 5   
+     &     0.0000D+00, 3.6000D-02, 5.0000D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.2000D-02, 1.6100D-01, 2.0000D-03, 0.0000D+00, 1.8500D-01, & ! 6   
+     &     2.6000D-02, 2.6000D-02, 3.0000D-03, 1.2700D-01, 0.0000D+00, & ! +   
+     &     5.0000D-03, 0.0000D+00, 9.0000D-03, 5.0000D-03, 5.0000D-03, & ! 7   
+     &     5.0000D-03, 9.0000D-03, 9.0000D-03, 9.0000D-03, 4.4300D-01, & ! +   
+     &     4.4300D-01, 0.0000D+00, 3.0000D-03, 1.2700D-01, 2.3900D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 1.5900D-01, & ! 1   
+     &     2.3700D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     5.8600D-01, 2.8000D-01, 2.4000D-02, 4.8400D-01, 0.0000D+00, & ! 2   
+     &     1.9500D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! 6   
+     &     1.5800D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     2.5300D-01, 4.1200D-01, 3.7800D-01, 3.8000D-02, 8.6000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.5800D-01, 1.5800D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5000D-01, & ! +   
+     &     0.0000D+00, 1.0000D+00, 3.5000D-01, 0.0000D+00, 3.5000D-01, & ! 3   
+     &     0.0000D+00, 6.7500D-01, 1.7500D-01, 1.5000D-01, 1.6000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 2.8000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! 1   
+     &     5.0000D-01, 5.0000D-01, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     8.3500D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     1.5900D-01, 3.6000D-02, 7.4000D-02, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 12 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.25600,    0.00000, & ! 1   
-     &        0.00000,    0.85800,    0.02600,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.78300,    0.00000,    0.00000,    0.78300,    0.00000, & ! +   
-     &        0.00000,    0.19500,    0.35000,    0.00000,    0.00000, & ! 4   
-     &        0.05000,    0.00000,    0.00000,    0.15000,    0.37200, & ! +   
-     &        0.85000,    0.00000,    0.14300,    0.00000,    0.00400, & ! 5   
-     &        0.06300,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.25000, & ! 3   
-     &        0.39000,    0.00000,    1.00000,    0.34400,    0.05600, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.31400,    0.19500, & ! 4   
-     &        0.14400,    0.25300,    0.06700,    0.08800,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.01700,    0.10600,    0.00000, & ! 5   
-     &        0.00000,    0.00100,    0.04400,    0.00000,    0.00000, & ! +   
-     &        0.02300,    0.13100,    0.32000,    0.00000,    0.20200, & ! 6   
-     &        0.22100,    0.22100,    0.00900,    0.03300,    0.00000, & ! +   
-     &        0.00100,    0.00000,    0.00200,    0.00100,    0.00100, & ! 7   
-     &        0.00100,    0.00200,    0.00200,    0.00200,    0.00900, & ! +   
-     &        0.00900,    0.00000,    0.00900,    0.03300,    0.00500, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.54700, & ! 1   
-     &        0.10900,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.85500,    0.44800,    0.78400,    0.00000, & ! 2   
-     &        0.01700,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.18500,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.98300,    0.24700,    1.00000,    0.19200,    0.04200, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.18500,    0.18500, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.50000,    0.50000,    0.34000,    0.34000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.24000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.25000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.54700,    0.00400,    0.06300,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5600D-01, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 8.5800D-01, 2.6000D-02, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     7.8300D-01, 0.0000D+00, 0.0000D+00, 7.8300D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.9500D-01, 3.5000D-01, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     5.0000D-02, 0.0000D+00, 0.0000D+00, 1.5000D-01, 3.7200D-01, & ! +   
+     &     8.5000D-01, 0.0000D+00, 1.4300D-01, 0.0000D+00, 4.0000D-03, & ! 5   
+     &     6.3000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5000D-01, & ! 3   
+     &     3.9000D-01, 0.0000D+00, 1.0000D+00, 3.4400D-01, 5.6000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.1400D-01, 1.9500D-01, & ! 4   
+     &     1.4400D-01, 2.5300D-01, 6.7000D-02, 8.8000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.7000D-02, 1.0600D-01, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 1.0000D-03, 4.4000D-02, 0.0000D+00, 0.0000D+00, & ! +   
+     &     2.3000D-02, 1.3100D-01, 3.2000D-01, 0.0000D+00, 2.0200D-01, & ! 6   
+     &     2.2100D-01, 2.2100D-01, 9.0000D-03, 3.3000D-02, 0.0000D+00, & ! +   
+     &     1.0000D-03, 0.0000D+00, 2.0000D-03, 1.0000D-03, 1.0000D-03, & ! 7   
+     &     1.0000D-03, 2.0000D-03, 2.0000D-03, 2.0000D-03, 9.0000D-03, & ! +   
+     &     9.0000D-03, 0.0000D+00, 9.0000D-03, 3.3000D-02, 5.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 5.4700D-01, & ! 1   
+     &     1.0900D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 8.5500D-01, 4.4800D-01, 7.8400D-01, 0.0000D+00, & ! 2   
+     &     1.7000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     1.8500D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     9.8300D-01, 2.4700D-01, 1.0000D+00, 1.9200D-01, 4.2000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.8500D-01, 1.8500D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 5.0000D-01, 5.0000D-01, 3.4000D-01, 3.4000D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 2.4000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     2.5000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     5.4700D-01, 4.0000D-03, 6.3000D-02, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 13 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.03000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.23100,    0.13900,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.17400,    0.04700, & ! +   
-     &        0.00000,    0.00000,    0.40200,    0.00000,    0.01000, & ! 5   
-     &        0.00800,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.16000,    0.00000,    1.00000,    0.24000,    1.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.31200, & ! 4   
-     &        0.23900,    0.25300,    0.27800,    0.35200,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.14600,    0.00000, & ! 5   
-     &        0.00000,    0.01200,    0.00300,    0.00000,    0.00000, & ! +   
-     &        0.31900,    0.11400,    0.31900,    0.00000,    0.30900, & ! 6   
-     &        0.24700,    0.24700,    0.00300,    0.20800,    0.00000, & ! +   
-     &        0.00400,    0.00000,    0.00700,    0.00400,    0.00400, & ! 7   
-     &        0.00400,    0.00700,    0.00700,    0.00700,    0.00200, & ! +   
-     &        0.00200,    0.00000,    0.00300,    0.20800,    0.00100, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.04500, & ! 1   
-     &        0.59100,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.02600,    0.00000,    0.00000, & ! 2   
-     &        0.00900,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.27400,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.01700,    0.07600,    0.00000,    0.33700,    0.02500, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.27400,    0.27400, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.25000,    0.00000,    0.35000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.04500,    0.01000,    0.00800,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 3.0000D-02, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.3100D-01, 1.3900D-01, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.7400D-01, 4.7000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 4.0200D-01, 0.0000D+00, 1.0000D-02, & ! 5   
+     &     8.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     1.6000D-01, 0.0000D+00, 1.0000D+00, 2.4000D-01, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 3.1200D-01, & ! 4   
+     &     2.3900D-01, 2.5300D-01, 2.7800D-01, 3.5200D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.4600D-01, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 1.2000D-02, 3.0000D-03, 0.0000D+00, 0.0000D+00, & ! +   
+     &     3.1900D-01, 1.1400D-01, 3.1900D-01, 0.0000D+00, 3.0900D-01, & ! 6   
+     &     2.4700D-01, 2.4700D-01, 3.0000D-03, 2.0800D-01, 0.0000D+00, & ! +   
+     &     4.0000D-03, 0.0000D+00, 7.0000D-03, 4.0000D-03, 4.0000D-03, & ! 7   
+     &     4.0000D-03, 7.0000D-03, 7.0000D-03, 7.0000D-03, 2.0000D-03, & ! +   
+     &     2.0000D-03, 0.0000D+00, 3.0000D-03, 2.0800D-01, 1.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.5000D-02, & ! 1   
+     &     5.9100D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 2.6000D-02, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     9.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     2.7400D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     1.7000D-02, 7.6000D-02, 0.0000D+00, 3.3700D-01, 2.5000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.7400D-01, 2.7400D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 2.5000D-01, 0.0000D+00, 3.5000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     4.5000D-02, 1.0000D-02, 8.0000D-03, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 14 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.25200,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.79400,    0.00300,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.71100,    0.00100, & ! +   
-     &        0.00000,    0.00000,    0.11500,    0.00000,    0.17000, & ! 5   
-     &        0.12400,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.15000,    0.00000,    0.00000,    0.34500,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.07300, & ! 4   
-     &        0.04700,    0.19800,    0.28600,    0.23000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00900,    0.00900,    0.00000,    0.00000, & ! +   
-     &        0.68100,    0.45300,    0.68100,    0.00000,    0.36900, & ! 6   
-     &        0.17800,    0.17800,    0.00200,    0.05700,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.25000,    0.00000, & ! 7   
-     &        0.00000,    1.00000,    1.00000,    1.00000,    0.00700, & ! +   
-     &        0.00700,    0.00000,    0.00200,    0.05700,    0.00400, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.30000, & ! 1   
-     &        0.05100,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.03000,    0.00000,    0.00000, & ! 2   
-     &        0.00900,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00700,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.13000,    0.00000,    0.16900,    0.05800, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00700,    0.00700, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.30000,    0.17000,    0.12400,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 2.5200D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 7.9400D-01, 3.0000D-03, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 7.1100D-01, 1.0000D-03, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.1500D-01, 0.0000D+00, 1.7000D-01, & ! 5   
+     &     1.2400D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     1.5000D-01, 0.0000D+00, 0.0000D+00, 3.4500D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 7.3000D-02, & ! 4   
+     &     4.7000D-02, 1.9800D-01, 2.8600D-01, 2.3000D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 9.0000D-03, 9.0000D-03, 0.0000D+00, 0.0000D+00, & ! +   
+     &     6.8100D-01, 4.5300D-01, 6.8100D-01, 0.0000D+00, 3.6900D-01, & ! 6   
+     &     1.7800D-01, 1.7800D-01, 2.0000D-03, 5.7000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5000D-01, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 7.0000D-03, & ! +   
+     &     7.0000D-03, 0.0000D+00, 2.0000D-03, 5.7000D-02, 4.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.0000D-01, & ! 1   
+     &     5.1000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 3.0000D-02, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     9.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     7.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 1.3000D-01, 0.0000D+00, 1.6900D-01, 5.8000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 7.0000D-03, 7.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     3.0000D-01, 1.7000D-01, 1.2400D-01, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 15 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.07300,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00400,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.04800, & ! +   
-     &        0.00000,    0.00000,    0.32900,    0.00000,    0.00800, & ! 5   
-     &        0.08300,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.10000,    0.00000,    0.00000,    0.00800,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.43500, & ! 4   
-     &        0.55500,    0.05500,    0.10200,    0.15100,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.16800,    0.18500,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.07100,    0.00000,    0.00000,    1.00000, & ! 6   
-     &        0.06800,    0.06800,    0.40900,    0.00200,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    1.00000,    1.00000,    1.00000,    0.42200, & ! +   
-     &        0.42200,    0.00000,    0.40900,    0.00200,    0.22800, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.02000, & ! 1   
-     &        0.04000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.25200,    0.00000,    0.00000, & ! 2   
-     &        0.11500,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00300,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    1.00000,    0.00000,    0.83100,    0.16100, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00300,    0.00300, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.02000,    0.00800,    0.08300,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 7.3000D-02, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 4.0000D-03, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.8000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 3.2900D-01, 0.0000D+00, 8.0000D-03, & ! 5   
+     &     8.3000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     1.0000D-01, 0.0000D+00, 0.0000D+00, 8.0000D-03, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.3500D-01, & ! 4   
+     &     5.5500D-01, 5.5000D-02, 1.0200D-01, 1.5100D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 1.6800D-01, 1.8500D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 7.1000D-02, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! 6   
+     &     6.8000D-02, 6.8000D-02, 4.0900D-01, 2.0000D-03, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 1.0000D+00, 1.0000D+00, 1.0000D+00, 4.2200D-01, & ! +   
+     &     4.2200D-01, 0.0000D+00, 4.0900D-01, 2.0000D-03, 2.2800D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 2.0000D-02, & ! 1   
+     &     4.0000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 2.5200D-01, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     1.1500D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     3.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 1.0000D+00, 0.0000D+00, 8.3100D-01, 1.6100D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.0000D-03, 3.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     2.0000D-02, 8.0000D-03, 8.3000D-02, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 16 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.07300,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00300,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00700,    0.00000,    0.03100, & ! 5   
-     &        0.19000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.20000,    0.00000,    0.00000,    0.00200,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    1.00000, & ! 4   
-     &        1.00000,    0.58600,    0.46100,    0.04300,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.16900,    0.15900,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.33300,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.05700,    0.05700,    1.00000,    0.17200,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    1.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    0.17200,    1.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00300, & ! 1   
-     &        0.68600,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.07300,    0.00000,    0.00000, & ! 2   
-     &        0.14000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00300,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.01300, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00300,    0.00300, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00300,    0.03100,    0.19000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 7.3000D-02, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 3.0000D-03, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 7.0000D-03, 0.0000D+00, 3.1000D-02, & ! 5   
+     &     1.9000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     2.0000D-01, 0.0000D+00, 0.0000D+00, 2.0000D-03, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! 4   
+     &     1.0000D+00, 5.8600D-01, 4.6100D-01, 4.3000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 1.6900D-01, 1.5900D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 3.3300D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     5.7000D-02, 5.7000D-02, 1.0000D+00, 1.7200D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 1.7200D-01, 1.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.0000D-03, & ! 1   
+     &     6.8600D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 7.3000D-02, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     1.4000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     3.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.3000D-02, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.0000D-03, 3.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     3.0000D-03, 3.1000D-02, 1.9000D-01, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 17 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.71300,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.09500,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.52800,    0.00000,    0.18900, & ! 5   
-     &        0.26100,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.08100,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    1.00000,    1.00000,    0.70500,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.83100,    0.26800,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.01900,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.10100,    0.10100,    1.00000,    0.06800,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    1.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    1.00000,    0.06800,    1.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.04100, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.07300,    0.00000,    0.00000, & ! 2   
-     &        0.42000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.15800,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.19100, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.15800,    0.15800, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.04100,    0.18900,    0.26100,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 7.1300D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 9.5000D-02, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 5.2800D-01, 0.0000D+00, 1.8900D-01, & ! 5   
+     &     2.6100D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 8.1000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 1.0000D+00, 1.0000D+00, 7.0500D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 8.3100D-01, 2.6800D-01, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.9000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     1.0100D-01, 1.0100D-01, 1.0000D+00, 6.8000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.0000D+00, 6.8000D-02, 1.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.1000D-02, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 7.3000D-02, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     4.2000D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     1.5800D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.9100D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.5800D-01, 1.5800D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     4.1000D-02, 1.8900D-01, 2.6100D-01, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 18 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.16300,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.30500, & ! 5   
-     &        0.06600,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.25500,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.01100,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.05100,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        1.00000,    1.00000,    0.00000,    0.00300,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00300,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.04600, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.71300,    0.00000,    0.00000, & ! 2   
-     &        0.76200,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00600,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.31900, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00600,    0.00600, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.04600,    0.30500,    0.06600,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.6300D-01, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.0500D-01, & ! 5   
+     &     6.6000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.5500D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 1.1000D-02, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 5.1000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     1.0000D+00, 1.0000D+00, 0.0000D+00, 3.0000D-03, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.0000D-03, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 4.6000D-02, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 7.1300D-01, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     7.6200D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     6.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 3.1900D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 6.0000D-03, 6.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     4.6000D-02, 3.0500D-01, 6.6000D-02, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 19 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.16300,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.15700, & ! 5   
-     &        0.59100,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.73700,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.05200,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.03300,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.03900,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.03900,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.54700, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00600,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.68100, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00600,    0.00600, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.54700,    0.15700,    0.59100,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 1.6300D-01, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.5700D-01, & ! 5   
+     &     5.9100D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 7.3700D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 5.2000D-02, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 3.3000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.9000D-02, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 3.9000D-02, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 5.4700D-01, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     6.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 6.8100D-01, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 6.0000D-03, 6.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     5.4700D-01, 1.5700D-01, 5.9100D-01, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 20 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.09500,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.63600, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00100,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00200,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00200,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.90800, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00100,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00100,    0.00100, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.90800,    0.63600,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 9.5000D-02, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 6.3600D-01, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.0000D-03, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 2.0000D-03, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 9.0800D-01, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     1.0000D-03, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D-03, 1.0000D-03, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     9.0800D-01, 6.3600D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 21 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.26400,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.02400,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00100,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00100,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.10900,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.10900,    0.10900, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 2.6400D-01, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.4000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D-03, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D-03, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     1.0900D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0900D-01, 1.0900D-01, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 22 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.06500,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.50200,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.50200,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        1.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    1.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 6.5000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 5.0200D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 5.0200D-01, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     1.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 1.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 23 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.23500,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.42800,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.42800,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 2.3500D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 4.2800D-01, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 4.2800D-01, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 24 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.03700,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    1.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 3.7000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 25 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.07300,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 7.3000D-02, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       DATA ( SC( IRXXN, 26 ), IRXXN = 1, NRXNS ) / & 
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.13600,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 2   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 3   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 4   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 5   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 6   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 7   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 8   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 9   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! O   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! 1   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000, & ! +   
-     &        0.00000,    0.00000,    0.00000,    0.00000,    0.00000/!2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 1.3600D-01, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 4   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 5   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 6   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 7   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 8   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 9   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! O   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 1   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00/!2   
 
       INTEGER            :: NREACT( NRXNS )
 
@@ -9678,36 +10193,6 @@
      &      1,    1,    1,    1,    1,    1,    1,    1,    1,    1, & ! O   
      &      2,   10,    7,    7,    7,    6,    6,    6,    6,    6, & ! 1   
      &      6,    2,    2,    1,    1/     !  2   
-
-      INTEGER, PARAMETER :: NMPHOT =  65
-      INTEGER            :: IPH( NMPHOT,3 )
-
-      DATA ( IPH( IRXXN,1 ), IRXXN = 1, NMPHOT ) / & 
-     &      1,   16,   17,   18,   19,   23,   28,   34,   41,   65, & ! O   
-     &     75,   86,   98,  194,  195,  199,  202,  205,  207,  213, & ! 1   
-     &    215,  217,  219,  220,  221,  224,  227,  231,  232,  234, & ! 2   
-     &    238,  241,  248,  252,  254,  256,  257,  263,  265,  267, & ! 3   
-     &    587,  589,  592,  593,  600,  601,  605,  627,  630,  694, & ! 4   
-     &    695,  700,  707,  717,  798,  800,  803,  804,  806,  808, & ! 5   
-     &    810,  819,  825,  841,  883/     !  6   
-
-      DATA ( IPH( IRXXN,2 ), IRXXN = 1, NMPHOT ) / & 
-     &      1,    2,    3,    4,    5,    6,    7,    8,    9,   10, & ! O   
-     &     10,   10,   10,   11,   12,   13,   14,   15,   16,   17, & ! 1   
-     &     17,   17,   17,   18,   19,   20,   21,    1,    1,   22, & ! 2   
-     &     23,   23,   24,   25,   16,   26,   27,   28,   29,   29, & ! 3   
-     &     30,   31,   32,   33,   34,   35,   36,   37,   38,   11, & ! 4   
-     &     12,   13,   28,   39,   16,   40,   40,   26,   40,   14, & ! 5   
-     &     20,   17,   25,   10,   26/     !  6   
-
-      DATA ( IPH( IRXXN,3 ), IRXXN = 1, NMPHOT ) / & 
-     &      1,    2,    3,    4,    5,    6,    7,    8,    9,   10, & ! O   
-     &     11,   12,   13,   14,   15,   16,   17,   18,   19,   20, & ! 1   
-     &     21,   22,   23,   24,   25,   26,   27,   28,   29,   30, & ! 2   
-     &     31,   32,   33,   34,   35,   36,   37,   38,   39,   40, & ! 3   
-     &     41,   42,   43,   44,   45,   46,   47,   48,   49,   50, & ! 4   
-     &     51,   52,   53,   54,   55,   56,   57,   58,   59,   60, & ! 5   
-     &     61,   62,   63,   64,   65/     !  6   
 
       INTEGER, PARAMETER :: MHETERO =  22
       INTEGER            :: IHETERO( MHETERO,2 )

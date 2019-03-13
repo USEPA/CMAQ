@@ -14,10 +14,10 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3 is a major update 
 ### Photochemistry
 There are 11 unique gas-phase chemical mechanisms in CMAQv5.3. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
 
-  * Removal of obsolete mechanisms (deborahluecken)
+  * [Removal of obsolete mechanisms in CMAQv5.3](obsolete_mechanisms.md)
   * [Halogen mediated first order ozone loss is revised for all mechanisms](simple_halogen_chemistry.md)
   * [Detailed halogen and DMS chemistry with CB6r3](detailed_halogen_and_DMS_chemistry.md)
-  * Updates to chlorine chemistry in CB6 and CB6r3 (PR 359, 342; deborahluecken)
+  * [Updates to the chlorine chemistry in CB6r3 mechanisms](chlorine_chemistry_CB6r3.md)
   * EBI Solvers
     * [Setting Maximum Integration Time Step and Initial Changes for CMAS-ISAM](updates_to_create_ebi.md)
     * [Ability to conduct Integrated Reaction Rate Analysis](allow_ebi_to_do_IRR_analysis.md)
@@ -34,39 +34,35 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
   * [Monoterpene SOA](monoterpene_SOA.md)  
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
-  
-#### Other aerosol updates
-  * pcSOA flag
-  * getpar
-  * dry deposition
 
+#### Other Aerosol Processes
+  * [Dry Deposition Algorithm](aerosol_dry_deposition.md)  
+  * [Gravitational Settling](gravitational_settling.md)  
+  
 ### Aqueous and Heterogeneous Chemistry
  * [AQCHEM-KMT2: Extended inorganic and organic cloud chemistry using the Kinetic PreProcessor](aqchem-kmt2.md)
  
 ## Transport Processes
  * [Changed ACM cloud model to use Z-coordinates](Z-coords%20for%20ACMcloud.md)
- * Settling (PR 381, 378; bnmurphy)
  
 ## Air-Surface Exchange
  * [New NH3 bi-directional flux linked to daily EPIC input](M3dry-Bidi.md)
- * STAGE (PR 385, 375, 370, 368, 361, 345, 340; jessebash)
- * M3dry, Namelist, MEDIACONC file corrections (PR 380, 348, 379; bnmurphy)
-
+ * [STAGE: Surface Tiled Aerosol and Gaseous Exchange dry deposition option](stage_overview.md)
+ * [Minor updates to air-surface exchange options](asx_run_options.md)
 
 ## Emission Updates
+ * [DESID: Detailed Emissions Scaling, Isolation and Diagnostic Module](emissions_redesign.md)
+ * [BEIS Default Chemical Mapping](BEIS_mapping.md)
  * [Biogenic speciation update for aero7](biogenic_apinene.md)
- * DESID (PR 383, 376, 371, 356, 355, 305; bnmurphy, cgnolte)
- * BEIS mapping lookup, bugs in BEIS (PR 318, 309, 308, 307; bnmurphy, jessebash)
 
 ## Process Analysis
+ * [Extension to aerosol sub-processes](aerosol_process_analysis.md)
  * [IRR analysis available in EBI solvers](allow_ebi_to_do_IRR_analysis.md)
- * Aerosols (PR 311; bnmurphy)
 
 ## Structural Improvements
- * LOGFILE (PR 384, 382, 277; bnmurphy)
+ * [Standardized and Streamlined Logfiles](logfile.md)
  * [Moved PHOT to Sciproc](move_phot_to_sciproc.md)
- * Output units (PR 323; bnmurphy)
- * CZANGLE centralization (PR 320; dschwede)
+ * [Standardized Units for Output Variables](output_units.md)
 
 ## Diagnostic
  * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
@@ -76,6 +72,7 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  * [Updates to post-processing tools hr2day, sitecmp, and sitecmp_dailyo3; addition of new utility calc_tmetric.](postprocessing_tools.md)
  * [Updates to the create_ebi utility](updates_to_create_ebi.md)
  * [Updates to the inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
+ * [Updates to the ICON and BCON pre-processors.](updates_to_ICON_BCON.md)
  
 ## Instrumented Models
 CMAQ-DDM and CMAQ-ISAM will be released with the final version of CMAQv5.3 in Spring 2019.
