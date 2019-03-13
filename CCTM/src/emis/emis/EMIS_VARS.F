@@ -316,7 +316,8 @@
       CONTAINS
 
 !-----------------------------------------------------------------------
-      SUBROUTINE INTERPRET_EM_RULE_STREAM( RULE_STREAM0, IRULE, EM_STREAM_RULE )
+      SUBROUTINE INTERPRET_EM_RULE_STREAM( RULE_STREAM0, IRULE, 
+     &              EM_STREAM_RULE, LREMOVE )
 !
 ! This subroutine analyzes the part of a rule identifying which streams
 ! to affect and searches for the individual streams, or, if the rule uses
@@ -332,6 +333,7 @@
       CHARACTER(32)               :: RULE_STREAM
       INTEGER, INTENT( IN )       :: IRULE
       LOGICAL, INTENT( INOUT )    :: EM_STREAM_RULE( N_EM_SRM )
+      LOGICAL, INTENT( INOUT )    :: LREMOVE
 
       INTEGER ISRM, IDX
       CHARACTER( 200 ) :: XMSG
@@ -345,6 +347,8 @@
       ! First Capitalize the Rule so it is easier to error-check
       RULE_STREAM = RULE_STREAM0
       CALL UPCASE( RULE_STREAM )
+
+      LREMOVE = .FALSE.
 
       IF ( RULE_STREAM .EQ. 'ALL' ) THEN
          ! Special Case Where the Stream Identifier in the rule equals
@@ -371,16 +375,19 @@
          IDX = INDEX1( RULE_STREAM, N_EM_SRM, EM_FILE_LAB ) 
          IF ( IDX .NE. 0 ) THEN
            EM_STREAM_RULE( IDX ) = .TRUE.
-         ELSE IF ( RULE_STREAM .NE. 'WBDUST' .AND. RULE_STREAM .NE. 'SEASPRAY' ) THEN
+         ELSE 
+           ! Print warning that this stream is being ignored
            WRITE( LOGDEV, * )
-           WRITE( LOGDEV, '(/,3A,I3,/,2A,/,2A)' ),
-     &         'The Emissions Stream Label (',TRIM( RULE_STREAM ),
+           WRITE( LOGDEV, '(/,3A,I3,/,2A,/,2A,/,2A)' ),
+     &         'WARNING: The Emissions Stream Label (',TRIM( RULE_STREAM ),
      &         ') applied for Rule ',IRULE,' in the Emissions Control ',
      &         'Namelist does not match any of the emissions streams ',
      &         'labels provided to CMAQ. Please check the runscript against ',
-     &         'your emissions control inputs.'
-           XMSG = 'Error in Emissions Map Processing.'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+     &         'your emissions control inputs','to confirm that this stream ',
+     &         'should be ignored.'
+
+           ! Remove this rule from the list of rules
+           LREMOVE = .TRUE.
          END IF
       END IF
  
