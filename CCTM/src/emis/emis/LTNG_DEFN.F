@@ -56,6 +56,9 @@
 !C                       defining a LT_NAME variable. A bug fix related to read RC variable
 !C                       from met input file is also implemented.
 !C  01 Feb 2019 D. Wong: Implemented centralized I/O approach, removed all MY_N clauses
+!C  12 Mar 2019 D. Wong: Implemented centralized I/O approach to the twoway portion of the code
+!C                       and fixed a bug to handle the output time step is less than 1 hour
+!C                       scenario properly
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -105,6 +108,7 @@
       INTEGER                    :: FTIME     ! Start time to Write to Diagnostic files
 
       INTEGER,              SAVE :: LT_TSTEP
+      INTEGER                    :: LT_TSTEP_F  ! same time step info as LT_TSTEP but in HHMMSS format
 
       CONTAINS
 
@@ -257,6 +261,8 @@
                  XMSG = 'Using derived parameters for KF scheme '
                  CALL M3MSG2( XMSG )
             END IF  !END if NLDNSTRIKE
+
+            LT_TSTEP_F = SEC2TIME (LT_TSTEP)
 
 !C Set Lambert projection
             IF ( .NOT. SETLAM( SNGL( P_ALP3D ),
@@ -504,34 +510,19 @@ C statement function for ERF approximation
 !C read in the hourly lightning strike file
 #ifdef twoway
             IF(wrf_lightning_assim) THEN
-              IF ( .NOT. INTERPX( RNAME, 'LNT', PNAME,
-     &                   STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1, 
-     &                       JDATE, JTIME, NLDN_STRIKE ) ) THEN
-                     XMSG = 'Could not read LNT from ' // TRIM(RNAME)
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-              END IF
+              call interpolate_var ('LNT', jdate, jtime, NLDN_STRIKE)
 !C Interpret the timestep NLDN_STRIKE value into hourly value
               NLDN_STRIKE = NLDN_STRIKE*60/LT_ASM_DT
                wrf_assim = .TRUE.
 !               WRITE(*,*) "Max NLDN_STRIKE = ", MAXVAL(NLDN_STRIKE)
             ELSE
               IF ( .NOT. NLDNSTRIKE ) THEN
-                IF ( .NOT. INTERPX( RNAME, RC_NAME, PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, LTNG_RC) ) THEN
-                     XMSG = 'Could not read LTNG_RC from ' // TRIM(RNAME)
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                END IF
+                call interpolate_var (RC_NAME, jdate, jtime, LTNG_RC)
 !C Interpret the timestep RC value into hourly value
                 LTNG_RC = LTNG_RC*DTSTEP
               END IF
             END IF
-            IF ( .NOT. INTERPX( RNAME, 'PRSFC', PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1, 
-     &                       JDATE, JTIME, LTNG_PRSFC ) ) THEN
-                     XMSG = 'Could not read PRSFC from ' // TRIM(RNAME)
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
+            call interpolate_var ('PRSFC', jdate, jtime, LTNG_PRSFC)
 #else
             IF ( R_READY ) THEN
                IF ( .NOT. NLDNSTRIKE ) THEN
@@ -677,7 +668,7 @@ C statement function for ERF approximation
                MTICS = NTICS
                NTICS = 0
                TOT_TSTEP = 0
-               CALL NEXTIME( LDATE, LTIME, TSTEP( 1 ) )
+               CALL NEXTIME( LDATE, LTIME, LT_TSTEP_F)
                R_READY = .TRUE.
             END IF
 
