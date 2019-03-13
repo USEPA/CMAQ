@@ -1,4 +1,4 @@
-# make file to build combine program
+# make file to build program
 
 PROGRAM = ro3_mod_env
 
@@ -7,19 +7,20 @@ ifndef COMPILER
 # COMPILER = pgi
 # COMPILER = gcc
 endif
- 
-ifneq (,$(filter $(debug), TRUE true ))
-    DEBUG = TRUE
-endif
+
+#Helps diagnose crashes if they occur
+DEBUG = TRUE
 
 ifeq ($(COMPILER),intel)
 
   FC = ifort
   CC = icc
-  LIB = /home/hwo/tools/create_CMAQ_OMI_file/lib/x86_64_atmos/intel
-  include_path = -I $(LIB)/ioapi/modules \
-                 -I $(LIB)/ioapi/include_files \
-                 -I $(LIB)/netcdf/include
+
+  ioapi  = /home/wdx/lib_sol/x86_64/ifc-17.0.3/ioapi_3.1/Linux2_x86_64ifort
+  netcdf = /usr/local/apps/netcdf-4.4.1/intel-17.0
+  
+  include_path = -I $(ioapi) -I $(netcdf)/include -I .
+
 
   WARN = 
   FSTD = -O2 -traceback
@@ -40,10 +41,10 @@ else ifeq ($(COMPILER),pgi)
   FC = pgf90
   CC = pgcc
  
-  LIB = /home/hwo/tools/create_CMAQ_OMI_file/lib/x86_64_atmos/pgi
-  include_path = -I $(LIB)/ioapi/modules \
-                 -I $(LIB)/ioapi/include_files \
-                 -I $(LIB)/netcdf/include
+  ioapi  = /home/wdx/lib_sol/x86_64/pgi-17.4/ioapi_3.1/Linux2_x86_64pg
+  netcdf = /usr/local/apps/netcdf-4.4.1/pgi-17.4
+  
+  include_path = -I $(ioapi) -I $(netcdf)/include -I .
 
   WARN = 
   FSTD = -O3 -Mextend
@@ -62,10 +63,10 @@ else ifeq ($(COMPILER),gcc)
  FC = gfortran
  CC = cc
 
- LIB = /home/hwo/tools/create_CMAQ_OMI_file/lib/x86_64_atmos/gcc
- include_path = -I $(LIB)/ioapi/modules \
-                -I $(LIB)/ioapi/include_files \
-                -I $(LIB)/netcdf/include
+ ioapi  = /home/wdx/lib/x86_64/gcc-6.1/ioapi_3.1/Linux2_x86_64gfort
+ netcdf = /usr/local/apps/netcdf-4.6.1/gcc-6.1.0
+ 
+ include_path = -I $(ioapi) -I $(netcdf)/include -I .
 
  WARN = 
  FSTD = -O2 -funroll-loops -finit-character=32 -Wconversion-extra -Wtabs -Wsurprising
@@ -97,8 +98,8 @@ LINK_FLAGS =
 CPP = $(FC)
 CPP_FLAGS = 
 
-IOAPI  = -L$(LIB)/ioapi/lib -lioapi
-NETCDF = -L$(LIB)/netcdf/lib -lnetcdf -lnetcdff
+IOAPI  = -L$(ioapi) -lioapi
+NETCDF = -L$(netcdf)/lib -lnetcdf -lnetcdff
 LIBRARIES = $(IOAPI) $(NETCDF)
 
 
@@ -106,10 +107,8 @@ SRC = \
   get_env_vars.o \
   module_envvar.o \
   create_CMAQ_OMI.o \
-  create_extend_OMI.o \
   create_ioapi_OMI.o \
-  ro3_mod_env.o \
-  viz_cmaqv51_o3totcol.o
+  ro3_mod_env.o 
 
 OBJS = \
   $() \
