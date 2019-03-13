@@ -52,4 +52,21 @@ output files, several months of data is suggested.
 After downloading data, check the file for \*\*\* strings and replace each with the string '   0' which denotes a
 missing value. Sometimes, the former string passes through quality control proceedures.
       
-#### Running the Utility      
+#### Running the Utility   
+
+The script subdirectory includes a run-script for the utility, _scripts/ cmaq_omi_env.q_. 
+A user should Copy and modify the script before running it. The script set several environment 
+variables that are runtime options for the utility. The below table lists and describes these options. Note that
+the Defaults values were used to create the OMI_DAT file the CMAQ repository under CCTM/src/phot/inline and that 
+the output data is centered and symmetric about the equator.
+
+Runtime Options
+
+|Option         |Description                                            | Default Value |  
+|:--------------|:------------------------------------------------------|:----:|
+| OMI_FILE_LIST | List of data files to process, sorted by calendar date     | None  |
+| PREV_DATE     | Replace missing observation with last previous observation | True |
+| NLAT_OMI      | Number of latitude points in output. Value should be odd and equal or greater than 17 | 17 |
+| NLON_OMI      | Number of longitude points in output. Value should be odd and equal or greater than 17 | 17 |
+| LAT_BORDER    | Degrees between the first latitude point from adjacent pole. Value cannot be less than observation | 10 |
+
