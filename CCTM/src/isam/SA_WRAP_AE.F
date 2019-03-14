@@ -9,7 +9,7 @@
       USE GRID_CONF
       USE CGRID_SPCS
       USE SA_DEFN
-      USE SA_GRD_DEFN  ! for SA_SULF_NEW( :,:,:,: ); inherents SA_DEFN
+c     USE SA_GRD_DEFN  ! for SA_SULF_NEW( :,:,:,: ); inherents SA_DEFN
       USE UTILIO_DEFN  ! 20120906
       USE AERO_BUDGET
       USE AERO_DATA, ONLY : AERO_MISSING, AEROSPC_MAP, N_MODE,
@@ -38,10 +38,12 @@
       REAL    TOTAL_OLD, TOTAL_NEW
       CHARACTER( 16 ) :: PRECUR
       REAL :: TTLB4( NCOLS,NROWS,NLAYS,NSPC_SA )
-      REAL :: CCOND( NCOLS,NROWS,NLAYS,NSPC_SA )
+c     REAL :: CCOND( NCOLS,NROWS,NLAYS,NSPC_SA )
       REAL :: SULFCOND( NCOLS,NROWS,NLAYS )
       REAL :: SULFCOND_AIT( NCOLS,NROWS,NLAYS )
       REAL :: SULFCOND_ACC( NCOLS,NROWS,NLAYS )
+      REAL, ALLOCATABLE :: CCOND( :,:,:,: )
+
 
 ! for interpx
       REAL DX1, DX2
@@ -69,6 +71,9 @@
       INTEGER, SAVE :: JSULF, JSO4I, JSO4J, JSRXN
 
       INTEGER :: ISA1, ISA2, ICG1, ICG2, IAER, IM, INDX
+
+      INTEGER, SAVE :: CNH3, CNH4I, CNH4J, CHNO3, CNO3I, CNO3J
+
 
 ! Arrays for combined ammonium, combined nitrates, and combined sulfates
       REAL :: AMMONIA_TAG( NCOLS,NROWS,NLAYS )
@@ -113,12 +118,22 @@ Ckrt Identify species index in ISAM array
         JNH3  = INDEX1( 'NH3', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
         JNH4I = INDEX1( 'ANH4I', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
         JNH4J = INDEX1( 'ANH4J', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        IF ( JNH3 .GT. 0 .AND. JNH4I .GT. 0 .AND. JNH4J .GT. 0 ) LAE_NH4 = .TRUE.
+        IF ( JNH3 .GT. 0 .AND. JNH4I .GT. 0 .AND. JNH4J .GT. 0 ) THEN
+          LAE_NH4 = .TRUE.
+          CNH3  = SPC_INDEX( JNH3, 2 )
+          CNH4I = SPC_INDEX( JNH4I,2 )
+          CNH4J = SPC_INDEX( JNH4J,2 )
+        END IF
 
         JHNO3 = INDEX1( 'HNO3', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
         JNO3I = INDEX1( 'ANO3I', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
         JNO3J = INDEX1( 'ANO3J', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-        IF ( JHNO3 .GT. 0 .AND. JNO3I .GT. 0 .AND. JNO3J .GT. 0 ) LAE_NO3 = .TRUE.
+        IF ( JHNO3 .GT. 0 .AND. JNO3I .GT. 0 .AND. JNO3J .GT. 0 ) THEN
+          LAE_NO3 = .TRUE.
+          CHNO3 = SPC_INDEX( JHNO3,2 )
+          CNO3I = SPC_INDEX( JNO3I,2 )
+          CNO3J = SPC_INDEX( JNO3J,2 )
+        END IF
 
         JSULF = INDEX1( 'SULF', NSPC_SA, SPC_NAME( :,OTHRTAG ) )  
         JSO4I = INDEX1( 'ASO4I', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
@@ -145,6 +160,11 @@ Ckrt Identify species index in ISAM array
         END IF
         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+
+
+        ALLOCATE( CCOND(   NCOLS,NROWS,NLAYS,NSPCSD ) )
+
+
       ENDIF ! firstime ?
 
       ! Extract Density for gas conversion to umol/m3
@@ -169,36 +189,39 @@ Ckrt Identify species index in ISAM array
       NITRATE_TAG = 0.0
       SULFATE_TAG = 0.0
 
-
       ! Sum up pre-process tags for each species at each grid cell
       ISAM = MAX( ISAM, MIN_VAL )
       CGRID0 = MAX( CGRID0, MIN_TAGTOT )
       ISAM0(:,:,:,:,:) = ISAM(:,:,:,:,:)
       ISAM1(:,:,:,:,:) = ISAM(:,:,:,:,:)
       TTLB4( :,:,:,: ) = SUM( ISAM( :,:,:,:,: ),5 )
+
       CCOND = MAX( CGRID0 + AERO_COND, MIN_TAGTOT )
 
-      SULFCOND = AERO_COND( :,:,:,SPC_INDEX(JSO4I,2) ) 
+      SULFCOND = MAX( ( AERO_COND( :,:,:,SPC_INDEX(JSO4I,2) ) 
      &         + AERO_COND( :,:,:,SPC_INDEX(JSO4J,2) ) 
-     &         + AERO_NPF ( :,:,:,SPC_INDEX(JSO4I,2) )
+     &         + AERO_NPF ( :,:,:,SPC_INDEX(JSO4I,2) ) ), MIN_VAL )
+
+
       SULFCOND_AIT = (AERO_COND( :,:,:,SPC_INDEX( JSO4I,2 )) + 
      &                AERO_NPF( :,:,:,SPC_INDEX(JSO4I,2)) ) / SULFCOND  
-      SULFCOND_ACC = AERO_COND( :,:,:,SPC_INDEX( JSO4J,2 )) / SULFCOND  
-      
+
+      SULFCOND_ACC = 1.0 - SULFCOND_AIT
+
       ! Preprocess total - ammonium and ammonia
       IF ( LAE_NH4 ) THEN
-        CCOND( :,:,:,JNH3 )  = CCOND( :,:,:,JNH3 ) * ppm2mole ! umol / m3
-        CCOND( :,:,:,JNH4I ) = CCOND( :,:,:,JNH4I ) / MWNH4   ! umol / m3
-        CCOND( :,:,:,JNH4J ) = CCOND( :,:,:,JNH4J ) / MWNH4   ! umol / m3
-        TOTNH3 = CCOND( :,:,:,JNH3 ) + CCOND( :,:,:,JNH4I ) + CCOND( :,:,:,JNH4J )
+        CCOND( :,:,:,CNH3 )  = CCOND( :,:,:,CNH3 ) * ppm2mole ! umol / m3
+        CCOND( :,:,:,CNH4I ) = CCOND( :,:,:,CNH4I ) / MWNH4   ! umol / m3
+        CCOND( :,:,:,CNH4J ) = CCOND( :,:,:,CNH4J ) / MWNH4   ! umol / m3
+        TOTNH3 = CCOND( :,:,:,CNH3 ) + CCOND( :,:,:,CNH4I ) + CCOND( :,:,:,CNH4J )
       ENDIF 
 
       ! Preprocess total nitrate
       IF ( LAE_NO3 ) THEN
-        CCOND( :,:,:,JHNO3 ) = CCOND( :,:,:,JHNO3 ) * ppm2mole
-        CCOND( :,:,:,JNO3I ) = CCOND( :,:,:,JNO3I ) / MWNO3
-        CCOND( :,:,:,JNO3J ) = CCOND( :,:,:,JNO3J ) / MWNO3
-        TOTNO3 = CCOND( :,:,:,JHNO3 ) + CCOND( :,:,:,JNO3I ) + CCOND( :,:,:,JNO3J )
+        CCOND( :,:,:,CHNO3 ) = CCOND( :,:,:,CHNO3 ) * ppm2mole
+        CCOND( :,:,:,CNO3I ) = CCOND( :,:,:,CNO3I ) / MWNO3
+        CCOND( :,:,:,CNO3J ) = CCOND( :,:,:,CNO3J ) / MWNO3
+        TOTNO3 = CCOND( :,:,:,CHNO3 ) + CCOND( :,:,:,CNO3I ) + CCOND( :,:,:,CNO3J )
       ENDIF 
 
       ! Preprocess total sulfate
@@ -220,13 +243,16 @@ Ckrt Identify species index in ISAM array
           AMMONIA_TAG( :,:,: ) = (  ISAM0( :,:,:,JNH3,K ) * ppm2mole
      &                              + ISAM0( :,:,:,JNH4I,K )/ MWNH4
      &                              + ISAM0( :,:,:,JNH4J,K )/ MWNH4 ) /
-     &                                MAX( TOTNH3, MIN_TAGTOT*3.0 )
+c    &                                MAX( TOTNH3, MIN_TAGTOT*3.0 )
+     &                            (    TTLB4( :,:,:,JNH4I ) / MWNH4
+     &                              + TTLB4( :,:,:,JNH4J ) / MWNH4
+     &                              + TTLB4( :,:,:,JNH3 ) * ppm2mole )     
           !WHERE( TOTNH3( :,:,: ) < 1.e6 * MIN_TAGTOT ) 
           !&           AMMONIA_TAG( :,:,:,K ) = MIN_TAGTOT 
 
-          ISAM1( :,:,:,JNH3,K )  = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,JNH3 ) / ppm2mole
-          ISAM1( :,:,:,JNH4I,K ) = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,JNH4I ) * MWNH4
-          ISAM1( :,:,:,JNH4J,K ) = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,JNH4J ) * MWNH4
+          ISAM1( :,:,:,JNH3,K )  = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,CNH3 ) / ppm2mole
+          ISAM1( :,:,:,JNH4I,K ) = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,CNH4I ) * MWNH4
+          ISAM1( :,:,:,JNH4J,K ) = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,CNH4J ) * MWNH4
         ENDIF 
 
         ! Nitrate
@@ -234,13 +260,24 @@ Ckrt Identify species index in ISAM array
            NITRATE_TAG( :,:,: ) = ( ISAM0( :,:,:,JHNO3,K ) * ppm2mole
      &                              + ISAM0( :,:,:,JNO3I,K )/ MWNO3
      &                              + ISAM0( :,:,:,JNO3J,K )/ MWNO3 ) /
-     &                                MAX( TOTNO3, MIN_TAGTOT*3.0 )
+c    &                                MAX( TOTNO3, MIN_TAGTOT*3.0 )
+     &                            (    TTLB4( :,:,:,JNO3I ) / MWNO3
+     &                              + TTLB4( :,:,:,JNO3J ) / MWNO3
+     &                              + TTLB4( :,:,:,JHNO3 ) * ppm2mole )
+
           !WHERE( TOTNO3( :,:,: ) < 1.e6 * MIN_TAGTOT ) 
           !&           NITRATE_TAG( :,:,:,K ) = MIN_TAGTOT 
           
-          ISAM1( :,:,:,JHNO3,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,JHNO3 ) / ppm2mole
-          ISAM1( :,:,:,JNO3I,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,JNO3I ) * MWNO3
-          ISAM1( :,:,:,JNO3J,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,JNO3J ) * MWNO3
+          ISAM1( :,:,:,JHNO3,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CHNO3 ) / ppm2mole
+          ISAM1( :,:,:,JNO3I,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CNO3I ) * MWNO3
+          ISAM1( :,:,:,JNO3J,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CNO3J ) * MWNO3
+
+c         NITRATE_TAG( :,:,: ) = (   ISAM0( :,:,:,JNO3I,K ) 
+c    &                             + ISAM0( :,:,:,JNO3J,K ) )
+c    &                         / (   TTLB4( :,:,:,JNO3I ) 
+c    &                             + TTLB4( :,:,:,JNO3J )   )
+c         ISAM1( :,:,:,JHNO3,K ) = 
+
         ENDIF
 
         ! Sulfate
@@ -249,8 +286,13 @@ Ckrt Identify species index in ISAM array
           ! that profile to the mass that was condensed to each mode.
           ISAM1( :,:,:,JSO4I,K ) = ISAM0( :,:,:,JSO4I,K ) + 
      &                             ISAM0( :,:,:,JSRXN,K ) * SULFCOND_AIT( :,:,: )
+     &                             * ppm2mole ( :,:,: ) * 98.0
+
           ISAM1( :,:,:,JSO4J,K ) = ISAM0( :,:,:,JSO4J,K ) + 
      &                             ISAM0( :,:,:,JSRXN,K ) * SULFCOND_ACC( :,:,: )
+     &                             * ppm2mole ( :,:,: ) * 98.0
+
+          ISAM1( :,:,:,JSRXN,K ) = MIN_VAL
         ENDIF 
 
       ENDDO ! k tags
@@ -276,7 +318,7 @@ Ckrt Identify species index in ISAM array
           ISA1 = MAP_AEROtoSA( IAER,1 )  ! Index of source particles (1=Aitken)
           IF ( ISA1 .EQ. 0 ) CYCLE
 
-          ISA2 = MAP_AEROtoSA( IAER,2 )  ! Index of desitination particles (2=Accumulation)
+          ISA2 = MAP_AEROtoSA( IAER,2 )  ! Index of destination particles (2=Accumulation)
           ICG1 = AEROSPC_MAP( IAER,1 )   ! Index of source in aerosol process analysis array
           ICG2 = AEROSPC_MAP( IAER,2 )   ! Index of destination in aerosol process analysis array
 
@@ -296,7 +338,7 @@ Ckrt Identify species index in ISAM array
 
           END DO
       END DO
- 
+
       ! Update global ISAM array with modified attribution array ISAM1
       ISAM = ISAM1
 

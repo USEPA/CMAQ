@@ -662,21 +662,6 @@ C...  per mole air
                 END DO
 #endif 
 
-            IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
-               write(logdev,*) "STARTING RESCLD"
-               write(logdev,*) " LAYER = ", LAY
-
-               write(logdev,*) "POLC SO2,SO4,SULF"
-               write(logdev,*)POLC(C_SO2),POLC(C_SO4J),POLC(C_SULF)
-               write(logdev,*) "SA_POLC SO2"
-               write(logdev,*) SA_POLC(S_SO2,:)
-               write(logdev,*) "SA_POLC SO4"
-               write(logdev,*) SA_POLC(S_SO4J,:)
-               write(logdev,*) "SA_POLC SULF"
-               write(logdev,*) SA_POLC(S_SULF,:)
-           END IF
-
-
 C...perform scavenging and aqueous chemistry within the cloud
 C...  and re-adjust the ending and removed amounts for those species
 C...  that were scavenged or that participated in cloud chemistry
@@ -706,21 +691,6 @@ C...  that were scavenged or that participated in cloud chemistry
                 END DO
 #endif
 
-
-            IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
-               write(logdev,*) "AFTER SCAVWDEP"
-               write(logdev,*) "CEND SO2,SO4,SULF"
-               write(logdev,*)CEND(C_SO2),CEND(C_SO4J),CEND(C_SULF)
-               write(logdev,*) "SA_CEND SO2"
-               write(logdev,*) SA_CEND(S_SO2,:)
-               write(logdev,*) "SA_CEND SO4"
-               write(logdev,*) SA_CEND(S_SO4J,:)
-               write(logdev,*) "SA_CEND SULF"
-               write(logdev,*) SA_CEND(S_SULF,:)
-           END IF
-
-
-
 C...if the liquid water content is above the specified threshold
 C...  then perform the aqueous chemistry within the cloud and
 C...  re-adjust the ending and removed amounts for those species
@@ -749,11 +719,6 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
      &                          ALFA2, ALFA3, DARK )
 
 #ifdef isam
-                  IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
-                    write(logdev,*) "DS4_SAVE=",DS4_SAVE
-                    write(logdev,*) "DEPSUM_SAVE=",DEPSUM_SAVE
-                  END IF
-
                   DO SPC = 1, NSPC_SA ! general case
                     CSPC = SPC_INDEX(SPC,2)
                     DO ITAG = 1, NTAG_SA
@@ -798,20 +763,7 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
                       SA_CEND( S_SO4J,ITAG ) = MAX ( SA_CEND( S_SO4J,ITAG ), 1.0E-30 )
                     END DO
           
-            IF (COL.EQ.8 .AND. ROW.EQ.6) THEN
-               write(logdev,*) "AFTER SCAVWDEP"
-               write(logdev,*) "CEND SO2,SO4,SULF"
-               write(logdev,*)CEND(C_SO2),CEND(C_SO4J),CEND(C_SULF)
-               write(logdev,*) "SA_CEND SO2"
-               write(logdev,*) SA_CEND(S_SO2,:)
-               write(logdev,*) "SA_CEND SO4"
-               write(logdev,*) SA_CEND(S_SO4J,:)
-               write(logdev,*) "SA_CEND SULF"
-               write(logdev,*) SA_CEND(S_SULF,:)
-           END IF
-
                   END IF
-
 #endif
 
 

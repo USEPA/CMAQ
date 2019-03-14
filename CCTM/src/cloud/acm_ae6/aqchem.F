@@ -1602,10 +1602,6 @@ C... store sulfate production/loss quantities
       DEPSUM_SAVE =        DEPSUM * XL * RECIPAP1
       DS4_SAVE    = -1.0 * DS4(0) * XL * RECIPAP1
       REMOV_SAVE  = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
-
-c     write(logdev,*) "AQCHEM VARIABLES: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE"
-c     write(logdev,*) DEPSUM_SAVE,DS4_SAVE,REMOV_SAVE
-
 #endif
 
       RETURN
