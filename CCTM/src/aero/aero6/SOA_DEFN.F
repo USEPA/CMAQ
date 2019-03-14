@@ -1049,11 +1049,11 @@ C-----------------------------------------------------------------------
           !         Solve for total number of organic moles in aerosol (hotp 7/5/11)
           lowb      = totorgnv   ! lower: moles of nonvolatile
           upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-          upb       = upb * ( 2.0 + 1.e-7*n_oa ) ! prevent numerical issues
           If ( abs( upb - lowb ) .Lt. threshmin ) Then
             ! no SOA to partition
             orgmoles = ( lowb + upb ) / 2.0
           Else
+            upb       = upb * ( 2.0 + 1.0e-7 * real(n_oa) ) ! prevent numerical issues
             orgmoles = soabisect( lowb, upb, totorgnv, nsvol, c0, ctotf, svmw )
           End If
 
@@ -1085,8 +1085,8 @@ C-----------------------------------------------------------------------
 
            ! Check that the mass of aerosol condensed does not exceed
            ! the total
-           If ( caer( nsvol ) - ctotf( nsvol ) .Gt. ctolmin ) Then
-               Write( logdev,* ) 'caer-ctotf exceeds ctolmin at i = ', i
+           If ( caer( nsvol ) - ctotf( nsvol ) .Gt. epsilon(0.0) ) Then
+               Write( logdev,* ) 'caer exceeds ctotf at i = ', i
                Write( logdev,* ) 'caer: ', caer( nsvol ), ' ctotf: ', ctotf( nsvol )
                Write( logdev,* ) 'caer reset to ctotf'
                caer( nsvol ) = ctotf( nsvol )
