@@ -194,8 +194,7 @@ Used by: BCON, CCTM, ICON, CHEMMECH
 
 Namelist look-up tables for different classes of simulated pollutants are used to define the parameters of different model species during the execution of the CMAQ programs. Gas-phase (gc), aerosol (ae), non-reactive (nr), and tracer (tr) species namelist files contain parameters for the model species that are included in these different classifications. The species namelist files are used to control how the different CMAQ programs and processes handle the model species. The namelist files define the following processes for each model species:
 
--   Emissions surrogate – which (if any) emitted species is the pollutant mapped to; For GC, NR, and TR species, the variable names in the emission files determine the allowed surrogate values; For AE species, the model source code determines the allowed values.
--   Emissions factor – if the pollutant is mapped to an emitted species, uniformly apply a scaling factor to the emissions.
+
 -   Deposition velocity – which (if any) deposition velocity is the deposition velocity for the pollutant mapped to; allowed velocities are specified within the model source code.
 -   Deposition velocity factor – if the pollutant is mapped to a deposition velocity, uniformly apply a scaling factor to this velocity.
 -   Initial/boundary conditions – which initial and boundary condition species is the pollutant mapped to; if not specified, this will default to the species name.
@@ -216,36 +215,27 @@ The namelist files contain header information that describe which class of speci
 
  **Table 8-4. GC species namelist file format**
 
-| **Line**| **Column** |**Name** | **Type**| **Description** |
+| **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:
 |-----|-----|----------------------|----------|--------------------------------------------|
-| 1 || !Revision Control System(RCS file) |
-| 2 || Header: filename, version, date/time, author |
-| 4 || File type | String |&GC_nml|
-| 6 || Number of group 1 surrogate params | String |n_surr1 = x, where x is the number of surrogates that are specified in pairs of surrogate species and surrogate factor, i.e. emissions, deposition, initial/boundary conditions, and scavenging|
-| 7 || Number of group2 surrogate params | String |n_surr2 = x, where x is the number of surrogates that are specified only as a surrogate species, i.e. gas-to-aerosol conversion, gas-to-aqueous conversion, and aerosol-to aqueous conversion|
-| 8 || Number of control params | String |n_ctrl = x, where x is the number of Y/N parameters controlling whether this pollutant is transported and whether it is written to the dry deposition, wet deposition, and/or concentration output files|
-| 10 || Header ID | String |TYPE_HEADER =|
-| 11 || HEADER | String |Abbreviated names of file columns, enclosed by single quotes|
-|  12 || Matrix ID | String |TYPE_MATRIX =|
-| 13 | 1 | SPC | String |CMAQ pollutant name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|
-|| 2 | MOLWT | Integer |Pollutant molecular weight|
-|| 3 | EMIS_SUR | String |Emissions species name for the CMAQ pollutant|
-|| 4 | EMIS_FAC | Real |Scaling factor for input emissions|
-|| 5 | DEPV_SUR | String |Deposition velocity variable name for the CMAQ pollutant|
-|| 6 | DEPV_FAC | Real |Scaling factor for the deposition velocity|
-|| 7 | ICBC_SUR | String |IC/BC species name for the CMAQ pollutant|
-|| 8 | ICBC_FAC | Real |Scaling factor for the IC/BC concentration|
-|| 9 | SCAV_SUR | String |Wet Deposition Scavenging Coefficient|
-|| 10 | SCAV_FAC | Real |Scaling factor for Scavenging |
-|| 11 | G2AE_SUR | String |Gas-to-aerosol transformation species|
-|| 12 | G2AQ_SUR | String |Gas-to-aqueous transformation species|
-|| 13 | TRNS | Yes/No |Transport switch. Note: Instead of using one column labeled "TRNS" to turn on/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately|
-|| 14 | DDEP | Yes/No |Dry deposition output file switch|
-|| 15 | WDEP | Yes/No |Wet deposition output file switch|
-|| 16 | CONC | Yes/No |Concentration output file switch|
-| … | ...| ...|... | Repeat for the number of gas-phase pollutants in the mechanism being modeling|
+| 1 || File Type |String|String to delineate Gas Phase (GC), Aerosol (AE), Non-reactive (NR) and Tracer (TR) species namelist|{&GC_nml, &AE_nml, &NR_nml, &TR_nml}|
+| 3 || Header ID | String |String to define data structure relating to namelist|{GC_SPECIES_DATA=, AE_SPECIES DATA= , NR_SPECIES_DATA= ,TR_SPECIES_DATA = }|
+| 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|-|
+||2| MOLWT| Integer |Species Molecular Weight|-|
+|  |3| ICBC | String |IC/BC surrogate species name for the CMAQ Species|{'Species name', ' '}|
+|  |4| FAC | Integer |Scaling factor for the IC/BC concentration|-|
+| |5| DRYDEP SURR | String |Deposition velocity variable name for the CMAQ Species|-|
+| |6| FAC | Integer |Scaling factor for the deposition velocity|-|
+| |7| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|-|
+| | 8 | FAC | Integer |Scaling factor for Scavenging|-|
+|| 9 | GC2AE SURR | String |Gas-to-aerosol transformation species|-|
+|| 10 | GC2AQ SURR | String |Gas-to-aqueous transformation species|-|
+|| 11 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
+|| 13 | DDEP | String |Dry deposition output file switch|{YES/NO}|
+|| 14 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
+|| 15 | CONC | String |Concentration output file switch|{YES/NO}|
 
-The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). For an example see this [link](../../src/MECHS/cb05e51_ae6_aq/GC_cb05e51_ae6_aq.nml) to the GC namelist species file for the cb05e51_ae6_aq mechanism.
+
+The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
 
 <a id=ic_profile></a>
 ### IC_PROFILE: Initial conditions vertical profiles
@@ -1227,7 +1217,7 @@ Name and location of hourly soil NO emissions file; output when in-line biogenic
 <a id=ssemis></a>
 ### CTM_SSEMIS_1: Sea salt emissions diagnostic file
 
-This optional 2-D CCTM hourly output file contains calculated sea salt emissions. The SSEMIS file will be produced by CCTM only if the AERO5 aerosol mechanism is being used and if the CTM_SSEMDIAG variable is turned on.
+This optional 2-D CCTM hourly output file contains calculated sea salt emissions. The SSEMIS file will be produced by CCTM only if the CTM_SSEMDIAG variables are turned on.
 
 <a id=wetdep2></a>
 ### CTM_WET_DEP_2: CCTM cloud diagnostics file
