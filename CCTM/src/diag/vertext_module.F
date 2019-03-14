@@ -663,6 +663,11 @@ C open vext file for update
      &              // TRIM( CONC_FILE_SPCS(V) ) //
      &              ' to file '// TRIM( CTM_VEXT_1 )
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            ELSE
+               XMSG = 'PWRGRDD wrote variable '
+     &              // TRIM( CONC_FILE_SPCS(V) ) //
+     &              ' to file '// TRIM( CTM_VEXT_1 )
+               WRITE( LOGDEV, '(A)') XMSG
             END IF
          END DO
  
