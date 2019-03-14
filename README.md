@@ -54,7 +54,7 @@ missing value. Sometimes, the former string passes through quality control proce
       
 #### Running the Utility   
 
-The script subdirectory includes a run-script for the utility, _scripts/ cmaq_omi_env.q_. 
+The script subdirectory includes a run-script for the utility, _scripts/cmaq_omi_env.q_. 
 A user should Copy and modify the script before running it. The script set several environment 
 variables that are runtime options for the utility. The below table lists and describes these options. Note that
 the Defaults values were used to create the OMI_DAT file the CMAQ repository under CCTM/src/phot/inline and that 
@@ -69,8 +69,23 @@ Runtime Options
 | NLAT_OMI      | Number of latitude points in output. Value should be odd and equal or greater than 17 | 17 |
 | NLON_OMI      | Number of longitude points in output. Value should be odd and equal or greater than 17 | 17 |
 | LAT_BORDER    | Degrees between the first latitude point from adjacent pole. Value cannot be less than observation | 10 |
-| OMI_FULL_DAT  | Raw OMI data (ASCII) | None |
-| OMI_FULL_NCF  | Raw OMI data in IOAPI format for visualation| None |
+| OMI_FULL_DAT  | OMI data (ASCII) at Lat/Lon Resolution of Observations | None |
+| OMI_FULL_NCF  | OMI data in IOAPI format for visualation at Lat/Lon Resolution of Observations | None |
 | OMI_CMAQ_DAT  | Processed OMI_DAT file (ASCII) for the CMAQ model  | None |
 | OMI_FULL_NCF  | Processed  OMI_DAT in IOAPI format for visualation | None |
 
+####  Example Images extracted from IOAPI files.  
+
+The following images show the ozone column at three different resolution for the same date. 
+
+1.   10 by 22.5 degree Lat/Lon Resolution (default values) currently used in OMI data file under **CCTM/src/phot/inline**.
+
+![Ozone Column at Current Resolution](image_files/omi_ozone_column_17X17_May_10_2018.png)
+
+2.   1 by 1 degree Lat/Lon Resolution as determined by the settings in _scripts/cmaq_omi_env.q_.
+
+![Ozone Column at Script Resolution](image_files/omi_ozone_column_179X361_May_10_2018.png)
+
+2.   0.25 by 0.25 degree Lat/Lon Resolution taken from the OMI_FULL_NCF file.
+
+![Ozone Column at Observation's Resolution](image_files/omi_ozone_column_720X1440_May_10_2018.png)
