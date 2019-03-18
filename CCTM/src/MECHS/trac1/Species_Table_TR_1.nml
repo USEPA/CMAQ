@@ -1,33 +1,26 @@
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/yoj/arc/MECHS/src/trac1/Species_Table_TR_1.nml,v 1.1 2010/07/26 12:19:24 yoj Exp $
-
 &TR_nml
- 
-n_surr1 = 3,
-n_surr2 = 2,
-n_ctrl = 5,
- 
-TYPE_HEADER =
-'SPC:MOLWT:EMIS_SUR:EMIS_FAC:DEPV_SUR:DEPV_FAC:SCAV_SUR:SCAV_FAC:T2AE_SUR:T2AQ_SUR:ADV:DIFF:DDEP:WDEP:CONC',
-TYPE_MATRIX =
-'ADV_25:1.0:::::::::Yes::::Yes',
-'ADV_26:1.0:::::::::Yes::::Yes',
-'ADV_27:1.0:::::::::Yes::::Yes',
-'ADV_28:1.0:::::::::Yes::::Yes',
-'ADV_29:1.0:::::::::Yes::::Yes',
-'ADV_30:1.0:::::::::Yes::::Yes',
-'ADV_31:1.0:::::::::Yes::::Yes',
-'ADV_32:1.0:::::::::Yes::::Yes',
-'ADV_33:1.0:::::::::Yes::::Yes',
-'ADV_34:1.0:::::::::Yes::::Yes',
-'TRN_25:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes',
-'TRN_26:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes',
-'TRN_27:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes',
-'TRN_28:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes',
-'TRN_29:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes',
-'TRN_30:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes',
-'TRN_31:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes',
-'TRN_32:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes',
-'TRN_33:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes',
-'TRN_34:1.0:::VD_O3:1.0:O3:1.0:::Yes:Yes:Yes:Yes:Yes'
+
+TR_SPECIES_DATA = 
+
+!SPECIES ,MOLWT ,DRYDEP SURR,FAC ,WET-SCAV SURR  ,FAC ,TR2AE SURR,TR2AQ SURR,ADVC  ,DIFF  ,DDEP  ,WDEP  ,CONC  
+'ADV_25' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_26' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_27' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_28' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_29' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_30' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_31' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_32' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_33' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'ADV_34' ,1.0   ,           ,    ,               ,    ,'NA'      ,'NA'      ,'Yes' ,      ,      ,      ,'Yes',
+'TRN_25' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_26' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_27' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_28' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_29' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_30' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_31' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_32' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_33' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TRN_34' ,1.0   ,'VD_O3'    ,1   ,'O3'           ,1   ,'NA'      ,'NA'      ,'Yes' ,'Yes' ,'Yes' ,'Yes' ,'Yes' 
 /

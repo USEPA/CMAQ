@@ -46,10 +46,12 @@ C==============================================================================
       USE MECHANISM_PARMS
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
-      CHARACTER( 81 ) :: INBUF
-      INTEGER IMECH, IEOL, LPOINT
-      INTEGER IPOS
+!arguments:
+      CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+      INTEGER,         INTENT( IN )    :: IMECH
+      INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+!local:
+      INTEGER       ::IPOS
       LOGICAL, SAVE :: FIRSTCALL  = .TRUE.
       INTEGER, SAVE :: LINE_COUNT = 0
 
@@ -91,5 +93,6 @@ C eof encountered
      &        / 5X, 'Last line read:' / A81 )
 !     STOP
       IEOL = -999
+      END_OF_IMECH = .TRUE.
       RETURN
       END

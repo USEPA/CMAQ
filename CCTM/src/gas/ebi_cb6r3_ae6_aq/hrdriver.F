@@ -22,12 +22,12 @@ C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
 C
-C  PRECONDITIONS: For the cb6r3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
+C  REVISION HISTORY: Created by EBI solver program, Feb 12, 2019
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -68,7 +68,7 @@ C**********************************************************************
 #endif
       USE HRDATA
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
-      USE PA_DEFN, Only: LIRR                      ! Process Anaylsis control and data variable
+      USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
 
@@ -162,6 +162,9 @@ C for INTERPX
          SUBROUTINE FINAL_DEGRADE( CBLK )
            REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
          END SUBROUTINE FINAL_DEGRADE
+        SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
+           REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
+        END SUBROUTINE HETCHEM_UPDATE_AERO
       END INTERFACE
 
 C**********************************************************************
@@ -318,7 +321,7 @@ C..Determine which cells need IRR
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Set date and time to center of time step, get necessary physical
-C  data, and get photolysis rates
+C  data
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MIDDATE = JDATE
       MIDTIME = JTIME
@@ -390,7 +393,7 @@ C.. Get pressure in Pascals
          CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
 
-C.. Get Heterogeneous rates and Update Aerosol Distribution Properties
+C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -431,11 +434,12 @@ c..Load ICs
                      YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
                   END DO
                   CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
-     &                              JDATE, JTIME )
+     &                              JDATE, JTIME)
                END IF
 
 c..Set physical quantities
                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
+               DENSITY( NCELL )  = REAL( DENS( C,R,L ), 8)
 !                PRESCELL( NCELL ) = REAL( PRES( C,R,L ), 8)
                ATMPRES( NCELL )  = PA2ATM * REAL( PRES( C,R,L ), 8)
                H2O( NCELL )      = REAL( MAX ( MAOMV * QV( C,R,L ), 0.0 ), 8)

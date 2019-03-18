@@ -77,8 +77,9 @@ C..Local Variables:
 
 C***********************************************************************      
 
-      IF ( NSPECIAL_RXN .GT. 0 ) CALL SPECIAL_RATES( NUMCELLS, IOLD2NEW, NCS, YIN, RKI )   ! calculate special rate coefficients
-
+      IF ( NSPECIAL_RXN .GT. 0 ) THEN  ! calculate special rate coefficients
+          CALL SPECIAL_RATES( NUMCELLS, YIN, BLKTEMP, BLKDENS, RKI )
+      END IF
       
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Initialize dc/dt

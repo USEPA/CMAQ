@@ -99,6 +99,10 @@ emissions are preprocessed in input files. Approach 3 makes use of separate biog
 profiles for cb6r3-aero6 and cb6r3-aero7 available within CMAQ (see [biogenic emission update](biogenic_apinene.md)). 
 Approach 3 is not an option if your biogenic emissions were pre-processed.
 
+Potential combustion SOA (pcSOA) formation is driven by emission of the VOC precursor, 
+pcVOC. In order to zero out contributions from pcSOA in your model run, set the emissions 
+scale factor for pcVOC to 0. in your emission control file.
+
 ### More information on science updates in aero7
 
   * [Monoterpene SOA](monoterpene_SOA.md)  

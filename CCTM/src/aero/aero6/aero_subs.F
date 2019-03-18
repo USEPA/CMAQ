@@ -2828,7 +2828,7 @@ C  and coworkers  (http://cires1.colorado.edu/jimenez-group/wiki/index.php/
 C  FAQ_for_AMS_Data_Users#What_is_the_size_cut_of_AMS_measurements.3F).
 C  The AMS measures Vacuum Aerodynamic Diameter (D_va) because the pressure is
 C  so low in the instrument. This curve (also described in Ensberg et
-C  al., 2004)  includes the following (Note: before applying the curve,
+C  al., 2013)  includes the following (Note: before applying the curve,
 C  the bounds must be converted to Stokes Diameter):
 C     D_va < 0.04 um: 0% transmission (T)
 C     0.04 < D_va < 0.1 um:  T% = 1666.6 * (D_va - 0.04)   (1)
@@ -2859,7 +2859,7 @@ C         Cc( ) - Cunningham Slip Correction of a particular diameter
 C         X   - Shape factor = (NonSpherical Drag Force)/(Spherical Drag Force)
 C       Vacuum Aerodynamic -> Volume Equivalent (DeCarlo et al., 2004)
 C         D_ve = D_va * ro0/ro * X
-C             (If X = 1 (i.e. spehrical), then D_st = D_ve = D_va * ro0/ro )
+C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_va * ro0/ro )
  
 C  Key Functions called:  ERF
  
@@ -2870,7 +2870,7 @@ C  References:
 C   1. DeCarlo et al., Particle Morphology and Density Characterization
 C   by Combined Mobility and Aerodynamic Diameter Measurements. Part 1:
 C   Theory, Aerosol Sci. and Technology, 38:1185-1205, 2004
-C   2. Ensberg et al., Inorganic and black carbin aerosols in the Los
+C   2. Ensberg et al., Inorganic and black carbon aerosols in the Los
 C   Angeles Basin during CalNex, Journ. Geophys. Res., 2013.
 
 C-----------------------------------------------------------------------
@@ -2883,7 +2883,7 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_CONST    ! for PI
 
 C    Input variables
-      REAL, INTENT( IN ) :: M3_WET  ! Third Moment of Wet Distirbution (m3/m3)
+      REAL, INTENT( IN ) :: M3_WET  ! Third Moment of Wet Distribution (m3/m3)
       REAL, INTENT( IN ) :: M2_WET  ! Second Moment of Wet Distribution (m2/m3)
       REAL, INTENT( IN ) :: M0      ! Number of Particles in Distribution (N/m3)
       REAL, INTENT( IN ) :: M_H2O   ! Mass Conc. of Water in Particles (ug/m3)
@@ -2914,14 +2914,14 @@ C *** Error function approximation, from Meng & Seinfeld (1994)
 
 C ----------------------- Begin solution -------------------------------
 
-C *** First Calculate Parameters of Dry Distributiuon since this is more
+C *** First Calculate Parameters of Dry Distribution since this is more
 C     applicable in general to AMS measurements.
       M3SUBT = ( 1.0E-9 * F6PI / RHO_H2O ) * M_H2O        ! m3 m-3
-      M3_DRY = M3_WET - M3SUBT              ! m3 m-3
+      M3_DRY = Max(M3_WET - M3SUBT, 0.0) + EPSILON(0.0)   ! m3 m-3 
       M2_DRY = M2_WET * ( M3_DRY / M3_WET ) ** TWOTHIRDS  ! m2 m-3
 
       M_WET = M3_WET * 1.0E+9 * PI6 * RHOP ! ug m-3
-      M_DRY = M_WET - M_H2O                ! ug m-3
+      M_DRY = Max(M_WET - M_H2O, 0.0) + EPSILON(0.0) ! m3 m-3 
 
       DRY_DENS = M_DRY / M3_DRY * F6PI * 1.0E-9   ! kg m-3
 
@@ -2939,7 +2939,7 @@ C     applicable in general to AMS measurements.
       DGv = EXP( LOG( DG ) + 3.0 * L2SG )
 
 C *** Calculate Transmission Fractions for AMS with Vacuum Aerodynamic
-C     Cutoffs. This approzimation is split into a piecewise function (see
+C     Cutoffs. This approximation is split into a piecewise function (see
 C     Appendix B in Ensberg et al., 2013).
       fAMS = 0.0
       DENSFAC = 1.0E+03 / DRY_DENS  ! Density Correction Factor
@@ -2996,4 +2996,138 @@ C     Appendix B in Ensberg et al., 2013).
 
       END SUBROUTINE AERO_AMS
 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+      SUBROUTINE HETCHEM_EXTRACT_AERO ( CONCVEC, C, R, L, WET_M2, WET_M3, 
+     &                                  DE_WET )
+
+c  Calculates the change in aerosol surface area due to heterogeneous
+C  reactions and updates the CGRID array with this information.
+  
+C  History
+C  May 2016: BM Created
+
+C  Key Subroutines Called: none
+C
+C  Called by: Gas-Phase Chemistry Driver
+      USE AERO_DATA, ONLY: EXTRACT_AERO, CALCMOMENTS, N_MODE, MOMENT2_CONC,
+     &                     MOMENT3_CONC, AEROMODE_DIAM, AEROMODE_LNSG,
+     &                     CHEM_M2DRY_INIT, CHEM_M3DRY_INIT, FIXED_SG
+      USE AEROMET_DATA, ONLY: pi
+      USE GRID_CONF, ONLY: NLAYS, NCOLS, NROWS
+      USE PRECURSOR_DATA, ONLY: EXTRACT_PRECURSOR
+
+      IMPLICIT NONE
+      
+      REAL, INTENT( IN ) :: CONCVEC ( : )  ! pointer to model concentrations
+      REAL, PARAMETER    :: TWOTHIRDS = 2.0 / 3.0
+      REAL               :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
+      REAL               :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
+      INTEGER            :: C, R, L, N
+      REAL( 8 ), INTENT(OUT) :: WET_M2( : ), WET_M3( : ), DE_WET( : )
+      LOGICAL, SAVE      :: FIRSTIME = .TRUE.
+
+      IF ( FIRSTIME ) THEN
+          FIRSTIME = .FALSE.
+          ALLOCATE( CHEM_M2DRY_INIT( NCOLS,NROWS,NLAYS,N_MODE ),
+     &              CHEM_M3DRY_INIT( NCOLS,NROWS,NLAYS,N_MODE ) )
+
+      END IF
+
+C *** extract grid cell concentrations of aero species from CGRID
+C     into aerospc_conc in aero_data module
+C     also converts dry surface area to wet second moment
+               CALL EXTRACT_AERO ( CONCVEC(:), .TRUE. )
+
+C *** extract in inorganic aerosol processors
+
+               CALL EXTRACT_PRECURSOR( CONCVEC(:) ) 
+ 
+C *** Update geometric mean diameters, geometric
+C     standard deviations, modal mass totals, and modal particle
+C     densities, based on the concentrations of M2, M0, and speciated
+C     masses.
+               CALL getpar( FIXED_sg )
+     
+C *** set up variables needed for calculating KN2O5 and YIELD_CLNO2
+
+               DO N = 1, N_MODE
+C *** estimate the "wet third moments" from moment3_conc
+C     Note: this is the H2O concentration from previous time step
+                  WET_M3( N ) = REAL( MOMENT3_CONC( N ), 8 )
+C *** calculate "wet second moment" assuming that H2O does not
+C     affect the geometric standard deviation
+                  WET_M2( N ) = REAL( MOMENT2_CONC( N ), 8 ) 
+C *** The "wet" geometric mean (same as median) diameter was updated in
+C     getpar. It is stored in aeromode_diam
+C *** calculate effective diameter (this is actually the mean) using Eq 3 of Pleim et al (1995)
+                  DE_WET( N ) = REAL( AEROMODE_DIAM( N ) * EXP( 1.5 * AEROMODE_LNSG( N ) ** 2 ), 8)
+               END DO
+
+C *** Retrieve and Save the Dry 3rd and 2nd Moments
+               CALL calcmoments( .False. )
+               CHEM_M2DRY_INIT( C,R,L,: ) = REAL( MOMENT2_CONC( : ), 8 )
+               CHEM_M3DRY_INIT( C,R,L,: ) = REAL( MOMENT3_CONC( : ), 8 )
+
+      END SUBROUTINE HETCHEM_EXTRACT_AERO
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+      SUBROUTINE HETCHEM_UPDATE_AERO ( CGRID )
+
+c  Calculates the change in aerosol surface area due to heterogeneous
+C  reactions and updates the CGRID array with this information.
+C  
+C  History
+C  May 2016: BM Created
+
+C  Key Subroutines Called: none
+C
+C  Called by: Gas-Phase Chemistry Driver
+      USE AERO_DATA
+      USE AEROMET_DATA, ONLY: pi
+      USE GRID_CONF, ONLY: NLAYS, NROWS, NCOLS
+
+      IMPLICIT NONE
+      
+      REAL, POINTER   :: CGRID ( :,:,:,: )  ! pointer to model concentrations
+      REAL, PARAMETER :: TWOTHIRDS = 2.0 / 3.0
+      REAL            :: M2DRY_FINAL( N_MODE ) ! Dry 2nd Aerosol Moment
+      REAL            :: M3DRY_FINAL( N_MODE ) ! Dry 3rd Aerosol Moment
+      INTEGER L, R, C, M 
+
+      LOOP_LAY: DO L = 1, NLAYS
+         LOOP_ROW: DO R = 1, NROWS
+            LOOP_COL: DO C = 1, NCOLS   
+      
+               ! Extract grid cell concentrations of aero species from CGRID
+               ! into aerospc_conc in aero_data module
+               ! also converts dry surface area to wet second moment
+               CALL extract_aero ( CGRID( C,R,L,: ), .True. )
+
+               ! Recalculate Dry 3rd Moment After Chemistry Processes
+               ! 2nd moment hasnt been update yet.
+               CALL calcmoments( .False. )
+               M2DRY_FINAL( : ) = MOMENT2_CONC( : )
+               M3DRY_FINAL( : ) = MOMENT3_CONC( : )
+
+               ! Calculate new Second Moment Manually
+               ! Assume standard deviation is fixed.
+               M2DRY_FINAL( : ) = REAL( CHEM_M2DRY_INIT( C,R,L,: ) ) 
+     &             * ( M3DRY_FINAL( : ) 
+     &             / REAL( CHEM_M3DRY_INIT( C,R,L,: ) ) ) ** TWOTHIRDS
+
+               ! Update the Aerosol Surface Area making sure to multiply
+               ! the 2nd moment by Pi to convert properly
+               DO M = 1, N_MODE
+                 CGRID( C,R,L, aerosrf_map( M ) ) = 
+     &                        PI * M2DRY_FINAL( M )
+               END DO
+
+            END DO LOOP_COL
+         END DO LOOP_ROW
+      END DO LOOP_LAY
+
+      END SUBROUTINE HETCHEM_UPDATE_AERO
+C
+ 

@@ -17,18 +17,11 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hadv/yamo/zfdbc.f,v 1.2 2011/10/21 16:11:21 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       REAL FUNCTION ZFDBC (C1, C2, V1, V2)
 
 c Zero Flux Divergence Boundary Condition (See Jon Pleim's JGR (1991) paper)
-c To eliminate reflections and other boundary anomolies
+c To eliminate reflections and other boundary anomalies
 C Problem if V1 is outflow, but V2 is inflow
 
       IMPLICIT NONE
@@ -39,12 +32,12 @@ C Problem if V1 is outflow, but V2 is inflow
       IF ( ABS( V1 ) .GE. SMALL ) THEN
          IF ( V1 * V2 .GT. 0.0 ) THEN
             ZFDBC = MAX (0.0, C1 - V2 / V1 * (C2 - C1)) 
-            ELSE
-            ZFDBC = C1         ! nothing changes for wind divergence at edge
-            END IF
          ELSE
-         ZFDBC = C1            ! nothing changes for small wind speed
+            ZFDBC = C1         ! nothing changes for wind divergence at edge
          END IF
+      ELSE
+         ZFDBC = C1            ! nothing changes for small wind speed
+      END IF
 
       RETURN
       END

@@ -91,6 +91,8 @@ C   28 Jan 16 D.Wong:  Add SAVE attribute to TSTEP for the two-way model impleme
 C   16 Sep 16 J.Young: update for inline procan (IRR)
 C   29 Nov 17 D. Wong: removed all SWAP routines and replaced with SE_COMM
 C   29 Oct 18 L.Zhou, S.Napelenok: isam implementation
+C   31 Jan 19 D. Wong: adopted the idea to process all twoway related environment
+C                      variables in one place
 C-----------------------------------------------------------------------
 
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -121,7 +123,8 @@ C-----------------------------------------------------------------------
 #endif
 
 #ifdef twoway
-      USE SD_TIME_SERIES_MODULE
+      use twoway_data_module
+      use sd_time_series_module
 #endif
 
 #ifdef parallel
@@ -471,6 +474,11 @@ C Verify input file header consistency and run duration
 
 
 #ifdef twoway
+         IF ( SD_TIME_SERIES ) THEN
+            CALL SD_TIME_SERIES_INIT ( LOGDEV, TSTEP( 3 ) )
+            CALL OUTPUT_SD_TIME_SERIES ( CGRID, JDATE, JTIME )
+         END IF
+
          IF ( CMAQ_WRF_FEEDBACK ) THEN
             CALL FEEDBACK_SETUP ( JDATE, JTIME, TSTEP( 3 ) )
          END IF
@@ -482,7 +490,7 @@ C Initialize Meteorology Structures
             CALL INIT_LSM( JDATE, JTIME )
             CALL INIT_BIDI( )
          END IF   ! in-line depv
- 
+
          CALL INIT_MET( JDATE, JTIME )
          CALL GET_MET ( JDATE, JTIME, 0 )
          CALL GET_WVEL( JDATE, JTIME )
@@ -567,7 +575,7 @@ C science process sequence:
      &         AVG_TA( :,:,: ) = AVG_TA + 2.0 * MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV )
             IF ( L_ACONC_PRES ) 
      &         AVG_PRES( :,:,: ) = AVG_PRES + 2.0 * MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
- 
+
 
 #ifdef isam
             ! average isam

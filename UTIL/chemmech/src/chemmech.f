@@ -34,18 +34,23 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
  
       USE KPP_DATA
+      USE GET_ENV_VARS
       USE MECHANISM_DATA, MECHANISM => MECHNAME
       USE CGRID_SPCS     ! CGRID mechanism species    
-      
+      USE WIKI_TABLE
+
       IMPLICIT NONE
 
       CHARACTER(  1 ) :: CHR
       CHARACTER( 16 ) :: WORD
       CHARACTER( 37 ) :: PHRASE
       CHARACTER( 81 ) :: INBUF
+      CHARACTER( 180) :: INBUF2
       CHARACTER( 12 ) :: MECHNAME      = 'MECHDEF'
       CHARACTER( 16 ) :: EQNS_KPP_FILE = 'EQNS_KPP_FILE'
       CHARACTER( 16 ) :: SPCS_KPP_FILE = 'SPCS_KPP_FILE'
+      CHARACTER( 16 ) :: USER_NAME     = 'NAME'
+
       CHARACTER(  3 ) :: END
       CHARACTER( 16 ) :: SPCLIS( MAXSPEC )
       INTEGER, EXTERNAL :: INDEX1
@@ -54,12 +59,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER I, ICOL, ISPC, IRX, IDX
 
       INTEGER NR, IP, NXX, NS, IPR, IPHOTAB, NC
-
-
-!      INTEGER NPRDCT( MAXRXNUM )               ! no. of products for rx j
-!      INTEGER NREACT( MAXRXNUM )               ! no. of reactants for rx j
-!      INTEGER IRR( MAXRXNUM,MAXPRODS+3 )
-!      REAL    SC ( MAXRXNUM,MAXPRODS )
 
 
       INTEGER         :: NUSING_SPECIAL, IUSING_SPECIAL( MAXSPEC )
@@ -84,21 +83,26 @@ c..Variables for species to be dropped from mechanism
                                              ! LABEL(NXX,2) 2nd label found in rx NXX
       INTEGER SPC1RX( MAXSPEC )              ! rx index of 1st occurence of species
                                              ! in mechanism table
-      CHARACTER( 120 ) :: EQNAME_MECH
-      CHARACTER( 120 ) :: EQN_MECH_KPP
-      CHARACTER( 120 ) :: SPC_MECH_KPP
+      CHARACTER( 586 ) :: EQNAME_MECH
+      CHARACTER( 586 ) :: EQN_MECH_KPP
+      CHARACTER( 586 ) :: SPC_MECH_KPP
       CHARACTER( 891 ) :: REACTION_STR(  MAXRXNUM )
       CHARACTER(  16 ) :: COEFF_STR
       CHARACTER(  32 ) :: DESCRP_MECH
+
       CHARACTER(  16 ) :: NAMCONSTS( MAXCONSTS ) = (/
      &                    'ATM_AIR         ',
      &                    'ATM_O2          ',
      &                    'ATM_N2          ',
      &                    'ATM_H2          ',
      &                    'ATM_CH4         ' /)
+! default values of constant species, ordered according to NAMCONSTS
+      REAL( 8 )        :: CVAL( MAXCONSTS ) = (/
+     &                    1.0D6, 0.2095D6, 0.7808D6, 0.5600D0, 1.8500D0 /)                
+
       CHARACTER(  16 ) :: CLABEL                  ! mechanism constants label
       REAL( 8 )        :: CONSTVAL                ! retrieved constant
-      REAL( 8 )        :: CVAL( MAXCONSTS )
+
       INTEGER, PARAMETER :: LUNOUT = 6
 
 !         INTEGER IRR( MAXRXNUM,MAXPRODS+3 )
@@ -117,11 +121,45 @@ c..Variables for species to be dropped from mechanism
       CHARACTER(  5 )    :: CGRID_DATA
       CHARACTER( 32 )    :: CGRID_NMLS = 'USE_SPCS_NAMELISTS'
 
-      INTEGER, EXTERNAL :: JUNIT
+      INTEGER, EXTERNAL  :: JUNIT
       INTEGER            :: ICOUNT, IREACT, IPRODUCT
-      EXTERNAL NAMEVAL
+!     EXTERNAL NAMEVAL
+      INTEGER            :: STATUS
 
       INTERFACE 
+        SUBROUTINE GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+        END SUBROUTINE GETCHAR
+       SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+       END SUBROUTINE RDLINE
+       SUBROUTINE GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT(  OUT  ) :: WORD
+       END SUBROUTINE GETWORD
+       SUBROUTINE GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, LABEL )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+         CHARACTER*( * ), INTENT( INOUT ) :: LABEL
+       END SUBROUTINE GETLABEL
+       SUBROUTINE GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
+         INTEGER,         INTENT( IN )    :: IMECH   ! IO unit for mechanism file
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR     ! current character from buffer
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF   ! string read from mechanism file
+         INTEGER,         INTENT( INOUT ) :: LPOINT  ! character position in INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL    ! end of line position
+         REAL( 8 ),       INTENT( OUT )   :: NUMBER  ! number from file
+       END SUBROUTINE GETREAL
        SUBROUTINE GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
      &                      NXX, NS, SPCLIS, SPC1RX,
      &                      ICOL, LABEL, N_DROP_SPC, DROP_SPC )
@@ -191,12 +229,11 @@ c..Variables for species to be dropped from mechanism
        SUBROUTINE WRSS_EXT( NR ) 
          INTEGER, INTENT ( IN )         :: NR   ! No. of reactions
        END SUBROUTINE WRSS_EXT
-       SUBROUTINE WRT_KPP_INPUTS( NR, IP, LABEL, NS, SPCLIS  )
+       SUBROUTINE WRT_KPP_INPUTS( NR, IP, LABEL, NS  )
          INTEGER,         INTENT( IN ) :: NR ! number of reactions
          INTEGER,         INTENT( IN ) :: IP ! number of photolysis reaction
          CHARACTER( 16 ), INTENT( IN ) :: LABEL( :,: ) ! LABEL(NXX,1) 1st label found in rx NXX
          INTEGER,         INTENT( IN ) :: NS ! number of species
-         CHARACTER( 16 ), INTENT( IN ) :: SPCLIS( : )
        END SUBROUTINE WRT_KPP_INPUTS
        SUBROUTINE WREXTS_FORTRAN90 ( WRUNIT,
      &                              EQNAME_MECH,
@@ -227,6 +264,10 @@ c..Variables for species to be dropped from mechanism
            CHARACTER( 16 ), INTENT( IN ) :: SPCLIS( : )
            CHARACTER( 16 ), INTENT( IN ) :: LABEL( :,: ) ! LABEL(NXX,1) 1st label found in rx NXX
        END SUBROUTINE WRT_RATE_CONSTANT
+       SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
+         CHARACTER*(*), INTENT( INOUT ) :: BUFFER
+         LOGICAL,       INTENT( IN )    :: UPPER
+       END SUBROUTINE CONVERT_CASE
       END INTERFACE 
   
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -256,7 +297,16 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 ! determine whether to write out CMAQ CGRID species name and indices to output
 
-         CALL NAMEVAL ( CGRID_NMLS, CGRID_DATA )
+!        CALL NAMEVAL ( USER_NAME, AUTHOR )
+!        CALL GET_ENV_STRING( USER_NAME, USER_NAME, 'UNKNOWN', AUTHOR, STATUS)
+         CALL VALUE_NAME ( USER_NAME, AUTHOR )
+         print*,'USER_NAME = ', TRIM( AUTHOR )
+
+         USE_SPCS_NAMELISTS = GET_ENV_FLAG( CGRID_NMLS, " ", .TRUE., STATUS)
+         print*,'CGRID_NMLS = ', USE_SPCS_NAMELISTS
+         CALL VALUE_NAME ( CGRID_NMLS, CGRID_DATA )
+         print*,'CGRID_NMLS = ', CGRID_DATA
+         
 
          CALL CONVERT_CASE( CGRID_DATA, .TRUE.)
 
@@ -275,42 +325,28 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
              USE_SPCS_NAMELISTS = .FALSE.
          END IF
 
-      print*,'CHEMMECH: USE_SPCS_NAMELISTS = ',USE_SPCS_NAMELISTS
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Open mechanism input file and get the first non-comment line
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IMECH = JUNIT()
-      CALL NAMEVAL ( MECHNAME, EQNAME_MECH )
+      CALL VALUE_NAME ( MECHNAME, EQNAME_MECH )
       OPEN ( UNIT = IMECH, FILE = EQNAME_MECH, STATUS = 'UNKNOWN' )
-!Open output file for conversion to KPP Equations Format
-      PRINT*,'KPPEQN_UNIT = ',KPPEQN_UNIT
-      CALL NAMEVAL ( EQNS_KPP_FILE, EQN_MECH_KPP )
-      CALL NAMEVAL ( SPCS_KPP_FILE, SPC_MECH_KPP )
-      OPEN ( UNIT = KPPEQN_UNIT, FILE = EQN_MECH_KPP, STATUS = 'UNKNOWN' )
       EXUNIT_SPCS = JUNIT()
-!      EXUNIT_RXDT = JUNIT()
-!      EXUNIT_RXCM = JUNIT()
 c symbolic link locates "EXFLNM_..."; setenv requires INQUIRE (NAMEVAL):
-      CALL NAMEVAL ( EXFLNM_SPCS, EQNAME_SPCS )
-!      CALL NAMEVAL ( EXFLNM_RXDT, EQNAME_RXDT )
-!      CALL NAMEVAL ( EXFLNM_RXCM, EQNAME_RXCM )
-      CALL NAMEVAL ( RXNS_MODULE, FNAME_MODULE )
+      CALL VALUE_NAME ( EXFLNM_SPCS, EQNAME_SPCS )
+      CALL VALUE_NAME ( RXNS_MODULE, FNAME_MODULE )
 
-      CALL NAMEVAL ( RXNS_DATA_MODULE, FNAME_DATA_MODULE )
-      CALL NAMEVAL ( RXNS_FUNC_MODULE, FNAME_FUNC_MODULE )
-      CALL NAMEVAL ( OUT_DIR, OUTDIR )
+      CALL VALUE_NAME ( RXNS_DATA_MODULE, FNAME_DATA_MODULE )
+      CALL VALUE_NAME ( RXNS_FUNC_MODULE, FNAME_FUNC_MODULE )
+      CALL VALUE_NAME ( OUT_DIR, OUTDIR )
 
       OPEN ( UNIT = EXUNIT_SPCS, FILE = EQNAME_SPCS, STATUS = 'UNKNOWN' )
-!      OPEN ( UNIT = EXUNIT_RXDT, FILE = EQNAME_RXDT, STATUS = 'UNKNOWN' )
-!      OPEN ( UNIT = EXUNIT_RXCM, FILE = EQNAME_RXCM, STATUS = 'UNKNOWN' )
 
       CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
       WORD( 1:4 ) = '    '
-      IF ( CHR .EQ. 'R' .OR. CHR .EQ. 'r' )
-     &   WORD( 1:4 ) = INBUF( LPOINT:LPOINT+3 )
-      IF ( WORD( 1:4 ) .NE. 'REAC' ) THEN
+      WORD( 1:4 ) = INBUF( LPOINT:LPOINT+3 )
+      IF ( WORD( 1:4 ) .NE. 'SPEC' ) THEN
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C The first string is the mechanism descriptive name 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -320,8 +356,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
       ELSE
          DESCRP_MECH = '00000000'
-         CALL GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
-!        CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
       END IF
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Read Special Block for reaction coefficients
@@ -345,10 +379,12 @@ C brake down expression for special rate coefficients
                 IF ( CHR .EQ. '=' )THEN
                     CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
 199                 CALL GET_OPERATOR ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
+                    print*,WORD, TRIM(INBUF)
 
                     IF(CHR .EQ. ';')THEN
                        GO TO 198
                     ELSE
+                        print*,'chr = ', chr
 C                       CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL ) 
 C                       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR)
                        GO TO 199
@@ -359,6 +395,7 @@ C                       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR)
                 ENDIF
             ELSEIF( CHR .EQ. 'E' .OR. CHR .EQ. 'e' )THEN
                 END = INBUF( LPOINT:LPOINT+2 )
+                print*,END,TRIM(INBUF( LPOINT:LPOINT+2 ))
                 IF( END .NE. 'END' .AND. END .NE. 'end' )GO TO 198
             ENDIF
          ELSE
@@ -370,13 +407,12 @@ C                       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR)
          CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
          CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
          CALL GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
-
-
+210      CONTINUE
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Read block to get steady-state species
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-210      IF ( WORD( 1:4 ) .EQ. 'STEA' ) THEN
+212      IF ( WORD( 1:4 ) .EQ. 'STEA' ) THEN
            
 211         CALL RDLINE( IMECH, INBUF, LPOINT, IEOL )
             CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
@@ -509,100 +545,168 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Start of reaction processing
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 201   CONTINUE
-      NXX = NXX + 1
-      IF ( NXX .GT. MAXRXNUM ) THEN
-         WRITE( LUNOUT, 2011 ) INBUF
-         STOP ' *** CHEMMECH ERROR ***'
-      END IF 
-      IF ( CHR .EQ. '<' ) THEN   ! label for this reaction
-         CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, LABEL( NXX,1 ) )
-         RXLABEL( NXX ) = LABEL( NXX,1 )
-      END IF
-      ICOL = 0
-      IORDER( NXX ) = 0
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      READ_REACTIONS: DO
+          NXX = NXX + 1
+          IF ( NXX .GT. MAXRXNUM ) THEN
+             WRITE( LUNOUT, 2011 ) INBUF
+             STOP ' *** CHEMMECH ERROR ***'
+          END IF 
+          IF ( CHR .EQ. '<' ) THEN   ! label for this reaction
+             CALL GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, LABEL( NXX,1 ) )
+             RXLABEL( NXX ) = LABEL( NXX,1 )
+          END IF
+          ICOL = 0
+          IORDER( NXX ) = 0
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Get the reactants
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      DO 301 ISPC = 1, 3
-         CALL GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
-     &                   NXX, NS, SPCLIS, SPC1RX,
-     &                   ICOL, 
-     &                   LABEL, N_DROP_SPC, DROP_SPC ) ! ,
-!     &                   N_SS_SPC, SS_SPC, SS_RCT_COEF ) ! , IRR, SC )
-         IF ( CHR .EQ. '+' ) THEN
-            CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
-         ELSE
-            GO TO 303
-         END IF
-301   CONTINUE
-303   CONTINUE
-      NREACT( NXX ) = ICOL
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          READ_REACTANTS: DO ISPC = 1, 3
+             CALL GETRCTNT ( IMECH, INBUF, IEOL, LPOINT, CHR, WORD,
+     &  		     NXX, NS, SPCLIS, SPC1RX,
+     &  		     ICOL, 
+     &  		     LABEL, N_DROP_SPC, DROP_SPC ) ! ,
+!         &		      N_SS_SPC, SS_SPC, SS_RCT_COEF ) ! , IRR, SC )
+             IF ( CHR .EQ. '+' ) THEN
+        	CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+             ELSE IF( CHR .EQ. '-' ) THEN
+                WRITE( LUNOUT, 2014 ) INBUF
+                STOP ' *** CHEMMECH ERROR ***'
+             ELSE
+        	EXIT READ_REACTANTS
+             END IF
+301       END DO READ_REACTANTS
+303       CONTINUE
+          NREACT( NXX ) = ICOL
 
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Check for equal sign after all reactants read
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( CHR .EQ. '=' ) THEN
-         CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
-         WRITE(KPPEQN_UNIT, '(A)', ADVANCE = 'NO' )'='
-      ELSE
-         WRITE( LUNOUT, 2013 ) INBUF( 1:IEOL )
-         STOP ' *** CHEMMECH ERROR ***'
-      END IF
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          IF ( CHR .EQ. '=' ) THEN
+             CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+          ELSE
+             PRINT*,INBUF( LPOINT:LPOINT )
+             WRITE( LUNOUT, 2013 ) INBUF( 1:IEOL )
+             STOP ' *** CHEMMECH ERROR ***'
+          END IF
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Get the products
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      ICOL = 3
-      IF ( CHR .NE. '#' .AND. CHR .NE. '%' ) THEN
-401      CONTINUE
-         CALL GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
-     &                   NXX, NS, SPCLIS, SPC1RX,
-     &                   ICOL,
-     &                   N_DROP_SPC, DROP_SPC ) ! ,
-!     &                   N_SS_SPC, SS_SPC, SS_PRD_COEF ) ! , IRR, SC )
-!        IF ( CHR .EQ. '+' .OR. CHR .EQ. '-' ) THEN
-!           CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
-         IF ( CHR .NE. '#' .AND. CHR .NE. '%' ) THEN
-            GO TO 401
-         END IF
-      END IF
-      ICOL = ICOL - 3
-      NPRDCT( NXX ) = ICOL
-      IF( NPRDCT( NXX ) .LT. 1)KPP_DUMMY = .TRUE.
-      IF( NPRDCT( NXX ) .LT. 1 )THEN
-          WRITE(KPPEQN_UNIT,'(A)', ADVANCE = 'NO')' DUMMY   : '
-      ELSE
-          WRITE(KPPEQN_UNIT,'(A)', ADVANCE = 'NO')' : '
-      END IF
-      MXPRD = MAX ( MXPRD, ICOL )
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          ICOL = 3
+!          IF ( CHR .NE. '#' .AND. CHR .NE. '%' ) THEN
+!401          CONTINUE
+          READ_PRODUCTS: DO
+             IF ( CHR .EQ. '#' .OR. CHR .EQ. '%' ) EXIT READ_PRODUCTS
+             CALL GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
+     &  		     NXX, NS, SPCLIS, SPC1RX,
+     &  		     ICOL,
+     &  		     N_DROP_SPC, DROP_SPC ) ! ,
+!         &		      N_SS_SPC, SS_SPC, SS_PRD_COEF ) ! , IRR, SC )
+!            IF ( CHR .EQ. '+' .OR. CHR .EQ. '-' ) THEN
+!       	CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+!             IF ( CHR .NE. '#' .AND. CHR .NE. '%' ) THEN
+!        	GO TO 401
+!             END IF
+          END DO READ_PRODUCTS
+	  
+          ICOL = ICOL - 3
+          NPRDCT( NXX ) = ICOL
+          IF( NPRDCT( NXX ) .LT. 1)KPP_DUMMY = .TRUE.
+          MXPRD = MAX ( MXPRD, ICOL )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Check for start of rate constant after all products read
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc      
-!     IF ( CHR .NE. '#' .AND. CHR .NE. '%' ) THEN
-!        WRITE( LUNOUT, 2013 ) INBUF( 1:IEOL )
-!        STOP ' *** CHEMMECH ERROR ***'
-!     END IF
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc	  
+!         IF ( CHR .NE. '#' .AND. CHR .NE. '%' ) THEN
+!            WRITE( LUNOUT, 2013 ) INBUF( 1:IEOL )
+!            STOP ' *** CHEMMECH ERROR ***'
+!         END IF
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Get rate constants and check for end of reaction symbol
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+             CALL GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
+     &  		    NXX, LABEL, IP )
 
-         CALL GETRATE ( IMECH, INBUF, LPOINT, IEOL, CHR,
-     &                  NXX, LABEL, IP )
-
-      IF ( CHR .NE. ';' ) THEN
-         WRITE( LUNOUT, 2015 ) INBUF
-         STOP ' *** CHEMMECH ERROR ***'
-      END IF
-      WRITE(KPPEQN_UNIT,'(A)' )' ;'
-ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          IF ( CHR .NE. ';' ) THEN
+             WRITE( LUNOUT, 2015 ) INBUF
+             STOP ' *** CHEMMECH ERROR ***'
+          END IF
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Check for end of mechanism; if not, go back to 201 and get the
 C next reaction
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+          CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+          END = '   '
+          NMPHOT  = IP
+
+!          IF( KTYPE( NXX ) .EQ. 13 )THEN
+!       	WRITE(6,'(A,2(1X,I4),(1X,A))')'NXX, KSTRING( NXX ), RATE_STRING( NXX )', 
+!         &	NXX,KSTRING( NRATE_STRING ),TRIM(RATE_STRING( NRATE_STRING ))
+
+!       	IF( NXX .EQ. 65 ) STOP
+!          END IF
+
+          IF( KTYPE( NXX ) .EQ. 0 .OR. KTYPE( NXX ) .EQ. 12 )THEN
+              NSUNLIGHT = NSUNLIGHT + 1
+              CALL LOAD_REACTION_LIST( NSUNLIGHT, NXX, LABEL, PHOTOLYSIS_REACTIONS  )
+          ELSE
+              NTHERMAL = NTHERMAL + 1
+              CALL LOAD_REACTION_LIST( NTHERMAL, NXX, LABEL, THERMAL_REACTIONS  )
+          END IF
+
+          IF ( CHR .EQ. 'E' .OR. CHR .EQ. 'e' ) END = INBUF( LPOINT:LPOINT+2 )
+          IF ( END .EQ. 'END' .OR. END .EQ. 'end' ) EXIT READ_REACTIONS
+      END DO READ_REACTIONS
+
+!      IF ( END .NE. 'END' .AND. END .NE. 'end' ) GO TO 201
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
-      END = '   '
-      IF ( CHR .EQ. 'E' .OR. CHR .EQ. 'e' ) END = INBUF( LPOINT:LPOINT+2 )
-      IF ( END .NE. 'END' .AND. END .NE. 'end' ) GO TO 201
-      NR = NXX
+C Load reactions in photolysis or thermal reaction list based on Ktype
+C of reaction
+ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      NR    = NXX
+      NRXNS = NR
+!      IP = 0
+!      CALL CREATE_REACTION_LISTS
+!      NSUNLIGHT = 0
+!      NTHERMAL  = 0
+!      DO NXX = 1, NRXNS
+!         IF( KTYPE( NXX ) .EQ. 0 )THEN
+!           IP      = IP + 1
+!           NMPHOT  = IP
+!           NSUNLIGHT = NSUNLIGHT + 1
+!           CALL LOAD_REACTION_LIST( NSUNLIGHT, NXX, LABEL, PHOTOLYSIS_REACTIONS  )
+!         ELSE IF( KTYPE( NXX ) .EQ. 12 )THEN
+!           NSUNLIGHT = NSUNLIGHT + 1
+!           CALL LOAD_REACTION_LIST( NSUNLIGHT, NXX, LABEL, PHOTOLYSIS_REACTIONS  )
+!         ELSE
+!           NTHERMAL = NTHERMAL + 1
+!           CALL LOAD_REACTION_LIST( NTHERMAL, NXX, LABEL, THERMAL_REACTIONS  )
+!         END IF
+!      END DO
+
+      NC = 0
+!      CALL REV_SORT_REACTION_LIST( NC, NSUNLIGHT, PHOTOLYSIS_REACTIONS )
+!      CALL SORT_REACTION_LIST( NSUNLIGHT, NTHERMAL, THERMAL_REACTIONS )
+      IF( REORDER_REACTIONS )THEN
+         CALL REORDER_REACTION_LIST(NTHERMAL, THERMAL_REACTIONS)
+         CALL PUT_PHOTRXNS_ONTOP(LABEL)
+      END IF
+!      SUN_BELOW = .FALSE.
+!      IF( SUN_BELOW )THEN
+!         NC = NTHERMAL
+!         CALL SORT_REACTION_LIST( NC, NSUNLIGHT, PHOTOLYSIS_REACTIONS )
+!         NC = 0
+!         CALL REV_SORT_REACTION_LIST( NC, NTHERMAL, THERMAL_REACTIONS )
+!         CALL PUT_ZEROS_ABOVE( NTHERMAL, THERMAL_REACTIONS )
+!      ELSE
+!         NC = 0
+!         CALL REV_SORT_REACTION_LIST( NC, NSUNLIGHT, PHOTOLYSIS_REACTIONS )
+!         NC = NSUNLIGHT
+!         CALL SORT_REACTION_LIST( NC, NTHERMAL, THERMAL_REACTIONS )
+!         CALL PUT_ZEROS_BELOW( NC, NTHERMAL, THERMAL_REACTIONS )
+!      END IF
+!      CALL PUT_PHOTRXNS_ONTOP(LABEL)
+!      CALL PLACE_PHOTRXNS(LABEL)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Get mechanism constant values for NRXWM, NRXWO2, NRXWN2, NRXWCH4, and NRXWH2 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -627,10 +731,84 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                CALL GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, CONSTVAL )
             END IF
             IPR = INDEX1 ( CLABEL, MAXCONSTS, NAMCONSTS )
+            IF( IPR .LE. 0 .AND. IPR .GT. MAXCONSTS )THEN
+                WRITE(6,'(A)')'Unexpected species in CONSTANTS Block: ' // TRIM( CLABEL )
+                STOP
+            END IF
             CVAL( IPR ) = CONSTVAL
             END = '   '
             IF ( CHR .EQ. 'E' .OR. CHR .EQ. 'e' ) END = INBUF( LPOINT:LPOINT+2 )
             IF ( END .NE. 'END' .AND. END .NE. 'end' ) GO TO 421
+         END IF
+      END IF   ! not end of mechanism
+      WRITE(6,'("Mechanism sets expected Constant Atmospheric Species to")')
+      DO I = 1,  MAXCONSTS
+         WRITE(6,'(A16,A,ES12.4)')NAMCONSTS( I ),' = ',CVAL( I )
+      END DO
+! capture functions unique to mechanism for calculating rate constants
+      CALL RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+      IF ( IEOL .GE. 0 ) THEN   ! not end of mechanism
+         WORD( 1:8 ) = INBUF( IEOL-8:IEOL )
+         IF ( WORD( 1:9 ) .EQ. 'FUNCTIONS' .OR.
+     &        WORD( 1:9 ) .EQ. 'functions' .OR.
+     &        WORD( 1:9 ) .EQ. 'Functions' ) THEN
+              UNIT_FUNCTIONS = JUNIT()
+              FUNCTIONS_CAPTURED = TRIM( OUTDIR ) // '/' // 'captured_functions.txt'
+              OPEN(UNIT=UNIT_FUNCTIONS,FILE=FUNCTIONS_CAPTURED,FORM='FORMATTED')
+              LINES_CAPTURED = 0
+              END = ' '
+              READ_FUNCTIONS: DO
+                 CALL RDLINE ( IMECH, INBUF2, LPOINT, IEOL )
+                 DO I = 1, LEN( INBUF2 )
+                    IF( INBUF2(I:I) .EQ. '@' )THEN
+                        INBUF2 = INBUF2(1:I-1 ) // '**' // INBUF2(I+1:IEOL )
+                        IEOL = IEOL + 1
+                    END IF
+                 END DO
+                 CALL GETCHAR ( IMECH, INBUF2, LPOINT, IEOL, CHR )
+!                 IF ( CHR .EQ. 'E' .OR. CHR .EQ. 'e' ) END = INBUF( LPOINT:LPOINT+2 )
+                 END = INBUF2(LPOINT:LPOINT+2 )
+                 IF( END .EQ. 'END' .OR. END .EQ. 'end' )EXIT READ_FUNCTIONS                
+                 FUNCTION_NAME: DO I = 1, IEOL
+                    IF( INBUF2(I:I) .EQ. '=' )THEN ! read function name
+                       IF( (I-1) .GT. 0 )THEN
+                          CALL GETWORD( IMECH, INBUF2, LPOINT, IEOL, CHR, WORD ) 
+                          NFUNCTIONS = NFUNCTIONS + 1
+                          IF( NFUNCTIONS .GT. MAXFUNCTIONS )EXIT READ_FUNCTIONS                       
+                          FUNCTIONS( NFUNCTIONS ) = WORD
+                          FORMULA( NFUNCTIONS ) = ' '
+                          LPOINT = LPOINT + 1
+                       ELSE
+                          WRITE(6,'(A)')'ERROR in FUNCTIONS Block; Function missing Name.'
+                          WRITE(6,'(A)')'Last Line Read:'
+                          WRITE(6,'(A)')TRIM(INBUF2)
+                          STOP
+                       END IF
+                       EXIT FUNCTION_NAME
+                    END IF 
+                 END DO FUNCTION_NAME
+                 READ_FORMULA: DO 
+                    IF( INBUF2(IEOL:IEOL) .EQ. ';' )THEN
+                        WRITE(UNIT_FUNCTIONS,'(A)')TRIM( INBUF2(1:(IEOL-1)) )
+                        FORMULA( NFUNCTIONS ) = TRIM( FORMULA( NFUNCTIONS ) )
+     &                                       // TRIM( INBUF2(LPOINT:(IEOL-1)) )
+                        LINES_CAPTURED = LINES_CAPTURED  + 1
+                        EXIT READ_FORMULA
+                    ELSE
+                        WRITE(UNIT_FUNCTIONS,'(A)')TRIM( INBUF2(1:IEOL) )
+                        FORMULA( NFUNCTIONS ) = TRIM( FORMULA( NFUNCTIONS ) )
+     &                                       // TRIM( INBUF2(LPOINT:IEOL) )
+                        LINES_CAPTURED = LINES_CAPTURED  + 1
+                    END IF
+                 END DO READ_FORMULA
+              END DO READ_FUNCTIONS
+              IF( NFUNCTIONS .GT. MAXFUNCTIONS )THEN
+                  WRITE(6,*)'User defined functions exceeds limit: ',MAXFUNCTIONS
+                  WRITE(6,*)'Number used: ',NFUNCTIONS
+                  WRITE(6,*)'Increase MAXFUNCTIONS to required values and recompile'
+                  STOP
+              END IF 
+              CLOSE( UNIT_FUNCTIONS )
          END IF
       END IF   ! not end of mechanism
 
@@ -702,26 +880,6 @@ C if we get here, LABEL(,1) match not found
          END IF  ! LABEL .NE.  ...
 501   CONTINUE
 
-C Error-check phot tables and report to log
-      WRITE( LUNOUT, * ) ' '
-      IPHOTAB = 0
-      NMPHOT  = IP
-      DO IPR = 1, IP
-         IF ( IPH( IPR,3 ) .NE. 0 ) THEN ! table
-            IPHOTAB = IPHOTAB + 1
-            IRX = IPH( IPR,1 )
-            NXX = IPH( IPR,2 )
-            WRITE( LUNOUT, 1009 ) IRX, PHOTAB( NXX ), RTDAT( 1,IRX ) 
-1009        FORMAT(  3X, 'Reaction', I4,
-     &               1X, 'uses photolysis table: ', A16,
-     &               1X, 'scaled by:', 1PG13.5 )
-         END IF
-      END DO
-      
-      WRITE( LUNOUT, 1011 ) IPHOTAB, NPHOTAB
-1011  FORMAT(/ 5X, 'There are', I3,
-     &         1X, 'photolysis table references out of', I3,
-     &         1X, 'tables' / )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C Determine pointers to rate coefficients and species listed in the
@@ -794,16 +952,28 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NUMB_MECH_SPCS = NS + N_SS_SPC
       
        ALLOCATE( MECHANISM_INDEX( NUMB_MECH_SPCS ), MECHANISM_SPC( NUMB_MECH_SPCS ),
-     &          CGRID_INDEX( NUMB_MECH_SPCS ), SPECIES_TYPE( NUMB_MECH_SPCS )  )
+     &           CGRID_INDEX( NUMB_MECH_SPCS ), SPECIES_TYPE( NUMB_MECH_SPCS ),
+     &           SPARSE_SPECIES( NUMB_MECH_SPCS )  )
 
        
        DO I = 1, NUMB_MECH_SPCS
          MECHANISM_INDEX( I ) = I
          MECHANISM_SPC( I )   = SPCLIS( I )
+         SPARSE_SPECIES( I )  = SPCLIS( I )
+         IF( LEN_TRIM( SPCLIS( I ) ) .GT. MAXLEN_SPECIES )THEN
+             MAXLEN_SPECIES = LEN_TRIM( SPCLIS( I ) )
+         END IF    
        END DO
 
-      MECHANISM( 1:LEN(MECHANISM) ) = DESCRP_MECH( 1:LEN(MECHANISM) )
-
+      IF( LEN( DESCRP_MECH ) .GT. 0 )THEN
+C set name for mechanism
+         MECHANISM = TRIM( DESCRP_MECH )
+         CALL CONVERT_CASE( MECHNAME, .TRUE. )
+C set name of mechanism lower case
+         MECHNAME_LOWER_CASE  =  MECHANISM
+         CALL CONVERT_CASE( MECHNAME_LOWER_CASE, .FALSE. )
+      END IF   
+      
       CONST( 1:MAXCONSTS ) = CVAL( 1:MAXCONSTS )
 C Set CGRID mechanism
 
@@ -825,8 +995,20 @@ C Set CGRID mechanism
        END DO
 
       NRXNS = NR
+!      N_SPEC = NS
+
+!      MXRCT = MAXRCTNTS
       
-      CALL WREXTS ( EQNAME_MECH, DESCRP_MECH,
+      MXRR   = 3 * MAXRCTNTS
+      MXRP   = 3 * MXPRD
+      MAXGL3  = 2 * NRXNS
+      MXARRAY = NUMB_MECH_SPCS * NUMB_MECH_SPCS
+      IF( REORDER_SPECIES ) CALL SET_SPARSE_DATA( )
+
+!      MXCOUNT1 = N_SPEC * MAXGL3 * 3
+!      MXCOUNT2 = N_SPEC * MAXGL3 * 3
+      
+      CALL WREXTS ( EQNAME_MECH, MECHANISM,
      &              NS, SPCLIS, SPC1RX, SS1RX ) 
      
 
@@ -836,22 +1018,90 @@ C Set CGRID mechanism
 
 
 !      CALL WRSS_EXT( NR ) 
-
-      CLOSE( KPPEQN_UNIT )
-      
+     
       EQUATIONS_MECHFILE = EQNAME_MECH
+
+C Error-check phot tables and report to log
+      WRITE( LUNOUT, * ) ' '
+      IPHOTAB = 0
+      NMPHOT  = IP
+      DO IPR = 1, IP
+         IF ( IPH( IPR,3 ) .NE. 0 ) THEN ! table
+            IPHOTAB = IPHOTAB + 1
+            IRX = IPH( IPR,1 )
+            NXX = IPH( IPR,2 )
+            WRITE( LUNOUT, 1009 ) IRX, PHOTAB( NXX ), RTDAT( 1,IRX ) 
+1009        FORMAT(  3X, 'Reaction', I4,
+     &               1X, 'uses photolysis table: ', A16,
+     &               1X, 'scaled by:', 1PG13.5 )
+         END IF
+      END DO
       
+      WRITE( LUNOUT, 1011 ) IPHOTAB, NPHOTAB
+1011  FORMAT(/ 5X, 'There are', I3,
+     &         1X, 'photolysis table references out of', I3,
+     &         1X, 'rate constants' / )
+
+C Error-check heteorogeneous tables and report to log
+      WRITE( LUNOUT, * ) ' '
+      IPHOTAB = 0
+      DO IPR = 1, MHETERO
+         IPHOTAB = IPHOTAB + 1
+         IRX = IHETERO(IPR,1)
+         IF( IRX .LT. 1 .OR. IRX .GT. NR )THEN
+            WRITE(LUNOUT,'(A,I4,A,I4)')
+     &      '*** ERROR IHETERO(MHETERO,1) < 1 or > # of Reactions, i.e.,',NR,
+     &      ' IHETERO(MHETERO,1) = ', IRX
+            STOP
+         END IF
+         NXX = IHETERO(IPR,2)
+         IF( NXX .LT. 1 .OR. NXX .GT. NHETERO )THEN
+            WRITE(LUNOUT,'(A,I4,A,I4)')
+     &      '*** ERROR IHETERO(MHETERO,2) < 1 or > NHETERO, i.e.,',NHETERO,
+     &      ' IHETERO(MHETERO,1) = ', NXX
+            STOP
+         END IF
+         WRITE( LUNOUT, 1109 ) IRX, HETERO( NXX ), RTDAT( 1,IRX ) 
+1109     FORMAT(  3X, 'Reaction', I4,
+     &            1X, 'uses heterogeneous rate table: ', A16,
+     &            1X, 'scaled by:', 1PG13.5 )
+
+      END DO
+      
+      WRITE( LUNOUT, 1012 ) IPHOTAB, MHETERO
+1012  FORMAT(/ 5X, 'There are', I3,
+     &         1X, 'heterogeneous table references out of', I3,
+     &         1X, 'rate constant' / )
+      
+C Determine whether any reaction type 13 uses a function listed in the 
+C functions block
+      IF( NFUNCTIONS .GT. 0 .AND. NRATE_STRING .GT. 0 )THEN
+         DO I = 1, NRATE_STRING
+            IRX = KSTRING( I )
+            DO IPR = 1, NFUNCTIONS
+!               if( i .eq. 1 )print*,TRIM(FUNCTIONS( IPR )),' = ',TRIM(FORMULA( IPR ))
+               IF( INDEX( RATE_STRING( I ), TRIM(FUNCTIONS( IPR )) ) .GT. 0 )THEN
+                   WRITE( LUNOUT, 1013 ) LABEL( IRX, 1 ), FUNCTIONS( IPR )
+               END IF
+            END DO
+         END DO
+      END IF
+1013  FORMAT(  3X, 'Reaction: ',A16,' uses ',A16,' defined in the functions block' )
+                       
       CALL WRT_RATE_CONSTANT( NR, IP, NS, SPCLIS, LABEL  )
       
       CLOSE( EXUNIT_SPCS )
-!      CLOSE( EXUNIT_RXDT )
-!      CLOSE( EXUNIT_RXCM )
+      CALL WRT_KPP_INPUTS( NR, IP, LABEL, NS  )
+      CALL WRT_WIKI_TABLE( NR, IP, LABEL, NS  )
+!      CALL WRT_MD_TABLE( NR, IP, LABEL, NS  )
+      CALL WRT_MD_SUBTABLE( NR, IP, LABEL, NS  )
+      CALL WRT_CSV_TABLE( NR, IP, LABEL, NS  )
+      CALL WRT_HTML_TABLE( NR, IP, LABEL, NS  )
+      CLOSE( IMECH )
 
-
-      CALL WRT_KPP_INPUTS( NR, IP, LABEL, NS, SPCLIS  )
 
       WRITE( LUNOUT, * ) '   Normal Completion of CHEMMECH'
-
+      WRITE( LUNOUT, * )' Author is ', TRIM( AUTHOR )
 
 1993  FORMAT( / 5X, '*** ERROR: Special label already used'
      &        / 5X, 'Processing for special label number:', I6 )
@@ -868,6 +1118,8 @@ C Set CGRID mechanism
 2011  FORMAT( / 5X, '*** ERROR: Maximum number of reactions exceeded'
      &        / 5X, 'Last line read was:' / A81 )
 2013  FORMAT( / 5X, '*** ERROR: Equal sign expected after reactants'
+     &        / 5X, 'Last line read was:' / A81 )
+2014  FORMAT( / 5X, '*** ERROR: Reactants cannot have negative coefficients'
      &        / 5X, 'Last line read was:' / A81 )
 !013  FORMAT( / 5X, '*** ERROR: Rate constant data must begin with a # or %'
 !    &        / 5X, 'Last line read was:' / A81 )
@@ -1018,8 +1270,8 @@ C***********************************************************************
 
 C...........   ARGUMENTS and their descriptions:
 
-        CHARACTER*(*)   BUFFER
-        LOGICAL         UPPER
+        CHARACTER*(*), INTENT( INOUT ) :: BUFFER
+        LOGICAL,       INTENT( IN )    :: UPPER
 
 
 C...........   PARAMETER:  ASCII for 'a', 'z', 'A'

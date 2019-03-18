@@ -84,7 +84,7 @@ echo 'Start Model Run At ' `date`
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  8; @ NPROW =  8
+   @ NPCOL  =  16; @ NPROW =  8
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -119,8 +119,8 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
    #> CONC file species; comment or set to "ALL" to write all species to CONC
-   #setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP ANH4J ASO4I ASO4J" 
-   #setenv CONC_BLEV_ELEV " 1 4" #> CONC file layer range; comment to write all layers to CONC
+   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
+   setenv CONC_BLEV_ELEV "1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #> ACONC file species; comment or set to "ALL" to write all species to ACONC
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
@@ -165,9 +165,6 @@ setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore 
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS N        #> calculate in-line biogenic emissions [ default: N ]
                              #>    [ default: N ]
-setenv CTM_ZERO_PCSOA N      #> zero out emissions of VOC precursor for pcSOA formation.
-                             #>    The CMAQ dev team recommends leaving pcSOA mass in the
-                             #>    model for production runs. [ default: N ]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -195,31 +192,28 @@ setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date 
                              #>   may switch the behavior for individual emission files below using the variables:
                              #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_##
 
-#> Aerosol Diagnostic Controls
-setenv CTM_PMDIAG Y          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
-setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
-#setenv APMDIAG_BLEV_ELEV "1 3" #> layer range for average pmdiag
-setenv APMDIAG_BLEV_ELEV ""  #> layer range for average pmdiag = NLAYS
-
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
-setenv CLD_DIAG Y            #> cloud diagnostic file [ default: N ]
-setenv CTM_AERDIAG Y         #> aerosol diagnostic file [ default: N ]
+setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
 
-setenv CTM_PHOTDIAG Y        #> photolysis diagnostic file [ default: N ]
-setenv NLAYS_PHOTDIAG "3"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
+setenv CTM_PHOTDIAG N        #> photolysis diagnostic file [ default: N ]
+setenv NLAYS_PHOTDIAG "1"    #> Number of layers for PHOTDIAG2 and PHOTDIAG3 from 
                              #>     Layer 1 to NLAYS_PHOTDIAG  [ default: all layers ] 
 #setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"  #> Wavelengths written for variables
                                                       #>   in PHOTDIAG2 and PHOTDIAG3 
                                                       #>   [ default: all wavelengths ]
 
-setenv CTM_SSEMDIAG Y        #> sea-spray emissions diagnostic file [ default: N ]
-setenv CTM_DUSTEM_DIAG Y     #> windblown dust emissions diagnostic file [ default: N ]; 
+setenv CTM_PMDIAG N          #> Instantaneous Aerosol Diagnostic File [ default: Y ]
+setenv CTM_APMDIAG Y         #> Hourly-Average Aerosol Diagnostic File [ default: Y ]
+setenv APMDIAG_BLEV_ELEV "1 1"  #> layer range for average pmdiag = NLAYS
+
+setenv CTM_SSEMDIAG N        #> sea-spray emissions diagnostic file [ default: N ]
+setenv CTM_DUSTEM_DIAG N     #> windblown dust emissions diagnostic file [ default: N ]; 
                              #>     Ignore if CTM_WB_DUST = N
-setenv CTM_DEPV_FILE Y       #> deposition velocities diagnostic file [ default: N ]
-setenv VDIFF_DIAG_FILE Y     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
-setenv LTNGDIAG Y            #> lightning diagnostic file [ default: N ]
-setenv B3GTS_DIAG Y          #> BEIS mass emissions diagnostic file [ default: N ]
+setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default: N ]
+setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
+setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
+setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N ]
 setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N];
 setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N];
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
@@ -260,6 +254,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
   set YYYYJJJ = $TODAYJ
   set MONTH = `date -ud "${TODAYG}" +%m`        #> Convert YYYY-MM-DD to MM
+  set YEAR = `date -ud "${TODAYG}" +%Y`         #> Convert YYYY-MM-DD to YYYY
 
   #> Calculate Yesterday's Date
   set YESTERDAY = `date -ud "${TODAYG}-1days" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYJJJ
@@ -317,7 +312,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D $METpath/METBDY3D.$MCONF.${YYYYMMDD}
 
   #> Emissions Control File
-  setenv EMISSCTRL_NML ${WORKDIR}/EmissCtrl.nml
+  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
 #> Spatial Masks For Emissions Scaling
 
@@ -361,14 +356,18 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Gridded Emissions Files 
   setenv N_EMIS_GR 1
-  set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_spinup_cb6_15jh.ncf
-  #set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_hemi_cb6_16jh.ncf
+  if( $YEAR == 2015 ) then
+      set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_spinup_cb6_15jh.ncf
+   else
+      set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_hemi_cb6_16jh.ncf
+  endif
+
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
   setenv GR_EM_DTOVRD_001 F
 
   #> In-line point emissions configuration
-  setenv N_EMIS_PT 5          #> Number of elevated source groups
+  setenv N_EMIS_PT 0          #> Number of elevated source groups
 
   set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g              # Stack Group Version Label
   set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g  # Stack Emission Version Label
@@ -389,11 +388,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv LAYP_STDATE $YYYYJJJ
 
   # Label Each Emissions Stream
-  setenv STK_EMIS_LAB_001 POINT_NONEGU
-  setenv STK_EMIS_LAB_002 POINT_EGU
-  setenv STK_EMIS_LAB_003 POINT_OTHER
-  setenv STK_EMIS_LAB_004 POINT_FIRES
-  setenv STK_EMIS_LAB_005 POINT_OILGAS
+  setenv STK_EMIS_LAB_001 PT_NONEGU
+  setenv STK_EMIS_LAB_002 PT_EGU
+  setenv STK_EMIS_LAB_003 PT_OTHER
+  setenv STK_EMIS_LAB_004 PT_FIRES
+  setenv STK_EMIS_LAB_005 PT_OILGAS
 
   # Stack emissions diagnostic files
   #setenv STK_EMIS_DIAG_001 2DSUM
@@ -418,8 +417,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv USE_NLDN  Y        #> use hourly NLDN strike file [ default: Y ]
      if ( $USE_NLDN == Y ) then
         setenv NLDN_STRIKES ${IN_LTpath}/NLDN.12US1.${YYYYMMDD}_bench.nc
-     else
-        setenv LOG_START 2.0   #> RC value to transition from linear to log linear
      endif
      setenv LTNGPARMS_FILE ${IN_LTpath}/LTNG_AllParms_12US1_bench.nc #> lightning parameter file
   endif
@@ -535,7 +532,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
-             $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2)
+             $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
   ( ls $OUT_FILES > buff.txt ) >& /dev/null
   set out_test = `cat buff.txt`; rm -f buff.txt

@@ -34,6 +34,10 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
   * [Monoterpene SOA](monoterpene_SOA.md)  
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
+
+#### Other Aerosol Processes
+  * [Dry Deposition Algorithm](aerosol_dry_deposition.md)  
+  * [Gravitational Settling](gravitational_settling.md)  
   
 ### Aqueous and Heterogeneous Chemistry
  * [AQCHEM-KMT2: Extended inorganic and organic cloud chemistry using the Kinetic PreProcessor](aqchem-kmt2.md)
@@ -44,15 +48,21 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
 ## Air-Surface Exchange
  * [New NH3 bi-directional flux linked to daily EPIC input](M3dry-Bidi.md)
  * [STAGE: Surface Tiled Aerosol and Gaseous Exchange dry deposition option](stage_overview.md)
+ * [Minor updates to air-surface exchange options](asx_run_options.md)
 
 ## Emission Updates
+ * [DESID: Detailed Emissions Scaling, Isolation and Diagnostic Module](emissions_redesign.md)
+ * [BEIS Default Chemical Mapping](BEIS_mapping.md)
  * [Biogenic speciation update for aero7](biogenic_apinene.md)
 
 ## Process Analysis
+ * [Extension to aerosol sub-processes](aerosol_process_analysis.md)
  * [IRR analysis available in EBI solvers](allow_ebi_to_do_IRR_analysis.md)
 
 ## Structural Improvements
+ * [Standardized and Streamlined Logfiles](logfile.md)
  * [Moved PHOT to Sciproc](move_phot_to_sciproc.md)
+ * [Standardized Units for Output Variables](output_units.md)
 
 ## Diagnostic
  * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
@@ -62,6 +72,7 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  * [Updates to post-processing tools hr2day, sitecmp, and sitecmp_dailyo3; addition of new utility calc_tmetric.](postprocessing_tools.md)
  * [Updates to the create_ebi utility](updates_to_create_ebi.md)
  * [Updates to the inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
+ * [Updates to the ICON and BCON pre-processors.](updates_to_ICON_BCON.md)
  
 ## Instrumented Models
 CMAQ-DDM and CMAQ-ISAM will be released with the final version of CMAQv5.3 in Spring 2019.
