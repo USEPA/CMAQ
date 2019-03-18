@@ -44,9 +44,9 @@ endif
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v00                #> version
- set EXEC     = ro3_mod_env        #> executable name for this application
- set CFG      = ro3_mod_env.cfg    #> bldmake configuration file name
+ set VRSN     = v00                 #> version
+ set EXEC     = create_CMAQ_OMI     #> executable name for this application
+ set CFG      = create_CMAQ_OMI.cfg #> bldmake configuration file name
 
  set bld_dir_blder = ${UTIL_REPO}/bldmake/new_src #> location of makefile builder executable 
  setenv BLDER        ${bld_dir_blder}/bldmake_WTH #> builder executable  

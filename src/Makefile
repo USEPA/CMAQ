@@ -1,6 +1,6 @@
 # make file to build program
 
-PROGRAM = ro3_mod_env
+PROGRAM = create_CMAQ_OMI
 
 ifndef COMPILER
   COMPILER = intel
@@ -108,7 +108,7 @@ SRC = \
   module_envvar.o \
   create_CMAQ_OMI.o \
   create_ioapi_OMI.o \
-  ro3_mod_env.o 
+  driver.o 
 
 OBJS = \
   $() \

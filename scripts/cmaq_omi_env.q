@@ -14,7 +14,7 @@ set echo
 #setenv COMPILER pgi
 
  set XBASE = ${BASE}/BLD_create_CMAQ_OMI_file_v00_${COMPILER}
- set EXEC  = ro3_mod_env
+ set EXEC  = create_CMAQ_OMI
  if( ! ( -e  ${XBASE}/${EXEC} ) )then
      \ls ${XBASE}/${EXEC}
      exit()
@@ -42,6 +42,10 @@ endif
 #Flag to replace missing with previous date
 setenv PREV_DATE T
  
+#Flag to  output ASCII and IOAPI file at full lat/lon resolution
+#Only for visualization. Not used by the CMAQ model
+setenv FULL_FILES F
+
 #Should be an odd number so output data in includes the equator
 #Minimum value and Default value is 17
 #Maximum value dependent on input satellite data
@@ -54,6 +58,7 @@ setenv NLAT_OMI 179
 setenv NLON_OMI 361
 
 #Set the degrees between the first latitude point from adjacent pole
+#Default value is 10
 #Minimum value dependent on input satellite data but greater zero
 setenv LAT_BORDER 1.0
 

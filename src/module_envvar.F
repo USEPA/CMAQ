@@ -18,6 +18,8 @@
 
       LOGICAL  :: LUSE_PREV_DATE       ! Flag to replace missing with previous date
       LOGICAL  :: LUSE_NEIGHBORS       ! Flag to use nearest neighbor average
+      LOGICAL  :: CREATE_FULL_FILES    ! Flag to create ASCII and Netcdf files with 
+                                       ! Lat/Lon resolution of observations
 
 
       INTEGER, PARAMETER :: LOGDEV = 6
@@ -70,9 +72,10 @@ C..SCRATCH LOCAL VARIABLES:
          CHARACTER( 256 ) :: RET_VAL     ! Returned value of env var
 
 c........env var names 
-         CHARACTER(  16 ) :: OUTDIR        = 'OUTDIR'
+!        CHARACTER(  16 ) :: OUTDIR        = 'OUTDIR'
          CHARACTER(  16 ) :: USE_PREV_DATE = 'PREV_DATE'
          CHARACTER(  16 ) :: USE_NEIGHBORS = 'NEIGHBORS'
+         CHARACTER(  16 ) :: FULL_FILES    = 'FULL_FILES'
          character(  16 ) :: OMI_FILE      = 'OMI_FILE_LIST'
          character(  16 ) :: OMI_FULL      = 'OMI_FULL_DAT'
          character(  16 ) :: OMI_CMAQ      = 'OMI_CMAQ_DAT'
@@ -100,14 +103,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get the name of the output directory and template directory
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         ENV_DFLT = './output'
-         ENV_DESC = 'Output directory'        
-         CALL GET_ENV_STRING( OUTDIR, ENV_DESC, ENV_DFLT, OUTPATH, IO_STATUS)
+!        ENV_DFLT = './output'
+!        ENV_DESC = 'Output directory'        
+!        CALL GET_ENV_STRING( OUTDIR, ENV_DESC, ENV_DFLT, OUTPATH, IO_STATUS)
 
-         IF( IO_STATUS .GT. 0 ) THEN
-            MSG = 'ERROR: no path assigned to OUTDIR'
-            WRITE(LOGDEV,'(a)')TRIM( MSG )
-         END IF
+!        IF( IO_STATUS .GT. 0 ) THEN
+!           MSG = 'ERROR: no path assigned to OUTDIR'
+!           WRITE(LOGDEV,'(a)')TRIM( MSG )
+!        END IF
 
          ENV_DFLT = './omi_file.txt'
          ENV_DESC = 'file list OMI data file'        
@@ -119,23 +122,28 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             LERROR = .TRUE.
          END IF
 
-         ENV_DFLT = './omi_full.dat'
-         ENV_DESC = 'full resolution OMI data in ascii format'        
-         CALL GET_ENV_STRING( OMI_FULL, ENV_DESC, ENV_DFLT, OMI_FULL_DAT, IO_STATUS)
-
-         IF( IO_STATUS .NE. 0 ) THEN
-            MSG = 'ERROR: no path assigned to full resolution OMI data file'
-            WRITE(LOGDEV,'(a)')TRIM( MSG )
+         CREATE_FULL_FILES = .FALSE.
+         ENV_DESC          = 'Output files include ASCII and IOAPI files at Observed Lat/Lon Resolution.'
+         CREATE_FULL_FILES = GET_ENV_FLAG( FULL_FILES, ENV_DESC, CREATE_FULL_FILES, IO_STATUS )
+         
+         IF( CREATE_FULL_FILES )THEN
+            ENV_DFLT = './omi_full.dat'
+            ENV_DESC = 'full resolution OMI data in ascii format'        
+            CALL GET_ENV_STRING( OMI_FULL, ENV_DESC, ENV_DFLT, OMI_FULL_DAT, IO_STATUS)
+            IF( IO_STATUS .NE. 0 ) THEN
+               MSG = 'ERROR: no path assigned to full resolution OMI data file'
+               WRITE(LOGDEV,'(a)')TRIM( MSG )
+            END IF
          END IF
 
-!         ENV_DFLT = './omi_full.ncf'
-!         ENV_DESC = 'full resolution OMI data in IOAPI format'        
-!         CALL GET_ENV_STRING( 'OMI_FULL_NCF', ENV_DESC, ENV_DFLT, OMI_FULL_NCF, IO_STATUS)
+!        ENV_DFLT = './omi_full.ncf'
+!        ENV_DESC = 'full resolution OMI data in IOAPI format'        
+!        CALL GET_ENV_STRING( 'OMI_FULL_NCF', ENV_DESC, ENV_DFLT, OMI_FULL_NCF, IO_STATUS)
 
-!         IF( IO_STATUS .NE. 0 ) THEN
-!            MSG = 'ERROR: no path assigned to full resolution IOAPI OMI file'
-!            WRITE(LOGDEV,'(a)')TRIM( MSG )
-!         END IF
+!        IF( IO_STATUS .NE. 0 ) THEN
+!           MSG = 'ERROR: no path assigned to full resolution IOAPI OMI file'
+!           WRITE(LOGDEV,'(a)')TRIM( MSG )
+!        END IF
 
          ENV_DFLT = './omi_cmaq.dat'
          ENV_DESC = 'subset of OMI data for CMAQ'        
