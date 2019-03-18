@@ -1,10 +1,10 @@
 # create_CMAQ_OMI_file Utility
 
-The utility creates the OMI_DAT input file describing how total ozone column density varies over the globe and time.
-The file supports CMAQ model's in-line calculation of photolysis rates. Creating the OMI_DAT file involves processing 
+The utility creates the OMI input file describing how total ozone column density varies over the globe and time.
+The file supports CMAQ model's in-line calculation of photolysis rates. Creating the OMI file involves processing 
 observations from satellites, ASCII files for the latitude/longitude distribution of the ozone column for a calendar 
-day. The utility also creates IOAPI files for visualizing observations and the OMI_DAT file's data. They can 
-differ because the utility interpolates observations to horizontal resolution of the OMI_DAT file. The resolution is 
+day. The utility also creates IOAPI files for visualizing observations and the OMI file's data. They can 
+differ because the utility interpolates observations to horizontal resolution of the OMI file. The resolution is 
 an option specified by the utility's run-script.
 
 ### Building the Utility
@@ -25,11 +25,11 @@ If the requirements are met, a user has the below options.
        - Type bldit_create_CMAQ_OMI_file.csh _compiler_. 
        -  Go into the created build directory, type "make clean" and type "make".
        
-### Using the Utility for creating an OMI_DAT file
+### Using the Utility for creating an OMI file
 
 #### Satellite Inputs
 
-To create an OMI_DAT file, data for total ozone column density is required. The utility can use daily ASCII files from two 
+To create an OMI file, data for total ozone column density is required. The utility can use daily ASCII files from two 
 sources via the wget or curl command.  
 
       
@@ -57,22 +57,23 @@ missing value. Sometimes, the former string passes through quality control proce
 The script subdirectory includes a run-script for the utility, _scripts/cmaq_omi_env.q_. 
 A user should Copy and modify the script before running it. The script set several environment 
 variables that are runtime options for the utility. The below table lists and describes these options. Note that
-the Defaults values were used to create the OMI_DAT file the CMAQ repository under CCTM/src/phot/inline and that 
+the Defaults values were used to create the OMI file the CMAQ repository under CCTM/src/phot/inline and that 
 the output data is centered and symmetric about the equator.
 
 Runtime Options
 
 |Option         |Description                                            | Default Value |  
 |:--------------|:------------------------------------------------------|:----:|
-| OMI_FILE_LIST | List of data files to process, sorted by calendar date     | None  |
+| OMI_FILE_LIST | List of data files to process, sorted by calendar date     | omi_file.txt |
 | PREV_DATE     | Replace missing observation with last previous observation | True |
 | NLAT_OMI      | Number of latitude points in output. Value should be odd and equal or greater than 17 | 17 |
 | NLON_OMI      | Number of longitude points in output. Value should be odd and equal or greater than 17 | 17 |
 | LAT_BORDER    | Degrees between the first latitude point from adjacent pole. Value cannot be less than observation | 10 |
-| OMI_FULL_DAT  | OMI data (ASCII) at Lat/Lon Resolution of Observations | None |
-| OMI_FULL_NCF  | OMI data in IOAPI format for visualation at Lat/Lon Resolution of Observations | None |
-| OMI_CMAQ_DAT  | Processed OMI_DAT file (ASCII) for the CMAQ model  | None |
-| OMI_FULL_NCF  | Processed  OMI_DAT in IOAPI format for visualation | None |
+| FULL_FILES    | output ASCII and IOAPI file at full lat/lon resolution of observations. Not used by the CMAQ model. | False |
+| OMI_FULL_DAT  | OMI data (ASCII) at Lat/Lon Resolution of Observations | omi_full.dat |
+| OMI_FULL_NCF  | OMI data in IOAPI format for visualation at Lat/Lon Resolution of Observations | OMI_FULL_NCF |
+| OMI_CMAQ_DAT  | Processed OMI file (ASCII) for the CMAQ model  | omi_cmaq.dat |
+| OMI_CMAQ_NCF  | Processed OMI file in IOAPI format for visualation | OMI_CMAQ_NCF |
 
 ####  Example Images extracted from IOAPI files.  
 
