@@ -20,7 +20,7 @@ If the requirements are met, a user has the below options.
    preference.  
       - Type "make clean" then type "make".  
       
-   2. Option Two: 
+   2. Option Two, _requires the bldmake utility for the CMAQ model_: 
        - Copy to a work directory and modify the _bldit_ script under the _scripts_ subdirectory.   
        - Type bldit_create_CMAQ_OMI_file.csh _compiler_. 
        -  Go into the created build directory, type "make clean" and type "make".
@@ -40,14 +40,14 @@ sources via the wget or curl command.
        - http://acdisc.gsfc.nasa.gov/opendap/HDF-EOS5/Aura_OMI_Level3/OMTO3d.003   
        - requires creating an account and local _cookies_
        
-Both source were lasted access in March of 2019.
+Both sources were lasted access in March of 2019.
 
 The scripts directory contains an example for getting data from the TOMS ftp site, _scripts/get_toms_data.q_.
 When obtaining data files, we recommend getting files bracketing the desire peroid by several days because 
-observation may not available within given latitude/longitude ranges. The omission can occur because of the 
+observations may not available within given latitude/longitude ranges. The omission can occur because of the 
 satillite's orbit, polar night, or equipment failure. To go around the problem, the utility uses 
 the last available observation or the mean value for a location, in respective presidence. For robust and more useful
-output files, several months of data is suggested.
+output files, several months of data are suggested.
 
 After downloading data, check the file for \*\*\* strings and replace each with the string '   0' which denotes a
 missing value. Sometimes, the former string passes through quality control proceedures.
