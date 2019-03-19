@@ -60,7 +60,7 @@ variables that are runtime options for the utility. The below table lists and de
 the Defaults values were used to create the OMI file the CMAQ repository under CCTM/src/phot/inline and that 
 the output data is centered and symmetric about the equator.
 
-Runtime Options
+##### Runtime Options
 
 |Option         |Description                                            | Default Value |  
 |:--------------|:------------------------------------------------------|:----:|
