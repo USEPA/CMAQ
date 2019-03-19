@@ -40,7 +40,7 @@ sources via the wget or curl command.
        - http://acdisc.gsfc.nasa.gov/opendap/HDF-EOS5/Aura_OMI_Level3/OMTO3d.003   
        - requires creating an account and local _cookies_
        
-Both sources were lasted access in March of 2019.
+Both sources were lasted accessed in March of 2019.
 
 The scripts directory contains an example for getting data from the TOMS ftp site, _scripts/get_toms_data.q_.
 When obtaining data files, we recommend getting files bracketing the desire peroid by several days because 
