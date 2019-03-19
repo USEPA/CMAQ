@@ -80,7 +80,7 @@ Lat/Lon resolution.
 
 ####  Example Images extracted from IOAPI files.  
 
-The following images show the ozone column at three different resolution for the same date. The image were created form output
+The following images show the ozone column at three different resolution for the same date. The images were created form output
 files by using eighteen months of data from the TOMS ftp site.
 
 1.   10 by 22.5 degree Lat/Lon Resolution (default values) currently used in OMI data file under **CCTM/src/phot/inline**.
