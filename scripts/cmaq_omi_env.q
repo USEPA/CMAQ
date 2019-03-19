@@ -4,16 +4,20 @@ set echo
 
 #define paths
  set BASE      = /home/hwo/tools/create_CMAQ_OMI_file
- set YEAR      = "2018"
  set input_dir = ${BASE}
- set DATA_DIR  = ${BASE}/TOMS_OMI_O3_column/${YEAR}
+ set YEAR      = "2015"
+ set DATA_DIR  = ${BASE}"/OZONE_asdisc/test_data_"${YEAR}
+#set YEAR      = "2018"
+#set DATA_DIR  = ${BASE}"/TOMS_OMI_O3_column/"${YEAR}
+#set DATA_DIR  = ${BASE}"/TOMS_OMI_O3_column/test_data_"${YEAR}
  
 #set compiler for path to executable
-#setenv COMPILER  intel
- setenv COMPILER gcc
+ setenv COMPILER  intel
+#setenv COMPILER gcc
 #setenv COMPILER pgi
 
  set XBASE = ${BASE}/BLD_create_CMAQ_OMI_file_v00_${COMPILER}
+#set XBASE = ${BASE}/src
  set EXEC  = create_CMAQ_OMI
  if( ! ( -e  ${XBASE}/${EXEC} ) )then
      \ls ${XBASE}/${EXEC}
@@ -26,8 +30,10 @@ set echo
 #create OMI data file list
 #optimal results with data for entire length of needed year, plus December of previous year and
 # at least January 1st of next year
-set infile = toms_list.dat
-\ls -1 $DATA_DIR/*.txt  >&! ${input_dir}/${infile}
+ set infile = acdisc_list.dat
+ \ls -1 $DATA_DIR/*.ascii  >&! ${input_dir}/${infile}
+#set infile = toms_list.dat
+#\ls -1 $DATA_DIR/*.txt  >&! ${input_dir}/${infile}
 cat ${input_dir}/${infile}
 
 set numb_files = ` cat ${input_dir}/${infile} | wc -l `
@@ -44,23 +50,25 @@ setenv PREV_DATE T
  
 #Flag to  output ASCII and IOAPI file at full lat/lon resolution
 #Only for visualization. Not used by the CMAQ model
-setenv FULL_FILES F
+setenv FULL_FILES T
 
 #Should be an odd number so output data in includes the equator
 #Minimum value and Default value is 17
 #Maximum value dependent on input satellite data
-setenv NLAT_OMI 179
+#setenv NLAT_OMI 17
+ setenv NLAT_OMI 179
 
 #Set number of longitude points of ASCII OMI.dat file
 #Should be an odd number so first and last longitude point equal
 #Minimum value and Default value is 17
 #Maximum value dependent on input satellite data
-setenv NLON_OMI 361
+#setenv NLON_OMI 17
+ setenv NLON_OMI 361
 
 #Set the degrees between the first latitude point from adjacent pole
-#Default value is 10
 #Minimum value dependent on input satellite data but greater zero
-setenv LAT_BORDER 1.0
+#setenv LAT_BORDER 10.0
+ setenv LAT_BORDER 1.0
 
 #output directory
 set OUTDIR = ${OUT_ROOT}"/omi_"${COMPILER}"_"${YEAR}"_"${NLAT_OMI}"X"${NLON_OMI}

@@ -14,14 +14,14 @@ If the requirements are met, a user has the below options.
 
    1. Option One:  
       - Copy src directory.
-      - Go into the new directory and modify the Makefile to define the library and include paths for netcdf and
-        IOAPI.
+      - Go into the new directory and modify the Makefile to define the compiler, library and include paths for netcdf and
+        IOAPI for the case(s) needed.
       - Set the environment variable _compiler_ to intel, pgi or gcc based on the user's 
    preference.  
       - Type "make clean" then type "make".  
       
    2. Option Two, _requires the bldmake utility for the CMAQ model_: 
-       - Copy to a work directory and modify the _bldit_ script under the _scripts_ subdirectory.   
+       - Copy to a work directory and modify the _bldit_ script under the _scripts_ subdirectory for _compiler_ case(s) needed.   
        - Type bldit_create_CMAQ_OMI_file.csh _compiler_. 
        -  Go into the created build directory, type "make clean" and type "make".
        
@@ -35,9 +35,11 @@ sources via the wget or curl command.
       
    1. NASA TOMS ftp site:  
       - ftp://toms.gsfc.nasa.gov/pub/omi/data/Level3e/ozone
+      - Lat/Lon resolution determined from first data file read.
 
    2. NASA OPeNAP website: 
-       - http://acdisc.gsfc.nasa.gov/opendap/HDF-EOS5/Aura_OMI_Level3/OMTO3d.003   
+       - http://acdisc.gsfc.nasa.gov/opendap/HDF-EOS5/Aura_OMI_Level3/OMTO3d.003
+       - Lat/Lon resolution is assumed to be 1 by 1 degree.
        - requires creating an account and local _cookies_
        
 Both sources were lasted accessed in March of 2019.
@@ -58,7 +60,8 @@ The script subdirectory includes a run-script for the utility, _scripts/cmaq_omi
 A user should Copy and modify the script before running it. The script sets several environment 
 variables that are runtime options for the utility. The below table lists and describes these options. Note that
 the Defaults values were used to create the OMI file the CMAQ repository under CCTM/src/phot/inline and that 
-the output data is centered and symmetric about the equator.
+the output data is centered and symmetric about the equator. The utility assumes that all the data files have the same
+Lat/Lon resolution.
 
 ##### Runtime Options
 
@@ -77,7 +80,8 @@ the output data is centered and symmetric about the equator.
 
 ####  Example Images extracted from IOAPI files.  
 
-The following images show the ozone column at three different resolution for the same date. 
+The following images show the ozone column at three different resolution for the same date. The image were created form output
+files by using eighteen months of data from the TOMS ftp site.
 
 1.   10 by 22.5 degree Lat/Lon Resolution (default values) currently used in OMI data file under **CCTM/src/phot/inline**.
 

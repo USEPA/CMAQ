@@ -23,8 +23,7 @@
  endif
 
 # if ( $#argv == 1 ) then
-    setenv COMPILER $argv[1]
-    setenv compiler $COMPILER
+    setenv compiler $argv[1]
 else
     echo "usage: $0 <compiler>"
     echo " where <compiler> is intel, pgi or gcc"
@@ -32,12 +31,9 @@ else
 endif
 
 #> Repositories
- setenv REPO       /home/hwo/tools/create_CMAQ_OMI_file
- setenv UTIL_REPO  /home/hwo/CCTM_git_repository/UTIL
- setenv REPOROOT ${REPO}  #> location of the utility's repository
-
-#> Source the config.cmaq file to set the build environment
- source config.cmaq.Sol
+ setenv PREP_REPO /home/hwo/tools/create_CMAQ_OMI_file
+ setenv UTIL_REPO /home/hwo/CCTM_git_repository/UTIL
+ setenv REPOROOT ${PREP_REPO}  #> location of the utility's repository
 
 #===============================================================================
 #> Begin User Input Section 
@@ -48,8 +44,8 @@ endif
  set EXEC     = create_CMAQ_OMI     #> executable name for this application
  set CFG      = create_CMAQ_OMI.cfg #> bldmake configuration file name
 
- set bld_dir_blder = ${UTIL_REPO}/bldmake/new_src #> location of makefile builder executable 
- setenv BLDER        ${bld_dir_blder}/bldmake_WTH #> builder executable  
+ set bld_dir_blder = ${UTIL_REPO}/bldmake/src #> location of makefile builder executable 
+ setenv BLDER        ${bld_dir_blder}/bldmake #> builder executable  
 
 #> user choice: copy source files
  set CopySrc         #> copy the source files into the BLD directory
@@ -60,37 +56,52 @@ endif
 # set CompileBLDMAKE  #> Recompile the BLDMAKE utility from source
                       #>   comment out to use an existing BLDMAKE executable
  set ModDriver = src  #> source code subdirectory
-
+ set echo
 
 #============================================================================================
 #> Computing System Configuration:
-#>    Compiler flags and libraries' path set in config.cmaq
+#>    Compiler flags and libraries' path, the latter set in config.cmaq
 #============================================================================================
 
 #> Set Fortran 90 compiler
 switch ( $compiler ) 
  case intel:
    setenv FC ifort
+   setenv COMPILER INTEL
    set FSTD       = "-O2 -traceback"
    set DBG        = "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
    setenv F_FLAGS   "-fixed -132"
    setenv F90_FLAGS "-free"
+   setenv IOAPI_MOD  /home/wdx/lib/x86_64/intel/ioapi_3.1/Linux2_x86_64ifort #> I/O API precompiled modules
+   setenv IOAPI_INCL /home/wdx/lib/x86_64/intel/ioapi_3.1/ioapi/fixed_src    #> I/O API include header files
+   setenv IOAPI_LIB  /home/wdx/lib/x86_64/intel/ioapi_3.1/Linux2_x86_64ifort #> I/O API libraries
+   setenv NETCDF     /home/wdx/lib/x86_64/intel/netcdf                       #> netCDF directory path
    breaksw
  case pgi:
    setenv FC pgf90
+   setenv COMPILER PGF90
    set FSTD       = "-O2 -Mextend"
    set DBG        = "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp -Mextend"
    setenv F_FLAGS   "-Mfixed"
    setenv F90_FLAGS "-Mfree"
-   breaksw
+   setenv IOAPI_MOD  /home/wdx/lib/x86_64/pgi/ioapi_3.1/Linux2_x86_64pg  #> I/O API directory path
+   setenv IOAPI_INCL /home/wdx/lib/x86_64/pgi/ioapi_3.1/ioapi/fixed_src  #> I/O API directory path
+   setenv IOAPI_LIB  /home/wdx/lib/x86_64/pgi/ioapi_3.1/Linux2_x86_64pg  #> I/O API directory path
+   setenv NETCDF     /home/wdx/lib/x86_64/pgi/netcdf                     #> netCDF directory path
+  breaksw
  case gcc:
    setenv FC gfortran
+   setenv COMPILER GFORT
    set FSTD       = "-O2 -funroll-loops -finit-character=32 -Wconversion-extra -Wtabs -Wsurprising"
    set DBG1       = "-fcheck=all -ffpe-trap=invalid,zero,overflow -fbounds-check"
    set DBG2       = "-fbacktrace -Wno-zerotrip -Wno-unused-function"
    set DBG        = "-Wall -O0 -g $DBG1 $DBG2"
    setenv F_FLAGS   "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
    setenv F90_FLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
+   setenv IOAPI_MOD  /home/wdx/lib/x86_64/gcc/ioapi_3.1/Linux2_x86_64gfort  #> I/O API directory path
+   setenv IOAPI_INCL /home/wdx/lib/x86_64/gcc/ioapi_3.1/ioapi/fixed_src     #> I/O API directory path
+   setenv IOAPI_LIB  /home/wdx/lib/x86_64/gcc/ioapi_3.1/Linux2_x86_64gfort  #> I/O API directory path
+   setenv NETCDF     /home/wdx/lib/x86_64/gcc/netcdf                        #> netCDF directory path
    breaksw
  default:
    echo "ERROR: ${compiler} not existing option in run-script"
@@ -100,23 +111,42 @@ switch ( $compiler )
    breaksw
 endsw
 
+#> generate library locations
+ setenv system "`uname -m`"
+ setenv bld_os "`uname -s``uname -r | cut -d. -f1`"
+ setenv lib_basedir $cwd/lib
+ setenv CMAQ_LIB    ${lib_basedir}/${system}/${compiler}
+
+ setenv NETCDF_DIR  $CMAQ_LIB/netcdf
+ setenv IOAPI_DIR   $CMAQ_LIB/ioapi
+
+ if ( ! -d $CMAQ_LIB ) mkdir -p $CMAQ_LIB
+ if ( ! -d $NETCDF_DIR ) ln -sf $NETCDF $NETCDF_DIR
+ if ( ! -d $IOAPI_DIR ) then 
+    mkdir $IOAPI_DIR
+    ln -sf $IOAPI_MOD  $IOAPI_DIR/modules
+    ln -sf $IOAPI_INCL $IOAPI_DIR/include_files
+    ln -sf $IOAPI_LIB  $IOAPI_DIR/lib
+ endif
+
 set FP = $FC
 
 #> Set IO/API version
  set IOAPI = ioapi_3.1
 
-#> Set compiler flags
+#> Set compilers link flags
  set CPP_FLAGS  = ""  #> Fortran Preprocessor Flags
  set LINK_FLAGS = ""  #> Link Flags
 
- set LIB2 = "${ioapi_lib}"
-
+#> Set libraries
+ setenv netcdf_lib "-lnetcdf -lnetcdff"  #> -lnetcdff -lnetcdf for netCDF v4.2.0 and later
+ setenv ioapi_lib  "-lioapi" 
 
 #============================================================================================
 #> Set up the writesite build directory under the Tools directory
 #> for checking out and compiling source code
 #============================================================================================
- set Bld = ${REPO}/BLD_create_CMAQ_OMI_file_${VRSN}_${compiler}
+ set Bld = ${PREP_REPO}/BLD_create_CMAQ_OMI_file_${VRSN}_${compiler}
 
  if ( ! -e "$Bld" ) then
     mkdir -pv $Bld
@@ -172,11 +202,11 @@ set FP = $FC
  echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
  echo                                                              >> $Cfile
 #echo "libraries   $quote$LIBS$quote;"                             >> $Cfile
- echo "ioapi       $quote$LIB2$quote;"                             >> $Cfile
+ echo "ioapi       $quote$ioapi_lib$quote;"                        >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
 
- set text = "writesite"
+ set text = "create_CMAQ_OMI"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDriver};"                                       >> $Cfile
  echo                                                              >> $Cfile
@@ -188,14 +218,23 @@ set FP = $FC
  unalias mv rm
 
 #> Recompile BLDMAKE from source if requested or if it does not exist
-if ( $?CompileBLDMAKE || ! -f $BLDER ) then
+if ( $?CompileBLDMAKE || ! ( -f $BLDER ) ) then
      cd ${bld_dir_blder}
      make clean
      make
 endif
+
+#>Test whether exists 
+if(  ! ( -f $BLDER ) ) then
+ \ls $BLDER
+ exit()
+endif 
  
 #> Relocate to the BLD_* directory
   cd $Bld 
+#> Delete Makefile and if present, Makefile with Compiler-dependent name
+  if ( -e Makefile ) \rm -f Makefile 
+  if ( -e Makefile.$compiler ) \rm -f Makefile.$compiler 
 
 #> Set serial options for BLDMAKE execution
   set Blder = "$BLDER -serial -verbose"
@@ -217,9 +256,7 @@ endif
     endif
  endif
 
-#> Save Makefile with Compiler-dependent name and create symbolic
-#> link back to generic name.
- if ( -e Makefile.$compiler ) \rm -f Makefile.$compiler
+#> Move Makefile to more descriptive name and link back to generic name.
  \mv -f Makefile Makefile.$compiler
  \ln -sf Makefile.$compiler Makefile
 
@@ -227,6 +264,8 @@ endif
  if ( $status != 0 ) then
     echo "   *** failure in $Blder ***"
     exit 1
+ else
+    echo "build directory: ${Bld} "
  endif
 
  exit()

@@ -240,10 +240,10 @@
        end do
 
 
-       do i = 1, nlatitude
-          print*,'lat_omi( i ), phi_omi( i ) = ',lat_omi( i ), phi_omi( i ) 
-       end do 
-          print*,'lat_omi( 1 ), phi_omi( 1 ) = ',lat_omi( 1 ), phi_omi( 1 ) 
+!       do i = 1, nlatitude
+!          print*,'lat_omi( i ), phi_omi( i ) = ',lat_omi( i ), phi_omi( i ) 
+!       end do 
+!          print*,'lat_omi( 1 ), phi_omi( 1 ) = ',lat_omi( 1 ), phi_omi( 1 ) 
 
 
 
@@ -256,10 +256,10 @@
         theta_omi( k ) = real(pi180*lon_omi( k ), 8)
        end do
        
-       do i = 1, nlongitude
-          print*,'lon_omi( i ), theta_omi( i ) = ',lon_omi( i ), theta_omi( i ), lonstepsize
-       end do 
-         print*,'lon_omi( 1 ), theta_omi( 1 ) = ',lon_omi( 1 ), theta_omi( 1 ), lonstepsize
+!       do i = 1, nlongitude
+!          print*,'lon_omi( i ), theta_omi( i ) = ',lon_omi( i ), theta_omi( i ), lonstepsize
+!       end do 
+!         print*,'lon_omi( 1 ), theta_omi( 1 ) = ',lon_omi( 1 ), theta_omi( 1 ), lonstepsize
        
       Do i = 1, nlatitude
          Do j = 1, nlongitude
@@ -281,8 +281,8 @@
          end do
       end do
 
-        print*,'oz_ioapi:oz_mean max/min: ',maxval(oz_ioapi),'/',maxval(oz_mean),minval(oz_ioapi),
-     &                               '/',minval(oz_mean)
+!        print*,'oz_ioapi:oz_mean max/min: ',maxval(oz_ioapi),'/',maxval(oz_mean),minval(oz_ioapi),
+!     &                               '/',minval(oz_mean)
 
       if( CREATE_FULL_FILES )then
          call CREATE_IOAPI_OMI( OMI_FILE_NCF, jdate_init, nlatitude, nlongitude )
@@ -320,7 +320,7 @@
       Loop_Omi_Files: do j = 1,nfiles
               
          read(io_files,'(a)')OMI_filename(j)
-         write(6,*)OMI_filename(j)
+         write(6,'(a)')OMI_filename(j)
 ! determine whether to read cloud fraction
          if( index(OMI_filename(j),'OMI.full.', back=.true. ) .gt. 0 )then
              read_clouds = .True.
@@ -667,7 +667,7 @@
             rewind(io_files)
             do n = 1,nfiles
               read(io_files,'(a)')OMI_filename(n)
-              write(6,*)OMI_filename(n)
+              write(6,'(a)')OMI_filename(n)
               open(file=OMI_filename(n),newunit = iozone)
               line_number = 0
               If( TOMS_FORMAT )Then
@@ -718,10 +718,10 @@
 
           where( oz_mean .lt. oz_min ) oz_mean = oz_min
 
-          do i = 1, nlat
-             write(6,'(25(i3,1x))')(int(oz_mean(i,j)),j = 1, nlon)
-          end do
-          print*,'For mean, sum(weigth):maxval(weigth) = ',sum(weigth),":",maxval(weigth)
+!          do i = 1, nlat
+!             write(6,'(25(i3,1x))')(int(oz_mean(i,j)),j = 1, nlon)
+!          end do
+!          print*,'For mean, sum(weigth):maxval(weigth) = ',sum(weigth),":",maxval(weigth)
           rewind(io_files)
 ! fill in missing values with nearest neighbors
           if( near_neighbor ) then                      
@@ -831,7 +831,7 @@
 
 
       a(:)='a'
-      print*,'OMI File List = ',rawfilename
+      write(6,'(a)')'OMI File List = ' // Trim( rawfilename )
       open(7,file=rawfilename,status='old')
 
       do 90 nfiles = 1,10000
@@ -1380,7 +1380,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
            if( lon( j ) .lt. 0.0 )then
                lon( j ) = lon( j ) + 360.0
            end if
-           print*,'j,lon( j ) = ',j,lon( j )
+!           print*,'j,lon( j ) = ',j,lon( j )
         end do
 
         dy2 = ( 180.0 - 2.0*lat_window )/ real( nlat - 1 )
@@ -1405,7 +1405,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
          if( lon_transformed( j ) .lt. 0.0 )then
              lon_transformed( j ) = lon_transformed( j ) + 360.0
          end if
-         print*,'j,lon_transformed( j ) = ',j,lon_transformed( j )
+!         print*,'j,lon_transformed( j ) = ',j,lon_transformed( j )
       end do
 ! find the nearest longitude point
         do j = 1, nlon
@@ -1418,8 +1418,8 @@ c     returns julian_date day (julday), year fraction (yrfrac)
                  jlon( j ) = ilon
              end if
            end do x3loop
-           print*,'lon_transformed( jlon ),lon( j ) = ', lon_transformed( jlon( j ) ),lon( j )
-           print*,'longitude( jlon ),lon( j       ) = ', longitude( jlon( j ) ),lon_out( j )
+!           print*,'lon_transformed( jlon ),lon( j ) = ', lon_transformed( jlon( j ) ),lon( j )
+!           print*,'longitude( jlon ),lon( j       ) = ', longitude( jlon( j ) ),lon_out( j )
         end do
 ! find the nearest latitude point
         do i = 1, nlat
@@ -1432,7 +1432,7 @@ c     returns julian_date day (julday), year fraction (yrfrac)
                  jlat(i)  = ilat
              end if
            end do x2loop
-           print*,'latitude( jlat ),lat( i ) = ', latitude( jlat( i ) ),lat( i )
+!           print*,'latitude( jlat ),lat( i ) = ', latitude( jlat( i ) ),lat( i )
         end do 
 ! create ioapi for visualization
          call CREATE_CMAQ_OMI ( OMI_CMAQ_NCF, jdate, lat, lon_out )
@@ -1539,10 +1539,10 @@ c     returns julian_date day (julday), year fraction (yrfrac)
           do i = 1, nlat
              do j = 1, nlon
                 if( values( i, j ) .gt. 0.0d0 )then
-                    print*,'invalid at i,j = ',i,j
+!                    print*,'invalid at i,j = ',i,j
                     cycle
                 else
-                    print*,'invalid at i,j = ',i,j
+!                    print*,'invalid at i,j = ',i,j
                 end if
 !    attempt to replace with average based on nearest neighbors                
                 sum_weights  = 0.0d0
