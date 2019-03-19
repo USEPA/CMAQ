@@ -42,6 +42,8 @@ C                      removed deprecated TRIMLEN
 C    2 Sep 11 J.Young: change ICBC_FAC policy to always assigning factor,
 C                      if specified, not just if a surrogate is also specified 
 C   11 Sep 15 B.Murphy: add condition for no surrogate name
+C   08 Mar 19 F. Sidi  Split up ICBC_FAC into IC_FAC and BC_FAC for 
+C                      tracer namelist only
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -346,16 +348,16 @@ C If there is no surrogate or it cant be found, look for the (main) species name
          N_SPCS = N_TR_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
-            ISUR = FINDEX ( SPC, N_TR_ICBC, TR_ICBC_MAP )
+            ISUR = FINDEX ( SPC, N_TR_IC, TR_IC_MAP )
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
-               NDX = INDEX1( TR_ICBC( ISUR ), NVARS3D, VNAME3D )
+               NDX = INDEX1( TR_IC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
+                  ICBC_FAC( SPC ) = TR_IC_FAC( ISUR )
                ELSE
-                  XMSG = ESTR1 // TRIM( TR_ICBC( ISUR ) ) // ESTR2 // 
+                  XMSG = ESTR1 // TRIM( TR_IC( ISUR ) ) // ESTR2 // 
      &                   TRIM(TR_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
