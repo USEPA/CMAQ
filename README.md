@@ -50,7 +50,7 @@ the last available observation or the mean value for a location, in respective p
 output files, several months of data are suggested.
 
 After downloading data, check the file for \*\*\* strings and replace each with the string '   0' which denotes a
-missing value. Sometimes, the former string passes through quality control proceedures.
+missing value. Sometimes, the former string passes through quality control procedures.
       
 #### Running the Utility   
 
