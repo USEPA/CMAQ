@@ -55,7 +55,7 @@ missing value. Sometimes, the former string passes through quality control proce
 #### Running the Utility   
 
 The script subdirectory includes a run-script for the utility, _scripts/cmaq_omi_env.q_. 
-A user should Copy and modify the script before running it. The script set several environment 
+A user should Copy and modify the script before running it. The script sets several environment 
 variables that are runtime options for the utility. The below table lists and describes these options. Note that
 the Defaults values were used to create the OMI file the CMAQ repository under CCTM/src/phot/inline and that 
 the output data is centered and symmetric about the equator.
