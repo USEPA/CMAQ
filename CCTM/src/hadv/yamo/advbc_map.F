@@ -307,13 +307,13 @@ C Map advected species to bc`s
             BCFAC( SPC ) = 1.0
             INDX = 0
 
-            ISUR = FINDEX( TR_ADV_MAP( VAR ), N_TR_ICBC, TR_ICBC_MAP )
+            ISUR = FINDEX( TR_ADV_MAP( VAR ), N_TR_BC, TR_BC_MAP )
 
             IF ( ISUR .NE. 0 ) THEN   ! variable has a surrogate name
-               INDX = INDEX1( TR_ICBC( ISUR ), NVARS3D, VNAME3D )
+               INDX = INDEX1( TR_BC( ISUR ), NVARS3D, VNAME3D )
                IF ( INDX .NE. 0 ) THEN   ! BC file surrogate is used
                   BCNAME( SPC ) = VNAME3D( INDX )
-                  BCFAC( SPC ) = TR_ICBC_FAC( ISUR )
+                  BCFAC( SPC ) = TR_BC_FAC( ISUR )
 !                 ITRNS = INDEX1( TR_ADV( VAR ), NVARS3D, VNAME3D )
 !                 IF ( ITRNS .NE. 0 ) THEN   ! BC file species same as surrogate
 !                    WRITE( LOGDEV,1015 ) TRIM( BCNAME( SPC ) ), TRIM( TR_ADV( VAR ) ) 
