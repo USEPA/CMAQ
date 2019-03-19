@@ -71,9 +71,9 @@ the output data is centered and symmetric about the equator.
 | LAT_BORDER    | Degrees between the first latitude point from adjacent pole. Value cannot be less than observation | 10 |
 | FULL_FILES    | Produce ASCII and IOAPI files at full lat/lon resolution of observations. Not used by the CMAQ model. | False |
 | OMI_FULL_DAT  | OMI data (ASCII) at Lat/Lon Resolution of Observations | omi_full.dat |
-| OMI_FULL_NCF  | OMI data in IOAPI format for visualation at Lat/Lon Resolution of Observations | OMI_FULL_NCF |
+| OMI_FULL_NCF  | OMI data in IOAPI format for visualization at Lat/Lon Resolution of Observations | OMI_FULL_NCF |
 | OMI_CMAQ_DAT  | Processed OMI file (ASCII) for the CMAQ model  | omi_cmaq.dat |
-| OMI_CMAQ_NCF  | Processed OMI file in IOAPI format for visualation | OMI_CMAQ_NCF |
+| OMI_CMAQ_NCF  | Processed OMI file in IOAPI format for visualization | OMI_CMAQ_NCF |
 
 ####  Example Images extracted from IOAPI files.  
 
