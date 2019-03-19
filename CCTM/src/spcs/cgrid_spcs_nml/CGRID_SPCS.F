@@ -28,6 +28,7 @@ c Bill Hutzell 8 Oct 10: added Gas Chemistry consistency check
 C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
+C 07 Mar 2019 F. Sidi:  Split up ICBC for tracer namelist 
 c-----------------------------------------------------------------------
       USE RUNTIME_VARS
 
@@ -60,24 +61,29 @@ c number of species in CGRID
       integer,                      save :: nspcsd = 1
 
 c surrogate species
-      integer,                      save :: n_gc_icbc = 0, n_ae_icbc = 0, n_nr_icbc = 0, n_tr_icbc = 0,
+      integer,                      save :: n_gc_icbc = 0, n_ae_icbc = 0, n_nr_icbc = 0, 
      &                                      n_gc_depv = 0, n_ae_depv = 0, n_nr_depv = 0, n_tr_depv = 0,
      &                                      n_gc_scav = 0, n_ae_scav = 0, n_nr_scav = 0, n_tr_scav = 0,
      &                                      n_gc_g2ae = 0,                n_nr_n2ae = 0, n_tr_t2ae = 0,
-     &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0
-      character( 16 ), allocatable, save :: gc_icbc( : ), ae_icbc( : ), nr_icbc( : ), tr_icbc( : ),
+     &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0,
+     &                                      n_tr_ic = 0  , n_tr_bc = 0
+      character( 16 ), allocatable, save :: gc_icbc( : ), ae_icbc( : ), nr_icbc( : ), 
      &                                      gc_depv( : ), ae_depv( : ), nr_depv( : ), tr_depv( : ),
      &                                      gc_scav( : ), ae_scav( : ), nr_scav( : ), tr_scav( : ),
      &                                      gc_g2ae( : ),               nr_n2ae( : ), tr_t2ae( : ),
-     &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : )
-      integer, allocatable,         save :: gc_icbc_map( : ), ae_icbc_map( : ), nr_icbc_map( : ), tr_icbc_map( : ),
+     &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : ),
+     &                                      tr_ic( : )  , tr_bc( : ) 
+      integer, allocatable,         save :: gc_icbc_map( : ), ae_icbc_map( : ), nr_icbc_map( : ), 
      &                                      gc_depv_map( : ), ae_depv_map( : ), nr_depv_map( : ), tr_depv_map( : ),
      &                                      gc_scav_map( : ), ae_scav_map( : ), nr_scav_map( : ), tr_scav_map( : ),
      &                                      gc_g2ae_map( : ),                   nr_n2ae_map( : ), tr_t2ae_map( : ),
-     &                                      gc_g2aq_map( : ), ae_a2aq_map( : ), nr_n2aq_map( : ), tr_t2aq_map( : )
-      real, allocatable,            save :: gc_icbc_fac( : ), ae_icbc_fac( : ), nr_icbc_fac( : ), tr_icbc_fac( : ),
+     &                                      gc_g2aq_map( : ), ae_a2aq_map( : ), nr_n2aq_map( : ), tr_t2aq_map( : ),
+     &                                      tr_ic_map( : )  , tr_bc_map( : )  
+
+      real, allocatable,            save :: gc_icbc_fac( : ), ae_icbc_fac( : ), nr_icbc_fac( : ), 
      &                                      gc_depv_fac( : ), ae_depv_fac( : ), nr_depv_fac( : ), tr_depv_fac( : ),
-     &                                      gc_scav_fac( : ), ae_scav_fac( : ), nr_scav_fac( : ), tr_scav_fac( : )
+     &                                      gc_scav_fac( : ), ae_scav_fac( : ), nr_scav_fac( : ), tr_scav_fac( : ),
+     &                                      tr_ic_fac( : )  , tr_bc_fac( : ) 
 
 c control species
       integer,                      save :: n_gc_trns = 0, n_ae_trns = 0, n_nr_trns = 0, n_tr_adv = 0, n_tr_diff = 0,
@@ -188,8 +194,10 @@ c namelist variables
             TYPE SPECIES_DATA_REG_3
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
-                CHARACTER( 16 ) :: ICBC_SURR     ! ICBC Surrogate
-                REAL            :: ICBC_FAC      ! ICBC Scale Factor
+                CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
+                REAL            :: IC_FAC        ! IC Scale Factor
+                CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
+                REAL            :: BC_FAC        ! BC Scale Factor
                 CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
                 REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
                 CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
@@ -654,8 +662,10 @@ c-------------------------------------------------------------------------------
             ALLOCATE( TR_SPECIES_DATA( SPC_DIM ), STAT=IOS )
             TR_SPECIES_DATA%SPECIES_NAME = ''
             TR_SPECIES_DATA%MOLWT = 0.
-            TR_SPECIES_DATA%ICBC_SURR = ''
-            TR_SPECIES_DATA%ICBC_FAC = 0.
+            TR_SPECIES_DATA%IC_SURR = ''
+            TR_SPECIES_DATA%IC_FAC = 0.
+            TR_SPECIES_DATA%BC_SURR = ''
+            TR_SPECIES_DATA%BC_FAC = 0.
             TR_SPECIES_DATA%DEPV_SURR = ''
             TR_SPECIES_DATA%DEPV_FAC = 0.
             TR_SPECIES_DATA%SCAV_SURR = ''
@@ -668,6 +678,8 @@ c-------------------------------------------------------------------------------
             TR_SPECIES_DATA%WDEP_FLAG = ''
             TR_SPECIES_DATA%CONC_FLAG = ''
 
+
+
             dev_tr_nml = junit()
             open( file = trim( tr_namelist ), unit = dev_tr_nml,
      &            status = 'old', position = 'rewind' )
@@ -678,18 +690,19 @@ c-------------------------------------------------------------------------------
             DO ITR = 1,SPC_DIM
                 IF ( TR_SPECIES_DATA( ITR )%SPECIES_NAME .EQ. '' ) EXIT
                 N_TR_SPC = ITR
-                IF ( TR_SPECIES_DATA( ITR )%ICBC_FAC .EQ. -1. )
-     &               TR_SPECIES_DATA( ITR )%ICBC_FAC = 0.
                 IF ( TR_SPECIES_DATA( ITR )%DEPV_FAC .EQ. -1. )
      &               TR_SPECIES_DATA( ITR )%DEPV_FAC = 0.
                 IF ( TR_SPECIES_DATA( ITR )%SCAV_FAC .EQ. -1. )
      &               TR_SPECIES_DATA( ITR )%SCAV_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%IC_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%IC_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%BC_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%BC_FAC = 0.
             END DO
 
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      TR_spc( n_tr_spc ), TR_molwt( n_tr_spc ),
-     &      TR_icbc( n_tr_spc ), TR_icbc_map( n_tr_spc ), TR_icbc_fac( n_tr_spc ),
      &      TR_depv( n_tr_spc ), TR_depv_map( n_tr_spc ), TR_depv_fac( n_tr_spc ),
      &      TR_scav( n_tr_spc ), TR_scav_map( n_tr_spc ), TR_scav_fac( n_tr_spc ),
      &      TR_t2ae( n_tr_spc ), TR_t2ae_map( n_tr_spc ),
@@ -699,10 +712,11 @@ c-------------------------------------------------------------------------------
      &      TR_ddep( n_tr_spc ), TR_ddep_map( n_tr_spc ),
      &      TR_wdep( n_tr_spc ), TR_wdep_map( n_tr_spc ),
      &      TR_conc( n_tr_spc ), TR_conc_map( n_tr_spc ),
+     &      TR_ic( n_tr_spc ), TR_ic_map( n_tr_spc ), TR_ic_fac( n_tr_spc ),
+     &      TR_bc( n_tr_spc ), TR_bc_map( n_tr_spc ), TR_bc_fac( n_tr_spc ),
      &      stat = ios )
 
             TR_spc = bl; TR_molwt = 0.0                        !  .
-            TR_icbc = bl; TR_icbc_map = 0; TR_icbc_fac = 0.0   !  .
             TR_depv = bl; TR_depv_map = 0; TR_depv_fac = 0.0   !  .
             TR_scav = bl; TR_scav_map = 0; TR_scav_fac = 0.0   ! array
             TR_t2ae = bl; TR_t2ae_map = 0                      !  .
@@ -712,25 +726,34 @@ c-------------------------------------------------------------------------------
             TR_ddep = bl; TR_ddep_map = 0                      !  .
             TR_wdep = bl; TR_wdep_map = 0                      !  .
             TR_conc = bl; TR_conc_map = 0                      !  .
+            TR_ic = bl; TR_ic_map = 0; TR_ic_fac = 0.0         !  .
+            TR_bc = bl; TR_bc_map = 0; TR_bc_fac = 0.0         !  .
 
             ! Pass Data from TR Namelist to Internal Variables
-            N_TR_ICBC = 0; N_TR_DEPV = 0; N_TR_SCAV = 0
+            N_TR_DEPV = 0; N_TR_SCAV = 0
             N_TR_T2AE = 0; N_TR_T2AQ = 0; N_TR_ADV = 0; N_TR_DDEP = 0; N_TR_WDEP = 0
-            N_TR_CONC = 0; N_TR_DIFF = 0
+            N_TR_CONC = 0; N_TR_DIFF = 0; N_TR_IC = 0 ; N_TR_BC = 0
 
             DO ITR = 1,N_TR_SPC
 
                 TR_SPC( ITR )      = TR_SPECIES_DATA( ITR )%SPECIES_NAME
                 TR_MOLWT( ITR )    = TR_SPECIES_DATA( ITR )%MOLWT
 
-                ! Tracer ICBCs
-                IF ( TR_SPECIES_DATA( ITR )%ICBC_SURR .NE. '' ) THEN
-                    N_TR_ICBC = N_TR_ICBC + 1
-                    TR_ICBC( N_TR_ICBC )     = TR_SPECIES_DATA( ITR )%ICBC_SURR 
-                    TR_ICBC_MAP( N_TR_ICBC ) = ITR
-                    TR_ICBC_FAC( N_TR_ICBC ) = TR_SPECIES_DATA( ITR )%ICBC_FAC
+                ! Tracer IC
+                IF ( TR_SPECIES_DATA( ITR )%IC_SURR .NE. '' ) THEN
+                    N_TR_IC = N_TR_IC + 1
+                    TR_IC( N_TR_IC )     = TR_SPECIES_DATA( ITR )%IC_SURR 
+                    TR_IC_MAP( N_TR_IC ) = ITR
+                    TR_IC_FAC( N_TR_IC ) = TR_SPECIES_DATA( ITR )%IC_FAC
                 END IF
-                
+                ! Tracer BC
+                IF ( TR_SPECIES_DATA( ITR )%BC_SURR .NE. '' ) THEN
+                    N_TR_BC = N_TR_BC + 1
+                    TR_BC( N_TR_BC )     = TR_SPECIES_DATA( ITR )%BC_SURR 
+                    TR_BC_MAP( N_TR_BC ) = ITR
+                    TR_BC_FAC( N_TR_BC ) = TR_SPECIES_DATA( ITR )%BC_FAC
+                END IF
+                                
                 ! Tracer Dry Deposition Surrogates
                 IF ( TR_SPECIES_DATA( ITR )%DEPV_SURR .NE. '' ) THEN
                     N_TR_DEPV = N_TR_DEPV + 1
