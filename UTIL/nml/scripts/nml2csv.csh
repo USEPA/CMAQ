@@ -27,12 +27,11 @@
 
 #> conversion
  sed \
-     -e '1,/TYPE_HEADER =/d' \
-     -e '/TYPE_MATRIX =/d' \
+     -e '1,4d' \
+     -e 's/'^!'//' \
      -e '/\//,/$/d' \
      -e "s/'//g" \
      -e 's/,$//' \
-     -e 's/:/,/g' \
      $File > ! /tmp/${Name}_$$
 
  /bin/mv /tmp/${Name}_$$ $Name.csv
@@ -41,9 +40,8 @@
 
 #> description
 #> sed \
-#>     -e '1,/TYPE_HEADER =/d' <- strip top part of nml
-#>     -e '/TYPE_MATRIX =/d'   <- remove string
+#>     -e '1,4d'               <- delete the first 4 lines of namelist file
+#      -e 's/'^!'//'           <- delte the comment symbole (!) 
 #>     -e '/\//,/$/d'          <- delete the last lines (starting at "/")
 #>     -e "s/'//g"             <- remove all "'"s
 #>     -e 's/,$//'             <- remove last "," in all lines
-#>     -e 's/:/,/g'            <- change all ":"s to ","s
