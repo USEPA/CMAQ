@@ -35,12 +35,21 @@ sources via the wget or curl command.
       
    1. NASA TOMS ftp site:  
       - ftp://toms.gsfc.nasa.gov/pub/omi/data/Level3e/ozone
-      - Lat/Lon resolution determined from first data file read.
+      - Lat/Lon resolution determined from first data file read
+      - expected filename structure, _L3e_ozone_omi_YYYYMMDD.txt_
+      - expected data format
+        a. (a) with descriptive information
+        b. (12x,i6) in second and third lines giving the number of latitude and longitude points 
+        c. (1x,25i3) in remaining line sgiving total ozone total
 
    2. NASA OPeNAP website: 
        - http://acdisc.gsfc.nasa.gov/opendap/HDF-EOS5/Aura_OMI_Level3/OMTO3d.003
-       - Lat/Lon resolution is assumed to be 1 by 1 degree.
-       - requires creating an account and local _cookies_
+       - requires creating an account and local _cookies_ 
+       - Lat/Lon resolution is assumed to be 1 by 1 degree ot 180 latitude by 360 longitude points
+       - expected filename structure, _OMI.full.YYYYMMDD.ascii_ or _OMI.ozone.YYYYMMDD.ascii_
+       - expected data format, comma-space 
+         a.  character string then total ozone column versus longitude at fixed latitude
+          
        
 Both sources were lasted accessed in March of 2019.
 
@@ -51,7 +60,7 @@ satillite's orbit, polar night, or equipment failure. To go around the problem, 
 the last available observation or the mean value for a location, in respective presidence. For robust and more useful
 output files, several months of data are suggested.
 
-After downloading data, check the file for \*\*\* strings and replace each with the string '   0' which denotes a
+After downloading data, check the file for \*\*\* strings and replace each with the string "   0" which denotes a
 missing value. Sometimes, the former string passes through quality control procedures.
       
 #### Running the Utility   

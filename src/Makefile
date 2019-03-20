@@ -2,16 +2,16 @@
 
 PROGRAM = create_CMAQ_OMI
 
-ifndef COMPILER
-  COMPILER = intel
-# COMPILER = pgi
-# COMPILER = gcc
+ifndef compiler
+  compiler = intel
+# compiler = pgi
+# compiler = gcc
 endif
 
 #Helps diagnose crashes if they occur
 DEBUG = TRUE
 
-ifeq ($(COMPILER),intel)
+ifeq ($(compiler),intel)
 
   FC = ifort
   CC = icc
@@ -36,7 +36,7 @@ ifeq ($(COMPILER),intel)
  
    LINK_FLAGS = -i-static
 
-else ifeq ($(COMPILER),pgi)
+else ifeq ($(compiler),pgi)
 
   FC = pgf90
   CC = pgcc
@@ -58,7 +58,7 @@ else ifeq ($(COMPILER),pgi)
       f90_FLAGS = -Mfree $(FSTD) $(include_path)
   endif
 
-else ifeq ($(COMPILER),gcc)
+else ifeq ($(compiler),gcc)
 
  FC = gfortran
  CC = cc
@@ -81,7 +81,7 @@ else ifeq ($(COMPILER),gcc)
  endif
 
 else
- ERROR1 = "Makefile not configured to support the specified compiler, $(COMPILER). USER MUST USE intel, pgi or gcc options or MODIFY Makefile"
+ ERROR1 = "Makefile not configured to support the specified compiler, $(compiler). USER MUST USE intel, pgi or gcc options or MODIFY Makefile"
 endif
 
 ifdef ERROR1
@@ -106,6 +106,7 @@ LIBRARIES = $(IOAPI) $(NETCDF)
 SRC = \
   get_env_vars.o \
   module_envvar.o \
+  module_utilities.o \
   create_CMAQ_OMI.o \
   create_ioapi_OMI.o \
   driver.o 
@@ -141,4 +142,4 @@ clean:
 # dependencies
 
 module_envvar.o:	get_env_vars.o
-ro3_mod_env.o:	module_envvar.o
+driver.o:	module_envvar.o module_utilities.o

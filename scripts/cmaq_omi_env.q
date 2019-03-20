@@ -2,22 +2,27 @@
 set echo
 
 
-#define paths
+#define paths and create data file list
  set BASE      = /home/hwo/tools/create_CMAQ_OMI_file
  set input_dir = ${BASE}
  set YEAR      = "2015"
  set DATA_DIR  = ${BASE}"/OZONE_asdisc/test_data_"${YEAR}
+ set infile = acdisc_list.dat
+ \ls -1 $DATA_DIR/*.ascii  >&! ${input_dir}/${infile}
 #set YEAR      = "2018"
 #set DATA_DIR  = ${BASE}"/TOMS_OMI_O3_column/"${YEAR}
 #set DATA_DIR  = ${BASE}"/TOMS_OMI_O3_column/test_data_"${YEAR}
+#set infile = toms_list.dat
+#\ls -1 $DATA_DIR/*.txt  >&! ${input_dir}/${infile}
+cat ${input_dir}/${infile}
  
 #set compiler for path to executable
  setenv COMPILER  intel
 #setenv COMPILER gcc
-#setenv COMPILER pgi
+ setenv COMPILER pgi
 
  set XBASE = ${BASE}/BLD_create_CMAQ_OMI_file_v00_${COMPILER}
-#set XBASE = ${BASE}/src
+ set XBASE = ${BASE}/src
  set EXEC  = create_CMAQ_OMI
  if( ! ( -e  ${XBASE}/${EXEC} ) )then
      \ls ${XBASE}/${EXEC}
@@ -27,22 +32,16 @@ set echo
 #root directory for output files; final output directory set latter.
  set OUT_ROOT = ${BASE}"/output"
  
-#create OMI data file list
+#check OMI data file list
 #optimal results with data for entire length of needed year, plus December of previous year and
 # at least January 1st of next year
- set infile = acdisc_list.dat
- \ls -1 $DATA_DIR/*.ascii  >&! ${input_dir}/${infile}
-#set infile = toms_list.dat
-#\ls -1 $DATA_DIR/*.txt  >&! ${input_dir}/${infile}
-cat ${input_dir}/${infile}
-
-set numb_files = ` cat ${input_dir}/${infile} | wc -l `
-if( $numb_files < 2 )then
-  echo "Too few files to process"
-  exit()
-else
-  echo "${numb_files} to process"
-endif
+ set numb_files = ` cat ${input_dir}/${infile} | wc -l `
+ if( $numb_files < 2 )then
+   echo "Too few files to process"
+   exit()
+ else
+   echo "${numb_files} to process"
+ endif
 
 #parameters for routine that creates CMAQ OMI.dat file
 #Flag to replace missing with previous date
