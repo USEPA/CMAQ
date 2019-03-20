@@ -1,0 +1,13 @@
+&TR_nml
+
+TR_SPECIES_DATA =
+
+!SPECIES     ,MOLWT   ,IC           ,IC_FAC         ,BC        ,BC_FAC    ,DEPV       ,DEPV_FAC  ,SCAV     ,SCAV_FAC ,TR2AE      ,TR2AQ ,ADVC  ,DIFF  ,DDEP  ,WDEP  ,CONC 
+'O3_BC'      ,48.0    ,' '          ,               ,'O3'      ,1         ,'VD_O3'    ,1         ,'O3'     ,1        ,' '        ,' '   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES',
+'CO_BC'      ,28.0    ,' '          ,               ,'CO'      ,1         ,'VD_CO'    ,1         ,'CO'     ,1        ,' '        ,' '   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES', 
+'O3_IC'      ,48.0    ,'O3'         ,1              ,' '       ,          ,'VD_O3'    ,1         ,'O3'     ,1        ,' '        ,' '   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES', 
+'O3_BC_50PC' ,48.0    ,' '          ,               ,'O3'      ,0.5       ,'VD_O3'    ,1         ,'O3'     ,1        ,' '        ,' '   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES',
+'CO_EMIS'    ,28.0    ,' '          ,               ,          ,          ,'VD_CO'    ,1         ,'CO'     ,1        ,' '        ,' '   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES', 
+'O3_T'       ,48.0    ,'O3'         ,1              ,'O3'      ,1         ,'VD_O3'    ,1         ,'O3'     ,1        ,' '        ,' '   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES',
+'CO_IC'      ,28.0    ,'CO'         ,1              ,'  '      ,          ,'VD_CO'    ,1         ,'CO'     ,1        ,' '        ,' '   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES'
+/
