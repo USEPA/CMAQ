@@ -433,7 +433,37 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
         setenv PACM_REPORT $OUTDIR/"PA_REPORT".${YYYYMMDD}
      endif
   endif
+ 
+#> Integrated Source Apportionment Method (ISAM) Options
+ setenv CTM_ISAM N
+ if ( $?CTM_ISAM ) then
+    if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
+       setenv SA_IOLIST ${WORKDIR}/isam_control.txt
+       setenv ISAM_BLEV_ELEV " 1 1"
+       setenv AISAM_BLEV_ELEV " 1 1"
 
+       #> Set Up ISAM Initial Condition Flags
+       if ($NEW_START == true || $NEW_START == TRUE ) then
+          setenv ISAM_NEW_START Y
+          setenv ISAM_PREVDAY
+       else
+          setenv ISAM_NEW_START N
+          setenv ISAM_PREVDAY "$OUTDIR/CCTM_SA_CGRID_${RUNID}_${YESTERDAY}.nc"
+       endif
+
+       #> Set Up ISAM Output Filenames
+       setenv SA_ACONC_1      "$OUTDIR/CCTM_SA_ACONC_${CTM_APPL}.nc -v"
+       setenv SA_CONC_1       "$OUTDIR/CCTM_SA_CONC_${CTM_APPL}.nc -v"
+       setenv SA_DD_1         "$OUTDIR/CCTM_SA_DRYDEP_${CTM_APPL}.nc -v"
+       setenv SA_WD_1         "$OUTDIR/CCTM_SA_WETDEP_${CTM_APPL}.nc -v"
+       setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
+       setenv O3INDIC_1       "$OUTDIR/CCTM_O3INDICATOR.${CTM_APPL}.nc -v"
+       setenv SA_RNORM_1      "$OUTDIR/CCTM_SA_RNORM.${CTM_APPL}.nc -v"
+
+    endif
+ endif
+
+ 
 # =====================================================================
 #> Output Files
 # =====================================================================
@@ -488,6 +518,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )
+  if ( $?CTM_ISAM ) then
+     if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
+        set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
+                         ${SA_CGRID_1} ${O3INDIC_1} ${SA_RNORM_1} )
+     endif
+  endif
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
   ( ls $OUT_FILES > buff.txt ) >& /dev/null
   set out_test = `cat buff.txt`; rm -f buff.txt
