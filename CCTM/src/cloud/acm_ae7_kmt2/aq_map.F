@@ -130,6 +130,7 @@ C Local Variables (scalars):
       INTEGER       ISRG                ! surrogate loop counter
       INTEGER       PNTR                ! relative pointer variable
       INTEGER       SPC                 ! liquid species loop counter
+      INTEGER ::    STAT
 
       REAL( 8 )  :: BETASO4
       REAL       :: EALFA2T             ! EXP( -ALFA2 * TAUCLD )
