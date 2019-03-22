@@ -83,7 +83,7 @@ set TSTEP      = 010000            #> output time step interval (HHMMSS)
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  8; @ NPROW =  8
+   @ NPCOL  =  16; @ NPROW =  8
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -118,7 +118,7 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 
 #> Output Species and Layer Options
    #>   CONC file species; comment or set to "ALL" to write all species to CONC
-   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
+   setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 HCHO ISOPRENE NH3 ANH4I ANH4J ASO4I ASO4J" 
    setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #>   ACONC file species; comment or set to "ALL" to write all species to ACONC
@@ -161,9 +161,6 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore if CTM_ILDEPV = N
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_ZERO_PCSOA N      #> zero out emissions of VOC precursor for pcSOA formation.
-                             #>    The CMAQ dev team recommends leaving pcSOA mass in the
-                             #>    model for production runs. [ default: N ]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -309,7 +306,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
 
   #> Emissions Control File
-  setenv EMISSCTRL_NML ${WORKDIR}/EmissCtrl.nml
+  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
   #> Spatial Masks For Emissions Scaling
   setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
@@ -359,12 +356,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv LAYP_STDATE $YYYYJJJ
 
   # Label Each Emissions Stream
-  setenv STK_EMIS_LAB_001 POINT_NONEGU
-  setenv STK_EMIS_LAB_002 POINT_EGU
-  setenv STK_EMIS_LAB_003 POINT_OTHER
-  setenv STK_EMIS_LAB_004 POINT_FIRES
-  setenv STK_EMIS_LAB_005 PT_RXFIRE
-  setenv STK_EMIS_LAB_006 POINT_OILGAS
+  setenv STK_EMIS_LAB_001 PT_NONEGU
+  setenv STK_EMIS_LAB_002 PT_EGU
+  setenv STK_EMIS_LAB_003 PT_OTHER
+  setenv STK_EMIS_LAB_004 PT_FIRES
+  setenv STK_EMIS_LAB_005 PT_RXFIRES
+  setenv STK_EMIS_LAB_006 PT_OILGAS
   setenv STK_EMIS_LAB_007 PT_MARINE
 
   # Allow CMAQ to Use Point Source files with dates that do not
@@ -386,8 +383,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv USE_NLDN  Y        #> use hourly NLDN strike file [ default: Y ]
      if ( $USE_NLDN == Y ) then
         setenv NLDN_STRIKES ${IN_LTpath}/NLDN.12US1.${YYYYMMDD}.ioapi
-     else
-        setenv LOG_START 2.0   #> RC value to transition from linear to log linear
      endif
      setenv LTNGPARMS_FILE ${IN_LTpath}/LTNG_AllParms_12US1.ncf #> lightning parameter file; ignore if LTNGPARAM = N
   endif

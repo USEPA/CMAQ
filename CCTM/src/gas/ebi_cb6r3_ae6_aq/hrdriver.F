@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, Feb 12, 2019
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -162,9 +162,9 @@ C for INTERPX
          SUBROUTINE FINAL_DEGRADE( CBLK )
            REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
          END SUBROUTINE FINAL_DEGRADE
-         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
-           REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
-         END SUBROUTINE HETCHEM_UPDATE_AERO 
+        SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
+           REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
+        END SUBROUTINE HETCHEM_UPDATE_AERO
       END INTERFACE
 
 C**********************************************************************
