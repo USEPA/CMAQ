@@ -279,7 +279,7 @@ C     into aerospc_conc in aero_data module
       CALL EXTRACT_AERO ( POLC, .FALSE. )
 
 C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the division)
-
+C ... M3OLD is in units of m3/kmol_air
       M3OLD = 0.0
       Dens_wmean_old = 0.0
       DO IMODE = 2, N_MODE
@@ -339,7 +339,7 @@ C     into aerospc_conc in aero_data module
       CALL EXTRACT_AERO ( CEND, .FALSE. )
 
 C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the division)
-
+C ... M3NEW is in units of m3/kmol_air
       M3NEW = 0.0
       Dens_wmean_new = 0.0
       DO IMODE = 2, N_MODE
@@ -359,10 +359,10 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
       Dens_wmean_new(2:N_MODE) = Dens_wmean_new(2:N_MODE) / M3NEW(2:N_MODE)
 
 C...check for minimums
-C...ug/m3*m3/mol_air*1e-9kg/ug*m3/kg=> m3/mol_air
+C...ug/m3*m3/mol_air*1e3 mol_air/kmol_air*1e-9kg/ug*m3/kg=> m3/kmol_air
       DO IMODE = 2, N_MODE
-        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND * 1.0d-9 / ( Dens_wmean_old( IMODE ) * AIRM / CTHK1 ) )
-        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIND * 1.0d-9 / ( Dens_wmean_new( IMODE ) * AIRM / CTHK1 ) )
+        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_old( IMODE ) * AIRM / CTHK1 ) )
+        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_new( IMODE ) * AIRM / CTHK1 ) )
         CEND( AERONUM_MAP( IMODE ) ) = MAX( CEND( AERONUM_MAP( IMODE ) ), 
      &                                 aeromode_minNum( IMODE )/ (AIRM/CTHK1) ) ! min #/mol 
       END DO
