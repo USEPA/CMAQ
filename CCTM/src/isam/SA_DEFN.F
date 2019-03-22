@@ -152,7 +152,7 @@ C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )
         INPUT_UNIT = JUNIT()
          
-        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST )
+        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST, STATUS='OLD' )
         XMSG = 'Error Opening SA_IO_LIST file'
         IF ( IOST .NE. 0 ) THEN
           CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )

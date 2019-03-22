@@ -349,10 +349,6 @@
       Write( lfn, '( "     DEBUG = TRUE")' )
       Write( lfn, '( " endif")' )
       
-      Write( lfn, '(/" ifneq (,$(filter $(isam), TRUE true True T ))")')
-      Write( lfn, '( "     ISAM = TRUE")' )
-      Write( lfn, '( " endif")' )
-      
       Write( lfn, '(/" ifneq (,$(filter $(DEBUG), TRUE true ))")')
       Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
       Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
@@ -510,7 +506,7 @@
 
       End If
 
-      Write( lfn, '(/" ifneq (,$(filter $(ISAM), TRUE true True T ))")')
+      Write( lfn, '(/" ifneq (,$(filter $(isam), TRUE true True T ))")')
       Write( lfn, '( "     CPP_FLAGS   = $(cpp_flags) -Disam" )' ) 
       Write( lfn, '( " else")' )
       Write( lfn, '( "     CPP_FLAGS   = $(cpp_flags)" )' ) 

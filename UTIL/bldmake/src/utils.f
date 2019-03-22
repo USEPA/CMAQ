@@ -267,7 +267,7 @@
       end if
 
       if ( isam_cctm ) then
-         cmdline = trim(cmdline) // ' ISAM=TRUE'
+         cmdline = trim(cmdline) // ' isam=TRUE'
       end if
 
       status = system( Trim(cmdline) )
