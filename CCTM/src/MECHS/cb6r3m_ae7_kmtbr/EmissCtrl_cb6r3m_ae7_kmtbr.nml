@@ -227,7 +227,12 @@
    ! pcSOA Scaling for all sources except Fires 
    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'PCVOC'       ,'GAS' ,6.579,'MASS','a', 
    'EVERYWHERE', 'ALL'         ,'POC'    ,'PCVOC'       ,'GAS' ,6.579,'MASS','a', 
-   'EVERYWHERE', 'POINT_FIRES' ,'ALL'    ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
+   'EVERYWHERE', 'PT_FIRES'    ,'ALL'    ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
+   'EVERYWHERE', 'PT_RXFIRES'   ,'ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
+   'EVERYWHERE', 'PT_AGFIRES'   ,'ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
+   'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
+   'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
+   'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
    
    ! Wind-Blown Dust and Sea Spray Scaling
    ! Fine Components

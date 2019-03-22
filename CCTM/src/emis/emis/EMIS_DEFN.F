@@ -354,7 +354,6 @@ C Retrieve Emissions from All Stream Types
            ! values, write out diagnostic file (if requested) and apply
            ! emissions to output array
            CALL EMISS_CONV_DIFF( VDEMIS_SCALED, NL, VDEMIS_CONV )
-           ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_CONV, ISRM, NL )
            IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
      &                     CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM, NL )
 
@@ -362,6 +361,7 @@ C Retrieve Emissions from All Stream Types
      &          VDEMIS_DIFF( :,1:NL,:,: ) = VDEMIS_DIFF( :,1:NL,:,: ) + VDEMIS_CONV( :,1:NL,:,: )
  
          END DO  
+         ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
          END IF
 
          RETURN
@@ -731,9 +731,8 @@ C-----------------------------------------------------------------------
           ALOC = MINLOC( VDEMIS( :,1:NL,:,: ) )
           ISPC = ALOC( 1 )
 
-          WRITE( LOGDEV, '(/,5x,A,ES10.3,A,/,5x,5A,/,5x,A)' ),
+          WRITE( LOGDEV, '(/,5x,A,ES10.3,A,/,5x,3A,/,5x,A)' ),
      &      'ERROR: Invalid Negative emission rate ', EMIS_MIN, ' has been ',
-     &      ' detected from ', TRIM(EM_FILE_LAB( ISRM )), 
      &      ' for CMAQ species ',TRIM(DIFF_SPC( ISPC )),'.',
      &      'Please inspect the Emission Control Namelist File.'
           XMSG = 'Negative Emissions Detected'
@@ -922,7 +921,8 @@ C-----------------------------------------------------------------------
          CHARACTER( 4 ), ALLOCATABLE :: EM_BASIS( :,:,: )
          REAL,  ALLOCATABLE          :: EM_CONV( :,:,: )
          INTEGER, ALLOCATABLE :: EM_REG( :,:,: )
-         INTEGER             :: N_EM_RULE
+         INTEGER              :: N_EM_RULE
+         LOGICAL              :: LREMOVE
 
 C Retrieve Environment Variable Letting User Ignore this Check
 C and allowing the model to proceed.
@@ -1120,7 +1120,10 @@ C and allowing the model to proceed.
             ! First error check and expand the stream field
             ! This subroutine returns a logical vector, EM_STREAM_RULE,
             ! which identifies which streams are affected by this rule.
-            CALL INTERPRET_EM_RULE_STREAM( EM_NML( IRULE )%STREAM, IRULE, EM_STREAM_RULE )
+            LREMOVE = .FALSE.
+            CALL INTERPRET_EM_RULE_STREAM( EM_NML( IRULE )%STREAM, IRULE, 
+     &              EM_STREAM_RULE, LREMOVE )
+            IF ( LREMOVE ) CYCLE
 
             !------   ------   ------   ------   ------   ----  
             ! Now error check and expand the surrogate field
@@ -1164,14 +1167,14 @@ C and allowing the model to proceed.
                  XMSG = 'For optimal predictions, all surrogates '
      &                //'should be found on at least one stream.'
                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                 CYCLE
               ELSE     
                  WRITE( LOGDEV, '(A,/,2A,/,8(/,A))') 
      &                  '*****************************ERROR***************************************:',
      &                  'The emission surrogate ',TRIM( EM_NML( IRULE )%SURR ),
      &                  ' is not found in any of the emission streams.',
      &                  'Use one of the below options to continue.', 
-     &                  '1) Change or remove the missing GC, NR and TR emissions surrogates from the',
-     &                  'namelists where they are defined.', 
+     &                  '1) Change or remove this emission rule so that it refers to an existing surrogate.', 
      &                  'or',
      &                  '2) Change CTM_EMISCHK environment variable to False (F) in the runscript',
      &                  'if model predictions are acceptable without using the above emissions.',
