@@ -76,6 +76,7 @@
       Logical :: git_local   ! .true. = do not copy source files to BLD directory
       Logical :: twoway      ! .true. = compile for WRF-CMAQ CCTM
       Logical, Save :: debug_cctm  ! .true. = execute make with debug option set to true
+      Logical, Save :: isam_cctm  ! .true. = execute make with debug option set to true
 
 ! repository
       Character( FLN_LEN ) :: repo
