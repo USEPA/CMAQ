@@ -21,6 +21,7 @@
 ! KWOK: Define tagging emissions, species, dimensions, etc, based on user-supplied sa_io_list
 ! KWOK: Created Oct 5, 2010
 ! 29 Oct 18 L.Zhou, S.Napelenok: update for cmaq 5.3 release
+! 35 Mar 19 S.Napelenok: recode REGION handling and clean-up for release
 ! 
       USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
 
@@ -49,12 +50,7 @@ c...4th and 5th dimensions of ISAM array
       INTEGER ::     NSPC_TRANSPORT
 
 c...Define Allocatable Apportionment Arrays
-      !REAL, ALLOCATABLE :: ISAMB4( :,:,:,:,: )
-      !REAL, ALLOCATABLE :: ISAM  ( :,:,:,:,: )
-      !REAL, ALLOCATABLE :: CBFOR ( :,:,:,: )
-c     REAL, POINTER :: ISAMB4( :,:,:,:,: )
       REAL, POINTER :: ISAM  ( :,:,:,:,: )
-c     REAL, POINTER :: CBFOR ( :,:,:,: )
       REAL, ALLOCATABLE :: AISAM ( :,:,:,:,: )
       REAL, ALLOCATABLE :: TOT_SADEP ( :,:,:,: )
       REAL, ALLOCATABLE :: CONV_SADEP ( :,:,:,: )
@@ -67,10 +63,13 @@ c     REAL, POINTER :: CBFOR ( :,:,:,: )
 c...Variables regarding the tag list
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: TAGNAME( : )
       CHARACTER( 96 )                    :: TAGCLASSES
-      CHARACTER( 40 ), ALLOCATABLE, SAVE :: TAGRGN( : )
       CHARACTER( 96 ), ALLOCATABLE, SAVE :: TAGSTREAMS_TEMP( : )
       CHARACTER( 96 ), ALLOCATABLE, SAVE :: TAGSTREAMS( :, : )
       INTEGER, ALLOCATABLE, SAVE         :: TAGSTREAMS_NUM( : )
+
+      CHARACTER( 96 ), ALLOCATABLE, SAVE :: ISAMRGN_TEMP( : )
+      CHARACTER( 96 ), ALLOCATABLE, SAVE :: ISAMRGN( :, : )
+      INTEGER, ALLOCATABLE, SAVE         :: ISAMRGN_NUM( : )
 
 c...Logical values for tagging species
       LOGICAL, SAVE :: L_EC
@@ -98,12 +97,6 @@ C ...Tagging indices for bcon, others, icon
       INTEGER :: BCONTAG
       INTEGER :: OTHRTAG
       INTEGER :: ICONTAG
-
-!20140321  Option to use Ox production-loss for ozone apportionment
-c     LOGICAL :: FLAGOXSA
-
-!20140416 Option to renormalise ISAM
-      LOGICAL :: YES_RENORM
 
       REAL, PRIVATE, ALLOCATABLE :: BUFF2( :,: )
 
@@ -138,21 +131,17 @@ C       INCLUDE SUBST_IODECL
         INTEGER IOST
         CHARACTER( 80 ) :: XMSG   
 C external functions
-!0615   INTEGER JUNIT
         INTEGER LEN_TRIM
-C external above
 
-C Text lines
         INTEGER, INTENT( OUT ) :: NTAGS
         INTEGER ILINE
         CHARACTER( 21 ) :: TXTLINE
-C text lines above     
         
 C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )
         INPUT_UNIT = JUNIT()
          
-        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST )
+        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST, STATUS = OLD )
         XMSG = 'Error Opening SA_IO_LIST file'
         IF ( IOST .NE. 0 ) THEN
           CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
@@ -191,25 +180,18 @@ c
 
         IMPLICIT NONE
 
-!0615   INCLUDE SUBST_IOPARMS
-C       INCLUDE SUBST_IODECL 
-
         CHARACTER( 16 ) :: PNAME = 'RD_SA_IO_LIST'
         CHARACTER( 256 ) :: EQNAME 
         INTEGER INPUT_UNIT
         INTEGER IOST
         CHARACTER( 80 ) :: XMSG   
 C external functions
-!0615   INTEGER JUNIT
         INTEGER LEN_TRIM
-C external above
 
-C Text lines
         INTEGER, INTENT( IN ) :: NTAGS
         INTEGER ILINE
         INTEGER ITAG
         CHARACTER( 128 ) :: TXTLINE
-C text lines above     
 
 C...multi-sectors-for-a-single-tag 20130702
         INTEGER ISGSTK
@@ -218,14 +200,11 @@ C...multi-sectors-for-a-single-tag 20130702
         LOGICAL LBACK
         INTEGER BGN_SG
 
-C...stack group id counting 20130731
-        INTEGER CNTCMA ! number of commas on a text line
-
 C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )
         INPUT_UNIT = JUNIT()
 
-        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST )
+        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST, STATUS = OLD )
         XMSG = 'Error Opening SA_IO_LIST file'
         IF ( IOST .NE. 0 ) THEN
           CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
@@ -248,7 +227,7 @@ C-----------------------------------------------------------
 
 103       READ ( INPUT_UNIT, '(A)' ) TXTLINE
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 103
-          TAGRGN( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
+          ISAMRGN_TEMP( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
 
 104       READ ( INPUT_UNIT, '(A)' ) TXTLINE
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 104
@@ -257,7 +236,7 @@ C-----------------------------------------------------------
           IF ( MYPE .eq. 0 ) then
             WRITE(LOGDEV, *) '   ISAM Tag #   ',ITAG
             WRITE(LOGDEV, *) '   ISAM Region  ',TAGRGN( ITAG )
-            WRITE(LOGDEV, *) '   ISAM Streams ',TAGSTREAMS_TEMP( ITAG )
+            WRITE(LOGDEV, *) '   ISAM Streams ',ISAMRGN_TEMP( ITAG )
           END IF
 
         END DO
@@ -265,200 +244,6 @@ C-----------------------------------------------------------
         END SUBROUTINE RD_SA_IO_LIST
 C============================================================
         
-        SUBROUTINE MAP_FRAC( )
-
-C20140428  Determine map fractions of regions on each grid cell
-C         Called by driver.F
-C
-
-        USE GRID_CONF
-        USE UTILIO_DEFN       ! 20120615
-        
-        IMPLICIT NONE
-
-
-        CHARACTER( 16 ) :: MAPNAME
-
-        CHARACTER( 16 ) :: PNAME = 'MAP_FRAC'
-
-        INTEGER NRGNS
-        INTEGER IRGN
-        INTEGER ITAG
-        INTEGER NTAGS
-        INTEGER IOST
-C       INTEGER COL1, ROW1
-        INTEGER C, R
-        CHARACTER( 80 ) :: XMSG
-        INTEGER ALLOCSTAT
-
-C Interim variables
-        CHARACTER( 256 ) :: EQNAME
-
-c External functions
-!0615   CHARACTER( 16 ) :: PROMPTMFILE
-        INTEGER LEN_TRIM
-
-        !20140512
-        INTEGER, EXTERNAL :: SETUP_LOGDEV  
-c external above  
-        
-        INTEGER  GXOFF, GYOFF
-        INTEGER, SAVE :: STRTCOL, ENDCOL, STRTROW, ENDROW              
-
-C0709...optional test
-        LOGICAL :: LTEST
-
-!20130702 ...Multiple regions for single tags
-        INTEGER YESRGN
-        INTEGER LENRGN   ! 20130801
-
-!20130715
-        INTEGER LENVNAM  ! length of variable name from map frac file
-
-!20130716
-        LOGICAL YES_XTRAC ! true if sector is to be extracted
-
-!...stack group id counting 20130731
-        LOGICAL YES_INLN  ! true if inline group id request is ever picked up
-        INTEGER CNTCMA ! number of commas on a text line
-        INTEGER, ALLOCATABLE :: LOCATCMA( : )  ! commas' location on a text line
-        INTEGER JCNT
-        !SA_ID values
-        CHARACTER( 6 ) CVALU    ! XXXX.X read off from SA_ID line
-        REAL    VALU            ! converted from the characters XXX.X
-
-        INTERFACE
-          SUBROUTINE COUNTCOMMAS( TXTLN, NCMAS )
-            IMPLICIT NONE
-            CHARACTER( * ), INTENT( IN ) :: TXTLN
-            INTEGER,       INTENT( OUT ) :: NCMAS
-          END SUBROUTINE  COUNTCOMMAS
-          SUBROUTINE LOCATECOMMAS( TXTLN, NCMAS, CMAPOS )
-            IMPLICIT NONE
-            CHARACTER( * ), INTENT( IN ) :: TXTLN
-            INTEGER,        INTENT( IN ) :: NCMAS
-            INTEGER,       INTENT( OUT ) :: CMAPOS( NCMAS )
-          END SUBROUTINE  LOCATECOMMAS
-        END INTERFACE
-
-C------------------------------------------------------------
-
-
-        NTAGS = NTAG_SA - 3
-
-        ALLOCATE ( MAPFRAC( MY_NCOLS, MY_NROWS, NTAG_SA-3 ), STAT =ALLOCSTAT )
-        CALL CHECKMEM( ALLOCSTAT, 'MAPFRAC', PNAME )
-
-        CALL ENVSTR( 'SA_APPMAP','Source region ncf file','SA_APPMAP',
-     &         EQNAME, IOST )
-        if ( MYPE .eq. 0 ) print*,'EQNAME is ',EQNAME
-        IF ( IOST .EQ. 1 ) THEN
-          print*, 'Environment variable improperly formatted'
-          stop
-        ELSE IF ( IOST .EQ. -1 ) THEN
-          MAPFRAC = 1.0
-          if ( MYPE .eq. 0 ) print*, 
-     &       'Environment variable set, but empty ... Carry On...'
-!20140512          RETURN
-        ELSE IF ( IOST .EQ. -2 ) THEN
-          MAPFRAC = 1.0
-          if ( MYPE .eq. 0 ) print*,
-     &       'Environment variable not set ... Carry On...'
-!20140512          RETURN
-        ELSE IF ( IOST .EQ. 0 ) THEN
-          MAPNAME = PROMPTMFILE( 'Enter name for source region ncf file',
-     &       FSREAD3, 'SA_APPMAP', PNAME )
-          !print*,'in MAP_FRAC, MAPNAME is ',MAPNAME
-        
-          ! Domain decomposition
-          CALL SUBHFILE( MAPNAME, GXOFF, GYOFF, 
-     &       STRTCOL, ENDCOL, STRTROW, ENDROW )
-          NRGNS = NVARS3D
-        END IF
-
-
-        ALLOCATE ( BUFF2( NCOLS, NROWS ), STAT = IOST )
-        MAPFRAC = 0.0
-        YES_INLN = .FALSE.
-        DO ITAG = 1, NTAGS
-          LENRGN = LEN_TRIM( TAGRGN( ITAG ) )
-          IF ( TAGRGN( ITAG )( 1:10 ) .EQ. 'EVERYWHERE' ) THEN
-            DO R = 1, MY_NROWS
-              DO C = 1, MY_NCOLS
-                MAPFRAC( C,R,ITAG ) = 1.0
-              ENDDO !C
-            ENDDO !R
-          ELSEIF ( TAGRGN( ITAG )( 1:6 ) .EQ. 'INLINE' ) THEN
-            DO R = 1, MY_NROWS
-              DO C = 1, MY_NCOLS
-                MAPFRAC( C,R,ITAG ) = 1.0
-              ENDDO !C
-            ENDDO !R
-            !20130731
-c           IF ( .NOT. YES_INLN ) THEN
-c             YES_INLN = .TRUE.
-c             ALLOCATE( SAIDVALU( NTAGS, NINLN ) )
-c             SAIDVALU = -666.6
-c           ENDIF ! tagrgn = inline
-            CALL COUNTCOMMAS( TAGRGN( ITAG )( 1:LENRGN ), CNTCMA )
-            ALLOCATE( LOCATCMA( CNTCMA ) )
-            CALL LOCATECOMMAS( TAGRGN( ITAG )( 1:LENRGN ), CNTCMA, LOCATCMA )
-            DO JCNT = 1, CNTCMA
-              IF ( CNTCMA .EQ. 1 .OR. JCNT .EQ. CNTCMA ) THEN
-!20140512       CVALU = TAGRGN( ITAG )( LOCATCMA(JCNT)+1:LOCATCMA(JCNT)+6 )
-                CVALU = TAGRGN( ITAG )( LOCATCMA(JCNT)+1:LENRGN )
-              ELSE
-                CVALU = TAGRGN( ITAG )( LOCATCMA(JCNT)+1:LOCATCMA(JCNT+1)-1 )
-              ENDIF ! cntcma =1 or jcnt comes to cntcma
-              READ( CVALU, '(F6.0)' ) VALU
-c             SAIDVALU( ITAG,JCNT ) = VALU
-            ENDDO ! jcnt            
-            DEALLOCATE( LOCATCMA )
-
-          ELSE
-            DO IRGN = 1, NRGNS
-              YESRGN = INDEX( TAGRGN(ITAG)(1:LEN_TRIM(TAGRGN(ITAG))),
-     &           VNAME3D(IRGN)(1:LEN_TRIM(VNAME3D(IRGN))), .FALSE. )
-              LENVNAM = LEN_TRIM(VNAME3D(IRGN))
-              YES_XTRAC = .FALSE.
-              IF ( YESRGN .EQ. 1 .AND.
-     &  ( TAGRGN(ITAG)(YESRGN+LENVNAM:YESRGN+LENVNAM) .EQ. ',' .OR.
-     &    TAGRGN(ITAG)(YESRGN+LENVNAM:YESRGN+LENVNAM) .EQ. ' ' .OR.
-     &    YESRGN-1+LENVNAM .EQ. LEN_TRIM(TAGRGN(ITAG)) ) ) THEN
-                YES_XTRAC = .TRUE.
-              ELSEIF ( YESRGN .GT. 0 .AND. 
-     &  ( TAGRGN(ITAG)(YESRGN-1:YESRGN-1) .EQ. ',' .OR. 
-     &    TAGRGN(ITAG)(YESRGN-1:YESRGN-1) .EQ. ' ' )
-     &  .AND. 
-     &  ( TAGRGN(ITAG)(YESRGN+LENVNAM:YESRGN+LENVNAM) .EQ. ',' .OR.
-     &    TAGRGN(ITAG)(YESRGN+LENVNAM:YESRGN+LENVNAM) .EQ. ' ' .OR.   
-     &    YESRGN-1+LENVNAM .EQ. LEN_TRIM(TAGRGN(ITAG)) ) ) THEN
-                YES_XTRAC = .TRUE.
-              ENDIF !yesrgn = ?
-              IF ( YES_XTRAC ) THEN
-                IF ( .NOT. XTRACT3( MAPNAME, VNAME3D( IRGN ),
-     &            1,1, STRTROW, ENDROW, STRTCOL, ENDCOL,
-     &            SDATE3D, STIME3D, BUFF2 ) ) THEN
-                   XMSG = 'Could not read ' //
-     &                VNAME3D( IRGN )( 1:LEN_TRIM( VNAME3D( IRGN ) ) ) //
-     &                ' from ' // MAPNAME
-                   CALL M3EXIT ( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
-                ENDIF
-                DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
-                    MAPFRAC( C,R,ITAG ) = MAPFRAC( C,R,ITAG ) + BUFF2( C,R )
-                  ENDDO !C
-                ENDDO !R
-              ENDIF !yes_xtrac
-            ENDDO ! IRGN
-          ENDIF ! TAGRGN is defined 
-        ENDDO ! ITAG
-
-
-        END SUBROUTINE MAP_FRAC
-
-c===============================================================
-
         SUBROUTINE GET_NSPC_SA ()
 
 C20140428  Determine number of ISAM species
@@ -470,17 +255,10 @@ C
 
         IMPLICIT NONE
 
-C...External below
-!0710   INTEGER, EXTERNAL :: TRIM_LEN
-c...external above
-      
         INTEGER ITAG
         INTEGER J
-
         LOGICAL LBACK
         INTEGER BGN_SP, BGN_NTRATE, BGN_VOC
-
-        !20130627
         INTEGER IOST
 
 c----------------------------------------------------------
@@ -496,7 +274,6 @@ c----------------------------------------------------------
         L_VOC = .FALSE.   !20131209
 
         NSPC_SA = 0
-c       DO ITAG = 1, NTAG_SA-3
         LBACK = .FALSE. 
         BGN_SP = INDEX( TAGCLASSES,'EC',LBACK )
         IF ( BGN_SP .NE. 0 ) THEN
@@ -606,7 +383,6 @@ C
         USE UTILIO_DEFN      ! 20120725 for external functions such as INDEX1
 
         IMPLICIT NONE
-
       
         INTEGER J_SPC, N, ITAG, I2, ISUM
         INTEGER N_OZN     ! index of ozone in gc_spc list
@@ -960,17 +736,6 @@ C...Map SA species for Advection
         DO N = 1, N_SPCTAG
            MAP_ADVtoSA(N) = INDEX1( SPC_NAME(N,1), CMAQ_ADV, CMAQ_ADV_NAMES )
         END DO
-
-c...check assigned spc_name and spc_index
-c         if ( MYPE .eq. 0 ) then
-c           DO J_SPC = 1, NSPC_SA
-c             !print *, J_SPC, ICONTAG 
-c             !print *, SPC_NAME(J_SPC,ICONTAG)
-c             DO I2 = 1,20
-c               !print *, SPC_INDEX(J_SPC,I2)
-c             ENDDO
-c           ENDDO
-c         endif
 
         END SUBROUTINE GET_SPC_INDEX
 

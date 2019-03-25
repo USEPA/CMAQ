@@ -41,7 +41,7 @@ C   A6             B6
       USE VGRD_DEFN           ! vertical layer specifications
       USE SA_DEFN
 !      USE CGRID_SPCS          ! CGRID mechanism species
-!      USE UTILIO_DEFN
+      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -57,8 +57,8 @@ C Arguments:
       REAL,    INTENT( OUT ) :: X( :,: )   ! returned solution
 
 C Locals:
-      !REAL, ALLOCATABLE, SAVE :: BETA( : )
-      REAL :: BETA( N_SPCTAG )
+      REAL, ALLOCATABLE, SAVE :: BETA( : )
+!     REAL :: BETA( N_SPCTAG )
       REAL  ALPHA, GAMA 
 
       INTEGER L, V, IOS
@@ -68,15 +68,15 @@ C Locals:
 
 C-----------------------------------------------------------------------
 
-!      IF ( FIRSTIME ) THEN
-!         FIRSTIME = .FALSE.
+       IF ( FIRSTIME ) THEN
+          FIRSTIME = .FALSE.
 !         N_SPC_DIFF = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_DIFF
-!         ALLOCATE ( BETA( N_SPC_DIFF ), STAT = IOS )
-!         IF ( IOS .NE. 0 ) THEN
-!            XMSG = 'Failure allocating BETA'
-!            CALL M3EXIT( 'MATRIX', 0, 0, XMSG, XSTAT1 )
-!         END IF
-!      END IF   ! FIRSTIME
+          ALLOCATE ( BETA( N_SPCTAG ), STAT = IOS )
+          IF ( IOS .NE. 0 ) THEN
+             XMSG = 'Failure allocating BETA'
+             CALL M3EXIT( 'SA_MATRIX', 0, 0, XMSG, XSTAT1 )
+          END IF
+       END IF   ! FIRSTIME
 
 C-- ACM1 matrix solver
 

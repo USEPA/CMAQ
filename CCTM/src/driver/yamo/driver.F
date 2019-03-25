@@ -393,8 +393,6 @@ C Miscellaneous Configuration Operations
 
          N_SPCTAG = NSPC_SA * NTAG_SA
 
-         CALL MAP_FRAC( )
-
          CALL GET_SPC_INDEX ()
 
          IF (  L_VOC ) THEN
@@ -415,10 +413,6 @@ C Pointer for mapfrac
          END IF
          MFRC_P = PMFRC( 1:MY_NCOLS,1:MY_NROWS,: )
          MFRC_P = MAPFRAC
-
-!20140416 Renormalization or not?
-         YES_RENORM = ENVYN( 'DO_RENORM','Want to renormalize ISAM ?',.FALSE., ALLOCSTAT )
-c        write(*,*) 'renorm??', yes_renorm
 
 C Allocate arrays of species indices, tagging indices, and
 C variable names for the combined species-tags
