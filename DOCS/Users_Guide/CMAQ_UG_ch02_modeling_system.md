@@ -270,13 +270,9 @@ In CMAQv5.2.1, bldmake is compiled automatically the first time you run any of t
 
 #### 2.2.8.2 Compile the CMAQ programs 
 
-**>>COMMENT<<** What is CALMAP? (mentioned at the end of this section)
-
 Create the model executables for ICON, BCON, MCIP, and CCTM.
 
-**>>COMMENT>>** Update or remove reference to chapter 7 from old User's document
-
-ICON and BCON can be configured for different chemical mechanisms and for different kinds of input data. The configuration options for ICON and BCON are discussed in detail in [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md).
+ICON and BCON can be configured for different kinds of input data. The configuration options for ICON and BCON are described in the [README.md file in the PREP/icon folder](../../PREP/icon/README.md) and the [README.md file in the PREP/bcon folder](../../PREP/bcon/README.md).  
 
 Use the following commands to compile ICON and BCON:
 
@@ -305,7 +301,7 @@ make |& tee make.mcip.log
 
 **>>COMMENT>>** Update or remove reference to chapter 7 from old User's document
 
-The CCTM has multiple configuration options that can be changed to optimize model performance for different applications. In addition to selecting the chemical mechanism to model gas-phase chemistry, the user can also select from several different science modules. The science configuration options for CCTM are discussed in detail in [Chapter 4](CMAQ_OGD_ch04_science.md) and [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md). The distribution CCTM build script is configured to create a multiprocessor executable for the installation test simulation. For multiprocessor applications, CMAQ uses the message passing interface (MPI) to manage communication between processors in a clustered multiprocessor computing environment. The location of the MPI include and library files on your Linux system are specified in the config_cmaq.csh script.
+The CCTM has multiple configuration options that can be changed to optimize model performance for different applications. In addition to selecting the chemical mechanism to model gas-phase chemistry, the user can also select from several different science modules. The science configuration options for CCTM are discussed in [Chapter 5](CMAQ_UG_ch05_new_simulation.md). The distribution CCTM build script is configured to create a multiprocessor executable for the installation test simulation. For multiprocessor applications, CMAQ uses the message passing interface (MPI) to manage communication between processors in a clustered multiprocessor computing environment. The location of the MPI include and library files on your Linux system are specified in the config_cmaq.csh script.
 
 For single-processor (serial) systems, configure the CCTM build script to create a single-processor executable by commenting out the line that activates the variable “ParOpt” of the CCTM build script. Use the following commands to compile CCTM:
 
@@ -313,8 +309,6 @@ For single-processor (serial) systems, configure the CCTM build script to create
 cd $CMAQ_HOME/CCTM/scripts
 source bldit_cctm.csh [compiler] [version] |& tee build_cctm.log
 ```
-
-The programs CHEMMECH and CALMAP are also not needed for the test simulation but can be compiled using Makefiles.
 
 **>>COMMENT<<**  Should we say that we recommend Intel for speed?
 
@@ -348,8 +342,6 @@ CMAQ requires all of the programs listed in [Table 2-3](#Table5-1). This list in
 |BCON|Boundary conditions preprocessor|"|
 |MCIP|Meteorology-Chemistry Interface Processor| "|
 |CCTM|CMAQ Chemistry-Transport Model| "|
-|CHEMMECH|Chemical mechanism compiler for modifying or adding reactions to the CMAQ chemistry| "|
-|CREATE_EBI|EBI Chemical solver source code generator| "|
 |***Compilers***| | |
 |IFORT|Intel Fortran 90 compiler|[<http://www.intel.com>](http://www.intel.com/)|
 |PGF90|Portland Group Fortran 90 compiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
@@ -362,33 +354,12 @@ CMAQ requires all of the programs listed in [Table 2-3](#Table5-1). This list in
 |I/O API|Input/Output Application Programming Interface for controlling internal and external communications|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
 |LAPACK|Linear algebra packages for use with the bidirectional mercury module|[<http://www.netlib.org/lapack/>](http://www.netlib.org/lapack/)|
 |BLAS|Basic Linear Algebra Subprograms|[<http://netlib.org/blas/>](http://netlib.org/blas/)|
-|***For versions prior to CMAQ-5.0.2***|
-|CVS|Concurrent Versions System for managing the distributed archive of the CMAQ source code|[<http://ximbiot.com/cvs/cvshome/>](http://ximbiot.com/cvs/cvshome/) or your host's package management system|
 
 > *Note: CMAQ Output File Format*
 > CMAQ uses a modified version of the netCDF file format.
 > Although CMAQ output is described as being in the netCDF format,
 > it is actually a [hybrid format of the I/O API and the netCDF](https://www.cmascenter.org/ioapi/).
 
-**>>COMMENT<<** 	10. Table 2-4 on support software (VERDI, IDV) seems out of place since there is an entire chapter on this later on
-
-
-
-**Table 2-4. Optional support software for CMAQ**
-
-|**Software**|**Description**|     **Source**    |
-|------------|-------------------------------|---------------------------------------------|
-|***Evaluation and visualization tools***| | |
-|VERDI|Visualization Environment for Rich Data Interpretation for graphical analysis of netCDF gridded data|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
-|PAVE|Package for Analysis and Visualization of Environmental data for graphical analysis of netCDF gridded data|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
-|IDV|Integrated Data Viewer for 3-D graphical analysis of netCDF gridded data|[<http://www.unidata.ucar.edu/software/idv/>](http://www.unidata.ucar.edu/software/idv/)|
-|I/O API Tools|Postprocessing tools for manipulating data in the I/O API/netCDF format|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
-|netCDF Tools|Postprocessing tools for manipulating data in the netCDF format|[<http://my.unidata.ucar.edu/content/software/netcdf/index.html>](http://my.unidata.ucar.edu/content/software/netcdf/index.html)|
-| ***Source code diagnostics*** |
-|GDB|Gnu Fortran debugger|[<https://www.sourceware.org/gdb/>](https://www.sourceware.org/gdb/)|
-|PGDBG|Portland Group Fortran debugger|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
-|PGPROF|Portland Group Fortran code profiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
-|IDB|Intel Fortran debugger|[<https://software.intel.com/en-us/articles/idb-linux>](https://software.intel.com/en-us/articles/idb-linux)|
 
 ## 2.3 Running CMAQ
 
@@ -407,7 +378,7 @@ The maximum spatial and temporal coverages of CCTM are dictated by the input met
 
 **>>COMMENT>>** Update or remove reference to chapter 7 from old User's document
 
-The user must create new CMAQ executables for each suite of science configuration options for all programs except MCIP. There are too many combinations of the various chemical mechanisms, horizontal and vertical transport schemes, cloud routines, and chemistry solvers in the CMAQ science configuration to include efficiently in a single executable. In addition to compile-time configuration options with CMAQ, there are also execution-time configuration options (options that are chosen when the model is run versus when it is compiled). The horizontal domain configuration and the vertical coordinate system are dynamic features in CMAQ that are independent of the executable. In other words, a user can employ a single executable for a simulation that uses any of the supported map projections or grid definitions, without having to recompile the source code into a new executable. A description of which CMAQ options must be selected at compilation versus at execution are is included in [Chapter 7: CMAQ Programs and Libraries](CMAQ_OGD_ch07_programs_libraries.md#CCTM).
+The user must create new CMAQ executables for each suite of science configuration options for all programs except MCIP. There are too many combinations of the various chemical mechanisms, horizontal and vertical transport schemes, cloud routines, and chemistry solvers in the CMAQ science configuration to include efficiently in a single executable. In addition to compile-time configuration options with CMAQ, there are also execution-time configuration options (options that are chosen when the model is run versus when it is compiled). The horizontal domain configuration and the vertical coordinate system are dynamic features in CMAQ that are independent of the executable. In other words, a user can employ a single executable for a simulation that uses any of the supported map projections or grid definitions, without having to recompile the source code into a new executable. A description of which CMAQ options must be selected at compilation versus at execution are is included in [Appendix A: Model options](CMAQ_UG_appendix.md#Options).
 
 **>>COMMENT<<** Insert "Explanation of Runscript structure"
 
@@ -494,7 +465,7 @@ The system configuration parameters used to generate the benchmark reference dat
 
   Support for CMAQ is available from the CMAS Center (see [Chapter 13](CMAQ_OGD_ch13_support.md)).
 
-## 2.5 Pre- and Post-Processors
+## 2.5 Pre-Processors
 
 ### 2.5.1 Initial Conditions Processor (ICON)
 **>>COMMENT<<** ICON/BCON summaries need to be updated to reflect v5.3 updates
@@ -505,187 +476,7 @@ The system configuration parameters used to generate the benchmark reference dat
 
 ICON generates a gridded binary netCDF file of the chemical conditions in the modeling domain for the initial time of a simulation. It can generate these initial conditions from either an ASCII file of vertically resolved concentration profiles (distributed with CMAQ) or from an existing CCTM output file. If the profiles in an ASCII file do not have the same vertical structure as the CCTM configuration to be used, ICON will interpolate the data to a vertical structure consistent with CCTMs. Using an existing CCTM output file to generate initial conditions is applicable when extrapolating initial conditions from a coarse to a fine grid simulation, as may occur when setting up nested simulations (simulations with finer-resolution grids that cover part of coarser-resolution grids). The configuration options for ICON include selecting the chemical mechanism to model, defining the horizontal and vertical grids, and choosing whether the initial conditions are generated from an ASCII profile or from an existing CCTM output file.
 
-#### 2.5.1.1 Description
-
-The program ICON prepares chemical initial conditions (ICs) for CCTM from either ASCII vertical profiles or from an existing CCTM output concentration (CONC) file. ICON creates an output file with a single time step that represents the chemical conditions in each grid cell at the beginning of a CCTM simulation. The ICs can be either spatially uniform or variable across the model grid, depending on the source of the initial chemical concentration data. If deriving ICs from the ASCII vertical profiles, ICON can create only spatially uniform ICs *within* each model layer; it can create different ICs *across* model layers. From CONC files, ICON can extract spatially varying ICs, either on the same grid cell resolution, as a windowed modeling domain, or for a finer-resolution model grid (as for a nested simulation).
-
-There are two distinct modes of operation for ICON, depending on the nature of the input data. When creating ICON executables, the user must specify whether the input data will be ASCII vertical profiles or a CONC file by selecting either “profile” or “m3conc”, respectively, for the setting of the `ModType` variable. This variable determines the input module to use when creating an ICON executable.
-
-CCTM can also be forced with initial conditions downscaled from global chemistry models (GCMs), such as GEOS-Chem and MOZART. ICON does not support the processing of data from GCMs. ICs derived from GCMs must be calculated with custom codes or scripts that are not available in the CMAQ distribution package. The CAMx developers (Ramboll Environ) have codes available for extracting regional model ICs from both GEOS-Chem and MOZART. Visit the [Support Software section of www.CAMx.com](http://www.camx.com/download/support-software.aspx) to download these utilities.
-
-#### 2.5.1.2  Files, configuration, and environment variables ###
-
-[Figure 2-2](#Figure7-6) shows the input and output files and configuration options for ICON. A distinction is made between the options that are invoked at compilation versus those invoked at execution time. When compiling ICON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical ICs. Setting the `ModMech` and `Mechanism` variables in the ICON compile script configures the program to use a specific set of mechanism namelist files to build an executable. Setting the `ModType` variable in the ICON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating ICs for CCTM. Separate ICON executables must be prepared for different mechanism and input file configurations.
-
-**>> Comment <<** ICON Flow Chart [is] very confusing.
-
-
-![](./images/Figure7-6.png "Figure7-6.png")
-
-**Figure 2-2. ICON input and output files**
-
-When ICON is run, it converts a data file of chemical ambient concentrations to ICs on a predefined model grid. Through the specification of the `ModType` variable in the ICON run script, ICON will input either an ASCII vertical profile file (IC_PROFILE) or an existing CCTM concentration file (CTM_CONC_1); the choice depends on how the user compiled the model. The IC input file provided by the user must have chemical speciation that is consistent with the mechanism configuration of the ICON executable. For example, if ICON was compiled to create ICs using the CB05 mechanism, the input IC profile data must be in terms of the CB05 mechanism. CMAQ is distributed with ASCII vertical profiles representing clean continental ICs for North America for the following chemical mechanisms: cb05_ae6_aq, saprc07tb_ae6_aq, racm2_aq6_aq, and saprc99_ae6_aq. It is the user’s responsibility to generate IC inputs for other mechanism configurations.
-
-The horizontal grid and vertical layer structures for ICON are defined at execution through the input of a grid description (GRIDDESC) file and a meteorology cross-point 3‑D (MET_CRO_3D) file, respectively. ICON interpolates between the input vertical layer structure and output layer structure if they are different.
-
-#### 2.5.1.3 ICON input files 
-
-
-**Table 2-5. ICON input files**
-
-|**File Name**|**Format**|**Description**|
-|---------------------|-------------|-----------------------------------------------------------------------|
-|IC_PROFILE|ASCII|Vertical chemical profiles from which to derive initial conditions; this file is created by the user; used only when the IC environment variable is set to “profile”|
-|CTM_CONC_1|GRDDED3|Name and location of the CMAQ concentration file from which to derive initial conditions; this file is output from CCTM; used only when the BC environment variable is set to “m3conc”|
-|MET_CRO_3D_CRS|GRDDED3|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
-|MET_CRO_3D_FIN|GRDDED3|Name and location of the fine grid MET_CRO_3D file that is required if the vertical grid structure changes between nested simulations; this file is output by MCIP|
-|GRIDDESC|ASCII|Horizontal grid description file for defining the model grid; this file is output by MCIP or can be created by the user|
-|LAYER_FILE|GRDDED3|3-D cross-point meteorology file for defining the vertical layer structure of the model grid; this file is output by MCIP|
-|gc_matrix.nml|ASCII|Namelist file for defining the gas-phase species that are input to the model through the boundary|
-|ae_matrix.nml|ASCII|Namelist file for defining the aerosol species that are input to the model through the boundary|
-|nr_matrix.nml|ASCII|Namelist file for defining the nonreactive species that are input to the model through the boundary|
-|tr_matrix.nml|ASCII|Namelist file for defining the tracer species that are input to the model through the boundary|
-
-#### 2.5.1.4  ICON output files 
-
-
-**Table 2-6. ICON output files**
-
-|**File Name**|**Format**|**Description**|
-|------------|-----------|---------------------------------------------------------------|
-|INIT_CONC_1|`GRDDED3`|Name and location of the gridded initial conditions data output on the model grid defined by `GRID_NAME`|
-
-The default location of the ICON output files is the `$CMAQ_DATA/icon` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all ICON output files uses the `APPL` and `GRID_NAME` environment variables in the file name. For initial conditions created from existing `CCTM CONC` files, the Julian date is also used in the file name through the `DATE` environment variable. All of the file-naming variables for `ICON` outputs are set in the run script.
-
-#### 2.5.1.5 Compilation Configuration Variables 
-
-The configuration options listed here are set during compilation of the ICON executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile ICON and create a new executable.
-
--   `CopySrc`  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
--   `MakeFileOnly`  
-    Uncomment to build a Makefile to compile the executable. Comment out to both create a Makefile and compile.
--   `ModType: [default: module profile]`  
-    Defines the format of the initial conditions input files to be used by ICON.
-    -   `m3conc`: input a CCTM CONC file; used for nested simulations or windows of a parent domain
-    -   `profile`: input an ASCII vertical profiles file
-    -   `tracer`: use the tracer namelist file to create ICs of tagged tracer species
--  `Mechanism: [default: cb05e51_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2.1/CCTM/docs/Release_Notes/CMAQv5.2.1_Mechanisms.md)). Examples include:
-    -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tump_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, mercury, and air toxics, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM, aqueous/cloud chemistry; this is the CMAQv5 multipollutant mechanism
-    -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
-    -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
--   `Tracer [default trac0] `  
-    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the `$CMAQ_HOME/CCTM/src/MECHS` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
-    - `trac[n]`
-
-#### 2.5.1.6 Execution Configuration Variables 
-
-The environment variables listed here are invoked during execution of the program and are set in the BCON run script.
-
--   `APPL [default: None]`  
-    ICON executable identifier. Must match APPL Variable setting in the ICON build script.
--   `CFG [default: None]`  
-    Configuration identifier for the ICON simulation.
--   `MECH [default: None]`  
-    CMAQ chemical mechanism. Must match Mechanism variable setting in the ICON build script.
--   `EXEC: [default: ICON_${APPL}_${EXECID}.exe]`  
-    Executable to use for the simulation. The variable CFG is set in the ICON run script. The variable EXECID is set in the config_cmaq.csh configuration file.
--   `GRIDDESC: [default: $CMAQ_HOME/scripts/GRIDDESC1]`  
-    Grid description file for setting the horizontal grid definition.
--   `GRID_NAME: [default:CMAQ-BENCHMARK]`  
-    Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.
--   `IOAPI_ISPH: [default: 20]`  
-    I/O API setting for spheroid type. See I/O API documentation for [setsphere](https://www.cmascenter.org/ioapi/documentation/3.1/html/SETSPHERE.html) for more information.
--   `IOAPI_OFFSET_64: [default: NO]`  
-    I/O API setting for large time-step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.
--   `LAYER_FILE:[default: none]`  
-    Name and location of a MET_CRO_3D file for specifying the vertical layer structure for the current application of the model.
--   `gc_matrix.nml: [default: none]`  
-    Gas-phase species namelist file. This file is used to configure the gas-phase species that will be output by BCON.
--   `ae_matrix.nml: [default: none]`  
-    Aerosol-phase species namelist file. This file is used to configure the aerosol-phase species that will be output by BCON
--   `nr_matrix.nml: [default: none]`  
-    Nonreactive species namelist file. This file is used to configure the nonreactive species that will be output by BCON
--   `tr_matrix.nml: [default: none]`  
-    Tracer species namelist file. This file is used to configure the tracer species that will be output by BCON
--   `OUTDIR: [default: $CMAQ_HOME/data/bcon]`
-    Output data directory.
--   `IC:`  
-    Sets the input file type. The setting of this variable determines how the run script sets the input and output environment variables.
-    -   `profile`: sets the output file name to include the tag “profile” in the name; uses the variable IC_PROFILE to point to an ASCII vertical profile file for input to ICON.
-    -   `m3conc`: used for nested simulations; sets the output file name to include a start date in the name; uses the variable CTM_CONC_1 to point to a CCTM CONC file for input to ICON.
--   `DATE:`  
-    Sets the Julian date to use in naming the ICON output file for nested runs.
--   `SDATE:[default: ${DATE}]`  
-    Julian start date for extracting boundary conditions from a CCTM CONC file for a nested simulation. If SDATE is not set, it will be set automatically from the CTM_CONC_1 file.
--   `STIME: [default: 000000 ]`  
-    Start time for extracting boundary conditions from a CCTM CONC file for a nested simulation. If STIME is not set, it will be set automatically from the CTM_CONC_1 file.
-
-**>>COMMENT<<** the section below was section "ICON and BCON" from chapter 4 of old user's guide, this section has been pasted in this chapter twice (in the bottom of section ICON and here at the bottom of section BCON). 4('ICON and BCON') should be split into two separate sections ("ICON" and "BCON") as desired to avoid unwanted repetition
-
-#### 2.5.1.7 Compiling and Running ICON
-
-**Compile ICON**
-
-**>>COMMENT>>** Update or remove reference to chapter 5 from old User's document
-
-[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ pre-processor programs for a test simulation. Follow those steps (summarized below) to compile new versions of ICON.
-
-1. Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   Configure the ICON use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
--   Configure the ICON build script for your application by setting the compilation configuration variables described above.
--   Invoke the build script to create an executable:
-
-```
-cd $CMAQ_HOME/PREP/icon/scripts
-./bldit_icon.csh [compiler] [version] |& tee build_icon.log
-```
-
-**Run ICON**
-
-Set the run script settings according to the execution configuration variables described above. Run ICON to produce initial conditions for the CCTM:
-
-```
-cd $CMAQ_HOME/PREP/icon/scripts
-./run_icon.csh |& tee run_icon.log
-```
-
-**>>COMMENT<<**  Last two paragraphs of this section don't seem to fit the italicized heading of "Chemical mechanism".
-
-**>>COMMENT<<**  The last paragraph is confusing and needs to be rewritten.  Asking a reader to "contact us" is vague and not appropriate here.
-
-**>>COMMENT<<**  Updates are needed here and throughout the document for the chemical mechanisms we now support and AERO7
-
-To perform air quality simulations, both initial and boundary conditions are required. Initial conditions (calculated in ICON) are needed to provide concentrations of individual chemical species for the first time step throughout the modeling domain. Boundary conditions (calculated in BCON) are needed to provide concentrations of individual chemical species at the lateral boundaries of the modeling domain. In a single run ICON and BCON can generate these concentrations for all of the chemical species required by CMAQ. ICON and BCON require a file that specifies the concentrations of various chemical species in the troposphere and specification of the photochemical chemical and aerosol mechanisms that will be used in the supported CCTM simulation. These processors require two inputs [Figure 2-3](#Figure4-4): a concentration file for the chemical species to be simulated, and the chemical mechanism.
-
-***Concentration file:*** The concentration file used in ICON and BCON can come from one of two sources:
-
--   A time-independent set of vertical concentration profiles that are dependent upon the chemical mechanism being used. This approach is usually taken when no other information about the initial and boundary concentrations is available. CMAQ is currently distributed with IC and BC profiles for the CB05, RACM2, and SAPRC-07T photochemical mechanisms and the CMAQ AERO6 aerosol module. These files are set at the four boundaries (north, east, south, west) of the computational grid and are thus fixed in space.
-
--   Existing CCTM 3-D concentration fields. Usually, this option is selected when performing a nested model simulation and modeling results from a previous CCTM simulation are available from a coarser-grid-resolution simulation. Existing CCTM concentration fields are also used when a CCTM simulation is extended in time in a separate run step. Unlike the profiles discussed in the previous bullet, these CCTM concentration files are spatially and temporally resolved.
-
-**>>COMMENT<<** Figure 2-3. Is this accurate for all use cases?  Also not sure this figure adds much value anyway.
-
-![](./images/Figure4-4.png "Figure4-4.png")
-
-**Figure 2-3. Initial and boundary conditions preprocessing for CMAQ**
-
-
-#### 2.5.1.8 Chemical mechanism
-
-Both the vertical concentration profiles and the CCTM concentration fields have specific chemical mechanisms associated with them, which are a function of how the files were originally generated. Either a generic ASCII input profile or an existing CCTM 3-D concentration file can be used to generate initial and boundary conditions for the CCTM. The user must consider the gas-phase chemical mechanism and aerosol module being used for the CCTM simulation when configuring ICON and BCON. CMAQ includes ASCII input profiles for the RACM2, CB05,and SAPRC-07T photochemical mechanisms and the CMAQ AERO6 aerosol module. Existing CCTM 3‑D concentration fields could have been generated using several different chemical mechanisms.
-
-The chemical mechanism used in the CCTM and the CMAQ input processors must be consistent with the mechanism used to generate the concentration fields input to ICON and BCON. In other words, users must generate separate initial and boundary conditions using the same chemical mechanism that will be used for the CCTM simulation.
-
-ICON and BCON can linearly interpolate input concentration profiles from the horizontal or vertical coordinate system used in the profiles to the one needed for the model simulation, if the input data are in the standard I/O API format. If the interpolation is between two different vertical coordinate systems, the mid-layer height of each vertical layer must also be available.
-
-The current ICON and BCON processors cannot generate initial and boundary conditions for the CMAQ model from hemispheric and global model results.  A separate processor (GEOS2CMAQ) is available for generating boundary conditions for the CMAQ model using the GEOS-Chem model results. Another processor is also available for generating boundary conditions for the regional CMAQ model using the hemispheric CMAQ model results. These processors are under development and will be released at a later date. Please contact us if you need the processors now.
-
-**>>COMMENT<<** end of ("ICON and BCON") from chapter 4 of old user's Guide
+Information on environment variables, input and output files, compiling and running ICON are provided in the [README.md file in the PREP/icon folder](../../PREP/icon/README.md).
 
 ### 2.5.2 Boundary Conditions Processor (BCON)
 
@@ -695,190 +486,7 @@ BCON generates a gridded binary netCDF file of the chemical conditions along the
 
 BCON is only used to create boundary conditions inputs for the CCTM from an ASCII profile file or from an existing CCTM output file.  Users are responsible for preparing CCTM input boundary conditions from other sources, such as global chemistry transport models.
 
-#### 2.5.2.1  Description
-
-The program BCON prepares lateral chemical boundary conditions (BCs) for CCTM from either ASCII vertical profiles or from an existing CCTM output concentration (CONC) file. The BCs created by BCON can be static in both time and space (i.e., time-invariant with uniform concentrations in all boundary grid cells), dynamic in both time and space, or a combination of the two. The ASCII vertical profiles are primarily used to create static BCs. Dynamic BCs can be extracted from CONC files on either the same horizontal grid spacing (i.e., as a windowed modeling domain) or for a finer-resolution model grid (i.e., for a nested simulation), or they can be interpolated from a larger-scale CTM simulation (which is analogous to defining lateral BCs for WRF‑ARW).
-
-There are two distinct modes of operation for BCON, and the mode used depends on the nature of the input data. When creating BCON executables, the user must specify whether the input data will be ASCII vertical profiles or a CONC file by selecting either “profile” or “m3conc”, respectively, for the setting of the `ModType` variable. This variable determines the input module to use when creating a BCON executable.
-
-CCTM can also be forced with chemical boundary conditions downscaled from global chemistry models (GCMs), such as GEOS-Chem and MOZART. BCON does not support the processing of data from GCMs. BCs derived from GCMs must be calculated with custom codes or scripts that are not available in the CMAQ distribution package. The CAMx developers (Ramboll Environ) have codes available for extracting regional model BCs from both GEOS-Chem and MOZART. Visit the [Support Software section of www.CAMx.com](http://www.camx.com/download/support-software.aspx) to download these utilities.
-
-#### 2.5.2.2  Files, configuration, and environment variables ###
-
-[Figure 2-4](#Figure7-2) shows the input and output files and configuration options for BCON. A distinction is made between the options that are invoked at compilation versus those invoked at execution time. When compiling BCON, the user specifies a chemical mechanism to configure the gas-phase chemistry and aerosol mechanism used to create the chemical BCs. Setting the `ModMech` and `Mechanism` variables in the BCON compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. Setting the `ModType` variable in the BCON compile script configures the program to input either a text file of static concentrations or a binary netCDF file of time-dependent concentrations for estimating BCs for CCTM. Separate BCON executables must be prepared for different mechanism and input file configurations.
-
-**>> Comment <<** This figure is absolutely confusing, especially the blue box, which is not a list of "Execution Options".  This whole figure needs to be redone to communicate better.
-
-**>> Comment <<** BCON Flow Chart [is] very confusing.
-
-
-![](./images/Figure7-2.png "Figure7-2.png")  
-
-**Figure 2-4. BCON input and output files**
-
-
-When BCON is run, it converts a data file of chemical ambient concentrations to BCs on a predefined model grid. Through the specification of the `odInpt` variable in the BCON run script, BCON will input either an ASCII vertical profile file (BC_PROFILE) or an existing CCTM concentration file (CTM_CONC_1); the choice depends on how the user compiled the model. The BC input file provided by the user must have chemical speciation that is consistent with the mechanism configuration of the BCON executable. For example, if BCON was compiled to create BCs using the CB05 mechanism, the input BC profile data must be in terms of the CB05 mechanism. CMAQ is distributed with ASCII vertical profiles representing clean continental BCs for North America for the following chemical mechanisms: cb05e51_ae6_aq, saprc07tb_ae6_aq and racm2_aq6_aq. It is the user’s responsibility to generate BC inputs for other mechanism configurations.
-
-The horizontal grid and vertical layer structures for BCON are defined at execution through the input of a grid description (GRIDDESC) file and a meteorology cross-point 3‑D (MET_CRO_3D) file, respectively. BCON interpolates between the input vertical layer structure and output layer structure if they are different.
-
-
-#### 2.5.2.3 BCON input files 
-
-
-**Table 2-7. BCON input files**
-
-|**File Name**|**Format**|**Description**|
-|-------------|--------|--------------------------------------------------------------|
-|`BC_PROFILE`|`ASCII`|Vertical chemical profiles from which to derive boundary conditions; this file is created by the user; used only when the BC environment variable is set to “profile”|
-|`CTM_CONC_1`|`GRDDED3`|CMAQ concentration file from which to derive boundary conditions; this file is output from CCTM; used only when the BC environment variable is set to “m3conc”|
-|`MET_CRO_3D_CRS`|`GRDDED3`|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
-|`MET_CRO_3D_FIN`|`GRDDED3`|Name and location of the fine-grid `MET_CRO_3D` file that is required if the vertical grid structure changes between nested simulations; this file is output by MCIP|
-|`GRIDDESC`|`ASCII`|Horizontal grid description file for defining the model grid; this file is output by MCIP or can be created by the user|
-|`LAYER_FILE`|`GRDDED3`|3-D cross-point meteorology `METCRO3D` file for defining the vertical layer structure of the model grid; this file is output by MCIP|
-|`gc_matrix.nml`|`ASCII`|Namelist file for defining the gas-phase species that are input to the model through the boundary|
-|`ae_matrix.nml`|`ASCII`|Namelist file for defining the aerosol species that are input to the model through the boundary|
-|`nr_matrix.nml`|`ASCII`|Namelist file for defining the non-reactive species that are input to the model through the boundary|
-|`tr_matrix.nml`|`ASCII`|Namelist file for defining the tracer species that are input to the model through the boundary|
-
-#### 2.5.2.4  BCON output files 
-
-**Table 2-8. BCON output files**
-
-|**File Name**|**Format**|**Description**|
-|--------------|-----------|------------------------------------------------------------------|
-|`BNDY_CONC_1`|`BNDARY3`|Name and location of the gridded boundary conditions data output on the model grid defined by `GRID_NAME`|
-
-The default location of the BCON output files is the `$CMAQ_DATA/bcon` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all BCON output files uses the `APPL` and `GRID_NAME` environment variables in the file name. For boundary conditions created from existing `CCTM CONC` files, the Julian date is also used in the file name through the `DATE` environment variable. All of the file-naming variables for `BCON` outputs are set in the run script.
-
-#### 2.5.2.5 Compilation Configuration Variables 
-
-The configuration options listed here are set during compilation of the BCON executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile BCON and create a new executable.
-
--   `CopySrc`  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
--   `MakeFileOnly`  
-    Uncomment to build a Makefile to compile the executable. Comment out to both create a Makefile and compile.
--   `ModType: [default: module profile]`  
-    Defines the format of the boundary conditions input files to be used by BCON.
-    -   `m3conc`: input a `CCTM CONC` file; used for nested simulations or windows of a parent domain
-    -   `profile`: input an ASCII vertical profiles file
-    -   `tracer`: use the tracer namelist file to create BCs of tagged tracer species
--  `Mechanism: [default: cb05e51_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create boundary conditions. The choices for the `Mechanism` variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2.1/DOCS/User_Manual/CMAQ_OGD_appendix_A.md)). Examples include:
-    -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, `aqueous/cloud` chemistry
-    -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, `aqueous/cloud` chemistry
-    -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, `aqueous/cloud` chemistry
-    -   `cb05tump_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, mercury, and air toxics, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM, `aqueous/cloud` chemistry; this is the CMAQv5 multipollutant mechanism
-    -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
-    -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
--   `Tracer [default trac0] `  
-    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the $CMAQ_HOME/CCTM/src/MECHS directory that contains the namelist files for the tracer configuration. The default setting is to use no tracers.
-    - `trac[n]`
-
-#### 2.5.2.6 Execution Configuration Variables 
-
-The environment variables listed here are invoked during execution of the program and are set in the BCON run script.
-
--   `APPL [default: None]`
-    BCON executable identifier. Must match APPL Variable setting in the BCON build script.
--   `CFG [default: None]`
-    Configuration identifier for the BCON simulation.
--   `MECH [default: None]`
-    CMAQ chemical mechanism. Must match Mechanism variable setting in the BCON build script.
--   `EXEC: [default: BCON_${APPL}_${EXECID}]`
-    Executable to use for the simulation. The variable CFG is set in the BCON run script. The variable EXECID is set in the config_cmaq.csh configuration file.
--   `GRIDDESC: [default: $CMAQ_HOME/scripts/GRIDDESC1]`
-    Grid description file for setting the horizontal grid definition.
--   `GRID_NAME: [default:CMAQ-BENCHMARK]`
-    Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.
--   `IOAPI_ISPH: [default: 20]`
-    I/O API setting for spheroid type. See I/O API documentation for [setsphere](https://www.cmascenter.org/ioapi/documentation/3.1/html/SETSPHERE.html) for more information.
--   `IOAPI_OFFSET_64: [default: NO]`
-    I/O API setting for large time-step records. If your output time step is going to produce data that are greater than 2GB per time step, then this needs to be set to YES.
--   `LAYER_FILE:[default: none]`
-    Name and location of a MET_CRO_3D file for specifying the vertical layer structure for the current application of the model.
--   `gc_matrix.nml: [default: none]`
-    Gas-phase species namelist file. This file is used to configure the gas-phase species that will be output by BCON.
--   `ae_matrix.nml: [default: none]`
-    Aerosol-phase species namelist file. This file is used to configure the aerosol-phase species that will be output by BCON.
--   `nr_matrix.nml: [default: none]`
-    Nonreactive species namelist file. This file is used to configure the nonreactive species that will be output by BCON.
--   `tr_matrix.nml: [default: none]`
-    Tracer species namelist file. This file is used to configure the tracer species that will be output by BCON.
--   `OUTDIR: [default: $CMAQ_HOME/data/bcon]`
-    Output data directory.
--   `BC:` Sets the input file type. The setting of this variable determines how the run script sets the input and output environment variables.
-    -   `profile`: sets the output file name to include the tag “profile” in the name; uses the variable BC_PROFILE to point to an ASCII vertical profile file for input to BCON.
-    -   `m3conc`: used for nested simulations; sets the output file name to include a start date in the name; uses the variable `CTM_CONC_1` to point to a CCTM CONC file for input to BCON.
--   `DATE:` Sets the Julian date to use in naming the BCON output file for nested runs.
--   `SDATE:[default: ${DATE}]` Julian start date for extracting boundary conditions from a CCTM CONC file for a nested simulation. If SDATE is not set, it will be set automatically from the CTM_CONC_1 file.
--   `STIME: [default: 000000 ]` Start time for extracting boundary conditions from a CCTM CONC file for a nested simulation. If STIME is not set, it will be set automatically from the CTM_CONC_1 file.
--   `RUNLEN: [default: 240000]` Number of hours of boundary conditions to extract from a CCTM CONC file for a nested simulation. If RUNLEN is not set, it will be set automatically from the CTM_CONC_1 file.
-
-**>>COMMENT<<** the section below use to be section "ICON and BCON" from chapter 4 of old user's guide, this section has been pasted in this chapter twice (in the bottom of section ICON and here at the bottom of section BCON). 4('ICON and BCON') should be split into two separate sections ("ICON" and "BCON") as desired to avoid unwanted repetition
-
-#### 2.5.2.7 Compiling and Running
-
-**Compile BCON**
-
-**>>COMMENT>>** Update or remove reference to chapter 5 from old User's document
-
-[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ pre-processor programs for a test simulation. Follow those steps (summarized below) to compile new versions of BCON.
-
-1. Bldmake will be automatically compiled the first time a CMAQ program (ICON, BCON, CCTM) is compiled.
--   Configure the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
--   Configure the BCON build script for your application by setting the compilation configuration variables described above.
--   Invoke the build script to create an executable.
-
-```
-cd $CMAQ_HOME/PREP/bcon/scripts/
-./bldit_bcon.csh [compiler] [version] |& tee build_bcon.log
-```
-
-**Run BCON**
-
-Set the run script settings according to the execution configuration variables described above. Run BCON to produce boundary conditions for the CCTM:
-
-```
-cd $CMAQ_HOME/PREP/BCON
-./run_bcon.csh |& tee run_bcon.log
-```
-
-**>>COMMENT<<**  Last two paragraphs of this section don't seem to fit the italicized heading of "Chemical mechanism".
-
-**>>COMMENT<<**  The last paragraph is confusing and needs to be rewritten.  Asking a reader to "contact us" is vague and not appropriate here.
-
-**>>COMMENT<<**  Updates are needed here and throughout the document for the chemical mechanisms we now support and AERO7
-
-To perform air quality simulations, both initial and boundary conditions are required. Initial conditions (calculated in ICON) are needed to provide concentrations of individual chemical species for the first time step throughout the modeling domain. Boundary conditions (calculated in BCON) are needed to provide concentrations of individual chemical species at the lateral boundaries of the modeling domain. In a single run ICON and BCON can generate these concentrations for all of the chemical species required by CMAQ. ICON and BCON require a file that specifies the concentrations of various chemical species in the troposphere and specification of the photochemical chemical and aerosol mechanisms that will be used in the supported CCTM simulation. These processors require two inputs [Figure 2-3](#Figure4-4): a concentration file for the chemical species to be simulated, and the chemical mechanism.
-
-#### 2.5.2.8 Concentration file
-
-The concentration file used in ICON and BCON can come from one of two sources:
-
--   A time-independent set of vertical concentration profiles that are dependent upon the chemical mechanism being used. This approach is usually taken when no other information about the initial and boundary concentrations is available. CMAQ is currently distributed with IC and BC profiles for the CB05, RACM2, and SAPRC-07T photochemical mechanisms and the CMAQ AERO6 aerosol module. These files are set at the four boundaries (north, east, south, west) of the computational grid and are thus fixed in space.
-
--   Existing CCTM 3-D concentration fields. Usually, this option is selected when performing a nested model simulation and modeling results from a previous CCTM simulation are available from a coarser-grid-resolution simulation. Existing CCTM concentration fields are also used when a CCTM simulation is extended in time in a separate run step. Unlike the profiles discussed in the previous bullet, these CCTM concentration files are spatially and temporally resolved.
-
-**>>COMMENT<<** Figure 2-3. Is this accurate for all use cases?  Also not sure this figure adds much value anyway.
-
-
-![](./images/Figure4-4.png "Figure4-4.png")
-
-**Figure 2-3. Initial and boundary conditions preprocessing for CMAQ**
-
-
-#### 2.5.2.9 Chemical mechanism
-
-Both the vertical concentration profiles and the CCTM concentration fields have specific chemical mechanisms associated with them, which are a function of how the files were originally generated. Either a generic ASCII input profile or an existing CCTM 3-D concentration file can be used to generate initial and boundary conditions for the CCTM. The user must consider the gas-phase chemical mechanism and aerosol module being used for the CCTM simulation when configuring ICON and BCON. CMAQ includes ASCII input profiles for the RACM2, CB05,and SAPRC-07T photochemical mechanisms and the CMAQ AERO6 aerosol module. Existing CCTM 3‑D concentration fields could have been generated using several different chemical mechanisms.
-
-The chemical mechanism used in the CCTM and the CMAQ input processors must be consistent with the mechanism used to generate the concentration fields input to ICON and BCON. In other words, users must generate separate initial and boundary conditions using the same chemical mechanism that will be used for the CCTM simulation.
-
-ICON and BCON can linearly interpolate input concentration profiles from the horizontal or vertical coordinate system used in the profiles to the one needed for the model simulation, if the input data are in the standard I/O API format. If the interpolation is between two different vertical coordinate systems, the mid-layer height of each vertical layer must also be available.
-
-The current ICON and BCON processors cannot generate initial and boundary conditions for the CMAQ model from hemispheric and global model results.  A separate processor (GEOS2CMAQ) is available for generating boundary conditions for the CMAQ model using the GEOS-Chem model results. Another processor is also available for generating boundary conditions for the regional CMAQ model using the hemispheric CMAQ model results. These processors are under development and will be released at a later date. Please contact us if you need the processors now.
-
-**>>COMMENT<<** end of ("ICON and BCON") from chapter 4 of old user's guide
+Information on environment variables, input and output files, compiling and running ICON are provided in the [README.md file in the PREP/bcon folder](../../PREP/bcon/README.md).  
 
 ### 2.5.3 Meteorology-Chemistry Interface Processor (MCIP)
 
@@ -1241,6 +849,24 @@ An overview of the various netCDF operators is given below.
 The Atmospheric Model Evaluation Tool (AMET) is a suite of software designed to facilitate the analysis and evaluation of meteorological and air quality models. AMET matches the model output for particular locations to the corresponding observed values from one or more networks of monitors. These pairings of values (model and observation) are then used to statistically and graphically analyze the model’s performance. More specifically, AMET is currently designed to analyze outputs from MM5, WRF, CMAQ, and CAMx as well as MCIP-postprocessed meteorological data (surface only).
 
 The basic structure of AMET consists of two ''fields ''and two *processes*. The two fields (scientific topics) are MET and AQ, corresponding to meteorology and air quality data. The two processes (actions) are database population and analysis. Database population refers to the underlying structure of AMET; after the observations and model data are paired in space and time, the pairs are inserted into a MySQL database. Analysis refers to the statistical evaluation of these pairings and their subsequent plotting. Practically, a user may be interested in using only one of the fields (either MET or AQ), or may be interested in using both fields. That decision is based on the scope of the study. The three main software components of AMET are MySQL (an open-source database software system), R (a free software environment for statistical computing and graphics), and perl (an open-source, cross-platform programming language).
+
+
+
+**Table 2-4. Optional support software for CMAQ**
+
+|**Software**|**Description**|     **Source**    |
+|------------|-------------------------------|---------------------------------------------|
+|***Evaluation and visualization tools***| | |
+|VERDI|Visualization Environment for Rich Data Interpretation for graphical analysis of netCDF gridded data|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
+|PAVE|Package for Analysis and Visualization of Environmental data for graphical analysis of netCDF gridded data|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
+|IDV|Integrated Data Viewer for 3-D graphical analysis of netCDF gridded data|[<http://www.unidata.ucar.edu/software/idv/>](http://www.unidata.ucar.edu/software/idv/)|
+|I/O API Tools|Postprocessing tools for manipulating data in the I/O API/netCDF format|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
+|netCDF Tools|Postprocessing tools for manipulating data in the netCDF format|[<http://my.unidata.ucar.edu/content/software/netcdf/index.html>](http://my.unidata.ucar.edu/content/software/netcdf/index.html)|
+| ***Source code diagnostics*** |
+|GDB|Gnu Fortran debugger|[<https://www.sourceware.org/gdb/>](https://www.sourceware.org/gdb/)|
+|PGDBG|Portland Group Fortran debugger|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
+|PGPROF|Portland Group Fortran code profiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
+|IDB|Intel Fortran debugger|[<https://software.intel.com/en-us/articles/idb-linux>](https://software.intel.com/en-us/articles/idb-linux)|
 
 ### 2.6.4 External Input-Generation Models and Tools
 
