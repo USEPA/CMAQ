@@ -66,7 +66,8 @@ After downloading data, check the file for \*\*\* strings and replace each with 
 
 A text editor can be used to replace the strings. The sed may also be used as below.
 
-                  sed 's/\*\*\*/  0/g' L3e_ozone_omi_*.txt
+                  sed 's/\*\*\*/  0/g' L3e_ozone_omi_YYYYMMDD.txt > tmp.txt
+                  mv -f tmp.txt L3e_ozone_omi_YYYYMMDD.txt
       
 #### Running the Utility   
 
