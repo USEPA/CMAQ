@@ -1,10 +1,9 @@
-**Table B‑1. Mechanism for cb05e51_ae6_aq uses the following aerosol phase species.**
+**Table B‑4. Mechanism for cb6r3_ae6_aq uses the following aerosol phase species.**
 
-
-|**Model Species**| **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
-|-------|-----------------------------------------------------------------|------------|-----------|
+| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+| ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
 | AAL               | Aluminum                                             | 27                   | E                      |
-| AALK1             | Semivolaitle SOA Product from Alkane VOCs            | 225.0                | L                      |
+| AALK1             | Semivolatile SOA Product from Alkane VOCs            | 225.0                | L                      |
 | AALK2             | Semivolatile SOA Product from Alkane VOCs            | 205.1                | L                      |
 | ABNZ1             | Semivolatile High-NOx SOA Product from Benzene       | 161.0                | L                      |
 | ABNZ2             | Semivolatile High-NOx SOA Product from Benzene       | 134.0                | L                      |
@@ -14,6 +13,7 @@
 | ACORS             | Anthropogenic Coarse-mode particle mass              | 100.0                | L                      |
 | AEC               | Elemental Carbon                                     | 12                   | E                      |
 | AFE               | Iron                                                 | 55.8                 | E                      |
+| AGLY              | Glyoxal and Methylglyoxal SOA                        | 66.4                 | L                      |
 | AH2O              | Water                                                | 18                   | E                      |
 | AH3OP             | Hydronium Ion                                        | 19                   | E                      |
 | AISO1             | Semivolatile SOA Product from Isoprene               | 132.0                | L                      |

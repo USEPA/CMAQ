@@ -1,4 +1,4 @@
-**Table A‑6. Mechanism for saprc07tb_ae6_aq uses the following aerosol phase species.**
+**Table B‑8. Mechanism for saprc07tic_ae6i_aq uses the following aerosol phase species.**
 
 | **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
@@ -11,13 +11,20 @@
 | ACA               | Calcium                                              | 40.1                 | E                      |
 | ACL               | Chloride                                             | 35.5                 | E                      |
 | ACORS             | Anthropogenic Coarse-mode particle mass              | 100.0                | L                      |
+| ADIM              | IEPOX-derived dimers                                 | 248.23               | L                      |
 | AEC               | Elemental Carbon                                     | 12                   | E                      |
 | AFE               | Iron                                                 | 55.8                 | E                      |
+| AGLY              | Glyoxal and Methylglyoxal SOA                        | 66.4                 | L                      |
 | AH2O              | Water                                                | 18                   | E                      |
 | AH3OP             | Hydronium Ion                                        | 19                   | E                      |
+| AIEOS             | IEPOX-derived organosulfate                          | 216.20               | L                      |
+| AIETET            | 2-methyltetrols                                      | 136.15               | L                      |
+| AIMGA             | 2-methylglyceric acid                                | 120.10               | L                      |
+| AIMOS             | MPAN-derived organosulfate                           | 200.16               | L                      |
 | AISO1             | Semivolatile SOA Product from Isoprene               | 132.0                | L                      |
 | AISO2             | High-Volatility SOA Product from Isoprene            | 133.0                | L                      |
 | AISO3             | Acid-Catalyzed Isoprene SOA compounds                | 168.2                | L                      |
+| AISOPNN           | Isoprene Dinitrates                                  | 226                  | L                      |
 | AIVPO1            | Intermediate Volatility Primary Organic Compounds    | 266                  | L                      |
 | AK                | Potassium                                            | 39.1                 | E                      |
 | ALVOO1            | Low Volatility Oxidized Combustion Organic Compounds | 136                  | L                      |
@@ -25,6 +32,8 @@
 | ALVPO1            | Low Volatility Primary Organic Compounds             | 218                  | L                      |
 | AMG               | Magnesium                                            | 24.3                 | E                      |
 | AMN               | Manganese                                            | 54.9                 | E                      |
+| AMTHYD            | Organic Nitrate Hydrolysis Product                   | 185                  | L                      |
+| AMTNO3            | Monoterpene Nitrates                                 | 231                  | L                      |
 | ANA               | Sodium                                               | 23                   | E                      |
 | ANH4              | Ammonium                                             | 18                   | E                      |
 | ANO3              | Nitrate                                              | 62                   | E                      |
