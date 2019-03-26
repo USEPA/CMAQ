@@ -60,8 +60,14 @@ satillite's orbit, polar night, or equipment failure. To go around the problem, 
 the last available observation or the mean value for a location, in respective presidence. For robust and more useful
 output files, several months of data are suggested.
 
-After downloading data, check the file for \*\*\* strings and replace each with the string "   0" which denotes a
-missing value. Sometimes, the former string passes through quality control procedures.
+After downloading data, check the file for \*\*\* strings and replace each with the string "  0" (two blanks) which denotes a missing value. Sometimes, the former string passes through quality control procedures. To search for string and list files containing it, try using grep command the download files in the directory as below.
+
+                  grep -l "\*\*\*" L3e_ozone_omi_*.txt
+
+A text editor can be used to replace the strings. The sed may also be used as below.
+
+                  sed 's/\*\*\*/  0/g' L3e_ozone_omi_YYYYMMDD.txt > tmp.txt
+                  mv -f tmp.txt L3e_ozone_omi_YYYYMMDD.txt
       
 #### Running the Utility   
 
