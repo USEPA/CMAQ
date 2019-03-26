@@ -185,6 +185,7 @@ C-----------------------------------------------------------------------
 
          IF ( VGTYP_GD .NE. VGSGPN3 .AND.
      &        VGTYP_GD .NE. VGSGPH3 .AND.
+     &        VGTYP_GD .NE. -9999   .AND. ! WRF 3.9+ hybrid grid coordinate system
      &        VGTYP_GD .NE. VGWRFEM ) THEN
             XMSG = 'Wrong vertical coordinate type'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )

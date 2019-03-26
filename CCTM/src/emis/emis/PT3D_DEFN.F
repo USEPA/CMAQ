@@ -328,7 +328,7 @@ C (declared and stored in PTBILIN module)
 C Determine whether height information is time dependent or time independent.
 C Non-hydrostatic is time-independent and hydrostatic is time-dependent.
          SELECT CASE( VGTYP_GD )
-            CASE ( VGSGPH3, VGHVAL3, VGWRFEM )
+            CASE ( VGSGPH3, VGHVAL3, VGWRFEM,-9999 )
                ZSTATIC = .FALSE.
             CASE ( VGSGPN3 )
                ZSTATIC = .TRUE.
