@@ -1322,11 +1322,11 @@ C      of orgaic aerosol. Caer is then calculated based on that number.
 C        Solve for total number of organic moles in aerosol (hotp 7/5/11)
          lowb      = totorgsw   ! lower: moles of nonvolatile
          upb       = lowb + upb ! upper: all moles (semi and nonvolatile)
-         upb       = upb * ( 1.0 + 1e-7*n_vapor ) ! prevent numerical issues
          If ( abs( upb - lowb ) .Lt. threshmin ) Then
             ! no SOA to partition
             orgmoles = ( lowb + upb ) / 2.0
          Else
+            upb       = upb * ( 3.0 + 1.0e-7 * real(n_vapor) ) ! prevent numerical issues
             orgmoles  = soabisect( lowb, upb, totorgsw, c0, ctotf, vapor_mw )
          End If
 
@@ -1353,8 +1353,8 @@ C Constrain caer to values between conmin and ctotf
            End If
            caer( i ) = max( caer(i), evapmin )
 
-           If ( caer( i ) - ctotf( i ) .Gt. ctolmin ) Then
-               Write( logdev,* ) 'caer-ctotf exceeds ctolmin at i = ', i
+           If ( caer( i ) - ctotf( i ) .Gt. epsilon(0.0) ) Then
+               Write( logdev,* ) 'caer exceeds ctotf at i = ', i
                Write( logdev,* ) 'caer: ', caer( i ), ' ctotf: ', ctotf( i )
                Write( logdev,* ) 'caer reset to ctotf'
                caer( i ) = ctotf( i )

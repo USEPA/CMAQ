@@ -1164,8 +1164,8 @@ C J/K mass emis rate [g/s]  (edust( 1 ) not used)
             end do
 
 C J/K 3rd moment emis rate [m3/s] (needed for number and surface)
-            m3j = edust( 1 ) * f6dpi / ( gpkg * dust_dens( 1 ) )
-            m3k = edust( 2 ) * f6dpi / ( gpkg * dust_dens( 2 ) )
+            m3j = edust( 1 ) * f6dpi / ( gpkg * dust_dens( 1 ) ) + epsilon(0.0)
+            m3k = edust( 2 ) * f6dpi / ( gpkg * dust_dens( 2 ) ) + epsilon(0.0)
 
 C Mode-specific emission rates of particle number [1/s]
             dustoutn( 1,c,r ) = m3j * factnumj
