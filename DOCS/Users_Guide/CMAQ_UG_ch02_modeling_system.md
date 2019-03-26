@@ -549,6 +549,32 @@ This approach defining the CMAQ chemical mechanisms allows the chemical reaction
 **nml**
 
 ## 2.6 Post processing and visualizing model input and output
+Many software programs are available for pre- and post-processing, evaluating and visualizing CMAQ output.
+
+
+
+**Table 2-4. Optional support software for CMAQ**
+
+|**Software**|**Description**|     **Source**    |
+|------------|-------------------------------|---------------------------------------------|
+|***Post-processing***|||
+|CMAQ POST Tools|Programs released with CMAQ source code to prepare output data for model evaluation|[https://github.com/USEPA/CMAQ](../../POST)|
+|I/O API Tools|Postprocessing tools for manipulating data in the I/O API/netCDF format|[https://www.cmascenter.org/ioapi](https://www.cmascenter.org/ioapi)|
+|NCO|netCDF Operators: Postprocessing tools for manipulating data in the netCDF format|[http://nco.sourceforge.net](http://nco.sourceforge.net)
+|***Evaluation/Visualization***| | |
+|AMET|Atmospheric Model Evaluation Tool for analysis and evaluation of meteorlogical and air quality models|[https://www.epa.gov/cmaq/atmospheric-model-evaluation-tool](https://www.epa.gov/cmaq/atmospheric-model-evaluation-tool)|
+|VERDI|Visualization Environment for Rich Data Interpretation for graphical analysis of netCDF gridded data|[http://www.verdi-tool.org](http://www.verdi-tool.org/)|
+|RSIG|||
+|NCL|||
+|IDV|Integrated Data Viewer for 3-D graphical analysis of netCDF gridded data|[http://www.unidata.ucar.edu/software/idv/](http://www.unidata.ucar.edu/software/idv/)|
+
+[<http://my.unidata.ucar.edu/content/software/netcdf/index.html>](http://my.unidata.ucar.edu/content/software/netcdf/index.html)|
+| ***Source code diagnostics*** |
+|GDB|Gnu Fortran debugger|[<https://www.sourceware.org/gdb/>](https://www.sourceware.org/gdb/)|
+|PGDBG|Portland Group Fortran debugger|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
+|PGPROF|Portland Group Fortran code profiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
+|IDB|Intel Fortran debugger|[<https://software.intel.com/en-us/articles/idb-linux>](https://software.intel.com/en-us/articles/idb-linux)|
+
 
 **>>COMMENT<<** move the AMET subsection up behind VERDI and emphasize tool much more than the others and provide more specifics on how to run AMET similar to the detail for ICON/BCON. Suggested order: VERDI, AMET, CMAQ tools (hr2day, etc.), then all the other stuff like NCO and IDL.
 
@@ -581,7 +607,7 @@ IDV includes the capability to read I/O API netCDF formatted files and a scrip
 
 `runIDV capture.isl`
 
-### 2.6.2 Post processing
+### 2.6.2 Post-processing, visualizing and 
 
 #### 2.6.2.1 CMAQ utility Tools
 
@@ -689,21 +715,6 @@ The basic structure of AMET consists of two ''fields ''and two *processes*. The 
 
 
 
-**Table 2-4. Optional support software for CMAQ**
-
-|**Software**|**Description**|     **Source**    |
-|------------|-------------------------------|---------------------------------------------|
-|***Evaluation and visualization tools***| | |
-|VERDI|Visualization Environment for Rich Data Interpretation for graphical analysis of netCDF gridded data|[<http://www.verdi-tool.org>](http://www.verdi-tool.org/)|
-|PAVE|Package for Analysis and Visualization of Environmental data for graphical analysis of netCDF gridded data|[<http://www.cmascenter.org>](http://www.cmascenter.org/)|
-|IDV|Integrated Data Viewer for 3-D graphical analysis of netCDF gridded data|[<http://www.unidata.ucar.edu/software/idv/>](http://www.unidata.ucar.edu/software/idv/)|
-|I/O API Tools|Postprocessing tools for manipulating data in the I/O API/netCDF format|[<https://www.cmascenter.org/ioapi/>](https://www.cmascenter.org/ioapi/)|
-|netCDF Tools|Postprocessing tools for manipulating data in the netCDF format|[<http://my.unidata.ucar.edu/content/software/netcdf/index.html>](http://my.unidata.ucar.edu/content/software/netcdf/index.html)|
-| ***Source code diagnostics*** |
-|GDB|Gnu Fortran debugger|[<https://www.sourceware.org/gdb/>](https://www.sourceware.org/gdb/)|
-|PGDBG|Portland Group Fortran debugger|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
-|PGPROF|Portland Group Fortran code profiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
-|IDB|Intel Fortran debugger|[<https://software.intel.com/en-us/articles/idb-linux>](https://software.intel.com/en-us/articles/idb-linux)|
 
 ### 2.6.4 External Input-Generation Models and Tools
 
