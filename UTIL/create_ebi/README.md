@@ -1,4 +1,4 @@
-# CMAQ.Create_EBI_Solver
+# Create EBI Solver (create_ebi)
 Data, runscript, and FORTRAN code that CMAQ EBI Solver
 
 To create a new EBI solver:
