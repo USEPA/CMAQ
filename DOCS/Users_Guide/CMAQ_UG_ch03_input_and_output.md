@@ -16,7 +16,7 @@
 The Network Common Data Form (netCDF) is a set of software libraries and machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data (Unidata, 2009). The netCDF library provides an implementation of the netCDF interface for several different programming languages. The netCDF is used in CMAQ to define the format and data structure of the binary input and output files. CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
 
 
-[Input/Output Applications Programming Interface (I/O API)](https://www.cmascenter.org/ioapi)
+Input/Output Applications Programming Interface (I/O API)
 ---------------------------------------------------------
 **>>COMMENT<<** only a subset of this information needs to be kept; much of the subsection material can be found online and needs to be de-emphasized here.Consider removing the table describing Time Step Structures and Data Type Structures altogether.  This information can be briefly described in text to describe the GRIDDED3 and BNDARY3 files.
 
@@ -232,58 +232,51 @@ This section describes each of the input files required by the various CMAQ prog
 **Table 3-1. CMAQ input files**
 
 |**Environment Variable Name for File**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|**Required**|
-|-------------------------|----------------|----------------|----------------|-----------------------------------|
+|-------------------------|----------------|----------------|----------------|-----------------------------------|---------|
 |**General**| | | | ||
-|[GRIDDESC](#griddesc) <a id=griddesc></a>|ASCII|n/a|n/a|user/MCIP||
-|[gc_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CSV2NML||
-|[ae_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CSV2NML||
-|[nr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CSV2NML||
-|[tr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CSV2NML||
+|[GRIDDESC](#griddesc) <a id=griddesc></a>|ASCII|n/a|n/a|MCIP|required|
+|[gc_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[ae_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[nr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[tr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |**Initial Condition Inputs**| | | | ||
-|[INIT_CONC_1](#init_conc_1) <a id=init_conc_1_t></a> | GRDDED3 | Time-invariant | XYZ | ICON/CCTM||
-|[INIT_GASC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON/CCTM ||
-|[INIT_AERO_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON/CCTM||
-|[INIT_NONR_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON/CCTM||
-|[INIT_TRAC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON/CCTM||
+|[INIT_CONC_1](#init_conc_1) <a id=init_conc_1_t></a> | GRDDED3 | Time-invariant | XYZ | ICON or CCTM|required|
+|[INIT_GASC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM |required|
+|[INIT_AERO_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
+|[INIT_NONR_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
+|[INIT_TRAC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
 |**Boundary Condition Inputs**| | | | ||
-|[BNDY_CONC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> | BNDARY3 | Hourly |[2(X+1)+2(Y+1)]*Z | BCON||
-|[BNDY_GASC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]*Z|BCON||
-|[BNDY_AERO_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]*Z|BCON||
-|[BNDY_NONR_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]*Z|BCON||
-|[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]*Z|BCON||
+|[BNDY_CONC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> | BNDARY3 | Hourly |[2(X+1)+2(Y+1)]\*Z | BCON|required|
+|[BNDY_GASC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
+|[BNDY_AERO_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
+|[BNDY_NONR_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
+|[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
 |**MCIP**| | | | ||
-|[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>| GRDDED3 | Time-invariant | XY | MCIP||
-|[GRID_CRO_3D](#grid_cro_3d) <a id=grid_cro_3d_t></a>**>>missing text** | GRDDED3 | Time-invariant | XYZ | MCIP||
-|[GRID_BDY_2D](#grid_bdy_2D) <a id=grid_bdy_2D_t></a> **>>missing text** | GRDDED3 | Time-invariant | PERIM\*Z | MCIP||
-|[GRID_DOT_2D](#grid_dot_2d) <a id=grid_dot_2d_t></a>| GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP||
-|[MET_BDY_3D](#met_bdy_3d) <a id=met_bdy_3d_t></a>| BNDARY3 | Hourly | PERIM\*Z | MCIP||
-|[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>| GRDDED3 | Hourly | XY | MCIP||
-|[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>| GRDDED3 | Hourly | XYZ | MCIP||
-|[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)\*Z | MCIP||
+|[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>| GRDDED3 | Time-invariant | XY | MCIP|required|
+|[GRID_CRO_3D](#grid_cro_3d) <a id=grid_cro_3d_t></a>**>>missing text** | GRDDED3 | Time-invariant | XYZ | MCIP|required|
+|[GRID_BDY_2D](#grid_bdy_2D) <a id=grid_bdy_2D_t></a> **>>missing text** | GRDDED3 | Time-invariant | PERIM\*Z | MCIP|required|
+|[GRID_DOT_2D](#grid_dot_2d) <a id=grid_dot_2d_t></a>| GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP|required|
+|[MET_BDY_3D](#met_bdy_3d) <a id=met_bdy_3d_t></a>| BNDARY3 | Hourly | PERIM\*Z | MCIP|required|
+|[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>| GRDDED3 | Hourly | XY | MCIP|required|
+|[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>| GRDDED3 | Hourly | XYZ | MCIP|required|
+|[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|required|
 |**Emissions Inputs**||||||
-|[EMIS_1](#emis_1) <a id=emis_1_t></a> | GRDDED3 | Hourly | XYZ | SMOKE||
-|[STK_GRPS_nn](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE||
-|[STK_EMIS_nn](#stk_emis) <a id=stk_emis_t></a> | GRDDED3 | Hourly | XY | SMOKE||
-|[LTNGNO](#ltngno) <a id=ltngno_t></a>| GRDDED3 | Hourly | XYZ | User||
-|[NLDN_STRIKES](#nldn_strikes) <a id=nldn_strikes_t></a>| GRDDED3 | Hourly | XY |||
-|[LTNGPARMS_FILE](#ltngparm_file) <a id=ltngparm_file_t></a>| GRDDED3 | Time-invariant | XY |||
+|[EMIS_1](#emis_1) <a id=emis_1_t></a> | GRDDED3 | Hourly | XYZ | SMOKE|required|
+|[STK_GRPS_nn](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE|required|
+|[STK_EMIS_nn](#stk_emis) <a id=stk_emis_t></a> | GRDDED3 | Hourly | XY | SMOKE|required|
+|[NLDN_STRIKES](#nldn_strikes) <a id=nldn_strikes_t></a>| GRDDED3 | Hourly | XY |Must purchase data|optional for including NO from lightning|
+|[LTNGPARMS_FILE](#ltngparm_file) <a id=ltngparm_file_t></a>| GRDDED3 | Time-invariant | XY |CMAS|required for including NO from lightning|
 |**Biogenic and Land Surface Inputs**||||||
-|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator||
-|[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | User||
-|[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE||
-|[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | Metscan||
-|[BELD4_LU](#beld4_lu) <a id=beld4_lu_t></a>| GRDDED3 | Time-invariant |XY|||
-|[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY|||
-|[E2C_FERT](#e2c_fert) <a id=e2c_fert_t></a>| GRDDED3 | Daily |XY|||
-|[DUST_LU_1](#dust_lu_1) <a id=dust_lu_1_t></a>|GRDDED3 | Time-invariant | XY | Spatial Allocator||
-|[DUST_LU_2](#dust_lu_1) <a id=dust_lu_2></a>|GRDDED3 | Time-invariant | XY | Spatial Allocator||
-|[MODIS_FPAR](#modis_fpar) <a id=modis_fpar_t></a>|GRDDED3 | Daily | XY | Spatial Allocator||
-|[CROPMAP01](#cropmap01) <a id=cropmap01_t></a>| GRDDED3 | Time-invariant | XY | Cropcal||
-|[CROPMAP04](#cropmap04) <a id=cropmap04_t></a>| GRDDED3 | Time-invariant | XY | Cropcal||
-|[CROPMAP08](#cropmap08) <a id=cropmap08_t></a>|GRDDED3 | Time-invariant | XY | Cropcal||
+|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator|required|
+|[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required|
+|[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with inline biogenics|
+|[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | Metscan|optional (run-time option)|
+|[BELD4_LU](#beld4_lu) <a id=beld4_lu_t></a>| GRDDED3 | Time-invariant |XY||required for running CMAQ with bidirectional NH3|
+|[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY||required for running CMAQ with bidirectional NH3|
+|[E2C_FERT](#e2c_fert) <a id=e2c_fert_t></a>| GRDDED3 | Daily |XY||optional|
 |**Photolysis** | | | | ||
-|[JTABLE](#jtable) <a id=jtable_t></a>| ASCII | Daily | n/a | JPROC||
-|[OMI](#omi) <a id=omi_t></a>| ASCII | daily | n/a ||||
+|[JTABLE](#jtable) <a id=jtable_t></a>| ASCII | Daily | n/a | JPROC|optional|
+|[OMI](#omi) <a id=omi_t></a>| ASCII | daily | n/a |||optional|
 
 ## General
 <a id=griddesc></a>
@@ -652,15 +645,6 @@ The ## mark is unique and represents the sector identification.
 
 The elevated-point-source emissions file is an I/O API GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ in-line plume rise calculation, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
 
-<a id=ltngno></a>
-
-### LTNGNO: Lightning NOx emissions
-[Return to Table 3-1](#ltngno_t)
-
-Used by: CCTM – lightning NO<sub>x</sub> version only
-
-The lightning NO<sub>x</sub> emissions file is an I/O API GRDDED3 file with 3-d (row x col x layer) hourly NO emissions (moles/s) interpolated to the modeling domain. This is a lightning NO emissions file calculated off-line for input to CMAQ.
-
 <a id=nldn_strikes></a>
 
 ### NLDN_STRIKES: Hourly observed lightning strikes
@@ -818,81 +802,6 @@ This is a 3-D daily file created by the EPIC model via the FEST-C interface and 
 -   HUI: Heat Unit Index (none)
 -   LAI: Leaf Area Index (none)
 -   CPHT: Crop Height (m)
-
-
-<a id=dust_lu_1></a>
-### DUST_LU_1: Gridded land cover/land use
-[Return to Table 3-1](dust_lu_1_t)
-
-Used by: CCTM – in-line dust emission version only
-
-The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following LCLU variables to be compatible with the CMAQ dust module:
-
--   USGS_urban
--   USGS_drycrop
--   USGS_irrcrop
--   USGS_cropgrass
--   USGS_cropwdlnd
--   USGS_grassland
--   USGS_shrubland
--   USGS_shrubgrass
--   USGS_savanna
--   USGS_decidforest
--   USGS_evbrdleaf
--   USGS_coniferfor
--   USGS_mxforest
--   USGS_water
--   USGS_wetwoods
--   USGS_sprsbarren
--   USGS_woodtundr
--   USGS_mxtundra
--   USGS_snowice
-
-These categories are used to determine dust source locations and canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD4 tiles. The DUST_LU_1 file corresponds to the “a” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
-
-<a id=dust_lu_2></a>
-### DUST_LU_2: Gridded land cover/land use
-[Return to Table 3-1](#dust_lu_2_t)
-
-Used by: CCTM – in-line dust emission version only
-
-The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following variables to be compatible with the CMAQ dust module:
-
--   FOREST
-
-This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
-
-<a id=modis_fpar></a>
-### MODIS_FPAR: MODIS vegetation coverage
-[Return to Table 3-1](#modis_fpar_t)
-
-Used by: CCTM – in-line dust emission version only
-
-MODIS_FPAR file is an I/O API file with 2-d (row x col) daily values of Fraction of Photosynthetically Active Radiation (FPAR) from MODIS instrument interpolated to the modeling domain. It is required to obtain a dynamic vegetation fraction used by the in-line windblown dust emission module.
-
-<a id=cropmap01></a>
-### CROPMAP01: Gridded planting start dates
-[Return to Table 3-1](#cropmap01_t)
-
-Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) – in-line dust emission version with crops only
-
-The gridded planting start dates file is an I/O API GRDDED3 file of planting start dates for various crops interpolated to the modeling domain. The variables in this file are planting start dates for different crop types, where each variable is an integer representing the number of days after January 1 that planting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor) reads a crop activity calendar and a [GRID_CRO_2D](#grid_cro_2d) file to generate the CROPMAP08 file.
-
-<a id=cropmap04></a>
-### CROPMAP04: Gridded planting end dates
-[Return to Table 3-1](#cropmap04_t)
-
-Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) – in-line dust emission version with crops only
-
-The gridded planting end dates file is an I/O API GRDDED3 file of planting end dates for various crops interpolated to the modeling domain. The variables in this file are planting end dates for different crop types, where each variable is an integer representing the number of days after January 1 that planting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor) reads a crop activity calendar and a [GRID_CRO_2D](#grid_cro_2d) file to generate the CROPMAP08 file.
-
-<a id=cropmap08></a>
-### CROPMAP08: Gridded harvesting end dates
-[Return to Table 3-1](cropmap08_t)
-
-Used by: [CCTM](#CMAQ_Chemistry-Transport_Model_.28CCTM.29) – in-line dust emission version with crops only
-
-The gridded harvesting end dates file is an I/O API GRDDED3 file of harvesting end dates for various crops interpolated to the modeling domain. The variables in this file are harvesting end dates for different crop types, where each variable is an integer representing the number of days after January 1 that harvesting stops for each crop. The CMAQ preprocessing program [CALMAP](#CALMAP:_Crop_calendar_map_preprocessor) reads a crop activity calendar and a [GRID_CRO_2D](#grid_cro_2d) file to generate the CROPMAP08 file.
 
 ## Photolysis
 <a id=jtable></a>
