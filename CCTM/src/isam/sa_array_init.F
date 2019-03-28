@@ -32,7 +32,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE UTILIO_DEFN           ! replaces ioparms, iofdesc, iodecl
       USE CGRID_SPCS            ! covers all kinds of species mapping
       USE SA_DEFN               ! Mc06
-      USE OZVOC_DEFN            ! 20120911 populates VOC emission species
       
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -78,10 +77,6 @@ c.....update isam array according to isam ICON source tag
                 END DO ! R
               END DO ! C
             END DO ! L
-            JVOC = INDEX1( SPC_NAME( S, ICONTAG ), N_EVOC, NAM_VOC ) ! 21 voc spcs, 20160719
-            IF ( JVOC .GT. 0 ) THEN
-              WCH_VOC( JVOC, ICONTAG ) = 1.0
-            ENDIF ! spc_name is voc ?
           ELSEIF( N .EQ. -50) THEN  ! 50/50 for each of VOC- and NOx limited ozone
             DO L = 1, NLAYS
               DO R = 1, MY_NROWS
@@ -135,45 +130,42 @@ C**********************************************************************
       
 C.....argument:
 
-c.....local variable
+c.....local variables:
       
-      CHARACTER( 16 )  PNAME, INNAME
-      REAL, ALLOCATABLE:: TEMP( :,:,: )      
-      INTEGER          JDATE   ! current model date, coded YYYYDDD
-      INTEGER          JTIME   ! midpoint model time, coded HHMMSS
+      CHARACTER( 16 ), PARAMETER :: PNAME   = 'create_icon'
+      CHARACTER( 16 ), PARAMETER :: INNAME  = 'ISAM_PREVDAY'
+      
+      
+      INTEGER       ::  JDATE   ! current model date, coded YYYYDDD
+      INTEGER       ::   JTIME   ! midpoint model time, coded HHMMSS
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER      GXOFF, GYOFF              ! global origin offset from file
+      INTEGER       :: GXOFF, GYOFF              ! global origin offset from file
       INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
 
-      INTEGER          LOGENV
-      INTEGER          C,R,L,S,K,I
+      INTEGER       ::   LOGENV
+      INTEGER       ::   C,R,L,S,K,I
 
-Ckrt...External
-!0710 INTEGER, EXTERNAL :: INDEX1     
-
-Ckrt...others
-      INTEGER IBGN, JSPCTAG, NSPCTAG
-      CHARACTER( 16 ) SPCNAME1( NSPC_SA ) ! KRT: one dimensional array of specie names
+      INTEGER       :: IBGN, JSPCTAG, NSPCTAG
+      
+      CHARACTER( 16 )    :: SPCNAME1( NSPC_SA ) 
  
-czsw_hkust
-Ckrt  LOGICAL          PSHUT3
-czsw_hkust
-
-      DATA INNAME  /  'ISAM_PREVDAY    ' /   !need to be defined
-      DATA PNAME   /  'create_icon'/     
+      REAL, ALLOCATABLE  :: TEMP( :,:,: )      
 
 C**********************************************************************
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGENV = INIT3 ()
+         LOGENV = INIT3()
 C Get domain decomp info from the emissions file
          CALL SUBHFILE ( INNAME, GXOFF, GYOFF,
      &                   STARTCOL, ENDCOL, STARTROW, ENDROW )
       END IF                    ! FIRSTIME
+      
       IF ( .NOT. OPEN3( INNAME, FSREAD3, PNAME) )THEN 
          WRITE(*, *) 'Error: open file failed', INNAME
       ENDIF 
+      
+      
       IF ( .NOT. DESC3( INNAME ) ) THEN
          WRITE(*, *) 'Error: read', INNAME, 'failed'
          STOP 'Bad exit'

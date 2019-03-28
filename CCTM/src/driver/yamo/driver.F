@@ -115,7 +115,6 @@ C-----------------------------------------------------------------------
       USE SA_DEFN
       USE PISAM_DEFN            ! SA array definition (borrowed )
       USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
-      USE OZVOC_DEFN            ! 20120911 populates VOC emissionspecies
 #endif
 
 #ifdef parallel
@@ -396,10 +395,6 @@ C Miscellaneous Configuration Operations
          CALL MAP_FRAC( )
 
          CALL GET_SPC_INDEX ()
-
-         IF (  L_VOC ) THEN
-            CALL VOC_INIT ()
-         END IF
 
 C Initialize PISAM
          IF ( .NOT. PISAM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
