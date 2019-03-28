@@ -17,6 +17,18 @@ As a tool for identifying the relative importance of individual chemical and phy
 PA variables are computed by saving the differential operators associated with each process or reaction, integrated over the model synchronization time step –  the same variables that are used in solving the continuity equations within the model. For processes that are solved simultaneously in the same operator, PA uses mass balance to compute the contribution of each process.
 
 If the user activates PA during CMAQ runtime (CTM_PROCAN=Y), the PA input file (PACM_INFILE) specifies whether IPR, IRR or both analyses are performed, and defines which variables are required for each analysis. The IRR parameters are highly customizable and can be easily modified for new chemical mechanisms, but must be checked carefully before running to ensure that they correspond to the mechanism being used. The PA_REPORT output file should always be reviewed to verify that the calculations are being performed correctly. Note that while the IPR option can be run with any of the chemical solvers, use of IRR in CMAQ requires either the Rosenbrock or the SMVGEAR solvers.
+
+## Process analysis options
+
+-   `CTM_PROCAN [default: N]`  
+    Activate process analysis in the CCTM. Set this to Y and use $CMAQ_DATA/pacp/pacp.inp to configure the integrated process rate and integrated reaction rate settings for the CCTM.  Additional process analysis output files will be created when this setting is activated.
+-   `PA_BCOL_ECOL [default: None]`  
+    Modeling grid domain column range for the process analysis calculations. Set to the two digits representing the beginning and ending column number bounding the process analysis domain.
+-   `PA_BROW_EROW [default: None]`  
+    Modeling grid domain row range for the process analysis calculations. Set to the two digits representing the beginning and ending row number bounding the process analysis domain.
+-   `PA_BLEV_ELEV [default: None]`  
+    Modeling grid domain layer range for the process analysis calculations. Set to the two digits representing the bottom and top layer numbers bounding the process analysis domain.
+
 <!-- BEGIN COMMENT -->
 
 [Home](README.md) - [Next Chapter >>](CMAQ_OGD_ch07_HDDM-3D.md)<br>
