@@ -13,7 +13,9 @@ The Decoupled Direct Method in Three Dimensions (DDM-3D) provides CMAQ concentra
 
 In air quality modeling, sensitivities measure the response of a model output to a change in one or several predefined model parameters. In policy applications, the parameters of interest are usually emissions and the output of interest is pollutant concentrations. We may be interested in emissions from a particular geographical region, like an urban area, a group of states, or a country, and/or emissions from a particular source, such as wildfires, electricity generating units (EGUs), or light duty diesel trucks.
 
-![Figure7.1: A hypothetical relationship between emissions of SO2 and sulfate concentrations.  The green tangent line illustrates the sensitivity of sulfate concentration to emissions of SO2.](images/ddm.png)
+![Figure 7-1](images/ddm.png)
+
+**Figure 7-1: A hypothetical relationship between emissions of SO2 and sulfate concentrations.  The green tangent line illustrates the sensitivity of sulfate concentration to emissions of SO2.**
 
 This plot shows how the direct decoupled method works. Sensitivities are vital to Air Quality model analysis.
 A hypothetical relationship between emissions of SO2 and sulfate concentrations.  The green tangent line illustrates the sensitivity of sulfate concentration to emissions of SO2.
