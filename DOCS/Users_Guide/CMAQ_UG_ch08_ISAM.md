@@ -8,8 +8,15 @@
 # ISAM
 ## Overview
 
-Source culpability assessments are useful to develop emissions control plans. Emission-based approach generally provides a physical ground for source tracking results, as opposed to observation-based approach whose credibility is built upon statistical significance. Chemical transport modeling (CTM) is emission-based. Therefore it is desirable to have an instrumented tool that follows through the physical and chemical transformation in the CTM. The "CMAQ Integrated Source Apportionment Method (CMAQ ISAM)" is such an instrumented tool implemented within CMAQv5.2 framework to track contributions from source groups and/or regions to ambient levels and deposited amounts of pollutants; namely, ozone and inorganic PM2.5. In addition to standard CTM input data (total emissions, initial/boundary conditions, meteorology), provision of emissions data from constituent sectors and an optional regional map should enable ISAM to calculate the contributions.
+The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.
 
+The CMAQ model provides users the concentration and deposition fields of many pollutant species. These species are usually combinations of different types of primary emissions and secondary formation that have been physically and chemically transformed in the model. However, sometimes it's desirable to know specific source attribution information for the model outputs. For example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
+
+Answering this type of question often requires running an air quality model twice, once with the standard emissions scenario and once with the source of interest completely removed. The difference between the two runs is then assumed to be attributed to the removed source.  While this approach is reasonably straightforward to implement, it has some drawbacks.  For example, removing a large source from the system in a highly nonlinear chemical mixture can lead to some errors. Also, calculating source attribution of many sources can be logistically and computationally complex. 
+
+Alternatively, running CMAQ using ISAM allows the user the ability to calculate source attribution of a large number of sources directly by the model in one simulation.
+
+**>>Comment<<** The following text was pulled from the ISAMv5.0.2 documentation.  Some updating is still needed to reflect CMAQv5.3 changes.
 ### Build Instructions
 
 The CMAQv5.2 ISAM installation includes a build script for compiling a version of the CCTM instrumented with ISAM.  For installing CMAQ-ISAM, first download, install, and build the base version of the model. Then download the CMAQ ISAM tar file and untar into the CMAQv5.2 home directory:
