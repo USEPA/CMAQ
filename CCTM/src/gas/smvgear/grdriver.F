@@ -240,6 +240,9 @@ C for INTERPX
          SUBROUTINE FINAL_DEGRADE( CBLK )
            REAL( 8 ), INTENT( INOUT ) :: CBLK( :, : ) ! species conc in cell
          END SUBROUTINE FINAL_DEGRADE
+         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
+           REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
+         END SUBROUTINE HETCHEM_UPDATE_AERO       
       END INTERFACE
 
 !     logical, save :: bingo1 = .true.
@@ -260,6 +263,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          CALL GRINIT
          CALL JSPARSE
+         CALL RESET_SPECIES_POINTERS( IOLD2NEW )
+
          NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
          MAOMV =  MWAIR / MWWAT
          
@@ -490,7 +495,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             LEV = CLEV( CELLNUM )
             BLKTEMP( NCELL ) = REAL( TA( COL,ROW,LEV ), 8 )
             BLKDENS( NCELL ) = REAL( DENS( COL,ROW,LEV ), 8 )
-            BLKSVOL( NCELL ) = REAL( 1.0 / BLKDENS( NCELL ), 8 )
+            BLKSVOL( NCELL ) = 1.0 / DENS( COL,ROW,LEV )
             BLKPRES( NCELL ) = REAL( PA2ATM * PRES( COL, ROW, LEV ), 8 )
             BLKCH2O( NCELL ) = REAL( MAX( QV( COL,ROW,LEV ) * MAOMV * CONCOFM, 0.0 ), 8)
             IF( LAND_ZONE( COL,ROW ) .OR. SEAICE (COL,ROW) .GT. 0.0 )THEN

@@ -323,9 +323,6 @@ C for TX version
 
       Logical, Private, Save :: mapped = .False.
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
-
       Contains
  
 C------------------------------------------------------------------------
@@ -343,6 +340,7 @@ C-----------------------------------------------------------------------
       Use cgrid_spcs          ! CGRID mechanism species
       Use utilio_defn
       Use aero_data
+      Use phot_mod, Only: init_phot_shared  ! set-up shared photolysis arrays
 
       Implicit None
 
@@ -378,11 +376,12 @@ C-----------------------------------------------------------------------
 
       If ( Firstcall ) Then
          Firstcall = .False.
-         logdev    = setup_logdev()
       Else
          Return
       End if
- 
+
+      Call init_phot_shared()
+
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating aename'
@@ -829,7 +828,6 @@ C..Includes:
 C..Functions:
 
 C..Parameters:
-      Real, Parameter :: cmin = 1.0E-34   ! minimum concentration for most species
 
 C..Arguments:
       Real, Intent( Out ) :: aeconcmin( : ) ! array of minimum concentrations
@@ -841,15 +839,13 @@ C..Local Variables:
       Integer n        ! aerospc loop counter
       Integer spc      ! species loop counter
 
-      aeconcmin = cmin
-
       ! compute minimums for numbers and surfaces
       Do m = 1, n_mode
          spc = index1( aeromode( m )%num_name, n_ae_spc, ae_spc )
          aeconcmin( spc ) = aeromode_minNum( m ) * mwair * 1.0E-3
 
          spc = index1( aeromode( m )%srf_name, n_ae_spc, ae_spc )
-         aeconcmin( spc ) = aeromode_minM2( m ) * pi * mwair * 1.0E-3
+         aeconcmin( spc ) = aeromode_minM2( m ) * mwair * 1.0E-3
       End Do
 
       ! compute minimums for aerosol species
@@ -859,7 +855,6 @@ C..Local Variables:
                spc = index1( aerospc( n )%name( m ), n_ae_spc, ae_spc )
                If ( spc .Ne. 0 ) Then
                   aeconcmin( spc ) = aerospc( n )%min_conc( m ) * mwair * 1.0E-9 / ae_molwt( spc )
-                  aeconcmin( spc ) = Max( aeconcmin( spc ), cmin )
                End If
             End If
          End Do

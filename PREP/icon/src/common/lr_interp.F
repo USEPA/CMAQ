@@ -47,10 +47,11 @@ C     large conc gradients
 C     Improved Linear interpolation algorithm by JG 4/18/00 for interpolants
 C     close to interval end points
 C     UTILIO_DEFN for M3EXIT by J.Young 6/9/11
- 
+C     replaced UTILIO_DEFN with M3UTILIO
+
 C***********************************************************************
 
-      USE UTILIO_DEFN
+      USE M3UTILIO   ! IOAPI module
 
       IMPLICIT NONE 
 

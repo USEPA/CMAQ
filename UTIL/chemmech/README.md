@@ -1,121 +1,263 @@
-# CMAQ Chemical Mechanism Processor
-FORTRAN and c code that creates the RXNS modules for the CMAQ model version 5.2
+# CHEMMECH, the CMAQ photochemical mechanism processor
 
-This repository  contains the template bldrun script under script and code directory to generates the RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 files
-for CMAQ version 5.2.
+## Quick Start
 
-To use this tool:
+This directory contains a template bldrun script and source code directory for creating
+the RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 files under the scripts and src subdirectories, respectively.
 
-1) Compile the tool by modifying the bldit script in the scripts directory. Set Fortran compiler based on your system, save and run the script.
+To use this utilitiy:
 
-2) Modify the run script by setting the Mechanism that you are building.
+1.  Compile it by modifying the bldit script in the scripts directory. Set Fortran compiler based on your system, save and run the script.
 
-3) Execute the run script and inspect the results under the output directory.
+2.  Modify the run script by setting the Photochemical Mechanism to use.
 
-# Text from OGD Chapter 9:
+3.  Execute the run script and inspect the results under the output directory.
 
-### CMAQ Chemical Mechanisms
+##  Background
 
-The CMAQ modeling system accounts for chemistry in three phases: a gas phase, aerosols (solid or liquid), and an aqueous phase. Refer to the release notes to find the gas‑phase chemistry mechanisms available in each version of CMAQ. Several variations of the base gas-phase mechanisms, with and without chlorine, mercury, and toxic species chemistry, are distributed with CMAQ. The modularity of CMAQ makes it possible to create or modify the gas-phase chemical mechanism.
+The chemical mechanism processor (CHEMMECH) allows altering a photochemical mechanisms or using a different mechanism in the CMAQ model. Two output files implement the photochemical mechanism and are compiled along CMAQ’s source code. Both output files contain FORTRAN 90 modules. RXNS_DATA_MOD.F90 defines the mechanism species, their reactions and rate constants. RXN_FUNC_MOD.F90 specifies functions that map CMAQ model species to photochemical mechanism species and calculate reaction rate constants. CHEMMECH produces additional output files to check whether the two modules represent the photochemical mechanism intended by the user.  One additional ouput file, SPCS.ext, list the species participating in the mechanism. Two other additional output file are prototypes for the species and equations files used to run the Kinetic PreProcess (KPP) (Damian et al., 2002).  The KPP inputs have not been tested in several years so a user should use them with discretion.
+Remaining output files are markdown, csv and, html files. They contains table that at least list each reactions, their rate constant formula, and values at specified atmospheric conditions.
 
-Gas-phase chemical mechanisms are defined in CMAQ through Fortran source files. Located in subdirectories of the $CMAQ_MODEL/CCTM/src/MECHS directory (each correspond­ing to a mechanism name), these files define the source, reaction parameters, and atmospheric processes (e.g., diffusion, deposition, advection) of the various mechanism species. The species definitions for each mechanism are contained in namelist files that are read in during execution of the CMAQ programs. The CMAQ mechanism configuration is more similar to the science module configuration than to the horizontal grid or vertical layer configuration in that the mechanism is defined at compilation, resulting in executables that are hard-wired to a specific gas-phase mechanism. To change chemical mechanisms between simulations, a new executable that includes the desired mechanism configuration must be compiled.
+CHEMMECH inputs include the mechanism chemical definitions (mech.def) file and the three CMAQ species namelist files. All are ASCII files. Namelists specify species participating in photochemical reaction divided into the Gas (GC), Aerosol (AE) and Nonreactive (NR) groups but not all namelist species have to participate in photochemical reactions. The namelist are optional but are recommended when modifying an existing photochemical mechanism because CHEMMECH can cross check whether species used in the mech.def are found the namelists. The mech.def file lists the reactions and other data representing the photochemistry. Input tiles follow a rigid format; the CCTM/src/MECHS subdirectories contain examples. For namelists, the examples show the data in each file and the formatting rules. The following information regards formatting used in the mech.def file. 
 
-### Using predefined chemical mechanisms
+## Chemical Reactions Input Format
 
-To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to the name of one of the mechanism directories located under $CMAQ_MODEL/CCTM/src/MECHS. Refer to the [CMAQv5.2 Photochemical Mechanisms release notes](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/CMAQv5.2_Mechanisms.md) for the list of mechanisms available in CMAQv5.2.
+A mech.def file follows formatting rules based on Gery and Grouse (1990) and Jeffries (1990) but the rules evolved along with the CMAQ model.  The file consists five sequential blocks: a mechanism name, operator definitions, an ignored species list, the reactions list, and constant definitions. The first four blocks are optional based on the photochemical mechanism described by the mech.def file. Blocks after the mechanism name begin with the respective key words, SPECIAL, ELIMINATE, REACTIONS, and CONSTANT. These blocks terminate with “END” or “end” (case sensitive). Their content also follows the below rules and use the same elements to define information.
 
-### Creating or modifying chemical mechanisms
+Each block will be discussed separately below but first the discussion lists rules and elements for entering the mechanism data.
 
-Creating or modifying mechanisms in CMAQ requires the use of the CMAQ chemical mecha­nism compiler, CHEMMECH, to produce the required Fortran source (F90) and namelist files. CHEMMECH translates an ASCII mechanism listing to the F90 and namelist files required by CMAQ. Like all of the CMAQ preprocessors, CHEMMECH is a Fortran program that must be compiled prior to use. Distributed with a Makefile for compilation and run scripts for execution, CHEMMECH reads a mechanism definition (mech.def) file and outputs the mechanism F90 and namelist files. See Chapter 7 for a description of CHEMMECH.
+### General rules.
 
-To modify an existing mechanism, copy the mech.def file that is contained in one of the existing mechanism directories to a new directory and modify the mech.def file accordingly. Provide this modified mechanism definition file to CHEMMECH as input to produce the mechanism F90 and namleist files needed to compile CMAQ.  
+* Data Lines lie between columns 1 and 80.  
+* White spaces are ignored.  
+* Data lines can wrap around (i.e., entries can be continued on a subsequent line after a hard return).  
+* Lines beginning with an exclamation point contain a comment line.  
+* Data lines cannot contain a comment line.   
+* Text enclosed by “{}” or “()” contain comments within a data line.
 
-To invoke this new mechanism in CMAQ, set the *Mechanism* variable in the CMAQ build scripts to the name of the new mechanism directory and compile new executables.
+### Defining Elements.
 
-To create a new mechanism for CMAQ, follow a procedure similar to the above for modifying mechanisms. Use an existing mech.def file as a template to format the new mechanism for inclusion in CMAQ. After formatting the mechanism in the form of the mech.def file, provide this file as an input to CHEMMECH to create the required mechanism input files for CMAQ. Move the resulting mechanism files to a new directory under $CMAQ_MODEL/CCTM/src/MECHS. To invoke this new mechanism, set the *Mechanism* variable in the CMAQ build scripts to the name of the new mechanism directory and compile new executables.
+1.  Species Types and Naming Rules.  
+    1.  Constants species whose names and volume mixing ratio are fixed. Names include M (any molecule in the atmosphere), O2 (oxygen), CH4 (methane), H2 (hydrogen), N2 (nitrogen), and H2O (water vapor).  Reactions use constant species to calculate rate constants by including them as reactants. Their names cannot be used to represent other species.  
+    2.  Model species are produced or destroyed by the mechanism’s reactions. Species namelist define them. Their names satisfy the below rules.  
+        1.   Do not contain blanks and can be up to 16 characters long. However, the maximum length is recommended to equal 13 if the mechanism is to be used in DDM version of the CMAQ model.  
+        2.   Must begin with an alphabetic character but may contain any alphanumeric character (i.e., "A-Z," "a-z," and "0-9") or the characters ":" and "\_" after the first position.  
+        3.   Changing case to change the species so NO2 and no2 represent two different model species.  
+        4.   Using embedded comments in a species name cannot span two lines.  
+2.  Labels are used to define or refer to reactions, operators or other processes.  
+    1.   Often start with "<" and ends with ">".  
+    2.   Contain up to 16 non-blank characters long.  
+    3.   Cannot contain a comment or a label delimiter.   
+    4.   A label may span lines.  
+3.  Numbers can be read as the below types.  
+    1.  Integer (e.g., 5)  
+    2.  Floating point (e.g., 5.0)  
+    3.  Exponential (e.g., 5.0E+00).   
+    4.  With the exponential format, the "E" may be either upper or lowercase; a positive exponent is assumed if the sign of the exponent is missing.  
+    5.   All numbers are read in as REAL(4) FORTRAN types but may converted to REAL (8) FORTRAN type in output files.  
 
-### Using species namelist files
+### Format of Specific Blocks
 
-The species namelist files define the parameters of the gas, aerosol, non-reactive, and tracer species simulated by the model. The CMAQ programs read the namelist files during execution to define the sources and processes that impact the simulated concentrations of each of the model output species. The namelist files can be used to apply uniform scaling factors by model species for major model processes. For example, emissions of NO can be reduced by 50% across the board by applying a factor of 0.5 to the emissions scalar column of the gas-phase species namelist file. Similarly, the boundary conditions of O<sub>3</sub> can be increased by 50% by applying a factor of 1.5 to the boundary conditions scalar column of the gas-phase species namelist file.
+#### Mechanism Name.
 
-See [Chapter 8](CMAQ_OGD_ch08_input_files.md) for a description of the format of the namelist file.
+The mechanism name is an optional input. If it is included, it must be the first non-comment entry in the mechanism. Rules for the mechanism name are the same as those for species names except that it can be up to 32 characters long.   No delimiter is required to end of the name but a "hard return" after the entry is suggested for creating a legible input file.
 
-When mechanisms are modified or created in CMAQ, new namelist files must be created that include the new species in the mechanism. As described above, the program CHEMMECH will generate namelist files from a mech.def mechanism definition file.  Alternatively, existing namelist files can be used as templates to guide the manual creation of new files.
+#### SPECIAL.
 
-### Further information on chemical mechanisms
+The key word SPECIAL lists operators used in the REACTIONS block to express reaction rate constant. Operators combine reaction rate constant and concentrations. A mechanism often uses them to lump reactions together with an already defined rate constant. An example shows an operator called RY is derived from two following reactions with respective rate constants, RKA RKB, RKH, and RKI used in a photochemical mechanism.
 
--   The same chemical mechanism must be used for CCTM and all of the mechanism-dependent input processors that are part of the CMAQ system.
--   The Euler Backward Iterative (EBI) chemistry solver is mechanism-dependent. If a chemical mechanism is modified, then new EBI solver source code must be generated based on the mechanism definition. The CMAQ utility program CREATE_EBI reads the output from CHEMMECH to generate new EBI solver source code. 
--   The Rosenbrock and SMVGEAR solvers are mechanism-independent choices of chemistry solvers for the CCTM.
--   When adding new species to CMAQ, it is important to check that the sources of these new species into the modeling domain are accounted for correctly in the mechanism definition files. If species are added to the domain through the emissions files, the namelist files that define the mechanism species must contain these new species.
+        X + Y = 0.3*Z
+        U + Y = 0.5*W
+        H + Y = 0.2*M
+        I + Y = 0.7*N
+
+The reactions can be represented as the below reaction with the effective rate constant, RY, where X and U concentrations are values at the beginning of the integration time step of the chemistry solver.
+
+         Y = Z + W
+         Y = M + N
+
+RKXU and RKHI equal the weighted values of RKA\*X plus RKB\*W and RKA\*X plus RKB\*I. The SPECIAL block expresses RY with formula.
+
+       SPECIAL =
+          RKXU = 0.3*K<RKA>*C<X> + 0.5*K<RKB>*C<U>;
+          RKHI = 0.2*K<RKH>*C<H> + 0.7*K<RKI>*C<I>;
+        end special
+
+ Operator definitions allow using an already defined expression so for example the RKZ operator can use RKXU and RKHI in its definition.
+
+      SPECIAL =
+         RKXU = 0.3*K<RKA>*C<X> + 0.5*K<RKB>*C<U>;
+         RKHI = 0.2*K<RKH>*C<H> + 0.7*K<RKI>*C<I>;
+         RKZ  = RKXU + RKHI;
+      end special
+
+The value of RKZ corresponds to the rate constant for the below reaction. 
+
+      Y = Z + W + M + N
+
+Check Reaction Type 11 in __Table 1__ on to how access on
+an operator defined in the SPECIAL block. For an example of a CMAQ photochemical mechanism that uses the SPECIAL block, examine the mechanism
+definitions of the saprc07tb_ae6_aq mechanism in CMAQ version 5.2.
+
+Operators can increase computational efficiency for solving concentrations. Using them assumes that the concentrations used
+are constant over subtime steps within the photochemical solver. Mechanism developers should test the assumption before commiting 
+to them by comparing two mechanisms that do and do not use such operators.
+
+#### ELIMINATE.
+
+This key word followed by an equal sign lists products used in reactions that are not to be included as a model species or accounted for in CHEMMECH output files. A semicolon must follow each species name in the list. A developer may want to omit specific products because they lack relevance to research goals or because solving their concentrations greatly increases duration of model simulations.
+
+#### REACTIONS.
+
+The key word proceeds the list of reactions in the mechanism. Only the first four characters (i.e., REAC) are actually required. The key word is followed closed brackets and an equal sign. The bracket’s enclosure indicates units for rate constants. Allowed enclosures "PP" and "CM," ppm-min units and molecule-cc-sec units, respectively. Either enclosure is case insensitive. A delimiter is not required after the equal sign but a "hard return" after the entry is suggested for clarity of the input file. Examples of valid inputs include the following:
+
+                           REAC[PP]=
+                           RE ACTIONS [CM]=
+                           REACTIONS[ppm]=
+                           REAC[cms]=
+
+Individual reactions lines consist of the following: 1) an optional label, 2) up to 3 reactants 3) an equal sign (=) to separate reactants from products, 4) up to 40 products with optional numerical coefficients, 5) a reaction rate constant in one of the prescribed formats, and 6) an ending semicolon (;). Because line wrapping is allowed, a single reaction can span multiple lines in the input file. A reaction has the below generic format where brackets denotes optional content.
+
+            [<label>]    reac1,[+reac2[+reac3]] = [±[p,*]prod1, [±[p2*]prod2 [... ± [p3*]prod3]]]  RKI;
+
+	label names the reaction    
+	reacn defines the nth reactant                                           
+	prodn defines the nth product   
+	pn gives the stoichiometric coefficient of the nth product   
+	RKI defines type and parameters of the rate constant   
+
+Each of the components of the reaction is described below:
+
+Reaction labels are optional but are recommended because they can serve as references to define rate constant for following reactions or support Integration Rate Analysis within Process Analysis.
+
+A reaction can have a maximum number of three reactants. Stoichiometric coefficients are not allowed for reactants and are set to 1.0. Note that if a constant species name is used as a reactant, the output file factors its concentration is factored into the rate constant.
+
+Products consist species names separated by plus (+) or minus (-) signs with optional numerical coefficients. As noted above, a reaction can have up to 40 products. Stoichiometric coefficients use the number formats mentioned above and must be separated from the species names by an asterisk(*).
+
+Rate constant parameters begin with either a # sign or the expression, "%s#", where s equal 1, 2, 3, or H. The following characters and numbers specify parameters to calculate the reaction’s rate constant. Table 1 define formats corresponding to the available formulas. A semi-colon (;) denote the end of a reaction’s definition.   
+
+<center>  Table 1.  </center>
+
+| Type | Mechanism Definition File Expression| Formula, where M is air number density (molecules/cm3), T is air temperature(degrees K), and P is air pressure (Atm) |  
+|:---:|:-------------------:|:---:|   
+| -1   | #  A\\< HETEOROGENOUS>  | A\*H |  
+| 0   | #  A\\< PHOTOLYSIS>  | A\*J |  
+| 1   | #  A               | A   |  
+| 2   | #  A \^B             | A\*(T/300)\*\*B |  
+| 3   | #  A@B             | A\*EXP(-B/T) |  
+| 4   |	#  A\^B@B           | A\*(T/300)\*\*B\*EXP(-E/T) |  
+| 5   |	#  A@C\*E<REACTION> | K\*EXP(C/T)/A |  
+| 6   |	#  A*K<REACTION>   | A\*K |  
+| 7   |	%1  #  A           | A\*(1+0.6\*P) |  
+| 8   |	%2  #  A0@E0&A2@E2&A3@E3       | k0  +  k3\*M/(1+k3/k2) where  k0  =  A0\*exp(-E0/T),  k2  =  A2\*EXP(-E2/T),  and  k3  =  A3\*EXP(-E3/T)  |  
+| 9   |	%3  #  A0@E0&A1@E1             | A0\*EXP(-E0/T)+A1\*EXP(-E1/T)\*M |  
+| 9.1 | %3  #  A0^B0@E0&A1\^B1@E1&A2@E2 | A0\*(T/300)\*\*B0\*EXP(-E0/T)+A1\*(T/300)\*\*B1\*EXP(-E1/T)\*M+A2\*EXP(-E2/T) |  
+| 10  | #  A0^B0@E0&A1\^B1@E1&N&F       | [  ko\*M/(1+ko\*M/kinf)]F\*\*G  where  ko  =  A0\*(T/300)\*\*B0\*EXP(-E0/T),  kinf  =  A1\*(T/300)\*\*B1\*EXP(-E1/T)  and  G  =  G=1/[1+(log10(k0\*M/kinf)/n)**2)]  |  
+| 11  | #A?OPERATOR                    | A\*O |  
+| 12  |  %H  #  A0@E0&A1@E1            | A0\*EXP(-E0\*P)+A1\*EXP(-E1\*P)  if  the  sun  is  above  the  horizon  and  the  surface  is over  open  water  with  no  surf  zone.  0.0  if  otherwise |  
+| 13  | %4 # _Text String_     | Simple Fortran formula for rate constant | 
+
+**Notes:**   
+1.  For rate constants with the form A<Reference> or A*Reference, reference gives label for a photolysis rate (J), a heteorogeneous rate constant (H), rate constant for the given (K) reaction label or an operator (O). A equals one if not given.
+2.  Reaction Type 4 represents the rate constant for the reverse equilibrium reaction to the reaction labeled K.  
+3.  Calculating the photolysis and heteorogeneous rates takes place outside the RXNS_FUNC_MODULE.F90 file produced by the CHEMMECH processor.   
+4.  Operators are defined the SPECIAL block where <''REACTION''> is the rate constant for the given ''REACTION'' and [''species''] equals the concentration of a mechanism ''species'' at the beginning of the integration time-step for the chemistry's numerical solver.   
+5.  Type 12 is used to include ozone destruction by marine bromine and iodide compounds. It parameters effects from reactions predicted by a photochemical mechanism that includes them.  
+6.  Type 13 can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). They also can use function and operator defined in the __FUNCTIONS__ and __SPECIAL__ blocks.
+
+#### CONSTANTS.
+
+The key word defines volume mixing ratio of the subset of fixed list of constant species as below.
+
+      CONSTANTS
+       < C1> ATM_AIR = 1.0E+06
+       < C2> ATM_H2   = 0.56
+       < C3> ATM_N2   = 0.7808E+06
+       < C4> ATM_O2   = 0.2095E+06
+       < C5> ATM_CH4 = 1.85
+       end constants
+
+The values have units of parts per million. ATM_AIR equals the mixing ratio of M, any gas molecule. The block does not define the mixing ratio for H2O because the meteorological input data specific their values so the values depend on time and location.
+
+#### FUNCTIONS.
+
+The FUNCTIONS block defines formulas for calculating rate constant that can used by reaction Type 13. 
+They are limited to one line in lenght but can reference preceeding formulas within the FUNCTIONS block.
+They can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). The syntax obeys
+FORTRAN mathematical expressions.
+
+The below lines gives an example based on the CRI mechanism version version 2.1 (Jenkin et al., 2008 and Watson et al., 2008).
+
+        FUNCTIONS
+         KD0 = 4.90D-3*EXP(-12100/TEMP)*M;
+         KDI = 5.4D+16*EXP(-13830/TEMP);
+         KRD = KD0/KDI;
+         FCD = 0.30;
+         NCD = 0.75-1.27*(LOG10(FCD));
+         FD = 10**(LOG10(FCD)/(1+(LOG10(KRD)/NCD)**2));
+         KBPAN = (KD0*KDI)*FD/(KD0+KDI);
+         KC0 = 2.7D-28*M*(TEMP/300)**-7.1;
+         KCI = 1.2D-11*(TEMP/300)**-0.9;
+         KRC = KC0/KCI;
+         FCC = 0.30;
+         NC = 0.75-1.27*(LOG10(FCC));
+         FC = 10**(LOG10(FCC)/(1+(LOG10(KRC)/NC)**2));
+         KFPAN = (KC0*KCI)*FC/(KC0+KCI);
+         KMT06 = 1 + (1.40D-21*EXP(2200/TEMP)*H2O);
+        END FUNCTIONS
+
+Use reaction type 13 to access the value of a formula expressed in the __FUNCTIONS__ block.
+
+        <R22>  HO2 + HO2    = H2O2          %4 # 2.20D-13*KMT06*EXP(600/TEMP);
+        <R348> CH3CO3 + NO2 = PAN           %4 # KFPAN;
+        <R721> PAN          = CH3CO3 + NO2  %4 # KBPAN;        
+
+## Building and Running
+
+Two methods exist for building CHEMMECH. The method to use depends on the user’s preferences but also the FORTRAN and C compilers that will be used. If the Intel, Portland or GCC compiler are available, the first and standard method executes the bldit_chemmech.csh script after changing the script’s COMPILER variable to one of the three options. If none of these compilers are to be used, the user has to modify src/Makefile to use the intended compiler and create CHEMMECH using the make command.  As implied by the compilers available in the bldit script, CHEMMECH has been tested with each to verify consistent results between compilers. The current Makefile includes the debug flags in the compilers options so the user can identify the cause and location when CHEMMECH crashes. Crashes occur the mech.def contains information that exceeds the parameters defining array dimensions. The src/MECHANISM_PARMS.f file defines these parameters. The user can change many of the parameters then rebuild CHEMMECH so the utility fits the application. Table 2 lists the parameter and state whether user should change their values.
 
 
-#Text from OGD Chapter 7:
-### Description
+Table 2.
 
-The program CHEMMECH generates mechanism source code files for all chemical mechanism-dependent CMAQ programs. Using an ASCII mechanism definition file as input, the Fortran program CHEMMECH creates all of the Fortran files that define the gas-phase chemical mechanisms for the CMAQ programs. The C-Shell script CSV2NML converts a comma-delimited text file that defines the processes (e.g., input as emissions, input through boundary conditions, transport, deposition) impacting the concentrations of each model species to a NAMELIST file for input to the CMAQ programs. In combination the Fortran source and NAMELIST files define chemical mechanisms in the CMAQ programs.
 
-Implementing new mechanisms created by CHEMMECH and CSV2NML in the CMAQ programs is a two-step process. CHEMMECH generates the mechanism RXNS source files that must be used in the compilation of CMAQ source code into an executable. CSV2NML generates species NAMELIST files that are input to the CMAQ programs during execution. Care must be taken to ensure that the RXNS and NAMELIST files are consistent with each other in order to correctly update or implement new mechanisms in CMAQ.
+| Parameter	| Value |        
+|:-----|----:|           
+| MAXRXNUM    |  	2000 |     
+| MAXSPEC     |  	700 |
+| MAXPRODS    |  	40 |
+| MAXRCTNTS    | 	3 |
+| MAXPHOTRXNS  | 	600 |
+| MAXSPECRXNS  | 	600  |
+| MAXFUNCTIONS 	|  6 * MAXRXNUM |
+| MAXSPECTERMS | 	 MAXSPEC |
+| MAXFALLOFF  |  	150 |
+| MAX3BODIES |   	150 |
+| MAXWRDLEN  |   	16 |
+| MAXCONSTS  |   	5 |
+|  MAXNLIST |     	50 |
 
-CHEMMECH reads in a mechanism definition (mech.def) text file that lists the stoichiometry and kinetics of a photochemical reaction mechanism. The program converts the mech.def file to two RXNS files, RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 that get compiled with the CMAQ source code into a new executable. The source files created by CHEMMECH must be manually moved to the correct directory location in the CMAQ source code directories to be available during compilation of the CMAQ programs. The mechanism files for CMAQ are found in $CMAQ_HOME/CCTM/src/MECHS/$Mechanism, where $Mechanism is the unique ID of a chemical mechanism (e.g., cb05e51_aq6_aq).
 
-CSV2NML reads in a series of CSV files that define the processes that impact the concentrations of all of the CMAQ species. The CSV files are converted to NAMELIST files that are invoked at execution of the various CMAQ programs. Environment variables in the run scripts for ICON, BCON, and CCTM must be set to point to the NAMELIST files for a particular mechanism.
+Running CHEMMECH is accomplished by modifying and executing the run script under the scripts subdirectory. In the run script, environment variables define names, directories and runtime options. The script contains comments describing each variable. Names and directory are used to set paths for the inputs, outputs, and CHEMMECH. Run time options are set based on the application and user. The option, compile, determines whether to recompile CHEMMECH. A user may want to recompile if they are modifying the CHEMMECH source code or wish to use a different compiler from a previous application. The variable, COMPILER sets which the compiler to use from possible values mentioned above if compile equals true. The option, USE_SPCS_NAMELISTS states whether CHEMMECH reads in the three mechanism species namelists and then checks whether the mech.def file uses a species not found in the namelists. CHEMMECH will stop when this occurs. Running CHEMMECH using the namelists is not required but the option provides check for potential errors when modifying an existing photochemical mechanism within the CMAQ model system. A user may want to set USE_SPCS_NAMELISTS  to false, F,  if they are creating a new photochemical mechanism.
 
-See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existing mechanisms or create new mechanisms in CMAQ.
+CHEMMECH produces two files, RXNS_DATA_MODULE.F90 and RXNS_FUNCTION.F90, to compile the CMAQ Chemical Transport Model (CCTM) that uses the photochemical mechanism. The data module contains parameters describing the reactions, rates, and species. The functions module contains routines for setting up the photochemical mechanism and calculating its rate constants. Compiling the CCTM requires no additional files if the model uses the Sparse Matrix Vectorized versions of the Rosenbrock (Sandu et al., 1997) or Gear (Jacobson and Turco, 1994) chemistry solver (repository directories, CCTM/src/gas/ros3 or CCTM/src/gas/smvgear). Besides the species namelists, executing the CCTM requires a CSQY_DATA_mechanism_name file containing cross-sections and quantum yields for the photolysis rates used by the mechanism. The inline_phot_preproc utility creates file by using the data module. Check the subdirectory containing this utility for more information. If the user wants CCTM to use a gas chemistry solver faster than Rosenbrock or Gear, they have to create a Euler Backward Interative (EBI) solver (Hertel et al., 1993) for the photochemical mechanism. The create_ebi utility creates an EBI solver specific to a photochemical mechanism by using its data module. Check this utility’s subdirectory for more information.
 
-### Files, configuration, and environment variables
+## References.
 
-[Figure 7‑5](#Figure5-4) shows the input and output files and configuration options for CHEMMECH and CSV2NML. The full set of mechanism files required by the CMAQ programs is generated in two steps. In the first step, the program CHEMMECH is run with the mechanism definition file, mech.def, provided as input. The resulting RXNS files are then input to the CMAQ build scripts to compile CMAQ with a new chemical mechanism configuration. CSV2NML is used to convert the species definition files from CSV format to NAMELIST files. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Three NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), and nonreactive species (NR.nml).
+Damian V., Sandu A., Damian M., Potra F., Carmichael G.R. (2002). The kinetic preprocessor KPP - A software environment for solving chemical kinetics. Computers and Chemical Engineering,  26(11) , pp. 1567-1579.
 
-<a id=Figure7-5></a>
+Gery, M.W. and Crouse, R.R. (1990) User’s Guide for Executing OZIPR,” EPA/6008-90, U.S. Enivironmental Protection Agency, Research Trianlge Park, 27711, NC.
 
-![](./images/Figure7-5.png "Figure7-5.png")  
-**Figure 7‑5. CHEMMECH and CSV2NML input and output files**
+Hertel O., Berkowicz R., Christensen J., and Hov O. (1993).  Test of Two Numerical Schemes for Use in Atmospheric Transport-Chemistry Models. Atmospheric Environment, Vol. 27A, No. 16, 2591-2661.
 
-To implement a new mechanism in CMAQ, start with a mechanism definition (mech.def) file and CSV species files from an existing mechanism in the model. Edit the mech.def file to include the new reactions, species, and reaction rates and provide this new mech.def file as input to CHEMMECH. Edit the CSV species files to include the new species and provide these files as input to CSV2NML. Detailed examples of updating an existing mechanism and adding a new mechanism to CMAQ are provided in [Chapter 9](CMAQ_OGD_ch09_grid_defn.md). Neither CHEMMECH nor CSV2NML requires horizontal grid, vertical layer, or temporal settings.
+Jacobson M.Z. and Turco R.P. (1994). SMVGEAR: A sparse-matrix, vectorized gear code for atmospheric models. Atmospheric Environment, Volume 28, Issue 2, Pages 273-284,
 
-#### CHEMMECH input files
+Jefferies, H.E. (1990) User Guide to Photochemical Kinetics Simulation System PC-PKSS Software Version 3, Chapel Hill, NC 27514.
 
-<a id=Table7-9></a>
+Jenkin M.E., Watson L.A., Shallcross D.E., Utembe S.R. (2008). A Common Representative Intermediate (CRI) mechanism for VOC degradation. Part-1: gas phase mechanism development
+Atmos. Environ., 42, pp. 7185-7195
 
-**Table 7-9. CHEMMECH input files**
+Sandu A., Verwer J.G, Blom J.G., Spee E.J., Carmichael G.R. and Potra F.A (1997). Benchmarking stiff ODE solvers for atmospheric chemistry problems II: Rosenbrock solvers. Atmospheric environment 31 (20), 3459-3472.
 
-|**File Name**|**Format**|**Description**|
-|---------------|------|------------------------------------------------------|
-|MCFL (mech.def)|ASCII|CMAQ mechanism definition file; photochemical mechanism listing with both mechanistic and kinetic information about all reactions that compose a chemical mechanism|
+Watson L.A., Shallcross D.E., Utembe S.R., Jenkin M.E. (2008). A Common Representative Intermediates (CRI) mechanism for VOC degradation. Part 2: Gas phase mechanism reduction
+Atmospheric Environment, 42 (31) , pp. 7185-7193
 
-#### CHEMMECH output files
-
-<a id=Table7-10></a>
-
-**Table 7‑10. CHEMMECH output files**
-
-|File Name|Format|Description|
-|------------|----------|-----------------------------------------------------|
-|RXCM.EXT|ASCII|Mechanism common INCLUDE file; lists all of the chemical mechanism variables and parameters|
-|RXDT.EXT|ASCII|Mechanism data INCLUDE file; chemical mechanism definition formatted as DATA blocks to be read in as CMAQ source code|
-|SPCS.EXT|ASCII|Species INCLUDE file; not used|
-
-The location of the CHEMMECH output files is set in the run script by the variable Opath. To compile a version of the CMAQ programs that use the INCLUDE files created by CHEMMECH, these output INCLUDE files need to be moved to a new directory under the `$CMAQ_HOME/models/mechs/release` directory. Point the CMAQ build scripts to this new directory through the “Mechanism” variable.
-
-### Compiling and Running
-
-#### Compile Chemmech ####
-
-To compile CHEMMECH, run the build script:
-
-```
-cd $CMAQ_HOME/UTIL/chemmech/scripts
-./bldit_chemmech.csh [compiler] [version] |& tee bldit_chemmech.log
-```
-
-To port CHEMMECH to different compilers, change the compiler names, locations, and flags in the config_cmaq.csh script.
-
-#### Run Chemmech ####
-
-Set the run script settings according to the execution configuration variables described above. Run CHEMMECH using the following command:
-
-```
-cd $CMAQ_HOME/UTIL/chemmech/scripts
-./run_chemmech.csh |& tee run_chemmech.log
-```

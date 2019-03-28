@@ -80,6 +80,14 @@ C***********************************************************************
 
        ALLOCATE ( STR_RXRAT( NRXNS)  )
 
+       IF( .NOT. ALLOCATED( NET_EFFECT ) )THEN
+           ALLOCATE( NET_EFFECT( ,)
+       END IF
+
+       IF( .NOT. ALLOCATED( NET_EFFECT ) )THEN
+           ALLOCATE( NET_RCOEFF( ,) )
+       END IF
+
        NET_EFFECT    = 0     ! default setting, species not net reactant or product
        NET_RCOEFF = 0.0D0 ! initialize   
                
