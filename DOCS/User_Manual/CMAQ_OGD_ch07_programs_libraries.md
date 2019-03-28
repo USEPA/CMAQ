@@ -504,16 +504,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_ZERO_PCSOA [default: N]`
      Turn off the emissions of the VOC precursor to pcSOA. The CMAQ dev team recommends leaving pcSOA mass in the model for production runs.
 
-##### Process analysis options
-
--   `CTM_PROCAN [default: N]`  
-    Activate process analysis in the CCTM. Set this to Y and use $CMAQ_DATA/pacp/pacp.inp to configure the integrated process rate and integrated reaction rate settings for the CCTM.  Additional process analysis output files will be created when this setting is activated.
--   `PA_BCOL_ECOL [default: None]`  
-    Modeling grid domain column range for the process analysis calculations. Set to the two digits representing the beginning and ending column number bounding the process analysis domain.
--   `PA_BROW_EROW [default: None]`  
-    Modeling grid domain row range for the process analysis calculations. Set to the two digits representing the beginning and ending row number bounding the process analysis domain.
--   `PA_BLEV_ELEV [default: None]`  
-    Modeling grid domain layer range for the process analysis calculations. Set to the two digits representing the bottom and top layer numbers bounding the process analysis domain.
 
 ##### I/O Controls
 
