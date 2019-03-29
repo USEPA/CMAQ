@@ -4,7 +4,7 @@
 
 CSV2NML and NML2CSV are used to convert the species definition files from CSV format to NAMELIST files and from a NAMELIST format to a CSV file, respectively. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Four NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), nonreactive species (NR.nml) and tracer speces (TR.nml).
 
-#### CSV2NML input files
+#### CSV2NML input files & NML2CSV output files
 
 Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-9) are provided in [Chapter 8](CMAQ_OGD_ch08_input_files.md). 
 
@@ -19,7 +19,7 @@ Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-
 |NR.csv|ASCII|Nonreactive species process parameters. This file defines the source and sink processes that impact the concentrations of every nonreactive species in the chemical mechanism.|
 |TR.csv|ASCII|Tracer species process parameters. This file defines the source and sink processes that impact the concentrations of every tracer species in the chemical mechanism.|
 
-#### CSV2NML output files
+#### CSV2NML output files & NML2CSV input files
 
 <a id=Table7-12></a>
 
@@ -40,7 +40,7 @@ An example of how to configure your CSV file is shown below:
 
 <a id=Table3></a>
 
-**TABLE 3. Example CSV File**
+**TABLE 3. Example Tracer CSV File**
 
 |**Species**|**MOLWT**|**ICBC**|**ICBC_FAC**|**DEPV**|**DEPV_FAC**|**SCAV**|**SCAV_FAC**|**TR2AE**|**TR2AQ**|**ADVC**|**DIFF**|**DDEP**|**WDEP**|**CONC**|
 |:------:|:----:|:----:|:---:|:-----:|:---:|:---:|:----:|:---:|:----:|:----:|:----:|:----:|:----:|:----:|
