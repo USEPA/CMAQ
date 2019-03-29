@@ -47,7 +47,7 @@ An example of how to configure your CSV file is shown below:
 |O3_1|48.0|O3|1|VD_O3|1|O3|1|    |    |YES|YES|YES|YES|YES|
 
 **NOTE: Certain columns can be left blank if desired like in the above example. Refer to [Chapter 8](CMAQ_OGD_ch08_input_files.md) for more information.**
-(CMAQ_OGD_ch08_input_files.md)
+
 
 An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
 
