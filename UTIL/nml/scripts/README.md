@@ -1,6 +1,6 @@
 # Convert .csv to namelist format (csv2nml) & Convert namelist format to .csv (nml2csv)
 
-# Section from OGD Chapter 7:
+
 
 CSV2NML and NML2CSV are used to convert the species definition files from CSV format to NAMELIST files and from a NAMELIST format to a CSV file, respectively. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Four NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), nonreactive species (NR.nml) and tracer speces (TR.nml).
 
