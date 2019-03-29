@@ -44,7 +44,7 @@ An example of how to configure your CSV file is shown below:
 
 |**Species**|**MOLWT**|**ICBC**|**ICBC_FAC**|**DEPV**|**DEPV_FAC**|**SCAV**|**SCAV_FAC**|**TR2AE**|**TR2AQ**|**ADVC**|**DIFF**|**DDEP**|**WDEP**|**CONC**|
 |:------:|:----:|:----:|:---:|:-----:|:---:|:---:|:----:|:---:|:----:|:----:|:----:|:----:|:----:|:----:|
-|O3_BC|48.0|O3|1|VD_O3|1|O3|1|    |    |YES|YES|YES|YES|YES|
+|O3_1|48.0|O3|1|VD_O3|1|O3|1|    |    |YES|YES|YES|YES|YES|
 
 **NOTE: Columns can be left blank if desire like in the above example**
 
