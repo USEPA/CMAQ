@@ -13,19 +13,19 @@ Consistency of configuration variables is critical for building CMAQ itself, not
 
 Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpif90 be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build.
   
--   `CMAQ_HOME`
+-   `CMAQ_HOME` <a id=CMAQ_HOME></a>
     The central CMAQ installation directory. For example, if you installed the CMAQ source code in the directory `/home/user/CMAQ` set CMAQ_HOME with `export CMAQ_HOME=/home/user/CMAQ` for bash or `setenv CMAQ_HOME /home/user/CMAQ` for csh; note that this variable is M3HOME prior to CMAQv5.2
 
--   `CMAQ_DATA`
+-   `CMAQ_DATA`<a id=CMAQ_DATA></a>
     Automatically set by config_cmaq.csh; note that this variable is M3DATA prior to CMAQv5.2
 
--   `CMAQ_LIB`
+-   `CMAQ_LIB`<a id=CMAQ_LIB></a>
     Automatically set by config_cmaq.csh; note that this variable is M3LIB prior to CMAQv5.2
 
 -   `M3MODEL`
     Automatically set by config_cmaq.csh; deprecated in CMAQv5.2
 
--   `compiler`
+-   `compiler` 
     Set the Fortran compiler type that you will use to compile CMAQ; choices are intel, pgi, or gcc
 
 -   `compilerVrsn`
