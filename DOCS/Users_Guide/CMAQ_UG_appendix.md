@@ -6,9 +6,9 @@
 
 * * *
 
-## Appendix A: Model options
+# Appendix A: Model options
 
-#### A.1 config_cmaq.csh
+## A.1 config_cmaq.csh
 Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script config_cmaq.csh to help enforce consistent environment settings for CMAQ and its associated libraries. The following lists the config_cmaq.csh variables defined for the build process and suggests values to which to set those variables.
 
 Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpif90 be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build.
@@ -82,7 +82,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `EXEC_ID`
     build tag, should be automatically set by config_cmaq.csh
 
-#### A.2 Compilation Configuration Variables
+## A.2 Compilation Configuration Variables
 
 The configuration options listed here are set during compilation of the CCTM executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile CCTM and create a new executable.
 
@@ -213,7 +213,7 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
     Potential vorticity parameterization for free-troposphere exhange of ozone. This option is configured using the potvorO3 variable in the CCTM build script. Do not change this module setting.
     - `pv_o3`
 
-#### Execution Configuration Variables
+## A3. Execution Configuration Variables
 
 The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script.
 
@@ -236,17 +236,17 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `EXEC [default: CCTM_$APPL_$EXECID]`  
     The name of the CCTM executable.
 
-##### MPI Configuration
+### MPI Configuration
 -   `NPCOL_NPROW [default: 1 1]`  
     The numbers of columns and rows for decomposing the modeling domain in an MPI configuration. The product of this pair of numbers must equal the total number of processors allocated to the CCTM simulation. For serial or single-processor MPI runs set to `1 1`. For multi-processor simulations, the number of columns (i.e, the first number in the pair) should be greater than or equal to the number of rows.  For example, for an 8 processor MPI simulation, set to `4 2`
 -   `NPROCS [default: 1]`  
     Number of processors to allocate for the CCTM simulation; equal to the product of NPCOL x NPROW. For serial or single-processor MPI runs set to `1`, otherwise set to the product of the two numbers used in NPCOL_NPROW.
 
-##### Vertical extent
+### Vertical extent
 -    `NZ [default: 35]` 
       Set the number of vertical layers. 
 
-##### Timestep Configuration
+### Timestep Configuration
 
 -   `NEW_START_TRUE [default: TRUE]` 
      For a model restart set to FALSE
@@ -261,7 +261,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `TSTEP [default: 010000]`  
     Simulation output time step interval (HHMMSS)
 
-##### CCTM Configuration Options
+### CCTM Configuration Options
 
 -   `LOGFILE [default: $BASE/$APPL.log]`  
     Uncomment to capture CCTM standard output to a log file; the LOGFILE variable sets the name and location of the log.
@@ -286,7 +286,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `EXECUTION_ID`  
     The name of the CCTM executable; automatically set by the script.
 
-##### Synchronization Time Step and Tolerance Options
+### Synchronization Time Step and Tolerance Options
 
 -   `CTM_MAXSYNC [default: 300]`  
     Maximum synchronization time step in seconds
@@ -301,7 +301,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `RB_ATOL [default: 1.0E-09]`  
     Global Rosenbrock (ROS3) chemistry solver absolute tolerance
 
-##### Science Options
+### Science Options
 
 -   `CTM_WB_DUST [default: Y]`  
     Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.
@@ -340,7 +340,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_ZERO_PCSOA [default: N]`
      Turn off the emissions of the VOC precursor to pcSOA. The CMAQ dev team recommends leaving pcSOA mass in the model for production runs.
 
-##### Process analysis options
+### Process analysis options
 
 -   `CTM_PROCAN [default: N]`  
     Activate process analysis in the CCTM. Set this to Y and use $CMAQ_DATA/pacp/pacp.inp to configure the integrated process rate and integrated reaction rate settings for the CCTM.  Additional process analysis output files will be created when this setting is activated.
@@ -351,7 +351,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `PA_BLEV_ELEV [default: None]`  
     Modeling grid domain layer range for the process analysis calculations. Set to the two digits representing the bottom and top layer numbers bounding the process analysis domain.
 
-##### I/O Controls
+### I/O Controls
 
 -   `IOAPI_LOG_WRITE [default: Y]`  
     Set to T to turn on excess WRITE3 logging by the I/O API.
@@ -362,7 +362,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `IOAPI_OFFSET_64 [default: N]`  
     I/O API setting for large time step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.
 
-##### Aerosol Diagnostics Controls
+### Aerosol Diagnostics Controls
 
 -   `CTM_AVISDIAG [default: N]`  
     Output visibility diagnostics file. Set to Y to turn on; comment out or set to N to turn off.
@@ -373,7 +373,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `APMDIAG_BLEV_ELEV [default: None]`  
     Modeling grid domain layer range for the hourly average aerosol diagnostics and properties file. Set to the two digits representing the bottom and top layer numbers to bound the output domain.
 
-##### Diagnostic Output Flags
+### Diagnostic Output Flags
 
 -   `CTM_CKSUM [default: Y]`  
     Write science processes summaries to the standard output. Impacts run speed and log file output size. Comment out or set to Y to turn on; set to N to turn off.
@@ -396,7 +396,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     -   `delete` delete output log if it already exists
     -   `keep` abort simulation if output log exists
 
-##### Inline emissions configuration
+### Inline emissions configuration
 
 -   `NPTGRPS [default: 1]`  
     The number of input point-source elevated emission sector file groups. A maximum of 9 sectors is allowed.
@@ -428,7 +428,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `REP_LAYER_MIN [default: -1]`  
     Minimum layer number for reporting plume rise values to the plume rise diagnostics file. Set to `-1` or comment out to report all layers.
 
-##### Lightning NOx configuration
+### Lightning NOx configuration
 
 [CMAQ Lightning NOx Module Documentation](../../CCTM/docs/Release_Notes/Lightning_NOx.md)
 
@@ -456,7 +456,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -  `LTNGOUT [default: None]`  
     Lightning diagnostics output netCDF file; ignore if `LTNGDIAG = N`
 
-##### In-line biogenic emissions configuration
+### In-line biogenic emissions configuration
 
 -   `GSPRO [default: None]`  
     Directory path and file name for input ASCII speciation profiles.
@@ -492,8 +492,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Diagnostic output netCDF file of biogenic emissions. This variable is ignored if B3GTS_DIAG is set to N.
 
 
-##### Windblown dust emissions configuration
-
+### Windblown dust emissions configuration
 
 [CMAQ Windblown Dust Module Documentation](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/Windblown_Dust_Emis.md)
 -   `DUST_LU_1`  
