@@ -57,9 +57,12 @@
  sed \
      -e 's/\r//' \
      -e '1s/^/\!/' \
+     -e "1\!s/\s//g" \
      -e "1\!s/[A-Za-z]\w*/\'&\'/g" \
      -e '1\!s/^\,//' \
      -e '1\!s/$/\,/' \
+     -e "1\!s/\,\,/\,\'\'\,/g" \
+     -e "1\!s/\,\,/\,\'\'\,/g" \
      -e '$ s/\,$//' \
      $File > ! /tmp/${Name}_$$
 
@@ -89,13 +92,16 @@ echo " "                    >> /tmp/nml_$$
 #> sed \
 #>     -e 's/\r//'                       <- remove any carriage returns ("cr" or "^M")
 #>     -e '1s/^/\!/'                     <- Insert Comment Symbol before Matrix Header to 
-#>                                          ensure it does not get read  
-#>     -e "1\!s/[A-Za-z]\w*/\'&\'/g"    <- Look for patterns that words and put and
+#>                                          ensure it does not get read 
+#>     -e "1\!s/\s//g"                   <- Remove any spaces present in the list 
+#>     -e "1\!s/[A-Za-z]\w*/\'&\'/g"    <-  Look for patterns that has words and put and
 #>                                          single quote around them  
 #>     -e '1\!s/^\,//'                   <- Delete a comma from start of each line 
 #>                                          if present      
 #>     -e '1\!s/$/\,/'                   <- Add a comma to the end of each line to signify 
-#>                                          line break 
+#>                                          line break
+#>     -e "1\!s/\,\,/\,\'\'\,/g"         <- Add quotes to any fields that are left blank and have 2 commas surronding them
+#>     -e "1\!s/\,\,/\,\'\'\,/g"         <- Add quotes to any fileds that are left blank and have 3 commas surrounding them
 #>     -e '$ s/\,$//'                    <- go to last line and delete the "," after the last char
 #>                                          in the line
 #>                                          ( "$" is a special address, representing the last line)
