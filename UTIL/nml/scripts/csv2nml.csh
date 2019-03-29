@@ -90,7 +90,7 @@ echo " "                    >> /tmp/nml_$$
 #>     -e 's/\r//'                       <- remove any carriage returns ("cr" or "^M")
 #>     -e '1s/^/\!/'                     <- Insert Comment Symbol before Matrix Header to 
 #>                                          ensure it does not get read  
-#>     -e "1\!s/[A-Za-z]\w*/\'&\'/g"    <- Look for patterns that words and put and
+#>     -e "1\!s/[A-Za-z]\w*/\'&\'/g"    <- Look for patterns that has words and put and
 #>                                          single quote around them  
 #>     -e '1\!s/^\,//'                   <- Delete a comma from start of each line 
 #>                                          if present      
