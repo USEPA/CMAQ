@@ -32,7 +32,7 @@ Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-
 |NR.nml|ASCII|Nonreactive species process parameters. This file defines the source and sink processes that impact the concentrations of every nonreactive species in the chemical mechanism|
 |TR.nml|ASCII|Tracer species process parameters. This file defines the source and sink processes that impact the concentrations of every tracer species in the chemical mechanism|
 
-#### CSV2NML usage
+#### CSV2NML & NML2CSV usage 
 
 The CSV2NML script is configured to read in a CSV file from the command line and output a NAMELIST file that can be used with CMAQ. The CSV file to be input, currently, has to configured in a certain format to be consistent with how it is read in the existing CMAQ program suite. 
 
@@ -46,6 +46,7 @@ An example of how to configure your CSV file is shown below:
 |:------:|:----:|:----:|:---:|:-----:|:---:|:---:|:----:|:---:|:----:|:----:|:----:|:----:|:----:|:----:|
 |O3_BC|48.0|O3|1|VD_O3|1|O3|1|    |    |YES|YES|YES|YES|YES|
 
+**NOTE:Columns can be left blank if desire.**
 
 An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
 
