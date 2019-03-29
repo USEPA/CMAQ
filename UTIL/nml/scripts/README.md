@@ -1,4 +1,4 @@
-# Convert .csv to namelist formate (csv2nml)
+# Convert .csv to namelist format (csv2nml) & Convert namelist format to .csv (nml2csv)
 
 # Section from OGD Chapter 7:
 
