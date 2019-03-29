@@ -181,6 +181,82 @@ Resolving the surface boundary layer requires high resolution (i.e., shallow ver
 -   [Otte and Pleim 2009 (in GMD) on MCIP](http://www.geosci-model-dev.net/3/243/2010/gmd-3-243-2010.html)
 
 ## Emissions
+## 4.1 Introduction
+
+CMAQ introduces emissions of trace gases and aerosols from a variety of important sources (e.g. electric generating utilities, vehicles, fires, trees, dust storms, farms, etc.). Some emissions are applied in the surface layer of the model grid, while others are applied at higher altitudes if, for example, they originate from point source like an elevated stack, or a large forest fire. Many sources that are related to local meteorology may be calculated online in CMAQ. However, most sources, especially anthropogenic ones, are preprocessed using software like the Sparse Matrix Operator Kerner Emissions (SMOKE) Modeling System. Once these external tools have calculated the offline emissions, they may merge them into larger aggregated files. We refer to emissions that are either calculated online or read into CMAQ from a file as emission "streams" (see [Fig. 4c-1](#Figure4c-1)).
+
+<a id=Figure4c-1></a>
+``![](./images/Figure4c-1.png "Figure4c-1.png")``
+
+Because CMAQ represents both primary and secondary pollutants, emissions are processed for a subset of the species CMAQ treats. The emissions chemical speciation must be compatible with the chemical mechanism chosen for CMAQ (e.g. cb6r3_ae7_aq) because different mechanisms represent large compounds like functionalized hydrocarbons with different formulae. CMAQv5.3 has introduced new features that make the process of mapping emissions species to CMAQ species more transparent and flexible (see Emission Control with DESID[link]). In fact, users can now toggle, modify, and augment emissions from all available streams in order to better tailor their simulations to the questions they are asking CMAQ to help answer. For tutorials covering specific tasks, please see the DESID tutorial page [link].
+
+## 4.2 Emission Streams
+Depending on the nature of any stream and the information used to quantify its emissions, it may be treated as one of three types:
+
+***4.2.1 Online Stream:***
+CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams available for running Online in CMAQ are: biogenics (BEIS) [link], marine gas[link], lightning NO [link], wind-blown dust [link], and sea-spray[ link].
+
+***4.2.2 Gridded Stream (offline):***
+CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the grid CMAQ is running. Typically these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. Some common examples of Gridded emissions include:
+
+- Mobile sources such as passenger vehicles, trains, ships, scooters, etc.
+- Low-level point source emissions that are not large enough to be treated individually
+- Residential heating
+- Consumer product use (e.g. adhesives, personal care products, pesticides, etc.)
+- Agricultural (e.g. burning, dust, animal waste, etc.)
+- Road, Construction and mechanically generated dust
+- Biogenic VOCs (if not calculated online with BEIS)
+
+Users add Gridded emissions to a simulation via the RunScript. First the variable N_EMIS_GR must be set to the number of Gridded Streams to be used:
+
+```
+setenv N_EMIS_GR 3
+```
+
+The RunScript must also specify the location of the input files using three-digit suffixes for the stream number:
+
+```
+setenv GR_EMIS_001 /home/user/path-to-file/emiss_stream_1_${DATE}.nc
+```
+
+and the short-name label to be used to refer to the Stream in logfiles:
+
+```
+setenv GR_EMIS_LAB_001 MOBILE
+```
+If N_EMIS_GR is set 0, then CMAQ will run with no Gridded emissions even if the values for GR_EMIS_XXX and GR_EMIS_LAB_XXX are all set.
+
+***4.2.3 Inline Stream (offline):***
+For these streams, emission rates and stack characteristics are provided for many individual sources on the same file. CMAQ uses the stack information to calculate important quantities like the injection height online taking into account local meteorology. A specific latitude/longitude pair is given for each source to locate it in the CMAQ grid.  Some common examples of Inline emissions include:
+
+- Stacks (electric generation units, industrial sources, manufacturing, etc.)
+- Forest fires
+- Large prescribed fire events  
+
+Users add Inline emissions to a simulation via the RunScript. First the variable N_EMIS_PT must be set to the number of Inline Streams to be used:
+
+```
+setenv N_EMIS_PT 3
+```
+The RunScript must also specify the location of the input files using three-digit suffixes for the stream number:
+
+```
+setenv STK_EMIS_002 /home/user/path-to-file/inline_emiss_stream_2_${DATE}.nc
+```
+
+The location to the "stack file" with static information about the properties of each source on the stream:
+```
+setenv STK_GRPS_002 /home/user/path-to-file/inline_stack_groups_2.nc
+```
+and the short-name label to be used to refer to the Stream in logfiles:
+```
+setenv STK_EMIS_LAB_002 POINT_FIRES
+```
+If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
+
+
+** >>COMMENT<< ** Start old EMissions section:
+
 ** >>COMMENT<< ** The biogenic emissions section needs some work.  There are many concepts and file that are not defined well.  Also, cite Jesse's paper on BEIS.
 
 See the [CMAQv5.2.1 release notes](../../CCTM/docs/Release_Notes/README.md#emissions) for updates on the emissions algorithms in CMAQ.
@@ -220,222 +296,11 @@ Under non-convective conditions (when the surface is cooling), vertical diffusio
 
 Horizontal diffusion is implemented with a single eddy diffusion algorithm that is based on local wind deformation and is scaled to the grid cell size. The horizontal eddy diffusivity is assumed to be uniform but dependent on the grid resolution of the model. This diffusivity is larger for a higher-resolution run where the numerical diffusion due to the advection process is smaller.
 ## Photochemistry
-** >> Comment <<** Section 7.8 is confusing with the initial sub-sections talking about INLINE_PHOT_PREPROC and the last few referring to CREATE_EBI. are these the same tools? A flow chart may actually help here.
 
-### Description
+**>>COMMENT<<** Moved inline_phot_preproc, create_ebi and jproc documentation to README.md files in UTIL folder
 
-The program INLINE_PHOT_PREPROC generates absorption cross-section/quantum yield (CSQY) data files for the CCTM inline photolysis module. This utility program allows users to create new CSQY tables when reaction rate data are modified or added to CMAQ. The data tables generated by INLINE_PHOT_PREPROC should be used to create the photochemistry data tables needed for inline photolysis configurations of the CCTM.  
-
-**>>COMMENT<<** Update or remove reference to chapter 9 from old User’s Document
-
-See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existing mechanisms or create new mechanisms in CMAQ.
-
-### Files, configuration, and environment variables
-
-To implement new CSQY data in CMAQ, start with individual CSQY data files for each photolysis reaction in an applicable photochemical mechanism. Add to or modify these data to create the CCTM inline CSQY data table.
-
-#### INLINE_PHOT_PREPROC input files
-
-
-**Table 4-2. INLINE_PHOT_PREPROC input files**
-
-|**File Name**|**Format**|**Description**|
-|----------------------------|------------|------------------------------------------------------------|
-|RXNS_DATA_MODULE.F90|ASCII|CMAQ mechanism reaction listing in Fortran 90 format; output from the program CHEMMECH|
-|CSQY_DATA_RAW|ASCII|Directory of photolysis reaction-specific absorption cross section and quantum yield data as a function of wavelength|
-|WVBIN_FILE|ASCII|Wavelength bins for which to include CSQY data|
-|FLUX_FILE|ASCII|Solar flux (photons/s/bin) by 0.05nm wavelength bin|
-|WATER|ASCII|Water refractive indices by wavelength|
-|INSOLUBLE|ASCII|Optical properties of soil aerosol material|
-|DUST|ASCII|Optical properties of soil aerosol material|
-|SOLUTE|ASCII|Optical properties of water soluble aerosol material|
-|SOOT|ASCII|Optical properties of soot (BC) aerosol material|
-|SEASALT|ASCII|Optical properties of seasalt aerosol material|
-
-#### INLINE_PHOT_PREPROC output files
-
-
-
-**Table 4-3. INLINE_PHOT_PREPROC output files**
-
-|File Name|Format|Description|
-|----------------|------------|------------------------------------------------------------|
-|CSQY_DATA|ASCII|Tabulated CSQY data as a function of temperature and wavelength bin|
-|PHOT_OPTICS|ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation|
-
-The location of the INLINE_PHOT_PREPROC output files is set in the run script by the variable OUTDIR. To compile a version of the CMAQ programs that use the files created by INLINE_PHO_PREPROC, copy the output files to a new directory under the `$CMAQ_HOME/CCTM/src/MECHS/$Mechanism` directory. Point the CMAQ build scripts to this new directory with the “Mechanism” variable.
-
-#### Compilation Configuration Variables
-
--  `Mechanism: [default: cb6r3_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2.1/CCTM/docs/Release_Notes/CMAQv5.2.1_Mechanisms.md)). Examples include:
-    -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tump_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, mercury, and air toxics, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM, aqueous/cloud chemistry; this is the CMAQv5 multipollutant mechanism
-    -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
-    -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
--   `COMPILER`  
-    Compiler to use for building the program
-    - `PGF90`
-    - `INTEL`
-    - `GFORT`
-
-#### Execution Configuration Variables
-
-The environment variables listed here are invoked at run time and are set in the CREATE_EBI run script.
--  `Mechanism: [default: cb05e51_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2.1/CCTM/docs/Release_Notes/CMAQv5.2.1_Mechanisms.md)). Examples include:
-    -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tump_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, mercury, and air toxics, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM, aqueous/cloud chemistry; this is the CMAQv5 multipollutant mechanism
-    -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
-    -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
--   `USE_RXNS_MODULES [default: T]`
-    Compatibility flag for CMAQ. Set to "T" for CMAQ version 5.1 and higher; set to "F" for older versions of CMAQ.
--   `WVL_AE_REFRAC [default: T]`
-    Include spectral values of refractive indices for aerosol species. Only needed for CMAQv5.1 and higher; set to "F" for older versions of CMAQ.
--   `SPLIT_OUTPUT [default: T]`
-    Split optical and CSQY output data to separate files. Only needed for CMAQv5.1 and higher; set to "F" for older versions of CMAQ.    
-
-### Compiling and Running
-
-#### Compile CREATE_EBI ####
-
-To compile CREATE_EBI, invoke the build file at the command line:
-
-```
-cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./bldit.create_ebi |& tee build.create_ebi.log`
-```
-
-To port CREATE_EBI to different compilers, change the `COMPILER` variable in the bldit script.
-
-#### Run CREATE_EBI ####
-
-Set the run script settings according to the execution configuration variables described above. Run CREATE_EBI using the following command:
-
-```
-cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./run.create_ebi |& tee run.create_ebi.log
-```
-** >> Comment <<** Delete section 7.9; refer users to older manuals if they want to run older options like JPROC.
-
-### Description
-
-The program JPROC calculates daily clear-sky photolysis rates from look-up tables of molecular absorption cross-section and quantum yield (CSQY) data, and climatologically derived ozone-column and optical depth data. The outputs from JPROC are ASCII look-up tables of daily clear-sky photolysis rates for photochemical reactions in a selected gas-phase photochemical mechanism at different altitudes, latitudes, and hours from noon. The photochemical mechanism from which these rates are derived is selected during compilation of JPROC. The altitudes (meters), latitudes (degrees), and hour angles (from noon) for which the rates are derived are hardwired in the JPROC source code.
-
-CCTM currently uses an in-line photolysis option that calculates photolysis rates using predicted ozone and aerosols. JPROC is not used for the default configuration of ModPhot set to phot/inline). JPROC is required to produce daily photolysis rate look-up tables if CCTM is compiled with *ModPhot* set to phot/table.
-
-### Files, configuration, and environment variables
-
-[Figure 4-2](#Figure7-7) shows the input and output files for JPROC. Some options are invoked at compilation, while others are invoked with execution of the program. When compiling JPROC, the user specifies a chemical mechanism to indicate the gas-phase chemistry for which to calculate photolysis rates. Setting the *Mechanism* variable in the JPROC compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. JPROC executables are hard-wired to a specific mechanism configuration.
-
-
-
-![](./images/Figure7-7.png "Figure7-7.png")
-
-**Figure 4-2. JPROC input and output files**
-
-While JPROC does not require any technical configuration at execution, such as domain specifications, there are several required and optional input files that the user must provide to the program. For the selected photochemical mechanism, the user must provide a set of molecular absorption CSQY data files that are consistent with the photolysis reactions in the mechanism. CMAQ is distributed with a full set of CSQY files for the Carbon Bond, SAPRC, and RACM photochemical mechanism versions supported by the model. If new mechanisms are added to CMAQ, the user must produce the appropriate CSQY data files for the added mechanism. The user also has the option of using the default atmospheric profiles contained in the PROFILES input file or using Total Ozone Mapping Spectrometer (TOMS) data to replace the climatologically derived ozone column data in the PROFILES file.
-
-#### JPROC input files
-
-
-
-**Table 4-4. JPROC input files**
-
-|**File Name**|**Format**|**Description**|
-|---------|--------|----------------------------------------------------------------------|
-|ET|ASCII|Extraterrestrial radiation as a function of wavelength|
-|PROFILES|ASCII|Seasonal vertical profiles of ozone concentrations, aerosol attenuation, temperature, air density and Dobson values|
-|TOMS|ASCII|Total ozone column measurements from the Total Ozone Mapping Spectrometer instrument aboard the sun-synchronous polar orbiting Nimbus satellite|
-|O2ABS|ASCII|Absorption CSQY data for molecular oxygen as a function of wavelength|
-|O3ABS|ASCII|Absorption CSQY data for ozone as a function of wavelength|
-|CSQY|ASCII (directory path)|Directory path containing absorption CSQY data for gas-phase photolysis reactions as a function of wavelength|
-
-#### JPROC output files
-
-
-
-**Table 4-5. JPROC output files**
-
-|**File Name**|**Format**|**Description**|
-|---------------|--------|----------------------------------------------------------------|
-|`JTABLE_$Date`|`ASCII`|Daily clear-sky photolysis rates file|
-
-The default location of the JPROC output files is the `$CMAQ_HOME/data/jproc` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all JPROC output files uses the Date environment variable in the file name, which is aliased to the `STDATE` environment variable in the run script.
-
-#### Compilation Configuration Variables
-
-The configuration options listed here are set during compilation of the JPROC executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options it is necessary to recompile JPROC and create a new executable.
-
--   `CopySrc`  
-    Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
--   `MakefileOnly`
-    Uncomment to build a Makefile to compile the executable. Comment out to create a Makefile and compile.
--  `Mechanism: [default: cb6r3_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2.1/CCTM/docs/Release_Notes/CMAQv5.2.1_Mechanisms.md)). Examples include:
-    -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tump_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, mercury, and air toxics, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM, aqueous/cloud chemistry; this is the CMAQv5 multipollutant mechanism
-    -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
-    -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
--   `Tracer [default trac0] `  
-      Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the `$CMAQ_HOME/CCTM/src/MECHS` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
-      - `trac[n]`
-
-#### Execution Configuration variables
-
-The environment variables listed here are invoked during execution of the program and are set in the JPROC run script.
-
--   `APPL [default: None]`  
-    JPROC executable identifier. Must match APPL Variable setting in the JRPOC build script.
--   `CFG [default: None]`  
-    Configuration identifier for the JPROC simulation.
--   `MECH [default: None]`  
-    CMAQ chemical mechanism. Must match Mechanism variable setting in the JPROC build script.
--   `EXEC: [default: JPROC_${APPL}_${EXEC_ID}]`  
-    Executable to use for the simulation. The variable CFG is set in the JPROC run script. The variable EXEC_ID is set in the config_cmaq.csh configuration file.
--   `STDATE`  
-    Start Julian date (YYYYDDD) for computing clear sky photolysis rates.
--   `ENDATE`  
-    End Julian date (YYYYDDD) for computing clear sky photolysis rates.
-
-### Compiling and Running
-
-#### JPROC compilation
-**>>COMMENT<<** Update or remove reference to chapter 5 from old User’s Document
-
-[Chapter 5](CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of JPROC:
-
-1.  Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   Cnfigure the JPROC build script to use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
--   Configure the JPROC build script for your application by setting the compilation configuration variables described above.
--   Invoke the build script to create an executable:
-
-```
-cd $CMAQ_HOME/UTIL/jproc/scripts
-./bldit_jproc.csh [compiler] [version] |& tee build_jproc.log
-```
-
-#### Run JPROC ####
-
-Set the run script settings according to the execution configuration variables described above. Run JPROC to produce offline clear-sky photolysis rates for the CCTM:
-
-```
-cd $CMAQ_HOME/UTIL/jproc/scripts
-./run_jproc.csh |& tee run_jproc.log
-```
-
-
---------
-
-** >>COMMENT<< ** Have Bill H. check for needed updates
-
-** >>COMMENT<< **  First sentence makes no sense.
+**>>COMMENT<<** Have Bill H. check for needed updates
+**>>COMMENT<<**  First sentence makes no sense.
 
 Photolysis or photodissociation energize and break apart compounds in several key of chemical processes in the atmosphere. It plays in the formation of ozone and particular material that affect human health. Computing the rate of photolysis reactions therefore strongly influences how well an air quality model simulates reality.
 
@@ -444,168 +309,25 @@ The calculation of a photolysis rate must include multiple influences. Clouds, s
 The in-line method (Binkowski et al., 2007) is the preferred method for calculating photolysis rates in the CCTM program of CMAQ model system. The method uses aerosol and ozone predicted within a simulation to calculate the solar radation. Two input files support the calculation. The PHOT_OPTICS file describe the optical properties of clouds, aerosols, and the earth’s surface. The OMI file is used to determine how much light is absorbed by atmosphere above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses an additional input file called the CSQY_DATA file. It contains the cross sections and quantum yields of photolysis rates in a given chemical mechanism. CSQY_DATA files are provided for all chemical mechanisms in a released version of CMAQ. If a user creates a mechanism using new or additional photolysis rates, they have to create a new CSQY_DATA file. The inline_phot_preproc utility produces this file based on the Fortran modules describing the mechanism (see the section on the CHEMMECH utility) and individual files describing the absorption cross-section and quantum yields described for each photolysis reaction.  
 
 The CMAQ modeling system includes an additional method to calculate photolysis rates based on look-up tables. The tables provide a mechanism’s photolysis rates under cloud free conditions based on a fixed meridional cross-sections of atmospheric composition, temperature, density and aerosols. Each table represents rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorological input files.
+
 ## Chemistry Mechanisms
-** >> Comment <<** Where do these things fit on Fig. 7-1?
+**>>COMMENT<<** Moved chemmech and csv2nml documentation to README.md files in UTIL folder
 
-** >> Comment <<** Delete sections 7.5 and 7.6 or put them in an appendix; provide that information upon request as not many people will make their own chemical mechanisms.
-
-### Description
-
-The program CHEMMECH generates mechanism source code files for all chemical mechanism-dependent CMAQ programs. Using an ASCII mechanism definition file as input, the Fortran program CHEMMECH creates all of the Fortran files that define the gas-phase chemical mechanisms for the CMAQ programs. The C-Shell script CSV2NML converts a comma-delimited text file that defines the processes (e.g., input as emissions, input through boundary conditions, transport, deposition) impacting the concentrations of each model species to a NAMELIST file for input to the CMAQ programs. In combination the Fortran source and NAMELIST files define chemical mechanisms in the CMAQ programs.
-
-Implementing new mechanisms created by CHEMMECH and CSV2NML in the CMAQ programs is a two-step process. CHEMMECH generates the mechanism RXNS source files that must be used in the compilation of CMAQ source code into an executable. CSV2NML generates species NAMELIST files that are input to the CMAQ programs during execution. Care must be taken to ensure that the RXNS and NAMELIST files are consistent with each other in order to correctly update or implement new mechanisms in CMAQ.
-
-CHEMMECH reads in a mechanism definition (mech.def) text file that lists the stoichiometry and kinetics of a photochemical reaction mechanism. The program converts the mech.def file to two RXNS files, RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 that get compiled with the CMAQ source code into a new executable. The source files created by CHEMMECH must be manually moved to the correct directory location in the CMAQ source code directories to be available during compilation of the CMAQ programs. The mechanism files for CMAQ are found in $CMAQ_HOME/CCTM/src/MECHS/$Mechanism, where $Mechanism is the unique ID of a chemical mechanism (e.g., cb05e51_aq6_aq).
-
-CSV2NML reads in a series of CSV files that define the processes that impact the concentrations of all CMAQ species. The CSV files are converted to NAMELIST files that are invoked at execution of the various CMAQ programs. Environment variables in the run scripts for ICON, BCON, and CCTM must be set to point to the NAMELIST files for a particular mechanism.
-
-**>>COMMENT<<** Update or remove reference to chapter 9 from old User’s Document
-
-See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existing mechanisms or create new mechanisms in CMAQ.
-
-### Files, configuration, and environment variables
-
-[Figure 4-3](#Figure5-4) shows the input and output files and configuration options for CHEMMECH and CSV2NML. The full set of mechanism files required by the CMAQ programs is generated in two steps. In the first step, the program CHEMMECH is run with the mechanism definition file, mech.def, provided as input. The resulting RXNS files are then input to the CMAQ build scripts to compile CMAQ with a new chemical mechanism configuration. CSV2NML is used to convert the species definition files from CSV format to NAMELIST files. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Three NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), and nonreactive species (NR.nml).
-
-
-
-![](./images/Figure7-5.png "Figure7-5.png")  
-**Figure 4-3. CHEMMECH and CSV2NML input and output files**
-
-**>>COMMENT<<** Update or remove reference to chapter 9 from old User’s Document
-
-To implement a new mechanism in CMAQ, start with a mechanism definition (mech.def) file and CSV species files from an existing mechanism in the model. Edit the mech.def file to include the new reactions, species, and reaction rates and provide this new mech.def file as input to CHEMMECH. Edit the CSV species files to include the new species and provide these files as input to CSV2NML. Detailed examples of updating an existing mechanism and adding a new mechanism to CMAQ are provided in [Chapter 9](CMAQ_OGD_ch09_grid_defn.md). Neither CHEMMECH nor CSV2NML requires horizontal grid, vertical layer, or temporal settings.
-
-#### CHEMMECH input files
-
-
-**Table 4-6. CHEMMECH input files**
-
-|**File Name**|**Format**|**Description**|
-|---------------|------|------------------------------------------------------|
-|MCFL (mech.def)|ASCII|CMAQ mechanism definition file; photochemical mechanism listing with both mechanistic and kinetic information about all reactions that compose a chemical mechanism|
-
-#### CHEMMECH output files
-
-
-**Table 4-7. CHEMMECH output files**
-
-|File Name|Format|Description|
-|------------|----------|-----------------------------------------------------|
-|RXCM.EXT|ASCII|Mechanism common INCLUDE file; lists all of the chemical mechanism variables and parameters|
-|RXDT.EXT|ASCII|Mechanism data INCLUDE file; chemical mechanism definition formatted as DATA blocks to be read in as CMAQ source code|
-|SPCS.EXT|ASCII|Species INCLUDE file; not used|
-
-The location of the CHEMMECH output files is set in the run script by the variable Opath. To compile a version of the CMAQ programs that use the INCLUDE files created by CHEMMECH, these output INCLUDE files need to be moved to a new directory under the `$CMAQ_HOME/models/mechs/release` directory. Point the CMAQ build scripts to this new directory through the “Mechanism” variable.
-
-#### CSV2NML input files
-
-**>>COMMENT<<** Update or remove reference to chapter 8 from old User’s Document
-
-Detailed descriptions of the formats of the files shown in [Table 4-8](#Table5-9) are provided in [Chapter 8](CMAQ_OGD_ch08_input_and_output_files.md).
-
-
-
-**Table 4-8. CSV2NML input files**
-
-|**File Name**|**Format**|**Description**|
-|--------|--------|--------------------------------------------------------------------------|
-|GC.csv|ASCII|Gas-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every gas-phase species in the chemical mechanism.|
-|AE.csv|ASCII|Aerosol-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every aerosol-phase species in the chemical mechanism.|
-|NR.csv|ASCII|Nonreactive species process parameters. This file defines the source and sink processes that impact the concentrations of every nonreactive species in the chemical mechanism.|
-
-#### CSV2NML output files
-
-
-**Table 4-9. CSV2NML output files**
-
-|**File Name**|**Format**|**Description**|
-|--------|--------|--------------------------------------------------------------------------|
-|GC.nml|ASCII|Gas-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every gas-phase species in the chemical mechanism|
-|AE.nml|ASCII|Aerosol-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every aerosol-phase species in the chemical mechanism|
-|NR.nml|ASCII|Nonreactive species process parameters. This file defines the source and sink processes that impact the concentrations of every nonreactive species in the chemical mechanism|
-
-#### Execution Configuration Variables
-
-The environment variables listed here are invoked at run time and are set in the CHEMMECH run script. The default run script is called MP.saprc99.csh.
-
--   `Xpath [default: $BASE]`  
-    Executable directory path
--   `EXEC [default: CHEMMECH]`  
-    Executable name
--   `Mechanism [default: None]`  
-    Name of the output mechanism.
--   `Opath [default: ../exts]`  
-    Output file directory path
--   `Mpath [default: ../exts]`  
-    Mechanism definition file directory path
--   `MECHDEF [default: None]`  
-    Mechanism definition file name
--   `MAPPING_ROUTINE [default: None]`  
--   `SPCSDATX [default: $Opath/SPECIES.ext]`  
-    Name of output species INCLUDE file
--   `RXNS_DATA_MODULE [default: $Opath/RXNS_DATA_MODULE.F90]`  
-    Name of output mechanism data Fortran file
--   `RXNS_FUNC_MODULE [default: $Opath/RXNS_FUNC_MODULE.F90]`  
-    Name of output mechanism common Fortran file
--   `EQNS_KPP_FILE [default: None]`  
--   `SPCS_KPP_FILE [default: None]`  
-
-### Compiling and Running
-
-#### Compile Chemmech ####
-
-To compile CHEMMECH, run the build script:
-
-```
-cd $CMAQ_HOME/UTIL/chemmech/scripts
-./bldit_chemmech.csh [compiler] [version] |& tee bldit_chemmech.log
-```
-
-To port CHEMMECH to different compilers, change the compiler names, locations, and flags in the config_cmaq.csh script.
-
-#### Run Chemmech ####
-
-Set the run script settings according to the execution configuration variables described above. Run CHEMMECH using the following command:
-
-```
-cd $CMAQ_HOME/UTIL/chemmech/scripts
-./run_chemmech.csh |& tee run_chemmech.log
-```
-
-#### CSV2NML usage
-
-The CSV2NML script is configured to read in a CSV file from the command line and output a NAMELIST file that can be used with CMAQ. An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
-
-```
-cd $CMAQ_HOME/UTIL/nml/scripts
-./csv2nml.csh GC.CSV
-```
-
-There is also a script to convert an existing namelist file to a CSV.
-
-```
-cd $CMAQ_HOME/UTIL/nml/scripts
-./nml2csv.csh GC.nml
-```
-
---------
-
-** >>COMMENT<< ** A section on chemical mechanisms should precede this section.
+**>>COMMENT<<** A section on chemical mechanisms should precede this section.
 
 ** >>COMMENT<< ** This single sentence is underwhelming.
 
 See the [CMAQv5.2.1 release notes](../../CCTM/docs/Release_Notes/README.md#chemistry) for updates on the chemistry algorithms in CMAQ.
 
 #### Gas-phase chemistry solvers
-** >>COMMENT<< ** Mentioning ODEs seems too technical here.
+**>>COMMENT<<** Mentioning ODEs seems too technical here.
 
-** >>COMMENT<< ** If I were a new user, I'd want to know how to choose from these solvers for my work.
+**>>COMMENT<<** If I were a new user, I'd want to know how to choose from these solvers for my work.
 
-** >>COMMENT<< ** Under what circumstances would I create a new chemical mechanism?  What if I'm using ROS3 or SMVGEAR?  Is there a utility like "create_ebi" for that?
-
+**>>COMMENT<<** Under what circumstances would I create a new chemical mechanism?  What if I'm using ROS3 or SMVGEAR?  Is there a utility like "create_ebi" for that?
 
 To determine the time dependent concentrations of species described by a chemical mechanism, the CCTM uses numerical methods to solve ordinary differential equations representing the chemical transformations. Three solution methods are available and differ in terms of accuracy, generalization, and computational efficiency, and have properties that can substantially affect model run times. They include the Rosenbrock (ROS3) solver (Sandu et al., 1997), the Euler Backward Iterative (EBI) solver (Hertel et al., 1993), and the Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). SMVGEAR and ROS3 are considered more accurate, in the order listed. Both solutions are labeled as “generalized” because using either only requires the mechanism’s namelist and FORTRAN modules. The EBI solver is more computationally efficient but is less accurate and is not a “generalized” solver so each chemical mechanism requires its own EBI solver; it can still be preferable if accelerated model execution is worth a compromise in accuracy. CMAQ includes EBI solvers for each mechanism definitions file released with a model version. Consult the CMAQ release notes for what mechanisms are in a specific version. If a user creates or modifies a chemical mechanism, they have to create a new EBI solver by using the create_ebi utility.
+
 ### Mechanisms
 
 The CMAQ modeling system accounts for chemistry in three phases: a gas phase, aerosols (solid or liquid), and an aqueous phase. Refer to the release notes to find the gas‑phase chemistry mechanisms available in each version of CMAQ. Several variations of the base gas-phase mechanisms, with and without chlorine, mercury, and toxic species chemistry, are distributed with CMAQ. The modularity of CMAQ makes it possible to create or modify the gas-phase chemical mechanism.
@@ -614,6 +336,7 @@ Gas-phase chemical mechanisms are defined in CMAQ through Fortran source files. 
 ### Using predefined chemical mechanisms
 
 To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to the name of one of the mechanism directories located under $CMAQ_MODEL/CCTM/src/MECHS. Refer to the [CMAQv5.2.1 Photochemical Mechanisms release notes](https://github.com/USEPA/CMAQ/blob/5.2.1/CCTM/docs/Release_Notes/CMAQv5.2.1_Mechanisms.md) for the list of mechanisms available in CMAQv5.2.1.
+
 ### Further information on chemical mechanisms
 
 -   The same chemical mechanism must be used for CCTM and all of the mechanism-dependent input processors that are part of the CMAQ system.
@@ -630,195 +353,20 @@ The program CREATE_EBI generates Fortran source code for the mechanism-dependent
 
 See [Chapter 9](CMAQ_OGD_ch09_grid_defn.md) for details on how to update existing mechanisms or create new mechanisms in CMAQ.
 
+**>>COMMENT<<** Moved create_ebi to README.md files in UTIL folder
+
 ### Files, configuration, and environment variables
 
 To implement a new mechanism in CMAQ, start with a mechanism definition (mech.def) file and CSV species files from an existing mechanism in the model. Edit the mech.def file to include the new reactions, species, and reaction rates and provide this new mech.def file as input to the program [CHEMMECH](#CHEMMECH). CHEMMECH will output a RXNS_DATA_MODULE.F90 file, which is used as input to CREATE_EBI.
 
-#### CREATE_EBI input files
 
-
-**Table 4-10. CREATE_EBI input files**
-
-|**File Name**|**Format**|**Description**|
-|----------------------------------|----------|----------------------------------------------------------|
-|RXNS_DATA_SRC.F90|ASCII|CMAQ mechanism reaction listing in Fortran 90 format; output from the program CHEMMECH|
-
-
-#### CREATE_EBI output files
-
-
-**Table 4-11. CREATE_EBI output files**
-
-|File Name|Format|Description|
-|---------------------------------------|---------------|-------------------------------------------------------|
-|\*.F|ASCII F90|Fortran 90 source code for the CCTM EBI chemistry solver|
-|RXNS_DATA_MODULE.F90|ASCII F90|Mechanism data Fortran source file; chemical mechanism definition formatted as DATA blocks to be read in as CMAQ source code|
-
-The location of the CREATE_EBI output files is set in the run script by the variable OUTDIR. To compile a version of the CMAQ programs that use the F90 files created by CREATE_EBI, these output F90 files need to be moved to a new directory under the `$CMAQ_HOME/CCTM/src/gas` directory. Point the CMAQ build scripts to this new directory through the “Mechanism” variable.
-
-#### Compilation Configuration Variables
-
--   `GC_NAME [default: None]`  
-     Name identifier for gas phase mechanisms
-     -  `CB6R3`  
-    Carbon Bond version 6 revision 3
-     -  `CB05E51`  
-     Carbon Bond 05 with modifications for CMAQ version 5.1
-     -  `CB05MP51`  
-     Carbon Bond 05 multipollutant mechanism for CMAQ version 5.1
-     -  `CB05TUCL`  
-     Carbon Bond 05 with modified toluene and chlorine chemistry
-     -  `CB05TUMP`  
-     Carbon Bond 05 with modified toluene and multipollutant chemistry
-     -  `SAPRC07TB`  
-     SAPRC07 with modified toluene chemistry
-     -  `SAPRC07TC`  
-     SAPRC07 with modified toluene chemistry
-     -  `SAPRC07TIC`  
-     SAPRC07 with modified toluene chemistry
-     -  `RACM2`  
-     RACM2 chemistry
--   `AE_NAME [default: None]`  
-    Name identifier for particle phase mechanisms
-    - `AE6`  
-    CMAQ aerosols version 6
-    - `AE6I`  
-    CMAQ aerosols version 6i
--   `AQ_NAME [default: AQ]`  
-    Name identifier for the CMAQ aqueous phase mechanism
-
-#### Execution Configuration Variables
-
-The environment variables listed here are invoked at run time and are set in the CREATE_EBI run script.
-
--   `EXEC [default: CHEMMECH]`  
-    Executable name
--   `GC_NAME [default: None]`  
-    Name identifier for gas phase mechanisms
-    -  `CB6R3`  
-    Carbon Bond version 6 revision 3
-    -  `CB05E51`  
-    Carbon Bond 05 with modifications for CMAQ version 5.1
-    -  `CB05MP51`  
-    Carbon Bond 05 multipollutant mechanism for CMAQ version 5.1
-    -  `CB05TUCL`  
-    Carbon Bond 05 with modified toluene and chlorine chemistry
-    -  `CB05TUMP`  
-    Carbon Bond 05 with modified toluene and multipollutant chemistry
-    -  `SAPRC07TB`  
-    SAPRC07 with modified toluene chemistry
-    -  `SAPRC07TC`  
-    SAPRC07 with modified toluene chemistry
-    -  `SAPRC07TIC`  
-    SAPRC07 with modified toluene chemistry
-    -  `RACM2`  
-    RACM2 chemistry  
--   `AE_NAME [default: None]`  
-    Name identifier for particle phase mechanisms
-    - `AE6`  
-    CMAQ aerosols version 6
-    - `AE6I`  
-    CMAQ aerosols version 6i
--   `AQ_NAME [default: AQ]`  
-    Name identifier for the CMAQ aqueous phase mechanism
--   `OUTDIR [default: ../output]`  
-    Output file directory path
--   `COPYRT_FLAG`
--   `CVS_HDR_FLAG`
--   `PAR_NEG_FLAG [default: F]`
-    Include PAR negative stoichiometry.
-    - `T` for Carbon Bond mechanisms
-    - `F` for SAPRC and RACM mechanisms
--   `DEGRADE_SUBS`
--   `NO2EX_CYCLE`
--   `MECH_NO`  
-    Mechanism name for nitric oxide
--   `MECH_NO2`  
-    Mechanism name for nitrogen dioxide
--   `MECH_NO2EX`  
-     SAPRC, RACM Mechanism name for excited nitrogen dioxide; not in Carbon Bond
--   `MECH_O3`  
-     Mechanism name for ozone
--   `MECH_O3P`  
-    Mechanism name for ground state oxygen atom
-    - `O` for Carbon Bond mechanisms
-    - `O3P` for SAPRC and RACM mechanisms
--   `MECHO_O1D`  
-    Mechanism name for excited state oxygen atom
--   `MECH_OH`  
-    Mechanism name for hydroxyl radical
--   `MECH_HO2`  
-    Mechanism name for hydroperoxy radical
--   `MECH_HONO`  
-     Mechanism name for nitrous acid
--   `MECH_HNO4`  
-    Mechanism name for peroxynitric acid
-    - `PNA` for Carbon Bond mechanisms
-    - `HNO4` for SAPRC and RACM mechanisms
--   `MECH_PAN`  
-    Mechanism name for peroxy acetyl nitrate
--   `MECH_C2O3`  
-    Mechanism name for peroxy acetyl radical
-    - `C2O3` for Carbon Bond mechanisms
-    - `MECO3` for SAPRC and RACM mechanisms
--   `MECHO_NO3`  
-    Mechanism name for nitrate radical
--   `MECH_N2O5`  
-    Mechanism name for dinitrogen pentoxide
-
-### Compiling and Running
-
-#### Compile CREATE_EBI ####
-
-To compile CREATE_EBI, invoke the build file at the command line:
-
-```
-cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./bldit.create_ebi.csh |& tee build.create_ebi.log
-```
-
-To port CREATE_EBI to different compilers, change the `COMPILER` variable in the bldit script.
-
-#### Run CREATE_EBI ####
-
-Set the run script settings according to the execution configuration variables described above. Run CREATE_EBI using the following command.
-```
-cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./run.create_ebi.csh |& tee run.create_ebi.log
-```
-
----------
-### How Chemical Mechanism Compiler (CHEMMECH) and EBI Chemistry Solver Builder (CREATE_EBI) should be used
-** >>COMMENT<< ** This section needs Bill H. review.
-
-** >>COMMENT<< ** This section and the next section on EBI:  It seems like these should be discussed before the CCTM section since you need to run them first.
-
-
-This program creates chemical mechanism namelist files for CMAQ from a mechanism definition file. Chemical mechanisms are represented in CMAQ through a series of namelist files that contain mechanistic and kinetic parameters that describe a photochemical mechanism. CHEMMECH creates the namelist files from an ASCII mechanism-definition file that represents the chemistry as sequential equations of reactants, products, and reaction rate information. This program is needed to modify reaction stoichiometry or kinetics in the existing mechanisms, to add new species and reactions, and to implement entirely new chemical mechanisms in CMAQ.
-
-** >>COMMENT<< ** This section needs Bill H. review.
-
-** >>COMMENT<< ** What's a namelist?  How does the "nml" program fit into the workflow?
-
-** >>COMMENT<< ** The last 3 sentences don't below in the CREATE_EBI section.
-
-The Euler Backward Iterative (EBI) chemistry solver is an optimized numerical solver for CCTM chemical mechanisms. As the EBI solver is optimized for a specific chemistry mechanism configuration, a new version of the EBI solver is required for new CCTM chemical mechanisms. The program CREATE_EBI is a CCTM source code generator for new mechanism versions. Mechanism input files for CREATE_EBI are produced by the CMAQ program CHEMMECH. The source code generated by CREATE_EBI may be used to compile a new version of the CCTM for use with updated chemistry namelist files created with CHEMMECH.
-
-<a id="inline_phot_preproc"></a>
-The inline photolysis preprocessor creates photolysis reaction parameter tables for the CCTM inline photolysis module.
-
-<a id="nml"></a>
-The nml program converts chemical mechanism csv output files from chemmech to the namelist files required by the CMAQ programs.
-
-
-Creating or modifying mechanisms in CMAQ requires the use of the CMAQ chemical mecha­nism compiler, CHEMMECH, to produce the required Fortran source (F90) and namelist files. CHEMMECH translates an ASCII mechanism listing to the F90 and namelist files required by CMAQ. Like all of the CMAQ preprocessors, CHEMMECH is a Fortran program that must be compiled prior to use. Distributed with a Makefile for compilation and run scripts for execution, CHEMMECH reads a mechanism definition (mech.def) file and outputs the mechanism F90 and namelist files. See Chapter 7 for a description of CHEMMECH.
+Creating or modifying mechanisms in CMAQ requires the use of the CMAQ chemical mechanism compiler, CHEMMECH, to produce the required Fortran source (F90) and namelist files. CHEMMECH translates an ASCII mechanism listing to the F90 and namelist files required by CMAQ. Like all of the CMAQ preprocessors, CHEMMECH is a Fortran program that must be compiled prior to use. Distributed with a Makefile for compilation and run scripts for execution, CHEMMECH reads a mechanism definition (mech.def) file and outputs the mechanism F90 and namelist files. See Chapter 7 for a description of CHEMMECH.
 
 To modify an existing mechanism, copy the mech.def file that is contained in one of the existing mechanism directories to a new directory and modify the mech.def file accordingly. Provide this modified mechanism definition file to CHEMMECH as input to produce the mechanism F90 and namelist files needed to compile CMAQ.  
 
 To invoke this new mechanism in CMAQ, set the *Mechanism* variable in the CMAQ build scripts to the name of the new mechanism directory and compile new executables.
 
 To create a new mechanism for CMAQ, follow a procedure similar to the above for modifying mechanisms. Use an existing mech.def file as a template to format the new mechanism for inclusion in CMAQ. After formatting the mechanism in the form of the mech.def file, provide this file as an input to CHEMMECH to create the required mechanism input files for CMAQ. Move the resulting mechanism files to a new directory under $CMAQ_MODEL/CCTM/src/MECHS. To invoke this new mechanism, set the *Mechanism* variable in the CMAQ build scripts to the name of the new mechanism directory and compile new executables.
-
 
 The species namelist files define the parameters of the gas, aerosol, non-reactive, and tracer species simulated by the model. The CMAQ programs read the namelist files during execution to define the sources and processes that impact the simulated concentrations of each of the model output species. The namelist files can be used to apply uniform scaling factors by model species for major model processes. For example, emissions of NO can be reduced by 50% across the board by applying a factor of 0.5 to the emissions scalar column of the gas-phase species namelist file. Similarly, the boundary conditions of O<sub>3</sub> can be increased by 50% by applying a factor of 1.5 to the boundary conditions scalar column of the gas-phase species namelist file.
 
@@ -852,6 +400,7 @@ CMAQ can output the reduction in visual range caused by the presence of PM, perc
 For easier comparison of CMAQ’s output PM values with measurements, time-dependent cutoff fractions may be output by the model (e.g., Jiang et al., 2006). These include quantities for describing the fraction of each mode that would be categorized as PM2.5 (i.e., PM25AT, PM25AC, and PM25CO) and PM1.0 (i.e., PM1AT, PM1AC, and PM1CO) as well as the fraction of particles from each mode that would be detected by an AMS (i.e AMSAT, AMSAC, and AMSCO). There is also a surface interaction module in the multipollutant version of CMAQ that calculates the flux of mercury to and from the surface (rather than just depositing mercury).
 
 Further discussion on the scientific improvements to the CMAQ PM treatment is available in the release notes for each version of the model.
+
 ## Aqueous and Heterogeneous Chemistry
 ** >>COMMENT<< **  Add info for KMT2?
 
@@ -860,6 +409,7 @@ See the [CMAQv5.2.1 release notes](../../CCTM/docs/Release_Notes/README.md#chemi
 Clouds are an important component of air quality modeling and play a key role in aqueous chemical reactions, vertical mixing of pollutants, and removal of pollutants by wet deposition. Clouds also indirectly affect pollutant concentrations by altering the solar radiation, which in turn affects photochemical pollutants (such as ozone) and the flux of biogenic emissions. The cloud module in CMAQ performs several functions related to cloud physics and chemistry. Three types of clouds are modeled in CMAQ: sub-grid convective precipitating clouds, sub-grid nonprecipitating clouds, and grid-resolved clouds. The meteorological model provides information about grid-resolved clouds, with no additional cloud dynamics considered in CMAQ. For the two types of sub-grid clouds, the cloud module in CCTM vertically redistributes pollutants, calculates in-cloud and precipitation scavenging, performs aqueous chemistry calculations, and accumulates wet deposition amounts. An important improvement in the CMAQv5 convective cloud mixing algorithm corrects a tendency to predict excessive transport from upper layers in the cloud to sub-cloud layers.
 
 CMAQ’s standard cloud chemistry treatment estimates sulfate production from five sulfur oxidation reactions, as well as secondary organic aerosol formation from the reaction of glyoxal and methylglyoxal with the hydroxyl radical.  The distribution between gas and aqueous phases is determined by instantaneous Henry’s law equilibrium, and the bisection method is used to estimate pH (and the distribution of ionic species) assuming electroneutrality. Beginning with CMAQv5.1, two additional cloud chemistry module options, AQCHEM-KMT and AQCHEM-KMTI, were made available along with standard AQCHEM (Fahey et al., 2017). These modules employ a Rosenbrock solver generated using the Kinetic PreProcessor (KPP), version 2.2.3 (Damian et al., 2002) to solve cloud chemistry, ionic dissociation, wet deposition, and kinetic mass transfer between the gas and aqueous phases (Schwartz, 1986). AQCHEM-KMTI also includes an expanded aqueous-phase chemical mechanism that treats SOA formation from biogenic-derived epoxides (Pye et al., 2013) in cloud, in addition to the standard sulfur and -dicarbonyl oxidation reactions. In all cloud chemistry modules, the parameters for cation content of coarse species have been updated to be consistent with the rest of CMAQ.
+
 ## Air-Surface Exchange
 ** >>COMMENT<< ** Add information about multiple deposition modules
 
