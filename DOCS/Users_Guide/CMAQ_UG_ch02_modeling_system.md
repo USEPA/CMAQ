@@ -117,38 +117,9 @@ Compiler flag consistency between the Fortran and C compilers used to build netC
 
 ### 2.2.1 config_cmaq.csh
 
-Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script `config_cmaq.csh` to help enforce consistent environment settings for CMAQ and its associated libraries [Table 2-2](#Table5-4) lists the `config_cmaq.csh` variables defined for the build process and suggests values to which to set those variables.
+Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script `config_cmaq.csh` to help enforce consistent environment settings for CMAQ and its associated libraries [Appendix A](CMAQ_UG_appendix.md) lists the `config_cmaq.csh` variables defined for the build process and suggests values to which to set those variables.
 
 Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script `mpif90` be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build.
-
-
-**Table 2-2. config_cmaq.csh configuration variables**
-
-| **Variable Name** | **Suggested Value** |
-|-----------------|---------------------------------------------------------------------|
-|`CMAQ_HOME`|The central CMAQ installation directory. For example, if you installed the CMAQ source code in the directory `/home/user/CMAQ` set CMAQ_HOME with `export CMAQ_HOME=/home/user/CMAQ` for bash or `setenv CMAQ_HOME /home/user/CMAQ` for csh; note that this variable is M3HOME prior to CMAQv5.2|
-|`CMAQ_DATA`|Automatically set by config_cmaq.csh; note that this variable is M3DATA prior to CMAQv5.2|
-|`CMAQ_LIB`|Automatically set by config_cmaq.csh; note that this variable is M3LIB prior to CMAQv5.2|
-|`M3MODEL`|Automatically set by config_cmaq.csh; deprecated in CMAQv5.2|
-|`compiler`|Set the Fortran compiler type that you will use to compile CMAQ; choices are intel, pgi, or gcc|
-|`compilerVrsn`|(Optional) Set the Fortran compiler version number that you will use to compile CMAQ; if you employ this variable, it will be appended to the compiler type when naming build directories and executables|
-|`IOAPI_MOD_DIR`|Location of the I/O API modules installation on your Linux system|
-|`IOAPI_INCL_DIR`|Location of the I/O API include file installation on your Linux system|
-|`IOAPI_LIB_DIR`|Location of the I/O API library installation on your Linux system|
-|`NETCDF_LIB_DIR`|Location of the netCDF installation on your Linux system|
-|`MPI_LIB_DIR`|Location of the Message Passing Interface installation on your Linux system|
-|`netcdf_lib`|Name of the netCDF library on your system;  set to "-lnetcdf" for versions < 4.2.0, "-lnetcdff -lnetcdf" for version 4.2.0 and later|
-|`ioapi_lib`|Name of the I/O API libraryar on your system; set to "-lioapi"|
-|`pnetcdf_lib`|Name of the parallel netCDF library on your system; set to "-lpnetcdf"|
-|`mpi_lib`|Name of the MPI library on your system; set to "-lmpich" for MVAPICH, "-lmpi" for OpenMPI|
-|`myFC`|Set to match the `FC` (Fortran compiler) you used to compile netCDF|
-|`myCC`|Set to match the `CC` (C compiler) you used to compile netCDF|
-|`myFFLAGS`|Fixed-format Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script|
-|`myCFLAGS`|C compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script|
-|`myFRFLAGS`|Free form-format Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script|
-|`MPI_INC`|Set to the path to your MPI library INCLUDE files, e.g. `$M3LIB/mpich/include`|
-|`extra_lib`|Set to other libraries required for compiling on your Linux system; users will likely need to change this setting in the distributed script for portability to their system.|
-|`EXEC_ID`|build tag, should be automatically set by config_cmaq.csh|
 
 Use the following steps to install CMAQ (with examples using a C-shell environment, a Red Hat Linux system, and the Portland Group Fortran compiler) on a Linux system. CMAQ is not distributed with scripts for installing on Windows or MacOSX.
 
