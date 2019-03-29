@@ -34,7 +34,19 @@ Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-
 
 #### CSV2NML usage
 
-The CSV2NML script is configured to read in a CSV file from the command line and output a NAMELIST file that can be used with CMAQ. An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
+The CSV2NML script is configured to read in a CSV file from the command line and output a NAMELIST file that can be used with CMAQ. The CSV file to be input, currently, has to configured in a certain format to be consistent with how it is read in the existing CMAQ program suite. 
+
+An example of how to configure your CSV file is shown below: 
+
+<a id=CSV Configuration></a>
+
+**Example CSV File**
+
+|**Species**|**MOLWT**|**ICBC**|**ICBC_FAC**|**DEPV**|**DEPV_FAC**|**SCAV**|**SCAV_FAC**|**TR2AE**|**TR2AQ**|**ADVC**|**DIFF**|**DDEP**||**WDEP**|**CONC**|
+|O3_BC|48.0|O3|1|VD_O3|1|O3|1| | |YES|YES|YES|YES|YES|
+
+
+An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
 
 ```
 cd $CMAQ_HOME/UTIL/nml/scripts
