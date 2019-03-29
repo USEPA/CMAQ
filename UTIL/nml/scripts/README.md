@@ -46,7 +46,7 @@ An example of how to configure your CSV file is shown below:
 |:------:|:----:|:----:|:---:|:-----:|:---:|:---:|:----:|:---:|:----:|:----:|:----:|:----:|:----:|:----:|
 |O3_BC|48.0|O3|1|VD_O3|1|O3|1|    |    |YES|YES|YES|YES|YES|
 
-**NOTE:Columns can be left blank if desire.**
+**NOTE: Columns can be left blank if desire.**
 
 An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
 
