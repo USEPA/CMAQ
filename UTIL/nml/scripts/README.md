@@ -38,7 +38,7 @@ The CSV2NML script is configured to read in a CSV file from the command line and
 
 An example of how to configure your CSV file is shown below: 
 
-<a id=CSV Configuration></a>
+<a id=Table3></a>
 
 **Example CSV File**
 
