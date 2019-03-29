@@ -10,7 +10,7 @@ Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-
 
 <a id=Table7-11></a>
 
-**Table 7‑11. CSV2NML input files**
+**Table 7‑11. CSV2NML input files & NML2CSV output files**
 
 |**File Name**|**Format**|**Description**|
 |--------|--------|--------------------------------------------------------------------------|
@@ -23,7 +23,7 @@ Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-
 
 <a id=Table7-12></a>
 
-**Table 7‑12. CSV2NML output files**
+**Table 7‑12. CSV2NML output files & NML2CSV input files**
 
 |**File Name**|**Format**|**Description**|
 |--------|--------|--------------------------------------------------------------------------|
