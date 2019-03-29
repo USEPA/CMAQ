@@ -41,9 +41,10 @@ An example of how to configure your CSV file is shown below:
 <a id=Table3></a>
 
 **TABLE 3. Example CSV File**
+
 |**Species**|**MOLWT**|**ICBC**|**ICBC_FAC**|**DEPV**|**DEPV_FAC**|**SCAV**|**SCAV_FAC**|**TR2AE**|**TR2AQ**|**ADVC**|**DIFF**|**DDEP**|
 |-----------|---------|--------|------------|--------|------------|--------|------------|---------|----------|-------|--------|--------|
-|O3_BC|48.0|O3|1|VD_O3|1|O3|1|O3|O3|YES|YES|YES|
+|O3_BC      |48.0     |O3      |1           |VD_O3   |1           |O3      |1           |O3       |O3        |YES    |YES     |YES     |
 
 
 An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
