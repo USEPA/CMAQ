@@ -1,4 +1,4 @@
-**Table A‑8. Mechanism for saprc07tic_ae6i_aq uses the following species.**
+**Table A‑8. Mechanism for saprc07tic_ae7i_aq uses the following species.**
 
 | **Name** | **Definition** | **Explicit or Lumped** | **Molecular Weight** |
 |----------|-------------------------------------|----------------|-----------------|
@@ -14,7 +14,6 @@
 |ALK3|Alkanes and other non-aromatic compounds that react only with OH, and have kOH between 2.5 x 103 and 5 x 103 ppm-1 min-1.|L|58.61 |
 |ALK4|Alkanes and other non-aromatic compounds that react only with OH, and have kOH between 5 x 103 and 1 x 104 ppm-1 min-1.|L|77.6 |
 |ALK5|Alkanes and other non-aromatic compounds that react only with OH, and have kOH greater than 1 x 104 ppm-1 min-1.|L|118.89 |
-|ALKRXN|Precursor of Terpene Aerosol Material|L|112 |
 |APIN|a-pinene|E|136.23 |
 |ARO1|Aromatics with kOH < 2x104 ppm-1 min-1.|L|95.16 |
 |ARO2MN|ARO2 minus naphthalene|L|118.72 |
@@ -22,8 +21,6 @@
 |BALD|Aromatic aldehydes (e.g., benzaldehyde)|L|106.13 |
 |BENZENE|Benzene|E|78.11 |
 |BENZRO2|Peroxy radical tracer from Benzene and OH reaction used to produce aerosol material|E|159.11 |
-|BNZHRXN|Precursor of Hydro-Benzene Aerosol Material|L|159.11 |
-|BNZNRXN|Precursor of Nitro-Benzene Aerosol Material|L|159.11 |
 |BUTADIENE13|1,3-butadiene|E|54.09 |
 |BZCO3|Peroxyacyl radical formed from Aromatic Aldehydes|L|137.12 |
 |BZO|Phenoxy Radicals|L|93 |
@@ -121,8 +118,6 @@
 |OLE1|Alkenes (other than ethene) with kOH < 7x104 ppm-1 min-1.|L|72.34 |
 |OLE2|Alkenes with kOH > 7x104 ppm-1 min-1.|L|75.78 |
 |OXYL|o-xylene|E|106.17 |
-|PAHHRXN|Precursor of Hydro-PAH Aerosol Material|L|187.2 |
-|PAHNRXN|Precursor of Nitro-PAH Aerosol Material|L|187.2 |
 |PAHRO2|PAH hydroxyperoxy radicals|L|187.2 |
 |PAN|Peroxy Acetyl Nitrate|E|121.05 |
 |PAN2|PPN and other higher alkyl PAN analogues|L|135.08 |
@@ -149,12 +144,14 @@
 |SOAALK|Alkanes that produce aerosol material|L|112 |
 |SULF|Sulfates (SO3 or H2SO4)|L|98.08 |
 |SULRXN|Precursor of Aerosol Sulfate|L|98.08 |
+| SVAVB1 | low volatility organic gas from oxidation of anthropogenic VOCs              |  L |179.0                |
+| SVAVB2 | semivolatile organic gas from oxidation of anthropogenic VOCs                |  L | 169.0                |
+| SVAVB3 | semivolatile organic gas from oxidation of anthropogenic VOCs                | L |158.0                | 
+| SVAVB4 | semivolatile organic gas from oxidation of anthropogenic VOCs                | L | 198.0                | 
 |TBUO|t-Butoxy Radicals|L|73 |
 |TERP|Terpenes|L|136.24 |
 |TERPNRO2|TERP+NO3 peroxy radical|L|197 |
 |TMBENZ124|1,2,4-trimethyl benzene|E|120.19 |
-|TOLHRXN|Precursor of Hydro-Toulene Aerosol Material|L|172.14 |
-|TOLNRXN|Precursor of Nitro-Toulene Aerosol Material|L|172.14 |
 |TOLRO2|Peroxy Radical tracker from TOLUENE and ARO1 reactions with OH; an aerosol precursor|L|172.14 |
 |TOLUENE|toluene|E|92.14 |
 |TRPRXN|Precursor of Terpene Aerosol Material|E|136 |
@@ -190,8 +187,6 @@
 |xRCO3|RCO3 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)|L|89.07 |
 |xRNO3|RNO3 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)|L|147.18 |
 |xTBUO|TBUO production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)|L|73 |
-|XYLHRXN|Precursor of Hydro-Xylene Aerosol Material|L|187.17 |
-|XYLNRXN|Precursor of Nitro-Xylene Aerosol Material|L|187.17 |
 |XYLRO2|Peroxy Radical tracker from xylene and ARO2 reactions with OH;an aerosol precursor|L|187.17 |
 |yR6OOH|R6OOH production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)|L|118.17 |
 |yRAOOH|RAOOH production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)|L|188.18 |

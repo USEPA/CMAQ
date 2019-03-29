@@ -9,11 +9,9 @@
 | ALD2              | acetaldehyde                                                                 | 44                   | E                      |
 | ALD2_PRIMARY      | acetaldehyde from emissions only                                             | 44                   | E                      |
 | ALDX              | aldehydes with 3 or more carbons                                             | 58.1                 | L                      |
-| ALKRXN            | counter species for aerosol from SOAALK                                      | 112                  | L                      |
+| APIN              | alpha pinene                                                                 | 136.2                | E                      |
 | BENZENE           | benzene                                                                      | 78.1                 | E                      |
 | BENZRO2           | counter species for aerosol from benzene+OH                                  | 127                  | L                      |
-| BNZHRXN           | counter species for aerosol from hydroperoxybenzene                          | 127                  | L                      |
-| BNZNRXN           | counter species for aerosol from nitrobenzene                                | 127                  | L                      |
 | BUTADIENE13       | 1,3-butadiene                                                                | 54                   | E                      |
 | BZO2              | peroxy radical from beneze reactions with OH                                 | 159.1                | L                      |
 | C2O3              | acetylperoxy radical                                                         | 75                   | E                      |
@@ -65,6 +63,7 @@
 | MEOH              | methanol                                                                     | 32                   | E                      |
 | MEPX              | methylhydroperoxide                                                          | 48                   | E                      |
 | MGLY              | methyl glyoxal                                                               | 72                   | E                      |
+| MMTNO3            | organic nitrates from monoterpene oxidation (Should not to be included for tracking nitrogen)                                       | 231.0                   | L                      |
 | N2O5              | dinitrogen pentoxide                                                         | 108                  | E                      |
 | NAPH              | naphthalene                                                                  | 128.2                | E                      |
 | NO                | nitric oxide                                                                 | 30                   | E                      |
@@ -81,8 +80,6 @@
 | OPEN              | aromatic ring opening product (an alkene and aldehyde)                       | 84                   | L                      |
 | OPO3              | peroxyacyl radical from OPEN                                                 | 115                  | L                      |
 | PACD              | peroxycarboxylic acids                                                       | 76                   | L                      |
-| PAHHRXN           | counter species for aerosol from hydroperoxy-PAHs                            | 187.2                | L                      |
-| PAHNRXN           | counter species for aerosol from nitro-PAHs                                  | 187.2                | L                      |
 | PAHRO2            | counter species for aerosol from NAPH+OH                                     | 187.2                | L                      |
 | PAN               | peroxyacylnitrate                                                            | 121                  | E                      |
 | PANX              | peroxyacylnitrates with 3 or more carbons                                    | 135                  | L                      |
@@ -100,11 +97,14 @@
 | SOAALK            | tracer for alkanes that can form secondary organic aerosol                   | 112                  | L                      |
 | SULF              | sulfuric acid (gaseous)                                                      | 98                   | E                      |
 | SULRXN            | sulfate aerosol precursor                                                    | 98                   | E                      |
+| SVAVB1	        | low volatility organic gas from oxidation of anthropogenic VOCs              | 179.0                | L |
+| SVAVB2            | semivolatile organic gas from oxidation of anthropogenic VOCs                | 169.0                | L |
+| SVAVB3            | semivolatile organic gas from oxidation of anthropogenic VOCs                | 158.0                | L |
+| SVAVB4            | semivolatile organic gas from oxidation of anthropogenic VOCs                | 198.0                | L |
 | TERP              | monoterpenes                                                                 | 136.2                | L                      |
+| TERPNRO2          | counter species for aerosol from TERP + NO3                                  | 197.0                | L                      |
 | TO2               | toluene peroxy radical                                                       | 173.1                | L                      |
 | TOL               | toluene and other monoalkyl aromatics                                        | 92.1                 | L                      |
-| TOLHRXN           | counter species for aerosol from hydroperoxytoluene                          | 141                  | L                      |
-| TOLNRXN           | counter species for aerosol from nitrotoluene                                | 141                  | L                      |
 | TOLRO2            | counter species for aerosol from TOL+OH                                      | 141                  | L                      |
 | TOLU              | toluene                                                                      | 92                   | E                      |
 | TRPRXN            | counter species for aerosol precursor from monoterpenes                      | 136.2                | L                      |
@@ -125,7 +125,5 @@
 | XOPN              | product of aromatic ring-opening reaction                                    | 98.1                 | L                      |
 | XPAR              | organic nitrate production from PAR                                          | 117.1                | L                      |
 | XPRP              | organic nitrate production from PRPA                                         | 89.1                 | L                      |
-| XYLHRXN           | counter species for aerosol from hydroperoxy xylene                          | 155                  | L                      |
 | XYLMN             | xylene and other polyalkyl aromatics except naphthalene                      | 106.2                | L                      |
-| XYLNRXN           | counter species for aerosol from nitroxylene                                 | 155                  | L                      |
 | XYLRO2            | counter species for aerosol from XYLMN+OH                                    | 155                  | L                      |
