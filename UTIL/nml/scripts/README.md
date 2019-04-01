@@ -56,7 +56,7 @@ cd $CMAQ_HOME/UTIL/nml/scripts
 ./csv2nml.csh TR.CSV
 ```
 
-There is also a script to convert an existing namelist file to a CSV
+There is also a script to convert an existing namelist file to a CSV:
 
 ```
 cd $CMAQ_HOME/UTIL/nml/scripts
