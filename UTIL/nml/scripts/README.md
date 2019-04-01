@@ -49,16 +49,16 @@ An example of how to configure your CSV file is shown below:
 **NOTE: Certain columns can be left blank, if desired, like in the above example. Also, please be sure to save your CSV file as either a GC, AE, NR or TR file as seen in Table 7-11. Refer to [Chapter 8](CMAQ_OGD_ch08_input_files.md) for more information.**
 
 
-An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
+An example of how to use CSV2NML to create a tracer species NAMELIST file is included below:
 
 ```
 cd $CMAQ_HOME/UTIL/nml/scripts
-./csv2nml.csh GC.CSV
+./csv2nml.csh TR.CSV
 ```
 
 There is also a script to convert an existing namelist file to a CSV
 
 ```
 cd $CMAQ_HOME/UTIL/nml/scripts
-./nml2csv.csh GC.nml
+./nml2csv.csh TR.nml
 ```
