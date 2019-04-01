@@ -9,8 +9,6 @@
 
 ## 2.1 Program Structure
 
-**>>COMMENT<<** Are these really the four "main CMAQ programs"?
-
 **>>COMMENT<<** Here (and elsewhere), need to be consistent in what "CMAQ" means and "CCTM" means.  They seem to be synonymous here.  Elsewhere CCTM is the model, while CMAQ is the entire system. 
 
 **>>COMMENT<<**  Ensure the list of utility programs is complete (EPIC?) and includes post-proc (e.g., AMET, VERDI).
@@ -18,6 +16,10 @@
 **>>COMMENT<<** a system graphic would be helpful here
 
 **>>COMMENT<<**  Sections 2.1 and 2.2  don't belong under the heading of "overview of components"
+
+The CMAQ system is a suite of software programs that work in concert to estimate ozone, particulate matter, toxic compounds, and acid deposition throughout the troposphere.  As a framework for simulating the interactions of multiple complex atmospheric processes, CMAQ requires two primary types of inputs: meteorological information, and emission rates from sources of emissions that affect air quality.  
+Weather conditions such as the changes in temperature, winds, cloud formation, and precipitation rates are the primary physical driving forces in the atmosphere.  These conditions are represented in air quality model simulations using output from regional-scale numerical meteorology models, such as WRF.  To obtain inputs on emissions, CMAQ relies on the open-source Sparse Matrix Operator Kernel Emissions (SMOKE) model to estimate the magnitude and location of pollution sources.
+
 
 CMAQ is a suite of Fortran90 programs that work in concert to estimate tropospheric distributions and deposition of ozone, PM, toxic compound and acidic substances. The four main CMAQ programs are:
 
@@ -51,11 +53,8 @@ CMAQ includes several "in-line" options to support coupling between meteorology 
 3. Disk space may be saved, because a 3‑D emissions file is no longer needed for elevated point sources
 4. CMAQ can more easily be coupled with a meteorological model, enabling direct emissions modulation by the underlying, freshly computed meteorological variables
 
-**>> Comment <<** Fig. 2-1 seems unnecessary.  A better version of this figure should be developed (where optional codes are shown) and it should appear earlier in the document.  The quality of this figure also needs to be improved.
 
-
-
-![Figure 2-1](./images/Figure7-1.png)
+![Figure 2-1](./images/cmaq_flow_chart.jpg)
 
 **Figure 2‑1.CMAQ core programs**
 
