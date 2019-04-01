@@ -40,7 +40,7 @@ An example of how to configure your CSV file is shown below:
 
 <a id=Table3></a>
 
-**Example Tracer CSV File:**
+**Example Tracer CSV File**
 
 |**Species**|**MOLWT**|**ICBC**|**ICBC_FAC**|**DEPV**|**DEPV_FAC**|**SCAV**|**SCAV_FAC**|**TR2AE**|**TR2AQ**|**ADVC**|**DIFF**|**DDEP**|**WDEP**|**CONC**|
 |:------:|:----:|:----:|:---:|:-----:|:---:|:---:|:----:|:---:|:----:|:----:|:----:|:----:|:----:|:----:|
