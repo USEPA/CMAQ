@@ -7,48 +7,32 @@
 
 # Input and Output Files
 
-## Working with Binary Data files
+This chapter provides basic information on the format and content of CMAQ files.  A list of CMAQ input files can be found in [Table 3-3](#Input_Table) and a list of output files is given in [Table 3-8](#Output_Table). Some CMAQ files are in ASCII format while the majority of them are binary files and are in the [Network Common Data Form (netCDF)](http://www.unidata.ucar.edu/software/netcdf). The netCDF is a set of software libraries and machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data (Unidata, 2009). The netCDF library provides an implementation of the netCDF interface for several different programming languages. CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
+
 **>>Comment<<** Throughout… need to de-emphasize I/O API language and dependencies. I think we can reference Carlie's page rather than trying to repeat it all here. I/O API may not be required and may become optional VERY soon.
-
-
-[Network Common Data Form (netCDF)](http://www.unidata.ucar.edu/software/netcdf)
-
-The Network Common Data Form (netCDF) is a set of software libraries and machine-independent data formats that support the creation, access, and sharing of array-oriented scientific data (Unidata, 2009). The netCDF library provides an implementation of the netCDF interface for several different programming languages. The netCDF is used in CMAQ to define the format and data structure of the binary input and output files. CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
-
 
 Input/Output Applications Programming Interface (I/O API)
 ---------------------------------------------------------
 **>>COMMENT<<** only a subset of this information needs to be kept; much of the subsection material can be found online and needs to be de-emphasized here.Consider removing the table describing Time Step Structures and Data Type Structures altogether.  This information can be briefly described in text to describe the GRIDDED3 and BNDARY3 files.
 
-The Models-3 Input/Output Applications Programming Interface (I/O API) is an environmental software development library that provides an input/output interface with the data involved in CMAQ applications (Coats, 2005). The I/O API is the core input/output framework of the CMAQ programs, providing a set of commonly used subroutines for passing information between source code modules and for reading and writing data files. Users should download the latest code for the I/O API from the [website](https://www.cmascenter.org/ioapi). In order to work with IOAPI buffered file format, which is used in the WRF-CMAQ two-way coupled model, and/or to perform parallel I/O operations in CMAQ 5.0.1 or later version, users should use IOAPI 3.2.
+The Models-3 Input/Output Applications Programming Interface (I/O API) is an environmental software development library that provides an input/output framework for the CMAQ programs, inlcuding a set of commonly used subroutines for passing information between source code modules and for reading and writing data files (Coats, 2005). An additional benefit of the I/O API is that an expansive set of data manipulation utilities and statistical analysis programs is available to evaluate and postprocess the binary CMAQ input/output data files. Users should download the latest code for the I/O API from the [website](https://www.cmascenter.org/ioapi). In order to work with I/O API buffered file format, which is used in the WRF-CMAQ two-way coupled model, and/or to perform parallel I/O operations in CMAQ 5.0.1 or later version, users should use IOAPI 3.2. For CMAQ users using preconfigured applications of the model, the I/O API system can be essentially transparent. For users who plan to modify the code or implement updated modules for research purposes, a few key elements of the I/O API should be understood, and they are discussed below. For more detailed information about developing new modules for CMAQ using the I/O API code libraries, please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html).
 
-** >> Comment <<** In the paragraph below, the “CMAQ_OGD_Chapter6_review_DW.docx” marked-up file had an edit that described a “Red Hat 51 Linux Workstation.” However, the number 51 did not appear in the original Atom file, nor did “51” appear to be an addition within the marked-up file. So I am just making sure "51" actually belongs in the document and isn’t an unintentional remnant of something else.
-
-The CMAQ input and output files use a Network Common Data Form (netCDF) file format. Additionally, netCDF files are portable across computing platforms. This means that a file can be written, for example, on a Sun workstation or a Red Hat 51 Linux workstation, and can be read on Mac OSX. The I/O API component of the file format is the way that spatial information is defined in the CMAQ data files. The I/O API convention of defining horizontal grids is to use a combination of the map projection and an offset from the projection center to the southwest corner of the modeling domain. After defining the southwest corner of the domain, or the “offset” from the projection center, the I/O API grid definition specifies the size of the horizontal grid cells and the number of cells in the X and Y directions. An additional benefit of the I/O API is that an expansive set of data manipulation utilities and statistical analysis programs is available to evaluate and postprocess the binary CMAQ input/output data files.
-
-For CMAQ users using preconfigured applications of the model, the I/O API system can be essentially transparent. For users who plan to modify the code or implement updated modules for research purposes, a few key elements of the I/O API should be understood, and they are discussed below. This section covers only the barest of necessities in terms of a CMAQ user’s interaction with I/O API. For more detailed information about developing new modules for CMAQ using the I/O API code libraries, please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html).
-
-### Files, Logical Names, and Physical Names
-
-The I/O API stores and retrieves data using files and virtual files, which have (optionally) multiple time steps of multiple layers of multiple variables. Files are formatted internally so that they are machine- and network-independent. Each I/O API file has an internal description, consisting of file type, grid and coordinate descriptions, and a set of descriptions for file variables (i.e., names, unit specifications, and text descriptions). According to the I/O API format, files and variables are referred to by names, layers are referred to by numbers (from 1 to the greatest number of layers in the file), and dates and times are stored as integers, using the coding formats *YYYYDDD* (commonly called “JDATE”) and *HHMMSS* (commonly called “JTIME”), where
-
-```
-YYYYDAY = (1000 * Year) + Julian Day
-HHMMSS = (10000 * Hour) + (100 * Minute) + Seconds.
-```
-**>>COMMENT<<** Update or remove reference to chapters from old User's document
-
-Rather than forcing the programmer and program-user to deal with hard-coded file names or hard-coded unit numbers, the I/O API utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API, environment variables must be used to set the values for the program’s logical file names. Additional details of how the CMAQ programs use I/O API environment variables are discussed in  [Chapter 7](CMAQ_OGD_ch07_programs_libraries.md). The remainder of this section explains some of the rudimentary details of programming in an environment using I/O API data files.
+** >> Comment <<** In the paragraph below, the “CMAQ_OGD_Chapter6_review_DW.docx” marked-up file had an edit that described a “Red Hat 51 Linux Workstation.” However, the number 51 did not appear in the original Atom file, nor did “51” appear to be an addition within the marked-up file. So I am just making sure "51" actually belongs in the document and isn’t an unintentional remnant of something else
 
 ### I/O API Data Structure and Data File Types
-
 Each CMAQ data file has internal file descriptions that contain the file type, the file start date and time, the file time step, the grid and coordinate descriptions, and a set of descriptions for the set of variables contained within the file (i.e., names, units specifications, and text descriptions). Some of the elements in a file description, such as the dates and times for file creation and update and the name of the program that created the file, are maintained automatically by the I/O API. The remainder of the descriptive information must be provided at the time of file creation.
 
-All files manipulated by the I/O API may have multiple variables and multiple layers. Each file also has a time-step structure that is shared by all of its variables. There are three kinds of time-step structures supported ([Table 3‑X](#Table6-1)). Within a file, all the variables are data arrays with the same dimensions, number of layers, and data structure type, although possibly different basic types (e.g., gridded and boundary variables cannot be mixed within the same file, but real and integer variables can). The data type structures that are supported are listed in [Table 3-X](#Table6-2). GRDDED3 and BNDARY3 are the most prevalent file types in a CMAQ simulation. Magic number is an indicator associated with the file's type.
+**>>COMMENT<<** DS: We should probable talk about dot and cross points below
 
+While the CMAQ input and output files use a Network Common Data Form (netCDF) file format, the files contain specific spatial information that is expected by the I/O API. The I/O API convention of defining horizontal grids is to use a combination of the map projection and an offset from the projection center to the southwest corner of the modeling domain. After defining the southwest corner of the domain, or the “offset” from the projection center, the I/O API grid definition specifies the size of the horizontal grid cells and the number of cells in the X and Y directions. According to the I/O API format, files and variables are referred to by names, layers are referred to by numbers (from 1 to the greatest number of layers in the file), and dates and times are stored as integers, using the coding formats *YYYYDDD* (commonly called “JDATE”) and *HHMMSS* (commonly called “JTIME”), where
 
+YYYYDAY = (1000 * Year) + Julian Day
+HHMMSS = (10000 * Hour) + (100 * Minute) + Seconds.
 
-**Table 3‑X. Possible Time Step Structures in I/O API Files**
+All files manipulated by the I/O API may have multiple variables and multiple layers. Each file also has a time-step structure that is shared by all of its variables. There are three kinds of time-step structures supported ([Table 3‑1](#Time_Steps)). The data type structures that are supported are listed in [Table 3-2](#Data_Structure). Within a file, all the variables are data arrays with the same dimensions, number of layers, and data structure type, although possibly different basic types (e.g., gridded and boundary variables cannot be mixed within the same file, but real and integer variables can). 
+
+<a id=Time_Steps></a>
+**Table 3‑1. Possible Time Step Structures in I/O API Files**
 
 |**File Type**|**Description**|
 |-------------------|-----------------------------------------------------------------------|
@@ -56,171 +40,32 @@ All files manipulated by the I/O API may have multiple variables and multiple la
 |Time-stepped|The file has a starting date, a starting time, and a positive time step. Read and write requests must be for some positive integer multiple of the time step from the starting date and time.|
 |Circular-buffer|This type of file keeps only two “records”, the “even” part and the “odd” part (useful, for example, for “restart” files where only the last data written in the file are used). The file’s description has a starting date, a starting time, and a negative time step (set to the negative of the actual time step). Read and write requests must be for some positive integer multiple of the time step from the starting date and time, and they must reflect a specific time step that is in the file.|
 
-<a id=Table6-2></a>
+<a id=Data_Structure></a>
+**Table 3‑2. Example Data Type Structures in I/O API Files**
 
-**Table 3‑X. Possible Data Type Structures in I/O API Files**
-
-|**File Type**|**Magic Number**|**Data Type**|**Description**|
-|-------------|----------------|-------------|-------------------------------------|
-|GRDDED3|1|Gridded|Dimension as REAL4 ARRAY (NCOLS, NROWS, NLAYS, NVARS)|
-|BNDARY3|2|Boundary|Dimension as REAL4 ARRAY (SIZE, NLAYS, NVARS)|
-
-
-### Opening/Creating Data Files in I/O API
-
-The I/O API function `OPEN3` is used to open both new and existing files. `OPEN3` is a Fortran logical function that returns TRUE when it succeeds and FALSE when it fails.
-
-```
-LOGICAL FUNCTION OPEN3 ( FNAME, FSTATUS, PGNAME )
-```
-where:
-```
-FNAME (CHARACTER) = file name for query
-FSTATUS (INTEGER) = see possible values in Table 6-3
-PGNAME (CHARACTER) = name of calling program
-```
-
-`OPEN3` maintains considerable audit trail information in the file header automatically, and automates various logging activities. The arguments to `OPEN3` are the name of the file, an integer FSTATUS indicating the type of open operation, and the caller's name for logging and audit-trail purposes. `OPEN3` can be called many times for the same file. FSTATUS values are defined for CMAQ in PARMS3.EXT and are also listed in [Table 3-X](#Table6-3).
+|**File Type**|**Data Type**|**Description**|
+|-------------|----------------|---------------------------|
+|GRDDED3|Gridded|Dimension as REAL4 ARRAY (NCOLS, NROWS, NLAYS, NVARS)|
+|GRDDED3|Gridded|Dimension as REAL4 ARRAY (NCOLS, NROWS, NVARS)|
+|BNDARY3|Boundary|Dimension as REAL4 ARRAY (SIZE, NLAYS, NVARS)|
 
 
-**Table 3‑X. Possible values for OPEN3 FSTATUS**
-
-|**FSTATUS**|**Value**|**Description**|
-|---------|-------|-------------------------------------------------------|
-|FSREAD3|1|for READONLY access to an existing file|
-|FSRDWR3|2|for READ,WRITE,UPDATE access to an existing file|
-|FSNEW3|3|for READ,WRITE access to create a new file, file must not yet exist|
-|FSUNKN3|4|for READ,WRITE,UPDATE access to a file whose existence is unknown|
-|FSCREA3|5|for CREATE,TRUNCATE,READ,WRITE access to files|
-
-In the last three cases, “new” “unknown” and “create/truncate,” the code developer may fill in the file description from the INCLUDE file FDESC3.EXT to define the structure for the file, and then call `OPEN3`. If the file does not exist in either of these cases, `OPEN3` will use the information to create a new file according to your specifications, and open it for read/write access. In the “unknown” case, if the file already exists, `OPEN3` will perform a consistency check between your supplied file description and the description found in the file’s own header, and will return TRUE (and leave the file open) only if the two are consistent.
-
-An example of how to use the `OPEN3` function is shown below (from the CMAQ INITSCEN subroutine). This program segment checks for the existence of a CCTM concentration (CTM_CONC_1) file, which if found will be open read-write-update. If the CCTM CONC file is not found, a warning message will be generated.
-
-```
-IF ( .NOT. OPEN3( CTM_CONC_1, FSRDWR3, PNAME ) ) THEN
-MSG = 'Could not open ' // CTM_CONC_1 // ' file for update - '
-& // 'try to open new'
-CALL M3MESG( MSG )
-END IF
-```
-
-File descriptions (i.e., I/O API file type, dimensions, start date, start time, etc.) can be obtained by using `DESC3`, which is an I/O API Fortran logical function. When `DESC3` is called, the complete file description is placed in the standard file description data structures in FDESC3.EXT . Note that the file must have been opened prior to calling `DESC3`. A typical Fortran use of `DESC3` is:
-
-```
-IF ( .NOT. DESC3( ' myfile' ) ) THEN
-!... error message
-ELSE
-!... DESC3 commons now contain the file description
-END IF
-```
-
-### Reading Data Files in I/O API
-
-There are four routines with varying kinds of selectivity used to read or otherwise retrieve data from files: `READ3`, `XTRACT3`, `INTERP3`, and `DDTVAR3`. All four are logical functions that return TRUE when they succeed, FALSE when they fail. The descriptions of the routines are listed in [Table 3-X](#Table6-4).
-
-
-
-**Table 3‑X. IO API data retrieval routines**
-
-|**Routine**|**Description**|
-|-----------|---------------------------------------------------------------------------|
-|READ3|reads one or all variables and layers from a file for a particular date and time.|
-|XTRACT3|reads a windowed subgrid for one or all variables from a file for a particular date and time.|
-|INTERP3|interpolates the requested variable from the requested file to the date/time|
-|DDTVAR3|computes the time-derivative of the requested variable at the specified date/time|
-
-Because it optimizes the interpolation problem for the user, `INTERP3` is probably the most useful of these routines. An `INTERP3` call to read/interpolate the variable HNO3 to 1230 GMT on February 4, 1995, is outlined below.
-
-```
-CHARACTER*16 FNAME, VNAME
-REAL*4 ARRAY( NCOLS, NROWS, NLAYS )
-...
-IF ( .NOT. INTERP3('myfile','HNO3',1995035,123000,NCOLS*NROWS*NLAYS,ARRAY)) THEN
-... (some kind of error happened--deal with it here)
-END IF
-```
-
-With `READ3` and `XTRACT3`, you can use the “magic values” `ALLVAR3` (= ‘ALL’, as defined in PARMS3.EXT ) or `ALLAYS3` (= -1, as also defined in PARMS3.EXT) as the variable name and/or layer number to read all variables or all layers from the file, respectively. For time-independent files, the date and time arguments are ignored.
-
-### Writing Data Files in I/O API
-
-CMAQ module developers should use the logical function *WRITE3* to write data to files. For gridded, boundary, and custom files, the code may write either one time step of one variable at a time, or one entire time step of data at a time (in which case, use the “magic value” ALLVAR3 as the variable name). For ID-referenced, profile, and grid-nest files, the code must write an entire time step at a time.
-```
-LOGICAL FUNCTION WRITE3( FNAME, VNAME, JDATE, JTIME, BUFFER)
-```
-where:
-```
-FNAME (CHARACTER) = file name for query
-VNAME (CHARACTER) = variable name (or ALLVAR3 (='ALL'))
-JDATE (INTEGER) = date, formatted YYYYDDD
-JTIME (INTEGER) = time, formatted HHMMSS
-BUFFER(*) = array holding output data
-```
-
-`WRITE3` writes data for the variable with name VNAME, for the date and time (i.e., JDATE and JTIME) to an I/O API-formatted data file with logical name FNAME. For time-independent files, JDATE and JTIME are ignored. If VNAME is the “magic name” `ALLVAR3`, `WRITE3` writes all variables. If FNAME is a dictionary file, `WRITE3` treats VNAME as a dictionary index (and ignores JDATE and JTIME). A typical `WRITE3` call to write data for a given date and time might look like this:
-
-```
-REAL*4 ARRAY( NCOLS, NROWS, NLAYS, NVARS )
-!...
-IF ( .NOT. WRITE3( 'myfile', 'HNO3', JDATE, JTIME, ARRAY ) ) THEN
-!...(some kind of error happened--deal with it here)
-END IF
-IF ( .NOT. WRITE3( 'afile', 'ALL', JDATE, JTIME, ARRAYB ) ) THEN
-!...(some kind of error happened--deal with it here)
-END IF
-```
-
-### CMAQ-Related I/O API Utilities
-
-Data files in the CMAQ system can be easily manipulated by using the I/O API utilities. The I/O API utilities (also known as m3tools) are a set of scriptable programs for manipulation and analysis of netCDF-I/O API formatted files. Information regarding the most commonly employed utility routines is listed in [Table 3-X](#Table6-5). Further information about how to use the utilities are available in the I/O API documentation.
-
-
-
-**Table 3‑X. I/O API data manipulation utilities**
-
-|Utility|Description|
-|-----------|----------------------------------------------------------------------|
-|M3XTRACT|extract a subset of variables from a file for a specified time interval|
-|M3DIFF|compute statistics for pairs of variables|
-|M3STAT|compute statistics for variables in a file|
-|BCWNDW|build a boundary-condition file for a sub-grid window of a gridded file|
-|M3EDHDR|edit header attributes/file descriptive parameters|
-|M3TPROC|compute time period aggregates and write them to an output file|
-|M3TSHIFT|copy/time shift data from a file|
-|M3WNDW|window data from a gridded file to a sub-grid|
-|M3FAKE|build a file according to user specifications, filled with dummy data|
-|VERTOT|compute vertical-column totals of variables in a file|
-|UTMTOOL|coordinate conversions and grid-related computations for lat/lon, Lambert, and UTM|
-
-
-The Message Passing Interface (MPI) is a standard library specification for message passing, or intra-software communication, on both massively parallel computing hardware and workstation clusters. There are different open source MPI libraries available that work well with CMAQ.
-
-- MPICH is a high performance and widely portable implementation of the Message Passing Interface (MPI) standard.
-- [MVAPICH2](http://mvapich.cse.ohio-state.edu) is a portable implementation of MPI that is available from Ohio State University.
-- [OpenMPI](https://www.open-mpi.org) is an open-source MPI implementation that is developed and maintained by a consortium of academic, research, and industry partners.
-
-** >> Comment <<** Overall, I think this type of information about input and output files would make a very nice Appendix--something users could find very easily at the end of this document.
-
-** >> Comment <<** Throughout… this section really needs to be overhauled and streamlined.
-
-** >> Comment <<** Throughout… the mini breaks using "###" are annoying and difficult to read as subsection breaks.  Need different formatting.
-
-** >> Comment <<** This section would look better with figures rather than tables. Tables of the variables contained in those files would be very handy (especially if they include the units). Alternatively, this information could be displayed within the chapters/sections that are associated with each processor.
 
 # CMAQ Input and Output Files #
 
 [Jump to Input Files](#inputs)<br>
 [Jump to CCTM Output Files](#outputs)
 
-CMAQ requires a basic set of input files: initial condition file, which is created by ICON process or previous day output; boundary condition file, which is created by BCON process; emission files; and meteorological data created by MCIP using WRF and terrain data. There are a few other input files are required bases on user chosen run time option. Details of these input files are given below.
+**>>COMMENT<<** Update or remove reference to chapters from old User's document
 
-CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
+CMAQ requires a basic set of input files: initial condition file, which is created by ICON process or previous day output; boundary condition file, which is created by BCON process; emission files; and meteorological data created by MCIP using WRF and terrain data. There are a few other input files are required bases on user chosen run time option. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
+
+Rather than forcing the programmer and program-user to deal with hard-coded file names or hard-coded unit numbers, the I/O API utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API, environment variables must be used to set the values for the program’s logical file names. A complete list of CMAQ input and output files by logical name is provided in Tables 3-3 and 3-8.
 
 <a id=inputs></a>
 ## CMAQ Input Files
 
-This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 3-1](#Table8-1) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 3-1](#Table8-1); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQ release notes for additional file information.
+This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 3-3](#$Input_Table) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 3-3](#Input_Table); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQ release notes for additional file information. The programs used to generate the files ("Source") are described in Section 2.
 
 <!-- BEGIN COMMENT -->
 **>> Comment <<** In Table 8.1, some of the potential sources for the files have not been explained elsewhere (e.g., CSV2NML, Spatial Allocator, Cropcal).
@@ -229,7 +74,10 @@ This section describes each of the input files required by the various CMAQ prog
 
 **>> Comment <<** DW: Also I think we should remove everything related to/associated with JPROC and JTABLE since CMAQ does not use it anymore and they are highlighted in the PDF file.
 
-**Table 3-1. CMAQ input files**
+**>> Comment <<** DS: Should the column header by "Environment Variable Namefor File" or "Logical File Name"?
+
+<a id=Input_Table></a>
+**Table 3-3. CMAQ input files**
 
 |**Environment Variable Name for File**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|**Required**|
 |-------------------------|----------------|----------------|----------------|-----------------------------------|---------|
@@ -278,79 +126,19 @@ This section describes each of the input files required by the various CMAQ prog
 |[JTABLE](#jtable) <a id=jtable_t></a>| ASCII | Daily | n/a | JPROC|optional|
 |[OMI](#omi) <a id=omi_t></a>| ASCII | daily | n/a |||optional|
 
+
 ## General
 <a id=griddesc></a>
 ### GRIDDESC: Horizontal domain definition
-[Return to Table 3-1](#griddesc_t)
+[Return to Table 3-3](##griddesc_t)
 
 Used by: ICON, BCON, CCTM
 
+The CMAQ grid description file (**GRIDDESC**) is an ASCII file that contains two sections: a horizontal coordinate section, and grid description section.  The GRIDDESC file is generated automatically with MCIP; alternatively, GRIDDESC can be created using a text editor.
 
-The CMAQ grid description file (**GRIDDESC**) is used by all programs except MCIP to define the horizontal spatial grid of the modeling domain. GRIDDESC implements [I/O API](CMAQ_OGD_ch06_req_lib.md#IOAPI) grid conventions: for more details see the section on [Grids and coordinate systems](CMAQ_OGD_ch09_grid_defn.md#grids-and-coordinate-systems).
+The horizontal coordinate section consists of text records that provide the coordinate-system name, the map projection, and descriptive parameters that are relevant to the projection type (e.g. longitude for coordinate system center)
 
-A GRIDDESC is an ASCII file that contains two sections: a horizontal coordinate section, and grid description section. GRIDDESC is the logical name for text files that store horizontal coordinate and grid descriptions, and that are read by the DSCGRID() and DSCOORD() utility routines. Each segment has a one-line header (which by convention provides titles for the columns in the data records), a sequence of data records, and a terminal record with name field blank (i.e., ' '). The GRIDDESC file is generated automatically with MCIP; alternatively, GRIDDESC can be created using a text editor.
-
-The horizontal coordinate section ([Table 3-2](#Table8-2)) consists of text records that provide coordinate-system name, the map projection, and descriptive parameters P_ALP, P_BET, P_GAM, XCENT, and YCENT.
-
-The grid description section ([Table 3-3](#Table8-3)) consists of text records that indicate the grid name, related coordinate-system name (i.e., which GRIDDESC horizontal coordinate name that is defined in the previous section that is applied to this grid), and descriptive parameters XORIG, YORIG, XCELL, YCELL, NCOLS, NROWS, and NTHIK. For a typical CMAQ application, both "dot-point" and "cross-point" grids are defined in the GRIDDESC file; these grids are topological duals in the sense that the vertices (corners) of one correspond to the cell-centers of the other.
-
-<a id=Table8-2></a>
-
-**>> Comment <<** In Tables 3.2 and 3.3, the GRIDDESC information can more fully be extracted from Carlie's I/O API page, so we should not need to partially repeat it here.
-
- **Table 3-2. Coordinate system description segment of GRIDDESC**
-
-| **Line**| **Column**| **Name** | **Type** | **Description**|
-|-------|----------|----------------|----------|--------------------------------------------------------|
-|1|A| Header | String |Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
-|2|A| COORD-NAME | String |Name of the coordinate description (required); single quote delimited|
-|3|A| COORDTYPE | Int |I/O API index defining the map projection type (required)| |
-|3|B| P_ALP | Double |First map projection descriptive parameter (dependent on projection type)| |
-|3|C| P_BET | Double |Second map projection descriptive parameter (dependent on projection type)| |  
-|3|D| P_GAM | Double |Third map projection descriptive parameter (dependent on projection type)| |  
-|3|E| XCENT | Double |Longitude for coordinate system center| |
-|3|F| YCENT | Double |Latitude for coordinate system center|
-
-<a id=Table8-3></a>
-
- **Table 3-3. Grid definition segment of GRIDDESC**
-
-|**Line** | **Column** | **Name** | **Type** | **Description**|
-|-----------|----------|----------|----------|-----------------------------------------------------|
-| 1 | A | Header | String|Single-quote-delimited header describing section contents; may be blank, i.e., ' '|
-| 2 | A | GRID-NAME | String |Name of the horizontal grid (required); single quote delimited|
-| 3 | A | COORD-NAME| String |Name of the coordinate description in the previous section (required); single quote delimited|
-| 3 | B | XORIG | Double |X-coordinate for lower-left (southwest) corner of the grid with respect to (XCENT,YCENT) (dependent on projection type)|
-|3 | C | YORIG | Double |Y-coordinate for lower-left (southwest) corner of the grid with respect to (XCENT,YCENT) (dependent on projection type)|
-|3 | D | XCELL | Double|X-coordinate grid cell size (dependent on projection type)|
-|3 | E | YCELL | Double|Y-coordinate grid cell size (dependent on projection type)|
-|3 | F | NCOLS | Int |Number of horizontal grid columns (dependent on projection type)|
-|3 | G | NROWS | Int |Number of horizontal grid rows (dependent on projection type)|
-|3 | H | NTHIK | Int |Boundary perimeter thickness (number of cells) (optional)|
-
-Each data record in these files consists of two or three list-formatted lines (i.e., items are separated by either blanks or commas). Name fields are quoted strings, and appear on the first of these lines. Numeric fields are given in double precision, and occur on either the second line or the second and third lines (this allows you to organize the text so that it is easily viewed in a text editor without running off-screen). The records have the following organization, depending upon whether they are in the first or second segment of GRIDDESC:
-
-` COORD-NAME`
-` COORDTYPE, P_ALP, P_BET, P_GAM`
-` XCENT, YCENT`
-
-or
-
-` COORD-NAME`
-` COORDTYPE, P_ALP, P_BET, P_GAM, XCENT, YCENT`
-
-and
-
-` GRID-NAME`
-` COORD-NAME, XORIG, YORIG, XCELL, YCELL`
-` NCOLS, NROWS, NTHIK`
-
-or
-
-` GRID-NAME`
-` COORD-NAME, XORIG, YORIG, XCELL, YCELL, NCOLS, NROWS, NTHIK`
-
-There are at most 32 coordinate systems and 256 grids listed in one of these files. These files are small enough to be archived easily with a study, and have a sufficiently simple format that new ones can easily be constructed "by hand."
+The grid description section consists of text records that indicate the grid name, related coordinate-system name (i.e., which GRIDDESC horizontal coordinate name that is defined in the previous section that is applied to this grid), and descriptive parameters for teh coordinates of the lower-left corner of the grid, grid cell size, number of coluns, and rows. For a typical CMAQ application, both "dot-point" and "cross-point" grids are defined in the GRIDDESC file; these grids are topological duals in the sense that the vertices (corners) of one correspond to the cell-centers of the other. There are at most 32 coordinate systems and 256 grids listed in one of these files. These files are small enough to be archived easily with a study, and have a sufficiently simple format that new ones can easily be constructed "by hand."
 
 An example of a GRIDDESC file is shown below:
 
@@ -369,7 +157,7 @@ The example grid definition section above describes a grid named “M_32_99TUT02
 <a id=matrix_nml></a>
 
 ### {gc|ae|nr|tr}_matrix.nml: Species namelist files
-[Return to Table 3-1](#matrix_nml_t)
+[Return to Table 3-3](#matrix_nml_t)
 
 Used by: BCON, CCTM, ICON, CHEMMECH
 
@@ -396,8 +184,8 @@ The namelist files contain header information that describe which class of speci
 
  **Table 3-4. GC species namelist file format**
 
-| **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:
-|-----|-----|----------------------|----------|--------------------------------------------|
+| **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:|
+|-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
 | 1 || File Type |String|String to delineate Gas Phase (GC), Aerosol (AE), Non-reactive (NR) and Tracer (TR) species namelist|{&GC_nml, &AE_nml, &NR_nml, &TR_nml}|
 | 3 || Header ID | String |String to define data structure relating to namelist|{GC_SPECIES_DATA=, AE_SPECIES DATA= , NR_SPECIES_DATA= ,TR_SPECIES_DATA = }|
 | 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|-|
@@ -422,7 +210,7 @@ The namelist files for the other pollutant classes have similar configurations a
 <a id=init_conc_1></a>
 
 ### INIT_CONC_1: Initial conditions
-[Return to Table 3-1](#init_conc_1_t)
+[Return to Table 3-3](#init_conc_1_t)
 
 Used by: CCTM
 
@@ -432,7 +220,7 @@ The initial concentrations of each species being modeled must be input to CMAQ. 
 <a id=bndy_conc_1></a>
 
 ### BNDY_CONC_1: Boundary conditions
-[Return to Table 3-1](#bndy_conc_1_t)
+[Return to Table 3-3](#bndy_conc_1_t)
 
 Used by: CCTM
 
@@ -444,7 +232,7 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 <a id=grid_cro_2d></a>
 
 ### GRID_CRO_2D: Two-dimensional grid cross-point fields
-[Return to Table 3-1](#grid_cro_2d_t)
+[Return to Table 3-3](#grid_cro_2d_t)
 
 Used by: CCTM
 
@@ -465,17 +253,17 @@ The GRID_CRO_2D time-independent file contains surface fields at cross points (i
 <a id=grid_cro_3d></a>
 
 ### GRID_CRO_3D
-[Return to Table 3-1](#grid_cro_3d_t)
+[Return to Table 3-3](#grid_cro_3d_t)
 
 <a id=grid_bdy_2d></a>
 
 ### GRID_BDY_2D
-[Return to Table 3-1](#grid_bdy_2d_t)
+[Return to Table 3-3](#grid_bdy_2d_t)
 
 <a id=grid_dot_2d></a>
 
 ### GRID_DOT_2D: Two-dimensional grid dot-point fields
-[Return to Table 3-1](#grid_dot_2d_t)
+[Return to Table 3-3](#grid_dot_2d_t)
 
 Used by: CCTM
 
@@ -488,7 +276,7 @@ The GRID_DOT_2D time-independent file contains surface fields at dot points (i.e
 <a id=met_bdy_3d></a>
 
 ### MET_BDY_3D: Three-dimensional meteorological boundary input
-[Return to Table 3-1](#met_bdy_3d_t)
+[Return to Table 3-3](#met_bdy_3d_t)
 
 Used by: CCTM
 
@@ -514,7 +302,7 @@ The MET_BDY_3D time-dependent file contains 3-D meteorological descriptions at t
 <a id=met_cro_2d></a>
 
 ### MET_CRO_2D: Two-dimensional meteorological cross-point fields
-[Return to Table 3-1](#met_cro_2d_t)
+[Return to Table 3-3](#met_cro_2d_t)
 
 Used by: CCTM
 
@@ -555,41 +343,10 @@ The MET_CRO_2D time-dependent file contains surface and other 2-D meteorological
 -   SLTYP: soil texture type (category)
 -   LAI: leaf-area index (area area<sup>-1</sup>)
 
-The following deposition velocities are calculated by MCIP3 by default and written to the MET_CRO_2D file:
-
--   VD_SO2: deposition velocities for SO<sub>2</sub> (m s<sup>-1</sup>)
--   VD_SULF: deposition velocities for SO<sub>4</sub> (m s<sup>-1</sup>)
--   VD_NO2: deposition velocities for NO<sub>2</sub> (m s<sup>-1</sup>)
--   VD_NO: deposition velocities for NO (m s<sup>-1</sup>)
--   VD_O3: deposition velocities for O<sub>3</sub> (m s<sup>-1</sup>)
--   VD_HNO3: deposition velocities for HNO<sub>3</sub> (m s<sup>-1</sup>)
--   VD_H2O2: deposition velocities for H<sub>2</sub>O<sub>2</sub> (m s<sup>-1</sup>)
--   VD_ALD: deposition velocities for ALD (m s<sup>-1</sup>)
--   VD_HCHO: deposition velocities for HCHO (m s<sup>-1</sup>)
--   VD_OP: deposition velocities for OP (m s<sup>-1</sup>)
--   VD_PAA: deposition velocities for PAA (m s<sup>-1</sup>)
--   VD_ORA: deposition velocities for ORA (m s<sup>-1</sup>)
--   VD_NH3: deposition velocities for NH<sub>3</sub> (m s<sup>-1</sup>)
--   VD_PAN: deposition velocities for PAN (m s<sup>-1</sup>)
--   VD_HONO: deposition velocities for HONO (m s<sup>-1</sup>)
--   VD_CO: deposition velocities for CO (m s<sup>-1</sup>)
--   VD_METHANOL: deposition velocities for methanol (m s<sup>-1</sup>)
--   VD_N2O5: deposition velocities for N<sub>2</sub>O<sub>5</sub> (m s<sup>-1</sup>)
--   VD_NO3: deposition velocities for NO<sub>3</sub> (m s<sup>-1</sup>)
--   VD_GEN_ALD: deposition velocities for generic aldehyde (m s<sup>-1</sup>)
--   VD_CL2: deposition velocities for CL2 (m s<sup>-1</sup>)
--   VD_HOCL: deposition velocities for HOCL (m s<sup>-1</sup>)
--   VD_HCL: deposition velocities for HCL (m s<sup>-1</sup>)
--   VD_FMCL: deposition velocities for FMCL (m s<sup>-1</sup>)
--   VD_ICL1: deposition velocities for ICL1 (m s<sup>-1</sup>)
--   VD_ICL2: deposition velocities for ICL2 (m s<sup>-1</sup>)
--   VD_HG: deposition velocities for HG (m s<sup>-1</sup>)
--   VD_HGIIGAS: deposition velocities for HGIIGAS (m s<sup>-1</sup>)
-
 <a id=met_cro_3d></a>
 
 ### MET_CRO_3D: Three-dimensional meteorological cross-point fields
-[Return to Table 3-1](#met_cro_3d_t)
+[Return to Table 3-3](#met_cro_3d_t)
 
 Used by: CCTM, ICON, BCON
 
@@ -871,11 +628,12 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 
 ** >> Comment <<** P153 (for example):  Should remove M3 I/O API "file type" from these tables.  Use more general descriptions.
 
-The previous section described the output files from JPROC, ICON, BCON, and MCIP that are input to CCTM. In this section, details on the CCTM output files are provided. All CMAQ programs produce output files that adhere to the I/O API netCDF format. The I/O API-formatted CMAQ output files are three-dimensional, gridded, time-stepped binary files that contain headers with metadata describing the file contents. These machine-independent and network transparent binary files are transferable between different computer architectures. In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
+In this section, details on the CCTM output files are provided. All CMAQ programs produce output files that adhere to the netCDF format.  In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
 
-<a id=Table8-13></a>
+<a id=Output_Table></a>
 
 ** >> Comment <<** In Table 8.1, those Hourly denotation, we should put an asterisk to indicate that it can be user defined, e.g. 30 minutes rather 1 hour and in the same table and table 8-13, there are places with +1 and I think we can make it more generic as +NTHIK (your call).
+
 
 **Table 3-6. CMAQ Output files**
 
@@ -916,7 +674,6 @@ The previous section described the output files from JPROC, ICON, BCON, and MCIP
 |[CTM_SSEMIS_1](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_WETDEP_2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 
-The previous section described the output files from JPROC, ICON, BCON, and MCIP that are input to CCTM. In this section, details on the CCTM output files are provided. All CMAQ programs produce output files that adhere to the I/O API netCDF format. The I/O API-formatted CMAQ output files are three-dimensional, gridded, time-stepped binary files that contain headers with metadata describing the file contents. These machine-independent and network transparent binary files are transferable between different computer architectures. In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
 
 <a id=cmaq_output_log></a>
 ### CMAQ output log
@@ -928,13 +685,13 @@ All of the CMAQ processors generate standard output and standard error during ex
 run.cctm >& tee cctm.log
 ```
 
-For CCTM, the LOGFILE environment variable allows users to specify the name of a log file for capturing the standard output from the program. If this variable is not set, the standard output is written to the terminal and can be captured using the UNIX redirect command (“>”), as shown in the example above.
+For the CCTM, the LOGFILE environment variable allows users to specify the name of a log file for capturing the standard output from the program. If this variable is not set, the standard output is written to the terminal and can be captured using the UNIX redirect command (“>”), as shown in the example above.
 
 <a id=conc></a>
 ### CTM_CONC_1: CCTM hourly instantaneous concentration file
 [Return to Table 3-6](#conc_t)
 
-The 3-D CCTM hourly concentration file (CONC) is the most commonly referenced CCTM output file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentra­tions (µg m<sup>-3</sup>), CONC files include instantaneous model species concentrations at the end of each model hour. The number and types of species contained in the CONC files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. The FORTRAN NameLists within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file.
+The 3-D CCTM hourly concentration file (CONC) contains gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>). CONC files include instantaneous model species concentrations at the end of each model hour. The number and types of species contained in the CONC files depend on the chemical mechanism and aerosol model configurations that are selected when the CCTM is compiled. The [FORTRAN NameLists](#matrix_nml) within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file.
 
 <a id=cgrid></a>
 ### CTM_CGRID_1: CCTM restart file
@@ -952,13 +709,13 @@ The 3-D CCTM integral average concentration file (ACONC) contains average model 
 ### CTM_DRY_DEP_1: CCTM hourly cumulative dry deposition file
 [Return to Table 3-13](#drydep_t)
 
-The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition column of the FORTRAN Namelist files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the dry deposition file by editing the DDEP column in the NameList file(s).
+The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition column of the [FORTRAN NameLists](#matrix_nml) within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the dry deposition file by editing the DDEP column in the NameList file(s).
 
 <a id=wetdep></a>
 ### CTM_WETDEP_1: CCTM hourly cumulative wet deposition file
 [Return to Table 3-13](#wetdep_t)
 
-The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the FORTRAN Namelist files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
+The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the [FORTRAN NameLists](#matrix_nml) within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
 
 <a id=vis></a>
 ### CTM_VIS_1
