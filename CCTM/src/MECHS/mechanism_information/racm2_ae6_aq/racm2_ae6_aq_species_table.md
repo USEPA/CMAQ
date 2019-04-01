@@ -1,4 +1,4 @@
-**Table A‑5. Mechanism for racm2_ae6_aq uses the following gas phase species.**
+**The GC namelist for racm2_ae6_aq has the following gas phase species.**
 
 | **Model Species** | **Definition**                                                                                           | **Explicit or Lumped** | **Molecular Weight** |
 | ----------------- | -------------------------------------------------------------------------------------------------------- | ---------------------- | -------------------- |

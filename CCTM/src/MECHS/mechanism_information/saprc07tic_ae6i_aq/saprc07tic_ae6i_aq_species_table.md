@@ -1,4 +1,4 @@
-**Table A‑8. Mechanism for saprc07tic_ae6i_aq uses the following species.**
+**The GC namelist for saprc07tic_ae6i_aq has the following gas phase species.**
 
 | **Name** | **Definition** | **Explicit or Lumped** | **Molecular Weight** |
 |----------|-------------------------------------|----------------|-----------------|

@@ -1,4 +1,4 @@
-**Table A‑4. Mechanism for cb6r3_ae6_aq uses the following gas phase species.**
+**The GC namelist for cb6r3m_ae7_aq has the following gas phase species.**
 
 | **Model Species** | **Name**                                                                     | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------------------------------- | -------------------- | ---------------------- |
