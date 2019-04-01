@@ -40,13 +40,13 @@ An example of how to configure your CSV file is shown below:
 
 <a id=Table3></a>
 
-**TABLE 3. Example Tracer CSV File**
+**Example Tracer CSV File**
 
 |**Species**|**MOLWT**|**ICBC**|**ICBC_FAC**|**DEPV**|**DEPV_FAC**|**SCAV**|**SCAV_FAC**|**TR2AE**|**TR2AQ**|**ADVC**|**DIFF**|**DDEP**|**WDEP**|**CONC**|
 |:------:|:----:|:----:|:---:|:-----:|:---:|:---:|:----:|:---:|:----:|:----:|:----:|:----:|:----:|:----:|
 |O3_1|48.0|O3|1|VD_O3|1|O3|1|  |   |YES|YES|YES|YES|YES|
 
-**NOTE: Certain columns can be left blank if desired like in the above example. Refer to [Chapter 8](CMAQ_OGD_ch08_input_files.md) for more information.**
+**NOTE: Certain columns can be left blank if desired like in the above example. Also, please be sure to save your csv file as either a GC, AE, NR or TR file as seen in Table 7-11. Refer to [Chapter 8](CMAQ_OGD_ch08_input_files.md) for more information.**
 
 
 An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
