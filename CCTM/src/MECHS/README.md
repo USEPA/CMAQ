@@ -11,7 +11,7 @@ To select a predefined mechanism configuration in CMAQ, set the *Mechanism* vari
 
 ### Creating or modifying a mechanism's photochemistry
 
-Editing the Fortran modules is one way to make simple changed to photochemistry. Complex changes or creating new photochemistry scheme requires 1) using the CMAQ chemical mechanism utility, CHEMMECH, to produce the new Fortran modules and creating new namelist with a text editor. The CHEMMECH utility translates an ASCII files lists reaction into the two Fortran module used by CMAQ. It is a Fortran program that must be compiled before using. For more information, consult the README file under $CMAQ_MODEL/UTIL/chemmech.
+Editing the Fortran modules is one way to make simple changed to photochemistry. Complex changes or creating new photochemistry scheme requires 1) using the CMAQ chemical mechanism utility, CHEMMECH, to produce the new Fortran modules and 2) creating new namelists with a text editor. The CHEMMECH utility translates an ASCII files lists reaction into the two Fortran module used by CMAQ. It is a Fortran program that must be compiled before using. For more information, consult the README file under $CMAQ_MODEL/UTIL/chemmech.
 
 ### Using species namelist files
 
