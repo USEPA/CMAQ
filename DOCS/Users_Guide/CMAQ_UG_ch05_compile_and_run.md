@@ -8,18 +8,18 @@
 # 5. Compile and Run
 
 1. Obtain CMAQ source code
-a. git installation
-b. structure of repo (folders)
-c. bldt_project (build outside of the repo in a project space)
+   1. git installation
+   2. structure of repo (folders)
+   3. bldt_project (build outside of the repo in a project space)
 
 2. Preprocessors
-a. intialization of CMAQ environment with config_cmaq.csh
-b. run bldmake (section 2.2.8)
-c. run MCIP (section 2.5.3)
-d. run ICON (section 2.5.1)
-e. run BCON (section 2.5.2)
-f. optional pre-processors (2.5.4)
-g. utilities for developers
+   1. intialization of CMAQ environment with config_cmaq.csh
+   2. run bldmake (section 2.2.8)
+   3. run MCIP (section 2.5.3)
+   4. run ICON (section 2.5.1)
+   5. run BCON (section 2.5.2)
+   6. optional pre-processors (2.5.4)
+   7. utilities for developers
 
 3. Compiling CMAQ - expand on quick start guide
 
