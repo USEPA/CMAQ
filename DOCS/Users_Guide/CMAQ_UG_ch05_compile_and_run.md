@@ -8,7 +8,7 @@
 # 5. Compile and Run
 
 1. Obtain CMAQ source code
-   1. git installation
+   1. get the code from GitHub (download zip, or clone)
    2. structure of repo (folders)
    3. bldt_project (build outside of the repo in a project space)
 
@@ -19,11 +19,11 @@
    4. run ICON (section 2.5.1)
    5. run BCON (section 2.5.2)
    6. optional pre-processors (2.5.4)
-   7. utilities for developers
+   7. utilities for developers 
 
-3. Compiling CMAQ - expand on quick start guide
+3. Compiling CMAQ - expand on quick start guide 
 
-4. Running CMAQ - fongifure the CCTM script
+4. Running CMAQ - configure the CCTM script
 
 
 **>>COMMENT<<** Old Chapter 2 starts here
