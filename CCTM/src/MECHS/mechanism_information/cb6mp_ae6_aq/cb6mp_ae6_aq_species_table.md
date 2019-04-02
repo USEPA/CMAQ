@@ -1,7 +1,7 @@
-**The GC namelist for cb6mp_ae6_aq has the following gas phase species.**
+**The GC namelist for cb6r3_ae6_aq has the following gas phase species.**
 
 | **Model Species** | **Name**                                                                     | **Molecular Weight** | **Explicit or Lumped** |
-|-----------------| ---------------------------------------------------------------------------- | -------------------- | ---------------------- |
+| ----------------- | ---------------------------------------------------------------------------- | -------------------- | ---------------------- |
 | AACD              | acetic acid                                                                  | 60                   | E                      |
 | ACET              | acetone                                                                      | 58.1                 | E                      |
 | ACRO_PRIMARY      | acrolein from emissions only                                                 | 56.1                 | E                      |
@@ -129,3 +129,140 @@
 | XYLMN             | xylene and other polyalkyl aromatics except naphthalene                      | 106.2                | L                      |
 | XYLNRXN           | counter species for aerosol from nitroxylene                                 | 155                  | L                      |
 | XYLRO2            | counter species for aerosol from XYLMN+OH                                    | 155                  | L                      |
+
+
+**The AE namelist for cb6mp_ae6_aq has the following aerosol species.**
+
+| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+|--------|-----------------------------------------------------------------|----------------------|------------------------|
+| AAL               | Aluminum                                             | 27                   | E                      |
+| AALK1             | Semivolaitle SOA Product from Alkane VOCs            | 225.0                | L                      |
+| AALK2             | Semivolatile SOA Product from Alkane VOCs            | 205.1                | L                      |
+| AAS               | Arsenic                                              | 74.92                | E                      |
+| ABE               | Beryllium                                            | 9.0                  | E                      |
+| ABNZ1             | Semivolatile High-NOx SOA Product from Benzene       | 161.0                | L                      |
+| ABNZ2             | Semivolatile High-NOx SOA Product from Benzene       | 134.0                | L                      |
+| ABNZ3             | Low-Volatility Low-NOx SOA Product from Benzene      | 180.0                | L                      |
+| ACA               | Calcium                                              | 40.1                 | E                      |
+| ACD               | Cadmium                                              | 112.4                | E                      |
+| ACL               | Chloride                                             | 35.5                 | E                      |
+| ACORS             | Anthropogenic Coarse-mode particle mass              | 100.0                | L                      |
+| ACR_III           | Trivalent Chromium                                   | 52.0                 | E                      |
+| ACR_VI            | Hexavalent Chromium                                  | 52.0                 | E                      |
+| ADE_EC            | Diesel Elemental Carbon                              | 12.0                 | L                      |
+| ADE_K             | Diesel Coarse Primary Particles                      | 100.0                | L                      |
+| ADE_NO3           | Diesel Nitrate                                       | 62.0                 | E                      |
+| ADE_OC            | Diesel Organic Carbon                                | 220.0                | L                      |
+| ADE_OTHR          | Other Diesel Fine Primary Particles                  | 200.0                | L                      |
+| ADE_SO4           | Diesel Sulfate                                       | 96.0                 | E                      |
+| AEC               | Elemental Carbon                                     | 12                   | E                      |
+| AFE               | Iron                                                 | 55.8                 | E                      |
+| AGLY              | Glyoxal and Methylglyoxal SOA                        | 66.4                 | L                      |
+| AH2O              | Water                                                | 18                   | E                      |
+| AH3OP             | Hydronium Ion                                        | 19                   | E                      |
+| AISO1             | Semivolatile SOA Product from Isoprene               | 132.0                | L                      |
+| AISO2             | High-Volatility SOA Product from Isoprene            | 133.0                | L                      |
+| AISO3             | Acid-Catalyzed Isoprene SOA compounds                | 168.2                | L                      |
+| AIVPO1            | Intermediate Volatility Primary Organic Compounds    | 266                  | L                      |
+| AK                | Potassium                                            | 39.1                 | E                      |
+| ALVOO1            | Low Volatility Oxidized Combustion Organic Compounds | 136                  | L                      |
+| ALVOO2            | Low Volatility Oxidized Combustion Organic Compounds | 136                  | L                      |
+| ALVPO1            | Low Volatility Primary Organic Compounds             | 218                  | L                      |
+| AMG               | Magnesium                                            | 24.3                 | E                      |
+| AMN               | Manganese                                            | 54.9                 | E                      |
+| AMN_HAPS          | Manganese Hazardous Air Pollutant Emissions          | 54.9                 | E                      |
+| ANA               | Sodium                                               | 23                   | E                      |
+| ANH4              | Ammonium                                             | 18                   | E                      |
+| ANI               | Nickel                                               | 58.7                 | E                      |
+| ANO3              | Nitrate                                              | 62                   | E                      |
+| AOLGA             | Oligomer products of anthropogenic SOA compounds     | 206.0                | L                      |
+| AOLGB             | Oligomer products of biogenic SOA compounds          | 248.0                | L                      |
+| AORGC             | Glyoxal and Methylglyoxal SOA                        | 177.0                | L                      |
+| AOTHR             | Other Particulate Mass                               | 200                  | L                      |
+| APAH1             | Semivolatile High-NOx SOA Product from PAHs          | 195.6                | L                      |
+| APAH2             | Semivolatile High-NOx  SOA Product from PAHs         | 178.7                | L                      |
+| APAH3             | Low-Volatility Low-NOx SOA Product from PAHs         | 212.2                | L                      |
+| APB               | Lead                                                 | 207.2                | E                      |
+| APCSO             | Potential Combustion SOA                             | 170                  | L                      |
+| APHG              | Mercury                                              | 200.5                | E                      |
+| ASEACAT           | Sea spray cations                                    | 23.75                | L                      |
+| ASI               | Silicon                                              | 28.1                 | E                      |
+| ASO4              | Sulfate                                              | 96                   | E                      |
+| ASOIL             | Lumped crustal species                               | 100.0                | L                      |
+| ASQT              | Semivolatile SOA Product from Sesquiterpenes         | 273.0                | L                      |
+| ASVOO1            | Semivolatile Oxidized Combustion Organic Compounds   | 135                  | L                      |
+| ASVOO2            | Semivolatile Oxidized Combustion Organic Compounds   | 135                  | L                      |
+| ASVOO3            | Semivolatile Oxidized Combustion Organic Compounds   | 134                  | L                      |
+| ASVPO1            | Semivolatile Primary Organic Compounds               | 230                  | L                      |
+| ASVPO2            | Semivolatile Primary Organic Compounds               | 241                  | L                      |
+| ASVPO3            | Semivolatile Primary Organic Compounds               | 253                  | L                      |
+| ATI               | Titanium                                             | 47.9                 | E                      |
+| ATOL1             | Semivolatile High-NOx SOA Product from Toluene       | 163.0                | L                      |
+| ATOL2             | Semivolaitle High-NOx SOA Product from Toluene       | 175.0                | L                      |
+| ATOL3             | Low-Volatility Low-NOx SOA Product from Toluene      | 194.0                | L                      |
+| ATRP1             | Semivolatile SOA Product from Monoterpenes           | 177.0                | L                      |
+| ATRP2             | High-Volatility SOA Product from Monoterpenes        | 198.0                | L                      |
+| AXYL1             | Semivolatile High-NOx SOA Product from Xylene        | 174.0                | L                      |
+| AXYL2             | Semivolaitle High-NOx SOA Product from Xylene        | 185.0                | L                      |
+| AXYL3             | Low-Volatility Low-NOx SOA Product from Xylene       | 218.0                | L                      |
+| NUMACC            | Accum. Mode Number Conc                              | NA                   | NA                     |
+| NUMAIT            | Aitken Mode Number Conc                              | NA                   | NA                     |
+| NUMCOR            | Coarse Mode Number Conc                              | NA                   | NA                     |
+| SRFACC            | Accum. Mode Surface Area Conc                        | NA                   | NA                     |
+| SRFAIT            | Aitken Mode Surface Area Conc                        | NA                   | NA                     |
+| SRFCOR            | Coarse Mode Surface Area Conc                        | NA                   | NA                     |
+
+Note that for each aerosol mass species, a letter will be appended to the names below in order to designate the size, or mode, of the aerosol being represented: I = Aitken mode, J = Accumulation mode, K = Coarse mode.  
+
+
+**The NR namelist for cb6mp_ae6_aq has the following gas phase species.**
+
+| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+| ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
+|  ACETONITRILE      |  acetonitrile                    |  41.05  |  E  |
+|  ACRYACID          |  acrylic acid                    |  72.06  |  E  |
+|  ACRYLONITRILE     |  Acrylonitrile                   |  53.10  |  E  |   
+|  BR2_C2_12         |  1,2-Dibromoethane               | 187.90  |  E  |   
+|  CARBONTET         |  Carbon Tetrachloride            | 153.80  |  E  |   
+|  CARBSULFIDE       |  carbonyl sulfide                |  60.10  |  E  |
+|  CHLOROPRENE       |  chloroprene                     |  88.50  |  E  |
+|  CL2_C2_12         |  1,2-Dichloroethane              |  99.00  |  E  |   
+|  CL4_ETHANE1122    |  1,1,2,2-Tetrachloroethane       | 167.90  |  E  |   
+|  CL2_ME            |  Methylene Chloride              |  84.90  |  E  |   
+|  CL4_ETHE          |  Perchloroethylene               | 165.80  |  E  |   
+|  CL3_ETHE          |  Trichloroethylene               | 131.40  |  E  |   
+|  CL_ETHE           |  Vinyl Chloride                  |  62.50  |  E  |   
+|  CHCL3             |  Chloroform                      | 119.40  |  E  |   
+|  DICHLOROBENZENE   |  1,4-Dichlorobenzene             | 147.00  |  E  |   
+|  DICHLOROPROPENE   |  1,3-Dichloropropene             |  99.00  |  E  |   
+|  ETHYLBENZENE      |  ethyl benzene                   | 106.00  |  E  |
+|  ETOX              |  Ethylene Oxide                  |  44.10  |  E  |   
+|  HEXANE            |  n-Hexane                        |  86.00  |  E  |
+|  HYDRAZINE         |  Hydrazine                       | 168.20  |  E  |   
+|  HEXAMETHY_DIIS    |  Hexamethylene 1,6-Diisocyanate  |  98.00  |  E  |   
+|   LVPCSOG          |  vapors of organic material from primary aerosols           | 170.00  |  L  |  
+|  MAL_ANHYDRIDE     |  Maleic Anhydride                | 174.20  |  E  |   
+|  METHCHLORIDE      |  methyl chloride                 |  50.40  |  E  |
+|  NAPHTHALENE       |  Naphthalene                     | 128.20  |  E  |   
+|  NH3               |  ammonia                         |  17.00  |  E  |      
+|  PROPDICHLORIDE    |  Propylene Dichloride            | 113.00  |  E  |   
+|  QUINOLINE         |  Quinoline                       | 129.20  |  E  |   
+|  STYRENE           |  sytrene                         | 104.15  |  E  |
+|  SVALK1           |  vapors of secondary aerosol material from alkane VOCs      | 225.00  |  L  |     
+|  SVALK2           |  vapors of secondary aerosol material from alkane VOCs      | 205.10  |  L  |     
+|  SVXYL1           |  vapors of secondary aerosol material from xylenes          | 174.00  |  L  |  
+|  SVXYL2           |  vapors of secondary aerosol material from xylenes          | 185.00  |  L  |  
+|  SVTOL1           |  vapors of secondary aerosol material from toluene          | 163.00  |  L  |  
+|  SVTOL2           |  vapors of secondary aerosol material from toluene          | 175.00  |  L  |  
+|  SVBNZ1           |  vapors of secondary aerosol material from benzene          | 161.00  |  L  |  
+|  SVBNZ2           |  vapors of secondary aerosol material from benzene          | 134.00  |  L  |  
+|  SVPAH1           |  vapors of secondary aerosol material from PAHs             | 195.60  |  L  |  
+|  SVPAH2           |  vapors of secondary aerosol material from PAHs             | 178.70  |  L  |  
+|  SVTRP1           |  vapors of secondary aerosol material from monoterpenes     | 177.00  |  L  |      
+|  SVTRP2           |  vapors of secondary aerosol material from monoterpenes     | 198.00  |  L  |      
+|  SVISO1           |  vapors of secondary aerosol material from isoprene         | 132.00  |  L  |  
+|  SVISO2           |  vapors of secondary aerosol material from isoprene         | 133.00  |  L  |  
+|  SVSQT            |  vapors of secondary aerosol material from sesquiterpenes   | 273.00  |  L  |         
+|  TOL_DIIS          |  2,4-Toluene Diisocyanate        |  32.00  |  E  |   
+|  TRIETHYLAMINE     |  Triethylamine                   | 101.20  |  E  |   
+|  XYLENE            |  O-,M-, and P-xylene isomers     | 106.20  |  L  |
