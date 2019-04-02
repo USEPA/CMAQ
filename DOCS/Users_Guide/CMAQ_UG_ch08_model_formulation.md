@@ -254,6 +254,17 @@ setenv STK_EMIS_LAB_002 POINT_FIRES
 ```
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
+## 4.4 Online Emission Streams
+### 4.4.1 BEIS
+
+
+### 4.4.2 Marine Gas
+
+### 4.4.3 Lightning NO
+
+### 4.4.4 Wind-Blown Dust
+
+### 4.4.5 Sea Spray
 
 ** >>COMMENT<< ** Start old EMissions section:
 
