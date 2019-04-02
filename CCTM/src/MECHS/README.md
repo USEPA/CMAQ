@@ -37,7 +37,7 @@ Creating new mechanism modules may not be the last steps for the CMAQ model to u
 ### Using species namelist files
 
 Species namelists define the four groups of model species: gas, aerosol, non-reactive, and tracer species simulated by the model.
-The CMAQ model reads namelists to define processes that impact simulated concentrations. Species namelists can be used to apply uniform scaling factors by model species for several physical processes. Dry deposition of NO can be reduced by 50% by applying a factor of 0.5 to the dry deposition velocity for NO. Similarly, the boundary conditions of O<sub>3</sub> can be increased by 50% by applying a factor of 1.5. The gas, aerosol, and non-reactive define a specific mechanism. 
+The CMAQ model reads namelists to define processes that impact simulated concentrations. Species namelists can be used to apply uniform scaling factors to several physical processes for model species. Dry deposition of NO can be reduced by 50% by applying a factor of 0.5 to the dry deposition velocity for NO. Similarly, the boundary conditions of O<sub>3</sub> can be increased by 50% by applying a factor of 1.5. The gas, aerosol, and non-reactive define a specific mechanism. 
 A tracer namelist is generally interchangable between mechanisms. They are employed in transport and deposition studies. 
 Example tracer namelists are under $CMAQ_MODEL/CCTM/src/MECHS/trac0 (_the version most often used_) and $CMAQ_MODEL/CCTM/src/MECHS/trac1.
 
