@@ -1336,7 +1336,7 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !     &                       JDATE, JTIME,  MOSAIC_DATA%RA ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
          SELECT CASE( vgtyp_gd )
-            CASE( 7 )
+            CASE( 7,-9999 )
                CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%Z0, GRID_DATA%LWMASK, MET_DATA%VEG,
      &                      GRID_DATA%LUFRAC, MET_DATA%RA, MOSAIC_DATA%Z0, MOSAIC_DATA%USTAR, MOSAIC_DATA%RA, 
      &                      gamah, betah, karman )
