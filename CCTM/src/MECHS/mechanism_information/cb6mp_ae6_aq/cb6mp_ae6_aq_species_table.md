@@ -1,6 +1,6 @@
 **The GC namelist for cb6r3_ae6_aq has the following gas phase species.**
 
-| **Model Species** | **Name**                                                                     | **Molecular Weight** | **Explicit or Lumped** |
+| **Model Species** | **Definition**                                                                     | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------------------------------- | -------------------- | ---------------------- |
 | AACD              | acetic acid                                                                  | 60                   | E                      |
 | ACET              | acetone                                                                      | 58.1                 | E                      |
@@ -133,7 +133,7 @@
 
 **The AE namelist for cb6mp_ae6_aq has the following aerosol species.**
 
-| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+| **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 |--------|-----------------------------------------------------------------|----------------------|------------------------|
 | AAL               | Aluminum                                             | 27                   | E                      |
 | AALK1             | Semivolaitle SOA Product from Alkane VOCs            | 225.0                | L                      |
@@ -170,7 +170,7 @@
 | ALVPO1            | Low Volatility Primary Organic Compounds             | 218                  | L                      |
 | AMG               | Magnesium                                            | 24.3                 | E                      |
 | AMN               | Manganese                                            | 54.9                 | E                      |
-| AMN_HAPS          | Manganese Hazardous Air Pollutant Emissions          | 54.9                 | E                      |
+| AMN_HAPS          | Manganese based on the Hazardous Air Pollutant Emissions          | 54.9                 | E                      |
 | ANA               | Sodium                                               | 23                   | E                      |
 | ANH4              | Ammonium                                             | 18                   | E                      |
 | ANI               | Nickel                                               | 58.7                 | E                      |
@@ -217,7 +217,7 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 
 **The NR namelist for cb6mp_ae6_aq has the following gas phase species.**
 
-| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+| **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
 |  ACETONITRILE      |  acetonitrile                    |  41.05  |  E  |
 |  ACRYACID          |  acrylic acid                    |  72.06  |  E  |

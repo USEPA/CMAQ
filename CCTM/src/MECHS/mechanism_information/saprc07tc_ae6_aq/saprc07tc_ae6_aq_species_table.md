@@ -165,7 +165,7 @@
 |zRNO3|RNO3 production operator via reaction with Peroxy, Acetyl Peroxy, their operators, NO or NO3 Radicals (yield vary based on radical)|L|147.20 |
 **The AE namelist for saprc07tc_ae6_aq has the following aerosol species.**
 
-| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+| **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
 | AAL               | Aluminum                                             | 27                   | E                      |
 | AALK1             | Semivolaitle SOA Product from Alkane VOCs            | 225.0                | L                      |
@@ -232,7 +232,7 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 
 **The NR namelist for sapr07tc_ae6_aq has the following gas phase species.**
 
-| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+| **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
 |  LVPCSOG          |  vapors of organic material from primary aerosols           | 170.0  |  L  |  
 |  NH3              |  ammonia                                                    |  17.0  |  E  |      

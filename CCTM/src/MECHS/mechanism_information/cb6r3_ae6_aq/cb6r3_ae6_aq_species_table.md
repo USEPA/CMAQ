@@ -1,6 +1,6 @@
 **The GC namelist for cb6r3_ae6_aq has the following gas phase species.**
 
-| **Model Species** | **Name**                                                                     | **Molecular Weight** | **Explicit or Lumped** |
+| **Model Species** | **Definition**                                                                     | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------------------------------- | -------------------- | ---------------------- |
 | AACD              | acetic acid                                                                  | 60                   | E                      |
 | ACET              | acetone                                                                      | 58.1                 | E                      |
@@ -133,7 +133,7 @@
 
 **The AE namelist for cb6r3_ae6_aq has the following aerosol species.**
 
-| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+| **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
 | AAL               | Aluminum                                             | 27                   | E                      |
 | AALK1             | Semivolatile SOA Product from Alkane VOCs            | 225.0                | L                      |
@@ -202,7 +202,7 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 
 **The NR namelist for cb6r3_ae6_aq has the following gas phase species.**
 
-| **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
+| **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
 |  LVPCSOG          |  vapors of organic material from primary aerosols           | 170.0  |  L  |  
 |  NH3              |  ammonia                                                    |  17.0  |  E  |      
