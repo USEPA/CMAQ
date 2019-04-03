@@ -97,8 +97,6 @@ C Layer fractions matrix output files
 C Layer fractions source id output files
       CHARACTER(  16 ), ALLOCATABLE, SAVE :: PLAY_SRCID_NAME( : )
 
-C Get heights from GRID_CRO file, if true
-      LOGICAL,              SAVE :: ZSTATIC = .TRUE.
 C Point source 3d emis diagnostic file names
 !     CHARACTER( 16 ),               SAVE :: PT3DNAME
 C Point source 3d emis diagnostic integral average write buffers
@@ -131,7 +129,7 @@ C=======================================================================
          FUNCTION PT3D_INIT ( JDATE, JTIME, TSTEP )
      &                       RESULT ( SUCCESS )
 
-         USE GRID_CONF, ONLY: NLAYS, VGTYP_GD
+         USE GRID_CONF, ONLY: NLAYS
          USE STK_PRMS, ONLY: SOURCE, STKDIAM, STKHT, STKVEL, STKTK, 
      &                       ACRES_BURNED, STK_PRMS_INIT, NSRC, MY_NSRC
          USE STK_EMIS, ONLY: EM_FILE_NAME, NSRC_EMIS, FIREFLAG, 
@@ -325,25 +323,6 @@ C (declared and stored in PTBILIN module)
 
 !!!!!^^^^^^^!!!! THESE NEED TO BE CHECKED AGAINST GRIDDESC
 
-C Determine whether height information is time dependent or time independent.
-C Non-hydrostatic is time-independent and hydrostatic is time-dependent.
-         SELECT CASE( VGTYP_GD )
-            CASE ( VGSGPH3, VGHVAL3, VGWRFEM,-9999 )
-               ZSTATIC = .FALSE.
-            CASE ( VGSGPN3 )
-               ZSTATIC = .TRUE.
-            CASE DEFAULT
-               WRITE( XMSG,94010 ) 'Cannot process vertical ' //
-     &                             'coordinate type', VGTYP_GD
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-         END SELECT
-
-         IF ( ZSTATIC ) THEN
-            GC3NAME = PROMPTMFILE( 'Enter name for CROSS-POINT LAYERED GRID file',
-     &                             FSREAD3, 'GRID_CRO_3D', PNAME )
-         END IF
-
 C Compare number of meteorology layers to number of emissions layers
 !         IF ( EMLAYS .LE. NLAYS ) THEN
 !            WRITE( XMSG,94010 ) 'NOTE: The number of emission layers ' //
@@ -527,41 +506,7 @@ C If wildfires, allocate fire parameters
             XMSG = 'Could not initialize stack met bilinear interpolation data'
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
-         END IF
-
-         IF ( ZSTATIC ) THEN ! Read time-independent ZF and ZH for non-hydrost Met data
-
-            DO N = 1, NPTGRPS
-
-C Compute per-source heights
-
-               IF ( MY_NSRC( N ) .GT. 0 ) THEN
-C Get un-gridding matrices for cross and dot point met data
-                  CALL RETRIEVE_IOAPI_HEADER( GC3NAME, JDATE, JTIME )
-                  CALL READGC3 ( 'X3HT0M', PT_DATE, PT_TIME, XBUF )
-                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLAYS,
-     &                          BILIN_DATA( N )%NX,
-     &                          BILIN_DATA( N )%CX,
-     &                          XBUF, PTMET_DATA( N )%ZH )
-
-                  CALL READGC3 ( 'X3HT0F', PT_DATE, PT_TIME, XBUF )
-                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLAYS,
-     &                          BILIN_DATA( N )%NX,
-     &                          BILIN_DATA( N )%CX,
-     &                          XBUF, PTMET_DATA( N )%ZF )
-
-C Compute ZSTK, DDZF
-
-                  CALL DELTA_ZS( EMLAYS, MY_NSRC( N ),
-     &                           SOURCE( N )%ARRY, STKHT( N )%ARRY,
-     &                           PTMET_DATA( N )%ZF,
-     &                           PTMET_DATA( N )%ZSTK,
-     &                           PTMET_DATA( N )%DDZF )
-               END IF ! MY_NSRC( N ) > 0
-
-            END DO   ! NPTGRPS
-
-         END IF   ! ZSTATIC
+         END IF         
 
          SUCCESS = .TRUE.; RETURN
 
@@ -711,7 +656,7 @@ C Based on the current time step, find whether or not a report should be written
 !         END IF
 
 C Convert pt source met data to bi-linear interpolated data
-         CALL PTMET_CONVT( JDATE, JTIME, ZSTATIC )
+         CALL PTMET_CONVT( JDATE, JTIME )
 
 C Initialize Output Array
          !VDEMIS_PT = 0.0   ! array assignment

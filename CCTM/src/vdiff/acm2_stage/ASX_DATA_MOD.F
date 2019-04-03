@@ -742,7 +742,6 @@ C-----------------------------------------------------------------------
 
          USE GRID_CONF       ! horizontal & vertical domain specifications
          Use UTILIO_DEFN
-         USE VGRD_DEFN, Only: VGTYP_GD
          USE MOSAIC_MOD
 #ifdef parallel
          USE SE_MODULES      ! stenex (using SE_COMM_MODULE)
@@ -1335,21 +1334,9 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
 !     &                       JDATE, JTIME,  MOSAIC_DATA%RA ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         SELECT CASE( vgtyp_gd )
-            CASE( 7,-9999 )
-               CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%Z0, GRID_DATA%LWMASK, MET_DATA%VEG,
-     &                      GRID_DATA%LUFRAC, MET_DATA%RA, MOSAIC_DATA%Z0, MOSAIC_DATA%USTAR, MOSAIC_DATA%RA, 
-     &                      gamah, betah, karman )
-            CASE( 2 )
-               CALL ra_mm5( MET_DATA%UWIND, MET_DATA%VWIND, GRID_DATA%LWMASK, MET_DATA%SNOCOV, 
-     &                      MET_DATA%SOIM1, GRID_DATA%WFC, MET_DATA%QV, MET_DATA%Q2, MET_DATA%QSS_GRND, 
-     &                      MET_DATA%TEMPG, MET_DATA%PRSFC, Met_Data%THETAV, MET_DATA%ZH, 
-     &                      GRID_DATA%LUFRAC, MET_DATA%VEG, MET_DATA%RA, MOSAIC_DATA%Z0, 
-     &                      MOSAIC_DATA%USTAR, MOSAIC_DATA%RA, karman )
-            CASE DEFAULT
-               xmsg = 'met file format not recognized for mosaic'
-               CALL m3exit( pname, jdate, jtime, xmsg, xstat1 )
-         END SELECT
+         CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%Z0, GRID_DATA%LWMASK, MET_DATA%VEG,
+     &                GRID_DATA%LUFRAC, MET_DATA%RA, MOSAIC_DATA%Z0, MOSAIC_DATA%USTAR, MOSAIC_DATA%RA, 
+     &                gamah, betah, karman )       
 !         END IF
 !         VNAME = 'MOS_RST'
 !         IF ( .NOT. INTERPX( TILE_CRO_2D, VNAME, PNAME,
