@@ -17,7 +17,7 @@
 #> directory.
 
 
- set CMAQ_HOME = /home/user/CMAQ_Project
+ set CMAQ_HOME = /home/bmurphy/cmaq_projects/CAMx_vs_CMAQ
 
 
 #> This section allows users to choose explicitly which tools
