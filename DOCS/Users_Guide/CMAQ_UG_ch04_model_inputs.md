@@ -130,7 +130,7 @@ This section describes each of the input files required by the various CMAQ prog
 ## General
 <a id=griddesc></a>
 ### GRIDDESC: Horizontal domain definition
-[Return to Table 3-3](##griddesc_t)
+[Return to Table 3-3](#griddesc_t)
 
 Used by: ICON, BCON, CCTM
 
