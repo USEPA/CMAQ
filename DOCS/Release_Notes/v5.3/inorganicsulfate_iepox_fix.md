@@ -29,13 +29,15 @@ sulfate is high relative to IEPOX (e.g. present day eastern US effects <5-10%). 
 compared to IEPOX (e.g. Amazon, future US emission scenarios).
 
 ## Affected Files
-CCTM/src/aero/aero7/AEROSOL_CHEMISTRY.F
-CCTM/src/MECHS/*/mech*.def
-CCTM/src/MECHS/*/GC*.nml
-associated RXNS*F90 and ebi files
+CCTM/src/aero/aero7/AEROSOL_CHEMISTRY.F   
+CCTM/src/MECHS/*/mech*.def   
+CCTM/src/MECHS/*/GC*.nml   
+associated RXNS*F90 and ebi files   
 
 
 ## References
+
+Piletic, I. R., Edney, E. O., Bartolotti, L. J.: A computational study of acid catalyzed aerosol reactions of atmospherically relevant epoxides. Phys. Chem. Chem. Phys., 15, 18065-7, http://doi.org/10.1039/c3cp52851k, 2013.
 
 Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys., 17, 343-369, https://doi.org/10.5194/acp-17-343-2017, 2017.
 
