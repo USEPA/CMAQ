@@ -58,10 +58,6 @@ The Git and Zip file installation options will produce slightly different subdir
 After downloading the source codes the user is encouraged to look through the repository to familiarize themselves with the structure. A summarized image of the repository is shown below: 
 
 ![Figure 5-1](images/Figure5-1.png) 
-
-
-**>>COMMENT: OPTION 1<<**
-
 In this image it can be seen that there four main sub folders within the CMAQ repository. The first folder being the CCTM folder which houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). There is also a README file within this folder to provide a description of the contents of the folders and any pertaint information that the owner of these files wishes to convey.  
 
 The second folder seen is the DOCS folder which contains all relevant documentation pertaining to the CMAQ program suite. It should be noted that this folder contains many subfolders, indicated by the dot dot symbol, and each folder contains documentation pertaining to the file name. For example, the User Manual contains all documentation, including this one, that describes the technical information required for a user to use the CMAQ program suite. 
@@ -71,19 +67,6 @@ The third folder in the repository is the POST folder which contains several ver
 The fourth folder in the repository is the PREP folder which contains all the preparatory subprograms to be run before the CCTM folder is run. Again as before, each subprogram folder contains source codes, scripts and a README used to run the subprogram. The technical information on how to run these programs will be discussed in section 5.4 of this chapter. 
 
 The last folder within the repository is the UTIL folder which contains useful utilities relating to the CMAQ program suite. An example is the bldmake utility which is used to compile the source code into executables when you use any of the build scripts in the CMAQ repository. Also included in this repository are two additional C-Shell scripts along with a README to describe the contents of the repository. `Bldit_project.csh` allows the user to extract the build and run scripts and compile the model outside of the repository, while `config_cmaq.csh` helps enforce consistent environment setting for the CMAQ project. Both these scripts will be discussed in the following sections. 
-
-**>>COMMENT: OPTION 2: <<**
-
-
- The structure of the CMAQ repository includes:
-
--  CCTM - Chemistry Transport Model source code, scripts, and release notes
--  PREP - Input pre-processing software (e.g., ICON, BCON, MCIP) source code and scripts
--  UTIL - Utility software (e.g., BLDMAKE, CHEMMECH, NML) source code and scripts
--  POST - Post-processing and analysis software (e.g., COMBINE, HR2DAY, BLDOVERLAY) source code and scripts
--  DOCS - This User's Manual, tutorials, and developers guidance
-
-
 
 ## 5.4 Building CMAQ outside of the Repository in a user-specified directory
 
