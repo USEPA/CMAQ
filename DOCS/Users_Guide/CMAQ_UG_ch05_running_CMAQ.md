@@ -58,6 +58,7 @@ The Git and Zip file installation options will produce slightly different subdir
 After downloading the source codes the user is encouraged to look through the repository to familiarize themselves with the structure. A summarized image of the repository is shown below: 
 
 ![Figure 5-1](images/Figure5-1.png) 
+
 In this image it can be seen that there four main sub folders within the CMAQ repository. The first folder being the CCTM folder which houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). There is also a README file within this folder to provide a description of the contents of the folders and any pertaint information that the owner of these files wishes to convey.  
 
 The second folder seen is the DOCS folder which contains all relevant documentation pertaining to the CMAQ program suite. It should be noted that this folder contains many subfolders, indicated by the dot dot symbol, and each folder contains documentation pertaining to the file name. For example, the User Manual contains all documentation, including this one, that describes the technical information required for a user to use the CMAQ program suite. 
