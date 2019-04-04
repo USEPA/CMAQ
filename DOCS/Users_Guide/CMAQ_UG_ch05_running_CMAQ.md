@@ -57,8 +57,8 @@ The Git and Zip file installation options will produce slightly different subdir
 
 After downloading the source codes the user is encouraged to look through the repository to familiarize themselves with the structure. A summarized image of the repository is shown below: 
 
+![Figure 5-1](images/Figure5-1.png) 
 
-**>>Comment: SPOT FOR IMAGE<<**
 
 **>>COMMENT: OPTION 1<<**
 
