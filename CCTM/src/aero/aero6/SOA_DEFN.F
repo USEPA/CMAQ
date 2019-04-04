@@ -1074,18 +1074,17 @@ C-----------------------------------------------------------------------
 
            ! Check that the mass of aerosol left has not gone below a
            ! minimum value
-           If ( caer( nsvol ) .Lt. evapmin ) Then
-              Write( logdev,* ) 'caer less than evapmin for OA species: ', 
+           If ( caer( nsvol ) .Lt. tiny(0.0) ) Then
+              Write( logdev,* ) 'caer less than zero for OA species: ', 
      &                              oaspc( i )%name, ' ', caer( nsvol ),
-     &                              ' reset to evapmin'
-              ctotf( nsvol ) = ctotf( nsvol ) + max( caer( nsvol ), evapmin )
-     &                           - caer( nsvol )
-              caer( nsvol ) = max( caer( nsvol ), evapmin )
+     &                              ' reset to evapmin.'
+              ctotf( nsvol ) = ctotf( nsvol ) - caer( nsvol ) + evapmin
+              caer( nsvol ) = evapmin
            End If
 
            ! Check that the mass of aerosol condensed does not exceed
            ! the total
-           If ( caer( nsvol ) - ctotf( nsvol ) .Gt. epsilon(0.0) ) Then
+           If ( caer( nsvol ) - ctotf( nsvol ) .Gt. tiny(0.0) ) Then
                Write( logdev,* ) 'caer exceeds ctotf at i = ', i
                Write( logdev,* ) 'caer: ', caer( nsvol ), ' ctotf: ', ctotf( nsvol )
                Write( logdev,* ) 'caer reset to ctotf'

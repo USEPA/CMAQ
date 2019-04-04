@@ -851,8 +851,8 @@ C obtain speciated mass emissions.
                   END DO
 
 C Calculate mode-specific 3rd moment emission rates [m3/m3/s]
-                  M3J = ESEASJ * F6PI / REAL( RHOSW( 1 ), 4 ) + EPSILON(0.0)
-                  M3K = ESEASK * F6PI / REAL( RHOSW( 2 ), 4 ) + EPSILON(0.0)
+                  M3J = ESEASJ * F6PI / REAL( RHOSW( 1 ), 4 ) + TINY(0.0)
+                  M3K = ESEASK * F6PI / REAL( RHOSW( 2 ), 4 ) + TINY(0.0)
 
 C Calculate factors for converting 3rd moment emission rates into number
 C and 2nd moment emission rates.  See Equations 7b and 7c of Binkowski &

@@ -17,7 +17,7 @@
 #> directory.
 
 
- set CMAQ_HOME = /home/bmurphy/cmaq_projects/CAMx_vs_CMAQ
+ set CMAQ_HOME = /home/bmurphy/cmaq_projects/SOA_DEFN_merged
 
 
 #> This section allows users to choose explicitly which tools
