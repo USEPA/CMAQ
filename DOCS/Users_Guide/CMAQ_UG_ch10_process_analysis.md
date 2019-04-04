@@ -169,7 +169,7 @@ IRR can be endlessly customized to examine many different processes and combinat
 
 We have summed the throughputs over 2 weeks (July 1-14, 2011), within the first level of the model, and compared these three output pathways at four locations throughout the U.S. Figure 1 shows the sum through each of these processes at 6 different grid areas, including 4 urban areas and 2 rural areas.  This figure also includes the corresponding fate for the largely biogenic VOCs, although note that some VOCs, such as formaldehyde and ethanol can be both anthropogenic and biogenic. 
 
-![Figure 1: Relative contribution of oxidation pathways for VOCs.](/home/ixk/v52/bars_VOC_fate.png)
+![Figure 10-1: Relative contribution of oxidation pathways for VOCs](./images/bars_VOC_fate.png)
 
 **Example 2: Quantify the major contributors to the production of HNO3**.  In this example, we develop output variables to represent the total production of HNO3 in CMAQ-CB6 and the individual reactions which contribute to this total production:
 
@@ -181,9 +181,9 @@ We have summed the throughputs over 2 weeks (July 1-14, 2011), within the first 
 - IRR_OUTPUT HNO3fromNO3 = PROD[HNO3] FROM [NO3];
 - IRR_OUTPUT HNO3frCLNO3= <HET_CLNO3_WAJ>;
 
-In this case, we have summed up all throughput over the first 15 levels of the model (approximating the PBL) and over the same 14-day time period.  Figure 2 shows the relative contribution of processes to the total HNO3 formation at three grids.  In this case, at the two more urban grids, the reaction of OH+NO2 dominates the formation of HNO3 in summer, while at the rural grid cell (Missouri), the heterogeneous hydrolysis of alkyl nitrates is predominant.
+In this case, we have summed up all throughput over the first 15 levels of the model (approximating the PBL) and over the same 14-day time period.  Figure 10-2 shows the relative contribution of processes to the total HNO3 formation at three grids.  In this case, at the two more urban grids, the reaction of OH+NO2 dominates the formation of HNO3 in summer, while at the rural grid cell (Missouri), the heterogeneous hydrolysis of alkyl nitrates is predominant.
 
-![Figure 2:  Relative contribution HNO3 formation pathways.](/home/ixk/v52/HNO3_formation_pbl_pie.png)
+![Figure 10-2:  Relative contribution HNO3 formation pathways] (./images/HNO3_formation_pbl_pie.png)
 
 ## References
 
