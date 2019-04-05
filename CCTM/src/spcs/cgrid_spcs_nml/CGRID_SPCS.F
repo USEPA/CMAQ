@@ -61,29 +61,29 @@ c number of species in CGRID
       integer,                      save :: nspcsd = 1
 
 c surrogate species
-      integer,                      save :: n_gc_icbc = 0, n_ae_icbc = 0, n_nr_icbc = 0, 
+      integer,                      save :: n_gc_ic = 0  , n_ae_ic = 0  , n_nr_ic = 0  ,  n_tr_ic = 0
      &                                      n_gc_depv = 0, n_ae_depv = 0, n_nr_depv = 0, n_tr_depv = 0,
      &                                      n_gc_scav = 0, n_ae_scav = 0, n_nr_scav = 0, n_tr_scav = 0,
      &                                      n_gc_g2ae = 0,                n_nr_n2ae = 0, n_tr_t2ae = 0,
      &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0,
-     &                                      n_tr_ic = 0  , n_tr_bc = 0
-      character( 16 ), allocatable, save :: gc_icbc( : ), ae_icbc( : ), nr_icbc( : ), 
+     &                                      n_gc_bc = 0  , n_ae_bc = 0  , n_nr_bc = 0  , n_tr_bc = 0
+      character( 16 ), allocatable, save :: gc_ic( : )  ,ae_ic( : )   , nr_ic( : )  , tr_ic( : )  
      &                                      gc_depv( : ), ae_depv( : ), nr_depv( : ), tr_depv( : ),
      &                                      gc_scav( : ), ae_scav( : ), nr_scav( : ), tr_scav( : ),
      &                                      gc_g2ae( : ),               nr_n2ae( : ), tr_t2ae( : ),
      &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : ),
-     &                                      tr_ic( : )  , tr_bc( : ) 
-      integer, allocatable,         save :: gc_icbc_map( : ), ae_icbc_map( : ), nr_icbc_map( : ), 
+     &                                      gc_bc( : )  , ae_bc( : )  , nr_bc( : )  , tr_bc( : )   
+      integer, allocatable,         save :: gc_ic_map( : )  , ae_ic_map( : )  , nr_ic_map( : ), , tr_ic_map( : )
      &                                      gc_depv_map( : ), ae_depv_map( : ), nr_depv_map( : ), tr_depv_map( : ),
      &                                      gc_scav_map( : ), ae_scav_map( : ), nr_scav_map( : ), tr_scav_map( : ),
      &                                      gc_g2ae_map( : ),                   nr_n2ae_map( : ), tr_t2ae_map( : ),
      &                                      gc_g2aq_map( : ), ae_a2aq_map( : ), nr_n2aq_map( : ), tr_t2aq_map( : ),
-     &                                      tr_ic_map( : )  , tr_bc_map( : )  
+     &                                      gc_bc_map( : )  , ae_bc_map( : )  , nr_bc_map( : )  , tr_bc_map( : ),   
 
-      real, allocatable,            save :: gc_icbc_fac( : ), ae_icbc_fac( : ), nr_icbc_fac( : ), 
+      real, allocatable,            save :: gc_ic_fac( : )  , ae_ic_fac( : )  , nr_ic_fac( : )  , tr_ic_fac( : ),
      &                                      gc_depv_fac( : ), ae_depv_fac( : ), nr_depv_fac( : ), tr_depv_fac( : ),
      &                                      gc_scav_fac( : ), ae_scav_fac( : ), nr_scav_fac( : ), tr_scav_fac( : ),
-     &                                      tr_ic_fac( : )  , tr_bc_fac( : ) 
+     &                                      gc_bc_fac( : )  , ae_bc_fac( : )  , nr_bc_fac( : )  , tr_bc_fac( : ) 
 
 c control species
       integer,                      save :: n_gc_trns = 0, n_ae_trns = 0, n_nr_trns = 0, n_tr_adv = 0, n_tr_diff = 0,
@@ -159,41 +159,6 @@ c namelist variables
             TYPE SPECIES_DATA_REG_1
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
-                CHARACTER( 16 ) :: ICBC_SURR     ! ICBC Surrogate
-                REAL            :: ICBC_FAC      ! ICBC Scale Factor
-                CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
-                REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
-                CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
-                REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
-                CHARACTER( 16 ) :: AERO_SURR     ! Aerosol Module Surrogate
-                CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
-                CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport?
-                CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
-                CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
-                CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
-            END TYPE SPECIES_DATA_REG_1
-
-            ! Namelist Registry Format for Aerosols
-            TYPE SPECIES_DATA_REG_2
-                CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
-                REAL            :: MOLWT         ! g mol-1
-                CHARACTER( 16 ) :: ICBC_SURR     ! ICBC Surrogate
-                REAL            :: ICBC_FAC      ! ICBC Scale Factor
-                CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
-                REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
-                CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
-                REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
-                CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
-                CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport?
-                CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
-                CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
-                CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
-            END TYPE SPECIES_DATA_REG_2
- 
-            ! Namelist Registry Format for Tracers
-            TYPE SPECIES_DATA_REG_3
-                CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
-                REAL            :: MOLWT         ! g mol-1
                 CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
                 REAL            :: IC_FAC        ! IC Scale Factor
                 CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
@@ -210,11 +175,31 @@ c namelist variables
                 CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
                 CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
             END TYPE SPECIES_DATA_REG_3
+
+            ! Namelist Registry Format for Aerosols
+            TYPE SPECIES_DATA_REG_2
+                CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
+                REAL            :: MOLWT         ! g mol-1
+                CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
+                REAL            :: IC_FAC        ! IC Scale Factor
+                CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
+                REAL            :: BC_FAC        ! BC Scale Factor
+                CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
+                REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
+                CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
+                REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
+                CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
+                CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport?
+                CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
+                CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
+                CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
+            END TYPE SPECIES_DATA_REG_2
+ 
  
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: GC_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: AE_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: NR_SPECIES_DATA(:)
-            TYPE (SPECIES_DATA_REG_3), ALLOCATABLE :: TR_SPECIES_DATA(:)
+            TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: TR_SPECIES_DATA(:)
  
             namelist / GC_NML / GC_SPECIES_DATA
             namelist / AE_NML / AE_SPECIES_DATA
@@ -230,8 +215,10 @@ c-------------------------------------------------------------------------------
             ALLOCATE( GC_SPECIES_DATA( SPC_DIM ), STAT=IOS )
             GC_SPECIES_DATA%SPECIES_NAME = ''
             GC_SPECIES_DATA%MOLWT = 0.
-            GC_SPECIES_DATA%ICBC_SURR = ''
-            GC_SPECIES_DATA%ICBC_FAC = 0.
+            GC_SPECIES_DATA%IC_SURR = ''
+            GC_SPECIES_DATA%IC_FAC = 0.
+            GC_SPECIES_DATA%BC_SURR = ''
+            GC_SPECIES_DATA%BC_FAC = 0.
             GC_SPECIES_DATA%DEPV_SURR = ''
             GC_SPECIES_DATA%DEPV_FAC = 0.
             GC_SPECIES_DATA%SCAV_SURR = ''
@@ -253,8 +240,10 @@ c-------------------------------------------------------------------------------
             DO IGC = 1,SPC_DIM                                                              
                 IF ( GC_SPECIES_DATA( IGC )%SPECIES_NAME .EQ. '' ) EXIT                      
                 N_GC_SPC = IGC
-                IF ( GC_SPECIES_DATA( IGC )%ICBC_FAC .EQ. -1. )
-     &               GC_SPECIES_DATA( IGC )%ICBC_FAC = 0.
+                IF ( GC_SPECIES_DATA( IGC )%IC_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%IC_FAC = 0.
+                IF ( GC_SPECIES_DATA( IGC )%BC_FAC .EQ. -1. )
+     &               GC_SPECIES_DATA( IGC )%BC_FAC = 0.
                 IF ( GC_SPECIES_DATA( IGC )%DEPV_FAC .EQ. -1. )
      &               GC_SPECIES_DATA( IGC )%DEPV_FAC = 0.
                 IF ( GC_SPECIES_DATA( IGC )%SCAV_FAC .EQ. -1. )
@@ -264,9 +253,10 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      gc_spc( n_gc_spc+1 ), gc_molwt( n_gc_spc+1 ),
-     &      gc_icbc( n_gc_spc+1 ), gc_icbc_map( n_gc_spc+1 ), gc_icbc_fac( n_gc_spc+1 ),
-     &      gc_depv( n_gc_spc+1 ), gc_depv_map( n_gc_spc+1 ), gc_depv_fac( n_gc_spc+1 ),
-     &      gc_scav( n_gc_spc+1 ), gc_scav_map( n_gc_spc+1 ), gc_scav_fac( n_gc_spc+1 ),
+     &      gc_ic( n_gc_spc+1 ) , gc_ic_map( n_gc_spc+1 ) , gc_ic_fac( n_gc_spc+1 ),
+     &      gc_bc( n_gc_spc+1 ) , gc_bc_map( n_gc_spc+1 ) , gc_bc_fac( n_gc_spc+1 ),
+     &      gc_depv( n_gc_spc+1 ), gc_depv_map( n_gc_spc+1 ) , gc_depv_fac( n_gc_spc+1 ),
+     &      gc_scav( n_gc_spc+1 ), gc_scav_map( n_gc_spc+1 ) , gc_scav_fac( n_gc_spc+1 ),
      &      gc_g2ae( n_gc_spc+1 ), gc_g2ae_map( n_gc_spc+1 ),
      &      gc_g2aq( n_gc_spc+1 ), gc_g2aq_map( n_gc_spc+1 ),
      &      gc_trns( n_gc_spc+1 ), gc_trns_map( n_gc_spc+1 ),
@@ -276,7 +266,8 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             gc_spc = bl; gc_molwt = 0.0                        !  .
-            gc_icbc = bl; gc_icbc_map = 0; gc_icbc_fac = 0.0   !  .
+            gc_ic = bl; gc_ic_map = 0; gc_ic_fac = 0.0         !  .
+            gc_bc = bl; gc_bc_map = 0; gc_bc_fac = 0.0         !  .
             gc_depv = bl; gc_depv_map = 0; gc_depv_fac = 0.0   !  .
             gc_scav = bl; gc_scav_map = 0; gc_scav_fac = 0.0   ! array
             gc_g2ae = bl; gc_g2ae_map = 0                      !  .
@@ -288,22 +279,31 @@ c-------------------------------------------------------------------------------
 
 
             ! Pass Data from GC Namelist to Internal Variables
-            N_GC_ICBC = 0; N_GC_DEPV = 0; N_GC_SCAV = 0
+            N_GC_IC = 0; N_GC_DEPV = 0; N_GC_SCAV = 0
             N_GC_G2AE = 0; N_GC_G2AQ = 0; N_GC_TRNS = 0; N_GC_DDEP = 0; N_GC_WDEP = 0
-            N_GC_CONC = 0
+            N_GC_CONC = 0; N_GC_BC = 0
 
             DO IGC = 1,N_GC_SPC
                 
                 GC_SPC( IGC )      = GC_SPECIES_DATA( IGC )%SPECIES_NAME
                 GC_MOLWT( IGC )    = GC_SPECIES_DATA( IGC )%MOLWT
 
-                ! Gas ICBCs
-                IF ( GC_SPECIES_DATA( IGC )%ICBC_SURR .NE. '' ) THEN
-                    N_GC_ICBC = N_GC_ICBC + 1
-                    GC_ICBC( N_GC_ICBC )     = GC_SPECIES_DATA( IGC )%ICBC_SURR 
-                    GC_ICBC_MAP( N_GC_ICBC ) = IGC
-                    GC_ICBC_FAC( N_GC_ICBC ) = GC_SPECIES_DATA( IGC )%ICBC_FAC
+                ! Gas ICs
+                IF ( GC_SPECIES_DATA( IGC )%IC_SURR .NE. '' ) THEN
+                    N_GC_IC = N_GC_IC + 1
+                    GC_IC( N_GC_IC )     = GC_SPECIES_DATA( IGC )%IC_SURR 
+                    GC_IC_MAP( N_GC_IC ) = IGC
+                    GC_IC_FAC( N_GC_IC ) = GC_SPECIES_DATA( IGC )%IC_FAC
                 END IF
+
+                ! Gas BCs
+                IF ( GC_SPECIES_DATA( IGC )%BC_SURR .NE. '' ) THEN
+                    N_GC_BC = N_GC_BC + 1
+                    GC_BC( N_GC_BC )     = GC_SPECIES_DATA( IGC )%BC_SURR 
+                    GC_BC_MAP( N_GC_BC ) = IGC
+                    GC_BC_FAC( N_GC_BC ) = GC_SPECIES_DATA( IGC )%BC_FAC
+                END IF
+ 
                 
                 ! Gas Dry Deposition Surrogates
                 IF ( GC_SPECIES_DATA( IGC )%DEPV_SURR .NE. '' ) THEN
@@ -378,8 +378,10 @@ c-------------------------------------------------------------------------------
             ALLOCATE( AE_SPECIES_DATA( SPC_DIM ), STAT=IOS )
             AE_SPECIES_DATA%SPECIES_NAME = ''
             AE_SPECIES_DATA%MOLWT = 0.
-            AE_SPECIES_DATA%ICBC_SURR = ''
-            AE_SPECIES_DATA%ICBC_FAC = 0.
+            AE_SPECIES_DATA%IC_SURR = ''
+            AE_SPECIES_DATA%IC_FAC = 0.
+            AE_SPECIES_DATA%BC_SURR = ''
+            AE_SPECIES_DATA%BC_FAC = 0.
             AE_SPECIES_DATA%DEPV_SURR = ''
             AE_SPECIES_DATA%DEPV_FAC = 0.
             AE_SPECIES_DATA%SCAV_SURR = ''
@@ -401,8 +403,10 @@ c-------------------------------------------------------------------------------
             DO IAE = 1,SPC_DIM
                 IF ( AE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
                 N_AE_SPC = IAE
-                IF ( AE_SPECIES_DATA( IAE )%ICBC_FAC .EQ. -1. )
-     &               AE_SPECIES_DATA( IAE )%ICBC_FAC = 0.
+                IF ( AE_SPECIES_DATA( IAE )%IC_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%IC_FAC = 0.
+                IF ( AE_SPECIES_DATA( IAE )%BC_FAC .EQ. -1. )
+     &               AE_SPECIES_DATA( IAE )%BC_FAC = 0.
                 IF ( AE_SPECIES_DATA( IAE )%DEPV_FAC .EQ. -1. )
      &               AE_SPECIES_DATA( IAE )%DEPV_FAC = 0.
                 IF ( AE_SPECIES_DATA( IAE )%SCAV_FAC .EQ. -1. )
@@ -412,7 +416,8 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      ae_spc( n_ae_spc ), ae_molwt( n_ae_spc ),
-     &      ae_icbc( n_ae_spc ), ae_icbc_map( n_ae_spc ), ae_icbc_fac( n_ae_spc ),
+     &      ae_ic( n_ae_spc ), ae_ic_map( n_ae_spc ), ae_ic_fac( n_ae_spc ),
+     &      ae_bc( n_ae_spc ), ae_bc_map( n_ae_spc ), ae_bc_fac( n_ae_spc ),
      &      ae_depv( n_ae_spc ), ae_depv_map( n_ae_spc ), ae_depv_fac( n_ae_spc ),
      &      ae_scav( n_ae_spc ), ae_scav_map( n_ae_spc ), ae_scav_fac( n_ae_spc ),
      &      ae_a2aq( n_ae_spc ), ae_a2aq_map( n_ae_spc ),
@@ -423,7 +428,8 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             ae_spc = bl; ae_molwt = 0.0                        !  .
-            ae_icbc = bl; ae_icbc_map = 0; ae_icbc_fac = 0.0   !  .
+            ae_ic = bl; ae_ic_map = 0; ae_ic_fac = 0.0         !  .
+            ae_bc = bl; ae_bc_map = 0; ae_bc_fac = 0.0         !  .
             ae_depv = bl; ae_depv_map = 0; ae_depv_fac = 0.0   !  .
             ae_scav = bl; ae_scav_map = 0; ae_scav_fac = 0.0   ! array
             ae_a2aq = bl; ae_a2aq_map = 0                      !  .
@@ -433,22 +439,30 @@ c-------------------------------------------------------------------------------
             ae_conc = bl; ae_conc_map = 0                      !  .
 
             ! Pass Data from AE Namelist to Internal Variables
-            N_AE_ICBC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
+            N_AE_IC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
             N_AE_A2AQ = 0; N_AE_TRNS = 0; N_AE_DDEP = 0; N_AE_WDEP = 0
-            N_AE_CONC = 0
+            N_AE_CONC = 0; N_AE_BC = 0
 
             DO IAE = 1,N_AE_SPC
 
                 AE_SPC( IAE )      = AE_SPECIES_DATA( IAE )%SPECIES_NAME
                 AE_MOLWT( IAE )    = AE_SPECIES_DATA( IAE )%MOLWT
 
-                ! Aerosol ICBCs
-                IF ( AE_SPECIES_DATA( IAE )%ICBC_SURR .NE. '' ) THEN
-                    N_AE_ICBC = N_AE_ICBC + 1
-                    AE_ICBC( N_AE_ICBC )     = AE_SPECIES_DATA( IAE )%ICBC_SURR 
-                    AE_ICBC_MAP( N_AE_ICBC ) = IAE
-                    AE_ICBC_FAC( N_AE_ICBC ) = AE_SPECIES_DATA( IAE )%ICBC_FAC
+                ! Aerosol ICs
+                IF ( AE_SPECIES_DATA( IAE )%IC_SURR .NE. '' ) THEN
+                    N_AE_IC = N_AE_IC + 1
+                    AE_IC( N_AE_IC )     = AE_SPECIES_DATA( IAE )%IC_SURR 
+                    AE_IC_MAP( N_AE_IC ) = IAE
+                    AE_IC_FAC( N_AE_IC ) = AE_SPECIES_DATA( IAE )%IC_FAC
                 END IF
+                ! Aerosol BCs
+                IF ( AE_SPECIES_DATA( IAE )%BC_SURR .NE. '' ) THEN
+                    N_AE_BC = N_AE_BC + 1
+                    AE_BC( N_AE_BC )     = AE_SPECIES_DATA( IAE )%BC_SURR 
+                    AE_BC_MAP( N_AE_BC ) = IAE
+                    AE_BC_FAC( N_AE_BC ) = AE_SPECIES_DATA( IAE )%BC_FAC
+                END IF
+
                 
                 ! Aerosol Dry Deposition Surrogates
                 IF ( AE_SPECIES_DATA( IAE )%DEPV_SURR .NE. '' ) THEN
@@ -516,8 +530,10 @@ c-------------------------------------------------------------------------------
             ALLOCATE( NR_SPECIES_DATA( SPC_DIM ), STAT=IOS )
             NR_SPECIES_DATA%SPECIES_NAME = ''
             NR_SPECIES_DATA%MOLWT = 0.
-            NR_SPECIES_DATA%ICBC_SURR = ''
-            NR_SPECIES_DATA%ICBC_FAC = 0.
+            NR_SPECIES_DATA%IC_SURR = ''
+            NR_SPECIES_DATA%IC_FAC = 0.
+            NR_SPECIES_DATA%BC_SURR = ''
+            NR_SPECIES_DATA%BC_FAC = 0.
             NR_SPECIES_DATA%DEPV_SURR = ''
             NR_SPECIES_DATA%DEPV_FAC = 0.
             NR_SPECIES_DATA%SCAV_SURR = ''
@@ -539,8 +555,10 @@ c-------------------------------------------------------------------------------
             DO INR = 1,SPC_DIM
                 IF ( NR_SPECIES_DATA( INR )%SPECIES_NAME .EQ. '' ) EXIT
                 N_NR_SPC = INR
-                IF ( NR_SPECIES_DATA( INR )%ICBC_FAC .EQ. -1. )
-     &               NR_SPECIES_DATA( INR )%ICBC_FAC = 0.
+                IF ( NR_SPECIES_DATA( INR )%IC_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%IC_FAC = 0.
+                IF ( NR_SPECIES_DATA( INR )%BC_FAC .EQ. -1. )
+     &               NR_SPECIES_DATA( INR )%BC_FAC = 0.
                 IF ( NR_SPECIES_DATA( INR )%DEPV_FAC .EQ. -1. )
      &               NR_SPECIES_DATA( INR )%DEPV_FAC = 0.
                 IF ( NR_SPECIES_DATA( INR )%SCAV_FAC .EQ. -1. )
@@ -550,7 +568,8 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      NR_spc( n_nr_spc ), NR_molwt( n_nr_spc ),
-     &      NR_icbc( n_nr_spc ), NR_icbc_map( n_nr_spc ), NR_icbc_fac( n_nr_spc ),
+     &      NR_ic( n_nr_spc ), NR_ic_map( n_nr_spc ), NR_ic_fac( n_nr_spc ),
+     &      NR_bc( n_nr_spc ), NR_bc_map( n_nr_spc ), NR_bc_fac( n_nr_spc ),
      &      NR_depv( n_nr_spc ), NR_depv_map( n_nr_spc ), NR_depv_fac( n_nr_spc ),
      &      NR_scav( n_nr_spc ), NR_scav_map( n_nr_spc ), NR_scav_fac( n_nr_spc ),
      &      NR_n2ae( n_nr_spc ), NR_n2ae_map( n_nr_spc ),
@@ -562,7 +581,8 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             NR_spc = bl; NR_molwt = 0.0                        !  .
-            NR_icbc = bl; NR_icbc_map = 0; NR_icbc_fac = 0.0   !  .
+            NR_ic = bl; NR_ic_map = 0; NR_ic_fac = 0.0   !  .
+            NR_bc = bl; NR_bc_map = 0; NR_bc_fac = 0.0   !  .
             NR_depv = bl; NR_depv_map = 0; NR_depv_fac = 0.0   !  .
             NR_scav = bl; NR_scav_map = 0; NR_scav_fac = 0.0   ! array
             NR_n2ae = bl; NR_n2ae_map = 0                      !  .
@@ -573,22 +593,31 @@ c-------------------------------------------------------------------------------
             NR_conc = bl; NR_conc_map = 0                      !  .
 
             ! Pass Data from NR Namelist to Internal Variables
-            N_NR_ICBC = 0; N_NR_DEPV = 0; N_NR_SCAV = 0
+            N_NR_IC = 0; N_NR_DEPV = 0; N_NR_SCAV = 0
             N_NR_N2AE = 0; N_NR_N2AQ = 0; N_NR_TRNS = 0; N_NR_DDEP = 0; N_NR_WDEP = 0
-            N_NR_CONC = 0
+            N_NR_CONC = 0; N_NR_BC = 0
 
             DO INR = 1,N_NR_SPC
 
                 NR_SPC( INR )      = NR_SPECIES_DATA( INR )%SPECIES_NAME
                 NR_MOLWT( INR )    = NR_SPECIES_DATA( INR )%MOLWT
 
-                ! Nonreactive ICBCs
-                IF ( NR_SPECIES_DATA( INR )%ICBC_SURR .NE. '' ) THEN
-                    N_NR_ICBC = N_NR_ICBC + 1
-                    NR_ICBC( N_NR_ICBC )     = NR_SPECIES_DATA( INR )%ICBC_SURR 
-                    NR_ICBC_MAP( N_NR_ICBC ) = INR
-                    NR_ICBC_FAC( N_NR_ICBC ) = NR_SPECIES_DATA( INR )%ICBC_FAC
+                ! Nonreactive ICs
+                IF ( NR_SPECIES_DATA( INR )%IC_SURR .NE. '' ) THEN
+                    N_NR_IC = N_NR_IC + 1
+                    NR_IC( N_NR_IC )     = NR_SPECIES_DATA( INR )%IC_SURR 
+                    NR_IC_MAP( N_NR_IC ) = INR
+                    NR_IC_FAC( N_NR_IC ) = NR_SPECIES_DATA( INR )%IC_FAC
                 END IF
+
+                ! Nonreactive BCs
+                IF ( NR_SPECIES_DATA( INR )%BC_SURR .NE. '' ) THEN
+                    N_NR_BC = N_NR_BC + 1
+                    NR_BC( N_NR_BC )     = NR_SPECIES_DATA( INR )%BC_SURR 
+                    NR_BC_MAP( N_NR_BC ) = INR
+                    NR_BC_FAC( N_NR_BC ) = NR_SPECIES_DATA( INR )%BC_FAC
+                END IF
+ 
                 
                 ! Nonreactive Dry Deposition Surrogates
                 IF ( NR_SPECIES_DATA( INR )%DEPV_SURR .NE. '' ) THEN
