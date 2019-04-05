@@ -17,7 +17,7 @@ To create a new EBI solver:
  |   TMPLDIR        | Full path to for FORTRAN templates for solver files | ${CMAQ_REPO}/UTIL/create_ebi/template_RXNSU_OPT |   
  |   DEGRADE_CODES  | Full path to FOTRAN code fors exponential decay of select air toxic. Check Table 4. | ${CMAQ_REPO}/UTIL/create_ebi/degrade_codes_serial-RXNST |   
  |   SRCDIR         | Full path to FORTRAN codes for create_ebi utility | ${CMAQ_REPO}/UTIL/create_ebi/src_RXNSU |   
- |   PAR_NEG_FLAG   | whether mechamisms has the species PAR and the species as negative production coefficients | T Carbon Bond based mechanism but F for other mechanisms<sup>1</sup> |      
+ |   PAR_NEG_FLAG   | whether mechamisms has the species PAR and the species as negative production coefficients | T for Carbon Bond based mechanism but F for other mechanisms<sup>1</sup> |      
  |   DEGRADE_SUBS   | include calls for HAPs degrade routines | T |  
  |   SOLVER_DELT    | Default time step of solver in minutes | 2.5 but saprc07tic mechanism uses 1.25 | 
  |   MECH_NO        |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
