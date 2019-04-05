@@ -154,7 +154,16 @@ Defines the data columns for your output file. Each can specify the observed and
              modeled values
 ```
 
-## To run:
+## Compile sitecmp source code:
+
+Execute the build script to compile sitecmp:
+
+```
+cd $CMAQ_HOME/POST/sitecmp/scripts
+./bldit_sitecmp.csh [compiler] [version] |& tee build_sitecmp.log
+```
+
+## Run sitecmp:
 Edit the sample run script (run.sitecmp*), then run:
 ```
  run.sitecmp |& tee sitecmp.log
