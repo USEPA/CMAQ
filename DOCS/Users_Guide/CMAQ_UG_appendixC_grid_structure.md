@@ -101,7 +101,7 @@ the National Center for Atmospheric Research (FINN) or the Global Fire Emissions
 - [Geospatial Multi-Agency Coordination website](https://www.geomac.gov/)
 - [U.S. National Historical Fire Perimeters Data Basin Dataset](https://www.arcgis.com/home/item.html?id=6b68271ebee147d99525e0b914823155) `EXIT`
 - [US Forest Service Fuel Characteristic Classification System](https://www.fs.fed.us/pnw/fera/fft/fccsmodule.shtml)
-- [US Forest Service BlueSky Modeling Framework]()
+- US Forest Service BlueSky Modeling Framework  **<< COMMENT >>** Need updated link.
 - [Fire INventory from the National Center for Atmospheric Research](https://www2.acom.ucar.edu/modeling/finn-fire-inventory-ncar)
 - [Global Fire Emissions Database](http://www.globalfiredata.org/)
 
