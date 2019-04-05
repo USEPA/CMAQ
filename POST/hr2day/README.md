@@ -96,6 +96,15 @@ Defines the name, units, expression and daily operation for each variable in OUT
                                               ASO4J_MAX with units ug/m3)
 ```
 
+## Compile hr2day source code:
+
+Execute the build script to compile hr2day:
+
+```
+cd $CMAQ_HOME/POST/hr2day/scripts
+./bldit_hr2day.csh [compiler] [version] |& tee build_hr2day.log
+```
+
 ##To run:
 Edit the sample run script (run.hr2day.make8hrmax), then run:
 ```
