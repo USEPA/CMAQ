@@ -381,23 +381,22 @@ C Read & interpolate boundary concentrations
             ELSE   
                ! Add Non-Carbon Mass to Carbon Mass if the model is
                ! running semivolatile POA
-               IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' ) THEN 
-                  IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
-                    BBUF_TMP = 0.0
-                    BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
+               IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' .AND.
+     &              AE_TRNS( VAR ) .NE. 'APOC' ) THEN 
+                  BBUF_TMP = 0.0
+                  BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
 #ifdef parallel
-                    IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
-     &                         MDATE, MTIME, NBNDY*NLAYS, BBUF_TMP, LVL ) ) THEN
+                  IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
+     &                       MDATE, MTIME, NBNDY*NLAYS, BBUF_TMP, LVL ) ) THEN
 #else
-                    IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
-     &                         MDATE, MTIME, NBNDY*NLAYS, BBUF_TMP ) ) THEN
+                  IF ( .NOT. INTERPB ( BNDY_AERO_1, BCNAME_TMP, PNAME,
+     &                       MDATE, MTIME, NBNDY*NLAYS, BBUF_TMP ) ) THEN
 #endif
-                       XMSG = 'Could not read ' // TRIM( BCNAME_TMP ) 
-     &                        // ' from ' // BNDY_AERO_1
-                       CALL M3WARN( PNAME, MDATE, MTIME, XMSG ) 
-                    END IF
-                    BBUF = BBUF + BBUF_TMP
+                     XMSG = 'Could not read ' // TRIM( BCNAME_TMP ) 
+     &                      // ' from ' // BNDY_AERO_1
+                     CALL M3WARN( PNAME, MDATE, MTIME, XMSG ) 
                   END IF
+                  BBUF = BBUF + BBUF_TMP
                END IF
 
                ! Units of JACOBM_BND are Meters, according to the input

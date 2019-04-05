@@ -1162,12 +1162,12 @@ C-----------------------------------------------------------------------
            End If
          End Do
 
-         If ( ( apoc_idx > 0 ) .and. ( apncom_idx > 0 ) ) Then ! add nonvol POA if present
-            poa = aerospc_conc( apoc_idx, im ) + aerospc_conc( apncom_idx, im )
-            kappaVorg = kappaVorg + (0.11*poa/aerospc_conc(apoc_idx, im ) -0.10)
-     &      * (aerospc_conc( apncom_idx, im ) / aerospc( apncom_idx )%density +
-     &         aerospc_conc( apoc_idx,   im ) / aerospc( apoc_idx )%density )*1.0e-9
-         End If
+        ! If ( ( apoc_idx > 0 ) .and. ( apncom_idx > 0 ) ) Then ! add nonvol POA if present
+        !    poa = aerospc_conc( apoc_idx, im ) + aerospc_conc( apncom_idx, im )
+        !    kappaVorg = kappaVorg + (0.11*poa/aerospc_conc(apoc_idx, im ) -0.10)
+        !&      * (aerospc_conc( apncom_idx, im ) / aerospc( apncom_idx )%density +
+        !&         aerospc_conc( apoc_idx,   im ) / aerospc( apoc_idx )%density )*1.0e-9
+        ! End If
 
          overallkappa = kappaVorg/totvol
          numparticles = moment0_conc( im )

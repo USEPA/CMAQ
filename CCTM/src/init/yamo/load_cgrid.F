@@ -405,18 +405,17 @@ C IOFDESC common now loaded with FNAME header
 
             ! Add Non-Carbon Mass to Carbon Mass if the model is
             ! running semivolatile POA
-            IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' ) THEN 
-               IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
-                  ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
-                  IF ( .NOT. XTRACT3( FNAME, ICNAME_TMP,
-     &                   1,NLAYS, STRTROWINI,ENDROWINI,STRTCOLINI,
-     &                   ENDCOLINI,JDATE, JTIME, DBUFF_TMP ) ) THEN 
-                     XMSG = 'Could not read ' // TRIM( ICNAME_TMP ) 
-     &                      // ' from ' // FNAME
-                     CALL M3WARN( PNAME, JDATE, JTIME, XMSG ) 
-                  END IF
-                  DBUFF = DBUFF + DBUFF_TMP
-                END IF
+            IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' .AND.
+     &           AE_SPC( SPC ) .NE. 'APOC' ) THEN 
+               ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
+               IF ( .NOT. XTRACT3( FNAME, ICNAME_TMP,
+     &                1,NLAYS, STRTROWINI,ENDROWINI,STRTCOLINI,
+     &                ENDCOLINI,JDATE, JTIME, DBUFF_TMP ) ) THEN 
+                  XMSG = 'Could not read ' // TRIM( ICNAME_TMP ) 
+     &                   // ' from ' // FNAME
+                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG ) 
+               END IF
+               DBUFF = DBUFF + DBUFF_TMP
             END IF
 
             ! Load ICs into CGRID
