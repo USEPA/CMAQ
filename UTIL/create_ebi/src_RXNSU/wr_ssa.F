@@ -133,13 +133,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF( LINEIN( 1 : 2 ) .EQ. 'R1' ) THEN
 
-         WRITE( IOUT, 93000 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
+         WRITE( IOUT, 93000 ) TRIM( MECHNAME )
 
          GO TO 100
 
       ELSEIF( LINEIN( 1 : 2 ) .EQ. 'R2' ) THEN
 
-         WRITE( IOUT, 93020 ) CR_DATE( 1 : LEN_TRIM( CR_DATE ) )
+         WRITE( IOUT, 93020 ) TRIM( CR_DATE )
 
          GO TO 100
 
@@ -415,10 +415,10 @@ c..This section writes code to update rate constants
 92120 FORMAT( /'c..compute steady-state concentration' )
 92140 FORMAT( /'c..update reaction rates with the computed SS species conc ' )
 
-93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
+93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' mechanism' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
 
-95000 FORMAT( 6X, 'REAL ', A16 )
+95000 FORMAT( 6X, 'REAL ', A )
 
 95100 FORMAT( 6X, 'RETURN' // 6X, 'END' )
 

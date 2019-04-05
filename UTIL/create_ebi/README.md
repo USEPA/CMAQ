@@ -5,17 +5,44 @@
 
 To create a new EBI solver:
 
-1) Copy and edit scripts/bldrun.create_ebi.csh for your compiler and Mechanism. Save to build the software.
+1) Copy and edit scripts/bldrun.create_ebi.csh for your compiler and photochemical mechanism. Save. See to Table 1 for option set by bldrun script.
 
 2) Execute the script.
 
+ <center> Table 1. create_ebi environment settings or run time options </center>
+
+ |  Names | Definition | Notes or Recommeded Value |
+ |:-----|:-----|:------|
+ |   RXNS_DATA_SRC  | Full path to mechanism's RXNS_DATA_MODULE.F90  | Produced by CHEMMECH utility | 
+ |   TMPLDIR        | Full path to for FORTRAN templates for solver files | ${CMAQ_REPO}/UTIL/create_ebi/template_RXNSU_OPT |   
+ |   DEGRADE_CODES  | Full path to FOTRAN code fors exponential decay of select air toxic. Check Table 4. | ${CMAQ_REPO}/UTIL/create_ebi/degrade_codes_serial-RXNST |   
+ |   SRCDIR         | Full path to FORTRAN codes for create_ebi utility | ${CMAQ_REPO}/UTIL/create_ebi/src_RXNSU |   
+ |   PAR_NEG_FLAG   | whether mechamisms has the species PAR and the species as negative production coefficients | T Carbon Bond based mechanism but F for other mechanisms<sup>1</sup> |      
+ |   DEGRADE_SUBS   | include calls for HAPs degrade routines | T |  
+ |   SOLVER_DELT    | Default time step of solver in minutes | 2.5 but saprc07tic mechanism uses 1.25 | 
+ |   MECH_NO        |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_NO2       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_O3        |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_O3P       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_O1D       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_OH        |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_HO2       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_HONO      |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_HNO4      |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_PAN       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_C2O3      |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_NO3       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_N2O5      |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ 
+ 1. Negative product coefficients are only allowed for a photochemical species named PAR, common to Carbon Bond based photochemical mechanisms.
+ 
 To report potential program errors or EBI solver failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov
 
 ### Description
 
 The create_ebi utility generates an Euler Backward Iterative (EBI) solver for a photochemical mechanism. Source code generated should be used to build the CMAQ CCTM using the photochemical mechanism. The solver is based on Hertel et. al (1993) and was developed to solve the Ox, HOx, NOx, VOC cycles in tropospheric photochemistry. It combines analytical solutions for specific mechanism species and a numerical method for the remaining mechanism species. The photochemical mechanism must include the specific species and their chemistry needs to meet set rules. If it does not satisfy these constraints, an EBI solver produced by create_ebi should not be used. The create_ebi utility attempts to test for meeting these constraints and stop if they are not met but the tests may not detect all possible cases for violations.
 
-Table 1.
+<center> Table 2. </center>
 Photochemistry Species or Compounds Required for an EBI solver 
 Model species can be different between CMAQ mechanisms
 
@@ -42,7 +69,7 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 
 #### CREATE_EBI input files
 
-**Table 7-13. CREATE_EBI input files**
+**Table 3. CREATE_EBI input files**
 
 |**File Name**|**Format**|**Description**|
 |----------------------------------|----------|----------------------------------------------------------|
@@ -51,12 +78,19 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 
 #### CREATE_EBI output files
 
-**Table 7‑14. CREATE_EBI output files**
+**Table 4. CREATE_EBI output files**
 
 |File Name|Format|Description|
 |---------------------------------------|---------------|-------------------------------------------------------|
-|hr\*.F|ASCII F90|Fortran 90 files for the CCTM EBI chemistry solver|
+| hr\*.F|ASCII | Fortran files for the CCTM EBI chemistry solver|
+| DEGRADE_SETUP_TOX.F<sup>1</sup> | ASCII | Fortran module that calculates exponent decay for a set of toxic air pollutants |
+| init_degrade.F<sup>1</sup> | ASCII | Fortran code that initializes arrays in DEGRADE_SETUP_TOX.F |
+| degrade_data.F<sup>1</sup> | ASCII | Fortran code that lists the set of toxic pollutants and their photochemical loss processes |
+| find_degrade.F<sup>1</sup> | ASCII | Fortran code that search for the toxic pollutants in species namelists |
+| degrade.F<sup>1</sup> | ASCII | Fortran code that calculated the exponental decay for the toxic pollutants |
+| final_degrade.F<sup>1</sup> | ASCII | Fortran code that updates CGRID array |
 
+1. Produced if DEGRADE_SUBS equals T.
 
 The location of the CREATE_EBI output files is set in the run script by the variable OUTDIR. To compile a version of the CMAQ programs that use the F90 files created by CREATE_EBI, these output F90 files need to be moved to a new directory under the `$CMAQ_HOME/CCTM/src/gas` directory. Point the CMAQ build scripts to this new directory through the “Mechanism” variable.
 
