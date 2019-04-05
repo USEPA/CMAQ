@@ -28,8 +28,16 @@ where VAR1 VAR2 ... are the variable names specified by SPECLIST.
   STIME         start time (optional)
   NSTEPS        number of time steps (optional; otherwise program processes all steps in all input files)
 ```
+## Compile block_extract source code
 
-## To run:
+Execute the build script to compile block_extract:
+
+```
+cd $CMAQ_HOME/POST/block_extract/scripts
+./bldit_block_extract.csh [compiler] [version] |& tee build_block_extract.log
+```
+
+## Run block_extract:
 Edit the sample run script (run.block_extract), then run:
 ```
  run.block_extract |& tee block_extract.log
