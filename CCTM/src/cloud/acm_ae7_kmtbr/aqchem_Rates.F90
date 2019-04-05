@@ -219,8 +219,12 @@ CONTAINS
                kO33 = 1.5D+9 * EXP( -5280.56D0 * DELINVT)
                kO3T = ( kO31 * VAR( ind_L_SO2 ) + kO32 * VAR( ind_L_HSO3MIN ) + &
                         kO33 * VAR( ind_L_SO3MIN2 ) ) * PHI2
-
-               q1 = DDIAM / 2.0D0 * SQRT( kO3T / DAQ )  ! diffuso-reactive parameter  
+			
+	       IF(kO3T .LT. 0.d0) THEN
+	          q1 = 0.d0
+	       ELSE	
+                  q1 = DDIAM / 2.0D0 * SQRT( kO3T / DAQ )  ! diffuso-reactive parameter  
+	       END IF
 
                IF ( q1 .GT. 1.0D-3 ) THEN
                   IF ( q1 .LE. 100.0D0 ) THEN

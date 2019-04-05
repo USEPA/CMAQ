@@ -56,15 +56,33 @@ C=======================================================================
       USE MECHANISM_DATA
       
       IMPLICIT NONE
-!      INCLUDE 'PARMS.e'
+! Arguments
+      INTEGER,         INTENT( IN )    :: IMECH
+      CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+      INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+      CHARACTER*( * ), INTENT( INOUT ) :: CHR
+      CHARACTER*( * ), INTENT( INOUT ) :: LABEL
 
-      CHARACTER(  1 ) :: CHR
-      CHARACTER( 16 ) :: LABEL
-      CHARACTER( 16 ) :: BLANK = ' '
-      CHARACTER( 81 ) :: INBUF, STRBUF 
-      INTEGER IMECH, IEOL, LPOINT, LENSTR
-      INTEGER, PARAMETER :: MAXLEN = 16
-      LOGICAL VALLABCHR
+! Local
+      INTEGER, PARAMETER   :: MAXLEN = 16
+      CHARACTER( MAXLEN )  :: BLANK = ' '
+      CHARACTER( 81 )      :: STRBUF 
+      INTEGER              :: LENSTR
+      LOGICAL              :: VALLABCHR
+
+      INTERFACE 
+        SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+        END SUBROUTINE RDLINE
+        SUBROUTINE GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+        END SUBROUTINE GETCHAR
+      END INTERFACE
 
 C eat the start-of-string delimiter ('<')
       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
@@ -74,12 +92,12 @@ C eat the start-of-string delimiter ('<')
       IF ( CHR .EQ. '>' ) GO TO 201  ! end-of-string delimiter ('>')
 C check for valid character
       IF ( .NOT. VALLABCHR( CHR ) ) THEN
-         WRITE( *,2001 ) INBUF, CHR
+         WRITE( 6,2001 ) INBUF, CHR
          STOP
       END IF
       LENSTR = LENSTR + 1
       IF ( LENSTR .GT. 81 ) THEN
-         WRITE( *,2003 ) INBUF
+         WRITE( 6,2003 ) INBUF
          STOP
       END IF
 C insert into STRBUF
@@ -88,7 +106,10 @@ C get next non-blank character
       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
       GO TO 101
 201   CONTINUE
-      IF ( LENSTR .GT. MAXLEN ) LENSTR = MAXLEN
+      IF ( LENSTR .GT. MAXLEN )THEN
+         LENSTR = MAXLEN
+	 WRITE( 6,2004 )TRIM(STRBUF),STRBUF( 1:LENSTR )
+      END IF	 
       LABEL = STRBUF( 1:LENSTR )
       CALL GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
       RETURN
@@ -97,4 +118,6 @@ C get next non-blank character
      &        / 5X, 'Character:', 2X, A1 )
 2003  FORMAT( / 5X, '*** ERROR: label buffer cannot exceed 81 characters:'
      &        / 5X, 'Line:'/ A81 )
+2004  FORMAT( / 5X, '*** WARNING: label buffer: ' / A, ' exceeds 16 characters:'
+     &        / 5X, '*** Trunicating to :'/ A16 )
       END

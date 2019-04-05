@@ -33,8 +33,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETPRDCT ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD,
      &                      NXX, NS, SPCLIS, SPC1RX,
      &                      ICOL, 
-     &                      N_DROP_SPC, DROP_SPC ) ! ,
-!     &                      N_SS_SPC, SS_SPC, SS_PRD_COEF ) ! , IRR, SC )
+     &                      N_DROP_SPC, DROP_SPC ) 
  
 
 C=======================================================================
@@ -93,6 +92,42 @@ c..STEADY_STATE related variables
  
       INTEGER, EXTERNAL :: INDEX1
 
+      INTERFACE 
+        SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+        END SUBROUTINE RDLINE
+        SUBROUTINE GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+        END SUBROUTINE GETCHAR
+        SUBROUTINE GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
+         INTEGER,         INTENT( IN )    :: IMECH   ! IO unit for mechanism file
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR     ! current character from buffer
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF   ! string read from mechanism file
+         INTEGER,         INTENT( INOUT ) :: LPOINT  ! character position in INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL    ! end of line position
+         REAL( 8 ),       INTENT( OUT )   :: NUMBER  ! number from file
+        END SUBROUTINE GETREAL
+        SUBROUTINE GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT(  OUT  ) :: WORD
+        END SUBROUTINE GETWORD
+        SUBROUTINE LKUPSPEC ( NS, SPECIES, SPCLIS, NXX, SPC1RX, NSPEC )
+         INTEGER,         INTENT(INOUT) :: NS
+         INTEGER,         INTENT( OUT ) :: NSPEC
+         INTEGER,         INTENT(INOUT) :: SPC1RX( : )
+         INTEGER,         INTENT(  IN ) :: NXX
+         CHARACTER*( * ), INTENT(  IN ) :: SPECIES
+         CHARACTER*( * ), INTENT(INOUT) :: SPCLIS( : )
+        END SUBROUTINE LKUPSPEC
+      END INTERFACE
 
       IF ( ICOL .EQ. 3 )THEN  ! ICOL = 3 initially for each reaction
            NUMB_PRODUCTS = 0  

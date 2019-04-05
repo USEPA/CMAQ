@@ -1,6 +1,0 @@
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/ICON/src/mech_conv/radm2_to_cb05/mech_table.ext,v 1.1 2011/09/12 16:31:34 yoj Exp $
-
-      use cb05_table
-

@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ====================== BCONv5.2 Build Script ====================== 
+# ====================== BCONv5.3 Build Script ====================== 
 # Usage: bldit_bcon.csh >&! bldit.bcon.log                                
 # Requirements: I/O API & netCDF libs and a Fortran compiler    
 # Note that this script is configured/tested for Red Hat Linux O/S    
@@ -36,13 +36,11 @@
 #> Source Code Locations
  set BCON_SRC = ${CMAQ_REPO}/PREP/bcon/src #> location of the BCON source code
  setenv REPOROOT $BCON_SRC
- set Mechs = ${CMAQ_REPO}/CCTM/src/MECHS   #> location of the chemistry mechanism defining files
 
 #> Working directory and Version IDs
- set VRSN  = v52                    #> Code Version
- set INPT = profile                 #> Input data type: profile or m3conc?
- set EXEC = BCON_${VRSN}_$INPT.exe  #> executable name for this application
- set CFG  = BCON_${VRSN}_$INPT.cfg  #> BLDMAKE configuration file name
+ set VRSN  = v53                    #> Code Version
+ set EXEC = BCON_${VRSN}.exe  #> executable name for this application
+ set CFG  = BCON_${VRSN}.cfg  #> BLDMAKE configuration file name
 
 #> Controls for managing the source code and MPI compilation
 set CompileBLDMAKE                     #> Recompile the BLDMAKE utility from source
@@ -54,29 +52,19 @@ set CopySrc                            #> copy the source files into the BLD dir
                                        #>   comment out to compile the model (default if not set)
 
 #>==============================================================================
-#> BCON Science Modules selection
-#> NOTE: For the modules with multiple choices, choose by uncommenting.
-#> look in the BCON source code repository or refer to the CMAQ documentation
-#> for other possible options. Be careful. Not all options work together.
+#> BCON Science Modules
+#>
+#> NOTE:  BC type is now a runtime option.  All BC types are included at
+#>        compile time
 #>==============================================================================
 
  set ModCommon = common
 
- set ModType   = profile
-#set ModType   = m3conc
-#set ModType   = tracer
+ set ModProfile = profile
 
- set ModMech   = prof_data/cb05_ae6_aq #> static boundary conditions profiles (see $CMAQ_HOME/PREP/bcon/src/prof_data)
+ set ModM3conc = m3conc
 
-#set Mechanism = cb05tucl_ae6_aq/
-#set Mechanism = cb05tump_ae6_aq/
- set Mechanism = cb05e51_ae6_aq/
-#set Mechanism = cb05mp51_ae6_aq/
-#set Mechanism = saprc07tb_ae6_aq/
-#set Mechanism = saprc07tc_ae6_aq/
-#set Mechanism = saprc07tic_ae6i_aq/
-#set Mechanism = racm2_ae6_aq/
- set Tracer    = trac0               # default: no tracer species
+ set ModTracer = tracer
 
 #>#>#>#>#>#>#>#>#>#>#>#>#>#> End User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
 #>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
@@ -84,16 +72,13 @@ set CopySrc                            #> copy the source files into the BLD dir
 #> Set full path of Fortran 90 compiler
  set FC = ${myFC}
  set FP = $FC
- setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe   #> name of model builder executable
+ setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe   #> name of model builder executable
 
 #> Set compiler flags
  set xLib_Base  = ${CMAQ_LIB}
  set xLib_1     = ioapi/modules
  set xLib_2     = ioapi/include_files
  set xLib_4     = ioapi/lib
- #set xLib_Base  = ${CMAQ_LIB}
- #set xLib_1     = ${IOAPI_DIR}/lib 
- #set xLib_2     =  ${IOAPI_DIR}/include
  set FSTD       = "${myFSTD}"
  set DBG        = "${myDBG}"
  set F_FLAGS    = "${myFFLAGS}"
@@ -131,7 +116,7 @@ set CopySrc                            #> copy the source files into the BLD dir
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
- set Bld = $CMAQ_HOME/PREP/bcon/scripts/BLD_BCON_${VRSN}_${INPT}_${compiler}
+ set Bld = $CMAQ_HOME/PREP/bcon/scripts/BLD_BCON_${VRSN}_${compilerString}
  if ( ! -e "$Bld" ) then
     mkdir $Bld
  else
@@ -142,14 +127,6 @@ set CopySrc                            #> copy the source files into the BLD dir
  endif
  cd $Bld
 
- if ( $?CopySrc ) then
-    /bin/cp -fp $Mechs/$Mechanism/*.nml $Bld
-    /bin/cp -fp $Mechs/$Tracer/*.nml $Bld
- else
-    /bin/ln -s $Mechs/$Mechanism/*.nml $Bld
-    /bin/ln -s $Mechs/$Tracer/*.nml $Bld
- endif
-
 #> make the config file
 
  set Cfile = $CFG.bld
@@ -158,9 +135,7 @@ set CopySrc                            #> copy the source files into the BLD dir
  echo                                                               > $Cfile
  echo "model       $EXEC;"                                         >> $Cfile
  echo                                                              >> $Cfile
- echo "repo        $BCON_SRC;"                                        >> $Cfile
- echo                                                              >> $Cfile
- echo "mechanism   $Mechanism;"                                    >> $Cfile
+ echo "repo        $BCON_SRC;"                                     >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_base    $xLib_Base;"                                    >> $Cfile
  echo                                                              >> $Cfile
@@ -185,14 +160,11 @@ set CopySrc                            #> copy the source files into the BLD dir
  echo                                                              >> $Cfile
  echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
  echo                                                              >> $Cfile
-#echo "libraries   $quote$LIBS$quote;"                             >> $Cfile
  echo "ioapi       $quote$LIB1$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$LIB2$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
 
- set text="// mechanism:"
- echo "$text ${Mechanism}"                                         >> $Cfile
  echo "// project repository location: ${BCON_SRC}"                >> $Cfile
  echo                                                              >> $Cfile
 
@@ -201,14 +173,19 @@ set CopySrc                            #> copy the source files into the BLD dir
  echo "Module ${ModCommon};"                                       >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "profile, m3conc, tracer"
+ set text = "profile"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModType};"                                         >> $Cfile
+ echo "Module profile;"                                            >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "cb05, saprc99, saprc07t"
+ set text = "m3conc"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModMech};"                                         >> $Cfile
+ echo "Module m3conc;"                                             >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "tracer"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module tracer;"                                             >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then
@@ -249,9 +226,9 @@ set CopySrc                            #> copy the source files into the BLD dir
  endif
 
 #> Rename Makefile to specify compiler option and link back to Makefile
- mv Makefile Makefile.$compiler
- if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
- ln -s Makefile.$compiler Makefile
+ mv Makefile Makefile.$compilerString
+ if ( -e Makefile.$compilerString && -e Makefile ) rm Makefile
+ ln -s Makefile.$compilerString Makefile
 
 #> Alert user of error in BLDMAKE if it ocurred
  if ( $status != 0 ) then
@@ -263,6 +240,7 @@ set CopySrc                            #> copy the source files into the BLD dir
 #> build directory.
  if ( -e "$Bld/${CFG}" ) then
     echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
+    unalias mv
     mv $Bld/${CFG} $Bld/${CFG}.old
  endif
  mv ${CFG}.bld $Bld/${CFG}

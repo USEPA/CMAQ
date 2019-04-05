@@ -23,6 +23,8 @@
 !
 !  It also contains routines for reading environment variables, and
 !  opening input files.
+!  31 Jan 2019  (David Wong)
+!     -- removed all twoway related environment variables in this file
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -56,35 +58,6 @@
       CHARACTER( 10 ) :: WEEKDAY( 7 ) = (/'Monday   ','Tuesday  ','Wednesday',
      &                        'Thursday ','Friday   ','Saturday ','Sunday   ' /)
 
-
-
-#ifdef twoway
-      !-----------------------------------------------------------------------------------
-      !>> Variables for Configuring WRF-CMAQ Coupled Model Runs
-      !-----------------------------------------------------------------------------------
-
-      LOGICAL :: CMAQ_WRF_FEEDBACK    = .FALSE. ! Calculate Feedbacks from CMAQ to WRF
-      LOGICAL :: TURN_ON_PV           = .FALSE. ! Flag for O3 Potential Vorticity Calculation 
-      LOGICAL :: CREATE_PHYSICAL_FILE = .FALSE. ! Flag for Creating a physical output file
-      INTEGER :: FILE_TIME_STEP       = 10000   ! Output Time Step
-      LOGICAL :: RUN_CMAQ_DRIVER      = .TRUE.  ! Flag for running CMAQ Driver
-      LOGICAL :: INDIRECT_EFFECT      = .FALSE. ! Flag for treating Indirect Effects
-      LOGICAL :: SD_TIME_SERIES       = .FALSE. ! Subdomain Time Series
-      INTEGER :: SD_SCOL              = 1       ! Subdomain Start Column
-      INTEGER :: SD_ECOL              = 1       ! Subdomain End Column
-      INTEGER :: SD_SROW              = 1       ! Subdomain Start Row
-      INTEGER :: SD_EROW              = 1       ! Subdomain End Row
-      INTEGER :: N_SD_SPCS            = 0       ! Number of Subdomain Species to Output
-      CHARACTER(16) :: SD_SPCS( 900 ) = ''      ! Subdomain Species list 
-      INTEGER :: CMAQ_C_COL_DIM       = -1      ! CMAQ Column Dimension
-      INTEGER :: CMAQ_C_ROW_DIM       = -1      ! CMAQ Row Dimension
-      INTEGER :: DELTA_X              = 5       ! Grid Spacing in x direction
-      INTEGER :: DELTA_Y              = 5       ! Grid Spacing in y direction
-      REAL    :: WRF_LC_REF_LAT       = 0.0     ! Reference Latitude
-      INTEGER :: WRF_CMAQ_FREQ        = 1       ! Frequency of CMAQ Execution
-      CHARACTER(250):: GRIDDESC_FNAME = ''      ! Grid Description
-      CHARACTER(16) :: GRID_NAME_STR  = ''      ! Grid Name
-#endif
       !-----------------------------------------------------------------------------------
       !>> Define Environment Variables for Controlling CMAQ Processes
       !-----------------------------------------------------------------------------------
@@ -253,122 +226,6 @@
       
       CONTAINS
           
-#ifdef twoway
-!.........................................................................
-      SUBROUTINE INIT_TWOWAY_ENV_VARS( )
-
-!  Defines and retrieves values for twoway model environment variables.
-!.........................................................................
-      USE UTILIO_DEFN
-
-      IMPLICIT NONE                         
-      
-      CHARACTER( 250 ) :: VARDESC
-      CHARACTER( 250 ) :: STRTEMP
-
-
-      ! Flag for Determining whether CMAQ is being driven by itself or a
-      ! larger host model.
-      VARDESC = 'Flag for invoking CMAQ Driver. [False] for WRF-CMAQ Coupled Model'
-      RUN_CMAQ_DRIVER = .FALSE.
-      RUN_CMAQ_DRIVER = GET_ENVYN( 'RUN_CMAQ_DRIVER', VARDESC, RUN_CMAQ_DRIVER )
-      CMAQ_WRF_FEEDBACK = GET_ENVYN( 'CMAQ_WRF_FEEDBACK', VARDESC, CMAQ_WRF_FEEDBACK )
-
-      ! Flag for Calculating Feedback From AQ Model to Meteorology
-      VARDESC = 'CMAQ WRF radiative feedback'
-      CMAQ_WRF_FEEDBACK = GET_ENVYN( 'CMAQ_WRF_FEEDBACK', VARDESC, CMAQ_WRF_FEEDBACK )
-
-      ! Flag for turning on Potential Vorticity Scaling for High
-      ! Altitude Ozone Adjustment
-      VARDESC = 'Potential Vorticity Scaling flag'
-      TURN_ON_PV = GET_ENVYN('CTM_TURN_ON_PV', VARDESC, TURN_ON_PV )
-
-      ! Flag for Creating a Physical File
-      VARDESC = 'Create Physical File'
-      CREATE_PHYSICAL_FILE = GET_ENVYN('CREATE_PHYSICAL_FILE', VARDESC, CREATE_PHYSICAL_FILE )
-      IF ( CREATE_PHYSICAL_FILE ) THEN
-         ! Retrieve Time Step for File
-         VARDESC = 'Physical File Time Step'
-         FILE_TIME_STEP = GET_ENVINT('FILE_TIME_STEP', VARDESC, FILE_TIME_STEP )
-      END IF
-
-      ! Flag for Calculating Indirect Effect
-      VARDESC = 'Calculate Indirect Effect'
-      INDIRECT_EFFECT = GET_ENVYN ('INDIRECT_EFFECT', VARDESC, INDIRECT_EFFECT )
-
-      ! Flag for getting SD Time Series
-      VARDESC = 'This does not appear to exist'
-      SD_TIME_SERIES = GET_ENVYN( 'CTM_SD_TIME_SERIES', VARDESC, SD_TIME_SERIES )
-     
-      ! Grid Boundaries
-      VARDESC = 'Retrieve SD_SCOL'
-      SD_SCOL = GET_ENVINT('SD_SCOL', VARDESC, SD_SCOL)
-      
-      ! Grid Boundaries
-      VARDESC = 'Retrieve SD_ECOL'
-      SD_ECOL = GET_ENVINT('SD_ECOL', VARDESC, SD_ECOL)
-      
-      ! Grid Boundaries
-      VARDESC = 'Retrieve SD_SROW'
-      SD_SROW = GET_ENVINT('SD_SROW', VARDESC, SD_SROW)
-      
-      ! Grid Boundaries
-      VARDESC = 'Retrieve SD_EROW'
-      SD_EROW = GET_ENVINT('SD_EROW', VARDESC, SD_EROW)
-      
-      ! Load List of Species to Output (SD_SPCS is Preallocated very
-      ! large so that no dynamic allocation is needed)
-      CALL GET_ENVLIST( 'SD_CONC_SPCS', N_SD_SPCS, SD_SPCS )   
-      
-      ! Retrieve CMAQ Grid Parameters
-      VARDESC = 'Retrieve CMAQ Column Dimension'
-      CMAQ_C_COL_DIM = GET_ENVINT('CMAQ_COL_DIM', VARDESC, CMAQ_C_COL_DIM )
-
-      ! Retrieve CMAQ Grid Parameters
-      VARDESC = 'Retrieve CMAQ Row Dimension'
-      CMAQ_C_ROW_DIM = GET_ENVINT('CMAQ_ROW_DIM', VARDESC, CMAQ_C_ROW_DIM )
-
-      ! Retrieve Two-Way Coupled Model Delta X
-      VARDESC = 'Retrieve Two-Way Model Delta X'
-      DELTA_X = GET_ENVINT('TWOWAY_DELTA_X', VARDESC, DELTA_X )
-
-      ! Retrieve Two-Way Coupled Model Delta Y
-      VARDESC = 'Retrieve Two-Way Model Delta Y'
-      DELTA_Y = GET_ENVINT('TWOWAY_DELTA_Y', VARDESC, DELTA_Y )
-
-      ! WRF Reference Latitude
-      VARDESC = 'Retrieve WRF Reference Latitude'
-      WRF_LC_REF_LAT = GET_ENVREAL('WRF_LC_REF_LAT', VARDESC, WRF_LC_REF_LAT )
-
-      ! Get Frequency of CMAQ Executions
-      VARDESC = 'Frequency of CMAQ Execution'
-      WRF_CMAQ_FREQ = GET_ENVINT('WRF_CMAQ_FREQ', VARDESC, WRF_CMAQ_FREQ )
- 
-      ! Get Grid Description
-      VARDESC = 'Grid Description'
-      GRIDDESC_FNAME = GET_ENVSTR( 'GRIDDESC', VARDESC, GRIDDESC_FNAME )
-
-      ! Get Grid Name
-      VARDESC = 'Grid Name'
-      STRTEMP = GET_ENVSTR( 'GRID_NAME', VARDESC, GRID_NAME_STR )
-      GRID_NAME_STR = STRTEMP(1:16)
- 
-      ! Run Duration
-      VARDESC = 'Scenario Run Duration (HHMMSS)'
-      RUNLEN = GET_ENVINT( 'CTM_RUNLEN', VARDESC, RUNLEN )
-      
-      ! Starting Date
-      VARDESC = 'Scenario Starting Date (YYYYDDD)'
-      STDATE = GET_ENVINT( 'CTM_STDATE', VARDESC, STDATE )
-
-      ! Starting Time
-      VARDESC = 'Scenario Starting Time (HHMMSS)'
-      STTIME = GET_ENVINT( 'CTM_STTIME', VARDESC, STTIME )
- 
-
-      END SUBROUTINE INIT_TWOWAY_ENV_VARS
-#endif 
-
 !.........................................................................
       SUBROUTINE INIT_ENV_VARS( JDATE, JTIME )
 
@@ -1339,14 +1196,19 @@
 
       CASE ( 2 ) 
           ! Write out the time to complete the entire master time step
-          WRITE( XMSG, '(2x,A41,F6.1,A8)' ),'Master Time Step Processing Completed in ',
+          WRITE( XMSG, '(7x,A16)' ),'Master Time Step'
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
+#ifndef twoway
+          IF ( MYPE .EQ. 0 ) CALL LOG_MESSAGE( OUTDEV, XMSG )
+#endif
+          WRITE( XMSG, '(7x,A24,F6.1,A8)' ),'Processing completed... ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
 
       CASE ( 3 ) 
           ! Write out the time to complete the output procedure
-          WRITE( XMSG, '(A,F4.1,A)' ), 'Completed Writing Results to Output Files...',
+          WRITE( XMSG, '(1x,A32,F4.1,A)' ), '=--> Data Output completed...   ',
      &                     (CPU_TIME_FINISH-CPU_TIME_START),' seconds'
           CALL LOG_MESSAGE( LOGDEV, XMSG )
           WRITE( LOGDEV, * )
