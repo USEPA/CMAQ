@@ -87,7 +87,16 @@ This Fortran program generates a csv (comma separated values) file that compares
              modeled values
 ```
 
-## To run:
+## Compile sitecmp_dailyo3 source code:
+
+Execute the build script to compile sitecmp_dailyo3:
+
+```
+cd $CMAQ_HOME/POST/sitecmp_dailyo3/scripts
+./bldit_sitecmp_dailyo3.csh [compiler] [version] |& tee build_sitecmp_dailyo3.log
+```
+
+## Run sitecmp_dailyo3:
 Edit the sample run script (run.sitecmp_dailyo3), then run:
 ```
  run.sitecmp_dailyo3|& tee sitecmp_dailyo3.log
