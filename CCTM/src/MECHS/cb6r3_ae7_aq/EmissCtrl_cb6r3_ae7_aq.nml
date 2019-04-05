@@ -185,10 +185,39 @@
    'EVERYWHERE', 'ALL'         ,'PMC'    ,'ACL'     ,'COARSE',0.00145,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'PMC'    ,'AH2O'    ,'COARSE',0.00032,'UNIT','a', 
 
-   ! VBS Primary Organic Particle and Vapor Scaling
+   ! Fine-Mode Primary Organic Aerosol Scaling
+   !   There are a series of species available for propagating emissions of primary
+   !   organic particles and vapor. APOC and APNCOM are nonvolatile species that
+   !   age chemically in the particle phase. Traditionally, all POC (primary organic
+   !   carbon) and PNCOM (primary non-carbon organic matter) have been represented
+   !   by these species.
+   !   It is more correct to use semivolatile species to account for the gas-particle
+   !   partitioning of this POA mass. Several particle and gas-phase species are 
+   !   provided for this task, and these species vary in their volatility, which is
+   !   quantified with the metric C*. See Donahue et al. (ES&T, 2006).
+   !     Gas Species :      VLVPO1  VSVPO1  VSVPO2  VSVPO3  VIVPO1
+   !     Particle Species : ALVPO1  ASVPO1  ASVPO2  ASVPO3  AIVPO1
+   !     C* (ug m-3) :       0.1      1       10     100     1000
+   !                 (Mostly Particle)                    (Mostly Vapor)
+   !   To enable semivolaitle partitioning, you may direct a fraction of mass from the
+   !   nonvolatile emission surrogates (POC and PNCOM) to each of these semivolatile 
+   !   CMAQ species. To conserve mass, the total of the scale factors should sum to 1.
+   !     Note: Each of the semivolatile species accounts for both OC and NCOM mass, so
+   !           rules should come in pairs (one for POC and one for PNCOM) in order to
+   !           conserve the total. For Example,
+   !            'EVERYWHERE', 'ALL' ,'POC'  ,'VSVPO2'   ,'GAS' ,0.14 ,'MASS','a', 
+   !            'EVERYWHERE', 'ALL' ,'PNCOM','VSVPO2'   ,'GAS' ,0.14 ,'MASS','a', 
+   !     Note: To avoid large swigns in repartitioning after emission, it's a good idea
+   !           to split mass between gas and particle phases, with all mass going to 
+   !           the particle in the C* = 0.1-1 range and all gas for C* = 100-1000. 
+   !           Species with C*=10 can generally have mass split between gas and particle
+   !           or be put in all gas if conditions are very clean. If too much mass 
+   !           evaporates or condenses upon emission, the aerosol size distribution 
+   !           will be affected.
+   !            
    ! --> Nonvolatile POA
-   !'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'        ,'FINE',1.   ,'MASS','a', 
-   !'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'      ,'FINE',1.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'        ,'FINE',1.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'      ,'FINE',1.   ,'MASS','a', 
    ! --> Semivolatile POA
    'EVERYWHERE', 'ALL'         ,'POC'    ,'VLVPO1'      ,'GAS' ,0.   ,'MASS','a', 
    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VLVPO1'      ,'GAS' ,0.   ,'MASS','a', 
@@ -238,13 +267,18 @@
    'EVERYWHERE', 'ALL'    ,'PMFINE_MN'   ,'AMN'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_H2O'  ,'AH2O'        ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_OTHR' ,'AOTHR'       ,'FINE',1.   ,'UNIT','a', 
-   ! --> Nonvolatile POA
-   !'EVERYWHERE', 'ALL'    ,'PMFINE_POC' ,'APOC'         ,'FINE',1.   ,'UNIT','a', 
-   !'EVERYWHERE', 'ALL'   ,'PMFINE_PNCOM','APNCOM'       ,'FINE',1.   ,'UNIT','a', 
-   ! --> Semivolatile POA
-   'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
-   'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
 
+   ! :Scaling of Fine-Mode POA from Wind-Blown Dust or Sea Spray. Either the 
+   ! :Nonvolatile POA should be propagated to the transport model, or the Low 
+   ! :Volatility POA should be propagated, not both.
+   ! :  --> Nonvolatile POA
+      !'EVERYWHERE', 'ALL'    ,'PMFINE_POC' ,'APOC'         ,'FINE',1.   ,'UNIT','a', 
+      !'EVERYWHERE', 'ALL'   ,'PMFINE_PNCOM','APNCOM'       ,'FINE',1.   ,'UNIT','a', 
+   ! :  --> Semivolatile POA
+      'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
+      'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
+
+   ! Wind-Blown Dust and Sea Spray Scaling
    ! Coarse Components                                               
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_SO4','ASO4'      ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_NO3','ANO3'      ,'COARSE',1.   ,'UNIT','a', 
