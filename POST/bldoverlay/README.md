@@ -3,7 +3,7 @@ bldoverlay
 
 This Fortran program creates an observation overlay file that can be imported into either PAVE or VERDI. It requires as input a file containing observed data in a specific format, and then creates a PAVE/VERDI compatible overlay file.
 
-##Environment variables used:
+## Environment variables used:
 
 ```
  IOAPI_ISPH    projection sphere type (use type #20 to match WRF/CMAQ)
@@ -26,7 +26,7 @@ This Fortran program creates an observation overlay file that can be imported in
  OUTFILE       name of overlay file to create
 ```
 
-##Input file types and format:
+## Input file types and format:
 
 Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For hourly output data (OLAYTYPE HOURLY) the program assumes that observations are in local standard time (LST) and applies a simple timezone shift to GMT using timezones every 15 degrees longitude.  For daily output data (OLAYTYPE DAILY, 1HRMAX or 8HRMAX) no time shifting is done so the output data remains in LST.  In this case the user can use the HR2DAY utility to time shift and average hourly model data to create daily model fields in LST.
 
@@ -39,8 +39,17 @@ Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For 
  SITES format:   Set to create a static site file using the value set by VALUE (default is 1). 
                  The format is a tab delimited file with the structure Site_ID Longitude Latitude.
 ```
+## Compile bldoverlay source code
 
-##To run:
+Execute the build script to compile bldoverlay:
+
+```
+cd $CMAQ_HOME/POST/bldoverlay/scripts
+./bldit_bldoverlay.csh [compiler] [version] |& tee build_bldoverlay.log
+```
+
+
+## Run bldoverlay:
  run.bldoverlay |& tee bldoverlay.log
 
 Check the log file to ensure complete and correct execution without errors.
