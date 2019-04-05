@@ -81,7 +81,16 @@ Examples of possible post-processing expressions are shown in the sample SPECIES
 
 **If you have questions about the sample species definition files or find something that does not seem correct please discuss it with us by creating an "Issue" through GitHub or contacting the CMAS Help Desk: http://www.cmascenter.org.**
 
-## To run:
+## Compile combine source code:
+
+Execute the build script to compile combine:
+
+```
+cd $CMAQ_HOME/POST/combine/scripts
+./bldit_combine.csh [compiler] [version] |& tee build_combine.log
+```
+
+## Run combine:
 Edit the sample run script (run.combine.aconc), then run:
 ```
  run.combine.aconc |& tee combine.aconc.log
