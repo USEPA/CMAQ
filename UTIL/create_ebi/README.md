@@ -15,7 +15,7 @@ To create a new EBI solver based on photochemical mechanism's reactions data mod
 
  |  Names | Definition | Notes or Recommeded Value |
  |:-----|:-----|:------|
- |  COMPILER        | FORTRAN compiler to building create_ebi | the utility's makefile, _makefile.v5XX_, is step up for the Intel (INTEL), Portland Group (PGF90) and gfortran (GFORT) compilers. If a separate compiler is to be used, the user has to modified the makefile to define the compiler and its compile flags | 
+ |  COMPILER        | FORTRAN compiler to building create_ebi | the utility's makefile, _makefile.v5XX_, is step up for the Intel (INTEL), Portland Group (PGF90) and GCC gfortran (GFORT) compilers. If a separate compiler is to be used, the user has to modify the makefile to define the compiler and its compile flags, recommend including debugging flags| 
  |   RXNS_DATA_SRC  | Full path to mechanism's RXNS_DATA_MODULE.F90  | Produced by CHEMMECH utility | 
  |   TMPLDIR        | Full path to for FORTRAN templates for solver files | ${CMAQ_REPO}/UTIL/create_ebi/template_RXNSU_OPT |   
  |   DEGRADE_CODES  | Full path to FOTRAN code fors exponential decay of select air toxic. Check Table 4. | ${CMAQ_REPO}/UTIL/create_ebi/degrade_codes_serial-RXNST |   
@@ -23,21 +23,22 @@ To create a new EBI solver based on photochemical mechanism's reactions data mod
  |   PAR_NEG_FLAG   | whether mechamisms has the species PAR and the species as negative production coefficients | T for Carbon Bond based mechanism but F for other mechanisms<sup>1</sup> |      
  |   DEGRADE_SUBS   | include calls for HAPs degrade routines | T |  
  |   SOLVER_DELT    | Default time step of solver in minutes | 2.5 but saprc07tic mechanism uses 1.25 | 
- |   MECH_NO        |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_NO2       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_O3        |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_O3P       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_O1D       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_OH        |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_HO2       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_HONO      |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_HNO4      |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_PAN       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_C2O3      |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_NO3       |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
- |   MECH_N2O5      |  | No Default Value, create_ebi stops if not found in environment or mechanism | 
+ |   MECH_NO        | mechanism's name for nitrogen oxide | **NO** for cb6, saprc07t and racm2<sup>2</sup> based photochemical mechanisms | 
+ |   MECH_NO2       | mechanism's name for nitrogen dioxide | **NO2** for cb6, saprc07t and racm2 based photochemical mechanisms | 
+ |   MECH_O3        | mechanism's name for ozone | **O3** for cb6, saprc07t and racm2 based photochemical mechanisms | 
+ |   MECH_O3P       | mechanism's name for ground state oxygen atom | **O** for cb6 but **O3P** for saprc07t and racm2 based photochemical mechanisms | 
+ |   MECH_O1D       | mechanism's name for excited state oxygen atom | **O1D** for cb6, saprc07t and racm2 based photochemical mechanisms | 
+ |   MECH_OH        | mechanism's name for hydroyxl radical | **OH** for cb6 and saprc07t but **HO** for racm2 based photochemical mechanisms | 
+ |   MECH_HO2       | mechanism's name for hydroperoxy radical | **HO2** for cb6, saprc07t and racm2 based photochemical mechanisms | 
+ |   MECH_HONO      | mechanism's name for nitrous acid | **HONO** for cb6, saprc07t and racm2 based photochemical mechanisms | 
+ |   MECH_HNO4      | mechanism's name for proxynitric acid | **PNA** for cb6 but **HNO4** for saprc07t and racm2 based photochemical mechanisms | 
+ |   MECH_PAN       | mechanism's name for peroxy acetyl nitrate | **PAN** for cb6, saprc07t and racm2 based photochemical mechanisms | 
+ |   MECH_C2O3      | mechanism's name for peroxy acetyl radical | **C2O3** for cb6, **MECO3** for saprc07t and **ACO3** racm2 based photochemical mechanisms | 
+ |   MECH_NO3       | mechanism's name for nitrate radical | **NO3** for cb6, saprc07t and racm2 based photochemical mechanisms | 
+ |   MECH_N2O5      | mechanism's name for dinitrogen pentoxide | **N2O5** for cb6, saprc07t and racm2 based photochemical mechanisms | 
  
  1. Negative product coefficients are only allowed for a photochemical species named PAR, common to Carbon Bond based photochemical mechanisms.
+ 2. The three photochemical mechanisms released in CMAQ version 5.3.
  
 To report potential program errors or EBI solver failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov
 
@@ -68,18 +69,22 @@ Model species can be different between CMAQ mechanisms
 
 ### Files, configuration, and environment variables
 
-To implement a new mechanism in CMAQ, start with a mechanism definition (mech.def) file and CSV species files from an existing mechanism in the model. Edit the mech.def file to include the new reactions, species, and reaction rates and provide this new mech.def file as input to the program [CHEMMECH](#CHEMMECH). CHEMMECH will output a RXNS_DATA_MODULE.F90 file, which is used as input to CREATE_EBI.
+To create an EBI solver for a photochemical mechanism to be used in the CMAQ model, a user needs the Fortran data module describing the photochemical mechanism. The chemmech utility produces the module based on a mechanism definitions file and species namelist files. For more information, consult the README under ${CMAQ_REPO}/UTIL/chemmech.
 
-#### CREATE_EBI input files
+#### CREATE_EBI usage requirements.
+
+The create_ebi utility is designed compiled and run once for each application. Beside utility's own source code and data files, compiling needs a photochemical mechanism's data module (Table 3). If compilation is successful, the utility runs based on options set by enviroment variables (Table 1.)
 
 **Table 3. CREATE_EBI input files**
 
 |**File Name**|**Format**|**Description**|
 |----------------------------------|----------|----------------------------------------------------------|
-|RXNS_DATA_MODULE.F90|ASCII|a Fortran 90 module describing the photochemical mechanism produced by the CHEMMECH utility |
+|RXNS_DATA_MODULE.F90|ASCII|a Fortran 90 module describing the photochemical mechanism produced by the chemmech utility |
 
 
 #### CREATE_EBI output files
+
+A successful application produces files under a directory defined the environment variable, OUTDIR. Their number depends on the run time options (Table 4.) 
 
 **Table 4. CREATE_EBI output files**
 
@@ -95,135 +100,89 @@ To implement a new mechanism in CMAQ, start with a mechanism definition (mech.de
 
 1. Produced if DEGRADE_SUBS equals T.
 
-The location of the CREATE_EBI output files is set in the run script by the variable OUTDIR. To compile a version of the CMAQ programs that use the F90 files created by CREATE_EBI, these output F90 files need to be moved to a new directory under the `$CMAQ_HOME/CCTM/src/gas` directory. Point the CMAQ build scripts to this new directory through the “Mechanism” variable.
+Compiling a version of the CMAQ model using this photochemical mechanism and its EBI solver. A user has two options. 
 
-#### Compilation Configuration Variables
+ 1. update the source code ( _the two photochemical reaction modules produced by CHEMMECH and EBI solver files_)and Makefile in an existing CMAQ build directory. 
+ 2. Add the new mechanism and solver files to their CMAQ repository then use the cctm build-it script to build the CMAQ CCTM model. 
+ 
+The latter option is more complicated because it creates subdirectories under `$CMAQ_HOME/CCTM/src/MECHS` and `$CMAQ_HOME/CCTM/src/gas` and involve files not produced by the user and other utilities. 
 
--   `GC_NAME [default: None]`  
-     Name identifier for gas phase mechanisms
-     -  `CB6R3`  
-    Carbon Bond version 6 revision 3
-     -  `CB05E51`  
-     Carbon Bond 05 with modifications for CMAQ version 5.1
-     -  `CB05MP51`  
-     Carbon Bond 05 multipollutant mechanism for CMAQ version 5.1
-     -  `CB05TUCL`  
-     Carbon Bond 05 with modified toluene and chlorine chemistry
-     -  `CB05TUMP`  
-     Carbon Bond 05 with modified toluene and multipollutant chemistry
-     -  `SAPRC07TB`  
-     SAPRC07 with modified toluene chemistry
-     -  `SAPRC07TC`  
-     SAPRC07 with modified toluene chemistry
-     -  `SAPRC07TIC`  
-     SAPRC07 with modified toluene chemistry
-     -  `RACM2`  
-     RACM2 chemistry
--   `AE_NAME [default: None]`  
-    Name identifier for particle phase mechanisms
-    - `AE6`  
-    CMAQ aerosols version 6
-    - `AE6I`  
-    CMAQ aerosols version 6i
--   `AQ_NAME [default: AQ]`  
-    Name identifier for the CMAQ aqueous phase mechanism
-
-#### Execution Configuration Variables
-
-The environment variables listed here are invoked at run time and are set in the CREATE_EBI run script.
-
--   `EXEC [default: CHEMMECH]`  
-    Executable name
--   `GC_NAME [default: None]`  
-    Name identifier for gas phase mechanisms
-    -  `CB6R3`  
-    Carbon Bond version 6 revision 3
-    -  `CB05E51`  
-    Carbon Bond 05 with modifications for CMAQ version 5.1
-    -  `CB05MP51`  
-    Carbon Bond 05 multipollutant mechanism for CMAQ version 5.1
-    -  `CB05TUCL`  
-    Carbon Bond 05 with modified toluene and chlorine chemistry
-    -  `CB05TUMP`  
-    Carbon Bond 05 with modified toluene and multipollutant chemistry
-    -  `SAPRC07TB`  
-    SAPRC07 with modified toluene chemistry
-    -  `SAPRC07TC`  
-    SAPRC07 with modified toluene chemistry
-    -  `SAPRC07TIC`  
-    SAPRC07 with modified toluene chemistry
-    -  `RACM2`  
-    RACM2 chemistry  
--   `AE_NAME [default: None]`  
-    Name identifier for particle phase mechanisms
-    - `AE6`  
-    CMAQ aerosols version 6
-    - `AE6I`  
-    CMAQ aerosols version 6i
--   `AQ_NAME [default: AQ]`  
-    Name identifier for the CMAQ aqueous phase mechanism
--   `OUTDIR [default: ../output]`  
-    Output file directory path
--   `COPYRT_FLAG`
--   `CVS_HDR_FLAG`
--   `PAR_NEG_FLAG [default: F]`
-    Include PAR negative stoichiometry.
-    - `T` for Carbon Bond mechanisms
-    - `F` for SAPRC and RACM mechanisms
--   `DEGRADE_SUBS`
--   `NO2EX_CYCLE`
--   `MECH_NO`  
-    Mechanism name for nitric oxide
--   `MECH_NO2`  
-    Mechanism name for nitrogen dioxide
--   `MECH_NO2EX`  
-     SAPRC, RACM Mechanism name for excited nitrogen dioxide; not in Carbon Bond
--   `MECH_O3`  
-     Mechanism name for ozone
--   `MECH_O3P`  
-    Mechanism name for ground state oxygen atom
-    - `O` for Carbon Bond mechanisms
-    - `O3P` for SAPRC and RACM mechanisms
--   `MECHO_O1D`  
-    Mechanism name for excited state oxygen atom
--   `MECH_OH`  
-    Mechanism name for hydroxyl radical
--   `MECH_HO2`  
-    Mechanism name for hydroperoxy radical
--   `MECH_HONO`  
-     Mechanism name for nitrous acid
--   `MECH_HNO4`  
-    Mechanism name for peroxynitric acid
-    - `PNA` for Carbon Bond mechanisms
-    - `HNO4` for SAPRC and RACM mechanisms
--   `MECH_PAN`  
-    Mechanism name for peroxy acetyl nitrate
--   `MECH_C2O3`  
-    Mechanism name for peroxy acetyl radical
-    - `C2O3` for Carbon Bond mechanisms
-    - `MECO3` for SAPRC and RACM mechanisms
--   `MECHO_NO3`  
-    Mechanism name for nitrate radical
--   `MECH_N2O5`  
-    Mechanism name for dinitrogen pentoxide
-
-### Compiling and Running
+### Example Application.
 
 #### Compile CREATE_EBI ####
 
-To compile CREATE_EBI, invoke the build file at the command line:
+After copying the bldrun_create_ebi.csh from $CMAQ_HOME/UTIL/create_ebi/scripts to another directory then editing the script to produce a solver for the saprc07tic_ae7i_aq. 
 
 ```
-cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./bldit.create_ebi.csh |& tee build.create_ebi.log
+bldrun_create_ebi.csh
 ```
 
-To port CREATE_EBI to different compilers, change the `COMPILER` variable in the bldit script.
+Execute the script (the screen output can be redirected to a log file.) 
 
-#### Run CREATE_EBI ####
 
-Set the run script settings according to the execution configuration variables described above. Run CREATE_EBI using the following command.
-```
-cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./run.create_ebi.csh |& tee run.create_ebi.log
-```
+First set of lines send to screen will echo script option and show compilation commands. Upon its execution, create_ebi writes the below lines
+if the execution is successful.
+
+
+   
+     Value for OUTDIR: /home/hwo/CCTM_git_repository/UTIL/create_ebi/output/ebi_saprc07tic_ae7i_aq-Apr-08-2019-INTEL   
+     Value for TMPLDIR: /home/hwo/CCTM_git_repository/UTIL/create_ebi/template_RXNSU_OPT   
+     Value for PAR_NEG_FLAG: F returning FALSE   
+     Value for DEGRADE_SUBS: F returning FALSE   
+     Value for SOLVER_DELT:     1.250E+00   
+     Value for MECH_NO2: NO2   
+     Value for MECH_NO: NO   
+     Value for MECH_O3: O3   
+     Value for MECH_O1D: O1D   
+     Value for MECH_O3P: O3P   
+     Value for MECH_OH: OH   
+     Value for MECH_HO2: HO2   
+     Value for MECH_HONO: HONO   
+     Value for MECH_HNO4: HNO4   
+     Value for MECH_PAN: PAN   
+     Value for MECH_C2O3: MECO3   
+     Value for MECH_NO3: NO3   
+     Value for MECH_N2O5: N2O5   
+
+
+     Group species mapping results:
+        nitric oxide (NO):                NO
+        nitrogen dioxide (NO2):           NO2
+        ozone (O3):                       O3
+        ground state atomic oxygen (O3P): O3P
+        excited atomic oxygen (O1D):      O1D
+        hydroxyl radical (OH):            OH
+        hydroperoxy radical (HO2):        HO2
+        nitrous acid (HONO):              HONO
+        peroxynitric acid (HNO4):         HNO4
+        nitrate radical (NO3):            NO3
+        nitrogen pentoxide (N2O5):        N2O5
+        peroxy acetyl radical (C2O3):     MECO3
+        peroxy acetyl nitrate (PAN):      PAN
+
+
+     Checking mechanism for EBI solver requirements.
+
+     No mechanism requirement problems detected - continuing.  
+     Found O1D destruction in reaction #          20   
+     Found O1D destruction in reaction #          21   
+     Found OH production via O1D in reaction #          20  
+     No HO2 production via O1D found  
+
+     The following 10 output files were created:  
+         hrdriver.F                        
+         hrsolver.F                      
+         hrdata_mod.F                    
+         hrinit.F                        
+         hrg1.F                          
+         hrg2.F                          
+         hrg3.F                          
+         hrg4.F                          
+         hrprodloss.F                    
+         hrrates.F                       
+     Program CR_EBI_SOLVER completed successfully
+
+
+## References.
+
+Hertel O., Berkowicz R., Christensen J., and Hov O. (1993).  Test of Two Numerical Schemes for Use in Atmospheric Transport-Chemistry Models. Atmospheric Environment, Vol. 27A, No. 16, 2591-2661.

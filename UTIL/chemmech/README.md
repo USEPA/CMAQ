@@ -82,7 +82,7 @@ The mechanism name is an optional input. If it is included, it must be the first
 
 #### SPECIAL.
 
-The key word SPECIAL lists operators used in the REACTIONS block to express reaction rate constant. Operators combine reaction rate constant and concentrations. A mechanism often uses them to lump reactions together with an already defined rate constant. An example shows an operator called RY is derived from two following reactions with respective rate constants, RKA RKB, RKH, and RKI used in a photochemical mechanism.
+The key word SPECIAL lists operators used in the REACTIONS block to express reaction rate constant. Operators combine reaction rate constants and species concentrations. A mechanism often uses them to lump reactions together with an already defined rate constant. An example shows an operator called RY is derived from two following reactions with respective rate constants, RKA RKB, RKH, and RKI used in a photochemical mechanism.
 
         X + Y = 0.3*Z
         U + Y = 0.5*W
@@ -113,7 +113,7 @@ The value of RKZ corresponds to the rate constant for the below reaction.
 
       Y = Z + W + M + N
 
-Check Reaction Type 11 in __Table 1__ on to how access on
+Check Reaction Type 11 in __Table 2__ on to how access on
 an operator defined in the SPECIAL block. For an example of a CMAQ photochemical mechanism that uses the SPECIAL block, examine the mechanism
 definitions of the saprc07tb_ae6_aq mechanism in CMAQ version 5.2.
 
