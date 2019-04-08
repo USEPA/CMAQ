@@ -73,7 +73,7 @@ Photochemical Mechanism Constraints.
 </center>
 
 | Mechanism Constraint  |   Notes            |     
-|:------| ------:  |
+|:------| ------  |
 | All reactions destorying O(1D) are first order | Excludes reactants that are atmospheric species held constant such N<sub>2</sub>, O<sub>2</sub>, H<sub>2</sub>O, etc. |  
 | O(1D) (+ Constant Species) ---> O(3P) present | Needed to solve for Ox and HOx cycle  |
 | O(1D) (+ H</sub>2</sub>O) ---> 2OH present  |  Needed to solve Ox and HOx cycle  |
@@ -87,7 +87,7 @@ Photochemical Mechanism Constraints.
 | HO<sub>2</sub> + NO<sub>2</sub>     ---> HNO<sub>4</sub> present | Needed to solve NOx and HOx cycle  |
 | HO<sub>2</sub> + HO<sub>2</sub>     --->  H<sub>2</sub>O<sub>2</sub> present | Needed to solve HOx and Ox cycle  |
 | C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> + C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> ---> _products_ present | Needed to solve NOy cycle; products mechanism dependent  |
-| Negative product coefficients are only allowed for a photochemical species named PAR | Except applies for Carbon Bond mechanisms  |
+| Negative product coefficients are only allowed for a photochemical species named PAR | Exception made for Carbon Bond mechanisms  |
 
 
 ### Files, configuration, and environment variables
