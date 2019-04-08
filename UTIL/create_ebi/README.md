@@ -46,9 +46,10 @@ To report potential program errors or EBI solver failures, contact Bill Hutzell/
 
 The create_ebi utility generates an Euler Backward Iterative (EBI) solver for a photochemical mechanism. Source code generated should be used to build the CMAQ CCTM using the photochemical mechanism. The solver is based on Hertel et. al (1993) and was developed to solve the Ox, HOx, NOx, VOC cycles in tropospheric photochemistry. It combines analytical solutions for specific mechanism species and a numerical method for the remaining mechanism species. The photochemical mechanism must include the specific species and their chemistry needs to meet set rules. If it does not satisfy these constraints, an EBI solver produced by create_ebi should not be used. The create_ebi utility attempts to test for meeting these constraints and stop if they are not met but the tests may not detect all possible cases for violations.
 
-<center> Table 2. </center>
-Photochemistry Species or Compounds Required for an EBI solver 
-Model species can be different between CMAQ mechanisms
+<center> Table 2. 
+Photochemistry Species or Compounds Required;    
+model species names can be different between CMAQ mechanisms
+</center>
 
 | Name  |   Formula            |     
 |------| ------  |
@@ -65,6 +66,28 @@ Model species can be different between CMAQ mechanisms
 | peroxy acetyl radical | C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> |
 | nitrate radical |  NO<sub>3</sub> |
 | dinitrogen pentoxide | N<sub>2</sub>O<sub>5</sub> |
+
+
+<center> Table 3. 
+Photochemical Mechanism Constraints.    
+</center>
+
+| Mechanism Constraint  |   Notes            |     
+|:------| ------:  |
+| All reactions destorying O(1D) are first order | Excludes reactants that are atmospheric species held constant such N<sub>2</sub>, O<sub>2</sub>, H<sub>2</sub>O, etc. |  
+| O(1D) (+ Constant Species) ---> O(3P) present | Needed to solve for Ox and HOx cycle  |
+| O(1D) (+ H</sub>2</sub>O) ---> 2OH present  |  Needed to solve Ox and HOx cycle  |
+| NO<sub>2</sub>           ---> NO+O(3P) present | Needed to solve NOx cycle|
+| N<sub>2</sub>O and excited NO<sub>2</sub> are not active in NOx cycle  | If the two species are present, their chemistry upsets the accuracy of the analytical soluton for NOx species |
+| O(3P) (+ O<sub>2</sub>)    ---> O<sub>3</sub> present | Needed to solve Ox and HOx cycle  |
+| NO + O<sub>3</sub>       ---> NO<sub>2</sub> present | Needed to solve Ox and NOx cycle  |
+| HONO          ---> OH + NO present | Needed to solve NOx and HOx cycle; often a photolysis reaction  |
+| OH + NO       ---> HONO present | Needed to solve NOx and HOx cycle; often a photolysis reaction  |
+| HNO<sub>4</sub>         ---> HO<sub>2</sub> + NO<sub>2</sub> present | Needed to solve NOx and HOx cycle  |
+| HO<sub>2</sub> + NO<sub>2</sub>     ---> HNO<sub>4</sub> present | Needed to solve NOx and HOx cycle  |
+| HO<sub>2</sub> + HO<sub>2</sub>     --->  H<sub>2</sub>O<sub>2</sub> present | Needed to solve HOx and Ox cycle  |
+| C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> + C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> ---> _products_ present | Needed to solve NOy cycle; products mechanism dependent  |
+| Negative product coefficients are only allowed for a photochemical species named PAR | Except applies for Carbon Bond mechanisms  |
 
 
 ### Files, configuration, and environment variables
