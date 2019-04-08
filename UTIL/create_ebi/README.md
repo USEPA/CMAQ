@@ -73,7 +73,7 @@ Photochemical Mechanism Constraints.
 </center>
 
 | Mechanism Constraint  |   Notes            |     
-|:------| ------:  |
+|:------| ------  |
 | All reactions destorying O(1D) are first order | Excludes reactants that are atmospheric species held constant such N<sub>2</sub>, O<sub>2</sub>, H<sub>2</sub>O, etc. |  
 | O(1D) (+ Constant Species) ---> O(3P) present | Needed to solve for Ox and HOx cycle  |
 | O(1D) (+ H</sub>2</sub>O) ---> 2OH present  |  Needed to solve Ox and HOx cycle  |
@@ -87,7 +87,7 @@ Photochemical Mechanism Constraints.
 | HO<sub>2</sub> + NO<sub>2</sub>     ---> HNO<sub>4</sub> present | Needed to solve NOx and HOx cycle  |
 | HO<sub>2</sub> + HO<sub>2</sub>     --->  H<sub>2</sub>O<sub>2</sub> present | Needed to solve HOx and Ox cycle  |
 | C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> + C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> ---> _products_ present | Needed to solve NOy cycle; products mechanism dependent  |
-| Negative product coefficients are only allowed for a photochemical species named PAR | Except applies for Carbon Bond mechanisms  |
+| Negative product coefficients are only allowed for a photochemical species named PAR | Exception made for Carbon Bond mechanisms  |
 
 
 ### Files, configuration, and environment variables
@@ -96,7 +96,7 @@ To create an EBI solver for a photochemical mechanism to be used in the CMAQ mod
 
 #### CREATE_EBI usage requirements.
 
-The create_ebi utility is designed compiled and run once for each application. Beside utility's own source code and data files, compiling needs a photochemical mechanism's data module (Table 3). If compilation is successful, the utility runs based on options set by enviroment variables (Table 1.)
+The create_ebi utility is designed compiled and run once for each application. Beside the utility's own source code and data files, compiling needs a photochemical mechanism's data module (Table 3). If compilation is successful, the utility runs based on options set by environment variables (Table 1.)
 
 **Table 3. CREATE_EBI input files**
 
@@ -107,7 +107,7 @@ The create_ebi utility is designed compiled and run once for each application. B
 
 #### CREATE_EBI output files
 
-A successful application produces files under a directory defined the environment variable, OUTDIR. Their number depends on the run time options (Table 4.) 
+A successful application produces files under a directory defined the environment variable, OUTDIR. Their number depends on run time options (Table 4.) 
 
 **Table 4. CREATE_EBI output files**
 
@@ -125,7 +125,7 @@ A successful application produces files under a directory defined the environmen
 
 Compiling a version of the CMAQ model using this photochemical mechanism and its EBI solver. A user has two options. 
 
- 1. update the source code ( _the two photochemical reaction modules produced by CHEMMECH and EBI solver files_)and Makefile in an existing CMAQ build directory. 
+ 1. update the source code ( _the two photochemical reaction modules produced by CHEMMECH and EBI solver files_) and Makefile in an existing CMAQ build directory. 
  2. Add the new mechanism and solver files to their CMAQ repository then use the cctm build-it script to build the CMAQ CCTM model. 
  
 The latter option is more complicated because it creates subdirectories under `$CMAQ_HOME/CCTM/src/MECHS` and `$CMAQ_HOME/CCTM/src/gas` and involve files not produced by the user and other utilities. 
@@ -143,7 +143,7 @@ bldrun_create_ebi.csh
 Execute the script (the screen output can be redirected to a log file.) 
 
 
-First set of lines send to screen will echo script option and show compilation commands. Upon its execution, create_ebi writes the below lines
+First set of lines send to screen will echo script options and show compilation commands. Upon its execution, create_ebi writes the below lines
 if the execution is successful.
 
 
