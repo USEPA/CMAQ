@@ -214,41 +214,50 @@
    !           or be put in all gas if conditions are very clean. If too much mass 
    !           evaporates or condenses upon emission, the aerosol size distribution 
    !           will be affected.
-   !            
+   !     Note: It is common to specify different volatility distributions for different
+   !           emission sources. Please use this interface to specify your model
+   !           parameters.
+   !
    ! --> Nonvolatile POA
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'        ,'FINE',1.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'      ,'FINE',1.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'       ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'     ,'FINE',0.   ,'MASS','a', 
    ! --> Semivolatile POA
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'VLVPO1'      ,'GAS' ,0.   ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VLVPO1'      ,'GAS' ,0.   ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1'      ,'GAS' ,0.045,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO1'      ,'GAS' ,0.045,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO2'      ,'GAS' ,0.14 ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO2'      ,'GAS' ,0.14 ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO3'      ,'GAS' ,0.18 ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO3'      ,'GAS' ,0.18 ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'VIVPO1'      ,'GAS' ,0.50 ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VIVPO1'      ,'GAS' ,0.50 ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'ALVPO1'      ,'FINE',0.09 ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ALVPO1'      ,'FINE',0.09 ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO1'      ,'FINE',0.045,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1'      ,'FINE',0.045,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO2'      ,'FINE',0.   ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO2'      ,'FINE',0.   ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO3'      ,'FINE',0.   ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO3'      ,'FINE',0.   ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'POC'    ,'AIVPO1'      ,'FINE',0.   ,'MASS','a', 
-   'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AIVPO1'      ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VLVPO1'     ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VLVPO1'     ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO2'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO2'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO3'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO3'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'AIVPO1'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AIVPO1'     ,'FINE',0.   ,'MASS','a', 
    
-   ! pcSOA Scaling for all sources except Fires 
-   'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'       ,'GAS' ,6.579,'MASS','a', 
-   'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'       ,'GAS' ,6.579,'MASS','a', 
-   'EVERYWHERE', 'PT_FIRES'     ,'ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
-   'EVERYWHERE', 'PT_RXFIRES'   ,'ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
-   'EVERYWHERE', 'PT_AGFIRES'   ,'ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
-   'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
-   'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
-   'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'       ,'GAS' ,0.0  ,'MASS','o', 
+   ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
+   ! formation from combustion sources. It includes IVOC oxidation as well as other
+   ! phenomena (Murphy et al., ACP, 2017). It was parameterized primarily in LA,
+   ! where vehicle exhaust continues to dominate.
+    'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+    'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+   ! However, the added pcSOA is probably inappropriate for Fire sources, especially
+   ! in its current configuration. This pathway should be zeroed out for all fire
+   ! and wood-burning related sources.
+    'EVERYWHERE', 'PT_FIRES'     ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_RXFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_AGFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
    
    ! Wind-Blown Dust and Sea Spray Scaling
    ! Fine Components
