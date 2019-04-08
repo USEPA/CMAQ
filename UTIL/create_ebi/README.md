@@ -3,16 +3,19 @@
 ### Quick Start
 
 
-To create a new EBI solver:
+To create a new EBI solver based on photochemical mechanism's reactions data module:
 
-1) Copy and edit scripts/bldrun.create_ebi.csh for your compiler and photochemical mechanism. Save. See to Table 1 for option set by bldrun script.
+1) Copy and edit scripts/bldrun.create_ebi.csh to define the FORTRAN compiler and mechanism's data module. See to Table 1 for options set by bldrun script.
 
-2) Execute the script.
+2) Execute the script. The script compile create_ebi and runs the utility for the mechanism.
+
+3) Check the OUTDIR for the code file for the ebi solver, produced.
 
  <center> Table 1. create_ebi environment settings or run time options </center>
 
  |  Names | Definition | Notes or Recommeded Value |
  |:-----|:-----|:------|
+ |  COMPILER        | FORTRAN compiler to building create_ebi | the utility's makefile, _makefile.v5XX_, is step up for the Intel (INTEL), Portland Group (PGF90) and gfortran (GFORT) compilers. If a separate compiler is to be used, the user has to modified the makefile to define the compiler and its compile flags | 
  |   RXNS_DATA_SRC  | Full path to mechanism's RXNS_DATA_MODULE.F90  | Produced by CHEMMECH utility | 
  |   TMPLDIR        | Full path to for FORTRAN templates for solver files | ${CMAQ_REPO}/UTIL/create_ebi/template_RXNSU_OPT |   
  |   DEGRADE_CODES  | Full path to FOTRAN code fors exponential decay of select air toxic. Check Table 4. | ${CMAQ_REPO}/UTIL/create_ebi/degrade_codes_serial-RXNST |   
