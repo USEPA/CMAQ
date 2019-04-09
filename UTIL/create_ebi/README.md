@@ -9,7 +9,7 @@ To create a new EBI solver based on photochemical mechanism's reactions data mod
 
 2) Edit to define the FORTRAN compiler and mechanism's data module. See to Table 1 for options set by bldrun script.
 
-3) Execute the script. _The script compiles create_ebi then runs the utility for the mechanism._
+3) Execute the script. _The script compiles create_ebi then runs the utility._
 
 4) Check the OUTDIR for the code files for the ebi solver, produced.
 
@@ -46,7 +46,7 @@ To report potential program errors or EBI solver failures, contact Bill Hutzell/
 
 ### Description
 
-The create_ebi utility generates an Euler Backward Iterative (EBI) solver for a photochemical mechanism. Source code generated should be used to build the CMAQ CCTM using the photochemical mechanism. The solver is based on Hertel et. al (1993) and was developed to solve the Ox, HOx, NOx, VOC cycles in tropospheric photochemistry. It combines analytical solutions for specific mechanism species and a numerical method for the remaining mechanism species. The photochemical mechanism must include the specific species and their chemistry needs to meet set rules. If it does not satisfy these constraints, an EBI solver produced by create_ebi should not be used. The create_ebi utility attempts to test for meeting these constraints and stop if they are not met but the tests may not detect all possible cases for violations.
+The create_ebi utility generates an Euler Backward Iterative (EBI) solver for a photochemical mechanism. Source code generated should be used to build the CMAQ CCTM using the photochemical mechanism. The solver is based on Hertel et. al (1993) and was developed to solve the Ox, HOx, NOx-NOy, VOC cycles in tropospheric photochemistry. It combines analytical solutions for specific mechanism species and a numerical method for the remaining mechanism species. The photochemical mechanism must include the specific species and their chemistry needs to meet set rules. If it does not satisfy these constraints, an EBI solver produced by create_ebi should not be used. The create_ebi utility attempts to test for meeting these constraints and stop if they are not met but the tests may not detect all possible cases for violations.
 
 <center> Table 2. 
 Photochemistry Species or Compounds Required;    
@@ -54,7 +54,7 @@ model species names can be different between CMAQ mechanisms
 </center>
 
 | Name  |   Formula            |   Group<sup>1</sup> | 
-|------| ------  |-----|
+|:------| :------:  |:-----:|
 | nitric oxide |  NO |  1 |
 | nitrogen dioxide | NO<sub>2</sub>  | 1 |
 | ozone |  O<sub>3</sub> | 1
@@ -69,14 +69,14 @@ model species names can be different between CMAQ mechanisms
 | nitrate radical |  NO<sub>3</sub> | 4 |
 | dinitrogen pentoxide | N<sub>2</sub>O<sub>5</sub> | 4 |
 
-1.  Hertel et al. (1993) sorted the analytically solved species into group. The group number denote their order. 
+1.  Hertel et al. (1993) sorted the analytically solved species into groups. The group number denote their order. Note that Hertel et al. did not analytically solve for O(1D) in the original paper but the CMAQ EBI solver does.
 
 <center> Table 3. 
 Photochemical Mechanism Constraints.    
 </center>
 
 | Mechanism Constraint  |   Notes            |     
-|:------| ------  |
+|:------|:------  |
 | All reactions destorying O(1D) are first order | Excludes reactants that are atmospheric species held constant such as N<sub>2</sub>, O<sub>2</sub>, H<sub>2</sub>O, etc. |  
 | O(1D) (+ Constant Species) ---> O(3P) present | Needed to solve Group 1 and 2  |
 | O(1D) (+ H</sub>2</sub>O) ---> 2OH present  |  Needed to solve Group 1 and 2  |
