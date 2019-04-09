@@ -61,24 +61,24 @@ c number of species in CGRID
       integer,                      save :: nspcsd = 1
 
 c surrogate species
-      integer,                      save :: n_gc_ic = 0  , n_ae_ic = 0  , n_nr_ic = 0  ,  n_tr_ic = 0
+      integer,                      save :: n_gc_ic = 0  , n_ae_ic = 0  , n_nr_ic = 0  ,  n_tr_ic = 0,
      &                                      n_gc_depv = 0, n_ae_depv = 0, n_nr_depv = 0, n_tr_depv = 0,
      &                                      n_gc_scav = 0, n_ae_scav = 0, n_nr_scav = 0, n_tr_scav = 0,
      &                                      n_gc_g2ae = 0,                n_nr_n2ae = 0, n_tr_t2ae = 0,
      &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0,
      &                                      n_gc_bc = 0  , n_ae_bc = 0  , n_nr_bc = 0  , n_tr_bc = 0
-      character( 16 ), allocatable, save :: gc_ic( : )  ,ae_ic( : )   , nr_ic( : )  , tr_ic( : )  
+      character( 16 ), allocatable, save :: gc_ic( : )  ,ae_ic( : )   , nr_ic( : )  , tr_ic( : ), 
      &                                      gc_depv( : ), ae_depv( : ), nr_depv( : ), tr_depv( : ),
      &                                      gc_scav( : ), ae_scav( : ), nr_scav( : ), tr_scav( : ),
      &                                      gc_g2ae( : ),               nr_n2ae( : ), tr_t2ae( : ),
      &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : ),
      &                                      gc_bc( : )  , ae_bc( : )  , nr_bc( : )  , tr_bc( : )   
-      integer, allocatable,         save :: gc_ic_map( : )  , ae_ic_map( : )  , nr_ic_map( : ), , tr_ic_map( : )
+      integer, allocatable,         save :: gc_ic_map( : )  , ae_ic_map( : )  , nr_ic_map( : )  , tr_ic_map( : ),
      &                                      gc_depv_map( : ), ae_depv_map( : ), nr_depv_map( : ), tr_depv_map( : ),
      &                                      gc_scav_map( : ), ae_scav_map( : ), nr_scav_map( : ), tr_scav_map( : ),
      &                                      gc_g2ae_map( : ),                   nr_n2ae_map( : ), tr_t2ae_map( : ),
      &                                      gc_g2aq_map( : ), ae_a2aq_map( : ), nr_n2aq_map( : ), tr_t2aq_map( : ),
-     &                                      gc_bc_map( : )  , ae_bc_map( : )  , nr_bc_map( : )  , tr_bc_map( : ),   
+     &                                      gc_bc_map( : )  , ae_bc_map( : )  , nr_bc_map( : )  , tr_bc_map( : )   
 
       real, allocatable,            save :: gc_ic_fac( : )  , ae_ic_fac( : )  , nr_ic_fac( : )  , tr_ic_fac( : ),
      &                                      gc_depv_fac( : ), ae_depv_fac( : ), nr_depv_fac( : ), tr_depv_fac( : ),
