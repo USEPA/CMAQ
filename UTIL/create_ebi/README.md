@@ -5,11 +5,13 @@
 
 To create a new EBI solver based on photochemical mechanism's reactions data module:
 
-1) Copy and edit scripts/bldrun.create_ebi.csh to define the FORTRAN compiler and mechanism's data module. See to Table 1 for options set by bldrun script.
+1) Copy scripts/bldrun.create_ebi.csh into its parent directory. _The bldrun script assumes that value of base is {CMAQ_REPO}/UTIL/create_ebi._
 
-2) Execute the script. The script compiles create_ebi then runs the utility for the mechanism.
+2) Edit to define the FORTRAN compiler and mechanism's data module. See to Table 1 for options set by bldrun script.
 
-3) Check the OUTDIR for the code filse for the ebi solver, produced.
+3) Execute the script. The script compiles create_ebi then runs the utility for the mechanism.
+
+4) Check the OUTDIR for the code files for the ebi solver, produced.
 
  <center> Table 1. create_ebi environment settings or run time options </center>
 
