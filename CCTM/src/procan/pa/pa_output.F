@@ -113,6 +113,11 @@ C Local Variables:
       INTEGER NOUT      ! Loop index for PA output variables
       INTEGER NS        ! Loop index for number cgrid concs saved
       INTEGER R         ! Loop index for rows
+#ifndef parallel
+      INTEGER PC        ! index for window column
+      INTEGER PR        ! index for window row
+      INTEGER PL        ! index for window level
+#endif
       INTEGER VARINDX   ! Index for output variable
       INTEGER NVARINDX  ! number of output variable
      
