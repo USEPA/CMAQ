@@ -174,7 +174,7 @@ c namelist variables
                 CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
                 CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
                 CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
-            END TYPE SPECIES_DATA_REG_3
+            END TYPE SPECIES_DATA_REG_1
 
             ! Namelist Registry Format for Aerosols
             TYPE SPECIES_DATA_REG_2
