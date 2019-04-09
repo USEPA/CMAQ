@@ -5,11 +5,13 @@
 
 To create a new EBI solver based on photochemical mechanism's reactions data module:
 
-1) Copy and edit scripts/bldrun.create_ebi.csh to define the FORTRAN compiler and mechanism's data module. See to Table 1 for options set by bldrun script.
+1) Copy scripts/bldrun.create_ebi.csh into its parent directory. _The bldrun script assumes that value of base is {CMAQ_REPO}/UTIL/create_ebi._
 
-2) Execute the script. The script compiles create_ebi then runs the utility for the mechanism.
+2) Edit to define the FORTRAN compiler and mechanism's data module. See to Table 1 for options set by bldrun script.
 
-3) Check the OUTDIR for the code filse for the ebi solver, produced.
+3) Execute the script. _The script compiles create_ebi then runs the utility for the mechanism._
+
+4) Check the OUTDIR for the code files for the ebi solver, produced.
 
  <center> Table 1. create_ebi environment settings or run time options </center>
 
@@ -51,22 +53,23 @@ Photochemistry Species or Compounds Required;
 model species names can be different between CMAQ mechanisms
 </center>
 
-| Name  |   Formula            |     
-|------| ------  |
-| nitric oxide |  NO |  
-| nitrogen dioxide | NO<sub>2</sub>  |
-| ozone |  O<sub>3</sub> |
-| ground state oxygen atom | O(3P)  | 
-| excited state oxygen atom | O(1D) |
-| hydroxyl radical | OH |
-| hydroperoxy radical | HO<sub>2</sub>| 
-| nitrous acid | HONO |
-| peroxynitric acid | HNO<sub>4</sub> | 
-| peroxy acetyl nitrate | C<sub>2</sub>H<sub>3</sub>NO<sub>5</sub> |
-| peroxy acetyl radical | C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> |
-| nitrate radical |  NO<sub>3</sub> |
-| dinitrogen pentoxide | N<sub>2</sub>O<sub>5</sub> |
+| Name  |   Formula            |   Group<sup>1</sup> | 
+|------| ------  |-----|
+| nitric oxide |  NO |  1 |
+| nitrogen dioxide | NO<sub>2</sub>  | 1 |
+| ozone |  O<sub>3</sub> | 1
+| ground state oxygen atom | O(3P)  | 1 |
+| excited state oxygen atom | O(1D) | 1 |
+| hydroxyl radical | OH | 2 |
+| hydroperoxy radical | HO<sub>2</sub>| 2 |
+| nitrous acid | HONO | 2
+| peroxynitric acid | HNO<sub>4</sub> | 2 |
+| peroxy acetyl nitrate | C<sub>2</sub>H<sub>3</sub>NO<sub>5</sub> | 3 |
+| peroxy acetyl radical | C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> | 3 |
+| nitrate radical |  NO<sub>3</sub> | 4 |
+| dinitrogen pentoxide | N<sub>2</sub>O<sub>5</sub> | 4 |
 
+1.  Hertel et al. (1993) sorted the analytically solved species into group. The group number denote their order. 
 
 <center> Table 3. 
 Photochemical Mechanism Constraints.    
@@ -74,19 +77,19 @@ Photochemical Mechanism Constraints.
 
 | Mechanism Constraint  |   Notes            |     
 |:------| ------  |
-| All reactions destorying O(1D) are first order | Excludes reactants that are atmospheric species held constant such N<sub>2</sub>, O<sub>2</sub>, H<sub>2</sub>O, etc. |  
-| O(1D) (+ Constant Species) ---> O(3P) present | Needed to solve for Ox and HOx cycle  |
-| O(1D) (+ H</sub>2</sub>O) ---> 2OH present  |  Needed to solve Ox and HOx cycle  |
-| NO<sub>2</sub>           ---> NO+O(3P) present | Needed to solve NOx cycle|
+| All reactions destorying O(1D) are first order | Excludes reactants that are atmospheric species held constant such as N<sub>2</sub>, O<sub>2</sub>, H<sub>2</sub>O, etc. |  
+| O(1D) (+ Constant Species) ---> O(3P) present | Needed to solve Group 1 and 2  |
+| O(1D) (+ H</sub>2</sub>O) ---> 2OH present  |  Needed to solve Group 1 and 2  |
+| NO<sub>2</sub>           ---> NO+O(3P) present | Needed to solve Group 1 |
 | N<sub>2</sub>O and excited NO<sub>2</sub> are not active in NOx cycle  | If the two species are present, their chemistry upsets the accuracy of the analytical soluton for NOx species |
-| O(3P) (+ O<sub>2</sub>)    ---> O<sub>3</sub> present | Needed to solve Ox and HOx cycle  |
-| NO + O<sub>3</sub>       ---> NO<sub>2</sub> present | Needed to solve Ox and NOx cycle  |
-| HONO          ---> OH + NO present | Needed to solve NOx and HOx cycle; often a photolysis reaction  |
-| OH + NO       ---> HONO present | Needed to solve NOx and HOx cycle; often a photolysis reaction  |
-| HNO<sub>4</sub>         ---> HO<sub>2</sub> + NO<sub>2</sub> present | Needed to solve NOx and HOx cycle  |
-| HO<sub>2</sub> + NO<sub>2</sub>     ---> HNO<sub>4</sub> present | Needed to solve NOx and HOx cycle  |
-| HO<sub>2</sub> + HO<sub>2</sub>     --->  H<sub>2</sub>O<sub>2</sub> present | Needed to solve HOx and Ox cycle  |
-| C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> + C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> ---> _products_ present | Needed to solve NOy cycle; products mechanism dependent  |
+| O(3P) (+ O<sub>2</sub>)    ---> O<sub>3</sub> present | Needed to solve Group 1  |
+| NO + O<sub>3</sub>       ---> NO<sub>2</sub> present | Needed to solve Group 1 and 2  |
+| HONO          ---> OH + NO present | Needed to solve Group 2; often a photolysis reaction  |
+| OH + NO       ---> HONO present | Needed to solve Group 2; often a photolysis reaction  |
+| HNO<sub>4</sub>         ---> HO<sub>2</sub> + NO<sub>2</sub> present | Needed to solve Group 2  |
+| HO<sub>2</sub> + NO<sub>2</sub>     ---> HNO<sub>4</sub> present | Needed to solve Group 2  |
+| HO<sub>2</sub> + HO<sub>2</sub>     --->  H<sub>2</sub>O<sub>2</sub> present | Needed to solve Group 2  |
+| C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> + C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> ---> _products_ present | Needed to solve Group 3; products mechanism dependent  |
 | Negative product coefficients are only allowed for a photochemical species named PAR | Exception made for Carbon Bond mechanisms  |
 
 
