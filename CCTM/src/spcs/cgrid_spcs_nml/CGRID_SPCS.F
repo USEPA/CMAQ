@@ -155,7 +155,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             INTEGER :: ISPC, IGRID
 
 c namelist variables
-            ! Namelist Registry Format for Gases, Nonractives and Tracers
+            ! Namelist Registry Format for Gases and Nonractives
             TYPE SPECIES_DATA_REG_1
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
@@ -169,8 +169,7 @@ c namelist variables
                 REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
                 CHARACTER( 16 ) :: AERO_SURR     ! Aerosol Module Surrogate
                 CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
-                CHARACTER( 16 ) :: ADVC_FLAG     ! Do Advection?
-                CHARACTER( 16 ) :: DIFF_FLAG     ! Do Dispersion (i.e. Diffusion)?
+                CHARACTER( 16 ) :: TRNS_FLAG     ! Do Transport (ADV + DIFF)?
                 CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
                 CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
                 CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
@@ -194,12 +193,34 @@ c namelist variables
                 CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
                 CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
             END TYPE SPECIES_DATA_REG_2
+
+            ! Namelist Registry Format for Tracers
+            TYPE SPECIES_DATA_REG_3
+                CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
+                REAL            :: MOLWT         ! g mol-1
+                CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
+                REAL            :: IC_FAC        ! IC Scale Factor
+                CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
+                REAL            :: BC_FAC        ! BC Scale Factor
+                CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
+                REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
+                CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
+                REAL            :: SCAV_FAC      ! Wet Scavenging Scale Factor
+                CHARACTER( 16 ) :: AERO_SURR     ! Aerosol Module Surrogate
+                CHARACTER( 16 ) :: CLOUD_SURR    ! Cloud Chemistry Surrogate
+                CHARACTER( 16 ) :: ADVC_FLAG     ! Do Advection?
+                CHARACTER( 16 ) :: DIFF_FLAG     ! Do Dispersion (i.e. Diffusion)?
+                CHARACTER( 16 ) :: DDEP_FLAG     ! Output Dry Deposition Velocities
+                CHARACTER( 16 ) :: WDEP_FLAG     ! Output Wet Scavenging Fluxes
+                CHARACTER( 16 ) :: CONC_FLAG     ! Output Concentration
+            END TYPE SPECIES_DATA_REG_3
+
  
  
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: GC_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: AE_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: NR_SPECIES_DATA(:)
-            TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: TR_SPECIES_DATA(:)
+            TYPE (SPECIES_DATA_REG_3), ALLOCATABLE :: TR_SPECIES_DATA(:)
  
             namelist / GC_NML / GC_SPECIES_DATA
             namelist / AE_NML / AE_SPECIES_DATA
