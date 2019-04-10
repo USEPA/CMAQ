@@ -2,17 +2,19 @@
 # C-shell script to run CR_EBI_SOLVER 
 
  date; set timestamp; set echo 
-
- set BASE            = $cwd
+# current working directory assumed ${CMAQ_REPO}/UTIL/create_ebi;change if otherwise
+ set BASE            = $cwd          
  set EXDIR           = ${BASE}/BLD  
  set EXEC            = cr_ebi_solver 
 
 #> option to set compiler and build a new executable (not required)
  setenv COMPILER  INTEL  #> INTEL, PGF90, or GFORT
 
-#Define environment varaible for path to data module for photochemical mechanism
+#Define environment variable for path to data module for photochemical mechanism
+# RXNS_DATA is the input directory containing the mechanism's data module
+# value will change based on user's goals
 set MECH             = 'cb6r3_ae7_aq'
-set RXNS_DATA        = ${BASE}/input/${MECH}
+set RXNS_DATA        = ${BASE}/../../CCTM/src/MECHS/${MECH}
 setenv RXNS_DATA_SRC   ${RXNS_DATA}/RXNS_DATA_MODULE.F90
 
 if ( ! ( -e ${RXNS_DATA_SRC} ) )then
@@ -25,7 +27,7 @@ endif
  setenv DEGRADE_CODES   ${BASE}/degrade_codes_serial-RXNST
  setenv SRCDIR          ${BASE}/src_RXNSU
 
-# Define output directory
+# Define output directory;value will change based on user's goals
  set day = ` date "+%b-%d-%Y" `
  setenv OUTDIR  ${BASE}/output/ebi_${MECH}-${day}-${COMPILER}
  
