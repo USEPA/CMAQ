@@ -1,11 +1,9 @@
 # create_CMAQ_OMI_file Utility
 
 The utility creates the OMI input file describing how total ozone column density varies over the globe and time.
-The file supports CMAQ model's in-line calculation of photolysis rates. Creating the OMI file involves processing 
-observations from satellites, ASCII files for the latitude/longitude distribution of the ozone column for a calendar 
-day. The utility also creates IOAPI files for visualizing observations and the OMI file's data. They can 
-differ because the utility interpolates observations to horizontal resolution of the OMI file. The resolution is 
-an option specified by the utility's run-script.
+The file supports CMAQ model's in-line calculation of photolysis rates. Although the CMAQ repository includes the data file, its data only covers between the ends of 1978 to 2017 with a spatial resolution of 10<sup>o</sup> latitude by 22.5<sup>o</sup> longitude. A user may want to create a data file to support simulations after 2017 or a data file with a finer spatial resolution for a period within the ends of 1978 to 2017. 
+
+Creating the OMI file involves processing observations from satellites, ASCII files for the latitude/longitude distribution of the ozone column for a calendar day. The utility also creates IOAPI files for visualizing observations and the OMI file's data. They can differ because the utility interpolates observations to horizontal resolution of the OMI file. The resolution is an option specified by the utility's run-script.
 
 ### Building the Utility
 
