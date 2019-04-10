@@ -28,7 +28,7 @@ c Bill Hutzell 8 Oct 10: added Gas Chemistry consistency check
 C Shawn Roselle 16 Feb 11: replaced I/O API include files with UTILIO_DEFN
 C 07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
-C 07 Mar 2019 F. Sidi:  Split up ICBC for tracer namelist 
+C 07 Mar 2019 F. Sidi:  Split up ICBC for CMAQ species  namelist 
 c-----------------------------------------------------------------------
       USE RUNTIME_VARS
 
@@ -602,8 +602,8 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             NR_spc = bl; NR_molwt = 0.0                        !  .
-            NR_ic = bl; NR_ic_map = 0; NR_ic_fac = 0.0   !  .
-            NR_bc = bl; NR_bc_map = 0; NR_bc_fac = 0.0   !  .
+            NR_ic = bl; NR_ic_map = 0; NR_ic_fac = 0.0         !  .
+            NR_bc = bl; NR_bc_map = 0; NR_bc_fac = 0.0         !  .
             NR_depv = bl; NR_depv_map = 0; NR_depv_fac = 0.0   !  .
             NR_scav = bl; NR_scav_map = 0; NR_scav_fac = 0.0   ! array
             NR_n2ae = bl; NR_n2ae_map = 0                      !  .
