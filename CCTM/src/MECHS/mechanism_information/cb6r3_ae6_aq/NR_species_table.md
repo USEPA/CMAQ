@@ -2,7 +2,7 @@
 
 | **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
-|  LVPCSOG          |  vapors of organic material from primary aerosols           | 170.0  |  L  |  
+|  LVPCSOG          |  surrogate SOA precursor gas for combustion/anthropogenic sources           | 170.0  |  L  |  
 |  NH3              |  ammonia                                                    |  17.0  |  E  |      
 |  SVALK1           |  vapors of secondary aerosol material from alkane VOCs      | 225.0  |  L  |     
 |  SVALK2           |  vapors of secondary aerosol material from alkane VOCs      | 205.1  |  L  |     

@@ -178,12 +178,12 @@
 | ACORS             | Anthropogenic Coarse-mode particle mass              | 100.0                | L                      |
 | AEC               | Elemental Carbon                                     | 12                   | E                      |
 | AFE               | Iron                                                 | 55.8                 | E                      |
-| AGLY              | Glyoxal and Methylglyoxal SOA                        | 66.4                 | L                      |
+| AGLY              | Glyoxal and methylglyoxal SOA produced in aqueous aerosol material                        | 66.4                 | L                      |
 | AH2O              | Water                                                | 18                   | E                      |
 | AH3OP             | Hydronium Ion                                        | 19                   | E                      |
 | AISO1             | Semivolatile SOA Product from Isoprene               | 132.0                | L                      |
 | AISO2             | High-Volatility SOA Product from Isoprene            | 133.0                | L                      |
-| AISO3             | Acid-Catalyzed Isoprene SOA compounds                | 168.2                | L                      |
+| AISO3             | Acid-catalyzed Isoprene Epoxydiol SOA                | 168.2                | L                      |
 | AIVPO1            | Intermediate Volatility Primary Organic Compounds    | 266                  | L                      |
 | AK                | Potassium                                            | 39.1                 | E                      |
 | ALVOO1            | Low Volatility Oxidized Combustion Organic Compounds | 136                  | L                      |
@@ -233,7 +233,7 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 
 | **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
-|  LVPCSOG          |  semivolatile gas of organic material from primary aerosols           | 170.0  |  L  |  
+|  LVPCSOG          |  surrogate SOA precursor gas for combustion/anthropogenic sources           | 170.0  |  L  |  
 |  NH3              |  ammonia                                                    |  17.0  |  E  |      
 |  SVMT1            |  low volatility gas from monoterpene photoxidation | 300.0     |  L  |
 |  SVMT2            |  low volatility gas from monoterpene photoxidation | 200.0     |  L  |

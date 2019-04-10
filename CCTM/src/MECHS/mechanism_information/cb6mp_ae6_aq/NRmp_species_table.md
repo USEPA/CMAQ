@@ -23,7 +23,7 @@
 |  HEXANE            |  n-Hexane                        |  86.00  |  E  |
 |  HYDRAZINE         |  Hydrazine                       | 168.20  |  E  |   
 |  HEXAMETHY_DIIS    |  Hexamethylene 1,6-Diisocyanate  |  98.00  |  E  |   
-|   LVPCSOG          |  vapors of organic material from primary aerosols           | 170.00  |  L  |  
+|   LVPCSOG          |  surrogate SOA precursor gas for combustion/anthropogenic sources           | 170.00  |  L  |  
 |  MAL_ANHYDRIDE     |  Maleic Anhydride                | 174.20  |  E  |   
 |  METHCHLORIDE      |  methyl chloride                 |  50.40  |  E  |
 |  NAPHTHALENE       |  Naphthalene                     | 128.20  |  E  |   

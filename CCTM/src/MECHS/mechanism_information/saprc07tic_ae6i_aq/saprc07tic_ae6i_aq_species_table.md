@@ -216,7 +216,7 @@
 | ADIM              | IEPOX-derived dimers                                 | 248.23               | L                      |
 | AEC               | Elemental Carbon                                     | 12                   | E                      |
 | AFE               | Iron                                                 | 55.8                 | E                      |
-| AGLY              | Glyoxal and Methylglyoxal SOA                        | 66.4                 | L                      |
+| AGLY              | Glyoxal and Methylglyoxal SOA in aqueous aerosol material                       | 66.4                 | L                      |
 | AH2O              | Water                                                | 18                   | E                      |
 | AH3OP             | Hydronium Ion                                        | 19                   | E                      |
 | AIEOS             | IEPOX-derived organosulfate                          | 216.20               | L                      |
@@ -225,7 +225,7 @@
 | AIMOS             | MPAN-derived organosulfate                           | 200.16               | L                      |
 | AISO1             | Semivolatile SOA Product from Isoprene               | 132.0                | L                      |
 | AISO2             | High-Volatility SOA Product from Isoprene            | 133.0                | L                      |
-| AISO3             | Acid-Catalyzed Isoprene SOA compounds                | 168.2                | L                      |
+| AISO3             | Acid-catalyzed Isoprene Epoxydiol SOA                | 168.2                | L                      |
 | AISOPNN           | Isoprene Dinitrates                                  | 226                  | L                      |
 | AIVPO1            | Intermediate Volatility Primary Organic Compounds    | 266                  | L                      |
 | AK                | Potassium                                            | 39.1                 | E                      |
@@ -241,7 +241,7 @@
 | ANO3              | Nitrate                                              | 62                   | E                      |
 | AOLGA             | Oligomer products of anthropogenic SOA compounds     | 206.0                | L                      |
 | AOLGB             | Oligomer products of biogenic SOA compounds          | 248.0                | L                      |
-| AORGC             | Glyoxal and Methylglyoxal SOA                        | 177.0                | L                      |
+| AORGC             | Glyoxal and methylglyoxal SOA produced in cloud water                        | 177.0                | L                      |
 | AOTHR             | Other Particulate Mass                               | 200                  | L                      |
 | APAH1             | Semivolatile High-NOx SOA Product from PAHs          | 195.6                | L                      |
 | APAH2             | Semivolatile High-NOx  SOA Product from PAHs         | 178.7                | L                      |
@@ -280,7 +280,7 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 
 | **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
-|  LVPCSOG          |  vapors of organic material from primary aerosols           | 170.0  |  L  |  
+|  LVPCSOG          | surrogate SOA precursor gas for combustion/anthropogenic sources            | 170.0  |  L  |  
 |  NH3              |  ammonia                                                    |  17.0  |  E  |      
 |  SVALK1           |  vapors of secondary aerosol material from alkane VOCs      | 225.0  |  L  |     
 |  SVALK2           |  vapors of secondary aerosol material from alkane VOCs      | 205.1  |  L  |     

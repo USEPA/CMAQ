@@ -2,7 +2,7 @@
 
 | **Model Species** | **Name**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
-|  LVPCSOG          |  semivolatile gas of organic material from primary aerosols           | 170.0  |  L  |  
+|  LVPCSOG          |  surrogate SOA precursor gas for combustion/anthropogenic sources           | 170.0  |  L  |  
 |  NH3              |  ammonia                                                    |  17.0  |  E  |      
 |  SVMT1            |  low volatility gas from monoterpene photoxidation | 300.0     |  L  |
 |  SVMT2            |  low volatility gas from monoterpene photoxidation | 200.0     |  L  |
