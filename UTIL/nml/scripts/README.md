@@ -6,11 +6,11 @@ CSV2NML and NML2CSV are used to convert the species definition files from CSV fo
 
 #### CSV2NML input files & NML2CSV output files
 
-Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-9) are provided in [Chapter 8](CMAQ_OGD_ch08_input_files.md). 
+Detailed descriptions of the formats of the files shown in [Table 3-4](../../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#Table3-4) are provided in [Chapter 4](../../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#Table3-4). 
 
-<a id=Table7-11></a>
+<a id=Table1></a>
 
-**Table 7‑11. CSV2NML input files & NML2CSV output files**
+**Table 1. CSV2NML input files & NML2CSV output files**
 
 |**File Name**|**Format**|**Description**|
 |--------|--------|--------------------------------------------------------------------------|
@@ -21,9 +21,9 @@ Detailed descriptions of the formats of the files shown in [Table 7-11](#Table5-
 
 #### CSV2NML output files & NML2CSV input files
 
-<a id=Table7-12></a>
+<a id=Table2></a>
 
-**Table 7‑12. CSV2NML output files & NML2CSV input files**
+**Table 2. CSV2NML output files & NML2CSV input files**
 
 |**File Name**|**Format**|**Description**|
 |--------|--------|--------------------------------------------------------------------------|
@@ -46,7 +46,7 @@ An example of how to configure your CSV file is shown below:
 |:------:|:----:|:----:|:---:|:-----:|:---:|:---:|:----:|:---:|:----:|:----:|:----:|:----:|:----:|:----:|
 |O3_1|48.0|O3|1|VD_O3|1|O3|1|  |   |YES|YES|YES|YES|YES|
 
-**NOTE: Certain columns can be left blank, if desired, like in the above example. Also, please be sure to save your CSV file as either a GC, AE, NR or TR file as seen in Table 7-11. Refer to [Chapter 8](CMAQ_OGD_ch08_input_files.md) for more information.**
+**NOTE: Certain columns can be left blank, if desired, like in the above example. Also, please be sure to save your CSV file as either a GC, AE, NR or TR file as seen in Table 7-11. Refer to [Chapter 4](../../../DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md) for more information.**
 
 
 An example of how to use CSV2NML to create a tracer species NAMELIST file is included below:
