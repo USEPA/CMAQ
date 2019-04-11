@@ -34,15 +34,8 @@
           set Cat = NR
 #         echo $Cat
        else
-          @ Ndx = `echo $Name | awk 'P=index($0,"TR") {print(P)}'`
-#         echo $Ndx
-          if ( $Ndx != 0 ) then
-             set Cat = TR
-#            echo $Cat
-          else
-            echo "  error determining mechanism category"
-            exit
-          endif
+          echo "  error determining mechanism category"
+          exit
        endif
     endif
  endif
@@ -50,20 +43,43 @@
  pwd
  echo "   Converting $File"
 
+#> surrogate type 1
+ @ count = 0
+ if ( `grep -oic EMIS $File` ) @ count++
+ if ( `grep -oic ICBC $File` ) @ count++
+ if ( `grep -oic DEPV $File` ) @ count++
+ if ( `grep -oic SCAV $File` ) @ count++
+ set n_surr1 = $count
 
+#> surrogate type 2
+ @ count = 0
+#if ( `grep -oic ${X2}2AE $File` ) @ count++
+#if ( `grep -oic ${X2}2AQ $File` ) @ count++
+ if ( `grep -oic      2AE $File` ) @ count++
+ if ( `grep -oic      2AQ $File` ) @ count++
+ set n_surr2 = $count
+
+#> control type
+ @ count = 0
+ if ( `grep -oic  ADV $File` ) @ count++
+ if ( `grep -oic DIFF $File` ) @ count++
+ if ( `grep -oic TRNS $File` ) @ count++
+ if ( `grep -oic DDEP $File` ) @ count++
+ if ( `grep -oic WDEP $File` ) @ count++
+ if ( `grep -oic CONC $File` ) @ count++
+ set n_ctrl = $count
 
 #> modify csv to a "colon separated values" file with main variables defined
 #> in which each line is a character string
  sed \
      -e 's/\r//' \
-     -e '1s/^/\!/' \
-     -e "1\!s/\s//g" \
-     -e "1\!s/[A-Za-z]\w*/\'&\'/g" \
-     -e '1\!s/^\,//' \
-     -e '1\!s/$/\,/' \
-     -e "1\!s/\,\,/\,\'\'\,/g" \
-     -e "1\!s/\,\,/\,\'\'\,/g" \
+     -e 's/\,/\:/g' \
+     -e "s/^./\'&/" \
+     -e 's/$/&#/' \
+     -e "s/#/\'\,/" \
      -e '$ s/\,$//' \
+     -e '1 i TYPE_HEADER =' \
+     -e '2 i TYPE_MATRIX =' \
      $File > ! /tmp/${Name}_$$
 
 #> add eof to namelist
@@ -72,8 +88,10 @@
 #> create top part of namelist
  echo "&${Cat}_nml"           > /tmp/nml_$$
  echo " "                    >> /tmp/nml_$$
- echo "${Cat}_Species_Data =" >> /tmp/nml_$$
-echo " "                    >> /tmp/nml_$$
+ echo "n_surr1 = $n_surr1,"  >> /tmp/nml_$$
+ echo "n_surr2 = $n_surr2,"  >> /tmp/nml_$$
+ echo "n_ctrl = $n_ctrl,"    >> /tmp/nml_$$
+ echo " "                    >> /tmp/nml_$$
 
 #> insert top part of namelist
  cat /tmp/nml_$$ /tmp/${Name}_$$ > $Name.mod
@@ -90,20 +108,14 @@ echo " "                    >> /tmp/nml_$$
 
 #> description
 #> sed \
-#>     -e 's/\r//'                       <- remove any carriage returns ("cr" or "^M")
-#>     -e '1s/^/\!/'                     <- Insert Comment Symbol before Matrix Header to 
-#>                                          ensure it does not get read 
-#>     -e "1\!s/\s//g"                   <- Remove any spaces present in the list 
-#>     -e "1\!s/[A-Za-z]\w*/\'&\'/g"    <-  Look for patterns that has words and put and
-#>                                          single quote around them  
-#>     -e '1\!s/^\,//'                   <- Delete a comma from start of each line 
-#>                                          if present      
-#>     -e '1\!s/$/\,/'                   <- Add a comma to the end of each line to signify 
-#>                                          line break
-#>     -e "1\!s/\,\,/\,\'\'\,/g"         <- Add quotes to any fields that are left blank and have 2 commas surronding them
-#>     -e "1\!s/\,\,/\,\'\'\,/g"         <- Add quotes to any fileds that are left blank and have 3 commas surrounding them
-#>     -e '$ s/\,$//'                    <- go to last line and delete the "," after the last char
-#>                                          in the line
-#>                                          ( "$" is a special address, representing the last line)
-
-
+#>     -e 's/\r//'            <- remove any carriage returns ("cr" or "^M")
+#>     -e 's/\,/\:/g'         <- change "," to ":" everywhere
+#>     -e "s/^./\'&/"         <- insert "'" before first char in the line
+#>                               ("&" stores the pattern found)
+#>     -e 's/$/&#/'           <- append "#" to last char in the line
+#>     -e "s/#/\'\,/"         <- change "#" to "',"
+#>     -e '$ s/\,$//'         <- go to last line and delete the "," after the last char
+#>                               in the line
+#>                               ( "$" is a special address, representing the last line)
+#>     -e '1 i TYPE_HEADER =' <- insert "TYPE_HEADER =" at line 1
+#>     -e '2 i TYPE_MATRIX =' <- insert "TYPE_MATRIX =" at line 2
