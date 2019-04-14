@@ -10,7 +10,7 @@ When using the files for CCTM executions, the number of wavebands defined in the
 
 ##  Using the Utility.
 
-The utility is built and executed for each application because the RXNS_DATA_MODULE.F90 file can change between applications. It is a FORTRAN program so a FORTRAN compiler is needed.  The bldrun script specifies what compiler to for running a Makefile configured for three options, the Intel (INTEL), Portland Group (PGF90), GCC gfortran (GFORT). If a user wishes to use not another option, the Makefile has to be modified.
+The utility is built and executed for each application because the RXNS_DATA_MODULE.F90 file can change between applications. It is a FORTRAN program so a FORTRAN compiler is needed.  The bldrun script specifies what compiler to use in a Makefile configured for three options, the Intel (INTEL), Portland Group (PGF90), GCC gfortran (GFORT). If a user wishes to use not another option, the Makefile has to be modified.
 
 To use the utility follow the below instructions.
 
