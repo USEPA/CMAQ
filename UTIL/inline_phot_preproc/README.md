@@ -14,12 +14,26 @@ The utility is built and executed for each application because the RXNS_DATA_MOD
 
 To use the utility follow the below instructions.
 
-1) Copy and edit scripts/bldrun.inline_phot_preproc.csh for your compiler and Mechanism. Save and run to build the software.
+1) Copy and edit bldrun.inline_phot_preproc.csh (see Table 1.) for your compiler and Mechanism. Save and run to build the software.
 
-2) IF NEEDED, modify src/inline_phot_preproc.makefile based on the compilers and their flags on your computer platform.
+Table. inline_phot_preproc bldrun script run time or environment settings
+
+ |  Names | Definition | Notes or Recommeded Value |      
+ |:-----|:-----|:------|     
+ |  COMPILER        | FORTRAN compiler to building create_ebi | the utility's makefile, _makefile.v5XX_, is step up for the Intel (INTEL), Portland Group (PGF90) and GCC gfortran (GFORT) compilers. If a separate compiler is to be used, the user has to modify the makefile to define the compiler and its compile flags, recommend including debugging flags| 
+ |   GC_INC  | Full path to mechanism's RXNS_DATA_MODULE.F90 or mechanism include files | Produced by CHEMMECH utility | 
+ |   USE_RXNS_MODULES  | whether FORTRAN 90 describe the photochemical mechanism | T keep if CMAQ v5.1 or higher but comment out if CMAQ v5.02 and lower |   
+ |   WVL_AE_REFRAC  | Whether to include spectral values of refractive indices for aerosol species | set T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
+ |   SPLIT_OUTPUT   | whether optical and CSQY data written to two separate files | set T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
+ |   N_WAVEBANDS_OUT   | Number of Wavebands to write to output files starting from the band with the longest | range 1 to 18; use 7 for CMAQ and 11 from MPAS-CMAQ |      
+ |   APPL   | name of the photochemical mechanism for application | values equals MECHNAME in RXNS_DATA_MODULE.F90  |  
+ |   OUT_DIR    | Full path for output directory | Value is the user's preference | 
+ 
+
+2)  IF NEEDED, modify src/inline_phot_preproc.makefile based on the compilers and their flags on your computer platform.
 
 3) If application uses photolysis rates whose cross-section and quantum yields are not listed under photolysis_CSQY_data, create the data files and add them to the directory.
- 
+
 4) Execute the script. Check the bldrun.log file if the executable does not produce CSQY_DATA table in the output directory.  
 
 To report potential program errors or failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov
