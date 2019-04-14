@@ -10,13 +10,13 @@ When using the files for CCTM executions, the number of wavebands defined in the
 
 ##  Using the Utility.
 
-The utility uses FORTRAN. It is built and executed for each application because the RXNS_DATA_MODULE.F90 file can change between applications. 
+The utility is built and executed for each application because the RXNS_DATA_MODULE.F90 file can change between applications. It is a FORTRAN program so a FORTRAN compiler is needed.  The bldrun script specifies what compiler to for running a Makefile configured for three options, the Intel (INTEL), Portland Group (PGF90), GCC gfortran (GFORT). If a user wishes to use not another option, the Makefile has to be modified.
 
 To use the utility follow the below instructions.
 
 1) Copy and edit scripts/bldrun.inline_phot_preproc.csh for your compiler and Mechanism. Save and run to build the software.
 
-2) IF NECESSARY, modify src/inline_phot_preproc.makefile based on the compilers and their flags on your computer platform.
+2) IF NEEDED, modify src/inline_phot_preproc.makefile based on the compilers and their flags on your computer platform.
 
 3) If application uses photolysis rates whose cross-section and quantum yields are not listed under photolysis_CSQY_data, create the data files and add them to the directory.
  
@@ -69,61 +69,3 @@ To implement new CSQY data in CMAQ, start with individual CSQY data files for ea
 |PHOT_OPTICS|ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.|
 
 The location of the INLINE_PHOT_PREPROC output files is set in the run script by the variable OUTDIR. To compile a version of the CMAQ programs that use the files created by INLINE_PHO_PREPROC, copy the output files to a new directory under the `$CMAQ_HOME/CCTM/src/MECHS/$Mechanism` directory. Point the CMAQ build scripts to this new directory with the “Mechanism” variable.
-
-#### Compilation Configuration Variables
-
--  `Mechanism: [default: cb6r3_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
-    -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tump_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, mercury, and air toxics, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM, aqueous/cloud chemistry; this is the CMAQv5 multipollutant mechanism
-    -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
-    -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
--   `COMPILER`  
-    Compiler to use for building the program
-    - `PGF90`
-    - `INTEL`
-    - `GFORT`
-
-#### Execution Configuration Variables
-
-The environment variables listed here are invoked at run time and are set in the CREATE_EBI run script.
--  `Mechanism: [default: cb05e51_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. Also see the [Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/CMAQv5.2_Mechanisms.md)). Examples include:
-    -   `cb6r3_ae6_aq`: CB6, revision 3 gas-phase mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05e51_ae6_aq`: CB05 gas-phase mechanism with CMAQv5.1 updates, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tucl_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM Other, aqueous/cloud chemistry
-    -   `cb05tump_ae6_aq`: CB05 gas-phase mechanism with active chlorine chemistry, updated toluene mechanism, mercury, and air toxics, sixth-generation CMAQ aerosol mechanism with sea salt and speciated PM, aqueous/cloud chemistry; this is the CMAQv5 multipollutant mechanism
-    -   `saprc07tb_ae6_aq`: SAPRC-07 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
-    -  `racm2_ae6_aq`: RACM2 gas-phase mechanism with toluene updates and sixth-generation CMAQ aerosol mechanism
--   `USE_RXNS_MODULES [default: T]`
-    Compatibility flag for CMAQ. Set to "T" for CMAQ version 5.1 and higher; set to "F" for older versions of CMAQ.
--   `WVL_AE_REFRAC [default: T]`
-    Include spectral values of refractive indices for aerosol species. Only needed for CMAQv5.1 and higher; set to "F" for older versions of CMAQ.
--   `SPLIT_OUTPUT [default: T]`
-    Split optical and CSQY output data to separate files. Only needed for CMAQv5.1 and higher; set to "F" for older versions of CMAQ.    
-
-### Compiling and Running
-
-#### Compile CREATE_EBI ####
-
-To compile CREATE_EBI, invoke the build file at the command line:
-
-```
-cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./bldit.create_ebi |& tee build.create_ebi.log`
-```
-
-To port CREATE_EBI to different compilers, change the `COMPILER` variable in the bldit script.
-
-#### Run CREATE_EBI ####
-
-Set the run script settings according to the execution configuration variables described above. Run CREATE_EBI using the following command:
-
-```
-cd $CMAQ_HOME/UTIL/create_ebi/scripts
-./run.create_ebi |& tee run.create_ebi.log
-```
-
-<a id=JPROC></a>
