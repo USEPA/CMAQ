@@ -22,7 +22,7 @@ To create a new EBI solver based on photochemical mechanism's reactions data mod
  |   TMPLDIR        | Full path to for FORTRAN templates for solver files | ${CMAQ_REPO}/UTIL/create_ebi/template_RXNSU_OPT |   
  |   DEGRADE_CODES  | Full path to FOTRAN code fors exponential decay of select air toxic. Check Table 4. | ${CMAQ_REPO}/UTIL/create_ebi/degrade_codes_serial-RXNST |   
  |   SRCDIR         | Full path to FORTRAN codes for create_ebi utility | ${CMAQ_REPO}/UTIL/create_ebi/src_RXNSU |   
- |   OUTDIR         | Full path for write output files  | actual value is up to the user |   
+ |   OUTDIR         | Full path where to write output files  | actual value is up to the user |   
  |   PAR_NEG_FLAG   | whether mechamisms has the species PAR and the species as negative production coefficients | T for Carbon Bond based mechanism but F for other mechanisms<sup>1</sup> |      
  |   DEGRADE_SUBS   | include calls for HAPs degrade routines | T |  
  |   SOLVER_DELT    | Default time step of solver in minutes | 2.5 but saprc07tic mechanism uses 1.25 | 
@@ -47,7 +47,7 @@ To report potential program errors or EBI solver failures, contact Bill Hutzell/
 
 ### Description
 
-The create_ebi utility generates an Euler Backward Iterative (EBI) solver for a photochemical mechanism. Source code generated should be used to build the CMAQ CCTM using the photochemical mechanism. The solver is based on Hertel et. al (1993) and was developed to solve the Ox, HOx, NOx-NOy, VOC cycles in tropospheric photochemistry. It combines analytical solutions for specific mechanism species and a numerical method for the remaining mechanism species. The photochemical mechanism must include the specific species and their chemistry needs to meet set rules. If it does not satisfy these constraints, an EBI solver produced by create_ebi should not be used. The create_ebi utility attempts to test for meeting these constraints and stop if they are not met but the tests may not detect all possible cases for violations.
+The create_ebi utility generates an Euler Backward Iterative (EBI) solver for a photochemical mechanism. Source code generated should be used to build the CMAQ CCTM using the photochemical mechanism. The solver is based on Hertel et. al (1993) and was developed to solve the Ox, HOx, NOx-NOy, VOC cycles in tropospheric photochemistry. It combines analytical solutions for specific mechanism species and a numerical method for the remaining mechanism species. The photochemical mechanism must include the specific species and their chemistry needs to meet set rules. If it does not satisfy these constraints, an EBI solver produced by create_ebi should not be used. The create_ebi utility attempts to test for meeting these constraints and stops if they are not met but the tests may not detect all possible cases for violations.
 
 <center> Table 2. 
 Photochemistry Species or Compounds Required;    
