@@ -286,8 +286,6 @@ C-----------------------------------------------------------------------
 
          If ( MET_INITIALIZED ) Return
 
-         CALL INIT_MOSAIC( JDATE, JTIME )
-
 !> Allocate buffers
          ALLOCATE ( BUFF1D( NLAYS ),
      &              BUFF2D( NCOLS,NROWS ),
@@ -582,13 +580,13 @@ C-----------------------------------------------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-!         VNAME = 'LWMASK'
-!         If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
-!     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-!     &                       JDATE, JTIME, Grid_Data%LWMASK ) ) Then
-!            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
-!            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!         End If
+         VNAME = 'LWMASK'
+         If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
+     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
+     &                       JDATE, JTIME, Grid_Data%LWMASK ) ) Then
+            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
 
          VNAME = 'PURB'
          If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -610,7 +608,7 @@ C-----------------------------------------------------------------------
          Grid_Data%SLTYP = NINT( SOILCAT )
          Nullify( SOILCAT )
 
-         Grid_Data%LWMASK = 0.0
+!         Grid_Data%LWMASK = 0.0
          Do l = 1, n_lufrac
             Write( vname,'( "LUFRAC_",I2.2 )' ) l
             If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -619,9 +617,9 @@ C-----------------------------------------------------------------------
                XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-            If( cat_lu( l ) .Ne. 'WATER' ) Then
-               Grid_Data%LWMASK = Grid_Data%LWMASK + Grid_Data%LUFRAC( :,:,l )
-            End If
+!            If( cat_lu( l ) .Ne. 'WATER' ) Then
+!               Grid_Data%LWMASK = Grid_Data%LWMASK + Grid_Data%LUFRAC( :,:,l )
+!            End If
          End Do
          If( PX_LSM ) Then
             Write(Logdev,*) 'MCIP/WRF used the PX LSM'
@@ -703,8 +701,10 @@ C-----------------------------------------------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
+         CALL INIT_MOSAIC( JDATE, JTIME, Grid_Data%LUFRAC )
+
          MET_INITIALIZED = .true.
-         
+
          Return
          End Subroutine INIT_MET
 
@@ -1316,16 +1316,15 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
 !     &                       JDATE, JTIME,  MOSAIC_DATA%RA ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%Z0, GRID_DATA%LWMASK, MET_DATA%VEG,
-     &                GRID_DATA%LUFRAC, MET_DATA%RA, MOSAIC_DATA%Z0, MOSAIC_DATA%USTAR, MOSAIC_DATA%RA, 
-     &                gamah, betah, karman )       
+         CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, GRID_DATA%LUFRAC, MET_DATA%RA, MOSAIC_DATA%Z0,
+     &                MOSAIC_DATA%USTAR, MOSAIC_DATA%RA, gamah, betah, karman )       
 !         END IF
 !         VNAME = 'MOS_RST'
 !         IF ( .NOT. INTERPX( TILE_CRO_2D, VNAME, PNAME,
 !     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
 !     &                       JDATE, JTIME,  MOSAIC_DATA%RSTW ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL MOS_RSTW( GRID_DATA%LUFRAC, GRID_DATA%LWMASK, MOSAIC_DATA%LAI, Met_Data%RGRND, Met_Data%SOIM2, 
+         CALL MOS_RSTW( GRID_DATA%LUFRAC, MOSAIC_DATA%LAI, Met_Data%RGRND, Met_Data%SOIM2, 
      &                  Grid_Data%WWLT, Grid_Data%WFC, Met_Data%TEMP2, MOSAIC_DATA%RA, MOSAIC_DATA%USTAR, 
      &                  MET_DATA%QSS_GRND, MET_DATA%QV, Met_Data%RS, Mosaic_Data%RSTW )
 !         END IF

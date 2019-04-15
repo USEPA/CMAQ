@@ -48,6 +48,7 @@ C shared variables
 
 C Private variables used in this module and subroutines       
       Real, Save, Allocatable, Private :: fseas          ( :,: )
+      Real, Save, Allocatable, Private :: f_land         ( :,: )
       Real, Save, Allocatable, Private :: total_frac     ( :,: )
       Real, Save, Allocatable, Private :: sum_mos_frac   ( :,: )
       Real, Save, Allocatable, Private :: sum_crop_frac  ( :,: )
@@ -57,10 +58,6 @@ C Private variables used in this module and subroutines
       Real, Save, Allocatable, Private :: new_sum_nat_lai( :,: )
       Real, Save, Allocatable, Private :: lai_crop       ( :,: )
       Real, Save, Allocatable, Private :: znotc          ( :,: )
-      Real, Save, Allocatable, Private :: WSPD2          ( :,: )
-      Real, Save, Allocatable, Private :: US             ( :,: )
-      Real, Save, Allocatable, Private :: VS             ( :,: )
-      Real, Save, Allocatable, Private :: RICH           ( :,: )
 
       Integer,         PRIVATE :: ALLOCSTAT
       Integer, Save, PRIVATE :: l_ag, l_agmos
@@ -94,7 +91,7 @@ C Buffer variables
       
       Contains
 
-         Subroutine Init_Mosaic( jdate, jtime ) 
+         Subroutine Init_Mosaic( jdate, jtime, lufrac ) 
        
          Use HGRD_DEFN
          Use LSM_Mod
@@ -110,7 +107,8 @@ C...include files
          Include SUBST_FILES_ID   ! file name parameters                 
        
          Integer, Intent( In )  :: jdate
-         Integer, Intent( In )  :: jtime  
+         Integer, Intent( In )  :: jtime
+         Real, Intent( In )  :: lufrac( :,:,: )    
          Character( 240 )       :: xmsg = ' '
          Character(  16 ), save :: pname = 'Init_Mosaic'
          Integer l
@@ -126,6 +124,7 @@ C...include files
          
          ALLOCATE ( fseas          ( my_ncols,my_nrows ),
      &              total_frac     ( my_ncols,my_nrows ),
+     &              f_land         ( my_ncols,my_nrows ),
      &              sum_mos_frac   ( my_ncols,my_nrows ),
      &              sum_crop_frac  ( my_ncols,my_nrows ), 
      &              sum_mos_lai    ( my_ncols,my_nrows ),
@@ -133,15 +132,12 @@ C...include files
      &              sum_nat_lai    ( my_ncols,my_nrows ), 
      &              new_sum_nat_lai( my_ncols,my_nrows ),
      &              lai_crop       ( my_ncols,my_nrows ),
-     &              znotc          ( my_ncols,my_nrows ),
-     &              US             ( my_ncols,my_nrows ),
-     &              VS             ( my_ncols,my_nrows ),
-     &              WSPD2          ( my_ncols,my_nrows ), 
-     &              RICH           ( my_ncols,my_nrows ), STAT = ALLOCSTAT )
+     &              znotc          ( my_ncols,my_nrows ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC variables'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
+         f_land = 0.0
 
 !---------------------------------------------------------------------------------------------------
 ! placeholder to read namelist for lu agrigation and dep species output
@@ -183,7 +179,11 @@ C...include files
                is_agmos( l ) = .TRUE.
                l_agmos       = l
             End If
-            If(cat_lu(l) .Eq. 'WATER') is_water( l ) = .TRUE.
+            If(cat_lu(l) .Eq. 'WATER') Then
+               is_water( l ) = .TRUE.
+            Else
+               f_land = f_land + lufrac(:,:,l)
+            End If
          End Do
 
          Return   
@@ -463,7 +463,7 @@ C*******************************************************************************
 C                    RA_WRF
 C*********************************************************************************************
 
-         Subroutine RA_WRF( MOLI, ZH, Z0, LWMASK, VEG, LUFRAC, RA, MOS_Z0, MOS_USTAR, MOS_RA, gamah, 
+         Subroutine RA_WRF( MOLI, ZH, LUFRAC, RA, MOS_Z0, MOS_USTAR, MOS_RA, gamah, 
      &                      betah, karman )   
 
          Use LSM_Mod
@@ -476,9 +476,6 @@ C*******************************************************************************
          Real, Intent( In )  :: karman
          Real, Intent( In )  :: MOLI( :,: )
          Real, Intent( In )  :: ZH( :,:,: )
-         Real, Intent( In )  :: Z0( :,: )
-         Real, Intent( In )  :: LWMASK( :,: )
-         Real, Intent( In )  :: VEG( :,: )
          Real, Intent( In )  :: LUFRAC( :,:,: )
          Real, Intent( In )  :: RA( :,: )
          Real, Intent( In )  :: MOS_Z0( :,:,: )
@@ -517,7 +514,7 @@ C*******************************************************************************
 C                    MOS_Rst
 C*********************************************************************************************
 
-         Subroutine MOS_RSTW(LUFRAC, LWMASK, MOS_LAI, RGRND, SOIM2, WWLT, WFC, TEMP2, MOS_RA, MOS_USTAR, 
+         Subroutine MOS_RSTW(LUFRAC, MOS_LAI, RGRND, SOIM2, WWLT, WFC, TEMP2, MOS_RA, MOS_USTAR, 
      &                       QSS_GRND, QV, RST, MOS_RST)
 
          Use LSM_Mod
@@ -526,7 +523,6 @@ C*******************************************************************************
          Implicit None
 
          Real, Intent( In )  :: LUFRAC( :,:,: )
-         Real, Intent( In )  :: LWMASK( :,: )
          Real, Intent( In )  :: MOS_LAI( :,:,: )
          Real, Intent( In )  :: RGRND( :,: )
          Real, Intent( In )  :: SOIM2( :,: )
@@ -545,59 +541,66 @@ C*******************************************************************************
          Real :: f3, gs, ga, raw     ! humidity variables
          Real :: f4                  ! temperature variables
          Real :: ftot, fshelt        ! combined Jarvis variables
+         Real :: lu_tot              ! total land use where Rst is estiamted
+         Real :: cor_fact            ! correction factor to match met model RST
          Real, Parameter :: f3min      = 0.25
          Real, Parameter :: ftmin      = 0.0000001  ! m/s
          Real, Parameter :: rsmax      = 5000.0     ! s/m
-         Real            :: mean_mos_rst            ! area weighted mean Rst
+         Real            :: mean_mos_gst            ! area weighted mean Rst
          Integer         :: c, r, j                 ! loop induction variables
         
          DO c = 1, MY_NCOLS
             DO r = 1, MY_NROWS
-              mean_mos_rst = 0.0
-              If(LWMASK( c,r ) .EQ. 0.0 ) Cycle
+              mean_mos_gst = 0.0
+              lu_tot       = 0.0             
+              If( f_land( c,r ) .Gt. 0.0 ) Then
 !-SOIL MOISTURE
-               w2avail = SOIM2( c,r ) - WWLT( c,r )
-               w2mxav  = WFC ( c,r ) - WWLT( c,r )
-               f2      = 1.0 / ( 1.0 + EXP( -5.0 * ( w2avail / w2mxav -
-     &                 ( w2mxav / 3.0 + WWLT( c,r ) ) ) ) )    ! according JP, 9/94
+                  w2avail = SOIM2( c,r ) - WWLT( c,r )
+                  w2mxav  = WFC ( c,r ) - WWLT( c,r )
+                  f2      = 1.0 / ( 1.0 + EXP( -5.0 * ( w2avail / w2mxav -
+     &                    ( w2mxav / 3.0 + WWLT( c,r ) ) ) ) )    ! according JP, 9/94
 !-AIR TEMP
 !... according to Avissar (1985) and AX 7/95
-               IF ( TEMP2( c,r ) .LE. 302.15 ) THEN
-                  f4 = 1.0 / ( 1.0 + EXP( -0.41 * (TEMP2( c,r ) - 282.05 ) ) )
-               ELSE
-                  f4 = 1.0 / ( 1.0 + EXP( 0.5 * (TEMP2( c,r ) - 314.0 ) ) )
-               END IF
-!-RADIATION
-               par = 0.45 * RGRND( c,r ) * 4.566
-               DO j = 1, n_lufrac
-                  IF ( LUFRAC( c,r,j ) .GT. 0.0 .AND. MOS_LAI( c,r,j ) .LT. 0.00001 ) THEN
-                        MOS_RST( c,r,j ) = rsmax
-                  ELSE IF ( LUFRAC( c,r,j ) .GT. 0.0 ) THEN
-                     IF ( rsmin( j ) .GT. 130.0 ) THEN
-                        f1max = 1.0-0.02*MOS_LAI( c,r,j )
-                     ELSE
-                        f1max = 1.0-0.07*MOS_LAI( c,r,j )
-                     END IF
-                     f1  = f1max * ( 1.0 - exp( -0.0017 * par ) )
-                     f1  = amax1( f1, rsmin( j ) / rsmax )
-                     ftot = MOS_LAI( c,r,j ) * f1 * f2 * f4
-                     ftot = MAX( ftot,ftmin )
-                     fshelt = 1.0   ! go back to NP89
-                     gs     = ftot / ( rsmin( j ) * fshelt )
-                     raw    = MOS_RA( c,r,j ) + 4.503 / MOS_USTAR( c,r,j )
-                     ga     = 1.0 / raw
-!-- Compute humidity effect according to RH at leaf surf
-                     f3 = 0.5 * ( gs - ga + SQRT( ga * ga + ga * gs
-     &                * ( 4.0 * QV( c,r,1 ) / QSS_GRND( c,r ) - 2.0 ) + gs * gs ) ) / gs
-                     f3 = MIN ( MAX( f3, f3min ), 1.0 )
-                     MOS_RST( c,r,j ) = 1.0 / ( gs * f3 )
-!                     mean_mos_rst = mean_mos_rst + MOS_RST( c,r,j ) * LUFRAC( c,r,j )
+                  IF ( TEMP2( c,r ) .LE. 302.15 ) THEN
+                     f4 = 1.0 / ( 1.0 + EXP( -0.41 * (TEMP2( c,r ) - 282.05 ) ) )
+                  ELSE
+                     f4 = 1.0 / ( 1.0 + EXP( 0.5 * (TEMP2( c,r ) - 314.0 ) ) )
                   END IF
-               END DO ! lufrac
- !              DO j = 1, n_lufrac
- !                 If( mean_mos_rst .Gt. 0.0 .And. MOS_LAI( c,r,j ) .Gt. 0.0 ) Then
-!                     MOS_RST( c,r,j ) = MOS_RST( c,r,j ) * RST( c,r ) / mean_mos_rst
-!                     MOS_RST( c,r,j ) = max(MOS_RST( c,r,j ),  rsmin( j ) /MOS_LAI( c,r,j ) )
+!-RADIATION
+                  par = 0.45 * RGRND( c,r ) * 4.566
+                  DO j = 1, n_lufrac
+                     IF ( LUFRAC( c,r,j ) .GT. 0.0 .AND. MOS_LAI( c,r,j ) .LT. 0.00001 ) THEN
+                           MOS_RST( c,r,j ) = rsmax
+                     ELSE IF ( LUFRAC( c,r,j ) .GT. 0.0 ) THEN
+                        IF ( rsmin( j ) .GT. 130.0 ) THEN
+                           f1max = 1.0-0.02*MOS_LAI( c,r,j )
+                        ELSE
+                           f1max = 1.0-0.07*MOS_LAI( c,r,j )
+                        END IF
+                        f1  = f1max * ( 1.0 - exp( -0.0017 * par ) )
+                        f1  = amax1( f1, rsmin( j ) / rsmax )
+                        ftot = MOS_LAI( c,r,j ) * f1 * f2 * f4
+                        ftot = MAX( ftot,ftmin )
+                        fshelt = 1.0   ! go back to NP89
+                        gs     = ftot / ( rsmin( j ) * fshelt )
+                        raw    = MOS_RA( c,r,j ) + 4.503 / MOS_USTAR( c,r,j )
+                        ga     = 1.0 / raw
+!-- Compute humidity effect according to RH at leaf surf
+                        f3 = 0.5 * ( gs - ga + SQRT( ga * ga + ga * gs
+     &                   * ( 4.0 * QV( c,r,1 ) / QSS_GRND( c,r ) - 2.0 ) + gs * gs ) ) / gs
+                        f3 = MIN ( MAX( f3, f3min ), 1.0 )
+                        MOS_RST( c,r,j ) = 1.0 / ( gs * f3 )
+!                        mean_mos_gst = mean_mos_gst + LUFRAC( c,r,j )/MOS_RST( c,r,j )
+!                        lu_tot = lu_tot + LUFRAC( c,r,j )
+                     END IF
+                  END DO ! lufrac
+               END IF ! LWMASK
+!               DO j = 1, n_lufrac
+!                  If( RST( c,r ) .Gt. 0.0 .And. MOS_LAI( c,r,j ) .Gt. 0.0001 .And. 
+!     &                lu_tot .Gt. 0.0001  .And. RST( c,r ) .Lt. 1.0e10 ) Then
+!                     cor_fact = RST( c,r ) * mean_mos_gst / lu_tot
+!                     MOS_RST( c,r,j ) = min( MOS_RST( c,r,j ) * cor_fact, 1.0e10 )
+!                     MOS_RST( c,r,j ) = max( MOS_RST( c,r,j ),  rsmin( j ) /MOS_LAI( c,r,j ) )
 !                  End If
 !               End Do
             END DO ! rows

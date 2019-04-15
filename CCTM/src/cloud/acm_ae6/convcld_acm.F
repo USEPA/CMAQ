@@ -1047,7 +1047,7 @@ C...  solver
 C...Now compute fractional coverage for either CNP or PFW:
 C...Now based on Sunqdvist et al. 1989 DOI: 10.1175/1520-0493(1989)117<1641:CACPSW>2.0.CO;2 
             FRAC = 0.0
-            IF ( NINT( GRID_DATA%LWMASK( COL,ROW ) ) .EQ. 1 ) THEN   ! land
+            IF ( GRID_DATA%LWMASK( COL,ROW ) .EQ. 1.0 ) THEN   ! land
                IF ( RLHSRC .GE. RCRITL )
      &            FRAC = 1.0 - SQRT( ( 1.0 - RLHSRC ) / ( 1.0 - RCRITL ) )
             ELSE   ! water
