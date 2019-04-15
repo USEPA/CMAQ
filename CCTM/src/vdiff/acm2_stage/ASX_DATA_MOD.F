@@ -582,13 +582,13 @@ C-----------------------------------------------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         VNAME = 'LWMASK'
-         If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-     &                       JDATE, JTIME, Grid_Data%LWMASK ) ) Then
-            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
-            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         End If
+!         VNAME = 'LWMASK'
+!         If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
+!     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
+!     &                       JDATE, JTIME, Grid_Data%LWMASK ) ) Then
+!            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+!            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+!         End If
 
          VNAME = 'PURB'
          If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -610,6 +610,7 @@ C-----------------------------------------------------------------------
          Grid_Data%SLTYP = NINT( SOILCAT )
          Nullify( SOILCAT )
 
+         Grid_Data%LWMASK = 0.0
          Do l = 1, n_lufrac
             Write( vname,'( "LUFRAC_",I2.2 )' ) l
             If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -618,11 +619,22 @@ C-----------------------------------------------------------------------
                XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
+            If( cat_lu( l ) .Ne. 'WATER' ) Then
+               Grid_Data%LWMASK = Grid_Data%LWMASK + Grid_Data%LUFRAC( :,:,l )
+            End If
          End Do
          If( PX_LSM ) Then
             Write(Logdev,*) 'MCIP/WRF used the PX LSM'
             zsoil1 = 0.01
             zsoil2 = 0.05 ! For abflux estimated from 1cm and 1 meter 
+! Estimate a constistent soil hydrolic suction at saturation using the JN90 properties to
+! calculate soil hydrolic proerties constistant with JN90 data. Note that the suction at 
+! feild capacity is typically 33 kPa, wilting point is 1500 kPa and residual water content
+! is between 1.0e5 and 1.0e6 kPa and 3.0e5 kPa is used here following Campbell and Norman 1998             
+            Psi_Sat =1500.0 * ( WWLT_PX / WSAT_PX )**BSLP_PX 
+            WFC_PX  = WSAT_PX * ( 33.0 / Psi_sat )**(-1.0/BSLP_PX)
+            WRES_PX = WSAT_PX * ( 3.0e5 / Psi_sat )**(-1.0/BSLP_PX)
+
             Forall( C = 1:MY_NCOLS, R = 1:MY_NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
                Grid_Data%WSAT( C,R ) = WSAT_PX( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WWLT( C,R ) = WWLT_PX( Grid_Data%SLTYP( C,R ) )
@@ -641,36 +653,6 @@ C-----------------------------------------------------------------------
                Grid_Data%BSLP( C,R ) = BSLP_PX( 3 )
                Grid_Data%RHOB( C,R ) = RHOB_PX( 3 )
             End Forall
-! Use Noah values that are hydraulically consistant
-            Forall( C = 1:MY_NCOLS, R = 1:MY_NROWS, Grid_Data%SLTYP(C,R) .Le. 4 )
-               Grid_Data%WSAT( C,R ) = WSAT_NOAH( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WWLT( C,R ) = WWLT_NOAH( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WFC ( C,R ) = WFC_NOAH ( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WRES( C,R ) = WRES_NOAH( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%BSLP( C,R ) = BSLP_NOAH( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%RHOB( C,R ) = RHOB_NOAH( Grid_Data%SLTYP( C,R ) )
-            End Forall
-! Use Noah values that are hydraulically consistant
-            Forall( C = 1:MY_NCOLS, R = 1:MY_NROWS, Grid_Data%SLTYP(C,R) .gt. 4 )
-               Grid_Data%WSAT( C,R ) = WSAT_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%WWLT( C,R ) = WWLT_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%WFC ( C,R ) = WFC_NOAH ( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%WRES( C,R ) = WRES_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%BSLP( C,R ) = BSLP_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%RHOB( C,R ) = RHOB_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-            End Forall
-
-! for cases where the default soil is water but fractional land use may not be water
-! use sandy loam
-            Forall( C = 1:MY_NCOLS, R = 1:MY_NROWS, Grid_Data%SLTYP(C,R) .Gt. 11 )
-               Grid_Data%WSAT( C,R ) = WSAT_NOAH( 3 )
-               Grid_Data%WWLT( C,R ) = WWLT_NOAH( 3 )
-               Grid_Data%WFC ( C,R ) = WFC_NOAH ( 3 )
-               Grid_Data%WRES( C,R ) = WRES_NOAH( 3 )
-               Grid_Data%BSLP( C,R ) = BSLP_NOAH( 3 )
-               Grid_Data%RHOB( C,R ) = RHOB_NOAH( 3 )
-            End Forall
-
          Else If( Noah_LSM ) Then
             Write(Logdev,*) 'MCIP/WRF used the Noah LSM'
             zsoil1 = 0.01 ! Adjusted based on Darmenova et al. 2009 doi:10.1029/2008JD011236
@@ -1293,8 +1275,8 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
 !     &                       JDATE, JTIME,  MOSAIC_DATA%LAI ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, GRID_DATA%LUFRAC,
-     &                  MET_DATA%LAI, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
+         CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, GRID_DATA%LUFRAC, MET_DATA%LAI,
+     &                  MET_DATA%VEG, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
 !         END IF
 
 !         VNAME = 'VEG'

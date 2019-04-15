@@ -52,6 +52,7 @@ C Private variables used in this module and subroutines
       Real, Save, Allocatable, Private :: sum_mos_frac   ( :,: )
       Real, Save, Allocatable, Private :: sum_crop_frac  ( :,: )
       Real, Save, Allocatable, Private :: sum_mos_lai    ( :,: )
+      Real, Save, Allocatable, Private :: sum_mos_veg    ( :,: )
       Real, Save, Allocatable, Private :: sum_nat_lai    ( :,: )
       Real, Save, Allocatable, Private :: new_sum_nat_lai( :,: )
       Real, Save, Allocatable, Private :: lai_crop       ( :,: )
@@ -62,6 +63,10 @@ C Private variables used in this module and subroutines
       Real, Save, Allocatable, Private :: RICH           ( :,: )
 
       Integer,         PRIVATE :: ALLOCSTAT
+      Integer, Save, PRIVATE :: l_ag, l_agmos
+      Logical, Save, Allocatable,  PRIVATE :: is_ag( : )
+      Logical, Save, Allocatable,  PRIVATE :: is_agmos( : )
+      Logical, Save, Allocatable,  PRIVATE :: is_water( : )
 
 C Buffer variables  
       Real, Pointer, Private :: Buff2D_1       ( :,: )
@@ -94,7 +99,6 @@ C Buffer variables
          Use HGRD_DEFN
          Use LSM_Mod
          Use UTILIO_DEFN
-!         USE DEPVVARS, Only: dep_gas_all
          USE STAGE_DATA, Only:dep_gas_all ! needs to be n_gas_asx to save memory but will require remapping
          USE CGRID_SPCS          ! CGRID mechanism species
          USE RUNTIME_VARS
@@ -124,7 +128,8 @@ C...include files
      &              total_frac     ( my_ncols,my_nrows ),
      &              sum_mos_frac   ( my_ncols,my_nrows ),
      &              sum_crop_frac  ( my_ncols,my_nrows ), 
-     &              sum_mos_lai    ( my_ncols,my_nrows ), 
+     &              sum_mos_lai    ( my_ncols,my_nrows ),
+     &              sum_mos_veg    ( my_ncols,my_nrows ),  
      &              sum_nat_lai    ( my_ncols,my_nrows ), 
      &              new_sum_nat_lai( my_ncols,my_nrows ),
      &              lai_crop       ( my_ncols,my_nrows ),
@@ -150,6 +155,17 @@ C...include files
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
+         Allocate ( is_ag    ( n_lufrac ),
+     &              is_agmos ( n_lufrac ), 
+     &              is_water ( n_lufrac ), STAT = ALLOCSTAT )   
+         If ( ALLOCSTAT .Ne. 0 ) Then
+            XMSG = 'Failure allocating is_ag, is_agmos, is_water'
+            Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         End If
+         is_ag    = .FALSE.
+         is_agmos = .FALSE.
+         is_water = .FALSE.
+
          If( FST ) Then
             Allocate ( Tile_Data%vd_fst_gasj( n_lufrac,dep_gas_all,my_ncols,my_nrows ), STAT = ALLOCSTAT )   
             If ( ALLOCSTAT .Ne. 0 ) Then
@@ -157,12 +173,24 @@ C...include files
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
          End If
+! Get the location of ag and water in the land use fractions
+         Do l = 1, n_lufrac
+            If(cat_lu(l) .Eq. 'AG'   ) Then
+               is_ag( l )    = .TRUE.
+               l_ag          = l
+            End If
+            If(cat_lu(l) .Eq. 'AGMOS') Then
+               is_agmos( l ) = .TRUE.
+               l_agmos       = l
+            End If
+            If(cat_lu(l) .Eq. 'WATER') is_water( l ) = .TRUE.
+         End Do
 
          Return   
           
          End Subroutine Init_Mosaic
        
-         Subroutine calc_lai( jday, jtime, SOIT2, LUFRAC, LAI,
+         Subroutine calc_lai( jday, jtime, SOIT2, LUFRAC, LAI, VEG,
      &                        MOS_VEG, MOS_LAI, MOS_Z0  )
 
 C***********************************************************************
@@ -183,6 +211,7 @@ C Arguments:
          Integer, Intent( In )  :: jtime     
          Real, Intent( In )     :: SOIT2( :,: )
          Real, Intent( In )     :: LAI( :,: )
+         Real, Intent( In )     :: VEG( :,: )
          Real, Intent( In )     :: LUFRAC( :,:,: )
          Real, Intent( Out )    :: MOS_VEG( :,:,: )
          Real, Intent( Out )    :: MOS_LAI( :,:,: )
@@ -221,37 +250,35 @@ C calculate fseas based on deep soil temperature
             fseas = 0.0
          End where
 C get individual LAIs for LUCs for this date 
-         Do j = 1, n_lufrac
-            total_frac = total_frac + LUFRAC( :,:,j )
-         End Do
 
          argw => Buff2D_1
          argw =  0.0
          Do j = 1, n_lufrac
-            Where( LUFRAC( :,:,j ) .Gt. 0.0 )
-               MOS_VEG( :,:,j ) = ( ( 1.0 - fseas ) * VEGMN0( j ) + fseas * VEG0( j ) )/100.
-            End Where
-            If ( cat_lu( j ) .NE. 'AG' .And. cat_lu( j ) .NE. 'AGMOSW'
-     &                       .And. cat_lu( j ) .NE. 'AGMOS' ) Then
-               Where( LUFRAC( :,:,j ) .Gt. 0.0 .And. LAI .Gt. 0.0 )
-                  MOS_LAI( :,:,j ) = LAIMN0( j ) + fseas * ( LAI0( j ) - LAIMN0( j ) )
-                  MOS_Z0 ( :,:,j )  = Z00( j )
-               Elsewhere( LUFRAC( :,:,j ) .Gt. 0.0 )
-                  MOS_LAI( :,:,j ) = 0.0
-                  MOS_Z0 ( :,:,j ) = Z00( j )
-               End Where
-               sum_nat_lai = sum_nat_lai + LUFRAC( :,:,j ) * MOS_LAI( :,:,j )
-            End If
-            If( cat_lu(j) .Eq. 'AG' ) Then
-               sum_crop_frac = sum_crop_frac + LUFRAC( :,:,j )
-            End If
-            If( cat_lu(j) .EQ. 'AGMOS' .Or. cat_lu(j) .EQ. 'AGMOSW' ) Then
-               sum_mos_frac = sum_mos_frac + LUFRAC( :,:,j )
-               sum_mos_lai  = sum_mos_lai  + LUFRAC( :,:,j ) * ( LAIMN0(j) + fseas * ( LAI0(j) - LAIMN0(j) ) )
-               sum_nat_lai = sum_nat_lai + 0.5 * LUFRAC( :,:,j ) * MOS_LAI( :,:,j )
-            End If
-            If( cat_lu(j) .Eq. 'WATER') Then
+            total_frac = total_frac + LUFRAC( :,:,j )
+            If( is_water( j ) ) Then
                argw = argw + LUFRAC( :,:,j )
+            Else
+               Where( LUFRAC( :,:,j ) .Gt. 0.0 )
+                  MOS_VEG( :,:,j ) = ( ( 1.0 - fseas ) * VEGMN0( j ) + fseas * VEG0( j ) )/100.
+               End Where
+               If ( .NOT. is_ag( j ) .And. .NOT. is_agmos( j ) ) Then
+                  Where( LUFRAC( :,:,j ) .Gt. 0.0 )
+                     MOS_LAI( :,:,j ) = LAIMN0( j ) + fseas * ( LAI0( j ) - LAIMN0( j ) )
+                     MOS_Z0 ( :,:,j )  = Z00( j )
+!                  Elsewhere( LUFRAC( :,:,j ) .Gt. 0.0 )
+!                     MOS_LAI( :,:,j ) = 0.0
+!                     MOS_Z0 ( :,:,j ) = Z00( j )
+                  End Where
+                  sum_nat_lai = sum_nat_lai + LUFRAC( :,:,j ) * MOS_LAI( :,:,j )
+               End If
+               If( is_ag( j ) ) Then
+                  sum_crop_frac = sum_crop_frac + LUFRAC( :,:,j )
+               End If
+               If( is_agmos( j ) ) Then
+                  sum_mos_frac = sum_mos_frac + LUFRAC( :,:,j )
+                  sum_mos_lai  = sum_mos_lai  + LUFRAC( :,:,j ) * ( LAIMN0(j) + fseas * ( LAI0(j) - LAIMN0(j) ) )
+                  sum_nat_lai = sum_nat_lai + 0.5 * LUFRAC( :,:,j ) * MOS_LAI( :,:,j )
+               End If            
             End If
          End Do
 
@@ -263,7 +290,7 @@ C total frac needs to be non-water
          End Where
          Nullify( argw )
 
-         Where( sum_crop_frac + 0.5 * sum_mos_frac .Gt. 0.0 .And.
+         Where( sum_crop_frac + sum_mos_frac .Gt. 0.0 .And.
      &          total_frac * LAI .Gt. sum_nat_lai ) ! only estimate crop lai for ag
             lai_crop = ( total_frac * LAI - sum_nat_lai ) / ( sum_crop_frac + 0.5 * sum_mos_frac )
          Elsewhere( sum_crop_frac + sum_mos_frac .Gt. 0.0 ) ! small crop or mosaic fraction can lead to rounding errors
@@ -300,14 +327,14 @@ C total frac needs to be non-water
 C check to see if correction needed
          correction => Buff2D_1
          correction =  0.0
-         If( Minval(lai_crop) .Lt. 0.5 .Or. Maxval(lai_crop) .Gt. MAXVAL( LAI0, MASK = cat_lu .EQ. 'AG' ) ) Then         
+         If( Minval(lai_crop) .Lt. 0.5 .Or. Maxval(lai_crop) .Gt. LAI0(l_ag) ) Then         
             correction = 1.0
             Where( lai_crop .Lt. 0.5 ) ! method didn't work - numerical error - use approximation based on fseas
                lai_crop = 0.5
                new_sum_nat_lai = total_frac * LAI -
      &                      ( lai_crop * ( sum_crop_frac + 0.5* sum_mos_frac ) )
             elsewhere( lai_crop .Gt. 3.16 )
-               lai_crop = MAXVAL( LAIMN0, MASK = cat_lu .EQ. 'AG' ) + fseas * ( MAXVAL( LAI0 - LAIMN0, MASK =  cat_lu .EQ. 'AG' ) )
+               lai_crop = LAIMN0(l_ag) + fseas * ( LAI0(l_ag) - LAIMN0(l_ag) )
                new_sum_nat_lai = total_frac * LAI -
      &                      ( lai_crop * ( sum_crop_frac + 0.5* sum_mos_frac ) )
             elsewhere
@@ -329,7 +356,7 @@ C check to see if correction needed
             Write( logdev,* ) 'correction = ', Maxval(correction)
 #endif
 
-            Forall( j = 1:n_lufrac, (cat_lu(j) .NE. 'AG' .AND. cat_lu(j) .NE. 'AGMOS' .AND. cat_lu(j) .NE. 'AGMOSW') )
+            Forall( j = 1:n_lufrac, (.NOT. is_ag( j ) .AND. .NOT. is_agmos( j )) )
                MOS_LAI( :,:,j ) = min( MOS_LAI( :,:,j ) * correction, LAI0(j) )
             End Forall
          End If   ! correction needed
@@ -365,30 +392,49 @@ c estimate vseas
             vseas = 1.0
          End Where
 
-         Forall(j = 1:n_lufrac, cat_lu(j) .Eq. 'AG' .And. Maxval( LUFRAC( :,:,j ) ) .Gt. 0.0 )
-            MOS_LAI( :,:,j ) = min( lai_crop, LAI0(j) )
-            MOS_Z0 ( :,:,j ) = znotc
-            MOS_VEG( :,:,j ) = (( 1.0 - vseas ) * VEGMN0(j) + vseas * VEG0(j) ) / 100.0
-         End Forall
-
-         Forall(j = 1:n_lufrac, cat_lu(j) .Eq. 'AGMOS' .OR. cat_lu(j) .Eq. 'AGMOSW'  .And. 
-     &                          Maxval( LUFRAC( :,:,j )) .Gt. 0.0 )
-            MOS_LAI( :,:,j ) = min( 0.5 * ( LAIMN0(j) + fseas * ( LAI0(j) - LAIMN0(j) ) ) + 
-     &                              0.5 * lai_crop, LAI0(j) )
-            MOS_Z0 ( :,:,j )  = 0.5 * ( znotc + Z00(j) )
-            MOS_VEG( :,:,j ) = (( 1.0 - vseas ) * VEGMN0(j) + vseas * VEG0(j) ) / 100.0
-         End Forall
          sum_mos_lai = 0.0
+         sum_mos_veg = 0.0
          Do j = 1, n_lufrac 
+            If( is_ag( j ) .And. Maxval( LUFRAC( :,:,j ) ) .Gt. 0.0 ) Then
+!         Forall(j = 1:n_lufrac, is_ag( j ) .And. Maxval( LUFRAC( :,:,j ) ) .Gt. 0.0 )
+            Where(LUFRAC( :,:,j ) .Gt. 0.0 )
+               MOS_LAI( :,:,j ) = min( lai_crop, LAI0(j) )
+               MOS_Z0 ( :,:,j ) = znotc
+               MOS_VEG( :,:,j ) = (( 1.0 - vseas ) * VEGMN0(j) + vseas * VEG0(j) ) / 100.0
+            End Where
+!         End Forall        
+!         Forall(j = 1:n_lufrac,  is_agmos( j ) .And. Maxval( LUFRAC( :,:,j )) .Gt. 0.0 )
+            Else If( is_agmos(j) ) Then 
+            Where(LUFRAC( :,:,j ) .Gt. 0.0 )
+               MOS_LAI( :,:,j ) = min( 0.5 * ( LAIMN0(j) + fseas * ( LAI0(j) - LAIMN0(j) ) ) + 
+     &                                 0.5 * lai_crop, LAI0(j) )
+               MOS_Z0 ( :,:,j )  = 0.5 * ( znotc + Z00(j) )
+               MOS_VEG( :,:,j ) = (( 1.0 - vseas ) * VEGMN0(j) + vseas * VEG0(j) ) / 100.0
+            End Where
+!         End Forall
+            End If
             sum_mos_lai = sum_mos_lai + MOS_LAI( :,:,j ) *  LUFRAC( :,:,j )
+            sum_mos_veg = sum_mos_veg + MOS_VEG( :,:,j ) *  LUFRAC( :,:,j )
          End Do
+         Nullify( vseas )
+
          Do j = 1, n_lufrac 
-            Where( sum_mos_lai > 0.0 )
-               MOS_LAI( :,:,j ) = MOS_LAI( :,:,j ) * LAI / sum_mos_lai
-            End Where
-            Where( MOS_LAI( :,:,j ) .Gt. LAI0( j ) )
-               MOS_LAI( :,:,j ) = LAI0( j )
-            End Where
+            If( .NOT. is_water( j ) .AND. maxval(LUFRAC( :,:,j )) .Gt. 0.0 ) Then
+               Where( sum_mos_lai .Gt. 0.0 .And. LAI .Gt. 0.0 .And. sum_mos_veg .Gt. 0.0 .And. VEG .Gt. 0.0 )
+                  MOS_LAI( :,:,j ) = MOS_LAI( :,:,j ) * LAI / sum_mos_lai
+                  MOS_VEG( :,:,j ) = MOS_VEG( :,:,j ) * VEG / sum_mos_veg
+               End Where
+               Where( MOS_LAI( :,:,j ) .Gt. 6.0 )
+                  MOS_LAI( :,:,j ) = 6.0
+               End Where
+               Where( MOS_VEG( :,:,j ) .Gt.  0.999 ) ! not VEG0(j) to support earlier versions of WRF and satellite Veg 
+                  MOS_VEG( :,:,j ) =  0.999
+               End Where
+               Where( MOS_VEG( :,:,j ) .Eq.  0.0 .Or. MOS_LAI( :,:,j ) .Eq.  0.0 )
+                  MOS_LAI( :,:,j ) = 0.0
+                  MOS_VEG( :,:,j ) = 0.0
+               End Where
+            End If
          End Do         
 #ifdef Verbose
          mos_lai => Buff2D_1

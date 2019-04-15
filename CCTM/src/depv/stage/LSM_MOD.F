@@ -56,6 +56,7 @@ C------------------------------------------------------------------------------
       REAL,   SAVE               :: wres_px (11)
       REAL,   SAVE               :: wfc_px  (11)
       REAL,   SAVE               :: rhob_px (11)
+      REAL,   SAVE               :: psi_sat (11)
       REAL,   SAVE               :: wwlt_clm (19)
       REAL,   SAVE               :: wsat_clm (19)
       REAL,   SAVE               :: bslp_clm (19)
@@ -126,18 +127,12 @@ C-------------------------------------------------------------------------------
 !-- WSAT is saturated soil moisture (M^3/M^3) (JN90)
       DATA WSAT_PX  /  0.395, 0.410, 0.435, 0.485, 0.451, 0.420, 0.477,
      &                 0.476, 0.426, 0.482, 0.482 /
-!-- WFC is soil field capacity (Rawls et al 1982)     
-      DATA WFC_PX   /  0.135, 0.150, 0.195, 0.255, 0.240, 0.255, 0.322,
-     &                 0.325, 0.310, 0.370, 0.367 /
 !-- WWLT is wilting point (M^3/M^3) (JN90)
       DATA WWLT_PX  /  0.068, 0.075, 0.114, 0.179, 0.155, 0.175, 0.218,
      &                 0.250, 0.219, 0.283, 0.286 /
 !-- B is slop of the retention curve (NP89)
       DATA BSLP_PX  /  4.05,  4.38,  4.90,  5.30,  5.39,  7.12,  7.75,
      &                 8.52, 10.40, 10.40, 11.40 /
-!-- WRES is residual soil moisture (Rawls et al 1982)
-      DATA WRES_PX  /  0.020, 0.035, 0.041, 0.015, 0.027, 0.068, 0.040,
-     &                 0.075, 0.109, 0.056, 0.090 /
 ! -- RHOB is the soil bulk dnesity following Lyons et al 1997   
       DATA RHOB_PX  /  1.59e6, 1.55e6, 1.53e6, 1.53e6, 1.55e6, 1.62e6, 1.67e6,
      &                 1.66e6, 1.83e6, 1.78e6, 1.83e6 /
@@ -147,7 +142,7 @@ C Soil hydrolic properties as calculcated from soil sand and clay fractions
 C in WRF-CLM in WRF 3.7.1-3.8.1. 
 C WRES is calculated as WSAT*(psi_air_dry/psi_sat)^(-1.0/BSLP) following CLM soil hydrology 
 C relationships. Note that this is a common paramterization, e.g. Campbel and Norman (1998)
-C    where psi_air_dry = -15000 kPa
+C    where psi_air_dry = -300,000 kPa
 C
 C   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
 C   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
@@ -259,7 +254,7 @@ C Note:  Categories of Organic material, Water, Bedrock, Other (land-ice), Playa
 C are not updated because no soil characterization data or insufficient number of samples are available. 
 C WRES is calculated as (psi_air_dry/psi_sat)^(-1.0/BSLP)*WSAT following CLM soil hydrology 
 C relationships, but with updated NOAH values. Note that this is a common paramterization, e.g. Campbel and Norman (1998)
-C    where psi_air_dry = -3000 kPa
+C    where psi_air_dry = -300,000 kPa
 C   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
 C   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
 C   1  SAND       .402 .086  .024  3.36  3.222    4  .387  3.9  .082   .004
@@ -329,7 +324,7 @@ C-------------------------------------------------------------------------------
      & lu_type('NCEP_11', 'WETLAND', 160.0,  20.0, 75.0, 45.0, 3.0, 1.0, 0.015, 14.0, 260.0, 125.0),  ! 11 Perminent Wetlands
      & lu_type('NCEP_12', 'AG     ',  70.0,  10.0, 95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  81.0),  ! 12 Croplands  
      & lu_type('NCEP_13', 'URBAN  ', 150.0,  80.0, 40.0, 20.0, 3.0, 1.0, 0.04,  11.0, 338.0, 190.0),  ! 13 Urban and Built-up    
-     & lu_type('NCEP_14', 'AG     ', 100.0,  30.0, 95.0, 40.0, 3.0, 1.0, 0.04,  18.0, 298.0,  50.0),  ! 14 Crop/Natural Mosaic
+     & lu_type('NCEP_14', 'AGMOS  ', 100.0,  30.0, 95.0, 40.0, 3.0, 1.0, 0.04,  18.0, 298.0,  50.0),  ! 14 Crop/Natural Mosaic
      & lu_type('NCEP_15', 'SNOWICE',9999.0,   1.2,  5.0,  2.0, 0.1, 0.1, 0.02,  60.0,   0.0,   0.0),  ! 15 Snow and Ice   
      & lu_type('NCEP_16', 'BARREN ', 100.0,   5.0, 20.0,  5.0, 1.0, 0.5, 0.02,  25.0, 246.0, 125.0),  ! 16 Sparsely Vegetated
      & lu_type('NCEP_17', 'WATER  ',9999.0,   0.1,  0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 17 IGBP water
@@ -364,7 +359,7 @@ C-------------------------------------------------------------------------------
      & lu_type('NLCD_74  ', 'HERB   ', 100.0,   5.0,  80.0, 20.0, 1.0, 1.0, 0.01,  20.0,   0.0,  18.0),  ! 17 Moss
      & lu_type('NLCD_75  ', 'HERB   ', 100.0,   5.0,  50.0, 20.0, 1.0, 1.0, 0.02,  15.0, 246.0,  62.0),  ! 18 Tundra
      & lu_type('NLCD_81  ', 'AG     ',  80.0,   7.0,  95.0, 80.0, 3.0, 1.0, 0.04,  18.0, 344.0,  50.0),  ! 19 Pasture/Hay
-     & lu_type('NLCD_82  ', 'AG     ',  70.0,  10.0,  95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  80.0),  ! 20 Cultivated Crops   
+     & lu_type('NLCD_82  ', 'HAY    ',  70.0,  10.0,  95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  80.0),  ! 20 Cultivated Crops   
      & lu_type('NLCD_90  ', 'WETLAND', 200.0,  55.0,  90.0, 80.0, 5.0, 2.0, 0.08,  15.0, 271.0, 125.0),  ! 21 Woody Wetland
      & lu_type('NLCD_91  ', 'WETLAND', 200.0,  80.0,  90.0, 80.0, 5.0, 2.0, 0.08,  15.0, 267.0, 125.0),  ! 22 Palustrine Forested Wetland   
      & lu_type('NLCD_92  ', 'WETLAND', 164.0,  30.0,  90.0, 80.0, 3.0, 1.0, 0.04,  15.0, 254.0, 125.0),  ! 23 Palustrine Shrub Wetland   
@@ -389,7 +384,7 @@ C-------------------------------------------------------------------------------
      & lu_type('MODIS_11 ', 'WETLAND', 160.0,  20.0,  75.0, 45.0, 3.0, 1.0, 0.015, 14.0, 260.0, 125.0),  ! 42 Perminent Wetlands
      & lu_type('MODIS_12 ', 'AG     ',  70.0,  10.0,  95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  81.0),  ! 43 Croplands  
      & lu_type('MODIS_13 ', 'URBAN  ', 150.0,  80.0,  40.0, 20.0, 3.0, 1.0, 0.04,  11.0, 338.0, 190.0),  ! 44 Urban and Built-up    
-     & lu_type('MODIS_14 ', 'AG     ', 100.0,  30.0,  95.0, 40.0, 3.0, 1.0, 0.04,  18.0, 298.0,  50.0),  ! 45 Crop/Natural Mosaic
+     & lu_type('MODIS_14 ', 'AGMOS  ', 100.0,  30.0,  95.0, 40.0, 3.0, 1.0, 0.04,  18.0, 298.0,  50.0),  ! 45 Crop/Natural Mosaic
      & lu_type('MODIS_15 ', 'SNOWICE',9999.0,   1.2,   5.0,  2.0, 0.1, 0.1, 0.02,  60.0,   0.0,   0.0),  ! 46 Snow and Ice   
      & lu_type('MODIS_16 ', 'BARREN ', 100.0,   5.0,  20.0,  5.0, 1.0, 0.5, 0.02,  25.0, 246.0, 125.0),  ! 47 Sparsely Vegetated
      & lu_type('MODIS_0  ', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 48 IGBP water
@@ -417,7 +412,7 @@ C-------------------------------------------------------------------------------
      & lu_type('MODIS_11 ', 'WETLAND', 160.0,  20.0,  75.0, 45.0, 3.0, 1.0, 0.015, 14.0, 260.0, 125.0),  ! 11 Perminent Wetlands
      & lu_type('MODIS_12 ', 'AG     ',  70.0,  10.0,  95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  81.0),  ! 12 Croplands  
      & lu_type('MODIS_13 ', 'URBAN  ', 150.0,  80.0,  40.0, 20.0, 3.0, 1.0, 0.04,  11.0, 338.0, 190.0),  ! 13 Urban and Built-up    
-     & lu_type('MODIS_14 ', 'AG     ', 100.0,  30.0,  95.0, 40.0, 3.0, 1.0, 0.04,  18.0, 298.0,  50.0),  ! 14 Crop/Natural Mosaic
+     & lu_type('MODIS_14 ', 'AGMOS  ', 100.0,  30.0,  95.0, 40.0, 3.0, 1.0, 0.04,  18.0, 298.0,  50.0),  ! 14 Crop/Natural Mosaic
      & lu_type('MODIS_15 ', 'SNOWICE',9999.0,   1.2,   5.0,  2.0, 0.1, 0.1, 0.02,  60.0,   0.0,   0.0),  ! 15 Snow and Ice   
      & lu_type('MODIS_16 ', 'BARREN ', 100.0,   5.0,  20.0,  5.0, 1.0, 0.5, 0.02,  25.0, 246.0, 125.0),  ! 16 Sparsely Vegetated
      & lu_type('MODIS_0  ', 'WATER  ',9999.0,   0.1,   0.0,  0.0, 0.0, 0.0, 0.01,   8.0,   0.0,   0.0),  ! 17 IGBP water
@@ -440,7 +435,7 @@ C-------------------------------------------------------------------------------
      & lu_type('NLCD_72  ', 'HERB   ', 100.0,   7.0,  80.0, 20.0, 2.0, 1.0, 0.01,  23.0, 246.0, 125.0),  ! 34 Sedge/Herbaceous
      & lu_type('NLCD_73  ', 'HERB   ', 100.0,   5.0,  80.0, 20.0, 1.0, 1.0, 0.01,  20.0,   0.0,  18.0),  ! 35 Lichens
      & lu_type('NLCD_74  ', 'HERB   ', 100.0,   5.0,  80.0, 20.0, 1.0, 1.0, 0.01,  20.0,   0.0,  18.0),  ! 36 Moss
-     & lu_type('NLCD_81  ', 'HAY     ',  80.0,   7.0,  95.0, 80.0, 3.0, 1.0, 0.04,  18.0, 344.0,  50.0),  ! 37 Pasture/Hay
+     & lu_type('NLCD_81  ', 'HAY    ',  80.0,   7.0,  95.0, 80.0, 3.0, 1.0, 0.04,  18.0, 344.0,  50.0),  ! 37 Pasture/Hay
      & lu_type('NLCD_82  ', 'AG     ',  70.0,  10.0,  95.0, 10.0, 3.16, 0.5, 0.04,  18.0, 340.0,  80.0), ! 38 Cultivated Crops   
      & lu_type('NLCD_90  ', 'WETLAND', 200.0,  55.0,  90.0, 80.0, 5.0, 2.0, 0.08,  15.0, 271.0, 125.0),  ! 39 Woody Wetland 
      & lu_type('NLCD_95  ', 'WETLAND', 120.0,  11.0,  60.0, 40.0, 2.0, 1.0, 0.04,  18.0, 248.0, 125.0)/) ! 40 Emergent Herbaceous Wetland
@@ -458,8 +453,8 @@ C-------------------------------------------------------------------------------
      & lu_type('USGS_DrCrp', 'AG      ',  70.0,  10.0, 95.0, 15.0, 3.16,  0.5, 0.04,  17.0, 340.0,  80.0),  ! 2 Dryland Crop and Pasture
      & lu_type('USGS_IrCrp', 'AG      ',  60.0,  10.0, 95.0, 10.0, 3.16,  0.5, 0.04,  18.0, 340.0,  32.0),  ! 3 Irr. Cropland and Pasture
      & lu_type('USGS_MixCp', 'AG      ',  70.0,  10.0, 95.0, 15.0, 3.16,  0.5, 0.04,  18.0, 340.0,  56.0),  ! 4 Mixed Dry/Irr Crop and Past
-     & lu_type('USGS_CrGrM', 'AG      ',  80.0,  10.0, 95.0, 35.0, 2.5,  1.0, 0.04,  18.0, 298.0,  50.0),  ! 5 Grassland/Cropland Mosaic
-     & lu_type('USGS_CrWdM', 'AG      ', 180.0,  40.0, 95.0, 40.0, 4.0,  1.5, 0.04,  16.0, 298.0,  26.0),  ! 6 Woodland/Cropland Mosaic
+     & lu_type('USGS_CrGrM', 'AGMOS   ',  80.0,  10.0, 95.0, 35.0, 2.5,  1.0, 0.04,  18.0, 298.0,  50.0),  ! 5 Grassland/Cropland Mosaic
+     & lu_type('USGS_CrWdM', 'AGMOS   ', 180.0,  40.0, 95.0, 40.0, 4.0,  1.5, 0.04,  16.0, 298.0,  26.0),  ! 6 Woodland/Cropland Mosaic
      & lu_type('USGS_GrsLd', 'HERB    ', 100.0,   7.0, 95.0, 70.0, 2.5,  1.0, 0.04,  19.0, 247.0,  20.0),  ! 7 Grassland
      & lu_type('USGS_ShrLd', 'SHRUB   ', 200.0,  20.0, 70.0, 50.0, 3.0,  1.0, 0.03,  22.0, 246.0, 125.0),  ! 8 Shrubland
      & lu_type('USGS_ShrGr', 'SHRUB   ', 150.0,  20.0, 85.0, 60.0, 3.0,  1.0, 0.035, 20.0, 246.0,  73.0),  ! 9 Mixed Shrubland/Grassland

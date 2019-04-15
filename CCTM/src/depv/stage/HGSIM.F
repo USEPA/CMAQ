@@ -559,7 +559,7 @@ C------------------------------------------------------------------------------
          REAL  WDEP_LOAD   ! loading due to wet deposition
 
 
-         IF ( NINT( Grid_Data%lwmask( c,r ) ) .EQ. 0 ) THEN ! water
+         IF ( Grid_Data%lwmask( c,r )  .Gt. 0 ) THEN ! water
 
          ! convert to umol/m2 pulse input
             WDEP_LOAD = WDEP*HAOM2*UGOKG/MWHG
