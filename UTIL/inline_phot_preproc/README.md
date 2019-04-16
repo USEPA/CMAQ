@@ -10,7 +10,7 @@ When using the files for CCTM executions, the number of wavebands defined in the
 
 ###  Using the Utility.
 
-The utility is built and executed for each application because the RXNS_DATA_MODULE.F90 file can change between applications. It is a FORTRAN program.  The bldrun script specifies what compiler to use.
+The utility is built and executed for each application because the RXNS_DATA_MODULE.F90 file can change between applications. It is a FORTRAN program and the bldrun script specifies what compiler to use.
 
 To use the utility follow the below instructions.
 
