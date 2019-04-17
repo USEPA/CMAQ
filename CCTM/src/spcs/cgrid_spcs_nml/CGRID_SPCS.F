@@ -61,29 +61,29 @@ c number of species in CGRID
       integer,                      save :: nspcsd = 1
 
 c surrogate species
-      integer,                      save :: n_gc_ic = 0  , n_ae_ic = 0  , n_nr_ic = 0  ,  n_tr_ic = 0,
+      integer,                      save :: n_gc_ic = 0,   n_ae_ic = 0,   n_nr_ic = 0,   n_tr_ic = 0,
+     &                                      n_gc_bc = 0,   n_ae_bc = 0,   n_nr_bc = 0,   n_tr_bc = 0,
      &                                      n_gc_depv = 0, n_ae_depv = 0, n_nr_depv = 0, n_tr_depv = 0,
      &                                      n_gc_scav = 0, n_ae_scav = 0, n_nr_scav = 0, n_tr_scav = 0,
      &                                      n_gc_g2ae = 0,                n_nr_n2ae = 0, n_tr_t2ae = 0,
-     &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0,
-     &                                      n_gc_bc = 0  , n_ae_bc = 0  , n_nr_bc = 0  , n_tr_bc = 0
-      character( 16 ), allocatable, save :: gc_ic( : )  ,ae_ic( : )   , nr_ic( : )  , tr_ic( : ), 
+     &                                      n_gc_g2aq = 0, n_ae_a2aq = 0, n_nr_n2aq = 0, n_tr_t2aq = 0
+      character( 16 ), allocatable, save :: gc_ic( : ),   ae_ic( : ),   nr_ic( : ),   tr_ic( : ), 
+     &                                      gc_bc( : ),   ae_bc( : ),   nr_bc( : ),   tr_bc( : ),   
      &                                      gc_depv( : ), ae_depv( : ), nr_depv( : ), tr_depv( : ),
      &                                      gc_scav( : ), ae_scav( : ), nr_scav( : ), tr_scav( : ),
      &                                      gc_g2ae( : ),               nr_n2ae( : ), tr_t2ae( : ),
-     &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : ),
-     &                                      gc_bc( : )  , ae_bc( : )  , nr_bc( : )  , tr_bc( : )   
-      integer, allocatable,         save :: gc_ic_map( : )  , ae_ic_map( : )  , nr_ic_map( : )  , tr_ic_map( : ),
+     &                                      gc_g2aq( : ), ae_a2aq( : ), nr_n2aq( : ), tr_t2aq( : )
+      integer, allocatable,         save :: gc_ic_map( : ),   ae_ic_map( : ),   nr_ic_map( : ),   tr_ic_map( : ),
+     &                                      gc_bc_map( : ),   ae_bc_map( : ),   nr_bc_map( : ),   tr_bc_map( : ),  
      &                                      gc_depv_map( : ), ae_depv_map( : ), nr_depv_map( : ), tr_depv_map( : ),
      &                                      gc_scav_map( : ), ae_scav_map( : ), nr_scav_map( : ), tr_scav_map( : ),
      &                                      gc_g2ae_map( : ),                   nr_n2ae_map( : ), tr_t2ae_map( : ),
-     &                                      gc_g2aq_map( : ), ae_a2aq_map( : ), nr_n2aq_map( : ), tr_t2aq_map( : ),
-     &                                      gc_bc_map( : )  , ae_bc_map( : )  , nr_bc_map( : )  , tr_bc_map( : )   
+     &                                      gc_g2aq_map( : ), ae_a2aq_map( : ), nr_n2aq_map( : ), tr_t2aq_map( : )
 
-      real, allocatable,            save :: gc_ic_fac( : )  , ae_ic_fac( : )  , nr_ic_fac( : )  , tr_ic_fac( : ),
+      real, allocatable,            save :: gc_ic_fac( : ),   ae_ic_fac( : ),   nr_ic_fac( : ),   tr_ic_fac( : ),
+     &                                      gc_bc_fac( : ),   ae_bc_fac( : ),   nr_bc_fac( : ),   tr_bc_fac( : ),
      &                                      gc_depv_fac( : ), ae_depv_fac( : ), nr_depv_fac( : ), tr_depv_fac( : ),
-     &                                      gc_scav_fac( : ), ae_scav_fac( : ), nr_scav_fac( : ), tr_scav_fac( : ),
-     &                                      gc_bc_fac( : )  , ae_bc_fac( : )  , nr_bc_fac( : )  , tr_bc_fac( : ) 
+     &                                      gc_scav_fac( : ), ae_scav_fac( : ), nr_scav_fac( : ), tr_scav_fac( : )
 
 c control species
       integer,                      save :: n_gc_trns = 0, n_ae_trns = 0, n_nr_trns = 0, n_tr_adv = 0, n_tr_diff = 0,
@@ -155,7 +155,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             INTEGER :: ISPC, IGRID
 
 c namelist variables
-            ! Namelist Registry Format for Gases and Nonractives
+            ! Namelist Registry Format for Gases and Nonreactives
             TYPE SPECIES_DATA_REG_1
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
@@ -274,10 +274,10 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      gc_spc( n_gc_spc+1 ), gc_molwt( n_gc_spc+1 ),
-     &      gc_ic( n_gc_spc+1 ) , gc_ic_map( n_gc_spc+1 ) , gc_ic_fac( n_gc_spc+1 ),
-     &      gc_bc( n_gc_spc+1 ) , gc_bc_map( n_gc_spc+1 ) , gc_bc_fac( n_gc_spc+1 ),
-     &      gc_depv( n_gc_spc+1 ), gc_depv_map( n_gc_spc+1 ) , gc_depv_fac( n_gc_spc+1 ),
-     &      gc_scav( n_gc_spc+1 ), gc_scav_map( n_gc_spc+1 ) , gc_scav_fac( n_gc_spc+1 ),
+     &      gc_ic( n_gc_spc+1 ),   gc_ic_map( n_gc_spc+1 ),   gc_ic_fac( n_gc_spc+1 ),
+     &      gc_bc( n_gc_spc+1 ),   gc_bc_map( n_gc_spc+1 ),   gc_bc_fac( n_gc_spc+1 ),
+     &      gc_depv( n_gc_spc+1 ), gc_depv_map( n_gc_spc+1 ), gc_depv_fac( n_gc_spc+1 ),
+     &      gc_scav( n_gc_spc+1 ), gc_scav_map( n_gc_spc+1 ), gc_scav_fac( n_gc_spc+1 ),
      &      gc_g2ae( n_gc_spc+1 ), gc_g2ae_map( n_gc_spc+1 ),
      &      gc_g2aq( n_gc_spc+1 ), gc_g2aq_map( n_gc_spc+1 ),
      &      gc_trns( n_gc_spc+1 ), gc_trns_map( n_gc_spc+1 ),
@@ -287,8 +287,8 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             gc_spc = bl; gc_molwt = 0.0                        !  .
-            gc_ic = bl; gc_ic_map = 0; gc_ic_fac = 0.0         !  .
-            gc_bc = bl; gc_bc_map = 0; gc_bc_fac = 0.0         !  .
+            gc_ic = bl;   gc_ic_map = 0;   gc_ic_fac = 0.0     !  .
+            gc_bc = bl;   gc_bc_map = 0;   gc_bc_fac = 0.0     !  .
             gc_depv = bl; gc_depv_map = 0; gc_depv_fac = 0.0   !  .
             gc_scav = bl; gc_scav_map = 0; gc_scav_fac = 0.0   ! array
             gc_g2ae = bl; gc_g2ae_map = 0                      !  .
@@ -300,9 +300,9 @@ c-------------------------------------------------------------------------------
 
 
             ! Pass Data from GC Namelist to Internal Variables
-            N_GC_IC = 0; N_GC_DEPV = 0; N_GC_SCAV = 0
+            N_GC_IC = 0; N_GC_BC = 0; N_GC_DEPV = 0; N_GC_SCAV = 0
             N_GC_G2AE = 0; N_GC_G2AQ = 0; N_GC_TRNS = 0; N_GC_DDEP = 0; N_GC_WDEP = 0
-            N_GC_CONC = 0; N_GC_BC = 0
+            N_GC_CONC = 0
 
             DO IGC = 1,N_GC_SPC
                 
@@ -324,7 +324,6 @@ c-------------------------------------------------------------------------------
                     GC_BC_MAP( N_GC_BC ) = IGC
                     GC_BC_FAC( N_GC_BC ) = GC_SPECIES_DATA( IGC )%BC_FAC
                 END IF
- 
                 
                 ! Gas Dry Deposition Surrogates
                 IF ( GC_SPECIES_DATA( IGC )%DEPV_SURR .NE. '' ) THEN
@@ -437,8 +436,8 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      ae_spc( n_ae_spc ), ae_molwt( n_ae_spc ),
-     &      ae_ic( n_ae_spc ), ae_ic_map( n_ae_spc ), ae_ic_fac( n_ae_spc ),
-     &      ae_bc( n_ae_spc ), ae_bc_map( n_ae_spc ), ae_bc_fac( n_ae_spc ),
+     &      ae_ic( n_ae_spc ),   ae_ic_map( n_ae_spc ),   ae_ic_fac( n_ae_spc ),
+     &      ae_bc( n_ae_spc ),   ae_bc_map( n_ae_spc ),   ae_bc_fac( n_ae_spc ),
      &      ae_depv( n_ae_spc ), ae_depv_map( n_ae_spc ), ae_depv_fac( n_ae_spc ),
      &      ae_scav( n_ae_spc ), ae_scav_map( n_ae_spc ), ae_scav_fac( n_ae_spc ),
      &      ae_a2aq( n_ae_spc ), ae_a2aq_map( n_ae_spc ),
@@ -449,8 +448,8 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             ae_spc = bl; ae_molwt = 0.0                        !  .
-            ae_ic = bl; ae_ic_map = 0; ae_ic_fac = 0.0         !  .
-            ae_bc = bl; ae_bc_map = 0; ae_bc_fac = 0.0         !  .
+            ae_ic = bl;   ae_ic_map = 0;   ae_ic_fac = 0.0     !  .
+            ae_bc = bl;   ae_bc_map = 0;   ae_bc_fac = 0.0     !  .
             ae_depv = bl; ae_depv_map = 0; ae_depv_fac = 0.0   !  .
             ae_scav = bl; ae_scav_map = 0; ae_scav_fac = 0.0   ! array
             ae_a2aq = bl; ae_a2aq_map = 0                      !  .
@@ -460,9 +459,9 @@ c-------------------------------------------------------------------------------
             ae_conc = bl; ae_conc_map = 0                      !  .
 
             ! Pass Data from AE Namelist to Internal Variables
-            N_AE_IC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
+            N_AE_IC = 0; N_AE_BC = 0; N_AE_DEPV = 0; N_AE_SCAV = 0
             N_AE_A2AQ = 0; N_AE_TRNS = 0; N_AE_DDEP = 0; N_AE_WDEP = 0
-            N_AE_CONC = 0; N_AE_BC = 0
+            N_AE_CONC = 0
 
             DO IAE = 1,N_AE_SPC
 
@@ -476,6 +475,7 @@ c-------------------------------------------------------------------------------
                     AE_IC_MAP( N_AE_IC ) = IAE
                     AE_IC_FAC( N_AE_IC ) = AE_SPECIES_DATA( IAE )%IC_FAC
                 END IF
+
                 ! Aerosol BCs
                 IF ( AE_SPECIES_DATA( IAE )%BC_SURR .NE. '' ) THEN
                     N_AE_BC = N_AE_BC + 1
@@ -483,7 +483,6 @@ c-------------------------------------------------------------------------------
                     AE_BC_MAP( N_AE_BC ) = IAE
                     AE_BC_FAC( N_AE_BC ) = AE_SPECIES_DATA( IAE )%BC_FAC
                 END IF
-
                 
                 ! Aerosol Dry Deposition Surrogates
                 IF ( AE_SPECIES_DATA( IAE )%DEPV_SURR .NE. '' ) THEN
@@ -589,8 +588,8 @@ c-------------------------------------------------------------------------------
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      NR_spc( n_nr_spc ), NR_molwt( n_nr_spc ),
-     &      NR_ic( n_nr_spc ), NR_ic_map( n_nr_spc ), NR_ic_fac( n_nr_spc ),
-     &      NR_bc( n_nr_spc ), NR_bc_map( n_nr_spc ), NR_bc_fac( n_nr_spc ),
+     &      NR_ic( n_nr_spc ),   NR_ic_map( n_nr_spc ),   NR_ic_fac( n_nr_spc ),
+     &      NR_bc( n_nr_spc ),   NR_bc_map( n_nr_spc ),   NR_bc_fac( n_nr_spc ),
      &      NR_depv( n_nr_spc ), NR_depv_map( n_nr_spc ), NR_depv_fac( n_nr_spc ),
      &      NR_scav( n_nr_spc ), NR_scav_map( n_nr_spc ), NR_scav_fac( n_nr_spc ),
      &      NR_n2ae( n_nr_spc ), NR_n2ae_map( n_nr_spc ),
@@ -602,8 +601,8 @@ c-------------------------------------------------------------------------------
      &      stat = ios )
 
             NR_spc = bl; NR_molwt = 0.0                        !  .
-            NR_ic = bl; NR_ic_map = 0; NR_ic_fac = 0.0         !  .
-            NR_bc = bl; NR_bc_map = 0; NR_bc_fac = 0.0         !  .
+            NR_ic = bl;   NR_ic_map = 0;   NR_ic_fac = 0.0     !  .
+            NR_bc = bl;   NR_bc_map = 0;   NR_bc_fac = 0.0     !  .
             NR_depv = bl; NR_depv_map = 0; NR_depv_fac = 0.0   !  .
             NR_scav = bl; NR_scav_map = 0; NR_scav_fac = 0.0   ! array
             NR_n2ae = bl; NR_n2ae_map = 0                      !  .
@@ -614,9 +613,9 @@ c-------------------------------------------------------------------------------
             NR_conc = bl; NR_conc_map = 0                      !  .
 
             ! Pass Data from NR Namelist to Internal Variables
-            N_NR_IC = 0; N_NR_DEPV = 0; N_NR_SCAV = 0
+            N_NR_IC = 0; N_NR_BC = 0; N_NR_DEPV = 0; N_NR_SCAV = 0
             N_NR_N2AE = 0; N_NR_N2AQ = 0; N_NR_TRNS = 0; N_NR_DDEP = 0; N_NR_WDEP = 0
-            N_NR_CONC = 0; N_NR_BC = 0
+            N_NR_CONC = 0
 
             DO INR = 1,N_NR_SPC
 
@@ -638,7 +637,6 @@ c-------------------------------------------------------------------------------
                     NR_BC_MAP( N_NR_BC ) = INR
                     NR_BC_FAC( N_NR_BC ) = NR_SPECIES_DATA( INR )%BC_FAC
                 END IF
- 
                 
                 ! Nonreactive Dry Deposition Surrogates
                 IF ( NR_SPECIES_DATA( INR )%DEPV_SURR .NE. '' ) THEN
@@ -740,19 +738,21 @@ c-------------------------------------------------------------------------------
             DO ITR = 1,SPC_DIM
                 IF ( TR_SPECIES_DATA( ITR )%SPECIES_NAME .EQ. '' ) EXIT
                 N_TR_SPC = ITR
-                IF ( TR_SPECIES_DATA( ITR )%DEPV_FAC .EQ. -1. )
-     &               TR_SPECIES_DATA( ITR )%DEPV_FAC = 0.
-                IF ( TR_SPECIES_DATA( ITR )%SCAV_FAC .EQ. -1. )
-     &               TR_SPECIES_DATA( ITR )%SCAV_FAC = 0.
                 IF ( TR_SPECIES_DATA( ITR )%IC_FAC .EQ. -1. )
      &               TR_SPECIES_DATA( ITR )%IC_FAC = 0.
                 IF ( TR_SPECIES_DATA( ITR )%BC_FAC .EQ. -1. )
      &               TR_SPECIES_DATA( ITR )%BC_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%DEPV_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%DEPV_FAC = 0.
+                IF ( TR_SPECIES_DATA( ITR )%SCAV_FAC .EQ. -1. )
+     &               TR_SPECIES_DATA( ITR )%SCAV_FAC = 0.
             END DO
 
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      TR_spc( n_tr_spc ), TR_molwt( n_tr_spc ),
+     &      TR_ic( n_tr_spc ),   TR_ic_map( n_tr_spc ),   TR_ic_fac( n_tr_spc ),
+     &      TR_bc( n_tr_spc ),   TR_bc_map( n_tr_spc ),   TR_bc_fac( n_tr_spc ),
      &      TR_depv( n_tr_spc ), TR_depv_map( n_tr_spc ), TR_depv_fac( n_tr_spc ),
      &      TR_scav( n_tr_spc ), TR_scav_map( n_tr_spc ), TR_scav_fac( n_tr_spc ),
      &      TR_t2ae( n_tr_spc ), TR_t2ae_map( n_tr_spc ),
@@ -762,11 +762,11 @@ c-------------------------------------------------------------------------------
      &      TR_ddep( n_tr_spc ), TR_ddep_map( n_tr_spc ),
      &      TR_wdep( n_tr_spc ), TR_wdep_map( n_tr_spc ),
      &      TR_conc( n_tr_spc ), TR_conc_map( n_tr_spc ),
-     &      TR_ic( n_tr_spc ), TR_ic_map( n_tr_spc ), TR_ic_fac( n_tr_spc ),
-     &      TR_bc( n_tr_spc ), TR_bc_map( n_tr_spc ), TR_bc_fac( n_tr_spc ),
      &      stat = ios )
 
             TR_spc = bl; TR_molwt = 0.0                        !  .
+            TR_ic = bl;   TR_ic_map = 0;   TR_ic_fac = 0.0     !  .
+            TR_bc = bl;   TR_bc_map = 0;   TR_bc_fac = 0.0     !  .
             TR_depv = bl; TR_depv_map = 0; TR_depv_fac = 0.0   !  .
             TR_scav = bl; TR_scav_map = 0; TR_scav_fac = 0.0   ! array
             TR_t2ae = bl; TR_t2ae_map = 0                      !  .
@@ -776,13 +776,11 @@ c-------------------------------------------------------------------------------
             TR_ddep = bl; TR_ddep_map = 0                      !  .
             TR_wdep = bl; TR_wdep_map = 0                      !  .
             TR_conc = bl; TR_conc_map = 0                      !  .
-            TR_ic = bl; TR_ic_map = 0; TR_ic_fac = 0.0         !  .
-            TR_bc = bl; TR_bc_map = 0; TR_bc_fac = 0.0         !  .
 
             ! Pass Data from TR Namelist to Internal Variables
-            N_TR_DEPV = 0; N_TR_SCAV = 0
-            N_TR_T2AE = 0; N_TR_T2AQ = 0; N_TR_ADV = 0; N_TR_DDEP = 0; N_TR_WDEP = 0
-            N_TR_CONC = 0; N_TR_DIFF = 0; N_TR_IC = 0 ; N_TR_BC = 0
+            N_TR_IC = 0; N_TR_BC = 0; N_TR_DEPV = 0; N_TR_SCAV = 0
+            N_TR_T2AE = 0; N_TR_T2AQ = 0; N_TR_ADV = 0;  N_TR_DDEP = 0; N_TR_WDEP = 0
+            N_TR_CONC = 0; N_TR_DIFF = 0
 
             DO ITR = 1,N_TR_SPC
 
@@ -796,6 +794,7 @@ c-------------------------------------------------------------------------------
                     TR_IC_MAP( N_TR_IC ) = ITR
                     TR_IC_FAC( N_TR_IC ) = TR_SPECIES_DATA( ITR )%IC_FAC
                 END IF
+
                 ! Tracer BC
                 IF ( TR_SPECIES_DATA( ITR )%BC_SURR .NE. '' ) THEN
                     N_TR_BC = N_TR_BC + 1
@@ -963,7 +962,7 @@ c-------------------------------------------------------------------------------
 
 c assume chem mechanism types are in the order of:
 c 1) CGRID species, CGRID species molecular weight <- base type
-c 2) ICBC, DEPV, SCAV  [any order]           <- surrogate type 1 (surr name, surr fac)
+c 2) IC, BC, DEPV, SCAV  [any order]               <- surrogate type 1 (surr name, surr fac)
 c 3) x2AE, x2AQ  [any order]                       <- surrogate type 2 (surr name only )
 c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
 
@@ -1040,7 +1039,7 @@ c 4) DIFF, DDEP, WDEP, CONC  [any order]           <- control type
             end do
 
 c assumed group order: {CGRID spc, mw},
-c                      {ICBC, DEPV, SCAV} group,
+c                      {IC, BC, DEPV, SCAV} group,
 c                      {x2AE, x2AQ} group,
 c                      {TRNS, DDEP, WDEP, CONC} group
 c str( 1 ) = CGRID name, str( 2 ) = CGRID name molec. wt.
