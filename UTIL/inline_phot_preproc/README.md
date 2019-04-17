@@ -32,16 +32,16 @@ To use the utility follow the below instructions.
  |   SPLIT_OUTPUT   | whether optical and CSQY data written to two separate files | set T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
  |   N_WAVEBANDS_OUT   | Number of Wavebands to write to output files starting from the band with the longest | range 1 to 18; use 7 for CMAQ and 11 from MPAS-CMAQ |      
  |   APPL   | Name of the photochemical mechanism for application | values equals MECHNAME in RXNS_DATA_MODULE.F90  |  
- |   WVBIN_FILE | Full path to file defining the wavelength bins | ${CMAQ_REPO}/UTIL/flux_data/wavel-bins.dat |
- |   FLUX_FILE  | Full path to solar flux file used for averaging over the wavelength bins  |  ${CMAQ_REPO}/UTIL/flux_data/solar-p05nm-UCI.dat | 
- | CSQY_DATA_RAW | Path to directory with ASCII files containing cross-section and quantum yield versus wavelength for photolysis rates in the photochemical mechanism | individual file names correspond to values in the PHOTAB array in the RXNS_DATA_MODULE.F90 file |  
+ |   WVBIN_FILE | Full path to file defining the wavelength bins | ${CMAQ_REPO}/UTIL/inline_phot_preproc/flux_data/wavel-bins.dat |
+ |   FLUX_FILE  | Full path to solar flux file used for averaging over the wavelength bins  |  ${CMAQ_REPO}/UTIL/inline_phot_preproc/flux_data/solar-p05nm-UCI.dat | 
+ | CSQY_DATA_RAW | Path to directory with ASCII files containing cross-section and quantum yield versus wavelength for photolysis rates in the photochemical mechanism | ${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data; individual file names correspond to values of the PHOTAB array in the RXNS_DATA_MODULE.F90 file |  
  | MAX_NUMB_REFRACT | maximum number of aerosol refractive indices to be use | 6, the value can be greater than the actual number used  |
  | AE_REFRAC_LIST | Lists names of environment variable defining file paths to each aerosol refractive index | **"WATER SOLUTE DUST SEASALT SOOT"**<sup>1</sup>; in general "index<sub>1</sub> index<sub>2</sub> ... index<sub>n</sub>" where index<sub>i</sub> defines from 1 to a maxmim of MAX_NUMB_REFRACT file paths | 
- | WATER | Full path to file containing the refractive index for water | ${CMAQ_REPO}/water_clouds/water_refractive_index.dat, index<sub>1</sub> |
- | DUST | Full path to file containing the refractive index for insoluble mineral and unidentified aerosol material | ${CMAQ_REPO}/water_clouds/inso00, index<sub>2</sub> |
- | SOLUTE | Full path to file containing the refractive index for soluble inorganic aerosol material | ${CMAQ_REPO}/water_clouds/waso00, index<sub>3</sub> |
- | SOOT | Full path to file containing the refractive index for elemental carbon aerosol material | ${CMAQ_REPO}/water_clouds/soot00-two_way-Oct_21_2012, index<sub>4</sub> |
- | SEASALT | Full path to file containing the refractive index for sea spray material | ${CMAQ_REPO}/water_clouds/ssam00, index<sub>5</sub> |
+ | WATER | Full path to file containing the refractive index for water | ${CMAQ_REPO}/water_clouds/inline_phot_preproc/water_refractive_index.dat, index<sub>1</sub> |
+ | DUST | Full path to file containing the refractive index for insoluble mineral and unidentified aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/inso00, index<sub>2</sub> |
+ | SOLUTE | Full path to file containing the refractive index for soluble inorganic aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/waso00, index<sub>3</sub> |
+ | SOOT | Full path to file containing the refractive index for elemental carbon aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/soot00-two_way-Oct_21_2012, index<sub>4</sub> |
+ | SEASALT | Full path to file containing the refractive index for sea spray material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/ssam00, index<sub>5</sub> |
  |   OUT_DIR    | Full path to output directory | Value is the user's preference | 
  
  1. CMAQ version 5.3 and lower are hardwired to use only these refractive indices based on information set in AERO_DATA.F. The model will read additional refractive indices but not use them.
@@ -51,19 +51,17 @@ To use the utility follow the below instructions.
 
 |File Name|Format|Description|
 |----------------|------------|------------------------------------------------------------|
-|CSQY_DATA|ASCII|Tabulated CSQY data as a function of temperature and wavelength bin|
-|PHOT_OPTICS|ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.|
+|CSQY_DATA_**mechanism**|ASCII|Tabulated CSQY data as a function of temperature and wavelength bin; **mechanism** equals the value of MECHNAME in RXNS_DATA_MODULE.F90 |
+|PHOT_OPTICS.dat |ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.|
 
 
 To report potential program errors or failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov
 
 ### Files, configuration, and environment variables
 
-To implement new CSQY data in CMAQ, start with individual CSQY data files for each photolysis reaction in an applicable photochemical mechanism. Add to or modify these data to create the CCTM inline CSQY data table.
+In general, applications of inline_phot_preproc vary based on the photochemical mechanism's reaction data module, RXNS_DATA_MODULE.F90, and ASCII files containing cross-section and quantum yield data for photolysis rates used by the photochemical mechanism. The chemmech utility produces the RXNS_DATA_MODULE.F90 file. The latter files are created by the user if they do not exist under the ${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data directory. Each of these files have names listed in the PHOTAB array defined by the mechanism's RXNS_DATA_MODULE.F90 file. The array is constucted based on reactions of the mechanism definitions file (check the chemmech README for more information). These file follow simple formatting rules. Check files under CSQY_DATA_RAW for examples.
 
+To make the CMAQ CCTM use a new CSQY_DATA_**mechanism**, modify the value of CSQY_DATA in CCTM run-script to equal the new file. CCTM needs to be compile with RXNS_DATA_MODULE.F90 that was used to create the new file. Compiling CCTM should also use the RXNS_FUNC_MODULE.F90 that the chemmech utility produces along with the RXNS_DATA_MODULE.F90. 
 
-#### INLINE_PHOT_PREPROC output files
+If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the standard value (7), the CCTM run-script has use the new CSQY_DATA_**mechanism** and PHOT_OPTICS.dat files. 
 
-
-
-The location of the INLINE_PHOT_PREPROC output files is set in the run script by the variable OUTDIR. To compile a version of the CMAQ programs that use the files created by INLINE_PHO_PREPROC, copy the output files to a new directory under the `$CMAQ_HOME/CCTM/src/MECHS/$Mechanism` directory. Point the CMAQ build scripts to this new directory with the “Mechanism” variable.
