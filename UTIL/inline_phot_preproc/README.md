@@ -27,9 +27,9 @@ To use the utility follow the below instructions.
  |:-----|:-----|:------|     
  |  COMPILER        | FORTRAN compiler to building create_ebi | the utility's makefile, _src/inline_phot_preproc.makefile_, is step up for the Intel (INTEL), Portland Group (PGF90) and GCC gfortran (GFORT) compilers. If a separate compiler is to be used, the user has to modify the makefile to define the compiler and its compile flags, recommend including debugging flags| 
  |   GC_INC  | Full path to mechanism's RXNS_DATA_MODULE.F90 or mechanism include files | Produced by CHEMMECH utility | 
- |   USE_RXNS_MODULES  | whether FORTRAN 90 describe the photochemical mechanism | T keep if CMAQ v5.1 or higher but comment out if CMAQ v5.02 and lower |   
- |   WVL_AE_REFRAC  | Whether to include spectral values of refractive indices for aerosol species | set T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
- |   SPLIT_OUTPUT   | whether optical and CSQY data written to two separate files | set T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
+ |   USE_RXNS_MODULES  | whether FORTRAN 90 describe the photochemical mechanism | T if CMAQ v5.1 or higher but comment out if CMAQ v5.02 and lower |   
+ |   WVL_AE_REFRAC  | Whether to include spectral values of refractive indices for aerosol species | T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
+ |   SPLIT_OUTPUT   | whether optical and CSQY data written to two separate files | T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
  |   N_WAVEBANDS_OUT   | Number of Wavebands to write to output files starting from the band with the longest | range 1 to 18; use 7 for CMAQ and 11 from MPAS-CMAQ |      
  |   APPL   | Name of the photochemical mechanism for application | values equals MECHNAME in RXNS_DATA_MODULE.F90  |  
  |   WVBIN_FILE | Full path to file defining the wavelength bins | ${CMAQ_REPO}/UTIL/inline_phot_preproc/flux_data/wavel-bins.dat |
@@ -51,7 +51,7 @@ To use the utility follow the below instructions.
 
 |File Name|Format|Description|
 |----------------|------------|------------------------------------------------------------|
-|CSQY_DATA_**mechanism**|ASCII|Tabulated CSQY data as a function of temperature and wavelength bin; **mechanism** equals the value of MECHNAME in RXNS_DATA_MODULE.F90 |
+|CSQY_DATA_**mechanism**|ASCII|Processed cross-sections and quantum yields as a function of temperature and wavelength bin; **mechanism** equals the value of MECHNAME in RXNS_DATA_MODULE.F90 |
 |PHOT_OPTICS.dat |ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.|
 
 
@@ -61,7 +61,7 @@ To report potential program errors or failures, contact Bill Hutzell/USEPA at hu
 
 In general, applications of inline_phot_preproc vary based on the photochemical mechanism's reaction data module, RXNS_DATA_MODULE.F90, and ASCII files containing cross-section and quantum yield data for photolysis rates used by the photochemical mechanism. The chemmech utility produces the RXNS_DATA_MODULE.F90 file. The latter files are created by the user if they do not exist under the ${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data directory. Each of these files have names listed in the PHOTAB array defined by the mechanism's RXNS_DATA_MODULE.F90 file. The array is constucted based on reactions of the mechanism definitions file (check the chemmech README for more information). These file follow simple formatting rules. Check files under CSQY_DATA_RAW for examples.
 
-To make the CMAQ CCTM use a new CSQY_DATA_**mechanism**, modify the value of CSQY_DATA in CCTM run-script to equal the new file. CCTM needs to be compile with RXNS_DATA_MODULE.F90 that was used to create the new file. Compiling CCTM should also use the RXNS_FUNC_MODULE.F90 that the chemmech utility produces along with the RXNS_DATA_MODULE.F90. 
+To make the CMAQ CCTM use a new CSQY_DATA_**mechanism**, modify the value of CSQY_DATA in the CCTM run-script to equal the new file. CCTM needs to be compiled with RXNS_DATA_MODULE.F90 that was used to create the new file. Compiling CCTM should also use the RXNS_FUNC_MODULE.F90 that the chemmech utility produced along with the RXNS_DATA_MODULE.F90. 
 
 If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the standard value (7), the CCTM run-script has use the new CSQY_DATA_**mechanism** and PHOT_OPTICS.dat files. 
 
