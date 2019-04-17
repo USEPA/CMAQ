@@ -159,7 +159,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             INTEGER :: ISPC, IGRID
 
 c namelist variables
-            ! Namelist Registry Format for Gases and Nonractives 
+            ! Namelist Registry Format for Gases and Nonreactives 
             TYPE SPECIES_DATA_REG_1
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
