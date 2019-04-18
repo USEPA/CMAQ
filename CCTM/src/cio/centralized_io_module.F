@@ -26,6 +26,13 @@
 !  03/06/19, D. Wong: fixed a bug to handle 3D emission data structure
 !                     correctly and fixed a bug to deal with the case of
 !                     ABFLUX turned off
+!  04/01/19, D. Wong: -- enhanced robustness to handle time independent or 
+!                        dependent boundary condition file
+!                     -- used two different CPP flags, m3dry_opt and stage_opt
+!                        to distinguish these two deposition options
+!                     -- reorganized the code to read in certain files when
+!                        they are available as well as based on environmental 
+!                        variable setting
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -805,7 +812,13 @@
              xmsg = 'Failure allocating mb3d_name '
              call m3exit (pname, 0, 0, xmsg, xstat1 )
           end if
-          b3d_name = 'b'     ! denote 3D boundary variable
+
+          if (tstep3d == 0) then
+             b3d_name = 'b'      ! denote time independent 3D boundary variable
+          else
+             b3d_name = 'bt'     ! denote time dependent   3D boundary variable
+          end if
+
           b3d_name(:,1) = vname3d(1:nvars3d) 
           cio_bc_file_var_name = vname3d(1:nvars3d)
           n_cio_bc_file_vars = nvars3d
@@ -1375,6 +1388,7 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 #else
+#ifdef stage_opt
           Allocate( Nit1       ( ncols,nrows,e2c_cats ),
      &              Nit2       ( ncols,nrows,e2c_cats ),
      &              L1_ON      ( ncols,nrows,e2c_cats ),
@@ -1532,7 +1546,8 @@ C Read the various categories of normalized emissions
 
 9001      Format( 'Failure reading ', a, 1x, 'from ', a )
 
-#endif
+#endif   ! end if stage option
+#endif   ! end if m3dry option
 
         end subroutine depv_data_setup
 
@@ -1552,7 +1567,7 @@ C Read the various categories of normalized emissions
           CHARACTER( 256 ) :: xmsg
           CHARACTER( 16 ) :: vname
           INTEGER :: STAT, i, m
-          logical :: found
+          logical :: found, dust_lu_avail
 
           Allocate ( crop_ladut  ( ncols, nrows, nlcrp ),
      &               crplnd ( ncols, nrows, nlcrp ),
@@ -1560,88 +1575,95 @@ C Read the various categories of normalized emissions
      &               STAT=STAT )
 
 ! Open BELD1
+          dust_lu_avail = .true.
           if ( .not. open3( dust_lu_1, fsread3, pname ) ) then
-             xmsg = 'Could not open ' // dust_lu_1
-             call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+             dust_lu_avail = .false.
           end if
 
-! Open crop calendar
-          do i = 1, 3
-             if ( .not. open3( crname( i ), fsread3, pname ) ) then
-                xmsg = 'Could not open ' // crname( i )
-                call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-             end if
-          end do
-
+          if (dust_lu_avail) then
 ! Read in 17 species crop land fraction
-          do m = 1, nlcrp
-             if ( .not. xtract3( dust_lu_1, crop_vnmld( m ), 1, 1,
-     &                           STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,
-     &                           0, 0, crop_ladut( :,:,m ) ) ) then
-                xmsg = 'Could not read ' // trim( crop_vnmld( m ) ) // ' from ' // dust_lu_1
-                call m3exit ( pname, 0, 0, xmsg, xstat1 )
-             end if
-          end do
-
-! Read crop calendar: 1 = begin planting, 2 = end planting, 3 = end harvesting
-          do i = 1, 3
-             do m = 1, ncrop
-                if ( .not. xtract3( crname( i ), vcrop( m ), 1,1,
-     &                              STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
-     &                              0, 0, cropdt( 1,1,m,i ) ) ) then
-                   xmsg = 'Could not read ' // trim( vcrop( m ) ) // ' from ' // crname( i )
-                   call m3exit ( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+             do m = 1, nlcrp
+                if ( .not. xtract3( dust_lu_1, crop_vnmld( m ), 1, 1,
+     &                              STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,
+     &                              0, 0, crop_ladut( :,:,m ) ) ) then
+                   xmsg = 'Could not read ' // trim( crop_vnmld( m ) ) // ' from ' // dust_lu_1
+                   call m3exit ( pname, 0, 0, xmsg, xstat1 )
                 end if
              end do
-          end do
+          end if
+
+          if (erode_agland) then
+
+! Open crop calendar
+             do i = 1, 3
+                if ( .not. open3( crname( i ), fsread3, pname ) ) then
+                   xmsg = 'Could not open ' // crname( i )
+                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+                end if
+             end do
+
+! Read crop calendar: 1 = begin planting, 2 = end planting, 3 = end harvesting
+             do i = 1, 3
+                do m = 1, ncrop
+                   if ( .not. xtract3( crname( i ), vcrop( m ), 1,1,
+     &                                 STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
+     &                                 0, 0, cropdt( 1,1,m,i ) ) ) then
+                      xmsg = 'Could not read ' // trim( vcrop( m ) ) // ' from ' // crname( i )
+                      call m3exit ( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+                   end if
+                end do
+             end do
+          end if
 
 ! this is for LU data
 
-         if ( isbeld ) then  ! get the 2nd file (currently same as 1st for BELD4)
-            if ( .not. open3( lufile( 2 ), fsread3, pname ) ) then
-               xmsg = 'could not open ' // trim( lufile( 2 ) )
-               call m3exit ( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-            end if
-         end if
+          if (dust_lu_avail) then
+             if ( isbeld ) then  ! get the 2nd file (currently same as 1st for BELD4)
+                if ( .not. open3( lufile( 2 ), fsread3, pname ) ) then
+                   xmsg = 'could not open ' // trim( lufile( 2 ) )
+                   call m3exit ( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+                end if
+             end if
 
 ! Get desert land (fraction) data (assume if BELD, all desert types are in file 1)
-          do i = 1, n_dlcat
-             if ( .not. xtract3( lufile( 1 ), vnmld( i )%name, 1,1,
-     &                           STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
-     &                           0, 0, ladut( :,:,i ) ) ) then
-                xmsg = 'Could not read ' // trim( vnmld( i )%name )
-     &               // ' from ' // trim( lufile( 1 ) )
-                call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-             end if
-          end do
-
+             do i = 1, n_dlcat
+                if ( .not. xtract3( lufile( 1 ), vnmld( i )%name, 1,1,
+     &                              STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
+     &                              0, 0, ladut( :,:,i ) ) ) then
+                   xmsg = 'Could not read ' // trim( vnmld( i )%name )
+     &                  // ' from ' // trim( lufile( 1 ) )
+                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+                end if
+             end do
+ 
 ! Get landuse (fraction) data
-          do i = 1, n_lucat-1
-             if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
-     &                           STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
-     &                           0, 0, lut( :,:,i ) ) ) then
-                xmsg = 'Could not read ' // trim( vnmlu( i )%name )
-     &               // ' from ' // trim( lufile( 1 ) )
-                call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-             end if
-          end do
+             do i = 1, n_lucat-1
+                if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
+     &                              STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
+     &                              0, 0, lut( :,:,i ) ) ) then
+                   xmsg = 'Could not read ' // trim( vnmlu( i )%name )
+     &                  // ' from ' // trim( lufile( 1 ) )
+                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+                end if
+             end do
 
-          i = n_lucat
-          if ( .not. isbeld ) then
-             if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
-     &                           STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
-     &                           0, 0, lut( :,:,i ) ) ) then
-                xmsg = 'Could not read ' // trim( vnmlu( i )%name )
-     &               // ' from ' // trim( lufile( 1 ) )
-                call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-             end if
-          else
-             if ( .not. xtract3( lufile( 2 ), vnmlu( i )%name, 1,1,
-     &                           STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
-     &                           0, 0, lut( :,:,i ) ) ) then
-                xmsg = 'Could not read ' // trim( vnmlu( i )%name )
-     &               // ' from ' // trim( lufile( 2 ) )
-                call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+             i = n_lucat
+             if ( .not. isbeld ) then
+                if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
+     &                              STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
+     &                              0, 0, lut( :,:,i ) ) ) then
+                   xmsg = 'Could not read ' // trim( vnmlu( i )%name )
+     &                  // ' from ' // trim( lufile( 1 ) )
+                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+                end if
+             else
+                if ( .not. xtract3( lufile( 2 ), vnmlu( i )%name, 1,1,
+     &                              STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
+     &                              0, 0, lut( :,:,i ) ) ) then
+                   xmsg = 'Could not read ' // trim( vnmlu( i )%name )
+     &                  // ' from ' // trim( lufile( 2 ) )
+                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+                end if
              end if
           end if
 
@@ -2069,7 +2091,7 @@ C Read the various categories of normalized emissions
           LOGICAL :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations,
      &               iter, loc_jdate, loc_jtime, bs_tjdate, wb_tjdate, v, beg_v, end_v, 
-     &               fnum, str_len, bs_tjtime, wb_tjtime
+     &               fnum, str_len, bs_tjtime, wb_tjtime, wb_pre_begin, wb_pre_end
           integer, allocatable :: tdata(:)
           character (16) :: loc_vname
           logical :: advanced
@@ -2222,20 +2244,20 @@ C Read the various categories of normalized emissions
                          wb_tjdate = jdate
                       end if
                       wb_tjtime = 0
-                   else
-                      if (.not. advanced) then
-                         CALL NEXTIME ( wb_tjdate, wb_tjtime, 240000 )
-                         advanced = .true.
-                      end if
-                   end if
+                      wb_pre_begin = begin
+                      wb_pre_end   = end
 
-                   IF ( .NOT. XTRACT3( dust_fname, cio_grid_var_name(v,1),
-     &                                 1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                                 wb_tjdate, wb_tjtime, cio_grid_data(begin:end) ) ) THEN
-                      XMSG = 'Could not extract ' // dust_fname // ' file'
-                      CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
-                   END IF
+                      IF ( .NOT. XTRACT3( dust_fname, cio_grid_var_name(v,1),
+     &                                    1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                                    wb_tjdate, wb_tjtime, cio_grid_data(begin:end) ) ) THEN
+                         XMSG = 'Could not extract ' // dust_fname // ' file'
+                         CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
+                      END IF
                    
+                   else
+                      ! for MODIS_FPAR data, the circular buffer at position 0 and 1 are identical
+                      cio_grid_data(begin:end) = cio_grid_data(wb_pre_begin:wb_pre_end)
+                   end if
                 else
                    write (cio_logdev, *) ' ==d== Unknown type of file'
                    stop
@@ -2269,7 +2291,7 @@ C Read the various categories of normalized emissions
         end subroutine retrieve_time_dep_gridded_data
 
 ! -------------------------------------------------------------------------
-        subroutine retrieve_time_dep_boundary_data (jdate, jtime, vname)
+        subroutine retrieve_boundary_data (jdate, jtime, vname)
 
           USE UTILIO_DEFN
           USE HGRD_DEFN
@@ -2281,7 +2303,7 @@ C Read the various categories of normalized emissions
           integer, intent(in) :: jdate, jtime
           character (*), intent(in), optional :: vname
 
-          Character( 40 ), parameter :: pname = 'retrieve_time_dep_boundary_data'
+          Character( 40 ), parameter :: pname = 'retrieve_boundary_data'
 
           LOGICAL :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations,
@@ -2329,7 +2351,8 @@ C Read the various categories of normalized emissions
                       XMSG = 'Could not read ' // MET_BDY_3D // ' file'
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
                    END IF
-                else if (cio_bndy_var_name(v,2) == 'b') then
+                else if ((cio_bndy_var_name(v,2) == 'b') .or.
+     &                   (cio_bndy_var_name(v,2) == 'bt')) then
                    if (.not. read3 (BNDY_GASC_1, cio_bndy_var_name(v,1), -1,
      &                              loc_jdate, loc_jtime, cio_bndy_data(begin:end) ) ) THEN
                       XMSG = 'Could not read ' // MET_BDY_3D // ' file'
@@ -2357,7 +2380,7 @@ C Read the various categories of normalized emissions
              end do
           end if
 
-        end subroutine retrieve_time_dep_boundary_data
+        end subroutine retrieve_boundary_data
 
 ! -------------------------------------------------------------------------
         subroutine retrieve_stack_data (jdate, jtime, fname, vname)
@@ -2793,7 +2816,7 @@ C   mminlu and num_land_cat are WRF global variables
 
           call retrieve_time_dep_gridded_data (cio_model_sdate, cio_model_stime)
 
-          call retrieve_time_dep_boundary_data (cio_model_sdate, cio_model_stime)
+          call retrieve_boundary_data (cio_model_sdate, cio_model_stime)
 
           call retrieve_stack_data (cio_model_sdate, cio_model_stime)
 
@@ -2913,7 +2936,6 @@ C   mminlu and num_land_cat are WRF global variables
                            EM_REGIONS( N_EM_RGN )%FILENUM = EM_REG_READ( IREAD )%FILENUM
 
                            call interpolate_var (VNAME3D(IVAR), SDATE3D, STIME3D, EM_REG_FAC(:,:,N_EM_RGN))
-
                         END DO
                      END IF
                   ELSE
@@ -3355,9 +3377,13 @@ C   mminlu and num_land_cat are WRF global variables
                 store_beg_ind = cio_grid_data_inx(1,2,var_loc)
                 store_end_ind = cio_grid_data_inx(2,2,var_loc)
 
-                cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
-     &                                                       + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
-
+                if (vname == 'MODIS_FPAR_T') then
+                   ! for MODIS_FPAR_T xtraction but not interpolation is performed
+                   cio_grid_data(store_beg_ind:store_end_ind) = cio_grid_data(head_beg_ind:head_end_ind)
+                else
+                   cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
+     &                                                          + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
+                end if
              end if
  
              adj_lvl = 0
@@ -3719,7 +3745,7 @@ C   mminlu and num_land_cat are WRF global variables
                 loc_jdate = cio_bndy_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_bndy_data_tstamp(2, loc_tail, var_loc)
                 CALL NEXTIME ( loc_jdate, loc_jtime, cio_data_tstep )
-                call retrieve_time_dep_boundary_data (loc_jdate, loc_jtime, vname)
+                call retrieve_boundary_data (loc_jdate, loc_jtime, vname)
                 loc_head = head_bndy(var_loc)
                 loc_tail = tail_bndy(var_loc)
              end if
@@ -3732,7 +3758,10 @@ C   mminlu and num_land_cat are WRF global variables
                 cio_bndy_data_tstamp(1, 2, var_loc) = date
                 cio_bndy_data_tstamp(2, 2, var_loc) = time
 
-                if ((prev_time .ne. time) .or.
+                if (cio_bndy_var_name(var_loc, 2) == 'b') then
+                   ratio1 = 1.0
+                   ratio2 = 0.0
+                else if ((prev_time .ne. time) .or.
      &              (prev_head_time .ne. cio_bndy_data_tstamp(2, loc_head, var_loc))) then
                    if (cio_bndy_data_tstamp(1, loc_head, var_loc) .eq. date) then
                       ratio2 =   real(time_diff(time, cio_bndy_data_tstamp(2, loc_head, var_loc))) 

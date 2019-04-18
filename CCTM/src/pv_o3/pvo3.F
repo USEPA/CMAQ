@@ -29,6 +29,7 @@ C             Scaling only at top layer; scaling factor based on 2006 IONS O3 an
 C             PV estimated from NAM at ~100mb,  Rohit Mathur, Nov. 2008
 C             Incorporation in CMAQv4.7.1,  Rohit Mathur, Jan.2010
 C  12 Mar 2019 D. Wong: Implemented centralized I/O approach and removed all MY_N clauses
+C   1 Apr 2019 D. Wong: Remove call to SUBHFILE
 
 C-----------------------------------------------------------------------
 
@@ -97,9 +98,6 @@ C..Scratch Local Variables:
 C First time: set up parameters
       IF ( LFIRST ) THEN
          LFIRST = .FALSE.
-
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
          VO3 = INDEX1( 'O3', N_GC_SPC, GC_SPC )
          WRITE( LOGDEV,92000 ) N_GC_SPC, VO3
