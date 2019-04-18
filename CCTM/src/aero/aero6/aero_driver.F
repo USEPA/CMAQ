@@ -126,8 +126,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PRECURSOR_DATA, ONLY: SULPRD_IDX, SO4RATE, PRECURSOR_CONC,
      &                          PHGRXN_IDX, PHG_RATE,
      &                          EXTRACT_PRECURSOR, UPDATE_PRECURSOR
-      USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_SOA
-      USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH,
+      USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_ORGVAPOR
+      USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
      &                        H2OSATVP, H2OVP, MWWAT, MWAIR
       USE UTILIO_DEFN, ONLY: OPEN3, INTERPX, WRITE3, FSREAD3, ALLVAR3,
      &                       XSTAT1, TIME2SEC, SEC2TIME
@@ -137,10 +137,12 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE PMDIAG_DATA_MODULE, ONLY: NUM_PMDIAG_SPC, A_PMDIAG_SPC_MAP, PMDIAG_SPC_RECORD
       USE RUNTIME_VARS, ONLY: LOGDEV, PMDIAG, APMDIAG, APMDIAG_ZHI, END_TIME
       USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF
+
 #ifdef twoway
       USE twoway_data_module
 #endif
       use CENTRALIZED_IO_MODULE, only : interpolate_var
+
 
       IMPLICIT NONE
 
@@ -426,7 +428,7 @@ C *** Update precursor variables conc back into CGRID
                CALL UPDATE_PRECURSOR( CGRID( C,R,L,: ) )
 
 C *** Update gas soa concentrations back to CGRID
-               CALL UPDATE_SOA( CGRID( C,R,L,: ) )
+               CALL UPDATE_ORGVAPOR( CGRID( C,R,L,: ) )
 
 C *** OUTPUT DIAGNOSTIC INFORMATION
 C *** Get wet moment info (dry will be converted to wet)

@@ -376,6 +376,7 @@ C-----------------------------------------------------------------------
        CHARACTER( 16 ), SAVE            :: PNAME = 'EM_SD_INIT  '
 
        INTEGER IRULE, ISUR, N, NLEN, ISD, IM, IEM, NRULE
+       LOGICAL   :: LREMOVE
        
        ! Find Total Number of Size Distribution Registries
        N_SD_RULE = SIZE( SD_NML )
@@ -402,7 +403,10 @@ C-----------------------------------------------------------------------
        ! Now Modify those defaults or add new modes to desired streams
        DO IRULE = 1, N_SD_RULE
          ! Expand Size Distribution Rule to All Streams if Requested
-         CALL INTERPRET_EM_RULE_STREAM( SD_NML( IRULE )%STREAM, IRULE, EM_STREAM_RULE )
+         LREMOVE = .FALSE.
+         CALL INTERPRET_EM_RULE_STREAM( SD_NML( IRULE )%STREAM, IRULE, 
+     &                 EM_STREAM_RULE, LREMOVE )
+         IF ( LREMOVE ) CYCLE
 
          ! Loop through streams, set defaults, and build map array
          DO ISRM = 1, N_EM_SRM

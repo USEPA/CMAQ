@@ -187,13 +187,6 @@ C-----------------------------------------------------------------------
 
          CALL LOG_HEADING( LOGDEV, 'INITIALIZE ADVECTION STEPPING' )
 
-         IF ( VGTYP_GD .NE. VGSGPN3 .AND.
-     &        VGTYP_GD .NE. VGSGPH3 .AND.
-     &        VGTYP_GD .NE. VGWRFEM ) THEN
-            XMSG = 'Wrong vertical coordinate type'
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
-
          IF ( SIGST .GT. VGLVS_GD( 2 ) .OR.
      &        SIGST .LT. VGLVS_GD( NLAYS + 1 ) ) THEN
             WRITE(XMSG, '(A, 1PE12.3)') 'SIGMA_SYNC_TOP incorrect', SIGST
