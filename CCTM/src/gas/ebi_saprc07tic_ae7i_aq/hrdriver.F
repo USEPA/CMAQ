@@ -153,7 +153,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  On first call, call routines to set-up for EBI solver
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF( LFIRST ) THEN
-run_cctm_2016_12US1_v521_Eval_Base.csh
          IF( MECHNAME .NE. 'SAPRC07TIC_AE7I_AQ' ) THEN
              MSG = 'This version of the EBI solver can only be used with'
      &            // ' the SAPRC07TIC_AE7I_AQ chemical mechanism'
