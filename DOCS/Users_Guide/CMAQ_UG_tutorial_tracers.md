@@ -8,7 +8,7 @@ Purpose: This tutorial will step you through the process of adding chemically in
 
 ### STEP 1: Create tracer namelist</strong>
 
-Create namelist according to Table 3.4 in the CMAQ OGD (https://github.com/USEPA/CMAQ/blob/5.3/DOCS/User_Guide/CMAQ_UG_ch04_model_inputs.md#Table3-4). Include one line for each tracer species with the following format (refer to the table below for more information on the abbreviations):
+Create namelist according to Table 3.4 in the [CMAQ OGD] (https://github.com/USEPA/CMAQ/blob/5.3/DOCS/User_Guide/CMAQ_UG_ch04_model_inputs.md#Table3-4). Include one line for each tracer species with the following format (refer to the table below for more information on the abbreviations):
 
 <a id=Table3-4></a>
 
@@ -230,7 +230,7 @@ Once the script is made, execute the run script with the following commands:
 ./run.{script_name}.csh |& tee run.combine.log
 ```
 
-The CO_EMIS tracer is designed to track the fate of CO emissions without any influence from initial or boundary conditions and therefore no IC/BC surrogate was specified and no additional species needs to be added to the initial condition file for this tracer. However, it must be specified in the [emissions input](CMAQ_UG_ch04_model_inputs.md#EmissionsInputs) file. Depending on the mechanism the user plans to use navigate the [CMAQ repository](CMAQ_UG_ch04_running_CMAQ.md#5.3TheCMAQRepositoryStructure) to find the EmissCtrl_{mechanism_name}.nml file. For example if running the cb6r3_ae7_aq mechanism, edit EmissCtrl_cb6r3_ae7_aq.nml file to include the following line after the Custom Mapping Examples in the Emissions Scaling Rules section: 
+The CO_EMIS tracer is designed to track the fate of CO emissions without any influence from initial or boundary conditions and therefore no IC/BC surrogate was specified and no additional species needs to be added to the initial condition file for this tracer. However, it must be specified in the [emissions input](CMAQ_UG_ch04_model_inputs.md#EmissionsInputs) file. Depending on the mechanism the user plans to use navigate the [CMAQ repository](CMAQ_UG_ch05_running_CMAQ.md#5.3TheCMAQRepositoryStructure) to find the EmissCtrl_{mechanism_name}.nml file. For example if running the cb6r3_ae7_aq mechanism, edit EmissCtrl_cb6r3_ae7_aq.nml file to include the following line after the Custom Mapping Examples in the Emissions Scaling Rules section: 
 
 ```
    !Tracer
