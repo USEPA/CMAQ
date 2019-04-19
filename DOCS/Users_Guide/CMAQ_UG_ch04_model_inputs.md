@@ -165,8 +165,10 @@ Namelist look-up tables for different classes of simulated pollutants are used t
 
 -   Deposition velocity – which (if any) deposition velocity is the deposition velocity for the pollutant mapped to; allowed velocities are specified within the model source code.
 -   Deposition velocity factor – if the pollutant is mapped to a deposition velocity, uniformly apply a scaling factor to this velocity.
--   Initial/boundary conditions – which initial and boundary condition species is the pollutant mapped to; if not specified, this will default to the species name.
--   IC/BC Factor – if the pollutant is mapped to an initial/boundary condition species, uniformly apply a scaling factor to the concentrations.
+-   Initial condition– which initial condition species is the pollutant mapped to; if not specified, this will default to the species name.
+-   IC Factor – if the pollutant is mapped to an initial condition species, uniformly apply a scaling factor to the concentrations.
+-   Boundary condition – which boundary condition species is the pollutant mapped to; if not specified, this will default to the species name.
+-   BC Factor – if the pollutant is mapped to an boundary condition species, uniformly apply a scaling factor to the concentrations.
 -   Scavenging - which (if any) species is the pollutant mapped to; Allowed scavenging surrogates are specified within the model source code.
 -   Scavenging factor - if the pollutant is mapped to an species for scavenging, uniformly apply a scaling factor to the scavenging rate.
 -   Gas-to-aerosol conversion – which (if any) aerosol chemistry species does the gas phase pollutant concentration go into for transformation from the gas-phase to the aerosol-phase.
@@ -180,27 +182,30 @@ Namelist look-up tables for different classes of simulated pollutants are used t
 The namelist files contain header information that describe which class of species are contained in the file, the number of parameters contained in the file, headers describing the parameter fields, and then a series of rows with configuration parameters for every model species. [Table 3-4](#Table8-4) contains the namelist file format for the gas-phase (GC) species namelist file. The namelist files for the other species classifications (AE, NR, TR) are similar to the format shown in [Table 3-4](#Table8-4).
 
 <a id=Table8-4></a>
-
- **Table 3-4. GC species namelist file format**
-
+ 
+**Table 3-4. GC species namelist file format**
+ 
 | **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:|
 |-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
 | 1 || File Type |String|String to delineate Gas Phase (GC), Aerosol (AE), Non-reactive (NR) and Tracer (TR) species namelist|{&GC_nml, &AE_nml, &NR_nml, &TR_nml}|
 | 3 || Header ID | String |String to define data structure relating to namelist|{GC_SPECIES_DATA=, AE_SPECIES DATA= , NR_SPECIES_DATA= ,TR_SPECIES_DATA = }|
 | 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|-|
 ||2| MOLWT| Integer |Species Molecular Weight|-|
-|  |3| ICBC | String |IC/BC surrogate species name for the CMAQ Species|{'Species name', ' '}|
-|  |4| FAC | Integer |Scaling factor for the IC/BC concentration|-|
-| |5| DRYDEP SURR | String |Deposition velocity variable name for the CMAQ Species|-|
-| |6| FAC | Integer |Scaling factor for the deposition velocity|-|
-| |7| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|-|
-| | 8 | FAC | Integer |Scaling factor for Scavenging|-|
-|| 9 | GC2AE SURR | String |Gas-to-aerosol transformation species|-|
-|| 10 | GC2AQ SURR | String |Gas-to-aqueous transformation species|-|
-|| 11 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
-|| 13 | DDEP | String |Dry deposition output file switch|{YES/NO}|
-|| 14 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
-|| 15 | CONC | String |Concentration output file switch|{YES/NO}|
+|  |3| IC | String |IC surrogate species name for the CMAQ Species|{'Species name', ' '}|
+|  |4| FAC | Integer |Scaling factor for the IC concentration|{Any integer: default = -1 if IC is not specified}|
+|  |5| BC | String |BC surrogate species name for the CMAQ Species|{'Species name', ' '}|
+|  |6| FAC | Integer |Scaling factor for the BC concentration|{Any integer: default = -1 if BC is not specified}|
+| |7| DRYDEP SURR | String |Deposition velocity variable name for the CMAQ Species|-|
+| |8| FAC | Integer |Scaling factor for the deposition velocity|{Any integer: default = -1 if SURR is not specified}|
+| |9| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|-|
+| | 10 | FAC | Integer |Scaling factor for Scavenging|{Any integer: default = -1 if SURR is not specified}|
+|| 11 | GC2AE SURR | String |Gas-to-aerosol transformation species|-|
+|| 12 | GC2AQ SURR | String |Gas-to-aqueous transformation species|-|
+|| 13 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
+|| 14 | DDEP | String |Dry deposition output file switch|{YES/NO}|
+|| 15 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
+|| 16 | CONC | String |Concentration output file switch|{YES/NO}|
+
 
 
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 3-4](#Table8-4). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
