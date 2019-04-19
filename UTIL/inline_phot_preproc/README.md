@@ -1,27 +1,51 @@
 # Inline photolysis preprocessor (inline_phot_preproc)
 
-##  Quick Start
+##  Background
 
-The utility creates two input files used by the in-line method for calculating photolysis rates. The CSQY_DATA\_*mechanism* file contains the 
+The Inline photolysis preprocessor utility creates two input files used by the in-line method for calculating photolysis rates. The CSQY_DATA\_*mechanism* file contains the 
 cross-section and quantum yields for the photolysis rates used by the specified photochemical *mechanism*. The *mechanism* is determined the RXNS_DATA_MODULE.F90 from building and running the
  **chemmech** utility. The PHOT_OPTICS.dat file gives the optical properties for cloud water and ice plus the refractive indice for aerosol species. The file does not change between photochemical *mechanisms*.
-When using the files for CCTM executions, the number of wavebands defined in the CSQY_DATA\_*mechanism* and PHOT_OPTICS.dat files need to be the same. The buildrun script sets this number.
+When using the files for CCTM executions, the number of wavebands defined in the CSQY_DATA\_*mechanism* and PHOT_OPTICS.dat files need to be the same. 
 
+The utility's method is based on how FAST-JX version 6.8 processes cross-section and quantum yield data to a condensed waveband structure for calculating photolysis rates. The process has two steps that allocate the data over wavelength bins and average the data over the bins based on the solar spectrum. The below table lists the maximum number of wavelength bins. At the shortest wavelength, bins overlap because the O<sub>2</sub> absorption cross-section and the solar flux are correlated in the Schumman-Runge bands.  The utility includes an option that subsets the bins starting from longest to shortest wavelenghts.
 
+<center> Table 1. Wavelength Bins Intervals </center>
+
+|Bin|      start(nm)   |    effective(nm)  |       stop(nm) |   
+|:----:|:-------------------:|:--------------------:|:---------------------:|    
+|  1|               177.500|               186.839|               202.500 |  
+|  2|               177.500|               191.209|               202.500 |  
+|  3|               202.500|               193.620|               206.500 |  
+|  4|               206.500|               196.244|               209.500 |  
+|  5|               209.500|               202.392|               212.500 |  
+|  6|               212.500|               208.183|               215.500 |  
+|  7|               215.500|               211.125|               221.500 |  
+|  8|               221.500|               213.817|               233.000 |  
+|  9|               233.000|               261.412|               275.500 |  
+| 10|               275.500|               270.511|               286.500 |  
+| 11|               286.500|               281.149|               291.000 |  
+| 12|               291.000|               294.590|               298.300 |  
+| 13|               298.300|               303.151|               307.500 |  
+| 14|               307.500|               310.007|               312.500 |  
+| 15|               312.500|               316.434|               320.300 |  
+| 16|               320.300|               333.076|               345.000 |  
+| 17|               345.000|               381.997|               412.500 |  
+| 18|               412.500|               607.723|               850.000 |  
+ 
 ###  Using the Utility.
 
 The utility is built and executed for each application because the RXNS_DATA_MODULE.F90 file can change between applications. It is a FORTRAN program and the bldrun script specifies what compiler to use.
 
 To use the utility follow the below instructions.
 
-1) Copy and edit bldrun.inline_phot_preproc.csh (see Table 1.) for your compiler and Mechanism. Save and run to build the software.
+1) Copy and edit bldrun.inline_phot_preproc.csh (see Table 2.) for your compiler and Mechanism. Save and run to build the software.
 
 2)  IF NEEDED, modify src/inline_phot_preproc.makefile based on the compilers and their flags on your computer platform.
 
-3) If the application uses photolysis rates whose cross-section and quantum yields are not listed under photolysis_CSQY_data, create the data files and add them to the directory.
+3) If the application uses photolysis rates whose cross-section and quantum yields are not listed under the subdirectory, _photolysis_CSQY_data_, create the data files for each rate and add them to the directory.
 
 4) Execute the script. Check the bldrun.log file if the executable does not produce CSQY_DATA table in the output directory.  
-<center> Table 1. inline_phot_preproc bldrun script run time or environment settings </center>
+<center> Table 2. inline_phot_preproc bldrun script run time or environment settings </center>
 
  |  Names | Definition | Notes or Recommeded Value |      
  |:-----|:-----|:------|     
@@ -61,7 +85,33 @@ To report potential program errors or failures, contact Bill Hutzell/USEPA at hu
 
 In general, applications of inline_phot_preproc vary based on the photochemical mechanism's reaction data module, RXNS_DATA_MODULE.F90, and ASCII files containing cross-section and quantum yield data for photolysis rates used by the photochemical mechanism. The chemmech utility produces the RXNS_DATA_MODULE.F90 file. The latter files are created by the user if they do not exist under the ${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data directory. Each of these files have names listed in the PHOTAB array defined by the mechanism's RXNS_DATA_MODULE.F90 file. The array is constucted based on reactions of the mechanism definitions file (check the chemmech README for more information). These file follow simple formatting rules. Check files under CSQY_DATA_RAW for examples.
 
-To make the CMAQ CCTM use a new CSQY_DATA_**mechanism**, modify the value of CSQY_DATA in the CCTM run-script to equal the new file. CCTM needs to be compiled with RXNS_DATA_MODULE.F90 that was used to create the new file. Compiling CCTM should also use the RXNS_FUNC_MODULE.F90 that the chemmech utility produced along with the RXNS_DATA_MODULE.F90. 
+<center> Figure 1. The PHOTAB array extracted from RXNS_DATA_MODULE.F90 for the saprc07tc_ae6_aq mechanism </center>
 
-If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the standard value (7), the CCTM run-script has use the new CSQY_DATA_**mechanism** and PHOT_OPTICS.dat files. 
+         INTEGER, PARAMETER :: NPHOTAB =  38
+         CHARACTER( 16 )    :: PHOTAB( NPHOTAB )
+   
+         DATA ( PHOTAB( IRXXN ), IRXXN = 1, NPHOTAB ) / & 
+        &   'NO2_06          ', 'NO3NO_06        ', 'NO3NO2_6        ', & 
+        &   'O3O1D_06        ', 'O3O3P_06        ', 'HONO_06         ', & 
+        &   'HNO3            ', 'HNO4_06         ', 'H2O2            ', & 
+        &   'PAN             ', 'HCHOR_06        ', 'HCHOM_06        ', & 
+        &   'CCHO_R          ', 'C2CHO           ', 'ACET_06         ', & 
+        &   'MEK_06          ', 'COOH            ', 'GLY_07R         ', & 
+        &   'GLY_07M         ', 'MGLY_06         ', 'BACL_07         ', & 
+        &   'BALD_06         ', 'AFG1            ', 'MACR_06         ', & 
+        &   'MVK_06          ', 'IC3ONO2         ', 'HOCCHO_IUPAC    ', & 
+        &   'ACRO_09         ', 'PAA             ', 'CL2             ', & 
+        &   'CLNO_06         ', 'CLONO           ', 'CLNO2           ', & 
+        &   'CLONO2_1        ', 'CLONO2_2        ', 'HOCL_06         ', & 
+        &   'CLCCHO          ', 'CLACET          '/
+
+
+To make the CMAQ CCTM use a new CSQY_DATA_**mechanism**, modify the value of CSQY_DATA in the CCTM run-script to equal the new file. CCTM needs to be compiled with RXNS_DATA_MODULE.F90 used to create the new file. Compiling CCTM also needs to use the RXNS_FUNC_MODULE.F90 that the chemmech utility produced along with the RXNS_DATA_MODULE.F90. 
+
+If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the standard value, 7, the CCTM run-script has use the new CSQY_DATA_**mechanism** and PHOT_OPTICS.dat files. 
+
+
+### References 
+
+Bian H. and Prather M. J. (2002). Fast-J2: Accurate Simulation of Stratospheric Photolysis in Global Chemical Models, J. Atmos. Chem., 41, 281-296. (Table I & II corrected, June 2008).
 
