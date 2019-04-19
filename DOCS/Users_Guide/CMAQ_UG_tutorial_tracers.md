@@ -1,6 +1,6 @@
 ## CMAQ Tutorial ##
 ### Add Chemically Inert Tracer Species to CMAQ ###
-Purpose: This tutorial will step you through the process of adding chemically inert tracers to the CMAQ model. Additional details are provided in the CMAQ Operational Guidance Document (OGD) than can be found online (https://github.com/USEPA/CMAQ/blob/5.3/DOCS/User_Guide).
+Purpose: This tutorial will step you through the process of adding chemically inert tracers to the CMAQ model. Additional details are provided in the CMAQ Operational [Guidance Document (OGD)](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/User_Guide).
 
 
 ------------
