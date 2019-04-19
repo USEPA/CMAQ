@@ -7,21 +7,21 @@
 
 There are a few approaches to parallelize an application, such as data-parallelism. Data-parallelism is a paradigm which decomposes data into "equal" sections and distributes them among allocated processors. Each processor works on the portion it owns. CMAQ parallel implementation is based on this methodology.
 
-CMAQ model operates on a 4D space (ncols, nrows, nlays, nspcs) and only the spatial domain is decomposed. When NPROCS number of processors is used to run CMAQ, NPCOL number of process out from NPROCS processors is assigned to the column dimension and the remaining NPROW number of processors is assigned to the row dimension (NPROCS = NPCOL x NPROW). In the case that the column dimension is not divisible by NPCOL, the remainder is distributed equally to NPCOL processors. The same thing applies to the row dimension. For example, given a 100 by 75 (column x row) data grid and six processors with three processors along the column dimension and two processors along the row dimension, the subdomain size in each processor (NCOLS x NROWS): PE 0 is 34 x 38, PE 1 and PE 2 are 33 x 38, PE 3 is 34 x 37, PE 4 and PE 5 are 33 x 37.
+CMAQ model operates on a 4D space (ncols, nrows, nlays, nspcs) and only the spatial domain is decomposed. When NPROCS number of processors is used to run CMAQ, NPCOL number of process out from NPROCS processors is assigned to the column dimension and the remaining NPROW number of processors is assigned to the row dimension (NPROCS = NPCOL x NPROW). In the case that the column dimension is not divisible by NPCOL, the remainder is distributed equally to NPCOL processors. The same thing applies to the row dimension. For example (illustrated in Figure D-1), given a 100 by 75 (column x row) data grid and six processors with three processors along the column dimension and two processors along the row dimension, the subdomain size in each processor (NCOLS x NROWS): PE 0 is 34 x 38, PE 1 and PE 2 are 33 x 38, PE 3 is 34 x 37, PE 4 and PE 5 are 33 x 37.
 
 ![Figure D-1](./images/FigureD-1.png)
 
-**Figure D-1.**
+**Figure D-1 Domain decomposition illustration.**
 
 ## 2. Interprocessor Communication
 
-In some science processes such as advection, a processor requires data from neighboring processors (interprocessor communication) when the model runs on a distributed memory system. An interprocessor communication library, STENEX, was developed to provide simple and robust interface to handle various kinds of near neighbor communication. Near neighbor is defined as processors which are adjacent to itself (blue block) in the eight major geographical directions: N, NE, E, SE. S, SW, W, and NW.
+In some science processes such as advection, a processor requires data from neighboring processors (interprocessor communication) when the model runs on a distributed memory system. An interprocessor communication library, STENEX, was developed to provide simple and robust interface to handle various kinds of near neighbor communication. Near neighbor is defined as processors which are adjacent to itself (blue block) in the eight major geographical directions: N, NE, E, SE. S, SW, W, and NW (Fig. D-2).
 
 ![Figure D-2](./images/FigureD-2.png)
 
-**Figure D-2.**
+**Figure D-2 A depiction of near neighbour processors.**
 
-As an illustration of interprocessor data access, consider the following piece of code executing on Processor 2 with a 2x2, 4-processor domain decomposition. It is clear that calculation at grid cell denoted by "X" requires data denoted by red dots which resided in near neighbor processor 0 and 3.
+As an illustration of interprocessor data access (Fig. D-3), consider the following piece of code executing on Processor 2 with a 2x2, 4-processor domain decomposition. It is clear that calculation at grid cell denoted by "X" requires data denoted by red dots which resided in near neighbor processor 0 and 3.
 
  DIMENSION DATA( NCOLS, NROWS )</br>
 
@@ -33,54 +33,51 @@ As an illustration of interprocessor data access, consider the following piece o
 
  ![Figure D-3](./images/FigureD-3.png)
 
- **Figure D-3**
+ **Figure D-3 An example to show interprocessor data acess is needed.**
 
- To facilitate interprocessor communication, "ghost" regions are used, i.e. DIMENSION DATA (NCOLS+2, NROWS+1). Thickness of the ghost region depends of the amount of overlap that is required by the algorithm.
+ To facilitate interprocessor communication as shown in the example above, "ghost" regions are used (extra space in the data structure), i.e. DIMENSION DATA (NCOLS+2, NROWS+1). Thickness of the ghost region depends of the amount of overlap that is required by the algorithm.
 
- The Stencil Exchange (SE) Library is designed in Fortran 90 language using Object Oriented-base technology to handle various types of communication with the objective of hiding the management of the low level data movement. In this version, the library is extended to handle two grid structures: coarse grid, which is denoted by a character 'c' or 'C', and find grid, in the application. In addition, currently SE addresses four types of communication:
+ The Stencil Exchange (SE) Library is designed in Fortran 90 language using Object Oriented-base technology to handle various types of communication with the objective of hiding the management of the low level data movement. SE addresses four types of communication and brief description of each type is followed.
 
- 1. interior to ghost region, which is indicated in light blue in the following figure:
+ * interior to ghost region, which is indicated in light blue in Figure D-4. This particular type of communication is being used in various places such as HADV and HDIFF.
 
 ![Figure D-4](./images/FigureD-4.png)
 
-**Figure D-4**
-2. interior to interior:
+**Figure D-4 Interior to ghost region communication**
 
-![Figure D-5](./images/FigureD-5.png)
-
-**Figure D-5**
-
-3. sub-section data redistribution:
+* sub-section data redistribution (Fig. D-5). This particular type of communication is being used in Process Analysis.
 
 ![Figure D-6](./images/FigureD-6.png)
 
-**Figure D-6**
+**Figure D-5 Sub-section data redistribution communication**
 
-and 4. selective data collection:
+* The last two type of communication are interior to interior (Fig. D-6) and selective data collection (Fig. D-7) which both were used in PinG and PinG was no longer supported in CMAQ.
+
+![Figure D-5](./images/FigureD-5.png)
+
+**Figure D-6 Interior to interior communication**
 
 ![Figure D-7](./images/FigureD-7.png)
 
-**Figure D-7**
-
-Details of all these four schemes can be obtained through request.
+**Figure D-7 Selective data collection**
 
 ## 3. Parallel I/O
 
-All I/O operations in CMAQ are handled by IOAPI_3 library. However, IOAPI_3 library was designed for serial code only and it does not work in a distributed memory environment where domain decomposition has been used. PARIO library was developed to perform file I/O for CMAQ applications running on distributed memory platforms. To maintain efficiency and correctness we have developed parallel access routines that have equivalent functionality and are effectively layered on top of the standard IOAPI_3. The following IOAPI_3 routines have PARIO equivalents: READ3, INTERP3, WRITE3, CHECK3, OPEN3, CLOSE3, DESC3, M3ERR, M3EXIT, M3WARN. The convention adopted is to use a "P" prefix for the parallel version. Hence POPEN3, PINTERP3, etc. substitution of the PARIO subroutines is done in a precompilation step. Note that the interface (i.e., the argument lists) to IOAPI_3 routines and their PARIO equivalents is identical.
+All I/O operations in CMAQ are handled by IOAPI_3 library. Furthermore, IOAPI_3 library was designed for serial code. As a result, CMAQ won't be able to utilize any I/O functions such as READ3 and WRITE3 in IOAPI library directly in any parallel computing platform. PARIO library was developed to bridge this gap. PARIO library contains a smaller set of functions which are equivalent counterpart in IOAPI but capable to run in parallel. The following IOAPI_3 routines have PARIO equivalents: READ3, INTERP3, WRITE3, CHECK3, OPEN3, CLOSE3, DESC3, M3ERR, M3EXIT, M3WARN. Each file name in PARIO library has a "P" prefix to distinguish its counterpart in IOAPI library, e.g. POPEN3 and PINTERP3. Substitution with the PARIO subroutines in CMAQ is done at compilation through CPP flags. Note that subroutine argument lists in any PARIO routine is idential to IOAPI_3 counterpart routine.
 
-On the output side, all processors are required to send their portion of data to processor 0, which will stitch each sub-part and then output it to the file. This is considered a “pseudo” parallel I/O approach.
+On the output side, all processors are required to send their portion of data to processor 0, which will stitch each sub-part and then output it to the file (Fig. D-8). This is considered a “pseudo” parallel I/O approach and this approach is being using in PARIO.
 
 ![Figure D-8](./images/FigureD-8.png)
 
-**Figure D-8**
+**Figure D-8 Combine all sub-domain data from each processor in an I/O processor**
 
-Recently we have developed a true parallel I/O approach, which allows each processor to write their portion to the file simultaneously (Wong et. al.).
+Recently we have developed a true parallel I/O approach (Fig. D-9), which allows each processor to write their portion to the file simultaneously (Wong et. al.).
 
 ![Figure D-9](./images/FigureD-9.png)
 
-**Figure D-9**
+**Figure D-9 True paralell I/O approach**
 
-This approach has been incorporated into IOAPI version 3.2. Parallel I/O scheme has been implemented in CMAQ 5.2. The user is required to turn on this feature at the model build step and link with IOAPI 3.2.
+This approach has been incorporated into IOAPI version 3.2 and fully implemented in CMAQ 5.2 or later version. User is required to turn on this feature at the model build step and link with IOAPI 3.2.
 
 ### Reference:
 
