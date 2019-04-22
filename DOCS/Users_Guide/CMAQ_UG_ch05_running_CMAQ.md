@@ -352,7 +352,7 @@ The output results will have been placed in the directory:
 $CMAQ_DATA/output_CCTM_v53_[compiler]_[data_name]
 ```
 
-and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2. The in-depth description about each of these files is described in [Chapter 6](CMAQ_UG_ch06_model_outputs).
+and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2. The in-depth description about each of these files is described in [Chapter 6](CMAQ_UG_ch06_model_outputs.md).
 
 Common errors in a CCTM simulation include the following:
 
