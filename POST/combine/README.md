@@ -8,7 +8,7 @@ This Fortran program combines fields from a set of IOAPI or wrfout input files t
 ```
  GENSPEC      Indicates to generate a new SPECIES_DEF file (does not generate OUTFILE)
               Choices are: Y, N. (e.g. setenv GENSPEC N)
- SPECIES_DEF  Species definition file defining the new variables of the output file
+ SPEC_DEP     Species definition file defining the new variables of the output file
  INFILE1      input file number 1
               The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
 	      Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html),
@@ -93,7 +93,7 @@ cd $CMAQ_HOME/POST/combine/scripts
 ## Run combine:
 Edit the sample run script (run.combine.aconc), then run:
 ```
- run.combine.aconc |& tee combine.aconc.log
+ ./run.combine |& tee combine.aconc.log
 ```
 A sample run script for creating a combine file for evaluating deposition is also provided (run.combine.dep).  
 Check the log file to ensure complete and correct execution without errors.
