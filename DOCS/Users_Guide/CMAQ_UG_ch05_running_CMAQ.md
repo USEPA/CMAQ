@@ -188,7 +188,7 @@ It should be noted that ICON can be configured for different chemical mechanisms
 
 BCON generates a gridded binary netCDF file of the chemical conditions along the lateral boundaries of the modeling domain. These boundary conditions can be either static or time-varying, and (as with ICON) can be generated from either an ASCII file of vertically resolved concentration profiles or from an existing CCTM output file. Also as with ICON, BCON will interpolate the data in ASCII profiles to a vertical resolution that is consistent with the CCTM configuration. BCON differs from ICON, however, in that it can generate time-varying (i.e., dynamic) boundary conditions. Dynamic boundary conditions are typically extracted either from CCTM outputs from a coarse-grid simulation for nested simulations or from a CCTM simulation using a global-scale model. The file structure of the ASCII input profiles can also support the creation of dynamic boundary conditions, but generally these files are used only for creating static data. The configuration options for BCON include selecting the chemical mechanism to model, defining the horizontal and vertical grids, and choosing whether the boundary conditions are generated from an ASCII profile or from an existing CCTM output file.
 
-BCON is only used to create boundary conditions inputs for the CCTM from an ASCII profile file or from an existing CCTM output file. Users are responsible for preparing CCTM input boundary conditions from other sources, such as global chemistry transport models. To compile and run ICON the following commands should be executed: 
+BCON is only used to create boundary conditions inputs for the CCTM from an ASCII profile file or from an existing CCTM output file. Users are responsible for preparing CCTM input boundary conditions from other sources, such as global chemistry transport models. To compile and run BCON the following commands should be executed: 
 
 ```
 cd $CMAQ_HOME/PREP/bcon/scripts
@@ -202,7 +202,7 @@ cd $CMAQ_HOME/PREP/bcon/scripts
 ./run_bcon.csh |& tee run_bcon.log
 ```
 
-It should be noted that BCON can be configured for different chemical mechanisms and for different kinds of input data. Information on environment variables, input and output files, compiling and running ICON are provided in the [README.md](../../PREP/icon/README.md) file in the PREP/icon folder.
+It should be noted that BCON can be configured for different chemical mechanisms and for different kinds of input data. Information on environment variables, input and output files, compiling and running BCON are provided in the [README.md](../../PREP/bcon/README.md) file in the PREP/bcon folder.
 
 ### 5.2.5 Optional Pre-Processor 
 
