@@ -114,6 +114,10 @@ C                        aerosols to improve efficiency
 C   15 Jun 15 J.Young:  Fixed bug found by Martin Otte in calculations for scavenging
 C                       aitken aerosols
 C   15 Apr 16 J.Young:  Use aerosol factors from AERO_DATA module named constants
+C   19 Apr 18 K.Fahey:  For species with both gas phase and coarse mode aerosol components, avoid
+C                       introducing extra mass when the coarse mode concentration is greater than 
+C                       the total amount left in the aqueous phase after redistribution between the 
+C                       phases. 
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -249,11 +253,14 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: EC              ! elemental carbon acc+akn aerosol in cloudwater (mol/liter)
       REAL( 8 ) :: FA              ! functional value ??
       REAL( 8 ) :: FB              ! functional value ??
+      REAL( 8 ) :: FCLCOR          ! frac weight of coarse CL to (acc+coarse) CL
       REAL( 8 ) :: FE              ! Fe+++ conc in cloudwater (mol/liter)
       REAL( 8 ) :: FNH3            ! frac weight of NH3 to total ammonia
       REAL( 8 ) :: FNH4ACC         ! frac weight of NH4 acc to total ammonia
+      REAL( 8 ) :: FNH4COR         ! frac weight of coarse NH4 to (acc+coarse) NH4
       REAL( 8 ) :: FHNO3           ! frac weight of HNO3 to total NO3
       REAL( 8 ) :: FNO3ACC         ! frac weight of NO3 acc to total NO3
+      REAL( 8 ) :: FNO3COR         ! frac weight of coarse NO3 to (acc+coarse) NO3
       REAL( 8 ) :: FRACLIQ         ! fraction of water in liquid form
       REAL( 8 ) :: FOA1            ! First dissociation constant for FOA (Formic Acid)
       REAL( 8 ) :: FOAH            ! Henry's Law constant for FOA
@@ -362,6 +369,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: SO4COR          ! coarse SO4= conc in cloudwater (mol/liter)
       REAL( 8 ) :: STION           ! ionic strength
       REAL( 8 ) :: TAC             !
+      REAL( 8 ) :: TCLa            ! sum of accumulation and coarse mode chloride
       REAL( 8 ) :: TEMP1           ! (1/T) - (1/298) (1/K)
       REAL( 8 ) :: TIMEW           ! cloud chemistry clock (sec)
 !     REAL( 8 ) :: THO             ! total hydroxyl radical available for oxidation
@@ -371,6 +379,8 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: TH2O2
       REAL( 8 ) :: TO3
       REAL( 8 ) :: TMHP
+      REAL( 8 ) :: TNH4a           ! sum of accumulation and coarse mode ammonium
+      REAL( 8 ) :: TNO3a           ! sum of accumulation and coarse mode nitrate   
       REAL( 8 ) :: TPAA
       REAL( 8 ) :: TOTAMM          ! total ammonium
       REAL( 8 ) :: TOTNIT          ! total nitrate (excluding coarse mode)
@@ -700,6 +710,27 @@ C...compute fractional weights for several species
         FNH4ACC = 0.0D0
       END IF
 
+      TNO3a = AEROSOL( LNO3, ACC ) + AEROSOL( LNO3, COR ) 
+      IF ( TNO3a .GT. 0.d0) THEN
+         FNO3COR = AEROSOL( LNO3, COR ) / TNO3a
+      ELSE
+         FNO3COR = 0.d0
+      END IF
+      
+      TNH4a = AEROSOL( LNH4, ACC ) + AEROSOL( LNH4, COR )
+      IF ( TNH4a .GT. 0.d0) THEN
+         FNH4COR = AEROSOL( LNH4, COR ) / TNH4a
+      ELSE
+         FNH4COR = 0.d0
+      END IF
+      
+      TCLa  = AEROSOL( LCL, ACC )  + AEROSOL( LCL, COR )
+      IF ( TCLa .GT. 0.d0) THEN
+         FCLCOR = AEROSOL( LCL, COR ) / TCLa
+      ELSE
+         FCLCOR = 0.d0
+      END IF
+      
 C...Assign fraction partitioning of FE(III) and MN(II)
 
       IF ( DARK ) THEN
@@ -1440,15 +1471,40 @@ C...compute modal concentrations
         TS6ACC  = MAX( TS6  - TS6COR,   0.0D0 )
         SO4ACC  = MAX( SO4  - SO4COR,   0.0D0 )
         HSO4ACC = MAX( HSO4 - HSO4COR,  0.0D0 )
-        NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
+!        NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
         NAACC   = MAX( NA   - NACOR,    0.0D0 )
-        CLACC   = MAX( CL   - CLCOR,    0.0D0 )
-        NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
+!        CLACC   = MAX( CL   - CLCOR,    0.0D0 )
+!        NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
         CAACC   = MAX( CA   - CACOR,    0.0D0 ) ! AE6
         MGACC   = MAX( MG   - MGCOR,    0.0D0 ) ! AE6
         KACC    = MAX( K    - KCOR,     0.0D0 ) ! AE6
         FEACC   = MAX( FE   - FECOR,    0.0D0 ) ! AE6
         MNACC   = MAX( MN   - MNCOR,    0.0D0 ) ! AE6
+
+C...Avoid adding mass when the coarse mode concentration is greater
+C...  than the total amount left in the aqueous phase after redistribution
+C...  of a species between the gas/aqueous phases
+
+        IF ( NO3COR .GT. NO3 ) then
+           NO3ACC = (1.d0 - FNO3COR) * NO3
+           NO3COR = FNO3COR * NO3
+        ELSE
+           NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
+        END IF
+
+        IF ( CLCOR .GT. CL ) then
+           CLACC = (1.d0 - FCLCOR) * CL
+           CLCOR = FCLCOR * CL
+        ELSE
+           CLACC   = MAX( CL   - CLCOR,    0.0D0 )
+        END IF
+
+        IF ( NH4COR .GT. NH4 ) THEN
+           NH4ACC = (1.d0 - FNH4COR) * NH4
+           NH4COR = FNH4COR * NH4
+        ELSE
+           NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
+        END IF
 
 C...load the liquid concentration array with current values
 
