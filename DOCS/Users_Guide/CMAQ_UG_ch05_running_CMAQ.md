@@ -242,7 +242,7 @@ create_ebi
 
 inline_phot_preproc
 
-**NML:** In most cases, users will already have a pre-generated species namelist file to be input into ICON, BCON and CCTM. However advanced users who wish to edit these files or want to generate a namelist from scratch can use the NML utility. This utility contains two scripts, CSV2NML and NML2CSV that are used to convert the species definition files from CSV format to NAMELIST files and from a NAMELIST format to a CSV file, respectively. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Four NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), nonreactive species (NR.nml) and tracer speces (TR.nml). 
+[**NML:**](../../UTIL/nml/README.md) In most cases, users will already have a pre-generated species namelist file to be input into ICON, BCON and CCTM. However advanced users who wish to edit these files or want to generate a namelist from scratch can use the NML utility. This utility contains two scripts, CSV2NML and NML2CSV that are used to convert the species definition files from CSV format to NAMELIST files and from a NAMELIST format to a CSV file, respectively. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Four NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), nonreactive species (NR.nml) and tracer speces (TR.nml). 
 
 ## 5.6 Compiling CMAQ Chemistry-Transport Model (CCTM)
 
