@@ -8,6 +8,8 @@
 # 3. Preparing to Run CMAQ
 **>>Comment<<** Add intro paragraph describing what will be in this chapter.
 
+In this chapter the user will learn the basic hardware and software requirements to run CMAQ. In addition, if the user does not have the required software, this chapter provides detailed examples on how the user could obtain this software in a linux environment. 
+
 **>>Comment<<** Do we want to also recommend a compiler (intel) for speed?
 ## 3.1 Hardware Requirements
 
