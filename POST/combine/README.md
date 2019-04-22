@@ -96,7 +96,8 @@ Edit the sample run script (run.combine.aconc), then run:
 ```
  ./run.combine |& tee combine.aconc.log
 ```
-A sample run script for creating a combine file for evaluating deposition and average concentration is also provided (run_combine.csh).  
+A sample run script for creating a combine file for evaluating deposition and average concentration is also provided (run_combine.csh). 
+
 Check the log file to ensure complete and correct execution without errors.
 
 ## Note on the use of wrfout files as input to combine:
