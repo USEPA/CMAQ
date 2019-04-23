@@ -4,7 +4,7 @@ sitecmp
 This Fortran program generates a csv (comma separated values) file that compares CMAQ generated concentrations with an observed dataset.
 
 
-## Environment variables used:
+## Environment Run Time Variables:
 
 ```
  TABLE_TYPE  dataset type {IMPROVE, CASTNET, STN, NADP, MDN, SEARCH,
@@ -165,9 +165,11 @@ cd $CMAQ_HOME/POST/sitecmp/scripts
 
 ## Run sitecmp:
 Edit the sample run script (run.sitecmp*), then run:
+
 ```
- run.sitecmp |& tee sitecmp.log
+ ./run.sitecmp |& tee sitecmp.log
 ```
+
 Check the log file to ensure complete and correct execution without errors.
 
 
