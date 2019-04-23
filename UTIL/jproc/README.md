@@ -8,21 +8,11 @@ CCTM currently uses an in-line photolysis option that calculates photolysis rate
 
 ### Files, configuration, and environment variables
 
-[Figure 7‑7](#Figure7-7) shows the input and output files for JPROC. Some options are invoked at compilation, while others are invoked with execution of the program. When compiling JPROC, the user specifies a chemical mechanism to indicate the gas-phase chemistry for which to calculate photolysis rates. Setting the *Mechanism* variable in the JPROC compile script configures the program to use a specific set of mechanism INCLUDE files to build an executable. JPROC executables are hard-wired to a specific mechanism configuration.
+Tables 1 and 2 show the input and output files for JPROC. Some options are invoked at compilation, while others are invoked with execution of the program. When compiling JPROC, the user specifies a chemical mechanism to indicate the gas-phase chemistry for which to calculate photolysis rates. Setting the *Mechanism* variable in the JPROC compile script configures the program to use a specific set RXNS_DATA_MODULE.F90 file to build an executable so the executable is hard-wired to a specific mechanism configuration.
 
-<a id=Figure7-7></a>
+Several required and optional input files are used the JPROC. For the selected photochemical mechanism, the user must provide a set of data file containing molecular absorption and yield data files for photolysis reactions used by the photochemical mechanism. CMAQ is distributed with a full set of CSQY files for the Carbon Bond, SAPRC, and RACM photochemical mechanism versions supported by the model. If a user develops new mechanism with new photolysis rates, they must produce the appropriate CSQY data files for each rate. The user also has the option of using the default atmospheric profiles contained in the PROFILES input file or using Total Ozone Mapping Spectrometer (TOMS) data to replace the climatologically derived ozone column data in the PROFILES file.
 
-![](./images/Figure7-7.png "Figure7-7.png")
-
-**Figure 7‑7. JPROC input and output files**
-
-While JPROC does not require any technical configuration at execution, such as domain specifications, there are several required and optional input files that the user must provide to the program. For the selected photochemical mechanism, the user must provide a set of molecular absorption CSQY data files that are consistent with the photolysis reactions in the mechanism. CMAQ is distributed with a full set of CSQY files for the Carbon Bond, SAPRC, and RACM photochemical mechanism versions supported by the model. If new mechanisms are added to CMAQ, the user must produce the appropriate CSQY data files for the added mechanism. The user also has the option of using the default atmospheric profiles contained in the PROFILES input file or using Total Ozone Mapping Spectrometer (TOMS) data to replace the climatologically derived ozone column data in the PROFILES file.
-
-#### JPROC input files
-
-<a id=Table7-19></a>
-
-**Table 7‑19. JPROC input files**
+**Table 1. JRPOC input files**
 
 |**File Name**|**Format**|**Description**|
 |---------|--------|----------------------------------------------------------------------|
@@ -33,21 +23,17 @@ While JPROC does not require any technical configuration at execution, such as d
 |O3ABS|ASCII|Absorption CSQY data for ozone as a function of wavelength|
 |CSQY|ASCII (directory path)|Directory path containing absorption CSQY data for gas-phase photolysis reactions as a function of wavelength|
 
-#### JPROC output files
-
-<a id=Table7-20></a>
-
-**Table 7‑20. JPROC output files**
+**Table 2. JPROC output files**
 
 |**File Name**|**Format**|**Description**|
 |---------------|--------|----------------------------------------------------------------|
 |`JTABLE_$Date`|`ASCII`|Daily clear-sky photolysis rates file|
 
-The default location of the JPROC output files is the `$CMAQ_HOME/data/jproc` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all JPROC output files uses the Date environment variable in the file name, which is aliased to the `STDATE` environment variable in the run script.
+The location of the JPROC output files is controlled by the `OUTDIR` variable in the run script. The default name for output files uses the Date environment variable in the file name aliased to the `STDATE` environment variable in the run script.
 
 #### Compilation Configuration Variables
 
-The configuration options listed here are set during compilation of the JPROC executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options it is necessary to recompile JPROC and create a new executable.
+The configuration options are listed below. The build script set their values for compiling a JPROC executable that is fixed to the specified configuration. To change these options it is necessary to re-run the build script for a new executable.
 
 -   `CopySrc`  
     Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
