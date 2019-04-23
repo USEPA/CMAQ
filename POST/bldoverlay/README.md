@@ -27,7 +27,7 @@ This Fortran program creates an observation overlay file that can be imported in
 
 ## Input file types and format:
 
-Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For hourly output data (OLAYTYPE HOURLY) the program assumes that observations are in local standard time (LST) and applies a simple timezone shift to GMT using timezones every 15 degrees longitude.  For daily output data (OLAYTYPE DAILY, 1HRMAX or 8HRMAX) no time shifting is done so the output data remains in LST.  In this case the user can use the [HR2DAY utility](../HR2DAY) to time shift and average hourly model data to create daily model fields in LST.
+Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For hourly output data (OLAYTYPE HOURLY) the program assumes that observations are in local standard time (LST) and applies a simple timezone shift to GMT using timezones every 15 degrees longitude.  For daily output data (OLAYTYPE DAILY, 1HRMAX or 8HRMAX) no time shifting is done so the output data remains in LST.  In this case the user can use the [HR2DAY utility](../../hr2day) to time shift and average hourly model data to create daily model fields in LST.
 
 ```
  OBS format:     The OBS format consists of comma separated values in the format 
