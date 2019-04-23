@@ -77,7 +77,14 @@ Recently we have developed a true parallel I/O approach (Fig. D-9), which allows
 
 **Figure D-9 True paralell I/O approach**
 
-This approach has been incorporated into IOAPI version 3.2 and fully implemented in CMAQ 5.2 or later version. User is required to turn on this feature at the model build step and link with IOAPI 3.2.
+This approach has been incorporated into IOAPI version 3.2 and fully implemented in CMAQ 5.2 or later version. User is required to turn on this feature by uncommenting the following line
+
+#set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf); 
+
+in bldit_cctm.csh at the model build step and link with IOAPI 3.2. Also in the run script, user requires to insert MPI: in front of the output file path as shown below:
+
+  setenv CTM_CONC_1      "MPI:$OUTDIR/CCTM_CONC_${CTM_APPL}.nc -v"       #> On-Hour Concentrations
+
 
 ### Reference:
 
