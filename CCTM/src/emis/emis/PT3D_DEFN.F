@@ -131,10 +131,9 @@ C=======================================================================
          FUNCTION PT3D_INIT ( JDATE, JTIME, TSTEP )
      &                       RESULT ( SUCCESS )
 
-         USE GRID_CONF, ONLY: NLAYS
-         USE STK_PRMS, ONLY: SOURCE, STKDIAM, STKHT, STKVEL, STKTK, 
-     &                       ACRES_BURNED, STK_PRMS_INIT, NSRC, MY_NSRC
-         USE STK_EMIS, ONLY: EM_FILE_NAME, NSRC_EMIS, FIREFLAG, 
+         USE GRID_CONF, ONLY: NLAYS, VGTYP_GD
+         USE STK_PRMS, ONLY: SOURCE, STK_PRMS_INIT, MY_NSRC
+         USE STK_EMIS, ONLY: EM_FILE_NAME, NSRC_EMIS, FIREFLAG,
      &                       MAP_PTtoISRM, STK_EMIS_INIT
          USE PTMET, ONLY: PTMET_DATA, MC2NAME, MC3NAME, MD3NAME, PTMET_INIT
          USE PTBILIN, ONLY: BILIN_DATA, PTBILIN_INIT, NPTGRPS, XBUF,
@@ -324,8 +323,6 @@ C (declared and stored in PTBILIN module)
             METDXORIG = XORIG3D
             METDYORIG = YORIG3D
          END IF
-
-!!!!!^^^^^^^!!!! THESE NEED TO BE CHECKED AGAINST GRIDDESC
 
 C Compare number of meteorology layers to number of emissions layers
 !         IF ( EMLAYS .LE. NLAYS ) THEN
