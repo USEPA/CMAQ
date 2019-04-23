@@ -164,10 +164,10 @@ cd $CMAQ_HOME/POST/sitecmp/scripts
 ```
 
 ## Run sitecmp:
-Edit the sample run script (run.sitecmp*), then run:
+Edit the sample run script (run_sitecmp_AQS_Hourly.csh*), then run:
 
 ```
- ./run.sitecmp |& tee sitecmp.log
+ ./run_sitecmp_AQS_Hourly.csh |& tee sitecmp.log
 ```
 
 Check the log file to ensure complete and correct execution without errors.
