@@ -4,7 +4,7 @@ sitecmp_dailyo3
 This Fortran program generates a csv (comma separated values) file that compares various daily ozone metrics computed from hourly CMAQ generated and observed ozone concentrations. The metrics included in the output file are daily maximum 1-hr ozone concentrations, daily maximum 1-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 1-hr ozone concentrations, daily maximum 8-hr ozone concentrations, daily maximum 8-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 8-hr ozone concentrations, the daily W126 ozone value, and the daily SUM06 ozone value. 
 
 
-## Environment variables used:
+## Run Time Environment variables used:
 ```
  M3_FILE_#      IOAPI input file(s) containing hourly modeled ozone values.
                 The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
@@ -35,7 +35,7 @@ This Fortran program generates a csv (comma separated values) file that compares
  OUT_TABLE      file for output data with columns of paired observed and modeled daily ozone metrics
 ```
 
-## Environment Variables (not required):
+## Run Time Environment Variables (not required):
 ```
  START_DATE     starting date of time period to process (YYYYJJJ)
  START_TIME     starting time of time period to process (HHMMSS)
@@ -64,7 +64,7 @@ This Fortran program generates a csv (comma separated values) file that compares
 
 ```
 
-## File formats:
+## Run Time File formats:
 ```
  SITE_FILE - csv-formatted input file containing the station ID, latitude, longitude, and optionally 
              GMT offset, state, county, and elevation for each monitor.  
@@ -99,7 +99,7 @@ cd $CMAQ_HOME/POST/sitecmp_dailyo3/scripts
 ## Run sitecmp_dailyo3:
 Edit the sample run script (run.sitecmp_dailyo3), then run:
 ```
- run.sitecmp_dailyo3|& tee sitecmp_dailyo3.log
+ ./run.sitecmp_dailyo3|& tee sitecmp_dailyo3.log
 ```
 Check the log file to ensure complete and correct execution without errors.
 
