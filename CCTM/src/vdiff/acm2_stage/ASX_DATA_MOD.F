@@ -1294,7 +1294,7 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !         END IF
 
          Do L = 1, n_lufrac
-            Where( GRID_DATA%LUFRAC( :,:,L ) .EQ. 1.0 )
+            Where( GRID_DATA%LUFRAC( :,:,L ) .EQ. 1.0 .OR. MET_DATA%ZH( :,:,1 ) .EQ. MOSAIC_DATA%Z0( :,:,L ) )
                    MOSAIC_DATA%USTAR( :,:,L ) = MET_DATA%USTAR
                    MOSAIC_DATA%Z0( :,:,L )    = MET_DATA%Z0
             Elsewhere( GRID_DATA%LUFRAC( :,:,L ) .Gt. 0.0 )

@@ -696,8 +696,11 @@ C Calculate NO emissions by going thru temperature cases
                mxfac3 = max( mxfac3, fac3 )
                mxfac4 = max( mxfac4, fac4 )
 #endif
-
-               NOPOL( C,R ) = MAX( ( FAC1 * FAC2 ), FAC3 ) + FAC4
+               IF( TSOI .LE. 0.0 ) THEN
+                  NOPOL( C,R ) = 0.0
+               ELSE 
+                  NOPOL( C,R ) = MAX( ( FAC1 * FAC2 ), FAC3 ) + FAC4
+               END IF
 
             END DO  ! columns
          END DO  ! rows
