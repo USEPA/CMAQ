@@ -2,9 +2,9 @@
 
 ### Description
 
-The program JPROC calculates daily clear-sky photolysis rates from look-up tables of molecular absorption cross-section and quantum yield (CSQY) data, and climatologically derived ozone-column and optical depth data. The outputs from JPROC are ASCII look-up tables of daily clear-sky photolysis rates for photochemical reactions in a selected gas-phase photochemical mechanism at different altitudes, latitudes, and hours from noon. The photochemical mechanism from which these rates are derived is selected during compilation of JPROC. The altitudes (meters), latitudes (degrees), and hour angles (from noon) for which the rates are derived are hardwired in the JPROC source code.
+JPROC calculates clear-sky photolysis rates used by a photochemical mechanism based on their molecular absorption cross-sections and quantum yields (CSQY) as well as climatological data. Output files are ASCII look-up tables containing for the computed rates versus altitude, latitude, and hour angle from noon. The photochemical mechanism selected is determined by the build script for JPROC. Altitudes (meters), latitudes (degrees), and hour angles are hardwired in JPROC's source code.
 
-CCTM currently uses an in-line photolysis option that calculates photolysis rates using predicted ozone and aerosols. JPROC is notused for the default configuration of ModPhot set to  phot/inline). JPROC is required to produce daily photolysis rate look-up tables if CCTM is compiled with *ModPhot* set to phot/table.
+The recommended configuration of CMAQ's CCTM does not use JPROC output but the look-up tables are required if CCTM is compiled with *ModPhot* set to phot/table.
 
 ### Files, configuration, and environment variables
 
