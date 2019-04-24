@@ -31,7 +31,7 @@ Several required and optional input files are used the JPROC. For the selected p
 
 The location of the JPROC output files is controlled by the `OUTDIR` variable in the run script. The default name for output files uses the Date environment variable in the file name aliased to the `STDATE` environment variable in the run script.
 
-#### Compilation Configuration Variables
+#### Key Build Script Variables
 
 The configuration options are listed below. The build script set their values for compiling a JPROC executable that is fixed to the specified configuration. To change these options it is necessary to re-run the build script for a new executable.
 
@@ -39,13 +39,12 @@ The configuration options are listed below. The build script set their values fo
     Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
 -   `MakefileOnly`
     Uncomment to build a Makefile to compile the executable. Comment out to create a Makefile and compile.
--  `Mechanism: [default: cb6r3_ae6_aq]`  
-    Specifies the gas-phase, aerosol, and aqueous-phase chemical mechanisms for which to create initial conditions. The choices for the *Mechanism* variable are the mechanism directory names under the `$CMAQ_HOME/CCTM/src/MECHS` directory. 
+-  `Mechanism: [default: None]`  
+    Determines the path to FORTRAN data module for the photochemistry mechanism based on its full name. The possible choices are subdirectories under the `$CMAQ_HOME/CCTM/src/MECHS` directory. If the application is using a new mechanism, the user defines the Mechanism and its location. 
 -   `Tracer [default trac0] `  
-      Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the `$CMAQ_HOME/CCTM/src/MECHS` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
-      - `trac[n]`
+      Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the `$CMAQ_HOME/CCTM/src/MECHS` directory that contains the namelist files for the tracer configuration. The default setting does not use any tracers.
 
-#### Execution Configuration variables
+#### Key Run Script Variables
 
 The environment variables listed here are invoked during execution of the program and are set in the JPROC run script.
 
