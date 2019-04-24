@@ -1247,9 +1247,9 @@ C...Map SA species for Advection
      &               // ' not transported. Modify species namelist(s) to include process.'
                  WRITE(LOGDEV,'(A)')TRIM( XMSG )
               END IF
-              XMSG = 'For ' // SPC_NAME(J_SPC,1) // ' transported, adv_map = '
-              WRITE(LOGDEV,95000)NSPC_TRANSPORT, J_SPC, TRIM( XMSG ),
-     &        TRANSPORT_SPC(J_SPC), MAP_ADVtoSA(N)
+!              XMSG = 'For ' // SPC_NAME(J_SPC,1) // ' transported, adv_map = '
+!              WRITE(LOGDEV,95000)NSPC_TRANSPORT, J_SPC, TRIM( XMSG ),
+!     &        TRANSPORT_SPC(J_SPC), MAP_ADVtoSA(N)
            END DO
         END DO
         
