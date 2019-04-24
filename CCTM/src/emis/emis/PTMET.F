@@ -161,7 +161,7 @@ C Allocate per-layer arrays from 0:EMLAYS
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE PTMET_CONVT( JDATE, JTIME, ZSTATIC )
+         SUBROUTINE PTMET_CONVT( JDATE, JTIME )
 
          USE PTBILIN, B_D => BILIN_DATA   ! rename
          USE STK_PRMS, ONLY: MY_NSRC, SOURCE, STKHT
@@ -170,7 +170,6 @@ C-----------------------------------------------------------------------
          IMPLICIT NONE
 
          INTEGER, INTENT( IN ) :: JDATE, JTIME
-         LOGICAL, INTENT( IN ) :: ZSTATIC
 
          INTEGER N, MSRC
          CHARACTER( 16 ) :: PNAME = 'PTMET_CONVT'   ! procedure name
@@ -193,25 +192,23 @@ C-----------------------------------------------------------------------
             MSRC = MY_NSRC( N )
 
             IF ( MY_NSRC( N ) .GT. 0 ) THEN
-               IF ( .NOT. ZSTATIC ) THEN
 
-                  CALL READMC3 ( 'ZH', JDATE, JTIME, XBUF )
-                  CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                          XBUF, PTMET_DATA( N )%ZH )
+               CALL READMC3 ( 'ZH', JDATE, JTIME, XBUF )
+               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
+     &                       XBUF, PTMET_DATA( N )%ZH )
 
-                  CALL READMC3 ( 'ZF', JDATE, JTIME, XBUF )
-                  CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
+               CALL READMC3 ( 'ZF', JDATE, JTIME, XBUF )
+               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
      &                          XBUF, PTMET_DATA( N )%ZF )
 
 C Compute ZSTK, DDZF
 
-                  CALL DELTA_ZS( EMLAYS, MSRC,
-     &                           SOURCE( N )%ARRY, STKHT( N )%ARRY,
-     &                           PTMET_DATA( N )%ZF,
-     &                           PTMET_DATA( N )%ZSTK,
-     &                           PTMET_DATA( N )%DDZF )
+               CALL DELTA_ZS( EMLAYS, MSRC,
+     &                        SOURCE( N )%ARRY, STKHT( N )%ARRY,
+     &                        PTMET_DATA( N )%ZF,
+     &                        PTMET_DATA( N )%ZSTK,
+     &                        PTMET_DATA( N )%DDZF )
 
-               END IF
 
 C Read and transform meteorology:
 
