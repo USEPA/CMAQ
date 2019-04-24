@@ -33,6 +33,7 @@ C                                            mosaic variables were moved to ASX_
 C                                            Algorithms were restuctured using fortran 95 
 C                                            array construcs for readability.
 C                   D. Wong:   Feb 10  2019: removed all MY_N clauses
+C                   D. Wong:   Apr 24  2019: removed unused BUFF2D_2 array
 C-------------------------------------------------------------------------------
 
       Implicit None
@@ -115,8 +116,7 @@ C...include files
          Integer :: strtcolgc2, endcolgc2, strtrowgc2, endrowgc2
                                                                                                   
 ! Allocate buffers
-         ALLOCATE ( BUFF2D_1( ncols,nrows ),
-     &              BUFF2D_2( ncols,nrows ), STAT = ALLOCSTAT )
+         ALLOCATE ( BUFF2D_1( ncols,nrows ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating 2D Buffers'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
