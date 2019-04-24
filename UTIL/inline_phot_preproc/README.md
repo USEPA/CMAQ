@@ -83,7 +83,17 @@ To report potential program errors or failures, contact Bill Hutzell/USEPA at hu
 
 ### Files, configuration, and environment variables
 
-In general, applications of inline_phot_preproc vary based on the photochemical mechanism's reaction data module, RXNS_DATA_MODULE.F90, and ASCII files containing cross-section and quantum yield data for photolysis rates used by the photochemical mechanism. The chemmech utility produces the RXNS_DATA_MODULE.F90 file. The latter files are created by the user if they do not exist under the ${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data directory. Each of these files have names listed in the PHOTAB array defined by the mechanism's RXNS_DATA_MODULE.F90 file. The array is constucted based on reactions of the mechanism definitions file (check the chemmech README for more information). These files follow simple formatting rules. Check files under CSQY_DATA_RAW for examples.
+In general, applications of inline_phot_preproc vary based on the photochemical mechanism's reaction data module, RXNS_DATA_MODULE.F90, and ASCII files containing cross-section and quantum yield data for photolysis rates used by the photochemical mechanism. The chemmech utility produces the RXNS_DATA_MODULE.F90 file. The latter files are created by the user if they do not exist under the ${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data directory. Each of these files have names listed in the PHOTAB array defined by the mechanism's RXNS_DATA_MODULE.F90 file (Figure 1.). The array is constucted based on reactions of the mechanism definitions file (check the chemmech README for more information). These files follow simple formatting rules (Table 3.). Check files under CSQY_DATA_RAW for examples.
+
+Table 3. General Format Rules for cross-section and quantum yield data files.
+
+*   First line read gives the name of the photolysis rate used by the photochemical mechanism. The PHOTAB array in RXNS_DATA_MODULE.F90 lists the names.  
+*   Comment lines begin with a "!". Comments should give the reactions reactants and products as well as cite the source of the file's data.
+*   Second line read begins with a "B", "E", "C", or "P". The first three symbols state whether the values are the Beginning, End or Center of the wavelength intervals of the data. The last symbol, "P", states that data should interperted as irradance value. The case determines how the data is interpolated across the wavelength bands in Table 1.
+     -  Interpolation scheme gives zero results for wavelengths not covered by the data file.       
+*   Third line read begins with "FAC=" followed by a real number. Its value gives a factor to convert the cross-section data into cm<sup>-2</sup>.
+*    Remaining lines read give the data values for the wavelengths (nm), cross-sections and quantum yields of the photolysis rate in free format. 
+
 
 <center> Figure 1. The PHOTAB array extracted from RXNS_DATA_MODULE.F90 for the saprc07tc_ae6_aq mechanism </center>
 
