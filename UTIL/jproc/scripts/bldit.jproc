@@ -22,7 +22,7 @@
 
 #> Working directory and application IDs
  set Base = $cwd                       #> working directory for compiling the source code
- set APPL = v52                       #> model configuration ID
+ set APPL = v53                       #> model configuration ID
  set EXEC = JPROC_${APPL}_$EXEC_ID    #> executable name
  set CFG  = cfg.$EXEC                #> configuration file name
 
@@ -37,7 +37,7 @@
 #>   source code archive for a list of the possible settings; users may also refer to the CMAQ documentation
 
  set ModCommon = common
- set Mechanism = cb05e51_ae6_aq        #> chemical mechanism (see $CMAQ_HOME/CCTM/MECHS)
+ set Mechanism = cb0r3_ae7_aq        #> chemical mechanism (see $CMAQ_HOME/CCTM/MECHS)
  set Tracer    = trac0                 #> tracer configuration directory under $CMAQ_HOME/CCTM/MECHS [ default: no tracer species ]
  set ModMisc = $Mechs/$Mechanism/RXNS_DATA_MODULE.F90
 
@@ -48,7 +48,7 @@
 
  set FC = ${myFC}                      #> path of Fortan compiler; set in config.cmaq
  set FP = $FC                          #> path of Fortan preprocessor; set in config.cmaq
- set Blder = "$CMAQ_HOME/UTIL/bldmake/src/BLDMAKE -serial -verbose"  #> location of model builder executable
+ set Blder = "$CMAQ_HOME/UTIL/bldmake/src/bldmake -serial -verbose"  #> location of model builder executable
 
 #> Set compiler flags
  set xLib_Base  = ${CMAQ_LIB}
