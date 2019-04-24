@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_OGD_ch13_support.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_glossary.md)
+ [Home](README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)
 
 <!-- END COMMENT -->
 
@@ -516,3 +516,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 -   `CROPMAP08`<a id=CROPMAP08></a>  
     Input end harvesting dates netCDF file gridded to the modeling domain.
+
+ [Home](README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
+ CMAQ User's Guide (c) 2019<br>

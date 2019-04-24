@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_references.md)
+[<< Previous Chapter](CMAQ_UG_ch13_sulfur_tracking.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_references.md)
 
 <!-- END COMMENT -->
 
@@ -93,7 +93,7 @@ For an overview of the 2-way Coupled WRF-CMAQ see: http://www.cmascenter.org/con
 and for more details on the 2-way Coupled WRF-CMAQ system see: http://www.cmascenter.org/conference/2011/slides/wong_wrf-cmaq_two-way_2011.pptx
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_references.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch13_sulfur_tracking.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_references.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->

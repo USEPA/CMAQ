@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_OGD_ch13_support.md) - [Home](README.md) - [Next Chapter >>](CMAQ_OGD_glossary.md)
+[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)
 
 <!-- END COMMENT -->
 
@@ -8,7 +8,7 @@
 
 # Appendix B: Emissions Input and Control
 [Jump to DESID Tutorial](../Tutorials/CMAQ_Emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
-[Jump to DESID overview](CMAQ_UG_ch04_model_formulation.md) in Chapter 4 of this User's Guide. 
+[Jump to DESID overview](CMAQ_UG_ch04_model_formulation.md) in Chapter 4 of this User's Guide.
 
 ## B.1 Emissions Control with the Detailed Emissions Scaling, Isolation and Diagnostics Module (DESID)
 
@@ -252,3 +252,5 @@ setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date 
 ```
 
 
+[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
+CMAQ User's Guide (c) 2019<br>

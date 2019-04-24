@@ -1,4 +1,8 @@
+<!-- BEGIN COMMENT -->
 
+[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](README.md)
+
+<!-- END COMMENT -->
 
 
 # Appendix D: Parallel Implementation of CMAQ
@@ -79,7 +83,7 @@ Recently we have developed a true parallel I/O approach (Fig. D-9), which allows
 
 This approach has been incorporated into IOAPI version 3.2 and fully implemented in CMAQ 5.2 or later version. User is required to turn on this feature by uncommenting the following line
 
-#set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf); 
+#set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf);
 
 in bldit_cctm.csh at the model build step and link with IOAPI 3.2. Also in the run script, user requires to insert MPI: in front of the output file path as shown below:
 
@@ -89,3 +93,6 @@ in bldit_cctm.csh at the model build step and link with IOAPI 3.2. Also in the r
 ### Reference:
 
 Wong, D. C., Yang, C. E., Fu, J. S., Wong, K., and Gao, Y., “An approach to enhance pnetCDF performance in environmental modeling applications”, Geosci. Model Dev., 8, 1033-1046, 2015.
+
+[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](README.md)<br>
+CMAQ User's Guide (c) 2019<br>

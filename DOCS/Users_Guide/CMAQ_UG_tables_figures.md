@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[Home](README.md)
+[<< Acronyms](CMAQ_UG_acronyms.md) - [Home](README.md)
 
 <!-- END COMMENT -->
 
@@ -137,6 +137,6 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md)
+[<< Acronyms](CMAQ_UG_acronyms.md) - [Home](README.md)
 
 <!-- END COMMENT -->

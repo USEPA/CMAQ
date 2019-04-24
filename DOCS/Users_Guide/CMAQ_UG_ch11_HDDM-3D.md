@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_ISAM.md)
+[<< Previous Chapter](CMAQ_UG_ch10_process_analysis.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_ISAM.md)
 
 <!-- END COMMENT -->
 
@@ -20,7 +20,7 @@ In air quality modeling, sensitivities measure the response of a model output to
 This plot shows how the direct decoupled method works. Sensitivities are vital to Air Quality model analysis.
 A hypothetical relationship between emissions of SO2 and sulfate concentrations.  The green tangent line illustrates the sensitivity of sulfate concentration to emissions of SO2.
 
-Emissions sensitivities can be calculated by simply running the air quality model twice – once with standard emissions inputs, and once with the emissions of interest adjusted in some way. The difference in outputs between the two runs in relation to the size of the adjustment then becomes the model sensitivity. While this process is fairly easy to implement and interpret, it quickly becomes computationally complex as the number of desired sensitivities increases. For example, calculating sensitivity to EGU emissions from 10 southeastern states in the U.S. would require 11 separate air quality model simulations. 
+Emissions sensitivities can be calculated by simply running the air quality model twice – once with standard emissions inputs, and once with the emissions of interest adjusted in some way. The difference in outputs between the two runs in relation to the size of the adjustment then becomes the model sensitivity. While this process is fairly easy to implement and interpret, it quickly becomes computationally complex as the number of desired sensitivities increases. For example, calculating sensitivity to EGU emissions from 10 southeastern states in the U.S. would require 11 separate air quality model simulations.
 
 An alternative approach to calculate sensitivities is available with the CMAQ model – CMAQ-DDM-3D. CMAQ-DDM-3D is a separately downloadable version of the CMAQ model that allows for sensitivity calculation simultaneously with the standard concentrations and deposition fields. This is done by altering the existing model algorithms to allow for sensitivity propagation through every science module in CMAQ. While CMAQ-DDM-3D does require more computational resources than standard CMAQ, it scales much more favorably with the number of desired calculations.
 
@@ -53,7 +53,7 @@ Napelenok, S.L., Cohan, D.S., Hu, Y.T., & Russell, A.G. (2006). Decoupled direct
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_ISAM.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch10_process_analysis.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_ISAM.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->

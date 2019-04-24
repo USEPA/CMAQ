@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch04_model_formulation.md)
+ [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_CMAQ.md)
 
 <!-- END COMMENT -->
 
@@ -182,9 +182,9 @@ Namelist look-up tables for different classes of simulated pollutants are used t
 The namelist files contain header information that describe which class of species are contained in the file, the number of parameters contained in the file, headers describing the parameter fields, and then a series of rows with configuration parameters for every model species. [Table 3-4](#Table8-4) contains the namelist file format for the gas-phase (GC) species namelist file. The namelist files for the other species classifications (AE, NR, TR) are similar to the format shown in [Table 3-4](#Table8-4).
 
 <a id=Table8-4></a>
- 
+
 **Table 3-4. GC species namelist file format**
- 
+
 | **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:|
 |-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
 | 1 || File Type |String|String to delineate Gas Phase (GC), Aerosol (AE), Non-reactive (NR) and Tracer (TR) species namelist|{&GC_nml, &AE_nml, &NR_nml, &TR_nml}|
@@ -664,7 +664,7 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 |…|…|…|…| Repeat for (2009-2015) there are 365 days of data
 
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch04_model_formulation.md)<br>
+ [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_CMAQ.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->

@@ -1,14 +1,14 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch03_input_and_output.md)
+ [<< Previous Chapter](CMAQ_UG_ch02_program_structure.md)- [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch04_model_inputs.md)
 
 <!-- END COMMENT -->
 
 # 3. Preparing to Run CMAQ
 **>>Comment<<** Add intro paragraph describing what will be in this chapter.
 
-In this chapter the user will learn the basic hardware and software requirements to run CMAQ. In addition, if the user does not have the required software, this chapter provides detailed examples on how the user could obtain this software in a linux environment. 
+In this chapter the user will learn the basic hardware and software requirements to run CMAQ. In addition, if the user does not have the required software, this chapter provides detailed examples on how the user could obtain this software in a linux environment.
 
 **>>Comment<<** Do we want to also recommend a compiler (intel) for speed?
 ## 3.1 Hardware Requirements
@@ -25,15 +25,15 @@ For example, the CMAQ team at the EPA uses a Dell cluster named Atmos. The clust
 
 ## 3.2 Software Requirements
 
-Before using the CMAQ program suite, the user must first download and configure their "computing" environment. A requirement for CMAQ is access to a linux environment, which can be done through a terminal emulator. Examples of terminal emulators are shown below: 
+Before using the CMAQ program suite, the user must first download and configure their "computing" environment. A requirement for CMAQ is access to a linux environment, which can be done through a terminal emulator. Examples of terminal emulators are shown below:
 
 -   **MAC OS X:** iTerm2
 -   **Windows:** PuTTY, MobaXterm
 -   **Linux:** Terminal, XTerm
 
-When using the CMAQ program suite a common theme that will be seen is the use of shell scripts. In short, a shell script is basically a reciepe of commands that can be run to save time when performing a task. In the case of CMAQ, it is used to set variables, science options and run other programs. 
+When using the CMAQ program suite a common theme that will be seen is the use of shell scripts. In short, a shell script is basically a reciepe of commands that can be run to save time when performing a task. In the case of CMAQ, it is used to set variables, science options and run other programs.
 
-At this point faimiliarity with linux command line prompts as well as basic shell scripting is expected. 
+At this point faimiliarity with linux command line prompts as well as basic shell scripting is expected.
 
 Several of these steps are facilitated by having either root or sudo privileges on your system.  If you do not have these privileges, work with the system administrator to complete these steps.
 
@@ -68,9 +68,9 @@ sudo yum update
 sudo yum install gcc-gfortran
 ```
 
-Another common theme seen in the CMAQ program suite is the use of Fortran/C [Makefiles](https://www.gnu.org/software/make/manual/make.pdf). Makefiles are similar shell scripts in the sense that they describe the relationship between Fortran/C files and provides a receipe on how to link and compile them to build an executable. This is convenient because if one file changes in the program suite, the Makefile will recompile and link all the necessary programs by running the commands below. 
+Another common theme seen in the CMAQ program suite is the use of Fortran/C [Makefiles](https://www.gnu.org/software/make/manual/make.pdf). Makefiles are similar shell scripts in the sense that they describe the relationship between Fortran/C files and provides a receipe on how to link and compile them to build an executable. This is convenient because if one file changes in the program suite, the Makefile will recompile and link all the necessary programs by running the commands below.
 
-Common shell commands to invoke the Makefile include: 
+Common shell commands to invoke the Makefile include:
 
 ``
 make
@@ -82,7 +82,7 @@ This shell command invokes the Makefile and follows the reciepe on how to compil
 make clean
 ``
 
-This shell command cleans the directory (i.e. removes any links between files and any intermediary files). 
+This shell command cleans the directory (i.e. removes any links between files and any intermediary files).
 
 ## 3.4 Install Git
 -----
@@ -177,7 +177,7 @@ Install on Red Hat/CentOS Linux:
 sudo yum install openmpi openmpi-devel
 ```
 
-## 3.8 Optional Software 
+## 3.8 Optional Software
 
 **Table 3‑3. Optional support software for CMAQ**
 
@@ -199,9 +199,7 @@ sudo yum install openmpi openmpi-devel
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch03_input_and_output.md)<br>
+ [<< Previous Chapter](CMAQ_UG_ch02_program_structure.md)- [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch04_model_inputs.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
-
-

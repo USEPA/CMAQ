@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch03_input_and_output.md)
+[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_outputs.md)
 
 <!-- END COMMENT -->
 
@@ -9,7 +9,7 @@
 
 ## 5.1 Introduction
 
-During this chapter the user will learn about how to obtain the CMAQ source codes and how to set-up their CMAQ environment to complete a CMAQ simulation. It should be noted that before you can configure your CMAQ Environment, you must have the required hardware, software and data files required described in the subsequent chapters. 
+During this chapter the user will learn about how to obtain the CMAQ source codes and how to set-up their CMAQ environment to complete a CMAQ simulation. It should be noted that before you can configure your CMAQ Environment, you must have the required hardware, software and data files required described in the subsequent chapters.
 
 ## 5.2 Getting the CMAQ Source Code
 
@@ -31,7 +31,7 @@ CMAQ_REPO/UTIL
 CMAQ_REPO/DOCS
 ```
 
-### 5.2.2 Zip file Installation 
+### 5.2.2 Zip file Installation
 
 Zip files of the CMAQ source code are available from the public GitHub repository. Click the button "Clone or download" from https://github.com/USEPA/CMAQ/tree/5.3 and select "Download ZIP" to download a Zip file of the CMAQv5.3 repository. Alternatively, you may download the Zip file from the [EPA CMAQ website](https://www.epa.gov/cmaq/access-cmaq-source-code).
 
@@ -55,19 +55,19 @@ The Git and Zip file installation options will produce slightly different subdir
 
 ## 5.3 The CMAQ Repository Structure
 
-After downloading the source codes the user is encouraged to look through the repository to familiarize themselves with the structure. A summarized image of the repository is shown below: 
+After downloading the source codes the user is encouraged to look through the repository to familiarize themselves with the structure. A summarized image of the repository is shown below:
 
-![Figure 5-1](images/Figure5-1.png) 
+![Figure 5-1](images/Figure5-1.png)
 
 In this image it can be seen that there four main sub folders within the CMAQ repository. The first folder being the CCTM folder which houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). There is also a README file within this folder to provide a description of the contents of the folders and any pertaint information that the owner of these files wishes to convey.  
 
-The second folder seen is the DOCS folder which contains all relevant documentation pertaining to the CMAQ program suite. It should be noted that this folder contains many subfolders, indicated by the dot dot symbol, and each folder contains documentation pertaining to the file name. For example, the User Manual contains all documentation, including this one, that describes the technical information required for a user to use the CMAQ program suite. 
+The second folder seen is the DOCS folder which contains all relevant documentation pertaining to the CMAQ program suite. It should be noted that this folder contains many subfolders, indicated by the dot dot symbol, and each folder contains documentation pertaining to the file name. For example, the User Manual contains all documentation, including this one, that describes the technical information required for a user to use the CMAQ program suite.
 
-The third folder in the repository is the POST folder which contains several very useful tools for post processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 7](CMAQ_UG_ch07_analysis_tools.md). 
+The third folder in the repository is the POST folder which contains several very useful tools for post processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 7](CMAQ_UG_ch07_analysis_tools.md).
 
-The fourth folder in the repository is the PREP folder which contains all the preparatory subprograms to be run before the CCTM folder is run. Again as before, each subprogram folder contains source codes, scripts and a README used to run the subprogram. The technical information on how to run these programs will be discussed in section 5.4 of this chapter. 
+The fourth folder in the repository is the PREP folder which contains all the preparatory subprograms to be run before the CCTM folder is run. Again as before, each subprogram folder contains source codes, scripts and a README used to run the subprogram. The technical information on how to run these programs will be discussed in section 5.4 of this chapter.
 
-The last folder within the repository is the UTIL folder which contains useful utilities relating to the CMAQ program suite. An example is the bldmake utility which is used to compile the source code into executables when you use any of the build scripts in the CMAQ repository. Also included in this repository are two additional C-Shell scripts along with a README to describe the contents of the repository. `Bldit_project.csh` allows the user to extract the build and run scripts and compile the model outside of the repository, while `config_cmaq.csh` helps enforce consistent environment setting for the CMAQ project. Both these scripts will be discussed in the following sections. 
+The last folder within the repository is the UTIL folder which contains useful utilities relating to the CMAQ program suite. An example is the bldmake utility which is used to compile the source code into executables when you use any of the build scripts in the CMAQ repository. Also included in this repository are two additional C-Shell scripts along with a README to describe the contents of the repository. `Bldit_project.csh` allows the user to extract the build and run scripts and compile the model outside of the repository, while `config_cmaq.csh` helps enforce consistent environment setting for the CMAQ project. Both these scripts will be discussed in the following sections.
 
 ## 5.4 Building CMAQ outside of the Repository in a user-specified directory
 
@@ -77,7 +77,7 @@ When cloning the repository or unpacking the tar file of the CMAQ distribution, 
 set CMAQ_HOME = /home/username/CMAQ_v5.3
 ```
 
-Now execute the script: 
+Now execute the script:
 
 ```
 ./bldit_project.csh
@@ -128,24 +128,24 @@ Many of the fields that are simulated by the meteorological model are not modifi
 
 MCIP can extract both temporal and spatial subsets of the input meteorology files. The run script allows the user to specify the beginning and end dates/times of the MCIP simulation; these dates/times can fall anywhere within the range of the input meteorological time period, but must be consistent with the time granularity of the meteorological files. MCIP cannot perform temporal interpolations to artificially increase the temporal resolution of the meteorology fields. Two types of horizontal domain windowing are allowed with MCIP. The boundary trim option (“BTRIM”) uniformly trims grid cells off each of the four lateral boundaries of the input meteorology grid. The nonuniform trim option specifies an offset from the lower left corner of the input meteorology domain and the number of cells in the X and Y directions from the revised origin to extract from the input domain. More information about how to invoke these options is provided in the next section: [MCIP](#Execution Configuration Variables). MCIP also provides the capability to reconfigure the vertical layer structure in the input meteorology through interpolation from the input structure to an output structure defined through sigma coordinates in the run script. Commonly referred to as “layer collapsing,” this option should be exercised with caution as it can significantly impact the conservation of energy assumption inherent in the meteorology through its effects on the predicted wind fields.
 
-The output files generated by MCIP are part of the input files for ICON and BCON and various other programs in CMAQ, requiring it to be the first program that needs to be compiled after installing the CMAQ source codes and initializing CMAQ environment variables on your system. Unlike many of the programs in the CMAQ program suite MCIP is compiled with a Makefile and then run with a run script. The following instructions outline the steps to compile and run MCIP. 
+The output files generated by MCIP are part of the input files for ICON and BCON and various other programs in CMAQ, requiring it to be the first program that needs to be compiled after installing the CMAQ source codes and initializing CMAQ environment variables on your system. Unlike many of the programs in the CMAQ program suite MCIP is compiled with a Makefile and then run with a run script. The following instructions outline the steps to compile and run MCIP.
 
-In the root of your project directory: 
+In the root of your project directory:
 
 ```
 source config_cmaq.csh [compiler]
 cd $CMAQ_HOME/PREP/mcip/
 cp -r $CMAQ_REPO/PREP/mcip/src  ./
-cd src 
+cd src
 ```
 
-Open the Makefile in a text editor to see if path variables for libraries and compilers are correct before executing the Makefile. Refer to the MCIP README file for further information and options. 
+Open the Makefile in a text editor to see if path variables for libraries and compilers are correct before executing the Makefile. Refer to the MCIP README file for further information and options.
 
 ```
 make  | & tee make.mcip.log
 ```
 
-If no errors arise proceed to running MCIP with the following commands. 
+If no errors arise proceed to running MCIP with the following commands.
 
 ```
 cd $CMAQ_HOME/PREP/mcip/scripts
@@ -157,20 +157,20 @@ Open ``run_mcip.csh`` in a text editor and change any path variables for librari
 source run_mcip.csh |& tee run.mcip.log
 ```
 
-After completing this step examine the log file to see if script was executed without any errors and terminated normally. If the script was terminated normally the user is ready to compile and run ICON and BCON. 
+After completing this step examine the log file to see if script was executed without any errors and terminated normally. If the script was terminated normally the user is ready to compile and run ICON and BCON.
 
 ### 5.2.3 Initial Conditions Processor (ICON)
 
 **>>COMMENT<<** ICON/BCON summaries need to be updated to reflect v5.3 updates
 
-ICON generates a gridded binary netCDF file of the chemical conditions in the modeling domain for the initial time of a simulation. It can generate these initial conditions from either an ASCII file of vertically resolved concentration profiles (distributed with CMAQ) or from an existing CCTM output file. If the profiles in an ASCII file do not have the same vertical structure as the CCTM configuration to be used, ICON will interpolate the data to a vertical structure consistent with CCTMs. Using an existing CCTM output file to generate initial conditions is applicable when extrapolating initial conditions from a coarse to a fine grid simulation, as may occur when setting up nested simulations (simulations with finer-resolution grids that cover part of coarser-resolution grids). The configuration options for ICON include selecting the chemical mechanism to model, defining the horizontal and vertical grids, and choosing whether the initial conditions are generated from an ASCII profile or from an existing CCTM output file. To compile and run ICON the following commands should be executed: 
+ICON generates a gridded binary netCDF file of the chemical conditions in the modeling domain for the initial time of a simulation. It can generate these initial conditions from either an ASCII file of vertically resolved concentration profiles (distributed with CMAQ) or from an existing CCTM output file. If the profiles in an ASCII file do not have the same vertical structure as the CCTM configuration to be used, ICON will interpolate the data to a vertical structure consistent with CCTMs. Using an existing CCTM output file to generate initial conditions is applicable when extrapolating initial conditions from a coarse to a fine grid simulation, as may occur when setting up nested simulations (simulations with finer-resolution grids that cover part of coarser-resolution grids). The configuration options for ICON include selecting the chemical mechanism to model, defining the horizontal and vertical grids, and choosing whether the initial conditions are generated from an ASCII profile or from an existing CCTM output file. To compile and run ICON the following commands should be executed:
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
 bldit_icon.csh [compiler] [version] |& tee build_icon.log
 ```
 
-After successfully compiling ICON, use `run_icon.csh` to run the ICON executable. 
+After successfully compiling ICON, use `run_icon.csh` to run the ICON executable.
 
 ```
 cd $CMAQ_HOME/PREP/icon/scripts
@@ -188,14 +188,14 @@ It should be noted that ICON can be configured for different chemical mechanisms
 
 BCON generates a gridded binary netCDF file of the chemical conditions along the lateral boundaries of the modeling domain. These boundary conditions can be either static or time-varying, and (as with ICON) can be generated from either an ASCII file of vertically resolved concentration profiles or from an existing CCTM output file. Also as with ICON, BCON will interpolate the data in ASCII profiles to a vertical resolution that is consistent with the CCTM configuration. BCON differs from ICON, however, in that it can generate time-varying (i.e., dynamic) boundary conditions. Dynamic boundary conditions are typically extracted either from CCTM outputs from a coarse-grid simulation for nested simulations or from a CCTM simulation using a global-scale model. The file structure of the ASCII input profiles can also support the creation of dynamic boundary conditions, but generally these files are used only for creating static data. The configuration options for BCON include selecting the chemical mechanism to model, defining the horizontal and vertical grids, and choosing whether the boundary conditions are generated from an ASCII profile or from an existing CCTM output file.
 
-BCON is only used to create boundary conditions inputs for the CCTM from an ASCII profile file or from an existing CCTM output file. Users are responsible for preparing CCTM input boundary conditions from other sources, such as global chemistry transport models. To compile and run BCON the following commands should be executed: 
+BCON is only used to create boundary conditions inputs for the CCTM from an ASCII profile file or from an existing CCTM output file. Users are responsible for preparing CCTM input boundary conditions from other sources, such as global chemistry transport models. To compile and run BCON the following commands should be executed:
 
 ```
 cd $CMAQ_HOME/PREP/bcon/scripts
 bldit_bcon.csh [compiler] [version] |& tee build_bcon.log
 ```
 
-After successfully compiling BCON, use `run_bcon.csh` to run the BCON executable. 
+After successfully compiling BCON, use `run_bcon.csh` to run the BCON executable.
 
 ```
 cd $CMAQ_HOME/PREP/bcon/scripts
@@ -204,7 +204,7 @@ cd $CMAQ_HOME/PREP/bcon/scripts
 
 It should be noted that BCON can be configured for different chemical mechanisms and for different kinds of input data. Information on environment variables, input and output files, compiling and running BCON are provided in the [README.md](../../PREP/bcon/README.md) file in the PREP/bcon folder.
 
-### 5.2.5 Optional Pre-Processor 
+### 5.2.5 Optional Pre-Processor
 
 Insert brief information on JPROC, CALMAP (agdust), and Windblown dust (wbdust).
 
@@ -242,7 +242,7 @@ create_ebi
 
 inline_phot_preproc
 
-[**NML:**](../../UTIL/nml/README.md) In most cases, users will already have a pre-generated species namelist file to be input into ICON, BCON and CCTM. However advanced users who wish to edit these files or want to generate a namelist from scratch can use the NML utility. This utility contains two scripts, CSV2NML and NML2CSV that are used to convert the species definition files from CSV format to NAMELIST files and from a NAMELIST format to a CSV file, respectively. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Four NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), nonreactive species (NR.nml) and tracer speces (TR.nml). 
+[**NML:**](../../UTIL/nml/README.md) In most cases, users will already have a pre-generated species namelist file to be input into ICON, BCON and CCTM. However advanced users who wish to edit these files or want to generate a namelist from scratch can use the NML utility. This utility contains two scripts, CSV2NML and NML2CSV that are used to convert the species definition files from CSV format to NAMELIST files and from a NAMELIST format to a CSV file, respectively. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Four NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), nonreactive species (NR.nml) and tracer speces (TR.nml).
 
 ## 5.6 Compiling CMAQ Chemistry-Transport Model (CCTM)
 
@@ -286,9 +286,9 @@ line Emissions Modules:
 -  In-line BEIS3 biogenic emissions (biog)
 -  In-line plume rise (plrise)
 
-The CMAQ modularity makes it easy to modify or introduce a specific scientific process in CCTM. For example, the gas module contains several options for different gas-phase chemistry solvers that can be used to optimize model performance. Without the modular structure, changes to just one scientific process could entail having to modify source code throughout CCTM, thereby greatly increasing the risk of human error. 
+The CMAQ modularity makes it easy to modify or introduce a specific scientific process in CCTM. For example, the gas module contains several options for different gas-phase chemistry solvers that can be used to optimize model performance. Without the modular structure, changes to just one scientific process could entail having to modify source code throughout CCTM, thereby greatly increasing the risk of human error.
 
-In addition to modifying individual scientific processes, the user has the option to specify which scientific processes that the user wants to include when building the model. These scientific options are split into build time options and run time options and can be configured in a multitude of ways. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To see a complete list of optional settings reference [Appendix A](CMAQ_UG_appendix_A.md). 
+In addition to modifying individual scientific processes, the user has the option to specify which scientific processes that the user wants to include when building the model. These scientific options are split into build time options and run time options and can be configured in a multitude of ways. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To see a complete list of optional settings reference [Appendix A](CMAQ_UG_appendix_A.md).
 
 Once the `bldit_cctm.csh` script is configured to the user's preference, the user is ready to run the script to build the CCTM executable. To do this run the following commands:
 
@@ -299,7 +299,7 @@ source bldit_cctm.csh [compiler] [version] |& tee build_cctm.log
 
 **>>COMMENT: Not sure if this section adds any value for the user <<**
 
-Following normal termination of the script with the default configuration, the user will notice a BLD directory created where their CCTM scripts are located. This is the location of the CCTM executable along with the relevant source codes needed to build the model. At this location a few useful commands can be used to update the executable if any changes are made to the fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode instead of re-running the `bldit_cctm.csh` script the user can use the following commands: 
+Following normal termination of the script with the default configuration, the user will notice a BLD directory created where their CCTM scripts are located. This is the location of the CCTM executable along with the relevant source codes needed to build the model. At this location a few useful commands can be used to update the executable if any changes are made to the fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode instead of re-running the `bldit_cctm.csh` script the user can use the following commands:
 
 ```
 cd BLD_CCTM_v53_[compiler][version]
@@ -307,12 +307,12 @@ make clean
 make DEBUG=TRUE
 ```
 
-In another example, if the user has made any changes to the source codes in the BLD directory and wanted to update the CCTM executable to reflect these changes the uesr can use the following commands: 
+In another example, if the user has made any changes to the source codes in the BLD directory and wanted to update the CCTM executable to reflect these changes the uesr can use the following commands:
 
 ```
 cd BLD_CCTM_v53_[compiler][version]
 make clean
-make 
+make
 ```
 
 **>>COMMENT: END SECTION <<**
@@ -320,7 +320,7 @@ make
 
 ## 5.7 Running CCTM or CMAQ
 
-After setting up the CCTM executable the model is ready to be run. Much like the `bldit_cctm.csh` script, to modify any run time options edit the `run_cctm.csh` script referencing [Appendix A](CMAQ_UG_appendix_A.md) for a complete list of optional settings. After these settings have been configured use the following commands to run the script: 
+After setting up the CCTM executable the model is ready to be run. Much like the `bldit_cctm.csh` script, to modify any run time options edit the `run_cctm.csh` script referencing [Appendix A](CMAQ_UG_appendix_A.md) for a complete list of optional settings. After these settings have been configured use the following commands to run the script:
 
 
 ```
@@ -364,7 +364,7 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch03_input_and_output.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_outputs.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
