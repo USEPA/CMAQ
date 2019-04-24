@@ -18,7 +18,7 @@ Several required and optional input files are used the JPROC. For the selected p
 |---------|--------|----------------------------------------------------------------------|
 |ET|ASCII|Extraterrestrial radiation as a function of wavelength|
 |PROFILES|ASCII|Seasonal vertical profiles of ozone concentrations, aerosol attenuation, temperature, air density and Dobson values|
-|TOMS|ASCII|Total ozone column measurements from the Total Ozone Mapping Spectrometer instrument aboard the sun-synchronous polar orbiting Nimbus satellite|
+|TOMS|ASCII|Total ozone column measurements from satellite|
 |O2ABS|ASCII|Absorption CSQY data for molecular oxygen as a function of wavelength|
 |O3ABS|ASCII|Absorption CSQY data for ozone as a function of wavelength|
 |CSQY|ASCII (directory path)|Directory path containing absorption CSQY data for gas-phase photolysis reactions as a function of wavelength|
