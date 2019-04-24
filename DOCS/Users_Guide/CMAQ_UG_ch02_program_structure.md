@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch01_overview.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch03_input_and_output.md)
+[<< Previous Chapter](CMAQ_UG_ch01_overview.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch03_preparing_to_run.md)
 
 <!-- END COMMENT -->
 
@@ -82,7 +82,7 @@ This chapter provides detailed descriptions of the CMAQ programs and utilities. 
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch01_overview.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch03_input_and_output.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch01_overview.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch03_preparing_to_run.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
