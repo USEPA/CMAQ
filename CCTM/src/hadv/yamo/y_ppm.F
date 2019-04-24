@@ -275,15 +275,17 @@ C Get the contravariant x2 velocity component
 
 #ifdef isam
       DO SPC = 1, N_SPCTAG
-        DO ROW = 1, SWP
-          DO COL = 1, MY_NCOLS
-            SA_HALO_SOUTH( COL,ROW,SPC ) =
-     &               ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
-            SA_HALO_NORTH( COL,ROW,SPC ) =
-     &               ISAM( COL,NORTH_ROW+ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
-            SA_BUF_NS( COL,ROW,SPC ) = SA_HALO_NORTH( COL,ROW,SPC )
-          END DO
-        END DO
+        IF( TRANSPORT_SPC( SPC ) )THEN      
+           DO ROW = 1, SWP
+             DO COL = 1, MY_NCOLS
+               SA_HALO_SOUTH( COL,ROW,SPC ) =
+     &                  ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+               SA_HALO_NORTH( COL,ROW,SPC ) =
+     &                  ISAM( COL,NORTH_ROW+ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+               SA_BUF_NS( COL,ROW,SPC ) = SA_HALO_NORTH( COL,ROW,SPC )
+             END DO
+           END DO
+        END IF
       END DO
 
       CALL SUBST_COMM (SA_HALO_SOUTH, SA_HALO_NORTH, DSPL_N1_E0_S0_W0, DRCN_N)
@@ -340,44 +342,46 @@ C North boundary
 #ifdef isam
          DO SPC = 1, N_SPCTAG
 
-            DO ROW = 1, MY_NROWS
-               SA_CONY( ROW,SPC ) = ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
-            END DO
+            IF( TRANSPORT_SPC( SPC ) )THEN
 
-            DO ROW = 1, SWP
-               SA_CONY( ROW-SWP,SPC ) = SA_HALO_SOUTH( COL,ROW,SPC )
-               SA_CONY( MY_NROWS+ROW,SPC ) = SA_HALO_NORTH( COL,ROW,SPC )
-            END DO
+                DO ROW = 1, MY_NROWS
+                   SA_CONY( ROW,SPC ) = ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+                END DO
+                
+                DO ROW = 1, SWP
+                   SA_CONY( ROW-SWP,SPC ) = SA_HALO_SOUTH( COL,ROW,SPC )
+                   SA_CONY( MY_NROWS+ROW,SPC ) = SA_HALO_NORTH( COL,ROW,SPC )
+                END DO
 
 C South boundary
-            IF ( BNDY_PE_LOY ) THEN
-               IF ( VELY( 1 ) .LT. 0.0 ) THEN   ! outflow
-                  SA_CONY( 1-SWP:0,SPC ) =
-     &            ZFDBC ( SA_CONY( 1,SPC ), SA_CONY( 2,SPC ), VELY( 1 ), VELY( 2 ) )
-               ELSE    ! inflow
-                  IF ( BCON_SPC( SPC ) ) THEN
-                     SA_CONY( 1-SWP:0,SPC ) = BCON( SFX+COL,MAP_ADVtoSA( SPC )  )
-                  ELSE
-                     SA_CONY( 1-SWP:0,SPC ) = 0.0
-                  END IF 
-               END IF   ! vely < 0 ?
-            END IF   ! bndy_pe_loy ?
+                IF ( BNDY_PE_LOY ) THEN
+                   IF ( VELY( 1 ) .LT. 0.0 ) THEN   ! outflow
+                      SA_CONY( 1-SWP:0,SPC ) =
+     &                ZFDBC ( SA_CONY( 1,SPC ), SA_CONY( 2,SPC ), VELY( 1 ), VELY( 2 ) )
+                   ELSE    ! inflow
+                      IF ( BCON_SPC( SPC ) ) THEN
+                         SA_CONY( 1-SWP:0,SPC ) = BCON( SFX+COL,MAP_ADVtoSA( SPC )  )
+                      ELSE
+                         SA_CONY( 1-SWP:0,SPC ) = 0.0
+                      END IF 
+                   END IF   ! vely < 0 ?
+                END IF   ! bndy_pe_loy ?
 
 C North boundary
-            IF ( BNDY_PE_HIY ) THEN
-               IF ( VELY( MY_NROWS+1 ) .GT. 0.0 ) THEN     ! outflow
-                  SA_CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) =
-     &            ZFDBC ( SA_CONY( MY_NROWS,SPC ), SA_CONY( MY_NROWS-1,SPC ),
-     &                    VELY( MY_NROWS+1 ), VELY( MY_NROWS ) )
-               ELSE    ! inflow
-                  IF ( BCON_SPC( SPC ) ) THEN
-                     SA_CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) = BCON( NFX+COL,MAP_ADVtoSA( SPC ) )
-                  ELSE
-                     SA_CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) = 0.0
-                  END IF
-               END IF   ! vely > 0 ?
-            END IF   ! bndy_pe_hiy ?
-
+                IF ( BNDY_PE_HIY ) THEN
+                   IF ( VELY( MY_NROWS+1 ) .GT. 0.0 ) THEN     ! outflow
+                      SA_CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) =
+     &                ZFDBC ( SA_CONY( MY_NROWS,SPC ), SA_CONY( MY_NROWS-1,SPC ),
+     &                        VELY( MY_NROWS+1 ), VELY( MY_NROWS ) )
+                   ELSE    ! inflow
+                      IF ( BCON_SPC( SPC ) ) THEN
+                         SA_CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) = BCON( NFX+COL,MAP_ADVtoSA( SPC ) )
+                      ELSE
+                         SA_CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) = 0.0
+                      END IF
+                   END IF   ! vely > 0 ?
+                END IF   ! bndy_pe_hiy ?
+            END IF  
          END DO   ! SPC loop
 #endif
 
