@@ -11,4 +11,4 @@ With the exception of Bldmake, the following utility programs prepare chemical m
 * **create_ebi**: creates mechanisms-dependent EBI chemistry solver source code 
 * **inline_phot_preproc**: creates photolysis reaction parameter tables for the CCTM inline photlysis module
 * **nml**: converts chemical mechanism csv output files from chemmech to the namelist files required by the CMAQ programs
- 
+* **jproc**: calculates daily look-up tables containing clear-sky photolysis rates that are used by the tabular method for calculate photolysis rates in CMAQ CCTM.

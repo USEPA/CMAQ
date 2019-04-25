@@ -18,7 +18,7 @@ Several required and optional input files are used the JPROC. For the selected p
 |---------|--------|----------------------------------------------------------------------|
 |ET|ASCII|Extraterrestrial radiation as a function of wavelength|
 |PROFILES|ASCII|Seasonal vertical profiles of ozone concentrations, aerosol attenuation, temperature, air density and Dobson values|
-|TOMS|ASCII|Total ozone column measurements from satellite|
+|TOMS|ASCII|Total ozone column measurements from satellite (optional input file(s))|
 |O2ABS|ASCII|Absorption CSQY data for molecular oxygen as a function of wavelength|
 |O3ABS|ASCII|Absorption CSQY data for ozone as a function of wavelength|
 |CSQY|ASCII (directory path)|Directory path containing absorption CSQY data for gas-phase photolysis reactions as a function of wavelength|
@@ -68,9 +68,9 @@ The environment variables listed here are invoked during execution of the progra
 [Chapter 5](../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of JPROC:
 
 1.   Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
--   Cnfigure the JPROC build script to use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
--   Configure the JPROC build script for your application by setting the compilation configuration variables described above.
--   Invoke the build script to create an executable:
+2.    Configure the JPROC build script to use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
+3.    Configure the JPROC build script for your application by setting the compilation configuration variables described above.
+4.   Invoke the build script to create an executable:
 
 ```
 cd $CMAQ_HOME/UTIL/jproc/scripts
