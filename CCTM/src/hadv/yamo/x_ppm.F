@@ -282,15 +282,17 @@ C Get the contravariant x1 velocity component
 
 #ifdef isam
       DO SPC = 1, N_SPCTAG
-         DO ROW = 1, MY_NROWS
-            DO COL = 1, SWP
-               SA_HALO_WEST( COL,ROW,SPC ) =
-     &                 ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG ( SPC ) )
-               SA_HALO_EAST( COL,ROW,SPC ) =
-     &                 ISAM( EAST_COL+COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
-               SA_BUF_EW( COL,ROW,SPC ) = SA_HALO_EAST( COL,ROW,SPC )
+         IF( TRANSPORT_SPC( SPC ) )THEN
+            DO ROW = 1, MY_NROWS
+               DO COL = 1, SWP
+                  SA_HALO_WEST( COL,ROW,SPC ) =
+     &                    ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG ( SPC ) )
+                  SA_HALO_EAST( COL,ROW,SPC ) =
+     &                    ISAM( EAST_COL+COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+                  SA_BUF_EW( COL,ROW,SPC ) = SA_HALO_EAST( COL,ROW,SPC )
+               END DO
             END DO
-         END DO
+         END IF
       END DO
 
       CALL SUBST_COMM (SA_HALO_WEST, SA_HALO_EAST, DSPL_N0_E1_S0_W0, DRCN_E)
@@ -345,45 +347,48 @@ C East boundary
 
 #ifdef isam
          DO SPC = 1, N_SPCTAG
+         
+            IF( TRANSPORT_SPC( SPC ) )THEN
 
-            DO COL = 1, MY_NCOLS
-               SA_CONX( COL, SPC  ) = ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
-            END DO
-
-            DO COL = 1, SWP
-               SA_CONX( COL-SWP,SPC ) = SA_HALO_WEST( COL,ROW,SPC )
-               SA_CONX( MY_NCOLS+COL,SPC ) = SA_HALO_EAST( COL,ROW,SPC )
-            END DO
+               DO COL = 1, MY_NCOLS
+                  SA_CONX( COL, SPC  ) = ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+               END DO
+               
+               DO COL = 1, SWP
+                  SA_CONX( COL-SWP,SPC ) = SA_HALO_WEST( COL,ROW,SPC )
+                  SA_CONX( MY_NCOLS+COL,SPC ) = SA_HALO_EAST( COL,ROW,SPC )
+               END DO
 
 C West boundary
-            IF ( BNDY_PE_LOX ) THEN
-               IF ( VELX( 1 ) .LT. 0.0 ) THEN   ! outflow
-                  SA_CONX( 1-SWP:0,SPC ) =
-     &            ZFDBC( SA_CONX( 1,SPC ), SA_CONX( 2,SPC ), VELX( 1 ), VELX( 2 ) )
-               ELSE    ! inflow
-                  IF ( BCON_SPC( SPC ) ) THEN
-                     SA_CONX( 1-SWP:0,SPC ) = BCON( WFX+ROW,MAP_ADVtoSA( SPC ) )
-                  ELSE   ! non-bcon tags ?
-                     SA_CONX( 1-SWP:0,SPC ) = 0.0
-                  END IF   
-               END IF   ! velx < 0 ?
-            END IF   ! bndy_pe_lox ?
+               IF ( BNDY_PE_LOX ) THEN
+                  IF ( VELX( 1 ) .LT. 0.0 ) THEN   ! outflow
+                     SA_CONX( 1-SWP:0,SPC ) =
+     &               ZFDBC( SA_CONX( 1,SPC ), SA_CONX( 2,SPC ), VELX( 1 ), VELX( 2 ) )
+                  ELSE    ! inflow
+                     IF ( BCON_SPC( SPC ) ) THEN
+                        SA_CONX( 1-SWP:0,SPC ) = BCON( WFX+ROW,MAP_ADVtoSA( SPC ) )
+                     ELSE   ! non-bcon tags ?
+                        SA_CONX( 1-SWP:0,SPC ) = 0.0
+                     END IF   
+                  END IF   ! velx < 0 ?
+               END IF   ! bndy_pe_lox ?
 
 C East boundary
-            IF ( BNDY_PE_HIX ) THEN
-               IF ( VELX( MY_NCOLS+1 ) .GT. 0.0 ) THEN     ! outflow
-                  SA_CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) =
-     &            ZFDBC ( SA_CONX( MY_NCOLS,SPC ), SA_CONX( MY_NCOLS-1,SPC ),
-     &                    VELX( MY_NCOLS+1 ), VELX( MY_NCOLS ) )
-               ELSE    ! inflow
-                  IF ( BCON_SPC( SPC ) ) THEN
-                     SA_CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = BCON( EFX+ROW, MAP_ADVtoSA( SPC ) )
-                  ELSE   ! non-bcon tags ?
-                     SA_CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = 0.0
-                  END IF 
-               END IF   ! velx > 0 ?
-            END IF   ! bndy_pe_hix ?
-
+               IF ( BNDY_PE_HIX ) THEN
+                  IF ( VELX( MY_NCOLS+1 ) .GT. 0.0 ) THEN     ! outflow
+                     SA_CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) =
+     &               ZFDBC ( SA_CONX( MY_NCOLS,SPC ), SA_CONX( MY_NCOLS-1,SPC ),
+     &                       VELX( MY_NCOLS+1 ), VELX( MY_NCOLS ) )
+                  ELSE    ! inflow
+                     IF ( BCON_SPC( SPC ) ) THEN
+                        SA_CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = BCON( EFX+ROW, MAP_ADVtoSA( SPC ) )
+                     ELSE   ! non-bcon tags ?
+                        SA_CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = 0.0
+                     END IF 
+                  END IF   ! velx > 0 ?
+               END IF   ! bndy_pe_hix ?
+               
+            END IF
          END DO  ! SPC loop
 #endif
 

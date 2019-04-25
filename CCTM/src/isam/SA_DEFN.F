@@ -636,7 +636,8 @@ C
         CHARACTER( 132 ) :: XMSG
 
         LOGICAL FOUND
-        LOGICAL TRANS_ERROR
+        LOGICAL TRANS_WARN
+        LOGICAL EFLAG
 c----------------------------------------------------------
         
 
@@ -654,7 +655,9 @@ c----------------------------------------------------------
         TRANSPORT_SPC = .TRUE.
 
         J_SPC = 0
-
+         
+        EFLAG = .FALSE.
+         
         IF (  L_EC ) THEN
           J_SPC = J_SPC + 1
           SPC_NAME( J_SPC,: ) = 'AECJ'
@@ -1132,14 +1135,11 @@ C...Check if the above adds up to number of tagging species
           WRITE(LOGDEV,'(A,I4,A,I4,3A)')'Tagged species found, ', J_SPC,  
      &    ', does not equal expected, ',  NSPC_SA,
      &    ', for the ', TRIM( MECHNAME ), ' mechanism.'
-          CALL M3EXIT( 'GET_SPC_INDEX', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
+          EFLAG = .TRUE.
         ENDIF
 
 C...Initialize species index
         SPC_INDEX = -1
-
-C...Obtain ozone index from GC_SPC list
-        N_OZN = INDEX1( 'O3', N_GC_SPC, GC_SPC )
 
 C..Determine which ISAM species are aerosols and are transported
         NSPC_TRANSPORT = 0
@@ -1176,46 +1176,31 @@ C...Assign species index with CMAQ species mappings
 
         DO N = 1, NSPCSD
           IF ( N .GE. GC_STRT .AND. N .LE. GC_FINI ) THEN
-
             DO J_SPC = 1, NSPC_SA
-              IF ( SPC_NAME( J_SPC,ICONTAG ) .EQ. GC_SPC( N ) ) THEN  !20131209 14 voc species covered
+              IF ( SPC_NAME( J_SPC,ICONTAG ) .EQ. GC_SPC( N ) ) THEN  
                 SPC_INDEX( J_SPC,1 ) = 1
                 SPC_INDEX( J_SPC,2 ) = N
                 MAP_CGRtoSA( N ) = J_SPC
-              ELSEIF ( SPC_NAME( J_SPC,ICONTAG )(1:3) .EQ. 'O3A' ) THEN !1 ozone
-                SPC_INDEX( J_SPC,1 ) = 1
-                SPC_INDEX( J_SPC,2 ) = N_OZN
-                MAP_CGRtoSA( N ) = J_SPC
-              ELSEIF ( SPC_NAME( J_SPC,ICONTAG )(1:3) .EQ. 'O3N' .OR.
-     &                 SPC_NAME( J_SPC,ICONTAG )(1:3) .EQ. 'O3V' ) THEN !2-regime ozone
-                SPC_INDEX( J_SPC,1 ) = -50
-                SPC_INDEX( J_SPC,2 ) = N_OZN
-                MAP_CGRtoSA( N ) = J_SPC
-              ENDIF ! spc_name and gc_spc match
-            ENDDO
-
-          ELSEIF ( N .GE. AE_STRT .AND. N .LT. AE_FINI ) THEN
-
+              END IF ! spc_name and gc_spc match
+            END DO
+          ELSE IF ( N .GE. AE_STRT .AND. N .LT. AE_FINI ) THEN
             DO J_SPC = 1, NSPC_SA
               IF ( SPC_NAME( J_SPC,ICONTAG ) .EQ. AE_SPC( N-AE_STRT+1 ) ) THEN
                 SPC_INDEX( J_SPC,1 ) = 1
                 SPC_INDEX( J_SPC,2 ) = N
                 MAP_CGRtoSA( N ) = J_SPC
-              ENDIF ! spc_name and ae_spc match
-            ENDDO
-
-          ELSEIF ( N .GE. NR_STRT .AND. N .LE. NR_FINI ) THEN
-
+              END IF ! spc_name and ae_spc match
+            END DO
+          ELSE IF ( N .GE. NR_STRT .AND. N .LE. NR_FINI ) THEN
             DO J_SPC = 1, NSPC_SA
               IF ( SPC_NAME( J_SPC,ICONTAG ) .EQ. NR_SPC( N-NR_STRT+1 ) ) THEN
                 SPC_INDEX( J_SPC,1 ) = 1
                 SPC_INDEX( J_SPC,2 ) = N
                 MAP_CGRtoSA( N ) = J_SPC
-              ENDIF
-            ENDDO
-
-          ENDIF
-        ENDDO ! number of tagging species
+              END IF
+            END DO          
+          END IF          
+        END DO ! number of tagging species
 
 C...Map SA species for Advection
         ALLOCATE( MAP_ADVtoSA ( N_SPCTAG ) )
@@ -1249,25 +1234,31 @@ C...Map SA species for Advection
            CMAQ_ADV_NAMES( FRST:LAST ) = TR_ADV(1:N_TR_ADV)
         END IF
 
-        MAP_ADVtoSA = 0
+        MAP_ADVtoSA = -1
         N = 0
-        TRANS_ERROR = .FALSE.
+        TRANS_WARN = .FALSE.
         DO ITAG = 1, NTAG_SA
            DO J_SPC = 1, NSPC_SA
               N = N + 1
               MAP_ADVtoSA(N) = INDEX1( SPC_NAME(J_SPC,1), CMAQ_ADV, CMAQ_ADV_NAMES )
               IF( MAP_ADVtoSA(N) .LT. 1 .AND. ITAG .LT. 2 )THEN
-                 TRANS_ERROR = .TRUE.
-                 XMSG = 'ISAM ERROR: Tagged Species, ' // TRIM( SPC_NAME(J_SPC,1) ) 
+                 TRANS_WARN = .TRUE.
+                 XMSG = 'ISAM WARNING: Tagged Species, ' // TRIM( SPC_NAME(J_SPC,1) ) 
      &               // ' not transported. Modify species namelist(s) to include process.'
                  WRITE(LOGDEV,'(A)')TRIM( XMSG )
               END IF
+!              XMSG = 'For ' // SPC_NAME(J_SPC,1) // ' transported, adv_map = '
+!              WRITE(LOGDEV,95000)NSPC_TRANSPORT, J_SPC, TRIM( XMSG ),
+!     &        TRANSPORT_SPC(J_SPC), MAP_ADVtoSA(N)
            END DO
         END DO
-        IF( TRANS_ERROR )THEN
-          CALL M3EXIT( 'GET_SPC_INDEX', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
+        
+        IF ( TRANS_WARN ) THEN
+          CALL M3WARN( 'GET_SPC_INDEX', 0, 0, 'Above Problems Encountered' )
         END IF
-
+        IF ( EFLAG ) THEN
+          CALL M3EXIT( 'GET_SPC_INDEX', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
+        END IF 
 c...check assigned spc_name and spc_index
 c         if ( MYPE .eq. 0 ) then
 c           DO J_SPC = 1, NSPC_SA
@@ -1278,6 +1269,7 @@ c               !print *, SPC_INDEX(J_SPC,I2)
 c             ENDDO
 c           ENDDO
 c         endif
+95000    FORMAT(2(I3,1X),A,L4,1X,I4)
 
         END SUBROUTINE GET_SPC_INDEX
 
