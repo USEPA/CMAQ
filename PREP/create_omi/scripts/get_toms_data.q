@@ -3,7 +3,7 @@ set echo
 
 #parameters determing what raw data files to download for annual OMI file
   #RECOMMENDATION: Download data last four months before start of the year and
-  #up to one month after the end of the year. The suggestion attempts prevent 
+  #up to one month after the end of the year. The suggestion attempts to prevent 
   #encountering polar night in northern hemisphere and other possible data gaps.
   set YEAR_STUDY = "2011"                #> year to be covered by OMI file
   set START_DATE = "2010-09-01" #> beginning date ( Sept 1, 2010)
