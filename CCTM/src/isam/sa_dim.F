@@ -54,11 +54,15 @@ C...Reading in the tag information
           CALL CHECKMEM( IOST, 'TAGSTREAMS_TEMP', PNAME )
           TAGSTREAMS_TEMP = ''
 
+          ALLOCATE ( TAGSTREAMS_NUM( NTAGS ) )
+          TAGSTREAMS_NUM = 0
+
           ALLOCATE ( ISAMRGN_TEMP( NTAGS ), STAT = IOST )
           CALL CHECKMEM( IOST, 'ISAMRGN_TEMP', PNAME )
 
           ALLOCATE ( ISAMRGN_NUM( NTAGS ), STAT = IOST )
           CALL CHECKMEM( IOST, 'ISAMRGN_NUM', PNAME )
+          ISAMRGN_NUM = 0
 
 C...Process tag infromation from control file
           CALL RD_SA_IO_LIST( NTAGS )

@@ -40,7 +40,8 @@ c...Tagging species, regular or combined
       INTEGER, ALLOCATABLE, SAVE   :: MAP_AEROtoSA( :,: )
       LOGICAL, ALLOCATABLE, SAVE   :: IS_SPC_AEROSOL( :,: )
       LOGICAL, ALLOCATABLE, SAVE   :: TRANSPORT_SPC ( : )
-      INTEGER, ALLOCATABLE, SAVE   :: STREAM_TO_TAG ( : )
+      INTEGER, ALLOCATABLE, SAVE   :: STREAM_TO_TAG ( :,: )
+      INTEGER, ALLOCATABLE, SAVE   :: TAGS_PER_STREAM( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_DIFFtoSA( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_ADVtoSA( : )
 
@@ -57,7 +58,8 @@ c...Define Allocatable Apportionment Arrays
       REAL, ALLOCATABLE :: MAPFRAC( :,:,: )
       REAL, ALLOCATABLE :: MFRC_P( :,:,: )
       REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
-      REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_ALL( :,:,:,:,: ) ! full emissions array mapped to diffused species 
+      REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_ALL( :,:,:,:,: ) ! full emissions array mapped to diffused species
+      REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_OTHER( :,:,:,: ) ! emissions left for 'OTHRTAG'
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF( :,:,:,:,: ) 
 
 c...Variables regarding the tag list
@@ -70,6 +72,7 @@ c...Variables regarding the tag list
       CHARACTER( 96 ), ALLOCATABLE, SAVE :: ISAMRGN_TEMP( : )
       CHARACTER( 96 ), ALLOCATABLE, SAVE :: ISAMRGN( :, : )
       INTEGER, ALLOCATABLE, SAVE         :: ISAMRGN_NUM( : )
+      INTEGER, ALLOCATABLE, SAVE         :: ISAMRGN_MAP( :, : )
 
 c...Logical values for tagging species
       LOGICAL, SAVE :: L_EC
@@ -141,7 +144,7 @@ C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )
         INPUT_UNIT = JUNIT()
          
-        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST, STATUS = OLD )
+        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST, STATUS = 'OLD' )
         XMSG = 'Error Opening SA_IO_LIST file'
         IF ( IOST .NE. 0 ) THEN
           CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
@@ -204,7 +207,7 @@ C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )
         INPUT_UNIT = JUNIT()
 
-        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST, STATUS = OLD )
+        OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, IOSTAT = IOST, STATUS = 'OLD' )
         XMSG = 'Error Opening SA_IO_LIST file'
         IF ( IOST .NE. 0 ) THEN
           CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
@@ -233,11 +236,11 @@ C-----------------------------------------------------------
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 104
           TAGSTREAMS_TEMP( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
 
-          IF ( MYPE .eq. 0 ) then
-            WRITE(LOGDEV, *) '   ISAM Tag #   ',ITAG
-            WRITE(LOGDEV, *) '   ISAM Region  ',TAGRGN( ITAG )
-            WRITE(LOGDEV, *) '   ISAM Streams ',ISAMRGN_TEMP( ITAG )
-          END IF
+c         IF ( MYPE .eq. 0 ) then
+c           WRITE(LOGDEV, *) '   ISAM Tag #   ',ITAG
+c           WRITE(LOGDEV, *) '   ISAM Region  ',ISAMRGN_TEMP( ITAG )
+c           WRITE(LOGDEV, *) '   ISAM Streams ',TAGSTREAMS_TEMP( ITAG )
+c         END IF
 
         END DO
 

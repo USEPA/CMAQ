@@ -42,7 +42,7 @@ c     REAL :: CCOND( NCOLS,NROWS,NLAYS,NSPC_SA )
       REAL :: SULFCOND( NCOLS,NROWS,NLAYS )
       REAL :: SULFCOND_AIT( NCOLS,NROWS,NLAYS )
       REAL :: SULFCOND_ACC( NCOLS,NROWS,NLAYS )
-      REAL, ALLOCATABLE :: CCOND( :,:,:,: )
+      REAL, ALLOCATABLE, SAVE :: CCOND( :,:,:,: )
 
 
 ! for interpx
@@ -162,7 +162,7 @@ Ckrt Identify species index in ISAM array
      &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
 
-        ALLOCATE( CCOND(   NCOLS,NROWS,NLAYS,NSPCSD ) )
+        ALLOCATE( CCOND( NCOLS,NROWS,NLAYS,NSPCSD ) )
 
 
       ENDIF ! firstime ?
