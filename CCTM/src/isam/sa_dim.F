@@ -34,12 +34,8 @@ C
         CHARACTER( 16 ) :: PNAME = 'SA_DIM'
 
         INTEGER IOST
-        CHARACTER( 80 ) :: XMSG
 
         INTEGER NTAGS
-
-C...External functions
-        INTEGER, EXTERNAL :: TRIM_LEN
 
 C----------------------------------------------
 

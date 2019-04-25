@@ -17,7 +17,7 @@
 #> directory.
 
 
- set CMAQ_HOME = /home/user/CMAQ_Project
+ set CMAQ_HOME = /home/bmurphy/cmaq_projects/ISAM_190321
 
 
 #> This section allows users to choose explicitly which tools
@@ -103,6 +103,7 @@
     cp CCTM/scripts/run_cctm_2015_HEMI.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2015_HEMI.csh
     cp CCTM/scripts/run_cctm_2016_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2016_12US1.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
+    cp CCTM/scripts/isam_control.txt $CMAQ_HOME/CCTM/scripts/isam_control.txt
  endif
 
 #===============================================================================
