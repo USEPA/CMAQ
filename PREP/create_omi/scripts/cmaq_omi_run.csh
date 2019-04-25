@@ -3,15 +3,15 @@ set echo
 
 
 #define paths and create data file list
- set BASE      = /home/hwo/tools/create_CMAQ_OMI_file
- set input_dir = ${BASE}
+ set BASE      = /home/hwo/CCTM_git_repository/PREP/create_omi
+ set input_dir = /home/hwo/tools/create_CMAQ_OMI_file
  set YEAR      = "2015"
- set DATA_DIR  = ${BASE}"/OZONE_asdisc/test_data_"${YEAR}
+ set DATA_DIR  = ${input_dir}"/OZONE_asdisc/test_data_"${YEAR}
  set infile = acdisc_list.dat
  \ls -1 $DATA_DIR/*.ascii  >&! ${input_dir}/${infile}
 #set YEAR      = "2018"
-#set DATA_DIR  = ${BASE}"/TOMS_OMI_O3_column/"${YEAR}
-#set DATA_DIR  = ${BASE}"/TOMS_OMI_O3_column/test_data_"${YEAR}
+#set DATA_DIR  = ${input_dir}"/TOMS_OMI_O3_column/"${YEAR}
+#set DATA_DIR  = ${input_dir}"/TOMS_OMI_O3_column/test_data_"${YEAR}
 #set infile = toms_list.dat
 #\ls -1 $DATA_DIR/*.txt  >&! ${input_dir}/${infile}
 cat ${input_dir}/${infile}
@@ -19,18 +19,19 @@ cat ${input_dir}/${infile}
 #set compiler for path to executable
  setenv COMPILER  intel
 #setenv COMPILER gcc
- setenv COMPILER pgi
+#setenv COMPILER pgi
 
- set XBASE = ${BASE}/BLD_create_CMAQ_OMI_file_v00_${COMPILER}
+#define executable and its path
+ set XBASE = ${BASE}/BLD_create_omi_v53_${COMPILER}
  set XBASE = ${BASE}/src
- set EXEC  = create_CMAQ_OMI
+ set EXEC  = create_omi
  if( ! ( -e  ${XBASE}/${EXEC} ) )then
      \ls ${XBASE}/${EXEC}
      exit()
  endif
 
 #root directory for output files; final output directory set latter.
- set OUT_ROOT = ${BASE}"/output"
+ set OUT_ROOT = ${input_dir}"/output"
  
 #check OMI data file list
 #optimal results with data for entire length of needed year, plus December of previous year and
@@ -49,7 +50,7 @@ setenv PREV_DATE T
  
 #Flag to  output ASCII and IOAPI file at full lat/lon resolution
 #Only for visualization. Not used by the CMAQ model
-setenv FULL_FILES T
+setenv FULL_FILES F
 
 #Should be an odd number so output data in includes the equator
 #Minimum value and Default value is 17

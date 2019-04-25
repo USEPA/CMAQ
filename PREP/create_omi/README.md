@@ -1,15 +1,15 @@
-# create_CMAQ_OMI_file Utility
+# create_omi 
 
-The utility creates the OMI input file describing how total ozone column density varies over the globe and time.
+This tool creates the OMI input file describing how total ozone column density varies over the globe and time.
 The file supports CMAQ model's in-line calculation of photolysis rates. Creating the OMI file involves processing 
 observations from satellites, ASCII files for the latitude/longitude distribution of the ozone column for a calendar 
-day. The utility also creates IOAPI files for visualizing observations and the OMI file's data. They can 
-differ because the utility interpolates observations to horizontal resolution of the OMI file. The resolution is 
-an option specified by the utility's run-script.
+day. The tool also creates IOAPI files for visualizing observations and the OMI file's data. They can 
+differ because the tool interpolates observations to horizontal resolution of the OMI file. The resolution is 
+an option specified by the run-script.
 
-### Building the Utility
+### Compiling create_omi
 
-Compiling the utility requires a **FORTRAN** compiler, **netcdf** and **IOAPI**. 
+Compiling requires a **FORTRAN** compiler, **netcdf** and **IOAPI**. 
 If the requirements are met, a user has the below options.  
 
    1. Option One:  
@@ -21,15 +21,15 @@ If the requirements are met, a user has the below options.
       - Type "make clean" then type "make".  
       
    2. Option Two, _requires the bldmake utility for the CMAQ model_: 
-       - Copy to a work directory and modify the _bldit_ script under the _scripts_ subdirectory for _compiler_ case(s) needed.   
-       - Type bldit_create_CMAQ_OMI_file.csh _compiler_. 
+       - Copy to a work directory and modify the _bldit_ script under the _scripts_ subdirectory to define _compiler_ case(s) needed, CMAQ repository and work directories.   
+       - Type bldit_create_omi.csh _compiler_. 
        -  Go into the created build directory, type "make clean" and type "make".
        
-### Using the Utility for creating an OMI file
+### Using create_omi for creating an OMI file
 
 #### Satellite Inputs
 
-To create an OMI file, data for total ozone column density is required. The utility can use daily ASCII files from two 
+To create an OMI file, data for total ozone column density is required. The create_omi tool can use daily ASCII files from two 
 sources via the wget or curl command.  
 
       
@@ -56,7 +56,7 @@ Both sources were lasted accessed in March of 2019.
 The scripts directory contains an example for getting data from the TOMS ftp site, _scripts/get_toms_data.q_.
 When obtaining data files, we recommend getting files bracketing the desire peroid by several days because 
 observations may not available within given latitude/longitude ranges. The omission can occur because of the 
-satillite's orbit, polar night, or equipment failure. To go around the problem, the utility uses 
+satillite's orbit, polar night, or equipment failure. To go around the problem, create_omi uses 
 the last available observation or the mean value for a location, in respective presidence. For robust and more useful
 output files, several months of data are suggested.
 
@@ -69,13 +69,13 @@ A text editor can be used to replace the strings. The sed may also be used as be
                   sed 's/\*\*\*/  0/g' L3e_ozone_omi_YYYYMMDD.txt > tmp.txt
                   mv -f tmp.txt L3e_ozone_omi_YYYYMMDD.txt
       
-#### Running the Utility   
+#### Running create_omi  
 
-The script subdirectory includes a run-script for the utility, _scripts/cmaq_omi_env.q_. 
+The script subdirectory includes a run-script, _scripts/cmaq_omi_run.csh_. 
 A user should Copy and modify the script before running it. The script sets several environment 
-variables that are runtime options for the utility. The below table lists and describes these options. Note that
+variables that are runtime options. The below table lists and describes these options. Note that
 the Defaults values were used to create the OMI file the CMAQ repository under CCTM/src/phot/inline and that 
-the output data is centered and symmetric about the equator. The utility assumes that all the data files have the same
+the output data is centered and symmetric about the equator. The create_omi tool assumes that all the data files have the same
 Lat/Lon resolution.
 
 ##### Runtime Options

@@ -1,6 +1,6 @@
 # make file to build program
 
-PROGRAM = create_CMAQ_OMI
+PROGRAM = create_omi
 
 ifndef compiler
   compiler = intel
@@ -16,7 +16,7 @@ ifeq ($(compiler),intel)
   FC = ifort
   CC = icc
 
-  ioapi  = /home/wdx/lib_sol/x86_64/ifc-17.0.3/ioapi_3.1/Linux2_x86_64ifort
+  ioapi  = /home/wdx/lib/x86_64/ifc-17.0.3/ioapi_3.1/Linux2_x86_64ifort
   netcdf = /usr/local/apps/netcdf-4.4.1/intel-17.0
   
   include_path = -I $(ioapi) -I $(netcdf)/include -I .
@@ -41,7 +41,7 @@ else ifeq ($(compiler),pgi)
   FC = pgf90
   CC = pgcc
  
-  ioapi  = /home/wdx/lib_sol/x86_64/pgi-17.4/ioapi_3.1/Linux2_x86_64pg
+  ioapi  = /home/wdx/lib/x86_64/pgi-17.4/ioapi_3.1/Linux2_x86_64pg
   netcdf = /usr/local/apps/netcdf-4.4.1/pgi-17.4
   
   include_path = -I $(ioapi) -I $(netcdf)/include -I .

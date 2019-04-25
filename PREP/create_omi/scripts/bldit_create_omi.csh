@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
 # ==================== Build Script ================================= #
-# Usage:  bldit_create_OMI_file.csh COMPILER                          #
+# Usage:  bldit_create_omi.csh COMPILER                          #
 #         where the COMPILER agrument specifies brand of FORTRAN      #
 #         compiler. Available options: intel, pgi, and gcc            #
 #                                                                     #
@@ -31,18 +31,22 @@ else
 endif
 
 #> Repositories
- setenv PREP_REPO /home/hwo/tools/create_CMAQ_OMI_file
- setenv UTIL_REPO /home/hwo/CCTM_git_repository/UTIL
- setenv REPOROOT ${PREP_REPO}  #> location of the utility's repository
+ set    CMAQ_REPO = "/home/hwo/CCTM_git_repository"
+ setenv PREP_REPO ${CMAQ_REPO}/PREP
+ setenv UTIL_REPO ${CMAQ_REPO}/UTIL
+ setenv REPOROOT  ${PREP_REPO}/create_omi  #> location of the create_omi's repository
+
+#>Work directory
+ set WORK_DIR = ${REPOROOT} 
 
 #===============================================================================
 #> Begin User Input Section 
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v00                 #> version
- set EXEC     = create_CMAQ_OMI     #> executable name for this application
- set CFG      = create_CMAQ_OMI.cfg #> bldmake configuration file name
+ set VRSN     = v53            #> version
+ set EXEC     = create_omi     #> executable name for this application
+ set CFG      = create_omi.cfg #> bldmake configuration file name
 
  set bld_dir_blder = ${UTIL_REPO}/bldmake/src #> location of makefile builder executable 
  setenv BLDER        ${bld_dir_blder}/bldmake #> builder executable  
@@ -146,7 +150,7 @@ set FP = $FC
 #> Set up the writesite build directory under the Tools directory
 #> for checking out and compiling source code
 #============================================================================================
- set Bld = ${PREP_REPO}/BLD_create_CMAQ_OMI_file_${VRSN}_${compiler}
+ set Bld = ${WORK_DIR}/BLD_create_omi_${VRSN}_${compiler}
 
  if ( ! -e "$Bld" ) then
     mkdir -pv $Bld
@@ -206,7 +210,7 @@ set FP = $FC
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
 
- set text = "create_CMAQ_OMI"
+ set text = "create_omi"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDriver};"                                       >> $Cfile
  echo                                                              >> $Cfile
