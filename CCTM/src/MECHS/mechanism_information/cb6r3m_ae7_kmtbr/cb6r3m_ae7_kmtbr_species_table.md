@@ -27,6 +27,7 @@
 | CL                | atomic chlorine                                                              | 35.5                 | E                      |
 | CL2               | molecular chlorine                                                           | 71                   | E                      |
 | CLNO2             | nitryl chloride                                                              | 81.5                 | E                      |
+| CLNO3             | chlorine nitrate                                                             | 97.5                 | E                      |
 | CLO               | chlorine monoxide                                                            | 51.5                 | E                      |
 | CO                | carbon monoxide                                                              | 28                   | E                      |
 | CRES              | cresol and higher molecular weight phenols                                   | 108.1                | L                      |
