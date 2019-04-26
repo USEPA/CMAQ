@@ -50,6 +50,42 @@ C Inputs
       INTEGER,         INTENT( INOUT ) :: LPOINT
       INTEGER,         INTENT( INOUT ) :: IEOL
 
+      INTERFACE 
+        SUBROUTINE RDLINE ( IMECH, INBUF, LPOINT, IEOL )
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+        END SUBROUTINE RDLINE
+        SUBROUTINE GETCHAR ( IMECH, INBUF, LPOINT, IEOL, CHR )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+        END SUBROUTINE GETCHAR
+        SUBROUTINE GETREAL ( IMECH, INBUF, LPOINT, IEOL, CHR, NUMBER )
+         INTEGER,         INTENT( IN )    :: IMECH   ! IO unit for mechanism file
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR     ! current character from buffer
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF   ! string read from mechanism file
+         INTEGER,         INTENT( INOUT ) :: LPOINT  ! character position in INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL    ! end of line position
+         REAL( 8 ),       INTENT( OUT )   :: NUMBER  ! number from file
+        END SUBROUTINE GETREAL
+        SUBROUTINE GETWORD ( IMECH, INBUF, LPOINT, IEOL, CHR, WORD )
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( IN )    :: IMECH
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT(  OUT  ) :: WORD
+        END SUBROUTINE GETWORD
+        SUBROUTINE GETLABEL ( IMECH, INBUF, LPOINT, IEOL, CHR, LABEL )
+         INTEGER,         INTENT( IN )    :: IMECH
+         CHARACTER*( * ), INTENT( INOUT ) :: INBUF
+         INTEGER,         INTENT( INOUT ) :: IEOL, LPOINT
+         CHARACTER*( * ), INTENT( INOUT ) :: CHR
+         CHARACTER*( * ), INTENT( INOUT ) :: LABEL
+        END SUBROUTINE GETLABEL
+      END INTERFACE
+
 C Local
       
       INTEGER, EXTERNAL  :: INDEX1

@@ -66,7 +66,6 @@ C Arguments:
       INTEGER, INTENT( IN ) :: FTIME         ! current model time, coded HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP         ! time step (HHMMSS)
       INTEGER, INTENT( IN ) :: LVL           ! layer
-!     REAL,    INTENT( IN ) :: BCON( NBNDY,1: ) ! boundary concentrations
       REAL,    INTENT( IN ) :: BCON( :,: )      ! boundary concentrations
 
 C External Functions not declared in IODECL3.EXT:
@@ -111,8 +110,6 @@ C Local Variables:
       INTEGER      COL, ROW, SPC, VAR           ! loop counters
       INTEGER      A2C
 
-      INTEGER MY_TEMP
-!     INTEGER, SAVE :: STARTCOL, ENDCOL
       LOGICAL, SAVE :: BNDY_PE_LOX, BNDY_PE_HIX
 
 #ifdef parallel
@@ -178,6 +175,7 @@ C Get dx1 from HGRD_DEFN module
             XMSG = 'Failure allocating ADV_MAP'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
          END IF
+
 #ifdef parallel
          ALLOCATE ( HALO_EAST( SWP,MY_NROWS,N_SPC_ADV ),
      &              HALO_WEST( SWP,MY_NROWS,N_SPC_ADV ),
@@ -227,6 +225,7 @@ C Get the contravariant x1 velocity component
       CALL HCONTVEL ( FDATE, FTIME, TSTEP, LVL, X1VEL, UHAT )
 
       CALL SUBST_COMM (UHAT, DSPL_N0_E1_S0_W0, DRCN_E)
+
 #ifdef parallel
       EAST_COL = MY_NCOLS - SWP
       DO SPC = 1, N_SPC_ADV
@@ -243,9 +242,9 @@ C Get the contravariant x1 velocity component
       CALL SUBST_COMM (HALO_WEST, HALO_EAST, DSPL_N0_E1_S0_W0, DRCN_E)
       CALL SUBST_COMM (BUF_EW,    HALO_WEST, DSPL_N0_E0_S0_W1, DRCN_W)
 #endif
+
       DO 233 ROW = 1, MY_NROWS
 
-!        DO COL = STARTCOL, ENDCOL         !    DO COL = 1, MY_NCOLS+1
          DO COL = 1, MY_NCOLS+1
             VELX( COL ) = UHAT( COL,ROW )
          END DO
@@ -256,12 +255,14 @@ C Get the contravariant x1 velocity component
             DO COL = 1, MY_NCOLS
                CONX( COL,SPC ) = CGRID( COL,ROW,LVL,A2C )
             END DO
+
 #ifdef parallel
             DO COL = 1, SWP
                CONX( COL-SWP,SPC )      = HALO_WEST( COL,ROW,SPC )
                CONX( MY_NCOLS+COL,SPC ) = HALO_EAST( COL,ROW,SPC )
             END DO
 #endif
+
 C West boundary
 
             IF ( BNDY_PE_LOX ) THEN
@@ -298,11 +299,6 @@ C PPM scheme
                CGRID( COL,ROW,LVL,A2C ) = CONX( COL,SPC )
             END DO
          END DO
-
-!019  format( 'x_ppm# date, time, col, row, lvl, conx: ',
-!    &         2I7, 3I4, 1pe12.3 )
-2019  format( 'x_ppm# time, c, r, l, s, conx: ',
-     &         I7.6, 4I4, 1pe12.3 )
 
 233   CONTINUE
 

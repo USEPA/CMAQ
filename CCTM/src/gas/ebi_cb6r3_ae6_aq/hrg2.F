@@ -24,11 +24,11 @@ C
 C  FUNCTION: To solve for the concentration of HO, HO2, HONO, and
 C            HNO4 alebraically.
 C
-C  PRECONDITIONS: For the cb6r3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
+C  REVISION HISTORY: Created by EBI solver program, Feb 12, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -242,7 +242,7 @@ c..Production of HONO from OH (r19,4 terms )
 c..Remaining HONO production terms
       P19 =    2.0000D+00 * RXRAT(    41 )      ! NO+NO2=0.2000D+01*HONO
      &    +                 RXRAT(   197 )      ! CRON=HONO+HO2+FORM+OPEN
-     &    +    5.0000D-01 * RXRAT(   273 )      ! NO2=0.5000D+00*HONO+...
+     &    +    5.0000D-01 * RXRAT(   272 )      ! NO2=0.5000D+00*HONO+...
 
       P19 = YC0( HONO ) + P19 * DTC
 
@@ -327,7 +327,7 @@ c..HONO loss terms not included in R4_19
 
       L19   = 1.0D0 + L19 * DTC + R4_19
 
-c..PNA loss terms not inluded in R5_21
+c..PNA loss terms not included in R5_21
       L21 =    4.1000D-01 * RKI(    50 )                         ! PNA=0.5900D+...
      &    +                 RKI(    51 ) * YC ( OH           )   ! PNA+OH=NO2
 

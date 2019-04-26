@@ -84,7 +84,7 @@ echo 'Start Model Run At ' `date`
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  8; @ NPROW =  8
+   @ NPCOL  =  16; @ NPROW =  8
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -165,9 +165,6 @@ setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore 
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS N        #> calculate in-line biogenic emissions [ default: N ]
                              #>    [ default: N ]
-setenv CTM_ZERO_PCSOA Y      #> zero out emissions of VOC precursor for pcSOA formation.
-                             #>    The CMAQ dev team recommends leaving pcSOA mass in the
-                             #>    model for production runs. [ default: N ]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -315,7 +312,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_BDY_3D $METpath/METBDY3D.$MCONF.${YYYYMMDD}
 
   #> Emissions Control File
-  setenv EMISSCTRL_NML ${WORKDIR}/EmissCtrl.nml
+  setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
 #> Spatial Masks For Emissions Scaling
 
@@ -370,7 +367,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv GR_EM_DTOVRD_001 F
 
   #> In-line point emissions configuration
-  setenv N_EMIS_PT 5          #> Number of elevated source groups
+  setenv N_EMIS_PT 0          #> Number of elevated source groups
 
   set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g              # Stack Group Version Label
   set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g  # Stack Emission Version Label
@@ -391,11 +388,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv LAYP_STDATE $YYYYJJJ
 
   # Label Each Emissions Stream
-  setenv STK_EMIS_LAB_001 POINT_NONEGU
-  setenv STK_EMIS_LAB_002 POINT_EGU
-  setenv STK_EMIS_LAB_003 POINT_OTHER
-  setenv STK_EMIS_LAB_004 POINT_FIRES
-  setenv STK_EMIS_LAB_005 POINT_OILGAS
+  setenv STK_EMIS_LAB_001 PT_NONEGU
+  setenv STK_EMIS_LAB_002 PT_EGU
+  setenv STK_EMIS_LAB_003 PT_OTHER
+  setenv STK_EMIS_LAB_004 PT_FIRES
+  setenv STK_EMIS_LAB_005 PT_OILGAS
 
   # Stack emissions diagnostic files
   #setenv STK_EMIS_DIAG_001 2DSUM
@@ -420,8 +417,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv USE_NLDN  Y        #> use hourly NLDN strike file [ default: Y ]
      if ( $USE_NLDN == Y ) then
         setenv NLDN_STRIKES ${IN_LTpath}/NLDN.12US1.${YYYYMMDD}_bench.nc
-     else
-        setenv LOG_START 2.0   #> RC value to transition from linear to log linear
      endif
      setenv LTNGPARMS_FILE ${IN_LTpath}/LTNG_AllParms_12US1_bench.nc #> lightning parameter file
   endif

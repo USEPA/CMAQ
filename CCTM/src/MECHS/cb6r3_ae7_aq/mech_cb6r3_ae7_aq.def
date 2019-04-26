@@ -391,7 +391,6 @@ REACTIONS[CM] =
 ! heterogeneous reactions from CB05eh51
 
 <HET_CLNO3_WAJ> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAJ>;
-<HET_CLNO3_WAK> CLNO3     = HOCL + HNO3               # 1.0~<HETERO_CLNO3_WAK>;
 
 ! SOA counter species and semivolatiles formed
 <SA01>  TOLRO2  + NO      = NO  + 0.016*SVAVB2 + 0.051*SVAVB3 +

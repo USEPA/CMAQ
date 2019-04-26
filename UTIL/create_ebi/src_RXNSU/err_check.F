@@ -242,7 +242,7 @@ c..check to make sure there is a O1D-->2*OH reaction
       LFOUND = .FALSE.
       DO N = 1, NRXNS
          IF( ( IRR( N, 1 ) .EQ. O1D .AND. NREACT( N ) .EQ. 1 ) .AND.
-     &         IRR( N, 4 ) .EQ. OH .AND. SC( N, 1 ) .EQ. 2.0 ) THEN
+     &         IRR( N, 4 ) .EQ. OH .AND. SC( N, 1 ) .EQ. 2.0D0 ) THEN
             LFOUND = .TRUE.
             EXIT
          END IF
@@ -272,7 +272,7 @@ c..check for a O3P-->O3
       LFOUND = .FALSE.
       DO N = 1, NRXNS
          IF( IRR( N, 1 ) .EQ. O3P .AND. NREACT( N ) .EQ. 1 .AND.
-     &       IRR( N, 4 ) .EQ. O3  .AND. SC( N, 1 ) .EQ. 1.0 ) THEN
+     &       IRR( N, 4 ) .EQ. O3  .AND. SC( N, 1 ) .EQ. 1.0D0 ) THEN
             LFOUND = .TRUE.
             EXIT
          END IF
@@ -287,7 +287,7 @@ c..check for a NO+O3=NO2 reaction
       DO N = 1, NRXNS
          IF( ( ( IRR( N, 1 ) .EQ. NO  .AND. IRR( N, 2 ) .EQ. O3 ) .OR.
      &         ( IRR( N, 2 ) .EQ. NO  .AND. IRR( N, 1 ) .EQ. O3 ) ) .AND.
-     &         ( IRR( N, 4 ) .EQ. NO2 .AND. SC( N, 1 )  .EQ. 1.0 ) ) THEN
+     &         ( IRR( N, 4 ) .EQ. NO2 .AND. SC( N, 1 )  .EQ. 1.0D0 ) ) THEN
             LFOUND = .TRUE.
             EXIT
          END IF

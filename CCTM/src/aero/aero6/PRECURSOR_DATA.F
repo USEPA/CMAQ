@@ -237,9 +237,8 @@ C Find indices of required species
 99901 Format( 'FATAL error(s) found in the GC and/or NR namelists used. Check that '
      &     /  'these namelists contain the above required data as the respective files '
      &     /  'in the repository version of the mechanism: ' , a )
-99902 Format( 5x,'Note: ', a, ' is not found in G2AE or N2AE values of',
-     &    /   7x,'the GC or NR namelist. Simulation does not include effects ',
-     &    /   7x,'on secondary aerosol production from the species.' )
+99902 Format( 5x,'Note: Optional species ', a, ' is not found in G2AE or N2AE values of',
+     &    /   7x,'the GC or NR namelist. Simulation will ignore this species.' )
 
       Return
       End Subroutine map_precursor

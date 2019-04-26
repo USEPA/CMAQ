@@ -98,9 +98,6 @@ C Emission rate of all aerosol species interpolated to current time
 
 C DUST_MAP   windblown dust emission rate index in DUSTOUTM
 
-C Factor for converting aerosol emissions from input units ...
-      REAL,    ALLOCATABLE :: CONVEM_PM( :,: ) ! into [ug/m2/sec]
-
 C Domain decomposition info from emission and meteorology files
       INTEGER :: STARTCOL, ENDCOL, STARTROW, ENDROW
       INTEGER :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
@@ -181,7 +178,7 @@ C-----------------------------------------------------------------------
      &                        AERO_MISSING, MAP_AERO
          USE GRID_CONF, ONLY: GDTYP_GD, XCELL_GD, YCELL_GD, YORIG_GD, GL_NROWS, X3FACE_GD
          USE DUST_EMIS, ONLY: DUST_EMIS_INIT
-         USE EMIS_VARS, ONLY: CONVEM_PM_MASS, MAP_EMtoSURR
+         USE EMIS_VARS, ONLY: MAP_EMtoSURR
          USE PRECURSOR_DATA, ONLY: MAP_PRECURSOR
          USE RUNTIME_VARS, ONLY:  SS_AERO, WB_DUST
          USE SSEMIS, ONLY:    SSEMIS_INIT
@@ -314,12 +311,11 @@ C *** Set up emissions size distribution arrays
          END IF
        END DO
 
-C *** Allocate memory for EMBUFF, CELLHGT, CELLVOL, and CONVEM_PM
-         ALLOCATE ( CONVEM_PM( EMLAYS, N_EM_SRM ),
-     &              CELLHGT( EMLAYS ),
+C *** Allocate memory for CELLHGT and CELLVOL
+         ALLOCATE ( CELLHGT( EMLAYS ),
      &              CELLVOL( EMLAYS ), STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
-            XMSG = '*** CONVEM_PM, CELLHGT or CELLVOL memory allocation failed'
+            XMSG = '*** CELLHGT or CELLVOL memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          
@@ -349,10 +345,6 @@ C     Multiply by grid area [m2] to obtain grid volume
          DO L = 1, EMLAYS
             CELLHGT( L ) = X3FACE_GD( L ) - X3FACE_GD( L-1 )
             CELLVOL( L ) = CELLHGT( L ) * CELLAREA
-
-            DO ISRM = 1,N_EM_SRM
-              CONVEM_PM( L,ISRM ) = CONVEM_PM_MASS( ISRM ) / CELLVOL( L )
-            END DO
          END DO
 
          END FUNCTION  AERO_EMIS_INIT
@@ -384,6 +376,7 @@ C-----------------------------------------------------------------------
        CHARACTER( 16 ), SAVE            :: PNAME = 'EM_SD_INIT  '
 
        INTEGER IRULE, ISUR, N, NLEN, ISD, IM, IEM, NRULE
+       LOGICAL   :: LREMOVE
        
        ! Find Total Number of Size Distribution Registries
        N_SD_RULE = SIZE( SD_NML )
@@ -400,19 +393,20 @@ C-----------------------------------------------------------------------
        SD_NAME = ''
 
        DO ISRM = 1,N_EM_SRM
-         N_SD( ISRM ) = 3
+         N_SD( ISRM ) = 2
          SD_NAME( ISRM,1 ) = 'FINE'
          SD( ISRM,1 ) = INDEX1( 'FINE_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
          SD_NAME( ISRM,2 ) = 'COARSE'
          SD( ISRM,2 ) = INDEX1( 'COARSE_REF', N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
-         SD_NAME( ISRM,3 ) = 'AERO'
-         SD( ISRM,3 ) = INDEX1( 'UNITY_REF',   N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
        END DO
        
        ! Now Modify those defaults or add new modes to desired streams
        DO IRULE = 1, N_SD_RULE
          ! Expand Size Distribution Rule to All Streams if Requested
-         CALL INTERPRET_EM_RULE_STREAM( SD_NML( IRULE )%STREAM, IRULE, EM_STREAM_RULE )
+         LREMOVE = .FALSE.
+         CALL INTERPRET_EM_RULE_STREAM( SD_NML( IRULE )%STREAM, IRULE, 
+     &                 EM_STREAM_RULE, LREMOVE )
+         IF ( LREMOVE ) CYCLE
 
          ! Loop through streams, set defaults, and build map array
          DO ISRM = 1, N_EM_SRM
@@ -428,13 +422,6 @@ C-----------------------------------------------------------------------
                    ! Overwrite the COARSE mode. All coarse particle
                    ! species will go to this mode by default
                    SD( ISRM,2 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
-     &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
-               ELSEIF ( SD_NML( IRULE )%MODE .EQ. 'AERO' ) THEN
-                   ! Overwrite the Full Aerosol Distribution. All
-                   ! species will distributed to this configuration of
-                   ! modes. For example, dust or sea spray can be
-                   ! modified this way.
-                   SD( ISRM,3 ) = INDEX1( SD_NML( IRULE )%MODE_REF,
      &                               N_EM_AERO_REF, EM_AERO_REF( : )%NAME )
                ELSE
                    ! Add a New Available Mode. For example, add a mode
@@ -476,6 +463,8 @@ C-----------------------------------------------------------------------
 
           ! Map Factors for Converting Aerosol Mass to Number and
           ! Surface Area to each Emission Stream
+          EM_STREAM_SIZE( ISRM )%FACNUM( :,: ) = 0.0
+          EM_STREAM_SIZE( ISRM )%FACSRF( :,: ) = 0.0
           DO ISD = 2,N+1
              IEM = EM_STREAM_SIZE( ISRM )%REF( ISD )
              DO IM = 1,N_MODE
@@ -504,7 +493,7 @@ C ----------------------------------------------------------------------
          USE AERO_DATA, ONLY: AEROSPC, N_AEROSPC, AEROSPC_MWINV 
          USE AEROMET_DATA, ONLY: F6DPI
          USE ASX_DATA_MOD, ONLY: MET_DATA
-         USE EMIS_VARS, ONLY: N_EMIS_ISTR, IDUSTSRM, ISEASRM, CONVEM_PM_MASS
+         USE EMIS_VARS, ONLY: N_EMIS_ISTR, IDUSTSRM, ISEASRM
          USE GRID_CONF, ONLY: NCOLS, NROWS
          USE SSEMIS, ONLY: SEA_FACTNUM, SEA_FACTSRF
 
@@ -540,9 +529,8 @@ C *** Initialize Variables
 C *** Calculate scaling factor for converting mass emissions into [ug/m3/s]
 C     note: RJACM converts grid heights from sigma coordinates to meters
 C     Also calculate scaling factors for converting to molar-mixing-ratio units
-         DO LAY = 1, NL
-            GSFAC( LAY,:,: ) = CONVEM_PM( LAY,ISRM ) 
-     &                           * Met_Data%RJACM( :,:,LAY ) ![g/s] or [kg/hr] to [ug/m3/s]
+         DO LAY = 1,NL
+           GSFAC( LAY,:,: ) = Met_Data%RJACM( :,:,LAY ) / CELLVOL( LAY ) ![ug/s] to [ug/m3/s]
          END DO
  
 C *** Apply Aerosol Size Distribution
@@ -564,9 +552,8 @@ C *** Apply Aerosol Size Distribution
              ! Convert Aerosol from [g/s] to [ug/m3/s] for all streams
              ! except Dust and Sea Spray. For those streams, convert
              ! [g/m3/s] to [ug/m3/s]
-             IF ( ISRM .EQ. ISEASRM .OR. ISRM .EQ. IDUSTSRM ) THEN
-                VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * CONVEM_PM_MASS( ISRM )
-             ELSE
+             VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: )  * 1.0E6
+             IF ( ISRM .NE. ISEASRM .AND. ISRM .NE. IDUSTSRM ) THEN
                 VDEMIS( ISTR,1:NL,:,: ) = VDEMIS( ISTR,1:NL,:,: ) * GSFAC( 1:NL,:,: ) 
              END IF
 

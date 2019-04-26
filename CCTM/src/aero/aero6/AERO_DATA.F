@@ -127,8 +127,8 @@ C Number of aerosol species and modes
       Integer, Save :: n_aerospc ! number of aero species
 
 C Default minimum concentration
-      Real,    Parameter :: conmin  = 1.0E-30    ! [ ug m-3 ]
-      Real(8), Parameter :: conminD = 1.0D-30    ! [ ug m-3 ]
+      Real,    Parameter :: conmin  = 1.0E-23    ! [ ug m-3 ]
+      Real(8), Parameter :: conminD = 1.0D-23    ! [ ug m-3 ]
       Real,    Parameter :: evapmin = 1.0E-20    ! [ ug m-3 ]
       Real(8), Parameter :: evapminD= 1.0D-20    ! [ ug m-3 ]
       Real,    Parameter :: cm_set( n_mode ) = (/conmin, conmin, conmin/)
@@ -166,7 +166,6 @@ C-------------------------------------------------------------------------------
          Real            :: min_conc( n_mode )   ! minimum concentration values for each mode
          Real            :: density              ! density [ kg m-3 ]
          Logical         :: no_M2Wet             ! flag to exclude from 2nd moment during transport
-         Logical         :: nonVol_soa           ! non-volatile SOA flag
          Logical         :: tracer               ! tracer flag; does have not mass
          Integer         :: charge               ! electroneutrality charge
          Real            :: visual_idx           ! visual index factor [ m2 g-1 ]
@@ -184,7 +183,6 @@ C-------------------------------------------------------------------------------
          Real            :: min_conc( n_mode )   ! minimum concentration values for each mode
          Real            :: density              ! density [ kg m-3 ]
          Logical         :: no_M2Wet             ! flag to exclude from 2nd moment during transport
-         Logical         :: nonVol_soa           ! non-volatile SOA flag
          Logical         :: tracer               ! tracer flag; does have not mass
          Integer         :: charge               ! electroneutrality charge
          Real            :: visual_idx           ! visual index factor [ m2 g-1 ]
@@ -195,118 +193,118 @@ C-------------------------------------------------------------------------------
       End Type spcs_list_type
 
       Type( spcs_list_type ), Parameter :: aerolist( n_aerolist ) = (/
-C                                              nonVolSOA       Visidx_Large
-C                                           no_M2Wet|Tracer         |
-C                     ---Name---                  | | | Charge      | OM           
-C                               Min_Concs Density | | |   | Visidx  |  |  OptSurr  korg  
-C                     ---------- -------- ------- + + +   + ------ --- +  -------- ----- 
-     & spcs_list_type('ASO4    ', cm_so4, 1800.0, F,F,F, -2,  2.2, 4.8,F, 'SOLUTE', 0.00), ! Sulfate
-     & spcs_list_type('ANO3    ', cm_set, 1800.0, F,F,F, -1,  2.4, 5.1,F, 'SOLUTE', 0.00), ! Nitrate
-     & spcs_list_type('ACL     ', cm_set, 2200.0, F,F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Chloride
-     & spcs_list_type('ANH4    ', cm_set, 1800.0, F,F,F,  1,  0.0, 0.0,F, 'SOLUTE', 0.00), ! Ammonium
-     & spcs_list_type('ANA     ', cm_set, 2200.0, F,F,F,  1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Sodium
-     & spcs_list_type('AMG     ', cm_set, 2200.0, F,F,F,  2,  1.0, 1.0,F, 'DUST  ', 0.00), ! Magnesium
-     & spcs_list_type('AK      ', cm_set, 2200.0, F,F,F,  1,  1.0, 1.0,F, 'DUST  ', 0.00), ! Potassium
-     & spcs_list_type('ACA     ', cm_set, 2200.0, F,F,F,  2,  1.0, 1.0,F, 'DUST  ', 0.00), ! Calcium
-     & spcs_list_type('APOC    ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.00), ! POA Carbon
-     & spcs_list_type('APNCOM  ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.00), ! POA Non-Carbon          #10
-     & spcs_list_type('AEC     ', cm_set, 2200.0, F,F,F,  0, 10.0,10.0,F, 'SOOT  ', 0.00), ! Elemental (Black) Carbon
-     & spcs_list_type('AFE     ', cm_set, 2200.0, F,F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Iron
-     & spcs_list_type('AAL     ', cm_set, 2200.0, F,F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Aluminum
-     & spcs_list_type('ASI     ', cm_set, 2200.0, F,F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Silicon
-     & spcs_list_type('ATI     ', cm_set, 2200.0, F,F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Titanium
-     & spcs_list_type('AMN     ', cm_set, 2200.0, F,F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Manganese
-     & spcs_list_type('AH2O    ', cm_set, 1000.0, T,F,F,  0,  0.0, 0.0,F, 'WATER ', 0.00), ! Water
-     & spcs_list_type('AORGH2O ', cm_set, 1000.0, T,F,F,  0,  0.0, 0.0,F, 'WATER ', 0.00), ! Organic Water
-     & spcs_list_type('AH3OP   ', cm_set, 1000.0, T,F,T,  0,  0.0, 0.0,F, 'WATER ', 0.00), ! Hydronium
-     & spcs_list_type('AOTHR   ', cm_set, 2200.0, F,F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Other                   #20
-     & spcs_list_type('AALK1   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), ! Alkane SOA 1            
-     & spcs_list_type('AALK2   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.06), ! Alkane SOA 2
-     & spcs_list_type('AXYL1   ', cm_set, 1480.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.17), ! Xylene SOA 1
-     & spcs_list_type('AXYL2   ', cm_set, 1480.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.11), ! Xylene SOA 2
-     & spcs_list_type('AXYL3   ', cm_set, 1330.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Xylene SOA 3
-     & spcs_list_type('ATOL1   ', cm_set, 1240.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Toluene SOA 1
-     & spcs_list_type('ATOL2   ', cm_set, 1240.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.10), ! Toluene SOA 2
-     & spcs_list_type('ATOL3   ', cm_set, 1450.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.20), ! Toluene SOA 3
-     & spcs_list_type('ABNZ1   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.19), ! Benzene SOA 1
-     & spcs_list_type('ABNZ2   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Benzene SOA 2           #30
-     & spcs_list_type('ABNZ3   ', cm_set, 1400.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.23), ! Benzene SOA 3           
-     & spcs_list_type('ATRP1   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.10), ! Terpene SOA 1
-     & spcs_list_type('ATRP2   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.10), ! Terpene SOA 2
-     & spcs_list_type('AISO1   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14), ! Isoprene SOA 1
-     & spcs_list_type('AISO2   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Isoprene SOA 2
-     & spcs_list_type('AISO3   ', cm_set, 1400.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.21), ! Isoprene SOA 3
-     & spcs_list_type('ASQT    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), ! Sesquiterpene SOA
-     & spcs_list_type('APAH1   ', cm_set, 1480.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.08), ! PAH SOA 1
-     & spcs_list_type('APAH2   ', cm_set, 1480.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.06), ! PAH SOA 2
-     & spcs_list_type('APAH3   ', cm_set, 1550.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.09), ! PAH SOA 3               #40
-     & spcs_list_type('AOLGA   ', cm_set, 1400.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.18), ! Anth. Oligomer SOA      
-     & spcs_list_type('AOLGB   ', cm_set, 1400.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Biogenic Oligomer SOA
-     & spcs_list_type('AORGC   ', cm_set, 1400.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.12), ! Cloud-Processed SOA
-     & spcs_list_type('ASOIL   ', cm_set, 2600.0, F,F,F,  0,  0.6, 0.6,F, 'DUST  ', 0.00), ! Soil
-     & spcs_list_type('ACORS   ', cm_cor, 2200.0, F,F,F,  0,  0.6, 0.6,F, 'DUST  ', 0.00), ! Coarse PM
-     & spcs_list_type('ASEACAT ', cm_cor, 2200.0, F,F,F,  1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! SeaSpray Cations        
+C                                                             Visidx_Large
+C                                          no_M2Wet Tracer        |
+C                     ---Name---                  | | Charge      | OM           
+C                               Min_Concs Density | |   | Visidx  |  |  OptSurr  korg  
+C                     ---------- -------- ------- + +   + ------ --- +  -------- ----- 
+     & spcs_list_type('ASO4    ', cm_so4, 1800.0, F,F, -2,  2.2, 4.8,F, 'SOLUTE', 0.00), ! Sulfate
+     & spcs_list_type('ANO3    ', cm_set, 1800.0, F,F, -1,  2.4, 5.1,F, 'SOLUTE', 0.00), ! Nitrate
+     & spcs_list_type('ACL     ', cm_set, 2200.0, F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Chloride
+     & spcs_list_type('ANH4    ', cm_set, 1800.0, F,F,  1,  0.0, 0.0,F, 'SOLUTE', 0.00), ! Ammonium
+     & spcs_list_type('ANA     ', cm_set, 2200.0, F,F,  1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Sodium
+     & spcs_list_type('AMG     ', cm_set, 2200.0, F,F,  2,  1.0, 1.0,F, 'DUST  ', 0.00), ! Magnesium
+     & spcs_list_type('AK      ', cm_set, 2200.0, F,F,  1,  1.0, 1.0,F, 'DUST  ', 0.00), ! Potassium
+     & spcs_list_type('ACA     ', cm_set, 2200.0, F,F,  2,  1.0, 1.0,F, 'DUST  ', 0.00), ! Calcium
+     & spcs_list_type('APOC    ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.00), ! POA Carbon
+     & spcs_list_type('APNCOM  ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.00), ! POA Non-Carbon          #10
+     & spcs_list_type('AEC     ', cm_set, 2200.0, F,F,  0, 10.0,10.0,F, 'SOOT  ', 0.00), ! Elemental (Black) Carbon
+     & spcs_list_type('AFE     ', cm_set, 2200.0, F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Iron
+     & spcs_list_type('AAL     ', cm_set, 2200.0, F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Aluminum
+     & spcs_list_type('ASI     ', cm_set, 2200.0, F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Silicon
+     & spcs_list_type('ATI     ', cm_set, 2200.0, F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Titanium
+     & spcs_list_type('AMN     ', cm_set, 2200.0, F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Manganese
+     & spcs_list_type('AH2O    ', cm_set, 1000.0, T,F,  0,  0.0, 0.0,F, 'WATER ', 0.00), ! Water
+     & spcs_list_type('AORGH2O ', cm_set, 1000.0, T,F,  0,  0.0, 0.0,F, 'WATER ', 0.00), ! Organic Water
+     & spcs_list_type('AH3OP   ', cm_set, 1000.0, T,T,  0,  0.0, 0.0,F, 'WATER ', 0.00), ! Hydronium
+     & spcs_list_type('AOTHR   ', cm_set, 2200.0, F,F,  0,  1.0, 1.0,F, 'DUST  ', 0.00), ! Other                   #20
+     & spcs_list_type('AALK1   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), ! Alkane SOA 1            
+     & spcs_list_type('AALK2   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.06), ! Alkane SOA 2
+     & spcs_list_type('AXYL1   ', cm_set, 1480.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.17), ! Xylene SOA 1
+     & spcs_list_type('AXYL2   ', cm_set, 1480.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.11), ! Xylene SOA 2
+     & spcs_list_type('AXYL3   ', cm_set, 1330.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Xylene SOA 3
+     & spcs_list_type('ATOL1   ', cm_set, 1240.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Toluene SOA 1
+     & spcs_list_type('ATOL2   ', cm_set, 1240.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.10), ! Toluene SOA 2
+     & spcs_list_type('ATOL3   ', cm_set, 1450.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.20), ! Toluene SOA 3
+     & spcs_list_type('ABNZ1   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.19), ! Benzene SOA 1
+     & spcs_list_type('ABNZ2   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Benzene SOA 2           #30
+     & spcs_list_type('ABNZ3   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.23), ! Benzene SOA 3           
+     & spcs_list_type('ATRP1   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.10), ! Terpene SOA 1
+     & spcs_list_type('ATRP2   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.10), ! Terpene SOA 2
+     & spcs_list_type('AISO1   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14), ! Isoprene SOA 1
+     & spcs_list_type('AISO2   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Isoprene SOA 2
+     & spcs_list_type('AISO3   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.21), ! Isoprene SOA 3
+     & spcs_list_type('ASQT    ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), ! Sesquiterpene SOA
+     & spcs_list_type('APAH1   ', cm_set, 1480.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.08), ! PAH SOA 1
+     & spcs_list_type('APAH2   ', cm_set, 1480.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.06), ! PAH SOA 2
+     & spcs_list_type('APAH3   ', cm_set, 1550.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.09), ! PAH SOA 3               #40
+     & spcs_list_type('AOLGA   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.18), ! Anth. Oligomer SOA      
+     & spcs_list_type('AOLGB   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Biogenic Oligomer SOA
+     & spcs_list_type('AORGC   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.12), ! Cloud-Processed SOA
+     & spcs_list_type('ASOIL   ', cm_set, 2600.0, F,F,  0,  0.6, 0.6,F, 'DUST  ', 0.00), ! Soil
+     & spcs_list_type('ACORS   ', cm_cor, 2200.0, F,F,  0,  0.6, 0.6,F, 'DUST  ', 0.00), ! Coarse PM
+     & spcs_list_type('ASEACAT ', cm_cor, 2200.0, F,F,  1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! SeaSpray Cations        
                                                                                    
        ! Associated with ae6i                                                           
-     & spcs_list_type('AMTNO3  ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.11), ! Monoterpene Nitrate SOA
-     & spcs_list_type('AISOPNN ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.32), ! Isoprene Nitrate SOA
-     & spcs_list_type('AMTHYD  ', cm_set, 1400.0, F,T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), ! 
-     & spcs_list_type('AIETET  ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Iso. Tetrol SOA         #50
-     & spcs_list_type('AIEOS   ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.30), ! Iso. Organosulfate SOA  
-     & spcs_list_type('ADIM    ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), !
-     & spcs_list_type('AIMGA   ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.18), !
-     & spcs_list_type('AIMOS   ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.36), !
+     & spcs_list_type('AMTNO3  ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.11), ! Monoterpene Nitrate SOA
+     & spcs_list_type('AISOPNN ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.32), ! Isoprene Nitrate SOA
+     & spcs_list_type('AMTHYD  ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), ! 
+     & spcs_list_type('AIETET  ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15), ! Iso. Tetrol SOA         #50
+     & spcs_list_type('AIEOS   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.30), ! Iso. Organosulfate SOA  
+     & spcs_list_type('ADIM    ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), !
+     & spcs_list_type('AIMGA   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.18), !
+     & spcs_list_type('AIMOS   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.36), !
                                                                                         
        ! Updated monoterpene SOA following Saha and Grieshop ES&T 2016                  
-     & spcs_list_type('AMT1    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.08), ! MT SOA Lowest Volatility
-     & spcs_list_type('AMT2    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.08), ! 
-     & spcs_list_type('AMT3    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.09), !
-     & spcs_list_type('AMT4    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), !
-     & spcs_list_type('AMT5    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), !
-     & spcs_list_type('AMT6    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.05), !                         #60
-     & spcs_list_type('AMT7    ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.06), ! MT SOA Highest Volatility
-                                                                                        
-       ! ae6i and cb6                                                                   
-     & spcs_list_type('AGLY    ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Glyoxal SOA
-                                                                                        
-       ! Semivolatile POA                                                               
-     & spcs_list_type('ALVPO1  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.05), ! LV-POA
-     & spcs_list_type('ASVPO1  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.05), ! SV-POA 1
-     & spcs_list_type('ASVPO2  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.04), ! SV-POA 2
-     & spcs_list_type('ASVPO3  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.03), ! SV-POA 3
-     & spcs_list_type('AIVPO1  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.03), ! IV-POA 
-     & spcs_list_type('ALVOO1  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.15), ! LV-SOA 1                
-     & spcs_list_type('ALVOO2  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.13), ! LV-SOA 2
-     & spcs_list_type('ASVOO1  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.11), ! SV-SOA 1                #70
-     & spcs_list_type('ASVOO2  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.09), ! SV-SOA 2
-     & spcs_list_type('ASVOO3  ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.08), ! SV-SOA 3
-     & spcs_list_type('APCSO   ', cm_set, 1400.0, T,F,F,  0,  4.0, 6.1,T, 'DUST  ', 0.12), ! pcSOA
+     & spcs_list_type('AMT1    ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.08), ! MT SOA Lowest Volatility
+     & spcs_list_type('AMT2    ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.08), ! 
+     & spcs_list_type('AMT3    ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.09), !
+     & spcs_list_type('AMT4    ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), !
+     & spcs_list_type('AMT5    ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07), !
+     & spcs_list_type('AMT6    ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.05), !                         #60
+     & spcs_list_type('AMT7    ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.06), ! MT SOA Highest Volatility
+                                                                                      
+       ! ae6i and cb6                                                                 
+     & spcs_list_type('AGLY    ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.13), ! Glyoxal SOA
+                                                                                      
+       ! Semivolatile POA                                                             
+     & spcs_list_type('ALVPO1  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.05), ! LV-POA
+     & spcs_list_type('ASVPO1  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.05), ! SV-POA 1
+     & spcs_list_type('ASVPO2  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.04), ! SV-POA 2
+     & spcs_list_type('ASVPO3  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.03), ! SV-POA 3
+     & spcs_list_type('AIVPO1  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.03), ! IV-POA 
+     & spcs_list_type('ALVOO1  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.15), ! LV-SOA 1                
+     & spcs_list_type('ALVOO2  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.13), ! LV-SOA 2
+     & spcs_list_type('ASVOO1  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.11), ! SV-SOA 1                #70
+     & spcs_list_type('ASVOO2  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.09), ! SV-SOA 2
+     & spcs_list_type('ASVOO3  ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.08), ! SV-SOA 3
+     & spcs_list_type('APCSO   ', cm_set, 1400.0, T,F,  0,  4.0, 6.1,T, 'DUST  ', 0.12), ! pcSOA
                                                                                   
        ! Lumped anthropogenic SOA (introduced aero7, M. Qin, 8/2018)
-     & spcs_list_type('AAVB1   ', cm_set, 1400.0, F,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.20),
-     & spcs_list_type('AAVB2   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15),
-     & spcs_list_type('AAVB3   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14),
-     & spcs_list_type('AAVB4   ', cm_set, 1400.0, T,F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.12),
+     & spcs_list_type('AAVB1   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.20),
+     & spcs_list_type('AAVB2   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.15),
+     & spcs_list_type('AAVB3   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14),
+     & spcs_list_type('AAVB4   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.12),
 
        ! The following species are associated with the Multi-Pollutant code
-     & spcs_list_type('ANI     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Nickel
-     & spcs_list_type('ACR_VI  ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Chromium 6
-     & spcs_list_type('ACR_III ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Chromium 3              #80
-     & spcs_list_type('ABE     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Beryllium
-     & spcs_list_type('APB     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Lead                     
-     & spcs_list_type('ADE_OTHR', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Fine PM          
-     & spcs_list_type('ADE_EC  ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Black Carbon
-     & spcs_list_type('ADE_OC  ', cm_set, 2000.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Organic Carbon
-     & spcs_list_type('ADE_NO3 ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Nitrate
-     & spcs_list_type('ADE_SO4 ', cm_set, 1800.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Sulfate
-     & spcs_list_type('ADE_CORS', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Coarse PM
-     & spcs_list_type('ACD     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Cadmium
-     & spcs_list_type('AMN_HAPS', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Manganese               #90
-     & spcs_list_type('APHG    ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Mercury
-     & spcs_list_type('AAS     ', cm_set, 2200.0, F,F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Arsenic                 #92
+     & spcs_list_type('ANI     ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Nickel
+     & spcs_list_type('ACR_VI  ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Chromium 6
+     & spcs_list_type('ACR_III ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Chromium 3              #80
+     & spcs_list_type('ABE     ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Beryllium
+     & spcs_list_type('APB     ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Lead                     
+     & spcs_list_type('ADE_OTHR', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Fine PM          
+     & spcs_list_type('ADE_EC  ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Black Carbon
+     & spcs_list_type('ADE_OC  ', cm_set, 2000.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Organic Carbon
+     & spcs_list_type('ADE_NO3 ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Nitrate
+     & spcs_list_type('ADE_SO4 ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Sulfate
+     & spcs_list_type('ADE_CORS', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Diesel Coarse PM
+     & spcs_list_type('ACD     ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Cadmium
+     & spcs_list_type('AMN_HAPS', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Manganese               #90
+     & spcs_list_type('APHG    ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Mercury
+     & spcs_list_type('AAS     ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Arsenic                 #92
 
       ! The following species are associated with the marine chemistry code
-     & spcs_list_type('ABR     ', cm_set, 2200.0, F,F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00)  ! Bromide 
+     & spcs_list_type('ABR     ', cm_set, 2200.0, F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00)  ! Bromide 
      & /)
  
 ! Define Reference Emissions Size Distributions
@@ -320,23 +318,23 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
           Real            :: dgvem( n_mode )  ! meters
           Real            :: sgem ( n_mode )  ! dimensionless
       END TYPE em_aero
-      INTEGER, PARAMETER  :: n_em_aero_ref = 7
+      INTEGER, PARAMETER  :: n_em_aero_ref = 9
 
       TYPE( em_aero ), Parameter :: em_aero_ref( n_em_aero_ref ) = (/
 
-!              ----Name---- -----Split-----    ---Geo. Mean Diameter---    ---Stnd Dev.---
-     & em_aero('FINE_REF  ',(/0.1,0.9,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Default Accum and Aitken Mode
-     & em_aero('ACC_REF   ',(/0.0,1.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Accumulation Mode
-     & em_aero('COARSE_REF',(/0.0,0.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Coarse Mode
-     & em_aero('UNITY_REF ',(/1.0,1.0,1.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Used for online sectors (e.g. SeaSpray)
-     & em_aero('ZERO_REF  ',(/0.0,0.0,0.0/)  ,(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Zero out the emissions
-     & em_aero('WB_DUST   ',(/0.0,0.07,0.93/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Default Dust Parameterization. Currently,
-                                                                                             !  these values are hard-coded in the dust 
-                                                                                             !  routine.
-     & em_aero('SEASPRAY  ',(/0.0,0.05,0.05/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))  ! Default Sea Spray Parameterization is Dynamic. 
-                                                                                             !  The values here are not actually used but
-                                                                                             !  are replaced in SSEMIS when FACNUM and FACSRF
-                                                                                             !  are calculated online.
+!              ----Name----     -----Split-----    ---Geo. Mean Diameter---   ---Stnd Dev.---
+     & em_aero('FINE_REF       ',(/0.1,0.9,0.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Default Accum and Aitken Mode
+     & em_aero('ACC_REF        ',(/0.0,1.0,0.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Accumulation Mode
+     & em_aero('COARSE_REF     ',(/0.0,0.0,1.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Coarse Mode
+     & em_aero('UNITY_REF      ',(/1.0,1.0,1.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Used for online sectors (e.g. SeaSpray)
+     & em_aero('ZERO_REF       ',(/0.0,0.0,0.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Zero out the emissions
+     & em_aero('FINE_WBDUST    ',(/0.0,1.0,0.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Default Fine Wind-Blown Dust Parameterization
+     & em_aero('COARSE_WBDUST  ',(/0.0,0.0,1.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Default Coarse Wind-Blown Dust Param.
+     & em_aero('FINE_SEASPRAY  ',(/0.0,1.0,0.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Fine Sea Spray Parameterization is Dynamic. 
+     & em_aero('COARSE_SEASPRAY',(/0.0,0.0,1.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/))  ! Coarse Sea Spray Parameterization is Dynamic. 
+                                                                                                !  The values here are not actually used but
+                                                                                                !  are replaced in SSEMIS when FACNUM and FACSRF
+                                                                                                !  are calculated online.
      & /)
 
 ! Primary Organic Aerosol Volatility Distributions
@@ -369,9 +367,10 @@ C                     ---------- -------- ------- + + +   + ------ --- +  ------
 C number of lognormal modes in windblown dust aerosol = n_mode
 C - but only accumulation and coarse modes used
       Type emis_table
-         Character( 16 ) :: description
-         Character( 16 ) :: name  
-         Real            :: spcfac( n_mode )
+         Character( 16 ) :: description       ! Species Long Name
+         Character( 16 ) :: name              ! Species Name
+         Real            :: mw                ! Molecular weight (g/mol)
+         Real            :: spcfac( 2 )       ! Speciation Factor for fine and coarse modes (g/g)
       End type emis_table
 
 C For the wind-blown dust speciation factors, we used the median of the Desert Soil
@@ -403,36 +402,36 @@ C maximum number of chemical species in windblown dust aerosol
 
        
       Type( emis_table ) :: dust_spc( ndust_spc ) = (/
-C                    --description-- -- Species --  -------- spcfac --------
-C                                                    Aitken  accum   coarse
-     &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.02250, 0.02655/) ),   ! Sulfate
-     &   emis_table( 'Nitrate       ', 'ANO3    ', (/ 0.0, 0.00020, 0.00160/) ),   ! Nitrate
-     &   emis_table( 'Chlorine      ', 'ACL     ', (/ 0.0, 0.00945, 0.01190/) ),   ! Chlorine
-     &   emis_table( 'Ammonium      ', 'ANH4    ', (/ 0.0, 0.00005, 0.0    /) ),   ! Ammonium
-     &   emis_table( 'Sodium        ', 'ANA     ', (/ 0.0, 0.03935, 0.0    /) ),   ! Sodium
-     &   emis_table( 'Calcium       ', 'ACA     ', (/ 0.0, 0.07940, 0.0    /) ),   ! Calcium
-     &   emis_table( 'Magnesium     ', 'AMG     ', (/ 0.0, 0.01900, 0.0    /) ),   ! Magnesium
-     &   emis_table( 'Potassium     ', 'AK      ', (/ 0.0, 0.03770, 0.0    /) ),   ! Potassium
-     &   emis_table( 'Org. Carbon   ', 'APOC    ', (/ 0.0, 0.01075, 0.0    /) ),   ! Organic Carbon
-     &   emis_table( 'NonCarbon Org.', 'APNCOM  ', (/ 0.0, 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( 'Low-Vol. POA  ', 'ALVPO1  ', (/ 0.0, 0.01501, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( 'Low-Vol. OOA  ', 'ALVOO1  ', (/ 0.0, 2.23E-5, 0.0    /) ),   ! Non-Carbon Organic Matter
-     &   emis_table( 'Black Carbon  ', 'AEC     ', (/ 0.0, 0.0,     0.0    /) ),   ! Black or Elemental Carbon
-     &   emis_table( 'Iron          ', 'AFE     ', (/ 0.0, 0.03355, 0.0    /) ),   ! Iron
-     &   emis_table( 'Aluminum      ', 'AAL     ', (/ 0.0, 0.05695, 0.0    /) ),   ! Aluminum
-     &   emis_table( 'Silicon       ', 'ASI     ', (/ 0.0, 0.19425, 0.0    /) ),   ! Silicon
-     &   emis_table( 'Titanium      ', 'ATI     ', (/ 0.0, 0.00280, 0.0    /) ),   ! Titanium
-     &   emis_table( 'Manganese     ', 'AMN     ', (/ 0.0, 0.00115, 0.0    /) ),   ! Manganese
-     &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.00541, 0.00637/) ),   ! Water
-     &   emis_table( 'Undefined Mass', 'AOTHR   ', (/ 0.0, 0.48319, 0.0    /) ),   ! Other
-     &   emis_table( 'Non-Anion Dust', 'ASOIL   ', (/ 0.0, 0.0,     0.95358/) ),   ! Non-Anion Dust
-     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 0.00041, 0.00041/) ),   ! Air toxics Manganese J and K mode
-     &   emis_table( 'Nickel        ', 'ANI     ', (/ 0.0, 2.0E-05, 2.0E-05/) ),   ! Nickel J and K mode
-     &   emis_table( 'Chromium III  ', 'ACR_III ', (/ 0.0, 5.6E-05, 5.6E-05/) ),   ! Trivalent Chromium J and K mode
-     &   emis_table( 'Arsenic       ', 'AAS     ', (/ 0.0, 5.5E-06, 5.5E-06/) ),   ! Arsenic J and K mode
-     &   emis_table( 'Lead          ', 'APB     ', (/ 0.0, 1.6E-05, 1.6E-05/) ),   ! Lead J and K mode
-     &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 9.7E-08, 9.7E-08/) ),   ! Cadmium J and K mode
-     &   emis_table( 'Mercury       ', 'APHG    ', (/ 0.0, 1.4E-08, 1.4E-08/) ) /) ! Mercury J and K mode
+C                    --description-- -- Species -- --MW--   ------ spcfac ------
+C                                                             fine    coarse
+     &   emis_table( 'Sulfate       ',  'SO4    ',  96.0, (/ 0.02250, 0.02655/) ),   ! Sulfate
+     &   emis_table( 'Nitrate       ',  'NO3    ',  62.0, (/ 0.00020, 0.00160/) ),   ! Nitrate
+     &   emis_table( 'Chlorine      ',  'CL     ',  35.5, (/ 0.00945, 0.01190/) ),   ! Chlorine
+     &   emis_table( 'Ammonium      ',  'NH4    ',  18.0, (/ 0.00005, 0.0    /) ),   ! Ammonium
+     &   emis_table( 'Sodium        ',  'NA     ',  23.0, (/ 0.03935, 0.0    /) ),   ! Sodium
+     &   emis_table( 'Calcium       ',  'CA     ',  40.1, (/ 0.07940, 0.0    /) ),   ! Calcium
+     &   emis_table( 'Magnesium     ',  'MG     ',  24.3, (/ 0.01900, 0.0    /) ),   ! Magnesium
+     &   emis_table( 'Potassium     ',  'K      ',  39.1, (/ 0.03770, 0.0    /) ),   ! Potassium
+     &   emis_table( 'Org. Carbon   ',  'POC    ', 220.0, (/ 0.01075, 0.0    /) ),   ! Organic Carbon
+     &   emis_table( 'NonCarbon Org.',  'PNCOM  ', 220.0, (/ 0.00430, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Low-Vol. POA  ',  'LVPO1  ', 218.0, (/ 0.01501, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Low-Vol. OOA  ',  'LVOO1  ', 136.0, (/ 2.23E-5, 0.0    /) ),   ! Non-Carbon Organic Matter
+     &   emis_table( 'Black Carbon  ',  'EC     ',  12.0, (/ 0.0,     0.0    /) ),   ! Black or Elemental Carbon
+     &   emis_table( 'Iron          ',  'FE     ',  55.8, (/ 0.03355, 0.0    /) ),   ! Iron
+     &   emis_table( 'Aluminum      ',  'AL     ',  27.0, (/ 0.05695, 0.0    /) ),   ! Aluminum
+     &   emis_table( 'Silicon       ',  'SI     ',  28.1, (/ 0.19425, 0.0    /) ),   ! Silicon
+     &   emis_table( 'Titanium      ',  'TI     ',  47.9, (/ 0.00280, 0.0    /) ),   ! Titanium
+     &   emis_table( 'Manganese     ',  'MN     ',  54.9, (/ 0.00115, 0.0    /) ),   ! Manganese
+     &   emis_table( 'Water         ',  'H2O    ',  18.0, (/ 0.00541, 0.00637/) ),   ! Water
+     &   emis_table( 'Undefined Mass',  'OTHR   ', 200.0, (/ 0.48319, 0.0    /) ),   ! Other
+     &   emis_table( 'Non-Anion Dust',  'SOIL   ', 100.0, (/ 0.0,     0.95358/) ),   ! Non-Anion Dust
+     &   emis_table( 'Air Toxics Mn ',  'MN_HAPS',  54.9, (/ 0.00041, 0.00041/) ),   ! Air toxics Manganese J and K mode
+     &   emis_table( 'Nickel        ',  'NI     ',  58.7, (/ 2.0E-05, 2.0E-05/) ),   ! Nickel J and K mode
+     &   emis_table( 'Chromium III  ',  'CR_III ',  52.0, (/ 5.6E-05, 5.6E-05/) ),   ! Trivalent Chromium J and K mode
+     &   emis_table( 'Arsenic       ',  'AS     ',  74.92,(/ 5.5E-06, 5.5E-06/) ),   ! Arsenic J and K mode
+     &   emis_table( 'Lead          ',  'PB     ', 207.2, (/ 1.6E-05, 1.6E-05/) ),   ! Lead J and K mode
+     &   emis_table( 'Cadmium       ',  'CD     ', 112.4, (/ 9.7E-08, 9.7E-08/) ),   ! Cadmium J and K mode
+     &   emis_table( 'Mercury       ',  'PHG    ', 200.5, (/ 1.4E-08, 1.4E-08/) ) /) ! Mercury J and K mode
 
       ! Manually Enter the mode-dependent Density of the Dust Particles using the mass fractions in 
       ! the dust_spc table and user-defined densities for each component. You may reference the aerolist 
@@ -441,8 +440,7 @@ C                                                    Aitken  accum   coarse
       ! Make sure to ignore any tracer species when performing this calculation.
       Real, Parameter :: dust_dens( n_mode ) = (/ 2200.0, 2156.55, 2536.92 /)
 
-      INTEGER, ALLOCATABLE, SAVE :: MAP_DUSTtoAERO( : ) 
-      Real, ALLOCATABLE, SAVE    :: DUSTOUTM( :,:,:,: ) ! Wind-Blown Dust Mass Emiss Rate [ug/m3/s]
+      Real, ALLOCATABLE, SAVE    :: DUSTOUTM( :,:,: ) ! Wind-Blown Dust Mass Emiss Rate [ug/m3/s]
       Real, ALLOCATABLE, SAVE    :: DUSTOUTN( :,:,: )   ! Wind-Blown Dust Number Emiss Rate [1/m3/s]
       Real, ALLOCATABLE, SAVE    :: DUSTOUTS( :,:,: )   ! Wind-Blown Dust Surface Area Emiss Rate [m2/m3/s]
 
@@ -455,25 +453,25 @@ C number of chemical species in seawater aerosol composition
       integer, parameter :: nsea_spc = 17
 
       Type( emis_table ), Parameter :: sea_spc( nsea_spc ) = (/
-C                     -description--  -- Species --  -------- spcfac --------
-C                                                     Aitken  accum   coarse
-     &   emis_table( 'Sulfate       ', 'ASO4    ', (/ 0.0, 0.07760, 0.07760/) ),   ! Sulfate
-     &   emis_table( 'Chlorine      ', 'ACL     ', (/ 0.0, 0.55380, 0.55380/) ),   ! Chlorine
-     &   emis_table( 'Sodium        ', 'ANA     ', (/ 0.0, 0.30860, 0.0    /) ),   ! Sodium
-     &   emis_table( 'Calcium       ', 'ACA     ', (/ 0.0, 0.01180, 0.0    /) ),   ! Calcium
-     &   emis_table( 'Magnesium     ', 'AMG     ', (/ 0.0, 0.03680, 0.0    /) ),   ! Magnesium
-     &   emis_table( 'Potassium     ', 'AK      ', (/ 0.0, 0.01140, 0.0    /) ),   ! Potassium
-     &   emis_table( 'SeaSalt_Cation', 'ASEACAT ', (/ 0.0, 0.0    , 0.36860/) ),   ! Sea-Salt Cations
-     &   emis_table( 'Chromium IV   ', 'ACR_VI  ', (/ 0.0, 5.95E-9, 5.95E-9/) ),   ! accumulation and coarse mode Hexavalent Chromium
-     &   emis_table( 'Nickel        ', 'ANI     ', (/ 0.0, 1.34E-8, 1.34E-8/) ),   ! accumulation and coarse mode Nickle
-     &   emis_table( 'Arsenic       ', 'AAS     ', (/ 0.0, 4.93E-8, 4.93E-8/) ),   ! accumulation and coarse mode Arsenic
-     &   emis_table( 'Beryllium     ', 'ABE     ', (/ 0.0, 5.2E-11, 5.2E-11/) ),   ! accumulation and coarse mode Beryllium
-     &   emis_table( 'Mercury       ', 'APHG    ', (/ 0.0, 5.8E-11, 5.8E-11/) ),   ! accumulation and coarse mode Mercury
-     &   emis_table( 'Lead          ', 'APB     ', (/ 0.0, 6.0E-11, 6.0E-11/) ),   ! accumulation and coarse mode Lead
-     &   emis_table( 'Cadmium       ', 'ACD     ', (/ 0.0, 1.93E-9, 1.93E-9/) ),   ! accumulation and coarse mode cadmium
-     &   emis_table( 'Air Toxics Mn ', 'AMN_HAPS', (/ 0.0, 4.7E-11, 4.7E-11/) ),   ! accumulation and coarse mode Air toxics Manganese
-     &   emis_table( 'bromine       ', 'ABR     ', (/ 0.0, 0.00190, 0.00190/) ),   ! Bromine 
-     &   emis_table( 'Water         ', 'AH2O    ', (/ 0.0, 0.0    , 0.0    /) ) /) ! Water (uptake is calculated online)
+C                     -description--  -- Species -- --MW--  ------ spcfac ------
+C                                                              fine    coarse
+     &   emis_table( 'Sulfate       ',   'SO4    ',  96.0, (/ 0.07760, 0.07760/) ),   ! Sulfate
+     &   emis_table( 'Chlorine      ',   'CL     ',  35.5, (/ 0.55380, 0.55380/) ),   ! Chlorine
+     &   emis_table( 'Sodium        ',   'NA     ',  23.0, (/ 0.30860, 0.0    /) ),   ! Sodium
+     &   emis_table( 'Calcium       ',   'CA     ',  40.1, (/ 0.01180, 0.0    /) ),   ! Calcium
+     &   emis_table( 'Magnesium     ',   'MG     ',  24.3, (/ 0.03680, 0.0    /) ),   ! Magnesium
+     &   emis_table( 'Potassium     ',   'K      ',  39.1, (/ 0.01140, 0.0    /) ),   ! Potassium
+     &   emis_table( 'SeaSalt_Cation',   'SEACAT ',  23.75,(/ 0.0    , 0.36860/) ),   ! Sea-Salt Cations
+     &   emis_table( 'Chromium VI   ',   'CR_VI  ',  52.0, (/ 5.95E-9, 5.95E-9/) ),   ! Hexavalent Chromium
+     &   emis_table( 'Nickel        ',   'NI     ',  58.7, (/ 1.34E-8, 1.34E-8/) ),   ! Nickle
+     &   emis_table( 'Arsenic       ',   'AS     ',  74.92,(/ 4.93E-8, 4.93E-8/) ),   ! Arsenic
+     &   emis_table( 'Beryllium     ',   'BE     ',   9.0, (/ 5.2E-11, 5.2E-11/) ),   ! Beryllium
+     &   emis_table( 'Mercury       ',   'PHG    ', 200.5, (/ 5.8E-11, 5.8E-11/) ),   ! Mercury
+     &   emis_table( 'Lead          ',   'PB     ', 207.2, (/ 6.0E-11, 6.0E-11/) ),   ! Lead
+     &   emis_table( 'Cadmium       ',   'CD     ', 112.4, (/ 1.93E-9, 1.93E-9/) ),   ! cadmium
+     &   emis_table( 'Air Toxics Mn ',   'MN_HAPS',  54.9, (/ 4.7E-11, 4.7E-11/) ),   ! Air toxics Manganese
+     &   emis_table( 'Bromine       ',   'BR     ',  79.9, (/ 0.00190, 0.00190/) ),   ! Bromine 
+     &   emis_table( 'Water         ',   'H2O    ',  18.0, (/ 0.0    , 0.0    /) ) /) ! Water (uptake is calculated online)
  
       ! MAKE SURE WATER IS THE LAST COMPONENT IN THE TABLE ABOVE OR YOU
       ! WILL ENCOUNTER ISSUES WITH THE SEA SPRAY EMISSIONS MODULE.
@@ -486,8 +484,6 @@ C                                                     Aitken  accum   coarse
       Real, Parameter :: seaspray_dens( n_mode ) = (/ 2162.7, 2162.7, 2162.7 /)
       Real, Parameter :: specific_vol_h2o = 0.001  !Inverse Density of Particulate Water
  
-      INTEGER, ALLOCATABLE, SAVE :: MAP_SEAtoAERO( : )  !
-
 C Constants used for simulating the ionic effects of sea-spray,
 C windblown dust and anthropogenic dust in the coarse mode. These cation
 C species are not transported individually in the domain but their
@@ -688,8 +684,8 @@ C Private variables for loading from and unloading to CGRID array
 
 ! Initial Reference Values for M2 and M3 used for Heterogenous Chemistry
 ! Module.
-      REAL( 8 ), ALLOCATABLE :: CHEM_M2DRY_INIT( :,:,:,: ),
-     &                          CHEM_M3DRY_INIT( :,:,:,: )
+      REAL( 8 ), ALLOCATABLE, SAVE :: CHEM_M2DRY_INIT( :,:,:,: ),
+     &                                CHEM_M3DRY_INIT( :,:,:,: )
 
       Contains
 
@@ -834,13 +830,13 @@ C Build mapping to CGRID for each species in the master AeroList
          aerospc( spc )%min_conc   = aerolist( l )%min_conc
          aerospc( spc )%density    = aerolist( l )%density   
          aerospc( spc )%no_M2wet   = aerolist( l )%no_M2Wet   
-         aerospc( spc )%nonVol_soa = aerolist( l )%nonVol_soa 
          aerospc( spc )%tracer     = aerolist( l )%tracer     
          aerospc( spc )%charge     = aerolist( l )%charge     
          aerospc( spc )%visual_idx = aerolist( l )%visual_idx 
          aerospc( spc )%visual_idx_large = aerolist( l )%visual_idx_large
          aerospc( spc )%om         = aerolist( l )%om         
          aerospc( spc )%optic_surr = aerolist( l )%optic_surr 
+         aerospc( spc )%kappaorg   = aerolist( l )%kappaorg
          aerospc( spc )%name( : )  = ''
 
          ! Map mode-independent properties
@@ -980,11 +976,15 @@ C compute aeromode_minNum and aeromode_minM2
 
       Do m = 1, n_mode
          If ( m .Lt. n_mode ) Then
-            aeromode_minNum( m ) = so4fac * aerospc( aso4_idx )%min_conc( m ) /
+            aeromode_minNum( m ) = aerospc( aso4_idx )%min_conc( m ) /
      &           ( def_diam( m )**3 * Exp( 4.5 * Log( def_sigma_g( m ) )**2 ) )
+            aeromode_minNum( m ) = aeromode_minNum( m ) * so4fac 
+            aeromode_minNum( m ) = Max( aeromode_minNum( m ), conmin )
          Else
-            aeromode_minNum( m ) = anthfac * aerospc( acors_idx )%min_conc( m ) /
+            aeromode_minNum( m ) = aerospc( acors_idx )%min_conc( m ) /
      &           ( def_diam( m )**3 * Exp( 4.5 * Log( def_sigma_g( m ) )**2 ) )
+            aeromode_minNum( m ) = aeromode_minNum( m ) * anthfac 
+            aeromode_minNum( m ) = Max( aeromode_minNum( m ), conmin )
          End If
          aeromode_minM2( m ) = aeromode_minNum( m ) *
      &             def_diam( m )**2 * Exp( 2.0 * Log( def_sigma_g( m ) )**2 )
@@ -1202,9 +1202,13 @@ C Local Variables:
 
       idx = 0
 C Find the substring vname in aerospc( spc )%name( n )
-      Do n = 1, n_mode
-         Do spc = 1, n_aerospc
-            If ( Index( aerospc( spc )%name( n ), trim(vname) ) .Gt. 0 ) Then
+      Do spc = 1, n_aerospc
+         If ( aerospc( spc )%bulkname .eq. vname ) Then
+            idx = spc
+            Return
+         End If
+         Do n = 1, n_mode
+            If ( aerospc( spc )%name( n ) .eq. vname ) Then
                idx = spc
                Return
             End If
@@ -1285,7 +1289,7 @@ C     moment [ m**2/m**3 ]
                 Call m3warn( pname_loc, 0, 0, xmsg )
             End If
 
-            initialM3 = moment3_conc( n )
+            initialM3 = max( moment3_conc( n ), aeromode( n )%min_m3conc )
             If ( initialM3 .Eq. 0.0 ) Then
                 write( xmsg,'(A31,I1,A42)') "Warning: Third Moment for Mode ",
      &                 n," is 0.0. This will cause numerical issues."
@@ -1321,7 +1325,7 @@ C     moment [ m**2/m**3 ]
                 Call m3warn( pname_loc, 0, 0, xmsg )
             End If
 
-            initialM3 = moment3_conc( n )
+            initialM3 = max( moment3_conc( n ), aeromode( n )%min_m3conc )
             If ( initialM3 .Eq. 0.0 )  Then
                 write( xmsg,'(A31,I1,A42)') "Warning: Third Moment for Mode ",
      &                 n," is 0.0. This will cause numerical issues."
@@ -1486,12 +1490,14 @@ C Local variables:
          ELSEIF ( LSTAT .EQ. 4 ) THEN
            STAT = LSTAT
 
-           WHERE( LBCMODE( IMODE,: ) .AND. LBCNUM ) IBCON = conmin  !Number
-           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = conmin  !Second Moment
+           WHERE( LBCMODE( IMODE,: ) .AND. LBCNUM ) IBCON =
+     &                             aeromode_minnum( IMODE )  !Number
+           WHERE( LBCMODE( IMODE,: ) .AND. LBCSRF ) IBCON = 
+     &                             aeromode_minM2 ( IMODE )  !Second Moment
            WHERE( LBCMODE( IMODE,: ) .AND. LBCMASS) IBCON = conmin  !Third Moment
            !Save Modal Properties After the Check
-           AER_PAR( 2, IMODE, 1 ) = conmin
-           AER_PAR( 2, IMODE, 2 ) = conmin
+           AER_PAR( 2, IMODE, 1 ) = aeromode_minnum( IMODE )  !Number
+           AER_PAR( 2, IMODE, 2 ) = aeromode_minM2 ( IMODE )  !Second Moment
            AER_PAR( 2, IMODE, 3 ) = conmin
            AER_PAR( 2, IMODE, 4 ) = 0.
            AER_PAR( 2, IMODE, 5 ) = 0.

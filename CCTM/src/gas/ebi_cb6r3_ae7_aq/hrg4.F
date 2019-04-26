@@ -23,11 +23,11 @@ C**********************************************************************
 C
 C  FUNCTION:  To solve for the concentration of NO3 and N2O5
 C
-C  PRECONDITIONS: For the cb6r3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3 family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug 29, 2018
+C  REVISION HISTORY: Created by EBI solver program, Feb 11, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -111,8 +111,8 @@ c..Loss frequency of N2O5
       L16 =                 RKI(    37 )                         ! N2O5=NO3+NO2
      &    +                 RKI(    38 )                         ! N2O5=NO2+NO3
      &    +                 RKI(    39 )                         ! N2O5=0.2000D+01*HNO3
-     &    +                 RKI(   270 )                         ! N2O5=HNO3+H2NO3PIJ
-     &    +                 RKI(   271 )                         ! N2O5=HNO3+H2NO3PK
+     &    +                 RKI(   269 )                         ! N2O5=HNO3+H2NO3PIJ
+     &    +                 RKI(   270 )                         ! N2O5=HNO3+H2NO3PK
 
 c..K15_15, R15_16, and R16_15 terms
       K15_15  = RKI(    35 ) * DTC
