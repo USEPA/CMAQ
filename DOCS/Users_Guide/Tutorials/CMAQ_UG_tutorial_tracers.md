@@ -1,0 +1,245 @@
+## CMAQ Tutorial ##
+### Add Chemically Inert Tracer Species to CMAQ ###
+Purpose: This tutorial will step you through the process of adding chemically inert tracers to the CMAQ model. Additional details are provided in the CMAQ Operational [Guidance Document (OGD)](https://github.com/USEPA/CMAQ/blob/5.3/DOCS/User_Guide).
+
+
+------------
+
+
+### STEP 1: Create tracer namelist</strong>
+
+Create namelist according to Table 3.4 in the [CMAQ OGD](CMAQ_UG_ch04_model_inputs.md#Table3-4). Include one line for each tracer species with the following format (refer to the table below for more information on the abbreviations):
+
+<a id=Table3-4></a>
+
+<center> **Amended from Table 3-4. in CMAQ UG** </center>
+
+| **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:|
+|-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
+| 1 || File Type |String|String to delineate Gas Phase (GC), Aerosol (AE), Non-reactive (NR) and Tracer (TR) species namelist|{TR_nml}|
+| 3 || Header ID | String |String to define data structure relating to namelist|{TR_SPECIES_DATA = }|
+| 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|-|
+||2| MOLWT| Integer |Species Molecular Weight|-|
+|  |3| IC | String |IC/ surrogate species name for the CMAQ Species|{'Species name', ' '}|
+|  |4| FAC | Integer |Scaling factor for the IC/BC concentration|{Any integer: default = -1 if IC is not specified}|
+|  |5| BC | String |surrogate species name for the CMAQ Species|{'Species name', ' '}|
+|  |6| FAC | Integer |Scaling factor for the IC/BC concentration|{Any integer: default = -1 if BC is not specified}|
+| |7| DRYDEP SURR | String |Deposition velocity variable name for the CMAQ Species|-|
+| |8| FAC | Integer |Scaling factor for the deposition velocity|{Any integer: default = -1 if SURR is not specified}|
+| |9| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|-|
+| | 10 | FAC | Integer |Scaling factor for Scavenging|{Any integer: default = -1 if SURR is not specified}|
+|| 11 | TR2AE SURR | String |Gas-to-aerosol transformation species|-|
+|| 12 | TR2AQ SURR | String |Gas-to-aqueous transformation species|-|
+|| 13 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
+|| 14 | DDEP | String |Dry deposition output file switch|{YES/NO}|
+|| 15 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
+|| 16 | CONC | String |Concentration output file switch|{YES/NO}|
+
+The example namelist file shown below defines six tracer species.
+
+
+```
+&TR_nml
+
+TR_SPECIES_DATA =
+
+!SPECIES     ,MOLWT   ,IC           ,IC_FAC         ,BC        ,BC_FAC      ,DEPV       ,DEPV_FAC  ,SCAV     ,SCAV_FAC ,TR2AE      ,TR2AQ ,ADVC  ,DIFF  ,DDEP  ,WDEP  ,CONC 
+'O3_BC'      ,48.0    ,''          ,-1              ,'O3'      , 1          ,'VD_O3'    ,1         ,'O3'     , 1        ,''        ,''   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES',
+'CO_BC'      ,28.0    ,''          ,-1              ,'CO'      , 1          ,'VD_CO'    ,1         ,'CO'     , 1        ,''        ,''   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES', 
+'O3_IC'      ,48.0    ,'O3'        , 1              ,''        ,-1          ,'VD_O3'    ,1         ,'O3'     , 1        ,''        ,''   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES', 
+'O3_BC_50PC' ,48.0    ,''          ,-1              ,'O3'      ,0.5         ,'VD_O3'    ,1         ,'O3'     , 1        ,''        ,''   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES',
+'CO_EMIS'    ,28.0    ,''          ,-1              ,''        ,-1          ,'VD_CO'    ,1         ,'CO'     , 1        ,''        ,''   ,'YES' ,'YES' ,'YES' ,'YES' ,'YES', 
+'ICT_50PPB'  , 1.0    ,'ICT_50PPB' , 1              ,''        ,-1          ,''         ,-1        ,         ,-1        ,''        ,''   ,'YES' ,'YES' ,''    ,''    ,'YES'
+/
+
+```
+
+**The first tracer species O3_BC**
+  * is defined to have the same molecular weight as ozone
+  * is not mapped to any emissions species
+  * uses the ozone dry deposition velocity (VD_O3) scaled with a factor of 1 as its surrogate for dry deposition
+  * uses ozone as its scavenging surrogate scaled with a factor of 1
+  * will try to obtain its boundary conditions from a CMAQ species named O3 in the boundary condition files with a scaling factor of 1 
+  * is not mapped to any initial condition, therefore uses default scaling factor of -1
+  * does not participate in gas-to-aerosol or gas-to-aqueous transformations
+  * will undergo advection and diffusion
+  * will be written to the DDEP, WDEP, and CONC output files
+  
+**The second tracer species CO_BC**
+  * is defined to have the same molecular weight as CO
+  * is not mapped to any emissions species
+  * uses the CO dry deposition velocity (VD_CO) scaled with a factor of 1 as its surrogate for dry deposition
+  * uses CO as its scavenging surrogate scaled with a factor of 1
+  * will try to obtain its boundary conditions from a species named CO in the boundary condition files with a scaling factor of 1
+  * is not mapped to any initial condition, therefore uses default scaling factor of -1
+  * does not participate in gas-to-aerosol or gas-to-aqueous transformations
+  * will undergo advection and diffusion
+  * will be written to the DDEP, WDEP, and CONC output files 
+  
+  **The third tracer species O3_IC**
+  * is defined to have the same molecular weight as ozone
+  * is not mapped to any emissions species
+  * uses the ozone dry deposition velocity (VD_O3) scaled with a factor of 1 as its surrogate for dry deposition
+  * uses ozone as its scavenging surrogate scaled with a factor of 1
+  * will try to obtain its initial conditions from a species named O3 in the initial condition files with scaling factor of -1
+  * has no boundary condition specified, therefore uses default scaling factor of -1
+  * does not participate in gas-to-aerosol or gas-to-aqueous transformations
+  * will undergo advection and diffusion
+  * will be written to the DDEP, WDEP, and CONC output files  
+  
+**The fourth tracer species O3_BC_50PC**
+  * is defined to have the same molecular weight as ozone
+  * is not mapped to any emissions species
+  * uses the ozone dry deposition velocity (VD_O3) scaled with a factor of 1 as its surrogate for dry deposition
+  * uses ozone as its scavenging surrogate scaled with a factor of 1
+  * will try to obtain its  boundary conditions from a species named O3 in the boundary condition files with a scaling factor of 0.5
+  * is not mapped to any boundary condition, therefore uses default scaling factor of -1
+  * does not participate in gas-to-aerosol or gas-to-aqueous transformations
+  * will undergo advection and diffusion
+  * will be written to the DDEP, WDEP, and CONC output files
+  
+**The fifth tracer species CO_EMIS**
+  * is defined to have the same molecular weight as CO
+  * uses CO emissions scaled with a factor of 1 as its emission surrogate
+  * uses the CO dry deposition velocity (VD_CO) scaled with a factor of 1 as its surrogate for dry deposition
+  * uses CO as its scavenging surrogate scaled with a factor of 1
+  * is not mapped to any initial/boundary condition surrogate, therefore uses default scaling factor of -1
+  * does not participate in gas-to-aerosol or gas-to-aqueous transformations
+  * will undergo advection and diffusion
+  * will be written to the DDEP, WDEP, and CONC output files  
+  
+**The last tracer species ICT_50PPB**
+  * is defined to have a molecular weight of 1 g/mole
+  * is not mapped to any emissions species
+  * is not mapped to any dry deposition velocity surrogate, i.e. does not undergo dry deposition, therefore uses default scaling factor of -1
+  * is not mapped to any scavenging surrogate, i.e. does not undergo scavenging , therfore uses default scaling factor of -1
+  * will try to obtain its initial from a species named ICT_50PPB in the initial condition files
+  * is not mapped to any boundary condition therefore uses default scaling factor of -1
+  * does not participate in gas-to-aerosol or gas-to-aqueous transformations
+  * will undergo advection and diffusion
+  * will not be written to the DDEP and WDEP output files
+  * will be written to the CONC output file  
+
+### STEP 2: Add tracers to initial condition, boundary condition, and/or emission files
+
+Depending on the desired application, the emission surrogate and IC/BC surrogate defined in the tracer namelist for each tracer need to be added to the corresponding CMAQ input files, i.e. the emissions, initial condition, and/or boundary condition files.
+
+The CO_EMIS tracer defined in STEP1 has an emission surrogate that needs to be mapped in a standard emission file (the first four tracers do not have any emission surrogate while the fifth tracer uses CO as its emission surrogate). The first four tracers have a IC/BC surrogates that are contained in standard initial or boundary condition files, while the last tracer, ICT_50PPB, does not have an IC that is contained in a standard IC file. This section provides the necessary steps to add an emissions surrogate to the emissions file and a sample scripts that add the necessary species to an existing initial condition file.
+
+Note that adding species (if any) to the initial condition file is only necessary for the first day of the simulation while boundary condition and/or emission species (if any) need to be added to the boundary condition and/or emission files for all days of the simulation. Since all tracers defined above will be written to the CGRID file using their names as defined in column 1 of the namelist file, and since the CGRID file will be used to provide initial conditions to CMAQ after the first day of simulation, the tracer species names defined in column 1 were also used as the names of the IC/BC surrogate in column 9 in the sample tracer namelist file for those tracers that use an IC/BC surrogate.   
+
+
+#### Script to add O3_IC and ICT_50PPB to an existing initial condition file ####
+
+The run script below uses the [`combine`](../../POST/combine) program to add species ICT_50PB to an existing initial condition file. . ICT_50PPB is set to a constant mixing ratio of 0.05 ppm for all grid cells. From the CMAQ Home directory run the following commands to build the combine executable: 
+
+```
+cd $CMAQ_HOME/POST/combine/scripts
+./bldit_combine.csh [compiler] [version] |& tee build_combine.log
+```
+
+After the combine executable is successfully built, create the following run script in the same folder: 
+
+```
+#!/bin/csh
+
+#> Location of CMAQv5.2 benchmark case
+ set CMAQ_DATA = $CMAQ_HOME/data
+ set OUTDIR = $CMAQ_DATA/SE52BENCH
+
+#> Set the working directory
+ set BASE  = $cwd      
+
+ cd $BASE; date; set timestamp; echo " "; set echo
+
+#> Timestep run parameters.
+ set YEAR     = 2011
+ set MONTH    = 07
+ set DAY      = 01 
+ set MET_YEAR = 11
+
+#> Use GENSPEC switch to generate a new specdef file (does not generate output file).
+
+ setenv GENSPEC Y
+
+#> Define name of new species definition file to be created
+
+ setenv SPECIES_DEF ${OUTDIR}/SpecDef_CGRID_SE52BENCH.txt
+
+ if (-e ${SPECIES_DEF}) 'rm' ${SPECIES_DEF}
+
+
+#> Define name of input and output files needed for combine program.
+
+   setenv INFILE1 ${CMAQ_DATA}/SE52BENCH/ref_output/cctm/CCTM_CGRID_v52_intel_SE52BENCH_$YEAR$MONTH$DAY.nc
+
+   setenv OUTFILE ${OUTDIR}/SE52BENCH/CCTM_CGRID_v52_intel_SE52BENCH_added_tracer_$YEAR$MONTH$DAY.nc
+
+
+#> Executable call:
+#>
+#> In this first call, we only generate the specdef file that contains all the
+#> species contained in the existing boundary condition file. OUTFILE is not
+#> created
+
+   /usr/bin/time $BINDIR/combine.${VRSN}.exe
+
+#>
+#> define the tracer species to be added to the boundary condition file using the
+#> "combine" specdef syntax
+#>
+
+   echo "O3_IC            ,ppmV            ,O3[1], Variable O3_IC"            >! ${OUTDIR}/species_def_tracer.txt
+   echo "ICT_50PPB        ,ppmV            ,0.05, Variable ICT_50PPB"         >> ${OUTDIR}/species_def_tracer.txt
+
+#>
+#> concatenate the specdep file containing the existing species and the file
+#> containing the additional tracer species
+#>
+
+cat ${SPECIES_DEF} ${OUTDIR}/species_def_tracer.txt >! ${OUTDIR}/species_CGRID_D51a_12CalnexBench_added_tracer.txt
+
+#> Redefine the name of specdef file
+ setenv SPECIES_DEF ${OUTDIR}/species_CGRID_D51a_12CalnexBench_added_tracer.txt
+
+#> Reset the GENSPEC switch to not generate a new specdef file but to generate an output file
+ setenv GENSPEC N
+
+#> Executable call:
+#>
+#> In this second call, the modified specdef file is used
+#> and an output file containing all the original species
+#> as well as the added tracer species is created
+
+   /usr/bin/time $BINDIR/combine.${VRSN}.exe
+
+#>
+#> Remove the temporary file with the tracer definitions
+#>
+
+'rm' ${OUTDIR}/SpecDef_tracer.txt
+
+ date
+ exit()
+
+```
+
+Once the script is made, execute the run script with the following commands:
+
+```
+./run.{script_name}.csh |& tee run.combine.log
+```
+
+The CO_EMIS tracer is designed to track the fate of CO emissions without any influence from initial or boundary conditions and therefore no IC/BC surrogate was specified and no additional species needs to be added to the initial condition file for this tracer. However, it must be specified in the [emissions input](CMAQ_UG_ch04_model_inputs.md#EmissionsInputs) file. Depending on the mechanism the user plans to use navigate the [CMAQ repository](CMAQ_UG_ch05_running_CMAQ.md#5.3TheCMAQRepositoryStructure) to find the EmissCtrl_{mechanism_name}.nml file. For example if running the cb6r3_ae7_aq mechanism, edit EmissCtrl_cb6r3_ae7_aq.nml file to include the following line after the Custom Mapping Examples in the Emissions Scaling Rules section: 
+
+```
+   !Tracer
+   'EVERYWHERE', 'ALL'         ,'CO'     ,'CO_EMIS'          ,'GAS'  ,1.  ,'UNIT','a',
+```
+
+Further details on how to change and customize the emissions control file to the users specification outside the scope of this tutorial can be found in the [emissions tutorial](CMAQ_UG_tutorial_emissions.md). 
+
+
+### STEP 3: Modify CMAQ run script</strong>
+
+In the CMAQ run script, replace the default tracer namelist file `Species_Table_TR_0.nml` with the custom tracer namelist file created in STEP 1. Also replace the original input files (initial conditions, boundary conditions, and/or emissions) with the modified input files created in Step 2.

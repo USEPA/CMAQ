@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch02_modeling_system.md)
+[<< Previous Chapter](CMAQ_UG_ch06_model_outputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_model_formulation.md)
 
 <!-- END COMMENT -->
 
@@ -30,7 +30,7 @@ Many software programs are available for pre- and post-processing, evaluating an
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch02_modeling_system.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch06_model_outputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_model_formulation.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->

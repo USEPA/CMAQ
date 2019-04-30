@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[Home](README.md)
+[<< Glossary](CMAQ_UG_glossary.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)
 
 <!-- END COMMENT -->
 
@@ -97,6 +97,6 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md)
+[<< Glossary](CMAQ_UG_glossary.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)
 
 <!-- END COMMENT -->

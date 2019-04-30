@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch04_model_formulation.md)
+ [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_CMAQ.md)
 
 <!-- END COMMENT -->
 
@@ -29,7 +29,7 @@ While the CMAQ input and output files use a Network Common Data Form (netCDF) fi
 YYYYDAY = (1000 * Year) + Julian Day
 HHMMSS = (10000 * Hour) + (100 * Minute) + Seconds.
 
-All files manipulated by the I/O API may have multiple variables and multiple layers. Each file also has a time-step structure that is shared by all of its variables. There are three kinds of time-step structures supported ([Table 3‑1](#Time_Steps)). The data type structures that are supported are listed in [Table 3-2](#Data_Structure). Within a file, all the variables are data arrays with the same dimensions, number of layers, and data structure type, although possibly different basic types (e.g., gridded and boundary variables cannot be mixed within the same file, but real and integer variables can). 
+All files manipulated by the I/O API may have multiple variables and multiple layers. Each file also has a time-step structure that is shared by all of its variables. There are three kinds of time-step structures supported ([Table 3‑1](#Time_Steps)). The data type structures that are supported are listed in [Table 3-2](#Data_Structure). Within a file, all the variables are data arrays with the same dimensions, number of layers, and data structure type, although possibly different basic types (e.g., gridded and boundary variables cannot be mixed within the same file, but real and integer variables can).
 
 <a id=Time_Steps></a>
 **Table 3‑1. Possible Time Step Structures in I/O API Files**
@@ -79,52 +79,51 @@ This section describes each of the input files required by the various CMAQ prog
 <a id=Input_Table></a>
 **Table 3-3. CMAQ input files**
 
-|**Environment Variable Name for File**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|**Required**|
-|-------------------------|----------------|----------------|----------------|-----------------------------------|---------|
-|**General**| | | | ||
-|[GRIDDESC](#griddesc) <a id=griddesc></a>|ASCII|n/a|n/a|MCIP|required|
-|[gc_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
-|[ae_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
-|[nr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
-|[tr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|**Environment Variable Name for File**|**Description**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|**Required**|
+|----------------------|---------------------------------------------------------|----------|-----------|----------|----------|---------|
+|**General**| | | | |||
+|[GRIDDESC](#griddesc) <a id=griddesc></a>||ASCII|n/a|n/a|MCIP|required|
+|[gc_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>||ASCII|n/a|n/a|CMAQ repo|required|
+|[ae_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>||ASCII|n/a|n/a|CMAQ repo|required|
+|[nr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>||ASCII|n/a|n/a|CMAQ repo|required|
+|[tr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>||ASCII|n/a|n/a|CMAQ repo|required|
 |**Initial Condition Inputs**| | | | ||
-|[INIT_CONC_1](#init_conc_1) <a id=init_conc_1_t></a> | GRDDED3 | Time-invariant | XYZ | ICON or CCTM|required|
-|[INIT_GASC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM |required|
-|[INIT_AERO_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
-|[INIT_NONR_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
-|[INIT_TRAC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
+|[INIT_CONC_1](#init_conc_1) <a id=init_conc_1_t></a> || GRDDED3 | Time-invariant | XYZ | ICON or CCTM|required|
+|[INIT_GASC_1](#init_conc_1) <a id=init_conc_1_t></a>||GRDDED3|Time-invariant | XYZ | ICON or CCTM |required|
+|[INIT_AERO_1](#init_conc_1) <a id=init_conc_1_t></a>||GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
+|[INIT_NONR_1](#init_conc_1) <a id=init_conc_1_t></a>||GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
+|[INIT_TRAC_1](#init_conc_1) <a id=init_conc_1_t></a>||GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
 |**Boundary Condition Inputs**| | | | ||
-|[BNDY_CONC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> | BNDARY3 | Hourly |[2(X+1)+2(Y+1)]\*Z | BCON|required|
-|[BNDY_GASC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
-|[BNDY_AERO_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
-|[BNDY_NONR_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
-|[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
-|**MCIP**| | | | ||
-|[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>| GRDDED3 | Time-invariant | XY | MCIP|required|
-|[GRID_CRO_3D](#grid_cro_3d) <a id=grid_cro_3d_t></a>**>>missing text** | GRDDED3 | Time-invariant | XYZ | MCIP|required|
-|[GRID_BDY_2D](#grid_bdy_2D) <a id=grid_bdy_2D_t></a> **>>missing text** | GRDDED3 | Time-invariant | PERIM\*Z | MCIP|required|
-|[GRID_DOT_2D](#grid_dot_2d) <a id=grid_dot_2d_t></a>| GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP|required|
-|[MET_BDY_3D](#met_bdy_3d) <a id=met_bdy_3d_t></a>| BNDARY3 | Hourly | PERIM\*Z | MCIP|required|
-|[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>| GRDDED3 | Hourly | XY | MCIP|required|
-|[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>| GRDDED3 | Hourly | XYZ | MCIP|required|
-|[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|required|
-|**Emissions Inputs**||||||
-|[EMIS_1](#emis_1) <a id=emis_1_t></a> | GRDDED3 | Hourly | XYZ | SMOKE|required|
-|[STK_GRPS_nn](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE|required|
-|[STK_EMIS_nn](#stk_emis) <a id=stk_emis_t></a> | GRDDED3 | Hourly | XY | SMOKE|required|
-|[NLDN_STRIKES](#nldn_strikes) <a id=nldn_strikes_t></a>| GRDDED3 | Hourly | XY |Must purchase data|optional for including NO from lightning|
-|[LTNGPARMS_FILE](#ltngparm_file) <a id=ltngparm_file_t></a>| GRDDED3 | Time-invariant | XY |CMAS|required for including NO from lightning|
-|**Biogenic and Land Surface Inputs**||||||
-|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator|required|
-|[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required|
-|[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with inline biogenics|
-|[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | Metscan|optional (run-time option)|
-|[BELD4_LU](#beld4_lu) <a id=beld4_lu_t></a>| GRDDED3 | Time-invariant |XY||required for running CMAQ with bidirectional NH3|
-|[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY||required for running CMAQ with bidirectional NH3|
-|[E2C_FERT](#e2c_fert) <a id=e2c_fert_t></a>| GRDDED3 | Daily |XY||optional|
-|**Photolysis** | | | | ||
-|[JTABLE](#jtable) <a id=jtable_t></a>| ASCII | Daily | n/a | JPROC|optional|
-|[OMI](#omi) <a id=omi_t></a>| ASCII | daily | n/a |||optional|
+|[BNDY_CONC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> || BNDARY3 | Hourly |[2(X+1)+2(Y+1)]\*Z | BCON|required|
+|[BNDY_GASC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> ||BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
+|[BNDY_AERO_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> ||BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
+|[BNDY_NONR_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> ||BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
+|[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> ||BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
+|**MCIP**| | | | |||
+|[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>|| GRDDED3 | Time-invariant | XY | MCIP|required|
+|[GRID_BDY_2D](#grid_bdy_2D) <a id=grid_bdy_2D_t></a> **>>missing text** || GRDDED3 | Time-invariant | PERIM\*Z | MCIP|required|
+|[GRID_DOT_2D](#grid_dot_2d) <a id=grid_dot_2d_t></a>|| GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP|required|
+|[MET_BDY_3D](#met_bdy_3d) <a id=met_bdy_3d_t></a>|| BNDARY3 | Hourly | PERIM\*Z | MCIP|required|
+|[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>|| GRDDED3 | Hourly | XY | MCIP|required|
+|[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>|| GRDDED3 | Hourly | XYZ | MCIP|required|
+|[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>|| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|required|
+|**Emissions Inputs**|||||||
+|[EMIS_1](#emis_1) <a id=emis_1_t></a> || GRDDED3 | Hourly | XYZ | SMOKE|required|
+|[STK_GRPS_nn](#stk_grps) <a id=stk_grps_t></a> || GRDDED3 |Time-invariant|XY | SMOKE|required|
+|[STK_EMIS_nn](#stk_emis) <a id=stk_emis_t></a> || GRDDED3 | Hourly | XY | SMOKE|required|
+|[NLDN_STRIKES](#nldn_strikes) <a id=nldn_strikes_t></a>|| GRDDED3 | Hourly | XY |Must purchase data|optional for including NO from lightning|
+|[LTNGPARMS_FILE](#ltngparm_file) <a id=ltngparm_file_t></a>|| GRDDED3 | Time-invariant | XY |CMAS|required for including NO from lightning|
+|**Biogenic and Land Surface Inputs**|||||||
+|[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>|| GRDDED3 | Time-invariant | XY |Spatial Allocator|required|
+|[GSPRO](#gspro) <a id=gspro_t></a>|| ASCII | Time-invariant | N/a | CMAQ repo|required|
+|[B3GRD](#b3grd) <a id=b3grd_t></a>|| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with inline biogenics|
+|[BIOSEASON](#bioseason) <a id=bioseason_t></a>||GRDDED3 |Time-invariant | XY | Metscan|optional (run-time option)|
+|[BELD4_LU](#beld4_lu) <a id=beld4_lu_t></a>|| GRDDED3 | Time-invariant |XY||required for running CMAQ with bidirectional NH3|
+|[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>|| GRDDED3 | Time-invariant | XY||required for running CMAQ with bidirectional NH3|
+|[E2C_FERT](#e2c_fert) <a id=e2c_fert_t></a>|| GRDDED3 | Daily |XY||optional|
+|**Photolysis** | | | | |||
+|[JTABLE](#jtable) <a id=jtable_t></a>|| ASCII | Daily | n/a | JPROC|optional|
+|[OMI](#omi) <a id=omi_t></a>|| ASCII | daily | n/a ||optional||
 
 
 ## General
@@ -138,7 +137,7 @@ The CMAQ grid description file (**GRIDDESC**) is an ASCII file that contains two
 
 The horizontal coordinate section consists of text records that provide the coordinate-system name, the map projection, and descriptive parameters that are relevant to the projection type (e.g. longitude for coordinate system center)
 
-The grid description section consists of text records that indicate the grid name, related coordinate-system name (i.e., which GRIDDESC horizontal coordinate name that is defined in the previous section that is applied to this grid), and descriptive parameters for teh coordinates of the lower-left corner of the grid, grid cell size, number of coluns, and rows. For a typical CMAQ application, both "dot-point" and "cross-point" grids are defined in the GRIDDESC file; these grids are topological duals in the sense that the vertices (corners) of one correspond to the cell-centers of the other. There are at most 32 coordinate systems and 256 grids listed in one of these files. These files are small enough to be archived easily with a study, and have a sufficiently simple format that new ones can easily be constructed "by hand."
+The grid description section consists of text records that indicate the grid name, related coordinate-system name (i.e., which GRIDDESC horizontal coordinate name that is defined in the previous section that is applied to this grid), and descriptive parameters for the coordinates of the lower-left corner of the grid, grid cell size, number of columns, and rows. For a typical CMAQ application, both "dot-point" and "cross-point" grids are defined in the GRIDDESC file; these grids are topological duals in the sense that the vertices (corners) of one correspond to the cell-centers of the other. There are at most 32 coordinate systems and 256 grids listed in one of these files. These files are small enough to be archived easily with a study, and have a sufficiently simple format that new ones can easily be constructed "by hand."
 
 An example of a GRIDDESC file is shown below:
 
@@ -166,8 +165,10 @@ Namelist look-up tables for different classes of simulated pollutants are used t
 
 -   Deposition velocity – which (if any) deposition velocity is the deposition velocity for the pollutant mapped to; allowed velocities are specified within the model source code.
 -   Deposition velocity factor – if the pollutant is mapped to a deposition velocity, uniformly apply a scaling factor to this velocity.
--   Initial/boundary conditions – which initial and boundary condition species is the pollutant mapped to; if not specified, this will default to the species name.
--   IC/BC Factor – if the pollutant is mapped to an initial/boundary condition species, uniformly apply a scaling factor to the concentrations.
+-   Initial condition– which initial condition species is the pollutant mapped to; if not specified, this will default to the species name.
+-   IC Factor – if the pollutant is mapped to an initial condition species, uniformly apply a scaling factor to the concentrations.
+-   Boundary condition – which boundary condition species is the pollutant mapped to; if not specified, this will default to the species name.
+-   BC Factor – if the pollutant is mapped to an boundary condition species, uniformly apply a scaling factor to the concentrations.
 -   Scavenging - which (if any) species is the pollutant mapped to; Allowed scavenging surrogates are specified within the model source code.
 -   Scavenging factor - if the pollutant is mapped to an species for scavenging, uniformly apply a scaling factor to the scavenging rate.
 -   Gas-to-aerosol conversion – which (if any) aerosol chemistry species does the gas phase pollutant concentration go into for transformation from the gas-phase to the aerosol-phase.
@@ -182,7 +183,7 @@ The namelist files contain header information that describe which class of speci
 
 <a id=Table8-4></a>
 
- **Table 3-4. GC species namelist file format**
+**Table 3-4. GC species namelist file format**
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:|
 |-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
@@ -190,18 +191,21 @@ The namelist files contain header information that describe which class of speci
 | 3 || Header ID | String |String to define data structure relating to namelist|{GC_SPECIES_DATA=, AE_SPECIES DATA= , NR_SPECIES_DATA= ,TR_SPECIES_DATA = }|
 | 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|-|
 ||2| MOLWT| Integer |Species Molecular Weight|-|
-|  |3| ICBC | String |IC/BC surrogate species name for the CMAQ Species|{'Species name', ' '}|
-|  |4| FAC | Integer |Scaling factor for the IC/BC concentration|-|
-| |5| DRYDEP SURR | String |Deposition velocity variable name for the CMAQ Species|-|
-| |6| FAC | Integer |Scaling factor for the deposition velocity|-|
-| |7| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|-|
-| | 8 | FAC | Integer |Scaling factor for Scavenging|-|
-|| 9 | GC2AE SURR | String |Gas-to-aerosol transformation species|-|
-|| 10 | GC2AQ SURR | String |Gas-to-aqueous transformation species|-|
-|| 11 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
-|| 13 | DDEP | String |Dry deposition output file switch|{YES/NO}|
-|| 14 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
-|| 15 | CONC | String |Concentration output file switch|{YES/NO}|
+|  |3| IC | String |IC surrogate species name for the CMAQ Species|{'Species name', ' '}|
+|  |4| FAC | Integer |Scaling factor for the IC concentration|{Any integer: default = -1 if IC is not specified}|
+|  |5| BC | String |BC surrogate species name for the CMAQ Species|{'Species name', ' '}|
+|  |6| FAC | Integer |Scaling factor for the BC concentration|{Any integer: default = -1 if BC is not specified}|
+| |7| DRYDEP SURR | String |Deposition velocity variable name for the CMAQ Species|-|
+| |8| FAC | Integer |Scaling factor for the deposition velocity|{Any integer: default = -1 if SURR is not specified}|
+| |9| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|-|
+| | 10 | FAC | Integer |Scaling factor for Scavenging|{Any integer: default = -1 if SURR is not specified}|
+|| 11 | GC2AE SURR | String |Gas-to-aerosol transformation species|-|
+|| 12 | GC2AQ SURR | String |Gas-to-aqueous transformation species|-|
+|| 13 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
+|| 14 | DDEP | String |Dry deposition output file switch|{YES/NO}|
+|| 15 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
+|| 16 | CONC | String |Concentration output file switch|{YES/NO}|
+
 
 
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 3-4](#Table8-4). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
@@ -240,20 +244,21 @@ The GRID_CRO_2D time-independent file contains surface fields at cross points (i
 
 ** >> Comment <<** [Comment covers the next three pages in the document, pp 150-153 in the full OGD]: The MCIP variable lists are VERY outdated.
 
--   LAT: latitude (degrees, where Northern Hemisphere is positive)
--   LON: longitude (degrees, where Western Hemisphere is negative)
--   MSFX2: squared map-scale factor (m<sup>2</sup> m<sup>-2</sup>)
--   HT: terrain elevation (m)
--   DLUSE: dominant land use (category)
--   LWMASK: land-water mask (1=land, 0=water)
--   PURB: urban percentage if cell is based on land (percent)
--   LUFRAC_01: land use fraction of NLCD40: Evergreen Needleleaf Forest
--   LUFRAC_XX: <repeated for 40 land use fractions>
+**Table 4-X**
 
-<a id=grid_cro_3d></a>
+|**Variable Name**|**Description**|**Units**|**Required**|
+|--------|---------------|--------------|-----------|
+|LAT|latitude|degrees, where Northern Hemisphere is positive||
+|LON|longitude|degrees, where Western Hemisphere is negative||
+|MSFX2| squared map-scale factor|m<sup>2</sup> m<sup>-2</sup>||
+|HT|terrain elevation|m||
+|DLUSE|dominant land use|category||
+|LWMASK|land-water mask|1=land, 0=water||
+|PURB|urban percentage if cell is based on land|percent||
+|LUFRAC_01|land use fraction of NLCD40: Evergreen Needleleaf Forest|||
+|LUFRAC_XX|<repeated for 40 land use fractions>|||
 
-### GRID_CRO_3D
-[Return to Table 3-3](#grid_cro_3d_t)
+
 
 <a id=grid_bdy_2d></a>
 
@@ -269,9 +274,14 @@ Used by: CCTM
 
 The GRID_DOT_2D time-independent file contains surface fields at dot points (i.e., at cell corners). It is created by MCIP and used by CCTM. The following variables are in the GRID_DOT_2D file:
 
--   LAT: latitude (degrees, where Northern Hemisphere is positive)
--   LON: longitude (degrees, where Western Hemisphere is negative)
--   MSFD2: squared map scale factor (m<sup>2</sup> m<sup>-2</sup>)
+**Table 4-X**
+
+|**Variable Name**|**Description**|**Units**|**Required**|
+|--------|---------------|--------------|-----------|
+|LAT|latitude|degrees, where Northern Hemisphere is positive||
+|LON|longitude|degrees, where Western Hemisphere is negative||
+|MSFD2|squared map scale factor|m<sup>2</sup> m<sup>-2</sup>||
+
 
 <a id=met_bdy_3d></a>
 
@@ -282,22 +292,26 @@ Used by: CCTM
 
 The MET_BDY_3D time-dependent file contains 3-D meteorological descriptions at the lateral boundaries (on cross points). It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_BDY_3D file:
 
--   JACOBF: total Jacobian at layer face (m)
--   JACOBM: total Jacobian at layer middle (m)
--   DENSA_J: Jacobian-weighted total air density [? J m<sup>-2</sup>] (kg m<sup>-2</sup>)
--   WHAT_JD: Jacobian- and density-weighted vertical contravariant velocity (kg m<sup>-1</sup> s<sup>-1</sup>)
--   TA: air temperature (K)
--   QV: water vapor mixing ratio (kg kg<sup>-1</sup>)
--   PRES: air pressure (Pa)
--   DENS: air density (kg m<sup>-3</sup>)
--   WWIND: vertical velocity (m s<sup>-1</sup>)
--   ZH: midlayer height above ground (m)
--   ZF: full layer height above ground (m)
--   QC: cloud water mixing ratio (kg kg<sup>-1</sup>)
--   QR: rain water mixing ratio (kg kg<sup>-1</sup>)
--   QI: ice mixing ratio (kg kg<sup>-1</sup>)
--   QS: snow mixing ratio (kg kg<sup>-1</sup>)
--   QG: graupel mixing ratio (kg kg<sup>-1</sup>)
+**Table 4-X**
+
+|**Variable Name**|**Description**|**Units**|**Required**|
+|--------|---------------|--------------|-----------|
+|JACOBF|total Jacobian at layer face|(m)||
+|JACOBM|total Jacobian at layer middle|(m)||
+|DENSA_J| Jacobian-weighted total air density| [? J m<sup>-2</sup>] (kg m<sup>-2</sup>)||
+| WHAT_JD| Jacobian- and density-weighted vertical contravariant velocity| (kg m<sup>-1</sup> s<sup>-1</sup>)||
+|TA| air temperature|(K)||
+|QV| water vapor mixing ratio| (kg kg<sup>-1</sup>)||
+|PRES| air pressure| (Pa)||
+|DENS| air density| (kg m<sup>-3</sup>)||
+| WWIND| vertical velocity| (m s<sup>-1</sup>)||
+|ZH| midlayer height above ground|(m)||
+| ZF| full layer height above ground|(m)||
+| QC| cloud water mixing ratio|(kg kg<sup>-1</sup>)||
+| QR| rain water mixing ratio|(kg kg<sup>-1</sup>)||
+| QI| ice mixing ratio| (kg kg<sup>-1</sup>)||
+| QS| snow mixing ratio| (kg kg<sup>-1</sup>)||
+|QG| graupel mixing ratio| (kg kg<sup>-1</sup>)||
 
 <a id=met_cro_2d></a>
 
@@ -308,40 +322,45 @@ Used by: CCTM
 
 The MET_CRO_2D time-dependent file contains surface and other 2-D meteorological fields at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_CRO_2D file:
 
--   PRSFC: surface pressure (Pa)
--   JACOBS: total Jacobian at surface (m)
--   USTAR: cell-averaged horizontal friction velocity (m s<sup>-1</sup>)
--   WSTAR: convective velocity scale (m s<sup>-1</sup>)
--   PBL: planetary boundary layer height (m)
--   ZRUF: surface roughness length (m)
--   MOLI: inverse Monin-Obukhov length (m<sup>-1</sup>)
--   QFX: latent heat flux (W m<sup>-2</sup>)
--   HFX: sensible heat flux (W m<sup>-2</sup>)
--   RADYNI: inverse aerodynamic resistance (m s<sup>-1</sup>)
--   RBNDYI: inverse laminar boundary layer resistance (m s<sup>-1</sup>)
--   RSTOMI: inverse bulk stomatal resistance (m s<sup>-1</sup>)
--   TEMPG: skin temperature at ground (K)
--   TEMP10: 10-m temperature (K)
--   TEMP1P5: 1.5-m temperature (K)
--   WSPD10: 10-m wind speed (m s<sup>-1</sup>)
--   WDIR10: 10-m wind direction (m s<sup>-1</sup>)
--   GLW: longwave radiation at ground (W m<sup>-2</sup>)
--   GSW: solar radiation absorbed at ground (W m<sup>-2</sup>)
--   RGRND: solar radiation reaching the surface (W m<sup>-2</sup>)
--   RN: incremental (per output time step) nonconvective precipitation (cm)
--   RC: incremental (per output time step) convective precipitation (cm)
--   CFRAC: total cloud fraction (fraction)
--   WBAR: average liquid water content of clouds (g m<sup>-3</sup>)
--   CLDT: cloud-top layer height (m)
--   CLDB: cloud-bottom layer height (m)
--   SNOCOV: snow cover (1 = yes, 0 = no)
--   TEMP2: 2-m temperature (K)
--   SOIM1: volumetric soil moisture in top cm (m<sup>3</sup> m<sup>-3</sup>)
--   SOIM2: volumetric soil moisture in top m (m<sup>3</sup> m<sup>-3</sup>)
--   SOIT1: soil temperature in top cm (K)
--   SOIT2: soil temperature in top m (K)
--   SLTYP: soil texture type (category)
--   LAI: leaf-area index (area area<sup>-1</sup>)
+**Table 4-X**
+
+|**Variable Name**|**Description**|**Units**|**Required**|
+|--------|---------------|--------------|-----------|
+| PRSFC| surface pressure| (Pa)||
+|JACOBS| total Jacobian at surface| (m)||
+|USTAR| cell-averaged horizontal friction velocity| (m s<sup>-1</sup>)||
+|WSTAR| convective velocity scale| (m s<sup>-1</sup>)||
+|PBL| planetary boundary layer height| (m)||
+|ZRUF| surface roughness length| (m)||
+|MOLI| inverse Monin-Obukhov length| (m<sup>-1</sup>)||
+|QFX| latent heat flux| (W m<sup>-2</sup>)||
+|HFX| sensible heat flux| (W m<sup>-2</sup>)||
+|RADYNI| inverse aerodynamic resistance| (m s<sup>-1</sup>)||
+|RBNDYI| inverse laminar boundary layer resistance| (m s<sup>-1</sup>)||
+|RSTOMI| inverse bulk stomatal resistance| (m s<sup>-1</sup>)||
+| TEMPG| skin temperature at ground| (K)||
+| TEMP10| 10-m temperature| (K)||
+|TEMP1P5| 1.5-m temperature| (K)||
+| WSPD10| 10-m wind speed| (m s<sup>-1</sup>)||
+| WDIR10| 10-m wind direction| (m s<sup>-1</sup>)||
+| GLW| longwave radiation at ground| (W m<sup>-2</sup>)||
+|GSW| solar radiation absorbed at ground| (W m<sup>-2</sup>)||
+|RGRND| solar radiation reaching the surface| (W m<sup>-2</sup>)||
+| RN| incremental (per output time step) nonconvective precipitation| (cm)||
+| RC| incremental (per output time step) convective precipitation| (cm)||
+| CFRAC| total cloud fraction| (fraction)||
+| WBAR| average liquid water content of clouds| (g m<sup>-3</sup>)||
+|CLDT| cloud-top layer height| (m)||
+|  CLDB| cloud-bottom layer height| (m)||
+| SNOCOV| snow cover| (1 = yes, 0 = no)||
+|TEMP2| 2-m temperature| (K)||
+|SOIM1| volumetric soil moisture in top cm| (m<sup>3</sup> m<sup>-3</sup>)||
+| SOIM2| volumetric soil moisture in top m| (m<sup>3</sup> m<sup>-3</sup>)||
+|SOIT1| soil temperature in top cm |(K)||
+|SOIT2| soil temperature in top m| (K)||
+| SLTYP| soil texture type |(category)||
+| LAI| leaf-area index| (area area<sup>-1</sup>)||
+
 
 <a id=met_cro_3d></a>
 
@@ -361,10 +380,14 @@ Used by: CCTM
 
 The MET_DOT_3D time-dependent file contains 3-D meteorological descriptions at dot points (i.e., at cell corners) and at cell faces. It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_DOT_3D file:
 
--   UWIND: u-component of horizontal wind (m s<sup>-1</sup>) [dot points; Arakawa-B grid]]
--   VWIND: v-component of horizontal wind (m s<sup>-1</sup>) [dot points; Arakawa-B grid]
--   UHAT_JD: contravariant-U*Jacobian*density (kg m<sup>-1</sup> s<sup>-1</sup>) [cell faces; Arakawa-C grid]
--   VHAT_JD: contravariant-V*Jacobian*density (kg m<sup>-1</sup> s<sup>-1</sup>) [cell faces; Arakawa-C grid]
+**Table 4-X**
+
+|**Variable Name**|**Description**|**Units**|**Required**|
+|--------|---------------|--------------|-----------|
+|UWIND| u-component of horizontal wind| (m s<sup>-1</sup>) [dot points; Arakawa-B grid]]||
+|VWIND| v-component of horizontal wind| (m s<sup>-1</sup>) [dot points; Arakawa-B grid]||
+|UHAT_JD| contravariant-U*Jacobian*density| (kg m<sup>-1</sup> s<sup>-1</sup>) [cell faces; Arakawa-C grid]||
+| VHAT_JD| contravariant-V*Jacobian*density| (kg m<sup>-1</sup> s<sup>-1</sup>) [cell faces; Arakawa-C grid]||
 
 ## Emissions Inputs
 <a id=emis_1></a>
@@ -411,7 +434,11 @@ Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The NLDN lightning strikes file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
--   NLDNstrk (km-2): hourly flash counts per sq. km.
+ **Table 4-X**
+
+|**Variable Name**|**Description**|**Units**|**Required**|
+ |--------|-------------------|--------------|-----------|
+ |NLDNstrk|hourly flash counts per sq. km.|(km-2)||
 
 <a id=ltngparm_file></a>
 
@@ -422,13 +449,17 @@ Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The lightning parameters file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
--   SLOPE (unitless): linear equation parameter for estimating NO emissions from hourly flash counts
--   INTERCEPT: linear equation parameter for estimating NO emissions from hourly flash counts
--   SLOPE_lg: logarithmic equation parameter for estimating NO emissions from hourly flash counts
--   INTERCEPT_lg: logarithmic equation parameter for estimating NO emissions from hourly flash counts
--   ICCG_SUM (unitless): Ratio of intercloud to cloud-to-ground flashes during the summer season
--   ICCG_WIN (unitless): Ratio of intercloud to cloud-to-ground flashes during the winter season
--   OCNMASK (unitless): Land/water mask to remove spurious flashes over the ocean
+**Table 4-X**
+
+|**Variable Name**|**Description**|**Units**|**Required**|
+|--------|---------------|--------------|-----------|
+| SLOPE|linear equation parameter for estimating NO emissions from hourly flash counts|unitless||
+|INTERCEPT| linear equation parameter for estimating NO emissions from hourly flash counts|||
+|SLOPE_lg| logarithmic equation parameter for estimating NO emissions from hourly flash counts|||
+|INTERCEPT_lg| logarithmic equation parameter for estimating NO emissions from hourly flash counts|||
+|ICCG_SUM| Ratio of intercloud to cloud-to-ground flashes during the summer season|unitless||
+|ICCG_WIN| Ratio of intercloud to cloud-to-ground flashes during the winter season|unitless||
+|OCNMASK| Land/water mask to remove spurious flashes over the ocean|unitless||
 
 ## Biogenic and Land Surface Inputs
 <a id=ocean_1></a>
@@ -480,19 +511,23 @@ Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 This 3-D file is created by the EPIC model via the FEST-C interface and contains soil properties for Layer 1 (0 to 1 cm depth) and Layer 2 (1 cm to 100 cm depth) for each crop and soil combination in each grid cell. Additional information on the EPIC model and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. The following variables are in this file:
 
--   L1_SoilNum: Soil Number (none)
--   L1_Bulk_D: Layer1 Bulk Density (t/m**3)
--   L1_Wilt_P: Layer1 Wilting Point(m/m)
--   L1_Field_C: Layer1 Field Capacity (m/m)
--   L1_Porosity: Layer1 Porosity (%)
--   L1_PH: Layer1 PH (none)
--   L1_Cation: Layer1 Cation Ex (cmol/kg )
--   L2_Bulk_D: Layer2 Bulk Density (t/m**3)
--   L2_Wilt_P: Layer2 Wilting Point (m/m)
--   L2_Field_C: Layer2 Field Capacity (m/m)
--   L2_Porosity: Layer2 Porosity (%)
--   L2_PH: Layer2 PH (none)
--   L2_Cation: Layer2 Cation Ex (cmol/kg)
+**Table 4-X**
+
+|**Variable Name**|**Description**|**Units**|**Required**|
+|--------|---------------|--------------|-----------|
+|L1_SoilNum| Soil Number| (none)||
+|L1_Bulk_D| Layer1 Bulk Density| (t/m**3)||
+| L1_Wilt_P| Layer1 Wilting Point|(m/m)||
+|L1_Field_C| Layer1 Field Capacity| (m/m)||
+| L1_Porosity| Layer1 Porosity| (%)||
+|L1_PH| Layer1 PH| (none)||
+| L1_Cation| Layer1 Cation Ex| (cmol/kg )||
+| L2_Bulk_D| Layer2 Bulk Density| (t/m**3)||
+| L2_Wilt_P| Layer2 Wilting Point| (m/m)||
+|L2_Field_C| Layer2 Field Capacity| (m/m)||
+|L2_Porosity| Layer2 Porosity| (%)||
+|L2_PH| Layer2 PH| (none)||
+| L2_Cation| Layer2 Cation Ex |(cmol/kg)||
 
 <a id="e2c_fert"></a>
 ### E2C_FERT – EPIC crop types and fertilizer application
@@ -502,63 +537,67 @@ Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 This is a 3-D daily file created by the EPIC model via the FEST-C interface and contains information on fertilizer application rate and depth for each crop and soil combination in each grid cell. Additional information on the EPIC model and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. The file contains many more variables than are used by CMAQ. The following variables are in this file:
 
--   QNO3: N Loss in Surface Runoff (kg/ha)
--   SSFN: N in Subsurface Flow (kg/ha)
--   PRKN: N Loss in Percolate (kg/ha)
--   DN: N-NO3 Denitrification (kg/ha)
--   DN2: N-N2O from NO3 Denitrification (kg/ha)
--   AVOL: N-NH3 Emission (kg/ha)
--   HMN: OC Change by Soil Respiration (kg/ha)
--   NFIX: N Fixation (kg/ha)
--   YP: P Loss with Sediment (kg/ha)
--   QAP: Labile P Loss in Runoff (kg/ha)
--   YON: N Loss with Sediment (kg/ha)
--   YW: Wind Erosion (ton/ha)
--   Q: Runoff (mm)
--   HUSC: Heat Unit Schedule (none)
--   HU_BASE0: Base Heat Unit (none)
--   HU_FRAC: Heat Unit fraction (none)
--   L1_DEP: Layer1 Depth (m)
--   L1_BD: Layer1 Bulk Density (t/m**3)
--   L1_NO3: Layer1 N - Nitrate (kg/ha)
--   L1_NH3: Layer1 N - Ammonia (kg/ha)
--   L1_ON: Layer1 Organic N (kg/ha)
--   L1_P: Layer1 Mineral P (kg/ha)
--   L1_OP: Layer1 Organic P (kg/ha)
--   L1_C: Layer1 Carbon (kg/ha)
--   L1_NITR: Layer1 N - Nitrified NH3 (kg/ha)
--   L2_DEP: Layer2 Depth (m)
--   L2_BD: Layer2 Bulk Density (t/m**3)
--   L2_NO3: Layer2 N - Nitrate (kg/ha)
--   L2_NH3: Layer2 N - Ammonia (kg/ha)
--   L2_ON: Layer2 Organic N (kg/ha)
--   L2_P: Layer2 Mineral P (kg/ha)
--   L2_OP: Layer2 Organic P (kg/ha)
--   L2_C: Layer2 Carbon (kg/ha)
--   L2_NITR: Layer2 N - Nitrified NH3 (kg/ha)
--   T1_DEP: Layert (Total Soil Profile) Depth (m)
--   T1_BD: Layert Bulk Density (t/m**3)
--   T1_NO3: Layert N - Nitrate (kg/ha)
--   T1_NH3: Layert N - Ammonia (kg/ha)
--   T1_ON: Layert Organic N (kg/ha)
--   T1_P: Layert Mineral P (kg/ha)
--   T1_OP: Layert Organic P (kg/ha)
--   T1_C: Layert Carbon (kg/ha)
--   T1_NITR: Layert N - Nitrified NH3 (kg/ha)
--   L1_ANO3: Layer1 N-NO3 AppRate (kg/ha)
--   L1_ANH3: Layer1 N-NH3 AppRate (kg/ha
--   L1_AON: Layer1 ON AppRate (kg/ha)
--   L1_AMP: Layer1 MP AppRate (kg/ha)
--   L1_AOP: Layer1 OP AppRate (kg/ha)
--   L2_ANO3: Layer2 N-NO3 AppRate (kg/ha)
--   L2_ANH3: Layer2 N-NH3 AppRate (kg/ha)
--   L2_AON: Layer2 ON AppRate (kg/ha)
--   L2_AMP: Layer2 MP AppRate (kg/ha)
--   L2_AOP: Layer2 OP AppRate (kg/ha)
--   UN1: N Uptake by Crop (kg/ha)
--   HUI: Heat Unit Index (none)
--   LAI: Leaf Area Index (none)
--   CPHT: Crop Height (m)
+**Table 4-X**
+
+|**Variable Name**|**Description**|**Units**|**Required**|
+|--------|---------------|--------------|-----------|
+|QNO3| N Loss in Surface Runoff| (kg/ha)||
+|SSFN| N in Subsurface Flow| (kg/ha)||
+| PRKN| N Loss in Percolate| (kg/ha)||
+| DN| N-NO3 Denitrification| (kg/ha)||
+| DN2| N-N2O from NO3 Denitrification| (kg/ha)||
+| AVOL| N-NH3 Emission| (kg/ha)||
+|HMN| OC Change by Soil Respiration |(kg/ha)||
+| NFIX| N Fixation |(kg/ha)||
+| YP| P Loss with Sediment| (kg/ha)||
+|QAP| Labile P Loss in Runoff| (kg/ha)||
+| YON| N Loss with Sediment| (kg/ha)||
+|  YW| Wind Erosion| (ton/ha)||
+|Q| Runoff| (mm)||
+|HUSC| Heat Unit Schedule| (none)||
+|HU_BASE0| Base Heat Unit| (none)||
+|HU_FRAC| Heat Unit fraction| (none)||
+|L1_DEP| Layer1 Depth| (m)||
+| L1_BD| Layer1 Bulk Density| (t/m**3)||
+| L1_NO3| Layer1 N - Nitrate| (kg/ha)||
+| L1_NH3| Layer1 N - Ammonia| (kg/ha)||
+| L1_ON| Layer1 Organic N| (kg/ha)||
+| L1_P| Layer1 Mineral P| (kg/ha)||
+| L1_OP| Layer1 Organic P| (kg/ha)||
+|L1_C| Layer1 Carbon| (kg/ha)||
+| L1_NITR| Layer1 N - Nitrified NH3| (kg/ha)||
+|L2_DEP| Layer2 Depth| (m)||
+| L2_BD| Layer2 Bulk Density| (t/m**3)||
+|L2_NO3| Layer2 N - Nitrate| (kg/ha)||
+| L2_NH3| Layer2 N - Ammonia| (kg/ha)||
+|L2_ON| Layer2 Organic N| (kg/ha)||
+| L2_P| Layer2 Mineral P| (kg/ha)||
+| L2_OP| Layer2 Organic P| (kg/ha)||
+| L2_C| Layer2 Carbon| (kg/ha)||
+| L2_NITR| Layer2 N - Nitrified NH3| (kg/ha)||
+|T1_DEP| Layert (Total Soil Profile) Depth |(m)||
+|T1_BD| Layert Bulk Density| (t/m**3)||
+| T1_NO3| Layert N - Nitrate| (kg/ha)||
+|T1_NH3| Layert N - Ammonia| (kg/ha)||
+| T1_ON| Layert Organic N| (kg/ha)||
+| T1_P| Layert Mineral P| (kg/ha)||
+|T1_OP| Layert Organic P| (kg/ha)||
+|T1_C| Layert Carbon |(kg/ha)||
+|T1_NITR| Layert N - Nitrified NH3| (kg/ha)||
+|L1_ANO3| Layer1 N-NO3 AppRate |(kg/ha)||
+| L1_ANH3| Layer1 N-NH3 AppRate| (kg/ha)||
+| L1_AON| Layer1 ON AppRate| (kg/ha)||
+| L1_AMP| Layer1 MP AppRate| (kg/ha)||
+| L1_AOP| Layer1 OP AppRate| (kg/ha)||
+| L2_ANO3| Layer2 N-NO3 AppRate| (kg/ha)||
+| L2_ANH3| Layer2 N-NH3 AppRate| (kg/ha)||
+| L2_AON| Layer2 ON AppRate| (kg/ha)||
+| L2_AMP| Layer2 MP AppRate| (kg/ha)||
+| L2_AOP| Layer2 OP AppRate| (kg/ha)||
+| UN1| N Uptake by Crop| (kg/ha)||
+| HUI| Heat Unit Index |(none)||
+| LAI| Leaf Area Index| (none)||
+| CPHT| Crop Height| (m)||
 
 ## Photolysis
 <a id=jtable></a>
@@ -625,7 +664,7 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 |…|…|…|…| Repeat for (2009-2015) there are 365 days of data
 
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch04_model_formulation.md)<br>
+ [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_CMAQ.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->

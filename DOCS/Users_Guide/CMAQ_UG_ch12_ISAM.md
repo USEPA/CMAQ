@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch09_sulfur_tracking.md)
+[<< Previous Chapter](CMAQ_UG_ch11_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch13_sulfur_tracking.md)
 
 <!-- END COMMENT -->
 
@@ -12,7 +12,7 @@ The Integrated Source Apportionment Method (ISAM) calculates source attribution 
 
 The CMAQ model provides users the concentration and deposition fields of many pollutant species. These species are usually combinations of different types of primary emissions and secondary formation that have been physically and chemically transformed in the model. However, sometimes it's desirable to know specific source attribution information for the model outputs. For example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
 
-Answering this type of question often requires running an air quality model twice, once with the standard emissions scenario and once with the source of interest completely removed. The difference between the two runs is then assumed to be attributed to the removed source.  While this approach is reasonably straightforward to implement, it has some drawbacks.  For example, removing a large source from the system in a highly nonlinear chemical mixture can lead to some errors. Also, calculating source attribution of many sources can be logistically and computationally complex. 
+Answering this type of question often requires running an air quality model twice, once with the standard emissions scenario and once with the source of interest completely removed. The difference between the two runs is then assumed to be attributed to the removed source.  While this approach is reasonably straightforward to implement, it has some drawbacks.  For example, removing a large source from the system in a highly nonlinear chemical mixture can lead to some errors. Also, calculating source attribution of many sources can be logistically and computationally complex.
 
 Alternatively, running CMAQ using ISAM allows the user the ability to calculate source attribution of a large number of sources directly by the model in one simulation.
 
@@ -206,7 +206,7 @@ Kwok, R.H.F, K.R. Baker, S.L. Napelenok, G.S. Tonnesen (2014) Photochemical grid
 
 <!-- BEGIN COMMENT -->
 
-[Home](README.md) - [Next Chapter >>](CMAQ_UG_ch09_sulfur_tracking.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch11_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch13_sulfur_tracking.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->

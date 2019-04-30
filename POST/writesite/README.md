@@ -3,7 +3,7 @@ writesite
 
 This Fortran program generates a csv file from an IOAPI data file for a set of species at defined site locations. 
 
-##Options:
+## Options:
 <ol>
 <li> Program can shift to local standard time for hourly data based on default time zone file </li>
 <li> Data at all cells or at defined site locations can be specified </li>
@@ -11,7 +11,7 @@ This Fortran program generates a csv file from an IOAPI data file for a set of s
 <li> Grid layer can be specified </li>
 </ol>
 
-##Environment variables used:
+## Run Time Environment variables used:
 ```
  INFILE         name of IOAPI input file. Supported map projections are Lambert conformal, polar stereographic, 
                 and lat/lon
@@ -31,16 +31,25 @@ This Fortran program generates a csv file from an IOAPI data file for a set of s
                 To extract all species use: setenv SPECIES_1 ALL
 ```
 
-##Environment variables (not required):
+## Run Time Environment variables (not required):
 ```
  IOAPI_ISPH  projection sphere type (use type #20 to match WRF/CMAQ)
              (ioapi default is 8)
 ```
 
-##To run:
+## Compile writesite source code:
+
+Execute the build script to compile writesite:
+
+```
+cd $CMAQ_HOME/POST/writesite/scripts
+./bldit_writesite.csh [compiler] [version] |& tee build_writesite.log
+```
+
+## Run writesite:
 Edit the sample run script (run.writesite), then run:
 ```
- run.writesite|& tee writesite.log
+ ./run.writesite|& tee writesite.log
 ```
 
 Check the log file to ensure complete and correct execution without errors.

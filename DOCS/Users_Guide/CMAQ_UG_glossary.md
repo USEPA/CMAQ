@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_OGD_appendix_A.md) - [Home](README.md)
+[<< References](CMAQ_UG_references.md) - [Home](README.md) - [Acronyms >>](CMAQ_UG_acronyms.md)
 
 <!-- END COMMENT -->
 
@@ -200,6 +200,6 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_OGD_appendix_A.md) - [Home](README.md)
+[<< References](CMAQ_UG_references.md) - [Home](README.md) - [Acronyms >>](CMAQ_UG_acronyms.md)
 
 <!-- END COMMENT -->
