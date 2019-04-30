@@ -10,5 +10,6 @@ The following programs are provided to process and prepare input data for the CM
 * **icon**: prepares chemical initial conditions (ICs) for CCTM from either ASCII vertical profiles or from an existing CCTM output concentration (CONC) file
 data
 * **mcip**: processes meteorological model output from either MM5 or WRF-ARW model into I/O API-formatted files that are compatible with CMAQ and SMOKE
-* **wbdust**: produces gridded MODIS FPAR data required by windblown dust emissions module. 
+* **wbdust**: produces gridded MODIS FPAR data required by windblown dust emissions module.   
+* **create_omi**: produces an OMI input file that supports CMAQ CCTM's in-line calculation of photolysis rates.
  
