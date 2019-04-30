@@ -27,9 +27,10 @@
 !   3  Nov 2015 G. Sarwar deleted CHLOROPHYLL since it is not used
 !   3  Nov 2015 G. Sarwar added CTM_MGEM_1 output files
 !   1  Feb 2017 D. Kang Added CTM_LTNGDIAG_1 and CTM_LTNGDIAG_2 for Lightning
+!   29 Apr 2019 S.Napelenok: removed unused isam files
 !.......................................................................
 
-      INTEGER, PARAMETER :: N_FILES = 79
+      INTEGER, PARAMETER :: N_FILES = 77
 
       CHARACTER( 16 ) :: LGCL_NAME( N_FILES ) 
       LOGICAL            IN_MODE( N_FILES )
@@ -114,8 +115,6 @@ C.....Roger Kwok, Jul 2012
       CHARACTER( 16 ) :: SA_ACONC_1
       CHARACTER( 16 ) :: SA_DD_1
       CHARACTER( 16 ) :: SA_WD_1
-      CHARACTER( 16 ) :: SA_RNORM_1
-      CHARACTER( 16 ) :: O3INDIC_1
 
       DATA GRID_DOT_2D      / 'GRID_DOT_2D     ' /
       DATA GRID_CRO_2D      / 'GRID_CRO_2D     ' /
@@ -194,8 +193,6 @@ C.....Roger Kwok, Jul 2012
       DATA  SA_ACONC_1      / 'SA_ACONC_1      ' /
       DATA  SA_DD_1         / 'SA_DD_1         ' /
       DATA  SA_WD_1         / 'SA_WD_1         ' /
-      DATA  SA_RNORM_1      / 'SA_RNORM_1      ' /
-      DATA  O3INDIC_1       / 'O3INDIC_1       ' /
 
       DATA LGCL_NAME(  1 ), IN_MODE(  1 )    / 'GRID_DOT_2D     ', .TRUE. /
       DATA LGCL_NAME(  2 ), IN_MODE(  2 )    / 'GRID_CRO_2D     ', .TRUE. /
@@ -274,7 +271,5 @@ C.....Roger Kwok, Jul 2012
       DATA LGCL_NAME( 75 ), IN_MODE( 75 )    / 'SA_ACONC_1      ', .FALSE. /
       DATA LGCL_NAME( 76 ), IN_MODE( 76 )    / 'SA_DD_1         ', .FALSE. /
       DATA LGCL_NAME( 77 ), IN_MODE( 77 )    / 'SA_WD_1         ', .FALSE. /
-      DATA LGCL_NAME( 78 ), IN_MODE( 78 )    / 'SA_RNORM_1      ', .FALSE. /
-      DATA LGCL_NAME( 79 ), IN_MODE( 79 )    / 'O3INDIC_1       ', .FALSE. /
 
 !................   end   FILES_CTM.EXT   .............................

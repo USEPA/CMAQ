@@ -457,8 +457,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        setenv SA_DD_1         "$OUTDIR/CCTM_SA_DRYDEP_${CTM_APPL}.nc -v"
        setenv SA_WD_1         "$OUTDIR/CCTM_SA_WETDEP_${CTM_APPL}.nc -v"
        setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
-       setenv O3INDIC_1       "$OUTDIR/CCTM_O3INDICATOR.${CTM_APPL}.nc -v"
-       setenv SA_RNORM_1      "$OUTDIR/CCTM_SA_RNORM.${CTM_APPL}.nc -v"
 
     endif
  endif

@@ -162,14 +162,14 @@ C...........EXTERNAL FUNCTIONS
      &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
 #endif
             IMPLICIT NONE
-            REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
-            INTEGER, INTENT( IN )  :: N_SPC_WDEP
-            INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-            REAL,    INTENT( OUT ) :: DEP( :,:,: )
-            REAL,    INTENT( OUT ) :: RESTRANS( :,: )
+            REAL, POINTER            :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: N_SPC_WDEP
+            INTEGER, INTENT( IN )    :: WDEP_MAP( : )
+            REAL,    INTENT( INOUT ) :: DEP( :,:,: )
+            REAL,    INTENT( OUT )   :: RESTRANS( :,: )
 #ifdef isam
-            REAL,    INTENT( OUT ) :: SA_DEP( :,:,:,: )
+            REAL,    INTENT( INOUT ) :: SA_DEP( :,:,:,: )
 
 #endif
          END SUBROUTINE RESCLD
@@ -182,14 +182,14 @@ C...........EXTERNAL FUNCTIONS
      &                            N_SPC_WDEP, WDEP_MAP, DEP, SUBTRANS )
 #endif
             IMPLICIT NONE
-            REAL, POINTER          :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP( 3 )
-            INTEGER, INTENT( IN )  :: N_SPC_WDEP
-            INTEGER, INTENT( IN )  :: WDEP_MAP( : )
-            REAL,    INTENT( OUT ) :: DEP( :,:,: )
-            REAL,    INTENT( OUT ) :: SUBTRANS( :,:,: )
+            REAL, POINTER            :: CGRID( :,:,:,: )
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: N_SPC_WDEP
+            INTEGER, INTENT( IN )    :: WDEP_MAP( : )
+            REAL,    INTENT( INOUT ) :: DEP( :,:,: )
+            REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
 #ifdef isam
-            REAL,    INTENT( OUT ) :: CONV_SADEP( :,:,:,: )
+            REAL,    INTENT( INOUT ) :: CONV_SADEP( :,:,:,: )
 #endif
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
@@ -491,7 +491,7 @@ c ISAM  unit conversion
               DO ROW = 1, MY_NROWS
                 DO COL = 1, MY_NCOLS
                   ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM(COL,ROW,LAY,SPC,ITAG ) * 1.0E-6
-                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM( COL,ROW,LAY,SPC, ITAG ), 1.0E-30 )
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM( COL,ROW,LAY,SPC, ITAG ), 1.0E-36 )
                 END DO
               END DO
             END DO
@@ -503,7 +503,7 @@ c ISAM  unit conversion
                 DO COL = 1, MY_NCOLS
                   FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( VAR - AE_STRT + 1 )
                   ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * FAC
-                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM(COL,ROW,LAY,SPC, ITAG ), 1.0E-30 )
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM(COL,ROW,LAY,SPC, ITAG ), 1.0E-36 )
                 END DO
               END DO
             END DO
@@ -523,7 +523,7 @@ C...compute cloud effects for the resolved clouds and resolved rainwater
      &              N_SPC_WDEP, WDEP_MAP, TOT_DEP, RESTRANS )
 #endif
 
-C...compute iloud effects for convective (subgrid) clouds
+C...compute cloud effects for convective (subgrid) clouds
 
 #ifdef isam
       CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,

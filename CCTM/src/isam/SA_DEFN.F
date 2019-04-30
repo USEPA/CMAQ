@@ -315,6 +315,8 @@ c----------------------------------------------------------
         BGN_SP = INDEX( TAGCLASSES,'VOC',LBACK )
         L_VOC = ( BGN_SP .NE. 0 .OR. L_VOC )
 
+        DEFINED = .TRUE.
+
         IF( L_NITRATE .OR. L_VOC .OR. L_OZONE )THEN ! determine if tag species are defined by mechanism's name
           SELECT CASE( MECHNAME ) 
              CASE( 'CB6R3_AE6_AQ',     'CB6R3_AE7_AQ',      'CB6R3M_AE7_KMTBR', 
@@ -325,7 +327,7 @@ c----------------------------------------------------------
                 DEFINED = .FALSE.
           END SELECT
         END IF
-        
+       
         IF( .NOT. DEFINED )THEN
             XMSG = "ISAM ERROR: Using L_NITRATE or L_VOC or L_OZONE tag group but their species "
      &          // "for the " // TRIM( MECHNAME ) // " mechanism not defined. Modify GET_NSPC_SA "

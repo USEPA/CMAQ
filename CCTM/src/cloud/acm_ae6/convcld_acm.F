@@ -154,7 +154,9 @@ C...........Arguments
       INTEGER, INTENT( IN )    :: WDEP_MAP( : )
       REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
       REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
-
+#ifdef isam
+      REAL,    INTENT( INOUT ) :: CONV_SADEP( :,:,:,: )
+#endif
 
 C...........Parameters
 
@@ -417,7 +419,6 @@ C...........Statement Functions
       QSAT( E, P ) = MVOMA * ( E / ( P - E ) )
 
 #ifdef isam
-      REAL                    :: CONV_SADEP( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: SA_BASE0  ( :,: )
       REAL, ALLOCATABLE, SAVE :: SA_POLC   ( :,: )
       REAL, ALLOCATABLE, SAVE :: SA_CEND   ( :,: )
@@ -1797,7 +1798,7 @@ C...convert mean photolysis rates to 1/sec
                 SA_CEND( S_SULF,ITAG )  = 1.0E-30
               END DO
 
-              DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) ! sulfate produced from SO2
+c             DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) ! sulfate produced from SO2
 
               DO ITAG = 1, NTAG_SA
                 SA_DS4( ITAG ) = SA_DS4( ITAG ) + DS4_SAVE ! total sulfate produced
