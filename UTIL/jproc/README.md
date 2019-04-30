@@ -12,7 +12,7 @@ Tables 1 and 2 show the input and output files for JPROC. Some options are invok
 
 Several required and optional input files are used the JPROC. For the selected photochemical mechanism, the user must provide a set of data file containing molecular absorption and yield data files for photolysis reactions used by the photochemical mechanism. CMAQ is distributed with a full set of CSQY files for the Carbon Bond, SAPRC, and RACM photochemical mechanism versions supported by the model. If a user develops new mechanism with new photolysis rates, they must produce the appropriate CSQY data files for each rate. The user also has the option of using the default atmospheric profiles contained in the PROFILES input file or using Total Ozone Mapping Spectrometer (TOMS) data to replace the climatologically derived ozone column data in the PROFILES file.
 
-**Table 1. JRPOC input files**
+**Table 1. JPROC input files**
 
 |**File Name**|**Format**|**Description**|
 |---------|--------|----------------------------------------------------------------------|
