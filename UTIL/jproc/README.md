@@ -63,21 +63,20 @@ The environment variables listed here are invoked during execution of the progra
 
 ### Compiling and Running
 
-#### JPROC compilation
+#### Building JPROC 
 
-[Chapter 5](../../DOCS/User_Manual/CMAQ_OGD_ch05_sys_req.md) provides an overview of how to install and compile the CMAQ programs for the tutorial simulation. Follow the steps outlined in Chapter 5 (summarized below) to compile new versions of JPROC:
+Follow the below steps for compiling JPROC. The process requires the bldmake utility. Check the bldmake README on compiling it if an executable does not exist.
 
-1.   Compile Bldmake, the CMAQ source code and compilation management program. This needs to be done only once—the first time CMAQ is installed.
-2.    Configure the JPROC build script to use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
-3.    Configure the JPROC build script for your application by setting the compilation configuration variables described above.
-4.   Invoke the build script to create an executable:
+1.    Configure the JPROC build script to use the config_cmaq.csh script, which points to the available I/O API and netCDF libraries.
+2.    Configure the JPROC build script for your application by setting the compilation configuration variables described above.
+3.   Invoke the build script to create an executable:
 
 ```
 cd $CMAQ_HOME/UTIL/jproc/scripts
 ./bldit_jproc.csh [compiler] [version] |& tee build_jproc.log
 ```
 
-#### Run JPROC ####
+#### Running JPROC ####
 
 Set the run script settings according to the execution configuration variables described above. Run JPROC to produce offline clear-sky photolysis rates for the CCTM:
 

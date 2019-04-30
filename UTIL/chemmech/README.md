@@ -1,23 +1,33 @@
-# CHEMMECH, the CMAQ photochemical mechanism processor
+# chemmech, the CMAQ photochemical mechanism processor
 
-## Quick Start
 
-This directory contains a template bldrun script and source code directory for creating
-the RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 files under the scripts and src subdirectories, respectively.
+##  Background
 
-To use this utilitiy:
+The chemical mechanism processor (chemmech) allows altering a photochemical mechanisms or using a different mechanism in the CMAQ model.
+Two output files implement the photochemical mechanism in CMAQ and are compiled along its source code. Both output files contain FORTRAN 90 modules. RXNS_DATA_MOD.F90 defines the mechanism species, their reactions and rate constants. RXN_FUNC_MOD.F90 specifies functions that map CMAQ model species to photochemical mechanism species and calculate reaction rate constants. chemmech produces additional output files to check whether the two modules represent the photochemical mechanism intended by the user.  One additional ouput file, SPCS.ext, lists the species participating in the photochemical mechanism. Two other additional output files are prototypes for the species and equations files used to run the Kinetic PreProcess (KPP) (Damian et al., 2002).  The KPP inputs have not been tested in several years so a user should use them with discretion.
+Remaining output files are markdown, csv and, html tables that list reactions, their rate constant formula, and values at specified atmospheric conditions.
 
-1.  Compile it by modifying the bldit script in the scripts directory. Set Fortran compiler based on your system, save and run the script.
+## Using chemmech
+
+This directory includes a scripts subdirectory with a template build and run scripts along for creating
+the RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 files. 
+
+To create mechanism modules:
+
+1.  Compile chemmech by modifying the build script in the scripts directory. 
+    - Set the Fortran **COMPILER** based on your system, save and execute the script. The script runs a Makefile set for 
+    three options of compilers: Intel (INTEL), Portland Group (PGF90), and gcc gfortran (GFORT). If a user wishes to use a compiler
+    outside this group, they have to modify the Makefile under the src subdirectory.
 
 2.  Modify the run script by setting the Photochemical Mechanism to use. Table 1 lists run time options.
 
 3.  Execute the run script and inspect the results under the output directory.
 
- <center> Table 1. CHEMMECH environment settings or run time options </center>
+ <center> Table 1. chemmech environment settings or run time options </center>
 
 | Variable | Description | Notes |   
 |:---------|:-----------|:-------|   
-| USE_SPCS_NAMELISTS | Use CMAQ species namelists to check if photochemistry is defined in namelists | CHEMMECH stops if photochemical species not found |
+| USE_SPCS_NAMELISTS | Use CMAQ species namelists to check if photochemistry is defined in namelists | chemmech stops if photochemical species not found |
 | MECHDEF | Full Path for Mechanism Definitions File | Soft naming convention for mech_*MECHANISM-NAME*.def; the file's directory set by value of Mpath |
 | MAPPING_ROUTINE | Full path for a FORTRAN subroutine that determines a map between CMAQ model species and photochemistry species | RXNS_FUNC_MODULE.F90 incorporates the subroutine |  
 | gc_matrix_nml | Full path for gas namelist for mechanism | In general, the list contains all gases species in the photochemistry |
@@ -31,12 +41,21 @@ To use this utilitiy:
 | EQNS_KPP_FILE  | Full path for equations file to run the Kinetic Preprocessor (KPP) tool | Based on the MECHDEF content and not tested |
 | SPCS_KPP_FILE  | Full path for species file to run the KPP tool | Based on the MECHDEF content and not tested |
 
-##  Background
 
-The chemical mechanism processor (CHEMMECH) allows altering a photochemical mechanisms or using a different mechanism in the CMAQ model. Two output files implement the photochemical mechanism and are compiled along CMAQ’s source code. Both output files contain FORTRAN 90 modules. RXNS_DATA_MOD.F90 defines the mechanism species, their reactions and rate constants. RXN_FUNC_MOD.F90 specifies functions that map CMAQ model species to photochemical mechanism species and calculate reaction rate constants. CHEMMECH produces additional output files to check whether the two modules represent the photochemical mechanism intended by the user.  One additional ouput file, SPCS.ext, lists the species participating in the photochemical mechanism. Two other additional output files are prototypes for the species and equations files used to run the Kinetic PreProcess (KPP) (Damian et al., 2002).  The KPP inputs have not been tested in several years so a user should use them with discretion.
-Remaining output files are markdown, csv and, html files. They contains table that at least list each reactions, their rate constant formula, and values at specified atmospheric conditions.
+Inputs include a mechanism chemical definitions (MECHDEF or mech.def) file and CMAQ species namelist files.
+All are ASCII files. Namelists specify species participating in photochemical reaction divided into the Gas (GC), Aerosol (AE), Nonreactive (NR) and Tracer (TR) groups but not all namelist species have to participate in photochemical reactions. The namelist are optional but are recommended when modifying an existing photochemical mechanism because chemmech will check whether species used in the mech.def exist in the namelists. 
+The mech.def file lists the reactions and other data representing the photochemistry. Input files follow a rigid format; the CCTM/src/MECHS subdirectories contain examples. Rules for the mech.def are more difficults to interpret. Read the subsection on _Chemical Reactions Input Format_ for more information. 
 
-CHEMMECH inputs include the mechanism chemical definitions (mech.def) file and the three CMAQ species namelist files. All are ASCII files. Namelists specify species participating in photochemical reaction divided into the Gas (GC), Aerosol (AE), Nonreactive (NR) and Tracer (TR) groups but not all namelist species have to participate in photochemical reactions. The namelist are optional but are recommended when modifying an existing photochemical mechanism because CHEMMECH can cross check whether species used in the mech.def are found in the namelists. The mech.def file lists the reactions and other data representing the photochemistry. Input tiles follow a rigid format; the CCTM/src/MECHS subdirectories contain examples. For namelists, the examples show the data in each file and the formatting rules. The following information regards formatting used in the mech.def file. 
+If errors occur at running chemmech, check the _Compiling and debugging chemmech_ subsection for possible solutions. Otherwise,  report potential program errors or failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov. 
+
+
+## Using output files in the CMAQ model
+
+Outputs includes FORTRAN 90 modules, RXNS_DATA_MODULE.F90 and RXNS_FUNCTION.F90, for compiling the CMAQ Chemical Transport Model (CCTM) to use the photochemical mechanism. Compiling the CCTM requires no additional files if the model uses the Sparse Matrix Vectorized versions of the Rosenbrock (Sandu et al., 1997) or Gear (Jacobson and Turco, 1994) chemistry solver (repository directories, CCTM/src/gas/ros3 or CCTM/src/gas/smvgear). 
+
+Besides the species namelists, executing the CCTM requires a CSQY_DATA\_**mechanism-name** file containing cross-sections and quantum yields for the photolysis rates used by the mechanism. The _inline_phot_preproc_ utility creates file by using the data module. Check the subdirectory containing this utility for more information. 
+
+If a user wants to use a gas chemistry solver faster than Rosenbrock or Gear, they have to create a Euler Backward Interative (EBI) solver (Hertel et al., 1993) for the photochemical mechanism. The _create\_ebi_ utility creates an EBI solver specific to a photochemical mechanism by using its data module. Check this utility’s subdirectory for more information.
 
 ## Chemical Reactions Input Format
 
@@ -123,7 +142,7 @@ to them by comparing two mechanisms that do and do not use such operators.
 
 #### ELIMINATE.
 
-This key word followed by an equal sign lists products used in reactions that are not to be included as a model species or accounted for in CHEMMECH output files. A semicolon must follow each species name in the list. A developer may want to omit specific products because they lack relevance to research goals or because solving their concentrations greatly increases duration of model simulations.
+This key word followed by an equal sign lists products used in reactions that are not to be included as a model species or accounted for in chemmech output files. A semicolon must follow each species name in the list. A developer may want to omit specific products because they lack relevance to research goals or because solving their concentrations greatly increases duration of model simulations.
 
 #### REACTIONS.
 
@@ -178,7 +197,7 @@ Rate constant parameters begin with either a # sign or the expression, "%s#", wh
 **Notes:**   
 1.  For rate constants with the form A<Reference> or A*Reference, reference gives label for a photolysis rate (J), a heteorogeneous rate constant (H), rate constant for the given (K) reaction label or an operator (O). A equals one if not given.
 2.  Reaction Type 4 represents the rate constant for the reverse equilibrium reaction to the reaction labeled K.  
-3.  Calculating the photolysis and heteorogeneous rates takes place outside the RXNS_FUNC_MODULE.F90 file produced by the CHEMMECH processor.   
+3.  Calculating the photolysis and heteorogeneous rates takes place outside the RXNS_FUNC_MODULE.F90 file produced by the chemmech processor.   
 4.  Operators are defined the SPECIAL block where <''REACTION''> is the rate constant for the given ''REACTION'' and [''species''] equals the concentration of a mechanism ''species'' at the beginning of the integration time-step for the chemistry's numerical solver.   
 5.  Type 12 is used to include ozone destruction by marine bromine and iodide compounds. It parameters effects from reactions predicted by a photochemical mechanism that includes them.  
 6.  Type 13 can use TEMP (K), PRES (atm), and the constant atmospheric species (molec/cm\*\*3). They also can use function and operator defined in the __FUNCTIONS__ and __SPECIAL__ blocks.
@@ -230,9 +249,9 @@ Use reaction type 13 to access the value of a formula expressed in the __FUNCTIO
         <R348> CH3CO3 + NO2 = PAN           %4 # KFPAN;
         <R721> PAN          = CH3CO3 + NO2  %4 # KBPAN;        
 
-## Building and Running
+## Compiling and debugging chemmech
 
-Two methods exist for building CHEMMECH. The method to use depends on the FORTRAN compiler that will be used. If the Intel (INTEL), Portland (PGF90) or GCC (GFORT) compilers are available, the first and standard method executes the bldit_chemmech.csh script after changing the script’s COMPILER variable to one of the three options. If none of these compilers are to be used, the user has to modify src/Makefile to use the intended compiler and create CHEMMECH using the make command.  As implied by the compilers available in the bldit script, CHEMMECH has been tested with each to verify consistent results between compilers. The current Makefile includes the debug flags in the compilers options so the user can identify the cause and location when CHEMMECH crashes. Crashes occur the mech.def contains information that exceeds the parameters defining array dimensions. The src/MECHANISM_PARMS.f file defines these parameters. The user can change many of the parameters then rebuild CHEMMECH so the utility fits the application. Table 3 lists the parameter and state whether user should change their values.
+Two methods exist for building chemmech. The method to use depends on the FORTRAN compiler that will be used. If the Intel (INTEL), Portland (PGF90) or GCC (GFORT) compilers are available, the first and standard method executes the bldit_chemmech.csh script after changing the script’s COMPILER variable to one of the three options. If none of these compilers are to be used, the user has to modify src/Makefile to use the intended compiler and create chemmech using the make command.  As implied by the compilers available in the bldit script, chemmech has been tested with each to verify consistent results between compilers. The current Makefile includes the debug flags in the compilers options so the user can identify the cause and location when chemmech crashes. Crashes occur the mech.def contains information that exceeds the parameters defining array dimensions. The src/MECHANISM_PARMS.f file defines these parameters. The user can change many of the parameters then rebuild chemmech so the utility fits the application. Table 3 lists the parameter and state whether user should change their values.
 
 
 <center> Table 3. Limits placed on a Mechanism Definitions File </center>
@@ -253,10 +272,8 @@ Two methods exist for building CHEMMECH. The method to use depends on the FORTRA
 | MAXCONSTS  |   	5 |  Maximum CONSTANT Species |
 
 
-Running CHEMMECH is accomplished by modifying and executing the run script under the scripts subdirectory. In the run script, environment variables define names, directories and runtime options. The script contains comments describing each variable. Names and directory are used to set paths for the inputs, outputs, and CHEMMECH. Run time options are set based on the application and user. The option, compile, determines whether to recompile CHEMMECH. A user may want to recompile if they are modifying the CHEMMECH source code or wish to use a different compiler from a previous application. The variable, COMPILER sets which the compiler to use from possible values mentioned above if compile equals true. The option, USE_SPCS_NAMELISTS states whether CHEMMECH reads in the three mechanism species namelists and then checks whether the mech.def file uses a species not found in the namelists. CHEMMECH will stop when this occurs. Running CHEMMECH using the namelists is not required but the option provides check for potential errors when modifying an existing photochemical mechanism within the CMAQ model system. A user may want to set USE_SPCS_NAMELISTS  to false, F,  if they are creating a new photochemical mechanism.
+Running chemmech is accomplished by modifying and executing the run script under the scripts subdirectory. In the run script, environment variables define names, directories and runtime options. The script contains comments describing each variable. Names and directory are used to set paths for the inputs, outputs, and chemmech. Run time options are set based on the application and user. The option, compile, determines whether to recompile chemmech. A user may want to recompile if they are modifying the chemmech source code or wish to use a different compiler from a previous application. The variable, COMPILER sets which the compiler to use from possible values mentioned above if compile equals true. The option, USE_SPCS_NAMELISTS states whether chemmech reads in the three mechanism species namelists and then checks whether the mech.def file uses a species not found in the namelists. chemmech will stop when this occurs. Running chemmech using the namelists is not required but the option provides check for potential errors when modifying an existing photochemical mechanism within the CMAQ model system. A user may want to set USE_SPCS_NAMELISTS  to false, F,  if they are creating a new photochemical mechanism.
 
-
-CHEMMECH produces two files, RXNS_DATA_MODULE.F90 and RXNS_FUNCTION.F90, to compile the CMAQ Chemical Transport Model (CCTM) that uses the photochemical mechanism. The data module contains parameters describing the reactions, rates, and species. The functions module contains routines for setting up the photochemical mechanism and calculating its rate constants. Compiling the CCTM requires no additional files if the model uses the Sparse Matrix Vectorized versions of the Rosenbrock (Sandu et al., 1997) or Gear (Jacobson and Turco, 1994) chemistry solver (repository directories, CCTM/src/gas/ros3 or CCTM/src/gas/smvgear). Besides the species namelists, executing the CCTM requires a CSQY_DATA_mechanism_name file containing cross-sections and quantum yields for the photolysis rates used by the mechanism. The inline_phot_preproc utility creates file by using the data module. Check the subdirectory containing this utility for more information. If the user wants CCTM to use a gas chemistry solver faster than Rosenbrock or Gear, they have to create a Euler Backward Interative (EBI) solver (Hertel et al., 1993) for the photochemical mechanism. The create_ebi utility creates an EBI solver specific to a photochemical mechanism by using its data module. Check this utility’s subdirectory for more information.
 
 ## References.
 

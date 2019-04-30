@@ -79,7 +79,7 @@ To use the utility follow the below instructions.
 |PHOT_OPTICS.dat |ASCII|Wavelength, Optical and Surface Albedo Parameters for CMAQ In-Line Photolysis calculation.|
 
 
-To report potential program errors or failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov
+To report potential program errors or failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov.
 
 ### Files, configuration, and environment variables
 
