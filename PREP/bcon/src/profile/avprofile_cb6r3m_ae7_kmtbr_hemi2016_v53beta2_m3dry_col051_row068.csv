@@ -8,7 +8,7 @@
 # Grid spacing: 108 x 108 km on a polar stereographic grid covering the northern hemisphere
 # Vertical layers: 44
 # Meteorological fields: WRF3.8
-# Chemical mechanism: CB6R3M_AE7_AQ
+# Chemical mechanism: CB6R3M_AE7_KMTBR
 # Dry Deposition: M3DRY
 # Top level pressure: 50 hPa
 # The vertical sigma levels used in the simulations were 1.0, 0.9975, 0.9946, 0.9913, 0.9875, 0.9831, 0.9781, 0.9723, 0.9657, 0.958, 0.9492, 0.9391, 0.9275, 0.9141, 0.8987, 0.881, 0.8607, 0.8373, 0.8104, 0.7795, 0.7439, 0.7066, 0.6693, 0.632, 0.5946, 0.5573, 0.52, 0.4827, 0.4454, 0.4081, 0.3708, 0.3352, 0.3013, 0.269, 0.2383, 0.2089, 0.181, 0.1543, 0.1289, 0.1047, 0.0816, 0.0596, 0.0386, 0.0186, 0.
