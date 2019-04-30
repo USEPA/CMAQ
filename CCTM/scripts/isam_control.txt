@@ -6,7 +6,7 @@
 !!!
 !!!
 !!! The following line defines the tag classes to track for the simulation
-!!!   Choose any/all from the list of nine:  SULFATE NITRATE AMMONIUM EC OC VOC PM25_IONS CO OZONE 
+!!!   Choose any/all from the list of nine:  SULFATE, NITRATE, AMMONIUM, EC, OC, VOC, PM25_IONS, CO, OZONE 
 !!!   SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN
 !!!   NITRATE   - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR
 !!!   AMMONIUM  - ANH4J, ANH4I, NH3
@@ -17,17 +17,16 @@
 !!!   CO        - CO
 !!!   OZONE     - all NITRATE species + all VOC species
 
-TAG CLASSES     |SULFATE OZONE NITRATE AMMONIUM EC
+TAG CLASSES     |SULFATE, OZONE, NITRATE, AMMONIUM, EC
 
 !!! The following are source definition text blocks in the format:
 !!!   TAG NAME        |Three character text string
-!!!   REGION(S)       |Keyword EVERYWHERE or variable names from the region file
-!!!   FILENAME(S)     |Emissions file name(s) 
-!!!   STACK FILE(S)   |Stack file name(s)
+!!!   REGION(S)       |Keyword EVERYWHERE or variable names from the region file (multiple regions need to be comma delimited)
+!!!   FILENAME(S)     |Emissions labels (multiple labels need to be comma delimited)
 
 
 TAG NAME        |PS2
 REGION(S)       |EVERYWHERE
-EMIS STREAM(S)  |PT_EGU
+EMIS STREAM(S)  |PT_EGU, PT_NONEGU
 
 ENDLIST eof 
