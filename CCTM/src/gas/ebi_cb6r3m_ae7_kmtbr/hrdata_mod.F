@@ -23,11 +23,11 @@ C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the CB6R3M family of mechanisms
+C  PRECONDITIONS: For the CB6R3M_AE7_KMTBR mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb  1, 2019
+C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -232,62 +232,66 @@ c..Species indices
       INTEGER, PARAMETER :: AOLGBJ           =  118
       INTEGER, PARAMETER :: AISO2J           =  119
       INTEGER, PARAMETER :: ASQTJ            =  120
-      INTEGER, PARAMETER :: PCVOC            =  121
-      INTEGER, PARAMETER :: PCSOARXN         =  122
-      INTEGER, PARAMETER :: VLVPO1           =  123
-      INTEGER, PARAMETER :: VSVPO1           =  124
-      INTEGER, PARAMETER :: VSVPO2           =  125
-      INTEGER, PARAMETER :: VSVPO3           =  126
-      INTEGER, PARAMETER :: VIVPO1           =  127
-      INTEGER, PARAMETER :: VLVOO1           =  128
-      INTEGER, PARAMETER :: VLVOO2           =  129
-      INTEGER, PARAMETER :: VSVOO2           =  130
-      INTEGER, PARAMETER :: VSVOO3           =  131
-      INTEGER, PARAMETER :: VSVOO1           =  132
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  133
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  134
-      INTEGER, PARAMETER :: BUTADIENE13      =  135
-      INTEGER, PARAMETER :: ACROLEIN         =  136
-      INTEGER, PARAMETER :: ACRO_PRIMARY     =  137
-      INTEGER, PARAMETER :: TOLU             =  138
-      INTEGER, PARAMETER :: HG               =  139
-      INTEGER, PARAMETER :: HGIIAER          =  140
-      INTEGER, PARAMETER :: HGIIGAS          =  141
-      INTEGER, PARAMETER :: BR               =  142
-      INTEGER, PARAMETER :: BRO              =  143
-      INTEGER, PARAMETER :: HOBR             =  144
-      INTEGER, PARAMETER :: HBR              =  145
-      INTEGER, PARAMETER :: BR2              =  146
-      INTEGER, PARAMETER :: BRNO3            =  147
-      INTEGER, PARAMETER :: BRNO2            =  148
-      INTEGER, PARAMETER :: FMBR             =  149
-      INTEGER, PARAMETER :: CH3BR            =  150
-      INTEGER, PARAMETER :: MB3              =  151
-      INTEGER, PARAMETER :: MB2              =  152
-      INTEGER, PARAMETER :: MB2C             =  153
-      INTEGER, PARAMETER :: MBC2             =  154
-      INTEGER, PARAMETER :: MBC              =  155
-      INTEGER, PARAMETER :: DMS              =  156
-      INTEGER, PARAMETER :: MSA              =  157
-      INTEGER, PARAMETER :: BRCL             =  158
-      INTEGER, PARAMETER :: ABRJ             =  159
-      INTEGER, PARAMETER :: I                =  160
-      INTEGER, PARAMETER :: IO               =  161
-      INTEGER, PARAMETER :: HI               =  162
-      INTEGER, PARAMETER :: I2               =  163
-      INTEGER, PARAMETER :: HOI              =  164
-      INTEGER, PARAMETER :: INO              =  165
-      INTEGER, PARAMETER :: INO2             =  166
-      INTEGER, PARAMETER :: INO3             =  167
-      INTEGER, PARAMETER :: OIO              =  168
-      INTEGER, PARAMETER :: I2O4             =  169
-      INTEGER, PARAMETER :: I2O2             =  170
-      INTEGER, PARAMETER :: I2O3             =  171
-      INTEGER, PARAMETER :: CH3I             =  172
-      INTEGER, PARAMETER :: ICL              =  173
-      INTEGER, PARAMETER :: IBR              =  174
-      INTEGER, PARAMETER :: MI2              =  175
-      INTEGER, PARAMETER :: MIB              =  176
-      INTEGER, PARAMETER :: MIC              =  177
+      INTEGER, PARAMETER :: APOCI            =  121
+      INTEGER, PARAMETER :: APNCOMI          =  122
+      INTEGER, PARAMETER :: APOCJ            =  123
+      INTEGER, PARAMETER :: APNCOMJ          =  124
+      INTEGER, PARAMETER :: PCVOC            =  125
+      INTEGER, PARAMETER :: PCSOARXN         =  126
+      INTEGER, PARAMETER :: VLVPO1           =  127
+      INTEGER, PARAMETER :: VSVPO1           =  128
+      INTEGER, PARAMETER :: VSVPO2           =  129
+      INTEGER, PARAMETER :: VSVPO3           =  130
+      INTEGER, PARAMETER :: VIVPO1           =  131
+      INTEGER, PARAMETER :: VLVOO1           =  132
+      INTEGER, PARAMETER :: VLVOO2           =  133
+      INTEGER, PARAMETER :: VSVOO2           =  134
+      INTEGER, PARAMETER :: VSVOO3           =  135
+      INTEGER, PARAMETER :: VSVOO1           =  136
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  137
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  138
+      INTEGER, PARAMETER :: BUTADIENE13      =  139
+      INTEGER, PARAMETER :: ACROLEIN         =  140
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  141
+      INTEGER, PARAMETER :: TOLU             =  142
+      INTEGER, PARAMETER :: HG               =  143
+      INTEGER, PARAMETER :: HGIIAER          =  144
+      INTEGER, PARAMETER :: HGIIGAS          =  145
+      INTEGER, PARAMETER :: BR               =  146
+      INTEGER, PARAMETER :: BRO              =  147
+      INTEGER, PARAMETER :: HOBR             =  148
+      INTEGER, PARAMETER :: HBR              =  149
+      INTEGER, PARAMETER :: BR2              =  150
+      INTEGER, PARAMETER :: BRNO3            =  151
+      INTEGER, PARAMETER :: BRNO2            =  152
+      INTEGER, PARAMETER :: FMBR             =  153
+      INTEGER, PARAMETER :: CH3BR            =  154
+      INTEGER, PARAMETER :: MB3              =  155
+      INTEGER, PARAMETER :: MB2              =  156
+      INTEGER, PARAMETER :: MB2C             =  157
+      INTEGER, PARAMETER :: MBC2             =  158
+      INTEGER, PARAMETER :: MBC              =  159
+      INTEGER, PARAMETER :: DMS              =  160
+      INTEGER, PARAMETER :: MSA              =  161
+      INTEGER, PARAMETER :: BRCL             =  162
+      INTEGER, PARAMETER :: ABRJ             =  163
+      INTEGER, PARAMETER :: I                =  164
+      INTEGER, PARAMETER :: IO               =  165
+      INTEGER, PARAMETER :: HI               =  166
+      INTEGER, PARAMETER :: I2               =  167
+      INTEGER, PARAMETER :: HOI              =  168
+      INTEGER, PARAMETER :: INO              =  169
+      INTEGER, PARAMETER :: INO2             =  170
+      INTEGER, PARAMETER :: INO3             =  171
+      INTEGER, PARAMETER :: OIO              =  172
+      INTEGER, PARAMETER :: I2O4             =  173
+      INTEGER, PARAMETER :: I2O2             =  174
+      INTEGER, PARAMETER :: I2O3             =  175
+      INTEGER, PARAMETER :: CH3I             =  176
+      INTEGER, PARAMETER :: ICL              =  177
+      INTEGER, PARAMETER :: IBR              =  178
+      INTEGER, PARAMETER :: MI2              =  179
+      INTEGER, PARAMETER :: MIB              =  180
+      INTEGER, PARAMETER :: MIC              =  181
 
       END MODULE HRDATA

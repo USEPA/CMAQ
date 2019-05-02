@@ -23,11 +23,11 @@ C***********************************************************************
 C
 C  FUNCTION: To calculate rates of reactions
 C
-C  PRECONDITIONS: For the RACM2 family of mechanisms
+C  PRECONDITIONS: For the RACM2_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
 C
 C***********************************************************************
       USE HRDATA
@@ -450,17 +450,21 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(    394 ) = RKI(   394 ) * YC(  APAH2J )
       RXRAT(    395 ) = RKI(   395 ) * YC(  AALK1J )
       RXRAT(    396 ) = RKI(   396 ) * YC(  AALK2J )
-      RXRAT(    397 ) = RKI(   397 ) * YC(  PCVOC ) * YC(  HO )
-      RXRAT(    398 ) = RKI(   398 ) * YC(  VLVPO1 ) * YC(  HO )
-      RXRAT(    399 ) = RKI(   399 ) * YC(  VSVPO1 ) * YC(  HO )
-      RXRAT(    400 ) = RKI(   400 ) * YC(  VSVPO2 ) * YC(  HO )
-      RXRAT(    401 ) = RKI(   401 ) * YC(  VSVPO3 ) * YC(  HO )
-      RXRAT(    402 ) = RKI(   402 ) * YC(  VIVPO1 ) * YC(  HO )
-      RXRAT(    403 ) = RKI(   403 ) * YC(  VLVOO1 ) * YC(  HO )
-      RXRAT(    404 ) = RKI(   404 ) * YC(  VLVOO2 ) * YC(  HO )
-      RXRAT(    405 ) = RKI(   405 ) * YC(  VSVOO1 ) * YC(  HO )
-      RXRAT(    406 ) = RKI(   406 ) * YC(  VSVOO2 ) * YC(  HO )
-      RXRAT(    407 ) = RKI(   407 ) * YC(  VSVOO3 ) * YC(  HO )
+      RXRAT(    397 ) = RKI(   397 ) * YC(  APOCI ) * YC(  HO )
+      RXRAT(    398 ) = RKI(   398 ) * YC(  APNCOMI ) * YC(  HO )
+      RXRAT(    399 ) = RKI(   399 ) * YC(  APOCJ ) * YC(  HO )
+      RXRAT(    400 ) = RKI(   400 ) * YC(  APNCOMJ ) * YC(  HO )
+      RXRAT(    401 ) = RKI(   401 ) * YC(  PCVOC ) * YC(  HO )
+      RXRAT(    402 ) = RKI(   402 ) * YC(  VLVPO1 ) * YC(  HO )
+      RXRAT(    403 ) = RKI(   403 ) * YC(  VSVPO1 ) * YC(  HO )
+      RXRAT(    404 ) = RKI(   404 ) * YC(  VSVPO2 ) * YC(  HO )
+      RXRAT(    405 ) = RKI(   405 ) * YC(  VSVPO3 ) * YC(  HO )
+      RXRAT(    406 ) = RKI(   406 ) * YC(  VIVPO1 ) * YC(  HO )
+      RXRAT(    407 ) = RKI(   407 ) * YC(  VLVOO1 ) * YC(  HO )
+      RXRAT(    408 ) = RKI(   408 ) * YC(  VLVOO2 ) * YC(  HO )
+      RXRAT(    409 ) = RKI(   409 ) * YC(  VSVOO1 ) * YC(  HO )
+      RXRAT(    410 ) = RKI(   410 ) * YC(  VSVOO2 ) * YC(  HO )
+      RXRAT(    411 ) = RKI(   411 ) * YC(  VSVOO3 ) * YC(  HO )
 
 
       RETURN

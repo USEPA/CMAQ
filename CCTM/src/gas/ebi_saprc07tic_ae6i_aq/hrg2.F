@@ -24,11 +24,11 @@ C
 C  FUNCTION: To solve for the concentration of HO, HO2, HONO, and
 C            HNO4 alebraically.
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TIC_AE6I_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -502,7 +502,7 @@ c..HONO loss terms not included in R4_19
 
       L19   = 1.0D0 + L19 * DTC + R4_19
 
-c..HNO4 loss terms not inluded in R5_21
+c..HNO4 loss terms not included in R5_21
       L21 =    3.9000D-01 * RKI(    34 )                         ! HNO4=0.6100D+...
      &    +                 RKI(    35 ) * YC ( OH           )   ! HNO4+OH=NO2
 

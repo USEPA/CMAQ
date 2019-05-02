@@ -22,11 +22,11 @@ C**********************************************************************
 C
 C  FUNCTION: Driver subroutine for Euler Backward Iterative solver
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TIC_AE7I_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -145,8 +145,8 @@ C for INTERPX
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
-           REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
-        END SUBROUTINE HETCHEM_UPDATE_AERO      
+           REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
+        END SUBROUTINE HETCHEM_UPDATE_AERO
       END INTERFACE
 
 C**********************************************************************

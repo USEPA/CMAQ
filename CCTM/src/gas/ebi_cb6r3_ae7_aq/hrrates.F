@@ -23,11 +23,11 @@ C***********************************************************************
 C
 C  FUNCTION: To calculate rates of reactions
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Apr  6, 2019
+C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
 C
 C***********************************************************************
       USE HRDATA

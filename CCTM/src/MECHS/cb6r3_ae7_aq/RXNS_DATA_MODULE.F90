@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: ../input/cb6r3_ae7_aq/mech_cb6r3_ae7_aq.def
+! Source file: ../input/cb6r3_ae7_aqkmt2/mech_cb6r3_ae7_aq.def
 ! for Mechanism Name: CB6R3_AE7_AQ                    
 
 ! This file is used to create mechanism data and functions
@@ -377,10 +377,10 @@
       & MEMBER("AOLGBJ          ",  176, "AE",  248.00D0, T), &
       & MEMBER("AISO2J          ",  135, "AE",  133.00D0, T), &
       & MEMBER("ASQTJ           ",  136, "AE",  273.00D0, T), &
-      & MEMBER("APOCI           ",  181, "AE",  220.00D0, T), &
-      & MEMBER("APNCOMI         ",  183, "AE",  220.00D0, T), &
-      & MEMBER("APOCJ           ",  182, "AE",  220.00D0, T), &
-      & MEMBER("APNCOMJ         ",  184, "AE",  220.00D0, T), &
+      & MEMBER("APOCI           ",  180, "AE",  220.00D0, T), &
+      & MEMBER("APNCOMI         ",  182, "AE",  220.00D0, T), &
+      & MEMBER("APOCJ           ",  181, "AE",  220.00D0, T), &
+      & MEMBER("APNCOMJ         ",  183, "AE",  220.00D0, T), &
       & MEMBER("PCVOC           ",  112, "GC",  170.00D0, F), &
       & MEMBER("PCSOARXN        ",  113, "GC",  170.00D0, F), &
       & MEMBER("VLVPO1          ",  102, "GC",  218.00D0, F), &
@@ -670,10 +670,10 @@
       DATA CGRID_INDEX( 118 ), SPECIES_TYPE( 118 ), CONVERT_CONC( 118 ) /  176, 'AE', T /  ! AOLGBJ
       DATA CGRID_INDEX( 119 ), SPECIES_TYPE( 119 ), CONVERT_CONC( 119 ) /  135, 'AE', T /  ! AISO2J
       DATA CGRID_INDEX( 120 ), SPECIES_TYPE( 120 ), CONVERT_CONC( 120 ) /  136, 'AE', T /  ! ASQTJ
-      DATA CGRID_INDEX( 121 ), SPECIES_TYPE( 121 ), CONVERT_CONC( 121 ) /  181, 'AE', T /  ! APOCI
-      DATA CGRID_INDEX( 122 ), SPECIES_TYPE( 122 ), CONVERT_CONC( 122 ) /  183, 'AE', T /  ! APNCOMI
-      DATA CGRID_INDEX( 123 ), SPECIES_TYPE( 123 ), CONVERT_CONC( 123 ) /  182, 'AE', T /  ! APOCJ
-      DATA CGRID_INDEX( 124 ), SPECIES_TYPE( 124 ), CONVERT_CONC( 124 ) /  184, 'AE', T /  ! APNCOMJ
+      DATA CGRID_INDEX( 121 ), SPECIES_TYPE( 121 ), CONVERT_CONC( 121 ) /  180, 'AE', T /  ! APOCI
+      DATA CGRID_INDEX( 122 ), SPECIES_TYPE( 122 ), CONVERT_CONC( 122 ) /  182, 'AE', T /  ! APNCOMI
+      DATA CGRID_INDEX( 123 ), SPECIES_TYPE( 123 ), CONVERT_CONC( 123 ) /  181, 'AE', T /  ! APOCJ
+      DATA CGRID_INDEX( 124 ), SPECIES_TYPE( 124 ), CONVERT_CONC( 124 ) /  183, 'AE', T /  ! APNCOMJ
       DATA CGRID_INDEX( 125 ), SPECIES_TYPE( 125 ), CONVERT_CONC( 125 ) /  112, 'GC', F /  ! PCVOC
       DATA CGRID_INDEX( 126 ), SPECIES_TYPE( 126 ), CONVERT_CONC( 126 ) /  113, 'GC', F /  ! PCSOARXN
       DATA CGRID_INDEX( 127 ), SPECIES_TYPE( 127 ), CONVERT_CONC( 127 ) /  102, 'GC', F /  ! VLVPO1

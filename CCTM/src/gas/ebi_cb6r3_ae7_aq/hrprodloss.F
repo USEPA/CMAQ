@@ -23,13 +23,13 @@ C***********************************************************************
 C
 C  FUNCTION: To compute the production and loss rates for EBI species
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3_AE7_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Apr  6, 2019
+C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 

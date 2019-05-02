@@ -23,13 +23,13 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TIC_AE6I_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -140,7 +140,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 226
+      N_EBISP  = 230
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -357,22 +357,26 @@ c..Allocate and define ebi species
       EBISP( 208 ) = ASQTJ
       EBISP( 209 ) = APAH1J
       EBISP( 210 ) = APAH2J
-      EBISP( 211 ) = PCVOC
-      EBISP( 212 ) = PCSOARXN
-      EBISP( 213 ) = VLVPO1
-      EBISP( 214 ) = VSVPO1
-      EBISP( 215 ) = VSVPO2
-      EBISP( 216 ) = VSVPO3
-      EBISP( 217 ) = VIVPO1
-      EBISP( 218 ) = VLVOO1
-      EBISP( 219 ) = VLVOO2
-      EBISP( 220 ) = VSVOO2
-      EBISP( 221 ) = VSVOO3
-      EBISP( 222 ) = VSVOO1
-      EBISP( 223 ) = AMTNO3J
-      EBISP( 224 ) = AMTHYDJ
-      EBISP( 225 ) = AISOPNNJ
-      EBISP( 226 ) = AGLYJ
+      EBISP( 211 ) = APOCI
+      EBISP( 212 ) = APNCOMI
+      EBISP( 213 ) = APOCJ
+      EBISP( 214 ) = APNCOMJ
+      EBISP( 215 ) = PCVOC
+      EBISP( 216 ) = PCSOARXN
+      EBISP( 217 ) = VLVPO1
+      EBISP( 218 ) = VSVPO1
+      EBISP( 219 ) = VSVPO2
+      EBISP( 220 ) = VSVPO3
+      EBISP( 221 ) = VIVPO1
+      EBISP( 222 ) = VLVOO1
+      EBISP( 223 ) = VLVOO2
+      EBISP( 224 ) = VSVOO2
+      EBISP( 225 ) = VSVOO3
+      EBISP( 226 ) = VSVOO1
+      EBISP( 227 ) = AMTNO3J
+      EBISP( 228 ) = AMTHYDJ
+      EBISP( 229 ) = AISOPNNJ
+      EBISP( 230 ) = AGLYJ
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -601,6 +605,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ASQTJ        ) = 5.0D-04
       RTOL( APAH1J       ) = 5.0D-04
       RTOL( APAH2J       ) = 5.0D-04
+      RTOL( APOCI        ) = 5.0D-04
+      RTOL( APNCOMI      ) = 5.0D-04
+      RTOL( APOCJ        ) = 5.0D-04
+      RTOL( APNCOMJ      ) = 5.0D-04
       RTOL( PCVOC        ) = 5.0D-04
       RTOL( PCSOARXN     ) = 5.0D-04
       RTOL( VLVPO1       ) = 5.0D-04

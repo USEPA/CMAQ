@@ -17,7 +17,7 @@
 #> directory.
 
 
- set CMAQ_HOME = /home/bmurphy/cmaq_projects/poc
+ set CMAQ_HOME = /home/bmurphy/cmaq_projects/poc_mechdef
 
 
 #> This section allows users to choose explicitly which tools

@@ -23,11 +23,11 @@ C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the SAPRC07TC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TC_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -287,18 +287,22 @@ c..Species indices
       INTEGER, PARAMETER :: APAH2J           =  179
       INTEGER, PARAMETER :: AALK1J           =  180
       INTEGER, PARAMETER :: AALK2J           =  181
-      INTEGER, PARAMETER :: PCVOC            =  182
-      INTEGER, PARAMETER :: PCSOARXN         =  183
-      INTEGER, PARAMETER :: VLVPO1           =  184
-      INTEGER, PARAMETER :: VSVPO1           =  185
-      INTEGER, PARAMETER :: VSVPO2           =  186
-      INTEGER, PARAMETER :: VSVPO3           =  187
-      INTEGER, PARAMETER :: VIVPO1           =  188
-      INTEGER, PARAMETER :: VLVOO1           =  189
-      INTEGER, PARAMETER :: VLVOO2           =  190
-      INTEGER, PARAMETER :: VSVOO2           =  191
-      INTEGER, PARAMETER :: VSVOO3           =  192
-      INTEGER, PARAMETER :: VSVOO1           =  193
-      INTEGER, PARAMETER :: AISO3J           =  194
+      INTEGER, PARAMETER :: APOCI            =  182
+      INTEGER, PARAMETER :: APNCOMI          =  183
+      INTEGER, PARAMETER :: APOCJ            =  184
+      INTEGER, PARAMETER :: APNCOMJ          =  185
+      INTEGER, PARAMETER :: PCVOC            =  186
+      INTEGER, PARAMETER :: PCSOARXN         =  187
+      INTEGER, PARAMETER :: VLVPO1           =  188
+      INTEGER, PARAMETER :: VSVPO1           =  189
+      INTEGER, PARAMETER :: VSVPO2           =  190
+      INTEGER, PARAMETER :: VSVPO3           =  191
+      INTEGER, PARAMETER :: VIVPO1           =  192
+      INTEGER, PARAMETER :: VLVOO1           =  193
+      INTEGER, PARAMETER :: VLVOO2           =  194
+      INTEGER, PARAMETER :: VSVOO2           =  195
+      INTEGER, PARAMETER :: VSVOO3           =  196
+      INTEGER, PARAMETER :: VSVOO1           =  197
+      INTEGER, PARAMETER :: AISO3J           =  198
 
       END MODULE HRDATA
