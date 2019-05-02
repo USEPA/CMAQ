@@ -366,7 +366,13 @@ CONTAINS
       VAR( ind_L_MGPLUS2 ) = AEROSOL( LMGACC, ACC )
       VAR( ind_L_KPLUS )   = AEROSOL( LKACC, ACC )
       VAR( ind_L_PECACC )  = AEROSOL( LEC, ACC )
-      VAR( ind_L_ORGC )    = AEROSOL( LORGC, ACC )
+!      VAR( ind_L_ORGC )    = AEROSOL( LORGC, ACC )
+      VAR( ind_L_ORGC )    = 0.2*AEROSOL( LORGC, ACC )
+      VAR( ind_L_OXLACMIN2 ) = 0.8*AEROSOL( LORGC, ACC ) / & 
+                             ( 90.03 / 177. ) ! Assume 80% of AORGC is oxalate --
+			                      ! based on average results from CMAQ
+			                      ! simulations where cloud generated 
+					      ! org acid species were tracked                                                        
       VAR( ind_L_POAACC )  = AEROSOL( LPOA, ACC )
       
       IF( ISPC8 .gt. 0 ) THEN
@@ -439,7 +445,7 @@ CONTAINS
 !                                          !representing amount of total 
 !                                          !HO (gas+aq) available 
       FIX( indf_G_HO )  = GAS( LHO )*CFACTOR
-      FIX( indf_L_O2 )  = 0.21 * 1.3D-3*EXP(1500.D0*DELINVT) * INVPHI2
+      FIX( indf_L_O2 )  = 0.21 * PRESS * 1.3D-3 * EXP( 1500.D0 * DELINVT ) * INVPHI2
       
 !  Calculate initial H+ and OH- from electroneutrality and Kw
 !
@@ -457,7 +463,7 @@ CONTAINS
       SUMPOS = 2.D0 * ( VAR( ind_L_CAPLUS2)  + VAR( ind_L_MGPLUS2 ) ) &
              + VAR( ind_L_NAPLUS ) + &
                VAR( ind_L_KPLUS ) + VAR( ind_L_NH4PLUS )
-      SUMNEG = 2.D0 * ( VAR( ind_L_SO4MIN2 ) ) + VAR( ind_L_NO3MIN ) &
+      SUMNEG = 2.D0 * ( VAR( ind_L_SO4MIN2 ) + VAR(ind_L_OXLACMIN2) ) + VAR( ind_L_NO3MIN ) &
              + VAR( ind_L_CLMIN )
     
       SUMPOS = SUMPOS * PHI2
