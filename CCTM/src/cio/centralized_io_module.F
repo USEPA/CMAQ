@@ -33,6 +33,7 @@
 !                     -- reorganized the code to read in certain files when
 !                        they are available as well as based on environmental 
 !                        variable setting
+!  05/02/19, D. Wong: -- added a logic to call soilinp_setup when BIOGEMIS is true
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -2800,7 +2801,9 @@ C   mminlu and num_land_cat are WRF global variables
                 end if
              end if
 
-             call soilinp_setup
+             if (BIOGEMIS) then
+                call soilinp_setup
+             end if
 
              call retrieve_grid_cro_2d_data
 

@@ -33,6 +33,8 @@
 !  01 Feb 2019  (David Wong)
 !     -- implemented invocation of GET_ENV call directly, removed unnecessay
 !        interface block and unnecessary functions
+!  02 May 2019  (David Wong)
+!     -- set BIOGEMIS_SEASON = .FALSE. as the default value
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -179,7 +181,7 @@
                                                !   are present on emission files
       LOGICAL :: BIOGEMIS      = .FALSE. ! flag to in-line biogenic VOC emissions
       CHARACTER(16) :: SPPRO   = 'DEFAULT' ! requested speciation profile name
-      LOGICAL :: BIOGEMIS_SEASON=.TRUE.  ! use frost switch file
+      LOGICAL :: BIOGEMIS_SEASON=.FALSE. ! use frost switch file
       LOGICAL :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
       LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
