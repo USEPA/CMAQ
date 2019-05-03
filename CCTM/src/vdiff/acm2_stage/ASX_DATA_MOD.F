@@ -608,7 +608,6 @@ C-----------------------------------------------------------------------
          Grid_Data%SLTYP = NINT( SOILCAT )
          Nullify( SOILCAT )
 
-!         Grid_Data%LWMASK = 0.0
          Do l = 1, n_lufrac
             Write( vname,'( "LUFRAC_",I2.2 )' ) l
             If ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
@@ -617,9 +616,6 @@ C-----------------------------------------------------------------------
                XMSG = MSG1 // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             End If
-!            If( cat_lu( l ) .Ne. 'WATER' ) Then
-!               Grid_Data%LWMASK = Grid_Data%LWMASK + Grid_Data%LUFRAC( :,:,l )
-!            End If
          End Do
          If( PX_LSM ) Then
             Write(Logdev,*) 'MCIP/WRF used the PX LSM'
