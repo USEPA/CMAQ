@@ -382,7 +382,7 @@ C Read & interpolate boundary concentrations
                ! Add Non-Carbon Mass to Carbon Mass if the model is
                ! running semivolatile POA
                IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' .AND.
-     &              AE_TRNS( VAR ) .NE. 'APOC' ) THEN 
+     &              AE_TRNS( SPC ) .NE. 'APOC' ) THEN 
                   BBUF_TMP = 0.0
                   BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
 #ifdef parallel

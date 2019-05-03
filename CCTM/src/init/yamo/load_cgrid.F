@@ -138,6 +138,7 @@ C for XTRACT3
 
       CHARACTER( 16 ) :: PNAME = 'LOAD_CGRID'
       CHARACTER( 16 ) :: VNAME
+      CHARACTER( 16 ) :: POC_CHK
       CHARACTER( 16 ) :: ICNAME_TMP
       CHARACTER( 16 ) :: CONCMIN
       CHARACTER( 96 ) :: XMSG = ' '
@@ -407,8 +408,11 @@ C IOFDESC common now loaded with FNAME header
 
             ! Add Non-Carbon Mass to Carbon Mass if the model is
             ! running semivolatile POA
+            POC_CHK = 'NOTPOC'
+            IF ( SPC_CAT .EQ. 'AE' ) POC_CHK = AE_SPC( SPC )
+
             IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' .AND.
-     &           AE_SPC( SPC ) .NE. 'APOC' ) THEN 
+     &           POC_CHK .NE. 'APOC' ) THEN 
                ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
                IF ( .NOT. XTRACT3( FNAME, ICNAME_TMP,
      &                1,NLAYS, STRTROWINI,ENDROWINI,STRTCOLINI,
