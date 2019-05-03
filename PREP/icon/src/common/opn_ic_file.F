@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_OUT, 
+      SUBROUTINE OPN_IC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT, 
      &                        SPNAME_OUT, VTYPE_OUT, UNITS_OUT, 
      &                        VDESC_OUT, IC_FNAME, RINDX )  
 
@@ -77,6 +77,7 @@ C Arguments:
       INTEGER RINDX        ! Index of root file name
       INTEGER SDATE        ! Date for IC Output
       INTEGER STIME        ! Time for IC output
+      INTEGER TSTEP        ! Timestep for IC Output
       INTEGER VTYPE_OUT( * ) ! Variable type (e.g. integer, real, ...)
 
 C Parameters: None
@@ -119,7 +120,7 @@ c  Set start date, start time, and time step
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       SDATE3D = SDATE
       STIME3D = STIME
-      TSTEP3D = 00000
+      TSTEP3D = TSTEP
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set start date, start time, and time step

@@ -29,9 +29,9 @@ C***********************************************************************
  
 C Function: To produce a Models-3 CTM Boundary Concentration file.
 C           Valid input options include: 
-C           1) a CMAQ CTM output file,
-C           2) a user specified ASCII file of vertical profiles,
-C           3) subroutines that produce catalogued tracer species concs.
+C           1) a user specified ASCII file of vertical profiles,
+C           2) a CMAQ CTM output file,
+C           3) subroutines that produce catalogued test pattern species concs.
               
 C Preconditions: None
   
@@ -48,7 +48,7 @@ C    06 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    13 Jul 11 J.Young: Convert for Namelist redesign
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
 C    14 Sep 18 S.Roselle: Removed species mapping; updates to enable runtime
-C                     option for profile, regrid, or tracer BCs
+C                     option for profile, regrid, or test_patterns BCs
       
 C***********************************************************************
 
@@ -99,7 +99,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RUNLEN = ENVINT( 'RUNLEN', 'RUN LENGTH', 0, STATUS )
       IF ( STATUS .NE. 0 ) RUNLEN = 0
 
-      VARDESC = 'Boundary condition type: (profile, regrid, tracer)'
+      VARDESC = 'Boundary condition type: (profile, regrid, test_patterns)'
       CALL ENVSTR( BCON_TYPE, VARDESC, 'profile', BC_MODULE, STATUS )
       IF ( STATUS .NE. 0 ) WRITE( LOGUNIT, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
@@ -133,11 +133,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Generate the BC output file and quit
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( BC_MODULE .EQ. 'profile' ) THEN
-         CALL PROF_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )
+         CALL PROF_INBNDY( LOGUNIT )
       ELSE IF ( BC_MODULE .EQ. 'regrid' ) THEN
          CALL M3_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )
-      ELSE IF ( BC_MODULE .EQ. 'tracer' ) THEN
-         CALL TRAC_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )
+      ELSE IF ( BC_MODULE .EQ. 'test_patterns' ) THEN
+         CALL TRAC_INBNDY( LOGUNIT )
       ELSE
          MSG = '*** Unknown BCON type requested: ' // BC_MODULE
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )

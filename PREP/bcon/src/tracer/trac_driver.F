@@ -26,7 +26,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE TRAC_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )   
+      SUBROUTINE TRAC_INBNDY( LOGUNIT )   
 
 C***********************************************************************
  
@@ -56,9 +56,6 @@ C Include Files:
 
 C Arguments: 
       INTEGER LOGUNIT                 ! Unit number for output log
-      INTEGER SDATE                   ! Date for IC Output
-      INTEGER STIME                   ! Time for IC output
-      INTEGER RUNLEN                  ! No. of hours for BC output
 
 C Parameters: None
 
@@ -83,6 +80,8 @@ C Local Variables:
       INTEGER NSP          ! Counter
       INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
       INTEGER TRIND        ! Index for catalogued tracer
+      INTEGER SDATE        ! Date for IC Output
+      INTEGER STIME        ! Time for IC output
       INTEGER TSTEP        ! Time step for output file
       INTEGER ALST         ! Allocate status
       INTEGER :: VTYPE_OUT( NTRACERS )  ! Output tracer variable type
@@ -104,6 +103,8 @@ C***********************************************************************
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  open the Models3 IC output file(s)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      SDATE = 0
+      STIME = 0
       TSTEP = 0
       CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP,
      &                  NSPCS_OUT, SPNAME_OUT, VTYPE_OUT, UNITS_OUT, TRAC_DESC,

@@ -26,7 +26,6 @@ C %W% %P% %G% %U%
 
 
       SUBROUTINE PROF_ICOUT( LOGUNIT,
-     &                       SDATE, STIME,
      &                       NLAYS_IN, NSPCS_IN,
      &                       PROF_FL_NAME,
      &                       PROF_SP_NAME,
@@ -71,8 +70,6 @@ C Include Files:
 
 C Arguments: 
       INTEGER :: LOGUNIT        ! Unit number for output log
-      INTEGER :: SDATE          ! Date for IC Output
-      INTEGER :: STIME          ! Time for IC output
       INTEGER :: NSPCS_IN       ! Total No. of species in input conc file(s)
       INTEGER :: NLAYS_IN       ! No. of layers in input conc file
       CHARACTER( * )  :: PROF_FL_NAME        ! Input profile file name
@@ -104,6 +101,9 @@ C Local Variables:
       INTEGER N, SPC        ! Loop indices for species
       INTEGER NLEVS_IN      ! No. of layers in input conc file
       INTEGER PFILE         ! Unit number of profile file   
+      INTEGER SDATE         ! Date for IC Output
+      INTEGER STIME         ! Time for IC output
+      INTEGER TSTEP         ! Timestep for IC Output
 
       INTEGER I, K, NVARS, NFIELDS
       INTEGER IOSTATUS      ! Status code
@@ -220,7 +220,8 @@ c  Open IC output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       SDATE = 0
       STIME = 0
-      CALL OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_IN, 
+      TSTEP = 0
+      CALL OPN_IC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_IN, 
      &                  PROF_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
      &                  IC_FNAME, 1 )  
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

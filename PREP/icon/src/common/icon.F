@@ -29,9 +29,9 @@ C***********************************************************************
  
 C Function: To produce a Models-3 CTM Initial Concentration file.
 C           Valid input options include: 
-C           1) a CMAQ CTM output file,
-C           2) a user specified ASCII file of vertical profiles,
-C           3) subroutines that produce catalogued tracer species concs.
+C           1) a user specified ASCII file of vertical profiles,
+C           2) a CMAQ CTM output file,
+C           3) subroutines that produce catalogued test pattern species concs.
               
 C Preconditions: None
   
@@ -50,7 +50,7 @@ C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    13 Jun 11 J.Young: Convert for Namelist redesign
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C    02 Nov 18 S.Roselle: Removed species mapping; updates to enable runtime
-C                     option for profile, regrid, or tracer BCs
+C                     option for profile, regrid, or test_patterns BCs
 C    07 Nov 18 S.Roselle: Removed parallel processing code; 
 C                         replaced UTILIO_DEFN with M3UTILIO
                   
@@ -100,7 +100,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       STIME = ENVINT( 'STIME', 'START TIME', 0, STATUS )
       IF ( STATUS .NE. 0 ) STIME = 0
 
-      VARDESC = 'Ioundary condition type: (profile, regrid, tracer)'
+      VARDESC = 'Initial condition type: (profile, regrid, test_patterns)'
       CALL ENVSTR( ICON_TYPE, VARDESC, 'profile', IC_MODULE, STATUS )
       IF ( STATUS .NE. 0 ) WRITE( LOGUNIT, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
@@ -134,11 +134,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Generate the IC output file and quit
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( IC_MODULE .EQ. 'profile' ) THEN
-         CALL PROF_INIC( LOGUNIT, SDATE, STIME )
+         CALL PROF_INIC( LOGUNIT )
       ELSE IF ( IC_MODULE .EQ. 'regrid' ) THEN
          CALL M3_INIC( LOGUNIT, SDATE, STIME )
-      ELSE IF ( IC_MODULE .EQ. 'tracer' ) THEN
-         CALL TRAC_INIC( LOGUNIT, SDATE, STIME )
+      ELSE IF ( IC_MODULE .EQ. 'test_patterns' ) THEN
+         CALL TRAC_INIC( LOGUNIT )
       ELSE
          MSG = '*** Unknown ICON type requested: ' // IC_MODULE
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )

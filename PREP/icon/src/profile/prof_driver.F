@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE PROF_INIC( LOGUNIT, SDATE, STIME )   
+      SUBROUTINE PROF_INIC( LOGUNIT )   
 
 C***********************************************************************
  
@@ -57,8 +57,6 @@ C Include Files:
 
 C Arguments: 
       INTEGER LOGUNIT                 ! Unit number for output log
-      INTEGER SDATE                   ! Date for IC Output
-      INTEGER STIME                   ! Time for IC output
 
 C Parameters: None
 
@@ -107,7 +105,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Compute ICs from the input PROFILE and output
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL PROF_ICOUT( LOGUNIT,
-     &                 SDATE, STIME,
      &                 NLAYS_IN,
      &                 NSPCS_IN,
      &                 PROF_FL_NAME,

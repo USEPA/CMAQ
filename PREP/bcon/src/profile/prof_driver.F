@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE PROF_INBNDY( LOGUNIT, SDATE, STIME, NHRS )   
+      SUBROUTINE PROF_INBNDY( LOGUNIT )   
 
 C***********************************************************************
  
@@ -55,9 +55,6 @@ C Include Files: None
 
 C Arguments: 
       INTEGER LOGUNIT                 ! Unit number for output log
-      INTEGER SDATE                   ! Date for BC Output
-      INTEGER STIME                   ! Time for BC output
-      INTEGER NHRS                    ! No. of hours for BC output
 
 C Parameters: None
 
@@ -94,10 +91,6 @@ C***********************************************************************
 
       WRITE( LOGUNIT, 92000 )
 
-      NHRS = 0
-      SDATE = 0
-      STIME = 0
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Open the input profile file, read the number of species and their 
 c  names, and list the file on the output log
@@ -115,7 +108,6 @@ c  Compute BCs from the input PROFILE and output
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       CALL PROF_BCOUT( LOGUNIT,
-     &                 SDATE, STIME, NHRS,
      &                 NLAYS_IN,
      &                 NSPCS_IN,
      &                 PROF_FL_NAME,

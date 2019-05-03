@@ -30,17 +30,19 @@ CMAQ can also be initialized using downscaled from global chemistry models (GCMs
     Output data directory.
  DATE      
     Sets the Julian date to use in naming the ICON output file for nested runs.
- SDATE   [default: ${DATE}]
+ SDATE   [YYYYDDD -- default: ${DATE}]
     Julian start date for extracting boundary conditions from a CCTM CONC file for a nested simulation. If SDATE is not set, it will be set automatically from the CTM_CONC_1 file.
- STIME   [default: 000000 ]
+ STIME   [HHMMSS -- default: 000000 ]
     Start time for extracting boundary conditions from a CCTM CONC file for a nested simulation. If STIME is not set, it will be set automatically from the CTM_CONC_1 file.
+ RUNLEN  [HHMMSS -- default: 000000 ]
+    Run length for extracting boundary conditions from a CCTM CONC file for a nested simulation. If RUNLEN is not set, it will be set automatically from the CTM_CONC_1 file.
 ```
 
 ## Environment Variables (not required):
 ```
  IOAPI_ISPH    [default: 20]
     I/O API setting for spheroid type. See I/O API documentation for [setsphere](https://www.cmascenter.org/ioapi/documentation/3.1/html/SETSPHERE.html) for more information.
- IOAPI_OFFSET_64   [default: NO]
+ IOAPI_OFFSET_64   [default: YES]
     I/O API setting for large time-step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.
 ```
 

@@ -26,7 +26,6 @@ C %W% %P% %G% %U%
 
 
       SUBROUTINE PROF_BCOUT( LOGUNIT,
-     &                       SDATE, STIME, NHRS,
      &                       NLAYS_IN, NSPCS_IN,
      &                       PROF_FL_NAME,
      &                       PROF_SP_NAME,
@@ -66,9 +65,6 @@ C Include Files: None
 
 C Arguments: 
       INTEGER LOGUNIT          ! Unit number for output log
-      INTEGER SDATE            ! Date for IC Output
-      INTEGER STIME            ! Time for IC output
-      INTEGER NHRS             ! No. of hours for BC output
       INTEGER NSPCS_IN         ! Total No. of species in input conc file(s)
       INTEGER NLAYS_IN         ! No. of layers in input conc file
       CHARACTER( * )  :: PROF_FL_NAME       ! Input profile file name
@@ -100,6 +96,9 @@ C Local Variables:
       INTEGER N, SPC        ! Loop indices for species
       INTEGER NLEVS_IN      ! No. of layers in input conc file
       INTEGER PFILE         ! Unit number of profile file   
+      INTEGER SDATE         ! Date for IC Output
+      INTEGER STIME         ! Time for IC output
+      INTEGER TSTEP         ! Timestep for IC Output
 
       INTEGER I, K, NVARS, NFIELDS
       INTEGER IOSTATUS
@@ -219,7 +218,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Open BC output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, NHRS, NSPCS_IN, 
+      SDATE = 0
+      STIME = 0
+      TSTEP = 0
+      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_IN, 
      &                  PROF_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
      &                  BC_FNAME, 1 )  
 

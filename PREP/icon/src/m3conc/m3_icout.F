@@ -172,6 +172,7 @@ C Local Variables:
       INTEGER L             ! Layer loop index
       INTEGER N             ! Loop indices for species
       INTEGER R, RIN, RIC   ! Row loop indices
+      INTEGER TSTEP         ! Timestep for IC Output (time dependent)
 
       INTEGER :: COL_LOC( NCOLS,NROWS )  ! Output IC col corresponding to
                                          ! a cell in the input CTM file
@@ -267,10 +268,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
+      TSTEP = TSTEP3D
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Open the IC output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_IN,
+      CALL OPN_IC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_IN,
      &                  INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
      &                  IC_FNAME, 1 )  
 

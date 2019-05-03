@@ -228,7 +228,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE( LOGUNIT, 94460 )
       ELSE
          MSG = 'MET_CRO_3D_FIN file inconsistent: stopping' 
-         CALL M3EXIT( PNAME, JDATE , JTIME, MSG, XSTAT2 )
+         CALL M3EXIT( PNAME, SDATE , STIME, MSG, XSTAT2 )
       END IF
      
       RETURN

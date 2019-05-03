@@ -115,6 +115,7 @@ C Local Variables:
       CHARACTER( 80 ) :: MSG      ! Log message
       CHARACTER( 16 ) :: PNAME = 'M3_VINTERP'  ! Procedure Name
       CHARACTER( 16 ) :: VNAME    ! Variable Name
+      CHARACTER( 16 ) :: ZP_VNAME ! ZH or PRES Variable Name
 
       INTEGER C, CIN         ! Loop indices for columns
       INTEGER ERRCODE        ! Error code for Cray HPALLOC
@@ -286,58 +287,118 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c   Interpolate by height for all other vertical grid types; a dynamic
 c   array holding heights will need to be allocated
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      WRITE( LOGUNIT, 92160 )
       WRITE( LOGUNIT, 92140 ) MSG
 
+      IF ( .NOT. DESC3( MET_CRO_3D_CRS ) ) THEN
+         MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
+     &      // ' file'
+         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+      END IF
+
+      ZP_VNAME = 'ZH'
+      V = INDEX1( ZP_VNAME, NVARS3D, VNAME3D )
+      IF ( V .NE. 0 ) THEN
+        WRITE( LOGUNIT, 92160 ) ZP_VNAME
+      ELSE
+         ZP_VNAME = 'PRES'
+         V = INDEX1( ZP_VNAME, NVARS3D, VNAME3D )
+         IF ( V .NE. 0 ) THEN
+            WRITE( LOGUNIT, 92160 ) ZP_VNAME
+         ELSE
+            MSG = 'Could not find ZH or PRES in file ' // MET_CRO_3D_CRS 
+            CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
+         END IF
+      END IF
+
 C Get the layer mid-point heights
-      VNAME = 'ZH'
-      IF ( .NOT. READ3( MET_CRO_3D_FIN, VNAME, ALLAYS3, SDATE, STIME,
+      IF ( .NOT. READ3( MET_CRO_3D_FIN, ZP_VNAME, ALLAYS3, SDATE, STIME,
      &                  HT_IC ) ) THEN
          MSG = 'Could not read layer heights from file ' // MET_CRO_3D_FIN
          CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT1 )
       END IF
 
-      VNAME = 'ZH'
-      IF ( .NOT. READ3( MET_CRO_3D_CRS, VNAME, ALLAYS3, SDATE, STIME,
+      IF ( .NOT. READ3( MET_CRO_3D_CRS, ZP_VNAME, ALLAYS3, SDATE, STIME,
      &                  HT_CTM ) ) THEN
          MSG = 'Could not read layer heights from file ' // MET_CRO_3D_CRS
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
       END IF
 
-C Interpolate
-      DO C = 1, NCOLS
-         DO R = 1, NROWS
-            CIN = COL_LOC( C,R )
-            RIN = ROW_LOC( C,R )
-            DO V = 1, NSPCS_IN    
+C Do the interpolation
 
-               DO L = 1, NLAYS_IN
-                  WORKA( L ) = ICIN( C,R,L,V )
-                  X3_OLD( L ) = HT_CTM( CIN,RIN,L )
-               END DO
-
-               DO L = 1, NLAYS
-
-                  IF ( NLAYS_IN .EQ. 1 ) THEN
-                     ICVI( C,R,L,V ) = WORKA( 1 )
-                  ELSE
-                     X3 = HT_IC( C,R,L )
-                     IF ( X3 .LT. X3_OLD( 1 ) ) THEN
+C...  for height interpolation
+      IF ( ZP_VNAME .EQ. 'ZH' ) THEN
+         DO C = 1, NCOLS
+            DO R = 1, NROWS
+               CIN = COL_LOC( C,R )
+               RIN = ROW_LOC( C,R )
+               DO V = 1, NSPCS_IN    
+         
+                  DO L = 1, NLAYS_IN
+                     WORKA( L ) = ICIN( C,R,L,V )
+                     X3_OLD( L ) = HT_CTM( CIN,RIN,L )
+                  END DO
+         
+                  DO L = 1, NLAYS
+         
+                     IF ( NLAYS_IN .EQ. 1 ) THEN
                         ICVI( C,R,L,V ) = WORKA( 1 )
-                     ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
-                        ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
                      ELSE
-                        CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN, 
-     &                                  X3, Y, DELY )
-                        ICVI( C,R,L,V ) = Y
+                        X3 = HT_IC( C,R,L )
+                        IF ( X3 .LT. X3_OLD( 1 ) ) THEN
+                           ICVI( C,R,L,V ) = WORKA( 1 )
+                        ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
+                           ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
+                        ELSE
+                           CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN, 
+     &                                     X3, Y, DELY )
+                           ICVI( C,R,L,V ) = Y
+                        END IF
                      END IF
-                  END IF
-
+         
+                  END DO
+         
                END DO
-
             END DO
          END DO
-      END DO
+
+C...  for pressure interpolation
+      ELSE IF ( ZP_VNAME .EQ. 'PRES' ) THEN
+
+         DO C = 1, NCOLS
+            DO R = 1, NROWS
+               CIN = COL_LOC( C,R )
+               RIN = ROW_LOC( C,R )
+               DO V = 1, NSPCS_IN    
+         
+                  DO L = 1, NLAYS_IN
+                     WORKA( L ) = ICIN( C,R,L,V )
+                     X3_OLD( L ) = HT_CTM( CIN,RIN,L )
+                  END DO
+         
+                  DO L = 1, NLAYS
+         
+                     IF ( NLAYS_IN .EQ. 1 ) THEN
+                        ICVI( C,R,L,V ) = WORKA( 1 )
+                     ELSE
+                        X3 = HT_IC( C,R,L )
+                        IF ( X3 .GT. X3_OLD( 1 ) ) THEN
+                           ICVI( C,R,L,V ) = WORKA( 1 )
+                        ELSE IF ( X3 .LT. X3_OLD( NLAYS_IN ) ) THEN
+                           ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
+                        ELSE
+                           CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN, 
+     &                                     X3, Y, DELY )
+                           ICVI( C,R,L,V ) = Y
+                        END IF
+                     END IF
+         
+                  END DO
+         
+               END DO
+            END DO
+         END DO
+
+      END IF
 
       RETURN
 
@@ -367,9 +428,9 @@ C************************* FORMAT Statements ***************************
 
 92140 FORMAT( //5X, A )
 
-92160 FORMAT( //5X, 'The Layer Defn and CTM vertical grid types are '
+92160 FORMAT( //5X, 'The COORD.EXT and CTM vertical grid types are ',
      &               'different. '
-     &         / 5X, 'Vertical interpolation will be done using HEIGHT ',
+     &         / 5X, 'Vertical interpolation will be done using ', A16, 1X,
      &               'from the MET_CRO_3D files. ' )
 
 94000 FORMAT( 1PE20.4 )
