@@ -1,9 +1,24 @@
 #! /bin/csh -f
 
+
 # Script to run the program CHEMMECH for CMAQv5.2beta
 
  set Xpath = ../src               #> Executable directory
  set EXEC  = CHEMMECH                  #> Executable name
+
+#> option to set compiler and build a new executable (not required)
+ setenv COMPILER GFORT   #> INTEL, PGF90, or GFORT
+ set compile = "F"       #> Compile the COMPILE? T or F
+
+#> compile the program 
+ if( ${compile} == "T" )then
+   cd ${Xpath}; make clean; make
+   if( ! ( -e ${EXEC} ) )then
+      echo "failed to compile ${Xpath}/${EXEC}"
+      exit()
+   endif
+   cd ${BASE}
+ endif
 
 #> CMAQv5.1 Mechanism Options: cb05tucl_ae6_aq cb05tump_ae6_aq cb05e51_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq  saprc07tic_ae6i_aq   racm2_ae6_aq 
  set Mechanism = racm2_ae6_aq          #> CMAQ mechanism ID
@@ -14,16 +29,15 @@
  set Opath = ../output/${Mechanism}   #> Output Directory
  set Mpath = ../input/${Mechanism}  #> Directory with mechanism definitions
  
- setenv MECHDEF  $Mpath/mech.def
+ setenv MECHDEF  $Mpath/mech_${Mechanism}.def
  setenv MAPPING_ROUTINE "${Xpath}/map_chemistry_spc.F90"
  
  set NML    = ${Mpath}
- set NML_TR = ../input/trac0
+# set NML_TR = ../input/trac0 # allows separate directory containing tracer species namelist
  set GC_NML = $NML/GC_${Mechanism}.nml
  set AE_NML = $NML/AE_${Mechanism}.nml
  set NR_NML = $NML/NR_${Mechanism}.nml
-
- set TR_NML = $NML_TR/Species_Table_TR_0.nml
+ set TR_NML = $NML/Species_Table_TR_0.nml
 
 setenv gc_matrix_nml $GC_NML
 setenv ae_matrix_nml $AE_NML

@@ -274,60 +274,8 @@ c If doing all mechanisms, get a list of species & find unique AE/AQ
 c species. Note three subroutines are needed because the include files 
 c all use the same variable names (i.e., N_SPECIES & SPECIES) 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc 
-      IF( L_ALL_MECHS ) THEN
-
-c..load species lists for each mechansim version
-         CALL GET_AE_SPC
-         CALL GET_AQ_SPC
-         CALL GET_GC_ONLY_SPC
-
-c..Get a list of the species that are only in the AE mechanism
-
-         DO N = 1, N_GC_AE_SPC 
-
-           IF( NAME_INDEX( GC_AE_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC ) .EQ. 0 ) 
-     &        N_AE_SPC = N_AE_SPC + 1 
-           
-         END DO
-
-         ALLOCATE( AE_SPC( N_AE_SPC ) )
-
-         IND = 0
-         DO N = 1, N_GC_AE_SPC 
-
-           IF( NAME_INDEX( GC_AE_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC ) 
-     &         .EQ. 0 )THEN 
-              IND = IND + 1
-              AE_SPC( IND ) = GC_AE_SPC( N )
-           END IF
-           
-         END DO
-
-c..Get a list of the species that are only in the AQ mechanism
-         DO N = 1, N_GC_AQ_SPC 
-
-           IF( NAME_INDEX( GC_AQ_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC ) .EQ. 0 ) 
-     &        N_AQ_SPC = N_AQ_SPC + 1
-           
-         END DO
-
-         ALLOCATE( AQ_SPC( N_AQ_SPC ) )
-
-         IND = 0
-         DO N = 1, N_GC_AQ_SPC 
-
-           IF( NAME_INDEX( GC_AQ_SPC( N ), N_GC_ONLY_SPC, GC_ONLY_SPC )
-     &         .EQ. 0 ) THEN 
-              IND = IND + 1
-              AQ_SPC( IND ) = GC_AQ_SPC( N )
-           END IF
-           
-         END DO
-
-      ELSE
-          N_AE_SPC = 0
-          N_AQ_SPC = 0
-      END IF
+      N_AE_SPC = 0
+      N_AQ_SPC = 0
 
 c..Flag species in SPECIES as gas-phase only or not ( i.e. AE or AQ)
       ALLOCATE( L_GC_ONLY_SPC( N_SPECIES ) )
@@ -345,23 +293,11 @@ c..Flag species in SPECIES as gas-phase only or not ( i.e. AE or AQ)
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Find the max char lengths
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c      IF( L_ALL_MECHS ) THEN
+       DO N = 1, N_SPECIES
 
-         DO N = 1, N_SPECIES
+         CL = MAX( CL, LEN_TRIM( SPECIES( N ) ) )
 
-            CL = MAX( CL, LEN_TRIM( SPECIES( N ) ) )
-
-         END DO  
-
-c      ELSE
-
-         DO N = 1, N_SPECIES
-
-            CL = MAX( CL, LEN_TRIM( SPECIES( N ) ) )
-
-         END DO  
-
-c      END IF
+       END DO  
 
        DO N = 1, NRXNS
           LL = MAX( LL, LEN_TRIM( RXLABEL( N ) ) )       
@@ -380,57 +316,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
       END DO
 
-      IF( L_ALL_MECHS ) THEN
-
-         ALLOCATE( L_GC_AE_EBI( N_GC_AE_SPC ) )
-         ALLOCATE( L_GC_AQ_EBI( N_GC_AQ_SPC ) )
-         ALLOCATE( L_GC_ONLY_EBI( N_GC_ONLY_SPC ) )
-         
-         L_GC_AE_EBI = .FALSE.
-         L_GC_AQ_EBI = .FALSE.
-         L_GC_ONLY_EBI = .FALSE.
-         
-         DO N = 1, N_GC_AE_SPC
-            IF( NAME_INDEX( GC_AE_SPC( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
-                N_GC_AE_EBI = N_GC_AE_EBI + 1
-                L_GC_AE_EBI( N ) = .TRUE.
-            END IF
-         END DO
-
-         DO N = 1, N_GC_AQ_SPC
-            IF( NAME_INDEX( GC_AQ_SPC( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
-                N_GC_AQ_EBI = N_GC_AQ_EBI + 1
-                L_GC_AQ_EBI( N ) = .TRUE.
-            END IF
-         END DO
-
-         DO N = 1, N_GC_ONLY_SPC
-            IF( NAME_INDEX( GC_ONLY_SPC( N ), N_GRP_SPC, GRP_SPC ) .EQ. 0 ) THEN
-                N_GC_ONLY_EBI = N_GC_ONLY_EBI + 1
-                L_GC_ONLY_EBI( N ) = .TRUE.
-            END IF
-         END DO
-
-
-      END IF
-
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Tag gas-only species as low or high tolerance
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF( L_ALL_MECHS ) THEN
-
-         ALLOCATE( L_LOW_TOL_SPC( N_GC_ONLY_SPC ) )
-         ALLOCATE( L_HII_TOL_SPC( N_GC_ONLY_SPC ) )
-         L_LOW_TOL_SPC = .FALSE.
-
-         DO N = 1, N_GC_ONLY_SPC
-            IF( NAME_INDEX( GC_ONLY_SPC( N ), N_LOW_TOL_SPC, LOW_TOL_SPC )
-     &          .NE. 0 ) THEN
-                L_LOW_TOL_SPC( N ) = .TRUE.
-            END IF
-         END DO
-
-      ELSE
 
          ALLOCATE( L_LOW_TOL_SPC( N_SPECIES ) )
          L_LOW_TOL_SPC = .FALSE.
@@ -452,8 +340,6 @@ c..Tag NO2EX as low tol if cycle is in group 1 and 2
              L_HII_TOL_SPC( NO2EX ) = .TRUE.
           END IF
          
-
-      END IF
 
 
 
