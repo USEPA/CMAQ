@@ -35,6 +35,7 @@
 !                        variable setting
 !  05/02/19, D. Wong: -- added a logic to call soilinp_setup when BIOGEMIS is true
 !  05/03/19, D. Wong: -- reorganized the flow of reading in LUS data
+!  05/06/19, D. Wong: -- added a new logic to read in INIT_MEDC_1 when it is not NEW_START
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -2807,7 +2808,7 @@ C   mminlu and num_land_cat are WRF global variables
              call READ_EMISS_NAMELIST
              call INIT_EMIS_REGIONS()
 
-             if (HGBIDI) then   ! two level check, 1. environment variable and then GC_DDEP species list
+             if (HGBIDI .and. (.not. NEW_START)) then   ! two level check, 1. environment variable and then GC_DDEP species list
                 if ( search( 'HG', GC_DDEP, N_GC_DDEP) .gt. 0 ) then
                    call medc_file_setup
                 end if
