@@ -593,6 +593,7 @@ C Calculate NO emissions by going thru temperature cases
                IF ( PX_LSM .OR. CLM_LSM .OR. NOAH_LSM ) THEN
 
                   SOILCAT = GRID_DATA%SLTYP( C,R )
+                  TSOI = 0.0
                   IF ( SOILCAT .LE. MAXSTYPES .AND. PX_LSM ) THEN
                      RATIO = MET_DATA%SOIM1( C,R ) / Grid_Data%WSAT( C,R )
                      IF ( USE_SOILT ) THEN
