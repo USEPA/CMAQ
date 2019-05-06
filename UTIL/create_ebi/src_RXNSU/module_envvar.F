@@ -6,9 +6,9 @@
       IMPLICIT NONE
       
       CHARACTER(  15 )  :: CR_DATE     ! Run date
-      CHARACTER(  16 )  :: AE_TAG      ! aerosol name used in MECHNAME
-      CHARACTER(  16 )  :: GC_TAG      ! gas chem name used in MECHNAME
-      CHARACTER(  16 )  :: AQ_TAG      ! aq chem name used in MECHNAME
+!      CHARACTER(  16 )  :: AE_TAG      ! aerosol name used in MECHNAME
+!      CHARACTER(  16 )  :: GC_TAG      ! gas chem name used in MECHNAME
+!      CHARACTER(  16 )  :: AQ_TAG      ! aq chem name used in MECHNAME
 
       CHARACTER(  16 )  :: MECH_NO     ! Mech name for NO
       CHARACTER(  16 )  :: MECH_NO2    ! Mech name for NO2
@@ -23,10 +23,10 @@
       CHARACTER(  16 )  :: MECH_C2O3   ! Mech name for C2O3
       CHARACTER(  16 )  :: MECH_N2O5   ! Mech name for N2O5
       CHARACTER(  16 )  :: MECH_NO3    ! Mech name for NO3
-      CHARACTER(  16 )  :: MECH_NO2EX  ! Mech name for NO2EX
+      CHARACTER(  16 )  :: MECH_NO2EX  = 'NO2EX' ! Mech name for NO2EX
 
-      CHARACTER( 256 )  :: OUTPATH     ! Output directory
-      CHARACTER( 256 )  :: TMPLPATH    ! Output directory
+      CHARACTER( 586 )  :: OUTPATH     ! Output directory
+      CHARACTER( 586 )  :: TMPLPATH    ! Output directory
       
       LOGICAL  :: L_ALL_MECHS          ! Flag for all mechs (F=1 mech)
 
@@ -123,32 +123,32 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Get names to use for the mechanism
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-         ENV_DFLT = ' '
-         ENV_DESC = 'gas mechanism name'        
-         CALL GET_ENV_STRING( GC_NAME, ENV_DESC, ENV_DFLT, GC_TAG, STATUS )
-         IF( STATUS .NE. 0 .AND. LEN(GC_TAG) .GT. 1 ) THEN
-           MSG = TRIM( PNAME ) // ': Gas phase mechanism not defined' 
-           WRITE(LOGDEV,'(a)')TRIM( MSG )
-           STOP
-         END IF
+!        ENV_DFLT = ' '
+!        ENV_DESC = 'gas mechanism name'        
+!        CALL GET_ENV_STRING( GC_NAME, ENV_DESC, ENV_DFLT, GC_TAG, STATUS )
+!        IF( STATUS .NE. 0 .AND. LEN(GC_TAG) .GT. 1 ) THEN
+!          MSG = TRIM( PNAME ) // ': Gas phase mechanism not defined' 
+!          WRITE(LOGDEV,'(a)')TRIM( MSG )
+!          STOP
+!        END IF
 
-         ENV_DFLT = ' '
-         ENV_DESC = 'aerosol mechanism name'        
-         CALL GET_ENV_STRING( AE_NAME, ENV_DESC, ENV_DFLT, AE_TAG, STATUS )
-         IF( STATUS .NE. 0 .AND. LEN(AE_TAG) .GT. 1 ) THEN
-           MSG = TRIM( PNAME ) // ':  Aerosol phase mechanism not defined' 
-           WRITE(LOGDEV,'(a)')TRIM( MSG )
-           STOP
-         END IF
+!        ENV_DFLT = ' '
+!        ENV_DESC = 'aerosol mechanism name'        
+!        CALL GET_ENV_STRING( AE_NAME, ENV_DESC, ENV_DFLT, AE_TAG, STATUS )
+!        IF( STATUS .NE. 0 .AND. LEN(AE_TAG) .GT. 1 ) THEN
+!          MSG = TRIM( PNAME ) // ':  Aerosol phase mechanism not defined' 
+!          WRITE(LOGDEV,'(a)')TRIM( MSG )
+!          STOP
+!        END IF
 
-         ENV_DFLT = ' '
-         ENV_DESC = 'aq chem mechanism name'        
-         CALL GET_ENV_STRING( AQ_NAME, ENV_DESC, ENV_DFLT, AQ_TAG, STATUS )
-         IF( STATUS .NE. 0 .AND. LEN(AQ_TAG) .GT. 1 ) THEN
-           MSG = TRIM( PNAME ) // ': Aqueous phase mechanism not defined' 
-           WRITE(LOGDEV,'(a)')TRIM( MSG )
-           STOP
-         END IF
+!        ENV_DFLT = ' '
+!        ENV_DESC = 'aq chem mechanism name'        
+!        CALL GET_ENV_STRING( AQ_NAME, ENV_DESC, ENV_DFLT, AQ_TAG, STATUS )
+!        IF( STATUS .NE. 0 .AND. LEN(AQ_TAG) .GT. 1 ) THEN
+!          MSG = TRIM( PNAME ) // ': Aqueous phase mechanism not defined' 
+!          WRITE(LOGDEV,'(a)')TRIM( MSG )
+!          STOP
+!        END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get the name of the output directory and template directory
@@ -175,12 +175,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get the flags for writing copyright and CVS header
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LWR_COPY  = .FALSE.
-         ENV_DESC = 'Flag to write copyright notice'
-         LWR_COPY = GET_ENV_FLAG( COPYRT_FLAG, ENV_DESC, LWR_COPY, STATUS )
+!         ENV_DESC = 'Flag to write copyright notice'
+!         LWR_COPY = GET_ENV_FLAG( COPYRT_FLAG, ENV_DESC, LWR_COPY, STATUS )
 
          LWR_CVS_HDR  = .FALSE.
-         ENV_DESC = 'Flag to write copyright notice'
-         LWR_CVS_HDR = GET_ENV_FLAG( CVS_HDR_FLAG, ENV_DESC, LWR_CVS_HDR, STATUS )
+!         ENV_DESC = 'Flag to write cvs hear notice'
+!         LWR_CVS_HDR = GET_ENV_FLAG( CVS_HDR_FLAG, ENV_DESC, LWR_CVS_HDR, STATUS )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get the flag for including PAR negative stoichiometry
@@ -200,8 +200,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get the flag for including NO2EX in groups 1 and 2
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LNO2EX_CYCLE  = .FALSE.
-         ENV_DESC = 'Flag to include PAR negative stoichiometry'
-         LNO2EX_CYCLE  = GET_ENV_FLAG( NO2EX_FLAG, ENV_DESC, LNO2EX_CYCLE, STATUS )
+!         ENV_DESC = 'Flag to include PAR negative stoichiometry'
+!         LNO2EX_CYCLE  = GET_ENV_FLAG( NO2EX_FLAG, ENV_DESC, LNO2EX_CYCLE, STATUS )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get the value for maximum solver timestep
@@ -271,17 +271,17 @@ c         LERROR = .FALSE.
             LERROR = .TRUE.
          END IF
 
-         IF( LNO2EX_CYCLE ) THEN
-            ENV_DFLT = ' '
-            ENV_DESC = 'Mechanism name for excited NO2 oxygen (NO2EX)'
-            CALL GET_ENV_STRING( 'MECH_NO2EX', ENV_DESC, ENV_DFLT, MECH_NO2EX, STATUS)
-
-            IF( STATUS .NE. 0 ) THEN
-               MSG = 'ERROR: Environment variable MECH_NO2EX not found'
-               WRITE(LOGDEV,'(a)')TRIM( MSG )
-               LERROR = .TRUE.
-            END IF
-         END IF
+!         IF( LNO2EX_CYCLE ) THEN
+!            ENV_DFLT = ' '
+!            ENV_DESC = 'Mechanism name for excited NO2 oxygen (NO2EX)'
+!            CALL GET_ENV_STRING( 'MECH_NO2EX', ENV_DESC, ENV_DFLT, MECH_NO2EX, STATUS)
+!
+!            IF( STATUS .NE. 0 ) THEN
+!               MSG = 'ERROR: Environment variable MECH_NO2EX not found'
+!               WRITE(LOGDEV,'(a)')TRIM( MSG )
+!               LERROR = .TRUE.
+!            END IF
+!         END IF
 
 
 c..Group 2 species
