@@ -379,8 +379,10 @@ C Read & interpolate boundary concentrations
      &              // BNDY_AERO_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             ELSE   
-               ! Add Non-Carbon Mass to Carbon Mass if the model is
-               ! running semivolatile POA
+               ! Add Non-Carbon Mass to Carbon Mass if any tracer is
+               ! pointing to POC as a surrogate. It is very likely that
+               ! these tracers are seeking the entire POA mass (e.g.
+               ! semivolatile POA tracers).
                IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' .AND.
      &              AE_TRNS( SPC ) .NE. 'APOC' ) THEN 
                   BBUF_TMP = 0.0

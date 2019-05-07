@@ -406,8 +406,10 @@ C IOFDESC common now loaded with FNAME header
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ! Add Non-Carbon Mass to Carbon Mass if the model is
-            ! running semivolatile POA
+            ! Add Non-Carbon Mass to Carbon Mass if any tracer is
+            ! pointing to POC as a surrogate. It is very likely that
+            ! these tracers are seeking the entire POA mass (e.g.
+            ! semivolatile POA tracers).
             POC_CHK = 'NOTPOC'
             IF ( SPC_CAT .EQ. 'AE' ) POC_CHK = AE_SPC( SPC )
 
