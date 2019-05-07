@@ -36,6 +36,7 @@
 !  05/02/19, D. Wong: -- added a logic to call soilinp_setup when BIOGEMIS is true
 !  05/03/19, D. Wong: -- reorganized the flow of reading in LUS data
 !  05/06/19, D. Wong: -- added a new logic to read in INIT_MEDC_1 when it is not NEW_START
+!  05/07/19, D. Wong: -- removed duplicated array allocation for NH4ps1 and NH4ps2
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -1340,10 +1341,6 @@ C Read the various categories of normalized emissions
              GMN_AVAIL = .true.
           end if
 
-          Allocate ( NH4ps1     ( ncols,nrows,e2c_cats ),
-     &               NH4ps2     ( ncols,nrows,e2c_cats ),
-     &               STAT=STAT )
-
           vname = 'L1_NH3'
           If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, NH4ps1) ) Then
@@ -1583,7 +1580,6 @@ C Read the various categories of normalized emissions
              dust_lu_avail = .false.
           end if
 
-          print *, ' ==d== wb b ', dust_lu_avail, dust_lu_1
           if (dust_lu_avail) then
 ! Read in 17 species crop land fraction
              do m = 1, nlcrp
@@ -2702,7 +2698,6 @@ C   mminlu and num_land_cat are WRF global variables
      &               // ' from ' // trim( lufile( 1 ) )
                 call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
              end if
-            write (logdev, *) ' ==d== lu ', i, minval(ladut( :,:,i )), maxval(ladut( :,:,i ))
           end do
 
 ! Get landuse (fraction) data
@@ -2798,7 +2793,6 @@ C   mminlu and num_land_cat are WRF global variables
                 call depv_data_setup
              end if
 
-             print *, ' ==d== wb ', WB_DUST
              if (WB_DUST) then
                 call lus_setup
 
