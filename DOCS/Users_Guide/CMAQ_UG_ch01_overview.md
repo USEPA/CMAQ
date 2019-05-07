@@ -5,7 +5,7 @@
 
 <!-- END COMMENT -->
 
-# Overview
+# 1. Overview
 
 ## Disclaimer
 
@@ -13,7 +13,7 @@
 
 The information in this operational guidance document has been funded wholly or in part by the United States Environmental Protection Agency (EPA). The draft version of this document has not been subjected to the Agency’s peer and administrative review, nor has it been approved for publication as an EPA document. The draft document has been subjected to review by the Community Modeling and Analysis System Center only; this content has not yet been approved by the EPA. Mention of trade names or commercial products does not constitute endorsement or recommendation for use.
 
-## Introduction
+## 1.1 Introduction
 
 **>>COMMENT<<** para 1: Add reference for CAA, and update reference for NAAQS.
 
@@ -33,7 +33,7 @@ With weather conditions contributing the primary physical driving forces in the 
 
 To obtain inputs on emissions, CMAQ relies on an emissions processor to estimate the magnitude, location, and temporal variability of pollution sources. Open\-source processors such as the Sparse Matrix Operator Kernel Emissions ([SMOKE](https://www.cmascenter.org/smoke/)) processor (IE, 2008) are available for computing emissions inputs to CMAQ from emissions inventories. These emissions inputs must be specified on CMAQ's horizontal and vertical grid structure, and cover at least the time period of the air quality model simulation. The emission inputs must also represent chemical species that conform with the gas and aerosol chemical mechanism employed in the CMAQ configuration; currently supported gas-phase mechanisms include recent versions of the Carbon Bond mechanism, the Statewide Air Pollution Research Center (SAPRC) mechanism, and the Regional Atmospheric Chemistry Mechanism (RACM). Additional details about the gas- and aerosol-phase chemistry in CMAQ are provided in [Chapter 4](CMAQ_UG_ch04_model_formulation.md).
 
-## Features
+## 1.2 Features
 
 From inception, CMAQ was designed to facilitate community modeling. “Community modeling” is the concept that air quality model development should be a collective effort by a broad community of developers, thereby leveraging the cross-disciplinary expertise needed to keep the physical, numerical, and computational components of the modeling system at the state-of-the-science. By adopting a standardized modeling architecture, the air quality modeling community can focus its efforts on creating software enhancements and new science modules. CMAQ is designed to meet the needs of the multiple groups contained within the air quality modeling community: research and regulatory modelers, algorithm and science module developers, air quality forecasters, and planners and policy makers. While each of these groups has distinct individual requirements for CMAQ, they also share a common need for an efficient, transparent, and scientifically credible tool to simulate the air pollution phenomena. To address these individual and common needs, CMAQ development and maintenance have the following goals:
 
@@ -55,7 +55,7 @@ Designed under a community-modeling paradigm, CMAQ is distributed as open-source
 
 The CMAQ modeling system is being developed and maintained under the leadership of the [EPA Office of Research and Development](https://www.epa.gov/aboutepa/about-office-research-and-development-ord) in Research Triangle Park, NC. CMAQ represents nearly three decades of research in atmospheric modeling and has been in active development since the early 1990s. The first public release of CMAQ was in 1998 to enable use by air quality scientists, policy makers, and stakeholder groups to address multiscale, multipollutant air quality concerns. Since then, through a series of phased development activities, new versions of the CMAQ modeling system are periodically released for use by the growing user community.
 
-## Instrumented Models
+## 1.3 Instrumented Models
 In addition to the air pollutant concentration and deposition fields output by CMAQ, the modeling system can also be instrumented to compute and output additional diagnostic information that can be used to probe the workings of the atmosphere as well as inform and guide policy inferences. These instrumented configurations include:
 
 1.  *Integrated Source Apportionment Method (ISAM)*: Estimates source attribution information for user specified ozone and particulate matter precursors modeled in CMAQ. Such apportionment information could be used to gain insight on for example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
@@ -65,7 +65,7 @@ In addition to the air pollutant concentration and deposition fields output by C
 5.  *Integrated Reaction Rates (IRR)*: This technique involves integrating the rates of individual chemical reactions represented in the gas-phase chemical mechanism employed by CMAQ. As an example, this information can then be used to infer the relative importance of various precursor species contributing to ozone production in a grid cell or region.
 
 
-## New Features in CMAQv5.3
+## 1.4 New Features in CMAQv5.3
 Building on previous versions of the modeling system, numerous updates to the process science and model structure have been implemented in CMAQv5.3 including:
 1.	Advances in the science of modeling particulate matter composition, size distribution and optical properties. These updates are encapsulated in a new version of the CMAQ aerosol module named AERO7.
 2.	Improvements and updates to the representation of multi-phase chemistry in the CMAQ modeling system including, incorporation of new gas-phase chemical mechanisms, expansion of aqueous chemistry pathways, incorporation of improved data sets to estimate photolysis rates, and updates to numerical integration schemes to improve runtime efficiency.
@@ -76,10 +76,10 @@ Building on previous versions of the modeling system, numerous updates to the pr
 
 Collectively, these updates improve model capabilities for addressing local nonattainment issues, quantifying natural contributions versus anthropogenic enhancements, enabling examination of regional air pollution in context of changing global emissions, and for cross-media applications. Additionally, changes to model structure in CMAQv5.3 are oriented towards improving transparency of model assumptions, improved diagnostic tools for model probing, and improvements in overall numerical and computational efficiency of the modeling system.
 
-## System Recommendations
+## 1.5 System Recommendations
 CMAQ is a comprehensive air pollution modeling system whose source code is written in Fortran. CMAQ execution is typically performed on Linux based systems. The hardware configuration of such a system depends on the domain size, grid resolution and simulation duration. Since typical input and output data sets for CMAQ entail three dimensional descriptions of the dynamical and chemical state of the simulated atmosphere, these data sets could require upwards of several giga bytes disk storage per simulation day.
 
-## CMAQ Support Resources
+## 1.6 CMAQ Support Resources
 
 Extensive information on the model's scientific basis, applications, publications, peer-review, and instructions to download the CMAQ modeling system are available at https://www.epa.gov/cmaq. To support the CMAQ user community, EPA currently funds the University of North Carolina at Chapel Hill to host the [Community Modeling and Analysis System (CMAS) Center](http://www.cmascenter.org/), which maintains a user help desk, provides new user training, and promotes the dissemination and use of the modeling system through exploration of new technologies and platforms (e.g., cloud-based). The CMAS Center offers an e-mail help desk and an [online forum](https://forum.cmascenter.org/) to allow users to connect with model developers and other model users around the world.
 
