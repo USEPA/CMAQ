@@ -5,9 +5,9 @@
 
 <!-- END COMMENT -->
 
-# Model Output Files
+# 6. Model Output Files
 
-## CCTM Output Files
+## 6.1 CCTM Output Files
 
 ** >> Comment <<** P153 (for example):  Should remove M3 I/O API "file type" from these tables.  Use more general descriptions.
 
@@ -108,7 +108,7 @@ The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposit
 ### CTM_AVIS_1
 [Return to Table 3-13](#avis_t)
 
-## Diagnostic and Advanced CMAQ Output Files
+## 6.2 Diagnostic and Advanced CMAQ Output Files
 
 Along with the basic outputs detailed in the previous section, CMAQ can be configured to output several auxiliary files for diagnosing model performance.
 
