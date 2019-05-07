@@ -258,23 +258,23 @@ The actual amount of dust emitted from an arid surface depends on wind speed, su
 **>>COMMENT<<** Do we want to include this equation?
 * The equation for open ocean sea spray particle emissions in CMAQ is:
 
-![](./images/outline8-equation.png)
+![](./images/Figure8-equation.png)
 
 * The current surf zone sea spray particle emission rate in CMAQ as described in Gantt et al. (2015) is based on Kelly et al. (2010) with a reduction of the assumed surf zone width from 50 to 25 meters.
 ### Dry deposition
 
 Dry deposition is determined as the product of the atmospheric concentration and the deposition velocity. The deposition velocity is modeled in CMAQ using the electrical resistance paradigm where resistances are defined along pathways from the atmosphere to the vegetation or surface and act in series and parallel. Some literature refers to "conductances" which are simply the inverse of the resistance. The deposition pathways modeled in CMAQ are shown in  [Figure 8-1](#Figure 8-1) below from Pleim and Ran, 2011.
 
-![Figure 8-1](./images/outline8-1.png)
+![Figure 8-1](./images/Figure8-1.png)
 
 **Figure 8-1.Resistance Diagram** **>>COMMENT<<** Is this the correct Figure title?
 
 Following the resistance diagram above, the deposition velocity (vd) is modeled in CMAQ as
-![](./images/outline8-2.png)
+![](./images/Figure8-2.png)
 
 The aerodynamic resistance (Ra) represents the influence of the turbulence in the surface layer and is a function of the surface characteristics and the meteorology. In the CMAQ modeling system, Ra is derived in the land-surface module of the WRF meteorological model and is passed into CMAQ. The boundary layer resistance (Rb) characterizes the movement of the pollutant due to Brownian diffusion aross the thin quasi-laminar boundary layer which is adjacent to the surface. The surface resistance (Rs) includes several sub-resistances that act in series and parallel that determine the movement of pollutants to vegetation, soil, water, and snow. The surface resistance can be determined from
 
-![](./images/outline8-3.png)
+![](./images/Figure8-3.png)
 
 The components of the surface resistance include the stomatal resistance (Rst), mesophyll resistance (Rm), cuticular resistance (Rw), in-canopy aerodynamic resistance (Rac) and the ground resistance (Rg).  These resistances are calculated at each time step for each chemical.
 
