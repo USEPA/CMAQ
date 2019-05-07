@@ -18,7 +18,7 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 ** >> Comment <<** In Table 8.1, those Hourly denotation, we should put an asterisk to indicate that it can be user defined, e.g. 30 minutes rather 1 hour and in the same table and table 8-13, there are places with +1 and I think we can make it more generic as +NTHIK (your call).
 
 
-**Table 3-6. CMAQ Output files**
+**Table 6-1. CMAQ Output files**
 
 |**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|
 |----------------------------|------|----|-----------------------------------|
