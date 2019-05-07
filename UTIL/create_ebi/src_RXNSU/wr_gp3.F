@@ -116,7 +116,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF( LINEIN( 1 : 2 ) .EQ. 'R1' ) THEN
 
-         WRITE( IOUT, 93000 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
+         WRITE( IOUT, 93000 ) TRIM( MECHNAME )
 
          GO TO 100
 
@@ -469,7 +469,7 @@ c..finish reading skipped section of template (i.e., code between S1 markers)
 92040 FORMAT( /, A )
 92060 FORMAT(' ) * DTC ')
 
-93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
+93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' mechanism' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
 
 94000 FORMAT( 

@@ -96,7 +96,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          IF( LINEIN( 2 : 2 ) .EQ. '1' .AND. .NOT. LOUT1 ) THEN
 
-            WRITE( IOUT, 93000 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
+            WRITE( IOUT, 93000 ) TRIM( MECHNAME )
 
             LOUT1 = .TRUE. 
 
@@ -112,64 +112,13 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          ELSEIF( LINEIN( 2 : 2 ) .EQ. '3' .AND. .NOT. LOUT3 ) THEN
 
-            IF( L_ALL_MECHS )THEN
-
-               MNAME = GC_TAG
-               EPOS = LEN_TRIM( MNAME )
-               MOUT = '                '
-               MOUT( 1 : EPOS ) = MNAME( 1 : LEN_TRIM( MNAME ) )
-               WRITE( IOUT, 93040 ) MOUT
-
-
-               MNAME = GC_TAG( 1 : LEN_TRIM( GC_TAG ) ) // '_' //
-     &                 AE_TAG( 1 : LEN_TRIM( AE_TAG ) )
-               EPOS = LEN_TRIM( MNAME )
-               MOUT = '                '
-               MOUT( 1 : EPOS ) = MNAME( 1 : LEN_TRIM( MNAME ) )
-               WRITE( IOUT, 93060 ) MOUT
-
-
-               MNAME = GC_TAG( 1 : LEN_TRIM( GC_TAG ) ) // '_' //
-     &              AQ_TAG( 1 : LEN_TRIM( AQ_TAG ) )
-               EPOS = LEN_TRIM( MNAME )
-               MOUT = '                '
-               MOUT( 1 : EPOS ) = MNAME( 1 : LEN_TRIM( MNAME ) )
-               WRITE( IOUT, 93060 ) MOUT
-
-               COM_AE_TAG = 'AE3'
-               IF( AQ_TAG(1:LEN_TRIM(AQ_TAG)) .EQ. COM_AE_TAG )THEN
-                  MNAME = GC_TAG( 1 : LEN_TRIM( GC_TAG ) ) // '_' //
-     &                    COM_AE_TAG // '_' //
-     &                    AQ_TAG( 1 : LEN_TRIM( AQ_TAG ) )
-                  EPOS = LEN_TRIM( MNAME )
-                  MOUT = '                '
-                  MOUT( 1 : EPOS ) = MNAME( 1 : LEN_TRIM( MNAME ) )
-                  WRITE( IOUT, 93060 ) MOUT
-               END IF
-               
-               MNAME = GC_TAG( 1 : LEN_TRIM( GC_TAG ) ) // '_' //
-     &                 AE_TAG( 1 : LEN_TRIM( AE_TAG ) ) // '_' //
-     &                 AQ_TAG( 1 : LEN_TRIM( AQ_TAG ) )
-               EPOS = LEN_TRIM( MNAME )
-               MOUT = '                '
-               MOUT( 1 : EPOS ) = MNAME( 1 : LEN_TRIM( MNAME ) )
-               WRITE( IOUT, 93060 ) MOUT
-
-            ELSE
-
-               WRITE( IOUT, 93080)MECHNAME(1:LEN_TRIM(MECHNAME))
-
-            END IF
+            WRITE( IOUT, 93080)TRIM( MECHNAME )
 
             LOUT3 = .TRUE.
 
          ELSEIF( LINEIN( 2 : 2 ) .EQ. '4' .AND. .NOT. LOUT4 ) THEN
 
-            IF( L_ALL_MECHS )THEN
-               WRITE( IOUT, 93100 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
-            ELSE
-               WRITE( IOUT, 93110 ) MECHNAME(1:LEN_TRIM(MECHNAME))
-            END IF
+            WRITE( IOUT, 93110 ) TRIM( MECHNAME )
 
             LOUT4 = .TRUE.
 
@@ -203,7 +152,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
        
 92000 FORMAT( A )
 
-93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
+93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' mechanism' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
 93029 FORMAT( 11X,'USE RXNS_FUNCTION, ONLY : SPECIAL_RATES' )
 93030 FORMAT( 9X, 'IF( MECHNAME .NE. ''' , A, ''' ) THEN') 
