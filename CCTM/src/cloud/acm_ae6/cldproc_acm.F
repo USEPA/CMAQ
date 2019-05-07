@@ -503,7 +503,7 @@ c ISAM  unit conversion
                 DO COL = 1, MY_NCOLS
                   FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( VAR - AE_STRT + 1 )
                   ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * FAC
-                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM(COL,ROW,LAY,SPC, ITAG ), 1.0E-36 )
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM(COL,ROW,LAY,SPC, ITAG ), 1.0E-30 )
                 END DO
               END DO
             END DO

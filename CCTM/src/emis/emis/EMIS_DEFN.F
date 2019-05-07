@@ -336,11 +336,24 @@ C Find emissions stream in the list of available streams
 
             END DO
 
+c           write(logdev,*) " =-= ISAM emissions mapping "
+c           write(logdev,*) "     Stream, Tags for this stream "
+c           DO ISRM = 1,N_EM_SRM 
+c             write(logdev,'(i2,1x,a12,999(i2,1x))') ISRM, EM_FILE_LAB(ISRM), STREAM_TO_TAG(ISRM,1:TAGS_PER_STREAM(ISRM))
+c           END DO
+
 C Develop a map of emitted/diffused ISAM species
             MAP_DIFFtoSA = 0
             DO SPC = 1, NSPC_SA
               MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(SPC_NAME(SPC,1)), N_SPC_DIFF, DIFF_SPC )
             END DO
+
+c           write(logdev,*) " =-= ISAM emissions species mapping "
+c           write(logdev,*) " Spc#, Spc Name, Map#"
+c           DO SPC = 1, NSPC_SA
+c             write(logdev,*) SPC, SPC_NAME(SPC,1), MAP_DIFFtoSA( SPC )
+c           END DO
+
 
 C Initialize geographic regions for ISAM tagging
             ALLOCATE( ISAMRGN( NTAG_SA, N_EM_RGN ) )
@@ -379,6 +392,13 @@ C Map the user specified ISAM regions to available CMAQ regions
               END DO
 
             END DO
+
+c           write(logdev,*) " =-= ISAM regions mapping "
+c           write(logdev,*) "     Tag, Regions for this tag " 
+c           DO ITAG = 1, NTAG_SA-3
+c             write(logdev,'(i2,1x,999(a12,1x))') ITAG, ISAMRGN(ITAG, 1:ISAMRGN_NUM(ITAG))
+c           END DO
+
 #endif
          END IF
 
@@ -480,10 +500,16 @@ C Retrieve Emissions from All Stream Types
 
 #ifdef isam
            IF ( EM_FILE_LAPPLY( ISRM ) ) THEN
+
              IF ( TAGS_PER_STREAM( ISRM ) .GT. 0 ) THEN 
+ 
+             SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
+
                DO IDX = 1, TAGS_PER_STREAM( ISRM )
+
                  ITAG = STREAM_TO_TAG(ISRM,IDX)
-                 SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
+
+c                SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
                  IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN ! full domain 
                    SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG ) = SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG )
      &                                                   + VDEMIS_CONV(:,1:NL,:,: )
