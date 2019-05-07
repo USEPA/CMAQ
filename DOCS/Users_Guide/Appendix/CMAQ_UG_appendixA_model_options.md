@@ -392,6 +392,8 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Output a diffusion and aero gravitational sedimentation diagnostic file. Set to Y to turn on; comment out or set to N to turn off.
 -    `CTM_AOD [default N]`<a id=CTM_AOD></a>  
     Output an aerosol optical depth (AOD) calculation diagnostics file. Set to Y to turn on; comment out or set to N to turn off.
+-   `LTNGDIAG [default: N]`<a id=LTNGDIAG></a>  
+    Output a lightning NO emissions diagnostics file. Set to `Y` to turn on; comment out or set to `N` to turn off.
 -   `DISP [default: keep]`<a id=DISP></a>  
     Controls the maintenance of existing log files.
     -   `delete` delete output log if it already exists
@@ -434,29 +436,23 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [CMAQ Lightning NOx Module Documentation](../../CCTM/docs/Release_Notes/Lightning_NOx.md)
 
 -   `LTNGNO [default:InLine]`<a id=LTNGNO></a>  
-    Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS variable (see below) to define the configuration of the in-line emissions.
+    Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating in-line lightning NO emissions.
 
 -   `USE_NLDN [default: Y]`<a id=USE_NLDN></a>  
-    Use hourly NLDN strikes file to compute inline lighing NO emissions. Activating this setting requires the NLDN_STRIKES input file.  Comment out or set to Y to turn on; set to N to turn off.
-
--   `LTNGPARAMS [default: Y]`<a id=LTNGPARAMS></a>  
-    Use the lightning parameters configuration file to compute inline lightning NO emissions. When the variable `LTNGNO` is set to `inline`, this setting is used to define how the in-line emissions will be calculated. Commenting out this variable or setting it to Y will compute lightning NO from input hourly flash count observations. Setting this variable to N will compute lightning NO strictly from convective precipitation rates in the input meteorology data. When this variable is set to Y, an additional input lightning parameter file (LTNGPARMS_FILE) will need to be available that includes intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, and the moles of NO per flash.
+    Use hourly NLDN strikes file to compute inline lighning NO emissions. Activating this setting requires the NLDN_STRIKES input file.  Comment out or set to Y to turn on; set to N to turn off. If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.
 
 -  `NLDN_STRIKES [default: None]`<a id=NLDN_STRIKES></a>  
     Hourly NLDN lightning strike netCDF FILE. Required when `LTNGNO` is set to `Inline` and `USE_NLDN` is set to `Y`; otherwise ignore this setting.
-
--  `LOG_START [default: 0.9]`<a id=LOG_START></a>  
-    Convective precipitation (RC) value to transition the lightning NO emissions calculation from linear to log linear.
-
--   `LTNGDIAG [default: N]`<a id=LTNGDIAG></a>  
-    Output a lightning NO emissions diagnostics file. Set to `Y` to turn on; comment out or set to `N` to turn off.
-
+    
 -  `LTNGPARMS_FILE [default: None]`<a id=LTNGPARMS_FILE></a>  
-    Lightning parameters output netCDF file; ignore if `LTNGPARAMS = N`
+    Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to "InLine" and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file. 
 
--  `LTNGOUT [default: None]`<a id=LTNGOUT></a>  
-    Lightning diagnostics output netCDF file; ignore if `LTNGDIAG = N`
+-  `CTM_LTNGDIAG_1`<a id=LTNGOUT></a>  
+    Lightning diagnostics output 3D netCDF file; ignore if `LTNGDIAG = N`
 
+-  `CTM_LTNGDIAG_2`<a id=LTNGOUT></a>  
+    Lightning diagnostics output 2D netCDF file (column total lightning NO emissions); ignore if `LTNGDIAG = N`
+    
 ### In-line biogenic emissions configuration
 
 -   `GSPRO [default: None]`<a id=GSPRO></a>  
