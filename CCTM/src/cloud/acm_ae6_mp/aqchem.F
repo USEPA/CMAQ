@@ -711,24 +711,24 @@ C...compute fractional weights for several species
       END IF
 
       TNO3a = AEROSOL( LNO3, ACC ) + AEROSOL( LNO3, COR ) 
-      IF ( TNO3a .GT. 0.d0) THEN
+      IF ( TNO3a .GT. 0.0D0) THEN
          FNO3COR = AEROSOL( LNO3, COR ) / TNO3a
       ELSE
-         FNO3COR = 0.d0
+         FNO3COR = 0.0D0
       END IF
       
       TNH4a = AEROSOL( LNH4, ACC ) + AEROSOL( LNH4, COR )
-      IF ( TNH4a .GT. 0.d0) THEN
+      IF ( TNH4a .GT. 0.0D0) THEN
          FNH4COR = AEROSOL( LNH4, COR ) / TNH4a
       ELSE
-         FNH4COR = 0.d0
+         FNH4COR = 0.0D0
       END IF
       
       TCLa  = AEROSOL( LCL, ACC )  + AEROSOL( LCL, COR )
-      IF ( TCLa .GT. 0.d0) THEN
+      IF ( TCLa .GT. 0.0D0) THEN
          FCLCOR = AEROSOL( LCL, COR ) / TCLa
       ELSE
-         FCLCOR = 0.d0
+         FCLCOR = 0.0D0
       END IF
       
 C...Assign fraction partitioning of FE(III) and MN(II)
@@ -1471,10 +1471,7 @@ C...compute modal concentrations
         TS6ACC  = MAX( TS6  - TS6COR,   0.0D0 )
         SO4ACC  = MAX( SO4  - SO4COR,   0.0D0 )
         HSO4ACC = MAX( HSO4 - HSO4COR,  0.0D0 )
-!        NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
         NAACC   = MAX( NA   - NACOR,    0.0D0 )
-!        CLACC   = MAX( CL   - CLCOR,    0.0D0 )
-!        NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
         CAACC   = MAX( CA   - CACOR,    0.0D0 ) ! AE6
         MGACC   = MAX( MG   - MGCOR,    0.0D0 ) ! AE6
         KACC    = MAX( K    - KCOR,     0.0D0 ) ! AE6
@@ -1486,21 +1483,21 @@ C...  than the total amount left in the aqueous phase after redistribution
 C...  of a species between the gas/aqueous phases
 
         IF ( NO3COR .GT. NO3 ) then
-           NO3ACC = (1.d0 - FNO3COR) * NO3
+           NO3ACC = (1.0D0 - FNO3COR) * NO3
            NO3COR = FNO3COR * NO3
         ELSE
            NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
         END IF
 
         IF ( CLCOR .GT. CL ) then
-           CLACC = (1.d0 - FCLCOR) * CL
+           CLACC = (1.0D0 - FCLCOR) * CL
            CLCOR = FCLCOR * CL
         ELSE
            CLACC   = MAX( CL   - CLCOR,    0.0D0 )
         END IF
 
         IF ( NH4COR .GT. NH4 ) THEN
-           NH4ACC = (1.d0 - FNH4COR) * NH4
+           NH4ACC = (1.0D0 - FNH4COR) * NH4
            NH4COR = FNH4COR * NH4
         ELSE
            NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
