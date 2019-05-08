@@ -6,11 +6,9 @@
 <!-- END COMMENT -->
 
 # 3. Preparing to Run CMAQ
-**>>Comment<<** Add intro paragraph describing what will be in this chapter.
 
 In this chapter the user will learn the basic hardware and software requirements to run CMAQ. In addition, if the user does not have the required software, this chapter provides detailed examples on how the user could obtain this software in a linux environment.
 
-**>>Comment<<** Do we want to also recommend a compiler (intel) for speed?
 ## 3.1 Hardware Requirements
 
 The minimum hardware requirements for running the CMAQ Program Suite on a PC are:
@@ -24,6 +22,7 @@ However, to use CMAQ in a production environment where multiple iterations of th
 For example, the CMAQ team at the EPA uses a Dell cluster named Atmos. The cluster consists of 32 Dell PowerEdge C6320 servers, with a total of 256 processors, EDR infiniband interconnect and runs on Read Hat Enterprise Linux 7 operating system
 
 ## 3.2 Software Requirements
+**>>Comment<<** Do we want to also recommend a compiler (intel) for speed?
 
 Before using the CMAQ program suite, the user must first download and configure their "computing" environment. A requirement for CMAQ is access to a linux environment, which can be done through a terminal emulator. Examples of terminal emulators are shown below:
 
