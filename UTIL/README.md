@@ -2,13 +2,13 @@ CMAQ Utilities
 ========
 
 ## Overview
-With the exception of Bldmake, the following utility programs prepare chemical mechanism source code for the CMAQ programs. Bldmake is the general model builder that is used to generate Makefile and compile CMAQ source code.  The other programs generate chemical mechanism and chemistry solver source code based on a new or modified mechanism definition file. Details about how to add new or modified chemical mechanisms to CMAQ are provided in [Chapter 9 of the CMAQ Operational Guidance](../DOCS/User_Manual/CMAQ_OGD_ch09_grid_defn.md).
+With the exception of Bldmake, the following utility programs prepare chemical mechanism source code for the CMAQ programs. Bldmake is the general model builder that is used to generate Makefile and compile CMAQ source code.  The other programs generate chemical mechanism and chemistry solver source code based on a new or modified mechanism definition file. Details about how to add new or modified chemical mechanisms to CMAQ are provided in the README files within each folder.  
 
 ## Utility Programs
 
-* **bldmake**: CMAQ Makefile generator and model buildewr
-* **chemmech**: generates chemical mechanism input files for the CMAQ programs from a mechanism definition file
-* **create_ebi**: creates mechanisms-dependent EBI chemistry solver source code 
-* **inline_phot_preproc**: creates photolysis reaction parameter tables for the CCTM inline photlysis module
-* **nml**: converts chemical mechanism csv output files from chemmech to the namelist files required by the CMAQ programs
-* **jproc**: calculates daily look-up tables containing clear-sky photolysis rates that are used by the tabular method for calculate photolysis rates in CMAQ CCTM.
+* **[bldmake](bldmake/README.md)**: CMAQ Makefile generator and model buildewr
+* **[chemmech](chemmech/README.md)**: generates chemical mechanism input files for the CMAQ programs from a mechanism definition file
+* **[create_ebi](create_ebi/README.md)**: creates mechanisms-dependent EBI chemistry solver source code 
+* **[inline_phot_preproc](inline_phot_preproc/README.md)**: creates photolysis reaction parameter tables for the CCTM inline photlysis module
+* **[nml](nml/README.md)**: converts chemical mechanism csv output files from chemmech to the namelist files required by the CMAQ programs
+* **[jproc](jproc/README.md)**: calculates daily look-up tables containing clear-sky photolysis rates that are used by the tabular method for calculate photolysis rates in CMAQ CCTM.
