@@ -3,7 +3,7 @@
 
 The CMAQ User's Guide is designed to support the installation, configuration, and execution of the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) model on Linux systems. CMAQ users should be comfortable with Linux scripting conventions and have some familiarity with the Fortran programming language. Users should also have some familiarity with atmospheric structure, and the physical and chemical processes that occur in the atmosphere.
 
-The following sections are included in this guide:
+# Table of Contents
 
 [CMAQ Tutorials:](Tutorials/README.md) A series of short tutorials provide practical examples of how to set up and run CMAQ. Tutorials include: 
 * Running the CMAQ Test Case
