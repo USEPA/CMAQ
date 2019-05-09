@@ -115,6 +115,8 @@ C   19 Apr 18 K.Fahey:  For species with both gas phase and coarse mode aerosol 
 C                       introducing extra mass when the coarse mode concentration is greater than 
 C                       the total amount left in the aqueous phase after redistribution between the 
 C                       phases. 
+C   26 Nov 18 S.Napelenok: ISAM implementation
+
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -154,6 +156,9 @@ C-----------------------------------------------------------------------
       USE AQ_DATA         ! doesn't inherit; gets only n_aerospc, conmin from AERO_DATA
       USE AERO_DATA
       USE UTILIO_DEFN
+#ifdef isam
+      USE SA_DEFN, ONLY: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE
+#endif
 
       IMPLICIT NONE
 
@@ -1645,6 +1650,13 @@ C...Compute for Aerosol species in  TXHG Version
 C...store the amount of hydrogen deposition
 
       HPWDEP = REAL( WETDEP( LACL ), 4 )
+
+#ifdef isam
+C... store sulfate production/loss quantities
+      DEPSUM_SAVE =        DEPSUM * XL * RECIPAP1
+      DS4_SAVE    = -1.0 * DS4(0) * XL * RECIPAP1
+      REMOV_SAVE  = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
+#endif
 
       RETURN
 
