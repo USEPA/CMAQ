@@ -25,7 +25,11 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+#ifdef isam
+      SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON, SA_CON  )
+#else
       SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON )
+#endif
       
 C----------------------------------------------------------------------
 C Function      
@@ -104,6 +108,9 @@ C----------------------------------------------------------------------
       
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+#ifdef isam
+      USE SA_DEFN
+#endif
 
       IMPLICIT NONE
       
@@ -119,6 +126,10 @@ C Arguments:
       REAL,    INTENT(  IN )   :: DT          ! time step
       REAL,    INTENT( INOUT ) :: VEL( NI+1 ) ! velocities at zone (cell) boundaries
       REAL,    INTENT( INOUT ) :: CON( :,: ) ! concs in a vertical column
+#ifdef isam
+Ckrt
+      REAL,    INTENT( INOUT ) :: SA_CON( NI,N_SPCTAG )
+#endif
 
 !!! NOTE: Even tho' VEL is not used on output, declaring it as INTENT(IN) causes the
 !!!       code to fail. ifort compiler error?
@@ -268,6 +279,54 @@ c compute fluxes for top face
          END DO
 
 501   CONTINUE
+
+#ifdef isam
+Ckrt Back up the SA_CON.....
+      DO 602 S = 1, N_SPCTAG
+
+         DO I = 1, NI
+            CN( I ) = SA_CON( I,S )
+         END DO
+
+         CALL PPM ( NI, DT, DS, CN, CR, CL, DC, C6 )
+
+         FM( 1:NI+1 ) = 0.0
+         FP( 0:NI ) = 0.0
+
+         DO I = 1, NI
+
+            IF ( VEL( I ) .LT. 0.0 ) THEN
+               Y = -VEL( I ) * DT
+               X = Y / DS( I )
+               FM( I ) = Y * ( CL( I ) + 0.5 * X
+     &                 * ( DC( I ) + C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
+            END IF ! vel < 0 ?
+
+            IF ( VEL( I+1 ) .GT. 0.0 ) THEN
+               Y = VEL( I+1 ) * DT
+               X = Y / DS( I )
+               FP( I ) = Y * ( CR( I ) - 0.5 * X
+     &                 * ( DC( I ) - C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
+            END IF ! vel > 0 ?
+
+         END DO ! loop I
+
+c compute fluxes for top face
+
+         I = NI+1
+         IF ( VEL( I ) .LT. 0.0 ) THEN
+            Y = -VEL( I ) * DT
+            FM( I ) = Y * SA_CON( I-1,S )
+         END IF
+
+Ckrt... Advect the apportioning tags ......
+         DO I = 1, NI
+            SA_CON( I,S ) = SA_CON( I,S )
+     &              + ( FP( I-1 ) - FP( I ) + FM( I+1 ) - FM( I ) ) / DS( I )
+         END DO
+
+602   CONTINUE
+#endif
 
       RETURN
       END SUBROUTINE VPPM
