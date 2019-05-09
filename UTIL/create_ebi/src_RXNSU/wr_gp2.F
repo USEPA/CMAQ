@@ -125,7 +125,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF( LINEIN( 1 : 2 ) .EQ. 'R1' ) THEN
 
-         WRITE( IOUT, 93000 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
+         WRITE( IOUT, 93000 ) TRIM( MECHNAME )
 
          GO TO 100
 
@@ -1242,7 +1242,7 @@ c..Build line for the A term (coefficient of [HO2]**2 )
 92000 FORMAT( A )
 92020 FORMAT( / )
 
-93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
+93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' mechanism' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
 
 94000 FORMAT( 

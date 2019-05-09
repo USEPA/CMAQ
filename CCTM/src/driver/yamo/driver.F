@@ -90,6 +90,7 @@ C   26 Jan 16 J.Young: Consolidate PIO_INIT, use keywords for optional arguments
 C   28 Jan 16 D.Wong:  Add SAVE attribute to TSTEP for the two-way model implementation
 C   16 Sep 16 J.Young: update for inline procan (IRR)
 C   29 Nov 17 D. Wong: removed all SWAP routines and replaced with SE_COMM
+C   29 Oct 18 L.Zhou, S.Napelenok: isam implementation
 C   31 Jan 19 D. Wong: adopted the idea to process all twoway related environment
 C                      variables in one place
 C-----------------------------------------------------------------------
@@ -104,9 +105,18 @@ C-----------------------------------------------------------------------
       USE PAGRD_DEFN            ! Process Anaylsis horiz domain specs
       USE UTILIO_DEFN
       USE RUNTIME_VARS
+
       USE ASX_DATA_MOD, Only : MET_DATA, INIT_MET, GET_MET
       USE LSM_MOD, Only : INIT_LSM
       USE BIDI_MOD, Only : INIT_BIDI
+
+#ifdef isam
+      USE SA_LAYERS
+      USE SA_DEFN
+      USE PISAM_DEFN            ! SA array definition (borrowed )
+      USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
+#endif
+
 #ifdef parallel
       USE VERTEXT_MODULE
 #endif
@@ -229,6 +239,21 @@ C Local variables:
             REAL, POINTER            :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME
          END SUBROUTINE PA_OUTPUT
+#ifdef isam
+         SUBROUTINE WR_SA ( JDATE, JTIME, TSTEP, NSTEPS )
+            IMPLICIT NONE
+            INTEGER                  :: JDATE, JTIME, TSTEP( 3 )
+            INTEGER                  :: NSTEPS
+         END SUBROUTINE WR_SA
+         SUBROUTINE WR_AVG_SA ( JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            INTEGER                  :: JDATE, JTIME, TSTEP
+         END SUBROUTINE WR_AVG_SA
+         SUBROUTINE WR_SA_CGRID ( JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            INTEGER                  :: JDATE, JTIME, TSTEP
+         END SUBROUTINE WR_SA_CGRID
+#endif
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -361,6 +386,42 @@ C Miscellaneous Configuration Operations
          WRITE( LOGDEV, * )
          CALL LOG_HEADING( LOGDEV, "Configure Scenario" )
 
+#ifdef isam
+         CALL GET_SA_LAYS ()
+         CALL SA_DIM()
+
+         N_SPCTAG = NSPC_SA * NTAG_SA
+
+         CALL GET_SPC_INDEX ()
+
+C Initialize PISAM
+         IF ( .NOT. PISAM_INIT ( NSPC_SA, NTAG_SA ) ) THEN
+            XMSG = 'Failure in defining SA horizontal domain'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+         END IF
+         ISAM => PISAM( 1:MY_NCOLS,1:MY_NROWS,:,:,: )
+
+C Pointer for mapfrac
+         IF ( .NOT. PMFRC_INIT ( NTAG_SA-3 ) ) THEN
+            XMSG = 'Failure in defining SA horizontal domain'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+         END IF
+         MFRC_P = PMFRC( 1:MY_NCOLS,1:MY_NROWS,: )
+         MFRC_P = MAPFRAC
+
+C Allocate arrays of species indices, tagging indices, and
+C variable names for the combined species-tags
+C i.e. set s_spctag, t_spctag, and vnam_spctag
+         ALLOCATE ( S_SPCTAG( N_SPCTAG ) )
+         ALLOCATE ( T_SPCTAG( N_SPCTAG ) )
+         ALLOCATE ( VNAM_SPCTAG( N_SPCTAG ) )
+         ALLOCATE ( BCON_SPC( N_SPCTAG ) )
+
+C Assign BCON tag indicies used in advection
+         BCON_SPC = .FALSE.
+         BCON_SPC( ((BCONTAG - 1)*NSPC_SA+1) : (NSPC_SA*BCONTAG) ) = .TRUE.
+#endif
+
 C Initialize optional derived vertical velocity writes to conc file
          IF ( .NOT. WVEL_INIT () ) THEN
             XMSG = 'Failure initializing derived vertical velocity writes'
@@ -389,6 +450,17 @@ C Verify input file header consistency and run duration
             XMSG = 'ASTEP memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+#ifdef isam
+         ALLOCATE ( AISAM( MY_NCOLS,MY_NROWS,NLAYS,NSPC_SA,NTAG_SA ),STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'AISAM memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         AISAM = 0.
+#endif
+
+
 
 #ifdef twoway
          IF ( SD_TIME_SERIES ) THEN
@@ -437,6 +509,21 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
                S = AVG_CONC_MAP( V )
                AGRID( :,:,:,V ) = CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S )
             END DO
+#ifdef isam
+            DO ITAG = 1, NTAG_SA ! average isam
+               DO V = 1, NSPC_SA
+                  L = 0
+                  DO K = AISAM_BLEV, AISAM_ELEV
+                     L = L + 1
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           AISAM( C,R,L,V,ITAG ) = ISAM( C,R,K,V,ITAG )
+                        END DO
+                     END DO
+                  END DO
+               END DO
+            END DO
+#endif
             IF ( L_ACONC_WVEL ) 
      &         AVG_WVEL( :,:,: ) = WVEL( :,:,ACONC_BLEV:ACONC_ELEV )
             IF ( L_ACONC_RH ) 
@@ -445,7 +532,6 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
      &         AVG_TA( :,:,: ) = MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV )
             IF ( L_ACONC_PRES ) 
      &         AVG_PRES( :,:,: ) = MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
-               
 
 #ifdef twoway
          END IF
@@ -463,6 +549,8 @@ C science process sequence:
 
             CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
+
+
             DO V = 1, N_ASPCS
                S = AVG_CONC_MAP( V )
                AGRID( :,:,:,V ) = AGRID( :,:,:,V )
@@ -478,6 +566,24 @@ C science process sequence:
      &         AVG_PRES( :,:,: ) = AVG_PRES + 2.0 * MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV )
 
 
+#ifdef isam
+            ! average isam
+            DO ITAG = 1, NTAG_SA
+               DO V = 1, NSPC_SA
+                  L = 0
+                  DO K = AISAM_BLEV, AISAM_ELEV
+                     L = L + 1
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           AISAM( C,R,L,V,ITAG ) = AISAM( C,R,L,V,ITAG )
+     &                                           + 2.0 * ISAM( C,R,K,V,ITAG )
+                        END DO
+                     END DO
+                  END DO
+               END DO
+            END DO
+#endif
+
          END DO
 
 #ifdef twoway
@@ -486,6 +592,7 @@ C science process sequence:
          DIVFAC = 0.5 / FLOAT( myNREPS )
          myNREPS = 0
 #endif
+
          DO V = 1, N_ASPCS
             S = AVG_CONC_MAP( V )
             AGRID( :,:,:,V ) = DIVFAC * ( AGRID( :,:,:,V )
@@ -499,7 +606,24 @@ C science process sequence:
      &         AVG_TA( :,:,: ) = DIVFAC * ( AVG_TA - MET_DATA%TA( :,:,ACONC_BLEV:ACONC_ELEV ) )
          IF ( L_ACONC_PRES ) 
      &         AVG_PRES( :,:,: ) = DIVFAC * ( AVG_PRES - MET_DATA%PRES( :,:,ACONC_BLEV:ACONC_ELEV ) )
-             
+
+#ifdef isam
+            DO ITAG = 1, NTAG_SA ! average isam
+               DO V = 1, NSPC_SA
+                  L = 0
+                  DO K = AISAM_BLEV, AISAM_ELEV
+                     L = L + 1
+                     DO R = 1, MY_NROWS
+                        DO C = 1, MY_NCOLS
+                           AISAM( C,R,L,V,ITAG ) = DIVFAC * ( AISAM(C,R,L,V,ITAG )
+     &                                           -            ISAM( C,R,K,V,ITAG ) )
+                        END DO
+                     END DO
+                  END DO
+               END DO
+            END DO
+#endif
+
 #ifdef twoway
          END IF
 #endif
@@ -523,6 +647,10 @@ C write conc fields
             IF ( LVEXT ) CALL WR_VEXT ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
 #endif
             CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
+#ifdef isam
+            CALL WR_SA     ( JDATE, JTIME, TSTEP, 1 )
+            CALL WR_AVG_SA ( JDATE, JTIME, TSTEP( 1 ) )
+#endif
             IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
             IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
          END IF
@@ -541,6 +669,9 @@ C write conc fields
       IF ( ( STEP_COUNT .EQ. TOTAL_STEPS ) .OR. ( TOTAL_STEPS .EQ. 0 ) ) THEN
 C write CGRID state file for subsequent runs
          CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
+#ifdef isam
+         CALL WR_SA_CGRID ( JDATE, JTIME, TSTEP( 1 ) )
+#endif
       END IF
 
 #ifdef twoway

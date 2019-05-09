@@ -183,7 +183,15 @@ C Allocate MG arrays using NMGSPC value
               XMSG = '*** OCEAN,SZONE,TSEASFC,CHLR, or WSPD10 memory'
               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
               SUCCESS = .FALSE.; RETURN
-            END IF
+            END IF   
+            OCEAN   = 0.0 
+            SZONE   = 0.0
+            U10     = 0.0
+            ILON    = 0.0
+            TSEASFC = 293.15
+            SEAICE  = 0.0
+            CHLR    = 0.0
+            DMSL    = 0.0
 
 C Open the ocean file, which contains the ocean and surf-zone fractions
             IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
