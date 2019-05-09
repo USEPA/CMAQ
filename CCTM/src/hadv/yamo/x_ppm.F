@@ -201,7 +201,7 @@ C Get dx1 from HGRD_DEFN module
 #ifdef parallel
          ALLOCATE ( HALO_EAST( SWP,NROWS,N_SPC_ADV ),
      &              HALO_WEST( SWP,NROWS,N_SPC_ADV ),
-     &              BUF_EW   ( SWP,NROWS,N_SPC_ADV ), STAT = ALLOCSTAT )
+     &              BUF_EW   ( SWP,NROWS,N_SPC_ADV ),
 #ifdef isam
      &              SA_HALO_EAST( SWP,NROWS,N_SPCTAG ),
      &              SA_HALO_WEST( SWP,NROWS,N_SPCTAG ),
