@@ -5,12 +5,12 @@
 
 <!-- END COMMENT -->
 
-# Sulfur Tracking
-## Overview
+# 13. Sulfur Tracking
+## 13.1 Overview
 
 CMAQv5.2 includes an optional diagnostic model configuration that provides detailed information on the modeled sulfur budget. This model version, referred to as the "CMAQ-Sulfur Tracking Model (CMAQ-STM)", tracks sulfate production from gas- and aqueous-phase chemical reactions, as well as contributions from emissions and initial and boundary conditions. Each tracked species is treated as other modeled species, undergoing transport (advection, diffusion, cloud-mixing) and removal by deposition (both wet and dry).
 
-### Build Instructions
+## 13.2 Build Instructions
 
 The CMAQv5.2 STM installation includes a build script for compiling a version of the CCTM instrumented with the Sulfur Tracking Model.
 
@@ -29,7 +29,7 @@ Use the bldit.cctm.stm script as you would the base cctm build script.
  ```
 Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, and Pario) and model builder (bldmake) required by the base model to compile this version of the code. See the base model README for instructions on building these components.
 
-### Run Instructions
+## 13.3 Run Instructions
 
 A sample run script is provided in the STM release package under $M3HOME/scripts/cctm_stm.
 
@@ -40,7 +40,7 @@ The CMAQ STM test run uses the same input data as the base CMAQv5.2 distribution
 3. Point the CMAQ STM run script to the emissions and ICBC data from the base CMAQv5.0.2 distribution
 4. Execute the CMAQ STM run script the same way that you would run the base model
 
-### CMAQ STM Input/Output Data
+## 13.4 CMAQ STM Input/Output Data
 
 CMAQ-STM will work with initial conditions, boundary conditions, and emissions files available for use with the standard, non-instrumented CCTM. No additional processing is required to prepare input data for this model version.
 
