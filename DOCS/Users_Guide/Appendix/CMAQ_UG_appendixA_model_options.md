@@ -99,13 +99,13 @@ The following five options are invoked by uncommenting the line in the CCTM buil
 -   `MakeFileOnly`<a id=MakeFileOnly></a>  
     Uncomment to build a Makefile to compile the executable. Comment out to both create a Makefile and compile.
 
--   `set build_parallel_io`<a id=set build_parallel_io></a>  
+-   `build_parallel_io`<a id=set build_parallel_io></a>  
      Uncomment to build CMAQ with true parallel I/O feature (requires ioapi3.2 and pnetcdf)
 
--   `set build_twoway`<a id=set build_twoway></a>  
+-   `build_twoway`<a id=set build_twoway></a>  
     Uncomment to build WRF-CMAQ twoway - this cannot be set for stand-alone CMAQ
 
--   `set potvortO3`<a id=set potvort03></a>   
+-   `potvortO3`<a id=set potvort03></a>   
     Uncomment to build CMAQ with potential vorticity free-troposphere O3 scaling
 
 The following configuration settings may have multiple options. Select one option in the CCTM build script.
