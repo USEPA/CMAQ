@@ -5,7 +5,11 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 The following sections are included in this guide:
 
-[CMAQ Tutorials:](Tutorials/README.md) A series of short tutorials provide practical examples of how to set up and run CMAQ. 
+[CMAQ Tutorials:](Tutorials/README.md) A series of short tutorials provide practical examples of how to set up and run CMAQ. Tutorials include: 
+* Running the CMAQ Test Case
+* Prescribing Emissions Using the DESID Module 
+* Creating an OCEAN File
+* Adding and Inert Tracer Species
 
 [Chapter 1 (Overview):](CMAQ_UG_ch01_overview.md) CMAQ background, features, requirements and support resources.
 
