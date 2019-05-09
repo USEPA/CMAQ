@@ -1,0 +1,1 @@
+../cb6r3_ae7_aq/CB6_species_table.md

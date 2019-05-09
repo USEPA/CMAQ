@@ -109,7 +109,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          IF( LINEIN( 2 : 2 ) .EQ. '1' .AND. .NOT. LOUT1 ) THEN
 
-            WRITE( IOUT, 93000 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
+            WRITE( IOUT, 93000 ) TRIM( MECHNAME )
 
             LOUT1 = .TRUE. 
 
@@ -150,7 +150,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C  Write first section for one mech
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      IF( .NOT. L_ALL_MECHS ) THEN 
 
 !         WRITE( IOUT, 92000 ) CLINE
 !         WRITE( IOUT, 93100 )
@@ -215,82 +214,6 @@ c..form active species array ( all species except SS species )
            
          END IF              ! N_SS_SPC > 0
 
-      END IF                 ! L_ALL_MECHS = .FALSE.
-
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-C  Write 4 sections for all mechanism versions
-CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-      IF( L_ALL_MECHS ) THEN 
-
-         IF( N_SS_SPC .NE. 0 ) THEN
-            MSG = 'ERROR: Cannot do all mechanisms with SS species'
-            WRITE(LOGDEV,'(a)')TRIM( PNAME ) // ': ' // TRIM( MSG )
-            STOP
-         END IF
-
-         DO S = 1, 4
-
-            IF( S .EQ. 1 ) NSPEC = N_GC_ONLY_SPC 
-            IF( S .EQ. 2 ) NSPEC = N_GC_AE_SPC 
-            IF( S .EQ. 3 ) NSPEC = N_GC_AQ_SPC 
-            IF( S .EQ. 4 ) NSPEC = N_SPECIES 
-
-            WRITE( IOUT, 92020 )
-            WRITE( IOUT, 92000 ) CLINE
-            IF( S .EQ. 1 ) WRITE( IOUT, 94000) 
-            IF( S .EQ. 2 ) WRITE( IOUT, 94020) 
-            IF( S .EQ. 3 ) WRITE( IOUT, 94040) 
-            IF( S .EQ. 4 ) WRITE( IOUT, 94060) 
-            WRITE( IOUT, 92000 ) CLINE
-            IF( S .EQ. 1 ) WRITE( IOUT, 94100) 
-            IF( S .EQ. 2 ) WRITE( IOUT, 94120) 
-            IF( S .EQ. 3 ) WRITE( IOUT, 94140) 
-            IF( S .EQ. 4 ) WRITE( IOUT, 94160) 
-
-            DO N = 1, NSPEC
-
-               IF( S .EQ. 1 ) SPEC = GC_ONLY_SPC( N )
-               IF( S .EQ. 2 ) SPEC = GC_AE_SPC( N )
-               IF( S .EQ. 3 ) SPEC = GC_AQ_SPC( N )
-               IF( S .EQ. 4 ) SPEC = SPECIES( N )
-
-               SPOUT = '                '         
-               EPOS = LEN_TRIM( SPEC )
-               SPOUT( 1 : EPOS ) = SPEC( 1 : EPOS ) 
- !              WRITE( IOUT, 94180 ) SPOUT( 1 : CL ), N
-
-            END DO
-
-            IF( S .EQ. 1 ) WRITE( IOUT, 94200 ) N_GC_ONLY_EBI
-            IF( S .EQ. 2 ) WRITE( IOUT, 94200 ) N_GC_AE_EBI
-            IF( S .EQ. 3 ) WRITE( IOUT, 94200 ) N_GC_AQ_EBI
-            IF( S .EQ. 4 ) WRITE( IOUT, 94200 ) N_GC_EBI
-
-            IND = 0
-            DO N = 1, NSPEC
-
-               IF( S .EQ. 1 ) LFLAG = L_GC_ONLY_EBI( N )
-               IF( S .EQ. 2 ) LFLAG = L_GC_AE_EBI( N )
-               IF( S .EQ. 3 ) LFLAG = L_GC_AQ_EBI( N )
-               IF( S .EQ. 4 ) LFLAG = L_GC_EBI( N )
-
-               IF( S .EQ. 1 ) SPEC = GC_ONLY_SPC( N )
-               IF( S .EQ. 2 ) SPEC = GC_AE_SPC( N )
-               IF( S .EQ. 3 ) SPEC = GC_AQ_SPC( N )
-               IF( S .EQ. 4 ) SPEC = SPECIES( N )
-
-               IF( LFLAG ) THEN
-                  IND = IND + 1
-                  WRITE( IOUT, 94220 ) IND, SPEC( 1 : LEN_TRIM( SPEC ) )
-               END IF
-
-            END DO
-
-            WRITE( IOUT, 94240 ) 
-
-         END DO
-
-      END IF
            
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 C  Write tolerance section
@@ -302,21 +225,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
       WRITE( IOUT, 92000 ) CLINE
 
 
-      IF( L_ALL_MECHS ) THEN
-
-         DO N = 1, N_GC_ONLY_SPC
-
-            IF( L_LOW_TOL_SPC( N ) ) THEN
-               WRITE( IOUT, 95020 ) GC_ONLY_SPC( N )( 1 : CL ), LOW_TOL
-            ELSEIF( L_HII_TOL_SPC( N ) ) THEN
-               WRITE( IOUT, 95020 ) GC_ONLY_SPC( N )( 1 : CL ), HII_TOL
-            ELSE
-               WRITE( IOUT, 95020 ) GC_ONLY_SPC( N )( 1 : CL ), STD_TOL
-            END IF
-
-         END DO
-
-      ELSE
 
          DO N = 1, N_SPECIES
 
@@ -330,24 +238,6 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
          END DO
 
-      END IF
-
-
-      IF( L_ALL_MECHS ) THEN
-
-         IF( N_AE_SPC .GT. 0 ) WRITE( IOUT, 95040 )
-         DO N = 1, N_AE_SPC
-            WRITE( IOUT, 95080 ) AE_SPC( N )( 1 : CL ), LOW_TOL
-         END DO
-         IF( N_AE_SPC .GT. 0 ) WRITE( IOUT, 94240 )
-
-         IF( N_AQ_SPC .GT. 0 ) WRITE( IOUT, 95060 )
-         DO N = 1, N_AQ_SPC
-            WRITE( IOUT, 95080 ) AQ_SPC( N )( 1 : CL ), LOW_TOL
-         END DO
-         IF( N_AQ_SPC .GT. 0 ) WRITE( IOUT, 94240 )
-
-      END IF
 
       WRITE( IOUT, 96000 )
 
@@ -369,7 +259,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 92000 FORMAT( A )
 92020 FORMAT( / )
 
-93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
+93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' mechanism' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
 93025 FORMAT( 6X, 'N_SPCL_RKS = ', I3 )
 

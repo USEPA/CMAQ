@@ -85,7 +85,7 @@
 # =====================================================================
  
  if ( $BCON_TYPE == profile ) then
-    setenv BC_PROFILE $BLD/avprofile_cb6r3aero6_hemi2016_col051_row068.csv
+    setenv BC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
     setenv MET_BDY_3D_FIN /work/MOD3DEV/cmaq_benchmark/SE52BENCH/multi_day/cctm_input/met/mcip/METBDY3D_110701.nc #>METBDY3D file from MCIP
  endif
 
