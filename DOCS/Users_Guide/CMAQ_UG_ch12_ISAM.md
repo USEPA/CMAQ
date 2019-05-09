@@ -5,8 +5,8 @@
 
 <!-- END COMMENT -->
 
-# ISAM
-## Overview
+# 12. ISAM
+## 12.1 Overview
 
 The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.
 
@@ -17,7 +17,7 @@ Answering this type of question often requires running an air quality model twic
 Alternatively, running CMAQ using ISAM allows the user the ability to calculate source attribution of a large number of sources directly by the model in one simulation.
 
 **>>Comment<<** The following text was pulled from the ISAMv5.0.2 documentation.  Some updating is still needed to reflect CMAQv5.3 changes.
-### Build Instructions
+## 12.2 Build Instructions
 
 The CMAQv5.2 ISAM installation includes a build script for compiling a version of the CCTM instrumented with ISAM.  For installing CMAQ-ISAM, first download, install, and build the base version of the model. Then download the CMAQ ISAM tar file and untar into the CMAQv5.2 home directory:
 
@@ -35,7 +35,7 @@ Use the bldit.cctm.isam script as you would the base cctm build script.
 
 Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, and Pario) and model builder (bldmake) required by the base model to compile this version of the code. See the base model README for instructions on building these components.
 
-### Run Instructions
+## 12.3 Run Instructions
 
 A sample run script is provided in the ISAM release package under $M3HOME/scripts/cctm_isam. Along with the run time options for the base CCTM, this script includes the ISAM configuration options shown in Table 1.
 
@@ -55,13 +55,13 @@ The CMAQ ISAM test run uses the same input data as the base CMAQv5.2 distributio
 |DO_RENORM|Y/N|Set to Y to do renormalization; set to N otherwise|
 |YES_OXLOSS|Y/N|Set to N for production and loss of O3 alone; Y for O3+NO2, but result accuracy is not guaranteed.|
 
-### CMAQ ISAM Input/Output Data
+## 12.4 CMAQ ISAM Input/Output Data
 
 `SRC_CONTROL_FILE` is a required input to ISAM. It is a text file that specifies the emission tagging inputs for ISAM. An example control file, sa_input_ctrl.txt, is provided in the release package.
 
 `SRC_APP_MAP` is an optional input to ISAM that defines emissions tagging source regions. The I/O API gridded map file can be created using the Spatial Allocator with an input shapefile to compute an area percentage for each state or other region of interest.  An example shapefile (statefp_mask_all) containing the State Abbreviations and the corresponding STATEFP code with the value for that state set to 1 and the value for all other states set to zero has been provided in a src_app_map.tar.gz file available for download with the CMAQ-ISAM distribution. An example alloc_create_areapercent.csh script is provided to calculate an area percentage from the shapefile to create a src_app_map file for the benchmark case.  The variable names in the src_app_map file are typically state or county names and are limited to 16 characters.  An example map file for the state of NC, state_NC_CMAQ-BENCHMARK.ncf, is provided in the release package. The values of the variables are the fractions of each state or county in each model grid cell, NC_0 contains the fractions outside of NC, NC_1 contains the fractions within NC. The file is grid-dependent, two-dimensional and time independent. The NC_1 variable can be used as the REGION in the SA Control File.
 
-#### SA Control File
+### 12.4.1 SA Control File
 
 The SA Control File (SRC_CONTROL_FILE) is used to generate a list of tags in a temporary text file "sa_io_list.tmp". This text file will be read by the CCTM instrumented with ISAM to determine the number of tags, the tracking species, and the total number of the combined tags and species.
 
@@ -111,7 +111,7 @@ The example SA Control File below shows how this group of eight emissions source
 
 In this example there are four ISAM tag names (ANTHr45, MOBILE, POINT, BIOG). ISAM will supplement the emissions tags with BCON, OTHR, and ICON tags, so that the tag total for each species conserves the bulk concentration. As the nomenclature suggests, BCON comes from lateral boundary conditions, ICON from initial conditions at the very first hour of the entire simulation period, and OTHR is the remaining "untagged" emissions sources, which is derived by subtracting emissions in the tags from the total model emissions.
 
-#### SA Control File Format
+### 12.4.2 SA Control File Format
 
 1. Each tag is separated by a blank line.
 2. Each tag consists of the following attributes: TAG NAME, TAG CLASSES, REGION(S), FILENAME(S), and STACK FILE(S).
@@ -136,7 +136,7 @@ There are restrictions on the nature of emission sectors.
 8. Any inline point sources to be tracked by ISAM must come from one of the inline point source emissions for base model run.
 9. Excessive number of tagged emission files will exceed the limit of netCDF files opened by Models3 IO/API which is 64. Try optimizing the number of tagged files.
 
-#### SA Control File for Labeled Inline Emissions
+### 12.4.3 SA Control File for Labeled Inline Emissions
 
 ISAM can optionally track emissions point sources if point source identifiers are included in the emissions stack group files. SMOKEv3.5.1 can optionally write point source group IDs to the stack groups file, assigning the variable name "IGROUP" for use by ISAM. The variable IGROUP in the stack groups file is an integer, with each value representing a different group of sources (i.e. fires, electricity generating units, etc). The point source group ID's are independent of and do not require the region map `$SRC_APP_MAP`. See the [SMOKEv3.5.1 manual Section 4.4.24](http://www.cmascenter.org/smoke/documentation/3.5.1/html/ch04s04s24.html) for details on how to label the emissions species for use with CMAQ ISAM.
 
@@ -166,7 +166,7 @@ Additional rules for constructing inline point source tracking include:
 3. You cannot combine "INLINE" and gridded emissions sectors in a single ISAM simulation; to activate inline tagging (and deactivate gridded emissions tagging), set REGION(S) to "INLINE" and provide an IGROUP value from the stack groups file
 4. You may only combine inline point sources with gridded emission sectors when IGROUP is not used. In this case, set REGION(S) to either "EVERYWHERE" or a variable name from $SRC_APP_MAP; REGION(S) may not be set to "INLINE" when considering gridded emissions tagging.
 
-#### ISAM Tag Classes
+### 12.4.4 ISAM Tag Classes
 
 The ISAM TAG CLASSES consist of generic chemical names that determine what model species will be tracked by the algorithm. For example, by specifying SULFATE the program will fetch model species SO2, ASO4I and ASO4J for tracking and emission species SULF for updating ASO4J. When the tag class OZONE is selected, certain CB05 VOC species as well as the tag class NITRATE is automatically tracked for that tag. Selecting NITRATE again for the OZONE tag will cause the program stop with a double-counting error. See Table 8-2 for the complete list of TAG CLASSES.
 
@@ -183,7 +183,7 @@ The ISAM TAG CLASSES consist of generic chemical names that determine what model
 | PM25_IONS| PCL, PNA, PMG, PK, PCA<br>PFE, PAL, PSI, PTI, PMN<br>PMOTHR| ACLI, ACLJ, ANAI, ANAJ, AMGJ, AKJ, ACAJ<br>AFEJ, AALJ, ASIJ, ATIJ, AMNJ<br>AOTHRI, AOTHRJ|
 | CO| CO| CO|
 
-#### ISAM Output Files
+### 12.4.5 ISAM Output Files
 **Table 8-3. CMAQ ISAM Output Files**
 
 |File| Description| Base Model Analog|
