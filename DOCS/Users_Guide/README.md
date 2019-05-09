@@ -9,7 +9,7 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 * Running the CMAQ Test Case
 * Prescribing Emissions Using the DESID Module 
 * Creating an OCEAN File
-* Adding and Inert Tracer Species
+* Adding an Inert Tracer Species
 
 [Chapter 1 (Overview):](CMAQ_UG_ch01_overview.md) CMAQ background, features, requirements and support resources.
 
