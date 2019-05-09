@@ -83,7 +83,6 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     build tag, should be automatically set by config_cmaq.csh
 
 ## A.2 Compilation Configuration Variables
-**>>COMMENT<<** Tracer: [default: trac0] is listed twice
 
 The configuration options listed here are set during compilation of the CCTM executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile CCTM and create a new executable.
 
@@ -433,8 +432,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ### Lightning NOx configuration
 
-[CMAQ Lightning NOx Module Documentation](../../CCTM/docs/Release_Notes/Lightning_NOx.md)
-
 -   `LTNGNO [default:InLine]`<a id=LTNGNO></a>  
     Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating in-line lightning NO emissions.
 
@@ -491,7 +488,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ### Windblown dust emissions configuration
 
-[CMAQ Windblown Dust Module Documentation](https://github.com/USEPA/CMAQ/blob/5.2/CCTM/docs/Release_Notes/Windblown_Dust_Emis.md)
 -   `DUST_LU_1`<a id=DUST_LU_1></a>  
     Input BELD "A" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.
 
