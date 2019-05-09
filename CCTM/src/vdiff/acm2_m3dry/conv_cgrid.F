@@ -38,6 +38,9 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       use CENTRALIZED_IO_MODULE, only : interpolate_var
+#ifdef isam
+      USE SA_DEFN
+#endif
 
       IMPLICIT NONE
 
@@ -50,6 +53,9 @@ C Arguments:
       INTEGER, INTENT( IN )    :: JDATE            ! current model date, coded YYYYDDD
       INTEGER, INTENT( IN )    :: JTIME            ! current model time, coded HHMMSS
       REAL,    INTENT( INOUT ) :: CNGRD( :,:,:,: ) ! cgrid replacement
+#ifdef isam
+      INTEGER IBGN, JSPCTAG
+#endif
 
 C Parameters:
 
@@ -240,6 +246,28 @@ C Tracers - no conversion
          END DO
       END IF
 
+#ifdef isam
+Ckrt....JSPCTAG loop on PM mass only.....
+!krt  write( *,* ) 'JSPCTAG, VNAM_SPCTAG'
+      CONV_SPCTAG: DO JSPCTAG = 1, N_SPCTAG
+         IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+         S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
+         IF ( S .GT. 0 ) THEN
+!krt        write( *,* )  JSPCTAG , VNAM_SPCTAG( JSPCTAG )
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  DO L = 1, NLAYS
+                     FAC = MAOGPKG / DENS( C,R,L )
+                     CONV = FAC / AE_MOLWT( S )
+                     ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
+     &                  CONV * ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
+                  END DO 
+               END DO
+            END DO
+         END IF
+      END DO CONV_SPCTAG
+#endif
+
       RETURN
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -348,6 +376,26 @@ C Tracers - no conversion
             END DO
          END DO
       END IF
+
+#ifdef isam
+Ckrt....JSPCTAG loop on PM mass only.....
+      REV_SPCTAG: DO JSPCTAG = 1, N_SPCTAG
+         IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+         S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
+         IF ( S .GT. 0 ) THEN
+            FAC = GPKGOMA * AE_MOLWT( S )
+            DO L = 1, NLAYS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
+                     CONV = FAC * DENS( C,R,L )
+                     ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
+     &                  CONV * ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
+                  END DO
+               END DO
+            END DO
+         END IF
+      END DO REV_SPCTAG
+#endif
 
       RETURN
       END

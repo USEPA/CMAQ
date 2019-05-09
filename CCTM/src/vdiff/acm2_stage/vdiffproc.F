@@ -150,18 +150,13 @@ C Local Variables:
       REAL     :: SEDDY ( NLAYS,NCOLS,NROWS )   ! flipped EDDYV
       REAL        DTSEC                         ! model time step in seconds
 
-      REAL     :: NH3_EMIS( NCOLS,NROWS )
-
       REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
-      INTEGER, SAVE :: NH3_HIT
 
 C Local Variables
 
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
-      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_EMIS'
-      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_DDEP = 'NH3_DDEP'
 
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
@@ -206,6 +201,8 @@ C-----------------------------------------------------------------------
 
          FIRSTIME = .FALSE.
 
+         CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange Module" )
+
          IF ( .NOT. DEPV_INIT ( JDATE, JTIME, TSTEP, CGRID ) ) THEN
             XMSG = 'Failure initializing deposition velocities module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -220,14 +217,22 @@ C create global maps
 C Initialize the met data
          CALL INIT_MET( JDATE, JTIME )
 
-        IF ( HGBIDI ) THEN ! Initialize HGSIM module
-           CALL INIT_HGSIM(JDATE, JTIME)
-        END IF
+         IF ( HGBIDI ) THEN ! Initialize HGSIM module
+            CALL INIT_HGSIM(JDATE, JTIME)
+         END IF
 
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
             CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
             IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
+         END IF
+
+C Open vdiff diagnostics file (ioapi header from cgrd)
+         IF ( VDIFFDIAG ) THEN
+            IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), GRAV_SETL ) ) THEN
+               XMSG = 'Failure initializing vdiff diagnostics module'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
          END IF
 
 C Allocate and initialize dry deposition array
@@ -246,6 +251,8 @@ C Allocate and initialize dry deposition array
          END IF
          ICMP = 0.0   ! array assignment
 
+         CALL LOG_HEADING( LOGDEV, "Initialize Emissions Module" )
+
          IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -253,6 +260,8 @@ C Allocate and initialize dry deposition array
 
 C Set up for process analysis
          IF ( LIPR ) THEN
+            CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
+
             ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_SPC_DIFF ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'EMIS_PA memory allocation failed'
@@ -267,6 +276,8 @@ C Set up for process analysis
 
 C Set up for grav. settling
          IF ( GRAV_SETL ) THEN
+            CALL LOG_HEADING( LOGDEV, "Set Up Gravitational Settling" )
+
             ALLOCATE ( VSED_AE( N_AE_SPC,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating VSED_AE'
@@ -282,12 +293,7 @@ C Set up for grav. settling
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          CNGRD = 0.0   ! array assignment
-
-         NH3_HIT = 0
-         DO V = 1, N_SPC_DDEP
-            IF ( DDEP_SPC( V ) .EQ. 'NH3' ) NH3_HIT = V
-         END DO
- 
+       
 !----------------------------------------------------------------------------------------
 !  Move to ASX driver to get stage data set up mapping in init_stage
 !----------------------------------------------------------------------------------------
@@ -378,7 +384,6 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
          ICMP = 0.0                      ! array assignment
-         DDEP_NH3 = 0.0
          IF ( MOSAIC ) THEN
             DDEPJ = 0.0                  ! array assignment
             IF ( FST ) DDEPJ_FST = 0.0   ! array assignment

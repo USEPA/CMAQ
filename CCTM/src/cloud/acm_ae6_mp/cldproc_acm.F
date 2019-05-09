@@ -53,6 +53,9 @@ C                             open CTM_WET_DEP_1 and CTM_WET_DEP_2 for parallel 
 C                             implementation
 C     Feb 2018 D. Wong        Implemented centralized I/O approach, removed all MY_N
 C                             clauses
+C     April 2019 F.Sidi & 
+C                S. Roselle:  Fixed bug relating to incorrect unit conversions
+C                             for GC, NR and TR.  
 C-----------------------------------------------------------------------
 
       USE GRID_CONF                  ! horizontal & vertical domain specifications
@@ -331,7 +334,7 @@ C...  determine no. of moles of gas per moles of air by volume
           DO ROW = 1, NROWS
             DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6,  1.0E-30)
+     &                                    * 1.0E-6,  1.0E-36 )
             END DO
           END DO
         END DO
@@ -400,7 +403,7 @@ C...determine no. of moles of non-reactive gas per moles of air by volume
           DO ROW = 1, NROWS
             DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30 )
+     &                                    * 1.0E-6, 1.0E-36 )
             END DO
           END DO
         END DO
@@ -415,7 +418,7 @@ C...determine no. of moles of tracer gas per moles of air by volume
           DO ROW = 1, NROWS
             DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30 )
+     &                                    * 1.0E-6, 1.0E-36 )
             END DO
           END DO
         END DO

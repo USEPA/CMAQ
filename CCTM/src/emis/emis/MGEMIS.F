@@ -178,7 +178,15 @@ C Allocate MG arrays using NMGSPC value
               XMSG = '*** DMSL, TSEASFC, U10, ILON or SEAICE memory'
               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
               SUCCESS = .FALSE.; RETURN
-            END IF
+            END IF   
+            OCEAN   = 0.0 
+            SZONE   = 0.0
+            U10     = 0.0
+            ILON    = 0.0
+            TSEASFC = 293.15
+            SEAICE  = 0.0
+            CHLR    = 0.0
+            DMSL    = 0.0
 
             ilon = lon
 

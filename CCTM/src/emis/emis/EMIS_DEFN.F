@@ -44,6 +44,7 @@ C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
 C     12 Jan 2017 B.Murphy: Remove warning when model species are not
 C                           read in correctly. Invoke error and model stop when model 
 C                           species are not found on any emission file
+C     16 NOv 2018 S.Napelenok: ISAM implementation
 C     01 Feb 2019 D.Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses, replaced IOS with LOGDEV when calling GET_ENV
 C-----------------------------------------------------------------------
@@ -90,6 +91,11 @@ C-----------------------------------------------------------------------
          USE UTILIO_DEFN         ! I/O API
          USE AERO_EMIS           ! inherits GRID_CONF
          USE AERO_DATA           ! access subroutine map_pmemis
+
+#ifdef isam
+         USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, NTAG_SA, SA_VDEMIS_DIFF_ALL, NSPC_SA,
+     &                       SA_VDEMIS_DIFF_OTHER
+#endif
 
          IMPLICIT NONE
 
@@ -205,7 +211,19 @@ C Allocate Space for Master Emissions Computation
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
- 
+
+#ifdef isam
+         ALLOCATE ( SA_VDEMIS_DIFF    ( NSPC_SA,   EMLAYS,NCOLS,NROWS, NTAG_SA ),
+     &              SA_VDEMIS_DIFF_ALL( N_SPC_DIFF,EMLAYS,NCOLS,NROWS, NTAG_SA ), 
+     &              SA_VDEMIS_DIFF_OTHER( N_SPC_DIFF,EMLAYS,NCOLS,NROWS ), 
+     &                                                  STAT = STATUS )
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'SA_VDEMIS_DIFF memory allocation failed'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+#endif
+
 C Return From Initialization
          SUCCESS = .TRUE.; RETURN
 
@@ -234,6 +252,17 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE RXNS_DATA, ONLY: MECHNAME
          USE AERO_DATA, ONLY : AERONUM_MAP, AEROSRF_MAP, DUSTOUTM
 
+#ifdef isam
+         USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, ITAG, NTAG_SA, TAGSTREAMS,
+     &                       STREAM_TO_TAG, OTHRTAG, TAGSTREAMS_TEMP,
+     &                       TAGSTREAMS_NUM, SA_VDEMIS_DIFF_ALL,
+     &                       SA_VDEMIS_DIFF_OTHER,
+     &                       MAP_DIFFtoSA, SPC_NAME, NSPC_SA,
+     &                       ISAMRGN_TEMP, ISAMRGN, ISAMRGN_NUM,
+     &                       ISAMRGN_MAP, TAGS_PER_STREAM
+         USE VDIFF_MAP, ONLY : DIFF_MAP, DIFF_SPC
+#endif
+
          IMPLICIT NONE
 
 C Includes:
@@ -260,6 +289,11 @@ C Local Variables:
          LOGICAL         :: WRTIME
          LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
 
+#ifdef isam
+         INTEGER                    :: IDX, SPC, LAYER, RGN
+         CHARACTER(96)              :: TXTSTRING
+         REAL                       :: MINCHECK
+#endif
 C-----------------------------------------------------------------------
 
          IF ( FIRST_TIME ) THEN
@@ -269,6 +303,106 @@ C-----------------------------------------------------------------------
      &                VDEMIS_SCALED( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ),
      &                VDEMIS_CONV  ( N_SPC_DIFF, EMLAYS,NCOLS,NROWS ) )
 
+#ifdef isam
+C Map Emissions streams to ISAM tags
+            ALLOCATE( STREAM_TO_TAG( N_EM_SRM, NTAG_SA ),
+     &                TAGS_PER_STREAM( N_EM_SRM ),
+     &                MAP_DIFFtoSA ( NSPC_SA  ),
+     &                TAGSTREAMS( NTAG_SA, N_EM_SRM ) )
+            STREAM_TO_TAG   = 0
+            TAGS_PER_STREAM = 0
+            MAP_DIFFtoSA    = 0
+            TAGSTREAMS      = 'empty'
+
+            DO ITAG = 1, NTAG_SA-3
+
+C Count the number of streams going to each ISAM tag
+              TXTSTRING = TRIM(TAGSTREAMS_TEMP( ITAG ))
+              TAGSTREAMS_NUM( ITAG ) = 1 + COUNT(TRANSFER(TXTSTRING, 'A', LEN(TXTSTRING)) == "," )
+
+C Parse out the stream names the user wants tagged
+              READ(TXTSTRING, *) TAGSTREAMS(ITAG,1:TAGSTREAMS_NUM( ITAG ))
+
+C Find emissions stream in the list of available streams
+              DO ISRM = 1, TAGSTREAMS_NUM( ITAG )
+                 IDX = INDEX1(TAGSTREAMS(ITAG,ISRM),N_EM_SRM,EM_FILE_LAB )
+                 IF ( IDX .EQ. 0 ) THEN
+                   XMSG = " User specified ISAM tag - " //
+     &                    TAGSTREAMS(ITAG,ISRM) // 
+     &                    " - not found in available emissions streams "
+                   CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
+                 ELSE
+                   TAGS_PER_STREAM( IDX ) = TAGS_PER_STREAM( IDX ) + 1
+                   STREAM_TO_TAG(IDX,TAGS_PER_STREAM( IDX )) = ITAG
+                 END IF
+              END DO
+
+            END DO
+
+c           write(logdev,*) " =-= ISAM emissions mapping "
+c           write(logdev,*) "     Stream, Tags for this stream "
+c           DO ISRM = 1,N_EM_SRM 
+c             write(logdev,'(i2,1x,a12,999(i2,1x))') ISRM, EM_FILE_LAB(ISRM), STREAM_TO_TAG(ISRM,1:TAGS_PER_STREAM(ISRM))
+c           END DO
+
+C Develop a map of emitted/diffused ISAM species
+            MAP_DIFFtoSA = 0
+            DO SPC = 1, NSPC_SA
+              MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(SPC_NAME(SPC,1)), N_SPC_DIFF, DIFF_SPC )
+            END DO
+
+c           write(logdev,*) " =-= ISAM emissions species mapping "
+c           write(logdev,*) " Spc#, Spc Name, Map#"
+c           DO SPC = 1, NSPC_SA
+c             write(logdev,*) SPC, SPC_NAME(SPC,1), MAP_DIFFtoSA( SPC )
+c           END DO
+
+
+C Initialize geographic regions for ISAM tagging
+            ALLOCATE( ISAMRGN( NTAG_SA, N_EM_RGN ) )
+            ISAMRGN = 'EVERYWHERE'
+            ALLOCATE( ISAMRGN_MAP( NTAG_SA, N_EM_RGN ) )
+            ISAMRGN_MAP = 0
+            ISAMRGN_NUM = 0
+
+            DO ITAG = 1, NTAG_SA-3
+
+C Check if the 'EVERYWHERE' keyword is present
+              IDX = INDEX(ISAMRGN_TEMP(ITAG),'EVERYWHERE')
+              IF ( IDX .NE. 0 ) THEN
+                ISAMRGN_NUM( ITAG ) = 0
+                CYCLE
+              ENDIF
+
+C Count the number of regions for each tag
+              TXTSTRING = TRIM(ISAMRGN_TEMP( ITAG ))
+              ISAMRGN_NUM( ITAG ) = 1 + COUNT(TRANSFER(TXTSTRING,'A', LEN(TXTSTRING)) == "," )
+
+C Parse out the region names the user wants tagged
+              READ(TXTSTRING, *) ISAMRGN(ITAG,1:ISAMRGN_NUM( ITAG ))
+
+C Map the user specified ISAM regions to available CMAQ regions
+              DO ISRM = 1, ISAMRGN_NUM(ITAG)
+                IDX = INDEX1(ISAMRGN(ITAG,ISRM),N_EM_RGN, EM_REGIONS%LABEL )
+                IF ( IDX .EQ. 0 ) THEN
+                  XMSG = " User specified ISAM region - " //
+     &                    ISAMRGN(ITAG,ISRM) //
+     &                    " - not found in available emissions regions "
+                   CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
+                ELSE
+                   ISAMRGN_MAP(ITAG,ISRM) = IDX
+                END IF
+              END DO
+
+            END DO
+
+c           write(logdev,*) " =-= ISAM regions mapping "
+c           write(logdev,*) "     Tag, Regions for this tag " 
+c           DO ITAG = 1, NTAG_SA-3
+c             write(logdev,'(i2,1x,999(a12,1x))') ITAG, ISAMRGN(ITAG, 1:ISAMRGN_NUM(ITAG))
+c           END DO
+
+#endif
          END IF
 
 C Initialize Emissions Array
@@ -279,7 +413,11 @@ C Initialize Emissions Array
          CALL NEXTIME( MDATE, MTIME,  SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) )
          IF ( MOD( TIME2SEC( MTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) WRTIME = .TRUE.
 
-
+#ifdef isam
+        SA_VDEMIS_DIFF = 0.0
+        SA_VDEMIS_DIFF_ALL = 0.0
+        SA_VDEMIS_DIFF_OTHER = 0.0
+#endif
 
 C Retrieve Emissions from All Stream Types
          IF ( N_EM_SRM .GT. 0 ) THEN
@@ -362,8 +500,70 @@ C Retrieve Emissions from All Stream Types
 
            IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &          VDEMIS_DIFF( :,1:NL,:,: ) = VDEMIS_DIFF( :,1:NL,:,: ) + VDEMIS_CONV( :,1:NL,:,: )
+
+#ifdef isam
+           IF ( EM_FILE_LAPPLY( ISRM ) ) THEN
+
+             IF ( TAGS_PER_STREAM( ISRM ) .GT. 0 ) THEN 
  
-         END DO  
+             SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
+
+               DO IDX = 1, TAGS_PER_STREAM( ISRM )
+
+                 ITAG = STREAM_TO_TAG(ISRM,IDX)
+
+c                SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
+                 IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN ! full domain 
+                   SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG ) = SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG )
+     &                                                   + VDEMIS_CONV(:,1:NL,:,: )
+                   SA_VDEMIS_DIFF_OTHER = 0.0
+                 ELSE
+                   DO RGN = 1, ISAMRGN_NUM( ITAG )
+                     DO LAYER = 1, NL
+                       DO SPC = 1, N_SPC_DIFF
+
+      SA_VDEMIS_DIFF_ALL( SPC,LAYER,:,:,ITAG ) = SA_VDEMIS_DIFF_ALL( SPC,LAYER,:,:,ITAG )
+     &                                         + VDEMIS_CONV( SPC,LAYER,:,: )
+     &                                         * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+            
+      SA_VDEMIS_DIFF_OTHER( SPC,LAYER,:,: ) = SA_VDEMIS_DIFF_OTHER( SPC,LAYER,:,: )
+     &                                      - VDEMIS_CONV( SPC,LAYER,:,: )
+     &                                      * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+
+                       END DO
+                     END DO
+                   END DO
+                 END IF
+               END DO
+               
+               MINCHECK = MINVAL( SA_VDEMIS_DIFF_OTHER( :,1:NL,:,: ) )
+               IF ( MINCHECK .LT. -1.0e-7 ) THEN
+                  XMSG = " ISAM mass balance error for emissions - " //
+     &                     EM_REGIONS(ISRM)%LABEL //
+     &                    " - check isam control file. "
+                   CALL M3EXIT( 'ISAM_EMISSIONS', 1, 1, XMSG, XSTAT1 )
+                ELSE
+                  SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG ) = SA_VDEMIS_DIFF_ALL  ( :,1:NL,:,:,OTHRTAG )
+     &                                                     + SA_VDEMIS_DIFF_OTHER( :,1:NL,:,: )
+                END IF
+             ELSE ! dump all into 'OTHRTAG'
+               SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG ) = SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG )
+     &                                                  + VDEMIS_CONV( :,1:NL,:,: )
+             END IF
+
+           END IF
+#endif 
+         END DO 
+
+#ifdef isam
+C Subset the emissions array for ISAM traced species  
+         DO SPC = 1, NSPC_SA
+           IF ( MAP_DIFFtoSA( SPC ) .NE. 0 ) THEN
+             SA_VDEMIS_DIFF( SPC,:,:,:,: ) =  SA_VDEMIS_DIFF_ALL( MAP_DIFFtoSA( SPC ),:,:,:,: )
+           END IF
+         END DO
+
+#endif  
          ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
          END IF
 

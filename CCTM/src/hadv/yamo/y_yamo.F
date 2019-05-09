@@ -45,6 +45,7 @@ C   26 Aug 2015: Jon Pleim: Add CFL correction for yamo
 C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
 C   17 May 2017: David Wong: Added a logic to avoid division of zero for variable VELY
 C   29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
+C   16 NOv 2018 S.Napelenok: ISAM implementation
 C    1 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
@@ -55,6 +56,11 @@ C-----------------------------------------------------------------------
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
+#endif
+
+#ifdef isam
+      USE SA_DEFN, Only: ISAM, N_SPCTAG, S_SPCTAG, T_SPCTAG,
+     &                   TRANSPORT_SPC, BCON_SPC, MAP_ADVtoSA
 #endif
 
       IMPLICIT NONE
@@ -135,6 +141,12 @@ C Yamo CFL correction
       REAL, ALLOCATABLE, SAVE :: HALO_NORTH( :,:,: )
       REAL, ALLOCATABLE, SAVE :: HALO_SOUTH( :,:,: )
       REAL, ALLOCATABLE, SAVE :: BUF_NS( :,:,: )
+#ifdef isam
+      REAL, ALLOCATABLE, SAVE :: SA_CONY( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_HALO_NORTH( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_HALO_SOUTH( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_BUF_NS( :,:,: )
+#endif
 
       INTEGER, SAVE :: SFX    ! fixed parameter for southern boundary
       INTEGER, SAVE :: NFX    ! fixed parameter for northern boundary
@@ -181,6 +193,9 @@ C Get dx2 from HGRD_DEFN module
                                                   ! add 1 for advecting RHOJ
 
          ALLOCATE ( CONY( 1-SWP:NROWS+SWP,N_SPC_ADV ),
+#ifdef isam
+     &           SA_CONY( 1-SWP:NROWS+SWP,N_SPCTAG ),
+#endif
      &              VELY( NROWS+1 ), STAT = ALLOCSTAT ) ! Vel along a col
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VELY, or CONY'
@@ -203,6 +218,15 @@ C Get dx2 from HGRD_DEFN module
          HALO_NORTH = 0.0   ! array
          HALO_SOUTH = 0.0   ! array
          BUF_NS     = 0.0   ! array
+
+#ifdef isam
+     	 ALLOCATE ( SA_HALO_NORTH( NCOLS,SWP,N_SPCTAG ),
+     &              SA_HALO_SOUTH( NCOLS,SWP,N_SPCTAG ),
+     &              SA_BUF_NS    ( NCOLS,SWP,N_SPCTAG ), STAT = ALLOCSTAT )
+         SA_HALO_NORTH = 0.0   ! array
+         SA_HALO_SOUTH = 0.0   ! array
+         SA_BUF_NS     = 0.0   ! array
+#endif
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
 
@@ -265,6 +289,26 @@ C Get the contravariant x2 velocity component
 
       CALL SUBST_COMM (HALO_SOUTH, HALO_NORTH, DSPL_N1_E0_S0_W0, DRCN_N)
       CALL SUBST_COMM (BUF_NS,     HALO_SOUTH, DSPL_N0_E0_S1_W0, DRCN_S)
+
+#ifdef isam
+      DO SPC = 1, N_SPCTAG
+         IF( TRANSPORT_SPC( SPC ) )THEN
+            DO ROW = 1, SWP
+               DO COL = 1, NCOLS
+                  SA_HALO_SOUTH( COL,ROW,SPC ) =
+     &            ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+                  SA_HALO_NORTH( COL,ROW,SPC ) =
+     &            ISAM( COL,NORTH_ROW+ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+                  SA_BUF_NS( COL,ROW,SPC ) = SA_HALO_NORTH( COL,ROW,SPC )
+               END DO
+            END DO
+         END IF
+      END DO
+
+      CALL SUBST_COMM (SA_HALO_SOUTH, SA_HALO_NORTH, DSPL_N1_E0_S0_W0, DRCN_N)
+      CALL SUBST_COMM (SA_BUF_NS,     SA_HALO_SOUTH, DSPL_N0_E0_S1_W0, DRCN_S)
+
+#endif
 
       DO 253 COL = 1, NCOLS
 
@@ -350,6 +394,54 @@ C North boundary
 
          END DO   ! SPC
 
+#ifdef isam
+         DO SPC = 1, N_SPCTAG
+
+            IF( TRANSPORT_SPC( SPC ) )THEN
+
+               DO ROW = 1, NROWS
+                 SA_CONY( ROW,SPC ) = ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+               END DO
+               
+               DO ROW = 1, SWP
+                  SA_CONY( ROW-SWP,SPC )  = SA_HALO_SOUTH( COL,ROW,SPC )
+                  SA_CONY( NROWS+ROW,SPC ) = SA_HALO_NORTH( COL,ROW,SPC )
+               END DO
+
+C South boundary
+               IF ( BNDY_PE_LOY ) THEN
+                  IF ( VELY( 1 ) .LT. 0.0 ) THEN   ! outflow
+                     SA_CONY( 1-SWP:0,SPC ) =
+     &               ZFDBC ( SA_CONY( 1,SPC ), SA_CONY( 2,SPC ), VELY( 1 ), VELY( 2 ) )
+                  ELSE    ! inflow
+                     IF ( BCON_SPC( SPC ) ) THEN
+                        SA_CONY( 1-SWP:0,SPC ) = BCON( SFX+COL,MAP_ADVtoSA( SPC ) )
+                     ELSE
+                        SA_CONY( 1-SWP:0,SPC ) = 0.0
+                     END IF
+                  END IF   ! vely < 0 ?
+               END IF   ! bndy_pe_loy ?
+
+C North boundary
+               IF ( BNDY_PE_HIY ) THEN
+                  IF ( VELY( NROWS+1 ) .GT. 0.0 ) THEN   ! outflow
+                     SA_CONY( NROWS+1:NROWS+SWP,SPC ) =
+     &               ZFDBC ( SA_CONY( NROWS,SPC ), SA_CONY( NROWS-1,SPC ),
+     &                        VELY( NROWS+1 ), VELY( NROWS ) )
+                  ELSE   ! inflow
+                     IF ( BCON_SPC( SPC ) ) THEN
+                        SA_CONY( NROWS+1:NROWS+SWP,SPC ) = BCON( NFX+COL,MAP_ADVtoSA( SPC ) )
+                     ELSE
+                        SA_CONY( NROWS+1:NROWS+SWP,SPC ) = 0.0
+                     END IF   ! ending with 'bcon' ?
+                  END IF   ! vely > 0 ?
+               END IF   ! bndy_pe_hiy ?
+
+            END IF
+              
+         END DO    ! SPC loop
+#endif
+
 C PPM scheme
          IF ( DTCFL .LT. DT ) THEN
             NITER = INT( DT / DTCFL ) + 1
@@ -358,9 +450,15 @@ C PPM scheme
             DTCFL = DT / REAL( NITER )
             DO ITER = 1, NITER
                CALL HPPM ( NROWS, NCOLS, CONY, VELY, DTCFL, DX2, 'R' )
+#ifdef isam
+               CALL HPPM ( NROWS, NCOLS, SA_CONY, VELY, DTCFL, DX2, 'R' )
+#endif
             END DO
          ELSE
             CALL HPPM ( NROWS, NCOLS, CONY, VELY, DT, DX2, 'R' )
+#ifdef isam
+            CALL HPPM ( NROWS, NCOLS, SA_CONY, VELY, DT, DX2, 'R' )
+#endif
          ENDIF
 
          DO SPC = 1, N_SPC_ADV
@@ -369,6 +467,16 @@ C PPM scheme
                CGRID( COL,ROW,LVL,A2C ) = CONY( ROW,SPC )
             END DO
          END DO
+
+#ifdef isam
+        DO SPC = 1, N_SPCTAG
+           IF( TRANSPORT_SPC( SPC ) )THEN
+             DO ROW = 1, NROWS
+                 ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) ) = SA_CONY( ROW,SPC )
+             END DO
+           END IF  
+        END DO
+#endif
 
 253   CONTINUE
 

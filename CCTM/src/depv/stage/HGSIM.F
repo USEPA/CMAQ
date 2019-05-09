@@ -516,10 +516,10 @@ C------------------------------------------------------------------------------
          REAL  WDEP_LOAD   ! loading due to wet deposition
 
 
-         IF ( NINT( Grid_Data%lwmask( c,r ) ) .EQ. 0 ) THEN ! water
+         IF ( f_wat( c,r )  .Gt. 0 ) THEN ! water
 
          ! convert to umol/m2 pulse input
-            WDEP_LOAD = WDEP*HAOM2*UGOKG/MWHG
+            WDEP_LOAD = WDEP*HAOM2*UGOKG/MWHG*f_wat( c,r )
          ! convert to added concentration in ppm assuming it remains at the surface
             WDEP_LOAD = WDEP_LOAD/ZSURF/GH2ONM3*MWWAT
 

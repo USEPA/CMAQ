@@ -44,6 +44,8 @@ C                      if specified, not just if a surrogate is also specified
 C   11 Sep 15 B.Murphy: add condition for no surrogate name
 C   01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all
 C                     MY_N clauses
+C   08 Mar 19 F. Sidi  Split up ICBC_FAC into IC_FAC and BC_FAC for 
+C                      tracer namelist only
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -226,17 +228,17 @@ C Get INDX
          N_SPCS = N_GC_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
-            ISUR = FINDEX ( SPC, N_GC_ICBC, GC_ICBC_MAP )
+            ISUR = FINDEX ( SPC, N_GC_IC, GC_IC_MAP )
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
-               NDX = INDEX1( GC_ICBC( ISUR ), NVARS3D, VNAME3D )
+               NDX = INDEX1( GC_IC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
 C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
                   INDX( SPC ) = NDX   ! index in the IC file
-                  ICBC_FAC( SPC ) = GC_ICBC_FAC( ISUR )
+                  ICBC_FAC( SPC ) = GC_IC_FAC( ISUR )
                ELSE
-                  XMSG = ESTR1 // TRIM( GC_ICBC( ISUR ) ) // ESTR2 // 
+                  XMSG = ESTR1 // TRIM( GC_IC( ISUR ) ) // ESTR2 // 
      &                   TRIM(GC_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
@@ -266,16 +268,16 @@ C If there is no surrogate or it cannot be found, look for the (main) species na
          N_SPCS = N_AE_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
-            ISUR = FINDEX ( SPC, N_AE_ICBC, AE_ICBC_MAP )
+            ISUR = FINDEX ( SPC, N_AE_IC, AE_IC_MAP )
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
-               NDX = INDEX1( AE_ICBC( ISUR ), NVARS3D, VNAME3D )
+               NDX = INDEX1( AE_IC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  ICBC_FAC( SPC ) = AE_ICBC_FAC( ISUR )
+                  ICBC_FAC( SPC ) = AE_IC_FAC( ISUR )
                ELSE
-                  XMSG = ESTR1 // TRIM( AE_ICBC( ISUR ) ) // ESTR2 // 
+                  XMSG = ESTR1 // TRIM( AE_IC( ISUR ) ) // ESTR2 // 
      &                   TRIM(AE_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
@@ -305,16 +307,16 @@ C If there is no surrogate or it cant be found, look for the (main) species name
          N_SPCS = N_NR_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
-            ISUR = FINDEX ( SPC, N_NR_ICBC, NR_ICBC_MAP )
+            ISUR = FINDEX ( SPC, N_NR_IC, NR_IC_MAP )
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
-               NDX = INDEX1( NR_ICBC( ISUR ), NVARS3D, VNAME3D )
+               NDX = INDEX1( NR_IC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  ICBC_FAC( SPC ) = NR_ICBC_FAC( ISUR )
+                  ICBC_FAC( SPC ) = NR_IC_FAC( ISUR )
                ELSE
-                  XMSG = ESTR1 // TRIM( NR_ICBC( ISUR ) ) // ESTR2 // 
+                  XMSG = ESTR1 // TRIM( NR_IC( ISUR ) ) // ESTR2 // 
      &                   TRIM(NR_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
@@ -344,16 +346,16 @@ C If there is no surrogate or it cant be found, look for the (main) species name
          N_SPCS = N_TR_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
-            ISUR = FINDEX ( SPC, N_TR_ICBC, TR_ICBC_MAP )
+            ISUR = FINDEX ( SPC, N_TR_IC, TR_IC_MAP )
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
-               NDX = INDEX1( TR_ICBC( ISUR ), NVARS3D, VNAME3D )
+               NDX = INDEX1( TR_IC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
+                  ICBC_FAC( SPC ) = TR_IC_FAC( ISUR )
                ELSE
-                  XMSG = ESTR1 // TRIM( TR_ICBC( ISUR ) ) // ESTR2 // 
+                  XMSG = ESTR1 // TRIM( TR_IC( ISUR ) ) // ESTR2 // 
      &                   TRIM(TR_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF

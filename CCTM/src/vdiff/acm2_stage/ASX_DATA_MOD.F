@@ -271,8 +271,6 @@ C-----------------------------------------------------------------------
 
          If ( MET_INITIALIZED ) Return
 
-         CALL INIT_MOSAIC( JDATE, JTIME )
-
 !> Allocate buffers
          ALLOCATE ( BUFF1D( NLAYS ),
      &              BUFF2D( NCOLS,NROWS ),
@@ -484,6 +482,14 @@ C-----------------------------------------------------------------------
             Write(Logdev,*) 'MCIP/WRF used the PX LSM'
             zsoil1 = 0.01
             zsoil2 = 0.05 ! For abflux estimated from 1cm and 1 meter 
+! Estimate a constistent soil hydrolic suction at saturation using the JN90 properties to
+! calculate soil hydrolic proerties constistant with JN90 data. Note that the suction at 
+! feild capacity is typically 33 kPa, wilting point is 1500 kPa and residual water content
+! is between 1.0e5 and 1.0e6 kPa and 3.0e5 kPa is used here following Campbell and Norman 1998             
+            Psi_Sat =1500.0 * ( WWLT_PX / WSAT_PX )**BSLP_PX 
+            WFC_PX  = WSAT_PX * ( 33.0 / Psi_sat )**(-1.0/BSLP_PX)
+            WRES_PX = WSAT_PX * ( 3.0e5 / Psi_sat )**(-1.0/BSLP_PX)
+
             Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
                Grid_Data%WSAT( C,R ) = WSAT_PX( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WWLT( C,R ) = WWLT_PX( Grid_Data%SLTYP( C,R ) )
@@ -502,36 +508,6 @@ C-----------------------------------------------------------------------
                Grid_Data%BSLP( C,R ) = BSLP_PX( 3 )
                Grid_Data%RHOB( C,R ) = RHOB_PX( 3 )
             End Forall
-! Use Noah values that are hydraulically consistant
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 4 )
-               Grid_Data%WSAT( C,R ) = WSAT_NOAH( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WWLT( C,R ) = WWLT_NOAH( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WFC ( C,R ) = WFC_NOAH ( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%WRES( C,R ) = WRES_NOAH( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%BSLP( C,R ) = BSLP_NOAH( Grid_Data%SLTYP( C,R ) )
-               Grid_Data%RHOB( C,R ) = RHOB_NOAH( Grid_Data%SLTYP( C,R ) )
-            End Forall
-! Use Noah values that are hydraulically consistant
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .gt. 4 )
-               Grid_Data%WSAT( C,R ) = WSAT_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%WWLT( C,R ) = WWLT_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%WFC ( C,R ) = WFC_NOAH ( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%WRES( C,R ) = WRES_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%BSLP( C,R ) = BSLP_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-               Grid_Data%RHOB( C,R ) = RHOB_NOAH( Grid_Data%SLTYP( C,R ) + 1 )
-            End Forall
-
-! for cases where the default soil is water but fractional land use may not be water
-! use sandy loam
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Gt. 11 )
-               Grid_Data%WSAT( C,R ) = WSAT_NOAH( 3 )
-               Grid_Data%WWLT( C,R ) = WWLT_NOAH( 3 )
-               Grid_Data%WFC ( C,R ) = WFC_NOAH ( 3 )
-               Grid_Data%WRES( C,R ) = WRES_NOAH( 3 )
-               Grid_Data%BSLP( C,R ) = BSLP_NOAH( 3 )
-               Grid_Data%RHOB( C,R ) = RHOB_NOAH( 3 )
-            End Forall
-
          Else If( Noah_LSM ) Then
             Write(Logdev,*) 'MCIP/WRF used the Noah LSM'
             zsoil1 = 0.01 ! Adjusted based on Darmenova et al. 2009 doi:10.1029/2008JD011236
@@ -562,8 +538,10 @@ C-----------------------------------------------------------------------
 
          Grid_Data%SZONE = szone
 
+         CALL INIT_MOSAIC( JDATE, JTIME, Grid_Data%LUFRAC )
+
          MET_INITIALIZED = .true.
-         
+
          Return
          End Subroutine INIT_MET
 
@@ -890,8 +868,8 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
 !     &                       JDATE, JTIME,  MOSAIC_DATA%LAI ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, GRID_DATA%LUFRAC,
-     &                  MET_DATA%LAI, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
+         CALL CALC_LAI( JDATE, JTIME, MET_DATA%SOIT2, GRID_DATA%LUFRAC, MET_DATA%LAI,
+     &                  MET_DATA%VEG, MOSAIC_DATA%VEG, MOSAIC_DATA%LAI, MOSAIC_DATA%Z0 )
 !         END IF
 
 !         VNAME = 'VEG'
@@ -909,7 +887,7 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !         END IF
 
          Do L = 1, n_lufrac
-            Where( GRID_DATA%LUFRAC( :,:,L ) .EQ. 1.0 )
+            Where( GRID_DATA%LUFRAC( :,:,L ) .EQ. 1.0 .OR. MET_DATA%ZH( :,:,1 ) .EQ. MOSAIC_DATA%Z0( :,:,L ) )
                    MOSAIC_DATA%USTAR( :,:,L ) = MET_DATA%USTAR
                    MOSAIC_DATA%Z0( :,:,L )    = MET_DATA%Z0
             Elsewhere( GRID_DATA%LUFRAC( :,:,L ) .Gt. 0.0 )
@@ -931,16 +909,15 @@ C read in land use specific meteorology from WRF Noah or Ruc mosaic options
 !     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
 !     &                       JDATE, JTIME,  MOSAIC_DATA%RA ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, MET_DATA%Z0, GRID_DATA%LWMASK, MET_DATA%VEG,
-     &                GRID_DATA%LUFRAC, MET_DATA%RA, MOSAIC_DATA%Z0, MOSAIC_DATA%USTAR, MOSAIC_DATA%RA, 
-     &                gamah, betah, karman )       
+         CALL ra_wrf( MET_DATA%MOLI, MET_DATA%ZH, GRID_DATA%LUFRAC, MET_DATA%RA, MOSAIC_DATA%Z0,
+     &                MOSAIC_DATA%USTAR, MOSAIC_DATA%RA, gamah, betah, karman )       
 !         END IF
 !         VNAME = 'MOS_RST'
 !         IF ( .NOT. INTERPX( TILE_CRO_2D, VNAME, PNAME,
 !     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,n_lufrac,
 !     &                       JDATE, JTIME,  MOSAIC_DATA%RSTW ) ) THEN
 !            XMSG = MSG1 // TRIM( VNAME ) // ' from ' // MET_CRO_3D
-         CALL MOS_RSTW( GRID_DATA%LUFRAC, GRID_DATA%LWMASK, MOSAIC_DATA%LAI, Met_Data%RGRND, Met_Data%SOIM2, 
+         CALL MOS_RSTW( GRID_DATA%LUFRAC, MOSAIC_DATA%LAI, Met_Data%RGRND, Met_Data%SOIM2, 
      &                  Grid_Data%WWLT, Grid_Data%WFC, Met_Data%TEMP2, MOSAIC_DATA%RA, MOSAIC_DATA%USTAR, 
      &                  MET_DATA%QSS_GRND, MET_DATA%QV, Met_Data%RS, Mosaic_Data%RSTW )
 !         END IF
