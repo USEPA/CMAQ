@@ -19,7 +19,7 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 4 (Model Inputs):](CMAQ_UG_ch04_model_inputs.md) Preprocessing tools incldued with the base code and descriptions of the CMAQ input files. 
 
-[Chapter 5 (Compile and Run CMAQ):](CMAQ_UG_ch05_compile_and_run.md) How to obtain the CMAQ source codes, set-up your environment and run a simulation.
+[Chapter 5 (Compile and Run CMAQ):](CMAQ_UG_ch05_compile_and_run.md) Obtain the CMAQ source codes, set-up your environment, run a simulation.
 
 [Chapter 6 (Model Outputs):](CMAQ_UG_ch06_model_outputs.md) Descriptions of the CMAQ output files.
 
@@ -27,7 +27,7 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 8 (Model Formulation):](CMAQ_UG_ch08_model_formulation.md) Overview of the science used in CMAQ.
 
-[Chapter 9 (New Simulation):](CMAQ_UG_ch09_new_simulation.md) Overview of steps needed to set up CMAQ for a new domain or application.
+[Chapter 9 (New Simulation):](CMAQ_UG_ch09_new_simulation.md) Setting up CMAQ for a new domain or application.
 
 [Chapter 10 (Process Analysis):](CMAQ_UG_ch10_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR) and Integrated Reaction Rates (IRR).
 
@@ -37,7 +37,7 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 13 (Sulfur Tracking):](CMAQ_UG_ch13_sulfur_tracking.md) Instrumented Models - Sulfur Tracking Model (STM).
 
-[Chapter 14 (WRF-CMAQ):](CMAQ_UG_ch14_WRF-CMAQ.md) The coupled meteorology-chemistry model WRF-CMAQ to simulate feedback between meteorology and chemistry.
+[Chapter 14 (WRF-CMAQ):](CMAQ_UG_ch14_WRF-CMAQ.md) Coupled meteorology-chemistry model WRF-CMAQ.
 
 [References:](CMAQ_UG_references.md) References cited throughout the guide.
 
