@@ -9,29 +9,19 @@
 
 ## 2.1 Program Structure
 
-**>>COMMENT<<** Here (and elsewhere), need to be consistent in what "CMAQ" means and "CCTM" means.  They seem to be synonymous here.  Elsewhere CCTM is the model, while CMAQ is the entire system.
-
 **>>COMMENT<<**  Ensure the list of utility programs is complete (EPIC?) and includes post-proc (e.g., AMET, VERDI).
 
-The CMAQ system is a suite of software programs that work in concert to estimate ozone, particulate matter, toxic compounds, and acid deposition throughout the troposphere.  As a framework for simulating the interactions of multiple complex atmospheric processes, CMAQ requires two primary types of inputs: meteorological information, and emission rates from sources of emissions that affect air quality.  
-Weather conditions such as the changes in temperature, winds, cloud formation, and precipitation rates are the primary physical driving forces in the atmosphere.  These conditions are represented in air quality model simulations using output from regional-scale numerical meteorology models, such as WRF.  To obtain inputs on emissions, CMAQ relies on the open-source Sparse Matrix Operator Kernel Emissions (SMOKE) model to estimate the magnitude and location of pollution sources.
+The CMAQ system is a suite of software programs that work in concert to estimate ozone, particulate matter, toxic compounds, and acid deposition in addition to other atmospheric pollutants of interest.  As a framework for simulating the interactions of multiple complex atmospheric processes, CMAQ requires many types of inputs including meteorological information, primary pollutant emission rates, chemical properties and reactions, and land properties that are influential for exchange of pollutants with the atmosphere.  
 
-**>>COMMENT<<**  Internally we do not think of these as the "four main CMAQ program".  Need to rework this section.
+Weather conditions such as the changes in temperature, winds, cloud formation, and precipitation rates are the primary physical driving forces for transport in the atmosphere.  These conditions are represented in air quality model simulations using output from regional-scale numerical meteorology models, such as WRF.  To obtain inputs on emissions, CMAQ relies on the open-source Sparse Matrix Operator Kernel Emissions (SMOKE) model to estimate the magnitude and location of pollution sources.
 
-The four main CMAQ programs are:
+The structure of the CMAQ system is illustrated in Fig. 2-1. The main CMAQ program, the CMAQ Chemistry Transport Model (CCTM), which is often referred to simply as CMAQ, contains the principal equations used for predicting pollutant concentrations given the inputs discussed above. These partial differential equations are designed for mass conservation and take into account a myriad of important processes like emissions, chemical reaction, uptake to clouds and rain, and dry deposition.  
 
--   The initial conditions processor [ICON](#icon)
--   The boundary conditions processor [BCON](#bcon)
--   The Meteorology-Chemistry Interface Processor [MCIP](#mcip)
--   The CMAQ Chemistry-Transport Model [CCTM](#cctm)
+Several important tools are provided with the CMAQ system to handle the preparation of important input data. The meteorology data provided by the upstream meteorological model (e.g. WRF) is prepared for input to the CCTM by the Meteorology-Chemistry Interface Processor ([MICP](#mcip)). The CCTM also requires inputs for specifying the initial and boundary conditions of each chemical species treated by the model. These data are processed and prepared for use by the [ICON](#icon) and [BCON](#bcon) tools, respectively.   
 
-Utility programs distributed with CMAQ include:
+Chemical reaction data is processed by the Chemical Mechanism Compiler [chmmech](#chemmech) for all chemical reaction solver approaches. This tool needs chemical namelists (e.g. GC_NAMELIST, AE_NAMELIST, etc) in order to run, and these namelists can be modified directly with a text editor or converted to CSV with the namelist converter [nml](#nml). After running chemmech, to then generate files specifically for the Euler Backward Iterative (EBI) solver approach, the [create_ebi](#create_ebi) is provided. Finally the Inline Photolysis Preprocessor [inline_phot_preproc](#inline_phot_preproc) provides support for generating photylisis rate input to custom chemical mechanisms.
 
--   The code builder/manager [Bldmake](#bldmake)
--   The chemical mechanism compiler [chemmech](#chemmech)
--   EBI chemistry solver builder [create_ebi](#create_ebi)
--   The inline photolysis preprocessor [inline_phot_preproc](#inline_phot_preproc)
--   The namelist converter [nml](#nml)
+In addition to data and chemical mechanism processors, the CMAQ repository includes software for generating Makefiles necessary for compiling the CCTM and other components. This [Bldmake](#Bldmake) utility is designed to account for user options, diagnose dependencies in source code and produce a Makefile ready to build executable files.
 
 
 ![Figure 2-1](./images/cmaq_flow_chart.jpg)
