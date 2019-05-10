@@ -7,7 +7,7 @@ This Fortran program extracts time series of 1 or more variables from 1 or more 
 ```
 where VAR1 VAR2 ... are the variable names specified by SPECLIST.
 
-##Environment variables used:
+## Run Time Environment variables used:
 
 ```
   SPECLIST      list of species to extract, e.g. set SPECLIST = ( O3 NO2 ).  "ALL" is supported also.
@@ -28,25 +28,19 @@ where VAR1 VAR2 ... are the variable names specified by SPECLIST.
   STIME         start time (optional)
   NSTEPS        number of time steps (optional; otherwise program processes all steps in all input files)
 ```
+## Compile block_extract source code
 
-##Input file types and format:
-
-Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For hourly output data (OLAYTYPE HOURLY) the program assumes that observations are in local standard time (LST) and applies a simple timezone shift to GMT using timezones every 15 degrees longitude.  For daily output data (OLAYTYPE DAILY, 1HRMAX or 8HRMAX) no time shifting is done so the output data remains in LST.  In this case the user can use the HR2DAY utility to time shift and average hourly model data to create daily model fields in LST.
+Execute the build script to compile block_extract:
 
 ```
- OBS format:     The OBS format consists of comma separated values in the format 
-                 YYYDDD, HH, Site_ID, Longitude, Latitude, Value1[, Value2, Value3,...]. 
-                 Note that if the input data is daily that an hour column (HH) is still required 
-                 in the input data file.  In this case HH is ignored so the user could set this 
-                 value to 0 for all records.
- SITES format:   Set to create a static site file using the value set by VALUE (default is 1). 
-                 The format is a tab delimited file with the structure Site_ID Longitude Latitude.
+cd $CMAQ_HOME/POST/block_extract/scripts
+./bldit_block_extract.csh [compiler] [version] |& tee build_block_extract.log
 ```
 
-##To run:
+## Run block_extract:
 Edit the sample run script (run.block_extract), then run:
 ```
- run.block_extract |& tee block_extract.log
+ ./run.block_extract |& tee block_extract.log
 ```
 Check the log file to ensure complete and correct execution without errors.
 Note that in addition to the OUTFILE, the program generates a text file "specdef" which lists the variables that were extracted.

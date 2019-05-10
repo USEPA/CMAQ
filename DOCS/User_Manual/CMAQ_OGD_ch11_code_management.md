@@ -4,6 +4,18 @@
 
 <!-- END COMMENT -->
 
+** >> Comment <<**  Most of this makes more sense in a developers guide since this is called an operational guide. Suggest keeping the section on getting the code and compiling from the Github repository but putting that in an earlier section with related material. Don’t see the value in providing an entire run script without providing any information about options. If users are developing code they can bring up the run script in a text editor and look at it as easily as looking at it in a users guide.
+
+** >> Comment <<**  This chapter doesn't belong in the User Guide. Information about git (if we really want to keep it) should be revised and moved to an appendix. All explanation of version control management and coding style belongs in the Developers' Guide.
+  a)  We don't use object-oriented scripts.
+  b)  The "global name data table" is irrelevant.
+  c)  The "thin interface" discussion is also irrelevant. We are always blurring the lines between modules, and this is driven by the science and optimization.
+  d)  "Coding Guidelines" belong in the Developers' Guide as do Documentation Guidelines. This chapter could contain a paragraph about where to look for documentation in a source code file, but that itself is too inconsistent at the moment.
+  e)  Template should be removed. A revised version can be put in the Developers' Guide.
+  f)  "Compiling CMAQ with new Source Code" is out of date.
+  g)  "Guidelines to Writing Shell Scripts for CMAQ"  has a lot of I/O-API explanation, this will all be irrelevant soon and can be removed at that time. Instead of a template, let's just link to the actual run script in the repo. This section could be replaced with an explanation of the tasks carried out by the runscript.
+  h)  "Testing and Distribution of Development Source Code" should be incorporated in the Developers' Guide.
+
 # Code Management and Development #
 
 As a public domain model, CMAQ is the product of contributions from many developers, whose numbers are only expected to increase with the number of users worldwide. Some degree of standardization is necessary for management and archiving of these development versions, as well as to compile and execute the code once it is ready for use, and to submit it to the CMAS Center for archiving and benchmark testing. This chapter provides guidance on source code manage­ment, coding guidelines for new code development, the compilation of new source code using the build scripts, and guidelines for writing shell scripts usable by CMAQ. Much of this informa­tion is derived from Chapter 18 (Young, 1999) in Byun and Ching (1999), with updates where appropriate, particularly for new versions of the model code and for the Fortran 90 standard. The chapter also includes the procedure that is in place for distributing code versions other than the operational CMAQ that are submitted to the development code archives.
@@ -30,13 +42,13 @@ Prior to CMAQ version 5.0.2, CMAQ developers used [CVS](https://en.wikipedia.org
 
 ### git Explained
 
-git is a version control system that supports distributed workflows.  Every Git directory is a full repository with complete history and version tracking.  
+git is a version control system that supports distributed workflows. Every Git directory is a full repository with complete history and version tracking.  
 -   It works on virtually all UNIX and Linux platforms and on many PCs.
 -   It is publicly available and free and is distributed under the terms of the GNU General Public License.
--   If you would like to contribute changes to the EPA CMAQ repository, use the following steps
+-   If you would like to contribute changes to the EPA CMAQ repository, use the following steps:
     1. Create a github account https://github.com/
     2. Go to the EPA github site and Fork your own copy of the EPA CMAQ to your github account
-    3. create a directory called CMAQv5.2.1 on the machine where you would like to obtain a copy of the code
+    3. Create a directory called CMAQv5.2.1 on the machine where you would like to obtain a copy of the code
     4. `git clone -b 5.2.1 https://github.com/<your github name>/CMAQ.git CMAQv5.2.1` - Get a clone or copy of the 5.2.1 branch of the CMAQ repository from your github site.
     5.  This will place a copy of the files from the 5.2.1 Branch into the CMAQv5.2.1 directory
     6.  `cd CMAQv5.2.1` go into the CMAQv5.2.1 directory
@@ -44,13 +56,13 @@ git is a version control system that supports distributed workflows.  Every Git 
     8. `git checkout -b 5.2.1_update` To copy the 5.2.1 branch into a new branch called 5.2.1_update
     9.  To edit the config_cmaq.csh file take the following steps:<br>
 `vi config_cmaq.csh`  - or use the Atom, TextWrangler or other Editor
-    10. To see what changes you made use the following command
+    10. To see what changes you made use the following command:
 `git diff config_cmaq.csh`
-    11. To stage the change use the following command.
+    11. To stage the change use the following command:
 `git add config_cmaq.csh`
-    12. To commit changes to the local repostitory use the command:
+    12. To commit changes to the local repository use the following command:
 `git commit -m "changed config_cmaq.csh to fix issue X"`
-    13. To commit changes to your Github repository on the branch 5.2.1_update use the command:
+    13. To commit changes to your Github repository on the branch 5.2.1_update use the following command:
 `git push`
     14. If you get a message that the push was rejected similar to the following:
         ```
@@ -73,7 +85,7 @@ Use the following command to get the changes that have been made to the remote g
         ```
     17. Retry the push command to place the changes that you committed to the local repository on your Github repository:
 `git push`
-    18. Go to the fork of the EPA CMAQ on your github page and submit a pull request to ask that the changes that you have made be incorporated into the EPA github site.
+    18. Go to the fork of the EPA CMAQ on your Github page and submit a pull request to ask that the changes that you have made be incorporated into the EPA Github site.
 
 
 ## Guidelines for Developing New CMAQ Source Code
@@ -84,7 +96,7 @@ To make the CMAQ system robust and flexible, object-oriented concepts were incor
 
 ### Global name data table
 
-To implement modularity and data independence, we have employed design ideas that draw heavily from the object-oriented concept of ''inheritance ''and code re-use. The data structures in the codes that deal with the chemical mechanism, I/O API, logical file names, general constants, and pointers are determined by Fortran declarations in data and parameter statements in the CMAQ system. These data structures pertain to a particular application and are meant to apply globally—not just to one particular CCTM through all its subroutines, but also to all the models that supply data to CCTM for that application. These data structures are contained in Fortran INCLUDE files, which are essentially header files, included in the declaration sections near the top of the Fortran code source files. The inclusion of these source files is made automatic by using a generic string that represents the INCLUDE file and that is parsed and expanded to the actual INCLUDE file during a preprocessing stage in the compilation. The Fortran global INCLUDE files contain name tables that define:
+To implement modularity and data independence, we have employed design ideas that draw heavily from the object-oriented concept of "inheritance" and code reuse. The data structures in the codes that deal with the chemical mechanism, I/O API, logical file names, general constants, and pointers are determined by Fortran declarations in data and parameter statements in the CMAQ system. These data structures pertain to a particular application and are meant to apply globally—not just to one particular CCTM through all its subroutines, but also to all the models that supply data to CCTM for that application. These data structures are contained in Fortran INCLUDE files, which are essentially header files, included in the declaration sections near the top of the Fortran code source files. The inclusion of these source files is made automatic by using a generic string that represents the INCLUDE file and that is parsed and expanded to the actual INCLUDE file during a preprocessing stage in the compilation. The Fortran global INCLUDE files contain name tables that define:
 
 1.  The chemical mechanism;
 2.  The I/O API interface, including logical file names;
@@ -95,11 +107,11 @@ To effect the implementation of the INCLUDE files into the code, a special compi
 
 ### Thin Interface
 
-As mentioned in [Chapter 4](CMAQ_OGD_ch04_science.md#modular-flexibility), CMAQ is designed to be robust and flexible with respect to the interchange of modules and the elimination of cross-module data dependencies. Consequently, the concept of a “thin interface” has been employed in the design, which applies principally to the class-drivers (i.e. the top level call to a science module). At a minimum, the thin interface implementation implies the following requirements:
+As mentioned in [Chapter 4](CMAQ_OGD_ch04_science.md#modular-flexibility), CMAQ is designed to be robust and flexible with respect to the interchange of modules and the elimination of cross-module data dependencies. Consequently, the concept of a “thin interface” has been employed in the design, which applies principally to the class-drivers (i.e., the top level call to a science module). At a minimum, the thin interface implementation implies the following requirements:
 
 -   Eliminate global memory references (across modules). This implies no common blocks across modules, no hidden data paths, and no “back doors.”
 -   Each module reads and interpolates its required data independently. The I/O API helps to ensure this kind of data independence.
--   Standardized argument list (CGRID, Date, Time, TimeStep) for calling the class-driver. See the example in Section 9.2.6. These requirements attempt to incorporate the object-oriented idea of encapsulation in the CMAQ design. Rumbaugh et al. (1991) suggest that “Encapsulation (also information hiding) consists of separating the external aspects of an object, which are accessible to other objects, from the internal implementation details of the object, which are hidden from other objects. Encapsulation prevents a program from becoming so interdependent that a small change has massive ripple effects. The implementation'' ''of an object can be changed without affecting the applications that use it.”
+-   Standardized argument list (CGRID, Date, Time, TimeStep) for calling the class-driver. See the example in Section 9.2.6. These requirements attempt to incorporate the object-oriented idea of encapsulation in the CMAQ design. Rumbaugh et al. (1991) suggest that “Encapsulation (also information hiding) consists of separating the external aspects of an object, which are accessible to other objects, from the internal implementation details of the object, which are hidden from other objects. Encapsulation prevents a program from becoming so interdependent that a small change has massive ripple effects. The implementation of an object can be changed without affecting the applications that use it.”
 
 The encapsulation design makes the CMAQ system safer and enables the transaction processing, plug-and-play capability. This design also makes it easier for a user to trace data and usage within a module, particularly at the class-driver level.
 
@@ -131,10 +143,11 @@ Appropriate documentation is critical to the ease of use and maintainability of 
 
 ### Science process code template
 
-The following example from CMAQ v4.7 illustrates a science process class-driver Fortran 90 subroutine. Code developers should follow this template, where appropriate, to maximize the benefit from the design concepts implemented in CMAQ. This template is generic and demonstrates many of the available features. Some class drivers and most other subprograms within a module may not have, nor require, most or any of these features. (The numbers at the left-hand margin refer to footnotes and are not part of the code, and the text within “< >” indicates code removed from the example for brevity in this section)
+The following example from CMAQ v4.7 illustrates a science process class-driver Fortran 90 subroutine. Code developers should follow this template, where appropriate, to maximize the benefit from the design concepts implemented in CMAQ. This template is generic and demonstrates many of the available features. Some class drivers and most other subprograms within a module may not have, nor require, most or any of these features. (The numbers at the left-hand margin refer to footnotes and are not part of the code, and the text within “< >” indicates code removed from the example for brevity in this section.)
 
 **Example of Science Process Class-Driver**
 
+** >> Comment <<**  I think the example "template" that goes P177-191 is WAY too long! This needs to be shortened and updated. Pulling from CMAQv4.7 is not the wisest move here. Also the notes that follow on P191-192 are really cryptic to non-experts. These could be replaced with shortened and streamlined examples.  [Note: the part of this  comment about the notes was copied to that location.]
 
 ```Fortran
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -143,7 +156,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C-----------------------------------------------------------------------
 C Asymmetric Convective Model v2 (ACM2) -- Pleim(2006)
 C Function:
-C   calculates and writes dry deposition.
+C   calculates and writes dry deposition
 C   calculates vertical diffusion
 
 C Subroutines and Functions Called:
@@ -760,6 +773,8 @@ C re-set dry deposition array to zero
 
 **Notes:**
 
+** >> Comment <<**  [Note: This part of the comment is being repeated for placement in the "Notes" section it concerns.] ...the notes that follow on P191-192 are really cryptic to non-experts. These could be replaced with shortened and streamlined examples.
+
 1. Header comments - Highly recommended for internal documentation.
 2. USE <module name> includes the Fortran source file specified.
 3. IMPLICIT NONE must be used in Fortran 90, i.e., implicit declarations are not supported. This dramatically reduces errors due to typos and undefined variables.
@@ -782,7 +797,7 @@ C re-set dry deposition array to zero
 20. Main computational loop over the horizontal grid.
 21. Time-step loop over subsynchronization time step intervals.
 22. Illustrates writing to an I/O API file within a module.
-23. Subroutine end
+23. Subroutine end.
 
 ## Compiling CMAQ with New Source Code
 
@@ -988,6 +1003,8 @@ set OMIpath   = $BLD                      #> ozone columne data for the photolys
 set LUpath    = $INPDIR/land              #> BELD landuse data for windblown dust model
 set SZpath    = $INPDIR/land              #> surf zone file for in-line seasalt emissions
 
+** >> Comment <<**  Should "columne" just above be "column"?  [JC]
+
 set ICBC_CASE = 2013ef_v6_13g_s07         #> Version label for the ICBCs
 set EMIS_CASE = 2013ef_v6_13g_s07_hg      #> Version Label for the Emissions
 
@@ -1123,7 +1140,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      endif
   endif
 
-  #> In-line sea salt emisisions configuration
+  #> In-line sea salt emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 
   #> Bidiretional ammonia configuration
@@ -1142,7 +1159,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> set output file name extensions
   setenv CTM_APPL ${RUNID}_${YYYYMMDD}
   #> set output file names
-  setenv S_CGRID         "$OUTDIR/CCTM_CGRID_${CTM_APPL}.nc"         #> 3D Inst. Concenctrations
+  setenv S_CGRID         "$OUTDIR/CCTM_CGRID_${CTM_APPL}.nc"         #> 3D Inst. Concentrations
   setenv CTM_CONC_1      "$OUTDIR/CCTM_CONC_${CTM_APPL}.nc -v"       #> On-Hour Concentrations
   setenv A_CONC_1        "$OUTDIR/CCTM_ACONC_${CTM_APPL}.nc -v"      #> Hourly Avg. Concentrations
   setenv MEDIA_CONC      "$OUTDIR/CCTM_MEDIA_CONC_${CTM_APPL}.nc -v" #> NH3 Conc. in Media

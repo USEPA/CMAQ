@@ -51,12 +51,21 @@ C                             CTM_WET_DEP_1 and CTM_WET_DEP_2 and put it in opwd
 C                             Added a section of code to let non I/O processors
 C                             open CTM_WET_DEP_1 and CTM_WET_DEP_2 for parallel I/O
 C                             implementation
-
+C    Nov 2018 S.Napelenok     ISAM implementation
+C    Apr 2019 F.Sidi & 
+C             S.Roselle:      Fixed bug relating to incorrect unit conversions
+C                             in GC, NR and TR. 
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+
+#ifdef isam
+      USE SA_DEFN, ONLY: ISAM, NSPC_SA, N_SPCTAG, TOT_SADEP, CONV_SADEP,
+     &                   SPC_INDEX, VNAM_SPCTAG, NTAG_SA, S_SPCTAG, 
+     &                   ITAG, T_SPCTAG
+#endif
 
       IMPLICIT NONE
 
@@ -135,32 +144,56 @@ C...........Local Variables
 C for INTERPX
       INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
+#ifdef isam
+      REAL, ALLOCATABLE, SAVE :: BUFF2 ( :,: )
+#endif
+
+
+
 C...........EXTERNAL FUNCTIONS
 
       INTERFACE
+#ifdef isam
+         SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
+     &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS,
+     &                       SA_DEP )
+#else
          SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
+#endif
+            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )    :: JDATE
-            INTEGER, INTENT( IN )    :: JTIME
-            INTEGER, INTENT( IN )    :: TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
             INTEGER, INTENT( IN )    :: N_SPC_WDEP
             INTEGER, INTENT( IN )    :: WDEP_MAP( : )
             REAL,    INTENT( INOUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT )   :: RESTRANS( :,: )
+#ifdef isam
+            REAL,    INTENT( INOUT ) :: SA_DEP( :,:,:,: )
+
+#endif
          END SUBROUTINE RESCLD
+#ifdef isam
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                            N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
+     &                            N_SPC_WDEP, WDEP_MAP, DEP, SUBTRANS,
+     &                            CONV_SADEP )
+#else
+         SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+     &                            N_SPC_WDEP, WDEP_MAP, DEP, SUBTRANS )
+#endif
+            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )    :: JDATE
-            INTEGER, INTENT( IN )    :: JTIME
-            INTEGER, INTENT( IN )    :: TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
             INTEGER, INTENT( IN )    :: N_SPC_WDEP
             INTEGER, INTENT( IN )    :: WDEP_MAP( : )
-            REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
+            REAL,    INTENT( INOUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
+#ifdef isam
+            REAL,    INTENT( INOUT ) :: CONV_SADEP( :,:,:,: )
+#endif
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
+
 C-----------------------------------------------------------------------
 C   begin body of subroutine  CLDPROC
 
@@ -295,6 +328,24 @@ C...initialize the deposition array before processing clouds
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+#ifdef isam
+Ckrt deposition arrays for tagged species.....
+        ALLOCATE ( TOT_SADEP ( MY_NCOLS,MY_NROWS,NSPC_SA,NTAG_SA ),
+     &            CONV_SADEP ( MY_NCOLS,MY_NROWS,NSPC_SA,NTAG_SA ),
+     &             STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating TOT_ or CONV_SADEP'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+        TOT_SADEP = 0.0
+        CONV_SADEP = 0.0
+        ALLOCATE( BUFF2( MY_NCOLS, MY_NROWS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating BUFF2'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+#endif
+
         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
@@ -339,7 +390,7 @@ C...  determine no. of moles of gas per moles of air by volume
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6,  1.0E-30)
+     &                                    * 1.0E-6,  1.0E-36 )
             END DO
           END DO
         END DO
@@ -408,7 +459,7 @@ C...determine no. of moles of non-reactive gas per moles of air by volume
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30 )
+     &                                    * 1.0E-6, 1.0E-36 )
             END DO
           END DO
         END DO
@@ -423,21 +474,65 @@ C...determine no. of moles of tracer gas per moles of air by volume
           DO ROW = 1, MY_NROWS
             DO COL = 1, MY_NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30 )
+     &                                    * 1.0E-6, 1.0E-36 )
             END DO
           END DO
         END DO
       END DO
 
+
+#ifdef isam
+c ISAM  unit conversion
+      DO SPC = 1, NSPC_SA
+        VAR = SPC_INDEX(SPC,2)
+        IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
+          DO ITAG = 1, NTAG_SA
+            DO LAY = 1, NLAYS
+              DO ROW = 1, MY_NROWS
+                DO COL = 1, MY_NCOLS
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM(COL,ROW,LAY,SPC,ITAG ) * 1.0E-6
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM( COL,ROW,LAY,SPC, ITAG ), 1.0E-36 )
+                END DO
+              END DO
+            END DO
+          END DO
+        ELSE ! this is an aerosol
+          DO ITAG = 1, NTAG_SA
+            DO LAY = 1, NLAYS
+              DO ROW = 1, MY_NROWS
+                DO COL = 1, MY_NCOLS
+                  FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( VAR - AE_STRT + 1 )
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * FAC
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM(COL,ROW,LAY,SPC, ITAG ), 1.0E-30 )
+                END DO
+              END DO
+            END DO
+          END DO
+        ENDIF
+      END DO
+#endif
+
 C...compute cloud effects for the resolved clouds and resolved rainwater
 
+#ifdef isam
+      CALL RESCLD ( CGRID, JDATE, JTIME, TSTEP,
+     &              N_SPC_WDEP, WDEP_MAP, TOT_DEP, RESTRANS,
+     &              TOT_SADEP  )
+#else
       CALL RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &              N_SPC_WDEP, WDEP_MAP, TOT_DEP, RESTRANS )
+#endif
 
 C...compute cloud effects for convective (subgrid) clouds
 
+#ifdef isam
+      CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+     &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS,
+     &                   CONV_SADEP )
+#else
       CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
+#endif
 
 C...now check to see if it's time to write the deposition file
       WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
@@ -474,6 +569,20 @@ C...now check to see if it's time to write the deposition file
         RESTRANS = 1.0
         SUBTRANS = 1.0
 
+#ifdef isam
+Ckrt Sum up the wetdep from both resolved and convective clouds
+Ckrt  for the tagged species as well....
+        DO SPC = 1, N_SPCTAG
+          DO ROW = 1, MY_NROWS
+            DO COL = 1, MY_NCOLS
+              TOT_SADEP( COL,ROW,S_SPCTAG( SPC ),T_SPCTAG( SPC ) ) =
+     &        TOT_SADEP( COL,ROW,S_SPCTAG( SPC ),T_SPCTAG( SPC ) ) +
+     &       CONV_SADEP( COL,ROW,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+            END DO ! col
+          END DO ! row
+        END DO ! n_spctag
+#endif
+
 C...write data to the normal wet deposition file
 
         IF ( .NOT. WRITE3( CTM_WET_DEP_1, ALLVAR3, NDATE,
@@ -506,6 +615,27 @@ C...reinitialize deposition array
 
         TOT_DEP  = 0.0
         CONV_DEP = 0.0
+
+#ifdef isam
+        BUFF2 = 0.0
+        DO SPC = 1, N_SPCTAG
+          DO ROW = 1, MY_NROWS
+            DO COL = 1, MY_NCOLS
+              BUFF2( COL,ROW ) = TOT_SADEP( COL,ROW,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+            END DO ! col
+          END DO ! row
+          IF ( .NOT. WRITE3( SA_WD_1, VNAM_SPCTAG( SPC ),
+     &                       NDATE, NTIME, BUFF2 ) ) THEN
+            XMSG = 'Could not write ' // SA_WD_1 // ' file'
+            CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+          END IF
+       END DO ! n_spctag
+
+       TOT_SADEP  = 0.0
+       CONV_SADEP = 0.0
+#endif
+
+
 
       END IF   ! time to write
 
@@ -603,6 +733,35 @@ C...convert to ppmV tracer gas
           END DO
         END DO
       END DO
+
+#ifdef isam
+c ISAM  unit conversion
+      DO SPC = 1, NSPC_SA
+        VAR = SPC_INDEX(SPC,2)
+        IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
+          DO ITAG = 1, NTAG_SA
+            DO LAY = 1, NLAYS
+              DO ROW = 1, MY_NROWS
+                DO COL = 1, MY_NCOLS
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * 1.0E+6
+                END DO
+              END DO
+            END DO
+          END DO
+        ELSE ! this is an aerosol
+          DO ITAG = 1, NTAG_SA
+            DO LAY = 1, NLAYS
+              DO ROW = 1, MY_NROWS
+                DO COL = 1, MY_NCOLS
+                  FAC = CNV1I * DENS( COL, ROW, LAY ) * AE_MOLWT( VAR - AE_STRT + 1 )
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * FAC
+                END DO
+              END DO
+            END DO
+          END DO
+        ENDIF
+      END DO
+#endif
 
       RETURN
 
