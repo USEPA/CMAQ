@@ -9,15 +9,13 @@
 
 ## 6.1 CCTM Output Files
 
-** >> Comment <<** P153 (for example):  Should remove M3 I/O API "file type" from these tables.  Use more general descriptions.
-
 In this section, details on the CCTM output files are provided. All CMAQ programs produce output files that adhere to the netCDF format.  In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
 
 <a id=Output_Table></a>
 
 **Table 6-1. CMAQ Output files**
 
-|**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|
+|**File Name**|**File Type**|**Time-Dependence***|**Spatial Dimensions**|
 |----------------------------|------|----|-----------------------------------|
 |**Standard**| | | |
 |[Output Log](#cmaq_output_log) <a id=cmaq_output_log_t></a>|ASCII|n/a|n/a
@@ -50,7 +48,8 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |[CTM_SSEMIS_1](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_WETDEP_2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_VEXT_1](#vext) <a id=vext_1></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-Note that while "Hourly" is indicated, users may define a different time step (e.g. 30 minutes) for model output by changing the TSTEP environment variable in the runscript.
+
+*Note that while "Hourly" is indicated, users may define a different time step (e.g. 30 minutes) for model output by changing the TSTEP environment variable in the runscript.
 
 <a id=cmaq_output_log></a>
 ### CMAQ output log
