@@ -2,7 +2,7 @@ CMAQ Utilities
 ========
 
 ## Overview
-With the exception of Bldmake, the following utility programs prepare chemical mechanism source code for the CMAQ programs. Bldmake is the general model builder that is used to generate Makefile and compile CMAQ source code.  The other programs generate chemical mechanism and chemistry solver source code based on a new or modified mechanism definition file. Details about how to add new or modified chemical mechanisms to CMAQ are provided in the README files within each folder.  
+The CMAQ release includes several optional utilities for model developers. Chemical reaction data is processed by the Chemical Mechanism Compiler (chemmech) for all chemical reaction solver approaches. This tool needs chemical namelists (e.g. GC_NAMELIST, AE_NAMELIST, etc) in order to run, and these namelists can be modified directly with a text editor or converted to CSV with the namelist converter nml. After running chemmech, to then generate files specifically for the Euler Backward Iterative (EBI) solver approach, the create_ebi is provided. Finally the Inline Photolysis Preprocessor (inline_phot_preproc) provides support for generating photylisis rate input to custom chemical mechanisms.  The CMAQ repository includes software for generating Makefiles necessary for compiling the CCTM and other components. This bldmake utility is designed to account for user options, diagnose dependencies in source code and produce a Makefile ready to build executable files.  Documentaiton for each utilitiy programs is provided in the README files within each folder.  
 
 ## Utility Programs
 
