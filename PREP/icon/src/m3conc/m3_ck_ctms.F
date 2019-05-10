@@ -50,12 +50,10 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments:
-      INTEGER :: LOGUNIT                   ! Unit number for output log
-      INTEGER :: N_CTM_FLS                 ! Number of input CTM files
-      CHARACTER( 16 ) :: CTM_FL_NAME( * )  ! Name of CTM file
+      INTEGER, INTENT( IN ) :: LOGUNIT                   ! Unit number for output log
+      INTEGER, INTENT( IN ) :: N_CTM_FLS                 ! Number of input CTM files
+      CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )  ! Name of CTM file
 
 C Parameters: None
 
@@ -79,6 +77,7 @@ C Local Variables:
       INTEGER NTHIK1    ! File 1 boundary thickness
       INTEGER GDTYP1    ! File 1 horizontal grid type
       INTEGER VGTYP1    ! File 1 Vertical coordinate type
+      INTEGER ALLOCSTAT ! Status returned from array allocation
 
       LOGICAL LERROR    ! Error Flag
       LOGICAL LSTOP     ! Exit Flag
@@ -94,7 +93,7 @@ C Local Variables:
       REAL    YCENT1    ! File 1 Y-center of coordinate system
       REAL    VGTOP1    ! File 1 model top
 
-      REAL   :: VGLVS1( MXLAYS3+1 )     ! File vertical layer heights
+      REAL, ALLOCATABLE :: VGLVS1( : )   ! File vertical layer heights
 
 C***********************************************************************
 
@@ -102,14 +101,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Write out report data
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MSG = 'Multiple CTM Concentration files being used for ICs' 
-      CALL M3WARN( PNAME, 0, 0, MSG )
+      CALL M3WARN ( PNAME, 0, 0, MSG )
       MSG = '   Files being checked for consistent header data' 
-      CALL M3MESG( MSG )
+      CALL M3MESG ( MSG )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get header data for CTM file 1
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( .NOT. DESC3 ( CTM_FL_NAME( 1 ) ) ) THEN
+      IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
      &         // ' file'
          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
@@ -136,7 +135,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       YCENT1 = YCENT3D
       VGTYP1 = VGTYP3D
       VGTOP1 = VGTOP3D
-      DO N = 1 , NLAYS3D + 1
+
+      ALLOCATE( VGLVS1( NLAYS1+1 ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating VGLVS1'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      DO N = 1 , NLAYS1 + 1
          VGLVS1( N ) = VGLVS3D( N )
       END DO
 

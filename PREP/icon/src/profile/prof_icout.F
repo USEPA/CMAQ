@@ -25,11 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE PROF_ICOUT( LOGUNIT,
-     &                       NLAYS_IN, NSPCS_IN,
-     &                       PROF_FL_NAME,
-     &                       PROF_SP_NAME,
-     &                       VTYPE_IN, UNITS_IN, VDESC_IN )
+      SUBROUTINE PROF_ICOUT ( LOGUNIT, PROF_FL_NAME )
 
 C***********************************************************************
  
@@ -66,40 +62,35 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files:
 
 C Arguments: 
-      INTEGER :: LOGUNIT        ! Unit number for output log
-      INTEGER :: NSPCS_IN       ! Total No. of species in input conc file(s)
-      INTEGER :: NLAYS_IN       ! No. of layers in input conc file
-      CHARACTER( * )  :: PROF_FL_NAME        ! Input profile file name
-      CHARACTER( * )  :: PROF_SP_NAME( * )   ! Profile species names
-      CHARACTER( 16 ) :: UNITS_IN( * ) ! Units for CTM species
-      CHARACTER( 80 ) :: VDESC_IN( * ) ! Variable description for CTM species
-      INTEGER :: VTYPE_IN( * ) ! variable type for CTM species
+      INTEGER, INTENT( IN ) :: LOGUNIT        ! Unit number for output log
+      CHARACTER( 256 ), INTENT( IN ):: PROF_FL_NAME        ! Input profile file name
 
-C Parameters:
-
-      INTEGER, PARAMETER :: MXVARS = 400
+C Parameters: none
 
 C Local Variables:
       CHARACTER( 80 ) :: MSG = ' '            ! Log message
       CHARACTER( 16 ) :: PNAME = 'PROF_ICOUT' ! Program Name
       CHARACTER( 16 ) :: PROF_SP              ! Species name on profile file
       CHARACTER( 16 ) :: VNAME                ! Species name on CTM conc file
-      CHARACTER( 16 ) :: IC_FNAME( MXCTMS )   ! Logical names of IC Output file(s) 
+      CHARACTER( 16 ), ALLOCATABLE :: IC_FNAME( : )  ! Logical names of IC Output file(s)
 
       CHARACTER(1000) :: RECORD
       CHARACTER(16), ALLOCATABLE :: VNAME_PROF_TEMP(:)
       CHARACTER(16), ALLOCATABLE :: VUNIT_PROF_TEMP(:)
       CHARACTER(16), ALLOCATABLE :: VNAME_PROF(:)
       CHARACTER(16), ALLOCATABLE :: VUNIT_PROF(:)
+      CHARACTER(16), ALLOCATABLE :: PROF_SP_NAME( : ) ! Profile species names
+      CHARACTER(16), ALLOCATABLE :: UNITS_IN( : ) ! Units for CTM species
+      CHARACTER(80), ALLOCATABLE :: VDESC_IN( : ) ! Variable description for CTM species
 
+      INTEGER NSPCS_IN      ! Total No. of species in input file(s)
+      INTEGER NLAYS_IN      ! No. of layers in input file
       INTEGER C, R          ! Column, Row loop indices
       INTEGER FLN           ! IC output file number
       INTEGER L             ! Layer loop index
       INTEGER N, SPC        ! Loop indices for species
-      INTEGER NLEVS_IN      ! No. of layers in input conc file
       INTEGER PFILE         ! Unit number of profile file   
       INTEGER SDATE         ! Date for IC Output
       INTEGER STIME         ! Time for IC output
@@ -107,17 +98,49 @@ C Local Variables:
 
       INTEGER I, K, NVARS, NFIELDS
       INTEGER IOSTATUS      ! Status code
+      INTEGER ALLOCSTAT     ! Status returned from array allocation
+
+      INTEGER, ALLOCATABLE :: VTYPE_IN( : ) ! variable type for CTM species
 
       LOGICAL  LNEG          ! Flag for negative concentrations
 
-      REAL :: ZH_IN( MXLAYS3 )              ! Input layer heights
-      REAL :: COUT( NCOLS,NROWS,NLAYS )     ! Outputt IC conc
-      REAL :: INPROF( MXLAYS3,MX_INFL_SP )  ! Input conc profiles  
-      REAL :: VIPROF( NCOLS,NROWS,NLAYS,MX_INFL_SP ) ! Vert. interp. profiles
+      REAL, ALLOCATABLE :: ZH_IN( : )        ! Input layer heights
+      REAL, ALLOCATABLE :: COUT( :,:,: )     ! Output IC conc
+      REAL, ALLOCATABLE :: INPROF( :,: )     ! Input conc profiles
+      REAL, ALLOCATABLE :: VIPROF( :,:,:,: ) ! Vert. interp. profiles
                             
-      REAL, ALLOCATABLE :: VAR_PROF_TEMP( :, : )
-      REAL, ALLOCATABLE :: VAR_PROF( :, : )
+      REAL, ALLOCATABLE :: VAR_PROF_TEMP( :,: )
+      REAL, ALLOCATABLE :: VAR_PROF( :,: )
 
+      INTERFACE
+
+         SUBROUTINE PROF_VINTERP( LOGUNIT, NSPCS_IN, NLAYS_IN, ZH_IN,
+     &                            CONCIN, CONCOUT )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: NSPCS_IN
+            INTEGER, INTENT( IN ) :: NLAYS_IN
+            REAL, INTENT( IN )  :: ZH_IN( : )
+            REAL, INTENT( IN )  :: CONCIN( :,: )
+            REAL, INTENT( OUT ) :: CONCOUT( :,:,:,: )
+         END SUBROUTINE PROF_VINTERP
+
+         SUBROUTINE OPN_IC_FILE ( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT,
+     &                            SPNAME_OUT, VTYPE_OUT, UNITS_OUT,
+     &                            VDESC_OUT, IC_FNAME, RINDX )
+            CHARACTER( 16 ), INTENT( OUT ) :: IC_FNAME( : )
+            CHARACTER( 16 ), INTENT( IN )  :: SPNAME_OUT( : )
+            CHARACTER( 16 ), INTENT( IN )  :: UNITS_OUT( : )
+            CHARACTER( 80 ), INTENT( IN )  :: VDESC_OUT( : )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: NSPCS_OUT
+            INTEGER, INTENT( IN ) :: RINDX
+            INTEGER, INTENT( IN ) :: SDATE
+            INTEGER, INTENT( IN ) :: STIME
+            INTEGER, INTENT( IN ) :: TSTEP
+            INTEGER, INTENT( IN ) :: VTYPE_OUT( : )
+         END SUBROUTINE OPN_IC_FILE
+
+      END INTERFACE
 C***********************************************************************
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -135,7 +158,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          READ( PFILE,'(A)',IOSTAT = IOSTATUS ) RECORD
          IF ( IOSTATUS .NE. 0 ) THEN
             MSG = 'Error reading profile file'
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 ) 
+            CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
          END IF
          IF ( RECORD(1:1) .NE. '#' ) EXIT
       END DO
@@ -148,15 +171,53 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO I = 1, LEN( RECORD )
          IF ( RECORD(I:I) .EQ. ',' ) NFIELDS = NFIELDS + 1
       END DO
-      NLEVS_IN = NFIELDS - 2 ! FIELDS 1 AND 2 ARE NAME AND UNITS       
+      NLAYS_IN = NFIELDS - 2 ! FIELDS 1 AND 2 ARE NAME AND UNITS
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  allocate arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      ALLOCATE( VAR_PROF_TEMP( MXVARS, NLEVS_IN ),
-     &          VNAME_PROF_TEMP( MXVARS),
-     &          VUNIT_PROF_TEMP( MXVARS) )   
+      ALLOCATE( VAR_PROF_TEMP( MX_INFL_SP, NLAYS_IN ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating VAR_PROF_TEMP'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( INPROF( NLAYS_IN, MX_INFL_SP ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating INPROF'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( ZH_IN( NLAYS_IN ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating ZH_IN'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( VNAME_PROF_TEMP( MX_INFL_SP),
+     &          VUNIT_PROF_TEMP( MX_INFL_SP),
+     &          PROF_SP_NAME( MX_INFL_SP ),
+     &          STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating VNAME_PROF_TEMP, VUNIT_PROF_TEMP, PROF_SP_NAME'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( UNITS_IN( MX_INFL_SP ),
+     &          VDESC_IN( MX_INFL_SP ),
+     &          VTYPE_IN( MX_INFL_SP ),
+     &          STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating UNITS_IN, VDESC_IN, VTYPE_IN'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( IC_FNAME( MXCTMS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating IC_FNAME'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  read data fields
@@ -167,12 +228,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          READ( PFILE,*,IOSTAT = IOSTATUS )
      &      VNAME_PROF_TEMP( NVARS ),
      &      VUNIT_PROF_TEMP( NVARS ),
-     &    ( VAR_PROF_TEMP( NVARS,K ), K=1,NLEVS_IN )
+     &    ( VAR_PROF_TEMP( NVARS,K ), K=1,NLAYS_IN )
 
          IF ( IOSTATUS .NE. 0 ) THEN
             IF ( NVARS .EQ. 1 ) THEN    ! error in first data line
                MSG = 'Error: no species data in profile file'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 ) 
+               CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
             ELSE
                EXIT
             END IF
@@ -186,11 +247,12 @@ c  load data into species arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       NSPCS_IN = 0
+      INPROF = 0.0
       DO N = 1, NVARS
          IF ( N .EQ. INDEX1( 'PRES', NVARS, VNAME_PROF_TEMP ) ) THEN
          	  CYCLE
          ELSE IF ( N .EQ. INDEX1( 'ZH', NVARS, VNAME_PROF_TEMP ) ) THEN
-            DO L = 1, NLEVS_IN
+            DO L = 1, NLAYS_IN
                ZH_IN( L ) = VAR_PROF_TEMP( N,L )
             END DO
          ELSE IF ( N .EQ. INDEX1( 'ZF', NVARS, VNAME_PROF_TEMP ) ) THEN
@@ -203,17 +265,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             UNITS_IN( NSPCS_IN )     = VUNIT_PROF_TEMP( N )
             VTYPE_IN( NSPCS_IN )     = M3REAL
             VDESC_IN( NSPCS_IN )     = VNAME_PROF_TEMP( N )
-            DO L = 1, NLEVS_IN
+            DO L = 1, NLAYS_IN
                INPROF( L,NSPCS_IN ) = VAR_PROF_TEMP( N,L )
             END DO
          END IF
       END DO
-      
+
+      ALLOCATE( VIPROF( NCOLS, NROWS, NLAYS, NSPCS_IN ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating VIPROF'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  vertical interpolation
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL PROF_VINTERP( LOGUNIT, NSPCS_IN, NLEVS_IN, ZH_IN, INPROF,
-     &                   VIPROF )      
+      CALL PROF_VINTERP ( LOGUNIT, NSPCS_IN, NLAYS_IN, ZH_IN, INPROF, VIPROF )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Open IC output file
@@ -221,12 +288,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       SDATE = 0
       STIME = 0
       TSTEP = 0
-      CALL OPN_IC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_IN, 
-     &                  PROF_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
-     &                  IC_FNAME, 1 )  
+      CALL OPN_IC_FILE ( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_IN,
+     &                   PROF_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
+     &                   IC_FNAME, 1 )
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Write the output IC concentrations
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      ALLOCATE( COUT( NCOLS, NROWS, NLAYS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating COUT'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
       LNEG = .FALSE.
 
       DO N = 1, NSPCS_IN
@@ -235,8 +309,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          VNAME = PROF_SP_NAME( N )
            
          DO L = 1, NLAYS
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   COUT( C,R,L ) = VIPROF( C,R,L,N )
                END DO
             END DO
@@ -246,14 +320,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                     COUT( 1,1,1 ) ) ) THEN
             MSG =  'Could not WRITE species ' //  VNAME // 
      &             'to file ' // IC_FNAME( FLN ) 
-            CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
          END IF
 
       END DO
 
       IF ( LNEG ) THEN
          MSG = 'Negative ICs output'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
       RETURN
@@ -261,7 +335,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 999   CONTINUE 
 
       MSG = 'Could not open file ' // PROF_FL_NAME
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+      CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
 
 C************************* FORMAT STATEMENTS ***************************
 

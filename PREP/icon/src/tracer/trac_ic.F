@@ -25,7 +25,7 @@ C $Header: /project/yoj/arc/ICON/src/tracer/trac_ic.F,v 1.2 2011/10/21 16:41:58 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-      SUBROUTINE TRAC_IC( TRNAME, TCOUT )
+      SUBROUTINE TRAC_IC ( TRNAME, TCOUT )
 
 C***********************************************************************
  
@@ -53,8 +53,9 @@ C***********************************************************************
 C Include FILES:
 
 C Arguments: 
-      CHARACTER( 16 ) :: TRNAME     !  Tracer name
-      REAL    :: TCOUT( NCOLS,NROWS,* )
+      CHARACTER( 16 ), INTENT( IN ) :: TRNAME     !  Tracer name
+
+      REAL, INTENT( OUT ) :: TCOUT( :,:,: )
 
 C Parameters:
       INTEGER, PARAMETER :: CELL_RAD = 3   ! Radius for superposition tracers

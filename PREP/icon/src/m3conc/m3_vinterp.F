@@ -78,22 +78,20 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments:
-      INTEGER    LOGUNIT                 ! Unit number for output log
-      INTEGER    SDATE                   ! Date for IC Output
-      INTEGER    STIME                   ! Time for IC output
-      INTEGER    NCOLS_IN                ! No. of columns in input conc file
-      INTEGER    NROWS_IN                ! No. of rows in input conc file
-      INTEGER    NLAYS_IN                ! No. of layers in input conc file
-      INTEGER    NSPCS_IN                ! No. of species in input conc file
-      INTEGER :: COL_LOC( NCOLS,NROWS )  ! Output IC col corresponding to &
-      INTEGER :: ROW_LOC( NCOLS,NROWS )  ! Output IC row corresponding to
-                                         ! a cell in the input conc file
-      REAL    :: ICIN( NCOLS,NROWS,NLAYS_IN,* )  ! Input conc array
-      REAL    :: ICVI( NCOLS,NROWS,NLAYS,* )           ! Output IC array
-      CHARACTER( 16 ) :: CTM_FL_NAME( * )  ! Name of input conc file
+      INTEGER, INTENT( IN ) :: LOGUNIT   ! Unit number for output log
+      INTEGER, INTENT( IN ) :: SDATE     ! Date for IC Output
+      INTEGER, INTENT( IN ) :: STIME     ! Time for IC output
+      INTEGER, INTENT( IN ) :: NCOLS_IN  ! No. of columns in input conc file
+      INTEGER, INTENT( IN ) :: NROWS_IN  ! No. of rows in input conc file
+      INTEGER, INTENT( IN ) :: NLAYS_IN  ! No. of layers in input conc file
+      INTEGER, INTENT( IN ) :: NSPCS_IN  ! No. of species in input conc file
+      INTEGER, INTENT( IN ) :: COL_LOC( :,: )  ! Output IC col corresponding to &
+      INTEGER, INTENT( IN ) :: ROW_LOC( :,: )  ! Output IC row corresponding to
+                                                       ! a cell in the input conc file
+      REAL, INTENT( IN )  :: ICIN( :,:,:,: )  ! Input conc array
+      REAL, INTENT( OUT ) :: ICVI( :,:,:,: )     ! Output IC array
+      CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )      ! Name of input conc file
 
 C Parameters: None
 
@@ -108,8 +106,6 @@ C Local Variables:
       LOGICAL L_RATINT       ! Flag to use rational function interpolation 
       LOGICAL L_SAME_SCALE   ! Flag for same vert coord systems but 
                              ! different resolutions  
-      REAL   :: X3_OLD( MXLAYS3 )   ! Old Vertical coordinate values
-
       CHARACTER( 20 ) :: CHR1     ! Value of variable 1 in character data
       CHARACTER( 20 ) :: CHR2     ! Value of variable 1 in character data
       CHARACTER( 80 ) :: MSG      ! Log message
@@ -124,16 +120,54 @@ C Local Variables:
       INTEGER R, RIN         ! Loop indices for rows
       INTEGER STATUS         ! Staus code
       INTEGER V              ! Loop index for variables
+      INTEGER ALLOCSTAT      ! Status returned from array allocation
 
       REAL    DELY  ! Error estimate for conc interpolated by rational func
       REAL    X3    ! Vertical coordinate used in interpolation
       REAL    Y     ! Interpolated concentration
 
-      REAL   :: WORKA(  MXLAYS3 )   ! Work array for conc input
-      REAL   :: HT_IC( NCOLS,NROWS,NLAYS )            ! New mid-layer heights
-      REAL   :: HT_CTM( NCOLS_IN,NROWS_IN,NLAYS_IN )  ! Old mid-layer heights
+      REAL, ALLOCATABLE :: X3_OLD( : )     ! Old Vertical coordinate values
+      REAL, ALLOCATABLE :: WORKA( : )      ! Work array for conc input
+      REAL, ALLOCATABLE :: HT_IC( :,:,: )  ! New mid-layer heights
+      REAL, ALLOCATABLE :: HT_CTM( :,:,: ) ! Old mid-layer heights
      
+      INTERFACE
+
+         SUBROUTINE LR_INTERP ( L_RATINT, XA, YA, N, X, Y, DELY )
+            LOGICAL, INTENT( IN ) :: L_RATINT
+            REAL, INTENT( IN )  :: XA( : )
+            REAL, INTENT( IN )  :: YA( : )
+            REAL, INTENT( IN )  :: X
+            REAL, INTENT( OUT ) :: Y
+            REAL, INTENT( OUT ) :: DELY
+            INTEGER, INTENT( IN ) :: N
+         END SUBROUTINE LR_INTERP
+
+      END INTERFACE
+
 C***********************************************************************
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  allocate arrays
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      ALLOCATE( WORKA( NLAYS_IN ), X3_OLD( NLAYS_IN ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating WORKA, X3_OLD'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( HT_IC( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating HT_IC'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( HT_CTM( NCOLS_IN,NROWS_IN,NLAYS_IN ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating HT_CTM'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Determine type of interpolation to use: linear or rational function
@@ -141,7 +175,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
      &         // ' file'
-         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       END IF
 
       WRITE( LOGUNIT, 92000 )
@@ -211,7 +245,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
             MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 )
      &         // ' file'
-         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
          END IF
 
          WRITE( LOGUNIT, 92040 )
@@ -267,8 +301,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                         ELSE IF ( LDEC .AND. X3 .LE. X3_OLD( NLAYS_IN ) ) THEN
                            ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
                         ELSE
-                           CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
-     &                                     X3, Y, DELY )
+                           CALL LR_INTERP ( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
+     &                                      X3, Y, DELY )
                            ICVI( C,R,L,V ) = Y
                         END IF
                      END IF
@@ -290,9 +324,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE( LOGUNIT, 92140 ) MSG
 
       IF ( .NOT. DESC3( MET_CRO_3D_CRS ) ) THEN
-         MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
+         MSG = 'Could not read DESC of  ' // MET_CRO_3D_CRS
      &      // ' file'
-         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       END IF
 
       ZP_VNAME = 'ZH'
@@ -314,11 +348,11 @@ C Get the layer mid-point heights
       IF ( .NOT. READ3( MET_CRO_3D_FIN, ZP_VNAME, ALLAYS3, SDATE, STIME,
      &                  HT_IC ) ) THEN
          MSG = 'Could not read layer heights from file ' // MET_CRO_3D_FIN
-         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
       END IF
 
-      IF ( .NOT. READ3( MET_CRO_3D_CRS, ZP_VNAME, ALLAYS3, SDATE, STIME,
-     &                  HT_CTM ) ) THEN
+      IF ( .NOT. INTERP3( MET_CRO_3D_CRS, ZP_VNAME, PNAME, SDATE, STIME,
+     &                    NROWS_IN*NCOLS_IN*NLAYS_IN, HT_CTM ) ) THEN
          MSG = 'Could not read layer heights from file ' // MET_CRO_3D_CRS
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
       END IF
@@ -349,8 +383,8 @@ C...  for height interpolation
                         ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
                            ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
                         ELSE
-                           CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN, 
-     &                                     X3, Y, DELY )
+                           CALL LR_INTERP ( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
+     &                                      X3, Y, DELY )
                            ICVI( C,R,L,V ) = Y
                         END IF
                      END IF
@@ -386,8 +420,8 @@ C...  for pressure interpolation
                         ELSE IF ( X3 .LT. X3_OLD( NLAYS_IN ) ) THEN
                            ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
                         ELSE
-                           CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN, 
-     &                                     X3, Y, DELY )
+                           CALL LR_INTERP ( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
+     &                                      X3, Y, DELY )
                            ICVI( C,R,L,V ) = Y
                         END IF
                      END IF

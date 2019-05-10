@@ -26,7 +26,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE TRAC_INIC( LOGUNIT )   
+      SUBROUTINE TRAC_INIC ( LOGUNIT )
 
 C***********************************************************************
  
@@ -53,10 +53,8 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments: 
-      INTEGER LOGUNIT                 ! Unit number for output log
+      INTEGER, INTENT( IN ) :: LOGUNIT    ! Unit number for output log
 
 C Parameters: None
 
@@ -70,10 +68,10 @@ C Local Variables:
       CHARACTER( 16 ) :: SUROUT           ! Surrogate output to log
       CHARACTER( 16 ) :: VNAME            ! Output variable name
 
-      CHARACTER( 16 ) :: SPNAME_OUT( NTRACERS )    ! Output tracer names
-      CHARACTER( 16 ) :: UNITS_OUT( NTRACERS )    ! Output tracer units
+      CHARACTER( 16 ), ALLOCATABLE :: SPNAME_OUT( : )    ! Output tracer names
+      CHARACTER( 16 ), ALLOCATABLE :: UNITS_OUT( : )     ! Output tracer units
 
-      CHARACTER( 16 ) :: TR_FNAME( MXCTMS )        ! Output file name
+      CHARACTER( 16 ), ALLOCATABLE :: TR_FNAME( : ) ! Output file name
                             
       INTEGER FLN          ! Output file number
       INTEGER ICBC_IND     ! Index of surrogate in TR_ICBC
@@ -81,20 +79,59 @@ C Local Variables:
       INTEGER NSP          ! Counter
       INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
       INTEGER TRIND        ! Index for catalogued tracer
-      INTEGER ALST         ! Allocate status
+      INTEGER ALLOCSTAT    ! Status returned from array allocation
       INTEGER SDATE        ! Date for IC Output
       INTEGER STIME        ! Time for IC output
       INTEGER TSTEP        ! Timestep for IC Output
 
-      INTEGER :: VTYPE_OUT( NTRACERS )    ! Output tracer variable type
+      INTEGER, ALLOCATABLE :: VTYPE_OUT( : )    ! Output tracer variable type
 
-!     REAL    :: TCOUT( NCOLS,NROWS,NLAYS )  ! Output tracer concs
       REAL, ALLOCATABLE :: TCOUT( :,:,: )  ! Output tracer concs
+
+      INTERFACE
+
+         SUBROUTINE OPN_IC_FILE ( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT,
+     &                            SPNAME_OUT, VTYPE_OUT, UNITS_OUT,
+     &                            VDESC_OUT, IC_FNAME, RINDX )
+            CHARACTER( 16 ), INTENT( OUT ) :: IC_FNAME( : )
+            CHARACTER( 16 ), INTENT( IN )  :: SPNAME_OUT( : )
+            CHARACTER( 16 ), INTENT( IN )  :: UNITS_OUT( : )
+            CHARACTER( 80 ), INTENT( IN )  :: VDESC_OUT( : )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: NSPCS_OUT
+            INTEGER, INTENT( IN ) :: RINDX
+            INTEGER, INTENT( IN ) :: SDATE
+            INTEGER, INTENT( IN ) :: STIME
+            INTEGER, INTENT( IN ) :: TSTEP
+            INTEGER, INTENT( IN ) :: VTYPE_OUT( : )
+         END SUBROUTINE OPN_IC_FILE
+
+         SUBROUTINE TRAC_IC ( TRNAME, TCOUT )
+            CHARACTER( 16 ), INTENT( IN ) :: TRNAME
+            REAL, INTENT( OUT ) :: TCOUT( :,:,: )
+         END SUBROUTINE TRAC_IC
+
+      END INTERFACE
 
 C***********************************************************************
 
       WRITE( LOGUNIT, 92000 )
  
+      ALLOCATE( TR_FNAME( MXCTMS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating TR_FNAME'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( UNITS_OUT( NTRACERS ),
+     &          SPNAME_OUT( NTRACERS ),
+     &          VTYPE_OUT( NTRACERS ),
+     &          STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating UNITS_OUT, SPNAME_OUT, VTYPE_OUT'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
       NSPCS_OUT = NTRACERS
       DO N = 1, NSPCS_OUT
          SPNAME_OUT( N ) = TRAC_NAME( N )
@@ -115,8 +152,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  compute the ICs and write the ooutput file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      ALLOCATE ( TCOUT( NCOLS,NROWS,NLAYS ), STAT = ALST )
-      IF ( ALST .NE. 0 ) THEN
+      ALLOCATE ( TCOUT( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
          MSG = 'Error allocating TCOUT'
          CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
@@ -126,7 +163,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          FLN = ( N - 1 ) / MXVARS3 + 1
          VNAME = SPNAME_OUT( N )
 
-         CALL TRAC_IC( VNAME, TCOUT )
+         CALL TRAC_IC ( VNAME, TCOUT )
 
          IF ( .NOT. WRITE3( TR_FNAME( FLN ), VNAME, SDATE, STIME,
      &                      TCOUT ) ) THEN

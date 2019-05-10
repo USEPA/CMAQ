@@ -53,37 +53,30 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments: 
-      INTEGER LOGUNIT                 ! Unit number for output log
+      INTEGER, INTENT( IN ) :: LOGUNIT   ! Unit number for output log
 
 C Parameters: None
 
 C Local Variables:
       CHARACTER(  16 ) :: ENV_DFLT = ' ' ! Environment variable default value
       CHARACTER(  80 ) :: ENV_DESC       ! Environment variable description
-      CHARACTER( 256 ) :: LINEIN         ! Input line
       CHARACTER(  80 ) :: MSG            ! Log message
       CHARACTER(  16 ) :: PNAME = 'PROF_INIC'       ! Procedure name
       CHARACTER( 256 ) :: PROF_FL_NAME   ! Input profile file name
       CHARACTER(  16 ) :: IC_PROFILE = 'IC_PROFILE' ! Logical name of input profile file
-      CHARACTER(  16 ) :: SPEC_NAME      ! Species name
-
-      CHARACTER(  16 ) :: PROF_SP_NAME( MXCTMS*MXVARS3 ) ! Species names on profile file
-      CHARACTER(  16 ) :: UNITS_IN( MXCTMS*MXVARS3 ) ! Units for CTM species
-      CHARACTER(  80 ) :: VDESC_IN( MXCTMS*MXVARS3 ) ! Variable description for CTM species
   
-      INTEGER :: VTYPE_IN( MXCTMS*MXVARS3 ) ! variable type for CTM species
-
-      INTEGER N, SPC       ! Loop indices
-      INTEGER NLAYS_IN     ! No. of layers in input conc file
-      INTEGER NSPCS_IN     ! CTM files species counter
       INTEGER PFILE        ! Unit number of profile file    
       INTEGER STATUS       ! Status code
-      INTEGER ALST         ! Allocate statu
 
-      LOGICAL LERROR                ! Error flag
+      INTERFACE
+
+         SUBROUTINE PROF_ICOUT ( LOGUNIT, PROF_FL_NAME )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            CHARACTER( 256 ), INTENT( IN ):: PROF_FL_NAME
+         END SUBROUTINE PROF_ICOUT
+
+      END INTERFACE
 
 C***********************************************************************
 
@@ -94,28 +87,19 @@ c  Open the input profile file, read the number of species and their
 c  names, and list the file on the output log
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENV_DESC = 'Input IC Profile file'        
-      CALL ENVSTR( IC_PROFILE, ENV_DESC, ENV_DFLT, PROF_FL_NAME, STATUS )
+      CALL ENVSTR ( IC_PROFILE, ENV_DESC, ENV_DFLT, PROF_FL_NAME, STATUS )
 
       IF ( STATUS .NE. 0 ) THEN
          MSG = 'No IC profile file assigned to IC_PROFILE'
-         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+         CALL M3ERR ( PNAME, 0, 0, MSG, .TRUE. )
       END IF
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Compute ICs from the input PROFILE and output
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL PROF_ICOUT( LOGUNIT,
-     &                 NLAYS_IN,
-     &                 NSPCS_IN,
-     &                 PROF_FL_NAME,
-     &                 PROF_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
+      CALL PROF_ICOUT ( LOGUNIT, PROF_FL_NAME )
 
       RETURN
-
-999   CONTINUE
-
-      MSG = 'Could not open ' // TRIM( IC_PROFILE )
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 ) 
 
 C************************* FORMAT STATEMENTS ***************************
 
