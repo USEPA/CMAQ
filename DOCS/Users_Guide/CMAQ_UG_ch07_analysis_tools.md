@@ -5,11 +5,13 @@
 
 <!-- END COMMENT -->
 
-# Analysis Tools for CMAQ output
+# 7. Analysis Tools for CMAQ output
 
-Many software programs are available for pre- and post-processing, evaluating and visualizing CMAQ output.
+## 7.1 Overview
+Many software programs are freely available for pre- and post-processing, evaluating and visualizing CMAQ output. Examples of such freeware are provided in Table [7-1](#Analysis_Software_Table). Several other commercial packages, including MATLAB and IDL, also support the analysis and visualization of CMAQ inputs and outputs. Most visualization and analysis software that supports netCDF file formats will work with CMAQ output data. 
 
-**Table 7-1. Optional support software for CMAQ**
+<a id=Analysis_Software_Table></a>
+**Table 7-1. Software Programs for Evaluating and Visualizing CMAQ Data**
 
 |**Software**|**Description**|     **Source**    |
 |------------|-------------------------------|---------------------------------------------|
@@ -25,7 +27,15 @@ Many software programs are available for pre- and post-processing, evaluating an
 |NCL|NCAR Command Language for scientific data processing and visualization|[http://www.ncl.ucar.edu](http://www.ncl.ucar.edu)|
 |IDV|Integrated Data Viewer for 3-D graphical analysis of netCDF gridded data|[http://www.unidata.ucar.edu/software/idv/](http://www.unidata.ucar.edu/software/idv/)|
 
+This chapter briefly describes how to use some of the software tools supported by the EPA and CMAS to probe CMAQ output, pair model output in space and time to air quality observations, and create various evaluation plots.
 
+## 7.2 Probing Model Output with Visualization Environment for Rich Data Interpretation (VERDI)
+
+## 7.3 Aggregating and Transforming Model Species into Variables of Interest
+
+## 7.4 Model-observation pairing for model evaluation
+
+## 7.5 Evaluation of model output with the Atmospheric Model Evaluation Tool (AMET)
 
 
 <!-- BEGIN COMMENT -->
