@@ -74,6 +74,7 @@ C                     to open CTM_DRY_DEP_1, CTM_VSED_DIAG, CTM_VDIFF_DIAG,
 C                     CTM_DRY_DEP_MOS, and CTM_DRY_DEP_FST
 C 03 Mar 16 G.Sarwar: updated for halogen emissions
 C 16 Sep 16 J.Young: update for inline procan (IPR)
+C 02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -91,6 +92,12 @@ C-----------------------------------------------------------------------
       USE SEDIMENTATION
       USE VDIFF_DIAG
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
+
+#ifdef isam
+      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
+#endif
+
+
 
       IMPLICIT NONE
 
@@ -143,13 +150,14 @@ C Local Variables:
 
       REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
       INTEGER, SAVE :: NH3_HIT
-C Local Variables
 
+C Local Variables
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_EMIS'
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_DDEP = 'NH3_DDEP'
+
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
             CHARACTER( * ), INTENT( IN )  :: PNAME
@@ -183,6 +191,15 @@ C Local Variables
             REAL, INTENT( INOUT ) :: icmp ( :,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
+#ifdef isam
+         SUBROUTINE SA_OPWDDEP ( SADEPFILE, JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            CHARACTER( 16 ) SADEPFILE ! Dry or wet dep file for tags
+            INTEGER      JDATE      ! current model date, coded YYYYDDD
+            INTEGER      JTIME      ! current model time, coded HHMMSS
+            INTEGER      TSTEP      ! output time step
+         END SUBROUTINE SA_OPWDDEP
+#endif
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -214,6 +231,9 @@ C Initialize the met data
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
             CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+#ifdef isam
+            CALL SA_OPWDDEP ( SA_DD_1, JDATE, JTIME,TSTEP( 1 ) )
+#endif
             IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
          END IF
 
@@ -248,6 +268,15 @@ C Allocate and initialize emissions
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+#ifdef isam
+         ALLOCATE ( SA_DDEP( NCOLS,NROWS,N_SPCTAG ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SA_DDEP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         SA_DDEP = 0.0
+#endif
 
 C Set up for process analysis
          IF ( LIPR ) THEN
@@ -359,6 +388,7 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
 C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual argument
+
       CALL VDIFFACMX( DTSEC, SEDDY, DDEP, ICMP, CNGRD )
 
       IF ( VDIFFDIAG ) THEN
@@ -563,6 +593,25 @@ C re-set dry deposition array to zero
 
          DDEP = 0.0
          ICMP = 0.0
+
+#ifdef isam
+         WRDD = 0.0
+         DO ITAG = 1, N_SPCTAG
+            DO R = 1, MY_NROWS
+               DO C = 1, MY_NCOLS
+                  WRDD( C,R ) = SA_DDEP( C,R,ITAG )
+               END DO
+            END DO
+
+            IF ( .NOT. WRITE3( SA_DD_1, VNAM_SPCTAG( ITAG ),
+     &                         MDATE, MTIME, WRDD ) ) THEN
+               XMSG = 'Could not write ' // SA_DD_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+         END DO
+
+         SA_DDEP = 0.0
+#endif
 
       END IF
 
