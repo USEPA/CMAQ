@@ -164,7 +164,7 @@ source bldit_cctm.csh [compiler] [version] |& tee build_cctm.log
 
 **>>COMMENT: Not sure if this section adds any value for the user <<**
 
-Following normal termination of the script with the default configuration, the user will notice a BLD directory created where their CCTM scripts are located. This is the location of the CCTM executable along with the relevant source codes needed to build the model. At this location a few useful commands can be used to update the executable if any changes are made to the fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode instead of re-running the `bldit_cctm.csh` script the user can use the following commands:
+The bldit script invokes the CMAQ utility program [bldmake](bldmake/README.md), which extracts source code from your CMAQ GIT repository, constructs a Makefile based on your selected options, and compiles the executable automatically.  Following normal termination of the script with the default configuration, the user will notice a BLD directory created. This is the location of the CCTM executable along with the relevant source codes and the Makefile needed to build the model. In this directory a few useful commands can be used to update the executable if any changes are made to the fortran source codes via the MakeFile. For example, if the user wants to recompile the source codes in debug mode instead of re-running the `bldit_cctm.csh` script the user can use the following commands:
 
 ```
 cd BLD_CCTM_v53_[compiler][version]
