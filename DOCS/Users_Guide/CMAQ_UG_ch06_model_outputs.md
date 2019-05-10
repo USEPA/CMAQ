@@ -23,7 +23,7 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |[Output Log](#cmaq_output_log) <a id=cmaq_output_log_t></a>|ASCII|n/a|n/a
 |[CTM_CONC_1](#conc)<a id=conc_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |[S_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|1-hour|[2(X+1)+2(Y+1)]*Z
-|[ACONC_1](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[A_CONC_1](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |[CTM_DRY_DEP_1](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |[CTM_WETDEP_1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |**Diagnostic and Advanced**| | | |
@@ -33,9 +33,6 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |[CTM_DEPV_DIAG](#depv) <a id=depv_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_PT3D_DIAG](#pt3d) <a id=pt3d_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |[CTM_DUST_EMIS_1](#dust) <a id=dust_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_AOD_1](#aod) <a id=aod_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_IPR_1-3](#ipr) <a id=ipr_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_IRR_1-3](#irr) <a id=irr_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |[FLOOR](#floor) <a id=floor_t></a>|ASCII|Hourly|n/a
 |[MEDIA_CONC](#media)<a id=media_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_DEPV_MOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
@@ -74,13 +71,13 @@ For the CCTM, the LOGFILE environment variable allows users to specify the name 
 The 3-D CCTM hourly concentration file (CONC) contains gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>). CONC files include instantaneous model species concentrations at the end of each model hour. The number and types of species contained in the CONC files depend on the chemical mechanism and aerosol model configurations that are selected when the CCTM is compiled. The [FORTRAN NameLists](#matrix_nml) within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file.
 
 <a id=cgrid></a>
-### CTM_CGRID_1: CCTM restart file
+### S_CGRID: CCTM restart file
 [Return to Table 3-13](#cgrid_t)
 
 The 3-D CCTM ending concentration file (CGRID) is the CCTM restart file. Containing gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>), the CGRID file includes model species concentrations at the end of each simulation period. The number and types of species contained in the output CGRID files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. This file can be used to initialize CCTM from the simulation period that the model completed. For example, if the CCTM is configure to produce daily output files, a CGRID file will be written out at the end of each simulation day.
 
 <a id=aconc></a>
-### CTM_ACONC_1: CCTM hourly average concentration file
+### A_CONC_1: CCTM hourly average concentration file
 [Return to Table 3-13](#aconc_t)
 
 The 3-D CCTM integral average concentration file (ACONC) contains average model species concentrations for each model hour, as opposed to instantaneous concentrations at the end of each output time step. The species written to the ACONC file are set by the user in the CCTM run script using the variable AVG_CONC_SPCS. The model layers that are used to calculate the integral average concentration are also set in the CCTM run script using the variable ACONC_BLEV_ELEV, where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number. An example setting for the ACONC_BLEV_ELEV variable is “1 6”, which defines layers 1 through 6 as the vertical extent over which to calculate hourly average concentrations.
@@ -102,20 +99,19 @@ The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposit
 Along with the basic outputs detailed in the previous section, CMAQ can be configured to output several auxiliary files for diagnosing model performance.
 
 <a id=pmdiag></a>
-### CTM_PMDIAG_1: Instantaneous hourly aerosol diagnostics file
+### CTM_PMDIAG_1: CCTM instantaneous hourly aerosol diagnostics file
 [Return to Table 3-13](#pmdiag_t)
 
-This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
+This optional 2-D CCTM diagnostic file contains instantaneous information at the end of the hour on the geometric mean diameters and geometric standard deviations for the lognormal modes.
 
 <a id=apmdiag></a>
-### CTM_APMDIAG_1: Average hourly aerosol diagnostics file
+### CTM_APMDIAG_1: CCTM average hourly aerosol diagnostics file
 [Return to Table 3-13](#apmdiag_t)
 
-
-This diagnostic file contains information on the geometric mean diameters and geometric standard deviations for the lognormal modes.
+This optional 2-D CCTM diagnostic file contains integral average information for each model hour on the geometric mean diameters and geometric standard deviations for the lognormal modes.
 
 <a id=b3gts></a>
-### B3GTS_S: Biogenic emissions diagnostic file
+### B3GTS_S: CCTM biogenic emissions diagnostic file
 [Return to Table 3-13](#b3gts_t)
 
 This optional 2-D CCTM hourly output file contains calculated biogenic emissions in mass units. The B3GTS_S file will be produced only if in-line biogenic emissions are being calculated by CCTM and if the B3GTS_DIAG variable is turned on.
@@ -124,13 +120,13 @@ This optional 2-D CCTM hourly output file contains calculated biogenic emissions
 ### CTM_DEPV_DIAG: CCTM inline deposition diagnostics file
 [Return to Table 3-13](#depv_t)
 
-This 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour.
+This optional 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour.  Which species are included in this file is controled by the DDEP column in the NameList file(s).
 
 <a id=pt3d></a>
 ### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
 [Return to Table 3-13](#pt3d_t)
 
-The PT3D diagnostics file records the 3-D point source emissions as a linear average over the output timestep.
+This optional 3-D CCTM file records the 3-D point source emissions for each layer as a linear average over the output timestep.
 
 <a id=dust></a>
 ### CTM_DUST_EMIS_1
@@ -138,27 +134,11 @@ The PT3D diagnostics file records the 3-D point source emissions as a linear ave
 
 This optional 2-D CCTM hourly output file contains calculated dust emissions in mass units. The DUST_EMIS_1 file will be produced only if in-line windblown dust emissions are being calculated by CCTM and if the CTM_DUSTEM_DIAG variable is turned on.
 
-<a id=aod></a>
-### CTM_AOD_1
-[Return to Table 3-13](#aod_t)
-
-<a id=ipr></a>
-### CTM_IPR_[1-3]
-[Return to Table 3-13](#ipr_t)
-
-The 3-D CCTM integrated process rate files (IPR) contains hourly concentrations of selected model output species in terms of the model process that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IPR file shows the hourly change in species concentration that is due to particular source/sink processes in the model. The input file procan.inp is used to set the model species for which to capture process analysis information, and the processes to track during the process analysis.
-
-<a id=irr></a>
-### CTM\_IRR_[1-3] Process analysis output – integrated reaction rates
-[Return to Table 3-13](#irr_t)
-
-The 3-D CCTM integrated reaction rate file (IRR) contains hourly concentrations of selected model output species in terms of the gas-phase chemistry pathways that contributed to the predicted concentration at each hour. For each grid cell in the process analysis domain (which is most likely a subset of the full modeling domain), the IRR file shows the hourly change in species concentration that is due to particular gas-phase chemistry reactions or reaction groups. The input file procan.inp is used to select the process analysis domain, the model species for which to capture process analysis information, and the chemistry reactions or groups of reactions to track during the process analysis.
-
 <a id=floor></a>
 ### FLOOR: concentration-reset diagnostics file
 [Return to Table 3-13](#floor_t)
 
-FLOOR files are optional output diagnostic files which list specific gridboxes/timesteps in which species with negative concentrations are reset to zero.
+This optional ASCII file lists specific gridboxes/timesteps in which species with negative concentrations are reset to zero.
 
 <a id=media></a>
 ### MEDIA_CONC: Bidirectional soil NH4+ restart file
@@ -170,26 +150,26 @@ This 2-D CCTM file contains the soil NH<sub>4</sub> and pH concentrations if usi
 ### CTM_DEPV_MOS
 [Return to Table 3-13](#depv_mos_t)
 
-This 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) for the final time step of the hour for each land use type within a grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers".  
+This optional 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) for the final time step of the hour for each land use type within a grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers".  This file is only created if the environment variable CTM_MOSAIC is set to Y.
 
 <a id=ctm_dry_depv_mos></a>
-### CTM_DRY_DEPV_MOS
+### CTM_DRY_DEP_MOS
 [Return to Table 3-13](#ctm_dry_depv_mos_t)
 
-This 3-D CCTM file contains the total deposition (kg hectare<sup>-1</sup>) for the hour for each land use type within each grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers".  
+This optional 3-D CCTM file contains the total deposition (kg hectare<sup>-1</sup>) for the hour for each land use type within each grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers". This file is only created if the environment variable CTM_MOSAIC is set to Y. 
 
 <a id=depv_fst></a>
 ### CTM_DEPV_FST
 [Return to Table 3-13](#depv_fst_t)
 
-This 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) through the stomatal pathway for the final time step of the hour for each land use type within a grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers".  
+This optional 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) through the stomatal pathway for the final time step of the hour for each land use type within a grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers". This file is only created if the environment variable CTM_FST is set to Y.
 
 
 <a id=ctm_dry_depv_fst></a>
-### CTM_DRY_DEPV_FST
+### CTM_DRY_DEP_FST
 [Return to Table 3-13](#ctm_dry_depv_fst_t)
 
-This 3-D CCTM file contains the total deposition (kg hectare<sup>-1</sup>) through the stomatal pathway for the hour for each land use type within each grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers".  
+This optional 3-D CCTM file contains the total deposition (kg hectare<sup>-1</sup>) through the stomatal pathway for the hour for each land use type within each grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers". This file is only created if the environment variable CTM_FST is set to Y. 
 
 <a id=ctm_vdiff_diag></a>
 ### CTM_VDIFF_DIAG
