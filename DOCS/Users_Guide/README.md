@@ -13,7 +13,7 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 1 (Overview):](CMAQ_UG_ch01_overview.md) CMAQ background, features, requirements and support resources.
 
-[Chapter 2 (Program Structure):](CMAQ_UG_ch02_program_structure.md) Overview of the CMAQ system and programs.
+[Chapter 2 (Program Structure):](CMAQ_UG_ch02_program_structure.md) Overview of the programs included with the CMAQ system.
 
 [Chapter 3 (Preparing to Run):](CMAQ_UG_ch03_preparing_to_run.md) Hardware and software requirements for running CMAQ.
 
