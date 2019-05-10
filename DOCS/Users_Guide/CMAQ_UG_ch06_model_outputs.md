@@ -102,13 +102,13 @@ Along with the basic outputs detailed in the previous section, CMAQ can be confi
 ### CTM_PMDIAG_1: CCTM instantaneous hourly aerosol diagnostics file
 [Return to Table 6-1](#pmdiag_t)
 
-This optional 2-D CCTM diagnostic file contains instantaneous information at the end of the hour on the geometric mean diameters and geometric standard deviations for the lognormal modes.
+This optional 2-D CCTM diagnostic file contains instantaneous information at the end of the hour on the geometric mean diameters and geometric standard deviations for the lognormal modes. This file is only produced if the CTM_PMDIAG environment variable is set to Y.
 
 <a id=apmdiag></a>
 ### CTM_APMDIAG_1: CCTM average hourly aerosol diagnostics file
 [Return to Table 6-1](#apmdiag_t)
 
-This optional 2-D CCTM diagnostic file contains integral average information for each model hour on the geometric mean diameters and geometric standard deviations for the lognormal modes.
+This optional 2-D CCTM diagnostic file contains integral average information for each model hour on the geometric mean diameters and geometric standard deviations for the lognormal modes. This file is only produced if the CTM_APMDIAG environment variable is set to Y.
 
 <a id=b3gts></a>
 ### B3GTS_S: CCTM biogenic emissions diagnostic file
@@ -126,7 +126,7 @@ This optional 2-D CCTM file contains the deposition velocity (m/s) for each chem
 ### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
 [Return to Table 6-1](#pt3d_t)
 
-This optional 3-D CCTM file records the 3-D point source emissions for each layer as a linear average over the output timestep.
+This optional 3-D CCTM file records the 3-D point source emissions for each layer as a linear average over the output timestep. This file is only produced if the PT3DDIAG environment variable is set to Y.
 
 <a id=dust></a>
 ### CTM_DUST_EMIS_1
@@ -138,7 +138,7 @@ This optional 2-D CCTM hourly output file contains calculated dust emissions in 
 ### FLOOR: concentration-reset diagnostics file
 [Return to Table 6-1](#floor_t)
 
-This optional ASCII file lists specific gridboxes/timesteps in which species with negative concentrations are reset to zero.
+This optional ASCII file lists specific gridboxes/timesteps in which species with negative concentrations are reset to zero. The location and name of the file is set by the FLOOR_FILE environment variable.
 
 <a id=media></a>
 ### MEDIA_CONC: Bidirectional soil NH4+ restart file
@@ -188,17 +188,14 @@ The VSED_DIAG file provides diagnostic output of particle gravitational settling
 ### LTNG_DIAG1
 [Return to Table 6-1](#ltnghourly_t)
 
-Hourly 3-D lightning NO emissions calculated in-line by the CCTM.
+This optional 3-D CCTM file contains hourly lightning NO emissions calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_1 environment variable is set to T.
 
 <a id=ltngcol></a>
 ### LTNG_DIAG2
 [Return to Table 6-1](#ltngcol_t)
 
-Hourly column-total lightning NO emissions calculated in-line by the CCTM.
-
-<a id=play_srcid></a>
-### PLAY_SRCID
-[Return to Table 6-1](#play_srcid_t)
+This optional 2-
+This optional 2-D CCTM file contains hourly column-total lightning NO emissions calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_2 environment variable is set to T.
 
 <a id=ctm_rj></a>
 ### CTM\_RJ_[1-2]: In-line photolysis output – gridded photolysis rates
