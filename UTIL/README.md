@@ -6,7 +6,7 @@ With the exception of Bldmake, the following utility programs prepare chemical m
 
 ## Utility Programs
 
-* **[bldmake](bldmake/README.md)**: CMAQ Makefile generator and model buildewr
+* **[bldmake](bldmake/README.md)**: CMAQ Makefile generator and model builder
 * **[chemmech](chemmech/README.md)**: generates chemical mechanism input files for the CMAQ programs from a mechanism definition file
 * **[create_ebi](create_ebi/README.md)**: creates mechanisms-dependent EBI chemistry solver source code 
 * **[inline_phot_preproc](inline_phot_preproc/README.md)**: creates photolysis reaction parameter tables for the CCTM inline photlysis module
