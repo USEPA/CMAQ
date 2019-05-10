@@ -15,9 +15,6 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 
 <a id=Output_Table></a>
 
-** >> Comment <<** In Table 8.1, those Hourly denotation, we should put an asterisk to indicate that it can be user defined, e.g. 30 minutes rather 1 hour and in the same table and table 8-13, there are places with +1 and I think we can make it more generic as +NTHIK (your call).
-
-
 **Table 6-1. CMAQ Output files**
 
 |**File Name**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|
@@ -25,12 +22,10 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |**Standard**| | | |
 |[Output Log](#cmaq_output_log) <a id=cmaq_output_log_t></a>|ASCII|n/a|n/a
 |[CTM_CONC_1](#conc)<a id=conc_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_CGRID_1](#cgrid) <a id=cgrid_t></a>|GRDDED3|1-hour|[2(X+1)+2(Y+1)]*Z
-|[CTM_ACONC_1](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[S_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|1-hour|[2(X+1)+2(Y+1)]*Z
+|[ACONC_1](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |[CTM_DRY_DEP_1](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |[CTM_WETDEP_1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_VIS_1](#vis) <a id=vis_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[CTM_AVIS_1](#avis) <a id=avis_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |**Diagnostic and Advanced**| | | |
 |[CTM_PMDIAG_1](#pmdiag) <a id=pmdiag_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
 |[CTM_APMDIAG_1](#apmdiag) <a id=apmdiag_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
@@ -44,19 +39,21 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |[FLOOR](#floor) <a id=floor_t></a>|ASCII|Hourly|n/a
 |[MEDIA_CONC](#media)<a id=media_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_DEPV_MOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_DRY_DEPV_MOS](#dry_depv_mos) <a id=dry_depv_mos_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_DEPV_FST](#depv_fst) <a id=depv_fst_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_DRY_DEPV_FST](#dry_depv_fst) <a id=dry_depv_fst_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_DRY_DEP_MOS](#dry_dep_mos) <a id=dry_depv_fst_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_DRY_DEP_FST](#dry_dep_fst) <a id=dry_depv_fst_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_VDIFF_DIAG](#vdiff_diag) <a id=vdiff_diag_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_VSED_DIAG](#vsed_diag)<a id=vsed_diag_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[LTNG_DIAG1](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
-|[LTNG_DIAG2](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[PLAY_SRCID](#play_srcid) <a id=play_srcid_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-|[CTM_RJ_1-2](#ctm_rj) <a id=ctm_rj_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_LTNGDIAG_1](#ltngdiag1) <a id=ltngdiag_1_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]*Z
+|[CTM_LTNGDIAG_2](#ltngdiag2) <a id=ltngdiag_2_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_RJ_1](#ctm_rj1) <a id=rj_1></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_RJ_2](#ctm_rj2) <a id=rj_2></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+|[CTM_RJ_3](#ctm_rj3) <a id=rj_3></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[SOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_SSEMIS_1](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
 |[CTM_WETDEP_2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
-
+|[CTM_VEXT_1](#vext) <a id=vext_1></a>|GRDDED3|Hourly|[2(X+1)+2(Y+1)]
+Note that while "Hourly" is indicated, users may define a different time step (e.g. 30 minutes) for model output by changing the TSTEP environment variable in the runscript.
 
 <a id=cmaq_output_log></a>
 ### CMAQ output log
@@ -99,14 +96,6 @@ The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposit
 [Return to Table 3-13](#wetdep_t)
 
 The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the [FORTRAN NameLists](#matrix_nml) within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
-
-<a id=vis></a>
-### CTM_VIS_1
-[Return to Table 3-13](#vis_t)
-
-<a id=avis></a>
-### CTM_AVIS_1
-[Return to Table 3-13](#avis_t)
 
 ## 6.2 Diagnostic and Advanced CMAQ Output Files
 
