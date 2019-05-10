@@ -105,9 +105,9 @@ The netCDF library is used to control the data structures of the CMAQ input/outp
 
 Download the latest netCDF release from http://www.unidata.ucar.edu/software/netcdf/ and follow the instructions to install on your system.  
 
-** Compile netCDF without netCDF4 and HDF5 support. **
+**Compile netCDF without netCDF4 and HDF5 support**
 
-The general steps for installation on a Linux system with, C-shell, GCC and Gfortran are below.  These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
+The general steps for installation on a Linux system (with C-shell, GCC and GFortran) are below.  These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
 ```
 ### Set up your Linux system environment
@@ -142,14 +142,14 @@ Additional instruction and options for compiling netCDF are on the [Unidata C ne
 -----
 The I/O API library is used for the input/output data flows in CMAQ.
 
-Download the I/O API source code from the CMAS Center and put the gzipped tarball on your Linux system. The general steps for installation on a Linux system with, C-shell, GCC and Gfortran are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
+Download the I/O API source code from the CMAS Center and put the gzipped tarball on your Linux system. The general steps for installation on a Linux system (with C-shell, GCC and GFortran) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
 ```
 ### Set up your Linux system environment
 setenv BIN Linux2_x86_64gfort
 
 ## Install I/O API
-tar xvzf ioapi-3.1.tar.gz
+tar xvzf ioapi-3.2.tar.gz
 cd ioapi
 cp Makefile.nocpl Makefile
 ```
@@ -162,9 +162,9 @@ make
 
 ## 3.7 Install a Message Passing Interface (MPI) library
 -----
-The MPI library is used to create parallel (multiple processor) applications of CMAQ.  CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. This example shows how to install OpenMPI on a Linux system with, C-shell, GCC and Gfortran are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
+The MPI library is used to create parallel (multiple processor) applications of CMAQ.  CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. This example shows how to install OpenMPI on a Linux system with C-shell, GCC and Gfortran. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
-nstall on Debian/Ubuntu Linux:
+Install on Debian/Ubuntu Linux:
 
 ```
 sudo apt-get install openmpi openmpi-devel
