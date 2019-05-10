@@ -227,11 +227,11 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 
 The CMAQ release also includes optional utilities for model developers.  These tools may be useful for advanced users who wish to use other chemical mechanisms and/or a different set of photolysis reaction input data.  Utility tools included in the release:
 
-* **[chemmech](chemmech/README.md)**: generates chemical mechanism input files for the CMAQ programs from a mechanism definition file
-* **[create_ebi](create_ebi/README.md)**: creates mechanisms-dependent EBI chemistry solver source code 
-* **[inline_phot_preproc](inline_phot_preproc/README.md)**: creates photolysis reaction parameter tables for the CCTM inline photlysis module
-* **[nml](nml/README.md)**: converts chemical mechanism csv output files from chemmech to the namelist files required by the CMAQ programs
-* **[jproc](jproc/README.md)**: calculates daily look-up tables containing clear-sky photolysis rates that are used by the tabular method for calculate photolysis rates in CMAQ CCTM.
+* **[chemmech](../../UTIL/chemmech/README.md)**: generates chemical mechanism input files for the CMAQ programs from a mechanism definition file
+* **[create_ebi](../../UTIL/create_ebi/README.md)**: creates mechanisms-dependent EBI chemistry solver source code 
+* **[inline_phot_preproc](../.../UTIL/inline_phot_preproc/README.md)**: creates photolysis reaction parameter tables for the CCTM inline photlysis module
+* **[nml](../../UTIL/nml/README.md)**: converts chemical mechanism csv output files from chemmech to the namelist files required by the CMAQ programs
+* **[jproc](../../UTIL/jproc/README.md)**: calculates daily look-up tables containing clear-sky photolysis rates that are used by the tabular method for calculate photolysis rates in CMAQ CCTM.
 
 
 <!-- BEGIN COMMENT -->
