@@ -5,7 +5,7 @@
 
 <!-- END COMMENT -->
 
-# 5. Compile and Run
+# 5. Compile and Run CMAQ
 
 ## 5.1 Introduction
 
