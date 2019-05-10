@@ -19,7 +19,7 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 4 (Model Inputs):](CMAQ_UG_ch04_model_inputs.md) Preprocessing tools incldued with the base code and descriptions of the CMAQ input files. 
 
-[Chapter 5 (Running CMAQ):](CMAQ_UG_ch05_compile_and_run.md) How to obtain the CMAQ source codes, set-up your environment and run a simulation.
+[Chapter 5 (Compile and Run CMAQ):](CMAQ_UG_ch05_compile_and_run.md) How to obtain the CMAQ source codes, set-up your environment and run a simulation.
 
 [Chapter 6 (Model Outputs):](CMAQ_UG_ch06_model_outputs.md) Descriptions of the CMAQ output files.
 
@@ -29,13 +29,13 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 9 (New Simulation):](CMAQ_UG_ch09_new_simulation.md) Overview of steps needed to set up CMAQ for a new domain or application.
 
-[Chapter 10 (Process Analysis):](CMAQ_UG_ch10_process_analysis.md) Using Process Analysis (PA) for separating out and quantifying the contributions of individual physical and chemical processes to the changes in the predicted concentrations of a pollutant.
+[Chapter 10 (Process Analysis):](CMAQ_UG_ch10_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR) and Integrated Reaction Rates (IRR).
 
-[Chapter 11 (HDDM-3D):](CMAQ_UG_ch11_HDDM-3D.md) The Decoupled Direct Method in Three Dimensions (DDM-3D) for calculating concentration and deposition sensitivity information for user-specified model parameters.
+[Chapter 11 (HDDM-3D):](CMAQ_UG_ch11_HDDM-3D.md) Instrumented Models - Decoupled Direct Method in Three Dimensions (DDM-3D).
 
-[Chapter 12 (ISAM):](CMAQ_UG_ch12_ISAM.md) The Integrated Source Apportionment Method (ISAM) for calculating source attribution information for user-specified ozone and particulate matter precursors within the CMAQ model.
+[Chapter 12 (ISAM):](CMAQ_UG_ch12_ISAM.md) Instrumented Models - Integrated Source Apportionment Method (ISAM).
 
-[Chapter 13 (Sulfur Tracking):](CMAQ_UG_ch13_sulfur_tracking.md) The CMAQ-Sulfur Tracking Model (CMAQ-STM) for tracking sulfate from emissions, initial and boundary conditions and production from gas- and aqueous-phase chemical reactions.
+[Chapter 13 (Sulfur Tracking):](CMAQ_UG_ch13_sulfur_tracking.md) Instrumented Models - Sulfur Tracking Model (STM).
 
 [Chapter 14 (WRF-CMAQ):](CMAQ_UG_ch14_WRF-CMAQ.md) The coupled meteorology-chemistry model WRF-CMAQ to simulate feedback between meteorology and chemistry.
 
