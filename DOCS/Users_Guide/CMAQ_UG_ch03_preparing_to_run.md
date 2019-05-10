@@ -19,7 +19,7 @@ The minimum hardware requirements for running the CMAQ Program Suite on a PC are
 
 However, to use CMAQ in a production environment where multiple iterations of the model will be executed for different spatial domains and/or emissions control strategies, either a cluster of multiprocessor PCs on a high-end network or an expandable rack-mounted Linux server is recommended.
 
-For example, the CMAQ team at the EPA uses a Dell cluster named Atmos. The cluster consists of 32 Dell PowerEdge C6320 servers, with a total of 256 processors, EDR infiniband interconnect and runs on Read Hat Enterprise Linux 7 operating system
+For example, the CMAQ team at the EPA uses a Dell cluster named Atmos. The cluster consists of 32 Dell PowerEdge C6320 servers, with a total of 256 processors, EDR infiniband interconnect and runs on Red Hat Enterprise Linux 7 operating system
 
 ## 3.2 Software Requirements
 **>>Comment<<** Do we want to also recommend a compiler (intel) for speed?
