@@ -13,7 +13,7 @@ Weather conditions such as the changes in temperature, winds, cloud formation, a
 
 The structure of the CMAQ system is illustrated in Fig. 2-1. The main CMAQ program, the CMAQ Chemistry Transport Model (CCTM), which is often referred to simply as CMAQ, contains the principal equations used for predicting pollutant concentrations given the inputs discussed above. These partial differential equations are designed for mass conservation and take into account a myriad of important processes like emissions, chemical reaction, uptake to clouds and rain, and dry deposition.  An overview of the science processes in CMAQ can be found in [Chapter 8](CMAQ_UG_ch08_model_formulation.md).  Instructions for compiling and running the CCTM are covered in Chapters 3 ([Preparing to Run](CMAQ_UG_ch03_preparing_to_run.md)), 4 ([Model Inputs](CMAQ_UG_ch04_model_inputs.md)) and 5 ([Compile and Run CMAQ](CMAQ_UG_ch05_compile_and_run.md)). 
 
-![Figure 2-1](./images/cmaq_flow_chart.jpg)
+![Figure 2-1](./images/Figure2-1.jpg)
 
 **Figure 2‑1. Overview of the CMAQ System**
 
