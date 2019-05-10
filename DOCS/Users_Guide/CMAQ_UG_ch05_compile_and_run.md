@@ -225,6 +225,28 @@ Common errors in a CCTM simulation include the following:
 
 Check the last few lines of the CCTM output log for messages to help diagnose why the simulation did not complete.
 
+## 5.8 Utilities for Developers
+
+insert breif description of chemmech, create_ebi, inline_phot_prepro, nml
+
+**Chemical Mechanism Compiler (CHEMMECH):**
+
+**>>COMMENT<<** How do "users choose which mechanism to use"?
+
+**>>COMMENT<<** The last sentence of this section is confusing.
+
+The release version of CMAQ includes all necessary chemical mechanism information for the preconfigured atmospheric chemistry reactions sets or mechanisms in a released version of CMAQ. Users choose which mechanism to use for compiling and running the CCTM executable. CCTM implements a chemical mechanism by using its namelist and FORTRAN modules. The files are in ASCII format and include the mechanism parameters required such as the species, reaction stoichiometry, and kinetics information. The module files are used to compile the CCTM executable while the namelists are read by CCTM at run time.
+
+Advanced users who wish to generate a new chemical mechanism have to use the CHEMMECH utility to convert the mechanism into the files needed by the CCTM program. CHEMMECH uses a mechanism definition file, often named “mech.def”, and optionally the mechanism namelist files to generate FORTRAN modules. The “mech.def” is an ASCII file that uses a rigid syntax to define reactions and their rate constants.
+
+This approach defining the CMAQ chemical mechanisms allows the chemical reactions and their species to be a fixed part of the executable code. Modifications to the namelists can change predictions saved to the output files, deposition processes of species, emissions inputs and other options for species without recompiling the executable. The namelists defining a chemical mechanism are used by CCTM as well as the ICON and BCON pre-processors. The FORTRAN modules are required to run utility programs such as create_ebi and inline_phot_preproc and JPROC.
+
+create_ebi
+
+inline_phot_preproc
+
+[**NML:**](../../UTIL/nml/README.md) In most cases, users will already have a pre-generated species namelist file to be input into ICON, BCON and CCTM. However advanced users who wish to edit these files or want to generate a namelist from scratch can use the NML utility. This utility contains two scripts, CSV2NML and NML2CSV that are used to convert the species definition files from CSV format to NAMELIST files and from a NAMELIST format to a CSV file, respectively. The NAMELIST files are used as inputs to the CMAQ programs ICON, BCON, or CCTM to define the processes that will impact each model species. Four NAMELIST files define the processes for gas-phase species (GC.nml), aerosol species (AE.nml), nonreactive species (NR.nml) and tracer speces (TR.nml).
+
 
 <!-- BEGIN COMMENT -->
 
