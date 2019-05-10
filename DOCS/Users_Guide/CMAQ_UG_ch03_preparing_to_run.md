@@ -30,7 +30,7 @@ Before using the CMAQ program suite, the user must first download and configure 
 -   **Windows:** PuTTY, MobaXterm
 -   **Linux:** Terminal, XTerm
 
-When using the CMAQ program suite a common theme that will be seen is the use of shell scripts. In short, a shell script is basically a reciepe of commands that can be run to save time when performing a task. In the case of CMAQ, it is used to set variables, science options and run other programs.
+When using the CMAQ program suite a common theme that will be seen is the use of shell scripts. In short, a shell script is basically a recipe of commands that can be run to save time when performing a task. In the case of CMAQ, it is used to set variables, science options and run other programs.
 
 At this point faimiliarity with linux command line prompts as well as basic shell scripting is expected.
 
@@ -67,7 +67,7 @@ sudo yum update
 sudo yum install gcc-gfortran
 ```
 
-Another common theme seen in the CMAQ program suite is the use of Fortran/C [Makefiles](https://www.gnu.org/software/make/manual/make.pdf). Makefiles are similar shell scripts in the sense that they describe the relationship between Fortran/C files and provides a receipe on how to link and compile them to build an executable. This is convenient because if one file changes in the program suite, the Makefile will recompile and link all the necessary programs by running the commands below.
+[Makefiles](https://www.gnu.org/software/make/manual/make.pdf) are similar to shell scripts in the sense that they describe the relationship between Fortran/C files and provides a recipe on how to link and compile them to build an executable. This is convenient because if one file changes in the program suite, the Makefile will recompile and link all the necessary programs by running the commands below.
 
 Common shell commands to invoke the Makefile include:
 
@@ -75,7 +75,7 @@ Common shell commands to invoke the Makefile include:
 make
 ``
 
-This shell command invokes the Makefile and follows the reciepe on how to compile and link the program files listed to update the CMAQ executable.
+This shell command invokes the Makefile and follows the recipe on how to compile and link the program files listed to update the CMAQ executable.
 
 ``
 make clean
