@@ -229,7 +229,7 @@ The namelist files contain header information that describe which class of speci
 || 16 | CONC | Yes/No |Concentration output file switch|
 | … | ...| ...|... | Repeat for the number of gas-phase pollutants in the mechanism being modeling|
 
-The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). For an example see this [link](../../src/MECHS/cb05e51_ae6_aq/GC_cb05e51_ae6_aq.nml) to the GC namelist species file for the cb05e51_ae6_aq mechanism.
+The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 8-4](#Table8-4). For an example see this [link](../../CCTM/src/MECHS/cb05e51_ae6_aq/GC_cb05e51_ae6_aq.nml) to the GC namelist species file for the cb05e51_ae6_aq mechanism.
 
 <a id=ic_profile></a>
 ### IC_PROFILE: Initial conditions vertical profiles
