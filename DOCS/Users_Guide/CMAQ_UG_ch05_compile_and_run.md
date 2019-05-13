@@ -59,15 +59,13 @@ After downloading the source codes the user is encouraged to look through the re
 
 ![Figure 5-1](images/Figure5-1.png)
 
-In this image it can be seen that there four main sub folders within the CMAQ repository. The first folder being the CCTM folder which houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). There is also a README file within this folder to provide a description of the contents of the folders and any pertaint information that the owner of these files wishes to convey.  
+In this image it can be seen that there four main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, Release Notes and Known issuse associated with the current release and a Develpers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
 
-The second folder seen is the DOCS folder which contains all relevant documentation pertaining to the CMAQ program suite. It should be noted that this folder contains many subfolders, indicated by the dot dot symbol, and each folder contains documentation pertaining to the file name. For example, the User Manual contains all documentation, including this one, that describes the technical information required for a user to use the CMAQ program suite.
+The third folder in the repository is the POST folder which contains several very useful tools for post-processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 7](CMAQ_UG_ch07_analysis_tools.md).
 
-The third folder in the repository is the POST folder which contains several very useful tools for post processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 7](CMAQ_UG_ch07_analysis_tools.md).
+The fourth folder in the repository is the PREP folder which contains several pre-processing programs that can be run before the CCTM to prepare meteorology, initial conditions and boundary conditions inputs. Similar to the POST tools, documentation on compiling and running the programs is provided within each subfolder under PREP.
 
-The fourth folder in the repository is the PREP folder which contains all the preparatory subprograms to be run before the CCTM folder is run. Again as before, each subprogram folder contains source codes, scripts and a README used to run the subprogram. The technical information on how to run these programs will be discussed in section 5.4 of this chapter.
-
-The last folder within the repository is the UTIL folder which contains useful utilities relating to the CMAQ program suite. An example is the bldmake utility which is used to compile the source code into executables when you use any of the build scripts in the CMAQ repository. Also included in this repository are two additional C-Shell scripts along with a README to describe the contents of the repository. `Bldit_project.csh` allows the user to extract the build and run scripts and compile the model outside of the repository, while `config_cmaq.csh` helps enforce consistent environment setting for the CMAQ project. Both these scripts will be discussed in the following sections.
+The last folder within the repository is the UTIL folder which contains useful utilities relating to the CMAQ program suite. An example is the bldmake utility which is used to compile the source code into executables when you use any of the build scripts in the CMAQ repository. Also included in this repository is a top level README file with an overview of the contents of the release and two additional C-Shell scripts, `bldit_project.csh` and `config_cmaq.csh`.  `bldit_project.csh` allows the user to extract the build and run scripts and compile the model outside of the repository, while `config_cmaq.csh` helps enforce consistent environment setting for the CMAQ project. Both these scripts will be discussed in the following sections.
 
 ## 5.4 Building CMAQ Outside of the Repository in a User-Specified Directory
 
@@ -103,8 +101,6 @@ After running the above command it should be noticed now under CMAQ_HOME, the da
 `CMAQ_LIB   = $CMAQ_HOME/lib` (M3LIB before CMAQv5.2)<br>
 `CMAQ_DATA  = $CMAQ_HOME/data` (M3DATA before CMAQv5.2)
 
-
-
 If you encounter errors about libraries not being found, check the settings of the `config_cmaq.csh` script variables IOAPI, NETCDF, or MPI to ensure that they are correctly point to the locations of these libraries on your Linux system.
 
 Sourcing the `config_cmaq.csh` script only needs to be invoked during a new installation of CMAQ to make sure the links to these libraries are working correctly. For every successive session, links to these libraries will automatically be created when you run any of the build or run scripts.
@@ -112,6 +108,8 @@ Sourcing the `config_cmaq.csh` script only needs to be invoked during a new inst
 ## 5.6 Compiling CMAQ Chemistry-Transport Model (CCTM)
 
 After all required CMAQ inputs are generated using the preprocessors mentioned above the user is now ready to compile CCTM. CMAQ’s current coding structure is based on a modularity level that distinguishes from each other CCTM’s main driver, science modules, data estimation modules, and control/utility subroutines. Also distinguished from each other are the science models (including submodels for meteorology, emissions, chemistry-transport modeling) and the analysis and visualization subsystems.
+
+**>>COMMENT<<** Right now these modules are NOT all discussed in Chapter 8.  Need to decide what we want to say here.
 
 In CCTM, the process modules that affect the pollutant concentration fields are classified as listed below. Each bullet contains a description of the process followed by module name in parentheses. These modules, with the exception of gencoor, are discussed further later in [Chapter 8](CMAQ_UG_ch08_model_formulation.md).
 
@@ -177,8 +175,6 @@ cd BLD_CCTM_v53_[compiler][version]
 make clean
 make
 ```
-
-**>>COMMENT: END SECTION <<**
 
 ## 5.7 Running CCTM
 
