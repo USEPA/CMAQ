@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch05_running_CMAQ.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_analysis_tools.md)
+[<< Previous Chapter](CMAQ_UG_ch05_compile_and_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_analysis_tools.md)
 
 <!-- END COMMENT -->
 
@@ -221,7 +221,7 @@ This optional 2-D CCTM hourly output file contains calculated sea salt emissions
 In CMAQ, wet deposition is calculated separately for resolved (grid-scale) clouds and for convective (subgrid) clouds. The WETDEP1 file contains the total wet deposition, i.e., the sum of both resolved-scale and subgrid-scale deposition. The WETDEP2 file contains only subgrid-scale deposition, plus some cloud diagnostic variables. The 2-D CCTM wet deposition file (WETDEP2) includes cumulative hourly wet deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the FORTRAN Namelist files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
 
 
-[<< Previous Chapter](CMAQ_UG_ch05_running_CMAQ.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_analysis_tools.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch05_compile_and_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_analysis_tools.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
