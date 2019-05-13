@@ -174,7 +174,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[E2C_FERT](#e2c_fert) <a id=e2c_fert_t></a>|| GRDDED3 | Daily |XY||optional|
 |**Photolysis** | | | | |||
 |[JTABLE](#jtable) <a id=jtable_t></a>|| ASCII | Daily | n/a | JPROC|optional|
-|[OMI](#omi) <a id=omi_t></a>|| ASCII | daily | n/a ||optional||
+|[OMI](#omi) <a id=omi_t></a>|| ASCII | daily | n/a ||optional|CMAQ repo or create_omi|
 
 
 ## General
