@@ -50,7 +50,7 @@ C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    13 Jun 11 J.Young: Convert for Namelist redesign
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C    02 Nov 18 S.Roselle: Removed species mapping; updates to enable runtime
-C                     option for profile, regrid, or test_patterns BCs
+C                     option for profile, regrid, or test patterns BCs
 C    07 Nov 18 S.Roselle: Removed parallel processing code; 
 C                         replaced UTILIO_DEFN with M3UTILIO
                   
@@ -115,7 +115,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       STIME = ENVINT( 'STIME', 'START TIME', 0, STATUS )
       IF ( STATUS .NE. 0 ) STIME = 0
 
-      VARDESC = 'Initial condition type: (profile, regrid, test_patterns)'
+      VARDESC = 'Initial condition type: (profile, regrid, patterns)'
       CALL ENVSTR ( ICON_TYPE, VARDESC, 'profile', IC_MODULE, STATUS )
       IF ( STATUS .NE. 0 ) WRITE( LOGUNIT, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
@@ -152,7 +152,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL PROF_INIC ( LOGUNIT )
       ELSE IF ( IC_MODULE .EQ. 'regrid' ) THEN
          CALL M3_INIC ( LOGUNIT, SDATE, STIME )
-      ELSE IF ( IC_MODULE .EQ. 'test_patterns' ) THEN
+      ELSE IF ( IC_MODULE .EQ. 'patterns' ) THEN
          CALL TRAC_INIC ( LOGUNIT )
       ELSE
          MSG = '*** Unknown ICON type requested: ' // IC_MODULE

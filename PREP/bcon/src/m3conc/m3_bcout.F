@@ -390,7 +390,7 @@ C Read the concentration file(s)
 
                VNAME = INFL_SP_NAME( ISP )
 
-               IF ( .NOT. INTERP3( CTM_FL_NAME( N ), VNAME, PNAME, SDATE, STIME,
+               IF ( .NOT. INTERP3( CTM_FL_NAME( N ), VNAME, PNAME, JDATE, JTIME,
      &                          NCOLS_IN*NROWS_IN*NLAYS_IN, CONCIN ) ) THEN
                   MSG = 'Could not read input CTM Conc file ' //
      &                   CTM_FL_NAME( N )         

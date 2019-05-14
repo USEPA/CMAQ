@@ -421,11 +421,20 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             VNAME = INFL_SP_NAME( ISP )
 
-            IF ( .NOT. INTERP3( CTM_FL_NAME( N ), VNAME, PNAME, SDATE, STIME,
-     &                          NCOLS_IN*NROWS_IN*NLAYS_IN, CONCIN ) ) THEN
-               MSG = 'Could not read input CTM Conc file ' //
-     &               CTM_FL_NAME( N )
-               CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+            IF ( MXREC3D .EQ. 1 ) THEN
+               IF ( .NOT. READ3( CTM_FL_NAME( N ), VNAME, ALLAYS3, SDATE,
+     &                           STIME, CONCIN( 1,1,1 ) ) ) THEN
+                  MSG = 'Could not read input CTM Conc file ' //
+     &                  CTM_FL_NAME( N )
+                  CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+               END IF
+            ELSE
+               IF ( .NOT. INTERP3( CTM_FL_NAME( N ), VNAME, PNAME, SDATE, STIME,
+     &                             NCOLS_IN*NROWS_IN*NLAYS_IN, CONCIN ) ) THEN
+                  MSG = 'Could not read input CTM Conc file ' //
+     &                  CTM_FL_NAME( N )
+                  CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+               END IF
             END IF
 
             DO CIC = 1, NCOLS
