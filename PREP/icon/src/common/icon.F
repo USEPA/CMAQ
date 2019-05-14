@@ -80,8 +80,6 @@ C Local Variables:
       CHARACTER( 80 ) :: VARDESC                ! variable description
 
       INTEGER    LOGUNIT      ! Unit number for output log
-      INTEGER    ISP          ! Species counter
-      INTEGER    N            ! Loop index
       INTEGER :: SDATE = 0    ! Start date 
       INTEGER :: STIME = 0    ! Start time 
       INTEGER    STATUS       ! Status code

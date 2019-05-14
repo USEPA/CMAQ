@@ -95,7 +95,7 @@ C latitude for coord-system center (degrees)
 C environment variable grid name to select from GRIDDESC
          CHARACTER( 16 ) :: HGRD_NAME = 'GRID_NAME'
          INTEGER, EXTERNAL :: SETUP_LOGDEV
-         INTEGER :: STATUS, ALST
+         INTEGER :: STATUS
 
          CHARACTER( 48 ) :: VARDESC
 

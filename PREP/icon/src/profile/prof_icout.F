@@ -72,15 +72,12 @@ C Parameters: none
 C Local Variables:
       CHARACTER( 80 ) :: MSG = ' '            ! Log message
       CHARACTER( 16 ) :: PNAME = 'PROF_ICOUT' ! Program Name
-      CHARACTER( 16 ) :: PROF_SP              ! Species name on profile file
       CHARACTER( 16 ) :: VNAME                ! Species name on CTM conc file
       CHARACTER( 16 ), ALLOCATABLE :: IC_FNAME( : )  ! Logical names of IC Output file(s)
 
       CHARACTER(1000) :: RECORD
       CHARACTER(16), ALLOCATABLE :: VNAME_PROF_TEMP(:)
       CHARACTER(16), ALLOCATABLE :: VUNIT_PROF_TEMP(:)
-      CHARACTER(16), ALLOCATABLE :: VNAME_PROF(:)
-      CHARACTER(16), ALLOCATABLE :: VUNIT_PROF(:)
       CHARACTER(16), ALLOCATABLE :: PROF_SP_NAME( : ) ! Profile species names
       CHARACTER(16), ALLOCATABLE :: UNITS_IN( : ) ! Units for CTM species
       CHARACTER(80), ALLOCATABLE :: VDESC_IN( : ) ! Variable description for CTM species
@@ -90,7 +87,7 @@ C Local Variables:
       INTEGER C, R          ! Column, Row loop indices
       INTEGER FLN           ! IC output file number
       INTEGER L             ! Layer loop index
-      INTEGER N, SPC        ! Loop indices for species
+      INTEGER N             ! Loop indices for species
       INTEGER PFILE         ! Unit number of profile file   
       INTEGER SDATE         ! Date for IC Output
       INTEGER STIME         ! Time for IC output
@@ -110,7 +107,6 @@ C Local Variables:
       REAL, ALLOCATABLE :: VIPROF( :,:,:,: ) ! Vert. interp. profiles
                             
       REAL, ALLOCATABLE :: VAR_PROF_TEMP( :,: )
-      REAL, ALLOCATABLE :: VAR_PROF( :,: )
 
       INTERFACE
 
@@ -141,6 +137,7 @@ C Local Variables:
          END SUBROUTINE OPN_IC_FILE
 
       END INTERFACE
+
 C***********************************************************************
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

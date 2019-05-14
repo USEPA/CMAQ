@@ -58,14 +58,11 @@ C Arguments:
 
 C Parameters: None
 
-C External Functions: 
-      INTEGER FINDEX    ! Finds the index of a number in a list 
+C External Functions: None
       
 C Local Variables:
-      CHARACTER( 16 ) :: BLANK = ' '      ! String of blanks
       CHARACTER( 80 ) :: MSG              ! Log message
       CHARACTER( 16 ) :: PNAME = 'TRAC_INIC'  ! Procedure name
-      CHARACTER( 16 ) :: SUROUT           ! Surrogate output to log
       CHARACTER( 16 ) :: VNAME            ! Output variable name
 
       CHARACTER( 16 ), ALLOCATABLE :: SPNAME_OUT( : )    ! Output tracer names
@@ -74,11 +71,8 @@ C Local Variables:
       CHARACTER( 16 ), ALLOCATABLE :: TR_FNAME( : ) ! Output file name
                             
       INTEGER FLN          ! Output file number
-      INTEGER ICBC_IND     ! Index of surrogate in TR_ICBC
       INTEGER N            ! Loop index
-      INTEGER NSP          ! Counter
       INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
-      INTEGER TRIND        ! Index for catalogued tracer
       INTEGER ALLOCSTAT    ! Status returned from array allocation
       INTEGER SDATE        ! Date for IC Output
       INTEGER STIME        ! Time for IC output

@@ -80,7 +80,6 @@ C Local Variables:
       CHARACTER(  80 ) :: MSG            ! Log message
       CHARACTER(  16 ) :: PNAME = 'M3_INIC' ! Program name
       CHARACTER( 256 ) :: RET_VAL        ! Returned value of environment variable
-      CHARACTER(  80 ) :: VARDESC        ! environment variable description
 
       CHARACTER(  16 ), ALLOCATABLE :: CTM_FL_NAME( : )  ! Name(s) of CTM file(s)
       CHARACTER(  16 ), ALLOCATABLE :: INFL_SP_NAME( : ) ! Names of CTM species
@@ -90,21 +89,16 @@ C Local Variables:
       INTEGER, ALLOCATABLE :: VTYPE_IN( : ) ! variable type for CTM species
 
       INTEGER N            ! File loop index
-      INTEGER N_GC_OUT     ! No. of GC species
       INTEGER N_CTM_FLS    ! Number of input CTM files
       INTEGER NCOLS_IN     ! No. of columns in input conc file
       INTEGER NLAYS_IN     ! No. of layers in input conc file
       INTEGER NROWS_IN     ! No. of rows in input conc file
       INTEGER NSPCS_IN     ! CTM files species counter
-      INTEGER NSPCS        ! Number of NML species
       INTEGER STATUS       ! Status code
-      INTEGER ALLOCSTAT     ! Status returned from array allocation
+      INTEGER ALLOCSTAT    ! Status returned from array allocation
       INTEGER V            ! Variable loop index
-      INTEGER L            ! Layer loop index
-      INTEGER ALST         ! Allocate status
 
-      LOGICAL LCHKL            ! Flag for layer consistency check
-      LOGICAL LCHKD            ! Flag for met file checked
+      LOGICAL LCHKD        ! Flag for met file checked
 
       INTERFACE
 
@@ -189,7 +183,6 @@ c  Open the input Models-3 CTM concentration file(s) and check that the
 c  required time step is available on each file; save the species 
 c  names on each file in one contiguous array
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-
       ALLOCATE( INFL_SP_NAME( N_CTM_FLS*MXVARS3 ),
      &          UNITS_IN( N_CTM_FLS*MXVARS3 ),
      &          VDESC_IN( N_CTM_FLS*MXVARS3 ),
@@ -236,6 +229,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &         // ' file'
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       END IF
+
       NCOLS_IN = NCOLS3D
       NROWS_IN = NROWS3D
       NLAYS_IN = NLAYS3D

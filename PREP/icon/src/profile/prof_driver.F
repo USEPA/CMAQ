@@ -66,14 +66,13 @@ C Local Variables:
       CHARACTER( 256 ) :: PROF_FL_NAME   ! Input profile file name
       CHARACTER(  16 ) :: IC_PROFILE = 'IC_PROFILE' ! Logical name of input profile file
   
-      INTEGER PFILE        ! Unit number of profile file    
       INTEGER STATUS       ! Status code
 
       INTERFACE
 
          SUBROUTINE PROF_ICOUT ( LOGUNIT, PROF_FL_NAME )
             INTEGER, INTENT( IN ) :: LOGUNIT
-            CHARACTER( 256 ), INTENT( IN ):: PROF_FL_NAME
+            CHARACTER( 256 ), INTENT( IN ) :: PROF_FL_NAME
          END SUBROUTINE PROF_ICOUT
 
       END INTERFACE

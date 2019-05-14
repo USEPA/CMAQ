@@ -84,7 +84,6 @@ C Local Variables:
       CHARACTER( 16 ) :: VNAME    ! Variable Name
 
       INTEGER L              ! Loop index for vertical layers
-      INTEGER MXLEV          ! Max no. of levels
       INTEGER N              ! Loop index
       INTEGER C, R           ! Loop indices for col, row
       INTEGER STATUS         ! Status code

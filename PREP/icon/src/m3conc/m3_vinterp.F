@@ -88,10 +88,10 @@ C Arguments:
       INTEGER, INTENT( IN ) :: NSPCS_IN  ! No. of species in input conc file
       INTEGER, INTENT( IN ) :: COL_LOC( :,: )  ! Output IC col corresponding to &
       INTEGER, INTENT( IN ) :: ROW_LOC( :,: )  ! Output IC row corresponding to
-                                                       ! a cell in the input conc file
-      REAL, INTENT( IN )  :: ICIN( :,:,:,: )  ! Input conc array
-      REAL, INTENT( OUT ) :: ICVI( :,:,:,: )     ! Output IC array
-      CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )      ! Name of input conc file
+                                               ! a cell in the input conc file
+      REAL, INTENT( IN )  :: ICIN( :,:,:,: ) ! Input conc array
+      REAL, INTENT( OUT ) :: ICVI( :,:,:,: ) ! Output IC array
+      CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : ) ! Name of input conc file
 
 C Parameters: None
 
@@ -99,7 +99,6 @@ C External Functions: None
 
 C Local Variables:
 
-      INTEGER :: ABORT = 0   ! Abort code for Cray HPALLOC
       LOGICAL LDEC           ! Flag for monotonic decreasing layer levels
       LOGICAL LINC           ! Flag for monotonic increasing layer levels
       LOGICAL L_IDENTICAL    ! Flag for identical vert coord systems      
@@ -110,11 +109,9 @@ C Local Variables:
       CHARACTER( 20 ) :: CHR2     ! Value of variable 1 in character data
       CHARACTER( 80 ) :: MSG      ! Log message
       CHARACTER( 16 ) :: PNAME = 'M3_VINTERP'  ! Procedure Name
-      CHARACTER( 16 ) :: VNAME    ! Variable Name
       CHARACTER( 16 ) :: ZP_VNAME ! ZH or PRES Variable Name
 
       INTEGER C, CIN         ! Loop indices for columns
-      INTEGER ERRCODE        ! Error code for Cray HPALLOC
       INTEGER L              ! Loop index for vertical layers
       INTEGER MXLEV          ! Largest no. of levels
       INTEGER R, RIN         ! Loop indices for rows

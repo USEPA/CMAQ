@@ -136,8 +136,6 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files: None
-
 C Arguments:
       INTEGER, INTENT( IN ) :: LOGUNIT           ! Unit number for output log
       INTEGER, INTENT( IN ) :: N_CTM_FLS         ! Number of input CTM files
@@ -167,8 +165,7 @@ C Local Variables:
 
       INTEGER C, CIN, CIC   ! Column loop indices
       INTEGER FLN           ! IC output file number
-      INTEGER INDX, ISP, V  ! Array indices for species
-      INTEGER SPC           ! Species loop index 
+      INTEGER ISP           ! Array indices for species
       INTEGER L             ! Layer loop index
       INTEGER N             ! Loop indices for species
       INTEGER R, RIN, RIC   ! Row loop indices
@@ -254,6 +251,7 @@ C Local Variables:
          END SUBROUTINE M3_VINTERP
 
       END INTERFACE
+
 C***********************************************************************
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -323,7 +321,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Compute the lat and lon of the center of each input cell
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
-          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) 
+          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 )
      &       // ' file'
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       END IF

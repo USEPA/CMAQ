@@ -46,6 +46,7 @@ C***********************************************************************
 
       USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN    ! vertical layer specifications
+      USE M3UTILIO     ! IOAPI module
       USE IC_PARMS     ! ICON paramters
 
       IMPLICIT NONE     
@@ -72,11 +73,13 @@ C Saved Local Variables:
 
 C Local Variables:
       CHARACTER( 16 ) :: PNAME = 'TRAC_IC'      ! Procedure name
+      CHARACTER( 80 ) :: MSG               ! Log message
 
       INTEGER COL_PEAK   ! Location of center of peak for superposition tracers
       INTEGER ROW_PEAK   ! Location of center of peak for superposition tracers
 
-      INTEGER C, R, L                  ! Grid loop indices
+      INTEGER C, R, L    ! Grid loop indices
+      INTEGER ALLOCSTAT  ! Status returned from array allocation
 
       REAL    DISTSQ     ! Distance squared for for superposition tracers
       REAL    RADSQ      ! Hill radius squared for superposition tracers
@@ -91,7 +94,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN 
          LFIRST = .FALSE.
 
-         ALLOCATE( SHAPE( NCOLS,NROWS ) )
+         ALLOCATE( SHAPE( NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            MSG = 'Failure allocating SHAPE'
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         END IF
+
          DO R = 1, NROWS
             DO C = 1, NCOLS
                SHAPE( C,R ) = 0.0

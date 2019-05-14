@@ -24,8 +24,7 @@ C $Header: /project/yoj/arc/ICON/src/m3conc/m3_ck_ctms.F,v 1.2 2011/10/21 16:41:
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-
-      SUBROUTINE CK_CTM_FLS( LOGUNIT, N_CTM_FLS, CTM_FL_NAME )
+      SUBROUTINE CK_CTM_FLS ( LOGUNIT, N_CTM_FLS, CTM_FL_NAME )
 
 C***********************************************************************
  
@@ -111,7 +110,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
      &         // ' file'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
       FTYPE1 = FTYPE3D
@@ -162,7 +161,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          IF ( .NOT. DESC3 ( CTM_FL_NAME( N ) ) ) THEN
             MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) 
      &         // ' file'
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
          END IF
          
          IF ( FTYPE1 .NE. FTYPE3D ) THEN
