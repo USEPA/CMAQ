@@ -42,10 +42,16 @@ C                      removed deprecated TRIMLEN
 C    2 Sep 11 J.Young: change ICBC_FAC policy to always assigning factor,
 C                      if specified, not just if a surrogate is also specified 
 C   11 Sep 15 B.Murphy: add condition for no surrogate name
+C
+C   08 Mar 19 F. Sidi  Split up ICBC_FAC into IC_FAC and BC_FAC for 
+C                      tracer namelist only
+C   01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all
+C                     MY_N clauses
 C   01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all
 C                     MY_N clauses
 C   08 Mar 19 F. Sidi  Split up ICBC_FAC into IC_FAC and BC_FAC for 
 C                      tracer namelist only
+C   13 Mar 19 D. Wong: Implemented centralized I/O approach
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -386,8 +392,8 @@ C If there is no surrogate or it cant be found, look for the (main) species name
         
 C Read into CGRID
 
-      CALL SUBHFILE ( FNAME, GXOFF, GYOFF,
-     &                STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI )
+!     CALL SUBHFILE ( FNAME, GXOFF, GYOFF,
+!    &                STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI )
 C IOFDESC common now loaded with FNAME header
 
       DO SPC = 1, N_SPCS
@@ -395,26 +401,13 @@ C IOFDESC common now loaded with FNAME header
          NDX = INDX( SPC )
 
          IF ( NDX .GT. 0 ) THEN
-            IF ( .NOT. XTRACT3( FNAME, VNAME3D ( NDX ),
-     &           1,NLAYS, STRTROWINI,ENDROWINI, STRTCOLINI,ENDCOLINI,
-     &           JDATE, JTIME, DBUFF ) ) THEN
-               XMSG = 'Could not read ' // TRIM( VNAME3D( NDX ) )
-     &              // ' from ' // FNAME
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var (VNAME3D ( NDX ), jdate, jtime, DBUFF)
 
             ! Add Non-Carbon Mass to Carbon Mass if the model is
             ! running semivolatile POA
             IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' ) THEN 
                IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
-                  ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
-                  IF ( .NOT. XTRACT3( FNAME, ICNAME_TMP,
-     &                   1,NLAYS, STRTROWINI,ENDROWINI,STRTCOLINI,
-     &                   ENDCOLINI,JDATE, JTIME, DBUFF_TMP ) ) THEN 
-                     XMSG = 'Could not read ' // TRIM( ICNAME_TMP ) 
-     &                      // ' from ' // FNAME
-                     CALL M3WARN( PNAME, JDATE, JTIME, XMSG ) 
-                  END IF
+                  call interpolate_var (ICNAME_TMP, jdate, jtime, DBUFF_TMP)
                   DBUFF = DBUFF + DBUFF_TMP
                 END IF
             END IF

@@ -35,6 +35,8 @@
 !        interface block and unnecessary functions
 !  02 May 2019  (David Wong)
 !     -- set BIOGEMIS_SEASON = .FALSE. as the default value
+!  13 May 2019  (David Wong)
+!     -- setup environment variable ISAM_NEW_START
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -78,6 +80,7 @@
 
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
+      CHARACTER(1) :: ISAM_NEW_START = 'N'  ! Start New Simulation. Not a Restart for ISAM
       CHARACTER(16) :: GRID_NAME = ''       ! grid name selected from GRIDDESC
       CHARACTER(16) :: PROGNAME  = 'DRIVER' ! Program name selected from GRIDDESC
       INTEGER :: RUNLEN          = 480000   ! Run Length
@@ -286,6 +289,9 @@
  
       ! Determine if this run is a new start or a restart
       CALL GET_ENV ( NEW_START, 'NEW_START', NEW_START, VARDEV )
+    
+      ! Determine if this run is a new start or a restart
+      CALL GET_ENV ( ISAM_NEW_START, 'ISAM_NEW_START', ISAM_NEW_START, VARDEV )
     
       ! Get Grid Name
       CALL GET_ENV ( STRTEMP, 'GRID_NAME', GRID_NAME, VARDEV )

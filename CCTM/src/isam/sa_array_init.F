@@ -26,13 +26,14 @@ c           Called by initscen.F
 c
 C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
 C     09 May 2019: D.Wong Removed all MY_ clauses
-c
+C     13 May 2019: D.Wong Moved environment variable ISAM_NEW_START to RUNTIME_VARS
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       USE GRID_CONF
       USE UTILIO_DEFN           ! replaces ioparms, iofdesc, iodecl
       USE CGRID_SPCS            ! covers all kinds of species mapping
       USE SA_DEFN               ! Mc06
+      USE RUNTIME_VARS, only : ISAM_NEW_START
       
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -54,16 +55,11 @@ c.....local variables
       INTEGER          C, R, L, S, K              ! loop index
       INTEGER          N, NSPC, JVOC              ! 20140123
 
-      CHARACTER*1      ISAM_NEW_START
-
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     program entry
 c.........................................................
 c.....update isam array according to isam ICON source tag
 
-
-      CALL GETENV('ISAM_NEW_START', ISAM_NEW_START)
 
       IF( ISAM_NEW_START == 'Y') THEN
                                 !.....map N_SPC_ADV to the user-query species

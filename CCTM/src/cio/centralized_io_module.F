@@ -37,6 +37,7 @@
 !  05/03/19, D. Wong: -- reorganized the flow of reading in LUS data
 !  05/06/19, D. Wong: -- added a new logic to read in INIT_MEDC_1 when it is not NEW_START
 !  05/07/19, D. Wong: -- removed duplicated array allocation for NH4ps1 and NH4ps2
+!  05/13/19, D. Wong: -- expanded implementation to hanndle ISAM model
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -55,6 +56,10 @@
         integer, parameter :: f_met_cro_2d  = 1
         integer, parameter :: f_met_cro_3d  = 2
         integer, parameter :: f_met_dot_3d  = 3
+
+        CHARACTER( 40 ), parameter :: NLDN_STRIKES = 'NLDN_STRIKES'
+        CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_GASC_1'
+        CHARACTER( 40 ), parameter :: ISAM_PREVDAY = 'ISAM_PREVDAY'
 
         integer :: file_sdate(max_nfiles)
         integer :: file_stime(max_nfiles)
@@ -207,6 +212,8 @@
      &                      n_c3d,  size_c3d,    ! cro 3d file info: # of variables and a variable size
      &                      n_d3d,  size_d3d,    ! dot 3d file info: # of variables and a variable size
      &                              size_d3dx,   ! extended dot 3d variable size
+     &                      n_i3d,               ! # of initial condition 3d variables
+     &                      n_is3d,              ! # of initial condition 3d variables for ISAM
      &                      n_e2d,               ! # of 2d emission variables
      &                      n_e3d,  size_e3d,    ! # of 3d emission variables and a variable size
      &                      n_mb3d,              ! # of 3d met boundary variables
@@ -242,13 +249,12 @@
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
           USE VGRD_DEFN, only : VGTYP_GD, nlays
-          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON, WB_DUST, ILDEPV
+          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON, WB_DUST, ILDEPV, ISAM_NEW_START
           use LSM_Mod, only : LAND_SCHEME
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           Character( 40 ), parameter :: pname = 'gridded_files_setup'
-          CHARACTER( 40 ), parameter :: NLDN_STRIKES = 'NLDN_STRIKES'
 
           CHARACTER( 120 ) :: XMSG = ' '
           INTEGER          :: GXOFF, GYOFF, stat, n, v, d_size, begin, end, adj,
@@ -257,6 +263,7 @@
 
           character( 20 ), allocatable :: c2d_name(:, :), c3d_name(:, :), 
      &                                    d3d_name(:,:), emis_name(:,:),
+     &                                    i3d_name(:,:), is3d_name(:,:),
      &                                    l2d_name(:,:), medc_name(:,:)
           logical :: done = .false.
 
@@ -605,6 +612,47 @@
              emis_name(begin:end, 1) = vname3d(1:nvars3d)
           end if
 
+! setup initial condition file
+          n_i3d = 0
+          IF ( .NOT. OPEN3( ICFILE, FSREAD3, PNAME ) ) THEN
+             XMSG = 'Open failure for ' // ICFILE
+             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+          IF ( .NOT. DESC3( ICFILE ) ) THEN
+             XMSG = 'Could not get description of file  '// ICFILE 
+             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+          n_i3d = nvars3d
+          allocate (i3d_name(n_i3d, 2), stat=stat)
+          if (stat .ne. 0) then
+             xmsg = 'Failure allocating i3d_name '
+             call m3exit (pname, 0, 0, xmsg, xstat1 )
+          end if
+          i3d_name = 'i'                   ! denote initial condition variable
+          i3d_name(:,1) = vname3d(1:n_i3d) 
+
+! setup initial condition file for ISAM
+          n_is3d = 0
+
+          if (ISAM_NEW_START == 'N') then
+             IF ( .NOT. OPEN3( ISAM_PREVDAY, FSREAD3, PNAME ) ) THEN
+                XMSG = 'Open failure for ' // ISAM_PREVDAY
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
+             IF ( .NOT. DESC3( ISAM_PREVDAY ) ) THEN
+                XMSG = 'Could not get description of file  '// ISAM_PREVDAY 
+                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
+             n_is3d = nvars3d
+             allocate (is3d_name(n_is3d, 2), stat=stat)
+             if (stat .ne. 0) then
+                xmsg = 'Failure allocating i3d_name '
+                call m3exit (pname, 0, 0, xmsg, xstat1 )
+             end if
+             is3d_name = 'is'                   ! denote ISAM initial condition variable
+             is3d_name(:,1) = vname3d(1:n_is3d) 
+          end if   ! ISAM_NEW_START
+
 ! setup gridded emission file
           end = 0
           do n = 1, N_FILE_GR
@@ -653,7 +701,7 @@
           end if
 
 ! combining all files
-          n_cio_grid_vars = n_c2d + n_c3d + n_d3d + n_e2d + n_e3d + n_l2d
+          n_cio_grid_vars = n_c2d + n_c3d + n_d3d + n_e2d + n_e3d + n_l2d + n_i3d + n_is3d
 
           cro_ncols = ENDCOLMC2 - STRTCOLMC2 + 1
           cro_nrows = ENDROWMC2 - STRTROWMC2 + 1
@@ -688,6 +736,8 @@
      &                            + size_c2d  * 3 * n_e2d               ! 2d emis data
      &                            + size_c3d  * 3 * n_c3d                ! 3D met data
      &                            + size_e3d  * 3 * n_e3d                ! 3d emis data 
+     &                            + size_e3d  * 3 * n_i3d                ! 3d initial condition data 
+     &                            + size_e3d  * 3 * n_is3d               ! 3d ISAM initial condition data 
      &                            + size_d3dx * 3 * n_d3d                ! 3d dot data
      &                            + size_lt   * 3 * n_l2d),              ! lightning data
      &              stat = stat)
@@ -712,6 +762,16 @@
           end = end + n_e2d + n_e3d
           cio_grid_var_name(begin:end, :) = emis_name
 
+          begin = end + 1
+          end = end + n_i3d
+          cio_grid_var_name(begin:end, :) = i3d_name
+
+          if (ISAM_NEW_START == 'N') then
+             begin = end + 1
+             end = end + n_is3d
+             cio_grid_var_name(begin:end, :) = is3d_name
+          end if
+
           if (cio_LTNG_NO) then
              begin = end + 1
              end = end + n_l2d
@@ -719,7 +779,10 @@
              deallocate (l2d_name)
           end if
 
-          deallocate (c2d_name, c3d_name, emis_name)
+          deallocate (c2d_name, c3d_name, emis_name, i3d_name)
+          if (ISAM_NEW_START == 'N') then
+             deallocate (is3d_name)
+          end if
           if (.not. window) then
              deallocate (d3d_name)
           end if
@@ -742,7 +805,9 @@
                 d_size = size_c2d
              else if (cio_grid_var_name(v,2) .eq. '3') then
                 d_size = size_c3d
-             else if (cio_grid_var_name(v,2) .eq. 'E') then
+             else if ((cio_grid_var_name(v,2) .eq. 'E') .or.
+     &                (cio_grid_var_name(v,2) .eq. 'i') .or.
+     &                (cio_grid_var_name(v,2) .eq. 'is')) then
                 d_size = size_e3d
              else if (cio_grid_var_name(v,2) .eq. 'd') then
                 d_size = size_d3dx
@@ -756,10 +821,10 @@
              end if
 
              do n = 0, 2
-                 cio_grid_data_inx(1, n, v) = begin
-                 end = begin + d_size - 1
-                 cio_grid_data_inx(2, n, v) = end
-                 begin = end + 1
+                cio_grid_data_inx(1, n, v) = begin
+                end = begin + d_size - 1
+                cio_grid_data_inx(2, n, v) = end
+                begin = end + 1
              end do
           end do
 
@@ -2033,8 +2098,6 @@ C Read the various categories of normalized emissions
           character (*), intent(in), optional :: vname
 
           Character( 40 ), parameter :: pname = 'retrieve_time_dep_gridded_data'
-          CHARACTER( 40 ), parameter :: NLDN_STRIKES = 'NLDN_STRIKES'
-          Character( 40 ), parameter :: GR_EMIS_001 = 'GR_EMIS_001'
 
           LOGICAL :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations,
@@ -2145,9 +2208,31 @@ C Read the various categories of normalized emissions
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
      &                                 1, nlays, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
      &                                 loc_jdate, loc_jtime, cio_grid_data(begin:end) ) ) THEN
-                      XMSG = 'Could not extract ' // GR_EMIS_001 // ' file'
+                      XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
                    END IF
+
+                else if (cio_grid_var_name(v,2) == 'i') then
+
+                   if (iter == 1) then
+                      IF ( .NOT. XTRACT3( ICFILE, cio_grid_var_name(v,1),
+     &                                    1, nlays, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
+     &                                    loc_jdate, loc_jtime, cio_grid_data(begin:end) ) ) THEN
+                         XMSG = 'Could not extract ' // ICFILE // ' file'
+                         CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
+                      END IF
+                   end if
+
+                else if (cio_grid_var_name(v,2) == 'is') then
+
+                   if ((iter == 1) .and. (ISAM_NEW_START == 'N')) then
+                      IF ( .NOT. XTRACT3( ISAM_PREVDAY, cio_grid_var_name(v,1),
+     &                                    1, nlays, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
+     &                                    loc_jdate, loc_jtime, cio_grid_data(begin:end) ) ) THEN
+                         XMSG = 'Could not extract ' // ISAM_PREVDAY // ' file'
+                         CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
+                      END IF
+                   end if
 
                 else if (cio_grid_var_name(v,2) == 'l') then
 
@@ -3931,9 +4016,13 @@ C   mminlu and num_land_cat are WRF global variables
                 store_beg_ind = cio_grid_data_inx(1,2,var_loc)
                 store_end_ind = cio_grid_data_inx(2,2,var_loc)
 
-                cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
-     &                                                       + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
-
+                if ((cio_grid_var_name(var_loc, 2) .eq. 'i') .or.
+     &              (cio_grid_var_name(var_loc, 2) .eq. 'is')) then
+                   cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind)
+                else
+                   cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
+     &                                                          + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
+                end if
              end if
  
              beg_k = 1
@@ -3988,7 +4077,9 @@ C   mminlu and num_land_cat are WRF global variables
                 end if
 
                 if ((cio_grid_var_name(var_loc, 2) .ne. 'e') .and.
-     &              (cio_grid_var_name(var_loc, 2) .ne. 'E')) then
+     &              (cio_grid_var_name(var_loc, 2) .ne. 'E') .and.
+     &              (cio_grid_var_name(var_loc, 2) .ne. 'i') .and.
+     &              (cio_grid_var_name(var_loc, 2) .ne. 'is')) then
                    adj2 = extra_c
                    adj3 = extra_r * col_size + extra_c
                    if (north_pe .and. east_pe) then
