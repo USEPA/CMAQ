@@ -37,6 +37,8 @@
 !     -- set BIOGEMIS_SEASON = .FALSE. as the default value
 !  13 May 2019  (David Wong)
 !     -- setup environment variable ISAM_NEW_START
+!  14 May 2019  (David Wong)
+!     -- updated environment variable ISAM_NEW_START with default value 'Y'
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -80,7 +82,7 @@
 
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
-      CHARACTER(1) :: ISAM_NEW_START = 'N'  ! Start New Simulation. Not a Restart for ISAM
+      CHARACTER(1) :: ISAM_NEW_START = 'Y'  ! Start New Simulation. Not a Restart for ISAM
       CHARACTER(16) :: GRID_NAME = ''       ! grid name selected from GRIDDESC
       CHARACTER(16) :: PROGNAME  = 'DRIVER' ! Program name selected from GRIDDESC
       INTEGER :: RUNLEN          = 480000   ! Run Length
