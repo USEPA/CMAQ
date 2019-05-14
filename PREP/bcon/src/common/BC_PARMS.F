@@ -96,7 +96,7 @@ C Catalogued tracer species names
      &                   'SPOS_C ' /)
 
 C Descriptions of tracers species
-      CHARACTER( 50 ) :: TRAC_DESC( NTRACERS ) = (/ ! Description of catalogued tracers
+      CHARACTER( 80 ) :: TRAC_DESC( NTRACERS ) = (/ ! Description of catalogued tracers
      &                   'Uniform IC/BC with IC = 1.0 and BC 0.0   ',
      &                   'Uniform IC/BC with IC = 1.0 and BC 1.0   ',
      &                   'Uniform IC/BC with IC = 0.0 and BC 0.0   ',

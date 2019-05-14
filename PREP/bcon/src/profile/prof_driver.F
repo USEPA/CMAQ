@@ -51,41 +51,29 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files: None
-
 C Arguments: 
-      INTEGER LOGUNIT                 ! Unit number for output log
+      INTEGER, INTENT( IN ) :: LOGUNIT   ! Unit number for output log
 
 C Parameters: None
 
-C External Functions: None
-      
 C Local Variables:
       CHARACTER(  16 ) :: ENV_DFLT = ' ' ! Environment variable default value
       CHARACTER(  80 ) :: ENV_DESC       ! Environment variable description
-      CHARACTER( 256 ) :: LINEIN         ! Input line
       CHARACTER(  80 ) :: MSG            ! Log message
       CHARACTER(  16 ) :: PNAME = 'PROF_INBNDY'     ! Program name
       CHARACTER( 256 ) :: PROF_FL_NAME   ! Input profile file name
       CHARACTER(  16 ) :: BC_PROFILE = 'BC_PROFILE' ! Logical name of input profile file
-      CHARACTER(  16 ) :: SPEC_NAME      ! Species name
 
-      CHARACTER(  16 ) :: PROF_SP_NAME( MXCTMS*MXVARS3 ) ! Species names on profile file
-      CHARACTER(  16 ) :: UNITS_IN( MXCTMS*MXVARS3 ) ! Units for CTM species
-      CHARACTER(  80 ) :: VDESC_IN( MXCTMS*MXVARS3 ) ! Variable description for CTM species
-
-      INTEGER :: VTYPE_IN( MXCTMS*MXVARS3 ) ! variable type for CTM species
-
-      INTEGER INDX         ! Array indices for species
-      INTEGER NEDGE        ! Loop index for no. of edges (4)  
-      INTEGER N, SPC       ! Loop indices
-      INTEGER NLAYS_IN     ! No. of layers in input conc file
-      INTEGER NSPCS_IN     ! CTM files species counter
-      INTEGER PFILE        ! Unit number of profile file    
       INTEGER STATUS       ! Status code
-      INTEGER ALST         ! Allocate status
 
-      LOGICAL LERROR                     ! Error flag
+      INTERFACE
+
+         SUBROUTINE PROF_BCOUT ( LOGUNIT, PROF_FL_NAME )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            CHARACTER( 256 ), INTENT( IN ) :: PROF_FL_NAME
+         END SUBROUTINE PROF_BCOUT
+
+      END INTERFACE
 
 C***********************************************************************
 
@@ -96,29 +84,20 @@ c  Open the input profile file, read the number of species and their
 c  names, and list the file on the output log
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENV_DESC = 'Input BC Profile file'        
-      CALL ENVSTR( BC_PROFILE, ENV_DESC, ENV_DFLT, PROF_FL_NAME, STATUS )
+      CALL ENVSTR ( BC_PROFILE, ENV_DESC, ENV_DFLT, PROF_FL_NAME, STATUS )
 
       IF ( STATUS .NE. 0 ) THEN
          MSG = 'No BC profile file assigned to BC_PROFILE'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Compute BCs from the input PROFILE and output
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      CALL PROF_BCOUT( LOGUNIT,
-     &                 NLAYS_IN,
-     &                 NSPCS_IN,
-     &                 PROF_FL_NAME,
-     &                 PROF_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
+      CALL PROF_BCOUT( LOGUNIT, PROF_FL_NAME )
 
       RETURN
-
-999   CONTINUE
-
-      MSG = 'Could not open file ' // BC_PROFILE
-      CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
 
 C************************* FORMAT STATEMENTS ***************************
 
