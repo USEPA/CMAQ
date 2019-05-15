@@ -38,11 +38,13 @@
 !  05/06/19, D. Wong: -- added a new logic to read in INIT_MEDC_1 when it is not NEW_START
 !  05/07/19, D. Wong: -- removed duplicated array allocation for NH4ps1 and NH4ps2
 !  05/13/19, D. Wong: -- expanded implementation to hanndle ISAM model
+!  05/15/19, D. Wong: -- used USE_MARINE_GAS_EMISSION variable defined in RUNTIME_VAR.F 
+!                        to turn on a block of code related to marine gas emssion
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
 
-        use RUNTIME_VARS, only : LTNG_NO, STDATE, STTIME, ABFLUX, MOSAIC, NPTGRPS
+        use RUNTIME_VARS, only : LTNG_NO, STDATE, STTIME, ABFLUX, MOSAIC, NPTGRPS, USE_MARINE_GAS_EMISSION
         use CENTRALIZED_IO_UTIL_MODULE
    
         implicit none
@@ -164,7 +166,6 @@
      &             WSPD10_AVAIL,            ! WSPD10 is available or not
      &             UWINDC_AVAIL,            ! UWINDC is available in DOT file or not
      &             VWINDC_AVAIL,            ! VWINDC is available in DOT file or not
-     &             USE_MARINE_GAS_EMISSION,
      &             QG_AVAIL,                ! flag for QG available in MET_CRO_3D
      &             QI_AVAIL,                ! flag for QI available in MET_CRO_3D
      &             QS_AVAIL,                ! flag for QS available in MET_CRO_3D
@@ -1937,7 +1938,6 @@ C Read the various categories of normalized emissions
 
           USE UTILIO_DEFN
           USE HGRD_DEFN
-          USE RXNS_DATA, ONLY : MECHNAME
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
@@ -1973,9 +1973,10 @@ C Read the various categories of normalized emissions
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           End If
 
-          IF ( INDEX( MECHNAME, 'CB05EH51' ) .GT. 0 ) then
-             USE_MARINE_GAS_EMISSION = .TRUE.
-             allocate (chlr(ncols, nrows), STAT=STAT)
+          IF ( USE_MARINE_GAS_EMISSION ) then
+             allocate (chlr(ncols, nrows),
+     &                 dmsl(ncols, nrows), 
+     &                 STAT=STAT)
              IF ( STAT .NE. 0 ) THEN
                 XMSG = 'Failure allocating CHLO array'
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
@@ -1993,8 +1994,6 @@ C Read the various categories of normalized emissions
                 XMSG = 'Could not interpolate CHLO from ' // OCEAN_1
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              End If
-          ELSE
-             USE_MARINE_GAS_EMISSION = .TRUE.
           END IF
 
         end subroutine retrieve_ocean_data

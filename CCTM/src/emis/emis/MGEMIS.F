@@ -30,6 +30,7 @@ C   20 Feb 18: G. Sarwar: removed Br2, added DMS, and revised estimates of
 C              halocarbon and HOI/I2 emissions
 C   04 Dec 18: G. Srawar: updated local time calculation
 C   01 Feb 19: D. Wong: Implemented centralized I/O approach
+C   15 May 19: D. Wong: Replaced MGEM with USE_MARINE_GAS_EMISSION which is set in RUNTIME_VARS.F
 
       USE RUNTIME_VARS
       USE HGRD_DEFN
@@ -37,14 +38,12 @@ C   01 Feb 19: D. Wong: Implemented centralized I/O approach
 
       IMPLICIT NONE
 
-      LOGICAL, SAVE :: MGEM                  ! flag for marine gas emissions
-
       INTEGER, PARAMETER :: NMGSPC = 12
 
 C Marine gas Emissions Rates
       REAL, ALLOCATABLE, SAVE :: VDEMIS_MG( :,:,: )   ! marine gas emission rates [moles/s]
 
-      PUBLIC NMGSPC, VDEMIS_MG, MGEMIS_INIT, GET_MGEMIS, MGEM, MG_SPC, MGSPC_MAP
+      PUBLIC NMGSPC, VDEMIS_MG, MGEMIS_INIT, GET_MGEMIS, MG_SPC, MGSPC_MAP
       PRIVATE
 
       INTEGER, SAVE              :: LGC_O3            ! pointer to O3 in CGRID
@@ -119,6 +118,7 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
             USE HGRD_DEFN
             USE CGRID_SPCS
             USE RXNS_DATA
+            USE RUNTIME_VARS, ONLY : USE_MARINE_GAS_EMISSION
             USE CENTRALIZED_IO_MODULE
 
             IMPLICIT NONE
@@ -145,7 +145,7 @@ C-----------------------------------------------------------------------
             SUCCESS = .TRUE.
 
 C flag for marine gas emissions; this flag is set in the subroutine EM_FILE_INIT 
-            IF ( .NOT. MGEM ) RETURN
+            IF ( .NOT. USE_MARINE_GAS_EMISSION ) RETURN
 
 C Allocate MG arrays using NMGSPC value
             EM_FILE_SURR( IMGSRM )%LEN = NMGSPC
@@ -198,7 +198,7 @@ C Get index for surface ozone concentration
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
             END IF
 
-            IF (MGEM .AND. MGEMDIAG ) THEN                            ! Open the marine gas emission diagnostic file
+            IF (USE_MARINE_GAS_EMISSION .AND. MGEMDIAG ) THEN           ! Open the marine gas emission diagnostic file
 C Determine number of marine gas species for diagnostic file
                 NMGDIAG = NMGSPC
 

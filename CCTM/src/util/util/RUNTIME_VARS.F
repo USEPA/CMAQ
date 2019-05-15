@@ -39,6 +39,8 @@
 !     -- setup environment variable ISAM_NEW_START
 !  14 May 2019  (David Wong)
 !     -- updated environment variable ISAM_NEW_START with default value 'Y'
+!  15 May 2019  (David Wong)
+!     -- included check for using marine gas emission or not
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -219,6 +221,8 @@
                                           ! the interal model
       CHARACTER(  16 ), SAVE, ALLOCATABLE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
 
+      LOGICAL :: USE_MARINE_GAS_EMISSION = .FALSE.
+
       ! Processs Analysis
       LOGICAL :: PROCAN    = .FALSE. ! flag for process analysis
       INTEGER :: PA_BEGCOL = 0       ! Starting PA output
@@ -236,6 +240,8 @@
 !  Defines and retrieves values for all environment variable input to 
 !  CMAQ. 
 !.........................................................................
+
+      USE RXNS_DATA, ONLY : MECHNAME
 
       IMPLICIT NONE                         
 
@@ -620,6 +626,10 @@
       !>> Emission Environment Variables 
       !-------------------------------------------------------------------------------------------------------
       
+      IF ( INDEX( MECHNAME, 'CB6R3M' ) .GT. 0 ) then
+         USE_MARINE_GAS_EMISSION = .TRUE.
+      END IF
+
       IF ( MYPE .EQ. 0 ) THEN 
          CALL LOG_SUBHEADING( OUTDEV, "Emissions Parameters" )
          WRITE( OUTDEV, '(6x,A)' ),'--Env Variable-- | --Value--'

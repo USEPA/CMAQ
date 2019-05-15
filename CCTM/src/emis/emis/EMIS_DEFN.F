@@ -47,6 +47,7 @@ C                           species are not found on any emission file
 C     16 NOv 2018 S.Napelenok: ISAM implementation
 C     01 Feb 2019 D.Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses, replaced IOS with LOGDEV when calling GET_ENV
+C     15 May 2019 D.Wong: Put the check for using marine gas emission or not in RUNTIME_VAR.F
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -1141,7 +1142,9 @@ C and allowing the model to proceed.
          ! Map the Emission Surrogate Species to Default CMAQ Internal
          ! Species, default size distributions, and default molecular
          ! weights based on SMOKE/MOVES/SPECIATE guidelines
+
          DO ISRM = 1,N_EM_SRM
+
             IF ( ISRM .EQ. ISEASRM .OR. ISRM .EQ. IBIOSRM .OR. 
      &           ISRM .EQ. IDUSTSRM.OR. ISRM .EQ. ILTSRM  .OR.
      &           ISRM .EQ. IMGSRM ) CYCLE
@@ -1828,7 +1831,7 @@ C and allowing the model to proceed.
          LERROR = .FALSE.
          DO ISRM = 1,N_EM_SRM
              N = EM_FILE_SURR( ISRM )%LEN
-             N_UNUSED = COUNT( .NOT.EM_FILE_SURR( ISRM )%USED( : )
+             N_UNUSED = COUNT( .NOT. EM_FILE_SURR( ISRM )%USED( : )
      &                         .AND. EM_FILE_SURR(ISRM)%ARRY( 1:N ) .NE. 'NOT_AVAILABLE'  )
              WRITE( LOGDEV, '(5x,4A,I2,A)' ), TRIM( EM_FILE_LAB( ISRM )),' | ',
      &              TRIM(EM_FILE_DESC( ISRM )),': ', N_UNUSED,' unused surrogates.'
@@ -2151,7 +2154,6 @@ C and allowing the model to proceed.
          USE AERO_DATA, only : MGPG, GPKG
          USE UTILIO_DEFN         ! I/O API
          USE RXNS_DATA, ONLY: MECHNAME
-         USE MGEMIS,    only : MGEM     ! Flag for Marine Gas Emissions
          USE RUNTIME_VARS, only : LOGDEV
 
          IMPLICIT NONE
@@ -2186,12 +2188,7 @@ C and allowing the model to proceed.
          IF ( BIOGEMIS ) N_EM_SRM = N_EM_SRM + 1
 
          ! Marine gas emissions; use online marine gas option only if CB6R3m is used
-         IF ( INDEX( MECHNAME, 'CB6R3M' ) .GT. 0 ) then
-            MGEM = .TRUE.
-         ELSE
-            MGEM = .FALSE.
-         END IF        
-         IF ( MGEM ) N_EM_SRM = N_EM_SRM + 1
+         IF ( USE_MARINE_GAS_EMISSION ) N_EM_SRM = N_EM_SRM + 1
 
          ! Lightning NO Emissions
          IF ( LTNG_NO ) N_EM_SRM = N_EM_SRM + 1
@@ -2397,7 +2394,7 @@ C stkemis_init.
          END IF
 
          ! Online Marine Gas Emissions
-         IF ( MGEM ) THEN
+         IF ( USE_MARINE_GAS_EMISSION ) THEN
              ISRM = ISRM + 1
              EM_FILE_TYPE( ISRM ) = 'MGEM'
              EM_FILE_ITYPE( ISRM ) = 5
