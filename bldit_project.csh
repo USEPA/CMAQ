@@ -17,7 +17,7 @@
 #> directory.
 
 
- set CMAQ_HOME = /home/bmurphy/cmaq_projects/ISAM_190321
+ set CMAQ_HOME = /home/user/CMAQ_Project
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
