@@ -8,16 +8,17 @@
 
 # 8. Model Forumulation
 
-## 8.1 Introduction
-As the chemistry-transport model (CTM) component of CMAQ, CCTM is the final program to be run in the CMAQ modeling sequence after all input data have been prepared. CMAQ uses state-of-the-science techniques to simulate the atmospheric processes that affect the transport, transformation, and removal of ozone, particulate matter, and other pollutants. Here we present a brief overview of the conceptual formulation of CMAQ and Eulerian air quality modeling to provide a framework for understanding the various built and run options available with the CCTM program.
+## 8.1 Science Overview
+As discussed in [Chapter 1](CMAQ_UG_ch01_overview.md), CMAQ is a multipollutant, multiscale air quality modeling system that estimates the transport and chemistry of ozone, PM, toxic airborne pollutants (referred to as “air toxics”), and acidic and nutrient pollutant species, as well as visibility degradation and deposition totals. CMAQ includes state-of-the-art technical and computational techniques to simulate air quality from urban to global scales. It can model complex atmospheric processes affecting transformation, transport, and deposition of air pollutants using a system architecture that is designed for fast and efficient computing. This chapter summarizes the CMAQ modeling system framework and science features in various components of the Chemistry-transport model (CTM) component of CMAQ, CCTM. 
 
+## 8.2 Numerical Approach
 The theoretical basis for CMAQ’s formulation is the conservation of mass for atmospheric trace species emissions, transport, chemistry, and removal in the atmosphere. The general form of a chemical species equation derives from this conservation, so that changes in atmospheric concentrations of a species, C<sub>i</sub>, can mathematically be represented as
 
 ![Equation 8-1](images/Figure8-1.JPG)  
 
 where the terms on the right-hand side of the equation represent the rate of change in C<sub>i</sub> due to advection, turbulent mixing, cloud processes (mixing, scavenging, and aqueous-phase chemistry), dry deposition, and aerosol processes (phase partitioning, and aerosol dynamics). R<sub>gi</sub> represents the rate of change due to gas and heterogeneous chemical reactions, while E<sub>i</sub> is the emission rate for that species. The mass conservation for trace species and the moment dynamic equations for the various modes of the particulate size distribution in CMAQ are further formulated in generalized coordinates, where in the same formulation allows the model to accommodate the commonly used horizontal map projections (i.e., Lambert conformal, polar stereographic, and Mercator) as well as different vertical coordinates (see Chapters 5 and 6 in Byun and Ching, 1999). The governing equation for CMAQ is numerically solved using the time-splitting or process splitting approach wherein each process equation is solved sequentially, typically with the process with the largest time-scale solved first. 
 
-## 8.2 Grid Configuration
+## 8.3 Grid Configuration
 CMAQ is a three-dimensional Eulerian air quality model. To solve the governing partial differential equations, the domain of a model run (the volume of the atmosphere over a geographic region) is discretized with three-dimensional cells. The grid cells and boundaries of domain must be rigorously and consistently defined for all functional components of the model (e.g., chemistry, emissions, meteorology). 
 CMAQ’s generalized coordinate formulation maps the physical space to the computational space. The horizontal grid specification (setting the x and y dimensions) must be regular: the horizontal projection of each grid cell (sometimes referred to as a pixel) has the same resolution, and the boundaries of each pixel are time-invariant. By contrast, the vertical grid specification (setting the z dimension) need not be regular.
 
@@ -36,7 +37,6 @@ The vertical structure of CMAQ is inherited from the model used to prepare the m
 * [On The Definition of Horizontal and Vertical Grids and Coordinates for Models-3](https://www.cmascenter.org/ioapi/documentation/all_versions/html/GRIDS.html)
 * [Chapter 12 (MCIP) of the 1999 Models-3/CMAQ Science document](https://www.cmascenter.org/cmaq/science_documentation/pdf/ch12.pdf)
 * [Otte and Pleim (2010) publicaion on MCIP](https://www.geosci-model-dev.net/3/243/2010/gmd-3-243-2010.html)
-
 
 ## Chemical
 ### Photolysis
