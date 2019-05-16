@@ -1,4 +1,3 @@
-<!-- BEGIN COMMENT -->
 
  [Home](README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)
 
@@ -22,9 +21,6 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `CMAQ_LIB`<a id=CMAQ_LIB></a>
     Automatically set by config_cmaq.csh; note that this variable is M3LIB prior to CMAQv5.2
 
--   `M3MODEL`<a id=M3MODEL></a>
-    Automatically set by config_cmaq.csh; deprecated in CMAQv5.2
-
 -   `compiler`<a id=compiler_config></a>
     Set the Fortran compiler type that you will use to compile CMAQ; choices are intel, pgi, or gcc
 
@@ -32,25 +28,26 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     (Optional) Set the Fortran compiler version number that you will use to compile CMAQ; if you employ this variable, it will be appended to the compiler type when naming build directories and executables
 
 -   `IOAPI_MOD_DIR`<a id=IOAPI_MOD_DIR></a>
-    Location of the I/O API modules installation on your Linux system
+    Location of the I/O API modules installed on your Linux system
 
 -   `IOAPI_INCL_DIR`<a id=IOAPI_INCL_DIR></a>
-    Location of the I/O API include file installation on your Linux system
+    Location of the I/O API include files installed on your Linux system
 
 -   `IOAPI_LIB_DIR`<a id=IOAPI_LIB_DIR></a>
-    Location of the I/O API library installation on your Linux system
+    Location of the I/O API library on your Linux system
 
 -   `NETCDF_LIB_DIR`<a id=NETCDF_LIB_DIR></a>
-    Location of the netCDF installation on your Linux system
+    Location of the netCDF Library on your Linux system
 
 -   `MPI_LIB_DIR`<a id=MPI_LIB_DIR></a>
-    Location of the Message Passing Interface installation on your Linux system
+    Location of the Message Passing Interface Library on your Linux system
+
+    -   `ioapi_lib`<a id=ioapi_lib></a>
+    Name of the I/O API libraryar on your system; set to "-lioapi"
 
 -   `netcdf_lib`<a id=netcdf_lib></a>
     Name of the netCDF library on your system;  set to "-lnetcdf" for versions < 4.2.0, "-lnetcdff -lnetcdf" for version 4.2.0 and later
 
--   `ioapi_lib`<a id=ioapi_lib></a>
-    Name of the I/O API libraryar on your system; set to "-lioapi"
 
 -   `pnetcdf_lib`<a id=pnetcdf_lib></a>
     Name of the parallel netCDF library on your system; set to "-lpnetcdf"
@@ -59,10 +56,19 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     Name of the MPI library on your system; set to "-lmpich" for MVAPICH, "-lmpi" for OpenMPI
 
 -   `myFC`<a id=myFC></a>
-    Set to match the `FC` (Fortran compiler) you used to compile netCDF
+    Set to match the `FC` (Fortran compiler) you use to compile netCDF
 
 -   `myCC`<a id=myCC></a>
-    Set to match the `CC` (C compiler) you used to compile netCDF
+    Set to match the `CC` (C compiler) you use to compile netCDF
+
+-   `myFSTD` <a id=myFSTD></a>
+    **>>COMMENT<<** Needs description
+
+-    `myDBG` <a id=myDBG></a>
+**>>COMMENT<<** Needs description
+
+-     `myLINK_FLAGS` <a id=myLINK_FLAGS></a>
+**>>COMMENT<<** Needs description
 
 -   `myFFLAGS`<a id=myFFLAGS></a>
     Fixed-format Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script
@@ -73,39 +79,42 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `myFRFLAGS`<a id=myFRFLAGS></a>
     Free form-format Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script
 
--   `MPI_INC`<a id=MPI_INC></a>
-    Set to the path to your MPI library INCLUDE files, e.g. `$M3LIB/mpich/include`
-
 -   `extra_lib`<a id=extra_lib></a>
     Set to other libraries required for compiling on your Linux system; users will likely need to change this setting in the distributed script for portability to their system.
 
 -   `EXEC_ID`<a id=EXEC_ID></a>
     build tag, should be automatically set by config_cmaq.csh
 
+-   `CMAQ_REPO` <a id=CMAQ_REPO></a>
+**>>COMMENT<<** Needs description
+
 ## A.2 Compilation Configuration Variables
 
-The configuration options listed here are set during compilation of the CCTM executable. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile CCTM and create a new executable.
+The configuration options listed here are set during compilation of the CCTM executable through the build script, bldit_cctm.csh, located under the CCTM/scripts folder. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile CCTM and create a new executable.
 
-Several of the CCTM science modules have more than one option.  Brief descriptions of these options are provided here.  For details on the science of the different options refer to the [CMAQ Release Notes](../../CCTM/docs/Release_Notes/README.md).
+Several of the CCTM science modules have more than one option.  Brief descriptions of these options are provided here.
 
 The following five options are invoked by uncommenting the line in the CCTM build script.  Comment the line in the script using a "#" to turn the option off.
+
+-   `REPO_HOME` <a id=REPO_HOME></a>
+**>>COMMENT<<** Needs description
 
 -   `CopySrc`<a id=CopySrc></a>  
     Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
 
--   `set ParOpt`<a id=set ParOpt></a>  
+-   `ParOpt`<a id=ParOpt></a>  
     Build an executable for running on multiple processors. Invoking this command requires the availability of the MPI library/INCLUDE files.
 
 -   `MakeFileOnly`<a id=MakeFileOnly></a>  
     Uncomment to build a Makefile to compile the executable. Comment out to both create a Makefile and compile.
 
--   `build_parallel_io`<a id=set build_parallel_io></a>  
+-   `build_parallel_io`<a id=build_parallel_io></a>  
      Uncomment to build CMAQ with true parallel I/O feature (requires ioapi3.2 and pnetcdf)
 
--   `build_twoway`<a id=set build_twoway></a>  
-    Uncomment to build WRF-CMAQ twoway - this cannot be set for stand-alone CMAQ
+-   `build_twoway`<a id=build_twoway></a>  
+    Uncomment to build WRF-CMAQ twoway - to build a stand-alone CMAQ. Comment out, this option. **>>COMMENT<<** add comment out options?
 
--   `potvortO3`<a id=set potvort03></a>   
+-   `potvortO3`<a id=potvort03></a>   
     Uncomment to build CMAQ with potential vorticity free-troposphere O3 scaling
 
 The following configuration settings may have multiple options. Select one option in the CCTM build script.
@@ -151,8 +160,10 @@ The following configuration settings may have multiple options. Select one optio
     calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2)
 -   `ModDepv: [default: depv/m3dry]`<a id=ModDepv></a>  
     Deposition velocity calculation module. Do not change this module setting.
-    -   `depv/m3dry`  
+    -   `depv/m3dry`   
     CMAQ dry deposition velocity routine
+    -   `depv/stage`
+    **>>COMMENT<<** Needs description
 -   `ModEmis: [default: emis/emis]`<a id=ModEmis></a>  
     CMAQ in-line anthropogenic and natural emissions module. In line emissions are activated in the CCTM run script. Do not change this module setting.
     -   `emis/emis`
@@ -160,14 +171,14 @@ The following configuration settings may have multiple options. Select one optio
 Calculate biogenic emissions in-line with the BEIS3 model. Inline biogenic emissions are activated in the CCTM run script. Do not change this module setting.
     - `biog/beis3`
 -   `ModPlmrs: [default: plrise/smoke]`<a id=ModPlmrs></a>  
-Calculate in-line plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE. Inline emissions plume rise in controlled in the CCTM run script. Do not change this module setting.
+Calculate in-line plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE. Inline emissions plume rise is controlled in the CCTM run script. Do not change this module setting.
     - `plrise/smoke`  
 -   `ModCgrds: [default: spcs/cgrid_spcs_nml]`<a id=ModCgrds></a>  
     CMAQ model species configuration module.
     -   `spcs/cgrid_spcs_nml`  
     namelist files used to configure CMAQ model species
     -   `spcs/cgrid_specs_icl`  
-    use Fortran INCLUDE files used to configure CMAQ model species
+    use Fortran INCLUDE files to configure CMAQ model species
 -   `ModPhot: [default: phot/inline]`<a id=ModPhot></a>  
     Photolysis calculation module.
     -   `phot/inline`  
@@ -177,7 +188,7 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 -   `Mechanism: [default: cb05e51_ae6_aq`]<a id=Mechanism></a>  
     Chemistry mechanism for gas, aerosol, and aqueous chemistry. See the [CMAQ Mechanism Definitions Table](https://github.com/USEPA/CMAQ/blob/5.2/DOCS/User_Manual/CMAQ_OGD_appendix_A.md) for a listing of the mechanism choices that are available in CMAQv5.2.
 -   `Tracer [default trac0] `<a id=Tracer></a>  
-    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS`` directory that contains the namelist files for the tracer configuration. The default setting is to not use any tracers.
+    Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS`` directory that contains the namelist files for the tracer configuration. The default setting does not use any tracers.
     - `trac[n]`
 -   `ModGas: [default: gas/ebi_${Mechanism}]`<a id=ModGas></a>  
      Gas-phase chemistry solver module.
@@ -187,10 +198,12 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
      use gas/the Rosenbrock chemistry solver
      -  `ebi`  
      use the Euler Backward Iterative solver
--   `ModAero: [default: aero6]`<a id=ModAero></a>  
+-    `ModDiag` <a id=ModDiag></a>
+**>>COMMENT<<** Needs description
+-   `ModAero: [default: aero7]`<a id=ModAero></a>  
     CMAQ aero/aerosol module.
-    -   `aero6`  
-    sixth-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
+    -   `aero7`  
+    seventh-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
 -   `ModCloud: [default: cloud/acm_ae6]`<a id=ModCloud></a>  
     CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry.
     -   `cloud/acm_ae6`  
@@ -204,8 +217,6 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 -   `ModUtil: [default: util]`<a id=ModUtil></a>  
     CMAQ utility modules. Do not change this module setting.
     -  `util/util`
--   `Tracer: [default: trac0]`<a id=Tracer_2></a>
-     Add chemically inert tracers to the CCTM, default no tracer species.
 -   `ModPa: [default: procan/pa]`<a id=ModPa></a>
     Process analsis is controlled in the CCTM run script. Do not change this module setting.
      - `procan/pa`
@@ -215,11 +226,11 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 
 ## A3. Execution Configuration Variables
 
-The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script.
+The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script, run_cctm.csh located under the CCTM/scripts folder.
 
 -   `compiler [default: intel]`<a id=compiler></a>
 -   `compilerVrsn [default: 13.1]`<a id=compilerVrsn></a>
--   `VRSN [default: v52]`<a id=VRSN></a>
+-   `VRSN [default: v53]`<a id=VRSN></a>
 -   `PROC [default: mpi]`<a id=PROC></a>   
 Sets if the CCTM will run in multi-processor or serial mode.
     - `mpi`  
@@ -227,12 +238,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     - `serial`  
     Run the CCTM in serial, single-processor mode.
 -   `MECH [default: None]`<a id=MECH></a>
-    CMAQ chemical mechanism. Must match Mechanism variable setting in the CCTM build script.
--   `EMIS [default: 2013ef]`<a id=EMIS></a>
--   `APPL [default: SE52BENCH]`<a id=APPL></a>  
-    CCTM executable identifier. Must match APPL Variable setting in the CCTM build script.
+    CMAQ chemical mechanism. Must match `Mechanism` variable setting in the CCTM build script.
+-   `APPL [default: SE53BENCH]`<a id=APPL></a>  
+    Application name used to label output binaries and log files.
 -   `RUNID [default: $VRSN_compiler_APPL]`<a id=RUNID></a>
     Run ID used to track version number, compiler, and application case name.
+-   `BLD` <a id=BLD></a>
+**>>COMMENT<<** Needs description
 -   `EXEC [default: CCTM_$APPL_$EXECID]`<a id=EXEC></a>  
     The name of the CCTM executable.
 
@@ -248,8 +260,8 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ### Timestep Configuration
 
--   `NEW_START_TRUE [default: TRUE]`<a id=NEW_START_TRUE></a>
-     For a model restart set to FALSE
+-   `NEW_START [default: TRUE]`<a id=NEW_START></a>
+     For a model restart set to FALSE  **>>COMMENT<<** This is related to soil.  Ask Jesse to add description.  
 -   `START_DATE`<a id=START_DATE></a>  
     Simulation start date in Gregorian format (YYYY-MM-DD)
 -   `END_DATE`<a id=END_DATE></a>
@@ -279,7 +291,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM CONC file. The species in this list will be written to the ACONC output file.
 -   `ACONC_BLEV_ELEV [default: if commented out, all layers]`<a id=ACONC_BLEV_ELEV></a>  
     Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.
--   `ACONC_END_TIME [default: N]`<a id=ACONC_END_TIME></a>  
+-   `AVG_FILE_END_TIME [default: N]`<a id=AVG_FILE_END_TIME></a>  
     Change the time stamp of the ACONC file output time step from the default of the beginning of the hour to the end of the hour.
     - `Y`: Set the time stamp to the end of each hour.
     - `N`: Set the time stamp to the beginning of the hour.
@@ -302,7 +314,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Global Rosenbrock (ROS3) chemistry solver absolute tolerance
 
 ### Science Options
-
+-   `CTM_SS_AERO`<a id=CTM_SS_AERO></a>   
+    Use inline Sea Spray Aerosol emissions [ default: Y ]   
+    **>>COMMENT<<** Needs more description
 -   `CTM_WB_DUST [default: Y]`<a id=CTM_WB_DUST></a>  
     Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.
 -   `CTM_ERODE_AGLAND [default: Y]`<a id=CTM_ERODE_AGLAND></a>  
@@ -325,8 +339,16 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Calculate land use specific deposition velocities and fluxes.
 -   `CTM_FST [default: N]`<a id=CTM_FST></a>  
     Use MOSAIC method to get land-use specific stomatal flux.
+-   `PX_VERSION` <a id=PX_VERSION></a>
+**>>COMMENT<<** Needs description
+-   `CLM_VERSION` <a id=CLM_VERSION></a>
+**>>COMMENT<<** Needs description
+-    `NOAH_VERSION` <a id=NOAH_VERSION></a>
+**>>COMMENT<<** Needs description
 -   `CTM_ABFLUX [default: Y]`<a id=CTM_ABFLUX></a>  
     Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y to turn on; comment out or set to N to turn off.
+-   `CTM_BIDI_FERT_NH3` <a id=CTM_BIDI_FERT_NH3></a>
+**>>COMMENT<<** Needs description    
 -   `CTM_HGBIDI [default: N]`<a id=CTM_HGBIDI></a>  
     Activate mercury bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_SFC_HONO [default: Y]`<a id=CTM_SFC_HONO></a>  
@@ -335,10 +357,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.
 -   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
     Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings)     
--   `CTM_PT3DEMIS [default: Y]`<a id=CTM_PT3DEMIS></a>  
-    Calculate plume rise for elevated point sources. Set to Y to turn on; comment out or set N to turn off. If this option is activated several additional variables must be set (see the Inline emissions configuration settings) following variables must be set.
--   `CTM_ZERO_PCSOA [default: N]`<a id=CTM_ZERO_PCSOA></a>
-     Turn off the emissions of the VOC precursor to pcSOA. The CMAQ dev team recommends leaving pcSOA mass in the model for production runs.
+
 
 ### Process analysis options
 
@@ -350,7 +369,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Modeling grid domain row range for the process analysis calculations. Set to the two digits representing the beginning and ending row number bounding the process analysis domain.
 -   `PA_BLEV_ELEV [default: None]`<a id=PA_BLEV_ELEV></a>  
     Modeling grid domain layer range for the process analysis calculations. Set to the two digits representing the bottom and top layer numbers bounding the process analysis domain.
-
+-   `PACM_INFILE` <a id=PACM_INFILE></a>  
+     Input file that specifies the desired output information (read by pa_read.F). See Table 1 in [Chapter 10](../CMAQ_UG_ch10_process_analysis.md) for details on the types of equations and operators that can be used in this file. **>>COMMENT<<** Is a sample file available?
+-   `PACM_REPORT` <a id=PACM_REPORT></a>  
+     The output file that displays how CMAQ translates the variables listed in `PACM_INFILE`, and lists the reactions (including reactants, products and yields) that will be used in calculating the IPR and IRR values.
 ### I/O Controls
 
 -   `IOAPI_LOG_WRITE [default: Y]`<a id=IOAPI_LOG_WRITE></a>  
@@ -364,8 +386,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 ### Aerosol Diagnostics Controls
 
--   `CTM_AVISDIAG [default: N]`<a id=CTM_AVISDIAG></a>  
-    Output visibility diagnostics file. Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_PMDIAG [default: N]`<a id=CTM_PMDIAG></a>  
     Output aerosol diagnostics and properties file. Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_APMDIAG [default: N]`<a id=CTM_APMDIAG></a>  
@@ -379,29 +399,26 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Write science processes summaries to the standard output. Impacts run speed and log file output size. Comment out or set to Y to turn on; set to N to turn off.
 -   `CLD_DIAG [default: N]`<a id=CLD_DIAG></a>  
     Output an hourly wet deposition diagnostic file (CTM_WET_DEP_2) that includes convective wet deposition estimates. Set to Y to turn on; comment out or set to N to turn off.
+-   `NLAYS_PHOTDIAG` <a id=NLAYS_PHOTDIAG></a>
+**>>COMMENT<<** Needs description
 -   `CTM_PHOTDIAG [default: N]`<a id=CTM_PHOTDIAG></a>  
-    Output in-line photolysis rates and associated data to diagnostic netCDF output files. The file CTM_RJ_1 contains gridded photolysis rates for O3 (JO3O1D) and NO2 (JNO2) that include both clear-sky and cloud effects, total downward irradiance at the surface (ETOT_SFC_W), aerosol optical depth (TAU_AERO_W), total optical depth (TAU_TOT_W), optical depth of ozone above the model domain (TAUO3_TOP_W), Rayleigh optical depth above the model domain (TAU_RAY_W), and surface albedo (ALBEDO_W). The file CTM_RJ_2 contains gridded photolysis rates for all other photolysis reactions in the selected chemical mechanism. Set to Y to turn on; comment out or set to N to turn off.
+    Output in-line photolysis rates and associated data to diagnostic netCDF output files. The file CTM_RJ_1 contains gridded photolysis rates for O3 (JO3O1D) and NO2 (JNO2) that include both clear-sky and cloud effects, total downward irradiance at the surface (ETOT_SFC_W), aerosol optical depth (TAU_AERO_W), total optical depth (TAU_TOT_W), optical depth of ozone above the model domain (TAUO3_TOP_W), Rayleigh optical depth above the model domain (TAU_RAY_W), and surface albedo (ALBEDO_W). The file CTM_RJ_2 contains gridded photolysis rates for all other photolysis reactions in the selected chemical mechanism. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<** Bill needs to update this.  CMAQv5.3 has a CTM_RJ_3 file.  
 -   `CTM_SSEMDIAG [default: N]`<a id=CTM_SSEMDIAG></a>  
     Output the calculated sea salt emissions to a diagnostic netCDF output file (CTM_SSEMIS_1). Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_DUSTEM_DIAG [default: N]`<a id=CTM_DUSTEM_DIAG></a>  
     Output the in-line dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_DEPV_FILE [default: N]`<a id=CTM_DEPV_FILE></a>  
-    Output an hourly diagnostic file (CTM_DEPV_DIAG) for the in-line deposition velocity calculations. If CTM_ILDEPV is set to N this variable is ignored. Set to Y to turn on; comment out or set to N to turn off.
+    Output an hourly diagnostic file (CTM_DEPV_DIAG) for the in-line deposition velocity calculations. If CTM_ILDEPV is set to N this variable is ignored. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_DEPV_DIAG.  
 -   `VDIFF_DIAG_FILE [default: N]`<a id=VDIFF_DIAG_FILE></a>  
-    Output a diffusion and aero gravitational sedimentation diagnostic file. Set to Y to turn on; comment out or set to N to turn off.
+    Output a diffusion and aero gravitational sedimentation diagnostic file. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_VDIFF_DIAG.  
 -    `CTM_AOD [default N]`<a id=CTM_AOD></a>  
-    Output an aerosol optical depth (AOD) calculation diagnostics file. Set to Y to turn on; comment out or set to N to turn off.
+    Output an aerosol optical depth (AOD) calculation diagnostics file. Set to Y to turn on; comment out or set to N to turn off.  **>>COMMENT<<**  Consider renaming this variable to CTM_AOD_DIAG.  
 -   `LTNGDIAG [default: N]`<a id=LTNGDIAG></a>  
     Output a lightning NO emissions diagnostics file. Set to `Y` to turn on; comment out or set to `N` to turn off.
--   `DISP [default: keep]`<a id=DISP></a>  
-    Controls the maintenance of existing log files.
-    -   `delete` delete output log if it already exists
-    -   `keep` abort simulation if output log exists
+
 
 ### Inline emissions configuration
 
--   `NPTGRPS [default: 1]`<a id=NPTGRPS></a>  
-    The number of input point-source elevated emission sector file groups. A maximum of 9 sectors is allowed.
 
 -   `STK_GRPS_## `<a id=STK_GRPS_##></a>  
     Directory path and file name of the stack groups file for sector ##, where ## = 01, 02,…,NPTGRPS. Each ## refers to one of the plume rise point-source sectors.
@@ -418,9 +435,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `LAYP_NSTEPS [HHHHHH]`<a id=LAYP_NSTEPS></a>  
     Number of time steps for calculating elevated-point-source emissions.
 
--   `CTM_EMLAYS [default: max no of model layers]`<a id=CTM_EMLAYS></a>  
-    Number of emissions layers for calculating elevated-point-source emissions. If not set (commented out), the maximum number of model layers will be used.
-
 -   `PT3DDIAG [default: N]`<a id=PT3DDIAG></a>  
     Output the in-line 3-D point-source emissions to a diagnostic netCDF output file (CTM_PT3D_DIAG). Set to Y to turn on; comment out or set to N to turn off.
 
@@ -436,20 +450,20 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating in-line lightning NO emissions.
 
 -   `USE_NLDN [default: Y]`<a id=USE_NLDN></a>  
-    Use hourly NLDN strikes file to compute inline lighning NO emissions. Activating this setting requires the NLDN_STRIKES input file.  Comment out or set to Y to turn on; set to N to turn off. If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.
+    Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file.  Comment out or set to Y to turn on; set to N to turn off. If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.
 
 -  `NLDN_STRIKES [default: None]`<a id=NLDN_STRIKES></a>  
     Hourly NLDN lightning strike netCDF FILE. Required when `LTNGNO` is set to `Inline` and `USE_NLDN` is set to `Y`; otherwise ignore this setting.
-    
+
 -  `LTNGPARMS_FILE [default: None]`<a id=LTNGPARMS_FILE></a>  
-    Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to "InLine" and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file. 
+    Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to "InLine" and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file.
 
 -  `CTM_LTNGDIAG_1`<a id=LTNGOUT></a>  
     Lightning diagnostics output 3D netCDF file; ignore if `LTNGDIAG = N`
 
 -  `CTM_LTNGDIAG_2`<a id=LTNGOUT></a>  
     Lightning diagnostics output 2D netCDF file (column total lightning NO emissions); ignore if `LTNGDIAG = N`
-    
+
 ### In-line biogenic emissions configuration
 
 -   `GSPRO [default: None]`<a id=GSPRO></a>  
@@ -474,7 +488,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.
 
 -   `INITIAL_RUN [default: N]`<a id=INITIAL_RUN></a>  
-    Set to Y if this is the first time that biogenic NO soil emissions will be calculated. If there is a previously created file, set to N.
+    Set to Y if this is the first time that biogenic NO soil emissions will be calculated. If there is a previously created file, set to N. **>>COMMENT<<** This only applies to biogenic NO.  Consider renaming this variable to SOIL_INITIAL_RUN to avoid confusion.
 
 -   `SOILINP [default: None]`<a id=SOILINP></a>  
     Directory path and file name of biogenic NO soil emissions file. If INITIAL_RUN is set to N or F, the soil NO emissions file from the previous day’s simulation will be a required input file.
