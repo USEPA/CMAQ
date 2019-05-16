@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
- [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_CMAQ.md)
+ [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_compile_and_run.md)
 
 <!-- END COMMENT -->
 
@@ -15,8 +15,6 @@ This chapter provides basic information on the format and content of CMAQ input 
 **>>COMMENT<<** only a subset of this information needs to be kept; much of the subsection material can be found online and needs to be de-emphasized here.Consider removing the table describing Time Step Structures and Data Type Structures altogether.  This information can be briefly described in text to describe the GRIDDED3 and BNDARY3 files.
 
 The Models-3 Input/Output Applications Programming Interface (I/O API) is an environmental software development library that provides an input/output framework for the CMAQ programs, inlcuding a set of commonly used subroutines for passing information between source code modules and for reading and writing data files (Coats, 2005). An additional benefit of the I/O API is that an expansive set of data manipulation utilities and statistical analysis programs is available to evaluate and postprocess the binary CMAQ input/output data files. Users should download the latest code for the I/O API from the [website](https://www.cmascenter.org/ioapi). In order to work with I/O API buffered file format, which is used in the WRF-CMAQ two-way coupled model, and/or to perform parallel I/O operations in CMAQ 5.0.1 or later version, users should use IOAPI 3.2. For CMAQ users using preconfigured applications of the model, the I/O API system can be essentially transparent. For users who plan to modify the code or implement updated modules for research purposes, a few key elements of the I/O API should be understood, and they are discussed below. For more detailed information about developing new modules for CMAQ using the I/O API code libraries, please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html).
-
-** >> Comment <<** In the paragraph below, the “CMAQ_OGD_Chapter6_review_DW.docx” marked-up file had an edit that described a “Red Hat 51 Linux Workstation.” However, the number 51 did not appear in the original Atom file, nor did “51” appear to be an addition within the marked-up file. So I am just making sure "51" actually belongs in the document and isn’t an unintentional remnant of something else
 
 ### 4.1.1 I/O API Data Structure and Data File Types
 Each CMAQ data file has internal file descriptions that contain the file type, the file start date and time, the file time step, the grid and coordinate descriptions, and a set of descriptions for the set of variables contained within the file (i.e., names, units specifications, and text descriptions). Some of the elements in a file description, such as the dates and times for file creation and update and the name of the program that created the file, are maintained automatically by the I/O API. The remainder of the descriptive information must be provided at the time of file creation.
@@ -176,7 +174,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[E2C_FERT](#e2c_fert) <a id=e2c_fert_t></a>|| GRDDED3 | Daily |XY||optional|
 |**Photolysis** | | | | |||
 |[JTABLE](#jtable) <a id=jtable_t></a>|| ASCII | Daily | n/a | JPROC|optional|
-|[OMI](#omi) <a id=omi_t></a>|| ASCII | daily | n/a ||optional||
+|[OMI](#omi) <a id=omi_t></a>|| ASCII | daily | n/a ||optional|CMAQ repo or create_omi|
 
 
 ## General
@@ -717,7 +715,7 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 |…|…|…|…| Repeat for (2009-2015) there are 365 days of data
 
 
- [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_CMAQ.md)<br>
+ [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_compile_and_run.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
