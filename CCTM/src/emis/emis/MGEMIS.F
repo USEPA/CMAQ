@@ -31,6 +31,8 @@ C              halocarbon and HOI/I2 emissions
 C   04 Dec 18: G. Srawar: updated local time calculation
 C   01 Feb 19: D. Wong: Implemented centralized I/O approach
 C   15 May 19: D. Wong: Replaced MGEM with USE_MARINE_GAS_EMISSION which is set in RUNTIME_VARS.F
+C   16 May 19: D. Wong: * Removed initialization of OCEAN, SZONE, CHLR, and DMSL. 
+C                       * Used LON directly to save space.
 
       USE RUNTIME_VARS
       USE HGRD_DEFN
@@ -58,9 +60,6 @@ C Variables for the marine gas diagnostic file
 
 ! Species names in the speciated marine gas-emissions
       CHARACTER( 16 ), ALLOCATABLE :: WRMG_SPC( : )   ! species names
-
-C Variables for handling marine gas emissions
-      REAL,    ALLOCATABLE, SAVE :: DMSL( :,: )    ! DMS in sea-water (nM)
 
       CHARACTER( 16 ) :: MG_SPC( NMGSPC)           ! emitted species
 
@@ -95,7 +94,6 @@ C Variables for handling marine gas emissions
 C Variables interpolated from the meteorological input files
       REAL,    ALLOCATABLE, SAVE :: U10( :,: )      ! wind speed at 10m [m/s]
       REAL,    ALLOCATABLE, SAVE :: TSEASFC( :,: )  ! sea surface temp K
-      REAL,    ALLOCATABLE, SAVE :: ILON( :,: )     ! longitude
       REAL,    ALLOCATABLE, SAVE :: SEAICE( :,: )   ! seaice fraction
 
       INTEGER I
@@ -119,7 +117,7 @@ C   03 Nov 15: B. Gantt and G. Sarwar: created the initial version for marine ga
             USE CGRID_SPCS
             USE RXNS_DATA
             USE RUNTIME_VARS, ONLY : USE_MARINE_GAS_EMISSION
-            USE CENTRALIZED_IO_MODULE
+            USE CENTRALIZED_IO_MODULE, only : chlr, dmsl
 
             IMPLICIT NONE
             INCLUDE SUBST_CONST                                     ! constants
@@ -172,23 +170,15 @@ C Allocate MG arrays using NMGSPC value
 
             ALLOCATE ( TSEASFC( NCOLS,NROWS ),
      &                 U10( NCOLS,NROWS ),
-     &                 ILON( NCOLS,NROWS ),
      &                 SEAICE( NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
-              XMSG = '*** DMSL, TSEASFC, U10, ILON or SEAICE memory'
+              XMSG = '*** DMSL, TSEASFC, U10, or SEAICE memory'
               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
               SUCCESS = .FALSE.; RETURN
             END IF   
-            OCEAN   = 0.0 
-            SZONE   = 0.0
             U10     = 0.0
-            ILON    = 0.0
             TSEASFC = 293.15
             SEAICE  = 0.0
-            CHLR    = 0.0
-            DMSL    = 0.0
-
-            ilon = lon
 
 C Get index for surface ozone concentration 
             VARNM = 'O3'
@@ -487,7 +477,7 @@ C Initialize marine gas output buffer
                      SST       = TSEASFC (C,R)
 !                    SSTC    = SST - 273.15
                      SSTC      = MIN( (SST - 273.15), 30.0)                          
-                     LOC_LON   = ILON (C,R)
+                     LOC_LON   = LON (C,R)
                      O3       = 1000.0 * CGRID(C, R, 1, LGC_O3)
                      DMS_L     = DMSL( C, R )   
 
