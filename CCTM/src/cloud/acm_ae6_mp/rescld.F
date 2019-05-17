@@ -60,6 +60,8 @@ C      16 02Aug12 S.Roselle:  instrumented to calculate and return
 C                             transmissivity for resolved clouds
 C      07 Nov 14 J.Bash: Updated call to czangle.F for the ASX_DATA_MOD shared data module.  
 C      07 May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
+C       1 Feb 19 D. Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses
 C  Called by:  CLDPROC
  
 C  Calls the following subroutines:  SCAVWDEP and AQ_MAP
@@ -72,6 +74,7 @@ C-----------------------------------------------------------------------
       USE HG_AQCHEM_DATA      ! mercury chemistry parameters and constants
       USE ASX_DATA_MOD,  ONLY: MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2, LHNO3
+      USE CENTRALIZED_IO_MODULE
 
       IMPLICIT NONE
 
@@ -105,12 +108,8 @@ C Number of species in CGRID
 C...........Local Variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.   ! flag for first pass thru
-      LOGICAL, SAVE :: QG_AVAIL = .TRUE.   ! flag for QG available on file
-      LOGICAL, SAVE :: QI_AVAIL = .TRUE.   ! flag for QI available on file
-      LOGICAL, SAVE :: QS_AVAIL = .TRUE.   ! flag for QS available on file
 
       CHARACTER( 16 ), SAVE :: PNAME = 'RESCLD'    ! process name
-      CHARACTER( 16 ) ::  VARNM               ! variable name for IOAPI to get
       CHARACTER( 16 ), SAVE ::  VNAME_RN
 
       INTEGER       COL                 ! column loop counter
@@ -163,16 +162,8 @@ C...........Local Variables:
       REAL          QI   ( NCOLS, NROWS, NLAYS )  ! ice content (kg/kg)
       REAL          QR   ( NCOLS, NROWS, NLAYS )  ! rain water content (kg/kg)
       REAL          QS   ( NCOLS, NROWS, NLAYS )  ! snow content (kg/kg)
-!     REAL          QV   ( NCOLS, NROWS, NLAYS )  ! specific humidity (kg/kg)
       REAL          TA   ( NCOLS, NROWS, NLAYS )  ! air temperature (K)
-!     REAL          ZH   ( NCOLS, NROWS, NLAYS )  ! mid-layer height (m)
       REAL          ZF   ( NCOLS, NROWS, NLAYS )  ! level/layer-face height (m)
-
-      INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-      INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2      !Golam Sarwar, July 1, 2011
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
 C Gridded meteorology data:
 C Latitude and longitude for zenith angle calculation: Golam Sarwar * July 1, 2011 
@@ -216,54 +207,22 @@ C...Initialization
 
         FIRSTIME = .FALSE.
 
-C...open MET_CRO_2D
-
-        IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
-          XMSG = 'Could not open '// MET_CRO_2D // ' file'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-C...get description from the met file
-
-        IF ( .NOT. DESC3( MET_CRO_2D ) ) THEN
-          XMSG = 'Could not get ' // MET_CRO_2D //' file description'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-        SPC = INDEX1( 'RNA', NVARS3D, VNAME3D )
-        IF ( SPC .GT. 0 ) THEN
+        IF (RNA_AVAIL) THEN
            VNAME_RN = 'RNA'
         ELSE
            VNAME_RN = 'RN'
         END IF
 
-C...open MET_CRO_3D
-
-        IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
-          XMSG = 'Could not open '// MET_CRO_3D // ' file'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-C...get description from the met file
-
-        IF ( .NOT. DESC3( MET_CRO_3D ) ) THEN
-          XMSG = 'Could not get ' // MET_CRO_3D //' file description'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
 C...store met file time, date, and step information and compute
 C...  the met timestep in hours
 
-        SDATE = SDATE3D
-        STIME = STIME3D
-        MSTEP = TSTEP3D
+        SDATE = cio_model_sdate
+        STIME = cio_model_stime
+        MSTEP = cio_data_tstep
 
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
 
-        VAR = INDEX1( 'QI', NVARS3D, VNAME3D )
-
-        IF ( VAR .EQ. 0 ) THEN
-          QI_AVAIL = .FALSE.
+        IF ( .not. QI_AVAIL ) THEN
           XMSG = 'Parameter QI (cloud ice) was not found on file '
      &           // MET_CRO_3D
           CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
@@ -278,10 +237,7 @@ C...  the met timestep in hours
      &           'Processing will continue with QI set to ZERO.  <<---<<'
         END IF
 
-        VAR = INDEX1( 'QS', NVARS3D, VNAME3D )
-
-        IF ( VAR .EQ. 0 ) THEN
-          QS_AVAIL = .FALSE.
+        IF ( .not. QS_AVAIL ) THEN
           XMSG = 'Parameter QS (snow) was not found on file ' // MET_CRO_3D
           CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
           WRITE( LOGDEV, '(3(/10X,A),(/10X,3(A,1X)),(/10X,A))' )
@@ -294,19 +250,6 @@ C...  the met timestep in hours
           WRITE( LOGDEV, '((/5X,A),/)' )
      &           'Processing will continue with QS set to ZERO.  <<--<<'
         END IF
-
-        VAR = INDEX1( 'QG', NVARS3D, VNAME3D )
-
-        IF ( VAR .EQ. 0 ) THEN
-          QG_AVAIL = .FALSE.
-        END IF
-
-        CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                  STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )      !Golam Sarwar, July 1, 2011 
-        CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                  STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-        CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
         MXSPCS = N_GC_SPCD + N_AE_SPC + N_NR_SPC + N_TR_SPC
 
@@ -338,46 +281,22 @@ C...  (reading those variables for which it is necessary)
 
 C...  Get ambient temperature (K)
 
-      VARNM = 'TA'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, TA ) ) THEN
-        XMSG = 'Could not read TA from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('TA', mdate, mtime, TA)
 
 C...Get resolved cloud water mixing ratio (kg H2O / kg air)
 
-      VARNM = 'QC'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, QC ) ) THEN
-        XMSG = 'Could not read QC from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('QC', MDATE, MTIME, QC )
 
 C...Get resolved rain water mixing ratio (kg H2O / kg air)
 
-      VARNM = 'QR'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, QR ) ) THEN
-        XMSG = 'Could not read QR from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('QR', MDATE, MTIME, QR )
 
 C...read resolved ice mixing ratio (kg H2O / kg air) from the met
 C...  file if it is available
 
       IF ( QI_AVAIL ) THEN
 
-        VARNM = 'QI'
-          XMSG = 'Could not read QI from ' // MET_CRO_3D
-        IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                      MDATE, MTIME, QI ) ) THEN
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
+        call interpolate_var ('QI', MDATE, MTIME, QI )
 
       ELSE
 
@@ -390,13 +309,7 @@ C...  file if it is available
 
       IF ( QS_AVAIL ) THEN
 
-        VARNM = 'QS'
-        IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                      MDATE, MTIME, QS ) ) THEN
-          XMSG = 'Could not read QS from ' // MET_CRO_3D
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
+        call interpolate_var ('QS', MDATE, MTIME, QS )
 
       ELSE
 
@@ -409,13 +322,7 @@ C...  file if it is available
 
       IF ( QG_AVAIL ) THEN
 
-        VARNM = 'QG'
-          XMSG = 'Could not read QG from ' // MET_CRO_3D
-        IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                      STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                      MDATE, MTIME, QG ) ) THEN
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
+        call interpolate_var ('QG', MDATE, MTIME, QG )
 
       ELSE
 
@@ -425,38 +332,20 @@ C...  file if it is available
 
 C...Get level heights / layer faces (m)
 
-      VARNM = 'ZF'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, ZF ) ) THEN
-        XMSG = 'Could not read ZF from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('ZF', MDATE, MTIME, ZF )
 
 C...Get pressure (Pa)
 
-      VARNM = 'PRES'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, PRES ) ) THEN
-        XMSG = 'Could not read PRES from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('PRES', MDATE, MTIME, PRES )
 
 C...Get air density (kg/m3)
 
-      VARNM = 'DENS'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, DENS ) ) THEN
-        XMSG = 'Could not read DENS from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENS', MDATE, MTIME, DENS )
 
 C...compute layer thicknesses (m)
 
-      DO ROW = 1, MY_NROWS
-        DO COL = 1, MY_NCOLS
+      DO ROW = 1, NROWS
+        DO COL = 1, NCOLS
           DZZ( COL, ROW, 1 ) = ZF( COL, ROW, 1 )
           DO LAY = 2, NLAYS
             DZZ( COL, ROW, LAY ) = ZF( COL, ROW, LAY )
@@ -480,17 +369,12 @@ C...  on the input file are amounts within the metfiles timestep.
 
 C...Get nonconvective precipitation amount (cm)
 
-      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME_RN, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    MDATE, MTIME, RN ) ) THEN
-        XMSG = 'Could not read ' // TRIM( VNAME_RN ) // ' from ' // MET_CRO_2D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var (VNAME_RN, MDATE, MTIME, RN )
 
 C...Loop through all grid cells
 
-      DO ROW = 1, MY_NROWS
-        DO COL = 1, MY_NCOLS
+      DO ROW = 1, NROWS
+        DO COL = 1, NCOLS
 
 C...Convert the rainfall into a rainfall rate (mm/hr)
 

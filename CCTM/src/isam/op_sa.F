@@ -24,6 +24,7 @@ c20140428  Opens ISAM's SA_CONC_1 file
 c       op_sa.F called by initscen.F
 c
 C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
+C     09 May 2019: D.Wong Removed all MY_ clauses
 c
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
@@ -201,7 +202,7 @@ cyqw    TSTEP3D = TSTEP(1)
         END IF
 
 Ckrt...Write initial conditions to sa_conc_1 ( or last hour sa_cgrid_1 )
-          ALLOCATE ( ISAM_BUFF( MY_NCOLS, MY_NROWS, SA_NLAYS, N_SPCTAG ), 
+          ALLOCATE ( ISAM_BUFF( NCOLS, NROWS, SA_NLAYS, N_SPCTAG ), 
      &     STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating ISAM_BUFF'

@@ -25,6 +25,7 @@ C 11 May 11 D.Wong: incorporated twoway model implementation
 C 10 Mar 14 D.Wong: turned off GXOFF and GYOFF check for the twoway model
 C                   since METCRO is one grid cell bigger than the other
 C                   files to avoid M3EXIT issue
+C  1 Feb 19 David Wong: removed all MY_N clauses
 
 C returns local starting and ending column and row indices for file FNAME
 
@@ -253,10 +254,10 @@ C check the file against the processor setup (COORD.EXT), and get the offsets
       INDX = MYPE + 1
       GXOFF = IDINT( XORIG_C - XORIG_F )
       LOC_STRTCOL = GXOFF + COLSX_PE( 1,INDX )
-      LOC_ENDCOL  = LOC_STRTCOL + MY_NCOLS - 1 + DOTFILE
+      LOC_ENDCOL  = LOC_STRTCOL + NCOLS - 1 + DOTFILE
       GYOFF = IDINT( YORIG_C - YORIG_F )
       LOC_STRTROW = GYOFF + ROWSX_PE( 1,INDX )
-      LOC_ENDROW  = LOC_STRTROW + MY_NROWS - 1 + DOTFILE
+      LOC_ENDROW  = LOC_STRTROW + NROWS - 1 + DOTFILE
 #ifndef twoway
       IF ( GXOFF .LT. 0 .OR. GYOFF .LT. 0 ) THEN
          XMSG = 'Model domain is outside file domain'

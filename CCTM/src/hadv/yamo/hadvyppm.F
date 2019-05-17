@@ -43,6 +43,7 @@ C                            them as declared in X_YAMO and Y_YAMO
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
+C   01 Feb 19 David Wong: removed all MY_N clauses
       
 C-----------------------------------------------------------------------
 
@@ -209,8 +210,8 @@ C Get CGRID offsets
 
             XYFIRST( LVL ) = .FALSE.
 
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
+            DO ROW = 1, NROWS
+               DO COL = 1, NCOLS
                   YTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
                END DO
             END DO
@@ -227,8 +228,8 @@ C Get CGRID offsets
 
             XYFIRST( LVL ) = .TRUE.
 
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
+            DO ROW = 1, NROWS
+               DO COL = 1, NCOLS
                   XTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
                END DO
             END DO

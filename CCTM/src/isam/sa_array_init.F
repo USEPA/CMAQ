@@ -25,13 +25,15 @@ c         write to ISAM those ISAM values from last hour of previous day
 c           Called by initscen.F
 c
 C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
-c
+C     09 May 2019: D.Wong Removed all MY_ clauses
+C     13 May 2019: D.Wong Moved environment variable ISAM_NEW_START to RUNTIME_VARS
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       USE GRID_CONF
       USE UTILIO_DEFN           ! replaces ioparms, iofdesc, iodecl
       USE CGRID_SPCS            ! covers all kinds of species mapping
       USE SA_DEFN               ! Mc06
+      USE RUNTIME_VARS, only : ISAM_NEW_START
       
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -53,16 +55,11 @@ c.....local variables
       INTEGER          C, R, L, S, K              ! loop index
       INTEGER          N, NSPC, JVOC              ! 20140123
 
-      CHARACTER*1      ISAM_NEW_START
-
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     program entry
 c.........................................................
 c.....update isam array according to isam ICON source tag
 
-
-      CALL GETENV('ISAM_NEW_START', ISAM_NEW_START)
 
       IF( ISAM_NEW_START == 'Y') THEN
                                 !.....map N_SPC_ADV to the user-query species
@@ -71,16 +68,16 @@ c.....update isam array according to isam ICON source tag
           N = SPC_INDEX( S, 1 )
           IF( N .EQ. 1) THEN  ! query is for an original species, includes O3A 20130627
             DO L = 1, NLAYS
-              DO R = 1, MY_NROWS
-                DO C = 1, MY_NCOLS
+              DO R = 1, NROWS
+                DO C = 1, NCOLS
                   ISAM(C,R,L,S,ICONTAG) = CGRID(C,R,L,SPC_INDEX(S,2))
                 END DO ! R
               END DO ! C
             END DO ! L
           ELSEIF( N .EQ. -50) THEN  ! 50/50 for each of VOC- and NOx limited ozone
             DO L = 1, NLAYS
-              DO R = 1, MY_NROWS
-                DO C = 1, MY_NCOLS
+              DO R = 1, NROWS
+                DO C = 1, NCOLS
                   ISAM(C,R,L,S,ICONTAG) = 0.5 * CGRID(C,R,L,SPC_INDEX(S,2))
                 END DO ! R
               END DO ! C
@@ -88,8 +85,8 @@ c.....update isam array according to isam ICON source tag
           ELSEIF(N .NE. -1) THEN ! query is for constructed species
             DO NSPC = 1, N
               DO L = 1, NLAYS
-                DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+                DO R = 1, NROWS
+                  DO C = 1, NCOLS
                     ISAM(C,R,L,S, ICONTAG) =
      &                  ISAM(C,R,L,S, ICONTAG)+ CGRID(C,R,L,SPC_INDEX(S, 1+NSPC))
                   END DO ! R
@@ -190,7 +187,7 @@ Ckrt....assign spc_name( nspc_sa, ntag_sa ) to spcname1( nspc_sa )
 
 Ckrt allocate data-loading array 
       IF ( .NOT. ALLOCATED( TEMP ) ) 
-     &  ALLOCATE( TEMP( MY_NCOLS, MY_NROWS, NLAYS3D ) )
+     &  ALLOCATE( TEMP( NCOLS, NROWS, NLAYS3D ) )
       TEMP = 0.0
       
       DO JSPCTAG = 1, NSPCTAG
@@ -210,8 +207,8 @@ Ckrt allocate data-loading array
      &        NTAG_SA, TAGNAME )
         IF ( S .GT. 0 ) THEN
           IF ( K .GT. 0 ) THEN
-            DO C = 1, MY_NCOLS
-              DO R = 1, MY_NROWS
+            DO C = 1, NCOLS
+              DO R = 1, NROWS
                 DO L = 1, NLAYS3D
                   ISAM( C,R,L,S,K ) = TEMP( C,R,L )
                 END DO
@@ -227,8 +224,8 @@ Ckrt allocate data-loading array
               K = NTAG_SA
             END SELECT CK_SUFFX
             DO L = 1, NLAYS3D
-              DO R = 1, MY_NROWS
-                DO C = 1, MY_NCOLS
+              DO R = 1, NROWS
+                DO C = 1, NCOLS
                   ISAM( C,R,L,S,K ) = TEMP( C,R,L )
                 END DO
               END DO

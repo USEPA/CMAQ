@@ -45,6 +45,9 @@ C     12 Jan 2017 B.Murphy: Remove warning when model species are not
 C                           read in correctly. Invoke error and model stop when model 
 C                           species are not found on any emission file
 C     16 NOv 2018 S.Napelenok: ISAM implementation
+C     01 Feb 2019 D.Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses, replaced IOS with LOGDEV when calling GET_ENV
+C     15 May 2019 D.Wong: Put the check for using marine gas emission or not in RUNTIME_VAR.F
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -163,7 +166,7 @@ C Get number of emissions layers
 C Initialize 3D Point Source Emissions 
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Point Emissions' )
          IF ( .NOT. PT3D_INIT( JDATE, JTIME, TSTEP ) ) THEN
-            XMSG = 'Failure initializing plume rise emissions module' 
+            XMSG = 'Failure initializing plume rise emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
  
@@ -180,7 +183,7 @@ C Initialize Online Marine Gas Emissions
             XMSG = 'Failure initializing marine gas emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         
+
 C Initialize Online Lightning NOx Emissions
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissions' )
          IF ( .NOT. LTNG_INIT( JDATE, JTIME, TSTEP ) ) THEN
@@ -198,6 +201,7 @@ C Initialize Aerosol Emissions
 C Map the Emissions Species Available on the Input Files To the
 C Surrogates Identified by the User via the Namelists and Stop the model
 C or Print Warnings if Mistakes Are Made.
+
          CALL EMIS_SPC_MAP( JDATE, JTIME )
          IF ( IO_PE_INCLUSIVE ) CALL OPEN_EMISS_DIAG( JDATE, JTIME, TSTEP )
 
@@ -575,6 +579,7 @@ C Subset the emissions array for ISAM traced species
          USE UTILIO_DEFN
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
          USE RXNS_DATA, ONLY: MECHNAME
+         USE CENTRALIZED_IO_MODULE, ONLY: interpolate_var
 
          IMPLICIT NONE
 
@@ -599,15 +604,12 @@ C Subset the emissions array for ISAM traced species
          CHARACTER( 16 ) :: PNAME = 'GRIDEMIS'
          CHARACTER( 200 ) :: XMSG = ' '
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
-         INTEGER          GXOFF, GYOFF         ! global origin offset from file
-         INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
 
 C-----------------------------------------------------------------------
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
             ! Get Domain Information for Emissions Read Routine
-            CALL SUBHFILE ( EMIS_FNAME, GXOFF, GYOFF, STARTCOL, ENDCOL, STARTROW, ENDROW )
 
             ! Allocate Persistent Variables
             ALLOCATE( BUFF( NCOLS,NROWS,MAXVAL( EM_GRID_LAYS ) ) )
@@ -627,14 +629,7 @@ C Read & Interpolate Emissions
            VNAME = EM_SURR( ISTR, FSTREAM )
            IF ( VNAME .EQ. '' ) CYCLE
 
-           BUFF = 0.0   ! array assignment
-           IF ( .NOT. INTERPX( EMIS_FNAME, VNAME, PNAME,
-     &                         STARTCOL,ENDCOL, STARTROW,ENDROW,1,FILE_LAYS,
-     &                         EM_FILE_DATE( FSTREAM ), JTIME, BUFF ) ) THEN
-              XMSG = 'Could not read '
-     &             // TRIM( VNAME ) // ' from ' // EMIS_FNAME
-              IF ( .NOT. EMISCHK ) CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
-           END IF
+           CALL INTERPOLATE_VAR (VNAME, EM_FILE_DATE( FSTREAM ), JTIME, BUFF, EMIS_FNAME)
 
 C Store all emissions in mol/sec or g/sec and convert to ppmv/s later
            IF ( EMLAYS .GE. FILE_LAYS ) THEN 
@@ -842,8 +837,6 @@ C-----------------------------------------------------------------------
  
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       INTEGER       :: EMtoDIFF(N_EMIS_ISTR)
-      INTEGER          GXOFF, GYOFF         ! global origin offset from file
-      INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
       INTEGER       :: C, R, L, ISTR, INDX
 
       ! Get domain decomp info from the emissions file
@@ -858,13 +851,13 @@ C-----------------------------------------------------------------------
       END IF    !FirstTime
       
       ! Convert All Emissions to Units Appropriate for the Dispersion Solver
-      CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL ) 
+      CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL )
       DO L = 1,NL
         CNVTC( L,:,: ) = 1.0E-3 * CNVTI( L ) * Met_Data%RRHOJ( :,:,L )  ! Gas Moles:   mol/s -> ppmv/s
         CONVM( L,:,: ) = MWAIR / GPKG / Met_Data%DENS( :,:,L ) !m3/mol  ! Aer. Mass:   umol/m3/s -> ppmv/s
-      END DO                                                                         ! m2/m3/s -> m2/mol/s
+      END DO                                                            ! m2/m3/s -> m2/mol/s
       CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) * RAVO * 1.0E+06            ! Aer. Num:    N/m3/s -> N/molec/s
-      
+
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
       !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
       !AND AEROSOL SURFACE AREA)
@@ -937,7 +930,7 @@ C-----------------------------------------------------------------------
      &      'Please inspect the Emission Control Namelist File.'
           XMSG = 'Negative Emissions Detected'
           CALL M3EXIT( 'EMISS_NEG_CHECK', 0, 0, XMSG, XSTAT1 )
-      
+
       ELSE ! reset slightly negative values to 0.0
           WHERE ( VDEMIS .LT. 0.0 ) VDEMIS = 0.0
       END IF
@@ -998,31 +991,31 @@ C-----------------------------------------------------------------------
      &     EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) LAYS = NL
 
       ! Convert All Emissions to Units Appropriate for the Dispersion Solver
-      CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL ) 
+      CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL )
       DO L = 1,NL
         CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) )   ! Gas Moles: ppmv/s -> mol/s
         CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )      ! Aer. Mass: ppmv/s -> umol/s
-      END DO                                                                           ! m2/mol/s -> m2/m3/s
+      END DO                                                                ! m2/mol/s -> m2/m3/s
       CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) / RAVO / 1.0E+12                ! Aer. Num:  N/molec/s -> N/cm3/s
-      
+
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
       !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
       !AND AEROSOL SURFACE AREA)
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_GAS( I ) .OR. 
-     &                           DIFF_MASK_NR( I )  .OR. 
+      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_GAS( I ) .OR.
+     &                           DIFF_MASK_NR( I )  .OR.
      &                           DIFF_MASK_TRAC( I ) )
-     &    VDEMIS( I,1:NL,:,: ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
-  
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ) .AND. 
+     &    VDEMIS( I,1:NL,:,: ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,:)
+
+      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ) .AND.
      &                           .NOT. DIFF_MASK_NUM( I ) .AND.
      &                           .NOT. DIFF_MASK_SRF( I )  )
-     &    VDEMIS( I,1:NL,:,: ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: ) * DIFF_MW( I )
-      
+     &    VDEMIS( I,1:NL,:,: ) = CNVTC( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,:) * DIFF_MW( I )
+
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_SRF( I ) )
-     &    VDEMIS( I,1:NL,:,: ) = CONVM( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
-      
+     &    VDEMIS( I,1:NL,:,: ) = CONVM( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,:)
+
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) )
-     &    VDEMIS( I,1:NL,:,: ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,: )
+     &    VDEMIS( I,1:NL,:,: ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,:)
 
  
       ! Output to Emissions Diagnostic File
@@ -1149,7 +1142,9 @@ C and allowing the model to proceed.
          ! Map the Emission Surrogate Species to Default CMAQ Internal
          ! Species, default size distributions, and default molecular
          ! weights based on SMOKE/MOVES/SPECIATE guidelines
+
          DO ISRM = 1,N_EM_SRM
+
             IF ( ISRM .EQ. ISEASRM .OR. ISRM .EQ. IBIOSRM .OR. 
      &           ISRM .EQ. IDUSTSRM.OR. ISRM .EQ. ILTSRM  .OR.
      &           ISRM .EQ. IMGSRM ) CYCLE
@@ -1203,11 +1198,11 @@ C and allowing the model to proceed.
          ALLOCATE( EM_FAC ( NISTR0,N_EM_SRM,N_SCALEFAC ) ) ! Scale Factor
          EM_FAC = 0.0
          ALLOCATE( EM_FAC_BULK( NISTR0,N_EM_SRM,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
-         EM_FAC_BULK = 0.0                                     !   Output. Ignores aero_split and unit conversion
-         ALLOCATE( EM_OP( NISTR0,N_EM_SRM,N_SCALEFAC ) )       ! Bulk Scale Factor For Printing to Diagnostic
-         EM_OP = ""                                            !   Output. Ignores aero_split and unit conversion
-         ALLOCATE( EM_REG( NISTR0,N_EM_SRM,N_SCALEFAC ) )      ! Bulk Scale Factor For Printing to Diagnostic
-         EM_REG = 1                                            !   Output. Ignores aero_split and unit conversion
+         EM_FAC_BULK = 0.0                                        !   Output. Ignores aero_split and unit conversion
+         ALLOCATE( EM_OP( NISTR0,N_EM_SRM,N_SCALEFAC ) )  ! Bulk Scale Factor For Printing to Diagnostic
+         EM_OP = ""                                          !   Output. Ignores aero_split and unit conversion
+         ALLOCATE( EM_REG( NISTR0,N_EM_SRM,N_SCALEFAC ) ) ! Bulk Scale Factor For Printing to Diagnostic
+         EM_REG = 1                                          !   Output. Ignores aero_split and unit conversion
          ALLOCATE( EM_BASIS ( NISTR0,N_EM_SRM,N_SCALEFAC ) )   ! Mass or Mole Basis for Conversion
          EM_BASIS = ""
          ALLOCATE( EM_CONV ( NISTR0,N_EM_SRM,N_SCALEFAC ) )   ! Mass or Mole Basis for Conversion
@@ -1216,8 +1211,8 @@ C and allowing the model to proceed.
          MAP_EMtoDIFF = 0                             !   to Diffusion Vector
          ALLOCATE( MAP_EMtoSURR( NISTR0,N_EM_SRM ) )  ! Map from Emissions Species 
          MAP_EMtoSURR = 0                             !   to Surrogate Locatino on File
-         ALLOCATE( MAP_EMtoGAS( NISTR0 ) )            ! Map from Emissions Species 
-         MAP_EMtoGAS = 0                              !   to aerosol table
+         ALLOCATE( MAP_EMtoGAS( NISTR0 ) )           ! Map from Emissions Species 
+         MAP_EMtoGAS = 0                             !   to aerosol table
          ALLOCATE( MAP_EMtoAERO( NISTR0 ) )           ! Map from Emissions Species 
          MAP_EMtoAERO = 0                             !   to aerosol table
          ALLOCATE( MAP_EMtoMODE( NISTR0 ) )           ! Map from Emissions Species 
@@ -1248,7 +1243,7 @@ C and allowing the model to proceed.
                ! Aerosol Number
                EM_SPEC( N_EMIS_ISTR+1 ) = AEROMODE( IM )%NUM_NAME
                EM_FAC ( N_EMIS_ISTR+1,:,1 ) = 1.0
-               EM_FAC_BULK ( N_EMIS_ISTR+1,:,1 ) = 1.0        
+               EM_FAC_BULK ( N_EMIS_ISTR+1,:,1 ) = 1.0         
                EM_BASIS( N_EMIS_ISTR+1,:,1 ) = 'UNIT'
                EM_CONV( N_EMIS_ISTR+1,:,1 ) = 1.0
                EM_OP ( N_EMIS_ISTR+1,:,1 ) = "a"
@@ -1668,13 +1663,13 @@ C and allowing the model to proceed.
                   ! (IFAC) so that the scale factor can be added.
                   DO IFAC = 1,N_SCALEFAC
                       IF ( EM_OP( ISTR, ISRM, IFAC ) .EQ. '' ) THEN
-                           EM_FAC ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC * AERO_SPLIT
-                        EM_FAC_BULK ( ISTR, ISRM, IFAC ) = EM_NML( IRULE )%FAC
+                           EM_FAC ( ISTR, ISRM, IFAC ) = EM_NML( IRULE)%FAC * AERO_SPLIT
+                        EM_FAC_BULK ( ISTR, ISRM, IFAC ) = EM_NML( IRULE)%FAC
                         EM_REG( ISTR, ISRM, IFAC )    = REGNUM
                         CALL CHECK_OP( EM_NML( IRULE )%OP, IRULE )
-                        EM_OP( ISTR, ISRM, IFAC )     = EM_NML( IRULE )%OP
+                        EM_OP( ISTR, ISRM, IFAC )     = EM_NML( IRULE)%OP
                         CALL CHECK_BASIS( EM_NML( IRULE )%BASIS, IRULE )
-                        EM_BASIS( ISTR, ISRM, IFAC )  = EM_NML( IRULE )%BASIS
+                        EM_BASIS( ISTR, ISRM, IFAC )  = EM_NML( IRULE)%BASIS
                         EM_CONV( ISTR, ISRM, IFAC )  = EM_FILE_SURR( ISRM )%CONV( ISUR )
                         EXIT
                      END IF
@@ -1737,7 +1732,7 @@ C and allowing the model to proceed.
          DO ISTR = 1,N_EMIS_ISTR
             DO ISRM = 1,N_EM_SRM
                EM_FAC_ST( ISTR,ISRM )%LEN = 0
-               IF ( MAP_EMtoSURR( ISTR,ISRM ) .NE. 0 ) THEN 
+               IF ( MAP_EMtoSURR( ISTR,ISRM ) .NE. 0 ) THEN
 
                ! First load emission factor structure
                NFAC = 1
@@ -1759,25 +1754,25 @@ C and allowing the model to proceed.
                EM_FAC_ST( ISTR,ISRM )%BASIS= 1.
                EM_FAC_ST( ISTR,ISRM )%REG  = 1
                EM_FAC_ST( ISTR,ISRM )%OP   = 0
-               
+        
                ISUR  = MAP_EMtoSURR( ISTR,ISRM )
                SURR_MW = EM_FILE_SURR( ISRM )%MW( ISUR ) ! MW [g mol-1]
                SPEC_MW = DIFF_MW( MAP_EMtoDIFF( ISTR ) )
-               
+
 
                ! Populate Emission Factor Structure
                DO IFAC = 1,NFAC
                  EM_FAC_ST( ISTR,ISRM )%FAC( IFAC )    = EM_FAC ( ISTR, ISRM, IFAC ) 
                  EM_FAC_ST( ISTR,ISRM )%BULK( IFAC )   = EM_FAC_BULK( ISTR, ISRM, IFAC )
                  EM_FAC_ST( ISTR,ISRM )%REG( IFAC )    = EM_REG( ISTR, ISRM, IFAC )
-                 
-                 SELECT CASE ( EM_OP( ISTR, ISRM, IFAC ) )
-                 CASE ( 'a' )
-                     EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 1
-                 CASE ( 'm' )
-                     EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 2
-                 CASE ( 'o' )
-                     EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 3
+                      
+                   SELECT CASE ( EM_OP( ISTR, ISRM, IFAC ) )
+                   CASE ( 'a' )
+                       EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 1
+                   CASE ( 'm' )
+                       EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 2
+                   CASE ( 'o' )
+                       EM_FAC_ST( ISTR,ISRM )%OP( IFAC )    = 3
                  END SELECT
 
                  BASIS_FAC = 1.0
@@ -1799,7 +1794,7 @@ C and allowing the model to proceed.
                  ELSE IF ( EM_BASIS( ISTR, ISRM, IFAC ) .EQ. 'MASS' ) THEN
                      IF ( EM_FILE_SURR( ISRM )%BASIS( MAP_EMtoSURR( ISTR,ISRM ) ) .EQ. 'MOLE' ) THEN
                         ! Convert surrogate emission rate to mass
-                        BASIS_FAC = BASIS_FAC * SURR_MW  
+                        BASIS_FAC = BASIS_FAC * SURR_MW
                      ELSE
                         BASIS_FAC = BASIS_FAC
                      END IF
@@ -1808,7 +1803,7 @@ C and allowing the model to proceed.
                         BASIS_FAC = BASIS_FAC / SPEC_MW
                      ELSE
                         BASIS_FAC = BASIS_FAC
-                     END IF                                          
+                     END IF
                  END IF
                  EM_FAC_ST( ISTR,ISRM )%BASIS = BASIS_FAC
 
@@ -1816,9 +1811,9 @@ C and allowing the model to proceed.
      &                EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) = 
      &                     EM_FAC_ST( ISTR,ISRM )%FAC( IFAC ) * BASIS_FAC
      &                       * EM_CONV( ISTR, ISRM, IFAC )
-               END DO
+              END DO
 
-               END IF
+              END IF
             END DO
 
          END DO
@@ -1836,7 +1831,7 @@ C and allowing the model to proceed.
          LERROR = .FALSE.
          DO ISRM = 1,N_EM_SRM
              N = EM_FILE_SURR( ISRM )%LEN
-             N_UNUSED = COUNT( .NOT.EM_FILE_SURR( ISRM )%USED( : )
+             N_UNUSED = COUNT( .NOT. EM_FILE_SURR( ISRM )%USED( : )
      &                         .AND. EM_FILE_SURR(ISRM)%ARRY( 1:N ) .NE. 'NOT_AVAILABLE'  )
              WRITE( LOGDEV, '(5x,4A,I2,A)' ), TRIM( EM_FILE_LAB( ISRM )),' | ',
      &              TRIM(EM_FILE_DESC( ISRM )),': ', N_UNUSED,' unused surrogates.'
@@ -1933,11 +1928,11 @@ C and allowing the model to proceed.
      &                         EM_STREAM_SIZE( ISRM )%NAME( ISD )(1:10),
      &                         EM_SURR( ISTR, ISRM ),
      &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
-     &                         EM_OP( ISTR,ISRM,1 ), 
+     &                         EM_OP( ISTR,ISRM,1 ),
      &                         EM_FAC_ST( ISTR, ISRM )%BULK( 1 ), EM_BASIS( ISTR,ISRM,1 ),
-     &                         EM_FAC_ST( ISTR,ISRM )%FAC( 1 ) 
+     &                         EM_FAC_ST( ISTR,ISRM )%FAC( 1 )
                         L_WISD = .FALSE.
-                      ELSE 
+                      ELSE
                         WRITE( LOGDEV, '(38x,A,1x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
      &                         EM_SURR( ISTR, ISRM ),
      &                         EM_REGIONS( EM_FAC_ST( ISTR,ISRM )%REG( 1 ) )%LABEL(1:18),
@@ -2146,7 +2141,7 @@ C and allowing the model to proceed.
          END IF
 
          END SUBROUTINE CHECK_BASIS
- 
+
 !-----------------------------------------------------------------------
          SUBROUTINE EM_FILE_INIT( JDATE, JTIME )
 
@@ -2159,13 +2154,13 @@ C and allowing the model to proceed.
          USE AERO_DATA, only : MGPG, GPKG
          USE UTILIO_DEFN         ! I/O API
          USE RXNS_DATA, ONLY: MECHNAME
-         USE MGEMIS,    only : MGEM     ! Flag for Marine Gas Emissions
+         USE RUNTIME_VARS, only : LOGDEV
 
          IMPLICIT NONE
 
          INTEGER, INTENT(IN)  :: JDATE, JTIME
 
-         INTEGER IOS, ISRM, N
+         INTEGER ISRM, N
 
          CHARACTER( 16 )  :: PNAME = 'EM_FILE_INIT'
          CHARACTER( 22 )  :: VLAB
@@ -2181,24 +2176,19 @@ C and allowing the model to proceed.
 
          ! Initialize Regions for Mapping Scale Factors Geographically for Base
          ! Model (eventually apply this to DDM-3D and ISAM)
-         CALL READ_EMISS_NAMELIST( )
-         CALL INIT_EMIS_REGIONS( )
+!        CALL READ_EMISS_NAMELIST( )
+!        CALL INIT_EMIS_REGIONS( )
     
        ! Calculate the total number of Emission Streams based on the
        ! user options
          ! Add the number of total Emission Streams 
          N_EM_SRM = N_FILE_GR + NPTGRPS + N_FILE_TR
- 
+
          ! Online Biogenic Emissions
          IF ( BIOGEMIS ) N_EM_SRM = N_EM_SRM + 1
 
          ! Marine gas emissions; use online marine gas option only if CB6R3m is used
-         IF ( INDEX( MECHNAME, 'CB6R3M' ) .GT. 0 ) then
-            MGEM = .TRUE.
-         ELSE
-            MGEM = .FALSE.
-         END IF        
-         IF ( MGEM ) N_EM_SRM = N_EM_SRM + 1
+         IF ( USE_MARINE_GAS_EMISSION ) N_EM_SRM = N_EM_SRM + 1
 
          ! Lightning NO Emissions
          IF ( LTNG_NO ) N_EM_SRM = N_EM_SRM + 1
@@ -2267,7 +2257,7 @@ C stkemis_init.
               ! Retrieve Short-Name Label for Each Gridded File
               WRITE( VLAB,'( "GR_EMIS_LAB_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_LAB( ISRM ), VLAB,
-     &                      EM_FILE_LAB( ISRM ), IOS )
+     &                      EM_FILE_LAB( ISRM ), LOGDEV )
               CALL UPCASE( EM_FILE_LAB( ISRM ) )
 
               ! Each Gridded File Name is stored already in IO-API as
@@ -2278,18 +2268,18 @@ C stkemis_init.
               ! emissions 
               WRITE( VLAB,'( "GR_EMIS_APPLY_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
-     &                      EM_FILE_LAPPLY( ISRM ), IOS )
+     &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
  
               ! Retrieve Toggle for overriding emissions file date with
               ! internal model date
               WRITE( VLAB,'( "GR_EM_DTOVRD_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
-     &                      EMIS_DATE_OVRD, IOS )
+     &                      EMIS_DATE_OVRD, LOGDEV )
  
               ! Retrieve Toggle for Outputing Gridded Emissions
               ! Diagnostic File
               WRITE( VLAB,'( "GR_EMIS_DIAG_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
+              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, LOGDEV )
               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
               WRITE( EM_DIAG_FILE( ISRM ),'( "GR_EMDGFILE_",I3.3 )' ) N
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2315,7 +2305,7 @@ C stkemis_init.
               ! Retrieve Short-Name Label for Each Inline File
               WRITE( VLAB,'( "STK_EMIS_LAB_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_LAB( ISRM ), VLAB, 
-     &                      EM_FILE_LAB( ISRM ), IOS )
+     &                      EM_FILE_LAB( ISRM ), LOGDEV )
               CALL UPCASE( EM_FILE_LAB( ISRM ) )
  
               ! Each Inline File Name is stored already in IO-API as
@@ -2326,18 +2316,18 @@ C stkemis_init.
               ! emissions 
               WRITE( VLAB,'( "STK_EMIS_APPLY_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
-     &                      EM_FILE_LAPPLY( ISRM ), IOS )
+     &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
  
               ! Retrieve Toggle for overriding emissions file date with
               ! internal model date
               WRITE( VLAB,'( "STK_EM_DTOVRD_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
-     &                      EMIS_DATE_OVRD, IOS )
+     &                      EMIS_DATE_OVRD, LOGDEV )
  
               ! Retrieve Toggle for Outputing Inline Emissions
               ! Diagnostic File
               WRITE( VLAB,'( "STK_EMIS_DIAG_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
+              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, LOGDEV )
               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
               WRITE( EM_DIAG_FILE( ISRM ),'( "STK_EMDGFILE_",I3.3 )' ) N
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2363,7 +2353,7 @@ C stkemis_init.
               ! Retrieve Short-Name Label for Each Tracer File
               WRITE( VLAB,'( "TR_EMIS_LAB_",I2.2 )' ) N
               CALL GET_ENV( EM_FILE_LAB( ISRM ), VLAB,
-     &                      EM_FILE_LAB( ISRM ), IOS )
+     &                      EM_FILE_LAB( ISRM ), LOGDEV )
               CALL UPCASE( EM_FILE_LAB( ISRM ) )
 
               ! Each Tracer File Name is stored already in IO-API as
@@ -2373,7 +2363,7 @@ C stkemis_init.
               ! Retrieve Toggle for Outputing Tracer Emissions
               ! Diagnostic File
               WRITE( VLAB,'( "TR_EMIS_DIAG_",I2.2 )' ) N
-              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, IOS )
+              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, LOGDEV )
               EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
               WRITE( EM_DIAG_FILE( ISRM ),'( "TR_EMDGFILE_",I2.2 )' ) N
               VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2394,7 +2384,7 @@ C stkemis_init.
 
              ! Retrieve Toggle for Outputing Biogenic Emissions
              ! Diagnostic File
-             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "BIOG_EMIS_DIAG", EMISDIAG, IOS )
+             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "BIOG_EMIS_DIAG", EMISDIAG, LOGDEV )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              EM_DIAG_FILE( ISRM ) = "BIOG_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2404,7 +2394,7 @@ C stkemis_init.
          END IF
 
          ! Online Marine Gas Emissions
-         IF ( MGEM ) THEN
+         IF ( USE_MARINE_GAS_EMISSION ) THEN
              ISRM = ISRM + 1
              EM_FILE_TYPE( ISRM ) = 'MGEM'
              EM_FILE_ITYPE( ISRM ) = 5
@@ -2413,7 +2403,7 @@ C stkemis_init.
 
              ! Retrieve Toggle for Outputing Marine Gas Emissions
              ! Diagnostic File
-             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "MG_EMIS_DIAG", EMISDIAG, IOS )
+             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "MG_EMIS_DIAG", EMISDIAG, LOGDEV )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              EM_DIAG_FILE( ISRM ) = "MG_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2432,7 +2422,7 @@ C stkemis_init.
 
              ! Retrieve Toggle for Outputing Lightning NO Emissions
              ! Diagnostic File
-             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "LTNG_EMIS_DIAG", EMISDIAG, IOS )
+             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "LTNG_EMIS_DIAG", EMISDIAG, LOGDEV )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              EM_DIAG_FILE( ISRM ) = "LTNG_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2451,7 +2441,7 @@ C stkemis_init.
              
              ! Retrieve Toggle for Outputing Sea Spray Aerosol Emissions
              ! Diagnostic File
-             CALL GET_ ENV( EM_FILE_LDIAG( ISRM ), "SEASPRAY_EMIS_DIAG", EMISDIAG, IOS )
+             CALL GET_ ENV( EM_FILE_LDIAG( ISRM ), "SEASPRAY_EMIS_DIAG", EMISDIAG, LOGDEV )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              EM_DIAG_FILE( ISRM ) = "ASEA_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
@@ -2470,7 +2460,7 @@ C stkemis_init.
              
              ! Retrieve Toggle for Outputing Wind-Blown Dust Emissions
              ! Diagnostic File
-             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "DUST_EMIS_DIAG", EMISDIAG, IOS )
+             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "DUST_EMIS_DIAG", EMISDIAG, LOGDEV )
              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
              EM_DIAG_FILE( ISRM ) = "DUST_EMDGFILE"
              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 

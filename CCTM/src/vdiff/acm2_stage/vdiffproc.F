@@ -78,6 +78,7 @@ C                     to open CTM_DRY_DEP_1, CTM_VSED_DIAG, CTM_VDIFF_DIAG,
 C                     CTM_DRY_DEP_MOS, and CTM_DRY_DEP_FST
 C 03 Mar 16 G.Sarwar: updated for halogen emissions
 C 16 Sep 16 J.Young: update for inline procan (IPR)
+C 10 Feb 19 D.Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -349,8 +350,8 @@ C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_DIFF
             DO L = 1, EMLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      EMIS_PA( C,R,L,S ) = VDEMIS_DIFF( S,L,C,R )
                   END DO
                END DO
@@ -365,14 +366,14 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 
       DO L = 1, NLAYS
          LRDX3M = Grid_Data%RDX3M( L )
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                FCJACMF( C,R,L ) = LRDX3M * Met_Data%RJACM( C,R,L ) * Met_Data%RJACF( C,R,L )
             END DO
          END DO
       END DO
-      DO R = 1, MY_NROWS
-         DO C = 1, MY_NCOLS
+      DO R = 1, NROWS
+         DO C = 1, NCOLS
             FCMSF = Grid_Data%RMSFX4( C,R )
             DO L = 1, NLAYS
                SEDDY( L,C,R ) = FCMSF * FCJACMF( C,R,L ) * EDDYV( C,R,L )
@@ -407,16 +408,16 @@ C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual 
       IF ( VDIFFDIAG ) THEN
          NTICS = NTICS + 1
          NLPCR_SUM = NLPCR_SUM + NLPCR_MEAN    ! array assignment
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                NLPCR_MAX( C,R ) = MAX( NLPCR_MEAN( C,R ), NLPCR_MAX( C,R ) )
                NLPCR_MIN( C,R ) = MIN( NLPCR_MEAN( C,R ), NLPCR_MIN( C,R ) )
             END DO
          END DO
          IF ( GRAV_SETL ) THEN
             DTCCR_SUM = DTCCR_SUM + DTCCR_MEAN    ! array assignment
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   DTCCR_MAX( C,R ) = MAX( DTCCR_MEAN( C,R ), DTCCR_MAX( C,R ) )
                   DTCCR_MIN( C,R ) = MIN( DTCCR_MEAN( C,R ), DTCCR_MIN( C,R ) )
                END DO
@@ -463,8 +464,8 @@ C If last call this hour:  write accumulated depositions:
 
          DO V = 1, N_SPC_DDEP
             S = DD2DV( V )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   WRDD( C,R ) = DDEP( S,C,R )
                END DO
             END DO
@@ -498,8 +499,8 @@ C Write vdiff diagnostics
                DO V = 1, N_VSED
                   S = VSED_MAP( V )
                   DO L = 1, NLAYS
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            VSED_BUF( C,R,L,V ) = VSED_AE( S,L,C,R )
                         END DO
                      END DO
@@ -562,8 +563,8 @@ C Write other diagnostics
             END IF
 
             CNVCT = 0.0   ! array assignment
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   IF ( Met_Data%CONVCT( C,R ) ) CNVCT( C,R ) = 1.0
                END DO
             END DO
@@ -591,8 +592,8 @@ C Write other diagnostics
             DO V = 1, N_SPC_DDEP
                S = DD2DV( V )
                WRDD = 0.0 ! reuse array since it has already been written for hour
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DO J = 1, N_LUFRAC
                         WRDD( C,R ) = WRDD( C,R ) + DDEPJ( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
                         WRDDJ( C,R,J ) = DDEPJ( J,S,C,R )
@@ -618,8 +619,8 @@ C Write other diagnostics
                DO V = 1, N_SPC_DDEP
                   S = DD2DV( V )
                   WRDD = 0.0 ! reuse array since it has already been written for hour
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DO J = 1, N_LUFRAC
                            WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
                            WRDDJ_FST( C,R,J ) = DDEPJ_FST( J,S,C,R )
@@ -657,8 +658,8 @@ C Write other diagnostics
  
          IF ( LIPR ) THEN
             DO V = 1, N_SPC_DEPV
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DDEP_PA( C,R,V ) = DDEP( V,C,R )
                   END DO
                END DO

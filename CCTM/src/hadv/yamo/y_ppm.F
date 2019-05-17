@@ -42,6 +42,7 @@ C   16 Feb 2011: Shawn Roselle: replaced I/O API include files with UTILIO_DEFN
 C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
 C   29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
 C   16 NOv 2018 S.Napelenok: ISAM implementation
+C    1 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -163,7 +164,7 @@ C-----------------------------------------------------------------------
          FIRSTIME = .FALSE.
 
          SFX = 0
-         NFX = MY_NCOLS + MY_NROWS + 3
+         NFX = NCOLS + NROWS + 3
 
 C Get dx2 from HGRD_DEFN module
 
@@ -177,11 +178,11 @@ C Get dx2 from HGRD_DEFN module
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
 
-         ALLOCATE ( CONY( 1-SWP:MY_NROWS+SWP,N_SPC_ADV ),
+         ALLOCATE ( CONY( 1-SWP:NROWS+SWP,N_SPC_ADV ),
 #ifdef isam
-     &              SA_CONY( 1-SWP:MY_NROWS+SWP,N_SPCTAG ),
+     &              SA_CONY( 1-SWP:NROWS+SWP,N_SPCTAG ),
 #endif
-     &              VELY( MY_NROWS+1 ), STAT = ALLOCSTAT ) ! Vel along a col
+     &              VELY( NROWS+1 ), STAT = ALLOCSTAT ) ! Vel along a col
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VELY, or CONY'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
@@ -194,13 +195,13 @@ C Get dx2 from HGRD_DEFN module
          END IF
 
 #ifdef parallel
-         ALLOCATE ( HALO_NORTH( MY_NCOLS,SWP,N_SPC_ADV ),
-     &              HALO_SOUTH( MY_NCOLS,SWP,N_SPC_ADV ),
-     &              BUF_NS    ( MY_NCOLS,SWP,N_SPC_ADV ),
+         ALLOCATE ( HALO_NORTH( NCOLS,SWP,N_SPC_ADV ),
+     &              HALO_SOUTH( NCOLS,SWP,N_SPC_ADV ),
+     &              BUF_NS    ( NCOLS,SWP,N_SPC_ADV ),
 #ifdef isam
-     &              SA_HALO_NORTH( MY_NCOLS,SWP,N_SPCTAG ),
-     &              SA_HALO_SOUTH( MY_NCOLS,SWP,N_SPCTAG ),
-     &              SA_BUF_NS    ( MY_NCOLS,SWP,N_SPCTAG ),
+     &              SA_HALO_NORTH( NCOLS,SWP,N_SPCTAG ),
+     &              SA_HALO_SOUTH( NCOLS,SWP,N_SPCTAG ),
+     &              SA_BUF_NS    ( NCOLS,SWP,N_SPCTAG ),
 #endif
      &              STAT = ALLOCSTAT )
 
@@ -257,11 +258,11 @@ C Get the contravariant x2 velocity component
       CALL SUBST_COMM (VHAT, DSPL_N1_E0_S0_W0, DRCN_N)
 
 #ifdef parallel
-      NORTH_ROW = MY_NROWS - SWP
+      NORTH_ROW = NROWS - SWP
       DO SPC = 1, N_SPC_ADV
          A2C = ADV_MAP( SPC )
          DO ROW = 1, SWP
-            DO COL = 1, MY_NCOLS
+            DO COL = 1, NCOLS
                HALO_SOUTH( COL,ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
                HALO_NORTH( COL,ROW,SPC ) = CGRID( COL,NORTH_ROW+ROW,LVL,A2C )
                BUF_NS( COL,ROW,SPC ) = HALO_NORTH( COL,ROW,SPC )
@@ -277,7 +278,7 @@ C Get the contravariant x2 velocity component
       DO SPC = 1, N_SPCTAG
         IF( TRANSPORT_SPC( SPC ) )THEN      
            DO ROW = 1, SWP
-             DO COL = 1, MY_NCOLS
+             DO COL = 1, NCOLS
                SA_HALO_SOUTH( COL,ROW,SPC ) =
      &                  ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
                SA_HALO_NORTH( COL,ROW,SPC ) =
@@ -293,23 +294,23 @@ C Get the contravariant x2 velocity component
 
 #endif
 
-      DO 233 COL = 1, MY_NCOLS
+      DO 233 COL = 1, NCOLS
 
-         DO ROW = 1, MY_NROWS+1
+         DO ROW = 1, NROWS+1
             VELY( ROW ) = VHAT( COL,ROW )
          END DO
 
          DO SPC = 1, N_SPC_ADV
 
             A2C = ADV_MAP( SPC )
-            DO ROW = 1, MY_NROWS
+            DO ROW = 1, NROWS
                CONY( ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
             END DO
 
 #ifdef parallel
             DO ROW = 1, SWP
                CONY( ROW-SWP,SPC )      = HALO_SOUTH( COL,ROW,SPC )
-               CONY( MY_NROWS+ROW,SPC ) = HALO_NORTH( COL,ROW,SPC )
+               CONY( NROWS+ROW,SPC ) = HALO_NORTH( COL,ROW,SPC )
             END DO
 #endif
 
@@ -328,12 +329,12 @@ C South boundary
 C North boundary
 
             IF ( BNDY_PE_HIY ) THEN
-               IF ( VELY( MY_NROWS+1 ) .GT. 0.0 ) THEN     ! outflow
-                  CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) =
-     &               ZFDBC ( CONY( MY_NROWS,SPC ), CONY( MY_NROWS-1,SPC ),
-     &                       VELY( MY_NROWS+1 ),   VELY( MY_NROWS ) )
+               IF ( VELY( NROWS+1 ) .GT. 0.0 ) THEN     ! outflow
+                  CONY( NROWS+1:NROWS+SWP,SPC ) =
+     &               ZFDBC ( CONY( NROWS,SPC ), CONY( NROWS-1,SPC ),
+     &                       VELY( NROWS+1 ),   VELY( NROWS ) )
                ELSE    ! inflow
-                  CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) = BCON( NFX+COL,SPC )
+                  CONY( NROWS+1:NROWS+SWP,SPC ) = BCON( NFX+COL,SPC )
                END IF
             END IF
 
@@ -344,13 +345,13 @@ C North boundary
 
             IF( TRANSPORT_SPC( SPC ) )THEN
 
-                DO ROW = 1, MY_NROWS
+                DO ROW = 1, NROWS
                    SA_CONY( ROW,SPC ) = ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
                 END DO
                 
                 DO ROW = 1, SWP
                    SA_CONY( ROW-SWP,SPC ) = SA_HALO_SOUTH( COL,ROW,SPC )
-                   SA_CONY( MY_NROWS+ROW,SPC ) = SA_HALO_NORTH( COL,ROW,SPC )
+                   SA_CONY( NROWS+ROW,SPC ) = SA_HALO_NORTH( COL,ROW,SPC )
                 END DO
 
 C South boundary
@@ -369,15 +370,15 @@ C South boundary
 
 C North boundary
                 IF ( BNDY_PE_HIY ) THEN
-                   IF ( VELY( MY_NROWS+1 ) .GT. 0.0 ) THEN     ! outflow
-                      SA_CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) =
-     &                ZFDBC ( SA_CONY( MY_NROWS,SPC ), SA_CONY( MY_NROWS-1,SPC ),
-     &                        VELY( MY_NROWS+1 ), VELY( MY_NROWS ) )
+                   IF ( VELY( NROWS+1 ) .GT. 0.0 ) THEN     ! outflow
+                      SA_CONY( NROWS+1:NROWS+SWP,SPC ) =
+     &                ZFDBC ( SA_CONY( NROWS,SPC ), SA_CONY( NROWS-1,SPC ),
+     &                        VELY( NROWS+1 ), VELY( NROWS ) )
                    ELSE    ! inflow
                       IF ( BCON_SPC( SPC ) ) THEN
-                         SA_CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) = BCON( NFX+COL,MAP_ADVtoSA( SPC ) )
+                         SA_CONY( NROWS+1:NROWS+SWP,SPC ) = BCON( NFX+COL,MAP_ADVtoSA( SPC ) )
                       ELSE
-                         SA_CONY( MY_NROWS+1:MY_NROWS+SWP,SPC ) = 0.0
+                         SA_CONY( NROWS+1:NROWS+SWP,SPC ) = 0.0
                       END IF
                    END IF   ! vely > 0 ?
                 END IF   ! bndy_pe_hiy ?
@@ -386,14 +387,14 @@ C North boundary
 #endif
 
 C PPM scheme
-         CALL HPPM ( MY_NROWS, MY_NCOLS, CONY, VELY, DT, DX2, 'R' )
+         CALL HPPM ( NROWS, NCOLS, CONY, VELY, DT, DX2, 'R' )
 #ifdef isam
-         CALL HPPM ( MY_NROWS, MY_NCOLS, SA_CONY, VELY, DT, DX2, 'R' )
+         CALL HPPM ( NROWS, NCOLS, SA_CONY, VELY, DT, DX2, 'R' )
 #endif
 
          DO SPC = 1, N_SPC_ADV
             A2C = ADV_MAP( SPC )
-            DO ROW = 1, MY_NROWS
+            DO ROW = 1, NROWS
                CGRID( COL,ROW,LVL,A2C ) = CONY( ROW,SPC )
             END DO
          END DO
@@ -401,7 +402,7 @@ C PPM scheme
 #ifdef isam
         DO SPC = 1, N_SPCTAG
            IF( TRANSPORT_SPC( SPC ) )THEN
-              DO ROW = 1, MY_NROWS
+              DO ROW = 1, NROWS
                  ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) ) = SA_CONY( ROW,SPC )
               END DO
            END IF   

@@ -23,6 +23,7 @@ c      [2] write tssa concentration data
 c     
 C     Revision history
 C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
+C     09 May 2019: D.Wong Removed all MY_ clauses
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       SUBROUTINE WR_SA ( JDATE, JTIME, TSTEP, NSTEPS )
@@ -111,7 +112,7 @@ Ckrt     print*, N_SPCTAG, JDATE, JTIME
         END IF
 
 !20140306 relocated here the following five lines
-         ALLOCATE ( ISAM_BUFF( MY_NCOLS, MY_NROWS, SA_NLAYS, N_SPCTAG ),
+         ALLOCATE ( ISAM_BUFF( NCOLS, NROWS, SA_NLAYS, N_SPCTAG ),
      &     STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating ISAM_BUFF'
@@ -124,8 +125,8 @@ Ckrt     print*, N_SPCTAG, JDATE, JTIME
 !Ckrt  print*,'S,VNAME3D(S),S_SPCTAG(S),T_SPCTAG(S)'
       DO S = 1, N_SPCTAG
        DO L = ISAM_BLEV, ISAM_ELEV
-        DO R = 1, MY_NROWS
-         DO C = 1, MY_NCOLS
+        DO R = 1, NROWS
+         DO C = 1, NCOLS
           ISAM_BUFF( C,R,L,S ) = ISAM( C,R,L,S_SPCTAG(S),T_SPCTAG(S) )
          ENDDO
         ENDDO

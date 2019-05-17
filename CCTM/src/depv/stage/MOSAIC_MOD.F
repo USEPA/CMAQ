@@ -32,6 +32,8 @@ C                   J. Bash:   Nov 07  2014: Modified for the restructuring of v
 C                                            mosaic variables were moved to ASX_DATA_MOD. 
 C                                            Algorithms were restuctured using fortran 95 
 C                                            array construcs for readability.
+C                   D. Wong:   Feb 10  2019: removed all MY_N clauses
+C                   D. Wong:   Apr 24  2019: removed unused BUFF2D_2 array
 C-------------------------------------------------------------------------------
 
       Implicit None
@@ -111,18 +113,18 @@ C...include files
          Integer :: strtcolgc2, endcolgc2, strtrowgc2, endrowgc2
                                                                                                   
 ! Allocate buffers
-         ALLOCATE ( BUFF2D_1( my_ncols,my_nrows ), STAT = ALLOCSTAT )
+         ALLOCATE ( BUFF2D_1( ncols,nrows ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating 2D Buffers'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
          
-         ALLOCATE ( fseas          ( my_ncols,my_nrows ),
-     &              f_land         ( my_ncols,my_nrows ),
-     &              sum_mos_lai    ( my_ncols,my_nrows ),
-     &              sum_mos_veg    ( my_ncols,my_nrows ),  
-     &              vseas          ( my_ncols,my_nrows ),
-     &              znotc          ( my_ncols,my_nrows ), STAT = ALLOCSTAT )
+         ALLOCATE ( fseas          ( ncols,nrows ),
+     &              f_land         ( ncols,nrows ),
+     &              sum_mos_lai    ( ncols,nrows ),
+     &              sum_mos_veg    ( ncols,nrows ),  
+     &              vseas          ( ncols,nrows ),
+     &              znotc          ( ncols,nrows ), STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC variables'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -133,9 +135,9 @@ C...include files
 ! placeholder to read namelist for lu agrigation and dep species output
 !---------------------------------------------------------------------------------------------------
 
-         Allocate ( Tile_Data%depvel_gasj( n_lufrac,dep_gas_all,my_ncols,my_nrows ),
-     &              Tile_Data%adepvj     ( n_lufrac,N_AE_DEPV,my_ncols,my_nrows   ), 
-     &              Tile_Data%pol        ( n_lufrac,dep_gas_all,my_ncols,my_nrows ), STAT = ALLOCSTAT )   
+         Allocate ( Tile_Data%depvel_gasj( n_lufrac,dep_gas_all,ncols,nrows ),
+     &              Tile_Data%adepvj     ( n_lufrac,N_AE_DEPV,ncols,nrows   ), 
+     &              Tile_Data%pol        ( n_lufrac,dep_gas_all,ncols,nrows ), STAT = ALLOCSTAT )   
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC deposition velocities'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -153,7 +155,7 @@ C...include files
          is_water = .FALSE.
 
          If( FST ) Then
-            Allocate ( Tile_Data%vd_fst_gasj( n_lufrac,dep_gas_all,my_ncols,my_nrows ), STAT = ALLOCSTAT )   
+            Allocate ( Tile_Data%vd_fst_gasj( n_lufrac,dep_gas_all,ncols,nrows ), STAT = ALLOCSTAT )   
             If ( ALLOCSTAT .Ne. 0 ) Then
                XMSG = 'Failure allocating FST deposition velocities'
                Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -396,8 +398,8 @@ C*******************************************************************************
          Real            :: mean_mos_gst            ! area weighted mean Rst
          Integer         :: c, r, j                 ! loop induction variables
         
-         DO c = 1, MY_NCOLS
-            DO r = 1, MY_NROWS
+         DO c = 1, NCOLS
+            DO r = 1, NROWS
               mean_mos_gst = 0.0
               lu_tot       = 0.0             
               If( f_land( c,r ) .Gt. 0.0 ) Then
