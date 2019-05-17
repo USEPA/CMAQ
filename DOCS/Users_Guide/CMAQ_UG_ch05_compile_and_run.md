@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_outputs.md)
+[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_configuring_the_model.md)
 
 <!-- END COMMENT -->
 
@@ -226,7 +226,7 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_outputs.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_configuring_the_model.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
