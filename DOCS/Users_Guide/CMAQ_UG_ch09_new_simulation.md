@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch08_model_formulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch10_process_analysis.md)
+[<< Previous Chapter](CMAQ_UG_ch08_analysis_tools.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch10_process_analysis.md)
 
 <!-- END COMMENT -->
 
@@ -56,7 +56,7 @@ Configure the CCTM run script to loop through the days to be modeled, using the 
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch08_model_formulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch10_process_analysis.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch08_analysis_tools.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch10_process_analysis.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
