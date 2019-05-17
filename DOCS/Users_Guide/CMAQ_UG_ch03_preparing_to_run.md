@@ -166,6 +166,8 @@ Also you need to edit ioapi/Makeinclude.${BIN} to comment out openmp option. Her
 OMPFLAGS  = # -fopenmp
 OMPLIBS   = # -fopenmp
 
+If you are using ifort compiler, you need to remove -Bstatic in ioapi/Makeinclude.Linux2_x86_64ifort as well.
+
 ```
 make configure
 make
