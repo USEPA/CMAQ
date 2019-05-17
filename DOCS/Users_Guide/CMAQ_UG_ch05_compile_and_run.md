@@ -9,7 +9,7 @@
 
 ## 5.1 Introduction
 
-During this chapter the user will learn about how to obtain the CMAQ source codes and how to set-up their CMAQ environment to complete a CMAQ simulation. It should be noted that before you can configure your CMAQ Environment, you must have the required hardware, software and data files required described in the subsequent chapters.
+During this chapter the user will learn about how to obtain the CMAQ source codes and how to set-up their CMAQ environment to complete a CMAQ simulation. It should be noted that before you can configure your CMAQ Environment, you must have the required hardware, software and data files required described in the chapter "Preparing to run".
 
 ## 5.2 Getting the CMAQ Source Code
 
@@ -151,7 +151,11 @@ line Emissions Modules:
 
 The CMAQ modularity makes it easy to modify or introduce a specific scientific process in CCTM. For example, the gas module contains several options for different gas-phase chemistry solvers that can be used to optimize model performance. Without the modular structure, changes to just one scientific process could entail having to modify source code throughout CCTM, thereby greatly increasing the risk of human error.
 
-In addition to modifying individual scientific processes, the user has the option to specify which scientific processes that the user wants to include when building the model. These scientific options are split into build time options and run time options and can be configured in a multitude of ways. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To see a complete list of optional settings reference [Appendix A](CMAQ_UG_appendix_A.md).
+In addition to modifying individual scientific processes, the user has the option to specify which scientific processes that the user wants to include when building the model. 
+
+**>>COMMENT<<** I don't think the above statement is correct. You can't omit any scientific process but you can choose a particular option for the scientific process if it offers more than one options.
+
+These scientific options are split into build time options and run time options and can be configured in a multitude of ways. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To see a complete list of optional settings reference [Appendix A](CMAQ_UG_appendix_A.md).
 
 Once the `bldit_cctm.csh` script is configured to the user's preference, the user is ready to run the script to build the CCTM executable. To do this run the following commands:
 
