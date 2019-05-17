@@ -217,6 +217,8 @@ C                      -- mod for integer data
 C                    12/04/02 by David Wong
 C                       -- modified the routine to accommodate worker and
 C                          I/O processors partition scheme
+C                    09/19/18 by David Wong
+C                       -- removed unused variable
 C
 C Subroutine parameter description:
 C
@@ -264,7 +266,7 @@ C --------------------------------------------------------------------------
         integer, intent(in) :: sourcepe, destpe, sdim, from, to
 
         integer :: error
-        integer :: i, j, k, li, lj, ui, uj
+        integer :: i, j, li, lj, ui, uj
         integer :: status(MPI_STATUS_SIZE)
         integer :: scount, rcount
         integer :: sarray(size(data)), rarray(size(data))
@@ -346,6 +348,8 @@ C                      -- recode the code using F90 syntax
 C                    12/04/02 by David Wong
 C                       -- modified the routine to accommodate worker and
 C                          I/O processors partition scheme
+C                    09/19/18 by David Wong
+C                       -- removed unused variable
 C
 C Subroutine parameter description:
 C
@@ -393,7 +397,7 @@ C --------------------------------------------------------------------------
         integer, intent(in) :: sourcepe, destpe, sdim, from, to
 
         integer :: error
-        integer :: i, j, k, li, lj, ui, uj
+        integer :: i, j, li, lj, ui, uj
         integer :: status(MPI_STATUS_SIZE)
         integer :: scount, rcount
         real :: sarray(size(data)), rarray(size(data))

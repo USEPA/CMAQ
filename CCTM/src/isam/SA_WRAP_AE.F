@@ -5,6 +5,10 @@
 !20140428 As a wrapper to apportion the tags with bulk conc after AERO process
 !
 !     Called by sciproc.F
+
+! Revision History:
+!
+!   13 May 19 David Wong: Implemented centralized I/O approach
 !*************************************************************
       USE GRID_CONF
       USE CGRID_SPCS
@@ -14,6 +18,7 @@ c     USE SA_GRD_DEFN  ! for SA_SULF_NEW( :,:,:,: ); inherents SA_DEFN
       USE AERO_BUDGET
       USE AERO_DATA, ONLY : AERO_MISSING, AEROSPC_MAP, N_MODE,
      &                      N_AEROSPC, AEROSPC
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE
 
@@ -47,8 +52,6 @@ c     REAL :: CCOND( NCOLS,NROWS,NLAYS,NSPC_SA )
 
 ! for interpx
       REAL DX1, DX2
-      INTEGER GXOFF, GYOFF
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       REAL DENS ( NCOLS,NROWS,NLAYS )
       INTEGER MDATE, MTIME, MSTEP
@@ -158,9 +161,6 @@ Ckrt Identify species index in ISAM array
           XMSG = 'Could not open  MET_CRO_3D  file '
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
-        CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
 
         ALLOCATE( CCOND( NCOLS,NROWS,NLAYS,NSPCSD ) )
 
@@ -174,12 +174,7 @@ Ckrt Identify species index in ISAM array
       CALL NEXTIME ( MDATE, MTIME, SEC2TIME( MSTEP/2 ) )
 
       ! Get Air Density in kg/m3
-      IF ( .NOT. INTERPX( MET_CRO_3D, 'DENS', PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, DENS ) ) THEN
-        XMSG = 'Could not interpolate DENS from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENS', MDATE, MTIME, DENS)
 
       ! Conversion factor to move gases from ppmv to umol/m3
       ppm2mole( :,:,: ) = MAX( DENS( :,:,: ) * 1000. / MWAIR, 1e-10 )

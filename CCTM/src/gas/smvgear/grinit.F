@@ -173,8 +173,8 @@ c  sequential order
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NCOUNT = 0
       DO LEV = 1, NLAYS
-         DO COL = 1, MY_NCOLS
-            DO ROW = 1, MY_NROWS
+         DO COL = 1, NCOLS
+            DO ROW = 1, NROWS
                NCOUNT = NCOUNT + 1
                CROW( NCOUNT ) = ROW
                CCOL( NCOUNT ) = COL

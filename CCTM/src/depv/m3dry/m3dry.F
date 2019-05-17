@@ -17,6 +17,9 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/work/rep/arc/CCTM/src/depv/m3dry/m3dry.F,v 1.12 2012/01/19 14:19:43 yoj Exp $
+
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE m3dry ( jdate, jtime, dt, cgridl1, depvel_gas, pvd, nh3_emis)
 
@@ -141,6 +144,7 @@ C          28 Aug 2014  G. Sarwar: added deposition data for CLNO2
 C           7 Nov 2014  J. Bash: Modified for the restructuring of vidff. Moved constants and data to 
 C                       ASX_DATA_MOD.
 C            June 2018  revised for v5.3 - removed mosaic, new epic-bidi - j pleim
+C          01 Feb 2019  D. Wong: Implemented centralized I/O approach, removed all MY_N clauses
 C-------------------------------------------------------------------------------
 
       USE RUNTIME_VARS
@@ -157,9 +161,10 @@ C-------------------------------------------------------------------------------
       Use ASX_DATA_MOD   ! contains CONSTANTS include
       Use BIDI_MOD, only:HGBIDI    ! contains CONSTANTS include
       Use HGSIM
-#ifdef twoway 
+#ifdef twoway
       USE twoway_data_module, only : num_land_cat
 #endif
+      Use CENTRALIZED_IO_MODULE, only : WR_AVAIL
 
       IMPLICIT NONE
 C Includes:
@@ -251,7 +256,7 @@ C gas phase species indexes
       Integer, Save              :: n_HG          ! CGRID map
       Integer, Save              :: l_HG
       Integer, Save              :: n_HGII          ! CGRID map
-      Integer, Save              :: l_HGII 
+      Integer, Save              :: l_HGII
 C-------------------------------------------------------------------------------
 C For ozone exchange over the ocean
 
@@ -303,17 +308,17 @@ C-------------------------------------------------------------------------------
          END IF
 
          IF ( .NOT. ALLOCATED ( delta ) ) THEN
-            ALLOCATE ( delta( my_ncols,my_nrows ) )
+            ALLOCATE ( delta( ncols,nrows ) )
             delta( :,: ) = 0.0
          END IF
 
-         IF ( .NOT. ALLOCATED ( lstwetdate ) .AND. .NOT. ifwr ) THEN
-            ALLOCATE ( lstwetdate( my_ncols,my_nrows ) )
+         IF ( .NOT. ALLOCATED ( lstwetdate ) .AND. .NOT. WR_AVAIL ) THEN
+            ALLOCATE ( lstwetdate( ncols,nrows ) )
             lstwetdate( :,: ) = 0
          END IF
 
-         IF ( .NOT. ALLOCATED ( lstwettime ) .AND. .NOT. ifwr ) THEN
-            ALLOCATE ( lstwettime( my_ncols,my_nrows ) )
+         IF ( .NOT. ALLOCATED ( lstwettime ) .AND. .NOT. WR_AVAIL ) THEN
+            ALLOCATE ( lstwettime( ncols,nrows ) )
             lstwettime( :,: ) = 0
          END IF
 C-----------------------------------------------------------------
@@ -321,7 +326,7 @@ C        Species maps
 C-----------------------------------------------------------------
          l_HONO = 0
          n_HONO = 0
-         l_NO2  = 0 
+         l_NO2  = 0
          n_NO2  = 0
          l_O3   = 0
          n_O3   = 0
@@ -373,8 +378,9 @@ C-------------------------------------------------------------------------------
       depvel_gas( :,:,: ) = 0.0  ! initialize for this time period
       pvd       ( :,:,: ) = 0.0  !     "       "    "    "    "
 
-      DO r = 1, my_nrows
-      DO c = 1, my_ncols
+
+      DO r = 1, nrows
+      DO c = 1, ncols
 
          laicr     = MET_DATA%LAI   ( c,r )
          q2p0cr    = MET_DATA%Q2    ( c,r )
@@ -391,7 +397,7 @@ C-------------------------------------------------------------------------------
 
          IF ( ( NINT(GRID_DATA%LWMASK( c,r )) .NE. 0 ) .AND. ( vegcr .GT. 0.0 ) ) THEN  ! land
 
-            IF ( .NOT. ifwr ) THEN  ! approx canopy wetness - dew from Wesely
+            IF ( .NOT. WR_AVAIL ) THEN  ! approx canopy wetness - dew from Wesely
 
             ! canopy is wet if > trace precip. or moist with light winds
 
@@ -584,7 +590,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                   rcut = rcut0 * a0 / ar( l ) * ( 1.0 -rh_func) + rwetsfc * rh_func
                ELSE IF ( l .Eq. l_NH3 ) THEN
          !        rcut = 4000.0 * EXP( -0.054 * MET_DATA%RH( c,r ) )
-                  rcut = rwetsfc + 100.0-max(MET_DATA%RH2( c,r ),60.0)  ! consistant with bidi
+                  rcut = rwetsfc + 100.0-max(MET_DATA%RH2( c,r ),60.0) ! consistant with bidi
                ELSE 
                   rcut = rcut0 * a0 / ar( l )
                END IF
@@ -622,7 +628,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
          ! pathway through canopy to ground, either wet, dry, or snow
 
                rgndc = rinc + 1.0 / (real( 1-ifsnow )*( ( 1.0 - delta( c,r ) ) / 
-     &                 rgnd + delta( c,r ) / rgw ) + real( ifsnow ) 
+     &                 rgnd + delta( c,r ) / rgw ) + real( ifsnow )
      &                 * ( (1.0 - xm) / rsnow + xm / (rsndiff + rgw) ) )
 
          ! Bulk stomatal resistance; include mesophyll resistance.
@@ -638,7 +644,7 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
      &             * ( 1.0/rstom + (1.0-delta( c,r ) ) * laicr / rcut
      &             + ( delta( c,r ) * laicr / rwetsfc ) + 1.0 / rgndc )
      &             + (1.0 - vegcr) * ( real( 1-ifsnow ) * ( (1.0-delta( c,r ) ) /
-     &                                         rgnd + delta( c,r ) / rgw )  
+     &                                         rgnd + delta( c,r ) / rgw)  
      &             + real( ifsnow ) * ( (1.0 - xm) / rsnow + xm / (rsndiff + rgw) ) )
 
                rsurf = 1.0 / rci

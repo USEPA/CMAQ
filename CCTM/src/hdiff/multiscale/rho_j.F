@@ -61,10 +61,13 @@ C   16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   28 Jul 11 David Wong: set REVERT to .false. for twoway model case since
 C                         buffered file has only two time steps data
+C    1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
+      use CENTRALIZED_IO_MODULE
 
       IMPLICIT NONE
 
@@ -125,14 +128,6 @@ C local variables:
  
       INTEGER COUNT
 
-      INTEGER   GXOFF, GYOFF            ! global origin offset from file
-      LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
-                                        ! processing domain
-      INTEGER, SAVE :: NCOLSDENS, NROWSDENS       ! local for DENSJ_BUF
-C for INTERPX
-      INTEGER, SAVE :: STRTCOL,   ENDCOL,   STRTROW,   ENDROW
-      INTEGER       :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
-
       INTEGER, SAVE :: LCB, HCB, LRB, HRB ! convenience pointers
  
 C-----------------------------------------------------------------------
@@ -142,9 +137,9 @@ C-----------------------------------------------------------------------
          FIRSTIME = .FALSE.
  
          LCB = 1 - NTHIK
-         HCB = MY_NCOLS + NTHIK
+         HCB = NCOLS + NTHIK
          LRB = 1 - NTHIK
-         HRB = MY_NROWS + NTHIK
+         HRB = NROWS + NTHIK
          MLAYS = SIZE ( RHOJI,3 )
 
          CALL LSTEPF( MET_CRO_3D, LDATE( 1 ), LTIME( 1 ) )
@@ -155,33 +150,6 @@ C-----------------------------------------------------------------------
 !    &                              TIME2SEC( LTIME( 1 ) ),
 !    &                              TIME2SEC( LTIME( 2 ) )
 !    &                              ) )
- 
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
-
-         NCOLSDENS = ENDCOLMC - STRTCOLMC + 1
-         NROWSDENS = ENDROWMC - STRTROWMC + 1
-
-         IF ( NCOLSDENS .NE. MY_NCOLS .OR.
-     &        NROWSDENS .NE. MY_NROWS ) THEN
-            WRITE( XMSG,'( A, 4I8 )' ) 'Local Columns or Rows incorrect',
-     &      NCOLSDENS, MY_NCOLS, NROWSDENS, MY_NROWS
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-C currently not implemented: case where only one origin component matches file's
-         IF ( GXOFF .NE. 0 .AND. GYOFF .NE. 0 ) THEN
-            WINDOW = .TRUE.       ! windowing from file
-            STRTCOL = STRTCOLMC - NTHIK
-            ENDCOL  = ENDCOLMC  + NTHIK
-            STRTROW = STRTROWMC - NTHIK
-            ENDROW  = ENDROWMC  + NTHIK
-            ELSE
-            STRTCOL = STRTCOLMC
-            ENDCOL  = ENDCOLMC
-            STRTROW = STRTROWMC
-            ENDROW  = ENDROWMC
-            END IF
 
          END IF                    ! if firstime
  
@@ -231,29 +199,17 @@ C Interpolate Jacobian X Air Density
 
       IF ( WINDOW ) THEN
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                       STRTCOL,ENDCOL, STRTROW,ENDROW, 1,MLAYS,
-     &                       MDATE, MTIME, RHOJ ) ) THEN
-            XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BUF)
 
          ELSE ! need to extend data from bndy file
 
-         ALLOCATE ( DENSJ_BUF( NCOLSDENS,NROWSDENS,NLAYS ), STAT = ALLOCSTAT )
+         ALLOCATE ( DENSJ_BUF( ncols,nrows,NLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DENSJ_BUF'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                       STRTCOL,ENDCOL, STRTROW,ENDROW, 1,MLAYS,
-     &                       MDATE, MTIME, DENSJ_BUF ) ) THEN
-            XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BUF)
 
          ALLOCATE ( DENSJ_BND( NBNDY,MLAYS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -261,19 +217,13 @@ C Interpolate Jacobian X Air Density
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
-     &                        MDATE, MTIME, NBNDY*MLAYS,
-     &                        DENSJ_BND ) ) THEN
-            XMSG = 'Could not read ' // VNAME // ' from ' // MET_BDY_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BND, 'b')
 
 C Load core of RHOJ array
 
          DO LVL = 1, MLAYS
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
+            DO ROW = 1, NROWS
+               DO COL = 1, NCOLS
                   RHOJ( COL,ROW,LVL ) = DENSJ_BUF( COL,ROW,LVL )
                   END DO
                END DO
@@ -284,24 +234,24 @@ C Fill in DENSJ array for boundaries
          DO LVL = 1, MLAYS
             COUNT = 0
             DO ROW = 1-NTHIK, 0
-               DO COL = 1, MY_NCOLS+NTHIK
+               DO COL = 1, NCOLS+NTHIK
                   COUNT = COUNT + 1
                   RHOJ( COL,ROW,LVL ) = DENSJ_BND( COUNT,LVL )  ! South
                END DO
             END DO
-            DO ROW = 1, MY_NROWS+NTHIK
-               DO COL = MY_NCOLS+1, MY_NCOLS+NTHIK
+            DO ROW = 1, NROWS+NTHIK
+               DO COL = NCOLS+1, NCOLS+NTHIK
                   COUNT = COUNT + 1
                   RHOJ( COL,ROW,LVL ) = DENSJ_BND( COUNT,LVL )  ! East
                END DO
             END DO
-            DO ROW = MY_NROWS+1, MY_NROWS+NTHIK
-               DO COL = 1-NTHIK, MY_NCOLS
+            DO ROW = NROWS+1, NROWS+NTHIK
+               DO COL = 1-NTHIK, NCOLS
                   COUNT = COUNT + 1
                   RHOJ( COL,ROW,LVL ) = DENSJ_BND( COUNT,LVL )  ! North
                END DO
             END DO
-            DO ROW = 1-NTHIK, MY_NROWS
+            DO ROW = 1-NTHIK, NROWS
                DO COL = 1-NTHIK, 0
                   COUNT = COUNT + 1
                   RHOJ( COL,ROW,LVL ) = DENSJ_BND( COUNT,LVL )  ! West

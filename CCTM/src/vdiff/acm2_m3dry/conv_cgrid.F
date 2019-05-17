@@ -30,11 +30,14 @@ C   Written by: J.Young 21 Aug 03
 C   J.Young 31 Jan 05: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all
+C                     MY_N clauses
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+      use CENTRALIZED_IO_MODULE, only : interpolate_var
 #ifdef isam
       USE SA_DEFN
 #endif
@@ -83,10 +86,6 @@ C Local Variables:
 
       REAL    CONV, FAC            ! temp var
 
-      INTEGER     GXOFF, GYOFF          ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
 C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
@@ -124,17 +123,9 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
 
          END IF
 
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
       END IF          !  if Firstime
 
-      IF ( .NOT. INTERPX( MET_CRO_3D, 'DENS', PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    JDATE, JTIME, DENS ) ) THEN
-         XMSG = 'Could not interpolate DENS from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1)
-      END IF
+      call interpolate_var ('DENS', jdate, jtime, DENS)
 
 C Convert non-molar mixing ratio species and re-order CGRID
 
@@ -143,8 +134,8 @@ C Gas - no conversion
       NSPCS = N_GC_SPC
       IF ( NSPCS .GT. 0 ) THEN
          OFF = GC_STRT - 1
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DO L = 1, NLAYS
                   DO V = 1, NSPCS
                      CNGRD( OFF+V,L,C,R ) = CGRID( C,R,L,OFF+V )
@@ -161,8 +152,8 @@ C ppm = 10**6)
 
       NSPCS = NQAE
       IF ( NSPCS .GT. 0 ) THEN
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DO L = 1, NLAYS
                   FAC = MAOGPKG / DENS( C,R,L )
                   DO V = 1, NSPCS
@@ -179,8 +170,8 @@ C ppm = 10**6)
 !        DO V = 1, NSPCS
 !           CONV = MAOGPKG / MOLWT( V )
 !           DO L = 1, NLAYS
-!              DO R = 1, MY_NROWS
-!                 DO C = 1, MY_NCOLS
+!              DO R = 1, NROWS
+!                 DO C = 1, NCOLS
 !                    CGRID( C,R,L,QAE( V ) ) = CGRID( C,R,L,QAE( V ) ) * CONV
 !    &                                       / DENS( C,R,L )
 !                 END DO
@@ -195,8 +186,8 @@ C (Don't divide by MGPG, etc. See note above)
 
       NSPCS = NNAE
       IF ( NSPCS .GT. 0 ) THEN
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DO L = 1, NLAYS
                   CONV = MAOAVO1000 / DENS( C,R,L )
                   DO V = 1, NSPCS
@@ -211,8 +202,8 @@ C m**2/m**3 aerosol -> m**2/mol air
 
       NSPCS = NSAE
       IF ( NSPCS .GT. 0 ) THEN
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DO L = 1, NLAYS
                   CONV = MAOGPKG / DENS( C,R,L )
                   DO V = 1, NSPCS
@@ -228,8 +219,8 @@ C Non-reactives - no conversion
       NSPCS = N_NR_SPC
       IF ( NSPCS .GT. 0 ) THEN
          OFF = NR_STRT - 1
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DO L = 1, NLAYS
                   DO V = 1, NSPCS
                      CNGRD( OFF+V,L,C,R ) = CGRID( C,R,L,OFF+V )
@@ -244,8 +235,8 @@ C Tracers - no conversion
       NSPCS = N_TR_SPC
       IF ( NSPCS .GT. 0 ) THEN
          OFF = TR_STRT - 1
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DO L = 1, NLAYS
                   DO V = 1, NSPCS
                      CNGRD( OFF+V,L,C,R ) = CGRID( C,R,L,OFF+V )
@@ -263,8 +254,8 @@ Ckrt....JSPCTAG loop on PM mass only.....
          S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
          IF ( S .GT. 0 ) THEN
 !krt        write( *,* )  JSPCTAG , VNAM_SPCTAG( JSPCTAG )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   DO L = 1, NLAYS
                      FAC = MAOGPKG / DENS( C,R,L )
                      CONV = FAC / AE_MOLWT( S )
@@ -284,12 +275,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Revert non-molar mixing ratio species and re-order CGRID
 
-      IF ( .NOT. INTERPX( MET_CRO_3D, 'DENS', PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    JDATE, JTIME, DENS ) ) THEN
-         XMSG = 'Could not interpolate DENS from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1)
-      END IF
+      call interpolate_var ('DENS', jdate, jtime, DENS)
 
 C Gas - no conversion
 
@@ -298,8 +284,8 @@ C Gas - no conversion
          OFF = GC_STRT - 1
          DO V = 1, NSPCS
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,OFF+V ) = CNGRD( OFF+V,L,C,R )
                   END DO
                END DO
@@ -316,8 +302,8 @@ C ppm = 10**6)
          DO V = 1, NSPCS
             FAC = GPKGOMA * MOLWT( V )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CONV = FAC * DENS( C,R,L )
                      CGRID( C,R,L,QAE( V ) ) = CONV * CNGRD( QAE( V ),L,C,R )
                   END DO
@@ -333,8 +319,8 @@ C (Don't multiply by MGPG, etc. See note above)
       IF ( NSPCS .GT. 0 ) THEN
          DO V = 1, NSPCS
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CONV = AVOOMA_001 * DENS( C,R,L )
                      CGRID( C,R,L,NAE( V ) ) = CONV * CNGRD( NAE( V ),L,C,R )
                   END DO
@@ -349,8 +335,8 @@ C m**2/m**3 aerosol -> m**2/mol air
       IF ( NSPCS .GT. 0 ) THEN
          DO V = 1, NSPCS
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CONV = GPKGOMA * DENS( C,R,L )
                      CGRID( C,R,L,SAE( V ) ) = CONV * CNGRD( SAE( V ),L,C,R )
                   END DO
@@ -366,8 +352,8 @@ C Non-reactives - no conversion
          OFF = NR_STRT - 1
          DO V = 1, NSPCS
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,OFF+V ) = CNGRD( OFF+V,L,C,R )
                   END DO
                END DO
@@ -382,8 +368,8 @@ C Tracers - no conversion
          OFF = TR_STRT - 1
          DO V = 1, NSPCS
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,OFF+V ) = CNGRD( OFF+V,L,C,R )
                   END DO
                END DO
@@ -399,8 +385,8 @@ Ckrt....JSPCTAG loop on PM mass only.....
          IF ( S .GT. 0 ) THEN
             FAC = GPKGOMA * AE_MOLWT( S )
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CONV = FAC * DENS( C,R,L )
                      ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
      &                  CONV * ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )

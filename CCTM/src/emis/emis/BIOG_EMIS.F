@@ -28,9 +28,14 @@ C     ?? ??? ???? ?.?????: initial implementation
 C     20 Sep 2007 J.Young: inline DSCSPROF, eliminate MODSPRO module
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C     16 Aug 2018 G. Sarwar: updated for CB6R3M_AE7_KMTBR
+C     01 Feb 2019 D. Wong: Implemented centralized I/O approach, and 
+C                          created a new module biog_emis_param_module 
+C                          (model_data_module.F) to hold some of information
+C                          originally stored here to avoid cyclic dependence
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
+      USE biog_emis_param_module
 
       IMPLICIT NONE
 
@@ -41,37 +46,6 @@ C Mole and mass factors:
       REAL,            ALLOCATABLE, SAVE :: MLFAC( :,: ) ! mole factors
       REAL,            ALLOCATABLE, SAVE :: MSFAC( :,: ) ! mass factors
 
-C----------------------------------------------------------------------
-C Former include file  B3V12DIMS3.EXT
-C dimensioning parameters for BEIS v3.12 
-
-      INTEGER, PARAMETER :: NSEF     = 35 ! # of em class in Summer emis factor table
-      INTEGER, PARAMETER :: NSEASONS = 2  ! number of seasons modeled (2 for now)
-      INTEGER, PARAMETER :: NLAI     = 3  ! no. of different LAIs (ISOP and MBO)
-      INTEGER, PARAMETER :: NSUMMER  = 1  ! summer flag
-      INTEGER, PARAMETER :: NWINTER  = 2  ! winter flag
-
-C Names for BEIS species, emitted model species
-C DO NOT CHANGE THE ORDER OF THESE ARRAYS
-
-      CHARACTER( 5 ), PARAMETER :: BIOTYPES( NSEF ) =
-     &                          (/ 'ISOP ', 'MBO  ', 'METH ', 
-     &                             'APIN ', 'BPIN ', 'D3CAR', 'DLIM ',
-     &                             'CAMPH', 'MYRC ', 'ATERP', 'BPHE ', 
-     &                             'SABI ', 'PCYM ', 'OCIM ', 'ATHU ',
-     &                             'TRPO ', 'GTERP', 'ETHE ', 'PROPE',
-     &                             'ETHO ', 'ACET ', 'HEXA ', 'HEXE ',
-     &                             'HEXY ', 'FORM ', 'ACTAL', 'BUTE ',
-     &                             'ETHA ', 'FORAC', 'ACTAC', 'BUTO ',
-     &                             'CO   ', 'ORVOC', 'SESQT',
-     &                             'NO   ' /)
-
-      CHARACTER( 5 ), PARAMETER :: LAITYPES( NLAI ) =
-     &                          (/ 'ISOP ', 'MBO  ', 'METH ' /)
-
-      CHARACTER( 1 ), PARAMETER :: SEASON( NSEASONS ) =
-     &                          (/ 'S', 'W' /)
-
 C-----------------------------------------------------------------------
 
       CONTAINS
@@ -79,7 +53,7 @@ C-----------------------------------------------------------------------
       
          USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
-         USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW 
+         USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW
 
          IMPLICIT NONE
 
@@ -454,7 +428,7 @@ C Save Species names in global array for mapping emissions
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%USED ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%CONV ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%BASIS( MSPCS ) )
-         
+
          EM_FILE_SURR( IBIOSRM )%ARRY  = EMSPC
          EM_FILE_SURR( IBIOSRM )%UNITS = 'MOLES/S'
          EM_FILE_SURR( IBIOSRM )%MW    = 1.0

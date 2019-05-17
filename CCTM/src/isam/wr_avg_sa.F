@@ -28,6 +28,7 @@ C
 C          Called by driver.F
 C
 C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
+C     09 May 2019: D.Wong Removed all MY_ clauses
 
 C-----------------------------------------------------------------------
 
@@ -298,7 +299,7 @@ c        CALL SUBST_BARRIER
 
       END IF   ! FIRSTIME
     
-      IF ( .NOT. ALLOCATED( BUF4 ) ) ALLOCATE( BUF4( MY_NCOLS, MY_NROWS, AVGSA_LAYS, N_SPCTAG ) )
+      IF ( .NOT. ALLOCATED( BUF4 ) ) ALLOCATE( BUF4( NCOLS, NROWS, AVGSA_LAYS, N_SPCTAG ) )
 
     
       DO SPC = 1, N_SPCTAG
