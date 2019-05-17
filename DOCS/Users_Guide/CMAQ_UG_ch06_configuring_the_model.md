@@ -104,14 +104,10 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 
 ### 6.7.2 Online Emission Streams
 #### BEIS
-
-#### Marine Gas
-
-#### Lightning NO
-
+#### Plume Rise 
 #### Wind-Blown Dust
-
 #### Sea Spray
+#### Lightning NO
 
 ## 6.8 Gas Phase Chemistry
 ### 6.8.1 Gas Phase Chemical Mechanisms
@@ -119,8 +115,9 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 ### 6.8.3 Photolysis
 
 ## 6.9 Aerosol Dynamics and Chemistry
-### 6.9.1 Default?
-### 6.9.2 KMT
+### 6.9.1 AQCHEM
+### 6.9.2 AQCHEM-KMT
+### 6.9.3 AQCHEM-KMTI
 
 ## 6.10 Potential Vorticity Scaling
 
