@@ -74,6 +74,7 @@ C  11 May 11 D.Wong: incorporated twoway model implementation
 C  19 Jan 16 J.Young: flag for couple/decouple
 C   6 May 16 J.Young: don`t couple/decouple; copy cgrid locally; only decouple the copy
 C  16 Sep 16 J.Young: update for inline procan (IRR)
+C  01 Feb 19 D.Wong: Implemented centralized I/O approach
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain configuration
@@ -88,6 +89,7 @@ C-----------------------------------------------------------------------
       USE PAGRD_DEFN            ! PA horiz domain specs
       USE UTILIO_DEFN           ! inherits PARUTILIO
       USE EMIS_VARS
+      USE CENTRALIZED_IO_MODULE
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
 #else
@@ -232,11 +234,6 @@ C Local Variables:
 
       REAL :: X3FACE( 0:NLAYS )   ! vertical coordinate layer surface
 
-      INTEGER GXOFF, GYOFF        ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-      INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-    
       INTERFACE
          SUBROUTINE DECOUPLE ( CONC, JDATE, JTIME )
             REAL,    INTENT( INOUT ) :: CONC( :,:,:,: )
@@ -375,9 +372,6 @@ C..set cell widths
          DDX = 1.0 / DX
          DDY = 1.0 / DY
 
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
 C..get conversion factors for aero emissions; as of sep 03 release, incoming
 C  units are in ppmV/sec for ae species, # aer x 10**6/ # molec air / sec for
 C  NUM, and m2/mol sec for SRF.  Conversion factors convert to 
@@ -401,13 +395,7 @@ C..get midpoint of time step
 
 C..Get air density if needed
       IF ( LAE_EM_IPR ) THEN
-         VNAME = 'DENS'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, 'PA_UPDATE',
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 
-     &                       1,NLAYS,MDATE, MTIME, DENS ) ) THEN
-           CALL M3EXIT( PNAME, JDATE, JTIME,
-     &                  'Could not interpolate DENS', XSTAT1 )
-         END IF
+         call interpolate_var ('DENS', mdate, mtime, DENS)
       END IF
 
 C..Compute delta conc due to emissions and adjust vdiff or chem
@@ -543,26 +531,13 @@ C..set layer layer thickenesses
          L = 1
          CONVDD( L ) = 1.0 / ABS ( X3FACE( L ) - X3FACE( L - 1 ) ) 
 
-c..get reciprocal of msfx2 (squared map scale factor)
-         CALL SUBHFILE( GRID_CRO_2D, GXOFF, GYOFF,
-     &                  STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-
          ALLOCATE ( RMSFX2( NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure allocating RMSFX4'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 
-         VNAME = 'MSFX2'
-         IF ( .NOT. INTERPX( GRID_CRO_2D, VNAME, PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-     &                       JDATE, JTIME, RMSFX2 ) ) THEN
-            MSG = ' Error interpolating variable ' // TRIM( VNAME )
-     &          // ' from ' // GRID_CRO_2D
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
-
-         RMSFX2 = 1.0 / RMSFX2        ! Array calculation
+         RMSFX2 = 1.0 /  MSFX2        ! Array calculation
 
          ALLOCATE ( TRMSFX2( MY_PACOLS,MY_PAROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
@@ -570,15 +545,13 @@ c..get reciprocal of msfx2 (squared map scale factor)
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
 #ifdef parallel
-         CALL SUBST_DATA_COPY( RMSFX2, TRMSFX2 )
+!        CALL SUBST_DATA_COPY( RMSFX2, TRMSFX2 )
+         CALL SUBST_DATA_COPY( MSFX2, TRMSFX2 )
 #else
          TRMSFX2 = RMSFX2( PA_BEGCOL:PA_ENDCOL,PA_BEGROW:PA_ENDROW )
 
 #endif
          
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
          LDDFIRST = .FALSE.           
 
       END IF
@@ -592,23 +565,12 @@ C..get midpoint of time step
 
 C..get density x jacobian and layer heights
 
-      VNAME = 'DENSA_J'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, 'PA_UPDATE',
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, DENSA_J ) ) THEN
-            CALL M3EXIT( PNAME, JDATE, JTIME,
-     &                   'Could not interpolate DENSA_J', XSTAT1 )
-      END IF
+      call interpolate_var ('DENSA_J', mdate, mtime, DENSA_J)
 
       IF ( N_AE_SPC .GT. 0 ) THEN
 
-         VNAME = 'ZF'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, 'PA_UPDATE',
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,1,NLAYS,
-     &                       MDATE, MTIME, ZF ) ) THEN
-               CALL M3EXIT( PNAME, JDATE, JTIME,
-     &                      'Could not interpolate ZF', XSTAT1 )
-         END IF
+         call interpolate_var ('ZF', mdate, mtime, ZF)
+
       END IF
 
 #ifdef parallel
@@ -742,6 +704,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_MASK_SRF, DIFF_MASK_NUM, DIFF_MAP,
      &                      DIFF_MASK_AERO
+      use CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE   
 
@@ -769,37 +732,17 @@ C Local Variables:
       CHARACTER( 16 ) :: VNAME
       CHARACTER( 96 ) :: XMSG = ' '
 
-      LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-      INTEGER     GXOFF, GYOFF          ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       INTEGER     V  ! loop counters
       INTEGER     RHOJ_LOC         ! pointer to transported RHOJ (in CONC)
 
 C-----------------------------------------------------------------------
-
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-      END IF       ! if firstime
 
 C retrieve transported RhoJ
       RHOJ_LOC = GC_STRT + N_GC_SPC
       RRHOJ( :,:,: ) = CONC( :,:,:,RHOJ_LOC )
       RRHOJ = 1.0 / RRHOJ   ! array assignment
 
-      VNAME = 'JACOBM'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    JDATE, JTIME, RJACOBM ) ) THEN
-         XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('JACOBM', jdate, jtime, RJACOBM)
 
       RJACOBM = 1.0 / RJACOBM   ! array assignment
  

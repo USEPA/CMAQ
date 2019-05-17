@@ -23,6 +23,7 @@ c      [2] write tssa concentration data
 c     
 C     Revision history
 C     01 Nov 2018: S.Napelenok Updates for cmaq5.3 release 
+C     09 May 2019: D.Wong Removed all MY_ clauses
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       SUBROUTINE WR_SA_CGRID ( JDATE, JTIME, TSTEP )
@@ -200,7 +201,7 @@ C-----------------------------------------------------------------------
 
         CALL SUBST_BARRIER
 
-        ALLOCATE ( ISAM_BUFF( MY_NCOLS, MY_NROWS, NLAYS, N_SPCTAG ),
+        ALLOCATE ( ISAM_BUFF( NCOLS, NROWS, NLAYS, N_SPCTAG ),
      &     STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating ISAM_BUFF'

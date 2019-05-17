@@ -28,6 +28,7 @@ C Revision history:
 C   Dec 15 D.Wong: Created for writing initial data to CONC file
 C   Apr 16 D.Wong: Added INTEN attribute for arguments JDATE, JTIME, and TSTEP
 C                  so they match with the interface block in INITSCEN.F
+C   Feb 19 D.Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -87,7 +88,7 @@ C-----------------------------------------------------------------------
 C write the initial concentrations as step 0 on the conc file
 C (inital data assumed to be in correct output units)
 
-      ALLOCATE ( DBUFF( MY_NCOLS,MY_NROWS,C_NLAYS ), STAT = ALLOCSTAT )
+      ALLOCATE ( DBUFF( NCOLS,NROWS,C_NLAYS ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating DBUFF'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -103,7 +104,7 @@ C (inital data assumed to be in correct output units)
          V = V + 1
          INDX = CONC_MAP( V )
 
-         DBUFF = CGRID( 1:MY_NCOLS,1:MY_NROWS,CONC_BLEV:CONC_ELEV,INDX )
+         DBUFF = CGRID( 1:NCOLS,1:NROWS,CONC_BLEV:CONC_ELEV,INDX )
 
          IF ( .NOT. WRITE3( CTM_CONC_1, C_GC_SPC( SPC ),
      &                      JDATE, JTIME, DBUFF ) ) THEN
@@ -124,7 +125,7 @@ C (inital data assumed to be in correct output units)
          V = V + 1
          INDX = CONC_MAP( V )
 
-         DBUFF = CGRID( 1:MY_NCOLS,1:MY_NROWS,CONC_BLEV:CONC_ELEV,INDX )
+         DBUFF = CGRID( 1:NCOLS,1:NROWS,CONC_BLEV:CONC_ELEV,INDX )
 
          IF ( .NOT. WRITE3( CTM_CONC_1, C_AE_SPC( SPC ),
      &                      JDATE, JTIME, DBUFF ) ) THEN
@@ -145,7 +146,7 @@ C (inital data assumed to be in correct output units)
          V = V + 1
          INDX = CONC_MAP( V )
 
-         DBUFF = CGRID( 1:MY_NCOLS,1:MY_NROWS,CONC_BLEV:CONC_ELEV,INDX )
+         DBUFF = CGRID( 1:NCOLS,1:NROWS,CONC_BLEV:CONC_ELEV,INDX )
 
          IF ( .NOT. WRITE3( CTM_CONC_1, C_NR_SPC( SPC ),
      &                      JDATE, JTIME, DBUFF ) ) THEN
@@ -165,7 +166,7 @@ C (inital data assumed to be in correct output units)
          V = V + 1
          INDX = CONC_MAP( V )
 
-         DBUFF = CGRID( 1:MY_NCOLS,1:MY_NROWS,CONC_BLEV:CONC_ELEV,INDX )
+         DBUFF = CGRID( 1:NCOLS,1:NROWS,CONC_BLEV:CONC_ELEV,INDX )
 
          IF ( .NOT. WRITE3( CTM_CONC_1, C_TR_SPC( SPC ),
      &                      JDATE, JTIME, DBUFF ) ) THEN

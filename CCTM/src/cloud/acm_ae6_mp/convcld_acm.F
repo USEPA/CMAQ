@@ -115,6 +115,8 @@ C       7May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in AS
 C       Aug 2018 J. Pleim: convert to Z coords
 C       Oct 2018 D. Wong: Declared array, F as allocatable and added subroutine ACMCLD 
 C                         in the interface block
+C       Feb 2019 D. Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -125,6 +127,7 @@ C-----------------------------------------------------------------------
       USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
      &                   LHNO3_PHOTOLYSIS => LHNO3
+      USE CENTRALIZED_IO_MODULE
 
       IMPLICIT NONE
 
@@ -378,12 +381,6 @@ C-------------------------------------------
 
       INTEGER         ALLOCSTAT
 
-      INTEGER         GXOFF, GYOFF                 ! global origin offset from file
-C for INTERPX
-      INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2!Golam Sarwar,1Jul2011 
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
 C Gridded meteorology data: Golam Sarwar, July 1, 2011 
 C Latitude and longitude for zenith angle calculation:     
       REAL             COSZ                        ! local cosine of zenith angle
@@ -467,29 +464,9 @@ C...  event-statistics variables.
 
         END IF
 
-C...open MET_CRO_3D and MET_CRO_2D
-
-        IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
-          XMSG = 'Could not open '// MET_CRO_3D // ' file'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-        IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
-          XMSG = 'Could not open '// MET_CRO_2D // ' file'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-C...get description from the met file
-
-        IF ( .NOT. DESC3( MET_CRO_2D ) ) THEN
-          XMSG = 'Could not get ' // MET_CRO_2D //' file description'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
 C cccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
 
-        SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
-        IF ( SPC .GT. 0 ) THEN
+        IF (RCA_AVAIL) THEN
            RC_NAME = 'RCA'
         ELSE
            RC_NAME = 'RC'
@@ -498,34 +475,18 @@ C cccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
 C...store met file time, date, and step information and compute
 C...  the met timestep in hours
 
-        SDATE = SDATE3D
-        STIME = STIME3D
-        MSTEP = TSTEP3D
+        SDATE = cio_model_sdate
+        STIME = cio_model_stime
+        MSTEP = cio_data_tstep
 
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
-
-C...get horizontal domain window from met data
-
-        CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                  STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-
-        CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                  STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-
-        CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
 C...check convective precipitation on met files to determine if WRF used
 C...  a convective parameterization
 C...in coordination with MCIPv4.0, negative values will be loaded into the RC
 C...  field if a convective parameterization was not used in the WRF simulation
 
-        IF ( .NOT. INTERPX( MET_CRO_2D, RC_NAME, PNAME,
-     &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                      SDATE, STIME, RC ) ) THEN
-          XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
+        call interpolate_var (RC_NAME, sdate, stime, RC)
 
         IF ( MAXVAL( RC ) .LT. 0.0 ) THEN
           CONVCLD = .FALSE.
@@ -644,53 +605,23 @@ C...  Interpolate time dependent layered input variables
 C...  (reading those variables for which it is necessary)
 
 C...  Get ambient temperature (K)
-      VARNM = 'TA'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, TA ) ) THEN
-        XMSG = 'Could not read TA from' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('TA', mdate, mtime, TA)
 
 C...Get specific humidity (kg H2O / kg air)
-      VARNM = 'QV'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, QV ) ) THEN
-        XMSG = 'Could not read QV from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('QV', mdate, mtime, QV)
 
 C...Get level heights / layer faces (m)
-      VARNM = 'ZF'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, ZF ) ) THEN
-        XMSG = 'Could not read ZF from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('ZF', mdate, mtime, ZF)
 
 C...Get mid-layer heights (m)
-      VARNM = 'ZH'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, ZH ) ) THEN
-        XMSG = 'Could not read ZH from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('ZH', mdate, mtime, ZH)
 
 C...Get pressure (Pa)
-      VARNM = 'PRES'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, PRES ) ) THEN
-        XMSG = 'Could not read PRES from ' // MET_CRO_3D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('PRES', mdate, mtime, PRES)
 
 C...compute layer thicknesses (m)
-      DO ROW = 1, MY_NROWS
-        DO COL = 1, MY_NCOLS
+      DO ROW = 1, NROWS
+        DO COL = 1, NCOLS
           DZZ( COL,ROW, 1 ) = ZF( COL,ROW, 1 )
           DO LAY = 2, NLAYS
             DZZ( COL,ROW,LAY ) = ZF( COL,ROW,LAY ) - ZF( COL,ROW,LAY - 1 )
@@ -699,13 +630,7 @@ C...compute layer thicknesses (m)
       END DO
 
 C...Get PBL height (m)
-      VARNM = 'PBL'
-      IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    MDATE, MTIME, PBL ) ) THEN
-        XMSG = 'Could not read PBL from ' // MET_CRO_2D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('PBL', mdate, mtime, PBL)
  
 C...advance the MDATE and MTIME to the next time on the met file
 C...  to get ready to read the precipitation amounts.
@@ -722,19 +647,14 @@ C...  on the input file are amounts within the metfiles timestep.
 
 C...Get convective precipitation amount (cm)
 
-      IF ( .NOT. INTERPX( MET_CRO_2D, RC_NAME, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    MDATE, MTIME, RC ) ) THEN
-        XMSG = 'Could not read ' // TRIM( RC_NAME ) // ' from ' // MET_CRO_2D
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var (RC_NAME, mdate, mtime, RC)
 
 C...Convert the rainfall rate into mm/hr, then set a flag noting the
 C...  presence of raining clouds if the rainfall is above the specified
 C...  threshold
 
-      DO ROW = 1, MY_NROWS
-        DO COL = 1, MY_NCOLS
+      DO ROW = 1, NROWS
+        DO COL = 1, NCOLS
           RAIN( COL,ROW ) = 10.0 * RC( COL,ROW ) / METSTEP
         END DO
       END DO
@@ -746,8 +666,8 @@ C...  threshold
 
 C...Loop through all grid cells
 
-      DO 311 ROW = 1, MY_NROWS
-        DO 301 COL = 1, MY_NCOLS
+      DO 311 ROW = 1, NROWS
+        DO 301 COL = 1, NCOLS
 
           QLQD = 0.0
           QICE = 0.0

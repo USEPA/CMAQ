@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE INITSCEN ( CGRID, TSTEP, NSTEPS )
+      SUBROUTINE INITSCEN ( CGRID, TSTEP)
 
 C-----------------------------------------------------------------------
 C Function:
@@ -63,6 +63,8 @@ C                        removed deprecated TRIMLEN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   Aug 15 D.Wong:    Added two new subroutine calls to open ACONC and WDEP files
 C   Dec 15 D.Wong: new routine wr_init to write the initial data to the CONC file
+C   1 Feb 19 David Wong: Implemented centralized I/O approach, removed
+C                        all MY_N clauses
 C   29 Oct 18 L.Zhou, S.Napelenok: isam implementation
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
@@ -97,7 +99,7 @@ C Arguments:
                                 ! TSTEP(2) = sciproc sync. step (chem)
                                 ! TSTEP(3) = twoway model time step w.r.t. wrf time
                                 !            step and wrf/cmaq call frequency
-      INTEGER      NSTEPS       ! run duration, as number of output time steps
+!     INTEGER      NSTEPS       ! run duration, as number of output time steps
 
 C Parameters:
 
@@ -160,27 +162,6 @@ C-----------------------------------------------------------------------
       END IF
 #endif
 
-
-#ifndef twoway
-      ! Calculate number of output time steps for this model run:
-      IF ( RUNLEN .LT. 1000000 ) THEN
-         TOTSECS  = TIME2SEC( RUNLEN )
-      ELSE
-         RUNLEN = RUNLEN - 1000000
-         TOTSECS  = TIME2SEC( RUNLEN )
-         TOTSECS  = TOTSECS + 360000
-      END IF
-      STEPSECS = TIME2SEC( TSTEP( 1 )  )
-
-      IF ( MOD( TOTSECS, STEPSECS ) .EQ. 0 ) THEN
-         NSTEPS = TOTSECS / STEPSECS
-      ELSE
-         MSG = 'Output time step ' // HHMMSS( TSTEP( 1 ) ) //
-     &         ' does not divide duration ' // HHMMSS( RUNLEN )
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT1 )
-      END IF
-#endif
-
 C Initialize the CGRID array
       CGRID = CMIN
 
@@ -194,8 +175,8 @@ C Load CGRID
          do v = gc_strt, gc_fini
             s = v + 1 - gc_strt
             sumcg = 0.0
-            do r = 1, my_nrows
-               do c = 1, my_ncols
+            do r = 1, nrows
+               do c = 1, ncols
                   sumcg = sumcg + cgrid( c,r,l,v )
                end do
             end do

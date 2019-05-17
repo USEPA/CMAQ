@@ -65,10 +65,13 @@ C                      domain specifications in one module
 C   16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C   03 Aug 11 David Wong: moved DT calculation outside the loop for efficency
 C                         purposes
+C   01 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
+      USE CENTRALIZED_IO_MODULE
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_GLOBAL_MAX_MODULE, SE_COMM_MODULE,
                                 !               SE_UTIL_MODULE)
@@ -111,11 +114,6 @@ C "Courant" factor = 99%(1/sqrt(2))
 !     REAL, PARAMETER :: CFC = 0.700
       REAL, PARAMETER :: CFC = 0.300
       
-C file variables:
-
-!     REAL    MSFD2( NCOLS+1,NROWS+1 ) ! Squared map scale factors
-      REAL, ALLOCATABLE, SAVE :: MSFD2( :,: ) ! Squared map scale factors
-      
 C local variables:
       
       CHARACTER( 16 ) :: PNAME = 'HCDIFF3D'
@@ -143,10 +141,6 @@ C local variables:
       INTEGER, SAVE :: STARTROW, ENDROW
       INTEGER, SAVE :: STARTCOL, ENDCOL
  
-      INTEGER GXOFF, GYOFF             ! global origin offset from file
-C for INTERPX
-      INTEGER :: STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2
-
       INTERFACE
          SUBROUTINE DEFORM( JDATE, JTIME, DEFORM3D )
             INTEGER, INTENT( IN )  :: JDATE, JTIME
@@ -175,22 +169,6 @@ C-----------------------------------------------------------------------
             END IF
 
 C Get map scale factor
-
-         ALLOCATE ( MSFD2( MY_NCOLS+1,MY_NROWS+1 ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating MSFD2'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         CALL SUBHFILE ( GRID_DOT_2D, GXOFF, GYOFF,
-     &                   STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2 )
-
-         IF ( .NOT. INTERPX( GRID_DOT_2D, 'MSFD2', PNAME,
-     &                       STRTCOLGD2,ENDCOLGD2, STRTROWGD2,ENDROWGD2, 1,1,
-     &                       JDATE, JTIME, MSFD2 ) ) THEN
-            XMSG = 'Could not interpolate MSFD2 from ' // GRID_DOT_2D
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
 
          KHA = ( DXB * DXB ) / ( DX1 * DX2 ) * KH 
 
@@ -227,8 +205,8 @@ C Obtain flux average values of contravariant diffusivities
 
       EFFKB = 0.0
       DO LVL = 1, MLAYS
-         DO ROW = 1, MY_NROWS + 1
-            DO COL = 1, MY_NCOLS + 1
+         DO ROW = 1, NROWS + 1
+            DO COL = 1, NCOLS + 1
                K11BAR( COL,ROW,LVL ) = 0.0
                K22BAR( COL,ROW,LVL ) = 0.0
                END DO
@@ -238,28 +216,28 @@ C Obtain flux average values of contravariant diffusivities
 1003  FORMAT( / '@2@Layer', 5X, 'Time Step', 9X, 'EffKB' )
 
       DO LVL = 1, MLAYS
-         DO ROW = 1, MY_NROWS
+         DO ROW = 1, NROWS
             DO COL = STARTCOL, ENDCOL
                K11BAR( COL,ROW,LVL ) = 0.5 * ( EDDYH3D( COL,ROW+1,LVL )
      &                               +         EDDYH3D( COL,ROW,LVL ) )
                END DO
             END DO
          DO COL = STARTCOL, ENDCOL
-            K11BAR( COL,MY_NROWS+1,LVL ) = 0.0
+            K11BAR( COL,NROWS+1,LVL ) = 0.0
             END DO
 
          DO ROW = STARTROW, ENDROW
-            DO COL = 1, MY_NCOLS
+            DO COL = 1, NCOLS
                K22BAR( COL,ROW,LVL ) = 0.5 * ( EDDYH3D( COL,ROW,LVL )
      &                               +         EDDYH3D( COL+1,ROW,LVL ) )
               END DO
             END DO
          DO ROW = STARTROW, ENDROW
-            K22BAR( MY_NCOLS+1,ROW,LVL ) = 0.0
+            K22BAR( NCOLS+1,ROW,LVL ) = 0.0
             END DO
 
-         DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+         DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
                EFFKB =  MAX ( EFFKB, 
      &                        K11BAR( COL,ROW,LVL ),
      &                        K22BAR( COL,ROW,LVL ) )

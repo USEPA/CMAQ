@@ -31,6 +31,7 @@ C                          original domain
 C     27 Jul 2011 David Wong: - fixed the description of XBND
 C     12 Aug 2015 David Wong: - Based on the condition of MY_NSRC ( > 0 )
 C                               to determine execution of code section
+C      1 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE UDTYPES, ONLY: BILIN_TYPE
@@ -120,10 +121,10 @@ C Set processor coordinate origins
          MY_DXORIG = METDXORIG
          MY_DYORIG = METDYORIG
 
-         MY_CCOLS = MY_NCOLS
-         MY_CROWS = MY_NROWS
-         MY_DCOLS = MY_NCOLS + 1
-         MY_DROWS = MY_NROWS + 1
+         MY_CCOLS = NCOLS
+         MY_CROWS = NROWS
+         MY_DCOLS = NCOLS + 1
+         MY_DROWS = NROWS + 1
 
 !        IF ( .NOT. XBND( 1 ) ) THEN    ! extend cells west by 1
 !             MY_CCOLS = MY_CCOLS + 1
