@@ -102,7 +102,39 @@ tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Output.tar.gz
 
 The CMAQ benchmark test case is a single day simulation for July 1, 2011 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.
 
-## Compiling CMAQ 
+### Build the preprocessor executables
+
+```
+cd $CMAQ_HOME/PREP/icon/scripts
+./bldit_icon.csh [compiler] [version] |& tee bldit_icon.log
+```
+
+```
+cd $CMAQ_HOME/PREP/bcon/scripts
+./bldit_bcon.csh [compiler] [version] |& tee bldit_bcon.log
+```
+
+### Run the preprocessor executables
+
+To run the test simulation for the various CMAQ preprocessor programs, change directories to the location of each program and execute the run script.
+
+Run ICON to produce initial conditions:
+
+```
+cd $CMAQ_HOME/PREP/icon/scripts
+./run_icon.csh |& tee run_icon.log
+```
+
+Run BCON to produce boundary conditions:
+
+```
+cd $CMAQ_HOME/PREP/bcon/scripts
+./run_bcon.csh |& tee run_bcon.log
+```
+
+Check the ICON and BCON log file to ensure that the programs completed successfully. Note that CMAQ benchmark simulation "doesn't" actually require that ICON and BCON be run; the test input data include CCTM-ready initial and boundary conditions files.
+
+## Compiling CCTM
 
 *Before proceeding, it should be noted that building the ICON and BCON executibles are optional steps when working specifically with the benchmark data. This is becuase the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](CMAQ_OGD_ch04_sys_req.md).*   
 
