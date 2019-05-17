@@ -21,11 +21,11 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 5 (Compile and Run CMAQ):](CMAQ_UG_ch05_compile_and_run.md) Obtain the CMAQ source codes, set-up your environment, run a simulation.
 
-[Chapter 6 (Model Outputs):](CMAQ_UG_ch06_model_outputs.md) Descriptions of the CMAQ output files.
+[Chapter 6 (Configuring the Model):](CMAQ_UG_ch06_configuring_the_model.md) Configuration options for different CMAQ science modules.
 
-[Chapter 7 (Analysis Tools):](CMAQ_UG_ch07_analysis_tools.md) Post-processing, visualization and evaluation tools for CMAQ.
+[Chapter 7 (Model Outputs):](CMAQ_UG_ch07_model_outputs.md) Descriptions of the CMAQ output files.
 
-[Chapter 8 (Model Formulation):](CMAQ_UG_ch08_model_formulation.md) Overview of the science used in CMAQ.
+[Chapter 8 (Analysis Tools):](CMAQ_UG_ch08_analysis_tools.md) Post-processing, visualization and evaluation tools for CMAQ.
 
 [Chapter 9 (New Simulation):](CMAQ_UG_ch09_new_simulation.md) Setting up CMAQ for a new domain or application.
 
