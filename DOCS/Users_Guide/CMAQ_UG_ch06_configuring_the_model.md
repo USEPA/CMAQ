@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch07_analysis_tools.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch09_new_simulation.md)
+[<< Previous Chapter](CMAQ_UG_ch05_compile_and_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_model_outputs.md)
 
 <!-- END COMMENT -->
 
@@ -126,7 +126,8 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch07_analysis_tools.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch09_new_simulation.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch05_compile_and_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_model_outputs.md)
+<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
