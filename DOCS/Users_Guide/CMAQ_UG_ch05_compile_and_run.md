@@ -111,51 +111,25 @@ After all required CMAQ inputs are generated using the preprocessors mentioned a
 
 **>>COMMENT<<** Right now these modules are NOT all discussed in Chapter 8.  Need to decide what we want to say here.
 
-In CCTM, the process modules that affect the pollutant concentration fields are classified as listed below. Each bullet contains a description of the process followed by module name in parentheses. These modules, with the exception of gencoor, are discussed further later in [Chapter 8](CMAQ_UG_ch08_model_formulation.md).
+In CCTM, the process modules that affect the pollutant concentration fields are classified as listed below. Each bullet contains a description of the process followed by module name in parentheses. These modules are discussed further in [Chapter 6](CMAQ_UG_ch06_configuring_the_model.md).
 
 Science Modules:
 
 -  Horizontal advection (hadv)
 -  Vertical advection (vadv)
--  Mass conservation adjustments for advection processes (adjc)
 -  Horizontal diffusion (hdiff)
 -  Vertical diffusion (vdiff)
+-  Emissions (emis) 
+-  In-line BEIS3 biogenic emissions (biog)
+-  In-line plume rise (plrise)
 -  Gas-phase chemical reaction solver (gas)
 -  Aqueous-phase reactions and cloud mixing (cloud)
 -  Aerosol dynamics and size distributions (aero)
 -  Potential vorticity scaling for stratosphere/troposphere exchange (pv_o3)
 -  Meteorology-chemistry coupling (twoway)
 
-Control/Utility Modules:
-
--  Model data flow and synchronizing of fractional time steps (driver)
--  Model horizontal grid system (grid)
--  Unit conversion (couple)
--  Initialization (init)
--  MPI/parallelization (par)
--  CGRID configuration (cgrds)
--  Process analysis (procan)
--  Species namelist utilities (spcs)
--  Miscellaneous functions (util)
-
-Data Estimation Modules:
-
--  Deposition velocity estimation (depv)
--  Photolytic rate computation (phot)
-
-line Emissions Modules:
-
--  Calculate emissions (biogenics, dust, lightning, sea salt, plume rise) in-line (emis)
--  In-line BEIS3 biogenic emissions (biog)
--  In-line plume rise (plrise)
-
-The CMAQ modularity makes it easy to modify or introduce a specific scientific process in CCTM. For example, the gas module contains several options for different gas-phase chemistry solvers that can be used to optimize model performance. Without the modular structure, changes to just one scientific process could entail having to modify source code throughout CCTM, thereby greatly increasing the risk of human error.
-
-In addition to modifying individual scientific processes, the user has the option to specify which scientific processes that the user wants to include when building the model. 
-
-**>>COMMENT<<** I don't think the above statement is correct. You can't omit any scientific process but you can choose a particular option for the scientific process if it offers more than one options.
-
-These scientific options are split into build time options and run time options and can be configured in a multitude of ways. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To see a complete list of optional settings reference [Appendix A](CMAQ_UG_appendix_A.md).
+The user has the ability to configure the model in a multitude of ways but selecting from different options for each scientific process.
+Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_configuring_the_model.md).  To see a complete list configuration options reference [Appendix A](CMAQ_UG_appendix_A.md).
 
 Once the `bldit_cctm.csh` script is configured to the user's preference, the user is ready to run the script to build the CCTM executable. To do this run the following commands:
 
