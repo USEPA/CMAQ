@@ -5,15 +5,15 @@
 
 <!-- END COMMENT -->
 
-# 6. Model Output Files
+# 7. Model Output Files
 
-## 6.1 CCTM Output Files
+## 7.1 CCTM Output Files
 
 In this section, details on the CCTM output files are provided. All CMAQ programs produce output files that adhere to the netCDF format.  In addition to model data output, CMAQ can optionally produce log files that contain the standard output from the various CMAQ processors. If the log file option is not selected by the user, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
 
 <a id=Output_Table></a>
 
-**Table 6-1. CMAQ Output files**
+**Table 7-1. CMAQ Output files**
 
 |**File Name**|**File Type**|**Time-Dependence***|**Spatial Dimensions**|
 |----------------------------|------|----|-----------------------------------|
@@ -53,7 +53,7 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 
 <a id=cmaq_output_log></a>
 ### CMAQ output log
-[Return to Table 6-1](#cmaq_output_log_t)
+[Return to Table 7-1](#cmaq_output_log_t)
 
 All of the CMAQ processors generate standard output and standard error during execution. For all of the processors other than CCTM, this diagnostic output information can be captured to a log file at execution using a UNIX redirect command. For example, to capture the standard output and error of a CCTM simulation, use the following command:
 
@@ -93,7 +93,7 @@ The 2-D CCTM dry deposition file (DRYDEP) includes cumulative hourly dry deposit
 
 The 2-D CCTM wet deposition file (WETDEP) includes cumulative hourly wet deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the [FORTRAN NameLists](#matrix_nml) within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
 
-## 6.2 Diagnostic and Advanced CMAQ Output Files
+## 7.2 Diagnostic and Advanced CMAQ Output Files
 
 Along with the basic outputs detailed in the previous section, CMAQ can be configured to output several auxiliary files for diagnosing model performance.
 
