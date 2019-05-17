@@ -32,6 +32,8 @@ Use the bldit.cctm.isam script as you would the base cctm build script.
  cd $M3HOME/scripts/cctm_isam
  ./bldit.cctm.isam |& tee bldit.cctm.isam.log
 ```
+>>**Comment**<< $M3HOME is no longer in CMAQ right? 
+
 
 Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, and Pario) and model builder (bldmake) required by the base model to compile this version of the code. See the base model README for instructions on building these components.
 
@@ -40,6 +42,8 @@ Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, an
 A sample run script is provided in the ISAM release package under $M3HOME/scripts/cctm_isam. Along with the run time options for the base CCTM, this script includes the ISAM configuration options shown in Table 1.
 
 The CMAQ ISAM test run uses the same input data as the base CMAQv5.2 distribution package.  To run the CMAQ ISAM test case:
+>>**Comment**<< I am confused. CMAQ base test case already has ICBC. does CMAQ ISAM use different ICON and BCON from base case?
+Following steps should be clearer.
 
    * Download the base CMAQv5.2 distribution, including the model and input data to obtain/prepare inputs for CMAQ ISAM.  
    * Run the ICON and BCON processors from the base model package to create initial and boundary conditions input files for the CMAQ ISAM test case.
@@ -55,6 +59,7 @@ The CMAQ ISAM test run uses the same input data as the base CMAQv5.2 distributio
 |DO_RENORM|Y/N|Set to Y to do renormalization; set to N otherwise|
 |YES_OXLOSS|Y/N|Set to N for production and loss of O3 alone; Y for O3+NO2, but result accuracy is not guaranteed.|
 
+>>**Comment**<< not real input/output data. it does not use any input data right? May just call CMAQ ISAM input files.
 ## 12.4 CMAQ ISAM Input/Output Data
 
 `SRC_CONTROL_FILE` is a required input to ISAM. It is a text file that specifies the emission tagging inputs for ISAM. An example control file, sa_input_ctrl.txt, is provided in the release package.
@@ -110,6 +115,8 @@ The example SA Control File below shows how this group of eight emissions source
  ```
 
 In this example there are four ISAM tag names (ANTHr45, MOBILE, POINT, BIOG). ISAM will supplement the emissions tags with BCON, OTHR, and ICON tags, so that the tag total for each species conserves the bulk concentration. As the nomenclature suggests, BCON comes from lateral boundary conditions, ICON from initial conditions at the very first hour of the entire simulation period, and OTHR is the remaining "untagged" emissions sources, which is derived by subtracting emissions in the tags from the total model emissions.
+
+>>**Comment**<< It is hard to read by following bullet points. How about presenting a full list of Control file. Then add necessary notations in each line where descriptions and restrictions are needed to be highlighted.
 
 ### 12.4.2 SA Control File Format
 
