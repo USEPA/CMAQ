@@ -25,7 +25,7 @@ After determining the horizontal and vertical extent of the domain of interest, 
 Available horizontal grids for a given CMAQ run are defined at runtime by setting the GRIDDESC and GRID_NAME environment variables to point to an existing grid definition file and to one of the grids defined in the file, respectively. Horizontal grids are defined by the
 grid definition file (GRIDDESC), which can be edited by the user.  Further details on grid configuration are available in the [README.md](../../PREP/mcip/README.md) file in the PREP/mcip folder.
 
-## Science Configurations
+## 6.4 Science Configurations
 CCTM contains several science configurations for simulating transport, chemistry, and deposition. All of the science configuration options in CCTM, such as the chemical mechanism to be used, are set when compiling the executable. The model grid and vertical layer structure for CCTM are set at execution. The important distinction between selecting the science configuration and the model grid/layer configuration is that CCTM does not need to be recompiled when changing model grids/layers but does need to be recompiled when new science options are invoked.  The following sections describe how these science options can be utilized by configuring using the `bldit_cctm.csh` and `run_cctm.csh` scripts.  For the remainder of this chapter these files will be referred to as simply BuildScript and RunScript.
 
 **>>COMMENT<<** Each of the following sections should provide a brief description of the science process followed by the specific configuration options that need to be set in both the build script (BuildScript) and run script (RunScript). The information on these environment variables should be consistent with what is provided in Appendix A.  When specifying environment variable options please use the following syntax:
@@ -33,18 +33,18 @@ CCTM contains several science configurations for simulating transport, chemistry
 setenv ModDepv depv/m3dry
 ```
 
-## 6.4 Advection
-## 6.5 Horizontal Diffusion
-## 6.6 Vertical Diffusion
-### 6.6.1 Dry Deposition - m3dry
-### 6.6.2 Dry Depostion - STAGE
-## 6.7 Emissions
+## 6.5 Advection
+## 6.6 Horizontal Diffusion
+## 6.7 Vertical Diffusion
+### 6.7.1 Dry Deposition - m3dry
+### 6.7.2 Dry Depostion - STAGE
+## 6.8 Emissions
 
 CMAQ introduces emissions of trace gases and aerosols from a variety of important sources (e.g. electric generating utilities, vehicles, fires, trees, dust storms, farms, etc.). Some emissions are applied in the surface layer of the model grid, while others are applied at higher altitudes if, for example, they originate from point source like an elevated stack, or a large forest fire. Many sources that are related to local meteorology may be calculated online in CMAQ. However, most sources, especially anthropogenic ones, are preprocessed using software like the Sparse Matrix Operator Kerner Emissions (SMOKE) Modeling System. Once these external tools have calculated the offline emissions, they may merge them into larger aggregated files. We refer to emissions that are either calculated online or read into CMAQ from a file as emission "streams".
 
 Because CMAQ represents both primary and secondary pollutants, emissions are processed for a subset of the species CMAQ treats. The emissions chemical speciation must be compatible with the chemical mechanism chosen for CMAQ (e.g. cb6r3_ae7_aq) because different mechanisms represent large compounds like functionalized hydrocarbons with different formulae. CMAQv5.3 has introduced new features that make the process of mapping emissions species to CMAQ species more transparent and flexible (see Emission Control with DESID[link]). In fact, users can now toggle, modify, and augment emissions from all available streams in order to better tailor their simulations to the questions they are asking CMAQ to help answer. For tutorials covering specific tasks, please see the DESID tutorial page [link].
 
-### 6.7.1 Emission Streams
+### 6.8.1 Emission Streams
 Depending on the nature of any stream and the information used to quantify its emissions, it may be treated as one of three types:
 
 #### Online Stream:
@@ -108,26 +108,26 @@ setenv STK_EMIS_LAB_002 POINT_FIRES
 ```
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
-### 6.7.2 Online Emission Streams
+### 6.8.2 Online Emission Streams
 #### BEIS
 #### Plume Rise 
 #### Wind-Blown Dust
 #### Sea Spray
 #### Lightning NO
 
-## 6.8 Gas Phase Chemistry
-### 6.8.1 Gas Phase Chemical Mechanisms
-### 6.8.2 Solvers
-### 6.8.3 Photolysis
+## 6.9 Gas Phase Chemistry
+### 6.9.1 Gas Phase Chemical Mechanisms
+### 6.9.2 Solvers
+### 6.9.3 Photolysis
 
-## 6.9 Aerosol Dynamics and Chemistry
-### 6.9.1 AQCHEM
-### 6.9.2 AQCHEM-KMT
-### 6.9.3 AQCHEM-KMTI
+## 6.10 Aerosol Dynamics and Chemistry
+### 6.10.1 AQCHEM
+### 6.10.2 AQCHEM-KMT
+### 6.10.3 AQCHEM-KMTI
 
-## 6.10 Potential Vorticity Scaling
+## 6.11 Potential Vorticity Scaling
 
-## 6.11 Coupled WRF-CMAQ 
+## 6.12 Coupled WRF-CMAQ 
 
 <!-- BEGIN COMMENT -->
 
