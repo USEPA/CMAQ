@@ -43,6 +43,7 @@ C    02/11: S.Roselle-Replaced I/O API include files with UTILIO_DEFN
 C    01/14: D.Wong-Reduced NDELIM to 3 and use only 3 delimiters (comma, blank
 C           space and semicolon) since it only deals with one character when calling
 C           FINDC. DELIMLST is now standard compliant (gfortran happy)
+C    02/19: D.Wong-removed some unnecessary calculation
  
 C-----------------------------------------------------------------------
 C Modified from:
@@ -73,11 +74,12 @@ C External Functions:
 
 C Local parameters:
       INTEGER,   PARAMETER :: NDELIM = 3
-      CHARACTER, PARAMETER :: DELIMLST( NDELIM ) = (/ ',', ' ', ';' /)
+!     CHARACTER, PARAMETER :: DELIMLST( NDELIM ) = (/ ',', ' ', ';' /)
+      CHARACTER, PARAMETER :: DELIMLST( NDELIM ) = (/ ' ', ',', ';' /)
 
 C Arrays for sorting non-delimiters on a per-machine basis:
-      INTEGER            NDINDX  ( NDELIM )
-      CHARACTER, SAVE :: DELIMSRT( NDELIM )
+!     INTEGER            NDINDX  ( NDELIM )
+!     CHARACTER, SAVE :: DELIMSRT( NDELIM )
 
 C Other local variables:
       INTEGER          I, J, L, L1, L2    ! counters and indices
@@ -107,16 +109,22 @@ C-----------------------------------------------------------------------
 C The first time the routine is called, sort the list of delimiters
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         DO I = 1, NDELIM 
-            NDINDX( I ) = I
-         END DO
+!        DO I = 1, NDELIM 
+!           NDINDX( I ) = I
+!        END DO
 
-         CALL SORTIC( NDELIM, NDINDX, DELIMLST )
+!        print *, ' ==d== insert a ', DELIMLST
+!        CALL SORTIC( NDELIM, NDINDX, DELIMLST )
+!        print *, ' ==d== insert b ', DELIMLST
 
-         DO I = 1, NDELIM 
-            J = NDINDX( I )
-            DELIMSRT( I ) = DELIMLST( J )
-         END DO
+!        DO I = 1, NDELIM 
+!           J = NDINDX( I )
+!           DELIMSRT( I ) = DELIMLST( J )
+!        END DO
+
+!        print *, ' ==d== insert c ', DELIMSRT
+
+!        DELIMSRT = DELIMLST
 
       END IF
 
@@ -149,7 +157,7 @@ C Process LINE one character at a time
          CBUF = LINE( I:I )
 
 C Look for character in delimiters
-         IXP = FINDC( CBUF, NDELIM, DELIMSRT )
+         IXP = FINDC( CBUF, NDELIM, DELIMLST )
 
 C Evaluate the current character for number or not
          ISANMBR = ( CBUF .GE. '0' .AND. CBUF .LE. '9' )

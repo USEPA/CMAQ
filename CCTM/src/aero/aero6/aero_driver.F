@@ -111,6 +111,8 @@ C                      - updated the way to define NUM_PMDIAG_SPC
 C                      - set CTM_PMDIAG default value to .TRUE.
 C  D. Wong 31 Jan 2019 - adopted the idea to process all twoway related environment
 C                        variables in one place
+C    1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -121,8 +123,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                     MOMENT0_CONC, MOMENT2_CONC, MOMENT3_CONC,
      &                     AEROSPC, AEROSPC_CONC, N_MODE, AH2O_IDX,
      &                     EXTRACT_AERO, UPDATE_AERO, CALCMOMENTS
-      USE PRECURSOR_DATA, ONLY: SULPRD_IDX, SO4RATE, PRECURSOR_CONC, 
-     &                          PHGRXN_IDX, PHG_RATE, 
+      USE PRECURSOR_DATA, ONLY: SULPRD_IDX, SO4RATE, PRECURSOR_CONC,
+     &                          PHGRXN_IDX, PHG_RATE,
      &                          EXTRACT_PRECURSOR, UPDATE_PRECURSOR
       USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_ORGVAPOR
       USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
@@ -139,6 +141,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef twoway
       USE twoway_data_module
 #endif
+      use CENTRALIZED_IO_MODULE, only : interpolate_var
 
 
       IMPLICIT NONE
@@ -177,9 +180,6 @@ C *** Local Variables:
 C *** Grid Description
       REAL DX1                 ! Cell x-dimension
       REAL DX2                 ! Cell y-dimension
-      INTEGER GXOFF, GYOFF     ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
 C *** Variable to set time step for writing visibility file
       INTEGER, SAVE :: WSTEP  = 0   ! local write counter
@@ -320,26 +320,10 @@ C ------------------ begin body of AERO_DRIVER -------------------------
          END IF
 #endif
 
-C *** Open the met files.
-         IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open  MET_CRO_3D  file '
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open  MET_CRO_2D file '
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
 C *** Open the aerosol parameters file (diameters and standard deviations).
 
          IF ( PMDIAG .AND. IO_PE_INCLUSIVE ) CALL OPPMDIAG ( JDATE, JTIME, TSTEP( 1 ) )
          IF ( APMDIAG ) CALL OPAPMDIAG ( JDATE, JTIME, TSTEP( 1 ) )
-
-C *** Get domain decomp info from the MET_CRO_3D file
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
 
       END IF    ! FIRSTIME
 
@@ -357,40 +341,16 @@ C *** Set floating point synchronization time step:
 C *** Get Meteorological Variables
 
 C *** pressure [Pa]
-      VNAME = 'PRES'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, PRES ) ) THEN
-         XMSG = 'Could not interpolate '// TRIM( VNAME ) // ' from MET_CRO_3D '
-         CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('PRES', mdate, mtime, PRES)
 
 C *** temperature [K]
-      VNAME = 'TA'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, TA ) ) THEN
-         XMSG = 'Could not interpolate '// TRIM( VNAME ) // ' from MET_CRO_3D '
-         CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('TA', mdate, mtime, TA)
 
 C *** specific humidity [g H2O/g air]
-      VNAME = 'QV'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, QV ) ) THEN
-         XMSG = 'Could not interpolate '// TRIM( VNAME ) // ' from MET_CRO_3D '
-         CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('QV', mdate, mtime, QV)
 
 C *** air density [kg/m3]
-      VNAME = 'DENS'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, DENS ) ) THEN
-         XMSG = 'Could not interpolate '// TRIM( VNAME ) // ' from MET_CRO_3D '
-         CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENS', mdate, mtime, DENS)
 
 #ifdef twoway
 ! call FEEDBACK_WRITE when JTIME is mulitple of WRF time step
@@ -585,8 +545,8 @@ C *** Accumulate wet diameters, 2nd, and 3rd moments to average aerosol diagnost
                END IF
 #endif
 
-            END DO ! loop on MY_COLS
-         END DO ! loop on MY_ROWS
+            END DO ! loop on COLS
+         END DO ! loop on ROWS
       END DO ! loop on NLAYS
 
 C *** From AEROPROC call to ORGAER...

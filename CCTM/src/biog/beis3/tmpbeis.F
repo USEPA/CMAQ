@@ -59,6 +59,7 @@ C  08/14: J.Bash-Added backwards compatibility for earlier versions of MCIP
 C  07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C  12 Aug 15 D.Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
 C  07 May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
+C  01 Feb 19 D. Wong: Implemented centralized I/O approach, removed all MY_N clauses
 C-----------------------------------------------------------------------
 C Modified from:
  
@@ -79,6 +80,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
       USE BIOG_EMIS             ! beis
+      USE centralized_io_module, only : AVGEMIS, AVGLAI, interpolate_var
 
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -107,8 +109,8 @@ C Gridded meteorology data:
       INTEGER, ALLOCATABLE, SAVE :: SWITCH( :,: )     ! Seasonal switch
 
 C Gridded beis emissions
-      REAL,    ALLOCATABLE, SAVE :: AVGEMIS( :,:,:,: ) ! avg emissions (3.12)
-      REAL,    ALLOCATABLE, SAVE :: AVGLAI ( :,:,:,: ) ! avg leaf index
+!     REAL,    ALLOCATABLE, SAVE :: AVGEMIS( :,:,:,: ) ! avg emissions (3.12)
+!     REAL,    ALLOCATABLE, SAVE :: AVGLAI ( :,:,:,: ) ! avg leaf index
 
 C Gridded normalized emissions:
       REAL,    ALLOCATABLE, SAVE :: SEMIS( :,:,: )    ! Normailized Beis emissions
@@ -157,14 +159,6 @@ C Other variables:
       CHARACTER(  16 ) :: VAR        ! variable name
       CHARACTER(  16 ) :: PNAME = 'TMPBEIS312'   ! prodedure name
 
-      INTEGER       :: GXOFF, GYOFF           ! global origin offset from file
-C for XTRACT3
-      INTEGER       :: STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3  ! Normalized BEIS3
-      INTEGER, SAVE :: STRTCOLBS,  ENDCOLBS,  STRTROWBS,  ENDROWBS   ! BIOSEASON
-      INTEGER, SAVE :: STRTCOLG,   ENDCOLG,   STRTROWG,   ENDROWG    ! GRID_CRO_2D
-      INTEGER, SAVE :: STRTCOLM,   ENDCOLM,   STRTROWM,   ENDROWM    ! MET_CRO_2D
-      INTEGER, SAVE :: STRTCOLD,   ENDCOLD,   STRTROWD,   ENDROWD    ! diagnostic
-
 #ifdef verbose_tmpbeis
       REAL,    ALLOCATABLE, SAVE :: EMISX( : )
       INTEGER, ALLOCATABLE, SAVE :: CX( : ), RX( : )
@@ -198,49 +192,8 @@ C-----------------------------------------------------------------------
 C Determine last timestamp
          NSTEPS = RUNLEN / TSTEP( 1 )           ! initscen guarantees divisibility
 
-C Get normalized emissions file, BGRD
-         NNAME = PROMPTMFILE( 
-     &           'Enter name for Normalized Emissions input file',
-     &           FSREAD3, 'B3GRD', PNAME )
-
-C Read description of normalized emissions file
-         IF ( .NOT. DESC3( NNAME ) ) THEN
-            MESG = 'Could not get description of file "' //
-     &             TRIM( NNAME ) // '"'
-            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-         END IF
-
-C Initialize grid definition 
-         OK = CHKGRID( NNAME )
-
-C Get windowing info for the normalized emissions file
-         CALL SUBHFILE ( NNAME, GXOFF, GYOFF,
-     &                   STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3 )
-
 C Open and check bioseason file if using
          IF ( BIOGEMIS_SEASON ) THEN
-
-            BNAME = PROMPTMFILE( 
-     &              'Enter name for season switch input file',
-     &              FSREAD3, 'BIOSEASON', PNAME )
-            
-C Read description of switch file
-            IF ( .NOT. DESC3( BNAME ) ) THEN
-               MESG = 'Could not get description of file "' //
-     &                 TRIM( BNAME ) // '"'
-               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-            END IF
-
-C Check grid definition 
-            IF ( .NOT. CHKGRID( BNAME ) ) THEN
-               MESG = 'Grid in file "' // TRIM( BNAME ) //
-     &                '" does not match previously set grid.'
-               CALL M3WARN( PNAME, 0, 0, MESG )
-            END IF
-
-C Get domain decomp info for the bioseasons switch file
-            CALL SUBHFILE ( BNAME, GXOFF, GYOFF,
-     &                      STRTCOLBS, ENDCOLBS, STRTROWBS, ENDROWBS )
 
             ALLOCATE( SWITCH( NCOLS,NROWS ), STAT=IOS )
             CALL CHECKMEM( IOS, 'SWITCH', PNAME )
@@ -267,11 +220,6 @@ C Check that grid description matches BGRD file
             CALL M3WARN( PNAME, 0, 0, MESG )
          END IF
 
-C Get domain decomp info for the bioseasons switch file
-         CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
-     &                   STRTCOLM, ENDCOLM, STRTROWM, ENDROWM )
-
-           
          IF ( BEMIS_DIAG ) THEN
 C Build description for, and open beis diagnostic file
             MDATE = STDATE; MTIME = STTIME
@@ -334,46 +282,6 @@ C Open mass output file (tons/hour)
 
          END IF
 
-C Build name table for variables in normalized emissions file
-         ALLOCATE( AVGEMIS( NCOLS,NROWS,NSEF-1,NSEASONS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'AVGEMIS', PNAME )
-
-         ALLOCATE( AVGLAI( NCOLS,NROWS,NLAI,NSEASONS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'AVGLAI', PNAME )
-
-         AVGEMIS = 0.0 ! array
-         AVGLAI  = 0.0 ! array
-
-
-C Read the various categories of normalized emissions
-         DO I = 1, NSEASONS 
-             
-            DO J = 1, NSEF-1
-               VAR = 'AVG_' // TRIM( BIOTYPES( J ) ) // SEASON( I )
-         
-               IF ( .NOT. XTRACT3( NNAME, VAR,
-     &                             1,1, STRTROWNB3,ENDROWNB3, STRTCOLNB3,ENDCOLNB3,
-     &                             0, 0, AVGEMIS( 1,1,J,I ) ) ) THEN
-                  MESG = 'Could not read "' // TRIM( VAR ) //
-     &                   '" from file "' // TRIM( NNAME ) // '"'
-                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-               END IF
-            END DO
-
-            DO K = 1, NLAI
-               VAR = 'LAI_' // TRIM( LAITYPES( K ) ) // SEASON( I )
- 
-               IF ( .NOT. XTRACT3( NNAME, VAR,
-     &                             1,1, STRTROWNB3,ENDROWNB3, STRTCOLNB3,ENDCOLNB3,
-     &                             0, 0, AVGLAI( 1,1,K,I ) ) ) THEN
-                  MESG = 'Could not read "' // TRIM( VAR ) //
-     &                   '" from file "' // TRIM( NNAME ) // '"'
-                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-               END IF
-            END DO
-
-         END DO   ! end loop over seasons
-
 C Allocate memory for arrays
          
          ALLOCATE( EMPOL( NCOLS,NROWS,NSEF ), STAT=IOS )
@@ -398,11 +306,11 @@ C Allocate memory for arrays
 
 C Initialize normalized emissons to be used 
          IF ( ASSUME_SUMMER ) THEN
-            SEMIS = AVGEMIS( 1:MY_NCOLS,1:MY_NROWS,:,NSUMMER )
-            SLAI  = AVGLAI ( 1:MY_NCOLS,1:MY_NROWS,:,NSUMMER )
+            SEMIS = AVGEMIS( 1:NCOLS,1:NROWS,:,NSUMMER )
+            SLAI  = AVGLAI ( 1:NCOLS,1:NROWS,:,NSUMMER )
          ELSE
-            SEMIS = AVGEMIS( 1:MY_NCOLS,1:MY_NROWS,:,NWINTER )
-            SLAI  = AVGLAI ( 1:MY_NCOLS,1:MY_NROWS,:,NWINTER )
+            SEMIS = AVGEMIS( 1:NCOLS,1:NROWS,:,NWINTER )
+            SLAI  = AVGLAI ( 1:NCOLS,1:NROWS,:,NWINTER )
          END IF
 
          LDATE = 0
@@ -447,18 +355,13 @@ C If new date, read season switch
             MESG = 'Reading gridded season switch data...'
             CALL M3MSG2( MESG ) 
              
-            IF ( .NOT. XTRACT3( BNAME, 'SEASON',
-     &                          1,1, STRTROWBS,ENDROWBS, STRTCOLBS,ENDCOLBS,
-     &                          JDATE, 0, SWITCH ) ) THEN
-               MESG = 'Could not read SEASON from file "' // TRIM( BNAME ) // '"'
-               CALL M3EXIT( PNAME, JDATE, 0, MESG, XSTAT2 )
-            END IF
+            call interpolate_var ('SEASON', jdate, 0, SWITCH)
 
             MESG = 'Applying gridded season switch data...' 
             CALL M3MSG2( MESG )
 
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   IF ( SWITCH( C,R ) .EQ. 0 ) THEN   ! use winter normalized emissions
                      SEMIS( C,R,1:NSEF-1 ) = AVGEMIS( C,R,1:NSEF-1,NWINTER )
                      SLAI ( C,R,1:NLAI   ) =  AVGLAI( C,R,1:NLAI,  NWINTER )
@@ -484,7 +387,7 @@ C repopulate the met_cro_2d variable attributes
       END IF
 
 C Calculate temporal non-speciated beis emissions
-      CALL BEIS3( JDATE, JTIME, MY_NCOLS, MY_NROWS, MSPCS, SEMIS, SLAI, BIPOL )
+      CALL BEIS3( JDATE, JTIME, NCOLS, NROWS, MSPCS, SEMIS, SLAI, BIPOL )
 
 C Calculate temporal non-speciated soil NO emissions
       CALL HRNO( JDATE, JTIME, TSTEP, NOPOL )
@@ -494,8 +397,8 @@ C Calculate temporal non-speciated soil NO emissions
 
 C Speciate emissions
       DO K = 1, NSEF
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                EMPL = EMPOL( C,R,K ) * HR2SEC
                IF ( EMPL .GT. 0.0 ) 
      &            EMISL( :,C,R ) = EMISL( :,C,R ) + EMPL * MLFAC( :,K )

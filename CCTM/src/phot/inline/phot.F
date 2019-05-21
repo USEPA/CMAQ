@@ -105,6 +105,8 @@
 !     June 10 15 J.Young: Modified diagnostic output timestamp to fix for other than one
 !                         hour time steps.
 !     Aug 12, 15 D. Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
+!     Feb 01, 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+!                            clauses
 
 !----------------------------------------------------------------------
 
@@ -121,6 +123,7 @@ C...modules
       USE PHOT_MET_DATA        ! Met and Grid data
       USE CLOUD_OPTICS         ! data and routines for optics of cloud hydrometeors
       USE SEAS_STRAT_O3_MIN    ! monthly minimum fraction of ozone column density above Pressure TOP
+      USE CENTRALIZED_IO_MODULE, ONLY : LAT, LON, HT
 
 #ifdef parallel
       USE SE_MODULES           ! stenex (using SE_UTIL_MODULE)
@@ -202,15 +205,9 @@ C...modules
       INTEGER MIDTIME              ! Time at time step midpoint
 
       INTEGER, SAVE :: TDATE
-      INTEGER, SAVE :: GXOFF, GYOFF        ! global origin offset from file
       INTEGER, SAVE :: PECOL_OFFSET        ! Local Column Offset for processor
       INTEGER, SAVE :: PEROW_OFFSET        ! Local Column Offset for processor
       INTEGER, SAVE :: TSTEP_COUNT         ! counter between calls to write diagnostics
-
-! for INTERPX
-      INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       REAL CURRHR          ! current GMT hour
       REAL JULIAN_DAY      ! time of year [days]
@@ -342,15 +339,6 @@ C...modules
 
 !...Set flag to initialize calculating aerosol extinction at 550 nm via Angstrom Exponents
          CALCULATE_EXT_550 = PHOTDIAG
-
-!...Get met file offsets
-
-         CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
@@ -754,8 +742,8 @@ C...modules
             CLR_TRANS_DIRECT  = 0.0
             CLR_REFLECTION    = 0.0
 
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
+            DO ROW = 1, NROWS
+               DO COL = 1, NCOLS
                   BLKDENS( 1 ) = DENS ( COL,ROW,1 ) * DENS_CONV ! [molecules / cm**3]
                   BLKDZ  ( 1 ) = ZFULL( COL,ROW,1 )
                   DO L = 2, NLAYS
@@ -779,8 +767,8 @@ C...modules
       ELSE  ! all cells not dark
 
 !...MAIN loop over all rows and columns
-         LOOP_ROWS: DO ROW = 1, MY_NROWS
-            LOOP_COLS: DO COL = 1, MY_NCOLS
+         LOOP_ROWS: DO ROW = 1, NROWS
+            LOOP_COLS: DO COL = 1, NCOLS
 
                PHOT_COL = COL + PECOL_OFFSET
                PHOT_ROW = ROW + PEROW_OFFSET

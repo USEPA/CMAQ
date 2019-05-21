@@ -45,6 +45,8 @@ C   26 Aug 2015: Jon Pleim: Add CFL correction for yamo
 C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
 C   17 May 2017: David Wong: Added a logic to avoid division of zero for variable VELX
 C   29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
+C   16 NOv 2018 S.Napelenok: ISAM implementation
+C    1 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -54,6 +56,11 @@ C-----------------------------------------------------------------------
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
+#endif
+
+#ifdef isam
+      USE SA_DEFN, Only: ISAM, N_SPCTAG, S_SPCTAG, T_SPCTAG,
+     &                   TRANSPORT_SPC, BCON_SPC, MAP_ADVtoSA
 #endif
 
       IMPLICIT NONE
@@ -134,6 +141,12 @@ C Yamo CFL correction
       REAL, ALLOCATABLE, SAVE :: HALO_EAST( :,:,: )
       REAL, ALLOCATABLE, SAVE :: HALO_WEST( :,:,: )
       REAL, ALLOCATABLE, SAVE :: BUF_EW( :,:,: )
+#ifdef isam
+      REAL, ALLOCATABLE, SAVE :: SA_CONX( :,: )
+      REAL, ALLOCATABLE, SAVE :: SA_HALO_EAST( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_HALO_WEST( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SA_BUF_EW( :,:,: )
+#endif
       
       INTEGER, SAVE :: EFX    ! fixed parameter for eastern boundary
       INTEGER, SAVE :: WFX    ! fixed parameter for western boundary
@@ -165,8 +178,8 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
 
-         EFX = MY_NCOLS + 1
-         WFX = 2 * MY_NCOLS + MY_NROWS + 4
+         EFX = NCOLS + 1
+         WFX = 2 * NCOLS + NROWS + 4
 
 C Get dx1 from HGRD_DEFN module
 
@@ -180,8 +193,11 @@ C Get dx1 from HGRD_DEFN module
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
 
-         ALLOCATE ( CONX( 1-SWP:MY_NCOLS+SWP,N_SPC_ADV ),
-     &              VELX( MY_NCOLS+1 ), STAT = ALLOCSTAT ) ! Vel along a row
+         ALLOCATE ( CONX( 1-SWP:NCOLS+SWP,N_SPC_ADV ),
+#ifdef isam
+     &              SA_CONX( 1-SWP:NCOLS+SWP, N_SPCTAG ), ! 20120816
+#endif
+     &              VELX( NCOLS+1 ), STAT = ALLOCSTAT ) ! Vel along a row
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating VELX, or CONX'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
@@ -193,9 +209,15 @@ C Get dx1 from HGRD_DEFN module
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( HALO_EAST( SWP,MY_NROWS,N_SPC_ADV ),
-     &              HALO_WEST( SWP,MY_NROWS,N_SPC_ADV ),
-     &              BUF_EW   ( SWP,MY_NROWS,N_SPC_ADV ), STAT = ALLOCSTAT )
+         ALLOCATE ( HALO_EAST( SWP,NROWS,N_SPC_ADV ),
+     &              HALO_WEST( SWP,NROWS,N_SPC_ADV ),
+     &              BUF_EW   ( SWP,NROWS,N_SPC_ADV ),
+#ifdef isam
+     &              SA_HALO_EAST( SWP,NROWS,N_SPCTAG ),
+     &              SA_HALO_WEST( SWP,NROWS,N_SPCTAG ),
+     &              SA_BUF_EW   ( SWP,NROWS,N_SPCTAG ),
+#endif
+     &              STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating HALO_EAST, HALO_WEST, or BUF_EW'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
@@ -203,6 +225,11 @@ C Get dx1 from HGRD_DEFN module
          HALO_EAST = 0.0   ! array
          HALO_WEST = 0.0   ! array
          BUF_EW    = 0.0   ! array
+#ifdef isam
+         SA_HALO_EAST = 0.0   ! KRT array
+         SA_HALO_WEST = 0.0   ! KRT array
+         SA_BUF_EW    = 0.0   ! KRT array
+#endif
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
 
@@ -228,7 +255,7 @@ C Create global map to CGRID
  
          ADV_MAP( N_SPC_ADV ) = ASPC
 
-         CALL SUBST_LOOP_INDEX ( 'C', 2, MY_NCOLS, 1, MY_TEMP,
+         CALL SUBST_LOOP_INDEX ( 'C', 2, NCOLS, 1, MY_TEMP,
      &                           STARTCOL2, ENDCOL2 )
 
          CALL SUBST_HI_LO_BND_PE ( 'C', BNDY_PE_LOX, BNDY_PE_HIX )
@@ -251,10 +278,10 @@ C Get the contravariant x1 velocity component
 
       CALL SUBST_COMM (UHAT, DSPL_N0_E1_S0_W0, DRCN_E)
 
-      EAST_COL = MY_NCOLS - SWP
+      EAST_COL = NCOLS - SWP
       DO SPC = 1, N_SPC_ADV
          A2C = ADV_MAP( SPC )
-         DO ROW = 1, MY_NROWS
+         DO ROW = 1, NROWS
             DO COL = 1, SWP
                HALO_WEST( COL,ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
                HALO_EAST( COL,ROW,SPC ) = CGRID( EAST_COL+COL,ROW,LVL,A2C )
@@ -266,13 +293,33 @@ C Get the contravariant x1 velocity component
       CALL SUBST_COMM (HALO_WEST, HALO_EAST, DSPL_N0_E1_S0_W0, DRCN_E)
       CALL SUBST_COMM (BUF_EW,    HALO_WEST, DSPL_N0_E0_S0_W1, DRCN_W)
 
-      DO 253 ROW = 1, MY_NROWS
+#ifdef isam
+      DO SPC = 1, N_SPCTAG
+         IF( TRANSPORT_SPC( SPC ) )THEN      
+            DO ROW = 1, NROWS
+               DO COL = 1, SWP
+                  SA_HALO_WEST( COL,ROW,SPC ) =
+     &            ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+                  SA_HALO_EAST( COL,ROW,SPC ) =
+     &            ISAM( EAST_COL+COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+                  SA_BUF_EW( COL,ROW,SPC ) = SA_HALO_EAST( COL,ROW,SPC )
+               END DO
+            END DO
+         END IF 
+      END DO
 
-         DO COL = 1, MY_NCOLS+1
+      CALL SUBST_COMM (SA_HALO_WEST, SA_HALO_EAST, DSPL_N0_E1_S0_W0, DRCN_E)
+      CALL SUBST_COMM (SA_BUF_EW,    SA_HALO_WEST, DSPL_N0_E0_S0_W1, DRCN_W)
+
+#endif
+
+      DO 253 ROW = 1, NROWS
+
+         DO COL = 1, NCOLS+1
             VELX( COL ) = UHAT( COL,ROW )
          END DO
 
-         TRRHOJ( 1:MY_NCOLS ) = CGRID( 1:MY_NCOLS,ROW,LVL,ASPC )
+         TRRHOJ( 1:NCOLS ) = CGRID( 1:NCOLS,ROW,LVL,ASPC )
 
 #ifdef parallel
          TRRHOJ( 0 ) = HALO_WEST( SWP,ROW,N_SPC_ADV )
@@ -315,13 +362,13 @@ C check adjusted velocities for Courant limited max timestep
          DO SPC = 1, N_SPC_ADV
 
             A2C = ADV_MAP( SPC )
-            DO COL = 1, MY_NCOLS
+            DO COL = 1, NCOLS
                CONX( COL,SPC ) = CGRID( COL,ROW,LVL,A2C )
             END DO
 
             DO COL = 1, SWP
                CONX( COL-SWP,SPC )      = HALO_WEST( COL,ROW,SPC )
-               CONX( MY_NCOLS+COL,SPC ) = HALO_EAST( COL,ROW,SPC )
+               CONX( NCOLS+COL,SPC ) = HALO_EAST( COL,ROW,SPC )
             END DO
 
 C West boundary
@@ -339,16 +386,63 @@ C West boundary
 C East boundary
 
             IF ( BNDY_PE_HIX ) THEN
-               IF ( VELX( MY_NCOLS+1 ) .GT. 0.0 ) THEN     ! outflow
-                  CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) =
-     &               ZFDBC ( CONX( MY_NCOLS,SPC ), CONX( MY_NCOLS-1,SPC ),
-     &                       VELX( MY_NCOLS+1 ),   VELX( MY_NCOLS ) )
+               IF ( VELX( NCOLS+1 ) .GT. 0.0 ) THEN     ! outflow
+                  CONX( NCOLS+1:NCOLS+SWP,SPC ) =
+     &               ZFDBC ( CONX( NCOLS,SPC ), CONX( NCOLS-1,SPC ),
+     &                       VELX( NCOLS+1 ),   VELX( NCOLS ) )
                ELSE    ! inflow
-                  CONX( MY_NCOLS+1:MY_NCOLS+SWP,SPC ) = BCON( EFX+ROW,SPC )
+                  CONX( NCOLS+1:NCOLS+SWP,SPC ) = BCON( EFX+ROW,SPC )
                END IF
             END IF
 
          END DO   ! SPC
+
+#ifdef isam
+         DO SPC = 1, N_SPCTAG
+         
+            IF( TRANSPORT_SPC( SPC ) )THEN
+
+               DO COL = 1, NCOLS
+                  SA_CONX( COL,SPC ) = ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+               END DO
+               
+               DO COL = 1, SWP
+                  SA_CONX( COL-SWP,SPC )  = SA_HALO_WEST( COL,ROW,SPC )
+                  SA_CONX( NCOLS+COL,SPC ) = SA_HALO_EAST( COL,ROW,SPC )
+               END DO
+
+C West boundary
+               IF ( BNDY_PE_LOX ) THEN
+                  IF ( VELX( 1 ) .LT. 0.0 ) THEN          ! outflow
+                     SA_CONX( 1-SWP:0,SPC ) =
+     &               ZFDBC ( SA_CONX( 1,SPC ), SA_CONX( 2,SPC ), VELX( 1 ), VELX( 2 ) )
+                  ELSE    ! inflow
+                     IF ( BCON_SPC( SPC ) ) THEN
+                        SA_CONX( 1-SWP:0,SPC ) = BCON( WFX+ROW,MAP_ADVtoSA( SPC ) )
+                     ELSE
+                        SA_CONX( 1-SWP:0,SPC ) = 0.0
+                     END IF
+                  END IF   ! velx < 0 ?
+               END IF   ! bndy_pe_lox ?
+
+C East boundary
+               IF ( BNDY_PE_HIX ) THEN
+                  IF ( VELX( NCOLS+1 ) .GT. 0.0 ) THEN     ! outflow
+                     SA_CONX( NCOLS+1:NCOLS+SWP,SPC ) =
+     &               ZFDBC ( SA_CONX( NCOLS,SPC ), SA_CONX( NCOLS-1,SPC ),
+     &                       VELX( NCOLS+1 ), VELX( NCOLS ) )
+                  ELSE    ! inflow
+                     IF ( BCON_SPC( SPC ) ) THEN
+                        SA_CONX( NCOLS+1:NCOLS+SWP,SPC ) = BCON( EFX+ROW,MAP_ADVtoSA( SPC ) )
+                     ELSE   ! non-bcon tags ?
+                        SA_CONX( NCOLS+1:NCOLS+SWP,SPC ) = 0.0
+                     END IF   ! ending with 'bcon' ?
+                  END IF   ! velx > 0 ?
+               END IF   ! bndy_pe_hix ?
+
+            END IF
+         END DO   ! SPC loop
+#endif
 
 C PPM scheme
          IF ( DTCFL .LT. DT ) THEN
@@ -357,18 +451,34 @@ C PPM scheme
  2005       FORMAT( A6, ' CFL:', I4, 2F8.2, 2X, I3 )
             DTCFL = DT / REAL( NITER )
             DO ITER = 1, NITER
-               CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DTCFL, DX1, 'C' )
+               CALL HPPM ( NCOLS, NROWS, CONX, VELX, DTCFL, DX1, 'C' )
+#ifdef isam
+               CALL HPPM ( NCOLS, NROWS, SA_CONX, VELX, DTCFL, DX1, 'C' )
+#endif
             END DO
          ELSE
-            CALL HPPM ( MY_NCOLS, MY_NROWS, CONX, VELX, DT, DX1, 'C' )
+            CALL HPPM ( NCOLS, NROWS, CONX, VELX, DT, DX1, 'C' )
+#ifdef isam
+            CALL HPPM ( NCOLS, NROWS, SA_CONX, VELX, DT, DX1, 'C' )
+#endif
          END IF
 
          DO SPC = 1, N_SPC_ADV
             A2C = ADV_MAP( SPC )
-            DO COL = 1, MY_NCOLS
+            DO COL = 1, NCOLS
                CGRID( COL,ROW,LVL,A2C ) = CONX( COL,SPC )
             END DO
          END DO
+
+#ifdef isam
+         DO SPC = 1, N_SPCTAG
+           IF( TRANSPORT_SPC( SPC ) )THEN
+              DO COL = 1, NCOLS
+                ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) ) = SA_CONX( COL,SPC )
+              END DO ! col
+           END IF   
+         END DO ! jspctag
+#endif
 
 253   CONTINUE
 

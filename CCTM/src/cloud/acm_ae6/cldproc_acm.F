@@ -51,14 +51,24 @@ C                             CTM_WET_DEP_1 and CTM_WET_DEP_2 and put it in opwd
 C                             Added a section of code to let non I/O processors
 C                             open CTM_WET_DEP_1 and CTM_WET_DEP_2 for parallel I/O
 C                             implementation
-C     April 2019 F.Sidi & 
-C                S. Roselle:  Fixed bug relating to incorrect unit conversions
+C     Feb 2018 D. Wong        Implemented centralized I/O approach, removed all MY_N
+C                             clauses
+C    Nov 2018 S.Napelenok     ISAM implementation
+C    Apr 2019 F.Sidi & 
+C             S.Roselle:      Fixed bug relating to incorrect unit conversions
 C                             in GC, NR and TR. 
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+      use CENTRALIZED_IO_MODULE, only : interpolate_var
+
+#ifdef isam
+      USE SA_DEFN, ONLY: ISAM, NSPC_SA, N_SPCTAG, TOT_SADEP, CONV_SADEP,
+     &                   SPC_INDEX, VNAM_SPCTAG, NTAG_SA, S_SPCTAG, 
+     &                   ITAG, T_SPCTAG
+#endif
 
       IMPLICIT NONE
 
@@ -133,36 +143,54 @@ C...........Local Variables
       REAL FAC                       ! temp conversion factor
       REAL CCMIN
 
-      INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
+#ifdef isam
+      REAL, ALLOCATABLE, SAVE :: BUFF2 ( :,: )
+#endif
 
 C...........EXTERNAL FUNCTIONS
 
       INTERFACE
+#ifdef isam
+         SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
+     &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS,
+     &                       SA_DEP )
+#else
          SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &                       N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
+#endif
+            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )    :: JDATE
-            INTEGER, INTENT( IN )    :: JTIME
-            INTEGER, INTENT( IN )    :: TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
             INTEGER, INTENT( IN )    :: N_SPC_WDEP
             INTEGER, INTENT( IN )    :: WDEP_MAP( : )
             REAL,    INTENT( INOUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT )   :: RESTRANS( :,: )
+#ifdef isam
+            REAL,    INTENT( INOUT ) :: SA_DEP( :,:,:,: )
+
+#endif
          END SUBROUTINE RESCLD
+#ifdef isam
          SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                            N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
+     &                            N_SPC_WDEP, WDEP_MAP, DEP, SUBTRANS,
+     &                            CONV_SADEP )
+#else
+         SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+     &                            N_SPC_WDEP, WDEP_MAP, DEP, SUBTRANS )
+#endif
+            IMPLICIT NONE
             REAL, POINTER            :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )    :: JDATE
-            INTEGER, INTENT( IN )    :: JTIME
-            INTEGER, INTENT( IN )    :: TSTEP( 3 )
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
             INTEGER, INTENT( IN )    :: N_SPC_WDEP
             INTEGER, INTENT( IN )    :: WDEP_MAP( : )
-            REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
+            REAL,    INTENT( INOUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
+#ifdef isam
+            REAL,    INTENT( INOUT ) :: CONV_SADEP( :,:,:,: )
+#endif
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
+
 C-----------------------------------------------------------------------
 C   begin body of subroutine  CLDPROC
 
@@ -297,8 +325,23 @@ C...initialize the deposition array before processing clouds
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
+#ifdef isam
+Ckrt deposition arrays for tagged species.....
+        ALLOCATE ( TOT_SADEP ( NCOLS,NROWS,NSPC_SA,NTAG_SA ),
+     &            CONV_SADEP ( NCOLS,NROWS,NSPC_SA,NTAG_SA ),
+     &             STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating TOT_ or CONV_SADEP'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+        TOT_SADEP = 0.0
+        CONV_SADEP = 0.0
+        ALLOCATE( BUFF2( NCOLS, NROWS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating BUFF2'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+#endif
 
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
@@ -322,14 +365,7 @@ C...initialize the deposition array before processing clouds
       MDATE = JDATE
       MTIME = JTIME
 
-      VNAME = 'DENS'
-
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, DENS ) ) THEN
-        XMSG = 'Could not interpolate DENS'
-        CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENS', mdate, mtime, DENS)
 
 C...convert units on cgrid to molar mixing ratio (by volume)
 C...  determine no. of moles of gas per moles of air by volume
@@ -338,8 +374,8 @@ C...  determine no. of moles of gas per moles of air by volume
       FINI = GC_STRT + N_GC_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6,  1.0E-36 )
             END DO
@@ -355,8 +391,8 @@ C...  convert to moles of aerosol per mole of air by volume
       DO VAR = STRT, FINI
         SPC = QAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( SPC - AE_STRT + 1 )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
@@ -373,8 +409,8 @@ C...    convert to # per mole of air by volume
       DO VAR = STRT, FINI
         SPC = NAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV3 / DENS( COL, ROW, LAY )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
@@ -391,8 +427,8 @@ C...    convert to m2 per mole of air by volume
       DO VAR = STRT, FINI
         SPC = SAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV2 / DENS( COL, ROW, LAY )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
@@ -407,8 +443,8 @@ C...determine no. of moles of non-reactive gas per moles of air by volume
       FINI = NR_STRT + N_NR_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6, 1.0E-36 )
             END DO
@@ -422,8 +458,8 @@ C...determine no. of moles of tracer gas per moles of air by volume
       FINI = TR_STRT + N_TR_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6, 1.0E-36 )
             END DO
@@ -431,15 +467,59 @@ C...determine no. of moles of tracer gas per moles of air by volume
         END DO
       END DO
 
+
+#ifdef isam
+c ISAM  unit conversion
+      DO SPC = 1, NSPC_SA
+        VAR = SPC_INDEX(SPC,2)
+        IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
+          DO ITAG = 1, NTAG_SA
+            DO LAY = 1, NLAYS
+              DO ROW = 1, NROWS
+                DO COL = 1, NCOLS
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM(COL,ROW,LAY,SPC,ITAG ) * 1.0E-6
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM( COL,ROW,LAY,SPC, ITAG ), 1.0E-36 )
+                END DO
+              END DO
+            END DO
+          END DO
+        ELSE ! this is an aerosol
+          DO ITAG = 1, NTAG_SA
+            DO LAY = 1, NLAYS
+              DO ROW = 1, NROWS
+                DO COL = 1, NCOLS
+                  FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( VAR - AE_STRT + 1 )
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * FAC
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM(COL,ROW,LAY,SPC, ITAG ), 1.0E-30 )
+                END DO
+              END DO
+            END DO
+          END DO
+        ENDIF
+      END DO
+#endif
+
 C...compute cloud effects for the resolved clouds and resolved rainwater
 
+#ifdef isam
+      CALL RESCLD ( CGRID, JDATE, JTIME, TSTEP,
+     &              N_SPC_WDEP, WDEP_MAP, TOT_DEP, RESTRANS,
+     &              TOT_SADEP  )
+#else
       CALL RESCLD ( CGRID, JDATE, JTIME, TSTEP,
      &              N_SPC_WDEP, WDEP_MAP, TOT_DEP, RESTRANS )
+#endif
 
 C...compute cloud effects for convective (subgrid) clouds
 
+#ifdef isam
+      CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+     &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS,
+     &                   CONV_SADEP )
+#else
       CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
      &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
+#endif
 
 C...now check to see if it's time to write the deposition file
       WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
@@ -450,16 +530,16 @@ C...now check to see if it's time to write the deposition file
         WSTEP = 0
 
         DO VAR = 1, N_SPC_WDEP + 1
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               TOT_DEP( COL, ROW, VAR ) = TOT_DEP ( COL, ROW, VAR )
      &                                 + CONV_DEP( COL, ROW, VAR )
             END DO
           END DO
         END DO
 
-        DO ROW = 1, MY_NROWS
-          DO COL = 1, MY_NCOLS
+        DO ROW = 1, NROWS
+          DO COL = 1, NCOLS
             VAR = N_SPC_WDEP + 8 + 1
             CONV_DEP( COL, ROW, VAR ) = SUBTRANS( COL, ROW, 1 )
             VAR = VAR + 1
@@ -475,6 +555,20 @@ C...now check to see if it's time to write the deposition file
 
         RESTRANS = 1.0
         SUBTRANS = 1.0
+
+#ifdef isam
+Ckrt Sum up the wetdep from both resolved and convective clouds
+Ckrt  for the tagged species as well....
+        DO SPC = 1, N_SPCTAG
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
+              TOT_SADEP( COL,ROW,S_SPCTAG( SPC ),T_SPCTAG( SPC ) ) =
+     &        TOT_SADEP( COL,ROW,S_SPCTAG( SPC ),T_SPCTAG( SPC ) ) +
+     &       CONV_SADEP( COL,ROW,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+            END DO ! col
+          END DO ! row
+        END DO ! n_spctag
+#endif
 
 C...write data to the normal wet deposition file
 
@@ -509,6 +603,27 @@ C...reinitialize deposition array
         TOT_DEP  = 0.0
         CONV_DEP = 0.0
 
+#ifdef isam
+        BUFF2 = 0.0
+        DO SPC = 1, N_SPCTAG
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
+              BUFF2( COL,ROW ) = TOT_SADEP( COL,ROW,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+            END DO ! col
+          END DO ! row
+          IF ( .NOT. WRITE3( SA_WD_1, VNAM_SPCTAG( SPC ),
+     &                       NDATE, NTIME, BUFF2 ) ) THEN
+            XMSG = 'Could not write ' // SA_WD_1 // ' file'
+            CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+          END IF
+       END DO ! n_spctag
+
+       TOT_SADEP  = 0.0
+       CONV_SADEP = 0.0
+#endif
+
+
+
       END IF   ! time to write
 
 C...convert units on cgrid back to original units
@@ -518,8 +633,8 @@ C...  convert to ppmV gas
       FINI = GC_STRT + N_GC_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
             END DO
@@ -534,8 +649,8 @@ C...convert to ug/m3 of aerosol mass
       DO VAR = STRT, FINI
         SPC = QAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV1I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
      &                                    * AE_MOLWT( SPC - AE_STRT + 1 )
@@ -551,8 +666,8 @@ C...convert to #/m3 of aerosol number
       DO VAR = STRT, FINI
         SPC = NAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV3I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
             END DO
@@ -567,8 +682,8 @@ C...convert to m2/m3 of aerosol surface area
       DO VAR = STRT, FINI
         SPC = SAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV2I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
             END DO
@@ -582,8 +697,8 @@ C...convert to ppmV non-reactive gas
       FINI = NR_STRT + N_NR_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
             END DO
@@ -597,14 +712,43 @@ C...convert to ppmV tracer gas
       FINI = TR_STRT + N_TR_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
             END DO
           END DO
         END DO
       END DO
+
+#ifdef isam
+c ISAM  unit conversion
+      DO SPC = 1, NSPC_SA
+        VAR = SPC_INDEX(SPC,2)
+        IF ( VAR .LE. N_GC_SPC .OR. VAR .GE. NR_STRT ) THEN ! this is not an aerosol
+          DO ITAG = 1, NTAG_SA
+            DO LAY = 1, NLAYS
+              DO ROW = 1, NROWS
+                DO COL = 1, NCOLS
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * 1.0E+6
+                END DO
+              END DO
+            END DO
+          END DO
+        ELSE ! this is an aerosol
+          DO ITAG = 1, NTAG_SA
+            DO LAY = 1, NLAYS
+              DO ROW = 1, NROWS
+                DO COL = 1, NCOLS
+                  FAC = CNV1I * DENS( COL, ROW, LAY ) * AE_MOLWT( VAR - AE_STRT + 1 )
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * FAC
+                END DO
+              END DO
+            END DO
+          END DO
+        ENDIF
+      END DO
+#endif
 
       RETURN
 

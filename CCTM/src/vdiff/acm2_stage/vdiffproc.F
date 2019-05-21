@@ -78,6 +78,7 @@ C                     to open CTM_DRY_DEP_1, CTM_VSED_DIAG, CTM_VDIFF_DIAG,
 C                     CTM_DRY_DEP_MOS, and CTM_DRY_DEP_FST
 C 03 Mar 16 G.Sarwar: updated for halogen emissions
 C 16 Sep 16 J.Young: update for inline procan (IPR)
+C 10 Feb 19 D.Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -149,18 +150,13 @@ C Local Variables:
       REAL     :: SEDDY ( NLAYS,NCOLS,NROWS )   ! flipped EDDYV
       REAL        DTSEC                         ! model time step in seconds
 
-      REAL     :: NH3_EMIS( NCOLS,NROWS )
-
       REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
-      INTEGER, SAVE :: NH3_HIT
 
 C Local Variables
 
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
-      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_EMIS'
-      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_DDEP = 'NH3_DDEP'
 
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
@@ -205,6 +201,8 @@ C-----------------------------------------------------------------------
 
          FIRSTIME = .FALSE.
 
+         CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange Module" )
+
          IF ( .NOT. DEPV_INIT ( JDATE, JTIME, TSTEP, CGRID ) ) THEN
             XMSG = 'Failure initializing deposition velocities module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -219,14 +217,22 @@ C create global maps
 C Initialize the met data
          CALL INIT_MET( JDATE, JTIME )
 
-        IF ( HGBIDI ) THEN ! Initialize HGSIM module
-           CALL INIT_HGSIM(JDATE, JTIME)
-        END IF
+         IF ( HGBIDI ) THEN ! Initialize HGSIM module
+            CALL INIT_HGSIM(JDATE, JTIME)
+         END IF
 
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
             CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
             IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
+         END IF
+
+C Open vdiff diagnostics file (ioapi header from cgrd)
+         IF ( VDIFFDIAG ) THEN
+            IF ( .NOT. VDIFF_DIAG_INIT ( JDATE, JTIME, TSTEP( 1 ), GRAV_SETL ) ) THEN
+               XMSG = 'Failure initializing vdiff diagnostics module'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
          END IF
 
 C Allocate and initialize dry deposition array
@@ -245,6 +251,8 @@ C Allocate and initialize dry deposition array
          END IF
          ICMP = 0.0   ! array assignment
 
+         CALL LOG_HEADING( LOGDEV, "Initialize Emissions Module" )
+
          IF ( .NOT. EMIS_INIT ( JDATE, JTIME, TSTEP( 1 ) ) ) THEN
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -252,6 +260,8 @@ C Allocate and initialize dry deposition array
 
 C Set up for process analysis
          IF ( LIPR ) THEN
+            CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
+
             ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_SPC_DIFF ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'EMIS_PA memory allocation failed'
@@ -266,6 +276,8 @@ C Set up for process analysis
 
 C Set up for grav. settling
          IF ( GRAV_SETL ) THEN
+            CALL LOG_HEADING( LOGDEV, "Set Up Gravitational Settling" )
+
             ALLOCATE ( VSED_AE( N_AE_SPC,NLAYS,NCOLS,NROWS ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating VSED_AE'
@@ -281,12 +293,7 @@ C Set up for grav. settling
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          CNGRD = 0.0   ! array assignment
-
-         NH3_HIT = 0
-         DO V = 1, N_SPC_DDEP
-            IF ( DDEP_SPC( V ) .EQ. 'NH3' ) NH3_HIT = V
-         END DO
- 
+       
 !----------------------------------------------------------------------------------------
 !  Move to ASX driver to get stage data set up mapping in init_stage
 !----------------------------------------------------------------------------------------
@@ -343,8 +350,8 @@ C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_DIFF
             DO L = 1, EMLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      EMIS_PA( C,R,L,S ) = VDEMIS_DIFF( S,L,C,R )
                   END DO
                END DO
@@ -359,14 +366,14 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 
       DO L = 1, NLAYS
          LRDX3M = Grid_Data%RDX3M( L )
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                FCJACMF( C,R,L ) = LRDX3M * Met_Data%RJACM( C,R,L ) * Met_Data%RJACF( C,R,L )
             END DO
          END DO
       END DO
-      DO R = 1, MY_NROWS
-         DO C = 1, MY_NCOLS
+      DO R = 1, NROWS
+         DO C = 1, NCOLS
             FCMSF = Grid_Data%RMSFX4( C,R )
             DO L = 1, NLAYS
                SEDDY( L,C,R ) = FCMSF * FCJACMF( C,R,L ) * EDDYV( C,R,L )
@@ -377,7 +384,6 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
          ICMP = 0.0                      ! array assignment
-         DDEP_NH3 = 0.0
          IF ( MOSAIC ) THEN
             DDEPJ = 0.0                  ! array assignment
             IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
@@ -402,16 +408,16 @@ C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual 
       IF ( VDIFFDIAG ) THEN
          NTICS = NTICS + 1
          NLPCR_SUM = NLPCR_SUM + NLPCR_MEAN    ! array assignment
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                NLPCR_MAX( C,R ) = MAX( NLPCR_MEAN( C,R ), NLPCR_MAX( C,R ) )
                NLPCR_MIN( C,R ) = MIN( NLPCR_MEAN( C,R ), NLPCR_MIN( C,R ) )
             END DO
          END DO
          IF ( GRAV_SETL ) THEN
             DTCCR_SUM = DTCCR_SUM + DTCCR_MEAN    ! array assignment
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   DTCCR_MAX( C,R ) = MAX( DTCCR_MEAN( C,R ), DTCCR_MAX( C,R ) )
                   DTCCR_MIN( C,R ) = MIN( DTCCR_MEAN( C,R ), DTCCR_MIN( C,R ) )
                END DO
@@ -458,8 +464,8 @@ C If last call this hour:  write accumulated depositions:
 
          DO V = 1, N_SPC_DDEP
             S = DD2DV( V )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   WRDD( C,R ) = DDEP( S,C,R )
                END DO
             END DO
@@ -493,8 +499,8 @@ C Write vdiff diagnostics
                DO V = 1, N_VSED
                   S = VSED_MAP( V )
                   DO L = 1, NLAYS
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            VSED_BUF( C,R,L,V ) = VSED_AE( S,L,C,R )
                         END DO
                      END DO
@@ -557,8 +563,8 @@ C Write other diagnostics
             END IF
 
             CNVCT = 0.0   ! array assignment
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   IF ( Met_Data%CONVCT( C,R ) ) CNVCT( C,R ) = 1.0
                END DO
             END DO
@@ -586,8 +592,8 @@ C Write other diagnostics
             DO V = 1, N_SPC_DDEP
                S = DD2DV( V )
                WRDD = 0.0 ! reuse array since it has already been written for hour
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DO J = 1, N_LUFRAC
                         WRDD( C,R ) = WRDD( C,R ) + DDEPJ( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
                         WRDDJ( C,R,J ) = DDEPJ( J,S,C,R )
@@ -613,8 +619,8 @@ C Write other diagnostics
                DO V = 1, N_SPC_DDEP
                   S = DD2DV( V )
                   WRDD = 0.0 ! reuse array since it has already been written for hour
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DO J = 1, N_LUFRAC
                            WRDD( C,R ) = WRDD( C,R ) + DDEPJ_FST( J,S,C,R ) * Grid_Data%LUFRAC( C,R,J )
                            WRDDJ_FST( C,R,J ) = DDEPJ_FST( J,S,C,R )
@@ -652,8 +658,8 @@ C Write other diagnostics
  
          IF ( LIPR ) THEN
             DO V = 1, N_SPC_DEPV
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DDEP_PA( C,R,V ) = DDEP( V,C,R )
                   END DO
                END DO

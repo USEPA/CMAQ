@@ -16,6 +16,9 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+! Revision history: 01 Feb, 19 D. Wong: Implemented centralized I/O approach, 
+!                                       removed all MY_N clauses
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       MODULE PHOT_MET_DATA
@@ -44,9 +47,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          REAL, ALLOCATABLE :: ACM_CLOUDS ( :,: )   ! subgrid cloud fractions averaged over cloudy layer
          REAL, ALLOCATABLE :: ACM_AVE_H2O( :,: )   ! subgrid cloud water content averaged over cloudy layer, [g/m3]
 
-         REAL, ALLOCATABLE :: LAT          ( :,: ) ! north lat in deg (cross pt.)
-         REAL, ALLOCATABLE :: LON          ( :,: ) ! west long in deg (cross pt.)
-         REAL, ALLOCATABLE :: HT           ( :,: ) ! ground elevation msl (meters)
          REAL, ALLOCATABLE :: COSINE_ZENITH( :,: ) ! cosine of solar zenith angle
            
          REAL, ALLOCATABLE :: DENS   ( :,:,: )     ! air density [Kg/m **3]
@@ -62,7 +62,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &             CFRAC_2D, CFRAC_3D, AVE_HYDROMETEORS,
      &             USE_ACM_CLOUD, ACM_CFRAC, ACM_QC, ACM_QR, ACM_QI, ACM_QG,
      &             ACM_CLOUDS, ACM_AVE_H2O,
-     &             LAT, LON, HT, COSINE_ZENITH,
+     &             COSINE_ZENITH,
      &             DENS, TA, PRES, ZM, ZFULL, DIST_TO_SUN
 
 ! public procedures:
@@ -81,13 +81,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          REAL, ALLOCATABLE :: DELTA_Z( :,:,: )     ! layer thickness [m]
 
 ! flags for hydrometeors available on file:
-         LOGICAL           :: QV_AVAIL       = .TRUE.   ! QV (vapor)
-         LOGICAL           :: QC_AVAIL       = .TRUE.   ! QC (liquid)
-         LOGICAL           :: QR_AVAIL       = .TRUE.   ! QR (rain)
-         LOGICAL           :: QI_AVAIL       = .TRUE.   ! QI (ice)
-         LOGICAL           :: QS_AVAIL       = .TRUE.   ! QS (snow)
-         LOGICAL           :: QG_AVAIL       = .TRUE.   ! QG (graupel)
-         LOGICAL           :: CFRAC_3D_AVAIL = .TRUE.   ! CFRAC_3D
+!        LOGICAL           :: QV_AVAIL       = .TRUE.   ! QV (vapor)
+!        LOGICAL           :: QC_AVAIL       = .TRUE.   ! QC (liquid)
+!        LOGICAL           :: QR_AVAIL       = .TRUE.   ! QR (rain)
+!        LOGICAL           :: QI_AVAIL       = .TRUE.   ! QI (ice)
+!        LOGICAL           :: QS_AVAIL       = .TRUE.   ! QS (snow)
+!        LOGICAL           :: QG_AVAIL       = .TRUE.   ! QG (graupel)
+!        LOGICAL           :: CFRAC_3D_AVAIL = .TRUE.   ! CFRAC_3D
 
          LOGICAL           :: FIRSTIME = .TRUE. ! flag for first pass thru
 
@@ -104,10 +104,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
           
          INTEGER           :: GXOFF, GYOFF      ! global origin offset from file
 
-C grid offsets for INTERPX to MET_CRO_3D, METCRO_CRO_2D files
-         INTEGER           :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-         INTEGER           :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-          
          REAL, ALLOCATABLE :: SINLATS( :,: ) ! sine of latitude
          REAL, ALLOCATABLE :: COSLATS( :,: ) ! cosine of latitude
          REAL              :: STRTHR         ! starting GMT hour
@@ -121,6 +117,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE UTILIO_DEFN
+         USE CENTRALIZED_IO_MODULE
 
          IMPLICIT NONE
 
@@ -137,7 +134,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !...........Local:
          INTEGER               :: COL       ! column loop counter
          INTEGER               :: ROW       ! row loop counter
-         INTEGER               :: VAR       ! variable name array index
          INTEGER               :: ASTAT     ! memory allocation status
 
          CHARACTER( 16 )       :: PNAME = 'INIT_PHOT_MET' 
@@ -148,58 +144,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
        
          INITIALIZED = .TRUE.
        
-! open GRID_CRO_3D file and read time independent grid variables
-        
-         IF ( .NOT. OPEN3( GRID_CRO_2D, FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open '// GRID_CRO_2D // ' file'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-     
-         ALLOCATE ( HT( NCOLS,NROWS ), STAT = ASTAT )
-         IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating HT'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         ALLOCATE ( LAT( NCOLS,NROWS ), STAT = ASTAT )
-         IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating LAT'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-       
-         ALLOCATE ( LON( NCOLS,NROWS ), STAT = ASTAT )
-         IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating SINLON'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         VARNM = 'HT'
-         IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                       1,1, JDATE, JTIME, HT ) ) THEN
-            XMSG = 'Could not read ' // TRIM(VARNM) // ' from ' // GRID_CRO_2D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         VARNM = 'LON'
-         IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                       1,1, JDATE, JTIME, LON ) ) THEN
-            XMSG = 'Could not read ' // TRIM(VARNM) // ' from ' // GRID_CRO_2D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         VARNM = 'LAT'
-         IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                       1,1, JDATE, JTIME, LAT ) ) THEN
-            XMSG = 'Could not read ' // TRIM(VARNM) // ' from ' // GRID_CRO_2D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
 ! set up variables for calculating cosine of solar zenith angle
 
          ALLOCATE ( SINLATS( NCOLS,NROWS ), STAT = ASTAT )
@@ -214,8 +158,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+         DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
                 SINLATS( COL,ROW ) = SIN( PI180 * LAT ( COL,ROW ) )
                 COSLATS( COL,ROW ) = COS( PI180 * LAT ( COL,ROW ) )
              END DO
@@ -227,37 +171,9 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-! open MET_CRO_2D and set its offsets
-
-         IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open '// MET_CRO_2D // ' file'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-
-
          ALLOCATE ( CFRAC( NCOLS,NROWS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating CFRAC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-!...open MET_CRO_3D and set its offsets
-
-         IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
-            XMSG = 'Could not open '// MET_CRO_3D // ' file'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-!...get description from the met file
-
-         IF ( .NOT. DESC3( MET_CRO_3D ) ) THEN
-            XMSG = 'Could not get ' // MET_CRO_3D //' file description'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
@@ -321,16 +237,9 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 ! For WRF/MCIP: if GQ is available, all hydrometeors are available
 !               else if QI or QS is available, QC and QR are available
 
-         VAR = INDEX1( 'QG', NVARS3D, VNAME3D )
-         IF ( VAR .NE. 0 ) THEN   ! all hydrometeors are available
-            QG_AVAIL = .TRUE.
-            QI_AVAIL = .TRUE.
-            QS_AVAIL = .TRUE.
+         IF ( QG_AVAIL ) THEN
             HYDROMETEORS = 3
          ELSE
-            QG_AVAIL = .FALSE.
-            XMSG = 'QG (graupel) not found on ' // MET_CRO_3D
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             WRITE( LOGDEV, '(3(/10X,A),(/10X,3(A,1X)),(/10X,A))' )
      &           'YOU SHOULD VERIFY that the cloud microphysics scheme used',
      &           'in the Meteorological Model did not include graupel.  If',
@@ -340,17 +249,9 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &           'errors in the photolysis simulation.'
             WRITE( LOGDEV, '((/5X,A),/)' )
      &           'Processing will continue with QG set to ZERO.  <<--<<'
-
-            VAR = INDEX1( 'QI', NVARS3D, VNAME3D )
-            IF ( VAR .NE. 0 ) THEN   ! all hydrometeors except graupel are available
-               QI_AVAIL = .TRUE.
-               QS_AVAIL = .TRUE.
+            IF ( QI_AVAIL ) THEN
                HYDROMETEORS = 2
             ELSE
-               QI_AVAIL = .FALSE.
-               QS_AVAIL = .FALSE.
-                  XMSG = 'QI, QS (cloud ice, snow) not found on ' // MET_CRO_3D
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                WRITE( LOGDEV, '(3(/10X,A),(/10X,3(A,1X)),(/10X,A))' )
      &              'YOU SHOULD VERIFY that the cloud microphysics scheme used',
      &              'in the Meteorological Model did not include ice/snow.  If',
@@ -389,9 +290,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             SET_ACM_ARRAYS = .FALSE.
          END IF
 
-         VAR = INDEX1( 'CFRAC_3D', NVARS3D, VNAME3D )
-         IF ( VAR .EQ. 0 ) THEN
-            CFRAC_3D_AVAIL = .FALSE.
+         IF ( .NOT. CFRAC_3D_AVAIL ) THEN
             XMSG = 'Variable CFRAC_3D (cloud fraction) not found in ' // MET_CRO_3D
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
             WRITE( LOGDEV, * )
@@ -450,6 +349,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE UTILIO_DEFN         ! IO routines & utilties
+         USE CENTRALIZED_IO_MODULE
 
          IMPLICIT NONE
 
@@ -498,137 +398,65 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !...  Interpolate time dependent layered input variables
 
          VARNM = 'ZH' ! midlayer height
-         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                       1,NLAYS, MDATE, MTIME, ZM ) ) THEN
-            XMSG = 'Could not read ' // TRIM( VARNM ) // ' from ' // MET_CRO_3D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (VARNM, mdate, mtime, ZM)
 
          VARNM = 'ZF' ! full layer height
-         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                       1,NLAYS, MDATE, MTIME, ZFULL ) ) THEN
-            XMSG = 'Could not read ' // TRIM( VARNM ) // ' from ' // MET_CRO_3D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (VARNM, mdate, mtime, ZFULL)
 
 !...Get air density (kg/m3)
 
          VARNM = 'DENS'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                       MDATE, MTIME, DENS ) ) THEN
-            XMSG = 'Could not read ' // TRIM( VARNM ) // ' from ' // MET_CRO_3D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (VARNM, mdate, mtime, DENS)
 
 !...get temperature [K]
 
          VARNM = 'TA'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-     &                       1,NLAYS, MDATE, MTIME, TA ) ) THEN
-            XMSG = 'Could not interpolate '// TRIM( VARNM ) // ' from MET_CRO_3D '
-            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
-
+         call interpolate_var (VARNM, mdate, mtime, TA)
+ 
 !...pressure [Pa]
 
          VARNM = 'PRES'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                       STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3,
-     &                       1, NLAYS, MDATE, MTIME, PRES ) ) THEN
-            XMSG = 'Could not read ' // TRIM( VARNM ) // ' from ' // MET_CRO_3D
-            CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (VARNM, mdate, mtime, PRES)
 
 !...Get resolved cloud fractions
 
          VARNM = 'CFRAC'
-         IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2,
-     &                       1,1, MDATE, MTIME, CFRAC ) ) THEN
-            XMSG = 'Could not read ' // TRIM( VARNM ) // ' from ' // GRID_CRO_2D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (VARNM, mdate, mtime, CFRAC)
 
 !...Get resolved water vapor mixing ratio (kg H2O / kg air)
 
          VARNM = 'QV'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                       MDATE, MTIME, QV ) ) THEN
-            XMSG = 'Could not read QV from ' // MET_CRO_3D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
+         call interpolate_var (VARNM, mdate, mtime, QV)
 
 !...Get resolved cloud water mixing ratio (kg H2O / kg air)
          VARNM = 'QC'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                       MDATE, MTIME, QC ) ) THEN
-            XMSG = 'Could not read QC from ' // MET_CRO_3D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (VARNM, mdate, mtime, QC)
 
 !...Get resolved rain water mixing ratio (kg H2O / kg air)
          VARNM = 'QR'
-         IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                       MDATE, MTIME, QR ) ) THEN
-            XMSG = 'Could not read QR from ' // MET_CRO_3D
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (VARNM, mdate, mtime, QR)
 
          IF ( QG_AVAIL ) THEN
 !...read resolved graupel and the other hydrometeor mixing ratios (kg H2O / kg air)
 !...from the met file if available
             VARNM = 'QG'
-            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                          MDATE, MTIME, QG ) ) THEN
-               XMSG = 'Could not read QG from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var (VARNM, mdate, mtime, QG)
 
 !...read resolved ice and snow mixing ratios (kg H2O / kg air)
             VARNM = 'QI'
-            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                          MDATE, MTIME, QI ) ) THEN
-               XMSG = 'Could not read QI from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var (VARNM, mdate, mtime, QI)
 
             VARNM = 'QS'
-            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                          MDATE, MTIME, QS ) ) THEN
-               XMSG = 'Could not read QS from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var (VARNM, mdate, mtime, QS)
 
          ELSE IF ( QI_AVAIL ) THEN
 !...read resolved ice and snow mixing ratios (kg H2O / kg air) from the met
 !...from the met file if available
             VARNM = 'QI'
-            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                          MDATE, MTIME, QI ) ) THEN
-               XMSG = 'Could not read QI from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
+            call interpolate_var (VARNM, mdate, mtime, QI)
 
             VARNM = 'QS'
-            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                          MDATE, MTIME, QS ) ) THEN
-               XMSG = 'Could not read QS from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var (VARNM, mdate, mtime, QS)
 
          END IF
          
@@ -636,8 +464,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          IF ( QG_AVAIL ) THEN
             DO LAY = 1, NLAYS
-               DO ROW = 1, MY_NROWS
-                  DO COL = 1, MY_NCOLS
+               DO ROW = 1, NROWS
+                  DO COL = 1, NCOLS
                      QC( COL,ROW,LAY ) = MAX( QC( COL,ROW,LAY ), 0.0 )
                      QR( COL,ROW,LAY ) = MAX( QR( COL,ROW,LAY ), 0.0 )
                      QI( COL,ROW,LAY ) = MAX( QI( COL,ROW,LAY ), 0.0 )
@@ -648,8 +476,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             END DO
          ELSE IF ( QI_AVAIL ) THEN
             DO LAY = 1, NLAYS
-               DO ROW = 1, MY_NROWS
-                  DO COL = 1, MY_NCOLS
+               DO ROW = 1, NROWS
+                  DO COL = 1, NCOLS
                      QC( COL,ROW,LAY ) = MAX( QC( COL,ROW,LAY ), 0.0 )
                      QR( COL,ROW,LAY ) = MAX( QR( COL,ROW,LAY ), 0.0 )
                      QI( COL,ROW,LAY ) = MAX( QI( COL,ROW,LAY ), 0.0 )
@@ -659,8 +487,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             END DO
          ELSE
             DO LAY = 1, NLAYS
-               DO ROW = 1, MY_NROWS
-                  DO COL = 1, MY_NCOLS
+               DO ROW = 1, NROWS
+                  DO COL = 1, NCOLS
                      QC( COL,ROW,LAY ) = MAX( QC( COL,ROW,LAY ), 0.0 )
                      QR( COL,ROW,LAY ) = MAX( QR( COL,ROW,LAY ), 0.0 )
                   END DO
@@ -668,8 +496,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             END DO
          END IF
 
-         DO ROW = 1, MY_NROWS 
-            DO COL = 1, MY_NCOLS
+         DO ROW = 1, NROWS 
+            DO COL = 1, NCOLS
                DELTA_Z( COL,ROW,1 ) = ZFULL( COL,ROW,1 )
                FORALL ( LAY = 2:NLAYS )
                   DELTA_Z( COL,ROW,LAY ) = ZFULL( COL,ROW,LAY ) - ZFULL( COL,ROW,LAY-1 )
@@ -679,13 +507,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          IF ( CFRAC_3D_AVAIL ) THEN  ! read from file
             VARNM = 'CFRAC_3D'
-            IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                          MDATE, MTIME, CFRAC_3D ) ) THEN
-              XMSG = 'Could not read CFRAC_3D from ' // MET_CRO_3D
-              CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
+            call interpolate_var (VARNM, mdate, mtime, CFRAC_3D)
+ 
          ELSE  ! diagnose CFRAC_3D from available data
 
             CALL CAL_CFRAC_3D()
@@ -694,8 +517,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 ! compute averages for resolved cloud                
 
-         DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+         DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
                SUM_WEIGHTS = 0.0
                CFRAC_2D( COL,ROW ) = 1.0
                AVE_HYDROMETEORS( COL,ROW ) = 0.0
@@ -731,8 +554,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          END DO
 
          IF ( USE_ACM_CLOUD ) THEN ! compute averages for subgrid clouds                
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
+            DO ROW = 1, NROWS
+               DO COL = 1, NCOLS
                   SUM_WEIGHTS  = 0.0
 !                 ACM_CLOUDS( COL,ROW )  = 0.0
                   ACM_AVE_H2O( COL,ROW ) = 0.0
@@ -766,6 +589,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE UTILIO_DEFN         ! IO routines & utilties
+         USE CENTRALIZED_IO_MODULE
   
          IMPLICIT NONE     
           
@@ -814,8 +638,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          CALL SOLEFM3 ( JYEAR, JDAY, EQUATION_OF_TIME, SINDEC, COSDEC, DIST_TO_SUN )
         
-         DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+         DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
 
 !...correct  CURRHR for current *positive* West longitude convention
 !...to obtain LST.
@@ -1102,6 +926,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE UTILIO_DEFN         ! IO routines & utilties
+         USE CENTRALIZED_IO_MODULE
 
          IMPLICIT NONE
 
@@ -1188,8 +1013,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          
          IF ( QG_AVAIL ) THEN
             DO K = 1, NLAYS
-               DO J = 1, MY_NROWS
-                  DO I = 1, MY_NCOLS
+               DO J = 1, NROWS
+                  DO I = 1, NCOLS
                      QCLD(I,J,K) = QC(I,J,K) + QI(I,J,K) + QS(I,J,K) + QG(I,J,K)
                      IF ( QCLD(I,J,K) .GE. QCLDMIN ) THEN
                         WEIGHT(I,J,K) = ( QI(I,J,K) + QS(I,J,K) + QG(I,J,K) ) / QCLD(I,J,K)
@@ -1201,8 +1026,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             END DO
          ELSE IF ( QI_AVAIL ) THEN
             DO K = 1, NLAYS
-               DO J = 1, MY_NROWS
-                  DO I = 1, MY_NCOLS
+               DO J = 1, NROWS
+                  DO I = 1, NCOLS
                      QCLD(I,J,K) = QC(I,J,K) + QI(I,J,K) + QS(I,J,K)
                      IF ( QCLD(I,J,K) .GE. QCLDMIN ) THEN
                         WEIGHT(I,J,K) = ( QI(I,J,K) + QS(I,J,K) ) / QCLD(I,J,K)
@@ -1214,8 +1039,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             END DO
          ELSE IF ( QC_AVAIL ) THEN
             DO K = 1, NLAYS
-               DO J = 1, MY_NROWS
-                  DO I = 1, MY_NCOLS
+               DO J = 1, NROWS
+                  DO I = 1, NCOLS
                      QCLD(I,J,K) = QC(I,J,K)
                      IF ( QCLD(I,J,K) .GE. QCLDMIN ) THEN
                         IF ( TA(I,J,K) .GT. 273.15 ) WEIGHT(I,J,K) = 0.0
@@ -1231,8 +1056,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          END IF !  IF ( QG_AVAIL )
 
          DO K = 1, NLAYS
-            DO J = 1, MY_NROWS
-               DO I = 1, MY_NCOLS
+            DO J = 1, NROWS
+               DO I = 1, NCOLS
 !--- Determine cloud fraction (modified from original algorithm)
                   IF ( QCLD(I,J,K) .LT. QCLDMIN ) THEN
 !--- Assume zero cloud fraction if there is no cloud mixing ratio
