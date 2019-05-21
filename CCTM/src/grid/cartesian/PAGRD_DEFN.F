@@ -39,6 +39,7 @@ C   J.Young 14 Sep 11: allow default subdomain values
 C   J.Young 28 Jun 16: use PA_DEFN module intead of include files
 C   J.Young 16 Sep 16: update for inline procan
 C   C. Nolte, S. Roselle Sep 18: replace M3UTILIO with UTILIO_DEFN
+C   D.Dwong 01 Feb 19: removed all MY_N clauses
 C.......................................................................
       USE RUNTIME_VARS
 
@@ -193,7 +194,7 @@ C Determine IRR subgrid mapping without data redistribution
      &                  MY_IRR_BEGCOL, MY_IRR_ENDCOL, MY_IRR_BEGROW,
      &                  MY_IRR_ENDROW, MY_IRR_BEGLEV, MY_IRR_ENDLEV, 'N' )
 
-                  X1F0 = ( MY_NCOLS / GL_NCOLS ) * ( MY_NROWS / GL_NROWS )
+                  X1F0 = ( NCOLS / GL_NCOLS ) * ( NROWS / GL_NROWS )
                   IRCOLS = X1F0 * PACOLS + ( 1 - X1F0 ) * NCOLS
                   IRROWS = X1F0 * PAROWS + ( 1 - X1F0 ) * NROWS
                   IRLEVS = PALEVS

@@ -38,6 +38,8 @@ C                         - Based on the condition of MY_NSRC ( > 0 or not) to
 C                           determine execution of certain section of code or not
 C                         - fixed a bug of incorrect assignment:
 C                           PTMET_DATA%LEN1 = EMLAYS, PTMET_DATA%LEN2 = MSRC
+C     01 Feb 2019 D.Wong: - Implemented centralized I/O approach and removed 
+C                           ZSTATIC implementation
 
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
@@ -89,7 +91,8 @@ C-----------------------------------------------------------------------
 
          FUNCTION PTMET_INIT ( ) RESULT ( SUCCESS )
 
-         USE STK_PRMS, ONLY: MY_NSRC
+         USE m3utilio
+         USE STK_PRMS, ONLY: MY_NSRC         
 
          IMPLICIT NONE
 
@@ -164,8 +167,10 @@ C-----------------------------------------------------------------------
          SUBROUTINE PTMET_CONVT( JDATE, JTIME )
 
          USE PTBILIN, B_D => BILIN_DATA   ! rename
-         USE STK_PRMS, ONLY: MY_NSRC, SOURCE, STKHT
+         USE STK_PRMS, ONLY: MY_NSRC, SOURCE
+         USE stack_group_data_module, ONLY: STKHT
          USE BMATVEC_MODULE
+         USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
          IMPLICIT NONE
 
@@ -193,13 +198,13 @@ C-----------------------------------------------------------------------
 
             IF ( MY_NSRC( N ) .GT. 0 ) THEN
 
-               CALL READMC3 ( 'ZH', JDATE, JTIME, XBUF )
+               call interpolate_var ('ZH', jdate, jtime, xbuf, .true.)
                CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%ZH )
+     &                        XBUF, PTMET_DATA( N )%ZH )
 
-               CALL READMC3 ( 'ZF', JDATE, JTIME, XBUF )
+               call interpolate_var ('ZF', jdate, jtime, xbuf, .true.)
                CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                          XBUF, PTMET_DATA( N )%ZF )
+     &                        XBUF, PTMET_DATA( N )%ZF )
 
 C Compute ZSTK, DDZF
 
@@ -209,53 +214,51 @@ C Compute ZSTK, DDZF
      &                        PTMET_DATA( N )%ZSTK,
      &                        PTMET_DATA( N )%DDZF )
 
-
 C Read and transform meteorology:
 
-               CALL READMC2 ( 'HFX', JDATE, JTIME, XBUF )
+               call interpolate_var ('HFX', jdate, jtime, xbuf(:,1))
                CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
      &                       XBUF, PTMET_DATA( N )%HFX )
 
-               CALL READMC2 ( 'PBL', JDATE, JTIME, XBUF )
+               call interpolate_var ('PBL', jdate, jtime, xbuf(:,1))
                CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
      &                       XBUF, PTMET_DATA( N )%HMIX )
 
-!           CALL READMC2 ( 'TEMP1P5', JDATE, JTIME, XBUF )
-               CALL READMC2 ( 'TEMP2', JDATE, JTIME, XBUF )
+               call interpolate_var ('TEMP2', jdate, jtime, xbuf(:,1))
                CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
      &                       XBUF, PTMET_DATA( N )%TSFC )
 
-               CALL READMC2 ( 'USTAR', JDATE, JTIME, XBUF )
+               call interpolate_var ('USTAR', jdate, jtime, xbuf(:,1))
                CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
      &                       XBUF, PTMET_DATA( N )%USTAR )
 
-               CALL READMC2 ( 'PRSFC', JDATE, JTIME, XBUF )
+               call interpolate_var ('PRSFC', jdate, jtime, xbuf(:,1))
                CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
      &                       XBUF, PTMET_DATA( N )%PRSFC )
 
-               CALL READMC3 ( 'TA', JDATE, JTIME, XBUF )
+               call interpolate_var ('TA', jdate, jtime, xbuf, .true.)
                CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
      &                       XBUF, PTMET_DATA( N )%TA )
 
-               CALL READMC3 ( 'QV', JDATE, JTIME, XBUF )
+               call interpolate_var ('QV', jdate, jtime, xbuf, .true.)
                CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
      &                       XBUF, PTMET_DATA( N )%QV )
 
-               CALL READMC3 ( 'PRES', JDATE, JTIME, XBUF )
+               call interpolate_var ('PRES', jdate, jtime, xbuf, .true.)
                CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
      &                       XBUF, PTMET_DATA( N )%PRES )
 
-               CALL READMC3 ( 'DENS', JDATE, JTIME, XBUF )
+               call interpolate_var ('DENS', jdate, jtime, xbuf, .true.)
                CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
      &                       XBUF, PTMET_DATA( N )%DENS )
 
 C UWIND and VWIND are on DOT points (NOT flux points)
 
-               CALL READMD3 ( 'UWIND', JDATE, JTIME, DBUF )
+               call interpolate_var ('UWIND', jdate, jtime, dbuf, .true.)
                CALL BMATVECN( METDGRID, MSRC, EMLAYS, B_D( N )%ND, B_D( N )%CD,
      &                       DBUF, PTMET_DATA( N )%UWIND )
 
-               CALL READMD3 ( 'VWIND', JDATE, JTIME, DBUF )
+               call interpolate_var ('VWIND', jdate, jtime, dbuf, .true.)
                CALL BMATVECN( METDGRID, MSRC, EMLAYS, B_D( N )%ND, B_D( N )%CD,
      &                       DBUF, PTMET_DATA( N )%VWIND )
             END IF ! MY_NSRC( N ) > 0
@@ -263,201 +266,6 @@ C UWIND and VWIND are on DOT points (NOT flux points)
          END DO   ! NPTGRPS
 
          END SUBROUTINE PTMET_CONVT
-
-C-----------------------------------------------------------------------
-
-         SUBROUTINE READMC2 ( VNAME, JDATE, JTIME, XBUF )
-
-            USE PTBILIN, ONLY: XBND, YBND
-            USE UTILIO_DEFN
-
-            IMPLICIT NONE
-
-            INCLUDE SUBST_FILES_ID  ! file name parameters
-
-            CHARACTER( * ) :: VNAME     ! variable name
-            INTEGER           JDATE     ! Julian date
-            INTEGER           JTIME     ! time
-            REAL              XBUF( * ) ! read buffer
-
-            INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-            INTEGER, SAVE   :: STRTCOL, ENDCOL, STRTROW, ENDROW
-
-            INTEGER, SAVE   :: LAY1, LAY2
-            INTEGER            L1
-            CHARACTER( 16 ) :: PNAME = 'READMC2'   ! procedure name
-            CHARACTER( 96 ) :: XMSG = ' '
-            LOGICAL         :: FIRSTIME = .TRUE.
-
-            IF ( FIRSTIME )  THEN
-               FIRSTIME = .FALSE.
-
-               MET_CRO_2D  = MC2NAME
-
-               CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
-
-!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
-               IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
-               IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
-
-               LAY1 = 1; LAY2 = 1
-
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                          STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                          JDATE, JTIME, XBUF ) ) THEN
-
-               L1 = LEN_TRIM( VNAME )
-               XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                ' from MET_CRO_2D'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-            RETURN
-
-         END SUBROUTINE READMC2
-
-C-----------------------------------------------------------------------
-
-         SUBROUTINE READMC3 ( VNAME, JDATE, JTIME, XBUF )
-
-            USE VGRD_DEFN             ! vertical layer specifications
-            USE PTBILIN, ONLY: XBND, YBND
-            USE UTILIO_DEFN
-
-            IMPLICIT NONE
-
-            INCLUDE SUBST_FILES_ID  ! file name parameters
-
-            CHARACTER( * ) :: VNAME     ! variable name
-            INTEGER           JDATE     ! Julian date
-            INTEGER           JTIME     ! time
-            REAL              XBUF( :,: ) ! read buffer
-
-            INTEGER      GXOFF, GYOFF   ! global origin offset from file
-C for INTERPX
-            INTEGER, SAVE   :: STRTCOL, ENDCOL, STRTROW, ENDROW
-
-            INTEGER, SAVE   :: LAY1, LAY2
-            INTEGER            L1
-            CHARACTER( 16 ) :: PNAME = 'READMC3'   ! procedure name
-            CHARACTER( 96 ) :: XMSG = ' '
-            LOGICAL         :: FIRSTIME = .TRUE.
-
-            IF ( FIRSTIME )  THEN
-               FIRSTIME = .FALSE.
-
-               MET_CRO_3D  = MC3NAME
-
-               CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
-
-!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
-               IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
-               IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
-
-!              LAY1 = 1; LAY2 = NLAYS
-               LAY1 = 1; LAY2 = SIZE( XBUF,2 )
-
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                          STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                          JDATE, JTIME, XBUF ) ) THEN
-
-               L1 = LEN_TRIM( VNAME )
-               XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                ' from file MET_CRO_3D'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-            RETURN
-
-         END SUBROUTINE READMC3
-
-C-----------------------------------------------------------------------
-
-         SUBROUTINE READMD3( VNAME, JDATE, JTIME, DBUF )
-
-            USE VGRD_DEFN             ! vertical layer specifications
-            USE PTBILIN, ONLY: XBND, YBND
-            USE UTILIO_DEFN
-
-            IMPLICIT NONE
-
-            INCLUDE SUBST_FILES_ID  ! file name parameters
-
-            CHARACTER( * ) :: VNAME     ! variable name
-            INTEGER           JDATE     ! Julian date
-            INTEGER           JTIME     ! time
-            REAL              DBUF( :,: ) ! read buffer
-
-            INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-            INTEGER, SAVE   :: STRTCOL, ENDCOL, STRTROW, ENDROW
-
-            INTEGER, SAVE   :: LAY1, LAY2
-            INTEGER            L1
-            CHARACTER( 16 ) :: PNAME = 'READMD3'   ! procedure name
-            CHARACTER( 96 ) :: XMSG = ' '
-            LOGICAL         :: FIRSTIME = .TRUE.
-            CHARACTER( 16 ) :: LOC_VNAME
-
-            IF ( FIRSTIME )  THEN
-               FIRSTIME = .FALSE.
-
-               MET_DOT_3D  = MD3NAME
-
-               CALL SUBHFILE ( MET_DOT_3D, GXOFF, GYOFF,
-     &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
-
-!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
-               IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
-               IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
-
-!              LAY1 = 1; LAY2 = NLAYS
-               LAY1 = 1; LAY2 = SIZE( DBUF,2 )
-
-            END IF
-
-            IF ( ( VNAME .EQ. 'UWIND' ) .OR. ( VNAME .EQ. 'VWIND' ) ) THEN
-!cccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
-               IF (       INTERPX( MET_DOT_3D, VNAME, PNAME,
-     &                             STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                             JDATE, JTIME, DBUF ) ) THEN
-               ELSE
-                  XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                   ' from file MET_DOT_3D'
-                  LOC_VNAME = TRIM( VNAME ) // 'C'
-                  IF ( .NOT. INTERPX( MET_DOT_3D, LOC_VNAME, PNAME,
-     &                                STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                                JDATE, JTIME, DBUF ) ) THEN
-                     L1 = LEN_TRIM( LOC_VNAME )
-                     XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                      ' from file MET_DOT_3D'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF
-               END IF 
-            ELSE
-               IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
-     &                             STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                             JDATE, JTIME, DBUF ) ) THEN
-                  L1 = LEN_TRIM( VNAME )
-                  XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                   ' from file MET_DOT_3D'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF 
-            END IF
-
-            RETURN
-
-         END SUBROUTINE READMD3
 
 C-----------------------------------------------------------------------
 

@@ -40,6 +40,7 @@ C  YOJ       05/13 - access met data from VDIFF_MET module
 C  JOB       11/14 - Updated for the ASX_DATA_MOD shared data module which 
 C                    included variables in the VDIFF_MET module.
 C  HF        07/15 - Included pleim5 formulation. 
+C  David Wong 02/19 - removed all MY_N clauses
 C--------------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal domain specifications
@@ -105,8 +106,8 @@ C-----------------------------------------------------------------------
       MEDDYV = 0.0
 
       DO 233 L = 1, NLAYS-1
-      DO 222 R = 1, MY_NROWS
-      DO 211 C = 1, MY_NCOLS
+      DO 222 R = 1, NROWS
+      DO 211 C = 1, NCOLS
          HPBL = MAX( Met_Data%PBL( C,R ), 20.0 )
          ZFL = Met_Data%ZF( C,R,L )
          KZM = Met_Data%KZMIN( C,R,L )
@@ -223,8 +224,8 @@ C Capture the col, row, lvl, and EDDYV for the global min DT
      &        / 5X, 'and pot. temps. in layer and layer+1:', 2(1PG13.5) )
       WRITE( LOGDEV,* ) '    '
 
-      DO R = 1, MY_NROWS
-         DO C = 1, MY_NCOLS
+      DO R = 1, NROWS
+         DO C = 1, NCOLS
             EDDYV( C,R,NLAYS ) = 0.0
          END DO
       END DO

@@ -27,7 +27,11 @@ C  PRECONDITIONS: For the RACM2_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
+<<<<<<< HEAD
 C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
+=======
+C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
+>>>>>>> master
 C
 C***********************************************************************
       USE HRDATA

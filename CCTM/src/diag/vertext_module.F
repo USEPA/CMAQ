@@ -47,6 +47,7 @@ C   Create the IO/API netCDF header and open the output VEXT file
 C Revision history:
 C   24 Nov 17 B.Henderson: copied from OPCONC.
 C   09 Jan 18 D.Wong: put in parallel implementation
+C   01 Feb 19 D.Wong: removed USE ALLOC_DATA_MODULE clause
 C-----------------------------------------------------------------------
 
          USE GRID_CONF
@@ -392,7 +393,6 @@ C             where C = WR_COLSX_PE(2,MY_PE+1), R = WR_ROWSX_PE(2,MY_PE+1).
 C-----------------------------------------------------------------------
 
          USE PIOMAPS_MODULE
-         USE ALLOC_DATA_MODULE
          USE M3UTILIO, ONLY : WRITE3              ! i/o api
 
          IMPLICIT NONE

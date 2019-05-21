@@ -29,7 +29,11 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
+<<<<<<< HEAD
 C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
+=======
+C  REVISION HISTORY: Created by EBI solver program, Feb 27, 2019
+>>>>>>> master
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files

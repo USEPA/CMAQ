@@ -27,7 +27,11 @@ C  PRECONDITIONS: For the CB6R3_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
+<<<<<<< HEAD
 C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
+=======
+C  REVISION HISTORY: Created by EBI solver program, Apr  3, 2019
+>>>>>>> master
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -97,8 +101,6 @@ c...Allocatable arrays
       REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
       REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
 
-      REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
-      REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
       LOGICAL, ALLOCATABLE   :: LFLAGIRR    ( :,:,: )     ! Conduct IRR for cell
 
@@ -219,6 +221,7 @@ c..Species indices
       INTEGER, PARAMETER :: ACLI             =  105
       INTEGER, PARAMETER :: ACLJ             =  106
       INTEGER, PARAMETER :: ACLK             =  107
+<<<<<<< HEAD
       INTEGER, PARAMETER :: AISO3J           =  108
       INTEGER, PARAMETER :: AGLYJ            =  109
       INTEGER, PARAMETER :: MTNO3            =  110
@@ -257,5 +260,43 @@ c..Species indices
       INTEGER, PARAMETER :: HG               =  143
       INTEGER, PARAMETER :: HGIIAER          =  144
       INTEGER, PARAMETER :: HGIIGAS          =  145
+=======
+      INTEGER, PARAMETER :: IEPOXP           =  108
+      INTEGER, PARAMETER :: ASO4J            =  109
+      INTEGER, PARAMETER :: AISO3J           =  110
+      INTEGER, PARAMETER :: AGLYJ            =  111
+      INTEGER, PARAMETER :: MTNO3            =  112
+      INTEGER, PARAMETER :: AMTNO3J          =  113
+      INTEGER, PARAMETER :: AMTHYDJ          =  114
+      INTEGER, PARAMETER :: AAVB2J           =  115
+      INTEGER, PARAMETER :: AOLGAJ           =  116
+      INTEGER, PARAMETER :: AAVB3J           =  117
+      INTEGER, PARAMETER :: AAVB4J           =  118
+      INTEGER, PARAMETER :: AISO1J           =  119
+      INTEGER, PARAMETER :: AOLGBJ           =  120
+      INTEGER, PARAMETER :: AISO2J           =  121
+      INTEGER, PARAMETER :: ASQTJ            =  122
+      INTEGER, PARAMETER :: PCVOC            =  123
+      INTEGER, PARAMETER :: PCSOARXN         =  124
+      INTEGER, PARAMETER :: VLVPO1           =  125
+      INTEGER, PARAMETER :: VSVPO1           =  126
+      INTEGER, PARAMETER :: VSVPO2           =  127
+      INTEGER, PARAMETER :: VSVPO3           =  128
+      INTEGER, PARAMETER :: VIVPO1           =  129
+      INTEGER, PARAMETER :: VLVOO1           =  130
+      INTEGER, PARAMETER :: VLVOO2           =  131
+      INTEGER, PARAMETER :: VSVOO2           =  132
+      INTEGER, PARAMETER :: VSVOO3           =  133
+      INTEGER, PARAMETER :: VSVOO1           =  134
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  135
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  136
+      INTEGER, PARAMETER :: BUTADIENE13      =  137
+      INTEGER, PARAMETER :: ACROLEIN         =  138
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  139
+      INTEGER, PARAMETER :: TOLU             =  140
+      INTEGER, PARAMETER :: HG               =  141
+      INTEGER, PARAMETER :: HGIIAER          =  142
+      INTEGER, PARAMETER :: HGIIGAS          =  143
+>>>>>>> master
 
       END MODULE HRDATA
