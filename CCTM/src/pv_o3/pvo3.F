@@ -28,11 +28,15 @@ C  Prototype, Rohit Mathur, Nov. 2007
 C             Scaling only at top layer; scaling factor based on 2006 IONS O3 and 
 C             PV estimated from NAM at ~100mb,  Rohit Mathur, Nov. 2008
 C             Incorporation in CMAQv4.7.1,  Rohit Mathur, Jan.2010
+C  12 Mar 2019 D. Wong: Implemented centralized I/O approach and removed all MY_N clauses
+C   1 Apr 2019 D. Wong: Remove call to SUBHFILE
+
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var, lat
 
       IMPLICIT NONE
 
@@ -76,9 +80,6 @@ C..Scratch Local Variables:
       CHARACTER( 120 ) :: XMSG  = ' '    ! Exit status message
 
       INTEGER C, L, R        ! Loop indices
-      INTEGER GXOFF, GYOFF   ! global origin offset from file
-      INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER       ALLOCSTAT
 
       INTEGER YEAR
@@ -89,7 +90,6 @@ C..Scratch Local Variables:
       REAL    MFRC           ! month fraction
       REAL    PLAY           ! pressure for layer applied
 
-      REAL, ALLOCATABLE, SAVE :: LAT( :,: )    ! grid lat (deg) -90<= LAT <= 90
       REAL, ALLOCATABLE, SAVE :: CSTARZ( :,: ) ! cstar at 58hPa estimated by polynomial fit
       REAL, ALLOCATABLE, SAVE :: CXX( :,: )    ! intermediate quadratic (< 0 for any lat.)
       REAL PV( NCOLS,NROWS,NLAYS )             ! potential vorticity
@@ -98,9 +98,6 @@ C..Scratch Local Variables:
 C First time: set up parameters
       IF ( LFIRST ) THEN
          LFIRST = .FALSE.
-
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
          VO3 = INDEX1( 'O3', N_GC_SPC, GC_SPC )
          WRITE( LOGDEV,92000 ) N_GC_SPC, VO3
@@ -127,45 +124,20 @@ C Scale only top layer O3 to PV
 !        KPV = NLAYS
          WRITE( LOGDEV,92002 ) KPV, X3FACE_GD( KPV )
 
-         CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-
-         ALLOCATE ( LAT( NCOLS,NROWS ),
-     &              CSTARZ( NCOLS,NROWS ),
+         ALLOCATE ( CSTARZ( NCOLS,NROWS ),
      &              CXX( NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating LAT, CSTARZ, or CXX'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-         VNAME = 'LAT'
-         IF ( .NOT. INTERPX( GRID_CRO_2D, VNAME, PNAME,
-     &                       STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                       1, 1, 0, 0, LAT ) ) THEN
-            XMSG = 'Could not read LAT from GRID_CRO_2D'
+            XMSG = 'Failure allocating CSTARZ, or CXX'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
       END IF      ! First time
 
 C.. Get PV 
-      VNAME = 'PV'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    JDATE, JTIME, PV ) ) THEN
-         MSG = 'Could not read PV from MET_CRO_3D'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      END IF
+      call interpolate_var ('PV', jdate, jtime, pv)
 
 C.. Get PRES
-      VNAME = 'PRES'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    JDATE, JTIME, PRES ) ) THEN
-         MSG = 'Could not read PV from MET_CRO_3D'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-
-      END IF
+      call interpolate_var ('PRES', jdate, jtime, PRES)
 
 C.. Calculate month fraction
       YEAR = INT( FLOAT( JDATE ) / 1000.0 )
@@ -185,8 +157,8 @@ C   This constant of proportionality is determined based on examining the relati
 C   between NAM PV and average observed O3 at the 2006 IONS sites for the topmost layer
 C   of a 22-layer configuration
 
-      DO R = 1, MY_NROWS
-         DO C = 1, MY_NCOLS
+      DO R = 1, NROWS
+         DO C = 1, NCOLS
             LATABS = ABS( LAT( C,R ) )
             CSTARZ( C,R ) =            AX
      &                    + LATABS * ( BX
@@ -202,8 +174,8 @@ C   of a 22-layer configuration
       END DO
 
       DO L = KPV, NLAYS
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
 
                FC     = CSTARZ( C,R ) + ( PRES( C,R,L ) - 5856.0 ) * CXX( C,R )
 

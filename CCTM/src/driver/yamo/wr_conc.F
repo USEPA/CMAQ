@@ -43,6 +43,7 @@ C   12 Aug 15 D.Wong: - Replaced MYPE with IO_PE_INCLUSIVE for parallel
 C                       I/O implementation
 C                     - Added code to allow non IO processor to open
 C                       CTM_CONC_1
+C   01 Feb 19 D.Wong: - Implemented centralized I/O approach
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -50,6 +51,7 @@ C-----------------------------------------------------------------------
       USE WVEL_DEFN             ! derived vertical velocity component
       USE UTILIO_DEFN
       USE ASX_DATA_MOD, ONLY : MET_DATA
+      USE CENTRALIZED_IO_MODULE
 
       IMPLICIT NONE
 
@@ -68,11 +70,6 @@ C Local variables:
       INTEGER      ALLOCSTAT
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-
-      INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-      INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
 
       INTEGER      C, R, K, L, V, VAR, SPC   ! loop induction variables
 
@@ -105,9 +102,9 @@ C open conc file for update
          VNAME = VNAME3D( 1:NVARS )
 
       END IF   ! firstime
- 
+
       VAR = 0
-    
+
       ! Write Gas-Phase Species to CONC File
       DO SPC = 1, N_C_GC_SPC
          VAR = VAR + 1
@@ -131,7 +128,7 @@ C open conc file for update
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
- 
+
       ! Write Nonreactive Species Concentrations to CONC File
       DO SPC = 1, N_C_NR_SPC
          VAR = VAR + 1
@@ -143,7 +140,7 @@ C open conc file for update
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
- 
+
       ! Write Tracer Species Concentrations to CONC File
       DO SPC = 1, N_C_TR_SPC
          VAR = VAR + 1
@@ -155,10 +152,10 @@ C open conc file for update
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
       END DO
- 
+
       ! Write Vertical Velocity to Output CONC file
       IF ( L_CONC_WVEL ) THEN
-         IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL', 
+         IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL',
      &      JDATE, JTIME, WVEL( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
             XMSG = 'Could not write W_VEL to ' // CTM_CONC_1
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -167,7 +164,7 @@ C open conc file for update
 
       ! Write Relative Humidity to Output CONC file
       IF ( L_CONC_RH ) THEN
-      IF ( .NOT. WRITE3( CTM_CONC_1, 'RH', 
+      IF ( .NOT. WRITE3( CTM_CONC_1, 'RH',
      &     JDATE, JTIME, MET_DATA%RH( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
          XMSG = 'Could not write RH to ' // CTM_CONC_1
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -176,7 +173,7 @@ C open conc file for update
 
       ! Write Temperature to Output CONC file
       IF ( L_CONC_TA ) THEN
-      IF ( .NOT. WRITE3( CTM_CONC_1, 'TA', 
+      IF ( .NOT. WRITE3( CTM_CONC_1, 'TA',
      &     JDATE, JTIME, MET_DATA%TA( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
          XMSG = 'Could not write Temperature to ' // CTM_CONC_1
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -185,7 +182,7 @@ C open conc file for update
 
       ! Write Pressure to Output CONC file
       IF ( L_CONC_PRES ) THEN
-      IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES', 
+      IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES',
      &     JDATE, JTIME, MET_DATA%PRES( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
          XMSG = 'Could not write Pressure to ' // CTM_CONC_1
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )

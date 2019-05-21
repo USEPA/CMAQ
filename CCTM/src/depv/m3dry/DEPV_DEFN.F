@@ -48,6 +48,8 @@ C   Aug 2015 D. Wong:    Replaced MYPE with IO_PE_INCLUSIVE to facilitate
 C                          parallel I/O implementation
 C                        Added a block of code to let non I/O processors to
 C                          open CTM_DEPV_DIAG in parallel I/O implementation
+C   1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+C                        clauses
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
 
@@ -109,11 +111,6 @@ C flag for diagnostic DEPV file
                                                                ! subroutine AERO_DEPV
       REAL,    ALLOCATABLE, SAVE :: DBUFF( :,: )      ! diagnostic output buffer
       REAL,    ALLOCATABLE, SAVE :: DBUFF3( :,:,: )   ! diagnostic output buffer with 3 dimensions
-
-      INTEGER :: GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
       REAL,    ALLOCATABLE, SAVE :: UCROSS( :,:,:)
       REAL,    ALLOCATABLE, SAVE :: VCROSS( :,:,:)
@@ -256,18 +253,13 @@ C set dry dep conversion factor (done here so that vdiff doesn`t need the includ
 
 C Initialize
          IF ( N_AE_DEPV .GT. 0 ) THEN
-            ALLOCATE ( ADEPV( N_AE_DEPV,MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+            ALLOCATE ( ADEPV( N_AE_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating ADEPV'
                CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
          END IF
-
-         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
          !IF ( ILDEPV ) THEN
          !
@@ -427,7 +419,7 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
 
             IF ( DEPV_DIAG ) THEN
 
-               ALLOCATE ( DBUFF( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+               ALLOCATE ( DBUFF( NCOLS,NROWS ), STAT = ALLOCSTAT )
                IF ( ALLOCSTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DBUFF'
                   CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
@@ -533,7 +525,7 @@ C-----------------------------------------------------------------------
      &                   CGRIDL1, DEPVEL_GAS, PVD, NH3_EMIS )
 
 #ifdef Verbose
-            cw = my_ncols/2; rw = my_nrows/2
+            cw = ncols/2; rw = nrows/2
 !           cw = 17; rw = 43
             write( logdev,1033 ) cw, rw
 1033        format( /5x, 'Depv diagnostics for my_col, my_row:', i4, ', ', i4
@@ -547,8 +539,8 @@ C-----------------------------------------------------------------------
             DO V = STRT, FINI
                N = N + 1
                NDX = GAS_DEPV_SUR( N )
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DEPV( V,C,R ) = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
 #ifdef Verbose
@@ -570,8 +562,8 @@ C-----------------------------------------------------------------------
             DO V = STRT, FINI
                N = N + 1
                NDX = GAS_DEPV_SUR( N+N_GC_DEPV )
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DEPV( V,C,R ) = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
 #ifdef Verbose
@@ -592,8 +584,8 @@ C-----------------------------------------------------------------------
                N = N + 1
                NDX = GAS_DEPV_SUR( N + N_GC_DEPV + N_NR_DEPV )
 
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      DEPV( V,C,R ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                      PLDV( V,C,R ) = PVD( NDX,C,R )
 #ifdef Verbose
@@ -620,8 +612,8 @@ C-----------------------------------------------------------------------
             STRT = N_GC_DEPV + 1
             FINI = N_GC_DEPV + N_AE_DEPV
 
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   N = 0
                   DO V = STRT, FINI
                      N = N + 1
@@ -673,8 +665,8 @@ C-----------------------------------------------------------------------
                   IF ( GAS_DEPV_FOUND( N ) ) THEN
                      NDX = GAS_DEPV_SUR( N )
 
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            DBUFF( C,R ) = 100.0 * DEPV( N,C,R )   ! cm/sec
                         END DO
                      END DO
@@ -695,8 +687,8 @@ C-----------------------------------------------------------------------
                   IF ( GAS_DEPV_FOUND( N ) ) THEN
                      NDX = GAS_DEPV_SUR( N )
 
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            DBUFF( C,R ) = 100.0 * DEPV( N+N_AE_DEPV,C,R )   ! cm/sec
                         END DO
                      END DO
@@ -714,8 +706,8 @@ C-----------------------------------------------------------------------
 
                   NDX = AER_DEPV_SUR( N )
 
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBUFF( C,R ) = 100.0 * ADEPV( NDX,C,R )   ! cm/sec
                      END DO
                   END DO

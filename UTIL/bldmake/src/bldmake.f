@@ -114,6 +114,7 @@
       serial    = .False.
       debug     = .False.
       debug_cctm= .False.
+      isam_cctm = .False.
       checkout  = .False.
       makefo    = .False.
       twoway    = .False.
@@ -192,6 +193,10 @@
           debug_cctm = .True.; Cycle
         End If
 
+        If ( argv .Eq. '-ISAM_CCTM' ) Then
+          isam_cctm = .True.; Cycle
+        End If
+
         If ( argv .Eq. '-VERBOSE' ) Then
           verbose = .True.; Cycle
         End If
@@ -241,6 +246,7 @@
       Write( *,'("  -git_local  Does NOT copy source files to BLD directory")' )
       Write( *,'("  -help       Displays help screen")' )
       Write( *,'("  -debug_cctm Execute make with DEBUG option set to TRUE")' )
+      Write( *,'("  -isam_cctm  Execute make with ISAM option set to TRUE")' )
       Write( *,'(//)' )
 
       End Subroutine help_msg
@@ -339,7 +345,7 @@
       Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
       Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
 
-      Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true ))")')
+      Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true True T ))")')
       Write( lfn, '( "     DEBUG = TRUE")' )
       Write( lfn, '( " endif")' )
       
@@ -486,19 +492,25 @@
       nfields = getFieldCount( cpp_flags, ' ' )
 
       If ( nfields .Le. 1 ) Then
-        Write( lfn, '(" CPP_FLAGS = "a)' ) Trim( cpp_flags )
-        Return
+        Write( lfn, '(" cpp_flags = "a)' ) Trim( cpp_flags )
+      Else
+
+        Write( lfn, '(" cpp_flags =",$)')
+
+        ! print each field at a time
+        Do n = 1, nfields
+          Call getField( cpp_flags, ' ', n, field )
+          Write( lfn, '(1x,a,/,2x,a,$)' ) backslash, Trim( field )
+        End Do
+        Write( lfn, '(1x)' )
+
       End If
 
-      Write( lfn, '(" CPP_FLAGS =",$)')
-
-! print each field at a time
-      Do n = 1, nfields
-        Call getField( cpp_flags, ' ', n, field )
-        Write( lfn, '(1x,a,/,2x,a,$)' ) backslash, Trim( field )
-      End Do
-
-      Write( lfn, '(1x)' )
+      Write( lfn, '(/" ifneq (,$(filter $(isam), TRUE true True T ))")')
+      Write( lfn, '( "     CPP_FLAGS   = $(cpp_flags) -Disam" )' ) 
+      Write( lfn, '( " else")' )
+      Write( lfn, '( "     CPP_FLAGS   = $(cpp_flags)" )' ) 
+      Write( lfn, '( " endif")' )
 
       Return
       End Subroutine writeCPP

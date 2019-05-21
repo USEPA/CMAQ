@@ -9,7 +9,8 @@ improved consistency in terms of secondary organic aerosol (SOA)
 between carbon bond and saprc-based mechanisms, 
 updated monoterpene SOA from photooxidation (OH and ozone), uptake
 of water onto hydrophillic organics, and reorganization of anthropogenic SOA
-species. All of the science updates are accomplished with a reduction
+species. In addition, inorganic sulfate is consumed when
+IEPOX organosulfates are formed. All of the science updates are accomplished with a reduction
 in the number of species needed and thus accomplishes more
 robust predictions in less time than aero6. 
 

@@ -54,12 +54,15 @@ C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   16 May 11 J.Young: remove references to AERO3 and AERO4
 C   09 Dec 11 J.Young: remove unused Flag for SGTOT species
 C   07 Jul 14 B.Hutzell: replace mechanism include file(s) with fortran module
+C    1 Feb 19 D. Wong: Implemented centralized I/O approach, removed all MY_N
+C                      clauses
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN           ! horizontal grid specifications
       USE RXNS_DATA           ! chemical mechanism data
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE
 
@@ -87,24 +90,17 @@ C Local variables:
       INTEGER C, R, V, N                      ! loop induction variables
       INTEGER STRT, FINI                      ! loop induction variables
 
-      INTEGER GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-
 C-----------------------------------------------------------------------
 
       IF ( FIRSTIME )  THEN
 
          FIRSTIME  =  .FALSE.
 
-         ALLOCATE ( DBUFF( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+         ALLOCATE ( DBUFF( NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating BUFF'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
-
-         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
 
       END IF   ! Firstime
 
@@ -115,15 +111,10 @@ C-----------------------------------------------------------------------
          N = N + 1
 
 C                                        vvvvvvv - dep vel surrogate name
-         IF ( .NOT. INTERPX( MET_CRO_2D, GC_DEPV( N ), PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, DBUFF ) ) THEN
-            XMSG = 'Could not read  ' // GC_DEPV( N ) // ' from ' // MET_CRO_2D
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (GC_DEPV( N ), jdate, jtime, DBUFF)
 
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DEPV( V,C,R ) = GC_DEPV_FAC( N ) * DBUFF( C,R ) 
             END DO
          END DO
@@ -137,15 +128,10 @@ C                                        vvvvvvv - dep vel surrogate name
          N = N + 1
 
 C                                        vvvvvvv - dep vel surrogate name
-         IF ( .NOT. INTERPX( MET_CRO_2D, NR_DEPV( N ), PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, DBUFF ) ) THEN
-            XMSG = 'Could not read  ' // NR_DEPV( N ) // ' from ' // MET_CRO_2D
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (NR_DEPV( N ), jdate, jtime, DBUFF)
 
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DEPV( V,C,R ) = NR_DEPV_FAC( N ) * DBUFF( C,R )
             END DO
          END DO
@@ -159,15 +145,10 @@ C                                        vvvvvvv - dep vel surrogate name
          N = N + 1
 
 C                                         vvvvvvv - dep vel surrogate name
-         IF ( .NOT. INTERPX( DEPV_TRAC_1, TR_DEPV( N ), PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, DBUFF ) ) THEN
-            XMSG = 'Could not read  ' // TR_DEPV( N ) // ' from ' // DEPV_TRAC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var (TR_DEPV( N ), jdate, jtime, DBUFF)
 
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DEPV( V,C,R ) = TR_DEPV_FAC( N ) * DBUFF( C,R ) 
             END DO
          END DO
