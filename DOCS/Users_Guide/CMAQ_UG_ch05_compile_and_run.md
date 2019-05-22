@@ -9,7 +9,7 @@
 
 ## 5.1 Introduction
 
-During this chapter the user will learn about how to obtain the CMAQ source codes and how to set-up their CMAQ environment to complete a CMAQ simulation. It should be noted that before you can configure your CMAQ Environment, you must have the required hardware, software and data files required described in the chapter "Preparing to run".
+During this chapter the user will learn about how to obtain the CMAQ source codes and how to set-up their CMAQ environment to complete a CMAQ simulation. It should be noted that before you can configure your CMAQ Environment, consult the chapter "Preparing to run" to see you have the minimum requirement of hardware and software on your system.
 
 ## 5.2 Getting the CMAQ Source Code
 
@@ -59,7 +59,11 @@ After downloading the source codes the user is encouraged to look through the re
 
 ![Figure 5-1](images/Figure5-1.png)
 
-In this image it can be seen that there four main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, Release Notes and Known issuse associated with the current release and a Develpers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
+In this image it can be seen that there four main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). 
+
+The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, Release Notes and Known issuse associated with the current release and a Develpers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
+
+**>>Comment<<** Where will this User Manual live in the future? In the DOCS subdirectory or has it own place on the web.
 
 The third folder in the repository is the POST folder which contains several very useful tools for post-processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 7](CMAQ_UG_ch07_analysis_tools.md).
 
@@ -87,7 +91,7 @@ It should be noted that from now on, the other CMAQ directories are referenced r
 
 Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script `config_cmaq.csh` to help enforce consistent environment settings for CMAQ and its associated libraries [Appendix A](CMAQ_UG_appendixA_model_options.md) lists the `config_cmaq.csh` variables defined for the build process and suggests values to which to set those variables.
 
-Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpif90 be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build.
+Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpiifort (for Intel compiler and for GNU and PGI fortran compiler, use mpifort) be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build without anything provided by the user explicityly.
 
 Use the following steps to initialize your CMAQ environment:
 
@@ -128,8 +132,7 @@ Science Modules:
 -  Potential vorticity scaling for stratosphere/troposphere exchange (pv_o3)
 -  Meteorology-chemistry coupling (twoway)
 
-The user has the ability to configure the model in a multitude of ways but selecting from different options for each scientific process.
-Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_configuring_the_model.md).  To see a complete list configuration options reference [Appendix A](CMAQ_UG_appendix_A.md).
+The user has the ability to configure the model in a multitude of ways but selecting from different options for each scientific process. Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To modify any run time options, such as turn on in-line biogenic emission calculation or use in-line windblown dust emission, edit the run script, `run_cctm.csh`, and set the corresponding environment variable. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_configuring_the_model.md).  To see a complete list configuration options reference [Appendix A](CMAQ_UG_appendix_A.md).
 
 Once the `bldit_cctm.csh` script is configured to the user's preference, the user is ready to run the script to build the CCTM executable. To do this run the following commands:
 
@@ -150,9 +153,10 @@ In another example, if the user has made any changes to the source codes in the 
 
 ```
 cd BLD_CCTM_v53_[compiler][version]
-make clean
 make
 ```
+
+The Make utility is smart enough to compiled only the modified files and all associated file which are defined by the dedependency of each source file in the Makefile.
 
 ## 5.7 Running CCTM
 
@@ -161,7 +165,7 @@ After setting up the CCTM executable the model is ready to be run. Much like the
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
-source run_cctm.csh |& tee run_cctm.log
+run_cctm.csh |& tee run_cctm.log
 ```
 
 To confirm that the model ran to completion view the run.[data].log file. For MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
@@ -188,7 +192,7 @@ The output results will have been placed in the directory:
 $CMAQ_DATA/output_CCTM_v53_[compiler]_[data_name]
 ```
 
-and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2. The in-depth description about each of these files is described in [Chapter 6](CMAQ_UG_ch06_model_outputs.md).
+and can include the following netCDF-type files: ACONC, APMDIAG, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGDIAG1, LTNGDIAG2, MEDIA_CONC, PMDIAG, PT3D_DIAG, RJ_1, RJ_2, RJ_3, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, WETDEP2 and VEXT_1. The in-depth description about each of these files is described in [Chapter 6](CMAQ_UG_ch06_model_outputs.md).
 
 Common errors in a CCTM simulation include the following:
 
