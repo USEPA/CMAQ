@@ -260,10 +260,10 @@ c  sequential order
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NCOUNT = 0
       DO LEV = 1, NLAYS
-         DO COL = 1, MY_NCOLS
-            DO ROW = 1, MY_NROWS
-!        DO ROW = 1, MY_NROWS
-!           DO COL = 1, MY_NCOLS
+         DO COL = 1, NCOLS
+            DO ROW = 1, NROWS
+!        DO ROW = 1, NROWS
+!           DO COL = 1, NCOLS
                NCOUNT = NCOUNT + 1
                CCOL( NCOUNT ) = COL
                CROW( NCOUNT ) = ROW

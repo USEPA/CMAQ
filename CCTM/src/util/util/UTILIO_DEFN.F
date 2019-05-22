@@ -35,6 +35,10 @@ C                          -- extended to handle buffer file
 C                        08/2015 by David Wong
 C                          -- defined WRITE3 under parallel I/O
 C                             implementation
+C                        02/2019 by David Wong
+C                          -- removed INTERPB declaration which is
+C                             not needed with centralized I/O
+C                             implementation
 C....................................................................
 
       MODULE UTILIO_DEFN
@@ -48,7 +52,7 @@ C....................................................................
      &                 EXCLUDE_WRITE3  => WRITE3,
      &                 BUF_WRITE3      => WRITE3
 
-         USE PARUTILIO, INTERPB => PINTERPB,
+         USE PARUTILIO, 
      &                  M3ERR   => PM3ERR,
      &                  M3EXIT  => PM3EXIT,
      &                  M3WARN  => PM3WARN,

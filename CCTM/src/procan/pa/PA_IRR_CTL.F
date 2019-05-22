@@ -46,6 +46,7 @@ C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module (GRID_CONF)
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Sep 16 J.Young: update for inline procan (IRR)
+C    1 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
       CONTAINS
@@ -180,8 +181,8 @@ C..Scratch Local Variables:
 C-----------------------------------------------------------------------
       
           DO L = 1, NLAYS
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   IF ( C .GE. MY_IRR_BEGCOL .AND. C .LE. MY_IRR_ENDCOL .AND.
      &                 R .GE. MY_IRR_BEGROW .AND. R .LE. MY_IRR_ENDROW .AND.
      &                 L .GE. MY_IRR_BEGLEV .AND. L .LE. MY_IRR_ENDLEV ) THEN

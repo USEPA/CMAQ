@@ -70,6 +70,7 @@ C    16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
 C    29 Nov 17 D.Wong: removed all SWAP routines and replaced with SE_COMM
 C    18 Nov 18 S. Napelenok: ISAM implementation
+C    01 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -389,8 +390,8 @@ C Loop over species, layers, nsteps
 
 C Load working array (CGRID is coupled, CONC is mixing ratio)
 
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CONC( C,R ) = CGRID( C,R,L,D2C ) / RHOJ( C,R,L )
                   END DO
                END DO
@@ -407,8 +408,8 @@ C Load working array (CGRID is coupled, CONC is mixing ratio)
 
 C Update CGRID
 
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
 
                      CGRID( C,R,L,D2C ) = RHOJ( C,R,L ) * CONC( C,R )
      &                                  + DTDX1S
@@ -438,8 +439,8 @@ C Update CGRID
 
 C Load working array (ISAM is coupled, SA_CONC is mixing ratio)
 
-               DO R = 1, MY_NROWS
-                   DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                   DO C = 1, NCOLS
                       SA_CONC( C,R ) =
      &                ISAM( C,R,L,S_SPCTAG(JSPCTAG),T_SPCTAG(JSPCTAG) ) / RHOJ( C,R,L )
                    END DO ! C
@@ -457,8 +458,8 @@ C Fill 4 boundaries of working array SA_CONC: south, north, west, east
                END DO ! R
 
 C Update ISAM
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      ISAM( C,R,L,S_SPCTAG(JSPCTAG),T_SPCTAG(JSPCTAG) ) =
      &                                RHOJ( C,R,L ) * SA_CONC( C,R )
      &                                + DTDX1S

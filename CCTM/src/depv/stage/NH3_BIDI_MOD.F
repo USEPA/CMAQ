@@ -57,6 +57,7 @@
 !                   J. Bash    Apr   4 13:  Brought in new water, agriculture and snow land use 
 !                                           classification in LSM_MOD to simplify the case structures
 C                   J. Bash:   Nov   7 14:  Modified for the restructuring of vidff.
+!                   D. Wong:   Feb  10 19:  Implemented centralized I/O approach, removed all MY_N clauses
 C-------------------------------------------------------------------------------
 
       Implicit None
@@ -64,10 +65,6 @@ C-------------------------------------------------------------------------------
 
 ! Private variables used in this module and subroutines  
       Real, Save, Allocatable, Private :: frac_ir( :,: ) ! irrigated fraction of ag    
-      Real, Save, Allocatable, Private :: NH4ps1 ( :,:,: ) ! Initial Soil NH4
-      Real, Save, Allocatable, Private :: NH4ps2 ( :,:,: ) ! Initial Soil NH4
-      Real, Save, Allocatable, Private :: pHs1   ( :,:,: )
-      Real, Save, Allocatable, Private :: pHs2   ( :,:,: )
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter   
       Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
       Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
@@ -95,6 +92,8 @@ C-------------------------------------------------------------------------------
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
          Use ASX_DATA_MOD, Only: zsoil1, zsoil2, Grid_Data
          Use LSM_MOD
+         Use depv_data_module
+         Use centralized_io_module
 
          Implicit None 
 ! Includes
@@ -107,90 +106,28 @@ C-------------------------------------------------------------------------------
          Integer, Intent( In )  :: jtime   
          Integer                :: jdate_yest
          Integer                :: c,r,l,k
-         Integer, Parameter :: e2c_cats = 42   ! number of crop catigories
          Integer            :: gxoff, gyoff    ! global origin offset from file
          integer            :: strtcol, endcol, strtrow, endrow
          integer            :: strtcol_medi,  endcol_medi,  strtrow_medi,  endrow_medi
          integer            :: strtcol_fert,  endcol_fert,  strtrow_fert,  endrow_fert
          integer            :: strtcol_beld,  endcol_beld,  strtrow_beld,  endrow_beld
-         Integer            :: ALLOCSTAT, N_GMN
-         Real,  Allocatable :: Beld_ag ( :,:,: )        
+         Integer            :: ALLOCSTAT
          Real               :: Tot_Ag          ! total ag in the grid cell    
          Real,    Parameter :: convl1 = 7.142857e-04   ! ha/m**2 * mol/g N * 1/z_soil_l1 
          Real,    Parameter :: convl2 = 7.142857e-05   ! ha/m**2 * mol/g N * 1/z_soil_l2 
          Real               :: pHfac1
          Real               :: pHfac2
 ! STAGE bidi variables
-         Real,       Allocatable :: F1_NH4     ( :,:,: ) ! fertlizer application to layer 1 
-         Real,       Allocatable :: F2_NH4     ( :,:,: ) ! fertlizer application to layer 2
-         Real,       Allocatable :: Nit1       ( :,:,: ) ! Epic Nitrification layer 1
-         Real,       Allocatable :: Nit2       ( :,:,: ) ! Epic Nitrification layer 2
          Real,       Allocatable :: L1_MIN     ( :,:,: ) ! Epic Layer 1 organic N mineralization
          Real,       Allocatable :: L2_MIN     ( :,:,: ) ! Epic Layer 2 organic N mineralization 
-         Real,       Allocatable :: GMN        ( :,:,: ) ! Epic Layer 1 and 2 N mineralized in Fest-C 1.4
-         Real,       Allocatable :: L1_ON      ( :,:,: ) ! Epic Layer 1 organic N
-         Real,       Allocatable :: L2_ON      ( :,:,: ) ! Epic Layer 2 organic N
-         Real,       Allocatable :: L1_ON_Yest ( :,:,: ) ! Epic Layer 1 organic N
-         Real,       Allocatable :: L2_ON_Yest ( :,:,: ) ! Epic Layer 2 organic N
-         Real,       Allocatable :: F1_ON      ( :,:,: ) ! Epic Layer 1 organic N Fertilization 
-         Real,       Allocatable :: F2_ON      ( :,:,: ) ! Epic Layer 2 organic N Fertilization 
          Real,       Allocatable :: C_knit1    ( :,:,: ) ! EPIC Crop nitrificaiton rate
          Real,       Allocatable :: C_knit2    ( :,:,: ) ! EPIC Crop nitrification rate
-         Real,       Allocatable :: BDc1       ( :,:,: ) ! crop soil bulk density kg/ha
-         Real,       Allocatable :: BDc2       ( :,:,: ) ! crop soil bulk density kg/ha   
          Real,       Allocatable :: fagam1     ( :,: )   ! delta gamma due to fertilizer app and mineralization
          Real,       Allocatable :: fagam2     ( :,: )   ! delta gamma due to fertilizer app and mineralization           
  
          Character( 16 ), Parameter :: pname = 'Init_ABFlux' 
          Character( 16 )            :: vname
          Character( 96 )            :: xmsg = ' '
-         Character( 20 )            :: Beld_Names( e2c_cats )
-
-C Some compilers do not pad with blank characters in data initialization
-C                          '12345678901234567890'
-         Data Beld_Names / 'Hay                 ',  !  1
-     &                     'Hay_ir              ',  !  2
-     &                     'Alfalfa             ',  !  3
-     &                     'Alfalfa_ir          ',  !  4
-     &                     'Other_Grass         ',  !  5
-     &                     'Other_Grass_ir      ',  !  6
-     &                     'Barley              ',  !  7
-     &                     'Barley_ir           ',  !  8
-     &                     'BeansEdible         ',  !  9
-     &                     'BeansEdible_ir      ',  ! 10
-     &                     'CornGrain           ',  ! 11
-     &                     'CornGrain_ir        ',  ! 12
-     &                     'CornSilage          ',  ! 13
-     &                     'CornSilage_ir       ',  ! 14
-     &                     'Cotton              ',  ! 15
-     &                     'Cotton_ir           ',  ! 16
-     &                     'Oats                ',  ! 17
-     &                     'Oats_ir             ',  ! 18
-     &                     'Peanuts             ',  ! 19
-     &                     'Peanuts_ir          ',  ! 20
-     &                     'Potatoes            ',  ! 21
-     &                     'Potatoes_ir         ',  ! 22
-     &                     'Rice                ',  ! 23
-     &                     'Rice_ir             ',  ! 24
-     &                     'Rye                 ',  ! 25
-     &                     'Rye_ir              ',  ! 26
-     &                     'SorghumGrain        ',  ! 27
-     &                     'SorghumGrain_ir     ',  ! 28
-     &                     'SorghumSilage       ',  ! 29
-     &                     'SorghumSilage_ir    ',  ! 30
-     &                     'Soybeans            ',  ! 31
-     &                     'Soybeans_ir         ',  ! 32
-     &                     'Wheat_Spring        ',  ! 33
-     &                     'Wheat_Spring_ir     ',  ! 34
-     &                     'Wheat_Winter        ',  ! 35
-     &                     'Wheat_Winter_ir     ',  ! 36
-     &                     'Other_Crop          ',  ! 37
-     &                     'Other_Crop_ir       ',  ! 38
-     &                     'Canola              ',  ! 39
-     &                     'Canola_ir           ',  ! 40
-     &                     'Beans               ',  ! 41
-     &                     'Beans_ir            ' / ! 42
- 
 
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
@@ -227,46 +164,19 @@ C                          '12345678901234567890'
          Call Subhfile ( E2C_SOIL, gxoff, gyoff, strtcol, endcol, strtrow, endrow )
 
          If ( .Not. Allocated ( pHs1 ) ) Then
-            Allocate ( pHs1 ( my_ncols,my_nrows,e2c_cats ) )
+            Allocate ( pHs1 ( ncols,nrows,e2c_cats ) )
          End If
 
-         vname = 'L1_PH'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, pHs1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-         If ( .Not. Allocated ( pHs2 ) ) Then
-            Allocate ( pHs2 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-         
-         vname = 'L2_PH'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, pHs2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
 ! get soil fertilizer applicaiton rates and dates
 ! time in the files is not the same    
          If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
            xmsg = 'Could not open '// E2C_FERT // ' file'
            Call M3exit ( pname, 0, 0, xmsg, xstat1 )
          End If
-         Allocate( F1_NH4     ( my_ncols,my_nrows,e2c_cats ), 
-     &             F2_NH4     ( my_ncols,my_nrows,e2c_cats ), 
-     &             Nit1       ( my_ncols,my_nrows,e2c_cats ),
-     &             Nit2       ( my_ncols,my_nrows,e2c_cats ),
-     &             L1_MIN     ( my_ncols,my_nrows,e2c_cats ),
-     &             L2_MIN     ( my_ncols,my_nrows,e2c_cats ),    
-     &             L1_ON      ( my_ncols,my_nrows,e2c_cats ),
-     &             L2_ON      ( my_ncols,my_nrows,e2c_cats ), 
-     &             C_Knit1    ( my_ncols,my_nrows,e2c_cats ),
-     &             C_Knit2    ( my_ncols,my_nrows,e2c_cats ),
-     &             BDc1       ( my_ncols,my_nrows,e2c_cats ),
-     &             BDc2       ( my_ncols,my_nrows,e2c_cats ),
-     &             Beld_ag    ( my_ncols,my_nrows,e2c_cats ),
-     &             NH4ps1     ( my_ncols,my_nrows,e2c_cats ),
-     &             NH4ps2     ( my_ncols,my_nrows,e2c_cats ),
+         Allocate( L1_MIN     ( ncols,nrows,e2c_cats ),
+     &             L2_MIN     ( ncols,nrows,e2c_cats ),    
+     &             C_Knit1    ( ncols,nrows,e2c_cats ),
+     &             C_Knit2    ( ncols,nrows,e2c_cats ),
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating EPIC vars'
@@ -282,112 +192,21 @@ C                          '12345678901234567890'
             Call m3exit( pname, jdate, jtime, xmsg, xstat1 )
          End If                                   
 
-         N_GMN = INDEX1( 'GMN', NVARS3D, VNAME3D )
-         
-         Call Subhfile ( E2C_FERT, gxoff, gyoff, strtcol_fert, endcol_fert, 
-     &                   strtrow_fert, endrow_fert )
-
-         vname = 'L1_BD'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, BDc1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-
-         vname = 'L2_BD'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, BDc2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If       
-
-         vname = 'L1_NH3'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, NH4ps1) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-         vname = 'L2_NH3'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate, 0, NH4ps2) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-         vname = 'L1_NITR'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, Nit1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-         vname = 'L2_NITR'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, Nit2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If       
-         vname = 'L1_ON'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, L1_ON ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-         vname = 'L2_ON'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate, 0, L2_ON ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If      
-
-         If( N_GMN .Gt. 0 ) Then ! Using Fest-C 1.4 output
-            Allocate( GMN     ( my_ncols,my_nrows,e2c_cats ), STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating GMN'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-
-            vname = 'GMN'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate, 0, GMN ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If        
-           
-         End If
-
-! get BELD4 land use types time independent files. 
-         If ( .Not. Open3( BELD4_LU, fsread3, pname ) ) Then
-           xmsg = 'Could not open '// BELD4_LU // ' file'
-           Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
-         End If                
-         Call Subhfile ( BELD4_LU, gxoff, gyoff, strtcol_beld, endcol_beld, 
-     &                   strtrow_beld, endrow_beld )
-
-         Do k = 1, e2c_cats
-            vname = BELD_Names(k)
-            If ( .Not. Interpx ( BELD4_LU, vname, pname, strtcol_beld, endcol_beld,
-     &                           strtrow_beld, endrow_beld, 1, 1, jdate, jtime,
-     &                           Beld_ag( :,:,k ) ) ) Then   
-               Write( xmsg,9001 ) vname, BELD4_LU
-               Go To 1001
-            End If
-         End Do
          Beld_ag = 0.01 * Beld_ag   ! convert to fraction
 
 ! Allocate variable needed soil processes and fertilization
-         Allocate( gamma1     ( my_ncols,my_nrows ),
-     &             gamma2     ( my_ncols,my_nrows ),
-     &             fagam1     ( my_ncols,my_nrows ),
-     &             fagam2     ( my_ncols,my_nrows ), 
-     &             MHp1       ( my_ncols,my_nrows ),
-     &             MHp2       ( my_ncols,my_nrows ),
-     &             BDs1       ( my_ncols,my_nrows ),
-     &             BDs2       ( my_ncols,my_nrows ),
-     &             Knit1      ( my_ncols,my_nrows ),
-     &             Knit2      ( my_ncols,my_nrows ),
-     &             NH4_G1     ( my_ncols,my_nrows ),
-     &             NH4_G2     ( my_ncols,my_nrows ),
-     &             frac_ir    ( my_ncols,my_nrows ), 
-     &             frac_ag    ( my_ncols,my_nrows ), 
+         Allocate( fagam1     ( ncols,nrows ),
+     &             fagam2     ( ncols,nrows ), 
+     &             MHp1       ( ncols,nrows ),
+     &             MHp2       ( ncols,nrows ),
+     &             BDs1       ( ncols,nrows ),
+     &             BDs2       ( ncols,nrows ),
+     &             Knit1      ( ncols,nrows ),
+     &             Knit2      ( ncols,nrows ),
+     &             NH4_G1     ( ncols,nrows ),
+     &             NH4_G2     ( ncols,nrows ),
+     &             frac_ir    ( ncols,nrows ), 
+     &             frac_ag    ( ncols,nrows ), 
      &              STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating soil vars'
@@ -411,14 +230,14 @@ C                          '12345678901234567890'
 
 ! get fertilizer from the previous month to estimate soil NH4+        
 ! time in the files is not the same
-         If ( .Not. Open3( INIT_MEDC_1, fsread3, pname ) ) Then
+         If ( .Not. MEDC_AVAIL ) Then
             Write(Logdev,*) 'Estimating soil NHx from EPIC output'
-            If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
-               xmsg = 'Could not open '// E2C_FERT // ' file'
+            If ( .Not. E2C_FERT_AVAIL ) Then
+               xmsg = E2C_FERT // ' file not available'
                Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
             End If
 
-            If( N_GMN .Gt. 0 ) Then
+            If( GMN_AVAIL ) Then
 ! NH4 from organic N mineralization is not layer specific in Fest-C v1.4 therefore it is allocated proportionally
 ! to the organic N from which it was mineralized.
                Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 )
@@ -437,8 +256,8 @@ C                          '12345678901234567890'
             F2_NH4 = Nit2 / 0.95 + L2_MIN
 
          ! parameters
-            Do r = 1, my_nrows
-               Do c = 1, my_ncols
+            Do r = 1, nrows
+               Do c = 1, ncols
                   Tot_Ag = 0.0                  
                   Do l = 1, e2c_cats
                      Tot_Ag = Tot_Ag + Beld_ag( c,r,l )
@@ -538,86 +357,8 @@ C                          '12345678901234567890'
             End Where
 
          Else ! read
-            Call Subhfile ( INIT_MEDC_1, gxoff, gyoff, strtcol_medi, endcol_medi, 
-     &                      strtrow_medi, endrow_medi )
 
-! for whatever reason the jdate and jtime get messed up by the e2c files
-            Write( Logdev,* ) 'Reading soil NHx from Previous CMAQ run'
-
-            vname = 'Gamma1'
-            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow_medi, endrow_medi,
-     &                           strtcol_medi, endcol_medi, jdate, 000000, gamma1 ) ) Then
-               Write( xmsg,9001 ) vname, INIT_MEDC_1
-               Go To 1001
-            End If
-            vname = 'Gamma2'
-            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow_medi, endrow_medi,
-     &                           strtcol_medi, endcol_medi, jdate, 000000, gamma2 ) ) Then
-               Write( xmsg,9001 ) vname, INIT_MEDC_1
-               Go To 1001
-            End If
-            vname = 'L1_ANH3'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                          strtcol_fert, endcol_fert, jdate, 0, F1_NH4 ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-            vname = 'L2_ANH3'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                          strtcol_fert, endcol_fert, jdate, 0, F2_NH4 ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-
-            If( N_GMN .Le. 0 ) Then
-
-               If( MOD(jdate,1000) .Eq. 1 ) Then
-                  If( MOD(jdate,4000) .Eq. 0 .And. MOD(jdate,100000) .Eq. 0 .And. MOD(jdate,400000) .Eq. 0) Then
-                     jdate_yest = (INT(jdate/1000)-1)*1000+366
-                  Else ! not a leap year
-                     jdate_yest = (INT(jdate/1000)-1)*1000+365
-                  End If
-               Else 
-                  jdate_yest = jdate-1
-               End If
-
-               Allocate( L1_ON_Yest ( my_ncols,my_nrows,e2c_cats ),
-     &                   L2_ON_Yest ( my_ncols,my_nrows,e2c_cats ),
-     &                   F1_ON      ( my_ncols,my_nrows,e2c_cats ),
-     &                   F2_ON      ( my_ncols,my_nrows,e2c_cats ),
-     &                   STAT = ALLOCSTAT )
-               If ( ALLOCSTAT .Ne. 0 ) Then
-                  XMSG = 'Failure allocating organic N vars'
-                  Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               End If
-
-               vname = 'L1_AON'
-               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                          strtcol_fert, endcol_fert, jdate, 0, F1_ON ) ) Then
-                  Write( xmsg,9001 ) vname, E2C_FERT
-                  Go To 1001
-               End If
-               vname = 'L2_AON'
-               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                             strtcol_fert, endcol_fert, jdate, 0, F2_ON ) ) Then
-                  Write( xmsg,9001 ) vname, E2C_FERT
-                  Go To 1001
-               End If   
-
-               vname = 'L1_ON'
-               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate_yest, 0, L1_ON_Yest ) ) Then
-                  Write( xmsg,9001 ) vname, E2C_FERT
-                  Go To 1001
-               End If
-               vname = 'L2_ON'
-               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate_yest, 0, L2_ON_Yest ) ) Then
-                  Write( xmsg,9001 ) vname, E2C_FERT
-                  Go To 1001
-               End If 
-            End If
-            If( N_GMN .Gt. 0 ) Then
+            If( GMN_AVAIL ) Then
 ! NH4 from organic N mineralization is not layer specific in Fest-C v1.4 therefore it is allocated proportionally
 ! to the organic N from which it was mineralized.
                Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 )
@@ -649,8 +390,8 @@ C                          '12345678901234567890'
             F1_NH4  = F1_NH4 + L1_MIN
             F2_NH4  = F2_NH4 + L2_MIN
 
-            do r = 1, my_nrows
-               Do c = 1, my_ncols
+            do r = 1, nrows
+               Do c = 1, ncols
                   Tot_Ag = 0.0 
                   Do l = 1, e2c_cats
                      Tot_Ag = Tot_Ag + Beld_ag( c,r,l )

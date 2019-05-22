@@ -83,7 +83,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/couple)
  set DepMod    = m3dry                 #> m3dry or stage
-#set DepMod    = stage
+# set DepMod    = stage
  set ModHadv   = hadv/yamo             #> horizontal advection module
  set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
  set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
@@ -184,6 +184,12 @@ set ParOpt                             #> uncomment to build a multiple processo
     set PIO = ( -Dparallel_io )
  else
     set PIO = ""
+ endif
+
+ if ($DepMod == m3dry) then
+    set cpp_depmod = '-Dm3dry_opt'
+ else if ($DepMod == stage) then
+    set cpp_depmod = '-Dstage_opt'
  endif
 
 #> Set variables needed for multiprocessor and serial builds
@@ -335,7 +341,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
- set text = "$quote$CPP_FLAGS $PAR $POT $STX1 $STX2$quote;"
+ set text = "$quote$CPP_FLAGS $PAR $cpp_depmod $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
@@ -526,6 +532,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set text = "diag"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDiag};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "cio"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module cio;"                                                >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then

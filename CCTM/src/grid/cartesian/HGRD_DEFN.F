@@ -35,6 +35,7 @@ C                                         with UTILIO_DEFN
 C                   D. Wong    11 May 11: incorporated twoway model implementation
 C                   D. Wong    Aug 15:    Added a new logical variable, IO_PE_INCLUSIVE
 C                                           to facilitate parallel I/O implementation
+C                   D. Wong    01 Feb 19: removed all MY_N clauses
 C.......................................................................
       USE RUNTIME_VARS
 
@@ -78,11 +79,8 @@ C latitude for coord-system center (degrees)
 !     INTEGER, PARAMETER :: NTHIK = 1     ! boundary thickness (cells)
       INTEGER, SAVE :: NTHIK      ! boundary thickness (cells)
  
-      INTEGER, SAVE :: MY_NCOLS   ! local no. of computational grid columns
-      INTEGER, SAVE :: MY_NROWS   ! local no. of computational grid rows
       INTEGER, SAVE :: MY_NCOLS_DOT ! local no. of dot file grid columns
       INTEGER, SAVE :: MY_NROWS_DOT ! local no. of dot file grid rows
-      INTEGER, SAVE :: MY_NBNDY   ! local no. of boundary cells
 C column range for each processor
       INTEGER, ALLOCATABLE, SAVE :: COLSX_PE( :,: )
       INTEGER, ALLOCATABLE, SAVE :: COLSD_PE( :,: )  ! dot file
@@ -210,17 +208,13 @@ C Get corresponding dot file map
                ROWSD_PE( 2,I ) = ROWSD_PE( 2,I ) + 1
             END DO
 
-            MY_NCOLS = NCOLS_PE( MYPE+1 )
-            MY_NROWS = NROWS_PE( MYPE+1 )
-            MY_NBNDY = 2*NTHIK * ( MY_NCOLS + MY_NROWS + 2*NTHIK )
+            NCOLS = NCOLS_PE( MYPE+1 )
+            NROWS = NROWS_PE( MYPE+1 )
+            NBNDY = 2*NTHIK * ( NCOLS + NROWS + 2*NTHIK )
             GL_NBNDY = 2*NTHIK * ( GL_NCOLS + GL_NROWS + 2*NTHIK )
 
             MY_NCOLS_DOT = COLSD_PE( 2,MYPE+1 ) - COLSD_PE( 1,MYPE+1 ) + 1
             MY_NROWS_DOT = ROWSD_PE( 2,MYPE+1 ) - ROWSD_PE( 1,MYPE+1 ) + 1
-
-            NCOLS = MY_NCOLS
-            NROWS = MY_NROWS
-            NBNDY = MY_NBNDY
 
 !           MXCELLS = NCOLS * NROWS * NLAYS
 !           MXBLKS  = 1 + ( MXCELLS - 1 ) / BLKSIZE

@@ -626,7 +626,8 @@ C Calcuate Bare Soil Resistance
 ! Here an asymptotic function was applied to set lower and upper bounds in the resistance as repoerted by Fumagalli et al. 2016
                            w10cm = min(MET_DATA%SOIM1( c,r ) * exp( 0.09 * GRAV )**(1.0/GRID_DATA%BSLP( c,r )),
      &                                 GRID_DATA%WSAT( c,r ) )
-                           sm_func = max(0.0,(w10cm-GRID_DATA%WWLT( c,r ) ) / GRID_DATA%WFC( c,r ) )
+                           sm_func = max( tiny(0.0)**(1.0/GRID_DATA%BSLP( c,r )) * PI ,
+     &                                  ( w10cm-GRID_DATA%WWLT( c,r ) ) / GRID_DATA%WFC( c,r ) )
                            rgdry   = 250.0 + 2000.0 * atan( sm_func**GRID_DATA%BSLP( c,r ) ) /PI  
                      Else                   
                         rgdry  = rg0 * a0 / rel_rx( s )     

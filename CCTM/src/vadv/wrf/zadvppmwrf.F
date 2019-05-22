@@ -74,6 +74,8 @@ C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
 C    31 Jul 12 J.Bash: Changed the zadv dt for cases where cc > 1 to be 
 C                      more stable for conditions when cc > 10
+C    01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all MY_N
+C                      clauses
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -96,6 +98,7 @@ C-----------------------------------------------------------------------
 #ifdef snl_timing
       USE TIMING
 #endif
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE
 
@@ -134,10 +137,6 @@ C Local variables:
 !     REAL         UHATJD( NCOLS+1,NROWS+1,NLAYS )  ! x1-component CX-velocity
 !     REAL         VHATJD( NCOLS+1,NROWS+1,NLAYS )  ! x2-component CX-velocity
 
-C for INTERPX
-      INTEGER      GXOFF, GYOFF            ! global origin offset from file
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       INTEGER       MTIME, MDATE
 !     REAL          CON1( NLAYS,N_SPC_ADV ) ! concentrations subset
       REAL, ALLOCATABLE, SAVE :: CON1( :,: ) ! concentrations subset
@@ -167,7 +166,6 @@ C for INTERPX
       REAL          DSDT                   ! DS/DT
       REAL, ALLOCATABLE, SAVE :: FBLN( : ) ! blending function for upper layers
       INTEGER       ALLOCSTAT
- 
 
 #ifdef isam
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: NAME_ADV( : )
@@ -224,16 +222,16 @@ C-----------------------------------------------------------------------
 C Get default file header attibutes from MET_CRO_3D (assumes file already open)
 
 C Get dx3 from the GRID_CONF(VGRD) F90 module
-         !WRITE( LOGDEV,* ) ' '
-         !WRITE( LOGDEV,* ) '    layer    S (X3FACE_GD) Delta S'
+!         WRITE( LOGDEV,* ) ' '
+!         WRITE( LOGDEV,* ) '    layer    S (X3FACE_GD) Delta S'
          DO LVL = 1, NLAYS
             DS ( LVL ) = ABS ( X3FACE_GD( LVL ) - X3FACE_GD( LVL-1 ) )
 !           FBLN( LVL ) = 1.0 - 1.0 / ( 1.0 + EXP( 15.0 * ( X3FACE_GD( LVL ) - 0.5 ) ) )
             FBLN( LVL ) = 1.0
-            !WRITE( LOGDEV,'(5X, I3, 3F14.7)' ) LVL, X3FACE_GD( LVL ),
-            !&                                         DS( LVL ), FBLN(LVL)
+!            WRITE( LOGDEV,'(5X, I3, 3F14.7)' ) LVL, X3FACE_GD( LVL ),
+!    &                                          DS( LVL ), FBLN(LVL)
          END DO
-         !WRITE( LOGDEV,* ) ' '
+!         WRITE( LOGDEV,* ) ' '
 
 C Pointer to transported RHOJ
          ASPC = GC_STRT - 1 + N_GC_SPCD
@@ -271,10 +269,6 @@ C Create global map to CGRID
  
          ADV_MAP( N_SPC_ADV ) = ASPC
 
-C get file local domain offsets
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
       END IF                    ! if firstime
 
 C Time-stepped gridded computation for Z-direction advection.
@@ -289,12 +283,8 @@ C Get rho*J at start of sync step
 #ifdef snl_timing
       call start_timing( zadv_int, read_int, 1 )
 #endif
-      IF ( .NOT. INTERPX( MET_CRO_3D, 'DENSA_J', PNAME,
-     &           STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &           MDATE, MTIME, RHOJM1 ) ) THEN
-         XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENSA_J', mdate, mtime, RHOJM1)
+
 #ifdef snl_timing
       call stop_timing( zadv_int, read_int )
 #endif
@@ -304,36 +294,14 @@ C Get rho*J at end of sync step
 #ifdef snl_timing
       call start_timing( zadv_int, read_int, 1 )
 #endif
-      IF ( .NOT. INTERPX( MET_CRO_3D, 'DENSA_J', PNAME,
-     &           STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &           MDATE, MTIME, RHOJM2 ) ) THEN
-         XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENSA_J', mdate, mtime, RHOJM2)
+
 #ifdef snl_timing
       call stop_timing( zadv_int, read_int )
 #endif
 
-C Get the contravariant x1 velocity component
-
-!     VNAME = 'UHAT_JD'   ! x1 component of CX-vel * Jacobian * air density
-!     IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-!    &                     STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, 1,NLAYS,
-!    &                     JDATE, JTIME, UHATJD ) ) THEN
-!        XMSG = 'Could not read ' // VNAME // ' from ' // MET_DOT_3D
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
-!     VNAME = 'VHAT_JD'   ! x2 component of CX-vel * Jacobian * air density
-!     IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-!    &                     STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, 1,NLAYS,
-!    &                     JDATE, JTIME, VHATJD ) ) THEN
-!        XMSG = 'Could not read ' // VNAME // ' from ' // MET_DOT_3D
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
-      DO 333 ROW = 1, MY_NROWS
-         DO 222 COL = 1, MY_NCOLS
+      DO 333 ROW = 1, NROWS
+         DO 222 COL = 1, NCOLS
 
             DO SPC = 1, N_SPC_ADV
                A2C = ADV_MAP( SPC )
@@ -493,9 +461,9 @@ Ckrt...update ISAM with SA_CON....20120821
 
 222         CONTINUE   ! COL
 333      CONTINUE   ! ROW
- 
+
       IF ( L_CONC_WVEL .OR. L_ACONC_WVEL ) CALL GET_WVEL( JDATE,JTIME )
-       
+
       RETURN
       END SUBROUTINE ZADV
 

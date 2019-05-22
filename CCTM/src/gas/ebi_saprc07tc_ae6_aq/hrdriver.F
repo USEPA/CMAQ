@@ -26,7 +26,7 @@ C  PRECONDITIONS: For the SAPRC07TC family of mechanisms
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -52,6 +52,8 @@ C                        how degrade routines are used, if present
 C   02 Dec 14 B.Hutzell: 1) added terrestrial data to conduct surface
 C                        dependent reactions and 2) modified the call CALC_RCONST
 C                        routine
+C   01 Feb 19 D.Wong:    Implemented centralized I/O approach, removed all MY_N
+C                        clauses
 C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -69,6 +71,7 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var, ocean, szone
 
       IMPLICIT NONE
 
@@ -131,13 +134,6 @@ C..Scratch Local Variables:
 
       REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
 
-
-      INTEGER       :: GXOFF, GYOFF            ! global origin offset from file
-
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       INTERFACE
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
@@ -145,8 +141,8 @@ C for INTERPX
            INTEGER, INTENT( IN ) :: C, R, L  ! Cell col, row, lev
         END SUBROUTINE HRSOLVER
         SUBROUTINE HETCHEM_UPDATE_AERO( CGRID )
-           REAL, POINTER :: CGRID( :,:,:,: )    !  species concentration in cell
-        END SUBROUTINE HETCHEM_UPDATE_AERO    
+           REAL, POINTER :: CGRID( :,:,:,: )  !  species concentration in cell
+        END SUBROUTINE HETCHEM_UPDATE_AERO
       END INTERFACE
 
 C**********************************************************************
@@ -222,51 +218,16 @@ C Define processor offsets
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
 
-
-C.. Get fractional seawater coverage from the OCEAN file.
-
-         ALLOCATE( OPEN_ZONE( NCOLS, NROWS ), SURF_ZONE( NCOLS, NROWS ) )
-
-         CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
-     &                   STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3 )
-
-         VNAME = 'OPEN'
-         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
-     &                       JDATE, JTIME, OPEN_ZONE ) ) THEN
-            MSG = 'Could not read OPEN from ' // OCEAN_1
-            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
-
-C.. Get fractional surf-zone coverage from the OCEAN file.
-
-         VNAME = 'SURF'
-         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
-     &                       JDATE, JTIME, SURF_ZONE ) ) THEN
-            MSG = 'Could not read SURF from ' // OCEAN_1
-            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
-
          ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
          DO R = 1, NROWS
             DO C = 1, NCOLS
-               IF( OPEN_ZONE( C,R ) + SURF_ZONE( C,R ) .GT. 0.0 )THEN
+               IF( OCEAN( C,R ) + SZONE( C,R ) .GT. 0.0 )THEN
                    LAND_ZONE( C,R ) = .FALSE.
                ELSE
                    LAND_ZONE( C,R ) = .TRUE.
                END IF
              END DO
          END DO
-
-         DEALLOCATE( OPEN_ZONE, SURF_ZONE )
-
-
-         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
@@ -316,50 +277,20 @@ C.. Compute number of time step loops and step size for EBI solver
 
 C.. Get fractional seaice coverage from the METCRO2D file.
 
-      VNAME = 'SEAICE'
-      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    MIDDATE, MIDTIME, SEAICE ) ) THEN
-         MSG = 'Could not read SEAICE from MET_CRO_2D'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      END IF
+      CALL INTERPOLATE_VAR ('SEAICE', MIDDATE, MIDTIME, SEAICE)
 
 C.. Get ambient temperature in K
 
-      VNAME = 'TA'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MIDDATE, MIDTIME, TA ) ) THEN
-         MSG = 'Could not read TA from MET_CRO_3D'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      END IF
+      CALL INTERPOLATE_VAR ('TA', MIDDATE, MIDTIME, TA)
 
 C.. Get specific humidity in Kg H2O / Kg air
-      VNAME = 'QV'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MIDDATE, MIDTIME, QV ) ) THEN
-         MSG = 'Could not read QV from MET_CRO_3D'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      END IF
+      CALL INTERPOLATE_VAR ('QV', MIDDATE, MIDTIME, QV)
 
 ! Get ambient MASS DENSITY in Kg/m^3
-       VNAME = 'DENS'
-       IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MIDDATE, MIDTIME, DENS ) ) THEN
-          MSG = 'Could not read DENS from MET_CRO_3D'
-          CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-       END IF
+      CALL INTERPOLATE_VAR ('DENS', MIDDATE, MIDTIME, DENS)
 
 C.. Get pressure in Pascals
-      VNAME = 'PRES'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MIDDATE, MIDTIME, PRES ) ) THEN
-         MSG = 'Could not read PRES from MET_CRO_3D'
-         CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      END IF
+      CALL INTERPOLATE_VAR ('PRES', MIDDATE, MIDTIME, PRES)
 
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
@@ -377,8 +308,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NCELL = 1
 
       DO L = 1, NLAYS
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
 
 c..reset CALL_IRR based on cell's values
                CALL_IRR = LFLAGIRR( C,R,L )
@@ -424,7 +355,7 @@ c..Get rate constants
 C...For diagnosing IRR calculations in log files
                 IF( CHECK_ISAM )THEN
                    WRITE_CELL = .FALSE.
-                   IF( C .EQ. MAX(1, MY_NCOLS/2) .AND. R .EQ. MAX(1,MY_NROWS/2) .AND. L .EQ. 1 )THEN
+                   IF( C .EQ. MAX(1, NCOLS/2) .AND. R .EQ. MAX(1,NROWS/2) .AND. L .EQ. 1 )THEN
                         WRITE_CELL = .TRUE.
                         WRITE(LOGDEV,*)'WRITE_CELL = .TRUE.'
                    ELSE

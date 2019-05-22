@@ -149,6 +149,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 ! Revised:  April 2007  Original version.  David Wong
 !           22 Nov 2016  Constructed water soluble and insoluble list dynamically
 !                        based on a given chemical mechanism and AE scheme
+!           12 Mar 2019  Implemented centralized I/O approach
 !===============================================================================
 
 ! SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, aeromode_lnsg, &
@@ -162,6 +163,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
   USE twoway_data_module
   USE twoway_util_module
   USE twoway_cgrid_aerosol_spc_map_module
+  Use CENTRALIZED_IO_MODULE, only : interpolate_var
 
   use utilio_defn
   use cgrid_spcs
@@ -398,13 +400,8 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 
      if ((c .eq. cmaq_c_ncols) .and. (r .eq. cmaq_c_nrows) .and. (l .eq. nlays)) then
  
-        VNAME = 'DENS'
-        IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME, STRTCOLMC3,ENDCOLMC3, STRTROWMC3, &
-                            ENDROWMC3, 1,NLAYS, JDATE, JTIME, dens ) ) THEN
-           XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-  
+        call interpolate_var ('DENS', jdate, jtime, dens)
+ 
         if ( .not. open3 (feedback_fname, FSRDWR3, pname) ) then
            print *, ' Error: Could not open file ', feedback_fname, 'for update'
         end if
