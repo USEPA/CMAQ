@@ -116,7 +116,7 @@
         setenv MPI_LIB_DIR     mpi_lib_pgi    #> MPI directory path
     
         #> Compiler Aliases and Flags
-        setenv myFC mpif90 
+        setenv myFC mpifort 
         #setenv myFC mpifort 
         setenv myCC pgcc
         setenv myLINK_FLAG "-mp"
