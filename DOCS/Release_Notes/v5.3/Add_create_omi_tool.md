@@ -6,7 +6,7 @@
 
 A tool has been added to the PREP subdirectory that creates the OMI input file describing total ozone column density.
 The file supports the CMAQ model's in-line calculation of photolysis rates. The tool also creates IOAPI files for visualizing observations
-and the OMI file's data.
+and the OMI file's data. Please check the [README](../../../PREP/create_omi/README.md) file for create_omi for more information.
 
 ## Significance and Impact
 
