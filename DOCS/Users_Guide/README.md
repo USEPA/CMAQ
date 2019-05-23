@@ -10,6 +10,7 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 * Prescribing Emissions Using the DESID Module 
 * Creating an OCEAN File
 * Adding an Inert Tracer Species
+* Creating IC/BCs from Seasonal Average Hemispheric CMAQ Output
 
 [Chapter 1 (Overview):](CMAQ_UG_ch01_overview.md) CMAQ background, features, requirements and support resources.
 
