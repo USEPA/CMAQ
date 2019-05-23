@@ -78,7 +78,8 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
 
       IMPLICIT NONE
-
+      INCLUDE SUBST_CONST   ! for DPI
+      
       CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
 
 C Parameters:
@@ -148,7 +149,6 @@ C External Functions:
         SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                      WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
      &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
-           INCLUDE SUBST_CONST          ! constants
            INTEGER,   INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
            INTEGER,   INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
            REAL,      INTENT( IN )  :: AIRM      ! total air mass in cloudy layers (mol/m2)
@@ -188,8 +188,8 @@ C...  event-statistics variables.
      &             AERWDEP( NAER, NMODES),
      &             STAT = STAT)
         IF (STAT .NE. 0) THEN
-           WRITE (LOGDEV, *) ' ERROR: Not able to allocate memory for GAS array'
-           STOP
+           XMSG = ' Failure allocating GAs, GASWDEP, AEROSOL, and AERWDEP'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
       END IF
@@ -345,7 +345,7 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
 C ... M3NEW is in units of m3/kmol_air
       M3NEW = 0.0
       Dens_wmean_new = 0.0
-      DO IMODE = 2, N_MODE
+      DO IMODE = 2, NMODES
 
         DO SPC = 1, N_AEROSPC
           IF (  AEROSPC( SPC )%TRACER ) CYCLE 
@@ -359,29 +359,37 @@ C ... M3NEW is in units of m3/kmol_air
           END IF
         END DO
       END DO
-      Dens_wmean_new(2:N_MODE) = Dens_wmean_new(2:N_MODE) / M3NEW(2:N_MODE)
+
+C...Update aerosol number 
+      CEND( AERONUM_MAP( 1 ) ) = MAX( CEND( AERONUM_MAP( 1 ) ), aeromode_minNum( 1 )/ (AIRM/CTHK1) )
+      CEND( AERONUM_MAP( 2 ) ) = MAX( CEND( AERONUM_MAP( 2 ) ), aeromode_minNum( 2 )/ (AIRM/CTHK1) )
+      CEND( AERONUM_MAP( 3 ) ) = MAX( CEND( AERONUM_MAP( 3 ) ), aeromode_minNum( 3 )/ (AIRM/CTHK1) )
 
 C...check for minimums
 C...ug/m3*m3/mol_air*1e3 mol_air/kmol_air*1e-9kg/ug*m3/kg=> m3/kmol_air
-      DO IMODE = 2, N_MODE
-        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_old( IMODE ) * AIRM / CTHK1 ) )
-        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_new( IMODE ) * AIRM / CTHK1 ) )
-        CEND( AERONUM_MAP( IMODE ) ) = MAX( CEND( AERONUM_MAP( IMODE ) ), 
-     &                                 aeromode_minNum( IMODE )/ (AIRM/CTHK1) ) ! min #/mol 
+      DO IMODE = 2, NMODES
+        IF ( M3NEW( IMODE ) .GT. 0.0D0 ) THEN  ! Dens_wmean_new will be .GT. 0 also
+           Dens_wmean_new( IMODE ) = Dens_wmean_new( IMODE ) / M3NEW( IMODE )
+           M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_old( IMODE ) * AIRM / CTHK1 ) )
+           M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_new( IMODE ) * AIRM / CTHK1 ) )
+        END IF
       END DO
 
 C...Update surface area
 
       CEND( AEROSRF_MAP( 1 ) ) = POLC( AEROSRF_MAP( 1 ) ) * EALFA2T
+      CEND( AEROSRF_MAP( 1 ) ) = MAX( CEND( AEROSRF_MAP( 1 ) ), aeromode_minM2( 1 ) * DPI / (AIRM/CTHK1) )
       
       CEND( AEROSRF_MAP( 2 ) ) = POLC( AEROSRF_MAP( 2 ) )
      &                         * EXP( -BETASO4 * TAUCLD * ONETHIRD )
      &                         * ( M3NEW( 2 ) / M3OLD( 2 ) ) ** TWOTHIRDS
+      CEND( AEROSRF_MAP( 2 ) ) = MAX( CEND( AEROSRF_MAP( 2 ) ), aeromode_minM2( 2 ) * DPI / (AIRM/CTHK1) )
 
       CEND( AEROSRF_MAP( 3 ) ) = POLC( AEROSRF_MAP( 3 ) )
      &                         * ( CEND( AERONUM_MAP( 3 ) )
      &                             / POLC( AERONUM_MAP( 3 ) ) ) ** ONETHIRD
-     &                         * ( M3NEW(3) / M3OLD( 3 ) ) ** TWOTHIRDS
+     &                         * ( M3NEW( 3 ) / M3OLD( 3 ) ) ** TWOTHIRDS
+      CEND( AEROSRF_MAP( 3 ) ) = MAX( CEND( AEROSRF_MAP( 3 ) ), aeromode_minM2( 3 ) * DPI / (AIRM/CTHK1) )
 
       RETURN
       END
