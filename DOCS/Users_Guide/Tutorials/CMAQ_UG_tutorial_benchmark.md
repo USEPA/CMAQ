@@ -235,6 +235,6 @@ To determine if CMAQ is correctly installed on your Linux system compare the res
 
 The CMAQv5.2 reference data include output from BCON, ICON, and the CCTM. You will only need to compare the results for the CCTM to evaluate the benchmark results.
 
-Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. [Chapter 12 of the CMAQ OGD](..//User_Manual/CMAQ_OGD_ch12_analysis_tools.md) lists descriptions of various analysis software options for viewing CMAQ output.
+Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
 In general, if the largest domain-wide and simulation period differences between your simulation and the reference data are <1%, the model is considered to be successfully benchmarked (i.e., the installation is verified).
