@@ -102,7 +102,7 @@ tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Output.tar.gz
 
 The CMAQ benchmark test case is a single day simulation for July 1, 2011 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.
 
-## Compiling CMAQ 
+## Compiling CMAQ
 
 *Before proceeding, it should be noted that building the ICON and BCON executibles are optional steps when working specifically with the benchmark data. This is becuase the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](CMAQ_OGD_ch04_sys_req.md).*   
 
