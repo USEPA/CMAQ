@@ -121,13 +121,16 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 ### 6.9.3 Photolysis
 
 ## 6.10 Aerosol Dynamics and Chemistry
-### 6.10.1 AQCHEM
-### 6.10.2 AQCHEM-KMT
-### 6.10.3 AQCHEM-KMTI
+### 6.10.1 aero6, aero7
 
-## 6.11 Potential Vorticity Scaling
+## 6.11 Aqueous-Phase Reaction and Cloud Mixing
+### 6.11.1 AQCHEM
+### 6.11.2 AQCHEM-KMT
+### 6.11.3 AQCHEM-KMTI
 
-## 6.12 Coupled WRF-CMAQ 
+## 6.12 Potential Vorticity Scaling
+
+## 6.13 Coupled WRF-CMAQ 
 
 <!-- BEGIN COMMENT -->
 
