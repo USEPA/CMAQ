@@ -63,6 +63,7 @@ C                       the vertical-to-horizontal flux based on Lu and Shao [JG
 C                       Updated the dust diag output file accordingly.
 C  8 Jan 16 J.Young: Changes for computational efficiency
 C  2 Feb 16 J.Young: move dust aero speciation table to AERO_DATA
+C  01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all MY_N clauses
 C-----------------------------------------------------------------------
       use lus_defn
       use aero_data
@@ -185,6 +186,8 @@ C   implementation
          use aero_data        ! aerosol species definitions
          use asx_data_mod     ! meteorology data
          use utilio_defn
+         use lus_data_module
+         use centralized_io_module
 
 C Arguments:
          integer, intent( in ) :: jdate   ! current model date, coded YYYYDDD
@@ -200,17 +203,13 @@ C Local variables:
          character( 16 ) :: vname
          character( 80 ) :: vardesc
          character( 250 ) :: xmsg = ' '
-         character( 16 ) :: modis_fpar_1 = 'MODIS_FPAR'
+!        character( 16 ) :: modis_fpar_1 = 'MODIS_FPAR'
                             ! Fraction of Absorbed Photosynthetically Active Radiation
 
          integer status
          integer c, r, i, j, k, l, n, im
          integer idiag, idust, spc
          integer n_mass_emissions
-
-         integer  gxoff, gyoff                 ! global origin offset from file
-         integer, save :: strtcol, endcol, strtrow, endrow
-         integer  jdatemod
 
          character( 16 ) :: sn
 
@@ -299,39 +298,7 @@ C Allocate private arrays
          sd_ep  = 0.0   ! array assignment
          fpar   = 0.0   ! array assignment
 
-C Open MODIS file to get vegetation fraction
-         if ( .not. open3( modis_fpar_1, fsread3, pname ) ) then
-            xmsg = 'Could not open ' // modis_fpar_1
-            call m3exit( pname, jdate, jtime, xmsg, xstat1 )
-         end if
-
-C Get the file description 
-         if ( .not. desc3( modis_fpar_1 ) ) then
-            xmsg = 'Could not get '
-     &      // trim( modis_fpar_1 )
-     &      // ' file description'
-            call m3exit( pname, jdate, jtime, xmsg, xstat1 )
-         end if
-
-C To be able to use either climatological (2001-2010 averaged) or
-C current fpar value. The year for the climatological fpar is 2005 in
-C the input file.
-         if ( sdate3d .eq. 2005001 ) then          ! climatological
-            jdatemod = 2005000 + mod( jdate,1000 )
-         else                                      ! current
-            jdatemod = jdate
-         end if
-
-C Get domain decomp info
-         call subhfile ( modis_fpar_1, gxoff, gyoff,
-     &                   strtcol, endcol, strtrow, endrow )
-
-C Read in FPAR from MODIS file
-         xmsg = 'Could not read FPAR from ' // trim( modis_fpar_1 )
-         if ( .not. xtract3( modis_fpar_1, 'MODIS_FPAR_T', 1,1,
-     &                       strtrow,endrow,strtcol,endcol,
-     &                       jdatemod, jtime, fpar( 1,1 ) ) )
-     &   call m3exit ( pname, jdate, jtime, xmsg, xstat1 )
+         call interpolate_var ('MODIS_FPAR_T', jdate, jtime, fpar)
 
 C Initialize land use/cover variables
          if ( .not. lus_init( jdate, jtime ) ) then
@@ -501,8 +468,8 @@ C...append diagnostic variables with mass emissions species
 
          if ( erode_agland ) then
             call cropcal ( stdate, sttime, agland )
-            do r = 1, my_nrows
-            do c = 1, my_ncols
+            do r = 1, nrows
+            do c = 1, ncols
                if ( agland( c,r ) .lt. 0.0 .or. agland( c,r ) .gt. 100.0 ) then
                   xmsg = '*** ERROR in AGLAND'
                   call m3exit( pname, jdate, jtime, xmsg, xstat1 )
@@ -633,6 +600,7 @@ C=======================================================================
          use asx_data_mod     ! meteorology data
          use aero_data
          use utilio_defn
+         use lus_data_module
 
 C       8/18/11 D.Wong: incorporated twoway model implementation and change
 C                       RC -> RCA and RN -> RNA and made it backward compatible
@@ -693,7 +661,7 @@ C Parameters:
          real, allocatable, save :: elus  ( :,:,: ) ! erodible landuse percent (0~100)
          real, allocatable, save :: fruf  ( :,:,: ) ! surface roughness factor
 
-         real       :: edust( 2 )  ! mass emis rate [g/s] per mode (only accum & coarse)
+         real       :: edust( 2 )       ! mass emis rate [g/s] per mode (only accum & coarse)
          real       :: sumdfr           ! sum var for desert fraction
          real       :: rlay1hgt         ! reciprocal of layer-1 height [1/m]
          real       :: m3j              ! 3rd moment accumulation (J) mode emis rates [m3/m3/s]
@@ -941,8 +909,8 @@ C set erodible landuse map
 
 C --------- ###### Start Main Loop ###### ---------
  
-         do r = 1, my_nrows
-         do c = 1, my_ncols
+         do r = 1, nrows
+         do c = 1, ncols
             dust_em( c,r ) = 0.0
             soimt( c,r )   = 0.0
             fmoit( c,r )   = 0.0   ! for diagnostic output visualization
@@ -1149,8 +1117,8 @@ C --------- ###### End Main Loop ##### ---------
      &                                          dryhit, (c-1)*(r-1)
 #endif
 
-         do r = 1, my_nrows
-         do c = 1, my_ncols
+         do r = 1, nrows
+         do c = 1, ncols
 
 C J/K mass emis rate [g/s]  (edust( 1 ) not used)
             edust( 1 ) = fracmj * dust_em( c,r )
@@ -1164,8 +1132,8 @@ C J/K mass emis rate [g/s]  (edust( 1 ) not used)
             end do
 
 C J/K 3rd moment emis rate [m3/s] (needed for number and surface)
-            m3j = edust( 1 ) * f6dpi / ( gpkg * dust_dens( 1 ) ) + epsilon(0.0)
-            m3k = edust( 2 ) * f6dpi / ( gpkg * dust_dens( 2 ) ) + epsilon(0.0)
+            m3j = edust( 1 ) * f6dpi / ( gpkg * dust_dens( 1 ) ) + TINY(0.0)
+            m3k = edust( 2 ) * f6dpi / ( gpkg * dust_dens( 2 ) ) + TINY(0.0)
 
 C Mode-specific emission rates of particle number [1/s]
             dustoutn( 1,c,r ) = m3j * factnumj
@@ -1305,8 +1273,8 @@ C Then reset the emissions array and local write counter.
                sdiagv = 0.0   ! array assignment
 #endif
                do v = 1, ndust_diag
-                  do r = 1, my_nrows
-                     do c = 1, my_ncols
+                  do r = 1, nrows
+                     do c = 1, ncols
                         wrbuf( c,r ) = dustbf( v,c,r ) / float( wstep )
                      end do
                   end do

@@ -34,6 +34,8 @@ C       Modified 01/26/2016 by Jeff Young
 C          -- Change WFLG to an optional argument, eliminate PIO_RE_INIT, and make
 C          PIO_INIT the only routine with a new optional IO_PE_INCLUSIVE argument;
 C          replace WRSUBMAP with the new WRSUBDMAP
+C       Modified 02/01/2019 by David Wong
+C          removed unnecessary function declaration
 C....................................................................
 
       MODULE PARUTILIO
@@ -50,23 +52,23 @@ C...Interface
 
          INTERFACE
 
-            SUBROUTINE BOUNDARY ( GNBNDY, NBNDY, NLAYS, BTHICK, NEIGHBOR,
-     &                            MY_COL1, MY_ROW1, MY_NCOL, MY_NROW,
-     &                            GNCOLS, GNROWS, GARRAY, LARRAY )
-               INTEGER :: NLAYS
-               INTEGER :: NBNDY
-               INTEGER :: GNBNDY
-               INTEGER :: BTHICK
-               INTEGER :: NEIGHBOR(8)
-               INTEGER :: MY_COL1
-               INTEGER :: MY_ROW1
-               INTEGER :: MY_NCOL
-               INTEGER :: MY_NROW
-               INTEGER :: GNCOLS
-               INTEGER :: GNROWS
-               REAL    :: GARRAY( GNBNDY,NLAYS )
-               REAL    :: LARRAY( NBNDY,NLAYS )
-            END SUBROUTINE BOUNDARY
+!           SUBROUTINE BOUNDARY ( GNBNDY, NBNDY, NLAYS, BTHICK, NEIGHBOR,
+!    &                            MY_COL1, MY_ROW1, NCOL, NROW,
+!    &                            GNCOLS, GNROWS, GARRAY, LARRAY )
+!              INTEGER :: NLAYS
+!              INTEGER :: NBNDY
+!              INTEGER :: GNBNDY
+!              INTEGER :: BTHICK
+!              INTEGER :: NEIGHBOR(8)
+!              INTEGER :: MY_COL1
+!              INTEGER :: MY_ROW1
+!              INTEGER :: NCOL
+!              INTEGER :: NROW
+!              INTEGER :: GNCOLS
+!              INTEGER :: GNROWS
+!              REAL    :: GARRAY( GNBNDY,NLAYS )
+!              REAL    :: LARRAY( NBNDY,NLAYS )
+!           END SUBROUTINE BOUNDARY
 
             SUBROUTINE GET_WRITE_MAP ( NP, NPC, NPR, NCOLS3D, NROWS3D, NLAYS3D )
                INTEGER :: NP
@@ -77,11 +79,11 @@ C...Interface
                INTEGER :: NLAYS3D
             END SUBROUTINE GET_WRITE_MAP
 
-            LOGICAL FUNCTION GROWBUF( PTR_ARRAY, END )
-               USE PINTERPB_MODULE
-               TYPE (MEM_TYPE) :: PTR_ARRAY
-               INTEGER, INTENT(IN) :: END
-            END FUNCTION GROWBUF
+!           LOGICAL FUNCTION GROWBUF( PTR_ARRAY, END )
+!              USE PINTERPB_MODULE
+!              TYPE (MEM_TYPE) :: PTR_ARRAY
+!              INTEGER, INTENT(IN) :: END
+!           END FUNCTION GROWBUF
 
             LOGICAL FUNCTION GTNDXHDV( FILE, VAR, JDATE, JTIME, VARSIZE, NBVS,
      &                                 ENDBUF, VX, NEWVAR )
@@ -111,17 +113,17 @@ C...Interface
                INTEGER, INTENT(IN), OPTIONAL :: S_IND, E_IND
             END FUNCTION INTERPOL
 
-            LOGICAL FUNCTION PINTERPB( FILNAME, VARNAME, CALLER, JDATE, JTIME,
-     &                                  VSIZE, VARRAY, LVL )
-               INTEGER, INTENT(IN)       :: VSIZE
-               CHARACTER(16), INTENT(IN) :: FILNAME
-               CHARACTER(*), INTENT(IN)  :: VARNAME
-               CHARACTER(*), INTENT(IN)  :: CALLER
-               INTEGER, INTENT(IN)       :: JDATE
-               INTEGER, INTENT(IN)       :: JTIME
-               REAL, INTENT(OUT)         :: VARRAY( VSIZE )
-               INTEGER, INTENT(IN), OPTIONAL :: LVL
-            END FUNCTION PINTERPB
+!           LOGICAL FUNCTION PINTERPB( FILNAME, VARNAME, CALLER, JDATE, JTIME,
+!    &                                  VSIZE, VARRAY, LVL )
+!              INTEGER, INTENT(IN)       :: VSIZE
+!              CHARACTER(16), INTENT(IN) :: FILNAME
+!              CHARACTER(*), INTENT(IN)  :: VARNAME
+!              CHARACTER(*), INTENT(IN)  :: CALLER
+!              INTEGER, INTENT(IN)       :: JDATE
+!              INTEGER, INTENT(IN)       :: JTIME
+!              REAL, INTENT(OUT)         :: VARRAY( VSIZE )
+!              INTEGER, INTENT(IN), OPTIONAL :: LVL
+!           END FUNCTION PINTERPB
 
             LOGICAL FUNCTION PIO_INIT( colrow, gl_ncols, gl_nrows, nlays,
      &                                 nthik, ncols, nrows, npcol, nprow,

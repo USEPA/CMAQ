@@ -35,11 +35,14 @@ C  Shan He at RTP 2003
 C  Jun 2009 D. Tong
 C  Jan 2011 J. Young: mods for inline wind-blown dust module
 C  Jun 2011 J. Young: add reshape to vd initialization for pgf90 compiler
+C  Oct 2018 D. Wong: With new re-structure of LUS_DEFN, most of the data
+C                    declaration has been moved to lus_data_module
+C  Feb 2019 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
-      use hgrd_defn             ! horizontal domain specifications
-      use asx_data_mod          ! meteorology data
-      use lus_defn, only: uland ! uland in %
+      use hgrd_defn                    ! horizontal domain specifications
+      use asx_data_mod                 ! meteorology data
+      use lus_data_module, only: uland
 
       implicit none
  
@@ -82,8 +85,8 @@ C water and lamda = 1.0, 3.5, 5.0
       real   :: omeg            ! transport factor variable
 
 C ----------------------------------------------------------------------
-      do r = 1, my_nrows
-      do c = 1, my_ncols
+      do r = 1, nrows
+      do c = 1, ncols
          tfa( c,r ) = 0.0
          if ( Met_Data%wspd10( c,r ) .le. 2.0 ) then        ! surface wind [0-2] range
             indx = 3

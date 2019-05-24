@@ -58,6 +58,9 @@ set ParOpt                             #> uncomment to build a multiple processo
 #set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
                                        #>   comment out to use standard, optimized compile process
 
+#> Integrated Source Apportionment Method (ISAM)
+#set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
+                                       #>   comment out to use standard process
 #> Two-way WRF-CMAQ 
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
                                        #>   comment out for off-line chemistry 
@@ -80,7 +83,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/couple)
  set DepMod    = m3dry                 #> m3dry or stage
-#set DepMod    = stage
+# set DepMod    = stage
  set ModHadv   = hadv/yamo             #> horizontal advection module
  set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
  set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
@@ -108,6 +111,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModPa     = procan/pa             #> CCTM process analysis
  set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphere
  set ModStm    = stm                   #> STM utility module and namelist
+ set ModISAM   = isam                  #> CCTM Integrated Source Apportionment Method
 
 #============================================================================================
 #> Computing System Configuration:
@@ -181,6 +185,12 @@ set ParOpt                             #> uncomment to build a multiple processo
     set PIO = ( -Dparallel_io )
  else
     set PIO = ""
+ endif
+
+ if ($DepMod == m3dry) then
+    set cpp_depmod = '-Dm3dry_opt'
+ else if ($DepMod == stage) then
+    set cpp_depmod = '-Dstage_opt'
  endif
 
 #> Set variables needed for multiprocessor and serial builds
@@ -332,7 +342,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
- set text = "$quote$CPP_FLAGS $PAR $POT $STX1 $STX2$quote;"
+ set text = "$quote$CPP_FLAGS $PAR $cpp_depmod $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
@@ -510,6 +520,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModPa};"                                           >> $Cfile
  echo                                                              >> $Cfile
 
+ set text = "// compile for integrated source apportionment method"
+ echo $text                                                        >> $Cfile
+ echo "Module ${ModISAM};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
  set text = "util"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModUtil};"                                         >> $Cfile
@@ -523,6 +538,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set text = "stm"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModStm};"                                          >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "cio"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module cio;"                                                >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then
@@ -552,35 +572,30 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  endif
 
 #> Run BLDMAKE Utility
+ set bld_flags = ""
  if ( $?MakeFileOnly ) then   # Do not compile the Model
-    if ( $?CopySrc ) then
-       $Blder -makefo $Cfile  # Run BLDMAKE with source code in build directory
-    else if ( $?CopySrcTree ) then 
-       $Blder -makefo -co $Cfile  # Copy repository directory tree as well
-    else
-       $Blder -makefo -git_local $Cfile   # Run BLDMAKE with source code in 
-                                          # version-controlled git repo
-                                          # $Cfile = ${CFG}.bld
-    endif
- else  # Also compile the model
-    if ( $?CopySrc ) then
-       if ( $?Debug_CCTM ) then
-         $Blder -debug_cctm $Cfile   # Run BLDMAKE with source code in build directory
-       else
-         $Blder $Cfile   # Run BLDMAKE with source code in build directory
-       endif
-    else if ( $?CopySrcTree ) then 
-       $Blder -makefo -co $Cfile  # Copy repository directory tree as well
-    else
-       # Run BLDMAKE with source code in version-controlled git repo $Cfile = ${CFG}.bld
-       if ( $?Debug_CCTM ) then
-         $Blder -debug_cctm -git_local $Cfile 
-       else
-         $Blder -git_local $Cfile
-       endif
-         
-    endif
+    set bld_flags = "${bld_flags} -makefo"
  endif
+
+ if ( $?CopySrc ) then
+    set bld_flags = "${bld_flags}"
+ else if ( $?CopySrcTree ) then   
+    set bld_flags = "${bld_flags} -co"
+ else 
+    set bld_flags = "{bld_flags} -git_local" # Run BLDMAKE with source code in 
+                                              # version-controlled git repo
+                                              # $Cfile = ${CFG}.bld
+ endif
+
+ if ( $?Debug_CCTM ) then
+    set bld_flags = "${bld_flags} -debug_cctm"
+ endif
+ if ( $?ISAM_CCTM ) then
+    set bld_flags = "${bld_flags} -isam_cctm"
+ endif
+ 
+ # Run BLDMAKE with source code in build directory
+ $Blder $bld_flags $Cfile   
 
 #> Rename Makefile to specify compiler option and link back to Makefile
  mv Makefile Makefile.$compilerString

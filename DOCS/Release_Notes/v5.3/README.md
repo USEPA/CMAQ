@@ -34,6 +34,7 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
   * [Monoterpene SOA](monoterpene_SOA.md)  
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
+  * [Conversion of inorganic to organic sulfate bug fix](inorganicsulfate_iepox_fix.md)  
 
 #### Other Aerosol Processes
   * [Dry Deposition Algorithm](aerosol_dry_deposition.md)  

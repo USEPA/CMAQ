@@ -27,7 +27,7 @@ C Revision History:
 C     18 Aug 2007 J.Young: initial implementation
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C     10 May 2011 D.Wong: incorporated twoway model implementation
-
+C     01 Feb 19 David Wong: removed MY_N clauses
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
 
@@ -84,7 +84,7 @@ C biogenics to gas-phase species map
                 SUCCESS = .FALSE.; RETURN
             END IF
 
-            ALLOCATE( VDEMIS_BI( MSPCS,MY_NCOLS,MY_NROWS ), STAT = STATUS )
+            ALLOCATE( VDEMIS_BI( MSPCS,NCOLS,NROWS ), STAT = STATUS )
             IF ( STATUS .NE. 0 ) THEN
               XMSG = 'VDEMIS_BI memory allocation failed'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )

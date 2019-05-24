@@ -41,11 +41,14 @@ C  Jun 2009 D. Tong
 C  Jan 2011 J. Young: mods for inline wind-blown dust module
 C  Apr 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C  Jul 2011 J.Young: pad vnmld for uniform string lengths
+C  Oct 2018 D. Wong: With new re-structure of LUS_DEFN, most of the data
+C                    declaration has been moved to lus_data_module
+C  Feb 2019 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
-      use hgrd_defn              ! horizontal domain specifications
-      use lus_defn, only: uland  ! land use/cover schema definitions
-                        ! uland in %
+      use hgrd_defn                     ! horizontal domain specifications
+      use lus_data_module, only: uland  ! land use/cover schema definitions
+                                        ! uland in %
       use utilio_defn
 
       implicit none
@@ -71,8 +74,8 @@ C Arguments:
      &            0.50,   ! building
      &            0.95 /) ! forest
 
-      do r = 1, my_nrows
-      do c = 1, my_ncols
+      do r = 1, nrows
+      do c = 1, ncols
 
          ufc = 0.0
          do i = 1, 4
@@ -86,8 +89,8 @@ C Arguments:
             call m3exit( pname, jdate, jtime, xmsg, xstat1 )
          end if
 
-      end do   ! my_ncols
-      end do   ! my_nrows
+      end do   ! ncols
+      end do   ! nrows
 
       return
       end

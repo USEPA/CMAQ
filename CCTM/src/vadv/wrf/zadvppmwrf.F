@@ -74,22 +74,31 @@ C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
 C    31 Jul 12 J.Bash: Changed the zadv dt for cases where cc > 1 to be 
 C                      more stable for conditions when cc > 10
+C    01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all MY_N
+C                      clauses
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID species number and offsets
       USE WVEL_DEFN             ! derived vertical velocity component
+      USE UTILIO_DEFN
       USE STD_CONC, ONLY : L_CONC_WVEL
       USE AVG_CONC, ONLY : L_ACONC_WVEL
+
+#ifdef isam
+      USE SA_DEFN               ! 20120821
+#endif
+
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_GLOBAL_SUM_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_SUM_MODULE)
 #endif
-      USE UTILIO_DEFN
+
 #ifdef snl_timing
       USE TIMING
 #endif
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE
 
@@ -128,10 +137,6 @@ C Local variables:
 !     REAL         UHATJD( NCOLS+1,NROWS+1,NLAYS )  ! x1-component CX-velocity
 !     REAL         VHATJD( NCOLS+1,NROWS+1,NLAYS )  ! x2-component CX-velocity
 
-C for INTERPX
-      INTEGER      GXOFF, GYOFF            ! global origin offset from file
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       INTEGER       MTIME, MDATE
 !     REAL          CON1( NLAYS,N_SPC_ADV ) ! concentrations subset
       REAL, ALLOCATABLE, SAVE :: CON1( :,: ) ! concentrations subset
@@ -161,16 +166,28 @@ C for INTERPX
       REAL          DSDT                   ! DS/DT
       REAL, ALLOCATABLE, SAVE :: FBLN( : ) ! blending function for upper layers
       INTEGER       ALLOCSTAT
- 
+
+#ifdef isam
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: NAME_ADV( : )
+      REAL    :: SA_CON( NLAYS,N_SPCTAG )
+#endif
 
       INTERFACE
+#ifdef isam
+         SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON, SA_CON )
+         USE SA_DEFN
+#else
          SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON )
+#endif
             INTEGER, INTENT( IN )    :: NI
             REAL,    INTENT( IN )    :: DT, DS( NI )
             REAL,    INTENT( IN )    :: FLX( NI+1 )
 !           REAL,    INTENT( IN )    :: VEL( NI+1 )
             REAL,    INTENT( INOUT ) :: VEL( NI+1 )
             REAL,    INTENT( INOUT ) :: CON( :,: )
+#ifdef isam
+            REAL,    INTENT( INOUT ) :: SA_CON( NI,N_SPCTAG ) ! KRT
+#endif
          END SUBROUTINE VPPM
       END INTERFACE
 
@@ -194,19 +211,27 @@ C-----------------------------------------------------------------------
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
+#ifdef isam
+         ALLOCATE ( NAME_ADV( N_SPC_ADV ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating NAME_ADV'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+#endif
+
 C Get default file header attibutes from MET_CRO_3D (assumes file already open)
 
 C Get dx3 from the GRID_CONF(VGRD) F90 module
-         !WRITE( LOGDEV,* ) ' '
-         !WRITE( LOGDEV,* ) '    layer    S (X3FACE_GD) Delta S'
+!         WRITE( LOGDEV,* ) ' '
+!         WRITE( LOGDEV,* ) '    layer    S (X3FACE_GD) Delta S'
          DO LVL = 1, NLAYS
             DS ( LVL ) = ABS ( X3FACE_GD( LVL ) - X3FACE_GD( LVL-1 ) )
 !           FBLN( LVL ) = 1.0 - 1.0 / ( 1.0 + EXP( 15.0 * ( X3FACE_GD( LVL ) - 0.5 ) ) )
             FBLN( LVL ) = 1.0
-            !WRITE( LOGDEV,'(5X, I3, 3F14.7)' ) LVL, X3FACE_GD( LVL ),
-            !&                                         DS( LVL ), FBLN(LVL)
+!            WRITE( LOGDEV,'(5X, I3, 3F14.7)' ) LVL, X3FACE_GD( LVL ),
+!    &                                          DS( LVL ), FBLN(LVL)
          END DO
-         !WRITE( LOGDEV,* ) ' '
+!         WRITE( LOGDEV,* ) ' '
 
 C Pointer to transported RHOJ
          ASPC = GC_STRT - 1 + N_GC_SPCD
@@ -216,25 +241,33 @@ C Create global map to CGRID
          DO VAR = 1, N_GC_TRNS
             SPC = SPC + 1
             ADV_MAP( SPC ) = GC_STRT - 1 + GC_TRNS_MAP( VAR )
+#ifdef isam
+            NAME_ADV( SPC ) = GC_TRNS( VAR )  ! KRT
+#endif
          END DO
          DO VAR = 1, N_AE_TRNS
             SPC = SPC + 1
             ADV_MAP( SPC ) = AE_STRT - 1 + AE_TRNS_MAP( VAR )
+#ifdef isam
+            NAME_ADV( SPC ) = AE_TRNS( VAR )  ! KRT
+#endif
          END DO
          DO VAR = 1, N_NR_TRNS
             SPC = SPC + 1
             ADV_MAP( SPC ) = NR_STRT - 1 + NR_TRNS_MAP( VAR )
+#ifdef isam
+            NAME_ADV( SPC ) = NR_TRNS( VAR )  ! KRT
+#endif
          END DO
          DO VAR = 1, N_TR_ADV
             SPC = SPC + 1
             ADV_MAP( SPC ) = TR_STRT - 1 + TR_ADV_MAP( VAR )
+#ifdef isam
+            NAME_ADV( SPC ) = TR_ADV( VAR )  ! KRT
+#endif
          END DO
  
          ADV_MAP( N_SPC_ADV ) = ASPC
-
-C get file local domain offsets
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
 
       END IF                    ! if firstime
 
@@ -250,12 +283,8 @@ C Get rho*J at start of sync step
 #ifdef snl_timing
       call start_timing( zadv_int, read_int, 1 )
 #endif
-      IF ( .NOT. INTERPX( MET_CRO_3D, 'DENSA_J', PNAME,
-     &           STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &           MDATE, MTIME, RHOJM1 ) ) THEN
-         XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENSA_J', mdate, mtime, RHOJM1)
+
 #ifdef snl_timing
       call stop_timing( zadv_int, read_int )
 #endif
@@ -265,36 +294,14 @@ C Get rho*J at end of sync step
 #ifdef snl_timing
       call start_timing( zadv_int, read_int, 1 )
 #endif
-      IF ( .NOT. INTERPX( MET_CRO_3D, 'DENSA_J', PNAME,
-     &           STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &           MDATE, MTIME, RHOJM2 ) ) THEN
-         XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENSA_J', mdate, mtime, RHOJM2)
+
 #ifdef snl_timing
       call stop_timing( zadv_int, read_int )
 #endif
 
-C Get the contravariant x1 velocity component
-
-!     VNAME = 'UHAT_JD'   ! x1 component of CX-vel * Jacobian * air density
-!     IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-!    &                     STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, 1,NLAYS,
-!    &                     JDATE, JTIME, UHATJD ) ) THEN
-!        XMSG = 'Could not read ' // VNAME // ' from ' // MET_DOT_3D
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
-!     VNAME = 'VHAT_JD'   ! x2 component of CX-vel * Jacobian * air density
-!     IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-!    &                     STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, 1,NLAYS,
-!    &                     JDATE, JTIME, VHATJD ) ) THEN
-!        XMSG = 'Could not read ' // VNAME // ' from ' // MET_DOT_3D
-!        CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-!     END IF
-
-      DO 333 ROW = 1, MY_NROWS
-         DO 222 COL = 1, MY_NCOLS
+      DO 333 ROW = 1, NROWS
+         DO 222 COL = 1, NCOLS
 
             DO SPC = 1, N_SPC_ADV
                A2C = ADV_MAP( SPC )
@@ -322,6 +329,15 @@ C Get the contravariant x1 velocity component
                DIVV( LVL ) = ( RJ1( LVL ) - RJT( LVL ) ) * DSDT
                DRJ = DRJ - DIVV( LVL )
             END DO
+
+#ifdef isam
+Ckrt...import isam array into sa_con
+            DO SPC = 1, N_SPCTAG
+               DO LVL = 1, NLAYS
+                  SA_CON( LVL,SPC ) = ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
+               END DO
+            END DO
+#endif
                         
 111         CONTINUE   ! iteration loop if CC > 1
 
@@ -385,7 +401,11 @@ C sub-steps.
 
                DTNEW = MAX( DTNEW, 1.0 )       
 
+#ifdef isam
+               CALL VPPM ( NLAYS, DTNEW, DS, FLX, VEL, CON1, SA_CON )
+#else
                CALL VPPM ( NLAYS, DTNEW, DS, FLX, VEL, CON1 )
+#endif
                DELT = DELT - DTNEW
 
                ITER = ITER + 1
@@ -412,7 +432,11 @@ C sub-steps.
 
             END IF
 
+#ifdef isam
+            CALL VPPM ( NLAYS, DELT, DS, FLX, VEL, CON1, SA_CON )
+#else
             CALL VPPM ( NLAYS, DELT, DS, FLX, VEL, CON1 )
+#endif
             DO SPC = 1, N_SPC_ADV
                A2C = ADV_MAP( SPC )
                DO LVL = 1, NLAYS
@@ -420,15 +444,26 @@ C sub-steps.
                END DO
             END DO
 
+#ifdef isam
+Ckrt...update ISAM with SA_CON....20120821
+            DO SPC = 1, N_SPCTAG
+               IF( TRANSPORT_SPC( SPC ) )THEN
+                  DO LVL = 1, NLAYS
+                     ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) ) = SA_CON( LVL,SPC )
+                  END DO
+               END IF   
+            END DO
+#endif
+
             DO LVL = 1, NLAYS
                WY( LVL,COL,ROW ) = VEL( LVL+1 )
             END DO
 
 222         CONTINUE   ! COL
 333      CONTINUE   ! ROW
- 
+
       IF ( L_CONC_WVEL .OR. L_ACONC_WVEL ) CALL GET_WVEL( JDATE,JTIME )
-       
+
       RETURN
       END SUBROUTINE ZADV
 

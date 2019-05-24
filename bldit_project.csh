@@ -19,7 +19,6 @@
 
  set CMAQ_HOME = /home/user/CMAQ_Project
 
-
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
 #> extract_scripts.csh will copy any build and run scripts
@@ -103,6 +102,7 @@
     cp CCTM/scripts/run_cctm_2015_HEMI.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2015_HEMI.csh
     cp CCTM/scripts/run_cctm_2016_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2016_12US1.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
+    cp CCTM/scripts/isam_control.txt $CMAQ_HOME/CCTM/scripts/isam_control.txt
  endif
 
 #===============================================================================

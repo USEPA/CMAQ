@@ -28,6 +28,7 @@ C Revision History:
 C   Jeff Young 11 Jan 07: created
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C   1 Feb 19 David Wong: removed MY_N clauses
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS            ! CGRID mechanism species
@@ -59,8 +60,8 @@ C-----------------------------------------------------------------------
          IF ( GAS_DEPV_FOUND( N ) ) THEN
             NDX = GAS_DEPV_SUR( N )
             S = STRT + GC_DEPV_MAP( V )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   CGRIDL1( NDX,C,R ) = CGRID( C,R,1,S )
                END DO
             END DO
@@ -73,8 +74,8 @@ C-----------------------------------------------------------------------
          IF ( GAS_DEPV_FOUND( N ) ) THEN
             NDX = GAS_DEPV_SUR( N )
             S = STRT + NR_DEPV_MAP( V )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   CGRIDL1( NDX,C,R ) = CGRID( C,R,1,S )
                END DO
             END DO
@@ -87,8 +88,8 @@ C-----------------------------------------------------------------------
          IF ( GAS_DEPV_FOUND( N ) ) THEN
             NDX = GAS_DEPV_SUR( N )
             S = STRT + TR_DEPV_MAP( V )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   CGRIDL1( NDX,C,R ) = CGRID( C,R,1,S )
                END DO
             END DO

@@ -58,9 +58,11 @@ C     22 Jun 2016 B.Hutzell: Fixed issue where single emis species maps to multi
 C                            species
 C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
 C     16 Aug 2017 B.Murphy: Pull plume height calc. to separate subroutine.
+C     01 Feb 2019 D.Wong: Implemented centralized I/O approach and removed everything 
+C                         related to ZSTATIC
 C-----------------------------------------------------------------------
 
-      USE UDTYPES, ONLY: RARRY1 
+      USE UDTYPES, ONLY: RARRY1
 
       IMPLICIT NONE
 
@@ -97,8 +99,6 @@ C Layer fractions matrix output files
 C Layer fractions source id output files
       CHARACTER(  16 ), ALLOCATABLE, SAVE :: PLAY_SRCID_NAME( : )
 
-C Get heights from GRID_CRO file, if true
-      LOGICAL,              SAVE :: ZSTATIC = .TRUE.
 C Point source 3d emis diagnostic file names
 !     CHARACTER( 16 ),               SAVE :: PT3DNAME
 C Point source 3d emis diagnostic integral average write buffers
@@ -132,19 +132,20 @@ C=======================================================================
      &                       RESULT ( SUCCESS )
 
          USE GRID_CONF, ONLY: NLAYS, VGTYP_GD
-         USE STK_PRMS, ONLY: SOURCE, STKDIAM, STKHT, STKVEL, STKTK, 
-     &                       ACRES_BURNED, STK_PRMS_INIT, NSRC, MY_NSRC
-         USE STK_EMIS, ONLY: EM_FILE_NAME, NSRC_EMIS, FIREFLAG, 
+         USE STK_PRMS, ONLY: SOURCE, STK_PRMS_INIT, MY_NSRC
+         USE STK_EMIS, ONLY: EM_FILE_NAME, NSRC_EMIS, FIREFLAG,
      &                       MAP_PTtoISRM, STK_EMIS_INIT
          USE PTMET, ONLY: PTMET_DATA, MC2NAME, MC3NAME, MD3NAME, PTMET_INIT
          USE PTBILIN, ONLY: BILIN_DATA, PTBILIN_INIT, NPTGRPS, XBUF,
      &                      METCGRID, METCXORIG, METCYORIG, XCELLCG, YCELLCG, 
      &                      METDGRID, METDXORIG, METDYORIG, XCELLDG, YCELLDG
          USE UTILIO_DEFN
-         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE, 
+         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE,
      &                           PT_TIME, PT_NSTEPS, REP_LAYR
          USE EMIS_VARS, ONLY: EMLAYS, EMLAYS_MX
          USE BMATVEC_MODULE, ONLY: BMATVECN
+         USE stack_group_data_module
+         USE centralized_io_module, only : window
 
          IMPLICIT NONE
 
@@ -162,7 +163,7 @@ C Parameters:
 C Local Variables:
          CHARACTER( 16 )       :: PNAME = 'PT3D_INIT       ' ! procedure name
          CHARACTER( 16 )       :: VNAME    ! variable name buffer
-         CHARACTER( 16 ), SAVE, ALLOCATABLE :: STKGNAME( : ) ! stack groups file name
+!        CHARACTER( 16 ), SAVE, ALLOCATABLE :: STKGNAME( : ) ! stack groups file name
 
          INTEGER          METCCOLS       ! cross point grid number of columns
          INTEGER          METCROWS       ! cross point grid number of rows
@@ -323,27 +324,6 @@ C (declared and stored in PTBILIN module)
             METDYORIG = YORIG3D
          END IF
 
-!!!!!^^^^^^^!!!! THESE NEED TO BE CHECKED AGAINST GRIDDESC
-
-C Determine whether height information is time dependent or time independent.
-C Non-hydrostatic is time-independent and hydrostatic is time-dependent.
-         SELECT CASE( VGTYP_GD )
-            CASE ( VGSGPH3, VGHVAL3, VGWRFEM )
-               ZSTATIC = .FALSE.
-            CASE ( VGSGPN3 )
-               ZSTATIC = .TRUE.
-            CASE DEFAULT
-               WRITE( XMSG,94010 ) 'Cannot process vertical ' //
-     &                             'coordinate type', VGTYP_GD
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-         END SELECT
-
-         IF ( ZSTATIC ) THEN
-            GC3NAME = PROMPTMFILE( 'Enter name for CROSS-POINT LAYERED GRID file',
-     &                             FSREAD3, 'GRID_CRO_3D', PNAME )
-         END IF
-
 C Compare number of meteorology layers to number of emissions layers
 !         IF ( EMLAYS .LE. NLAYS ) THEN
 !            WRITE( XMSG,94010 ) 'NOTE: The number of emission layers ' //
@@ -376,21 +356,21 @@ C Store local layer information
          END IF
 
 C Get stack data
-         ALLOCATE ( STKGNAME( NPTGRPS ), STAT = IOS )   ! stk parms files array
-         CALL CHECKMEM( IOS, 'STKGNAME', PNAME )
-         STKGNAME = ' '   ! array
+!        ALLOCATE ( STKGNAME( NPTGRPS ), STAT = IOS )   ! stk parms files array
+!        CALL CHECKMEM( IOS, 'STKGNAME', PNAME )
+!        STKGNAME = ' '   ! array
 
-         DO N = 1, NPTGRPS
-            WRITE( VNAME,'( "STK_GRPS_",I3.3 )' ) N
-            STKGNAME( N ) = PROMPTMFILE( 'Enter name for stack groups file',
-     &                                   FSREAD3, VNAME, PNAME )
-         END DO
+!        DO N = 1, NPTGRPS
+!           WRITE( VNAME,'( "STK_GRPS_",I3.3 )' ) N
+!           STKGNAME( N ) = PROMPTMFILE( 'Enter name for stack groups file',
+!    &                                   FSREAD3, VNAME, PNAME )
+!        END DO
 
-         IF ( .NOT. STK_PRMS_INIT( STKGNAME ) ) THEN
-            XMSG = 'Could not initialize stack parameters'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         END IF
+!        IF ( .NOT. STK_PRMS_INIT( STKGNAME ) ) THEN
+!           XMSG = 'Could not initialize stack parameters'
+!           CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+!           SUCCESS = .FALSE.; RETURN
+!        END IF
 
 #ifdef srcid
          IF ( PT3DFRAC ) THEN
@@ -491,7 +471,7 @@ C Allocate and set stack parameters
                CALL CHECKMEM( IOS, 'STK_VEL', PNAME )
                STK_VEL( N )%ARRY = 0.0   ! 1D array
                STK_VEL( N )%LEN = MY_NSRC( N )
-   
+ 
                DO S = 1, MY_NSRC( N )
                   SRC = SOURCE( N )%ARRY( S )
                   STK_DM( N )%ARRY( S )  = STKDIAM( N )%ARRY( SRC )
@@ -529,40 +509,6 @@ C If wildfires, allocate fire parameters
             SUCCESS = .FALSE.; RETURN
          END IF
 
-         IF ( ZSTATIC ) THEN ! Read time-independent ZF and ZH for non-hydrost Met data
-
-            DO N = 1, NPTGRPS
-
-C Compute per-source heights
-
-               IF ( MY_NSRC( N ) .GT. 0 ) THEN
-C Get un-gridding matrices for cross and dot point met data
-                  CALL RETRIEVE_IOAPI_HEADER( GC3NAME, JDATE, JTIME )
-                  CALL READGC3 ( 'X3HT0M', PT_DATE, PT_TIME, XBUF )
-                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLAYS,
-     &                          BILIN_DATA( N )%NX,
-     &                          BILIN_DATA( N )%CX,
-     &                          XBUF, PTMET_DATA( N )%ZH )
-
-                  CALL READGC3 ( 'X3HT0F', PT_DATE, PT_TIME, XBUF )
-                  CALL BMATVECN( METCGRID, MY_NSRC( N ), EMLAYS,
-     &                          BILIN_DATA( N )%NX,
-     &                          BILIN_DATA( N )%CX,
-     &                          XBUF, PTMET_DATA( N )%ZF )
-
-C Compute ZSTK, DDZF
-
-                  CALL DELTA_ZS( EMLAYS, MY_NSRC( N ),
-     &                           SOURCE( N )%ARRY, STKHT( N )%ARRY,
-     &                           PTMET_DATA( N )%ZF,
-     &                           PTMET_DATA( N )%ZSTK,
-     &                           PTMET_DATA( N )%DDZF )
-               END IF ! MY_NSRC( N ) > 0
-
-            END DO   ! NPTGRPS
-
-         END IF   ! ZSTATIC
-
          SUCCESS = .TRUE.; RETURN
 
 93053    FORMAT("#  Src Id's for play file", I2, ', with', I10, ' total sources',
@@ -592,7 +538,8 @@ C=======================================================================
          USE PTMET, ONLY    :  EMLAYS, PTMET_CONVT
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
          USE RUNTIME_VARS, ONLY : LOGDEV, PT3DDIAG, PT3DFRAC, STDATE, STTIME
-         USE UTILIO_DEFN, ONLY : INTERPX, XSTAT2
+         USE UTILIO_DEFN, ONLY : XSTAT2
+         USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
          IMPLICIT NONE
 
@@ -711,7 +658,7 @@ C Based on the current time step, find whether or not a report should be written
 !         END IF
 
 C Convert pt source met data to bi-linear interpolated data
-         CALL PTMET_CONVT( JDATE, JTIME, ZSTATIC )
+         CALL PTMET_CONVT( JDATE, JTIME )
 
 C Initialize Output Array
          !VDEMIS_PT = 0.0   ! array assignment
@@ -751,14 +698,7 @@ C Read Emissions for all sources on File N
          DO ISPC = 1, N_EMIS_ISTR
             VNAME = EM_SURR_PT( ISPC )
             IF ( VNAME .EQ. '' ) CYCLE
-            IF ( .NOT. INTERPX( STKENAME( N ), VNAME, PNAME,
-     &                          1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                          STKDATE( N ), JTIME,
-     &                          STKEMIS( N )%ARRY( 1 ) ) ) THEN
-               XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                ' from ' // TRIM( STKENAME( N ) )
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
+            call interpolate_var (STKENAME(N), VNAME, STKDATE(N), JTIME, STKEMIS(N)%ARRY)
 
 C Apportion emissions to the layers
             DO S = 1, MY_NSRC( N )
@@ -859,7 +799,8 @@ C-----------------------------------------------------------------------
       USE STK_PRMS, ONLY : MY_STRT_SRC, MY_END_SRC, MY_NSRC, SOURCE
       USE PTMET, ONLY : EMLAYS, P_D => PTMET_DATA
       USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR
-      USE UTILIO_DEFN, ONLY : INTERPX, CRLF, XSTAT2
+      USE UTILIO_DEFN, ONLY : CRLF, XSTAT2
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE
 
@@ -901,7 +842,7 @@ C Includes:
 
       INTEGER :: S, L, SRC
       INTEGER :: LTOP
- 
+
       INTERFACE
            SUBROUTINE PREPLM( FIREFLG, EMLAYS, HMIX, HTS, PSFC, TS, DDZF, QV,
      &                        TA, UW, VW, ZH, ZF, PRES, LSTK, LPBL, TSTK,
@@ -983,14 +924,8 @@ C Includes:
       ! If The Point File is for Fires, read and save the H-Flux Data in a
       ! Dedicated Variable, BFLUX
       IF ( FIREFLAG( N ) ) THEN
-         IF ( .NOT. INTERPX( STKENAME( N ), 'HFLUX', PNAME,
-     &                       1,1, MY_STRT_SRC( N ),MY_END_SRC( N ), 1,1,
-     &                       LOC_STKDATE, JTIME,
-     &                       FIREVAR( N )%ARRY( 1 ) ) ) THEN
-            XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &             ' from ' // TRIM( STKENAME( N ) )
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF
+         call interpolate_var (STKENAME(N), 'HFLUX', LOC_STKDATE, JTIME, FIREVAR(N)%ARRY)
+
          DO S = 1, MY_NSRC( N )
             SRC = SOURCE( N )%ARRY( S )
             BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC ) * BTU2M4PS3
@@ -1271,63 +1206,6 @@ C-----------------------------------------------------------------------
             RETURN
 
          END SUBROUTINE RETRIEVE_IOAPI_HEADER
-
-C-----------------------------------------------------------------------
-
-         SUBROUTINE READGC3 ( VNAME, JDATE, JTIME, XBUF )
-
-            USE VGRD_DEFN, ONLY: NLAYS
-            USE PTBILIN, ONLY: XBND, YBND
-            USE UTILIO_DEFN, ONLY: INTERPX, XSTAT2
-
-            IMPLICIT NONE
-
-            INCLUDE SUBST_FILES_ID  ! file name parameters
-
-            CHARACTER( * ) :: VNAME     ! variable name
-            INTEGER           JDATE     ! Julian date
-            INTEGER           JTIME     ! time
-            REAL              XBUF( * ) ! read buffer
-
-            INTEGER      GXOFF, GYOFF   ! global origin offset from file
-C for INTERPX
-            INTEGER, SAVE   :: STRTCOL, ENDCOL, STRTROW, ENDROW
-
-            INTEGER, SAVE   :: LAY1, LAY2
-            INTEGER            L1
-            CHARACTER( 16 ) :: PNAME = 'READGC3'   ! procedure name
-            LOGICAL, SAVE   :: FIRSTIME = .TRUE.
-
-            IF ( FIRSTIME )  THEN
-               FIRSTIME = .FALSE.
-
-               GRID_CRO_3D = GC3NAME
-
-               CALL SUBHFILE ( GRID_CRO_3D, GXOFF, GYOFF,
-     &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
-
-!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
-               IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
-               IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
-
-               LAY1 = 1; LAY2 = NLAYS
-
-            END IF
-
-            IF ( .NOT. INTERPX( GRID_CRO_3D, VNAME, PNAME,
-     &                          STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                          JDATE, JTIME, XBUF ) ) THEN
-
-               L1 = LEN_TRIM( VNAME )
-               XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                ' from file GRID_CRO_3D'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-            RETURN
-
-         END SUBROUTINE READGC3
 
 C-----------------------------------------------------------------------
 

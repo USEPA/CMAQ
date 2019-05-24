@@ -31,6 +31,7 @@ C   12 Aug 15 D.Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implem
 C   09 Dec 15 D.Wong: Open CTM_SSEMIS_1 file in a IO_PE_INCLUSIVE conditional block
 C   24 Mar 16 G.Sarwar: updated to calculate NACL emissions (needed for BR2 emissions) 
 C   16 Aug 18 G. Sarwar: Removed NACL
+C    1 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE HGRD_DEFN
@@ -388,7 +389,7 @@ C Include Mode SURFACE_AREA to diagnostic
 C Open the sea-salt emission dignostic file
                IF ( IO_PE_INCLUSIVE ) CALL OPSSEMIS ( STDATE, STTIME, TSTEP, NSSDIAG, WRSS_SPC )
 
-               ALLOCATE ( SSBF( NSSDIAG,MY_NCOLS,MY_NROWS ),
+               ALLOCATE ( SSBF( NSSDIAG,NCOLS,NROWS ),
      &                    WRSS( NCOLS,NROWS ), STAT = STATUS )
                IF ( STATUS .NE. 0 ) THEN
                   XMSG = '*** SSBF or WRSS memory allocation failed'
@@ -693,8 +694,8 @@ C Initialize sea-salt output buffer
             SEA_FACTNUM = 0.0
             SEA_FACTSRF = 0.0
 
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   IF ( Grid_Data%OCEAN( C,R ) + Grid_Data%SZONE( C,R ) .GT. 0.0 ) THEN
                      OFRAC   = Grid_Data%OCEAN     ( C,R )
                      SFRAC   = Grid_Data%SZONE     ( C,R )
@@ -851,8 +852,8 @@ C obtain speciated mass emissions.
                   END DO
 
 C Calculate mode-specific 3rd moment emission rates [m3/m3/s]
-                  M3J = ESEASJ * F6PI / REAL( RHOSW( 1 ), 4 ) + EPSILON(0.0)
-                  M3K = ESEASK * F6PI / REAL( RHOSW( 2 ), 4 ) + EPSILON(0.0)
+                  M3J = ESEASJ * F6PI / REAL( RHOSW( 1 ), 4 ) + TINY(0.0)
+                  M3K = ESEASK * F6PI / REAL( RHOSW( 2 ), 4 ) + TINY(0.0)
 
 C Calculate factors for converting 3rd moment emission rates into number
 C and 2nd moment emission rates.  See Equations 7b and 7c of Binkowski &
@@ -951,8 +952,8 @@ C Then reset the sea-salt emissions array and local write counter.
                   END IF
                   CALL NEXTIME( MDATE, MTIME, TSTEP( 1 ) )
                   DO V = 1, NSSDIAG
-                     DO R = 1, MY_NROWS
-                        DO C = 1, MY_NCOLS
+                     DO R = 1, NROWS
+                        DO C = 1, NCOLS
                            WRSS( C,R ) = SSBF( V,C,R ) / FLOAT( WSTEP )
                         END DO
                      END DO
