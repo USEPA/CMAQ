@@ -120,9 +120,9 @@ This section describes each of the input files required by the various CMAQ prog
 |[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>|| GRDDED3 | Hourly | XYZ | MCIP|required|
 |[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>|| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|required|
 |**Emissions Inputs**|||||||
-|[EMIS_1](#emis_1) <a id=emis_1_t></a> || GRDDED3 | Hourly | XYZ | SMOKE|required|
-|[STK_GRPS_nn](#stk_grps) <a id=stk_grps_t></a> || GRDDED3 |Time-invariant|XY | SMOKE|required|
-|[STK_EMIS_nn](#stk_emis) <a id=stk_emis_t></a> || GRDDED3 | Hourly | XY | SMOKE|required|
+|[EMIS_XXX*](#emis_xxx) <a id=emis_xxx_t></a> || GRDDED3 | Hourly | XYZ | SMOKE|required|
+|[STK_GRPS_XXX](#stk_grps) <a id=stk_grps_t></a> || GRDDED3 |Time-invariant|XY | SMOKE|required|
+|[STK_EMIS_XXX](#stk_emis) <a id=stk_emis_t></a> || GRDDED3 | Hourly | XY | SMOKE|required|
 |[NLDN_STRIKES](#nldn_strikes) <a id=nldn_strikes_t></a>|| GRDDED3 | Hourly | XY |Must purchase data|optional for including NO from lightning|
 |[LTNGPARMS_FILE](#ltngparm_file) <a id=ltngparm_file_t></a>|| GRDDED3 | Time-invariant | XY |CMAS|required for including NO from lightning|
 |**Biogenic and Land Surface Inputs**|||||||
@@ -137,6 +137,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[JTABLE](#jtable) <a id=jtable_t></a>|| ASCII | Daily | n/a | JPROC|optional|
 |[OMI](#omi) <a id=omi_t></a>|| ASCII | daily | n/a ||optional|CMAQ repo or create_omi|
 
+*XXX - three-digit variable indicating emission stream number. Gridded and Inline Point emissions are numbered independently.
 
 ## General
 <a id=griddesc></a> 
@@ -402,40 +403,40 @@ The MET_DOT_3D time-dependent file contains 3-D meteorological descriptions at d
 | VHAT_JD| contravariant-V*Jacobian*density| (kg m<sup>-1</sup> s<sup>-1</sup>) [cell faces; Arakawa-C grid]||
 
 ## Emissions Inputs
-<a id=emis_1></a>
+<a id=emis_xxx></a>
 
-### EMIS_1: Emissions
-[Return to Table 4-3](#emis_1_t)
-
-**>> Comment <<** DW: Since Ben has new emission system in place in CMAQ 53, he should modify the emission portion accordingly.
+### EMIS_XXX: Emissions
+[Return to Table 4-3](#emis_xxx_t)
 
 Used by: CCTM
 
-CMAQ can accept emissions inputs from a variety of emissions models and preprocessors. The most commonly used option is the Sparse Matrix Operator Kernel Emissions (SMOKE) modeling system, which is a collection of programs that separately process and merge emissions data for each emissions sector for input to air quality models.
+CMAQ may accept emissions inputs from a variety of emissions models and preprocessors, as long as the input files created are compatible with IOAPI format. The most commonly used software for preparing emissions inputs is the Sparse Matrix Operator Kernel Emissions (SMOKE) modeling system, which is a collection of programs that separately process and merge emissions data for each emissions stream for input to air quality models.
 
-The emissions file sorts the emitted gas-phase and aerosol species by grid cell and time. The file type is GRDDED3, and the units are in moles per second (moles s<sup>-1</sup>) for gas-phase species and grams per second (g s<sup>-1</sup>) for aerosol species. The file data are looped as follows: by column, by row, by layer, by variable, and by input time step. CMAQ does not artificially distinguish between surface and elevated emissions sources; elevated sources are provided to CMAQ as vertically resolved emissions. For CCTM configurations that do not use in-line emissions calculations, all emissions estimates are contained within a single input emission file for each day. In v4.7, CMAQ now has the capability to process point-source, sea salt, and biogenic emissions in-line. The supplemental input files to use for calculating the in-line emissions are described in the CMAQv4.7 release notes.
+The emissions file provides primary pollutant emission rates by model grid cell and time. The file type is GRDDED3, and the units are in moles per second (moles s<sup>-1</sup>) for gas-phase species and grams per second (g s<sup>-1</sup>) for aerosol species. The file data are looped as follows: by column, by row, by layer, by variable, and by input time step. Elevated source emission rates may be provided to CCTM as vertically resolved emissions if the EMIS_XXX file is 3D. The gridded emissions files should be assigned three-digit numeric suffixes to identify them. This suffix is used to link the emission filename to user-defined stream labels and other options (e.g. GR_EMIS_LAB_XXX, GR_EM_DTOVRD_XXX). 
+
+Starting in CMAQv5.3, users can run with as many gridded emission files as desired, including zero files. Make sure the N_EMIS_GR runtime variable is set to reflect the number of gridded emission files.
 
 <a id=stk_grps></a>
 
-### STK_GRPS_nn: Stack groups
+### STK_GRPS_XXX: Stack groups
 [Return to Table 4-3](#stk_grps_t)
 
 Used by: CCTM – in-line emissions version only
 
-The ## mark is unique and represents the sector identification.
+The XXX mark is unique and represents the stream identification. Make sure the N_EMIS_PT runtime variable is set to reflect the total number of in-line emission streams.
 
-The stack groups file is an I/O API netCDF file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual
+The stack groups file is an IOAPI file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
 
 <a id=stk_emis></a>
 
-### STK_EMIS_nn: Point source emissions
+### STK_EMIS_XXX: Point source emissions
 [Return to Table 4-3](#stk_emis_t)
 
 Used by: CCTM – inline emissions version only
 
-The ## mark is unique and represents the sector identification.
+The XXX mark is unique and represents the stream identification. Make sure the N_EMIS_PT runtime variable is set to reflect the total number of in-line emission streams.
 
-The elevated-point-source emissions file is an I/O API GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ in-line plume rise calculation, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
+The elevated-point-source emissions file is an IOAPI GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ in-line plume rise calculation, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
 
 <a id=nldn_strikes></a>
 
