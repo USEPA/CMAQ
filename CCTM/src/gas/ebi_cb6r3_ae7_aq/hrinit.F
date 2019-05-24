@@ -29,11 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-<<<<<<< HEAD
-C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
-=======
-C  REVISION HISTORY: Created by EBI solver program, Apr  3, 2019
->>>>>>> master
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -150,11 +146,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-<<<<<<< HEAD
-      N_EBISP  = 132
-=======
-      N_EBISP  = 130
->>>>>>> master
+      N_EBISP  = 134
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -255,46 +247,6 @@ c..Allocate and define ebi species
       EBISP(  92 ) = ACLI
       EBISP(  93 ) = ACLJ
       EBISP(  94 ) = ACLK
-<<<<<<< HEAD
-      EBISP(  95 ) = AISO3J
-      EBISP(  96 ) = AGLYJ
-      EBISP(  97 ) = MTNO3
-      EBISP(  98 ) = AMTNO3J
-      EBISP(  99 ) = AMTHYDJ
-      EBISP( 100 ) = AAVB2J
-      EBISP( 101 ) = AOLGAJ
-      EBISP( 102 ) = AAVB3J
-      EBISP( 103 ) = AAVB4J
-      EBISP( 104 ) = AISO1J
-      EBISP( 105 ) = AOLGBJ
-      EBISP( 106 ) = AISO2J
-      EBISP( 107 ) = ASQTJ
-      EBISP( 108 ) = APOCI
-      EBISP( 109 ) = APNCOMI
-      EBISP( 110 ) = APOCJ
-      EBISP( 111 ) = APNCOMJ
-      EBISP( 112 ) = PCVOC
-      EBISP( 113 ) = PCSOARXN
-      EBISP( 114 ) = VLVPO1
-      EBISP( 115 ) = VSVPO1
-      EBISP( 116 ) = VSVPO2
-      EBISP( 117 ) = VSVPO3
-      EBISP( 118 ) = VIVPO1
-      EBISP( 119 ) = VLVOO1
-      EBISP( 120 ) = VLVOO2
-      EBISP( 121 ) = VSVOO2
-      EBISP( 122 ) = VSVOO3
-      EBISP( 123 ) = VSVOO1
-      EBISP( 124 ) = FORM_PRIMARY
-      EBISP( 125 ) = ALD2_PRIMARY
-      EBISP( 126 ) = BUTADIENE13
-      EBISP( 127 ) = ACROLEIN
-      EBISP( 128 ) = ACRO_PRIMARY
-      EBISP( 129 ) = TOLU
-      EBISP( 130 ) = HG
-      EBISP( 131 ) = HGIIAER
-      EBISP( 132 ) = HGIIGAS
-=======
       EBISP(  95 ) = IEPOXP
       EBISP(  96 ) = ASO4J
       EBISP(  97 ) = AISO3J
@@ -310,28 +262,31 @@ c..Allocate and define ebi species
       EBISP( 107 ) = AOLGBJ
       EBISP( 108 ) = AISO2J
       EBISP( 109 ) = ASQTJ
-      EBISP( 110 ) = PCVOC
-      EBISP( 111 ) = PCSOARXN
-      EBISP( 112 ) = VLVPO1
-      EBISP( 113 ) = VSVPO1
-      EBISP( 114 ) = VSVPO2
-      EBISP( 115 ) = VSVPO3
-      EBISP( 116 ) = VIVPO1
-      EBISP( 117 ) = VLVOO1
-      EBISP( 118 ) = VLVOO2
-      EBISP( 119 ) = VSVOO2
-      EBISP( 120 ) = VSVOO3
-      EBISP( 121 ) = VSVOO1
-      EBISP( 122 ) = FORM_PRIMARY
-      EBISP( 123 ) = ALD2_PRIMARY
-      EBISP( 124 ) = BUTADIENE13
-      EBISP( 125 ) = ACROLEIN
-      EBISP( 126 ) = ACRO_PRIMARY
-      EBISP( 127 ) = TOLU
-      EBISP( 128 ) = HG
-      EBISP( 129 ) = HGIIAER
-      EBISP( 130 ) = HGIIGAS
->>>>>>> master
+      EBISP( 110 ) = APOCI
+      EBISP( 111 ) = APNCOMI
+      EBISP( 112 ) = APOCJ
+      EBISP( 113 ) = APNCOMJ
+      EBISP( 114 ) = PCVOC
+      EBISP( 115 ) = PCSOARXN
+      EBISP( 116 ) = VLVPO1
+      EBISP( 117 ) = VSVPO1
+      EBISP( 118 ) = VSVPO2
+      EBISP( 119 ) = VSVPO3
+      EBISP( 120 ) = VIVPO1
+      EBISP( 121 ) = VLVOO1
+      EBISP( 122 ) = VLVOO2
+      EBISP( 123 ) = VSVOO2
+      EBISP( 124 ) = VSVOO3
+      EBISP( 125 ) = VSVOO1
+      EBISP( 126 ) = FORM_PRIMARY
+      EBISP( 127 ) = ALD2_PRIMARY
+      EBISP( 128 ) = BUTADIENE13
+      EBISP( 129 ) = ACROLEIN
+      EBISP( 130 ) = ACRO_PRIMARY
+      EBISP( 131 ) = TOLU
+      EBISP( 132 ) = HG
+      EBISP( 133 ) = HGIIAER
+      EBISP( 134 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

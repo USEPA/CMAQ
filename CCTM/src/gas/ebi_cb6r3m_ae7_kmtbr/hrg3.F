@@ -27,11 +27,7 @@ C  PRECONDITIONS: For the CB6R3M_AE7_KMTBR mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-<<<<<<< HEAD
-C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
-=======
-C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
->>>>>>> master
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -89,7 +85,7 @@ c..Production of C2O3 (except from PAN )
      &   +    6.0000D-01 * RXRAT(   204 )      ! XOPN+O3=0.6000D+00*C2O3+...
      &   +    1.2000D-01 * RXRAT(   208 )      ! OPEN+O3=0.1200D+00*C2O3+...
      &   +                 RXRAT(   243 )      ! CL+ALD2=C2O3+HCL
-     &   +                 RXRAT(   356 )      ! ALD2+BR=C2O3+HBR
+     &   +                 RXRAT(   358 )      ! ALD2+BR=C2O3+HBR
 
 c..Loss frequency of C2O3 ( not including C2O3 + C2O3 )
       L8 =                 RKI(    53 ) * YC ( NO           )   ! C2O3+NO=NO2+MEO2+RO2

@@ -27,11 +27,7 @@ C  PRECONDITIONS: For the SAPRC07TIC_AE6I_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-<<<<<<< HEAD
-C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
-=======
-C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
->>>>>>> master
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C***********************************************************************
       USE HRDATA
@@ -954,13 +950,13 @@ C..NOTE: RXRAT commented out are not referenced by any routine
       RXRAT(    894 ) = RKI(   894 ) * YC(  IMAE )
       RXRAT(    895 ) = RKI(   895 ) * YC(  IHMML )
       RXRAT(    896 ) = RKI(   896 ) * YC(  IEPOXP )
-      RXRAT(    897 ) = RKI(   897 ) * YC(  IEPOXP )
+      RXRAT(    897 ) = RKI(   897 ) * YC(  IEPOXP ) * YC(  ASO4J )
       RXRAT(    898 ) = RKI(   898 ) * YC(  IEPOXP ) * YC(  AIETETJ )
       RXRAT(    899 ) = RKI(   899 ) * YC(  IEPOXP ) * YC(  AIEOSJ )
       RXRAT(    900 ) = RKI(   900 ) * YC(  IMAEP )
-      RXRAT(    901 ) = RKI(   901 ) * YC(  IMAEP )
+      RXRAT(    901 ) = RKI(   901 ) * YC(  IMAEP ) * YC(  ASO4J )
       RXRAT(    902 ) = RKI(   902 ) * YC(  IHMMLP )
-      RXRAT(    903 ) = RKI(   903 ) * YC(  IHMMLP )
+      RXRAT(    903 ) = RKI(   903 ) * YC(  IHMMLP ) * YC(  ASO4J )
       RXRAT(    904 ) = RKI(   904 ) * YC(  NO3 )
       RXRAT(    905 ) = RKI(   905 ) * YC(  AALK1J )
       RXRAT(    906 ) = RKI(   906 ) * YC(  AALK2J )

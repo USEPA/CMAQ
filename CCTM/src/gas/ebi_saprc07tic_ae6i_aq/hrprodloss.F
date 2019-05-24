@@ -29,11 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-<<<<<<< HEAD
-C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
-=======
-C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
->>>>>>> master
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 
@@ -3829,22 +3825,27 @@ C***********************************************************************
 
       PROD(  IEPOXP       ) =                 RXRAT(   893 )      ! IEPOX=IEPOXP
       LOSS(  IEPOXP       ) =                 RXRAT(   896 )      ! IEPOXP=AIETETJ
-     &                      +                 RXRAT(   897 )      ! IEPOXP=AIEOSJ
+     &                      +                 RXRAT(   897 )      ! IEPOXP+ASO4J=AIEOSJ
      &                      +                 RXRAT(   898 )      ! IEPOXP+AIETETJ=ADIMJ
      &                      +                 RXRAT(   899 )      ! IEPOXP+AIEOSJ=ADIMJ
 
       PROD(  IMAEP        ) =                 RXRAT(   894 )      ! IMAE=IMAEP
       LOSS(  IMAEP        ) =                 RXRAT(   900 )      ! IMAEP=AIMGAJ
-     &                      +                 RXRAT(   901 )      ! IMAEP=AIMOSJ
+     &                      +                 RXRAT(   901 )      ! IMAEP+ASO4J=AIMOSJ
 
       PROD(  IHMMLP       ) =                 RXRAT(   895 )      ! IHMML=IHMMLP
       LOSS(  IHMMLP       ) =                 RXRAT(   902 )      ! IHMMLP=AIMGAJ
-     &                      +                 RXRAT(   903 )      ! IHMMLP=AIMOSJ
+     &                      +                 RXRAT(   903 )      ! IHMMLP+ASO4J=AIMOSJ
 
       PROD(  AIETETJ      ) =                 RXRAT(   896 )      ! IEPOXP=AIETETJ
       LOSS(  AIETETJ      ) =                 RXRAT(   898 )      ! AIETETJ+IEPOXP=ADIMJ
 
-      PROD(  AIEOSJ       ) =                 RXRAT(   897 )      ! IEPOXP=AIEOSJ
+      PROD(  ASO4J        ) =   0.0D0
+      LOSS(  ASO4J        ) =                 RXRAT(   897 )      ! ASO4J+IEPOXP=AIEOSJ
+     &                      +                 RXRAT(   901 )      ! ASO4J+IMAEP=AIMOSJ
+     &                      +                 RXRAT(   903 )      ! ASO4J+IHMMLP=AIMOSJ
+
+      PROD(  AIEOSJ       ) =                 RXRAT(   897 )      ! IEPOXP+ASO4J=AIEOSJ
       LOSS(  AIEOSJ       ) =                 RXRAT(   899 )      ! AIEOSJ+IEPOXP=ADIMJ
 
       PROD(  ADIMJ        ) =                 RXRAT(   898 )      ! IEPOXP+AIETETJ=ADIMJ
@@ -3855,8 +3856,8 @@ C***********************************************************************
      &                      +                 RXRAT(   902 )      ! IHMMLP=AIMGAJ
       LOSS(  AIMGAJ       ) =   0.0D0
 
-      PROD(  AIMOSJ       ) =                 RXRAT(   901 )      ! IMAEP=AIMOSJ
-     &                      +                 RXRAT(   903 )      ! IHMMLP=AIMOSJ
+      PROD(  AIMOSJ       ) =                 RXRAT(   901 )      ! IMAEP+ASO4J=AIMOSJ
+     &                      +                 RXRAT(   903 )      ! IHMMLP+ASO4J=AIMOSJ
       LOSS(  AIMOSJ       ) =   0.0D0
 
       PROD(  AALK1J       ) =   0.0D0

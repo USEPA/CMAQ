@@ -27,11 +27,7 @@ C  PRECONDITIONS: For the SAPRC07TC_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-<<<<<<< HEAD
-C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
-=======
-C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
->>>>>>> master
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C***********************************************************************
       USE HRDATA

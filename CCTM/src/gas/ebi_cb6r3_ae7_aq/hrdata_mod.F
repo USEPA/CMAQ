@@ -27,11 +27,7 @@ C  PRECONDITIONS: For the CB6R3_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-<<<<<<< HEAD
-C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
-=======
-C  REVISION HISTORY: Created by EBI solver program, Apr  3, 2019
->>>>>>> master
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -221,46 +217,6 @@ c..Species indices
       INTEGER, PARAMETER :: ACLI             =  105
       INTEGER, PARAMETER :: ACLJ             =  106
       INTEGER, PARAMETER :: ACLK             =  107
-<<<<<<< HEAD
-      INTEGER, PARAMETER :: AISO3J           =  108
-      INTEGER, PARAMETER :: AGLYJ            =  109
-      INTEGER, PARAMETER :: MTNO3            =  110
-      INTEGER, PARAMETER :: AMTNO3J          =  111
-      INTEGER, PARAMETER :: AMTHYDJ          =  112
-      INTEGER, PARAMETER :: AAVB2J           =  113
-      INTEGER, PARAMETER :: AOLGAJ           =  114
-      INTEGER, PARAMETER :: AAVB3J           =  115
-      INTEGER, PARAMETER :: AAVB4J           =  116
-      INTEGER, PARAMETER :: AISO1J           =  117
-      INTEGER, PARAMETER :: AOLGBJ           =  118
-      INTEGER, PARAMETER :: AISO2J           =  119
-      INTEGER, PARAMETER :: ASQTJ            =  120
-      INTEGER, PARAMETER :: APOCI            =  121
-      INTEGER, PARAMETER :: APNCOMI          =  122
-      INTEGER, PARAMETER :: APOCJ            =  123
-      INTEGER, PARAMETER :: APNCOMJ          =  124
-      INTEGER, PARAMETER :: PCVOC            =  125
-      INTEGER, PARAMETER :: PCSOARXN         =  126
-      INTEGER, PARAMETER :: VLVPO1           =  127
-      INTEGER, PARAMETER :: VSVPO1           =  128
-      INTEGER, PARAMETER :: VSVPO2           =  129
-      INTEGER, PARAMETER :: VSVPO3           =  130
-      INTEGER, PARAMETER :: VIVPO1           =  131
-      INTEGER, PARAMETER :: VLVOO1           =  132
-      INTEGER, PARAMETER :: VLVOO2           =  133
-      INTEGER, PARAMETER :: VSVOO2           =  134
-      INTEGER, PARAMETER :: VSVOO3           =  135
-      INTEGER, PARAMETER :: VSVOO1           =  136
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  137
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  138
-      INTEGER, PARAMETER :: BUTADIENE13      =  139
-      INTEGER, PARAMETER :: ACROLEIN         =  140
-      INTEGER, PARAMETER :: ACRO_PRIMARY     =  141
-      INTEGER, PARAMETER :: TOLU             =  142
-      INTEGER, PARAMETER :: HG               =  143
-      INTEGER, PARAMETER :: HGIIAER          =  144
-      INTEGER, PARAMETER :: HGIIGAS          =  145
-=======
       INTEGER, PARAMETER :: IEPOXP           =  108
       INTEGER, PARAMETER :: ASO4J            =  109
       INTEGER, PARAMETER :: AISO3J           =  110
@@ -276,27 +232,30 @@ c..Species indices
       INTEGER, PARAMETER :: AOLGBJ           =  120
       INTEGER, PARAMETER :: AISO2J           =  121
       INTEGER, PARAMETER :: ASQTJ            =  122
-      INTEGER, PARAMETER :: PCVOC            =  123
-      INTEGER, PARAMETER :: PCSOARXN         =  124
-      INTEGER, PARAMETER :: VLVPO1           =  125
-      INTEGER, PARAMETER :: VSVPO1           =  126
-      INTEGER, PARAMETER :: VSVPO2           =  127
-      INTEGER, PARAMETER :: VSVPO3           =  128
-      INTEGER, PARAMETER :: VIVPO1           =  129
-      INTEGER, PARAMETER :: VLVOO1           =  130
-      INTEGER, PARAMETER :: VLVOO2           =  131
-      INTEGER, PARAMETER :: VSVOO2           =  132
-      INTEGER, PARAMETER :: VSVOO3           =  133
-      INTEGER, PARAMETER :: VSVOO1           =  134
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  135
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  136
-      INTEGER, PARAMETER :: BUTADIENE13      =  137
-      INTEGER, PARAMETER :: ACROLEIN         =  138
-      INTEGER, PARAMETER :: ACRO_PRIMARY     =  139
-      INTEGER, PARAMETER :: TOLU             =  140
-      INTEGER, PARAMETER :: HG               =  141
-      INTEGER, PARAMETER :: HGIIAER          =  142
-      INTEGER, PARAMETER :: HGIIGAS          =  143
->>>>>>> master
+      INTEGER, PARAMETER :: APOCI            =  123
+      INTEGER, PARAMETER :: APNCOMI          =  124
+      INTEGER, PARAMETER :: APOCJ            =  125
+      INTEGER, PARAMETER :: APNCOMJ          =  126
+      INTEGER, PARAMETER :: PCVOC            =  127
+      INTEGER, PARAMETER :: PCSOARXN         =  128
+      INTEGER, PARAMETER :: VLVPO1           =  129
+      INTEGER, PARAMETER :: VSVPO1           =  130
+      INTEGER, PARAMETER :: VSVPO2           =  131
+      INTEGER, PARAMETER :: VSVPO3           =  132
+      INTEGER, PARAMETER :: VIVPO1           =  133
+      INTEGER, PARAMETER :: VLVOO1           =  134
+      INTEGER, PARAMETER :: VLVOO2           =  135
+      INTEGER, PARAMETER :: VSVOO2           =  136
+      INTEGER, PARAMETER :: VSVOO3           =  137
+      INTEGER, PARAMETER :: VSVOO1           =  138
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  139
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  140
+      INTEGER, PARAMETER :: BUTADIENE13      =  141
+      INTEGER, PARAMETER :: ACROLEIN         =  142
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  143
+      INTEGER, PARAMETER :: TOLU             =  144
+      INTEGER, PARAMETER :: HG               =  145
+      INTEGER, PARAMETER :: HGIIAER          =  146
+      INTEGER, PARAMETER :: HGIIGAS          =  147
 
       END MODULE HRDATA

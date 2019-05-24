@@ -2714,6 +2714,7 @@
              INDEX_IMAEP        = IOLD2NEW( INDEX_IMAEP       , 1 )
              INDEX_IHMMLP       = IOLD2NEW( INDEX_IHMMLP      , 1 )
              INDEX_AIETETJ      = IOLD2NEW( INDEX_AIETETJ     , 1 )
+             INDEX_ASO4J        = IOLD2NEW( INDEX_ASO4J       , 1 )
              INDEX_AIEOSJ       = IOLD2NEW( INDEX_AIEOSJ      , 1 )
              INDEX_ADIMJ        = IOLD2NEW( INDEX_ADIMJ       , 1 )
              INDEX_AIMGAJ       = IOLD2NEW( INDEX_AIMGAJ      , 1 )

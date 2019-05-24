@@ -27,11 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-<<<<<<< HEAD
-C  REVISION HISTORY: Created by EBI solver program, May  2, 2019
-=======
-C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
->>>>>>> master
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -77,7 +73,7 @@ C**********************************************************************
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
-      USE CENTRALIZED_IO_MODULE, only : interpolate_var, ocean, szone
+      USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 
       IMPLICIT NONE
 
@@ -329,7 +325,7 @@ C.. Get pressure in Pascals
       CALL INTERPOLATE_VAR ('PRES', MIDDATE, MIDTIME, PRES)
 
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
-      CALL HETCHEM_RATES( TA, PRES, QV, CGRID )
+      CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells
