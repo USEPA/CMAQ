@@ -215,15 +215,15 @@
       INTEGER :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
       CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default Assumption for
-                                         !     Emissinos DIagnostic File Output
+                                         !     Emissions Diagnostic File Output
       LOGICAL :: EMIS_DATE_OVRD = .FALSE. ! Overrider CMAQ not to check
                                           ! if the dates on the emissions file match that of 
-                                          ! the interal model
+                                          ! the internal model
       CHARACTER(  16 ), SAVE, ALLOCATABLE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
 
       LOGICAL :: USE_MARINE_GAS_EMISSION = .FALSE.
 
-      ! Processs Analysis
+      ! Process Analysis
       LOGICAL :: PROCAN    = .FALSE. ! flag for process analysis
       INTEGER :: PA_BEGCOL = 0       ! Starting PA output
       INTEGER :: PA_ENDCOL = 0       ! ending column for PA output

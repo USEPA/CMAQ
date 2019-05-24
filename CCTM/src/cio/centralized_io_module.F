@@ -1955,23 +1955,29 @@ C Read the various categories of normalized emissions
           END IF
 
           IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
-             XMSG = 'Open failure for ' // OCEAN_1
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          END IF
-
-          If ( .Not. XTRACT3( OCEAN_1, 'OPEN',
+             XMSG = 'Could not open ' // OCEAN_1
+             Call M3WARN( PNAME, 0, 0, XMSG )
+             XMSG = 'Open ocean and surf zone fractions will be set to 0.'
+             WRITE( LOGDEV, * ) XMSG
+             ocean = 0.0
+             szone = 0.0
+          ELSE 
+             IF ( .NOT. XTRACT3( OCEAN_1, 'OPEN',
      &                        1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
      &                        0, 0, ocean ) ) Then
-             XMSG = 'Could not interpolate OPEN from ' // OCEAN_1
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          End If
+                XMSG = 'Could not read OPEN from ' // OCEAN_1
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             End If
+             WHERE ( ocean .lt. 0.0 ) ocean = 0.0  ! ensure values are nonnegative
 
-          If ( .Not. XTRACT3( OCEAN_1, 'SURF',
-     &                        1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                        0, 0, szone ) ) Then
-             XMSG = 'Could not interpolate SURF from ' // OCEAN_1
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          End If
+             If ( .Not. XTRACT3( OCEAN_1, 'SURF',
+     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                           0, 0, szone ) ) Then
+                XMSG = 'Could not interpolate SURF from ' // OCEAN_1
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             End If
+             WHERE ( szone .lt. 0.0 ) szone = 0.0  ! ensure values are nonnegative
+          END IF
 
           IF ( USE_MARINE_GAS_EMISSION ) then
              allocate (chlr(ncols, nrows),
