@@ -83,12 +83,12 @@ CMAQ requires a basic set of input files: initial condition file, which is creat
 
 Rather than forcing the programmer and program-user to deal with hard-coded file names or hard-coded unit numbers, the I/O API utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API, environment variables must be used to set the values for the program’s logical file names. A complete list of CMAQ input and output files by logical name is provided in Tables 4-3 and 4-8.
 
-This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 4-3](#$Input_Table) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. Sample disk space requirements for a desired input data set can easily be calculated from the information in [Table 4-3](#Input_Table); each data record is four bytes. The I/O API file sizes can be calculated using the number of variables in a CMAQ file and the spatial and temporal coverage of the data. The user should consult the CMAQ release notes for additional file information. The programs used to generate the files ("Source") are described in Section 2.
+**>>COMMENT<<** DW: Where is table 4-8?
+
+This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 4-3](#$Input_Table) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. The user should consult the CMAQ release notes for additional file information. The programs used to generate the files ("Source") are described in Section 2. Typical time step is 1 hour and user can specify a finer one, e.g. 20 minutes. In addition, typical thickness of a boundary file is 1, i.e. NTHIK = 1 but it can be any positive integer.
 
 <!-- BEGIN COMMENT -->
 **>> Comment <<** In Table 8.1, some of the potential sources for the files have not been explained elsewhere (e.g., CSV2NML, Spatial Allocator, Cropcal).
-
-**>> Comment <<** In Table 8.1, those Hourly denotation, we should put an asterisk to indicate that it can be user defined, e.g. 30 minutes rather 1 hour and in the same table and table 8-13, there are places with +1 and I think we can make it more generic as +NTHIK (your call).
 
 **>> Comment <<** DW: Also I think we should remove everything related to/associated with JPROC and JTABLE since CMAQ does not use it anymore and they are highlighted in the PDF file.
 
@@ -237,7 +237,7 @@ The namelist files for the other pollutant classes have similar configurations a
 
 Used by: CCTM
 
-The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The file data are looped in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose.
+The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The actual file data are organized in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose.
 
 ## Boundary Condition Inputs
 <a id=bndy_conc_1></a>
@@ -247,7 +247,7 @@ The initial concentrations of each species being modeled must be input to CMAQ. 
 
 Used by: CCTM
 
-CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data by the use of a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west).
+CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data by the use of a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). Consult IOAPI User Guide for a pictorial description.
 
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10e<sup>-30</sup>. The perimeter of the CMAQ domain is NTHIK cell wide (typically NTHIK = 1), where the number of boundary cells = (2*NROW*NTHIK)+(2*NCOL*NTHIK)+(4*NTHIK*NTHIK).
 
@@ -420,6 +420,8 @@ CMAQ may accept emissions inputs from a variety of emissions models and preproce
 
 The emissions file provides primary pollutant emission rates by model grid cell and time. The file type is GRDDED3, and the units are in moles per second (moles s<sup>-1</sup>) for gas-phase species and grams per second (g s<sup>-1</sup>) for aerosol species. The file data are looped as follows: by column, by row, by layer, by variable, and by input time step. Elevated source emission rates may be provided to CCTM as vertically resolved emissions if the EMIS_XXX file is 3D. The gridded emissions files should be assigned three-digit numeric suffixes to identify them. This suffix is used to link the emission filename to user-defined stream labels and other options (e.g. GR_EMIS_LAB_XXX, GR_EM_DTOVRD_XXX). 
 
+**>> Comment <<** DW: Will these GR_EMIS_LAB_XXX and GR_EM_DTOVRD_XXX be described some where in the user guide?
+
 Starting in CMAQv5.3, users can run with as many gridded emission files as desired, including zero files. Make sure the N_EMIS_GR runtime variable is set to reflect the number of gridded emission files.
 
 <a id=stk_grps></a>
@@ -452,6 +454,8 @@ The elevated-point-source emissions file is an IOAPI GRDDED3 file with emissions
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The NLDN lightning strikes file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
+
+**>> Comment <<** DW: What some of the table have the same name, Table 4-X? 
 
  **Table 4-X**
 
@@ -488,6 +492,8 @@ The lightning parameters file is used for calculating in-line NO emissions from 
 Used by: CCTM
 
 The CMAQ aerosol models AERO5 and AERO6 can compute sea salt emissions from both open ocean grid cells and surf zone grid cells. The addition of the surf zone option simulates the elevated emissions rates of sea salt in coastal regions where wave action occurs. The OCEAN_1 file contains data on the fraction of each grid cell that is either open ocean (OPEN) or in the surf zone (SURF). When CCTM is compiled with AERO5 or AERO6, it will expect the OCEAN_1 file as input.
+
+**>> Comment <<** DW: We need to revisit this after we decide the fate of ocean file.
 
 <a id=gspro></a>
 ### GSPRO: Speciation profiles
@@ -626,6 +632,8 @@ This is a 3-D daily file created by the EPIC model via the FEST-C interface and 
 Used by: CCTM
 
 Each of the gas-phase mechanisms in CMAQ contains photolysis reactions that require clear-sky reaction rates precomputed from kinetics data at various altitudes and latitude bands. The CMAQ program used to base on JPROC to generate photolysis rate look up table but correct CMAQ is based on inline photolysis calculation.
+
+**>> Comment <<** DW: Should we remove JTABLE?
 
 <a id=omi></a>
 ### OMI: Ozone Monitoring Instrument Column Data
