@@ -91,15 +91,12 @@ C File Variables:
 
 C Local Variables:
 
-!     REAL         XTRHOJ( 0:NCOLS,NROWS )
-!     REAL         YTRHOJ( 0:NROWS,NCOLS ) <- violates stenex setup
-      REAL, ALLOCATABLE, SAVE :: XTRHOJ( :,: )
-      REAL, ALLOCATABLE, SAVE :: YTRHOJ( :,: )
+
       INTEGER       ALLOCSTAT
 
       INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
 
-      CHARACTER( 16 ) :: PNAME = 'HADVYPPM'
+      CHARACTER( 16 ) :: PNAME = 'HADVPPM'
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: FIRST_BC = .TRUE.
       LOGICAL, ALLOCATABLE, SAVE :: XYFIRST( : )
@@ -167,13 +164,6 @@ C Get CGRID offsets
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
 
-         ALLOCATE ( XTRHOJ( 0:NCOLS,  NROWS ), STAT = ALLOCSTAT )
-         ALLOCATE ( YTRHOJ(   NCOLS,0:NROWS ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating XTRHOJ or YTRHOJ'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
       END IF                    ! if firstime
 
       SYNCSTEP = TIME2SEC( TSTEP( 2 ) )
@@ -194,14 +184,6 @@ C Get CGRID offsets
 
             XYFIRST( LVL ) = .FALSE.
 
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
-                  YTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
-               END DO
-            END DO
-            CALL SUBST_COMM ( YTRHOJ, DSPL_N0_E0_S1_W0, DRCN_S, '2 0' )
-
-
             CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
 
@@ -211,14 +193,6 @@ C Get CGRID offsets
          ELSE
 
             XYFIRST( LVL ) = .TRUE.
-
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
-                  XTRHOJ( COL,ROW ) = CGRID( COL,ROW,LVL,ASPC )
-               END DO
-            END DO
-            CALL SUBST_COMM ( XTRHOJ, DSPL_N0_E0_S0_W1, DRCN_W, '1 0' )
-
 
             CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'Y_PPM', CGRID, FDATE, FTIME, LVL )
