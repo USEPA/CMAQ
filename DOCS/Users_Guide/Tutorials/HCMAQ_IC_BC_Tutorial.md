@@ -24,8 +24,53 @@ This file is named CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_201
 
 ** >>COMMENT<< ** add link to H-CMAQ output file
 
+### STEP 2 (optional): Time shift the downloaded seasonal average hemispheric CMAQ output file </strong>
 
-### STEP 2: Compile the ICON and BCON executables</strong>
+If the time period for which initial and boundary conditions are to be generated does not fall between October 16, 2015 12:00 GMT and January 16, 2017 0:00 GMT, the time stamps in the downloaded file need to be adjusted to encompass the desired time period. This can be accomplished using a tool like  `m3tshift` that is part of the `m3tools` utilities released with [I/O API](https://www.cmascenter.org/ioapi/). 
+
+The seasonal average concentration file obtained in Step 1 contains six time stamps (10/16/2015 12:00, 1/16/2016 0:00, 4/16/2016 12:00, 7/17/2016 0:00, 10/16/2016 12:00, and 1/16/2017 0:00) that represent fall, winter, spring, summer, fall, and winter seasonal average values, respectively. Fall was defined as September 1 - November 30, 2016, winter was defined as January 1 - February 29 and December 1 - December 31, 2016, spring was defined as March 1 - May 31, 2016, and summer was defined as June 1- August 31, 2016. Note that the concentration values associated with the first time stamp are identical to those associated with the fifth time stamp since both represent fall, and the concentration values associated with the second time stamp are identical to those associated with the sixth time stamp since both represent winter.
+
+A sample script using `m3tshift` to shift all of the six time stamps back by two years to support the generation of initial and boundary conditions with ICON and BCON for a modeling period between October 16, 2013 12:00 GMT and January 17, 2015 0:00 GMT is shown below.
+
+```
+#!/bin/csh -f
+
+set EXEC = /home/wdx/lib/x86_64/ifc-17.0.3/ioapi_3.1/Linux2_x86_64ifort/m3tshift
+
+#> Year to be entirely encompassed by the time stamps in the time-shifted output file
+set TARGET_YEAR = 2014
+
+#> Path to the seasonal average H-CMAQ file downloaded from the CMAS data warehouse
+#> This path will also be used to store the time-shifted output file
+set DATADIR = /work/MOD3EVAL/css/CMAQ_v53_Dev/data
+
+#> Name of the seasonal average H-CMAQ file downloaded from the CMAS data warehouse
+set AV_CONC_INFILE = CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
+
+#> Name of the time-shifted seasonal average H-CMAQ file 
+set AV_CONC_OUTFILE = CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_${TARGET_YEAR}_quarterly_av.nc
+
+setenv INFILE ${DATADIR}/${AV_CONC_INFILE}
+setenv OUTFILE ${DATADIR}/${AV_CONC_OUTFILE}
+
+#> Invoke m3shift to shift the time stamps to the target year
+#> Note that the first time stamp represents the fall of the previous year
+
+@ TARGET_YEAR = ${TARGET_YEAR} - 1
+
+${EXEC} << EOF
+INFILE
+2015289
+120000
+${TARGET_YEAR}289
+120000
+21960000
+131760000
+OUTFILE
+EOF
+```
+
+### STEP 3: Compile the ICON and BCON executables</strong>
 
 To compile the ICON and BCON executables, run the following commands from the CMAQ home directory: 
 
@@ -39,9 +84,9 @@ cd $CMAQ_HOME/PREP/bcon/scripts
 ./bldit_bcon.csh [compiler] [version] |& tee build_bcon.log
 ```
 
-### STEP 3: Run ICON to create initial conditions</strong>
+### STEP 4: Run ICON to create initial conditions</strong>
 
-The run script below uses the [`ICON`](../../../PREP/icon) program to create intial conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1. By setting ICTYPE to regrid, the run script invokes ICON in _regrid_ mode because initial conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1.
+The run script below uses the [`ICON`](../../../PREP/icon) program to create intial conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1 and optionally time-shifted in Step 2. By setting ICTYPE to regrid, the run script invokes ICON in _regrid_ mode because initial conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2.
 
 ```
 #!/bin/csh -f
@@ -76,7 +121,7 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create int
 #> Set General Parameters for Configuring the Simulation
  set VRSN     = v53                     #> Code Version
  set APPL     = SE53BENCH               #> Application Name
- set ICTYPE   = regrid                  #> Initial conditions type [profile|regrid|patterns]
+ set ICTYPE   = regrid                  #> Initial conditions type [profile|regrid]
 
 #> Set the working directory:
  set BLD      = ${CMAQ_HOME}/PREP/icon/scripts/BLD_ICON_${VRSN}_${compilerString}
@@ -97,11 +142,9 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create int
 # =====================================================================
 # ICON Configuration Options
 #
-# ICON can be run in one of three modes:                                     
+# ICON can be run in one of two modes:                                     
 #     1) use default profile inputs (IC = profile)
 #     2) regrids CMAQ CTM concentration files (IC = regrid)     
-#     3) generate set of test patterns for CTM transport/diffusion tests
-#        (IC = patterns)     
 # =====================================================================
 
  setenv ICON_TYPE ` echo $ICTYPE | tr "[A-Z]" "[a-z]" ` 
@@ -123,8 +166,6 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create int
 #     CTM_CONC_1 = the CTM concentration file for the coarse domain          
 #     MET_CRO_3D_CRS = the MET_CRO_3D met file for the coarse domain
 #     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target nested domain 
-#  Test_patterns Mode (IC = patterns)
-#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target domain 
 #                                                                            
 # NOTE: SDATE (yyyyddd) and STIME (hhmmss) are only relevant to the
 #       regrid mode and if they are not set, these variables will 
@@ -150,10 +191,6 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create int
     setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE}_${DATE} -v"
  endif
 
- if ( $ICON_TYPE == patterns ) then
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_160701.nc
-    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE} -v"
- endif
  
 #>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -169,9 +206,9 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create int
  exit() 
  ```
  
-### STEP 4: Run BCON to create initial conditions</strong>
+### STEP 5: Run BCON to create initial conditions</strong>
 
-The run script below uses the [`BCON`](../../../PREP/bcon) program to create intial conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1. By setting BCTYPE to regrid, the run script invokes BCON in _regrid_ mode because boundary conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1.
+The run script below uses the [`BCON`](../../../PREP/bcon) program to create intial conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1 and optionally time-shifted in Step 2. By setting BCTYPE to regrid, the run script invokes BCON in _regrid_ mode because boundary conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2.
 
 ```
 #!/bin/csh -f
@@ -206,7 +243,7 @@ The run script below uses the [`BCON`](../../../PREP/bcon) program to create int
 #> Set General Parameters for Configuring the Simulation
  set VRSN     = v53                     #> Code Version
  set APPL     = SE53BENCH               #> Application Name
- set BCTYPE   = regrid                  #> Boundary condition type [profile|regrid|patterns]
+ set BCTYPE   = regrid                  #> Boundary condition type [profile|regrid]
 
 #> Set the build directory:
  set BLD      = ${CMAQ_HOME}/PREP/bcon/scripts/BLD_BCON_${VRSN}_${compilerString}
@@ -227,11 +264,9 @@ The run script below uses the [`BCON`](../../../PREP/bcon) program to create int
 # =====================================================================
 #> BCON Configuration Options
 #
-# BCON can be run in one of three modes:                                     
+# BCON can be run in one of two modes:                                     
 #     1) use default profile inputs (BC type = profile)
 #     2) regrids CMAQ CTM concentration files (BC = regrid)     
-#     3) generate set of test patterns for CTM transport/diffusion tests
-#        (BC = patterns)
 # =====================================================================
 
  setenv BCON_TYPE ` echo $BCTYPE | tr "[A-Z]" "[a-z]" `
@@ -253,8 +288,6 @@ The run script below uses the [`BCON`](../../../PREP/bcon) program to create int
 #     CTM_CONC_1 = the CTM concentration file for the coarse domain          
 #     MET_CRO_3D_CRS = the MET_CRO_3D met file for the coarse domain
 #     MET_BDY_3D_FIN = the MET_BDY_3D met file for the target nested domain
-#  Test patterns mode (BC = patterns)
-#     MET_BDY_3D_FIN = the MET_BDY_3D met file for the target domain 
 #                                                                            
 # NOTE: SDATE (yyyyddd), STIME (hhmmss) and RUNLEN (hhmmss) are only 
 #       relevant to the regrid mode and if they are not set,  
@@ -281,10 +314,6 @@ The run script below uses the [`BCON`](../../../PREP/bcon) program to create int
     setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE}_${DATE} -v"
  endif
 
- if ( $BCON_TYPE == patterns ) then
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_160701.nc
-    setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE} -v"
- endif
 
 # =====================================================================
 #> Output File
