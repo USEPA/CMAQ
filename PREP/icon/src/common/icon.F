@@ -29,9 +29,9 @@ C***********************************************************************
  
 C Function: To produce a Models-3 CTM Initial Concentration file.
 C           Valid input options include: 
-C           1) a CMAQ CTM output file,
-C           2) a user specified ASCII file of vertical profiles,
-C           3) subroutines that produce catalogued tracer species concs.
+C           1) a user specified ASCII file of vertical profiles,
+C           2) a CMAQ CTM output file,
+C           3) subroutines that produce catalogued test pattern species concs.
               
 C Preconditions: None
   
@@ -50,7 +50,7 @@ C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    13 Jun 11 J.Young: Convert for Namelist redesign
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C    02 Nov 18 S.Roselle: Removed species mapping; updates to enable runtime
-C                     option for profile, regrid, or tracer BCs
+C                     option for profile, regrid, or test patterns BCs
 C    07 Nov 18 S.Roselle: Removed parallel processing code; 
 C                         replaced UTILIO_DEFN with M3UTILIO
                   
@@ -80,12 +80,27 @@ C Local Variables:
       CHARACTER( 80 ) :: VARDESC                ! variable description
 
       INTEGER    LOGUNIT      ! Unit number for output log
-      INTEGER    ISP          ! Species counter
-      INTEGER    N            ! Loop index
       INTEGER :: SDATE = 0    ! Start date 
       INTEGER :: STIME = 0    ! Start time 
       INTEGER    STATUS       ! Status code
 
+      INTERFACE
+
+         SUBROUTINE PROF_INIC ( LOGUNIT )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+         END SUBROUTINE PROF_INIC
+
+         SUBROUTINE M3_INIC ( LOGUNIT, SDATE, STIME )
+            INTEGER, INTENT( IN )    :: LOGUNIT
+            INTEGER, INTENT( INOUT ) :: SDATE
+            INTEGER, INTENT( INOUT ) :: STIME
+         END SUBROUTINE M3_INIC
+
+         SUBROUTINE TRAC_INIC ( LOGUNIT )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+         END SUBROUTINE TRAC_INIC
+
+      END INTERFACE
 C***********************************************************************
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -100,12 +115,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       STIME = ENVINT( 'STIME', 'START TIME', 0, STATUS )
       IF ( STATUS .NE. 0 ) STIME = 0
 
-      VARDESC = 'Ioundary condition type: (profile, regrid, tracer)'
-      CALL ENVSTR( ICON_TYPE, VARDESC, 'profile', IC_MODULE, STATUS )
+      VARDESC = 'Initial condition type: (profile, regrid, patterns)'
+      CALL ENVSTR ( ICON_TYPE, VARDESC, 'profile', IC_MODULE, STATUS )
       IF ( STATUS .NE. 0 ) WRITE( LOGUNIT, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          MSG = 'Environment variable set, but empty ... Using default:'
          WRITE( LOGUNIT, '(5X, A, I9)' ) MSG, STIME
@@ -117,7 +132,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Load horizontal grid variables calling GRID_DEF->HGRD_INIT function
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( .NOT. HGRD_INIT () ) THEN
+      IF ( .NOT. HGRD_INIT() ) THEN
          MSG = '*** Failure defining horizontal domain'
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       END IF
@@ -134,11 +149,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Generate the IC output file and quit
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( IC_MODULE .EQ. 'profile' ) THEN
-         CALL PROF_INIC( LOGUNIT, SDATE, STIME )
+         CALL PROF_INIC ( LOGUNIT )
       ELSE IF ( IC_MODULE .EQ. 'regrid' ) THEN
-         CALL M3_INIC( LOGUNIT, SDATE, STIME )
-      ELSE IF ( IC_MODULE .EQ. 'tracer' ) THEN
-         CALL TRAC_INIC( LOGUNIT, SDATE, STIME )
+         CALL M3_INIC ( LOGUNIT, SDATE, STIME )
+      ELSE IF ( IC_MODULE .EQ. 'patterns' ) THEN
+         CALL TRAC_INIC ( LOGUNIT )
       ELSE
          MSG = '*** Unknown ICON type requested: ' // IC_MODULE
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )

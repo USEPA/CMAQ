@@ -29,9 +29,9 @@ C***********************************************************************
  
 C Function: To produce a Models-3 CTM Boundary Concentration file.
 C           Valid input options include: 
-C           1) a CMAQ CTM output file,
-C           2) a user specified ASCII file of vertical profiles,
-C           3) subroutines that produce catalogued tracer species concs.
+C           1) a user specified ASCII file of vertical profiles,
+C           2) a CMAQ CTM output file,
+C           3) subroutines that produce catalogued test pattern species concs.
               
 C Preconditions: None
   
@@ -48,7 +48,7 @@ C    06 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    13 Jul 11 J.Young: Convert for Namelist redesign
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
 C    14 Sep 18 S.Roselle: Removed species mapping; updates to enable runtime
-C                     option for profile, regrid, or tracer BCs
+C                     option for profile, regrid, or test pattern BCs
       
 C***********************************************************************
 
@@ -76,12 +76,29 @@ C Local Variables:
       CHARACTER( 80 ) :: VARDESC                ! variable description
 
       INTEGER    LOGUNIT     ! Unit number for output log
-      INTEGER    N           ! Loop index
       INTEGER    RUNLEN      ! No. of hours for BC output
       INTEGER :: SDATE = 0   ! Start date 
       INTEGER :: STIME = 0   ! Start time 
       INTEGER    STATUS      ! Status code
 
+      INTERFACE
+
+         SUBROUTINE PROF_INBNDY ( LOGUNIT )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+         END SUBROUTINE PROF_INBNDY
+
+         SUBROUTINE M3_INBNDY ( LOGUNIT, SDATE, STIME, RUNLEN )
+            INTEGER, INTENT( IN )    :: LOGUNIT
+            INTEGER, INTENT( INOUT ) :: SDATE
+            INTEGER, INTENT( INOUT ) :: STIME
+            INTEGER, INTENT( INOUT ) :: RUNLEN
+         END SUBROUTINE M3_INBNDY
+
+         SUBROUTINE TRAC_INBNDY ( LOGUNIT )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+         END SUBROUTINE TRAC_INBNDY
+
+      END INTERFACE
 C***********************************************************************
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -99,12 +116,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RUNLEN = ENVINT( 'RUNLEN', 'RUN LENGTH', 0, STATUS )
       IF ( STATUS .NE. 0 ) RUNLEN = 0
 
-      VARDESC = 'Boundary condition type: (profile, regrid, tracer)'
+      VARDESC = 'Boundary condition type: (profile, regrid, patterns)'
       CALL ENVSTR( BCON_TYPE, VARDESC, 'profile', BC_MODULE, STATUS )
       IF ( STATUS .NE. 0 ) WRITE( LOGUNIT, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          MSG = 'Environment variable set, but empty ... Using default:'
          WRITE( LOGUNIT, '(5X, A, I9)' ) MSG, STIME
@@ -133,21 +150,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Generate the BC output file and quit
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( BC_MODULE .EQ. 'profile' ) THEN
-         CALL PROF_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )
+         CALL PROF_INBNDY ( LOGUNIT )
       ELSE IF ( BC_MODULE .EQ. 'regrid' ) THEN
-         CALL M3_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )
-      ELSE IF ( BC_MODULE .EQ. 'tracer' ) THEN
-         CALL TRAC_INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )
+         CALL M3_INBNDY ( LOGUNIT, SDATE, STIME, RUNLEN )
+      ELSE IF ( BC_MODULE .EQ. 'patterns' ) THEN
+         CALL TRAC_INBNDY ( LOGUNIT )
       ELSE
          MSG = '*** Unknown BCON type requested: ' // BC_MODULE
          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       END IF
 
       IF ( SHUT3() ) THEN
-         WRITE ( *,92999 )
+         WRITE( LOGUNIT,92999 )
      &  '>>---->  Program  BCON completed successfully  <----<< '
       ELSE
-         WRITE ( *,91000 )
+         WRITE( LOGUNIT,91000 )
      &      'FATAL ERROR shutting down Models-3 I/O'
       END IF
 

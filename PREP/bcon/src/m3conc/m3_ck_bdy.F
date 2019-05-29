@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE CK_BDY_FL( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS )
+      SUBROUTINE CK_BDY_FL ( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS )
 
 C***********************************************************************
  
@@ -55,11 +55,11 @@ C***********************************************************************
 C Include Files: None
 
 C Arguments:
-      INTEGER LOGUNIT                 ! Unit number for output log
-      INTEGER SDATE                   ! Start date
-      INTEGER STIME                   ! Start time
-      INTEGER TSTEP                   ! Time step
-      INTEGER NSTEPS                  ! No. of time steps
+      INTEGER, INTENT( IN ) :: LOGUNIT   ! Unit number for output log
+      INTEGER, INTENT( IN ) :: SDATE     ! Start date
+      INTEGER, INTENT( IN ) :: STIME     ! Start time
+      INTEGER, INTENT( IN ) :: TSTEP     ! Time step
+      INTEGER, INTENT( IN ) :: NSTEPS    ! No. of time steps
 
 C Parameters: None
 
@@ -85,20 +85,20 @@ c  Write out report data
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MSG = 'Checking MET_BDY_3D_FIN File for consistent ' //
      &      'header data'
-      CALL M3MESG( MSG )
+      CALL M3MESG ( MSG )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get header data for MET_BDY_3D_FIN file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. OPEN3 ( MET_BDY_3D_FIN, FSREAD3, PNAME ) ) THEN
          MSG = 'Could not open ' // MET_BDY_3D_FIN // ' file'
-         CALL M3EXIT( PNAME, JDATE , JTIME, MSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, JDATE , JTIME, MSG, XSTAT1 )
       END IF
 
       IF ( .NOT. DESC3 ( MET_BDY_3D_FIN ) ) THEN
          MSG = 'Could not read DESC of  ' // MET_BDY_3D_FIN 
      &         // ' file'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT2 )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -117,17 +117,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LERROR = .TRUE.
       END IF
 
-!     IF ( NCOLS3D .NE. NCOLS ) THEN
-!         WRITE( LOGUNIT, 94040 ) NCOLS3D, NCOLS
-      IF ( NCOLS3D .NE. GL_NCOLS ) THEN
-          WRITE( LOGUNIT, 94040 ) NCOLS3D, GL_NCOLS
+      IF ( NCOLS3D .NE. NCOLS ) THEN
+          WRITE( LOGUNIT, 94040 ) NCOLS3D, NCOLS
           LERROR = .TRUE.
       END IF
 
-!     IF ( NROWS3D .NE. NROWS ) THEN
-!        WRITE( LOGUNIT, 94060 ) NROWS3D, NROWS
-      IF ( NROWS3D .NE. GL_NROWS ) THEN
-         WRITE( LOGUNIT, 94060 ) NROWS3D, GL_NROWS
+      IF ( NROWS3D .NE. NROWS ) THEN
+         WRITE( LOGUNIT, 94060 ) NROWS3D, NROWS
          LERROR = .TRUE.
       END IF
 
@@ -232,7 +228,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             END IF
             WRITE( LOGUNIT,'( I7, ":", I6.7 )' ) JDATE, JTIME
          END IF
-         CALL NEXTIME( JDATE, JTIME, TSTEP )
+         CALL NEXTIME ( JDATE, JTIME, TSTEP )
       END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -242,7 +238,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE( LOGUNIT, 94460 )
       ELSE
          MSG = 'MET_BDY_3D_FIN file inconsistent: stopping' 
-         CALL M3EXIT( PNAME, JDATE , JTIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, JDATE , JTIME, MSG, XSTAT2 )
       END IF
      
       RETURN
@@ -254,7 +250,6 @@ C************************* FORMAT STATEMENTS ***************************
 94040 FORMAT( 10X, 'MET_BDY_3D_FIN NCOLS = ', I3, ' COORD NCOLS', ' = ', I3 )
 94060 FORMAT( 10X, 'MET_BDY_3D_FIN NROWS = ', I3, ' COORD NROWS', ' = ', I3 )
 94080 FORMAT( 10X, 'MET_BDY_3D_FIN NLAYS = ', I3, ' COORD NLAYS', ' = ', I3 )
-94180 FORMAT( 10X, 'MET_BDY_3D_FIN NTHIK = ', I3, ' COORD NTHIK', ' = ', I3 )
 94200 FORMAT( 10X, 'MET_BDY_3D_FIN GDTYP = ', I3, ' COORD GDTYP', ' = ', I3 )
 94220 FORMAT( 10X, 'MET_BDY_3D_FIN P_ALP = ', 1PE12.5, ' COORD  P_ALP', ' = ', 1PE12.5 )
 94240 FORMAT( 10X, 'MET_BDY_3D_FIN P_BET = ', 1PE12.5, ' COORD  P_BET', ' = ', 1PE12.5 )

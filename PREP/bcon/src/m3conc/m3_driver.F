@@ -58,13 +58,11 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files: None
-
 C Arguments:
-      INTEGER LOGUNIT            ! Unit number for output log
-      INTEGER SDATE              ! Date for BC output
-      INTEGER STIME              ! Time for BC output
-      INTEGER RUNLEN             ! No. of hours for BC output
+      INTEGER, INTENT( IN )    :: LOGUNIT  ! Unit number for output log
+      INTEGER, INTENT( INOUT ) :: SDATE    ! Date for BC output
+      INTEGER, INTENT( INOUT ) :: STIME    ! Time for BC output
+      INTEGER, INTENT( INOUT ) :: RUNLEN   ! No. of hours for BC output
 
 C Parameters: None
 
@@ -77,36 +75,83 @@ C Local Variables:
       CHARACTER(  80 ) :: MSG            ! Log message
       CHARACTER(  16 ) :: PNAME = 'M3_INBNDY' ! Procedure name
       CHARACTER( 256 ) :: RET_VAL        ! Returned value of environment variable
-      CHARACTER(  80 ) :: VARDESC        ! environment variable description
 
-      CHARACTER(  16 ) :: CTM_FL_NAME( MXCTMS )           ! Names of CTM files
-      CHARACTER(  16 ) :: INFL_SP_NAME( MXCTMS*MXVARS3 ) ! Names of CTM species
-      CHARACTER(  16 ) :: UNITS_IN( MXCTMS*MXVARS3 ) ! Units for CTM species
-      CHARACTER(  80 ) :: VDESC_IN( MXCTMS*MXVARS3 ) ! Variable description for CTM species
+      CHARACTER(  16 ), ALLOCATABLE :: CTM_FL_NAME( : )  ! Names of CTM files
+      CHARACTER(  16 ), ALLOCATABLE :: INFL_SP_NAME( : ) ! Names of CTM species
+      CHARACTER(  16 ), ALLOCATABLE :: UNITS_IN( : ) ! Units for CTM species
+      CHARACTER(  80 ), ALLOCATABLE :: VDESC_IN( : ) ! Variable description for CTM species
 
-      INTEGER :: VTYPE_IN( MXCTMS*MXVARS3 ) ! variable type for CTM species
+      INTEGER, ALLOCATABLE :: VTYPE_IN( : ) ! variable type for CTM species
 
       INTEGER JDATE        ! Current date
       INTEGER JTIME        ! Current time
       INTEGER N            ! File loop index
-      INTEGER N_GC_OUT     ! No. of GC species
       INTEGER N_CTM_FLS    ! Number of input CTM files
       INTEGER NCOLS_IN     ! No. of columns in input conc file
       INTEGER NLAYS_IN     ! No. of layers in input conc file
       INTEGER NROWS_IN     ! No. of rows in input conc file
       INTEGER NSPCS_IN     ! CTM files species counter
-      INTEGER NSPCS        ! Number of NML species
       INTEGER NSTINC       ! No. of steps on file before start of output
       INTEGER STATUS       ! Status code
+      INTEGER ALLOCSTAT     ! Status returned from array allocation
       INTEGER STRTINC      ! No. of sec. on file before start of output
       INTEGER STEPSECS     ! Seconds per time step
       INTEGER TOTSECS      ! Run duration on file seconds
       INTEGER NSTEPS       ! Run duration, as number of output time steps
       INTEGER TSTEP        ! Time step on CTM_CONC_1 file
       INTEGER V            ! Variable loop index
-      INTEGER ALST         ! Allocate status
+      INTEGER SDATE_CTM, STIME_CTM, EDATE_CTM, ETIME_CTM, TSTEP_CTM, SECS  ! time variables
 
       LOGICAL LCHKD                        ! Flag for met file checked
+
+      INTERFACE
+
+         SUBROUTINE CK_CTM_FLS ( LOGUNIT, N_CTM_FLS, CTM_FL_NAME )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: N_CTM_FLS
+            CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )
+         END SUBROUTINE CK_CTM_FLS
+
+         SUBROUTINE CK_MET_FL ( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS, CTM_FL_NAME )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: SDATE
+            INTEGER, INTENT( IN ) :: STIME
+            INTEGER, INTENT( IN ) :: TSTEP
+            INTEGER, INTENT( IN ) :: NSTEPS
+            CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )
+         END SUBROUTINE CK_MET_FL
+
+         SUBROUTINE CK_BDY_FL ( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: SDATE
+            INTEGER, INTENT( IN ) :: STIME
+            INTEGER, INTENT( IN ) :: TSTEP
+            INTEGER, INTENT( IN ) :: NSTEPS
+         END SUBROUTINE CK_BDY_FL
+
+         SUBROUTINE M3_BCOUT ( LOGUNIT,
+     &                         N_CTM_FLS,
+     &                         SDATE, STIME, NSTEPS,
+     &                         NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN,
+     &                         CTM_FL_NAME, INFL_SP_NAME,
+     &                         VTYPE_IN, UNITS_IN, VDESC_IN )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: N_CTM_FLS
+            INTEGER, INTENT( IN ) :: SDATE
+            INTEGER, INTENT( IN ) :: STIME
+            INTEGER, INTENT( IN ) :: NSTEPS
+            INTEGER, INTENT( IN ) :: NCOLS_IN
+            INTEGER, INTENT( IN ) :: NLAYS_IN
+            INTEGER, INTENT( IN ) :: NROWS_IN
+            INTEGER, INTENT( IN ) :: NSPCS_IN
+            CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )
+            CHARACTER( 16 ), INTENT( IN ) :: INFL_SP_NAME( : )
+            CHARACTER( 16 ), INTENT( IN ) :: UNITS_IN( : )
+            CHARACTER( 80 ), INTENT( IN ) :: VDESC_IN( : )
+            INTEGER, INTENT( IN ) :: VTYPE_IN( : )
+         END SUBROUTINE M3_BCOUT
+
+      END INTERFACE
 
 C***********************************************************************
 
@@ -115,6 +160,12 @@ C***********************************************************************
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Determine the number of input CTM conc files that need to be read
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      ALLOCATE( CTM_FL_NAME( MXCTMS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating CTM_FL_NAME'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
       N_CTM_FLS = 0
 
       WRITE( LOGUNIT, 92020 )
@@ -124,7 +175,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE( FL_NAME, '( ''CTM_CONC_'', I1 )' ) N
          WRITE( ENV_DESC, '( ''CTM Concentration file no. '', I1 )' ) N 
          ENV_DFLT = ' '        
-         CALL ENVSTR( FL_NAME, ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
+         CALL ENVSTR ( FL_NAME, ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
 
          IF ( STATUS .EQ. 0 ) THEN
             N_CTM_FLS = N_CTM_FLS + 1
@@ -135,26 +186,36 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF ( N_CTM_FLS .EQ. 0 ) THEN
          MSG = 'No CTM CONC files found'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Open the input Models-3 CTM concentration file(s) and put the species 
 c  names on each file in one contiguous array
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      ALLOCATE( INFL_SP_NAME( N_CTM_FLS*MXVARS3 ),
+     &          UNITS_IN( N_CTM_FLS*MXVARS3 ),
+     &          VDESC_IN( N_CTM_FLS*MXVARS3 ),
+     &          VTYPE_IN( N_CTM_FLS*MXVARS3 ),
+     &          STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating UNITS_IN, VDESC_IN, VTYPE_IN'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
       NSPCS_IN = 0
 
       DO N = 1, N_CTM_FLS
 
          IF ( .NOT. OPEN3( CTM_FL_NAME( N ), FSREAD3, PNAME ) ) THEN
             MSG = 'Could not open ' // CTM_FL_NAME( N ) // ' file'
-            CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
          END IF
 
          IF ( .NOT. DESC3( CTM_FL_NAME( N ) ) ) THEN
             MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) 
      &            // ' file'
-            CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
          END IF
 
          DO V = 1, NVARS3D
@@ -179,7 +240,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) 
      &         // ' file'
-         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       END IF
 
       NCOLS_IN = NCOLS3D
@@ -187,74 +248,116 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       NLAYS_IN = NLAYS3D
       TSTEP    = TSTEP3D
 
+      SDATE_CTM = SDATE3D
+      STIME_CTM = STIME3D
+      TSTEP_CTM = TSTEP3D
+      EDATE_CTM = SDATE_CTM
+      ETIME_CTM = STIME_CTM
+      CALL NEXTIME ( EDATE_CTM, ETIME_CTM,
+     &               SEC2TIME( ( MXREC3D - 1 ) * TIME2SEC( TSTEP3D ) ) )
+
       IF ( SDATE .EQ. 0 ) THEN
+         IF ( .NOT. DESC3( MET_BDY_3D_FIN ) ) THEN
+            MSG = 'Could not read DESC of  ' // MET_BDY_3D_FIN
+     &            // ' file'
+            CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         END IF
          MSG = 'Input SDATE equals zero; SDATE & STIME ' //
-     &         'reset to CTM file start date & time.'
-         CALL M3MESG( MSG )
+     &         'reset to MET_BDY_3D_FIN file start date & time.'
+         CALL M3MESG ( MSG )
          SDATE = SDATE3D
          STIME = STIME3D
+         IF ( TSTEP .GT. 0 ) THEN
+            TSTEP = TSTEP3D
+         END IF
       END IF
 
-      IF ( .NOT. CHECK3( CTM_FL_NAME( 1 ), 'ALL', SDATE, STIME ) ) THEN
-         MSG = 'Requested starting time is not on the ' // 
-     &          CTM_FL_NAME( N ) // ' file'
-         CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
-      END IF
+!     IF ( .NOT. CHECK3( CTM_FL_NAME( 1 ), 'ALL', SDATE, STIME ) ) THEN
+!        MSG = 'Requested starting time is not on the ' //
+!    &          CTM_FL_NAME( 1 ) // ' file'
+!        CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+!     END IF
+
+      IF ( TSTEP_CTM .GT. 0 ) THEN
+         SECS = SECSDIFF( SDATE_CTM, STIME_CTM, SDATE, STIME )
+         IF ( SECS .LT. 0 ) THEN
+            MSG = 'Requested starting time is not in the ' //
+     &            CTM_FL_NAME( 1 ) // ' file'
+            CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         END IF
       
 c Find number of steps on file from starting point
-      STEPSECS = TIME2SEC( TSTEP3D )
-      STRTINC = SECSDIFF( SDATE3D, STIME3D, SDATE, STIME )
-      NSTINC = STRTINC / STEPSECS 
+         STEPSECS = TIME2SEC( TSTEP3D )
+         STRTINC = SECSDIFF( SDATE3D, STIME3D, SDATE, STIME )
+         NSTINC = STRTINC / STEPSECS
 
 c Check and reset RUNLEN if necessary
-      IF ( RUNLEN .NE. 0 ) THEN
+         IF ( RUNLEN .NE. 0 ) THEN
 
-         IF ( RUNLEN .LT. 1000000 ) THEN
-            TOTSECS  = TIME2SEC( RUNLEN )
-         ELSE                          ! HH > 99
-            RUNLEN = RUNLEN - 1000000
-            TOTSECS  = TIME2SEC( RUNLEN )
-            TOTSECS  = TOTSECS + 360000
-         END IF
+            IF ( RUNLEN .LT. 1000000 ) THEN
+               TOTSECS  = TIME2SEC( RUNLEN )
+            ELSE                          ! HH > 99
+               RUNLEN = RUNLEN - 1000000
+               TOTSECS  = TIME2SEC( RUNLEN )
+               TOTSECS  = TOTSECS + 360000
+            END IF
 
-         IF ( MOD( TOTSECS, STEPSECS ) .EQ. 0 ) THEN
-            NSTEPS = TOTSECS / STEPSECS + 1
+            IF ( MOD( TOTSECS, STEPSECS ) .EQ. 0 ) THEN
+               NSTEPS = TOTSECS / STEPSECS + 1
+            ELSE
+               MSG = 'Output time step ' // HHMMSS( TSTEP3D  ) //
+     &               ' does not divide duration ' // HHMMSS( RUNLEN )
+               CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+            END IF
+
+            IF ( NSTEPS .GT. MXREC3D - NSTINC ) THEN
+               MSG = 'Input RUNLEN exceeds time steps on input file. '
+               WRITE( LOGUNIT, '( /5X, A )' ) MSG
+               MSG = 'Resetting RUNLEN to correspond to CTM file ending ' //
+     &               'date & time.'
+               WRITE( LOGUNIT, '( 5X, A )' ) MSG
+               NSTEPS = MXREC3D - NSTINC
+               RUNLEN = SEC2TIME( ( NSTEPS - 1 ) * STEPSECS )
+            END IF
+
          ELSE
-            MSG = 'Output time step ' // HHMMSS( TSTEP3D  ) //
-     &            ' does not divide duration ' // HHMMSS( RUNLEN )
-            CALL M3EXIT( PNAME, SDATE, STIME, MSG, XSTAT2 )
-         END IF
 
-         IF ( NSTEPS .GT. MXREC3D - NSTINC ) THEN
-            MSG = 'Input RUNLEN exceeds time steps on input file. '
+            MSG = 'Input RUNLEN not set or equal to zero. '
             WRITE( LOGUNIT, '( /5X, A )' ) MSG
-            MSG = 'Resetting RUNLEN to correspond to CTM file ending ' //
-     &            'date & time.' 
+            MSG = 'Resetting RUNLEN to correspond to MET_BDY_3D_FIN file ' //
+     &            'ending date & time.'
             WRITE( LOGUNIT, '( 5X, A )' ) MSG
             NSTEPS = MXREC3D - NSTINC
-            RUNLEN = SEC2TIME( ( NSTEPS - 1 ) * STEPSECS )
+
+         END IF
+
+c Check to make sure end date is on file
+         JDATE = SDATE
+         JTIME = STIME
+         CALL NEXTIME ( JDATE, JTIME, RUNLEN )
+
+!      IF ( .NOT. CHECK3( CTM_FL_NAME( 1 ), 'ALL', JDATE, JTIME ) ) THEN
+!         MSG = 'Requested ending time is not on the ' //
+!     &         CTM_FL_NAME( 1 ) // ' file'
+!         CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+!      END IF
+
+         SECS = SECSDIFF( JDATE, JTIME, EDATE_CTM, ETIME_CTM )
+         IF ( SECS .LT. 0 ) THEN
+            MSG = 'Requested ending time is not in the ' //
+     &          CTM_FL_NAME( 1 ) // ' file'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT2 )
          END IF
 
       ELSE
 
-         MSG = 'Input RUNLEN not set or equal to zero. '
-         WRITE( LOGUNIT, '( /5X, A )' ) MSG
-         MSG = 'Resetting RUNLEN to correspond to CTM file ending ' //
-     &         'date & time.'       
-         WRITE( LOGUNIT, '( 5X, A )' ) MSG
-         NSTEPS = MXREC3D - NSTINC
+         IF ( RUNLEN .NE. 0 ) THEN
+            MSG = 'RUNLEN ignored:  Input CTM file is time independent.'
+            CALL M3MESG ( MSG )
+            RUNLEN = 0
+         END IF
+         NSTEPS = 1
 
-      END IF
-
-c Check to make sure end date is on file     
-      JDATE = SDATE
-      JTIME = STIME
-      CALL NEXTIME( JDATE, JTIME, RUNLEN )
-
-      IF ( .NOT. CHECK3( CTM_FL_NAME( 1 ), 'ALL', JDATE, JTIME ) ) THEN
-         MSG = 'Requested ending time is not on the ' // 
-     &         CTM_FL_NAME( 1 ) // ' file'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -264,19 +367,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF ( VGTYP_GD .NE. VGTYP3D .OR. VGTOP_GD .NE. VGTOP3D ) THEN 
          LCHKD = .TRUE.
-         CALL CK_MET_FL( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS, CTM_FL_NAME )
-         CALL CK_BDY_FL( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS )
+         CALL CK_MET_FL ( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS, CTM_FL_NAME )
+         CALL CK_BDY_FL ( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  compute and outputs BCs from the input CTM conc file(s)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL M3_BCOUT( LOGUNIT,
-     &               N_CTM_FLS,
-     &               SDATE, STIME, NSTEPS,
-     &               NCOLS_IN, NROWS_IN, NLAYS_IN,
-     &               NSPCS_IN, CTM_FL_NAME,
-     &               INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
+      CALL M3_BCOUT ( LOGUNIT,
+     &                N_CTM_FLS,
+     &                SDATE, STIME, NSTEPS,
+     &                NCOLS_IN, NROWS_IN, NLAYS_IN,
+     &                NSPCS_IN, CTM_FL_NAME,
+     &                INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN )
 
       RETURN
 

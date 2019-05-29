@@ -25,8 +25,8 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE PROF_VINTERP( LOGUNIT, NSPCS_IN, NLAYS_IN, ZH_IN,
-     &                         CONCIN, CONCOUT )    
+      SUBROUTINE PROF_VINTERP ( LOGUNIT, NSPCS_IN, NLAYS_IN, ZH_IN,
+     &                          CONCIN, CONCOUT )
 
 C***********************************************************************
  
@@ -65,16 +65,14 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments: 
-      INTEGER LOGUNIT                   ! Unit number for output log
-      INTEGER NSPCS_IN                  ! No. of species in input profile
-      INTEGER NLAYS_IN                  ! No. of layers in input profile
+      INTEGER, INTENT( IN ) :: LOGUNIT    ! Unit number for output log
+      INTEGER, INTENT( IN ) :: NSPCS_IN   ! No. of species in input profile
+      INTEGER, INTENT( IN ) :: NLAYS_IN   ! No. of layers in input profile
 
-      REAL :: ZH_IN( * )                ! Input layer heights
-      REAL :: CONCIN( MXLAYS3,* )       ! Input conc array
-      REAL :: CONCOUT( NBNDY,NLAYS,* )  ! Output BC array
+      REAL, INTENT( IN )  :: ZH_IN( : )          ! Input layer heights
+      REAL, INTENT( IN )  :: CONCIN( :,: )       ! Input conc array
+      REAL, INTENT( OUT ) :: CONCOUT( :,:,: )    ! Output BC array
 
 C Parameters: None
 
@@ -86,12 +84,12 @@ C Local Variables:
       CHARACTER( 16 ) :: VNAME    ! Variable Name
 
       INTEGER L              ! Loop index for vertical layers
-      INTEGER MXLEV          ! Max no. of levels
       INTEGER N              ! Loop index
       INTEGER C              ! Loop index for boundary cells
       INTEGER STATUS         ! Status code
       INTEGER JDATE          ! Date for first record on BDY file
       INTEGER JTIME          ! Time for first record on BDY file
+      INTEGER ALLOCSTAT      ! Status returned from array allocation
 
       LOGICAL L_RATINT       ! Flag to use rational function interpolation 
 
@@ -99,19 +97,44 @@ C Local Variables:
       REAL    X3    ! Vertical coordinate used in interpolation
       REAL    Y     ! Interpolated concentration
 
-      REAL    :: WORKA( MXLAYS3 )      ! Work array for conc input
-      REAL    :: X3_OLD( MXLAYS3 )     ! Old Vertical coordinate values
-      REAL    :: ZH_OUT( NBNDY,NLAYS ) ! mid-layer heights for target BDY file
-      REAL    :: ZH_OUT_AVG( NLAYS )   ! avg mid-layer hts for target BDY file
+      REAL, ALLOCATABLE :: WORKA( : )      ! Work array for conc input
+      REAL, ALLOCATABLE :: X3_OLD( : )     ! Old Vertical coordinate values
+      REAL, ALLOCATABLE :: ZH_OUT( :,: )   ! mid-layer heights for target BDY file
+      REAL, ALLOCATABLE :: ZH_OUT_AVG( : ) ! avg mid-layer hts for target BDY file
+
+      INTERFACE
+
+         SUBROUTINE LR_INTERP ( L_RATINT, XA, YA, N, X, Y, DELY )
+            LOGICAL, INTENT( IN ) :: L_RATINT
+            REAL, INTENT( IN )  :: XA( : )
+            REAL, INTENT( IN )  :: YA( : )
+            REAL, INTENT( IN )  :: X
+            REAL, INTENT( OUT ) :: Y
+            REAL, INTENT( OUT ) :: DELY
+            INTEGER, INTENT( IN ) :: N
+         END SUBROUTINE LR_INTERP
+
+      END INTERFACE
 
 C***********************************************************************
+
+      ALLOCATE( WORKA( NLAYS_IN ),
+     &          X3_OLD( NLAYS_IN ),
+     &          ZH_OUT( NBNDY,NLAYS ),
+     &          ZH_OUT_AVG( NLAYS ),
+     &          STAT = ALLOCSTAT )
+
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating WORKA, X3_OLD, ZH_OUT, ZH_OUT_AVG'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  open MET_BDY_3D_FIN file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. OPEN3 ( MET_BDY_3D_FIN, FSREAD3, PNAME ) ) THEN
          MSG = 'Could not open ' // MET_BDY_3D_FIN // ' file'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
       JDATE = SDATE3D
       JTIME = STIME3D
@@ -149,13 +172,13 @@ C Compute domain average layer mid-point heights
             ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) + ZH_OUT( C,L )
          END DO
          ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) / NBNDY
-         print *, L, ZH_OUT_AVG( L )
       END DO
 
       DO L = 1, NLAYS_IN 
          X3_OLD( L ) = ZH_IN( L )
       END DO
 
+      CONCOUT = 0.0
       DO N = 1, NSPCS_IN    
 
          DO L = 1, NLAYS_IN

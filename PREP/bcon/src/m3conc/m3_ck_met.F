@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE CK_MET_FL( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS, CTM_FL_NAME )
+      SUBROUTINE CK_MET_FL ( LOGUNIT, SDATE, STIME, TSTEP, NSTEPS, CTM_FL_NAME )
 
 C***********************************************************************
  
@@ -46,15 +46,13 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files: None
-
 C Arguments:
-      INTEGER LOGUNIT                 ! Unit number for output log
-      INTEGER SDATE                   ! Start date
-      INTEGER STIME                   ! Start time
-      INTEGER TSTEP                   ! Time step
-      INTEGER NSTEPS                  ! No. of time steps
-      CHARACTER( 16 ) :: CTM_FL_NAME( * )     ! Names of CTM files
+      INTEGER, INTENT( IN ) :: LOGUNIT        ! Unit number for output log
+      INTEGER, INTENT( IN ) :: SDATE          ! Start date
+      INTEGER, INTENT( IN ) :: STIME          ! Start time
+      INTEGER, INTENT( IN ) :: TSTEP          ! Time step
+      INTEGER, INTENT( IN ) :: NSTEPS         ! No. of time steps
+      CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )     ! Names of CTM files
 
 C Parameters: None
 
@@ -76,6 +74,7 @@ C Local Variables:
       INTEGER NTHIK1      ! File 1 boundary thickness
       INTEGER GDTYP1      ! File 1 horizontal grid type
       INTEGER VGTYP1      ! File 1 Vertical coordinate type
+      INTEGER ALLOCSTAT ! Status returned from array allocation
 
       LOGICAL LERROR      ! Error Flag
       LOGICAL LFIRST      ! First time flag
@@ -91,7 +90,7 @@ C Local Variables:
       REAL    YCENT1      ! File 1 Y-center of coordinate system
       REAL    VGTOP1      ! File 1 model top
 
-      REAL VGLVS1( MXLAYS3 + 1 )     ! File vertical layer heights
+      REAL, ALLOCATABLE :: VGLVS1( : )   ! File vertical layer heights
 
 C***********************************************************************
 
@@ -100,7 +99,7 @@ c  Write out report data
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       MSG = 'Checking MET_CRO_3D_CRS File checked for consistent ' //
      &      'header data' 
-      CALL M3MESG( MSG )
+      CALL M3MESG ( MSG )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Get header data for CTM file 1 and create a list of species in the
@@ -109,7 +108,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. DESC3 ( CTM_FL_NAME( 1 ) ) ) THEN
          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
      &         // ' file'
-         CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+         CALL M3ERR ( PNAME, 0, 0, MSG, .TRUE. )
       END IF
 
       FTYPE1 = FTYPE3D
@@ -129,7 +128,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       YCENT1 = YCENT3D
       VGTYP1 = VGTYP3D
       VGTOP1 = VGTOP3D
-      DO L = 1 , NLAYS3D + 1
+
+      ALLOCATE( VGLVS1( NLAYS1+1 ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating VGLVS1'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      DO L = 1 , NLAYS1 + 1
          VGLVS1( L ) = VGLVS3D( L )
       END DO
      
@@ -138,13 +144,13 @@ c  Open the MET_CRO_3D_CRS file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. OPEN3( MET_CRO_3D_CRS, FSREAD3, PNAME ) ) THEN
          MSG = 'Could not open ' // MET_CRO_3D_CRS // ' file'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
 
       IF ( .NOT. DESC3( MET_CRO_3D_CRS ) ) THEN
          MSG = 'Could not read DESC of ' // MET_CRO_3D_CRS 
      &       // ' file'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -154,7 +160,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &               '' and '', A, '':'' )' ) CTM_FL_NAME( 1 ), 
      &         MET_CRO_3D_CRS
 
-      CALL M3MESG( MSG )
+      CALL M3MESG ( MSG )
 
       LERROR = .FALSE.
          
@@ -264,7 +270,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             END IF
             WRITE( LOGUNIT, '( I7, 1X, I6 )' ) JDATE, JTIME
          END IF
-         CALL NEXTIME( JDATE, JTIME, TSTEP )
+         CALL NEXTIME ( JDATE, JTIME, TSTEP )
       END DO
              
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -274,7 +280,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE( LOGUNIT, 94460 )
       ELSE
          MSG = 'MET_CRO_3D_CRS file inconsistent: stopping' 
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
 
       RETURN
