@@ -35,14 +35,14 @@ A sample script using `m3tshift` to shift all of the six time stamps back by two
 ```
 #!/bin/csh -f
 
-set EXEC = /home/wdx/lib/x86_64/ifc-17.0.3/ioapi_3.1/Linux2_x86_64ifort/m3tshift
+set EXEC = /path/to/m3tshift
 
 #> Year to be entirely encompassed by the time stamps in the time-shifted output file
 set TARGET_YEAR = 2014
 
 #> Path to the seasonal average H-CMAQ file downloaded from the CMAS data warehouse
 #> This path will also be used to store the time-shifted output file
-set DATADIR = /work/MOD3EVAL/css/CMAQ_v53_Dev/data
+set DATADIR = /path/to/downloaded_data
 
 #> Name of the seasonal average H-CMAQ file downloaded from the CMAS data warehouse
 set AV_CONC_INFILE = CCTM_CONC_v53beta2_intel17.0_HEMIS_cb6r3m_ae7_kmtbr_m3dry_2016_quarterly_av.nc
