@@ -188,7 +188,7 @@ C...  event-statistics variables.
      &             AERWDEP( NAER, NMODES),
      &             STAT = STAT)
         IF (STAT .NE. 0) THEN
-           XMSG = ' Failure allocating GAs, GASWDEP, AEROSOL, and AERWDEP'
+           XMSG = 'Memory allocation failure'
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
