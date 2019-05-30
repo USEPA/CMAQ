@@ -32,7 +32,7 @@
 
       INTEGER ITAG
 
-c...Tagging species, regular or combined
+c...Tagging maps
       CHARACTER( 16 ), ALLOCATABLE :: SPC_NAME( :,: )
       INTEGER, ALLOCATABLE, SAVE   :: SPC_INDEX( :,: )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_CGRtoSA( : )
@@ -44,7 +44,6 @@ c...Tagging species, regular or combined
       INTEGER, ALLOCATABLE, SAVE   :: MAP_DIFFtoSA( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_ADVtoSA( : )
 
-c...4th and 5th dimensions of ISAM array
       INTEGER ::     NSPC_SA
       INTEGER ::     NTAG_SA
       INTEGER ::     NSPC_TRANSPORT
@@ -54,9 +53,9 @@ c...Define Allocatable Apportionment Arrays
       REAL, ALLOCATABLE :: AISAM ( :,:,:,:,: )
       REAL, ALLOCATABLE :: TOT_SADEP ( :,:,:,: )
       REAL, ALLOCATABLE :: CONV_SADEP ( :,:,:,: )
-      REAL, ALLOCATABLE :: MAPFRAC( :,:,: )
-      REAL, ALLOCATABLE :: MFRC_P( :,:,: )
-      REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
+c     REAL, ALLOCATABLE :: MAPFRAC( :,:,: )
+c     REAL, ALLOCATABLE :: MFRC_P( :,:,: )
+c     REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_ALL( :,:,:,:,: ) ! full emissions array mapped to diffused species
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_OTHER( :,:,:,: ) ! emissions left for 'OTHRTAG'
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF( :,:,:,:,: ) 
