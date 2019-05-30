@@ -37,6 +37,10 @@ C  Apr 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C  Jul 2011 J.Young: pad vnmld and vcrop for uniform string lengths
 C  Jan 2012 J.Young: pad vnmld and vcrop for 16 char string lengths
 C  Jun 2012 J.Young: remove full character blank padding put in for GNU Fortran (GCC) 4.1.2
+C  Feb 2019 D.Wong: Implemented centralized I/O approach, and created
+C                   a new module crop_data_module (model_data_module.F) 
+C                   to hold some of information originally stored here 
+C                   to avoid cyclic dependence
  
 C Subroutines and Functions Called:
 C   open3, xtract3, m3exit
@@ -44,6 +48,7 @@ C-----------------------------------------------------------------------
 
       use hgrd_defn             ! horizontal domain specifications
       use utilio_defn
+      use crop_data_module
 
       implicit none
 
@@ -66,98 +71,11 @@ C Local Variables:
       real    pctf, potf           ! ?? ?? Tillage Factor ????????
       integer i, m, c, r
       
-      integer, parameter :: nlcrp = 17
-      character( 16 ) :: vnmld( nlcrp ) =  ! beld01
-     &         ( / 'Alfalfa  ', 'Barley   ', 'Corn     ',
-     &             'Cotton   ', 'Grass    ', 'Hay      ',
-     &             'Misc_crop', 'Oats     ', 'Pasture  ',
-     &             'Peanuts  ', 'Potatoes ', 'Rice     ',
-     &             'Rye      ', 'Sorghum  ', 'Soybeans ',
-     &             'Tobacco  ', 'Wheat    ' / )
-
-C Conventional tillage (0-15% residue) fraction for 17 crops as VNMLD list
-      real :: ctilf( nlcrp ) =
-     &         ( / 0.0,  0.37, 0.40, 0.70,  ! Alfalfa, Barley, Corn, Cotton,
-     &             0.0,  0.0,  0.70, 0.47,  ! Grass, Hay, Misc_crop, Oats,
-     &             0.36, 0.80, 0.74, 0.79,  ! Pasture, Peanuts, Potatoes, Rice,
-     &             0.52, 0.46, 0.24, 0.96,  ! Rye, Sorghum, Soybeans, Tobacco, 
-     &             0.40 / )                 ! Wheat
-
-C No tillage fraction for 17 crops as VNMLD list
-      real :: ntilf( nlcrp ) =
-     &         ( / 0.80, 0.10, 0.20, 0.14,  ! Alfalfa, Barley, Corn, Cotton,
-     &             0.80, 0.80, 0.05, 0.08,  ! Grass, Hay, Misc_crop, Oats,
-     &             0.47, 0.09, 0.0,  0.05,  ! Pasture, Peanuts, Potatoes, Rice,
-     &             0.11, 0.14, 0.33, 0.01,  ! Rye, Sorghum, Soybeans, Tobacco, 
-     &             0.13 / )                 ! Wheat
-
-      real :: ladut ( ncols,nrows,nlcrp )   ! cropland fraction from BELD1
-      real :: crplnd( ncols,nrows,nlcrp )   ! each erodible crop land fraction
-
-      integer, parameter :: ncrop = 18
-      character( 16 ) :: vcrop( ncrop ) =  ! crop calendar )CROPCAL)
-     &         ( / 'Alfalfa     ', 'BarleySpring', 'BarleyFall  ',
-     &             'Corn        ', 'Cotton      ', 'Hay         ',
-     &             'OatsSpring  ', 'OatsFall    ', 'Peanuts     ',
-     &             'Potatoes    ', 'Rice        ', 'Rye         ',
-     &             'Sorghum     ', 'Soybeans    ', 'Sugerbeets  ',
-     &             'Tobacco     ', 'WheatSpring ', 'WheatWinter ' / )
-
-      character( 16 ) :: crname( 3 ) = ! crop calendar NetCDF file name
-     &         ( / 'CROPMAP01',        ! begin planting
-     &             'CROPMAP04',        ! end planting
-     &             'CROPMAP08' / )     ! end harvesting
-
-      real :: cropdt( ncols,nrows,ncrop,3 ) ! cropland calendar for species and 3 activities
       real :: crpdt1, crpdt2, crpdt3        ! cropland calendar subexpression
-
-      integer  gxoff, gyoff                 ! global origin offset from file
-      integer, save :: strtcol, endcol, strtrow, endrow
-      integer, save :: strtcol2, endcol2, strtrow2, endrow2
 
       integer allocstat
 
 C-----------------------------------------------------------------------
-C Open BELD1
-      if ( .not. open3( dust_lu_1, fsread3, pname ) ) then
-         xmsg = 'Could not open ' // dust_lu_1
-         call m3exit( pname, jdate, jtime, xmsg, xstat1 )
-      end if
-
-C Open crop calendar
-      do i = 1, 3
-         if ( .not. open3( crname( i ), fsread3, pname ) ) then
-            xmsg = 'Could not open ' // crname( i )
-            call m3exit( pname, jdate, jtime, xmsg, xstat1 )
-         end if
-      end do
-
-C Get domain decomp info
-      call subhfile ( dust_lu_1, gxoff, gyoff,
-     &                strtcol, endcol, strtrow, endrow )
-
-      call subhfile ( crname( 1 ), gxoff, gyoff,
-     &                strtcol2, endcol2, strtrow2, endrow2 )
-
-C Read in 17 species crop land fraction
-      do m = 1, nlcrp
-         xmsg = 'Could not read landuse from ' // dust_lu_1
-         if ( .not. xtract3( dust_lu_1, vnmld( m ), 1,1,
-     &                       strtrow,endrow,strtcol,endcol,
-     &                       0, 0, ladut( 1,1,m ) ) )
-     &     call m3exit ( pname, 0, 0, xmsg, xstat1 )
-      end do
-
-C Read crop calendar: 1 = begin planting, 2 = end planting, 3 = end harvesting
-      do i = 1, 3
-         do m = 1, ncrop      
-            xmsg = 'Could not read ' // trim( vcrop( m ) ) // ' from ' // crname( i )
-            if ( .not. xtract3( crname( i ), vcrop( m ), 1,1,
-     &                          strtrow2,endrow2,strtcol2,endcol2,
-     &                          0, 0, cropdt( 1,1,m,i ) ) )
-     &      call m3exit ( pname, jdate, jtime, xmsg, xstat1 )
-         end do
-      end do
 
 C Get day number in year
       jday = float( mod( jdate,1000 ) )
@@ -171,7 +89,7 @@ C Calculate erodible ag land fraction
          potf = 0.0
          do i = 1, nlcrp
             crplnd( c,r,i ) = 0.0
-            if ( ladut( c,r,i ) .gt. 0.0 ) then  ! non zero crop cover begin if1
+            if ( crop_ladut( c,r,i ) .gt. 0.0 ) then  ! non zero crop cover begin if1
                if ( i .eq.  1 ) m = 1      ! Alfalfa
                if ( i .eq.  2 ) m = 2      ! Barley spring fall
                if ( i .eq.  3 ) m = 4      ! Corn
@@ -271,9 +189,9 @@ C Calculate erodible ag land fraction
      &                                cropdt( c,r,18,1 ) .ne. 0.0 ) )
      &            twos = 0.5   ! if 2 season crop then 50-50 each
 
-               crplnd( c,r,i ) = twos * ladut( c,r,i )
-     &                         * ( pctf * ctilf( i )
-     &                         +   potf * ( 1.0 - ntilf( i ) - ctilf( i ) ) ) 
+               crplnd( c,r,i ) =     twos * crop_ladut( c,r,i )
+     &                           * ( pctf * ctilf( i )
+     &                           +   potf * ( 1.0 - ntilf( i ) - ctilf( i ) ) ) 
 
                agland( c,r ) = agland( c,r ) + crplnd( c,r,i )
 

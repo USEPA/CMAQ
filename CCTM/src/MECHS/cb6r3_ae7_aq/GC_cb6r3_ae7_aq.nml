@@ -2,7 +2,7 @@
 
 GC_SPECIES_DATA = 
 
-!SPECIES       ,MOLWT  ,IC   ,IC_FAC,BC  ,BC_FAC ,DRYDEP SURR       ,FAC  ,WET-SCAV SURR     ,FAC ,GC2AE SURR   ,GC2AQ SURR,TRNS  ,DDEP  ,WDEP  ,CONC
+!SPECIES       ,MOLWT  ,IC   ,IC_FAC,BC     ,BC_FAC ,DRYDEP SURR       ,FAC  ,WET-SCAV SURR     ,FAC ,GC2AE SURR   ,GC2AQ SURR,TRNS  ,DDEP  ,WDEP  ,CONC
 'NO2'          , 46.0  ,''   ,-1    ,''     ,-1     ,'VD_NO2'          , 1   ,'NO2'             , 1  ,'NO2'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'NO'           , 30.0  ,''   ,-1    ,''     ,-1     ,'VD_NO'           , 1   ,'NO'              , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'O'            , 16.0  ,''   ,-1    ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''           ,''        ,''    ,''    ,''    ,'Yes',
@@ -66,6 +66,7 @@ GC_SPECIES_DATA =
 'HPLD'         ,116.1  ,''   ,-1    ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''           ,''        ,'Yes' ,''    ,''    ,'Yes',
 'OPO3'         ,115.0  ,''   ,-1    ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''           ,''        ,'Yes' ,''    ,''    ,'Yes',
 'EPOX'         ,118.1  ,''   ,-1    ,''     ,-1     ,'VD_IEPOX'        , 1   ,'MEK'             , 1  ,''           ,''        ,'Yes' ,'Yes' ,''    ,'Yes',
+'IEPOXP'       ,118.1  ,''   ,-1    ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''           ,''        ,''    ,''    ,''    ,'Yes',         
 'EPX2'         ,149.1  ,''   ,-1    ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''           ,''        ,''    ,''    ,''    ,'Yes',
 'TERP'         ,136.2  ,''   ,-1    ,''     ,-1     ,'VD_TERP'         , 1   ,'PINENE'          , 1  ,''           ,''        ,'Yes' ,'Yes' ,''    ,'Yes',
 'APIN'         ,136.2  ,''   ,-1    ,''     ,-1     ,'VD_TERP'         , 1   ,'PINENE'          , 1  ,''           ,''        ,'Yes' ,'Yes' ,''    ,'Yes',

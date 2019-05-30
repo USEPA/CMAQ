@@ -29,7 +29,7 @@ C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 11, 2019
+C  REVISION HISTORY: Created by EBI solver program, Apr  3, 2019
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -146,7 +146,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 128
+      N_EBISP  = 130
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -247,40 +247,42 @@ c..Allocate and define ebi species
       EBISP(  92 ) = ACLI
       EBISP(  93 ) = ACLJ
       EBISP(  94 ) = ACLK
-      EBISP(  95 ) = AISO3J
-      EBISP(  96 ) = AGLYJ
-      EBISP(  97 ) = MTNO3
-      EBISP(  98 ) = AMTNO3J
-      EBISP(  99 ) = AMTHYDJ
-      EBISP( 100 ) = AAVB2J
-      EBISP( 101 ) = AOLGAJ
-      EBISP( 102 ) = AAVB3J
-      EBISP( 103 ) = AAVB4J
-      EBISP( 104 ) = AISO1J
-      EBISP( 105 ) = AOLGBJ
-      EBISP( 106 ) = AISO2J
-      EBISP( 107 ) = ASQTJ
-      EBISP( 108 ) = PCVOC
-      EBISP( 109 ) = PCSOARXN
-      EBISP( 110 ) = VLVPO1
-      EBISP( 111 ) = VSVPO1
-      EBISP( 112 ) = VSVPO2
-      EBISP( 113 ) = VSVPO3
-      EBISP( 114 ) = VIVPO1
-      EBISP( 115 ) = VLVOO1
-      EBISP( 116 ) = VLVOO2
-      EBISP( 117 ) = VSVOO2
-      EBISP( 118 ) = VSVOO3
-      EBISP( 119 ) = VSVOO1
-      EBISP( 120 ) = FORM_PRIMARY
-      EBISP( 121 ) = ALD2_PRIMARY
-      EBISP( 122 ) = BUTADIENE13
-      EBISP( 123 ) = ACROLEIN
-      EBISP( 124 ) = ACRO_PRIMARY
-      EBISP( 125 ) = TOLU
-      EBISP( 126 ) = HG
-      EBISP( 127 ) = HGIIAER
-      EBISP( 128 ) = HGIIGAS
+      EBISP(  95 ) = IEPOXP
+      EBISP(  96 ) = ASO4J
+      EBISP(  97 ) = AISO3J
+      EBISP(  98 ) = AGLYJ
+      EBISP(  99 ) = MTNO3
+      EBISP( 100 ) = AMTNO3J
+      EBISP( 101 ) = AMTHYDJ
+      EBISP( 102 ) = AAVB2J
+      EBISP( 103 ) = AOLGAJ
+      EBISP( 104 ) = AAVB3J
+      EBISP( 105 ) = AAVB4J
+      EBISP( 106 ) = AISO1J
+      EBISP( 107 ) = AOLGBJ
+      EBISP( 108 ) = AISO2J
+      EBISP( 109 ) = ASQTJ
+      EBISP( 110 ) = PCVOC
+      EBISP( 111 ) = PCSOARXN
+      EBISP( 112 ) = VLVPO1
+      EBISP( 113 ) = VSVPO1
+      EBISP( 114 ) = VSVPO2
+      EBISP( 115 ) = VSVPO3
+      EBISP( 116 ) = VIVPO1
+      EBISP( 117 ) = VLVOO1
+      EBISP( 118 ) = VLVOO2
+      EBISP( 119 ) = VSVOO2
+      EBISP( 120 ) = VSVOO3
+      EBISP( 121 ) = VSVOO1
+      EBISP( 122 ) = FORM_PRIMARY
+      EBISP( 123 ) = ALD2_PRIMARY
+      EBISP( 124 ) = BUTADIENE13
+      EBISP( 125 ) = ACROLEIN
+      EBISP( 126 ) = ACRO_PRIMARY
+      EBISP( 127 ) = TOLU
+      EBISP( 128 ) = HG
+      EBISP( 129 ) = HGIIAER
+      EBISP( 130 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -393,6 +395,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( ACLI         ) = 5.0D-04
       RTOL( ACLJ         ) = 5.0D-04
       RTOL( ACLK         ) = 5.0D-04
+      RTOL( IEPOXP       ) = 5.0D-04
+      RTOL( ASO4J        ) = 5.0D-04
       RTOL( AISO3J       ) = 5.0D-04
       RTOL( AGLYJ        ) = 5.0D-04
       RTOL( MTNO3        ) = 5.0D-04

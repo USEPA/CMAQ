@@ -27,6 +27,7 @@
 ! aggregates
 ! History:
 ! 09/15/14: B.Hutzell: Initial version created
+! 02/01/19: D.Wong:    Cleaned up USE module clauses
 
          Implicit None
 
@@ -138,7 +139,7 @@
 !-----------------------------------------------------------------------
          subroutine init_cloud_optics()
 
-         USE GRID_CONF           ! horizontal & vertical domain specifications
+         use VGRD_DEFN, ONLY : NLAYS
          USE UTILIO_DEFN
          USE CSQY_DATA
 
@@ -262,7 +263,6 @@
 !         RRTMG
 ! returns the effect raduis, re,  of cloud ice particles, at
 ! temperature, t
-            USE GRID_CONF           ! horizontal & vertical domain specifications
 
             Implicit None
 
@@ -338,7 +338,6 @@
 ! Algorithm adapted Rapid Radiative Model Global (RRTMG) version 3.8 and Weather Research Forecasting model
 ! (WRF) version 3.5
 
-            USE GRID_CONF           ! horizontal & vertical domain specifications
             USE UTILIO_DEFN         ! IO functions and parameters
             USE CSQY_DATA           ! number and value of wavelengths
 
@@ -529,7 +528,6 @@
 ! analytic formula following the formulation originally developed by J. T. Kiehl
 ! for CAM version 3.0 and 4.0 
 !-----------------------------------------------------------------------
-            USE GRID_CONF           ! horizontal & vertical domain specifications
             Implicit None
 
 ! Arguments:
@@ -573,7 +571,6 @@
 !-----------------------------------------------------------------------
          subroutine get_droplet_optics( levels, t, owater_frac, icefrac, snowfrac, lwc )
 
-            USE GRID_CONF           ! horizontal & vertical domain specifications
             USE UTILIO_DEFN         ! IO functions and parameters
             USE CSQY_DATA           ! number and value of wavelengths
             
@@ -833,7 +830,7 @@
 ! Algorithm adapted Rapid Radiative Model Global (RRTMG) version 3.9 and Weather Research Forecasting model
 ! (WRF) version 3.6
 
-            USE GRID_CONF           ! horizontal & vertical domain specifications
+            use VGRD_DEFN, ONLY : NLAYS
             USE UTILIO_DEFN         ! IO functions and parameters
             USE CSQY_DATA           ! number and value of wavelengths
 

@@ -47,6 +47,7 @@ C                              to simplify how bidirecitonal NH3 code handles di
 C                              land use data sets. 
 C      Aug  22 14 J. Bash      Moved all the data to defined data types for easier updates and data access. 
 C      June 2018  j. pleim     Removed all LSM specific data
+C      Feb. 2019  D. Wong      Implemented centralized I/O approach
 C------------------------------------------------------------------------------
        
       Implicit None
@@ -302,18 +303,7 @@ C-------------------------------------------------------------------------------
          INTEGER, INTENT( In )  :: jtime  
          CHARACTER( 240 )       :: XMSG = ' '  
          CHARACTER(  16 ), SAVE :: PNAME = 'Init_LSM'
-         INTEGER      :: GXOFF, GYOFF            ! global origin offset from file
-         INTEGER      :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
          INTEGER l                             
-                                               
-         LAND_SCHEME = 'UNKNOWN'               
-         CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-                                               
-         IF ( .NOT. DESC3( GRID_CRO_2D ) ) THEN
-            XMSG = 'COULD NOT GET GRID_CRO_2D FILE DESCRIPTION '
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-         END IF                                
                                                
 #ifdef twoway                                  
          IF ( NUM_LAND_CAT .EQ. 24 ) THEN      
@@ -325,16 +315,6 @@ C-------------------------------------------------------------------------------
          ELSE IF ( NUM_LAND_CAT .EQ. 40 ) THEN 
             LAND_SCHEME = 'NLCD40'         
          END IF                                
-#else                                          
-         DO l = 1, NVARS3D ! determine land character
-            IF ( VNAME3D( l ) .EQ. 'DLUSE' ) THEN
-               IF ( INDEX( VDESC3D( l ), 'USGS24' ) .NE. 0 )     LAND_SCHEME = 'USGS24'
-               IF ( INDEX( VDESC3D( l ), 'MODIS' ) .NE. 0 )      LAND_SCHEME = 'MODIS'
-               IF ( INDEX( VDESC3D( l ), 'NLCD-MODIS' ) .NE. 0 ) LAND_SCHEME = 'NLCD50'
-               IF ( INDEX( VDESC3D( l ), 'NLCD50' ) .NE. 0 )     LAND_SCHEME = 'NLCD50'
-               IF ( INDEX( VDESC3D( l ), 'NLCD40' ) .NE. 0 )     LAND_SCHEME = 'NLCD40'
-            END IF                             
-         END DO                                
 #endif                                         
 !       Write( *,* ) 'Land use scheme is ', TRIM(LAND_SCHEME) 
                                                

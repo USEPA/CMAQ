@@ -34,6 +34,7 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
   * [Monoterpene SOA](monoterpene_SOA.md)  
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
+  * [Conversion of inorganic to organic sulfate bug fix](inorganicsulfate_iepox_fix.md)  
 
 #### Other Aerosol Processes
   * [Dry Deposition Algorithm](aerosol_dry_deposition.md)  
@@ -73,6 +74,7 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  * [Updates to the create_ebi utility](updates_to_create_ebi.md)
  * [Updates to the inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
  * [Updates to the ICON and BCON pre-processors.](updates_to_ICON_BCON.md)
+ * [The create_omi tool.](Add_create_omi_tool.md)
  
 ## Instrumented Models
 CMAQ-DDM and CMAQ-ISAM will be released with the final version of CMAQv5.3 in Spring 2019.
