@@ -43,6 +43,7 @@ C   30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C    1 Nov 18 David Wong: removed all MY_N clauses
 C   02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
+C   May 2019  J.Pleim Changed from sigma coords to Z coords for compatability w/ MPAS and WRF
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -138,6 +139,10 @@ C ACM Local Variables
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J           ! loop induction variables
       INTEGER     MDATE, MTIME                  ! internal simulation date&time
+!--Local Arrays for Z-coord implimentation
+      REAL     :: DZH   ( NLAYS )               ! ZF(L) - ZF(L-1)
+      REAL     :: DZHI  ( NLAYS )               ! 1/DZH
+      REAL     :: DZFI  ( NLAYS )               ! ZH(L+1) - ZH(L)
 
 #ifdef isam
       REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )   ! 20120712 secondary SA_DDEP
@@ -268,13 +273,23 @@ C ------------------------------------------- Row, Col LOOPS -----------
 
       DO 345 R = 1, NROWS
       DO 344 C = 1, NCOLS
+         DZH(1)  =  Met_Data%ZF( C,R,1 )
+         DZHI(1) =  1./DZH(1)
+         DO L = 2, NLAYS
+            DZH(L)  =  Met_Data%ZF( C,R,L ) - Met_Data%ZF( C,R,L-1 ) 
+            DZHI(L) =  1./DZH(L)
+         ENDDO
+         DO L = 1, NLAYS - 1
+            DZFI(L) = 1. / ( Met_Data%ZH( C,R,L+1 ) - Met_Data%ZH( C,R,L ) )
+         ENDDO
+         DZFI(NLAYS) = DZFI(NLAYS-1)
 
 C for ACM time step
          DTLIM = DTSEC
 
 C dt = .75 dzf*dzh / Kz
          DO L = 1, NLAYS - 1
-            DTLIM = MIN( DTLIM, 0.75 / ( SEDDY( L,C,R ) * Grid_Data%RDX3F( L ) ) )
+            DTLIM = MIN( DTLIM, 0.75 / ( SEDDY( L,C,R ) * DZHI(L)*DZFI(L) ) )
          END DO
          MBARKS = 0.0   ! array assignment
          MDWN = 0.0     ! array assignment
@@ -286,7 +301,7 @@ C conjoin ACM & EDDY ---------------------------------------------------
 
          IF ( Met_Data%CONVCT( C,R ) ) THEN   ! Do ACM for this column
             LCBL = Met_Data%LPBL( C,R )
-            MEDDY = SEDDY( 1,C,R ) / ( Met_Data%XPBL( C,R ) - X3FACE_GD( 1 ) )
+            MEDDY = SEDDY( 1,C,R ) * DZFI(1) / (Met_Data%PBL( C,R ) - Met_Data%ZF(C,R,1))
             FNL = 1.0 / ( 1.0 + ( ( KARMAN / ( -Met_Data%HOL( C,R ) ) ) ** 0.3333 )
      &                / ( 0.72 * KARMAN ) )
             MBAR = MEDDY * FNL
@@ -303,16 +318,18 @@ C conjoin ACM & EDDY ---------------------------------------------------
      &         WRITE( LOGDEV,1015 ) LCBL, MBAR, FNL, SEDDY( 1,C,R ), Met_Data%HOL( C,R )
 1015           FORMAT( ' LCBL, MBAR, FNL, SEDDY1, HOL:', I3, 1X, 4(1PE13.5) )
 
-            DO L = 1, LCBL - 1
+            DO L = 2, LCBL 
                SEDDY( L,C,R ) = ( 1.0 - FNL ) * SEDDY( L,C,R  )
                MBARKS( L ) = MBAR
-               MDWN( L ) = MBAR * ( Met_Data%XPBL( C,R ) - X3FACE_GD( L-1 ) ) * Grid_Data%RDX3F( L )
+               MDWN( L )   = MBAR * (Met_Data%PBL( C,R ) - Met_Data%ZF(C,R,L-1)) * DZHI(L)
             END DO
-            MBARKS( LCBL ) = MBAR * ( Met_Data%XPBL( C,R ) - X3FACE_GD( LCBL-1 ) ) * Grid_Data%RDX3F( LCBL )
-            MDWN( LCBL ) = MBARKS( LCBL )
+            SEDDY( 1,C,R ) = ( 1.0 - FNL ) * SEDDY( 1,C,R  )
+            MBARKS(1) = MBAR
+            MBARKS(LCBL) = MDWN(LCBL)
+            MDWN(LCBL+1) = 0.0
 
-C Modify Timestep for ACM
-            RZ     = ( X3FACE_GD( LCBL ) - X3FACE_GD( 1 ) ) * Grid_Data%RDX3F( 1 )
+C Modify Timestep for ACM2
+            RZ     = (Met_Data%ZF(C,R,LCBL) - Met_Data%ZF(C,R,1)) * DZHI(1)
             DTACM  = 1.0 / ( MBAR * RZ )
             DTLIM  = MIN( 0.75 * DTACM, DTLIM )
          ELSE
@@ -363,9 +380,9 @@ c        END DO
 #endif
 
          DO L = 1, NLAYS
-            DFSP( L ) = DFACP * Grid_Data%RDX3F( L )
-            DFSQ( L ) = DFACQ * Grid_Data%RDX3F( L )
-            EDDY( L ) = SEDDY( L,C,R )
+            DFSP( L ) = DFACP * DZHI( L )
+            DFSQ( L ) = DFACQ * DZHI( L )
+            EDDY( L ) = SEDDY( L,C,R ) * DZFI(L)
          END DO
 
          RP = DFACP * Met_Data%RDEPVHT( C,R )
@@ -398,15 +415,15 @@ C These don`t change in the NLP sub-time step loop:---------------------
          END DO
          IF ( Met_Data%CONVCT( C,R ) ) THEN
             L = 1
-            DELP = Met_Data%XPBL( C,R ) - X3FACE_GD( L )
+            DELP = Met_Data%PBL( C,R ) - Met_Data%ZF( C,R,L )
             BB1( L ) = 1.0 + DELP * DFSP( L ) * MBARKS( L )
             LFAC1( L ) = DFSQ( L ) * DELP * MBARKS( L )
-            LFAC2( L ) = DFSQ( L ) * MDWN( L+1 ) * Grid_Data%DX3F( L+1 )
+            LFAC2( L ) = DFSQ( L ) * MDWN( L+1 ) * DZH( L+1 )
             DO L = 2, LCBL
                AA ( L ) = -DFACP * MBARKS( L )
                BB1( L ) = 1.0 + DFACP * MDWN( L )
-               EE1( L ) = -DFSP( L-1 ) * Grid_Data%DX3F( L ) * MDWN( L )
-               MFAC( L ) = Grid_Data%DX3F( L+1 ) * Grid_Data%RDX3F( L ) * MDWN( L+1 )
+               EE1( L ) = -DFSP( L-1 ) * DZH( L ) * MDWN( L )
+               MFAC( L ) = DZH( L+1 ) * DZHI( L ) * MDWN( L+1 )
             END DO
          END IF
 
