@@ -1977,9 +1977,9 @@ C Read the various categories of normalized emissions
                 WHERE ( szone .LT. 0.0 ) szone = 0.0  ! ensure values are nonnegative
              END IF
           ELSE 
-             XMSG = 'CTM_OCEAN_CHEM set to FALSE. Open ocean and surf zone fractions will be set to 0. ' //
+             XMSG = 'CTM_OCEAN_CHEM set to FALSE. Open ocean and surf zone fractions will be set to 0. ' 
              CALL M3WARN( PNAME, 0, 0, XMSG ) 
-     &       XMSG = 'There will be no oceanic halogen-mediated loss of ozone or sea spray aerosol emissions.'
+             XMSG = 'There will be no oceanic halogen-mediated loss of ozone or sea spray aerosol emissions.'
              WRITE( LOGDEV, * ) XMSG
              ocean = 0.0
              szone = 0.0
