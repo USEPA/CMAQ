@@ -24,6 +24,8 @@ For example, the CMAQ team at the EPA uses a Dell cluster. The cluster consists 
 ## 3.2 Software Requirements
 **>>Comment<<** Do we want to also recommend a compiler (intel) for speed?
 
+**>>Comment<<** I think we should remove all instructions to deal with updating/installing compiler and installing libraries (the only one we should keep is IOAPI). Points user to respective web site for instructions.
+
 Before using the CMAQ program suite, the user must first download and configure their "computing" environment. A requirement for CMAQ is access to a linux environment, which can be done through a terminal emulator. Examples of terminal emulators are shown below:
 
 -   **MAC OS X:** iTerm2
