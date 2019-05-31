@@ -52,9 +52,6 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Appendix D (Parallel Implementation):](Appendix/CMAQ_UG_appendixD_parallel_implementation.md) An introduction to how data-parallelism can be applied in the CMAQ system to increase computational efficiency. 
 
-[Acronyms:](CMAQ_UG_acronyms.md) List of acronyms used throughout the guide.
-
-[Glossary:](CMAQ_UG_glossary.md) List of technical terms and their definitions.
 ***
 
 CMAQ User's Guide (c) 2019<br>
