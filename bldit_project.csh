@@ -17,7 +17,7 @@
 #> directory.
 
 
- set CMAQ_HOME = /home/user/CMAQ_Project
+ set CMAQ_HOME = /work/MOD3DEV/pleim/cmaq53/cmaq_vdiffZ
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
