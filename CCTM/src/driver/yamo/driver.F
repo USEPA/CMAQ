@@ -557,12 +557,8 @@ C Verify input file header consistency and run duration
 #endif
 
 C Initialize Meteorology Structures
-         IF ( ILDEPV ) THEN
-
-            CALL INIT_LSM( JDATE, JTIME )
-            CALL INIT_BIDI( )
-         END IF   ! in-line depv
-
+         CALL INIT_LSM( JDATE, JTIME )
+         CALL INIT_BIDI( )
          CALL INIT_MET( JDATE, JTIME )
          CALL GET_MET ( JDATE, JTIME, 0 )
          CALL GET_WVEL( JDATE, JTIME )
