@@ -214,22 +214,22 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
  
       JDATE = SDATE
       JTIME = STIME
-
-      LFIRST = .TRUE.
-      DO N = 1, NSTEPS
-         IF ( .NOT. CHECK3(  MET_BDY_3D_FIN, 'ALL',
-     &                      JDATE, JTIME ) ) THEN
-            LERROR = .TRUE.
-            IF ( LFIRST ) THEN
-               MSG = 'The following time steps are not on '
-     &             // MET_BDY_3D_FIN
-               WRITE( LOGUNIT, 94480 ) MSG
-               LFIRST = .FALSE.
-            END IF
-            WRITE( LOGUNIT,'( I7, ":", I6.7 )' ) JDATE, JTIME
-         END IF
-         CALL NEXTIME ( JDATE, JTIME, TSTEP )
-      END DO
+!
+!      LFIRST = .TRUE.
+!      DO N = 1, NSTEPS
+!         IF ( .NOT. CHECK3(  MET_BDY_3D_FIN, 'ALL',
+!     &                      JDATE, JTIME ) ) THEN
+!            LERROR = .TRUE.
+!            IF ( LFIRST ) THEN
+!               MSG = 'The following time steps are not on '
+!     &             // MET_BDY_3D_FIN
+!               WRITE( LOGUNIT, 94480 ) MSG
+!               LFIRST = .FALSE.
+!            END IF
+!            WRITE( LOGUNIT,'( I7, ":", I6.7 )' ) JDATE, JTIME
+!         END IF
+!         CALL NEXTIME ( JDATE, JTIME, TSTEP )
+!      END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  If inconsistency found, then stop, else return

@@ -352,8 +352,8 @@ c   a dynamic array holding heights will need to be allocated
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C Get the layer mid-point heights or pressure
-      IF ( .NOT. READ3( MET_CRO_3D_CRS, ZP_VNAME, ALLAYS3, JDATE, JTIME,
-     &                  HT_CTM ) ) THEN
+      IF ( .NOT. INTERP3( MET_CRO_3D_CRS, ZP_VNAME, PNAME, JDATE, JTIME,
+     &                    NCOLS_IN*NROWS_IN*NLAYS_IN, HT_CTM ) ) THEN
          MSG = 'Could not read '// ZP_VNAME // ' from file ' // MET_CRO_3D_CRS 
          CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
       END IF
@@ -456,7 +456,7 @@ C************************* FORMAT STATEMENTS ***************************
 
 92040 FORMAT( // 5X, 'The COORD.EXT and CTM vertical grid types are',
      &               ' the same, but the resolution is different.' /
-     &           5X, 'Vertical interpolation will be done using',
+     &           5X, 'Vertical interpolation using',
      &               ' VGLVS (listed below). ' )
 
 92060 FORMAT( // 5X, 'Vertical grid type: ', A )
@@ -472,8 +472,8 @@ C************************* FORMAT STATEMENTS ***************************
 
 92160 FORMAT( //5X, 'The COORD.EXT and CTM vertical grid types are ',
      &               'different. '
-     &         / 5X, 'Vertical interpolation will be done using ', A16, 1X,
-     &               'from the MET_CRO_3D files. ' )
+     &         / 5X, 'Vertical interpolation using ', A16, 1X,
+     &               'from the MET_CRO_3D files' )
 
 94000 FORMAT( 1PE20.4 )
 

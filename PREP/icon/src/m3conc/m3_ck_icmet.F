@@ -208,12 +208,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
       END DO
  
-      IF ( .NOT. CHECK3( MET_CRO_3D_FIN, ALLVAR3, SDATE, STIME ) ) THEN
-         MSG = 'Requested time is not on the ' // MET_CRO_3D_FIN
-     &       // ' file'
-         WRITE( LOGUNIT, 94480 ) MSG
-         LERROR = .TRUE.
-      END IF
+!      IF ( .NOT. CHECK3( MET_CRO_3D_FIN, ALLVAR3, SDATE, STIME ) ) THEN
+!         MSG = 'Requested time is not on the ' // MET_CRO_3D_FIN
+!     &       // ' file'
+!         WRITE( LOGUNIT, 94480 ) MSG
+!         LERROR = .TRUE.
+!      END IF
              
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  If inconsistency found, then stop, else return

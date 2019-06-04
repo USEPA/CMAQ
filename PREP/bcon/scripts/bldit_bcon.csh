@@ -39,17 +39,17 @@
 
 #> Working directory and Version IDs
  set VRSN  = v53                    #> Code Version
- set EXEC = BCON_${VRSN}.exe  #> executable name for this application
- set CFG  = BCON_${VRSN}.cfg  #> BLDMAKE configuration file name
+ set EXEC = BCON_${VRSN}.exe        #> executable name for this application
+ set CFG  = BCON_${VRSN}.cfg        #> BLDMAKE configuration file name
 
 #> Controls for managing the source code and MPI compilation
-set CompileBLDMAKE                     #> Recompile the BLDMAKE utility from source
-                                       #>   comment out to use an existing BLDMAKE executable
-set CopySrc                            #> copy the source files into the BLD directory
-#set CopySrcTree                       #> copy the source files and directory tree into the build directory
-#set Opt = verbose                     #> show requested commands as they are executed
-#set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
-                                       #>   comment out to compile the model (default if not set)
+ set CompileBLDMAKE                 #> Recompile the BLDMAKE utility from source
+                                    #>   comment out to use an existing BLDMAKE executable
+ set CopySrc                        #> copy the source files into the BLD directory
+#set CopySrcTree                    #> copy the source files and directory tree into the build directory
+#set Opt = verbose                  #> show requested commands as they are executed
+#set MakeFileOnly                   #> uncomment to build a Makefile, but do not compile; 
+                                    #>   comment out to compile the model (default if not set)
 
 #>==============================================================================
 #> BCON Science Modules
@@ -60,11 +60,9 @@ set CopySrc                            #> copy the source files into the BLD dir
 
  set ModCommon = common
 
- set ModProfile = profile
-
  set ModM3conc = m3conc
 
- set ModTracer = tracer
+ set ModProfile = profile
 
 #>#>#>#>#>#>#>#>#>#>#>#>#>#> End User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
 #>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
@@ -173,19 +171,14 @@ set CopySrc                            #> copy the source files into the BLD dir
  echo "Module ${ModCommon};"                                       >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "profile"
- echo "// options are" $text                                       >> $Cfile
- echo "Module profile;"                                            >> $Cfile
- echo                                                              >> $Cfile
-
  set text = "m3conc"
  echo "// options are" $text                                       >> $Cfile
- echo "Module m3conc;"                                             >> $Cfile
+ echo "Module ${ModM3conc};"                                       >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "tracer"
+ set text = "profile"
  echo "// options are" $text                                       >> $Cfile
- echo "Module tracer;"                                             >> $Cfile
+ echo "Module ${ModProfile};"                                      >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then

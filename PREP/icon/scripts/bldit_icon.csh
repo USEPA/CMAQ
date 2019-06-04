@@ -43,9 +43,9 @@
  set CFG  = ICON_${VRSN}.cfg        #> BLDMAKE configuration file name
 
 #> Controls for managing the source code and MPI compilation
-set CompileBLDMAKE                  #> Recompile the BLDMAKE utility from source
+ set CompileBLDMAKE                 #> Recompile the BLDMAKE utility from source
                                     #>   comment out to use an existing BLDMAKE executable
-set CopySrc                         #> copy the source files into the BLD directory
+ set CopySrc                        #> copy the source files into the BLD directory
 #set CopySrcTree                    #> copy the source files and directory tree into the build directory
 #set Opt = verbose                  #> show requested commands as they are executed
 #set MakeFileOnly                   #> uncomment to build a Makefile, but do not compile; 
@@ -60,11 +60,9 @@ set CopySrc                         #> copy the source files into the BLD direct
 
  set ModCommon = common
 
- set ModProfile = profile
-
  set ModM3conc = m3conc
 
- set ModTracer = tracer
+ set ModProfile = profile
 
 #>#>#>#>#>#>#>#>#>#>#>#>#>#> End User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
 #>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
@@ -163,7 +161,7 @@ set CopySrc                         #> copy the source files into the BLD direct
  echo "ioapi       $quote$LIB1$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$LIB2$quote;"                             >> $Cfile
- echo   
+ echo                                                              >> $Cfile
 
  echo "// project repository location: ${ICON_SRC}"                >> $Cfile
  echo                                                              >> $Cfile
@@ -173,19 +171,14 @@ set CopySrc                         #> copy the source files into the BLD direct
  echo "Module ${ModCommon};"                                       >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "profile"
- echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModProfile};"                                      >> $Cfile
- echo                                                              >> $Cfile
-
  set text = "m3conc"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModM3conc};"                                       >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "tracer"
+ set text = "profile"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModTracer};"                                       >> $Cfile
+ echo "Module ${ModProfile};"                                      >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then

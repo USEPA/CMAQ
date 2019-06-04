@@ -74,31 +74,27 @@ C External Procedures: None
 C Local Variables:
       CHARACTER( 16 ) :: PNAME = 'ICON'          ! Procedure name
       CHARACTER( 16 ) :: ICON_TYPE = 'ICON_TYPE' ! ICON type environment variable
-      CHARACTER( 16 ) :: IC_MODULE               ! selected module
+      CHARACTER( 16 ) :: IC_MODULE = 'regrid'    ! selected module
 
       CHARACTER( 80 ) :: MSG                    ! Log message 
       CHARACTER( 80 ) :: VARDESC                ! variable description
 
       INTEGER    LOGUNIT      ! Unit number for output log
-      INTEGER :: SDATE = 0    ! Start date 
-      INTEGER :: STIME = 0    ! Start time 
       INTEGER    STATUS       ! Status code
 
       INTERFACE
+
+         SUBROUTINE M3_INIC ( LOGUNIT )
+            INTEGER, INTENT( IN )    :: LOGUNIT
+         END SUBROUTINE M3_INIC
 
          SUBROUTINE PROF_INIC ( LOGUNIT )
             INTEGER, INTENT( IN ) :: LOGUNIT
          END SUBROUTINE PROF_INIC
 
-         SUBROUTINE M3_INIC ( LOGUNIT, SDATE, STIME )
-            INTEGER, INTENT( IN )    :: LOGUNIT
-            INTEGER, INTENT( INOUT ) :: SDATE
-            INTEGER, INTENT( INOUT ) :: STIME
-         END SUBROUTINE M3_INIC
-
-         SUBROUTINE TRAC_INIC ( LOGUNIT )
-            INTEGER, INTENT( IN ) :: LOGUNIT
-         END SUBROUTINE TRAC_INIC
+!        SUBROUTINE TRAC_INIC ( LOGUNIT )
+!           INTEGER, INTENT( IN ) :: LOGUNIT
+!        END SUBROUTINE TRAC_INIC
 
       END INTERFACE
 C***********************************************************************
@@ -109,24 +105,18 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       LOGUNIT = INIT3( )
 
-      SDATE = ENVINT( 'SDATE', 'START DATE', 0, STATUS )
-      IF ( STATUS .NE. 0 ) SDATE = 0
-
-      STIME = ENVINT( 'STIME', 'START TIME', 0, STATUS )
-      IF ( STATUS .NE. 0 ) STIME = 0
-
-      VARDESC = 'Initial condition type: (profile, regrid, patterns)'
-      CALL ENVSTR ( ICON_TYPE, VARDESC, 'profile', IC_MODULE, STATUS )
+      VARDESC = 'Initial condition type: (regrid, profile)'
+      CALL ENVSTR ( ICON_TYPE, VARDESC, IC_MODULE, IC_MODULE, STATUS )
       IF ( STATUS .NE. 0 ) WRITE( LOGUNIT, '(5X, A)' ) VARDESC
       IF ( STATUS .EQ. 1 ) THEN
          MSG = 'Environment variable improperly formatted'
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       ELSE IF ( STATUS .EQ. -1 ) THEN
          MSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGUNIT, '(5X, A, I9)' ) MSG, STIME
+         WRITE( LOGUNIT, '(5X, A, A)' ) MSG, IC_MODULE
       ELSE IF ( STATUS .EQ. -2 ) THEN
          MSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGUNIT, '(5X, A, I9)' ) MSG, STIME
+         WRITE( LOGUNIT, '(5X, A, A)' ) MSG, IC_MODULE
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -134,7 +124,7 @@ c  Load horizontal grid variables calling GRID_DEF->HGRD_INIT function
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. HGRD_INIT() ) THEN
          MSG = '*** Failure defining horizontal domain'
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -142,21 +132,21 @@ c define vertical layer structure
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. VGRD_INIT() ) THEN
          MSG = '*** Failure defining vertical structure'
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Generate the IC output file and quit
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( IC_MODULE .EQ. 'profile' ) THEN
+      IF ( IC_MODULE .EQ. 'regrid' ) THEN
+         CALL M3_INIC ( LOGUNIT )
+      ELSE IF ( IC_MODULE .EQ. 'profile' ) THEN
          CALL PROF_INIC ( LOGUNIT )
-      ELSE IF ( IC_MODULE .EQ. 'regrid' ) THEN
-         CALL M3_INIC ( LOGUNIT, SDATE, STIME )
-      ELSE IF ( IC_MODULE .EQ. 'patterns' ) THEN
-         CALL TRAC_INIC ( LOGUNIT )
+!     ELSE IF ( IC_MODULE .EQ. 'patterns' ) THEN
+!        CALL TRAC_INIC ( LOGUNIT )
       ELSE
          MSG = '*** Unknown ICON type requested: ' // IC_MODULE
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
       IF ( SHUT3() ) THEN

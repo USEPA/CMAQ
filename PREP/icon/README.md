@@ -10,16 +10,13 @@ across the modeling domain. If deriving ICs from the ASCII vertical profiles,
 ICON creates spatially uniform, time independent ICs. From concentration (CONC)
 files, ICON extracts spatially varying ICs, either on the same grid cell
 resolution (windowed modeling domain), or for a finer grid resolution modeling
-domain (nested modeling domain).  ICs generated from CONC files will be either
-time dependent or time independent.
+domain (nested modeling domain). ICs generated from CONC files are time
+dependent if the input CONC file is time stepped, or time independent if the
+CONC file time step is zero.
 
-There are three distinct modes of operation for ICON.  When running ICON, the
-user must specify whether to generate ICs (1) from an existing CONC file
-(*regrid*), (2) from an ASCII file of vertical profiles (*profile*), or (3) from
-prespecified spatial patterns for use in transport algorithm testing
-(*patterns*).  See the documentation for the [transport test
-patterns](TRANSPORT_TEST_PATTERNS.md) for details on the ICs generated with the
-*patterns* option.
+There are two distinct modes of operation for ICON.  When running ICON, the
+user must specify whether to generate ICs from:  (1) an existing CONC file
+(*regrid*); or (2) an ASCII file of vertical profiles (*profile*).
 
 CMAQ can also use initial conditions derived from global chemistry models
 (GCMs). While ICON does not directly support processing of datasets from GCMs
@@ -35,12 +32,11 @@ datasets to be input into ICON to generate ICs for the CCTM.
 |---------------------|-------------|-----------------------------------------------------------------------|
 |VRSN|v53|Configuration identifier for the ICON simulation. Must match CFG Variable setting in the ICON build script.|
 |APPL|SE53BENCH|ICON executable identifier. Must match APPL Variable setting in the ICON build script.|
-|ICTYPE|regrid, profile, patterns|Specifies which IC type to generate.|
+|ICTYPE|regrid, profile|Specifies which IC type to generate.|
 |EXEC|ICON_${VRSN}.exe|Executable to use for the simulation. The variable CFG is set in the ICON run script. The variable EXECID is set in the config_cmaq.csh configuration file.|
 |GRIDDESC|$CMAQ_HOME/scripts/GRIDDESC1|Grid description file for setting the horizontal grid definition for the target domain.|
 |GRID_NAME|SE53BENCH|Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the target domain.|
 |OUTDIR|$CMAQ_HOME/data/icon|Output data directory|
-|DATE|2016183|Sets the Julian date to use in naming the ICON output file for the regrid IC type|
 |SDATE|0|Julian start date for extracting initial conditions from a CCTM CONC file. If SDATE is not set, it will be set automatically from the MET_CRO_3D_FIN file.|
 |STIME|0|Start time for extracting initial conditions from a CCTM CONC file. If STIME is not set, it will be set automatically from the MET_CRO_3D_FIN file.|
 |IOAPI_ISPH|20|I/O API setting for spheroid type. See I/O API documentation for [setsphere](https://www.cmascenter.org/ioapi/documentation/all_versions/html/SETSPHERE.html) for more information.|
@@ -48,7 +44,7 @@ datasets to be input into ICON to generate ICs for the CCTM.
 
 ## ICON input files
 
-**Table 1. ICON input files**
+**Table 2. ICON input files**
 
 |**File Name**|**Format**|**Description**|
 |---------------------|-------------|-----------------------------------------------------------------------|
@@ -58,9 +54,9 @@ datasets to be input into ICON to generate ICs for the CCTM.
 |MET_CRO_3D_FIN|`GRDDED3`|Name and location of the fine grid MET_CRO_3D file that is required if the vertical grid structure changes between nested simulations; this file is output by MCIP|
 |GRIDDESC|`ASCII`|Horizontal grid description file for defining the model grid; this file is output by MCIP or can be created by the user|
 
-**Table 2. ICON input files**
+**Table 3. ICON input files**
 
-|**BCTYPE**|**File Name**|**Format**|**Description**|
+|**ICTYPE**|**File Name**|**Format**|**Description**|
 |----------|---------------------|-------------|-----------------------------------------------------------------------|
 |regrid|
 ||GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
@@ -69,15 +65,12 @@ datasets to be input into ICON to generate ICs for the CCTM.
 ||MET_CRO_3D_FIN|BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_CRO_3D file|
 |profile|
 ||GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
-||BC_PROFILE|ASCII|Vertical chemical profiles from which to derive initial conditions; this file can created by the user|
-||MET_CRO_3D_FIN|BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_CRO_3D file|
-|tracer|
-||GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
+||IC_PROFILE|ASCII|Vertical chemical profiles from which to derive initial conditions; this file can created by the user|
 ||MET_CRO_3D_FIN|BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_CRO_3D file|
 
 ## ICON output files
 
-**Table 3. ICON output files**
+**Table 4. ICON output files**
 
 |**File Name**|**Format**|**Description**|
 |------------|-----------|---------------------------------------------------------------|

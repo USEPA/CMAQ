@@ -30,7 +30,7 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN     = v53                     #> Code Version
  set APPL     = SE53BENCH               #> Application Name
- set BCTYPE   = regrid                  #> Boundary condition type [profile|regrid|patterns]
+ set BCTYPE   = regrid                  #> Boundary condition type [profile|regrid]
 
 #> Set the build directory:
  set BLD      = ${CMAQ_HOME}/PREP/bcon/scripts/BLD_BCON_${VRSN}_${compilerString}
@@ -51,11 +51,9 @@
 # =====================================================================
 #> BCON Configuration Options
 #
-# BCON can be run in one of three modes:                                     
-#     1) use default profile inputs (BC type = profile)
-#     2) regrids CMAQ CTM concentration files (BC = regrid)     
-#     3) generate set of test patterns for CTM transport/diffusion tests
-#        (BC = patterns)
+# BCON can be run in one of two modes:                                     
+#     1) regrids CMAQ CTM concentration files (BC type = regrid)     
+#     2) use default profile inputs (BC type = profile)
 # =====================================================================
 
  setenv BCON_TYPE ` echo $BCTYPE | tr "[A-Z]" "[a-z]" `
@@ -69,17 +67,16 @@
 # =====================================================================
 #> Input Files
 #  
-#  Profile mode (BC type = profile)
-#     BC_PROFILE = static/default BC profiles 
-#     MET_BDY_3D_FIN = the MET_BDY_3D met file for the target domain 
 #  Regrid mode (BC = regrid) (includes nested domains, windowed domains,
 #                             or general regridded domains)
 #     CTM_CONC_1 = the CTM concentration file for the coarse domain          
 #     MET_CRO_3D_CRS = the MET_CRO_3D met file for the coarse domain
 #     MET_BDY_3D_FIN = the MET_BDY_3D met file for the target nested domain
-#  Test patterns mode (BC = patterns)
-#     MET_BDY_3D_FIN = the MET_BDY_3D met file for the target domain 
 #                                                                            
+#  Profile mode (BC type = profile)
+#     BC_PROFILE = static/default BC profiles 
+#     MET_BDY_3D_FIN = the MET_BDY_3D met file for the target domain 
+#
 # NOTE: SDATE (yyyyddd), STIME (hhmmss) and RUNLEN (hhmmss) are only 
 #       relevant to the regrid mode and if they are not set,  
 #       these variables will be set from the input MET_BDY_3D_FIN file
@@ -88,26 +85,25 @@
 #     BNDY_CONC_1 = gridded BC file for target domain
 # =====================================================================
  
- if ( $BCON_TYPE == profile ) then
-    setenv BC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_160701.nc
-    setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE} -v"
- endif
+    set DATE = "2016-07-01"
+    set YYYYJJJ  = `date -ud "${DATE}" +%Y%j`   #> Convert YYYY-MM-DD to YYYYJJJ
+    set YYMMDD   = `date -ud "${DATE}" +%y%m%d` #> Convert YYYY-MM-DD to YYMMDD
+    set YYYYMMDD = `date -ud "${DATE}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
+#   setenv SDATE           ${YYYYJJJ}
+#   setenv STIME           000000
+#   setenv RUNLEN          240000
 
  if ( $BCON_TYPE == regrid ) then 
-    setenv CTM_CONC_1 /asm/MOD3DEV/fsidi/12US1_201607/CCTM_CONC_v53_intel18.0_2016_CONUS_test_20160701.nc
-    setenv MET_CRO_3D_CRS /work/MOD3DATA/2016_12US1/met/mcip_v43_wrf_v381_ltng/METCRO3D.12US1.35L.160701
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_160701.nc
-    set DATE = `date -ud "2016-07-01" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
-#    setenv SDATE           ${DATE}
-#    setenv STIME           000000
-#    setenv RUNLEN          240000
-    setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE}_${DATE} -v"
+    setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53_intel18.0_2016_CONUS_test_${YYYYMMDD}.nc
+    setenv MET_CRO_3D_CRS /work/MOD3DATA/2016_12US1/met/mcip_v43_wrf_v381_ltng/METCRO3D.12US1.35L.${YYMMDD}
+    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_${YYMMDD}.nc
+    setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE}_${YYYYMMDD} -v"
  endif
 
- if ( $BCON_TYPE == patterns ) then
-    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_160701.nc
-    setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE} -v"
+ if ( $BCON_TYPE == profile ) then
+    setenv BC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
+    setenv MET_BDY_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METBDY3D_${YYMMDD}.nc
+    setenv BNDY_CONC_1    "$OUTDIR/BCON_${VRSN}_${APPL}_${BCON_TYPE}_${YYYYMMDD} -v"
  endif
 
 # =====================================================================

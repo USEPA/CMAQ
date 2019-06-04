@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE M3_INIC ( LOGUNIT, SDATE, STIME )
+      SUBROUTINE M3_INIC ( LOGUNIT )
 
 C***********************************************************************
  
@@ -66,8 +66,6 @@ C Include Files:
 
 C Arguments:
       INTEGER, INTENT( IN )    :: LOGUNIT  ! Unit number for output log
-      INTEGER, INTENT( INOUT ) :: SDATE    ! Date for IC output
-      INTEGER, INTENT( INOUT ) :: STIME    ! Time for IC output
 
 C Parameters: None
 
@@ -77,7 +75,7 @@ C Local Variables:
       CHARACTER(  16 ) :: ENV_DFLT       ! Environment variable default value
       CHARACTER(  80 ) :: ENV_DESC       ! Environment variable description
       CHARACTER(  16 ) :: FL_NAME        ! Input CTM file name
-      CHARACTER(  80 ) :: MSG            ! Log message
+      CHARACTER( 256 ) :: MSG            ! Log message
       CHARACTER(  16 ) :: PNAME = 'M3_INIC' ! Program name
       CHARACTER( 256 ) :: RET_VAL        ! Returned value of environment variable
 
@@ -88,17 +86,27 @@ C Local Variables:
 
       INTEGER, ALLOCATABLE :: VTYPE_IN( : ) ! variable type for CTM species
 
+      INTEGER :: SDATE = 0    ! Date for IC output 
+      INTEGER :: STIME = 0    ! Time for IC output
       INTEGER N            ! File loop index
       INTEGER N_CTM_FLS    ! Number of input CTM files
       INTEGER NCOLS_IN     ! No. of columns in input conc file
-      INTEGER NLAYS_IN     ! No. of layers in input conc file
       INTEGER NROWS_IN     ! No. of rows in input conc file
+      INTEGER NLAYS_IN     ! No. of layers in input conc file
       INTEGER NSPCS_IN     ! CTM files species counter
+      INTEGER VGTYP_IN     ! input conc file VGTYP
+      INTEGER VGTOP_IN     ! input conc file VGTOP
+      INTEGER SDATE_IN     ! input conc file start date
+      INTEGER STIME_IN     ! input conc file start time
+      INTEGER EDATE_IN     ! input conc file end date
+      INTEGER ETIME_IN     ! input conc file end time
+      INTEGER TSTEP_IN     ! input conc file  timestep
+      INTEGER NSTEPS_IN    ! Number time steps in input conc file
+      INTEGER SECS_STRT    ! time variable (sec)
+      INTEGER SECS_END     ! time variable (sec)
       INTEGER STATUS       ! Status code
       INTEGER ALLOCSTAT    ! Status returned from array allocation
       INTEGER V            ! Variable loop index
-
-      LOGICAL LCHKD        ! Flag for met file checked
 
       INTERFACE
 
@@ -145,6 +153,12 @@ C Local Variables:
 C***********************************************************************
 
       WRITE( LOGUNIT, 92000 )
+
+      SDATE = ENVINT( 'SDATE', 'START DATE', 0, STATUS )
+      IF ( STATUS .NE. 0 ) SDATE = 0
+
+      STIME = ENVINT( 'STIME', 'START TIME', 0, STATUS )
+      IF ( STATUS .NE. 0 ) STIME = 0
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Determine the number of input CTM conc files that need to be read
@@ -203,10 +217,19 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
 
          IF ( .NOT. DESC3( CTM_FL_NAME( N ) ) ) THEN
-            MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) 
-     &            // ' file'
+            MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) // ' file'
             CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
          END IF
+
+         NCOLS_IN  = NCOLS3D
+         NROWS_IN  = NROWS3D
+         NLAYS_IN  = NLAYS3D
+         VGTYP_IN  = VGTYP3D
+         VGTOP_IN  = VGTOP3D
+         SDATE_IN  = SDATE3D
+         STIME_IN  = STIME3D
+         TSTEP_IN  = TSTEP3D
+         NSTEPS_IN = MXREC3D
 
          DO V = 1, NVARS3D
             NSPCS_IN = NSPCS_IN + 1
@@ -224,39 +247,53 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( N_CTM_FLS .GT. 1 ) CALL CK_CTM_FLS ( LOGUNIT, N_CTM_FLS,
      &                                          CTM_FL_NAME )
 
-      IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
-         MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) 
-     &         // ' file'
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
-      END IF
-
-      NCOLS_IN = NCOLS3D
-      NROWS_IN = NROWS3D
-      NLAYS_IN = NLAYS3D
-
-      IF ( SDATE .EQ. 0 ) THEN
-         IF ( .NOT. DESC3( MET_CRO_3D_FIN ) ) THEN
-            MSG = 'Could not read DESC of  ' // MET_CRO_3D_FIN
-     &            // ' file'
-            CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
-         END IF
-         MSG = 'Input SDATE equals zero; SDATE & STIME ' //
-     &         'reset to MET_CRO_3D_FIN file start date & time.'
-         CALL M3MESG ( MSG )
-         SDATE = SDATE3D
-         STIME = STIME3D
-      END IF
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c   Check MET_CRO_3D_CRS (for input CCTM file) and MET_CRO_3D_FIN (for
 c   output IC file) if vertical grid types are different
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      LCHKD = .FALSE.
-
-      IF ( VGTYP_GD .NE. VGTYP3D .OR. VGTOP_GD .NE. VGTOP3D ) THEN 
-         LCHKD = .TRUE.
+      IF ( VGTYP_GD .NE. VGTYP_IN .OR. VGTOP_GD .NE. VGTOP_IN ) THEN 
          CALL CK_CTMMET_FL ( LOGUNIT, SDATE, STIME, CTM_FL_NAME )
          CALL CK_ICMET_FL ( LOGUNIT, SDATE, STIME  )
+      END IF
+
+      IF ( .NOT. DESC3( MET_CRO_3D_FIN ) ) THEN
+         MSG = 'Could not read DESC of  ' // MET_CRO_3D_FIN // ' file'
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+      END IF
+
+C if user did not specify SDATE, inherit SDATE from MET_CRO_3D_FIN
+      IF ( SDATE .EQ. 0 ) THEN
+         MSG = 'Input SDATE equals zero; SDATE ' //
+     &         'reset to MET_CRO_3D_FIN file start date:  ' // MMDDYY( SDATE3D )
+         CALL M3MESG ( MSG )
+         SDATE = SDATE3D
+      END IF
+
+C if user did not specify STIME, inherit STIME from MET_CRO_3D_FIN
+      IF ( STIME .EQ. 0 ) THEN
+         MSG = 'Input STIME equals zero; STIME ' //
+     &         'reset to MET_CRO_3D_FIN file start time:  ' // HHMMSS( STIME3D )
+         CALL M3MESG ( MSG )
+         STIME = STIME3D
+      END IF
+
+C for time-dependent concentration file
+      IF ( TSTEP_IN .GT. 0 ) THEN
+
+C calculate end date and time for concentration file
+         EDATE_IN = SDATE_IN
+         ETIME_IN = STIME_IN
+         CALL NEXTIME ( EDATE_IN, ETIME_IN,
+     &                  SEC2TIME( ( NSTEPS_IN - 1 ) * TIME2SEC( TSTEP_IN ) ) )
+
+C see if sdate and stime are availabe on concentration file
+         SECS_STRT = SECSDIFF( SDATE_IN, STIME_IN, SDATE, STIME )
+         SECS_END  = SECSDIFF( EDATE_IN, ETIME_IN, SDATE, STIME )
+         IF ( ( SECS_STRT .LT. 0 ) .OR. ( SECS_END .GT. 0 ) ) THEN
+            MSG = 'Requested starting time is not in the ' //
+     &            CTM_FL_NAME( 1 ) // ' file'
+            CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+         END IF
       END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

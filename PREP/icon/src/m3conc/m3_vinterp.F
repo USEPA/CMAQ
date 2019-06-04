@@ -329,12 +329,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ZP_VNAME = 'ZH'
       V = INDEX1( ZP_VNAME, NVARS3D, VNAME3D )
       IF ( V .NE. 0 ) THEN
-        WRITE( LOGUNIT, 92160 ) ZP_VNAME
+        WRITE( LOGUNIT, 92160 ) TRIM( ZP_VNAME )
       ELSE
          ZP_VNAME = 'PRES'
          V = INDEX1( ZP_VNAME, NVARS3D, VNAME3D )
          IF ( V .NE. 0 ) THEN
-            WRITE( LOGUNIT, 92160 ) ZP_VNAME
+            WRITE( LOGUNIT, 92160 ) TRIM( ZP_VNAME )
          ELSE
             MSG = 'Could not find ZH or PRES in file ' // MET_CRO_3D_CRS 
             CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
@@ -445,7 +445,7 @@ C************************* FORMAT Statements ***************************
 
 92040 FORMAT( // 5X, 'The Layer Defn and CTM vertical grid types are the '
      &               'same, but the resolution is different.' /
-     &           5X, 'Vertical interpolation will be done using VGLVS '
+     &           5X, 'Vertical interpolation using VGLVS '
      &               '(listed below). ' )
 
 92060 FORMAT( // 5X, 'Vertical grid type: ', A )
@@ -461,8 +461,8 @@ C************************* FORMAT Statements ***************************
 
 92160 FORMAT( //5X, 'The COORD.EXT and CTM vertical grid types are ',
      &               'different. '
-     &         / 5X, 'Vertical interpolation will be done using ', A16, 1X,
-     &               'from the MET_CRO_3D files. ' )
+     &         / 5X, 'Vertical interpolation using ', A, 1X,
+     &               'from the MET_CRO_3D files' )
 
 94000 FORMAT( 1PE20.4 )
 
