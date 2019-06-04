@@ -56,7 +56,7 @@ C-----------------------------------------------------------------------
 !      USE BIDI_MOD
 !      USE LSM_MOD, ONLY: N_LUFRAC
       USE VDIFF_DIAG, NLPCR => NLPCR_MEAN
-
+      USE HGRD_DEFN,only : COLSX_PE, ROWSX_PE
 #ifdef isam
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
@@ -143,7 +143,7 @@ C ACM Local Variables
       REAL     :: DZH   ( NLAYS )               ! ZF(L) - ZF(L-1)
       REAL     :: DZHI  ( NLAYS )               ! 1/DZH
       REAL     :: DZFI  ( NLAYS )               ! ZH(L+1) - ZH(L)
-
+      integer  gl_c, gl_r
 #ifdef isam
       REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )   ! 20120712 secondary SA_DDEP
       INTEGER IBGN, JSPCTAG
@@ -305,11 +305,15 @@ C conjoin ACM & EDDY ---------------------------------------------------
             FNL = 1.0 / ( 1.0 + ( ( KARMAN / ( -Met_Data%HOL( C,R ) ) ) ** 0.3333 )
      &                / ( 0.72 * KARMAN ) )
             MBAR = MEDDY * FNL
-            IF ( MBAR .LT. EPS ) THEN
-               WRITE( LOGDEV,* ) ' SEDDY, MBAR, FNL, HOL = ',
-     &                             SEDDY( 1,C,R ), MBAR, FNL, Met_Data%HOL( C,R )
+            IF ( MEDDY .LT. EPS ) THEN
+               gl_c = c + COLSX_PE(1,mype+1) -1
+               gl_r = r + ROWSX_PE(1,mype+1) -1
+               WRITE( LOGDEV,* ) ' Warning --- MEDDY < 1e-6 s-1'
+               WRITE( LOGDEV,* ) ' SEDDY, MEDDY, FNL, HOL = ',
+     &                             SEDDY( 1,C,R ), MEDDY, FNL, Met_Data%HOL( C,R )
                XMSG = '*** ACM fails ***'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT2 )
+               WRITE( LOGDEV,*)' c,r=', gl_c,gl_r,' pbl,ust=',Met_Data%PBL( C,R ),Met_Data%USTAR( C,R )
+!               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT2 )
             END IF
 
             IF ( ( FNL .LE. 0.0 ) .OR.            ! never gonna happen for CONVCT
