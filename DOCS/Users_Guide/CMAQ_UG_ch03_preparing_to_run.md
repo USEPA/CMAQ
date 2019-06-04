@@ -11,11 +11,11 @@ In this chapter the user will learn basic hardware and software requirements to 
 
 ## 3.1 Hardware Requirements
 
-The minimum hardware requirements for running the CMAQ Program Suite on a PC are:
+The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
 
--   A single processor
--   1 GB RAM
--   100 GB hard drive storage
+-   8 processors
+-   16 GB RAM
+-   400 GB hard drive storage
 
 However, to use CMAQ in a production environment where multiple iterations of the model will be executed for different spatial domains and/or emissions control strategies, either a cluster of multiprocessor PCs on a high-end network or an expandable rack-mounted Linux server is recommended.
 
