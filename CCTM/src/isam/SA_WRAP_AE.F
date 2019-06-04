@@ -42,13 +42,16 @@ c     USE SA_GRD_DEFN  ! for SA_SULF_NEW( :,:,:,: ); inherents SA_DEFN
       INTEGER KNH3, KHNO3
       REAL    TOTAL_OLD, TOTAL_NEW
       CHARACTER( 16 ) :: PRECUR
-      REAL :: TTLB4( NCOLS,NROWS,NLAYS,NSPC_SA )
-c     REAL :: CCOND( NCOLS,NROWS,NLAYS,NSPC_SA )
-      REAL :: SULFCOND( NCOLS,NROWS,NLAYS )
-      REAL :: SULFCOND_AIT( NCOLS,NROWS,NLAYS )
-      REAL :: SULFCOND_ACC( NCOLS,NROWS,NLAYS )
+c     REAL :: TTLB4( NCOLS,NROWS,NLAYS,NSPC_SA )
+c     REAL :: SULFCOND( NCOLS,NROWS,NLAYS )
+c     REAL :: SULFCOND_AIT( NCOLS,NROWS,NLAYS )
+c     REAL :: SULFCOND_ACC( NCOLS,NROWS,NLAYS )
+c     REAL, ALLOCATABLE, SAVE :: CCOND( :,:,:,: )
+      REAL, ALLOCATABLE, SAVE :: TTLB4( :,:,:,: )
+      REAL, ALLOCATABLE, SAVE :: SULFCOND( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SULFCOND_AIT( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: SULFCOND_ACC( :,:,: )
       REAL, ALLOCATABLE, SAVE :: CCOND( :,:,:,: )
-
 
 ! for interpx
       REAL DX1, DX2
@@ -79,20 +82,32 @@ c     REAL :: CCOND( NCOLS,NROWS,NLAYS,NSPC_SA )
 
 
 ! Arrays for combined ammonium, combined nitrates, and combined sulfates
-      REAL :: AMMONIA_TAG( NCOLS,NROWS,NLAYS )
-      REAL :: NITRATE_TAG( NCOLS,NROWS,NLAYS )
-      REAL :: SULFATE_TAG( NCOLS,NROWS,NLAYS )
-      REAL :: TOTAER_TAG( NCOLS,NROWS,NLAYS )
+c     REAL :: AMMONIA_TAG( NCOLS,NROWS,NLAYS )
+c     REAL :: NITRATE_TAG( NCOLS,NROWS,NLAYS )
+c     REAL :: SULFATE_TAG( NCOLS,NROWS,NLAYS )
+c     REAL :: TOTAER_TAG( NCOLS,NROWS,NLAYS )
+      REAL, ALLOCATABLE, SAVE :: AMMONIA_TAG (:,:,:)
+      REAL, ALLOCATABLE, SAVE :: NITRATE_TAG (:,:,:)
+      REAL, ALLOCATABLE, SAVE :: SULFATE_TAG (:,:,:)
+      REAL, ALLOCATABLE, SAVE :: TOTAER_TAG (:,:,:)
 
-      REAL :: TOTNH3( NCOLS,NROWS,NLAYS )
-      REAL :: TOTNO3( NCOLS,NROWS,NLAYS )
-      REAL :: TOTSO4( NCOLS,NROWS,NLAYS )
-      REAL :: TOTAER( NCOLS,NROWS,NLAYS )
-      REAL :: FRAC1( NCOLS,NROWS,NLAYS )
-      REAL :: FRAC2( NCOLS,NROWS,NLAYS )
+c     REAL :: TOTNH3( NCOLS,NROWS,NLAYS )
+c     REAL :: TOTNO3( NCOLS,NROWS,NLAYS )
+c     REAL :: TOTSO4( NCOLS,NROWS,NLAYS )
+c     REAL :: TOTAER( NCOLS,NROWS,NLAYS )
+c     REAL :: FRAC1( NCOLS,NROWS,NLAYS )
+c     REAL :: FRAC2( NCOLS,NROWS,NLAYS )
+      REAL, ALLOCATABLE, SAVE :: TOTNH3(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: TOTNO3(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: TOTSO4(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: TOTAER(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: FRAC1(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: FRAC2(:,:,:)
 
-      REAL :: ISAM0( NCOLS,NROWS,NLAYS,NSPC_SA,NTAG_SA )
-      REAL :: ISAM1( NCOLS,NROWS,NLAYS,NSPC_SA,NTAG_SA )
+c     REAL :: ISAM0( NCOLS,NROWS,NLAYS,NSPC_SA,NTAG_SA )
+c     REAL :: ISAM1( NCOLS,NROWS,NLAYS,NSPC_SA,NTAG_SA )
+      REAL, ALLOCATABLE, SAVE :: ISAM0(:,:,:,:,:)
+      REAL, ALLOCATABLE, SAVE :: ISAM1(:,:,:,:,:)
 
       REAL ::  FRAC( NCOLS,NROWS,NLAYS )
       REAL ::  A(3)
@@ -104,6 +119,8 @@ c     REAL :: CCOND( NCOLS,NROWS,NLAYS,NSPC_SA )
      
       REAL, PARAMETER :: MIN_VAL = 1.0E-25
       REAL, SAVE :: MIN_TAGTOT 
+
+      INTEGER ALLOCSTAT
 !-------------------------------------------------------------------
 
 
@@ -111,8 +128,6 @@ Ckrt Identify species index in ISAM array
       ! Decompose domain for Density
       IF ( FIRSTIME ) THEN
         FIRSTIME = .FALSE.
-
-        !ALLOCATE( CGRID0( NCOLS,NROWS,NLAYS,NSPCSD ) )
 
         LAE_NH4 = .FALSE.
         LAE_NO3 = .FALSE.
@@ -146,7 +161,12 @@ Ckrt Identify species index in ISAM array
      &       .AND. JSRXN .GT. 0 ) LAE_SO4 = .TRUE.
 
         ! Map Aerosol Modes and Names to Source Apportionment Species
-        ALLOCATE( MAP_AEROtoSA( N_AEROSPC, N_MODE ) )
+        ALLOCATE( MAP_AEROtoSA( N_AEROSPC, N_MODE ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating MAP_AEROtoSA'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
         MAP_AEROtoSA( :,: ) = 0
         DO IM = 1,N_MODE
             DO IAER = 1,N_AEROSPC
@@ -162,8 +182,49 @@ Ckrt Identify species index in ISAM array
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        ALLOCATE( CCOND( NCOLS,NROWS,NLAYS,NSPCSD ) )
+        ALLOCATE( CCOND( NCOLS,NROWS,NLAYS,NSPCSD ),
+     &     TTLB4( NCOLS,NROWS,NLAYS,NSPC_SA ),
+     &     SULFCOND( NCOLS,NROWS,NLAYS ), 
+     &     SULFCOND_AIT( NCOLS,NROWS,NLAYS ),
+     &     SULFCOND_ACC( NCOLS,NROWS,NLAYS ),
+     &     STAT = ALLOCSTAT ) 
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating TTLB4, SULFCOND, SULFCOND_AIT, '
+     &          //'or SULFCOND_ACC'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
 
+        ALLOCATE( AMMONIA_TAG( NCOLS,NROWS,NLAYS ),
+     &     NITRATE_TAG( NCOLS,NROWS,NLAYS ),
+     &     SULFATE_TAG( NCOLS,NROWS,NLAYS ),
+     &     TOTAER_TAG( NCOLS,NROWS,NLAYS ),
+     &     STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating AMMONIA_TAG, NITRATE_TAG, '
+     &          //'SULFATE_TAG, or TOTAER_TAG'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        ALLOCATE( TOTNH3( NCOLS,NROWS,NLAYS ),
+     &     TOTNO3( NCOLS,NROWS,NLAYS ),
+     &     TOTSO4( NCOLS,NROWS,NLAYS ),
+     &     TOTAER( NCOLS,NROWS,NLAYS ),
+     &     FRAC1( NCOLS,NROWS,NLAYS ),
+     &     FRAC2( NCOLS,NROWS,NLAYS ),
+     &     STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating TOTNO3, TOTSO4, TOTAER, '
+     &          //'FRAC1, or FRAC2'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        ALLOCATE( ISAM0( NCOLS,NROWS,NLAYS,NSPC_SA,NTAG_SA ),
+     &     ISAM1( NCOLS,NROWS,NLAYS,NSPC_SA,NTAG_SA ),
+     &     STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating ISAM0 or ISAM1 '
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
 
       ENDIF ! firstime ?
 
@@ -185,7 +246,7 @@ Ckrt Identify species index in ISAM array
       SULFATE_TAG = 0.0
 
       ! Sum up pre-process tags for each species at each grid cell
-      ISAM = MAX( ISAM, MIN_VAL )
+c     ISAM = MAX( ISAM, MIN_VAL )
       CGRID0 = MAX( CGRID0, MIN_TAGTOT )
       ISAM0(:,:,:,:,:) = ISAM(:,:,:,:,:)
       ISAM1(:,:,:,:,:) = ISAM(:,:,:,:,:)
@@ -193,15 +254,14 @@ Ckrt Identify species index in ISAM array
 
       CCOND = MAX( CGRID0 + AERO_COND, MIN_TAGTOT )
 
-      SULFCOND = MAX( ( AERO_COND( :,:,:,SPC_INDEX(JSO4I,2) ) 
-     &         + AERO_COND( :,:,:,SPC_INDEX(JSO4J,2) ) 
-     &         + AERO_NPF ( :,:,:,SPC_INDEX(JSO4I,2) ) ), MIN_VAL )
-
-
-      SULFCOND_AIT = (AERO_COND( :,:,:,SPC_INDEX( JSO4I,2 )) + 
-     &                AERO_NPF( :,:,:,SPC_INDEX(JSO4I,2)) ) / SULFCOND  
-
-      SULFCOND_ACC = 1.0 - SULFCOND_AIT
+      IF ( LAE_SO4 ) THEN
+         SULFCOND = MAX( ( AERO_COND( :,:,:,SPC_INDEX(JSO4I,2) ) 
+     &            + AERO_COND( :,:,:,SPC_INDEX(JSO4J,2) ) 
+     &            + AERO_NPF ( :,:,:,SPC_INDEX(JSO4I,2) ) ), MIN_VAL )
+         SULFCOND_AIT = (AERO_COND( :,:,:,SPC_INDEX( JSO4I,2 ))  
+     &                + AERO_NPF( :,:,:,SPC_INDEX(JSO4I,2)) ) / SULFCOND  
+         SULFCOND_ACC = 1.0 - SULFCOND_AIT
+      END IF
 
       ! Preprocess total - ammonium and ammonia
       IF ( LAE_NH4 ) THEN
@@ -294,12 +354,14 @@ c         ISAM1( :,:,:,JHNO3,K ) =
 
       ! Let the Sulfuric Acid Vapor Source Distribution equal that of the
       ! total condensed sulfate
-      TOTSO4 = MAX( SUM( ISAM1( :,:,:,JSO4I,: ),4 ) + SUM( ISAM1(:,:,:,JSO4J,: ),4 ), 
-     &              MIN_TAGTOT*2.0 )
-      DO K = 1,NTAG_SA
-          FRAC( :,:,: ) = ( ISAM1( :,:,:,JSO4I,K ) + ISAM1( :,:,:,JSO4J,K ) ) / TOTSO4
-          ISAM1( :,:,:,JSULF,K ) = FRAC( :,:,: ) * CGRID( :,:,:,SPC_INDEX(JSULF,2) )
-      END DO
+      IF ( LAE_SO4 ) THEN
+         TOTSO4 = MAX( SUM( ISAM1( :,:,:,JSO4I,: ),4 ) 
+     &          + SUM( ISAM1(:,:,:,JSO4J,: ),4 ), MIN_TAGTOT*2.0 )
+         DO K = 1,NTAG_SA
+            FRAC( :,:,: ) = ( ISAM1( :,:,:,JSO4I,K ) + ISAM1( :,:,:,JSO4J,K ) ) / TOTSO4
+            ISAM1( :,:,:,JSULF,K ) = FRAC( :,:,: ) * CGRID( :,:,:,SPC_INDEX(JSULF,2) )
+         END DO
+      END IF
 
       !> COAGULATION <!
       ! Propagate source apportionment changes through coagulation and
@@ -335,7 +397,19 @@ c         ISAM1( :,:,:,JHNO3,K ) =
       END DO
 
       ! Update global ISAM array with modified attribution array ISAM1
+
+       write(logdev,*) "TESTING", NSPC_SA, NTAG_SA
+
+       write(logdev,*) ISAM( 2,2,1,NSPC_SA,: )
+       write(logdev,*) ISAM0( 2,2,1,NSPC_SA,: )
+       write(logdev,*) ISAM1( 2,2,1,NSPC_SA,: )
+
+
       ISAM = ISAM1
+
+        
+       write(logdev,*) ISAM( 2,2,1,NSPC_SA,: )
+
 
       END 
 

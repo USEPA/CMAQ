@@ -41,7 +41,6 @@ C           convective PBL, with the ACM1 matrix solver followed by the tridiago
 C           matrix solver
 C   30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
-C    1 Nov 18 David Wong: removed all MY_N clauses
 C   02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C-----------------------------------------------------------------------
 
@@ -132,8 +131,9 @@ C ACM Local Variables
       REAL        DEPV_HNO3                     ! dep vel of HNO3
       REAL        FNL                           ! ACM2 Variable
       INTEGER     NLP, NL, LCBL
-      INTEGER, SAVE :: NO2_HIT, HONO_HIT, HNO3_HIT, NO2_MAP, HNO3_MAP
-      INTEGER, SAVE :: NH3_HIT
+      INTEGER, SAVE :: NO2_HIT = 0, HONO_HIT = 0, HNO3_HIT = 0, NO2_MAP= 0, HNO3_MAP = 0 
+      INTEGER, SAVE :: O3_HIT = 0, O3_MAP = 0
+      INTEGER, SAVE :: NH3_HIT = 0
       REAL        DTLIM, DTS, DTACM, RZ
 
       INTEGER     ASTAT
@@ -141,19 +141,26 @@ C ACM Local Variables
       INTEGER     MDATE, MTIME                  ! internal simulation date&time
 
 #ifdef isam
+      REAL :: TOTAL_SA_NO2
       REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )
       INTEGER IBGN, JSPCTAG
+
       REAL, ALLOCATABLE,SAVE :: SAEMIS( :,: )
       REAL, ALLOCATABLE,SAVE :: SACONC( :,: )
       REAL, ALLOCATABLE,SAVE :: SA_DD( :,: )
       REAL, ALLOCATABLE,SAVE :: SA_UU( :,: )
-      REAL, ALLOCATABLE,SAVE :: SAFRAC( : )
-      REAL, ALLOCATABLE,SAVE :: SA_NO2( : )
 
-      INTEGER, SAVE              :: ISAM_INDEX_NO2 = 0 ! Index locating NO2 in ISAM
+      REAL, ALLOCATABLE,SAVE :: SAFRAC( : )
+      REAL, ALLOCATABLE,SAVE :: SA_NO2( : )      
+
+      INTEGER, SAVE              :: ISAM_INDEX_NO2 = 0   ! ...Index locating NO2 in ISAM
+
       INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_HONO( : )
+
+
       CHARACTER( 16 ) :: ISAM_SPECIES
+
       INTEGER TOP, BOT
 #endif      
 
@@ -242,6 +249,9 @@ C set auxiliary depv arrays
                HNO3_MAP = DV2DF( V )
             ELSE IF ( DV2DF_SPC( V ) .EQ. 'NH3' ) THEN
                NH3_HIT = V
+            ELSE IF ( DV2DF_SPC( V ) .EQ. 'O3' ) THEN
+               O3_HIT = V
+               O3_MAP = DV2DF( V )
             END IF
          END DO
 
@@ -255,7 +265,6 @@ C set auxiliary depv arrays
             XMSG = 'Failure ISAM diffusion variables'
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-
          ALLOCATE (  SAFRAC ( N_SPCTAG ),
      &               ISAM_DEPV( N_SPCTAG ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
@@ -269,7 +278,7 @@ C set auxiliary depv arrays
             XMSG = 'Failure ISAM HONO variables'
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
-
+         
          SACONC = 0.0
          SAEMIS = 0.0
          SA_DD  = 0.0
@@ -297,7 +306,7 @@ C set auxiliary depv arrays
          END DO
 ! set indices determining depv treatment, equals zero if none
          ITAG = 0
-         WRITE(LOGDEV,'(/,A7,1X,2(A16,1X))')'JSPCTAG','ISAM_SPECIES','DEPVValue'
+         WRITE(LOGDEV,'(/,A7,1X,2(A16,1X))')'JSPCTAG','ISAM_SPECIES','DEPV Value'
          DO JSPCTAG = 1, N_SPCTAG
             IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
             ISAM_SPECIES = VNAM_SPCTAG( JSPCTAG )( 1:IBGN )
@@ -308,7 +317,7 @@ C set auxiliary depv arrays
             DO V = 1, N_SPC_DEPV
                IF ( TRIM( ISAM_SPECIES ) .EQ. DV2DF_SPC( V ) ) THEN
                     ISAM_DEPV( JSPCTAG ) = V
-               END IF
+               END IF  
             END DO
             IF ( ISAM_DEPV( JSPCTAG ) .GT. 0 ) THEN
                V = ISAM_DEPV( JSPCTAG )
@@ -324,12 +333,12 @@ C set auxiliary depv arrays
               WRITE(LOGDEV,'(I2,3X,I4,8X,A16)')ITAG,JSPCTAG,VNAM_SPCTAG( JSPCTAG )
            ELSE
               WRITE(LOGDEV,'(I2,3X,I4,8X,A16)')ITAG,JSPCTAG,'MISSING'
-           END IF
+           END IF   
         END DO
         WRITE(LOGDEV,* )'TAG_species, Default Partitioning Coeff.'
         DO JSPCTAG = 1, N_SPCTAG
           WRITE(LOGDEV,*)VNAM_SPCTAG( JSPCTAG ),' ,',SAFRAC( JSPCTAG )
-        END DO
+        END DO          
 #endif
 
 
@@ -427,11 +436,11 @@ C-----------------------------------------------------------------------
             TOTAL_SA_NO2 = 1.0 / SUM( SA_NO2 )
             DO ITAG = 1, NTAG_SA
                JSPCTAG = INDEX_SA_HONO( ITAG )
-               SAFRAC( JSPCTAG ) = SA_NO2( ITAG ) * TOTAL_SA_NO2
-            END DO
-         END IF
+               SAFRAC( JSPCTAG ) = SA_NO2( ITAG ) * TOTAL_SA_NO2 
+            END DO 
+         END IF                
 #endif
-
+ 
          EMIS = 0.0      ! array assignment
          EMIS( :,1:EMLAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
 
@@ -465,7 +474,6 @@ C-----------------------------------------------------------------------
          PLDV_HONO = PLDV( HONO_HIT,C,R )
 
 #ifdef isam
-Ckrt Load sa_ddep into sa_ddbf....
          DO JSPCTAG = 1, N_SPCTAG
             SA_DDBF( JSPCTAG ) = SA_DDEP( C,R,JSPCTAG )
          END DO
@@ -556,15 +564,17 @@ C Add evasion as negative dep flux
             END DO
 
 #ifdef isam
-C Update Dry Deposition for the Tags
             DO JSPCTAG = 1, N_SPCTAG
-               SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC1( S )
-     &                             + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC1( S ) )
-               SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                             + THETA * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-               IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
+               S = ISAM_DEPV( JSPCTAG )
+               IF ( S .GT. 0 ) THEN
+                  SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC1( S )
+     &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC1( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                        
+     &                                + THETA * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
+                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
+                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                   - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                        
+                   END IF
                END IF
             END DO
 
@@ -736,18 +746,19 @@ C Add evasion as negative dep flux
 
             END DO
 #ifdef isam
-C Update Dry Deposition for the Tags
+C Update ISAM Dry Deposition
             DO JSPCTAG = 1, N_SPCTAG
                S = ISAM_DEPV( JSPCTAG )
-               SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC2( S )
-     &                             + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) )
-               SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                             + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-               IF( S .NE. NO2_HIT .AND. HNO3_HIT .NE. HNO3_HIT ) THEN
+               IF ( S .GT. 0 ) THEN
+                  SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC2( S )
+     &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
+     &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
+                  IF( S .NE. NO2_HIT .AND. HNO3_HIT .NE. HNO3_HIT ) THEN
+                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                   - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
+                  END IF
                END IF
-
             END DO
 #endif
     
