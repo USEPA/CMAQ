@@ -1,4 +1,4 @@
-combine
+Combine
 ========
 
 This Fortran program combines fields from a set of IOAPI or wrfout input files to an output file.  The file assigned to environmental variable SPECIES_DEF defines the new species variables and how they are constructed.  This means that all the species listed in the SPECIES_DEF files need to be output when CMAQ is being run. One option is  to set the ACONC (or CONC) output to be all species.  
