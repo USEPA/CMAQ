@@ -125,12 +125,6 @@ C Local variables:
 
       INTEGER   COUNT             ! Counter for constructing boundary arrays
 
-      INTEGER   GXOFF, GYOFF      ! global origin offset from file
-!     LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
-                                        ! processing domain
-
-!     integer, save :: logdev
-
       INTERFACE
          SUBROUTINE ADVBC_MAP( CONCMIN, BCNAME, BCFAC, ONFILE )
             CHARACTER( 16 ), INTENT( IN )  :: CONCMIN
@@ -148,8 +142,6 @@ C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-
-!        logdev = init3()
 
          WRITE( CONCMIN,'(1PE9.2)' ) CMIN
 

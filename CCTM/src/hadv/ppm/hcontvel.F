@@ -182,7 +182,6 @@ C-----------------------------------------------------------------------
 
             IF ( .NOT. WINDOW ) THEN
                ALLOCATE ( DENSJ_BUF( ncols,nrows,NLAYS ),STAT = ESTAT )
-!              ALLOCATE ( DENSJ_BUF( NCOLSDENS,NROWSDENS,NLAYS ),STAT = ESTAT )
 !              ALLOCATE ( DENSJ_BUF( NCOLSDENS,NROWSDENS ),      STAT = ESTAT )
                IF ( ESTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DENSJ_BUF'
