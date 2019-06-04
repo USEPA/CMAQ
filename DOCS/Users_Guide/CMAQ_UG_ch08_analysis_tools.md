@@ -47,6 +47,12 @@ Many CMAQ output species need to be postprocessed to allow comparisons to measur
 
 ## 8.4 Evaluation of model output with the Atmospheric Model Evaluation Tool (AMET)
 
+The Atmospheric Model Evaluation Tool (AMET) was developed to aid in its evaluation of the meteorological and air quality models within the CMAQ modeling system. AMET organizes, provides consistency and speeds-up the evaluation process for operational meteorological and air quality model simulations. Although it was developed specifically to aid in the evaluation of the CMAQ modeling system, the AMET software can be adapted to work with other modeling systems. 
+
+AMET is used to pair observations and gridded model output in space and time and to evaluate the model performance for a set of predicted or diagnosed atmospheric fields. There are separate modules in AMET for evaluating meteorological and air quality model output. This separation is necessary because both the observed and predicted meteorological and air quality data are quite different, utilizing different file formats for both the observed and model data. In addition, the observed meteorological and air quality data are often obtained from networks that use different sampling protocols, which can make pairing meteorological and air quality data together difficult. One advantage of separate meteorological and air quality modules in AMET is that the modules can be installed individually, allowing a user to reduce installation time and complexity if only meteorological or air quality analysis is required.
+
+A more detailed descripition of AMET can be found here https://www.epa.gov/cmaq/atmospheric-model-evaluation-tool, including a flow diagram of the AMET system and example output plots from the tool. The AMET github repository can be found here https://github.com/USEPA/AMET. The repository includes the latest version of AMET, along with a complete description of AMET, a comprehensive User's Guide, an Installation Guide and a Quick Start Guide. Finally, additional information regarding AMET (including how to download AMET-ready observation data files) can be found on the CMAS Center website here https://www.cmascenter.org/amet/.
+
 ## 8.5 Probing Model Output with Visualization Environment for Rich Data Interpretation (VERDI)
 
 
