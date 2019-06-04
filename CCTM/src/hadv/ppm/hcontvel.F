@@ -58,6 +58,8 @@ C                      removed deprecated TRIMLEN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   28 Jul 11 David Wong: set REVERT to .false. for twoway model case since
 C                         buffered file has only two time steps data
+C   01 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -67,6 +69,7 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE)
 #endif
+      use CENTRALIZED_IO_MODULE, only : interpolate_var, window
 
       IMPLICIT NONE
 
@@ -127,15 +130,9 @@ C local variables:
 
       INTEGER COUNT     ! Counter for constructing density array.
 
-      INTEGER    GXOFF, GYOFF ! global origin offset from file
-      LOGICAL, SAVE :: WINDOW = .FALSE.      ! posit same file and global
-                                             ! processing domain
       LOGICAL, SAVE :: CSTAGUV = .TRUE.      ! Winds are available on C staggered grid?
-      INTEGER, SAVE :: NCOLSDENS, NROWSDENS  ! local for DENSJ_BUF
-C for INTERPX
-      INTEGER, SAVE :: STRTCOL,   ENDCOL,   STRTROW,   ENDROW
-      INTEGER       :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
-      INTEGER, SAVE :: STRTCOLMD, ENDCOLMD, STRTROWMD, ENDROWMD
+
+      integer, save :: old_time = -9
 
 C-----------------------------------------------------------------------
 
@@ -161,35 +158,6 @@ C-----------------------------------------------------------------------
 
          WRITE( COMMSTR,'(4I2)' )  1, 1-NTHIK, 2, 1-NTHIK  ! ' 1 0 2 0'
 
-         CALL SUBHFILE ( MET_DOT_3D, GXOFF, GYOFF,
-     &                   STRTCOLMD, ENDCOLMD, STRTROWMD, ENDROWMD )
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
-
-         NCOLSDENS = ENDCOLMC - STRTCOLMC + 1
-         NROWSDENS = ENDROWMC - STRTROWMC + 1
-
-         IF ( NCOLSDENS .NE. MY_NCOLS .OR.
-     &        NROWSDENS .NE. MY_NROWS ) THEN
-            WRITE( XMSG,'( A, 4I8 )' ) 'Local Columns or Rows incorrect',
-     &      NCOLSDENS, MY_NCOLS, NROWSDENS, MY_NROWS
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C currently not implemented: case where only one origin component matches file's
-         IF ( GXOFF .NE. 0 .AND. GYOFF .NE. 0 ) THEN
-            WINDOW = .TRUE. ! windowing from file
-            STRTCOL = STRTCOLMC - 1
-            ENDCOL  = ENDCOLMC  + 1
-            STRTROW = STRTROWMC - 1
-            ENDROW  = ENDROWMC  + 1
-            ELSE
-            STRTCOL = STRTCOLMC
-            ENDCOL  = ENDCOLMC
-            STRTROW = STRTROWMC
-            ENDROW  = ENDROWMC
-         END IF
-
          VNAME3D = ' '   ! array assignment
          IF ( .NOT. DESC3( MET_DOT_3D ) ) THEN
             XMSG = 'Could not get '
@@ -206,14 +174,14 @@ C currently not implemented: case where only one origin component matches file's
 
          IF ( .NOT. CSTAGUV ) THEN
 
-            ALLOCATE ( DENSJ( 0:MY_NCOLS+1,0:MY_NROWS+1 ), STAT = ESTAT )
+            ALLOCATE ( DENSJ( 0:NCOLS+1,0:NROWS+1 ), STAT = ESTAT )
             IF ( ESTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating DENSJ'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
             IF ( .NOT. WINDOW ) THEN
-               ALLOCATE ( DENSJ_BUF( NCOLSDENS,NROWSDENS,NLAYS ),STAT = ESTAT )
+               ALLOCATE ( DENSJ_BUF( ncols,nrows,NLAYS ),STAT = ESTAT )
 !              ALLOCATE ( DENSJ_BUF( NCOLSDENS,NROWSDENS ),      STAT = ESTAT )
                IF ( ESTAT .NE. 0 ) THEN
                   XMSG = 'Failure allocating DENSJ_BUF'
@@ -276,13 +244,8 @@ C try to read u-component wind on B-staggered grid as UWIND.
       IF ( UORV .EQ. UFLAG ) THEN
 
          IF ( CSTAGUV ) THEN
-            VNAME = 'UWINDC'  ! read C-staggered u-wind
-            IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
-     &                          STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, LVL,LVL,
-     &                          MDATE, MTIME, WIND ) ) THEN
-               XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var ('UWINDC', mdate, mtime, WIND, SLAY=LVL)
+
             RETURN
          END IF
 
@@ -292,13 +255,8 @@ C If u-component wind was C-staggered, read v-component wind on C-staggered
 C grid.  Otherwise, read v-component wind from B-staggered grid.
 
          IF ( CSTAGUV ) THEN
-            VNAME = 'VWINDC'  ! read C-staggered v-wind
-            IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
-     &                          STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, LVL,LVL,
-     &                          MDATE, MTIME, WIND ) ) THEN
-               XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var ('VWINDC', mdate, mtime, WIND, SLAY=LVL)
+
             RETURN
          END IF
 
@@ -314,35 +272,21 @@ C Interpolate Jacobian X Air Density
       VNAME = 'DENSA_J'
       IF ( WINDOW ) THEN
 
-         IF ( .NOT. INTERPX ( MET_CRO_3D, VNAME, PNAME,
-     &                        STRTCOL,ENDCOL, STRTROW,ENDROW, LVL,LVL,
-     &                        MDATE, MTIME, DENSJ ) ) THEN
-            XMSG = MSG1 // VNAME // ' from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ, slay=lvl)
 
       ELSE ! need to extend data from bndy file
 
-         IF ( .NOT. INTERPX ( MET_CRO_3D, VNAME, PNAME,
-!    &                        STRTCOL,ENDCOL, STRTROW,ENDROW, LVL,LVL,
-!    &                        STRTCOL,ENDCOL, STRTROW,ENDROW, LVL,LVL+1,
-     &                        STRTCOL,ENDCOL, STRTROW,ENDROW, 1,NLAYS,
-     &                        MDATE, MTIME, DENSJ_BUF ) ) THEN
-            XMSG = MSG1 // VNAME // ' from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         IF (old_time .ne. mtime) THEN
+           call interpolate_var (VNAME, mdate, mtime, DENSJ_BUF)
+           old_time = mtime
 
-         IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
-     &                        MDATE, MTIME, NBNDY*NLAYS,
-     &                        DENSJ_BND ) ) THEN
-            XMSG = MSG1 // VNAME // ' from ' // MET_BDY_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+           call interpolate_var (VNAME, mdate, mtime, DENSJ_BND, 'b')
          END IF
 
 C Load DENSJ array
 
-         DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+         DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
                DENSJ( COL,ROW ) = DENSJ_BUF( COL,ROW,LVL )
             END DO
          END DO
@@ -351,24 +295,24 @@ C Fill in DENSJ array for boundaries
 
          COUNT = 0
          DO ROW = 0, 0
-            DO COL = 1, MY_NCOLS+1
+            DO COL = 1, NCOLS+1
                COUNT = COUNT + 1
                DENSJ( COL,ROW ) = DENSJ_BND( COUNT,LVL )  ! South
             END DO
          END DO
-         DO ROW = 1, MY_NROWS+1
-            DO COL = MY_NCOLS+1, MY_NCOLS+1
+         DO ROW = 1, NROWS+1
+            DO COL = NCOLS+1, NCOLS+1
                COUNT = COUNT + 1
                DENSJ( COL,ROW ) = DENSJ_BND( COUNT,LVL )  ! East
             END DO
          END DO
-         DO ROW = MY_NROWS+1, MY_NROWS+1
-            DO COL = 0, MY_NCOLS
+         DO ROW = NROWS+1, NROWS+1
+            DO COL = 0, NCOLS
                COUNT = COUNT + 1
                DENSJ( COL,ROW ) = DENSJ_BND( COUNT,LVL )  ! North
             END DO
          END DO
-         DO ROW = 0, MY_NROWS
+         DO ROW = 0, NROWS
             DO COL = 0, 0
                COUNT = COUNT + 1
                DENSJ( COL,ROW ) = DENSJ_BND( COUNT,LVL )  ! West
@@ -382,19 +326,13 @@ C X Jacobian X Air Density
 
       IF ( UORV .EQ. UFLAG ) THEN
 
-         VNAME = 'UHAT_JD'  ! read B-staggered coupled x1 wind
-         IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-     &                        STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, LVL,LVL,
-     &                        MDATE, MTIME, WIND ) ) THEN
-            XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('UHAT_JD', mdate, mtime, WIND, SLAY=LVL)
 
 C get west-direction RhoJ in halo cells and retrieve contravariant velocities
 
          CALL SUBST_COMM ( DENSJ, DSPL_N0_E0_S0_W1, DRCN_W, COMMSTR )
-         DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS+1
+         DO ROW = 1, NROWS
+            DO COL = 1, NCOLS+1
                DJ = 0.5 * ( DENSJ( COL,ROW) + DENSJ( COL-1,ROW ) )
                WIND( COL,ROW ) = WIND( COL,ROW ) / DJ
             END DO
@@ -402,19 +340,13 @@ C get west-direction RhoJ in halo cells and retrieve contravariant velocities
 
       ELSE
 
-         VNAME = 'VHAT_JD'  ! read B-staggered x2 coupled wind
-         IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-     &                        STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, LVL,LVL,
-     &                        MDATE, MTIME, WIND ) ) THEN
-            XMSG = MSG1 // VNAME // ' from ' // MET_DOT_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('VHAT_JD', mdate, mtime, WIND, SLAY=LVL)
 
 C get south-direction RhoJ in halo cells and retrieve contravariant velocities
 
          CALL SUBST_COMM ( DENSJ, DSPL_N0_E0_S1_W0, DRCN_S, COMMSTR )
-         DO ROW = 1, MY_NROWS+1
-            DO COL = 1, MY_NCOLS
+         DO ROW = 1, NROWS+1
+            DO COL = 1, NCOLS
                DJ = 0.5 * ( DENSJ( COL,ROW ) + DENSJ( COL,ROW-1 ) )
                WIND( COL,ROW ) = WIND( COL,ROW ) / DJ
             END DO
