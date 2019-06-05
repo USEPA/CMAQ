@@ -495,6 +495,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
 !      END IF
 
+      WRITE( LOGUNIT, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &      'Timestep written to', IC_FNAME( FLN ),
+     &      'for date and time', SDATE, STIME
+
       RETURN
 
       END

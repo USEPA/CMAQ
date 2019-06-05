@@ -257,21 +257,21 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       JDATE = SDATE
       JTIME = STIME
 
-      LFIRST = .TRUE.
-      DO N = 1, NSTEPS
-         IF ( .NOT. CHECK3( MET_CRO_3D_CRS, 'ALL', 
-     &                      JDATE, JTIME ) ) THEN
-            LERROR = .TRUE.
-            IF ( LFIRST ) THEN
-               MSG = 'The following time steps are not on ' //
-     &                   MET_CRO_3D_CRS
-               WRITE( LOGUNIT, '( A )' ) MSG
-               LFIRST = .FALSE.
-            END IF
-            WRITE( LOGUNIT, '( I7, 1X, I6 )' ) JDATE, JTIME
-         END IF
-         CALL NEXTIME ( JDATE, JTIME, TSTEP )
-      END DO
+!      LFIRST = .TRUE.
+!      DO N = 1, NSTEPS
+!         IF ( .NOT. CHECK3( MET_CRO_3D_CRS, 'ALL', 
+!     &                      JDATE, JTIME ) ) THEN
+!            LERROR = .TRUE.
+!            IF ( LFIRST ) THEN
+!               MSG = 'The following time steps are not on ' //
+!     &                   MET_CRO_3D_CRS
+!               WRITE( LOGUNIT, '( A )' ) MSG
+!               LFIRST = .FALSE.
+!            END IF
+!            WRITE( LOGUNIT, '( I7, 1X, I6 )' ) JDATE, JTIME
+!         END IF
+!         CALL NEXTIME ( JDATE, JTIME, TSTEP )
+!      END DO
              
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  If inconsistency found, then stop, else return

@@ -148,7 +148,6 @@ setenv CTM_WVEL Y            #> save derived vertical velocity component to conc
                              #>    file [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
-setenv CTM_ILDEPV Y          #> calculate in-line deposition velocities [ default: Y ]
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
                              #>    [ default: N ]
@@ -156,12 +155,12 @@ setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
 setenv CTM_ABFLUX N          #> ammonia bi-directional flux for in-line deposition 
-                             #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
+                             #>    velocities [ default: N ]
 setenv CTM_BIDI_FERT_NH3 F   #> subtract fertilizer NH3 from emissions because it will be handled
                              #>    by the BiDi calculation [ default: Y ]
 setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition 
-                             #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
-setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore if CTM_ILDEPV = N
+                             #>    velocities [ default: N ]
+setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
 

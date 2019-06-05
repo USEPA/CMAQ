@@ -30,7 +30,7 @@
 #> Set General Parameters for Configuring the Simulation
  set VRSN     = v53                     #> Code Version
  set APPL     = SE53BENCH               #> Application Name
- set ICTYPE   = regrid                  #> Initial conditions type [profile|regrid|patterns]
+ set ICTYPE   = regrid                  #> Initial conditions type [profile|regrid]
 
 #> Set the working directory:
  set BLD      = ${CMAQ_HOME}/PREP/icon/scripts/BLD_ICON_${VRSN}_${compilerString}
@@ -49,13 +49,11 @@
  setenv EXECUTION_ID $EXEC    #> define the model execution id
 
 # =====================================================================
-# ICON Configuration Options
+#> ICON Configuration Options
 #
-# ICON can be run in one of three modes:                                     
-#     1) use default profile inputs (IC = profile)
-#     2) regrids CMAQ CTM concentration files (IC = regrid)     
-#     3) generate set of test patterns for CTM transport/diffusion tests
-#        (IC = patterns)     
+# ICON can be run in one of two modes:                                     
+#     1) regrids CMAQ CTM concentration files (IC type = regrid)     
+#     2) use default profile inputs (IC type = profile)
 # =====================================================================
 
  setenv ICON_TYPE ` echo $ICTYPE | tr "[A-Z]" "[a-z]" ` 
@@ -69,17 +67,16 @@
 # =====================================================================
 #> Input Files
 #  
-#  Profile Mode (IC = profile)
-#     IC_PROFILE = static/default IC profiles 
-#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target domain 
 #  Regrid mode (IC = regrid) (includes nested domains, windowed domains,
 #                             or general regridded domains)
 #     CTM_CONC_1 = the CTM concentration file for the coarse domain          
 #     MET_CRO_3D_CRS = the MET_CRO_3D met file for the coarse domain
 #     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target nested domain 
-#  Test_patterns Mode (IC = patterns)
-#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target domain 
 #                                                                            
+#  Profile Mode (IC = profile)
+#     IC_PROFILE = static/default IC profiles 
+#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target domain 
+#
 # NOTE: SDATE (yyyyddd) and STIME (hhmmss) are only relevant to the
 #       regrid mode and if they are not set, these variables will 
 #       be set from the input MET_CRO_3D_FIN file
@@ -88,25 +85,24 @@
 #     INIT_CONC_1 = gridded IC file for target domain
 # =====================================================================
 
- if ( $ICON_TYPE == profile ) then
-    setenv IC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_160701.nc
-    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE} -v"
- endif
- 
+    set DATE = "2016-07-01"
+    set YYYYJJJ  = `date -ud "${DATE}" +%Y%j`   #> Convert YYYY-MM-DD to YYYYJJJ
+    set YYMMDD   = `date -ud "${DATE}" +%y%m%d` #> Convert YYYY-MM-DD to YYMMDD
+    set YYYYMMDD = `date -ud "${DATE}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
+#   setenv SDATE           ${YYYYJJJ}
+#   setenv STIME           000000
+
  if ( $ICON_TYPE == regrid ) then
-    setenv CTM_CONC_1 /asm/MOD3DEV/fsidi/12US1_201607/CCTM_CONC_v53_intel18.0_2016_CONUS_test_20160701.nc
-    setenv MET_CRO_3D_CRS /work/MOD3DATA/2016_12US1/met/mcip_v43_wrf_v381_ltng/METCRO3D.12US1.35L.160701
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_160701.nc
-    set DATE = `date -ud "2016-07-01" +%Y%j` #> Convert YYYY-MM-DD to YYYYJJJ
-#    setenv SDATE           ${DATE}
-#    setenv STIME           000000
-    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE}_${DATE} -v"
+    setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53_intel18.0_2016_CONUS_test_${YYYYMMDD}.nc
+    setenv MET_CRO_3D_CRS /work/MOD3DATA/2016_12US1/met/mcip_v43_wrf_v381_ltng/METCRO3D.12US1.35L.${YYMMDD}
+    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_${YYMMDD}.nc
+    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE}_${YYYYMMDD} -v"
  endif
 
- if ( $ICON_TYPE == patterns ) then
-    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_160701.nc
-    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE} -v"
+ if ( $ICON_TYPE == profile ) then
+    setenv IC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
+    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_${YYMMDD}.nc
+    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE}_${YYYYMMDD} -v"
  endif
  
 #>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
