@@ -16,7 +16,7 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 2 (Program Structure):](CMAQ_UG_ch02_program_structure.md) Overview of the programs included with the CMAQ system.
 
-[Chapter 3 (Preparing Compute Environment):](CMAQ_UG_ch03_preparing_compute_environment.md) Hardware and software requirements for running a CMAQ simulation with default configuration.
+[Chapter 3 (Preparing Compute Environment):](CMAQ_UG_ch03_preparing_compute_environment.md) Hardware/software requirements for running a simulation with default configuration.
 
 [Chapter 4 (Model Inputs):](CMAQ_UG_ch04_model_inputs.md) Preprocessing tools incldued with the base code and descriptions of the CMAQ input files. 
 
