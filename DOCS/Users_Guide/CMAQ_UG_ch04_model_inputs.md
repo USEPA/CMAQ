@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
- [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_compile_and_run.md)
+ [<< Previous Chapter](CMAQ_UG_ch03_preparing_compute_environment.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_compile_and_run.md)
 
 <!-- END COMMENT -->
 
@@ -688,7 +688,7 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 |…|…|…|…| Repeat for (2009-2015) there are 365 days of data
 
 
- [<< Previous Chapter](CMAQ_UG_ch03_preparing_to_run.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_compile_and_run.md)<br>
-CMAQ User's Guide (c) 2019<br>
+ [<< Previous Chapter](CMAQ_UG_ch03_preparing_compute_environment.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_compile_and_run.md)
+ CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
