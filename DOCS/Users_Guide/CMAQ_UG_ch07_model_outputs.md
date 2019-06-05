@@ -9,7 +9,7 @@
 
 ## 7.1 CCTM Output Files
 
-In this section, details on the CCTM output files are provided. All CMAQ programs produce model output files that adhere to the netCDF format.  In addition to model data output, CMAQ can optionally produce ASCII log files that contain intermediate model execution information from the various CMAQ processes and captured with respect to processor number. If the log file option is not selected by the user and the simulation is done interactively, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
+In this section, details on the CCTM output files are provided. All CMAQ programs produce model output files that adhere to the netCDF format.  In addition to model data output, CMAQ can optionally produce ASCII log files that contain intermediate model execution information from the various CMAQ processes and captured with respect to processor number. If the log file option is not selected by the user and the simulation is run interactively, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
 
 <a id=Output_Table></a>
 
@@ -48,9 +48,9 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |[CTM_WETDEP_2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly|X * Y * 1
 |[CTM_VEXT_1](#vext) <a id=vext_t></a>|GRDDED3|Hourly|X * Y * Z
 
- *1. While "Hourly" is indicated, users may define a different time step (e.g. 30 minutes) for model output by changing the TSTEP variable in the runscript. From here onwrad, the term "Hourly" will be used for description purposes.    
- ** 2. X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension (ragne from 1 to all layers) and W is a non layer dimension, e.g. number of LU fraction.    
- *** 3. A special ASCII output file, FLOOR files with processor number suffix, contains information when simulation results with negative concentration. 
+ *1. While "Hourly" is indicated, users may define a different time step (e.g. 30 minutes) for model output by changing the TSTEP variable in the runscript. From here onward, the term "Hourly" will be used for description purposes.    
+ ** 2. X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension (ragne from 1 to all layers) and W is a non layer dimension, e.g. number of LU fractions.    
+ *** 3. A special ASCII output file, FLOOR_xxx with xxx being the processor number, contains information when a simulation results in negative concentrations. 
 
 <a id=cmaq_output_log></a>
 ### CMAQ output log
@@ -97,13 +97,13 @@ The 2-D CCTM wet deposition file (WETDEP1) contains cumulative hourly wet deposi
 
 ## 7.2 Diagnostic and Advanced CMAQ Output Files
 
-Along with the basic outputs detailed in the previous section, CMAQ can be configured to output several auxiliary files for diagnosing model purposes. Each option is controlled by its corresponding environment variable. For logical value TRUE/T is equivalent to Y and FALSE/F is equivalent to N.
+Along with the standard output files detailed in the previous section, CCTM can be configured to output several auxiliary files for diagnostic model purposes. Each option is controlled by its corresponding environment variable. For logical values, TRUE/T is equivalent to Y and FALSE/F is equivalent to N.
 
 <a id=floor></a>
 ### FLOOR: concentration-reset diagnostics file
 [Return to Table 7-1](#floor_t)
 
-This optional ASCII file contains specific gridboxes/timesteps in which species with negative concentrations are reset to zero. The location and name of the file is set by the FLOOR_FILE environment variable.
+This optional ASCII file contains specific gridcells/timesteps in which species with negative concentrations are reset to zero. The location and name of the file is set by the FLOOR_FILE environment variable.
 
 <a id=pmdiag></a>
 ### CTM_PMDIAG_1: CCTM instantaneous hourly aerosol diagnostics file
@@ -122,12 +122,13 @@ This optional 2-D CCTM diagnostic file contains integral average information for
 [Return to Table 7-1](#b3gts_t)
 
 This optional 2-D CCTM hourly output file contains biogenic emissions in mass units calculated in-line by the CCTM. This file is only created if the B3GTS_DIAG environment variable is set to Y (Default is Y).
+**>>COMMENT<<** Does the B3GTS_S file contain instantaneous end of hour values?
 
 <a id=depv></a>
 ### CTM_DEPV_DIAG: CCTM inline deposition diagnostics file
 [Return to Table 7-1](#depv_t)
 
-This optional 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour. CCTM calculates deposition velocity for all of the species listed in the deposition velocity column of the [FORTRAN Namelist](#matrix_nml) files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the deposition velocity file by editing the DDEP column in the NameList file(s) (Default is N). **>>COMMENT<<** check new sentence
+This optional 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour. CCTM calculates the deposition velocity for all of the species listed in the deposition velocity column of the [FORTRAN Namelist](#matrix_nml) files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the deposition velocity file by editing the DDEP column in the NameList file(s) (Default is N). 
 
 <a id=pt3d></a>
 ### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
@@ -145,7 +146,8 @@ This optional 2-D CCTM hourly output file contains dust emissions in mass units 
 ### MEDIA_CONC: Bidirectional soil NH4+ restart file
 [Return to Table 7-1](#media_t)
 
-This optional 2-D CCTM file contains the soil NH<sub>4</sub> and pH concentrations if using the bidirectional NH<sub>3</sub> option and/or the soil, vegetation and water Hg concentrations. This file is used to initialize the next day of the model simulation when the CTM_ABFLUX environment variable is set to Y (Default is N).
+This 2-D CCTM file contains the soil NH<sub>4</sub> and pH concentrations and/or the soil, vegetation and water Hg concentrations. This file is only created when the CTM_ABFLUX environment variable or the CTM_HGBIDI variable is set to Y (Default is N) and is used to initialize the next day of the model simulation.
+**>>COMMENT<<** Double check the Hg with Jesse.
 
 <a id=depv_mos></a>
 ### CTM_DEPV_MOS
@@ -176,14 +178,14 @@ This optional 3-D CCTM file contains the total deposition (kg hectare<sup>-1</su
 ### CTM_VDIFF_DIAG
 [Return to Table 7-1](#vdiff_diag_t)
 
-This optional 3-D CCTM file contains diagnostic output of vertical dispersion parameters. This file is only created if the VDIFF_DIAG_FILE environment variable is set to Y (Default is N).**>>COMMENT<<** Check this new sentence 
-
+This optional 3-D CCTM file contains diagnostic output of the vertical dispersion parameters. This file is only created if the VDIFF_DIAG_FILE environment variable is set to Y (Default is N).
 
 <a id=vsed_diag></a>
 ### CTM_VSED_DIAG
 [Return to Table 7-1](#vsed_diag_t)
 
-This optional 3-D CCTM file contains diagnostic output of particle gravitational settling velocities. This file is only created if the VDIFF_DIAG_FILE environment variable and gravitational sedimentation is set to Y (Default is Y). **>>COMMENT<<** Check this new sentence
+This optional 3-D CCTM file contains diagnostic output of particle gravitational settling velocities (m s<sup>-1</sup>). This file is only created if the VSED_DIAG_FILE environment variable and the gravitational sedimentation environment variable (CTM_GRAV_SETL) are set to Y (Default is Y). 
+**>>COMMENT<<** The above needs updating to match the current run script.
 
 <a id=ltngdiag1></a>
 ### LTNG_DIAG1
