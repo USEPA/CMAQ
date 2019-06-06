@@ -13,8 +13,7 @@
       USE GRID_CONF
       USE CGRID_SPCS
       USE SA_DEFN
-c     USE SA_GRD_DEFN  ! for SA_SULF_NEW( :,:,:,: ); inherents SA_DEFN
-      USE UTILIO_DEFN  ! 20120906
+      USE UTILIO_DEFN
       USE AERO_BUDGET
       USE AERO_DATA, ONLY : AERO_MISSING, AEROSPC_MAP, N_MODE,
      &                      N_AEROSPC, AEROSPC
@@ -42,11 +41,6 @@ c     USE SA_GRD_DEFN  ! for SA_SULF_NEW( :,:,:,: ); inherents SA_DEFN
       INTEGER KNH3, KHNO3
       REAL    TOTAL_OLD, TOTAL_NEW
       CHARACTER( 16 ) :: PRECUR
-c     REAL :: TTLB4( NCOLS,NROWS,NLAYS,NSPC_SA )
-c     REAL :: SULFCOND( NCOLS,NROWS,NLAYS )
-c     REAL :: SULFCOND_AIT( NCOLS,NROWS,NLAYS )
-c     REAL :: SULFCOND_ACC( NCOLS,NROWS,NLAYS )
-c     REAL, ALLOCATABLE, SAVE :: CCOND( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: TTLB4( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: SULFCOND( :,:,: )
       REAL, ALLOCATABLE, SAVE :: SULFCOND_AIT( :,:,: )
@@ -82,21 +76,11 @@ c     REAL, ALLOCATABLE, SAVE :: CCOND( :,:,:,: )
 
 
 ! Arrays for combined ammonium, combined nitrates, and combined sulfates
-c     REAL :: AMMONIA_TAG( NCOLS,NROWS,NLAYS )
-c     REAL :: NITRATE_TAG( NCOLS,NROWS,NLAYS )
-c     REAL :: SULFATE_TAG( NCOLS,NROWS,NLAYS )
-c     REAL :: TOTAER_TAG( NCOLS,NROWS,NLAYS )
       REAL, ALLOCATABLE, SAVE :: AMMONIA_TAG (:,:,:)
       REAL, ALLOCATABLE, SAVE :: NITRATE_TAG (:,:,:)
       REAL, ALLOCATABLE, SAVE :: SULFATE_TAG (:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTAER_TAG (:,:,:)
 
-c     REAL :: TOTNH3( NCOLS,NROWS,NLAYS )
-c     REAL :: TOTNO3( NCOLS,NROWS,NLAYS )
-c     REAL :: TOTSO4( NCOLS,NROWS,NLAYS )
-c     REAL :: TOTAER( NCOLS,NROWS,NLAYS )
-c     REAL :: FRAC1( NCOLS,NROWS,NLAYS )
-c     REAL :: FRAC2( NCOLS,NROWS,NLAYS )
       REAL, ALLOCATABLE, SAVE :: TOTNH3(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTNO3(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTSO4(:,:,:)
@@ -104,8 +88,6 @@ c     REAL :: FRAC2( NCOLS,NROWS,NLAYS )
       REAL, ALLOCATABLE, SAVE :: FRAC1(:,:,:)
       REAL, ALLOCATABLE, SAVE :: FRAC2(:,:,:)
 
-c     REAL :: ISAM0( NCOLS,NROWS,NLAYS,NSPC_SA,NTAG_SA )
-c     REAL :: ISAM1( NCOLS,NROWS,NLAYS,NSPC_SA,NTAG_SA )
       REAL, ALLOCATABLE, SAVE :: ISAM0(:,:,:,:,:)
       REAL, ALLOCATABLE, SAVE :: ISAM1(:,:,:,:,:)
 
@@ -326,13 +308,6 @@ c    &                                MAX( TOTNO3, MIN_TAGTOT*3.0 )
           ISAM1( :,:,:,JHNO3,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CHNO3 ) / ppm2mole
           ISAM1( :,:,:,JNO3I,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CNO3I ) * MWNO3
           ISAM1( :,:,:,JNO3J,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CNO3J ) * MWNO3
-
-c         NITRATE_TAG( :,:,: ) = (   ISAM0( :,:,:,JNO3I,K ) 
-c    &                             + ISAM0( :,:,:,JNO3J,K ) )
-c    &                         / (   TTLB4( :,:,:,JNO3I ) 
-c    &                             + TTLB4( :,:,:,JNO3J )   )
-c         ISAM1( :,:,:,JHNO3,K ) = 
-
         ENDIF
 
         ! Sulfate
@@ -397,19 +372,7 @@ c         ISAM1( :,:,:,JHNO3,K ) =
       END DO
 
       ! Update global ISAM array with modified attribution array ISAM1
-
-       write(logdev,*) "TESTING", NSPC_SA, NTAG_SA
-
-       write(logdev,*) ISAM( 2,2,1,NSPC_SA,: )
-       write(logdev,*) ISAM0( 2,2,1,NSPC_SA,: )
-       write(logdev,*) ISAM1( 2,2,1,NSPC_SA,: )
-
-
       ISAM = ISAM1
-
-        
-       write(logdev,*) ISAM( 2,2,1,NSPC_SA,: )
-
 
       END 
 
