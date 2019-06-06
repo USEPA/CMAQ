@@ -2,26 +2,26 @@
  
 STM_AE_SPECIES_DATA = 
 
-!SPECIES     ,MOLWT    ,ICBC   ,FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR        ,TRNS    ,DDEP    ,WDEP    ,CONC  
-'ASO4AQH2O2J', 96.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQH2O2_ACCUM','Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4AQO3J'  , 96.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQO3_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4AQFEMNJ', 96.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQFEMN_ACCUM','Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4AQMHPJ' , 96.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQMHP_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4AQPAAJ' , 96.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQPAA_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4GASJ'   , 96.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_GAS_ACCUM'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4EMISJ'  , 96.00   ,''     ,-1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_EMIS_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4ICBCJ'  , 96.00   ,'ASO4J', 1  ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_ICBC_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4GASI'   , 96.00   ,''     ,-1  ,'VMASSI'    , 1  ,'TRACER_AITKEN', 1  ,'SO4_GAS_AITKEN'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4EMISI'  , 96.00   ,''     ,-1  ,'VMASSI'    , 1  ,'TRACER_AITKEN', 1  ,'SO4_EMIS_AITKEN' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4ICBCI'  , 96.00   ,'ASO4I', 1  ,'VMASSI'    , 1  ,'TRACER_AITKEN', 1  ,'SO4_ICBC_AITKEN' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4GASK'   , 96.00   ,''     ,-1  ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'SO4_GAS_COARSE'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4EMISK'  , 96.00   ,''     ,-1  ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'SO4_EMIS_COARSE' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
-'ASO4ICBCK'  , 96.00   ,'ASO4K', 1  ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'SO4_ICBC_COARSE' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+!SPECIES     ,MOLWT    ,IC     ,ICFAC ,BC     ,BCFAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR        ,TRNS    ,DDEP    ,WDEP    ,CONC  
+'ASO4AQH2O2J', 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQH2O2_ACCUM','Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4AQO3J'  , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQO3_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4AQFEMNJ', 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQFEMN_ACCUM','Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4AQMHPJ' , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQMHP_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4AQPAAJ' , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_AQPAA_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4GASJ'   , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_GAS_ACCUM'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4EMISJ'  , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_EMIS_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4ICBCJ'  , 96.00   ,'ASO4J', 1    ,'ASO4J', 1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'SO4_ICBC_ACCUM'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4GASI'   , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSI'    , 1  ,'TRACER_AITKEN', 1  ,'SO4_GAS_AITKEN'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4EMISI'  , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSI'    , 1  ,'TRACER_AITKEN', 1  ,'SO4_EMIS_AITKEN' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4ICBCI'  , 96.00   ,'ASO4I', 1    ,'ASO4I', 1    ,'VMASSI'    , 1  ,'TRACER_AITKEN', 1  ,'SO4_ICBC_AITKEN' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4GASK'   , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'SO4_GAS_COARSE'  ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4EMISK'  , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'SO4_EMIS_COARSE' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ASO4ICBCK'  , 96.00   ,'ASO4K', 1    ,'ASO4K', 1    ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'SO4_ICBC_COARSE' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 /
 
 &STM_NR_nml
  
 STM_NR_SPECIES_DATA =
-!SPECIES     ,MOLWT    ,ICBC   ,FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,N2AE SURR  ,N2AQ SURR   ,TRNS  ,DDEP  ,WDEP  ,CONC  
-'SULF_ICBC'  , 98.0    ,'SULF' , 1  ,'VD_SULF'   , 1  ,'H2SO4'        , 1  ,'SULF_ICBC','H2SO4_ICBC','Yes' ,'Yes' ,'Yes' ,'Yes',
+!SPECIES     ,MOLWT    ,IC     ,IC_FAC  ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,NR2AE SURR  ,NR2AQ SURR  ,TRNS  ,DDEP  ,WDEP  ,CONC  
+'SULF_ICBC'  , 98.0    ,'SULF' , 1      ,'SULF' , 1     ,'VD_SULF'   , 1  ,'H2SO4'        , 1  ,'SULF_ICBC' ,'H2SO4_ICBC','Yes' ,'Yes' ,'Yes' ,'Yes',
 /

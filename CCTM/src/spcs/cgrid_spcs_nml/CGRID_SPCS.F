@@ -446,8 +446,10 @@ c-------------------------------------------------------------------------------
                ALLOCATE( STM_AE_SPECIES_DATA( SPC_DIM ), STAT=IOS )
                STM_AE_SPECIES_DATA%SPECIES_NAME = ''
                STM_AE_SPECIES_DATA%MOLWT = 0.
-               STM_AE_SPECIES_DATA%ICBC_SURR = ''
-               STM_AE_SPECIES_DATA%ICBC_FAC = 0.
+               STM_AE_SPECIES_DATA%IC_SURR = ''
+               STM_AE_SPECIES_DATA%IC_FAC = 0.
+               STM_AE_SPECIES_DATA%BC_SURR = ''
+               STM_AE_SPECIES_DATA%BC_FAC = 0.
                STM_AE_SPECIES_DATA%DEPV_SURR = ''
                STM_AE_SPECIES_DATA%DEPV_FAC = 0.
                STM_AE_SPECIES_DATA%SCAV_SURR = ''
@@ -468,8 +470,10 @@ c-------------------------------------------------------------------------------
                DO IAE = 1,SPC_DIM
                    IF ( STM_AE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
                    N_STM_AE_SPC = IAE
-                   IF ( STM_AE_SPECIES_DATA( IAE )%ICBC_FAC .EQ. -1. )
-     &                  STM_AE_SPECIES_DATA( IAE )%ICBC_FAC = 0.
+                   IF ( STM_AE_SPECIES_DATA( IAE )%IC_FAC .EQ. -1. )
+     &                  STM_AE_SPECIES_DATA( IAE )%IC_FAC = 0.
+                   IF ( STM_AE_SPECIES_DATA( IAE )%BC_FAC .EQ. -1. )
+     &                  STM_AE_SPECIES_DATA( IAE )%BC_FAC = 0.
                    IF ( STM_AE_SPECIES_DATA( IAE )%DEPV_FAC .EQ. -1. )
      &                  STM_AE_SPECIES_DATA( IAE )%DEPV_FAC = 0.
                    IF ( STM_AE_SPECIES_DATA( IAE )%SCAV_FAC .EQ. -1. )
@@ -487,8 +491,10 @@ c-------------------------------------------------------------------------------
                   N_AE_SPC = N_AE_SPC + 1
                   AE_SPECIES_DATA( N_AE_SPC )%SPECIES_NAME = STM_AE_SPECIES_DATA( IAE )%SPECIES_NAME
                   AE_SPECIES_DATA( N_AE_SPC )%MOLWT        = STM_AE_SPECIES_DATA( IAE )%MOLWT
-                  AE_SPECIES_DATA( N_AE_SPC )%ICBC_SURR    = STM_AE_SPECIES_DATA( IAE )%ICBC_SURR
-                  AE_SPECIES_DATA( N_AE_SPC )%ICBC_FAC     = STM_AE_SPECIES_DATA( IAE )%ICBC_FAC
+                  AE_SPECIES_DATA( N_AE_SPC )%IC_SURR      = STM_AE_SPECIES_DATA( IAE )%IC_SURR
+                  AE_SPECIES_DATA( N_AE_SPC )%IC_FAC       = STM_AE_SPECIES_DATA( IAE )%IC_FAC
+                  AE_SPECIES_DATA( N_AE_SPC )%BC_SURR      = STM_AE_SPECIES_DATA( IAE )%BC_SURR
+                  AE_SPECIES_DATA( N_AE_SPC )%BC_FAC       = STM_AE_SPECIES_DATA( IAE )%BC_FAC
                   AE_SPECIES_DATA( N_AE_SPC )%DEPV_SURR    = STM_AE_SPECIES_DATA( IAE )%DEPV_SURR
                   AE_SPECIES_DATA( N_AE_SPC )%DEPV_FAC     = STM_AE_SPECIES_DATA( IAE )%DEPV_FAC
                   AE_SPECIES_DATA( N_AE_SPC )%SCAV_SURR    = STM_AE_SPECIES_DATA( IAE )%SCAV_SURR
@@ -658,8 +664,10 @@ c-------------------------------------------------------------------------------
                ALLOCATE( STM_NR_SPECIES_DATA( SPC_DIM ), STAT=IOS )
                STM_NR_SPECIES_DATA%SPECIES_NAME = ''
                STM_NR_SPECIES_DATA%MOLWT = 0.
-               STM_NR_SPECIES_DATA%ICBC_SURR = ''
-               STM_NR_SPECIES_DATA%ICBC_FAC = 0.
+               STM_NR_SPECIES_DATA%IC_SURR = ''
+               STM_NR_SPECIES_DATA%IC_FAC = 0.
+               STM_NR_SPECIES_DATA%BC_SURR = ''
+               STM_NR_SPECIES_DATA%BC_FAC = 0.
                STM_NR_SPECIES_DATA%DEPV_SURR = ''
                STM_NR_SPECIES_DATA%DEPV_FAC = 0.
                STM_NR_SPECIES_DATA%SCAV_SURR = ''
@@ -683,8 +691,10 @@ c-------------------------------------------------------------------------------
                DO INR = 1,SPC_DIM
                    IF ( STM_NR_SPECIES_DATA( INR )%SPECIES_NAME .EQ. '' ) EXIT
                    N_STM_NR_SPC = INR
-                   IF ( STM_NR_SPECIES_DATA( INR )%ICBC_FAC .EQ. -1. )
-     &                  STM_NR_SPECIES_DATA( INR )%ICBC_FAC = 0.
+                   IF ( STM_NR_SPECIES_DATA( INR )%IC_FAC .EQ. -1. )
+     &                  STM_NR_SPECIES_DATA( INR )%IC_FAC = 0.
+                   IF ( STM_NR_SPECIES_DATA( INR )%BC_FAC .EQ. -1. )
+     &                  STM_NR_SPECIES_DATA( INR )%BC_FAC = 0.
                    IF ( STM_NR_SPECIES_DATA( INR )%DEPV_FAC .EQ. -1. )
      &                  STM_NR_SPECIES_DATA( INR )%DEPV_FAC = 0.
                    IF ( STM_NR_SPECIES_DATA( INR )%SCAV_FAC .EQ. -1. )
@@ -702,8 +712,10 @@ c-------------------------------------------------------------------------------
                   N_NR_SPC = N_NR_SPC + 1
                   NR_SPECIES_DATA( N_NR_SPC )%SPECIES_NAME = STM_NR_SPECIES_DATA( INR )%SPECIES_NAME
                   NR_SPECIES_DATA( N_NR_SPC )%MOLWT        = STM_NR_SPECIES_DATA( INR )%MOLWT
-                  NR_SPECIES_DATA( N_NR_SPC )%ICBC_SURR    = STM_NR_SPECIES_DATA( INR )%ICBC_SURR
-                  NR_SPECIES_DATA( N_NR_SPC )%ICBC_FAC     = STM_NR_SPECIES_DATA( INR )%ICBC_FAC
+                  NR_SPECIES_DATA( N_NR_SPC )%IC_SURR      = STM_NR_SPECIES_DATA( INR )%IC_SURR
+                  NR_SPECIES_DATA( N_NR_SPC )%IC_FAC       = STM_NR_SPECIES_DATA( INR )%IC_FAC
+                  NR_SPECIES_DATA( N_NR_SPC )%BC_SURR      = STM_NR_SPECIES_DATA( INR )%BC_SURR
+                  NR_SPECIES_DATA( N_NR_SPC )%BC_FAC       = STM_NR_SPECIES_DATA( INR )%BC_FAC
                   NR_SPECIES_DATA( N_NR_SPC )%DEPV_SURR    = STM_NR_SPECIES_DATA( INR )%DEPV_SURR
                   NR_SPECIES_DATA( N_NR_SPC )%DEPV_FAC     = STM_NR_SPECIES_DATA( INR )%DEPV_FAC
                   NR_SPECIES_DATA( N_NR_SPC )%SCAV_SURR    = STM_NR_SPECIES_DATA( INR )%SCAV_SURR

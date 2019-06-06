@@ -532,7 +532,7 @@
       !-------------------------------------------------------------------------------------------------------
 
       ! Flag for sulfur tracking option
-      CALL GET_ENV ( STM, 'CTM_SO4TRACK', STM, VARDEV )
+      CALL GET_ENV ( STM, 'STM_SO4TRACK', STM, VARDEV )
 
       IF ( STM ) THEN
          ! Get Filename for Sulfur Tracking Model Namelist
