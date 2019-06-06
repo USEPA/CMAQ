@@ -39,7 +39,7 @@ Napelenok, S.L., Cohan, D.S., Hu, Y.T., & Russell, A.G. (2006). Decoupled direct
 
 ## Contact
 
-[Sergey L. Napelenok](mailto:napelenok.sergey@epa.gov), Atmospheric Modeling and Analysis Division, U.S. EPA
+[Sergey L. Napelenok](mailto:napelenok.sergey@epa.gov), Computational Exposure Division, U.S. EPA
 
 <!-- BEGIN COMMENT -->
 
