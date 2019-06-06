@@ -68,7 +68,7 @@ Additionally, ISAM is able to track emissions confined to geographic regions.  T
 
 ### 12.3.1 ISAM control file (SA_IOLIST)
 
-The ISAM `SA_IOLIST` is text file used to configure which tag classes, emissions streams, and source regions the model will track.  An example of this file, `isam_control.txt`, is provided in the release package.  The formating of this file must be kept intact, but it does allow for insertion of comment lines.  
+The ISAM `SA_IOLIST` is a text file used to configure which tag classes, emissions streams, and source regions the model will track.  An example of this file, `isam_control.txt`, is provided in the release package.  The formating of this file must be kept intact, but it does allow for insertion of comment lines.  
 
 Each ISAM simulation requires the specification of the `TAG CLASSES` that the user desires to apportion.  The current list includes the following choices `SULFATE, NITRATE, AMMONIUM, EC, OC, VOC, PM25_IONS, CO, OZONE`.  Species associated with each of these are provided in section 12.1.  One or more of these tag classes must be specified in `SA_IOLIST`.  Multiple tag classes are comma delimited.
 
@@ -84,7 +84,7 @@ TAG NAME        |EGU
 
 It is recommended that the text string for the tag name be kept short (ideally three characters) in order to accomodate the longer species names from some chemical mechanisms in the ISAM output files.
 
-The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissiosn, variable names from the regions file specified in the `EmissCtrl` namelist are used insted.
+The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissions, variable names from the regions file specified in the `EmissCtrl` namelist are used insted.
 
 ```
 REGION(S)       |EVERYWHERE
@@ -102,7 +102,7 @@ Finally, the emissions streams labels are required as the third option in the co
 EMIS STREAM(S)  |PT_EGU, PT_NONEGU
 ```
 
-The final line in the control file need to be kept unchanged in order to aid the file parser in reading this file.
+The final line in the control file needs to be kept unchanged in order to aid the file parser in reading this file.
 
 ```
 ENDLIST eof
