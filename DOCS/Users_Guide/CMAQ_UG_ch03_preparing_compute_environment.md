@@ -7,7 +7,7 @@
 
 # 3. Preparing Compute Environment for CMAQ Simulations
 
-In this chapter the user will learn basic hardware and software requirements to run CMAQ. In addition, if the user does not have the required software, this chapter provides detailed examples on how the user could obtain this software in a linux environment.
+In this chapter the user will learn basic hardware and software requirements to run CMAQ. In addition, if the user does not have the required software, this chapter provides links to download such required softwares. 
 
 ## 3.1 Hardware Requirements
 
@@ -19,182 +19,60 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 
 However, to use CMAQ in a production environment where multiple iterations of the model will be executed for different spatial domains and/or emissions control strategies, either a cluster of multiprocessor PCs on a high-end network or an expandable rack-mounted Linux server is recommended.
 
-For example, the CMAQ team at the EPA uses a Dell cluster. The cluster consists 128 nodes and each node contains two Intel Xeon E5-2697A v4 16-core processors (with a total of 4096 processors), 256 GB memory (8 GB/core), EDR infiniband interconnect and runs on Red Hat Enterprise Linux 7 operating system
+For example, the CMAQ team at the EPA uses a Dell cluster. The cluster consists 128 nodes and each node contains two Intel Xeon E5-2697A v4 16-core processors (with a total of 4096 processors), 256 GB memory (8 GB/core), EDR infiniband interconnect and runs on Red Hat Enterprise Linux 7 operating system.
+
+Table 3-1 provides a general snapshot of system requirement with respective to three different CMAQ setups for a day of simulation. The output only includes the standard files, CONC, ACONC, CGRID, DRYDEP, and WETDEP1. The run time should vary due to compiler choice and system hardware.
+
+**Table 3‑1. Example of job scenarios at EPA**
+
+|**Domain**|**Domain size**| **Total output files size** | **Run time (# cores)**  | 
+|------------|-------------------------------|-------|--|
+| Conus | 459 X 299 X 35 X 219 | 107GB | 2963.8s (128) |
+| South-East | 100 X 80 X 35 X 218 | 6.3GB | 493.9s (32) |
+| Hemispheric | 187 X 187 X 44 X 255 | 40GB | 1518.1s (128) |
 
 ## 3.2 Software Requirements
-**>>Comment<<** Do we want to also recommend a compiler (intel) for speed?
 
-**>>Comment<<** I think we should remove all instructions to deal with updating/installing compiler and installing libraries (the only one we should keep is IOAPI). Points user to respective web site for instructions.
+In order to build the CMAQ program suite, user must first install these three libraries, MPI, netCDF and IOAPI. As always, we recommend using the latest release available at the time of your CMAQ installation.
 
-Before using the CMAQ program suite, the user must first download and configure their "computing" environment. A requirement for CMAQ is access to a linux environment, which can be done through a terminal emulator. Examples of terminal emulators are shown below:
 
--   **MAC OS X:** iTerm2
--   **Windows:** PuTTY, MobaXterm
--   **Linux:** Terminal, XTerm
+## 3.2.1 Message Passing Interface (MPI) library
 
-When using the CMAQ program suite a common theme that will be seen is the use of shell scripts. In short, a shell script is basically a recipe of commands that can be run to save time when performing a task. In the case of CMAQ, it is used to set variables, science options and run other programs.
+CMAQ is a MPI based program that runs on parallel programming platforms. Various flavour of MPI libraries are available for user to choose. CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MPICH](https://www.mpich.org/downloads), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. The choice of MPI affects model run time. For example, if you have Intel compiler suite available on your system, chooses Intel MPI or if your system is using InfiniBand (IB) interconnect, chooses MVAPICH2 which is tailored for IB.
 
-At this point faimiliarity with linux command line prompts as well as basic shell scripting is expected.
+User can download the MPI library source code from one of these sites and follow provided procedure for proper installation.
 
-Several of these steps are facilitated by having either root or sudo privileges on your system.  If you do not have these privileges, work with the system administrator to complete these steps.
+## 3.2.2 netCDF library
 
-## 3.3 Install Fortran and C compilers
------
-There are several options for Fortran and C compilers. The [Fortran wiki](http://fortranwiki.org/fortran/show/Compilers) includes a full list of free and commercial Fortran compilers.
+Most of the CMAQ input files (the rest is in ASCII format) and all output files are in netCDF format. Hence netCDF library is an essential component of the CMAQ model. Source code of the library is avaialbe at http://www.unidata.ucar.edu/software/netcdf/ and user should follow the instructions for proper installation. We recommend to install netCDF libray without **netCDF4** and **HDF5** support. In order to do so, user should provide appropriate flags, such as --disable-netcdf-4, at the configure stage.
 
-Most Linux systems include the Gnu gfortran compiler by default. Other options that have been tested with CMAQ include the **Intel and Portland Group** compilers.
+## 3.2.3 IOAPI library
 
-The following instructions are for Gnu compilers.  For other Fortran compilers, follow the instructions from the vendor.
+The IOAPI library provides interface to handle input and output (I/O) functions throughout the CMAQ code. We recommend to download IOAPI 3.2 library which is used in stand alone CMAQ, WRF-CMAQ two-way coupled model, and CMAQ code with parallel I/O feature (a slightly different library is used, see explanation below). Download the latest version of IOAPI 3.2 source code from the CMAS Center.
 
-Check for the Gnu gfortran compiler:
+**COMMENT we have test the latest IOAPI 3.2 and it failed with parallel I/O function turns on in CMAQ
 
-```
-gfortran -v
-```
+Procedure to install "basic" IOAPI library (this is based on ifort compiler, for other compiler, look for corresponding Linux2_x86_64*):
 
-Install on Debian/Ubuntu Linux:
+step 1: mkdir ioapi_3.2
+step 2: untar the downloaded source code inside ioapi_3.2 directory, tar xfz io*gz
+step 3: setenv BIN Linux2_x86_64gfort
+step 4: comment out the line with BASEDIR and make sure nocpl option is used
+step 5: setenv BASEDIR $PWD
+step 6: comment out all openMP options and remove -Bstatic flag in ioapi/Makeinclude.Linux2_x86_64gfort
+step 7: make configure
+step 8: make
 
-```
-sudo apt-get update
-sudo apt-get install build-essential
-sudo apt-get install gfortran
-```
+Procedure to install "mpi" IOAPI library which is for CMAQ model with parallel I/O feature (this is a continuation from the above steps):
 
-Install on Red Hat/CentOS Linux:
+step 9: setenv BIN Linux2_x86_64gfortmpi
+step 10: comment out all openMP options and remove -Bstatic flag in ioapi/Makeinclude.Linux2_x86_64gfortmpi
+step 11: make configure
+step 12: make
 
-```
-sudo yum update
-sudo yum install gcc-gfortran
-```
+## 3.3 Optional Software
 
-[Makefiles](https://www.gnu.org/software/make/manual/make.pdf) are similar to shell scripts in the sense that they describe the relationship between Fortran/C files and provides a recipe on how to link and compile them to build an executable. This is convenient because if one file changes in the program suite, the Makefile will recompile and link all the necessary programs by running the commands below.
-
-Common shell commands to invoke the Makefile include:
-
-``
-make
-``
-
-This shell command invokes the Makefile and follows the recipe on how to compile and link the program files listed to update the CMAQ executable.
-
-``
-make clean
-``
-
-This shell command cleans the directory (i.e. removes any links between files and any intermediary files).
-
-## 3.4 Install Git
------
-This step is optional. User can skip this step if the user perfers to download CMAQ tarball, work from there and does not care about version control.
-
-Git is a source code control and management software.  It is used in the CMAQ installation to download stable versions of the source code. Additional resources can be found at https://git-scm.com/book/en/v2.
-
-Install on Debian/Ubuntu Linux:
-
-```
-$ sudo apt-get install git
-```
-
-Install on Red Hat/CentOS Linux:
-
-```
-$ sudo yum install git
-```
-
-## 3.5 Download the source and install the netCDF library
------
-The netCDF library is used to control the data structures of the CMAQ input/output files.
-
-Download the latest netCDF release from http://www.unidata.ucar.edu/software/netcdf/ and follow the instructions to install on your system.  
-
-**Compile netCDF without netCDF4 and HDF5 support**
-
-The general steps for installation on a Linux system (with C-shell, GCC and GFortran) are below.  These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
-
-```
-### Set up your Linux system environment
-setenv CC gcc
-setenv CPPFLAGS  '-DNDEBUG –DgFortran'
-setenv CFLAGS  -O
-setenv FC  gfortran
-setenv FFLAGS  '-O –w'
-setenv CXX  g++
-
-## Install netCDF-C
-wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-4.4.1.1.tar.gz
-tar xvzf netcdf-4.4.1.1.tar.gz
-cd netcdf-4.4.1.1
-./configure --disable-netcdf-4 --disable-dap
-make check install
-cd ../
-
-## Install netCDF-Fortran
-setenv NCDIR {location of netCDF C installation}
-setenv CPPFLAGS "$CPPFLAGS -I${NCDIR}/include LDFLAGS=-L${NCDIR}/lib"
-wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-fortran-4.4.4.tar.gz
-tar xvzf netcdf-4.4.4.tar.gz
-cd netcdf-4.4.4
-./configure
-make check
-make install
-```
-Additional instruction and options for compiling netCDF are on the [Unidata C netCDF installation](http://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [Fortran netCDF installation](http://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) pages.
-
-## 3.6 Download the source and install the I/O API library
------
-The I/O API library is used for the input/output data in CMAQ.
-
-Download the I/O API source code from the CMAS Center and put the gzipped tarball on your Linux system. The general steps for installation on a Linux system (with C-shell, GCC and GFortran) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
-
-```
-### Set up your Linux system environment
-setenv BIN Linux2_x86_64gfort
-
-## Install I/O API
-tar xvzf ioapi-3.2.tar.gz
-cp Makefile.template Makefile
-
-```
-
-Edit the Makefile with the following steps:
-
-   1. comment out the line with BIN ="
-   2. add explicit netCDF libray path in front of -lnetcdf -lnetcdff, the following is an example.
-   
-   NCFLIBS    = -L/usr/local/apps/netcdf-4.4.1/intel-17.0/lib -lnetcdf -lnetcdff
-   
-Also you need to edit ioapi/Makeinclude.${BIN} to comment out openmp option. Here is an example with Linux2_x86_64gfort:
-
-OMPFLAGS  = # -fopenmp
-OMPLIBS   = # -fopenmp
-
-If you are using ifort compiler, you need to remove -Bstatic in ioapi/Makeinclude.Linux2_x86_64ifort as well.
-
-```
-make configure
-make
-
-```
-
-## 3.7 Install a Message Passing Interface (MPI) library
------
-The MPI library is used to create parallel (multiple processor) applications of CMAQ.  CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. This example shows how to install OpenMPI on a Linux system with C-shell, GCC and Gfortran. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
-
-Install on Debian/Ubuntu Linux:
-
-```
-sudo apt-get install openmpi openmpi-devel
-```
-
-Install on Red Hat/CentOS Linux:
-
-```
-sudo yum install openmpi openmpi-devel
-```
-
-## 3.8 Optional Software
-
-**Table 3‑3. Optional support software for CMAQ**
+**Table 3‑2. Optional support software for CMAQ**
 
 |**Software**|**Description**|     **Source**    |
 |------------|-------------------------------|---------------------------------------------|
