@@ -1986,26 +1986,31 @@ C Read the various categories of normalized emissions
           END IF
 
           IF ( USE_MARINE_GAS_EMISSION ) then
-             allocate (chlr(ncols, nrows),
-     &                 dmsl(ncols, nrows), 
-     &                 STAT=STAT)
-             IF ( STAT .NE. 0 ) THEN
-                XMSG = 'Failure allocating CHLO array'
-                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
-             END IF
+             IF ( .NOT. OCEAN_CHEM ) THEN
+                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R3M mechanism'
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             ELSE   ! OCEAN_1 file already opened
+                allocate (chlr(ncols, nrows),
+     &                    dmsl(ncols, nrows), 
+     &                    STAT=STAT)
+                IF ( STAT .NE. 0 ) THEN
+                   XMSG = 'Failure allocating CHLO array'
+                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
+                END IF
 
-             If ( .Not. XTRACT3( OCEAN_1, 'CHLO',
-     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                           0, 0, chlr ) ) Then
-                XMSG = 'Could not interpolate CHLO from ' // OCEAN_1
-                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-             End If
-             If ( .Not. XTRACT3( OCEAN_1, 'DMS',
-     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                           0, 0, dmsl ) ) Then
-                XMSG = 'Could not interpolate CHLO from ' // OCEAN_1
-                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-             End If
+                If ( .Not. XTRACT3( OCEAN_1, 'CHLO',
+     &                              1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                              0, 0, chlr ) ) Then
+                   XMSG = 'Could not read CHLO from ' // OCEAN_1
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                End If
+                If ( .Not. XTRACT3( OCEAN_1, 'DMS',
+     &                              1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                              0, 0, dmsl ) ) Then
+                   XMSG = 'Could not read DMS from ' // OCEAN_1
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                End If
+             END IF
           END IF
 
         end subroutine retrieve_ocean_data
