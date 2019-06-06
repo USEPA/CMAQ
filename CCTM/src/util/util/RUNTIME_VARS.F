@@ -159,7 +159,6 @@
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
 
       ! Air-Surface Exchange
-      LOGICAL :: ILDEPV    = .TRUE.  ! flag in-lining depv
       LOGICAL :: ABFLUX    = .FALSE. ! flag for ammonia bi-directional flux with in-lining depv
       LOGICAL :: MOSAIC    = .FALSE. ! flag for mosaic - luc specific deposition - within in-lining depv
       LOGICAL :: SFC_HONO  = .FALSE. ! flag for HONO interaction with surfaces within in-lining depv
@@ -565,38 +564,32 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! Flag for In-line deposition velocities calculation
-      CALL GET_ENV ( ILDEPV, 'CTM_ILDEPV', ILDEPV, VARDEV )
-
       ! Check if using PX version of MCIP
       CALL GET_ENV ( PX_LSM, 'PX_VERSION', PX_LSM, VARDEV )
 
-      IF ( ILDEPV ) THEN
-         ! Flag for Ammonia bi-directional flux with in-line deposition 
-         ! velocities calculation
-         CALL GET_ENV ( ABFLUX, 'CTM_ABFLUX', ABFLUX, VARDEV )
+      ! Flag for Ammonia bi-directional flux with in-line deposition 
+      ! velocities calculation
+      CALL GET_ENV ( ABFLUX, 'CTM_ABFLUX', ABFLUX, VARDEV )
 
-         ! Flag for Mosaic method to get land-use specific deposition velocities
-         CALL GET_ENV ( MOSAIC, 'CTM_MOSAIC', MOSAIC, VARDEV )
+      ! Flag for Mosaic method to get land-use specific deposition velocities
+      CALL GET_ENV ( MOSAIC, 'CTM_MOSAIC', MOSAIC, VARDEV )
 
-         ! Flag for HONO interaction with leaf and building surfaces
-         CALL GET_ENV ( SFC_HONO, 'CTM_SFC_HONO', SFC_HONO, VARDEV )
+      ! Flag for HONO interaction with leaf and building surfaces
+      CALL GET_ENV ( SFC_HONO, 'CTM_SFC_HONO', SFC_HONO, VARDEV )
          
-         ! Mosaic method to get land-use specific stomatal flux
-         IF ( MOSAIC ) THEN
-            CALL GET_ENV ( FST, 'CTM_FST', FST, VARDEV )
-         END IF
+      ! Mosaic method to get land-use specific stomatal flux
+      IF ( MOSAIC ) THEN
+         CALL GET_ENV ( FST, 'CTM_FST', FST, VARDEV )
+      END IF
 
-         ! Flag CLM LSM
-         CALL GET_ENV ( CLM_LSM, 'CLM_VERSION', CLM_LSM, VARDEV )
+      ! Flag CLM LSM
+      CALL GET_ENV ( CLM_LSM, 'CLM_VERSION', CLM_LSM, VARDEV )
 
-         ! Flag for NOAH LSM
-         CALL GET_ENV ( NOAH_LSM, 'NOAH_VERSION', NOAH_LSM, VARDEV )
+      ! Flag for NOAH LSM
+      CALL GET_ENV ( NOAH_LSM, 'NOAH_VERSION', NOAH_LSM, VARDEV )
 
-         ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model
-         CALL GET_ENV ( STAGE, 'CTM_STAGE', STAGE, VARDEV )
-
-      END IF   ! in-line depv
+      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model
+      CALL GET_ENV ( STAGE, 'CTM_STAGE', STAGE, VARDEV )
 
       ! CTM_DEPV_FILE
       CALL GET_ENV ( DEPV_DIAG, 'CTM_DEPV_FILE', DEPV_DIAG, VARDEV )

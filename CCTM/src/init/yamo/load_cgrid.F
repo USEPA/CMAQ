@@ -428,6 +428,7 @@ C IOFDESC common now loaded with FNAME header
             ! running semivolatile POA
             IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' ) THEN 
                IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
+                  ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
                   call interpolate_var (ICNAME_TMP, jdate, jtime, DBUFF_TMP)
                   DBUFF = DBUFF + DBUFF_TMP
                 END IF
