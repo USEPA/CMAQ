@@ -42,7 +42,7 @@ Note, you may want to 'make clean' first, if your scripts were configured to aut
 
 ## 12.3 Run Instructions
 
-To begin an CMAQ simulation with apportionment enabled, the ISAM section of the runscript must be configured.  The additional necessary environment variable are listed in Table 12-1.
+To begin a CMAQ simulation with apportionment enabled, the ISAM section of the runscript must be configured.  The additional necessary environment variables are listed in Table 12-1.
 
 **Table 12-1: ISAM run script variables**
 
@@ -60,9 +60,11 @@ To begin an CMAQ simulation with apportionment enabled, the ISAM section of the 
 |SA_WD_1|path/filename|ISAM output for apportioned wet deposition|
 |SA_CGRID_1|path/filename|ISAM output for a restart file to continue the simulation further in time|
 
-Additionally, ISAM is able to track emissions confined to geographic regions.  This functionality is can enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist and is discussed further below.
+Additionally, ISAM is able to track emissions confined to geographic regions.  This functionality can enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist and is discussed further below.
 
-<<< Add cross-reference to the map stuff wherever it is >>>
+
+!!!! Add cross-reference to the map stuff wherever it is !!!!
+
 
 ### 12.3.1 ISAM control file (SA_IOLIST)
 
@@ -76,7 +78,7 @@ TAG CLASSES     |OZONE, SULFATE
 
 After setting tag classes for the simulation, information for one or more tags is required. Each individual tag will track the species from the specified `TAG CLASSES` and has its own set of three options in the control file.  The first option is the name:
 
-``
+```
 TAG NAME        |EGU
 ```
 
