@@ -250,7 +250,7 @@
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
           USE VGRD_DEFN, only : VGTYP_GD, nlays
-          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON, WB_DUST, ILDEPV, ISAM_NEW_START
+          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON, WB_DUST, ISAM_NEW_START
           use LSM_Mod, only : LAND_SCHEME
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
