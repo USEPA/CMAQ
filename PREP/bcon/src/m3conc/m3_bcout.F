@@ -103,11 +103,11 @@ C Local Variables:
       INTEGER ALLOCSTAT     ! Status returned from array allocation
 
       INTEGER, ALLOCATABLE :: COL_LOC( : )  ! Output BC col corresponding to
-                                   ! a cell in the input CTM file
+                                            ! a cell in the input CTM file
       INTEGER, ALLOCATABLE :: ROW_LOC( : )  ! Output BC row corresponding to
-                                   ! a cell in the input CTM file
+                                            ! a cell in the input CTM file
 
-      LOGICAL LNEG                 ! Flag for negative concentratuin
+      LOGICAL LNEG                 ! Flag for negative concentration
 
       REAL    DMIN   ! Smallest distance between cell centers
       REAL    LAT    ! Latitude of center of cell for the BC output file
@@ -115,13 +115,13 @@ C Local Variables:
       REAL    X1     ! longitudenal distance between cell centers
       REAL    Y1     ! latitudinal distance between cell centers
 
-      REAL, ALLOCATABLE :: LAT_OUT( : )              ! Lat of cells in BC output file
-      REAL, ALLOCATABLE :: LON_OUT( : )              ! Lon of cells in BC output file
+      REAL, ALLOCATABLE :: LAT_OUT( : )    ! Lat of cells in BC output file
+      REAL, ALLOCATABLE :: LON_OUT( : )    ! Lon of cells in BC output file
 
       REAL, ALLOCATABLE :: LAT_IN( :,: )   ! Lat of cells in CTM conc file
       REAL, ALLOCATABLE :: LON_IN( :,: )   ! Lon of cells in CTM conc file
 
-      REAL, ALLOCATABLE :: COUT( :,: )             ! Substituted output BC conc
+      REAL, ALLOCATABLE :: COUT( :,: )     ! Substituted output BC conc
       REAL, ALLOCATABLE :: CONCIN( :,:,: ) ! Input concs
       REAL, ALLOCATABLE :: BCIN( :,:,: )   ! Horizontally set BCs
       REAL, ALLOCATABLE :: BCVI( :,:,: )   ! Vertically interpolated BCs

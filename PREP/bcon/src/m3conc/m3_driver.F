@@ -80,37 +80,37 @@ C Local Variables:
 
       INTEGER, ALLOCATABLE :: VTYPE_IN( : ) ! variable type for CTM species
 
-      INTEGER :: RUNLEN = 0  ! Time duration for BC output (HHMMSS)
-      INTEGER :: SDATE = 0 ! Date for BC output (YYYYJJJ)
-      INTEGER :: STIME = 0 ! Time for BC output (HHMMSS)
-      INTEGER JDATE        ! Current date
-      INTEGER JTIME        ! Current time
-      INTEGER N            ! File loop index
-      INTEGER N_CTM_FLS    ! Number of input CTM files
-      INTEGER NCOLS_IN     ! No. of columns in input conc file
-      INTEGER NLAYS_IN     ! No. of layers in input conc file
-      INTEGER NROWS_IN     ! No. of rows in input conc file
-      INTEGER NSPCS_IN     ! CTM files species counter
-      INTEGER VGTYP_IN     ! input conc file VGTYP
-      INTEGER VGTOP_IN     ! input conc file VGTOP
-      INTEGER SDATE_IN     ! input conc file start date
-      INTEGER STIME_IN     ! input conc file start time
-      INTEGER EDATE_IN     ! input conc file end date
-      INTEGER ETIME_IN     ! input conc file end time
-      INTEGER TSTEP_IN     ! input conc file  timestep
-      INTEGER NSTEPS_IN    ! Number time steps in input conc file
-      INTEGER SECS         ! time variable (sec)
-      INTEGER SECS_STRT    ! time variable (sec)
-      INTEGER SECS_END     ! time variable (sec)
-      INTEGER NSTINC       ! No. of steps on file before start of output
-      INTEGER STATUS       ! Status code
-      INTEGER ALLOCSTAT    ! Status returned from array allocation
-      INTEGER STRTINC      ! No. of sec. on file before start of output
-      INTEGER STEPSECS     ! Seconds per time step
-      INTEGER TOTSECS      ! Time duration for BC file (seconds)
-      INTEGER NSTEPS       ! Number time steps in BC output file
-      INTEGER TSTEP        ! Time step BC output file (HHMMSS)
-      INTEGER V            ! Variable loop index
+      INTEGER :: RUNLEN = 0   ! Time duration for BC output (HHMMSS)
+      INTEGER :: SDATE = 0    ! Date for BC output (YYYYJJJ)
+      INTEGER :: STIME = 0    ! Time for BC output (HHMMSS)
+      INTEGER :: JDATE        ! Current date
+      INTEGER :: JTIME        ! Current time
+      INTEGER :: N            ! File loop index
+      INTEGER :: N_CTM_FLS    ! Number of input CTM files
+      INTEGER :: NCOLS_IN     ! No. of columns in input conc file
+      INTEGER :: NLAYS_IN     ! No. of layers in input conc file
+      INTEGER :: NROWS_IN     ! No. of rows in input conc file
+      INTEGER :: NSPCS_IN     ! CTM files species counter
+      INTEGER :: VGTYP_IN     ! input conc file VGTYP
+      INTEGER :: VGTOP_IN     ! input conc file VGTOP
+      INTEGER :: SDATE_IN     ! input conc file start date
+      INTEGER :: STIME_IN     ! input conc file start time
+      INTEGER :: EDATE_IN     ! input conc file end date
+      INTEGER :: ETIME_IN     ! input conc file end time
+      INTEGER :: TSTEP_IN     ! input conc file  timestep
+      INTEGER :: NSTEPS_IN    ! Number time steps in input conc file
+      INTEGER :: SECS         ! time variable (sec)
+      INTEGER :: SECS_STRT    ! time variable (sec)
+      INTEGER :: SECS_END     ! time variable (sec)
+      INTEGER :: NSTINC       ! No. of steps on file before start of output
+      INTEGER :: STATUS       ! Status code
+      INTEGER :: ALLOCSTAT    ! Status returned from array allocation
+      INTEGER :: STRTINC      ! No. of sec. on file before start of output
+      INTEGER :: STEPSECS     ! Seconds per time step
+      INTEGER :: TOTSECS      ! Time duration for BC file (seconds)
+      INTEGER :: NSTEPS       ! Number time steps in BC output file
+      INTEGER :: TSTEP        ! Time step BC output file (HHMMSS)
+      INTEGER :: V            ! Variable loop index
 
       INTERFACE
 
