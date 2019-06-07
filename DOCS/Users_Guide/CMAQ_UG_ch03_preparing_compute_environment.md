@@ -21,7 +21,7 @@ However, to use CMAQ in a production environment where multiple iterations of th
 
 For example, the CMAQ team at the EPA uses a Dell cluster. The cluster consists 128 nodes and each node contains two Intel Xeon E5-2697A v4 16-core processors (with a total of 4096 processors), 256 GB memory (8 GB/core), EDR infiniband interconnect and runs on Red Hat Enterprise Linux 7 operating system.
 
-Table 3-1 provides a general snapshot of system requirement with respective to three different CMAQ setups for a day of simulation. The output only includes the standard files, CONC, ACONC, CGRID, DRYDEP, and WETDEP1. The run time should vary due to compiler choice and system hardware.
+Table 3-1 provides a general snapshot of three different CMAQ setups for a day of simulation conducted at the EPA. The output only included: the concentration file (CONC), the average concentration file (ACONC), 3-D average concetration file (CGRID), hourly dry deposition file (DRYDEP), and wet deposition from the clouds file (WETDEP1). The run time and domain size are dictated by the system hardware. Furthermore, the run time may vary due to compiler choice and system load.
 
 **Table 3‑1. Example of job scenarios at EPA**
 
