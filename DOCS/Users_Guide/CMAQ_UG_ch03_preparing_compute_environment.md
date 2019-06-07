@@ -33,18 +33,17 @@ Table 3-1 provides a general snapshot of three different CMAQ setups for a day o
 
 ## 3.2 Software Requirements
 
-In order to build the CMAQ program suite, user must first install these three libraries, MPI, netCDF and IOAPI. As always, we recommend using the latest release available at the time of your CMAQ installation.
-
+In order to build the CMAQ program suite, users must install these libraries: MPI, netCDF and IOAPI. As always, we recommend using the latest release available at the time of your CMAQ installation.
 
 ## 3.2.1 Message Passing Interface (MPI) library
 
-CMAQ is a MPI based program that runs on parallel programming platforms. Various flavour of MPI libraries are available for user to choose. CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MPICH](https://www.mpich.org/downloads), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. The choice of MPI affects model run time. For example, if you have Intel compiler suite available on your system, chooses Intel MPI or if your system is using InfiniBand (IB) interconnect, chooses MVAPICH2 which is tailored for IB.
+CMAQ is a MPI based program that runs on parallel programming platforms. Various flavour of MPI libraries are available for users to choose. CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MPICH](https://www.mpich.org/downloads), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. The choice of MPI library may affect model run time. For example, if you have Intel compiler suite available on your system, chooses Intel MPI or if your system is using InfiniBand (IB) interconnect, chooses MVAPICH2 which is tailored for IB.
 
-User can download the MPI library source code from one of these sites and follow provided procedure for proper installation.
+Users can download the MPI library source code from one of these sites and follow provided procedures for proper installation.
 
 ## 3.2.2 netCDF library
 
-Most of the CMAQ input files (the rest is in ASCII format) and all output files are in netCDF format. Hence netCDF library is an essential component of the CMAQ model. Source code of the library is avaialbe at http://www.unidata.ucar.edu/software/netcdf/ and user should follow the instructions for proper installation. We recommend to install netCDF libray without **netCDF4** and **HDF5** support. In order to do so, user should provide appropriate flags, such as --disable-netcdf-4, at the configure stage.
+Most of the CMAQ input files (the rest are in ASCII format) and all output files are in netCDF format. Hence netCDF library is an essential component of the CMAQ model. Source code of the library is avaialbe at http://www.unidata.ucar.edu/software/netcdf/ and user should follow the instructions for proper installation. We recommend to install netCDF libray without **netCDF4** and **HDF5** support. In order to do so, user should provide appropriate flags, such as --disable-netcdf-4, at the configure stage.
 
 ## 3.2.3 IOAPI library
 
