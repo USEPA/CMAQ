@@ -89,7 +89,7 @@ make configure
 make
 ```
 
-Other IOAPI library configuration options are available and users can see a list of these options within the IOAPI documentation. For example, IOAPI can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" IOAPI libraries. More information about how to enable PIO within CMAQ can be found in [Appendix D](../Appendix/CMAQ_UG_appendixD_parallel_implementation.md). The procedure to install "mpi" IOAPI libraries is shown below (this is a continuation from the above steps): 
+Other IOAPI library configuration options are available and users can see a list of these options within the IOAPI documentation. For example, IOAPI can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" IOAPI libraries. More information about how to enable PIO within CMAQ can be found in [Appendix D](Appendix/CMAQ_UG_appendixD_parallel_implementation.md). The procedure to install "mpi" IOAPI libraries is shown below (this is a continuation from the above steps): 
 
 ```
 setenv BIN Linux2_x86_64gfortmpi
