@@ -144,10 +144,25 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 ### 6.9.1 Gas Phase Chemical Mechanisms
 The CMAQ modeling system accounts for chemistry in three phases: a gas phase, aerosols (solid or liquid), and an aqueous phase. Refer to the release notes to find the gas‑phase chemistry mechanisms available in each version of CMAQ. Several variations of the base gas-phase mechanisms, with and without chlorine, mercury, and toxic species chemistry, are distributed with CMAQ. The modularity of CMAQ makes it possible to create or modify the gas-phase chemical mechanism.
 
-Gas-phase chemical mechanisms are defined in CMAQ through Fortran source files. Located in subdirectories of the $CMAQ_MODEL/CCTM/src/MECHS directory (each corresponding to a mechanism name), these files define the source, reaction parameters, and atmospheric processes (e.g., diffusion, deposition, advection) of the various mechanism species. The species definitions for each mechanism are contained in namelist files that are read in during execution of the CMAQ programs. The CMAQ mechanism configuration is more similar to the science module configuration than to the horizontal grid or vertical layer configuration in that the mechanism is defined at compilation, resulting in executables that are hard-wired to a specific gas-phase mechanism. To change chemical mechanisms between simulations, a new executable that includes the desired mechanism configuration must be compiled.
+Gas-phase chemical mechanisms are defined in CMAQ through Fortran source files. Located in subdirectories of the CCTM/src/MECHS directory (each corresponding to a mechanism name), these files define the source, reaction parameters, and atmospheric processes (e.g., diffusion, deposition, advection) of the various mechanism species. The species definitions for each mechanism are contained in namelist files that are read in during execution of the CMAQ programs. The CMAQ mechanism configuration is more similar to the science module configuration than to the horizontal grid or vertical layer configuration in that the mechanism is defined at compilation, resulting in executables that are hard-wired to a specific gas-phase mechanism. To change chemical mechanisms between simulations, a new executable that includes the desired mechanism configuration must be compiled.
 
 #### Using predefined chemical mechanisms
-To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to the name of one of the mechanism directories located under CCTM/src/MECHS. Refer to the [README.md](../../CCTM/src/MECHS/README.md) under CCTM/src/MECHS for the list of mechanisms available in CMAQv5.3.
+To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to the name of one of the mechanism listed in Table 6.1. Refer to the [README.md](../../CCTM/src/MECHS/README.md) under CCTM/src/MECHS for detailed information reactions and on model species names for each mechanism. 
+
+**Table 6.1**  Chemical Mechanisms available with CMAQv5.3.  Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
+
+**Chemistry Mechanism Table** | **Gas Species** | **Aerosol Species** | **Total Species** | **Gas-Phase Reactions** | **Comment** |
+|:---------:|:--:|:--:|:--:|:--:|:--------:|
+CB6r3-AERO7	|137|	80	|217	|338	|Efficient regional chemistry
+CB6r3-AERO7-KMT2|	137	|80	|217	|338	|Cloud Processing
+CB6r3-AERO7-Marine|	172	|82	|254|	452|	Hemispheric Scale including transport over Oceans
+CB6r3-AERO6|	145	|83	|228|	335	|Backward Compatibility to support existing users and applications
+CB6mp-AERO6|	139|	155|	294	|335	|Air Toxics
+RACM2-AERO6|	164|	82|	246|	407|	Multiscale Chemistry
+SAPRC07-AERO7|	216|	86|	302	|925|	Detailed Organic Chemistry
+SAPRC07-AERO7-KMT2	|216|	86|	302	|925|	Cloud Processing with detailed Organic Chemistry
+SAPRC07-AERO6|	227|	91|	318	|934|	Backward Compatibility to support existing users and applications
+
 
 #### Further information on chemical mechanisms
 -   The same chemical mechanism must be used for CCTM and all of the mechanism-dependent input processors that are part of the CMAQ system.
