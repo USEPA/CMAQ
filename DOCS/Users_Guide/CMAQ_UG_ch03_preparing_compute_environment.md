@@ -7,7 +7,7 @@
 
 # 3. Preparing Compute Environment for CMAQ Simulations
 
-In this chapter the user will learn basic hardware and software requirements to run CMAQ. In addition, if the user does not have the required software, this chapter provides links to download such required softwares. 
+In this chapter the user will learn basic hardware and software requirements to run CMAQ. In addition, if the user does not have the required software, this chapter provides links to download the required software. 
 
 ## 3.1 Hardware Requirements
 
