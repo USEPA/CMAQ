@@ -49,7 +49,7 @@ Most of the CMAQ input files (the rest are in ASCII format) and all output files
 
 The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The lastest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32. Users should note that the IOAPI library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the IOAPI documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on.
 
-**COMMENT we have test the latest IOAPI 3.2 and it failed with parallel I/O function turns on in CMAQ
+**>>COMMENT<<**  Testing the latest IOAPI 3.2 library from CMAS is incompatible with the parallel I/O turned on. 
 
 The general steps for installation of IOAPI libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
