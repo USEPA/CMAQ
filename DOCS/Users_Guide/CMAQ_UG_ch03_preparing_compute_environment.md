@@ -26,7 +26,7 @@ Table 3-1 provides a general snapshot of three different CMAQ setups for a day o
 **Table 3‑1. Example of job scenarios at EPA**
 
 |**Domain**|**Domain size**|**Species Tracked**| **Total output files size** | **Run time (# cores)**  | 
-|------------|-------------------------------|-------|--|
+|------------|--------------------------|-----|-------|--|
 | Conus | 459 X 299 X 35 | 219 | 107GB | 2963.8s (128) |
 | South-East | 100 X 80 X 35| 218 | 6.3GB | 493.9s (32) |
 | Hemispheric | 187 X 187 X 44 | 255 | 40GB | 1518.1s (128) |
