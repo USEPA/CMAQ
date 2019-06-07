@@ -8,7 +8,7 @@
 # 8. Analysis Tools for CMAQ output
 
 ## 8.1 Overview
-Many software programs are freely available for pre- and post-processing, evaluating and visualizing CMAQ output. Examples of such freeware are provided in Table [8-1](#Analysis_Software_Table). Several other commercial packages, including MATLAB and IDL, also support the analysis and visualization of CMAQ inputs and outputs. Most visualization and analysis software that supports netCDF file formats will work with CMAQ output data. 
+Many software programs are freely available for pre- and post-processing, evaluating and visualizing CMAQ output. Examples of such freeware are provided in [Table 8-1](#Analysis_Software_Table). Several other commercial packages, including MATLAB and IDL, also support the analysis and visualization of CMAQ inputs and outputs. Most visualization and analysis software that supports netCDF file formats will work with CMAQ output data. 
 
 <a id=Analysis_Software_Table></a>
 **Table 8-1. Software Programs for Evaluating and Visualizing CMAQ Data**
