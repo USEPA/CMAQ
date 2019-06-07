@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch06_configuring_the_model.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_analysis_tools.md)
+[<< Previous Chapter](CMAQ_UG_ch06_model_configuration_options.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_analysis_tools.md)
 
 <!-- END COMMENT -->
 
@@ -229,7 +229,7 @@ In CMAQ, wet deposition is calculated separately for resolved (grid-scale) cloud
 
 **>>COMMENT<<** Needs content here
 
-[<< Previous Chapter](CMAQ_UG_ch06_configuring_the_model.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_analysis_tools.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch06_model_configuration_options.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_analysis_tools.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
