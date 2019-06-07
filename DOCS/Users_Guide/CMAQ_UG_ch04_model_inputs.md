@@ -7,7 +7,7 @@
 
 # 4. Model Input Files
 
-This chapter provides basic information on the format and content of CMAQ input files.  It also provides information on using the pre-processing tools provided in the repository for preparing inital and boundary conditions and meteorology inputs. A list of CMAQ input files can be found in [Table 4-3](#Input_Table). Some CMAQ input files are in ASCII format while the majority of them are in the [Network Common Data Form (netCDF)] format (http://www.unidata.ucar.edu/software/netcdf). CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
+This chapter provides basic information on the format and content of CMAQ input files.  It also provides information on using the pre-processing tools provided in the repository for preparing inital and boundary conditions and meteorology inputs. A list of CMAQ input files can be found in [Table 4-1](#Input_Table). Some CMAQ input files are in ASCII format while the majority of them are in the [Network Common Data Form (netCDF)] format (http://www.unidata.ucar.edu/software/netcdf). CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
 
 All CMAQ input and output files are conformed to I/O API netCDF file format. Please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html) for details.
 
@@ -78,11 +78,9 @@ In the WRF-CMAQ two-way coupled model, dust model still works since the equivale
 
 CMAQ requires a basic set of input files: initial condition file, which is created by ICON process or previous day output; boundary condition file, which is created by BCON process; emission files; and meteorological data created by MCIP using WRF and terrain data. There are a few other input files are required bases on user chosen run time option. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.
 
-Rather than forcing the programmer and program-user to deal with hard-coded file names or hard-coded unit numbers, the I/O API utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API, environment variables must be used to set the values for the program’s logical file names. A complete list of CMAQ input and output files by logical name is provided in Tables 4-3 and 4-8.
+Rather than forcing the programmer and program-user to deal with hard-coded file names or hard-coded unit numbers, the I/O API utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API, environment variables must be used to set the values for the program’s logical file names. A complete list of CMAQ input by is provided in [Table 4-1](#Input_Table).
 
-**>>COMMENT<<** DW: Where is table 4-8?
-
-This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 4-3](#$Input_Table) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. The user should consult the CMAQ release notes for additional file information. The programs used to generate the files ("Source") are described in Section 2. Typical time step is 1 hour and user can specify a finer one, e.g. 20 minutes. In addition, typical thickness of a boundary file is 1, i.e. NTHIK = 1 but it can be any positive integer.
+This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 4-1](#Input_Table) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. The user should consult the CMAQ release notes for additional file information. The programs used to generate the files ("Source") are described in Section 2. Typical time step is 1 hour and user can specify a finer one, e.g. 20 minutes. In addition, typical thickness of a boundary file is 1, i.e. NTHIK = 1 but it can be any positive integer.
 
 <!-- BEGIN COMMENT -->
 **>> Comment <<** In Table 8.1, some of the potential sources for the files have not been explained elsewhere (e.g., CSV2NML, Spatial Allocator, Cropcal).
@@ -92,12 +90,12 @@ This section describes each of the input files required by the various CMAQ prog
 **>> Comment <<** DS: Should the column header by "Environment Variable Namefor File" or "Logical File Name"?
 
 <a id=Input_Table></a>
-**Table 4-3. CMAQ input files**
+**Table 4-1. CMAQ input files**
 
 |**Environment Variable Name for File**|**Description**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|**Required**|
 |----------------------|---------------------------------------------------------|----------|-----------|----------|----------|---------|
 |**General**| | | | |||
-|[GRIDDESC](#griddesc)||ASCII|n/a|n/a|MCIP|required|
+|[GRIDDESC](#griddesc) <a id=griddesc_t></a>||ASCII|n/a|n/a|MCIP|required|
 |[gc_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>||ASCII|n/a|n/a|CMAQ repo|required|
 |[ae_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>||ASCII|n/a|n/a|CMAQ repo|required|
 |[nr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>||ASCII|n/a|n/a|CMAQ repo|required|
@@ -116,7 +114,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> ||BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
 |**MCIP**| | | | |||
 |[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>|| GRDDED3 | Time-invariant | XY | MCIP|required|
-|[GRID_BDY_2D](#grid_bdy_2D) <a id=grid_bdy_2D_t></a> **>>missing text** || GRDDED3 | Time-invariant | PERIM\*Z | MCIP|required|
+|[GRID_BDY_2D](#grid_bdy_2d) <a id=grid_bdy_2d_t></a> **>>missing text** || GRDDED3 | Time-invariant | PERIM\*Z | MCIP|required|
 |[GRID_DOT_2D](#grid_dot_2d) <a id=grid_dot_2d_t></a>|| GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP|required|
 |[MET_BDY_3D](#met_bdy_3d) <a id=met_bdy_3d_t></a>|| BNDARY3 | Hourly | PERIM\*Z | MCIP|required|
 |[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>|| GRDDED3 | Hourly | XY | MCIP|required|
@@ -145,7 +143,7 @@ This section describes each of the input files required by the various CMAQ prog
 ## General
 <a id=griddesc></a> 
 ### GRIDDESC: Horizontal domain definition
-[Return to Table 4-3](#griddesc_t)
+[Return to Table 4-1](#griddesc_t)
 
 Used by: ICON, BCON, CCTM
 
@@ -172,7 +170,7 @@ The example grid definition section above describes a grid named “M_32_99TUT02
 <a id=matrix_nml></a>
 
 ### {gc|ae|nr|tr}_matrix.nml: Species namelist files
-[Return to Table 4-3](#matrix_nml_t)
+[Return to Table 4-1](#matrix_nml_t)
 
 Used by: BCON, CCTM, ICON, CHEMMECH
 
@@ -195,11 +193,11 @@ Namelist look-up tables for different classes of simulated pollutants are used t
 -   Wet deposition – Write the pollutant to the wet deposition output file?
 -   Concentration – Write the pollutant to the instantaneous concentration output file?
 
-The namelist files contain header information that describe which class of species are contained in the file, the number of parameters contained in the file, headers describing the parameter fields, and then a series of rows with configuration parameters for every model species. [Table 4-4](#Table4-4) contains the namelist file format for the gas-phase (GC) species namelist file. The namelist files for the other species classifications (AE, NR, TR) are similar to the format shown in [Table 4-4](#Table4-4).
+The namelist files contain header information that describe which class of species are contained in the file, the number of parameters contained in the file, headers describing the parameter fields, and then a series of rows with configuration parameters for every model species. [Table 4-2](#Table4-2) contains the namelist file format for the gas-phase (GC) species namelist file. The namelist files for the other species classifications (AE, NR, TR) are similar to the format shown in [Table 4-2](#Table4-2).
 
-<a id=Table4-4></a>
+<a id=Table4-2></a>
 
-**Table 4-4. GC species namelist file format**
+**Table 4-2. GC species namelist file format**
 
 | **Line**| **Column** |**Name** | **Type**| **Description** |**Options for Syntax**:|
 |-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
@@ -224,13 +222,13 @@ The namelist files contain header information that describe which class of speci
 
 
 
-The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 4-4](#Table4-4). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
+The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 4-2](#Table4-2). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
 
 ## Initial Condition Inputs
 <a id=init_conc_1></a>
 
 ### INIT_CONC_1: Initial conditions
-[Return to Table 4-3](#init_conc_1_t)
+[Return to Table 4-1](#init_conc_1_t)
 
 Used by: CCTM
 
@@ -240,7 +238,7 @@ The initial concentrations of each species being modeled must be input to CMAQ. 
 <a id=bndy_conc_1></a>
 
 ### BNDY_CONC_1: Boundary conditions
-[Return to Table 4-3](#bndy_conc_1_t)
+[Return to Table 4-1](#bndy_conc_1_t)
 
 Used by: CCTM
 
@@ -252,7 +250,7 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 <a id=grid_cro_2d></a>
 
 ### GRID_CRO_2D: Two-dimensional grid cross-point fields
-[Return to Table 4-3](#grid_cro_2d_t)
+[Return to Table 4-1](#grid_cro_2d_t)
 
 Used by: CCTM
 
@@ -260,7 +258,7 @@ The GRID_CRO_2D time-independent file contains surface fields at cross points (i
 
 ** >> Comment <<** [Comment covers the next three pages in the document, pp 150-153 in the full OGD]: The MCIP variable lists are VERY outdated.
 
-**Table 4-X**
+**Table 4-3**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
@@ -279,18 +277,18 @@ The GRID_CRO_2D time-independent file contains surface fields at cross points (i
 <a id=grid_bdy_2d></a>
 
 ### GRID_BDY_2D
-[Return to Table 4-3](#grid_bdy_2d_t)
+[Return to Table 4-1](#grid_bdy_2d_t)
 
 <a id=grid_dot_2d></a>
 
 ### GRID_DOT_2D: Two-dimensional grid dot-point fields
-[Return to Table 4-3](#grid_dot_2d_t)
+[Return to Table 4-1](#grid_dot_2d_t)
 
 Used by: CCTM
 
 The GRID_DOT_2D time-independent file contains surface fields at dot points (i.e., at cell corners). It is created by MCIP and used by CCTM. The following variables are in the GRID_DOT_2D file:
 
-**Table 4-X**
+**Table 4-4**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
@@ -302,13 +300,13 @@ The GRID_DOT_2D time-independent file contains surface fields at dot points (i.e
 <a id=met_bdy_3d></a>
 
 ### MET_BDY_3D: Three-dimensional meteorological boundary input
-[Return to Table 4-3](#met_bdy_3d_t)
+[Return to Table 4-1](#met_bdy_3d_t)
 
 Used by: CCTM
 
 The MET_BDY_3D time-dependent file contains 3-D meteorological descriptions at the lateral boundaries (on cross points). It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_BDY_3D file:
 
-**Table 4-X**
+**Table 4-5**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
@@ -332,13 +330,13 @@ The MET_BDY_3D time-dependent file contains 3-D meteorological descriptions at t
 <a id=met_cro_2d></a>
 
 ### MET_CRO_2D: Two-dimensional meteorological cross-point fields
-[Return to Table 4-3](#met_cro_2d_t)
+[Return to Table 4-1](#met_cro_2d_t)
 
 Used by: CCTM
 
 The MET_CRO_2D time-dependent file contains surface and other 2-D meteorological fields at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_CRO_2D file:
 
-**Table 4-X**
+**Table 4-6**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
@@ -381,7 +379,7 @@ The MET_CRO_2D time-dependent file contains surface and other 2-D meteorological
 <a id=met_cro_3d></a>
 
 ### MET_CRO_3D: Three-dimensional meteorological cross-point fields
-[Return to Table 4-3](#met_cro_3d_t)
+[Return to Table 4-1](#met_cro_3d_t)
 
 Used by: CCTM, ICON, BCON
 
@@ -390,13 +388,13 @@ The MET_CRO_3D time-dependent file contains 3-D meteorological descriptions at c
 <a id=met_dot_3d></a>
 
 ### MET_DOT_3D: Three-dimensional meteorological dot-point fields
-[Return to Table 4-3](#met_dot_3d_t)
+[Return to Table 4-1](#met_dot_3d_t)
 
 Used by: CCTM
 
 The MET_DOT_3D time-dependent file contains 3-D meteorological descriptions at dot points (i.e., at cell corners) and at cell faces. It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_DOT_3D file:
 
-**Table 4-X**
+**Table 4-7**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
@@ -409,7 +407,7 @@ The MET_DOT_3D time-dependent file contains 3-D meteorological descriptions at d
 <a id=emis_xxx></a>
 
 ### EMIS_XXX: Emissions
-[Return to Table 4-3](#emis_xxx_t)
+[Return to Table 4-1](#emis_xxx_t)
 
 Used by: CCTM
 
@@ -424,7 +422,7 @@ Starting in CMAQv5.3, users can run with as many gridded emission files as desir
 <a id=stk_grps></a>
 
 ### STK_GRPS_XXX: Stack groups
-[Return to Table 4-3](#stk_grps_t)
+[Return to Table 4-1](#stk_grps_t)
 
 Used by: CCTM – in-line emissions version only
 
@@ -435,7 +433,7 @@ The stack groups file is an IOAPI file containing stack parameters for elevated 
 <a id=stk_emis></a>
 
 ### STK_EMIS_XXX: Point source emissions
-[Return to Table 4-3](#stk_emis_t)
+[Return to Table 4-1](#stk_emis_t)
 
 Used by: CCTM – inline emissions version only
 
@@ -446,15 +444,14 @@ The elevated-point-source emissions file is an IOAPI GRDDED3 file with emissions
 <a id=nldn_strikes></a>
 
 ### NLDN_STRIKES: Hourly observed lightning strikes
-[Return to Table 4-3](#nldn_strikes_t)
+[Return to Table 4-1](#nldn_strikes_t)
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The NLDN lightning strikes file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
-**>> Comment <<** DW: What some of the table have the same name, Table 4-X? 
 
- **Table 4-X**
+ **Table 4-8**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
  |--------|-------------------|--------------|-----------|
@@ -463,13 +460,13 @@ The NLDN lightning strikes file is used for calculating in-line NO emissions fro
 <a id=ltngparm_file></a>
 
 ### LTNGPARMS_FILE: Lightning parameters file
-[Return to Table 4-3](#ltngparm_file_t)
+[Return to Table 4-1](#ltngparm_file_t)
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The lightning parameters file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
-**Table 4-X**
+**Table 4-9**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
@@ -484,7 +481,7 @@ The lightning parameters file is used for calculating in-line NO emissions from 
 ## Biogenic and Land Surface Inputs
 <a id=ocean_1></a>
 ### OCEAN_1: Sea salt mask
-[Return to Table 4-3](#ocean_1_t)
+[Return to Table 4-1](#ocean_1_t)
 
 Used by: CCTM
 
@@ -494,7 +491,7 @@ The CMAQ aerosol models AERO5 and AERO6 can compute sea salt emissions from both
 
 <a id=gspro></a>
 ### GSPRO: Speciation profiles
-[Return to Table 4-3](#gspro_t)
+[Return to Table 4-1](#gspro_t)
 
 Used by: CCTM – inline emissions version only
 
@@ -502,7 +499,7 @@ The speciation profile file, GSPRO, contains the factors that are used to separa
 
 <a id=b3grd></a>
 ### B3GRD: Gridded, normalized biogenic emissions
-[Return to Table 4-3](#b3grd_t)
+[Return to Table 4-1](#b3grd_t)
 
 Used by: CCTM – inline-emissions version only
 
@@ -510,7 +507,7 @@ An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of c
 
 <a id=bioseason></a>
 ### BIOSEASON: Freeze dates
-[Return to Table 4-3](#bioseason_t)
+[Return to Table 4-1](#bioseason_t)
 
 Used by: CCTM – inline-emissions version only
 
@@ -518,7 +515,7 @@ The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biog
 
 <a id=beld4_lu></a>
 ### BELD4_LU – Fractional crop distributions
-[Return to Table 4-3](#beld4_lu_t)
+[Return to Table 4-1](#beld4_lu_t)
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
@@ -527,13 +524,13 @@ BELD4 land use file with fractional crop distributions gridded to the modeling d
 
 <a id="e2c_soil"></a>
 ### E2C_SOIL – EPIC soil properties
-[Return to Table 4-3](#e2c_soil_t)
+[Return to Table 4-1](#e2c_soil_t)
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 This 3-D file is created by the EPIC model via the FEST-C interface and contains soil properties for Layer 1 (0 to 1 cm depth) and Layer 2 (1 cm to 100 cm depth) for each crop and soil combination in each grid cell. Additional information on the EPIC model and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. The following variables are in this file:
 
-**Table 4-X**
+**Table 4-10**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
@@ -553,13 +550,13 @@ This 3-D file is created by the EPIC model via the FEST-C interface and contains
 
 <a id="e2c_fert"></a>
 ### E2C_FERT – EPIC crop types and fertilizer application
-[Return to Table 4-3](#e2c_fert_t)
+[Return to Table 4-1](#e2c_fert_t)
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 This is a 3-D daily file created by the EPIC model via the FEST-C interface and contains information on fertilizer application rate and depth for each crop and soil combination in each grid cell. Additional information on the EPIC model and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. The file contains many more variables than are used by CMAQ. The following variables are in this file:
 
-**Table 4-X**
+**Table 4-11**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
@@ -624,7 +621,7 @@ This is a 3-D daily file created by the EPIC model via the FEST-C interface and 
 ## Photolysis
 <a id=jtable></a>
 ### JTABLE: Photolysis rates look-up table
-[Return to Table 4-3](#jtable_t)
+[Return to Table 4-1](#jtable_t)
 
 Used by: CCTM
 
@@ -634,7 +631,7 @@ Each of the gas-phase mechanisms in CMAQ contains photolysis reactions that requ
 
 <a id=omi></a>
 ### OMI: Ozone Monitoring Instrument Column Data
-[Return to Table 4-3](#omi_t)
+[Return to Table 4-1](#omi_t)
 
 Used by: CCTM
 
@@ -644,7 +641,7 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 
 **>> Comment <<** DW: For the OMI part, please ask Bill to double check. He might have update with respect to data year as well as data resolution.
 
-**Table 4-X. OMI data format**
+**Table 4-12. OMI data format**
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
 |-----|-----|------|-----|-----------------------------------|
