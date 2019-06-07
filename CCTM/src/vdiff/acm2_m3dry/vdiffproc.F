@@ -364,9 +364,9 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
 
       DO R = 1, NROWS
          DO C = 1, NCOLS
-            FCMSF = Grid_Data%RMSFX4( C,R )
+!            FCMSF = Grid_Data%RMSFX4( C,R )
             DO L = 1, NLAYS
-               SEDDY( L,C,R ) = FCMSF * EDDYV( C,R,L )
+               SEDDY( L,C,R ) = EDDYV( C,R,L )
             END DO
          END DO
       END DO
