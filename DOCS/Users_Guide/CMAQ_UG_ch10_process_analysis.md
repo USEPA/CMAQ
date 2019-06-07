@@ -83,7 +83,7 @@ A user-specified name, PANcyc, can be used in place of PAN in further operations
 
 This will store the net throughput of the reaction labeled CL28 minus reaction labeled CL30 (i.e. in CMAQ-CB6, the net production of species CLNO3) in a user-specified variable named CLNO3cyc.
 
-**Table 1:  parameters used in PACM_INFILE**
+**Table 10-1. Parameters used in PACM_INFILE**
 
 |**First string**| **Second string** |**Third string**|**Remainder of line**|
 |:-------------|:----------------------------|:-----|:-----------------------------|
@@ -106,7 +106,7 @@ all chemistry processes, the net dry deposition, the net change in concentration
 processes, and total transport.  If the species is a family name instead of a species name, the outputs
 will be calculated for the sum of each species in the family.
 
-**Table 2:  Allowable parameters for Process outputs**
+**Table 10-2. Allowable parameters for Process outputs**
 
 |**LPROC**|**process**| **Description**|
 |:-------|:-----|:---------|
@@ -140,7 +140,7 @@ IRR_OUTPUT NewClrad = 2.0*<CL1\> + <CL2\> + <CL8\> + <CL25\>
 Would sum the throughput of reactions labeled CL2, CL8, and CL25 and 2 times the throughput of reaction labeled CL1. The sum for each time step and each grid would be in the variable NewCLrad defined by the user.
 
 
-**Table 3:  Allowable operators for Integrated Reaction Rate outputs**
+**Table 10-3. Allowable operators for Integrated Reaction Rate outputs**
 
 |**Operator**          | **Description**|
 |:------|:----|
@@ -184,7 +184,7 @@ In this case, we have summed up all throughput over the first 15 levels of the m
 
 ![Figure 10-2:  Relative contribution of HNO3 formation pathways](./images/HNO3_formation_pbl_pie.png)
 
-Figure 10-2.  Relative contribution of HNO3 formmation pathways at three grid locations
+**Figure 10-2.  Relative contribution of HNO3 formmation pathways at three grid locations**
 
 ## References
 
