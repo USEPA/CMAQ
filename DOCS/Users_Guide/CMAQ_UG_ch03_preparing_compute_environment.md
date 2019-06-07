@@ -43,11 +43,11 @@ Users can download the MPI library source code from one of these sites and follo
 
 ## 3.2.2 netCDF library
 
-Most of the CMAQ input files (the rest are in ASCII format) and all output files are in netCDF format. Hence netCDF library is an essential component of the CMAQ model. Source code of the library is avaialbe at http://www.unidata.ucar.edu/software/netcdf/ and user should follow the instructions for proper installation. We recommend to install netCDF libray without **netCDF4** and **HDF5** support. In order to do so, user should provide appropriate flags, such as --disable-netcdf-4, at the configure stage.
+Most of the CMAQ input files (the rest are in ASCII format) and all output files are in netCDF format. Hence netCDF library is an essential component of the CMAQ model. The netCDF library is avaialbe for download at http://www.unidata.ucar.edu/software/netcdf/ and users should follow the instructions for proper installation. It is recommended to install classic netCDF libraries without **netCDF4** and **HDF5** support. In order to do so, users should provide the appropriate flags, such as --disable-netcdf-4 and --disable-dap, at the configure stage.
 
 ## 3.2.3 IOAPI library
 
-The IOAPI library provides interface to handle input and output (I/O) functions throughout the CMAQ code. We recommend to download IOAPI 3.2 library which is used in stand alone CMAQ, WRF-CMAQ two-way coupled model, and CMAQ code with parallel I/O feature (a slightly different library is used, see explanation below). Download the latest version of IOAPI 3.2 source code from the CMAS Center.
+The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The lastest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32.
 
 **COMMENT we have test the latest IOAPI 3.2 and it failed with parallel I/O function turns on in CMAQ
 
@@ -69,6 +69,39 @@ step 10: comment out all openMP options and remove -Bstatic flag in ioapi/Makein
 step 11: make configure
 step 12: make
 
+The I/O API library is used for the input/output data in CMAQ.
+
+Download the I/O API source code from the CMAS Center and put the gzipped tarball on your Linux system. The general steps for installation on a Linux system (with C-shell, GCC and GFortran) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
+
+```
+### Set up your Linux system environment
+setenv BIN Linux2_x86_64gfort
+
+## Install I/O API
+tar xvzf ioapi-3.2.tar.gz
+cp Makefile.template Makefile
+```
+Edit the Makefile with the following steps:
+
+1. comment out the line with BIN ="
+2. add explicit netCDF libray path in front of -lnetcdf -lnetcdff, the following is an example.
+
+```
+NCFLIBS = -L/usr/local/apps/netcdf-4.4.1/intel-17.0/lib -lnetcdf -lnetcdff
+```
+
+Also you need to edit ioapi/Makeinclude.${BIN} to comment out openmp option. Here is an example with Linux2_x86_64gfort:
+
+```
+OMPFLAGS = # -fopenmp OMPLIBS = # -fopenmp
+```
+
+If you are using ifort compiler, you need to remove -Bstatic in ioapi/Makeinclude.Linux2_x86_64ifort as well.
+
+```
+make configure
+make
+```
 ## 3.3 Optional Software
 
 **Table 3‑2. Optional support software for CMAQ**
