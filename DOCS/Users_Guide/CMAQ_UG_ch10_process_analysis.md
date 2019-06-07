@@ -168,7 +168,7 @@ We have summed the throughputs over 2 weeks (July 1-14, 2011), within the first 
 
 ![Figure 10-1: Relative contribution of oxidation pathways for VOCs](./images/bars_VOC_fate.png)
 
-Figure 10-1.  Relative contribution of oxidation pathways for VOCs using Process Analysis
+**Figure 10-1.  Relative contribution of oxidation pathways for VOCs using Process Analysis**
 
 **Example 2: Quantify the major contributors to the production of HNO3**.  In this example, we develop output variables to represent the total production of HNO3 in CMAQ-CB6 and the individual reactions which contribute to this total production:
 
