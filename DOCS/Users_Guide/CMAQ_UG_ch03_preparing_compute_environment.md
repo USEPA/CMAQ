@@ -14,7 +14,7 @@ In this chapter the user will learn basic hardware and software requirements to 
 The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
 
 -   8 processors
--   16 GB RAM
+-   4 GB RAM
 -   400 GB hard drive storage
 
 However, to use CMAQ in a production environment where multiple iterations of the model will be executed for different spatial domains and/or emissions control strategies, either a cluster of multiprocessor PCs on a high-end network or an expandable rack-mounted Linux server is recommended.
@@ -23,13 +23,15 @@ For example, the CMAQ team at the EPA uses a Dell cluster. The cluster consists 
 
 Table 3-1 provides a general snapshot of three different CMAQ setups for a day of simulation conducted at the EPA. The output only included: the concentration file (CONC), the average concentration file (ACONC), 3-D average concetration file (CGRID), hourly dry deposition file (DRYDEP), and wet deposition from the clouds file (WETDEP1). The run time and domain size are dictated by the system hardware. Furthermore, the run time may vary due to compiler choice and system load.
 
-**Table 3‑1. Example of job scenarios at EPA**
+**Table 3‑1. Example of job scenarios at EPA for a single day simulation**
 
-|**Domain**|**Domain size**|**Species Tracked**| **Total output files size** | **Run time (# cores)**  | 
-|:------------:|:-----:|:---:|:-------:|:--:|
-| Conus | 459 X 299 X 35 | 219 | 107GB | 2963.8s (128) |
-| South-East | 100 X 80 X 35| 218 | 6.3GB | 493.9s (32) |
-| Hemispheric | 187 X 187 X 44 | 255 | 40GB | 1518.1s (128) |
+|**Domain**|**Domain size**|**Species Tracked**|**Input files size**|**Output files size^**| **Run time (# cores)**  | 
+|:------------:|:-----:|:---:|:-------:|:-------:|:--:|
+| Southeast US | 100 X 80 X 35| 218 |6.7GB |6.3GB |8 min/day (32) or 47 min/day (4) |
+| Conus | 459 X 299 X 35 | 219 |18GB| 107GB | 50 min/day (128) or 90 min/day (32) |
+| N. Hemisphere | 187 X 187 X 44 | 255 |15GB| 40GB | 25 min/day (128) |
+
+^Note that the size of the output files can vary drastically depending on what model variables and diagnostic information a user chooses to save to output files. 
 
 ## 3.2 Software Requirements
 
