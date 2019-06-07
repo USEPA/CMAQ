@@ -43,11 +43,11 @@ Users can download the MPI library source code from one of these sites and follo
 
 ## 3.2.2 netCDF library
 
-Most of the CMAQ input files (the rest are in ASCII format) and all output files are in netCDF format. Hence netCDF library is an essential component of the CMAQ model. The netCDF library is avaialbe for download at http://www.unidata.ucar.edu/software/netcdf/ and users should follow the instructions for proper installation. It is recommended to install classic netCDF libraries without **netCDF4** and **HDF5** support. In order to do so, users should provide the appropriate flags, such as --disable-netcdf-4 and --disable-dap, at the configure stage.
+Most of the CMAQ input files (the rest are in ASCII format) and all output files are in netCDF format. Hence netCDF library is an essential component of the CMAQ model. The netCDF library is avaialbe for download at http://www.unidata.ucar.edu/software/netcdf/ and users should follow the instructions for proper installation. Users should install classic netCDF C and Fortran libraries without **netCDF4** and **HDF5** support. In order to do so, users should provide the appropriate flags, such as --disable-netcdf-4 and --disable-dap, at the configure stage.
 
 ## 3.2.3 IOAPI library
 
-The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The lastest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32.
+The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The lastest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32. Users should note that the IOAPI library requires netCDF files to be adhere to a strict formatting guideline 
 
 **COMMENT we have test the latest IOAPI 3.2 and it failed with parallel I/O function turns on in CMAQ
 
