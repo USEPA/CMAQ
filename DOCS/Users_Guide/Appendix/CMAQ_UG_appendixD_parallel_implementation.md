@@ -13,7 +13,7 @@ There are a few approaches to parallelize an application, such as data-paralleli
 
 CMAQ model operates on a 4D space (ncols, nrows, nlays, nspcs) and only the spatial domain is decomposed. When NPROCS number of processors is used to run CMAQ, NPCOL number of process out from NPROCS processors is assigned to the column dimension and the remaining NPROW number of processors is assigned to the row dimension (NPROCS = NPCOL x NPROW). In the case that the column dimension is not divisible by NPCOL, the remainder is distributed equally to NPCOL processors. The same thing applies to the row dimension. For example (illustrated in Figure D-1), given a 100 by 75 (column x row) data grid and six processors with three processors along the column dimension and two processors along the row dimension, the subdomain size in each processor (NCOLS x NROWS): PE 0 is 34 x 38, PE 1 and PE 2 are 33 x 38, PE 3 is 34 x 37, PE 4 and PE 5 are 33 x 37.
 
-![Figure D-1](./images/FigureD-1.png)
+![Figure D-1](../images/FigureD-1.png)
 
 **Figure D-1 Domain decomposition illustration.**
 
@@ -21,7 +21,7 @@ CMAQ model operates on a 4D space (ncols, nrows, nlays, nspcs) and only the spat
 
 In some science processes such as advection, a processor requires data from neighboring processors (interprocessor communication) when the model runs on a distributed memory system. An interprocessor communication library, STENEX, was developed to provide simple and robust interface to handle various kinds of near neighbor communication. Near neighbor is defined as processors which are adjacent to itself (blue block) in the eight major geographical directions: N, NE, E, SE. S, SW, W, and NW (Fig. D-2).
 
-![Figure D-2](./images/FigureD-2.png)
+![Figure D-2](../images/FigureD-2.png)
 
 **Figure D-2 A depiction of near neighbour processors.**
 
@@ -35,7 +35,7 @@ As an illustration of interprocessor data access (Fig. D-3), consider the follow
     END DO</br>
  END DO
 
- ![Figure D-3](./images/FigureD-3.png)
+ ![Figure D-3](../images/FigureD-3.png)
 
  **Figure D-3 An example to show interprocessor data acess is needed.**
 
@@ -45,23 +45,23 @@ As an illustration of interprocessor data access (Fig. D-3), consider the follow
 
  * interior to ghost region, which is indicated in light blue in Figure D-4. This particular type of communication is being used in various places such as HADV and HDIFF.
 
-![Figure D-4](./images/FigureD-4.png)
+![Figure D-4](../images/FigureD-4.png)
 
 **Figure D-4 Interior to ghost region communication**
 
 * sub-section data redistribution (Fig. D-5). This particular type of communication is being used in Process Analysis.
 
-![Figure D-6](./images/FigureD-6.png)
+![Figure D-6](../images/FigureD-6.png)
 
 **Figure D-5 Sub-section data redistribution communication**
 
 * The last two type of communication are interior to interior (Fig. D-6) and selective data collection (Fig. D-7) which both were used in PinG and PinG was no longer supported in CMAQ.
 
-![Figure D-5](./images/FigureD-5.png)
+![Figure D-5](../images/FigureD-5.png)
 
 **Figure D-6 Interior to interior communication**
 
-![Figure D-7](./images/FigureD-7.png)
+![Figure D-7](../images/FigureD-7.png)
 
 **Figure D-7 Selective data collection**
 
@@ -71,13 +71,13 @@ All I/O operations in CMAQ are handled by IOAPI_3 library. Furthermore, IOAPI_3 
 
 On the output side, all processors are required to send their portion of data to processor 0, which will stitch each sub-part and then output it to the file (Fig. D-8). This is considered a “pseudo” parallel I/O approach and this approach is being using in PARIO.
 
-![Figure D-8](./images/FigureD-8.png)
+![Figure D-8](../images/FigureD-8.png)
 
 **Figure D-8 Combine all sub-domain data from each processor in an I/O processor**
 
 Recently we have developed a true parallel I/O approach (Fig. D-9), which allows each processor to write their portion to the file simultaneously (Wong et. al.).
 
-![Figure D-9](./images/FigureD-9.png)
+![Figure D-9](../images/FigureD-9.png)
 
 **Figure D-9 True paralell I/O approach**
 
