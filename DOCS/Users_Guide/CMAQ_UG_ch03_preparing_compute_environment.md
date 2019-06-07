@@ -26,9 +26,9 @@ Table 3-1 provides a general snapshot of three different CMAQ setups for a day o
 **Table 3‑1. Example of job scenarios at EPA for a single day simulation**
 
 |**Domain**|**Domain size**|**Species Tracked**|**Input files size**|**Output files size^**| **Run time (# cores)**  | 
-|:------------:|:-----:|:---:|:-------:|:-------:|:--:|
-| Southeast US | 100 X 80 X 35| 218 |6.7GB |6.3GB |8 min/day (32) or 47 min/day (4) |
-| Conus | 459 X 299 X 35 | 219 |18GB| 107GB | 50 min/day (128) or 90 min/day (32) |
+|:--------------:|:----:|:-:|:-:|:-:|:--------:|
+| Southeast US | 100 X 80 X 35| 218 |6.7GB |6.3GB |8 min/day (32); 47 min/day (4) |
+| CONUS | 459 X 299 X 35 | 219 |18GB| 107GB | 50 min/day (128); 90 min/day (32) |
 | N. Hemisphere | 187 X 187 X 44 | 255 |15GB| 40GB | 25 min/day (128) |
 
 ^Note that the size of the output files can vary drastically depending on what model variables and diagnostic information a user chooses to save to output files. 
