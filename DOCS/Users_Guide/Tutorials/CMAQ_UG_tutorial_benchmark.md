@@ -26,7 +26,7 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 3. 400 GB hard drive storage
 
 8 processors
-16 GB RAM
+8 GB RAM
 400 GB hard drive storage
 
 ## Install CMAQ and Required Libraries 
