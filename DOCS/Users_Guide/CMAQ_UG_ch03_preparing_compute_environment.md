@@ -47,61 +47,67 @@ Most of the CMAQ input files (the rest are in ASCII format) and all output files
 
 ## 3.2.3 IOAPI library
 
-The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The lastest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32. Users should note that the IOAPI library requires netCDF files to be adhere to a strict formatting guideline 
+The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The lastest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32. Users should note that the IOAPI library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the IOAPI documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on.
 
 **COMMENT we have test the latest IOAPI 3.2 and it failed with parallel I/O function turns on in CMAQ
 
-Procedure to install "basic" IOAPI library (this is based on ifort compiler, for other compiler, look for corresponding Linux2_x86_64*):
+The general steps for installation of IOAPI libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
-step 1: mkdir ioapi_3.2
-step 2: untar the downloaded source code inside ioapi_3.2 directory, tar xfz io*gz
-step 3: setenv BIN Linux2_x86_64gfort
-step 4: comment out the line with BASEDIR and make sure nocpl option is used
-step 5: setenv BASEDIR $PWD
-step 6: comment out all openMP options and remove -Bstatic flag in ioapi/Makeinclude.Linux2_x86_64gfort
-step 7: make configure
-step 8: make
-
-Procedure to install "mpi" IOAPI library which is for CMAQ model with parallel I/O feature (this is a continuation from the above steps):
-
-step 9: setenv BIN Linux2_x86_64gfortmpi
-step 10: comment out all openMP options and remove -Bstatic flag in ioapi/Makeinclude.Linux2_x86_64gfortmpi
-step 11: make configure
-step 12: make
-
-The I/O API library is used for the input/output data in CMAQ.
-
-Download the I/O API source code from the CMAS Center and put the gzipped tarball on your Linux system. The general steps for installation on a Linux system (with C-shell, GCC and GFortran) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
+The following is a procedure to install "basic" IOAPI libraries (this is based on gfortran compiler, for other compilers, look for corresponding Linux2_x86_64*):
 
 ```
+mkdir ioapi_3.2
+cd IOAPI_3.2
+
+## Download IOAPI Libraries and untar downloaded source code in this directory
+tar xvzf ioapi-3.2.tar.gz 
+
 ### Set up your Linux system environment
 setenv BIN Linux2_x86_64gfort
-
-## Install I/O API
-tar xvzf ioapi-3.2.tar.gz
-cp Makefile.template Makefile
 ```
-Edit the Makefile with the following steps:
+
+Edit the top level Makefile with the following steps:
 
 1. comment out the line with BIN ="
-2. add explicit netCDF libray path in front of -lnetcdf -lnetcdff, the following is an example.
+2. Add explicit netCDF C and Fotran libray paths in front of -lnetcdf -lnetcdff, respectively , the following is an example:
 
 ```
-NCFLIBS = -L/usr/local/apps/netcdf-4.4.1/intel-17.0/lib -lnetcdf -lnetcdff
+NCFLIBS = -L/usr/local/apps/netcdf-c-4.7.0/gcc-9.1.0/lib -lnetcdf -L/usr/local/apps/netcdf-fortran-4.4.5/gcc-9.1.0/lib -lnetcdff
 ```
 
-Also you need to edit ioapi/Makeinclude.${BIN} to comment out openmp option. Here is an example with Linux2_x86_64gfort:
+Edit the file in the ioapi folder called Makeinclude.Linux2_x86_64gfort to comment out all openMP options as CMAQ does not support openMP. Note: If users are using the ifort compiler you also need to remove -Bstatic flag within the ioapi/Makeinclude.Linux2_x86_64ifort file as well.
 
 ```
-OMPFLAGS = # -fopenmp OMPLIBS = # -fopenmp
+OMPFLAGS = # -fopenmp 
+OMPLIBS = # -fopenmp
 ```
 
-If you are using ifort compiler, you need to remove -Bstatic in ioapi/Makeinclude.Linux2_x86_64ifort as well.
+In the top level IOAPI_3.2 directory run: 
 
 ```
 make configure
 make
 ```
+
+Other IOAPI library configuration options are available and users can see a list of these options within the IOAPI documentation. For example, IOAPI can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" IOAPI libraries. More information about how to enable PIO within CMAQ can be found in [Appendix D](../Appendix/CMAQ_UG_appendixD_parallel_implementation.md). The procedure to install "mpi" IOAPI libraries is shown below (this is a continuation from the above steps): 
+
+```
+setenv BIN Linux2_x86_64gfortmpi
+```
+
+Edit the file in the ioapi folder called Makeinclude.Linux2_x86_64gfortmpi to comment out all openMP options as CMAQ does not support openMP. Note: If users are using the ifort compiler you also need to remove -Bstatic flag within the ioapi/Makeinclude.Linux2_x86_64ifortmpi file as well.
+
+```
+OMPFLAGS = # -fopenmp 
+OMPLIBS = # -fopenmp
+```
+
+In the top level IOAPI_3.2 directory run: 
+```
+make configure
+make
+```
+
 ## 3.3 Optional Software
 
 **Table 3‑2. Optional support software for CMAQ**
