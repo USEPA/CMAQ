@@ -23,13 +23,13 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3_AE7_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Apr  3, 2019
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -146,7 +146,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 130
+      N_EBISP  = 134
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -262,27 +262,31 @@ c..Allocate and define ebi species
       EBISP( 107 ) = AOLGBJ
       EBISP( 108 ) = AISO2J
       EBISP( 109 ) = ASQTJ
-      EBISP( 110 ) = PCVOC
-      EBISP( 111 ) = PCSOARXN
-      EBISP( 112 ) = VLVPO1
-      EBISP( 113 ) = VSVPO1
-      EBISP( 114 ) = VSVPO2
-      EBISP( 115 ) = VSVPO3
-      EBISP( 116 ) = VIVPO1
-      EBISP( 117 ) = VLVOO1
-      EBISP( 118 ) = VLVOO2
-      EBISP( 119 ) = VSVOO2
-      EBISP( 120 ) = VSVOO3
-      EBISP( 121 ) = VSVOO1
-      EBISP( 122 ) = FORM_PRIMARY
-      EBISP( 123 ) = ALD2_PRIMARY
-      EBISP( 124 ) = BUTADIENE13
-      EBISP( 125 ) = ACROLEIN
-      EBISP( 126 ) = ACRO_PRIMARY
-      EBISP( 127 ) = TOLU
-      EBISP( 128 ) = HG
-      EBISP( 129 ) = HGIIAER
-      EBISP( 130 ) = HGIIGAS
+      EBISP( 110 ) = APOCI
+      EBISP( 111 ) = APNCOMI
+      EBISP( 112 ) = APOCJ
+      EBISP( 113 ) = APNCOMJ
+      EBISP( 114 ) = PCVOC
+      EBISP( 115 ) = PCSOARXN
+      EBISP( 116 ) = VLVPO1
+      EBISP( 117 ) = VSVPO1
+      EBISP( 118 ) = VSVPO2
+      EBISP( 119 ) = VSVPO3
+      EBISP( 120 ) = VIVPO1
+      EBISP( 121 ) = VLVOO1
+      EBISP( 122 ) = VLVOO2
+      EBISP( 123 ) = VSVOO2
+      EBISP( 124 ) = VSVOO3
+      EBISP( 125 ) = VSVOO1
+      EBISP( 126 ) = FORM_PRIMARY
+      EBISP( 127 ) = ALD2_PRIMARY
+      EBISP( 128 ) = BUTADIENE13
+      EBISP( 129 ) = ACROLEIN
+      EBISP( 130 ) = ACRO_PRIMARY
+      EBISP( 131 ) = TOLU
+      EBISP( 132 ) = HG
+      EBISP( 133 ) = HGIIAER
+      EBISP( 134 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -410,6 +414,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( AOLGBJ       ) = 5.0D-04
       RTOL( AISO2J       ) = 5.0D-04
       RTOL( ASQTJ        ) = 5.0D-04
+      RTOL( APOCI        ) = 5.0D-04
+      RTOL( APNCOMI      ) = 5.0D-04
+      RTOL( APOCJ        ) = 5.0D-04
+      RTOL( APNCOMJ      ) = 5.0D-04
       RTOL( PCVOC        ) = 5.0D-04
       RTOL( PCSOARXN     ) = 5.0D-04
       RTOL( VLVPO1       ) = 5.0D-04
