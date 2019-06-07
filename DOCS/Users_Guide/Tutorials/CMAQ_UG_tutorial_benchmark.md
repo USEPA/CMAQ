@@ -19,11 +19,15 @@ The following support software are required for compiling and running CMAQ.
 4. [netCDF](http://www.unidata.ucar.edu/software/netcdf)
 5. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
 
-The minimum hardware required for compiling and running CMAQ for the benchmark case are:
+The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
 
-1. Linux environment with a single processor
-2. 1 GB RAM
-3. 100 GB hard drive storage
+1. Linux environment with a 8 processors
+2. 16 GB RAM
+3. 400 GB hard drive storage
+
+8 processors
+16 GB RAM
+400 GB hard drive storage
 
 ## Install CMAQ and Required Libraries 
 
