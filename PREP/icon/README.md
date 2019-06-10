@@ -25,6 +25,9 @@ transform their GCM datasets into I/O API format, which would then allow these
 datasets to be input into ICON to generate ICs for the CCTM.
 
 ## Environment variables used:
+**>>Comment<<** Maybe talk about BCON build script variables VRSN and APPL or maybe make the environment variables to reduce errors.
+
+**>>Comment<<** EXE descript: CFG a variable in the BLD script not runscript. EXECID variable name is inconsistent with configure run script. EXEC_ID exists in the configure runscript. 
 
 **Table 1. Runtime Environment Variables**
 
@@ -43,6 +46,8 @@ datasets to be input into ICON to generate ICs for the CCTM.
 |IOAPI_OFFSET_64|YES|I/O API setting for large time-step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.|
 
 ## ICON input files
+
+**>>Comment<<** Tables 2 and 3 have redundant information. BCON only has one table. Only Table 3 seems to be needed.
 
 **Table 2. ICON input files**
 
@@ -69,6 +74,8 @@ datasets to be input into ICON to generate ICs for the CCTM.
 ||MET_CRO_3D_FIN|BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_CRO_3D file|
 
 ## ICON output files
+
+**>>Comment<<** File name needs to be changed to variable name.
 
 **Table 4. ICON output files**
 
