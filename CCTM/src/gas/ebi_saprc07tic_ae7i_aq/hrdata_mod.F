@@ -23,11 +23,11 @@ C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TIC_AE7I_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -301,33 +301,38 @@ c..Species indices
       INTEGER, PARAMETER :: IMAEP            =  195
       INTEGER, PARAMETER :: IHMMLP           =  196
       INTEGER, PARAMETER :: AIETETJ          =  197
-      INTEGER, PARAMETER :: AIEOSJ           =  198
-      INTEGER, PARAMETER :: ADIMJ            =  199
-      INTEGER, PARAMETER :: AIMGAJ           =  200
-      INTEGER, PARAMETER :: AIMOSJ           =  201
-      INTEGER, PARAMETER :: AISO1J           =  202
-      INTEGER, PARAMETER :: AOLGBJ           =  203
-      INTEGER, PARAMETER :: AISO2J           =  204
-      INTEGER, PARAMETER :: ASQTJ            =  205
-      INTEGER, PARAMETER :: AAVB2J           =  206
-      INTEGER, PARAMETER :: AOLGAJ           =  207
-      INTEGER, PARAMETER :: AAVB3J           =  208
-      INTEGER, PARAMETER :: AAVB4J           =  209
-      INTEGER, PARAMETER :: PCVOC            =  210
-      INTEGER, PARAMETER :: PCSOARXN         =  211
-      INTEGER, PARAMETER :: VLVPO1           =  212
-      INTEGER, PARAMETER :: VSVPO1           =  213
-      INTEGER, PARAMETER :: VSVPO2           =  214
-      INTEGER, PARAMETER :: VSVPO3           =  215
-      INTEGER, PARAMETER :: VIVPO1           =  216
-      INTEGER, PARAMETER :: VLVOO1           =  217
-      INTEGER, PARAMETER :: VLVOO2           =  218
-      INTEGER, PARAMETER :: VSVOO2           =  219
-      INTEGER, PARAMETER :: VSVOO3           =  220
-      INTEGER, PARAMETER :: VSVOO1           =  221
-      INTEGER, PARAMETER :: AMTNO3J          =  222
-      INTEGER, PARAMETER :: AMTHYDJ          =  223
-      INTEGER, PARAMETER :: AISOPNNJ         =  224
-      INTEGER, PARAMETER :: AGLYJ            =  225
+      INTEGER, PARAMETER :: ASO4J            =  198
+      INTEGER, PARAMETER :: AIEOSJ           =  199
+      INTEGER, PARAMETER :: ADIMJ            =  200
+      INTEGER, PARAMETER :: AIMGAJ           =  201
+      INTEGER, PARAMETER :: AIMOSJ           =  202
+      INTEGER, PARAMETER :: AISO1J           =  203
+      INTEGER, PARAMETER :: AOLGBJ           =  204
+      INTEGER, PARAMETER :: AISO2J           =  205
+      INTEGER, PARAMETER :: ASQTJ            =  206
+      INTEGER, PARAMETER :: AAVB2J           =  207
+      INTEGER, PARAMETER :: AOLGAJ           =  208
+      INTEGER, PARAMETER :: AAVB3J           =  209
+      INTEGER, PARAMETER :: AAVB4J           =  210
+      INTEGER, PARAMETER :: APOCI            =  211
+      INTEGER, PARAMETER :: APNCOMI          =  212
+      INTEGER, PARAMETER :: APOCJ            =  213
+      INTEGER, PARAMETER :: APNCOMJ          =  214
+      INTEGER, PARAMETER :: PCVOC            =  215
+      INTEGER, PARAMETER :: PCSOARXN         =  216
+      INTEGER, PARAMETER :: VLVPO1           =  217
+      INTEGER, PARAMETER :: VSVPO1           =  218
+      INTEGER, PARAMETER :: VSVPO2           =  219
+      INTEGER, PARAMETER :: VSVPO3           =  220
+      INTEGER, PARAMETER :: VIVPO1           =  221
+      INTEGER, PARAMETER :: VLVOO1           =  222
+      INTEGER, PARAMETER :: VLVOO2           =  223
+      INTEGER, PARAMETER :: VSVOO2           =  224
+      INTEGER, PARAMETER :: VSVOO3           =  225
+      INTEGER, PARAMETER :: VSVOO1           =  226
+      INTEGER, PARAMETER :: AMTNO3J          =  227
+      INTEGER, PARAMETER :: AMTHYDJ          =  228
+      INTEGER, PARAMETER :: AISOPNNJ         =  229
+      INTEGER, PARAMETER :: AGLYJ            =  230
 
       END MODULE HRDATA
