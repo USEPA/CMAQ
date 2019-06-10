@@ -68,6 +68,7 @@ C                             calling INTERPX with MET_CRO_3D_CRS file
 C     21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C     06 Nov 18 S.Roselle: Removed parallel processing code;
 C                          Replaced UTILIO_DEFN with M3UTILIO
+C     10 June 19 F. Sidi : Commented out Integer STATUS because it is unused
                     
 C***********************************************************************
 
@@ -115,7 +116,7 @@ C Local Variables:
       INTEGER L              ! Loop index for vertical layers
       INTEGER MXLEV          ! Largest no. of levels
       INTEGER R, RIN         ! Loop indices for rows
-      INTEGER STATUS         ! Staus code
+!      INTEGER STATUS         ! Staus code
       INTEGER V              ! Loop index for variables
       INTEGER ALLOCSTAT      ! Status returned from array allocation
 

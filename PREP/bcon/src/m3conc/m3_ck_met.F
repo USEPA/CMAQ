@@ -39,6 +39,8 @@ C Key Subroutines/Functions Called: None
 C Revision History: Prototype created by Jerry Gipson, May, 1999
 C    08 Jun 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
+C    10 June 19 F. Sidi: Corrected data byte mismatch between IOAPI and BCON
+C                        & commented out unused variables (LFIRST & N)
 
 C***********************************************************************
       USE M3UTILIO   ! IOAPI module
@@ -66,7 +68,8 @@ C Local Variables:
 
       INTEGER JDATE       ! Current date
       INTEGER JTIME       ! Current time
-      INTEGER N, L        ! Loop indices
+!      INTEGER N
+      INTEGER L        ! Loop indices
       INTEGER FTYPE1      ! File 1 file type
       INTEGER NCOLS1      ! File 1 number of columns
       INTEGER NROWS1      ! File 1 number of rows
@@ -77,18 +80,18 @@ C Local Variables:
       INTEGER ALLOCSTAT ! Status returned from array allocation
 
       LOGICAL LERROR      ! Error Flag
-      LOGICAL LFIRST      ! First time flag
+!      LOGICAL LFIRST      ! First time flag
  
-      REAL    P_ALP1      ! File 1 map projection parameter      
-      REAL    P_BET1      ! File 1 map projection parameter   
-      REAL    P_GAM1      ! File 1 map projection parameter
-      REAL    XORIG1      ! File 1 X-origin
-      REAL    YORIG1      ! File 1 Y-origin
-      REAL    XCELL1      ! File 1 X-dimension of cells
-      REAL    YCELL1      ! File 1 Y-dimension of cells
-      REAL    XCENT1      ! File 1 X-center of coordinate system
-      REAL    YCENT1      ! File 1 Y-center of coordinate system
-      REAL    VGTOP1      ! File 1 model top
+      REAL*8 :: P_ALP1      ! File 1 map projection parameter      
+      REAL*8 :: P_BET1      ! File 1 map projection parameter   
+      REAL*8 :: P_GAM1      ! File 1 map projection parameter
+      REAL*8 :: XORIG1      ! File 1 X-origin
+      REAL*8 :: YORIG1      ! File 1 Y-origin
+      REAL*8 :: XCELL1      ! File 1 X-dimension of cells
+      REAL*8 :: YCELL1      ! File 1 Y-dimension of cells
+      REAL*8 :: XCENT1      ! File 1 X-center of coordinate system
+      REAL*8 :: YCENT1      ! File 1 Y-center of coordinate system
+      REAL      VGTOP1      ! File 1 model top
 
       REAL, ALLOCATABLE :: VGLVS1( : )   ! File vertical layer heights
 

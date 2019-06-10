@@ -52,6 +52,7 @@ C      13 Jul 11 J.Young: Convert for Namelist redesign + UTILIO_DEFN
 C      21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C      02 Nov 18 S.Roselle: Removed species mapping
 C      06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+C      10 June 19 F. Sidi : Corrected data type mismatch between IOAPI and ICON
 
 C***********************************************************************
 
@@ -95,7 +96,6 @@ C Local Variables:
       INTEGER :: NLAYS_IN     ! No. of layers in input conc file
       INTEGER :: NSPCS_IN     ! CTM files species counter
       INTEGER :: VGTYP_IN     ! input conc file VGTYP
-      INTEGER :: VGTOP_IN     ! input conc file VGTOP
       INTEGER :: SDATE_IN     ! input conc file start date
       INTEGER :: STIME_IN     ! input conc file start time
       INTEGER :: EDATE_IN     ! input conc file end date
@@ -107,6 +107,8 @@ C Local Variables:
       INTEGER :: STATUS       ! Status code
       INTEGER :: ALLOCSTAT    ! Status returned from array allocation
       INTEGER :: V            ! Variable loop index
+
+      REAL :: VGTOP_IN     ! input conc file VGTOP
 
       INTERFACE
 

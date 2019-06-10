@@ -55,6 +55,7 @@ C    06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
 C    30 Nov 18 S.Roselle: To provide spatially uniform ICs, target domain 
 C                       average mid-layer heights are used for the vertical
 C                       interpolation
+C    10 June 19 F. Sidi : Commented out INTEGER STATUS because it is unused
                   
 C*************************************************************************
 
@@ -86,7 +87,7 @@ C Local Variables:
       INTEGER L              ! Loop index for vertical layers
       INTEGER N              ! Loop index
       INTEGER C, R           ! Loop indices for col, row
-      INTEGER STATUS         ! Status code
+!      INTEGER STATUS         ! Status code
       INTEGER JDATE          ! Date for first record on CRO file
       INTEGER JTIME          ! Time for first record on CRO file
       INTEGER ALLOCSTAT      ! Status returned from array allocation

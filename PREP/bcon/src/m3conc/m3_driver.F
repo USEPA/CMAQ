@@ -48,6 +48,7 @@ C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO and
 C                       Namelist for species definitions
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
 C    14 Sep 18 S.Roselle: Removed species mapping
+C    10 June 19 F.Sidi  : Corrected data type mismatch between IOAPI and BCON
                     
 C***********************************************************************
 
@@ -92,7 +93,6 @@ C Local Variables:
       INTEGER :: NROWS_IN     ! No. of rows in input conc file
       INTEGER :: NSPCS_IN     ! CTM files species counter
       INTEGER :: VGTYP_IN     ! input conc file VGTYP
-      INTEGER :: VGTOP_IN     ! input conc file VGTOP
       INTEGER :: SDATE_IN     ! input conc file start date
       INTEGER :: STIME_IN     ! input conc file start time
       INTEGER :: EDATE_IN     ! input conc file end date
@@ -111,6 +111,8 @@ C Local Variables:
       INTEGER :: NSTEPS       ! Number time steps in BC output file
       INTEGER :: TSTEP        ! Time step BC output file (HHMMSS)
       INTEGER :: V            ! Variable loop index
+
+      REAL :: VGTOP_IN     ! input conc file VGTOP
 
       INTERFACE
 
