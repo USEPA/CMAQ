@@ -75,6 +75,8 @@ datasets to be input into ICON to generate ICs for the CCTM.
 
 ## ICON output files
 
+**>>Comment<<** File name needs to be changed to variable name.
+
 **Table 4. ICON output files**
 
 |**File Name**|**Format**|**Description**|
