@@ -7,7 +7,7 @@ Purpose: This tutorial describes how to create an ocean mask file that defines t
 
 The CMAQ in-line sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API netCDF file that identifies the fractional coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to estimate sea spray emission fluxes from the model grid cells in-line during a CCTM run.
 
-If your domain includes sources of sea spray emissions, follow OPTION 1. If you would rather bypass the CMAQ sea spray module with a fake OCEAN file, follow OPTION 2.
+If your domain includes sources of sea spray emissions, follow OPTION 1. If your modeling domain does not contain areas of sea spray emissions and you would like to bypass the CMAQ sea spray module, follow OPTION 2 or 3.  
 
 ## OPTION 1: Create OCEAN file from shapefile of domain
 
