@@ -5,9 +5,9 @@ Purpose: This tutorial describes how to create an ocean mask file that defines t
 
 ------------
 
-The CMAQ in-line sea salt emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API netCDF file that identifies the fractional coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to estimate sea salt emission fluxes from the model grid cells in-line during a CCTM run.
+The CMAQ in-line sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API netCDF file that identifies the fractional coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to estimate sea spray emission fluxes from the model grid cells in-line during a CCTM run.
 
-If your domain includes sources of sea salt emissions, follow OPTION 1. If you would rather bypass the CMAQ sea salt module with a fake OCEAN file, follow OPTION 2.
+If your domain includes sources of sea spray emissions, follow OPTION 1. If you would rather bypass the CMAQ sea spray module with a fake OCEAN file, follow OPTION 2.
 
 ## OPTION 1: Create OCEAN file from shapefile of domain
 
@@ -76,7 +76,7 @@ If your modeling domain does not contain any coastal area, you can run CMAQ with
 
 ## OPTION 3: Zero Out Sea-Spray Emissions in CMAQv5.2 or earlier
 
-Even if your modeling domain does not contain areas of sea salt emissions, you need to provide an OCEAN file to the CCTM. You can create a dummy OCEAN file for domains with no sea salt sources or if you prefer to set sea salt emissions to zero. Copy and run the following I/O API Tool m3fake script to create an OCEAN file containing zeros for the open ocean and surf zone coverage fractions. Using this file will effectively configure a CCTM simulation with zero sea salt emissions.  
+Even if your modeling domain does not contain areas of sea spray emissions, you need to provide an OCEAN file to the CCTM. You can create a dummy OCEAN file for domains with no sea spray sources or if you prefer to set sea spray emissions to zero. Copy and run the following I/O API Tool m3fake script to create an OCEAN file containing zeros for the open ocean and surf zone coverage fractions. Using this file will effectively configure a CCTM simulation with zero sea spray emissions.  
 
 Note that you will need the [I/O API Tools](www.cmascenter.org/ioapi) installed and compiled on your Linux system to use this script.
 
