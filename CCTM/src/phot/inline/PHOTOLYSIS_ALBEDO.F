@@ -192,7 +192,7 @@ C...compute start time data and frequency of annual cycle considering leap year
                   END IF
                CASE DEFAULT
                   LAND_SCHEME = 'UNKNOWN'
-                  NUMB_LANDUSE = 2 ! simple land-water suface albedo
+                  NUMB_LANDUSE = 2 ! simple land-water surface albedo
             END SELECT
 
             IF ( NUMB_LANDUSE .NE. 2 ) THEN ! test N_LUFRAC
