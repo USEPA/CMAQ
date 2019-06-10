@@ -166,33 +166,68 @@ The CMAQ modeling system accounts for chemistry in three phases: a gas phase, ae
 Gas-phase chemical mechanisms are defined in CMAQ through Fortran source files. Located in subdirectories of the CCTM/src/MECHS directory (each corresponding to a mechanism name), these files define the source, reaction parameters, and atmospheric processes (e.g., diffusion, deposition, advection) of the various mechanism species. The species definitions for each mechanism are contained in namelist files that are read in during execution of the CMAQ programs. The CMAQ mechanism configuration is more similar to the science module configuration than to the horizontal grid or vertical layer configuration in that the mechanism is defined at compilation, resulting in executables that are hard-wired to a specific gas-phase mechanism. To change chemical mechanisms between simulations, a new executable that includes the desired mechanism configuration must be compiled.
 
 #### Using predefined chemical mechanisms
-To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to the name of one of the mechanism listed in Table 6.1. Refer to the [README.md](../../CCTM/src/MECHS/README.md) under CCTM/src/MECHS for detailed information reactions and on model species names for each mechanism. 
+To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to one of the mechanism names listed in Table 6.1. 
+
+```
+ set Mechanism = MECHANISM_NAME
+```
+
+Refer to the [README.md](../../CCTM/src/MECHS/README.md) under CCTM/src/MECHS for detailed information reactions and on model species names for each mechanism. 
 
 **Table 6.1**  Chemical Mechanisms available with CMAQv5.3.  Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
 
-**Chemistry Mechanism Table** | **Gas Species** | **Aerosol Species** | **Total Species** | **Gas-Phase Reactions** | **Comment** |
-|:---------:|:--:|:--:|:--:|:--:|:--------:|
-CB6r3-AERO7	|137|	80	|217	|338	|Efficient regional chemistry
-CB6r3-AERO7-KMT2|	137	|80	|217	|338	|Cloud Processing
-CB6r3-AERO7-Marine|	172	|82	|254|	452|	Hemispheric Scale including transport over Oceans
-CB6r3-AERO6|	145	|83	|228|	335	|Backward Compatibility to support existing users and applications
-CB6mp-AERO6|	139|	155|	294	|335	|Air Toxics
-RACM2-AERO6|	164|	82|	246|	407|	Multiscale Chemistry
-SAPRC07-AERO7|	216|	86|	302	|925|	Detailed Organic Chemistry
-SAPRC07-AERO7-KMT2	|216|	86|	302	|925|	Cloud Processing with detailed Organic Chemistry
-SAPRC07-AERO6|	227|	91|	318	|934|	Backward Compatibility to support existing users and applications
+|**Mechanism Name** | **Comment** |
+| ----------------- | ---------------------------------------------------- |
+| cb6r3_ae7_aq      | Carbon Bond 6 version r3 with aero7 treatment of SOA set up for standard cloud chemistry |
+| cb6r3_ae7_kmt2    | Carbon Bond 6 version r3 with aero7 treatment of SOA set up for expanded organic cloud chemistry version 2  |
+| cb6r3m_ae7_kmtbr  | Carbon Bond 6 version r3 with aero7 treatment of SOA and DMS and marine halogen chemistry set up for expanded organic and halogen cloud chemistry  | 
+| cb6r3_ae6_aq      | Carbon Bond 6 version r3 with aero6 treatment of SOA set up for with standard cloud chemistry | 
+| cb6mp_ae6_aq      | Carbon Bond 6 version r3 with air toxics and aero6 treatment of SOA set up for standard cloud chemistry | 
+| racm2_ae6_aq      | Regional Atmospheric Chemistry Mechanism version 2 with aero6 treatment of SOA set up for with standard cloud chemistry |
+| saprc07tic_ae7i_aq | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA set up for with standard cloud chemistry | 
+| saprc07tic_ae7i_aqkmt2 | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero7i treatment of SOA for expanded organic cloud chemistry version 2  |
+| saprc07tic_ae6i_aq | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero6i treatment of SOA set up for standard cloud chemistry | 
+| saprc07tic_ae6i_aqkmti | State Air Pollution Research Center version 07tc with extended isoprene chemistry and aero6i treatment of SOA for expanded organic cloud chemistry for isoprene  | 
+| saprc07tc_ae6_aq | State Air Pollution Research Center version 07tc with aero6 treatment of SOA set up for with standard cloud chemistry  | 
 
-
-#### Further information on chemical mechanisms
--   The same chemical mechanism must be used for CCTM and all of the mechanism-dependent input processors that are part of the CMAQ system.
--   The Euler Backward Iterative (EBI) chemistry solver is mechanism-dependent. If a chemical mechanism is modified, then new EBI solver source code must be generated based on the mechanism definition. The CMAQ utility program CREATE_EBI reads the output from CHEMMECH to generate new EBI solver source code.
--   The Rosenbrock and SMVGEAR solvers are mechanism-independent choices of chemistry solvers for the CCTM.
--   When adding new species to CMAQ, it is important to check that the sources of these new species into the modeling domain are accounted for correctly in the mechanism definition files. If species are added to the domain through the emissions files, the namelist files that define the mechanism species must contain these new species.
 
 ### 6.10.2 Solvers
-To determine the time dependent concentrations of species described by a chemical mechanism, the CCTM uses numerical methods to solve ordinary differential equations representing the chemical transformations. Three solution methods are available and differ in terms of accuracy, generalization, and computational efficiency, i.e. model run times . They include the Rosenbrock (ROS3) solver (Sandu et al., 1997), the Euler Backward Iterative (EBI) solver (Hertel et al., 1993), and the Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). SMVGEAR and ROS3 are considered more accurate, in the order listed. Both solutions are labeled as “generalized” because using either only requires the mechanism’s namelist and FORTRAN modules. The EBI solver is more computationally efficient but is less accurate and is not a “generalized” solver so each chemical mechanism requires its own EBI solver. CMAQ includes EBI solvers for each mechanism definitions file released with a model version. If a user creates or modifies a chemical mechanism, they have to create a new EBI solver by the using the create_ebi utility.  Documentation on compiling and running create_ebi is available under the [UTIL/create_ebi](../../UTIL/create_ebi/README.md) folder.
+To solve the photochemistry, the model uses one of three numerical methods or solvers. They differ by accuracy, generalization, and computational efficiency, i.e. model run times. Options include Euler Backward Iterative (EBI) solver (Hertel et al., 1993),  Rosenbrock (ROS3) solver (Sandu et al., 1997), and Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). The EBI solver is default method because it is the fastest but is less accurate and must be _tailored_ for each mechanism. The build script defines which EBI solver to use as below.   
 
+```
+ set ModGas    = gas/ebi_${Mechanism} 
+``` 
+ 
+If a user creates new FORTRAN modules representing the photochemical mechanism or modifies the existing modules, they have to create a new EBI solver by the using the create_ebi utility.  Documentation on compiling and running create_ebi is available under the [UTIL/create_ebi](../../UTIL/create_ebi/README.md) folder. The remaining two solvers, SMVGEAR and ROS3, are more accurate and less prone to convergence errors. Both methods are labeled as “generalized” because they only require the mechanism’s namelist and FORTRAN modules representing the photochemical mechanism. Rosenbrock is preferred over SMVGEAR because it several times faster. To use either SMVGEAR and ROS3, the build script defines ModGas as below. 
+
+```
+ set ModGas    = gas/smvgear
+```   
+
+or
+
+```
+ set ModGas    = gas/ros3
+``` 
+
+ 
 ### 6.10.3 Photolysis
+
+All the mechanism include photolysis rates. The build script has two options for calculating the rates.
+
+```
+ set ModPhot    = phot/inline
+```   
+
+or
+
+```
+ set ModPhot    = phot/table
+``` 
+
+The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology, predicted ozone and aerosol concentrations. Three ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file called the **CSQY_DATA_${Mechanism}** file. It contains the cross sections and quantum yields of photolysis rates in a given photochemical mechanism. The files are provided for each mechanisms in a released version of CMAQ. If a user creates a mechanism using new or additional photolysis rates, they have to create a new CSQY_DATA file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the mechanism and individual files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM run script set values for each file's path through the environment variables, OPTICS_DATA, OMI, and CSQY_DATA.
+
+The other option uses look-up tables that contain photolysis rates under cloud free conditions based on a fixed meridional cross-sections of atmospheric composition, temperature, density and aerosols. The values represents rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorology. Tables are dependent on the photochemical mechanism used. The [jproc utility](../../UTIL/jproc/README.md) creates them based on the photochemical mechanism's FORTRAN modules. The CCTM run script set value for a table's path with the environment variable, XJ_DATA.
 
 
 ## 6.11 Aerosol Dynamics and Chemistry
