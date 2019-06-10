@@ -79,6 +79,9 @@ Set ModVdiff   = acm2_stage
   
 ## 6.8 Dry Deposition
 The dry deposition model in CMAQ was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011).  In CMAQ, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs.  Use of common model elements and parameters with the land surface model in the meteorology model ensures consistence between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum).  While the dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ.  
+
+Since ammonia can be both emitted from the surface and deposited, ammonia surface flux is modeled as bidirectional.  In North America, the upward flux of ammonia is greatest in agricultural areas during the growing season.  Fertilizer adds large amounts of nitrogen compounds to the soil in croplands some of which volatilizes as ammonia.  Estimates of the soil and stomatal compensation concentrations are needed to compute the bidirectional ammonia flux in CMAQ.  While stomatal concentrations are estimated according to landuse type, daily estimates of soil concentration are derived from input proved by the Environmental Policy Integrated Climate (EPIC) agricultural ecosystem model that is executed using the Fertilizer Emission Scenario Tool for CMAQ (FEST-C, https://www.cmascenter.org/fest-c ) (Ran et al., 2011; Cooter et al., 2012).  
+
 ### 6.8.1 Dry Deposition - m3dry
 ### 6.8.2 Dry Depostion - STAGE
 
@@ -227,6 +230,8 @@ CMAQ’s standard cloud chemistry treatment estimates sulfate production from fi
 ## References
 Colella, P., and P. L. Woodward, 1984: The piecewise parabolic method (PPM) for gas-dynamical simulations. J. Comput. Phys., 54, 174–201.
 
+Cooter, E. J., Bash, J. O., Walker, J. T., Jones, M. R., & Robarge, W. (2010). Estimation of NH3 bi-directional flux from managed agricultural soils. Atmospheric Environment, 44(17), 2107-2115.
+
 Damian, V., A. Sandu, M. Damian, F. Potra, and G.R. Carmichael, 2002: The Kinetic PreProcessor KPP -- A Software Environment for Solving Chemical Kinetics, *Computers and Chemical Engineering*, **26**, 1567-1579.
 
 Fahey, K.M., A.G. Carlton, H.O.T. Pye, J. Baek, W.T. Hutzell, C.O. Stanier, K.R. Baker, K.W. Appel, M. Jaoui, J.H. Offenberg, 2017: A framework for expanding aqueous chemistry in the Community Multiscale Air Quality (CMAQ) model version 5.1, *Geosci. Model Dev.*, **10**, 1587-1605.
@@ -246,8 +251,9 @@ Pleim, J., & Ran, L. (2011). Surface flux modeling for air quality applications.
 
 Pye, H.O.T., R.W. Pinder, I.R. Piletic, Y. Xie, S.L. Capps, Y.H. Lin, J.D. Surratt, Z.F. Zhang, A. Gold, D.J. Luecken, W.T. Hutzell, M. Jaoui, J.H. Offenberg, T.E. Kleindienst, M. Lewandowski, E.O. Edney, 2013: Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation, *Environ. Sci. Technol.*, **47(19)**, 11056-11064.\
 
-Schwartz, S.E., 1986: Mass transport considerations pertinent to aqueous-phase reactions of gases in liquid water clouds. In Chemistry of multiphase atmospheric systems, NATO ASI Series, *G6*, 415-471.
+Ran, L., Cooter, E., Benson, V., & He, Q. (2011). Development of an Agricultural Fertilizer Modeling System for Bi-directional Ammonia Fluxes in the CMAQ Model. In D. G. Steyn, & S. Trini Castelli (Eds.), Air Pollution Modeling and its Application XXI (Chapter 36, pp. 213-219). Springer, Dordrecht. 
 
+Schwartz, S.E., 1986: Mass transport considerations pertinent to aqueous-phase reactions of gases in liquid water clouds. In Chemistry of multiphase atmospheric systems, NATO ASI Series, *G6*, 415-471.
 
 
 Skamarock, W.C., Klemp, J.B., Dudhia, J., Gill, D.O., Liu, Z., Berner, J., Wang, W., Powers, J.G., Duda, M.G., Barker, D.M., Huang, X.Y., A description of the advanced research WRF version 4. NCAR TECHNICAL NOTE, NCAR/TN–556+STR, March, 2019.
