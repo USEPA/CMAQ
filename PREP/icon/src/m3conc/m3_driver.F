@@ -88,25 +88,25 @@ C Local Variables:
 
       INTEGER :: SDATE = 0    ! Date for IC output 
       INTEGER :: STIME = 0    ! Time for IC output
-      INTEGER N            ! File loop index
-      INTEGER N_CTM_FLS    ! Number of input CTM files
-      INTEGER NCOLS_IN     ! No. of columns in input conc file
-      INTEGER NROWS_IN     ! No. of rows in input conc file
-      INTEGER NLAYS_IN     ! No. of layers in input conc file
-      INTEGER NSPCS_IN     ! CTM files species counter
-      INTEGER VGTYP_IN     ! input conc file VGTYP
-      INTEGER VGTOP_IN     ! input conc file VGTOP
-      INTEGER SDATE_IN     ! input conc file start date
-      INTEGER STIME_IN     ! input conc file start time
-      INTEGER EDATE_IN     ! input conc file end date
-      INTEGER ETIME_IN     ! input conc file end time
-      INTEGER TSTEP_IN     ! input conc file  timestep
-      INTEGER NSTEPS_IN    ! Number time steps in input conc file
-      INTEGER SECS_STRT    ! time variable (sec)
-      INTEGER SECS_END     ! time variable (sec)
-      INTEGER STATUS       ! Status code
-      INTEGER ALLOCSTAT    ! Status returned from array allocation
-      INTEGER V            ! Variable loop index
+      INTEGER :: N            ! File loop index
+      INTEGER :: N_CTM_FLS    ! Number of input CTM files
+      INTEGER :: NCOLS_IN     ! No. of columns in input conc file
+      INTEGER :: NROWS_IN     ! No. of rows in input conc file
+      INTEGER :: NLAYS_IN     ! No. of layers in input conc file
+      INTEGER :: NSPCS_IN     ! CTM files species counter
+      INTEGER :: VGTYP_IN     ! input conc file VGTYP
+      INTEGER :: VGTOP_IN     ! input conc file VGTOP
+      INTEGER :: SDATE_IN     ! input conc file start date
+      INTEGER :: STIME_IN     ! input conc file start time
+      INTEGER :: EDATE_IN     ! input conc file end date
+      INTEGER :: ETIME_IN     ! input conc file end time
+      INTEGER :: TSTEP_IN     ! input conc file  timestep
+      INTEGER :: NSTEPS_IN    ! Number time steps in input conc file
+      INTEGER :: SECS_STRT    ! time variable (sec)
+      INTEGER :: SECS_END     ! time variable (sec)
+      INTEGER :: STATUS       ! Status code
+      INTEGER :: ALLOCSTAT    ! Status returned from array allocation
+      INTEGER :: V            ! Variable loop index
 
       INTERFACE
 
