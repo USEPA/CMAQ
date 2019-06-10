@@ -132,7 +132,7 @@ C-----------------------------------------------------------------------
       USE SA_LAYERS
       USE SA_DEFN
       USE PISAM_DEFN            ! SA array definition (borrowed )
-      USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
+c     USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
 #endif
 
 #ifdef parallel
@@ -445,12 +445,12 @@ C Initialize PISAM
          ISAM => PISAM( 1:NCOLS,1:NROWS,:,:,: )
 
 C Pointer for mapfrac
-         IF ( .NOT. PMFRC_INIT ( NTAG_SA-3 ) ) THEN
-            XMSG = 'Failure in defining SA horizontal domain'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
-         END IF
-         MFRC_P = PMFRC( 1:NCOLS,1:NROWS,: )
-         MFRC_P = MAPFRAC
+c        IF ( .NOT. PMFRC_INIT ( NTAG_SA-3 ) ) THEN
+c           XMSG = 'Failure in defining SA horizontal domain'
+c           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
+c        END IF
+c        MFRC_P = PMFRC( 1:NCOLS,1:NROWS,: )
+c        MFRC_P = MAPFRAC
 
 C Allocate arrays of species indices, tagging indices, and
 C variable names for the combined species-tags
@@ -557,12 +557,8 @@ C Verify input file header consistency and run duration
 #endif
 
 C Initialize Meteorology Structures
-         IF ( ILDEPV ) THEN
-
-            CALL INIT_LSM( JDATE, JTIME )
-            CALL INIT_BIDI( )
-         END IF   ! in-line depv
-
+         CALL INIT_LSM( JDATE, JTIME )
+         CALL INIT_BIDI( )
          CALL INIT_MET( JDATE, JTIME )
          CALL GET_MET ( JDATE, JTIME, 0 )
          CALL GET_WVEL( JDATE, JTIME )
