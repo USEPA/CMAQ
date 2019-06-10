@@ -2194,7 +2194,7 @@ C and allowing the model to proceed.
          IF ( LTNG_NO ) N_EM_SRM = N_EM_SRM + 1
  
          ! Sea Spray Aerosol 
-         IF ( SS_AERO ) N_EM_SRM = N_EM_SRM + 1
+         IF ( OCEAN_CHEM ) N_EM_SRM = N_EM_SRM + 1
 
          ! Determine if WindBlown Dust is Requested
          IF ( WB_DUST ) N_EM_SRM = N_EM_SRM + 1
@@ -2432,7 +2432,7 @@ C stkemis_init.
          END IF
 
          ! Sea Spray Aerosol Emissions
-         IF ( SS_AERO ) THEN
+         IF ( OCEAN_CHEM ) THEN
              ISRM = ISRM + 1
              EM_FILE_TYPE( ISRM ) = 'ASEA'
              EM_FILE_ITYPE( ISRM ) = 7
