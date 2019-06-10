@@ -47,6 +47,8 @@ datasets to be input into ICON to generate ICs for the CCTM.
 
 ## ICON input files
 
+**>>Comment<<** Tables 2 and 3 have redundant information. BCON only has one table. Only Table 3 seems to be needed.
+
 **Table 2. ICON input files**
 
 |**File Name**|**Format**|**Description**|
