@@ -25,6 +25,9 @@ transform their GCM datasets into I/O API format, which would then allow these
 datasets to be input into ICON to generate ICs for the CCTM.
 
 ## Environment variables used:
+**>>Comment<<** Maybe talk about BCON build script variables VRSN and APPL or maybe make the environment variables to reduce errors.
+
+**>>Comment<<** EXE descript: CFG a variable in the BLD script not runscript. EXECID variable name is inconsistent with configure run script. EXEC_ID exists in the configure runscript. 
 
 **Table 1. Runtime Environment Variables**
 
