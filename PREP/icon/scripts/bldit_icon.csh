@@ -50,6 +50,8 @@
 #set Opt = verbose                  #> show requested commands as they are executed
 #set MakeFileOnly                   #> uncomment to build a Makefile, but do not compile; 
                                     #>   comment out to compile the model (default if not set)
+#set Debug_ICON                     #> uncomment to compile ICON with debug option equal to TRUE
+                                    #>   comment out to use standard, optimized compile process
 
 #>==============================================================================
 #> ICON Science Modules
@@ -201,6 +203,11 @@
 
 #> Relocate to the BLD_* directory 
  cd $Bld
+
+# Set ICON debug flags if true
+ if ( $?Debug_ICON ) then
+    set Blder = "${Blder} -debug_cctm"
+ endif
 
 #> Run BLDMAKE Utility
  if ( $?MakeFileOnly ) then
