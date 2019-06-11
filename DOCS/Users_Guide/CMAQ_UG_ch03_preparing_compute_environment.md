@@ -70,7 +70,7 @@ setenv BIN Linux2_x86_64gfort
 Edit the top level Makefile with the following steps:
 
 1. comment out the line with BIN ="
-2. Add explicit netCDF C and Fotran libray paths in front of -lnetcdf -lnetcdff, respectively , the following is an example:
+2. Add explicit netCDF C and Fortran libray paths in front of -lnetcdf -lnetcdff, respectively , the following is an example:
 
 ```
 NCFLIBS = -L/usr/local/apps/netcdf-c-4.7.0/gcc-9.1.0/lib -lnetcdf -L/usr/local/apps/netcdf-fortran-4.4.5/gcc-9.1.0/lib -lnetcdff
