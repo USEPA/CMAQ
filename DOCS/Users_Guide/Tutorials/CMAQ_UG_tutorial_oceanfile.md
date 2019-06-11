@@ -1,13 +1,13 @@
 ## CMAQ Tutorial ##
 ### Creating an OCEAN file for input to CMAQ ###
-Purpose: This tutorial describes how to create an ocean mask file that defines the percentage of each grid cell covered by open ocean or surf zone in the CMAQ modeling domain.
+Purpose: This tutorial describes how to create an ocean mask file that defines the fraction of each grid cell covered by open ocean or surf zone in the CMAQ modeling domain.
 
 
 ------------
 
 The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API file that identifies the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to calculate sea spray emission fluxes from the model grid cells online during a CCTM run.
 
-Additionally, CMAQ's gas-phase chemical mechanisms parameterize the reaction of ozone with oceanic halogen emissions as a first-order decay process occurring over the ocean. The OCEAN file is also required for this process. (The cb6r3m_ae7_kmtbr mechanism contains more explicit marine chemistry, but also requires the OCEAN file.)
+Additionally, CMAQ's gas-phase chemical mechanisms except cb6r3m_ae7_kmtbr contain an effective first order halogen mediated ozone loss  over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r3m_ae7_kmtbr mechanism contains more explicit marine chemistry, but also requires the OCEAN file.
 
 If your domain includes ocean, OPTION 1 is recommended. However, if your modeling domain does not contain any ocean, or you wish to bypass the CMAQ sea spray module and the reaction of ozone with oceanic halogens, follow OPTION 2 or 3.  
 
