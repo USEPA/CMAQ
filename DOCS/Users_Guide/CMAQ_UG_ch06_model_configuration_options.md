@@ -78,11 +78,27 @@ Set ModVdiff   = acm2_stage
 ```
   
 ## 6.8 Dry Deposition
-The dry deposition model in CMAQ was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011).  In CMAQ, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs.  Use of common model elements and parameters with the land surface model in the meteorology model ensures consistence between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum).  While the dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ.  
+The dry deposition model in CMAQ was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011).  In CMAQ, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs.  Use of common model elements and parameters with the land surface model in the meteorology model ensures consistency between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum).  While the dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ.  
 
-Since ammonia can be both emitted from the surface and deposited, ammonia surface flux is modeled as bidirectional.  In North America, the upward flux of ammonia is greatest in agricultural areas during the growing season.  Fertilizer adds large amounts of nitrogen compounds to the soil in croplands some of which volatilizes as ammonia.  Estimates of the soil and stomatal compensation concentrations are needed to compute the bidirectional ammonia flux in CMAQ.  While stomatal concentrations are estimated according to landuse type, daily estimates of soil concentration are derived from input proved by the Environmental Policy Integrated Climate (EPIC) agricultural ecosystem model that is executed using the Fertilizer Emission Scenario Tool for CMAQ (FEST-C, https://www.cmascenter.org/fest-c ) (Ran et al., 2011; Cooter et al., 2012).  
+Since ammonia can be both emitted from the surface and deposited, ammonia surface flux is modeled as bidirectional.  In North America, the upward flux of ammonia is greatest in agricultural areas during the growing season.  Fertilizer adds large amounts of nitrogen compounds to the soil in croplands some of which volatilizes as ammonia.  Estimates of the soil and stomatal compensation concentrations are needed to compute the bidirectional ammonia flux in CMAQ.  While stomatal concentrations are estimated according to landuse type, daily estimates of soil concentration are derived from input proved by the Environmental Policy Integrated Climate (EPIC) agricultural ecosystem model that is executed using the Fertilizer Emission Scenario Tool for CMAQ (FEST-C, https://www.cmascenter.org/fest-c ) (Ran et al., 2011; Cooter et al., 2012).
+
+The two options for dry deposition are invoked as:
+
+```
+Set ModDepv   = m3dry
+```
+
+or:
+
+```
+Set Set ModDepv   = stage
+```
 
 ### 6.8.1 Dry Deposition - m3dry
+The m3dry option for dry deposition and ammonia bidirectional surface flux is the continuing evolution of the default dry deposition model in CMAQ since its initial release.  M3dry is designed for compatibility with land surface models, particularly the PX LSM, used in WRF and MPAS to simulate surface processes and fluxes.  It features consideration of subgrid land-use fractions through aggregation of key model parameters, such as LAI, veg fraction, roughness length and minimum stomatal conductance, to the grid cell level.  Land use specific dry deposition fluxes can be calculated using a postprocessing program.
+
+Upgrades for version 5.3 includes much greater surface resistances to snow and ice and reduced resistance to bare ground for ozone with dependence on surface soil moisture content.  The aerosol deposition has also been revised including a new dependence on LAI.  The ammonia bidirectional surface flux from croplands has been substantially revised from earlier versions.  The new version has close linkages with the EPIC agricultural ecosystem model.  Daily values of all soil parameters needed to compute the available soil ammonia concentrations (soil ammonia content, soil moisture, soil texture parameters, soil pH, and Cation Exchange Capacity (CEC)) for each of 21 agricultural production types that are either rainfed or irrigated (42 types total) are input to CMAQ.  Soil ammonia concentrations and soil pH are combined to derive the soil compensation concentration for the bidirectional flux calculation (Pleim et al, 2019).
+
 ### 6.8.2 Dry Depostion - STAGE
 
 ## 6.9 Emissions
@@ -248,6 +264,8 @@ Pleim, J. E. (2007a). A combined local and nonlocal closure model for the atmosp
 Pleim, J. E. (2007b). A combined local and nonlocal closure model for the atmospheric boundary layer. Part II: Application and evaluation in a mesoscale meteorological model. Journal of Applied Meteorology and Climatology, 46(9), 1396-1409.
 
 Pleim, J., & Ran, L. (2011). Surface flux modeling for air quality applications. Atmosphere, 2(3), 271-302.
+
+Pleim, J. E., L. Ran, W. Appel, M. W. Shephard, and K. Cady-Pereira, 2019,  New bidirectional ammonia flux model in an air quality model coupled with an agricultural model.  JAMES in review.
 
 Pye, H.O.T., R.W. Pinder, I.R. Piletic, Y. Xie, S.L. Capps, Y.H. Lin, J.D. Surratt, Z.F. Zhang, A. Gold, D.J. Luecken, W.T. Hutzell, M. Jaoui, J.H. Offenberg, T.E. Kleindienst, M. Lewandowski, E.O. Edney, 2013: Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation, *Environ. Sci. Technol.*, **47(19)**, 11056-11064.\
 
