@@ -44,7 +44,7 @@ Note, you may want to 'make clean' first, if your scripts were configured to aut
 
 To begin a CMAQ simulation with apportionment enabled, the ISAM section of the runscript must be configured.  The additional necessary environment variables are listed in Table 12-1.
 
-**Table 12-1: ISAM run script variables**
+**Table 12-1. ISAM run script variables**
 
 |**Variable** | **Settings** | **Description**|
 |-------|----------|------------|
