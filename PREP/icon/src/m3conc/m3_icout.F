@@ -463,7 +463,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  Write the output IC concentrations
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          
-         LNEG = .FALSE.
+!         LNEG = .FALSE.
          FLN = ( N - 1 ) / MXVARS3 + 1
            
          DO L = 1, NLAYS
