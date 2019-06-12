@@ -68,7 +68,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
-         INTEGER,        PARAMETER :: NMECHS = 18   ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS = 14   ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -127,24 +127,19 @@ C Local variables
 
          TYPE( BIOG_MECH_TYPE ) :: BIOG_MECH_MAP( NMECHS ) = (/
      &         BIOG_MECH_TYPE( 'CB05E51_AE6_AQ         ','B10C5   '),
-     &         BIOG_MECH_TYPE( 'CB05E51_AE6NVPOA_AQ    ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05EH51_AE6_AQ        ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05MP51_AE6_AQ        ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05TUCL51_AE6_AQ      ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB6R3_AE6_AQ           ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','B10C6   '),
-     &         BIOG_MECH_TYPE( 'CB6R3_AE6NVPOA_aq      ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),     
      &         BIOG_MECH_TYPE( 'CB6R3M_AE7_KMTBR       ','B10C6AE7'),
      &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B10RD   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
-     &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6NVPOA_AQ  ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','B10SP   '),
-     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   '),
-     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6INVPOA_AQ','B10SP   ') /)
-     &   
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   ') /)
  
          CHARACTER( 16 ) :: PNAME = 'BIOG_INIT'
 
@@ -443,7 +438,7 @@ C Save Species names in global array for mapping emissions
              IF ( INDX .NE. 0 ) THEN
                  EM_FILE_SURR( IBIOSRM )%MW( ISP ) = CGRID_MW( INDX )
              ELSE
-                 WRITE( MESG, '(A,A,A,A)' ) 'WARNING: BEIS emission species',
+                 WRITE( MESG, '(A,A,A,A)' ) 'WARNING: BEIS emission species ',
      &               EMSPC( ISP ),' is not found in the Gas-Phase Mechanism. ',
      &               'The surrogate molecular weight will be set to 1.0'
                  CALL LOG_MESSAGE( LOGDEV, MESG )

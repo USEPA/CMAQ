@@ -180,7 +180,7 @@ C-----------------------------------------------------------------------
          USE DUST_EMIS, ONLY: DUST_EMIS_INIT
          USE EMIS_VARS, ONLY: MAP_EMtoSURR
          USE PRECURSOR_DATA, ONLY: MAP_PRECURSOR
-         USE RUNTIME_VARS, ONLY:  SS_AERO, WB_DUST
+         USE RUNTIME_VARS, ONLY:  OCEAN_CHEM, WB_DUST
          USE SSEMIS, ONLY:    SSEMIS_INIT
          USE UTILIO_DEFN, ONLY: INDEX1, M3EXIT, LATGRD3, XSTAT1, XSTAT2
          USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC
@@ -226,7 +226,7 @@ C *** Map data modules
          CALL MAP_PRECURSOR()
 
 C *** set up for sea-spray emission processing
-         IF ( SS_AERO ) THEN
+         IF ( OCEAN_CHEM ) THEN
             IF ( .NOT. SSEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
                XMSG = 'Failure initializing sea-spray emission processing'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
