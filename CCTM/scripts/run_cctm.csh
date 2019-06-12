@@ -518,7 +518,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( $?CTM_ISAM ) then
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
         set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
-                         ${SA_CGRID_1} ${O3INDIC_1} ${SA_RNORM_1} )
+                         ${SA_CGRID_1} )
      endif
   endif
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
