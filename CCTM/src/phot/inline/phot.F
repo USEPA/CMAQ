@@ -588,9 +588,11 @@ C...modules
          IF ( LGC_HCHO .LE. 0 ) THEN
             VARNM = 'FORM'
             LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-            XMSG = 'Could not find HCHO or FORM, i.e., formaldehyde, in species table'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            WRITE(LOGDEV,95101)
+            IF ( LGC_HCHO .LE. 0 ) THEN
+               XMSG = 'Could not find HCHO or FORM, i.e., formaldehyde, in species table'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               WRITE(LOGDEV,95101)
+            END IF
          END IF
 !...open the photolysis rate diagnostic files
 
@@ -1368,7 +1370,7 @@ C...modules
          TAU_AERO_550 = 0.0
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
-     &          'Photolysis Suface Summary written to', CTM_RJ_1,
+     &          'Photolysis Surface Summary written to', CTM_RJ_1,
      &          'for date and time', ODATE, OTIME
 
          DO IPHOT = 1, NPHOTAB
