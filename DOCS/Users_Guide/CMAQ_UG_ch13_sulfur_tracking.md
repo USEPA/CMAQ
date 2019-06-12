@@ -46,7 +46,7 @@ CMAQ-STM will work with initial conditions, boundary conditions, and emissions f
 
 The output concentration and deposition files will include additional species beyond the normal species list. These new output species are listed in Table 1 below.
 
-**Table 13-1: Sulfur Tracking Species List**
+**Table 13-1. Sulfur Tracking Species List**
 
 |Species Name|Description|
 |--------|--------------------------------|
