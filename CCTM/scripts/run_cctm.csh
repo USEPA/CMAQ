@@ -518,10 +518,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( $?CTM_ISAM ) then
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
         set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
-                         ${SA_CGRID_1} ${O3INDIC_1} ${SA_RNORM_1} )
+                         ${SA_CGRID_1}  )
      endif
   endif
-  set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
+  set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" | sed "s;MPI:;;g" `
   ( ls $OUT_FILES > buff.txt ) >& /dev/null
   set out_test = `cat buff.txt`; rm -f buff.txt
   
@@ -631,7 +631,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   rm -rf buff_${EXECUTION_ID}.txt
 
   #> Abort script if abnormal termination
-  if ( ! -e $S_CGRID ) then
+  if ( ! -e $OUTDIR/CCTM_CGRID_${CTM_APPL}.nc ) then
     echo ""
     echo "**************************************************************"
     echo "** Runscript Detected an Error: CGRID file was not written. **"
