@@ -438,7 +438,7 @@ C Save Species names in global array for mapping emissions
              IF ( INDX .NE. 0 ) THEN
                  EM_FILE_SURR( IBIOSRM )%MW( ISP ) = CGRID_MW( INDX )
              ELSE
-                 WRITE( MESG, '(A,A,A,A)' ) 'WARNING: BEIS emission species',
+                 WRITE( MESG, '(A,A,A,A)' ) 'WARNING: BEIS emission species ',
      &               EMSPC( ISP ),' is not found in the Gas-Phase Mechanism. ',
      &               'The surrogate molecular weight will be set to 1.0'
                  CALL LOG_MESSAGE( LOGDEV, MESG )
