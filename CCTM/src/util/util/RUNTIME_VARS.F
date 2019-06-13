@@ -193,7 +193,7 @@
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
       LOGICAL :: OCEAN_CHEM    = .TRUE.  ! Flag for ocean halogen chemistry and sea spray aerosol emissions
       LOGICAL :: WB_DUST       = .FALSE. ! flag for On-Line Dust Emission Calculation
-      LOGICAL :: ERODE_AGLAND  = .TRUE.  ! Account for Erodible Agricultural Land when 
+      LOGICAL :: ERODE_AGLAND  = .FALSE.  ! Account for Erodible Agricultural Land when 
                                                !   computing dust Emissions
       LOGICAL :: DUSTEM_DIAG   = .FALSE. ! flag for dustemis diagnostic file
       LOGICAL :: SSEMDIAG      = .FALSE. ! flag for SSEMIS diagnostic file
@@ -671,9 +671,6 @@
       ! Flag for Online Calculation of Windblown dust emissions
       CALL GET_ENV ( WB_DUST, 'CTM_WB_DUST', WB_DUST, VARDEV )
 
-      ! Get env var for erodible agriculture land fraction
-      CALL GET_ENV ( ERODE_AGLAND, 'CTM_ERODE_AGLAND', ERODE_AGLAND, VARDEV )
-      
       ! Get env var for diagnostic output
       CALL GET_ENV ( DUSTEM_DIAG, 'CTM_DUSTEM_DIAG', DUSTEM_DIAG, VARDEV )
        
