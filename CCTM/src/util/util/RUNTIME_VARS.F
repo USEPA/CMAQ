@@ -41,6 +41,9 @@
 !     -- updated environment variable ISAM_NEW_START with default value 'Y'
 !  15 May 2019  (David Wong)
 !     -- included check for using marine gas emission or not
+!  13 June 2019 (F. Sidi) 
+!     -- Set the default for ERODE_AGLAND to FALSE. No longer supported feature
+!        in CMAQv5.3
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -670,6 +673,10 @@
 
       ! Flag for Online Calculation of Windblown dust emissions
       CALL GET_ENV ( WB_DUST, 'CTM_WB_DUST', WB_DUST, VARDEV )
+
+      !Get env var for erodible agriculture land fraction
+      !VARDESC = 'Flag for calculating erodible agriculture land fraction'
+      !ERODE_AGLAND = GET_ENVYN( 'CTM_ERODE_AGLAND', VARDESC, ERODE_AGLAND )
 
       ! Get env var for diagnostic output
       CALL GET_ENV ( DUSTEM_DIAG, 'CTM_DUSTEM_DIAG', DUSTEM_DIAG, VARDEV )
