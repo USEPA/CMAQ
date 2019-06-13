@@ -395,7 +395,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a_bench.nc
      setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
      setenv MODIS_FPAR $LUpath/modis_bench.nc
-
+  endif
+  
   #> In-line sea spray emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 

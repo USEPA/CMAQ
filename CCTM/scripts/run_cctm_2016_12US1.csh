@@ -419,7 +419,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a.ncf
      setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot.ncf
      setenv MODIS_FPAR $LUpath/modis_fpar_lai_12km_20101201_20111231_daily_ioapi.ncf
-
+  endif
+  
   #> In-line sea spray emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf.ncf
 

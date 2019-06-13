@@ -439,6 +439,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      #setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a_bench.nc
      #setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
      setenv MODIS_FPAR $LUpath/modis_fpar_lai_hemi_108km_10yrAvg_daily_ioapi.ncf
+  endif
 
   #> In-line sea spray emissions configuration -- set above
 # setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file

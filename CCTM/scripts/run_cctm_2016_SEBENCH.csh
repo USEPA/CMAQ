@@ -71,7 +71,7 @@ echo 'Start Model Run At ' `date`
 # =====================================================================
 
 #> Set Start and End Days for looping
- setenv NEW_START FALSE            #> Set to FALSE for model restart
+ setenv NEW_START TRUE             #> Set to FALSE for model restart
  set START_DATE = "2016-07-01"     #> beginning date (July 1, 2016)
  set END_DATE   = "2016-07-01"     #> ending date    (July 14, 2016)
 
@@ -413,7 +413,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a_bench.nc
      setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
      setenv MODIS_FPAR $LUpath/modis_bench.nc
-
+  endif
 
   #> In-line sea spray emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
