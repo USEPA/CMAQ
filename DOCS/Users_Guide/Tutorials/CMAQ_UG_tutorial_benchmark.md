@@ -15,9 +15,10 @@ The following support software are required for compiling and running CMAQ.
 
 1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-3. [I/O API](http://www.cmascenter.org/ioapi)
-4. [netCDF](http://www.unidata.ucar.edu/software/netcdf)
-5. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
+2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
+3. [netCDF](http://www.unidata.ucar.edu/software/netcdf), need the latest release of netCDF-C and netCDF-Fortran and to follow the build instructions for [netcdf-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) with the following configure options (to support consistency with the I/O API library) ./configure --disable-netcdf-4 --disable-dap and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html)
+4. [I/O API](http://www.cmascenter.org/ioapi)
+
 
 The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
 
