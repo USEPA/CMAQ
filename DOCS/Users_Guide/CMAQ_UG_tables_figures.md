@@ -10,13 +10,11 @@
 
 [Figure 2-1. Overview of the CMAQ System](CMAQ_UG_ch02_program_structure.md#Figure2-1)
 
-[Figure 5-1.](CMAQ_UG_ch05_compile_and_run.md#Figure5-1) **>>COMMENT:<<** missing a figure title and No label in text
+[Figure 5-1. CMAQ repository structure](CMAQ_UG_ch05_compile_and_run.md#Figure5-1) 
 
-[Figure 6-1.](CMAQ_UG_ch06_model_configuration_options.md#Figure6-1) **>>COMMENT:<<** no label in text & change image file name 8-1 to 6-1
+[Figure10-1. Relative contribution of oxidation pathways for VOCs using Process Analysis](CMAQ_UG_ch10_process_analysis.md#Figure10-1) 
 
-[Figure10-1. Relative contribution of oxidation pathways for VOCs using Process Analysis](CMAQ_UG_ch10_process_analysis.md#Figure10-1)  **>>COMMENT:<<** change image file name from bars_VOC_fate to Figure10-1
-
-[Figure10-2. Relative contribution of HNO3 formation pathways at three grid locations](CMAQ_UG_ch10_process_analysis.md#Figure10-2)  **>>COMMENT:<<** change image file name from HNO3_formulation_pbl_pie to Figure10-2
+[Figure10-2. Relative contribution of HNO3 formation pathways at three grid locations](CMAQ_UG_ch10_process_analysis.md#Figure10-2) 
 
 ## List of Tables
 
