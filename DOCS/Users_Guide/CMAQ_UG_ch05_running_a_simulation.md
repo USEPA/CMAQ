@@ -5,7 +5,7 @@
 
 <!-- END COMMENT -->
 
-# 5. Compile and Run CMAQ
+# 5. Running a CMAQ Simulation
 
 ## 5.1 Introduction
 
