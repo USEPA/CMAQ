@@ -2205,36 +2205,44 @@
              RKI( NCELL,  918) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_PAH2       
              RKI( NCELL,  919) =   9.4882D-06 * SFACT 
+!  Reaction Label RPOAGEPI        
+             RKI( NCELL,  920) =   2.5000D-12 * CFACT 
+!  Reaction Label RPOAGELI        
+             RKI( NCELL,  921) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
+!  Reaction Label RPOAGEPJ        
+             RKI( NCELL,  922) =   2.5000D-12 * CFACT 
+!  Reaction Label RPOAGELJ        
+             RKI( NCELL,  923) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
 !  Reaction Label PCSOA           
-             RKI( NCELL,  920) =   1.2500D-11 * CFACT 
+             RKI( NCELL,  924) =   1.2500D-11 * CFACT 
 !  Reaction Label POA_AGE1        
-             RKI( NCELL,  921) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE2        
-             RKI( NCELL,  922) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE3        
-             RKI( NCELL,  923) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE4        
-             RKI( NCELL,  924) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE5        
              RKI( NCELL,  925) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE6        
+!  Reaction Label POA_AGE2        
              RKI( NCELL,  926) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE7        
+!  Reaction Label POA_AGE3        
              RKI( NCELL,  927) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE8        
+!  Reaction Label POA_AGE4        
              RKI( NCELL,  928) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE9        
+!  Reaction Label POA_AGE5        
              RKI( NCELL,  929) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE10       
+!  Reaction Label POA_AGE6        
              RKI( NCELL,  930) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE7        
+             RKI( NCELL,  931) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE8        
+             RKI( NCELL,  932) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE9        
+             RKI( NCELL,  933) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE10       
+             RKI( NCELL,  934) =   4.0000D-11 * CFACT 
 !  Reaction Label HYD_MT          
-             RKI( NCELL,  931) =   9.2590D-05 * SFACT 
+             RKI( NCELL,  935) =   9.2590D-05 * SFACT 
 !  Reaction Label HYD_ISOP        
-             RKI( NCELL,  932) =   9.2590D-05 * SFACT 
+             RKI( NCELL,  936) =   9.2590D-05 * SFACT 
 !  Reaction Label HET_GLY         
-             RKI( NCELL,  933) =  BLKHET(  NCELL, IK_HETERO_GLY )
+             RKI( NCELL,  937) =  BLKHET(  NCELL, IK_HETERO_GLY )
 !  Reaction Label HET_MGLY        
-             RKI( NCELL,  934) =  BLKHET(  NCELL, IK_HETERO_MGLY )
+             RKI( NCELL,  938) =  BLKHET(  NCELL, IK_HETERO_MGLY )
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
@@ -2706,6 +2714,7 @@
              INDEX_IMAEP        = IOLD2NEW( INDEX_IMAEP       , 1 )
              INDEX_IHMMLP       = IOLD2NEW( INDEX_IHMMLP      , 1 )
              INDEX_AIETETJ      = IOLD2NEW( INDEX_AIETETJ     , 1 )
+             INDEX_ASO4J        = IOLD2NEW( INDEX_ASO4J       , 1 )
              INDEX_AIEOSJ       = IOLD2NEW( INDEX_AIEOSJ      , 1 )
              INDEX_ADIMJ        = IOLD2NEW( INDEX_ADIMJ       , 1 )
              INDEX_AIMGAJ       = IOLD2NEW( INDEX_AIMGAJ      , 1 )
@@ -2727,6 +2736,10 @@
              INDEX_ASQTJ        = IOLD2NEW( INDEX_ASQTJ       , 1 )
              INDEX_APAH1J       = IOLD2NEW( INDEX_APAH1J      , 1 )
              INDEX_APAH2J       = IOLD2NEW( INDEX_APAH2J      , 1 )
+             INDEX_APOCI        = IOLD2NEW( INDEX_APOCI       , 1 )
+             INDEX_APNCOMI      = IOLD2NEW( INDEX_APNCOMI     , 1 )
+             INDEX_APOCJ        = IOLD2NEW( INDEX_APOCJ       , 1 )
+             INDEX_APNCOMJ      = IOLD2NEW( INDEX_APNCOMJ     , 1 )
              INDEX_PCVOC        = IOLD2NEW( INDEX_PCVOC       , 1 )
              INDEX_PCSOARXN     = IOLD2NEW( INDEX_PCSOARXN    , 1 )
              INDEX_VLVPO1       = IOLD2NEW( INDEX_VLVPO1      , 1 )

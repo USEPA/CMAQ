@@ -250,7 +250,7 @@
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
           USE VGRD_DEFN, only : VGTYP_GD, nlays
-          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON, WB_DUST, ILDEPV, ISAM_NEW_START
+          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON, WB_DUST, ISAM_NEW_START
           use LSM_Mod, only : LAND_SCHEME
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
@@ -1950,50 +1950,67 @@ C Read the various categories of normalized emissions
      &              szone(ncols, nrows), 
      &              STAT=STAT)
           IF ( STAT .NE. 0 ) THEN
-             XMSG = 'Failure allocating OPEN and SURF array'
+             XMSG = 'Failure allocating OCEAN and SZONE arrays'
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
-          IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
-             XMSG = 'Open failure for ' // OCEAN_1
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          END IF
-
-          If ( .Not. XTRACT3( OCEAN_1, 'OPEN',
+          IF ( OCEAN_CHEM ) THEN
+             IF ( .NOT. OPEN3( OCEAN_1, FSREAD3, PNAME ) ) THEN
+                XMSG = 'Could not open ' // OCEAN_1
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             ELSE 
+                IF ( .NOT. XTRACT3( OCEAN_1, 'OPEN',
      &                        1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
      &                        0, 0, ocean ) ) Then
-             XMSG = 'Could not interpolate OPEN from ' // OCEAN_1
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          End If
+                   XMSG = 'Could not read OPEN from ' // OCEAN_1
+                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                END IF
 
-          If ( .Not. XTRACT3( OCEAN_1, 'SURF',
+                IF ( .NOT. XTRACT3( OCEAN_1, 'SURF',
      &                        1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
      &                        0, 0, szone ) ) Then
-             XMSG = 'Could not interpolate SURF from ' // OCEAN_1
-             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-          End If
+                   XMSG = 'Could not interpolate SURF from ' // OCEAN_1
+                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                END IF
+
+                WHERE ( ocean .LT. 0.0 ) ocean = 0.0  ! ensure values are nonnegative
+                WHERE ( szone .LT. 0.0 ) szone = 0.0  ! ensure values are nonnegative
+             END IF
+          ELSE 
+             WRITE( LOGDEV, '(/,5x,A,/,5x,A,/5x,A)' ), 
+     &              'CTM_OCEAN_CHEM set to FALSE. Open ocean and surf zone',
+     &              'fractions will be set to 0. There will be no oceanic',
+     &              'halogen-mediated loss of ozone or sea spray aerosol emissions.'
+             ocean = 0.0
+             szone = 0.0
+          END IF
 
           IF ( USE_MARINE_GAS_EMISSION ) then
-             allocate (chlr(ncols, nrows),
-     &                 dmsl(ncols, nrows), 
-     &                 STAT=STAT)
-             IF ( STAT .NE. 0 ) THEN
-                XMSG = 'Failure allocating CHLO array'
-                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
-             END IF
+             IF ( .NOT. OCEAN_CHEM ) THEN
+                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R3M mechanism'
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             ELSE   ! OCEAN_1 file already opened
+                allocate (chlr(ncols, nrows),
+     &                    dmsl(ncols, nrows), 
+     &                    STAT=STAT)
+                IF ( STAT .NE. 0 ) THEN
+                   XMSG = 'Failure allocating CHLO array'
+                   CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
+                END IF
 
-             If ( .Not. XTRACT3( OCEAN_1, 'CHLO',
-     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                           0, 0, chlr ) ) Then
-                XMSG = 'Could not interpolate CHLO from ' // OCEAN_1
-                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-             End If
-             If ( .Not. XTRACT3( OCEAN_1, 'DMS',
-     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                           0, 0, dmsl ) ) Then
-                XMSG = 'Could not interpolate CHLO from ' // OCEAN_1
-                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-             End If
+                If ( .Not. XTRACT3( OCEAN_1, 'CHLO',
+     &                              1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                              0, 0, chlr ) ) Then
+                   XMSG = 'Could not read CHLO from ' // OCEAN_1
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                End If
+                If ( .Not. XTRACT3( OCEAN_1, 'DMS',
+     &                              1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                              0, 0, dmsl ) ) Then
+                   XMSG = 'Could not read DMS from ' // OCEAN_1
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                End If
+             END IF
           END IF
 
         end subroutine retrieve_ocean_data
