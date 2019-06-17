@@ -331,7 +331,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo                                                              >> $Cfile
  echo "lib_base    $CMAQ_LIB;"                                     >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_1       ioapi/modules;"                                 >> $Cfile
+ echo "lib_1       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
