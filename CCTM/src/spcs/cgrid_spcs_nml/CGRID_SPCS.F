@@ -181,11 +181,11 @@ c namelist variables
             TYPE SPECIES_DATA_REG_2
                 CHARACTER( 16 ) :: SPECIES_NAME  ! CMAQ Species Name
                 REAL            :: MOLWT         ! g mol-1
+                CHARACTER( 16 ) :: OPTICS_SURR   ! material's refractive index surrogate
                 CHARACTER( 16 ) :: IC_SURR       ! IC Surrogate
                 REAL            :: IC_FAC        ! IC Scale Factor
                 CHARACTER( 16 ) :: BC_SURR       ! BC Surrogate
                 REAL            :: BC_FAC        ! BC Scale Factor
-                CHARACTER( 16 ) :: OPTICS_SURR   ! material's refractive index surrogate
                 CHARACTER( 16 ) :: DEPV_SURR     ! Dry Deposition Surrogate
                 REAL            :: DEPV_FAC      ! Dry Deposition Scale Factor
                 CHARACTER( 16 ) :: SCAV_SURR     ! Wet Scavenging Surrogate
@@ -473,6 +473,7 @@ c-------------------------------------------------------------------------------
 
                 AE_SPC( IAE )      = AE_SPECIES_DATA( IAE )%SPECIES_NAME
                 AE_MOLWT( IAE )    = AE_SPECIES_DATA( IAE )%MOLWT
+
                 ! Aerosol ICs
                 IF ( AE_SPECIES_DATA( IAE )%IC_SURR .NE. '' ) THEN
                     N_AE_IC = N_AE_IC + 1
@@ -487,16 +488,16 @@ c-------------------------------------------------------------------------------
                     AE_BC( N_AE_BC )     = AE_SPECIES_DATA( IAE )%BC_SURR 
                     AE_BC_MAP( N_AE_BC ) = IAE
                     AE_BC_FAC( N_AE_BC ) = AE_SPECIES_DATA( IAE )%BC_FAC
-                ! Aerosol Refractive Indices, not using N_AE_OPTICS in AE_OPTICS array intentional
-                !IF ( AE_SPECIES_DATA( IAE )%OPTICS_SURR .NE. '' ) THEN
-                !    N_AE_OPTICS = N_AE_OPTICS + 1
-                !    AE_OPTICS( IAE ) = AE_SPECIES_DATA( IAE )%OPTICS_SURR
-                !END IF 
-                AE_OPTICS( IAE ) = AE_SPECIES_DATA( IAE )%OPTICS_SURR
-                write(logdev,*)iae,AE_SPC( IAE ),AE_SPECIES_DATA( IAE )%OPTICS_SURR, 
-     &                AE_OPTICS( IAE ), LEN_TRIM( AE_OPTICS( IAE ) )
-                
                 END IF
+
+                ! Aerosol Refractive Indices, blank if using default values in AERO_DATA module
+                IF ( AE_SPECIES_DATA( IAE )%OPTICS_SURR .NE. '' ) THEN
+                    N_AE_OPTICS = N_AE_OPTICS + 1
+                    AE_OPTICS( IAE ) = AE_SPECIES_DATA( IAE )%OPTICS_SURR
+                END IF 
+!               write(logdev,'(i3,1x,A16,1x,a16,1x,a16,1x,i2)')iae,AE_SPC( IAE ),AE_SPECIES_DATA( IAE )%OPTICS_SURR, 
+!    &                AE_OPTICS( IAE ), LEN_TRIM( AE_OPTICS( IAE ) )
+                
                 
                 ! Aerosol Dry Deposition Surrogates
                 IF ( AE_SPECIES_DATA( IAE )%DEPV_SURR .NE. '' ) THEN
