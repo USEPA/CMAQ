@@ -28,17 +28,15 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 8 (Analysis Tools):](CMAQ_UG_ch08_analysis_tools.md) Post-processing, visualization and evaluation tools for CMAQ.
 
-[Chapter 9 (New Simulation):](CMAQ_UG_ch09_new_simulation.md) Setting up CMAQ for a new domain or application.
+[Chapter 9 (Process Analysis):](CMAQ_UG_ch09_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR) and Integrated Reaction Rates (IRR).
 
-[Chapter 10 (Process Analysis):](CMAQ_UG_ch10_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR) and Integrated Reaction Rates (IRR).
+[Chapter 10 (HDDM-3D):](CMAQ_UG_ch10_HDDM-3D.md) Instrumented Models - Decoupled Direct Method in Three Dimensions (DDM-3D).
 
-[Chapter 11 (HDDM-3D):](CMAQ_UG_ch11_HDDM-3D.md) Instrumented Models - Decoupled Direct Method in Three Dimensions (DDM-3D).
+[Chapter 11 (ISAM):](CMAQ_UG_ch11_ISAM.md) Instrumented Models - Integrated Source Apportionment Method (ISAM).
 
-[Chapter 12 (ISAM):](CMAQ_UG_ch12_ISAM.md) Instrumented Models - Integrated Source Apportionment Method (ISAM).
+[Chapter 12 (Sulfur Tracking):](CMAQ_UG_ch12_sulfur_tracking.md) Instrumented Models - Sulfur Tracking Model (STM).
 
-[Chapter 13 (Sulfur Tracking):](CMAQ_UG_ch13_sulfur_tracking.md) Instrumented Models - Sulfur Tracking Model (STM).
-
-[Chapter 14 (WRF-CMAQ):](CMAQ_UG_ch14_WRF-CMAQ.md) Coupled meteorology-chemistry model WRF-CMAQ.
+[Chapter 13 (WRF-CMAQ):](CMAQ_UG_ch13_WRF-CMAQ.md) Coupled meteorology-chemistry model WRF-CMAQ.
 
 [References:](CMAQ_UG_references.md) References cited throughout the guide.
 
