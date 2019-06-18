@@ -2,8 +2,7 @@
 ### Create Initial and Boundary Conditions from Seasonal Average Hemispheric CMAQ Output ###
 Purpose: This tutorial will step the user through the process of creating initial and boundary conditions from a seasonal average hemispheric CMAQ output file distributed through the CMAS data warehouse. It assumes that the user already generated MCIP files for their target modeling domain.
 
-** >>COMMENT<< ** add link to H-CMAQ output file
-
+Download H-CMAQ output: https://drive.google.com/file/d/17Cz1gvmck_y9hD55Hv8iHg2bnKXwoqk2/view?usp=sharing
 
 
 ------------
@@ -206,9 +205,9 @@ The run script below uses the [`ICON`](../../../PREP/icon) program to create int
  exit() 
  ```
  
-### STEP 5: Run BCON to create initial conditions</strong>
+### STEP 5: Run BCON to create boundary conditions</strong>
 
-The run script below uses the [`BCON`](../../../PREP/bcon) program to create intial conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1 and optionally time-shifted in Step 2. By setting BCTYPE to regrid, the run script invokes BCON in _regrid_ mode because boundary conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2.
+The run script below uses the [`BCON`](../../../PREP/bcon) program to create boundary conditions for the user's target domain based on the seasonal average hemispheric CMAQ output obtained in Step 1 and optionally time-shifted in Step 2. By setting BCTYPE to regrid, the run script invokes BCON in _regrid_ mode because boundary conditions are derived from a CONC file. In the example below, the settings for APPL, GRID_NAME, GRIDDESC, MET_CRO_3D_FIN, and DATE reflect the CMAQ Southeast benchmark case and will need to be modified by the user to point to the corresponding files for their domain and reflect the intended simulation start date. The environment variables CTM_CONC_1 and MET_CRO_3D_CRS should both point to the full path of the file downloaded in Step 1 and optionally time-shifted in Step 2.
 
 ```
 #!/bin/csh -f
