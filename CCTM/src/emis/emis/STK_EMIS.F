@@ -48,8 +48,6 @@ C-----------------------------------------------------------------------
 
       INTEGER FGRPS
 
-      INTEGER,        ALLOCATABLE, SAVE :: STKDATE( : )   ! src grp timestamp date
-
       CONTAINS
 
 C-----------------------------------------------------------------------
@@ -83,9 +81,6 @@ C-----------------------------------------------------------------------
          ALLOCATE ( NVARS_EMIS( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'NVARS_EMIS', PNAME )
 
-         ALLOCATE ( STKDATE( NGRPS ), STAT = ASTAT )
-         CALL CHECKMEM( ASTAT, 'STKDATE', PNAME )
-
          ALLOCATE ( STKEMIS( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKEMIS', PNAME )
 
@@ -114,9 +109,7 @@ C-----------------------------------------------------------------------
                SUCCESS = .FALSE.; RETURN
             END IF
 
-            STKDATE( N ) = JDATE
-            IF ( EM_FILE_DATE_OVRD( ISRM ) ) STKDATE( N ) = SDATE3D
-            EM_FILE_DATE( ISRM ) = STKDATE( N )
+            EM_FILE_DATE( ISRM ) = SDATE3D
 
             NSRC_EMIS( N ) = NROWS3D
             NVARS_EMIS( N ) = NVARS3D
