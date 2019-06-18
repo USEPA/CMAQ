@@ -233,7 +233,7 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 ## Check the CMAQ Benchmark Results
 
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
-- Red Hat Enterprise Linux Server release 5.11 (Tikanga)
+- Red Hat Enterprise Linux Server release 7.6 (Maipo)
 - Linux Kernel 2.6.18-238.12.1.el5 x86_64
 - Intel v18.0 compiler, 32 processors with OpenMPI
 - CMAQv5.3
