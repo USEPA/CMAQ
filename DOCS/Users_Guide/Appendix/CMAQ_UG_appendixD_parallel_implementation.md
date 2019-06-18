@@ -37,7 +37,7 @@ As an illustration of interprocessor data access (Fig. D-3), consider the follow
 
  ![Figure D-3](../images/FigureD-3.png)
 
- **Figure D-3. An example to show interprocessor data acess is needed**
+ **Figure D-3. An example to show interprocessor data access is needed**
 
  To facilitate interprocessor communication as shown in the example above, "ghost" regions are used (extra space in the data structure), i.e. DIMENSION DATA (NCOLS+2, NROWS+1). Thickness of the ghost region depends of the amount of overlap that is required by the algorithm.
 
@@ -59,7 +59,7 @@ As an illustration of interprocessor data access (Fig. D-3), consider the follow
 
 ![Figure D-5](../images/FigureD-5.png)
 
-**Figure D-6 Interior to interior communication**
+**Figure D-6. Interior to interior communication**
 
 ![Figure D-7](../images/FigureD-7.png)
 
