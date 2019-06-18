@@ -34,7 +34,7 @@ Table 3-1 provides a general snapshot of three different CMAQ setups for a day o
 
 ## 3.2 Software Requirements
 
-In order to build the CMAQ program suite, users must install these libraries: MPI, netCDF and IOAPI. As always, we recommend using the latest release available at the time of your CMAQ installation.
+In order to build the CMAQ program suite, users must install these libraries in the order listed: MPI, netCDF and IOAPI. As always, we recommend using the latest release available at the time of your CMAQ installation.
 
 ## 3.2.1 Message Passing Interface (MPI) library
 
