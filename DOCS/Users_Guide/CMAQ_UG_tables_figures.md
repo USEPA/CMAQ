@@ -46,6 +46,8 @@
 
 [Table 4-12.](CMAQ_UG_ch04_model_inputs.md#Table4-12) **>>COMMENT:<<** missing table title
 
+[Table 6-1. Chemical Mechanisms Available with CMAQv5.3](CMAQ_UG_ch06_model_configuration_options.md#Table6-1)
+
 [Table 7-1. CMAQ Output files](CMAQ_UG_ch07_model_outputs.md#Table7-1)
 
 [Table 8-1. Software Programs for Evaluating and Visualizing CMAQ Data](CMAQ_UG_ch08_analysis_tools.md#Table8-1)
