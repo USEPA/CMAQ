@@ -193,7 +193,7 @@ To select a predefined mechanism configuration in CMAQ, set the *Mechanism* vari
 
 Refer to the [README.md](../../CCTM/src/MECHS/README.md) under CCTM/src/MECHS for detailed information reactions and on model species names for each mechanism. 
 
-[Table 6-1](#Table6-1) Chemical Mechanisms available with CMAQv5.3. Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
+Chemical Mechanisms available with CMAQv5.3 can be found in [Table 6-1](#Table6-1). Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
 
 <a id=Table6-1></a>
 **Table 6-1. Chemical Mechanisms Available with CMAQv5.3** 
@@ -348,7 +348,7 @@ Colella, P., and P. L. Woodward, 1984: The piecewise parabolic method (PPM) for 
 
 Cooter, E.J., Bash, J.O., Benson V., Ran, L.-M., 2012, Linking agricultural management and air-quality models for regional to national-scale nitrogen deposition assessments, Biogeosciences, 9, 4023-4035
 
-Cooter, E. J., Bash, J. O., Walker, J. T., Jones, M. R., & Robarge, W. (2010). Estimation of NH3 bi-directional flux from managed agricultural soils. Atmospheric Environment, 44(17), 2107-2115. **>>COMMENT<<**In-text citation not found
+Cooter, E. J., Bash, J. O., Walker, J. T., Jones, M. R., & Robarge, W. (2010). Estimation of NH3 bi-directional flux from managed agricultural soils. Atmospheric Environment, 44(17), 2107-2115. **>>COMMENT<<** In-text citation not found
 
 Damian, V., A. Sandu, M. Damian, F. Potra, and G.R. Carmichael, 2002: The Kinetic PreProcessor KPP -- A Software Environment for Solving Chemical Kinetics, *Computers and Chemical Engineering*, **26**, 1567-1579.
 
