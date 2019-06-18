@@ -1134,28 +1134,36 @@
              RKI( NCELL,  395) =   9.4882D-06 * SFACT 
 !  Reaction Label OLIG_ALK2       
              RKI( NCELL,  396) =   9.4882D-06 * SFACT 
+!  Reaction Label RPOAGEPI        
+             RKI( NCELL,  397) =   2.5000D-12 * CFACT 
+!  Reaction Label RPOAGELI        
+             RKI( NCELL,  398) =  BLKHET(  NCELL, IK_HETERO_PNCOMLI )
+!  Reaction Label RPOAGEPJ        
+             RKI( NCELL,  399) =   2.5000D-12 * CFACT 
+!  Reaction Label RPOAGELJ        
+             RKI( NCELL,  400) =  BLKHET(  NCELL, IK_HETERO_PNCOMLJ )
 !  Reaction Label PCSOA           
-             RKI( NCELL,  397) =   1.2500D-11 * CFACT 
+             RKI( NCELL,  401) =   1.2500D-11 * CFACT 
 !  Reaction Label POA_AGE1        
-             RKI( NCELL,  398) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE2        
-             RKI( NCELL,  399) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE3        
-             RKI( NCELL,  400) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE4        
-             RKI( NCELL,  401) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE5        
              RKI( NCELL,  402) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE6        
+!  Reaction Label POA_AGE2        
              RKI( NCELL,  403) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE7        
+!  Reaction Label POA_AGE3        
              RKI( NCELL,  404) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE8        
+!  Reaction Label POA_AGE4        
              RKI( NCELL,  405) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE9        
+!  Reaction Label POA_AGE5        
              RKI( NCELL,  406) =   4.0000D-11 * CFACT 
-!  Reaction Label POA_AGE10       
+!  Reaction Label POA_AGE6        
              RKI( NCELL,  407) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE7        
+             RKI( NCELL,  408) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE8        
+             RKI( NCELL,  409) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE9        
+             RKI( NCELL,  410) =   4.0000D-11 * CFACT 
+!  Reaction Label POA_AGE10       
+             RKI( NCELL,  411) =   4.0000D-11 * CFACT 
 
         END DO  
 !  Multiply rate constants by [M], [O2], [N2], [H2O], [H2], or [CH4]
@@ -1577,6 +1585,10 @@
              INDEX_APAH2J   = IOLD2NEW( INDEX_APAH2J  , 1 )
              INDEX_AALK1J   = IOLD2NEW( INDEX_AALK1J  , 1 )
              INDEX_AALK2J   = IOLD2NEW( INDEX_AALK2J  , 1 )
+             INDEX_APOCI    = IOLD2NEW( INDEX_APOCI   , 1 )
+             INDEX_APNCOMI  = IOLD2NEW( INDEX_APNCOMI , 1 )
+             INDEX_APOCJ    = IOLD2NEW( INDEX_APOCJ   , 1 )
+             INDEX_APNCOMJ  = IOLD2NEW( INDEX_APNCOMJ , 1 )
              INDEX_PCVOC    = IOLD2NEW( INDEX_PCVOC   , 1 )
              INDEX_PCSOARXN = IOLD2NEW( INDEX_PCSOARXN, 1 )
              INDEX_VLVPO1   = IOLD2NEW( INDEX_VLVPO1  , 1 )

@@ -17,49 +17,67 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+
 C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-         SUBROUTINE FIND_DEGRADED( JDATE, JTIME, CALL_DEGRADE )
 
+      SUBROUTINE FINAL_DEGRADE( CBLK )
 C**********************************************************************
 C
-C  Function:  Set Logic Flag in whether to call degradation routines
+C  FUNCTION: Update CBLK concentrations with concentrations from degrade
+C            routines
 C
 C  CALLED BY: HRDRIVER
 C
+C  REVISION HISTORY: 07/29/05 : B.Hutzell - Initial version
+C                    09/30/11 : B.Hutzell - added CYCLE statements to allow 
+C                               optional degraded species i.e., RXTANT_MAP( I )
+C                               is less than zero
+C
 C**********************************************************************
- 
-           USE DEGRADE_SETUP_TOX
 
-           IMPLICIT NONE
- 
-C.....INCLUDES: NONE
+      USE DEGRADE_SETUP_TOX
+
+      IMPLICIT NONE
 
 C.....ARGUMENTS:
 
-           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded YYYYDDD
-           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
-           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
+      REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
 
 C.....LOCAL VARIABLES:
 
-           CHARACTER( 144 )        :: XMSG                    ! Message text
-           CHARACTER( 16  ), SAVE  :: PNAME = 'FIND_DEGRADED' ! Routine name
+      REAL, PARAMETER ::  CONMIN = 1.0E-30
 
-           CALL DEGRADE_DATA()
+      INTEGER         ::  I_RXT, I_PROD   ! indices
+      INTEGER         ::  I, J, K         ! loop counters
 
-           CALL DEGRADE_MAP( JDATE, JTIME )
-           
-           IF( N_REACT_FOUND .GT. 0 )THEN
-               CALL_DEGRADE = .TRUE.
-           ELSE
-               CALL_DEGRADE = .FALSE.
-           ENDIF
-        
-           RETURN
-         
-         END SUBROUTINE FIND_DEGRADED
+C**********************************************************************
+
+      LOOP_REACT: DO I = 1, N_REACT ! Loop over each reactant
+
+c..update CBLK
+
+         I_RXT = RXTANT_MAP( I )
+
+         IF( I_RXT <= 0 )CYCLE LOOP_REACT
+
+         CBLK( I_RXT ) = CURR_CONC( I_RXT )
+
+         LOOP_PROD: DO J = 1, N_PROCESSES
+
+            I_PROD = PROD_MAP( I, J )
+
+            IF( I_PROD < 1 ) CYCLE ! no specified product
+
+            CBLK( I_PROD ) = CURR_CONC( I_PROD )
+
+         ENDDO LOOP_PROD
+
+      ENDDO LOOP_REACT
+
+      END SUBROUTINE FINAL_DEGRADE
+

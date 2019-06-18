@@ -23,11 +23,11 @@ C**********************************************************************
 C
 C  FUNCTION:  To solve for the concentration of C2O3 and PAN
 C
-C  PRECONDITIONS: For the SAPRC07TC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TC_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 22, 2019
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************

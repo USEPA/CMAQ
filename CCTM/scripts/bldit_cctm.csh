@@ -83,8 +83,9 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module 
                                        #>     (see $CMAQ_MODEL/CCTM/src/couple)
  set DepMod    = m3dry                 #> m3dry or stage
-# set DepMod    = stage
- set ModHadv   = hadv/yamo             #> horizontal advection module
+
+#set DepMod    = stage
+ set ModHadv   = hadv/ppm              #> horizontal advection module
  set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
  set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
  set ModVdiff  = vdiff/acm2_${DepMod}  #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
@@ -330,7 +331,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo                                                              >> $Cfile
  echo "lib_base    $CMAQ_LIB;"                                     >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_1       ioapi/modules;"                                 >> $Cfile
+ echo "lib_1       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
@@ -426,7 +427,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModCpl};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "yamo"
+ set text = "ppm and yamo"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModHadv};"                                         >> $Cfile
  echo                                                              >> $Cfile

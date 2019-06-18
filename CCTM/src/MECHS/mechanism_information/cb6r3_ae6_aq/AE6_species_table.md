@@ -37,6 +37,8 @@
 | APAH2             | Semivolatile High-NOx  SOA Product from PAHs         | 178.7                | L                      |
 | APAH3             | Low-Volatility Low-NOx SOA Product from PAHs         | 212.2                | L                      |
 | APCSO             | Potential Combustion SOA                             | 170                  | L                      |
+| APNCOM            | Non-Carbon Organic Matter associated with APOC       | 220.0                | L                      |
+| APOC              | Primary Organic Carbon                               | 220.0                | L                      |
 | ASEACAT           | Sea spray cations                                    | 23.75                | L                      |
 | ASI               | Silicon                                              | 28.1                 | E                      |
 | ASO4              | Sulfate                                              | 96                   | E                      |
