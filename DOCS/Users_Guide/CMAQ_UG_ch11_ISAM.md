@@ -1,12 +1,12 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch11_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch13_sulfur_tracking.md)
+[<< Previous Chapter](CMAQ_UG_ch10_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_sulfur_tracking.md)
 
 <!-- END COMMENT -->
 
-# 12. Integrated Source Apportionment Method (CMAQ-ISAM)
-## 12.1 Overview
+# 11. Integrated Source Apportionment Method (CMAQ-ISAM)
+## 11.1 Overview
 
 The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated in CMAQv5.3 release.
 
@@ -30,7 +30,7 @@ CO        - CO
 OZONE     - all NITRATE species + all VOC species
 ```
 
-## 12.2 Build Instructions
+## 11.2 Build Instructions
 
 Starting with CMAQv5.3 model release, ISAM is provided directly with the source code of the base model.  In order to use ISAM, build CMAQ as normal with the provided scripts.  Then, exercise the ISAM preprocessor compiler option using the following command, while in the BUILD directory:
 
@@ -40,11 +40,11 @@ make isam=TRUE
 
 Note, you may want to 'make clean' first, if your scripts were configured to automatically compile the model.
 
-## 12.3 Run Instructions
+## 11.3 Run Instructions
 
-To begin a CMAQ simulation with apportionment enabled, the ISAM section of the runscript must be configured.  The additional necessary environment variables are listed in Table 12-1.
+To begin a CMAQ simulation with apportionment enabled, the ISAM section of the runscript must be configured.  The additional necessary environment variables are listed in Table 11-1.
 
-**Table 12-1. ISAM run script variables**
+**Table 11-1. ISAM run script variables**
 
 |**Variable** | **Settings** | **Description**|
 |-------|----------|------------|
@@ -63,10 +63,10 @@ To begin a CMAQ simulation with apportionment enabled, the ISAM section of the r
 Additionally, ISAM is able to track emissions confined to geographic regions.  This functionality can enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist and is discussed further below.
 
 
-!!!! Add cross-reference to the map stuff wherever it is !!!!
+**>>COMMENT<<** !!!! Add cross-reference to the map stuff wherever it is !!!!
 
 
-### 12.3.1 ISAM control file (SA_IOLIST)
+### 11.3.1 ISAM control file (SA_IOLIST)
 
 The ISAM `SA_IOLIST` is a text file used to configure which tag classes, emissions streams, and source regions the model will track.  An example of this file, `isam_control.txt`, is provided in the release package.  The formating of this file must be kept intact, but it does allow for insertion of comment lines.  
 
@@ -108,7 +108,7 @@ The final line in the control file needs to be kept unchanged in order to aid th
 ENDLIST eof
 ```
 
-## 12.4 References
+## 11.4 References
 
 Kwok, R.H.F, S.L. Napelenok,K.R. Baker (2013) Implementation and evaluation of PM2.5 source contribution analysis in a photochemical model, Atmospheric Environment, Volume 80, 398–407, http://dx.doi.org/10.1016/j.atmosenv.2013.08.017
 
@@ -120,7 +120,7 @@ Kwok, R.H.F, K.R. Baker, S.L. Napelenok, G.S. Tonnesen (2014) Photochemical grid
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch11_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch13_sulfur_tracking.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch10_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_sulfur_tracking.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
