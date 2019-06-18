@@ -595,7 +595,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   rm -rf buff_${EXECUTION_ID}.txt
 
   #> Abort script if abnormal termination
-  if ( ! -e $OUTDIR/CCTM_CGRID_${CTM_APPL}.nc ) then
+  if ( ! -e `echo $S_CGRID | sed "s;MPI:;;g"` ) then
     echo ""
     echo "**************************************************************"
     echo "** Runscript Detected an Error: CGRID file was not written. **"
