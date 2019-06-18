@@ -79,7 +79,7 @@ Recently we have developed a true parallel I/O approach (Fig. D-9), which allows
 
 ![Figure D-9](../images/FigureD-9.png)
 
-**Figure D-9. True paralell I/O approach**
+**Figure D-9. True parallel I/O approach**
 
 This approach has been incorporated into IOAPI version 3.2 and fully implemented in CMAQ 5.2 or later version. User is required to turn on this feature by uncommenting the following line
 
