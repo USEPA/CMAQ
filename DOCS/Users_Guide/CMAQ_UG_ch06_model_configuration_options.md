@@ -348,8 +348,6 @@ Colella, P., and P. L. Woodward, 1984: The piecewise parabolic method (PPM) for 
 
 Cooter, E.J., Bash, J.O., Benson V., Ran, L.-M., 2012, Linking agricultural management and air-quality models for regional to national-scale nitrogen deposition assessments, Biogeosciences, 9, 4023-4035
 
-Cooter, E. J., Bash, J. O., Walker, J. T., Jones, M. R., & Robarge, W. (2010). Estimation of NH3 bi-directional flux from managed agricultural soils. Atmospheric Environment, 44(17), 2107-2115. **>>COMMENT<<** In-text citation not found
-
 Damian, V., A. Sandu, M. Damian, F. Potra, and G.R. Carmichael, 2002: The Kinetic PreProcessor KPP -- A Software Environment for Solving Chemical Kinetics, *Computers and Chemical Engineering*, **26**, 1567-1579.
 
 Donahue, N. M., et al. 2012: A two-dimensional volatility basis set – Part 2: Diagnostics of organic-aerosol evolution. Atmospheric Chemistry and Physics, 12(2), 615-634.
