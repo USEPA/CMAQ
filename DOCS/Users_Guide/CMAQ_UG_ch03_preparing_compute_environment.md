@@ -124,7 +124,7 @@ make
 
 ## 3.3 Optional Software
 
-**Table 3‑2. Optional support software for CMAQ**
+**Table 3‑3. Optional support software for CMAQ**
 
 |**Software**|**Description**|     **Source**    |
 |------------|-------------------------------|---------------------------------------------|
