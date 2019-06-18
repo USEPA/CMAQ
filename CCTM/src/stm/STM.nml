@@ -19,6 +19,22 @@ STM_AE_SPECIES_DATA =
 'ASO4ICBCK'  , 96.00   ,'ASO4K', 1    ,'ASO4K', 1    ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'SO4_ICBC_COARSE' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 /
 
+&STM_OAE_nml
+ 
+STM_OAE_SPECIES_DATA = 
+
+!SPECIES     ,MOLWT    ,IC     ,ICFAC ,BC     ,BCFAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC  
+'OSO4J'      , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'OSO4AQH2O2J', 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'OSO4AQO3J'  , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'OSO4AQFEMNJ', 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'OSO4AQMHPJ' , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'OSO4AQPAAJ' , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'OSO4GASJ'   , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'OSO4EMISJ'  , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'OSO4ICBCJ'  , 96.00   ,''     ,-1    ,''     ,-1    ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+/
+
 &STM_NR_nml
  
 STM_NR_SPECIES_DATA =

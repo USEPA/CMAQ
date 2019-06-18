@@ -23,30 +23,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C  Contains:
 C     Subroutines stm_wrap_ae
 C                 stm_wrap_gas
-C                 init_stm_pntrs
 
 C  Revision History:
 C SR 12/13/2018 Initial version
 
 C----------------------------------------------------------------------
-      Use grid_conf, Only: ncols, nrows, nlays
-      Use aero_data, Only : aso4_idx, aso4aqh2o2_idx, aso4aqo3_idx,
-     &                      aso4aqfemn_idx, aso4aqmhp_idx, aso4aqpaa_idx,
-     &                      aso4gas_idx, aso4emis_idx, aso4icbc_idx,
-     &                      aerospc_map, n_mode, map_aero
-
-
-      Logical, Private, Save :: initialized = .False.
-
-      Integer, Private, Save :: vso4 ( n_mode )
-      Integer, Private, Save :: vso4g( n_mode )
-      Integer, Private, Save :: vso4e( n_mode )
-      Integer, Private, Save :: vso4b( n_mode )
-      Integer, Private, Save :: vso4ah2o2
-      Integer, Private, Save :: vso4ao3
-      Integer, Private, Save :: vso4afemn
-      Integer, Private, Save :: vso4amhp 
-      Integer, Private, Save :: vso4apaa
 
       Contains
 
@@ -60,8 +41,20 @@ C  Revision History:
 C     Initial version - 6/5/19 - Shawn Roselle
 C     
 C-----------------------------------------------------------------------
+      Use grid_conf, Only: ncols, nrows, nlays
       Use runtime_vars, Only: adj_stmspc
+      Use rxns_data, only: mechname       ! chemical mechanism data
       Use aero_budget, Only: aero_cond, aero_npf
+      Use aero_data, Only : aso4_idx, aso4aqh2o2_idx, aso4aqo3_idx,
+     &                      aso4aqfemn_idx, aso4aqmhp_idx, aso4aqpaa_idx,
+     &                      aso4gas_idx, aso4emis_idx, aso4icbc_idx,
+     &                      oso4aqh2o2_idx, oso4aqo3_idx, oso4aqfemn_idx,
+     &                      oso4aqmhp_idx, oso4aqpaa_idx, oso4_idx, 
+     &                      oso4gas_idx, oso4emis_idx, oso4icbc_idx,
+!     &                      aieos_idx, aimos_idx, 
+     &                      aerospc_conc, aerospc_map, aerospc_mw, n_mode, 
+     &                      ae6isoa,
+     &                      extract_aero, update_aero, findAero
 
       Implicit None
 
@@ -74,85 +67,151 @@ C Arguments
 
 C Local variables
 
-      Logical, Save :: firstime = .True.
+!      Character( 16 ), Parameter :: req_aiso3 = 'AISO3'
+
+!      Logical, Save :: firstime = .True.
 
       Integer c, r, l, m
+!      Integer, Save :: aiso3_idx
 
-      Real aso4tot
+      Real aso4tot, oso4tot
       Real mscor
 
-      If ( firstime ) Then
-         firstime = .False.
-         Call init_stm_pntrs()
-      End If
+!      If ( firstime ) Then
+!         aiso3_idx   = findaero( req_aiso3, .True. )
+!         firstime = .False.
+!      End If
 
-      Do m = 1, n_mode
-         cgrid( :,:,:,vso4g( m ) ) = cgrid( :,:,:,vso4g( m ) )
-     &                             + aero_cond( :,:,:,vso4( m ) )
-     &                             + aero_npf ( :,:,:,vso4( m ) )
-      End Do
+      Do c = 1, ncols
+         Do r = 1, nrows
+            Do l = 1, nlays
+
+C extract aerosol species from CGRID
+
+               Call extract_aero ( cgrid( c,r,l,: ), .True. )
+
+               Do m = 1, n_mode
+                  aerospc_conc( aso4gas_idx, m ) = aerospc_conc( aso4gas_idx,m )
+     &                                           + aero_cond( c,r,l,aerospc_map( aso4_idx,m ) )
+     &                                           + aero_npf ( c,r,l,aerospc_map( aso4_idx,m ) )
+               End Do
 
 C normalize tracked sulfate species to total modeled sulfate
 
-      If ( adj_stmspc ) Then
+               If ( adj_stmspc ) Then
 
-         Do c = 1, ncols
-            Do r = 1, nrows
-               Do l = 1, nlays
                   Do m = 1, n_mode
          
-                     aso4tot = cgrid( c,r,l,vso4g( m ) )
-     &                       + cgrid( c,r,l,vso4e( m ) )
-     &                       + cgrid( c,r,l,vso4b( m ) )
+                     aso4tot = aerospc_conc( aso4gas_idx, m )
+     &                       + aerospc_conc( aso4emis_idx,m )
+     &                       + aerospc_conc( aso4icbc_idx,m )
 
 C...  for the accumulation mode, add aqueous tracked species
 
-                     if ( m .eq. 2 ) then
+                     If ( m .Eq. 2 ) Then
+
                         aso4tot = aso4tot
-     &                          + cgrid( c,r,l,vso4ah2o2 )
-     &                          + cgrid( c,r,l,vso4ao3 )
-     &                          + cgrid( c,r,l,vso4afemn ) 
-     &                          + cgrid( c,r,l,vso4amhp )
-     &                          + cgrid( c,r,l,vso4apaa )
+     &                          + aerospc_conc( aso4aqh2o2_idx,m )
+     &                          + aerospc_conc( aso4aqo3_idx,  m )
+     &                          + aerospc_conc( aso4aqfemn_idx,m ) 
+     &                          + aerospc_conc( aso4aqmhp_idx, m )
+     &                          + aerospc_conc( aso4aqpaa_idx, m )
+
                      End If
 
 C...  normalize sulfur tracking species
 
                      If ( aso4tot .Gt. 0.0 ) Then
-                        mscor = cgrid( c,r,l,vso4( m ) ) / aso4tot
-                        cgrid( c,r,l,vso4g( m ) ) = cgrid( c,r,l,vso4g( m ) )
-     &                                            * mscor
-                        cgrid( c,r,l,vso4e( m ) ) = cgrid( c,r,l,vso4e( m ) )
-     &                                            * mscor
-                        cgrid( c,r,l,vso4b( m ) ) = cgrid( c,r,l,vso4b( m ) )
-     &                                            * mscor
-                        if ( m .eq. 2 ) then
-                           cgrid( c,r,l,vso4ah2o2 ) = cgrid( c,r,l,vso4ah2o2 )
-     &                                              * mscor
-                           cgrid( c,r,l,vso4ao3 )   = cgrid( c,r,l,vso4ao3 )
-     &                                              * mscor
-                           cgrid( c,r,l,vso4afemn ) = cgrid( c,r,l,vso4afemn )
-     &                                              * mscor
-                           cgrid( c,r,l,vso4amhp )  = cgrid( c,r,l,vso4amhp )
-     &                                              * mscor
-                           cgrid( c,r,l,vso4apaa )  = cgrid( c,r,l,vso4apaa )
-     &                                              * mscor
+                        mscor = aerospc_conc( aso4_idx, m ) / aso4tot
+                        aerospc_conc( aso4gas_idx, m ) = aerospc_conc( aso4gas_idx, m )
+     &                                                 * mscor
+                        aerospc_conc( aso4emis_idx,m ) = aerospc_conc( aso4emis_idx,m )
+     &                                                 * mscor
+                        aerospc_conc( aso4icbc_idx,m ) = aerospc_conc( aso4icbc_idx,m )
+     &                                                 * mscor
+                        If ( m .Eq. 2 ) Then
+                           aerospc_conc( aso4aqh2o2_idx,m ) = aerospc_conc( aso4aqh2o2_idx,m )
+     &                                                      * mscor
+                           aerospc_conc( aso4aqo3_idx,  m ) = aerospc_conc( aso4aqo3_idx,  m )
+     &                                                      * mscor
+                           aerospc_conc( aso4aqfemn_idx,m ) = aerospc_conc( aso4aqfemn_idx,m )
+     &                                                      * mscor
+                           aerospc_conc( aso4aqmhp_idx, m ) = aerospc_conc( aso4aqmhp_idx, m )
+     &                                                      * mscor
+                           aerospc_conc( aso4aqpaa_idx, m ) = aerospc_conc( aso4aqpaa_idx, m )
+     &                                                      * mscor
                         End If
                      End If
          
+                     If ( ( ae6isoa ) .Or.
+     &                    ( Index( mechname, 'CB6R3_AE7'  ) .Gt. 0 ) .Or.
+     &                    ( Index( mechname, 'CB6R3M_AE7' ) .Gt. 0 ) ) Then
+    
+C...  for the accumulation mode, add aqueous tracked species
+
+                        If ( m .Eq. 2 ) Then
+                           oso4tot = aerospc_conc( oso4gas_idx, m )
+     &                             + aerospc_conc( oso4emis_idx,m )
+     &                             + aerospc_conc( oso4icbc_idx,m )
+     &                             + aerospc_conc( oso4aqh2o2_idx,m )
+     &                             + aerospc_conc( oso4aqo3_idx,  m )
+     &                             + aerospc_conc( oso4aqfemn_idx,m ) 
+     &                             + aerospc_conc( oso4aqmhp_idx, m )
+     &                             + aerospc_conc( oso4aqpaa_idx, m )
+
+                           If ( oso4tot .Gt. 0.0 ) Then
+
+!                              If ( ae6isoa ) Then
+!                                 mscor = ( aerospc_conc( aieos_idx, m ) / aerospc_mw( aieos_idx )
+!     &                                   + aerospc_conc( aimos_idx, m ) / aerospc_mw( aimos_idx ) ) * aerospc_mw( aso4_idx )
+!     &                                 / oso4tot
+!                              Else
+!                                 mscor = 0.4 * aerospc_conc( aiso3_idx, m ) / 216.0
+!     &                                 * aerospc_mw( aso4_idx )
+!     &                                 / oso4tot
+!                              End If
+                              mscor = aerospc_conc( oso4_idx, m ) / oso4tot
+
+                              aerospc_conc( oso4gas_idx, m ) = aerospc_conc( oso4gas_idx, m )
+     &                                                       * mscor
+                              aerospc_conc( oso4emis_idx,m ) = aerospc_conc( oso4emis_idx,m )
+     &                                                       * mscor
+                              aerospc_conc( oso4icbc_idx,m ) = aerospc_conc( oso4icbc_idx,m )
+     &                                                       * mscor   
+                              aerospc_conc( oso4aqh2o2_idx,m ) = aerospc_conc( oso4aqh2o2_idx,m )
+     &                                                         * mscor
+                              aerospc_conc( oso4aqo3_idx,  m ) = aerospc_conc( oso4aqo3_idx,  m )
+     &                                                         * mscor
+                              aerospc_conc( oso4aqfemn_idx,m ) = aerospc_conc( oso4aqfemn_idx,m )
+     &                                                         * mscor
+                              aerospc_conc( oso4aqmhp_idx, m ) = aerospc_conc( oso4aqmhp_idx, m )
+     &                                                         * mscor
+                              aerospc_conc( oso4aqpaa_idx, m ) = aerospc_conc( oso4aqpaa_idx, m )
+     &                                                         * mscor
+                        
+                           End If
+                        End If
+                     End If
+
                   End Do
-               End Do
+
+               End If
+
+C update aerosol species in CGRID
+
+               Call update_aero ( cgrid( c,r,l,: ), .True. )
+
             End Do
          End Do
+      End Do
 
-      End If
       Return
       
       End Subroutine stm_wrap_ae
 
 
 C-----------------------------------------------------------------------
-      Subroutine stm_wrap_gas ( cgrid, jdate, jtime, after )
+      Subroutine stm_wrap_gas ( cgrid, jdate, jtime, b4chem )
 
 C  capture changes in aso4 from gas phase chemistry
 C  in the current release, ASO4 can be lost in gas chem to form organo-sulfate
@@ -160,7 +219,17 @@ C
 C     Initial version - 6/5/19 - Shawn Roselle
 C-----------------------------------------------------------------------
 
+      Use grid_conf, Only: ncols, nrows, nlays
       Use utilio_defn, Only: xstat1
+      Use rxns_data, only: mechname       ! chemical mechanism data
+      Use aero_data, Only : aso4_idx, aso4aqh2o2_idx, aso4aqo3_idx,
+     &                      aso4aqfemn_idx, aso4aqmhp_idx, aso4aqpaa_idx,
+     &                      aso4gas_idx, aso4emis_idx, aso4icbc_idx,
+     &                      oso4aqh2o2_idx, oso4aqo3_idx, oso4aqfemn_idx,
+     &                      oso4aqmhp_idx, oso4aqpaa_idx, oso4_idx,
+     &                      oso4gas_idx, oso4emis_idx, oso4icbc_idx,
+     &                      aerospc_conc, n_mode, ae6isoa,
+     &                      extract_aero, update_aero
 
       Implicit None
 
@@ -170,11 +239,11 @@ C Arguments
 
       Integer, Intent( In ) :: jdate
       Integer, Intent( In ) :: jtime
-      Logical, Intent( In ) :: after
+      Logical, Intent( In ) :: b4chem
 
 C local variables
 
-      Character( 16 ) :: pname = 'stm_wrap_gas'
+      Character( 16 ) :: pname = 'STM_WRAP_GAS'
       Character( 96 ) :: xmsg = ' '
 
       Logical, Save :: firstime = .True.
@@ -199,108 +268,96 @@ C  begin body of subroutine stm_wrap_gas
 
          firstime = .False.
 
-         Call init_stm_pntrs()
-
       End If
 
-C save ASO4 concentrations before call to CHEM
-
-      If ( .not. after ) Then
+      Do c = 1, ncols
+         Do r = 1, nrows
+            Do l = 1, nlays
   
-         Do m = 1, n_mode
-            so4b4( :,:,:,m ) = cgrid( :,:,:,vso4( m ) )
-         End Do
+C save ASO4 concentrations before call to CHEM
+               If ( b4chem ) Then
+  
+C extract aerosol species from CGRID
+                  Call extract_aero ( cgrid( c,r,l,: ), .True. )
+
+                  Do m = 1, n_mode
+                     so4b4( c,r,l,m ) = aerospc_conc( aso4_idx, m )
+                  End Do
 
 C scale sulfur tracking species by change in ASO4
+               Else
+  
+C extract aerosol species from CGRID
+                  Call extract_aero ( cgrid( c,r,l,: ), .True. )
 
-      Else
-  
-         Do c = 1, ncols
-            Do r = 1, nrows
-               Do l = 1, nlays
-  
                   Do m = 1, n_mode
-                     fso4 = cgrid( c,r,l,vso4( m ) ) / so4b4( c,r,l,m )
-                     If ( so4b4( c,r,l,m ) .Gt. 0.0 ) Then
-                        cgrid( c,r,l,vso4g( m ) ) = cgrid( c,r,l,vso4g( m ) )
-     &                                            * fso4
-                        cgrid( c,r,l,vso4e( m ) ) = cgrid( c,r,l,vso4e( m ) )
-     &                                            * fso4
-                        cgrid( c,r,l,vso4b( m ) ) = cgrid( c,r,l,vso4b( m ) )
-     &                                            * fso4
-                        if ( m .eq. 2 ) then
-                           cgrid( c,r,l,vso4ah2o2 ) = cgrid( c,r,l,vso4ah2o2 )
-     &                                              * fso4
-                           cgrid( c,r,l,vso4ao3 )   = cgrid( c,r,l,vso4ao3 )
-     &                                              * fso4
-                           cgrid( c,r,l,vso4afemn ) = cgrid( c,r,l,vso4afemn )
-     &                                              * fso4
-                           cgrid( c,r,l,vso4amhp )  = cgrid( c,r,l,vso4amhp )
-     &                                              * fso4
-                           cgrid( c,r,l,vso4apaa )  = cgrid( c,r,l,vso4apaa )
-     &                                              * fso4
+                     If ( ( aerospc_conc( aso4_idx, m ) .Ne. so4b4( c,r,l,m ) ) .And.
+     &                    ( so4b4( c,r,l,m ) .Gt. 0.0 ) ) Then
+
+                        fso4 = aerospc_conc( aso4_idx, m ) / so4b4( c,r,l,m )
+
+c  capture the loss of SO4 to organosulfate
+                        If ( ( ae6isoa ) .Or.
+     &                       ( Index( mechname, 'CB6R3_AE7'  ) .Gt. 0 ) .Or.
+     &                       ( Index( mechname, 'CB6R3M_AE7' ) .Gt. 0 ) ) Then
+                           If ( m .Eq. 2 ) Then
+                              aerospc_conc( oso4_idx, m ) = aerospc_conc( oso4_idx, m )
+     &                            + ( so4b4( c,r,l,m ) - aerospc_conc( aso4_idx, m ) )
+                              aerospc_conc( oso4gas_idx, m ) = aerospc_conc( oso4gas_idx, m )
+     &                            + ( aerospc_conc( aso4gas_idx,  m ) * ( 1.0 - fso4 ) )
+                              aerospc_conc( oso4emis_idx,m ) = aerospc_conc( oso4emis_idx,m )
+     &                            + ( aerospc_conc( aso4emis_idx, m ) * ( 1.0 - fso4 ) )
+                              aerospc_conc( oso4icbc_idx,m ) = aerospc_conc( oso4icbc_idx,m )
+     &                            + ( aerospc_conc( aso4icbc_idx, m ) * ( 1.0 - fso4 ) )
+                              aerospc_conc( oso4aqh2o2_idx,m ) = aerospc_conc( oso4aqh2o2_idx,m )
+     &                            + ( aerospc_conc( aso4aqh2o2_idx,  m ) * ( 1.0 - fso4 ) )
+                              aerospc_conc( oso4aqo3_idx,  m ) = aerospc_conc( oso4aqo3_idx,  m )
+     &                            + ( aerospc_conc( aso4aqo3_idx,  m ) * ( 1.0 - fso4 ) )
+                              aerospc_conc( oso4aqfemn_idx,m ) = aerospc_conc( oso4aqfemn_idx,m )
+     &                            + ( aerospc_conc( aso4aqfemn_idx,  m ) * ( 1.0 - fso4 ) )
+                              aerospc_conc( oso4aqmhp_idx, m ) = aerospc_conc( oso4aqmhp_idx, m )
+     &                            + ( aerospc_conc( aso4aqmhp_idx,  m ) * ( 1.0 - fso4 ) )
+                              aerospc_conc( oso4aqpaa_idx, m ) = aerospc_conc( oso4aqpaa_idx, m )
+     &                            + ( aerospc_conc( aso4aqpaa_idx,  m ) * ( 1.0 - fso4 ) )
+
+                           End If
+                        End If
+
+c  reduce tracked species by amount converted to organosulfate
+                        aerospc_conc( aso4gas_idx, m ) = aerospc_conc( aso4gas_idx, m )
+     &                                                 * fso4
+                        aerospc_conc( aso4emis_idx,m ) = aerospc_conc( aso4emis_idx,m )
+     &                                                 * fso4
+                        aerospc_conc( aso4icbc_idx,m ) = aerospc_conc( aso4icbc_idx,m )
+     &                                                 * fso4
+                        If ( m .Eq. 2 ) Then
+
+                           aerospc_conc( aso4aqh2o2_idx,m ) = aerospc_conc( aso4aqh2o2_idx,m )
+     &                                                      * fso4
+                           aerospc_conc( aso4aqo3_idx,  m ) = aerospc_conc( aso4aqo3_idx,  m )
+     &                                                      * fso4
+                           aerospc_conc( aso4aqfemn_idx,m ) = aerospc_conc( aso4aqfemn_idx,m )
+     &                                                      * fso4
+                           aerospc_conc( aso4aqmhp_idx, m ) = aerospc_conc( aso4aqmhp_idx, m )
+     &                                                      * fso4
+                           aerospc_conc( aso4aqpaa_idx, m ) = aerospc_conc( aso4aqpaa_idx, m )
+     &                                                      * fso4
                         End If
                      End If
                   End Do
   
-               End Do
+C update aerosol species in CGRID
+
+                  Call update_aero ( cgrid( c,r,l,: ), .True. )
+
+               End If
             End Do
          End Do
 
-      End If
+      End Do
       Return
 
       End Subroutine stm_wrap_gas
-
-
-C-----------------------------------------------------------------------
-      Subroutine init_stm_pntrs()
-
-C  initialize stm species pointers
- 
-C  Revision History:
-C     Initial version 6/5/19 Shawn Roselle
-C     
-C-----------------------------------------------------------------------
-
-      Implicit None
-
-C Local variables:
-
-      Character( 16 ) :: pname = 'init_stm_pntrs'
-
-      Integer m
-
-
-C-----------------------------------------------------------------------
-C  begin body of subroutine init_stm_pntrs
-
-      If ( initialized ) Return
-
-      Call map_aero()
-
-      Do m = 1, n_mode
-         vso4 ( m ) = aerospc_map( aso4_idx,m )
-         vso4g( m ) = aerospc_map( aso4gas_idx,m )
-         vso4e( m ) = aerospc_map( aso4emis_idx,m )
-         vso4b( m ) = aerospc_map( aso4icbc_idx,m )
-
-C...  set pointers to species that only appear in the accumulation mode
-
-         If ( m .eq. 2 ) Then
-            vso4ah2o2 = aerospc_map( aso4aqh2o2_idx,m )
-            vso4ao3   = aerospc_map( aso4aqo3_idx,m )
-            vso4afemn = aerospc_map( aso4aqfemn_idx,m ) 
-            vso4amhp  = aerospc_map( aso4aqmhp_idx,m )
-            vso4apaa  = aerospc_map( aso4aqpaa_idx,m )
-         End If
-
-      End Do
-
-      initialized = .True.
-      Return
-
-      End Subroutine init_stm_pntrs
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 

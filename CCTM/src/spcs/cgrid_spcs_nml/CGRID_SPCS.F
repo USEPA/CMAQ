@@ -31,6 +31,7 @@ C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
 C 07 Mar 2019 F. Sidi:  Split up ICBC for CMAQ species  namelist 
 c-----------------------------------------------------------------------
       USE RUNTIME_VARS
+      Use rxns_data, only: mechname       ! chemical mechanism data
 
       implicit none
 
@@ -148,7 +149,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             logical success
             integer, save :: dev_gc_nml, dev_ae_nml, dev_nr_nml, dev_tr_nml
             integer, save :: dev_stm_nml = 0
-            integer, save :: n_stm_ae_spc = 0, n_stm_nr_spc = 0
+            integer, save :: n_stm_ae_spc = 0, n_stm_oae_spc = 0, n_stm_nr_spc = 0
             integer i, ios, IGC, IAE, INR, ITR
             character(  1 ), parameter :: bl = ' '
             integer, parameter :: spc_dim = 1000
@@ -225,6 +226,7 @@ c namelist variables
             TYPE (SPECIES_DATA_REG_3), ALLOCATABLE :: TR_SPECIES_DATA(:)
  
             TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: STM_AE_SPECIES_DATA(:)
+            TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: STM_OAE_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: STM_NR_SPECIES_DATA(:)
 
             namelist / GC_NML / GC_SPECIES_DATA
@@ -233,6 +235,7 @@ c namelist variables
             namelist / TR_NML / TR_SPECIES_DATA
 
             namelist / STM_AE_NML / STM_AE_SPECIES_DATA
+            namelist / STM_OAE_NML / STM_OAE_SPECIES_DATA
             namelist / STM_NR_NML / STM_NR_SPECIES_DATA
 
 c----------------------------------------------------------------------------------------
@@ -505,6 +508,79 @@ c-------------------------------------------------------------------------------
                   AE_SPECIES_DATA( N_AE_SPC )%WDEP_FLAG    = STM_AE_SPECIES_DATA( IAE )%WDEP_FLAG
                   AE_SPECIES_DATA( N_AE_SPC )%CONC_FLAG    = STM_AE_SPECIES_DATA( IAE )%CONC_FLAG
                END DO
+
+               If ( ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'SAPRC07TIC_AE7I' ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'CB6R3M_AE7'      ) .Gt. 0 ) ) Then
+
+                  ! Organo-Sulfate Tracking Aerosol (OAE) Namelist
+                  ALLOCATE( STM_OAE_SPECIES_DATA( SPC_DIM ), STAT=IOS )
+                  STM_OAE_SPECIES_DATA%SPECIES_NAME = ''
+                  STM_OAE_SPECIES_DATA%MOLWT = 0.
+                  STM_OAE_SPECIES_DATA%IC_SURR = ''
+                  STM_OAE_SPECIES_DATA%IC_FAC = 0.
+                  STM_OAE_SPECIES_DATA%BC_SURR = ''
+                  STM_OAE_SPECIES_DATA%BC_FAC = 0.
+                  STM_OAE_SPECIES_DATA%DEPV_SURR = ''
+                  STM_OAE_SPECIES_DATA%DEPV_FAC = 0.
+                  STM_OAE_SPECIES_DATA%SCAV_SURR = ''
+                  STM_OAE_SPECIES_DATA%SCAV_FAC = 0.
+                  STM_OAE_SPECIES_DATA%CLOUD_SURR = ''
+                  STM_OAE_SPECIES_DATA%TRNS_FLAG = ''
+                  STM_OAE_SPECIES_DATA%DDEP_FLAG = ''
+                  STM_OAE_SPECIES_DATA%WDEP_FLAG = ''
+                  STM_OAE_SPECIES_DATA%CONC_FLAG = ''
+                
+                  if ( dev_stm_nml .eq. 0 ) then
+                     dev_stm_nml = junit()
+                     open( file = trim( stm_namelist ), unit = dev_stm_nml,
+     &                     status = 'old', position = 'rewind' )
+                  end if
+                  read( nml = STM_OAE_nml, unit = dev_stm_nml ) 
+                  
+                  ! Determine Number of Sulfur Tracking Aerosol Species
+                  N_STM_OAE_SPC = 0
+                  DO IAE = 1,SPC_DIM
+                      IF ( STM_OAE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
+                      N_STM_OAE_SPC = IAE
+                      IF ( STM_OAE_SPECIES_DATA( IAE )%IC_FAC .EQ. -1. )
+     &                     STM_OAE_SPECIES_DATA( IAE )%IC_FAC = 0.
+                      IF ( STM_OAE_SPECIES_DATA( IAE )%BC_FAC .EQ. -1. )
+     &                     STM_OAE_SPECIES_DATA( IAE )%BC_FAC = 0.
+                      IF ( STM_OAE_SPECIES_DATA( IAE )%DEPV_FAC .EQ. -1. )
+     &                     STM_OAE_SPECIES_DATA( IAE )%DEPV_FAC = 0.
+                      IF ( STM_OAE_SPECIES_DATA( IAE )%SCAV_FAC .EQ. -1. )
+     &                     STM_OAE_SPECIES_DATA( IAE )%SCAV_FAC = 0.
+                  END DO
+                
+                  IF ( ( N_AE_SPC + N_STM_OAE_SPC ) .GT. SPC_DIM ) THEN
+                     WRITE( LOGDEV,* ) '*** Allocated dimension exceeded for AE ', 
+     &                                 ' species in Sulfur Tracking Model' 
+                     SUCCESS = .FALSE.
+                     RETURN
+                  END IF
+                  
+                  DO IAE = 1, N_STM_OAE_SPC
+                     N_AE_SPC = N_AE_SPC + 1
+                     AE_SPECIES_DATA( N_AE_SPC )%SPECIES_NAME = STM_OAE_SPECIES_DATA( IAE )%SPECIES_NAME
+                     AE_SPECIES_DATA( N_AE_SPC )%MOLWT        = STM_OAE_SPECIES_DATA( IAE )%MOLWT
+                     AE_SPECIES_DATA( N_AE_SPC )%IC_SURR      = STM_OAE_SPECIES_DATA( IAE )%IC_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%IC_FAC       = STM_OAE_SPECIES_DATA( IAE )%IC_FAC
+                     AE_SPECIES_DATA( N_AE_SPC )%BC_SURR      = STM_OAE_SPECIES_DATA( IAE )%BC_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%BC_FAC       = STM_OAE_SPECIES_DATA( IAE )%BC_FAC
+                     AE_SPECIES_DATA( N_AE_SPC )%DEPV_SURR    = STM_OAE_SPECIES_DATA( IAE )%DEPV_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%DEPV_FAC     = STM_OAE_SPECIES_DATA( IAE )%DEPV_FAC
+                     AE_SPECIES_DATA( N_AE_SPC )%SCAV_SURR    = STM_OAE_SPECIES_DATA( IAE )%SCAV_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%SCAV_FAC     = STM_OAE_SPECIES_DATA( IAE )%SCAV_FAC
+                     AE_SPECIES_DATA( N_AE_SPC )%CLOUD_SURR   = STM_OAE_SPECIES_DATA( IAE )%CLOUD_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%TRNS_FLAG    = STM_OAE_SPECIES_DATA( IAE )%TRNS_FLAG
+                     AE_SPECIES_DATA( N_AE_SPC )%DDEP_FLAG    = STM_OAE_SPECIES_DATA( IAE )%DDEP_FLAG
+                     AE_SPECIES_DATA( N_AE_SPC )%WDEP_FLAG    = STM_OAE_SPECIES_DATA( IAE )%WDEP_FLAG
+                     AE_SPECIES_DATA( N_AE_SPC )%CONC_FLAG    = STM_OAE_SPECIES_DATA( IAE )%CONC_FLAG
+                  END DO
+
+               End If
             END IF
 
             ! Allocate and Initialize Permanent Variables
