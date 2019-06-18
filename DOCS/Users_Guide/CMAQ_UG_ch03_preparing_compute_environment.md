@@ -38,7 +38,7 @@ In order to build the CMAQ program suite, users must install these libraries in 
 
 **Table 3‑2. Minimum required software versions**
 
-|**Software**|**version**|
+|**Software**|**Version**|
 |:--------------:|:----:|
 | Intel Compiler | 17.0 | 
 | GNU Compiler | 6.1.0 | 
