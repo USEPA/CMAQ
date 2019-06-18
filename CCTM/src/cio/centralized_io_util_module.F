@@ -39,11 +39,11 @@
 ! -------------------------------------------------------------------------
         recursive subroutine quicksort1d (name, begin, end)
 
-          character (16), intent(out) :: name(:)
+          character (*), intent(out) :: name(:)
           integer, intent(in)         :: begin, end
 
           integer        :: i, j
-          character (16) :: str1, str2
+          character (50) :: str1, str2
           logical        :: done
 
           str1 = name( (begin + end) / 2 )
@@ -75,11 +75,11 @@
 ! -------------------------------------------------------------------------
         recursive subroutine quicksort2d (name, begin, end)
 
-          character (16), intent(out) :: name(:,:)
+          character (*), intent(out) :: name(:,:)
           integer, intent(in)         :: begin, end
 
           integer        :: i, j
-          character (16) :: str1(2), str2(2)
+          character (50) :: str1(2), str2(2)
           logical        :: done
 
           str1 = name( (begin + end) / 2, 1 )
