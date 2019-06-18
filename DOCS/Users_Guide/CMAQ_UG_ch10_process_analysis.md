@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch09_new_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch11_HDDM-3D.md)
+[<< Previous Chapter](CMAQ_UG_ch08_analysis_tools.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch10_HDDM-3D.md)
 
 <!-- END COMMENT -->
 
@@ -166,7 +166,7 @@ IRR can be endlessly customized to examine many different processes and combinat
 
 We have summed the throughputs over 2 weeks (July 1-14, 2011), within the first level of the model, and compared these three output pathways at four locations throughout the U.S. Figure 1 shows the sum through each of these processes at 6 different grid areas, including 4 urban areas and 2 rural areas.  This figure also includes the corresponding fate for the largely biogenic VOCs, although note that some VOCs, such as formaldehyde and ethanol can be both anthropogenic and biogenic.
 
-![Figure 9-1: Relative contribution of oxidation pathways for VOCs](./images/Figure10-1.png)
+![Figure 9-1: Relative contribution of oxidation pathways for VOCs](./images/Figure9-1.png)
 
 **Figure 9-1.  Relative contribution of oxidation pathways for VOCs using Process Analysis**
 
@@ -182,7 +182,7 @@ We have summed the throughputs over 2 weeks (July 1-14, 2011), within the first 
 
 In this case, we have summed up all throughput over the first 15 levels of the model (approximating the PBL) and over the same 14-day time period.  Figure 10-2 shows the relative contribution of processes to the total HNO3 formation at three grids.  In this case, at the two more urban grids, the reaction of OH+NO2 dominates the formation of HNO3 in summer, while at the rural grid cell (Missouri), the heterogeneous hydrolysis of alkyl nitrates is predominant.
 
-![Figure 9-2:  Relative contribution of HNO3 formation pathways](./images/Figure10-2.png)
+![Figure 9-2:  Relative contribution of HNO3 formation pathways](./images/Figure9-2.png)
 
 **Figure 9-2.  Relative contribution of HNO3 formmation pathways at three grid locations**
 
