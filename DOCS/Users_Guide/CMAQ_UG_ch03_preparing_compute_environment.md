@@ -49,7 +49,6 @@ In order to build the CMAQ program suite, users must install these libraries in 
 | MVAPICH2 | |
 | netCDF C Libraries | 4.4.1 | 
 | netCDF Fortran Libraries | 4.4.4 | 
-| PnetCDF Libraries (optional) | 1.6.0 |
 | IOAPI Library | 3.2 |
 
 **NOTE: The CMAQ team recommends using a single compiler suite when building these libraries. Mixing compiler suites when building these libraries can cause unexpected or undefined behavior (e.g., mixing intel 18.0 to build netCDF C libraries and gcc 6.1.0 to build netCDF fortran libraries is not going to work).** 
