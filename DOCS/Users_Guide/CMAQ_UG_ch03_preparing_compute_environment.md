@@ -43,6 +43,10 @@ In order to build the CMAQ program suite, users must install these libraries in 
 | Intel Compiler | 17.0 | 
 | GNU Compiler | 6.1.0 | 
 | PGI Compiler | 17.4 |
+| OpenMPI | 4.0.1 | 
+| IntelMPI | 2018.0 | 
+| MPICH |  |
+| MVAPICH2 | |
 | netCDF C Libraries | 4.4.1 | 
 | netCDF Fortran Libraries | 4.4.4 | 
 | PnetCDF Libraries (optional) | 1.6.0 |
