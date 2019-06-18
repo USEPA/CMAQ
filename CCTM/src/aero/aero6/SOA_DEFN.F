@@ -1151,24 +1151,27 @@ C-----------------------------------------------------------------------
 
          im = 2 ! only compute water for accumulation mode OM
 
-         ! Compute sum_i(Kappa_i*Vorg_i) and volume equivalent diameter
+         ! Compute sum_i(Kappa_i*Vorg_i) for all OM species except POC 
+         ! and PNCOM, which will be handled next.
          Do i = 1, n_aerospc
            If(  aerospc( i )%tracer )cycle
               totvol = totvol + aerospc_conc(i, im ) /
      &                 aerospc( i )%density * 1.0e-9
-           If( aerospc( i )%OM ) Then
+           If( aerospc( i )%OM .and. 
+     &         i .ne. apoc_idx .and. i .ne. apncom_idx ) Then
               kappaVorg = kappaVorg + aerospc( i )%kappaorg *
      &                    aerospc_conc( i, im ) / aerospc( i )%density*1.0e-9
            End If
          End Do
 
-         If ( ( apoc_idx > 0 ) .and. ( apncom_idx > 0 ) ) Then ! add nonvol POA if present
-            poa = aerospc_conc( apoc_idx, im ) + aerospc_conc( apncom_idx, im )
-            kappaVorg = kappaVorg + (0.11*poa/aerospc_conc(apoc_idx, im ) -0.10)
-     &      * (aerospc_conc( apncom_idx, im ) / aerospc( apncom_idx )%density +
-     &         aerospc_conc( apoc_idx,   im ) / aerospc( apoc_idx )%density )*1.0e-9
-         End If
+         ! Account for Kappa of Nonvolatile POC and PNCOM species. This
+         ! must be done separately because PNCOM has infinite OM:OC
+         poa = aerospc_conc( apoc_idx, im ) + aerospc_conc( apncom_idx, im )
+         kappaVorg = kappaVorg + (0.11*poa/aerospc_conc(apoc_idx, im ) -0.10)
+     &               * (aerospc_conc( apncom_idx, im ) / aerospc( apncom_idx )%density +
+     &                  aerospc_conc( apoc_idx,   im ) / aerospc( apoc_idx )%density )*1.0e-9
 
+         ! Calculate Aggregate Kappa and volume Equivalent Diameter
          overallkappa = kappaVorg/totvol
          numparticles = moment0_conc( im )
          diam         = (6.0*totvol/numparticles/ pi ) ** (1.0/3.0)

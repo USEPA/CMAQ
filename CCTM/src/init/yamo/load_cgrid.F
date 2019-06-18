@@ -146,6 +146,7 @@ C for XTRACT3
 
       CHARACTER( 16 ) :: PNAME = 'LOAD_CGRID'
       CHARACTER( 16 ) :: VNAME
+      CHARACTER( 16 ) :: POC_CHK
       CHARACTER( 16 ) :: ICNAME_TMP
       CHARACTER( 16 ) :: CONCMIN
       CHARACTER( 96 ) :: XMSG = ' '
@@ -424,14 +425,18 @@ C IOFDESC common now loaded with FNAME header
          IF ( NDX .GT. 0 ) THEN
             call interpolate_var (VNAME3D ( NDX ), jdate, jtime, DBUFF)
 
-            ! Add Non-Carbon Mass to Carbon Mass if the model is
-            ! running semivolatile POA
-            IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' ) THEN 
-               IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
-                  ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
-                  call interpolate_var (ICNAME_TMP, jdate, jtime, DBUFF_TMP)
-                  DBUFF = DBUFF + DBUFF_TMP
-                END IF
+            ! Add Non-Carbon Mass to Carbon Mass if any tracer is
+            ! pointing to POC as a surrogate. It is very likely that
+            ! these tracers are seeking the entire POA mass (e.g.
+            ! semivolatile POA tracers).
+            POC_CHK = 'NOTPOC'
+            IF ( SPC_CAT .EQ. 'AE' ) POC_CHK = AE_SPC( SPC )
+
+            IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' .AND.
+     &           POC_CHK .NE. 'APOC' ) THEN 
+               ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
+               call interpolate_var (ICNAME_TMP, jdate, jtime, DBUFF_TMP)
+               DBUFF = DBUFF + DBUFF_TMP
             END IF
 
             ! Load ICs into CGRID

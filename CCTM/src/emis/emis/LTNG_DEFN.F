@@ -160,8 +160,6 @@
 
          SUCCESS = .TRUE.
 
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissions' )
-
 !C Lightning NO production
          IF ( .NOT. LTNG_NO ) RETURN
 
