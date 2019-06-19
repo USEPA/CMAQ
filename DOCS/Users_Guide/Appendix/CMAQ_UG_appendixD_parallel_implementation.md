@@ -88,7 +88,27 @@ This approach has been incorporated into IOAPI version 3.2 and fully implemented
 in bldit_cctm.csh at the model build step and link with IOAPI 3.2. Also in the run script, user requires to insert MPI: in front of the output file path as shown below:
 
   setenv CTM_CONC_1      "MPI:$OUTDIR/CCTM_CONC_${CTM_APPL}.nc -v"       #> On-Hour Concentrations
+  
+This approach also requires installation of "mpi" IOAPI libraries as shown below (note these steps should be followed after completing the steps in Chapter 3 section 3.2.3): 
 
+```
+setenv BIN Linux2_x86_64gfortmpi
+```
+
+Edit the file in the ioapi folder called Makeinclude.Linux2_x86_64gfortmpi to comment out all openMP options as CMAQ does not support openMP. Note: If users are using the ifort compiler you also need to remove -Bstatic flag within the ioapi/Makeinclude.Linux2_x86_64ifortmpi file as well.
+
+```
+OMPFLAGS = # -fopenmp 
+OMPLIBS = # -fopenmp
+```
+
+In the top level IOAPI_3.2 directory run: 
+```
+make configure
+make
+```
+
+For further directions on installation of PIO please contact David Wong at wong.david-c@epa.gov
 
 ### Reference:
 
