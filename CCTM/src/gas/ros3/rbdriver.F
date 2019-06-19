@@ -214,6 +214,14 @@ C..Local Variables:
 
 C**********************************************************************
 
+
+#ifdef isam
+      MSG = 'ERROR: Rosenbrock Chemistry Solver does not perform source apportionment.'
+      WRITE(LOGDEV,'(A)')TRIM( MSG )
+      MSG = 'Must use the EBI solver for the chemical mechanism'
+      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+#endif
+
       IF ( NUMB_MECH_SPC .EQ. 0 ) THEN
          CALL M3MESG( '*** WARNING: Gas-Chemistry processing bypassed!' )
          RETURN

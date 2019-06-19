@@ -241,6 +241,13 @@ C..SCRATCH LOCAL VARIABLES:
 
 C**********************************************************************
 
+#ifdef isam
+      MSG = 'ERROR: SMVGEAR Chemistry Solver does not perform source apportionment.'
+      WRITE(LOGDEV,'(A)')TRIM( MSG )
+      MSG = 'Must use the EBI solver for the chemical mechanism'
+      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+#endif
+
       IF ( NUMB_MECH_SPC .EQ. 0 ) RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
