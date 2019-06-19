@@ -107,24 +107,7 @@ make configure
 make
 ```
 
-Other IOAPI library configuration options are available and users can see a list of these options within the IOAPI documentation. For example, IOAPI can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" IOAPI libraries. More information about how to enable PIO within CMAQ can be found in [Appendix D](Appendix/CMAQ_UG_appendixD_parallel_implementation.md). The procedure to install "mpi" IOAPI libraries is shown below (this is a continuation from the above steps): 
-
-```
-setenv BIN Linux2_x86_64gfortmpi
-```
-
-Edit the file in the ioapi folder called Makeinclude.Linux2_x86_64gfortmpi to comment out all openMP options as CMAQ does not support openMP. Note: If users are using the ifort compiler you also need to remove -Bstatic flag within the ioapi/Makeinclude.Linux2_x86_64ifortmpi file as well.
-
-```
-OMPFLAGS = # -fopenmp 
-OMPLIBS = # -fopenmp
-```
-
-In the top level IOAPI_3.2 directory run: 
-```
-make configure
-make
-```
+Other IOAPI library configuration options are available and users can see a list of these options within the IOAPI documentation. For example, IOAPI can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" IOAPI libraries (Wong et al. 2015). More information about how to enable PIO within CMAQ can be found in [Appendix D](Appendix/CMAQ_UG_appendixD_parallel_implementation.md). 
 
 ## 3.3 Optional Software
 
@@ -144,7 +127,9 @@ make
 |PGPROF|Portland Group Fortran code profiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
 |IDB|Intel Fortran debugger|[<https://software.intel.com/en-us/articles/idb-linux>](https://software.intel.com/en-us/articles/idb-linux)|
 
+### Reference:
 
+Wong, D. C., Yang, C. E., Fu, J. S., Wong, K., and Gao, Y., “An approach to enhance pnetCDF performance in environmental modeling applications”, Geosci. Model Dev., 8, 1033-1046, 2015.
 
 <!-- BEGIN COMMENT -->
 
