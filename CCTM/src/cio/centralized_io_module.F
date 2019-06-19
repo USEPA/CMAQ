@@ -43,6 +43,7 @@
 !  06/18/19, D. Wong: -- modified cio implementation to handle:
 !                        * emission file date is differ from simulation date
 !                        * region files for scaling purposes
+!  06/19/19, D. Wong: -- fixed a bug in the EMIS regions subroutine
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -3090,7 +3091,7 @@ C   mminlu and num_land_cat are WRF global variables
                      IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME, 1, 1,
      &                                   STARTROW, ENDROW, STARTCOL, ENDCOL,
      &                                   0, 0, EM_REG_FAC( 1,1,N_EM_RGN ) ) ) Then
-                        XMSG = 'Could not read ' // VNAME3D(IVAR) //
+                        XMSG = 'Could not read ' // VNAME //
      &                         'from file ' // FILENAMES( IFILE ) 
                         CALL M3WARN ( PNAME, 0, 0, XMSG )
                      End If
