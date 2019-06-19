@@ -51,7 +51,6 @@ C-----------------------------------------------------------------------
      &                      oso4aqh2o2_idx, oso4aqo3_idx, oso4aqfemn_idx,
      &                      oso4aqmhp_idx, oso4aqpaa_idx, oso4_idx, 
      &                      oso4gas_idx, oso4emis_idx, oso4icbc_idx,
-!     &                      aieos_idx, aimos_idx, 
      &                      aerospc_conc, aerospc_map, aerospc_mw, n_mode, 
      &                      ae6isoa,
      &                      extract_aero, update_aero, findAero
@@ -67,20 +66,10 @@ C Arguments
 
 C Local variables
 
-!      Character( 16 ), Parameter :: req_aiso3 = 'AISO3'
-
-!      Logical, Save :: firstime = .True.
-
       Integer c, r, l, m
-!      Integer, Save :: aiso3_idx
 
       Real aso4tot, oso4tot
       Real mscor
-
-!      If ( firstime ) Then
-!         aiso3_idx   = findaero( req_aiso3, .True. )
-!         firstime = .False.
-!      End If
 
       Do c = 1, ncols
          Do r = 1, nrows
@@ -160,18 +149,7 @@ C...  for the accumulation mode, add aqueous tracked species
      &                             + aerospc_conc( oso4aqpaa_idx, m )
 
                            If ( oso4tot .Gt. 0.0 ) Then
-
-!                              If ( ae6isoa ) Then
-!                                 mscor = ( aerospc_conc( aieos_idx, m ) / aerospc_mw( aieos_idx )
-!     &                                   + aerospc_conc( aimos_idx, m ) / aerospc_mw( aimos_idx ) ) * aerospc_mw( aso4_idx )
-!     &                                 / oso4tot
-!                              Else
-!                                 mscor = 0.4 * aerospc_conc( aiso3_idx, m ) / 216.0
-!     &                                 * aerospc_mw( aso4_idx )
-!     &                                 / oso4tot
-!                              End If
                               mscor = aerospc_conc( oso4_idx, m ) / oso4tot
-
                               aerospc_conc( oso4gas_idx, m ) = aerospc_conc( oso4gas_idx, m )
      &                                                       * mscor
                               aerospc_conc( oso4emis_idx,m ) = aerospc_conc( oso4emis_idx,m )

@@ -150,11 +150,6 @@
       INTEGER :: N_APMDIAG_SPC= 0    ! PM Diagnostic File Number of Species
       CHARACTER(  16 ) :: APMDIAG_SPC( 200 ) = '' !PM Diagnostic File Species Names
 
-      ! Sulfur tracking
-      LOGICAL :: STM        = .FALSE. ! flag sulfur tracking option
-      LOGICAL :: ADJ_STMSPC = .FALSE. ! flag for normalizing sulfur tracking species
-      CHARACTER(256) :: STM_NAMELIST = '' ! Sulfur Tracking Model Namelist
-
       ! Cloud Parameters
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
 
@@ -235,6 +230,11 @@
       INTEGER :: PA_ENDROW = 0       ! ending row for PA output
       INTEGER :: PA_BEGLEV = 0       ! Starting layer for PA output
       INTEGER :: PA_ENDLEV = 0       ! ending layer for PA output
+
+      ! Sulfur tracking
+      LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
+      LOGICAL :: ADJ_STMSPC = .TRUE.  ! flag for normalizing sulfur tracking species
+      CHARACTER(256) :: STM_NAMELIST = '' ! Sulfur Tracking Model Namelist
 
       CONTAINS
           
