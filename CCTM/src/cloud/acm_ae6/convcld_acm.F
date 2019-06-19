@@ -131,6 +131,14 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE AQ_DATA
+      USE AERO_DATA, ONLY : ASO4_IDX, ASO4AQH2O2_IDX, ASO4AQO3_IDX,
+     &                      ASO4AQFEMN_IDX, ASO4AQMHP_IDX, ASO4AQPAA_IDX,
+     &                      ASO4GAS_IDX, ASO4EMIS_IDX, ASO4ICBC_IDX,
+     &                      OSO4AQH2O2_IDX, OSO4AQO3_IDX, OSO4AQFEMN_IDX,
+     &                      OSO4AQMHP_IDX, OSO4AQPAA_IDX, OSO4_IDX, 
+     &                      OSO4GAS_IDX, OSO4EMIS_IDX, OSO4ICBC_IDX,
+     &                      AEROSPC_MAP, N_MODE, AE6ISOA, MAP_AERO
+      USE RXNS_DATA, ONLY: MECHNAME       ! chemical mechanism data
       USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
      &                   LHNO3_PHOTOLYSIS => LHNO3
@@ -254,35 +262,7 @@ C-------------------------------------------
 
       CHARACTER( 16 ), SAVE :: RC_NAME  ! RC name: old is RC and new is RCA
 
-C...for sulfur tracking
-      INTEGER, PARAMETER :: NSTRKCOR  = 3  ! number of corse mode SO4 tracked species
-      INTEGER, PARAMETER :: NSTRKACC  = 8  ! number of acc mode SO4 tracked species
-      INTEGER, PARAMETER :: NSTRKATKN = 3  ! number of Atkn mode SO4 tracked species
-      
-      CHARACTER( 16 ), SAVE :: STRKCOR ( NSTRKCOR  )  ! list of coarse mode tracked SO4 species
-      CHARACTER( 16 ), SAVE :: STRKACC ( NSTRKACC  )  ! list of acc mode tracked SO4 species
-      CHARACTER( 16 ), SAVE :: STRKATKN( NSTRKATKN )  ! list of atkn mode tracked SO4 species
-
-      DATA STRKCOR( 1 ) / 'ASO4GASK        ' /
-      DATA STRKCOR( 2 ) / 'ASO4EMISK       ' /
-      DATA STRKCOR( 3 ) / 'ASO4ICBCK       ' /
-
-      DATA STRKACC( 1 ) / 'ASO4AQH2O2J     ' /
-      DATA STRKACC( 2 ) / 'ASO4AQO3J       ' /
-      DATA STRKACC( 3 ) / 'ASO4AQFEMNJ     ' /
-      DATA STRKACC( 4 ) / 'ASO4AQMHPJ      ' /
-      DATA STRKACC( 5 ) / 'ASO4AQPAAJ      ' /
-      DATA STRKACC( 6 ) / 'ASO4GASJ        ' /
-      DATA STRKACC( 7 ) / 'ASO4EMISJ       ' /
-      DATA STRKACC( 8 ) / 'ASO4ICBCJ       ' /
-
-      DATA STRKATKN( 1 ) / 'ASO4GASI        ' /
-      DATA STRKATKN( 2 ) / 'ASO4EMISI       ' /
-      DATA STRKATKN( 3 ) / 'ASO4ICBCI       ' /
-
-      INTEGER, ALLOCATABLE, SAVE :: SURCLDMX( : )    ! surrogate species for cloud mixing
-      INTEGER, SAVE :: VSO4AK, VSO4AJ, VSO4AI   ! pointers to ASO4K, ASO4J, and ASO4I
-      INTEGER          ITRKSPC          ! temporary variable for tracked species index
+      INTEGER, ALLOCATABLE, SAVE :: SURCLDMX( : ) ! cloud mixing surrogate for stm
 
       INTEGER          ATIME            ! time diff from half-hour
       INTEGER          CLTOP            ! model LAY containing cloud top
@@ -292,6 +272,7 @@ C...for sulfur tracking
       INTEGER          FINI             ! ending position
       INTEGER          I599C            ! entrainment solver iteration counter
       INTEGER          LAY              ! layer loop counter
+      INTEGER          M                ! mode index
       INTEGER          MDATE            ! process date
       INTEGER          MTIME            ! process time (half-hour)
       INTEGER, SAVE :: MSTEP            ! met file time step (hhmmss)
@@ -523,6 +504,8 @@ C...  event-statistics variables.
 
         FIRSTIME = .FALSE.
 
+        Call map_aero()
+
         IF ( N_AE_SPC .GT. 0 ) THEN
           ALLOCATE ( AECONCMIN( N_AE_SPC ), STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -532,38 +515,6 @@ C...  event-statistics variables.
           CALL SET_AECONCMIN ( AECONCMIN )
 
         END IF
-
-C...For sulfur tracking, determine CGRID species map
-        IF ( STM ) THEN
-
-          VARNM = 'ASO4K '
-          SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
-          IF ( SPC .NE. 0 ) THEN
-             VSO4AK = AE_STRT - 1 + SPC
-          ELSE
-             XMSG = 'Could not find ' // VARNM // 'in species table'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-          END IF
-         
-          VARNM = 'ASO4J '
-          SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
-          IF ( SPC .NE. 0 ) THEN
-             VSO4AJ = AE_STRT - 1 + SPC
-          ELSE
-             XMSG = 'Could not find ' // VARNM // 'in species table'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-          END IF
-         
-          VARNM = 'ASO4I '
-          SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
-          IF ( SPC .NE. 0 ) THEN
-             VSO4AI = AE_STRT - 1 + SPC
-          ELSE
-             XMSG = 'Could not find ' // VARNM // 'in species table'
-             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-          END IF
-
-      END IF ! stm
 
 C cccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
 
@@ -661,35 +612,47 @@ C...initialize surrogate array
           END DO
 
 C...set cloud mixing surrogates for the sulfate tracking species
-C...  coarse mode surrogate is ASO4K
 
-          DO ITRKSPC = 1, NSTRKCOR
-            VARNM = STRKCOR( ITRKSPC )
-            SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
-            IF ( SPC .NE. 0 ) THEN
-              SURCLDMX( AE_STRT - 1 + SPC ) = VSO4AK
-            END IF
-          END DO
+          Do m = 1, n_mode
 
-C...  accumulation mode surrogate is ASO4J
+            SURCLDMX( aerospc_map( aso4gas_idx, m ) ) = aerospc_map( aso4_idx,m )
+            SURCLDMX( aerospc_map( aso4emis_idx,m ) ) = aerospc_map( aso4_idx,m )
+            SURCLDMX( aerospc_map( aso4icbc_idx,m ) ) = aerospc_map( aso4_idx,m )
 
-          DO ITRKSPC = 1, NSTRKACC
-            VARNM = STRKACC( ITRKSPC )
-            SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
-            IF ( SPC .NE. 0 ) THEN
-              SURCLDMX( AE_STRT - 1 + SPC ) = VSO4AJ
-            END IF
-          END DO
+C...  for the accumulation mode, add aqueous tracked species
 
-C...  Aitken mode surrogate is ASO4I
+            If ( m .Eq. 2 ) Then
 
-          DO ITRKSPC = 1, NSTRKATKN
-            VARNM = STRKATKN( ITRKSPC )
-            SPC = INDEX1( VARNM, N_AE_SPC, AE_SPC )
-            IF ( SPC .NE. 0 ) THEN
-              SURCLDMX( AE_STRT - 1 + SPC ) = VSO4AI
-            END IF
-          END DO
+              SURCLDMX( aerospc_map( aso4aqh2o2_idx,m ) ) = aerospc_map( aso4_idx,m )
+              SURCLDMX( aerospc_map( aso4aqo3_idx,  m ) ) = aerospc_map( aso4_idx,m )
+              SURCLDMX( aerospc_map( aso4aqfemn_idx,m ) ) = aerospc_map( aso4_idx,m )
+              SURCLDMX( aerospc_map( aso4aqmhp_idx, m ) ) = aerospc_map( aso4_idx,m )
+              SURCLDMX( aerospc_map( aso4aqpaa_idx, m ) ) = aerospc_map( aso4_idx,m )
+
+            End If
+
+            If ( ( ae6isoa ) .Or.
+     &           ( Index( mechname, 'CB6R3_AE7'  ) .Gt. 0 ) .Or.
+     &           ( Index( mechname, 'CB6R3M_AE7' ) .Gt. 0 ) ) Then
+    
+C...  for the accumulation mode, add aqueous tracked species
+
+              If ( m .Eq. 2 ) Then
+
+                SURCLDMX( aerospc_map( oso4gas_idx,   m ) ) = aerospc_map( oso4_idx,m )
+                SURCLDMX( aerospc_map( oso4emis_idx,  m ) ) = aerospc_map( oso4_idx,m )
+                SURCLDMX( aerospc_map( oso4icbc_idx,  m ) ) = aerospc_map( oso4_idx,m )
+                SURCLDMX( aerospc_map( oso4aqh2o2_idx,m ) ) = aerospc_map( oso4_idx,m )
+                SURCLDMX( aerospc_map( oso4aqo3_idx,  m ) ) = aerospc_map( oso4_idx,m )
+                SURCLDMX( aerospc_map( oso4aqfemn_idx,m ) ) = aerospc_map( oso4_idx,m )
+                SURCLDMX( aerospc_map( oso4aqmhp_idx, m ) ) = aerospc_map( oso4_idx,m )
+                SURCLDMX( aerospc_map( oso4aqpaa_idx, m ) ) = aerospc_map( oso4_idx,m )
+
+              End If
+
+            End If
+
+          End Do
 
           SPC = 0
           STRT = AE_STRT
@@ -1818,7 +1781,6 @@ C...convert mean photolysis rates to 1/sec
               JH2O2_HYDROMETEORS = REAL( JH2O2_BAR * MINPERSEC, 8 ) 
               JHNO3_HYDROMETEORS = REAL( JHNO3_BAR * MINPERSEC, 8 )
             END IF
-
 
             CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,
