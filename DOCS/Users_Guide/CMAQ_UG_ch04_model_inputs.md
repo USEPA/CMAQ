@@ -59,7 +59,7 @@ Rather than forcing the programmer and program-user to deal with hard-coded file
 This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 4-1](#Input_Table) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. The user should consult the CMAQ release notes for additional file information. The programs used to generate the files ("Source") are described in Section 2. Typical time step is 1 hour and user can specify a finer one, e.g. 20 minutes. In addition, typical thickness of a boundary file is 1, i.e. NTHIK = 1 but it can be any positive integer.
 
 <!-- BEGIN COMMENT -->
-**>> Comment <<** In Table 8.1, some of the potential sources for the files have not been explained elsewhere (e.g., CSV2NML, Spatial Allocator).
+**>> Comment <<** In Table 8.1, some of the potential sources for the files have not been explained elsewhere (e.g., Metscan, Spatial Allocator).
 
 **>> Comment <<** DS: Should the column header by "Environment Variable Namefor File" or "Logical File Name"?
 
@@ -94,6 +94,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>| GRDDED3 | Hourly | XY | MCIP|required|
 |[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>| GRDDED3 | Hourly | XYZ | MCIP|required|
 |[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|required|
+|[mcip.nc](#mcip) <a id=mcip_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|optional|
 |**Emissions Inputs**||||||
 |[EMIS_XXX*](#emis_xxx) <a id=emis_xxx_t></a> | GRDDED3 | Hourly | XYZ | SMOKE|required|
 |[STK_GRPS_XXX](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE|required|
@@ -109,7 +110,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|optional|
 |**Photolysis** | | | |||
-|[OMI](#omi) <a id=omi_t></a>| ASCII | daily | n/a ||CMAQ repo or create_omi|required|
+|[OMI](#omi) <a id=omi_t></a>| ASCII | Daily | n/a |CMAQ repo or create_omi|required|
 
 *XXX - three-digit variable indicating emission stream number. Gridded and Inline Point emissions are numbered independently.
 
@@ -220,161 +221,117 @@ CMAQ boundary condition data are of the BNDARY3 file type. Produced by the bound
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10e<sup>-30</sup>. The perimeter of the CMAQ domain is NTHIK cell wide (typically NTHIK = 1), where the number of boundary cells = (2*NROW*NTHIK)+(2*NCOL*NTHIK)+(4*NTHIK*NTHIK).
 
 ## MCIP
+
 <a id=grid_cro_2d></a>
-
-### GRID_CRO_2D: Two-dimensional grid cross-point fields
-[Return to Table 4-1](#grid_cro_2d_t)
-
-Used by: CCTM
-
-The GRID_CRO_2D time-independent file contains surface fields at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM. The following variables are in this file:
-
-** >> Comment <<** [Comment covers the next three pages in the document, pp 150-153 in the full OGD]: The MCIP variable lists are VERY outdated.
-
-**Table 4-3**
-
-|**Variable Name**|**Description**|**Units**|**Required**|
-|--------|---------------|--------------|-----------|
-|LAT|latitude|degrees, where Northern Hemisphere is positive||
-|LON|longitude|degrees, where Western Hemisphere is negative||
-|MSFX2| squared map-scale factor|m<sup>2</sup> m<sup>-2</sup>||
-|HT|terrain elevation|m||
-|DLUSE|dominant land use|category||
-|LWMASK|land-water mask|1=land, 0=water||
-|PURB|urban percentage if cell is based on land|percent||
-|LUFRAC_01|land use fraction of NLCD40: Evergreen Needleleaf Forest|||
-|LUFRAC_XX|<repeated for 40 land use fractions>|||
-
-
-
 <a id=grid_bdy_2d></a>
-
-### GRID_BDY_2D
-[Return to Table 4-1](#grid_bdy_2d_t)
-
 <a id=grid_dot_2d></a>
-
-### GRID_DOT_2D: Two-dimensional grid dot-point fields
-[Return to Table 4-1](#grid_dot_2d_t)
-
-Used by: CCTM
-
-The GRID_DOT_2D time-independent file contains surface fields at dot points (i.e., at cell corners). It is created by MCIP and used by CCTM. The following variables are in the GRID_DOT_2D file:
-
-**Table 4-4**
-
-|**Variable Name**|**Description**|**Units**|**Required**|
-|--------|---------------|--------------|-----------|
-|LAT|latitude|degrees, where Northern Hemisphere is positive||
-|LON|longitude|degrees, where Western Hemisphere is negative||
-|MSFD2|squared map scale factor|m<sup>2</sup> m<sup>-2</sup>||
-
-
 <a id=met_bdy_3d></a>
-
-### MET_BDY_3D: Three-dimensional meteorological boundary input
-[Return to Table 4-1](#met_bdy_3d_t)
-
-Used by: CCTM
-
-The MET_BDY_3D time-dependent file contains 3-D meteorological descriptions at the lateral boundaries (on cross points). It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_BDY_3D file:
-
-**Table 4-5**
-
-|**Variable Name**|**Description**|**Units**|**Required**|
-|--------|---------------|--------------|-----------|
-|JACOBF|total Jacobian at layer face|(m)||
-|JACOBM|total Jacobian at layer middle|(m)||
-|DENSA_J| Jacobian-weighted total air density| [? J m<sup>-2</sup>] (kg m<sup>-2</sup>)||
-| WHAT_JD| Jacobian- and density-weighted vertical contravariant velocity| (kg m<sup>-1</sup> s<sup>-1</sup>)||
-|TA| air temperature|(K)||
-|QV| water vapor mixing ratio| (kg kg<sup>-1</sup>)||
-|PRES| air pressure| (Pa)||
-|DENS| air density| (kg m<sup>-3</sup>)||
-| WWIND| vertical velocity| (m s<sup>-1</sup>)||
-|ZH| midlayer height above ground|(m)||
-| ZF| full layer height above ground|(m)||
-| QC| cloud water mixing ratio|(kg kg<sup>-1</sup>)||
-| QR| rain water mixing ratio|(kg kg<sup>-1</sup>)||
-| QI| ice mixing ratio| (kg kg<sup>-1</sup>)||
-| QS| snow mixing ratio| (kg kg<sup>-1</sup>)||
-|QG| graupel mixing ratio| (kg kg<sup>-1</sup>)||
-
 <a id=met_cro_2d></a>
-
-### MET_CRO_2D: Two-dimensional meteorological cross-point fields
-[Return to Table 4-1](#met_cro_2d_t)
-
-Used by: CCTM
-
-The MET_CRO_2D time-dependent file contains surface and other 2-D meteorological fields at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_CRO_2D file:
-
-**Table 4-6**
-
-|**Variable Name**|**Description**|**Units**|**Required**|
-|--------|---------------|--------------|-----------|
-| PRSFC| surface pressure| (Pa)||
-|JACOBS| total Jacobian at surface| (m)||
-|USTAR| cell-averaged horizontal friction velocity| (m s<sup>-1</sup>)||
-|WSTAR| convective velocity scale| (m s<sup>-1</sup>)||
-|PBL| planetary boundary layer height| (m)||
-|ZRUF| surface roughness length| (m)||
-|MOLI| inverse Monin-Obukhov length| (m<sup>-1</sup>)||
-|QFX| latent heat flux| (W m<sup>-2</sup>)||
-|HFX| sensible heat flux| (W m<sup>-2</sup>)||
-|RADYNI| inverse aerodynamic resistance| (m s<sup>-1</sup>)||
-|RBNDYI| inverse laminar boundary layer resistance| (m s<sup>-1</sup>)||
-|RSTOMI| inverse bulk stomatal resistance| (m s<sup>-1</sup>)||
-| TEMPG| skin temperature at ground| (K)||
-| TEMP10| 10-m temperature| (K)||
-|TEMP1P5| 1.5-m temperature| (K)||
-| WSPD10| 10-m wind speed| (m s<sup>-1</sup>)||
-| WDIR10| 10-m wind direction| (m s<sup>-1</sup>)||
-| GLW| longwave radiation at ground| (W m<sup>-2</sup>)||
-|GSW| solar radiation absorbed at ground| (W m<sup>-2</sup>)||
-|RGRND| solar radiation reaching the surface| (W m<sup>-2</sup>)||
-| RN| incremental (per output time step) nonconvective precipitation| (cm)||
-| RC| incremental (per output time step) convective precipitation| (cm)||
-| CFRAC| total cloud fraction| (fraction)||
-| WBAR| average liquid water content of clouds| (g m<sup>-3</sup>)||
-|CLDT| cloud-top layer height| (m)||
-|  CLDB| cloud-bottom layer height| (m)||
-| SNOCOV| snow cover| (1 = yes, 0 = no)||
-|TEMP2| 2-m temperature| (K)||
-|SOIM1| volumetric soil moisture in top cm| (m<sup>3</sup> m<sup>-3</sup>)||
-| SOIM2| volumetric soil moisture in top m| (m<sup>3</sup> m<sup>-3</sup>)||
-|SOIT1| soil temperature in top cm |(K)||
-|SOIT2| soil temperature in top m| (K)||
-| SLTYP| soil texture type |(category)||
-| LAI| leaf-area index| (area area<sup>-1</sup>)||
-
-
 <a id=met_cro_3d></a>
-
-### MET_CRO_3D: Three-dimensional meteorological cross-point fields
-[Return to Table 4-1](#met_cro_3d_t)
-
-Used by: CCTM, ICON, BCON
-
-The MET_CRO_3D time-dependent file contains 3-D meteorological descriptions at cross points (i.e., at cell centers). It is created by MCIP and used by CCTM, ICON, BCON, and PDM. The variables that may exist in MET_CRO_3D are the same as those that may be in MET_BDY_3D.
-
 <a id=met_dot_3d></a>
-
-### MET_DOT_3D: Three-dimensional meteorological dot-point fields
-[Return to Table 4-1](#met_dot_3d_t)
+<a id=mcip></a>
+### GRID_CRO_2D, GRID_BDY_2D, GRID_DOT_2D, MET_BDY_3D, MET_CRO_2D, MET_CRO_3D, MET_DOT_3D
+[Return to Table 4-3](#grid_cro_2d_t)
 
 Used by: CCTM
 
-The MET_DOT_3D time-dependent file contains 3-D meteorological descriptions at dot points (i.e., at cell corners) and at cell faces. It is created by MCIP and used by CCTM and PDM. The following variables may be in the MET_DOT_3D file:
+MET_CRO_3D is also used by ICON, BCON
 
-**Table 4-7**
+**Table 4-X**  MCIP output variables used within the CMAQ system.  All fields are located at cell centers, except where noted in the Description.
 
-|**Variable Name**|**Description**|**Units**|**Required**|
-|--------|---------------|--------------|-----------|
-|UWIND| u-component of horizontal wind| (m s<sup>-1</sup>) [dot points; Arakawa-B grid]]||
-|VWIND| v-component of horizontal wind| (m s<sup>-1</sup>) [dot points; Arakawa-B grid]||
-|UHAT_JD| contravariant-U*Jacobian*density| (kg m<sup>-1</sup> s<sup>-1</sup>) [cell faces; Arakawa-C grid]||
-| VHAT_JD| contravariant-V*Jacobian*density| (kg m<sup>-1</sup> s<sup>-1</sup>) [cell faces; Arakawa-C grid]||
+|**Variable Name**|**Description**|**Units**|**Dimensions**|**File**|**Required**|
+|--------|---------------|--------------|----------|------------|----------|
+|LAT|latitude|degrees, where Northern Hemisphere is positive|XY|GRIDCRO2D and GRIDBDY2D, or mcip.nc and mcip_bdy.nc|yes|
+|LON|longitude|degrees, where Western Hemisphere is negative|XY|GRIDCRO2D and GRIDBDY2D, or mcip.nc and mcip_bdy.nc|yes|
+|MSFX2|squared map-scale factor|m<sup>2</sup> m<sup>-2</sup>|XY|GRIDCRO2D and GRIDBDY2D, or mcip.nc and mcip_bdy.nc|yes|
+|HT|terrain elevation|m|XY|GRIDCRO2D and GRIDBDY2D, or mcip.nc and mcip_bdy.nc|yes|
+|DLUSE|dominant land use|category|XY|GRIDCRO2D and GRIDBDY2D, or mcip.nc and mcip_bdy.nc|yes|
+|LWMASK|land-water mask|1=land, 0=water|XY|GRIDCRO2D and GRIDBDY2D, or mcip.nc and mcip_bdy.nc|yes|
+|PURB|urban percent of cell based on land coverage|percent|XY|GRIDCRO2D and GRIDBDY2D, or mcip.nc and mcip_bdy.nc|no, but refines vertical mixing in urban areas|
+|LUFRAC|fraction of land use by category|1|XYL|LUFRACCRO or mcip.nc|no, but refines deposition with both M3Dry and STAGE|
+|LATD|latitude|degrees, where Northern Hemisphere is positive (at cell corners)|XY|GRIDDOT2D or mcip.nc|no|
+|LOND|longitude|degrees, where Western Hemisphere is negative (at cell corners)|XY|GRIDDOT2D or mcip.nc|no|
+|MSFD2|squared map scale factor|m<sup>2</sup> m<sup>-2</sup> (at cell corners)|XY|GRIDDOT2D or mcip.nc|no|
+|LATU|latitude|degrees, where Northern Hemisphere is positive (at cell west-east faces)|XY|GRIDDOT2D or mcip.nc|no|
+|LONU|longitude|degrees, where Western Hemisphere is negative (at cell west-east faces)|XY|GRIDDOT2D or mcip.nc|no|
+|MSFU2|squared map scale factor|m<sup>2</sup> m<sup>-2</sup> (at cell west-east faces)|XY|GRIDDOT2D or mcip.nc|yes|
+|LATV|latitude|degrees, where Northern Hemisphere is positive (at cell south-north faces)|XY|GRIDDOT2D or mcip.nc|no|
+|LONV|longitude|degrees, where Western Hemisphere is negative (at cell south-north faces)|XY|GRIDDOT2D or mcip.nc|no|
+|MSFV2|squared map scale factor|m<sup>2</sup> m<sup>-2</sup> (at cell south-north faces)|XY|GRIDDOT2D or mcip.nc|yes|
+|PRSFC|surface pressure|Pa|XYT|METCRO2D or mcip.nc|yes|
+|USTAR|cell-averaged horizontal friction velocity|m s<sup>-1</sup>|XYT|METCRO2D or mcip.nc|yes|
+|WSTAR|convective velocity scale|m s<sup>-1</sup>|XYT|METCRO2D or mcip.nc|yes|
+|PBL|planetary boundary layer height|m|XYT|METCRO2D or mcip.nc|yes|
+|ZRUF|surface roughness length|m|XYT|METCRO2D or mcip.nc|yes|
+|MOLI|inverse Monin-Obukhov length|m<sup>-1</sup>|XYT|METCRO2D or mcip.nc|yes|
+|HFX|sensible heat flux|W m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
+|LH|latent heat flux|W m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
+|RADYNI|inverse aerodynamic resistance|m s<sup>-1</sup>|XYT|METCRO2D or mcip.nc|yes|
+|RSTOMI|inverse bulk stomatal resistance|m s<sup>-1</sup>|XYT|METCRO2D or mcip.nc|yes|
+|TEMPG|skin temperature at ground|K|XYT|METCRO2D or mcip.nc|yes|
+|TEMP2|2-m temperature|K|XYT|METCRO2D or mcip.nc|yes|
+|Q2|2-m water vapor mixing ratio|kg kg<sup>-1</sup>|XYT|METCRO2D or mcip.nc|yes|
+|WSPD10|10-m wind speed|m s<sup>-1</sup>|XYT|METCRO2D or mcip.nc|yes|
+|WDIR10|10-m wind direction|degrees|XYT|METCRO2D or mcip.nc|no|
+|GLW|longwave radiation at ground|W m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
+|GSW|solar radiation absorbed at ground|W m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
+|RGRND|solar radiation reaching the surface|W m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
+|RN|incremental (per output time step) nonconvective precipitation|cm|XYT|METCRO2D or mcip.nc|yes|
+|RC|incremental (per output time step) convective precipitation|cm|XYT|METCRO2D or mcip.nc|yes|
+|SNOCOV|snow cover|1=yes, 0=no|XYT|METCRO2D or mcip.nc|yes|
+|VEG|vegetation coverage|1|XYT|METCRO2D or mcip.nc|yes|
+|LAI|leaf-area index|m<sup>2</sup> m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
+|WR|canopy moisture content|m|XYT|METCRO2D or mcip.nc|yes|
+|SEAICE|sea ice|1|XYT|METCRO2D or mcip.nc|yes|
+|SNOWH|snow height|m|XYT|METCRO2D or mcip.nc|yes|
+|SOIM1|volumetric soil moisture in top cm|m<sup>3</sup> m<sup>-3</sup>|XYT|METCRO2D or mcip.nc|yes, but preferred to use from SOIM3D|
+|SOIM2|volumetric soil moisture in top m|m<sup>3</sup> m<sup>-3</sup>|XYT|METCRO2D or mcip.nc|yes, but preferred to use from SOIM3D|
+|SOIT1|soil temperature in top cm|K|XYT|METCRO2D or mcip.nc|yes, but preferred to use from SOIT3D|
+|SOIT2|soil temperature in top m|K|XYT|METCRO2D or mcip.nc|yes, but preferred to use from SOIT3D|
+|SLTYP|soil texture type|1|XYT|METCRO2D or mcip.nc|yes|
+|WWLT_PX|soil wilting point from PX LSM|m<sup>3</sup> m<sup>-3</sup>|XYT|METCRO2D or mcip.nc|no, but used if available|
+|WFC_PX|soil field capacity from PX LSM|m<sup>3</sup> m<sup>-3</sup>|XYT|METCRO2D or mcip.nc|no, but used if available|
+|WSAT_PX|soil saturation from PX LSM|m<sup>3</sup> m<sup>-3</sup>|XYT|METCRO2D or mcip.nc|no, but used if available|
+|CLAY_PX|clay from PX LSM|1|XYT|METCRO2D or mcip.nc|no, but used if available|
+|CSAND_PX|coarse sand from PX LSM|1|XYT|METCRO2D or mcip.nc|no, but used if available|
+|FMSAND_PX|fine-medium sand from PX LSM|1|XYT|METCRO2D or mcip.nc|no, but used if available|
+|JACOBF|total Jacobian at layer face|m|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|JACOBM|total Jacobian at layer middle|m|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|DENSA_J|Jacobian-weighted total air density|kg m<sup>-2</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|WHAT_JD|Jacobian- and density-weighted vertical contravariant velocity|kg m<sup>-1</sup> s<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|TA| air temperature|K|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|QV| water vapor mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|PRES| air pressure|Pa|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|DENS| air density|kg m<sup>-3</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|WWIND| vertical velocity|m s<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|ZH|mid-layer height above ground|m|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|ZF|full layer height above ground|m|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|TKE|turbulent kinetic energy|J kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and met_bdy.nc|no|
+|PV|potential vorticity|m<sup>2</sup> K kg<sup>-1</sup> s<sup>-1</sup> x 10<sup>-6</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but required for PV scaling|
+|WWIND|vertical velocity|m s<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no|
+|CFRAC_3D|3D resolved cloud fraction|1|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but used if available|
+|QC|cloud water mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|QR|rain water mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
+|QI|ice mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but used if available|
+|QS|snow mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but used if available|
+|QG|graupel mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and met_bdy.nc|no, but used if available|
+|UWIND|u-component of horizontal wind (cell corners)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|no|
+|VWIND|v-component of horizontal wind (cell corners)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|no|
+|UHAT_JD|contravariant-U*Jacobian*density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
+|VHAT_JD|contravariant-V*Jacobian*density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
+|UWINDC|u-component of horizontal wind (west-east cell faces)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|yes|
+|VWINDC|v-component of horizontal wind (south-north cell faces)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|yes|
+|SOIT3D|soil temperature|K|XYST|SOICRO or mcip.nc|yes|
+|SOIM3D|soil moisture|kg kg<sup>-1</sup>|XYST|SOICRO or mcip.nc|yes|
+|LUFRAC2|fractional land use in mosaic categories|1|XYM|MOSAICCRO or mcip.nc|no, but can be used with STAGE deposition|
+|MOSCAT|mosaic land use categories|1|XYM|MOSAICCRO or mcip.nc|no, but can be used with STAGE deposition|
+|LAI_MOS|leaf area index (by mosaic categories)|m<sup>2</sup> m<sup>-2</sup>|XYMT|MOSAICCRO or mcip.nc|no, but can be used with STAGE deposition|
+|RAI_MOS|inverse of aerodynamic resistance (by mosaic categories)|m s<sup>-1</sup>|XYMT|MOSAICCRO or mcip.nc|no, but can be used with STAGE deposition|
+|RSI_MOS|inverse of stomatal resistance (by mosaic categories)|m s<sup>-1</sup>|XYMT|MOSAICCRO or mcip.nc|no, but can be used with STAGE deposition|
+|TSK_MOS|skin temperature (by mosaic categories)|K|XYMT|MOSCRO or mcip.nc|no, but can be used with STAGE deposition|
+|ZNT_MOS|roughness length (by mosaic categories)|m|XYMT|MOSCRO or mcip.nc|no, but can be used with STAGE deposition|
+
+
 
 ## Emissions Inputs
 <a id=emis_xxx></a>
@@ -424,7 +381,7 @@ Used by: CCTM – lightning NO<sub>x</sub> version only
 The NLDN lightning strikes file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
 
- **Table 4-8**
+ **Table 4-4**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
  |--------|-------------------|--------------|-----------|
@@ -439,7 +396,7 @@ Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The lightning parameters file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
-**Table 4-9**
+**Table 4-5**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
@@ -524,7 +481,7 @@ OMI ozone column data by latitude and longitude for use in the inline photolysis
 
 **>> Comment <<** DW: For the OMI part, please ask Bill to double check. He might have update with respect to data year as well as data resolution.
 
-**Table 4-12. OMI data format**
+**Table 4-6. OMI data format**
 
 | **Line** | **Column** | **Name** | **Type** | **Description**|
 |-----|-----|------|-----|-----------------------------------|
