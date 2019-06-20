@@ -1578,8 +1578,9 @@ C Read the various categories of normalized emissions
 
                 If( MOD(cio_model_sdate,1000) .Eq. 1 ) Then
                    If( MOD(cio_model_sdate,4000) .Eq. 0 .And. 
-     &                 MOD(cio_model_sdate,100000) .Eq. 0 .And. 
-     &                 MOD(cio_model_sdate,400000) .Eq. 0) Then
+     &                 MOD(cio_model_sdate,100000) .Ne. 0 ) Then
+                      jdate_yest = (INT(cio_model_sdate/1000)-1)*1000+366
+                   Else If( MOD(cio_model_sdate,400000) .Eq. 0) Then
                       jdate_yest = (INT(cio_model_sdate/1000)-1)*1000+366
                    Else ! not a leap year
                       jdate_yest = (INT(cio_model_sdate/1000)-1)*1000+365
@@ -2219,7 +2220,8 @@ C Read the various categories of normalized emissions
 
                    ! if not initial step to setup the entire circular buffer and jdate is not the same in the file
                    if ((iterations .ne. 2) .and. (jdate .ne. cio_emis_file_date(fnum))) then
-                      cio_emis_file_date(fnum) = cio_emis_file_date(fnum) + 1  ! advance to next day
+!                      cio_emis_file_date(fnum) = cio_emis_file_date(fnum) + 1  ! advance to next day
+                      cio_emis_file_date(fnum) = next_day(cio_emis_file_date(fnum)) ! advance to next day
                    end if
                    loc_emis_jdate = cio_emis_file_date(fnum)
 
@@ -2240,7 +2242,8 @@ C Read the various categories of normalized emissions
 
                    ! if not initial step to setup the entire circular buffer and jdate is not the same in the file
                    if ((iterations .ne. 2) .and. (jdate .ne. cio_emis_file_date(fnum))) then
-                      cio_emis_file_date(fnum) = cio_emis_file_date(fnum) + 1  ! advance to next day
+!                      cio_emis_file_date(fnum) = cio_emis_file_date(fnum) + 1  ! advance to next day
+                      cio_emis_file_date(fnum) = next_day(cio_emis_file_date(fnum)) ! advance to next day
                    end if
 
                    loc_emis_jdate = cio_emis_file_date(fnum)
