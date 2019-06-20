@@ -7,11 +7,10 @@
 
 # 4. Model Input Files
 
-This chapter provides basic information on the format and content of CMAQ input files.  It also provides information on using the pre-processing tools provided in the repository for preparing inital and boundary conditions and meteorology inputs. A list of CMAQ input files can be found in [Table 4-1](#Input_Table). Some CMAQ input files are in ASCII format while the majority of them are in the [Network Common Data Form (netCDF)] format (http://www.unidata.ucar.edu/software/netcdf). CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
+This chapter provides basic information on the format and content of CMAQ input files.  It also provides information on using the pre-processing tools provided in the repository for preparing inital and boundary conditions and meteorology inputs.  Links are provided for  the emissions processing tools that are released through thier own repository or website.  A list of CMAQ input files can be found in [Table 4-1](#Input_Table). Some CMAQ input files are in ASCII format while the majority of them are in the [Network Common Data Form (netCDF)] format (http://www.unidata.ucar.edu/software/netcdf). CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
 
 All CMAQ input and output files are conformed to I/O API netCDF file format. Please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html) for details.
 
-**>>COMMENT<<** Should SMOKE have its own section?
 
 ## 4.1 CMAQ Pre-processors 
 ### 4.1.1 Meteorology-Chemistry Interface Processor (MCIP)
@@ -43,8 +42,15 @@ CMAQ can use boundary conditions derived from global chemistry models (GCMs). Wh
 
 The configuration options for BCON include choosing whether the boundary conditions are generated from an existing CCTM output file or from an ASCII profile, and defining the horizontal and vertical grids and time period for which boundary conditions are to be generated. Information on configuring BCON for the different kinds of input data, environment variables, input and output files, compiling and running BCON are provided in the [README.md](../../PREP/bcon/README.md) file in the PREP/bcon folder.
 
-### 4.1.4 Windblown Dust (Optional Pre-Processor)
-**Windblown Dust
+### 4.1.4 Emissions Processor (SMOKE) 
+Sparse Matrix Operator Kerner Emissions (SMOKE) Modeling System 
+
+### 4.1.5  Fertilizer Emissions Processor (FEST-C)
+
+### 4.1.6 Creating an Ocean File with the Spatial Allocator (SA)
+
+### 4.1.7 Windblown Dust (Optional Pre-Processor)
+
 
 <a id=inputs></a>
 ## 4.2 CMAQ Input Files
@@ -58,8 +64,6 @@ Rather than forcing the programmer and program-user to deal with hard-coded file
 
 This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 4-1](#Input_Table) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file. The user should consult the CMAQ release notes for additional file information. The programs used to generate the files ("Source") are described in Section 2. Typical time step is 1 hour and user can specify a finer one, e.g. 20 minutes. In addition, typical thickness of a boundary file is 1, i.e. NTHIK = 1 but it can be any positive integer.
 
-<!-- BEGIN COMMENT -->
-**>> Comment <<** In Table 8.1, some of the potential sources for the files have not been explained elsewhere (e.g., Metscan, Spatial Allocator).
 
 **>> Comment <<** DS: Should the column header by "Environment Variable Namefor File" or "Logical File Name"?
 
@@ -94,7 +98,8 @@ This section describes each of the input files required by the various CMAQ prog
 |[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>| GRDDED3 | Hourly | XY | MCIP|required|
 |[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>| GRDDED3 | Hourly | XYZ | MCIP|required|
 |[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|required|
-|[mcip.nc](#mcip) <a id=mcip_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|optional|
+|[mcip](#mcip) <a id=mcip_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|optional|
+|[mcip_bdy](#mcip_bdy) <a id=mcip_bdyt></a>|  | Hourly | PERIM\*Z | MCIP|optional|
 |**Emissions Inputs**||||||
 |[EMIS_XXX*](#emis_xxx) <a id=emis_xxx_t></a> | GRDDED3 | Hourly | XYZ | SMOKE|required|
 |[STK_GRPS_XXX](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE|required|
@@ -105,7 +110,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator|required|
 |[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required|
 |[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with inline biogenics|
-|[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | Metscan|optional (run-time option)|
+|[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | SMOKE|optional (run-time option)|
 |[E2C_LU](#e2c_lu) <a id=e2c_lu_t></a>| GRDDED3 | Time-invariant |XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|optional|
@@ -230,6 +235,7 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 <a id=met_cro_3d></a>
 <a id=met_dot_3d></a>
 <a id=mcip></a>
+<a id=mcip_bdy></a>
 ### GRID_CRO_2D, GRID_BDY_2D, GRID_DOT_2D, MET_BDY_3D, MET_CRO_2D, MET_CRO_3D, MET_DOT_3D
 [Return to Table 4-3](#grid_cro_2d_t)
 
@@ -380,7 +386,6 @@ Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The NLDN lightning strikes file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
-
  **Table 4-4**
 
 |**Variable Name**|**Description**|**Units**|**Required**|
@@ -394,7 +399,10 @@ The NLDN lightning strikes file is used for calculating in-line NO emissions fro
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
-The lightning parameters file is used for calculating in-line NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
+The lightning parameters file is used for calculating in-line NO emissions from hourly observed strike counts. 
+This file can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY). 
+
+This file contains the following variables interpolated to the modeling grid:
 
 **Table 4-5**
 
@@ -410,14 +418,14 @@ The lightning parameters file is used for calculating in-line NO emissions from 
 
 ## Biogenic and Land Surface Inputs
 <a id=ocean_1></a>
-### OCEAN_1: Sea salt mask
+### OCEAN_1: Sea spray mask
 [Return to Table 4-1](#ocean_1_t)
 
 Used by: CCTM
 
-The CMAQ aerosol models AERO5 and AERO6 can compute sea salt emissions from both open ocean grid cells and surf zone grid cells. The addition of the surf zone option simulates the elevated emissions rates of sea salt in coastal regions where wave action occurs. The OCEAN_1 file contains data on the fraction of each grid cell that is either open ocean (OPEN) or in the surf zone (SURF). When CCTM is compiled with AERO5 or AERO6, it will expect the OCEAN_1 file as input.
+The CMAQ aerosol models AERO5 and AERO6 can compute sea spray emissions from both open ocean grid cells and surf zone grid cells. The addition of the surf zone option simulates the elevated emissions rates of sea salt in coastal regions where wave action occurs. The OCEAN_1 file contains data on the fraction of each grid cell that is either open ocean (OPEN) or in the surf zone (SURF). When CCTM is compiled with AERO5 or AERO6, it will expect the OCEAN_1 file as input.
 
-**>> Comment <<** DW: We need to revisit this after we decide the fate of ocean file.
+See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this file. 
 
 <a id=gspro></a>
 ### GSPRO: Speciation profiles
@@ -475,54 +483,7 @@ This is a 3-D daily file created by the EPIC to CMAQ tool via the FEST-C interfa
 
 Used by: CCTM
 
-OMI ozone column data by latitude and longitude for use in the inline photolysis calculations. CMAQ is distributed with ozone columns from 1978 to 2015. The data are 22.5°x10° gridded ozone columns in Dobson units. [Table 3-5](#Table8-12) lists the format of the OMI data file.
-
-<a id=Table8-12></a>
-
-**>> Comment <<** DW: For the OMI part, please ask Bill to double check. He might have update with respect to data year as well as data resolution.
-
-**Table 4-6. OMI data format**
-
-| **Line** | **Column** | **Name** | **Type** | **Description**|
-|-----|-----|------|-----|-----------------------------------|
-| 1 || Header ||Header with names for each column|
-| 2 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
-|| B | Latitude 1 | Int |80 North latitude|
-|| C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
-|| D | Longitude 2 | Int |157.5W longitude ozone column (DU)|
-|| E | Longitude 3 | Int |135.0W longitude ozone column (DU)|
-|| F | Longitude 4 | Int |112.5W longitude ozone column (DU)|
-|| G | Longitude 5 | Int |090.0W longitude ozone column (DU)|
-|| H | Longitude 6 | Int |067.5W longitude ozone column (DU)|
-|| I | Longitude 7 | Int |045.0W longitude ozone column (DU)|
-|| J | Longitude 8 | Int |022.5W longitude ozone column (DU)|
-|| K | Longitude 9 | Int |000.0Z longitude ozone column (DU)|
-|| L | Longitude 10 | Int |022.5E longitude ozone column (DU)|
-|| M | Longitude 11 | Int |045.0E longitude ozone column (DU)|
-|| N | Longitude 12 | Int |067.5E longitude ozone column (DU)|
-|| O | Longitude 13 | Int |090.0E longitude ozone column (DU)|
-|| P | Longitude 14 | Int |112.5E longitude ozone column (DU)|
-|| Q | Longitude 15 | Int |135.0E longitude ozone column (DU)|
-|| R | Longitude 16 | Int |157.5E longitude ozone column (DU)|
-|| S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
-| 3 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
-|| B | Latitude 2 | Int |70 North latitude|
-|| C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
-| … | … | … | … | … |
-|| S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
-| 4 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
-|| B | Latitude 3 | Int |60 North latitude|
-|| C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
-| … | … | … | … | … |
-|| S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
-| 5 | A | Yeardate | Real |YYYY.??? or YYYY.???? formatted date field.|
-|| B | Latitude 4 | Int |50 North latitude|
-|| C | Longitude 1 | Int |180.0Z longitude ozone column (DU)|
-| … | … | … | … | … |
-|| S | Longitude 17 | Int |180.0Z longitude ozone column (DU)|
-|…|…|…|…| Repeat for total of 17 latitudes of data
-|…|…|…|…| Repeat for (1978-2008) there are ~48 days (4 days per month) of data
-|…|…|…|…| Repeat for (2009-2015) there are 365 days of data
+OMI ozone column data by latitude and longitude for use in the inline photolysis calculations. CMAQ is distributed with ozone columns from 1978 to 2017 (CCTM/src/phot/inline/OMI_1979_to_2017.dat). The data are 22.5°x10° gridded ozone columns in Dobson units. The [create_omi](../../PREP/create_omi/README.md) tool under the PREP folder can be used to create a data file to support simulations after 2017 or a data file with a finer spatial resolution.
 
 
  [<< Previous Chapter](CMAQ_UG_ch03_preparing_compute_environment.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_a_simulation.md)
