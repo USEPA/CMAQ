@@ -2,8 +2,8 @@ CMAQv5.3 Release Notes
 =====================================
 
 # Getting Started with CMAQ  
-[Tutorial on installing and running CMAQ](../../../DOCS/Tutorials/CMAQ_GettingStarted.md)  
-[Tutorial on running the CMAQ test case](../../../DOCS/Tutorials/CMAQ_Benchmark.md)  
+[Tutorial on installing and running CMAQ](../Tutorials/CMAQ_GettingStarted.md)  
+[Tutorial on running the CMAQ test case](../Tutorials/CMAQ_Benchmark.md)  
 
 # Summary of CMAQv5.3 Updates
 
