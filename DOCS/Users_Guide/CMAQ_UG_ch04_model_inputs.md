@@ -131,9 +131,9 @@ This section describes each of the input files required by the various CMAQ prog
 |[GSPRO](#gspro) <a id=gspro_t></a>|| ASCII | Time-invariant | N/a | CMAQ repo|required|
 |[B3GRD](#b3grd) <a id=b3grd_t></a>|| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with inline biogenics|
 |[BIOSEASON](#bioseason) <a id=bioseason_t></a>||GRDDED3 |Time-invariant | XY | Metscan|optional (run-time option)|
-|[BELD4_LU](#beld4_lu) <a id=beld4_lu_t></a>|| GRDDED3 | Time-invariant |XY||required for running CMAQ with bidirectional NH3|
+|[E2C_LU](#e2c_lu) <a id=e2c_lu_t></a>|| GRDDED3 | Time-invariant |XY||required for running CMAQ with bidirectional NH3|
 |[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>|| GRDDED3 | Time-invariant | XY||required for running CMAQ with bidirectional NH3|
-|[E2C_FERT](#e2c_fert) <a id=e2c_fert_t></a>|| GRDDED3 | Daily |XY||optional|
+|[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>|| GRDDED3 | Daily |XY||optional|
 |**Photolysis** | | | | |||
 |[JTABLE](#jtable) <a id=jtable_t></a>|| ASCII | Daily | n/a | JPROC|optional|
 |[OMI](#omi) <a id=omi_t></a>|| ASCII | daily | n/a ||optional|CMAQ repo or create_omi|
@@ -513,13 +513,13 @@ Used by: CCTM – inline-emissions version only
 
 The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual.
 
-<a id=beld4_lu></a>
-### BELD4_LU – Fractional crop distributions
-[Return to Table 4-1](#beld4_lu_t)
+<a id=ec2_lu></a>
+### E2C_LU – Fractional crop distributions
+[Return to Table 4-1](#e2c_lu_t)
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
-BELD4 land use file with fractional crop distributions gridded to the modeling domain.
+Land use data including fractional crop and tree distributions gridded to the modeling domain.  This data set is created when generating the land use data for EPIC simulations over the conterminous U.S. domain by the BELD4 Data Generation tool in the FEST-C interface.  Detailed information on the tool and FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
 
 
 <a id="e2c_soil"></a>
@@ -528,95 +528,15 @@ BELD4 land use file with fractional crop distributions gridded to the modeling d
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
-This 3-D file is created by the EPIC model via the FEST-C interface and contains soil properties for Layer 1 (0 to 1 cm depth) and Layer 2 (1 cm to 100 cm depth) for each crop and soil combination in each grid cell. Additional information on the EPIC model and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. The following variables are in this file:
+This 3-D file is created by the EPIC to CMAQ tool via the FEST-C interface.  It contains soil properties for Layer 1 (0 to 1 cm depth) and Layer 2 (1 cm to 100 cm depth) and for each crop in grid cells with agricultural land.  Additional information on the EPIC simulation and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
 
-**Table 4-10**
-
-|**Variable Name**|**Description**|**Units**|**Required**|
-|--------|---------------|--------------|-----------|
-|L1_SoilNum| Soil Number| (none)||
-|L1_Bulk_D| Layer1 Bulk Density| (t/m**3)||
-| L1_Wilt_P| Layer1 Wilting Point|(m/m)||
-|L1_Field_C| Layer1 Field Capacity| (m/m)||
-| L1_Porosity| Layer1 Porosity| (%)||
-|L1_PH| Layer1 PH| (none)||
-| L1_Cation| Layer1 Cation Ex| (cmol/kg )||
-| L2_Bulk_D| Layer2 Bulk Density| (t/m**3)||
-| L2_Wilt_P| Layer2 Wilting Point| (m/m)||
-|L2_Field_C| Layer2 Field Capacity| (m/m)||
-|L2_Porosity| Layer2 Porosity| (%)||
-|L2_PH| Layer2 PH| (none)||
-| L2_Cation| Layer2 Cation Ex |(cmol/kg)||
-
-<a id="e2c_fert"></a>
-### E2C_FERT – EPIC crop types and fertilizer application
-[Return to Table 4-1](#e2c_fert_t)
+<a id="e2c_chem"></a>
+### E2C_CHEM – EPIC crop types and fertilizer application
+[Return to Table 4-1](#e2c_chem_t)
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
-This is a 3-D daily file created by the EPIC model via the FEST-C interface and contains information on fertilizer application rate and depth for each crop and soil combination in each grid cell. Additional information on the EPIC model and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. The file contains many more variables than are used by CMAQ. The following variables are in this file:
-
-**Table 4-11**
-
-|**Variable Name**|**Description**|**Units**|**Required**|
-|--------|---------------|--------------|-----------|
-|QNO3| N Loss in Surface Runoff| (kg/ha)||
-|SSFN| N in Subsurface Flow| (kg/ha)||
-| PRKN| N Loss in Percolate| (kg/ha)||
-| DN| N-NO3 Denitrification| (kg/ha)||
-| DN2| N-N2O from NO3 Denitrification| (kg/ha)||
-| AVOL| N-NH3 Emission| (kg/ha)||
-|HMN| OC Change by Soil Respiration |(kg/ha)||
-| NFIX| N Fixation |(kg/ha)||
-| YP| P Loss with Sediment| (kg/ha)||
-|QAP| Labile P Loss in Runoff| (kg/ha)||
-| YON| N Loss with Sediment| (kg/ha)||
-|  YW| Wind Erosion| (ton/ha)||
-|Q| Runoff| (mm)||
-|HUSC| Heat Unit Schedule| (none)||
-|HU_BASE0| Base Heat Unit| (none)||
-|HU_FRAC| Heat Unit fraction| (none)||
-|L1_DEP| Layer1 Depth| (m)||
-| L1_BD| Layer1 Bulk Density| (t/m**3)||
-| L1_NO3| Layer1 N - Nitrate| (kg/ha)||
-| L1_NH3| Layer1 N - Ammonia| (kg/ha)||
-| L1_ON| Layer1 Organic N| (kg/ha)||
-| L1_P| Layer1 Mineral P| (kg/ha)||
-| L1_OP| Layer1 Organic P| (kg/ha)||
-|L1_C| Layer1 Carbon| (kg/ha)||
-| L1_NITR| Layer1 N - Nitrified NH3| (kg/ha)||
-|L2_DEP| Layer2 Depth| (m)||
-| L2_BD| Layer2 Bulk Density| (t/m**3)||
-|L2_NO3| Layer2 N - Nitrate| (kg/ha)||
-| L2_NH3| Layer2 N - Ammonia| (kg/ha)||
-|L2_ON| Layer2 Organic N| (kg/ha)||
-| L2_P| Layer2 Mineral P| (kg/ha)||
-| L2_OP| Layer2 Organic P| (kg/ha)||
-| L2_C| Layer2 Carbon| (kg/ha)||
-| L2_NITR| Layer2 N - Nitrified NH3| (kg/ha)||
-|T1_DEP| Layert (Total Soil Profile) Depth |(m)||
-|T1_BD| Layert Bulk Density| (t/m**3)||
-| T1_NO3| Layert N - Nitrate| (kg/ha)||
-|T1_NH3| Layert N - Ammonia| (kg/ha)||
-| T1_ON| Layert Organic N| (kg/ha)||
-| T1_P| Layert Mineral P| (kg/ha)||
-|T1_OP| Layert Organic P| (kg/ha)||
-|T1_C| Layert Carbon |(kg/ha)||
-|T1_NITR| Layert N - Nitrified NH3| (kg/ha)||
-|L1_ANO3| Layer1 N-NO3 AppRate |(kg/ha)||
-| L1_ANH3| Layer1 N-NH3 AppRate| (kg/ha)||
-| L1_AON| Layer1 ON AppRate| (kg/ha)||
-| L1_AMP| Layer1 MP AppRate| (kg/ha)||
-| L1_AOP| Layer1 OP AppRate| (kg/ha)||
-| L2_ANO3| Layer2 N-NO3 AppRate| (kg/ha)||
-| L2_ANH3| Layer2 N-NH3 AppRate| (kg/ha)||
-| L2_AON| Layer2 ON AppRate| (kg/ha)||
-| L2_AMP| Layer2 MP AppRate| (kg/ha)||
-| L2_AOP| Layer2 OP AppRate| (kg/ha)||
-| UN1| N Uptake by Crop| (kg/ha)||
-| HUI| Heat Unit Index |(none)||
-| LAI| Leaf Area Index| (none)||
-| CPHT| Crop Height| (m)||
+This is a 3-D daily file created by the EPIC to CMAQ tool via the FEST-C interface.  The tool extracts EPIC simulated soil chemistry information including fertilization for the Layer 1 and Layer 2 soil profiles along with plant growth information in each grid cell with agricultural land.  The FEST-C interface facilitates EPIC simulations for any CMAQ modeling domain over the conterminous U.S. area.  Additional information on the EPIC simulation and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
 
 ## Photolysis
 <a id=jtable></a>
