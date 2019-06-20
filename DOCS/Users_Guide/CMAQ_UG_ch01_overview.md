@@ -84,7 +84,6 @@ ___
 
 [CMAQ User's Guide List of Tables and Figures](CMAQ_UG_tables_figures.md)
 
-[CMAQ User's Guide Acronyms](CMAQ_UG_acronyms.md)
 ___
 
 <!-- BEGIN COMMENT -->
