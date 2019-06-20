@@ -2211,7 +2211,6 @@ C and allowing the model to proceed.
          Allocate( EM_FILE_LAPPLY( N_EM_SRM ) )
          Allocate( EM_FILE_LDIAG ( N_EM_SRM ) )
          Allocate( EM_DIAG_FILE  ( N_EM_SRM ) )
-         Allocate( EM_FILE_DATE_OVRD ( N_EM_SRM ) )
          Allocate( EM_FILE_DATE  ( N_EM_SRM ) )
          Allocate( EM_FILE_FIRE  ( N_EM_SRM ) )
          Allocate( IGSRM         ( N_EM_SRM ) )
@@ -2226,7 +2225,6 @@ C populated in individual subroutines. For example, opemis and
 C stkemis_init.
          ISRM = 0
          EM_FILE_LAPPLY = .TRUE.
-         EM_FILE_DATE_OVRD = EMIS_DATE_OVRD
          EM_FILE_DATE   = JDATE
          EM_FILE_FIRE   = .FALSE.
          EM_GRID_LAYS   = 0
@@ -2270,12 +2268,6 @@ C stkemis_init.
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
      &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
  
-              ! Retrieve Toggle for overriding emissions file date with
-              ! internal model date
-              WRITE( VLAB,'( "GR_EM_DTOVRD_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
-     &                      EMIS_DATE_OVRD, LOGDEV )
- 
               ! Retrieve Toggle for Outputing Gridded Emissions
               ! Diagnostic File
               WRITE( VLAB,'( "GR_EMIS_DIAG_",I3.3 )' ) N
@@ -2317,12 +2309,6 @@ C stkemis_init.
               WRITE( VLAB,'( "STK_EMIS_APPLY_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
      &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
- 
-              ! Retrieve Toggle for overriding emissions file date with
-              ! internal model date
-              WRITE( VLAB,'( "STK_EM_DTOVRD_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
-     &                      EMIS_DATE_OVRD, LOGDEV )
  
               ! Retrieve Toggle for Outputing Inline Emissions
               ! Diagnostic File

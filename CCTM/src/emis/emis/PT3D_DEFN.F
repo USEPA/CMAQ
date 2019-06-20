@@ -534,7 +534,7 @@ C=======================================================================
          USE STK_PRMS, ONLY :  MY_NSRC, MY_STRT_SRC, MY_END_SRC, 
      &                         MY_STKCOL, MY_STKROW, SOURCE
          USE STK_EMIS, ONLY :  IPSRM, N_EMIS_ISTR, EM_FILE_SURR, EM_FILE_DATE, 
-     &                         STKDATE, STKEMIS
+     &                         STKEMIS
          USE PTMET, ONLY    :  EMLAYS, PTMET_CONVT
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
          USE RUNTIME_VARS, ONLY : LOGDEV, PT3DDIAG, PT3DFRAC, STDATE, STTIME
@@ -681,8 +681,7 @@ C Ensure that the model and stack groups emissions timestamp dates stay synchron
          IF ( STDATE .NE. JDATE ) THEN
             NDATE = JDATE; NTIME = JTIME
             CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
-            CALL NEXTIME( STKDATE( N ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
-            EM_FILE_DATE( ISRM ) = STKDATE( N )
+            CALL NEXTIME( EM_FILE_DATE( ISRM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
          END IF
 
 C Allocate Array to Store the Layer Heights of All Stacks (i.e. sources)
@@ -692,13 +691,13 @@ C from this Point Group (i.e. ptgrp)
          TFRAC = 0.0   ! array
 
 C Calculate Plume Heights for All Point Sources on this File
-         CALL CALC_PLUME_HEIGHT( STKDATE( N ), JDATE, JTIME, WRTIME, N   )
+         CALL CALC_PLUME_HEIGHT( EM_FILE_DATE( ISRM ), JDATE, JTIME, WRTIME, N   )
 
 C Read Emissions for all sources on File N            
          DO ISPC = 1, N_EMIS_ISTR
             VNAME = EM_SURR_PT( ISPC )
             IF ( VNAME .EQ. '' ) CYCLE
-            call interpolate_var (STKENAME(N), VNAME, STKDATE(N), JTIME, STKEMIS(N)%ARRY)
+            call interpolate_var (STKENAME(N), VNAME, EM_FILE_DATE( ISRM ), JTIME, STKEMIS(N)%ARRY)
 
 C Apportion emissions to the layers
             DO S = 1, MY_NSRC( N )
