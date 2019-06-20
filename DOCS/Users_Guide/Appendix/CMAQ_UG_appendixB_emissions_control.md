@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)
+[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)
 
 <!-- END COMMENT -->
 
@@ -252,5 +252,5 @@ setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date 
 ```
 
 
-[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
+[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
 CMAQ User's Guide (c) 2019<br>
