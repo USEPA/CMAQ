@@ -16,43 +16,82 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-SUBROUTINE gridout (sdate, stime)
+SUBROUTINE outglog
 
 !-------------------------------------------------------------------------------
-! Name:     GRID Output -- Create "grid" (or time-independent) output for CTM
-! Purpose:  Output time-independent fields.
-! Revised:  18 Dec 2018  Original version in MCIPv5.0.  Subsumes part of
+! Name:     Output GRID -- Log
+! Purpose:  Output sample of time-independent fields to log file.
+! Revised:  17 Dec 2018  Original version in MCIPv5.0.  Subsumes part of
 !                        gridout.f90 from MCIPv4.5.  (T. Spero)
 !-------------------------------------------------------------------------------
 
-  USE mcipparm, ONLY: ioform
+  USE mcipparm
+  USE ctmvars
 
   IMPLICIT NONE
 
-  INTEGER,            INTENT(IN)    :: sdate
-  INTEGER,            INTENT(IN)    :: stime
+  CHARACTER(LEN=63)                 :: ifmt1
+  INTEGER                           :: k
+  INTEGER                           :: k1
+  INTEGER                           :: k2
+  INTEGER                           :: n
+  CHARACTER(LEN=2)                  :: str1
+  CHARACTER(LEN=2)                  :: str2
 
 !-------------------------------------------------------------------------------
-! Write time-independent output fields.
+! Error, warning, and informational messages.
 !-------------------------------------------------------------------------------
 
-  SELECT CASE ( ioform )
-
-    CASE ( 1 )  ! Models-3 I/O API
-      CALL outgm3io (sdate, stime)
-
-  END SELECT
-
-!-------------------------------------------------------------------------------
-! Write GRIDDESC file.
-!-------------------------------------------------------------------------------
-
-  CALL wrgdesc
+  CHARACTER(LEN=256), PARAMETER :: f6000 = "(1x, a9, 2x, f12.4, 2x, a)"
 
 !-------------------------------------------------------------------------------
 ! Print sample output to log file.
 !-------------------------------------------------------------------------------
 
-  CALL outglog
+  WRITE (*,'(/,a,/)') '- GRIDOUT: Printing sample cells in output grid'
 
-END SUBROUTINE gridout
+  DO n = 1, nfld2dxy
+    WRITE (*,f6000) TRIM(fld2dxy(n)%fldname),  &
+                         fld2dxy(n)%fld(lprt_col,lprt_row),  &
+                    TRIM(fld2dxy(n)%units)
+  ENDDO
+
+  DO n = 1, nfld2dxy_d
+    WRITE (*,f6000) TRIM(fld2dxy_d(n)%fldname),  &
+                         fld2dxy_d(n)%fld(lprt_col,lprt_row),  &
+                    TRIM(fld2dxy_d(n)%units)
+  ENDDO
+
+  IF ( iflufrc ) THEN  ! fractional land use data are available
+
+    k1 = nummetlu / 5
+    k2 = MOD(nummetlu, 5)
+
+    WRITE ( str1, '(i2)' ) k1 - 1
+    WRITE ( str2, '(i2)' ) k2
+
+    IF ( (k1 - 1) > 0 ) THEN
+      IF ( k2 > 0 ) THEN
+        ifmt1 = "(/,1x,a9,5(2x,f12.4)," // str1 // "(/,10x,5(2x,f12.4)),/,10x," &
+          & // str2 // "(2x,f12.4))"
+      ELSE
+        ifmt1 = "(/,1x,a9,5(2x,f12.4)," // str1 // "(/,10x,5(2x,f12.4)))"
+      ENDIF
+    ELSE
+      IF ( k2 > 0 ) THEN
+        ifmt1 = "(/,1x,a9,5(2x,f12.4),/,10x," // str2 // "(2x,f12.4))"
+      ELSE
+        ifmt1 = "(/,1x,a9,5(2x,f12.4))"
+      ENDIF
+    ENDIF
+
+    WRITE (*,'(/,a,/)') '- LUCRO: Printing sample cells in output grid'
+
+    DO n = 1, nfld3dxyl
+      WRITE (*,ifmt1) TRIM(fld3dxyl(n)%fldname),  &
+                          (fld3dxyl(n)%fld(lprt_col,lprt_row,k),k=1,nummetlu)
+    ENDDO
+
+  ENDIF
+
+END SUBROUTINE outglog

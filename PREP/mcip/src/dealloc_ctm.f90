@@ -60,18 +60,24 @@ SUBROUTINE dealloc_ctm
 !           20 Aug 2015  Changed latent heat flux from QFX to LH.  (T. Spero)
 !           16 Mar 2018  Added SNOWH to output.  Added mosaic, land use, and
 !                        soil arrays.  (T. Spero)
+!           27 Jun 2018  Consolidated output arrays into a single module
+!                        CTMVARS.  Deallocate data structures.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           13 Dec 2018  Updated to use new data structures.  (T. Spero)
+!           18 Jun 2019  Added new surface variables with PX LSM that can
+!                        improve dust simulation in CCTM.  Added optional
+!                        variables from KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE coord
   USE vgrd
-  USE groutcom
-  USE luoutcom
-  USE mcoutcom
-  USE mdoutcom
-  USE mosoutcom
-  USE soioutcom
+  USE ctmvars
+  USE mcipparm
 
   IMPLICIT NONE
+
+  INTEGER                      :: nn
 
 !-------------------------------------------------------------------------------
 ! Deallocate grid arrays for COORD.
@@ -88,171 +94,194 @@ SUBROUTINE dealloc_ctm
   DEALLOCATE ( x3midl     )
 
 !-------------------------------------------------------------------------------
-! Release memory for GROUTCOM and LUOUTCOM arrays.
+! Release memory for time-independent 2d fields at cell centers.
 !-------------------------------------------------------------------------------
 
-  NULLIFY    ( glat_d     )
-  NULLIFY    ( glon_d     ) 
-  NULLIFY    ( gmsfsq_d   )
-  NULLIFY    ( glatu_d    )
-  NULLIFY    ( glonu_d    ) 
-  NULLIFY    ( gmsfusq_d  )
-  NULLIFY    ( glatv_d    )
-  NULLIFY    ( glonv_d    ) 
-  NULLIFY    ( gmsfvsq_d  )
-  DEALLOCATE ( gd2        )
-
-  NULLIFY    ( glat_c     )
-  NULLIFY    ( glon_c     )
-  NULLIFY    ( gmsfsq_c   )
-  NULLIFY    ( gtopo_c    )
-  NULLIFY    ( gdluse_c   )
-  NULLIFY    ( glwmask_c  )
-  IF ( ASSOCIATED ( gpurb_c   ) ) NULLIFY    ( gpurb_c    )
-  IF ( ASSOCIATED ( glufrac_c ) ) NULLIFY    ( glufrac_c  )
-  DEALLOCATE ( gc2        )
-
-  NULLIFY    ( glat_b     )
-  NULLIFY    ( glon_b     )
-  NULLIFY    ( gmsfsq_b   )
-  NULLIFY    ( gtopo_b    )
-  NULLIFY    ( gdluse_b   )
-  NULLIFY    ( glwmask_b  )
-  IF ( ASSOCIATED ( gpurb_b   ) ) NULLIFY    ( gpurb_b    )
-  IF ( ASSOCIATED ( glufrac_b ) ) NULLIFY    ( glufrac_b  )
-  DEALLOCATE ( gb2        )
-
-  IF ( ASSOCIATED ( gx3htf_c  ) ) NULLIFY    ( gx3htf_c   )
-  IF ( ASSOCIATED ( gx3htm_c  ) ) NULLIFY    ( gx3htm_c   )
-  IF ( ALLOCATED  ( gc3       ) ) DEALLOCATE ( gc3        )
-
-  IF ( ASSOCIATED ( lufrac_c  ) ) NULLIFY    ( lufrac_c   )
-  IF ( ALLOCATED  ( lu3       ) ) DEALLOCATE ( lu3        )
+  NULLIFY    ( g_lat    )
+  NULLIFY    ( g_lon    )
+  NULLIFY    ( g_msfx2  )
+  NULLIFY    ( g_ht     )
+  NULLIFY    ( g_dluse  )
+  NULLIFY    ( g_lwmask )
+  IF ( ASSOCIATED ( g_purb ) ) NULLIFY ( g_purb   )
+  
+  DO nn = 1, nfld2dxy
+    DEALLOCATE ( fld2dxy(nn)%fld )
+    DEALLOCATE ( fld2dxy(nn)%bdy )
+  ENDDO
 
 !-------------------------------------------------------------------------------
-! Release memory for MCOUTCOM arrays.
+! Release memory for time-independent 2d fields at cell corners and faces.
 !-------------------------------------------------------------------------------
 
-  NULLIFY    ( prsfc_c    )
-  NULLIFY    ( ustar_c    )
-  NULLIFY    ( wstar_c    )
-  NULLIFY    ( pbl_c      )
-  NULLIFY    ( zzero_c    )
-  NULLIFY    ( moli_c     )
-  NULLIFY    ( hfx_c      )
-  NULLIFY    ( lh_c       )
-  NULLIFY    ( radyni_c   )
-  NULLIFY    ( rstomi_c   )
-  NULLIFY    ( tempg_c    )
-  NULLIFY    ( temp2_c    )
-  NULLIFY    ( q2_c       )
-  NULLIFY    ( wspd10_c   )
-  NULLIFY    ( wdir10_c   )
-  NULLIFY    ( glw_c      )
-  NULLIFY    ( gsw_c      )
-  NULLIFY    ( rgrnd_c    )
-  NULLIFY    ( rainn_c    )
-  NULLIFY    ( rainc_c    )
-  NULLIFY    ( cfract_c   )
-  NULLIFY    ( cldtop_c   )
-  NULLIFY    ( cldbot_c   )
-  NULLIFY    ( wbar_c     )
-  NULLIFY    ( snocov_c   )
-  NULLIFY    ( veg_c      )
-  NULLIFY    ( lai_c      )
-  NULLIFY    ( seaice_c   )
-  NULLIFY    ( snowh_c    )
-  DEALLOCATE ( mc2        )
+  NULLIFY    ( g_latd  )
+  NULLIFY    ( g_lond  ) 
+  NULLIFY    ( g_msfv2 )
+  NULLIFY    ( g_latu  )
+  NULLIFY    ( g_lonu  ) 
+  NULLIFY    ( g_msfv2 )
+  NULLIFY    ( g_latv  )
+  NULLIFY    ( g_lonv  ) 
+  NULLIFY    ( g_msfv2 )
 
-  IF ( ALLOCATED  ( wr_c      ) ) DEALLOCATE ( wr_c       )
-  IF ( ALLOCATED  ( soim1_c   ) ) DEALLOCATE ( soim1_c    )
-  IF ( ALLOCATED  ( soim2_c   ) ) DEALLOCATE ( soim2_c    )
-  IF ( ALLOCATED  ( soit1_c   ) ) DEALLOCATE ( soit1_c    )
-  IF ( ALLOCATED  ( soit2_c   ) ) DEALLOCATE ( soit2_c    )
-  IF ( ALLOCATED  ( sltyp_c   ) ) DEALLOCATE ( sltyp_c    )
-
-  NULLIFY    ( jacobf_c   )
-  NULLIFY    ( jacobm_c   )
-  NULLIFY    ( densa_j_c  )
-  NULLIFY    ( what_jd_c  )
-  NULLIFY    ( tempa_c    )
-  NULLIFY    ( wvapor_c   )
-  NULLIFY    ( press_c    )
-  NULLIFY    ( densa_c    )
-  NULLIFY    ( x3htm_c    )
-  NULLIFY    ( x3htf_c    )
-  DEALLOCATE ( mc3        )
-
-  NULLIFY    ( jacobf_b   )
-  NULLIFY    ( jacobm_b   )
-  NULLIFY    ( densa_j_b  )
-  NULLIFY    ( what_jd_b  )
-  NULLIFY    ( tempa_b    )
-  NULLIFY    ( wvapor_b   )
-  NULLIFY    ( press_b    )
-  NULLIFY    ( densa_b    )
-  NULLIFY    ( x3htm_b    )
-  NULLIFY    ( x3htf_b    )
-  DEALLOCATE ( mb3        )
-
-  IF ( ASSOCIATED ( cldwtr_c  ) ) NULLIFY    ( cldwtr_c   )
-  IF ( ASSOCIATED ( ranwtr_c  ) ) NULLIFY    ( ranwtr_c   )
-  IF ( ASSOCIATED ( qice_c    ) ) NULLIFY    ( qice_c     )
-  IF ( ASSOCIATED ( qsnow_c   ) ) NULLIFY    ( qsnow_c    )
-  IF ( ASSOCIATED ( qgraup_c  ) ) NULLIFY    ( qgraup_c   )
-  IF ( ALLOCATED  ( qc3       ) ) DEALLOCATE ( qc3        )
-
-  IF ( ASSOCIATED ( cldwtr_b  ) ) NULLIFY    ( cldwtr_b   )
-  IF ( ASSOCIATED ( ranwtr_b  ) ) NULLIFY    ( ranwtr_b   )
-  IF ( ASSOCIATED ( qice_b    ) ) NULLIFY    ( qice_b     )
-  IF ( ASSOCIATED ( qsnow_b   ) ) NULLIFY    ( qsnow_b    )
-  IF ( ASSOCIATED ( qgraup_b  ) ) NULLIFY    ( qgraup_b   )
-  IF ( ALLOCATED  ( qb3       ) ) DEALLOCATE ( qb3        )
-
-  IF ( ALLOCATED  ( tke_c     ) ) DEALLOCATE ( tke_c      )
-  IF ( ALLOCATED  ( tke_b     ) ) DEALLOCATE ( tke_b      )
-
-  IF ( ALLOCATED  ( pvc_c     ) ) DEALLOCATE ( pvc_c      )
-  IF ( ALLOCATED  ( pvc_b     ) ) DEALLOCATE ( pvc_b      )
-
-  IF ( ALLOCATED  ( wwind_c   ) ) DEALLOCATE ( wwind_c    )
-  IF ( ALLOCATED  ( wwind_b   ) ) DEALLOCATE ( wwind_b    )
-
-  IF ( ALLOCATED  ( cfrac3d_c ) ) DEALLOCATE ( cfrac3d_c   )
-  IF ( ALLOCATED  ( cfrac3d_b ) ) DEALLOCATE ( cfrac3d_b   )
+  DO nn = 1, nfld2dxy_d
+    DEALLOCATE ( fld2dxy_d(nn)%fld )
+  ENDDO
 
 !-------------------------------------------------------------------------------
-! Release memory for MDOUTCOM arrays.
+! Release memory for time-independent 3d fields (frac land use) at cell centers.
 !-------------------------------------------------------------------------------
 
-  NULLIFY    ( uu_d       )
-  NULLIFY    ( vv_d       )
-  NULLIFY    ( uhat_s     )
-  NULLIFY    ( vhat_t     )
-  DEALLOCATE ( md3        )
+  IF ( ASSOCIATED ( g_lufrac ) ) NULLIFY ( g_lufrac )
 
-  IF ( ALLOCATED  ( uu_s     ) ) DEALLOCATE ( uu_s       )
-  IF ( ALLOCATED  ( vv_t     ) ) DEALLOCATE ( vv_t       )
-
-!-------------------------------------------------------------------------------
-! Release memory for SOIOUTCOM arrays.
-!-------------------------------------------------------------------------------
-
-  IF ( ASSOCIATED ( soit3d_c ) ) NULLIFY    ( soit3d_c )
-  IF ( ASSOCIATED ( soim3d_c ) ) NULLIFY    ( soim3d_c )
-  IF ( ALLOCATED  ( soi3     ) ) DEALLOCATE ( soi3     )
+  IF ( ALLOCATED ( fld3dxyl ) ) THEN
+    DO nn = 1, nfld3dxyl
+      DEALLOCATE ( fld3dxyl(nn)%fld )
+    ENDDO
+  ENDIF
 
 !-------------------------------------------------------------------------------
-! Release memory for MOSOUTCOM arrays.
+! Release memory for time-varying 2d fields at cell centers.
 !-------------------------------------------------------------------------------
 
-  IF ( ASSOCIATED ( lufrac2_c   ) ) NULLIFY    ( lufrac2_c   )
-  IF ( ASSOCIATED ( moscatidx_c ) ) NULLIFY    ( moscatidx_c )
-  IF ( ASSOCIATED ( lai_mos_c   ) ) NULLIFY    ( lai_mos_c   )
-  IF ( ASSOCIATED ( rai_mos_c   ) ) NULLIFY    ( rai_mos_c   )
-  IF ( ASSOCIATED ( rsi_mos_c   ) ) NULLIFY    ( rsi_mos_c   )
-  IF ( ASSOCIATED ( tsk_mos_c   ) ) NULLIFY    ( tsk_mos_c   )
-  IF ( ASSOCIATED ( znt_mos_c   ) ) NULLIFY    ( znt_mos_c   )
-  IF ( ALLOCATED  ( mos3        ) ) DEALLOCATE ( mos3        )
+  NULLIFY    ( c_prsfc  )
+  NULLIFY    ( c_ustar  )
+  NULLIFY    ( c_wstar  )
+  NULLIFY    ( c_pbl    )
+  NULLIFY    ( c_zruf   )
+  NULLIFY    ( c_moli   )
+  NULLIFY    ( c_hfx    )
+  NULLIFY    ( c_lh     )
+  NULLIFY    ( c_radyni )
+  NULLIFY    ( c_rstomi )
+  NULLIFY    ( c_tempg  )
+  NULLIFY    ( c_temp2  )
+  NULLIFY    ( c_q2     )
+  NULLIFY    ( c_wspd10 )
+  NULLIFY    ( c_wdir10 )
+  NULLIFY    ( c_glw    )
+  NULLIFY    ( c_gsw    )
+  NULLIFY    ( c_rgrnd  )
+  NULLIFY    ( c_rn     )
+  NULLIFY    ( c_rc     )
+  NULLIFY    ( c_cfrac  )
+  NULLIFY    ( c_cldt   )
+  NULLIFY    ( c_cldb   )
+  NULLIFY    ( c_wbar   )
+  NULLIFY    ( c_snocov )
+  NULLIFY    ( c_veg    )
+  NULLIFY    ( c_lai    )
+  NULLIFY    ( c_seaice )
+  NULLIFY    ( c_snowh  )
+  IF ( ASSOCIATED ( c_wr        ) ) NULLIFY ( c_wr        )
+  IF ( ASSOCIATED ( c_soim1     ) ) NULLIFY ( c_soim1     )
+  IF ( ASSOCIATED ( c_soim2     ) ) NULLIFY ( c_soim2     )
+  IF ( ASSOCIATED ( c_soit1     ) ) NULLIFY ( c_soit1     )
+  IF ( ASSOCIATED ( c_soit2     ) ) NULLIFY ( c_soit2     )
+  IF ( ASSOCIATED ( c_sltyp     ) ) NULLIFY ( c_sltyp     )
+  IF ( ASSOCIATED ( c_wsat_px   ) ) NULLIFY ( c_wsat_px   )
+  IF ( ASSOCIATED ( c_wfc_px    ) ) NULLIFY ( c_wfc_px    )
+  IF ( ASSOCIATED ( c_wwlt_px   ) ) NULLIFY ( c_wwlt_px   )
+  IF ( ASSOCIATED ( c_csand_px  ) ) NULLIFY ( c_csand_px  )
+  IF ( ASSOCIATED ( c_fmsand_px ) ) NULLIFY ( c_fmsand_px )
+  IF ( ASSOCIATED ( c_clay_px   ) ) NULLIFY ( c_clay_px   )
+
+  DO nn = 1, nfld2dxyt
+    DEALLOCATE ( fld2dxyt(nn)%fld )
+  ENDDO
+
+!-------------------------------------------------------------------------------
+! Release memory for time-varying 3d fields at cell centers.
+!-------------------------------------------------------------------------------
+
+  NULLIFY    ( c_jacobf  )
+  NULLIFY    ( c_jacobm  )
+  NULLIFY    ( c_densa_j )
+  NULLIFY    ( c_what_jd )
+  NULLIFY    ( c_ta      )
+  NULLIFY    ( c_qv      )
+  NULLIFY    ( c_pres    )
+  NULLIFY    ( c_dens    )
+  NULLIFY    ( c_zh      )
+  NULLIFY    ( c_zf      )
+  IF ( ASSOCIATED ( c_tke      ) ) NULLIFY ( c_tke      )
+  IF ( ASSOCIATED ( c_pv       ) ) NULLIFY ( c_pv       )
+  IF ( ASSOCIATED ( c_wwind    ) ) NULLIFY ( c_wwind    )
+  IF ( ASSOCIATED ( c_cfrac_3d ) ) NULLIFY ( c_cfrac_3d )
+
+  DO nn = 1, nfld3dxyzt
+    DEALLOCATE ( fld3dxyzt(nn)%fld )
+    DEALLOCATE ( fld3dxyzt(nn)%bdy )
+  ENDDO
+
+  IF ( nfld3dxyzt_q > 0 ) THEN
+
+    IF ( ASSOCIATED ( c_qc ) ) NULLIFY ( c_qc )
+    IF ( ASSOCIATED ( c_qr ) ) NULLIFY ( c_qr )
+    IF ( ASSOCIATED ( c_qi ) ) NULLIFY ( c_qi )
+    IF ( ASSOCIATED ( c_qs ) ) NULLIFY ( c_qs )
+    IF ( ASSOCIATED ( c_qg ) ) NULLIFY ( c_qg )
+    IF ( ASSOCIATED ( c_qc_cu     ) ) NULLIFY ( c_qc_cu     )
+    IF ( ASSOCIATED ( c_qi_cu     ) ) NULLIFY ( c_qi_cu     )
+    IF ( ASSOCIATED ( c_cldfra_dp ) ) NULLIFY ( c_cldfra_dp )
+    IF ( ASSOCIATED ( c_cldfra_sh ) ) NULLIFY ( c_cldfra_sh )
+
+    DO nn = 1, nfld3dxyzt_q
+      DEALLOCATE ( fld3dxyzt_q(nn)%fld )
+      DEALLOCATE ( fld3dxyzt_q(nn)%bdy )
+    ENDDO
+
+  ENDIF
+
+!-------------------------------------------------------------------------------
+! Release memory for time-varying 3d fields at cell corners and cell faces.
+!-------------------------------------------------------------------------------
+
+  NULLIFY    ( c_uwind   )
+  NULLIFY    ( c_vwind   )
+  NULLIFY    ( c_uhat_jd )
+  NULLIFY    ( c_vhat_jd )
+  IF ( ASSOCIATED ( c_uwindc ) ) NULLIFY ( c_uwindc )
+  IF ( ASSOCIATED ( c_vwindc ) ) NULLIFY ( c_vwindc )
+
+  DO nn = 1, nfld3dxyzt_d
+    DEALLOCATE ( fld3dxyzt_d(nn)%fld )
+  ENDDO
+
+!-------------------------------------------------------------------------------
+! Release memory for time-varying 3d fields (soil layers) at cell centers.
+!-------------------------------------------------------------------------------
+
+  IF ( nfld3dxyst > 0 ) THEN
+
+    NULLIFY    ( c_soit3d )
+    NULLIFY    ( c_soim3d )
+
+    DO nn = 1, nfld3dxyst
+      DEALLOCATE ( fld3dxyst(nn)%fld )
+    ENDDO
+
+  ENDIF
+
+!-------------------------------------------------------------------------------
+! Release memory for time-varying 3d fields (mosaic land use categories) at cell
+! centers.
+!-------------------------------------------------------------------------------
+
+  IF ( nfld3dxymt > 0 ) THEN
+
+    NULLIFY    ( c_lufrac2 )
+    NULLIFY    ( c_moscat  )
+    NULLIFY    ( c_lai_mos )
+    NULLIFY    ( c_rai_mos )
+    NULLIFY    ( c_rsi_mos )
+    NULLIFY    ( c_tsk_mos )
+    NULLIFY    ( c_znt_mos )
+
+    DO nn = 1, nfld3dxymt
+      DEALLOCATE ( fld3dxymt(nn)%fld )
+    ENDDO
+
+  ENDIF
 
 END SUBROUTINE dealloc_ctm

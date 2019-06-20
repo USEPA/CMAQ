@@ -16,39 +16,43 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-MODULE soioutcom
+SUBROUTINE ctmout (mcip_now, sdate, stime)
 
 !-------------------------------------------------------------------------------
-! Name:     Soil Cross-Point Output Module
-! Purpose:  Contains MCIP soil cross-point output pointers and targets.
-! Revised:  10 Feb 2018  Original version based on mcoutcom_mod.f90 from
-!                        MCIPv4.4.  (T. Spero)
+! Name:     CTM Output -- Create output for CTM
+! Purpose:  Output time-varying fields.
+! Revised:  19 Dec 2018  Original version in MCIPv5.0.  Subsumes parts of
+!                        metcro.f90, metdot.f90, soilcro.f90, and moscro.f90
+!                        from MCIPv4.5.  (T. Spero)
 !-------------------------------------------------------------------------------
+
+  USE mcipparm, ONLY: ioform
 
   IMPLICIT NONE
 
+  CHARACTER(LEN=24),  INTENT(IN)    :: mcip_now
+  INTEGER,            INTENT(IN)    :: sdate
+  INTEGER,            INTENT(IN)    :: stime
+
 !-------------------------------------------------------------------------------
-! Soil cross arrays for CTM domain.  (SOI_CRO)
+! Write time-varying output fields.
 !-------------------------------------------------------------------------------
 
-  INTEGER, PARAMETER :: soi3index = 2
+  SELECT CASE ( ioform )
 
-  REAL, ALLOCATABLE, TARGET :: soi3       ( : , : , : , : )
+    CASE ( 1 )  ! Models-3 I/O API
+      CALL outcm3io (sdate, stime)
 
-  REAL, POINTER :: soit3d_c   ( : , : , : )  ! soil temperature [K]
-  REAL, POINTER :: soim3d_c   ( : , : , : )  ! soil moisture [m^3/m^3]
+    CASE ( 2 )  ! netCDF
+      CALL outncf    (mcip_now, sdate, stime)
+      CALL outncfbdy (mcip_now, sdate, stime)
 
+  END SELECT
 
-  ! Header description.
+!-------------------------------------------------------------------------------
+! Print sample output to log file.
+!-------------------------------------------------------------------------------
 
-  CHARACTER(LEN=16), PARAMETER :: soi3vname ( soi3index ) =     &
-    (/ 'SOIT3D',     'SOIM3D' /)
+  CALL outclog
 
-  CHARACTER(LEN=16), PARAMETER :: soi3units ( soi3index ) =     &
-    (/ 'K         ', 'M**3/M**3 ' /)
-
-  CHARACTER(LEN=80), PARAMETER :: soi3vdesc ( soi3index ) =     &
-    (/ 'soil temperature                                     ', &  !  1
-       'soil moisture                                        '  /) !  2
-
-END MODULE soioutcom
+END SUBROUTINE ctmout

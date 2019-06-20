@@ -16,10 +16,10 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-MODULE luvars
+MODULE lucats
 
 !-------------------------------------------------------------------------------
-! Name:     Land Use Variables
+! Name:     Land Use Categories
 ! Purpose:  Contains input land use classification arrays.
 ! Revised:  25 Aug 2009  Original version.  (T. Otte)
 !           01 Sep 2011  Include all land use information as parameter
@@ -33,6 +33,10 @@ MODULE luvars
 !                        as "NLCD50".  Changed LUCATNLCD to LUCATNLCD50 and
 !                        added new field LUCATNLCD40.  (T. Otte)
 !           01 Feb 2018  Updated MODIS category 21 to be "Lake".  (T. Spero)
+!           22 Jun 2018  Changed name of module LUVARS to LUCATS to minimize
+!                        confusion.  (T. Spero)
+!           08 Aug 2018  Corrected bug in setting land use category names in
+!                        MCIP for USGS24 + lakes.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -95,6 +99,13 @@ MODULE luvars
        "Dry Coastal Complexes                           ", &  ! 14
        "Water                                           ", &  ! 15
        "Ice Cap and Glacier                             "  /) ! 16
+
+  CHARACTER(LEN=48), PARAMETER :: lucatusgs28 ( 28 ) =     &  ! USGS 28-category
+    (/ lucatusgs24(1:24),                                  &  ! 1-24
+       "~~~unassigned~~~                                ", &  ! 25
+       "~~~unassigned~~~                                ", &  ! 26
+       "~~~unassigned~~~                                ", &  ! 27
+       "Lake                                            "  /) ! 28
 
   CHARACTER(LEN=48), PARAMETER :: lucatusgs33 ( 33 ) =     &  ! USGS 33-category
     (/ lucatusgs24(1:24),                                  &  ! 1-24
@@ -237,4 +248,4 @@ MODULE luvars
        "Woody Wetland                                   ", &  ! 39
        "Emergent Herbaceous Wetland                     "  /) ! 40
 
-END MODULE luvars
+END MODULE lucats

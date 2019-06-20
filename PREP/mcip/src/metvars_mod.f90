@@ -53,6 +53,11 @@ MODULE metvars
 !                        Added DZS to capture soil layers, and added 3D soil
 !                        arrays, SOIT3D and SOIM3D.  Added WSPDSFC and XLAIDYN
 !                        for Noah.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           18 Jun 2019  Added new surface variables with PX LSM that can
+!                        improve dust simulation in CCTM.  Added optional
+!                        variables from KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -62,9 +67,14 @@ MODULE metvars
   REAL,          ALLOCATABLE   :: c1h        ( : )
   REAL,          ALLOCATABLE   :: c2f        ( : )
   REAL,          ALLOCATABLE   :: c2h        ( : )
+  REAL,          ALLOCATABLE   :: clay_px    ( : , : )
   REAL,          ALLOCATABLE   :: cldfra     ( : , : , : )
+  REAL,          ALLOCATABLE   :: cldfra_dp  ( : , : , : )
+  REAL,          ALLOCATABLE   :: cldfra_sh  ( : , : , : )
   REAL,          ALLOCATABLE   :: coriolis   ( : , : )
+  REAL,          ALLOCATABLE   :: csand_px   ( : , : )
   REAL,          ALLOCATABLE   :: dzs        ( : )
+  REAL,          ALLOCATABLE   :: fmsand_px  ( : , : )
   REAL,          ALLOCATABLE   :: frc_urb    ( : , : )
   REAL,          ALLOCATABLE   :: glw        ( : , : )
   REAL,          ALLOCATABLE   :: groundt    ( : , : )
@@ -76,6 +86,7 @@ MODULE metvars
   INTEGER,       ALLOCATABLE   :: isltyp     ( : , : )
   REAL,          ALLOCATABLE   :: lai        ( : , : )
   REAL,          ALLOCATABLE   :: lai_mos    ( : , : , : )
+  REAL,          ALLOCATABLE   :: lai_px     ( : , : )
   REAL,          ALLOCATABLE   :: landmask   ( : , : )
   INTEGER,       ALLOCATABLE   :: landuse    ( : , : )
   REAL,          ALLOCATABLE   :: latcrs     ( : , : )
@@ -104,9 +115,11 @@ MODULE metvars
   REAL,          ALLOCATABLE   :: psa        ( : , : )
   REAL,          ALLOCATABLE   :: q2         ( : , : )
   REAL,          ALLOCATABLE   :: qca        ( : , : , : )
+  REAL,          ALLOCATABLE   :: qc_cu      ( : , : , : )
   REAL,          ALLOCATABLE   :: qfx        ( : , : )
   REAL,          ALLOCATABLE   :: qga        ( : , : , : )
   REAL,          ALLOCATABLE   :: qia        ( : , : , : )
+  REAL,          ALLOCATABLE   :: qi_cu      ( : , : , : )
   REAL,          ALLOCATABLE   :: qra        ( : , : , : )
   REAL,          ALLOCATABLE   :: qsa        ( : , : , : )
   REAL,          ALLOCATABLE   :: qva        ( : , : , : )
@@ -140,12 +153,14 @@ MODULE metvars
   REAL,          ALLOCATABLE   :: v10        ( : , : )
   REAL,          ALLOCATABLE   :: va         ( : , : , : )
   REAL,          ALLOCATABLE   :: veg        ( : , : )
-  REAL,          ALLOCATABLE   :: vegold     ( : , : )
   REAL,          ALLOCATABLE   :: w2         ( : , : )
   REAL,          ALLOCATABLE   :: wa         ( : , : , : )
+  REAL,          ALLOCATABLE   :: wfc_px     ( : , : )
   REAL,          ALLOCATABLE   :: wg         ( : , : )
   REAL,          ALLOCATABLE   :: wr         ( : , : )
+  REAL,          ALLOCATABLE   :: wsat_px    ( : , : )
   REAL,          ALLOCATABLE   :: wspdsfc    ( : , : )
+  REAL,          ALLOCATABLE   :: wwlt_px    ( : , : )
   REAL,          ALLOCATABLE   :: xlaidyn    ( : , : )
   REAL,          ALLOCATABLE   :: znt        ( : , : )
   REAL,          ALLOCATABLE   :: znt_mos    ( : , : , : )
