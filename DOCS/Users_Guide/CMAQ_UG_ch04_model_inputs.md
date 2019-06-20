@@ -513,7 +513,7 @@ Used by: CCTM – inline-emissions version only
 
 The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual.
 
-<a id=ec2_lu></a>
+<a id=e2c_lu></a>
 ### E2C_LU – Fractional crop distributions
 [Return to Table 4-1](#e2c_lu_t)
 
