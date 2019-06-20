@@ -243,7 +243,7 @@ Used by: CCTM
 
 MET_CRO_3D is also used by ICON, BCON
 
-**Table 4-X**  MCIP output variables used within the CMAQ system.  All fields are located at cell centers, except where noted in the Description.
+**Table 4-3**  MCIP output variables used within the CMAQ system.  All fields are located at cell centers, except where noted in the Description.
 
 |**Variable Name**|**Description**|**Units**|**Dimensions**|**File**|**Required**|
 |--------|---------------|--------------|----------|------------|----------|
