@@ -270,7 +270,7 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 Used by: ICON, BCON, CCTM, and some optional programs
 
 
-**Table 4-3**  MCIP output variables used within the CMAQ system.  All fields are located at cell centers, except where noted in the Description.
+**Table 4-3**  MCIP output variables used within the CMAQ system.  All fields are located at cell centers, except where noted in the Description.  The Dimensions are:  XY=horizontal, T=time-varying, Z=layers above ground, S=layers below ground, L=land use categories, M=mosaic land use categories.
 
 |**Variable Name**|**Description**|**Units**|**Dimensions**|**File**|**Required**|
 |--------|---------------|--------------|----------|------------|----------|
@@ -311,6 +311,10 @@ Used by: ICON, BCON, CCTM, and some optional programs
 |RGRND|solar radiation reaching the surface|W m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
 |RN|incremental (per output time step) nonconvective precipitation|cm|XYT|METCRO2D or mcip.nc|yes|
 |RC|incremental (per output time step) convective precipitation|cm|XYT|METCRO2D or mcip.nc|yes|
+|CFRAC|total column integrated cloud fraction|1|XYT|METCRO2D or mcip.nc|yes, if photolysis uses the table option in CCTM|
+|CLDT|cloud layer top height|m|XYT|METCRO2D or mcip.nc|yes, if photolysis uses the table option in CCTM|
+|CLDB|cloud layer bottom height|m|XYT|METCRO2D or mcip.nc|yes, if photolysis uses the table option in CCTM|
+|WBAR|average liquid water content of cloud|g m<sup>-3</sup>|XYT|METCRO2D or mcip.nc|yes, if photolysis uses the table option in CCTM|
 |SNOCOV|snow cover|1=yes, 0=no|XYT|METCRO2D or mcip.nc|yes|
 |VEG|vegetation coverage|1|XYT|METCRO2D or mcip.nc|yes|
 |LAI|leaf-area index|m<sup>2</sup> m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
@@ -347,7 +351,11 @@ Used by: ICON, BCON, CCTM, and some optional programs
 |QR|rain water mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
 |QI|ice mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but used if available|
 |QS|snow mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but used if available|
-|QG|graupel mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and met_bdy.nc|no, but used if available|
+|QG|graupel mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but used if available|
+|QC_CU|subgrid cloud water mixing ratio from KF|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no; only output if available from WRF; for future development|
+|QI_CU|subgrid cloud ice mixing ratio from KF|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no; only output if available from WRF; for future development|
+|CLDFRA_DP|subgrid deep cloud fraction|1|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no; only output if available from WRF; for future development|
+|CLDFRA_SH|subgrid shallow cloud fraction|1|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no; only output if available from WRF; for future development|
 |UWIND|u-component of horizontal wind (cell corners)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|no|
 |VWIND|v-component of horizontal wind (cell corners)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|no|
 |UHAT_JD|contravariant-U*Jacobian*density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
