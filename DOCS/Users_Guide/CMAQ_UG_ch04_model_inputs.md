@@ -243,9 +243,14 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 <a id=met_cro_2d></a>
 <a id=met_cro_3d></a>
 <a id=met_dot_3d></a>
+<a id=lufrac_cro></a>
+<a id=soi_cro></a>
+<a id=mosaic_cro></a>
 <a id=mcip></a>
 <a id=mcip_bdy></a>
-### GRID_CRO_2D, GRID_BDY_2D, GRID_DOT_2D, MET_BDY_3D, MET_CRO_2D, MET_CRO_3D, MET_DOT_3D
+### GRID_CRO_2D, GRID_BDY_2D, GRID_DOT_2D, MET_BDY_3D, MET_CRO_2D, MET_CRO_3D, MET_DOT_3D, LUFRAC_CRO, SOI_CRO, MOSAIC_CRO
+
+### mcip.nc, mcip_bdy.nc
 [Return to Table 4-3](#grid_cro_2d_t)
 
 Used by: CCTM
