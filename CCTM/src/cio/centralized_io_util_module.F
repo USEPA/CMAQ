@@ -39,11 +39,11 @@
 ! -------------------------------------------------------------------------
         recursive subroutine quicksort1d (name, begin, end)
 
-          character (16), intent(out) :: name(:)
+          character (*), intent(out) :: name(:)
           integer, intent(in)         :: begin, end
 
           integer        :: i, j
-          character (16) :: str1, str2
+          character (50) :: str1, str2
           logical        :: done
 
           str1 = name( (begin + end) / 2 )
@@ -75,11 +75,11 @@
 ! -------------------------------------------------------------------------
         recursive subroutine quicksort2d (name, begin, end)
 
-          character (16), intent(out) :: name(:,:)
+          character (*), intent(out) :: name(:,:)
           integer, intent(in)         :: begin, end
 
           integer        :: i, j
-          character (16) :: str1(2), str2(2)
+          character (50) :: str1(2), str2(2)
           logical        :: done
 
           str1 = name( (begin + end) / 2, 1 )
@@ -194,4 +194,40 @@
 
         end function time_diff
 
+!--------------------------------------------------------------------------
+       integer function next_day (jday)
+
+! This function determermins the next day for time interpolation 
+          implicit none
+          
+          integer, intent(in) :: jday 
+          integer year, day
+
+          day  = MOD(jday,1000)
+          year = INT(jday/1000)
+
+          If( day .LT. 365 ) Then
+             next_day = jday+1
+          Else
+             If( MOD(year,4) .Eq. 0 .And. MOD(year,100) .Ne. 0 ) Then
+! Leap Year        
+                If( day .Eq. 365 ) Then
+                   next_day = jday + 1
+                Else
+                   next_day = (INT(jday/1000)+1)*1000+1
+                End If
+             Else If(MOD(year,400) .Eq. 0 ) Then
+! also a leap year, e.g. 2000 but not 2100
+                If( day .Eq. 365 ) Then
+                   next_day = jday + 1
+                Else
+                   next_day = (INT(jday/1000)+1)*1000+1
+                End If
+             Else
+! not a leap year
+                next_day = (INT(jday/1000)+1)*1000+1
+             End If
+          End If
+
+       end function next_day
       end module centralized_io_util_module
