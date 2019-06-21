@@ -234,7 +234,7 @@ CMAQ boundary condition data are of the BNDARY3 file type. Produced by the bound
 
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10e<sup>-30</sup>. The perimeter of the CMAQ domain is NTHIK cell wide (typically NTHIK = 1), where the number of boundary cells = (2*NROW*NTHIK)+(2*NCOL*NTHIK)+(4*NTHIK*NTHIK).
 
-## MCIP
+## Meteorological Inputs (Processed for the CMAQ System using MCIP)
 
 <a id=grid_cro_2d></a>
 <a id=grid_bdy_2d></a>
@@ -248,10 +248,24 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 <a id=mosaic_cro></a>
 <a id=mcip></a>
 <a id=mcip_bdy></a>
-### GRID_CRO_2D, GRID_BDY_2D, GRID_DOT_2D, MET_BDY_3D, MET_CRO_2D, MET_CRO_3D, MET_DOT_3D, LUFRAC_CRO, SOI_CRO, MOSAIC_CRO
+### _MCIP output files generated when IOFORM=1 (Models-3 I/O API)_
+### GRIDDESC:     Grid description used throughout the CMAQ System
+### GRID_CRO_2D:  Time-invariant 2D fields (XY) at cell centers (cross points)
+### GRID_BDY_2D:  Time-invariant fields from GRID_CRO_2D, but along domain lateral boundaries
+### GRID_DOT_2D:  Time-invariant 2D fields (XY) at cell corners (dot points) and cell faces
+### MET_CRO_2D:   Time-varying 2D fields (XY) at cell centers (cross points)
+### MET_CRO_3D:   Time-varying 3D fields (XYZ) at cell centers (cross points)
+### MET_BDY_3D:   Time-varying fields from MET_CRO_3D, but along domain lateral boundaries
+### MET_DOT_3D:   Time-varying 3D fields (XYZ) at cell corners (dot points) and cell faces
+### LUFRAC_CRO:   Time-invariant 3D fractional land use (XYL) at cell corners (cross points)
+### SOI_CRO:      Time-varying 3D soil moisture and temperature (XYS) in model soil layers at cell centers
+### MOSAIC_CRO:   Time-varying 3D surface fields by mosaic land use category (XYM) at cell centers
 
-### mcip.nc, mcip_bdy.nc
-[Return to Table 4-3](#grid_cro_2d_t)
+### _MCIP output files generated when IOFORM=2 (netCDF)_
+### GRIDDESC:     Grid description used throughout the CMAQ System
+### mcip.nc:      All time-invariant and time-varying 2D and 3D fields (all dimensions)
+### mcip_bdy.nc:  All required time-invariant and time-varying 2D and 3D fields along lateral boundaries
+[Return to Table 4-1](#grid_cro_2d_t)
 
 Used by: CCTM
 
