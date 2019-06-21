@@ -40,11 +40,15 @@
 !  05/13/19, D. Wong: -- expanded implementation to hanndle ISAM model
 !  05/15/19, D. Wong: -- used USE_MARINE_GAS_EMISSION variable defined in RUNTIME_VAR.F 
 !                        to turn on a block of code related to marine gas emssion
+!  06/18/19, D. Wong: -- modified cio implementation to handle:
+!                        * emission file date is differ from simulation date
+!                        * region files for scaling purposes
+!  06/19/19, D. Wong: -- fixed a bug in the EMIS regions subroutine
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
 
-        use RUNTIME_VARS, only : LTNG_NO, STDATE, STTIME, ABFLUX, MOSAIC, NPTGRPS, USE_MARINE_GAS_EMISSION
+        use RUNTIME_VARS, only : LTNG_NO, STDATE, STTIME, ABFLUX, MOSAIC, NPTGRPS, USE_MARINE_GAS_EMISSION, logdev
         use CENTRALIZED_IO_UTIL_MODULE
    
         implicit none
@@ -110,7 +114,7 @@
         integer :: n_grid_cro_data_vars
         integer :: n_cio_grid_vars
         real, allocatable :: cio_grid_data(:)
-        character (16), allocatable :: cio_grid_var_name(:,:)
+        character (24), allocatable :: cio_grid_var_name(:,:)
         integer, allocatable :: cio_grid_data_inx (:,:,:),
      &                          head_grid(:), tail_grid(:),        ! head and tail of the gridded data circular buffer
      &                          cio_grid_data_tstamp(:,:,:)
@@ -130,6 +134,7 @@
         character (16), allocatable :: cio_emis_file_name(:),
      &                                 cio_emis_var_name(:,:)
         integer, allocatable :: cio_emis_nvars(:)
+        integer, allocatable :: cio_emis_file_date(:)
 
 ! - stack emission data
         real, allocatable    :: cio_stack_data(:)
@@ -250,7 +255,7 @@
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
           USE VGRD_DEFN, only : VGTYP_GD, nlays
-          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON, WB_DUST, ISAM_NEW_START
+          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON, STDATE, WB_DUST, ISAM_NEW_START
           use LSM_Mod, only : LAND_SCHEME
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
@@ -262,7 +267,7 @@
      &                        n_bio_season_vars, n_dust_vars
           character( 16 )  :: tname, fname
 
-          character( 20 ), allocatable :: c2d_name(:, :), c3d_name(:, :), 
+          character( 24 ), allocatable :: c2d_name(:, :), c3d_name(:, :), 
      &                                    d3d_name(:,:), emis_name(:,:),
      &                                    i3d_name(:,:), is3d_name(:,:),
      &                                    l2d_name(:,:), medc_name(:,:)
@@ -529,6 +534,7 @@
 
           allocate (cio_emis_file_name(N_FILE_GR),
      &              cio_emis_nvars(N_FILE_GR),
+     &              cio_emis_file_date(N_FILE_GR),
      &              stat=stat)
 
           n_e2d = 0
@@ -553,6 +559,8 @@
              else
                 n_e3d = n_e3d + nvars3d
              end if
+
+             cio_emis_file_date(n) = sdate3d
           end do
 
 ! Bio_season data
@@ -1570,8 +1578,9 @@ C Read the various categories of normalized emissions
 
                 If( MOD(cio_model_sdate,1000) .Eq. 1 ) Then
                    If( MOD(cio_model_sdate,4000) .Eq. 0 .And. 
-     &                 MOD(cio_model_sdate,100000) .Eq. 0 .And. 
-     &                 MOD(cio_model_sdate,400000) .Eq. 0) Then
+     &                 MOD(cio_model_sdate,100000) .Ne. 0 ) Then
+                      jdate_yest = (INT(cio_model_sdate/1000)-1)*1000+366
+                   Else If( MOD(cio_model_sdate,400000) .Eq. 0) Then
                       jdate_yest = (INT(cio_model_sdate/1000)-1)*1000+366
                    Else ! not a leap year
                       jdate_yest = (INT(cio_model_sdate/1000)-1)*1000+365
@@ -1950,7 +1959,7 @@ C Read the various categories of normalized emissions
      &              szone(ncols, nrows), 
      &              STAT=STAT)
           IF ( STAT .NE. 0 ) THEN
-             XMSG = 'Failure allocating OCEAN and SZONE arrays'
+             XMSG = 'Failure allocating OPEN and SURF array'
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
@@ -2117,8 +2126,9 @@ C Read the various categories of normalized emissions
 
           LOGICAL :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations,
-     &               iter, loc_jdate, loc_jtime, bs_tjdate, wb_tjdate, v, beg_v, end_v, 
-     &               fnum, str_len, bs_tjtime, wb_tjtime, wb_pre_begin, wb_pre_end
+     &               iter, loc_jdate, loc_emis_jdate, loc_jtime, t_time,
+     &               bs_tjdate, wb_tjdate, v, beg_v, end_v, fnum, str_len, 
+     &               bs_tjtime, wb_tjtime, wb_pre_begin, wb_pre_end
           integer, allocatable :: tdata(:)
           character (16) :: loc_vname
           logical :: advanced
@@ -2208,9 +2218,18 @@ C Read the various categories of normalized emissions
                    read (cio_grid_var_name(v,1)(str_len-2:str_len), *) fnum
                    loc_vname = cio_grid_var_name(v,1)(1:str_len-4)
 
+                   ! if not initial step to setup the entire circular buffer and jdate is not the same in the file
+                   if ((iterations .ne. 2) .and. (jdate .ne. cio_emis_file_date(fnum))) then
+!                      cio_emis_file_date(fnum) = cio_emis_file_date(fnum) + 1  ! advance to next day
+                      cio_emis_file_date(fnum) = next_day(cio_emis_file_date(fnum)) ! advance to next day
+                   end if
+                   loc_emis_jdate = cio_emis_file_date(fnum)
+
+                   cio_grid_data_tstamp(1, buf_loc, v) = loc_emis_jdate
+
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
      &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
-     &                                 loc_jdate, loc_jtime, cio_grid_data(begin:end) ) ) THEN
+     &                                 loc_emis_jdate, loc_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
                    END IF
@@ -2221,9 +2240,19 @@ C Read the various categories of normalized emissions
                    read (cio_grid_var_name(v,1)(str_len-2:str_len), *) fnum
                    loc_vname = cio_grid_var_name(v,1)(1:str_len-4)
 
+                   ! if not initial step to setup the entire circular buffer and jdate is not the same in the file
+                   if ((iterations .ne. 2) .and. (jdate .ne. cio_emis_file_date(fnum))) then
+!                      cio_emis_file_date(fnum) = cio_emis_file_date(fnum) + 1  ! advance to next day
+                      cio_emis_file_date(fnum) = next_day(cio_emis_file_date(fnum)) ! advance to next day
+                   end if
+
+                   loc_emis_jdate = cio_emis_file_date(fnum)
+
+                   cio_grid_data_tstamp(1, buf_loc, v) = loc_emis_jdate
+
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
      &                                 1, nlays, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
-     &                                 loc_jdate, loc_jtime, cio_grid_data(begin:end) ) ) THEN
+     &                                 loc_emis_jdate, loc_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
                    END IF
@@ -3046,7 +3075,14 @@ C   mminlu and num_land_cat are WRF global variables
                            EM_REGIONS( N_EM_RGN )%FILE    = EM_REG_READ( IREAD )%FILE
                            EM_REGIONS( N_EM_RGN )%FILENUM = EM_REG_READ( IREAD )%FILENUM
 
-                           call interpolate_var (VNAME3D(IVAR), SDATE3D, STIME3D, EM_REG_FAC(:,:,N_EM_RGN))
+                           IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME3D(IVAR), 1, 1,
+     &                                         STARTROW, ENDROW, STARTCOL, ENDCOL,
+     &                                         0, 0, EM_REG_FAC( 1,1,N_EM_RGN ) ) ) Then
+                              XMSG = 'Could not read ' // VNAME3D(IVAR) //
+     &                               'from file ' // FILENAMES( IFILE ) 
+                              CALL M3WARN ( PNAME, 0, 0, XMSG )
+                           End If
+
                         END DO
                      END IF
                   ELSE
@@ -3055,7 +3091,14 @@ C   mminlu and num_land_cat are WRF global variables
                      EM_REGIONS( N_EM_RGN ) = EM_REG_READ( IREAD )
                      VNAME = EM_REG_READ( IREAD )%VAR
 
-                     call interpolate_var (VNAME, SDATE3D, STIME3D, EM_REG_FAC(:,:,N_EM_RGN))
+                     IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME, 1, 1,
+     &                                   STARTROW, ENDROW, STARTCOL, ENDCOL,
+     &                                   0, 0, EM_REG_FAC( 1,1,N_EM_RGN ) ) ) Then
+                        XMSG = 'Could not read ' // VNAME //
+     &                         'from file ' // FILENAMES( IFILE ) 
+                        CALL M3WARN ( PNAME, 0, 0, XMSG )
+                     End If
+
                   END IF
               END IF
           END DO
@@ -3246,7 +3289,8 @@ C   mminlu and num_land_cat are WRF global variables
      &               tail_beg_ind, tail_end_ind,
      &               store_beg_ind, store_end_ind,
      &               var_loc, loc_head, loc_tail, m, r, c,
-     &               loc_jdate, loc_jtime, dsize
+     &               loc_jdate, loc_jtime, dsize, loc_date,
+     &               str_len, fnum
           integer, save :: prev_time = -1
           integer, save :: prev_head_time = -1
           integer, save :: lcount = 0
@@ -3261,7 +3305,18 @@ C   mminlu and num_land_cat are WRF global variables
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
 
-             if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
+             if ((cio_grid_var_name(var_loc,2) == 'e') .or.
+     &           (cio_grid_var_name(var_loc,2) == 'E')) then
+
+                str_len = len_trim(cio_grid_var_name(var_loc,1))
+                read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
+
+                loc_date = cio_emis_file_date(fnum)
+             else
+                loc_date = date
+             end if
+
+             if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. loc_date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
      &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
 
@@ -3273,17 +3328,17 @@ C   mminlu and num_land_cat are WRF global variables
                 loc_tail = tail_grid(var_loc)
              end if
 
-             if ((cio_grid_data_tstamp(1, 2, var_loc) .eq. date) .and.
+             if ((cio_grid_data_tstamp(1, 2, var_loc) .eq. loc_date) .and.
      &           (cio_grid_data_tstamp(2, 2, var_loc) .eq. time)) then
                 count = count + 1
              else
 
-                cio_grid_data_tstamp(1, 2, var_loc) = date
+                cio_grid_data_tstamp(1, 2, var_loc) = loc_date
                 cio_grid_data_tstamp(2, 2, var_loc) = time
 
                 if ((prev_time .ne. time) .or.
      &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc))) then
-                   if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. date) then
+                   if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. loc_date) then
                       ratio2 =   real(time_diff(time, cio_grid_data_tstamp(2, loc_head, var_loc))) 
      &                         / real(time_to_sec(cio_data_tstep))
                       ratio1 = 1.0 - ratio2
@@ -3967,7 +4022,8 @@ C   mminlu and num_land_cat are WRF global variables
      &               var_loc, loc_head, loc_tail, m, r, c, k,
      &               loc_jdate, loc_jtime, beg_k, end_k, dot,
      &               col_size, extra_c, extra_r, adj1, adj2, adj3,
-     &               slen
+     &               slen, loc_date, str_len, fnum
+
           character (20) :: loc_vname
           integer, save :: prev_time = -1
           integer, save :: prev_head_time = -1
@@ -3988,7 +4044,18 @@ C   mminlu and num_land_cat are WRF global variables
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
 
-             if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
+             if ((cio_grid_var_name(var_loc,2) == 'e') .or.
+     &           (cio_grid_var_name(var_loc,2) == 'E')) then
+
+                str_len = len_trim(cio_grid_var_name(var_loc,1))
+                read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
+
+                loc_date = cio_emis_file_date(fnum)
+             else
+                loc_date = date
+             end if
+
+             if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. loc_date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
      &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
 
@@ -4000,17 +4067,17 @@ C   mminlu and num_land_cat are WRF global variables
                 loc_tail = tail_grid(var_loc)
              end if
 
-             if ((cio_grid_data_tstamp(1, 2, var_loc) .eq. date) .and.
+             if ((cio_grid_data_tstamp(1, 2, var_loc) .eq. loc_date) .and.
      &           (cio_grid_data_tstamp(2, 2, var_loc) .eq. time)) then
                 count = count + 1
              else
 
-                cio_grid_data_tstamp(1, 2, var_loc) = date
+                cio_grid_data_tstamp(1, 2, var_loc) = loc_date
                 cio_grid_data_tstamp(2, 2, var_loc) = time
 
                 if ((prev_time .ne. time) .or.
      &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc))) then
-                   if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. date) then
+                   if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. loc_date) then
                       ratio2 =   real(time_diff(time, cio_grid_data_tstamp(2, loc_head, var_loc))) 
      &                         / real(time_to_sec(cio_data_tstep))
                       ratio1 = 1.0 - ratio2
