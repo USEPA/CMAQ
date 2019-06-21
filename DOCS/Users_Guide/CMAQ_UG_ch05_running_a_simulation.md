@@ -164,23 +164,279 @@ cd $CMAQ_HOME/CCTM/scripts
 run_cctm.csh |& tee run_cctm.log
 ```
 
-To confirm that the model ran to completion view the run.[data].log file. For MPI runs, check each of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
+### 5.7.1 CCTM Logfiles
+
+The CCTM simulation will write two types of logfile, a master logfile (e.g. run_cctm.log) and processor-specific logfiles that have the name convention:  
+```
+CTM_LOG_[ProcessorID].v53_[compiler]_[data_name]/_[RUNDATE].log
+```
+
+The master logfile contains extensive metadata and useful information about the details of your simulation. The following examples describe some of this information:  
+```
+Start Model Run At  Tue Apr 9 08:18:06 EDT 2019
+Compiler is set to intel
+No compiler version given. Atmos system Detected. Assume Intel 18.0
+
+Working Directory is ...
+Build Directory is ...
+Output Directory is ...
+Log Directory is ...
+Executable Name is CCTM_v53.exe
+
+---CMAQ EXECUTION ID: CMAQ_CCTMv53_[userID]_YYYYMMDD_hhmmss_nanosecs ---
+
+Set up input and output files for Day YYYY-MM-DD.
+
+Existing Logs and Output Files for Day YYYY-MM-DD Will Be Deleted
+/bin/rm: No match.
+
+CMAQ Processing of Day 20140620 Began at Tue Apr  9 08:18:07 EDT 2019
+```
+This section documents the folder structure, username, and run date for the simulation, and is meant to aid in maintaining transparency of simulation results after runs have been completed. This section is followed by the CMAQ and I/O-API headers, and a record of all envrionment variables and their values for this simulation.
+
+Next, the program outputs a table describing the domain decomposition breakdown for the run.  
+```
+          -=-  MPP Processor-to-Subdomain Map  -=-
+                 Number of Processors = 128
+    ____________________________________________________
+    |                                                  |
+    |  PE    #Cols    Col_Range     #Rows    Row_Range |
+    |__________________________________________________|
+    |                                                  |
+    |  0       12      1:  12         24      1:  24   |
+    |  1       12     13:  24         24      1:  24   |
+    |  2       12     25:  36         24      1:  24   |
+    |  3       12     37:  48         24      1:  24   |
+    |  4       12     49:  60         24      1:  24   |
+    |  5       12     61:  72         24      1:  24   |
+    |  6       12     73:  84         24      1:  24   |
+    |  7       12     85:  96         24      1:  24   |
+    |  8       12     97: 108         24      1:  24   |
+    |  9       12    109: 120         24      1:  24   |
+    | 10       12    121: 132         24      1:  24   |
+    | 11       11    133: 143         24      1:  24   |
+    | 12       11    144: 154         24      1:  24   |
+    | 13       11    155: 165         24      1:  24   |
+    | 14       11    166: 176         24      1:  24   |
+    | 15       11    177: 187         24      1:  24   |
+    | 16       12      1:  12         24     25:  48   |
+    | 17       12     13:  24         24     25:  48   |
+    | 18       12     25:  36         24     25:  48   |
+    | 19       12     37:  48         24     25:  48   |
+    | 20       12     49:  60         24     25:  48   |
+    | 21       12     61:  72         24     25:  48   |
+    | 22       12     73:  84         24     25:  48   |
+    | 23       12     85:  96         24     25:  48   |
+    | 24       12     97: 108         24     25:  48   |
+    | 25       12    109: 120         24     25:  48   |
+    | 26       12    121: 132         24     25:  48   |
+    | 27       11    133: 143         24     25:  48   |
+    | 28       11    144: 154         24     25:  48   |
+    | 29       11    155: 165         24     25:  48   |
+    | 30       11    166: 176         24     25:  48   |
+    | 31       11    177: 187         24     25:  48   |
+    | 32       12      1:  12         24     49:  72   |
+    | 33       12     13:  24         24     49:  72   |
+    | 34       12     25:  36         24     49:  72   |
+    | 35       12     37:  48         24     49:  72   |
+    | 36       12     49:  60         24     49:  72   |
+    | 37       12     61:  72         24     49:  72   |
+    | 38       12     73:  84         24     49:  72   |
+    | 39       12     85:  96         24     49:  72   |
+    | 40       12     97: 108         24     49:  72   |
+    | 41       12    109: 120         24     49:  72   |
+    | 42       12    121: 132         24     49:  72   |
+    | 43       11    133: 143         24     49:  72   |
+    | 44       11    144: 154         24     49:  72   |
+    | 45       11    155: 165         24     49:  72   |
+    | 46       11    166: 176         24     49:  72   |
+    | 47       11    177: 187         24     49:  72   |
+    | 48       12      1:  12         23     73:  95   |
+    | 49       12     13:  24         23     73:  95   |
+    | 50       12     25:  36         23     73:  95   |
+    | 51       12     37:  48         23     73:  95   |
+    | 52       12     49:  60         23     73:  95   |
+    | 53       12     61:  72         23     73:  95   |
+    | 54       12     73:  84         23     73:  95   |
+    | 55       12     85:  96         23     73:  95   |
+    | 56       12     97: 108         23     73:  95   |
+    | 57       12    109: 120         23     73:  95   |
+    | 58       12    121: 132         23     73:  95   |
+    | 59       11    133: 143         23     73:  95   |
+    | 60       11    144: 154         23     73:  95   |
+    | 61       11    155: 165         23     73:  95   |
+    | 62       11    166: 176         23     73:  95   |
+    | 63       11    177: 187         23     73:  95   |
+    | 64       12      1:  12         23     96: 118   |
+    | 65       12     13:  24         23     96: 118   |
+    | 66       12     25:  36         23     96: 118   |
+    | 67       12     37:  48         23     96: 118   |
+    | 68       12     49:  60         23     96: 118   |
+    | 69       12     61:  72         23     96: 118   |
+    | 70       12     73:  84         23     96: 118   |
+    | 71       12     85:  96         23     96: 118   |
+    | 72       12     97: 108         23     96: 118   |
+    | 73       12    109: 120         23     96: 118   |
+    | 74       12    121: 132         23     96: 118   |
+    | 75       11    133: 143         23     96: 118   |
+    | 76       11    144: 154         23     96: 118   |
+    | 77       11    155: 165         23     96: 118   |
+    | 78       11    166: 176         23     96: 118   |
+    | 79       11    177: 187         23     96: 118   |
+    | 80       12      1:  12         23    119: 141   |
+    | 81       12     13:  24         23    119: 141   |
+    | 82       12     25:  36         23    119: 141   |
+    | 83       12     37:  48         23    119: 141   |
+    | 84       12     49:  60         23    119: 141   |
+    | 85       12     61:  72         23    119: 141   |
+    | 86       12     73:  84         23    119: 141   |
+    | 87       12     85:  96         23    119: 141   |
+    | 88       12     97: 108         23    119: 141   |
+    | 89       12    109: 120         23    119: 141   |
+    | 90       12    121: 132         23    119: 141   |
+    | 91       11    133: 143         23    119: 141   |
+    | 92       11    144: 154         23    119: 141   |
+    | 93       11    155: 165         23    119: 141   |
+    | 94       11    166: 176         23    119: 141   |
+    | 95       11    177: 187         23    119: 141   |
+    | 96       12      1:  12         23    142: 164   |
+    | 97       12     13:  24         23    142: 164   |
+    | 98       12     25:  36         23    142: 164   |
+    | 99       12     37:  48         23    142: 164   |
+    |100       12     49:  60         23    142: 164   |
+    |101       12     61:  72         23    142: 164   |
+    |102       12     73:  84         23    142: 164   |
+    |103       12     85:  96         23    142: 164   |
+    |104       12     97: 108         23    142: 164   |
+    |105       12    109: 120         23    142: 164   |
+    |106       12    121: 132         23    142: 164   |
+    |107       11    133: 143         23    142: 164   |
+    |108       11    144: 154         23    142: 164   |
+    |109       11    155: 165         23    142: 164   |
+    |110       11    166: 176         23    142: 164   |
+    |111       11    177: 187         23    142: 164   |
+    |112       12      1:  12         23    165: 187   |
+    |113       12     13:  24         23    165: 187   |
+    |114       12     25:  36         23    165: 187   |
+    |115       12     37:  48         23    165: 187   |
+    |116       12     49:  60         23    165: 187   |
+    |117       12     61:  72         23    165: 187   |
+    |118       12     73:  84         23    165: 187   |
+    |119       12     85:  96         23    165: 187   |
+    |120       12     97: 108         23    165: 187   |
+    |121       12    109: 120         23    165: 187   |
+    |122       12    121: 132         23    165: 187   |
+    |123       11    133: 143         23    165: 187   |
+    |124       11    144: 154         23    165: 187   |
+    |125       11    155: 165         23    165: 187   |
+    |126       11    166: 176         23    165: 187   |
+    |127       11    177: 187         23    165: 187   |
+    |__________________________________________________|
+```
+With this output, users will be able to trace issues that occur on specific processors to geographic regions of the model domain.
+
+Then, as the time-dependent portion of the model begins, output is provided for every timestep with the following form:
+```
+     Processing Day/Time [YYYYDDD:HHMMSS]: 2015274:000000
+       Which is Equivalent to (UTC): 0:00:00  Thursday,  Oct. 1, 2015
+       Time-Step Length (HHMMSS): 000500
+                 VDIFF completed...    6.2 seconds
+                COUPLE completed...    0.0 seconds
+                  HADV completed...    0.3 seconds
+                  ZADV completed...    0.0 seconds
+                 HDIFF completed...    0.1 seconds
+              DECOUPLE completed...    0.0 seconds
+                  PHOT completed...    0.6 seconds
+               CLDPROC completed...    0.0 seconds
+                  CHEM completed...    0.4 seconds
+                  AERO completed...    0.4 seconds
+            Master Time Step
+            Processing completed...    8.0 seconds
+```
+This section documents the date and time the model is currently processing allong with the time spent calculating every major sub-process. At the end of each simulation hour, the calculation time is also printed for the output process.
+```
+    Processing Day/Time [YYYYDDD:HHMMSS]: 2015274:005500
+       Which is Equivalent to (UTC): 0:55:00  Thursday,  Oct. 1, 2015
+       Time-Step Length (HHMMSS): 000500
+                 VDIFF completed...    0.9 seconds
+                COUPLE completed...    0.0 seconds
+                  HADV completed...    0.2 seconds
+                  ZADV completed...    0.0 seconds
+                 HDIFF completed...    0.0 seconds
+              DECOUPLE completed...    0.0 seconds
+                  PHOT completed...    0.2 seconds
+               CLDPROC completed...    0.3 seconds
+                  CHEM completed...    0.4 seconds
+                  AERO completed...    1.0 seconds
+            Master Time Step
+            Processing completed...    3.0 seconds
+ 
+      =--> Data Output completed...    0.3 seconds
+```
+This procedure repeats for every hour of the output day until completion of that day.
+```
+     ==============================================
+     |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
+     ==============================================
+     Date and time 0:00:00   Oct. 2, 2015   (2015275:000000)
+ 
+     The elapsed time for this simulation was     733.0 seconds.
+ 
+real 734.70
+user 0.07
+sys 0.17
+
+CMAQ Processing of Day 20151001 Finished at Fri Apr  5 11:21:20 EDT 2019
+
+\\\\\=====\\\\\=====\\\\\=====\\\\\=====/////=====/////=====/////=====/////
+```
+
+After the final day has been completed, summary information is printed for the computation time of every executed day.
+```
+==================================
+  ***** CMAQ TIMING REPORT *****
+==================================
+Start Day: 2015-10-01
+End Day:   2015-10-14
+Number of Simulation Days: 14
+Domain Name:               WRF_CMAQ_2WAY
+Number of Grid Cells:      1538636  (ROW x COL x LAY)
+Number of Layers:          44
+Number of Processes:       128
+   All times are in seconds.
+
+Num  Day        Wall Time
+01   2015-10-01   727.67
+02   2015-10-02   717.89
+03   2015-10-03   709.40
+04   2015-10-04   701.84
+05   2015-10-05   703.34
+06   2015-10-06   708.96
+07   2015-10-07   708.07
+08   2015-10-08   707.25
+09   2015-10-09   706.42
+10   2015-10-10   703.56
+11   2015-10-11   707.74
+12   2015-10-12   705.44
+13   2015-10-13   712.43
+14   2015-10-14   718.59
+     Total Time = 9938.60
+      Avg. Time = 709.90 
+``` 
+
+The processor-specific logfiles provide detailed information on the operation of hundreds of model tasks from mapping variables to opening and reading input files. Warnings that may be important for users to be aware of are printed to these files. To confirm that the model ran to completion view the run.[data].log file. For MPI runs, you may check any of the CTM_LOG_[ProcessorID]*.log files. A successful run will contain the following line at the bottom of the log(s):
 
 ```
 >>----> Program completed successfully <----<<
 ```
 
-Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the data output directory:
+Note: The log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the data output directory:
 
 ```
 $CMAQ_DATA/output_CCTM_v53_[compiler]/[data_name]
 ```
 
-and these log files have the name convention:
-
-```
-CTM_LOG_[ProcessorID].v53_[compiler]_[data_name]/_[RUNDATE].log
-```
+### 5.7.2 CCTM Output files
 
 The output results will have been placed in the directory:
 
@@ -189,6 +445,9 @@ $CMAQ_DATA/output_CCTM_v53_[compiler]_[data_name]
 ```
 
 and can include the following netCDF-type files: ACONC, APMDIAG, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGDIAG1, LTNGDIAG2, MEDIA_CONC, PMDIAG, PT3D_DIAG, RJ_1, RJ_2, RJ_3, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, WETDEP2 and VEXT_1. The in-depth description about each of these files is described in [Chapter 7](CMAQ_UG_ch07_model_outputs.md).
+
+
+### 5.7.3 Common errors causing the CCTM simulation to crash
 
 Common errors in a CCTM simulation include the following:
 
