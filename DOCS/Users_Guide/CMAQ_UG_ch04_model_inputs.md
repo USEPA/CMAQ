@@ -155,6 +155,8 @@ The horizontal coordinate section (first section) in this example GRIDDESC file 
 
 The example grid definition section above describes a grid named “M_32_99TUT02”. The definition of the grid begins with a reference to a coordinate name from the coordinate definition section of the file; in this example, the coordinate named “LAM_40N100W” is referenced in the grid definition. The next two parameters in the grid definition (XORIG and YORIG) are the east-west and north-south offsets from XCENT and YCENT in meters (WRF-ARW usages may differ). The next two parameters (XCELL and YCELL) are the horizontal grid spacing in meters for the X and Y directions (i.e., delta-x and delta-y). The next two parameters (NCOLS and NROWS) are the numbers of grid cells in the X and Y directions. The grid definition concludes with the number of boundary cells, NTHIK, which is typically set to 1.
 
+Additional information about the parameters in the GRIDDESC file can be found in the [I/O API Documentation](https://www.cmascenter.org/ioapi/documentation/all_versions/html/GRIDS.html).
+
 <a id=matrix_nml></a>
 
 ### {gc|ae|nr|tr}_matrix.nml: Species namelist files
@@ -203,7 +205,7 @@ The namelist files contain header information that describe which class of speci
 | | 10 | FAC | Integer |Scaling factor for Scavenging|{Any integer: default = -1 if SURR is not specified}|
 || 11 | GC2AE SURR | String |Gas-to-aerosol transformation species|-|
 || 12 | GC2AQ SURR | String |Gas-to-aqueous transformation species|-|
-|| 13 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
+|| 13 | TRNS | String |Transport Switch. _NOTE_: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
 || 14 | DDEP | String |Dry deposition output file switch|{YES/NO}|
 || 15 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
 || 16 | CONC | String |Concentration output file switch|{YES/NO}|
@@ -358,8 +360,8 @@ Used by: ICON, BCON, CCTM, and some optional programs
 |CLDFRA_SH|subgrid shallow cloud fraction|1|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no; only output if available from WRF; for future development|
 |UWIND|u-component of horizontal wind (cell corners)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|no|
 |VWIND|v-component of horizontal wind (cell corners)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|no|
-|UHAT_JD|contravariant-U*Jacobian*density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
-|VHAT_JD|contravariant-V*Jacobian*density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
+|UHAT_JD|contravariant-U x Jacobian x density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
+|VHAT_JD|contravariant-V x Jacobian x density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
 |UWINDC|u-component of horizontal wind (west-east cell faces)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|yes|
 |VWINDC|v-component of horizontal wind (south-north cell faces)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|yes|
 |SOIT3D|soil temperature|K|XYST|SOICRO or mcip.nc|yes|
