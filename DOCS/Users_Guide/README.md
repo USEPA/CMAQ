@@ -38,8 +38,6 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 13 (WRF-CMAQ):](CMAQ_UG_ch13_WRF-CMAQ.md) Coupled meteorology-chemistry model WRF-CMAQ.
 
-[References:](CMAQ_UG_references.md) References cited throughout the guide.
-
 [Tables and Figures:](CMAQ_UG_tables_figures.md) List of Tables and Figures.
 
 [Appendix A (Model Options):](Appendix/CMAQ_UG_appendixA_model_options.md) List of model options in configuration, compilation and run scripts.

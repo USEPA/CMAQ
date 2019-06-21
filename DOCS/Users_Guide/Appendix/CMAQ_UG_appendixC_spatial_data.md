@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixB_emissions_control.md) - [Home](README.md) - [Next Appendix >>](CMAQ_UG_appendixD_parallel_implementation.md)
+[<< Previous Appendix](CMAQ_UG_appendixB_emissions_control.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixD_parallel_implementation.md)
 
 <!-- END COMMENT -->
 
@@ -138,5 +138,5 @@ SA Raster Tools system to generate any domain land cover data directly using NLC
 or/and MODIS land cover data (at 1 km or 500 m resolution). Users can use a provided R utility in SA to
 update their geogrid land cover data using the more accurate land cover data generating using SA.
 
-[<< Previous Appendix](CMAQ_UG_appendixB_emissions_control.md) - [Home](README.md) - [Next Appendix >>](CMAQ_UG_appendixD_parallel_implementation.md)<br>
+[<< Previous Appendix](CMAQ_UG_appendixB_emissions_control.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixD_parallel_implementation.md)<br>
 CMAQ User's Guide (c) 2019<br>
