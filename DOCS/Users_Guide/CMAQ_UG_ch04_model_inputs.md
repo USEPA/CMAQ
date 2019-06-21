@@ -68,7 +68,7 @@ This section describes each of the input files required by the various CMAQ prog
 **>> Comment <<** DS: Should the column header by "Environment Variable Namefor File" or "Logical File Name"?
 
 <a id=Input_Table></a>
-**Table 4-1. CMAQ input files**
+**Table 4-1. CMAQ input files.**  Note that when "Time-Dependence" is listed as "Hourly", it is shorthand for a time-varying file.  It is recommended that CMAQ use a time increment that is no longer than one hour.  However, CMAQ can be run with a Time Dependence that is shorter than hourly.
 
 |**Environment Variable Name for File**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|**Required**|
 |----------------------|-----------|-----------|----------|----------|---------|
@@ -92,14 +92,17 @@ This section describes each of the input files required by the various CMAQ prog
 |[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
 |**MCIP**| | | | |||
 |[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>| GRDDED3 | Time-invariant | XY | MCIP|required|
-|[GRID_BDY_2D](#grid_bdy_2d) <a id=grid_bdy_2d_t></a> **>>missing text** | GRDDED3 | Time-invariant | PERIM\*Z | MCIP|required|
+|[GRID_BDY_2D](#grid_bdy_2d) <a id=grid_bdy_2d_t></a>| BNDARY3 | Time-invariant | PERIM\*Z | MCIP|required|
 |[GRID_DOT_2D](#grid_dot_2d) <a id=grid_dot_2d_t></a>| GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP|required|
 |[MET_BDY_3D](#met_bdy_3d) <a id=met_bdy_3d_t></a>| BNDARY3 | Hourly | PERIM\*Z | MCIP|required|
 |[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>| GRDDED3 | Hourly | XY | MCIP|required|
 |[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>| GRDDED3 | Hourly | XYZ | MCIP|required|
 |[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|required|
-|[mcip](#mcip) <a id=mcip_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|optional|
-|[mcip_bdy](#mcip_bdy) <a id=mcip_bdyt></a>|  | Hourly | PERIM\*Z | MCIP|optional|
+|[LUFRAC_CRO](#lufrac_cro) <a id=lufrac_cro_t></a>| GRDDED3 | Time-invariant | XYL | MCIP|optional (contains fractional landuse by category)|
+|[SOI_CRO](#soi_cro) <a id=soi_cro_t></a>| GRDDED3 | Hourly | XYS | MCIP | optional (Contains soil moisture and soil temperature in layers. A two-layer representation of those fields is currently mirrored in MET_CRO_2D.)|
+|[MOSAIC_CRO](#mosaic_cro) <a id=mosaic_cro_t></a>| GRDDED3| Hourly| XYM | MCIP|optional (Contains surface fields in mosaic land use categories if Noah Mosaic LSM was run in WRF. Can work with STAGE deposition in CCTM.)|
+|[mcip](#mcip) <a id=mcip_t></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
+|[mcip_bdy](#mcip_bdy) <a id=mcip_bdyt></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
 |**Emissions Inputs**||||||
 |[EMIS_XXX*](#emis_xxx) <a id=emis_xxx_t></a> | GRDDED3 | Hourly | XYZ | SMOKE|required|
 |[STK_GRPS_XXX](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE|required|
