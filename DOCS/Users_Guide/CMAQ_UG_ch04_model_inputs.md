@@ -249,27 +249,26 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 <a id=mcip></a>
 <a id=mcip_bdy></a>
 ### _MCIP output files generated when IOFORM=1 (Models-3 I/O API)_
-### GRIDDESC:     Grid description used throughout the CMAQ System
-### GRID_CRO_2D:  Time-invariant 2D fields (XY) at cell centers (cross points)
-### GRID_BDY_2D:  Time-invariant fields from GRID_CRO_2D, but along domain lateral boundaries
-### GRID_DOT_2D:  Time-invariant 2D fields (XY) at cell corners (dot points) and cell faces
-### MET_CRO_2D:   Time-varying 2D fields (XY) at cell centers (cross points)
-### MET_CRO_3D:   Time-varying 3D fields (XYZ) at cell centers (cross points)
-### MET_BDY_3D:   Time-varying fields from MET_CRO_3D, but along domain lateral boundaries
-### MET_DOT_3D:   Time-varying 3D fields (XYZ) at cell corners (dot points) and cell faces
-### LUFRAC_CRO:   Time-invariant 3D fractional land use (XYL) at cell corners (cross points)
-### SOI_CRO:      Time-varying 3D soil moisture and temperature (XYS) in model soil layers at cell centers
-### MOSAIC_CRO:   Time-varying 3D surface fields by mosaic land use category (XYM) at cell centers
+- GRIDDESC:     Grid description used throughout the CMAQ System
+- GRID_CRO_2D:  Time-invariant 2D fields (XY) at cell centers (cross points)
+- GRID_BDY_2D:  Time-invariant fields from GRID_CRO_2D, but along domain lateral boundaries
+- GRID_DOT_2D:  Time-invariant 2D fields (XY) at cell corners (dot points) and cell faces
+- MET_CRO_2D:   Time-varying 2D fields (XY) at cell centers (cross points)
+- MET_CRO_3D:   Time-varying 3D fields (XYZ) at cell centers (cross points)
+- MET_BDY_3D:   Time-varying fields from MET_CRO_3D, but along domain lateral boundaries
+- MET_DOT_3D:   Time-varying 3D fields (XYZ) at cell corners (dot points) and cell faces
+- LUFRAC_CRO:   Time-invariant 3D fractional land use (XYL) at cell corners (cross points)
+- SOI_CRO:      Time-varying 3D soil moisture and temperature (XYS) in model soil layers at cell centers
+- MOSAIC_CRO:   Time-varying 3D surface fields by mosaic land use category (XYM) at cell centers
 
 ### _MCIP output files generated when IOFORM=2 (netCDF)_
-### GRIDDESC:     Grid description used throughout the CMAQ System
-### mcip.nc:      All time-invariant and time-varying 2D and 3D fields (all dimensions)
-### mcip_bdy.nc:  All required time-invariant and time-varying 2D and 3D fields along lateral boundaries
+- GRIDDESC:     Grid description used throughout the CMAQ System
+- mcip.nc:      All time-invariant and time-varying 2D and 3D fields (all dimensions)
+- mcip_bdy.nc:  All required time-invariant and time-varying 2D and 3D fields along lateral boundaries
 [Return to Table 4-1](#grid_cro_2d_t)
 
-Used by: CCTM
+Used by: ICON, BCON, CCTM, and some optional programs
 
-MET_CRO_3D is also used by ICON, BCON
 
 **Table 4-3**  MCIP output variables used within the CMAQ system.  All fields are located at cell centers, except where noted in the Description.
 
