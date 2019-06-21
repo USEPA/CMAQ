@@ -69,10 +69,10 @@ The variables listed here are set by the user in the MCIP script (run_mcip.csh),
     Output vertical velocities.
     -   `0`: Do not output vertical velocity
     -   `1`: Output vertical velocity
--   `LUVCOUT [default: 0]`  
-    Output u- and v-component winds on C-grid.
-    -   `0`: Do not output u- and v-component winds on C-grid
-    -   `1`: Output u- and v-component winds on C-grid
+-   `LUVBOUT [default: 0]`  
+    Output u- and v-component winds on B staggered grid.
+    -   `0`: Do not output u- and v-component winds on B-grid
+    -   `1`: Output u- and v-component winds on B-grid (in addition to the C-grid)
 -   `MCIP_START [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  
     Beginning date and time (UTC) of data to output from MCIP. The start date and time must be contained within the input data from WRF.
 -   `MCIP_END [format: YYYY-MM-DD-HH:MM:SS.SSSS]`  
