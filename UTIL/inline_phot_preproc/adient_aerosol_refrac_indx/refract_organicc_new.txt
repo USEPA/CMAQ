@@ -1,6 +1,7 @@
 ORGANICC
 ! Refractive indices for organic carbon (OC)
 !Wvelen(um) Real Part  Imag Part
+1.5000E-01 0.1601E+01 0.1176E+00
 2.0000E-01 0.1601E+01 0.1176E+00
 2.5000E-01 0.1601E+01 0.1176E+00
 3.0000E-01 0.1601E+01 0.1176E+00
