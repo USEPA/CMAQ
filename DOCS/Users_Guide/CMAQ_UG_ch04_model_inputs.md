@@ -68,7 +68,7 @@ This section describes each of the input files required by the various CMAQ prog
 **>> Comment <<** DS: Should the column header by "Environment Variable Namefor File" or "Logical File Name"?
 
 <a id=Input_Table></a>
-**Table 4-1. CMAQ input files**
+**Table 4-1. CMAQ input files.**  Note that when "Time-Dependence" is listed as "Hourly", it is shorthand for a time-varying file.  It is recommended that CMAQ use a time increment that is no longer than one hour.  However, CMAQ can be run with a Time Dependence that is shorter than hourly.
 
 |**Environment Variable Name for File**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|**Required**|
 |----------------------|-----------|-----------|----------|----------|---------|
@@ -92,14 +92,17 @@ This section describes each of the input files required by the various CMAQ prog
 |[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
 |**MCIP**| | | | |||
 |[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>| GRDDED3 | Time-invariant | XY | MCIP|required|
-|[GRID_BDY_2D](#grid_bdy_2d) <a id=grid_bdy_2d_t></a> **>>missing text** | GRDDED3 | Time-invariant | PERIM\*Z | MCIP|required|
+|[GRID_BDY_2D](#grid_bdy_2d) <a id=grid_bdy_2d_t></a>| BNDARY3 | Time-invariant | PERIM\*Z | MCIP|required|
 |[GRID_DOT_2D](#grid_dot_2d) <a id=grid_dot_2d_t></a>| GRDDED3 | Time-invariant | (X+1)\*(Y+1) | MCIP|required|
 |[MET_BDY_3D](#met_bdy_3d) <a id=met_bdy_3d_t></a>| BNDARY3 | Hourly | PERIM\*Z | MCIP|required|
 |[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>| GRDDED3 | Hourly | XY | MCIP|required|
 |[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>| GRDDED3 | Hourly | XYZ | MCIP|required|
 |[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|required|
-|[mcip](#mcip) <a id=mcip_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|optional|
-|[mcip_bdy](#mcip_bdy) <a id=mcip_bdyt></a>|  | Hourly | PERIM\*Z | MCIP|optional|
+|[LUFRAC_CRO](#lufrac_cro) <a id=lufrac_cro_t></a>| GRDDED3 | Time-invariant | XYL | MCIP|optional (contains fractional landuse by category)|
+|[SOI_CRO](#soi_cro) <a id=soi_cro_t></a>| GRDDED3 | Hourly | XYS | MCIP | optional (Contains soil moisture and soil temperature in layers. A two-layer representation of those fields is currently mirrored in MET_CRO_2D.)|
+|[MOSAIC_CRO](#mosaic_cro) <a id=mosaic_cro_t></a>| GRDDED3| Hourly| XYM | MCIP|optional (Contains surface fields in mosaic land use categories if Noah Mosaic LSM was run in WRF. Can work with STAGE deposition in CCTM.)|
+|[mcip.nc](#mcip) <a id=mcip_t></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
+|[mcip_bdy.nc](#mcip_bdy) <a id=mcip_bdyt></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
 |**Emissions Inputs**||||||
 |[EMIS_XXX*](#emis_xxx) <a id=emis_xxx_t></a> | GRDDED3 | Hourly | XYZ | SMOKE|required|
 |[STK_GRPS_XXX](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE|required|
@@ -135,16 +138,24 @@ The grid description section consists of text records that indicate the grid nam
 An example of a GRIDDESC file is shown below:
 
 ` ' '`
+
 ` 'LAM_40N100W'`
+
 ` 2 30.0 60.0 -100.0 -100.0 40.0`
+
 ` ' '`
+
 ` 'M_32_99TUT02'`
+
 ` 'LAM_40N100W' 544000.0 -992000.0 32000.0 32000.0 38 38 1`
+
 ` ' '`
 
 The horizontal coordinate section (first section) in this example GRIDDESC file defines a horizontal coordinate named “LAM_40N100W”. The coordinate definition is for a Lambert conformal grid, keyed by the first column of the coordinate description line, which corresponds to the numeric code for the various I/O API-supported grid types (2 = Lambert). The next three parameters (P_ALP, P_BET, and P_GAM) have different definitions for different map projections. For Lambert conformal, P_ALP and P_BET are the true latitudes of the projection cone (30°N and 60°N in the example), and P_GAM (100°W in the example) is the central meridian of the projection. The last two parameters, XCENT and YCENT, are the latitude-longitude coordinates of the grid center of the Cartesian coordinate system, which are 100°W and 40°N in the example. If using WRF-ARW as the meteorological model, the user should be aware of differences from this method.
 
 The example grid definition section above describes a grid named “M_32_99TUT02”. The definition of the grid begins with a reference to a coordinate name from the coordinate definition section of the file; in this example, the coordinate named “LAM_40N100W” is referenced in the grid definition. The next two parameters in the grid definition (XORIG and YORIG) are the east-west and north-south offsets from XCENT and YCENT in meters (WRF-ARW usages may differ). The next two parameters (XCELL and YCELL) are the horizontal grid spacing in meters for the X and Y directions (i.e., delta-x and delta-y). The next two parameters (NCOLS and NROWS) are the numbers of grid cells in the X and Y directions. The grid definition concludes with the number of boundary cells, NTHIK, which is typically set to 1.
+
+Additional information about the parameters in the GRIDDESC file can be found in the [I/O API Documentation](https://www.cmascenter.org/ioapi/documentation/all_versions/html/GRIDS.html).
 
 <a id=matrix_nml></a>
 
@@ -194,7 +205,7 @@ The namelist files contain header information that describe which class of speci
 | | 10 | FAC | Integer |Scaling factor for Scavenging|{Any integer: default = -1 if SURR is not specified}|
 || 11 | GC2AE SURR | String |Gas-to-aerosol transformation species|-|
 || 12 | GC2AQ SURR | String |Gas-to-aqueous transformation species|-|
-|| 13 | TRNS | String |Transport Switch. *NOTE: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
+|| 13 | TRNS | String |Transport Switch. _NOTE_: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
 || 14 | DDEP | String |Dry deposition output file switch|{YES/NO}|
 || 15 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
 || 16 | CONC | String |Concentration output file switch|{YES/NO}|
@@ -225,7 +236,7 @@ CMAQ boundary condition data are of the BNDARY3 file type. Produced by the bound
 
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10e<sup>-30</sup>. The perimeter of the CMAQ domain is NTHIK cell wide (typically NTHIK = 1), where the number of boundary cells = (2*NROW*NTHIK)+(2*NCOL*NTHIK)+(4*NTHIK*NTHIK).
 
-## MCIP
+## Meteorological Inputs (Processed for the CMAQ System using MCIP)
 
 <a id=grid_cro_2d></a>
 <a id=grid_bdy_2d></a>
@@ -234,16 +245,34 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 <a id=met_cro_2d></a>
 <a id=met_cro_3d></a>
 <a id=met_dot_3d></a>
+<a id=lufrac_cro></a>
+<a id=soi_cro></a>
+<a id=mosaic_cro></a>
 <a id=mcip></a>
 <a id=mcip_bdy></a>
-### GRID_CRO_2D, GRID_BDY_2D, GRID_DOT_2D, MET_BDY_3D, MET_CRO_2D, MET_CRO_3D, MET_DOT_3D
-[Return to Table 4-3](#grid_cro_2d_t)
+### _MCIP output files generated when IOFORM=1 (Models-3 I/O API)_
+- GRIDDESC:     Grid description used throughout the CMAQ System
+- GRID_CRO_2D:  Time-invariant 2D fields (XY) at cell centers (cross points)
+- GRID_BDY_2D:  Time-invariant fields from GRID_CRO_2D, but along domain lateral boundaries
+- GRID_DOT_2D:  Time-invariant 2D fields (XY) at cell corners (dot points) and cell faces
+- MET_CRO_2D:   Time-varying 2D fields (XY) at cell centers (cross points)
+- MET_CRO_3D:   Time-varying 3D fields (XYZ) at cell centers (cross points)
+- MET_BDY_3D:   Time-varying fields from MET_CRO_3D, but along domain lateral boundaries
+- MET_DOT_3D:   Time-varying 3D fields (XYZ) at cell corners (dot points) and cell faces
+- LUFRAC_CRO:   Time-invariant 3D fractional land use (XYL) at cell corners (cross points)
+- SOI_CRO:      Time-varying 3D soil moisture and temperature (XYS) in model soil layers at cell centers
+- MOSAIC_CRO:   Time-varying 3D surface fields by mosaic land use category (XYM) at cell centers
 
-Used by: CCTM
+### _MCIP output files generated when IOFORM=2 (netCDF)_
+- GRIDDESC:     Grid description used throughout the CMAQ System
+- mcip.nc:      All time-invariant and time-varying 2D and 3D fields (all dimensions)
+- mcip_bdy.nc:  All required time-invariant and time-varying 2D and 3D fields along lateral boundaries
+[Return to Table 4-1](#grid_cro_2d_t)
 
-MET_CRO_3D is also used by ICON, BCON
+Used by: ICON, BCON, CCTM, and some optional programs
 
-**Table 4-3**  MCIP output variables used within the CMAQ system.  All fields are located at cell centers, except where noted in the Description.
+
+**Table 4-3**  MCIP output variables used within the CMAQ system.  All fields are located at cell centers, except where noted in the Description.  The Dimensions are:  XY=horizontal, T=time-varying, Z=layers above ground, S=layers below ground, L=land use categories, M=mosaic land use categories.
 
 |**Variable Name**|**Description**|**Units**|**Dimensions**|**File**|**Required**|
 |--------|---------------|--------------|----------|------------|----------|
@@ -284,6 +313,10 @@ MET_CRO_3D is also used by ICON, BCON
 |RGRND|solar radiation reaching the surface|W m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
 |RN|incremental (per output time step) nonconvective precipitation|cm|XYT|METCRO2D or mcip.nc|yes|
 |RC|incremental (per output time step) convective precipitation|cm|XYT|METCRO2D or mcip.nc|yes|
+|CFRAC|total column integrated cloud fraction|1|XYT|METCRO2D or mcip.nc|yes, if photolysis uses the table option in CCTM|
+|CLDT|cloud layer top height|m|XYT|METCRO2D or mcip.nc|yes, if photolysis uses the table option in CCTM|
+|CLDB|cloud layer bottom height|m|XYT|METCRO2D or mcip.nc|yes, if photolysis uses the table option in CCTM|
+|WBAR|average liquid water content of cloud|g m<sup>-3</sup>|XYT|METCRO2D or mcip.nc|yes, if photolysis uses the table option in CCTM|
 |SNOCOV|snow cover|1=yes, 0=no|XYT|METCRO2D or mcip.nc|yes|
 |VEG|vegetation coverage|1|XYT|METCRO2D or mcip.nc|yes|
 |LAI|leaf-area index|m<sup>2</sup> m<sup>-2</sup>|XYT|METCRO2D or mcip.nc|yes|
@@ -320,11 +353,15 @@ MET_CRO_3D is also used by ICON, BCON
 |QR|rain water mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|yes|
 |QI|ice mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but used if available|
 |QS|snow mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but used if available|
-|QG|graupel mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and met_bdy.nc|no, but used if available|
+|QG|graupel mixing ratio|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no, but used if available|
+|QC_CU|subgrid cloud water mixing ratio from KF|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no; only output if available from WRF; for future development|
+|QI_CU|subgrid cloud ice mixing ratio from KF|kg kg<sup>-1</sup>|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no; only output if available from WRF; for future development|
+|CLDFRA_DP|subgrid deep cloud fraction|1|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no; only output if available from WRF; for future development|
+|CLDFRA_SH|subgrid shallow cloud fraction|1|XYZT|METCRO3D and METBDY3D, or mcip.nc and mcip_bdy.nc|no; only output if available from WRF; for future development|
 |UWIND|u-component of horizontal wind (cell corners)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|no|
 |VWIND|v-component of horizontal wind (cell corners)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|no|
-|UHAT_JD|contravariant-U*Jacobian*density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
-|VHAT_JD|contravariant-V*Jacobian*density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
+|UHAT_JD|contravariant-U x Jacobian x density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
+|VHAT_JD|contravariant-V x Jacobian x density|kg m<sup>-1</sup> s<sup>-1</sup> [cell faces; Arakawa-C grid]|XYZT|METDOT3D or mcip.nc|yes|
 |UWINDC|u-component of horizontal wind (west-east cell faces)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|yes|
 |VWINDC|v-component of horizontal wind (south-north cell faces)|m s<sup>-1</sup>|XYZT|METDOT3D or mcip.nc|yes|
 |SOIT3D|soil temperature|K|XYST|SOICRO or mcip.nc|yes|
