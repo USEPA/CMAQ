@@ -1,16 +1,16 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch13_sulfur_tracking.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_references.md)
+[<< Previous Chapter](CMAQ_UG_ch12_sulfur_tracking.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_references.md)
 
 <!-- END COMMENT -->
 
-# 14. WRF-CMAQ
+# 13. WRF-CMAQ
 
 The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, is an online meteorology-chemistry model that simulates the two-way feedback between meteorology and chemistry. The feedback focuses on the interactions of estimated aerosol mass on incoming shortwave radiation.
 
 
-## 14.1 Build Instructions
+## 13.1 Build Instructions
 
 - Download WRF 3.8 and unzip it (recommend command: `tar xfz the_zip_file`). At the end of this step, you will see a new directory WRFV3 and rename it
    to WRFV38.
@@ -57,7 +57,7 @@ The new two-way coupled WRF-CMAQ model which is based on WRF 3.8 and CMAQ 5.2, i
 
 - Compile the twoway model by typing `compile em_real >& mylog`. This might take some time for completion and you can monitor size changes of file, mylog. If compilation is done successfully, you can find main/wrf.exe file.
 
-## 14.2 WRF-CMAQ Input/Output Data and Run Instructions
+## 13.2 WRF-CMAQ Input/Output Data and Run Instructions
 A test dataset is available from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software/cmaq/cmaq_5-2.cfm?DB=TRUE). After logging in to the CMAS Center, select Download -> Software -> CMAQ and choose version 5.2.  Click on "Download Datasets" and then browse to the folder WRF38-CMAQ52_Coupled_Model to download model input and reference output (WRFv3.8_CMAQv5.2_Input.tar.gz, WRFv3.8_CMAQv5.2_Output.tar.gz). Once you unpack the files, you can store them anywhere you want.  
 
 A sample run script, twoway_model_run_script, is in the WRFv3.8_CMAQv5.2_TwoWay_Model.tar.gz under the script subdirectory.
@@ -90,7 +90,7 @@ For an overview of the 2-way Coupled WRF-CMAQ see: http://www.cmascenter.org/con
 and for more details on the 2-way Coupled WRF-CMAQ system see: http://www.cmascenter.org/conference/2011/slides/wong_wrf-cmaq_two-way_2011.pptx
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch13_sulfur_tracking.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_references.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch12_sulfur_tracking.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_references.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->

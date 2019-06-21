@@ -16,31 +16,27 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 2 (Program Structure):](CMAQ_UG_ch02_program_structure.md) Overview of the programs included with the CMAQ system.
 
-[Chapter 3 (Preparing to Run):](CMAQ_UG_ch03_preparing_to_run.md) Hardware and software requirements for running CMAQ.
+[Chapter 3 (Preparing Compute Environment):](CMAQ_UG_ch03_preparing_compute_environment.md) Hardware/software requirements for CMAQ default configuration.
 
 [Chapter 4 (Model Inputs):](CMAQ_UG_ch04_model_inputs.md) Preprocessing tools incldued with the base code and descriptions of the CMAQ input files. 
 
-[Chapter 5 (Compile and Run CMAQ):](CMAQ_UG_ch05_compile_and_run.md) Obtain the CMAQ source codes, set-up your environment, run a simulation.
+[Chapter 5 (Running CMAQ):](CMAQ_UG_ch05_running_a_simulation.md) Obtain the CMAQ source codes, set-up your environment, run a simulation.
 
-[Chapter 6 (Configuring the Model):](CMAQ_UG_ch06_configuring_the_model.md) Configuration options for different CMAQ science modules.
+[Chapter 6 (Model Configuration Options):](CMAQ_UG_ch06_model_configuration_options.md) Configuration options for different CMAQ science modules.
 
 [Chapter 7 (Model Outputs):](CMAQ_UG_ch07_model_outputs.md) Descriptions of the CMAQ output files.
 
 [Chapter 8 (Analysis Tools):](CMAQ_UG_ch08_analysis_tools.md) Post-processing, visualization and evaluation tools for CMAQ.
 
-[Chapter 9 (New Simulation):](CMAQ_UG_ch09_new_simulation.md) Setting up CMAQ for a new domain or application.
+[Chapter 9 (Process Analysis):](CMAQ_UG_ch09_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR) and Integrated Reaction Rates (IRR).
 
-[Chapter 10 (Process Analysis):](CMAQ_UG_ch10_process_analysis.md) Instrumented Models - Integrated Process Rates (IPR) and Integrated Reaction Rates (IRR).
+[Chapter 10 (HDDM-3D):](CMAQ_UG_ch10_HDDM-3D.md) Instrumented Models - Decoupled Direct Method in Three Dimensions (DDM-3D).
 
-[Chapter 11 (HDDM-3D):](CMAQ_UG_ch11_HDDM-3D.md) Instrumented Models - Decoupled Direct Method in Three Dimensions (DDM-3D).
+[Chapter 11 (ISAM):](CMAQ_UG_ch11_ISAM.md) Instrumented Models - Integrated Source Apportionment Method (ISAM).
 
-[Chapter 12 (ISAM):](CMAQ_UG_ch12_ISAM.md) Instrumented Models - Integrated Source Apportionment Method (ISAM).
+[Chapter 12 (Sulfur Tracking):](CMAQ_UG_ch12_sulfur_tracking.md) Instrumented Models - Sulfur Tracking Model (STM).
 
-[Chapter 13 (Sulfur Tracking):](CMAQ_UG_ch13_sulfur_tracking.md) Instrumented Models - Sulfur Tracking Model (STM).
-
-[Chapter 14 (WRF-CMAQ):](CMAQ_UG_ch14_WRF-CMAQ.md) Coupled meteorology-chemistry model WRF-CMAQ.
-
-[References:](CMAQ_UG_references.md) References cited throughout the guide.
+[Chapter 13 (WRF-CMAQ):](CMAQ_UG_ch13_WRF-CMAQ.md) Coupled meteorology-chemistry model WRF-CMAQ.
 
 [Tables and Figures:](CMAQ_UG_tables_figures.md) List of Tables and Figures.
 
@@ -52,9 +48,6 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Appendix D (Parallel Implementation):](Appendix/CMAQ_UG_appendixD_parallel_implementation.md) An introduction to how data-parallelism can be applied in the CMAQ system to increase computational efficiency. 
 
-[Acronyms:](CMAQ_UG_acronyms.md) List of acronyms used throughout the guide.
-
-[Glossary:](CMAQ_UG_glossary.md) List of technical terms and their definitions.
 ***
 
 CMAQ User's Guide (c) 2019<br>

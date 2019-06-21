@@ -1,11 +1,11 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_configuring_the_model.md)
+[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_configuration_options.md)
 
 <!-- END COMMENT -->
 
-# 5. Compile and Run CMAQ
+# 5. Running a CMAQ Simulation
 
 ## 5.1 Introduction
 
@@ -63,7 +63,7 @@ In this image it can be seen that there four main sub folders within the CMAQ re
 
 The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, Release Notes and Known issuse associated with the current release and a Develpers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
 
-The third folder in the repository is the POST folder which contains several very useful tools for post-processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 7](CMAQ_UG_ch07_analysis_tools.md).
+The third folder in the repository is the POST folder which contains several very useful tools for post-processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 8](CMAQ_UG_ch08_analysis_tools.md).
 
 The fourth folder in the repository is the PREP folder which contains several pre-processing programs that can be run before the CCTM to prepare meteorology, initial conditions and boundary conditions inputs. Similar to the POST tools, documentation on compiling and running the programs is provided within each subfolder under PREP.
 
@@ -87,7 +87,7 @@ It should be noted that from now on, the other CMAQ directories are referenced r
 
 ## 5.5 Initialization of CMAQ Environment
 
-Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script `config_cmaq.csh` to help enforce consistent environment settings for CMAQ and its associated libraries [Appendix A](CMAQ_UG_appendixA_model_options.md) lists the `config_cmaq.csh` variables defined for the build process and suggests values to which to set those variables.
+Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script `config_cmaq.csh` to help enforce consistent environment settings for CMAQ and its associated libraries [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md) lists the `config_cmaq.csh` variables defined for the build process and suggests values to which to set those variables.
 
 Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpiifort (for Intel compiler and for GNU and PGI fortran compiler, use mpifort) be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build without anything provided by the user explicityly.
 
@@ -111,8 +111,6 @@ Sourcing the `config_cmaq.csh` script only needs to be invoked during a new inst
 
 After all required CMAQ inputs are generated using the preprocessors mentioned above the user is now ready to compile CCTM. CMAQ’s current coding structure is based on a modularity level that distinguishes from each other CCTM’s main driver, science modules, data estimation modules, and control/utility subroutines. Also distinguished from each other are the science models (including submodels for meteorology, emissions, chemistry-transport modeling) and the analysis and visualization subsystems.
 
-**>>COMMENT<<** Right now these modules are NOT all discussed in Chapter 8.  Need to decide what we want to say here.
-
 In CCTM, the process modules that affect the pollutant concentration fields are classified as listed below. Each bullet contains a description of the process followed by module name in parentheses. These modules are discussed further in [Chapter 6](CMAQ_UG_ch06_configuring_the_model.md).
 
 Science Modules:
@@ -130,7 +128,7 @@ Science Modules:
 -  Potential vorticity scaling for stratosphere/troposphere exchange (pv_o3)
 -  Meteorology-chemistry coupling (twoway)
 
-The user has the ability to configure the model in a multitude of ways but selecting from different options for each scientific process. Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To modify any run time options, such as turn on in-line biogenic emission calculation or use in-line windblown dust emission, edit the run script, `run_cctm.csh`, and set the corresponding environment variable. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_configuring_the_model.md).  To see a complete list configuration options reference [Appendix A](CMAQ_UG_appendix_A.md).
+The user has the ability to configure the model in a multitude of ways but selecting from different options for each scientific process. Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To modify any run time options, such as turn on in-line biogenic emission calculation or use in-line windblown dust emission, edit the run script, `run_cctm.csh`, and set the corresponding environment variable. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_model_configuration_options.md).  To see a complete list configuration options reference [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md).
 
 Once the `bldit_cctm.csh` script is configured to the user's preference, the user is ready to run the script to build the CCTM executable. To do this run the following commands:
 
@@ -158,7 +156,7 @@ The Make utility is smart enough to compiled only the modified files and all ass
 
 ## 5.7 Running CCTM
 
-After setting up the CCTM executable the model is ready to be run. Much like the `bldit_cctm.csh` script, to modify any run time options edit the `run_cctm.csh` script referencing [Appendix A](CMAQ_UG_appendix_A.md) for a complete list of optional settings. After these settings have been configured use the following commands to run the script:
+After setting up the CCTM executable the model is ready to be run. Much like the `bldit_cctm.csh` script, to modify any run time options edit the `run_cctm.csh` script referencing [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md) for a complete list of optional settings. After these settings have been configured use the following commands to run the script:
 
 
 ```
@@ -190,7 +188,7 @@ The output results will have been placed in the directory:
 $CMAQ_DATA/output_CCTM_v53_[compiler]_[data_name]
 ```
 
-and can include the following netCDF-type files: ACONC, APMDIAG, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGDIAG1, LTNGDIAG2, MEDIA_CONC, PMDIAG, PT3D_DIAG, RJ_1, RJ_2, RJ_3, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, WETDEP2 and VEXT_1. The in-depth description about each of these files is described in [Chapter 6](CMAQ_UG_ch06_model_outputs.md).
+and can include the following netCDF-type files: ACONC, APMDIAG, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGDIAG1, LTNGDIAG2, MEDIA_CONC, PMDIAG, PT3D_DIAG, RJ_1, RJ_2, RJ_3, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, WETDEP2 and VEXT_1. The in-depth description about each of these files is described in [Chapter 7](CMAQ_UG_ch07_model_outputs.md).
 
 Common errors in a CCTM simulation include the following:
 
@@ -202,7 +200,7 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_configuring_the_model.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch04_model_inputs.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch06_model_configuration_options.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->

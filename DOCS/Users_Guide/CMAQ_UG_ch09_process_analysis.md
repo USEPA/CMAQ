@@ -1,17 +1,17 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch09_new_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch11_HDDM-3D.md)
+[<< Previous Chapter](CMAQ_UG_ch08_analysis_tools.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch10_HDDM-3D.md)
 
 <!-- END COMMENT -->
 
-# 10. Process Analysis
+# 9. Process Analysis
 
-Most applications of CMAQ, as well as other 3-D grid models, output concentration fields of chemical species of interest at selected time steps that reflect the cumulative effect of all processes (emissions, chemical reaction, transport, etc.) that act on the chemical over the time period.  While concentrations are useful per se, knowing only the net result of all processes can hinder understanding of *why* the concentrations are the levels that are calculated.  For some applications, the user may want to unravel this net impact and examine the quantitative impact of the individual processes, to identify those which are most important or uncertain. Process analysis (PA) is a technique for separating out and quantifying the contributions of individual physical and chemical processes to the changes in the predicted concentrations of a pollutant. PA does *not* have to be activated in a CMAQ simulation, but including PA in a simulation during runtime provides additional information that can be useful in interpreting CMAQ results. PA has two components:  Integrated process rate (IPR) analysis, and Integrated Reaction Rate (IRR) analysis. IPR analysis quantifies the net change in species through physical processes of advection, diffusion, emissions, dry deposition, aerosol processes, and cloud processes, and the overall impact of chemical processes. IRR analysis allows the output of individual chemical reaction rates or user-specified combinations of chemical reactions and species cycling.
+Most applications of CMAQ, as well as other 3-D grid models, output concentration fields of chemical species of interest at selected time steps that reflect the cumulative effect of all processes (emissions, chemical reaction, transport, etc.) that act on the chemical species over the time period.  While concentrations are useful per se, knowing only the net result of all processes can limit the understanding of *why* the concentrations are the levels that are calculated.  For some applications, the user may want to unravel this net impact and examine the quantitative impact of the individual processes, to identify those which are most important or uncertain. Process analysis (PA) is a technique for separating out and quantifying the contributions of individual physical and chemical processes to the changes in the predicted concentrations of a pollutant. PA does *not* have to be activated in a CMAQ simulation, but including PA in a simulation during runtime provides additional information that can be useful in interpreting CMAQ results. PA has two components:  Integrated process rate (IPR) analysis, and Integrated Reaction Rate (IRR) analysis. IPR analysis quantifies the net change in species through physical processes of advection, diffusion, emissions, dry deposition, aerosol processes, and cloud processes, and the overall impact of chemical processes. IRR analysis allows the output of individual chemical reaction rates or user-specified combinations of chemical reactions and species cycling.
 
 As a tool for identifying the relative importance of individual chemical and physical processes, PA has many applications, including:
 
-- Quantifying major contributors to the concentration of a chemical species. PA can be used to split out the contributions of multiple, complex processes that control species concentrations. PA is useful for species that have both production and decay processes occurring in the same time step, including cases where the final concentration may show little change, but individual decay and production rates may be large.
+- Quantifying major contributors to the concentration of a chemical species at a grid cell. PA can be used to split out the contributions of multiple, complex processes that control species concentrations. PA is useful for species that have both production and decay processes occurring in the same time step, including cases where the final concentration may show little change, but individual decay and production rates may be large.
 
 - Characterizing the chemical state of a particular grid cell.  PA with IRR can be used to calculate quantities such as the production of odd oxygen, the production of new radicals, the ozone production efficiency and the termination of radicals. (For example, see Tonnesen and Dennis, 2000.)
 
@@ -21,20 +21,17 @@ As a tool for identifying the relative importance of individual chemical and phy
 
 PA variables are computed by saving the differential operators associated with each process or reaction, integrated over the model synchronization time step for the same variables that are used in solving the continuity equations within the model. For processes that are solved simultaneously in the same operator, PA uses mass balance to compute the contribution of each process.
 
-A user activates PA during CMAQ runtime and includes a PA input file to specify whether IPR, IRR or both analyses are performed, and defining what variables are required for each analysis. The IRR parameters are highly customizable and can be easily modified but must be checked carefully before running to ensure that they correspond to the mechanism being used.  In CMAQ v5.2 and earlier versions, IRR could only be run when CMAQ was compiled with the Rosenbrock (ros3) or Sparse-Matrix-Vectorized Gear (smvgear) solvers. However, in CMAQv5.3, the code was updated to enable use of IRR with the ebi solver, and to implement enhanced output of aerosol processes. The derivation of Process Analysis and format of input files specific to CMAQ incorporation is detailed in Gipson et al., (1999), and further description of the science behind Process Analysis is described in Tonnesen (1994) and Jeffries and Tonnesen (1994).
+A user activates PA during CMAQ runtime and includes a PA input file to specify whether IPR, IRR or both analyses are performed, and defining what variables are required for each analysis. The IRR parameters are highly customizable and can be easily modified but must be checked carefully before running the model to ensure that they correspond to the mechanism being used.  In CMAQ v5.2 and earlier versions, IRR could only be run when CMAQ was compiled with the Rosenbrock (ros3) or Sparse-Matrix-Vectorized Gear (smvgear) solvers. However, in CMAQv5.3, the code was updated to enable use of IRR with the ebi solver, and to implement enhanced output of aerosol processes. The derivation of Process Analysis and format of input files specific to CMAQ incorporation is detailed in Gipson et al., (1999), and further description of the science behind Process Analysis is described in Tonnesen (1994) and Jeffries and Tonnesen (1994).
 
-## 10.1 Use of Process Analysis
+## 9.1 Use of Process Analysis
 
-### Step 1: Activate Process Analysis and specify control files, if activated.
+### Step 1: Activate Process Analysis and specify control files.
 
 - setenv CTM_PROCAN Y:N
 
-Set this variable to Y to indicate that you want process analysis to be active. The default is N. If this is set to Y, then you must also specify the following two files:
+Set this variable to Y to indicate that you want process analysis to be activated. The default is N. If this is set to Y, then you must also specify the following two files:
 
  - setenv PACM_INFILE [filename]
-
-
-
  - setenv PACM_REPORT [filename]
 
 PACM_INFILE is the input file that specifies the desired output information (read by pa_read.F).  Gipson et al., (1999), details the types of equations and operators that can be used, with a brief summary here in Table 1.  PACM_REPORT is the output file that displays how CMAQ translates the variables listed in PACM_INFILE, and lists the reactions (including reactants, products and yields) that will be used in calculating the IPR and IRR values.  Users should check this file on the first iteration of a new PA simulation to ensure that CMAQ is interpreting the variables as the user intended.
@@ -51,7 +48,7 @@ where integers [start] and [end] are the starting and ending grid columns, rows,
 
 A PACM_REPORT file, with the name specified in Step 1, is output for every day of simulation, along with daily IRR or IPR files, depending on how whether IRR or IPR was specified.  If there is a formatting error in the PACM_INPUT file, CMAQ will not run and the CMAQ log files must be checked to determine where the error occurred. The PACM_REPORT file will list the reactions that are used to interpret each of the reactions/families/cycles/operators specified by the user in the PACM_INPUT file.  For complex operations (such as those including families or cycles), the user must ensure that the output conveys the appropriate quantities.
 
-The output files that are created are specified in the CMAQ runscript by:
+The output files are specified in the CMAQ runscript by:
 
 -    setenv CTM_IPR_1 [filename] (....similarly for CTM_IPR_2 and CTM_IPR_3)
 
@@ -68,7 +65,7 @@ The output files are in the same units as the concentration files and can be pos
 -   vertot (to sum up throughput over several layers, such as the PBL)
 -   verdi (to view spatial heterogeneity in process throughput)
 
-## 10.2 Description of the PACM_INFILE
+## 9.2 Description of the PACM_INFILE
 
 The PA input file (PACM_INFILE) is the user-tailored file that controls the parameters that are calculated and output at each time step.  Depending on the specificity of the output, the file will need to be tailored to the chemical mechanism used in the simulation, because species names and reaction numbers vary among different mechanisms.  For example, components of oxidized nitrogen, such as organic nitrates, are represented by species NTR1 + NTR2 + INTR in CB6, but  by RNO3 in SAPRC07. In addition, if IRR outputs are specified by label, the user must ensure that the labels are appropriate for the mechanism being used.
 
@@ -76,17 +73,17 @@ The user can define families of similar pollutants, specify cycles, and reaction
 
 - DEFINE FAMILY NOX = NO + NO2
 
-This will allow the user to specify operations of both NO and NO2 by using the user-specified family name NOX. Cycles are important because many species have reactions in which they decay and reformed quickly.  In some cases, the production and loss terms may both be large and obscure the information that is desired.
+This will allow the user to specify operations of both NO and NO2 by using the user-specified family name NOX. Cycles are important because many species have reactions in which they decay and reform quickly.  In some cases, the production and loss terms may both be large and obscure the information that is desired.
 
 - DEFINE FAMILY PANcyc = PAN
 
-A user-specified name, PANcyc, can be used in place of PAN in further operations, to remove the effect of rapid reactions that recycle PAN rapidly.  Cycles (as well as other quantities) can also defined with the RXNSUM statement:
+A user-specified name, PANcyc, can be used in place of PAN in further operations, to remove the effect of rapid reactions that recycle PAN rapidly.  Cycles (as well as other quantities) can also be defined with the RXNSUM statement:
 
 - DEFINE RXNSUM CLNO3cyc      = <CL28\> - <CL30\>
 
 This will store the net throughput of the reaction labeled CL28 minus reaction labeled CL30 (i.e. in CMAQ-CB6, the net production of species CLNO3) in a user-specified variable named CLNO3cyc.
 
-**Table 1:  parameters used in PACM_INFILE**
+**Table 9-1. Parameters used in PACM_INFILE**
 
 |**First string**| **Second string** |**Third string**|**Remainder of line**|
 |:-------------|:----------------------------|:-----|:-----------------------------|
@@ -98,18 +95,18 @@ This will store the net throughput of the reaction labeled CL28 minus reaction l
 |IRR_OUTPUT|[descriptor]| = |reaction label, combination of species reactions, etc.|
 
 
-## 10.3 Parameters for IPR
+## 9.3 Parameters for IPR
 
 Each line for IPR output begins with IPR_OUTPUT, followed by the chemical species or the species family for which output is desired and the processes to be output.  If the processes are omitted, then the default is all processes.  The available processes are listed in Table 2.  In the sample file, for example:
 
 IPR_OUTPUT O3    =  CHEM+DDEP+CLDS+AERO+TRNM;
 
-specifies that the output include the change in species O3 over the time step for the net sum of
-all chemistry processes, the net dry deposition, the net change in concentration due to clouds, to aerosol
-processes and to total transport.  If the species is a family name instead of a species name, the outputs
+specifies that are output include the change in species O3 over the time step for the net sum of
+all chemistry processes, the net dry deposition, the net change in concentration due to clouds, aerosol
+processes, and total transport.  If the species is a family name instead of a species name, the outputs
 will be calculated for the sum of each species in the family.
 
-**Table 2:  Allowable parameters for Process outputs**
+**Table 9-2. Allowable parameters for Process outputs**
 
 |**LPROC**|**process**| **Description**|
 |:-------|:-----|:---------|
@@ -134,16 +131,16 @@ will be calculated for the sum of each species in the family.
 |3+5+6+7| TRNM|Total mass-conserving transport of species|
 ||COND/COAG/NPF/GROW| change in aerosol species due to condensation/coagulation/new particle formation/aerosol growth|
 
-## 10.4 Parameters for IRR
+## 9.4 Parameters for IRR
 
 The specification for parameters in IRR output begins with IRR_OUTPUT followed by a user-defined name for the quantity and an equation specifying how it is to be calculated. The operators used in constructing these equations are explained in more detail in Gipson et al., (1999), and a brief summary of the allowable operators is included in Table 3.  The equation could include a reaction label or an operator for a chemical species or family.  For example:
 
 IRR_OUTPUT NewClrad = 2.0*<CL1\> + <CL2\> + <CL8\> + <CL25\>
 
-Would sum the throughput of reactions labeled CL2, CL8, and CL25 and 2 times the throughput of reaction labeled CL1. The sum for each time step and each grid would be in the variable named by the user NewCLrad.
+Would sum the throughput of reactions labeled CL2, CL8, and CL25 and 2 times the throughput of reaction labeled CL1. The sum for each time step and each grid would be in the variable NewCLrad defined by the user.
 
 
-**Table 3:  Allowable operators for Integrated Reaction Rate outputs**
+**Table 9-3. Allowable operators for Integrated Reaction Rate outputs**
 
 |**Operator**          | **Description**|
 |:------|:----|
@@ -154,7 +151,7 @@ Would sum the throughput of reactions labeled CL2, CL8, and CL25 and 2 times the
 |NET[x]| the net of the production and loss for all reactions in which x is a product or reactant|
 |cyclename[POSONLY:NEGONLY]| calculates the net impact of a cycle defined earlier.  Using optional qualifiers will output values only if the net is positive or negative.
 
-## 10.5 Example IRR applications
+## 9.5 Example IRR applications
 
 IRR can be endlessly customized to examine many different processes and combinations of processes.  Below are two examples of how IRR can be used.
 
@@ -169,9 +166,9 @@ IRR can be endlessly customized to examine many different processes and combinat
 
 We have summed the throughputs over 2 weeks (July 1-14, 2011), within the first level of the model, and compared these three output pathways at four locations throughout the U.S. Figure 1 shows the sum through each of these processes at 6 different grid areas, including 4 urban areas and 2 rural areas.  This figure also includes the corresponding fate for the largely biogenic VOCs, although note that some VOCs, such as formaldehyde and ethanol can be both anthropogenic and biogenic.
 
-![Figure 10-1: Relative contribution of oxidation pathways for VOCs](./images/bars_VOC_fate.png)
+![Figure 9-1: Relative contribution of oxidation pathways for VOCs](./images/Figure9-1.png)
 
-Figure 10-1.  Relative contribution of oxidation pathways for VOCs using Process Analysis
+**Figure 9-1.  Relative contribution of oxidation pathways for VOCs using Process Analysis**
 
 **Example 2: Quantify the major contributors to the production of HNO3**.  In this example, we develop output variables to represent the total production of HNO3 in CMAQ-CB6 and the individual reactions which contribute to this total production:
 
@@ -185,9 +182,9 @@ Figure 10-1.  Relative contribution of oxidation pathways for VOCs using Process
 
 In this case, we have summed up all throughput over the first 15 levels of the model (approximating the PBL) and over the same 14-day time period.  Figure 10-2 shows the relative contribution of processes to the total HNO3 formation at three grids.  In this case, at the two more urban grids, the reaction of OH+NO2 dominates the formation of HNO3 in summer, while at the rural grid cell (Missouri), the heterogeneous hydrolysis of alkyl nitrates is predominant.
 
-![Figure 10-2:  Relative contribution of HNO3 formation pathways](./images/HNO3_formation_pbl_pie.png)
+![Figure 9-2:  Relative contribution of HNO3 formation pathways](./images/Figure9-2.png)
 
-Figure 10-2.  Relative contribution of HNO3 formmation pathways at three grid locations
+**Figure 9-2.  Relative contribution of HNO3 formmation pathways at three grid locations**
 
 ## References
 
@@ -202,7 +199,7 @@ Tonnesen, S., Jeffries, H.E. (1994). Inhibition of Odd Oxygen Production in the 
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch09_new_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch11_HDDM-3D.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch08_analysis_tools.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch10_HDDM-3D.md)<br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->

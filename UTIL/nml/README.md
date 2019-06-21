@@ -11,46 +11,12 @@ Detailed descriptions of the formats of the files shown in [Table 3-4](../../DOC
 <a id=Table1></a>
 
 **Table 1. CSV2NML input files & NML2CSV output files**
->>>>>>> acc00a052d72d2c4322daca234e2c7a56c59c7c9
 
 |**File Name**|**Format**|**Description**|
 |--------|--------|--------------------------------------------------------------------------|
 |GC.csv|ASCII|Gas-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every gas-phase species in the chemical mechanism.|
 |AE.csv|ASCII|Aerosol-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every aerosol-phase species in the chemical mechanism.|
 |NR.csv|ASCII|Nonreactive species process parameters. This file defines the source and sink processes that impact the concentrations of every nonreactive species in the chemical mechanism.|
-<<<<<<< HEAD
-
-#### CSV2NML output files
-
-<a id=Table7-12></a>
-
-**Table 7‑12. CSV2NML output files**
-
-|**File Name**|**Format**|**Description**|
-|--------|--------|--------------------------------------------------------------------------|
-|GC.nml|ASCII|Gas-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every gas-phase species in the chemical mechanism|
-|AE.nml|ASCII|Aerosol-phase species process parameters. This file defines the source and sink processes that impact the concentrations of every aerosol-phase species in the chemical mechanism|
-|NR.nml|ASCII|Nonreactive species process parameters. This file defines the source and sink processes that impact the concentrations of every nonreactive species in the chemical mechanism|
-
-#### CSV2NML usage
-
-The CSV2NML script is configured to read in a CSV file from the command line and output a NAMELIST file that can be used with CMAQ. An example of how to use CSV2NML to create a gas-phase species NAMELIST file is include below:
-
-```
-cd $CMAQ_HOME/UTIL/nml/scripts
-./csv2nml.csh GC.CSV
-```
-
-There is also a script to convert an existing namelist file to a CSV
-
-```
-cd $CMAQ_HOME/UTIL/nml/scripts
-./nml2csv.csh GC.nml
-```
-=======
-|TR.csv|ASCII|Tracer species process parameters. This file defines the source and sink processes that impact the concentrations of every tracer species in the chemical mechanism.|
-
-#### CSV2NML output files & NML2CSV input files
 
 <a id=Table2></a>
 

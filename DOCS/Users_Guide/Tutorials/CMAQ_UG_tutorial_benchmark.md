@@ -15,25 +15,30 @@ The following support software are required for compiling and running CMAQ.
 
 1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-3. [I/O API](http://www.cmascenter.org/ioapi)
-4. [netCDF](http://www.unidata.ucar.edu/software/netcdf)
-5. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
+2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
+3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built without netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
+4. [I/O API](http://www.cmascenter.org/ioapi) version 3.2 or later
 
-The minimum hardware required for compiling and running CMAQ for the benchmark case are:
 
-1. Linux environment with a single processor
-2. 1 GB RAM
-3. 100 GB hard drive storage
+The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
+
+1. Linux environment with a 8 processors
+2. 16 GB RAM
+3. 400 GB hard drive storage
+
+8 processors
+8 GB RAM
+400 GB hard drive storage
 
 ## Install CMAQ and Required Libraries 
 
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3:
 
 ```
-git clone -b 5.3 https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
-For instructions on installing CMAQ from Zip files, see [Chapter 5](CMAQ_OGD_ch05_sys_req.md).
+For instructions on installing CMAQ from Zip files, see [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md).
 
 ## Check Out a new Branch in the CMAQ Repository 
 
@@ -96,15 +101,15 @@ Download the CMAQ single day reference data from the [CMAS Center Software Clear
 
 ```
 cd $CMAQ_DATA
-tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Input.tar.gz
-tar xvzf CMAQv5.2.1_Benchmark_SingleDay_Output.tar.gz
+tar xvzf CMAQv5.3_Benchmark_SingleDay_Input.tar.gz
+tar xvzf CMAQv5.3_Benchmark_SingleDay_Output.tar.gz
 ```
 
-The CMAQ benchmark test case is a single day simulation for July 1, 2011 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.
+The CMAQ benchmark test case is a single day simulation for July 1, 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.
 
-## Compiling CMAQ 
+## Compiling CMAQ
 
-*Before proceeding, it should be noted that building the ICON and BCON executibles are optional steps when working specifically with the benchmark data. This is becuase the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](CMAQ_OGD_ch04_sys_req.md).*   
+*Before proceeding, it should be noted that building the ICON and BCON executibles are optional steps when working specifically with the benchmark data. This is becuase the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](../CMAQ_UG_ch04_model_inputs.md).*   
 
 Create the model executables for CCTM using the steps shown below. 
 
@@ -140,7 +145,7 @@ The build directory parameters for the benchmark test case include the following
 -   In-line plume rise
 
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
-[Appendix A](CMAQ_OGD_ch04_sys_req.md).
+[Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 Following the requisite changes to the CCTM build script, use the following command to create the CCTM executable: 
 
@@ -184,7 +189,7 @@ CCTM run time Configuration Options for the benchmark case include the following
 -   No stratosphere-troposphere ozone exchange
 
 To configure these parameters, the Science Options within the run_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
-[Appendix A](CMAQ_OGD_ch04_sys_req.md).
+[Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
@@ -207,13 +212,13 @@ and these log files have the name convention:
 
 ```
 CTM_LOG_[ProcessorID].v53_[compiler]_[CASE]/_[RUNDATE].log
-CTM_LOG_[ProcessorID].v53_gcc_SE52BENCH_20110701
+CTM_LOG_[ProcessorID].v53_gcc_SE53BENCH_20160701
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]_SE52BENCH 
+$CMAQ_DATA/output_CCTM_v53_[compiler]_SE53BENCH 
 ```
 
 and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
@@ -228,13 +233,13 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 ## Check the CMAQ Benchmark Results
 
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
-- Red Hat Enterprise Linux Server release 5.11 (Tikanga)
-- Linux Kernel 2.6.18-238.12.1.el5 x86_64
-- Intel v15.0 compiler, 8 processors with OpenMPI
-- CMAQv5.2
+- Red Hat Enterprise Linux Server release 7.6 (Maipo)
+- Linux Kernel 3.10.0-957.12.2.el7.x86_64
+- Intel v18.0 compiler, 32 processors with OpenMPI
+- CMAQv5.3
 
-The CMAQv5.2 reference data include output from BCON, ICON, and the CCTM. You will only need to compare the results for the CCTM to evaluate the benchmark results.
+The CMAQv5.3 reference data include output from BCON, ICON, and the CCTM. You will only need to compare the results for the CCTM to evaluate the benchmark results.
 
-Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. [Chapter 12 of the CMAQ OGD](..//User_Manual/CMAQ_OGD_ch12_analysis_tools.md) lists descriptions of various analysis software options for viewing CMAQ output.
+Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
 In general, if the largest domain-wide and simulation period differences between your simulation and the reference data are <1%, the model is considered to be successfully benchmarked (i.e., the installation is verified).
