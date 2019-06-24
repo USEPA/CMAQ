@@ -19,9 +19,9 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |----------------------------|------|----|-----------------------------------|
 |**Standard**| | | |
 |[Output Log](#cmaq_output_log) <a id=cmaq_output_log_t></a>|ASCII|n/a|n/a
-|[CTM_CONC_1](#conc)<a id=conc_t></a>|GRDDED3|Hourly|X * Y * Z'
+|[CTM_CONC_1](#conc)<a id=conc_t></a>|GRDDED3|Hourly|X * Y * Z
 |[S_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|1-hour|X * Y * Z
-|[A_CONC_1](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|X * Y * Z'
+|[A_CONC_1](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|X * Y * 1
 |[CTM_DRY_DEP_1](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly|X * Y * 1
 |[CTM_WETDEP_1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly|X * Y * 1
 |**Diagnostic and Advanced**| | | |
@@ -40,9 +40,9 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |[CTM_VSED_DIAG](#vsed_diag)<a id=vsed_diag_t></a>|GRDDED3|Hourly|X * Y * 1
 |[CTM_LTNGDIAG_1](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly|X * Y * Z
 |[CTM_LTNGDIAG_2](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_RJ_1](#ctm_rj) <a id=ctm_rj_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_RJ_2](#ctm_rj) <a id=ctm_rj_t></a>|GRDDED3|Hourly|X * Y * Z'
-|[CTM_RJ_3](#ctm_rj) <a id=ctm_rj_t></a>|GRDDED3|Hourly|X * Y * Z'
+|[CTM_RJ_1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly|X * Y * 1
+|[CTM_RJ_2](#ctm_rj_2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly|X * Y * Z'
+|[CTM_RJ_3](#ctm_rj_3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly|X * Y * Z'
 |[SOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|Hourly|X * Y * 1
 |[CTM_SSEMIS_1](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly|X * Y * 1
 |[CTM_WETDEP_2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly|X * Y * 1
@@ -121,14 +121,13 @@ This optional 2-D CCTM diagnostic file contains integral average information for
 ### B3GTS_S: CCTM biogenic emissions diagnostic file
 [Return to Table 7-1](#b3gts_t)
 
-This optional 2-D CCTM hourly output file contains biogenic emissions in mass units calculated in-line by the CCTM. This file is only created if the B3GTS_DIAG environment variable is set to Y (Default is Y).
-**>>COMMENT<<** Does the B3GTS_S file contain instantaneous end of hour values?
+This optional 2-D CCTM hourly output file contains total hourly biogenic emissions in mass units calculated in-line by the CCTM. This file is only created if the B3GTS_DIAG environment variable is set to Y (Default is Y).
 
 <a id=depv></a>
 ### CTM_DEPV_DIAG: CCTM inline deposition diagnostics file
 [Return to Table 7-1](#depv_t)
 
-This optional 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour. CCTM calculates the deposition velocity for all of the species listed in the deposition velocity column of the [FORTRAN Namelist](#matrix_nml) files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the deposition velocity file by editing the DDEP column in the NameList file(s) (Default is N). 
+This optional 2-D CCTM file contains the deposition velocity (m/s) for each chemical species calculated for the final time step for the hour. CCTM calculates the deposition velocity for all of the species listed in the deposition velocity column of the [FORTRAN Namelist](#matrix_nml) files within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the deposition velocity file by editing the DDEP column in the NameList file(s). This file is only created if the CTM_DEPV_FILE environment variable is set to Y (Default is N). 
 
 <a id=pt3d></a>
 ### CTM_PT3D_DIAG: CCTM PT3D diagnostics file
@@ -143,11 +142,11 @@ This optional 3-D CCTM file records the 3-D point source emissions for each laye
 This optional 2-D CCTM hourly output file contains dust emissions in mass units calculated in-line by the CCTM. This file is only created if the CTM_DUSTEM_DIAG environment variable is set to Y (Default is N).
 
 <a id=media></a>
-### MEDIA_CONC: Bidirectional soil NH4+ restart file
+### MEDIA_CONC: Bidirectional modeling media concentration file
 [Return to Table 7-1](#media_t)
 
-This 2-D CCTM file contains the soil NH<sub>4</sub> and pH concentrations and/or the soil, vegetation and water Hg concentrations. This file is only created when the CTM_ABFLUX environment variable or the CTM_HGBIDI variable is set to Y (Default is N) and is used to initialize the next day of the model simulation.
-**>>COMMENT<<** Double check the Hg with Jesse.
+This 2-D CCTM file contains the soil NH<sub>4</sub><sup>+</sup> and pH concentrations and/or the soil, vegetation and water Hg concentrations. This file is only created when the CTM_ABFLUX environment variable or the CTM_HGBIDI variable is set to Y (Default is N) and is used to initialize the next day of the model simulation.
+
 
 <a id=depv_mos></a>
 ### CTM_DEPV_MOS
@@ -167,7 +166,6 @@ This optional 3-D CCTM file contains the total deposition (kg hectare<sup>-1</su
 
 This optional 3-D CCTM file contains the deposition velocity (m s<sup>-1</sup>) through the stomatal pathway for the final time step of the hour for each land use type within a grid cell. This output file is structured with the land use category being the 3rd dimension (i.e. equivalent to the layers in a concentration file). So, for model runs using the NLCD land use category system, the files will have 40 "layers". This file is only created if the CTM_FST environment variable is set to Y (Default is N).
 
-
 <a id=dry_dep_fst></a>
 ### CTM_DRY_DEP_FST
 [Return to Table 7-1](#dry_dep_fst_t)
@@ -184,32 +182,45 @@ This optional 3-D CCTM file contains diagnostic output of the vertical dispersio
 ### CTM_VSED_DIAG
 [Return to Table 7-1](#vsed_diag_t)
 
-This optional 3-D CCTM file contains diagnostic output of particle gravitational settling velocities (m s<sup>-1</sup>). This file is only created if the VSED_DIAG_FILE environment variable and the gravitational sedimentation environment variable (CTM_GRAV_SETL) are set to Y (Default is Y). 
-**>>COMMENT<<** The above needs updating to match the current run script.
+This optional 3-D CCTM file contains diagnostic output of particle gravitational settling velocities (m s<sup>-1</sup>). This file is created in addition to the vertical dispersion paramet er file if both the VDIFF_DIAG_FILE environment variable and the gravitational sedimentation environment variable (CTM_GRAV_SETL) are set to Y (Default is N).
 
 <a id=ltngdiag1></a>
 ### LTNG_DIAG1
 [Return to Table 7-1](#ltngdiag1_t)
 
-This optional 3-D CCTM file contains hourly lightning NO emissions calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_1 environment variable is set to T (Dfault is N).
+This optional 3-D CCTM file contains hourly lightning NO emissions calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_1 environment variable is set to Y (Dfault is N).
 
 <a id=ltngdiag2></a>
 ### LTNG_DIAG2
 [Return to Table 7-1](#ltngdiag2_t)
 
-This optional 2-D CCTM file contains hourly column-total lightning NO emissions calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_2 environment variable is set to T (Default is N).
+This optional 2-D CCTM file contains hourly column-total lightning NO emissions calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_2 environment variable is set to Y (Default is N).
 
-<a id=ctm_rj></a>
-### CTM_RJ_[1-3]: In-line photolysis output – gridded photolysis rates
-[Return to Table 7-1](#ctm_rj_t)
+<a id=ctm_rj1></a>
+### CTM_RJ_1: In-line photolysis inputs and outputs - summary file
+[Return to Table 7-1](#ctm_rj1_t)
 
-These optional ... CCTM files contain the photolysis rates calculated in-line by the CCTM (Default is N). **>>COMMENT<<** check new sentence. Is this a 2-D or 3-D? is there an environment variable to set?
+This optional 2-D CCTM file contains general summary information for the photolysis calculation including the surface albedo, select photolysis rates and flux values.  This file is only created if the CTM_PHOTDIAG environment variable is set to Y (Default is N).
+
+<a id=ctm_rj2></a>
+### CTM_RJ_2: In-line photolysis output – gridded photolysis rates
+[Return to Table 7-1](#ctm_rj2_t)
+
+This optional 3-D CCTM file contains the photolysis rates calculated in-line by the CCTM.  The number of layers is set by the  NLAYS_PHOTDIAG environment variable (Default is all layers). This file is only created if the CTM_PHOTDIAG environment variable is set to T (Default is N).
+
+<a id=ctm_rj3></a>
+### CTM_RJ_3: In-line photolysis inputs and outputs – detailed
+[Return to Table 7-1](#ctm_rj3_t)
+
+This optional 3-D CCTM file contains detailed inputs and results from the photolysis rate calculation done in-line by the CCTM.The number of layers is set by the  NLAYS_PHOTDIAG environment variable (Default is all layers). The number of wavelengths included in the file is set by the NWAVE_PHOTDIAG environment variable (Default is all wavelengths). This file is only created if the CTM_PHOTDIAG environment variable is set to T (Default is N).
 
 <a id=soilout></a>
 ### SOILOUT
 [Return to Table 7-1](#soilout_t)
 
-This optional ... CCTM file contains name and location of hourly soil NO emissions calculated in-line by the CCTM. This file is only created if the CTM_BIOGEMIS environment variable is set to Y (Default is N). **>>COMMENT<<** check new sentence. Is this a 2-D or 3-D?
+This optional 2-D CCTM file contains name and location of hourly soil NO emissions calculated in-line by the CCTM. This file is only created if the CTM_BIOGEMIS environment variable is set to Y (Default is N). 
+
+**>>COMMENT<<** check new sentence. name?
 
 <a id=ssemis></a>
 ### CTM_SSEMIS_1: Sea salt emissions diagnostic file
@@ -227,7 +238,9 @@ In CMAQ, wet deposition is calculated separately for resolved (grid-scale) cloud
 ### CTM_VEXT_1
 [Return to Table 7-1](#vext_t)
 
-**>>COMMENT<<** Needs content here
+This optional 3-D CCTM file contains information for locations specified in the VERTEXT_COORD_PATH file. This file is only created if the VERTEXT environment variable is set to Y (Default is N).
+
+**>>COMMENT<<** Needs more content here on variables
 
 [<< Previous Chapter](CMAQ_UG_ch06_model_configuration_options.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_analysis_tools.md)<br>
 CMAQ User's Guide (c) 2019<br>
