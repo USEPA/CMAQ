@@ -49,7 +49,7 @@ C-----------------------------------------------------------------------
       Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
 
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nliqs = 74  ! number of liquid-phase species in AQCHEM
+      Integer, Parameter :: nliqs = 60  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
       Integer, Parameter :: mxsrg = 70  ! maximum number of species for surrogate
 
@@ -197,9 +197,6 @@ C...For Sulfur tracking
       Character( 16 ), Parameter, Private :: req_aso4aqfemn = 'SO4_AQFEMN_ACCUM'
       Character( 16 ), Parameter, Private :: req_aso4aqmhp  = 'SO4_AQMHP_ACCUM'
       Character( 16 ), Parameter, Private :: req_aso4aqpaa  = 'SO4_AQPAA_ACCUM'
-      Character( 16 ), Parameter, Private :: req_aso4gas    = 'SO4_GAS_ACCUM'
-      Character( 16 ), Parameter, Private :: req_aso4emis   = 'SO4_EMIS_ACCUM'
-      Character( 16 ), Parameter, Private :: req_aso4icbc   = 'SO4_ICBC_ACCUM'
 
 
 C...Pointers for the AQCHEM array AEROSOL
@@ -234,9 +231,6 @@ C...Sulfur Tracking Model
       Integer :: lso4aqfemn ! Sulfate from aq rxn catalyzed by FE&MN
       Integer :: lso4aqmhp  ! Sulfate from aq MHP rxn
       Integer :: lso4aqpaa  ! Sulfate from aq PAA rxn
-      Integer :: lso4gas    ! Sulfate from gas phase rxn
-      Integer :: lso4emis   ! Sulfate from direct emissions
-      Integer :: lso4icbc   ! Sulfate from IC/BCs
 
       Integer :: lcaacc   !  Ca in Accumulation mode (AE6) SLN 16March2011
       Integer :: lmgacc   !  Mg in Accumulation mode (AE6) SLN 16March2011
@@ -306,26 +300,11 @@ C for TX version
       integer, parameter :: lphgfinel   = 54 ! Fine-mode Mercury Tracer
       integer, parameter :: lphgcorl    = 55 ! Coarse-mode Mercury Tracer
 C for sulfur tracking model
-      Integer, Parameter :: lso4aqh2o2l   = 56 ! Sulfate from aq H2O2 rxn
-      Integer, Parameter :: lhso4aqh2o2l  = 57 ! bisulfate from aq H2O2 rxn
-      Integer, Parameter :: lso4aqo3l     = 58 ! Sulfate from aq O3 rxn
-      Integer, Parameter :: lhso4aqo3l    = 59 ! bisulfate from aq O3 rxn
-      Integer, Parameter :: lso4aqfemnl   = 60 ! Sulfate from aq rxn catalyzed by FE&MN
-      Integer, Parameter :: lhso4aqfemnl  = 61 ! bisulfate from aq rxn catalyzed by FE&MN
-      Integer, Parameter :: lso4aqmhpl    = 62 ! Sulfate from aq MHP rxn
-      Integer, Parameter :: lhso4aqmhpl   = 63 ! bisulfate from aq MHP rxn
-      Integer, Parameter :: lso4aqpaal    = 64 ! Sulfate from aq PAA rxn  
-      Integer, Parameter :: lhso4aqpaal   = 65 ! bisulfate from aq PAA rxn
-      Integer, Parameter :: lso4gasaccl   = 66 ! Sulfate from gas phase rxn (J mode)
-      Integer, Parameter :: lhso4gasaccl  = 67 ! bisulfate from gas phase rxn (accumulation mode)
-      Integer, Parameter :: lso4emisaccl  = 68 ! Sulfate from direct emissions (accumulation mode)
-      Integer, Parameter :: lhso4emisaccl = 69 ! bisulfate from direct emissions (accumulation mode)
-      Integer, Parameter :: lso4icbcaccl  = 70 ! Sulfate from from ic/bcs (accumulation mode)
-      Integer, Parameter :: lhso4icbcaccl = 71 ! bisulfate from from ic/bcs (accumulation mode)
-      Integer, Parameter :: lts6gascorl   = 72 ! Coarse-mode sulfate from gas phase rxn
-      Integer, Parameter :: lts6emiscorl  = 73 ! Coarse-mode sulfate from direct emissions
-      Integer, Parameter :: lts6icbccorl  = 74 ! Coarse-mode sulfate from ic/bcs
-
+      Integer, Parameter :: lts6aqh2o2l = 56 ! total S(VI) from aq H2O2 rxn
+      Integer, Parameter :: lts6aqo3l   = 57 ! total S(VI) from aq O3 rxn
+      Integer, Parameter :: lts6aqfemnl = 58 ! total S(VI) from aq FE&MN catalyzed rxn
+      Integer, Parameter :: lts6aqmhpl  = 59 ! total S(VI) from aq MHP rxn
+      Integer, Parameter :: lts6aqpaal  = 60 ! total S(VI) from aq PAA rxn
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )
@@ -671,9 +650,6 @@ C...For sulfur tracking model
          lso4aqfemn = findSgrAer( req_aso4aqfemn ) ! Sulfate from aq rxn catalyzed by FE&MN
          lso4aqmhp  = findSgrAer( req_aso4aqmhp )  ! Sulfate from aq MHP rxn
          lso4aqpaa  = findSgrAer( req_aso4aqpaa )  ! Sulfate from aq PAA rxn
-         lso4gas    = findSgrAer( req_aso4gas )    ! Sulfate from gas phase rxn
-         lso4emis   = findSgrAer( req_aso4emis )   ! Sulfate from direct emissions
-         lso4icbc   = findSgrAer( req_aso4icbc )   ! Sulfate from IC/BCs
       End If
 
       mapped = .True.
@@ -729,9 +705,6 @@ C...For sulfur tracking model
          Write( logdev,'( 5x, a, i4 )' ) 'lso4aqfemn:', lso4aqfemn
          Write( logdev,'( 5x, a, i4 )' ) 'lso4aqmhp: ', lso4aqmhp
          Write( logdev,'( 5x, a, i4 )' ) 'lso4aqpaa: ', lso4aqpaa
-         Write( logdev,'( 5x, a, i4 )' ) 'lso4gas:   ', lso4gas
-         Write( logdev,'( 5x, a, i4 )' ) 'lso4emis:  ', lso4emis
-         Write( logdev,'( 5x, a, i4 )' ) 'lso4icbc:  ', lso4icbc
       End If
 #endif
 

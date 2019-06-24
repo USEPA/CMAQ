@@ -127,6 +127,7 @@ C       Feb 2019 D. Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
 C-----------------------------------------------------------------------
 
+      USE RUNTIME_VARS, ONLY: STM
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
@@ -138,6 +139,7 @@ C-----------------------------------------------------------------------
      &                      OSO4AQMHP_IDX, OSO4AQPAA_IDX, OSO4_IDX, 
      &                      OSO4GAS_IDX, OSO4EMIS_IDX, OSO4ICBC_IDX,
      &                      AEROSPC_MAP, N_MODE, AE6ISOA, MAP_AERO
+      USE PRECURSOR_DATA, ONLY: SULF_IDX, PRECURSOR_MAP, MAP_PRECURSOR
       USE RXNS_DATA, ONLY: MECHNAME       ! chemical mechanism data
       USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
@@ -504,7 +506,11 @@ C...  event-statistics variables.
 
         FIRSTIME = .FALSE.
 
-        Call map_aero()
+C...Sulfur tracking
+        IF ( STM ) THEN
+          CALL MAP_AERO()
+          CALL MAP_PRECURSOR()
+        END IF
 
         IF ( N_AE_SPC .GT. 0 ) THEN
           ALLOCATE ( AECONCMIN( N_AE_SPC ), STAT = ALLOCSTAT )
@@ -613,46 +619,46 @@ C...initialize surrogate array
 
 C...set cloud mixing surrogates for the sulfate tracking species
 
-          Do m = 1, n_mode
+          DO M = 1, N_MODE
 
-            SURCLDMX( aerospc_map( aso4gas_idx, m ) ) = aerospc_map( aso4_idx,m )
-            SURCLDMX( aerospc_map( aso4emis_idx,m ) ) = aerospc_map( aso4_idx,m )
-            SURCLDMX( aerospc_map( aso4icbc_idx,m ) ) = aerospc_map( aso4_idx,m )
+            SURCLDMX( AEROSPC_MAP( ASO4GAS_IDX, M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+            SURCLDMX( AEROSPC_MAP( ASO4EMIS_IDX,M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+            SURCLDMX( AEROSPC_MAP( ASO4ICBC_IDX,M ) ) = AEROSPC_MAP( ASO4_IDX,M )
 
 C...  for the accumulation mode, add aqueous tracked species
 
-            If ( m .Eq. 2 ) Then
+            IF ( M .EQ. 2 ) THEN
 
-              SURCLDMX( aerospc_map( aso4aqh2o2_idx,m ) ) = aerospc_map( aso4_idx,m )
-              SURCLDMX( aerospc_map( aso4aqo3_idx,  m ) ) = aerospc_map( aso4_idx,m )
-              SURCLDMX( aerospc_map( aso4aqfemn_idx,m ) ) = aerospc_map( aso4_idx,m )
-              SURCLDMX( aerospc_map( aso4aqmhp_idx, m ) ) = aerospc_map( aso4_idx,m )
-              SURCLDMX( aerospc_map( aso4aqpaa_idx, m ) ) = aerospc_map( aso4_idx,m )
+              SURCLDMX( AEROSPC_MAP( ASO4AQH2O2_IDX,M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+              SURCLDMX( AEROSPC_MAP( ASO4AQO3_IDX,  M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+              SURCLDMX( AEROSPC_MAP( ASO4AQFEMN_IDX,M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+              SURCLDMX( AEROSPC_MAP( ASO4AQMHP_IDX, M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+              SURCLDMX( AEROSPC_MAP( ASO4AQPAA_IDX, M ) ) = AEROSPC_MAP( ASO4_IDX,M )
 
-            End If
+            END IF
 
-            If ( ( ae6isoa ) .Or.
-     &           ( Index( mechname, 'CB6R3_AE7'  ) .Gt. 0 ) .Or.
-     &           ( Index( mechname, 'CB6R3M_AE7' ) .Gt. 0 ) ) Then
+            IF ( ( AE6ISOA ) .OR.
+     &           ( INDEX( MECHNAME, 'CB6R3_AE7'  ) .GT. 0 ) .OR.
+     &           ( INDEX( MECHNAME, 'CB6R3M_AE7' ) .GT. 0 ) ) THEN
     
 C...  for the accumulation mode, add aqueous tracked species
 
-              If ( m .Eq. 2 ) Then
+              IF ( M .EQ. 2 ) THEN
 
-                SURCLDMX( aerospc_map( oso4gas_idx,   m ) ) = aerospc_map( oso4_idx,m )
-                SURCLDMX( aerospc_map( oso4emis_idx,  m ) ) = aerospc_map( oso4_idx,m )
-                SURCLDMX( aerospc_map( oso4icbc_idx,  m ) ) = aerospc_map( oso4_idx,m )
-                SURCLDMX( aerospc_map( oso4aqh2o2_idx,m ) ) = aerospc_map( oso4_idx,m )
-                SURCLDMX( aerospc_map( oso4aqo3_idx,  m ) ) = aerospc_map( oso4_idx,m )
-                SURCLDMX( aerospc_map( oso4aqfemn_idx,m ) ) = aerospc_map( oso4_idx,m )
-                SURCLDMX( aerospc_map( oso4aqmhp_idx, m ) ) = aerospc_map( oso4_idx,m )
-                SURCLDMX( aerospc_map( oso4aqpaa_idx, m ) ) = aerospc_map( oso4_idx,m )
+                SURCLDMX( AEROSPC_MAP( OSO4GAS_IDX,   M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4EMIS_IDX,  M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4ICBC_IDX,  M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQH2O2_IDX,M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQO3_IDX,  M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQFEMN_IDX,M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQMHP_IDX, M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQPAA_IDX, M ) ) = AEROSPC_MAP( OSO4_IDX,M )
 
-              End If
+              END IF
 
-            End If
+            END IF
 
-          End Do
+          END DO
 
           SPC = 0
           STRT = AE_STRT
@@ -1780,6 +1786,14 @@ C...set mean photolysis rates to zero
 C...convert mean photolysis rates to 1/sec
               JH2O2_HYDROMETEORS = REAL( JH2O2_BAR * MINPERSEC, 8 ) 
               JHNO3_HYDROMETEORS = REAL( JHNO3_BAR * MINPERSEC, 8 )
+            END IF
+
+C...in aqchem, H2SO4 gas is added to ASO4J
+C...  mimic this for the ASO4GASJ tracking species
+            IF ( STM ) THEN
+              POLC( AEROSPC_MAP( ASO4GAS_IDX, 2 ) ) = POLC( AEROSPC_MAP( ASO4GAS_IDX, 2 ) )
+     &                                              + POLC( PRECURSOR_MAP( SULF_IDX ) )
+              CEND( AEROSPC_MAP( ASO4GAS_IDX, 2 ) ) = POLC( AEROSPC_MAP( ASO4GAS_IDX, 2 ) )
             END IF
 
             CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
