@@ -100,6 +100,29 @@ The m3dry option for dry deposition and ammonia bidirectional surface flux is th
 Upgrades for version 5.3 includes much greater surface resistances to snow and ice and reduced resistance to bare ground for ozone with dependence on surface soil moisture content.  The aerosol deposition has also been revised including a new dependence on LAI.  The ammonia bidirectional surface flux from croplands has been substantially revised from earlier versions.  The new version has close linkages with the EPIC agricultural ecosystem model.  Daily values of all soil parameters needed to compute the available soil ammonia concentrations (soil ammonia content, soil moisture, soil texture parameters, soil pH, and Cation Exchange Capacity (CEC)) for each of 21 agricultural production types that are either rainfed or irrigated (42 types total) are input to CMAQ.  Soil ammonia concentrations and soil pH are combined to derive the soil compensation concentration for the bidirectional flux calculation (Pleim et al, 2019).
 
 ### 6.8.2 Dry Depostion - STAGE
+In CMAQ v5.3., a new tiled, land use specific, dry deposition scheme, the Surface Tiled Aerosol and Gaseous Exchange (STAGE), option in the Community Multiscale Air Quality (CMAQ) model has been developed to better estimate atmospheric deposition for terrestrial and aquatic ecosystem health and applications to evaluate the impact of dry deposition on ambient air quality This new scheme explicitly supports Weather Research and Forecasting (WRF) simulations with a variety of land surface schemes, Noah, Pleim-Xiu, etc. The model resistance framework, Figure 6.8.2, parameterizes air-surface exchange as a gradient process and is used for both bidirectional exchange and dry deposition following the widely used resistance model of Nimitz et al. 2001. Grid scale fluxes are estimated from sub-grid cell land use specific fluxes and are area weighted to the grid cell totals which are then output in the standard dry deposition file. 
+The model resistances are largely estimated following Massad et al. 2010 with the following exceptions.  Deposition to wetted surfaces considers the bulk accommodation coefficient, following Fahey et al. 2017, and can be a limiting factor for highly soluble compounds.  The in-canopy resistance is derived using the canopy momentum attenuation parameterization from Yi 2008. Aerosol dry deposition includes parameterizations for deposition to water or bare ground surfaces, Girogi 1986, and vegetated surfaces, Slinn 1982, using the characteristic leaf radius parameterization of Zhang et al. 2001. 
+The ammonia bidirectional option follows the ammonia specific parameterizations of Massad et al. 2010. Mercury bidirectional exchange is also available and follows the parameterization of Bash 2010. In this modeling framework, it is possible to set any species as being bidirectional by providing a parametrization or constant that sets the stomatal, cuticular, soil and/or water compensation point as a value greater than 0. 
+
+![Equation 6-1](images/Figure6_8_2.png)  
+Figure 6.8.2: STAGE resistance diagram (modified from Nemitz et al. 2001) with a table of variables descriptions.
+
+STAGE runtime options:
+```
+setenv CTM_MOSAIC Y
+```
+Sets output for land use specific dry deposition and dry deposition velocities. Note: To retrieve the grid cell average from these files it should be area weighted by the land use fraction by summing the product of the land use fraction and the dry deposition/deposition velocity for each grid cell. 
+```
+setenv CTM_FST Y
+```
+Sets output for land use specific dry deposition to leaf stomata. 
+```
+setenv PX_VERSION   Y
+setenv CLM_VERSION Y
+setenv NOAH_VERSION Y 
+```
+Sets the correct soil hydrological properties and soil layer information needed to calculate soil NO emissions, NH3 bidirectional exchange and O3 deposition. These options are currently based on WRF 3.8.1 values for PX and CLM and WRF 4.0 for NOAH. 
+
 
 ## 6.9 Emissions
 
@@ -334,6 +357,8 @@ set ModCloud  = cloud/acm_ae6_mp
 
 
 ## References
+Bash, J.O., 2010: Description and initial simulation of a dynamic bidirectional air-surface exchange model for mercury in Community Multiscale Air Quality model, J. Geophys. Res. 115, D06305
+
 Binkowski, F.S, S. Arunachalam, Z. Adelman, and J. Pinto, Examining photolysis rates with a prototype on-line photolysis module in CMAQ, 2007, J. Appl. Meteor. and Clim.. 46, 1252-1256, doi: 10.1175/JAM2531.1 
 
 Binkowski, F. S., and S. J. Roselle, 2003: Models-3 Community Multiscale Air Quality (CMAQ) model aerosol component. 1. Model description. ''J. Geophys. Res., 108, 4183, doi:10.1029/2001JD001409.
@@ -354,6 +379,8 @@ Donahue, N. M., et al. 2012: A two-dimensional volatility basis set – Part 2: 
 
 Fahey, K.M., A.G. Carlton, H.O.T. Pye, J. Baek, W.T. Hutzell, C.O. Stanier, K.R. Baker, K.W. Appel, M. Jaoui, J.H. Offenberg, 2017: A framework for expanding aqueous chemistry in the Community Multiscale Air Quality (CMAQ) model version 5.1, *Geosci. Model Dev.*, **10**, 1587-1605.
 
+Giorgi, F., 1986; A particle dry-deposition parameterization scheme for use in tracer transport models, J. Geophys. Res. 91(D9), 9794-9806
+
 Hertel O., R. Berkowicz, J. Christensen, and O. Hov, 1993: Test of two numerical schemes for use in atmospheric transport-chemistry models. Atmos. Environ., 27A, 2591–2611
 
 Jacobson, M., and R. P. Turco, 1994: SMVGEAR: A sparse-matrix, vectorized Gear code for atmospheric models. Atmos. Environ., 28, 2991–3003.
@@ -367,9 +394,13 @@ Leriche, M., Pinty, J.-P., Mari, C., and D. Gazen, 2013, A cloud chemistry modul
 Lim, H., Carlton, A. G., and B.J. Turpin, 2005, Isoprene forms secondary
 organic aerosol through cloud processing: model simulations. Environ. Sci. Technol., 39, 4441–4446.
 
+Massad, R.-S., E. Nimitz, M.A. Sutton, 2010: Review and parameterization of bi-directional ammonia exchange between vegetation and the atmosphere, Atmos. Chem. Phys., 10, 10359-10386
+
 Mathur, R. and L.K. Peters, 1990: Adjustment of wind fields for application in air pollution modeling, Atmos. Environ., 24(5), 1095-1106.
 
 Murphy, B. N., et al., 2017: Semivolatile POA and parameterized total combustion SOA in CMAQv5.2: impacts on source strength and partitioning. Atmospheric Chemistry and Physics Discussions, 2017: 1-44.
+
+Nimitz, E., C. Milford, M.A. Sutton, 2001: A two-layer canopy compensation point model for describing bi-directional biosphere-atmosphere exchange of ammonia. Q. J. Roy. Meteor. Soc. 127, 815-833
 
 Odman, M. T., and A. G. Russell, 2000: Mass conservative coupling of non-hydrostatic meteorological models with air quality models, in Air Pollution Modelling and Its Application XIII, edited by S.-E. Gryning and E. Batchvarova, pp. 651-660, Kluwer Academic/Plenum Publishers, New York.
 
@@ -400,10 +431,13 @@ Simon, H., and P.V. Bhave, P.V., 2012, Simulating the degree of oxidation in atm
 
 Skamarock, W.C., Klemp, J.B., Dudhia, J., Gill, D.O., Liu, Z., Berner, J., Wang, W., Powers, J.G., Duda, M.G., Barker, D.M., Huang, X.Y., A description of the advanced research WRF version 4. NCAR TECHNICAL NOTE, NCAR/TN–556+STR, March, 2019.
 
+Slinn, W.G.N., 1982: Predictions for particle deposition to vegetative canopies, Atmos. Environ., 16, 1785-1794
+
 Tan, Y., Perri, M.J., Seitzinger, S.P., and B.J. Turpin, 2009, Effects of Precursor Concentration and Acidic Sulfate in Aqueous Glyoxal-OH Radical Oxidation and Implications for Secondary Organic Aerosol. Env. Sci. Technol., 43, 8105–8112.
 
 Warneck, P., 1999, The relative importance of various pathways for the oxidation of sulfur dioxide and nitrogen dioxide in sunlit continental fair weather clouds.  Phys. Chem. Chem. Phys., 1, 5471-5483.
 
+Yi, C., 2008, Momentum transfer within canopies, J. App. Meteor. Clim., 47, 262-275
 
 <!-- BEGIN COMMENT -->
 
