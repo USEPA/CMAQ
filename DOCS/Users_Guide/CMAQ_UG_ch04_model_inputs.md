@@ -13,7 +13,7 @@ All CMAQ input and output files are conformed to I/O API netCDF file format. Ple
 
 
 ## 4.1 CMAQ Pre-processors 
-Figure [Figure 2-1](./images/Figure2-1.jpg) shows the relationship between CMAQ pre-processors and the main CMAQ program, the CMAQ Chemistry Transport Model (CCTM).  MCIP, ICON and BCON are included in the CMAQ repository and are used to create meteorological, initial conditions and boundary conditions inputs.  SMOKE, FEST-C and Spatial Allocator Tools are external software packages required for creating emissions inputs for CMAQ.  The following subsectiosn provide more information on these software and point the user to additional sources of documentation. 
+[Figure 2-1](./images/Figure2-1.jpg) shows the relationship between CMAQ pre-processors and the main CMAQ program, the CMAQ Chemistry Transport Model (CCTM).  MCIP, ICON and BCON are included in the CMAQ repository and are used to create meteorological, initial conditions and boundary conditions inputs.  SMOKE, FEST-C and Spatial Allocator Tools are external software packages required for creating emissions inputs for CMAQ.  The following subsections provide more information on these software and point the user to additional sources of documentation. 
 
 ### 4.1.1 Meteorology-Chemistry Interface Processor (MCIP)
 
