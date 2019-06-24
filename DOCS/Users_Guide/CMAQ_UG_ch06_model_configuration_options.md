@@ -28,11 +28,6 @@ grid definition file (GRIDDESC), which can be edited by the user.  Further detai
 ## 6.4 Science Configurations
 CCTM contains several science configurations for simulating transport, chemistry, and deposition. All of the science configuration options in CCTM, such as the chemical mechanism to be used, are set when compiling the executable. The model grid and vertical layer structure for CCTM are set at execution. The important distinction between selecting the science configuration and the model grid/layer configuration is that CCTM does not need to be recompiled when changing model grids/layers but does need to be recompiled when new science options are invoked.  The following sections describe how these science options can be utilized by configuring using the `bldit_cctm.csh` and `run_cctm.csh` scripts.  For the remainder of this chapter these files will be referred to as simply BuildScript and RunScript.
 
-**>>COMMENT<<** Each of the following sections should provide a brief description of the science process followed by the specific configuration options that need to be set in both the build script (BuildScript) and run script (RunScript). The information on these environment variables should be consistent with what is provided in Appendix A.  When specifying environment variable options please use the following syntax:
-```
-setenv ModDepv depv/m3dry
-```
-
 ## 6.5 Advection
 In CCTM, the 3-dimensional transport by mean winds (or advection) is numerically represented by sequentially solving locally-one dimensional equations for the two horizontal and vertical components. CMAQ uses the piecewise parabolic method (PPM) (Colella and Woodward, 1984) for representing tracer advection in each of the three directions. This algorithm is based on the finite-volume sub-grid definition of the advected scalar. In PPM, the sub-grid distribution is described by a parabola in each grid interval. PPM is a monotonic and positive-definite scheme. Positive-definite schemes maintain the sign of input values, which in this case means that positive concentrations will remain positive and cannot become negative.
 
@@ -134,7 +129,7 @@ Because CMAQ represents both primary and secondary pollutants, emissions are pro
 Depending on the nature of any stream and the information used to quantify its emissions, it may be treated as one of three types:
 
 #### Online Stream:
-CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams available for running Online in CMAQ are: biogenics (BEIS) [link], marine gas[link], lightning NO [link], wind-blown dust [link], and sea-spray[ link].
+CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams available for running Online in CMAQ are: [biogenics (BEIS)](#BEIS), [plume rise](#Plume_Rise),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
 
 #### Gridded Stream (offline):
 CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the grid CMAQ is running. Typically these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. Some common examples of Gridded emissions include:
@@ -195,11 +190,58 @@ setenv STK_EMIS_LAB_002 POINT_FIRES
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
 ### 6.9.2 Online Emission Streams
+<a id=BEIS></a>
 #### BEIS
+To calculate inline biogenic emissions, CMAQ uses the [Biogenic Emission Inventory System (BEIS)](https://www.epa.gov/air-emissions-modeling/biogenic-emission-inventory-system-beis). BEIS calculates emissons resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types.
+
+This biogenic model is based on the same model that is included in SMOKE. Before using the CMAQ inline version of BEIS users should confirm that biogenic emissions are not already included in their emissions files from SMOKE to avoide double counting biogenic emissions.  User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
+
+Need to add -- speciation information for BEIS is controlled in GSPRO file.
+
+The temporal allocation of the biogenic emissions is calculated inline when running CMAQ. However, the calculation of the gridded normalized emissions for winter and summer is a time-independent calculation and must be done with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ. 
+
+The user must either provide a BIOSEASON file for simulations that are not summer only or winter only (e.g., multiple seasons, spring, fall) or set the SUMMER_YN flag to Y for summer or N for winter. 
+
+Without the BIOSEASON file, all biogenic emissions will be calculated using summer factors or winter factors. Additionally, when using the inline biogenic option, the user must point to the SOILOUT file from one day’s simulation as the SOILINP file for the next day. The user must also decide whether to write over SOILOUT files from previous days or create a uniquely named SOILOUT file for each day. The latter approach is recommended if the user wishes to retain the capability to restart simulations in the middle of a sequence of simulations.
+
+<a id=Plume_Rise></a>
 #### Plume Rise 
+Plume rise can be calculated for large point sources. Plume rise can be calculated inline within CMAQ provided the emission files have been processed with SMOKE for inline processing. The NPTGRPS sets the number of “sectors” for which the user wishes to provide a stack_groups file and an inline emissions file. Optionally, the user can request 2 optional output diagnostic files that include a 3-D file of the emissions with plume rise included and a layer fractions (PLAY) file that includes the fractional amount of emission per model layer.
+
+<a id=Wind_Blown_Dust></a>
 #### Wind-Blown Dust
+The actual amount of dust emitted from an arid surface depends on wind speed, surface roughness, moisture content of the soil, vegetation coverage, soil type and texture, and air density.  The main mechanism behind strong dust storms is called “saltation bombardment” or “sandblasting.” The physics of saltation include the movement of sand particles due to wind, the impact of these particles to the surface that removes part of the soil volume, and the release of smaller dust particles. CMAQ first calculates friction velocity at the surface of the Earth. Once this friction velocity exceeds a threshold value, saltation, or horizontal movement, flux is obtained. Finally, the vertical flux of the dust is calculated based on a sandblasting efficiency formulation – a vertical-to-horizontal dust flux ratio. CMAQ uses satellite information from the Moderate Resolution Imaging Spectroradiometer or MODIS to obtain realistic time-varying vegetation coverage. The model obtains the values of soil moisture and wind speed from the meteorological model, WRF. Using the satellite data together with a newly developed relation for the surface roughness length, the effects of solid elements, such as pebbles, and vegetation non-erodible elements in local wind acceleration, drag partitioning, and protective coverage, is formulated in a consistent manner.
+
+Need to add -- speciation information for dust is controlled in aerodata
+
+<a id=Sea_Spray></a>
 #### Sea Spray
+Because sea spray particles are emitted during wave breaking and bubble bursting at the ocean surface, the main factor affecting the emission rate is the wind speed. The temperature of the ocean also affects bubble bursting and subsequent emission rate of sea spray particles. Wave breaking is enhanced near the surf zone just offshore, and CMAQ accounts for this by increasing sea spray particle emission rates in the surf zone.
+
+The current open ocean sea spray particle emission rate in CMAQ as described in Gantt et al. (2015) is based on Gong (2003) with a temperature dependence derived from Jaeglé et al. (2011) and Ovadnevaite et al. (2014) and an adjustment of Θ from 30 to eight to account for higher accumulation mode emissions.  The current surf zone sea spray particle emission rate in CMAQ as described in Gantt et al. (2015) is based on Kelly et al. (2010) with a reduction of the assumed surf zone width from 50 to 25 meters.
+
+Need to add -- speciation information for dust is controlled in aerodata
+
+<a id=Lightning_NO></a>
 #### Lightning NO
+In retrospective applications over the continental U.S., National Lightning Detection Network (NLDN) lightning data can be used directly to generate NO produced by lightning NO in CMAQ. For real-time forecasts where lightning data are not available, lightning NO is produced based on statistical relationships with the simulated convective rainfall rate.
+
+LTNGNO [default:InLine]
+
+Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating in-line lightning NO emissions.
+
+USE_NLDN [default: Y]
+
+Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file. Comment out or set to Y to turn on; set to N to turn off. If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.
+
+NLDN_STRIKES [default: None]
+
+Hourly NLDN lightning strike netCDF FILE. Required when LTNGNO is set to Inline and USE_NLDN is set to Y; otherwise ignore this setting.
+
+LTNGPARMS_FILE [default: None]
+
+Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to "InLine" and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file.
+
 
 ## 6.10 Gas Phase Chemistry
 ### 6.10.1 Gas Phase Chemical Mechanisms
@@ -379,20 +421,28 @@ Donahue, N. M., et al. 2012: A two-dimensional volatility basis set – Part 2: 
 
 Fahey, K.M., A.G. Carlton, H.O.T. Pye, J. Baek, W.T. Hutzell, C.O. Stanier, K.R. Baker, K.W. Appel, M. Jaoui, J.H. Offenberg, 2017: A framework for expanding aqueous chemistry in the Community Multiscale Air Quality (CMAQ) model version 5.1, *Geosci. Model Dev.*, **10**, 1587-1605.
 
-Giorgi, F., 1986; A particle dry-deposition parameterization scheme for use in tracer transport models, J. Geophys. Res. 91(D9), 9794-9806
+Gantt, B., Kelly, J.T., & Bash, J.O., 2015: Updating sea spray aerosol emissions in the Community Multiscale Air Quality (CMAQ) model version 5.0.2. *Geosci. Model Dev.*, **8**, 3733-3746. doi:10.5194/gmd-8-3733-201
+
+Giorgi, F., 1986: A particle dry-deposition parameterization scheme for use in tracer transport models, J. Geophys. Res. 91(D9), 9794-9806
+
+Gong, S.L., 2003: A parameterization of sea-salt aerosol source function for sub- and super-micron particles. *Global Biogeochem. Cy.*, 17. doi: 10.1029/2003gb002079 
+
 
 Hertel O., R. Berkowicz, J. Christensen, and O. Hov, 1993: Test of two numerical schemes for use in atmospheric transport-chemistry models. Atmos. Environ., 27A, 2591–2611
 
 Jacobson, M., and R. P. Turco, 1994: SMVGEAR: A sparse-matrix, vectorized Gear code for atmospheric models. Atmos. Environ., 28, 2991–3003.
 
+Jaeglé, L., Quinn, P.K., Bates, T.S., Alexander, B., & Lin, J.T., 2011: Global distribution of sea salt aerosols: new constraints from in situ and remote sensing observations. *Atmos. Chem. Phys.*, **11**, 3137–3157. doi: 10.5194/acp-11-3137-2011
+
 Jiang, W., S. Smyth, É. Giroux, H. Roth, and D. Yin, 2006: Differences between CMAQ fine mode particle and PM2.5concentrations and their impact on model performance evaluation in the lower Fraser valley. Atmos. Environ., 40, 4973–4985.
+
+Kelly, J.T., Bhave, P.V., Nolte, C.G., Shankar, U., & Foley, K.M., 2010: Simulating emission and chemical evolution of coarse sea-salt particles in the Community Multiscale Air Quality (CMAQ) model. *Geosci. Model Dev.*, **3**, 257-273. doi: 10.5194/gmd-3-257-2010EXIT
 
 Lee, Y.N. and S.E. Schwartz, 1983, Kinetics of oxidation of aqueous sulfur(IV) by nitrogen dioxide. In Precipitation Scavenging, Dry Deposition, and Resuspension, v1 , H.R. Pruppacher et al. (eds.), Elsevier, New York.
 
 Leriche, M., Pinty, J.-P., Mari, C., and D. Gazen, 2013, A cloud chemistry module for the 3-D cloud-resolving mesoscale model Meso-NH with application to idealized cases. Geosci. Mod. Dev., 6, 1275-1298.
 
-Lim, H., Carlton, A. G., and B.J. Turpin, 2005, Isoprene forms secondary
-organic aerosol through cloud processing: model simulations. Environ. Sci. Technol., 39, 4441–4446.
+Lim, H., Carlton, A. G., and B.J. Turpin, 2005, Isoprene forms secondary organic aerosol through cloud processing: model simulations. Environ. Sci. Technol., 39, 4441–4446.
 
 Massad, R.-S., E. Nimitz, M.A. Sutton, 2010: Review and parameterization of bi-directional ammonia exchange between vegetation and the atmosphere, Atmos. Chem. Phys., 10, 10359-10386
 
@@ -403,6 +453,8 @@ Murphy, B. N., et al., 2017: Semivolatile POA and parameterized total combustion
 Nimitz, E., C. Milford, M.A. Sutton, 2001: A two-layer canopy compensation point model for describing bi-directional biosphere-atmosphere exchange of ammonia. Q. J. Roy. Meteor. Soc. 127, 815-833
 
 Odman, M. T., and A. G. Russell, 2000: Mass conservative coupling of non-hydrostatic meteorological models with air quality models, in Air Pollution Modelling and Its Application XIII, edited by S.-E. Gryning and E. Batchvarova, pp. 651-660, Kluwer Academic/Plenum Publishers, New York.
+
+Ovadnevaite, J., Manders, A., de Leeuw, G., Ceburnis, D., Monahan, C., Partanen, A.-I., Korhonen, H., & O'Dowd, C. D., 2014: A sea spray aerosol flux parameterization encapsulating wave state. *Atmos. Chem. Phys.*, **14**, 1837-1852. doi: 10.5194/acp-14-1837-2014
 
 Pleim J.; Venkatram, A.; Yamartino, R. ADOM/TADAP Model Development Program: The Dry
 Deposition Module; Ontario Ministry of the Environment: Rexdale, Canada, 1984; Volume 4.
