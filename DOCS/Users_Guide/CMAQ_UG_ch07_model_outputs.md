@@ -236,7 +236,7 @@ This optional 3-D CCTM file contains detailed inputs and results from the photol
 ### CTM_SSEMIS_1: Sea salt emissions diagnostic file
 [Return to Table 7-1](#ssemis_t)
 
-This optional 2-D CCTM hourly output file contains calculated sea salt emissions. This file is only created if the CTM_SSEMDIAG environment variable is set to Y (Default is N).
+This optional 2-D CCTM hourly output file contains calculated sea salt emissions (g/s). This file is only created if the CTM_SSEMDIAG environment variable is set to Y (Default is N).
 
 <a id=wetdep2></a>
 ### CTM_WETDEP_2: CCTM cloud diagnostics file
