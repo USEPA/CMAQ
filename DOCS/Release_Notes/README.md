@@ -9,7 +9,7 @@ CMAQv5.3 Release Notes
 
 # Summary of CMAQv5.3 Updates
 
-The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a major update to CMAQ. CMAQv5.3 includes several changes to the science algorithms in the base model (CCTM), as well as updates to instrumented models, pre-processors, post-processors, utilities, and tools. CMAQ v5.3 was developed by the U.S. EPA with contributions from other research partners.  The main enhancements to the CMAQ modeling system since the previous release (CMAQ v5.2.1) are summarized below.
+The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a major update to CMAQ. CMAQv5.3 includes several changes to the science algorithms in the base model (CCTM), as well as updates to instrumented models, pre-processors, post-processors, utilities, and tools. CMAQv5.3 was primarily developed by the U.S. EPA, and it includes contributions from research partners.  The enhancements to the CMAQ modeling system since the previous release (CMAQv5.2.1) are summarized below.
 
 <a id="chemistry"></a>
 ## Chemistry
