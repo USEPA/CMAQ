@@ -1,7 +1,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch11_ISAM.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)
+[<< Previous Chapter](CMAQ_UG_ch11_ISAM.md) - [Home](README.md) 
 
 <!-- END COMMENT -->
 
@@ -70,7 +70,7 @@ The output concentration and deposition files will include additional species be
  [Shawn Roselle](mailto:roselle.shawn@epa.gov), Atmospheric Modeling and Analysis Division, U.S. EPA
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch11_ISAM.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)<br>
+[<< Previous Chapter](CMAQ_UG_ch11_ISAM.md) - [Home](README.md) <br>
 CMAQ User's Guide (c) 2019<br>
 
 <!-- END COMMENT -->
