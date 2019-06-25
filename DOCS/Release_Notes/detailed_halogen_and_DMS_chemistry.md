@@ -1,4 +1,4 @@
-# Detailed halogen and DMS chemistry with CB6r3
+# Adding detailed halogen and DMS chemistry to CB6r3
 
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
