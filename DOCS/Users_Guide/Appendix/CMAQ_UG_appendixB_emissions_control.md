@@ -7,8 +7,9 @@
 * * *
 
 # Appendix B: Emissions Input and Control
-[Jump to DESID Tutorial](../Tutorials/CMAQ_Emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
-[Jump to DESID overview](CMAQ_UG_ch04_model_formulation.md) in Chapter 4 of this User's Guide.
+[Jump to DESID Tutorial](../Tutorials/CMAQ_UG_appendixB_emissions_control.md) for step by step instructions on performing some basic manipulation of emission streams.
+
+[Jump to Emissions overview](../CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
 
 ## B.1 Emissions Control with the Detailed Emissions Scaling, Isolation and Diagnostics Module (DESID)
 
@@ -60,7 +61,7 @@ The Emission Control Namelists provided with the CMAQ repo have default rules in
 Many rules are needed here in order to properly link every emitted pollutant to a CMAQ species. Rules are needed for gas- and aerosol-phase species. Additional rules also exist for online aerosol modules like wind-blown dust and sea spray because the names of aerosol surrogates from these modules are different than those typically used for SMOKE output. For example, fine-mode aerosol sulfate is commonly called PSO4 in SMOKE, but is PMFINE_SO4 from dust and sea spray.
 
 ### B.3.2 Modifying Default rules
-The user can modify any default rule in order to change the scale factor applied. Alternatively, the user can add new rules after the default rules in order to customize the emissions. Typical modifications may include multiplying the emissions of a particular species from a particular stream by a factor of 2, zeroing out emissions of all species from a particular stream, etc. Please see the tutorial on [Prescribing Emissions with DESID](../Tutorials/CMAQ_Emissions.md) for specific examples of modifications and the syntax used to invoke them.
+The user can modify any default rule in order to change the scale factor applied. Alternatively, the user can add new rules after the default rules in order to customize the emissions. Typical modifications may include multiplying the emissions of a particular species from a particular stream by a factor of 2, zeroing out emissions of all species from a particular stream, etc. Please see the tutorial on [Prescribing Emissions with DESID](../Tutorials/CMAQ_UG_appendixB_emissions_control.md) for specific examples of modifications and the syntax used to invoke them.
 
 #### B.3.2.1 Supporting the Volatility Basis Set
 The *Volatility Basis Set* for treating the semivolatile partitioning of primary organic emissions is an example of a model feature that is well-supported by DESID. The approach involves distributing the emissions of total primary organic aerosol (carbon and noncarbon mass, or POC and PNCOM) among a series of aerosol and gas species of varying volatility.
