@@ -36,7 +36,7 @@ echo 'Start Model Run At ' `date`
  set VRSN      = v53               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = SE52BENCH         #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2011_12SE1  #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
@@ -54,7 +54,7 @@ echo 'Start Model Run At ' `date`
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
- setenv INPDIR  /work/MOD3DATA/SE52BENCH  #Input Directory
+ setenv INPDIR  /work/MOD3DATA/2011_12SE1  #Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -108,7 +108,7 @@ setenv PRINT_PROC_TIME Y           #> Print timing for all science subprocesses 
 setenv STDOUT T                    #> Override I/O-API trying to write information to both the processor 
                                    #>   logs and STDOUT [ options: T | F ]
 
-setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
+setenv GRID_NAME 2011_12SE1        #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
 
 #> Retrieve the number of columns, rows, and layers in this simulation
