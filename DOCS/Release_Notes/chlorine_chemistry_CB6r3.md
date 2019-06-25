@@ -1,6 +1,6 @@
-# Updates to the chlorine chemistry in CB6r3 mechanisms in CMAQv5.3
+# Updates to the chlorine chemistry in CB6r3 in CMAQv5.3
 
-**Author/P.O.C.:** [Deborah Luecken](mailto:luecken.deborah@epa.gov), Computational Exposure Division, U.S. EPA
+[Deborah Luecken](mailto:luecken.deborah@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
 
