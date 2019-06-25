@@ -3,6 +3,8 @@
 
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
+**>>COMMENT<<**  I made a handful of changes.  I'm a bit confused by all of the related halogen entries.  Do they all need their own separate release notes, or can this body of work be combined into a single release note?  It seems like we did this work incrementally through our build process, but realistically they do not seem to be so separate that they cannot be combined.  Similar comments will apply to the aerosol line of research.  TLS 25 Jun 2019
+
 ## Brief Description
 Halogen chemistry can be an important sink for ozone over oceanic areas from interactions with sea spray. A simple halogen-mediated first-order ozone loss was initially developed by using hemispheric CMAQ results obtained with and without detailed bromine/iodine chemistry for summer months. The detailed bromine/iodine chemistry has recently been updated and hemispheric model simulations were completed with and without the updated bromine/iodine chemistry for an entire year. The simple halogen-mediated first-order ozone loss is developed using the annual hemispheric CMAQ results obtained with and without full bromine/iodine chemistry. The revised halogen-mediated first-order rate constant for ozone loss (units=s<sup>-1</sup>) as a function of atmospheric pressure P (units=atm) is:  
 
