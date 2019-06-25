@@ -50,7 +50,7 @@ CMAQv5.3 introduces aero7 and aero7i. Aero6, available in previous versions of C
  * [Changed ACM cloud model to use Z-coordinates](Z-coords%20for%20ACMcloud.md)
  
 ## Air-Surface Exchange
- * [New NH3 bi-directional flux linked to daily EPIC input](M3dry-Bidi.md)
+ * [New NH<sub>3</sub> bi-directional flux linked to daily EPIC input](M3dry-Bidi.md)
  * [STAGE: Surface Tiled Aerosol and Gaseous Exchange dry deposition option](stage_overview.md)
  * [Minor updates to air-surface exchange options](asx_run_options.md)
 
@@ -68,7 +68,7 @@ CMAQv5.3 introduces aero7 and aero7i. Aero6, available in previous versions of C
  * [Moved PHOT to Sciproc](move_phot_to_sciproc.md)
  * [Standardized Units for Output Variables](output_units.md)
 
-## Diagnostic
+## Diagnostic Options
  * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
 
 ## Pre-processors, Post-processors, Tools, and Utilities
