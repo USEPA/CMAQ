@@ -190,19 +190,6 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE SA_WRAP_AE
 #endif
-!         SUBROUTINE STM_WRAP_GAS( CGRID, JDATE, JTIME, AFTER )
-!            IMPLICIT NONE
-!            REAL, POINTER             :: CGRID( :,:,:,: )
-!            INTEGER, INTENT( IN )     :: JDATE
-!            INTEGER, INTENT( IN )     :: JTIME
-!            LOGICAL, INTENT( IN )     :: AFTER
-!         END SUBROUTINE STM_WRAP_GAS
-!         SUBROUTINE STM_WRAP_AE( CGRID, JDATE, JTIME )
-!            IMPLICIT NONE
-!            REAL, POINTER             :: CGRID( :,:,:,: )
-!            INTEGER, INTENT( IN )     :: JDATE
-!            INTEGER, INTENT( IN )     :: JTIME
-!         END SUBROUTINE STM_WRAP_AE
       END INTERFACE
   
 C-----------------------------------------------------------------------
