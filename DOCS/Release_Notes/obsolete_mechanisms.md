@@ -2,6 +2,8 @@
 
 [Deborah Luecken](mailto:luecken.deborah@epa.gov), U.S. Environmental Protection Agency
 
+**>>COMMENT<<** I made some minor changes.  There is another minor comment within.  Otherwise, this one is in good shape.  TLS 25 Jun 2019
+
 ## Brief Description
 
 CMAQv5.3 does not include several mechanisms and variants of mechanisms that were available in CMAQv5.2.1. As older mechanisms are replaced with updated versions in CMAQ, we recommend that users migrate to mechanisms that are more consistent with our current understanding of atmospheric chemistry and the types of applications for which air quality models are applied.  
