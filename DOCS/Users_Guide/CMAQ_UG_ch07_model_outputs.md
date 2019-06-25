@@ -17,38 +17,38 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |----------------------------|------|----|-----------------------------------|
 |**Standard**| | | |
 |[Output Log](#cmaq_output_log) <a id=cmaq_output_log_t></a>|ASCII|n/a|n/a
-|[CTM_CONC_1](#conc)<a id=conc_t></a>|GRDDED3|Hourly|X * Y * Z
-|[A_CONC_1](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_DRY_DEP_1](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_WETDEP_1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly|X * Y * 1
+|[CTM_CONC_1](#conc)<a id=conc_t></a>|GRDDED3|Hourly|XYZ
+|[A_CONC_1](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|XY
+|[CTM_DRY_DEP_1](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly|XY
+|[CTM_WETDEP_1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly|XY
 |**Restart**| | | |
-|[S_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|1-hour|X * Y * Z
-|[MEDIA_CONC](#media)<a id=media_t></a>|GRDDED3|Hourly|X * Y * 1
-|[SOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|Hourly|X * Y * 1
+|[S_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|1-hour|XYZ
+|[MEDIA_CONC](#media)<a id=media_t></a>|GRDDED3|Hourly|XY
+|[SOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|Hourly|XY
 |**Diagnostic and Advanced**| | | |
-|[CTM_PMDIAG_1](#pmdiag) <a id=pmdiag_t></a>|GRDDED3|Hourly|X * Y * Z
-|[CTM_APMDIAG_1](#apmdiag) <a id=apmdiag_t></a>|GRDDED3|Hourly|X * Y * Z'
-|[B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly| X * Y * 1]
-|[CTM_DEPV_DIAG](#depv) <a id=depv_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_PT3D_DIAG](#pt3d) <a id=pt3d_t></a>|GRDDED3|Hourly|X * Y * Z
-|[CTM_DUST_EMIS_1](#dust) <a id=dust_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_DEPV_MOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly|X * Y * W
-|[CTM_DEPV_FST](#depv_fst) <a id=depv_fst_t></a>|GRDDED3|Hourly|X * Y * W
-|[CTM_DRY_DEP_MOS](#dry_dep_mos) <a id=dry_dep_mos_t></a>|GRDDED3|Hourly|X * Y * W
-|[CTM_DRY_DEP_FST](#dry_dep_fst) <a id=dry_dep_fst_t></a>|GRDDED3|Hourly|X * Y * W
-|[CTM_VDIFF_DIAG](#vdiff_diag) <a id=vdiff_diag_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_VSED_DIAG](#vsed_diag)<a id=vsed_diag_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_LTNGDIAG_1](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly|X * Y * Z
-|[CTM_LTNGDIAG_2](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_RJ_1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_RJ_2](#ctm_rj_2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly|X * Y * Z'
-|[CTM_RJ_3](#ctm_rj_3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly|X * Y * Z'
-|[CTM_SSEMIS_1](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_WETDEP_2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly|X * Y * 1
-|[CTM_VEXT_1](#vext) <a id=vext_t></a>|GRDDED3|Hourly|X * Y * Z
+|[CTM_PMDIAG_1](#pmdiag) <a id=pmdiag_t></a>|GRDDED3|Hourly|XYZ
+|[CTM_APMDIAG_1](#apmdiag) <a id=apmdiag_t></a>|GRDDED3|Hourly|XYZ'
+|[B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly| XY
+|[CTM_DEPV_DIAG](#depv) <a id=depv_t></a>|GRDDED3|Hourly|XY
+|[CTM_PT3D_DIAG](#pt3d) <a id=pt3d_t></a>|GRDDED3|Hourly|XYZ
+|[CTM_DUST_EMIS_1](#dust) <a id=dust_t></a>|GRDDED3|Hourly|XY
+|[CTM_DEPV_MOS](#depv_mos) <a id=depv_mos_t></a>|GRDDED3|Hourly|XYW
+|[CTM_DEPV_FST](#depv_fst) <a id=depv_fst_t></a>|GRDDED3|Hourly|XYW
+|[CTM_DRY_DEP_MOS](#dry_dep_mos) <a id=dry_dep_mos_t></a>|GRDDED3|Hourly|XYW
+|[CTM_DRY_DEP_FST](#dry_dep_fst) <a id=dry_dep_fst_t></a>|GRDDED3|Hourly|XYW
+|[CTM_VDIFF_DIAG](#vdiff_diag) <a id=vdiff_diag_t></a>|GRDDED3|Hourly|XY
+|[CTM_VSED_DIAG](#vsed_diag)<a id=vsed_diag_t></a>|GRDDED3|Hourly|XY
+|[CTM_LTNGDIAG_1](#ltngdiag1) <a id=ltngdiag1_t></a>|GRDDED3|Hourly|XYZ
+|[CTM_LTNGDIAG_2](#ltngdiag2) <a id=ltngdiag2_t></a>|GRDDED3|Hourly|XY
+|[CTM_RJ_1](#ctm_rj_1) <a id=ctm_rj1_t></a>|GRDDED3|Hourly|XY
+|[CTM_RJ_2](#ctm_rj_2) <a id=ctm_rj2_t></a>|GRDDED3|Hourly|XYZ'
+|[CTM_RJ_3](#ctm_rj_3) <a id=ctm_rj3_t></a>|GRDDED3|Hourly|XYZ'
+|[CTM_SSEMIS_1](#ssemis) <a id=ssemis_t></a>|GRDDED3|Hourly|XY
+|[CTM_WETDEP_2](#wetdep2) <a id=wetdep2_t></a>|GRDDED3|Hourly|XY
+|[CTM_VEXT_1](#vext) <a id=vext_t></a>|GRDDED3|Hourly|WZ
 
  *1. While "Hourly" is indicated, users may define a different time step (e.g. 30 minutes) for model output by changing the TSTEP variable in the runscript. From here onward, the term "Hourly" will be used for description purposes.    
- ** 2. X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension (ragne from 1 to all layers) and W is a non layer dimension, e.g. number of LU fractions.    
+ ** 2. X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension (range from 1 to all layers) and W is a non layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.    
  *** 3. A special ASCII output file, FLOOR_xxx with xxx being the processor number, contains information when a simulation results in negative concentrations. 
 
 ## 7.1 CCTM Output Files
@@ -248,7 +248,7 @@ In CMAQ, wet deposition is calculated separately for resolved (grid-scale) cloud
 ### CTM_VEXT_1
 [Return to Table 7-1](#vext_t)
 
-This optional 3-D CCTM file contains vertical profiles of the concentration of multiple chemical species for latitude / longitude coordinates specified in the VERTEXT_COORD_PATH file. The species written to this output file are identical to those written to the 3D CONC file which in turn are controlled either by the setting of CONC_SPCS in the run script or the last column in the GC, AE, NR, and TR namelist files. This file is only created if the VERTEXT environment variable is set to Y (Default is N).
+This optional 3-D CCTM file contains vertical profiles of the concentration of multiple chemical species for latitude / longitude coordinates specified in the VERTEXT_COORD_PATH file. The species written to this output file are identical to those written to the 3D CONC file which in turn are controlled either by the setting of CONC_SPCS in the run script or the last column in the GC, AE, NR, and TR namelist files. There is one row for each location specified. The coordinates for each location are echoed in the file metadata in the "history" field. This file is only created if the VERTEXT environment variable is set to Y (Default is N).
 
 [<< Previous Chapter](CMAQ_UG_ch06_model_configuration_options.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch08_analysis_tools.md)<br>
 CMAQ User's Guide (c) 2019<br>
