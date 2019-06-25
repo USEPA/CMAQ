@@ -224,7 +224,7 @@ Need to add -- speciation information for dust is controlled in aerodata
 
 <a id=Lightning_NO></a>
 #### Lightning NO
-In retrospective applications over the continental U.S., National Lightning Detection Network (NLDN) lightning data can be used directly to generate NO produced by lightning NO in CMAQ. For real-time forecasts where lightning data are not available, lightning NO is produced based on statistical relationships with the simulated convective rainfall rate.
+In retrospective applications over the continental U.S., National Lightning Detection Network (NLDN) lightning data can be used directly to generate NO produced by lightning NO in CMAQ. For real-time forecasts where lightning data are not available, lightning NO is produced based on statistical relationships with the simulated convective rainfall rate (Kang et al., 2019).
 
 There are three options for including NO from lighting.
 
@@ -465,6 +465,8 @@ Jacobson, M., and R. P. Turco, 1994: SMVGEAR: A sparse-matrix, vectorized Gear c
 Jaeglé, L., Quinn, P.K., Bates, T.S., Alexander, B., & Lin, J.T., 2011: Global distribution of sea salt aerosols: new constraints from in situ and remote sensing observations. *Atmos. Chem. Phys.*, **11**, 3137–3157. doi: 10.5194/acp-11-3137-2011
 
 Jiang, W., S. Smyth, É. Giroux, H. Roth, and D. Yin, 2006: Differences between CMAQ fine mode particle and PM2.5concentrations and their impact on model performance evaluation in the lower Fraser valley. Atmos. Environ., 40, 4973–4985.
+
+Kang, D., Pickering, K., Allen, D., Foley, K., Wong, D., Mathur, R., & Roselle, S. (2019). Simulating Lightning NOX Production in CMAQv5.2: Evolution of Scientific Updates. *Geosci. Model Dev. Discuss.*, 2019, 1-23.  doi: https://doi.org/10.5194/gmd-2019-33
 
 Kelly, J.T., Bhave, P.V., Nolte, C.G., Shankar, U., & Foley, K.M., 2010: Simulating emission and chemical evolution of coarse sea-salt particles in the Community Multiscale Air Quality (CMAQ) model. *Geosci. Model Dev.*, **3**, 257-273. doi: 10.5194/gmd-3-257-2010EXIT
 
