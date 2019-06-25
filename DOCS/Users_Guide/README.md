@@ -36,8 +36,6 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Chapter 12 (Sulfur Tracking):](CMAQ_UG_ch12_sulfur_tracking.md) Instrumented Models - Sulfur Tracking Model (STM).
 
-[Chapter 13 (WRF-CMAQ):](CMAQ_UG_ch13_WRF-CMAQ.md) Coupled meteorology-chemistry model WRF-CMAQ.
-
 [Tables and Figures:](CMAQ_UG_tables_figures.md) List of Tables and Figures.
 
 [Appendix A (Model Options):](Appendix/CMAQ_UG_appendixA_model_options.md) List of model options in configuration, compilation and run scripts.
