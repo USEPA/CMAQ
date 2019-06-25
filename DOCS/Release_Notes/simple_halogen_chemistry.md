@@ -1,20 +1,21 @@
 
-# Halogen mediated first order ozone loss is revised for all mechanisms
+# Revision of halogen-mediated first-order ozone loss (all mechanisms)
 
-**Author/P.O.C.:** [Golam Sarwar](mailto:sarwar.golam@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-A simple halogen mediated first order ozone loss was previously developed by using hemispheric CMAQ results obtained without and with detailed bromine/iodine chemistry for summer months. The detailed bromine/iodine chemistry has recently been updated and hemispheric model simulations were completed without and with the updated bromine/iodine chemistry for an entire year. The simple halogen mediated first order ozone loss is developed using the annual hemispheric CMAQ results obtained without and with full bromine/iodine chemistry. The revised halogen mediated first-order rate constant for ozone loss (units= 1/s) as a function of atmospheric pressure P (units=atm):  
+Halogen chemistry can be an important sink for ozone over oceanic areas from interactions with sea spray. A simple halogen-mediated first-order ozone loss was initially developed by using hemispheric CMAQ results obtained with and without detailed bromine/iodine chemistry for summer months. The detailed bromine/iodine chemistry has recently been updated and hemispheric model simulations were completed with and without the updated bromine/iodine chemistry for an entire year. The simple halogen-mediated first-order ozone loss is developed using the annual hemispheric CMAQ results obtained with and without full bromine/iodine chemistry. The revised halogen-mediated first-order rate constant for ozone loss (units=s<sup>-1</sup>) as a function of atmospheric pressure P (units=atm) is:  
 
 ![rate_constant](first_order_rate_constant_for_ozone_loss.jpg)
 
-It is applied to grid-cells over oceanic areas.
+These reactions are applied to grid-cells over oceanic areas.
  
 ## Significance and Impact
-Model sensitivity runs were completed with the existing and updated simple first order ozone loss (continental US domain) for a 10-day period in summer. The updated simple first order ozone loss reduces average ozone by up to 4.0 ppbv over seawater and by up to 2.0 ppbv over some coastal areas. No impact on model run time.
+Model sensitivity runs were completed with the existing and updated simple first order ozone loss (continental US domain) for a 10-day summer period. The updated simple first-order ozone loss reduces average ozone by up to 4.0 ppbv over sea water and by up to 2.0 ppbv over some coastal areas. There is no impact on model run time.
 
+**>>COMMENT<<** The figure caption seems to be wrapping with the figure rather than starting on the line below it. TLS 25 Jun 2019
 ![Ozone](simple_halogen_ozone_impact.jpg) 
-Figure 1: Impact of updated simple first order ozone loss.
+Figure 1: Impact of updated simple first-order ozone loss.
 
 
 
@@ -71,7 +72,8 @@ UTIL/chemmech/src/wrt_reactions_module.f
 
 
 ## References
-1.	Sarwar, G.; Gantt, B.; Schwede, D.; Foley, K.; Mathur, M.; Saiz-Lopez, A., 2015: Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, Environmental Science & Technology, 49(15):9203-9211.
+**>>COMMENT<<** Do we also want to include Sarwar et al. (2019) here?  TLS 25 Jun 2019
+Sarwar, G.; Gantt, B.; Schwede, D.; Foley, K.; Mathur, R.; Saiz-Lopez, A., 2015: Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, _Environmental Science & Technology_, **49**(15):9203-9211.
 
 -----
 ## Internal Records:
