@@ -8,7 +8,7 @@ Halogen chemistry can be an important sink for ozone over oceanic areas from int
 
 ![rate_constant](first_order_rate_constant_for_ozone_loss.jpg)
 
-These reactions are applied to grid-cells over oceanic areas.
+These reactions are applied to grid cells over oceanic areas.
  
 ## Significance and Impact
 **>>COMMENT<<** Is this "average ozone" a daily average, an average daily maximum, or an average for the 10-day period?
