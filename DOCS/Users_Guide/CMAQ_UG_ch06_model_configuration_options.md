@@ -33,11 +33,11 @@ In CCTM, the 3-dimensional transport by mean winds (or advection) is numerically
 
 Mass consistency is a key desired attribute in tracer advection. Data consistency is maintained for air quality simulations by using dynamically and thermodynamically consistent meteorology data from WRF/MCIP. Mass inconsistencies can nevertheless arise either through the use of different grid configurations (horizontal or vertical) or due to differing numerical advection schemes between the driving meteorological model and the CCTM. While inconsistencies due to the former can be eliminated through use of the same grid configurations (thus, layer collapsing is not recommended), some inconsistencies can still remain due to differing numerical representations for satisfying the mass-continuity equation between the driving meteorological model and the CCTM. These mass-inconsistencies manifest as first order terms (whose magnitude can often be comparable to tracer lifetimes if continuity is not satisfied with high accuracy) that can artificially produce or destroy mass during 3D tracer advection (e.g., Mathur and Peters, 1990).
 
-CMAQ has two options that minimize mass consistency errors in tracer advection. In one scheme, that was first implemented in CMAQv4.5 and later improved for CMAQv4.7.1, designated “yamo” in the BLD  script, CMAQ  advects air density and re-diagnoses the vertical velocity field according to the layer-by-layer mass continuity equation which guarantees that the CCTM advected density matches that derived from the driving meteorological inputs (e.g., Odman and Russell, 2000). Briefly, x- and y-advection are first performed (the order of these is reversed every step to minimize aliasing errors) to yield intermediate tracer and density fields. The intermediate density field is then subject to vertical advection with the PPM scheme such that it yields the WRF derived density field at the end of the advection time-step. This scheme results in an estimated vertical velocity field that is minimally adjusted relative to the WRF derived field in the lower model layers but yields strict mass-consistent tracer advection in CMAQ.  A drawback to this approach is that erroneous noise in the diagnosed vertical velocity field accumulates toward the top of the model with non-zero velocity and mass flux across the top boundary.  The noise in the vertical velocity field causes excessive diffusion in upper layers.  Therefore, starting in CMAQv5.0, a new scheme was implemented, designated “wrf”, that closely follows the vertical velocity calculation in WRF.  This scheme solves the vertically integrated mass continuity equation such that the collunm integrated horizontal mass divergence is balanced by the net change in column mass (Skamarock et al, 2019).  An advantage of this scheme is that the diagnosed vertical velocity agrees more closely with the WRF vertical velocity field with zero velocity and mass flux across the upper model boundary.  Thus, the spurious velocity noise and excessive diffusion in the upper layer are eliminated.  The main drawback of this scheme is that mass conservation is not guaranteed so density must be updated from the meteorology inputs every timestep.  
+CMAQ has two options that minimize mass consistency errors in tracer advection. In one scheme, that was first implemented in CMAQv4.5 and later improved for CMAQv4.7.1, designated “yamo” in the BuildScript, CMAQ  advects air density and re-diagnoses the vertical velocity field according to the layer-by-layer mass continuity equation which guarantees that the CCTM advected density matches that derived from the driving meteorological inputs (e.g., Odman and Russell, 2000). Briefly, x- and y-advection are first performed (the order of these is reversed every step to minimize aliasing errors) to yield intermediate tracer and density fields. The intermediate density field is then subject to vertical advection with the PPM scheme such that it yields the WRF derived density field at the end of the advection time-step. This scheme results in an estimated vertical velocity field that is minimally adjusted relative to the WRF derived field in the lower model layers but yields strict mass-consistent tracer advection in CMAQ.  A drawback to this approach is that erroneous noise in the diagnosed vertical velocity field accumulates toward the top of the model with non-zero velocity and mass flux across the top boundary.  The noise in the vertical velocity field causes excessive diffusion in upper layers.  Therefore, starting in CMAQv5.0, a new scheme was implemented, designated “wrf”, that closely follows the vertical velocity calculation in WRF.  This scheme solves the vertically integrated mass continuity equation such that the collunm integrated horizontal mass divergence is balanced by the net change in column mass (Skamarock et al, 2019).  An advantage of this scheme is that the diagnosed vertical velocity agrees more closely with the WRF vertical velocity field with zero velocity and mass flux across the upper model boundary.  Thus, the spurious velocity noise and excessive diffusion in the upper layer are eliminated.  The main drawback of this scheme is that mass conservation is not guaranteed so density must be updated from the meteorology inputs every timestep.  
 
 The **“WRF”** option is the recommended configuration for CMAQv5.3.
 
-To invoke the "WRF" option in 3-D advection, the build script has to set the following within the CCTM Science Modules section:
+To invoke the "WRF" option in 3-D advection, the BuildScript has to set the following within the CCTM Science Modules section:
 
 ```
 set ModDriver = driver/wrf
@@ -45,7 +45,7 @@ set ModCpl    = couple/gencoor_wrf
 set ModHadv   = hadv/ppm  
 set ModVadv   = vadv/wrf
 ```
-To invoke the "YAMO" option in 3-D advection, the build script has to set the following within the CCTM Science Modules section: 
+To invoke the "YAMO" option in 3-D advection, the BuildScript has to set the following within the CCTM Science Modules section: 
 ```
 set ModDriver = driver/yamo
 set ModCpl    = couple/gencoor
@@ -58,7 +58,7 @@ Horizontal diffusion is implemented with a single eddy diffusion algorithm that 
 ## 6.7 Vertical Diffusion
 The vertical diffusion model in CMAQ is the Asymmetrical Convective Model Version 2 (ACM2) (Pleim 2007a,b).  The ACM2 is a combined local and non-local closure PBL scheme that is implemented in CMAQ, WRF, and MPAS for consistent PBL transport of meteorology and chemistry.  Thus, it is recommended that the ACM2 option in WRF or MPAS also be used when preparing meteorology for CMAQ.  
 
-There are two options for the ACM2 model in the build script that are compatible with either the M3Dry or STAGE dry deposition options.  
+There are two options for the ACM2 model in the BuildScript that are compatible with either the M3Dry or STAGE dry deposition options.  
 
 When running m3dry dry deposition:
 
@@ -280,7 +280,7 @@ The CMAQ modeling system accounts for chemistry in three phases: a gas phase, ae
 Gas-phase chemical mechanisms are defined in CMAQ through Fortran source files. Located in subdirectories of the CCTM/src/MECHS directory (each corresponding to a mechanism name), these files define the source, reaction parameters, and atmospheric processes (e.g., diffusion, deposition, advection) of the various mechanism species. The species definitions for each mechanism are contained in namelist files that are read in during execution of the CMAQ programs. The CMAQ mechanism configuration is more similar to the science module configuration than to the horizontal grid or vertical layer configuration in that the mechanism is defined at compilation, resulting in executables that are hard-wired to a specific gas-phase mechanism. To change chemical mechanisms between simulations, a new executable that includes the desired mechanism configuration must be compiled.
 
 #### Using predefined chemical mechanisms
-To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to one of the mechanism names listed in [Table 6-1](#Table6-1). 
+To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the BuildScript to one of the mechanism names listed in [Table 6-1](#Table6-1). 
 
 ```
  set Mechanism = MECHANISM_NAME
@@ -309,13 +309,13 @@ Chemical Mechanisms available with CMAQv5.3 can be found in [Table 6-1](#Table6-
 
 
 ### 6.10.2 Solvers
-To solve the photochemistry, the model uses one of three numerical methods or solvers. They differ by accuracy, generalization, and computational efficiency, i.e. model run times. Options include Euler Backward Iterative (EBI) solver (Hertel et al., 1993),  Rosenbrock (ROS3) solver (Sandu et al., 1997), and Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). The EBI solver is default method because it is the fastest but is less accurate and must be _tailored_ for each mechanism. The build script defines which EBI solver to use as below.   
+To solve the photochemistry, the model uses one of three numerical methods or solvers. They differ by accuracy, generalization, and computational efficiency, i.e. model run times. Options include Euler Backward Iterative (EBI) solver (Hertel et al., 1993),  Rosenbrock (ROS3) solver (Sandu et al., 1997), and Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). The EBI solver is default method because it is the fastest but is less accurate and must be _tailored_ for each mechanism. The BuildScript defines which EBI solver to use as below.   
 
 ```
  set ModGas    = gas/ebi_${Mechanism} 
 ``` 
  
-If a user creates new FORTRAN modules representing the photochemical mechanism or modifies the existing modules, they have to create a new EBI solver by the using the create_ebi utility.  Documentation on compiling and running create_ebi is available under the [UTIL/create_ebi](../../UTIL/create_ebi/README.md) folder. The remaining two solvers, SMVGEAR and ROS3, are more accurate and less prone to convergence errors. Both methods are labeled as “generalized” because they only require the mechanism’s namelist and FORTRAN modules representing the photochemical mechanism. Rosenbrock is preferred over SMVGEAR because it several times faster. To use either SMVGEAR and ROS3, the build script defines ModGas as below. 
+If a user creates new FORTRAN modules representing the photochemical mechanism or modifies the existing modules, they have to create a new EBI solver by the using the create_ebi utility.  Documentation on compiling and running create_ebi is available under the [UTIL/create_ebi](../../UTIL/create_ebi/README.md) folder. The remaining two solvers, SMVGEAR and ROS3, are more accurate and less prone to convergence errors. Both methods are labeled as “generalized” because they only require the mechanism’s namelist and FORTRAN modules representing the photochemical mechanism. Rosenbrock is preferred over SMVGEAR because it several times faster. To use either SMVGEAR and ROS3, the BuildScript defines ModGas as below. 
 
 ```
  set ModGas    = gas/smvgear
@@ -330,7 +330,7 @@ or
  
 ### 6.10.3 Photolysis
 
-All the mechanism include photolysis rates. The build script has two options for calculating the rates.
+All the mechanism include photolysis rates. The BuildScript has two options for calculating the rates.
 
 ```
  set ModPhot    = phot/inline
@@ -342,9 +342,9 @@ or
  set ModPhot    = phot/table
 ``` 
 
-The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology, predicted ozone and aerosol concentrations. Three ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file, the **CSQY_DATA_${Mechanism}** file, that depends the Mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the Mechanism. The files are provided for each mechanisms in a released version of CMAQ. If a user creates a Mechanism using new or additional photolysis rates, they have to create a new **CSQY_DATA_${Mechanism}** file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the Mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM run script set values for each file's path through the environment variables, OPTICS_DATA, OMI, and CSQY_DATA.
+The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology, predicted ozone and aerosol concentrations. Three ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file, the **CSQY_DATA_${Mechanism}** file, that depends the Mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the Mechanism. The files are provided for each mechanisms in a released version of CMAQ. If a user creates a Mechanism using new or additional photolysis rates, they have to create a new **CSQY_DATA_${Mechanism}** file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the Mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM RunScript set values for each file's path through the environment variables, OPTICS_DATA, OMI, and CSQY_DATA.
 
-The other option uses look-up tables that contain photolysis rates under cloud free conditions based on a fixed meridional cross-sections of atmospheric composition, temperature, density and aerosols. The values represents rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorology. Tables are dependent on the photochemical mechanism used. The [jproc utility](../../UTIL/jproc/README.md) creates them based on the photochemical mechanism's FORTRAN modules. The CCTM run script set value for a table's path with the environment variable, XJ_DATA.
+The other option uses look-up tables that contain photolysis rates under cloud free conditions based on a fixed meridional cross-sections of atmospheric composition, temperature, density and aerosols. The values represents rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorology. Tables are dependent on the photochemical mechanism used. The [jproc utility](../../UTIL/jproc/README.md) creates them based on the photochemical mechanism's FORTRAN modules. The CCTM RunScript set value for a table's path with the environment variable, XJ_DATA.
 
 
 ## 6.11 Aerosol Dynamics and Chemistry
@@ -373,14 +373,14 @@ There are several KMT chemistry options currently available in CMAQv5.3.  AQCHEM
 
 The AQCHEM KMT family of cloud chemistry options can be significantly more computationally demanding than standard AQCHEM and may be thus better suited for research applications, particularly those investigating cloud/fog events or the evolution of species whose concentrations are potentially heavily influenced by cloud processing and not explicitly represented in the standard AQCHEM mechanism (e.g., oxalate – AQCHEM-KMT2).  Note that when using the gas-phase mechanism with marine chemistry (CB6R3M_AE7_KMTBR), one is required to also run the companion aqueous chemistry routine, AQCHEM-KMTBR.  For limited-area simulations where the primary focus is simulating ozone or total PM2.5 concentrations, especially for longer-term averages, standard AQCHEM would likely capture the most important cloud chemistry impacts (i.e., sulfate formation from the main aqueous oxidation pathways) and is significantly more computationally efficient.
 
-To invoke the default AQCHEM cloud chemistry option, the build script under the CCTM Science Modules section should be set as follows: 
+To invoke the default AQCHEM cloud chemistry option, the BuildScript under the CCTM Science Modules section should be set as follows: 
 
 ```
 set ModCloud  = cloud/acm_ae7
 or
 set ModCloud  = cloud/acm_ae6
 ```
-For the AQCHEM-KMT cloud chemistry option, use the following option in the build script: 
+For the AQCHEM-KMT cloud chemistry option, use the following option in the BuildScript: 
 
 ```
 set ModCloud  = cloud/acm_ae6_kmt
@@ -388,21 +388,21 @@ set ModCloud  = cloud/acm_ae6_kmt
 
 AQCHEM and AQCHEM-KMT can be used with any of the cb6r3_ae6, cb6r3_ae7, racm, or saprc07 gas phase chemistry mechanisms.
 
-For the AQCHEM-KMTI cloud chemistry option, use the following option in the build script: 
+For the AQCHEM-KMTI cloud chemistry option, use the following option in the BuildScript: 
 ```
 set ModCloud  = cloud/acm_ae6i_kmti
 ```
-AQCHEM-KMTI is meant to be used with the saprc07tic_ae6i gas phase chemistry option; i.e., in the build script:
+AQCHEM-KMTI is meant to be used with the saprc07tic_ae6i gas phase chemistry option; i.e., in the BuildScript:
 
 ```
 set Mechanism = saprc07tic_ae6i_aqkmti
 ```
 
-For the AQCHEM-KMT2 cloud chemistry option, use the following option in the build script: 
+For the AQCHEM-KMT2 cloud chemistry option, use the following option in the BuildScript: 
 ```
 set ModCloud  = cloud/acm_ae7_kmt2
 ```
-AQCHEM-KMT2 should only be used in conjunction with the cb6r3_ae7 or saprc07tic_ae7i gas phase chemical mechanisms; i.e., in the build script:
+AQCHEM-KMT2 should only be used in conjunction with the cb6r3_ae7 or saprc07tic_ae7i gas phase chemical mechanisms; i.e., in the BuildScript:
 
 ```
 set Mechanism = cb6r3_ae7_aqkmt2
@@ -413,7 +413,7 @@ OR
 set Mechanism = saprc07tic_ae7i_aqkmt2
 ```
 
-For the AQCHEM-KMTBR cloud chemistry option, use the following option in the build script: 
+For the AQCHEM-KMTBR cloud chemistry option, use the following option in the BuildScript: 
 ```
 set ModCloud  = cloud/acm_ae7_kmtbr
 ```
