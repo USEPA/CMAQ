@@ -11,7 +11,7 @@ Halogen chemistry can be an important sink for ozone over oceanic areas from int
 These reactions are applied to grid cells over oceanic areas.
  
 ## Significance and Impact
-**>>COMMENT<<** Is this "average ozone" a daily average, an average daily maximum, or an average for the 10-day period?
+**>>COMMENT<<** Please clarify if this "average ozone" a daily average, an average daily maximum, or an average for the 10-day period.
 
 Model sensitivity runs were completed with the existing and updated simple first order ozone loss (continental US domain) for a 10-day summer period. The updated simple first-order ozone loss reduces average ozone by up to 4.0 ppbv over sea water and by up to 2.0 ppbv over some coastal areas. There is no impact on model run time.
 
