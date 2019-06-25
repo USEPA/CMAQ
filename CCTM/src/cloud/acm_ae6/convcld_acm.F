@@ -1608,37 +1608,23 @@ C...  to be part of the aqueous reaction chamber
               AIRM = AIRM + RHOM2( LAY )
 
               DO SPC = 1, NSPCSD
-                IF ( .NOT. STM ) THEN
-                  IF ( CBASE0( SPC ) .EQ. 0.0 ) THEN
-                    BCLDWT = 1.0 / CLBASE
-                  ELSE
-                    BCLDWT = CONC( SPC,LAY ) / MAX( CBASE0( SPC ), 1.0E-30 )
-                  END IF
-                  PCLD( SPC,LAY ) = BCLDWT * CBASEF( SPC )
-                ELSE ! stm=t
-                  IF ( SPC .NE. SURCLDMX( SPC ) ) THEN      ! use its surrogate
-!                    PCLD( SPC, LAY ) = MAX( ( CONC( SPC, LAY )
-!     &                               + ( ( CONC( SURCLDMX( SPC ), LAY )
-!     &                               / MAX( CBASE0( SURCLDMX( SPC ) ), 1.0E-30 ) )
-!     &                               * ( CBASEF( SPC ) - CBASE0( SPC ) ) ) ), 1.0E-30 )
-                    IF ( CBASE0( SURCLDMX( SPC ) ) .EQ. 0.0 ) THEN
-                      BCLDWT = 1.0 / ( CLBASE - 1 )
+                IF ( CBASE0( SPC ) .GT. 0.0 ) THEN
+                  BCLDWT = CONC( SPC,LAY ) / MAX( CBASE0( SPC ), 1.0E-30 )
+                ELSE
+                  BCLDWT = 1.0
+                END IF
+
+                IF ( STM ) THEN
+                  IF ( SPC .NE. SURCLDMX( SPC ) ) THEN      ! use its mixing surrogate
+                    IF ( CBASE0( SURCLDMX( SPC ) ) .GT. 0.0 ) THEN
+                      BCLDWT = CONC( SURCLDMX( SPC ),LAY ) / MAX( CBASE0( SURCLDMX( SPC ) ), 1.0E-30 )
                     ELSE
-                      BCLDWT = CONC( SURCLDMX( SPC ),LAY ) / MAX( CBASE0( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
+                      BCLDWT = 1.0
                     END IF
-!                    PCLD( SPC, LAY ) = MAX( ( CONC( SPC, LAY )
-!     &                               + ( BCLDWT * ( CBASEF( SPC ) - CBASE0( SPC ) ) ) ), 1.0E-30 )
-                    PCLD( SPC, LAY ) = BCLDWT * CBASEF( SPC )
-                  ELSE
-                    IF ( CBASE0( SPC ) .EQ. 0.0 ) THEN
-!                      BCLDWT = 1.0 / CLBASE
-                      BCLDWT = 1.0 / ( CLBASE - 1 )
-                    ELSE
-                      BCLDWT = CONC( SPC,LAY ) / MAX( CBASE0( SPC ), CONCMINL( SPC,LAY ) )
-                    END IF
-                    PCLD( SPC,LAY ) = BCLDWT * CBASEF( SPC )
                   END IF
                 END IF ! stm
+  
+                PCLD( SPC,LAY ) = BCLDWT * CBASEF( SPC )
 
 C...Necessary because CBASEF and CBASE0 are the ending vertical averages
 C...  below cloud concentrations in mol sp/mol air
@@ -1980,41 +1966,18 @@ C...   include raining region below cld base
             DO LAY = 1, CLBASE - 1
               DO SPC = 1, NSPCSD
                 IF ( SPC .NE. N_GC_SPCD ) THEN
-                  IF ( .NOT. STM ) THEN
-                    INCLOUD = PCLD( SPC,LAY ) * CEND( SPC )
-     &                      / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
-                  ELSE ! stm=t
-!                    IF ( ( SPC .NE. SURCLDMX( SPC ) ) .AND.
-!     &                   ( CEND( SPC ) .GT. POLC( SPC ) ) ) THEN       ! use its surrogate
+                  INCLOUD = PCLD( SPC,LAY ) * CEND( SPC )
+     &                    / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+
+                  IF ( STM ) THEN
                     IF ( SPC .NE. SURCLDMX( SPC ) ) THEN       ! use its surrogate
-!                      INCLOUD = MAX( ( PCLD( SPC, LAY )
-!     &                        + ( PCLD( SURCLDMX( SPC ), LAY )
-!     &                        / MAX( POLC( SURCLDMX( SPC ) ),
-!     &                          CONCMINL( SURCLDMX( SPC ), LAY ) )
-!     &                        * ( CEND( SPC ) - POLC( SPC ) ) ) ),
-!     &                          CONCMINL( SPC, LAY ) )
-                      IF ( POLC( SURCLDMX( SPC ) ) .EQ. 0.0 ) THEN
-                        BCLDWT = 1.0 / CLTOP
+                      IF ( POLC( SURCLDMX( SPC ) ) .GT. 0.0 ) THEN
+                        INCLOUD = PCLD( SURCLDMX( SPC ),LAY ) * CEND( SPC )
+     &                          / MAX( POLC( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
                       ELSE
-                        BCLDWT = PCLD( SURCLDMX( SPC ),LAY ) / MAX( POLC( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
-                      END IF
-c                    IF ( ( SPC .NE. SURCLDMX( SPC ) ) .AND.
-c     &                   ( CEND( SPC ) .GT. CEND_SW( SPC ) ) ) THEN       ! use its surrogate
-c                      INCLOUD = MAX( ( PCLD( SPC, LAY ) * CEND_SW( SPC )
-c     &                        / MAX( POLC( SPC ), CONCMINL( SPC, LAY ) )
-c     &                        + ( PCLD( SURCLDMX( SPC ), LAY )
-c     &                        / MAX( POLC( SURCLDMX( SPC ) ),
-c     &                          CONCMINL( SURCLDMX( SPC ), LAY ) )
-c     &                        * ( CEND( SPC ) - CEND_SW( SPC ) ) ) ),
-c     &                          CONCMINL( SPC, LAY ) )
-                    ELSE ! spc=surcldmx(spc)
-                      IF ( POLC( SPC ) .EQ. 0.0 ) THEN
-                        BCLDWT = 1.0 / CLTOP
-                      ELSE
-                        BCLDWT = PCLD( SPC,LAY ) / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+                        INCLOUD = CEND( SPC )
                       END IF
                     END IF
-                    INCLOUD = BCLDWT * CEND( SPC )
                   END IF ! stm
 
                   OUTCLOUD = PCLD( SPC,LAY )
@@ -2092,50 +2055,20 @@ C...Now do changes in cloudy layers:
           DO LAY = CLBASE, CLTOP
             DO SPC = 1, NSPCSD
               IF ( SPC .NE. N_GC_SPCD ) THEN
-                IF ( .NOT. STM ) THEN
-                  INCLOUD = PCLD( SPC,LAY ) * CEND( SPC )
-     &                    / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
-                ELSE ! stm=t
-!                  IF ( ( SPC .NE. SURCLDMX( SPC ) ) .AND.
-!     &                 ( CEND( SPC ) .GT. POLC( SPC ) ) ) THEN       ! use its surrogate
+                INCLOUD = PCLD( SPC,LAY ) * CEND( SPC )
+     &                  / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+
+                IF ( STM ) THEN
                   IF ( SPC .NE. SURCLDMX( SPC ) ) THEN       ! use its surrogate
-!                    INCLOUD = MAX( ( PCLD( SPC, LAY )
-!     &                      + ( PCLD( SURCLDMX( SPC ), LAY )
-!     &                      / MAX( POLC( SURCLDMX( SPC ) ),
-!     &                        CONCMINL( SURCLDMX( SPC ), LAY ) )
-!     &                      * ( CEND( SPC ) - POLC( SPC ) ) ) ),
-!     &                        CONCMINL( SPC, LAY ) )
-                    IF ( POLC( SURCLDMX( SPC ) ) .EQ. 0.0 ) THEN
-                      IF ( ICLDTYPE .EQ. 1 ) THEN   ! raining cloud
-                        BCLDWT = 1.0 / CLTOP
-                      ELSE
-                        BCLDWT = 1.0 / ( CLTOP - CLBASE + 1 )
-                      END IF
+                    IF ( POLC( SURCLDMX( SPC ) ) .GT. 0.0 ) THEN
+                      INCLOUD = PCLD( SURCLDMX( SPC ),LAY ) * CEND( SPC )
+     &                        / MAX( POLC( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
                     ELSE
-                      BCLDWT = PCLD( SURCLDMX( SPC ),LAY ) / MAX( POLC( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
-                    END IF
-c                  IF ( ( SPC .NE. SURCLDMX( SPC ) ) .AND.
-c     &                 ( CEND( SPC ) .GT. CEND_SW( SPC ) ) ) THEN       ! use its surrogate
-c                    INCLOUD = MAX( ( PCLD( SPC, LAY ) * CEND_SW( SPC )
-c     &                      / MAX( POLC( SPC ), CONCMINL( SPC, LAY ) )
-c     &                      + ( PCLD( SURCLDMX( SPC ), LAY )
-c     &                      / MAX( POLC( SURCLDMX( SPC ) ),
-c     &                        CONCMINL( SURCLDMX( SPC ), LAY ) )
-c     &                      * ( CEND( SPC ) - CEND_SW( SPC ) ) ) ),
-c     &                        CONCMINL( SPC, LAY ) )
-                  ELSE ! spc=surcldmx(spc)
-                    IF ( POLC( SPC ) .EQ. 0.0 ) THEN
-                      IF ( ICLDTYPE .EQ. 1 ) THEN   ! raining cloud
-                        BCLDWT = 1.0 / CLTOP
-                      ELSE
-                        BCLDWT = 1.0 / ( CLTOP - CLBASE + 1 )
-                      END IF
-                    ELSE
-                      BCLDWT = PCLD( SPC,LAY ) / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+                      INCLOUD = CEND( SPC )
                     END IF
                   END IF
-                  INCLOUD = BCLDWT * CEND( SPC )
                 END IF ! stm
+
                 OUTCLOUD = ( CCR( SPC,LAY ) - FRAC * PCLD( SPC,LAY ) )
      &                   / ( 1.0 - FRAC )
                 OUTCLOUD = MAX( OUTCLOUD, CONCMINL( SPC,LAY ) )

@@ -326,7 +326,7 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
      & spcs_list_type('OSO4AQPAA ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous PAA rxn loss to organosulfate
      & spcs_list_type('OSO4GAS   ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from gas rxn loss to organosulfate
      & spcs_list_type('OSO4EMIS  ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from emitted SO4 loss to organosulfate
-     & spcs_list_type('OSO4ICBC  ', cm_so4, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00)  ! SO4 from ICBCs loss to organosulfate
+     & spcs_list_type('OSO4ICBC  ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00)  ! SO4 from ICBCs loss to organosulfate
      & /)
  
 ! Define Reference Emissions Size Distributions
