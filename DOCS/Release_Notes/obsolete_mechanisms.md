@@ -1,11 +1,11 @@
 # Removal of obsolete mechanisms in CMAQv5.3
 
-**Author/P.O.C.:** [Deborah Luecken](mailto:luecken.deborah@epa.gov), Computational Exposure Division, U.S. EPA
+[Deborah Luecken](mailto:luecken.deborah@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
 
-Several mechanisms and variations of mechanisms previously available in CMAQv5.2, are not included in CMAQv5.3. 
-As older mechanisms are replaced with updated versions, we recommend that users migrate to mechanisms that are more consistent with our current understanding of atmospheric chemistry and the types of applications for which AQMs are applied.  
+CMAQv5.3 does not include several mechanisms and variations of mechanisms that were available in CMAQv5.2. 
+As older mechanisms are replaced with updated versions in CMAQ, we recommend that users migrate to mechanisms that are more consistent with our current understanding of atmospheric chemistry and the types of applications for which air quality models are applied.  
 
 Table 1. Mechanisms obsoleted in CMAQv5.3 
 
@@ -22,7 +22,7 @@ Table 1. Mechanisms obsoleted in CMAQv5.3
 |saprc07tic_ae6invPOA_aq | non-volatile option available in saprc07tic_ae6i_aq|
 
 
-Users that want earlier mechanisms can, in many cases, extend the earlier mechanism for compatibility with CMAQv5.3 by using released mechanisms as a guide for modifying their mechanisms, and either recreating the ebi solver or running CMAQ with Rosenbrock.  
+Users who want earlier mechanisms can, in many cases, extend the earlier mechanism for compatibility with CMAQv5.3 by using released mechanisms as a guide for modifying their mechanisms, and either recreating the ebi solver or running CMAQ with Rosenbrock.  
 
 ## Files Affected
 None
