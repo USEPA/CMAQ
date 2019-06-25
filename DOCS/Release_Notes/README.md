@@ -1,21 +1,24 @@
 CMAQv5.3 Release Notes 
 =====================================
 
-# Getting Started with CMAQ  
+# Getting Started with CMAQ 
+**>>COMMENT<<**  Is this still consistent with the documentation we are providing?  Should we put the full users guide link here, too?  TLS 25 Jun 2019
+
 [Tutorial on installing and running CMAQ](../Tutorials/CMAQ_GettingStarted.md)  
 [Tutorial on running the CMAQ test case](../Tutorials/CMAQ_Benchmark.md)  
 
 # Summary of CMAQv5.3 Updates
 
-The Community Multiscale Air Quality (CMAQ) Model version 5.3 is a major update to CMAQ that includes several changes to the science algorithms in the base model.  CMAQ v5.3 was developed by the U.S. EPA with contributions from other research partners. Summarized below are the main enhancements to the modeling system since the previous release, CMAQ v5.2.1.
+The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a major update to CMAQ. CMAQv5.3 includes several changes to the science algorithms in the base model (CCTM), as well as updates to instrumented models, pre-processors, post-processors, utilities, and tools. CMAQ v5.3 was developed by the U.S. EPA with contributions from other research partners.  The main enhancements to the CMAQ modeling system since the previous release (CMAQ v5.2.1) are summarized below.
 
 <a id="chemistry"></a>
 ## Chemistry
 ### Photochemistry
-There are 11 unique gas-phase chemical mechanisms in CMAQv5.3. These are all located in the MECHS/ folder and may be invoked when building the model and Makefile. Variations of Carbon Bond 6 (CB6), RACM2, and SAPRC07 are all available. Specific science updates include the following:  
+**>>COMMENT<<** I don't think we need to state where the gas-phase mechanisms are located in the repo or how they're built.  I think that detail detracts from the brevity of the changes.  If we added a gas-phase chemical mechanism, then that might be worth introducing here (as in aero7 and aero71, below).  TLS 25 Jun 2019  
 
+**>>COMMENT<<** I think we should name the obsolete mechanisms here.  TLS 25 Jun 2019
   * [Removal of obsolete mechanisms in CMAQv5.3](obsolete_mechanisms.md)
-  * [Halogen mediated first order ozone loss is revised for all mechanisms](simple_halogen_chemistry.md)
+  * [Revision of halogen-mediated first-order ozone loss (all mechanisms)](simple_halogen_chemistry.md)
   * [Detailed halogen and DMS chemistry with CB6r3](detailed_halogen_and_DMS_chemistry.md)
   * [Updates to the chlorine chemistry in CB6r3 mechanisms](chlorine_chemistry_CB6r3.md)
   * EBI Solvers
@@ -28,7 +31,7 @@ There are 11 unique gas-phase chemical mechanisms in CMAQv5.3. These are all loc
  * [inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
  
 ### Aerosol Processes
-CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of CMAQ, is still available. Aero 7/7i differs from aero6 in its treatment of organic aerosol.
+CMAQv5.3 introduces aero7 and aero7i. Aero6, available in previous versions of CMAQ, is still available. Aero7 and aero7i differ from aero6 in their treatment of organic aerosol.
 #### AERO7/7i
   * [Overview of AERO7/7i](aero7_overview.md)  
   * [Monoterpene SOA](monoterpene_SOA.md)  
@@ -68,15 +71,20 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
 ## Diagnostic
  * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
 
-## Tools & Utilities
- * [SpecDef aerosol updates](specdef_aero.md)
- * [Updates to post-processing tools hr2day, sitecmp, and sitecmp_dailyo3; addition of new utility calc_tmetric.](postprocessing_tools.md)
+## Pre-processors, Post-processors, Tools, and Utilities
+**>>COMMENT<<** Sugggest broadening the title; I don't see ICON and BCON as "tools", per se.  Also suggest reordering to the order they might be used in the workflow.  Suggest adding a line and hyperlink for MCIPv5.0 here; that link does not work yet.  TLS 25 Jun 2019
+ * [Updates in MCIPv5.0](updates_to_MCIPv5_0.md)
+ * [Updates to the ICON and BCON pre-processors.](updates_to_ICON_BCON.md)
  * [Updates to the create_ebi utility](updates_to_create_ebi.md)
  * [Updates to the inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
- * [Updates to the ICON and BCON pre-processors.](updates_to_ICON_BCON.md)
  * [The create_omi tool.](Add_create_omi_tool.md)
+ * [SpecDef aerosol updates](specdef_aero.md)
+ * [Updates to post-processing tools: hr2day, sitecmp, and sitecmp_dailyo3; release of new post-processing tool: calc_tmetric.](postprocessing_tools.md)
+
  
 ## Instrumented Models
-CMAQ-DDM and CMAQ-ISAM will be released with the final version of CMAQv5.3 in Spring 2019.
+**>>COMMENT<<** The CMAQ-DDM and CMAQ-ISAM need README files.  Will sulfur tracking be released, too?  TLS 25 Jun 2019
+ * [Updates in CMAQ-DDM](updates_to_CMAQ_DDM.md)
+ * [Updates in CMAQ-ISAM](updates_to_CMAQ_ISAM.md)
 
 
