@@ -215,9 +215,6 @@
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
       CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default Assumption for
                                          !     Emissions Diagnostic File Output
-      LOGICAL :: EMIS_DATE_OVRD = .FALSE. ! Overrider CMAQ not to check
-                                          ! if the dates on the emissions file match that of 
-                                          ! the internal model
       CHARACTER(  16 ), SAVE, ALLOCATABLE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
 
       LOGICAL :: USE_MARINE_GAS_EMISSION = .FALSE.
@@ -736,10 +733,6 @@
       ! Determine user-defined default for emissions diagnostics
       CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
 
-      ! Determine user-defined default for emissions date override
-      CALL GET_ENV ( EMIS_DATE_OVRD, 'EMIS_DATE_OVRD', EMIS_DATE_OVRD, VARDEV )
- 
- 
       !-------------------------------------------------------------------------------------------------------
       !>> Process Analysis
       !-------------------------------------------------------------------------------------------------------

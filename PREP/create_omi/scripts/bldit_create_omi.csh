@@ -76,7 +76,6 @@ switch ( $compiler )
    set DBG        = "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
    setenv F_FLAGS   "-fixed -132"
    setenv F90_FLAGS "-free"
-   setenv IOAPI_MOD  /home/wdx/lib/x86_64/intel/ioapi_3.1/Linux2_x86_64ifort #> I/O API precompiled modules
    setenv IOAPI_INCL /home/wdx/lib/x86_64/intel/ioapi_3.1/ioapi/fixed_src    #> I/O API include header files
    setenv IOAPI_LIB  /home/wdx/lib/x86_64/intel/ioapi_3.1/Linux2_x86_64ifort #> I/O API libraries
    setenv NETCDF     /home/wdx/lib/x86_64/intel/netcdf                       #> netCDF directory path
@@ -88,7 +87,6 @@ switch ( $compiler )
    set DBG        = "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp -Mextend"
    setenv F_FLAGS   "-Mfixed"
    setenv F90_FLAGS "-Mfree"
-   setenv IOAPI_MOD  /home/wdx/lib/x86_64/pgi/ioapi_3.1/Linux2_x86_64pg  #> I/O API directory path
    setenv IOAPI_INCL /home/wdx/lib/x86_64/pgi/ioapi_3.1/ioapi/fixed_src  #> I/O API directory path
    setenv IOAPI_LIB  /home/wdx/lib/x86_64/pgi/ioapi_3.1/Linux2_x86_64pg  #> I/O API directory path
    setenv NETCDF     /home/wdx/lib/x86_64/pgi/netcdf                     #> netCDF directory path
@@ -102,7 +100,6 @@ switch ( $compiler )
    set DBG        = "-Wall -O0 -g $DBG1 $DBG2"
    setenv F_FLAGS   "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
    setenv F90_FLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
-   setenv IOAPI_MOD  /home/wdx/lib/x86_64/gcc/ioapi_3.1/Linux2_x86_64gfort  #> I/O API directory path
    setenv IOAPI_INCL /home/wdx/lib/x86_64/gcc/ioapi_3.1/ioapi/fixed_src     #> I/O API directory path
    setenv IOAPI_LIB  /home/wdx/lib/x86_64/gcc/ioapi_3.1/Linux2_x86_64gfort  #> I/O API directory path
    setenv NETCDF     /home/wdx/lib/x86_64/gcc/netcdf                        #> netCDF directory path
@@ -128,7 +125,6 @@ endsw
  if ( ! -d $NETCDF_DIR ) ln -sf $NETCDF $NETCDF_DIR
  if ( ! -d $IOAPI_DIR ) then 
     mkdir $IOAPI_DIR
-    ln -sf $IOAPI_MOD  $IOAPI_DIR/modules
     ln -sf $IOAPI_INCL $IOAPI_DIR/include_files
     ln -sf $IOAPI_LIB  $IOAPI_DIR/lib
  endif
@@ -182,7 +178,7 @@ set FP = $FC
  echo                                                              >> $Cfile
  echo "lib_base    ${CMAQ_LIB};"                                   >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_1       ioapi/modules;"                                 >> $Cfile
+ echo "lib_1       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
