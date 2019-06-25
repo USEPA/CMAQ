@@ -20,7 +20,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
   * [Removal of obsolete mechanisms in CMAQv5.3](obsolete_mechanisms.md)
   * [Revision of halogen-mediated first-order ozone loss (all mechanisms)](simple_halogen_chemistry.md)
   * [Adding detailed halogen and DMS chemistry to CB6r3](detailed_halogen_and_DMS_chemistry.md)
-  * [Updates to the chlorine chemistry in CB6r3](chlorine_chemistry_CB6r3.md)
+  * [Updates to the chlorine chemistry in CB6r3 in CMAQv5.3](chlorine_chemistry_CB6r3.md)
   * EBI Solvers
     * [Setting Maximum Integration Time Step and Initial Changes for CMAS-ISAM](updates_to_create_ebi.md)
     * [Ability to conduct Integrated Reaction Rate Analysis](allow_ebi_to_do_IRR_analysis.md)
