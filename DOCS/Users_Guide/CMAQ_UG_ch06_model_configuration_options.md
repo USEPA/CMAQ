@@ -226,22 +226,52 @@ Need to add -- speciation information for dust is controlled in aerodata
 #### Lightning NO
 In retrospective applications over the continental U.S., National Lightning Detection Network (NLDN) lightning data can be used directly to generate NO produced by lightning NO in CMAQ. For real-time forecasts where lightning data are not available, lightning NO is produced based on statistical relationships with the simulated convective rainfall rate.
 
-LTNGNO [default:InLine]
+There are three options for including NO from lighting.
 
-Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating in-line lightning NO emissions.
+**Option 1 - Offline NO** -- user provides a gridded lightning NO emissions file calculated with a preprocessor external to the CMAQ repository
 
-USE_NLDN [default: Y]
+For this option set the LTNGNO environment variable in the RunScript to the location of the gridded netCDF file of NO emissions:
 
-Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file. Comment out or set to Y to turn on; set to N to turn off. If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.
+```
+setenv LTNGNO /home/user/path-to-file/ltngno_emiss_from_user.nc
+```
 
-NLDN_STRIKES [default: None]
+**Option 2 - Inline NO with NLDN Data** -- user uses hourly NLDN lightning strike netCDF file.
 
-Hourly NLDN lightning strike netCDF FILE. Required when LTNGNO is set to Inline and USE_NLDN is set to Y; otherwise ignore this setting.
+Hourly NLDN lightning strike data can be purchased.
+In addition to the hourly lightning strike netCDF file, this options requires a lightning parameters netCDF file.  This file contains  the intercloud to cloud-to-ground flash ratios, which are the scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud).  The lightning parameters file for a domain over the continental US at 12km horizontal resolution (12US1) can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY).  This file can be regridded to support other domains within the continental US. 
 
-LTNGPARMS_FILE [default: None]
 
-Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to "InLine" and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file.
+For this option, set the following environment variables in the RunScript:
 
+```
+setenv LTNGNO INLINE
+```
+```
+setenv USE_NLDN Y
+```
+```
+setenv NLDN_STRIKES /home/user/path-to-file/nldn_hourly_ltng_strikes.nc
+```
+```
+setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
+```
+
+**Option 3 - Inline NO without NLDN Data** --  lightning NO is calculated within CCTM based on statistical relationships with the simulated convective rainfall rate.
+
+This option also requires a lightning parameters netCDF file which contains the linear regression parameters for generating lightning NO.  The lightning parameters file for the continental US at 12km horizontal resolution can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY). This file can be regridded to support other domains within the continental US. 
+
+For this option, set the following environment variables in the RunScript:
+
+```
+setenv LTNGNO INLINE
+```
+```
+setenv USE_NLDN N
+```
+```
+setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
+```
 
 ## 6.10 Gas Phase Chemistry
 ### 6.10.1 Gas Phase Chemical Mechanisms
