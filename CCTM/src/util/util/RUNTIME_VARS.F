@@ -191,7 +191,7 @@
       LOGICAL :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
       LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
-      LOGICAL :: SS_AERO       = .TRUE.  ! flag for Sea Spray Aerosol Calculation
+      LOGICAL :: OCEAN_CHEM    = .TRUE.  ! Flag for ocean halogen chemistry and sea spray aerosol emissions
       LOGICAL :: WB_DUST       = .FALSE. ! flag for On-Line Dust Emission Calculation
       LOGICAL :: ERODE_AGLAND  = .TRUE.  ! Account for Erodible Agricultural Land when 
                                                !   computing dust Emissions
@@ -214,15 +214,12 @@
       INTEGER :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
       CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default Assumption for
-                                         !     Emissinos DIagnostic File Output
-      LOGICAL :: EMIS_DATE_OVRD = .FALSE. ! Overrider CMAQ not to check
-                                          ! if the dates on the emissions file match that of 
-                                          ! the interal model
+                                         !     Emissions Diagnostic File Output
       CHARACTER(  16 ), SAVE, ALLOCATABLE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
 
       LOGICAL :: USE_MARINE_GAS_EMISSION = .FALSE.
 
-      ! Processs Analysis
+      ! Process Analysis
       LOGICAL :: PROCAN    = .FALSE. ! flag for process analysis
       INTEGER :: PA_BEGCOL = 0       ! Starting PA output
       INTEGER :: PA_ENDCOL = 0       ! ending column for PA output
@@ -665,8 +662,8 @@
       ! Get marine gas emission diagnostic output file flag.
       CALL GET_ENV ( MGEMDIAG, 'CTM_MGEMDIAG', MGEMDIAG, VARDEV )
  
-      ! Flag for Online Calculation of Sea Spray Aerosol emissions
-      CALL GET_ENV ( SS_AERO, 'CTM_SS_AERO', SS_AERO, VARDEV )
+      ! Flag for ocean halogen chemistry and sea spray aerosol emissions
+      CALL GET_ENV ( OCEAN_CHEM, 'CTM_OCEAN_CHEM', OCEAN_CHEM, VARDEV )
 
       ! Flag for Online Calculation of Windblown dust emissions
       CALL GET_ENV ( WB_DUST, 'CTM_WB_DUST', WB_DUST, VARDEV )
@@ -736,10 +733,6 @@
       ! Determine user-defined default for emissions diagnostics
       CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
 
-      ! Determine user-defined default for emissions date override
-      CALL GET_ENV ( EMIS_DATE_OVRD, 'EMIS_DATE_OVRD', EMIS_DATE_OVRD, VARDEV )
- 
- 
       !-------------------------------------------------------------------------------------------------------
       !>> Process Analysis
       !-------------------------------------------------------------------------------------------------------

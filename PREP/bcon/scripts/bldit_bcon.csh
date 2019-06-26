@@ -74,7 +74,7 @@
 
 #> Set compiler flags
  set xLib_Base  = ${CMAQ_LIB}
- set xLib_1     = ioapi/modules
+ set xLib_1     = ioapi/lib
  set xLib_2     = ioapi/include_files
  set xLib_4     = ioapi/lib
  set FSTD       = "${myFSTD}"

@@ -146,14 +146,16 @@ ASO4IJ          ,ug m-3     ,ASO4I[1]+ASO4J[1]
 ASO4K           ,ug m-3     ,ASO4K[1]
 
 !! Organic Particle Species
-APOCI           ,ugC m-3    ,ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/1.26 
+APOCI           ,ugC m-3    ,ALVPO1I[1]/1.39 + ASVPO1I[1]/1.32 + ASVPO2I[1]/1.26 \
+                            +APOCI[1]       
 APOCJ           ,ugC m-3    ,ALVPO1J[1]/1.39 + ASVPO1J[1]/1.32 + ASVPO2J[1]/1.26 \
-                           +ASVPO3J[1]/1.21 + AIVPO1J[1]/1.17
+                           +ASVPO3J[1]/1.21 + AIVPO1J[1]/1.17  + APOCJ[1]
 APOCIJ          ,ugC m-3    ,APOCI[0] + APOCJ[0]
 
-APOMI           ,ug m-3     ,ALVPO1I[1] + ASVPO1I[1] + ASVPO2I[1]   
-APOMJ           ,ug m-3     ,ALVPO1J[1] + ASVPO1J[1] + ASVPO2J[1]   \
-                           +ASVPO3J[1] + AIVPO1J[1]
+APOMI           ,ug m-3     ,ALVPO1I[1] + ASVPO1I[1] + ASVPO2I[1] + APOCI[1]     \
+                            +APNCOMI[1]
+APOMJ           ,ug m-3     ,ALVPO1J[1] + ASVPO1J[1] + ASVPO2J[1] + APOCJ[1]     \
+                           +ASVPO3J[1] + AIVPO1J[1]  + APNCOMJ[1]
 APOMIJ          ,ug m-3     ,APOMI[0] + APOMJ[0]                           
 
 ASOCI           ,ugC m-3    ,ALVOO1I[1]/2.27 + ALVOO2I[1]/2.06  \
