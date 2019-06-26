@@ -8,11 +8,11 @@
 # Appendix A: Model options
 
 <a id=TOC_A></a>
-**Table of Contents:**
+## Table of Contents:
 
-* [A.1 Configuration options (config_cmaq.csh)](#config_cmaq.csh)
-* [A.2 Compilation options (bldit_cctm.csh)](#bldit_cctm.csh)
-* [A.3 Execution options (run_cctm.csh)](#run_cctm.csh)
+* [A.1 Configuration Options (config_cmaq.csh)](#config_cmaq.csh)
+* [A.2 Compilation Options (bldit_cctm.csh)](#bldit_cctm.csh)
+* [A.3 Execution Options (run_cctm.csh)](#run_cctm.csh)
 	* [MPI Configuration](#MPI_Config)
 	* [Vertical Extent](#Vertical_Ext)
 	* [Timestep Configuration](#Timestep_Config)
@@ -29,7 +29,7 @@
     * [Windblown Dust Emissions Configuration](#windblown_dust_config)
 
 <a id=config_cmaq.csh></a>
-## A.1 config_cmaq.csh
+## A.1 Configuration Options (config_cmaq.csh)
 
 [Return to Top](#TOC_A)
 
@@ -114,7 +114,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 **>>COMMENT<<** Needs description
 
 <a id=bldit_cctm.csh></a>
-## A.2 Compilation Configuration Variables
+## A.2 Compilation Options (bldit_cctm.csh)
 
 [Return to Top](#TOC_A)
 
@@ -253,7 +253,7 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
     - `pv_o3`
     
 <a id=run_cctm.csh></a>
-## A3. Execution Configuration Variables
+## A.3 Execution Options (run_cctm.csh)
 
 [Return to Top](#TOC_A)
 
