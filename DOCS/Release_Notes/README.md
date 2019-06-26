@@ -14,11 +14,6 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 <a id="chemistry"></a>
 ## Chemistry
 ### Photochemistry
-**>>COMMENT<<** I don't think we need to state where the gas-phase mechanisms are located in the repo or how they're built.  I think that detail detracts from the brevity of the changes.  If we added a gas-phase chemical mechanism, then that might be worth introducing here (as in aero7 and aero71, below).  TLS 25 Jun 2019  
-
-**>>COMMENT<<** I think we should name the obsolete mechanisms here.  TLS 25 Jun 2019
-
-**>>COMMENT<<** Can any of these release notes be combined?  TLS 26 Jun 2019
 
   * [Removal of obsolete mechanisms in CMAQv5.3](obsolete_mechanisms.md)
   * [Revision of halogen-mediated first-order ozone loss (all mechanisms)](simple_halogen_chemistry.md)
@@ -32,16 +27,14 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [Floating point crashes using the Portland Group Compiler](inline_phot_pgi_floating_point_crashes.md)
  * [inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
  
-### Aerosol Processes
-CMAQv5.3 introduces aero7 and aero7i. Aero6, available in previous versions of CMAQ, is still available. Aero7 and aero7i differ from aero6 in their treatment of organic aerosol.
-#### AERO7/7i
+### New Aerosol Modules AERO7 and AERO7i
   * [Overview of AERO7/7i](aero7_overview.md)  
   * [Monoterpene SOA](monoterpene_SOA.md)  
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
   * [Conversion of inorganic to organic sulfate bug fix](inorganicsulfate_iepox_fix.md)  
 
-#### Other Aerosol Processes
+### Other Aerosol Processes
   * [Dry Deposition Algorithm](aerosol_dry_deposition.md)  
   * [Gravitational Settling](gravitational_settling.md)  
   
