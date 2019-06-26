@@ -2,11 +2,15 @@
 
 [Deborah Luecken](mailto:luecken.deborah@epa.gov), U.S. Environmental Protection Agency
 
+**>>COMMENT<<** What is the "initial implementation" and the "revised implementation"?  If these are incremental development steps, then they need to be combined here.  TLS 26 Jun 2019
+
+**>>COMMENT<<** If we get Greek mu in Markdown, it needs to be used in the Results area.  TLS 26 Jun 2019
+
 ## Brief Description
 
-Initial implementaion
+**Initial implementaion**
 
-The chlorine chemistry in CB6 has been reviewed and many of the reactions have been updated for the v5.3 release. Several new reactions have been added, including two heterogeneous reactions. Most of the existing reactions are retained unless updates are needed, either due to new information on reaction rates/prodocts or changes in mechanism species.  One new model species is added in this update: chlorine nitrate.  The chlorine chemistry in CMAQv5.3 is intended to be consistent with the chlorine chemistry in CAMx CB6r2 (Ramboll Environ, 2016).  The chlorine chemistry is the same in all versions of CB6 included in CMAQv5.3.
+Many of the reactions in the chlorine chemistry in CB6 have been updated for CMAQv5.3. Several new reactions have been added, including two heterogeneous reactions. Some reactions were updated either due to new information on reaction rates/products or changes in mechanism species. One new model species (chlorine nitrate) is added in CMAQv5.3. The chlorine chemistry in CMAQv5.3 is intended to be consistent with the chlorine chemistry in CAMx CB6r2 (Ramboll Environ, 2016). All versions of CB6 in CMAQv5.3 use the same chlorine chemistry.
 
 * Reactions unchanged from CMAQv5.2:
 
@@ -18,32 +22,36 @@ The chlorine chemistry in CB6 has been reviewed and many of the reactions have b
 
 * New reactions:
 
-      CL7,  CL12,CL28-31, HET_CLNO3_WAJ, HET_CLNO3_WAK 
+      CL7, CL12, CL28-31, HET_CLNO3_WAJ, HET_CLNO3_WAK 
  
 
 ## New Species
 Chlorine nitrate (species CLNO3)
 
-Revised implementaion
+**Revised implementaion**
 
-Chlorine chemistry is revised for following changes: (a) removing heterogeneous hydrolysis of ClNO3 over coarse-mode aerosols (HET_CLNO3_WAK) (2) implementing deposition of ClO implementing deposition of ClO. These changes make the chemistry consistent with the detailed halogen chemistry (cb6r3m_ae7_kmtbr). An updated EBI solver is also developed for the revised mechanism.  
+Chlorine chemistry is revised for following changes:
+1. removing heterogeneous hydrolysis of ClNO<sub>3</sub> over coarse-mode aerosols (HET_CLNO3_WAK)
+2. implementing deposition of ClO
 
-Significance and Impact
+These changes make the chemistry consistent with the detailed halogen chemistry (cb6r3m_ae7_kmtbr). An updated EBI solver is also developed for the revised mechanism.  
 
+## Significance and Impact
 
-Revised implementaion
+**Revised implementaion**
+**>>COMMENT<<** What resolution of the hemispheric domain was used? Would it matter?  TLS 26 Jun 2019
 
-Model sensitivity runs were completed with the existing and revised CB6r3 over the Northern Hemisphere for October of 2015. The revision increases monthly mean ozone by <0.1 ppbv compared to those obtained with the existing chemistry. The revision affects sulfate, nitrate, and ammonium only over a few isolated grid-cells and changes are small. The changes affect monthly mean sulfate by <0.03 ug/m3, nitrate by <0.06 ug/m3, and ammonium by <0.02 ug/m3. Overall, the impact of the revision on model results is small.
+Model sensitivity runs were conducted with the CMAQv5.2 and CMAQv5.3 versions of CB6r3 using a domain over the Northern Hemisphere for October 2015. The update to CB6r3 increases monthly mean ozone by <0.1 ppbV compared to the previous version. The revision affects sulfate, nitrate, and ammonium only over a few isolated grid cells. The changes affect monthly mean sulfate by <0.03 ug m<sup>-3</sup>, nitrate by <0.06 ug m<sup>-3</sup>, and ammonium by <0.02 ug m<sup>-3</sup>. Overall, the impact of this change on model results is small.
 
 ## Files Affected
 
-Initial implementaion
+**Initial implementaion**
 * CCTM/src/MECHS/cb6mp_ae6_aq/*
 * CCTM/src/MECHS/cb6r3_ae6_aq/*
 * CCTM/src/MECHS/cb6r3_ae7_aq/*
 * CCTM/src/MECHS/cb6r3_ae7_aqkmt2/*
 
-Revised implementaion
+**Revised implementaion**
 
 * CCTM/src/MECHS/cb6r3_ae7_aq/GC_cb6r3_ae7_aq
 * CCTM/src/MECHS/cb6r3_ae7_aq/RXNS_DATA_MODULE.F90
@@ -79,12 +87,13 @@ Revised implementaion
 * CCTM/src/MECHS/cb6r3_ae7_aqkmt2/GC_cb6r3_ae7_aqkmt2
 
 ## References
-Dieber,G., George, Ch, LeCalve, S., Schweitzer, F., Mirabel, Ph., 2004.  Uptake study of ClONO2 and BrONO2 by Halide containing droplets, atmos. chem. phys., 4, 1291-1299. 
+**>>COMMENT<<** I removed the reference to email with Sarwar.  It could be "personal communication", but he's part of this team.  TLS 26 Jun 2019
+
+Dieber, G., George, C., Le Calve, S., Schweitzer, F., Mirabel, P., 2004.  Uptake study of ClONO<sub>2</sub> and BrONO<sub>2</sub> by Halide containing droplets, _Atmospheric Chemistry and Physics_, **4**, 1291-1299. 
 
 IUPAC, 2017. Task Group on Atmospheric Chemical Kinetic Data Evaluation.  http://iupac.pole-ether.fr/ (accessed 10-2-17).
-Ramboll Environ, 2016.  Users Guide Comprehensive Air Quality Model with Extensions, version 6.3, Novato, CA, http://www.camx.com/files/camxusersguide_v6-30.pdf
 
-Sarwar, G., email thread of 6-21 thorugh 6-25-2018.  
+Ramboll Environ, 2016.  Users Guide Comprehensive Air Quality Model with Extensions, version 6.3, Novato, CA, http://www.camx.com/files/camxusersguide_v6-30.pdf
 
 Yarwood, G., Rao, S., Yocke, M., Whitten, G.Z., 2005. Updates to the Carbon Bond Mechanism: CB05.  Final Report to the US EPA, RT-0400675. Yocke and Company, Novato, CA.
 
