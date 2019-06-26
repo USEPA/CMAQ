@@ -26,7 +26,7 @@
 	* [Inline Emissions Configuration](#Inline_Emissions_Config)
 	* [Lightning NOx Configuration](#Lightning_NOx_Config)
 	* [In-line Biogenic Emissions Configuration](#In-line_Bio_Config)
-    * [Windblown Dust Emissions Configuration](windblown_dust_config)
+    * [Windblown Dust Emissions Configuration](#windblown_dust_config)
 
 ## A.1 config_cmaq.csh
 <a id=config_cmaq.csh></a>
