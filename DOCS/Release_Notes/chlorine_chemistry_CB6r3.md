@@ -39,6 +39,7 @@ These changes make the chemistry consistent with the detailed halogen chemistry 
 ## Significance and Impact
 
 **Revised implementaion**
+
 **>>COMMENT<<** What resolution of the hemispheric domain was used? Would it matter?  TLS 26 Jun 2019
 
 Model sensitivity runs were conducted with the CMAQv5.2 and CMAQv5.3 versions of CB6r3 using a domain over the Northern Hemisphere for October 2015. The update to CB6r3 increases monthly mean ozone by <0.1 ppbV compared to the previous version. The revision affects sulfate, nitrate, and ammonium only over a few isolated grid cells. The changes affect monthly mean sulfate by <0.03 ug m<sup>-3</sup>, nitrate by <0.06 ug m<sup>-3</sup>, and ammonium by <0.02 ug m<sup>-3</sup>. Overall, the impact of this change on model results is small.
