@@ -1,12 +1,12 @@
-# Allow EBI solver to conduct Integrated Reaction Rate analysis
+# Allow EBI solvers to conduct integrated reaction rate analysis
 
-**Author/P.O.C.:**, [William T. Hutzell](mailto:hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
+[William T. Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-The changes revises procan/pa so an ebi solver can conduct IRR analysis. They also change the IRR calculation from real(4) to real(8) precision because the photochemical solvers use real(8) precision. Changes include updates to the create_ebi utility has been changed so a new ebi solver includes this enhancement. 
+The changes revises procan/pa so that an EBI solver can conduct integrated reaction rate (IRR) analysis. The IRR calculation has been changed from single-precision ("real(4)") to double-precision ("real(8)") to align with the photochemical solvers. The *create_ebi* utility has also been changed so new EBI solvers will include this enhancement. 
 
 ## Signficance and Impact
-Users can conduct IRR analysis without having to change the photochemical solver used.
+Users can now conduct IRR analysis without changing the photochemical solver.
 
 ## Files Affected
 All ebi solvers for all photochemical mechanisms under CCTM/src/gas.
