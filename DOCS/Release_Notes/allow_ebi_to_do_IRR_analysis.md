@@ -9,4 +9,4 @@ The changes revises procan/pa so that an EBI solver can conduct integrated react
 Users can now conduct IRR analysis without changing the photochemical solver.
 
 ## Files Affected
-All ebi solvers for all photochemical mechanisms under CCTM/src/gas.
+All EBI solvers for all photochemical mechanisms under CCTM/src/gas.
