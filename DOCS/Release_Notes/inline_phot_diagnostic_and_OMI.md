@@ -34,15 +34,15 @@ and Aerosol extinction at the wavelengths use calculate photolysis rates in PHOT
 
 <p align="center">Table 1. PHOTDIAG1 contents </p>
 
-|Variable Name|  Units  |Description                                   |
-|:----|:--------------:|:---------------------------------------------|
+|Variable Name|Units|Description|
+|:----|:--------------:|:---------------------|
 |         COSZENS|            none|cosine of solar zenith angle|
 |    OZONE_COLUMN|              DU|observed total ozone column density|
 | TROPO_O3_COLUMN|              DU|predicted tropospheric ozone column density|
 |            JNO2|min<sup>-1</sup>|photodissociation rate of NO<sub>2</sub>|
 |          JO3O1D|min<sup>-1</sup>|photodissociation rate of ozone producing O(1D) |
 |  RESOLVED_CFRAC|            none|resolved cloud fraction averaged over cloudy layers|
-|   RESOLVED_WBAR|g m<sup>-3</sup>|resolved cloud hydrometeor content averaged over cloudy layers|
+|   RESOLVED_WBAR|g m<sup>&#8209;3</sup>|resolved cloud hydrometeor content averaged over cloudy layers|
 |   SUBGRID_CFRAC|            none|subgrid cloud fraction averaged over cloudy layers|
 |    SUBGRID_WBAR|g m<sup>-3</sup>|subgrid cloud hydrometeor content averaged over cloudy layers|
 |   TRANS_DIFFUSE|            none|broad band transmission coefficient for diffuse radiation at surface|
