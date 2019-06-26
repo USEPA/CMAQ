@@ -40,6 +40,7 @@ C                    Modified by JG May, 1999 to change way reals are
 C                       checked
 C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
+C    10 June 19 F.Sidi: Corrected data byte mistmatch between IOAPI and BCON 
  
 C***********************************************************************
 
@@ -80,16 +81,16 @@ C Local Variables:
       LOGICAL LERROR    ! Error Flag
       LOGICAL LSTOP     ! Exit Flag
 
-      REAL    P_ALP1    ! File 1 map projection parameter      
-      REAL    P_BET1    ! File 1 map projection parameter   
-      REAL    P_GAM1    ! File 1 map projection parameter
-      REAL    XORIG1    ! File 1 X-origin
-      REAL    YORIG1    ! File 1 Y-origin
-      REAL    XCELL1    ! File 1 X-dimension of cells
-      REAL    YCELL1    ! File 1 Y-dimension of cells
-      REAL    XCENT1    ! File 1 X-center of coordinate system
-      REAL    YCENT1    ! File 1 Y-center of coordinate system
-      REAL    VGTOP1    ! File 1 model top
+      REAL*8 :: P_ALP1    ! File 1 map projection parameter      
+      REAL*8 :: P_BET1    ! File 1 map projection parameter   
+      REAL*8 :: P_GAM1    ! File 1 map projection parameter
+      REAL*8 :: XORIG1    ! File 1 X-origin
+      REAL*8 :: YORIG1    ! File 1 Y-origin
+      REAL*8 :: XCELL1    ! File 1 X-dimension of cells
+      REAL*8 :: YCELL1    ! File 1 Y-dimension of cells
+      REAL*8 :: XCENT1    ! File 1 X-center of coordinate system
+      REAL*8 :: YCENT1    ! File 1 Y-center of coordinate system
+      REAL      VGTOP1    ! File 1 model top
 
       REAL, ALLOCATABLE :: VGLVS1( : )   ! File vertical layer heights
 

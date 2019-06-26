@@ -126,6 +126,8 @@ C  21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C  02 Nov 18 S.Roselle: Removed species mapping
 C  06 Nov 18 S.Roselle: Removed parallel processing code;
 C                       Replaced UTILIO_DEFN with M3UTILIO
+C  11 June 19 F. Sidi : Resolved Memory Issue by changing loop structure to loop
+C                       over spcies instead of saving species
 
 C***********************************************************************
 
@@ -193,8 +195,8 @@ C Local Variables:
 
       REAL, ALLOCATABLE :: COUT( :,:,: )    ! Substituted output IC conc
       REAL, ALLOCATABLE :: CONCIN( :,:,: )  ! Input concs
-      REAL, ALLOCATABLE :: ICIN( :,:,:,: )  ! Horizontally set ICs
-      REAL, ALLOCATABLE :: ICVI( :,:,:,: )  ! Vertically interpolated ICs
+      REAL, ALLOCATABLE :: ICIN( :,:,: )  ! Horizontally set ICs
+      REAL, ALLOCATABLE :: ICVI( :,:,: )  ! Vertically interpolated ICs
 
       INTERFACE
 
@@ -245,8 +247,8 @@ C Local Variables:
             INTEGER, INTENT( IN ) :: NSPCS_IN
             INTEGER, INTENT( IN ) :: COL_LOC( :,: )
             INTEGER, INTENT( IN ) :: ROW_LOC( :,: )
-            REAL, INTENT( IN )  :: ICIN( :,:,:,: )
-            REAL, INTENT( OUT ) :: ICVI( :,:,:,: )
+            REAL, INTENT( IN )  :: ICIN( :,:,:)
+            REAL, INTENT( OUT ) :: ICVI( :,:,:)
             CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )
          END SUBROUTINE M3_VINTERP
 
@@ -297,13 +299,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
 
-      ALLOCATE( ICIN( NCOLS,NROWS,NLAYS_IN,NSPCS_IN ), STAT = ALLOCSTAT )
+      ALLOCATE( ICIN( NCOLS,NROWS,NLAYS_IN ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          MSG = 'Failure allocating ICIN'
          CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
 
-      ALLOCATE( ICVI( NCOLS,NROWS,NLAYS,NSPCS_IN ), STAT = ALLOCSTAT )
+      ALLOCATE( ICVI( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          MSG = 'Failure allocating ICVI'
          CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
@@ -442,36 +444,32 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   CIN = COL_LOC( CIC,RIC )
                   RIN = ROW_LOC( CIC,RIC )
                   DO L = 1, NLAYS_IN
-                     ICIN( CIC,RIC,L,ISP ) = CONCIN( CIN,RIN,L )
+                     ICIN( CIC,RIC,L ) = CONCIN( CIN,RIN,L )
                   END DO
                END DO
             END DO
 
-         END DO 
-
-      END DO
-
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Do vertical interpolation/extrapolation
+C Do vertical interpolation/extrapolation
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL M3_VINTERP ( LOGUNIT, SDATE, STIME,
+         
+         CALL M3_VINTERP ( LOGUNIT, SDATE, STIME,
      &                  NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN,
      &                  COL_LOC, ROW_LOC,
      &                  ICIN, ICVI, CTM_FL_NAME )
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Write the output IC concentrations
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      LNEG = .FALSE.
-      DO N = 1, NSPCS_IN
 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+C  Write the output IC concentrations
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+         
+!         LNEG = .FALSE.
          FLN = ( N - 1 ) / MXVARS3 + 1
-         VNAME = INFL_SP_NAME( N )
            
          DO L = 1, NLAYS
             DO R = 1, NROWS
                DO C = 1, NCOLS
-                  COUT( C,R,L ) = ICVI( C,R,L,N )
+                  COUT( C,R,L ) = ICVI( C,R,L )
 !                  IF ( COUT( C,R,L ) .LT. 0.0 ) THEN
 !                     LNEG = .TRUE.
 !                  ELSE IF ( COUT( C,R,L ) .LT. CMIN ) THEN
@@ -488,8 +486,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
          END IF
 
-      END DO
+         END DO
 
+      END DO
+        
 !      IF ( LNEG ) THEN
 !         MSG = 'Negative ICs output'
 !         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
@@ -502,3 +502,5 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RETURN
 
       END
+
+

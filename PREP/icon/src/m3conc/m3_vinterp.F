@@ -68,6 +68,11 @@ C                             calling INTERPX with MET_CRO_3D_CRS file
 C     21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C     06 Nov 18 S.Roselle: Removed parallel processing code;
 C                          Replaced UTILIO_DEFN with M3UTILIO
+C     10 June 19 F. Sidi : - Commented out Integer STATUS because it is unused
+C                          - Resolved Memory Issue by looping over species instead
+C                          - Added First_Time logical and save statements to 
+C                            avoid re-printing of redundant write statements 
+
                     
 C***********************************************************************
 
@@ -89,8 +94,8 @@ C Arguments:
       INTEGER, INTENT( IN ) :: COL_LOC( :,: )  ! Output IC col corresponding to &
       INTEGER, INTENT( IN ) :: ROW_LOC( :,: )  ! Output IC row corresponding to
                                                ! a cell in the input conc file
-      REAL, INTENT( IN )  :: ICIN( :,:,:,: ) ! Input conc array
-      REAL, INTENT( OUT ) :: ICVI( :,:,:,: ) ! Output IC array
+      REAL, INTENT( IN )  :: ICIN( :,:,: ) ! Input conc array
+      REAL, INTENT( OUT ) :: ICVI( :,:,: ) ! Output IC array
       CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : ) ! Name of input conc file
 
 C Parameters: None
@@ -99,23 +104,25 @@ C External Functions: None
 
 C Local Variables:
 
-      LOGICAL LDEC           ! Flag for monotonic decreasing layer levels
-      LOGICAL LINC           ! Flag for monotonic increasing layer levels
-      LOGICAL L_IDENTICAL    ! Flag for identical vert coord systems      
-      LOGICAL L_RATINT       ! Flag to use rational function interpolation 
-      LOGICAL L_SAME_SCALE   ! Flag for same vert coord systems but 
-                             ! different resolutions  
+      LOGICAL, SAVE :: LDEC           ! Flag for monotonic decreasing layer levels
+      LOGICAL, SAVE :: LINC           ! Flag for monotonic increasing layer levels
+      LOGICAL, SAVE :: L_IDENTICAL    ! Flag for identical vert coord systems      
+      LOGICAL, SAVE :: L_RATINT       ! Flag to use rational function interpolation 
+      LOGICAL, SAVE :: L_SAME_SCALE   ! Flag for same vert coord systems but 
+                             ! different resolutions 
+      LOGICAL, SAVE :: FIRST_TIME = .TRUE. ! Flag for first call to subroutine
+       
       CHARACTER( 20 ) :: CHR1     ! Value of variable 1 in character data
       CHARACTER( 20 ) :: CHR2     ! Value of variable 1 in character data
       CHARACTER( 80 ) :: MSG      ! Log message
       CHARACTER( 16 ) :: PNAME = 'M3_VINTERP'  ! Procedure Name
-      CHARACTER( 16 ) :: ZP_VNAME ! ZH or PRES Variable Name
+      CHARACTER( 16 ), SAVE :: ZP_VNAME ! ZH or PRES Variable Name
 
       INTEGER C, CIN         ! Loop indices for columns
       INTEGER L              ! Loop index for vertical layers
       INTEGER MXLEV          ! Largest no. of levels
       INTEGER R, RIN         ! Loop indices for rows
-      INTEGER STATUS         ! Staus code
+!      INTEGER STATUS         ! Staus code
       INTEGER V              ! Loop index for variables
       INTEGER ALLOCSTAT      ! Status returned from array allocation
 
@@ -123,11 +130,12 @@ C Local Variables:
       REAL    X3    ! Vertical coordinate used in interpolation
       REAL    Y     ! Interpolated concentration
 
-      REAL, ALLOCATABLE :: X3_OLD( : )     ! Old Vertical coordinate values
-      REAL, ALLOCATABLE :: WORKA( : )      ! Work array for conc input
-      REAL, ALLOCATABLE :: HT_IC( :,:,: )  ! New mid-layer heights
-      REAL, ALLOCATABLE :: HT_CTM( :,:,: ) ! Old mid-layer heights
+      REAL, ALLOCATABLE, SAVE :: X3_OLD( : )     ! Old Vertical coordinate values
+      REAL, ALLOCATABLE, SAVE :: WORKA( : )      ! Work array for conc input
+      REAL, ALLOCATABLE, SAVE :: HT_IC( :,:,: )  ! New mid-layer heights
+      REAL, ALLOCATABLE, SAVE :: HT_CTM( :,:,: ) ! Old mid-layer heights
      
+      
       INTERFACE
 
          SUBROUTINE LR_INTERP ( L_RATINT, XA, YA, N, X, Y, DELY )
@@ -147,88 +155,88 @@ C***********************************************************************
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  allocate arrays
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF ( FIRST_TIME ) THEN
 
-      ALLOCATE( WORKA( NLAYS_IN ), X3_OLD( NLAYS_IN ), STAT = ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-         MSG = 'Failure allocating WORKA, X3_OLD'
-         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
-      END IF
+        ALLOCATE( WORKA( NLAYS_IN ), X3_OLD( NLAYS_IN ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           MSG = 'Failure allocating WORKA, X3_OLD'
+           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+        END IF
 
-      ALLOCATE( HT_IC( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-         MSG = 'Failure allocating HT_IC'
-         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
-      END IF
+        ALLOCATE( HT_IC( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           MSG = 'Failure allocating HT_IC'
+           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+        END IF
 
-      ALLOCATE( HT_CTM( NCOLS_IN,NROWS_IN,NLAYS_IN ), STAT = ALLOCSTAT )
-      IF ( ALLOCSTAT .NE. 0 ) THEN
-         MSG = 'Failure allocating HT_CTM'
-         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
-      END IF
-
+        ALLOCATE( HT_CTM( NCOLS_IN,NROWS_IN,NLAYS_IN ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           MSG = 'Failure allocating HT_CTM'
+           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+        END IF
+      
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Determine type of interpolation to use: linear or rational function
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
-         MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
-     &         // ' file'
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
-      END IF
+        IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
+           MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) 
+     &           // ' file'
+           CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+        END IF
+        
+        WRITE( LOGUNIT, 92000 )
 
-      WRITE( LOGUNIT, 92000 )
-
-      L_RATINT = .FALSE.
-      MSG = 'Flag for interpolation by rational function'
-!     L_RATINT = ENVYN( 'RATIONAL_FUNC', MSG, L_RATINT, STATUS )  
-      IF ( .NOT. L_RATINT ) THEN
-         MSG = 'Vertical interpolation method: Linear'
-      ELSE
-         MSG = 'Vertical interpolation method: Rational Function.'
-      END IF
+        L_RATINT = .FALSE.
+        MSG = 'Flag for interpolation by rational function'
+!       L_RATINT = ENVYN( 'RATIONAL_FUNC', MSG, L_RATINT, STATUS )  
+        IF ( .NOT. L_RATINT ) THEN
+           MSG = 'Vertical interpolation method: Linear'
+        ELSE
+           MSG = 'Vertical interpolation method: Rational Function.'
+        END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Check for consistent vertical coordinates
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      L_IDENTICAL  = .TRUE.
-      L_SAME_SCALE = .TRUE.
+        L_IDENTICAL  = .TRUE.
+        L_SAME_SCALE = .TRUE.
 
-c..the following two lines are for testing only
-!     L_IDENTICAL  = .FALSE.
-!     L_SAME_SCALE = .FALSE.
+c..the   following two lines are for testing only
+!       L_IDENTICAL  = .FALSE.
+!       L_SAME_SCALE = .FALSE.
 
-      IF ( VGTYP_GD .NE. VGTYP3D .OR. VGTOP_GD .NE. VGTOP3D) THEN 
-         L_IDENTICAL  = .FALSE.
-         L_SAME_SCALE = .FALSE.
-      END IF
+        IF ( VGTYP_GD .NE. VGTYP3D .OR. VGTOP_GD .NE. VGTOP3D) THEN 
+           L_IDENTICAL  = .FALSE.
+           L_SAME_SCALE = .FALSE.
+        END IF
 
-      IF ( NLAYS .EQ. NLAYS_IN ) THEN
-         DO L = 1, NLAYS + 1
-            WRITE( CHR1, 94000 ) VGLVS_GD( L )
-            WRITE( CHR2, 94000 ) VGLVS3D ( L )
-            IF ( CHR1 .NE. CHR2 ) L_IDENTICAL  = .FALSE.
-         END DO
-      ELSE
-         L_IDENTICAL  = .FALSE. 
-      END IF
+        IF ( NLAYS .EQ. NLAYS_IN ) THEN
+           DO L = 1, NLAYS + 1
+              WRITE( CHR1, 94000 ) VGLVS_GD( L )
+              WRITE( CHR2, 94000 ) VGLVS3D ( L )
+              IF ( CHR1 .NE. CHR2 ) L_IDENTICAL  = .FALSE.
+           END DO
+        ELSE
+           L_IDENTICAL  = .FALSE. 
+        END IF
 
+      END IF ! END OF FIRST_TIME block 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  For identical vertical coordinates, copy the CTM concs to the output
 c  IC array and return
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( L_IDENTICAL ) THEN
 
-         WRITE( LOGUNIT, 92020 ) 
+         IF ( FIRST_TIME ) WRITE( LOGUNIT, 92020 ) 
 
          DO C = 1, NCOLS
             DO R = 1, NROWS
                DO L = 1, NLAYS
-                  DO V = 1, NSPCS_IN
-                     ICVI( C, R, L, V ) = ICIN( C, R, L, V )
-                  END DO
+                     ICVI( C, R, L ) = ICIN( C, R, L)
                END DO
             END DO
          END DO
-
+         FIRST_TIME = .FALSE.
          RETURN
 
       END IF
@@ -239,77 +247,76 @@ c  resolution
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( L_SAME_SCALE ) THEN
 
-         IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
-            MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 )
-     &         // ' file'
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
-         END IF
+        IF ( FIRST_TIME) THEN 
 
-         WRITE( LOGUNIT, 92040 )
-         WRITE( LOGUNIT, 92060 ) VGDESC( VGTYP_GD )
-         WRITE( LOGUNIT, 92080 )
+          IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
+             MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 )
+     &          // ' file'
+          CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+          END IF
 
-         MXLEV = MAX( NLAYS + 1, NLAYS_IN + 1 )
+          WRITE( LOGUNIT, 92040 )
+          WRITE( LOGUNIT, 92060 ) VGDESC( VGTYP_GD )
+          WRITE( LOGUNIT, 92080 )
 
-         DO L = 1, MXLEV 
-            IF ( L .LE. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
-               WRITE( LOGUNIT, 92100 ) L, VGLVS_GD( L ), VGLVS3D( L )
-            ELSE IF ( L .LE. NLAYS + 1 .AND. L .GT. NLAYS_IN + 1 ) THEN
-               WRITE( LOGUNIT, 92100 ) L, VGLVS_GD( L )
-            ELSE IF ( L .GT. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
-               WRITE( LOGUNIT, 92120 ) L, VGLVS3D( L )
-            END IF
-         END DO        
+          MXLEV = MAX( NLAYS + 1, NLAYS_IN + 1 )
 
-         WRITE( LOGUNIT, 92140 ) MSG 
+          DO L = 1, MXLEV 
+             IF ( L .LE. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
+                WRITE( LOGUNIT, 92100 ) L, VGLVS_GD( L ), VGLVS3D( L )
+             ELSE IF ( L .LE. NLAYS + 1 .AND. L .GT. NLAYS_IN + 1 ) THEN
+                WRITE( LOGUNIT, 92100 ) L, VGLVS_GD( L )
+             ELSE IF ( L .GT. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
+                WRITE( LOGUNIT, 92120 ) L, VGLVS3D( L )
+             END IF
+          END DO        
 
-         DO L = 1, NLAYS3D 
-            X3_OLD( L ) = 0.5 * ( VGLVS3D( L ) +  VGLVS3D( L+1 ) )
-         END DO
+          WRITE( LOGUNIT, 92140 ) MSG 
 
-         LINC = .FALSE.
-         LDEC = .FALSE.
-         IF ( VGLVS3D ( NLAYS_IN ) .GT. VGLVS3D ( 1 ) ) THEN
-            LINC = .TRUE.
-         ELSE
-            LDEC = .TRUE.
-         END IF
+          DO L = 1, NLAYS3D 
+             X3_OLD( L ) = 0.5 * ( VGLVS3D( L ) +  VGLVS3D( L+1 ) )
+          END DO
+
+          LINC = .FALSE.
+          LDEC = .FALSE.
+          IF ( VGLVS3D ( NLAYS_IN ) .GT. VGLVS3D ( 1 ) ) THEN
+             LINC = .TRUE.
+          ELSE
+             LDEC = .TRUE.
+          END IF
+
+        END IF  ! End of FIRST_TIME Block 
 
          DO C = 1, NCOLS
             DO R = 1, NROWS
-              DO V = 1, NSPCS_IN
-
                   DO L = 1, NLAYS_IN
-                     WORKA( L ) = ICIN( C,R,L,V )
+                     WORKA( L ) = ICIN( C,R,L )
                   END DO
 
                   DO L = 1, NLAYS
 
                      IF ( NLAYS_IN .EQ. 1 ) THEN
-                        ICVI( C,R,L,V ) = WORKA( 1 )
+                        ICVI( C,R,L ) = WORKA( 1 )
                      ELSE
                         X3 = 0.5 * ( VGLVS_GD( L ) +  VGLVS_GD( L + 1 ) )
                         IF ( LINC .AND. X3 .LE. X3_OLD( 1 ) ) THEN
-                           ICVI( C,R,L,V ) = WORKA( 1 )
+                           ICVI( C,R,L ) = WORKA( 1 )
                         ELSE IF ( LDEC .AND. X3 .GE. X3_OLD( 1 ) ) THEN
-                           ICVI( C,R,L,V ) = WORKA( 1 )
+                           ICVI( C,R,L ) = WORKA( 1 )
                         ELSE IF ( LINC .AND. X3 .GE. X3_OLD( NLAYS_IN ) ) THEN
-                           ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
+                           ICVI( C,R,L ) = WORKA( NLAYS_IN )
                         ELSE IF ( LDEC .AND. X3 .LE. X3_OLD( NLAYS_IN ) ) THEN
-                           ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
+                           ICVI( C,R,L ) = WORKA( NLAYS_IN )
                         ELSE
                            CALL LR_INTERP ( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
      &                                      X3, Y, DELY )
-                           ICVI( C,R,L,V ) = Y
+                           ICVI( C,R,L ) = Y
                         END IF
                      END IF
-
                   END DO 
- 
-               END DO
             END DO
          END DO
-
+         FIRST_TIME = .FALSE.
          RETURN
 
       END IF
@@ -318,42 +325,45 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c   Interpolate by height for all other vertical grid types; a dynamic
 c   array holding heights will need to be allocated
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      WRITE( LOGUNIT, 92140 ) MSG
+      IF ( FIRST_TIME ) THEN 
+       
+        WRITE( LOGUNIT, 92140 ) MSG
 
-      IF ( .NOT. DESC3( MET_CRO_3D_CRS ) ) THEN
-         MSG = 'Could not read DESC of  ' // MET_CRO_3D_CRS
-     &      // ' file'
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
-      END IF
+        IF ( .NOT. DESC3( MET_CRO_3D_CRS ) ) THEN
+           MSG = 'Could not read DESC of  ' // MET_CRO_3D_CRS
+     &        // ' file'
+           CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
+        END IF
 
-      ZP_VNAME = 'ZH'
-      V = INDEX1( ZP_VNAME, NVARS3D, VNAME3D )
-      IF ( V .NE. 0 ) THEN
-        WRITE( LOGUNIT, 92160 ) TRIM( ZP_VNAME )
-      ELSE
-         ZP_VNAME = 'PRES'
-         V = INDEX1( ZP_VNAME, NVARS3D, VNAME3D )
-         IF ( V .NE. 0 ) THEN
-            WRITE( LOGUNIT, 92160 ) TRIM( ZP_VNAME )
-         ELSE
-            MSG = 'Could not find ZH or PRES in file ' // MET_CRO_3D_CRS 
-            CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
-         END IF
-      END IF
+        ZP_VNAME = 'ZH'
+        V = INDEX1( ZP_VNAME, NVARS3D, VNAME3D )
+        IF ( V .NE. 0 ) THEN
+          WRITE( LOGUNIT, 92160 ) TRIM( ZP_VNAME )
+        ELSE
+           ZP_VNAME = 'PRES'
+           V = INDEX1( ZP_VNAME, NVARS3D, VNAME3D )
+           IF ( V .NE. 0 ) THEN
+              WRITE( LOGUNIT, 92160 ) TRIM( ZP_VNAME )
+           ELSE
+              MSG = 'Could not find ZH or PRES in file ' // MET_CRO_3D_CRS 
+              CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
+           END IF
+        END IF
 
 C Get the layer mid-point heights
-      IF ( .NOT. READ3( MET_CRO_3D_FIN, ZP_VNAME, ALLAYS3, SDATE, STIME,
-     &                  HT_IC ) ) THEN
-         MSG = 'Could not read layer heights from file ' // MET_CRO_3D_FIN
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
-      END IF
+        IF ( .NOT. READ3( MET_CRO_3D_FIN, ZP_VNAME, ALLAYS3, SDATE, STIME,
+     &                    HT_IC ) ) THEN
+           MSG = 'Could not read layer heights from file ' // MET_CRO_3D_FIN
+           CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
+        END IF
 
-      IF ( .NOT. INTERP3( MET_CRO_3D_CRS, ZP_VNAME, PNAME, SDATE, STIME,
-     &                    NROWS_IN*NCOLS_IN*NLAYS_IN, HT_CTM ) ) THEN
-         MSG = 'Could not read layer heights from file ' // MET_CRO_3D_CRS
-         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
-      END IF
+        IF ( .NOT. INTERP3( MET_CRO_3D_CRS, ZP_VNAME, PNAME, SDATE, STIME,
+     &                      NROWS_IN*NCOLS_IN*NLAYS_IN, HT_CTM ) ) THEN
+           MSG = 'Could not read layer heights from file ' // MET_CRO_3D_CRS
+           CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT1 )
+        END IF
 
+      END IF ! End of FIRST_TIME block
 C Do the interpolation
 
 C...  for height interpolation
@@ -362,33 +372,33 @@ C...  for height interpolation
             DO R = 1, NROWS
                CIN = COL_LOC( C,R )
                RIN = ROW_LOC( C,R )
-               DO V = 1, NSPCS_IN    
+!               DO V = 1, NSPCS_IN    
          
                   DO L = 1, NLAYS_IN
-                     WORKA( L ) = ICIN( C,R,L,V )
+                     WORKA( L ) = ICIN( C,R,L )
                      X3_OLD( L ) = HT_CTM( CIN,RIN,L )
                   END DO
          
                   DO L = 1, NLAYS
          
                      IF ( NLAYS_IN .EQ. 1 ) THEN
-                        ICVI( C,R,L,V ) = WORKA( 1 )
+                        ICVI( C,R,L ) = WORKA( 1 )
                      ELSE
                         X3 = HT_IC( C,R,L )
                         IF ( X3 .LT. X3_OLD( 1 ) ) THEN
-                           ICVI( C,R,L,V ) = WORKA( 1 )
+                           ICVI( C,R,L ) = WORKA( 1 )
                         ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
-                           ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
+                           ICVI( C,R,L ) = WORKA( NLAYS_IN )
                         ELSE
                            CALL LR_INTERP ( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
      &                                      X3, Y, DELY )
-                           ICVI( C,R,L,V ) = Y
+                           ICVI( C,R,L ) = Y
                         END IF
                      END IF
          
                   END DO
          
-               END DO
+               !END DO
             END DO
          END DO
 
@@ -399,38 +409,38 @@ C...  for pressure interpolation
             DO R = 1, NROWS
                CIN = COL_LOC( C,R )
                RIN = ROW_LOC( C,R )
-               DO V = 1, NSPCS_IN    
+              ! DO V = 1, NSPCS_IN    
          
                   DO L = 1, NLAYS_IN
-                     WORKA( L ) = ICIN( C,R,L,V )
+                     WORKA( L ) = ICIN( C,R,L )
                      X3_OLD( L ) = HT_CTM( CIN,RIN,L )
                   END DO
          
                   DO L = 1, NLAYS
          
                      IF ( NLAYS_IN .EQ. 1 ) THEN
-                        ICVI( C,R,L,V ) = WORKA( 1 )
+                        ICVI( C,R,L ) = WORKA( 1 )
                      ELSE
                         X3 = HT_IC( C,R,L )
                         IF ( X3 .GT. X3_OLD( 1 ) ) THEN
-                           ICVI( C,R,L,V ) = WORKA( 1 )
+                           ICVI( C,R,L ) = WORKA( 1 )
                         ELSE IF ( X3 .LT. X3_OLD( NLAYS_IN ) ) THEN
-                           ICVI( C,R,L,V ) = WORKA( NLAYS_IN )
+                           ICVI( C,R,L ) = WORKA( NLAYS_IN )
                         ELSE
                            CALL LR_INTERP ( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
      &                                      X3, Y, DELY )
-                           ICVI( C,R,L,V ) = Y
+                           ICVI( C,R,L ) = Y
                         END IF
                      END IF
          
                   END DO
          
-               END DO
+               !END DO
             END DO
          END DO
 
       END IF
-
+      FIRST_TIME = .FALSE.
       RETURN
 
 C************************* FORMAT Statements ***************************

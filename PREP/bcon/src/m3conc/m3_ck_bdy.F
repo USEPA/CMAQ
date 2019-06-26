@@ -42,6 +42,7 @@ C    02/25/02 Steve Howard (Jeff Young) - dynamic allocation
 C    01/05/05 J.Young: vert dyn alloc - Use VGRD_DEFN
 C    13 JuL 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
+C    10 June 19 F. Sidi : Commented Out LOGICAL LFIRST & INTEGER N because it is unused
                     
 C***********************************************************************
 
@@ -73,10 +74,11 @@ C Local Variables:
 
       INTEGER JDATE       ! Current date
       INTEGER JTIME       ! Current time
-      INTEGER N, L        ! Loop indices
+!      INTEGER N
+      INTEGER L        ! Loop indices
 
       LOGICAL LERROR      ! Error Flag
-      LOGICAL LFIRST      ! First time flag
+!      LOGICAL LFIRST      ! First time flag
     
 C***********************************************************************
 

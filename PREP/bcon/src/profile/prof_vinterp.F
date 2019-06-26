@@ -55,6 +55,7 @@ C                       target boundary vertical layer heights (ZH)
 C    30 Nov 18 S.Roselle: To provide spatially uniform BCs, target boundary 
 C                       average mid-layer heights are used for the vertical
 C                       interpolation
+C    10 June 19 F.Sidi  : Commented out INTEGER STATUS unused variable                    
                     
 C***********************************************************************
 
@@ -86,7 +87,7 @@ C Local Variables:
       INTEGER L              ! Loop index for vertical layers
       INTEGER N              ! Loop index
       INTEGER C              ! Loop index for boundary cells
-      INTEGER STATUS         ! Status code
+!      INTEGER STATUS         ! Status code
       INTEGER JDATE          ! Date for first record on BDY file
       INTEGER JTIME          ! Time for first record on BDY file
       INTEGER ALLOCSTAT      ! Status returned from array allocation
