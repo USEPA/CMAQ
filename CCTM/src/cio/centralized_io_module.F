@@ -1412,7 +1412,7 @@ C Read the various categories of normalized emissions
 
           GMN_AVAIL = .false.
           if (index1 ('GMN', nvars3d, vname3d) .gt. 0) then
-             GMN_AVAIL = .true.
+             GMN_AVAIL = .true.          
           end if
 
           vname = 'L1_NH3'
@@ -1589,33 +1589,44 @@ C Read the various categories of normalized emissions
                    jdate_yest = cio_model_sdate-1
                 End If
 
-               vname = 'L1_AON'
-               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
-     &                             STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F1_ON ) ) Then
-                  Write( mesg,9001 ) vname, E2C_FERT
-                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-               End If
+                If ( .Not. Open3( E2C_FERT_YEST, fsread3, pname ) ) Then
+                   mesg = 'Could not open '// E2C_FERT_YEST // ' file'
+                   Call M3exit ( pname, 0, 0, mesg, xstat1 )
+                End If
 
-               vname = 'L2_AON'
-               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
-     &                             STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F2_ON ) ) Then
-                  Write( mesg,9001 ) vname, E2C_FERT
-                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-               End If
+                IF ( .NOT. DESC3( E2C_FERT_YEST ) ) THEN
+                   MESG = 'Could not get description of file "' //
+     &                     TRIM( E2C_FERT_YEST ) // '"'
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                END IF
 
-               vname = 'L1_ON'
-               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
-     &                             STRTCOLGC2, ENDCOLGC2, jdate_yest, 0, L1_ON_Yest ) ) Then
-                  Write( mesg,9001 ) vname, E2C_FERT
-                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-               End If
+                vname = 'L1_AON'
+                If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                              STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F1_ON ) ) Then
+                   Write( mesg,9001 ) vname, E2C_FERT
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                End If
 
-               vname = 'L2_ON'
-               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
-     &                             STRTCOLGC2, ENDCOLGC2, jdate_yest, 0, L2_ON_Yest ) ) Then
-                  Write( mesg,9001 ) vname, E2C_FERT
-                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-               End If
+                vname = 'L2_AON'
+                If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                              STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F2_ON ) ) Then
+                   Write( mesg,9001 ) vname, E2C_FERT
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                End If
+
+                vname = 'L1_ON'
+                If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                              STRTCOLGC2, ENDCOLGC2, jdate_yest, 0, L1_ON_Yest ) ) Then
+                   Write( mesg,9001 ) vname, E2C_FERT
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                End If
+
+                vname = 'L2_ON'
+                If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+     &                              STRTCOLGC2, ENDCOLGC2, jdate_yest, 0, L2_ON_Yest ) ) Then
+                   Write( mesg,9001 ) vname, E2C_FERT
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                End If
              end if    ! .not. GMN_AVAIL
           end if   ! MEDC_AVAIL
 
