@@ -25,7 +25,7 @@
  # the user will pull from to create exectuables. If the user is building
  # CMAQ inside the repository then it will be equal to CMAQ_HOME. If not,
  # the user must supply an alternative folder locaiton.
- setenv CMAQ_REPO $CMAQ_HOME  
+ setenv CMAQ_REPO $CMAQ_HOME
 
  # CMAQ_DATA - this may be where the input data are located. It may be a 
  # symbolic link to another location on the system, but it should be
@@ -80,7 +80,6 @@
     case intel:
     
         #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR   ioapi_mod_intel  #> I/O API precompiled modules
         setenv IOAPI_INCL_DIR  ioapi_inc_intel  #> I/O API include header files
         setenv IOAPI_LIB_DIR   ioapi_lib_intel  #> I/O API libraries
         setenv NETCDF_LIB_DIR  netcdf_lib_intel #> netCDF directory path
@@ -88,11 +87,12 @@
         setenv MPI_LIB_DIR     mpi_lib_intel    #> MPI directory path
     
         #> Compiler Aliases and Flags
+        #> set the compiler flag -qopt-report=5 to get a model optimization report in the build directory with the optrpt extension
         setenv myFC mpiifort
         setenv myCC icc       
-        setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -axCOMMON-AVX512 -vec-guard-write -unroll-aggressive -mssse3"
+        setenv myFSTD "-O3 -fno-alias -mp1 -fp-model source -ftz -simd -align all -xHost -vec-guard-write -unroll-aggressive"
         setenv myDBG  "-O0 -g -check bounds -check uninit -fpe0 -fno-alias -ftrapuv -traceback"
-        setenv myLINK_FLAG "-qopenmp-simd"
+        setenv myLINK_FLAG #"-qopenmp-simd" openMP not supported w/ CMAQ
         setenv myFFLAGS "-fixed -132"
         setenv myFRFLAGS "-free"
         setenv myCFLAGS "-O2"
@@ -108,7 +108,6 @@
     case pgi:
 
         #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR   ioapi_mod_pgi  #> I/O API precompiled modules
         setenv IOAPI_INCL_DIR  iopai_inc_pgi  #> I/O API include header files
         setenv IOAPI_LIB_DIR   ioapi_lib_pgi  #> I/O API libraries
         setenv NETCDF_LIB_DIR  netcdf_lib_pgi #> netCDF directory path
@@ -116,10 +115,9 @@
         setenv MPI_LIB_DIR     mpi_lib_pgi    #> MPI directory path
     
         #> Compiler Aliases and Flags
-        setenv myFC mpif90 
-        #setenv myFC mpifort 
+        setenv myFC mpifort 
         setenv myCC pgcc
-        setenv myLINK_FLAG #"-openmp"
+        setenv myLINK_FLAG # "-mp" openMP not supported w/ CMAQ
         setenv myFSTD "-O3"
         setenv myDBG  "-O0 -g -Mbounds -Mchkptr -traceback -Ktrap=fp"
         setenv myFFLAGS "-Mfixed -Mextend -mcmodel=medium -tp px"
@@ -136,7 +134,6 @@
     case gcc:
   
         #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR   ioapi_mod_gcc  #> I/O API precompiled modules
         setenv IOAPI_INCL_DIR  iopai_inc_gcc  #> I/O API include header files
         setenv IOAPI_LIB_DIR   ioapi_lib_gcc  #> I/O API libraries
         setenv NETCDF_LIB_DIR  netcdf_lib_gcc #> netCDF directory path
@@ -144,16 +141,15 @@
         setenv MPI_LIB_DIR     mpi_lib_gcc    #> MPI directory path
     
         #> Compiler Aliases and Flags
-        setenv myFC mpif90
-        #setenv myFC mpifort
+        #> set the compiler flag -fopt-info-missed to generate a missed optimization report in the bldit logfile
+        setenv myFC mpifort
         setenv myCC gcc
-        setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising -mtune=native -march=native -mavx2 -ftree-loop-if-convert -finline-limit=512"
+        setenv myFSTD "-O3 -funroll-loops -finit-character=32 -Wtabs -Wsurprising -march=native -ftree-vectorize  -ftree-loop-if-convert -finline-limit=512"
         setenv myDBG  "-Wall -O0 -g -fcheck=all -ffpe-trap=invalid,zero,overflow -fbacktrace"
-        #setenv myDBG  "$myDBG -fimplicit-none"
         setenv myFFLAGS "-ffixed-form -ffixed-line-length-132 -funroll-loops -finit-character=32"
         setenv myFRFLAGS "-ffree-form -ffree-line-length-none -funroll-loops -finit-character=32"
         setenv myCFLAGS "-O2"
-        setenv myLINK_FLAG #"-openmp"
+        setenv myLINK_FLAG # "-fopenmp" openMP not supported w/ CMAQ
         setenv extra_lib ""
         #setenv mpi_lib "-lmpi_mpifh"   #> -lmpich for mvapich or -lmpi for openmpi
         setenv mpi_lib ""   #> -lmpich for mvapich or -lmpi for openmpi
@@ -168,7 +164,7 @@
  endsw
  
 #> Apply Specific Module and Library Location Settings for those working inside EPA
- #source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> Comment out if not at EPA
+ source /work/MOD3DEV/cmaq_common/cmaq_env.csh  #>>> Comment out if not at EPA
 
 #> Add The Complier Version Number to the Compiler String if it's not empty
  setenv compilerString ${compiler}
@@ -200,13 +196,12 @@
  if (   -e $MPI_DIR  ) rm -rf $MPI_DIR
      ln -s $MPI_LIB_DIR $MPI_DIR
  if ( ! -d $NETCDF_DIR )  mkdir $NETCDF_DIR
- if ( ! -e $NETCDF_DIR/lib ) ln -s $NETCDF_LIB_DIR $NETCDF_DIR/lib
- if ( ! -e $NETCDF_DIR/include ) ln -s $NETCDF_INCL_DIR $NETCDF_DIR/include
+ if ( ! -e $NETCDF_DIR/lib ) ln -sfn $NETCDF_LIB_DIR $NETCDF_DIR/lib
+ if ( ! -e $NETCDF_DIR/include ) ln -sfn $NETCDF_INCL_DIR $NETCDF_DIR/include
  if ( ! -d $IOAPI_DIR ) then 
     mkdir $IOAPI_DIR
-    ln -s $IOAPI_MOD_DIR  $IOAPI_DIR/modules
-    ln -s $IOAPI_INCL_DIR $IOAPI_DIR/include_files
-    ln -s $IOAPI_LIB_DIR  $IOAPI_DIR/lib
+    ln -sfn $IOAPI_INCL_DIR $IOAPI_DIR/include_files
+    ln -sfn $IOAPI_LIB_DIR  $IOAPI_DIR/lib
  endif
 
 #> Check for netcdf and I/O API libs/includes, error if they don't exist
