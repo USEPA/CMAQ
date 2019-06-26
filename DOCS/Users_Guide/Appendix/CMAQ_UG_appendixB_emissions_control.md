@@ -188,7 +188,7 @@ In the example above, fine mode Wind-Blown Dust are linked to 'FINE_WBDUST', sea
 ```
 
 ## B.6 Additional DESID Features
-### B.6.1 Diagnostic Log Output
+### B.6.1 Summary Output to Processor-Specific Logfiles
 Diagnostic output is an important feature of the new emissions module, DESID. Because the impact of emissions is so critical for CMAQ predictions and because the features available for scaling emissions are now quite complex, a comprehensive text-based output has been added to the CMAQ logfiles to enhance transparency.
 
 The logfiles now provide several lists of information to help protect users from mistakes like inconsistent naming between emissions and CMAQ speciation. First, CMAQ reports for each stream the number and names of all of the surrogate species that were not used. Second, prints the names of surrogates that the user told it to look for but that it could not find on any of the emission streams. If the environment variable:
@@ -199,7 +199,7 @@ is set to 'Y' or 'True', then the model will abort if it cannot find any individ
 
 Finally, CMAQ loops through stream and outputs the size distribution modes available for each stream and the full list of every emission instructions applied to each stream. These are ordered by CMAQ species (with 'i', 'j', and 'k' modes listed separately) and surrogate species name so that a full understanding of the scaling rules applied to each CMAQ species' emissions can be grasped quickly. Columns are printed for the applicable region of the grid, the phase/mode applied, the input scale factor, the scaling basis, the operation, and the final scale factor applied taking into account any molecular weight conversions, if needed, and size distribution fractions.
 
-### B.6.2 Diagnostic Gridded Output
+### B.6.2 Diagnostic Gridded Output Files
 Many complex scaling procedures are now possible with DESID. Users are advised to confirm that the emissions are scaled the way they have intended. One tool to help this step is the Gridded Diagnostic Output. This is enabled on a stream-by-stream basis in the CMAQ RunScript with the following options:
 ```
 # Gridded Emissions Diagnostic files
@@ -221,35 +221,11 @@ setenv LTNG_EMIS_DIAG TRUE
 setenv DUST_EMIS_DIAG TRUE
 setenv SEASPRAY_EMIS_DIAG TRUE
 ```
-In order to change the default value of all emission streams modify the "EMIS_DIAG" variable:
+The gridded diagnostic output files that are created are named systematically with the format "CCTM_EMDIAG_[XXX]_[CTM_APPL]_[DATE].nc" where XXX is the emissions stream label, CTM_APPL is the application name defined in the CCTM runscript, and DATE is the date of the simulation. In order to change the default value of all emission streams modify the "EMIS_DIAG" variable:
 ```
 setenv EMIS_DIAG TRUE
 ```
 The emission rates printed to the diagnostic files reflect all of the scaling rules applied and are written just before the emissions are added to the CMAQ transport module. Because the model interpolates in time, it is very likley that the rates written to the diagnostic file will not correspond in time to the rates from the input files. In most cases, the rates will be one-half time step before the top of the hour, the time point of the emission inputs. For this reason, it is not entirely helpful for users to compare the scaled emissions directly to the rates on the input files. However, comparing them qualitatively can be helpful.
-
-### B.6.3 Date Override
-For offline emissions, CMAQ tries to check for errors in misapplying dates by comparing the date of the offline emisisons file to the mode simulation date. However, there are many instances where using a repeating emission day for multiple simulation days can be helpful, and save disk space. Users can direct CMAQ to skip the date error check using the following environment variable in the CMAQ RunScript:
-```
-# Gridded Emission Date Override
-setenv GR_EM_DTOVRD_001 F
-
-# Allow CMAQ to Use Point Source files with dates that do not
- # match the internal model date
- setenv STK_EM_DTOVRD_001 T
- setenv STK_EM_DTOVRD_002 T
- setenv STK_EM_DTOVRD_003 T
- setenv STK_EM_DTOVRD_004 T
- setenv STK_EM_DTOVRD_005 T
-```
-To set the value of these variables globally, the user may set master switch for date overrides:
-```
-setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
-                             #>   rather than checking the emissions date against the internal model date.
-                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
-                             #>   time will be used and an error check will be performed (recommended). Users
-                             #>   may switch the behavior for individual emission files below using the variables:
-                             #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_##
-```
 
 
 [<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
