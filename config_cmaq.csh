@@ -218,7 +218,7 @@
     echo "ERROR: $IOAPI_DIR/lib/libioapi.a does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
     exit
  endif
- if ( ! -e $IOAPI_MOD_DIR/m3utilio.mod ) then 
+ if ( ! -e $IOAPI_MOD_LIB/m3utilio.mod ) then 
     echo "ERROR: $IOAPI_MOD_DIR/m3utilio.mod does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
     exit
  endif

@@ -36,7 +36,7 @@ echo 'Start Model Run At ' `date`
  set VRSN      = v53               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = Bench_2016_12SE1        #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2016_12SE1  #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
