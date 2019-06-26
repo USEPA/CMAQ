@@ -7,7 +7,32 @@
 
 # Appendix A: Model options
 
+<a id=TOC_A></a>
+
+**Table of Contents:**
+
+* A.1 Configuration options (config_cmaq.csh)
+* A.2 Compilation options (bldit_cctm.csh)
+* A.3 Execution options (run_cctm.csh)
+	* MPI Configuration
+	* Vertical Extent
+	* Timestep Configuration
+	* CCTM Configuration Options
+	* Synchronization Time Step and Tolerance Options
+	* Science Options
+	* Process Analysis Options
+	* I/O Controls
+	* Aerosol Diagnostics Controls
+	* Diagnostic Output Flags
+	* Inline Emissions Configuration
+	* Lightning NOx Configuration
+	* In-line Biogenic Emissions Configuration
+  * Windblown Dust Emissions Configuration
+
 ## A.1 config_cmaq.csh
+
+[Return to Top](#TOC_A)
+
 Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script config_cmaq.csh to help enforce consistent environment settings for CMAQ and its associated libraries. The following lists the config_cmaq.csh variables defined for the build process and suggests values to which to set those variables.
 
 Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpif90 be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build.
