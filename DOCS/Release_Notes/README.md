@@ -17,6 +17,9 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 **>>COMMENT<<** I don't think we need to state where the gas-phase mechanisms are located in the repo or how they're built.  I think that detail detracts from the brevity of the changes.  If we added a gas-phase chemical mechanism, then that might be worth introducing here (as in aero7 and aero71, below).  TLS 25 Jun 2019  
 
 **>>COMMENT<<** I think we should name the obsolete mechanisms here.  TLS 25 Jun 2019
+
+**>>COMMENT<<** Can any of these release notes be combined?  TLS 26 Jun 2019
+
   * [Removal of obsolete mechanisms in CMAQv5.3](obsolete_mechanisms.md)
   * [Revision of halogen-mediated first-order ozone loss (all mechanisms)](simple_halogen_chemistry.md)
   * [Adding detailed halogen and DMS chemistry to CB6r3](detailed_halogen_and_DMS_chemistry.md)
