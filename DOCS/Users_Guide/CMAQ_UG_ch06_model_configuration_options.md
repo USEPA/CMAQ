@@ -129,7 +129,7 @@ Because CMAQ represents both primary and secondary pollutants, emissions are pro
 Depending on the nature of any stream and the information used to quantify its emissions, it may be treated as one of three types:
 
 #### Online Stream:
-CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams available for running Online in CMAQ are: [plume rise](#Plume_Rise), [biogenics (BEIS)](#BEIS),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
+CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams available for running Online in CMAQ are: [biogenics (BEIS)](#BEIS),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
 
 #### Gridded Stream (offline):
 CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the grid CMAQ is running. Typically these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. Some common examples of Gridded emissions include:
@@ -189,26 +189,56 @@ setenv STK_EMIS_LAB_002 POINT_FIRES
 ```
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
-### 6.9.2 Online Emission Streams
-<a id=Plume_Rise></a>
-#### Plume Rise 
-Plume rise can be calculated for large point sources. Plume rise can be calculated inline within CMAQ provided the emission files have been processed with SMOKE for inline processing. The NPTGRPS sets the number of “sectors” for which the user wishes to provide a stack_groups file and an inline emissions file. Optionally, the user can request 2 optional output diagnostic files that include a 3-D file of the emissions with plume rise included and a layer fractions (PLAY) file that includes the fractional amount of emission per model layer.
+*Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide (https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s03.html). It is required that emission files have been processed to include the necessary stack parameters (e.g. Exit velocity, diameter, stack gas temperature, stack height, etc.). 
 
+### 6.9.2 Online Emission Streams
 
 <a id=BEIS></a>
-#### BEIS
-To calculate inline biogenic emissions, CMAQ uses the [Biogenic Emission Inventory System (BEIS)](https://www.epa.gov/air-emissions-modeling/biogenic-emission-inventory-system-beis). BEIS calculates emissons resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types.
+#### Biogenics
+To calculate online biogenic emissions, CMAQ uses the [Biogenic Emission Inventory System (BEIS)](https://www.epa.gov/air-emissions-modeling/biogenic-emission-inventory-system-beis). BEIS calculates emissons resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types.
 
-This biogenic model is based on the same model that is included in SMOKE. Before using the CMAQ inline version of BEIS users should confirm that biogenic emissions are not already included in their emissions files from SMOKE to avoide double counting biogenic emissions.  User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
+This biogenic model is based on the same model that is included in SMOKE. Before using the CMAQ online version of BEIS users should confirm that biogenic emissions are not already included in their emissions files from SMOKE to avoid double counting biogenic emissions.  User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
 
-Need to add -- speciation information for BEIS is controlled in GSPRO file.
+Speciation of biogenic emissions is controlled by gspro_biogenics.txt uner CCTM/src/biog/beis.
 
-The temporal allocation of the biogenic emissions is calculated inline when running CMAQ. However, the calculation of the gridded normalized emissions for winter and summer is a time-independent calculation and must be done with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ. 
+Running CMAQ with online biogenic emissions requires a grid-normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ. The location of the B3GRD file is set in the RunScript:
 
-The user must either provide a BIOSEASON file for simulations that are not summer only or winter only (e.g., multiple seasons, spring, fall) or set the SUMMER_YN flag to Y for summer or N for winter. 
+```
+setenv B3GRD /home/user/path-to-file/b3grd.nc
+```
 
-Without the BIOSEASON file, all biogenic emissions will be calculated using summer factors or winter factors. Additionally, when using the inline biogenic option, the user must point to the SOILOUT file from one day’s simulation as the SOILINP file for the next day. The user must also decide whether to write over SOILOUT files from previous days or create a uniquely named SOILOUT file for each day. The latter approach is recommended if the user wishes to retain the capability to restart simulations in the middle of a sequence of simulations.
+For short simulations that span only summer months set the SUMMER_YN flag to Y and the BIOSW_YN flat to N in the RunScript so that biogenic emissions will be calculated using summer factors.  
+```
+setenv BIOSW_YN N
+```
 
+```
+setenv SUMMER_YN Y
+```
+
+For simulations that span only winter months, set this flag to N.
+
+For simulations of spring or fall, or simulations covering multiple seasons, a user must provide a BIOSEASON file.  Without the BIOSEASON file, all biogenic emissions will be calculated using summer factors or winter factors. This file is created with the [metscan](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) program in SMOKE prior to running the inline biogenic option in CMAQ. To use the BIOSEASON file set the following two environment variables in the RunScript:
+
+```
+setenv BIOSW_YN Y
+```
+
+```
+setenv BIOSEASON /home/user/path-to-file/bioseason.nc
+```
+
+Additionally, when using the inline biogenic option, the user must point to the SOILOUT file from one day’s simulation as the SOILINP file for the next day. The user must also decide whether to write over SOILOUT files from previous days or create a uniquely named SOILOUT file for each day. The latter approach is recommended if the user wishes to retain the capability to restart simulations in the middle of a sequence of simulations.
+
+The INITIAL_RUN variable in the RunScript to Y if this is the first time that biogenic NO soil emissions will be calculated. If there is a previously created file, set to N.  When INITIAL_RUN is set to N, the directory path and file name of biogenic NO soil emissions file must be set in the RunScript:
+
+```
+setenv INITIAL_RUN N
+```
+
+```
+setenv SOILNP /home/user/path-to-file/cctm_soilout.nc
+```
 
 <a id=Wind_Blown_Dust></a>
 #### Wind-Blown Dust
