@@ -9,7 +9,7 @@ CMAQv5.3 does not include several mechanisms and variants of mechanisms that wer
 In most cases, users who still want to use mechanisms that have not been retained in CMAQv5.3 can use the released mechanisms as a guide to implement those mechanisms into CMAQv5.3, and either recreate using the EBI solver or run CMAQ with Rosenbrock.  
 
 
-Table 1. Mechanisms removed in CMAQv5.3 
+Table 1. Mechanisms removed in CMAQv5.3.
 
 |Mechanism Name| Notes |                                  
 | ----------------------- | ------------------------------------------------------- |
