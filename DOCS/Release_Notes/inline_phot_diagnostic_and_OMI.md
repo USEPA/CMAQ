@@ -34,17 +34,17 @@ and Aerosol extinction at the wavelengths use calculate photolysis rates in PHOT
 
 <p align="center">Table 1. PHOTDIAG1 contents </p>
 
-|Variable Name|Units|Description                                   |
-|:----|:----:|:---------------------------------------------|
+|Variable Name|  Units  |Description                                   |
+|:----|:--------------:|:---------------------------------------------|
 |         COSZENS|            none|cosine of solar zenith angle|
 |    OZONE_COLUMN|              DU|observed total ozone column density|
 | TROPO_O3_COLUMN|              DU|predicted tropospheric ozone column density|
-|            JNO2|           min<sup>-1</sup>|photodissociation rate of NO<sub>2</sub>|
-|          JO3O1D|           min<sup>-1</sup>|photodissociation rate of ozone producing O(1D) |
+|            JNO2|min<sup>-1</sup>|photodissociation rate of NO<sub>2</sub>|
+|          JO3O1D|min<sup>-1</sup>|photodissociation rate of ozone producing O(1D) |
 |  RESOLVED_CFRAC|            none|resolved cloud fraction averaged over cloudy layers|
-|   RESOLVED_WBAR| g m<sup>-3</sup>|resolved cloud hydrometeor content averaged over cloudy layers|
+|   RESOLVED_WBAR|g m<sup>-3</sup>|resolved cloud hydrometeor content averaged over cloudy layers|
 |   SUBGRID_CFRAC|            none|subgrid cloud fraction averaged over cloudy layers|
-|    SUBGRID_WBAR| g m<sup>-3</sup>|subgrid cloud hydrometeor content averaged over cloudy layers|
+|    SUBGRID_WBAR|g m<sup>-3</sup>|subgrid cloud hydrometeor content averaged over cloudy layers|
 |   TRANS_DIFFUSE|            none|broad band transmission coefficient for diffuse radiation at surface|
 |    TRANS_DIRECT|            none|broad band transmission coefficient for direct radiation at surface|
 |      REFLECTION|            none|broad band reflection coefficient at top of atmosphere|
@@ -53,43 +53,43 @@ and Aerosol extinction at the wavelengths use calculate photolysis rates in PHOT
 |  CLR_REFLECTION|            none|broad band reflection for clear sky at top of atmosphere|
 | TROPO_O3_EXCEED|            none|average exceedance of modeled ozone column from max fraction of total column, relative rraction|
 | N_EXCEED_TROPO3|            none|# of times predicted tropospheric ozone column exceeds observed total column per time step|
-|   ETOT_SFC_W294|      W m<sup>-2</sup>|total downward irradiance at surface, 294 nm|
+|   ETOT_SFC_W294|W m<sup>-2</sup>|total downward irradiance at surface, 294 nm|
 |        AOD_W294|            none|aerosol optical depth, 294 nm|
 |  TAU_CLOUD_W294|            none|cloud optical depth, 294 nm|
 |    TAU_TOT_W294|            none|total optical depth, 294 nm|
 |  TAUO3_TOP_W294|            none|optical depth of O<sub>3</sub> above model domain, 294 nm|
 |     ALBEDO_W294|            none|surface albedo at the wavelength 294 nm|
-|   ETOT_SFC_W303|      W m<sup>-2</sup>|total downward irradiance at surface, 303 nm|
+|   ETOT_SFC_W303|W m<sup>-2</sup>|total downward irradiance at surface, 303 nm|
 |        AOD_W303|            none|aerosol optical depth, 303 nm|
 |  TAU_CLOUD_W303|            none|cloud optical depth, 303 nm|
 |    TAU_TOT_W303|            none|total optical Depth, 303 nm|
 |  TAUO3_TOP_W303|            none|optical depth of O<sub>3</sub> above model domain, 303 nm|
 |     ALBEDO_W303|            none|surface albedo at the wavelength 303 nm|
-|   ETOT_SFC_W310|      W m<sup>-2</sup>|total downward irradiance at surface, 310 nm|
+|   ETOT_SFC_W310|W m<sup>-2</sup>|total downward irradiance at surface, 310 nm|
 |        AOD_W310|            none|aerosol optical depth, 310 nm|
 |  TAU_CLOUD_W310|            none|cloud optical depth, 310 nm|
 |    TAU_TOT_W310|            none|total optical depth, 310 nm|
 |  TAUO3_TOP_W310|            none|optical depth of O<sub>3</sub> above model domain, 310 nm|
 |     ALBEDO_W310|            none|surface albedo at the wavelength 310 nm|
-|   ETOT_SFC_W316|      W m<sup>-2</sup>|total downward irradiance at surface, 316 nm|
+|   ETOT_SFC_W316|W m<sup>-2</sup>|total downward irradiance at surface, 316 nm|
 |        AOD_W316|            none|aerosol optical depth, 316 nm|
 |  TAU_CLOUD_W316|            none|cloud optical depth, 316 nm|
 |    TAU_TOT_W316|            none|total optical depth, 316 nm|
 |  TAUO3_TOP_W316|            none|optical depth of O<sub>3</sub> above model domain, 316 nm|
 |     ALBEDO_W316|            none|surface albedo at the wavelength 316 nm|
-|   ETOT_SFC_W333|      W m<sup>-2</sup>|total downward irradiance at surface, 333 nm|
+|   ETOT_SFC_W333|W m<sup>-2</sup>|total downward irradiance at surface, 333 nm|
 |        AOD_W333|            none|aerosol optical depth, 333 nm|
 |  TAU_CLOUD_W333|            none|cloud optical depth, 333 nm|
 |    TAU_TOT_W333|            none|total optical depth, 333 nm|
 |  TAUO3_TOP_W333|            none|optical depth of O<sub>3</sub> above model domain, 333 nm|
 |     ALBEDO_W333|            none|surface albedo at the wavelength 333 nm|
-|   ETOT_SFC_W381|      W m<sup>-2</sup>|total downward irradiance at surface, 381 nm|
+|   ETOT_SFC_W381|W m<sup>-2</sup>|total downward irradiance at surface, 381 nm|
 |        AOD_W381|            none|aerosol optical depth, 381 nm|
 |  TAU_CLOUD_W381|            none|cloud optical depth, 381 nm|
 |    TAU_TOT_W381|            none|total optical depth, 381 nm|
 |  TAUO3_TOP_W381|            none|optical depth of O<sub>3</sub> above model domain, 381 nm|
 |     ALBEDO_W381|            none|surface albedo at the wavelength 381 nm|
-|   ETOT_SFC_W607|      W m<sup>-2</sup>|total downward irradiance at surface, 607 nm|
+|   ETOT_SFC_W607|W m<sup>-2</sup>|total downward irradiance at surface, 607 nm|
 |        AOD_W607|            none|aerosol optical depth, 607 nm|
 |  TAU_CLOUD_W607|            none|cloud optical depth, 607 nm|
 |    TAU_TOT_W607|            none|total optical depth, 607 nm|
