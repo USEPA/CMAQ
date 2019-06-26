@@ -129,7 +129,7 @@ Because CMAQ represents both primary and secondary pollutants, emissions are pro
 Depending on the nature of any stream and the information used to quantify its emissions, it may be treated as one of three types:
 
 #### Online Stream:
-CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams available for running Online in CMAQ are: [biogenics (BEIS)](#BEIS), [plume rise](#Plume_Rise),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
+CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams available for running Online in CMAQ are: [plume rise](#Plume_Rise), [biogenics (BEIS)](#BEIS),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
 
 #### Gridded Stream (offline):
 CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the grid CMAQ is running. Typically these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. Some common examples of Gridded emissions include:
@@ -190,6 +190,11 @@ setenv STK_EMIS_LAB_002 POINT_FIRES
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
 ### 6.9.2 Online Emission Streams
+<a id=Plume_Rise></a>
+#### Plume Rise 
+Plume rise can be calculated for large point sources. Plume rise can be calculated inline within CMAQ provided the emission files have been processed with SMOKE for inline processing. The NPTGRPS sets the number of “sectors” for which the user wishes to provide a stack_groups file and an inline emissions file. Optionally, the user can request 2 optional output diagnostic files that include a 3-D file of the emissions with plume rise included and a layer fractions (PLAY) file that includes the fractional amount of emission per model layer.
+
+
 <a id=BEIS></a>
 #### BEIS
 To calculate inline biogenic emissions, CMAQ uses the [Biogenic Emission Inventory System (BEIS)](https://www.epa.gov/air-emissions-modeling/biogenic-emission-inventory-system-beis). BEIS calculates emissons resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types.
@@ -204,9 +209,6 @@ The user must either provide a BIOSEASON file for simulations that are not summe
 
 Without the BIOSEASON file, all biogenic emissions will be calculated using summer factors or winter factors. Additionally, when using the inline biogenic option, the user must point to the SOILOUT file from one day’s simulation as the SOILINP file for the next day. The user must also decide whether to write over SOILOUT files from previous days or create a uniquely named SOILOUT file for each day. The latter approach is recommended if the user wishes to retain the capability to restart simulations in the middle of a sequence of simulations.
 
-<a id=Plume_Rise></a>
-#### Plume Rise 
-Plume rise can be calculated for large point sources. Plume rise can be calculated inline within CMAQ provided the emission files have been processed with SMOKE for inline processing. The NPTGRPS sets the number of “sectors” for which the user wishes to provide a stack_groups file and an inline emissions file. Optionally, the user can request 2 optional output diagnostic files that include a 3-D file of the emissions with plume rise included and a layer fractions (PLAY) file that includes the fractional amount of emission per model layer.
 
 <a id=Wind_Blown_Dust></a>
 #### Wind-Blown Dust
