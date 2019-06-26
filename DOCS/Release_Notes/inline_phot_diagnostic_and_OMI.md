@@ -1,10 +1,10 @@
-# Updates to the inline photolysis diagnostics and OMI data files.
+# Updates to the inline photolysis diagnostics and OMI data files
 
-**Author/P.O.C.:**, [William T. Hutzell](mailto:hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
+[William T. Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
 
-Changes were made to the in-line photolysis module to accomplish below goals
+Changes were made to the inline photolysis module to:
 
 1. Update the OMI total ozone column data file and its interpolation method.
 * Supplement the data file cover to Jan 10, 2018
@@ -13,7 +13,7 @@ Changes were made to the in-line photolysis module to accomplish below goals
    * allows the interpolation to vary over time of day
      * currently only depends on Julian day
    * resolution of the OMI data is no longer hard coded but defined in the data file.
-       * **<p style='color:red'>the change will cause the version 5.2 of the OMI data file to crash the CMAQ model from an IO error </p>**
+       * **<p style='color:red'>the change will cause the version 5.2 of the OMI data file to crash the CMAQ model from an I/O error </p>**
        * to use the version 5.2 of OMI file add the below lines at the top of the file
 
                   nlat     17
@@ -29,121 +29,119 @@ and Aerosol extinction at the wavelengths use calculate photolysis rates in PHOT
 ##### Description of Diagnostic files from In-line Photolysis
 
 * PHOTDIAG1 File  
-   * Surface Values of Optical Inputs and Radiative Results from the In-line calculation of Photolysis Rates
+   * Surface Values of Optical Inputs and Radiative Results from the inline calculation of Photolysis Rates
    * The variable AOD_W550_ANGST is not used to calculate photolysis rates and is calculated from aerosol extinction at 550 nm of each layer. See information on the PHOTDIAG3 file.
 
 <p align="center">Table 1. PHOTDIAG1 contents </p>
 
 |Variable Name|Units|Description                                   |
 |:----|:----:|:---------------------------------------------|
-|         COSZENS|            none|Cosine of Solar Zenith Angle|
-|    OZONE_COLUMN|              DU|Observed Total Ozone Column Density|
-| TROPO_O3_COLUMN|              DU|Predicted Tropospheric Ozone Column Density|
-|            JNO2|           1/min|Photodissociation rate of NO<sub>2</sub>|
-|          JO3O1D|           1/min|Photodissociation rate of ozone producing O(1D) |
-|  RESOLVED_CFRAC|            none|Resolved Cloud Fraction averaged over cloudy layers|
-|   RESOLVED_WBAR| g/m<sup>3</sup>|Resolved Cloud Hydrometeor Content averaged over cloudy layers|
-|   SUBGRID_CFRAC|            none|Subgrid Cloud Fraction averaged over cloudy layers|
-|    SUBGRID_WBAR| g/m<sup>3</sup>|Subgrid Cloud Hydrometeor Content averaged over cloudy layers|
+|         COSZENS|            none|cosine of solar zenith angle|
+|    OZONE_COLUMN|              DU|observed total ozone column density|
+| TROPO_O3_COLUMN|              DU|predicted tropospheric ozone column density|
+|            JNO2|           min<sup>-1</sup>|photodissociation rate of NO<sub>2</sub>|
+|          JO3O1D|           min<sup>-1</sup>|photodissociation rate of ozone producing O(1D) |
+|  RESOLVED_CFRAC|            none|resolved cloud fraction averaged over cloudy layers|
+|   RESOLVED_WBAR| g m<sup>-3</sup>|resolved cloud hydrometeor content averaged over cloudy layers|
+|   SUBGRID_CFRAC|            none|subgrid cloud fraction averaged over cloudy layers|
+|    SUBGRID_WBAR| g m<sup>-3</sup>|subgrid cloud hydrometeor content averaged over cloudy layers|
 |   TRANS_DIFFUSE|            none|broad band transmission coefficient for diffuse radiation at surface|
 |    TRANS_DIRECT|            none|broad band transmission coefficient for direct radiation at surface|
 |      REFLECTION|            none|broad band reflection coefficient at top of atmosphere|
 |   CLR_TRANS_DIF|            none|broad band diffuse transmission for clear sky at surface|
 |   CLR_TRANS_DIR|            none|broad band direct transmission for clear sky at surface|
 |  CLR_REFLECTION|            none|broad band reflection for clear sky at top of atmosphere|
-| TROPO_O3_EXCEED|            none|Average Exceedance of modeled ozone column from max fraction of Total Column, Relative Fraction|
+| TROPO_O3_EXCEED|            none|average exceedance of modeled ozone column from max fraction of total column, relative rraction|
 | N_EXCEED_TROPO3|            none|# of times predicted tropospheric ozone column exceeds observed total column per time step|
-|   ETOT_SFC_W294|      Watts/m<sup>2</sup>|Total Downward Irradiance at surface, 294 nm|
-|        AOD_W294|            none|Aerosol Optical Depth, 294 nm|
-|  TAU_CLOUD_W294|            none|Cloud Optical Depth, 294 nm|
-|    TAU_TOT_W294|            none|Total Optical Depth, 294 nm|
-|  TAUO3_TOP_W294|            none|Optical Depth of O<sub>3</sub> above model domain, 294 nm|
-|     ALBEDO_W294|            none|Surface Albedo at the wavelength 294 nm|
-|   ETOT_SFC_W303|      Watts/m<sup>2</sup>|Total Downward Irradiance at surface, 303 nm|
-|        AOD_W303|            none|Aerosol Optical Depth, 303 nm|
-|  TAU_CLOUD_W303|            none|Cloud Optical Depth, 303 nm|
-|    TAU_TOT_W303|            none|Total Optical Depth, 303 nm|
-|  TAUO3_TOP_W303|            none|Optical Depth of O<sub>3</sub> above model domain, 303 nm|
-|     ALBEDO_W303|            none|Surface Albedo at the wavelength 303 nm|
-|   ETOT_SFC_W310|      Watts/m<sup>2</sup>|Total Downward Irradiance at surface, 310 nm|
-|        AOD_W310|            none|Aerosol Optical Depth, 310 nm|
-|  TAU_CLOUD_W310|            none|Cloud Optical Depth, 310 nm|
-|    TAU_TOT_W310|            none|Total Optical Depth, 310 nm|
-|  TAUO3_TOP_W310|            none|Optical Depth of O<sub>3</sub> above model domain, 310 nm|
-|     ALBEDO_W310|            none|Surface Albedo at the wavelength 310 nm|
-|   ETOT_SFC_W316|      Watts/m<sup>2</sup>|Total Downward Irradiance at surface, 316 nm|
-|        AOD_W316|            none|Aerosol Optical Depth, 316 nm|
-|  TAU_CLOUD_W316|            none|Cloud Optical Depth, 316 nm|
-|    TAU_TOT_W316|            none|Total Optical Depth, 316 nm|
-|  TAUO3_TOP_W316|            none|Optical Depth of O<sub>3</sub> above model domain, 316 nm|
-|     ALBEDO_W316|            none|Surface Albedo at the wavelength 316 nm|
-|   ETOT_SFC_W333|      Watts/m<sup>2</sup>|Total Downward Irradiance at surface, 333 nm|
-|        AOD_W333|            none|Aerosol Optical Depth, 333 nm|
-|  TAU_CLOUD_W333|            none|Cloud Optical Depth, 333 nm|
-|    TAU_TOT_W333|            none|Total Optical Depth, 333 nm|
-|  TAUO3_TOP_W333|            none|Optical Depth of O<sub>3</sub> above model domain, 333 nm|
-|     ALBEDO_W333|            none|Surface Albedo at the wavelength 333 nm|
-|   ETOT_SFC_W381|      Watts/m<sup>2</sup>|Total Downward Irradiance at surface, 381 nm|
-|        AOD_W381|            none|Aerosol Optical Depth, 381 nm|
-|  TAU_CLOUD_W381|            none|Cloud Optical Depth, 381 nm|
-|    TAU_TOT_W381|            none|Total Optical Depth, 381 nm|
-|  TAUO3_TOP_W381|            none|Optical Depth of O<sub>3</sub> above model domain, 381 nm|
-|     ALBEDO_W381|            none|Surface Albedo at the wavelength 381 nm|
-|   ETOT_SFC_W607|      Watts/m<sup>2</sup>|Total Downward Irradiance at surface, 607 nm|
-|        AOD_W607|            none|Aerosol Optical Depth, 607 nm|
-|  TAU_CLOUD_W607|            none|Cloud Optical Depth, 607 nm|
-|    TAU_TOT_W607|            none|Total Optical Depth, 607 nm|
-|  TAUO3_TOP_W607|            none|Optical Depth of O<sub>3</sub> above model domain, 607 nm|
-|     ALBEDO_W607|            none|Surface Albedo at the wavelength 607 nm|
-|  AOD_W550_ANGST|            none|Aerosol Optical Depth at 550 nm based on an Angstrom Interpolation|
+|   ETOT_SFC_W294|      W m<sup>-2</sup>|total downward irradiance at surface, 294 nm|
+|        AOD_W294|            none|aerosol optical depth, 294 nm|
+|  TAU_CLOUD_W294|            none|cloud optical depth, 294 nm|
+|    TAU_TOT_W294|            none|total optical depth, 294 nm|
+|  TAUO3_TOP_W294|            none|optical depth of O<sub>3</sub> above model domain, 294 nm|
+|     ALBEDO_W294|            none|surface albedo at the wavelength 294 nm|
+|   ETOT_SFC_W303|      W m<sup>-2</sup>|total downward irradiance at surface, 303 nm|
+|        AOD_W303|            none|aerosol optical depth, 303 nm|
+|  TAU_CLOUD_W303|            none|cloud optical depth, 303 nm|
+|    TAU_TOT_W303|            none|total optical Depth, 303 nm|
+|  TAUO3_TOP_W303|            none|optical depth of O<sub>3</sub> above model domain, 303 nm|
+|     ALBEDO_W303|            none|surface albedo at the wavelength 303 nm|
+|   ETOT_SFC_W310|      W m<sup>-2</sup>|total downward irradiance at surface, 310 nm|
+|        AOD_W310|            none|aerosol optical depth, 310 nm|
+|  TAU_CLOUD_W310|            none|cloud optical depth, 310 nm|
+|    TAU_TOT_W310|            none|total optical depth, 310 nm|
+|  TAUO3_TOP_W310|            none|optical depth of O<sub>3</sub> above model domain, 310 nm|
+|     ALBEDO_W310|            none|surface albedo at the wavelength 310 nm|
+|   ETOT_SFC_W316|      W m<sup>-2</sup>|total downward irradiance at surface, 316 nm|
+|        AOD_W316|            none|aerosol optical depth, 316 nm|
+|  TAU_CLOUD_W316|            none|cloud optical depth, 316 nm|
+|    TAU_TOT_W316|            none|total optical depth, 316 nm|
+|  TAUO3_TOP_W316|            none|optical depth of O<sub>3</sub> above model domain, 316 nm|
+|     ALBEDO_W316|            none|surface albedo at the wavelength 316 nm|
+|   ETOT_SFC_W333|      W m<sup>-2</sup>|total downward irradiance at surface, 333 nm|
+|        AOD_W333|            none|aerosol optical depth, 333 nm|
+|  TAU_CLOUD_W333|            none|cloud optical depth, 333 nm|
+|    TAU_TOT_W333|            none|total optical depth, 333 nm|
+|  TAUO3_TOP_W333|            none|optical depth of O<sub>3</sub> above model domain, 333 nm|
+|     ALBEDO_W333|            none|surface albedo at the wavelength 333 nm|
+|   ETOT_SFC_W381|      W m<sup>-2</sup>|total downward irradiance at surface, 381 nm|
+|        AOD_W381|            none|aerosol optical depth, 381 nm|
+|  TAU_CLOUD_W381|            none|cloud optical depth, 381 nm|
+|    TAU_TOT_W381|            none|total optical depth, 381 nm|
+|  TAUO3_TOP_W381|            none|optical depth of O<sub>3</sub> above model domain, 381 nm|
+|     ALBEDO_W381|            none|surface albedo at the wavelength 381 nm|
+|   ETOT_SFC_W607|      W m<sup>-2</sup>|total downward irradiance at surface, 607 nm|
+|        AOD_W607|            none|aerosol optical depth, 607 nm|
+|  TAU_CLOUD_W607|            none|cloud optical depth, 607 nm|
+|    TAU_TOT_W607|            none|total optical depth, 607 nm|
+|  TAUO3_TOP_W607|            none|optical depth of O<sub>3</sub> above model domain, 607 nm|
+|     ALBEDO_W607|            none|surface albedo at the wavelength 607 nm|
+|  AOD_W550_ANGST|            none|aerosol optical depth at 550 nm based on an Angstrom interpolation|
 
 * PHOTDIAG2 File
-  * Three dimensionals values of Photolysis rates used to make predictions from the In-line calculation of Photolysis Rates.  
-  * The run script can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default value equals all layers of the simulation.
-When the run script sets NLAYS_PHOTDIAG, PHOTDIAG2 covers from the first layer to the value of NLAYS_PHOTDIAG.
+  * Three dimensionals values of Photolysis rates used to make predictions from the inline calculation of photolysis Rates.  
+  * The run script can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default value equals all layers of the simulation. When the run script sets NLAYS_PHOTDIAG, PHOTDIAG2 covers from the first layer to the value of NLAYS_PHOTDIAG.
   * Variables names can change with the photochemical mechanism used because each mechanism is developed with its own rate constants.
   * Files containing cross-section and quantum yield data are in CMAQ repository under subdirectory, UTIL/inline_phot_preproc/photolysis_CSQY_data.
-  * The below table gives an example of the PHOTDIAG2 contents when using the cb6r3_ae6_aq mechanism in CMAQ version 5.2.
+  * Table 2 gives an example of the PHOTDIAG2 contents when using the cb6r3_ae6_aq mechanism in CMAQv5.2.
 
 <p align="center">Table 2. PHOTDIAG2 contents if using the cb6r3_ae6_aq mechanism</p>
 
 |Variable Name|Units|Description                                   |
 |:----|:----:|:---------------------------------------------|
-|     NO2_IUPAC10|           1/min|Photolysis rates calculated based on data file; NO2_IUPAC10|
-|  O3_O3P_IUPAC10|           1/min|Photolysis rates calculated based on data file; O3_O3P_IUPAC10|
-|  O3_O1D_IUPAC10|           1/min|Photolysis rates calculated based on data file; O3_O1D_IUPAC10|
-|    H2O2_IUPAC10|           1/min|Photolysis rates calculated based on data file; H2O2_IUPAC10|
-|       NO3NO2_06|           1/min|Photolysis rates calculated based on data file; NO3NO2_06|
-|        NO3NO_06|           1/min|Photolysis rates calculated based on data file; NO3NO_06|
-|    N2O5_IUPAC10|           1/min|Photolysis rates calculated based on data file; N2O5_IUPAC10|
-|    HONO_IUPAC10|           1/min|Photolysis rates calculated based on data file; HONO_IUPAC10|
-|    HNO3_IUPAC10|           1/min|Photolysis rates calculated based on data file; HNO3_IUPAC10|
-|     PNA_IUPAC10|           1/min|Photolysis rates calculated based on data file; PNA_IUPAC10|
-|     PAN_IUPAC10|           1/min|Photolysis rates calculated based on data file; PAN_IUPAC10|
-|    MEPX_IUPAC10|           1/min|Photolysis rates calculated based on data file; MEPX_IUPAC10|
-|     NTR_IUPAC10|           1/min|Photolysis rates calculated based on data file; NTR_IUPAC10|
-|  FORM_R_IUPAC10|           1/min|Photolysis rates calculated based on data file; FORM_R_IUPAC10|
-|  FORM_M_IUPAC10|           1/min|Photolysis rates calculated based on data file; FORM_M_IUPAC10|
-|  ALD2_R_IUPAC10|           1/min|Photolysis rates calculated based on data file; ALD2_R_IUPAC10|
-|  ALDX_R_IUPAC10|           1/min|Photolysis rates calculated based on data file; ALDX_R_IUPAC10|
-|    GLYD_IUPAC10|           1/min|Photolysis rates calculated based on data file; GLYD_IUPAC10|
-|   GLY_R_IUPAC10|           1/min|Photolysis rates calculated based on data file; GLY_R_IUPAC10|
-|    MGLY_IUPAC10|           1/min|Photolysis rates calculated based on data file; MGLY_IUPAC10|
-|     KET_IUPAC10|           1/min|Photolysis rates calculated based on data file; KET_IUPAC10|
-|    ACET_IUPAC10|           1/min|Photolysis rates calculated based on data file; ACET_IUPAC10|
-|            ISPD|           1/min|Photolysis rates calculated based on data file; ISPD|
-|           HPALD|           1/min|Photolysis rates calculated based on data file; HPALD|
-|     CL2_IUPAC04|           1/min|Photolysis rates calculated based on data file; CL2_IUPAC04|
-|    HOCL_IUPAC04|           1/min|Photolysis rates calculated based on data file; HOCL_IUPAC04|
-|    FMCL_IUPAC04|           1/min|Photolysis rates calculated based on data file; FMCL_IUPAC04|
-|           CLNO2|           1/min|Photolysis rates calculated based on data file; CLNO2|
-|         ACRO_09|           1/min|Photolysis rates calculated based on data file; ACRO_09|
+|     NO2_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; NO2_IUPAC10|
+|  O3_O3P_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; O3_O3P_IUPAC10|
+|  O3_O1D_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; O3_O1D_IUPAC10|
+|    H2O2_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; H2O2_IUPAC10|
+|       NO3NO2_06|           min<sup>-1</sup>|Photolysis rates calculated based on data file; NO3NO2_06|
+|        NO3NO_06|           min<sup>-1</sup>|Photolysis rates calculated based on data file; NO3NO_06|
+|    N2O5_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; N2O5_IUPAC10|
+|    HONO_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; HONO_IUPAC10|
+|    HNO3_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; HNO3_IUPAC10|
+|     PNA_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; PNA_IUPAC10|
+|     PAN_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; PAN_IUPAC10|
+|    MEPX_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; MEPX_IUPAC10|
+|     NTR_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; NTR_IUPAC10|
+|  FORM_R_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; FORM_R_IUPAC10|
+|  FORM_M_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; FORM_M_IUPAC10|
+|  ALD2_R_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; ALD2_R_IUPAC10|
+|  ALDX_R_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; ALDX_R_IUPAC10|
+|    GLYD_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; GLYD_IUPAC10|
+|   GLY_R_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; GLY_R_IUPAC10|
+|    MGLY_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; MGLY_IUPAC10|
+|     KET_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; KET_IUPAC10|
+|    ACET_IUPAC10|           min<sup>-1</sup>|Photolysis rates calculated based on data file; ACET_IUPAC10|
+|            ISPD|           min<sup>-1</sup>|Photolysis rates calculated based on data file; ISPD|
+|           HPALD|           min<sup>-1</sup>|Photolysis rates calculated based on data file; HPALD|
+|     CL2_IUPAC04|           min<sup>-1</sup>|Photolysis rates calculated based on data file; CL2_IUPAC04|
+|    HOCL_IUPAC04|           min<sup>-1</sup>|Photolysis rates calculated based on data file; HOCL_IUPAC04|
+|    FMCL_IUPAC04|           min<sup>-1</sup>|Photolysis rates calculated based on data file; FMCL_IUPAC04|
+|           CLNO2|           min<sup>-1</sup>|Photolysis rates calculated based on data file; CLNO2|
+|         ACRO_09|           min<sup>-1</sup>|Photolysis rates calculated based on data file; ACRO_09|
 
 * PHOTDIAG3 File (New)
-  * Three dimensionals values of Optical Inputs and Radiative Results used to make predictions from the In-line photolysis calculation.
+  * Includes three-dimensional values of Optical Inputs and Radiative Results used to make predictions from the inline photolysis calculation.
 
-  * The run script can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default values equals all layers of the simulation.
-If the run script sets NLAYS_PHOTDIAG, PHOTDIAG3 covers from the first layer to the value of NLAYS_PHOTDIAG.
+  * The run script can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default values equals all layers of the simulation. If the run script sets NLAYS_PHOTDIAG, PHOTDIAG3 covers from the first layer to the value of NLAYS_PHOTDIAG.
   * The run script can set the wavelengths output for the Aerosol Single Scattering Albedo, Aerosol Asymetry Factor, Total Extinction, Extinction from gases,
 Aerosol extinction, and Actinic Flux by using the environment list, NWAVE_PHOTDIAG. If NWAVE_PHOTDIAG is not set or contains no values, PHOTDIAG3 includes all wavelengths. The list
 only uses integer truncated values of the wavelengths used to calculated photolysis rates. 
