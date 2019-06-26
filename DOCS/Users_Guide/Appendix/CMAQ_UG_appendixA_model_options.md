@@ -421,10 +421,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 
 -   `STK_GRPS_## `<a id=STK_GRPS_##></a>  
-    Directory path and file name of the stack groups file for sector ##, where ## = 01, 02,…,NPTGRPS. Each ## refers to one of the plume rise point-source sectors.
+    Directory path and file name of the stack groups file for sector ##, where ## = 01, 02,…,N_EMIS_PT. Each ## refers to one of the plume rise point-source sectors.
 
 -   `STK_EMIS_##`<a id=STK_EMIS_##></a>  
-    Directory path and file name of the point emissions file for sector ##, where ## = 01, 02,…,NPTGRPS. Each ## refers to the one of the plume rise point-source sectors.
+    Directory path and file name of the point emissions file for sector ##, where ## = 01, 02,…,N_EMIS_PT. Each ## refers to the one of the plume rise point-source sectors.
 
 -   `LAYP_STDATE [HHMMSS]`<a id=LAYP_STDATE></a>  
     Start date for calculating elevated-point-source emissions.
