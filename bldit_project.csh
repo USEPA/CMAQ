@@ -27,7 +27,6 @@
  set EXT_CCTM    = Y
 
  # Pre-Processing Tools
- set EXT_AGDUST = Y
  set EXT_BCON = Y
  set EXT_ICON = Y
  set EXT_MCIP = Y
@@ -96,7 +95,7 @@
        mkdir -pv $CMAQ_HOME/CCTM/scripts
     endif
     cp CCTM/scripts/bldit_cctm.csh $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh
-    cp CCTM/scripts/run_cctm.csh $CMAQ_HOME/CCTM/scripts/run_cctm.csh
+    cp CCTM/scripts/run_cctm_Bench_2011_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2011_12SE1.csh
     cp CCTM/scripts/run_cctm_2010_4CALIF1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2010_4CALIF1.csh
     cp CCTM/scripts/run_cctm_2011_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2011_12US1.csh
     cp CCTM/scripts/run_cctm_2014_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2014_12US1.csh
@@ -104,16 +103,7 @@
     cp CCTM/scripts/run_cctm_2016_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2016_12US1.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
     cp CCTM/scripts/isam_control.txt $CMAQ_HOME/CCTM/scripts/isam_control.txt
- endif
-
-#===============================================================================
-#> Copy AGDUST scripts
-#===============================================================================
- if ( $EXT_AGDUST == 'Y' ) then
-    if ( ! -e "$CMAQ_HOME/PREP/agdust/scripts" ) then
-       mkdir -pv $CMAQ_HOME/PREP/agdust/scripts
-    endif
-    cp PREP/agdust/scripts/run_calmap.csh $CMAQ_HOME/PREP/agdust/scripts/run_calmap.csh
+    cp CCTM/scripts/run_cctm_Bench_2016_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh
  endif
 
 #===============================================================================

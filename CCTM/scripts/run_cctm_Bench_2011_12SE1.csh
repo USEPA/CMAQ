@@ -346,16 +346,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #setenv STK_EMIS_DIAG_003 2DSUM
   #setenv STK_EMIS_DIAG_004 2DSUM
   #setenv STK_EMIS_DIAG_005 2DSUM
-
-  # Allow CMAQ to Use Point Source files with dates that do not
-  # match the internal model date
-  setenv STK_EM_DTOVRD_001 T
-  setenv STK_EM_DTOVRD_002 T
-  setenv STK_EM_DTOVRD_003 T
-  setenv STK_EM_DTOVRD_004 T
-  setenv STK_EM_DTOVRD_005 T
-
-
+  
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
      setenv LTNGNO "InLine"    #> set LTNGNO to "Inline" to activate in-line calculation
@@ -505,6 +496,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
         set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
                          ${SA_CGRID_1} )
+
      endif
   endif
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
