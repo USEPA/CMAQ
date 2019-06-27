@@ -138,8 +138,6 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
 setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
-setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust 
-                             #>    [ default: N ]; ignore if CTM_WB_DUST = N
 setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
                              #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
@@ -389,14 +387,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv DUST_LU_1  $LUpath/beld3_4CALIF1_output_a.ncf
      setenv DUST_LU_2  $LUpath/beld3_4CALIF1_output_tot.ncf
      setenv MODIS_FPAR $LUpath/MODIS_FPAR_LAI_daily_4CALIF1.nc
-
-     if ( $CTM_ERODE_AGLAND == 'Y' ) then
-        setenv CROPMAP01 $LUpath/BeginPlanting_4CALIF1.nc
-        setenv CROPMAP04 $LUpath/EndPlanting_4CALIF1.nc
-        setenv CROPMAP08 $LUpath/EndHarvesting_4CALIF1.nc
-     endif
   endif
-
+  
   #> In-line Sea Spray emissions configuration
   setenv OCEAN_1 ${SZpath}/surf_4calif1.ncf #> horizontal grid-dependent surf zone file
 
