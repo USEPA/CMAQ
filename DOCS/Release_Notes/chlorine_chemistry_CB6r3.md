@@ -2,10 +2,6 @@
 
 [Deborah Luecken](mailto:luecken.deborah@epa.gov), U.S. Environmental Protection Agency
 
-**>>COMMENT<<** What is the "initial implementation" and the "revised implementation"?  If these are incremental development steps, then they need to be combined here.  TLS 26 Jun 2019
-
-**>>COMMENT<<** If we get Greek mu in Markdown, it needs to be used in the Results area.  TLS 26 Jun 2019
-
 ## Brief Description
 
 **Initial implementaion**
@@ -31,18 +27,16 @@ Chlorine nitrate (species CLNO3)
 **Revised implementaion**
 
 Chlorine chemistry is revised for following changes:
-1. removing heterogeneous hydrolysis of ClNO<sub>3</sub> over coarse-mode aerosols (HET_CLNO3_WAK)
-2. implementing deposition of ClO
+1. Removed heterogeneous hydrolysis of ClNO<sub>3</sub> over coarse-mode aerosols (HET_CLNO3_WAK).
+2. Implemented deposition of ClO.
 
-These changes make the chemistry consistent with the detailed halogen chemistry (cb6r3m_ae7_kmtbr). An updated EBI solver is also developed for the revised mechanism.  
+These changes make the chemistry consistent with the detailed halogen chemistry (*cb6r3m_ae7_kmtbr*). An updated EBI solver is also developed for the revised mechanism.  
 
 ## Significance and Impact
 
 **Revised implementaion**
 
-**>>COMMENT<<** What resolution of the hemispheric domain was used? Would it matter?  TLS 26 Jun 2019
-
-Model sensitivity runs were conducted with the CMAQv5.2 and CMAQv5.3 versions of CB6r3 using a domain over the Northern Hemisphere for October 2015. The update to CB6r3 increases monthly mean ozone by <0.1 ppbV compared to the previous version. The revision affects sulfate, nitrate, and ammonium only over a few isolated grid cells. The changes affect monthly mean sulfate by <0.03 ug m<sup>-3</sup>, nitrate by <0.06 ug m<sup>-3</sup>, and ammonium by <0.02 ug m<sup>-3</sup>. Overall, the impact of this change on model results is small.
+Model sensitivity runs were conducted with the CMAQv5.2 and CMAQv5.3 versions of CB6r3 using a domain over the Northern Hemisphere for October 2015. The update to CB6r3 increases monthly mean ozone by <0.1 ppbV compared to the previous version. The revision affects sulfate, nitrate, and ammonium only over a few isolated grid cells. The changes affect monthly mean sulfate by <0.03&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>, nitrate by <0.06&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>, and ammonium by <0.02&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>. Overall, the impact of this change on model results is small.
 
 ## Files Affected
 
@@ -88,7 +82,6 @@ Model sensitivity runs were conducted with the CMAQv5.2 and CMAQv5.3 versions of
 * CCTM/src/MECHS/cb6r3_ae7_aqkmt2/GC_cb6r3_ae7_aqkmt2
 
 ## References
-**>>COMMENT<<** I removed the reference to email with Sarwar.  It could be "personal communication", but he's part of this team.  TLS 26 Jun 2019
 
 Dieber, G., George, C., Le Calve, S., Schweitzer, F., Mirabel, P., 2004.  Uptake study of ClONO<sub>2</sub> and BrONO<sub>2</sub> by Halide containing droplets, _Atmospheric Chemistry and Physics_, **4**, 1291-1299. 
 
@@ -98,7 +91,7 @@ Ramboll Environ, 2016.  Users Guide Comprehensive Air Quality Model with Extensi
 
 Yarwood, G., Rao, S., Yocke, M., Whitten, G.Z., 2005. Updates to the Carbon Bond Mechanism: CB05.  Final Report to the US EPA, RT-0400675. Yocke and Company, Novato, CA.
 
-## Internal Records:
+## Internal Records
 #### Relevant Pull Requests:
 
 Initial implementaion
