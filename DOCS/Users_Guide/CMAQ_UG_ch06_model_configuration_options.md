@@ -250,9 +250,15 @@ Need to add -- speciation information for dust is controlled in aerodata
 #### Sea Spray
 Because sea spray particles are emitted during wave breaking and bubble bursting at the ocean surface, the main factor affecting the emission rate is the wind speed. The temperature of the ocean also affects bubble bursting and subsequent emission rate of sea spray particles. Wave breaking is enhanced near the surf zone just offshore, and CMAQ accounts for this by increasing sea spray particle emission rates in the surf zone.
 
-The current open ocean sea spray particle emission rate in CMAQ as described in Gantt et al. (2015) is based on Gong (2003) with a temperature dependence derived from Jaeglé et al. (2011) and Ovadnevaite et al. (2014) and an adjustment of Θ from 30 to eight to account for higher accumulation mode emissions.  The current surf zone sea spray particle emission rate in CMAQ as described in Gantt et al. (2015) is based on Kelly et al. (2010) with a reduction of the assumed surf zone width from 50 to 25 meters.
+The current open ocean sea spray particle emission rate in CMAQ as described in Gantt et al. (2015) is based on Gong (2003) with a temperature dependence derived from Jaeglé et al. (2011) and Ovadnevaite et al. (2014) and an adjustment of Θ from 30 to eight to account for higher accumulation mode emissions. The current surf zone sea spray particle emission rate in CMAQ as described in Gantt et al. (2015) is based on Kelly et al. (2010) with a reduction of the assumed surf zone width from 50 to 25 meters.
+The CMAQ sea spray emissions module is controlled by the following RunScript option:
 
-Need to add -- speciation information for dust is controlled in aerodata
+```
+setenv CTM_SS_AERO Y
+```
+
+Speciation of sea spray emissions is controlled by AERO_DATA.F under CCTM/src/aero. 
+Note that CMAQ employing Carbon Bond 6 version r3 with DMS and marine halogen chemistry (cb6r3m_ae7_kmtbr) modifies the speciation of Sea Spray emissions. In addition to other chemical species, it speciates bromide from Sea Spray emissions.
 
 <a id=Lightning_NO></a>
 #### Lightning NO
