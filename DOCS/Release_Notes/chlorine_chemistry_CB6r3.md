@@ -10,7 +10,7 @@ Many of the reactions in the chlorine chemistry in CB6 have been updated for CMA
 
 * Reactions unchanged from CMAQv5.2:
 
-      CL1, CL2, CL3, CL4, CL5, CL8, CL9, CL14, CL15, CL16, CL18-23, HET_H2NO3PIB, HET_H2NO3PJB, HET_H2NO3PKB 
+      CL1, CL2, CL3, CL4, CL5, CL8, CL9, CL14-16, CL18-23, HET_H2NO3PIB, HET_H2NO3PJB, HET_H2NO3PKB 
 
 * Reactions updated to match IUPAC, or CB6r2:
 
