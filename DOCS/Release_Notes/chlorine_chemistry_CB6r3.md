@@ -4,7 +4,7 @@
 
 ## Brief Description
 
-**Initial implementaion**
+**Initial implementation**
 
 Many of the reactions in the chlorine chemistry in CB6 have been updated for CMAQv5.3. Several new reactions have been added, including two heterogeneous reactions. Some reactions were updated either due to new information on reaction rates/products or changes in mechanism species. One new model species (chlorine nitrate) is added in CMAQv5.3. The chlorine chemistry in CMAQv5.3 is intended to be consistent with the chlorine chemistry in CAMx CB6r2 (Ramboll Environ, 2016). All versions of CB6 in CMAQv5.3 use the same chlorine chemistry.
 
@@ -34,19 +34,19 @@ These changes make the chemistry consistent with the detailed halogen chemistry 
 
 ## Significance and Impact
 
-**Revised implementaion**
+**Revised implementation**
 
 Model sensitivity runs were conducted with the CMAQv5.2 and CMAQv5.3 versions of CB6r3 using a domain over the Northern Hemisphere for October 2015. The update to CB6r3 increases monthly mean ozone by <0.1 ppbV compared to the previous version. The revision affects sulfate, nitrate, and ammonium only over a few isolated grid cells. The changes affect monthly mean sulfate by <0.03&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>, nitrate by <0.06&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>, and ammonium by <0.02&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>. Overall, the impact of this change on model results is small.
 
 ## Files Affected
 
-**Initial implementaion**
+**Initial implementation**
 * CCTM/src/MECHS/cb6mp_ae6_aq/*
 * CCTM/src/MECHS/cb6r3_ae6_aq/*
 * CCTM/src/MECHS/cb6r3_ae7_aq/*
 * CCTM/src/MECHS/cb6r3_ae7_aqkmt2/*
 
-**Revised implementaion**
+**Revised implementation**
 
 * CCTM/src/MECHS/cb6r3_ae7_aq/GC_cb6r3_ae7_aq
 * CCTM/src/MECHS/cb6r3_ae7_aq/RXNS_DATA_MODULE.F90
@@ -94,10 +94,10 @@ Yarwood, G., Rao, S., Yocke, M., Whitten, G.Z., 2005. Updates to the Carbon Bond
 ## Internal Records
 #### Relevant Pull Requests:
 
-Initial implementaion
+Initial implementation
 [PR #359](https://github.com/USEPA/CMAQ_Dev/pull/359), [PR #342](https://github.com/USEPA/CMAQ_Dev/pull/342)
 
-Revised implementaion
+Revised implementation
 [PR #447](https://github.com/USEPA/CMAQ_Dev/pull/447), [PR #447](https://github.com/USEPA/CMAQ_Dev/pull/447)
 
 
