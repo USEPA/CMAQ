@@ -6,11 +6,15 @@
 
 **Initial Implementation**
 
-Detailed chemistry for the halogens, bromine and iodine, was incorporated into the CB05 chemical mechanism in a previous release of CMAQ. In CMAQv5.3, the detailed halogen chemistry is extended for CB6r3. It contains 38 gas-phase reactions and 8 heterogeneous reactions for bromine chemistry, and 44 gas-phase reactions and 20 heterogeneous reactions for iodine chemistry. Dimethyl sulfide (DMS) chemistry is also combined with CB6r3 and implemented into CMAQv5.3. It contains 7 gas-phase reactions involving DMS and oxidants. The combined chemical mechanism containing CB6r3, detailed halogen and DMS chemistry is named as CB6r3m. The halogen chemistry is more beneficial in the hemispheric CMAQ model where there is a larger influence on the intercontinental transport over oceans.  However, it can also be used in the regional version of the model.
+Detailed chemistry for the halogens, bromine, and iodine was incorporated into the CB05 chemical mechanism in a previous release of CMAQ. In CMAQv5.3, the detailed halogen chemistry is extended for CB6r3. It contains 38 gas-phase reactions and 8 heterogeneous reactions for bromine chemistry, and 44 gas-phase reactions and 20 heterogeneous reactions for iodine chemistry. Dimethyl sulfide (DMS) chemistry is also combined with CB6r3 and implemented into CMAQv5.3. It contains 7 gas-phase reactions involving DMS and oxidants. The combined chemical mechanism containing CB6r3, detailed halogen and DMS chemistry is named as CB6r3m. The halogen chemistry is more beneficial in the hemispheric CMAQ model where there is a larger influence on the intercontinental transport over oceans.  However, it can also be used in the regional version of the model.
 
 **Revised implementation**
 
-The detailed halogen chemistry is revised for following changes: (1) removing several heterogeneous reactions over coarse-mode aerosols, (2) implementing dry deposition of several halogen species, and (3) fixing several molecular diffusivities, Le Bas molar volume, and calculation for temporal allocation of halocarbon emissions. An updated EBI solver is also developed since the halogen chemistry is revised.  
+The detailed halogen chemistry is revised with following changes:
+1. Removed several heterogeneous reactions over coarse-mode aerosols.
+2. Implemented dry deposition of several halogen species.
+3. Corrected several molecular diffusivities, Le Bas molar volume, and calculation for temporal allocation of halocarbon emissions.
+4. Developed an updated EBI solver since the halogen chemistry is revised.  
 
 ## Significance and Impact
 
