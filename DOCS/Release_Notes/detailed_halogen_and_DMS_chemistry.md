@@ -128,7 +128,7 @@ Revised implementation
 
 
 -----
-## Internal Records:
+## Internal Records
 #### Relevant Pull Requests:
 [PR #362](https://github.com/usepa/cmaq_dev/pull/362)
 
