@@ -196,13 +196,13 @@ only uses integer truncated values of the wavelengths used to calculated photoly
 |   EXT_AERO_W607|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 607 nm|
 |        CFRAC_3D|            none|Resolved Cloud Fraction in grid cell|
 |   EXT_AERO_W550|          Mm<sup>-1</sup>| Aerosol Extinction of layer for 550 nm, Angstrom Interpolation|
-| ACTINIC_FX_W294|      W m<sup>-2</sup>|Net Actinic Flux, 294 nm|
-| ACTINIC_FX_W303|      W m<sup>-2</sup>|Net Actinic Flux, 303 nm|
-| ACTINIC_FX_W310|      W m<sup>-2</sup>|Net Actinic Flux, 310 nm|
-| ACTINIC_FX_W316|      W m<sup>-2</sup>|Net Actinic Flux, 316 nm|
-| ACTINIC_FX_W333|      W m<sup>-2</sup>|Net Actinic Flux, 333 nm|
-| ACTINIC_FX_W381|      W m<sup>-2</sup>|Net Actinic Flux, 381 nm|
-| ACTINIC_FX_W607|      W m<sup>-2</sup>|Net Actinic Flux, 607 nm|
+| ACTINIC_FX_W294|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 294 nm|
+| ACTINIC_FX_W303|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 303 nm|
+| ACTINIC_FX_W310|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 310 nm|
+| ACTINIC_FX_W316|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 316 nm|
+| ACTINIC_FX_W333|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 333 nm|
+| ACTINIC_FX_W381|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 381 nm|
+| ACTINIC_FX_W607|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 607 nm|
 
 ## Files Affected
 * CCTM/scripts/run_cctm.csh
