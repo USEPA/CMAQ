@@ -161,48 +161,48 @@ only uses integer truncated values of the wavelengths used to calculated photoly
 |:----|:----:|:---------------------------------------------|
 |   AERO_SSA_W294|            none|Aerosol Single Scattering Albedo at 294 nm|
 |  AERO_ASYM_W294|            none|Aerosol Asymetry Factor at 294 nm|
-|        EXT_W294|          1/Mm|Total Extinction of layer for 294 nm|
-|    GAS_EXT_W294|          1/Mm|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 294 nm|
-|   EXT_AERO_W294|          1/Mm|Aerosol Extinction of layer for 294 nm|
+|        EXT_W294|          Mm<sup>-1</sup>|Total Extinction of layer for 294 nm|
+|    GAS_EXT_W294|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 294 nm|
+|   EXT_AERO_W294|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 294 nm|
 |   AERO_SSA_W303|            none|Aerosol Single Scattering Albedo at 303 nm|
 |  AERO_ASYM_W303|            none|Aerosol Asymetry Factor at 303 nm|
-|        EXT_W303|          1/Mm|Total Extinction of layer for 303 nm|
-|    GAS_EXT_W303|          1/Mm|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 303 nm|
-|   EXT_AERO_W303|          1/Mm|Aerosol Extinction of layer for 303 nm|
+|        EXT_W303|          Mm<sup>-1</sup>|Total Extinction of layer for 303 nm|
+|    GAS_EXT_W303|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 303 nm|
+|   EXT_AERO_W303|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 303 nm|
 |   AERO_SSA_W310|            none|Aerosol Single Scattering Albedo at 310 nm|
 |  AERO_ASYM_W310|            none|Aerosol Asymetry Factor at 310 nm|
-|        EXT_W310|          1/Mm|Total Extinction of layer for 310 nm|
-|    GAS_EXT_W310|          1/Mm|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 310 nm|
-|   EXT_AERO_W310|          1/Mm|Aerosol Extinction of layer for 310 nm|
+|        EXT_W310|          Mm<sup>-1</sup>|Total Extinction of layer for 310 nm|
+|    GAS_EXT_W310|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 310 nm|
+|   EXT_AERO_W310|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 310 nm|
 |   AERO_SSA_W316|            none|Aerosol Single Scattering Albedo at 316 nm|
 |  AERO_ASYM_W316|            none|Aerosol Asymetry Factor at 316 nm|
-|        EXT_W316|          1/Mm|Total Extinction of layer for 316 nm|
-|    GAS_EXT_W316|          1/Mm|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 316 nm|
-|   EXT_AERO_W316|          1/Mm|Aerosol Extinction of layer for 316 nm|
+|        EXT_W316|          Mm<sup>-1</sup>|Total Extinction of layer for 316 nm|
+|    GAS_EXT_W316|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 316 nm|
+|   EXT_AERO_W316|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 316 nm|
 |   AERO_SSA_W333|            none|Aerosol Single Scattering Albedo at 333 nm|
 |  AERO_ASYM_W333|            none|Aerosol Asymetry Factor at 333 nm|
-|        EXT_W333|          1/Mm|Total Extinction of layer for 333 nm|
-|    GAS_EXT_W333|          1/Mm|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 333 nm|
-|   EXT_AERO_W333|          1/Mm|Aerosol Extinction of layer for 333 nm|
+|        EXT_W333|          Mm<sup>-1</sup>|Total Extinction of layer for 333 nm|
+|    GAS_EXT_W333|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 333 nm|
+|   EXT_AERO_W333|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 333 nm|
 |   AERO_SSA_W381|            none|Aerosol Single Scattering Albedo at 381 nm|
 |  AERO_ASYM_W381|            none|Aerosol Asymetry Factor at 381 nm|
-|        EXT_W381|          1/Mm|Total Extinction of layer for 381 nm|
-|    GAS_EXT_W381|          1/Mm|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 381 nm|
-|   EXT_AERO_W381|          1/Mm|Aerosol Extinction of layer for 381 nm|
+|        EXT_W381|          Mm<sup>-1</sup>|Total Extinction of layer for 381 nm|
+|    GAS_EXT_W381|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 381 nm|
+|   EXT_AERO_W381|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 381 nm|
 |   AERO_SSA_W607|            none|Aerosol Single Scattering Albedo at 607 nm|
 |  AERO_ASYM_W607|            none|Aerosol Asymetry Factor at 607 nm|
-|        EXT_W607|          1/Mm|Total Extinction of layer for 607 nm|
-|    GAS_EXT_W607|          1/Mm|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 607 nm|
-|   EXT_AERO_W607|          1/Mm|Aerosol Extinction of layer for 607 nm|
+|        EXT_W607|          Mm<sup>-1</sup>|Total Extinction of layer for 607 nm|
+|    GAS_EXT_W607|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 607 nm|
+|   EXT_AERO_W607|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 607 nm|
 |        CFRAC_3D|            none|Resolved Cloud Fraction in grid cell|
-|   EXT_AERO_W550|          1/Mm| Aerosol Extinction of layer for 550 nm, Angstrom Interpolation|
-| ACTINIC_FX_W294|      Watts/m<sup>2</sup>|Net Actinic Flux, 294 nm|
-| ACTINIC_FX_W303|      Watts/m<sup>2</sup>|Net Actinic Flux, 303 nm|
-| ACTINIC_FX_W310|      Watts/m<sup>2</sup>|Net Actinic Flux, 310 nm|
-| ACTINIC_FX_W316|      Watts/m<sup>2</sup>|Net Actinic Flux, 316 nm|
-| ACTINIC_FX_W333|      Watts/m<sup>2</sup>|Net Actinic Flux, 333 nm|
-| ACTINIC_FX_W381|      Watts/m<sup>2</sup>|Net Actinic Flux, 381 nm|
-| ACTINIC_FX_W607|      Watts/m<sup>2</sup>|Net Actinic Flux, 607 nm|
+|   EXT_AERO_W550|          Mm<sup>-1</sup>| Aerosol Extinction of layer for 550 nm, Angstrom Interpolation|
+| ACTINIC_FX_W294|      W m<sup>-2</sup>|Net Actinic Flux, 294 nm|
+| ACTINIC_FX_W303|      W m<sup>-2</sup>|Net Actinic Flux, 303 nm|
+| ACTINIC_FX_W310|      W m<sup>-2</sup>|Net Actinic Flux, 310 nm|
+| ACTINIC_FX_W316|      W m<sup>-2</sup>|Net Actinic Flux, 316 nm|
+| ACTINIC_FX_W333|      W m<sup>-2</sup>|Net Actinic Flux, 333 nm|
+| ACTINIC_FX_W381|      W m<sup>-2</sup>|Net Actinic Flux, 381 nm|
+| ACTINIC_FX_W607|      W m<sup>-2</sup>|Net Actinic Flux, 607 nm|
 
 ## Files Affected
 * CCTM/scripts/run_cctm.csh
