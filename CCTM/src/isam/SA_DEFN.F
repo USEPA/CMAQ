@@ -32,7 +32,7 @@
 
       INTEGER ITAG
 
-c...Tagging species, regular or combined
+c...Tagging maps
       CHARACTER( 16 ), ALLOCATABLE :: SPC_NAME( :,: )
       INTEGER, ALLOCATABLE, SAVE   :: SPC_INDEX( :,: )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_CGRtoSA( : )
@@ -44,7 +44,6 @@ c...Tagging species, regular or combined
       INTEGER, ALLOCATABLE, SAVE   :: MAP_DIFFtoSA( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_ADVtoSA( : )
 
-c...4th and 5th dimensions of ISAM array
       INTEGER ::     NSPC_SA
       INTEGER ::     NTAG_SA
       INTEGER ::     NSPC_TRANSPORT
@@ -54,9 +53,9 @@ c...Define Allocatable Apportionment Arrays
       REAL, ALLOCATABLE :: AISAM ( :,:,:,:,: )
       REAL, ALLOCATABLE :: TOT_SADEP ( :,:,:,: )
       REAL, ALLOCATABLE :: CONV_SADEP ( :,:,:,: )
-      REAL, ALLOCATABLE :: MAPFRAC( :,:,: )
-      REAL, ALLOCATABLE :: MFRC_P( :,:,: )
-      REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
+c     REAL, ALLOCATABLE :: MAPFRAC( :,:,: )
+c     REAL, ALLOCATABLE :: MFRC_P( :,:,: )
+c     REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_ALL( :,:,:,:,: ) ! full emissions array mapped to diffused species
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_OTHER( :,:,:,: ) ! emissions left for 'OTHRTAG'
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF( :,:,:,:,: ) 
@@ -286,12 +285,9 @@ c----------------------------------------------------------
 
         BGN_SP = INDEX( TAGCLASSES,'OC',LBACK )
         IF ( BGN_SP .NE. 0 ) THEN
-          IF( .NOT. ZERO_PCSOA ) THEN
             NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASVPO2J,ASVPO3J,AIVPO1J
                                     ! VLVPO1,VSVPO1,VSVPO2,VSVO3,VIVPO1
-          ELSE
-            NSPC_SA = NSPC_SA + 4  ! APOCJ, APOCI, APNCOMJ, APNCOMI  20120711
-          ENDIF
+            NSPC_SA = NSPC_SA + 4   ! APOCJ, APOCI, APNCOMJ, APNCOMI  
           L_OC = .TRUE.
         ENDIF
 
@@ -444,7 +440,6 @@ c----------------------------------------------------------
         ENDIF
 
         IF ( L_OC ) THEN
-          IF( .NOT. ZERO_PCSOA ) THEN
             J_SPC = J_SPC + 1
             SPC_NAME( J_SPC,: ) = 'ALVPO1J'
             J_SPC = J_SPC + 1
@@ -471,7 +466,6 @@ c----------------------------------------------------------
             SPC_NAME( J_SPC,: ) = 'VSVPO3'
             J_SPC = J_SPC + 1
             SPC_NAME( J_SPC,: ) = 'VIVPO1'
-          ELSE
             J_SPC = J_SPC + 1
             SPC_NAME( J_SPC,: ) = 'APOCJ'
             J_SPC = J_SPC + 1
@@ -480,7 +474,6 @@ c----------------------------------------------------------
             SPC_NAME( J_SPC,: ) = 'APNCOMJ'
             J_SPC = J_SPC + 1
             SPC_NAME( J_SPC,: ) = 'APNCOMI'
-          ENDIF
         ENDIF
 
           
