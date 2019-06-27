@@ -23,7 +23,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
   * [Allow EBI solvers to conduct integrated reaction rate analysis](allow_ebi_to_do_IRR_analysis.md)
   
 ### Photolysis Rates
- * [In-line photolysis diagnostics and OMI files](inline_phot_diagnostic_and_OMI.md)
+ * [Updates to inline photolysis diagnostics and OMI data files](inline_phot_diagnostic_and_OMI.md)
  * [Floating point crashes using the Portland Group Compiler](inline_phot_pgi_floating_point_crashes.md)
  * [inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
  
