@@ -117,8 +117,6 @@ Revised implementation
 
 ## References
 
-**>>COMMENT<<** Also cite Sarwar et al. (2019) here?
-
 1.	Sarwar, G., Gantt, B.; Schwede, D.; Foley, K.; Mathur, R.; Saiz-Lopez, A. Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, _Environmental Science & Technology_, 2015, **49**(15):9203-9211.
 2.	Saiz-Lopez, A.; Fernandez, R. P.; Ordóñez, C.; Kinnison, D. E.; Gómez Martín, J. C.; Lamarque, J.-F.; Tilmes, S. Iodine chemistry in the troposphere and its effect on ozone. _Atmospheric Chemistry and Physics_, 2014, **14**, 13119-13143.
 3.	Fernandez, R. P.; Salawitch, R. J.; Kinnison, D. E.; Lamarque, J.-F.; Saiz-Lopez, A. Bromine partitioning in the tropical tropopause layer: implications for stratospheric injection. _Atmospheric Chemistry and Physics_, 2014, **14**, 13391-13410. 
