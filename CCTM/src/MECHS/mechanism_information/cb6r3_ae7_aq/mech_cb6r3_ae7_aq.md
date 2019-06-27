@@ -292,7 +292,9 @@ Information is based on the mech.def file.
 | HET_H2NO3PKB   | H2NO3PK + ACLK ----> CLNO2  | HETERO_H2NO3PBK | Not Available<sup>2</sup> | 
 | HET_N02   | NO2 ---->   0.500\*HONO +    0.500\*HNO3  | HETERO_NO2 | Not Available<sup>2</sup> | 
 | HAL_Ozone   | O3 ----> | min( 2.896E-11e<sup> 1.200E+01P</sup>+ 0.000E+00e<sup> 0.000E+00P</sup>, <br>2.675E-6) |   2.4000E-06<sup>4</sup>| 
-| HET_IEPOX   | EPOX ----> AISO3J  | HETERO_IEPOX | Not Available<sup>2</sup> | 
+| HET_IEPOX   | EPOX ----> IEPOXP  | HETERO_IEPOX | Not Available<sup>2</sup> | 
+| HET_IEPOXOS   | IEPOXP + ASO4J ----> AISO3J  | HETERO_IEPOXOS | Not Available<sup>2</sup> | 
+| HET_TETROL   | IEPOXP ----> AISO3J  | HETERO_TETROL | Not Available<sup>2</sup> | 
 | HET_GLY   | GLY ----> AGLYJ  | HETERO_GLY | Not Available<sup>2</sup> | 
 | HET_MGLY   | MGLY ----> AGLYJ  | HETERO_MGLY | Not Available<sup>2</sup> | 
 | BL18a   | TERPNRO2 + NO ----> NO +    0.688\*MTNO3  |   2.60E-12e<sup>   380.00/T</sup> |   9.3002E-12 |
@@ -309,6 +311,10 @@ Information is based on the mech.def file.
 | OLIG_ISOPRENE1   | AISO1J ---->   0.500\*AOLGBJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_ISOPRENE2   | AISO2J ---->   0.500\*AOLGBJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_SESQT1   | ASQTJ ---->   1.500\*AOLGBJ  |   9.4882E-06 |   9.4882E-06 |
+| RPOAGEPI   | APOCI + OH ---->   1.250\*APNCOMI + APOCI + OH  |   2.5000E-12 |   2.5000E-12 |
+| RPOAGELI   | APNCOMI + OH ----> OH  | HETERO_PNCOMLI | Not Available<sup>2</sup> | 
+| RPOAGEPJ   | APOCJ + OH ---->   1.250\*APNCOMJ + APOCJ + OH  |   2.5000E-12 |   2.5000E-12 |
+| RPOAGELJ   | APNCOMJ + OH ----> OH  | HETERO_PNCOMLJ | Not Available<sup>2</sup> | 
 | PCSOA   | PCVOC + OH ----> OH + PCSOARXN  |   1.2500E-11 |   1.2500E-11 |
 | POA_AGE1   | VLVPO1 + OH ----> OH +    0.486\*VLVPO1 +    0.006\*VSVPO1 +    0.003\*VSVPO2 +    0.003\*VSVPO3 +    0.002\*VIVPO1 +    0.294\*VLVOO1 +    0.202\*VLVOO2 +    0.002\*VSVOO2 +    0.002\*VSVOO3  |   4.0000E-11 |   4.0000E-11 |
 | POA_AGE2   | VSVPO1 + OH ----> OH +    0.300\*VLVPO1 +    0.286\*VSVPO1 +    0.004\*VSVPO2 +    0.004\*VSVPO3 +    0.224\*VLVOO1 +    0.182\*VLVOO2  |   4.0000E-11 |   4.0000E-11 |

@@ -911,14 +911,14 @@ Information is based on the mech.def file.
 | HET_IMAE   | IMAE ----> IMAEP  | HETERO_IMAE | Not Available<sup>2</sup> | 
 | HET_IHMML   | IHMML ----> IHMMLP  | HETERO_IMAE | Not Available<sup>2</sup> | 
 | HET_TETROL   | IEPOXP ----> AIETETJ  | HETERO_TETROL | Not Available<sup>2</sup> | 
-| HET_IEPOXOS   | IEPOXP ----> AIEOSJ  | HETERO_IEPOXOS | Not Available<sup>2</sup> | 
+| HET_IEPOXOS   | IEPOXP + ASO4J ----> AIEOSJ  | HETERO_IEPOXOS | Not Available<sup>2</sup> | 
 | HET_DIM1   | IEPOXP + AIETETJ ----> ADIMJ  | HETERO_TETROLDIM | Not Available<sup>2</sup> | 
 | HET_DIM2   | IEPOXP + AIEOSJ ----> ADIMJ  | HETERO_IEPOXOSDI | Not Available<sup>2</sup> | 
 | HET_2MG1   | IMAEP ----> AIMGAJ  | HETERO_2MG | Not Available<sup>2</sup> | 
-| HET_IMAEOS1   | IMAEP ----> AIMOSJ  | HETERO_IMAEOS | Not Available<sup>2</sup> | 
+| HET_IMAEOS1   | IMAEP + ASO4J ----> AIMOSJ  | HETERO_IMAEOS | Not Available<sup>2</sup> | 
 | HET_2MG2   | IHMMLP ----> AIMGAJ  | HETERO_2MG | Not Available<sup>2</sup> | 
-| HET_IMAEOS2   | IHMMLP ----> AIMOSJ  | HETERO_IMAEOS | Not Available<sup>2</sup> | 
-| HET_NO3   | NO3 ----> HNO3  | HETERO_IMAEOS | Not Available<sup>2</sup> | 
+| HET_IMAEOS2   | IHMMLP + ASO4J ----> AIMOSJ  | HETERO_IMAEOS | Not Available<sup>2</sup> | 
+| HET_NO3   | NO3 ----> HNO3  | HETERO_NO3 | Not Available<sup>2</sup> | 
 | OLIG_ALK1   | AALK1J ---->   1.714\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_ALK2   | AALK2J ---->   1.714\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_XYLENE1   | AXYL1J ---->   0.857\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
@@ -934,6 +934,10 @@ Information is based on the mech.def file.
 | OLIG_SESQT1   | ASQTJ ---->   1.500\*AOLGBJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_PAH1   | APAH1J ---->   1.429\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_PAH2   | APAH2J ---->   1.429\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
+| RPOAGEPI   | APOCI + OH ---->   1.250\*APNCOMI + APOCI + OH  |   2.5000E-12 |   2.5000E-12 |
+| RPOAGELI   | APNCOMI + OH ----> OH  | HETERO_PNCOMLI | Not Available<sup>2</sup> | 
+| RPOAGEPJ   | APOCJ + OH ---->   1.250\*APNCOMJ + APOCJ + OH  |   2.5000E-12 |   2.5000E-12 |
+| RPOAGELJ   | APNCOMJ + OH ----> OH  | HETERO_PNCOMLI | Not Available<sup>2</sup> | 
 | PCSOA   | PCVOC + OH ----> OH + PCSOARXN  |   1.2500E-11 |   1.2500E-11 |
 | POA_AGE1   | VLVPO1 + OH ----> OH +    0.486\*VLVPO1 +    0.006\*VSVPO1 +    0.003\*VSVPO2 +    0.003\*VSVPO3 +    0.002\*VIVPO1 +    0.294\*VLVOO1 +    0.202\*VLVOO2 +    0.002\*VSVOO2 +    0.002\*VSVOO3  |   4.0000E-11 |   4.0000E-11 |
 | POA_AGE2   | VSVPO1 + OH ----> OH +    0.300\*VLVPO1 +    0.286\*VSVPO1 +    0.004\*VSVPO2 +    0.004\*VSVPO3 +    0.224\*VLVOO1 +    0.182\*VLVOO2  |   4.0000E-11 |   4.0000E-11 |
@@ -947,8 +951,8 @@ Information is based on the mech.def file.
 | POA_AGE10   | VSVOO3 + OH ----> OH +    0.389\*VLVOO1 +    0.242\*VLVOO2 +    0.064\*VSVOO1 +    0.038\*VSVOO2 +    0.267\*VSVOO3  |   4.0000E-11 |   4.0000E-11 |
 | HYD_MT   | AMTNO3J ----> HNO3 + AMTHYDJ  |   9.2590E-05 |   9.2590E-05 |
 | HYD_ISOP   | AISOPNNJ ---->   2.000\*HNO3 +    0.500\*AMTHYDJ  |   9.2590E-05 |   9.2590E-05 |
-| HET_GLY   | GLY ----> AGLYJ  | HETERO_IMAEOS | Not Available<sup>2</sup> | 
-| HET_MGLY   | MGLY ----> AGLYJ  | HETERO_IMAEOS | Not Available<sup>2</sup> | 
+| HET_GLY   | GLY ----> AGLYJ  | HETERO_PNCOMLI | Not Available<sup>2</sup> | 
+| HET_MGLY   | MGLY ----> AGLYJ  | HETERO_PNCOMLI | Not Available<sup>2</sup> | 
 
 <sup>0</sup>Units molecules/(sec*cm<sup>3</sup>); Value at 298.15 K;   2.4615E+19 molcules/cm<sup>3</sup>;   1.00 Atm.     
 <sup>1</sup>Photolysis Reaction;depends on radiation and predicted concentrations     

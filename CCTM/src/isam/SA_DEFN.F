@@ -285,12 +285,9 @@ c----------------------------------------------------------
 
         BGN_SP = INDEX( TAGCLASSES,'OC',LBACK )
         IF ( BGN_SP .NE. 0 ) THEN
-          IF( .NOT. ZERO_PCSOA ) THEN
             NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASVPO2J,ASVPO3J,AIVPO1J
                                     ! VLVPO1,VSVPO1,VSVPO2,VSVO3,VIVPO1
-          ELSE
-            NSPC_SA = NSPC_SA + 4  ! APOCJ, APOCI, APNCOMJ, APNCOMI  20120711
-          ENDIF
+            NSPC_SA = NSPC_SA + 4   ! APOCJ, APOCI, APNCOMJ, APNCOMI  
           L_OC = .TRUE.
         ENDIF
 
@@ -443,7 +440,6 @@ c----------------------------------------------------------
         ENDIF
 
         IF ( L_OC ) THEN
-          IF( .NOT. ZERO_PCSOA ) THEN
             J_SPC = J_SPC + 1
             SPC_NAME( J_SPC,: ) = 'ALVPO1J'
             J_SPC = J_SPC + 1
@@ -470,7 +466,6 @@ c----------------------------------------------------------
             SPC_NAME( J_SPC,: ) = 'VSVPO3'
             J_SPC = J_SPC + 1
             SPC_NAME( J_SPC,: ) = 'VIVPO1'
-          ELSE
             J_SPC = J_SPC + 1
             SPC_NAME( J_SPC,: ) = 'APOCJ'
             J_SPC = J_SPC + 1
@@ -479,7 +474,6 @@ c----------------------------------------------------------
             SPC_NAME( J_SPC,: ) = 'APNCOMJ'
             J_SPC = J_SPC + 1
             SPC_NAME( J_SPC,: ) = 'APNCOMI'
-          ENDIF
         ENDIF
 
           
