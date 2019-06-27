@@ -94,11 +94,7 @@ Yarwood, G., Rao, S., Yocke, M., Whitten, G.Z., 2005. Updates to the Carbon Bond
 ## Internal Records
 #### Relevant Pull Requests:
 
-Initial implementation
-[PR #359](https://github.com/USEPA/CMAQ_Dev/pull/359), [PR #342](https://github.com/USEPA/CMAQ_Dev/pull/342)
-
-Revised implementation
-[PR #447](https://github.com/USEPA/CMAQ_Dev/pull/447), [PR #447](https://github.com/USEPA/CMAQ_Dev/pull/447)
+[PR #359](https://github.com/USEPA/CMAQ_Dev/pull/359), [PR #342](https://github.com/USEPA/CMAQ_Dev/pull/342), [PR #447](https://github.com/USEPA/CMAQ_Dev/pull/447), [PR #447](https://github.com/USEPA/CMAQ_Dev/pull/447)
 
 
 
