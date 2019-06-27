@@ -24,7 +24,7 @@ Many of the reactions in the chlorine chemistry in CB6 have been updated for CMA
 ## New Species
 Chlorine nitrate (species CLNO3)
 
-**Revised implementaion**
+**Revised implementation**
 
 Chlorine chemistry is revised for following changes:
 1. Removed heterogeneous hydrolysis of ClNO<sub>3</sub> over coarse-mode aerosols (HET_CLNO3_WAK).
