@@ -19,14 +19,13 @@ Changes were made to the inline photolysis module to:
                   nlat     17
                   nlon     17
 
-* Diagnostic files have increased in number and contents
-   * The new file PHOTDIAG3 contains optical and radiative results that are new or moved from the old PHOTDIAG2 file
-   * The new output variable include the aerosol optical depth in PHOTDIAG1 and interpolated to 550 nm plus Total Extinction, Extinction from gases (Rayleigh scattering, NO<sub>2</sub>, and O<sub>3</sub>),
-and Aerosol extinction at the wavelengths use calculate photolysis rates in PHOTDIAG3.
-   * New run script environment variables to tailor the numder of layers, NLAYS_PHOTDIAG, and the wavelengths, NWAVE_PHOTDIAG, written to PHOTDIAG2 and PHOTDIAG3 files.
-   * Read the below subsection for more information.
+* Diagnostic files are now more comprehensive. There are now three photolysis diagnostic files. More detailed information is in the subsections, below.
+   * The new output variables include: the aerosol optical depth in *PHOTDIAG1* and interpolated to 550 nm plus total extinction, extinction from gases (Rayleigh scattering, NO<sub>2</sub>, and O<sub>3</sub>),
+and aerosol extinction at the wavelengths used calculate photolysis rates in *PHOTDIAG3*.
+   * New runscript environment variables tailor the number of layers (NLAYS_PHOTDIAG) and the wavelengths (NWAVE_PHOTDIAG) written to *PHOTDIAG2* and *PHOTDIAG3* files.
+    * The new file, *PHOTDIAG3*, contains optical and radiative information, some of which is new and some which was moved from *PHOTDIAG2*.
 
-##### Description of Diagnostic files from In-line Photolysis
+##### Description of diagnostic files from inline photolysis
 
 * PHOTDIAG1 File  
    * Surface Values of Optical Inputs and Radiative Results from the inline calculation of Photolysis Rates
@@ -138,77 +137,80 @@ and Aerosol extinction at the wavelengths use calculate photolysis rates in PHOT
 |           CLNO2|           min<sup>-1</sup>|Photolysis rates calculated based on data file; CLNO2|
 |         ACRO_09|           min<sup>-1</sup>|Photolysis rates calculated based on data file; ACRO_09|
 
-* PHOTDIAG3 File (New)
-  * Includes three-dimensional values of Optical Inputs and Radiative Results used to make predictions from the inline photolysis calculation.
-
-  * The run script can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default values equals all layers of the simulation. If the run script sets NLAYS_PHOTDIAG, PHOTDIAG3 covers from the first layer to the value of NLAYS_PHOTDIAG.
-  * The run script can set the wavelengths output for the Aerosol Single Scattering Albedo, Aerosol Asymetry Factor, Total Extinction, Extinction from gases,
-Aerosol extinction, and Actinic Flux by using the environment list, NWAVE_PHOTDIAG. If NWAVE_PHOTDIAG is not set or contains no values, PHOTDIAG3 includes all wavelengths. The list
-only uses integer truncated values of the wavelengths used to calculated photolysis rates. 
-      * Values set by the PHOT_OPTICS.dat file and changing them is strongly not recommended. 
+* *PHOTDIAG3* (New)
+  * Includes three-dimensional values of optical inputs and radiative results used to make predictions from the inline photolysis calculation.
+  * The runscript can set the number of layers for the file using the environment variable, NLAYS_PHOTDIAG. The default values equal all layers of the simulation. If the runscript sets NLAYS_PHOTDIAG, *PHOTDIAG3* includes the lowest model layer to the value of NLAYS_PHOTDIAG.
+  * The environment list, NWAVE_PHOTDIAG, defines which wavelengths are output for the variables listed below. If NWAVE_PHOTDIAG is not set or contains no values, *PHOTDIAG3* includes all wavelengths. The list only uses integer truncated values of the wavelengths that are used to calculated photolysis rates.
+    * aerosol single scattering albedo
+    * aerosol asymmetry factor
+    * total extinction
+    * extinction from gases
+    * aerosol extinction
+    * actinic flux
+     
+  * Values set by the PHOT_OPTICS.dat file and changing them is strongly not recommended. 
       
-      * For CMAQ version 5.2, the list can contain any of the following values, 294, 303, 310, 316, 333, 381, and 607.
-
-      * example of setting for NWAVE_PHOTDIAG,
+  * For CMAQv5.2, the list could contain any of the following values: 294, 303, 310, 316, 333, 381, and 607.  The environment variable list for NWAVE_PHOTDIAG can be set as follows:
 
              setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"
 
-  * The variable EXT_AERO_W550 is not used to calculate photolysis rate and is derived from aerosol extinction at the other wavelengths using an Angstrom interpolation.
+  * The variable, EXT_AERO_W550, is not used to calculate photolysis rate and is derived from aerosol extinction at the other wavelengths using an Angstrom interpolation.
 
-<p align="center">Table 3. PHOTDIAG3 contents if NWAVE_PHOTDIAG not set </p>
+<p align="center">Table 3. *PHOTDIAG3* contents.  All variables, below, are included if NWAVE_PHOTDIAG is not set.</p>
 
 |Variable Name|Units|Description                                   |
 |:----|:----:|:---------------------------------------------|
-|   AERO_SSA_W294|            none|Aerosol Single Scattering Albedo at 294 nm|
-|  AERO_ASYM_W294|            none|Aerosol Asymetry Factor at 294 nm|
-|        EXT_W294|          Mm<sup>-1</sup>|Total Extinction of layer for 294 nm|
-|    GAS_EXT_W294|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 294 nm|
-|   EXT_AERO_W294|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 294 nm|
-|   AERO_SSA_W303|            none|Aerosol Single Scattering Albedo at 303 nm|
-|  AERO_ASYM_W303|            none|Aerosol Asymetry Factor at 303 nm|
-|        EXT_W303|          Mm<sup>-1</sup>|Total Extinction of layer for 303 nm|
-|    GAS_EXT_W303|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 303 nm|
-|   EXT_AERO_W303|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 303 nm|
-|   AERO_SSA_W310|            none|Aerosol Single Scattering Albedo at 310 nm|
-|  AERO_ASYM_W310|            none|Aerosol Asymetry Factor at 310 nm|
-|        EXT_W310|          Mm<sup>-1</sup>|Total Extinction of layer for 310 nm|
-|    GAS_EXT_W310|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 310 nm|
-|   EXT_AERO_W310|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 310 nm|
-|   AERO_SSA_W316|            none|Aerosol Single Scattering Albedo at 316 nm|
-|  AERO_ASYM_W316|            none|Aerosol Asymetry Factor at 316 nm|
-|        EXT_W316|          Mm<sup>-1</sup>|Total Extinction of layer for 316 nm|
-|    GAS_EXT_W316|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 316 nm|
-|   EXT_AERO_W316|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 316 nm|
-|   AERO_SSA_W333|            none|Aerosol Single Scattering Albedo at 333 nm|
-|  AERO_ASYM_W333|            none|Aerosol Asymetry Factor at 333 nm|
-|        EXT_W333|          Mm<sup>-1</sup>|Total Extinction of layer for 333 nm|
-|    GAS_EXT_W333|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 333 nm|
-|   EXT_AERO_W333|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 333 nm|
-|   AERO_SSA_W381|            none|Aerosol Single Scattering Albedo at 381 nm|
-|  AERO_ASYM_W381|            none|Aerosol Asymetry Factor at 381 nm|
-|        EXT_W381|          Mm<sup>-1</sup>|Total Extinction of layer for 381 nm|
-|    GAS_EXT_W381|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 381 nm|
-|   EXT_AERO_W381|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 381 nm|
-|   AERO_SSA_W607|            none|Aerosol Single Scattering Albedo at 607 nm|
-|  AERO_ASYM_W607|            none|Aerosol Asymetry Factor at 607 nm|
-|        EXT_W607|          Mm<sup>-1</sup>|Total Extinction of layer for 607 nm|
-|    GAS_EXT_W607|          Mm<sup>-1</sup>|Total Extinction from Rayleigh Scattering, NO<sub>2</sub>, and Ozone in layer for 607 nm|
-|   EXT_AERO_W607|          Mm<sup>-1</sup>|Aerosol Extinction of layer for 607 nm|
-|        CFRAC_3D|            none|Resolved Cloud Fraction in grid cell|
-|   EXT_AERO_W550|          Mm<sup>-1</sup>| Aerosol Extinction of layer for 550 nm, Angstrom Interpolation|
-| ACTINIC_FX_W294|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 294 nm|
-| ACTINIC_FX_W303|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 303 nm|
-| ACTINIC_FX_W310|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 310 nm|
-| ACTINIC_FX_W316|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 316 nm|
-| ACTINIC_FX_W333|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 333 nm|
-| ACTINIC_FX_W381|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 381 nm|
-| ACTINIC_FX_W607|      W&nbsp;m<sup>&#8209;2</sup>|Net Actinic Flux, 607 nm|
+|   AERO_SSA_W294|            none|aerosol single scattering albedo at 294 nm|
+|  AERO_ASYM_W294|            none|aerosol asymmetry factor at 294 nm|
+|        EXT_W294|          Mm<sup>-1</sup>|total extinction of layer at 294 nm|
+|    GAS_EXT_W294|          Mm<sup>-1</sup>|total extinction from Rayleigh scattering, NO<sub>2</sub>, and ozone in layer at 294 nm|
+|   EXT_AERO_W294|          Mm<sup>-1</sup>|aerosol extinction of layer at 294 nm|
+|   AERO_SSA_W303|            none|aerosol single scattering albedo at 303 nm|
+|  AERO_ASYM_W303|            none|aerosol asymmetry factor at 303 nm|
+|        EXT_W303|          Mm<sup>-1</sup>|total extinction of layer at 303 nm|
+|    GAS_EXT_W303|          Mm<sup>-1</sup>|total extinction from Rayleigh Scattering, NO<sub>2</sub>, and ozone in layer at 303 nm|
+|   EXT_AERO_W303|          Mm<sup>-1</sup>|aerosol extinction of layer at 303 nm|
+|   AERO_SSA_W310|            none|aerosol single scattering albedo at 310 nm|
+|  AERO_ASYM_W310|            none|aerosol asymmetry factor at 310 nm|
+|        EXT_W310|          Mm<sup>-1</sup>|total extinction of layer at 310 nm|
+|    GAS_EXT_W310|          Mm<sup>-1</sup>|total extinction from Rayleigh scattering, NO<sub>2</sub>, and zzone in layer at 310 nm|
+|   EXT_AERO_W310|          Mm<sup>-1</sup>|aerosol extinction of layer at 310 nm|
+|   AERO_SSA_W316|            none|aerosol single scattering albedo at 316 nm|
+|  AERO_ASYM_W316|            none|aerosol asymmetry factor at 316 nm|
+|        EXT_W316|          Mm<sup>-1</sup>|total extinction of layer at 316 nm|
+|    GAS_EXT_W316|          Mm<sup>-1</sup>|total extinction from Rayleigh scattering, NO<sub>2</sub>, and ozone in layer at 316 nm|
+|   EXT_AERO_W316|          Mm<sup>-1</sup>|aerosol extinction of layer at 316 nm|
+|   AERO_SSA_W333|            none|aerosol single scattering albedo at 333 nm|
+|  AERO_ASYM_W333|            none|aerosol asymmetry factor at 333 nm|
+|        EXT_W333|          Mm<sup>-1</sup>|total extinction of layer at 333 nm|
+|    GAS_EXT_W333|          Mm<sup>-1</sup>|total extinction from Rayleigh scattering, NO<sub>2</sub>, and ozone in layer at 333 nm|
+|   EXT_AERO_W333|          Mm<sup>-1</sup>|aerosol extinction of layer at 333 nm|
+|   AERO_SSA_W381|            none|aerosol single scattering albedo at 381 nm|
+|  AERO_ASYM_W381|            none|aerosol asymmetry Factor at 381 nm|
+|        EXT_W381|          Mm<sup>-1</sup>|total extinction of layer at 381 nm|
+|    GAS_EXT_W381|          Mm<sup>-1</sup>|total extinction from Rayleigh scattering, NO<sub>2</sub>, and ozone in layer at 381 nm|
+|   EXT_AERO_W381|          Mm<sup>-1</sup>|aerosol extinction of layer at 381 nm|
+|   AERO_SSA_W607|            none|aerosol single scattering albedo at 607 nm|
+|  AERO_ASYM_W607|            none|aerosol asymmetry factor at 607 nm|
+|        EXT_W607|          Mm<sup>-1</sup>|total extinction of layer at 607 nm|
+|    GAS_EXT_W607|          Mm<sup>-1</sup>|total extinction from Rayleigh scattering, NO<sub>2</sub>, and ozone in layer at 607 nm|
+|   EXT_AERO_W607|          Mm<sup>-1</sup>|aerosol extinction of layer at 607 nm|
+|        CFRAC_3D|            none|resolved cloud fraction in grid cell|
+|   EXT_AERO_W550|          Mm<sup>-1</sup>|aerosol extinction of layer at 550 nm, Angstrom interpolation|
+| ACTINIC_FX_W294|      W&nbsp;m<sup>&#8209;2</sup>|net actinic flux at 294 nm|
+| ACTINIC_FX_W303|      W&nbsp;m<sup>&#8209;2</sup>|net actinic flux at 303 nm|
+| ACTINIC_FX_W310|      W&nbsp;m<sup>&#8209;2</sup>|net actinic flux at 310 nm|
+| ACTINIC_FX_W316|      W&nbsp;m<sup>&#8209;2</sup>|net actinic flux at 316 nm|
+| ACTINIC_FX_W333|      W&nbsp;m<sup>&#8209;2</sup>|net actinic flux at 333 nm|
+| ACTINIC_FX_W381|      W&nbsp;m<sup>&#8209;2</sup>|net actinic flux at 381 nm|
+| ACTINIC_FX_W607|      W&nbsp;m<sup>&#8209;2</sup>|net actinic flux at 607 nm|
 
 ## Files Affected
 * CCTM/scripts/run_cctm.csh
 * CCTM/src/ICL/fixed/filenames/FILES_CTM.EXT
 * CCTM/src/phot/inline/AERO_PHOTDATA.F
-* renamed and formatted CCTM/src/phot/inline/OMI_1979_to_2015.dat to CCTM/src/phot/inline/OMI_1979_to_2017.dat
+* CCTM/src/phot/inline/OMI_1979_to_2015.dat (**deleted**)
+* CCTM/src/phot/inline/OMI_1979_to_2017.dat (**new**)
 * CCTM/src/phot/inline/PHOT_MOD.F
 * CCTM/src/phot/inline/phot.F
 * CCTM/src/phot/inline/opphot.F
