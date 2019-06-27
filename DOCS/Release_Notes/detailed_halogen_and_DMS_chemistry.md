@@ -2,15 +2,9 @@
 
 [Golam Sarwar](mailto:sarwar.golam@epa.gov), U.S. Environmental Protection Agency
 
-**>>COMMENT<<** I think this one needs a fair amount of work.  TLS 25 Jun 2019
-
 ## Brief Description
 
-**>>COMMENT<<** What are the "Initial" and "Revised" implementations?  If these are at different stages of development for this release, suggest combining them into a single summary in the Brief Description and in the Significance and Impact.  Otherwise, this is very confusing, and I'm not sure what to make of this.  TLS 25 Jun 2019
-
-**Initial implementation**
-
-**>>COMMENT<<** Double-check that I did not misinterpret the point of implementation.  Here, I replaced "the CMAQ model" with "CMAQv5.3" by assuming that this is all new for this release of CMAQ.  TLS 25 Jun 2019
+**Initial Implementation**
 
 Detailed chemistry for the halogens, bromine and iodine, was incorporated into the CB05 chemical mechanism in a previous release of CMAQ. In CMAQv5.3, the detailed halogen chemistry is extended for CB6r3. It contains 38 gas-phase reactions and 8 heterogeneous reactions for bromine chemistry, and 44 gas-phase reactions and 20 heterogeneous reactions for iodine chemistry. Dimethyl sulfide (DMS) chemistry is also combined with CB6r3 and implemented into CMAQv5.3. It contains 7 gas-phase reactions involving DMS and oxidants. The combined chemical mechanism containing CB6r3, detailed halogen and DMS chemistry is named as CB6r3m. The halogen chemistry is more beneficial in the hemispheric CMAQ model where there is a larger influence on the intercontinental transport over oceans.  However, it can also be used in the regional version of the model.
 
@@ -20,21 +14,15 @@ The detailed halogen chemistry is revised for following changes: (1) removing se
 
 ## Significance and Impact
 
-**>>COMMENT<<** I think the "V" in "ppbV" should be capitalized.  Also, I cannot figure out how to make Greek mu in Markdown.  TLS 25 Jun 2019
-
 **Initial implementation**
 
-Model sensitivity runs were completed with CB6r3 (without detailed halogen and DMS chemistry) and CB6r3m (with detailed halogen and DMS chemistry) over the Northern Hemisphere for three months in 2015 (October-December). It reduces ozone by 3-15 ppbV (Figure 1) and increases sulfur dioxide by 20-160 pptV (Figure 2) and sulfate by 0.1-0.8 ug m<sup>-3</sup> (Figure 3) over much of the sea water. It reduces ozone and increases sulfate over land by much smaller margins than over sea water.
+Model sensitivity runs were completed with CB6r3 (without detailed halogen and DMS chemistry) and CB6r3m (with detailed halogen and DMS chemistry) over the Northern Hemisphere for three months in 2015 (October-December). It reduces ozone by 3-15&nbsp;ppbV (Figure 1) and increases sulfur dioxide by 20-160&nbsp;pptV (Figure 2) and sulfate by 0.1-0.8 &#956;g&nbsp;m<sup>&#8209;3</sup> (Figure 3) over much of the sea water. It reduces ozone and increases sulfate over land by much smaller margins than over sea water.
 
 **Revised implementation**
 
-**>>COMMENT<<** Please confirm that I correctly clarified the sentence where I added "Without including halogen chemistry."  It is unclear, as originally written.  I also removed "performance" and replaced it with "bias"; double-check that this is the correct statistical terminology.  TLS 25 Jun 2019
+Model sensitivity runs were completed with the existing and revised CB6r3m over the Northern Hemisphere for a winter (January 2016) and a summer month (August 2016). Over the sea water, the revised halogen chemistry increases wintertime monthly mean ozone by up to 4.0&nbsp;ppbV and summertime ozone by up to 6.0&nbsp;ppbV. Over the U.S., the revised halogen chemistry increases wintertime ozone by <1.5&nbsp;ppbV and summertime ozone by <0.5&nbsp;ppbV. Without including halogen chemistry, CMAQv5.3 underestimates wintertime ozone and overestimates summertime ozone. The revised halogen chemistry increases ozone over the U.S., which contributes to the improvement of wintertime model bias without substantially affecting the summertime bias. 
 
-Model sensitivity runs were completed with the existing and revised CB6r3m over the Northern Hemisphere for a winter (January 2016) and a summer month (August 2016). Over the sea water, the revised halogen chemistry increases wintertime monthly mean ozone by up to 4.0 ppbV and summertime ozone by up to 6.0 ppbV. Over the U.S., the revised halogen chemistry increases wintertime ozone by <1.5 ppbV and summertime ozone by <0.5 ppbV. Without including halogen chemistry, CMAQv5.3 underestimates wintertime ozone and overestimates summertime ozone. The revised halogen chemistry increases ozone over the U.S., which contributes to the improvement of wintertime model bias without substantially affecting the summertime bias. 
-
-The revised halogen chemistry minimally changes both wintertime and summertime sulfate in some locations (<0.13 ug m<sup>-3</sup>). However, the impacts over the U.S. are small. 
-
-**>>COMMENT<<** The figure captions sometimes align under the figure, and sometimes they seem to wrap.  Needs to be fixed. TLS 25 Jun 2019
+The revised halogen chemistry minimally changes both wintertime and summertime sulfate in some locations (<0.13&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>). However, the impacts over the U.S. are small. 
 
 ![Ozone](ozone_impact.jpg) 
 Figure 1: Impact of halogen chemistry on ozone (three-month average).
