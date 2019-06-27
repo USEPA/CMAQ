@@ -7,7 +7,7 @@
 Changes were made to the inline photolysis module to:
 
 1. Update the OMI total ozone column data file and its interpolation method.
-* Supplement the data file cover to Jan 10, 2018
+* Extend the data through 10 January 2018
    * the new file is CCTM/src/phot/inline/OMI_1979_to_2017.dat
 * Change the interpolation method.
    * allows the interpolation to vary over time of day
@@ -148,7 +148,7 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
     * aerosol extinction
     * actinic flux
      
-  * Values set by the PHOT_OPTICS.dat file and changing them is strongly not recommended. 
+  * Values are set by the PHOT_OPTICS.dat file and changing them is strongly not recommended. 
       
   * For CMAQv5.2, the list could contain any of the following values: 294, 303, 310, 316, 333, 381, and 607.  The environment variable list for NWAVE_PHOTDIAG can be set as follows:
 
@@ -156,7 +156,7 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
 
   * The variable, EXT_AERO_W550, is not used to calculate photolysis rate and is derived from aerosol extinction at the other wavelengths using an Angstrom interpolation.
 
-<p align="center">Table 3. *PHOTDIAG3* contents.  All variables, below, are included if NWAVE_PHOTDIAG is not set.</p>
+<p align="center">Table 3. <i>PHOTDIAG3</i> contents.  All variables are included if NWAVE_PHOTDIAG is not set.</p>
 
 |Variable Name|Units|Description                                   |
 |:----|:----:|:---------------------------------------------|
