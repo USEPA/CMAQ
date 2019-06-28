@@ -459,6 +459,7 @@ This file contains the following variables interpolated to the modeling grid:
 |ICCG_SUM| Ratio of intercloud to cloud-to-ground flashes during the summer season|unitless|yes|
 |ICCG_WIN| Ratio of intercloud to cloud-to-ground flashes during the winter season|unitless|yes|
 |OCNMASK| Land/water mask to remove spurious flashes over the ocean|unitless|yes|
+
 *Regression equation generates flash counts (or log flash counts) per square km per cm convectic precipitation.
 
 ## Biogenic and Land Surface Inputs
