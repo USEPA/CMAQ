@@ -6,9 +6,7 @@
 
 Changes were made to the inline photolysis module to update the OMI total ozone column data and to create more comprehensive photolysis diagnostic files.
 
-1. Update the OMI total ozone column data file and its interpolation method.
-   * Extend the data through 10 January 2018
-     * the new file is CCTM/src/phot/inline/OMI_1979_to_2017.dat
+1. **OMI total ozone column data:**  The OMI total ozone column data have been extended through 10 January 2018. In addition, the interpolation method now allows ozone to vary over the time of day. The data only depends on Julian day. The OMI data file is now CCTM/src/phot/inline/OMI_1979_to_2017.dat,
    * Change the interpolation method.
      * allows the interpolation to vary over time of day
        * currently only depends on Julian day
