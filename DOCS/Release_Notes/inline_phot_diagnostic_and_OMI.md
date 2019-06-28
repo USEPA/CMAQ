@@ -4,15 +4,15 @@
 
 ## Brief Description
 
-Changes were made to the inline photolysis module to:
+Changes were made to the inline photolysis module to update the OMI total ozone column data and to create more comprehensive photolysis diagnostic files.
 
 1. Update the OMI total ozone column data file and its interpolation method.
-* Extend the data through 10 January 2018
-   * the new file is CCTM/src/phot/inline/OMI_1979_to_2017.dat
-* Change the interpolation method.
-   * allows the interpolation to vary over time of day
-     * currently only depends on Julian day
-   * resolution of the OMI data is no longer hard coded but defined in the data file.
+   * Extend the data through 10 January 2018
+     * the new file is CCTM/src/phot/inline/OMI_1979_to_2017.dat
+   * Change the interpolation method.
+     * allows the interpolation to vary over time of day
+       * currently only depends on Julian day
+     * resolution of the OMI data is no longer hard coded but defined in the data file.
        * **<p style='color:red'>the change will cause the version 5.2 of the OMI data file to crash the CMAQ model from an I/O error </p>**
        * to use the version 5.2 of OMI file add the below lines at the top of the file
 
@@ -25,7 +25,7 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
    * New runscript environment variables tailor the number of layers (NLAYS_PHOTDIAG) and the wavelengths (NWAVE_PHOTDIAG) written to *PHOTDIAG2* and *PHOTDIAG3* files.
     * The new file, *PHOTDIAG3*, contains optical and radiative information, some of which is new and some which was moved from *PHOTDIAG2*.
 
-##### Description of diagnostic files from inline photolysis
+## Description of diagnostic files from inline photolysis
 
 * *PHOTDIAG1* (see Table 1)  
    * Surface Values of Optical Inputs and Radiative Results from the inline calculation of Photolysis Rates
