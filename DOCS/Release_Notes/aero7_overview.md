@@ -117,7 +117,7 @@ Ambient PM<sub>2.5</sub> is further increased due to water uptake with implicati
 for metrics such as AOD that represent in situ (vs. dry) conditions.                       
 
 ## Affected Files
-CCTM/src/aero/aero7 (links to aero6)
+CCTM/src/aero/aero7 (links to *aero6*)
 
 hlconst.f
 
