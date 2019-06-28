@@ -33,7 +33,7 @@
 
 [Return to Top](#TOC_A)
 
-Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script config_cmaq.csh to help enforce consistent environment settings for CMAQ and its associated libraries. The following lists the config_cmaq.csh variables defined for the build process and suggests values to which to set those variables.
+Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly, CMAQ includes the configuration script config_cmaq.csh to help enforce consistent environment settings for CMAQ and its associated libraries. The following lists the config_cmaq.csh variables defined for the build process and suggests values to which to set those variables.
 
 Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpif90 be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build.
 
@@ -118,7 +118,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 
 [Return to Top](#TOC_A)
 
-The configuration options listed here are set during compilation of the CCTM executable through the build script, bldit_cctm.csh, located under the CCTM/scripts folder. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options you must recompile CCTM and create a new executable.
+The configuration options listed here are set during compilation of the CCTM executable through the build script, bldit_cctm.csh, located under the CCTM/scripts folder. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options, you must recompile CCTM and create a new executable.
 
 Several of the CCTM science modules have more than one option.  Brief descriptions of these options are provided here.
 
@@ -140,7 +140,7 @@ The following five options are invoked by uncommenting the line in the CCTM buil
      Uncomment to build CMAQ with true parallel I/O feature (requires ioapi3.2 and pnetcdf)
 
 -   `build_twoway`<a id=build_twoway></a>  
-    Uncomment to build WRF-CMAQ twoway - to build a stand-alone CMAQ. Comment out, this option. **>>COMMENT<<** add comment out options?
+    Uncomment to build WRF-CMAQ two way - to build a stand-alone CMAQ. Comment out, this option. **>>COMMENT<<** add comment out options?
 
 -   `potvortO3`<a id=potvort03></a>   
     Uncomment to build CMAQ with potential vorticity free-troposphere O3 scaling
@@ -170,7 +170,7 @@ The following configuration settings may have multiple options. Select one optio
     Coupling scheme compatible with the Yamartino advection scheme; select this option when `ModDriver` is set to `driver/yamo`.  
 
 -    `ModHadv: [default: hadv/yamo]`<a id=ModHadv></a>  
-      Horizontal advection module.  Currently only the Yamartino global mass-conserving hoizontal advection scheme is supported.
+      Horizontal advection module.  Currently only the Yamartino global mass-conserving horizontal advection scheme is supported.
      -   `hadv/yamo`
 
 -   `ModVadv: [default: vadv/wrf]`<a id=ModVadv></a>  
@@ -246,10 +246,10 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
     CMAQ utility modules. Do not change this module setting.
     -  `util/util`
 -   `ModPa: [default: procan/pa]`<a id=ModPa></a>
-    Process analsis is controlled in the CCTM run script. Do not change this module setting.
+    Process analysis is controlled in the CCTM run script. Do not change this module setting.
      - `procan/pa`
 -   `ModPvO3: [default: pv_o3]`<a id=ModPvO3></a>
-    Potential vorticity parameterization for free-troposphere exhange of ozone. This option is configured using the potvorO3 variable in the CCTM build script. Do not change this module setting.
+    Potential vorticity parameterization for free-troposphere exchange of ozone. This option is configured using the potvorO3 variable in the CCTM build script. Do not change this module setting.
     - `pv_o3`
     
 <a id=run_cctm.csh></a>
