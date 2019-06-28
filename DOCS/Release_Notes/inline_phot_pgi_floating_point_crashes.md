@@ -1,12 +1,12 @@
-# Remove floating point crashes from photolysis rate calculation when using Portland Group compiler.
+# Removing sporadic floating point crashes from photolysis rate calculation with the PGI Fortran compiler.
  
-**Author/P.O.C.:**, [William T. Hutzell](mailto:hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
+[William T. Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-The changes remove crashes when the model is compiled using the pgi compiler with debug options. Floating point errors within the in-line calculation of photolysis rates cause the crashes because exponentials are being evaluated at very large negative REAL(8) numbers for the **TWOSTREAM_S** and **get_aggregate_optics** subroutines within the **PHOT_MOD.F** and **CLOUD_OPTICS.F** files, respectively. Code changes limit lowest value of the exponential argument to -709.090848126508 which corresponds to 9.0x10<sup>-307</sup> so exponentials evaluated below the limit are set to 9.0x10<sup>-307</sup> .
+The changes remove sporadic crashes when CMAQ is compiled using the PGI compiler with debug options. Floating point errors in the inline calculation of photolysis rates occur when exponentials are evaluated at very large negative REAL(8) numbers for the **TWOSTREAM_S** and **get_aggregate_optics** subroutines in the **PHOT_MOD.F** and **CLOUD_OPTICS.F** files, respectively. These code changes limit the lowest value of the exponential argument to -709.090848126508, which corresponds to 9.0&nbsp;x&nbsp;10<sup>&#8209;307</sup>. Exponentials that are evaluated below the limit are set to 9.0&nbsp;x&nbsp;10<sup>&#8209;307</sup>.
 
 ## Significance and Impact
-Simulations over current CMAQ benchmark and CONUS domains show no differences when the model is compiled the intel version 17.0 and gcc version 6.1 compilers. When using the pgi version 17.4 compiler, concentration differences are much less then 0.1% from most species. Monoatomic chlorine, hypochlorous acid, and formyl chloride had isolated differences on the order of 10% for concentrations below 10<sup>-5</sup> to 10<sup>-8</sup> ppmV. Their locations were over the Gulf of Mexico and the Florida pennisula
+Simulations over the 12-km CMAQ Southeast benchmark and CONUS domains show no differences when the model is compiled the Intel version 17.0 and gcc version 6.1 Fortran compilers. When using the PGI version 17.4 Fortran compiler, concentration differences are much less than 0.1% for most species. Monoatomic chlorine, hypochlorous acid, and formyl chloride had differences on the order of 10% for concentrations below 10<sup>&#8209;5</sup> to 10<sup>&#8209;8</sup> ppmV in isolated locations over the Gulf of Mexico and the Florida peninsula.
 
 ## Files Affected
 
