@@ -434,7 +434,7 @@ The NLDN lightning strikes file is used for calculating online NO emissions from
 
 |**Variable Name**|**Description**|**Units**|**Required**|
  |--------|-------------------|--------------|-----------|
- |NLDNstrk|hourly flash counts per sq. km.|(km-2)||
+ |LNT|hourly flash counts per sq. km.|km-2|yes|
 
 <a id=ltngparm_file></a>
 
@@ -452,13 +452,14 @@ This file contains the following variables interpolated to the modeling grid:
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
-| SLOPE|linear equation parameter for estimating NO emissions from hourly flash counts|unitless||
-|INTERCEPT| linear equation parameter for estimating NO emissions from hourly flash counts|||
-|SLOPE_lg| logarithmic equation parameter for estimating NO emissions from hourly flash counts|||
-|INTERCEPT_lg| logarithmic equation parameter for estimating NO emissions from hourly flash counts|||
-|ICCG_SUM| Ratio of intercloud to cloud-to-ground flashes during the summer season|unitless||
-|ICCG_WIN| Ratio of intercloud to cloud-to-ground flashes during the winter season|unitless||
-|OCNMASK| Land/water mask to remove spurious flashes over the ocean|unitless||
+| SLOPE|linear equation parameter for estimating lightning flash count from hourly convective precipitation|unitless|yes|
+|INTERCEPT| linear equation parameter for  lightning flash count from hourly convective precipitation|km-2*|yes|
+|SLOPE_lg| logarithmic equation parameter for estimating lightning flash count from hourly convective precipitation|unitless|yes|
+|INTERCEPT_lg| logarithmic equation parameter for estimating lightning flash count from hourly convective precipitation|km-2*|yes|
+|ICCG_SUM| Ratio of intercloud to cloud-to-ground flashes during the summer season|unitless|yes|
+|ICCG_WIN| Ratio of intercloud to cloud-to-ground flashes during the winter season|unitless|yes|
+|OCNMASK| Land/water mask to remove spurious flashes over the ocean|unitless|yes|
+*Regression equation generates flash counts (or log flash counts) per square km per cm convectic precipitation.
 
 ## Biogenic and Land Surface Inputs
 <a id=ocean_1></a>
