@@ -1,9 +1,6 @@
 CMAQv5.3 Release Notes 
 =====================================
 
-# Getting Started with CMAQ 
-**>>COMMENT<<**  Is this still consistent with the documentation we are providing?  Should we put the full users guide link here, too?  TLS 25 Jun 2019
-
 [Tutorial on installing and running CMAQ](../Tutorials/CMAQ_GettingStarted.md)  
 [Tutorial on running the CMAQ test case](../Tutorials/CMAQ_Benchmark.md)  
 
