@@ -34,8 +34,8 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
   * [Overview of *AERO7* and *AERO7i*](aero7_overview.md)  
   * [Monoterpene SOA](monoterpene_SOA.md)  
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
-  * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
-  * [Conversion of inorganic to organic sulfate bug fix](inorganicsulfate_iepox_fix.md)  
+  * [Added uptake of water onto hydrophilic organic aerosol](organic_water.md)  
+  * [Corrected the conversion of inorganic to organic sulfate](inorganicsulfate_iepox_fix.md)  
 
 ### Other Aerosol Processes
   * [Dry Deposition Algorithm](aerosol_dry_deposition.md)  
