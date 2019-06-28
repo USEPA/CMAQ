@@ -25,7 +25,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [Updates to the _inline_phot_preproc_ utility](updates_to_inline_phot_preproc.md)
  
 ### New Aerosol Modules AERO7 and AERO7i
-  * [Overview of AERO7/7i](aero7_overview.md)  
+  * [Overview of AERO7 and AERO7i](aero7_overview.md)  
   * [Monoterpene SOA](monoterpene_SOA.md)  
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
@@ -64,7 +64,6 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
 
 ## Pre-processors, Post-processors, Tools, and Utilities
-**>>COMMENT<<** Sugggest broadening the title; I don't see ICON and BCON as "tools", per se.  Also suggest reordering to the order they might be used in the workflow.  Suggest adding a line and hyperlink for MCIPv5.0 here; that link does not work yet.  TLS 25 Jun 2019
  * [Updates in MCIPv5.0](updates_to_MCIPv5_0.md)
  * [Updates to the ICON and BCON pre-processors.](updates_to_ICON_BCON.md)
  * [Updates to the create_ebi utility](updates_to_create_ebi.md)
@@ -75,7 +74,6 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 
  
 ## Instrumented Models
-**>>COMMENT<<** The CMAQ-DDM and CMAQ-ISAM need README files.  Will sulfur tracking be released, too?  TLS 25 Jun 2019
  * [Updates in CMAQ-DDM](updates_to_CMAQ_DDM.md)
  * [Updates in CMAQ-ISAM](updates_to_CMAQ_ISAM.md)
 
