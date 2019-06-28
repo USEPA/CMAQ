@@ -50,7 +50,7 @@ United States, *Proceedings of the National Academy of Sciences*, **115**, 2038-
 https://doi.org/10.1073/pnas.1717513115, 2018
 
 -----
-## Internal Records:
+## Internal Records
 #### Relevant Pull Requests:
 See [aero7 overview](aero7_overview.md)
 
