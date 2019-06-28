@@ -8,6 +8,12 @@ CMAQv5.3 Release Notes
 
 The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a major update. CMAQv5.3 includes several changes to the science algorithms in the base model (CCTM), as well as updates to instrumented models, pre-processors, post-processors, utilities, and tools. CMAQv5.3 was primarily developed by the U.S. EPA, and it includes contributions from research partners.  The enhancements to the CMAQ modeling system since the previous release (CMAQv5.2.1) are summarized below.
 
+<a id="instrumented_models"></a>
+## Instrumented Models
+ * [DDM for CMAQv5.3](updates_to_CMAQ_DDM.md)
+ * [ISAM for CMAQv5.3](updates_to_CMAQ_ISAM.md)
+ * [Sulfur Tracking Model for CMAQv5.3](updates_to_CMAQ_STM.md)
+
 <a id="chemistry"></a>
 ## Chemistry
 ### Photochemistry
@@ -71,10 +77,4 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [The create_omi tool.](Add_create_omi_tool.md)
  * [SpecDef aerosol updates](specdef_aero.md)
  * [Updates to post-processing tools: hr2day, sitecmp, and sitecmp_dailyo3; release of new post-processing tool: calc_tmetric.](postprocessing_tools.md)
-
- 
-## Instrumented Models
- * [Updates in CMAQ-DDM](updates_to_CMAQ_DDM.md)
- * [Updates in CMAQ-ISAM](updates_to_CMAQ_ISAM.md)
-
 
