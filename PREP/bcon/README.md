@@ -31,6 +31,10 @@ these utilities.
 
 ## Runtime Environment Variables:
 
+**>>Comment<<** Maybe talk about BCON build script variables VRSN and APPL or maybe make the environment variables to reduce errors.
+
+**>>Comment<<** EXE descript: CFG a variable in the BLD script not runscript. EXECID variable name is inconsistent with configure run script. EXEC_ID exists in the configure runscript. 
+
 **Table 1. Runtime Environment Variables**
 
 |**Variable Name**|**Example in Runscript**|**Description**|
@@ -68,6 +72,8 @@ these utilities.
 ## BCON output files
 
 **Table 3. BCON output files**
+
+**>>Comment<<** File name needs to be changed to variable name. 
 
 |**File Name**|**Format**|**Description**|
 |------------|-----------|---------------------------------------------------------------|

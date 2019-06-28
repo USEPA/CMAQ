@@ -52,6 +52,7 @@ C      13 Jul 11 J.Young: Convert for Namelist redesign + UTILIO_DEFN
 C      21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C      02 Nov 18 S.Roselle: Removed species mapping
 C      06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+C      10 June 19 F. Sidi : Corrected data type mismatch between IOAPI and ICON
 
 C***********************************************************************
 
@@ -88,25 +89,26 @@ C Local Variables:
 
       INTEGER :: SDATE = 0    ! Date for IC output 
       INTEGER :: STIME = 0    ! Time for IC output
-      INTEGER N            ! File loop index
-      INTEGER N_CTM_FLS    ! Number of input CTM files
-      INTEGER NCOLS_IN     ! No. of columns in input conc file
-      INTEGER NROWS_IN     ! No. of rows in input conc file
-      INTEGER NLAYS_IN     ! No. of layers in input conc file
-      INTEGER NSPCS_IN     ! CTM files species counter
-      INTEGER VGTYP_IN     ! input conc file VGTYP
-      INTEGER VGTOP_IN     ! input conc file VGTOP
-      INTEGER SDATE_IN     ! input conc file start date
-      INTEGER STIME_IN     ! input conc file start time
-      INTEGER EDATE_IN     ! input conc file end date
-      INTEGER ETIME_IN     ! input conc file end time
-      INTEGER TSTEP_IN     ! input conc file  timestep
-      INTEGER NSTEPS_IN    ! Number time steps in input conc file
-      INTEGER SECS_STRT    ! time variable (sec)
-      INTEGER SECS_END     ! time variable (sec)
-      INTEGER STATUS       ! Status code
-      INTEGER ALLOCSTAT    ! Status returned from array allocation
-      INTEGER V            ! Variable loop index
+      INTEGER :: N            ! File loop index
+      INTEGER :: N_CTM_FLS    ! Number of input CTM files
+      INTEGER :: NCOLS_IN     ! No. of columns in input conc file
+      INTEGER :: NROWS_IN     ! No. of rows in input conc file
+      INTEGER :: NLAYS_IN     ! No. of layers in input conc file
+      INTEGER :: NSPCS_IN     ! CTM files species counter
+      INTEGER :: VGTYP_IN     ! input conc file VGTYP
+      INTEGER :: SDATE_IN     ! input conc file start date
+      INTEGER :: STIME_IN     ! input conc file start time
+      INTEGER :: EDATE_IN     ! input conc file end date
+      INTEGER :: ETIME_IN     ! input conc file end time
+      INTEGER :: TSTEP_IN     ! input conc file  timestep
+      INTEGER :: NSTEPS_IN    ! Number time steps in input conc file
+      INTEGER :: SECS_STRT    ! time variable (sec)
+      INTEGER :: SECS_END     ! time variable (sec)
+      INTEGER :: STATUS       ! Status code
+      INTEGER :: ALLOCSTAT    ! Status returned from array allocation
+      INTEGER :: V            ! Variable loop index
+
+      REAL :: VGTOP_IN     ! input conc file VGTOP
 
       INTERFACE
 

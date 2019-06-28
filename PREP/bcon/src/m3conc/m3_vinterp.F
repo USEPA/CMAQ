@@ -56,6 +56,7 @@ C    01/05/05 J.Young: vert dyn alloc - Use VGRD_DEFN
 C                      eliminate malloc calls
 C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
+C    10 June 19 F. Sidi: Commented out INTEGER STATUS unused variable
                     
 C*************************************************************************
 
@@ -105,7 +106,7 @@ C Local Variables:
       INTEGER MXLEV          ! Largest no. of levels
       INTEGER N              ! Loop index for boundary cells
       INTEGER R              ! Loop indices for rows
-      INTEGER STATUS         ! Status code
+!      INTEGER STATUS         ! Status code
       INTEGER V              ! Loop index for variables
       INTEGER ALLOCSTAT      ! Status returned from array allocation
 
