@@ -31,7 +31,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [Updates to the _inline_phot_preproc_ utility](updates_to_inline_phot_preproc.md)
  
 ### New Aerosol Modules AERO7 and AERO7i
-  * [Overview of AERO7 and AERO7i](aero7_overview.md)  
+  * [Overview of *AERO7* and *AERO7i*](aero7_overview.md)  
   * [Monoterpene SOA](monoterpene_SOA.md)  
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
