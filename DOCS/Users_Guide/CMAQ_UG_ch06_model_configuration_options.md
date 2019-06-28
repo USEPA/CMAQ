@@ -213,7 +213,7 @@ To calculate online biogenic emissions, CMAQ uses the [Biogenic Emission Invento
 
 This biogenic model is based on the same model that is included in SMOKE. Before using the CMAQ online version of BEIS users should confirm that biogenic emissions are not already included in their emissions files from SMOKE to avoid double counting biogenic emissions.  User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
 
-Speciation of biogenic emissions is controlled by gspro_biogenics.txt uner CCTM/src/biog/beis.
+Speciation of biogenic emissions is controlled by gspro_biogenics.txt under CCTM/src/biog/beis.
 
 Running CMAQ with online biogenic emissions requires a grid-normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ. The location of the B3GRD file is set in the RunScript:
 
