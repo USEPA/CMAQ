@@ -1,4 +1,4 @@
-# Corrected conversion of inorganic to organic sulfate
+# Corrected the conversion of inorganic to organic sulfate
 
 [Havala O. T. Pye](mailto:pye.havala@epa.gov), U.S. Environmental Protection Agency
 
