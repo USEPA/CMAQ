@@ -34,24 +34,25 @@ New species introduced in *aero7* compared to *aero6*:
 |	10	|	SVMT4	|	gas	|	semivolatile gas from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=10&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
 |	11	|	SVMT5	|	gas	|	semivolatile gas from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=100&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
 |	12	|	SVMT6	|	gas	|	semivolatile gas from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=1000&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
-|	13	|	AORGH2OJ	|	particle	|	water associated with organic species of particulate matter	|	Hygroscopicity parameters (Petters and Kreidenweis 2007 ACP) as a function of degree of oxygenation (Lambe et al. 2011 ACP)	|	Pye et al. 2017 ACP	|
-|	14	|	AAVB1J	|	particle	|	low volatility organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	GEOS-Chem VBS parameterization (Pye et al. 2010 ACP) for aromatics and PAHs with long-chain alkanes following Pye and Pouliot 2012 ES&T but with Presto et al. 2010 ES&T VBS fits; all underlying experimental datasets are the same as in aero6	|	M. Qin, EPA/CED/AMDB	|
-|	15	|	AAVB2J	|	particle	|	semivolailte organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/CED/AMDB	|
-|	16	|	AAVB3J	|	particle	|	semivolailte organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/CED/AMDB	|
-|	17	|	AAVB4J	|	particle	|	semivolailte organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/CED/AMDB	|
-|	18	|	SVAVB1	|	gas	|	low volatility organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/CED/AMDB	|
-|	19	|	SVAVB2	|	gas	|	semivolailte organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/CED/AMDB	|
-|	20	|	SVAVB3	|	gas	|	semivolailte organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/CED/AMDB	|
-|	21	|	SVAVB4	|	gas	|	semivolailte organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/CED/AMDB	|
-|	22	|	MTNO3	|	gas	|	organic nitrates from monoterpene oxidation	|	gas-phase SAPRC yields (should not be counted as gas-phase organic nitrate for evaluation purposes in cb6r3 mechanisms)	|	Pye et al. 2015 ES&T	|
-|	23	|	AMTNO3J	|	particle	|	semivolatile organic nitrates from monoterpene oxidation	|	Fry et al. 2009 ACP for vapor pressure of monoterpene organic nitrates	|	Pye et al. 2015 ES&T	|
-|	24	|	AMTHYDJ	|	particle	|	organic pseudo-hydrolysis accretion product from monoterpene organic nitrates (AMTNO3J)	|	Boyd et al. 2015 ACP for hydrolysis timescale for tertiary nitrates, but applied to all MTNO3 following Pye et al. 2015 ES&T	|	Pye et al. 2015 ES&T	|
+|	13	|	AORGH2OJ	|	particle	|	water associated with organic species of particulate matter	|	hygroscopicity parameters (Petters and Kreidenweis, 2007, *ACP*) as a function of degree of oxygenation (Lambe et al., 2011, *ACP*)	|	Pye et al., 2017, *ACP*	|
+|	14	|	AAVB1J	|	particle	|	low volatility organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	GEOS-Chem VBS parameterization (Pye et al., 2010, *ACP*) for aromatics and PAHs with long-chain alkanes following Pye and Pouliot (2012, *ES&T*) but with Presto et al. (2010, *ES&T*) VBS fits; all underlying experimental datasets are the same as in *aero6*	|	M. Qin, EPA/ORD	|
+|	15	|	AAVB2J	|	particle	|	semivolatile organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
+|	16	|	AAVB3J	|	particle	|	semivolatile organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
+|	17	|	AAVB4J	|	particle	|	semivolatile organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
+|	18	|	SVAVB1	|	gas	|	low volatility organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
+|	19	|	SVAVB2	|	gas	|	semivolatile organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
+|	20	|	SVAVB3	|	gas	|	semivolatile organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
+|	21	|	SVAVB4	|	gas	|	semivolatile organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
+|	22	|	MTNO3	|	gas	|	organic nitrates from monoterpene oxidation	|	gas-phase SAPRC yields (should not be counted as gas-phase organic nitrate for evaluation purposes in CB6r3 mechanisms)	|	Pye et al., 2015, *ES&T*	|
+|	23	|	AMTNO3J	|	particle	|	semivolatile organic nitrates from monoterpene oxidation	|	Fry et al. (2009, *ACP*) for vapor pressure of monoterpene organic nitrates	|	Pye et al., 2015, *ES&T*	|
+|	24	|	AMTHYDJ	|	particle	|	organic pseudo-hydrolysis accretion product from monoterpene organic nitrates (AMTNO3J)	|	Boyd et al. (2015, *ACP*) for hydrolysis timescale for tertiary nitrates, but applied to all MTNO3 following Pye et al. (2015, *ES&T*)	|	Pye et al., 2015, *ES&T*	|
 
 
-Species new to aero7i: species 1-21 of the above table. Other species in 
-aero7i (including species 22-24 from above) previously existed in aero6i. 
+**Species new to *aero7i*:** species 1-21 of the above table. Other species in 
+*aero7i* (including species 22-24 from above) previously existed in *aero6i*. 
 
-Species in aero6/6i that are deprecated in aero7/7i (these species should NOT appear in an ae7/7i namelist): 
+**Species in *aero6/6i* that are deprecated in *aero7/7i* (these species should NOT appear in an *aero7/7i* namelist):** 
+
 ATRP1J, ATRP2J, SV_TRP1, SV_TRP2, ABNZ1J, ABNZ2J, ABNZ3J, SV_BNZ1, SV_BNZ2, AXYL1J, AXYL2J, AXYL3J, SV_XYL1, SV_XYL2,
 ATOL1J, ATOL2J, ATOL3J, SV_TOL1, SV_TOL2, APAH1J, APAH2J, APAH3J, SV_PAH1, SV_PAH2, AALK1J, AALK2J, SV_ALK1, SV_ALK2
 
