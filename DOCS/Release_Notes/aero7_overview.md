@@ -1,18 +1,16 @@
-# AERO7/7i
+# Overview of AERO7 and AERO7i
 
-**Author/P.O.C.:**, [Havala O. T. Pye](mailto:pye.havala@epa.gov), Computational Exposure Division, U.S. EPA
+[Havala O. T. Pye](mailto:pye.havala@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
                        
-Aero7/7i builds on the aero6 module. Updates in aero7/7i include: 
-improved consistency in terms of secondary organic aerosol (SOA)
-between carbon bond and saprc-based mechanisms, 
-updated monoterpene SOA from photooxidation (OH and ozone), uptake
-of water onto hydrophillic organics, and reorganization of anthropogenic SOA
-species. In addition, inorganic sulfate is consumed when
-IEPOX organosulfates are formed. All of the science updates are accomplished with a reduction
-in the number of species needed and thus accomplishes more
-robust predictions in less time than aero6. 
+*Aero7* and *aero7i* build on the *aero6* module. Scientific improvements in *aero7/7i* include: 
+* improved consistency in terms of secondary organic aerosol (SOA) between carbon bond and SAPRC-based mechanisms
+* updated monoterpene SOA from photooxidation (OH and ozone)
+* uptake of water onto hydrophillic organics
+* reorganization of anthropogenic SOA species
+* inorganic sulfate is consumed when IEPOX organosulfates are formed 
+Fewer species are required for *aero7/7i*, so more robust predictions require in less computation time than *aero6*. 
 
 ### Species updates
 
