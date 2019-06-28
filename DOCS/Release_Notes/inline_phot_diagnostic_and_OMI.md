@@ -19,7 +19,7 @@ Changes were made to the inline photolysis module to:
                   nlat     17
                   nlon     17
 
-* Diagnostic files are now more comprehensive. There are now three photolysis diagnostic files. More detailed information is in the subsections, below.
+2. Diagnostic files are now more comprehensive. There are now three photolysis diagnostic files. More detailed information is in the subsections, below.
    * The new output variables include: the aerosol optical depth in *PHOTDIAG1* and interpolated to 550 nm plus total extinction, extinction from gases (Rayleigh scattering, NO<sub>2</sub>, and O<sub>3</sub>),
 and aerosol extinction at the wavelengths used calculate photolysis rates in *PHOTDIAG3*.
    * New runscript environment variables tailor the number of layers (NLAYS_PHOTDIAG) and the wavelengths (NWAVE_PHOTDIAG) written to *PHOTDIAG2* and *PHOTDIAG3* files.
@@ -27,18 +27,17 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
 
 ##### Description of diagnostic files from inline photolysis
 
-* PHOTDIAG1 File  
+* *PHOTDIAG1* (see Table 1)  
    * Surface Values of Optical Inputs and Radiative Results from the inline calculation of Photolysis Rates
    * The variable AOD_W550_ANGST is not used to calculate photolysis rates and is calculated from aerosol extinction at 550 nm of each layer. See information on the PHOTDIAG3 file.
    
-* PHOTDIAG2 File
+* *PHOTDIAG2* (see Table 2)
   * Three dimensionals values of Photolysis rates used to make predictions from the inline calculation of photolysis Rates.  
   * The run script can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default value equals all layers of the simulation. When the run script sets NLAYS_PHOTDIAG, PHOTDIAG2 covers from the first layer to the value of NLAYS_PHOTDIAG.
   * Variables names can change with the photochemical mechanism used because each mechanism is developed with its own rate constants.
   * Files containing cross-section and quantum yield data are in CMAQ repository under subdirectory, UTIL/inline_phot_preproc/photolysis_CSQY_data.
-  * Table 2 gives an example of the PHOTDIAG2 contents when using the cb6r3_ae6_aq mechanism in CMAQv5.2.
   
-* *PHOTDIAG3* (New)
+* *PHOTDIAG3* (New; see Table 3)
   * Includes three-dimensional values of optical inputs and radiative results used to make predictions from the inline photolysis calculation.
   * The runscript can set the number of layers for the file using the environment variable, NLAYS_PHOTDIAG. The default values equal all layers of the simulation. If the runscript sets NLAYS_PHOTDIAG, *PHOTDIAG3* includes the lowest model layer to the value of NLAYS_PHOTDIAG.
   * The environment list, NWAVE_PHOTDIAG, defines which wavelengths are output for the variables listed below. If NWAVE_PHOTDIAG is not set or contains no values, *PHOTDIAG3* includes all wavelengths. The list only uses integer truncated values of the wavelengths that are used to calculated photolysis rates.
@@ -51,7 +50,7 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
      
   * Values are set by the PHOT_OPTICS.dat file and changing them is strongly not recommended. 
       
-  * For CMAQv5.2, the list could contain any of the following values: 294, 303, 310, 316, 333, 381, and 607.  The environment variable list for NWAVE_PHOTDIAG can be set as follows:
+  * For CMAQv5.3, the list could contain any of the following values: 294, 303, 310, 316, 333, 381, and 607.  The environment variable list for NWAVE_PHOTDIAG can be set as follows:
 
              setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"
 
@@ -79,48 +78,48 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
 |  CLR_REFLECTION|            none|broad band reflection for clear sky at top of atmosphere|
 | TROPO_O3_EXCEED|            none|average exceedance of modeled ozone column from max fraction of total column, relative rraction|
 | N_EXCEED_TROPO3|            none|# of times predicted tropospheric ozone column exceeds observed total column per time step|
-|   ETOT_SFC_W294|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface, 294 nm|
-|        AOD_W294|            none|aerosol optical depth, 294 nm|
-|  TAU_CLOUD_W294|            none|cloud optical depth, 294 nm|
-|    TAU_TOT_W294|            none|total optical depth, 294 nm|
-|  TAUO3_TOP_W294|            none|optical depth of O<sub>3</sub> above model domain, 294 nm|
-|     ALBEDO_W294|            none|surface albedo at the wavelength 294 nm|
-|   ETOT_SFC_W303|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface, 303 nm|
-|        AOD_W303|            none|aerosol optical depth, 303 nm|
-|  TAU_CLOUD_W303|            none|cloud optical depth, 303 nm|
-|    TAU_TOT_W303|            none|total optical Depth, 303 nm|
-|  TAUO3_TOP_W303|            none|optical depth of O<sub>3</sub> above model domain, 303 nm|
-|     ALBEDO_W303|            none|surface albedo at the wavelength 303 nm|
-|   ETOT_SFC_W310|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface, 310 nm|
-|        AOD_W310|            none|aerosol optical depth, 310 nm|
-|  TAU_CLOUD_W310|            none|cloud optical depth, 310 nm|
-|    TAU_TOT_W310|            none|total optical depth, 310 nm|
-|  TAUO3_TOP_W310|            none|optical depth of O<sub>3</sub> above model domain, 310 nm|
-|     ALBEDO_W310|            none|surface albedo at the wavelength 310 nm|
-|   ETOT_SFC_W316|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface, 316 nm|
-|        AOD_W316|            none|aerosol optical depth, 316 nm|
-|  TAU_CLOUD_W316|            none|cloud optical depth, 316 nm|
-|    TAU_TOT_W316|            none|total optical depth, 316 nm|
-|  TAUO3_TOP_W316|            none|optical depth of O<sub>3</sub> above model domain, 316 nm|
-|     ALBEDO_W316|            none|surface albedo at the wavelength 316 nm|
-|   ETOT_SFC_W333|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface, 333 nm|
-|        AOD_W333|            none|aerosol optical depth, 333 nm|
-|  TAU_CLOUD_W333|            none|cloud optical depth, 333 nm|
-|    TAU_TOT_W333|            none|total optical depth, 333 nm|
-|  TAUO3_TOP_W333|            none|optical depth of O<sub>3</sub> above model domain, 333 nm|
-|     ALBEDO_W333|            none|surface albedo at the wavelength 333 nm|
-|   ETOT_SFC_W381|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface, 381 nm|
-|        AOD_W381|            none|aerosol optical depth, 381 nm|
-|  TAU_CLOUD_W381|            none|cloud optical depth, 381 nm|
-|    TAU_TOT_W381|            none|total optical depth, 381 nm|
-|  TAUO3_TOP_W381|            none|optical depth of O<sub>3</sub> above model domain, 381 nm|
-|     ALBEDO_W381|            none|surface albedo at the wavelength 381 nm|
-|   ETOT_SFC_W607|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface, 607 nm|
-|        AOD_W607|            none|aerosol optical depth, 607 nm|
-|  TAU_CLOUD_W607|            none|cloud optical depth, 607 nm|
-|    TAU_TOT_W607|            none|total optical depth, 607 nm|
-|  TAUO3_TOP_W607|            none|optical depth of O<sub>3</sub> above model domain, 607 nm|
-|     ALBEDO_W607|            none|surface albedo at the wavelength 607 nm|
+|   ETOT_SFC_W294|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface at 294 nm|
+|        AOD_W294|            none|aerosol optical depth at 294 nm|
+|  TAU_CLOUD_W294|            none|cloud optical depth at 294 nm|
+|    TAU_TOT_W294|            none|total optical depth at 294 nm|
+|  TAUO3_TOP_W294|            none|optical depth of O<sub>3</sub> above model domain at 294 nm|
+|     ALBEDO_W294|            none|surface albedo at 294 nm|
+|   ETOT_SFC_W303|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface at 303 nm|
+|        AOD_W303|            none|aerosol optical depth at 303 nm|
+|  TAU_CLOUD_W303|            none|cloud optical depth at 303 nm|
+|    TAU_TOT_W303|            none|total optical depth at 303 nm|
+|  TAUO3_TOP_W303|            none|optical depth of O<sub>3</sub> above model domain at 303 nm|
+|     ALBEDO_W303|            none|surface albedo at 303 nm|
+|   ETOT_SFC_W310|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface at 310 nm|
+|        AOD_W310|            none|aerosol optical depth at 310 nm|
+|  TAU_CLOUD_W310|            none|cloud optical depth at 310 nm|
+|    TAU_TOT_W310|            none|total optical depth at 310 nm|
+|  TAUO3_TOP_W310|            none|optical depth of O<sub>3</sub> above model domain at 310 nm|
+|     ALBEDO_W310|            none|surface albedo at 310 nm|
+|   ETOT_SFC_W316|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface at 316 nm|
+|        AOD_W316|            none|aerosol optical depth at 316 nm|
+|  TAU_CLOUD_W316|            none|cloud optical depth at 316 nm|
+|    TAU_TOT_W316|            none|total optical depth at 316 nm|
+|  TAUO3_TOP_W316|            none|optical depth of O<sub>3</sub> above model domain at 316 nm|
+|     ALBEDO_W316|            none|surface albedo at 316 nm|
+|   ETOT_SFC_W333|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface at 333 nm|
+|        AOD_W333|            none|aerosol optical depth at 333 nm|
+|  TAU_CLOUD_W333|            none|cloud optical depth at 333 nm|
+|    TAU_TOT_W333|            none|total optical depth at 333 nm|
+|  TAUO3_TOP_W333|            none|optical depth of O<sub>3</sub> above model domain at 333 nm|
+|     ALBEDO_W333|            none|surface albedo at 333 nm|
+|   ETOT_SFC_W381|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface at 381 nm|
+|        AOD_W381|            none|aerosol optical depth at 381 nm|
+|  TAU_CLOUD_W381|            none|cloud optical depth at 381 nm|
+|    TAU_TOT_W381|            none|total optical depth at 381 nm|
+|  TAUO3_TOP_W381|            none|optical depth of O<sub>3</sub> above model domain at 381 nm|
+|     ALBEDO_W381|            none|surface albedo at 381 nm|
+|   ETOT_SFC_W607|W&nbsp;m<sup>&#8209;2</sup>|total downward irradiance at surface at 607 nm|
+|        AOD_W607|            none|aerosol optical depth at 607 nm|
+|  TAU_CLOUD_W607|            none|cloud optical depth at 607 nm|
+|    TAU_TOT_W607|            none|total optical depth at 607 nm|
+|  TAUO3_TOP_W607|            none|optical depth of O<sub>3</sub> above model domain at 607 nm|
+|     ALBEDO_W607|            none|surface albedo at the wavelength at 607 nm|
 |  AOD_W550_ANGST|            none|aerosol optical depth at 550 nm based on an Angstrom interpolation|
 
 
@@ -172,7 +171,7 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
 |   AERO_SSA_W303|            none|aerosol single scattering albedo at 303 nm|
 |  AERO_ASYM_W303|            none|aerosol asymmetry factor at 303 nm|
 |        EXT_W303|          Mm<sup>-1</sup>|total extinction of layer at 303 nm|
-|    GAS_EXT_W303|          Mm<sup>-1</sup>|total extinction from Rayleigh Scattering, NO<sub>2</sub>, and ozone in layer at 303 nm|
+|    GAS_EXT_W303|          Mm<sup>-1</sup>|total extinction from Rayleigh scattering, NO<sub>2</sub>, and ozone in layer at 303 nm|
 |   EXT_AERO_W303|          Mm<sup>-1</sup>|aerosol extinction of layer at 303 nm|
 |   AERO_SSA_W310|            none|aerosol single scattering albedo at 310 nm|
 |  AERO_ASYM_W310|            none|aerosol asymmetry factor at 310 nm|
