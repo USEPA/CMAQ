@@ -4,7 +4,7 @@
 
 ## Brief Description
                        
-Acid-catalyzed reactions of IEPOX result in a number of condensed-phase products
+Acid-catalyzed reactions of IEPOX result in several condensed-phase products
 including 2-methyltetrols and IEPOX-organosulfates. IEPOX SOA has
 conceptually included this composition since CMAQv5.1. In *aero6i* and *aero7i*, the
 speciation into tetrols, organosulfates, dimers, etc., is explicit. In *aero6* and *aero7*, 
@@ -32,12 +32,12 @@ compared to IEPOX (e.g., Amazon, future U.S. emission scenarios).
 CCTM/src/aero/aero7/AEROSOL_CHEMISTRY.F   
 CCTM/src/MECHS/*/mech*.def   
 CCTM/src/MECHS/*/GC*.nml   
-associated RXNS\*F90 and ebi files   
+associated RXNS\*F90 and EBI files   
 
 
 ## References
 
-Piletic, I. R., Edney, E. O., Bartolotti, L. J.: A computational study of acid catalyzed aerosol reactions of atmospherically relevant epoxides. Phys. Chem. Chem. Phys., 15, 18065-7, https://doi.org/10.1039/c3cp52851k, 2013.
+Piletic, I. R., Edney, E. O., Bartolotti, L. J.: A computational study of acid catalyzed aerosol reactions of atmospherically relevant epoxides. *Physical Chemistry Chemical Physics*, **15**, 18065-7, https://doi.org/10.1039/c3cp52851k, 2013.
 
 Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, *Atmospheric Chemistry and Physics*, **17**, 343-369, https://doi.org/10.5194/acp-17-343-2017, 2017.
 
