@@ -1,4 +1,4 @@
-# Overview of AERO7 and AERO7i
+# Overview of *AERO7* and *AERO7i*
 
 [Havala O. T. Pye](mailto:pye.havala@epa.gov), U.S. Environmental Protection Agency
 
@@ -16,18 +16,18 @@ Fewer species are required for *aero7/7i*, so more robust predictions require in
 ### Species updates
 
 ![Schematic](aero7.jpg) 
-Figure 1: Organic aerosol treatment in CMAQv5.3-aero7. Note that primary organic aerosol system is the same as v5.2 (Murphy et al. 2017) and abbreviated in this schematic. Species in red are new to aero7.
+Figure 1: Organic aerosol treatment in CMAQv5.3-aero7. Note that the primary organic aerosol system is unchanged from CMAQv5.2 (Murphy et al. 2017) and abbreviated in this schematic. Species in red are new to *aero7*.
 
-Species introduced in aero7 (new compared to aero6):
+New species introduced in *aero7* compared to *aero6*:
 
 |					|	Species			|	Phase			|	Description		|	Scientific Basis	|	Model Implementation	|
 |	-------------	|	-------------	|	-------------	|	-------------	|	-------------		|	-------------	|
-|	1	|	AMT1J	|	particle	|	low volatility particulate matter from monoterpene photoxidation (OH and O3 reaction), C*=0.01 ug/m3	|	dark a-pinene ozonolysis (Saha and Grieshop 2016 ES&T)	|	Xu et al. 2018 ACP	|
-|	2	|	AMT2J	|	particle	|	low volatility particulate matter from monoterpene photoxidation (OH and O3 reaction), C*=0.1 ug/m3	|	dark a-pinene ozonolysis (Saha and Grieshop 2016 ES&T)	|	Xu et al. 2018 ACP	|
-|	3	|	AMT3J	|	particle	|	semivolailte particulate matter from monoterpene photoxidation (OH and O3 reaction), C*=1 ug/m3	|	dark a-pinene ozonolysis (Saha and Grieshop 2016 ES&T)	|	Xu et al. 2018 ACP	|
-|	4	|	AMT4J	|	particle	|	semivolatile particulate matter from monoterpene photoxidation (OH and O3 reaction), C*=10 ug/m3	|	dark a-pinene ozonolysis (Saha and Grieshop 2016 ES&T)	|	Xu et al. 2018 ACP	|
-|	5	|	AMT5J	|	particle	|	semivolatile particulate matter from monoterpene photoxidation (OH and O3 reaction), C*=100 ug/m3	|	dark a-pinene ozonolysis (Saha and Grieshop 2016 ES&T)	|	Xu et al. 2018 ACP	|
-|	6	|	AMT6J	|	particle	|	semivolatile particulate matter from monoterpene photoxidation (OH and O3 reaction), C*=1000 ug/m3	|	dark a-pinene ozonolysis (Saha and Grieshop 2016 ES&T)	|	Xu et al. 2018 ACP	|
+|	1	|	AMT1J	|	particle	|	low volatility particulate matter from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=0.01&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
+|	2	|	AMT2J	|	particle	|	low volatility particulate matter from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=0.1&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
+|	3	|	AMT3J	|	particle	|	semivolailte particulate matter from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=1&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
+|	4	|	AMT4J	|	particle	|	semivolatile particulate matter from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=10&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
+|	5	|	AMT5J	|	particle	|	semivolatile particulate matter from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=100&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
+|	6	|	AMT6J	|	particle	|	semivolatile particulate matter from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=1000&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
 |	7	|	SVMT1	|	gas	|	low volatility gas from monoterpene photoxidation (OH and O3 reaction), C*=0.01 ug/m3	|	dark a-pinene ozonolysis (Saha and Grieshop 2016 ES&T)	|	Xu et al. 2018 ACP	|
 |	8	|	SVMT2	|	gas	|	low volatility gas from monoterpene photoxidation (OH and O3 reaction), C*=0.1 ug/m3	|	dark a-pinene ozonolysis (Saha and Grieshop 2016 ES&T)	|	Xu et al. 2018 ACP	|
 |	9	|	SVMT3	|	gas	|	semivolailte gas from monoterpene photoxidation (OH and O3 reaction), C*=1 ug/m3	|	dark a-pinene ozonolysis (Saha and Grieshop 2016 ES&T)	|	Xu et al. 2018 ACP	|
