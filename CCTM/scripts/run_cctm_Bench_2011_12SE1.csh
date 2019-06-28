@@ -36,7 +36,7 @@ echo 'Start Model Run At ' `date`
  set VRSN      = v53               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = SE52BENCH         #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2011_12SE1  #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
@@ -54,7 +54,7 @@ echo 'Start Model Run At ' `date`
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
- setenv INPDIR  /work/MOD3DATA/SE52BENCH  #Input Directory
+ setenv INPDIR  /work/MOD3DATA/2011_12SE1  #Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -108,7 +108,7 @@ setenv PRINT_PROC_TIME Y           #> Print timing for all science subprocesses 
 setenv STDOUT T                    #> Override I/O-API trying to write information to both the processor 
                                    #>   logs and STDOUT [ options: T | F ]
 
-setenv GRID_NAME SE52BENCH         #> check GRIDDESC file for GRID_NAME options
+setenv GRID_NAME 2011_12SE1        #> check GRIDDESC file for GRID_NAME options
 setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
 
 #> Retrieve the number of columns, rows, and layers in this simulation
@@ -139,8 +139,6 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #> Science Options
 setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
 setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
-setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust 
-                             #>    [ default: N ]; ignore if CTM_WB_DUST = N
 setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
                              #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
@@ -366,7 +364,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      set IN_BEISpath = ${INPDIR}/land
      setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
-     setenv BIOG_SPRO  DEFAULT
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf 
                              #> ignore season switch file if BIOSW_YN = N
@@ -382,14 +379,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a_bench.nc
      setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
      setenv MODIS_FPAR $LUpath/modis_bench.nc
-
-     if ( $CTM_ERODE_AGLAND == 'Y' ) then
-        setenv CROPMAP01 ${LUpath}/BeginPlanting_12km_bench.nc
-        setenv CROPMAP04 ${LUpath}/EndPlanting_12km_bench.nc
-        setenv CROPMAP08 ${LUpath}/EndHarvesting_12km_bench.nc
-     endif
   endif
-
+  
   #> In-line sea spray emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 
@@ -516,7 +507,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   if ( $?CTM_ISAM ) then
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
         set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
-                         ${SA_CGRID_1} ${O3INDIC_1} ${SA_RNORM_1} )
+                         ${SA_CGRID_1}  )
+
      endif
   endif
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `

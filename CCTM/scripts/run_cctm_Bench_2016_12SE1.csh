@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
 # ===================== CCTMv5.3 Run Script ========================= 
-# Usage: run.cctm >&! cctm_2015_HEMI.log &                                
+# Usage: run.cctm >&! cctm_v53.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -36,7 +36,7 @@ echo 'Start Model Run At ' `date`
  set VRSN      = v53               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = 2015_HEMI         #> Application Name (e.g. Gridname)
+ set APPL      = Bench_2016_12SE1  #> Application Name (e.g. Gridname)
                                                        
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
@@ -52,9 +52,9 @@ echo 'Start Model Run At ' `date`
  if ( $CTM_DIAG_LVL != 0 ) set echo 
 
 #> Set Working, Input, and Output Directories
- setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts       #> Working Directory. Where the runscript is.
- setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID} #> Output Directory
- setenv INPDIR  /work/MOD3DATA/$APPL  #Input Directory
+ setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
+ setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
+ setenv INPDIR  /work/MOD3DATA/2016_12SE1          #Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -72,8 +72,8 @@ echo 'Start Model Run At ' `date`
 
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
- set START_DATE = "2015-10-01"     #> beginning date (Oct.  1, 2015)
- set END_DATE   = "2015-10-01"     #> ending date    (Dec. 31, 2016)
+ set START_DATE = "2016-07-01"     #> beginning date (July 1, 2016)
+ set END_DATE   = "2016-07-01"     #> ending date    (July 14, 2016)
 
 #> Set Timestepping Parameters
  set STTIME     = 000000           #> beginning GMT time (HHMMSS)
@@ -84,7 +84,7 @@ echo 'Start Model Run At ' `date`
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  16; @ NPROW =  8
+   @ NPCOL  =  8; @ NPROW =  4
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -95,7 +95,7 @@ echo ""
 echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
 #> Keep or Delete Existing Output Files
-set CLOBBER_DATA = FALSE
+set CLOBBER_DATA = FALSE 
 
 #> Logfile Options
 #> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
@@ -108,11 +108,11 @@ setenv PRINT_PROC_TIME Y           #> Print timing for all science subprocesses 
 setenv STDOUT T                    #> Override I/O-API trying to write information to both the processor 
                                    #>   logs and STDOUT [ options: T | F ]
 
-setenv GRIDDESC $INPDIR/GRIDDESC   #> grid description file
-setenv GRID_NAME WRF_CMAQ_2WAY     #> check GRIDDESC file for GRID_NAME options
+setenv GRID_NAME 2016_12SE1         #> check GRIDDESC file for GRID_NAME options
+setenv GRIDDESC $INPDIR/GRIDDESC    #> grid description file
 
 #> Retrieve the number of columns, rows, and layers in this simulation
-set NZ = 44
+set NZ = 35
 set NX = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f6`
 set NY = `grep -A 1 ${GRID_NAME} ${GRIDDESC} | tail -1 | sed 's/  */ /g' | cut -d' ' -f7`
 set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
@@ -120,7 +120,7 @@ set NCELLS = `echo "${NX} * ${NY} * ${NZ}" | bc -l`
 #> Output Species and Layer Options
    #> CONC file species; comment or set to "ALL" to write all species to CONC
    setenv CONC_SPCS "O3 NO ANO3I ANO3J NO2 FORM ISOP NH3 ANH4I ANH4J ASO4I ASO4J" 
-   setenv CONC_BLEV_ELEV "1 1" #> CONC file layer range; comment to write all layers to CONC
+   setenv CONC_BLEV_ELEV " 1 1" #> CONC file layer range; comment to write all layers to CONC
 
    #> ACONC file species; comment or set to "ALL" to write all species to ACONC
    #setenv AVG_CONC_SPCS "O3 NO CO NO2 ASO4I ASO4J NH3" 
@@ -137,9 +137,9 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #setenv RB_ATOL 1.0E-09      #> global ROS3 solver absolute tolerance [ default: 1.0E-07 ] 
 
 #> Science Options
-setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
-setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
-#setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
+setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halgoen chemistry and sea spray aerosol emissions [ default: Y ]
+setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y ]
+setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
                              #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
 setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
@@ -152,16 +152,15 @@ setenv CTM_FST N             #> mosaic method to get land-use specific stomatal 
 setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
-setenv CTM_ABFLUX N          #> ammonia bi-directional flux for in-line deposition 
+setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition 
                              #>    velocities [ default: N ]
-setenv CTM_BIDI_FERT_NH3 F   #> subtract fertilizer NH3 from emissions because it will be handled
+setenv CTM_BIDI_FERT_NH3 T   #> subtract fertilizer NH3 from emissions because it will be handled
                              #>    by the BiDi calculation [ default: Y ]
 setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition 
                              #>    velocities [ default: N ]
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
-setenv CTM_BIOGEMIS N        #> calculate in-line biogenic emissions [ default: N ]
-                             #>    [ default: N ]
+setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -173,7 +172,7 @@ setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
-setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
+setenv CTM_EMISCHK Y         #> Abort CMAQ if missing surrogates from emissions Input files
 setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
                              #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
                              #>   Individual streams can be modified using the variables:
@@ -205,24 +204,25 @@ setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default:
 setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
 setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N ]
-setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N];
-setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N];
+setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N]; 
+setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N]; 
 setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 
 # =====================================================================
 #> Input Directories and Filenames
 # =====================================================================
 
-set ICpath    = $INPDIR/icbc/cb6r3_ae6    #> initial conditions input directory 
-set BCpath    = $INPDIR/icbc/cb6r3_ae6    #> boundary conditions input directory
-set EMISpath  = $INPDIR/emis/cb6r3_ae6_fe #> gridded emissions input directory
-set IN_PTpath =                           #> point source emissions input directory
-set IN_LTpath = $INPDIR/lightning         #> lightning NOx input directory
-set METpath   = $INPDIR/met/mcip_v43_wrf_v38_ctrl #> meteorology input directory 
-#set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
-set OMIpath   = $BLD                      #> ozone column data for the photolysis model
-set LUpath    = /work/MOD3DEV/sgq/hemisphere/emission/cb05  #> BELD landuse data for windblown dust model
-set SZpath    = /work/MOD3DEV/sgq/hemisphere/emission/cb05  #> surf zone file for in-line seaspray emissions
+set ICpath    = $INPDIR/icbc                        #> initial conditions input directory 
+set BCpath    = $INPDIR/icbc                        #> boundary conditions input directory
+set EMISpath  = $INPDIR/emis/gridded_area/gridded   #> gridded emissions input directory
+set EMISpath2 = $INPDIR/emis/gridded_area/rwc       #> gridded surface residential wood combustion emissions directory
+set IN_PTpath = $INPDIR/emis/inln_point             #> point source emissions input directory
+set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input directory
+set METpath   = $INPDIR/met/mcipv4.5                #> meteorology input directory 
+#set JVALpath  = $INPDIR/jproc                      #> offline photolysis rate table directory
+set OMIpath   = $BLD                                #> ozone column data for the photolysis model
+set LUpath    = $INPDIR/land                        #> BELD landuse data for windblown dust model
+set SZpath    = $INPDIR/land                        #> surf zone file for in-line seaspray emissions
 
 # =====================================================================
 #> Begin Loop Through Simulation Days
@@ -244,8 +244,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set YYYYMM = `date -ud "${TODAYG}" +%Y%m`     #> Convert YYYY-MM-DD to YYYYMM
   set YYMMDD = `date -ud "${TODAYG}" +%y%m%d`   #> Convert YYYY-MM-DD to YYMMDD
   set YYYYJJJ = $TODAYJ
-  set MONTH = `date -ud "${TODAYG}" +%m`        #> Convert YYYY-MM-DD to MM
-  set YEAR = `date -ud "${TODAYG}" +%Y`         #> Convert YYYY-MM-DD to YYYY
 
   #> Calculate Yesterday's Date
   set YESTERDAY = `date -ud "${TODAYG}-1days" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYJJJ
@@ -269,7 +267,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE CCTM_CGRID_v52_hdifupdate_intel17.0_HEMIS_cb6_20150930
+     setenv ICFILE ICON_20160630_bench.nc
      setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
@@ -280,7 +278,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> Boundary conditions
-  set BCFILE = hemisphere_bc_cb05mp_cleano3_44L.ncf
+  set BCFILE = BCON_${YYYYMMDD}_bench.nc
 
   #> Off-line photolysis rates 
   #set JVALfile  = JTABLE_${YYYYJJJ}
@@ -292,97 +290,69 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set OPTfile = PHOT_OPTICS.dat
 
   #> MCIP meteorology files 
-  set MCONF = 108NHEMI2.44L
-  setenv GRID_BDY_2D $METpath/GRIDBDY2D.$MCONF.${YYYYMMDD}  # GRID files are static, not day-specific
-  setenv GRID_CRO_2D $METpath/GRIDCRO2D.$MCONF.${YYYYMMDD}
-  setenv GRID_CRO_3D absent
-  setenv GRID_DOT_2D $METpath/GRIDDOT2D.$MCONF.${YYYYMMDD}
-  setenv MET_CRO_2D $METpath/METCRO2D.$MCONF.${YYYYMMDD}
-  setenv MET_CRO_3D $METpath/METCRO3D.$MCONF.${YYYYMMDD}
-  setenv MET_DOT_3D $METpath/METDOT3D.$MCONF.${YYYYMMDD}
-  setenv MET_BDY_3D $METpath/METBDY3D.$MCONF.${YYYYMMDD}
+  setenv GRID_BDY_2D $METpath/GRIDBDY2D_${YYMMDD}.nc  # GRID files are static, not day-specific
+  setenv GRID_CRO_2D $METpath/GRIDCRO2D_${YYMMDD}.nc
+  setenv GRID_CRO_3D $METpath/GRIDCRO3D_${YYMMDD}.nc
+  setenv GRID_DOT_2D $METpath/GRIDDOT2D_${YYMMDD}.nc
+  setenv MET_CRO_2D $METpath/METCRO2D_${YYMMDD}.nc
+  setenv MET_CRO_3D $METpath/METCRO3D_${YYMMDD}.nc
+  setenv MET_DOT_3D $METpath/METDOT3D_${YYMMDD}.nc
+  setenv MET_BDY_3D $METpath/METBDY3D_${YYMMDD}.nc
 
   #> Emissions Control File
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
-#> Spatial Masks For Emissions Scaling
-
-     if ($MONTH == '01' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_JAN.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_JAN.ncf       	
-     else if ($MONTH == '02' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_FEB.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_FEB.ncf   
-     else if ($MONTH == '03' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_MAR.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_MAR.ncf         	
-     else if ($MONTH == '04' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_APR.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_APR.ncf   
-     else if ($MONTH == '05' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_MAY.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_MAY.ncf         	
-     else if ($MONTH == '06' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_JUN.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_JUN.ncf         	
-     else if ($MONTH == '07' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_JUL.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_JUL.ncf         	
-     else if ($MONTH == '08' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_AUG.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_AUG.ncf         	
-     else if ($MONTH == '09' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_SEP.ncf   
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_SEP.ncf         	
-     else if ($MONTH == '10' ) then 
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_OCT.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_OCT.ncf   
-     else if ($MONTH == '11' ) then
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_NOV.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_NOV.ncf
-     else if ($MONTH == '12' ) then
-      	setenv CMAQ_MASKS $SZpath/hemisphere_oceanfile_DEC.ncf
-        setenv OCEAN_1 $SZpath/hemisphere_oceanfile_DEC.ncf
-     endif      
+  #> Spatial Masks For Emissions Scaling
+  setenv CMAQ_MASKS $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 
   #> Gridded Emissions Files 
-  setenv N_EMIS_GR 1
-  if( $YEAR == 2015 ) then
-      set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_spinup_cb6_15jh.ncf
-   else
-      set EMISfile  = emis_mole_all_${YYYYMMDD}_HEMI_108k_withbeis_2016fe_hemi_cb6_16jh.ncf
-  endif
-
+  setenv N_EMIS_GR 2
+  set EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
 
+  set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016ff_16j.nc
+  setenv GR_EMIS_002 ${EMISpath2}/${EMISfile}
+  setenv GR_EMIS_LAB_002 GRIDDED_RWC
+
   #> In-line point emissions configuration
-  setenv N_EMIS_PT 0          #> Number of elevated source groups
+  setenv N_EMIS_PT 8          #> Number of elevated source groups
 
-  set STKCASEG = 12US1_2011ek_cb6cmaq_v6_11g              # Stack Group Version Label
-  set STKCASEE = 12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g  # Stack Emission Version Label
+  set STKCASEG = 12US1_2016ff_16j           # Stack Group Version Label
+  set STKCASEE = 12US1_cmaq_cb6_2016ff_16j  # Stack Emission Version Label
 
+  # Time-Independent Stack Parameters for Inline Point Sources
   setenv STK_GRPS_001 $IN_PTpath/stack_groups/stack_groups_ptnonipm_${STKCASEG}.nc
   setenv STK_GRPS_002 $IN_PTpath/stack_groups/stack_groups_ptegu_${STKCASEG}.nc
   setenv STK_GRPS_003 $IN_PTpath/stack_groups/stack_groups_othpt_${STKCASEG}.nc
-  setenv STK_GRPS_004 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc
-  setenv STK_GRPS_005 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_${STKCASEG}.nc
+  setenv STK_GRPS_004 $IN_PTpath/stack_groups/stack_groups_ptagfire_${YYYYMMDD}_${STKCASEG}.nc
+  setenv STK_GRPS_005 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc
+  setenv STK_GRPS_006 $IN_PTpath/stack_groups/stack_groups_ptfire_othna_${YYYYMMDD}_${STKCASEG}.nc
+  setenv STK_GRPS_007 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_${STKCASEG}.nc
+  setenv STK_GRPS_008 $IN_PTpath/stack_groups/stack_groups_cmv_c3_${STKCASEG}.nc
   setenv LAYP_STTIME $STTIME
   setenv LAYP_NSTEPS $NSTEPS
 
+  # Emission Rates for Inline Point Sources
   setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${YYYYMMDD}_${STKCASEE}.nc
   setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc
   setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${YYYYMMDD}_${STKCASEE}.nc
-  setenv STK_EMIS_004 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc
-  setenv STK_EMIS_005 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
+  setenv STK_EMIS_004 $IN_PTpath/ptagfire/inln_mole_ptagfire_${YYYYMMDD}_${STKCASEE}.nc
+  setenv STK_EMIS_005 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc
+  setenv STK_EMIS_006 $IN_PTpath/ptfire_othna/inln_mole_ptfire_othna_${YYYYMMDD}_${STKCASEE}.nc
+  setenv STK_EMIS_007 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.nc
+  setenv STK_EMIS_008 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${YYYYMMDD}_${STKCASEE}.nc
   setenv LAYP_STDATE $YYYYJJJ
 
   # Label Each Emissions Stream
-  setenv STK_EMIS_LAB_001 PT_NONEGU
-  setenv STK_EMIS_LAB_002 PT_EGU
-  setenv STK_EMIS_LAB_003 PT_OTHER
-  setenv STK_EMIS_LAB_004 PT_FIRES
-  setenv STK_EMIS_LAB_005 PT_OILGAS
+  setenv STK_EMIS_LAB_001 POINT_NONEGU
+  setenv STK_EMIS_LAB_002 POINT_EGU
+  setenv STK_EMIS_LAB_003 POINT_OTHER
+  setenv STK_EMIS_LAB_004 POINT_AGFIRES
+  setenv STK_EMIS_LAB_005 POINT_FIRES
+  setenv STK_EMIS_LAB_006 POINT_OTHFIRES
+  setenv STK_EMIS_LAB_007 POINT_OILGAS
+  setenv STK_EMIS_LAB_008 POINT_CMV
 
   # Stack emissions diagnostic files
   #setenv STK_EMIS_DIAG_001 2DSUM
@@ -390,6 +360,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #setenv STK_EMIS_DIAG_003 2DSUM
   #setenv STK_EMIS_DIAG_004 2DSUM
   #setenv STK_EMIS_DIAG_005 2DSUM
+
 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
@@ -408,10 +379,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      set IN_BEISpath = ${INPDIR}/land
      setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
-     setenv BIOSW_YN   N     #> use frost date switch [ default: Y ]
-     setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2011_12US1_wetland100.ghrsst_bench.ncf 
+     setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
+     setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2016_12US1_full_bench.ncf 
                              #> ignore season switch file if BIOSW_YN = N
-     setenv SUMMER_YN  N     #> Use summer normalized emissions? [ default: Y ]
+     setenv SUMMER_YN  Y     #> Use summer normalized emissions? [ default: Y ]
      setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
      setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
@@ -420,24 +391,23 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Windblown dust emissions configuration
   if ( $CTM_WB_DUST == 'Y' ) then
      # Input variables for BELD3 Landuse option
-     #setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a_bench.nc
-     #setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
-     setenv MODIS_FPAR $LUpath/modis_fpar_lai_hemi_108km_10yrAvg_daily_ioapi.ncf
+     setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a_bench.nc
+     setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot_bench.nc
+     setenv MODIS_FPAR $LUpath/modis_bench.nc
   endif
 
-  #> In-line sea spray emissions configuration -- set above
-# setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
+  #> In-line sea spray emissions configuration
+  setenv OCEAN_1 $SZpath/12US1_surf_bench.nc #> horizontal grid-dependent surf zone file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
-# modify for FEST-C v1.4.
-#    setenv E2C_Soilfile  ${INPDIR}/land/2011_US1_soil_bench.nc
-#    setenv E2C_Fertfile  ${INPDIR}/land/2011_US1_time${YYYYMMDD}_bench.nc
-     setenv E2C_Soilfile  ${LUpath}/epic_festc1.4/epic2011_20180516_soil.nc
-     setenv E2C_Fertfile  ${LUpath}/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
-     setenv B4LU_file     ${LUpath}/beld4_12kmCONUS_2006nlcd_bench.nc    
+     setenv E2C_Soilfile  ${LUpath}/epic_festc1.4_20180516/2016_US1_soil_bench.nc
+     setenv E2C_Fertfile  ${LUpath}/epic_festc1.4_20180516/2016_US1_time${YYYYMMDD}_bench.nc
+     setenv E2C_Fertyest  ${LUpath}/epic_festc1.4_20180516/2016_US1_time${YESTERDAY}_bench.nc
+     setenv B4LU_file     ${LUpath}/beld4_12kmCONUS_2011nlcd_bench.nc    
      setenv E2C_SOIL ${E2C_Soilfile}
      setenv E2C_FERT ${E2C_Fertfile}
+     setenv E2C_FERT_YEST ${E2C_Fertyest}
      setenv BELD4_LU ${B4LU_file}
   endif
 
@@ -454,20 +424,34 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      endif
   endif
 
-#> Sulfur Tracking Model (STM)
- setenv STM_SO4TRACK N        #> sulfur tracking [ default: N ]
- if ( $?STM_SO4TRACK ) then
-    if ( $STM_SO4TRACK == 'Y' || $STM_SO4TRACK == 'T' ) then
+#> Integrated Source Apportionment Method (ISAM) Options
+ setenv CTM_ISAM N
+ if ( $?CTM_ISAM ) then
+    if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
+       setenv SA_IOLIST ${WORKDIR}/isam_control.txt
+       setenv ISAM_BLEV_ELEV " 1 1"
+       setenv AISAM_BLEV_ELEV " 1 1"
 
-      #> sulfur tracking model species defn
-      setenv stm_matrix_nml ${BLD}/STM.nml
+       #> Set Up ISAM Initial Condition Flags
+       if ($NEW_START == true || $NEW_START == TRUE ) then
+          setenv ISAM_NEW_START Y
+          setenv ISAM_PREVDAY
+       else
+          setenv ISAM_NEW_START N
+          setenv ISAM_PREVDAY "$OUTDIR/CCTM_SA_CGRID_${RUNID}_${YESTERDAY}.nc"
+       endif
 
-      #> option to normalize sulfate tracers [ default: Y ]
-      setenv STM_ADJSO4 Y
+       #> Set Up ISAM Output Filenames
+       setenv SA_ACONC_1      "$OUTDIR/CCTM_SA_ACONC_${CTM_APPL}.nc -v"
+       setenv SA_CONC_1       "$OUTDIR/CCTM_SA_CONC_${CTM_APPL}.nc -v"
+       setenv SA_DD_1         "$OUTDIR/CCTM_SA_DRYDEP_${CTM_APPL}.nc -v"
+       setenv SA_WD_1         "$OUTDIR/CCTM_SA_WETDEP_${CTM_APPL}.nc -v"
+       setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
 
     endif
  endif
- 
+
+
 # =====================================================================
 #> Output Files
 # =====================================================================
@@ -522,12 +506,18 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )
-  set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
+  if ( $?CTM_ISAM ) then
+     if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
+        set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
+                         ${SA_CGRID_1} )
+     endif
+  endif
+  set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" | sed "s;MPI:;;g" `
   ( ls $OUT_FILES > buff.txt ) >& /dev/null
   set out_test = `cat buff.txt`; rm -f buff.txt
   
   #> delete previous output if requested
-  if ( $CLOBBER_DATA == true || $CLOBBER_DATA == TRUE ) then
+  if ( $CLOBBER_DATA == true || $CLOBBER_DATA == TRUE  ) then
      echo 
      echo "Existing Logs and Output Files for Day ${TODAYG} Will Be Deleted"
 
@@ -626,13 +616,13 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   # set MPI = /usr/local/intel/impi/3.2.2.006/bin64
   # set MPIRUN = $MPI/mpirun
   ( /usr/bin/time -p mpirun -np $NPROCS $BLD/$EXEC ) |& tee buff_${EXECUTION_ID}.txt
-
+  
   #> Harvest Timing Output so that it may be reported below
   set rtarray = "${rtarray} `tail -3 buff_${EXECUTION_ID}.txt | grep -Eo '[+-]?[0-9]+([.][0-9]+)?' | head -1` "
   rm -rf buff_${EXECUTION_ID}.txt
 
   #> Abort script if abnormal termination
-  if ( ! -e $S_CGRID ) then
+  if ( ! -e $OUTDIR/CCTM_CGRID_${CTM_APPL}.nc ) then
     echo ""
     echo "**************************************************************"
     echo "** Runscript Detected an Error: CGRID file was not written. **"
@@ -715,4 +705,3 @@ echo "     Total Time = ${RTMTOT}"
 echo "      Avg. Time = ${RTMAVG}"
 
 exit
-
