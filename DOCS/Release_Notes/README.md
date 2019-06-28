@@ -21,8 +21,8 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
   
 ### Photolysis Rates
  * [Updates to inline photolysis diagnostics and OMI data files](inline_phot_diagnostic_and_OMI.md)
- * [Floating point crashes using the Portland Group Compiler](inline_phot_pgi_floating_point_crashes.md)
- * [inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
+ * [Removing sporadic floating point crashes with the PGI Fortran compiler](inline_phot_pgi_floating_point_crashes.md)
+ * [Updates to _inline_phot_preproc_ utility](updates_to_inline_phot_preproc.md)
  
 ### New Aerosol Modules AERO7 and AERO7i
   * [Overview of AERO7/7i](aero7_overview.md)  
