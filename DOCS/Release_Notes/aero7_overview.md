@@ -10,6 +10,7 @@
 * uptake of water onto hydrophillic organics
 * reorganization of anthropogenic SOA species
 * inorganic sulfate is consumed when IEPOX organosulfates are formed 
+
 Fewer species are required for *aero7/7i*, so more robust predictions require in less computation time than *aero6*. 
 
 ### Species updates
