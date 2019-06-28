@@ -758,24 +758,34 @@ C..Includes:
          INTEGER :: I, J, RXN
          INTEGER :: C, L, R, S   ! Loop indices
          INTEGER :: SPC          ! array index
+         REAL(8) :: TAGS_TOTAL
          
 !         INTEGER :: IOS         
 !         CHARACTER( 132 )  :: MSG
 
-          SOLD = DCONMIN_TAG ! LOCAL_MIN
+!         SOLD = DCONMIN_TAG ! LOCAL_MIN
           INV_DENS = REAL( ONE/DENS, 8 )
           
           DO JSPC = 1, ISAM_CHEMISTRY_SPC
              S       = ISAM_TO_CHEM( JSPC )
              SPC     = ISAM_SPC_MAP( JSPC )
              LOAD_SOLD: DO KTAG = 1, NTAG_SA
-                 FACTOR2 = ISAM( COL,ROW,LAY,SPC,KTAG )
-                 SOLD( KTAG, S ) = MAX( REAL( FACTOR2,8 ), DCONMIN_TAG )
+                 IF( ISAM( COL,ROW,LAY,SPC,KTAG ) .GT. 1.0E-18 )THEN
+                    FACTOR2 = ISAM( COL,ROW,LAY,SPC,KTAG )
+                 ELSE
+                    FACTOR2 = 0.0
+                 END IF
+!                 SOLD( KTAG, S ) = MAX( REAL( FACTOR2,8 ), DCONMIN_TAG )
+                 SOLD( KTAG, S ) = REAL( FACTOR2,8 )
                  IF( CONVERT_ISAM( JSPC ) )THEN
                      SOLD( KTAG, S ) = SOLD( KTAG, S )
      &                               * INV_DENS * UGM3_TO_PPM( JSPC )
                  END IF
+!                SOLD( KTAG,S ) = MAX( SOLD( KTAG,S ), DCONMIN_TAG )
              END DO LOAD_SOLD ! ktag loop
+             IF( SUM( SOLD( 1:NTAG_SA,S ) ) .LE. 0.0D0 )THEN
+                 SOLD( OTHRTAG,S ) = 1.0D-40
+             END IF
           END DO ! loop jspc
 
 #ifdef verbose_isam          
@@ -783,7 +793,8 @@ C..Includes:
              DO KTAG = 1, NTAG_SA
                WRITE(ISAM_LOG,*)' '
                WRITE(ISAM_LOG,'(A24,2(1X,ES12.4))')'Initial MAX Values',
-     &         MAXVAL( ISAMB4(:,:,:,:,KTAG )), MAXVAL(ISAM(:,:,:,:,KTAG))
+     &         MAXVAL(ISAM(:,:,:,:,KTAG))
+!    &         MAXVAL( ISAMB4(:,:,:,:,KTAG )), MAXVAL(ISAM(:,:,:,:,KTAG))
              END DO ! ktag loop
              DO JSPC = 1, NSPC_SA 
                   TOTAL = SUM( ISAM( COL,ROW,LAY,JSPC,1:NTAG_SA ) )
@@ -844,7 +855,7 @@ C..Includes:
             S   = ISAM_TO_CHEM( JSPC )
             SPC = ISAM_SPC_MAP( JSPC ) 
             LOAD_ISAM: DO KTAG = 1, NTAG_SA
-               IF( SOLD( KTAG,S ) .GT. 1.0D-30 )THEN
+               IF( SOLD( KTAG,S ) .GT. DCONMIN_TAG )THEN
                  TEMP_VALUE = REAL( SOLD( KTAG,S ) )
                  IF( CONVERT_ISAM( JSPC ) )THEN
                      TEMP_VALUE = TEMP_VALUE
@@ -852,11 +863,11 @@ C..Includes:
                  END IF
                  ISAM( COL,ROW,LAY,SPC,KTAG ) = MAX( CONMIN_TAG, TEMP_VALUE )
                ELSE
-                 IF( ISAM( COL,ROW,LAY,SPC,KTAG ) .GT. 0.0 )THEN
+!                IF( ISAM( COL,ROW,LAY,SPC,KTAG ) .GT. 0.0 )THEN
                      ISAM( COL,ROW,LAY,SPC,KTAG ) = CONMIN_TAG
-                 ELSE    
-                     ISAM( COL,ROW,LAY,SPC,KTAG ) = 0.0
-                 END IF    
+!                ELSE    
+!                    ISAM( COL,ROW,LAY,SPC,KTAG ) = 0.0
+!                END IF    
                END IF    
             END DO LOAD_ISAM ! ktag loop     
          END DO   ! jspc
@@ -866,7 +877,8 @@ C..Includes:
              DO KTAG = 1, NTAG_SA
                WRITE(ISAM_LOG,*)' '
                WRITE(ISAM_LOG,'(A24,2(1X,ES12.4))')'Final MAX Values',
-     &         MAXVAL( ISAMB4(:,:,:,:,KTAG )), MAXVAL(ISAM(:,:,:,:,KTAG))
+     &         MAXVAL(ISAM(:,:,:,:,KTAG))
+!    &         MAXVAL( ISAMB4(:,:,:,:,KTAG )), MAXVAL(ISAM(:,:,:,:,KTAG))
              END DO ! ktag loop
              DO JSPC = 1, NSPC_SA 
                   TOTAL = SUM( ISAM( COL,ROW,LAY,JSPC,1:NTAG_SA ) )

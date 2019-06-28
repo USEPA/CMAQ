@@ -1902,7 +1902,7 @@ C...   include raining region below cld base
                 END DO
 
                 IF ( CONDIS .NE. 0.0 ) THEN
-                  BLNC = ( CONDIS + SUM( SA_INCLOUD( : ) ) ) / SUM( SA_INCLOUD( : ) )
+                  BLNC = ( CONDIS + SUM( SA_INCLOUD( : ) ) ) / MAX( SUM( SA_INCLOUD( : ) ), CONCMINL( C_SO4J,LAY ) )
                   DO ITAG = 1, NTAG_SA
                     IF ( SA_INCLOUD( ITAG ) .GT. 0.0 ) THEN
                       SA_INCLOUD( ITAG ) = BLNC * SA_INCLOUD( ITAG )
