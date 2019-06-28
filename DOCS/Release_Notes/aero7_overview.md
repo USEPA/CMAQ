@@ -58,8 +58,8 @@ ATOL1J, ATOL2J, ATOL3J, SV_TOL1, SV_TOL2, APAH1J, APAH2J, APAH3J, SV_PAH1, SV_PA
 
 All gas-phase semivolatiles use species-specific wet and dry deposition surrogates.
 
-Note that underscores are no longer used in species names in any aerosol or nonreactives namelist
-(e.g., SV_ISO1 is now SVISO1 in the non-reactives namelist (NR*.nml)).  
+Note that underscores are no longer used in species names in any aerosol or nonreactives namelist.
+For example, SV_ISO1 is now SVISO1 in the non-reactives namelist (NR*.nml).  
 
 ### Improvements in consistency
 The explicit monoterpene organic nitrate SOA from Pye et al. (2015) originally
