@@ -22,7 +22,7 @@ et al. (2013) and as implemented in Pye et al. (2017).
 Due to logistical considerations, *aero6i* was also updated, but the *aero6* mechanisms were not updated.
 
 ## Significance and Impact
-Decreased accumulation mode inorganic sulfate (decreased PM<sub>2.5</sub> sulfate) where isoprene emissions are abundant (e.g. southeast
+Decreased accumulation mode inorganic sulfate (decreased PM<sub>2.5</sub> sulfate) where isoprene emissions are abundant (e.g., in the southeast
 United States). Slight reduction in IEPOX-SOA due to feedback in which less inorganic sulfate
 means lower acidity and less abundant nucleophiles. Effects are minimal when inorganic
 sulfate is high relative to IEPOX (e.g., present day eastern U.S. effects are <5-10%). Effects more substantial when inorganic sulfate is low
