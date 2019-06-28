@@ -6,34 +6,29 @@
 
 Changes were made to the inline photolysis module to update the OMI total ozone column data and to create more comprehensive photolysis diagnostic files.
 
-1. **OMI total ozone column data:**  The OMI total ozone column data have been extended through 10 January 2018. In addition, the interpolation method now allows ozone to vary over the time of day. The data only depends on Julian day. The OMI data file is now CCTM/src/phot/inline/OMI_1979_to_2017.dat,
-   * Change the interpolation method.
-     * allows the interpolation to vary over time of day
-       * currently only depends on Julian day
-     * resolution of the OMI data is no longer hard coded but defined in the data file.
-       * **<p style='color:red'>the change will cause the version 5.2 of the OMI data file to crash the CMAQ model from an I/O error </p>**
-       * to use the version 5.2 of OMI file add the below lines at the top of the file
+1. **OMI total ozone column data:**  The OMI total ozone column data have been extended through 10 January 2018. The OMI data file is now CCTM/src/phot/inline/OMI_1979_to_2017.dat. In addition, the interpolation method now allows ozone to vary over the time of day. The data currently only depend on Julian day. In addition, the resolution of the OMI data is no longer hard-coded; it is now defined in the data file. The latter change denies the use of the CMAQv5.2 OMI data file with CMAQv5.3, unless the following lines are added to the top of the file:
 
                   nlat     17
                   nlon     17
 
-2. Diagnostic files are now more comprehensive. There are now three photolysis diagnostic files. More detailed information is in the subsections, below.
+
+2. **Updates to PHOTDIAG files:**  The diagnostic photolysis files are now more comprehensive. There are now three photolysis diagnostic files. More detailed information is in the subsections, below.
    * The new output variables include: the aerosol optical depth in *PHOTDIAG1* and interpolated to 550 nm plus total extinction, extinction from gases (Rayleigh scattering, NO<sub>2</sub>, and O<sub>3</sub>),
 and aerosol extinction at the wavelengths used calculate photolysis rates in *PHOTDIAG3*.
-   * New runscript environment variables tailor the number of layers (NLAYS_PHOTDIAG) and the wavelengths (NWAVE_PHOTDIAG) written to *PHOTDIAG2* and *PHOTDIAG3* files.
+   * New runscript environment variables tailor the number of layers (NLAYS_PHOTDIAG) and the wavelengths (NWAVE_PHOTDIAG) written to *PHOTDIAG2* and *PHOTDIAG3*.
     * The new file, *PHOTDIAG3*, contains optical and radiative information, some of which is new and some which was moved from *PHOTDIAG2*.
 
-## Description of diagnostic files from inline photolysis
+## Data output in the diagnostic files from inline photolysis
 
 * *PHOTDIAG1* (see Table 1)  
-   * Surface Values of Optical Inputs and Radiative Results from the inline calculation of Photolysis Rates
-   * The variable AOD_W550_ANGST is not used to calculate photolysis rates and is calculated from aerosol extinction at 550 nm of each layer. See information on the PHOTDIAG3 file.
+   * Surface values of optical inputs and radiative results from the inline calculation of photolysis rates
+   * The variable, AOD_W550_ANGST, is not used to calculate photolysis rates and is calculated from aerosol extinction at 550 nm of each layer. See additional information on *PHOTDIAG3*.
    
 * *PHOTDIAG2* (see Table 2)
-  * Three dimensionals values of Photolysis rates used to make predictions from the inline calculation of photolysis Rates.  
-  * The run script can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default value equals all layers of the simulation. When the run script sets NLAYS_PHOTDIAG, PHOTDIAG2 covers from the first layer to the value of NLAYS_PHOTDIAG.
+  * Three-dimensional values of photolysis rates used to make predictions from the inline calculation of photolysis rates.  
+  * The runscript can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default value equals all layers of the simulation. When the runscript sets NLAYS_PHOTDIAG, *PHOTDIAG2* includes the lowest-model layer to the value of NLAYS_PHOTDIAG.
   * Variables names can change with the photochemical mechanism used because each mechanism is developed with its own rate constants.
-  * Files containing cross-section and quantum yield data are in CMAQ repository under subdirectory, UTIL/inline_phot_preproc/photolysis_CSQY_data.
+  * Files containing cross-section and quantum yield data are in CMAQ repository in UTIL/inline_phot_preproc/photolysis_CSQY_data.
   
 * *PHOTDIAG3* (New; see Table 3)
   * Includes three-dimensional values of optical inputs and radiative results used to make predictions from the inline photolysis calculation.
@@ -46,9 +41,9 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
     * aerosol extinction
     * actinic flux
      
-  * Values are set by the PHOT_OPTICS.dat file and changing them is strongly not recommended. 
+  * Values are set by the PHOT_OPTICS.dat file. **Changing these values is strongly not recommended.** 
       
-  * For CMAQv5.3, the list could contain any of the following values: 294, 303, 310, 316, 333, 381, and 607.  The environment variable list for NWAVE_PHOTDIAG can be set as follows:
+  * For CMAQv5.3, the list can contain data at any of the following wavelengths (nm): 294, 303, 310, 316, 333, 381, and 607.  The environment variable list for NWAVE_PHOTDIAG can be set following:
 
              setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"
 
