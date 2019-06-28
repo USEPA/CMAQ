@@ -30,8 +30,35 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
 * PHOTDIAG1 File  
    * Surface Values of Optical Inputs and Radiative Results from the inline calculation of Photolysis Rates
    * The variable AOD_W550_ANGST is not used to calculate photolysis rates and is calculated from aerosol extinction at 550 nm of each layer. See information on the PHOTDIAG3 file.
+   
+* PHOTDIAG2 File
+  * Three dimensionals values of Photolysis rates used to make predictions from the inline calculation of photolysis Rates.  
+  * The run script can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default value equals all layers of the simulation. When the run script sets NLAYS_PHOTDIAG, PHOTDIAG2 covers from the first layer to the value of NLAYS_PHOTDIAG.
+  * Variables names can change with the photochemical mechanism used because each mechanism is developed with its own rate constants.
+  * Files containing cross-section and quantum yield data are in CMAQ repository under subdirectory, UTIL/inline_phot_preproc/photolysis_CSQY_data.
+  * Table 2 gives an example of the PHOTDIAG2 contents when using the cb6r3_ae6_aq mechanism in CMAQv5.2.
+  
+* *PHOTDIAG3* (New)
+  * Includes three-dimensional values of optical inputs and radiative results used to make predictions from the inline photolysis calculation.
+  * The runscript can set the number of layers for the file using the environment variable, NLAYS_PHOTDIAG. The default values equal all layers of the simulation. If the runscript sets NLAYS_PHOTDIAG, *PHOTDIAG3* includes the lowest model layer to the value of NLAYS_PHOTDIAG.
+  * The environment list, NWAVE_PHOTDIAG, defines which wavelengths are output for the variables listed below. If NWAVE_PHOTDIAG is not set or contains no values, *PHOTDIAG3* includes all wavelengths. The list only uses integer truncated values of the wavelengths that are used to calculated photolysis rates.
+    * aerosol single scattering albedo
+    * aerosol asymmetry factor
+    * total extinction
+    * extinction from gases
+    * aerosol extinction
+    * actinic flux
+     
+  * Values are set by the PHOT_OPTICS.dat file and changing them is strongly not recommended. 
+      
+  * For CMAQv5.2, the list could contain any of the following values: 294, 303, 310, 316, 333, 381, and 607.  The environment variable list for NWAVE_PHOTDIAG can be set as follows:
 
-<p align="center">Table 1. PHOTDIAG1 contents </p>
+             setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"
+
+  * The variable, EXT_AERO_W550, is not used to calculate photolysis rate and is derived from aerosol extinction at the other wavelengths using an Angstrom interpolation.
+
+
+<p align="center">Table 1. <i>PHOTDIAG1</i> contents </p>
 
 |Variable Name|Units|Description|
 |:----|:--------------:|:---------------------|
@@ -96,14 +123,9 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
 |     ALBEDO_W607|            none|surface albedo at the wavelength 607 nm|
 |  AOD_W550_ANGST|            none|aerosol optical depth at 550 nm based on an Angstrom interpolation|
 
-* PHOTDIAG2 File
-  * Three dimensionals values of Photolysis rates used to make predictions from the inline calculation of photolysis Rates.  
-  * The run script can set the number of layers for the file by the environment variable, NLAYS_PHOTDIAG. The default value equals all layers of the simulation. When the run script sets NLAYS_PHOTDIAG, PHOTDIAG2 covers from the first layer to the value of NLAYS_PHOTDIAG.
-  * Variables names can change with the photochemical mechanism used because each mechanism is developed with its own rate constants.
-  * Files containing cross-section and quantum yield data are in CMAQ repository under subdirectory, UTIL/inline_phot_preproc/photolysis_CSQY_data.
-  * Table 2 gives an example of the PHOTDIAG2 contents when using the cb6r3_ae6_aq mechanism in CMAQv5.2.
 
-<p align="center">Table 2. PHOTDIAG2 contents if using the cb6r3_ae6_aq mechanism</p>
+
+<p align="center">Table 2. <i>PHOTDIAG2</i> contents from the <i>cb6r3_ae6_aq</i> mechanism</p>
 
 |Variable Name|Units|Description                                   |
 |:----|:----:|:---------------------------------------------|
@@ -137,24 +159,6 @@ and aerosol extinction at the wavelengths used calculate photolysis rates in *PH
 |           CLNO2|           min<sup>-1</sup>|Photolysis rates calculated based on data file; CLNO2|
 |         ACRO_09|           min<sup>-1</sup>|Photolysis rates calculated based on data file; ACRO_09|
 
-* *PHOTDIAG3* (New)
-  * Includes three-dimensional values of optical inputs and radiative results used to make predictions from the inline photolysis calculation.
-  * The runscript can set the number of layers for the file using the environment variable, NLAYS_PHOTDIAG. The default values equal all layers of the simulation. If the runscript sets NLAYS_PHOTDIAG, *PHOTDIAG3* includes the lowest model layer to the value of NLAYS_PHOTDIAG.
-  * The environment list, NWAVE_PHOTDIAG, defines which wavelengths are output for the variables listed below. If NWAVE_PHOTDIAG is not set or contains no values, *PHOTDIAG3* includes all wavelengths. The list only uses integer truncated values of the wavelengths that are used to calculated photolysis rates.
-    * aerosol single scattering albedo
-    * aerosol asymmetry factor
-    * total extinction
-    * extinction from gases
-    * aerosol extinction
-    * actinic flux
-     
-  * Values are set by the PHOT_OPTICS.dat file and changing them is strongly not recommended. 
-      
-  * For CMAQv5.2, the list could contain any of the following values: 294, 303, 310, 316, 333, 381, and 607.  The environment variable list for NWAVE_PHOTDIAG can be set as follows:
-
-             setenv NWAVE_PHOTDIAG "294 303 310 316 333 381 607"
-
-  * The variable, EXT_AERO_W550, is not used to calculate photolysis rate and is derived from aerosol extinction at the other wavelengths using an Angstrom interpolation.
 
 <p align="center">Table 3. <i>PHOTDIAG3</i> contents.  All variables are included if NWAVE_PHOTDIAG is not set.</p>
 
