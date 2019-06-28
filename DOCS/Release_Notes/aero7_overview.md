@@ -59,33 +59,33 @@ ATOL1J, ATOL2J, ATOL3J, SV_TOL1, SV_TOL2, APAH1J, APAH2J, APAH3J, SV_PAH1, SV_PA
 All gas-phase semivolatiles use species-specific wet and dry deposition surrogates.
 
 Note that underscores are no longer used in species names in any aerosol or nonreactives namelist
-(e.g. SV_ISO1 is now SVISO1 in the non-reactives namelist (NR*.nml)).  
+(e.g., SV_ISO1 is now SVISO1 in the non-reactives namelist (NR*.nml)).  
 
 ### Improvements in consistency
 The explicit monoterpene organic nitrate SOA from Pye et al. (2015) originally
 implemented in saprc07tic, has been ported to cb6r3-aero7
 using the same assumptions as the saprc07tic-aero6i and aero7i implementation. 
 
-### Differences in aero7 and aero7i
-Aero7 and aero7i differ in terms of the degree of speciation of isoprene
+### Differences between *aero7* and *aero7i*
+*Aero7* and *aero7i* differ in terms of the degree of speciation of isoprene
 SOA. Specifically, isoprene epoxydiol (IEPOX) SOA (Pye et al. 2013, 2017) is represented using species 
-AISO3J in aero7. In aero7i, AISO3J is approximately zero and IEPOX SOA is 
+AISO3J in *aero7*. In *aero7i*, AISO3J is approximately zero and IEPOX SOA is 
 represented explicitly as organosulfates (AIEOSJ), 2-methyltetrols (AIETETJ), 
-and dimers (AIDIMJ). In addition, aero7i includes explicit 
+and dimers (AIDIMJ). In addition, *aero7i* includes explicit 
 methylglyceric acid (AIMGAJ) and its analogous 
-organosulfate (AIMOSJ), both of which are minor. Aero7i also includes
-a particle-phase isoprene dinitrate (Pye et al. 2015) that was not ported to aero7.
+organosulfate (AIMOSJ), both of which are minor. *Aero7i* also includes
+a particle-phase isoprene dinitrate (Pye et al. 2015) that was not ported to *aero7*.
 
 ### Required emission updates
-Aero7/7i requires that a-pinene (usually denoted APIN)
+*Aero7* and *aero7i* require that &#945;&#8209;pinene (usually denoted APIN)
 is separate from all other monoterpenes (TERP) in the model. This is to avoid
-making SOA from a-pinene + nitrate radical reactions as that pathway has been shown to
-produce negligible SOA. Saprc07-based mechanisms, including the aero6 ones, already
-treat APIN as separate and mutally exclusive of TERP (saprc07tc aero6 emissions
-will work with aero7 without any adjustment). CB6r3 with aero6 continues 
+making SOA from &#945;&#8209;pinene + nitrate radical reactions as that pathway has been shown to
+produce negligible SOA. SAPRC07-based mechanisms, including the *aero6* ones, already
+treat APIN as separate and mutally exclusive of TERP; saprc07tc *aero6* emissions
+will work with *aero7* without any adjustment. CB6r3 with *aero6* continues 
 to include APIN in TERP as it did in CMAQ v5.2.1.
 
-If you have cb6r3-aero6 emissions and want to run cb6r3-aero7, options are:  
+If you have CB6r3-aero6 emissions and want to run CB6r3-aero7, options are:  
 1. Reprocess your emissions to separate APIN from all other monoterpenes.  
 2. Use the emission control file and assign 30% of emitted TERP to APIN and 70% of emitted TERP to TERP.  
 3. If you are using inline biogenic emissions, do nothing and let CMAQ determine
@@ -95,26 +95,26 @@ Approach 1 is the most thorough and the only way to properly map anthropogenic
 monoterpene emissions (which are currently relatively minor in the inventory). It may 
 not be necessary if your biogenic emissions are calculated inline within CMAQ.
 Approach 2 is an approxmimation based on assuming 30% of global monoterpene
-emissions are a-pinene (Pye et al. 2010) and could be used if your biogenic
+emissions are &#945;&#8209;pinene (Pye et al. 2010) and could be used if your biogenic
 emissions are preprocessed in input files. Approach 3 makes use of separate biogenic emission mapping
-profiles for cb6r3-aero6 and cb6r3-aero7 available within CMAQ (see [biogenic emission update](biogenic_apinene.md)). 
+profiles for CB6r3-aero6 and CB6r3-aero7 available within CMAQ (see [biogenic emission update](biogenic_apinene.md)). 
 Approach 3 is not an option if your biogenic emissions were pre-processed.
 
 Potential combustion SOA (pcSOA) formation is driven by emission of the VOC precursor, 
 pcVOC. In order to zero out contributions from pcSOA in your model run, set the emissions 
 scale factor for pcVOC to 0. in your emission control file.
 
-### More information on science updates in aero7
+### More information on science updates in *aero7*
 
   * [Monoterpene SOA](monoterpene_SOA.md)  
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Uptake of water onto hydrophilic organic aerosol](organic_water.md)  
 
 ## Significance and Impact
-Increased dry PM2.5 mass primarily in summer in vegetation-rich locations
+Increased dry PM<sub>2.5</sub> mass primarily in summer in vegetation-rich locations
 such as the southeast U.S. (Xu et al. 2018).
-Ambient PM2.5 further increased due to water uptake with implications
-for metrics such as AOD that represent in situ (vs dry) conditions.                       
+Ambient PM<sub>2.5</sub> is further increased due to water uptake with implications
+for metrics such as AOD that represent in situ (vs. dry) conditions.                       
 
 ## Affected Files
 CCTM/src/aero/aero7 (links to aero6)
@@ -125,24 +125,24 @@ dry deposition files
 
 ## References
 
-Lambe, A. T., Onasch, T. B., Massoli, P., Croasdale, D. R., Wright, J. P., Ahern, A. T., Williams, L. R., Worsnop, D. R., Brune, W. H., and Davidovits, P.: Laboratory studies of the chemical composition and cloud condensation nuclei (CCN) activity of secondary organic aerosol (SOA) and oxidized primary organic aerosol (OPOA), Atmos. Chem. Phys., 11, 8913-8928, https://doi.org/10.5194/acp-11-8913-2011, 2011.               
+Lambe, A. T., Onasch, T. B., Massoli, P., Croasdale, D. R., Wright, J. P., Ahern, A. T., Williams, L. R., Worsnop, D. R., Brune, W. H., and Davidovits, P.: Laboratory studies of the chemical composition and cloud condensation nuclei (CCN) activity of secondary organic aerosol (SOA) and oxidized primary organic aerosol (OPOA), *Atmospheric Chemistry and Physics*, **11**, 8913-8928, https://doi.org/10.5194/acp-11-8913-2011, 2011.               
 
-Murphy, B. N., Woody, M. C., Jimenez, J. L., Carlton, A. M. G., Hayes, P. L., Liu, S., Ng, N. L., Russell, L. M., Setyan, A., Xu, L., Young, J., Zaveri, R. A., Zhang, Q., and Pye, H. O. T.: Semivolatile POA and parameterized total combustion SOA in CMAQv5.2: impacts on source strength and partitioning, Atmos. Chem. Phys., 17, 11107-11133, https://doi.org/10.5194/acp-17-11107-2017, 2017.
+Murphy, B. N., Woody, M. C., Jimenez, J. L., Carlton, A. M. G., Hayes, P. L., Liu, S., Ng, N. L., Russell, L. M., Setyan, A., Xu, L., Young, J., Zaveri, R. A., Zhang, Q., and Pye, H. O. T.: Semivolatile POA and parameterized total combustion SOA in CMAQv5.2: impacts on source strength and partitioning, *Atmospheric Chemistry and Physics*, **17**, 11107-11133, https://doi.org/10.5194/acp-17-11107-2017, 2017.
 
-Petters, M. D. and Kreidenweis, S. M.: A single parameter representation of hygroscopic growth and cloud condensation nucleus activity, Atmos. Chem. Phys., 7, 1961-1971, https://doi.org/10.5194/acp-7-1961-2007, 2007.
+Petters, M. D. and Kreidenweis, S. M.: A single parameter representation of hygroscopic growth and cloud condensation nucleus activity, *Atmospheric Chemistry and Physics*, **7**, 1961-1971, https://doi.org/10.5194/acp-7-1961-2007, 2007.
 
-Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, Atmos. Chem. Phys., 17, 343-369, https://doi.org/10.5194/acp-17-343-2017, 2017.
+Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, *Atmospheric Chemistry and Physics*, **17**, 343-369, https://doi.org/10.5194/acp-17-343-2017, 2017.
 
-Pye, H. O. T., D. J. Luecken, L. Xu, C. M. Boyd, N. L. Ng, K. Baker, B. A. Ayres, J. O. Bash, K. Baumann, W. P. L. Carter, E. Edgerton, J. L. Fry, W. T. Hutzell, D. Schwede, P. B. Shepson, Modeling the current and future roles of particulate organic nitrates in the southeastern United States, Environ. Sci. Technol., 2015. 
+Pye, H. O. T., D. J. Luecken, L. Xu, C. M. Boyd, N. L. Ng, K. Baker, B. A. Ayres, J. O. Bash, K. Baumann, W. P. L. Carter, E. Edgerton, J. L. Fry, W. T. Hutzell, D. Schwede, P. B. Shepson, Modeling the current and future roles of particulate organic nitrates in the southeastern United States, *Environmental Science & Technology*, 2015. 
 
-Pye, H. O. T., R. W. Pinder, I. Piletic, Y. Xie, S. L. Capps, Y.-H. Lin, J. D. Surratt, Z. Zhang, A. Gold, D. J. Luecken, W. T. Hutzell, M. Jaoui, J. H. Offenberg, T. E. Kleindienst, M. Lewandowski, and E. O. Edney, Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation, Environ. Sci.  Technol., doi:10.1021/es402106h, 2013.
+Pye, H. O. T., R. W. Pinder, I. Piletic, Y. Xie, S. L. Capps, Y.-H. Lin, J. D. Surratt, Z. Zhang, A. Gold, D. J. Luecken, W. T. Hutzell, M. Jaoui, J. H. Offenberg, T. E. Kleindienst, M. Lewandowski, and E. O. Edney, Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation, *Environmental Science & Technology*, https://doi.org/10.1021/es402106h, 2013.
 
-Pye, H. O. T., Chan, A. W. H., Barkley, M. P., and Seinfeld, J. H.: Global modeling of organic aerosol: the importance of reactive nitrogen (NOx and NO3), Atmos. Chem. Phys., 10, 11261-11276, https://doi.org/10.5194/acp-10-11261-2010, 2010.
+Pye, H. O. T., Chan, A. W. H., Barkley, M. P., and Seinfeld, J. H.: Global modeling of organic aerosol: the importance of reactive nitrogen (NO<sub>x</sub> and NO<sub>3</sub>), *Atmospheric Chemistry and Physics*, **10**, 11261-11276, https://doi.org/10.5194/acp-10-11261-2010, 2010.
 
-Xu, L., Pye, H. O. T., He, J., Chen, Y., Murphy, B. N., and Ng, N. L.: Experimental and model estimates of the contributions from biogenic monoterpenes and sesquiterpenes to secondary organic aerosol in the southeastern United States, Atmos. Chem. Phys., 18, 12613-12637, https://doi.org/10.5194/acp-18-12613-2018, 2018.        
+Xu, L., Pye, H. O. T., He, J., Chen, Y., Murphy, B. N., and Ng, N. L.: Experimental and model estimates of the contributions from biogenic monoterpenes and sesquiterpenes to secondary organic aerosol in the southeastern United States, *Atmospheric Chemistry and Physics*, **18**, 12613-12637, https://doi.org/10.5194/acp-18-12613-2018, 2018.        
 
 -----
-## Internal Records:
+## Internal Records
 #### Relevant Pull Requests:
 [PR #346, 341, 353, 335]
 
