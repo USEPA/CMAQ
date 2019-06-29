@@ -1,19 +1,20 @@
 CMAQv5.3 Release Notes 
 =====================================
 
-[Tutorial on installing and running CMAQ](../Tutorials/CMAQ_GettingStarted.md)  
-[Tutorial on running the CMAQ test case](../Tutorials/CMAQ_Benchmark.md)  
+[Tutorial on installing and running the CMAQ test case](../Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)  
+[CMAQv5.3 User's Guide](../Users_Guide/README.md)
 
 # Summary of CMAQv5.3 Updates
 
-The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a major update. CMAQv5.3 includes several changes to the science algorithms in the base model (CCTM), as well as updates to instrumented models, pre-processors, post-processors, utilities, and tools. CMAQv5.3 was primarily developed by the U.S. EPA, and it includes contributions from research partners.  The enhancements to the CMAQ modeling system since the previous release (CMAQv5.2.1) are summarized below.
+The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a major update. CMAQv5.3 includes several changes to the science algorithms in the base model (CCTM), as well as updates to instrumented models, pre-processors, post-processors and utilities. CMAQv5.3 was primarily developed by the U.S. EPA, and it includes contributions from research partners.  The enhancements to the CMAQ modeling system since the previous release (CMAQv5.2.1) are summarized below.
 
 <a id="instrumented_models"></a>
 ## Instrumented Models
- * [DDM for CMAQv5.3](updates_to_CMAQ_DDM.md)
  * [ISAM for CMAQv5.3](updates_to_CMAQ_ISAM.md)
  * [Sulfur Tracking Model for CMAQv5.3](updates_to_CMAQ_STM.md)
+ * CMAQv5.3-DDM-3D will be released later in 2019. Documentation for CMAQv5.2-DDM-3D can be found on the [5.2-DDM-3D](https://github.com/USEPA/CMAQ/blob/5.2_DDM-3D/DOCS/Instrumented_Docs/CMAQ_DDM.md) branch.
 
+ 
 <a id="chemistry"></a>
 ## Chemistry
 ### Photochemistry
@@ -69,12 +70,12 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 ## Diagnostic Options
  * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
 
-## Pre-processors, Post-processors, Tools, and Utilities
+## Pre-processors, Post-processors, and Utilities
  * [Updates in MCIPv5.0](updates_to_MCIPv5_0.md)
  * [Updates to the ICON and BCON pre-processors.](updates_to_ICON_BCON.md)
+ * [New create_omi pre-processor.](Add_create_omi_tool.md)
  * [Updates to the create_ebi utility](updates_to_create_ebi.md)
  * [Updates to the inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
- * [The create_omi tool.](Add_create_omi_tool.md)
- * [SpecDef aerosol updates](specdef_aero.md)
+ * [Updates to species definition files (SpecDef*.txt) for aerosol modules](specdef_aero.md)
  * [Updates to post-processing tools: hr2day, sitecmp, and sitecmp_dailyo3; release of new post-processing tool: calc_tmetric.](postprocessing_tools.md)
 
