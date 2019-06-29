@@ -371,8 +371,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
     **>>COMMENT<<** Needs more description
 -   `CTM_WB_DUST [default: Y]`<a id=CTM_WB_DUST></a>  
     Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.
--   `CTM_ERODE_AGLAND [default: Y]`<a id=CTM_ERODE_AGLAND></a>  
-    Setting to use optional erodible agricultural land classifications for computing windblown dust emissions from agricultural land. Setting this variable to Y requires the availability of gridded crop timing data that describe planting start dates, planting end dates, and harvesting end dates for 18 crop types. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the CROPMAP01, CROPMAP04, and CROPMAP08 input files. If CTM_WB_DUST is set to N, this setting will be ignored. Set to Y to turn on; comment out variable or set to N to turn off.
 -   `CTM_WBDUST_BELD [default: BELD3]`<a id=CTM_WBDUST_BELD></a>
     Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = N`
     - `BELD3`  
