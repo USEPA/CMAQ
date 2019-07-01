@@ -110,8 +110,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `EXEC_ID`<a id=EXEC_ID></a>
     build tag, should be automatically set by config_cmaq.csh
 
--   `CMAQ_REPO` <a id=CMAQ_REPO></a>
-**>>COMMENT<<** Needs description
+-   `CMAQ_REPO` <a id=CMAQ_REPO></a> This is where the config_cmaq.csh script is located. It is also the root directory for all the executables. It may include the repository if the user is building CMAQ inside the repository. It may, on the other hand, be outside the repository if the user has created a separate project directory where they wish to put build- and run-scripts as well as executables.
 
 <a id=bldit_cctm.csh></a>
 ## A.2 Compilation Options (bldit_cctm.csh)
