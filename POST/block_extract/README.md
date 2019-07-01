@@ -7,7 +7,7 @@ This Fortran program extracts time series of 1 or more variables from 1 or more 
 ```
 where VAR1 VAR2 ... are the variable names specified by SPECLIST.
 
-##Environment variables used:
+## Environment variables used:
 
 ```
   SPECLIST      list of species to extract, e.g. set SPECLIST = ( O3 NO2 ).  "ALL" is supported also.
