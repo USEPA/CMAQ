@@ -430,7 +430,7 @@ Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The NLDN lightning strikes file is used for calculating online NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
- **Table 4-4**
+ **Table 4-4** Variables in hourly observed lightning strike file.
 
 |**Variable Name**|**Description**|**Units**|**Required**|
  |--------|-------------------|--------------|-----------|
@@ -448,7 +448,7 @@ This file can be downloaded from the [CMAS Data Warehouse](https://drive.google.
 
 This file contains the following variables interpolated to the modeling grid:
 
-**Table 4-5**
+**Table 4-5** Variables in lightning parameters file.
 
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
