@@ -44,9 +44,7 @@ CMAQ can use boundary conditions derived from global chemistry models (GCMs). Wh
 
 The configuration options for BCON include choosing whether the boundary conditions are generated from an existing CCTM output file or from an ASCII profile, and defining the horizontal and vertical grids and time period for which boundary conditions are to be generated. Information on configuring BCON for the different kinds of input data, environment variables, input and output files, compiling and running BCON are provided in the [README.md](../../PREP/bcon/README.md) file in the PREP/bcon folder.
 
-### 4.1.4 Windblown Dust (Optional Pre-Processor)
-
-### 4.1.5 External Software Programs for Preparing CMAQ Inputs
+### 4.1.4 External Software Programs for Preparing CMAQ Inputs
 The SMOKE and FEST-C modeling systems and the Spatial Allocator tools are used to create CMAQ emissions and land surface inputs. These systems are maintained by EPA and CMAS developers and are hosted and supported by the CMAS Center.  Links to documentation and software download for each system are provided below. 
 
 #### Emissions Processor (SMOKE) 
