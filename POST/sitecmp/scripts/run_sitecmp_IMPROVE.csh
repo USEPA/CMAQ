@@ -161,6 +161,9 @@
 #> This file can be downloaded from
 #> https://github.com/USEPA/AMET/tree/1.4/obs/AQ/site_metadata_files
  setenv SITE_FILE IMPROVE_full_site_list.csv
+#> On EPA system:
+#  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/IMPROVE_full_site_list.csv
+
 
 #> input table containing site-id, time-period, and data fields
 #> AQS obs data in the format needed for sitecmp are available 
@@ -168,6 +171,9 @@
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE IMPROVE_data_2016.csv
+#> One EPA system:
+#  setenv IN_TABLE /work/MOD3EVAL/aq_obs/routine/2016/IMPROVE_data_2016.csv
+
 
 #############################################################
 #  Output files

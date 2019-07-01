@@ -119,6 +119,8 @@
 #> This file can be downloaded from
 #> https://github.com/USEPA/AMET/tree/1.4/obs/AQ/site_metadata_files
  setenv SITE_FILE CASTNET_full_site_list.csv
+#> On EPA system:
+#  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/CASTNET_full_site_list.csv
 
 #> input table containing site-id, time-period, and data fields
 #> CASTNET obs data in the format needed for sitecmp_dailyo3 are available 
@@ -126,6 +128,9 @@
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly CASTNET observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CASTNET_hourly_data_2016.csv
+#> One EPA system:
+#  setenv IN_TABLE /work/MOD3EVAL/aq_obs/routine/2016/CASTNET_hourly_data_2016.csv
+
 
 #############################################################
 #  Output files
