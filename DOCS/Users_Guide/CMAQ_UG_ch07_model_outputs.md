@@ -7,7 +7,7 @@
 
 # 7. Model Output Files
 
-In this section, details on the CCTM output files are provided. All CMAQ programs produce model output files that adhere to the netCDF format.  In addition to model data output, CMAQ can optionally produce ASCII log files that contain intermediate model execution information from the various CMAQ processes and captured with respect to processor number. If the log file option is not selected by the user and the simulation is run interactively, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
+In this section, details on the CCTM output files are provided. All CMAQ programs produce model output files that adhere to the netCDF format. In addition to model data output, CMAQ can optionally produce ASCII log files that contain intermediate model execution information from the various CMAQ processes and captured with respect to processor number. If the log file option is not selected by the user and the simulation is run interactively, CMAQ will write all the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax.
 
 <a id=Output_Table></a>
 
@@ -101,7 +101,7 @@ There are several files created by the CCTM that are used to enable a restart of
 ### CCTM_CGRID: gridded concentration restart file
 [Return to Table 7-1](#cgrid_t)
 
-The 3-D CCTM ending concentration filecontains gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>) at the end of each simulation period. The number and types of species contained in the output CGRID files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. This file can be used to initialize CCTM from a simulation period that the model completed. For example, if the CCTM is configure to produce daily output files, a CGRID file will be written out at the end of each simulation day. These concentrations then become the initial conditions for the next simulation period.
+The 3-D CCTM ending concentration file contains gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>) at the end of each simulation period. The number and types of species contained in the output CGRID files depend on the chemical mechanism and aerosol model configurations that are selected when CCTM is compiled. This file can be used to initialize CCTM from a simulation period that the model completed. For example, if the CCTM is configuring to produce daily output files, a CGRID file will be written out at the end of each simulation day. These concentrations then become the initial conditions for the next simulation period.
 
 <a id=media></a>
 ### CCTM_MEDIA: Bidirectional modeling media concentration file
@@ -131,16 +131,16 @@ This optional ASCII file contains specific gridcells/timesteps in which species 
 [Return to Table 7-1](#pmdiag_t)
 
 This optional 2-D CCTM diagnostic file contains instantaneous information at the end of the hour for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
-It also inlcudes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmissio factor for each mode. Many diagnostics relating to hetereogenous chemistry are provided inlcuding the N<sub>2</sub>O<sub>5</sub> reaction probability, 
-the ClNO<sub>2</sub> reaction yield, and the IEPOX updake coefficinet. Units for all variables are specified in the output file. This file is only created if the CTM_APMDIAG environment variable is set to Y (Default is N).
+It also includes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmission factor for each mode. Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, 
+the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. This file is only created if the CTM_APMDIAG environment variable is set to Y (Default is N).
 
 <a id=apmdiag></a>
 ### CCTM_APMDIAG: average hourly aerosol diagnostics file
 [Return to Table 7-1](#apmdiag_t)
 
 This optional 2-D CCTM diagnostic file contains integral average information for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
-It also inlcudes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmissio factor for each mode. Many diagnostics relating to hetereogenous chemistry are provided inlcuding the N<sub>2</sub>O<sub>5</sub> reaction probability, 
-the ClNO<sub>2</sub> reaction yield, and the IEPOX updake coefficinet. Units for all variables are specified in the output file. This file is only created if the CTM_APMDIAG environment variable is set to Y (Default is N).
+It also includes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmission factor for each mode. Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, 
+the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. This file is only created if the CTM_APMDIAG environment variable is set to Y (Default is N).
 
 <a id=b3gts></a>
 ### CCTM_B3GTS_S: biogenic emissions diagnostic file
@@ -200,13 +200,13 @@ This optional 3-D CCTM file contains diagnostic output of the vertical dispersio
 ### CCTM_VSED_DIAG: gravitational settling diagnostic file
 [Return to Table 7-1](#vsed_diag_t)
 
-This optional 3-D CCTM file contains diagnostic output of particle gravitational settling velocities (m s<sup>-1</sup>). This file is created in addition to the vertical dispersion paramet er file if both the VDIFF_DIAG_FILE environment variable and the gravitational sedimentation environment variable (CTM_GRAV_SETL) are set to Y (Default is N).
+This optional 3-D CCTM file contains diagnostic output of particle gravitational settling velocities (m s<sup>-1</sup>). This file is created in addition to the vertical dispersion parameter file if both the VDIFF_DIAG_FILE environment variable and the gravitational sedimentation environment variable (CTM_GRAV_SETL) are set to Y (Default is N).
 
 <a id=ltngdiag1></a>
 ### CCTM_LTNGHRLY: hourly lightning emissions file
 [Return to Table 7-1](#ltngdiag1_t)
 
-This optional 3-D CCTM file contains hourly lightning NO emissions (mol/s) calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_1 environment variable is set to Y (Dfault is N).
+This optional 3-D CCTM file contains hourly lightning NO emissions (mol/s) calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_1 environment variable is set to Y (Default is N).
 
 <a id=ltngdiag2></a>
 ### CCTM_LTNGCOL: hourly column total lightning emissions
