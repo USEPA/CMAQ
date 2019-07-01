@@ -19,8 +19,16 @@
  cd ../../..
  source ./config_cmaq.csh
 
-#> Set the model version
- set VRSN = v53
+#> Set General Parameters for Configuring the Simulation
+ set VRSN      = v53               #> Code Version
+ set PROC      = mpi               #> serial or mpi
+ set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set APPL      = SE53BENCH         #> Application Name (e.g. Gridname)
+                                                      
+#> Define RUNID as any combination of parameters above or others. By default,
+#> this information will be collected into this one string, $RUNID, for easy
+#> referencing in output binaries and log files as well as in other scripts.
+ setenv RUNID  ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
@@ -31,7 +39,13 @@
 #> Set the name of the executable.
  setenv EXEC sitecmp_dailyo3_${VRSN}.exe
 
+#> Set output directory
+ setenv POSTDIR    ${CMAQ_DATA}/POST   #> Location where sitecmp_dailyo3 file will be written
 
+  if ( ! -e $POSTDIR ) then
+	  mkdir $POSTDIR
+  endif
+  
 # =====================================================================
 #> SITECMP_DAILYO3 Configuration Options
 # =====================================================================
@@ -49,8 +63,8 @@
  setenv OBS_FACTOR "1"    # Multiply by 1000 to convert ppm to ppb
 
 #> define time window
- setenv SDATE "2011-07-01"    #> beginning date (July 1, 2011)
- setenv EDATE "2011-07-02"  #> ending date    (July 2, 2011)
+ setenv SDATE "2016-07-01"    #> beginning date (July 1, 2011)
+ setenv EDATE "2016-07-14"  #> ending date    (July 14, 2011)
  setenv START_TIME 0      
  setenv END_TIME   230000   
 
@@ -91,7 +105,7 @@
 #############################################################
 
 #> ioapi input files containing VNAMES (max of 10)
- setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
         #[Add location of input file, e.g. COMBINE_ACONC file.]
 
 #> SITE FILE containing site-id, longitude, latitude, and optionally 
@@ -109,14 +123,14 @@
 #> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
- setenv IN_TABLE AQS_hourly_data_2011.csv
+ setenv IN_TABLE AQS_hourly_data_2016.csv
 
 #############################################################
 #  Output files
 #############################################################
 
 #> output table (comma delimited text file importable to Excel)
- setenv OUT_TABLE ${CMAQ_DATA}/POST/AQS_Daily_CMAQ_${VRSN}.csv
+ setenv OUT_TABLE ${POSTDIR}/AQS_Daily_CMAQ_${RUNID}_201607.csv
 
 
 #> Executable call:
