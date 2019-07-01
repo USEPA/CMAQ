@@ -83,14 +83,18 @@ In CMAQv5.2 and later versions, we have developed a true parallel I/O approach, 
 
 **Figure D-9. True parallel I/O approach**
 
-Users can turn on this feature by uncommenting the following line in bldit_cctm.csh at the model build step and link with IOAPI 3.2.
+To invoke this feature users have to re-build & build additional libraries not used with CMAQ traditionally as well as retain the traditional libraries with an exception of the IOAPI libraries downloaded in [Chapter 3](../CMAQ_UG_ch03_preparing_compute_environment.md). The additional libraries required by invoking this option include the PnetCDF library and the "mpi" version of the IOAPI library. 
 
-#set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf);
- 
-Users must also edit the CCTM run script by inserting MPI: in front of the output file path as shown below:
+**PnetCDF library**
 
-  setenv CTM_CONC_1      "MPI:$OUTDIR/CCTM_CONC_${CTM_APPL}.nc -v"       #> On-Hour Concentrations
-  
+The PnetCDF library is the parallel I/O implementation to complement the classical netCDF library. The PnetCDF library is available for download at https://parallel-netcdf.github.io/ users should find and follow the instructions for proper installation given on the website. Users should install a stand alone PnetCDF library using MPI Fortran 90 and C compilers. After successful installation, check the environment PATH & LD_LIBRARY_PATH to ensure that the paths have been updated to include the path of the PnetCDF libraries and bin. Note you may have to set these paths manually if not set, and these paths must be loaded every time you start a new shell. Note: you should not re-build your netCDF library at this point, within CMAQ they interact as two stand alone libraries. 
+
+**IOAPI library**
+
+The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32.
+
+The general steps for installation of IOAPI libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
+
 This approach also requires installation of "mpi" IOAPI libraries as shown below (note these steps should be followed after completing the steps in Chapter 3 section 3.2.3): 
 
 ```
@@ -110,6 +114,29 @@ make configure
 make
 ```
 
+After building the reqiured libraries, users must build CCTM. Before compilation of CCTM, users must turn on this feature by uncommenting the following line in bldit_cctm.csh at the model build step and link with IOAPI 3.2.
+
+#set MakefileOnly                      #> uncomment to build a Makefile, but do not compile;
+#set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf);
+
+After building the BLD directory (where the Makefile lives), change to this directory and edit the Makefile to include PNETCDF and the correct IOAPI BIN. An example of these edits are shown below: 
+
+```
+LIB = /home/CMAQ_PIO/CMAQ_libs
+include_path = -I /home/CMAQ_PIO/CMAQ_libs/ioapi_3.2/Linux2_x86_64ifortmpi \
+               -I /home/CMAQ_PIO/CMAQ_libs/ioapi_3.2/ioapi/fixed_src \
+               -I $(LIB)/mpi/include -I.
+
+ IOAPI  = -L/home/CMAQ_PIO/CMAQ_libs/ioapi_3.2/Linux2_x86_64ifortmpi -lioapi
+ NETCDF = -L$(LIB)/netcdf/lib -lnetcdf -lnetcdff
+ PNETCDF = -L$(LIB)/pnetcdf/lib -lpnetcdf
+ LIBRARIES = $(IOAPI) $(NETCDF) $(PNETCDF)
+```
+ 
+Lastly, users must also edit the CCTM run script by inserting MPI: in front of the output file path as shown below:
+
+  setenv CTM_CONC_1      "MPI:$OUTDIR/CCTM_CONC_${CTM_APPL}.nc -v"       #> On-Hour Concentrations
+  
 For further directions on installation of PIO please contact David Wong at wong.david-c@epa.gov
 
 ### Reference:
