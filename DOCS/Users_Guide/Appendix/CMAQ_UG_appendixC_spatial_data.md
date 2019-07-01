@@ -8,11 +8,11 @@
 
 ## Geospatial Data
 
-Air quality modeling requires many spatial data in order to generate anthropogenic,
+Air quality modeling requires many spatial data to generate anthropogenic,
 biogenic, fire, sea salt, dust, and NH3 emissions. In addition, land surface characteristics such as
 land cover types with vegetation leaf area index (LAI) and fraction, albedo, and soil types are required in
 modeling the exchanges of heat, moisture, and momentum between the land and atmosphere and dry deposition
-of trace chemicals (e.g. O3 and NH3). It is important to use a consistent coordinate system for all of the
+of trace chemicals (e.g. O3 and NH3). It is important to use a consistent coordinate system for all the
 geospatial data used in emission, meteorology, and air quality modeling. Most of the geospatial data
 required for the Sparse Matrix Operator Kernel Emissions (SMOKE)/Weather Research and Forecasting
 (WRF)/CMAQ modeling can be generated using the Spatial Allocator (SA) that includes three components
@@ -89,7 +89,7 @@ level reports from the National Fire and Aviation Management web application.  B
 be obtained from GIS based sources such as the Geospatial Multi-Agency Coordination (GeoMac) website or
 the U.S. National Historical Fire Perimeters Data Basin Dataset.  Fuel loading is estimated using a
 geospatial dataset such as the US Forest Service Fuel Characteristic Classification System (FCCS).
-All of these information sources can be used to estimate fire emissions. An example of a tool that can
+All these information sources can be used to estimate fire emissions. An example of a tool that can
 be used to generate fire emissions is the BlueSky modeling framework.  BlueSky modularly links a variety
 of independent models of fire information, fuel loading, fire consumption, fire emissions, and smoke
 dispersion.  Using these tools and estimating fire emissions can be quite complex so datasets of fire
@@ -109,7 +109,7 @@ the National Center for Atmospheric Research (FINN) or the Global Fire Emissions
  cells in an I/O API file. For most of North American domain, a SA Vector allocation tool can be used
  to generate the surf zone and open ocean file from a polygon shapefile with land, surf zone buffer,
  and open ocean in SA data directory. For areas outside U.S., users have to generate a surf zone polygon
- shapefile with has the same attribute as the file in the SA in order to use the tool.
+ shapefile with has the same attribute as the file in the SA to use the tool.
 
 **Dust emissions** require the land use and vegetation fraction data. The land use data used for the
 biogenic emission modeling is also used for dust emission computation. In addition, MODIS fraction of
