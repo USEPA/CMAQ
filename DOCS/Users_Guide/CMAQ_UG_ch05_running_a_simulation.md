@@ -61,17 +61,17 @@ After downloading the source codes the user is encouraged to look through the re
 
 In this image it can be seen that there four main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). 
 
-The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, Release Notes and Known issuse associated with the current release and a Develpers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
+The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, Release Notes and Known issues associated with the current release and a Developers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
 
 The third folder in the repository is the POST folder which contains several very useful tools for post-processing of the input/output data files. Each tool within the folder comes wth the source code, scripts and a README used to run the tool. A technical description of the tools within this folder can be found in [Chapter 8](CMAQ_UG_ch08_analysis_tools.md).
 
 The fourth folder in the repository is the PREP folder which contains several pre-processing programs that can be run before the CCTM to prepare meteorology, initial conditions and boundary conditions inputs. Similar to the POST tools, documentation on compiling and running the programs is provided within each subfolder under PREP.
 
-The last folder within the repository is the UTIL folder which contains useful utilities relating to the CMAQ program suite. An example is the bldmake utility which is used to compile the source code into executables when you use any of the build scripts in the CMAQ repository. Also included in this repository is a top level README file with an overview of the contents of the release and two additional C-Shell scripts, `bldit_project.csh` and `config_cmaq.csh`.  `bldit_project.csh` allows the user to extract the build and run scripts and compile the model outside of the repository, while `config_cmaq.csh` helps enforce consistent environment setting for the CMAQ project. Both these scripts will be discussed in the following sections.
+The last folder within the repository is the UTIL folder which contains useful utilities relating to the CMAQ program suite. An example is the bldmake utility which is used to compile the source code into executables when you use any of the build scripts in the CMAQ repository. Also included in this repository is a top-level README file with an overview of the contents of the release and two additional C-Shell scripts, `bldit_project.csh` and `config_cmaq.csh`.  `bldit_project.csh` allows the user to extract the build and run scripts and compile the model outside of the repository, while `config_cmaq.csh` helps enforce consistent environment setting for the CMAQ project. Both these scripts will be discussed in the following sections.
 
 ## 5.4 Building CMAQ Outside of the Repository in a User-Specified Directory
 
-When cloning the repository or unpacking the tar file of the CMAQ distribution, the top-level directory is recognized by the default build and run scripts as `CMAQ_HOME` (formerly M3HOME prior to CMAQv5.2). This directory is an arbitrary base location of the CMAQ installation on your Linux system for a specific application. If the user will build and run CMAQ within the repository folder structure, then `CMAQ_HOME` does not need to be set explicitly in the `bldit_project.csh` script. If, on the other hand, the user wishes to extract the build and run scripts and compile the model outside of the repository, then `CMAQ_HOME` will need to be specified in `bldit_project.csh`. Executing `bldit_project.csh` will automatically perform this extraction and create a CMAQ folder structure under the location now specified by `CMAQ_HOME`. To perform this operation modify the variable `CMAQ_HOME` in the `bldit_project.csh ` script to identify the folder that you would like to install the CMAQ package under. For example:
+When cloning the repository or unpacking the tar file of the CMAQ distribution, the top-level directory is recognized by the default build and run scripts as `CMAQ_HOME` (formerly M3HOME prior to CMAQv5.2). This directory is an arbitrary base location of the CMAQ installation on your Linux system for a specific application. If the user will build and run CMAQ within the repository folder structure, then `CMAQ_HOME` does not need to be set explicitly in the `bldit_project.csh` script. If, on the other hand, the user wishes to extract the build and run scripts and compile the model outside of the repository, then `CMAQ_HOME` will need to be specified in `bldit_project.csh`. Executing `bldit_project.csh` will automatically perform this extraction and create a CMAQ folder structure under the location now specified by `CMAQ_HOME`. To perform this operation, modify the variable `CMAQ_HOME` in the `bldit_project.csh ` script to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
 set CMAQ_HOME = /home/username/CMAQ_v5.3
@@ -89,7 +89,7 @@ It should be noted that from now on, the other CMAQ directories are referenced r
 
 Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly CMAQ includes the configuration script `config_cmaq.csh` to help enforce consistent environment settings for CMAQ and its associated libraries [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md) lists the `config_cmaq.csh` variables defined for the build process and suggests values to which to set those variables.
 
-Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpiifort (for Intel compiler and for GNU and PGI fortran compiler, use mpifort) be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build without anything provided by the user explicityly.
+Note that for multiprocessor applications it is recommended that the Fortran MPI wrapper script mpifort (for Intel compiler and for GNU and PGI fortran compiler, use mpifort) be specified for the Fortran compiler (myFC). Using this script, instead of a direct call to the Fortran compiler, will ensure that the full suite of MPI components (libraries and include files) for the compiler are included in the parallel build without anything provided by the user explicitly.
 
 Use the following steps to initialize your CMAQ environment:
 
@@ -97,7 +97,7 @@ Use the following steps to initialize your CMAQ environment:
 source config_cmaq.csh [compiler]
 ```
 
-After running the above command it should be noticed now under CMAQ_HOME, the data file directory has been created and serves as a container for the input and output data for the model, and the lib directory contains links to the compiled binary library files required to build the CMAQ executables. The CMAQ scripts use the following environment variables to alias the locations of these directories:
+After running the above command, it should be noticed now under CMAQ_HOME, the data file directory has been created and serves as a container for the input and output data for the model, and the lib directory contains links to the compiled binary library files required to build the CMAQ executables. The CMAQ scripts use the following environment variables to alias the locations of these directories:
 
 
 `CMAQ_LIB   = $CMAQ_HOME/lib` (M3LIB before CMAQv5.2)<br>
@@ -145,14 +145,14 @@ make clean
 make DEBUG=TRUE
 ```
 
-In another example, if the user has made any changes to the source codes in the BLD directory and wanted to update the CCTM executable to reflect these changes the uesr can use the following commands:
+In another example, if the user has made any changes to the source codes in the BLD directory and wanted to update the CCTM executable to reflect these changes the user can use the following commands:
 
 ```
 cd BLD_CCTM_v53_[compiler][version]
 make
 ```
 
-The Make utility is smart enough to compiled only the modified files and all associated file which are defined by the dedependency of each source file in the Makefile.
+The Make utility is smart enough to compiled only the modified files and all associated file which are defined by the dependency of each source file in the Makefile.
 
 ## 5.7 Running CCTM
 
@@ -192,7 +192,7 @@ Existing Logs and Output Files for Day YYYY-MM-DD Will Be Deleted
 
 CMAQ Processing of Day 20140620 Began at Tue Apr  9 08:18:07 EDT 2019
 ```
-This section documents the folder structure, username, and run date for the simulation, and is meant to aid in maintaining transparency of simulation results after runs have been completed. This section is followed by the CMAQ and I/O-API headers, and a record of all envrionment variables and their values for this simulation.
+This section documents the folder structure, username, and run date for the simulation, and is meant to aid in maintaining transparency of simulation results after runs have been completed. This section is followed by the CMAQ and I/O-API headers, and a record of all environment variables and their values for this simulation.
 
 Next, the program outputs a table describing the domain decomposition breakdown for the run.  
 ```
@@ -353,7 +353,7 @@ Then, as the time-dependent portion of the model begins, output is provided for 
             Master Time Step
             Processing completed...    8.0 seconds
 ```
-This section documents the date and time the model is currently processing allong with the time spent calculating every major sub-process. At the end of each simulation hour, the calculation time is also printed for the output process.
+This section documents the date and time the model is currently processing along with the time spent calculating every major sub-process. At the end of each simulation hour, the calculation time is also printed for the output process.
 ```
     Processing Day/Time [YYYYDDD:HHMMSS]: 2015274:005500
        Which is Equivalent to (UTC): 0:55:00  Thursday,  Oct. 1, 2015
