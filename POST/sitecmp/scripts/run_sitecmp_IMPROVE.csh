@@ -84,7 +84,7 @@
  setenv AERO_10 "CM_calculated_val,ug/m3,ATOTK,ug/m3,PMC_TOT"     # PM Course
 
 #> PM2.5 Sharp Cutoff Species
-#> Requires preprocessing using setenv AERODIAM file
+#> Requires preprocessing using setenv CCTM_APMDIAG file
  setenv AERO_11 "SO4f_val,ug/m3,PM25_SO4,,PM25_SO4"                 	# sulfate (< 2.5um)
  setenv AERO_12 "NO3f_val,ug/m3,PM25_NO3,,PM25_NO3"                 	# nitrate (< 2.5um)
  setenv AERO_13 "0.2903*NO3f_val+0.375*SO4f_val,ug/m3,PM25_NH4,,PM25_NH4"	# ammonium (< 2.5um)

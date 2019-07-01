@@ -95,7 +95,7 @@
  setenv GAS_20 ",,10*precip,mm/hr,precip"       
    
 #> PM2.5 Sharp Cutoff Species
-#> Requires preprocessing using AERODIAM file
+#> Requires preprocessing using CCTM_APMDIAG file
  setenv GAS_21 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"
  setenv GAS_22 "PM25,ug/m3,PM25_FRM,,PM25_FRM"     
 #>> End Species List <<#
@@ -151,7 +151,7 @@
 
 #> input table containing site-id, time-period, and data fields
 #> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
+#> from the CMAS Center Data clearinghouse under the heading "2000-2017 North American Air Quality Observation Data":
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE AQS_hourly_data_2016.csv
