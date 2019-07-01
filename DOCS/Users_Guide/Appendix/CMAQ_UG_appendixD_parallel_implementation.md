@@ -116,10 +116,12 @@ make
 
 After building the reqiured libraries, users must build CCTM. Before compilation of CCTM, users must turn on this feature by uncommenting the following line in bldit_cctm.csh at the model build step and link with IOAPI 3.2.
 
+```
 #set MakefileOnly                      #> uncomment to build a Makefile, but do not compile;
 #set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf);
+```
 
-After building the BLD directory (where the Makefile lives), change to this directory and edit the Makefile to include PNETCDF and the correct IOAPI BIN. An example of these edits are shown below: 
+After building the BLD directory (where the Makefile lives), change to this directory and edit the Makefile to include PNETCDF and the correct IOAPI BIN before compiling the code. An example of these edits are shown below: 
 
 ```
 LIB = /home/CMAQ_PIO/CMAQ_libs
