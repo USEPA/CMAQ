@@ -36,6 +36,13 @@
 #> needed to run bldoverlay.  The v5.2.1 repo also contains a sample input file.
  setenv REPO_HOME ${CMAQ_REPO}
 
+#> Set output directory
+ setenv POSTDIR    ${CMAQ_DATA}/POST                      #> Location where overlay file will be written
+
+  if ( ! -e $POSTDIR ) then
+	  mkdir $POSTDIR
+  endif
+
 # =====================================================================
 #> BLDOVERLAY Configuration Options
 # =====================================================================
@@ -82,7 +89,7 @@
 
 #> set input and output files.  A sample input file is provided with the CMAQv5.3 release.
  setenv INFILE ${REPO_HOME}/POST/bldoverlay/inputs/ozone_overlay_input_sample.csv
- setenv OUTFILE ${CMAQ_DATA}/overlay_${START_DATE}_${END_DATE}.nc
+ setenv OUTFILE ${POSTDIR}/overlay_${START_DATE}_${END_DATE}.nc
 
 #> Executable call: 
 ${BINDIR}/${EXEC}
