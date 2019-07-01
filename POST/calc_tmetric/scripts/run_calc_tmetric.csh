@@ -19,8 +19,16 @@
  cd ../../..
  source ./config_cmaq.csh
 
-#> Set the model version
- set VRSN = v53
+#> Set General Parameters for Configuring the Simulation
+ set VRSN      = v53               #> Code Version
+ set PROC      = mpi               #> serial or mpi
+ set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set APPL      = SE52BENCH         #> Application Name (e.g. Gridname)
+                                                      
+#> Define RUNID as any combination of parameters above or others. By default,
+#> this information will be collected into this one string, $RUNID, for easy
+#> referencing in output binaries and log files as well as in other scripts.
+ setenv RUNID  ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
@@ -30,6 +38,14 @@
 
 #> Set the name of the executable.
  setenv EXEC calc_tmetric_${VRSN}.exe
+
+
+#> Set output directory
+ setenv POSTDIR    ${CMAQ_DATA}/POST                      #> Location where output file will be written
+
+  if ( ! -e $POSTDIR ) then
+	  mkdir $POSTDIR
+  endif
 
 
 # =====================================================================
@@ -52,8 +68,8 @@
 #############################################################
 
 #> ioapi input files containing SPECIES_{N} (max of 366)
- setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
-# setenv M3_FILE_2 ${CMAQ_DATA}/POST/COMBINE_ACONC_201108.nc
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
+# setenv M3_FILE_2 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201608.nc
         #[Add location of input file, e.g. COMBINE_ACONC file.]
 
 #############################################################
@@ -61,7 +77,7 @@
 #############################################################
 
 #> ioapi output file
- setenv OUTFILE ${CMAQ_DATA}/POST/average_concentrations.nc
+ setenv OUTFILE ${POSTDIR}/average_concentrations_${RUNID}.nc
 
 #> Executable call:
  ${BINDIR}/${EXEC}
