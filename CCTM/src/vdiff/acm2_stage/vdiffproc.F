@@ -96,6 +96,10 @@ C-----------------------------------------------------------------------
       USE VDIFF_DIAG
       USE PA_DEFN, Only: LIPR ! Process Analysis control and data variables
 
+#ifdef isam
+      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
+#endif
+
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID  ! file name parameters
@@ -193,6 +197,15 @@ C Local Variables
             REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
+#ifdef isam
+         SUBROUTINE SA_OPWDDEP ( SADEPFILE, JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            CHARACTER( 16 ) SADEPFILE ! Dry or wet dep file for tags
+            INTEGER      JDATE      ! current model date, coded YYYYDDD
+            INTEGER      JTIME      ! current model time, coded HHMMSS
+            INTEGER      TSTEP      ! output time step
+         END SUBROUTINE SA_OPWDDEP
+#endif
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -224,6 +237,9 @@ C Initialize the met data
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
             CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+#ifdef isam
+            CALL SA_OPWDDEP ( SA_DD_1, JDATE, JTIME,TSTEP( 1 ) )
+#endif
             IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
          END IF
 
@@ -257,6 +273,15 @@ C Allocate and initialize dry deposition array
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+#ifdef isam
+         ALLOCATE ( SA_DDEP( NCOLS,NROWS,N_SPCTAG ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SA_DDEP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         SA_DDEP = 0.0
+#endif
 
 C Set up for process analysis
          IF ( LIPR ) THEN
@@ -675,6 +700,25 @@ C re-set dry deposition array to zero
             DDEPJ = 0.0   ! array assignment
             IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
          END IF
+
+#ifdef isam
+         WRDD = 0.0
+         DO ITAG = 1, N_SPCTAG
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  WRDD( C,R ) = SA_DDEP( C,R,ITAG )
+               END DO
+            END DO
+
+            IF ( .NOT. WRITE3( SA_DD_1, VNAM_SPCTAG( ITAG ),
+     &                         MDATE, MTIME, WRDD ) ) THEN
+               XMSG = 'Could not write ' // SA_DD_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+         END DO
+
+         SA_DDEP = 0.0
+#endif
 
       END IF
 
