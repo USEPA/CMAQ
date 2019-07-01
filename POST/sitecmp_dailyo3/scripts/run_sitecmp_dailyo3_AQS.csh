@@ -115,8 +115,8 @@
 #> The column headings for the optional variables need to be
 #> gmt_offset, state, county, and elevation (case insensitive)
 #> This file can be downloaded from
-#> https://github.com/USEPA/AMET/tree/1.2/obs/AQ/site_lists
- setenv SITE_FILE aqs_full_site_list.csv
+#> https://github.com/USEPA/AMET/tree/1.4b/obs/AQ/site_metadata_files
+ setenv SITE_FILE AQS_full_site_list.csv
 
 #> input table containing site-id, time-period, and data fields
 #> AQS obs data in the format needed for sitecmp_dailyo3 are available 
