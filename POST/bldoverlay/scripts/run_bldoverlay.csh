@@ -82,14 +82,14 @@
  setenv TZFILE ${REPO_HOME}/POST/bldoverlay/inputs/tz.csv
 
 #> species label to be used in overlay file
- setenv SPECIES 'O3,PM25,NO2'
+ setenv SPECIES 'O3,PM25,PM10,SO2,NO,NO2,NOX,NOY,CO'
 
 #> species units
- setenv UNITS 'ppb,ug/m^3,ppb'
+ setenv UNITS  'ppb,ug/m^3,ug/m^3,ppb,ppb,ppb,ppb,ppb,ppb'
 
 #> set input and output files.  A sample input file is provided with the CMAQv5.3 release.
- setenv INFILE ${REPO_HOME}/POST/bldoverlay/inputs/ozone_overlay_input_sample.csv
- setenv OUTFILE ${POSTDIR}/overlay_${START_DATE}_${END_DATE}.nc
+ setenv INFILE ${REPO_HOME}/POST/bldoverlay/inputs/AQS_overlay_input_sample.csv
+ setenv OUTFILE ${POSTDIR}/AQS_overlay_${START_DATE}_${END_DATE}.nc
 
 #> Executable call: 
 ${BINDIR}/${EXEC}
