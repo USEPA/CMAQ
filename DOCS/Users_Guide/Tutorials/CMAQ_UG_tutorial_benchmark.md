@@ -42,7 +42,7 @@ For instructions on installing CMAQ from Zip files, see [Chapter 5](../CMAQ_UG_c
 
 ## Check Out a new Branch in the CMAQ Repository 
 
-Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the master branch in the git repo. Thus it is beneficial to leave it unperturbed if possible.
+Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the master branch in the git repo. Thus, it is beneficial to leave it unperturbed if possible.
 ```
 cd CMAQ_REPO
 git checkout -b my_branch
@@ -109,7 +109,7 @@ The CMAQ benchmark test case is a single day simulation for July 1, 2016 on a 10
 
 ## Compiling CMAQ
 
-*Before proceeding, it should be noted that building the ICON and BCON executibles are optional steps when working specifically with the benchmark data. This is becuase the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](../CMAQ_UG_ch04_model_inputs.md).*   
+*Before proceeding, it should be noted that building the ICON and BCON executables are optional steps when working specifically with the benchmark data. This is because the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](../CMAQ_UG_ch04_model_inputs.md).*   
 
 Create the model executables for CCTM using the steps shown below. 
 
