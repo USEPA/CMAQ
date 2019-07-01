@@ -57,7 +57,6 @@
 # ~~~~~~~~~~~~ START NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
 #> The following environment variables will change depending on what 
 #> observation network is being matched with CMAQ output.
-#> This sample run script is set up for hourly data from AQS.
 #> See the README.md file in this folder for the settings to use for 
 #> the following networks: IMPROVE, CASTNET, CSN (formally STN), NADP
 #> SEARCH, AIRMON
