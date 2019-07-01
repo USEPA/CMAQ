@@ -9,7 +9,7 @@ Note that the configuration options below are just for the species definition pa
 ### SITECMP Configuration Options for AERONET
 ```
 # =====================================================================
-#> SITECMP Configuration Options for AERONET
+#> SITECMP Species List Configuration Options for AERONET
 # =====================================================================
 
 #> Set TABLE TYPE
@@ -58,7 +58,7 @@ Note that the configuration options below are just for the species definition pa
 ### SITECMP Configuration Options for AMON
 ```
 # =====================================================================
-#> SITECMP Configuration Options for AMON
+#> SITECMP Species List Configuration Options for AMON
 # =====================================================================
 
 #> Set TABLE TYPE
@@ -98,7 +98,7 @@ Note that the configuration options below are just for the species definition pa
 ### SITECMP Configuration Options for Hourly CASTNET data
 ```
 # =====================================================================
-#> SITECMP Configuration Options for Hourly CASTNET data
+#> SITECMP Species List Configuration Options for Hourly CASTNET data
 # =====================================================================
 
 #> Set TABLE TYPE
@@ -142,7 +142,7 @@ Note that the configuration options below are just for the species definition pa
 ### SITECMP Configuration Options for Weekly CASTNET data
 ```
 # =====================================================================
-#> SITECMP Configuration Options for Weekly CASTNET data
+#> SITECMP Species List Configuration Options for Weekly CASTNET data
 # =====================================================================
 
 #> Set TABLE TYPE
@@ -208,7 +208,7 @@ Note that the configuration options below are just for the species definition pa
 #### CSN for 2009 and earlier
 ```
 # ==================================================================
-#> Runtime Environment Options for CSN (formally STN) 
+#> Runtime Species List Environment Options for CSN (formally STN) 
 #
 #> There are three formats of the CSN observed data .csv files.  
 #> The number of columns and the column names changes across the 
@@ -292,7 +292,7 @@ Note that the configuration options below are just for the species definition pa
 #### CSN for 2010
 ```
 # ==================================================================
-#> Runtime Environment Options for CSN (formally STN) 
+#> Runtime Species List Environment Options for CSN (formally STN) 
 #
 #> There are three formats of the CSN observed data .csv files.  
 #> The number of columns and the column names changes across the 
@@ -375,7 +375,7 @@ Note that the configuration options below are just for the species definition pa
 #### CSN for 2011-2013
 ```
 # ==================================================================
-#> Runtime Environment Options for CSN (formally STN) 
+#> Runtime Species List Environment Options for CSN (formally STN) 
 #
 #> There are three formats of the CSN observed data .csv files.  
 #> The number of columns and the column names changes across the 
@@ -458,7 +458,7 @@ Note that the configuration options below are just for the species definition pa
 #### CSN for 2014 and later
 ```
 # ==================================================================
-#> Runtime Environment Options for CSN (formally STN) 
+#> Runtime Species List Environment Options for CSN (formally STN) 
 #
 #> There are three formats of the CSN observed data .csv files.  
 #> The number of columns and the column names changes across the 
@@ -545,7 +545,7 @@ Note that the configuration options below are just for the species definition pa
 ### SITECMP Configuration Options for IMPROVE
 ```
 # =====================================================================
-#> SITECMP Configuration Options for IMPROVE
+#> SITECMP Species List Configuration Options for IMPROVE
 # =====================================================================
 #> Set TABLE TYPE
  setenv TABLE_TYPE IMPROVE
@@ -623,7 +623,7 @@ Note that the configuration options below are just for the species definition pa
 ### SITECMP Configuration Options for NADP
 ```
 # =====================================================================
-#> SITECMP Configuration Options for NADP
+#> SITECMP Species List Configuration Options for NADP
 # =====================================================================
 #> Set TABLE TYPE
  setenv TABLE_TYPE NADP
@@ -706,7 +706,7 @@ Note that the configuration options below are just for the species definition pa
 #### Hourly SEARCH for 2004 and earlier
 ```
 # ==================================================================
-#> Runtime Environment Options for Hourly SEARCH 
+#> Runtime Species List Environment Options for Hourly SEARCH 
 #
 #> There are four formats of the SEARCH observed hourly data .csv files.  
 #> The number of columns and the column names changes across the time 
@@ -771,7 +771,7 @@ Note that the configuration options below are just for the species definition pa
 
 
 # ==================================================================
-#> Hourly SEARCH for 2005 
+#> Hourly Species List SEARCH for 2005 
 # ==================================================================
 #> Set TABLE TYPE
  setenv TABLE_TYPE CASTNET
@@ -827,7 +827,7 @@ Note that the configuration options below are just for the species definition pa
 # ==================================================================
 
 # ==================================================================
-#> Hourly SEARCH for 2006 to 2010
+#> Hourly Species List SEARCH for 2006 to 2010
 # ==================================================================
 
 #> Set TABLE TYPE
@@ -901,7 +901,7 @@ Note that the configuration options below are just for the species definition pa
 # ==================================================================
 
 # ==================================================================
-#> Hourly SEARCH for 2011 and later
+#> Hourly Species List SEARCH for 2011 and later
 # ==================================================================
 
 #> Set TABLE TYPE
@@ -956,7 +956,7 @@ Note that the configuration options below are just for the species definition pa
 #### Daily SEARCH for 2007 and earlier
 ```
 # ==================================================================
-#> Runtime Environment Options for Daily SEARCH 
+#> Runtime Species List  Environment Options for Daily SEARCH 
 #
 #> There are two formats of the SEARCH observed daily data .csv files.  
 #> The number of columns and the column names changes across the time 
@@ -1017,7 +1017,7 @@ Note that the configuration options below are just for the species definition pa
 #> program need to be changed accordingly.
 # ==================================================================
 # ==================================================================
-#> Daily SEARCH for 2008 and later
+#> Daily Species List SEARCH for 2008 and later
 # ==================================================================
 
 #> Set TABLE TYPE
