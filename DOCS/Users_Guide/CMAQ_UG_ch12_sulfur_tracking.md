@@ -14,7 +14,7 @@ CMAQv5.2 includes an optional diagnostic model configuration that provides detai
 
 The CMAQv5.2 STM installation includes a build script for compiling a version of the CCTM instrumented with the Sulfur Tracking Model.
 
-For installing CMAQ-STM, first download, install, and build the base version of the model]. Then download the CMAQ STM tar file and untar into the CMAQv5..2 home directory:
+For installing CMAQ-STM, first download, install, and build the base version of the model]. Then download the CMAQ STM tar file and untar into the CMAQv5.2 home directory:
 
 ```
  cd $M3HOME/../
