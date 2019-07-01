@@ -18,7 +18,7 @@ In this section, details on the CCTM output files are provided. All CMAQ program
 |**Standard**| | | |
 |[Output Log](#cmaq_output_log) <a id=cmaq_output_log_t></a>|ASCII|n/a|n/a
 |[CCTM_CONC](#conc)<a id=conc_t></a>|GRDDED3|Hourly|XYZ
-|[CCTM_CONC](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|XY
+|[CCTM_ACONC](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|XY
 |[CCTM_DRYDEP](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly|XY
 |[CCTM_WETDEP1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly|XY
 |**Restart**| | | |
