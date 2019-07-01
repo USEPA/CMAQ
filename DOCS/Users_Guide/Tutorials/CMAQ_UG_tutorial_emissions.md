@@ -6,7 +6,7 @@ of their emission streams. For additional questions, contact Ben Murphy (murphy.
 ------------
 
 ### Definitions of Terms
-- Stream: an Online emission source or a group of sources processed offline and read into CMAQ from one file. Common
+- Stream: An Online emission source or a group of sources processed offline and read into CMAQ from one file. Common
 examples of streams include biogenic VOCs, mobile sources, wind-blown dust, prescribed fires, electric-generating units,
 residential heating, etc.  
 - Species: A variable representing a chemical compound or group of compounds in CMAQ.  
@@ -36,7 +36,7 @@ residential heating, etc.
 Emission streams can be zeroed using the options for individual streams in the CMAQ RunScript or creating rules in the Emission Control Namelist.
 
 ##### a. Using Options in the CMAQ RunScript
-For gridded or inline emissions, just reduce the value of N_EMIS_GR or N_EMIS_PT, respectively and adjust the values of the filepaths and stream labels accordingly, if necessary.
+For gridded or inline emissions, just reduce the value of N_EMIS_GR or N_EMIS_PT, respectively and adjust the values of the file paths and stream labels accordingly, if necessary.
 
 To zero Sea Spray aerosol emissions,
 ```
@@ -190,11 +190,11 @@ The user may elect to conserve moles or mass instead of applying factors directl
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'EVERYWHERE'  , 'All'         ,'CO'     ,'ANO3'        ,'FINE' ,0.15 ,'MASS','a',
 ```
-will add 15% of CO emissions to the emissions of fine-mode particulate nitrate, but the scale factor will also be adjusted by multiplying by the molecular weight of CO in order to conserve mass.
+will add 15% of CO emissions to the emissions of fine-mode particulate nitrate, but the scale factor will also be adjusted by multiplying by the molecular weight of CO to conserve mass.
 
-Reminder: gas-phase emission rates are usually provided to CMAQ in molar units while particle emissions are usually provided in mass. Note that if the user scales a particle species to a gas surrogate, or vice-versa, it is important in most cases to choose either "MASS" or "MOLE" appropriately for the Basis in order to ensure proper unit conversions. 
+Reminder: gas-phase emission rates are usually provided to CMAQ in molar units while particle emissions are usually provided in mass. Note that if the user scales a particle species to a gas surrogate, or vice-versa, it is important in most cases to choose either "MASS" or "MOLE" appropriately for the Basis to ensure proper unit conversions. 
 
-If the user is scaling one gas species to another gas surrogate, both will likely have molar emissions units. In this case, selecting "MOLE" as the basis will be equivalent to selecting "UNIT". In other words, there will be no modification of the user-defined scale factor due to unit conversion concerns. If however, "MASS" is selected, then the scale factor will be modified by first multiplying by the molecular weight of the surrogate and then dividing by the molecular weight of the CMAQ species.
+If the user is scaling one gas species to another gas surrogate, both will likely have molar emissions units. In this case, selecting "MOLE" as the basis will be equivalent to selecting "UNIT". In other words, there will be no modification of the user-defined scale factor due to unit conversion concerns. If, however, "MASS" is selected, then the scale factor will be modified by first multiplying by the molecular weight of the surrogate and then dividing by the molecular weight of the CMAQ species.
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
@@ -443,7 +443,7 @@ setenv OCEAN_MASKS 12US1_surf_bench.nc #> horizontal grid-dependent surf zone fi
 setenv STATES_FILE state_boundaries.nc #> horizontal grid-dependent surf zone file
 ```
 
-The Run Script also includes a number of variable used for specifying information at the stream level.
+The Run Script also includes a number of variables used for specifying information at the stream level.
 ```
 #> Gridded Emissions Files 
 setenv N_EMIS_GR 1
