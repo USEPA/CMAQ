@@ -206,31 +206,37 @@ C-------------------------------------------------------------------------------
                         End If
                      End If
                   End Do ! e2c_cats
-                  If ( Tot_Ag .ge. 1.0e-6 .And. ! ~ 1.5 ha per grid cell
-     &                 MHp1( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
-     &                 MHp1( c,r ) / Tot_Ag .Lt. 1.0e-4 .And.
-     &                 MHp2( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
-     &                 MHp2( c,r ) / Tot_Ag .Lt. 1.0e-4 ) Then
+                  If ( Tot_Ag .ge. 1.0e-6 ) then
+                     If ( MHp1( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
+     &                    MHp1( c,r ) / Tot_Ag .Lt. 1.0e-4 .And.
+     &                    MHp2( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
+     &                    MHp2( c,r ) / Tot_Ag .Lt. 1.0e-4 ) Then
 ! get the agricultrual only relevant number
-                     MHp1( c,r ) = MHp1( c,r ) / Tot_Ag
-                     MHp2( c,r ) = MHp2( c,r ) / Tot_Ag
-                     gamma1( c,r ) = gamma1( c,r ) / Tot_Ag
-                     gamma2( c,r ) = gamma2( c,r ) / Tot_Ag
+                        MHp1( c,r ) = MHp1( c,r ) / Tot_Ag
+                        MHp2( c,r ) = MHp2( c,r ) / Tot_Ag
+                        gamma1( c,r ) = gamma1( c,r ) / Tot_Ag
+                        gamma2( c,r ) = gamma2( c,r ) / Tot_Ag
 ! Set a minimum Gamma for Ag based off of Zhang et al. 2010
 !                     gamma1( c,r ) = max( gamma1( c,r ), 630.0 )
 !                     gamma2( c,r ) = max( gamma2( c,r ), 630.0 )
-                     If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or.
-     &                    IsNaN( MHp2( c,r ) ) .Or. IsNaN( MHp2( c,r ) ) ) Then
-                        xmsg = 'NaN in grid cell Gamma Calculation'
-                        Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
-                     End If
-                     tcec1         = tcec1 / Tot_Ag
-                     tcec2         = tcec2 / Tot_Ag
-                     fcec1(c,r)    = max(0.3, 1.0-0.038*tcec1) ! from EPIC (Wiliams 1995)
-                     fcec2(c,r)    = max(0.3, 1.0-0.038*tcec2)
-                     if(r.eq.18.and.c.eq.27) then
-                         Write(Logdev,*) ' Bidi-Epic soil data'
-                         Write(Logdev,*) gamma1(c,r),gamma2(c,r),fcec1(c,r),tcec1
+                        If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or.
+     &                       IsNaN( MHp2( c,r ) ) .Or. IsNaN( MHp2( c,r ) ) ) Then
+                           xmsg = 'NaN in grid cell Gamma Calculation'
+                           Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
+                        End If
+                        tcec1         = tcec1 / Tot_Ag
+                        tcec2         = tcec2 / Tot_Ag
+                        fcec1(c,r)    = max(0.3, 1.0-0.038*tcec1) ! from EPIC (Wiliams 1995)
+                        fcec2(c,r)    = max(0.3, 1.0-0.038*tcec2)
+                        if(r.eq.18.and.c.eq.27) then
+                            Write(Logdev,*) ' Bidi-Epic soil data'
+                            Write(Logdev,*) gamma1(c,r),gamma2(c,r),fcec1(c,r),tcec1
+                        Endif
+                     Else
+                        MHp1( c,r ) = 0.0
+                        MHp2( c,r ) = 0.0
+                        gamma1( c,r ) = 0.0
+                        gamma2( c,r ) = 0.0
                      Endif
                   Else
                      MHp1( c,r ) = 0.0
