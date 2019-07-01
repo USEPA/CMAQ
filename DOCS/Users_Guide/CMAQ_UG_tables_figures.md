@@ -30,7 +30,7 @@
 
 [Table 4-4. Variables in hourly observed lightning strike file.](CMAQ_UG_ch04_model_inputs.md#Table4-4) 
 
-[Table 4-5. Variables in lightning parameters file.](CMAQ_UG_ch04_model_inputs.md#Table4-5) **>>COMMENT:<<** missing table title
+[Table 4-5. Variables in lightning parameters file.](CMAQ_UG_ch04_model_inputs.md#Table4-5) 
 
 [Table 6-1. Chemical mechanisms available with CMAQv5.3](CMAQ_UG_ch06_model_configuration_options.md#Table6-1)
 
