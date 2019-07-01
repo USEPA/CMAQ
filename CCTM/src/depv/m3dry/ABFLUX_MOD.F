@@ -228,10 +228,10 @@ C-------------------------------------------------------------------------------
                         tcec2         = tcec2 / Tot_Ag
                         fcec1(c,r)    = max(0.3, 1.0-0.038*tcec1) ! from EPIC (Wiliams 1995)
                         fcec2(c,r)    = max(0.3, 1.0-0.038*tcec2)
-                        if(r.eq.18.and.c.eq.27) then
-                            Write(Logdev,*) ' Bidi-Epic soil data'
-                            Write(Logdev,*) gamma1(c,r),gamma2(c,r),fcec1(c,r),tcec1
-                        Endif
+!                        if(r.eq.18.and.c.eq.27) then
+!                            Write(Logdev,*) ' Bidi-Epic soil data'
+!                            Write(Logdev,*) gamma1(c,r),gamma2(c,r),fcec1(c,r),tcec1
+!                        Endif
                      Else
                         MHp1( c,r ) = 0.0
                         MHp2( c,r ) = 0.0
