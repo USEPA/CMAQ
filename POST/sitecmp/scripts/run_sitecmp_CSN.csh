@@ -57,7 +57,6 @@
 # ~~~~~~~~~~~~ START NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
 #> The following environment variables will change depending on what 
 #> observation network is being matched with CMAQ output.
-#> This sample run script is set up for hourly data from AQS.
 #> See the README.md file in this folder for the settings to use for 
 #> the following networks: IMPROVE, CASTNET, CSN (formally STN), NADP
 #> SEARCH, AIRMON
@@ -73,31 +72,45 @@
 #>
 #> The expression is in the form:
 #>       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...
- setenv GAS_1 "O3,ppb,O3,ppb,O3" 
- setenv GAS_2 "NO,ppb,NO,ppb,NO"              
- setenv GAS_3 "NOY,ppb,NOY,ppb,NOY"              
- setenv GAS_4 "NO2,ppb,NO2,ppb,NO2"              
- setenv GAS_5 "NOX,ppb,NO+NO2,ppb,NOX"           
- setenv GAS_6 "CO,ppb,CO,ppb,CO"                 
- setenv GAS_7 "SO2,ppb,SO2,ppb,SO2"              
- setenv GAS_8 "PM25,ug/m3,ATOTIJ,ug/m3,PM_TOT"     
- setenv GAS_9 "PM25,ug/m3,PMIJ_FRM,ug/m3,PM_FRM" 
- setenv GAS_10 "PM10,ug/m3,PM10,ug/m3,PM10"       
- setenv GAS_11 "Isoprene,ppb,ISOP,ppb,Isoprene"  
- setenv GAS_12 "Ethylene,ppb,ETH,ppb,Ethylene"   
- setenv GAS_13 "Ethane,ppb,ETHA,ppb,Ethane"      
- setenv GAS_14 "Toluene,ppb,TOL,ppb,Toluene"     
- setenv GAS_15 "Temperature,C,SFC_TMP,C,SFC_TMP" 
- setenv GAS_16 "RH,%,RH,%,RH"                    
- setenv GAS_17 "Wind_Speed,m/s,WSPD10,m/s,WSPD10"
- setenv GAS_18 ",,PBLH,m,PBLH"                   
- setenv GAS_19 ",,SOL_RAD,watts/m2,Solar_Rad"    
- setenv GAS_20 ",,10*precip,mm/hr,precip"       
-   
-#> PM2.5 Sharp Cutoff Species
-#> Requires preprocessing using AERODIAM file
- setenv GAS_21 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"
- setenv GAS_22 "PM25,ug/m3,PM25_FRM,,PM25_FRM"     
+ setenv AERO_1 "SO4,ug/m3, ASO4IJ,,SO4"                     # sulfate
+ setenv AERO_2 "NO3,ug/m3, ANO3IJ,,NO3"                     # nitrate
+ setenv AERO_3 "NH4,ug/m3, ANH4IJ,,NH4"                     # ammonium
+ setenv AERO_4 "PM25,ug/m3,ATOTIJ,,PM_TOT"          # PM2.5
+ setenv AERO_5 "PM25,ug/m3,PMIJ_FRM,,PM_FRM"      # FRM Equivalent PM2.5
+ setenv AERO_6 "88320,ug/m3, AOCIJ,,OC"                   # Organic Carbon
+ setenv AERO_7 "88321,ug/m3, AECIJ,,EC"                      # Elemental Carbon
+ setenv AERO_8 "88320+88321,ug/m3,AOCIJ+AECIJ,,TC"    # Total Carbon
+     
+ #> PM2.5 Sharp Cutoff Species
+ #> Requires preprocessing using setenv AERODIAM file
+  setenv AERO_9 "SO4,ug/m3, PM25_SO4,,PM25_SO4"                    # sulfate (sharp cutoff)
+  setenv AERO_10 "NO3,ug/m3, PM25_NO3,,PM25_NO3"                   # nitrate (sharp cutoff)
+  setenv AERO_11 "NH4,ug/m3, PM25_NH4,,PM25_NH4"                   # ammonium (sharp cutoff)
+  setenv AERO_12 "88320,ug/m3, PM25_OC,,PM25_OC"              # Organic Carbon (sharp cutoff)
+  setenv AERO_13 "88321,ug/m3, PM25_EC,,PM25_EC"              # Elemental Carbon (sharp cutoff)
+  setenv AERO_14 "88320+88321,ug/m3,PM25_OC+PM25_EC,,PM25_TC"    # Total Carbon (sharp cutoff)
+  setenv AERO_15 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"      # Total PM2.5 (sharp cutoff)
+  setenv AERO_16 "PM25,ug/m3,PM25_FRM,ug/m3,PM25_FRM"      # FRM Equivalent PM2.5 (sharp cutoff)
+
+#> setenv AERO6 species
+#> note we use Sodium Ion instead of sodium (XRF) becasue XRF is not reliable for sodium
+#> all other elemental concentrations (including Cl and K) come from XRF
+  setenv AERO_17 "Na,ug/m3, ANAIJ,,Na"          # sodium
+  setenv AERO_18 "Cl,ug/m3, ACLIJ,,Cl"        # chlorine
+  setenv AERO_19 "Fe,ug/m3, AFEJ,,Fe"         # iron
+  setenv AERO_20 "Al,ug/m3,AALJ,,Al"          # aluminum
+  setenv AERO_21 "Si,ug/m3, ASIJ,,Si"         # silicon
+  setenv AERO_22 "Ti,ug/m3, ATIJ,,Ti"         # titanium
+  setenv AERO_23 "Ca,ug/m3,ACAJ,,Ca"          # calcium
+  setenv AERO_24 "Mg,ug/m3,AMGJ,,Mg"          # magnesium
+  setenv AERO_25 "K,ug/m3,AKJ,,K"             # potassium
+  setenv AERO_26 "Mn,ug/m3,AMNJ,,Mn"          # manganese
+  setenv AERO_27 "2.2*Al+2.49*Si+1.63*Ca+2.42*Fe+1.94*Ti,ug/m3,ASOILJ,,soil" # SOIL_OLD
+  setenv AERO_28 "Na + Cl, ug/m3, ANAIJ+ACLIJ,,NaCl"                                   # NaCl
+  setenv AERO_29 "PM25-SO4-NO3-NH4-88320-88321-[Na]-[Cl]-2.2*Al-2.49*Si-1.63*Ca-2.42*Fe-1.94*Ti , ug/m3, AUNSPEC1IJ,,OTHER"        # PM Other
+  setenv AERO_30 "0.8*88320,ug/m3, ANCOMIJ,,NCOM"    # PM Other
+  setenv AERO_31 "PM25-SO4-NO3-NH4-88320-88321-[Na]-[Cl]-2.2*Al-2.49*Si-1.63*Ca-2.42*Fe-1.94*Ti-0.8*88320,ug/m3, AUNSPEC2IJ,,OTHER_REM"    # PM Other no NCOM
+  
 #>> End Species List <<#
 
 # ~~~~~~~~~~~~ END NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -152,14 +165,14 @@
 #> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
- setenv IN_TABLE AQS_hourly_data_2016.csv
+ setenv IN_TABLE AQS_CSN_data_2016.csv
 
 #############################################################
 #  Output files
 #############################################################
 
 #> output table (comma delimited text file importable to Excel)
- setenv OUT_TABLE ${POSTDIR}/AQS_Hourly_CMAQ_${RUNID}_201607.csv
+ setenv OUT_TABLE ${POSTDIR}/CSN_CMAQ_${RUNID}_201607.csv
 
 #> Executable call:
  ${BINDIR}/${EXEC}

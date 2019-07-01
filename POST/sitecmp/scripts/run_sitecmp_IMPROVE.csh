@@ -57,13 +57,12 @@
 # ~~~~~~~~~~~~ START NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
 #> The following environment variables will change depending on what 
 #> observation network is being matched with CMAQ output.
-#> This sample run script is set up for hourly data from AQS.
 #> See the README.md file in this folder for the settings to use for 
 #> the following networks: IMPROVE, CASTNET, CSN (formally STN), NADP
 #> SEARCH, AIRMON
 
 #> Set TABLE TYPE
- setenv TABLE_TYPE CASTNET
+ setenv TABLE_TYPE IMPROVE
 
 #> Specify the variable names used in your observation inputs
 #> and model output files for each of the species you are analyzing below.
@@ -73,31 +72,47 @@
 #>
 #> The expression is in the form:
 #>       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...
- setenv GAS_1 "O3,ppb,O3,ppb,O3" 
- setenv GAS_2 "NO,ppb,NO,ppb,NO"              
- setenv GAS_3 "NOY,ppb,NOY,ppb,NOY"              
- setenv GAS_4 "NO2,ppb,NO2,ppb,NO2"              
- setenv GAS_5 "NOX,ppb,NO+NO2,ppb,NOX"           
- setenv GAS_6 "CO,ppb,CO,ppb,CO"                 
- setenv GAS_7 "SO2,ppb,SO2,ppb,SO2"              
- setenv GAS_8 "PM25,ug/m3,ATOTIJ,ug/m3,PM_TOT"     
- setenv GAS_9 "PM25,ug/m3,PMIJ_FRM,ug/m3,PM_FRM" 
- setenv GAS_10 "PM10,ug/m3,PM10,ug/m3,PM10"       
- setenv GAS_11 "Isoprene,ppb,ISOP,ppb,Isoprene"  
- setenv GAS_12 "Ethylene,ppb,ETH,ppb,Ethylene"   
- setenv GAS_13 "Ethane,ppb,ETHA,ppb,Ethane"      
- setenv GAS_14 "Toluene,ppb,TOL,ppb,Toluene"     
- setenv GAS_15 "Temperature,C,SFC_TMP,C,SFC_TMP" 
- setenv GAS_16 "RH,%,RH,%,RH"                    
- setenv GAS_17 "Wind_Speed,m/s,WSPD10,m/s,WSPD10"
- setenv GAS_18 ",,PBLH,m,PBLH"                   
- setenv GAS_19 ",,SOL_RAD,watts/m2,Solar_Rad"    
- setenv GAS_20 ",,10*precip,mm/hr,precip"       
-   
+ setenv AERO_1 "SO4f_val,ug/m3,ASO4IJ,,SO4"                         # sulfate
+ setenv AERO_2 "NO3f_val,ug/m3,ANO3IJ,,NO3"                         # nitrate
+ setenv AERO_3 "0.2903*NO3f_val+0.375*SO4f_val,ug/m3,ANH4IJ,,NH4"   # ammonium (estimated assuming fully neutralized SO4 and NO3)
+ setenv AERO_4 "MF_val,ug/m3,ATOTIJ,ug/m3,PM_TOT"          # Total PM2.5 mass 
+ setenv AERO_5 "OCf_val,ug/m3,AOCIJ,,OC"                            # Organic Carbon
+ setenv AERO_6 "ECf_val,ug/m3,AECIJ,,EC"                            # Elemental Carbon
+ setenv AERO_7 "OCf_val+ECf_val,ug/m3,AOCIJ+AECIJ,,TC"              # Total Carbon
+ setenv AERO_8 "CHLf_val,ug/m3,ACLIJ,ug/m3,Cl"                      # CL Ion
+ setenv AERO_9 "MT_val,ug/m3,ATOTIJK,ug/m3,PM10"              # PM10
+ setenv AERO_10 "CM_calculated_val,ug/m3,ATOTK,ug/m3,PMC_TOT"     # PM Course
+
 #> PM2.5 Sharp Cutoff Species
-#> Requires preprocessing using AERODIAM file
- setenv GAS_21 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"
- setenv GAS_22 "PM25,ug/m3,PM25_FRM,,PM25_FRM"     
+#> Requires preprocessing using setenv AERODIAM file
+ setenv AERO_11 "SO4f_val,ug/m3,PM25_SO4,,PM25_SO4"                 	# sulfate (< 2.5um)
+ setenv AERO_12 "NO3f_val,ug/m3,PM25_NO3,,PM25_NO3"                 	# nitrate (< 2.5um)
+ setenv AERO_13 "0.2903*NO3f_val+0.375*SO4f_val,ug/m3,PM25_NH4,,PM25_NH4"	# ammonium (< 2.5um)
+ setenv AERO_14 "OCf_val,ug/m3,PM25_OC,,PM25_OC"                    	# Organic Carbon (< 2.5um)
+ setenv AERO_15 "ECf_val,ug/m3,PM25_EC,,PM25_EC"                    	# Elemental Carbon (< 2.5um)
+ setenv AERO_16 "OCf_val+ECf_val,ug/m3,PM25_OC+PM25_EC,,PM25_TC"    	# Total Carbon (< 2.5um)
+ setenv AERO_17 "MF_val,ug/m3,PM25_TOT,ug/m3,PM25_TOT"              	# Total PM2.5 mass (< 2.5um)
+ setenv AERO_18 "CHLf_val,ug/m3,PM25_CL,ug/m3,PM25_Cl"              	# CL Ion (< 2.5um)
+ setenv AERO_19  "CM_calculated_val,ug/m3,PMC_TOT,ug/m3,PMC_TOT_CUT" # PM Course
+
+#> new AE6 species
+#> note: we use XRF sodium because there is not IC sodium mesaurement
+#> we use IC measurement for chlorid (CHLf_val) instead of XRF chlroine (CLf_Val)
+ setenv AERO_20 "NAf_val,ug/m3, ANAIJ,,Na"                          # sodium
+ setenv AERO_21 "NAf_val + CHLf_val,ug/m3,ACLIJ + ANAIJ,,NaCl"      # sodium chloride
+ setenv AERO_22 "FEf_val,ug/m3, AFEJ,,Fe"                           # iron
+ setenv AERO_23 "ALf_val,ug/m3,AALJ,,Al"                            # aluminum 
+ setenv AERO_24 "SIf_val,ug/m3, ASIJ,,Si"                           # silicon
+ setenv AERO_25 "TIf_val,ug/m3, ATIJ,,Ti"                           # titanium
+ setenv AERO_26 "CAf_val,ug/m3,ACAJ,,Ca"                            # calcium
+ setenv AERO_27 "MGf_val,ug/m3,AMGJ,,Mg"                            # magnesium
+ setenv AERO_28 "Kf_val,ug/m3,AKJ,,K"                               # potassium
+ setenv AERO_29 "MNf_val,ug/m3,AMNJ,,Mn"                            # manganese
+ setenv AERO_30 "2.20*ALf_val+2.49*SIf_val+1.63*CAf_val+2.42*FEf_val+1.94*TIf_val,ug/m3,ASOILJ,,soil"       # IMPROVE soil eqn.
+ setenv AERO_31 "MF_val-SO4f_val-NO3f_val-0.2903*NO3f_val-0.375*SO4f_val-OCf_val-ECf_val-NAf_val-CHLf_val-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val,ug/m3,AUNSPEC1IJ,,OTHER"        # PM Other
+ setenv AERO_32 "0.8*OCf_val,ug/m3, ANCOMIJ,,NCOM"    # NCOM
+ setenv AERO_33 "MF_val-SO4f_val-NO3f_val-0.2903*NO3f_val-0.375*SO4f_val-OCf_val-ECf_val-NAf_val-CHLf_val-2.2*ALf_val-2.49*SIf_val-1.63*CAf_val-2.42*FEf_val-1.94*TIf_val,ug/m3, AUNSPEC2IJ,,OTHER_REM"    # PM Other remaining
+ 
 #>> End Species List <<#
 
 # ~~~~~~~~~~~~ END NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,21 +160,21 @@
 #> gmt_offset, state, county, and elevation (case insensitive)
 #> This file can be downloaded from
 #> https://github.com/USEPA/AMET/tree/1.4b/obs/AQ/site_metadata_files
- setenv SITE_FILE AQS_full_site_list.csv
+ setenv SITE_FILE IMPROVE_full_site_list.csv
 
 #> input table containing site-id, time-period, and data fields
 #> AQS obs data in the format needed for sitecmp are available 
 #> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
- setenv IN_TABLE AQS_hourly_data_2016.csv
+ setenv IN_TABLE IMPROVE_data_2016.csv
 
 #############################################################
 #  Output files
 #############################################################
 
 #> output table (comma delimited text file importable to Excel)
- setenv OUT_TABLE ${POSTDIR}/AQS_Hourly_CMAQ_${RUNID}_201607.csv
+ setenv OUT_TABLE ${POSTDIR}/IMPROVE_CMAQ_${RUNID}_201607.csv
 
 #> Executable call:
  ${BINDIR}/${EXEC}
