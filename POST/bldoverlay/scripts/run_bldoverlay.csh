@@ -44,8 +44,8 @@
  setenv IOAPI_ISPH 20
 
 #> define time window
- set START_DATE = "2011-07-01"     #> beginning date (July 1, 2011)
- set END_DATE   = "2011-07-02"     #> ending date    (July 2, 2011)
+ set START_DATE = "2016-07-01"     #> beginning date (July 1, 2016)
+ set END_DATE   = "2016-07-02"     #> ending date    (July 2, 2016)
 
 #> Convert START_DATE and END_DATE to Julian day.
 #> (required format for bldoverlay SDATE and EDATE environment variables)
