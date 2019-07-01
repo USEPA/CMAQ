@@ -1129,7 +1129,7 @@ C If layer fractions are negative, put in the first layer
 C If source is a fire, adjust for fire smoldering effects (include fractions below LBOT)
 C calculate smoldering fraction:
 
-             IF ( ACRES( N )%ARRY ( S ) .NE. 0.0 ) THEN
+             IF ( ACRES( N )%ARRY ( S ) .GT. 0.0 ) THEN
                 BESIZE = 0.0703 * LOG( ACRES( N )%ARRY( S ) ) + 0.3
                 BESIZE = MIN( BESIZE, 1.0 )
                 SFRACT = 1.0 - BESIZE

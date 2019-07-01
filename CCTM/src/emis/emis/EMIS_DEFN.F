@@ -985,8 +985,10 @@ C-----------------------------------------------------------------------
      &             VDEMIS_OUT( NCOLS,NROWS,EMLAYS ) )
       END IF    !FirstTime
       
-      VDEMIS = 0.0
-      LAYS = 1
+      VDEMIS     = 0.0
+      VDEMIS_OUT = 0.0
+      LAYS       = 1
+
       IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' .OR. 
      &     EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) LAYS = NL
 
