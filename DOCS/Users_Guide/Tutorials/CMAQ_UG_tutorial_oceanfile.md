@@ -19,7 +19,7 @@ The Spatial Allocator (SA) tool can be downloaded from the CMAS Center at the fo
 
 ### STEP 2: Create the OCEAN file
 
-If your domain is in the U.S., there is a shapefile included with the SA tool in the data directory (surfzone_poly_st.shp). If your domain is outside the U.S., you will need a shapefile of your domain. See the surfzone_poly_st.shp for a template of the attibutes requried by the Spatial Allocator for generating an OCEAN file.
+If your domain is in the U.S., there is a shapefile included with the SA tool in the data directory (surfzone_poly_st.shp). If your domain is outside the U.S., you will need a shapefile of your domain. See the surfzone_poly_st.shp for a template of the attributes required by the Spatial Allocator for generating an OCEAN file.
 
 Using the sample script `alloc_srf_zone_to_oceanfile.csh` (located in the **scripts** directory of the SA tool) as a guide, customize a script to run the SA executable on your machine.
 
