@@ -23,7 +23,7 @@ In some science processes such as advection, a processor requires data from neig
 
 ![Figure D-2](../images/FigureD-2.png)
 
-**Figure D-2. A depiction of near neighbour processors**
+**Figure D-2. A depiction of near neighbor processors**
 
 As an illustration of interprocessor data access (Fig. D-3), consider the following piece of code executing on Processor 2 with a 2x2, 4-processor domain decomposition. It is clear that calculation at grid cell denoted by "X" requires data denoted by red dots which resided in near neighbor processor 0 and 3.
 
@@ -41,7 +41,7 @@ As an illustration of interprocessor data access (Fig. D-3), consider the follow
 
  To facilitate interprocessor communication as shown in the example above, "ghost" regions are used (extra space in the data structure), i.e. DIMENSION DATA (NCOLS+2, NROWS+1). Thickness of the ghost region depends of the amount of overlap that is required by the algorithm.
 
- The Stencil Exchange (SE) Library is designed in Fortran 90 language using Object Oriented-base technology to handle various types of communication with the objective of hiding the management of the low level data movement. SE addresses four types of communication and brief description of each type is followed.
+ The Stencil Exchange (SE) Library is designed in Fortran 90 language using Object Oriented-base technology to handle various types of communication with the objective of hiding the management of the low-level data movement. SE addresses four types of communication and brief description of each type is followed.
 
  * interior to ghost region, which is indicated in light blue in Figure D-4. This particular type of communication is being used in various places such as HADV and HDIFF.
 
@@ -69,7 +69,7 @@ As an illustration of interprocessor data access (Fig. D-3), consider the follow
 
 All I/O operations in CMAQ are handled by IOAPI_3 library. Furthermore, IOAPI_3 library was designed for serial code. As a result, CMAQ won't be able to utilize any I/O functions such as READ3 and WRITE3 in IOAPI library directly in any parallel computing platform. 
 
-CMAQv4.7.1 and later releases include a directory call 'PARIO' which was developed to bridge this gap. PARIO contains a smaller set of functions which are equivalent counterpart in IOAPI but capable to run in parallel. The following IOAPI_3 routines have PARIO equivalents: READ3, INTERP3, WRITE3, CHECK3, OPEN3, CLOSE3, DESC3, M3ERR, M3EXIT, M3WARN. Each file name in PARIO library has a "P" prefix to distinguish its counterpart in IOAPI library, e.g. POPEN3 and PINTERP3. Substitution with the PARIO subroutines is done at compilation through CPP flags. Note that subroutine argument lists in any PARIO routine is idential to IOAPI_3 counterpart routine.
+CMAQv4.7.1 and later releases include a directory call 'PARIO' which was developed to bridge this gap. PARIO contains a smaller set of functions which are equivalent counterpart in IOAPI but capable to run in parallel. The following IOAPI_3 routines have PARIO equivalents: READ3, INTERP3, WRITE3, CHECK3, OPEN3, CLOSE3, DESC3, M3ERR, M3EXIT, M3WARN. Each file name in PARIO library has a "P" prefix to distinguish its counterpart in IOAPI library, e.g. POPEN3 and PINTERP3. Substitution with the PARIO subroutines is done at compilation through CPP flags. Note that subroutine argument lists in any PARIO routine is identical to IOAPI_3 counterpart routine.
 
 On the output side, all processors are required to send their portion of data to processor 0, which will stitch each sub-part and then output it to the file (Fig. D-8). This is considered a “pseudo” parallel I/O approach and this approach is being using in PARIO.
 
@@ -77,7 +77,7 @@ On the output side, all processors are required to send their portion of data to
 
 **Figure D-8. Combine all sub-domain data from each processor in an I/O processor**
 
-In CMAQv5.2 and later versions, we have developed a true parallel I/O approach, reffered to as PIO (Wong et. al.). PIO allows each processor to write their portion to the file simultaneously (Fig. D-9).
+In CMAQv5.2 and later versions, we have developed a true parallel I/O approach, referred to as PIO (Wong et. al.). PIO allows each processor to write their portion to the file simultaneously (Fig. D-9).
 
 ![Figure D-9](../images/FigureD-9.png)
 
