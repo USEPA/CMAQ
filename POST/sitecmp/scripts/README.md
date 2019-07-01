@@ -1,4 +1,13 @@
+# Species List for sitecmp:  Matching model and observed variables
 
+The environment variables that control how CMAQ and observed values are matched using sitecmp will change depending on the observation network.  Sitecmp-ready observation files are available from the CMAS Center Data clearinghouse under the heading ["2000-2014 North American Air Quality Observation Data"](https://www.cmascenter.org/download/data.cfm).  The variable names in these observation files can change over time.  This README file provides the environment variables needed for the species list in the sitecmp run script for different networks and years. 
+
+This species information was generated using the [Atmospheric Model Evaluation Tool (AMET)](https://github.com/USEPA/AMET) which is also available github.com/USEPA. For further information on the mapping of observation species from each network to CMAQ model species, please see the section **AQ Species List Input File** of the [AMETv1.4 User's Guide](https://github.com/USEPA/AMET/blob/1.4b/docs/AMET_Users_Guide_v14.md).
+
+Note that the configuration options below are just for the species definition part of the sitecmp run script.  See the run scripts within this folder for AQS, CSN, IMPROVE, NADP and SEARCH for examples of complete run scripts for sitecmp that include all necessary environment variables. 
+
+### SITECMP Configuration Options for AERONET
+```
 # =====================================================================
 #> SITECMP Configuration Options for AERONET
 # =====================================================================
@@ -44,8 +53,10 @@
 # =====================================================================
 #> END Options for AERONET
 # =====================================================================
+```
 
-
+### SITECMP Configuration Options for AMON
+```
 # =====================================================================
 #> SITECMP Configuration Options for AMON
 # =====================================================================
@@ -82,8 +93,10 @@
 # =====================================================================
 #> END Options for AMON
 # =====================================================================
+```
 
-
+### SITECMP Configuration Options for Hourly CASTNET data
+```
 # =====================================================================
 #> SITECMP Configuration Options for Hourly CASTNET data
 # =====================================================================
@@ -125,8 +138,9 @@
 # =====================================================================
 #> END Options for Hourly CASTNET
 # =====================================================================
-
-
+```
+### SITECMP Configuration Options for Weekly CASTNET data
+```
 # =====================================================================
 #> SITECMP Configuration Options for Weekly CASTNET data
 # =====================================================================
@@ -189,8 +203,9 @@
 # =====================================================================
 #> END Options for Weekly CASTNET
 # =====================================================================
-
-
+```
+### Runtime Environment Options for CSN (formally STN) 
+```
 # ==================================================================
 #> Runtime Environment Options for CSN (formally STN) 
 #
@@ -485,8 +500,10 @@
 # =====================================================================
 #> END Options for CSN
 # =====================================================================
+```
 
-
+### SITECMP Configuration Options for IMPROVE
+```
 # =====================================================================
 #> SITECMP Configuration Options for IMPROVE
 # =====================================================================
@@ -561,8 +578,10 @@
 # =====================================================================
 #> END Options for IMPROVE
 # =====================================================================
+```
 
-
+### SITECMP Configuration Options for NADP
+```
 # =====================================================================
 #> SITECMP Configuration Options for NADP
 # =====================================================================
@@ -641,8 +660,10 @@
 # =====================================================================
 #> END Options for NADP
 # =====================================================================
+```
 
-
+### Runtime Environment Options for Hourly SEARCH 
+```
 # ==================================================================
 #> Runtime Environment Options for Hourly SEARCH 
 #
@@ -850,8 +871,10 @@
 # =====================================================================
 #> END Options for Hourly SEARCH
 # =====================================================================
+```
 
-
+###  Runtime Environment Options for Daily SEARCH 
+```
 # ==================================================================
 #> Runtime Environment Options for Daily SEARCH 
 #
@@ -953,5 +976,5 @@
 # =====================================================================
 #> END Options for Daily SEARCH
 # =====================================================================
-
+```
   
