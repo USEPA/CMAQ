@@ -159,15 +159,15 @@
 #> The column headings for the optional variables need to be
 #> gmt_offset, state, county, and elevation (case insensitive)
 #> This file can be downloaded from
-#> https://github.com/USEPA/AMET/tree/1.2/obs/AQ/site_lists
- setenv SITE_FILE aqs_full_site_list.csv
+#> https://github.com/USEPA/AMET/tree/1.4b/obs/AQ/site_metadata_files
+ setenv SITE_FILE IMPROVE_full_site_list.csv
 
 #> input table containing site-id, time-period, and data fields
 #> AQS obs data in the format needed for sitecmp are available 
 #> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
- setenv IN_TABLE AQS_hourly_data_2011.csv
+ setenv IN_TABLE IMPROVE_data_2016.csv
 
 #############################################################
 #  Output files
