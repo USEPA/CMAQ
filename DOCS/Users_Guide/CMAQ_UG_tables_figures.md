@@ -26,41 +26,27 @@
 
 [Table 4-2. GC species namelist file format](CMAQ_UG_ch04_model_inputs.md#Table4-2) 
 
-[Table 4-3.](CMAQ_UG_ch04_model_inputs.md#Table4-3) **>>COMMENT:<<** missing table title
+[Table 4-3. MCIP output variables used within the CMAQ system](CMAQ_UG_ch04_model_inputs.md#Table4-3) 
 
-[Table 4-4.](CMAQ_UG_ch04_model_inputs.md#Table4-4) **>>COMMENT:<<** missing table title
+[Table 4-4. Variables in hourly observed lightning strike file.](CMAQ_UG_ch04_model_inputs.md#Table4-4) 
 
-[Table 4-5.](CMAQ_UG_ch04_model_inputs.md#Table4-5) **>>COMMENT:<<** missing table title
+[Table 4-5. Variables in lightning parameters file.](CMAQ_UG_ch04_model_inputs.md#Table4-5) **>>COMMENT:<<** missing table title
 
-[Table 4-6.](CMAQ_UG_ch04_model_inputs.md#Table4-6) **>>COMMENT:<<** missing table title
+[Table 6-1. Chemical mechanisms available with CMAQv5.3](CMAQ_UG_ch06_model_configuration_options.md#Table6-1)
 
-[Table 4-7.](CMAQ_UG_ch04_model_inputs.md#Table4-7) **>>COMMENT:<<** missing table title
+[Table 7-1. CMAQ output files](CMAQ_UG_ch07_model_outputs.md#Table7-1)
 
-[Table 4-8.](CMAQ_UG_ch04_model_inputs.md#Table4-8) **>>COMMENT:<<** missing table title
-
-[Table 4-9.](CMAQ_UG_ch04_model_inputs.md#Table4-9) **>>COMMENT:<<** missing table title
-
-[Table 4-10.](CMAQ_UG_ch04_model_inputs.md#Table4-10) **>>COMMENT:<<** missing table title
-
-[Table 4-11.](CMAQ_UG_ch04_model_inputs.md#Table4-11) **>>COMMENT:<<** missing table title
-
-[Table 4-12.](CMAQ_UG_ch04_model_inputs.md#Table4-12) **>>COMMENT:<<** missing table title
-
-[Table 6-1. Chemical Mechanisms Available with CMAQv5.3](CMAQ_UG_ch06_model_configuration_options.md#Table6-1)
-
-[Table 7-1. CMAQ Output files](CMAQ_UG_ch07_model_outputs.md#Table7-1)
-
-[Table 8-1. Software Programs for Evaluating and Visualizing CMAQ Data](CMAQ_UG_ch08_analysis_tools.md#Table8-1)
+[Table 8-1. Software programs for evaluating and visualizing CMAQ data](CMAQ_UG_ch08_analysis_tools.md#Table8-1)
 
 [Table 9-1. Parameters used in PACM_INFILE](CMAQ_UG_ch09_process_analysis.md#Table9-1)
 
-[Table 9-2. Allowable parameters for Process outputs](CMAQ_UG_ch09_process_analysis.md#Table9-2)
+[Table 9-2. Allowable parameters for Process Analysis outputs](CMAQ_UG_ch09_process_analysis.md#Table9-2)
 
 [Table 9-3. Allowable operators for Integrated Reaction Rate outputs](CMAQ_UG_ch09_process_analysis.md#Table9-3)
 
 [Table 11-1. ISAM run script variables](CMAQ_UG_ch11_ISAM.md#Table11-1)
 
-[Table 12-1. Sulfur Tracking Species List](CMAQ_UG_ch12_sulfur_tracking.md#Table12-1)
+[Table 12-1. Sulfur Tracking species list](CMAQ_UG_ch12_sulfur_tracking.md#Table12-1)
 
 
 <!-- BEGIN COMMENT -->
