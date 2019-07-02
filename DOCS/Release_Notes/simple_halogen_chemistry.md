@@ -75,6 +75,8 @@ UTIL/chemmech/src/wrt_reactions_module.f
 
 Sarwar, G.; Gantt, B.; Schwede, D.; Foley, K.; Mathur, R.; Saiz-Lopez, A., 2015: Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, _Environmental Science & Technology_, **49**(15):9203-9211.
 
+Sarwar, G.; Gantt, B.; Foley, K.; Fahey, K.; Spero T. L.; Kang, D., Mathur, Rohit M., Hosein F.; Xing, J.; Sherwen, T.; Saiz-Lopez, A., 2019: Influence of bromine and iodine chemistry on annual, seasonal, diurnal, and background ozone: CMAQ simulations over the Northern Hemisphere, _Atmospheric Environment_, 213, 395-404.
+
 -----
 ## Internal Records
 #### Relevant Pull Requests:
