@@ -4,29 +4,11 @@
 
 ## Brief Description
 
-**Initial Implementation**
-
-Detailed chemistry for the halogens, bromine, and iodine was incorporated into the CB05 chemical mechanism in a previous release of CMAQ. In CMAQv5.3, the detailed halogen chemistry is extended for CB6r3. It contains 38 gas-phase reactions and 8 heterogeneous reactions for bromine chemistry, and 44 gas-phase reactions and 20 heterogeneous reactions for iodine chemistry. Dimethyl sulfide (DMS) chemistry is also combined with CB6r3 and implemented into CMAQv5.3. It contains 7 gas-phase reactions involving DMS and oxidants. The combined chemical mechanism containing CB6r3, detailed halogen and DMS chemistry is named as CB6r3m. The halogen chemistry is more beneficial in the hemispheric CMAQ model where there is a larger influence on the intercontinental transport over oceans.  However, it can also be used in the regional version of the model.
-
-**Revised implementation**
-
-The detailed halogen chemistry is revised with following changes:
-1. Removed several heterogeneous reactions over coarse-mode aerosols.
-2. Implemented dry deposition of several halogen species.
-3. Corrected several molecular diffusivities, Le Bas molar volume, and calculation for temporal allocation of halocarbon emissions.
-4. Developed an updated EBI solver since the halogen chemistry is revised.  
+Detailed chemistry for the halogens (bromine and iodine) was incorporated into the CB05 chemical mechanism in a previous release of CMAQ. In CMAQv5.3, the detailed halogen chemistry is extended for CB6r3. It contains 38 gas-phase reactions and 4 heterogeneous reactions for bromine chemistry, and 44 gas-phase reactions and 10 heterogeneous reactions for iodine chemistry. Dimethyl sulfide (DMS) chemistry is also combined with CB6r3 and implemented into CMAQv5.3. It contains 7 gas-phase reactions involving DMS and oxidants. The combined chemical mechanism containing CB6r3, detailed halogen and DMS chemistry is named as CB6r3m. The halogen chemistry is more beneficial in the hemispheric CMAQ model where there is a larger influence on the intercontinental transport over oceans. However, it can also be used in the regional version of the model.
 
 ## Significance and Impact
 
-**Initial implementation**
-
-Model sensitivity runs were completed with CB6r3 (without detailed halogen and DMS chemistry) and CB6r3m (with detailed halogen and DMS chemistry) over the Northern Hemisphere for three months in 2015 (October-December). It reduces ozone by 3-15&nbsp;ppbV (Figure 1) and increases sulfur dioxide by 20-160&nbsp;pptV (Figure 2) and sulfate by 0.1-0.8 &#956;g&nbsp;m<sup>&#8209;3</sup> (Figure 3) over much of the sea water. It reduces ozone and increases sulfate over land by much smaller margins than over sea water.
-
-**Revised implementation**
-
-Model sensitivity runs were completed with the existing and revised CB6r3m over the Northern Hemisphere for a winter (January 2016) and a summer month (August 2016). Over the sea water, the revised halogen chemistry increases wintertime monthly mean ozone by up to 4.0&nbsp;ppbV and summertime ozone by up to 6.0&nbsp;ppbV. Over the U.S., the revised halogen chemistry increases wintertime ozone by <1.5&nbsp;ppbV and summertime ozone by <0.5&nbsp;ppbV. Without including halogen chemistry, CMAQv5.3 underestimates wintertime ozone and overestimates summertime ozone. The revised halogen chemistry increases ozone over the U.S., which contributes to the improvement of wintertime model bias without substantially affecting the summertime bias. 
-
-The revised halogen chemistry minimally changes both wintertime and summertime sulfate in some locations (<0.13&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>). However, the impacts over the U.S. are small. 
+Model sensitivity runs were completed with CB6r3 (without detailed halogen and DMS chemistry) and CB6r3m (with detailed halogen and DMS chemistry) over the Northern Hemisphere for three months in 2015 (October-December). It reduces ozone by 3-14 ppbV (Figure 1) and increases sulfur dioxide by 20-160 pptV (Figure 2) and sulfate by 0.1-0.8 μg m 3 (Figure 3) over much of the sea water. It reduces ozone and increases sulfate over land by much smaller margins than over sea water.
 
 ![Ozone](ozone_impact.jpg) 
 Figure 1: Impact of halogen chemistry on ozone (three-month average).
@@ -38,8 +20,6 @@ Figure 2: Impact of halogen chemistry on sulfur dioxide (three-month average).
 Figure 3: Impact of halogen chemistry on sulfate (three-month average).
 
 ## Affected Files
-
-Initial implementation
 
 * CCTM/scripts/bldit_cctm.csh
 * CCTM/src/MECHS/cb6r3m_ae7_kmtbr/AE_cb6r3m_ae7_kmtbr.nml
@@ -104,17 +84,6 @@ Initial implementation
 * UTIL/inline_phot_preproc/photolysis_CSQY_data/IBR_IUPAC10
 * UTIL/inline_phot_preproc/photolysis_CSQY_data/IONO2_06
 
-Revised implementation
-
-* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/GC_cb6r3m_ae7_kmtbr.nml
-* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_DATA_MODULE.F90
-* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/RXNS_FUNC_MODULE.F90
-* CCTM/src/MECHS/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
-* CCTM/src/cloud/acm_ae6/hlconst.F
-* CCTM/src/depv/m3dry/DEPVVARS.F
-* CCTM/src/emis/emis/MGEMIS.F
-* CCTM/src/vdiff/acm2_m3dry/ASX_DATA_MOD.F
-
 ## References
 
 1.	Sarwar, G., Gantt, B.; Schwede, D.; Foley, K.; Mathur, R.; Saiz-Lopez, A. Impact of enhanced ozone deposition and halogen chemistry on tropospheric ozone over the Northern Hemisphere, _Environmental Science & Technology_, 2015, **49**(15):9203-9211.
@@ -135,14 +104,11 @@ Revised implementation
 [PR #433](https://github.com/usepa/cmaq_dev/pull/433)
 
 #### Commit IDs:
-Initial Implementation
 
 e071d336de4e98b37e7d0d7b23b73f81f4daf79b
 66f076fbb441e4d75e9ee55821da1cd63bf4a4d9
 4e95eac60e9c78b27faf0c5e6d1c51b0b15cf7db
 81edc0a978469bf9ea4e917f9de592921431134d
-
-Revised Implementation
 
 2d7d094b1cfa8b5432950d3719e0ce94082eba50
 
