@@ -185,11 +185,11 @@ The following configuration settings may have multiple options. Select one optio
     -   `vdiff/acm2`  
     calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2)
 -   `ModDepv: [default: depv/m3dry]`<a id=ModDepv></a>  
-    Deposition velocity calculation module. Do not change this module setting.
+    Deposition calculation module. Users may choose between the msdry and stage options.  If CMAQ output of land use specific deposition or stomatal flux is desired, then the stage option must be selected.
     -   `depv/m3dry`   
-    CMAQ dry deposition velocity routine
+    CMAQ m3dry dry deposition routine.  This is an updated version of the routine that has always been in CMAQ.
     -   `depv/stage`
-    **>>COMMENT<<** Needs description
+    CMAQ stage dry deposition routine.  This option is new in version 5.3.
 -   `ModEmis: [default: emis/emis]`<a id=ModEmis></a>  
     CMAQ inline anthropogenic and natural emissions module. In line emissions are activated in the CCTM run script. Do not change this module setting.
     -   `emis/emis`
@@ -325,13 +325,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_APPL [default: ${RUNID}_${YYYYMMDD}]`<a id=CTM_APPL></a>  
     CCTM log file naming extension.  
 -   `CONC_SPCS [if commented out, all species]`<a id=CONC_SPCS></a>  
-    Model species to be written to the CCTM CONC file.  
+    Model species to be written to the CCTM_CONC file.
 -   `CONC_BLEV_ELEV [if commented out, all layers]`<a id=CONC_BLEV_ELEV></a>  
-    Vertical model layer range for the CONC-file concentrations; this variable sets the lower and upper layers over which to output the CONC file.  
--   `AVG_CONC_SPCS [if commented out, output all species]`<a id=AVG_CONC_SPCS></a>   
-    Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM CONC file. The species in this list will be written to the ACONC output file.  
--   `ACONC_BLEV_ELEV [default: if commented out, output all layers]`<a id=ACONC_BLEV_ELEV></a>  
-    Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.  
+    Vertical model layer range for the CCTM_CONC file concentrations; this variable sets the lower and upper layers over which to output the CCTM_CONC file. In the example script, BLEV and ELEV are both set to 1, so concentrations will only be written for the first layer.
+-   `AVG_CONC_SPCS [if commented out, output all species]`<a id=AVG_CONC_SPCS></a>  
+    Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM_CONC file. The species in this list will be written to the CCTM_ACONC output file.
+-   `ACONC_BLEV_ELEV [default: if commented out, all layers]`<a id=ACONC_BLEV_ELEV></a>  
+    Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.
 -   `AVG_FILE_END_TIME [default: N]`<a id=AVG_FILE_END_TIME></a>  
     Change the time stamp of the ACONC file output time step from the default of the beginning of the hour to the end of the hour.
     - `Y`: Set the time stamp to the end of each hour.  
@@ -369,37 +369,37 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
     Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = FALSE`  
     - `BELD3`  
-    Use BELD3 landuse data  
-    - `BELD4`  
-    Use BELD4 landuse data  
--   `CTM_LTNG_NO [default: False]`<a id=CTM_LING_NO></a>  
-    Setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. Set to Y to turn on; comment out variable or set to N to turn off.  
--   `CTM_WVEL [default: False]`<a id=CTM_WVEL></a>  
-    Setting to output the CCTM-calculated vertical velocities to the CONC file. Set to Y to turn on; comment out variable or set to N to turn off.  
--   `KZMIN [default: True]`<a id=KZMIN></a>  
-    If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.  
--   `CTM_MOSAIC [default: False]`<a id=CTM_MOSAIC></a>  
-    Calculate land use specific deposition velocities and fluxes.  
--   `CTM_FST [default: False]`<a id=CTM_FST></a>  
-    Use MOSAIC method to get land-use specific stomatal flux.  
--   `PX_VERSION [default: True]` <a id=PX_VERSION></a>  
-**>>COMMENT<<** Needs description  
--   `CLM_VERSION [default: False]` <a id=CLM_VERSION></a>  
-**>>COMMENT<<** Needs description  
--    `NOAH_VERSION [default: True]` <a id=NOAH_VERSION></a>  
-**>>COMMENT<<** Needs description  
--   `CTM_ABFLUX [default: False]`<a id=CTM_ABFLUX></a>  
-    Activate fertilizer ammonia bidirectional flux for inline emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y to turn on; comment out or set to N to turn off.  
--   `CTM_BIDI_FERT_NH3 [default: True]` <a id=CTM_BIDI_FERT_NH3></a>  
+    Use BELD3 landuse data
+    - `BELD4`
+    Use BELD4 landuse data
+-   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
+    Setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. Set to Y to turn on; comment out variable or set to N to turn off.
+-   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
+    Setting to output the CCTM-calculated vertical velocities to the CONC file. Set to Y to turn on; comment out variable or set to N to turn off.
+-   `KZMIN [default: Y]`<a id=KZMIN></a>  
+    If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
+-   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
+    Ouput land use specific deposition velocities and fluxes. This option is only available when using the STAGE deposition module.
+-   `CTM_FST [default: N]`<a id=CTM_FST></a>  
+   Output land-use specific stomatal flux. This option is only available when using the STAGE deposition module and when CTM_MOSAIC is set to Y.
+-   `PX_VERSION` <a id=PX_VERSION></a>
+**>>COMMENT<<** Needs description
+-   `CLM_VERSION` <a id=CLM_VERSION></a>
+**>>COMMENT<<** Needs description
+-    `NOAH_VERSION` <a id=NOAH_VERSION></a>
+**>>COMMENT<<** Needs description
+-   `CTM_ABFLUX [default: Y]`<a id=CTM_ABFLUX></a>  
+    Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (E2C_LU), soil properties (E2C_SOIL), fertilizer conditions (E2C_CHEM), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y to turn on; comment out or set to N to turn off.
+-   `CTM_BIDI_FERT_NH3` <a id=CTM_BIDI_FERT_NH3></a>
 **>>COMMENT<<** Needs description    
--   `CTM_HGBIDI [default: False]`<a id=CTM_HGBIDI></a>  
-    Activate mercury bidirectional flux for inline emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.  
--   `CTM_SFC_HONO [default: False]`<a id=CTM_SFC_HONO></a>  
-    Calculate surface HONO interactions. If CTM_ILDEPV is set to N this variable is ignored. Comment out or set to Y to turn on; set to N to turn off.  
--   `CTM_GRAV_SETL [default True]`<a id=CTM_GRAV_SETL></a>  
-    Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.  
--   `CTM_BIOGEMIS [default: False]`<a id=CTM_BIOGEMIS></a>  
-    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings)     
+-   `CTM_HGBIDI [default: N]`<a id=CTM_HGBIDI></a>  
+    Activate mercury bidirectional flux for in-line emissions and deposition velocities. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
+-   `CTM_SFC_HONO [default: Y]`<a id=CTM_SFC_HONO></a>  
+    Calculate surface HONO interactions. IComment out or set to Y to turn on; set to N to turn off.
+-   `CTM_GRAV_SETL [default Y]`<a id=CTM_GRAV_SETL></a>  
+    Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.
+-   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
+    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings)     
 
 <a id=Process_Analysis_Options></a>
 ### Process analysis options
