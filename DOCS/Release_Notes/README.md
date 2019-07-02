@@ -72,7 +72,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
 
 ## Pre-processors, Post-processors, and Utilities
- * [Updates in MCIPv5.0](updates_to_MCIPv5_0.md)
+ * [Updates in MCIPv5.0](../../PREP/mcip/docs/ReleaseNotes)
  * [Updates to the ICON and BCON pre-processors.](updates_to_ICON_BCON.md)
  * [New create_omi pre-processor.](Add_create_omi_tool.md)
  * [Updates to the create_ebi utility](updates_to_create_ebi.md)
