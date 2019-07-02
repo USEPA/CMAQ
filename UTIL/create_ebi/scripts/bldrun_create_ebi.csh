@@ -45,8 +45,8 @@ endif
  setenv MECH_NO2   NO2    #  NO2                 # NO2             # Species name for nitrogen dioxide
  setenv MECH_O3    O3     #  O3                  # O3              # Species name for ozone
  setenv MECH_O3P   O      #  O3P                 # O               # Species name for ground state oxygen atom
- setenv MECH_O1D   O1D    #  O1D2 or O1D         # O1D             # Species name for excited state oxygen atom
- setenv MECH_OH    OH     #  HO or OH / HO       # OH              # Species name for hydroxyl radical
+ setenv MECH_O1D   O1D    #  O1D                 # O1D             # Species name for excited state oxygen atom
+ setenv MECH_OH    OH     #  OH / HO             # OH              # Species name for hydroxyl radical
  setenv MECH_HO2   HO2    #  HO2                 # HO2             # Species name for hydroperoxy radical
  setenv MECH_HONO  HONO   #  HONO                # HONO            # Species name for nitrous acid
  setenv MECH_HNO4  PNA    #  HNO4                # PNA             # Species name for peroxynitric acid
