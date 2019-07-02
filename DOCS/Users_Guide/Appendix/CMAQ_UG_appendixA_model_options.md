@@ -25,7 +25,7 @@
 	* [Diagnostic Output Flags](#Diagnostic_Output_Flags)
 	* [Inline Emissions Configuration](#Inline_Emissions_Config)
 	* [Lightning NOx Configuration](#Lightning_NOx_Config)
-	* [In-line Biogenic Emissions Configuration](#In-line_Bio_Config)
+	* [Online Biogenic Emissions Configuration](#Online_Bio_Config)
     * [Windblown Dust Emissions Configuration](#windblown_dust_config)
 
 <a id=config_cmaq.csh></a>
@@ -90,10 +90,10 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     **>>COMMENT<<** Needs description
 
 -    `myDBG` <a id=myDBG></a>
-**>>COMMENT<<** Needs description
+	**>>COMMENT<<** Needs description
 
 -     `myLINK_FLAGS` <a id=myLINK_FLAGS></a>
-**>>COMMENT<<** Needs description
+	**>>COMMENT<<** Needs description
 
 -   `myFFLAGS`<a id=myFFLAGS></a>
     Fixed-format Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script
@@ -123,8 +123,7 @@ Several of the CCTM science modules have more than one option.  Brief descriptio
 
 The following five options are invoked by uncommenting the line in the CCTM build script.  Comment the line in the script using a "#" to turn the option off.
 
--   `REPO_HOME` <a id=REPO_HOME></a>
-**>>COMMENT<<** Needs description
+-   `REPO_HOME` <a id=REPO_HOME></a> The directory where the user has installed the CMAQ source code, either by cloning the CMAQ GitHub repository or installing from a Zip file. 
 
 -   `CopySrc`<a id=CopySrc></a>  
     Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
@@ -195,7 +194,7 @@ The following configuration settings may have multiple options. Select one optio
     CMAQ in-line anthropogenic and natural emissions module. In line emissions are activated in the CCTM run script. Do not change this module setting.
     -   `emis/emis`
 -   `ModBiog: [default: biog/beis3]`<a id=ModBiog></a>  
-Calculate biogenic emissions in-line with the BEIS3 model. Inline biogenic emissions are activated in the CCTM run script. Do not change this module setting.
+Calculate biogenic emissions online with the BEIS3 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting.
     - `biog/beis3`
 -   `ModPlmrs: [default: plrise/smoke]`<a id=ModPlmrs></a>  
 Calculate in-line plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE. Inline emissions plume rise is controlled in the CCTM run script. Do not change this module setting.
@@ -364,7 +363,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
-    Use inline Sea Spray Aerosol emissions and Halogen ozone chemistry  
+    Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry  
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
     Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.  
 -   `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
@@ -400,7 +399,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_GRAV_SETL [default True]`<a id=CTM_GRAV_SETL></a>  
     Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.  
 -   `CTM_BIOGEMIS [default: False]`<a id=CTM_BIOGEMIS></a>  
-    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings)     
+    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings)     
 
 <a id=Process_Analysis_Options></a>
 ### Process analysis options
@@ -494,10 +493,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Number of time steps for calculating elevated-point-source emissions.  
 
 -   `PT3DDIAG [default: False]`<a id=PT3DDIAG></a>  
-    Output the in-line 3-D point-source emissions to a diagnostic netCDF output file (CTM_PT3D_DIAG). Set to Y to turn on; comment out or set to N to turn off.  
+    Output the inline 3-D point-source emissions to a diagnostic netCDF output file (CTM_PT3D_DIAG). Set to Y to turn on; comment out or set to N to turn off.  
 
 -   `PT3DFRAC [default: False]`<a id=PT3DFRAC></a>  
-    Output the in-line 3-D point-source layer fractions to a diagnostic netCDF output file (PLAY_SRCID_NAME). Set to Y to turn on; comment out or set to N to turn off.  
+    Output the inline 3-D point-source layer fractions to a diagnostic netCDF output file (PLAY_SRCID_NAME). Set to Y to turn on; comment out or set to N to turn off.  
 
 -   `REP_LAYER_MIN [default: -1]`<a id=REP_LAYER_MIN></a>  
     Minimum layer number for reporting plume rise values to the plume rise diagnostics file. Set to `-1` or comment out to report all layers.  
@@ -508,7 +507,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `LTNGNO [default: "InLine"]`<a id=LTNGNO></a>  
-    Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating in-line lightning NO emissions.  
+    Setting to define whether the lightning emissions calculation will be inline or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the inline emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating inline lightning NO emissions.  
 
 -   `USE_NLDN [default: False]`<a id=USE_NLDN></a>  
     Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file.  Comment out or set to Y to turn on; set to N to turn off. If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.  
@@ -520,8 +519,8 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -  `CTM_LTNGDIAG_2`<a id=LTNGOUT></a>  
     Lightning diagnostics output 2D netCDF file (column total lightning NO emissions); ignore if `LTNGDIAG = N`  
 
-<a id=In-line_Bio_Config></a>
-### In-line biogenic emissions configuration
+<a id=Online_Bio_Config></a>
+### Online biogenic emissions configuration
 
 [Return to Top](#TOC_A)
 
@@ -547,7 +546,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Directory path and file name of biogenic NO soil emissions file. If INITIAL_RUN is set to N or F, the soil NO emissions file from the previous day’s simulation will be a required input file.  
 
 -   `B3GTS_DIAG [default: False]`<a id=B3GTS_DIAG></a>  
-    Write the inline biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). Set to Y to turn on; comment out or set to N to turn off.  
+    Write the online biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). Set to Y to turn on; comment out or set to N to turn off.  
 
 -   `B3GTS_S [default: [Output Directory]/CCTM_B3GTS_$CTM_APPL.nc`<a id=B3GTS_S></a>  
     Diagnostic output netCDF file of biogenic emissions. This variable is ignored if B3GTS_DIAG is set to N.  
