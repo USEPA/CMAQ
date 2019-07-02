@@ -31,18 +31,14 @@ these utilities.
 
 ## Runtime Environment Variables:
 
-**>>Comment<<** Maybe talk about BCON build script variables VRSN and APPL or maybe make the environment variables to reduce errors.
-
-**>>Comment<<** EXE descript: CFG a variable in the BLD script not runscript. EXECID variable name is inconsistent with configure run script. EXEC_ID exists in the configure runscript. 
-
 **Table 1. Runtime Environment Variables**
 
 |**Variable Name**|**Example in Runscript**|**Description**|
 |---------------------|-------------|-----------------------------------------------------------------------|
-|VRSN|v53|Configuration identifier for the BCON simulation. Must match CFG Variable setting in the BCON build script.|
-|APPL|SE53BENCH|BCON executable identifier. Must match APPL Variable setting in the BCON build script.|
+|VRSN|v53|Identifies version for the BCON run. Its value should be consistent between BCON build and run scripts for an individual application.|
+|APPL|SE53BENCH|Identifies the intent of the BCON run such as the model domain and chemical mechanism used. Value is the user's preference.|
 |BCTYPE|regrid, profile|Specifies which BC type to generate.|
-|EXEC|BCON_${VRSN}.exe|Executable to use for the simulation. The variable CFG is set in the BCON run script. The variable EXECID is set in the config_cmaq.csh configuration file.|
+|EXEC|BCON_${VRSN}.exe|Executable to use for the BCON run. |
 |GRIDDESC|$CMAQ_HOME/scripts/GRIDDESC1|Grid description file for setting the horizontal grid definition for the target domain.|
 |GRID_NAME|SE53BENCH|Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the target domain.|
 |OUTDIR|$CMAQ_HOME/data/bcon|Output data directory|
@@ -55,19 +51,22 @@ these utilities.
 
 ## BCON input files
 
-**Table 2. BCON input files**
+**Table 2. BCON input files for BCTYPE equals "regrid"**
 
-|**BCTYPE**|**File Name**|**Format**|**Description**|
-|----------|---------------------|-------------|-----------------------------------------------------------------------|
-|regrid|
-||GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
-||CTM_CONC_1|GRDDED3|Name and location of the CMAQ concentration file from which to derive boundary conditions|
-||MET_CRO_3D_CRS|GRDDED3|Name and location of the coarse-grid (or source modeling domain) MET_CRO_3D file|
-||MET_BDY_3D_FIN|BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_BDY_3D file|
-|profile|
-||GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
-||BC_PROFILE|ASCII|Vertical chemical profiles from which to derive boundary conditions; this file is created by the user; used only when the BC environment variable is set to “profile”|
-||MET_BDY_3D_FIN|BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_BDY_3D file|
+|**File Name**|**Format**|**Description**|
+|---------------------|-------------|-----------------------------------------------------------------------|
+|GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
+|CTM_CONC_1|IOAPI/GRDDED3|Name and location of the CMAQ concentration file from which to derive boundary conditions|
+|MET_CRO_3D_CRS|IOAPI/GRDDED3|Name and location of the coarse-grid (or source modeling domain) MET_CRO_3D file|
+|MET_BDY_3D_FIN|IOAPI/BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_BDY_3D file|
+
+**Table 3. BCON input files for BCTYPE equals "profile"**
+
+|**File Name**|**Format**|**Description**|
+|---------------------|-------------|-----------------------------------------------------------------------|
+|GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
+|BC_PROFILE|ASCII|Vertical chemical profiles from which to derive boundary conditions; this file is created by the user|
+|MET_BDY_3D_FIN|IOAPI/BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_BDY_3D file|
 
 ## BCON output files
 
@@ -77,7 +76,7 @@ these utilities.
 
 |**File Name**|**Format**|**Description**|
 |------------|-----------|---------------------------------------------------------------|
-|BNDY_CONC_1|BNDARY3|Name and location of the gridded boundary conditions data output on the model grid defined by `GRID_NAME`|
+|BNDY_CONC_1|BNDARY3|Name and location of the gridded boundary conditions data output on the model grid defined VRSN, BCTYPE, APPL, and DATE |
 
 The default location of the BCON output files is the `$CMAQ_DATA/bcon`
 directory, controlled by the `OUTDIR` variable in the run script. The default

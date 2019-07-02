@@ -25,18 +25,15 @@ transform their GCM datasets into I/O API format, which would then allow these
 datasets to be input into ICON to generate ICs for the CCTM.
 
 ## Environment variables used:
-**>>Comment<<** Maybe talk about BCON build script variables VRSN and APPL or maybe make the environment variables to reduce errors.
-
-**>>Comment<<** EXE descript: CFG a variable in the BLD script not runscript. EXECID variable name is inconsistent with configure run script. EXEC_ID exists in the configure runscript. 
 
 **Table 1. Runtime Environment Variables**
 
 |**Variable Name**|**Example in Runscript**|**Description**|
 |---------------------|-------------|-----------------------------------------------------------------------|
-|VRSN|v53|Configuration identifier for the ICON simulation. Must match CFG Variable setting in the ICON build script.|
-|APPL|SE53BENCH|ICON executable identifier. Must match APPL Variable setting in the ICON build script.|
+|VRSN|v53|Identifies version for the ICON run. Its value should be consistent between BCON build and run scripts for an individual application.|
+|APPL|SE53BENCH|Identifies the intent of the ICON run such as the model domain and chemical mechanism used. Value is the user's preference.|
 |ICTYPE|regrid, profile|Specifies which IC type to generate.|
-|EXEC|ICON_${VRSN}.exe|Executable to use for the simulation. The variable CFG is set in the ICON run script. The variable EXECID is set in the config_cmaq.csh configuration file.|
+|EXEC|ICON_${VRSN}.exe|Executable to use for the ICON run.|
 |GRIDDESC|$CMAQ_HOME/scripts/GRIDDESC1|Grid description file for setting the horizontal grid definition for the target domain.|
 |GRID_NAME|SE53BENCH|Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the target domain.|
 |OUTDIR|$CMAQ_HOME/data/icon|Output data directory|
@@ -47,41 +44,30 @@ datasets to be input into ICON to generate ICs for the CCTM.
 
 ## ICON input files
 
-**>>Comment<<** Tables 2 and 3 have redundant information. BCON only has one table. Only Table 3 seems to be needed.
-
-**Table 2. ICON input files**
+**Table 2. ICON input files for ICTYPE equals "regrid"**
 
 |**File Name**|**Format**|**Description**|
 |---------------------|-------------|-----------------------------------------------------------------------|
-|IC_PROFILE|`ASCII`|Vertical chemical profiles from which to derive initial conditions; this file is created by the user; used only when the IC environment variable is set to “profile”|
-|CTM_CONC_1|`GRDDED3`|Name and location of the CMAQ concentration file from which to derive initial conditions; this file is output from CCTM; used only when the IC environment variable is set to “m3conc”|
-|MET_CRO_3D_CRS|`GRDDED3`|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
-|MET_CRO_3D_FIN|`GRDDED3`|Name and location of the fine grid MET_CRO_3D file that is required if the vertical grid structure changes between nested simulations; this file is output by MCIP|
-|GRIDDESC|`ASCII`|Horizontal grid description file for defining the model grid; this file is output by MCIP or can be created by the user|
+|GRIDDESC|ASCII|Horizontal grid description file for defining the model grid; this file is output by MCIP or can be created by the user|
+|CTM_CONC_1|IOAPI/GRDDED3|Name and location of the CMAQ concentration file from which to derive initial conditions; this file is output from CCTM|
+|MET_CRO_3D_CRS|IOAPI/GRDDED3|Name and location of the coarse-grid MET_CRO_3D file that is required for creating the vertical grid structure if this structure changes between nested simulations; this file is output by MCIP|
+|MET_CRO_3D_FIN|IOAPI/GRDDED3|Name and location of the fine grid MET_CRO_3D file that is required if the vertical grid structure changes between nested simulations; this file is output by MCIP|
 
-**Table 3. ICON input files**
+**Table 3. ICON input files for ICTYPE equals "profile"**
 
-|**ICTYPE**|**File Name**|**Format**|**Description**|
-|----------|---------------------|-------------|-----------------------------------------------------------------------|
-|regrid|
-||GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
-||CTM_CONC_1|GRDDED3|Name and location of the CMAQ concentration file from which to derive initial conditions|
-||MET_CRO_3D_CRS|GRDDED3|Name and location of the coarse-grid (or source modeling domain) MET_CRO_3D file|
-||MET_CRO_3D_FIN|BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_CRO_3D file|
-|profile|
-||GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
-||IC_PROFILE|ASCII|Vertical chemical profiles from which to derive initial conditions; this file can created by the user|
-||MET_CRO_3D_FIN|BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_CRO_3D file|
+|**File Name**|**Format**|**Description**|
+|-------------|----------|---------------|
+|GRIDDESC|ASCII|Horizontal grid description file for defining the model grid for the target domain; this file is output by MCIP or can be created by the user|
+|IC_PROFILE|ASCII|Vertical chemical profiles from which to derive initial conditions; this file can created by the user|
+|MET_CRO_3D_FIN|IOAPI/BNDARY3|Name and location of the fine-grid (or target modeling domain) MET_CRO_3D file|
 
 ## ICON output files
-
-**>>Comment<<** File name needs to be changed to variable name.
 
 **Table 4. ICON output files**
 
 |**File Name**|**Format**|**Description**|
 |------------|-----------|---------------------------------------------------------------|
-|INIT_CONC_1|`GRDDED3`|Name and location of the gridded initial conditions data output on the model grid defined by `GRID_NAME`|
+|INIT_CONC_1|IOAPI/GRDDED3|Name and location of the gridded initial conditions data output on the model grid defined by values of VRSN, ICTYPE, APPL, and DATE  |
 
 The default location of the ICON output files is the `$CMAQ_DATA/icon` directory, controlled by the `OUTDIR` variable in the run script. The default naming convention for all ICON output files uses the `APPL` and `GRID_NAME` environment variables in the file name. For initial conditions created from existing `CCTM CONC` files, the Julian date is also used in the file name through the `DATE` environment variable. All of the file-naming variables for `ICON` outputs are set in the run script.
 
