@@ -10,7 +10,7 @@
 
 [Figure 2-1. Overview of the CMAQ System](CMAQ_UG_ch02_program_structure.md#Figure2-1)
 
-[Figure 5-1. CMAQ repository structure](CMAQ_UG_ch05_compile_and_run.md#Figure5-1) 
+[Figure 5-1. CMAQ repository structure](CMAQ_UG_ch05_running_a_simulation.md#Figure5-1) 
 
 [Figure 9-1. Relative contribution of oxidation pathways for VOCs using Process Analysis](CMAQ_UG_ch09_process_analysis.md#Figure9-1) 
 
