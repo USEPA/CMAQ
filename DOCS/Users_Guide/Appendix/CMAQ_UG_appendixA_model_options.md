@@ -319,9 +319,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `GRID_NAME [default: CMAQ-BENCHMARK]`<a id=GRID_NAME></a>  
+-   `GRID_NAME [default: Blank]`<a id=GRID_NAME></a>  
     Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.  
--   `GRIDDESC [default: Blank]`<a id=GRIDDESC></a>  
+-   `GRIDDESC [default: Path to GRIDDESC file]`<a id=GRIDDESC></a>  
     Grid description file for setting the horizontal grid definition.  
 -   `CTM_APPL [default: ${RUNID}_${YYYYMMDD}]`<a id=CTM_APPL></a>  
     CCTM log file naming extension.  
