@@ -107,7 +107,7 @@ Gridded masks are used to apply rules to specific areas of the domain. For examp
 ```
 will scale emissions of all species from all streams by +50% but only in grid cells in the state of Kentucky. Additional ioapi formated input files containing geographic region definitions are required to take advantage of this opiton.  Such files should contain a seperate variable for each spatial region of interest.  Each variable is a gridded field of real numbers from 0.0 to 1.0, with 0.0 outside of the region of interest and 1.0 completely inside the region. Region border grid cells should have the geographic fraction attributed to the region (for example, a grid cell that 35% in Kentucky and 65% in Tennessee would have have the number 0.35 for the variable representing the Kentucky mask.
 
-These mask files are read by CMAQ through environmental variable, which are identified in the RunScript.  For example:
+These mask files are read by CMAQ through environmental variables, which are identified in the RunScript.  For example:
 
 ```
 setenv US_STATES /home/${CMAQ_HOME}/CCTM/scripts/us_states.nc
