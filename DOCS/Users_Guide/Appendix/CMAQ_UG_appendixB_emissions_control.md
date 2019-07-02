@@ -105,9 +105,15 @@ Gridded masks are used to apply rules to specific areas of the domain. For examp
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'KENTUCKY'    , 'All'         ,'All'    ,'All'         ,'All' ,1.50 ,'UNIT','m',
 ```
-will scale emissions of all species from all streams by +50% but only in grid cells in the state of Kentucky. A gridded field of real numbers from 0.0 to 1.0 is needed to accomplish this task, with 0.0 outside of the region of interest and 1.0 completely inside the region. Grid cells on the border of a region would then have some fraction of their emissions, corresponding to the real decimal number in the gridded mask, modified according to the scaling rule.
+will scale emissions of all species from all streams by +50% but only in grid cells in the state of Kentucky. Additional ioapi formated input files containing geographic region definitions are required to take advantage of this opiton.  Such files should contain a seperate variable for each spatial region of interest.  Each variable is a gridded field of real numbers from 0.0 to 1.0, with 0.0 outside of the region of interest and 1.0 completely inside the region. Region border grid cells should have the geographic fraction attributed to the region (for example, a grid cell that 35% in Kentucky and 65% in Tennessee would have have the number 0.35 for the variable representing the Kentucky mask.
 
-These masks are provided to CMAQ by at least one offline gridded file, which are identified in the RunScript using environment variables (more later). The *RegionsRegistry* section of the Emission Control Namelist maps each "Region Label" to specific variables on specific files. Here is the *RegionsRegistry* section in the default namelist:
+These mask files are read by CMAQ through environmental variable, which are identified in the RunScript.  For example:
+
+```
+setenv US_STATES /home/${CMAQ_HOME}/CCTM/scripts/us_states.nc
+```
+
+The *RegionsRegistry* section of the Emission Control Namelist maps each "Region Label" to specific variables on specific files. Here is the *RegionsRegistry* section in the default namelist:
 ```
 &RegionsRegistry
  RGN_NML  =   
@@ -229,5 +235,5 @@ setenv EMIS_DIAG TRUE
 The emission rates printed to the diagnostic files reflect all the scaling rules applied and are written just before the emissions are added to the CMAQ transport module. Because the model interpolates in time, it is very likely that the rates written to the diagnostic file will not correspond in time to the rates from the input files. In most cases, the rates will be one-half time step before the top of the hour, the time point of the emission inputs. For this reason, it is not entirely helpful for users to compare the scaled emissions directly to the rates on the input files. However, comparing them qualitatively can be helpful.
 
 
-[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
+[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
 CMAQ User's Guide (c) 2019<br>
