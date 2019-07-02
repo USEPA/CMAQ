@@ -60,11 +60,7 @@ To begin a CMAQ simulation with apportionment enabled, the ISAM section of the r
 |SA_WD_1|path/filename|ISAM output for apportioned wet deposition|
 |SA_CGRID_1|path/filename|ISAM output for a restart file to continue the simulation further in time|
 
-Additionally, ISAM can track emissions confined to geographic regions.  This functionality can enable through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist and is discussed further below.
-
-
-**>>COMMENT<<** !!!! Add cross-reference to the map stuff wherever it is !!!!
-
+Additionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
 
 ### 11.3.1 ISAM control file (SA_IOLIST)
 
@@ -84,7 +80,7 @@ TAG NAME        |EGU
 
 It is recommended that the text string for the tag name be kept short (ideally three characters) in order to accommodate the longer species names from some chemical mechanisms in the ISAM output files.
 
-The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissions, variable names from the regions file specified in the `EmissCtrl` namelist are used instead.
+The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissions, variable names from the regions file specified in the `EmissCtrl` namelist are used instead of the "EVERYWHERE' keyword. The regions file requirements are identical to the optional file used to scale emissions in predetermined geographical areas (Appendix B.4).
 
 ```
 REGION(S)       |EVERYWHERE
