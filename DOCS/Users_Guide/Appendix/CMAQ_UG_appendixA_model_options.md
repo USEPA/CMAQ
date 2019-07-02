@@ -319,11 +319,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `LOGFILE [default: $BASE/$APPL.log]`<a id=LOGFILE></a>  
-    Uncomment to capture CCTM standard output to a log file; the LOGFILE variable sets the name and location of the log.  
 -   `GRID_NAME [default: CMAQ-BENCHMARK]`<a id=GRID_NAME></a>  
     Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.  
--   `GRIDDESC [default: $CMAQ_HOME/scripts/GRIDDESC1]`<a id=GRIDDESC></a>  
+-   `GRIDDESC [default: Blank]`<a id=GRIDDESC></a>  
     Grid description file for setting the horizontal grid definition.  
 -   `CTM_APPL [default: ${RUNID}_${YYYYMMDD}]`<a id=CTM_APPL></a>  
     CCTM log file naming extension.  
@@ -333,13 +331,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Vertical model layer range for the CONC-file concentrations; this variable sets the lower and upper layers over which to output the CONC file.  
 -   `AVG_CONC_SPCS [if commented out, output all species]`<a id=AVG_CONC_SPCS></a>   
     Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM CONC file. The species in this list will be written to the ACONC output file.  
--   `ACONC_BLEV_ELEV [default: if commented out, all layers]`<a id=ACONC_BLEV_ELEV></a>  
+-   `ACONC_BLEV_ELEV [default: if commented out, output all layers]`<a id=ACONC_BLEV_ELEV></a>  
     Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.  
 -   `AVG_FILE_END_TIME [default: N]`<a id=AVG_FILE_END_TIME></a>  
     Change the time stamp of the ACONC file output time step from the default of the beginning of the hour to the end of the hour.
     - `Y`: Set the time stamp to the end of each hour.  
     - `N`: Set the time stamp to the beginning of the hour.  
--   `EXECUTION_ID`<a id=EXECUTION_ID></a>  
+-   `EXECUTION_ID [default: Blank]`<a id=EXECUTION_ID></a>  
     The name of the CCTM executable; automatically set by the script.  
 
 <a id=Syn_time_Option></a>
@@ -347,17 +345,17 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `CTM_MAXSYNC [default: 300]`<a id=CTM_MAXSYNC></a>  
+-   `CTM_MAXSYNC [default: 720]`<a id=CTM_MAXSYNC></a>  
     Maximum synchronization time step in seconds  
 -   `CTM_MINSYNC [default: 60]`<a id=CTM_MINSYNC></a>  
     Minimum synchronization time step in seconds  
 -   `SIGMA_SYNC_TOP [default: .70]`<a id=SIGMA_SYNC_TOP></a>  
     Top sigma level thru which sync step determined  
--   `ADV_HDIV_LIM [default: .95]`<a id=ADV_HDIV_LIM></a>  
+-   `ADV_HDIV_LIM [default: .9]`<a id=ADV_HDIV_LIM></a>  
      Maximum horizontal division limit for advection time step adjustment  
--   `CTM_ADV_CFL [default: .95]`<a id=CTM_ADV_CFL></a>  
+-   `CTM_ADV_CFL [default: .75]`<a id=CTM_ADV_CFL></a>  
     Maximum Courant–Friedrichs–Lewy (cfl) condition  
--   `RB_ATOL [default: 1.0E-09]`<a id=RB_ATOL></a>  
+-   `RB_ATOL [default: 1.0E-07]`<a id=RB_ATOL></a>  
     Global Rosenbrock (ROS3) chemistry solver absolute tolerance  
 
 <a id=Science_Options></a>
@@ -365,45 +363,43 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `CTM_OCEAN_CHEM`<a id=CTM_SS_AERO></a>   
-    Use inline Sea Spray Aerosol emissions and Halogen ozone chemistry  [ default: Y ]   
--   `CTM_WB_DUST [default: Y]`<a id=CTM_WB_DUST></a>  
+-   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
+    Use inline Sea Spray Aerosol emissions and Halogen ozone chemistry  
+-   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
     Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.  
--   `CTM_WBDUST_BELD [default: BELD3]`<a id=CTM_WBDUST_BELD></a>  
-    Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = N`  
+-   `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
+    Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = FALSE`  
     - `BELD3`  
     Use BELD3 landuse data  
     - `BELD4`  
     Use BELD4 landuse data  
--   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
+-   `CTM_LTNG_NO [default: False]`<a id=CTM_LING_NO></a>  
     Setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. Set to Y to turn on; comment out variable or set to N to turn off.  
--   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
+-   `CTM_WVEL [default: False]`<a id=CTM_WVEL></a>  
     Setting to output the CCTM-calculated vertical velocities to the CONC file. Set to Y to turn on; comment out variable or set to N to turn off.  
--   `KZMIN [default: Y]`<a id=KZMIN></a>  
+-   `KZMIN [default: True]`<a id=KZMIN></a>  
     If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.  
--   `CTM_ILDEPV [default: Y]`<a id=CTM_ILDEPV></a>  
-    Calculate in-line deposition velocities. Comment out variable or set to Y to turn on; set to N to turn off.  
--   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
+-   `CTM_MOSAIC [default: False]`<a id=CTM_MOSAIC></a>  
     Calculate land use specific deposition velocities and fluxes.  
--   `CTM_FST [default: N]`<a id=CTM_FST></a>  
+-   `CTM_FST [default: False]`<a id=CTM_FST></a>  
     Use MOSAIC method to get land-use specific stomatal flux.  
--   `PX_VERSION` <a id=PX_VERSION></a>  
+-   `PX_VERSION [default: True]` <a id=PX_VERSION></a>  
 **>>COMMENT<<** Needs description  
--   `CLM_VERSION` <a id=CLM_VERSION></a>  
+-   `CLM_VERSION [default: False]` <a id=CLM_VERSION></a>  
 **>>COMMENT<<** Needs description  
--    `NOAH_VERSION` <a id=NOAH_VERSION></a>  
+-    `NOAH_VERSION [default: True]` <a id=NOAH_VERSION></a>  
 **>>COMMENT<<** Needs description  
--   `CTM_ABFLUX [default: Y]`<a id=CTM_ABFLUX></a>  
+-   `CTM_ABFLUX [default: False]`<a id=CTM_ABFLUX></a>  
     Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y to turn on; comment out or set to N to turn off.  
--   `CTM_BIDI_FERT_NH3` <a id=CTM_BIDI_FERT_NH3></a>  
+-   `CTM_BIDI_FERT_NH3 [default: True]` <a id=CTM_BIDI_FERT_NH3></a>  
 **>>COMMENT<<** Needs description    
--   `CTM_HGBIDI [default: N]`<a id=CTM_HGBIDI></a>  
+-   `CTM_HGBIDI [default: False]`<a id=CTM_HGBIDI></a>  
     Activate mercury bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.  
--   `CTM_SFC_HONO [default: Y]`<a id=CTM_SFC_HONO></a>  
+-   `CTM_SFC_HONO [default: False]`<a id=CTM_SFC_HONO></a>  
     Calculate surface HONO interactions. If CTM_ILDEPV is set to N this variable is ignored. Comment out or set to Y to turn on; set to N to turn off.  
--   `CTM_GRAV_SETL [default Y]`<a id=CTM_GRAV_SETL></a>  
+-   `CTM_GRAV_SETL [default True]`<a id=CTM_GRAV_SETL></a>  
     Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.  
--   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
+-   `CTM_BIOGEMIS [default: False]`<a id=CTM_BIOGEMIS></a>  
     Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings)     
 
 <a id=Process_Analysis_Options></a>
@@ -413,11 +409,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 -   `CTM_PROCAN [default: N]`<a id=CTM_PROCAN></a>  
     Activate process analysis in the CCTM. Set this to Y and use $CMAQ_DATA/pacp/pacp.inp to configure the integrated process rate and integrated reaction rate settings for the CCTM.  Additional process analysis output files will be created when this setting is activated.  
--   `PA_BCOL_ECOL [default: None]`<a id=PA_BCOL_ECOL></a>  
+-   `PA_BCOL_ECOL [default: 0]`<a id=PA_BCOL_ECOL></a>  
     Modeling grid domain column range for the process analysis calculations. Set to the two digits representing the beginning and ending column number bounding the process analysis domain.  
--   `PA_BROW_EROW [default: None]`<a id=PA_BROW_EROW></a>  
+-   `PA_BROW_EROW [default: 0]`<a id=PA_BROW_EROW></a>  
     Modeling grid domain row range for the process analysis calculations. Set to the two digits representing the beginning and ending row number bounding the process analysis domain.  
--   `PA_BLEV_ELEV [default: None]`<a id=PA_BLEV_ELEV></a>  
+-   `PA_BLEV_ELEV [default: 0]`<a id=PA_BLEV_ELEV></a>  
     Modeling grid domain layer range for the process analysis calculations. Set to the two digits representing the bottom and top layer numbers bounding the process analysis domain.  
 -   `PACM_INFILE` <a id=PACM_INFILE></a>  
      Input file that specifies the desired output information (read by pa_read.F). See Table 1 in [Chapter 10](../CMAQ_UG_ch10_process_analysis.md) for details on the types of equations and operators that can be used in this file. A sample file is includedin the CCTM scripts directory.  
@@ -429,13 +425,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `IOAPI_LOG_WRITE [default: Y]`<a id=IOAPI_LOG_WRITE></a>  
+-   `IOAPI_LOG_WRITE [default:True]`<a id=IOAPI_LOG_WRITE></a>  
     Set to T to turn on excess WRITE3 logging by the I/O API.  
--   `FL_ERR_STOP [default: N]`<a id=FL_ERR_STOP></a>  
+-   `FL_ERR_STOP [default: True]`<a id=FL_ERR_STOP></a>  
     Set to T to configure the program to exit if inconsistent headers are found in the input files.  
--   `PROMPTFLAG [default: N]`<a id=PROMPTFLAG></a>  
+-   `PROMPTFLAG [default: False]`<a id=PROMPTFLAG></a>  
     Turn on I/O-API PROMPTFILE interactive mode. Set to T to require interactive prompts for different I/O API operations.  
--   `IOAPI_OFFSET_64 [default: N]`<a id=IOAPI_OFFSET_64></a>  
+-   `IOAPI_OFFSET_64 [default: False]`<a id=IOAPI_OFFSET_64></a>  
     I/O API setting for large time step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.  
 
 <a id=Aersol_Diagnostics_Controls></a>
@@ -443,11 +439,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `CTM_PMDIAG [default: N]`<a id=CTM_PMDIAG></a>  
+-   `CTM_PMDIAG [default: False]`<a id=CTM_PMDIAG></a>  
     Output aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). Set to Y to turn on; comment out or set to N to turn off.
--   `CTM_APMDIAG [default: N]`<a id=CTM_APMDIAG></a>  
+-   `CTM_APMDIAG [default: False]`<a id=CTM_APMDIAG></a>  
     Output hourly average aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). Set to Y to turn on; comment out or set to N to turn off.  
--   `APMDIAG_BLEV_ELEV [default: None]`<a id=APMDIAG_BLEV_ELEV></a>  
+-   `APMDIAG_BLEV_ELEV [default: 0]`<a id=APMDIAG_BLEV_ELEV></a>  
     Modeling grid domain layer range for the hourly average aerosol diagnostics and properties file. Set to the two digits representing the bottom and top layer numbers to bound the output domain.  
 
 <a id=Diagnostic_Output_Flags></a>
@@ -455,23 +451,23 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `CTM_CKSUM [default: Y]`<a id=CTM_CKSUM></a>  
+-   `CTM_CKSUM [default: True]`<a id=CTM_CKSUM></a>  
     Write science processes summaries to the standard output. Impacts run speed and log file output size. Comment out or set to Y to turn on; set to N to turn off.  
--   `CLD_DIAG [default: N]`<a id=CLD_DIAG></a>  
+-   `CLD_DIAG [default: False]`<a id=CLD_DIAG></a>  
     Output an hourly wet deposition diagnostic file (CTM_WET_DEP_2) that includes convective wet deposition estimates. Set to Y to turn on; comment out or set to N to turn off.  
--   `NLAYS_PHOTDIAG` <a id=NLAYS_PHOTDIAG></a>  
+-   `NLAYS_PHOTDIAG [default: 0]` <a id=NLAYS_PHOTDIAG></a>  
 **>>COMMENT<<** Needs description  
--   `CTM_PHOTDIAG [default: N]`<a id=CTM_PHOTDIAG></a>  
+-   `CTM_PHOTDIAG [default: False]`<a id=CTM_PHOTDIAG></a>  
     Output in-line photolysis rates and associated data to diagnostic netCDF output files. The file CTM_RJ_1 contains gridded photolysis rates for O3 (JO3O1D) and NO2 (JNO2) that include both clear-sky and cloud effects, total downward irradiance at the surface (ETOT_SFC_W), aerosol optical depth (TAU_AERO_W), total optical depth (TAU_TOT_W), optical depth of ozone above the model domain (TAUO3_TOP_W), Rayleigh optical depth above the model domain (TAU_RAY_W), and surface albedo (ALBEDO_W). The file CTM_RJ_2 contains gridded photolysis rates for all other photolysis reactions in the selected chemical mechanism. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<** Bill needs to update this.  CMAQv5.3 has a CTM_RJ_3 file.  
--   `CTM_SSEMDIAG [default: N]`<a id=CTM_SSEMDIAG></a>  
+-   `CTM_SSEMDIAG [default: False]`<a id=CTM_SSEMDIAG></a>  
     Output the calculated sea salt emissions to a diagnostic netCDF output file (CTM_SSEMIS_1). Set to Y to turn on; comment out or set to N to turn off.  
--   `CTM_DUSTEM_DIAG [default: N]`<a id=CTM_DUSTEM_DIAG></a>  
+-   `CTM_DUSTEM_DIAG [default: False]`<a id=CTM_DUSTEM_DIAG></a>  
     Output the in-line dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. Set to Y to turn on; comment out or set to N to turn off.  
--   `CTM_DEPV_FILE [default: N]`<a id=CTM_DEPV_FILE></a>  
+-   `CTM_DEPV_FILE [default: False]`<a id=CTM_DEPV_FILE></a>  
     Output an hourly diagnostic file (CTM_DEPV_DIAG) for the in-line deposition velocity calculations. If CTM_ILDEPV is set to N this variable is ignored. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_DEPV_DIAG.  
 -   `VDIFF_DIAG_FILE [default: N]`<a id=VDIFF_DIAG_FILE></a>  
     Output a diffusion and aero gravitational sedimentation diagnostic file. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_VDIFF_DIAG.    
--   `LTNGDIAG [default: N]`<a id=LTNGDIAG></a>  
+-   `LTNGDIAG [default: False]`<a id=LTNGDIAG></a>  
     Output a lightning NO emissions diagnostics file. Set to `Y` to turn on; comment out or set to `N` to turn off.  
 
 <a id=Inline_Emissions_Config></a>
@@ -497,10 +493,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `LAYP_NSTEPS [HHHHHH]`<a id=LAYP_NSTEPS></a>  
     Number of time steps for calculating elevated-point-source emissions.  
 
--   `PT3DDIAG [default: N]`<a id=PT3DDIAG></a>  
+-   `PT3DDIAG [default: False]`<a id=PT3DDIAG></a>  
     Output the in-line 3-D point-source emissions to a diagnostic netCDF output file (CTM_PT3D_DIAG). Set to Y to turn on; comment out or set to N to turn off.  
 
--   `PT3DFRAC [default: N]`<a id=PT3DFRAC></a>  
+-   `PT3DFRAC [default: False]`<a id=PT3DFRAC></a>  
     Output the in-line 3-D point-source layer fractions to a diagnostic netCDF output file (PLAY_SRCID_NAME). Set to Y to turn on; comment out or set to N to turn off.  
 
 -   `REP_LAYER_MIN [default: -1]`<a id=REP_LAYER_MIN></a>  
@@ -511,16 +507,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `LTNGNO [default:InLine]`<a id=LTNGNO></a>  
+-   `LTNGNO [default: "InLine"]`<a id=LTNGNO></a>  
     Setting to define whether the lightning emissions calculation will be in-line or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the in-line emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating in-line lightning NO emissions.  
 
--   `USE_NLDN [default: Y]`<a id=USE_NLDN></a>  
+-   `USE_NLDN [default: False]`<a id=USE_NLDN></a>  
     Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file.  Comment out or set to Y to turn on; set to N to turn off. If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.  
-
--  `NLDN_STRIKES [default: None]`<a id=NLDN_STRIKES></a>  
-    Hourly NLDN lightning strike netCDF FILE. Required when `LTNGNO` is set to `Inline` and `USE_NLDN` is set to `Y`; otherwise ignore this setting.  
-
--  `LTNGPARMS_FILE [default: None]`<a id=LTNGPARMS_FILE></a>  
     Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to "InLine" and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file.  
 
 -  `CTM_LTNGDIAG_1`<a id=LTNGOUT></a>  
@@ -534,7 +525,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `GSPRO [default: None]`<a id=GSPRO></a>  
+-   `GSPRO [default: Build Directory]`<a id=GSPRO></a>  
     Directory path and file name for input ASCII speciation profiles.  
 
 -   `B3GRD [default: None]`<a id=B3GRD></a>  
@@ -543,22 +534,22 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `BIOSW_YN [default: Y]`<a id=BIOSW_YN></a>  
     Use the frost dates switch file to determine whether to use winter or summer biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  
 
--   `BIOSEASON [default: None]`<a id=BIOSEASON></a>  
+-   `BIOSEASON [default: False]`<a id=BIOSEASON></a>  
     File name for the frost dates switch input netCDF file.  
 
--   `SUMMER_YN [default: Y]`<a id=SUMMER_YN></a>  
+-   `SUMMER_YN [default: False]`<a id=SUMMER_YN></a>  
     Toggle for summer season normalized biogenic emissions. This variable is ignored if BIOSW_YN is set to Y. Comment out or set to Y to select summer season biogenic emissions factors; set to N to turn off.  
 
--   `PX_VERSION [default: Y]`<a id=PX_VERSION></a>  
+-   `PX_VERSION [default: True]`<a id=PX_VERSION></a>  
     Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  
 
--   `SOILINP [default: None]`<a id=SOILINP></a>  
+-   `SOILINP [default: [Out Directory/CCTM_SOILOUT_$RUNID_$YESTERDSY]`<a id=SOILINP></a>  
     Directory path and file name of biogenic NO soil emissions file. If INITIAL_RUN is set to N or F, the soil NO emissions file from the previous day’s simulation will be a required input file.  
 
--   `B3GTS_DIAG [default: N]`<a id=B3GTS_DIAG></a>  
+-   `B3GTS_DIAG [default: False]`<a id=B3GTS_DIAG></a>  
     Write the inline biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). Set to Y to turn on; comment out or set to N to turn off.  
 
--   `B3GTS_S`<a id=B3GTS_S></a>  
+-   `B3GTS_S [default: [Output Directory]/CCTM_B3GTS_$CTM_APPL.nc`<a id=B3GTS_S></a>  
     Diagnostic output netCDF file of biogenic emissions. This variable is ignored if B3GTS_DIAG is set to N.  
 
 <a id=windblown_dust_config></a>
@@ -566,16 +557,16 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `DUST_LU_1`<a id=DUST_LU_1></a>  
+-   `DUST_LU_1 [default: Path to BELD3 Data]`<a id=DUST_LU_1></a>  
     Input BELD "A" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
 
--   `DUST_LU_2`<a id=DUST_LU_2></a>  
+-   `DUST_LU_2 [default: Path to BELD4 Data]`<a id=DUST_LU_2></a>  
     Input BELD "TOT" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
 
--   `MODIS_FPAR`<a id=MODIS_FPAR></a>  
+-   `MODIS_FPAR [default: path to FPAR data file]`<a id=MODIS_FPAR></a>  
     Input MODIS FPAR time-varying vegetation netCDF file gridded to the modeling domain.  
 
--   `BELD4_LU`<a id=BELD4_LU></a>  
+-   `BELD4_LU [default: path to BELD4 data file]`<a id=BELD4_LU></a>  
     Input BELD4 landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD4.  
 
 
