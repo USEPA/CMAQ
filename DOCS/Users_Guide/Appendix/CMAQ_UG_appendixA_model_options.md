@@ -191,13 +191,13 @@ The following configuration settings may have multiple options. Select one optio
     -   `depv/stage`
     **>>COMMENT<<** Needs description
 -   `ModEmis: [default: emis/emis]`<a id=ModEmis></a>  
-    CMAQ in-line anthropogenic and natural emissions module. In line emissions are activated in the CCTM run script. Do not change this module setting.
+    CMAQ inline anthropogenic and natural emissions module. In line emissions are activated in the CCTM run script. Do not change this module setting.
     -   `emis/emis`
 -   `ModBiog: [default: biog/beis3]`<a id=ModBiog></a>  
 Calculate biogenic emissions online with the BEIS3 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting.
     - `biog/beis3`
 -   `ModPlmrs: [default: plrise/smoke]`<a id=ModPlmrs></a>  
-Calculate in-line plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE. Inline emissions plume rise is controlled in the CCTM run script. Do not change this module setting.
+Calculate inline plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE. Inline emissions plume rise is controlled in the CCTM run script. Do not change this module setting.
     - `plrise/smoke`  
 -   `ModCgrds: [default: spcs/cgrid_spcs_nml]`<a id=ModCgrds></a>  
     CMAQ model species configuration module.
@@ -208,7 +208,7 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
 -   `ModPhot: [default: phot/inline]`<a id=ModPhot></a>  
     Photolysis calculation module.
     -   `phot/inline`  
-    calculate photolysis rates in-line using simulated aerosols and ozone concentrations
+    calculate photolysis rates inline using simulated aerosols and ozone concentrations
     -   `phot/table`  
     calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM
 -   `Mechanism: [default: cb05e51_ae6_aq`]<a id=Mechanism></a>  
@@ -365,7 +365,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
     Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry  
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.  
+    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.  
 -   `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
     Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = FALSE`  
     - `BELD3`  
@@ -389,11 +389,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -    `NOAH_VERSION [default: True]` <a id=NOAH_VERSION></a>  
 **>>COMMENT<<** Needs description  
 -   `CTM_ABFLUX [default: False]`<a id=CTM_ABFLUX></a>  
-    Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y to turn on; comment out or set to N to turn off.  
+    Activate fertilizer ammonia bidirectional flux for inline emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (B4LU_file), soil properties (E2C_Soilfile), fertilizer conditions (E2C_Fertfile), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the required input files. Set to Y to turn on; comment out or set to N to turn off.  
 -   `CTM_BIDI_FERT_NH3 [default: True]` <a id=CTM_BIDI_FERT_NH3></a>  
 **>>COMMENT<<** Needs description    
 -   `CTM_HGBIDI [default: False]`<a id=CTM_HGBIDI></a>  
-    Activate mercury bidirectional flux for in-line emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.  
+    Activate mercury bidirectional flux for inline emissions and deposition velocities. If CTM_ILDEPV is set to N this variable is ignored. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.  
 -   `CTM_SFC_HONO [default: False]`<a id=CTM_SFC_HONO></a>  
     Calculate surface HONO interactions. If CTM_ILDEPV is set to N this variable is ignored. Comment out or set to Y to turn on; set to N to turn off.  
 -   `CTM_GRAV_SETL [default True]`<a id=CTM_GRAV_SETL></a>  
@@ -457,13 +457,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `NLAYS_PHOTDIAG [default: 0]` <a id=NLAYS_PHOTDIAG></a>  
 **>>COMMENT<<** Needs description  
 -   `CTM_PHOTDIAG [default: False]`<a id=CTM_PHOTDIAG></a>  
-    Output in-line photolysis rates and associated data to diagnostic netCDF output files. The file CTM_RJ_1 contains gridded photolysis rates for O3 (JO3O1D) and NO2 (JNO2) that include both clear-sky and cloud effects, total downward irradiance at the surface (ETOT_SFC_W), aerosol optical depth (TAU_AERO_W), total optical depth (TAU_TOT_W), optical depth of ozone above the model domain (TAUO3_TOP_W), Rayleigh optical depth above the model domain (TAU_RAY_W), and surface albedo (ALBEDO_W). The file CTM_RJ_2 contains gridded photolysis rates for all other photolysis reactions in the selected chemical mechanism. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<** Bill needs to update this.  CMAQv5.3 has a CTM_RJ_3 file.  
+    Output inline photolysis rates and associated data to diagnostic netCDF output files. The file CTM_RJ_1 contains gridded photolysis rates for O3 (JO3O1D) and NO2 (JNO2) that include both clear-sky and cloud effects, total downward irradiance at the surface (ETOT_SFC_W), aerosol optical depth (TAU_AERO_W), total optical depth (TAU_TOT_W), optical depth of ozone above the model domain (TAUO3_TOP_W), Rayleigh optical depth above the model domain (TAU_RAY_W), and surface albedo (ALBEDO_W). The file CTM_RJ_2 contains gridded photolysis rates for all other photolysis reactions in the selected chemical mechanism. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<** Bill needs to update this.  CMAQv5.3 has a CTM_RJ_3 file.  
 -   `CTM_SSEMDIAG [default: False]`<a id=CTM_SSEMDIAG></a>  
     Output the calculated sea salt emissions to a diagnostic netCDF output file (CTM_SSEMIS_1). Set to Y to turn on; comment out or set to N to turn off.  
 -   `CTM_DUSTEM_DIAG [default: False]`<a id=CTM_DUSTEM_DIAG></a>  
-    Output the in-line dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. Set to Y to turn on; comment out or set to N to turn off.  
+    Output the online dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. Set to Y to turn on; comment out or set to N to turn off.  
 -   `CTM_DEPV_FILE [default: False]`<a id=CTM_DEPV_FILE></a>  
-    Output an hourly diagnostic file (CTM_DEPV_DIAG) for the in-line deposition velocity calculations. If CTM_ILDEPV is set to N this variable is ignored. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_DEPV_DIAG.  
+    Output an hourly diagnostic file (CTM_DEPV_DIAG) for the inline deposition velocity calculations. If CTM_ILDEPV is set to N this variable is ignored. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_DEPV_DIAG.  
 -   `VDIFF_DIAG_FILE [default: N]`<a id=VDIFF_DIAG_FILE></a>  
     Output a diffusion and aero gravitational sedimentation diagnostic file. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_VDIFF_DIAG.    
 -   `LTNGDIAG [default: False]`<a id=LTNGDIAG></a>  
