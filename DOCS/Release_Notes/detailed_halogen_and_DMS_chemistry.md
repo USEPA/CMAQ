@@ -11,12 +11,15 @@ Detailed chemistry for the halogens (bromine and iodine) was incorporated into t
 Model sensitivity runs were completed with CB6r3 (without detailed halogen and DMS chemistry) and CB6r3m (with detailed halogen and DMS chemistry) over the Northern Hemisphere for three months in 2015 (October-December). It reduces ozone by 3-14 ppbV (Figure 1) and increases sulfur dioxide by 20-160 pptV (Figure 2) and sulfate by 0.1-0.8 μg m 3 (Figure 3) over much of the sea water. It reduces ozone and increases sulfate over land by much smaller margins than over sea water.
 
 ![Ozone](ozone_impact.jpg) 
+
 Figure 1: Impact of halogen chemistry on ozone (three-month average).
 
 ![SO2](so2_impact.jpg) 
+
 Figure 2: Impact of halogen chemistry on sulfur dioxide (three-month average).
 
 ![SO4](sulfate_impact.jpg) 
+
 Figure 3: Impact of halogen chemistry on sulfate (three-month average).
 
 ## Affected Files
