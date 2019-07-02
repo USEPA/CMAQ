@@ -12,7 +12,7 @@ These reactions are applied to grid cells over oceanic areas.
  
 ## Significance and Impact
 
-Model sensitivity runs were completed with the existing and updated simple first order ozone loss (continental U.S. domain) for a 10-day summer period. The updated simple first-order ozone loss reduces average ozone by up to 4.0 ppbV over sea water and by up to 2.0 ppbV over some coastal areas. There is no impact on model run time.
+Model sensitivity runs were completed with the existing and updated simple first order ozone loss (continental U.S. domain) for a 10-day summer period. The updated simple first-order ozone loss reduces 10-day average ozone by up to 4.0 ppbV over sea water and by up to 2.0 ppbV over some coastal areas. There is no impact on model run time.
 
 ![Ozone](simple_halogen_ozone_impact.jpg) 
 Figure 1: Impact of updated simple first-order ozone loss.
