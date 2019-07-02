@@ -139,7 +139,7 @@ The following five options are invoked by uncommenting the line in the CCTM buil
      Uncomment to build CMAQ with true parallel I/O feature (requires ioapi3.2 and pnetcdf)
 
 -   `build_twoway`<a id=build_twoway></a>  
-    Uncomment to build WRF-CMAQ two way - to build a stand-alone CMAQ. Comment out, this option. **>>COMMENT<<** add comment out options?
+    Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. This option is currently not supported. Please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
 
 -   `potvortO3`<a id=potvort03></a>   
     Uncomment to build CMAQ with potential vorticity free-troposphere O3 scaling
@@ -226,7 +226,7 @@ Calculate in-line plume rise for large point sources using the Briggs algorithm 
      -  `ebi`  
      use the Euler Backward Iterative solver
 -    `ModDiag` <a id=ModDiag></a>
-**>>COMMENT<<** Needs description
+     use various diagnostic routines. Currently only the vertical extraction tool is implemented here.
 -   `ModAero: [default: aero7]`<a id=ModAero></a>  
     CMAQ aero/aerosol module.
     -   `aero7`  
@@ -302,7 +302,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `NEW_START [default: TRUE]`<a id=NEW_START></a>
-     For a model restart set to FALSE  **>>COMMENT<<** This is related to soil.  Ask Jesse to add description.  
+    Value should be true for new simulations starting from an initial condition file. For a model restart, set to FALSE. For all standard runscripts, this variable is autmatically set to FALSE after looping to the second day of the simulation.
 -   `START_DATE`<a id=START_DATE></a>  
     Simulation start date in Gregorian format (YYYY-MM-DD)
 -   `END_DATE`<a id=END_DATE></a>
@@ -365,9 +365,8 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `CTM_SS_AERO`<a id=CTM_SS_AERO></a>   
-    Use inline Sea Spray Aerosol emissions [ default: Y ]   
-    **>>COMMENT<<** Needs more description
+-   `CTM_OCEAN_CHEM`<a id=CTM_SS_AERO></a>   
+    Use inline Sea Spray Aerosol emissions and Halogen ozone chemistry  [ default: Y ]   
 -   `CTM_WB_DUST [default: Y]`<a id=CTM_WB_DUST></a>  
     Setting to calculate in-line windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.
 -   `CTM_WBDUST_BELD [default: BELD3]`<a id=CTM_WBDUST_BELD></a>
@@ -421,7 +420,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `PA_BLEV_ELEV [default: None]`<a id=PA_BLEV_ELEV></a>  
     Modeling grid domain layer range for the process analysis calculations. Set to the two digits representing the bottom and top layer numbers bounding the process analysis domain.
 -   `PACM_INFILE` <a id=PACM_INFILE></a>  
-     Input file that specifies the desired output information (read by pa_read.F). See Table 1 in [Chapter 10](../CMAQ_UG_ch10_process_analysis.md) for details on the types of equations and operators that can be used in this file. **>>COMMENT<<** Is a sample file available?
+     Input file that specifies the desired output information (read by pa_read.F). See Table 1 in [Chapter 10](../CMAQ_UG_ch10_process_analysis.md) for details on the types of equations and operators that can be used in this file. A sample file is includedin the CCTM scripts directory.
 -   `PACM_REPORT` <a id=PACM_REPORT></a>  
      The output file that displays how CMAQ translates the variables listed in `PACM_INFILE`, and lists the reactions (including reactants, products and yields) that will be used in calculating the IPR and IRR values.
 
@@ -471,9 +470,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_DEPV_FILE [default: N]`<a id=CTM_DEPV_FILE></a>  
     Output an hourly diagnostic file (CTM_DEPV_DIAG) for the in-line deposition velocity calculations. If CTM_ILDEPV is set to N this variable is ignored. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_DEPV_DIAG.  
 -   `VDIFF_DIAG_FILE [default: N]`<a id=VDIFF_DIAG_FILE></a>  
-    Output a diffusion and aero gravitational sedimentation diagnostic file. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_VDIFF_DIAG.  
--    `CTM_AOD [default N]`<a id=CTM_AOD></a>  
-    Output an aerosol optical depth (AOD) calculation diagnostics file. Set to Y to turn on; comment out or set to N to turn off.  **>>COMMENT<<**  Consider renaming this variable to CTM_AOD_DIAG.  
+    Output a diffusion and aero gravitational sedimentation diagnostic file. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_VDIFF_DIAG.    
 -   `LTNGDIAG [default: N]`<a id=LTNGDIAG></a>  
     Output a lightning NO emissions diagnostics file. Set to `Y` to turn on; comment out or set to `N` to turn off.
 
@@ -482,11 +479,14 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `STK_GRPS_## `<a id=STK_GRPS_##></a>  
-    Directory path and file name of the stack groups file for sector ##, where ## = 01, 02,…,N_EMIS_PT. Each ## refers to one of the plume rise point-source sectors.
+-   `STK_GRPS_### `<a id=STK_GRPS_###></a>  
+    Directory path and file name of the stack groups file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to one of the inline plume rise point-source sectors.
 
--   `STK_EMIS_##`<a id=STK_EMIS_##></a>  
-    Directory path and file name of the point emissions file for sector ##, where ## = 01, 02,…,N_EMIS_PT. Each ## refers to the one of the plume rise point-source sectors.
+-   `STK_EMIS_###`<a id=STK_EMIS_###></a>  
+    Directory path and file name of the point emissions file for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors.
+
+-   `STK_EMIS_DIAG_###`<a id=STK_EMIS_DIAG_###></a>  
+    Logical for turning on/off diagnostic output for point emissions file for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. These data reflect the emission rates after scaling rules have been applied by DESID, the emissions control interface. Values for STK_EMIS_DIAG_### include FALSE, TRUE, 2D, 2DSUM, and 3D. The TRUE and 2D options are synonymous and will output just the surface layer of emissions. The 2DSUM option outputs a 2D file with values calculated from summing the entire column of emissions in each horizontal grid cell. The 3D option outputs a full 3D file. All options provide output across all output time steps during the simulation day.
 
 -   `LAYP_STDATE [HHMMSS]`<a id=LAYP_STDATE></a>  
     Start date for calculating elevated-point-source emissions.
@@ -551,9 +551,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 -   `PX_VERSION [default: Y]`<a id=PX_VERSION></a>  
     Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.
-
--   `INITIAL_RUN [default: N]`<a id=INITIAL_RUN></a>  
-    Set to Y if this is the first time that biogenic NO soil emissions will be calculated. If there is a previously created file, set to N. **>>COMMENT<<** This only applies to biogenic NO.  Consider renaming this variable to SOIL_INITIAL_RUN to avoid confusion.
 
 -   `SOILINP [default: None]`<a id=SOILINP></a>  
     Directory path and file name of biogenic NO soil emissions file. If INITIAL_RUN is set to N or F, the soil NO emissions file from the previous day’s simulation will be a required input file.
