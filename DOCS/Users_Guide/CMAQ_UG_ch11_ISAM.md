@@ -16,7 +16,7 @@ Answering this type of question often requires running an air quality model twic
 
 Alternatively, running CMAQ with ISAM enabled allows the user the ability to calculate source attribution of a large number of sources directly by the model in one simulation.
 
-Note: While full model species list apportioment is in development, currently ISAM is limited to the following species classes in CMAQ:
+Note: While full model species list apportionment is in development, currently ISAM is limited to the following species classes in CMAQ:
 
 ```
 SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN
@@ -32,7 +32,7 @@ OZONE     - all NITRATE species + all VOC species
 
 ## 11.2 Build Instructions
 
-Starting with CMAQv5.3 model release, ISAM is provided directly with the source code of the base model.  In order to use ISAM, build CMAQ as normal with the provided scripts.  Then, exercise the ISAM preprocessor compiler option using the following command, while in the BUILD directory:
+Starting with CMAQv5.3 model release, ISAM is provided directly with the source code of the base model. To use ISAM, build CMAQ as normal with the provided scripts.  Then, exercise the ISAM preprocessor compiler option using the following command, while in the BUILD directory:
 
 ```
 make isam=TRUE
@@ -60,11 +60,7 @@ To begin a CMAQ simulation with apportionment enabled, the ISAM section of the r
 |SA_WD_1|path/filename|ISAM output for apportioned wet deposition|
 |SA_CGRID_1|path/filename|ISAM output for a restart file to continue the simulation further in time|
 
-Additionally, ISAM is able to track emissions confined to geographic regions.  This functionality can enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist and is discussed further below.
-
-
-**>>COMMENT<<** !!!! Add cross-reference to the map stuff wherever it is !!!!
-
+Additionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
 
 ### 11.3.1 ISAM control file (SA_IOLIST)
 
@@ -82,9 +78,9 @@ After setting tag classes for the simulation, information for one or more tags i
 TAG NAME        |EGU
 ```
 
-It is recommended that the text string for the tag name be kept short (ideally three characters) in order to accomodate the longer species names from some chemical mechanisms in the ISAM output files.
+It is recommended that the text string for the tag name be kept short (ideally three characters) in order to accommodate the longer species names from some chemical mechanisms in the ISAM output files.
 
-The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissions, variable names from the regions file specified in the `EmissCtrl` namelist are used insted.
+The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissions, variable names from the regions file specified in the `EmissCtrl` namelist are used instead of the "EVERYWHERE' keyword. The regions file requirements are identical to the optional file used to scale emissions in predetermined geographical areas (Appendix B.4).
 
 ```
 REGION(S)       |EVERYWHERE
