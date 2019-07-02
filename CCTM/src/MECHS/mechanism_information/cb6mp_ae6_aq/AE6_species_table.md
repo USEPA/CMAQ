@@ -52,6 +52,8 @@
 | APB               | Lead                                                 | 207.2                | E                      |
 | APCSO             | Potential Combustion SOA                             | 170                  | L                      |
 | APHG              | Mercury                                              | 200.5                | E                      |
+| APNCOM            | Non-Carbon Organic Matter associated with APOC       | 220.0                | L                      |
+| APOC              | Primary Organic Carbon                               | 220.0                | L                      |
 | ASEACAT           | Sea spray cations                                    | 23.75                | L                      |
 | ASI               | Silicon                                              | 28.1                 | E                      |
 | ASO4              | Sulfate                                              | 96                   | E                      |

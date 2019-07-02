@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE CK_CTMMET_FL( LOGUNIT, SDATE, STIME, CTM_FL_NAME )
+      SUBROUTINE CK_CTMMET_FL ( LOGUNIT, SDATE, STIME, CTM_FL_NAME )
 
 C***********************************************************************
  
@@ -40,6 +40,7 @@ C  Revision History: Prototype created by Jerry Gipson, May, 1999
 C    08 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
 C    06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
+C    10 June 19 F. Sidi : Corrected data byte mismatch between IOAPI and ICON
 
 C***********************************************************************
 
@@ -48,14 +49,12 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments:
-      CHARACTER( 16 ) :: CTM_FL_NAME( * )              ! Names of CTM files
+      CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )  ! Names of CTM files
 
-      INTEGER LOGUNIT                 ! Unit number for output log
-      INTEGER SDATE                   ! Start date
-      INTEGER STIME                   ! Start time
+      INTEGER, INTENT( IN ) :: LOGUNIT   ! Unit number for output log
+      INTEGER, INTENT( IN ) :: SDATE     ! Start date
+      INTEGER, INTENT( IN ) :: STIME     ! Start time
 
 C Parameters: None
 
@@ -75,22 +74,23 @@ C Local Variables:
       INTEGER NTHIK1      ! File 1 boundary thickness
       INTEGER GDTYP1      ! File 1 horizontal grid type
       INTEGER VGTYP1      ! File 1 Vertical coordinate type
+      INTEGER ALLOCSTAT   ! Status returned from array allocation
 
       LOGICAL LERROR      ! Error Flag
  
-      REAL    P_ALP1      ! File 1 map projection parameter      
-      REAL    P_BET1      ! File 1 map projection parameter   
-      REAL    P_GAM1      ! File 1 map projection parameter
-      REAL    XORIG1      ! File 1 X-origin
-      REAL    YORIG1      ! File 1 Y-origin
-      REAL    XCELL1      ! File 1 X-dimension of cells
-      REAL    YCELL1      ! File 1 Y-dimension of cells
-      REAL    XCENT1      ! File 1 X-center of coordinate system
-      REAL    YCENT1      ! File 1 Y-center of coordinate system
-      REAL    VGTOP1      ! File 1 model top
+      REAL*8 :: P_ALP1      ! File 1 map projection parameter      
+      REAL*8 :: P_BET1      ! File 1 map projection parameter   
+      REAL*8 :: P_GAM1      ! File 1 map projection parameter
+      REAL*8 :: XORIG1      ! File 1 X-origin
+      REAL*8 :: YORIG1      ! File 1 Y-origin
+      REAL*8 :: XCELL1      ! File 1 X-dimension of cells
+      REAL*8 :: YCELL1      ! File 1 Y-dimension of cells
+      REAL*8 :: XCENT1      ! File 1 X-center of coordinate system
+      REAL*8 :: YCENT1      ! File 1 Y-center of coordinate system
+      REAL   :: VGTOP1      ! File 1 model top
 
-      REAL   ::  VGLVS1( MXLAYS3+1 ) ! File vertical layer heights
-   
+      REAL, ALLOCATABLE :: VGLVS1( : )   ! File vertical layer heights
+
 C***********************************************************************
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -127,7 +127,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       YCENT1 = YCENT3D
       VGTYP1 = VGTYP3D
       VGTOP1 = VGTOP3D
-      DO L = 1 , NLAYS3D + 1
+
+      ALLOCATE( VGLVS1( NLAYS1+1 ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating VGLVS1'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      DO L = 1 , NLAYS1 + 1
          VGLVS1( L ) = VGLVS3D( L )
       END DO
      
@@ -246,12 +253,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END IF
       END DO
  
-      IF ( .NOT. CHECK3(  MET_CRO_3D_CRS, 'ALL', SDATE, STIME ) ) THEN
-         MSG = 'Requested time is not on the ' // MET_CRO_3D_CRS
-     &            // ' file'
-         WRITE( LOGUNIT, 94480 ) MSG
-         LERROR = .TRUE.
-      END IF
+!      IF ( .NOT. CHECK3(  MET_CRO_3D_CRS, 'ALL', SDATE, STIME ) ) THEN
+!         MSG = 'Requested time is not on the ' // MET_CRO_3D_CRS
+!     &            // ' file'
+!         WRITE( LOGUNIT, 94480 ) MSG
+!         LERROR = .TRUE.
+!      END IF
              
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  If inconsistency found, then stop, else return

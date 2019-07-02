@@ -34,6 +34,8 @@
 !     Oct 2015 J.Young: Rework to make macros in the makefile for libs and
 !                       compiler "I" references; get rid of the CVS option.
 !     Jan 2016 D.Wong: Fixed the include path of mpif.h
+!     June 2016 F. Sidi: Removed redundant IOAPI library. Makefile generated 
+!                        consistant with IOAPI library format.
 !-------------------------------------------------------------------------------
 
       Program bldmake
@@ -306,13 +308,11 @@
       End If 
 
       ! Document Explicit Library Paths
-      Call GETENV( 'IOAPI_MOD_DIR',  ioapi_mod_dir )
       Call GETENV( 'IOAPI_INCL_DIR', ioapi_incl_dir )
       Call GETENV( 'IOAPI_LIB_DIR',  ioapi_lib_dir )
       Call GETENV( 'NETCDF_LIB_DIR', netcdf_lib_dir )
       Call GETENV( 'MPI_LIB_DIR',    mpi_lib_dir )
       Write( lfn, '("#   Library Paths:")' ) 
-      Write( lfn, '("#      $(LIB)/ioapi/modules -> ",a)' ) Trim( ioapi_mod_dir )
       Write( lfn, '("#      $(LIB)/ioapi/include_files -> ",a)' ) Trim( ioapi_incl_dir )
       Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
       Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )

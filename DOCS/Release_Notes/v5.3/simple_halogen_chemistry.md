@@ -4,11 +4,12 @@
 **Author/P.O.C.:** [Golam Sarwar](mailto:sarwar.golam@epa.gov), Computational Exposure Division, U.S. EPA
 
 ## Brief Description
-A simple halogen mediated first order ozone loss was previously developed by using hemispheric CMAQ results obtained without and with detailed bromine/iodine chemistry for summer months. The detailed bromine/iodine chemistry has recently been updated and hemispheric model simulations were completed without and with the updated bromine/iodine chemistry for an entire year. The simple halogen mediated first order ozone loss is developed using the annual hemispheric CMAQ results obtained without and with full bromine/iodine chemistry. The revised halogen mediated first-order rate constant for ozone loss (units= 1/s) as a function of atmospheric pressure P (units=atm):
+A simple halogen mediated first order ozone loss was previously developed by using hemispheric CMAQ results obtained without and with detailed bromine/iodine chemistry for summer months. The detailed bromine/iodine chemistry has recently been updated and hemispheric model simulations were completed without and with the updated bromine/iodine chemistry for an entire year. The simple halogen mediated first order ozone loss is developed using the annual hemispheric CMAQ results obtained without and with full bromine/iodine chemistry. The revised halogen mediated first-order rate constant for ozone loss (units= 1/s) as a function of atmospheric pressure P (units=atm):  
 
 ![rate_constant](first_order_rate_constant_for_ozone_loss.jpg)
 
-
+It is applied to grid-cells over oceanic areas.
+ 
 ## Significance and Impact
 Model sensitivity runs were completed with the existing and updated simple first order ozone loss (continental US domain) for a 10-day period in summer. The updated simple first order ozone loss reduces average ozone by up to 4.0 ppbv over seawater and by up to 2.0 ppbv over some coastal areas. No impact on model run time.
 

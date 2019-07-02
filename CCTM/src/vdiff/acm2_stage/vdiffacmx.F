@@ -64,6 +64,13 @@ C-----------------------------------------------------------------------
      &                   L_NITRATE
 #endif
 
+#ifdef isam
+      USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
+     &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
+     &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, SPC_NAME,
+     &                   L_NITRATE
+#endif
+
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID  ! file name parameters
@@ -157,6 +164,30 @@ C ACM Local Variables
       integer  gl_c, gl_r
 
       LOGICAL, SAVE :: XMOSAIC = .FALSE., XFST = .FALSE.
+#ifdef isam
+      REAL :: TOTAL_SA_NO2
+      REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )
+      INTEGER IBGN, JSPCTAG
+
+      REAL, ALLOCATABLE,SAVE :: SAEMIS( :,: )
+      REAL, ALLOCATABLE,SAVE :: SACONC( :,: )
+      REAL, ALLOCATABLE,SAVE :: SA_DD( :,: )
+      REAL, ALLOCATABLE,SAVE :: SA_UU( :,: )
+
+      REAL, ALLOCATABLE,SAVE :: SAFRAC( : )
+      REAL, ALLOCATABLE,SAVE :: SA_NO2( : )      
+
+      INTEGER, SAVE              :: ISAM_INDEX_NO2 = 0   ! ...Index locating NO2 in ISAM
+
+      INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
+      INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_HONO( : )
+
+
+      CHARACTER( 16 ) :: ISAM_SPECIES
+
+      INTEGER TOP, BOT
+#endif      
+
 #ifdef isam
       REAL :: TOTAL_SA_NO2
       REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )
@@ -931,7 +962,7 @@ C Update ISAM Dry Deposition
      &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-                  IF( S .NE. NO2_HIT .AND. HNO3_HIT .NE. HNO3_HIT ) THEN
+                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
                      SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                   - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
                   END IF

@@ -985,8 +985,10 @@ C-----------------------------------------------------------------------
      &             VDEMIS_OUT( NCOLS,NROWS,EMLAYS ) )
       END IF    !FirstTime
       
-      VDEMIS = 0.0
-      LAYS = 1
+      VDEMIS     = 0.0
+      VDEMIS_OUT = 0.0
+      LAYS       = 1
+
       IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' .OR. 
      &     EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) LAYS = NL
 
@@ -2194,7 +2196,7 @@ C and allowing the model to proceed.
          IF ( LTNG_NO ) N_EM_SRM = N_EM_SRM + 1
  
          ! Sea Spray Aerosol 
-         IF ( SS_AERO ) N_EM_SRM = N_EM_SRM + 1
+         IF ( OCEAN_CHEM ) N_EM_SRM = N_EM_SRM + 1
 
          ! Determine if WindBlown Dust is Requested
          IF ( WB_DUST ) N_EM_SRM = N_EM_SRM + 1
@@ -2211,7 +2213,6 @@ C and allowing the model to proceed.
          Allocate( EM_FILE_LAPPLY( N_EM_SRM ) )
          Allocate( EM_FILE_LDIAG ( N_EM_SRM ) )
          Allocate( EM_DIAG_FILE  ( N_EM_SRM ) )
-         Allocate( EM_FILE_DATE_OVRD ( N_EM_SRM ) )
          Allocate( EM_FILE_DATE  ( N_EM_SRM ) )
          Allocate( EM_FILE_FIRE  ( N_EM_SRM ) )
          Allocate( IGSRM         ( N_EM_SRM ) )
@@ -2226,7 +2227,6 @@ C populated in individual subroutines. For example, opemis and
 C stkemis_init.
          ISRM = 0
          EM_FILE_LAPPLY = .TRUE.
-         EM_FILE_DATE_OVRD = EMIS_DATE_OVRD
          EM_FILE_DATE   = JDATE
          EM_FILE_FIRE   = .FALSE.
          EM_GRID_LAYS   = 0
@@ -2270,12 +2270,6 @@ C stkemis_init.
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
      &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
  
-              ! Retrieve Toggle for overriding emissions file date with
-              ! internal model date
-              WRITE( VLAB,'( "GR_EM_DTOVRD_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
-     &                      EMIS_DATE_OVRD, LOGDEV )
- 
               ! Retrieve Toggle for Outputing Gridded Emissions
               ! Diagnostic File
               WRITE( VLAB,'( "GR_EMIS_DIAG_",I3.3 )' ) N
@@ -2317,12 +2311,6 @@ C stkemis_init.
               WRITE( VLAB,'( "STK_EMIS_APPLY_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
      &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
- 
-              ! Retrieve Toggle for overriding emissions file date with
-              ! internal model date
-              WRITE( VLAB,'( "STK_EM_DTOVRD_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
-     &                      EMIS_DATE_OVRD, LOGDEV )
  
               ! Retrieve Toggle for Outputing Inline Emissions
               ! Diagnostic File
@@ -2432,7 +2420,7 @@ C stkemis_init.
          END IF
 
          ! Sea Spray Aerosol Emissions
-         IF ( SS_AERO ) THEN
+         IF ( OCEAN_CHEM ) THEN
              ISRM = ISRM + 1
              EM_FILE_TYPE( ISRM ) = 'ASEA'
              EM_FILE_ITYPE( ISRM ) = 7

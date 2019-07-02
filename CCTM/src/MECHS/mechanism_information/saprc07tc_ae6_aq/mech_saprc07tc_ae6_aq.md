@@ -751,6 +751,10 @@ Information is based on the mech.def file.
 | OLIG_PAH2   | APAH2J ---->   1.429\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_ALK1   | AALK1J ---->   1.714\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
 | OLIG_ALK2   | AALK2J ---->   1.714\*AOLGAJ  |   9.4882E-06 |   9.4882E-06 |
+| RPOAGEPI   | APOCI + OH ---->   1.250\*APNCOMI + APOCI + OH  |   2.5000E-12 |   2.5000E-12 |
+| RPOAGELI   | APNCOMI + OH ----> OH  | HETERO_PNCOMLI | Not Available<sup>2</sup> | 
+| RPOAGEPJ   | APOCJ + OH ---->   1.250\*APNCOMJ + APOCJ + OH  |   2.5000E-12 |   2.5000E-12 |
+| RPOAGELJ   | APNCOMJ + OH ----> OH  | HETERO_PNCOMLJ | Not Available<sup>2</sup> | 
 | PCSOA   | PCVOC + OH ----> OH + PCSOARXN  |   1.2500E-11 |   1.2500E-11 |
 | POA_AGE1   | VLVPO1 + OH ----> OH +    0.486\*VLVPO1 +    0.006\*VSVPO1 +    0.003\*VSVPO2 +    0.003\*VSVPO3 +    0.002\*VIVPO1 +    0.294\*VLVOO1 +    0.202\*VLVOO2 +    0.002\*VSVOO2 +    0.002\*VSVOO3  |   4.0000E-11 |   4.0000E-11 |
 | POA_AGE2   | VSVPO1 + OH ----> OH +    0.300\*VLVPO1 +    0.286\*VSVPO1 +    0.004\*VSVPO2 +    0.004\*VSVPO3 +    0.224\*VLVOO1 +    0.182\*VLVOO2  |   4.0000E-11 |   4.0000E-11 |

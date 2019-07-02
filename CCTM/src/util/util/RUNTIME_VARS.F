@@ -41,6 +41,9 @@
 !     -- updated environment variable ISAM_NEW_START with default value 'Y'
 !  15 May 2019  (David Wong)
 !     -- included check for using marine gas emission or not
+!  13 June 2019 (F. Sidi) 
+!     -- Set the default for ERODE_AGLAND to FALSE. No longer supported feature
+!        in CMAQv5.3
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -154,7 +157,6 @@
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
 
       ! Air-Surface Exchange
-      LOGICAL :: ILDEPV    = .TRUE.  ! flag in-lining depv
       LOGICAL :: ABFLUX    = .FALSE. ! flag for ammonia bi-directional flux with in-lining depv
       LOGICAL :: MOSAIC    = .FALSE. ! flag for mosaic - luc specific deposition - within in-lining depv
       LOGICAL :: SFC_HONO  = .FALSE. ! flag for HONO interaction with surfaces within in-lining depv
@@ -192,9 +194,9 @@
       LOGICAL :: ASSUME_SUMMER = .TRUE.  ! use summer normalized emissions
       LOGICAL :: BEMIS_DIAG    = .TRUE.  ! true: write diagnostic emiss file
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
-      LOGICAL :: SS_AERO       = .TRUE.  ! flag for Sea Spray Aerosol Calculation
+      LOGICAL :: OCEAN_CHEM    = .TRUE.  ! Flag for ocean halogen chemistry and sea spray aerosol emissions
       LOGICAL :: WB_DUST       = .FALSE. ! flag for On-Line Dust Emission Calculation
-      LOGICAL :: ERODE_AGLAND  = .TRUE.  ! Account for Erodible Agricultural Land when 
+      LOGICAL :: ERODE_AGLAND  = .FALSE.  ! Account for Erodible Agricultural Land when 
                                                !   computing dust Emissions
       LOGICAL :: DUSTEM_DIAG   = .FALSE. ! flag for dustemis diagnostic file
       LOGICAL :: SSEMDIAG      = .FALSE. ! flag for SSEMIS diagnostic file
@@ -215,15 +217,12 @@
       INTEGER :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
       CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default Assumption for
-                                         !     Emissinos DIagnostic File Output
-      LOGICAL :: EMIS_DATE_OVRD = .FALSE. ! Overrider CMAQ not to check
-                                          ! if the dates on the emissions file match that of 
-                                          ! the interal model
+                                         !     Emissions Diagnostic File Output
       CHARACTER(  16 ), SAVE, ALLOCATABLE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
 
       LOGICAL :: USE_MARINE_GAS_EMISSION = .FALSE.
 
-      ! Processs Analysis
+      ! Process Analysis
       LOGICAL :: PROCAN    = .FALSE. ! flag for process analysis
       INTEGER :: PA_BEGCOL = 0       ! Starting PA output
       INTEGER :: PA_ENDCOL = 0       ! ending column for PA output
@@ -545,38 +544,32 @@
          WRITE( OUTDEV, '(6x,A)' ), REPEAT( '-',80 )
       END IF
 
-      ! Flag for In-line deposition velocities calculation
-      CALL GET_ENV ( ILDEPV, 'CTM_ILDEPV', ILDEPV, VARDEV )
-
       ! Check if using PX version of MCIP
       CALL GET_ENV ( PX_LSM, 'PX_VERSION', PX_LSM, VARDEV )
 
-      IF ( ILDEPV ) THEN
-         ! Flag for Ammonia bi-directional flux with in-line deposition 
-         ! velocities calculation
-         CALL GET_ENV ( ABFLUX, 'CTM_ABFLUX', ABFLUX, VARDEV )
+      ! Flag for Ammonia bi-directional flux with in-line deposition 
+      ! velocities calculation
+      CALL GET_ENV ( ABFLUX, 'CTM_ABFLUX', ABFLUX, VARDEV )
 
-         ! Flag for Mosaic method to get land-use specific deposition velocities
-         CALL GET_ENV ( MOSAIC, 'CTM_MOSAIC', MOSAIC, VARDEV )
+      ! Flag for Mosaic method to get land-use specific deposition velocities
+      CALL GET_ENV ( MOSAIC, 'CTM_MOSAIC', MOSAIC, VARDEV )
 
-         ! Flag for HONO interaction with leaf and building surfaces
-         CALL GET_ENV ( SFC_HONO, 'CTM_SFC_HONO', SFC_HONO, VARDEV )
+      ! Flag for HONO interaction with leaf and building surfaces
+      CALL GET_ENV ( SFC_HONO, 'CTM_SFC_HONO', SFC_HONO, VARDEV )
          
-         ! Mosaic method to get land-use specific stomatal flux
-         IF ( MOSAIC ) THEN
-            CALL GET_ENV ( FST, 'CTM_FST', FST, VARDEV )
-         END IF
+      ! Mosaic method to get land-use specific stomatal flux
+      IF ( MOSAIC ) THEN
+         CALL GET_ENV ( FST, 'CTM_FST', FST, VARDEV )
+      END IF
 
-         ! Flag CLM LSM
-         CALL GET_ENV ( CLM_LSM, 'CLM_VERSION', CLM_LSM, VARDEV )
+      ! Flag CLM LSM
+      CALL GET_ENV ( CLM_LSM, 'CLM_VERSION', CLM_LSM, VARDEV )
 
-         ! Flag for NOAH LSM
-         CALL GET_ENV ( NOAH_LSM, 'NOAH_VERSION', NOAH_LSM, VARDEV )
+      ! Flag for NOAH LSM
+      CALL GET_ENV ( NOAH_LSM, 'NOAH_VERSION', NOAH_LSM, VARDEV )
 
-         ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model
-         CALL GET_ENV ( STAGE, 'CTM_STAGE', STAGE, VARDEV )
-
-      END IF   ! in-line depv
+      ! Flag for Surface Tiled Aerosol and Gaseous Exchange (STAGE) model
+      CALL GET_ENV ( STAGE, 'CTM_STAGE', STAGE, VARDEV )
 
       ! CTM_DEPV_FILE
       CALL GET_ENV ( DEPV_DIAG, 'CTM_DEPV_FILE', DEPV_DIAG, VARDEV )
@@ -672,15 +665,15 @@
       ! Get marine gas emission diagnostic output file flag.
       CALL GET_ENV ( MGEMDIAG, 'CTM_MGEMDIAG', MGEMDIAG, VARDEV )
  
-      ! Flag for Online Calculation of Sea Spray Aerosol emissions
-      CALL GET_ENV ( SS_AERO, 'CTM_SS_AERO', SS_AERO, VARDEV )
+      ! Flag for ocean halogen chemistry and sea spray aerosol emissions
+      CALL GET_ENV ( OCEAN_CHEM, 'CTM_OCEAN_CHEM', OCEAN_CHEM, VARDEV )
 
       ! Flag for Online Calculation of Windblown dust emissions
       CALL GET_ENV ( WB_DUST, 'CTM_WB_DUST', WB_DUST, VARDEV )
 
       ! Get env var for erodible agriculture land fraction
-      CALL GET_ENV ( ERODE_AGLAND, 'CTM_ERODE_AGLAND', ERODE_AGLAND, VARDEV )
-      
+      !CALL GET_ENV ( ERODE_AGLAND, 'CTM_ERODE_AGLAND', ERODE_AGLAND, VARDEV )
+
       ! Get env var for diagnostic output
       CALL GET_ENV ( DUSTEM_DIAG, 'CTM_DUSTEM_DIAG', DUSTEM_DIAG, VARDEV )
        
@@ -743,10 +736,6 @@
       ! Determine user-defined default for emissions diagnostics
       CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
 
-      ! Determine user-defined default for emissions date override
-      CALL GET_ENV ( EMIS_DATE_OVRD, 'EMIS_DATE_OVRD', EMIS_DATE_OVRD, VARDEV )
- 
- 
       !-------------------------------------------------------------------------------------------------------
       !>> Process Analysis
       !-------------------------------------------------------------------------------------------------------
