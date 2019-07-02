@@ -219,11 +219,12 @@ C-------------------------------------------------------------------------------
 ! Set a minimum Gamma for Ag based off of Zhang et al. 2010
 !                     gamma1( c,r ) = max( gamma1( c,r ), 630.0 )
 !                     gamma2( c,r ) = max( gamma2( c,r ), 630.0 )
-                        If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or.
-     &                       IsNaN( MHp2( c,r ) ) .Or. IsNaN( MHp2( c,r ) ) ) Then
-                           xmsg = 'NaN in grid cell Gamma Calculation'
-                           Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
-                        End If
+! NaN trap for debugging
+!                        If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or.
+!     &                       IsNaN( MHp2( c,r ) ) .Or. IsNaN( MHp2( c,r ) ) ) Then
+!                           xmsg = 'NaN in grid cell Gamma Calculation'
+!                           Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
+!                        End If
                         tcec1         = tcec1 / Tot_Ag
                         tcec2         = tcec2 / Tot_Ag
                         fcec1(c,r)    = max(0.3, 1.0-0.038*tcec1) ! from EPIC (Wiliams 1995)
