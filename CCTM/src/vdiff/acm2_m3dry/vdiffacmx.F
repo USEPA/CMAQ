@@ -754,7 +754,7 @@ C Update ISAM Dry Deposition
      &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) )               
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-                  IF( S .NE. NO2_HIT .AND. HNO3_HIT .NE. HNO3_HIT ) THEN
+                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
                      SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                   - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
                   END IF

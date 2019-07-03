@@ -29,6 +29,7 @@ C   Dec 15 D.Wong: Created for writing initial data to CONC file
 C   Apr 16 D.Wong: Added INTEN attribute for arguments JDATE, JTIME, and TSTEP
 C                  so they match with the interface block in INITSCEN.F
 C   Feb 19 D.Wong: removed all MY_N clauses
+C   June 19 F. Sidi: Replaced BADVAL3 for TA, RH, & PRES with MET DATA
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -40,7 +41,7 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-
+      USE CENTRALIZED_IO_MODULE
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID    ! file name parameters
@@ -54,7 +55,9 @@ C Arguments:
 
 C Local Variables:
 
-      REAL, ALLOCATABLE :: DBUFF( :,:,: )
+      REAL, ALLOCATABLE :: DBUFF( :,:,: ), DBUFFP( :, :, :),
+     &                     DBUFFTA( :, :, :), DBUFFQV(:, :, :)
+
       INTEGER      ALLOCSTAT
 
       CHARACTER( 16 ) :: PNAME = 'OPCONC'
@@ -88,9 +91,11 @@ C-----------------------------------------------------------------------
 C write the initial concentrations as step 0 on the conc file
 C (inital data assumed to be in correct output units)
 
-      ALLOCATE ( DBUFF( NCOLS,NROWS,C_NLAYS ), STAT = ALLOCSTAT )
+      ALLOCATE ( DBUFF( NCOLS,NROWS,C_NLAYS ), DBUFFP( NCOLS, NROWS,
+     &           C_NLAYS), DBUFFTA( NCOLS, NROWS, C_NLAYS), 
+     &           DBUFFQV( NCOLS, NROWS, C_NLAYS), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
-         XMSG = 'Failure allocating DBUFF'
+         XMSG = 'Failure allocating DBUFF(s)'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
       END IF
 
@@ -192,9 +197,38 @@ C (inital data assumed to be in correct output units)
          END IF
       END IF
  
+       IF ( L_CONC_TA ) THEN   ! for Temperature
+      
+      CALL interpolate_var ('TA', JDATE, JTIME, DBUFFTA)
+         
+         IF ( .NOT. WRITE3( CTM_CONC_1, 'TA',
+     &                      JDATE, JTIME, DBUFFTA ) ) THEN
+            XMSG = 'Could not write Temperature to ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      END IF
+
+      IF ( L_CONC_PRES ) THEN   ! for Pressure
+      
+      CALL interpolate_var ('PRES', JDATE, JTIME, DBUFFP)
+      
+         IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES',
+     &                      JDATE, JTIME, DBUFFP ) ) THEN
+            XMSG = 'Could not write Pressure to ' // CTM_CONC_1
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      END IF
+
+
       IF ( L_CONC_RH ) THEN   ! for Relative Humidity
 
-         DBUFF = BADVAL3
+      CALL interpolate_var ('QV', JDATE, JTIME, DBUFFQV)
+
+         DBUFF = DBUFFQV * DBUFFP / ( DBUFFQV + 0.622015 ) /
+     &                 ( 610.94 * EXP( 17.625 * ( DBUFFTA - 273.15 ) / 
+     &                                 ( DBUFFTA - 273.15 + 243.04 ) ) )
+         DBUFF = MIN( 0.9999, MAX( 0.001, DBUFF) )
+
          IF ( .NOT. WRITE3( CTM_CONC_1, 'RH',
      &                      JDATE, JTIME, DBUFF ) ) THEN
             XMSG = 'Could not write Relative Humidity to ' // CTM_CONC_1
@@ -204,26 +238,7 @@ C (inital data assumed to be in correct output units)
       END IF
 
 
-      IF ( L_CONC_TA ) THEN   ! for Temperature
-         DBUFF = BADVAL3
-         IF ( .NOT. WRITE3( CTM_CONC_1, 'TA',
-     &                      JDATE, JTIME, DBUFF ) ) THEN
-            XMSG = 'Could not write Temperature to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-      END IF
-
-      IF ( L_CONC_PRES ) THEN   ! for Pressure
-         DBUFF = BADVAL3
-
-         IF ( .NOT. WRITE3( CTM_CONC_1, 'PRES',
-     &                      JDATE, JTIME, DBUFF ) ) THEN
-            XMSG = 'Could not write Pressure to ' // CTM_CONC_1
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-      END IF
-
-      DEALLOCATE ( DBUFF )
+      DEALLOCATE ( DBUFF, DBUFFP, DBUFFTA, DBUFFQV)
 
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &  'Timestep written to', CTM_CONC_1,
