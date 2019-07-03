@@ -441,9 +441,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  if ( $?STM_SO4TRACK ) then
     if ( $STM_SO4TRACK == 'Y' || $STM_SO4TRACK == 'T' ) then
 
-      #> sulfur tracking model species defn
-      setenv stm_matrix_nml ${BLD}/STM.nml
-
       #> option to normalize sulfate tracers [ default: Y ]
       setenv STM_ADJSO4 Y
 

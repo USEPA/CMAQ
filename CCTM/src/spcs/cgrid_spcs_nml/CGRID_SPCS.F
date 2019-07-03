@@ -143,13 +143,12 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
-     
+            use stm_vars
+
             implicit none
 
             logical success
             integer, save :: dev_gc_nml, dev_ae_nml, dev_nr_nml, dev_tr_nml
-            integer, save :: dev_stm_nml = 0
-            integer, save :: n_stm_ae_spc = 0, n_stm_oae_spc = 0, n_stm_nr_spc = 0
             integer i, ios, IGC, IAE, INR, ITR
             character(  1 ), parameter :: bl = ' '
             integer, parameter :: spc_dim = 1000
@@ -225,18 +224,10 @@ c namelist variables
             TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: NR_SPECIES_DATA(:)
             TYPE (SPECIES_DATA_REG_3), ALLOCATABLE :: TR_SPECIES_DATA(:)
  
-            TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: STM_AE_SPECIES_DATA(:)
-            TYPE (SPECIES_DATA_REG_2), ALLOCATABLE :: STM_OAE_SPECIES_DATA(:)
-            TYPE (SPECIES_DATA_REG_1), ALLOCATABLE :: STM_NR_SPECIES_DATA(:)
-
             namelist / GC_NML / GC_SPECIES_DATA
             namelist / AE_NML / AE_SPECIES_DATA
             namelist / NR_NML / NR_SPECIES_DATA
             namelist / TR_NML / TR_SPECIES_DATA
-
-            namelist / STM_AE_NML / STM_AE_SPECIES_DATA
-            namelist / STM_OAE_NML / STM_OAE_SPECIES_DATA
-            namelist / STM_NR_NML / STM_NR_SPECIES_DATA
 
 c----------------------------------------------------------------------------------------
             success = .true.
@@ -445,44 +436,6 @@ c-------------------------------------------------------------------------------
             END DO
 
             IF ( STM ) THEN
-               ! Sulfur Tracking Aerosol (AE) Namelist
-               ALLOCATE( STM_AE_SPECIES_DATA( SPC_DIM ), STAT=IOS )
-               STM_AE_SPECIES_DATA%SPECIES_NAME = ''
-               STM_AE_SPECIES_DATA%MOLWT = 0.
-               STM_AE_SPECIES_DATA%IC_SURR = ''
-               STM_AE_SPECIES_DATA%IC_FAC = 0.
-               STM_AE_SPECIES_DATA%BC_SURR = ''
-               STM_AE_SPECIES_DATA%BC_FAC = 0.
-               STM_AE_SPECIES_DATA%DEPV_SURR = ''
-               STM_AE_SPECIES_DATA%DEPV_FAC = 0.
-               STM_AE_SPECIES_DATA%SCAV_SURR = ''
-               STM_AE_SPECIES_DATA%SCAV_FAC = 0.
-               STM_AE_SPECIES_DATA%CLOUD_SURR = ''
-               STM_AE_SPECIES_DATA%TRNS_FLAG = ''
-               STM_AE_SPECIES_DATA%DDEP_FLAG = ''
-               STM_AE_SPECIES_DATA%WDEP_FLAG = ''
-               STM_AE_SPECIES_DATA%CONC_FLAG = ''
-
-               dev_stm_nml = junit()
-               open( file = trim( stm_namelist ), unit = dev_stm_nml,
-     &               status = 'old', position = 'rewind' )
-               read( nml = STM_AE_nml, unit = dev_stm_nml ) 
-               
-               ! Determine Number of Sulfur Tracking Aerosol Species
-               N_STM_AE_SPC = 0
-               DO IAE = 1,SPC_DIM
-                   IF ( STM_AE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
-                   N_STM_AE_SPC = IAE
-                   IF ( STM_AE_SPECIES_DATA( IAE )%IC_FAC .EQ. -1. )
-     &                  STM_AE_SPECIES_DATA( IAE )%IC_FAC = 0.
-                   IF ( STM_AE_SPECIES_DATA( IAE )%BC_FAC .EQ. -1. )
-     &                  STM_AE_SPECIES_DATA( IAE )%BC_FAC = 0.
-                   IF ( STM_AE_SPECIES_DATA( IAE )%DEPV_FAC .EQ. -1. )
-     &                  STM_AE_SPECIES_DATA( IAE )%DEPV_FAC = 0.
-                   IF ( STM_AE_SPECIES_DATA( IAE )%SCAV_FAC .EQ. -1. )
-     &                  STM_AE_SPECIES_DATA( IAE )%SCAV_FAC = 0.
-               END DO
-
                IF ( ( N_AE_SPC + N_STM_AE_SPC ) .GT. SPC_DIM ) THEN
                   WRITE( LOGDEV,* ) '*** Allocated dimension exceeded for AE ', 
      &                              ' species in Sulfur Tracking Model' 
@@ -513,46 +466,6 @@ c-------------------------------------------------------------------------------
      &              ( Index( mechname, 'SAPRC07TIC_AE7I' ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R3M_AE7'      ) .Gt. 0 ) ) Then
-
-                  ! Organo-Sulfate Tracking Aerosol (OAE) Namelist
-                  ALLOCATE( STM_OAE_SPECIES_DATA( SPC_DIM ), STAT=IOS )
-                  STM_OAE_SPECIES_DATA%SPECIES_NAME = ''
-                  STM_OAE_SPECIES_DATA%MOLWT = 0.
-                  STM_OAE_SPECIES_DATA%IC_SURR = ''
-                  STM_OAE_SPECIES_DATA%IC_FAC = 0.
-                  STM_OAE_SPECIES_DATA%BC_SURR = ''
-                  STM_OAE_SPECIES_DATA%BC_FAC = 0.
-                  STM_OAE_SPECIES_DATA%DEPV_SURR = ''
-                  STM_OAE_SPECIES_DATA%DEPV_FAC = 0.
-                  STM_OAE_SPECIES_DATA%SCAV_SURR = ''
-                  STM_OAE_SPECIES_DATA%SCAV_FAC = 0.
-                  STM_OAE_SPECIES_DATA%CLOUD_SURR = ''
-                  STM_OAE_SPECIES_DATA%TRNS_FLAG = ''
-                  STM_OAE_SPECIES_DATA%DDEP_FLAG = ''
-                  STM_OAE_SPECIES_DATA%WDEP_FLAG = ''
-                  STM_OAE_SPECIES_DATA%CONC_FLAG = ''
-                
-                  if ( dev_stm_nml .eq. 0 ) then
-                     dev_stm_nml = junit()
-                     open( file = trim( stm_namelist ), unit = dev_stm_nml,
-     &                     status = 'old', position = 'rewind' )
-                  end if
-                  read( nml = STM_OAE_nml, unit = dev_stm_nml ) 
-                  
-                  ! Determine Number of Sulfur Tracking Aerosol Species
-                  N_STM_OAE_SPC = 0
-                  DO IAE = 1,SPC_DIM
-                      IF ( STM_OAE_SPECIES_DATA( IAE )%SPECIES_NAME .EQ. '' ) EXIT
-                      N_STM_OAE_SPC = IAE
-                      IF ( STM_OAE_SPECIES_DATA( IAE )%IC_FAC .EQ. -1. )
-     &                     STM_OAE_SPECIES_DATA( IAE )%IC_FAC = 0.
-                      IF ( STM_OAE_SPECIES_DATA( IAE )%BC_FAC .EQ. -1. )
-     &                     STM_OAE_SPECIES_DATA( IAE )%BC_FAC = 0.
-                      IF ( STM_OAE_SPECIES_DATA( IAE )%DEPV_FAC .EQ. -1. )
-     &                     STM_OAE_SPECIES_DATA( IAE )%DEPV_FAC = 0.
-                      IF ( STM_OAE_SPECIES_DATA( IAE )%SCAV_FAC .EQ. -1. )
-     &                     STM_OAE_SPECIES_DATA( IAE )%SCAV_FAC = 0.
-                  END DO
                 
                   IF ( ( N_AE_SPC + N_STM_OAE_SPC ) .GT. SPC_DIM ) THEN
                      WRITE( LOGDEV,* ) '*** Allocated dimension exceeded for AE ', 
@@ -736,47 +649,6 @@ c-------------------------------------------------------------------------------
             END DO
 
             IF ( STM ) THEN
-               ! Sulfur Tracking Nonreactive (NR) Namelist
-               ALLOCATE( STM_NR_SPECIES_DATA( SPC_DIM ), STAT=IOS )
-               STM_NR_SPECIES_DATA%SPECIES_NAME = ''
-               STM_NR_SPECIES_DATA%MOLWT = 0.
-               STM_NR_SPECIES_DATA%IC_SURR = ''
-               STM_NR_SPECIES_DATA%IC_FAC = 0.
-               STM_NR_SPECIES_DATA%BC_SURR = ''
-               STM_NR_SPECIES_DATA%BC_FAC = 0.
-               STM_NR_SPECIES_DATA%DEPV_SURR = ''
-               STM_NR_SPECIES_DATA%DEPV_FAC = 0.
-               STM_NR_SPECIES_DATA%SCAV_SURR = ''
-               STM_NR_SPECIES_DATA%SCAV_FAC = 0.
-               STM_NR_SPECIES_DATA%AERO_SURR = ''
-               STM_NR_SPECIES_DATA%CLOUD_SURR = ''
-               STM_NR_SPECIES_DATA%TRNS_FLAG = ''
-               STM_NR_SPECIES_DATA%DDEP_FLAG = ''
-               STM_NR_SPECIES_DATA%WDEP_FLAG = ''
-               STM_NR_SPECIES_DATA%CONC_FLAG = ''
-               
-               if ( dev_stm_nml .eq. 0 ) then
-                  dev_stm_nml = junit()
-                  open( file = trim( stm_namelist ), unit = dev_stm_nml,
-     &                  status = 'old', position = 'rewind' )
-               end if
-               read( nml = STM_NR_nml, unit = dev_stm_nml ) 
-               
-               ! Determine Number of Sulfur Tracking Nonreactive Species
-               N_STM_NR_SPC = 0
-               DO INR = 1,SPC_DIM
-                   IF ( STM_NR_SPECIES_DATA( INR )%SPECIES_NAME .EQ. '' ) EXIT
-                   N_STM_NR_SPC = INR
-                   IF ( STM_NR_SPECIES_DATA( INR )%IC_FAC .EQ. -1. )
-     &                  STM_NR_SPECIES_DATA( INR )%IC_FAC = 0.
-                   IF ( STM_NR_SPECIES_DATA( INR )%BC_FAC .EQ. -1. )
-     &                  STM_NR_SPECIES_DATA( INR )%BC_FAC = 0.
-                   IF ( STM_NR_SPECIES_DATA( INR )%DEPV_FAC .EQ. -1. )
-     &                  STM_NR_SPECIES_DATA( INR )%DEPV_FAC = 0.
-                   IF ( STM_NR_SPECIES_DATA( INR )%SCAV_FAC .EQ. -1. )
-     &                  STM_NR_SPECIES_DATA( INR )%SCAV_FAC = 0.
-               END DO
-
                IF ( ( N_NR_SPC + N_STM_NR_SPC ) .GT. SPC_DIM ) THEN
                   WRITE( LOGDEV,* ) '*** Allocated dimension exceeded for NR ', 
      &                              ' species in Sulfur Tracking Model' 
