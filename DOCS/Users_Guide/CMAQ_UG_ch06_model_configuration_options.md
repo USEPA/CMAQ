@@ -289,6 +289,7 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 
 ### 6.9.2 Online Emission Streams
 [Return to Top](#Return_to_Top)
+The following sections 
 
 <a id=BEIS></a>
 #### Biogenics
@@ -298,6 +299,11 @@ This biogenic model is based on the same model that is included in SMOKE. Before
 
 Speciation of biogenic emissions is controlled by gspro_biogenics.txt under CCTM/src/biog/beis.
 
+Running CMAQ with online biogenics is controlled by the following RunScript flag:
+
+```
+setenv CTM_BIOGEMIS Y
+```
 Running CMAQ with online biogenic emissions requires a grid-normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ. The location of the B3GRD file is set in the RunScript:
 
 ```
@@ -345,25 +351,42 @@ CMAQ uses time-varying vegetation coverage, soil moisture and wind speed from th
 
  In WRFv4.1+, the PX LSM provides fractional soil texture information for the new dust model (CSAND_PX, FMSAND_PX and CLAY_PX). This new version of PX also leverages high resolution MODIS vegetation instead of an older table lookup method. In the output files the variables are: VEGF_PX and LAI_PX. This MODIS data has been shown to improve the dust emissions. To do this properly, the WRF preprocessing system (WPS) needs to be ran using the MODIS veg and lai option in geogrid labeled “greenfrac_fpar_modis”. Furthermore, a physics option for the PX LSM named “pxlsm_modis_veg” needs to be set to 1. In this case the time-varying high-resolution MODIS vegetation will be used in the PX LSM and passed directly to CMAQ5.3+ for the prediction of dust. Again, if the PX LSM is not used, the variables VEGF and LAI are used and CMAQ users may want to examine whether those outputs properly represent the vegetation (i.e., at high resolutions coarse veg data may misrepresent the true vegetation).
 
+The CMAQ windblown dust module is controlled by the following RunScript flag:
+
+```
+setenv CTM_WB_DUST Y
+```
+
+Note that if this flag is set to N to indicate zero wind-blown dust emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it can't find species it is looking for from dust emissions.
+
+Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the wind-blown dust module. Please check the AERO_DATA module for the list of species produced by dust emissions.
+
 <a id=Sea_Spray></a>
 #### Sea Spray
 Because sea spray particles are emitted during wave breaking and bubble bursting at the ocean surface, the main factor affecting the emission rate is the wind speed. The temperature of the ocean also affects bubble bursting and subsequent emission rate of sea spray particles. Wave breaking is enhanced near the surf zone just offshore, and CMAQ accounts for this by increasing sea spray particle emission rates in the surf zone.
 
 The current open ocean sea spray particle emission rate in CMAQ as described in Gantt et al. (2015) is based on Gong (2003) with a temperature dependence derived from Jaeglé et al. (2011) and Ovadnevaite et al. (2014) and an adjustment of Θ from 30 to eight to account for higher accumulation mode emissions. The current surf zone sea spray particle emission rate in CMAQ as described in Gantt et al. (2015) is based on Kelly et al. (2010) with a reduction of the assumed surf zone width from 50 to 25 meters.
-The CMAQ sea spray emissions module is controlled by the following RunScript option:
+The CMAQ sea spray emissions module is controlled by the following RunScript flag:
 
 ```
-setenv CTM_SS_AERO Y
+setenv CTM_OCEAN_CHEM Y
 ```
 
 Speciation of sea spray emissions is controlled by AERO_DATA.F under CCTM/src/aero. 
 Note that CMAQ employing Carbon Bond 6 version r3 with DMS and marine halogen chemistry (cb6r3m_ae7_kmtbr) modifies the speciation of Sea Spray emissions. In addition to other chemical species, it speciates bromide from Sea Spray emissions.
 
+Note that if the CTM_OCEAN_CHEM flag is set to N to indicate zero sea spray emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it can't find species it is looking for from sea spray.
+
+Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the sea spray module. Please check the AERO_DATA module for the list of species produced by sea spray emissions.
+
 <a id=Lightning_NO></a>
 #### Lightning NO
 In retrospective applications over the continental U.S., National Lightning Detection Network (NLDN) lightning data can be used directly to generate NO produced by lightning in CMAQ. For real-time forecasts where lightning data are not available, lightning NO is produced based on statistical relationships with the simulated convective rainfall rate (Kang et al., 2019).
 
-There are three options for including NO from lighting.
+There are three options for including NO from lighting.  All three options require setting the CTM_LTNG_NO flag to Y in the RunScript.
+```
+setenv CTM_LTNG_NO Y
+```
 
 ##### Option 1 - Offline NO -- user provides a gridded lightning NO emissions file calculated with a preprocessor external to the CMAQ repository
 
