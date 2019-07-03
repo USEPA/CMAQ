@@ -5,69 +5,65 @@
 
 <!-- END COMMENT -->
 
-# 12. Sulfur Tracking
+# 12. Sulfur Tracking Method
 ## 12.1 Overview
+CMAQv5.3 includes a runtime diagnostic model option that provides detailed information on the modeled sulfur budget. This option, referred to as the "Sulfur Tracking Method (STM)", tracks sulfate production from gas- and aqueous-phase chemical reactions, as well as contributions from emissions and initial and boundary conditions. Each tracked species is treated as other modeled species, undergoing transport (advection, diffusion, cloud-mixing) and removal by deposition (both wet and dry).  Several notable features in the CMAQv5.3 release of STM:
 
-CMAQv5.2 includes an optional diagnostic model configuration that provides detailed information on the modeled sulfur budget. This model version, referred to as the "CMAQ-Sulfur Tracking Model (CMAQ-STM)", tracks sulfate production from gas- and aqueous-phase chemical reactions, as well as contributions from emissions and initial and boundary conditions. Each tracked species is treated as other modeled species, undergoing transport (advection, diffusion, cloud-mixing) and removal by deposition (both wet and dry).
+- The STM is now a runtime option enabled by an environment variable.
+- Addition species (Table 12-2) are included with the STM to track the loss of inorganic sulfate to organosulfate for chemical mechanisms that include this loss pathway
 
-## 12.2 Build Instructions
+## 12.2 Usage
 
-The CMAQv5.2 STM installation includes a build script for compiling a version of the CCTM instrumented with the Sulfur Tracking Model.
+To activate the STM option, edit the CTM runscript and set the following environment variable to "Y" (the default is "N"):
 
-For installing CMAQ-STM, first download, install, and build the base version of the model]. Then download the CMAQ STM tar file and untar into the CMAQv5.2 home directory:
+- setenv STM_SO4TRACK Y
 
-```
- cd $M3HOME/../
- tar xvzf CMAQv5.2_STM.Apr2014.tar.gz
- ```
+The STM option does not require any additional input files, and will used the initial conditions, boundary conditions, and emissions files available for use with the standard, non-instrumented CCTM.
 
-Use the bldit.cctm.stm script as you would the base cctm build script.
+Next, run the CMAQ CTM following the instructions described in Chapter 5, section 5.7.
 
-```
- cd $M3HOME/scripts/cctm_stm
- ./bldit.cctm.stm |& tee bldit.cctm.stm.log
- ```
-Note that you will need to have the libraries  (I/O API, netCDF, MPI, Stenex, and Pario) and model builder (bldmake) required by the base model to compile this version of the code. See the base model README for instructions on building these components.
+Note that several of the standard CMAQ output files (ACONC, CONC, CGRID, DDEP, and WDEP) will include additional species beyond the standard base model species list.  A list of the additional species output by the STM option are provided in Table 12-1 and Table 12-2.  These data can be post-processed using standard utilities, such as:
 
-## 12.3 Run Instructions
-
-A sample run script is provided in the STM release package under $M3HOME/scripts/cctm_stm.
-
-The CMAQ STM test run uses the same input data as the base CMAQv5.2 distribution package.  To run the CMAQ STM test case:
-
-1. Download the base CMAQv5.2 distribution, including the model and input data to obtain/prepare inputs for CMAQ STM.  
-2. Run the ICON and BCON processors from the base model package to create initial and boundary conditions input files for the CMAQ STM test case.
-3. Point the CMAQ STM run script to the emissions and ICBC data from the base CMAQv5.0.2 distribution
-4. Execute the CMAQ STM run script the same way that you would run the base model
-
-## 12.4 CMAQ STM Input/Output Data
-
-CMAQ-STM will work with initial conditions, boundary conditions, and emissions files available for use with the standard, non-instrumented CCTM. No additional processing is required to prepare input data for this model version.
-
-The output concentration and deposition files will include additional species beyond the normal species list. These new output species are listed in Table 1 below.
+-   combine (to combine multiple days into one file or to aggregate various tracking species)
+-   m3tproc (to sum/average over multiple days)
+-   verdi (for data visualization)
 
 **Table 12-1. Sulfur Tracking Species List**
 
-|Species Name|Description|
-|--------|--------------------------------|
-|ASO4AQH2O2J|ASO4J produced by aqueous-phase hydrogen peroxide oxidation reaction:H<sub>2</sub>O<sub>2</sub> + S(IV) -> S(VI) + H<sub>2</sub>O</div>|
-| ASO4AQO3J|ASO4J produced by aqueous-phase ozone oxidation reaction:O<sub>3</sub> + S(IV) -> S(VI) + O<sub>2</sub>|
-| ASO4AQFEMNJ|ASO4J produced by aqueous-phase oxygen catalyzed by Fe<sup>+++</sup> and Mn<sup>++</sup> oxidation reaction: O<sub>2</sub> + S(IV) -> S(VI)|
-| ASO4AQMHPJ|ASO4J produced by aqueous-phase methyl hydrogen peroxide oxidation reaction:MHP + S(IV) -> S(VI)|
-|ASO4AQPAAJ|ASO4J produced by aqueous-phase peroxyacetic acid oxidation reaction:PAA + S(IV) -&gt; S(VI)|
-|ASO4GASI|ASO4I nucleation and/or condensation following gas-phase reaction:OH + SO<sub>2</sub> -> SULF + HO<sub>2</sub>|
-| ASO4GASJ|ASO4J condensation following gas-phase reaction:OH + SO<sub>2</sub> -&gt; SULF + HO<sub>2</sub>|
-| ASO4GASK|ASO4K attributed to the gas-phase reaction:OH + SO<sub>2</sub> -&gt; SULF + HO<sub>2</sub>|
-|ASO4EMISI|ASO4I from source emissions|
-|ASO4EMISJ|ASO4J from source emissions|
-|ASO4EMISK|ASO4K from source emissions|
-|ASO4ICBCI|ASO4I from boundary and initial conditions|
-|ASO4ICBCJ|ASO4J from boundary and initial conditions|
-|ASO4ICBCK|ASO4K from boundary and initial conditions|
-| SULF_ICBC|Sulfuric acid vapor (SULF) from boundary and initial conditions|
+|Species Group|Species Name| MW   | Description |
+|:------------|:-----------|:-----|:------------|
+|AE           |ASO4AQH2O2J | 96.0 |Accumulation mode sulfate (ASO4J) produced by aqueous-phase hydrogen peroxide oxidation reaction:  H<sub>2</sub>O<sub>2</sub> + S(IV) -> S(VI) + H<sub>2</sub>O |
+|AE           |ASO4AQO3J   | 96.0 |ASO4J produced by aqueous-phase ozone oxidation reaction:  O<sub>3</sub> + S(IV) -> S(VI) + O<sub>2</sub> |
+|AE           |ASO4AQFEMNJ | 96.0 |ASO4J produced by aqueous-phase oxygen catalyzed by Fe<sup>3+</sup> and Mn<sup>2+</sup> oxidation reaction: O<sub>2</sub> + S(IV) -> S(VI) |
+|AE           |ASO4AQMHPJ  | 96.0 |ASO4J produced by aqueous-phase methyl hydrogen peroxide oxidation reaction:  MHP + S(IV) -> S(VI) |
+|AE           |ASO4AQPAAJ  | 96.0 |ASO4J produced by aqueous-phase peroxyacetic acid oxidation reaction:  PAA + S(IV) -> S(VI) |
+|AE           |ASO4GASJ    | 96.0 |ASO4J condensation following gas-phase reaction:  OH + SO<sub>2</sub> -> SULF + HO<sub>2</sub> |
+|AE           |ASO4EMISJ   | 96.0 |ASO4J from source emissions |
+|AE           |ASO4ICBCJ   | 96.0 |ASO4J from boundary and initial conditions |
+|AE           |ASO4GASI    | 96.0 |Aitken mode sulfate (ASO4I) nucleation and/or condensation following gas-phase reaction:  OH + SO<sub>2</sub> -> SULF + HO<sub>2</sub> |
+|AE           |ASO4EMISI   | 96.0 |ASO4I from source emissions |
+|AE           |ASO4ICBCI   | 96.0 |ASO4I from boundary and initial conditions |
+|AE           |ASO4GASK    | 96.0 |Coarse mode sulfate (ASO4K) condensation following gas-phase reaction:  OH + SO<sub>2</sub> -> SULF + HO<sub>2</sub>  |
+|AE           |ASO4EMISK   | 96.0 |ASO4K from source emissions |
+|AE           |ASO4ICBCK   | 96.0 |ASO4K from boundary and initial conditions |
+|NR           |SULF_ICBC   | 98.0 |Sulfuric acid vapor (SULF) from boundary and initial conditions |
+
+**Table 12-2.  Additional Tracking Species Representing Loss of Inorganic Sulfate to Organosulfate (only included if using SAPRC07TIC_AE6I, SAPRC07TIC_AE7I, CB6R3_AE7, or CB6R3M_AE7 mechanisms)**
+
+|Species Group|Species Name| MW   | Description |
+|:------------|:-----------|:-----|:------------|
+|AE           |OSO4J       | 96.0 |Loss of ASO4J to organosulfate |
+|AE           |OSO4AQH2O2J | 96.0 |Loss of ASO4AQH2O2J to organosulfate |
+|AE           |OSO4AQO3J   | 96.0 |Loss of ASO4AQO3J to organosulfate |
+|AE           |OSO4AQFEMNJ | 96.0 |Loss of ASO4AQFEMNJ to organosulfate |
+|AE           |OSO4AQMHPJ  | 96.0 |Loss of ASO4AQMHPJ to organosulfate |
+|AE           |OSO4AQPAAJ  | 96.0 |Loss of ASO4AQPAAJ to organosulfate |
+|AE           |OSO4GASJ    | 96.0 |Loss of ASO4GASJ to organosulfate |
+|AE           |OSO4EMISJ   | 96.0 |Loss of ASO4EMISJ to organosulfate |
+|AE           |OSO4ICBCJ   | 96.0 |Loss of ASO4ICBCJ to organosulfate |
 
 ## Contact
- [Shawn Roselle](mailto:roselle.shawn@epa.gov), Atmospheric Modeling and Analysis Division, U.S. EPA
+ [Shawn Roselle](mailto:roselle.shawn@epa.gov), Computational Exposure Division, U.S. EPA
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch11_ISAM.md) - [Home](README.md) <br>
