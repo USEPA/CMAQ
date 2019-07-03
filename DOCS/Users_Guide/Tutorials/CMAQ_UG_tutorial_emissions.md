@@ -38,9 +38,13 @@ Emission streams can be zeroed using the options for individual streams in the C
 ##### a. Using Options in the CMAQ RunScript
 For gridded or inline emissions, just reduce the value of N_EMIS_GR or N_EMIS_PT, respectively and adjust the values of the file paths and stream labels accordingly, if necessary.
 
+Note that if you zero out the sea-spray or wind-blown dust emissions, you should also edit the emission control file by commenting out the coarse and fine species expected from those modules. Some of these species are used by both emission streams, so if you only want to zero out the sea-spray or dust stream but not the other stream, you will need to determine which species to comment out. Please check the AERO_DATA module for the list of species produced by each stream.  
+
+Alternatively, you may set the CTM_EMISCHK variable to FALSE in the runscript to avoid crashing CMAQ if it can't find species it is looking for from emissions streams that have beed disabled.  
+
 To zero Sea Spray aerosol emissions,
 ```
-setenv CTM_SS_AERO N
+setenv CTM_OCEAN_CHEM N
 ```
 To zero Wind-Blown Dust aerosol emissions,
 ```
