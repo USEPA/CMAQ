@@ -38,7 +38,7 @@ Starting with CMAQv5.3 model release, ISAM is provided directly with the source 
 make isam=TRUE
 ```
 
-Note, you may want to 'make clean' first, if your scripts were configured to automatically compile the model.
+Note, you may need to 'make clean' first, to remove any object files created without the isam pre-processor flag.
 
 ## 11.3 Run Instructions
 
