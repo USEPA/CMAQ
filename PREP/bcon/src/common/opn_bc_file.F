@@ -25,9 +25,9 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT, 
-     &                        SPNAME_OUT, VTYPE_OUT, UNITS_OUT, 
-     &                        VDESC_OUT, BC_FNAME, RINDX )  
+      SUBROUTINE OPN_BC_FILE ( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT,
+     &                         SPNAME_OUT, VTYPE_OUT, UNITS_OUT,
+     &                         VDESC_OUT, BC_FNAME, RINDX )
 
 C***********************************************************************
  
@@ -59,18 +59,18 @@ C***********************************************************************
 C Include Files: None
 
 C Arguments: 
-      CHARACTER( 16 ) :: BC_FNAME( * )    ! Logical names of BC Output file(s) 
-      CHARACTER( 16 ) :: SPNAME_OUT( * )  ! Ouput file species names
-      CHARACTER( 16 ) :: UNITS_OUT( * )
-      CHARACTER( 80 ) :: VDESC_OUT( * )
+      CHARACTER( 16 ), INTENT( OUT ) :: BC_FNAME( : )    ! Logical names of BC Output file(s)
+      CHARACTER( 16 ), INTENT( IN )  :: SPNAME_OUT( : )  ! Ouput file species names
+      CHARACTER( 16 ), INTENT( IN )  :: UNITS_OUT( : )
+      CHARACTER( 80 ), INTENT( IN )  :: VDESC_OUT( : )
 
-      INTEGER LOGUNIT      ! Unit number for output log
-      INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
-      INTEGER RINDX        ! Index of root file name
-      INTEGER SDATE        ! Date for IC Output
-      INTEGER STIME        ! Time for IC output
-      INTEGER TSTEP        ! Time step
-      INTEGER VTYPE_OUT( * ) ! Variable type (e.g. integer, real, ...)
+      INTEGER, INTENT( IN ) :: LOGUNIT      ! Unit number for output log
+      INTEGER, INTENT( IN ) :: NSPCS_OUT    ! Number of IC species on output file(s)
+      INTEGER, INTENT( IN ) :: RINDX        ! Index of root file name
+      INTEGER, INTENT( IN ) :: SDATE        ! Date for IC Output
+      INTEGER, INTENT( IN ) :: STIME        ! Time for IC output
+      INTEGER, INTENT( IN ) :: TSTEP        ! Time step
+      INTEGER, INTENT( IN ) :: VTYPE_OUT( : ) ! Variable type (e.g. integer, real, ...)
 
 C Parameters: None
 
@@ -104,8 +104,7 @@ c  Get the value of environment variable EXECUTION_ID
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENV_DESC = 'Value of environment variable EXECUTION_ID' 
       ENV_DFLT = '-----------'        
-      CALL ENVSTR( 'EXECUTION_ID', ENV_DESC, ENV_DFLT, RET_VAL,
-     &              STATUS)
+      CALL ENVSTR ( 'EXECUTION_ID', ENV_DESC, ENV_DFLT, RET_VAL, STATUS )
       EXECN3D = RET_VAL
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -187,12 +186,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          ENV_DESC = 'BC Output file ' // BC_FNAME( N ) 
          ENV_DFLT = ' '       
-         CALL ENVSTR( BC_FNAME( N ), ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
+         CALL ENVSTR ( BC_FNAME( N ), ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
 
          IF ( STATUS .NE. 0 ) THEN
-            MSG = 'BC output file ' // BC_FNAME( N ) //
-     &            ' not assigned' 
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+            MSG = 'BC output file ' // BC_FNAME( N ) // ' not assigned'
+            CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
          FDESC3D( 1 ) = 'BCON output file ' // BC_FNAME( N )
