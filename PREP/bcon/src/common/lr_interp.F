@@ -57,15 +57,16 @@ C***********************************************************************
 C Includes: None
       
 C Arguments:
-      LOGICAL L_RATINT  ! Flag for rational function interpolation
+      LOGICAL, INTENT( IN ) :: L_RATINT  ! Flag for rational function interpolation
 
-      REAL :: XA( * )   ! Independent variable array
-      REAL :: YA( * )   ! Dependent variable array
-      INTEGER N         ! Number of values in arrays XA and YA
-      REAL    X         ! Value of independent variable to be interpolated 
-      REAL    Y         ! Interpolated value of dependent variable
-      REAL    DELY      ! Error estimate for rational function interpolation
-                                           
+      REAL, INTENT( IN )  :: XA( : )     ! Independent variable array
+      REAL, INTENT( IN )  :: YA( : )     ! Dependent variable array
+      REAL, INTENT( IN )  :: X           ! Value of independent variable to be interpolated
+      REAL, INTENT( OUT ) :: Y           ! Interpolated value of dependent variable
+      REAL, INTENT( OUT ) :: DELY        ! Error estimate for rational function interpolation
+
+      INTEGER, INTENT( IN ) :: N         ! Number of values in arrays XA and YA
+
 C Parameters:
       INTEGER, PARAMETER :: NMAX = 100  ! Maximum number of points in arrays AX and YA
       REAL,    PARAMETER :: TINY = 1.0E-35   ! Tiny number

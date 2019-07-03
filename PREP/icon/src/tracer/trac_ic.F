@@ -25,7 +25,7 @@ C $Header: /project/yoj/arc/ICON/src/tracer/trac_ic.F,v 1.2 2011/10/21 16:41:58 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-      SUBROUTINE TRAC_IC( TRNAME, TCOUT )
+      SUBROUTINE TRAC_IC ( TRNAME, TCOUT )
 
 C***********************************************************************
  
@@ -46,6 +46,7 @@ C***********************************************************************
 
       USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN    ! vertical layer specifications
+      USE M3UTILIO     ! IOAPI module
       USE IC_PARMS     ! ICON paramters
 
       IMPLICIT NONE     
@@ -53,8 +54,9 @@ C***********************************************************************
 C Include FILES:
 
 C Arguments: 
-      CHARACTER( 16 ) :: TRNAME     !  Tracer name
-      REAL    :: TCOUT( NCOLS,NROWS,* )
+      CHARACTER( 16 ), INTENT( IN ) :: TRNAME     !  Tracer name
+
+      REAL, INTENT( OUT ) :: TCOUT( :,:,: )
 
 C Parameters:
       INTEGER, PARAMETER :: CELL_RAD = 3   ! Radius for superposition tracers
@@ -71,11 +73,13 @@ C Saved Local Variables:
 
 C Local Variables:
       CHARACTER( 16 ) :: PNAME = 'TRAC_IC'      ! Procedure name
+      CHARACTER( 80 ) :: MSG               ! Log message
 
       INTEGER COL_PEAK   ! Location of center of peak for superposition tracers
       INTEGER ROW_PEAK   ! Location of center of peak for superposition tracers
 
-      INTEGER C, R, L                  ! Grid loop indices
+      INTEGER C, R, L    ! Grid loop indices
+      INTEGER ALLOCSTAT  ! Status returned from array allocation
 
       REAL    DISTSQ     ! Distance squared for for superposition tracers
       REAL    RADSQ      ! Hill radius squared for superposition tracers
@@ -90,7 +94,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( LFIRST ) THEN 
          LFIRST = .FALSE.
 
-         ALLOCATE( SHAPE( NCOLS,NROWS ) )
+         ALLOCATE( SHAPE( NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            MSG = 'Failure allocating SHAPE'
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         END IF
+
          DO R = 1, NROWS
             DO C = 1, NCOLS
                SHAPE( C,R ) = 0.0
