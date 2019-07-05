@@ -3,7 +3,7 @@ hr2day
 
 This Fortran program creates gridded IOAPI files with daily values from gridded IOAPI files containing hourly values.
 
-##Environment variables used:
+## Environment variables used:
 
 ```
  USELOCAL      use local time when computing daily values (default N)
@@ -37,7 +37,7 @@ This Fortran program creates gridded IOAPI files with daily values from gridded 
  OUTFILE       output IOAPI file name with computed daily values
 ```
 
-##Environment Variables (not required):
+## Environment Variables (not required):
 ```
  IOAPI_ISPH  projection sphere type (use type #20 to match WRF/CMAQ)
              (ioapi default is 8)
@@ -48,7 +48,7 @@ This Fortran program creates gridded IOAPI files with daily values from gridded 
 	     model input file(s). 
 ```
 
-##Species and operator definitions: 
+## Species and operator definitions: 
 Defines the name, units, expression and daily operation for each variable in OUTFILE. These definitions are specified by environment variables SPECIES_[n]
 
 ```
@@ -96,7 +96,7 @@ Defines the name, units, expression and daily operation for each variable in OUT
                                               ASO4J_MAX with units ug/m3)
 ```
 
-##To run:
+## To run:
 Edit the sample run script (run.hr2day.make8hrmax), then run:
 ```
  run.hr2day |& tee hr2day.log

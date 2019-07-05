@@ -7,7 +7,7 @@ This Fortran program extracts time series of 1 or more variables from 1 or more 
 ```
 where VAR1 VAR2 ... are the variable names specified by SPECLIST.
 
-##Environment variables used:
+## Environment variables used:
 
 ```
   SPECLIST      list of species to extract, e.g. set SPECLIST = ( O3 NO2 ).  "ALL" is supported also.
@@ -29,7 +29,7 @@ where VAR1 VAR2 ... are the variable names specified by SPECLIST.
   NSTEPS        number of time steps (optional; otherwise program processes all steps in all input files)
 ```
 
-##Input file types and format:
+## Input file types and format:
 
 Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For hourly output data (OLAYTYPE HOURLY) the program assumes that observations are in local standard time (LST) and applies a simple timezone shift to GMT using timezones every 15 degrees longitude.  For daily output data (OLAYTYPE DAILY, 1HRMAX or 8HRMAX) no time shifting is done so the output data remains in LST.  In this case the user can use the HR2DAY utility to time shift and average hourly model data to create daily model fields in LST.
 
@@ -43,7 +43,7 @@ Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For 
                  The format is a tab delimited file with the structure Site_ID Longitude Latitude.
 ```
 
-##To run:
+## To run:
 Edit the sample run script (run.block_extract), then run:
 ```
  run.block_extract |& tee block_extract.log

@@ -57,7 +57,6 @@
 # ~~~~~~~~~~~~ START NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
 #> The following environment variables will change depending on what 
 #> observation network is being matched with CMAQ output.
-#> This sample run script is set up for hourly data from AQS.
 #> See the README.md file in this folder for the settings to use for 
 #> the following networks: IMPROVE, CASTNET, CSN (formally STN), NADP
 #> SEARCH, AIRMON
@@ -73,32 +72,29 @@
 #>
 #> The expression is in the form:
 #>       [factor1]*Obs_name1 [+][-] [factor2]*Obs_name2 ...
- setenv GAS_1 "O3,ppb,O3,ppb,O3" 
- setenv GAS_2 "NO,ppb,NO,ppb,NO"              
- setenv GAS_3 "NOY,ppb,NOY,ppb,NOY"              
- setenv GAS_4 "NO2,ppb,NO2,ppb,NO2"              
- setenv GAS_5 "NOX,ppb,NO+NO2,ppb,NOX"           
- setenv GAS_6 "CO,ppb,CO,ppb,CO"                 
- setenv GAS_7 "SO2,ppb,SO2,ppb,SO2"              
- setenv GAS_8 "PM25,ug/m3,ATOTIJ,ug/m3,PM_TOT"     
- setenv GAS_9 "PM25,ug/m3,PMIJ_FRM,ug/m3,PM_FRM" 
- setenv GAS_10 "PM10,ug/m3,PM10,ug/m3,PM10"       
- setenv GAS_11 "Isoprene,ppb,ISOP,ppb,Isoprene"  
- setenv GAS_12 "Ethylene,ppb,ETH,ppb,Ethylene"   
- setenv GAS_13 "Ethane,ppb,ETHA,ppb,Ethane"      
- setenv GAS_14 "Toluene,ppb,TOL,ppb,Toluene"     
- setenv GAS_15 "Temperature,C,SFC_TMP,C,SFC_TMP" 
- setenv GAS_16 "RH,%,RH,%,RH"                    
- setenv GAS_17 "Wind_Speed,m/s,WSPD10,m/s,WSPD10"
- setenv GAS_18 ",,PBLH,m,PBLH"                   
- setenv GAS_19 ",,SOL_RAD,watts/m2,Solar_Rad"    
- setenv GAS_20 ",,10*precip,mm/hr,precip"       
-   
-#> PM2.5 Sharp Cutoff Species
-#> Requires preprocessing using CCTM_APMDIAG file
- setenv GAS_21 "PM25,ug/m3,PM25_TOT,ug/m3,PM25_TOT"
- setenv GAS_22 "PM25,ug/m3,PM25_FRM,,PM25_FRM"     
-#>> End Species List <<#
+  setenv AERO_1 "Average O3[ppb],ppb,O3,,O3"                               
+  setenv AERO_2 "Average CO[ppb],ppb,CO,,CO"                               
+  setenv AERO_3 "Average SO2[ppb],ppb,SO2,,SO2"                            
+  setenv AERO_4 "Average NO[ppb],ppb,NO,,NO"                               
+  setenv AERO_5 "Average NO2[ppb],ppb,NO2,,NO2"                            
+  setenv AERO_6 "Average NOy[ppb],ppb,NOY,ppb,NOY"                         
+  setenv AERO_7 "Average HNO3[ppb],ppb,HNO3,ppb,HNO3"                      
+  setenv AERO_8 "Average NH3[ppb],ug/m3,NH3,,NH3"                          
+  setenv AERO_9 "Average WSP[m/s],m/s,WSPD10,m/s,WSPD10"                   
+  setenv AERO_10 "Average WDR[Deg],m/s,WDIR10,m/s,WDIR10"                  
+  setenv AERO_11 "Average RH[%],%,RH,%,RH"                                 
+  setenv AERO_12 "Average TEMP[Deg C],C,SFC_TMP,C,SFC_TMP"                 
+  setenv AERO_13 "25.4*Average RAINFALL[Inches],mm,precip,mm,precip"       
+  setenv AERO_14 "Average SR[W/m2],w/m2,SOL_RAD,watts/m2,Solar_Rad"        
+  setenv AERO_15 "Average OptEC[ug/m3],ug/m3,PM25_EC,ug/m3,PM25_EC"
+  setenv AERO_16 "Average OC[ug/m3],ug/m3,PM25_OC,ug/m3,PM25_OC"
+  setenv AERO_17 "Average TC[ug/m3],ug/m3,PM25_EC+PM25_OC,ug/m3,PM25_TC"
+  setenv AERO_18 "Average NH4[ug/m3],ug/m3,PM25_NH4,,PM25_NH4"
+  setenv AERO_19 "Average NO3[ug/m3],ug/m3,PM25_NO3,,PM25_NO3"
+  setenv AERO_20 "Average SO4[ug/m3],ug/m3,PM25_SO4,,PM25_SO4"
+
+#> End Species List ###
+
 
 # ~~~~~~~~~~~~ END NETWORK SPECIFIC SECTION ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -145,18 +141,19 @@
 #> gmt_offset, state, county, and elevation (case insensitive)
 #> This file can be downloaded from
 #> https://github.com/USEPA/AMET/tree/1.4/obs/AQ/site_metadata_files
- setenv SITE_FILE AQS_full_site_list.csv
+ setenv SITE_FILE SEARCH_full_site_list.csv
 #> On EPA system:
-#  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/AQS_full_site_list.csv
+#  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/SEARCH_full_site_list.csv
+
 
 #> input table containing site-id, time-period, and data fields
 #> AQS obs data in the format needed for sitecmp are available 
-#> from the CMAS Center Data clearinghouse under the heading "2000-2017 North American Air Quality Observation Data":
+#> from the CMAS Center Data clearinghouse under the heading "2000-2014 North American Air Quality Observation Data":
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
- setenv IN_TABLE AQS_hourly_data_2016.csv
+ setenv IN_TABLE SEARCH_hourly_data_2016.csv
 #> One EPA system:
-#  setenv IN_TABLE /work/MOD3EVAL/aq_obs/routine/2016/AQS_hourly_data_2016.csv
+#  setenv IN_TABLE /work/MOD3EVAL/aq_obs/routine/2016/SEARCH_hourly_data_2016.csv
 
 
 #############################################################
@@ -164,7 +161,7 @@
 #############################################################
 
 #> output table (comma delimited text file importable to Excel)
- setenv OUT_TABLE ${POSTDIR}/AQS_Hourly_CMAQ_${RUNID}_201607.csv
+ setenv OUT_TABLE ${POSTDIR}/SEARCH_Hourly_CMAQ_${RUNID}_201607.csv
 
 #> Executable call:
  ${BINDIR}/${EXEC}
