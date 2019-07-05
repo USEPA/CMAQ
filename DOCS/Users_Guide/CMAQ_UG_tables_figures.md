@@ -50,7 +50,7 @@
 
 [Table 12-1. Sulfur Tracking species list](CMAQ_UG_ch12_sulfur_tracking.md#Table12-1)
 
-[Table 12-2.  Additional Tracking Species Representing Loss of Inorganic Sulfate to Organosulfate (CMAQ_UG_ch12_sulfur_tracking.md#Table12-2)
+[Table 12-2.  Additional Tracking Species Representing Loss of Inorganic Sulfate to Organosulfate](CMAQ_UG_ch12_sulfur_tracking.md#Table12-2)
 
 
 
