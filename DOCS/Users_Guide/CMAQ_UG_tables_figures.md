@@ -20,7 +20,9 @@
 
 [Table 3-1. Example of job scenarios at EPA for a single day simulation](CMAQ_UG_ch03_preparing_compute_environment.md#Table3-1)
 
-[Table 3-2. Optional support software for CMAQ](CMAQ_UG_ch03_preparing_compute_environment.md#Table3-2)
+[Table 3-2. Minimum required software versions](CMAQ_UG_ch03_preparing_compute_environment.md#Table3-2)
+
+[Table 3-3. Optional support software for CMAQ](CMAQ_UG_ch03_preparing_compute_environment.md#Table3-3)
 
 [Table 4-1. CMAQ input files](CMAQ_UG_ch04_model_inputs.md#Table4-1)  
 
