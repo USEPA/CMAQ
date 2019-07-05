@@ -23,6 +23,8 @@ For example, the CMAQ team at the EPA uses a Dell cluster. The cluster consists 
 
 Table 3-1 provides a general snapshot of three different CMAQ setups for a day of simulation conducted at the EPA. The output only included: the concentration file (CONC), the average concentration file (ACONC), 3-D average concentration file (CGRID), hourly dry deposition file (DRYDEP), and wet deposition from the clouds file (WETDEP1). The run time and domain size are dictated by the system hardware. Furthermore, the run time may vary due to compiler choice and system load.
 
+<a id=Table3-1></a>
+
 **Table 3‑1. Example of job scenarios at EPA for a single day simulation**
 
 |**Domain**|**Domain size**|**Species Tracked**|**Input files size**|**Output files size**| **Run time (# cores)**  | 
@@ -35,6 +37,8 @@ Table 3-1 provides a general snapshot of three different CMAQ setups for a day o
 ## 3.2 Software Requirements
 
 To build the CMAQ program suite, users must install these libraries in the order listed: MPI, netCDF and IOAPI. As always, we recommend using the latest release available at the time of your CMAQ installation. A table of the minimum required software versions is shown below: 
+
+<a id=Table3-2></a>
 
 **Table 3‑2. Minimum required software versions**
 
@@ -101,6 +105,8 @@ make
 Other IOAPI library configuration options are available, and users can see a list of these options within the IOAPI documentation. For example, IOAPI can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" IOAPI libraries (Wong et al. 2015). More information about how to enable PIO within CMAQ can be found in [Appendix D](Appendix/CMAQ_UG_appendixD_parallel_implementation.md). 
 
 ## 3.3 Optional Software
+
+<a id=Table3-3></a>
 
 **Table 3‑3. Optional support software for CMAQ**
 
