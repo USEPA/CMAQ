@@ -157,41 +157,41 @@ The following configuration settings may have multiple options. Select one optio
     -   `grid/cartesian`
 
 -   `ModInit: [default: init/yamo]`<a id=ModInit></a>  
-    The CCTM time-step initialization module that uses a Yamartino scheme for mass-conserving advection. Do not change this module setting.
+    The CCTM time-step initialization module that uses a Yamartino scheme for mass-conserving advection. Do not change this module setting. See [Chapter6](CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
     -   `init/yamo`
 
 -   `ModCpl: [default: couple/gencoor_wrf]`<a id=ModCpl></a>  
-    Mass coupling concentration converstion module options. Unit conversion and concentration coupling module.
+    Mass coupling concentration conversion module options. Unit conversion and concentration coupling module. See [Chapter6](CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
     -   `couple/gencoor_wrf`  
     Coupling scheme compatible with the WRF-based advection scheme; select this option when `ModDriver` is set to `driver/wrf`
     -  `couple/gencoor`  
     Coupling scheme compatible with the Yamartino advection scheme; select this option when `ModDriver` is set to `driver/yamo`.  
 
 -    `ModHadv: [default: hadv/yamo]`<a id=ModHadv></a>  
-      Horizontal advection module.  Currently only the Yamartino global mass-conserving horizontal advection scheme is supported.
+      Horizontal advection module.  Currently only the Yamartino global mass-conserving horizontal advection scheme is supported. See [Chapter6](CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
      -   `hadv/yamo`
 
 -   `ModVadv: [default: vadv/wrf]`<a id=ModVadv></a>  
-    Vertical advection module.
+    Vertical advection module. See [Chapter6](CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
     -   `vadv/wrf`  
     use the WRF omega calculation with the Piecewise Parabolic Method (PPM) to calculate vertical advection; this module should be used only with WRF meteorology
     -   `vadv/yamo`  
     use the global mass-conserving scheme to calculate vertical advection
 -   `ModHdiff: [default: hdiff/multiscale]`<a id=ModHdiff></a>  
-    The only option in CMAQv5 for the horizontal diffusion module is `hdiff/multiscale`, which uses a diffusion coefficient based on local wind deformation. Do not change this module setting.
+    The only option in CMAQv5 for the horizontal diffusion module is `hdiff/multiscale`, which uses a diffusion coefficient based on local wind deformation. Do not change this module setting. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#66-horizontal-diffusion) for further information.
     -   `hdiff/multiscale`  
 -   `ModVdiff: [default: vdiff/acm2]`<a id=ModVdiff></a>  
-    Vertical diffusion and surface exchange module. Do not change this module setting.
+    Vertical diffusion and surface exchange module. Do not change this module setting. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#67-vertical-diffusion) for further information.
     -   `vdiff/acm2`  
     calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2)
 -   `ModDepv: [default: depv/m3dry]`<a id=ModDepv></a>  
-    Deposition calculation module. Users may choose between the msdry and stage options.  If CMAQ output of land use specific deposition or stomatal flux is desired, then the stage option must be selected.
+    Deposition calculation module. Users may choose between the msdry and stage options.  If CMAQ output of land use specific deposition or stomatal flux is desired, then the stage option must be selected. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#68-dry-depositionair-surface-exchange) for further information. 
     -   `depv/m3dry`   
-    CMAQ m3dry dry deposition routine.  This is an updated version of the routine that has always been in CMAQ.
+    CMAQ m3dry dry deposition routine.  This is an updated version of the routine that has always been in CMAQ. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#681-dry-deposition---m3dry) for further information.
     -   `depv/stage`
-    CMAQ stage dry deposition routine.  This option is new in version 5.3.
+    CMAQ stage dry deposition routine.  This option is new in version 5.3. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information. 
 -   `ModEmis: [default: emis/emis]`<a id=ModEmis></a>  
-    CMAQ inline anthropogenic and natural emissions module. In line emissions are activated in the CCTM run script. Do not change this module setting.
+    CMAQ inline anthropogenic and natural emissions module. In line emissions are activated in the CCTM run script. Do not change this module setting. 
     -   `emis/emis`
 -   `ModBiog: [default: biog/beis3]`<a id=ModBiog></a>  
 Calculate biogenic emissions online with the BEIS3 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting.
@@ -206,7 +206,7 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
     -   `spcs/cgrid_specs_icl`  
     use Fortran INCLUDE files to configure CMAQ model species
 -   `ModPhot: [default: phot/inline]`<a id=ModPhot></a>  
-    Photolysis calculation module.
+    Photolysis calculation module. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#6103-photolysis) for further information.
     -   `phot/inline`  
     calculate photolysis rates inline using simulated aerosols and ozone concentrations
     -   `phot/table`  
@@ -217,7 +217,7 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
     Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS`` directory that contains the namelist files for the tracer configuration. The default setting does not use any tracers.
     - `trac[n]`
 -   `ModGas: [default: gas/ebi_${Mechanism}]`<a id=ModGas></a>  
-     Gas-phase chemistry solver module.
+     Gas-phase chemistry solver module. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#6102-solvers) for further information.
      -  `smvgear`  
      use the SMVGEAR chemistry solver
      -  `ros3`  
@@ -231,7 +231,7 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
     -   `aero7`  
     seventh-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
 -   `ModCloud: [default: cloud/acm_ae6]`<a id=ModCloud></a>  
-    CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry.
+    CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#612-aqueous-chemistry-scavenging-and-wet-deposition) for further information.
     -   `cloud/acm_ae6`  
     ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6
     -   `cloud/acm_ae6_mp`  
@@ -363,9 +363,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
-    Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry  
+    Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off.  
+    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 8](CMAQ_OGD_ch08_input_files.md#Table8-1) for a description of the DUST_LU_1 and DUST_LU_2 input files. Comment out variable or set to Y to turn on; set to N to turn off. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information. 
 -   `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
     Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = FALSE`  
     - `BELD3`  
@@ -373,7 +373,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     - `BELD4`
     Use BELD4 landuse data
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
-    Setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. Set to Y to turn on; comment out variable or set to N to turn off.
+    Setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. Set to Y to turn on; comment out variable or set to N to turn off. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
 -   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
     Setting to output the CCTM-calculated vertical velocities to the CONC file. Set to Y to turn on; comment out variable or set to N to turn off.
 -   `KZMIN [default: Y]`<a id=KZMIN></a>  
@@ -399,7 +399,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_GRAV_SETL [default Y]`<a id=CTM_GRAV_SETL></a>  
     Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.
 -   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
-    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings)     
+    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings). See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.      
 
 <a id=Process_Analysis_Options></a>
 ### Process analysis options
