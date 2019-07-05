@@ -75,6 +75,7 @@ Rather than forcing the user to deal with hard-coded file names or hard-coded un
 This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 4-1](#Input_Table) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file.   Typical time step is 1 hour; however a user can specify a finer one, e.g. 20 minutes. In addition, typical thickness of a boundary file is 1, i.e. NTHIK = 1 but it can be any positive integer.
 
 <a id=Input_Table></a>
+<a id=Table4-1></a>
 **Table 4-1. CMAQ input files.**  Note that when "Time-Dependence" is listed as "Hourly", it is shorthand for a time-varying file.  It is recommended that CMAQ use a time increment that is no longer than one hour.  However, CMAQ can be run with a Time Dependence that is shorter than hourly.
 
 |**Environment Variable Name for File**|**File Type**|**Time-Dependence**|**Spatial Dimensions**|**Source**|**Required**|
@@ -278,6 +279,7 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 
 Used by: ICON, BCON, CCTM, and some optional programs
 
+<a id=Table4-3></a>
 
 **Table 4-3**  MCIP output variables used within the CMAQ system.  All fields are located at cell centers, except where noted in the Description.  The Dimensions are:  XY=horizontal, T=time-varying, Z=layers above ground, S=layers below ground, L=land use categories, M=mosaic land use categories.
 
@@ -428,6 +430,8 @@ Used by: CCTM – lightning NO<sub>x</sub> version only
 
 The NLDN lightning strikes file is used for calculating online NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
 
+<a id=Table4-4></a>
+
  **Table 4-4** Variables in hourly observed lightning strike file.
 
 |**Variable Name**|**Description**|**Units**|**Required**|
@@ -445,6 +449,8 @@ The lightning parameters file is used for calculating online NO emissions from h
 This file can be downloaded from the [CMAS Data Warehouse](https://drive.google.com/drive/folders/1R8ENVSpQiv4Bt4S0LFuUZWFzr3-jPEeY). 
 
 This file contains the following variables interpolated to the modeling grid:
+
+<a id=Table4-5></a>
 
 **Table 4-5** Variables in lightning parameters file.
 
