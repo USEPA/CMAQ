@@ -60,43 +60,39 @@ C*************************************************************************
 
       IMPLICIT NONE     
 
-C Include Files: None
-
 C Arguments: 
-      INTEGER LOGUNIT           ! Unit number for output log
-      INTEGER N_CTM_FLS         ! Number of input CTM files
-      INTEGER SDATE             ! Date for BC Output
-      INTEGER STIME             ! Time for BC output
-      INTEGER NSTEPS            ! Run duration, as number of output time steps
-      INTEGER NCOLS_IN          ! No. of columns in input conc file
-      INTEGER NLAYS_IN          ! No. of layers in input conc file
-      INTEGER NROWS_IN          ! No. of rows in input conc file
-      INTEGER NSPCS_IN          ! Total No. of species in input conc file(s)
-      CHARACTER( 16 ) :: CTM_FL_NAME( * )   ! Name of CTM_CONC file
-      CHARACTER( 16 ) :: INFL_SP_NAME( * )  ! Name of input CTM species
-      CHARACTER( 16 ) :: UNITS_IN( * ) ! Units for CTM species
-      CHARACTER( 80 ) :: VDESC_IN( * ) ! Variable description for CTM species
+      INTEGER, INTENT( IN ) :: LOGUNIT           ! Unit number for output log
+      INTEGER, INTENT( IN ) :: N_CTM_FLS         ! Number of input CTM files
+      INTEGER, INTENT( IN ) :: SDATE             ! Date for BC Output
+      INTEGER, INTENT( IN ) :: STIME             ! Time for BC output
+      INTEGER, INTENT( IN ) :: NSTEPS            ! Run duration, as number of output time steps
+      INTEGER, INTENT( IN ) :: NCOLS_IN          ! No. of columns in input conc file
+      INTEGER, INTENT( IN ) :: NLAYS_IN          ! No. of layers in input conc file
+      INTEGER, INTENT( IN ) :: NROWS_IN          ! No. of rows in input conc file
+      INTEGER, INTENT( IN ) :: NSPCS_IN          ! Total No. of species in input conc file(s)
+      CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )   ! Name of CTM_CONC file
+      CHARACTER( 16 ), INTENT( IN ) :: INFL_SP_NAME( : )  ! Name of input CTM species
+      CHARACTER( 16 ), INTENT( IN ) :: UNITS_IN( : ) ! Units for CTM species
+      CHARACTER( 80 ), INTENT( IN ) :: VDESC_IN( : ) ! Variable description for CTM species
 
-      INTEGER :: VTYPE_IN( * ) ! variable type for CTM species
+      INTEGER, INTENT( IN ) :: VTYPE_IN( : ) ! variable type for CTM species
 
 C Parameters:
       REAL, PARAMETER :: CMIN = 1.0E-30  ! Minimum output concentration
 
-C External Functions: 
+C External Functions: None
  
 C Local Variables:
       CHARACTER( 16 ) :: PNAME = 'M3_BCOUT'  ! Procedure Name
       CHARACTER( 80 ) :: MSG              ! Log message
       CHARACTER( 16 ) :: VNAME            ! Species name on CTM conc file
-      CHARACTER( 16 ) :: BC_FNAME( MXCTMS )  ! Logical names of BC Output file(s) 
+      CHARACTER( 16 ), ALLOCATABLE :: BC_FNAME( : )  ! Logical names of BC Output file(s)
 
       INTEGER C             ! Column loop indices
-      INTEGER ERRCODE       ! Error code for Cray HPALLOC
       INTEGER FLN           ! BC output file number
-      INTEGER INDX, ISP, V  ! Array indices for species
+      INTEGER ISP           ! Array indices for species
       INTEGER JDATE         ! Current date
       INTEGER JTIME         ! Current time
-      INTEGER SPC           ! Species loop index 
       INTEGER L             ! Layer loop index
       INTEGER N             ! Loop indices for species
       INTEGER NBND          ! Bndry cell loop index
@@ -104,13 +100,14 @@ C Local Variables:
       INTEGER R             ! Row loop indices
       INTEGER STEP          ! Time step loop index
       INTEGER TSTEP         ! Time step on CTM file, hhmmss
+      INTEGER ALLOCSTAT     ! Status returned from array allocation
 
-      INTEGER :: COL_LOC( NBNDY )  ! Output BC col corresponding to
-                                   ! a cell in the input CTM file
-      INTEGER :: ROW_LOC( NBNDY )  ! Output BC row corresponding to
-                                   ! a cell in the input CTM file
+      INTEGER, ALLOCATABLE :: COL_LOC( : )  ! Output BC col corresponding to
+                                            ! a cell in the input CTM file
+      INTEGER, ALLOCATABLE :: ROW_LOC( : )  ! Output BC row corresponding to
+                                            ! a cell in the input CTM file
 
-      LOGICAL LNEG                 ! Flag for negative concentratuin
+      LOGICAL LNEG                 ! Flag for negative concentration
 
       REAL    DMIN   ! Smallest distance between cell centers
       REAL    LAT    ! Latitude of center of cell for the BC output file
@@ -118,18 +115,129 @@ C Local Variables:
       REAL    X1     ! longitudenal distance between cell centers
       REAL    Y1     ! latitudinal distance between cell centers
 
-      REAL    :: LAT_OUT( NBNDY )              ! Lat of cells in BC output file
-      REAL    :: LON_OUT( NBNDY )              ! Lon of cells in BC output file
+      REAL, ALLOCATABLE :: LAT_OUT( : )    ! Lat of cells in BC output file
+      REAL, ALLOCATABLE :: LON_OUT( : )    ! Lon of cells in BC output file
 
-      REAL    :: LAT_IN( NCOLS_IN,NROWS_IN )   ! Lat of cells in CTM conc file
-      REAL    :: LON_IN( NCOLS_IN,NROWS_IN )   ! Lon of cells in CTM conc file
+      REAL, ALLOCATABLE :: LAT_IN( :,: )   ! Lat of cells in CTM conc file
+      REAL, ALLOCATABLE :: LON_IN( :,: )   ! Lon of cells in CTM conc file
 
-      REAL    :: COUT( NBNDY,NLAYS )             ! Substituted output BC conc
-      REAL    :: CONCIN( NCOLS_IN,NROWS_IN,NLAYS_IN ) ! Input concs
-      REAL    :: BCIN( NBNDY,NLAYS_IN,NSPCS_IN ) ! Horizontally set BCs
-      REAL    :: BCVI( NBNDY,NLAYS,NSPCS_IN )    ! Vertically interpolated BCs
+      REAL, ALLOCATABLE :: COUT( :,: )     ! Substituted output BC conc
+      REAL, ALLOCATABLE :: CONCIN( :,:,: ) ! Input concs
+      REAL, ALLOCATABLE :: BCIN( :,:,: )   ! Horizontally set BCs
+      REAL, ALLOCATABLE :: BCVI( :,:,: )   ! Vertically interpolated BCs
+
+      INTERFACE
+
+         SUBROUTINE LAT_LON ( COL, ROW, GDTYP, XORIG, YORIG, XCELL, YCELL,
+     &                        XCENT, YCENT, P_ALP, P_BET, P_GAM, LAT, LON )
+            INTEGER, INTENT( IN ) :: GDTYP
+            INTEGER, INTENT( IN ) :: COL
+            INTEGER, INTENT( IN ) :: ROW
+            REAL( 8 ), INTENT( IN ) :: P_ALP
+            REAL( 8 ), INTENT( IN ) :: P_BET
+            REAL( 8 ), INTENT( IN ) :: P_GAM
+            REAL( 8 ), INTENT( IN ) :: XCELL
+            REAL( 8 ), INTENT( IN ) :: XCENT
+            REAL( 8 ), INTENT( IN ) :: XORIG
+            REAL( 8 ), INTENT( IN ) :: YCELL
+            REAL( 8 ), INTENT( IN ) :: YCENT
+            REAL( 8 ), INTENT( IN ) :: YORIG
+            REAL, INTENT( OUT ) :: LAT
+            REAL, INTENT( OUT ) :: LON
+         END SUBROUTINE LAT_LON
+
+         SUBROUTINE M3_VINTERP ( LOGUNIT, JDATE, JTIME,
+     &                           NCOLS_IN, NROWS_IN, NLAYS_IN, NSPCS_IN,
+     &                           COL_LOC, ROW_LOC,
+     &                           BCIN, BCVI, CTM_FL_NAME )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: JDATE
+            INTEGER, INTENT( IN ) :: JTIME
+            INTEGER, INTENT( IN ) :: NCOLS_IN
+            INTEGER, INTENT( IN ) :: NROWS_IN
+            INTEGER, INTENT( IN ) :: NLAYS_IN
+            INTEGER, INTENT( IN ) :: NSPCS_IN
+            INTEGER, INTENT( IN ) :: COL_LOC( : )
+            INTEGER, INTENT( IN ) :: ROW_LOC( : )
+            REAL, INTENT( IN )    :: BCIN( :,:,: )
+            REAL, INTENT( OUT )   :: BCVI( :,:,: )
+            CHARACTER( 16 ), INTENT( IN ) :: CTM_FL_NAME( : )
+         END SUBROUTINE M3_VINTERP
+
+         SUBROUTINE OPN_BC_FILE ( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT,
+     &                            SPNAME_OUT, VTYPE_OUT, UNITS_OUT,
+     &                            VDESC_OUT, BC_FNAME, RINDX )
+            CHARACTER( 16 ), INTENT( OUT ) :: BC_FNAME( : )
+            CHARACTER( 16 ), INTENT( IN )  :: SPNAME_OUT( : )
+            CHARACTER( 16 ), INTENT( IN )  :: UNITS_OUT( : )
+            CHARACTER( 80 ), INTENT( IN )  :: VDESC_OUT( : )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: NSPCS_OUT
+            INTEGER, INTENT( IN ) :: RINDX
+            INTEGER, INTENT( IN ) :: SDATE
+            INTEGER, INTENT( IN ) :: STIME
+            INTEGER, INTENT( IN ) :: TSTEP
+            INTEGER, INTENT( IN ) :: VTYPE_OUT( : )
+         END SUBROUTINE OPN_BC_FILE
+
+      END INTERFACE
 
 C***********************************************************************
+
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  allocate arrays
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+      ALLOCATE( BC_FNAME( MXCTMS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating BC_FNAME'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( COL_LOC( NBNDY ), ROW_LOC( NBNDY ),
+     &          STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating COL_LOC, ROW_LOC'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( LAT_OUT( NBNDY ), LON_OUT( NBNDY ),
+     &          STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating LAT_OUT, LON_OUT'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( LAT_IN( NCOLS_IN,NROWS_IN ), LON_IN( NCOLS_IN,NROWS_IN ),
+     &          STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating LAT_IN, LON_IN'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( COUT( NBNDY,NLAYS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating COUT'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( CONCIN( NCOLS_IN,NROWS_IN,NLAYS_IN ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating CONCIN'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( BCIN( NBNDY,NLAYS_IN,NSPCS_IN ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating BCIN'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      ALLOCATE( BCVI( NBNDY,NLAYS,NSPCS_IN ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating BCVI'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
 
       write( logunit,* ) ' '
       write( logunit,* ) '    NCOLS_IN: ', NCOLS_IN
@@ -143,18 +251,18 @@ C***********************************************************************
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Compute the lat and lon of the center of each input cell
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( .NOT. DESC3 ( CTM_FL_NAME( 1 ) ) ) THEN
-          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) 
+      IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
+          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 )
      &       // ' file'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, SDATE, STIME, MSG, XSTAT2 )
       END IF
 
       DO C = 1, NCOLS_IN
          DO R = 1, NROWS_IN
-            CALL LAT_LON( C, R, GDTYP3D, XORIG3D, YORIG3D,
-     &                    XCELL3D, YCELL3D, XCENT3D, YCENT3D,
-     &                    P_ALP3D, P_BET3D, P_GAM3D,
-     &                    LAT_IN( C,R ), LON_IN( C,R ) )
+            CALL LAT_LON ( C, R, GDTYP3D, XORIG3D, YORIG3D,
+     &                     XCELL3D, YCELL3D, XCENT3D, YCENT3D,
+     &                     P_ALP3D, P_BET3D, P_GAM3D,
+     &                     LAT_IN( C,R ), LON_IN( C,R ) )
          END DO
       END DO
 
@@ -166,40 +274,40 @@ C South border
       DO C = 1, NCOLS + 1
          R = 0
          NCELL = NCELL + 1
-         CALL LAT_LON( C, R, GDTYP_GD, XORIG_GD, YORIG_GD, 
-     &                 XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
-     &                 P_ALP_GD, P_BET_GD, P_GAM_GD,
-     &                 LAT_OUT( NCELL ), LON_OUT( NCELL ) )
+         CALL LAT_LON ( C, R, GDTYP_GD, XORIG_GD, YORIG_GD,
+     &                  XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                  P_ALP_GD, P_BET_GD, P_GAM_GD,
+     &                  LAT_OUT( NCELL ), LON_OUT( NCELL ) )
       END DO
 
 C East border
       DO R = 1, NROWS + 1
          C = NCOLS + 1
          NCELL = NCELL + 1
-         CALL LAT_LON( C, R, GDTYP_GD, XORIG_GD, YORIG_GD, 
-     &                 XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
-     &                 P_ALP_GD, P_BET_GD, P_GAM_GD,
-     &                 LAT_OUT( NCELL ), LON_OUT( NCELL ) )
+         CALL LAT_LON ( C, R, GDTYP_GD, XORIG_GD, YORIG_GD,
+     &                  XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                  P_ALP_GD, P_BET_GD, P_GAM_GD,
+     &                  LAT_OUT( NCELL ), LON_OUT( NCELL ) )
       END DO
 
 C North border
       DO C = 0, NCOLS
          R = NROWS + 1
          NCELL = NCELL + 1
-         CALL LAT_LON( C, R, GDTYP_GD, XORIG_GD, YORIG_GD, 
-     &                 XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
-     &                 P_ALP_GD, P_BET_GD, P_GAM_GD,
-     &                 LAT_OUT( NCELL ), LON_OUT( NCELL ) )
+         CALL LAT_LON ( C, R, GDTYP_GD, XORIG_GD, YORIG_GD,
+     &                  XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                  P_ALP_GD, P_BET_GD, P_GAM_GD,
+     &                  LAT_OUT( NCELL ), LON_OUT( NCELL ) )
       END DO
 
 C West border
       DO R = 0, NROWS
          C = 0
          NCELL = NCELL + 1
-         CALL LAT_LON( C, R, GDTYP_GD, XORIG_GD, YORIG_GD, 
-     &                 XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
-     &                 P_ALP_GD, P_BET_GD, P_GAM_GD,
-     &                 LAT_OUT( NCELL ), LON_OUT( NCELL ) )
+         CALL LAT_LON ( C, R, GDTYP_GD, XORIG_GD, YORIG_GD,
+     &                  XCELL_GD, YCELL_GD, XCENT_GD, YCENT_GD,
+     &                  P_ALP_GD, P_BET_GD, P_GAM_GD,
+     &                  LAT_OUT( NCELL ), LON_OUT( NCELL ) )
       END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -222,33 +330,41 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END DO
       END DO
 
-!     do n = 1, nbndy
-!          write(*, '(3I4,6(1PE12.4) )') n, COL_LOC( n ),
-!    &       ROW_LOC( n ),
-!    &       LAT_OUT( n ), LON_OUT( n ),
-!    &       LAT_IN( COL_LOC( n ), ROW_LOC( n ) ),
-!    &       LON_IN( COL_LOC( n ), ROW_LOC( n ) ) 
-!     enddo           
- 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Call the spatial interpolation routine to log info only 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL M3_VINTERP( LOGUNIT, SDATE, STIME, NCOLS_IN, NROWS_IN, NLAYS_IN,
-     &                 NSPCS_IN, COL_LOC, ROW_LOC, BCIN, BCVI, CTM_FL_NAME )
+      CALL M3_VINTERP ( LOGUNIT, SDATE, STIME, NCOLS_IN, NROWS_IN, NLAYS_IN,
+     &                  NSPCS_IN, COL_LOC, ROW_LOC, BCIN, BCVI, CTM_FL_NAME )
  
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Call the routine to open the Models3 BC output file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( .NOT. DESC3 ( CTM_FL_NAME( 1 ) ) ) THEN
+      IF ( .NOT. DESC3( CTM_FL_NAME( 1 ) ) ) THEN
          MSG = 'Could not read DESC of  ' // CTM_FL_NAME( 1 ) // ' file'
          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
-      TSTEP = TSTEP3D
+C...if the input conc file in time independent, then make the BC file
+C...  time independent as well
 
-      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_IN, 
-     &                  INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
-     &                  BC_FNAME, 1 )  
+      IF ( TSTEP3D .EQ. 0 ) THEN
+         TSTEP = 0
+
+C...if the input conc file is time dependent, then set the timestep to be same
+C...  as the target domain's met input file
+
+      ELSE
+         IF ( .NOT. DESC3( MET_BDY_3D_FIN ) ) THEN
+            MSG = 'Could not read DESC of  ' // MET_BDY_3D_FIN // ' file'
+            CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+         END IF
+
+         TSTEP = TSTEP3D
+      END IF
+
+      CALL OPN_BC_FILE ( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_IN,
+     &                   INFL_SP_NAME, VTYPE_IN, UNITS_IN, VDESC_IN,
+     &                   BC_FNAME, 1 )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over output time steps 
@@ -264,21 +380,21 @@ C Read the concentration file(s)
 
          DO N = 1, N_CTM_FLS
 
-            IF ( .NOT. DESC3 ( CTM_FL_NAME( N ) ) ) THEN
+            IF ( .NOT. DESC3( CTM_FL_NAME( N ) ) ) THEN
                MSG = 'Could not read DESC of  ' // CTM_FL_NAME( N ) 
      &              // ' file'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT2 )
             END IF
 
             DO ISP = 1, NSPCS_IN
 
                VNAME = INFL_SP_NAME( ISP )
-                  
-               IF ( .NOT. READ3( CTM_FL_NAME( N ), VNAME, ALLAYS3, JDATE, 
-     &                          JTIME, CONCIN( 1,1,1 ) ) ) THEN
+
+               IF ( .NOT. INTERP3( CTM_FL_NAME( N ), VNAME, PNAME, JDATE, JTIME,
+     &                          NCOLS_IN*NROWS_IN*NLAYS_IN, CONCIN ) ) THEN
                   MSG = 'Could not read input CTM Conc file ' //
      &                   CTM_FL_NAME( N )         
-                  CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+                  CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT2 )
                END IF
 
 
@@ -295,9 +411,9 @@ C Read the concentration file(s)
          END DO
 
 C Do the spatial interpolation
-         CALL M3_VINTERP( LOGUNIT, JDATE, JTIME, NCOLS_IN, NROWS_IN, 
-     &                    NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN, 
-     &                    BCVI, CTM_FL_NAME )
+         CALL M3_VINTERP ( LOGUNIT, JDATE, JTIME, NCOLS_IN, NROWS_IN,
+     &                     NLAYS_IN, NSPCS_IN, COL_LOC, ROW_LOC, BCIN,
+     &                     BCVI, CTM_FL_NAME )
       
 C Write the output BC concentrations 
          DO ISP = 1, NSPCS_IN
@@ -320,7 +436,7 @@ C Write the output BC concentrations
      &                        COUT( 1,1 ) ) ) THEN
                MSG =  'Could not WRITE species ' //  VNAME // 
      &                'to file ' // BC_FNAME( FLN ) 
-               CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT2 )
+               CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT2 )
             END IF
 
          END DO
@@ -334,7 +450,7 @@ C Write the output BC concentrations
      &         'Timestep written to', BC_FNAME( FLN ),
      &         'for date and time', JDATE, JTIME
 
-         CALL NEXTIME( JDATE, JTIME, TSTEP )
+         CALL NEXTIME ( JDATE, JTIME, TSTEP )
 
       END DO
 

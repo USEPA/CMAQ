@@ -1,6 +1,15 @@
+# Species List for sitecmp:  Matching model and observed variables
 
+The environment variables that control how CMAQ and observed values are matched using sitecmp will change depending on the observation network.  Sitecmp-ready observation files are available from the CMAS Center Data clearinghouse under the heading ["2000-2014 North American Air Quality Observation Data"](https://www.cmascenter.org/download/data.cfm).  The variable names in these observation files can change over time.  This README file provides the environment variables needed for the species list in the sitecmp run script for different networks and years. 
+
+This species information was generated using the [Atmospheric Model Evaluation Tool (AMET)](https://github.com/USEPA/AMET) which is also available github.com/USEPA. For further information on the mapping of observation species from each network to CMAQ model species, please see the section **AQ Species List Input File** of the [AMETv1.4 User's Guide](https://github.com/USEPA/AMET/blob/1.4b/docs/AMET_Users_Guide_v14.md).
+
+Note that the configuration options below are just for the species definition part of the sitecmp run script.  See the run scripts within this folder for AQS, CSN, IMPROVE, NADP and SEARCH for examples of complete run scripts for sitecmp that include all necessary environment variables. 
+
+### SITECMP Configuration Options for AERONET
+```
 # =====================================================================
-#> SITECMP Configuration Options for AERONET
+#> SITECMP Species List Configuration Options for AERONET
 # =====================================================================
 
 #> Set TABLE TYPE
@@ -44,10 +53,12 @@
 # =====================================================================
 #> END Options for AERONET
 # =====================================================================
+```
 
-
+### SITECMP Configuration Options for AMON
+```
 # =====================================================================
-#> SITECMP Configuration Options for AMON
+#> SITECMP Species List Configuration Options for AMON
 # =====================================================================
 
 #> Set TABLE TYPE
@@ -82,10 +93,12 @@
 # =====================================================================
 #> END Options for AMON
 # =====================================================================
+```
 
-
+### SITECMP Configuration Options for Hourly CASTNET data
+```
 # =====================================================================
-#> SITECMP Configuration Options for Hourly CASTNET data
+#> SITECMP Species List Configuration Options for Hourly CASTNET data
 # =====================================================================
 
 #> Set TABLE TYPE
@@ -125,10 +138,11 @@
 # =====================================================================
 #> END Options for Hourly CASTNET
 # =====================================================================
-
-
+```
+### SITECMP Configuration Options for Weekly CASTNET data
+```
 # =====================================================================
-#> SITECMP Configuration Options for Weekly CASTNET data
+#> SITECMP Species List Configuration Options for Weekly CASTNET data
 # =====================================================================
 
 #> Set TABLE TYPE
@@ -189,10 +203,12 @@
 # =====================================================================
 #> END Options for Weekly CASTNET
 # =====================================================================
-
-
+```
+### Runtime Environment Options for CSN (formally STN) 
+#### CSN for 2009 and earlier
+```
 # ==================================================================
-#> Runtime Environment Options for CSN (formally STN) 
+#> Runtime Species List Environment Options for CSN (formally STN) 
 #
 #> There are three formats of the CSN observed data .csv files.  
 #> The number of columns and the column names changes across the 
@@ -271,6 +287,19 @@
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CSN_hourly_data_2009.csv
+```
+
+#### CSN for 2010
+```
+# ==================================================================
+#> Runtime Species List Environment Options for CSN (formally STN) 
+#
+#> There are three formats of the CSN observed data .csv files.  
+#> The number of columns and the column names changes across the 
+#> time series provided (2001-2009, 2010, 2011-2013, 2014 and later).
+#> As a result the species defintions with the run script for the 
+#> sitecmp program need to be changed accordingly.
+# ==================================================================
 
 # ==================================================================
 #> CSN for 2010
@@ -341,6 +370,19 @@
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CSN_hourly_data_2010.csv
+```
+
+#### CSN for 2011-2013
+```
+# ==================================================================
+#> Runtime Species List Environment Options for CSN (formally STN) 
+#
+#> There are three formats of the CSN observed data .csv files.  
+#> The number of columns and the column names changes across the 
+#> time series provided (2001-2009, 2010, 2011-2013, 2014 and later).
+#> As a result the species defintions with the run script for the 
+#> sitecmp program need to be changed accordingly.
+# ==================================================================
 
 # ==================================================================
 #> CSN for 2011-2013
@@ -411,6 +453,19 @@
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE CSN_data_2011_VIEWS.csv
+```
+
+#### CSN for 2014 and later
+```
+# ==================================================================
+#> Runtime Species List Environment Options for CSN (formally STN) 
+#
+#> There are three formats of the CSN observed data .csv files.  
+#> The number of columns and the column names changes across the 
+#> time series provided (2001-2009, 2010, 2011-2013, 2014 and later).
+#> As a result the species defintions with the run script for the 
+#> sitecmp program need to be changed accordingly.
+# ==================================================================
 
 # ==================================================================
 #> CSN for 2014 and later
@@ -485,10 +540,12 @@
 # =====================================================================
 #> END Options for CSN
 # =====================================================================
+```
 
-
+### SITECMP Configuration Options for IMPROVE
+```
 # =====================================================================
-#> SITECMP Configuration Options for IMPROVE
+#> SITECMP Species List Configuration Options for IMPROVE
 # =====================================================================
 #> Set TABLE TYPE
  setenv TABLE_TYPE IMPROVE
@@ -561,10 +618,12 @@
 # =====================================================================
 #> END Options for IMPROVE
 # =====================================================================
+```
 
-
+### SITECMP Configuration Options for NADP
+```
 # =====================================================================
-#> SITECMP Configuration Options for NADP
+#> SITECMP Species List Configuration Options for NADP
 # =====================================================================
 #> Set TABLE TYPE
  setenv TABLE_TYPE NADP
@@ -641,10 +700,13 @@
 # =====================================================================
 #> END Options for NADP
 # =====================================================================
+```
 
-
+### Runtime Environment Options for Hourly SEARCH 
+#### Hourly SEARCH for 2004 and earlier
+```
 # ==================================================================
-#> Runtime Environment Options for Hourly SEARCH 
+#> Runtime Species List Environment Options for Hourly SEARCH 
 #
 #> There are four formats of the SEARCH observed hourly data .csv files.  
 #> The number of columns and the column names changes across the time 
@@ -694,9 +756,22 @@
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE SEARCH_hourly_data_2004.csv
 
+```
+#### Hourly SEARCH for 2005
+```
+# ==================================================================
+#> Runtime Environment Options for Hourly SEARCH 
+#
+#> There are four formats of the SEARCH observed hourly data .csv files.  
+#> The number of columns and the column names changes across the time 
+#> series provided (2001-2004, 2005, 2006-2010, 2011-2014).
+#> As a result the species defintions with the run script for the 
+#> sitecmp program need to be changed accordingly.
+# ==================================================================
+
 
 # ==================================================================
-#> Hourly SEARCH for 2005 
+#> Hourly Species List SEARCH for 2005 
 # ==================================================================
 #> Set TABLE TYPE
  setenv TABLE_TYPE CASTNET
@@ -737,10 +812,22 @@
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE SEARCH_hourly_data_2005.csv
+```
 
+#### Hourly SEARCH for 2006 to 2010
+```
+# ==================================================================
+#> Runtime Environment Options for Hourly SEARCH 
+#
+#> There are four formats of the SEARCH observed hourly data .csv files.  
+#> The number of columns and the column names changes across the time 
+#> series provided (2001-2004, 2005, 2006-2010, 2011-2014).
+#> As a result the species defintions with the run script for the 
+#> sitecmp program need to be changed accordingly.
+# ==================================================================
 
 # ==================================================================
-#> Hourly SEARCH for 2006 to 2010
+#> Hourly Species List SEARCH for 2006 to 2010
 # ==================================================================
 
 #> Set TABLE TYPE
@@ -799,9 +886,22 @@
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE SEARCH_hourly_data_2011.csv
 
+```
+
+#### Hourly SEARCH for 2011 and later
+```
+# ==================================================================
+#> Runtime Environment Options for Hourly SEARCH 
+#
+#> There are four formats of the SEARCH observed hourly data .csv files.  
+#> The number of columns and the column names changes across the time 
+#> series provided (2001-2004, 2005, 2006-2010, 2011-2014).
+#> As a result the species defintions with the run script for the 
+#> sitecmp program need to be changed accordingly.
+# ==================================================================
 
 # ==================================================================
-#> Hourly SEARCH for 2011 and later
+#> Hourly Species List SEARCH for 2011 and later
 # ==================================================================
 
 #> Set TABLE TYPE
@@ -850,10 +950,13 @@
 # =====================================================================
 #> END Options for Hourly SEARCH
 # =====================================================================
+```
 
-
+###  Runtime Environment Options for Daily SEARCH 
+#### Daily SEARCH for 2007 and earlier
+```
 # ==================================================================
-#> Runtime Environment Options for Daily SEARCH 
+#> Runtime Species List  Environment Options for Daily SEARCH 
 #
 #> There are two formats of the SEARCH observed daily data .csv files.  
 #> The number of columns and the column names changes across the time 
@@ -899,9 +1002,22 @@
 #> https://www.cmascenter.org/download/data.cfm
 #> Hourly AQS observations are located in AMET12_OBSDATA_YYYY.tar.gz for year YYYY.
  setenv IN_TABLE SEARCH_daily_data_2007.csv
+```
 
+###  Runtime Environment Options for Daily SEARCH 
+#### Daily SEARCH for 2008 and later
+```
 # ==================================================================
-#> Daily SEARCH for 2008 and later
+#> Runtime Environment Options for Daily SEARCH 
+#
+#> There are two formats of the SEARCH observed daily data .csv files.  
+#> The number of columns and the column names changes across the time 
+#> series provided (2001-2007, 2008-2014).
+#> As a result the species defintions with the run script for the sitecmp 
+#> program need to be changed accordingly.
+# ==================================================================
+# ==================================================================
+#> Daily Species List SEARCH for 2008 and later
 # ==================================================================
 
 #> Set TABLE TYPE
@@ -953,5 +1069,5 @@
 # =====================================================================
 #> END Options for Daily SEARCH
 # =====================================================================
-
+```
   

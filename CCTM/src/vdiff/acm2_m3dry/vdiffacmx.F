@@ -41,8 +41,8 @@ C           convective PBL, with the ACM1 matrix solver followed by the tridiago
 C           matrix solver
 C   30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
-C    1 Nov 18 David Wong: removed all MY_N clauses
 C   02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
+C   May 2019  J.Pleim Changed from sigma coords to Z coords for compatability w/ MPAS and WRF
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -55,11 +55,12 @@ C-----------------------------------------------------------------------
 !      USE BIDI_MOD
 !      USE LSM_MOD, ONLY: N_LUFRAC
       USE VDIFF_DIAG, NLPCR => NLPCR_MEAN
-
+      USE HGRD_DEFN,only : COLSX_PE, ROWSX_PE
 #ifdef isam
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
-     &                   S_SPCTAG, T_SPCTAG, SA_DDEP
+     &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, SPC_NAME,
+     &                   L_NITRATE
 #endif
 
       IMPLICIT NONE
@@ -131,26 +132,39 @@ C ACM Local Variables
       REAL        DEPV_HNO3                     ! dep vel of HNO3
       REAL        FNL                           ! ACM2 Variable
       INTEGER     NLP, NL, LCBL
-      INTEGER, SAVE :: NO2_HIT, HONO_HIT, HNO3_HIT, NO2_MAP, HNO3_MAP
-      INTEGER, SAVE :: NH3_HIT
+      INTEGER, SAVE :: NO2_HIT = 0, HONO_HIT = 0, HNO3_HIT = 0, NO2_MAP= 0, HNO3_MAP = 0 
+      INTEGER, SAVE :: O3_HIT = 0, O3_MAP = 0
+      INTEGER, SAVE :: NH3_HIT = 0
       REAL        DTLIM, DTS, DTACM, RZ
 
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J           ! loop induction variables
       INTEGER     MDATE, MTIME                  ! internal simulation date&time
-
+!--Local Arrays for Z-coord implimentation
+      REAL     :: DZH   ( NLAYS )               ! ZF(L) - ZF(L-1)
+      REAL     :: DZHI  ( NLAYS )               ! 1/DZH
+      REAL     :: DZFI  ( NLAYS )               ! ZH(L+1) - ZH(L)
+      integer  gl_c, gl_r
 #ifdef isam
-      REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )   ! 20120712 secondary SA_DDEP
+      REAL :: TOTAL_SA_NO2
+      REAL, ALLOCATABLE, SAVE :: SA_DDBF( : )
       INTEGER IBGN, JSPCTAG
-c     REAL    :: SACONC( N_SPCTAG,NLAYS )
-c     REAL    :: SAEMIS( N_SPCTAG,NLAYS )
-c     REAL    :: SA_DD( N_SPCTAG,NLAYS )
-c     REAL    :: SA_UU( N_SPCTAG,NLAYS )
 
       REAL, ALLOCATABLE,SAVE :: SAEMIS( :,: )
       REAL, ALLOCATABLE,SAVE :: SACONC( :,: )
       REAL, ALLOCATABLE,SAVE :: SA_DD( :,: )
       REAL, ALLOCATABLE,SAVE :: SA_UU( :,: )
+
+      REAL, ALLOCATABLE,SAVE :: SAFRAC( : )
+      REAL, ALLOCATABLE,SAVE :: SA_NO2( : )      
+
+      INTEGER, SAVE              :: ISAM_INDEX_NO2 = 0   ! ...Index locating NO2 in ISAM
+
+      INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
+      INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_HONO( : )
+
+
+      CHARACTER( 16 ) :: ISAM_SPECIES
 
       INTEGER TOP, BOT
 #endif      
@@ -240,6 +254,9 @@ C set auxiliary depv arrays
                HNO3_MAP = DV2DF( V )
             ELSE IF ( DV2DF_SPC( V ) .EQ. 'NH3' ) THEN
                NH3_HIT = V
+            ELSE IF ( DV2DF_SPC( V ) .EQ. 'O3' ) THEN
+               O3_HIT = V
+               O3_MAP = DV2DF( V )
             END IF
          END DO
 
@@ -253,10 +270,80 @@ C set auxiliary depv arrays
             XMSG = 'Failure ISAM diffusion variables'
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
+         ALLOCATE (  SAFRAC ( N_SPCTAG ),
+     &               ISAM_DEPV( N_SPCTAG ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure ISAM depv variables'
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+         
+         ALLOCATE ( SA_NO2( NTAG_SA ),
+     &              INDEX_SA_HONO( NTAG_SA ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure ISAM HONO variables'
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+         
          SACONC = 0.0
          SAEMIS = 0.0
          SA_DD  = 0.0
          SA_UU  = 0.0
+
+         SAFRAC        = 0.0
+         ISAM_DEPV     = 0
+         SA_NO2        = 1.0 / REAL( NTAG_SA )
+         INDEX_SA_HONO = 0
+
+! set default partitioning of surface fluxes
+         DO JSPCTAG = 1, N_SPCTAG
+            IF ( T_SPCTAG( JSPCTAG ) .EQ. OTHRTAG ) THEN
+               SAFRAC( JSPCTAG ) = 1.0
+            ELSE
+               SAFRAC( JSPCTAG ) = 0.0
+            END IF
+         END DO
+! find NO2 in tracked species
+         DO S = 1, NSPC_SA
+            IF( SPC_NAME( S,1 ) .EQ. 'NO2' )THEN
+                ISAM_INDEX_NO2 = S
+                EXIT
+            END IF            
+         END DO
+! set indices determining depv treatment, equals zero if none
+         ITAG = 0
+         WRITE(LOGDEV,'(/,A7,1X,2(A16,1X))')'JSPCTAG','ISAM_SPECIES','DEPV Value'
+         DO JSPCTAG = 1, N_SPCTAG
+            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+            ISAM_SPECIES = VNAM_SPCTAG( JSPCTAG )( 1:IBGN )
+            IF( TRIM( ISAM_SPECIES ) .EQ. 'HONO' )THEN
+               ITAG = ITAG + 1
+               INDEX_SA_HONO( ITAG ) = JSPCTAG
+            END IF
+            DO V = 1, N_SPC_DEPV
+               IF ( TRIM( ISAM_SPECIES ) .EQ. DV2DF_SPC( V ) ) THEN
+                    ISAM_DEPV( JSPCTAG ) = V
+               END IF  
+            END DO
+            IF ( ISAM_DEPV( JSPCTAG ) .GT. 0 ) THEN
+               V = ISAM_DEPV( JSPCTAG )
+               WRITE(LOGDEV,'(I4,4X,2(A16,1X))')JSPCTAG,ISAM_SPECIES,DV2DF_SPC( V )
+            ELSE
+               WRITE(LOGDEV,'(I4,4X,2(A16,1X))')JSPCTAG,ISAM_SPECIES,'NONE'
+            END IF   
+        END DO       
+        WRITE(LOGDEV,'(/,A4,1X,A13,1X,A16))')'ITAG','INDEX_SA_HONO','ISAM_SPECIES'
+        DO ITAG = 1, NTAG_SA
+           JSPCTAG = INDEX_SA_HONO( ITAG )
+           IF ( JSPCTAG .GT. 0 ) THEN
+              WRITE(LOGDEV,'(I2,3X,I4,8X,A16)')ITAG,JSPCTAG,VNAM_SPCTAG( JSPCTAG )
+           ELSE
+              WRITE(LOGDEV,'(I2,3X,I4,8X,A16)')ITAG,JSPCTAG,'MISSING'
+           END IF   
+        END DO
+        WRITE(LOGDEV,* )'TAG_species, Default Partitioning Coeff.'
+        DO JSPCTAG = 1, N_SPCTAG
+          WRITE(LOGDEV,*)VNAM_SPCTAG( JSPCTAG ),' ,',SAFRAC( JSPCTAG )
+        END DO          
 #endif
 
 
@@ -268,13 +355,23 @@ C ------------------------------------------- Row, Col LOOPS -----------
 
       DO 345 R = 1, NROWS
       DO 344 C = 1, NCOLS
+         DZH(1)  =  Met_Data%ZF( C,R,1 )
+         DZHI(1) =  1./DZH(1)
+         DO L = 2, NLAYS
+            DZH(L)  =  Met_Data%ZF( C,R,L ) - Met_Data%ZF( C,R,L-1 ) 
+            DZHI(L) =  1./DZH(L)
+         ENDDO
+         DO L = 1, NLAYS - 1
+            DZFI(L) = 1. / ( Met_Data%ZH( C,R,L+1 ) - Met_Data%ZH( C,R,L ) )
+         ENDDO
+         DZFI(NLAYS) = DZFI(NLAYS-1)
 
 C for ACM time step
          DTLIM = DTSEC
 
 C dt = .75 dzf*dzh / Kz
          DO L = 1, NLAYS - 1
-            DTLIM = MIN( DTLIM, 0.75 / ( SEDDY( L,C,R ) * Grid_Data%RDX3F( L ) ) )
+            DTLIM = MIN( DTLIM, 0.75 / ( SEDDY( L,C,R ) * DZHI(L)*DZFI(L) ) )
          END DO
          MBARKS = 0.0   ! array assignment
          MDWN = 0.0     ! array assignment
@@ -286,15 +383,19 @@ C conjoin ACM & EDDY ---------------------------------------------------
 
          IF ( Met_Data%CONVCT( C,R ) ) THEN   ! Do ACM for this column
             LCBL = Met_Data%LPBL( C,R )
-            MEDDY = SEDDY( 1,C,R ) / ( Met_Data%XPBL( C,R ) - X3FACE_GD( 1 ) )
+            MEDDY = SEDDY( 1,C,R ) * DZFI(1) / (Met_Data%PBL( C,R ) - Met_Data%ZF(C,R,1))
             FNL = 1.0 / ( 1.0 + ( ( KARMAN / ( -Met_Data%HOL( C,R ) ) ) ** 0.3333 )
      &                / ( 0.72 * KARMAN ) )
             MBAR = MEDDY * FNL
-            IF ( MBAR .LT. EPS ) THEN
-               WRITE( LOGDEV,* ) ' SEDDY, MBAR, FNL, HOL = ',
-     &                             SEDDY( 1,C,R ), MBAR, FNL, Met_Data%HOL( C,R )
+            IF ( MEDDY .LT. EPS ) THEN
+               gl_c = c + COLSX_PE(1,mype+1) -1
+               gl_r = r + ROWSX_PE(1,mype+1) -1
+               WRITE( LOGDEV,* ) ' Warning --- MEDDY < 1e-6 s-1'
+               WRITE( LOGDEV,* ) ' SEDDY, MEDDY, FNL, HOL = ',
+     &                             SEDDY( 1,C,R ), MEDDY, FNL, Met_Data%HOL( C,R )
                XMSG = '*** ACM fails ***'
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT2 )
+               WRITE( LOGDEV,*)' c,r=', gl_c,gl_r,' pbl,ust=',Met_Data%PBL( C,R ),Met_Data%USTAR( C,R )
+!               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT2 )
             END IF
 
             IF ( ( FNL .LE. 0.0 ) .OR.            ! never gonna happen for CONVCT
@@ -303,16 +404,18 @@ C conjoin ACM & EDDY ---------------------------------------------------
      &         WRITE( LOGDEV,1015 ) LCBL, MBAR, FNL, SEDDY( 1,C,R ), Met_Data%HOL( C,R )
 1015           FORMAT( ' LCBL, MBAR, FNL, SEDDY1, HOL:', I3, 1X, 4(1PE13.5) )
 
-            DO L = 1, LCBL - 1
+            DO L = 2, LCBL 
                SEDDY( L,C,R ) = ( 1.0 - FNL ) * SEDDY( L,C,R  )
                MBARKS( L ) = MBAR
-               MDWN( L ) = MBAR * ( Met_Data%XPBL( C,R ) - X3FACE_GD( L-1 ) ) * Grid_Data%RDX3F( L )
+               MDWN( L )   = MBAR * (Met_Data%PBL( C,R ) - Met_Data%ZF(C,R,L-1)) * DZHI(L)
             END DO
-            MBARKS( LCBL ) = MBAR * ( Met_Data%XPBL( C,R ) - X3FACE_GD( LCBL-1 ) ) * Grid_Data%RDX3F( LCBL )
-            MDWN( LCBL ) = MBARKS( LCBL )
+            SEDDY( 1,C,R ) = ( 1.0 - FNL ) * SEDDY( 1,C,R  )
+            MBARKS(1) = MBAR
+            MBARKS(LCBL) = MDWN(LCBL)
+            MDWN(LCBL+1) = 0.0
 
-C Modify Timestep for ACM
-            RZ     = ( X3FACE_GD( LCBL ) - X3FACE_GD( 1 ) ) * Grid_Data%RDX3F( 1 )
+C Modify Timestep for ACM2
+            RZ     = (Met_Data%ZF(C,R,LCBL) - Met_Data%ZF(C,R,1)) * DZHI(1)
             DTACM  = 1.0 / ( MBAR * RZ )
             DTLIM  = MIN( 0.75 * DTACM, DTLIM )
          ELSE
@@ -345,14 +448,25 @@ C-----------------------------------------------------------------------
 #endif
          END DO
 
+#ifdef isam
+         IF( L_NITRATE .AND. SFC_HONO ) THEN
+! compute the flux partitioning for HONO from NO2 surface reaction
+            DO ITAG = 1, NTAG_SA
+               SA_NO2( ITAG ) = MAX( ISAM( C,R,1,ISAM_INDEX_NO2,ITAG ), 1.0E-30 )
+            END DO
+            TOTAL_SA_NO2 = 1.0 / SUM( SA_NO2 )
+            DO ITAG = 1, NTAG_SA
+               JSPCTAG = INDEX_SA_HONO( ITAG )
+               SAFRAC( JSPCTAG ) = SA_NO2( ITAG ) * TOTAL_SA_NO2 
+            END DO 
+         END IF                
+#endif
+ 
          EMIS = 0.0      ! array assignment
          EMIS( :,1:EMLAYS ) = DTS * VDEMIS_DIFF( :,:,C,R )
 
 #ifdef isam
          SAEMIS = 0.0
-c        DO JSPCTAG = 1, N_SPCTAG
-c           SAEMIS( JSPCTAG,: ) = ISAMEM( C,R,:,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) * DTS
-c        END DO
          DO L = 1, EMLAYS
             DO ITAG = 1, NTAG_SA
                BOT = (ITAG-1)*NSPC_SA+1
@@ -363,9 +477,9 @@ c        END DO
 #endif
 
          DO L = 1, NLAYS
-            DFSP( L ) = DFACP * Grid_Data%RDX3F( L )
-            DFSQ( L ) = DFACQ * Grid_Data%RDX3F( L )
-            EDDY( L ) = SEDDY( L,C,R )
+            DFSP( L ) = DFACP * DZHI( L )
+            DFSQ( L ) = DFACQ * DZHI( L )
+            EDDY( L ) = SEDDY( L,C,R ) * DZFI(L)
          END DO
 
          RP = DFACP * Met_Data%RDEPVHT( C,R )
@@ -381,7 +495,6 @@ c        END DO
          PLDV_HONO = PLDV( HONO_HIT,C,R )
 
 #ifdef isam
-Ckrt Load sa_ddep into sa_ddbf....
          DO JSPCTAG = 1, N_SPCTAG
             SA_DDBF( JSPCTAG ) = SA_DDEP( C,R,JSPCTAG )
          END DO
@@ -398,15 +511,15 @@ C These don`t change in the NLP sub-time step loop:---------------------
          END DO
          IF ( Met_Data%CONVCT( C,R ) ) THEN
             L = 1
-            DELP = Met_Data%XPBL( C,R ) - X3FACE_GD( L )
+            DELP = Met_Data%PBL( C,R ) - Met_Data%ZF( C,R,L )
             BB1( L ) = 1.0 + DELP * DFSP( L ) * MBARKS( L )
             LFAC1( L ) = DFSQ( L ) * DELP * MBARKS( L )
-            LFAC2( L ) = DFSQ( L ) * MDWN( L+1 ) * Grid_Data%DX3F( L+1 )
+            LFAC2( L ) = DFSQ( L ) * MDWN( L+1 ) * DZH( L+1 )
             DO L = 2, LCBL
                AA ( L ) = -DFACP * MBARKS( L )
                BB1( L ) = 1.0 + DFACP * MDWN( L )
-               EE1( L ) = -DFSP( L-1 ) * Grid_Data%DX3F( L ) * MDWN( L )
-               MFAC( L ) = Grid_Data%DX3F( L+1 ) * Grid_Data%RDX3F( L ) * MDWN( L+1 )
+               EE1( L ) = -DFSP( L-1 ) * DZH( L ) * MDWN( L )
+               MFAC( L ) = DZH( L+1 ) * DZHI( L ) * MDWN( L+1 )
             END DO
          END IF
 
@@ -472,24 +585,18 @@ C Add evasion as negative dep flux
             END DO
 
 #ifdef isam
-Ckrt ...Update Dry Deposition for the Tags
             DO JSPCTAG = 1, N_SPCTAG
-               IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
-Ckrt nonNOX....
-               DO V = 1, N_SPC_DEPV
-                  IF ( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ) .EQ. DV2DF_SPC( V )  ) THEN
-                     SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC1(V )
-                     SA_DDBF( JSPCTAG ) = SA_DDBF( JSPCTAG )
-     &                                  + THBAR * DD_FAC( V ) * SACONC(JSPCTAG,1 )
-!krt &                                  + THETA * DD_FAC( S ) * (SACONC( !JSPCTAG,1 ) - POL( S ) )
-                  ELSE IF ( VNAM_SPCTAG( JSPCTAG)( 1:IBGN-1 ) .EQ. 'O3' .AND.
-     &                      DV2DF_SPC( V ) .EQ. 'O3' ) THEN
-                     SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC1( V )
-                     SA_DDBF( JSPCTAG ) = SA_DDBF( JSPCTAG )
-     &                                  + THBAR * DD_FAC( V ) *  SACONC( JSPCTAG,1 )
-                  END IF ! vnam_spctag begins with one of ddep_spc ?
-               END DO
-
+               S = ISAM_DEPV( JSPCTAG )
+               IF ( S .GT. 0 ) THEN
+                  SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC1( S )
+     &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC1( S ) )               
+                  SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                + THETA * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
+                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
+                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                   - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                        
+                   END IF
+               END IF
             END DO
 
             DO L = 1, NLAYS
@@ -660,23 +767,19 @@ C Add evasion as negative dep flux
 
             END DO
 #ifdef isam
-Ckrt ...Update Dry Deposition for the Tags
+C Update ISAM Dry Deposition
             DO JSPCTAG = 1, N_SPCTAG
-               IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
-Ckrt nonNOX....
-               DO V = 1, N_SPC_DEPV
-                  IF ( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ) .EQ. DV2DF_SPC( V ) ) THEN
-                     SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC2( V )
-                     SA_DDBF( JSPCTAG ) = SA_DDBF( JSPCTAG )
-     &                                  + THBAR * DD_FAC( V ) *  SACONC( JSPCTAG,1 )
-                  ELSE IF ( VNAM_SPCTAG( JSPCTAG )( 1:IBGN-1 ) .EQ. 'O3' .AND.
-     &                      DV2DF_SPC( V ) .EQ. 'O3' ) THEN
-                     SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC2( V )
-                     SA_DDBF( JSPCTAG ) = SA_DDBF( JSPCTAG )
-     &                                  + THBAR * DD_FAC( V ) *  SACONC( JSPCTAG,1 )
-                  END IF  ! vnam_spctag begins with one of ddep_spc ?
-               END DO ! V
-
+               S = ISAM_DEPV( JSPCTAG )
+               IF ( S .GT. 0 ) THEN
+                  SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC2( S )
+     &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) )               
+                  SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
+                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
+                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                   - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
+                  END IF
+               END IF
             END DO
 #endif
     

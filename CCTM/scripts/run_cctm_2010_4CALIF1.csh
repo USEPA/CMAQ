@@ -371,7 +371,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      set IN_BEISpath = ${INPDIR}/surface
      setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_4CALIF1_2011en_cb6_10.ncf
-     setenv BIOG_SPRO  DEFAULT
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2010j_4CALIF1.ncf_full 
                              #> ignore season switch file if BIOSW_YN = N
