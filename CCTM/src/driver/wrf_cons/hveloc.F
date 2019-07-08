@@ -1,1 +1,1 @@
-../yamo/hveloc.F
+../local_cons/hveloc.F
