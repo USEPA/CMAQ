@@ -12,7 +12,7 @@
 * Variables are categorized as either time-dependent or time-independent. Two time steps of data of a time dependent 
 variable are stored within a circular buffer structure, and an interpolated result is stored in the extra storage space.
 
-![CIO circular buffer](https://github.com/kmfoley/CMAQ_Dev/blob/v53_RNotes_Review/DOCS/Release_Notes/cio_p1.png)
+![CIO circular buffer](cio_p1.png)
 
 * Three 1D arrays are used to hold gridded file, boundary file and stack group file data, respectively.
 * Each variable consists of three sections: two time steps of data and an interpolated result. All variables are stored 
