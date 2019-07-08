@@ -1,1 +1,1 @@
-../yamo/WVEL_DEFN.F
+../local_cons/WVEL_DEFN.F
