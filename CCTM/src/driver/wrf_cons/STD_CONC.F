@@ -1,1 +1,1 @@
-../yamo/STD_CONC.F
+../local_cons/STD_CONC.F
