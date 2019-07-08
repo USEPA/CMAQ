@@ -29,8 +29,8 @@ Run and Build Scripts
 ## References
 Kwok, R.H.F, Napelenok, S.L., & Baker, K.R. (2013). Implementation and evaluation of PM2.5 source contribution analysis in a photochemical model. Atmospheric Environment, 80, 398–407 doi:10.1016/j.atmosenv.2013.08.017.
 
-Kwok, R.H.F, Baker, K.R., Napelenok, S.L., & Tonnesen, G.S. (2015). Photochemical grid model implementation of VOC, NOx, and O3 source apportionment. Geosci. Model Dev., 8, 99-114. doi:10.5194/gmd-8-99-2015.      
------
+Kwok, R.H.F, Baker, K.R., Napelenok, S.L., & Tonnesen, G.S. (2015). Photochemical grid model implementation of VOC, NOx, and O3 source apportionment. Geosci. Model Dev., 8, 99-114. doi:10.5194/gmd-8-99-2015.
+
 ## Internal Records:
 #### Relevant Pull Requests:
 
