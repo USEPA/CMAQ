@@ -1,1 +1,1 @@
-../yamo/wr_cgrid.F
+../local_cons/wr_cgrid.F
