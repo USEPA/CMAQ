@@ -75,20 +75,23 @@ C    11 May 11 D.Wong: incorporated twoway model implementation
 C    02 Jan 14 J.Bash: Changed the subtime step when the CFL > 1 to be 
 C                      the time needed for a CFL = 0.9. This provides a 
 C                      longer subtime step for CFL < 10 and a shorter time
-C                      step for CFL > 10 than the earlier code. 
+C                      step for CFL > 10 than the earlier code.
+C    08 July 19 F. Sidi: Updated Code with CIO changes 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE WVEL_DEFN             ! derived vertical velocity component
-
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_GLOBAL_SUM_MODULE)
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_SUM_MODULE)
 #endif
       USE UTILIO_DEFN
-
+      USE STD_CONC, ONLY : L_CONC_WVEL
+      USE AVG_CONC, ONLY : L_ACONC_WVEL
+      
       IMPLICIT NONE
 
 C Includes:
@@ -224,11 +227,6 @@ C Create global map to CGRID
  
          ADV_MAP( N_SPC_ADV ) = ASPC
 
-C get file local domain offsets
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 ) 
-
-
       END IF                    ! if firstime
 
 C Time-stepped gridded computation for Z-direction advection.
@@ -241,15 +239,10 @@ C Get rho*J at end of sync step
       MDATE = JDATE
       MTIME = JTIME
       CALL NEXTIME( MDATE, MTIME, TSTEP( 2 ) ) 
-      IF ( .NOT. INTERPX( MET_CRO_3D, 'DENSA_J', PNAME,
-     &           STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &           MDATE, MTIME, RHOJM ) ) THEN
-         XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
-
-      DO 333 ROW = 1, MY_NROWS
-         DO 222 COL = 1, MY_NCOLS
+      call interpolate_var ('DENSA_J', MDATE, MTIME, RHOJM)
+      
+      DO 333 ROW = 1, NROWS
+         DO 222 COL = 1, NCOLS
 
             DO SPC = 1, N_SPC_ADV
                A2C = ADV_MAP( SPC )
