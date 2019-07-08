@@ -234,7 +234,6 @@
       ! Sulfur tracking
       LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
       LOGICAL :: ADJ_STMSPC = .TRUE.  ! flag for normalizing sulfur tracking species
-      CHARACTER(256) :: STM_NAMELIST = '' ! Sulfur Tracking Model Namelist
 
       CONTAINS
           
@@ -534,9 +533,6 @@
       CALL GET_ENV ( STM, 'STM_SO4TRACK', STM, VARDEV )
 
       IF ( STM ) THEN
-         ! Get Filename for Sulfur Tracking Model Namelist
-         CALL GET_ENV ( STM_NAMELIST, 'stm_matrix_nml', STM_NAMELIST, VARDEV )
-
          ! Get sulfur tracking normalization flag
          CALL GET_ENV ( ADJ_STMSPC, 'STM_ADJSO4', ADJ_STMSPC, VARDEV )
       END IF      
