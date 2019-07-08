@@ -5,18 +5,24 @@
 ## Brief Description
 The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model. CMAQ-ISAM has been substantially updated in CMAQv5.3 release.
 
-The updates include new algorithms for calculating source tracking through chemistry, cloud, and aerosol modules.  Various code improvements have also contributed to substantially faster run times for the CMAQ-ISAM.
+The updates include new algorithms for calculating source tracking through chemistry, cloud, and aerosol modules.  Various code improvements have also contributed to substantially faster run times for CMAQ-ISAM.
  
 Furthermore, ISAM has been fully integrated into the base CMAQ model and can be utilized through a prepocess flag during compilation of the base code (-Disam). 
 
 ## Affected Files
 #### Files modified:
 Chemistry Module Files
+
 Cloud Module Files
+
 Aerosol Module Files
+
 Emissions Module Files
+
 Transport Module Files
+
 ISAM Module Files
+
 Run and Build Scripts
 
  
