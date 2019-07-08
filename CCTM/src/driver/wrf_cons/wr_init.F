@@ -1,1 +1,1 @@
-../yamo/wr_init.F
+../local_cons/wr_init.F
