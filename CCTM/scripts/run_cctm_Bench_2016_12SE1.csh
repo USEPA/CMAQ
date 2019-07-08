@@ -406,9 +406,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv E2C_Fertyest  ${LUpath}/epic_festc1.4_20180516/2016_US1_time${YESTERDAY}_bench.nc
      setenv B4LU_file     ${LUpath}/beld4_12kmCONUS_2011nlcd_bench.nc    
      setenv E2C_SOIL ${E2C_Soilfile}
-     setenv E2C_FERT ${E2C_Fertfile}
-     setenv E2C_FERT_YEST ${E2C_Fertyest}
-     setenv BELD4_LU ${B4LU_file}
+     setenv E2C_CHEM ${E2C_Fertfile}
+     setenv E2C_CHEM_YEST ${E2C_Fertyest}
+     setenv E2C_LU ${B4LU_file}
   endif
 
 #> Inline Process Analysis 

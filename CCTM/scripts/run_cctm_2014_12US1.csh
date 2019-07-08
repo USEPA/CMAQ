@@ -400,8 +400,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv E2C_Fertfile  ${LUpath}/epic/US1_12km_time${YYYYMMDD}.nc    
      setenv B4LU_file     ${LUpath}/beld4_12kmCONUS_2006nlcd.ncf
      setenv E2C_SOIL ${E2C_Soilfile}
-     setenv E2C_FERT ${E2C_Fertfile}
-     setenv BELD4_LU ${B4LU_file}
+     setenv E2C_CHEM ${E2C_Fertfile}
+     setenv E2C_LU ${B4LU_file}
   endif
 
 #> Inline Process Analysis 
