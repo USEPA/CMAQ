@@ -1,1 +1,1 @@
-../yamo/cmaq_main.F
+../local_cons/cmaq_main.F
