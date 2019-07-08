@@ -8,7 +8,9 @@
 
 ## Brief Description
 
-* Centralized I/O implementation was encapsulated in two new modules: CENTRALIZED_IO_MODULE and CENTRALIZED_IO_UTIL_MODULE.
+Centralized I/O (CIO) idea put all the OPEN3, DESC3, EXTRACT3, and interpolation function (INTERPX and INTERPB) into one location (module). This in line with object oriented programming practice to encapsulate the I/O process in the model. The highlights of this implementation includes:
+
+* Encapsulation is done in two new modules: CENTRALIZED_IO_MODULE and CENTRALIZED_IO_UTIL_MODULE.
 * Variables are categorized as either time-dependent or time-independent. Two time steps of data of a time dependent 
 variable are stored within a circular buffer structure, and an interpolated result is stored in the extra storage space.
 
@@ -102,7 +104,7 @@ None
 
 ## References
 
-     
+  None   
 
 -----
 
