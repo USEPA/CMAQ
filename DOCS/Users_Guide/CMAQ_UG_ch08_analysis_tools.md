@@ -8,7 +8,7 @@
 # 8. Analysis Tools for CMAQ output
 
 ## 8.1 Overview
-Many software programs are freely available for pre- and post-processing, evaluating and visualizing CMAQ outputs. Examples of such freeware are provided in [Table 8-1](#Analysis_Software_Table). Several other commercial packages, including MATLAB and IDL, also support the analysis and visualization of CMAQ inputs and outputs. Most visualization and analysis software that supports netCDF file formats will work with CMAQ outputs. 
+Many software programs are freely available for pre- and post-processing, evaluating and visualizing CMAQ outputs. Examples of such freeware are provided in [Table 8-1](#Analysis_Software_Table). Several other commercial packages, including MATLAB and IDL, also support the analysis and visualization of CMAQ inputs and outputs. Most visualization and analysis software that support netCDF file formats will work with CMAQ outputs. 
 
 <a id=Analysis_Software_Table></a>
 <a id=Table8-1></a>
@@ -49,7 +49,7 @@ In *sitecmp*, model values are extracted for the grid cell containing the monito
 
 ## 8.4 Evaluation of model output with the Atmospheric Model Evaluation Tool (AMET)
 
-The Atmospheric Model Evaluation Tool (AMET) was developed to aid in its evaluation of the meteorological and air quality models within the CMAQ modeling system. AMET organizes, provides consistency and speeds-up the evaluation process for operational meteorological and air quality model simulations. Although it was developed specifically to aid in the evaluation of the CMAQ modeling system, the AMET software can be adapted to work with other modeling systems. 
+The Atmospheric Model Evaluation Tool (AMET) was developed to aid in the evaluation of the meteorological and air quality models within the CMAQ modeling system (i.e. WRF, MPAS, CMAQ-CTM). AMET organizes, provides consistency and speeds-up the evaluation process for operational meteorological and air quality model simulations. The AMET software is written primarily in R, with support from several fortran programs and cshell scripts. The tool also requires the presense of a MySQL database for analysis of meteorological data and full functional analysis of air quality (CMAQ) data (analysis of CMAQ output can be done without a database present). Although it was developed specifically to aid in the evaluation of the CMAQ modeling system, the AMET software can be adapted to work with other modeling systems. 
 
 There are separate modules in AMET for evaluating meteorological and air quality model output. This separation is necessary because both the observed and predicted meteorological and air quality data are quite different, utilizing different file formats for both the observed and model data. In addition, the observed meteorological and air quality data are often obtained from networks that use different sampling protocols, which can make pairing meteorological and air quality data together difficult. One advantage of separate meteorological and air quality modules in AMET is that the modules can be installed individually, allowing a user to reduce installation time and complexity if only meteorological or air quality analysis is required.
 
