@@ -44,6 +44,7 @@
 !                        * emission file date is differ from simulation date
 !                        * region files for scaling purposes
 !  06/19/19, D. Wong: -- fixed a bug in the EMIS regions subroutine
+!  07/08/19, F. Sidi: -- Renamed E2C_FERT -> E2C_CHEM & BELD4_LU -> E2C_LU
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -184,7 +185,7 @@
      &             HAS_SEAICE,              ! flag for SEAICE in MET_CRO_2D
      &             WR_AVAIL,                ! flag for WR, canopy wetness available in MET_CRO_2D
      &             MEDC_AVAIL,              ! file INIT_MEDC_1 is available
-     &             E2C_FERT_AVAIL,          ! file E2C_FERT is available
+     &             E2C_CHEM_AVAIL,          ! file E2C_CHEM is available
      &             GMN_AVAIL                ! variable GMN exist or not
 
 ! Met data is large enough to cover boundary and no MET_BDY_3D will be used
@@ -1298,22 +1299,22 @@ C Read the various categories of normalized emissions
           Allocate ( Beld_ag ( ncols, nrows, e2c_cats ),
      &               pHs1 ( ncols, nrows, e2c_cats ),      ! for E2C_SOIL file
      &               pHs2 ( ncols, nrows, e2c_cats ),      ! for E2C_SOIL file
-     &               NH4ps1 ( ncols, nrows, e2c_cats ),    ! for E2C_FERT file
-     &               NH4ps2 ( ncols, nrows, e2c_cats ),    ! for E2C_FERT file
+     &               NH4ps1 ( ncols, nrows, e2c_cats ),    ! for E2C_CHEM file
+     &               NH4ps2 ( ncols, nrows, e2c_cats ),    ! for E2C_CHEM file
      &               STAT=STAT )
 
-          IF ( .NOT. OPEN3( BELD4_LU, FSREAD3, PNAME ) ) THEN
-             mesg = 'Could not open ' // trim(BELD4_LU) // ' file'
+          IF ( .NOT. OPEN3( E2C_LU, FSREAD3, PNAME ) ) THEN
+             mesg = 'Could not open ' // trim(E2C_LU) // ' file'
              CALL M3MESG( mesg )
           END IF
 
           Do k = 1, e2c_cats
              vname = BELD_Names(k)
-             IF ( .NOT. XTRACT3( BELD4_LU, vname,
+             IF ( .NOT. XTRACT3( E2C_LU, vname,
      &                            1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,
      &                            0, 0, Beld_ag( :,:,k ) ) ) Then
                 MESG = 'Could not read "' // TRIM( vname ) //
-     &                 '" from file "' // TRIM( BELD4_LU ) // '"'
+     &                 '" from file "' // TRIM( E2C_LU ) // '"'
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
           End Do
@@ -1398,15 +1399,15 @@ C Read the various categories of normalized emissions
           End If
 #endif
  
-! for E2C_FERT file
-          If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
-             mesg = 'Could not open '// E2C_FERT // ' file'
+! for E2C_CHEM file
+          If ( .Not. Open3( E2C_CHEM, fsread3, pname ) ) Then
+             mesg = 'Could not open '// E2C_CHEM // ' file'
              Call M3exit ( pname, 0, 0, mesg, xstat1 )
           End If
 
-          IF ( .NOT. DESC3( E2C_FERT ) ) THEN
+          IF ( .NOT. DESC3( E2C_CHEM ) ) THEN
              MESG = 'Could not get description of file "' //
-     &               TRIM( E2C_FERT ) // '"'
+     &               TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           END IF
 
@@ -1416,18 +1417,18 @@ C Read the various categories of normalized emissions
           end if
 
           vname = 'L1_NH3'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, NH4ps1) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
-     &              '" from file "' // TRIM( E2C_FERT ) // '"'
+     &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_NH3'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, NH4ps2) ) Then
              MESG = 'Could not read "' // TRIM( vname ) //
-     &              '" from file "' // TRIM( E2C_FERT ) // '"'
+     &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
@@ -1439,26 +1440,26 @@ C Read the various categories of normalized emissions
      &               STAT=STAT )
 
           vname = 'L1_SW'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, wep1)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
-     &              '" from file "' // TRIM( E2C_FERT ) // '"'
+     &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_SW'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, wep2)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
-     &              '" from file "' // TRIM( E2C_FERT ) // '"'
+     &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_DEP'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, dep2)) Then
              MESG = 'Could not read "' // TRIM( vname ) //
-     &              '" from file "' // TRIM( E2C_FERT ) // '"'
+     &              '" from file "' // TRIM( E2C_CHEM ) // '"'
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 #else
@@ -1472,44 +1473,44 @@ C Read the various categories of normalized emissions
      &              STAT=STAT )
 
           vname = 'L1_NITR'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, Nit1 ) ) Then
-             Write( mesg,9001 ) vname, E2C_FERT
+             Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_NITR'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, Nit2 ) ) Then
-             Write( mesg,9001 ) vname, E2C_FERT
+             Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_ON'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, L1_ON ) ) Then
-             Write( mesg,9001 ) vname, E2C_FERT
+             Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_ON'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, L2_ON ) ) Then
-             Write( mesg,9001 ) vname, E2C_FERT
+             Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L1_BD'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, BDc1 ) ) Then
-             Write( mesg,9001 ) vname, E2C_FERT
+             Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
           vname = 'L2_BD'
-          If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+          If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, BDc2 ) ) Then
-             Write( mesg,9001 ) vname, E2C_FERT
+             Write( mesg,9001 ) vname, E2C_CHEM
              CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
           End If
 
@@ -1521,9 +1522,9 @@ C Read the various categories of normalized emissions
              End If
 
              vname = 'GMN'
-             If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+             If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                        STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, GMN ) ) Then
-                Write( mesg,9001 ) vname, E2C_FERT
+                Write( mesg,9001 ) vname, E2C_CHEM
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
 
@@ -1551,16 +1552,16 @@ C Read the various categories of normalized emissions
              End If
 
              vname = 'L1_ANH3'
-             If ( .Not. Xtract3 ( E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                            STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F1_NH4 ) ) Then
-                Write( mesg,9001 ) vname, E2C_FERT
+                Write( mesg,9001 ) vname, E2C_CHEM
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
 
              vname = 'L2_ANH3'
-             If ( .Not. Xtract3 ( E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+             If ( .Not. Xtract3 ( E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                            STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F2_NH4 ) ) Then
-                Write( mesg,9001 ) vname, E2C_FERT
+                Write( mesg,9001 ) vname, E2C_CHEM
                 CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
              End If
 
@@ -1589,42 +1590,42 @@ C Read the various categories of normalized emissions
                    jdate_yest = cio_model_sdate-1
                 End If
 
-                If ( .Not. Open3( E2C_FERT_YEST, fsread3, pname ) ) Then
-                   mesg = 'Could not open '// E2C_FERT_YEST // ' file'
+                If ( .Not. Open3( E2C_CHEM_YEST, fsread3, pname ) ) Then
+                   mesg = 'Could not open '// E2C_CHEM_YEST // ' file'
                    Call M3exit ( pname, 0, 0, mesg, xstat1 )
                 End If
 
-                IF ( .NOT. DESC3( E2C_FERT_YEST ) ) THEN
+                IF ( .NOT. DESC3( E2C_CHEM_YEST ) ) THEN
                    MESG = 'Could not get description of file "' //
-     &                     TRIM( E2C_FERT_YEST ) // '"'
+     &                     TRIM( E2C_CHEM_YEST ) // '"'
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 END IF
 
                 vname = 'L1_AON'
-                If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                              STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F1_ON ) ) Then
-                   Write( mesg,9001 ) vname, E2C_FERT
+                   Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
 
                 vname = 'L2_AON'
-                If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+                If ( .Not. Xtract3 (E2C_CHEM, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                              STRTCOLGC2, ENDCOLGC2, cio_model_sdate, 0, F2_ON ) ) Then
-                   Write( mesg,9001 ) vname, E2C_FERT
+                   Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
 
                 vname = 'L1_ON'
-                If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                              STRTCOLGC2, ENDCOLGC2, jdate_yest, 0, L1_ON_Yest ) ) Then
-                   Write( mesg,9001 ) vname, E2C_FERT
+                   Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
 
                 vname = 'L2_ON'
-                If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
+                If ( .Not. Xtract3 (E2C_CHEM_YEST, vname, 1, e2c_cats, STRTROWGC2, ENDROWGC2, 
      &                              STRTCOLGC2, ENDCOLGC2, jdate_yest, 0, L2_ON_Yest ) ) Then
-                   Write( mesg,9001 ) vname, E2C_FERT
+                   Write( mesg,9001 ) vname, E2C_CHEM
                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
                 End If
              end if    ! .not. GMN_AVAIL
@@ -2590,8 +2591,8 @@ C Read the various categories of normalized emissions
              lufile( 2 ) = dust_lu_2    ! total forest coverage
           else if ( dust_land_scheme .eq. 'BELD4' ) then
              isbeld = .true.
-             lufile( 1 ) = beld4_lu
-             lufile( 2 ) = beld4_lu
+             lufile( 1 ) = e2c_lu
+             lufile( 2 ) = e2c_lu
           else
              isbeld = .false.
              lufile( 1 ) = grid_cro_2d
@@ -2908,14 +2909,14 @@ C   mminlu and num_land_cat are WRF global variables
              If ( .Not. Open3( INIT_MEDC_1, fsread3, pname ) ) Then
                 MEDC_AVAIL = .false.
                 if (abflux) then
-                   E2C_FERT_AVAIL = .true.
-                   If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
-                      XMSG = 'Open failure for ' // E2C_FERT
+                   E2C_CHEM_AVAIL = .true.
+                   If ( .Not. Open3( E2C_CHEM, fsread3, pname ) ) Then
+                      XMSG = 'Open failure for ' // E2C_CHEM
                       Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-                      E2C_FERT_AVAIL = .false.
+                      E2C_CHEM_AVAIL = .false.
                    END IF
                 else
-                   E2C_FERT_AVAIL = .false.
+                   E2C_CHEM_AVAIL = .false.
                 end if
              END IF
 
