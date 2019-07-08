@@ -96,6 +96,10 @@ C-----------------------------------------------------------------------
       USE VDIFF_DIAG
       USE PA_DEFN, Only: LIPR ! Process Analysis control and data variables
 
+#ifdef isam
+      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
+#endif
+
       IMPLICIT NONE
 
       INCLUDE SUBST_FILES_ID  ! file name parameters
@@ -127,8 +131,6 @@ C Local Variables:
       INTEGER, SAVE :: WSTEP  = 0               ! local write counter
       INTEGER  STATUS                           ! ENV... status
 
-      REAL          :: FCJACMF( NCOLS,NROWS,NLAYS )  ! 1/ mid-full layer vert Jac factor
-      REAL             LRDX3M                        ! loop local RDX3M( L )
       REAL             FCMSF                         ! loop local RMSFX4( C,R )
 
       REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
@@ -193,6 +195,15 @@ C Local Variables
             REAL, INTENT( INOUT ), OPTIONAL :: ddepj_fst( :,:,:,: )
             REAL, INTENT( INOUT ) :: cngrd( :,:,:,: )
          END SUBROUTINE VDIFFACMX
+#ifdef isam
+         SUBROUTINE SA_OPWDDEP ( SADEPFILE, JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            CHARACTER( 16 ) SADEPFILE ! Dry or wet dep file for tags
+            INTEGER      JDATE      ! current model date, coded YYYYDDD
+            INTEGER      JTIME      ! current model time, coded HHMMSS
+            INTEGER      TSTEP      ! output time step
+         END SUBROUTINE SA_OPWDDEP
+#endif
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -224,6 +235,9 @@ C Initialize the met data
 C Set output file characteristics based on COORD.EXT and open the dry dep file
          IF ( IO_PE_INCLUSIVE ) THEN
             CALL OPDDEP ( JDATE, JTIME, TSTEP( 1 ), N_SPC_DDEP )
+#ifdef isam
+            CALL SA_OPWDDEP ( SA_DD_1, JDATE, JTIME,TSTEP( 1 ) )
+#endif
             IF ( ABFLUX .OR. HGBIDI ) CALL OPASX_MEDIA( JDATE, JTIME, TSTEP( 1 ) )
          END IF
 
@@ -257,6 +271,15 @@ C Allocate and initialize dry deposition array
             XMSG = 'Failure initializing emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+#ifdef isam
+         ALLOCATE ( SA_DDEP( NCOLS,NROWS,N_SPCTAG ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SA_DDEP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         SA_DDEP = 0.0
+#endif
 
 C Set up for process analysis
          IF ( LIPR ) THEN
@@ -350,11 +373,7 @@ C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_DIFF
             DO L = 1, EMLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     EMIS_PA( C,R,L,S ) = VDEMIS_DIFF( S,L,C,R )
-                  END DO
-               END DO
+               EMIS_PA( :,:,L,S ) = VDEMIS_DIFF( S,L,:,: )
             END DO
          END DO
          CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
@@ -365,20 +384,7 @@ C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
 C EDDYV returned = Kz, where Kz is in m**2/sec
 
       DO L = 1, NLAYS
-         LRDX3M = Grid_Data%RDX3M( L )
-         DO R = 1, NROWS
-            DO C = 1, NCOLS
-               FCJACMF( C,R,L ) = LRDX3M * Met_Data%RJACM( C,R,L ) * Met_Data%RJACF( C,R,L )
-            END DO
-         END DO
-      END DO
-      DO R = 1, NROWS
-         DO C = 1, NCOLS
-            FCMSF = Grid_Data%RMSFX4( C,R )
-            DO L = 1, NLAYS
-               SEDDY( L,C,R ) = FCMSF * FCJACMF( C,R,L ) * EDDYV( C,R,L )
-            END DO
-         END DO
+         SEDDY( L,:,: ) = EDDYV( :,:,L )              
       END DO
 
       IF ( WSTEP .EQ. 0 ) THEN
@@ -675,6 +681,25 @@ C re-set dry deposition array to zero
             DDEPJ = 0.0   ! array assignment
             IF ( FST ) DDEPJ_FST = 0.0   ! array assignment
          END IF
+
+#ifdef isam
+         WRDD = 0.0
+         DO ITAG = 1, N_SPCTAG
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  WRDD( C,R ) = SA_DDEP( C,R,ITAG )
+               END DO
+            END DO
+
+            IF ( .NOT. WRITE3( SA_DD_1, VNAM_SPCTAG( ITAG ),
+     &                         MDATE, MTIME, WRDD ) ) THEN
+               XMSG = 'Could not write ' // SA_DD_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+         END DO
+
+         SA_DDEP = 0.0
+#endif
 
       END IF
 

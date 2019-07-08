@@ -36,6 +36,13 @@
 #> needed to run bldoverlay.  The v5.2.1 repo also contains a sample input file.
  setenv REPO_HOME ${CMAQ_REPO}
 
+#> Set output directory
+ setenv POSTDIR    ${CMAQ_DATA}/POST                      #> Location where overlay file will be written
+
+  if ( ! -e $POSTDIR ) then
+	  mkdir $POSTDIR
+  endif
+
 # =====================================================================
 #> BLDOVERLAY Configuration Options
 # =====================================================================
@@ -44,8 +51,8 @@
  setenv IOAPI_ISPH 20
 
 #> define time window
- set START_DATE = "2011-07-01"     #> beginning date (July 1, 2011)
- set END_DATE   = "2011-07-02"     #> ending date    (July 2, 2011)
+ set START_DATE = "2016-07-01"     #> beginning date (July 1, 2016)
+ set END_DATE   = "2016-07-02"     #> ending date    (July 2, 2016)
 
 #> Convert START_DATE and END_DATE to Julian day.
 #> (required format for bldoverlay SDATE and EDATE environment variables)
@@ -75,14 +82,14 @@
  setenv TZFILE ${REPO_HOME}/POST/bldoverlay/inputs/tz.csv
 
 #> species label to be used in overlay file
- setenv SPECIES 'O3,PM25,NO2'
+ setenv SPECIES 'O3,PM25,PM10,SO2,NO,NO2,NOX,NOY,CO'
 
 #> species units
- setenv UNITS 'ppb,ug/m^3,ppb'
+ setenv UNITS  'ppb,ug/m^3,ug/m^3,ppb,ppb,ppb,ppb,ppb,ppb'
 
 #> set input and output files.  A sample input file is provided with the CMAQv5.3 release.
- setenv INFILE ${REPO_HOME}/POST/bldoverlay/inputs/ozone_overlay_input_sample.csv
- setenv OUTFILE ${CMAQ_DATA}/overlay_${START_DATE}_${END_DATE}.nc
+ setenv INFILE ${REPO_HOME}/POST/bldoverlay/inputs/AQS_overlay_input_sample.csv
+ setenv OUTFILE ${POSTDIR}/AQS_overlay_${START_DATE}_${END_DATE}.nc
 
 #> Executable call: 
 ${BINDIR}/${EXEC}

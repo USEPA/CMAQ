@@ -60,6 +60,7 @@ C     08 Aug 2016 B.Murphy: Neglect fire emissions for pcVOC
 C     16 Aug 2017 B.Murphy: Pull plume height calc. to separate subroutine.
 C     01 Feb 2019 D.Wong: Implemented centralized I/O approach and removed everything 
 C                         related to ZSTATIC
+C     05 June 2019 F. Sidi: Bugfix related to Parallel I/O Implementation
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY1
@@ -525,12 +526,13 @@ C=======================================================================
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
+!     Jun 05, 19 F. Sidi: Bugfix related to Parallel I/O Implementation
 
 !-----------------------------------------------------------------------
 
 ! Time step part of laypoint
 
-         USE GRID_CONF, ONLY:  NCOLS, NROWS
+         USE GRID_CONF, ONLY:  NCOLS, NROWS, IO_PE_INCLUSIVE
          USE STK_PRMS, ONLY :  MY_NSRC, MY_STRT_SRC, MY_END_SRC, 
      &                         MY_STKCOL, MY_STKROW, SOURCE
          USE STK_EMIS, ONLY :  IPSRM, N_EMIS_ISTR, EM_FILE_SURR, EM_FILE_DATE, 
@@ -538,8 +540,8 @@ C=======================================================================
          USE PTMET, ONLY    :  EMLAYS, PTMET_CONVT
          USE PRECURSOR_DATA, ONLY : PRECURSOR_MW, SULF_IDX
          USE RUNTIME_VARS, ONLY : LOGDEV, PT3DDIAG, PT3DFRAC, STDATE, STTIME
-         USE UTILIO_DEFN, ONLY : XSTAT2
          USE CENTRALIZED_IO_MODULE, only : interpolate_var
+         USE UTILIO_DEFN
 
          IMPLICIT NONE
 
@@ -1127,7 +1129,7 @@ C If layer fractions are negative, put in the first layer
 C If source is a fire, adjust for fire smoldering effects (include fractions below LBOT)
 C calculate smoldering fraction:
 
-             IF ( ACRES( N )%ARRY ( S ) .NE. 0.0 ) THEN
+             IF ( ACRES( N )%ARRY ( S ) .GT. 0.0 ) THEN
                 BESIZE = 0.0703 * LOG( ACRES( N )%ARRY( S ) ) + 0.3
                 BESIZE = MIN( BESIZE, 1.0 )
                 SFRACT = 1.0 - BESIZE
