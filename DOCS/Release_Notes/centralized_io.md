@@ -21,7 +21,7 @@ files: 2 (two dimensional), 3 (three dimensional), d (dotted file), e (two-dimen
 emission file), l (lightning file), wb(wind blown dust file), and bs (bio season file). Similarly, a marker is used to 
 distinguish two types of boundary files: mb (meteorological boundary file) and b (boundary condition file).
 
-![CIO data structure](https://github.com/kmfoley/CMAQ_Dev/blob/v53_RNotes_Review/DOCS/Release_Notes/cio_p2.png)
+![CIO data structure](cio_p2.png)
 
 * Memory usage comparison (IOAPI / CIO): 2 × NF × V × p / (3 × ∑ 𝑣𝑘) where NF and V are the predefined maximum number 
 of files and variables, respectively in IOAPI_3; p is the number of processors; and, nf and vk are the actual number of files 
