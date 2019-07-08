@@ -131,8 +131,6 @@ C Local Variables:
       INTEGER, SAVE :: WSTEP  = 0               ! local write counter
       INTEGER  STATUS                           ! ENV... status
 
-      REAL          :: FCJACMF( NCOLS,NROWS,NLAYS )  ! 1/ mid-full layer vert Jac factor
-      REAL             LRDX3M                        ! loop local RDX3M( L )
       REAL             FCMSF                         ! loop local RMSFX4( C,R )
 
       REAL, ALLOCATABLE, SAVE :: CNGRD( :,:,:,: )    ! cgrid aero in mixing ratio
@@ -375,11 +373,7 @@ C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_DIFF
             DO L = 1, EMLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     EMIS_PA( C,R,L,S ) = VDEMIS_DIFF( S,L,C,R )
-                  END DO
-               END DO
+               EMIS_PA( :,:,L,S ) = VDEMIS_DIFF( S,L,:,: )
             END DO
          END DO
          CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
@@ -390,20 +384,7 @@ C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
 C EDDYV returned = Kz, where Kz is in m**2/sec
 
       DO L = 1, NLAYS
-         LRDX3M = Grid_Data%RDX3M( L )
-         DO R = 1, NROWS
-            DO C = 1, NCOLS
-               FCJACMF( C,R,L ) = LRDX3M * Met_Data%RJACM( C,R,L ) * Met_Data%RJACF( C,R,L )
-            END DO
-         END DO
-      END DO
-      DO R = 1, NROWS
-         DO C = 1, NCOLS
-            FCMSF = Grid_Data%RMSFX4( C,R )
-            DO L = 1, NLAYS
-               SEDDY( L,C,R ) = FCMSF * FCJACMF( C,R,L ) * EDDYV( C,R,L )
-            END DO
-         END DO
+         SEDDY( L,:,: ) = EDDYV( :,:,L )              
       END DO
 
       IF ( WSTEP .EQ. 0 ) THEN
