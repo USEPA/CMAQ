@@ -1,1 +1,1 @@
-../yamo/AVG_CONC.F
+../local_cons/AVG_CONC.F
