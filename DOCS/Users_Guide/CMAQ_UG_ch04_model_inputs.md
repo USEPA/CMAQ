@@ -72,7 +72,7 @@ CMAQ requires a basic set of input files: initial condition file, which is creat
 
 Rather than forcing the user to deal with hard-coded file names or hard-coded unit numbers, the I/O API netCDF file format utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API format, environment variables must be used to set the values for the program’s logical file names. A complete list of CMAQ input is provided in [Table 4-1](#Input_Table).
 
-This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 4-1](#Input_Table) lists the source, file type, and temporal and spatial dimensions of each CMAQ input file.   Typical time step is 1 hour; however a user can specify a finer one, e.g. 20 minutes. In addition, typical thickness of a boundary file is 1, i.e. NTHIK = 1 but it can be any positive integer.
+This section describes each of the input files required by the various CMAQ programs. The section begins with a description of the grid definition file, GRIDDESC, which is used by several CMAQ programs, and then goes through a program-by-program listing of the CMAQ input file requirements. [Table 4-1](#Input_Table) lists the source, file type (e.g. ASCII, [GRDDED3](https://www.cmascenter.org/ioapi/documentation/all_versions/html/DATATYPES.html), [BNDARY3](https://www.cmascenter.org/ioapi/documentation/all_versions/html/DATATYPES.html), etc.), and temporal and spatial dimensions of each CMAQ input file.   Typical time step is 1 hour; however a user can specify a finer one, e.g. 20 minutes. In addition, typical thickness of a boundary file is 1, i.e. NTHIK = 1 but it can be any positive integer.
 
 <a id=Input_Table></a>
 <a id=Table4-1></a>
@@ -93,11 +93,11 @@ This section describes each of the input files required by the various CMAQ prog
 |[INIT_NONR_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
 |[INIT_TRAC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
 |**Boundary Condition Inputs**| | | | ||
-|[BNDY_CONC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> | BNDARY3 | Hourly |[2(X+1)+2(Y+1)]\*Z | BCON|required|
-|[BNDY_GASC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
-|[BNDY_AERO_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
-|[BNDY_NONR_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
-|[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |[2(X+1)+2(Y+1)]\*Z|BCON|required|
+|[BNDY_CONC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> | BNDARY3 | Hourly |PERIM\*Z | BCON|required|
+|[BNDY_GASC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
+|[BNDY_AERO_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
+|[BNDY_NONR_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
+|[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
 |**MCIP**| | | | |||
 |[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>| GRDDED3 | Time-invariant | XY | MCIP|required|
 |[GRID_BDY_2D](#grid_bdy_2d) <a id=grid_bdy_2d_t></a>| BNDARY3 | Time-invariant | PERIM\*Z | MCIP|required|
