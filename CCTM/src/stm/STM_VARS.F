@@ -33,6 +33,8 @@ C----------------------------------------------------------------------
       Integer, Parameter :: N_STM_OAE_SPC =  9   ! number of stm oae species
       Integer, Parameter :: N_STM_NR_SPC  =  1   ! number of stm nr species
 
+      Logical, Save :: organosulf = .False.
+
 C Define value as Y and N for the spc tables
       CHARACTER( 16 ), Parameter, Private :: Y = 'Yes'
       CHARACTER( 16 ), Parameter, Private :: N = 'No'

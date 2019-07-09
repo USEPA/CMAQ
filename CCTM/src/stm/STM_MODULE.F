@@ -60,6 +60,7 @@ C-----------------------------------------------------------------------
      &                      aerospc_map, aerospc_mw, aerospc,
      &                      n_mode, ae6isoa,
      &                      findAero
+      Use stm_vars, Only: organosulf
 
       Implicit None
 
@@ -72,23 +73,10 @@ C Arguments
 
 C Local variables
 
-      Logical, Save :: firstime = .True.
-      Logical, Save :: organosulf = .False.
-
       Integer c, r, l, m
 
       Real aso4tot, oso4tot
       Real mscor
-
-      If ( firstime ) Then
-
-         If ( ( ae6isoa ) .Or.
-     &        ( Index( mechname, 'CB6R3_AE7'  ) .Gt. 0 ) .Or.
-     &        ( Index( mechname, 'CB6R3M_AE7' ) .Gt. 0 ) ) organosulf = .True.
-
-         firstime = .False.
-
-      End If
 
       Do c = 1, ncols
          Do r = 1, nrows
@@ -259,6 +247,7 @@ C-----------------------------------------------------------------------
      &                      oso4aqmhp_idx, oso4aqpaa_idx, oso4_idx,
      &                      oso4gas_idx, oso4emis_idx, oso4icbc_idx,
      &                      aerospc, n_mode, ae6isoa
+      Use stm_vars, Only: organosulf
 
       Implicit None
 
@@ -276,7 +265,6 @@ C local variables
       Character( 96 ) :: xmsg = ' '
 
       Logical, Save :: firstime = .True.
-      Logical, Save :: organosulf = .False.
 
       Integer c, r, l, m
       Integer allocstat
@@ -296,44 +284,47 @@ C  begin body of subroutine stm_wrap_gas
             Call m3exit( pname, jdate, jtime, xmsg, xstat1 )
          End If
 
-         If ( ( ae6isoa ) .Or.
-     &        ( Index( mechname, 'CB6R3_AE7'  ) .Gt. 0 ) .Or.
-     &        ( Index( mechname, 'CB6R3M_AE7' ) .Gt. 0 ) ) organosulf = .True.
-
          firstime = .False.
 
       End If
 
       if ( .not. organosulf ) Return
 
-c  capture the loss of SO4 to organosulfate
-
-      Do c = 1, ncols
-         Do r = 1, nrows
-            Do l = 1, nlays
+C capture the loss of ASO4J to organosulfate
+      m = 2  ! in the current implementation of heterogeneous chemistry,
+             ! only accumulation mode sulfate can be converted to organosulfate
 
 C save ASO4 concentrations before call to CHEM
-               If ( b4chem ) Then
+      If ( b4chem ) Then
+
+         Do c = 1, ncols
+            Do r = 1, nrows
+               Do l = 1, nlays
 
 C extract aerosol species from CGRID
                   Call stm_extract_aero ( cgrid( c,r,l,: ) )
 
-                  m = 2  ! in the current implementation of heterogeneous chemistry,
-                         ! only the accumulation mode sulfate can be converted to organosulfate
                   so4b4( c,r,l,m ) = Max( aero_conc( aso4_idx, m ),
      &                                    aerospc( aso4_idx )%min_conc( m ) )
 
-C scale sulfur tracking species by change in ASO4
-               Else
+               End Do
+            End Do
+         End Do
+
+C scale sulfur tracking species by change in ASO4J following call to CHEM
+      Else
+
+         Do c = 1, ncols
+            Do r = 1, nrows
+               Do l = 1, nlays
 
 C extract aerosol species from CGRID
                   Call stm_extract_aero ( cgrid( c,r,l,: ) )
 
-                  m = 2  ! in the current implementation of heterogeneous chemistry,
-                         ! only the accumulation mode sulfate can be converted to organosulfate
                   If ( ( aero_conc( aso4_idx, m ) .Ne. so4b4( c,r,l,m ) ) .And.
      &                 ( so4b4( c,r,l,m ) .Gt. 0.0 ) ) Then
 
+C fractional change in ASO4J
                      fso4 = Max( aero_conc( aso4_idx, m ),
      &                           aerospc( aso4_idx )%min_conc( m ) )
      &                    / so4b4( c,r,l,m )
@@ -387,7 +378,6 @@ c  reduce tracked inorganic species by amount converted to organosulfate
                      aero_conc( aso4icbc_idx, m ) =
      &                  Max( aero_conc( aso4icbc_idx, m ) * fso4,
      &                       aerospc( aso4icbc_idx )%min_conc( m ) )
-
                      aero_conc( aso4aqh2o2_idx, m ) =
      &                  Max( aero_conc( aso4aqh2o2_idx, m ) * fso4,
      &                       aerospc( aso4aqh2o2_idx )%min_conc( m ) )
@@ -409,11 +399,11 @@ C update aerosol species in CGRID
 
                   Call stm_update_aero ( cgrid( c,r,l,: ) )
 
-               End If
+               End Do
             End Do
          End Do
 
-      End Do
+      End If
       Return
 
       End Subroutine stm_wrap_gas
