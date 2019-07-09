@@ -467,6 +467,8 @@ c-------------------------------------------------------------------------------
      &              ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
      &              ( Index( mechname, 'CB6R3M_AE7'      ) .Gt. 0 ) ) Then
                 
+                  ORGANOSULF = .TRUE.
+
                   IF ( ( N_AE_SPC + N_STM_OAE_SPC ) .GT. SPC_DIM ) THEN
                      WRITE( LOGDEV,* ) '*** Allocated dimension exceeded for AE ', 
      &                                 ' species in Sulfur Tracking Model' 
