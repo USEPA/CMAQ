@@ -292,12 +292,13 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> MCIP meteorology files 
   setenv GRID_BDY_2D $METpath/GRIDBDY2D_${YYYYMMDD}  # GRID files are static, not day-specific
   setenv GRID_CRO_2D $METpath/GRIDCRO2D_${YYYYMMDD}
-  setenv GRID_CRO_3D $METpath/GRIDCRO3D_${YYYYMMDD}
+  setenv GRID_CRO_3D '' # this file not used or available
   setenv GRID_DOT_2D $METpath/GRIDDOT2D_${YYYYMMDD}
   setenv MET_CRO_2D $METpath/METCRO2D_${YYYYMMDD}
   setenv MET_CRO_3D $METpath/METCRO3D_${YYYYMMDD}
   setenv MET_DOT_3D $METpath/METDOT3D_${YYYYMMDD}
   setenv MET_BDY_3D $METpath/METBDY3D_${YYYYMMDD}
+  setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYYYMMDD}
 
   #> Emissions Control File
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml

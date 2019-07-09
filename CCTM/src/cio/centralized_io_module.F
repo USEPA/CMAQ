@@ -44,6 +44,8 @@
 !                        * emission file date is differ from simulation date
 !                        * region files for scaling purposes
 !  06/19/19, D. Wong: -- fixed a bug in the EMIS regions subroutine
+!  07/09/19, T. Spero: -- Changed file for fractional land use from
+!                         GRIDCRO2D to LUFRAC_CRO.
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -80,7 +82,7 @@
      &                       LAT(:,:),          ! from GRID_CRO_2D data
      &                       LON(:,:),          ! from GRID_CRO_2D data
      &                       PURB(:,:),         ! from GRID_CRO_2D data
-     &                       LUFRAC(:,:,:),     ! from GRID_CRO_2D data
+     &                       LUFRAC(:,:,:),     ! from LUFRAC_CRO data
      &                       SOILCAT_A(:,:),    ! from MET_CRO_2D
      &                       MSFD2(:,:),        ! from GRID_DOT_2D data
      &                       X3HT0M(:,:),       ! from GRID_CRO_3D data
@@ -109,7 +111,7 @@
 
         character( 16 ), allocatable :: DDTTM( : ) ! for SIOLINP data, description date and time
 
-! time dependent data: 
+! time independent data: 
 ! gridded 
         integer :: n_grid_cro_data_vars
         integer :: n_cio_grid_vars
@@ -207,7 +209,8 @@
      &             boundary_files_setup,
      &             retrieve_grid_cro_2d_data,
      &             retrieve_grid_dot_2d_data,
-     &             retrieve_ocean_data
+     &             retrieve_ocean_data,
+     &             retrieve_lufrac_cro_data
 
         integer, private :: count = 0
         integer, private :: cio_logdev, 
@@ -322,6 +325,19 @@
           END IF
           CALL SUBHFILE ( GRID_DOT_2D, GXOFF, GYOFF,
      &                    STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2 )
+
+! lufrac cro file
+          IF ( .NOT. OPEN3( LUFRAC_CRO, FSREAD3, PNAME ) ) THEN
+             XMSG = 'Could not open '// LUFRAC_CRO // ' file'
+             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+          IF ( .NOT. DESC3( LUFRAC_CRO ) ) THEN
+             XMSG = 'Could not get ' // LUFRAC_CRO //' file description'
+             CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          CALL SUBHFILE ( LUFRAC_CRO, GXOFF, GYOFF,
+     &                    STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
 
 ! met cro 2d file
           IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
@@ -1841,15 +1857,13 @@ C Read the various categories of normalized emissions
 
           USE UTILIO_DEFN
           USE HGRD_DEFN
-          USE LSM_Mod, ONLY: n_lufrac, init_lsm
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
           Character( 40 ), parameter :: pname = 'retrieve_grid_cro_2d_data'
 
           CHARACTER( 120 ) :: XMSG = ' '
-          Character( 16 )  :: vname
-          INTEGER          :: STAT, L
+          INTEGER          :: STAT
 
           allocate (MSFX2(ncols, nrows), 
      &              LWMASK(ncols, nrows), 
@@ -1905,6 +1919,22 @@ C Read the various categories of normalized emissions
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
+        end subroutine retrieve_grid_cro_2d_data
+
+! -------------------------------------------------------------------------
+        subroutine retrieve_lufrac_cro_data
+
+          USE UTILIO_DEFN
+          USE HGRD_DEFN
+          USE LSM_Mod, ONLY: n_lufrac, init_lsm
+
+          INCLUDE SUBST_FILES_ID             ! file name parameters
+
+          Character( 40 ), parameter :: pname = 'retrieve_lufrac_cro_data'
+
+          CHARACTER( 120 ) :: XMSG = ' '
+          INTEGER          :: STAT
+
           CALL INIT_LSM( 0, 0 )
 
           allocate (LUFRAC(ncols, nrows, n_lufrac), STAT=STAT)
@@ -1913,17 +1943,14 @@ C Read the various categories of normalized emissions
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
-          DO l = 1, n_lufrac
-             Write( vname,'( "LUFRAC_",I2.2 )' ) l
-             IF ( .Not. XTRACT3( GRID_CRO_2D, VNAME,
-     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                           0, 0, LUFRAC( :,:,l ) ) ) THEN
-                XMSG = 'Error interpolating variable' // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
-                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-          END DO
+           IF ( .Not. XTRACT3( LUFRAC_CRO, 'LUFRAC',
+     &                         1, n_lufrac, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                         0, 0, LUFRAC ) ) THEN
+              XMSG = 'Error interpolating variable LUFRAC from ' // LUFRAC_CRO
+              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+           END IF
 
-        end subroutine retrieve_grid_cro_2d_data
+        end subroutine retrieve_lufrac_cro_data
 
 ! -------------------------------------------------------------------------
         subroutine retrieve_grid_dot_2d_data
@@ -2956,6 +2983,8 @@ C   mminlu and num_land_cat are WRF global variables
              call retrieve_grid_cro_2d_data
 
              call retrieve_grid_dot_2d_data
+
+             call retrieve_lufrac_cro_data
 
              call retrieve_ocean_data
 
