@@ -18,7 +18,7 @@ Create namelist according to Table 3.4 in the [CMAQ OGD](CMAQ_UG_ch04_model_inpu
 |-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
 | 1 || File Type |String|String to delineate Gas Phase (GC), Aerosol (AE), Non-reactive (NR) and Tracer (TR) species namelist|{TR_nml}|
 | 3 || Header ID | String |String to define data structure relating to namelist|{TR_SPECIES_DATA = }|
-| 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|-|
+| 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO<sub>3</sub>, PAR; dependent on chemical mechanism|-|
 ||2| MOLWT| Integer |Species Molecular Weight|-|
 |  |3| IC | String |IC/ surrogate species name for the CMAQ Species|{'Species name', ' '}|
 |  |4| FAC | Integer |Scaling factor for the IC/BC concentration|{Any integer: default = -1 if IC is not specified}|
@@ -59,7 +59,7 @@ TR_SPECIES_DATA =
   * is not mapped to any emissions species
   * uses the ozone dry deposition velocity (VD_O3) scaled with a factor of 1 as its surrogate for dry deposition
   * uses ozone as its scavenging surrogate scaled with a factor of 1
-  * will try to obtain its boundary conditions from a CMAQ species named O3 in the boundary condition files with a scaling factor of 1 
+  * will try to obtain its boundary conditions from a CMAQ species named 'O3' in the boundary condition files with a scaling factor of 1 
   * is not mapped to any initial condition, therefore uses default scaling factor of -1
   * does not participate in gas-to-aerosol or gas-to-aqueous transformations
   * will undergo advection and diffusion
@@ -70,7 +70,7 @@ TR_SPECIES_DATA =
   * is not mapped to any emissions species
   * uses the CO dry deposition velocity (VD_CO) scaled with a factor of 1 as its surrogate for dry deposition
   * uses CO as its scavenging surrogate scaled with a factor of 1
-  * will try to obtain its boundary conditions from a species named CO in the boundary condition files with a scaling factor of 1
+  * will try to obtain its boundary conditions from a species named 'CO' in the boundary condition files with a scaling factor of 1
   * is not mapped to any initial condition, therefore uses default scaling factor of -1
   * does not participate in gas-to-aerosol or gas-to-aqueous transformations
   * will undergo advection and diffusion
@@ -81,7 +81,7 @@ TR_SPECIES_DATA =
   * is not mapped to any emissions species
   * uses the ozone dry deposition velocity (VD_O3) scaled with a factor of 1 as its surrogate for dry deposition
   * uses ozone as its scavenging surrogate scaled with a factor of 1
-  * will try to obtain its initial conditions from a species named O3 in the initial condition files with scaling factor of -1
+  * will try to obtain its initial conditions from a species named 'O3' in the initial condition files with scaling factor of -1
   * has no boundary condition specified, therefore uses default scaling factor of -1
   * does not participate in gas-to-aerosol or gas-to-aqueous transformations
   * will undergo advection and diffusion
@@ -92,7 +92,7 @@ TR_SPECIES_DATA =
   * is not mapped to any emissions species
   * uses the ozone dry deposition velocity (VD_O3) scaled with a factor of 1 as its surrogate for dry deposition
   * uses ozone as its scavenging surrogate scaled with a factor of 1
-  * will try to obtain its  boundary conditions from a species named O3 in the boundary condition files with a scaling factor of 0.5
+  * will try to obtain its  boundary conditions from a species named 'O3' in the boundary condition files with a scaling factor of 0.5
   * is not mapped to any boundary condition, therefore uses default scaling factor of -1
   * does not participate in gas-to-aerosol or gas-to-aqueous transformations
   * will undergo advection and diffusion
