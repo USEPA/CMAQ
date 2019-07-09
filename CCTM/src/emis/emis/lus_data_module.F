@@ -101,7 +101,7 @@
      &            lus_type( 'FOREST          ', 'total forest        ' ) /)  ! DUST_LU_2
 
 ! BELD4 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-!     read file: BELD4_LU
+!     read file: E2C_LU
 
             integer, parameter :: n_dlcat_beld4 = 6   ! number of desert land categories
             type( lus_type ), parameter :: vnmld_beld4( n_dlcat_beld4 ) = (/
