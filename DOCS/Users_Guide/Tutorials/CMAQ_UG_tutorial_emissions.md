@@ -89,7 +89,7 @@ If a species is named "CHEMX" on the gas, aerosol, or nonreactive namelist, then
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'EVERYWHERE'  , 'All'         ,'NO'     ,'CHEMX'       ,'All' ,0.25  ,'UNIT','a',
 ```
-Note that the 'a' operator is important here to create the new link from 'CHEMX' to NO. If we want to scale to 25% of total NOx concentrations, we can add a line to include NO2.
+Note that the 'a' operator is important here to create the new link from 'CHEMX' to NO. If we want to scale to 25% of total NO<sub>x</sub> concentrations, we can add a line to include NO<sub>2</sub>.
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
