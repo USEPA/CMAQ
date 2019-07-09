@@ -126,10 +126,6 @@ C Local variables:
       CHARACTER( 16 ) :: PNAME = 'ZADVYPPM'
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-C for INTERPX
-      INTEGER      GXOFF, GYOFF            ! global origin offset from file
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       INTEGER       MTIME, MDATE
 !     REAL          CON1( NLAYS,N_SPC_ADV ) ! concentrations subset
       REAL, ALLOCATABLE, SAVE :: CON1( :,: ) ! concentrations subset
