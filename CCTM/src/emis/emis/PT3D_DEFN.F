@@ -600,7 +600,7 @@ C-----------------------------------------------------------------------
             IF ( PT3DDIAG ) THEN
               NDATE = STDATE; NTIME = STTIME
               CALL NEXTIME( NDATE, NTIME, TSTEP(1) ) ! advance one output tstep
-              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP(1), 
+              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, TSTEP(1), 
      &                   EM_FILE_SURR( ISRM )%LEN, EM_FILE_SURR( ISRM )%ARRY( : ),
      &                   EM_FILE_SURR( ISRM )%UNITS( : ) )
  
