@@ -201,7 +201,7 @@ The namelist files contain header information that describe which class of speci
 |-----|-----|----------------------|----------|--------------------------------------------|----------------------------|
 | 1 || File Type |String|String to delineate Gas Phase (GC), Aerosol (AE), Non-reactive (NR) and Tracer (TR) species namelist|{&GC_nml, &AE_nml, &NR_nml, &TR_nml}|
 | 3 || Header ID | String |String to define data structure relating to namelist|{GC_SPECIES_DATA=, AE_SPECIES DATA= , NR_SPECIES_DATA= ,TR_SPECIES_DATA = }|
-| 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO3, PAR; dependent on chemical mechanism|-|
+| 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO<sub>3</sub>, PAR; dependent on chemical mechanism|-|
 ||2| MOLWT| Integer |Species Molecular Weight|-|
 |  |3| IC | String |IC surrogate species name for the CMAQ Species|{'Species name', ' '}|
 |  |4| FAC | Integer |Scaling factor for the IC concentration|{Any integer: default = -1 if IC is not specified}|
@@ -436,7 +436,7 @@ The NLDN lightning strikes file is used for calculating online NO emissions from
 
 |**Variable Name**|**Description**|**Units**|**Required**|
  |--------|-------------------|--------------|-----------|
- |LNT|hourly flash counts per sq. km.|km-2|yes|
+ |LNT|hourly flash counts per sq. km.|km<sup>-2</sup>|yes|
 
 <a id=ltngparm_file></a>
 
@@ -457,9 +457,9 @@ This file contains the following variables interpolated to the modeling grid:
 |**Variable Name**|**Description**|**Units**|**Required**|
 |--------|---------------|--------------|-----------|
 | SLOPE|linear equation parameter for estimating lightning flash count from hourly convective precipitation|unitless|yes|
-|INTERCEPT| linear equation parameter for  lightning flash count from hourly convective precipitation|km-2*|yes|
+|INTERCEPT| linear equation parameter for  lightning flash count from hourly convective precipitation|km<sup>-2</sup>*|yes|
 |SLOPE_lg| logarithmic equation parameter for estimating lightning flash count from hourly convective precipitation|unitless|yes|
-|INTERCEPT_lg| logarithmic equation parameter for estimating lightning flash count from hourly convective precipitation|km-2*|yes|
+|INTERCEPT_lg| logarithmic equation parameter for estimating lightning flash count from hourly convective precipitation|km<sup>-2</sup>*|yes|
 |ICCG_SUM| Ratio of intercloud to cloud-to-ground flashes during the summer season|unitless|yes|
 |ICCG_WIN| Ratio of intercloud to cloud-to-ground flashes during the winter season|unitless|yes|
 |OCNMASK| Land/water mask to remove spurious flashes over the ocean|unitless|yes|
