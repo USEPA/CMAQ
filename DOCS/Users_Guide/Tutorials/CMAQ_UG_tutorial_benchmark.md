@@ -179,7 +179,7 @@ set PROC     = serial
 CCTM run time Configuration Options for the benchmark case include the following: 
 
 -   Mechanism: cb6r3_ae7_aq
--   Lightning NOx emissions calculated with hourly NLDN strike data
+-   Lightning NO<sub>x</sub> emissions calculated with hourly NLDN strike data
 -   Dynamic vertical diffusivity
 -   In-line deposition velocities
 -   Surface HONO interaction
