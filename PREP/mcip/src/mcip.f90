@@ -72,6 +72,8 @@ PROGRAM mcip
 !                        the CCTM grid from the output routines.  Removed
 !                        runtime option to not output time-independent files.
 !                        (T. Spero)
+!           09 Jul 2019  Remove argument CTMLAYS from subroutine READNML.
+!                        (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -109,7 +111,7 @@ PROGRAM mcip
 !-------------------------------------------------------------------------------
 
   CALL vstamp
-  CALL readnml (ctmlays)
+  CALL readnml
 
   mcip_now = mcip_start
   CALL getsdt (mcip_now, sdate, stime)

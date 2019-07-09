@@ -25,6 +25,8 @@ SUBROUTINE outgm3io (sdate, stime)
 !                        gridout.f90 from MCIPv4.5.  (T. Spero)
 !                        CCTM grid to a separate subroutine.  Subsumed output
 !                        of fractional land use from lucro.f90.  (T. Spero)
+!           09 Jul 2019  Corrected output time step to 0 for time-invariant
+!                        file LUFRAC_CRO.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -241,7 +243,7 @@ SUBROUTINE outgm3io (sdate, stime)
     ncols3d = ncols
     nrows3d = nrows
     nthik3d = nthik
-    tstep3d = grstep
+    tstep3d = 0
 
     IF ( .NOT. open3 (lufraccro, fsunkn3, pname) ) THEN
       WRITE (*,f9000) TRIM(pname), TRIM(lufraccro)

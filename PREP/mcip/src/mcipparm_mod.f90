@@ -139,8 +139,8 @@ MODULE mcipparm
 !                        staggered grid.  Added a flag to indicate if the
 !                        convective scheme included radiative feedbacks.  Added
 !                        a flag for extra variables available with KF convective
-!                        scheme with radiative feedbacks.  Updated release
-!                        stamp.  (T. Spero)
+!                        scheme with radiative feedbacks.  (T. Spero)
+!           09 Jul 2019  Updated release stamp.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE m3utilio, ONLY: mxdesc3
@@ -309,7 +309,7 @@ MODULE mcipparm
 
   CHARACTER(LEN=80)                 :: fdesc      ( mxdesc3 )
   CHARACTER(LEN=16),  PARAMETER     :: progname   = 'MCIP'
-  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '06/19/2019'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '07/09/2019'
   CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V5.0'
 
 END MODULE mcipparm
