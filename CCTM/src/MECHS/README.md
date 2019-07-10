@@ -10,6 +10,7 @@ To modify or change photochemistry, requires modifying or replacing the modules 
 
 To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the build scripts to a one of the mechanism subdirectories located under $CMAQ_MODEL/CCTM/src/MECHS. The below table lists mechanisms available in this version of the CMAQ model.
 
+Table 1.  CMAQv5.3 Chemical Mechanisms
 
 |**Mechanism Name** | **Photochemistry**                                   | **Model Species<sup>1,2</sup>**    | **Cloud Chemistry Module<sup>3</sup>** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
@@ -47,3 +48,46 @@ Example tracer namelists are under $CMAQ_MODEL/CCTM/src/MECHS/trac0 (_the versio
 -   The Euler Backward Iterative (EBI) solver for photochemistry is hardcoded to the Fortran data module representing photochemistry and specific names in the species namelists. If either change, a new or different EBI solver source code is needed.
 -   The Rosenbrock and SMVGEAR photochemistry solvers are not hardcoded the above files so they are more easily allow changing these files.
 
+### Sulfur Tracking Method (STM) option
+
+This release of CMAQ includes a runtime option that provides detailed information on the modeled sulfur budget. This option, referred to as the "Sulfur Tracking Method (STM)", tracks sulfate production from gas- and aqueous-phase chemical reactions, as well as contributions from emissions and initial and boundary conditions. The STM option is activated by setting an environment variable in the CTM runscript:
+
+```
+setenv STM_SO4TRACK Y
+```
+
+Sulfur tracking species are added to the AE and NR groups at runtime if you enable this option.  Table 2 provides a list of inorganic sulfur tracking species.  Table 3 lists additional tracking species for the loss of inorganic sulfate to organosulfate for chemical mechanisms that include this loss pathway (SAPRC07TIC_AE6I, SAPRC07TIC_AE7I, CB6R3_AE7, or CB6R3M_AE7 mechanisms).
+
+Table 2. Sulfur Tracking Species
+
+|Species Group|Species Name| MW   | Description |
+|:------------|:-----------|:-----|:------------|
+|AE           |ASO4AQH2O2J | 96.0 |Accumulation mode sulfate (ASO4J) produced by aqueous-phase hydrogen peroxide oxidation reaction:  H<sub>2</sub>O<sub>2</sub> + S(IV) -> S(VI) + H<sub>2</sub>O |
+|AE           |ASO4AQO3J   | 96.0 |ASO4J produced by aqueous-phase ozone oxidation reaction:  O<sub>3</sub> + S(IV) -> S(VI) + O<sub>2</sub> |
+|AE           |ASO4AQFEMNJ | 96.0 |ASO4J produced by aqueous-phase oxygen catalyzed by Fe<sup>3+</sup> and Mn<sup>2+</sup> oxidation reaction: O<sub>2</sub> + S(IV) -> S(VI) |
+|AE           |ASO4AQMHPJ  | 96.0 |ASO4J produced by aqueous-phase methyl hydrogen peroxide oxidation reaction:  MHP + S(IV) -> S(VI) |
+|AE           |ASO4AQPAAJ  | 96.0 |ASO4J produced by aqueous-phase peroxyacetic acid oxidation reaction:  PAA + S(IV) -> S(VI) |
+|AE           |ASO4GASJ    | 96.0 |ASO4J condensation following gas-phase reaction:  OH + SO<sub>2</sub> -> SULF + HO<sub>2</sub> |
+|AE           |ASO4EMISJ   | 96.0 |ASO4J from source emissions |
+|AE           |ASO4ICBCJ   | 96.0 |ASO4J from boundary and initial conditions |
+|AE           |ASO4GASI    | 96.0 |Aitken mode sulfate (ASO4I) nucleation and/or condensation following gas-phase reaction:  OH + SO<sub>2</sub> -> SULF + HO<sub>2</sub> |
+|AE           |ASO4EMISI   | 96.0 |ASO4I from source emissions |
+|AE           |ASO4ICBCI   | 96.0 |ASO4I from boundary and initial conditions |
+|AE           |ASO4GASK    | 96.0 |Coarse mode sulfate (ASO4K) condensation following gas-phase reaction:  OH + SO<sub>2</sub> -> SULF + HO<sub>2</sub>  |
+|AE           |ASO4EMISK   | 96.0 |ASO4K from source emissions |
+|AE           |ASO4ICBCK   | 96.0 |ASO4K from boundary and initial conditions |
+|NR           |SULF_ICBC   | 98.0 |Sulfuric acid vapor (SULF) from boundary and initial conditions |
+
+Table 3.  Additional Tracking Species Representing Loss of Inorganic Sulfate to Organosulfate (only included if using SAPRC07TIC_AE6I, SAPRC07TIC_AE7I, CB6R3_AE7, or CB6R3M_AE7 mechanisms).
+
+|Species Group|Species Name| MW   | Description |
+|:------------|:-----------|:-----|:------------|
+|AE           |OSO4J       | 96.0 |Loss of ASO4J to organosulfate |
+|AE           |OSO4AQH2O2J | 96.0 |Loss of ASO4AQH2O2J to organosulfate |
+|AE           |OSO4AQO3J   | 96.0 |Loss of ASO4AQO3J to organosulfate |
+|AE           |OSO4AQFEMNJ | 96.0 |Loss of ASO4AQFEMNJ to organosulfate |
+|AE           |OSO4AQMHPJ  | 96.0 |Loss of ASO4AQMHPJ to organosulfate |
+|AE           |OSO4AQPAAJ  | 96.0 |Loss of ASO4AQPAAJ to organosulfate |
+|AE           |OSO4GASJ    | 96.0 |Loss of ASO4GASJ to organosulfate |
+|AE           |OSO4EMISJ   | 96.0 |Loss of ASO4EMISJ to organosulfate |
+|AE           |OSO4ICBCJ   | 96.0 |Loss of ASO4ICBCJ to organosulfate |
