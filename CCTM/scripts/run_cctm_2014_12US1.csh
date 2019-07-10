@@ -397,12 +397,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
 # need to modify for FEST-C v1.4, but those files not available for 2014
-     setenv E2C_Soilfile  ${LUpath}/epic/US1_12km_soil.nc
-     setenv E2C_Fertfile  ${LUpath}/epic/US1_12km_time${YYYYMMDD}.nc    
-     setenv B4LU_file     ${LUpath}/beld4_12kmCONUS_2006nlcd.ncf
-     setenv E2C_SOIL ${E2C_Soilfile}
-     setenv E2C_FERT ${E2C_Fertfile}
-     setenv BELD4_LU ${B4LU_file}
+     setenv E2C_SOIL ${LUpath}/epic/US1_12km_soil.nc
+     setenv E2C_CHEM ${LUpath}/epic/US1_12km_time${YYYYMMDD}.nc
+     setenv E2C_LU ${LUpath}/beld4_12kmCONUS_2006nlcd.ncf
   endif
 
 #> Inline Process Analysis 

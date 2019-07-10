@@ -432,14 +432,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
 # modify for FEST-C v1.4.
-#    setenv E2C_Soilfile  ${INPDIR}/land/2011_US1_soil_bench.nc
-#    setenv E2C_Fertfile  ${INPDIR}/land/2011_US1_time${YYYYMMDD}_bench.nc
-     setenv E2C_Soilfile  ${LUpath}/epic_festc1.4/epic2011_20180516_soil.nc
-     setenv E2C_Fertfile  ${LUpath}/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
-     setenv B4LU_file     ${LUpath}/beld4_12kmCONUS_2006nlcd_bench.nc    
-     setenv E2C_SOIL ${E2C_Soilfile}
-     setenv E2C_FERT ${E2C_Fertfile}
-     setenv BELD4_LU ${B4LU_file}
+     setenv E2C_SOIL ${LUpath}/epic_festc1.4/epic2011_20180516_soil.nc
+     setenv E2C_CHEM ${LUpath}/epic_festc1.4/epic2011_20180516_time${YYYYMMDD}.nc
+     setenv E2C_LU ${LUpath}/beld4_12kmCONUS_2006nlcd_bench.nc
   endif
 
 #> Inline Process Analysis 
