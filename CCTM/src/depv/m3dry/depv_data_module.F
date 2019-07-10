@@ -88,7 +88,7 @@
             real, allocatable :: wp2     ( :,:,: )
             real, allocatable :: cec1    ( :,:,: )
             real, allocatable :: cec2    ( :,:,: )
-!   for E2C_FERT file
+!   for E2C_CHEM file
             real, Allocatable :: NH4ps1  ( :,:,: ) ! Total Soil NH4 from EPIC
             real, Allocatable :: NH4ps2  ( :,:,: )
             real, Allocatable :: wep1    ( :,:,: )

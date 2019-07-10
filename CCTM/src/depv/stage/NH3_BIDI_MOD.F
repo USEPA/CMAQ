@@ -200,8 +200,8 @@ C-------------------------------------------------------------------------------
 ! time in the files is not the same
          If ( .Not. MEDC_AVAIL ) Then
             Write(Logdev,*) 'Estimating soil NHx from EPIC output'
-            If ( .Not. E2C_FERT_AVAIL ) Then
-               xmsg = E2C_FERT // ' file not available'
+            If ( .Not. E2C_CHEM_AVAIL ) Then
+               xmsg = E2C_CHEM // ' file not available'
                Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
             End If
 
