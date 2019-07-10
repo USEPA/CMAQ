@@ -49,7 +49,11 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
-      use CENTRALIZED_IO_MODULE, only : interpolate_var
+      USE CENTRALIZED_IO_MODULE, only : interpolate_var
+#ifdef isam
+      USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, SPC_INDEX,
+     &    TRANSPORT_SPC, ITAG
+#endif 
 
       IMPLICIT NONE   
 
@@ -100,6 +104,10 @@ C Local Variables:
 
       INTEGER     OFF              ! loop offset to CGRID species
       INTEGER     C, R, L, SPC, V  ! loop counters
+
+#ifdef isam
+      INTEGER  :: SPC_CGRID
+#endif
 
 C-----------------------------------------------------------------------
 
@@ -240,6 +248,37 @@ C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing rati
          END DO
       END IF
 
+
+#ifdef isam
+      DO SPC = 1, NSPC_SA
+        IF ( TRANSPORT_SPC( SPC ) ) THEN
+          SPC_CGRID = SPC_INDEX(SPC,2)
+          IF ( SPC_CGRID .LE. N_GC_SPC .OR. SPC_CGRID .GE. NR_STRT ) THEN ! this is not an aerosol
+            DO ITAG = 1, NTAG_SA
+              DO L = 1, NLAYS
+                 DO R = 1, NROWS
+                    DO C = 1, NCOLS
+                      ISAM( C,R,L,SPC,ITAG ) = ISAM( C,R,L,SPC,ITAG ) * RHOJ( C,R,L )
+                    END DO
+                 END DO
+              END DO
+            END DO
+          ELSE ! this is an aerosol (mass only)
+            DO ITAG = 1, NTAG_SA
+              DO L = 1, NLAYS
+                 DO R = 1, NROWS
+                    DO C = 1, NCOLS
+                      ISAM( C,R,L,SPC,ITAG ) = JACOBM( C,R,L ) * ISAM( C,R,L,SPC,ITAG ) / CONV
+                    END DO
+                 END DO
+              END DO
+            END DO
+          END IF
+        ENDIF
+      END DO
+#endif
+
+
       RETURN
  
 C............................................................................
@@ -377,5 +416,38 @@ C CGRID in mixing ratio [ppmV] X (air density X "total" jacobian) -> mixing rati
          END DO
       END IF
 
+      
+#ifdef isam
+      DO SPC = 1, NSPC_SA
+        IF ( TRANSPORT_SPC( SPC ) ) THEN
+          SPC_CGRID = SPC_INDEX(SPC,2)
+          IF ( SPC_CGRID .LE. N_GC_SPC .OR. SPC_CGRID .GE. NR_STRT ) THEN ! this is not an aerosol
+            DO ITAG = 1, NTAG_SA
+              DO L = 1, NLAYS
+                 DO R = 1, NROWS
+                    DO C = 1, NCOLS
+                      ISAM( C,R,L,SPC,ITAG ) = ISAM( C,R,L,SPC,ITAG ) / RHOJ( C,R,L )
+                    END DO
+                 END DO
+              END DO
+            END DO
+          ELSE ! this is an aerosol (mass only)
+            DO ITAG = 1, NTAG_SA
+              DO L = 1, NLAYS
+                 DO R = 1, NROWS
+                    DO C = 1, NCOLS
+                      ISAM( C,R,L,SPC,ITAG ) = CONV * ISAM( C,R,L,SPC,ITAG ) / JACOBM( C,R,L )
+                    END DO
+                 END DO
+              END DO
+            END DO
+          END IF
+        END IF
+      END DO
+#endif    
+      
+      
+      
+      
       RETURN
       END
