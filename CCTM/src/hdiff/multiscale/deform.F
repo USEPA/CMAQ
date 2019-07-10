@@ -61,6 +61,8 @@ C    11 May 11 D.Wong: incorporated twoway model implementation
 C    28 Jul 11 David Wong: set REVERT to .false. for twoway model case since
 C                          buffered file has only two time steps data
 C    29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
+C    01 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+C                          clauses
 C-----------------------------------------------------------------------
       
       USE GRID_CONF            ! horizontal & vertical domain specifications
@@ -70,6 +72,7 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES         ! stenex (using NOOP_GLOBAL_MAX_MODULE, NOOP_COMM_MODULE)
 #endif
+      use CENTRALIZED_IO_MODULE, only : interpolate_var, window
 
       IMPLICIT NONE
 
@@ -149,15 +152,6 @@ C Jacobian * air density
       INTEGER MY_TEMP
       INTEGER, SAVE :: FRSTROW, LASTROW, FRSTCOL, LASTCOL
 
-      INTEGER   GXOFF, GYOFF            ! global origin offset from file
-      LOGICAL, SAVE :: WINDOW = .FALSE. ! posit same file and global
-                                        ! processing domain
-      INTEGER, SAVE :: NCOLSDENS, NROWSDENS       ! local for DENSJ_BUF
-C for INTERPX
-      INTEGER, SAVE :: STRTCOL,   ENDCOL,   STRTROW,   ENDROW
-      INTEGER       :: STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC
-      INTEGER, SAVE :: STRTCOLMD, ENDCOLMD, STRTROWMD, ENDROWMD
-
 C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
@@ -203,39 +197,10 @@ C Get/compute DX1 & DX2
          RDX1O4 = 0.25 / DX1
          RDX2O4 = 0.25 / DX2
 
-         CALL SUBST_LOOP_INDEX ( 'R', 2, MY_NROWS, -1, MY_TEMP,
+         CALL SUBST_LOOP_INDEX ( 'R', 2, NROWS, -1, MY_TEMP,
      &                           FRSTROW, LASTROW )
-         CALL SUBST_LOOP_INDEX ( 'C', 2, MY_NCOLS, -1, MY_TEMP, 
+         CALL SUBST_LOOP_INDEX ( 'C', 2, NCOLS, -1, MY_TEMP, 
      &                           FRSTCOL, LASTCOL )
-
-         CALL SUBHFILE ( MET_DOT_3D, GXOFF, GYOFF,
-     &                   STRTCOLMD, ENDCOLMD, STRTROWMD, ENDROWMD )
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC, ENDCOLMC, STRTROWMC, ENDROWMC )
-
-         NCOLSDENS = ENDCOLMC - STRTCOLMC + 1
-         NROWSDENS = ENDROWMC - STRTROWMC + 1
-
-         IF ( NCOLSDENS .NE. MY_NCOLS .OR.
-     &        NROWSDENS .NE. MY_NROWS ) THEN
-            WRITE( XMSG,'( A, 4I8 )' ) 'Local Columns or Rows incorrect',
-     &      NCOLSDENS, MY_NCOLS, NROWSDENS, MY_NROWS
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-
-C currently not implemented: case where only one origin component matches file's
-         IF ( GXOFF .NE. 0 .AND. GYOFF .NE. 0 ) THEN
-            WINDOW = .TRUE. ! windowing from file
-            STRTCOL = STRTCOLMC - 1
-            ENDCOL  = ENDCOLMC  + 1
-            STRTROW = STRTROWMC - 1
-            ENDROW  = ENDROWMC  + 1
-         ELSE
-            STRTCOL = STRTCOLMC
-            ENDCOL  = ENDCOLMC
-            STRTROW = STRTROWMC
-            ENDROW  = ENDROWMC
-         END IF
 
       END IF  ! if firstime
  
@@ -278,37 +243,19 @@ C Interpolate Jacobian X Air Density
 
       IF ( WINDOW ) THEN
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPX ( MET_CRO_3D, VNAME, PNAME,
-     &                        STRTCOL,ENDCOL, STRTROW,ENDROW, 1,MLAYS,
-     &                        MDATE, MTIME, DENSJ ) ) THEN
-            XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ)
 
       ELSE ! need to extend data from bndy file
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPX ( MET_CRO_3D, VNAME, PNAME,
-     &                        STRTCOL,ENDCOL, STRTROW,ENDROW, 1,NLAYS,
-     &                        MDATE, MTIME, DENSJ_BUF ) ) THEN
-            XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BUF)
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. INTERPB ( MET_BDY_3D, VNAME, PNAME,
-     &                        MDATE, MTIME, NBNDY*MLAYS,
-     &                        DENSJ_BND ) ) THEN
-            XMSG = 'Could not read ' // VNAME // ' from ' // MET_BDY_3D
-            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BND, 'b')
 
 C Load DENSJ array
 
          DO LVL = 1, MLAYS
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
+            DO ROW = 1, NROWS
+               DO COL = 1, NCOLS
                   DENSJ( COL,ROW,LVL ) = DENSJ_BUF( COL,ROW,LVL )
                END DO
             END DO
@@ -319,24 +266,24 @@ C Fill in DENSJ array for boundaries
          DO LVL = 1, MLAYS
             COUNT = 0
             DO ROW = 0, 0
-               DO COL = 1, MY_NCOLS + 1
+               DO COL = 1, NCOLS + 1
                   COUNT = COUNT + 1
                   DENSJ( COL,ROW,LVL ) = DENSJ_BND( COUNT,LVL )  ! South
                END DO
             END DO
-            DO ROW = 1, MY_NROWS + 1
-               DO COL = MY_NCOLS + 1, MY_NCOLS + 1
+            DO ROW = 1, NROWS + 1
+               DO COL = NCOLS + 1, NCOLS + 1
                   COUNT = COUNT + 1
                   DENSJ( COL,ROW,LVL ) = DENSJ_BND( COUNT,LVL )  ! East
                END DO
             END DO
-            DO ROW = MY_NROWS + 1, MY_NROWS + 1
-               DO COL = 0, MY_NCOLS
+            DO ROW = NROWS + 1, NROWS + 1
+               DO COL = 0, NCOLS
                   COUNT = COUNT + 1
                   DENSJ( COL,ROW,LVL ) = DENSJ_BND( COUNT,LVL )  ! North
                END DO
             END DO
-            DO ROW = 0, MY_NROWS
+            DO ROW = 0, NROWS
                DO COL = 0, 0
                   COUNT = COUNT + 1
                   DENSJ( COL,ROW,LVL ) = DENSJ_BND( COUNT,LVL )  ! West
@@ -349,21 +296,9 @@ C Fill in DENSJ array for boundaries
 C Interpolate Contravariant Velocity components (already at flux points)
 C X Jacobian X Air Density
 
-      VNAME = 'UHAT_JD'   ! x1 component of CV-vel * Jacobian * air density
-      IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-     &                     STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, 1,MLAYS,
-     &                     MDATE, MTIME, UWIND ) ) THEN
-         XMSG = 'Could not read ' // VNAME // ' from ' // MET_DOT_3D
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('UHAT_JD', mdate, mtime, UWIND)
 
-      VNAME = 'VHAT_JD'   ! x2 component of CV-vel * Jacobian * air density
-      IF ( .NOT. INTERPX ( MET_DOT_3D, VNAME, PNAME,
-     &                     STRTCOLMD,ENDCOLMD, STRTROWMD,ENDROWMD, 1,MLAYS,
-     &                     MDATE, MTIME, VWIND ) ) THEN
-         XMSG = 'Could not read ' // VNAME // ' from ' // MET_DOT_3D
-         CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('VHAT_JD', mdate, mtime, VWIND)
 
 C Obtain flux point values of Jacobian * air density and retrieve
 C contravariant velocities 
@@ -374,8 +309,8 @@ C create U/RhoJ - update ghost regions for RhoJ
 
       LOC_UWIND = 0.0   ! array assignment
       DO LVL = 1, MLAYS
-         DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS + 1
+         DO ROW = 1, NROWS
+            DO COL = 1, NCOLS + 1
                DJ = 0.5*( DENSJ( COL,ROW,LVL ) + DENSJ( COL-1,ROW,LVL ) )
                LOC_UWIND( COL,ROW,LVL ) = UWIND( COL,ROW,LVL ) / DJ
             END DO
@@ -388,8 +323,8 @@ C create V/RhoJ - update ghost regions for RhoJ
 
       LOC_VWIND = 0.0   ! array assignment
       DO LVL = 1, MLAYS
-         DO ROW = 1, MY_NROWS + 1
-            DO COL = 1, MY_NCOLS
+         DO ROW = 1, NROWS + 1
+            DO COL = 1, NCOLS
                DJ = 0.5*( DENSJ( COL,ROW,LVL ) + DENSJ( COL,ROW-1,LVL ) )
                LOC_VWIND( COL,ROW,LVL ) = VWIND( COL,ROW,LVL ) / DJ
             END DO
@@ -401,8 +336,8 @@ C Compute wind deformation
 C initialize deformation arrays
 C deformation at all boundary cells are defined to be zero
       DO L = 1, MLAYS
-         DO R = 1, MY_NROWS + 1
-            DO C = 1, MY_NCOLS + 1
+         DO R = 1, NROWS + 1
+            DO C = 1, NCOLS + 1
                DEFORM3D( C,R,L ) = 0.0
             END DO
          END DO
@@ -416,8 +351,8 @@ C deformation at all boundary cells are defined to be zero
 
          DEFMAX = 0.0
 C initialize wind shear components (inner domain only dimensioned)
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DUDX( C,R ) = 0.0
                DUDY( C,R ) = 0.0
                DVDX( C,R ) = 0.0
@@ -427,12 +362,12 @@ C initialize wind shear components (inner domain only dimensioned)
 
 C ORIGINAL by Daewon October 2000
 C Compute gradients only at inner domain
-!        DO R = 1, MY_NROWS
-!           DO C = 1, MY_NCOLS
+!        DO R = 1, NROWS
+!           DO C = 1, NCOLS
 !              C1 = MAX( 1,C-1 )
 !              R1 = MAX( 1,R-1 )
-!              C2 = MIN( C+1,MY_NCOLS )
-!              R2 = MIN( R+1,MY_NROWS )
+!              C2 = MIN( C+1,NCOLS )
+!              R2 = MIN( R+1,NROWS )
 
 !              DUDX( C,R ) = ( UWIND( C,R,L )  - UWIND( C1,R,L ) ) * RDX1
 !              DUDY( C,R ) = ( UWIND( C,R2,L ) - UWIND( C,R1,L ) ) * RDX2O2
@@ -443,9 +378,9 @@ C Compute gradients only at inner domain
 
 C SUGGESTED by Avi October 2000
 C for whole domain (DUDX, DVDY)
-         DO R = 1, MY_NROWS
+         DO R = 1, NROWS
             R1 = R + 1
-            DO C = 1, MY_NCOLS
+            DO C = 1, NCOLS
                C1 = C + 1
                DUDX(C,R) = ( LOC_UWIND( C1,R,L ) - LOC_UWIND( C,R,L ) ) * RDX1
                DVDY(C,R) = ( LOC_VWIND( C,R1,L ) - LOC_VWIND( C,R,L ) ) * RDX2
@@ -462,7 +397,7 @@ C for DUDY inside domain (compute the gradient of the averages)
          DO R = FRSTROW, LASTROW
             R1 = R + 1
             R2 = R - 1
-            DO C = 1, MY_NCOLS
+            DO C = 1, NCOLS
                C1 = C + 1
                UBAR1 = LOC_UWIND( C,R1,L ) + LOC_UWIND( C1,R1,L )
                UBAR2 = LOC_UWIND( C,R2,L ) + LOC_UWIND( C1,R2,L )
@@ -471,7 +406,7 @@ C for DUDY inside domain (compute the gradient of the averages)
             END DO
  
 C for DVDX inner domain (compute the gradient of the averages)
-         DO R = 1, MY_NROWS
+         DO R = 1, NROWS
             R1 = R + 1
             DO C = FRSTCOL, LASTCOL
                C1 = C + 1
@@ -482,14 +417,14 @@ C for DVDX inner domain (compute the gradient of the averages)
                END DO
             END DO
 
-C DUDY = 0 for R=1 and MY_NROWS for all MY_NCOLS
-C DVDX = 0 for C=1 and MY_NCOLS for all MY_NROWS
+C DUDY = 0 for R=1 and NROWS for all NCOLS
+C DVDX = 0 for C=1 and NCOLS for all NROWS
 
 C END of section done by Avi
 
 C Deformation only at inner domain
-         DO R = 1, MY_NROWS
-            DO C = 1, MY_NCOLS
+         DO R = 1, NROWS
+            DO C = 1, NCOLS
                DF1 = DUDX( C,R ) - DVDY( C,R )
                DF2 = DVDX( C,R ) + DUDY( C,R )
                DEFORM3D( C,R,L ) = SQRT( DF1 * DF1 + DF2 * DF2 ) 

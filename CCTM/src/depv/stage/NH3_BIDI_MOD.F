@@ -57,6 +57,7 @@
 !                   J. Bash    Apr   4 13:  Brought in new water, agriculture and snow land use 
 !                                           classification in LSM_MOD to simplify the case structures
 C                   J. Bash:   Nov   7 14:  Modified for the restructuring of vidff.
+!                   D. Wong:   Feb  10 19:  Implemented centralized I/O approach, removed all MY_N clauses
 C-------------------------------------------------------------------------------
 
       Implicit None
@@ -64,10 +65,6 @@ C-------------------------------------------------------------------------------
 
 ! Private variables used in this module and subroutines  
       Real, Save, Allocatable, Private :: frac_ir( :,: ) ! irrigated fraction of ag    
-      Real, Save, Allocatable, Private :: NH4ps1 ( :,:,: ) ! Initial Soil NH4
-      Real, Save, Allocatable, Private :: NH4ps2 ( :,:,: ) ! Initial Soil NH4
-      Real, Save, Allocatable, Private :: pHs1   ( :,:,: )
-      Real, Save, Allocatable, Private :: pHs2   ( :,:,: )
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter   
       Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
       Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
@@ -95,6 +92,8 @@ C-------------------------------------------------------------------------------
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
          Use ASX_DATA_MOD, Only: zsoil1, zsoil2, Grid_Data
          Use LSM_MOD
+         Use depv_data_module
+         Use centralized_io_module
 
          Implicit None 
 ! Includes
@@ -105,92 +104,22 @@ C-------------------------------------------------------------------------------
 
          Integer, Intent( In )  :: jdate
          Integer, Intent( In )  :: jtime   
-         Integer                :: jdate_yest
          Integer                :: c,r,l,k
-         Integer, Parameter :: e2c_cats = 42   ! number of crop catigories
-         Integer            :: gxoff, gyoff    ! global origin offset from file
-         integer            :: strtcol, endcol, strtrow, endrow
-         integer            :: strtcol_medi,  endcol_medi,  strtrow_medi,  endrow_medi
-         integer            :: strtcol_fert,  endcol_fert,  strtrow_fert,  endrow_fert
-         integer            :: strtcol_beld,  endcol_beld,  strtrow_beld,  endrow_beld
-         Integer            :: ALLOCSTAT, N_GMN
-         Real,  Allocatable :: Beld_ag ( :,:,: )        
-         Real               :: Tot_Ag          ! total ag in the grid cell    
+         Integer            :: ALLOCSTAT
          Real,    Parameter :: convl1 = 7.142857e-04   ! ha/m**2 * mol/g N * 1/z_soil_l1 
          Real,    Parameter :: convl2 = 7.142857e-05   ! ha/m**2 * mol/g N * 1/z_soil_l2 
          Real               :: pHfac1
          Real               :: pHfac2
 ! STAGE bidi variables
-         Real,       Allocatable :: F1_NH4     ( :,:,: ) ! fertlizer application to layer 1 
-         Real,       Allocatable :: F2_NH4     ( :,:,: ) ! fertlizer application to layer 2
-         Real,       Allocatable :: Nit1       ( :,:,: ) ! Epic Nitrification layer 1
-         Real,       Allocatable :: Nit2       ( :,:,: ) ! Epic Nitrification layer 2
          Real,       Allocatable :: L1_MIN     ( :,:,: ) ! Epic Layer 1 organic N mineralization
          Real,       Allocatable :: L2_MIN     ( :,:,: ) ! Epic Layer 2 organic N mineralization 
-         Real,       Allocatable :: GMN        ( :,:,: ) ! Epic Layer 1 and 2 N mineralized in Fest-C 1.4
-         Real,       Allocatable :: L1_ON      ( :,:,: ) ! Epic Layer 1 organic N
-         Real,       Allocatable :: L2_ON      ( :,:,: ) ! Epic Layer 2 organic N
-         Real,       Allocatable :: L1_ON_Yest ( :,:,: ) ! Epic Layer 1 organic N
-         Real,       Allocatable :: L2_ON_Yest ( :,:,: ) ! Epic Layer 2 organic N
-         Real,       Allocatable :: F1_ON      ( :,:,: ) ! Epic Layer 1 organic N Fertilization 
-         Real,       Allocatable :: F2_ON      ( :,:,: ) ! Epic Layer 2 organic N Fertilization 
          Real,       Allocatable :: C_knit1    ( :,:,: ) ! EPIC Crop nitrificaiton rate
          Real,       Allocatable :: C_knit2    ( :,:,: ) ! EPIC Crop nitrification rate
-         Real,       Allocatable :: BDc1       ( :,:,: ) ! crop soil bulk density kg/ha
-         Real,       Allocatable :: BDc2       ( :,:,: ) ! crop soil bulk density kg/ha   
          Real,       Allocatable :: fagam1     ( :,: )   ! delta gamma due to fertilizer app and mineralization
          Real,       Allocatable :: fagam2     ( :,: )   ! delta gamma due to fertilizer app and mineralization           
  
          Character( 16 ), Parameter :: pname = 'Init_ABFlux' 
-         Character( 16 )            :: vname
          Character( 96 )            :: xmsg = ' '
-         Character( 20 )            :: Beld_Names( e2c_cats )
-
-C Some compilers do not pad with blank characters in data initialization
-C                          '12345678901234567890'
-         Data Beld_Names / 'Hay                 ',  !  1
-     &                     'Hay_ir              ',  !  2
-     &                     'Alfalfa             ',  !  3
-     &                     'Alfalfa_ir          ',  !  4
-     &                     'Other_Grass         ',  !  5
-     &                     'Other_Grass_ir      ',  !  6
-     &                     'Barley              ',  !  7
-     &                     'Barley_ir           ',  !  8
-     &                     'BeansEdible         ',  !  9
-     &                     'BeansEdible_ir      ',  ! 10
-     &                     'CornGrain           ',  ! 11
-     &                     'CornGrain_ir        ',  ! 12
-     &                     'CornSilage          ',  ! 13
-     &                     'CornSilage_ir       ',  ! 14
-     &                     'Cotton              ',  ! 15
-     &                     'Cotton_ir           ',  ! 16
-     &                     'Oats                ',  ! 17
-     &                     'Oats_ir             ',  ! 18
-     &                     'Peanuts             ',  ! 19
-     &                     'Peanuts_ir          ',  ! 20
-     &                     'Potatoes            ',  ! 21
-     &                     'Potatoes_ir         ',  ! 22
-     &                     'Rice                ',  ! 23
-     &                     'Rice_ir             ',  ! 24
-     &                     'Rye                 ',  ! 25
-     &                     'Rye_ir              ',  ! 26
-     &                     'SorghumGrain        ',  ! 27
-     &                     'SorghumGrain_ir     ',  ! 28
-     &                     'SorghumSilage       ',  ! 29
-     &                     'SorghumSilage_ir    ',  ! 30
-     &                     'Soybeans            ',  ! 31
-     &                     'Soybeans_ir         ',  ! 32
-     &                     'Wheat_Spring        ',  ! 33
-     &                     'Wheat_Spring_ir     ',  ! 34
-     &                     'Wheat_Winter        ',  ! 35
-     &                     'Wheat_Winter_ir     ',  ! 36
-     &                     'Other_Crop          ',  ! 37
-     &                     'Other_Crop_ir       ',  ! 38
-     &                     'Canola              ',  ! 39
-     &                     'Canola_ir           ',  ! 40
-     &                     'Beans               ',  ! 41
-     &                     'Beans_ir            ' / ! 42
- 
 
 ! Find the Canadian fertilizer factor based off of Sheppard et al 2010 Canadian J. Soil Sci. & 
 ! Zhang et al. 2010 JGR 
@@ -217,56 +146,10 @@ C                          '12345678901234567890'
                C_gam = 630.0
          End Select           
                   
-! get soil pH to estimate the emissions potential
-! time in the files is not the same    
-         If ( .Not. Open3( E2C_SOIL, fsread3, pname ) ) Then
-           xmsg = 'Could not open '// E2C_SOIL // ' file'
-           Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
-         End If
-
-         Call Subhfile ( E2C_SOIL, gxoff, gyoff, strtcol, endcol, strtrow, endrow )
-
-         If ( .Not. Allocated ( pHs1 ) ) Then
-            Allocate ( pHs1 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-
-         vname = 'L1_PH'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, pHs1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-         If ( .Not. Allocated ( pHs2 ) ) Then
-            Allocate ( pHs2 ( my_ncols,my_nrows,e2c_cats ) )
-         End If
-         
-         vname = 'L2_PH'
-         If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, strtrow, endrow,
-     &                        strtcol, endcol, jdate, 0, pHs2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_SOIL
-            Go To 1001
-         End If
-! get soil fertilizer applicaiton rates and dates
-! time in the files is not the same    
-         If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
-           xmsg = 'Could not open '// E2C_FERT // ' file'
-           Call M3exit ( pname, 0, 0, xmsg, xstat1 )
-         End If
-         Allocate( F1_NH4     ( my_ncols,my_nrows,e2c_cats ), 
-     &             F2_NH4     ( my_ncols,my_nrows,e2c_cats ), 
-     &             Nit1       ( my_ncols,my_nrows,e2c_cats ),
-     &             Nit2       ( my_ncols,my_nrows,e2c_cats ),
-     &             L1_MIN     ( my_ncols,my_nrows,e2c_cats ),
-     &             L2_MIN     ( my_ncols,my_nrows,e2c_cats ),    
-     &             L1_ON      ( my_ncols,my_nrows,e2c_cats ),
-     &             L2_ON      ( my_ncols,my_nrows,e2c_cats ), 
-     &             C_Knit1    ( my_ncols,my_nrows,e2c_cats ),
-     &             C_Knit2    ( my_ncols,my_nrows,e2c_cats ),
-     &             BDc1       ( my_ncols,my_nrows,e2c_cats ),
-     &             BDc2       ( my_ncols,my_nrows,e2c_cats ),
-     &             Beld_ag    ( my_ncols,my_nrows,e2c_cats ),
-     &             NH4ps1     ( my_ncols,my_nrows,e2c_cats ),
-     &             NH4ps2     ( my_ncols,my_nrows,e2c_cats ),
+         Allocate( L1_MIN     ( ncols,nrows,e2c_cats ),
+     &             L2_MIN     ( ncols,nrows,e2c_cats ),    
+     &             C_Knit1    ( ncols,nrows,e2c_cats ),
+     &             C_Knit2    ( ncols,nrows,e2c_cats ),
      &             STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating EPIC vars'
@@ -277,117 +160,21 @@ C                          '12345678901234567890'
          C_Knit1 = 0.0
          C_Knit2 = 0.0
 
-         If ( .Not. desc3( E2C_FERT ) ) Then
-            xmsg = 'Could not get ' // E2C_FERT // ' file description'
-            Call m3exit( pname, jdate, jtime, xmsg, xstat1 )
-         End If                                   
-
-         N_GMN = INDEX1( 'GMN', NVARS3D, VNAME3D )
-         
-         Call Subhfile ( E2C_FERT, gxoff, gyoff, strtcol_fert, endcol_fert, 
-     &                   strtrow_fert, endrow_fert )
-
-         vname = 'L1_BD'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, BDc1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-
-         vname = 'L2_BD'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, BDc2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If       
-
-         vname = 'L1_NH3'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, NH4ps1) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-         vname = 'L2_NH3'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate, 0, NH4ps2) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-         vname = 'L1_NITR'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, Nit1 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-         vname = 'L2_NITR'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, Nit2 ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If       
-         vname = 'L1_ON'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate, 0, L1_ON ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If
-         vname = 'L2_ON'
-         If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate, 0, L2_ON ) ) Then
-            Write( xmsg,9001 ) vname, E2C_FERT
-            Go To 1001
-         End If      
-
-         If( N_GMN .Gt. 0 ) Then ! Using Fest-C 1.4 output
-            Allocate( GMN     ( my_ncols,my_nrows,e2c_cats ), STAT = ALLOCSTAT )
-            If ( ALLOCSTAT .Ne. 0 ) Then
-               XMSG = 'Failure allocating GMN'
-               Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            End If
-
-            vname = 'GMN'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                    strtcol_fert, endcol_fert, jdate, 0, GMN ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If        
-           
-         End If
-
-! get BELD4 land use types time independent files. 
-         If ( .Not. Open3( BELD4_LU, fsread3, pname ) ) Then
-           xmsg = 'Could not open '// BELD4_LU // ' file'
-           Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
-         End If                
-         Call Subhfile ( BELD4_LU, gxoff, gyoff, strtcol_beld, endcol_beld, 
-     &                   strtrow_beld, endrow_beld )
-
-         Do k = 1, e2c_cats
-            vname = BELD_Names(k)
-            If ( .Not. Interpx ( BELD4_LU, vname, pname, strtcol_beld, endcol_beld,
-     &                           strtrow_beld, endrow_beld, 1, 1, jdate, jtime,
-     &                           Beld_ag( :,:,k ) ) ) Then   
-               Write( xmsg,9001 ) vname, BELD4_LU
-               Go To 1001
-            End If
-         End Do
          Beld_ag = 0.01 * Beld_ag   ! convert to fraction
 
 ! Allocate variable needed soil processes and fertilization
-         Allocate( gamma1     ( my_ncols,my_nrows ),
-     &             gamma2     ( my_ncols,my_nrows ),
-     &             fagam1     ( my_ncols,my_nrows ),
-     &             fagam2     ( my_ncols,my_nrows ), 
-     &             MHp1       ( my_ncols,my_nrows ),
-     &             MHp2       ( my_ncols,my_nrows ),
-     &             BDs1       ( my_ncols,my_nrows ),
-     &             BDs2       ( my_ncols,my_nrows ),
-     &             Knit1      ( my_ncols,my_nrows ),
-     &             Knit2      ( my_ncols,my_nrows ),
-     &             NH4_G1     ( my_ncols,my_nrows ),
-     &             NH4_G2     ( my_ncols,my_nrows ),
-     &             frac_ir    ( my_ncols,my_nrows ), 
-     &             frac_ag    ( my_ncols,my_nrows ), 
+         Allocate( fagam1     ( ncols,nrows ),
+     &             fagam2     ( ncols,nrows ), 
+     &             MHp1       ( ncols,nrows ),
+     &             MHp2       ( ncols,nrows ),
+     &             BDs1       ( ncols,nrows ),
+     &             BDs2       ( ncols,nrows ),
+     &             Knit1      ( ncols,nrows ),
+     &             Knit2      ( ncols,nrows ),
+     &             NH4_G1     ( ncols,nrows ),
+     &             NH4_G2     ( ncols,nrows ),
+     &             frac_ir    ( ncols,nrows ), 
+     &             frac_ag    ( ncols,nrows ), 
      &              STAT = ALLOCSTAT )
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating soil vars'
@@ -411,14 +198,14 @@ C                          '12345678901234567890'
 
 ! get fertilizer from the previous month to estimate soil NH4+        
 ! time in the files is not the same
-         If ( .Not. Open3( INIT_MEDC_1, fsread3, pname ) ) Then
+         If ( .Not. MEDC_AVAIL ) Then
             Write(Logdev,*) 'Estimating soil NHx from EPIC output'
-            If ( .Not. Open3( E2C_FERT, fsread3, pname ) ) Then
-               xmsg = 'Could not open '// E2C_FERT // ' file'
+            If ( .Not. E2C_CHEM_AVAIL ) Then
+               xmsg = E2C_CHEM // ' file not available'
                Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
             End If
 
-            If( N_GMN .Gt. 0 ) Then
+            If( GMN_AVAIL ) Then
 ! NH4 from organic N mineralization is not layer specific in Fest-C v1.4 therefore it is allocated proportionally
 ! to the organic N from which it was mineralized.
                Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 )
@@ -435,96 +222,44 @@ C                          '12345678901234567890'
 ! evaded ammonia and nitrification back to the soil NH3 to account for losses.
             F1_NH4 = Nit1 / 0.95 + L1_MIN
             F2_NH4 = Nit2 / 0.95 + L2_MIN
-
-         ! parameters
-            Do r = 1, my_nrows
-               Do c = 1, my_ncols
-                  Tot_Ag = 0.0                  
-                  Do l = 1, e2c_cats
-                     Tot_Ag = Tot_Ag + Beld_ag( c,r,l )
-                     If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
-                        frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
-                     End If                    
-                     If( .Not. IsNaN( pHs1( c,r,l ) )   .And.
-     &                   .Not. IsNaN( pHs2( c,r,l ) )   .And.
-     &                   .Not. IsNaN( NH4ps1( c,r,l ) ) .And.
-     &                   .Not. IsNaN( NH4ps2( c,r,l ) ) .And.
-     &                    Beld_ag( c,r,l ) .Gt. 0.0 ) Then
-                        If( pHs1( c,r,l ) .Gt. 0.0 ) Then
-                           pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
-                           pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
-                        Else
-                           pHfac1 = 0.0
-                           pHfac2 = 0.0
-                        End If
-! convert units from kg/ha N to mol/l
-                        If ( pHs1( c,r,l )   .Gt. 4.0       .And.
-     &                       pHs2( c,r,l )   .Gt. 4.0       .And.
-     &                       pHs1( c,r,l )   .Lt. 9.0       .And.
-     &                       pHs2( c,r,l )   .Lt. 9.0       .And.
-     &                       NH4ps1( c,r,l ) .Gt. 0.0       .And.
-     &                       NH4ps2( c,r,l ) .Gt. 0.0     ) Then
-                           gamma1( c,r ) = gamma1( c,r ) + convl1 * NH4ps1( c,r,l )
-     &                                   / pHfac1 * Beld_ag( c,r,l )
-                           MHp1( c,r )   = MHp1( c,r ) + Beld_ag( c,r,l ) * pHfac1
-                           BDs1( c,r )   = BDs1( c,r ) + Beld_ag( c,r,l ) * BDc1( c,r,l )
-                           Knit1( c,r )  = Knit1( c,r ) + Beld_ag( c,r,l ) * Nit1( c,r,l )
-                           Knit2( c,r )  = Knit2( c,r ) + Beld_ag( c,r,l ) * Nit2( c,r,l )
-                           NH4_G1( c,r ) = NH4_G1( c,r ) + Beld_ag( c,r,l ) * NH4ps1( c,r,l )
-                           NH4_G2( c,r ) = NH4_G2( c,r ) + Beld_ag( c,r,l ) * NH4ps2( c,r,l )
-                           gamma2( c,r ) = gamma2( c,r ) + convl2 * NH4ps2( c,r,l )
-     &                                   / pHfac2 * Beld_ag( c,r,l )
-                           MHp2( c,r )   = MHp2( c,r ) + Beld_ag( c,r,l ) * pHfac2
-                           BDs2( c,r )   = BDs2( c,r ) + Beld_ag( c,r,l ) * BDc2( c,r,l )
-                           If ( .Not. IsNaN( F1_NH4( c,r,l ) ) .And.
-     &                                       F1_NH4( c,r,l ) .Gt. 0.0 ) Then
-! Surface applied fertlizer
-                              fagam1( c,r ) = fagam1( c,r ) + F1_NH4( c,r,l ) * Beld_ag( c,r,l )
-     &                                      * convl1 / pHfac1
-                           End If
-                           If ( .Not. IsNaN( F2_NH4( c,r,l ) ) .And.
-     &                                       F2_NH4( c,r,l ) .Gt. 0.0 ) Then
-! Injected fertilizer
-                              fagam2( c,r ) = fagam2( c,r ) + F2_NH4( c,r,l ) * Beld_ag( c,r,l )
-     &                                      * convl2 / pHfac2
-                           End If
-                           If ( IsNaN( fagam1( c,r ) ) .Or. IsNaN( fagam2( c,r ) ) ) Then
-                               xmsg = 'NaN in fagam Calculation'
-                               Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
-                           End If
-                        End If
-                     End If
-                  End Do ! e2c_cats
-                  frac_ag( c,r ) = Tot_Ag
-                  If ( Tot_Ag .ge. 1.0e-6 .And. ! ~ 1.5 ha per grid cell
-     &                 MHp1( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
-     &                 MHp1( c,r ) / Tot_Ag .Lt. 1.0e-4 .And.
-     &                 MHp2( c,r ) / Tot_Ag .Gt. 1.0e-9 .And.
-     &                 MHp2( c,r ) / Tot_Ag .Lt. 1.0e-4 ) Then
-! get the agricultural only relevant number
-                     MHp1( c,r ) = MHp1( c,r ) / Tot_Ag
-                     MHp2( c,r ) = MHp2( c,r ) / Tot_Ag
-                     gamma1( c,r ) = ( gamma1( c,r ) + fagam1( c,r ) ) / Tot_Ag
-                     gamma2( c,r ) = ( gamma2( c,r ) + fagam2( c,r ) ) / Tot_Ag
-                     BDs1( c,r )    = BDs1( c,r ) / Tot_Ag
-                     BDs2( c,r )    = BDs2( c,r ) / Tot_Ag 
-                     frac_ir( c,r ) = frac_ir( c,r ) / Tot_Ag
-! Set a minimum Gamma for Ag based off of Zhang et al. 2010
-                     gamma1( c,r ) = max( gamma1( c,r ), 630.0 )
-                     gamma2( c,r ) = max( gamma2( c,r ), 630.0 )
-                     If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or.
-     &                    IsNaN( MHp2( c,r ) ) .Or. IsNaN( MHp2( c,r ) ) ) Then
-                        xmsg = 'NaN in grid cell Gamma Calculation'
-                        Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
-                     End If
-                  Else
-                     MHp1( c,r ) = 0.0
-                     MHp2( c,r ) = 0.0
-                     gamma1( c,r ) = 0.0
-                     gamma2( c,r ) = 0.0
-                  End If
-               End Do ! c
-            End Do ! r
+! Calculate grid cell values from the EPIC crop specific data            
+            frac_ag  = sum(Beld_ag,DIM=3)
+            Do l = 1, e2c_cats
+               Where( pHs1(:,:,l) .Gt. 4.0 .And. pHs1(:,:,l) .Lt. 9.0 .And. Beld_ag(:,:,l) .Gt. 0.0 )
+                  MHp1   = MHp1   + Beld_ag(:,:,l) * 10.0 ** (-pHs1(:,:,l) )
+                  MHp2   = MHp2   + Beld_ag(:,:,l) * 10.0 ** (-pHs2(:,:,l) )
+                  BDs1   = BDs1   + Beld_ag(:,:,l) * BDc1(:,:,l)
+                  BDs2   = BDs2   + Beld_ag(:,:,l) * BDc2(:,:,l)
+                  Knit1  = Knit1  + Beld_ag(:,:,l) * Nit1(:,:,l)
+                  Knit2  = Knit2  + Beld_ag(:,:,l) * Nit2(:,:,l)
+                  NH4_G1 = NH4_G1 + Beld_ag(:,:,l) * NH4ps1(:,:,l)
+                  NH4_G2 = NH4_G2 + Beld_ag(:,:,l) * NH4ps2(:,:,l)
+                  gamma1 = gamma1 + convl1 * NH4ps1(:,:,l) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
+                  gamma2 = gamma2 + convl2 * NH4ps2(:,:,l) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
+                  fagam1 = fagam1 + convl1 * F1_NH4(:,:,l) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
+                  fagam2 = fagam2 + convl2 * F2_NH4(:,:,l) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
+               End Where
+               If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
+                  frac_ir = frac_ir + Beld_ag( :,:,l )
+               End If                    
+            End Do
+            Where( frac_ag .gt. 0.0 )
+               MHp1 = MHp1 / frac_ag
+               MHp2 = MHp2 / frac_ag
+               gamma1 = max(( gamma1 + fagam1 ) / frac_ag, 630.0 )
+               gamma2 = max(( gamma2 + fagam2 ) / frac_ag, 630.0 )
+               BDs1   = BDs1 / frac_ag
+               BDs2   = BDs2 / frac_ag
+               frac_ir = frac_ir / frac_ag
+            End Where
+! Eliminate unrealistically low bulk density 
+            Where( BDs1 .Lt. 1.0 ) BDs1 = 1.6
+            Where( BDs2 .Lt. 1.0 ) BDs2 = 1.6
+! prevent missmatched data between soil and daily files
+            Where( MHp1 .Eq. 0.0 .Or. MHp2 .Eq. 0.0 )
+               gamma1 = 0.0
+               gamma2 = 0.0  
+            End Where
 
             Where( NH4_G1 .Gt. 0.0 )
                Knit1 = min(-log(NH4_G1 / (NH4_G1 + Knit1)),-log(0.5))
@@ -538,86 +273,8 @@ C                          '12345678901234567890'
             End Where
 
          Else ! read
-            Call Subhfile ( INIT_MEDC_1, gxoff, gyoff, strtcol_medi, endcol_medi, 
-     &                      strtrow_medi, endrow_medi )
 
-! for whatever reason the jdate and jtime get messed up by the e2c files
-            Write( Logdev,* ) 'Reading soil NHx from Previous CMAQ run'
-
-            vname = 'Gamma1'
-            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow_medi, endrow_medi,
-     &                           strtcol_medi, endcol_medi, jdate, 000000, gamma1 ) ) Then
-               Write( xmsg,9001 ) vname, INIT_MEDC_1
-               Go To 1001
-            End If
-            vname = 'Gamma2'
-            If ( .Not. Xtract3 ( INIT_MEDC_1, vname, 1, 1, strtrow_medi, endrow_medi,
-     &                           strtcol_medi, endcol_medi, jdate, 000000, gamma2 ) ) Then
-               Write( xmsg,9001 ) vname, INIT_MEDC_1
-               Go To 1001
-            End If
-            vname = 'L1_ANH3'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                          strtcol_fert, endcol_fert, jdate, 0, F1_NH4 ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-            vname = 'L2_ANH3'
-            If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                          strtcol_fert, endcol_fert, jdate, 0, F2_NH4 ) ) Then
-               Write( xmsg,9001 ) vname, E2C_FERT
-               Go To 1001
-            End If
-
-            If( N_GMN .Le. 0 ) Then
-
-               If( MOD(jdate,1000) .Eq. 1 ) Then
-                  If( MOD(jdate,4000) .Eq. 0 .And. MOD(jdate,100000) .Eq. 0 .And. MOD(jdate,400000) .Eq. 0) Then
-                     jdate_yest = (INT(jdate/1000)-1)*1000+366
-                  Else ! not a leap year
-                     jdate_yest = (INT(jdate/1000)-1)*1000+365
-                  End If
-               Else 
-                  jdate_yest = jdate-1
-               End If
-
-               Allocate( L1_ON_Yest ( my_ncols,my_nrows,e2c_cats ),
-     &                   L2_ON_Yest ( my_ncols,my_nrows,e2c_cats ),
-     &                   F1_ON      ( my_ncols,my_nrows,e2c_cats ),
-     &                   F2_ON      ( my_ncols,my_nrows,e2c_cats ),
-     &                   STAT = ALLOCSTAT )
-               If ( ALLOCSTAT .Ne. 0 ) Then
-                  XMSG = 'Failure allocating organic N vars'
-                  Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               End If
-
-               vname = 'L1_AON'
-               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                          strtcol_fert, endcol_fert, jdate, 0, F1_ON ) ) Then
-                  Write( xmsg,9001 ) vname, E2C_FERT
-                  Go To 1001
-               End If
-               vname = 'L2_AON'
-               If ( .Not. Xtract3 (E2C_FERT, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                             strtcol_fert, endcol_fert, jdate, 0, F2_ON ) ) Then
-                  Write( xmsg,9001 ) vname, E2C_FERT
-                  Go To 1001
-               End If   
-
-               vname = 'L1_ON'
-               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate_yest, 0, L1_ON_Yest ) ) Then
-                  Write( xmsg,9001 ) vname, E2C_FERT
-                  Go To 1001
-               End If
-               vname = 'L2_ON'
-               If ( .Not. Xtract3 (E2C_FERT_YEST, vname, 1, e2c_cats, strtrow_fert, endrow_fert,
-     &                       strtcol_fert, endcol_fert, jdate_yest, 0, L2_ON_Yest ) ) Then
-                  Write( xmsg,9001 ) vname, E2C_FERT
-                  Go To 1001
-               End If 
-            End If
-            If( N_GMN .Gt. 0 ) Then
+            If( GMN_AVAIL ) Then
 ! NH4 from organic N mineralization is not layer specific in Fest-C v1.4 therefore it is allocated proportionally
 ! to the organic N from which it was mineralized.
                Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 )
@@ -648,81 +305,44 @@ C                          '12345678901234567890'
             End If
             F1_NH4  = F1_NH4 + L1_MIN
             F2_NH4  = F2_NH4 + L2_MIN
-
-            do r = 1, my_nrows
-               Do c = 1, my_ncols
-                  Tot_Ag = 0.0 
-                  Do l = 1, e2c_cats
-                     Tot_Ag = Tot_Ag + Beld_ag( c,r,l )
-                     If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
-                           frac_ir( c,r ) = frac_ir( c,r ) + Beld_ag( c,r,l )
-                     End If
-                     If( .Not. IsNaN( pHs1( c,r,l ) )   .And.
-     &                   .Not. IsNaN( pHs2( c,r,l ) )   .And.
-     &                    Beld_ag( c,r,l ) .Gt. 0.0 ) Then
-                        If( pHs1( c,r,l ) .Gt. 0.0 ) Then
-                           pHfac1 = 10.0 ** (-pHs1( c,r,l ) )
-                           pHfac2 = 10.0 ** (-pHs2( c,r,l ) )
-                        Else
-                           pHfac1 = 0.0
-                           pHfac2 = 0.0
-                        End If
-! convert units from kg/ha N to mol/l 
-                        If ( pHs1( c,r,l )   .Gt. 4.0       .And.
-     &                       pHs2( c,r,l )   .Gt. 4.0       .And.
-     &                       pHs1( c,r,l )   .Lt. 9.0       .And.
-     &                       pHs2( c,r,l )   .Lt. 9.0 ) Then
-                           MHp1( c,r )   = MHp1( c,r ) + Beld_ag( c,r,l ) * pHfac1
-                           MHp2( c,r )   = MHp2( c,r ) + Beld_ag( c,r,l ) * pHfac2
-                           BDs1( c,r )   = BDs1( c,r ) + Beld_ag( c,r,l ) * BDc1( c,r,l )
-                           BDs2( c,r )   = BDs2( c,r ) + Beld_ag( c,r,l ) * BDc2( c,r,l )
-                           Knit1( c,r )  = Knit1( c,r ) + Beld_ag( c,r,l ) * Nit1( c,r,l )
-                           Knit2( c,r )  = Knit2( c,r ) + Beld_ag( c,r,l ) * Nit2( c,r,l )
-                           NH4_G1( c,r ) = NH4_G1( c,r ) + Beld_ag( c,r,l ) * NH4ps1( c,r,l )
-                           NH4_G2( c,r ) = NH4_G2( c,r ) + Beld_ag( c,r,l ) * NH4ps2( c,r,l )
-                           If ( .Not. IsNaN( F1_NH4( c,r,l ) ) .And. 
-     &                           F1_NH4( c,r,l ) .Gt. 0.0    ) Then
-! surface applied fertilizer                        
-                                fagam1( c,r ) = fagam1( c,r ) + F1_NH4( c,r,l ) * Beld_ag( c,r,l )
-     &                                       * convl1 / pHfac1
-                           End If
-                           If ( .Not. IsNaN( F2_NH4( c,r,l ) ) .And. 
-     &                           F2_NH4( c,r,l ) .Gt. 0.0    ) Then
-! Injected fertilizer                        
-                                fagam2( c,r ) = fagam2( c,r ) + F2_NH4( c,r,l )* Beld_ag( c,r,l )
-     &                                       * convl2 / pHfac2
-                           End If
-                           If ( IsNaN( fagam1( c,r ) ) .Or. IsNaN( fagam2( c,r ) ) ) Then
-                              xmsg = 'NaN in fagam Calculation'
-                              Call M3exit( pname, jdate, jtime, xmsg, xstat1)
-                        End If   
-                        End If
-                     End If                      
-                  End Do ! e2c_cats
-                  frac_ag( c,r ) = Tot_Ag 
-! Agricultural only numbers were written to file                  
-                  If ( Tot_Ag .Ge. 1.0e-6  .And.
-     &                 MHp1( c,r ) .Gt. 1.0e-9 .And.
-     &                 MHp1( c,r ) .Lt. 1.0e-4 .And. 
-     &                 MHp2( c,r ) .Gt. 1.0e-9 .And.
-     &                 MHp2( c,r ) .Lt. 1.0e-4 ) Then
-! get the agricultural only relevant number                                 
-                     gamma1( c,r )  = ( gamma1( c,r )*Tot_Ag + fagam1( c,r ) ) / Tot_Ag
-                     gamma2( c,r )  = ( gamma2( c,r )*Tot_Ag + fagam2( c,r ) ) / Tot_Ag   
-                     BDs1( c,r )    = BDs1( c,r ) / Tot_Ag
-                     BDs2( c,r )    = BDs2( c,r ) / Tot_Ag
-                     frac_ir( c,r ) = frac_ir( c,r ) / Tot_Ag
-! Set a minimum Gamma for Ag based off of Zhang et al. 2010
-                     gamma1( c,r ) = max( gamma1( c,r ), 630.0 )
-                     gamma2( c,r ) = max( gamma2( c,r ), 630.0 )
-                     If ( IsNaN( gamma1( c,r ) ) .Or. IsNaN( gamma2( c,r ) ) .Or. 
-     &                    IsNaN( MHp2( c,r ) ) .Or. IsNaN( MHp2( c,r ) )) Then
-                        xmsg = 'NaN in grid cell Gamma Calculation'
-                        Call M3exit( pname, jdate, jtime, xmsg, xstat1 )
-                     End If   
-                  End If
-               End Do ! c
-            End Do ! r
+! Calculate grid cell values from the EPIC crop specific data            
+            frac_ag  = sum(Beld_ag,DIM=3)
+            Do l = 1, e2c_cats
+               Where( pHs1(:,:,l) .Gt. 4.0 .And. pHs1(:,:,l) .Lt. 9.0 .And. Beld_ag(:,:,l) .Gt. 0.0 )
+                  MHp1   = MHp1   + Beld_ag(:,:,l) * 10.0 ** (-pHs1(:,:,l) )
+                  MHp2   = MHp2   + Beld_ag(:,:,l) * 10.0 ** (-pHs2(:,:,l) )
+                  BDs1   = BDs1   + Beld_ag(:,:,l) * BDc1(:,:,l)
+                  BDs2   = BDs2   + Beld_ag(:,:,l) * BDc2(:,:,l)
+                  Knit1  = Knit1  + Beld_ag(:,:,l) * Nit1(:,:,l)
+                  Knit2  = Knit2  + Beld_ag(:,:,l) * Nit2(:,:,l)
+                  NH4_G1 = NH4_G1 + Beld_ag(:,:,l) * NH4ps1(:,:,l)
+                  NH4_G2 = NH4_G2 + Beld_ag(:,:,l) * NH4ps2(:,:,l)
+                  gamma1 = gamma1 + convl1 * NH4ps1(:,:,l) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
+                  gamma2 = gamma2 + convl2 * NH4ps2(:,:,l) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
+                  fagam1 = fagam1 + convl1 * F1_NH4(:,:,l) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
+                  fagam2 = fagam2 + convl2 * F2_NH4(:,:,l) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
+               End Where
+               If ( Index( Beld_Names( l ), '_ir' ) .Gt. 0 ) Then
+                  frac_ir = frac_ir + Beld_ag( :,:,l )
+               End If                    
+            End Do
+            Where( frac_ag .gt. 0.0 )
+               MHp1 = MHp1 / frac_ag
+               MHp2 = MHp2 / frac_ag
+               gamma1 = max( gamma1 + fagam1 / frac_ag, 630.0 )
+               gamma2 = max( gamma2 + fagam2 / frac_ag, 630.0 )
+               BDs1   = BDs1 / frac_ag
+               BDs2   = BDs2 / frac_ag
+               frac_ir = frac_ir / frac_ag
+            End Where
+! Eliminate unrealistically low bulk density 
+            Where( BDs1 .Lt. 1.0 ) BDs1 = 1.6
+            Where( BDs2 .Lt. 1.0 ) BDs2 = 1.6
+! prevent missmatched data between soil and daily files
+            Where( MHp1 .Eq. 0.0 .Or. MHp2 .Eq. 0.0 )
+               gamma1 = 0.0
+               gamma2 = 0.0  
+            End Where
 
             Where( NH4_G1 .Gt. 0.0 )
                Knit1 = min(-log(NH4_G1 / (NH4_G1 + Knit1)),-log(0.5))
@@ -768,14 +388,13 @@ C-------------------------------------------------------------------------------
          
          Include SUBST_FILES_ID  ! file name parameters
 
-         Integer, Intent( IN )  :: r, c, l, s ! row
+         Integer, Intent( IN )  :: r, c, l, s 
          Real,    Intent( IN )  :: diff     ! NH3 diffusion in air m2/s
          Real,    Intent( OUT ) :: NH3_st   ! Stomatal Compensation point
          Real,    Intent( OUT ) :: NH3_g    ! ground Compensation point
          Real,    Intent( OUT ) :: Rg       ! Soil diffusive resistance to soil water
          
          Real                   :: cnh3g1, cnh3g2   ! NH3 compensation concentration for ground [ppm]
-         Real                   :: gammas       ! [NH4+]/[H+]
          Real                   :: mNH4         ! Soil total NH4+ mg N / Kg
          Real                   :: Ka           ! NH4 acid dissociation constant
          Real                   :: coef_a       ! intermediate variable to solve for soil solution NHx
@@ -795,10 +414,8 @@ C-------------------------------------------------------------------------------
          Real,        Parameter :: onethree = 1.0/3.0
          Real,        Parameter :: MolN     = 14.007  ! g/mol N
          Real,        Parameter :: MolNH3   = 17.01  ! g/mol NH3         
-         Real( 8 )              :: agfrac
          Real                   :: wg_ir        ! 1 cm soil moisture  
          Real                   :: w5cm, cg         ! soil moisture in top 5 cm (vol frc)
-         Real( 8 )              :: watfrac ! water fraction
 
          Integer                :: j
 ! Point were soil solution NH4 equals half the maximum sorption capacity Venteria et al. Sci. Rep. doi:10.1038/srep12153
@@ -875,7 +492,7 @@ C-------------------------------------------------------------------------------
                   NH4_sol = (-coef_b+sqrt(coef_b**2.0-4.0*coef_a*coef_c))/(2.0*coef_a)
                   NH3_sol = NH4_sol*Ka/1.0e-7 ! mg N/l
                   cnh3g1  = (NH4_sol+NH3_sol)*1.0e-3/14.0/1.0e-7
-               Else 
+               Else
                   cg = wg_ir/BDs1( c,r ) ! L water / kg soil
                   mNH4 = gamma1( c,r )*MHp1( c,r )/BDs1( c,r )*14.0*1.0e3
                   Ka      = 5.68853e-10*exp(-6248.151*(1.0/MET_DATA%SoiT1( c,r )-1.0/298.15))
@@ -999,33 +616,22 @@ C-------------------------------------------------------------------------------
          Integer,   Intent( IN )    :: R      ! Row
          Real,      Intent( IN )    :: flux_ag ! ag emissions ppm*m/s
 
-         Real    :: ag_tot ! total agriculture
-         Real    :: fTg    ! nitrification temperature factor
-         Real    :: fSWg   ! nitrification Soil Water factor
-         Real    :: fpHg   ! nitrification pH factor 
-         Real    :: fU10   ! EPIC wind speed volitization factor
          Real    :: Kn     ! nitrification rate 1/s
          Real    :: Knit   ! EPIC combined nitrification rate
          Real    :: kn_max ! EPIC maximum nitrification rate
          Real    :: Kvs    ! Air-soil exchange rate for aqueous NH4+
          Real    :: kvg    ! Air-soil exchange rate for gas phase NH3
          Real    :: MNHx   ! molar soil water NH4+ + NH3 conc.
-         Real    :: wg25   ! wilting point +0.25*(field capacity-wilting point)
-         Real    :: SWF    ! Soil water nutreint cycling factor
          Real    :: pHsl   ! Soil pH
          Real    :: T_Soil ! Soil T
          Real    :: NH3_flux  ! mol/l/s emissions are positive
          Real    :: MHp       ! molar H concentration
          Real    :: gam       ! updated land use specific gamma
-         Real    :: mean_gam  ! Grid cell mean gamma
          Real    :: MV_air    ! Molar volume of air L/mol
 
-
-         Integer :: i   ! loop counter
          CHARACTER( 96 )            :: xmsg = ' '
          Character( 16 ), Parameter :: pname = 'Calc_Nitrif' 
 
-!         If( soil_dep .Eq. 0.0 .And. soil_emis .Eq. 0.0 ) Return
 ! get the correct soil temp
          If(zsoil .Eq. zsoil1 ) Then
             T_Soil = MET_DATA%SoiT1( C,R )
@@ -1074,13 +680,11 @@ C-------------------------------------------------------------------------------
             End If
           Else ! evasion
             Kvs    = -log(1.0-NH3_flux/MNHx)
-!            Write(logdev,*) 'Flux/soil NH4', NH3_flux/MNHx
 ! In epic the nitrification and evasion rates are added in a combined nitrification/evasion rate. 
 ! Then the emissions are assumed to be 5% of the total combined loss. Here we calcuate the nitrification/evasion rate as in EPIC and then the
 ! maximum rate is adjusted for the EPIC evasion because we will calculate the evasion seperately and add the rate to 
 ! EPIC nitrification. 
             Kn     = Knit/24.0/3600.0 + Kvs 
-!            Write(logdev,*) 'Knit: ', Knit, 'Kvs: ', Kvs*24.0*3600.0
             If ( Frac_ag( c,r ) .Gt. 0.0 ) Then 
                If ( Kn .Gt. 0.0 ) Then
                   MNHx = MNHx * exp( -Kn * dt )
@@ -1111,7 +715,7 @@ C-------------------------------------------------------------------------------
             Write( logdev,* ) 'kvs    :', kvs
             Write( logdev,* ) 'kn     :', kn
             Write( logdev,* ) 'zsoil  :', zsoil
-            Write( logdev,* ) 'ag_tot :', ag_tot
+            Write( logdev,* ) 'frac_ag:', frac_ag( c,r )
             Call M3exit( pname, 0, 0, xmsg, xstat1)
          End If
 

@@ -69,6 +69,7 @@ C 07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module.
 C 05 Mar 15 J.Pleim: correct layer thickness index off by 1
 C 15 Jul 15 J.Young: correct sub timestep calculation and apply Martin Otte`s
 C                    correction for the first-order upstream sedimentation
+C  1 Feb 19 David Wong: removed all MY_N clauses
 C-----------------------------------------------------------------------
 
       use cgrid_spcs          ! cgrd mechanism species
@@ -236,8 +237,8 @@ C #/m**3 (number density), and m**2/m**3 (surface area) species
 
       end if   !  if firstime
 
-      do 345 r = 1, my_nrows
-      do 344 c = 1, my_ncols
+      do 345 r = 1, nrows
+      do 344 c = 1, ncols
 
 C subset all the layers and species in cgrid for this grid cell
          do v = 1, size( cgrid,4 )

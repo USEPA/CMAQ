@@ -25,8 +25,8 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE PROF_VINTERP( LOGUNIT, NSPCS_IN, NLAYS_IN, ZH_IN,
-     &                         CONCIN, CONCOUT )    
+      SUBROUTINE PROF_VINTERP ( LOGUNIT, NSPCS_IN, NLAYS_IN, ZH_IN,
+     &                          CONCIN, CONCOUT )
 
 C*************************************************************************
  
@@ -55,6 +55,7 @@ C    06 Nov 18 S.Roselle: Replaced UTILIO_DEFN with M3UTILIO
 C    30 Nov 18 S.Roselle: To provide spatially uniform ICs, target domain 
 C                       average mid-layer heights are used for the vertical
 C                       interpolation
+C    10 June 19 F. Sidi : Commented out INTEGER STATUS because it is unused
                   
 C*************************************************************************
 
@@ -65,16 +66,14 @@ C*************************************************************************
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments: 
-      INTEGER LOGUNIT                ! Unit number for output log
-      INTEGER NSPCS_IN               ! No. of species in input profile
-      INTEGER NLAYS_IN               ! No. of layers in input profile
+      INTEGER, INTENT( IN ) :: LOGUNIT    ! Unit number for output log
+      INTEGER, INTENT( IN ) :: NSPCS_IN   ! No. of species in input profile
+      INTEGER, INTENT( IN ) :: NLAYS_IN   ! No. of layers in input profile
 
-      REAL :: ZH_IN( * )             ! Input layer heights
-      REAL :: CONCIN( MXLAYS3,* )    ! Input conc array
-      REAL :: CONCOUT( NCOLS,NROWS,NLAYS,* )     ! Output IC array
+      REAL, INTENT( IN )  :: ZH_IN( : )             ! Input layer heights
+      REAL, INTENT( IN )  :: CONCIN( :,: )          ! Input conc array
+      REAL, INTENT( OUT ) :: CONCOUT( :,:,:,: )     ! Output IC array
 
 C Parameters: None
 
@@ -86,12 +85,12 @@ C Local Variables:
       CHARACTER( 16 ) :: VNAME    ! Variable Name
 
       INTEGER L              ! Loop index for vertical layers
-      INTEGER MXLEV          ! Max no. of levels
       INTEGER N              ! Loop index
       INTEGER C, R           ! Loop indices for col, row
-      INTEGER STATUS         ! Status code
+!      INTEGER STATUS         ! Status code
       INTEGER JDATE          ! Date for first record on CRO file
       INTEGER JTIME          ! Time for first record on CRO file
+      INTEGER ALLOCSTAT      ! Status returned from array allocation
 
       LOGICAL L_RATINT       ! Flag to use rational function interpolation 
 
@@ -99,19 +98,44 @@ C Local Variables:
       REAL X3    ! Vertical coordinate used in interpolation
       REAL Y     ! Interpolated concentration
 
-      REAL :: WORKA(  MXLAYS3 )  ! Work array for conc input
-      REAL :: X3_OLD( MXLAYS3 )  ! Old Vertical coordinate values
-      REAL :: ZH_OUT( NCOLS,NROWS,NLAYS )    ! mid-layer heights for target file
-      REAL :: ZH_OUT_AVG( NLAYS )! domain average mid-layer heights for target file
+      REAL, ALLOCATABLE :: WORKA( : )      ! Work array for conc input
+      REAL, ALLOCATABLE :: X3_OLD( : )     ! Old Vertical coordinate values
+      REAL, ALLOCATABLE :: ZH_OUT( :,:,: ) ! mid-layer heights for target file
+      REAL, ALLOCATABLE :: ZH_OUT_AVG( : ) ! domain average mid-layer heights for target file
       
+      INTERFACE
+
+         SUBROUTINE LR_INTERP ( L_RATINT, XA, YA, N, X, Y, DELY )
+            LOGICAL, INTENT( IN ) :: L_RATINT
+            REAL, INTENT( IN )  :: XA( : )
+            REAL, INTENT( IN )  :: YA( : )
+            REAL, INTENT( IN )  :: X
+            REAL, INTENT( OUT ) :: Y
+            REAL, INTENT( OUT ) :: DELY
+            INTEGER, INTENT( IN ) :: N
+         END SUBROUTINE LR_INTERP
+
+      END INTERFACE
+
 C**********************************************************************
+
+      ALLOCATE( WORKA( NLAYS_IN ),
+     &          X3_OLD( NLAYS_IN ),
+     &          ZH_OUT( NCOLS,NROWS,NLAYS ),
+     &          ZH_OUT_AVG( NLAYS ),
+     &          STAT = ALLOCSTAT )
+
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating WORKA, X3_OLD, ZH_OUT, ZH_OUT_AVG'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  open MET_CRO_3D_FIN file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. OPEN3 ( MET_CRO_3D_FIN, FSREAD3, PNAME ) ) THEN
          MSG = 'Could not open ' // MET_CRO_3D_FIN // ' file'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
       JDATE = SDATE3D
       JTIME = STIME3D
@@ -127,7 +151,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ELSE
          MSG = 'Vertical interpolation by rational function'
       END IF
-      CALL M3MESG( MSG )
+      CALL M3MESG ( MSG )
          
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Interpolate by ZH
@@ -138,26 +162,26 @@ C Get the layer mid-point heights
       IF ( .NOT. READ3( MET_CRO_3D_FIN, VNAME, ALLAYS3, JDATE, JTIME,
      &                  ZH_OUT ) ) THEN
          MSG = 'Could not read layer heights form file  ' // MET_CRO_3D_FIN 
-         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
+         CALL M3ERR ( PNAME, JDATE, JTIME, MSG, .TRUE. )
       END IF
 
 C Compute domain average layer mid-point heights
 
       ZH_OUT_AVG = 0.0
       DO L = 1, NLAYS
-         DO C = 1, MY_NCOLS
-            DO R = 1, MY_NROWS
+         DO C = 1, NCOLS
+            DO R = 1, NROWS
                ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) + ZH_OUT( C,R,L )
             END DO
          END DO
-         ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) / ( MY_NCOLS * MY_NROWS )
-         print *, L, ZH_OUT_AVG( L )
+         ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) / ( NCOLS * NROWS )
       END DO
 
       DO L = 1, NLAYS_IN 
          X3_OLD( L ) = ZH_IN( L )
       END DO
 
+      CONCOUT = 0.0
       DO N = 1, NSPCS_IN   
 
          DO L = 1, NLAYS_IN
@@ -167,8 +191,8 @@ C Compute domain average layer mid-point heights
          IF ( NLAYS_IN .EQ. 1 ) THEN
 
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CONCOUT( C,R,L,N ) = WORKA( 1 )
                   END DO
                END DO
@@ -182,26 +206,26 @@ C Compute domain average layer mid-point heights
 
                IF ( X3 .LT. X3_OLD( 1 ) ) THEN
 
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         CONCOUT( C,R,L,N ) = WORKA( 1 )
                      END DO
                   END DO
 
                ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
 
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         CONCOUT( C,R,L,N ) = WORKA( NLAYS_IN )
                      END DO
                   END DO
 
                ELSE
 
-                  CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
-     &                            X3, Y, DELY )
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  CALL LR_INTERP ( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
+     &                             X3, Y, DELY )
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         CONCOUT( C,R,L,N ) = Y
                      END DO
                   END DO

@@ -23,13 +23,13 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TIC_AE7I_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -140,7 +140,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 212
+      N_EBISP  = 217
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -331,34 +331,39 @@ c..Allocate and define ebi species
       EBISP( 182 ) = IMAEP
       EBISP( 183 ) = IHMMLP
       EBISP( 184 ) = AIETETJ
-      EBISP( 185 ) = AIEOSJ
-      EBISP( 186 ) = ADIMJ
-      EBISP( 187 ) = AIMGAJ
-      EBISP( 188 ) = AIMOSJ
-      EBISP( 189 ) = AISO1J
-      EBISP( 190 ) = AOLGBJ
-      EBISP( 191 ) = AISO2J
-      EBISP( 192 ) = ASQTJ
-      EBISP( 193 ) = AAVB2J
-      EBISP( 194 ) = AOLGAJ
-      EBISP( 195 ) = AAVB3J
-      EBISP( 196 ) = AAVB4J
-      EBISP( 197 ) = PCVOC
-      EBISP( 198 ) = PCSOARXN
-      EBISP( 199 ) = VLVPO1
-      EBISP( 200 ) = VSVPO1
-      EBISP( 201 ) = VSVPO2
-      EBISP( 202 ) = VSVPO3
-      EBISP( 203 ) = VIVPO1
-      EBISP( 204 ) = VLVOO1
-      EBISP( 205 ) = VLVOO2
-      EBISP( 206 ) = VSVOO2
-      EBISP( 207 ) = VSVOO3
-      EBISP( 208 ) = VSVOO1
-      EBISP( 209 ) = AMTNO3J
-      EBISP( 210 ) = AMTHYDJ
-      EBISP( 211 ) = AISOPNNJ
-      EBISP( 212 ) = AGLYJ
+      EBISP( 185 ) = ASO4J
+      EBISP( 186 ) = AIEOSJ
+      EBISP( 187 ) = ADIMJ
+      EBISP( 188 ) = AIMGAJ
+      EBISP( 189 ) = AIMOSJ
+      EBISP( 190 ) = AISO1J
+      EBISP( 191 ) = AOLGBJ
+      EBISP( 192 ) = AISO2J
+      EBISP( 193 ) = ASQTJ
+      EBISP( 194 ) = AAVB2J
+      EBISP( 195 ) = AOLGAJ
+      EBISP( 196 ) = AAVB3J
+      EBISP( 197 ) = AAVB4J
+      EBISP( 198 ) = APOCI
+      EBISP( 199 ) = APNCOMI
+      EBISP( 200 ) = APOCJ
+      EBISP( 201 ) = APNCOMJ
+      EBISP( 202 ) = PCVOC
+      EBISP( 203 ) = PCSOARXN
+      EBISP( 204 ) = VLVPO1
+      EBISP( 205 ) = VSVPO1
+      EBISP( 206 ) = VSVPO2
+      EBISP( 207 ) = VSVPO3
+      EBISP( 208 ) = VIVPO1
+      EBISP( 209 ) = VLVOO1
+      EBISP( 210 ) = VLVOO2
+      EBISP( 211 ) = VSVOO2
+      EBISP( 212 ) = VSVOO3
+      EBISP( 213 ) = VSVOO1
+      EBISP( 214 ) = AMTNO3J
+      EBISP( 215 ) = AMTHYDJ
+      EBISP( 216 ) = AISOPNNJ
+      EBISP( 217 ) = AGLYJ
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -561,6 +566,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( IMAEP        ) = 5.0D-04
       RTOL( IHMMLP       ) = 5.0D-04
       RTOL( AIETETJ      ) = 5.0D-04
+      RTOL( ASO4J        ) = 5.0D-04
       RTOL( AIEOSJ       ) = 5.0D-04
       RTOL( ADIMJ        ) = 5.0D-04
       RTOL( AIMGAJ       ) = 5.0D-04
@@ -573,6 +579,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( AOLGAJ       ) = 5.0D-04
       RTOL( AAVB3J       ) = 5.0D-04
       RTOL( AAVB4J       ) = 5.0D-04
+      RTOL( APOCI        ) = 5.0D-04
+      RTOL( APNCOMI      ) = 5.0D-04
+      RTOL( APOCJ        ) = 5.0D-04
+      RTOL( APNCOMJ      ) = 5.0D-04
       RTOL( PCVOC        ) = 5.0D-04
       RTOL( PCSOARXN     ) = 5.0D-04
       RTOL( VLVPO1       ) = 5.0D-04

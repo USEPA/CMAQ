@@ -42,6 +42,16 @@ C                      removed deprecated TRIMLEN
 C    2 Sep 11 J.Young: change ICBC_FAC policy to always assigning factor,
 C                      if specified, not just if a surrogate is also specified 
 C   11 Sep 15 B.Murphy: add condition for no surrogate name
+C
+C   08 Mar 19 F. Sidi  Split up ICBC_FAC into IC_FAC and BC_FAC for 
+C                      tracer namelist only
+C   01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all
+C                     MY_N clauses
+C   01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all
+C                     MY_N clauses
+C   08 Mar 19 F. Sidi  Split up ICBC_FAC into IC_FAC and BC_FAC for 
+C                      tracer namelist only
+C   13 Mar 19 D. Wong: Implemented centralized I/O approach
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -49,6 +59,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE RXNS_DATA, ONLY : MECHNAME
       USE AERO_DATA, ONLY : CHECK_AERO_ICBC, N_MODE
+      Use CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE
 
@@ -110,7 +121,6 @@ C Local Variables
       INTEGER      GXOFF, GYOFF               ! global origin offset from file
 
 C for XTRACT3
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER       :: STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI
       REAL      :: DBUFF( NCOLS,NROWS,NLAYS )
       REAL      :: DBUFF_TMP( NCOLS,NROWS,NLAYS )
@@ -119,11 +129,11 @@ C for XTRACT3
       INTEGER      N_SPCS                     ! no. of species for this call
       INTEGER      NDX                        ! loop copy of INDX
       INTEGER      ISUR                       ! surrogate index
+      INTEGER      ISPCS                      ! model species index
       INTEGER, ALLOCATABLE, SAVE :: INDX( : ) ! Variable indices for all IC species
       REAL,    ALLOCATABLE, SAVE :: ICBC_FAC( : ) ! Factor to be applied to ICs
       INTEGER      C, R, L, SPC, V, J         ! loop counters
       INTEGER      ASPC                       ! CGRID RHOJ pointer
-      INTEGER      NCOLSDENS, NROWSDENS       ! local for DENS
       INTEGER      STAT                       ! Status reported by Aerosol Dist Checker
 
       INTEGER       :: LMODE    !Identifies the problematic mode from
@@ -136,6 +146,7 @@ C for XTRACT3
 
       CHARACTER( 16 ) :: PNAME = 'LOAD_CGRID'
       CHARACTER( 16 ) :: VNAME
+      CHARACTER( 16 ) :: POC_CHK
       CHARACTER( 16 ) :: ICNAME_TMP
       CHARACTER( 16 ) :: CONCMIN
       CHARACTER( 96 ) :: XMSG = ' '
@@ -157,9 +168,6 @@ C-----------------------------------------------------------------------
          FIRSTIME = .FALSE.
 
          CALL LOG_HEADING( LOGDEV, 'Load Initial Conditions' ) 
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-C IOFDESC common now loaded with MET_CRO_3D header
 
          MXSPC = N_GC_SPC + N_AE_SPC + N_NR_SPC + N_TR_SPC
          ALLOCATE ( INDX( MXSPC ), ICBC_FAC( MXSPC ), STAT = ASTAT )
@@ -228,23 +236,23 @@ C Get INDX
          N_SPCS = N_GC_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
-            ISUR = FINDEX ( SPC, N_GC_ICBC, GC_ICBC_MAP )
+            ISUR = FINDEX ( SPC, N_GC_IC, GC_IC_MAP )
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
-               NDX = INDEX1( GC_ICBC( ISUR ), NVARS3D, VNAME3D )
+               NDX = INDEX1( GC_IC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
 C if there`s a surrogate name, CGRID_SPCS handles setting GC_ICBC_FAC
                   INDX( SPC ) = NDX   ! index in the IC file
-                  ICBC_FAC( SPC ) = GC_ICBC_FAC( ISUR )
+                  ICBC_FAC( SPC ) = GC_IC_FAC( ISUR )
                ELSE
-                  XMSG = ESTR1 // TRIM( GC_ICBC( ISUR ) ) // ESTR2 // 
+                  XMSG = ESTR1 // TRIM( GC_IC( ISUR ) ) // ESTR2 // 
      &                   TRIM(GC_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
             END IF
 C If there is no surrogate or it cannot be found, look for the (main) species name on the IC file
-            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
                NDX = INDEX1( GC_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
@@ -268,22 +276,22 @@ C If there is no surrogate or it cannot be found, look for the (main) species na
          N_SPCS = N_AE_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
-            ISUR = FINDEX ( SPC, N_AE_ICBC, AE_ICBC_MAP )
+            ISUR = FINDEX ( SPC, N_AE_IC, AE_IC_MAP )
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
-               NDX = INDEX1( AE_ICBC( ISUR ), NVARS3D, VNAME3D )
+               NDX = INDEX1( AE_IC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  ICBC_FAC( SPC ) = AE_ICBC_FAC( ISUR )
+                  ICBC_FAC( SPC ) = AE_IC_FAC( ISUR )
                ELSE
-                  XMSG = ESTR1 // TRIM( AE_ICBC( ISUR ) ) // ESTR2 // 
+                  XMSG = ESTR1 // TRIM( AE_IC( ISUR ) ) // ESTR2 // 
      &                   TRIM(AE_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
-            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
                NDX = INDEX1( AE_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
@@ -307,22 +315,22 @@ C If there is no surrogate or it cant be found, look for the (main) species name
          N_SPCS = N_NR_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
-            ISUR = FINDEX ( SPC, N_NR_ICBC, NR_ICBC_MAP )
+            ISUR = FINDEX ( SPC, N_NR_IC, NR_IC_MAP )
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
-               NDX = INDEX1( NR_ICBC( ISUR ), NVARS3D, VNAME3D )
+               NDX = INDEX1( NR_IC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  ICBC_FAC( SPC ) = NR_ICBC_FAC( ISUR )
+                  ICBC_FAC( SPC ) = NR_IC_FAC( ISUR )
                ELSE
-                  XMSG = ESTR1 // TRIM( NR_ICBC( ISUR ) ) // ESTR2 // 
+                  XMSG = ESTR1 // TRIM( NR_IC( ISUR ) ) // ESTR2 // 
      &                   TRIM(NR_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
-            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
                NDX = INDEX1( NR_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
@@ -346,22 +354,22 @@ C If there is no surrogate or it cant be found, look for the (main) species name
          N_SPCS = N_TR_SPC
          DO SPC = 1, N_SPCS
 C is there a surrogate name?
-            ISUR = FINDEX ( SPC, N_TR_ICBC, TR_ICBC_MAP )
+            ISUR = FINDEX ( SPC, N_TR_IC, TR_IC_MAP )
             NDX = 0
             IF ( ISUR .NE. 0 ) THEN
 C is it on the IC file?
-               NDX = INDEX1( TR_ICBC( ISUR ), NVARS3D, VNAME3D )
+               NDX = INDEX1( TR_IC( ISUR ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX   ! index in the IC file
-                  ICBC_FAC( SPC ) = TR_ICBC_FAC( ISUR )
+                  ICBC_FAC( SPC ) = TR_IC_FAC( ISUR )
                ELSE
-                  XMSG = ESTR1 // TRIM( TR_ICBC( ISUR ) ) // ESTR2 // 
+                  XMSG = ESTR1 // TRIM( TR_IC( ISUR ) ) // ESTR2 // 
      &                   TRIM(TR_SPC( SPC ))
                   CALL M3MESG( XMSG )
                END IF
             END IF
 C If there is no surrogate or it cant be found, look for the (main) species name on the IC file
-            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 ) THEN
+            If ( ISUR .EQ. 0 .OR. NDX .EQ. 0 .OR. (.NOT. NEW_START ) ) THEN
                NDX = INDEX1( TR_SPC( SPC ), NVARS3D, VNAME3D )
                IF ( NDX .NE. 0 ) THEN
                   INDX( SPC ) = NDX
@@ -386,8 +394,8 @@ C If there is no surrogate or it cant be found, look for the (main) species name
         
 C Read into CGRID
 
-      CALL SUBHFILE ( FNAME, GXOFF, GYOFF,
-     &                STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI )
+!     CALL SUBHFILE ( FNAME, GXOFF, GYOFF,
+!    &                STRTCOLINI, ENDCOLINI, STRTROWINI, ENDROWINI )
 C IOFDESC common now loaded with FNAME header
 
       DO SPC = 1, N_SPCS
@@ -395,34 +403,26 @@ C IOFDESC common now loaded with FNAME header
          NDX = INDX( SPC )
 
          IF ( NDX .GT. 0 ) THEN
-            IF ( .NOT. XTRACT3( FNAME, VNAME3D ( NDX ),
-     &           1,NLAYS, STRTROWINI,ENDROWINI, STRTCOLINI,ENDCOLINI,
-     &           JDATE, JTIME, DBUFF ) ) THEN
-               XMSG = 'Could not read ' // TRIM( VNAME3D( NDX ) )
-     &              // ' from ' // FNAME
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var (VNAME3D ( NDX ), jdate, jtime, DBUFF)
 
-            ! Add Non-Carbon Mass to Carbon Mass if the model is
-            ! running semivolatile POA
-            IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' ) THEN 
-               IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
-                  ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
-                  IF ( .NOT. XTRACT3( FNAME, ICNAME_TMP,
-     &                   1,NLAYS, STRTROWINI,ENDROWINI,STRTCOLINI,
-     &                   ENDCOLINI,JDATE, JTIME, DBUFF_TMP ) ) THEN 
-                     XMSG = 'Could not read ' // TRIM( ICNAME_TMP ) 
-     &                      // ' from ' // FNAME
-                     CALL M3WARN( PNAME, JDATE, JTIME, XMSG ) 
-                  END IF
-                  DBUFF = DBUFF + DBUFF_TMP
-                END IF
+            ! Add Non-Carbon Mass to Carbon Mass if any tracer is
+            ! pointing to POC as a surrogate. It is very likely that
+            ! these tracers are seeking the entire POA mass (e.g.
+            ! semivolatile POA tracers).
+            POC_CHK = 'NOTPOC'
+            IF ( SPC_CAT .EQ. 'AE' ) POC_CHK = AE_SPC( SPC )
+
+            IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' .AND.
+     &           POC_CHK .NE. 'APOC' ) THEN 
+               ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
+               call interpolate_var (ICNAME_TMP, jdate, jtime, DBUFF_TMP)
+               DBUFF = DBUFF + DBUFF_TMP
             END IF
 
             ! Load ICs into CGRID
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      CGRID( C,R,L,V ) = ICBC_FAC( SPC ) * DBUFF( C,R,L )
                   END DO
                END DO
@@ -440,18 +440,12 @@ C IOFDESC common now loaded with FNAME header
 
 C Load RHOJ for transport and mixing ratio advection adjustment
 
-         VNAME = 'DENSA_J'
-         IF ( .NOT. XTRACT3( MET_CRO_3D, VNAME,
-     &              1,NLAYS, STRTROWMC3,ENDROWMC3, STRTCOLMC3,ENDCOLMC3,
-     &              JDATE, JTIME, RHOJ ) ) THEN
-             XMSG = 'Could not read DENSA_J from ' // MET_CRO_3D
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         call interpolate_var ('DENSA_J', jdate, jtime, RHOJ)
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
          DO L = 1, NLAYS
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   CGRID( C,R,L,ASPC ) = RHOJ( C,R,L )
                END DO
             END DO
@@ -471,8 +465,8 @@ C Load RHOJ for transport and mixing ratio advection adjustment
            SPC_FINI = AE_STRT + N_AE_SPC - 1
            LSTAT    = .FALSE.
            DO L = 1, NLAYS
-           DO R = 1, MY_NROWS
-           DO C = 1, MY_NCOLS
+           DO R = 1, NROWS
+           DO C = 1, NCOLS
               AECON( 1:N_AE_SPC ) = CGRID( C,R,L,SPC_STRT:SPC_FINI )
               CALL CHECK_AERO_ICBC( AECON, .TRUE., STAT, AER_PAR, LMODE )
               CGRID( C,R,L,SPC_STRT:SPC_FINI ) = AECON( 1:N_AE_SPC )
@@ -559,37 +553,15 @@ C Set pointers for gas (vapor) phase sulfur species
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
             END IF
 
-            NCOLSDENS = ENDCOLMC3 - STRTCOLMC3 + 1
-            NROWSDENS = ENDROWMC3 - STRTROWMC3 + 1
-
-            IF ( NCOLSDENS .NE. MY_NCOLS .OR.
-     &           NROWSDENS .NE. MY_NROWS ) THEN
-               WRITE( XMSG,'( A, 4I8 )' ) 'Local Columns or Rows incorrect',
-     &         NCOLSDENS, MY_NCOLS, NROWSDENS, MY_NROWS
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-C IOFDESC now loaded with MET_CRO_3D header
-
-            VNAME = 'DENS'
-!           IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-!    &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3,
-!    &                          1,NLAYS,
-!    &                          JDATE, JTIME, DENS ) ) THEN
-            IF ( .NOT. XTRACT3( MET_CRO_3D, VNAME, 1,NLAYS,
-     &                          STRTROWMC3,ENDROWMC3, STRTCOLMC3,ENDCOLMC3,
-     &                          JDATE, JTIME, DENS ) ) THEN
-               XMSG = 'Could not read ' // VNAME // ' from ' // MET_CRO_3D
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var ('DENS', jdate, jtime, DENS)
 
 C Partition the aerosol sulfate arrays with a fraction of the initial SO4 
 
             H2SO4CONV = 1.0E3 * MWH2SO4 / MWAIR * SO4VAPTOAER
 
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
 
 C total accumulation mode sulfate:
 

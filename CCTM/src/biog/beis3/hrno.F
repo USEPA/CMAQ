@@ -119,6 +119,7 @@ C                      implementation and added code to handle parallel I/O
 C    09 Jan 15 J.Young: fix bug of not calculating NOPOL for last sync step of last
 C                       run output step; get saturation from LSM module; put PX_LSM
 C                       as first conditional clause
+C    01 Feb 19 D.Wong: Implemented centralized I/O approach
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -144,6 +145,7 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
+      USE centralized_io_module
 
       IMPLICIT NONE
         
@@ -172,10 +174,8 @@ C See Jacquemin B. and Noilhan J. (1990), Bound.-Layer Meteorol., 52, 93-134.
 C Local Variables:
 
       CHARACTER( 16 ), SAVE :: MNAME   ! logical name for MET_CRO_2D
-      CHARACTER( 16 ), SAVE :: NNAME   ! logical name for normalized-emissions input
       CHARACTER( 16 ), SAVE :: SOILINP ! logical name for input NO soil data
       CHARACTER( 16 ), SAVE :: SOILOUT = 'SOILOUT' ! logical name for output NO soil data
-      CHARACTER( 16 ), SAVE, ALLOCATABLE :: DDTTM( : ) ! description date and time
       CHARACTER( 33 ), SAVE :: DESCSTR = 'hrly cnv. & non-cnv. rainfall for'
                                          !123456789012345678901234567890123
 
@@ -184,15 +184,8 @@ C Local Variables:
       INTEGER, SAVE :: IHR       ! current simulation hour
       INTEGER          NDX       ! RAINFALL array timestep index
 
-      REAL,    ALLOCATABLE, SAVE :: GROWAGNO ( :,: )  ! growing season ag norm NO emis
-      REAL,    ALLOCATABLE, SAVE :: NGROWAGNO( :,: )  ! non growing season ag norm NO emis
-      REAL,    ALLOCATABLE, SAVE :: NONAGNO  ( :,: )  ! non agriculture norm NO emis
-      REAL,    ALLOCATABLE, SAVE :: RAINFALL ( :,:,: ) ! rainfall for 24 hours
       REAL,    ALLOCATABLE, SAVE :: C_RAINFALL ( :,: ) ! rainfall for current hour
       REAL,    ALLOCATABLE, SAVE :: RNTOT    ( :,: )  ! RN + RC
-      INTEGER, ALLOCATABLE, SAVE :: PTYPE    ( :,: )  ! NO emissions 'pulse type'
-      INTEGER, ALLOCATABLE, SAVE :: PULSEDATE( :,: )  ! date when NO emission pulse begins
-      INTEGER, ALLOCATABLE, SAVE :: PULSETIME( :,: )  ! time when NO emission pulse begins
       INTEGER, SAVE :: RHOURS    ! SOILINP(OUT) file no. of RAINFALL hour variables
       INTEGER, SAVE :: RDATE     ! date to update rainfall
       INTEGER, SAVE :: RTIME     ! time to update rainfall
@@ -231,7 +224,6 @@ C Local Variables:
 
       INTEGER      GXOFF, GYOFF           ! global origin offset from file
 C for INTERPX
-      INTEGER       :: STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3  ! Normalized BEIS3
       INTEGER       :: STRTCOLSIN, ENDCOLSIN, STRTROWSIN, ENDROWSIN  ! SOILINP
 
       CHARACTER( 16 ), SAVE :: VNAME_RC, VNAME_RN
@@ -254,25 +246,6 @@ C Determine last timestamp
          CALL NEXTIME( EDATE, ETIME, RUNLEN )   ! end date & time
          MSTEPS = TIME2SEC( RUNLEN ) / TIME2SEC( TSTEP( 1 ) )
 
-C Get normalized emissions file, B3GRD
-         NNAME = PROMPTMFILE(
-     &           'Enter name for Normalized Emissions input file',
-     &           FSREAD3, 'B3GRD', PNAME )
-
-C Read description of normalized emissions file
-         IF ( .NOT. DESC3( NNAME ) ) THEN
-            MESG = 'Could not get description of file "' //
-     &             TRIM( NNAME ) // '"'
-            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-         END IF
-
-C Initialize grid definition
-         OK = CHKGRID( NNAME )
-
-C Get windowing info for the normalized emissions file
-         CALL SUBHFILE ( NNAME, GXOFF, GYOFF,
-     &                   STRTCOLNB3, ENDCOLNB3, STRTROWNB3, ENDROWNB3 )
-
 C Open met file
          MNAME = PROMPTMFILE(
      &           'Enter name for gridded met input file',
@@ -290,7 +263,7 @@ C Get description of met file
 C Check that grid description matches B3GRD file
          IF ( .NOT. CHKGRID( MNAME ) ) THEN
             MESG = 'Grid in file "' // TRIM( MNAME )
-     &           // '" does not match grid in file ' // TRIM( NNAME ) // '"'
+     &           // '" does not match grid in file ' // TRIM( MNAME ) // '"'
 #ifdef twoway
             CALL M3WARN( PNAME, 0, 0, MESG )
 #else
@@ -298,54 +271,8 @@ C Check that grid description matches B3GRD file
 #endif
          END IF
 
-C Allocate memory for data and read
-         ALLOCATE( GROWAGNO( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'GROWAGNO', PNAME )
-
-         ALLOCATE( NGROWAGNO( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'NGROWAGNO', PNAME )
-
-         ALLOCATE( NONAGNO( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'NONAGNO', PNAME )
-
-         VAR = 'AVG_NOAG_GROW'
-         IF ( .NOT. XTRACT3( NNAME, VAR,
-     &                       1,1, STRTROWNB3,ENDROWNB3, STRTCOLNB3,ENDCOLNB3,
-     &                       0, 0, GROWAGNO ) ) THEN
-            MESG = 'Could not read "' // TRIM( VAR ) //
-     &             '" from file "' // TRIM( NNAME ) // '"'
-            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-         END IF
-
-         VAR = 'AVG_NOAG_NONGROWNB3'
-         IF ( .NOT. XTRACT3( NNAME, VAR,
-     &                       1,1, STRTROWNB3,ENDROWNB3, STRTCOLNB3,ENDCOLNB3,
-     &                       0, 0, NGROWAGNO ) ) THEN
-            MESG = 'Could not read "' // TRIM( VAR ) //
-     &             '" from file "' // TRIM( NNAME ) // '"'
-            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-         END IF
-
-         VAR = 'AVG_NONONAG'
-         IF ( .NOT. XTRACT3( NNAME, VAR,
-     &                       1,1, STRTROWNB3,ENDROWNB3, STRTCOLNB3,ENDCOLNB3,
-     &                       0, 0, NONAGNO ) ) THEN
-            MESG = 'Could not read "' // TRIM( VAR ) //
-     &             '" from file "' // TRIM( NNAME ) // '"'
-            CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-         END IF
-
          ALLOCATE( RNTOT( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'RNTOT', PNAME )
-
-         ALLOCATE( PTYPE( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'PTYPE', PNAME )
-
-         ALLOCATE( PULSEDATE( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'PULSEDATE', PNAME )
-
-         ALLOCATE( PULSETIME( NCOLS,NROWS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'PULSETIME', PNAME )
 
 C Initial run until a full 24 hours has been recorded on the SOIL(OUT/INP) file
 C for the Yienger and Levy algorithm
@@ -359,100 +286,11 @@ C If initial run, initialize some variables, otherwise get them from file
             PULSETIME = 0   ! array
             PTYPE     = 0   ! array
 
-         ELSE
-
-C Open saved NO rain data file
-            SOILINP = PROMPTMFILE(
-     &                'Enter name for NO EMISSIONS SAVE file',
-     &                FSREAD3, 'SOILINP', PNAME )
-
-C Get description of NO rain data file
-            IF ( .NOT. DESC3( SOILINP ) ) THEN
-               MESG = 'Could not get description of file "' //
-     &                 TRIM( SOILINP ) // '"'
-               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-            END IF
-
-C Check that the file start date and time are consistent
-            IF ( SDATE3D .NE. STDATE ) THEN
-               WRITE( MESG,94010 ) 'Cannot use SOILINP file; ' //
-     &             'found date ', SDATE3D, ' expecting ', STDATE
-               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-            END IF
-
-            IF ( STIME3D .NE. STTIME ) THEN
-               WRITE( MESG,94010 ) 'Cannot use SOILINP file; ' //
-     &             'found time ', STIME3D, ' expecting ', STTIME
-               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-            END IF
-
-C Get domain decomp info for the NO rain data file
-            CALL SUBHFILE ( SOILINP, GXOFF, GYOFF,
-     &                      STRTCOLSIN, ENDCOLSIN, STRTROWSIN, ENDROWSIN )
-
          END IF   ! initial run
 
-         ALLOCATE( RAINFALL( NCOLS,NROWS,RHOURS ), STAT=IOS )
          ALLOCATE( C_RAINFALL( NCOLS,NROWS ), STAT=IOS )
          CALL CHECKMEM( IOS, 'RAINFALL', PNAME )
-         RAINFALL = 0.0   ! array
          C_RAINFALL = 0.0 ! array
-
-         ALLOCATE( DDTTM( RHOURS ), STAT=IOS )
-         CALL CHECKMEM( IOS, 'DDTTM', PNAME )
-         DDTTM = ' '   ! array
-
-         IF ( .NOT. NEW_START ) THEN   ! SOILINP file available
-C Read data from file
-            VAR = 'PTYPE'
-            IF ( .NOT. XTRACT3( SOILINP, VAR,
-     &                          1,1, STRTROWSIN,ENDROWSIN, STRTCOLSIN,ENDCOLSIN,
-     &                          0, 0, PTYPE ) ) THEN
-               MESG = 'Could not read "' // TRIM( VAR ) //
-     &                '" from file "' // TRIM( SOILINP ) // '"'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-            END IF
-
-            VAR = 'PULSEDATE'
-            IF ( .NOT. XTRACT3( SOILINP, VAR,
-     &                          1,1, STRTROWSIN,ENDROWSIN, STRTCOLSIN,ENDCOLSIN,
-     &                          0, 0, PULSEDATE ) ) THEN
-               MESG = 'Could not read "' // TRIM( VAR ) //
-     &                '" from file "' // TRIM( SOILINP ) // '"'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-            END IF
-
-            VAR = 'PULSETIME'
-            IF ( .NOT. XTRACT3( SOILINP, VAR,
-     &                          1,1, STRTROWSIN,ENDROWSIN, STRTCOLSIN,ENDCOLSIN,
-     &                          0, 0, PULSETIME ) ) THEN
-               MESG = 'Could not read "' // TRIM( VAR ) //
-     &                '" from file "' // TRIM( SOILINP ) // '"'
-               CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-            END IF
-
-C Get previous 24 hour rainfall amounts
-            DO I = 1, MXRHRS
-               WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
-               IF ( .NOT. XTRACT3( SOILINP, VAR,
-     &                             1,1, STRTROWSIN,ENDROWSIN, STRTCOLSIN,ENDCOLSIN,
-     &                             0, 0, RAINFALL( 1,1,I ) ) ) THEN
-                  MESG = 'Could not read "' // TRIM( VAR ) //
-     &                   '" from file "' // TRIM( SOILINP ) // '"'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, MESG, XSTAT2 )
-               END IF
-               J = INDEX( VDESC3D( I+3 ), 'for' ) + 3
-               K = LEN_TRIM( VDESC3D( I+3 ) )
-               DDTTM( I ) = VDESC3D( I+3 )( J:K )
-            END DO
-
-C Close input file
-            IF ( .NOT. CLOSE3( SOILINP ) ) THEN
-               MESG = 'Could not close file "' // TRIM( SOILINP ) // '"'
-               CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-            END IF
-
-         END IF   ! not initial run
 
          RDATE = STDATE; RTIME = STTIME
 !        IHR = 0
@@ -593,6 +431,7 @@ C Calculate NO emissions by going thru temperature cases
                IF ( PX_LSM .OR. CLM_LSM .OR. NOAH_LSM ) THEN
 
                   SOILCAT = GRID_DATA%SLTYP( C,R )
+                  TSOI = 0.0
                   IF ( SOILCAT .LE. MAXSTYPES .AND. PX_LSM ) THEN
                      RATIO = MET_DATA%SOIM1( C,R ) / Grid_Data%WSAT( C,R )
                      IF ( USE_SOILT ) THEN
@@ -696,8 +535,11 @@ C Calculate NO emissions by going thru temperature cases
                mxfac3 = max( mxfac3, fac3 )
                mxfac4 = max( mxfac4, fac4 )
 #endif
-
-               NOPOL( C,R ) = MAX( ( FAC1 * FAC2 ), FAC3 ) + FAC4
+               IF( TSOI .LE. 0.0 ) THEN
+                  NOPOL( C,R ) = 0.0
+               ELSE 
+                  NOPOL( C,R ) = MAX( ( FAC1 * FAC2 ), FAC3 ) + FAC4
+               END IF
 
             END DO  ! columns
          END DO  ! rows

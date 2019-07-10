@@ -34,6 +34,8 @@
 !     Oct 2015 J.Young: Rework to make macros in the makefile for libs and
 !                       compiler "I" references; get rid of the CVS option.
 !     Jan 2016 D.Wong: Fixed the include path of mpif.h
+!     June 2016 F. Sidi: Removed redundant IOAPI library. Makefile generated 
+!                        consistant with IOAPI library format.
 !-------------------------------------------------------------------------------
 
       Program bldmake
@@ -114,6 +116,7 @@
       serial    = .False.
       debug     = .False.
       debug_cctm= .False.
+      isam_cctm = .False.
       checkout  = .False.
       makefo    = .False.
       twoway    = .False.
@@ -192,6 +195,10 @@
           debug_cctm = .True.; Cycle
         End If
 
+        If ( argv .Eq. '-ISAM_CCTM' ) Then
+          isam_cctm = .True.; Cycle
+        End If
+
         If ( argv .Eq. '-VERBOSE' ) Then
           verbose = .True.; Cycle
         End If
@@ -241,6 +248,7 @@
       Write( *,'("  -git_local  Does NOT copy source files to BLD directory")' )
       Write( *,'("  -help       Displays help screen")' )
       Write( *,'("  -debug_cctm Execute make with DEBUG option set to TRUE")' )
+      Write( *,'("  -isam_cctm  Execute make with ISAM option set to TRUE")' )
       Write( *,'(//)' )
 
       End Subroutine help_msg
@@ -300,13 +308,11 @@
       End If 
 
       ! Document Explicit Library Paths
-      Call GETENV( 'IOAPI_MOD_DIR',  ioapi_mod_dir )
       Call GETENV( 'IOAPI_INCL_DIR', ioapi_incl_dir )
       Call GETENV( 'IOAPI_LIB_DIR',  ioapi_lib_dir )
       Call GETENV( 'NETCDF_LIB_DIR', netcdf_lib_dir )
       Call GETENV( 'MPI_LIB_DIR',    mpi_lib_dir )
       Write( lfn, '("#   Library Paths:")' ) 
-      Write( lfn, '("#      $(LIB)/ioapi/modules -> ",a)' ) Trim( ioapi_mod_dir )
       Write( lfn, '("#      $(LIB)/ioapi/include_files -> ",a)' ) Trim( ioapi_incl_dir )
       Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
       Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
@@ -339,7 +345,7 @@
       Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
       Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
 
-      Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true ))")')
+      Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true True T ))")')
       Write( lfn, '( "     DEBUG = TRUE")' )
       Write( lfn, '( " endif")' )
       
@@ -486,19 +492,25 @@
       nfields = getFieldCount( cpp_flags, ' ' )
 
       If ( nfields .Le. 1 ) Then
-        Write( lfn, '(" CPP_FLAGS = "a)' ) Trim( cpp_flags )
-        Return
+        Write( lfn, '(" cpp_flags = "a)' ) Trim( cpp_flags )
+      Else
+
+        Write( lfn, '(" cpp_flags =",$)')
+
+        ! print each field at a time
+        Do n = 1, nfields
+          Call getField( cpp_flags, ' ', n, field )
+          Write( lfn, '(1x,a,/,2x,a,$)' ) backslash, Trim( field )
+        End Do
+        Write( lfn, '(1x)' )
+
       End If
 
-      Write( lfn, '(" CPP_FLAGS =",$)')
-
-! print each field at a time
-      Do n = 1, nfields
-        Call getField( cpp_flags, ' ', n, field )
-        Write( lfn, '(1x,a,/,2x,a,$)' ) backslash, Trim( field )
-      End Do
-
-      Write( lfn, '(1x)' )
+      Write( lfn, '(/" ifneq (,$(filter $(isam), TRUE true True T ))")')
+      Write( lfn, '( "     CPP_FLAGS   = $(cpp_flags) -Disam" )' ) 
+      Write( lfn, '( " else")' )
+      Write( lfn, '( "     CPP_FLAGS   = $(cpp_flags)" )' ) 
+      Write( lfn, '( " endif")' )
 
       Return
       End Subroutine writeCPP

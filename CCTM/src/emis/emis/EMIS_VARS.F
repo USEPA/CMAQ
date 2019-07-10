@@ -26,6 +26,7 @@
 !     09 Nov 2017 B.Murphy: Extracted these variables from EMIS_DEFN
 !-----------------------------------------------------------------------
       USE RUNTIME_VARS
+      USE em_param_module
 
       IMPLICIT NONE
 
@@ -33,9 +34,6 @@
 
       REAL,    ALLOCATABLE :: VDEMIS_DIFF( :,:,:,: ) ! emissions array mapped to diffused species
 
-      INTEGER              :: N_EM_SRM   ! global number of emissions streams
-      INTEGER              :: N_EMIS_ISTR! global emissions instructions
-      INTEGER              :: N_EM_RGN   ! no. of region masks
       INTEGER              :: EMLAYS
 
       CHARACTER( 16 ), ALLOCATABLE :: EM_SPEC  ( : ) ! Vector of Internal CMAQ Species names for 
@@ -55,15 +53,6 @@
           CHARACTER( 4 ),  ALLOCATABLE :: BASIS( : )  ! 'MOLE' or 'MASS'
       END TYPE EM_SURR_TYPE
       TYPE( EM_SURR_TYPE ),ALLOCATABLE :: EM_FILE_SURR( : )! Species to be read from each stream file
-
-      TYPE EM_REG
-          CHARACTER( 32 ) :: LABEL
-          CHARACTER( 32 ) :: FILE
-          CHARACTER( 32 ) :: VAR
-          INTEGER         :: FILENUM
-      END TYPE EM_REG
-      TYPE( EM_REG ), ALLOCATABLE :: EM_REGIONS( : )
-      REAL, ALLOCATABLE           :: EM_REG_FAC( :,:,: )
 
       TYPE EM_FAC_STRUCTURE
           INTEGER              :: LEN     ! Number of scaling instructions that apply to this element of 
@@ -103,8 +92,6 @@
       CHARACTER( 16  ),ALLOCATABLE :: EM_DIAG_FILE( : )  ! Filename for Emissions Diagnostic Output
       LOGICAL         ,ALLOCATABLE :: EM_FILE_DIFF( :,: )! Test for whether or not a stream contributes to 
                                                          !   a particular transported variable
-      LOGICAL         ,ALLOCATABLE :: EM_FILE_DATE_OVRD( : ) ! Toggle for whether or not to let the 
-                                                                ! emission stream date override the model
       INTEGER         ,ALLOCATABLE :: EM_FILE_DATE( : )! Date to be read in from each emissions stream
       LOGICAL         ,ALLOCATABLE :: EM_FILE_FIRE( : )! Is this Emission Stream Representing Fires (1=Yes)
 
@@ -113,44 +100,6 @@
 
       INTEGER, ALLOCATABLE :: MAP_EMtoSURR( :,: ), MAP_EMtoDIFF( : ), MAP_EMtoGAS( : )
 
-      ! Define Data Structure for Storing Emission Control Namelist
-      ! Options                               
-      TYPE EM_RULE_REG
-             CHARACTER( 32 ) :: REGION
-             CHARACTER( 32 ) :: STREAM
-             CHARACTER( 16 ) :: SURR
-             CHARACTER( 16 ) :: SPEC
-             CHARACTER( 16 ) :: PHASE
-             REAL            :: FAC
-             CHARACTER( 4  ) :: BASIS
-             CHARACTER( 1  ) :: OP
-      END TYPE EM_RULE_REG
-      INTEGER, PARAMETER  :: N_EM_RULE_REG = 2000
-      TYPE( EM_RULE_REG ), ALLOCATABLE :: EM_NML( : )
-   
-      TYPE REGIONS_REG
-             CHARACTER( 32 ) :: LABEL
-             CHARACTER( 32 ) :: FILE
-             CHARACTER( 32 ) :: VAR
-      END TYPE REGIONS_REG
-      INTEGER, PARAMETER  :: N_REGIONS_REG = 200
-      TYPE( REGIONS_REG ), ALLOCATABLE :: RGN_NML( : )
-
-      ! Define Structure for Size Distribution Rule      
-      TYPE SD_RULE
-             CHARACTER( 32 ) :: STREAM
-             CHARACTER( 16 ) :: MODE
-             CHARACTER( 16 ) :: MODE_REF
-      END TYPE SD_RULE
-      INTEGER, PARAMETER :: N_SD_REG = 200
-      TYPE( SD_RULE ), ALLOCATABLE :: SD_NML( : )
-
-      LOGICAL :: Guard_BiogenicVOC   = .FALSE.
-      LOGICAL :: Guard_MarineGas     = .FALSE.
-      LOGICAL :: Guard_LightningNO   = .FALSE.
-      LOGICAL :: Guard_WindBlownDust = .FALSE.
-      LOGICAL :: Guard_SeaSpray      = .FALSE.
- 
       ! Create Lookup table of Molecular Weight for likely emission
       ! surrogate species. These values are used to compute mole <-> mass
       ! conversions if requested. 
@@ -325,6 +274,7 @@
 !-----------------------------------------------------------------------
 
       USE UTILIO_DEFN
+      USE em_param_module
 
 
       IMPLICIT NONE
@@ -404,8 +354,10 @@
 !     speciated compounds.
 !-----------------------------------------------------------------------
 
-      IMPLICIT NONE
+      USE AERO_DATA, ONLY : ACORSEM_ASO4_FAC
 
+      IMPLICIT NONE
+      
       INTEGER,         INTENT( INOUT ) :: N_EM_RULE
       TYPE( EM_RULE_REG )              :: EM_NML_B( N_EM_RULE_REG  )
 
@@ -427,6 +379,61 @@
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
          END IF
 
+      ! sulfur tracking instrument model option
+         IF ( STM ) THEN
+      ! SULF emissions
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      !  PSO4 emissions 
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PSO4'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      ! Coarse-Mode Sulfate
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
+            EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      !  Wind blown dust and sea spray SO4 emissions 
+      !  Fine
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMFINE_SO4'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      !  Coarse 
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMCOARSE_SO4'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+         END IF ! stm
+
       ! Add Rules to Existing List at Beginning
          N_EM_RULE = N_EM_RULE + N_EM_RULE_B
          DO IRULE = N_EM_RULE, N_EM_RULE_B+1, -1
@@ -438,310 +445,4 @@
 
       END SUBROUTINE CUSTOM_EM_RULES
  
-!-----------------------------------------------------------------------
-      SUBROUTINE INIT_EMIS_REGIONS( )
-!
-!     This subroutine defines several hardcoded rules for emissions
-!     scaling that will apply by default. These include subtracting NH3
-!     from fertilizer emissions if BiDi is turned on, moving all
-!     sulfuric acid vapor to the particle phase upon emission and
-!     splitting up the coarse mode anthropogenic emissions mass into
-!     speciated compounds.
-!----------------------------------------------------------------------- 
-      USE GRID_CONF
-      USE UTILIO_DEFN
-
-      IMPLICIT NONE
-                                                     
-      TYPE( EM_REG      ) :: EM_REG_READ( N_REGIONS_REG )
-      INTEGER, PARAMETER :: NFILE0 = 200
-      CHARACTER( 32 )    :: FILENAMES( NFILE0 ) = ''
-      CHARACTER( 32 ) :: VNAME
-
-      INTEGER :: IRGN, NFILE, IDX, IFILE, IREAD, IVAR
-      INTEGER :: GXOFF, GYOFF, ENDCOL, ENDROW, STARTCOL, STARTROW
-      INTEGER :: N_EM_READ
-      CHARACTER( 16 )    :: PNAME = "INIT_REGIONS"
-      CHARACTER( 250)    :: XMSG
-
-      ! Find the total number of regions to be processed
-      N_EM_READ = 0  ! The first region is the entire domain
-      DO IRGN = 1,N_REGIONS_REG
-          IF ( RGN_NML( IRGN )%LABEL .EQ. '' ) EXIT
-          N_EM_READ = N_EM_READ + 1
-      END DO
-
-      ! Allocate Vectors and Arrays for Each Region
-      ALLOCATE( EM_REGIONS( N_REGIONS_REG ) )
-      EM_REGIONS( 1 )%LABEL = 'EVERYWHERE'
-      EM_REGIONS( 1 )%FILE  = 'N/A'
-      EM_REGIONS( 1 )%VAR   = 'N/A'
-      EM_REGIONS( 1 )%FILENUM = 1
-      N_EM_RGN = 1
-      
-      ALLOCATE( EM_REG_FAC( NCOLS,NROWS,N_REGIONS_REG ) )
-      EM_REG_FAC = 0.0
-      EM_REG_FAC( :,:,1 ) = 1.0
-
-      ! Populate global Region properties structure. Also assign each
-      ! region a number according to the file it comes from. 1 =
-      ! domain-wide.
-      NFILE = 1
-      FILENAMES( 1 ) = 'N/A'
-
-      IF ( N_EM_READ .GT. 0 ) THEN
-        DO IREAD = 1,N_EM_READ
-           CALL UPCASE( RGN_NML( IREAD )%LABEL )
-           CALL UPCASE( RGN_NML( IREAD )%FILE  )
-           CALL UPCASE( RGN_NML( IREAD )%VAR   )
-
-           EM_REG_READ( IREAD )%LABEL = RGN_NML( IREAD )%LABEL  ! Region Name
-           EM_REG_READ( IREAD )%FILE  = RGN_NML( IREAD )%FILE   ! Logical filename
-           EM_REG_READ( IREAD )%VAR   = RGN_NML( IREAD )%VAR    ! Variable from file 
-                                                                !   used to inform mask
-
-           IDX = INDEX1( EM_REG_READ( IREAD )%FILE, NFILE, FILENAMES(1:NFILE) )
-           IF ( IDX .NE. 0 ) THEN
-             EM_REG_READ( IREAD )%FILENUM = IDX
-           ELSE
-             NFILE = NFILE + 1
-             EM_REG_READ( IREAD )%FILENUM = NFILE
-             FILENAMES( NFILE ) = EM_REG_READ( IREAD )%FILE
-           END IF                                                           
-        END DO
-      
-        ! Process each region by looping through the pertinent files, 
-        ! look up maps and save the data in a global array
-        DO IFILE = 1,NFILE
-          IF ( FILENAMES( IFILE ) .EQ. 'N/A' ) CYCLE
-         
-          ! Get domain decomp info from the emissions file
-          CALL SUBHFILE ( FILENAMES( IFILE ), GXOFF, GYOFF,
-     &                    STARTCOL, ENDCOL, STARTROW, ENDROW )
-         
-          ! Open input file
-          IF ( .NOT. OPEN3( FILENAMES( IFILE ), FSREAD3, PNAME ) ) THEN
-              XMSG = 'Could not open '// FILENAMES( IFILE ) // ' file'
-             CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
-          END IF
-         
-          ! Retrieve File Header Information
-          IF ( .NOT. DESC3( FILENAMES( IFILE ) ) ) THEN
-              XMSG = 'Could not get ' // FILENAMES( IFILE ) // ' file description'
-             CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
-          END IF
-         
-          ! Read data from regions file into region array 
-          DO IREAD = 1,N_EM_READ
-              IF ( EM_REG_READ( IREAD )%FILENUM .EQ. IFILE ) THEN
-                  IF ( EM_REG_READ( IREAD )%VAR .EQ. 'ALL' ) THEN
-                     ! Populate the region array with all of the
-                     ! variables on this file
-                     IF ( EM_REG_READ( IREAD )%LABEL .NE. 'ALL' ) THEN
-                        XMSG = 'Error reading Region input in Emissions Control file.'//
-     &                         'If the variable name is set to "ALL", then the label must'//
-     &                         'also be set to "ALL".'
-                        CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
-                     ELSE   
-                        DO IVAR = 1,NVARS3D
-                           N_EM_RGN = N_EM_RGN + 1
-                           EM_REGIONS( N_EM_RGN )%LABEL   = VNAME3D( IVAR )
-                           EM_REGIONS( N_EM_RGN )%VAR     = VNAME3D( IVAR )
-                           EM_REGIONS( N_EM_RGN )%FILE    = EM_REG_READ( IREAD )%FILE
-                           EM_REGIONS( N_EM_RGN )%FILENUM = EM_REG_READ( IREAD )%FILENUM
-
-                           IF ( .NOT. INTERPX( FILENAMES( IFILE ), VNAME3D(IVAR), 
-     &                          PNAME, STARTCOL, ENDCOL, STARTROW, ENDROW, 1, 1,
-     &                          SDATE3D, STIME3D, EM_REG_FAC( 1,1,N_EM_RGN ) ) )
-     &                          CALL M3ERR( PNAME, SDATE3D, STIME3D,
-     &                              'Could not read ' // VNAME //
-     &                              'from ' // FILENAMES( IFILE ) // ' file', .TRUE. )
-                        END DO
-                     END IF
-                  ELSE
-                     ! Populate the region array with only this variable
-                     N_EM_RGN = N_EM_RGN + 1
-                     EM_REGIONS( N_EM_RGN ) = EM_REG_READ( IREAD )
-                     VNAME = EM_REG_READ( IREAD )%VAR
-
-                     IF ( .NOT. INTERPX( FILENAMES( IFILE ), VNAME, PNAME,
-     &                    STARTCOL, ENDCOL, STARTROW, ENDROW, 1, 1,
-     &                    SDATE3D, STIME3D, EM_REG_FAC( 1,1,N_EM_RGN ) ) )
-     &                    CALL M3ERR( PNAME, SDATE3D, STIME3D,
-     &                        'Could not read ' // VNAME //
-     &                        'from ' // FILENAMES( IFILE ) // ' file', .TRUE. )
-                  END IF
-              END IF
-          END DO
-          EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
-          EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
-
-          ! Close Regions File
-          IF ( .NOT. CLOSE3( FILENAMES( IFILE ) ) ) THEN
-            XMSG = 'Could not close ' // FILENAMES( IFILE )
-            CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
-          END IF
-         
-          ! Error Check the Regions Array
-          ! Any Negatives?
-          DO IRGN = 1,N_EM_RGN
-            IF ( ANY( EM_REG_FAC( :,:,IRGN ) .LT. 0.0 ) ) THEN
-               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
-     &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
-     &                'negative value. The expected range is 0-1.'
-               CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
-            ELSE IF ( ANY( EM_REG_FAC( :,:,IRGN ) .GT. 1.01 ) ) THEN
-               XMSG = 'Region ' // TRIM( EM_REGIONS( IRGN )%LABEL) // ' on file ' //
-     &                TRIM( FILENAMES( IFILE )) // ' contains a ' //
-     &                'value greater than 1. The expected range is 0-1.'
-               CALL M3ERR( PNAME, STDATE, STTIME, XMSG, .TRUE. )
-            END IF
-          END DO
-
-        END DO ! IFILE
-      END IF
-      
-      END SUBROUTINE INIT_EMIS_REGIONS
-
-
-!-----------------------------------------------------------------------
-      SUBROUTINE READ_EMISS_NAMELIST( )
-!
-!     This subroutine opens and reads the Emissions Control Namelist. It 
-!     attempts to deal with errors like missing file or missing file 
-!     sections by error checking and setting defaults.
-!-----------------------------------------------------------------------
-
-      USE UTILIO_DEFN
-
-      IMPLICIT NONE
-
-         ! Define Dummy Variables for Opening Emission Control Namelist
-         CHARACTER( 300 ) :: EQNAME
-         INTEGER          :: EMCTRL_NML
-         INTEGER          :: STAT
-
-         ! Define General Parameters in Emission Control Namelist
-         NAMELIST / GeneralSpecs / Guard_BiogenicVOC,
-     &              Guard_MarineGas, Guard_LightningNO, Guard_WindBlownDust,
-     &              Guard_SeaSpray
-
-         ! Define Emissions Rules Input from Emissions Control Namelist
-         NAMELIST / EmissionScalingRules / EM_NML
-         NAMELIST / SizeDistributions    / SD_NML 
-         NAMELIST / RegionsRegistry      / RGN_NML
-
-         ! Allocate and Initialize Namelist Variables
-         ALLOCATE( EM_NML( N_EM_RULE_REG ) )
-         EM_NML%REGION = ''
-         EM_NML%STREAM = ''
-         EM_NML%SURR   = ''
-         EM_NML%SPEC   = ''
-         EM_NML%PHASE  = ''
-         EM_NML%OP     = ''
-         EM_NML%BASIS  = ''
-         EM_NML%FAC    = 0.
-
-         ALLOCATE( SD_NML( N_SD_REG ) )
-         SD_NML%STREAM   = ''
-         SD_NML%MODE     = ''
-         SD_NML%MODE_REF = ''
-
-         ALLOCATE( RGN_NML( N_REGIONS_REG ) )
-         RGN_NML%LABEL = ''
-         RGN_NML%FILE  = ''
-         RGN_NML%VAR   = ''
-
-         ! Retrieve the Name of the Emission Control File
-         IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A)"),
-     &              'You have chosen not to indicate the location of an',
-     &              'Emission Control namelist file. Default settings ',
-     &              'will be assumed.'
-             Guard_BiogenicVOC   = .FALSE.
-             Guard_MarineGas     = .FALSE.
-             Guard_LightningNO   = .FALSE.
-             Guard_WindBlownDust = .FALSE.
-             Guard_SeaSpray      = .FALSE.
-             RETURN
-         END IF
-
-         ! Open Emission Control Namelist File
-         EMCTRL_NML = JUNIT()
-         OPEN( FILE = EMISSCTRL, UNIT = EMCTRL_NML, STATUS = 'OLD',
-     &         POSITION = 'REWIND', FORM='FORMATTED', IOSTAT = STAT )
-
-         ! Check for Error in File Open Process
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, '(5x,A,A,/,8x,A)' ),'ERROR: Could not read ',
-     &              'emissions control namelist file: ',TRIM( EQNAME )
-             CALL EXIT(1)
-         END IF
-         
-         ! Read General Specification Section
-         READ( NML = GeneralSpecs, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'GeneralSpecs section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             Guard_BiogenicVOC   = .FALSE.
-             Guard_MarineGas     = .FALSE.
-             Guard_LightningNO   = .FALSE.
-             Guard_WindBlownDust = .FALSE.
-             Guard_SeaSpray      = .FALSE.
-         END IF
-
-         ! Read the Regions Registry
-         REWIND( EMCTRL_NML )
-         READ( NML = RegionsRegistry, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'Regions_Registry section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             RGN_NML%LABEL = ''
-             RGN_NML%FILE  = ''
-             RGN_NML%VAR   = ''
-         END IF
-
-         ! Read the size distribution specification section
-         REWIND( EMCTRL_NML )
-         READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'SizeDistReg section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             SD_NML%STREAM   = ''
-             SD_NML%MODE     = ''
-             SD_NML%MODE_REF = ''
-         END IF
-
-         ! Read the Emissions Rules to inform scaling operations
-         REWIND( EMCTRL_NML )
-         READ( NML = EmissionScalingRules, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'EmissionScaling section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             EM_NML%REGION = ''
-             EM_NML%STREAM = ''
-             EM_NML%SURR   = ''
-             EM_NML%SPEC   = ''
-             EM_NML%PHASE  = ''
-             EM_NML%OP     = ''
-             EM_NML%BASIS  = ''
-             EM_NML%FAC    = 0.
-         END IF
- 
-         CLOSE( UNIT = EMCTRL_NML )
-
-      END SUBROUTINE READ_EMISS_NAMELIST  
-
       END MODULE EMIS_VARS

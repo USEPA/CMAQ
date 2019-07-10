@@ -35,6 +35,8 @@
 ! 23 May 16 D. Wong: Allow for calculation for APMDIAG even if PMDIAG is turned off.
 ! 10 Jun 16 B.Hutzell: reduce occurrences of numerical underflow
 ! 17 Jul 18 G. Sarwar: Added heterogeneous uptakes of CLNO3, bromine and iodine species
+! 01 Feb 19 David Wong: removed MY_N clauses
+! 03 Apr 19 H. Pye: Updated IEPOX to consume inorganic sulfate when OS are formed
 !-----------------------------------------------------------------------
 
        IMPLICIT NONE
@@ -225,11 +227,13 @@ C IEPOX uptake parameters
       TYPE( ACID_CAT ), ALLOCATABLE, SAVE :: ACID_NUC_PAIRS( : )
       INTEGER, SAVE                       :: NUMVOC              ! number of VOCs treated (IEPOX, IMAE)
 
-C IEPOX uptake parameters for standard AERO6
-      INTEGER, PARAMETER       :: N_NUCPAIRS_AE6 = 6      ! NUMBER OF ACID/NUCLEOPHILE PAIRS 
+C IEPOX uptake parameters for standard AERO6 or AERO7 (condensed IEPOX SOA)
+      INTEGER, PARAMETER       :: N_NUCPAIRS_AE = 6      ! NUMBER OF ACID/NUCLEOPHILE PAIRS 
 
-C IEPOX uptake based on Eddingsaas et al. 2010 parameters
-      TYPE( ACID_CAT ), PARAMETER :: ACID_NUC_PAIRS_AE6( N_NUCPAIRS_AE6 ) = (/
+C IEPOX uptake based on Eddingsaas et al. 2010 parameters with Piletic
+C 2013 update for the organosulfate. Same as Pye et al. 2013
+C implementation except dimers are not considered. 
+      TYPE( ACID_CAT ), PARAMETER :: ACID_NUC_PAIRS_AE( N_NUCPAIRS_AE ) = (/
 C                  Parent   Nucleophile     Acid     Acid    Remove   Rate Constant  Product
 C                 (parent)    (nuc)        (acid)    Index   Index       (kchem)      (prod)
 C                 --------  -----------  ----------  -----   ------   -------------  --------
@@ -240,15 +244,15 @@ C                 --------  -----------  ----------  -----   ------   ----------
      &   ACID_CAT('IEPOX',  'ASO4J    ', 'HSO4    ',   2,     2,       K_HSO4_NUC,   'AISO3J'  ),
      &   ACID_CAT('IEPOX',  'ANO3J    ', 'HSO4    ',   2,     0,       K_HSO4_NUC,   'AISO3J'  )/)
 
-C IEPOX + MAE uptake parameters for AERO6i
-      INTEGER, PARAMETER :: N_NUCPAIRS_AE6I = 12      ! NUMBER OF ACID/NUCLEOPHILE PAIRS
+C IEPOX + MAE uptake parameters for AERO6i or AERO7i (explicit IEPOX SOA)
+      INTEGER, PARAMETER :: N_NUCPAIRS_AEI = 12      ! NUMBER OF ACID/NUCLEOPHILE PAIRS
 
-C IEPOX uptake based on Eddingsaas et al. 2010 parameters. Uptake follows the implementation
+C IEPOX uptake following the implementation
 C in Pye et al. 2013 ES&T base simulation except epoxide-derived organonitrates are no longer
-C considered due to their predicted small contribution to ambient PM. In addition,
+C considered in saprc07tic_ae7i due to their predicted small contribution to ambient PM. In addition,
 C oligomerization of MAE/HMML-derived aerosol is not considered also due to its predicted
 C small contribution and desire to have the model "dimer" species be only IEPOX derived.
-      TYPE( ACID_CAT ), PARAMETER :: ACID_NUC_PAIRS_AE6I( N_NUCPAIRS_AE6I ) = (/
+      TYPE( ACID_CAT ), PARAMETER :: ACID_NUC_PAIRS_AEI( N_NUCPAIRS_AEI ) = (/
 C                  Parent   Nucleophile     Acid     Acid    Remove   Rate Constant  Product
 C                 (parent)    (nuc)        (acid)    Index   Index       (kchem)      (prod)
 C                 --------  -----------  ----------  -----   ------   -------------  --------
@@ -503,11 +507,13 @@ C *** Local Variables
       REAL( 8 )       :: CBARMGLY         ! molecular velocity of MGLY (m/s)
       REAL( 8 )       :: TETROL_PPM       ! accumulation mode aerosol tetrol in ppm
       REAL( 8 )       :: IEPOXOS_PPM      ! accumulation mode iepox organosulfate in ppm
+      REAL( 8 )       :: ASO4J_PPM        ! accumulation mode inorganic sulfate in ppm
       REAL( 8 )       :: FH2O(2)          ! fraction of epoxide aerosol from  hydrolysis, index: IEPOX(1) and MAE(2)
       REAL( 8 )       :: FOS(2)           ! fraction of epoxide aerosol as organosulfate, index: IEPOX(1) and MAE(2)
       REAL( 8 )       :: FDIM1(2)         ! fraction of epoxide aerosol as dimer, index: IEPOX(1) and MAE(2)
       REAL( 8 )       :: FDIM2(2)         ! fraction of epoxide aerosol as organosulfate dimer, index: IEPOX(1) and MAE(2)
       REAL( 8 ), SAVE :: INV_MWIETET, INV_MWIEOS  ! reciprocal of molecular weight for tetrol, iepoxos [mol/g]
+      REAL( 8 ), SAVE :: INV_MWASO4       ! reciprocal of molecular weight of particulate sulfate [mol/g]
 
       REAL( 8 )       :: CBAR_CLNO3        ! molecular velocity of CLNO3 (m/s)      
       REAL( 8 )       :: CBAR_HBR          ! molecular velocity of HOBR (m/s)        
@@ -734,6 +740,12 @@ C ***  Determine molecular weights
           INV_MWIEOS = 0.0D0
        END IF
 
+       IF( ASO4_IDX .GT. 0 )THEN
+          INV_MWASO4 = REAL( 1.0/ aerospc_mw( ASO4_IDX ), 8 )
+       ELSE
+          INV_MWASO4 = 0D0
+       END IF
+
        NO3_IDX = INDEX1( 'NO3', NUMB_MECH_SPC, CHEMISTRY_SPC )
        IF( NO3_IDX .GT. 0 )THEN
            MWTNO3  = REAL( SPECIES_MOLWT( NO3_IDX ), 8 )
@@ -761,16 +773,17 @@ C ***  Determine molecular weights
 C ***  Map to acids/nucleophiles for epoxide uptake
        INDX =  INDEX1( NAMES_AERO_RATES( IA_IEPOX ), NHETERO, HETERO )   
        IF ( INDX .GT. 0 ) THEN ! Find indices for acid catalyzed species in IEPOX reaction
-          If ( INDEX( MECHNAME, 'SAPRC07TIC_AE6I' ) .GT. 0 ) then
-             NUMVOC         = 2
-             N_NUCPAIRS     = N_NUCPAIRS_AE6I
+          If ( ( INDEX( MECHNAME, 'AE6I' ) .GT. 0 ) .OR.
+     &         ( INDEX( MECHNAME, 'AE7I' ) .GT. 0 )  ) then
+             NUMVOC         = 2 ! IEPOX + MAE/HMML
+             N_NUCPAIRS     = N_NUCPAIRS_AEI
              ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
-             ACID_NUC_PAIRS = ACID_NUC_PAIRS_AE6I
-          Else ! AERO6
+             ACID_NUC_PAIRS = ACID_NUC_PAIRS_AEI
+          Else ! AERO6/7 (condensed IEPOX SOA)
              NUMVOC         = 1
-             N_NUCPAIRS     = N_NUCPAIRS_AE6
+             N_NUCPAIRS     = N_NUCPAIRS_AE
              ALLOCATE ( ACID_NUC_PAIRS( N_NUCPAIRS ) )
-             ACID_NUC_PAIRS = ACID_NUC_PAIRS_AE6
+             ACID_NUC_PAIRS = ACID_NUC_PAIRS_AE
           END IF
           ALLOCATE ( ACID_PRODMAP_IDX( N_NUCPAIRS ) )
           ALLOCATE (  ACID_NUCMAP_IDX( N_NUCPAIRS ) )
@@ -804,12 +817,12 @@ C ***  Map to acids/nucleophiles for epoxide uptake
      
 C *** Calculate rate constants at each grid cell location
       LOOP_LAY: DO L = 1, NLAYS
-         LOOP_ROW: DO R = 1, MY_NROWS
-            LOOP_COL: DO C = 1, MY_NCOLS
+         LOOP_ROW: DO R = 1, NROWS
+            LOOP_COL: DO C = 1, NCOLS
      
 #ifdef verbose_aerosol_chemistry        
-               IF ( L .EQ. 1 .AND. R .EQ. INT(MY_NROWS/2)+1 .AND.
-     &              C .EQ. INT(MY_NCOLS/2)+1 ) THEN
+               IF ( L .EQ. 1 .AND. R .EQ. INT(NROWS/2)+1 .AND.
+     &              C .EQ. INT(NCOLS/2)+1 ) THEN
                   DUMP_CELL = .TRUE.
                ELSE
                   DUMP_CELL = .FALSE.
@@ -1004,10 +1017,17 @@ C *** set up variables needed for calculating K_BRONO2
                   Else
                      IEPOXOS_PPM = 0.0D0
                   End If
+                  If ( ASO4_IDX .GT. 0 ) Then
+                     ASO4J_PPM = PPM_FACTOR
+     &                     * REAL( aerospc_conc( ASO4_IDX,2 ), 8 ) * INV_MWASO4
+                  Else
+                     ASO4J_PPM = 0.0D0
+                  End If
                ELSE
                   KIEPOX = 0.0D0
                   TETROL_PPM = 0.0D0
                   IEPOXOS_PPM = 0.0D0
+                  ASO4J_PPM = 0.0D0
                END IF
 
                IF( GAMMAIMAE .GT. 1.0D-72 ) THEN
@@ -1129,7 +1149,12 @@ C ***            Isoprene epoxide uptake
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY * FH2O( 1 )
 
                  CASE( IA_IEPOXOS )
-                     KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY * FOS( 1 )
+                     IF ( ASO4J_PPM .GT. 0.0D0 ) THEN
+                        KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY 
+     &                                          * FOS( 1 ) / ASO4J_PPM
+                     ELSE
+                        KHETERO( IRATE, C,R,L ) = 0.0D0
+                     END IF
 
                  CASE( IA_TETROLDIM )
                      IF ( TETROL_PPM .GT. 0.0D0 ) THEN
@@ -1154,7 +1179,12 @@ C ***            Isoprene epoxide uptake
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY * FH2O(2)
 
                  CASE( IA_IMAEOS )
-                     KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY * FOS(2)
+                     IF ( ASO4J_PPM .GT. 0.0D0 ) THEN
+                        KHETERO( IRATE, C,R,L ) = 60.0D0 * AQUEOUS_FREQUENCY 
+     &                                         * FOS(2) / ASO4J_PPM
+                     ELSE
+                        KHETERO( IRATE, C,R,L ) = 0.0D0
+                     END IF
 
                  CASE( IA_NO3 )
                      KHETERO( IRATE, C,R,L ) = 60.0D0 * ( KNO3( 1 ) + KNO3( 2 ) ) ! min-1
@@ -2385,8 +2415,12 @@ C        Store information with speciation for IEPOX
               kchemdim2( 1 ) = kchemdim2(1)  + kchem
             else if ( acid_nuc_pairs( i )%prod .eq. 'AIETETJ' ) then !ae6i
               kchemtet( 1 ) = kchemtet(1)  + kchem
-            else if ( acid_nuc_pairs( i )%prod .eq. 'AISO3J' ) then
-              ! do nothing for aero6 since speciation isn't tracked
+            else if ( acid_nuc_pairs( i )%prod .eq. 'AISO3J' ) then !lumped treatments
+               if ( acid_nuc_pairs( i )%nuc .eq. 'ASO4J' ) then !organosulfate
+                 kchemos( 1 )  = kchemos(1)   + kchem
+               else ! non sulfated species
+                 kchemtet( 1 ) = kchemtet(1)  + kchem
+               end if
             else
                xmsg = 'For IEPOX parent, reaction product not recognized '
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )

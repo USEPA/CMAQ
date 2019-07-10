@@ -37,6 +37,7 @@ C     index equals the values for H3OP species as for aerosol water
 C     species 
 C-----------------------------------------------------------------------
       Use aero_data, Only: n_aerolist, n_aerospc, conmin
+      Use runtime_vars
 
       Implicit None
 
@@ -48,7 +49,7 @@ C-----------------------------------------------------------------------
       Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
 
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nliqs = 55  ! number of liquid-phase species in AQCHEM
+      Integer, Parameter :: nliqs = 60  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
       Integer, Parameter :: mxsrg = 70  ! maximum number of species for surrogate
 
@@ -190,6 +191,12 @@ C...For TX version
       Character( 16 ), Parameter, Private :: req_phgi    = 'PHG_AITKEN'
       Character( 16 ), Parameter, Private :: req_phgj    = 'PHG_ACCUM'
       Character( 16 ), Parameter, Private :: req_phgk    = 'PHG_COARSE'
+C...For Sulfur tracking
+      Character( 16 ), Parameter, Private :: req_aso4aqh2o2 = 'SO4_AQH2O2_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aso4aqo3   = 'SO4_AQO3_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aso4aqfemn = 'SO4_AQFEMN_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aso4aqmhp  = 'SO4_AQMHP_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aso4aqpaa  = 'SO4_AQPAA_ACCUM'
 
 
 C...Pointers for the AQCHEM array AEROSOL
@@ -218,6 +225,12 @@ C...TXHG aersosols
       Integer :: lphg_akn     !  Mercuric aerosols (Aitken and Accumulation)
       Integer :: lphg_acc     !  Mercuric aerosols (Aitken and Accumulation)
       Integer :: lphg_cor     !  Mercuric aerosols (Coarse)
+C...Sulfur Tracking Model      
+      Integer :: lso4aqh2o2 ! Sulfate from aq H2O2 rxn
+      Integer :: lso4aqo3   ! Sulfate from aq O3 rxn
+      Integer :: lso4aqfemn ! Sulfate from aq rxn catalyzed by FE&MN
+      Integer :: lso4aqmhp  ! Sulfate from aq MHP rxn
+      Integer :: lso4aqpaa  ! Sulfate from aq PAA rxn
 
       Integer :: lcaacc   !  Ca in Accumulation mode (AE6) SLN 16March2011
       Integer :: lmgacc   !  Mg in Accumulation mode (AE6) SLN 16March2011
@@ -286,7 +299,12 @@ C for TX version
       integer, parameter :: ltracercorl = 53 ! Coarse-mode TRACER
       integer, parameter :: lphgfinel   = 54 ! Fine-mode Mercury Tracer
       integer, parameter :: lphgcorl    = 55 ! Coarse-mode Mercury Tracer
-
+C for sulfur tracking model
+      Integer, Parameter :: lts6aqh2o2l = 56 ! total S(VI) from aq H2O2 rxn
+      Integer, Parameter :: lts6aqo3l   = 57 ! total S(VI) from aq O3 rxn
+      Integer, Parameter :: lts6aqfemnl = 58 ! total S(VI) from aq FE&MN catalyzed rxn
+      Integer, Parameter :: lts6aqmhpl  = 59 ! total S(VI) from aq MHP rxn
+      Integer, Parameter :: lts6aqpaal  = 60 ! total S(VI) from aq PAA rxn
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )
@@ -625,6 +643,14 @@ C...For TXHG version
       lphg_akn       = findSgrAer( req_phgi )       !  Mercuric aitken and accumulation modes
       lphg_acc       = findSgrAer( req_phgj )       !  Mercuric aitken and accumulation modes
       lphg_cor       = findSgrAer( req_phgk )       !  Mercuric coarse mode
+C...For sulfur tracking model
+      If ( stm ) Then
+         lso4aqh2o2 = findSgrAer( req_aso4aqh2o2 ) ! Sulfate from aq H2O2 rxn
+         lso4aqo3   = findSgrAer( req_aso4aqo3 )   ! Sulfate from aq O3 rxn
+         lso4aqfemn = findSgrAer( req_aso4aqfemn ) ! Sulfate from aq rxn catalyzed by FE&MN
+         lso4aqmhp  = findSgrAer( req_aso4aqmhp )  ! Sulfate from aq MHP rxn
+         lso4aqpaa  = findSgrAer( req_aso4aqpaa )  ! Sulfate from aq PAA rxn
+      End If
 
       mapped = .True.
 
@@ -673,6 +699,13 @@ C...For TXHG version
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_akn:     ', lphg_akn
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_acc:     ', lphg_acc
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_cor:     ', lphg_cor
+      If ( stm ) Then
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqh2o2:', lso4aqh2o2
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqo3:  ', lso4aqo3
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqfemn:', lso4aqfemn
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqmhp: ', lso4aqmhp
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqpaa: ', lso4aqpaa
+      End If
 #endif
 
       Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'

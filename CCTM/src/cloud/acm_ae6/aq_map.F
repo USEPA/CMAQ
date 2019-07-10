@@ -44,6 +44,7 @@ C                       needed for sulfur oxidation via metal catalysis
 C       8 09/10/11 wth  adapted for multiple pollutant model, i.e., Gas phase mercury 
 C                       PM mercury and tracer species
 C       07 Jul 14  wth: replaced mechanism include file(s) with fortran module
+C       01 Feb 19 D.Wong: replaced run time dynamic arrays with allocatable arrays
  
 C  Called by:  RADMCLD and RESCLD
  
@@ -77,7 +78,8 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
 
       IMPLICIT NONE
-
+      INCLUDE SUBST_CONST   ! for DPI
+      
       CHARACTER( 120 ) :: XMSG = ' '    ! Exit status message
 
 C Parameters:
@@ -121,6 +123,7 @@ C Local Variables (scalars):
       INTEGER       ISRG                ! surrogate loop counter
       INTEGER       PNTR                ! relative pointer variable
       INTEGER       SPC                 ! liquid species loop counter
+      INTEGER ::    STAT
 
       REAL( 8 )  :: BETASO4
       REAL       :: EALFA2T                ! EXP( -ALFA2 * TAUCLD )
@@ -130,10 +133,10 @@ C Local Variables (scalars):
       REAL( 8 )  :: Dens_wmean_new( NMODES ) ! concentration weighted molecular weight g/mol
 
       REAL       :: HPWDEP                        ! hydrogen wet dep (mm mol/liter)
-      REAL( 8 )  :: GAS    ( NGAS )               ! gas phase conc (mol/mol)
-      REAL( 8 )  :: GASWDEP( NGAS )               ! gas phase wet dep array (mm mol/liter)
-      REAL( 8 )  :: AEROSOL( MAX_NAER, NMODES)        ! aerosol conc (mol/mol)
-      REAL( 8 )  :: AERWDEP( MAX_NAER, NMODES)        ! aerosol wet dep array (mm mol/liter)
+      REAL( 8 ), ALLOCATABLE, SAVE :: GAS    ( : )    ! gas phase conc (mol/mol)
+      REAL( 8 ), ALLOCATABLE, SAVE :: GASWDEP( : )    ! gas phase wet dep array (mm mol/liter)
+      REAL( 8 ), ALLOCATABLE, SAVE :: AEROSOL( :, :)  ! aerosol conc (mol/mol)
+      REAL( 8 ), ALLOCATABLE, SAVE :: AERWDEP( :, :)  ! aerosol wet dep array (mm mol/liter)
       REAL( 8 )  :: WSRGGAS( NGAS, MXSRG)             ! weights for surrogate
       REAL( 8 )  :: WSRGAER( MAX_NAER, NMODES, MXSRG) ! weights for surrogate
 
@@ -146,7 +149,6 @@ C External Functions:
         SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                      WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
      &                      AEROSOL, GASWDEP, AERWDEP, HPWDEP, BETASO4, DARK )
-           INCLUDE SUBST_CONST          ! constants
            INTEGER,   INTENT( IN )  :: JDATE  ! current model date, coded YYYYDDD
            INTEGER,   INTENT( IN )  :: JTIME  ! current model time, coded HHMMSS
            REAL,      INTENT( IN )  :: AIRM      ! total air mass in cloudy layers (mol/m2)
@@ -179,6 +181,16 @@ C...  event-statistics variables.
         FIRSTIME = .FALSE.
 
         CALL AQ_DATA_INIT()      
+
+        ALLOCATE ( GAS    ( NGAS ),
+     &             GASWDEP( NGAS ),
+     &             AEROSOL( NAER, NMODES),
+     &             AERWDEP( NAER, NMODES),
+     &             STAT = STAT)
+        IF (STAT .NE. 0) THEN
+           XMSG = 'Memory allocation failure'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
 
       END IF
 
@@ -333,7 +345,7 @@ C *** Calculate pseudo aerosol 3rd moment (ignore factors that cancel in the div
 C ... M3NEW is in units of m3/kmol_air
       M3NEW = 0.0
       Dens_wmean_new = 0.0
-      DO IMODE = 2, N_MODE
+      DO IMODE = 2, NMODES
 
         DO SPC = 1, N_AEROSPC
           IF (  AEROSPC( SPC )%TRACER ) CYCLE 
@@ -347,29 +359,37 @@ C ... M3NEW is in units of m3/kmol_air
           END IF
         END DO
       END DO
-      Dens_wmean_new(2:N_MODE) = Dens_wmean_new(2:N_MODE) / M3NEW(2:N_MODE)
+
+C...Update aerosol number 
+      CEND( AERONUM_MAP( 1 ) ) = MAX( CEND( AERONUM_MAP( 1 ) ), aeromode_minNum( 1 )/ (AIRM/CTHK1) )
+      CEND( AERONUM_MAP( 2 ) ) = MAX( CEND( AERONUM_MAP( 2 ) ), aeromode_minNum( 2 )/ (AIRM/CTHK1) )
+      CEND( AERONUM_MAP( 3 ) ) = MAX( CEND( AERONUM_MAP( 3 ) ), aeromode_minNum( 3 )/ (AIRM/CTHK1) )
 
 C...check for minimums
 C...ug/m3*m3/mol_air*1e3 mol_air/kmol_air*1e-9kg/ug*m3/kg=> m3/kmol_air
-      DO IMODE = 2, N_MODE
-        M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_old( IMODE ) * AIRM / CTHK1 ) )
-        M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_new( IMODE ) * AIRM / CTHK1 ) )
-        CEND( AERONUM_MAP( IMODE ) ) = MAX( CEND( AERONUM_MAP( IMODE ) ), 
-     &                                 aeromode_minNum( IMODE )/ (AIRM/CTHK1) ) ! min #/mol 
+      DO IMODE = 2, NMODES
+        IF ( M3NEW( IMODE ) .GT. 0.0D0 ) THEN  ! Dens_wmean_new will be .GT. 0 also
+           Dens_wmean_new( IMODE ) = Dens_wmean_new( IMODE ) / M3NEW( IMODE )
+           M3OLD( IMODE ) = MAX( M3OLD( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_old( IMODE ) * AIRM / CTHK1 ) )
+           M3NEW( IMODE ) = MAX( M3NEW( IMODE ), CONMIND * 1.0d-6 / ( Dens_wmean_new( IMODE ) * AIRM / CTHK1 ) )
+        END IF
       END DO
 
 C...Update surface area
 
       CEND( AEROSRF_MAP( 1 ) ) = POLC( AEROSRF_MAP( 1 ) ) * EALFA2T
+      CEND( AEROSRF_MAP( 1 ) ) = MAX( CEND( AEROSRF_MAP( 1 ) ), aeromode_minM2( 1 ) * DPI / (AIRM/CTHK1) )
       
       CEND( AEROSRF_MAP( 2 ) ) = POLC( AEROSRF_MAP( 2 ) )
      &                         * EXP( -BETASO4 * TAUCLD * ONETHIRD )
      &                         * ( M3NEW( 2 ) / M3OLD( 2 ) ) ** TWOTHIRDS
+      CEND( AEROSRF_MAP( 2 ) ) = MAX( CEND( AEROSRF_MAP( 2 ) ), aeromode_minM2( 2 ) * DPI / (AIRM/CTHK1) )
 
       CEND( AEROSRF_MAP( 3 ) ) = POLC( AEROSRF_MAP( 3 ) )
      &                         * ( CEND( AERONUM_MAP( 3 ) )
      &                             / POLC( AERONUM_MAP( 3 ) ) ) ** ONETHIRD
-     &                         * ( M3NEW(3) / M3OLD( 3 ) ) ** TWOTHIRDS
+     &                         * ( M3NEW( 3 ) / M3OLD( 3 ) ) ** TWOTHIRDS
+      CEND( AEROSRF_MAP( 3 ) ) = MAX( CEND( AEROSRF_MAP( 3 ) ), aeromode_minM2( 3 ) * DPI / (AIRM/CTHK1) )
 
       RETURN
       END

@@ -28,9 +28,14 @@ C     ?? ??? ???? ?.?????: initial implementation
 C     20 Sep 2007 J.Young: inline DSCSPROF, eliminate MODSPRO module
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C     16 Aug 2018 G. Sarwar: updated for CB6R3M_AE7_KMTBR
+C     01 Feb 2019 D. Wong: Implemented centralized I/O approach, and 
+C                          created a new module biog_emis_param_module 
+C                          (model_data_module.F) to hold some of information
+C                          originally stored here to avoid cyclic dependence
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
+      USE biog_emis_param_module
 
       IMPLICIT NONE
 
@@ -41,37 +46,6 @@ C Mole and mass factors:
       REAL,            ALLOCATABLE, SAVE :: MLFAC( :,: ) ! mole factors
       REAL,            ALLOCATABLE, SAVE :: MSFAC( :,: ) ! mass factors
 
-C----------------------------------------------------------------------
-C Former include file  B3V12DIMS3.EXT
-C dimensioning parameters for BEIS v3.12 
-
-      INTEGER, PARAMETER :: NSEF     = 35 ! # of em class in Summer emis factor table
-      INTEGER, PARAMETER :: NSEASONS = 2  ! number of seasons modeled (2 for now)
-      INTEGER, PARAMETER :: NLAI     = 3  ! no. of different LAIs (ISOP and MBO)
-      INTEGER, PARAMETER :: NSUMMER  = 1  ! summer flag
-      INTEGER, PARAMETER :: NWINTER  = 2  ! winter flag
-
-C Names for BEIS species, emitted model species
-C DO NOT CHANGE THE ORDER OF THESE ARRAYS
-
-      CHARACTER( 5 ), PARAMETER :: BIOTYPES( NSEF ) =
-     &                          (/ 'ISOP ', 'MBO  ', 'METH ', 
-     &                             'APIN ', 'BPIN ', 'D3CAR', 'DLIM ',
-     &                             'CAMPH', 'MYRC ', 'ATERP', 'BPHE ', 
-     &                             'SABI ', 'PCYM ', 'OCIM ', 'ATHU ',
-     &                             'TRPO ', 'GTERP', 'ETHE ', 'PROPE',
-     &                             'ETHO ', 'ACET ', 'HEXA ', 'HEXE ',
-     &                             'HEXY ', 'FORM ', 'ACTAL', 'BUTE ',
-     &                             'ETHA ', 'FORAC', 'ACTAC', 'BUTO ',
-     &                             'CO   ', 'ORVOC', 'SESQT',
-     &                             'NO   ' /)
-
-      CHARACTER( 5 ), PARAMETER :: LAITYPES( NLAI ) =
-     &                          (/ 'ISOP ', 'MBO  ', 'METH ' /)
-
-      CHARACTER( 1 ), PARAMETER :: SEASON( NSEASONS ) =
-     &                          (/ 'S', 'W' /)
-
 C-----------------------------------------------------------------------
 
       CONTAINS
@@ -79,7 +53,7 @@ C-----------------------------------------------------------------------
       
          USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
-         USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW 
+         USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW
 
          IMPLICIT NONE
 
@@ -94,7 +68,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
-         INTEGER,        PARAMETER :: NMECHS = 18   ! dimension for number of mechanisms considered
+         INTEGER,        PARAMETER :: NMECHS = 14   ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -153,24 +127,19 @@ C Local variables
 
          TYPE( BIOG_MECH_TYPE ) :: BIOG_MECH_MAP( NMECHS ) = (/
      &         BIOG_MECH_TYPE( 'CB05E51_AE6_AQ         ','B10C5   '),
-     &         BIOG_MECH_TYPE( 'CB05E51_AE6NVPOA_AQ    ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05EH51_AE6_AQ        ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05MP51_AE6_AQ        ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB05TUCL51_AE6_AQ      ','B10C5   '),
      &         BIOG_MECH_TYPE( 'CB6R3_AE6_AQ           ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','B10C6   '),
-     &         BIOG_MECH_TYPE( 'CB6R3_AE6NVPOA_aq      ','B10C6   '),
      &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),     
      &         BIOG_MECH_TYPE( 'CB6R3M_AE7_KMTBR       ','B10C6AE7'),
      &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B10RD   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
-     &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6NVPOA_AQ  ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','B10SP   '),
      &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','B10SP   '),
-     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   '),
-     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6INVPOA_AQ','B10SP   ') /)
-     &   
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   ') /)
  
          CHARACTER( 16 ) :: PNAME = 'BIOG_INIT'
 
@@ -454,7 +423,7 @@ C Save Species names in global array for mapping emissions
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%USED ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%CONV ( MSPCS ) )
          ALLOCATE( EM_FILE_SURR( IBIOSRM )%BASIS( MSPCS ) )
-         
+
          EM_FILE_SURR( IBIOSRM )%ARRY  = EMSPC
          EM_FILE_SURR( IBIOSRM )%UNITS = 'MOLES/S'
          EM_FILE_SURR( IBIOSRM )%MW    = 1.0
@@ -469,7 +438,7 @@ C Save Species names in global array for mapping emissions
              IF ( INDX .NE. 0 ) THEN
                  EM_FILE_SURR( IBIOSRM )%MW( ISP ) = CGRID_MW( INDX )
              ELSE
-                 WRITE( MESG, '(A,A,A,A)' ) 'WARNING: BEIS emission species',
+                 WRITE( MESG, '(A,A,A,A)' ) 'WARNING: BEIS emission species ',
      &               EMSPC( ISP ),' is not found in the Gas-Phase Mechanism. ',
      &               'The surrogate molecular weight will be set to 1.0'
                  CALL LOG_MESSAGE( LOGDEV, MESG )

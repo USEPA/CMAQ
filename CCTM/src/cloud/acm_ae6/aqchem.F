@@ -57,6 +57,7 @@ C                       discussions
 C     14  08/05/03 sjr  revision made to the coarse aerosol number washout
 C     15  04/20/05  us  revisions to add sea salt species in the fine and
 C                       coarse aerosol modes, and HCl dissolution/dissociation
+C         08/01/05 sjr  Modified for sulfate tracking model
 C     16  10/13/05 sjr  fixed bug in the integration time step calculation
 C                       (reported by Bonyoung Koo)
 C     17  03/01/06 sjr  added elemental carbon aerosol; organic aerosols
@@ -111,6 +112,12 @@ C                        aerosols to improve efficiency
 C   15 Jun 15 J.Young:  Fixed bug found by Martin Otte in calculations for scavenging
 C                       aitken aerosols
 C   15 Apr 16 J.Young:  Use aerosol factors from AERO_DATA module named constants
+C   19 Apr 18 K.Fahey:  For species with both gas phase and coarse mode aerosol components, avoid
+C                       introducing extra mass when the coarse mode concentration is greater than 
+C                       the total amount left in the aqueous phase after redistribution between the 
+C                       phases. 
+C   26 Nov 18 S.Napelenok: ISAM implementation
+
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -150,6 +157,9 @@ C-----------------------------------------------------------------------
       USE AQ_DATA         ! doesn't inherit; gets only n_aerospc, conmin from AERO_DATA
       USE AERO_DATA
       USE UTILIO_DEFN
+#ifdef isam
+      USE SA_DEFN, ONLY: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE
+#endif
 
       IMPLICIT NONE
 
@@ -245,11 +255,14 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: EC              ! elemental carbon acc+akn aerosol in cloudwater (mol/liter)
       REAL( 8 ) :: FA              ! functional value ??
       REAL( 8 ) :: FB              ! functional value ??
+      REAL( 8 ) :: FCLCOR          ! frac weight of coarse CL to (acc+coarse) CL
       REAL( 8 ) :: FE              ! Fe+++ conc in cloudwater (mol/liter)
+      REAL( 8 ) :: FHNO3           ! frac weight of HNO3 to total NO3
       REAL( 8 ) :: FNH3            ! frac weight of NH3 to total ammonia
       REAL( 8 ) :: FNH4ACC         ! frac weight of NH4 acc to total ammonia
-      REAL( 8 ) :: FHNO3           ! frac weight of HNO3 to total NO3
-      REAL( 8 ) :: FNO3ACC         ! frac weight of NO3 acc to total NO3
+      REAL( 8 ) :: FNH4COR         ! frac weight of coarse NH4 to (acc+coarse) NH4
+      REAL( 8 ) :: FNO3ACC         ! frac weight of NO3 acc to total NO3     
+      REAL( 8 ) :: FNO3COR         ! frac weight of coarse NO3 to (acc+coarse) NO3
       REAL( 8 ) :: FRACLIQ         ! fraction of water in liquid form
       REAL( 8 ) :: FOA1            ! First dissociation constant for FOA (Formic Acid)
       REAL( 8 ) :: FOAH            ! Henry's Law constant for FOA
@@ -358,6 +371,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: SO4COR          ! coarse SO4= conc in cloudwater (mol/liter)
       REAL( 8 ) :: STION           ! ionic strength
       REAL( 8 ) :: TAC             !
+      REAL( 8 ) :: TCLa            ! sum of accumulation and coarse mode chloride
       REAL( 8 ) :: TEMP1           ! (1/T) - (1/298) (1/K)
       REAL( 8 ) :: TIMEW           ! cloud chemistry clock (sec)
 !     REAL( 8 ) :: THO             ! total hydroxyl radical available for oxidation
@@ -366,13 +380,22 @@ C...........Local Variables (scalars):
       !REAL( 8 ) :: TOTOX           !
       REAL( 8 ) :: TH2O2
       REAL( 8 ) :: TO3
-      REAL( 8 ) :: TMHP
+      REAL( 8 ) :: TMHP      
+      REAL( 8 ) :: TNH4a           ! sum of accumulation and coarse mode ammonium
+      REAL( 8 ) :: TNO3a           ! sum of accumulation and coarse mode nitrate      
       REAL( 8 ) :: TPAA
       REAL( 8 ) :: TOTAMM          ! total ammonium
       REAL( 8 ) :: TOTNIT          ! total nitrate (excluding coarse mode)
       REAL( 8 ) :: TS6             ! SO4 conc in cloudwater (mol/liter)
       REAL( 8 ) :: TS6ACC          ! SO4 acc conc in cloudwater (mol/liter)
       REAL( 8 ) :: TS6COR          ! coarse SO4 conc in cloudwater   (mol/liter)
+C...for sulfur tracking
+      REAL( 8 ) :: TS6AQH2O2       ! SO4 conc from reaction 1 (mol/liter)
+      REAL( 8 ) :: TS6AQO3         ! SO4 conc from reaction 2 (mol/liter)
+      REAL( 8 ) :: TS6AQFEMN       ! SO4 conc from reaction 3 (mol/liter)
+      REAL( 8 ) :: TS6AQMHP        ! SO4 conc from reaction 4 (mol/liter)
+      REAL( 8 ) :: TS6AQPAA        ! SO4 conc from reaction 5 (mol/liter)
+
       REAL( 8 ) :: TSIV            ! total S(iv) available for oxidation
       REAL( 8 ) :: TST             !
       REAL( 8 ) :: TWASH           ! washout time for clouds (sec)
@@ -635,6 +658,27 @@ C...compute fractional weights for several species
         FNH4ACC = 0.0D0
       END IF
 
+      TNO3a = AEROSOL( LNO3, ACC ) + AEROSOL( LNO3, COR ) 
+      IF ( TNO3a .GT. 0.0D0) THEN
+         FNO3COR = AEROSOL( LNO3, COR ) / TNO3a
+      ELSE
+         FNO3COR = 0.0D0
+      END IF
+      
+      TNH4a = AEROSOL( LNH4, ACC ) + AEROSOL( LNH4, COR )
+      IF ( TNH4a .GT. 0.0D0) THEN
+         FNH4COR = AEROSOL( LNH4, COR ) / TNH4a
+      ELSE
+         FNH4COR = 0.0D0
+      END IF
+      
+      TCLa  = AEROSOL( LCL, ACC )  + AEROSOL( LCL, COR )
+      IF ( TCLa .GT. 0.0D0) THEN
+         FCLCOR = AEROSOL( LCL, COR ) / TCLa
+      ELSE
+         FCLCOR = 0.0D0
+      END IF
+      
 C...Assign fraction partitioning of FE(III) and MN(II)
 
       IF ( DARK ) THEN
@@ -769,6 +813,18 @@ C...   = Initial amount - amount deposited  (mol/liter)
         TS6     = LOADING( LSO4,  AKN ) + LOADING( LSO4, ACC ) + TS6COR
      &          - ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
      &          - DS4( 0 )
+        IF ( STM ) THEN
+          TS6AQH2O2 = LOADING( LSO4AQH2O2, ACC ) - WETDEP( LTS6AQH2O2L ) * XC1
+     &              - DS4( 1 )
+          TS6AQO3   = LOADING( LSO4AQO3, ACC ) - WETDEP( LTS6AQO3L ) * XC1
+     &              - DS4( 2 )
+          TS6AQFEMN = LOADING( LSO4AQFEMN, ACC ) - WETDEP( LTS6AQFEMNL ) * XC1
+     &              - DS4( 3 )
+          TS6AQMHP  = LOADING( LSO4AQMHP, ACC ) - WETDEP( LTS6AQMHPL ) * XC1
+     &              - DS4( 4 )
+          TS6AQPAA  = LOADING( LSO4AQPAA, ACC ) - WETDEP( LTS6AQPAAL ) * XC1
+     &              - DS4( 5 )
+        END IF
 
         NA      = LOADING( LNA,   ACC ) + LOADING( LNA, AKN ) + NACOR
      &          - WETDEP( LNAACCL ) * XC1
@@ -798,6 +854,13 @@ C...   = Initial amount - amount deposited  (mol/liter)
 C...don't allow aerosol concentrations to go below zero
 
         TS6     = MAX( TS6,     0.0D0 )
+        IF ( STM ) THEN
+          TS6AQH2O2 = MAX( TS6AQH2O2, 0.0D0 )
+          TS6AQO3   = MAX( TS6AQO3,   0.0D0 )
+          TS6AQFEMN = MAX( TS6AQFEMN, 0.0D0 )
+          TS6AQMHP  = MAX( TS6AQMHP,  0.0D0 )
+          TS6AQPAA  = MAX( TS6AQPAA,  0.0D0 )
+        END IF
         NA      = MAX( NA,      0.0D0 )
         CA      = MAX( CA,      0.0D0 )
         MG      = MAX( MG,      0.0D0 )
@@ -1087,15 +1150,37 @@ C...compute modal concentrations
         TS6ACC  = MAX( TS6  - TS6COR,   0.0D0 )
         SO4ACC  = MAX( SO4  - SO4COR,   0.0D0 )
         HSO4ACC = MAX( HSO4 - HSO4COR,  0.0D0 )
-        NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
         NAACC   = MAX( NA   - NACOR,    0.0D0 )
-        CLACC   = MAX( CL   - CLCOR,    0.0D0 )
-        NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
         CAACC   = MAX( CA   - CACOR,    0.0D0 ) ! AE6
         MGACC   = MAX( MG   - MGCOR,    0.0D0 ) ! AE6
         KACC    = MAX( K    - KCOR,     0.0D0 ) ! AE6
         FEACC   = MAX( FE   - FECOR,    0.0D0 ) ! AE6
         MNACC   = MAX( MN   - MNCOR,    0.0D0 ) ! AE6
+
+C...Avoid adding mass when the coarse mode concentration is greater
+C...  than the total amount left in the aqueous phase after redistribution
+C...  of a species between the gas/aqueous phases
+
+        IF ( NO3COR .GT. NO3 ) then
+           NO3ACC = (1.0D0 - FNO3COR) * NO3
+           NO3COR = FNO3COR * NO3
+        ELSE
+           NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
+        END IF
+
+        IF ( CLCOR .GT. CL ) then
+           CLACC = (1.0D0 - FCLCOR) * CL
+           CLCOR = FCLCOR * CL
+        ELSE
+           CLACC   = MAX( CL   - CLCOR,    0.0D0 )
+        END IF
+
+        IF ( NH4COR .GT. NH4 ) THEN
+           NH4ACC = (1.0D0 - FNH4COR) * NH4
+           NH4COR = FNH4COR * NH4
+        ELSE
+           NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
+        END IF
 
 C...load the liquid concentration array with current values
 
@@ -1151,6 +1236,13 @@ C...load the liquid concentration array with current values
         LIQUID( LSEASCL   ) = SEASCOR ! AE6 - SLN 16March2011
         LIQUID( LFEACCL   ) = FEACC   ! AE6 - SLN 22March2011
         LIQUID( LMNACCL   ) = MNACC   ! AE6 - SLN 22March2011
+        IF ( STM ) THEN
+          LIQUID( LTS6AQH2O2L   ) = TS6AQH2O2
+          LIQUID( LTS6AQO3L     ) = TS6AQO3
+          LIQUID( LTS6AQFEMNL   ) = TS6AQFEMN
+          LIQUID( LTS6AQMHPL    ) = TS6AQMHP
+          LIQUID( LTS6AQPAAL    ) = TS6AQPAA
+        END IF
 
 C...Load array variable TXHG Version
 
@@ -1477,6 +1569,13 @@ C...  to the accumulation mode particles
       AERWDEP( LPOA, AKN ) = 0.0D0
 
       AERWDEP( LSO4, ACC ) = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
+      IF ( STM ) THEN
+        AERWDEP( LSO4AQH2O2, ACC ) = WETDEP( LTS6AQH2O2L )
+        AERWDEP( LSO4AQO3,   ACC ) = WETDEP( LTS6AQO3L   )
+        AERWDEP( LSO4AQFEMN, ACC ) = WETDEP( LTS6AQFEMNL )
+        AERWDEP( LSO4AQMHP,  ACC ) = WETDEP( LTS6AQMHPL  )
+        AERWDEP( LSO4AQPAA,  ACC ) = WETDEP( LTS6AQPAAL  )
+      END IF
       AERWDEP( LNH4, ACC ) = WETDEP( LNH4ACCL )
       AERWDEP( LNO3, ACC ) = WETDEP( LNO3ACCL )
       AERWDEP( LEC,  ACC ) = WETDEP( LECL     )
@@ -1540,6 +1639,13 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LPOA, AKN ) = AEROSOL( LPOA, AKN ) * EALFA3T
 
       AEROSOL( LSO4, ACC ) = TS6ACC * XL * RECIPAP1
+      IF ( STM ) THEN
+        AEROSOL( LSO4AQH2O2, ACC ) = TS6AQH2O2  * XL * RECIPAP1
+        AEROSOL( LSO4AQO3,   ACC ) = TS6AQO3    * XL * RECIPAP1
+        AEROSOL( LSO4AQFEMN, ACC ) = TS6AQFEMN  * XL * RECIPAP1
+        AEROSOL( LSO4AQMHP,  ACC ) = TS6AQMHP   * XL * RECIPAP1
+        AEROSOL( LSO4AQPAA,  ACC ) = TS6AQPAA   * XL * RECIPAP1
+      END IF
       AEROSOL( LEC,  ACC ) = EC     * XL * RECIPAP1
       AEROSOL( LPRI, ACC ) = PRIM   * XL * RECIPAP1
 
@@ -1592,6 +1698,13 @@ C...Compute for Aerosol species in  TXHG Version
 C...store the amount of hydrogen deposition
 
       HPWDEP = REAL( WETDEP( LACL ), 4 )
+
+#ifdef isam
+C... store sulfate production/loss quantities
+      DEPSUM_SAVE =        DEPSUM * XL * RECIPAP1
+      DS4_SAVE    = -1.0 * DS4(0) * XL * RECIPAP1
+      REMOV_SAVE  = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
+#endif
 
       RETURN
 

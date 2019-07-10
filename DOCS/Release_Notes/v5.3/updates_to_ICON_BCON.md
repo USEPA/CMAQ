@@ -1,43 +1,50 @@
 # Updates to the ICON/BCON Preprocessors
 
-**Author/P.O.C.:** [Shawn Roselle](mailto:roselle.shawn@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Shawn Roselle](mailto:roselle.shawn@epa.gov), [Christian
+Hogrefe](mailto:hogrefe.christian@epa.gov), and [Kristen
+Foley](mailto:foley.kristen@epa.gov) Computational Exposure Division, U.S. EPA
 
 ## Brief Description
-Several bug fixes have been addressed in the ICON and BCON updates.  This included:
-(1) compiler info issues in scripts for ICON/BCON; and (2) ICON/BCON 
-compilation problems in v5.3 resulting from changes in files symbolicly linked 
-to the CCTM/src.
 
-An enhancement included in these updates allows for nesting from polar
-stereographic projection grids.
+Several bug fixes have been addressed in the ICON and BCON updates.  This
+includes: (1) compiler info issues in the scripts for ICON/BCON; and (2)
+ICON/BCON compilation problems in v5.3 resulting from changes in files
+symbolicly linked to the CCTM/src.
 
-The preprocessors have also been simplified to: (1) enable selection of IC/BC type 
-(profile, regrid, tracer) as a runtime option instead of the previous build option;
-(2) removal of the species mapping - users will need to use the combine utility
-for species mapping; and (3) removal of the parallel processing code from ICON 
-(feature no longer used/needed).
+Several enhancements are also included in the ICON/BCON updates: support for
+nesting from polar stereographic projection grids; support for nesting from time
+independent gridded files; support vertical interpolation by sigma, Z, and PRES;
+support for time interpolation from gridded files with coarse time resolution.
+ 
 
-The updates also included new profile data from an annual average HCMAQ simulation
-for a marine remote grid cell over the Pacific Ocean (lat 37, lon -157)
-from the OAQPS 2016 HCMAQ CMAQv5.2.1 CB6R3_AE6NVPOA_AQ simulation.
+The preprocessors have also been simplified to: (1) enable selection of IC/BC
+type (regrid, profile, patterns) as a runtime option instead of the previous
+compile-time option; (2) removal of the species mapping - users will need to use
+the combine utility for species mapping; and (3) removal of parallel processing
+code from ICON (feature no longer used/needed).
 
-
+The updates also include a new profile dataset, developed from an annual average
+HCMAQ simulation for a marine remote grid cell over the Pacific Ocean (latitude
+37<sup>o</sup>N, longitude -157<sup>o</sup>W) from a 2016 HCMAQ CMAQv5.3
+CB6R3_AE7NVPOA_AQ simulation.
 
 ## Significance and Impact
-ICON and BCON can now be used to generate ICs/BCs from HCMAQ simulations, 
-using vertical and horizontal interpolation methods already available in 
-ICON and BCON.
 
-The profile data being release with CMAQv5.3 is different from previous 
-model releases.  The profile data included in this release is based on
-a HCMAQ simulation that used chemical mechanism CB6R3_AE6NVPOA_AQ.
-ICON and BCON will no longer map profile data species to different chemical 
-mechanisms. Users will need to use the combine utility on ICON/BCON output
-for species mapping to a different mechanism.
+ICON and BCON can now be used to generate ICs/BCs from HCMAQ simulations, using
+vertical and horizontal interpolation methods available in ICON and BCON.
+
+The profile data being release with CMAQv5.3 is different from previous model
+releases.  The profile data included in this release is based on a HCMAQ
+simulation that used chemical mechanism CB6R3_AE6NVPOA_AQ. ICON and BCON will no
+longer map profile data species to different chemical mechanisms. Users will
+need to use the combine utility on ICON/BCON output for species mapping to a
+different mechanism.
 
 
 ## Affected Files
+
 #### Files modified:
+
 PREP/bcon/scripts/bldit_bcon.csh  
 PREP/bcon/scripts/run_bcon.csh  
 PREP/bcon/src/common/VGRD_DEFN.F  
@@ -72,12 +79,17 @@ PREP/icon/src/profile/prof_icout.F
 PREP/icon/src/profile/prof_vinterp.F  
 PREP/icon/src/tracer/trac_driver.F  
 PREP/icon/src/tracer/trac_ic.F  
+
 #### Files added:
+
+
 PREP/bcon/src/profile/avprofile_cb6r3aero6_hemi2016_col051_row068.csv  
 PREP/bcon/src/profile/legacy_PM_toxics_profile.csv  
 PREP/icon/src/profile/avprofile_cb6r3aero6_hemi2016_col051_row068.csv  
 PREP/icon/src/profile/legacy_PM_toxics_profile.csv  
+
 #### Files deleted:
+
 PREP/bcon/src/common/CGRID_SPCS.F  
 PREP/bcon/src/common/UTILIO_DEFN.F  
 PREP/bcon/src/common/gc_spc_map.F  
@@ -150,14 +162,19 @@ PREP/icon/src/prof_data/saprc99_ae6_aq/ic_profile_SAPRC99.dat
 
 
 ## References
+
 NA           
 
 -----
+
 ## Internal Records:
+
 #### Relevant Pull Requests:
+
 [PR #423](https://github.com/USEPA/CMAQ_Dev/pull/423)  
 
 #### Commit IDs:
+
 [3a5cd7154d95afdfe1f484a2129ba2597b2e9d9c](https://github.com/USEPA/CMAQ_Dev/pull/423/commits/3a5cd7154d95afdfe1f484a2129ba2597b2e9d9c)  
 [ae51bdb1fe6bcfd96ecba54ac03828753223ca0a](https://github.com/USEPA/CMAQ_Dev/pull/423/commits/ae51bdb1fe6bcfd96ecba54ac03828753223ca0a)  
 [95e3fbabe3006860eae1991cd11a5d72e8dc0402](https://github.com/USEPA/CMAQ_Dev/pull/423/commits/95e3fbabe3006860eae1991cd11a5d72e8dc0402)  

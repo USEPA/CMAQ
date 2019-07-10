@@ -23,11 +23,11 @@ C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the SAPRC07TIC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TIC_AE6I_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -91,8 +91,6 @@ c...Allocatable arrays
       REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
       REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
 
-      REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
-      REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
       LOGICAL, ALLOCATABLE   :: LFLAGIRR    ( :,:,: )     ! Conduct IRR for cell
 
@@ -308,42 +306,47 @@ c..Species indices
       INTEGER, PARAMETER :: IMAEP            =  200
       INTEGER, PARAMETER :: IHMMLP           =  201
       INTEGER, PARAMETER :: AIETETJ          =  202
-      INTEGER, PARAMETER :: AIEOSJ           =  203
-      INTEGER, PARAMETER :: ADIMJ            =  204
-      INTEGER, PARAMETER :: AIMGAJ           =  205
-      INTEGER, PARAMETER :: AIMOSJ           =  206
-      INTEGER, PARAMETER :: AALK1J           =  207
-      INTEGER, PARAMETER :: AOLGAJ           =  208
-      INTEGER, PARAMETER :: AALK2J           =  209
-      INTEGER, PARAMETER :: AXYL1J           =  210
-      INTEGER, PARAMETER :: AXYL2J           =  211
-      INTEGER, PARAMETER :: ATOL1J           =  212
-      INTEGER, PARAMETER :: ATOL2J           =  213
-      INTEGER, PARAMETER :: ABNZ1J           =  214
-      INTEGER, PARAMETER :: ABNZ2J           =  215
-      INTEGER, PARAMETER :: ATRP1J           =  216
-      INTEGER, PARAMETER :: AOLGBJ           =  217
-      INTEGER, PARAMETER :: ATRP2J           =  218
-      INTEGER, PARAMETER :: AISO1J           =  219
-      INTEGER, PARAMETER :: AISO2J           =  220
-      INTEGER, PARAMETER :: ASQTJ            =  221
-      INTEGER, PARAMETER :: APAH1J           =  222
-      INTEGER, PARAMETER :: APAH2J           =  223
-      INTEGER, PARAMETER :: PCVOC            =  224
-      INTEGER, PARAMETER :: PCSOARXN         =  225
-      INTEGER, PARAMETER :: VLVPO1           =  226
-      INTEGER, PARAMETER :: VSVPO1           =  227
-      INTEGER, PARAMETER :: VSVPO2           =  228
-      INTEGER, PARAMETER :: VSVPO3           =  229
-      INTEGER, PARAMETER :: VIVPO1           =  230
-      INTEGER, PARAMETER :: VLVOO1           =  231
-      INTEGER, PARAMETER :: VLVOO2           =  232
-      INTEGER, PARAMETER :: VSVOO2           =  233
-      INTEGER, PARAMETER :: VSVOO3           =  234
-      INTEGER, PARAMETER :: VSVOO1           =  235
-      INTEGER, PARAMETER :: AMTNO3J          =  236
-      INTEGER, PARAMETER :: AMTHYDJ          =  237
-      INTEGER, PARAMETER :: AISOPNNJ         =  238
-      INTEGER, PARAMETER :: AGLYJ            =  239
+      INTEGER, PARAMETER :: ASO4J            =  203
+      INTEGER, PARAMETER :: AIEOSJ           =  204
+      INTEGER, PARAMETER :: ADIMJ            =  205
+      INTEGER, PARAMETER :: AIMGAJ           =  206
+      INTEGER, PARAMETER :: AIMOSJ           =  207
+      INTEGER, PARAMETER :: AALK1J           =  208
+      INTEGER, PARAMETER :: AOLGAJ           =  209
+      INTEGER, PARAMETER :: AALK2J           =  210
+      INTEGER, PARAMETER :: AXYL1J           =  211
+      INTEGER, PARAMETER :: AXYL2J           =  212
+      INTEGER, PARAMETER :: ATOL1J           =  213
+      INTEGER, PARAMETER :: ATOL2J           =  214
+      INTEGER, PARAMETER :: ABNZ1J           =  215
+      INTEGER, PARAMETER :: ABNZ2J           =  216
+      INTEGER, PARAMETER :: ATRP1J           =  217
+      INTEGER, PARAMETER :: AOLGBJ           =  218
+      INTEGER, PARAMETER :: ATRP2J           =  219
+      INTEGER, PARAMETER :: AISO1J           =  220
+      INTEGER, PARAMETER :: AISO2J           =  221
+      INTEGER, PARAMETER :: ASQTJ            =  222
+      INTEGER, PARAMETER :: APAH1J           =  223
+      INTEGER, PARAMETER :: APAH2J           =  224
+      INTEGER, PARAMETER :: APOCI            =  225
+      INTEGER, PARAMETER :: APNCOMI          =  226
+      INTEGER, PARAMETER :: APOCJ            =  227
+      INTEGER, PARAMETER :: APNCOMJ          =  228
+      INTEGER, PARAMETER :: PCVOC            =  229
+      INTEGER, PARAMETER :: PCSOARXN         =  230
+      INTEGER, PARAMETER :: VLVPO1           =  231
+      INTEGER, PARAMETER :: VSVPO1           =  232
+      INTEGER, PARAMETER :: VSVPO2           =  233
+      INTEGER, PARAMETER :: VSVPO3           =  234
+      INTEGER, PARAMETER :: VIVPO1           =  235
+      INTEGER, PARAMETER :: VLVOO1           =  236
+      INTEGER, PARAMETER :: VLVOO2           =  237
+      INTEGER, PARAMETER :: VSVOO2           =  238
+      INTEGER, PARAMETER :: VSVOO3           =  239
+      INTEGER, PARAMETER :: VSVOO1           =  240
+      INTEGER, PARAMETER :: AMTNO3J          =  241
+      INTEGER, PARAMETER :: AMTHYDJ          =  242
+      INTEGER, PARAMETER :: AISOPNNJ         =  243
+      INTEGER, PARAMETER :: AGLYJ            =  244
 
       END MODULE HRDATA

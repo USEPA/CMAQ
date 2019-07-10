@@ -86,6 +86,7 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN,  Only: LIRR                     ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
+      USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 
       IMPLICIT NONE 
 
@@ -179,7 +180,6 @@ C..SCRATCH LOCAL VARIABLES:
       REAL DX                 ! Cell x-dimension
       REAL DY                 ! Cell  y-dimension
       
-!     REAL, ALLOCATABLE, SAVE :: CONV   ( : )
       REAL, ALLOCATABLE, SAVE :: SEAICE ( :, : )          ! fractional seaice cover, [-] 
 
 !      REAL, ALLOCATABLE, SAVE :: DENSA_J( :, :, : )      ! Cell density (Kg/m**3)
@@ -188,16 +188,7 @@ C..SCRATCH LOCAL VARIABLES:
       REAL, ALLOCATABLE, SAVE :: QV     ( :, :, : )      ! Cell water vapor (Kg/Kg air)
       REAL, ALLOCATABLE, SAVE :: TA     ( :, :, : )      ! Cell temperature (K)
 
-      REAL,    ALLOCATABLE       :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
-      REAL,    ALLOCATABLE       :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE, SAVE :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
-
-
-      INTEGER     GXOFF, GYOFF          ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, SAVE :: STRTCOLEM1, ENDCOLEM1, STRTROWEM1, ENDROWEM1
 
       REAL( 8 ), ALLOCATABLE, SAVE :: Y_DEGRADE ( : , : ) ! concentration array used
                                                           ! by degradation routines
@@ -250,6 +241,13 @@ C for INTERPX
 
 C**********************************************************************
 
+#ifdef isam
+      MSG = 'ERROR: SMVGEAR Chemistry Solver does not perform source apportionment.'
+      WRITE(LOGDEV,'(A)')TRIM( MSG )
+      MSG = 'Must use the EBI solver for the chemical mechanism'
+      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+#endif
+
       IF ( NUMB_MECH_SPC .EQ. 0 ) RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -265,7 +263,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL JSPARSE
          CALL RESET_SPECIES_POINTERS( IOLD2NEW )
 
-         NOXYZ = MY_NCOLS * MY_NROWS * NLAYS
+         NOXYZ = NCOLS * NROWS * NLAYS
          MAOMV =  MWAIR / MWWAT
          
 C...Initialize and report data
@@ -276,56 +274,17 @@ C...Initialize and report data
 
          WRITE( LOGDEV, 92040 ) ERRMAX( 1 ), YLOW( 1 )
 
-C.. Get fractional seawater coverage from the OCEAN file.
-
-         ALLOCATE( OPEN_ZONE( NCOLS, NROWS ), SURF_ZONE( NCOLS, NROWS ) )
-
-         CALL SUBHFILE ( OCEAN_1, GXOFF, GYOFF,
-     &                   STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3 )
-
-         VNAME = 'OPEN'
-         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
-     &                       JDATE, JTIME, OPEN_ZONE ) ) THEN
-            MSG = 'Could not read OPEN from ' // OCEAN_1
-            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
-
-C.. Get fractional surf-zone coverage from the OCEAN file.
-
-         VNAME = 'SURF'
-         IF ( .NOT. INTERPX( OCEAN_1, VNAME, PNAME,
-     &                       STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,1,
-     &                       JDATE, JTIME, SURF_ZONE ) ) THEN
-            MSG = 'Could not read SURF from ' // OCEAN_1
-            CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-         END IF
-
          ALLOCATE( LAND_ZONE( NCOLS, NROWS ) )
          
          DO ROW = 1, NROWS
             DO COL = 1, NCOLS
-               IF( OPEN_ZONE( COL,ROW ) + SURF_ZONE( COL,ROW ) .GT. 0.0 )THEN
+               IF( OCEAN( COL,ROW ) + SZONE( COL,ROW ) .GT. 0.0 )THEN
                    LAND_ZONE( COL,ROW ) = .FALSE.
                ELSE
                    LAND_ZONE( COL,ROW ) = .TRUE.
                END IF
              END DO
          END DO
-
-         DEALLOCATE( OPEN_ZONE, SURF_ZONE )
-
-         CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                   STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-
-         CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                   STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-!        ALLOCATE ( CONV( NLAYS ), STAT = ALLOCSTAT )
-!        IF ( ALLOCSTAT .NE. 0 ) THEN
-!           MSG = 'Failure allocating CONV'
-!           CALL M3EXIT ( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-!        END IF
 
          ALLOCATE( DENS( NCOLS, NROWS, NLAYS ), PRES( NCOLS, NROWS, NLAYS ),
      &             QV  ( NCOLS, NROWS, NLAYS ), TA  ( NCOLS, NROWS, NLAYS ),
@@ -379,56 +338,24 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CHEMSTEP = REAL( ITMSTEP, 8 ) / 60.0D0
       CALL NEXTIME( MIDDATE, MIDTIME, SEC2TIME( ITMSTEP / 2 ) )
 
+
 C.. Get fractional seaice coverage from the METCRO2D file.
 
-      VNAME = 'SEAICE'
-      IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                    MIDDATE, MIDTIME, SEAICE ) ) THEN
-         MSG = 'Could not read SEAICE from MET_CRO_2D'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      END IF
- 
+      CALL INTERPOLATE_VAR ('SEAICE', MIDDATE, MIDTIME, SEAICE)
+
 C.. Get ambient temperature in K
 
-      VNAME = 'TA' 
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MIDDATE, MIDTIME, TA ) ) THEN
-         MSG = 'Could not read TA from MET_CRO_3D'
-         CALL M3EXIT( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
-      ENDIF
-      
+      CALL INTERPOLATE_VAR ('TA', MIDDATE, MIDTIME, TA)
+
 C.. Get specific humidity in Kg H2O / Kg air
+      CALL INTERPOLATE_VAR ('QV', MIDDATE, MIDTIME, QV)
 
-      VNAME = 'QV'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MIDDATE, MIDTIME, QV ) ) THEN
-         MSG = 'Could not read QV from MET_CRO_3D'
-         CALL M3EXIT( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
-      ENDIF 
-      
-C.. Get density in Kg/m^3
-
-      VNAME = 'DENS'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MIDDATE, MIDTIME, DENS ) ) THEN
-         MSG = 'Could not read DENS from MET_CRO_3D'
-         CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
-      ENDIF
+! Get ambient MASS DENSITY in Kg/m^3
+      CALL INTERPOLATE_VAR ('DENS', MIDDATE, MIDTIME, DENS)
 
 C.. Get pressure in Pascals
+      CALL INTERPOLATE_VAR ('PRES', MIDDATE, MIDTIME, PRES)
 
-      VNAME = 'PRES'
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MIDDATE, MIDTIME, PRES ) ) THEN
-         MSG = 'Could not read PRES from MET_CRO_3D'
-         CALL M3EXIT ( PNAME, MIDDATE, MIDTIME, MSG, XSTAT1 )
-      ENDIF
- 
 C.. Get Heterogeneous reaction rates using aerosol surface area. Also
 C   store the initial surface area so that it can be updated after the
 C   solver finds a solution.

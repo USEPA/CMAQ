@@ -137,10 +137,8 @@ setenv CTM_ADV_CFL 0.95      #> max CFL [ default: 0.75]
 #setenv RB_ATOL 1.0E-09      #> global ROS3 solver absolute tolerance [ default: 1.0E-07 ] 
 
 #> Science Options
-setenv CTM_SS_AERO Y         #> use inline Sea Spray Aerosol emissions [ default: Y ]
+setenv CTM_OCEAN_CHEM Y      #> Flag for ocean halogen chemistry and sea spray aerosol emissions [ default: Y ]
 setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y ]
-setenv CTM_ERODE_AGLAND Y    #> use agricultural activity for windblown dust 
-                             #>    [ default: N ]; ignore if CTM_WB_DUST = N
 setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
                              #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
@@ -148,7 +146,6 @@ setenv CTM_WVEL Y            #> save derived vertical velocity component to conc
                              #>    file [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
-setenv CTM_ILDEPV Y          #> calculate in-line deposition velocities [ default: Y ]
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
 setenv CTM_FST N             #> mosaic method to get land-use specific stomatal flux 
                              #>    [ default: N ]
@@ -156,12 +153,12 @@ setenv PX_VERSION Y          #> WRF PX LSM
 setenv CLM_VERSION N         #> WRF CLM LSM
 setenv NOAH_VERSION N        #> WRF NOAH LSM
 setenv CTM_ABFLUX N          #> ammonia bi-directional flux for in-line deposition 
-                             #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
-setenv CTM_BIDI_FERT_NH3 T   #> subtract fertilizer NH3 from emissions because it will be handled
+                             #>    velocities [ default: N ]
+setenv CTM_BIDI_FERT_NH3 F   #> subtract fertilizer NH3 from emissions because it will be handled
                              #>    by the BiDi calculation [ default: Y ]
 setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line deposition 
-                             #>    velocities [ default: N ]; ignore if CTM_ILDEPV = N
-setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]; ignore if CTM_ILDEPV = N
+                             #>    velocities [ default: N ]
+setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
 
@@ -184,12 +181,6 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
-setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
-                             #>   rather than checking the emissions date against the internal model date.
-                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
-                             #>   time will be used and an error check will be performed (recommended). Users 
-                             #>   may switch the behavior for individual emission files below using the variables:
-                             #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_##
  
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
@@ -330,7 +321,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j.ncf
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
-  setenv GR_EM_DTOVRD_001 F
   
   #> In-Line Point Emissions Files
   setenv N_EMIS_PT 7          #> Number of elevated source groups
@@ -366,16 +356,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_LAB_006 PT_OILGAS
   setenv STK_EMIS_LAB_007 PT_MARINE
 
-  # Allow CMAQ to Use Point Source files with dates that do not
-  # match the internal model date
-  setenv STK_EM_DTOVRD_001 T
-  setenv STK_EM_DTOVRD_002 T
-  setenv STK_EM_DTOVRD_003 T
-  setenv STK_EM_DTOVRD_004 T
-  setenv STK_EM_DTOVRD_005 T
-  setenv STK_EM_DTOVRD_006 T
-  setenv STK_EM_DTOVRD_007 T
- 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
      setenv LTNGNO "InLine"    #> set LTNGNO to "Inline" to activate in-line calculation
@@ -393,7 +373,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      set IN_BEISpath = ${INPDIR}/surface
      setenv GSPRO      ${BLD}/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd.smoke30_beis361.12US1.2011_BELD4.1_foliage_biomass_species_new_em3.ncf
-     setenv BIOG_SPRO  DEFAULT
      setenv BIOSW_YN   Y     #> use frost date switch [ default: Y ]
      setenv BIOSEASON  $IN_BEISpath/bioseason.cmaq.2014_12us1_wetland.ghrsst.ncf_full
                              #> ignore season switch file if BIOSW_YN = N
@@ -409,26 +388,17 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv DUST_LU_1 $LUpath/beld3_12US1_459X299_output_a.ncf
      setenv DUST_LU_2 $LUpath/beld4_12US1_459X299_output_tot.ncf
      setenv MODIS_FPAR $LUpath/modis_fpar_lai_12km_10yrAvg_daily_ioapi.ncf
-
-     if ( $CTM_ERODE_AGLAND == 'Y' ) then
-        setenv CROPMAP01 ${LUpath}/BeginPlanting_12km.ncf
-        setenv CROPMAP04 ${LUpath}/EndPlanting_12km.ncf
-        setenv CROPMAP08 ${LUpath}/EndHarvesting_12km.ncf
-     endif
   endif
-
+  
   #> In-line sea spray emissions configuration
   setenv OCEAN_1 $SZpath/12US1_surf.ncf #> horizontal grid-dependent surf zone file
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
 # need to modify for FEST-C v1.4, but those files not available for 2014
-     setenv E2C_Soilfile  ${LUpath}/epic/US1_12km_soil.nc
-     setenv E2C_Fertfile  ${LUpath}/epic/US1_12km_time${YYYYMMDD}.nc    
-     setenv B4LU_file     ${LUpath}/beld4_12kmCONUS_2006nlcd.ncf
-     setenv E2C_SOIL ${E2C_Soilfile}
-     setenv E2C_FERT ${E2C_Fertfile}
-     setenv BELD4_LU ${B4LU_file}
+     setenv E2C_SOIL ${LUpath}/epic/US1_12km_soil.nc
+     setenv E2C_CHEM ${LUpath}/epic/US1_12km_time${YYYYMMDD}.nc
+     setenv E2C_LU ${LUpath}/beld4_12kmCONUS_2006nlcd.ncf
   endif
 
 #> Inline Process Analysis 
@@ -444,6 +414,17 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      endif
   endif
 
+#> Sulfur Tracking Model (STM)
+ setenv STM_SO4TRACK N        #> sulfur tracking [ default: N ]
+ if ( $?STM_SO4TRACK ) then
+    if ( $STM_SO4TRACK == 'Y' || $STM_SO4TRACK == 'T' ) then
+
+      #> option to normalize sulfate tracers [ default: Y ]
+      setenv STM_ADJSO4 Y
+
+    endif
+ endif
+ 
 # =====================================================================
 #> Output Files
 # =====================================================================

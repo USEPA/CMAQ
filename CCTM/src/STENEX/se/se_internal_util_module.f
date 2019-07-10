@@ -253,6 +253,8 @@ C
 C   Orginal version: 11/05/99 by David Wong
 C                    05/04/01 by David Wong
 C                     -- remove all leading double blank spaces
+C                    09/19/18 by David Wong
+C                     -- remove unused variables
 C --------------------------------------------------------------------------
 
         subroutine se_string_to_integer (str, data, n)
@@ -260,9 +262,8 @@ C --------------------------------------------------------------------------
         character (len = *), intent(inout) :: str
         integer, intent(inout) :: data(*)
         integer, intent(out) :: n
-        character (len = 80) :: loc_str
 
-        integer i, j, stat, len
+        integer i, j, stat
         logical stop
 
 C -- remove all leading double blank spaces

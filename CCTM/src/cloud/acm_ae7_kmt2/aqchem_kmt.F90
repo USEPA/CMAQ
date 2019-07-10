@@ -262,12 +262,13 @@
       
       REAL( 8 ) :: STARTM(4), ENDM(4), MBAL(4)
       
-      REAL( 8 ) :: OLIGGLY, OLIGMGLY                        ! Fraction of GLY/MGLY that oligomerizes upon evaporation
+      REAL( 8 ) :: OLIGGLY, OLIGMGLY                        ! If considering oligomerization, fraction of GLY/MGLY that remains in aerosol 
+                                                            ! upon droplet evaporation
 
       REAL(kind=dp) :: T, DVAL(NSPEC)                       ! KPP integrator variables
       REAL(kind=dp) :: RSTATE(20)                           ! KPP integrator variables
 
-      INTEGER :: I, IGAS, IAER, IMOD, count, J, OLIG, OPTPY
+      INTEGER :: I, IGAS, IAER, IMOD, count, J, OLIG
 
 !...........External Functions:
 
@@ -301,6 +302,13 @@
          IF ( INDEX ( MECHNAME, 'SAPRC07TIC' ) .GT. 0 ) THEN
             STIC = .TRUE.
          END IF 
+
+!...Make sure STM option is not set
+
+         IF ( STM ) THEN
+            XMSG = 'STM option not implemented in KMT AQCHEM'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
 
 !... set MW ratios and speciation factors for molar concentrations of coarse
 !... soluble aerosols
@@ -345,7 +353,7 @@
   
       END IF    ! FIRSTIME
       
-! Henry's Law coefficients from HLCONST
+!...Set Henry's Law coefficients and other options
 
       SO2H   = HLCONST( 'SO2             ', TEMP2, .FALSE., 0.0 )
       CO2H   = HLCONST( 'CO2             ', TEMP2, .FALSE., 0.0 )
@@ -376,24 +384,31 @@
 
       ONE_OVER_TEMP = 1.0D0 / TEMP2
       
-      JH2O2 = jh2o2_hydrometeors
+      JH2O2 = jh2o2_hydrometeors    ! H2O2 photolysis rate calculated for gas phase chemistry
 
-        ISPC8 = 0
-        IF(AEI) ISPC8 = 1 
+!...AE6I and AE7I includes AIETETJ, AIEOSJ, ADIMJ, AIMGAJ, and AIMOSJ species. AE6/7 uses AISO3J to represent IEPOX SOA.
+     
+      ISPC8 = 0
+      IF(AEI) ISPC8 = 1 
 
-        MTPYRAC = 0
-        IF(STIC) MTPYRAC = 1
+!...SAPRC07TIC includes pyruvic acid in the gas phase mech.  For that mech, allow pyruvic acid to transfer between phases
+     
+      MTPYRAC = 0
+      IF(STIC) MTPYRAC = 1
+      
+!...Flag to keep a fraction of aqueous glyoxal and methylglyoxal in aerosol phase upon droplet evaporation.       
        
-        OLIG = 0 !OLIGOMERIZATION OF GLY/MGLY UPON DROPLET EVAPORATION 
-                 !1= ON, 0 = OFF
-                 !USE LATER IF TRANSPORTING CLD SOA SPECIES EXPLICITLY
-                 !Set to 0 for now
+      OLIG = 0 !OLIGOMERIZATION OF GLY/MGLY UPON DROPLET EVAPORATION 
+               !1= ON, 0 = OFF -- Default = 0
+               !Could consider if SOA species were explicitly tracked
 
-        OLIGGLY =  OLIG * 3.3D-1  !(De Haan et al., 2009; Liu et al., 2012)
-        OLIGMGLY = OLIG * 1.9D-1
+      OLIGGLY =  OLIG * 3.3D-1  !(De Haan et al., 2009; Liu et al., 2012)
+      OLIGMGLY = OLIG * 1.9D-1
+      
+!...Flag to consider a simply estimated photolysis rate for those rates not previously calculated for gas phase chemistry
 
-        PHOTO = 0 ! =1 to estimate photolysis rate(s) with a single value modulated by COSZEN
-                  ! =0 to ignore photolysis rates not calculated externally in photolysis module
+      PHOTO = 0 ! =1 to estimate photolysis rate(s) with a single value modulated by COSZEN
+                ! =0 to ignore photolysis rates not calculated externally in photolysis module (default)
 
 !...Check for bad temperature, cloud air mass, or pressure
 
@@ -781,41 +796,17 @@ kron: DO WHILE (T < TEND)
       GASWDEP( LHO2 ) = VAR( ind_WD_HO2 )
       GASWDEP( LHCHOP ) = VAR( ind_WD_CH2OHYDP )
       
-      
-      OPTPY = 2  ! 1 = ALL PYRAC GOES OUT TO GAS
-                 ! 2 = G_PYRAC + L_PYRAC TO GAS; L_PYRACMIN TO AERO
-                 ! 3 = 30% TO GAS, 70% TO AERO
-                 ! 4 = ALL PYRAC GOES OUT TO AERO
-      
-      APYRAC = 0.d0 ! comment for CMAQ
-      WDPYRAC = 0.d0 ! comment for CMAQ
+      APYRAC = 0.d0 
+      WDPYRAC = 0.d0
       
       IF( MTPYRAC .GT. 0 ) THEN
-         IF(OPTPY .EQ. 1) THEN
-            GAS( LPYRUV ) = ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) + &
-                              VAR( ind_L_PYRACMIN ) )*INVCFAC
-            GASWDEP( LPYRUV ) = VAR( ind_WD_PYRAC )
-            WDPYRAC = 0
-            APYRAC = 0
-         ELSE IF(OPTPY .EQ. 2) THEN
-            GAS( LPYRUV ) = ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) )*INVCFAC
-            GASWDEP( LPYRUV ) = VAR( ind_WD_PYRAC )
-            WDPYRAC = 0
-            APYRAC = VAR( ind_L_PYRACMIN )
-         ELSE IF(OPTPY .EQ. 3) THEN
-            GAS( LPYRUV ) = 0.3d0 * ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) + &
-                            VAR( ind_L_PYRACMIN ) )*INVCFAC
-            GASWDEP( LPYRUV ) = 0.3d0 * VAR( ind_WD_PYRAC )
-            WDPYRAC = 0.7d0 * VAR( ind_WD_PYRAC )
-            APYRAC = 0.7d0 * ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) + &
-                               VAR( ind_L_PYRACMIN ) )
-         ELSE 
-            GAS( LPYRUV ) = 0.d0
-            GASWDEP( LPYRUV ) = 0.d0
-            WDPYRAC = VAR( ind_WD_PYRAC )
-            APYRAC = ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) + &
-                       VAR( ind_L_PYRACMIN ) )
-         END IF      
+         GAS( LPYRUV ) = ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) )*INVCFAC  ! returning G_PYRAC and L_PYRAC
+                                                                              ! to the gas phase when gas phase
+                                                                              ! pyruvic acid species exists in 
+									      ! gas phase mechanism
+         GASWDEP( LPYRUV ) = VAR( ind_WD_PYRAC )
+         WDPYRAC = 0
+         APYRAC = VAR( ind_L_PYRACMIN )
       ELSE
          WDPYRAC = VAR(ind_WD_PYRAC) 
          APYRAC = VAR( ind_L_PYRAC ) + VAR( ind_L_PYRACMIN ) 
@@ -823,8 +814,6 @@ kron: DO WHILE (T < TEND)
       
 
       AEROSOL(LORGC,ACC) = (VAR(ind_L_ORGC) + ((74.04/177.)*VAR(ind_L_GLYAC)) + ((90.03/177.)*VAR(ind_L_OXLAC)) &
-!      + ((90.03/177.)*VAR(ind_L_OXLACMIN)) + ((90.03/177.)*VAR(ind_L_OXLACMIN2)) + ((88.06/177.)*VAR(ind_L_PYRAC)) & 
-!      + ((88.06/177.)*VAR(ind_L_PYRACMIN)) + ((76.05/177.)*VAR(ind_L_GCOLAC)) + ((74.04/177.)*VAR(ind_L_GLYACMIN)) &
       + ((90.03/177.)*VAR(ind_L_OXLACMIN)) + ((90.03/177.)*VAR(ind_L_OXLACMIN2)) + ((88.06/177.)* APYRAC ) & 
       + ((76.05/177.)*VAR(ind_L_GCOLAC)) + ((74.04/177.)*VAR(ind_L_GLYACMIN)) &
       + ((76.05/177.)*VAR(ind_L_GCOLACMIN)) &
@@ -832,13 +821,12 @@ kron: DO WHILE (T < TEND)
   
       AERWDEP(LORGC,ACC) = VAR(ind_WD_ORGC) + ((74.04/177.)*VAR(ind_WD_GLYAC)) + &
                           ((90.03/177.)*VAR(ind_WD_OXLAC))  + & 
-!                          ((88.06/177.)*VAR(ind_WD_PYRAC) + & 
                           ((88.06/177.)* WDPYRAC) + &
                           ((76.05/177.)*VAR(ind_WD_GCOLAC)) + &
                            (58.04/177.)*OLIGGLY*VAR(ind_WD_GLY) + (72.06/177.)*OLIGMGLY*VAR(ind_WD_MGLY)
   
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!         
-! Convert to appropriate units (mol / m2)
+!...Convert to appropriate units (mol / m2)
      
       DO I = 1,NGAS
          GASWDEP( I ) = GASWDEP( I ) * WFACTOR

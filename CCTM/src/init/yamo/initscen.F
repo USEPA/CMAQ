@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE INITSCEN ( CGRID, TSTEP, NSTEPS )
+      SUBROUTINE INITSCEN ( CGRID, TSTEP)
 
 C-----------------------------------------------------------------------
 C Function:
@@ -63,6 +63,9 @@ C                        removed deprecated TRIMLEN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   Aug 15 D.Wong:    Added two new subroutine calls to open ACONC and WDEP files
 C   Dec 15 D.Wong: new routine wr_init to write the initial data to the CONC file
+C   1 Feb 19 David Wong: Implemented centralized I/O approach, removed
+C                        all MY_N clauses
+C   29 Oct 18 L.Zhou, S.Napelenok: isam implementation
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -75,6 +78,10 @@ C-----------------------------------------------------------------------
 #endif
 #ifdef parallel
       USE VERTEXT_MODULE
+#endif
+
+#ifdef isam
+      USE SA_DEFN
 #endif
 
       IMPLICIT NONE
@@ -92,7 +99,7 @@ C Arguments:
                                 ! TSTEP(2) = sciproc sync. step (chem)
                                 ! TSTEP(3) = twoway model time step w.r.t. wrf time
                                 !            step and wrf/cmaq call frequency
-      INTEGER      NSTEPS       ! run duration, as number of output time steps
+!     INTEGER      NSTEPS       ! run duration, as number of output time steps
 
 C Parameters:
 
@@ -124,29 +131,34 @@ C Local Variables
             INTEGER, INTENT( IN )         :: JTIME
             INTEGER, INTENT( IN )         :: TSTEP
          END SUBROUTINE WR_INIT
+#ifdef isam
+         SUBROUTINE SA_ARRAY_INIT ( CGRID )
+            IMPLICIT NONE
+            REAL, POINTER                 :: CGRID( :,:,:,: )
+         END SUBROUTINE SA_ARRAY_INIT
+         SUBROUTINE OP_SA ( JDATE, JTIME, TSTEP, NSTEPS, FNAME )
+            IMPLICIT NONE
+            INTEGER :: JDATE, JTIME
+            INTEGER :: TSTEP(2)
+            INTEGER :: NSTEPS
+            CHARACTER( 16 ) :: FNAME
+         END SUBROUTINE OP_SA
+         SUBROUTINE SA_OPWDDEP ( SADEPFILE, JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            CHARACTER( 16 ) :: SADEPFILE ! Dry or wet dep file for tags
+            INTEGER         :: JDATE, JTIME, TSTEP
+         END SUBROUTINE SA_OPWDDEP
+#endif
       END INTERFACE
 
 C-----------------------------------------------------------------------
 
       TSTEP( 1 ) = LOCAL_TSTEP 
 
-#ifndef twoway
-      ! Calculate number of output time steps for this model run:
-      IF ( RUNLEN .LT. 1000000 ) THEN
-         TOTSECS  = TIME2SEC( RUNLEN )
-      ELSE
-         RUNLEN = RUNLEN - 1000000
-         TOTSECS  = TIME2SEC( RUNLEN )
-         TOTSECS  = TOTSECS + 360000
-      END IF
-      STEPSECS = TIME2SEC( TSTEP( 1 )  )
-
-      IF ( MOD( TOTSECS, STEPSECS ) .EQ. 0 ) THEN
-         NSTEPS = TOTSECS / STEPSECS
-      ELSE
-         MSG = 'Output time step ' // HHMMSS( TSTEP( 1 ) ) //
-     &         ' does not divide duration ' // HHMMSS( RUNLEN )
-         CALL M3EXIT( PNAME, STDATE, STTIME, MSG, XSTAT1 )
+#ifdef isam
+      IF ( MYPE .EQ. 0 ) THEN
+         WRITE( LOGDEV,* ) 'Entered INITSCEN...'
+         WRITE( LOGDEV,* ) 'NSPC_SA, NTAG_SA:', NSPC_SA, NTAG_SA
       END IF
 #endif
 
@@ -163,8 +175,8 @@ C Load CGRID
          do v = gc_strt, gc_fini
             s = v + 1 - gc_strt
             sumcg = 0.0
-            do r = 1, my_nrows
-               do c = 1, my_ncols
+            do r = 1, nrows
+               do c = 1, ncols
                   sumcg = sumcg + cgrid( c,r,l,v )
                end do
             end do
@@ -224,6 +236,17 @@ C Test opening existing conc file for update
       CALL SUBST_BARRIER
       
       CALL LOG_HEADING( LOGDEV, "Check Initial Concentrations" )
+
+#ifdef isam
+C KWOK: initialize ISAM array
+      CALL SA_ARRAY_INIT ( CGRID )
+
+C KWOK: open new files SA_CONC_1, SA_CGRID_1 and write data to it
+      CALL SUBST_BARRIER
+      CALL OP_SA ( STDATE, STTIME, TSTEP, 1, SA_CONC_1 )
+      IF ( MYPE .EQ. 0 ) CALL SA_OPWDDEP ( SA_WD_1, STDATE, STTIME, TSTEP( 1 ) )
+#endif
+
 
       RETURN
       END

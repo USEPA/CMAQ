@@ -17,6 +17,7 @@
 !   3. New heterogeneous reactions (<HET_CLNO3_WAJ> and <HET_CLNO3_WAK>) from
 !      hemispheric halogen chemical mechanism
 !   4. implemented temperature and pressure-dependent CS/QY for CLNO2
+! 040319 HOT Pye: IEPOX uptake now consumes inorganic sulfate
 !
 !---------------------------------
 CB6R3_AE7_AQ
@@ -431,8 +432,10 @@ REACTIONS[CM] =
 ! updated reaction rate 
 <HAL_Ozone> O3 =  %H # 2.8964E-11@-11.9978 & 0.0E-0@-0.0;
 
-! added het reaction based on EPOX 
-<HET_IEPOX> EPOX = AISO3J  # 1.0~<HETERO_IEPOX>;
+! heterogeneous acid-catalyzed uptake of isoprene-epoxydiols 
+<HET_IEPOX>   EPOX = IEPOXP               # 1.0~<HETERO_IEPOX>;
+<HET_IEPOXOS> IEPOXP + ASO4J = AISO3J     # 1.0~<HETERO_IEPOXOS>;
+<HET_TETROL>  IEPOXP = AISO3J             # 1.0~<HETERO_TETROL>;
 
 ! GLY and MGLY uptake
 <HET_GLY>  GLY  = AGLYJ # 1.0~<HETERO_GLY>;
@@ -460,6 +463,12 @@ REACTIONS[CM] =
 <OLIG_ISOPRENE1>  AISO1J = 0.50*AOLGBJ # 9.48816E-6;
 <OLIG_ISOPRENE2>  AISO2J = 0.50*AOLGBJ # 9.48816E-6;
 <OLIG_SESQT1>     ASQTJ  = 1.50*AOLGBJ # 9.48816E-6;
+
+!aging reactions for primary organic carbon
+<RPOAGEPI> APOCI   + OH = 1.25*APNCOMI + APOCI + OH # 2.5E-12;
+<RPOAGELI> APNCOMI + OH = OH                        # 1.0~<HETERO_PNCOMLI>;
+<RPOAGEPJ> APOCJ   + OH = 1.25*APNCOMJ + APOCJ + OH # 2.5E-12;
+<RPOAGELJ> APNCOMJ + OH = OH                        # 1.0~<HETERO_PNCOMLJ>;
 
 ! Formation of Potential Combustion SOA (pcSOA)
 <PCSOA>  PCVOC + OH       = OH  + PCSOARXN  # 1.25E-11;

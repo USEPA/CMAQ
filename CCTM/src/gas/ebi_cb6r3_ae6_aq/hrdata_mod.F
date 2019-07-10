@@ -23,11 +23,11 @@ C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Feb 12, 2019
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -97,8 +97,6 @@ c...Allocatable arrays
       REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
       REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
 
-      REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
-      REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
       LOGICAL, ALLOCATABLE   :: LFLAGIRR    ( :,:,: )     ! Conduct IRR for cell
 
@@ -241,26 +239,30 @@ c..Species indices
       INTEGER, PARAMETER :: APAH2J           =  127
       INTEGER, PARAMETER :: AALK1J           =  128
       INTEGER, PARAMETER :: AALK2J           =  129
-      INTEGER, PARAMETER :: PCVOC            =  130
-      INTEGER, PARAMETER :: PCSOARXN         =  131
-      INTEGER, PARAMETER :: VLVPO1           =  132
-      INTEGER, PARAMETER :: VSVPO1           =  133
-      INTEGER, PARAMETER :: VSVPO2           =  134
-      INTEGER, PARAMETER :: VSVPO3           =  135
-      INTEGER, PARAMETER :: VIVPO1           =  136
-      INTEGER, PARAMETER :: VLVOO1           =  137
-      INTEGER, PARAMETER :: VLVOO2           =  138
-      INTEGER, PARAMETER :: VSVOO2           =  139
-      INTEGER, PARAMETER :: VSVOO3           =  140
-      INTEGER, PARAMETER :: VSVOO1           =  141
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  142
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  143
-      INTEGER, PARAMETER :: BUTADIENE13      =  144
-      INTEGER, PARAMETER :: ACROLEIN         =  145
-      INTEGER, PARAMETER :: ACRO_PRIMARY     =  146
-      INTEGER, PARAMETER :: TOLU             =  147
-      INTEGER, PARAMETER :: HG               =  148
-      INTEGER, PARAMETER :: HGIIAER          =  149
-      INTEGER, PARAMETER :: HGIIGAS          =  150
+      INTEGER, PARAMETER :: APOCI            =  130
+      INTEGER, PARAMETER :: APNCOMI          =  131
+      INTEGER, PARAMETER :: APOCJ            =  132
+      INTEGER, PARAMETER :: APNCOMJ          =  133
+      INTEGER, PARAMETER :: PCVOC            =  134
+      INTEGER, PARAMETER :: PCSOARXN         =  135
+      INTEGER, PARAMETER :: VLVPO1           =  136
+      INTEGER, PARAMETER :: VSVPO1           =  137
+      INTEGER, PARAMETER :: VSVPO2           =  138
+      INTEGER, PARAMETER :: VSVPO3           =  139
+      INTEGER, PARAMETER :: VIVPO1           =  140
+      INTEGER, PARAMETER :: VLVOO1           =  141
+      INTEGER, PARAMETER :: VLVOO2           =  142
+      INTEGER, PARAMETER :: VSVOO2           =  143
+      INTEGER, PARAMETER :: VSVOO3           =  144
+      INTEGER, PARAMETER :: VSVOO1           =  145
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  146
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  147
+      INTEGER, PARAMETER :: BUTADIENE13      =  148
+      INTEGER, PARAMETER :: ACROLEIN         =  149
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  150
+      INTEGER, PARAMETER :: TOLU             =  151
+      INTEGER, PARAMETER :: HG               =  152
+      INTEGER, PARAMETER :: HGIIAER          =  153
+      INTEGER, PARAMETER :: HGIIGAS          =  154
 
       END MODULE HRDATA

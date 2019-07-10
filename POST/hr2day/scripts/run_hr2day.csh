@@ -19,9 +19,17 @@
  cd ../../..
  source ./config_cmaq.csh
 
-#> Set the model version
- set VRSN = v53
-
+#> Set General Parameters for Configuring the Simulation
+ set VRSN      = v53               #> Code Version
+ set PROC      = mpi               #> serial or mpi
+ set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set APPL      = SE53BENCH         #> Application Name (e.g. Gridname)
+                                                      
+#> Define RUNID as any combination of parameters above or others. By default,
+#> this information will be collected into this one string, $RUNID, for easy
+#> referencing in output binaries and log files as well as in other scripts.
+ setenv RUNID  ${VRSN}_${compilerString}_${APPL}
+ 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
  if ( ! $?BINDIR ) then
@@ -34,6 +42,13 @@
 #> Set location of CMAQ repo.  This will be used to point to the time zone file
 #> needed to run bldoverlay.  
  setenv REPO_HOME ${CMAQ_REPO}
+
+#> Set output directory
+ setenv POSTDIR    ${CMAQ_DATA}/POST    #> Location where hr2day file will be written
+
+  if ( ! -e $POSTDIR ) then
+	  mkdir $POSTDIR
+  endif
 
 
 # =====================================================================
@@ -78,14 +93,14 @@
 #> the input file(s). If these dates are not specified, the processing
 #> will be performed for the longest possible time record that can be
 #> derived from the model input file(s)
- setenv START_DATE 2011182
- setenv END_DATE 2011195
+ setenv START_DATE 2016182
+ setenv END_DATE 2016195
 
 #> set input and output files
- setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
-# setenv M3_FILE_2 ${CMAQ_DATA}/POST/COMBINE_ACONC_201108.nc
+ setenv M3_FILE_1 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
+# setenv M3_FILE_2 ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201608.nc
           #[Add location of one or more (up to 366) input files, e.g. COMBINE_ACONC file.]
- setenv OUTFILE ${CMAQ_DATA}/POST/dailymaxozone.nc
+ setenv OUTFILE ${POSTDIR}/dailymaxozone_${RUNID}.nc
 
 #> Executable call:
  ${BINDIR}/${EXEC}

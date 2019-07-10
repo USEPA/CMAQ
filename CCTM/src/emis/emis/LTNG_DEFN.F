@@ -55,6 +55,10 @@
 !C                       In the meantime, it still can read the files with old name by 
 !C                       defining a LT_NAME variable. A bug fix related to read RC variable
 !C                       from met input file is also implemented.
+!C  01 Feb 2019 D. Wong: Implemented centralized I/O approach, removed all MY_N clauses
+!C  12 Mar 2019 D. Wong: Implemented centralized I/O approach to the twoway portion of the code
+!C                       and fixed a bug to handle the output time step is less than 1 hour
+!C                       scenario properly
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -92,11 +96,6 @@
       REAL,    ALLOCATABLE, SAVE :: LTNG_RC        ( :,: ) ! convective rainfall
 !C allocate these if LPARAM
       REAL,    ALLOCATABLE, SAVE :: NLDN_STRIKE    ( :,: ) ! Hourly NLDN strike data
-      REAL,    ALLOCATABLE, SAVE :: OCEAN_MASK     ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: SLOPE          ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: INTERCEPT      ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: SLOPE_lg       ( :,: ) ! reduce offshore strikes
-      REAL,    ALLOCATABLE, SAVE :: INTERCEPT_lg   ( :,: ) ! reduce offshore strikes
       REAL,    ALLOCATABLE, SAVE :: ICCG           ( :,: ) ! intercloud strikes per cloud to ground strike
 !C Vertical coord values
       REAL,    ALLOCATABLE, SAVE :: VGLVSLT        ( : )
@@ -108,10 +107,8 @@
       INTEGER,              SAVE :: LTIME     ! test time to update emissions diag avg
       INTEGER                    :: FTIME     ! Start time to Write to Diagnostic files
 
-      INTEGER,              SAVE :: GXOFF, GYOFF   ! global origin offset from file
-      INTEGER,              SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       INTEGER,              SAVE :: LT_TSTEP
+      INTEGER                    :: LT_TSTEP_F  ! same time step info as LT_TSTEP but in HHMMSS format
 
       CONTAINS
 
@@ -123,6 +120,7 @@
          USE GRID_CONF ! horizontal & vertical domain specifications
          USE CGRID_SPCS         ! CGRID mechanism species
          USE UTILIO_DEFN
+         USE CENTRALIZED_IO_MODULE, only : RCA_AVAIL, ICCG_SUM, ICCG_WIN
 #ifdef twoway
          USE twoway_data_module
 #endif
@@ -145,7 +143,7 @@
          CHARACTER( 16 )       :: PNAME = 'LTNG_INIT'
          CHARACTER( 80 )       :: VARDESC   ! env variable description
          CHARACTER( 120 )      :: XMSG = ' '
-         REAL                  :: LAT, LON, X, Y, VAL
+         REAL                  :: X, Y, VAL
          INTEGER               :: C, R
 
          LOGICAL LTNGPARAM           ! env var to use lightning NO parameters file
@@ -161,8 +159,6 @@
 !-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
-
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Lightning NO Emissions' )
 
 !C Lightning NO production
          IF ( .NOT. LTNG_NO ) RETURN
@@ -208,22 +204,6 @@
      &              FSREAD3, 'MET_CRO_3D', PNAME )
 #endif
 
-!C Read description of domain (there may be a better way to get this info)
-            IF ( .NOT. DESC3( MNAME ) ) THEN
-               XMSG = 'Could not get description of file "'
-     &              // TRIM( MNAME ) // '"'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-!C Check grid definition (initialize if first call)
-            OK = CHKGRID( MNAME )
-
-!C Get domain window info for met_cro_3d file
-            CALL SUBHFILE ( MNAME, GXOFF, GYOFF,
-     &              STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-
 !C Is lightning NO production inline, or from a file?
          IF ( LTNG_FNAME .EQ. "InLine" ) THEN  ! inline lightning NO production
             XMSG = 'Using in-line lightning NO production'
@@ -248,8 +228,7 @@
                   CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                   SUCCESS = .FALSE.; RETURN
            END IF
-           SPC = INDEX1( 'RCA', NVARS3D, VNAME3D )
-           IF ( SPC .GT. 0 ) THEN
+           IF ( RCA_AVAIL ) THEN
                RC_NAME = 'RCA'
            ELSE
                RC_NAME = 'RC'
@@ -281,6 +260,8 @@
                  CALL M3MSG2( XMSG )
             END IF  !END if NLDNSTRIKE
 
+            LT_TSTEP_F = SEC2TIME (LT_TSTEP)
+
 !C Set Lambert projection
             IF ( .NOT. SETLAM( SNGL( P_ALP3D ),
      &            SNGL( P_BET3D ),
@@ -297,11 +278,6 @@
             CALL CHECKMEM( STATUS, 'VGLVSLT', PNAME )
 
             ALLOCATE( ICCG        ( NCOLS,NROWS ),
-     &                   OCEAN_MASK  ( NCOLS,NROWS ),
-     &                   SLOPE       ( NCOLS,NROWS ),
-     &                   INTERCEPT   ( NCOLS,NROWS ),
-     &                   SLOPE_lg    ( NCOLS,NROWS ),
-     &                   INTERCEPT_lg( NCOLS,NROWS ),
      &                   LTNG_PRSFC  ( NCOLS,NROWS ),
      &                   NLDN_STRIKE ( NCOLS,NROWS ),
      &                   LTNG_RC     ( NCOLS,NROWS ),STAT = STATUS )
@@ -311,53 +287,10 @@
                   CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                   SUCCESS = .FALSE.; RETURN
                END IF
-!C read in the ocean mask and parameter file if needed, if NLDN strike
-!C is used, only the OCEAN MASK values are needed, the rest will be ignored          
-               IF ( .NOT. XTRACT3( ONAME, "OCNMASK", 1, 1,  
-     &                             STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
-     &                             JDATE, JTIME, OCEAN_MASK ) ) THEN
-                  XMSG = 'Could not read OCNMASK from' // TRIM( ONAME ) // '"'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-
-               IF ( .NOT. XTRACT3( ONAME, "SLOPE", 1, 1,
-     &                             STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3, 
-     &                             JDATE, JTIME, SLOPE ) ) THEN
-                  XMSG = 'Could not read SLOPE from' // TRIM( ONAME ) // '"'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-               IF ( .NOT. XTRACT3( ONAME, "INTERCEPT", 1, 1, 
-     &                             STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
-     &                             JDATE, JTIME, INTERCEPT ) ) THEN
-                  XMSG = 'Could not read INTERCEPT from' // TRIM( ONAME) // '"'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-               IF ( .NOT. XTRACT3( ONAME, "SLOPE_lg", 1, 1,
-     &                             STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
-     &                             JDATE, JTIME, SLOPE_lg ) ) THEN
-                  XMSG = 'Could not read SLOPE_lg from' // TRIM( ONAME ) // '"'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-               IF ( .NOT. XTRACT3( ONAME, "INTERCEPT_lg", 1, 1,
-     &                             STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
-     &                             JDATE, JTIME, INTERCEPT_lg ) ) THEN
-                  XMSG = 'Could not read INTERCEPT_lg from' // TRIM( ONAME ) // '"'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
                IF ( CJDATE .GT. 90 .AND. CJDATE .LT. 274 ) THEN
-                  IF ( .NOT. XTRACT3( ONAME, "ICCG_SUM", 1, 1,
-     &                                STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
-     &                             JDATE, JTIME, ICCG ) ) THEN
-                     XMSG = 'Could not read ICCG from' // TRIM( ONAME ) // '"'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF
+                  ICCG = ICCG_SUM
                ELSE
-                  IF ( .NOT. XTRACT3( ONAME, "ICCG_WIN", 1, 1,
-     &                                STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
-     &                             JDATE, JTIME, ICCG ) ) THEN
-                     XMSG = 'Could not read ICCG from' // TRIM( ONAME ) // '"'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF
+                  ICCG = ICCG_WIN
                END IF
 !            END IF  !LPARAM
 !C Store local layer information
@@ -486,6 +419,14 @@
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
          USE UTILIO_DEFN
+         USE CENTRALIZED_IO_MODULE, only : interpolate_var,
+     &                                     OCEAN_MASK,
+     &                                     SLOPE,
+     &                                     INTERCEPT,
+     &                                     SLOPE_lg,
+     &                                     INTERCEPT_lg,
+     &                                     ICCG_SUM,
+     &                                     ICCG_WIN
 #ifdef twoway
          USE twoway_data_module
 #endif
@@ -529,6 +470,7 @@
          CHARACTER( 120 )  :: XMSG = ' '
          REAL, ALLOCATABLE :: COLUMN_LTNG_NO ( :,: ) ! column total NO
          
+         INTEGER,     SAVE :: GXOFF, GYOFF   ! global origin offset from file
          INTEGER,     SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
 
          INTEGER           :: cjdate
@@ -566,52 +508,26 @@ C statement function for ERF approximation
 !C read in the hourly lightning strike file
 #ifdef twoway
             IF(wrf_lightning_assim) THEN
-              IF ( .NOT. INTERPX( RNAME, 'LNT', PNAME,
-     &                   STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1, 
-     &                       JDATE, JTIME, NLDN_STRIKE ) ) THEN
-                     XMSG = 'Could not read LNT from ' // TRIM(RNAME)
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-              END IF
+              call interpolate_var ('LNT', jdate, jtime, NLDN_STRIKE)
 !C Interpret the timestep NLDN_STRIKE value into hourly value
               NLDN_STRIKE = NLDN_STRIKE*60/LT_ASM_DT
                wrf_assim = .TRUE.
 !               WRITE(*,*) "Max NLDN_STRIKE = ", MAXVAL(NLDN_STRIKE)
             ELSE
               IF ( .NOT. NLDNSTRIKE ) THEN
-                IF ( .NOT. INTERPX( RNAME, RC_NAME, PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1,
-     &                       JDATE, JTIME, LTNG_RC) ) THEN
-                     XMSG = 'Could not read LTNG_RC from ' // TRIM(RNAME)
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                END IF
+                call interpolate_var (RC_NAME, jdate, jtime, LTNG_RC)
 !C Interpret the timestep RC value into hourly value
                 LTNG_RC = LTNG_RC*DTSTEP
               END IF
             END IF
-            IF ( .NOT. INTERPX( RNAME, 'PRSFC', PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2,STRTROWMC2,ENDROWMC2, 1,1, 
-     &                       JDATE, JTIME, LTNG_PRSFC ) ) THEN
-                     XMSG = 'Could not read PRSFC from ' // TRIM(RNAME)
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
+            call interpolate_var ('PRSFC', jdate, jtime, LTNG_PRSFC)
 #else
             IF ( R_READY ) THEN
                IF ( .NOT. NLDNSTRIKE ) THEN
-                 IF ( .NOT. XTRACT3( RNAME, RC_NAME, 1, 1,
-     &                       STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
-     &                       LDATE, LTIME, LTNG_RC) ) THEN
-                     XMSG = 'Could not extract LTNG_RC from ' // TRIM(RNAME)
-                     CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
-                 END IF
+                  call interpolate_var (RC_NAME, ldate, ltime, LTNG_RC)
                END IF
-               IF ( .NOT. XTRACT3( RNAME, 'PRSFC', 1, 1,
-     &                       STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3,
-     &                       LDATE, LTIME, LTNG_PRSFC ) ) THEN
-                     XMSG = 'Could not extract PRSFC from ' // TRIM(RNAME)
-                     WRITE( LOGDEV,'(5X,A,I7.7,1X,I6.6)')'For ',
-     &               LDATE, LTIME
-                     CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
-               END IF
+               call interpolate_var ('PRSFC', ldate, ltime, LTNG_PRSFC)
+
                IF ( .NOT. NLDNSTRIKE ) THEN
                   R_READY = .FALSE.
                END IF
@@ -620,13 +536,8 @@ C statement function for ERF approximation
 
             IF( R_READY ) THEN
                IF ( NLDNSTRIKE ) THEN
-                  IF ( .NOT. XTRACT3( ANAME, LT_NAME, 1, 1,
-     &                          STRTROWMC3,ENDROWMC3,STRTCOLMC3,ENDCOLMC3, 
-     &                             LDATE, LTIME, NLDN_STRIKE ) ) THEN
-                        XMSG = 'Could not read NLDN_STRIKE from' // TRIM( ANAME )
-                        CALL M3EXIT( PNAME, LDATE, LTIME, XMSG, XSTAT2 )
-                  END IF
-                     R_READY = .FALSE.
+                  call interpolate_var ('NLDNstrk', ldate, ltime, NLDN_STRIKE)
+                  R_READY = .FALSE.
                END IF  ! NLDNSTRIKE
             END IF     !R_READY
             ALLOCATE( COLUMN_LTNG_NO( NCOLS,NROWS ), STAT = STATUS )
@@ -636,8 +547,8 @@ C statement function for ERF approximation
             END IF
             COLUMN_LTNG_NO( :,: ) = 0.0
 !C Iterate over each grid cell and distribute lightning NO vertically
-               DO ROW = 1, MY_NROWS
-                  DO COL = 1, MY_NCOLS
+               DO ROW = 1, NROWS
+                  DO COL = 1, NCOLS
                      IF ( NLDNSTRIKE .or. wrf_assim ) THEN
                         COLUMN_LTNG_NO( COL,ROW ) =
      &                     ( NLDN_STRIKE( COL,ROW )
@@ -677,8 +588,8 @@ C statement function for ERF approximation
 
             VDEMIS_LT = 0.0   ! array assignment
 
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
+            DO ROW = 1, NROWS
+               DO COL = 1, NCOLS
 
 !C check to see if there are lightning strikes for this grid cell
 !C only calculate lightning for cloud top greater than 6500 meters
@@ -755,7 +666,7 @@ C statement function for ERF approximation
                MTICS = NTICS
                NTICS = 0
                TOT_TSTEP = 0
-               CALL NEXTIME( LDATE, LTIME, TSTEP( 1 ) )
+               CALL NEXTIME( LDATE, LTIME, LT_TSTEP_F)
                R_READY = .TRUE.
             END IF
 
@@ -797,13 +708,7 @@ C statement function for ERF approximation
 !C Read in lightning NO production from an input file
             VDEMIS_LT = 0.0   ! array assignment
 
-            IF ( .NOT. INTERPX( LTNG_FNAME, LTSPC, PNAME,
-     &                          STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,LTLYRS,
-     &                          JDATE, JTIME, VDEMIS_LT ) ) THEN
-               XMSG = 'Could not read NO' //
-     &                ' from file "' // TRIM( LTNG_FNAME ) // '"'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
+            call interpolate_var (LTSPC, jdate, jtime, VDEMIS_LT)
 
          END IF  ! end lightning NO production inline or from a file
 

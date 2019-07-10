@@ -23,13 +23,13 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the SAPRC07TC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TC_AE6_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Dec 11, 2018
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -140,7 +140,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 181
+      N_EBISP  = 185
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -315,19 +315,23 @@ c..Allocate and define ebi species
       EBISP( 166 ) = APAH2J
       EBISP( 167 ) = AALK1J
       EBISP( 168 ) = AALK2J
-      EBISP( 169 ) = PCVOC
-      EBISP( 170 ) = PCSOARXN
-      EBISP( 171 ) = VLVPO1
-      EBISP( 172 ) = VSVPO1
-      EBISP( 173 ) = VSVPO2
-      EBISP( 174 ) = VSVPO3
-      EBISP( 175 ) = VIVPO1
-      EBISP( 176 ) = VLVOO1
-      EBISP( 177 ) = VLVOO2
-      EBISP( 178 ) = VSVOO2
-      EBISP( 179 ) = VSVOO3
-      EBISP( 180 ) = VSVOO1
-      EBISP( 181 ) = AISO3J
+      EBISP( 169 ) = APOCI
+      EBISP( 170 ) = APNCOMI
+      EBISP( 171 ) = APOCJ
+      EBISP( 172 ) = APNCOMJ
+      EBISP( 173 ) = PCVOC
+      EBISP( 174 ) = PCSOARXN
+      EBISP( 175 ) = VLVPO1
+      EBISP( 176 ) = VSVPO1
+      EBISP( 177 ) = VSVPO2
+      EBISP( 178 ) = VSVPO3
+      EBISP( 179 ) = VIVPO1
+      EBISP( 180 ) = VLVOO1
+      EBISP( 181 ) = VLVOO2
+      EBISP( 182 ) = VSVOO2
+      EBISP( 183 ) = VSVOO3
+      EBISP( 184 ) = VSVOO1
+      EBISP( 185 ) = AISO3J
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -514,6 +518,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( APAH2J       ) = 5.0D-04
       RTOL( AALK1J       ) = 5.0D-04
       RTOL( AALK2J       ) = 5.0D-04
+      RTOL( APOCI        ) = 5.0D-04
+      RTOL( APNCOMI      ) = 5.0D-04
+      RTOL( APOCJ        ) = 5.0D-04
+      RTOL( APNCOMJ      ) = 5.0D-04
       RTOL( PCVOC        ) = 5.0D-04
       RTOL( PCSOARXN     ) = 5.0D-04
       RTOL( VLVPO1       ) = 5.0D-04
