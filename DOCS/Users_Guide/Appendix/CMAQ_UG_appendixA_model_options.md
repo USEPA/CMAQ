@@ -191,7 +191,7 @@ The following configuration settings may have multiple options. Select one optio
     -   `depv/stage`
     CMAQ stage dry deposition routine.  This option is new in version 5.3. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information. 
 -   `ModEmis: [default: emis/emis]`<a id=ModEmis></a>  
-    CMAQ inline anthropogenic and natural emissions module. In line emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    CMAQ inline anthropogenic and natural emissions module. Inline emissions are activated by the user via the CCTM run script. Do not change this module setting. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     -   `emis/emis`
 -   `ModBiog: [default: biog/beis3]`<a id=ModBiog></a>  
 Calculate biogenic emissions online with the BEIS3 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
@@ -546,7 +546,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  
 
 -   `SOILINP [default: [Out Directory/CCTM_SOILOUT_$RUNID_$YESTERDSY]`<a id=SOILINP></a>  
-    Directory path and file name of biogenic NO soil emissions file. If INITIAL_RUN is set to N or F, the soil NO emissions file from the previous day’s simulation will be a required input file. See [Chapter 6](Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+    Directory path and file name of biogenic NO soil emissions file. If NEW_START is set to N or F, the soil NO emissions file from the previous day`s simulation will be a required input file. See [Chapter 6](Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
 -   `B3GTS_DIAG [default: False]`<a id=B3GTS_DIAG></a>  
     Write the online biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). Set to Y to turn on; comment out or set to N to turn off.  
