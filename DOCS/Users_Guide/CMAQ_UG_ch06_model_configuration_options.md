@@ -183,7 +183,7 @@ Upgrades for version 5.3 includes much greater surface resistances to snow and i
 ### 6.8.2 Dry Depostion - STAGE
 [Return to Top](#Return_to_Top)
 
-In CMAQ v5.3., a new tiled, land use specific, dry deposition scheme, the Surface Tiled Aerosol and Gaseous Exchange (STAGE), option in the CMAQ model has been developed to better estimate atmospheric deposition for terrestrial and aquatic ecosystem health and applications to evaluate the impact of dry deposition on ambient air quality This new scheme explicitly supports Weather Research and Forecasting (WRF) simulations with a variety of land surface schemes, Noah, Pleim-Xiu, etc. The model resistance framework, Figure 6.8.2, parameterizes air-surface exchange as a gradient process and is used for both bidirectional exchange and dry deposition following the widely used resistance model of Nemitz et al. (2001). Grid scale fluxes are estimated from sub-grid cell land use specific fluxes and are area weighted to the grid cell totals which are then output in the standard dry deposition file with positive values indicating deposition and negative values indicating evasion. 
+In CMAQ v5.3., a new tiled, land use specific, dry deposition scheme, the Surface Tiled Aerosol and Gaseous Exchange (STAGE), option in the CMAQ model has been developed to better estimate atmospheric deposition for terrestrial and aquatic ecosystem health and applications to evaluate the impact of dry deposition on ambient air quality. This new scheme explicitly supports Weather Research and Forecasting (WRF) simulations with a variety of land surface schemes, Noah, Pleim-Xiu, etc. The model resistance framework, Figure 6.8.2, parameterizes air-surface exchange as a gradient process and is used for both bidirectional exchange and dry deposition following the widely used resistance model of Nemitz et al. (2001). Grid scale fluxes are estimated from sub-grid cell land use specific fluxes and are area weighted to the grid cell totals which are then output in the standard dry deposition file with positive values indicating deposition and negative values indicating evasion. 
 The model resistances are largely estimated following Massad et al. (2010) with the following exceptions.  Deposition to wetted surfaces considers the bulk accommodation coefficient, following Fahey et al. (2017), and can be a limiting factor for highly soluble compounds.  The in-canopy resistance is derived using the canopy momentum attenuation parameterization from Yi (2008). Aerosol dry deposition includes parameterizations for deposition to water or bare ground surfaces, Giorgi 1986, and vegetated surfaces, Slinn (1982), using the characteristic leaf radius parameterization of Zhang et al. (2001). 
 The ammonia bidirectional option follows the ammonia specific parameterizations of Massad et al. (2010). Mercury bidirectional exchange is also available and follows the parameterization of Bash (2010). In this modeling framework, it is possible to set any species as being bidirectional by providing a parametrization or constant that sets the stomatal, cuticular, soil and/or water compensation point as a value greater than 0. 
 
@@ -283,7 +283,7 @@ setenv STK_EMIS_LAB_002 POINT_FIRES
 ```
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
-*Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide (https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s03.html). It is required that emission files have been processed to include the necessary stack parameters (e.g. Exit velocity, diameter, stack gas temperature, stack height, etc.). 
+*Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide (https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s03.html). It is required that emission files have been processed to include the necessary stack parameters (e.g. exit velocity, diameter, stack gas temperature, stack height, etc.). 
 
 <a id=6.9.2_Online_Emission></a>
 
@@ -304,13 +304,13 @@ Running CMAQ with online biogenics is controlled by the following RunScript flag
 ```
 setenv CTM_BIOGEMIS Y
 ```
-Running CMAQ with online biogenic emissions requires a grid-normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ. The location of the B3GRD file is set in the RunScript:
+Running CMAQ with online biogenic emissions requires a gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. The location of the B3GRD file is set in the RunScript:
 
 ```
 setenv B3GRD /home/user/path-to-file/b3grd.nc
 ```
 
-For short simulations that span only summer months set the SUMMER_YN flag to Y and the BIOSW_YN flat to N in the RunScript so that biogenic emissions will be calculated using summer factors.  
+For short simulations that span only summer months set the SUMMER_YN flag to Y and the BIOSW_YN flat to N in the RunScript so that biogenic emissions will be calculated using summer factors throughout the entire domain.  
 ```
 setenv BIOSW_YN N
 ```
@@ -319,9 +319,9 @@ setenv BIOSW_YN N
 setenv SUMMER_YN Y
 ```
 
-For simulations that span only winter months, set this flag to N.
+For simulations that span only winter months, set this flag to N so that biogenic emissions will be calculated using winter factors throughout the entire domain.
 
-For simulations of spring or fall, or simulations covering multiple seasons, a user must provide a BIOSEASON file.  Without the BIOSEASON file, all biogenic emissions will be calculated using summer factors or winter factors. This file is created with the [metscan](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) program in SMOKE prior to running the inline biogenic option in CMAQ. To use the BIOSEASON file set the following two environment variables in the RunScript:
+For simulations of spring or fall, or simulations covering multiple seasons, a user must set the BIOSW_YN to Y and provide a BIOSEASON file to enable an appropriate mixture of winter and summer emission values across the domain and simulation period.  The BIOSEASON file is created with the [metscan](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) program in SMOKE using the MCIP data for the modeling domain prior to running the inline biogenic option in CMAQ . It provides daily gridded values of an indicator variable derived from MCIP temperature fields to determine whether winter or summer biogenic emission values should be used for a given grid cell and day. To use the BIOSEASON file set the following two environment variables in the RunScript:
 
 ```
 setenv BIOSW_YN Y
