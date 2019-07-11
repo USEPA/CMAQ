@@ -1,20 +1,20 @@
 # Aerosol Dry Deposition Algorithm Updated
 
-**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-It was noted in CMAQv5.2.1 that dry deposition velocities, particularly for coarse-mode 
-particles, were too high by a factor of 10-100 in some cases. Detailed testing revealed that the 
-current algorithm was not suitable for coarse-mode particles, especially when the mode width (sigma) 
+In CMAQv5.2.1, dry deposition velocities--particularly for coarse-mode 
+particles--were too high by a factor of 10-100 in some cases. Detailed testing revealed that the
+algorithm in CMAQv5.2.1 was not suitable for coarse-mode particles, especially when the mode width (sigma) 
 of the coarse mode approached 2.5, the upper bound. 
 
-A revised algorithm reduces the strong dependence on sigma and introduces a dependence on Leaf Area 
-Index meant to capture the increased deposition hypothesized over forest canopies, etc compared to 
+A revised algorithm is introduced in CMAQv5.3 to reduce the strong dependence on sigma and introduce a dependence on Leaf Area 
+Index. This revision intends to capture the increased deposition hypothesized over forest canopies, etc., compared to 
 bluff-body surfaces.
 
 ## Significance and Impact
 The deposition of coarse-mode particles is strongly reduced in areas of the domain with high sigma. 
-Deposition for the corase mode is increased in areas with significant vegetation like the southeast 
+Deposition for the coarse mode is increased in areas with significant vegetation, like the southeast 
 US. The deposition of Aitken-mode particles is increased substantially in highly vegetated areas.
 
 ## Affected Files
