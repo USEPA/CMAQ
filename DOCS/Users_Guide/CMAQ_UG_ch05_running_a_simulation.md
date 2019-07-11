@@ -132,7 +132,7 @@ Science Modules:
 -  Potential vorticity scaling for stratosphere/troposphere exchange (pv_o3)
 -  Meteorology-chemistry coupling (twoway)
 
-The user has the ability to configure the model in a multitude of ways but selecting from different options for each scientific process. Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To modify any run time options, such as turn on in-line biogenic emission calculation or use in-line windblown dust emission, edit the run script, `run_cctm.csh`, and set the corresponding environment variable. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_model_configuration_options.md).  To see a complete list configuration options reference [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md).
+The user has the ability to configure the model in a multitude of ways by selecting from different options for each scientific process. Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To modify any run time options, such as turn on in-line biogenic emission calculation or use in-line windblown dust emission, edit the run script, `run_cctm.csh`, and set the corresponding environment variable. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_model_configuration_options.md).  To see a complete list configuration options reference [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md).
 
 Once the `bldit_cctm.csh` script is configured to the user's preference, the user is ready to run the script to build the CCTM executable. To do this run the following commands:
 
@@ -156,7 +156,7 @@ cd BLD_CCTM_v53_[compiler][version]
 make
 ```
 
-The Make utility is smart enough to compiled only the modified files and all associated file which are defined by the dependency of each source file in the Makefile.
+The Make utility is smart enough to compile only the modified files and all associated file which are defined by the dependency of each source file in the Makefile.
 
 ## 5.7 Running CCTM
 
@@ -455,7 +455,7 @@ and can include the following netCDF-type files: ACONC, APMDIAG, B3GTS_S, CGRID,
 
 Common errors in a CCTM simulation include the following:
 
--  Incorrect paths to input files. Look in the CCTM screen output (capture in your log file) for an Error message about an input file   not being found.
+-  Incorrect paths to input files. Look in the CCTM screen output (captured in your log file) for an Error message about an input file   not being found.
 -  Incorrect MPI implementation. A series of MPI errors at the end of the log file often indicate that the MPI job was not submitted correctly.
 
 Check the last few lines of the CCTM output log for messages to help diagnose why the simulation did not complete.
