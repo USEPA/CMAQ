@@ -1,4 +1,4 @@
-# AQCHEM-KMT2: extended inorganic and organic cloud chemistry using the Kinetic PreProcessor
+# AQCHEM-KMT2: Extended Inorganic and Organic Cloud Chemistry using the Kinetic PreProcessor
 
 [Kathleen M. Fahey](mailto:fahey.kathleen@epa.gov), U.S. Environmental Protection Agency
 
