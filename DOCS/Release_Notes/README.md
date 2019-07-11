@@ -40,7 +40,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
   * [Corrected the conversion of inorganic to organic sulfate](inorganicsulfate_iepox_fix.md)  
 
 ### Other Aerosol Processes
-  * [Dry Deposition Algorithm](aerosol_dry_deposition.md)  
+  * [Aerosol Dry Deposition Algorithm Updated](aerosol_dry_deposition.md)  
   * [Fix to Gravitational Settling Sub-Time-Step Calculation](gravitational_settling.md)  
   
 ### Aqueous and Heterogeneous Chemistry
