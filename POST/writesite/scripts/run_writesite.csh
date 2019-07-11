@@ -19,8 +19,16 @@
  cd ../../..
  source ./config_cmaq.csh
 
-#> Set the model version
- set VRSN = v53
+#> Set General Parameters for Configuring the Simulation
+ set VRSN      = v53               #> Code Version
+ set PROC      = mpi               #> serial or mpi
+ set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set APPL      = SE53BENCH         #> Application Name (e.g. Gridname)
+                                                      
+#> Define RUNID as any combination of parameters above or others. By default,
+#> this information will be collected into this one string, $RUNID, for easy
+#> referencing in output binaries and log files as well as in other scripts.
+ setenv RUNID  ${VRSN}_${compilerString}_${APPL}
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
@@ -35,6 +43,12 @@
 #> needed to run bldoverlay.  The v5.2.1 repo also contains a sample SITE_FILE text file.
  setenv REPO_HOME  ${CMAQ_REPO}
 
+#> Set output directory
+ setenv POSTDIR    ${CMAQ_DATA}/POST     #> Location where writesite file will be written
+
+  if ( ! -e $POSTDIR ) then
+	  mkdir $POSTDIR
+  endif
 
 # =====================================================================
 #> WRITESITE Configuration Options
@@ -74,8 +88,8 @@
  setenv PRT_XY   N         
 
 #> define time window
- set START_DATE = "2011-07-1"     #> first date to process (default is starting date of input file)
- set END_DATE   = "2011-07-1"     #> last date to process (default is ending date of input file)
+ set START_DATE = "2016-07-1"     #> first date to process (default is starting date of input file)
+ set END_DATE   = "2016-07-1"     #> last date to process (default is ending date of input file)
 
 #> Convert START_DATE and END_DATE to Julian day.
 #> (required format for writesite STARTDATE and ENDDATE environment variables)
@@ -86,9 +100,9 @@
  setenv SPECIES_1 O3
 
 #> set input and output files
- setenv INFILE  ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc
+ setenv INFILE  ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc
         #[Add location of input file, e.g. COMBINE_ACONC file.]
- setenv OUTFILE ${CMAQ_DATA}/POST/O3.csv
+ setenv OUTFILE ${POSTDIR}/O3_${RUNID}.csv
 
 #> Executable call:
  ${BINDIR}/${EXEC}

@@ -407,12 +407,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
      # need to modify for FEST-C v1.4.
-     setenv E2C_Soilfile  ${INPDIR}/surface/toCMAQ_festc1.4_epic/us1_2016_cmaq12km_soil.nc
-     setenv E2C_Fertfile  ${INPDIR}/surface/toCMAQ_festc1.4_epic/us1_2016_cmaq12km_time${YYYYMMDD}.nc
-     setenv B4LU_file     ${INPDIR}/surface/beld4_camq12km_2011_4CMAQioapi.ncf
-     setenv E2C_SOIL ${E2C_Soilfile}
-     setenv E2C_FERT ${E2C_Fertfile}
-     setenv BELD4_LU ${B4LU_file}
+     setenv E2C_SOIL ${INPDIR}/surface/toCMAQ_festc1.4_epic/us1_2016_cmaq12km_soil.nc
+     setenv E2C_CHEM ${INPDIR}/surface/toCMAQ_festc1.4_epic/us1_2016_cmaq12km_time${YYYYMMDD}.nc
+     setenv E2C_LU ${INPDIR}/surface/beld4_camq12km_2011_4CMAQioapi.ncf
   endif
 
 #> Inline Process Analysis 
@@ -428,6 +425,17 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      endif
   endif
 
+#> Sulfur Tracking Model (STM)
+ setenv STM_SO4TRACK N        #> sulfur tracking [ default: N ]
+ if ( $?STM_SO4TRACK ) then
+    if ( $STM_SO4TRACK == 'Y' || $STM_SO4TRACK == 'T' ) then
+
+      #> option to normalize sulfate tracers [ default: Y ]
+      setenv STM_ADJSO4 Y
+
+    endif
+ endif
+ 
 # =====================================================================
 #> Output Files
 # =====================================================================

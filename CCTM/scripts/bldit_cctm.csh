@@ -111,6 +111,7 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
  set ModPa     = procan/pa             #> CCTM process analysis
  set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphere
+ set ModStm    = stm                   #> STM utility module and namelist
  set ModISAM   = isam                  #> CCTM Integrated Source Apportionment Method
 
 #============================================================================================
@@ -533,6 +534,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set text = "diag"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDiag};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "stm"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModStm};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "cio"

@@ -45,6 +45,8 @@ SUBROUTINE setup (ctmlays)
 !                        to F90, and improved error handling.  Changed F77
 !                        character declarations to F90 standard.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           15 Nov 2018  Allow WRFv4.0 input to be used.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -68,15 +70,9 @@ SUBROUTINE setup (ctmlays)
 
   CHARACTER(LEN=256), PARAMETER :: f9000 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
-    & /, 1x, '***   ERROR OPENING MM5 FILE ON UNIT ', i3, &
-    & /, 1x, '***   MM5 FILE NAME = ', a, &
-    & /, 1x, '***   IOSTAT = ', i4, &
-    & /, 1x, 70('*'))"
-
-  CHARACTER(LEN=256), PARAMETER :: f9100 = "(/, 1x, 70('*'), &
-    & /, 1x, '*** SUBROUTINE: ', a, &
-    & /, 1x, '***   UNKNOWN OR UNSUPPORTED MM5 OUTPUT VERSION', &
-    & /, 1x, '***   IVERSION = ', i3, &
+    & /, 1x, '***   ERROR OPENING WRF NETCDF FILE', &
+    & /, 1x, '***   FILE = ', a, &
+    & /, 1x, '***   NCF:  ', a, &
     & /, 1x, 70('*'))"
 
   CHARACTER(LEN=256), PARAMETER :: f9200 = "(/, 1x, 70('*'), &
@@ -107,7 +103,7 @@ SUBROUTINE setup (ctmlays)
 
 !-------------------------------------------------------------------------------
 ! Try to determine if input meteorology file is in NetCDF format or not.
-! If NetCDF format, it is probably WRF.  Otherwise, assume it is MM5.
+! If NetCDF format, it is probably WRF.
 !-------------------------------------------------------------------------------
 
   rcode = nf90_open (file_mm(1), nf90_nowrite, cdfid)
@@ -128,7 +124,7 @@ SUBROUTINE setup (ctmlays)
         WRITE (*,f9300) TRIM(pname), 'TITLE', TRIM(nf90_strerror(rcode))
         CALL graceful_stop (pname)
       ENDIF
-      IF ( wrfversion(18:19) == "V3" ) THEN
+      IF ( wrfversion(18:19) >= "V3" ) THEN
         met_iversion = 2  ! NCAR only supports mass core in WRFv3 and beyond
       ELSE
         WRITE (*,f9400) TRIM(pname), TRIM(wrfversion)
@@ -155,33 +151,10 @@ SUBROUTINE setup (ctmlays)
       CALL graceful_stop (pname)
     ENDIF
 
-  ELSE  ! error opening file as NetCDF; assume MM5
+  ELSE  ! error opening file as NetCDF
 
-    !---------------------------------------------------------------------------
-    ! Set up Fortran unit for (first) MM5 input file.
-    ! Call subroutine for set-up based on version of MM5 output format.
-    !---------------------------------------------------------------------------
-
-    met_model = 1
-
-    iutmm = iutmmi
-
-    OPEN (UNIT=iutmmi,  FILE=file_mm(1), FORM='UNFORMATTED', STATUS='OLD',  &
-          IOSTAT=istat)
-
-    IF ( istat > 0 ) THEN  ! error on open
-      WRITE (*,f9000) TRIM(pname), iutmmi, TRIM(file_mm(1)), istat
-      CALL graceful_stop (pname)
-    ENDIF
-
-    CALL getversion
-
-    IF ( met_iversion == 3 ) THEN
-      CALL setup_mm5v3 (ctmlays)
-    ELSE
-      WRITE (*,f9100) TRIM(pname), met_iversion
-      CALL graceful_stop (pname)
-    ENDIF
+    WRITE (*,f9000) TRIM(pname), TRIM(file_mm(1)), TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
 
   ENDIF
 

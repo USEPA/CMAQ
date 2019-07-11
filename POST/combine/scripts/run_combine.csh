@@ -24,7 +24,7 @@
  set VRSN      = v53               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = SE52BENCH         #> Application Name (e.g. Gridname)
+ set APPL      = SE53BENCH         #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy
@@ -59,8 +59,8 @@
 # =====================================================================
 
 #> Set Start and End Days for looping
- set START_DATE = "2011-07-01"     #> beginning date (July 10, 2011)
- set END_DATE   = "2011-07-14"     #> ending date    (July 14, 2011)
+ set START_DATE = "2016-07-01"     #> beginning date (July 1, 2016)
+ set END_DATE   = "2016-07-14"     #> ending date    (July 14, 2016)
  
 #> Set location of species definition files for concentration and deposition species.
  setenv SPEC_CONC $REPO_HOME/POST/combine/scripts/spec_def_files/SpecDef_${MECH}.txt

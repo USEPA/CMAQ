@@ -303,6 +303,13 @@
             STIC = .TRUE.
          END IF 
 
+!...Make sure STM option is not set
+
+         IF ( STM ) THEN
+            XMSG = 'STM option not implemented in KMT AQCHEM'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
 !... set MW ratios and speciation factors for molar concentrations of coarse
 !... soluble aerosols
 
