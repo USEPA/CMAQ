@@ -26,7 +26,7 @@ NA
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #374]   
+[PR #374](https://github.com/USEPA/CMAQ_Dev/pull/374)  
 
 #### Commit 
 IDs:                        
