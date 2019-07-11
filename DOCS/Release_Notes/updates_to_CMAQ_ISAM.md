@@ -3,7 +3,7 @@
 [Sergey L. Napelenok](mailto:napelenok.sergey@epa.gov), U.S. Environmental Protection Agency
  
 ## Brief Description
-The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user-specified ozone and particulate matter precursors within the CMAQ model. CMAQ-ISAM has been substantially updated in for CMAQv5.3.
+The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user-specified ozone and particulate matter precursors within the CMAQ model. CMAQ-ISAM has been substantially updated for CMAQv5.3.
 
 The updates include new algorithms to calculate source tracking through chemistry, cloud, and aerosol modules.  Various code improvements have also contributed to substantially faster run times for CMAQ-ISAM.
  
