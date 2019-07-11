@@ -28,13 +28,19 @@ SUBROUTINE close_files
 !                        Replaced F77 character declarations with F90 standard.
 !                        Improved error handling.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           19 Dec 2018  Added runtime option to choose output format.
+!                        (T. Spero)
 !-------------------------------------------------------------------------------
 
+  USE files
   USE m3utilio
+  USE mcipparm, ONLY: ioform
+  USE netcdf
 
   IMPLICIT NONE
 
   CHARACTER(LEN=16),  PARAMETER     :: pname      = 'CLOSE_FILES'
+  INTEGER                           :: rcode
 
 !-------------------------------------------------------------------------------
 ! Error, warning, and informational messages.
@@ -45,13 +51,42 @@ SUBROUTINE close_files
     & /, 1x, '***   COULD NOT CLOSE I/O API OUTPUT FILES', &
     & /, 1x, 70('*'))"
 
+  CHARACTER(LEN=256), PARAMETER :: f9100 = "(/, 1x, 70('*'), &
+    & /, 1x, '*** SUBROUTINE: ', a, &
+    & /, 1x, '***   ERROR CLOSING NETCDF FILE', &
+    & /, 1x, '***   FILE = ', a, &
+    & /, 1x, '***   ', a, &
+    & /, 1x, 70('*'))"
+
 !-------------------------------------------------------------------------------
-! Use I/O API routine to close I/O API files.
+! Gracefully close output files.
 !-------------------------------------------------------------------------------
 
-  IF ( .NOT. shut3() ) THEN
-    WRITE (*,f9000) TRIM(pname)
-    CALL graceful_stop (pname)
-  ENDIF
+  SELECT CASE ( ioform )
+
+    CASE ( 1 )  ! Models-3 I/O API
+
+      IF ( .NOT. shut3() ) THEN
+        WRITE (*,f9000) TRIM(pname)
+        CALL graceful_stop (pname)
+      ENDIF
+
+    CASE ( 2 )  ! netCDF
+
+      rcode = nf90_close (cdfid_m)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (6,f9100) TRIM(pname), TRIM(mcipncf),  &
+                        TRIM(nf90_strerror(rcode))
+        CALL graceful_stop (pname)
+      ENDIF
+
+      rcode = nf90_close (cdfid_b)
+      IF ( rcode /= nf90_noerr ) THEN
+        WRITE (6,f9100) TRIM(pname), TRIM(mcipbdyncf),  &
+                        TRIM(nf90_strerror(rcode))
+        CALL graceful_stop (pname)
+      ENDIF
+
+  END SELECT
 
 END SUBROUTINE close_files

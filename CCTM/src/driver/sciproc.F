@@ -58,7 +58,7 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN, ONLY: DT2STR, WKDAY
       USE RUNTIME_VARS, ONLY: LOGDEV, OUTDEV, MYPE, CKSUM, 
      &                        PRINT_PROC_TIME, WEEKDAY, 
-     &                        LOG_MESSAGE, TIMING_SPLIT
+     &                        LOG_MESSAGE, TIMING_SPLIT, STM
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
@@ -71,6 +71,8 @@ C-----------------------------------------------------------------------
       USE GRID_CONF
       USE CGRID_SPCS, ONLY: NSPCSD
 #endif
+
+      USE STM_MODULE, ONLY: STM_WRAP_GAS, STM_WRAP_AE
 
       IMPLICIT NONE   
 
@@ -275,9 +277,11 @@ C decouple CGRID for cloud and chemistry
       IF ( LIPR ) CALL PA_UPDATE ( 'CLDS', CGRID, JDATE, JTIME, TSTEP )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CLDPROC' )
 
+      IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .TRUE. )
       CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CHEM', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE ( 'CHEM', CGRID, JDATE, JTIME, TSTEP ) 
+      IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .FALSE. )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CHEM' )
 
 #ifdef potvorto3
@@ -295,6 +299,7 @@ C decouple CGRID for cloud and chemistry
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )
       IF ( LIPR ) CALL PA_UPDATE_AERO ( CGRID, JDATE, JTIME, TSTEP )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
+      IF ( STM ) CALL STM_WRAP_AE ( CGRID, JDATE, JTIME )
 
 #ifdef isam
       CALL SA_WRAP_AE( CGRID0, CGRID, JDATE, JTIME, TSTEP )
