@@ -50,7 +50,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [Changed ACM cloud model to use Z-coordinates](Z-coords%20for%20ACMcloud.md)
  
 ## Air-Surface Exchange
- * [New NH<sub>3</sub> bi-directional flux linked to daily EPIC input](M3dry-Bidi.md)
+ * [New NH<sub>3</sub> bi-directional flux in M3Dry linked to daily EPIC input](M3dry-Bidi.md)
  * [STAGE: Surface Tiled Aerosol and Gaseous Exchange dry deposition option](stage_overview.md)
  * [Minor updates to air-surface exchange options](asx_run_options.md)
 
