@@ -1,18 +1,18 @@
 # Air-Surface Exchange Option Updates
 
-**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
 Three minor updates were made to the options used by CMAQ to drive air-surface exchange processes.  
-1) The option for diagnostic output of dry deposition velocities was added for species CB6 species 
+1) The option for diagnostic output of dry deposition velocities was added for CB6 species 
 IOLE, APIN, EPOX, and NAPH.  
-2) Specification of MEDIACONC output from the previous day was corrected in the default runscripts.  
+2) Specification of MEDIACONC output from the previous day was corrected in the default run scripts.  
 3) The calculation of land-water fraction was updated to correctly consider grid cells that are entirely 
 snow/ice. 
 
 ## Significance and Impact  
 1) Dry deposition velocties are now output for these species.  
-2) CMAQ will correctly initialize the model with the Soil properties from the previous midnight rather 
+2) CMAQ will correctly initialize the model with the soil properties from the previous midnight rather 
 than starting from clean conditions.
 3) Grid cell areas covered in snow/ice will no longer count as water, thereby avoiding instabilities 
 in the algorithm that requires normalizing by the land area fraction.
@@ -31,9 +31,9 @@ NA
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #348]   
-[PR #379]  
-[PR #380]  
+[PR #348](https://github.com/USEPA/CMAQ_Dev/pull/348)
+[PR #379](https://github.com/USEPA/CMAQ_Dev/pull/379) 
+[PR #380](https://github.com/USEPA/CMAQ_Dev/pull/380)
 
 #### Commit 
 IDs:                        
