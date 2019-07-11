@@ -364,25 +364,6 @@ Alternatively, users can also edit the emission control file by commenting out t
 <a id=Table6-1></a>
 **Table 6-1. Aerosol Species Predicted by the Wind-Blown Dust Module** 
 
-      &   emis_table( 'Sulfate       ',   'SO4    ',  96.0, (/ 0.07760, 0.07760/) ),   ! Sulfate
-     &   emis_table( 'Chlorine      ',   'CL     ',  35.5, (/ 0.55380, 0.55380/) ),   ! Chlorine
-     &   emis_table( 'Sodium        ',   'NA     ',  23.0, (/ 0.30860, 0.0    /) ),   ! Sodium
-     &   emis_table( 'Calcium       ',   'CA     ',  40.1, (/ 0.01180, 0.0    /) ),   ! Calcium
-     &   emis_table( 'Magnesium     ',   'MG     ',  24.3, (/ 0.03680, 0.0    /) ),   ! Magnesium
-     &   emis_table( 'Potassium     ',   'K      ',  39.1, (/ 0.01140, 0.0    /) ),   ! Potassium
-     &   emis_table( 'SeaSalt_Cation',   'SEACAT ',  23.75,(/ 0.0    , 0.36860/) ),   ! Sea-Salt Cations
-     &   emis_table( 'Chromium VI   ',   'CR_VI  ',  52.0, (/ 5.95E-9, 5.95E-9/) ),   ! Hexavalent Chromium
-     &   emis_table( 'Nickel        ',   'NI     ',  58.7, (/ 1.34E-8, 1.34E-8/) ),   ! Nickle
-     &   emis_table( 'Arsenic       ',   'AS     ',  74.92,(/ 4.93E-8, 4.93E-8/) ),   ! Arsenic
-     &   emis_table( 'Beryllium     ',   'BE     ',   9.0, (/ 5.2E-11, 5.2E-11/) ),   ! Beryllium
-     &   emis_table( 'Mercury       ',   'PHG    ', 200.5, (/ 5.8E-11, 5.8E-11/) ),   ! Mercury
-     &   emis_table( 'Lead          ',   'PB     ', 207.2, (/ 6.0E-11, 6.0E-11/) ),   ! Lead
-     &   emis_table( 'Cadmium       ',   'CD     ', 112.4, (/ 1.93E-9, 1.93E-9/) ),   ! cadmium
-     &   emis_table( 'Air Toxics Mn ',   'MN_HAPS',  54.9, (/ 4.7E-11, 4.7E-11/) ),   ! Air toxics Manganese
-     &   emis_table( 'Bromine       ',   'BR     ',  79.9, (/ 0.00190, 0.00190/) ),   ! Bromine 
-     &   emis_table( 'Water         ',   'H2O    ',  18.0, (/ 0.0    , 0.0    /) ) /) ! Water (uptake is calculated online)
- 
-
 |**Dust Surrogate Name** | **Default CMAQ Species** | **Description** |
 | --------------- | ---------|--------------------------------------- |
 | PMFINE_SO4      | ASO4     | Fine-mode Sulfate                      |               
@@ -446,7 +427,7 @@ Alternatively, users can also edit the emission control file by commenting out t
 <a id=Table6-2></a>
 **Table 6-2. Aerosol Species Predicted by the Sea-Spray Aerosol Module** 
 
-|**Dust Surrogate Name** | **Default CMAQ Species** | **Description** |
+|**Sea Spray Surrogate Name** | **Default CMAQ Species** | **Description** |
 | --------------- | ---------|--------------------------------------- |
 | PMFINE_SO4      | ASO4     | Fine-mode Sulfate                      |               
 | PMCOARSE_SO4    | ASO4     | Coarse-mode Sulfate                    |             
