@@ -45,7 +45,7 @@ CCTM/src/vdiff/acm2/opddep_fst.F
 CCTM/src/vdiff/acm2/opddep_mos.F
 
 ## References
-Pleim, J.E., Bash, J.O., Walker, J.T., Cooter, E.J. Development and testing of an ammonia bi-directional flux model for air-quality models, *Journal of Geophysical Research--Atmospheres*, **118**, https://doi.org/10.1002/jgrd.50262, 2013.
+Pleim, J.E., Bash, J.O., Walker, J.T., Cooter, E.J. Development and testing of an ammonia bi-directional flux model for air-quality models, *Journal of Geophysical Research-Atmospheres*, **118**, https://doi.org/10.1002/jgrd.50262, 2013.
 
 Williams J. R., 1995. The EPIC model, In: Singh, V.P. (ed.), *Computer models in watershed hydrology*, Water Resources Publications, Highlands Ranch, 909–1000.
 
