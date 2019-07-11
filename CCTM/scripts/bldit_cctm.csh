@@ -76,17 +76,11 @@ set ParOpt                             #> uncomment to build a multiple processo
 #>   archive for a list of the possible settings. Users 
 #>   may also refer to the CMAQ documentation.
 
- set ModDriver = driver/wrf_cons            #> generalized coordinate driver module 
-                                            #>     (see $CMAQ_MODEL/CCTM/src/driver)
- set ModInit   = init                       #> time-step initialization module 
  set ModGrid   = grid/cartesian             #> grid configuration module 
- set ModCpl    = couple/gencoor_wrf_cons    #> unit conversion and concentration coupling module 
-                                            #>     (see $CMAQ_MODEL/CCTM/src/couple)
+ 
  set DepMod    = m3dry                      #> m3dry or stage
-
 #set DepMod    = stage
- set ModHadv   = hadv/ppm                   #> horizontal advection module
- set ModVadv   = vadv/wrf_cons              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
+ set ModAdv    = wrf_cons                   #> 3-D Advection Scheme (see $CMAQ_MODEL/CCTM/src/vadv)
  set ModHdiff  = hdiff/multiscale           #> horizontal diffusion module
  set ModVdiff  = vdiff/acm2_${DepMod}       #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
  set ModDepv   = depv/${DepMod}             #> deposition velocity calculation module 
@@ -315,6 +309,21 @@ set ParOpt                             #> uncomment to build a multiple processo
               -DSUBST_DATA_COPY=${Popt}_DATA_COPY\
               -DSUBST_IN_SYN=${Popt}_IN_SYN )
 
+
+#> 3-D Advection Options
+ if ( $ModAdv == wrf_cons ) then
+    set ModCpl    = couple/gencoor_wrf_cons    #> unit conversion and concentration coupling module 
+                                               #>     (see $CMAQ_MODEL/CCTM/src/couple)
+    set ModHadv   = hadv/ppm                   #> horizontal advection module   
+    set ModVadv   = vadv/wrf_cons              #> Vertical advection module                             
+ else if ($ModAdv == local_cons) then
+    set ModCpl    = couple/gencoor_local_cons  #> unit conversion and concentration coupling module 
+                                               #>     (see $CMAQ_MODEL/CCTM/src/couple)
+    set ModHadv = hadv/ppm                     #> horizontal advection module
+    set ModVadv = vadv/local_cons              #> Vertical advection module
+ endif
+
+
 # ============================================================================
 #> Create Config File 
 # ============================================================================
@@ -407,9 +416,9 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     echo                                                           >> $Cfile
  endif
 
- set text = "wrf_cons and local_cons"
+ set text = "driver"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModDriver};"                                       >> $Cfile
+ echo "Module driver;"                                             >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "cartesian"
@@ -419,7 +428,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
 
  set text = "Init"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModInit};"                                         >> $Cfile
+ echo "Module init;"                                               >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "gencoor_wrf_cons and gencoor_local_cons"

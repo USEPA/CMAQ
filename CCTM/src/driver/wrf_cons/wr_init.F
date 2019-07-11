@@ -1,1 +1,0 @@
-../local_cons/wr_init.F

@@ -32,7 +32,7 @@ C    non-layered) have the same perimeter structure with a thickness of NTHIK
  
 C Subroutines and functions called:
 C    All physical and chemical subroutines, 
-C    DECOUPLE_WRF, COUPLE_WRF
+C    DECOUPLE, COUPLE
  
 C Revision History:
 C    Oct. 24, 1995 by M. Talat Odman and Clint L. Ingram at NCSC: created
@@ -52,6 +52,7 @@ C    16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C    11 May 11 D.Wong: incorporated twoway model implementation
 C    25 Mar 16 R.Mathur: incorporated pot. vorticity strat. O3 scaling
 C    16 Sep 16 J.Young: update for inline procan (IPR)
+C    10 July 19 F. Sidi: Renamed Couple_WRF to be couple
 C-----------------------------------------------------------------------
 
       USE UTILIO_DEFN, ONLY: DT2STR, WKDAY
@@ -131,16 +132,16 @@ C Local Variables:
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
          END SUBROUTINE ZADV
-         SUBROUTINE COUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
+         SUBROUTINE COUPLE ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
-         END SUBROUTINE COUPLE_WRF
-         SUBROUTINE DECOUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
+         END SUBROUTINE COUPLE
+         SUBROUTINE DECOUPLE ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
             INTEGER, INTENT( IN )     :: TSTEP( 3 )
-         END SUBROUTINE DECOUPLE_WRF
+         END SUBROUTINE DECOUPLE
          SUBROUTINE HDIFF ( CGRID, JDATE, JTIME, TSTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -232,11 +233,11 @@ C Synchronization Step Physical Processes Sequence
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'VDIFF' )
 
 C couple CGRID for advection and horizontal diffusion
-C The COUPLE_WRF routine converts aerosol mass from ug/m3 to kg/m3. The 
-C DECOUPL_WRF routine converts it back to ug/m3.
+C The COUPLE routine converts aerosol mass from ug/m3 to kg/m3. The 
+C DECOUPLE routine converts it back to ug/m3.
 
-      CALL COUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
-      IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE_WRF', CGRID, JDATE, JTIME )
+      CALL COUPLE ( CGRID, JDATE, JTIME, TSTEP )
+      IF ( CKSUM ) CALL CKSUMMER ( 'COUPLE', CGRID, JDATE, JTIME )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'COUPLE' )
 
       CALL SUBST_BARRIER()
@@ -261,8 +262,8 @@ C decouple CGRID for cloud and chemistry
       STIME = JTIME
       CALL NEXTIME ( SDATE, STIME, TSTEP( 2 ) )
 
-      CALL DECOUPLE_WRF ( CGRID, SDATE, STIME, TSTEP )
-      IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE_WRF', CGRID, JDATE, JTIME )
+      CALL DECOUPLE ( CGRID, SDATE, STIME, TSTEP )
+      IF ( CKSUM ) CALL CKSUMMER ( 'DECOUPLE', CGRID, JDATE, JTIME )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'DECOUPLE' )
 
       CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
