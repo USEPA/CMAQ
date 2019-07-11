@@ -16,12 +16,11 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-MODULE wrf_netcdf
+MODULE netcdf_io
 
 !-------------------------------------------------------------------------------
-! Name:     WRF NetCDF
-! Purpose:  Contains routines to read NetCDF output in the Weather Research and
-!           Forecasting (WRF) Model I/O API format.
+! Name:     NetCDF IO
+! Purpose:  Contains routines to read NetCDF output.
 ! Revised:  31 Aug 2004  Original version provided by U. Houston.  (S.-B. Kim)
 !           21 Jul 2005  Updated to include error-handling on NetCDF functions
 !                        and to conform to NetCDF standard routines for
@@ -52,6 +51,8 @@ MODULE wrf_netcdf
 !                        (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
 !           02 Feb 2018  Added new routine GET_VAR_3D_INT_CDF.  (T. Spero)
+!           22 Jun 2018  Changed module name from WRF_NETCDF to NETCDF_IO.
+!                        (T. Spero)
 !-------------------------------------------------------------------------------
 
 CONTAINS
@@ -228,4 +229,4 @@ END SUBROUTINE get_var_real_cdf
 !-------------------------------------------------------------------------------
 !-------------------------------------------------------------------------------
 
-END MODULE wrf_netcdf
+END MODULE netcdf_io
