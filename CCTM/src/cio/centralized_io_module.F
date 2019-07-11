@@ -333,6 +333,8 @@
              XMSG = 'Could not open '// LUFRAC_CRO // ' file'
              CALL M3WARN ( PNAME, 0, 0, XMSG )
              LUCRO_AVAIL = .FALSE.
+             XMSG = 'Solution: Reading Land Use Fractions from GRID_CRO_2D file'
+             WRITE(LOGDEV,'(5X,A)')TRIM( XMSG )
           ELSE
              LUCRO_AVAIL = .TRUE.
              IF ( .NOT. DESC3( LUFRAC_CRO ) ) THEN
