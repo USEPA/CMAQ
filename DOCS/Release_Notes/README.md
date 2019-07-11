@@ -41,7 +41,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 
 ### Other Aerosol Processes
   * [Dry Deposition Algorithm](aerosol_dry_deposition.md)  
-  * [Gravitational Settling](gravitational_settling.md)  
+  * [Fix to Gravitational Settling Sub-Time-Step Calculation](gravitational_settling.md)  
   
 ### Aqueous and Heterogeneous Chemistry
  * [AQCHEM-KMT2: Extended inorganic and organic cloud chemistry using the Kinetic PreProcessor](aqchem-kmt2.md)
