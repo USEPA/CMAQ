@@ -64,7 +64,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [IRR analysis available in EBI solvers](allow_ebi_to_do_IRR_analysis.md)
 
 ## Structural Improvements
- * [Standardized and Streamlined Logfiles](logfile.md)
+ * [Log File Output: Streamlining and Centralization](logfile.md)
  * [Moved PHOT to Sciproc](move_phot_to_sciproc.md)
  * [Standardized Units for Output Variables](output_units.md)
 
