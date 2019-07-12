@@ -60,7 +60,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [Biogenic speciation update for *AERO7*](biogenic_apinene.md)
 
 ## Process Analysis
- * [Extension to aerosol sub-processes](aerosol_process_analysis.md)
+ * [Process analysis for aerosol sub-processes](aerosol_process_analysis.md)
  * [IRR analysis available in EBI solvers](allow_ebi_to_do_IRR_analysis.md)
 
 ## Structural Improvements
