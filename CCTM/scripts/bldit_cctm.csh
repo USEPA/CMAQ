@@ -80,7 +80,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  
  set DepMod    = m3dry                      #> m3dry or stage
 #set DepMod    = stage
- set ModAdv    = wrf_cons                   #> 3-D Advection Scheme (see $CMAQ_MODEL/CCTM/src/vadv)
+ set ModAdv    = wrf_cons                   #> 3-D Advection Scheme [Options: wrf_cons (default), local_cons]
  set ModHdiff  = hdiff/multiscale           #> horizontal diffusion module
  set ModVdiff  = vdiff/acm2_${DepMod}       #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
  set ModDepv   = depv/${DepMod}             #> deposition velocity calculation module 
