@@ -1,72 +1,107 @@
-# Logfile Output: Streamlining and Centralization
+# Log File Output: Streamlining and Centralization
 
-**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-CMAQ users and developers have often noted the difficulty in using the default logfile for information 
-about standard runs and encountered errors. The code responsible for generating logfiles has been 
-updated in several important ways:  
-1) The main (i.e. screen) output is now reserved for high-level information pertinent to the simulation. 
+CMAQ users and developers have often noted the difficulty in using the default log file for information 
+about standard runs and encountered errors. The code responsible for generating log files has been 
+updated as follows:
+
+1) The main (i.e., screen) output is now reserved for high-level information pertinent to the simulation. 
 This information includes a list of all environment variables with the values selected for the run, 
-a time-step by time-step log of the runtimes for each sub-process, and a table documenting the per-day 
-runtime for all days. This table is processed and output by the default CMAQ runscript, not by the source 
+a time-step by time-step log of the run times for each sub-process, and a table documenting the per-day 
+run time for all days. This table is processed and output by the default CMAQ runscript, not by the source 
 code.  
-2) Each processor now creates a logfile using the filename syntax CTM_LOG_XXX_... where XXX is the three-
+2) Each processor now creates a log file using the filename syntax *CTM_LOG_XXX_...*, where *XXX* is the three-
 digit processor number. These logs have been updated to better identify and organize the information 
 printed to the logs.
 
 ## Significance and Impact
-The logfiles are now expected to better accomodate the kinds of questions users have about runs they have 
+The log files are now expected to better accomodate the kinds of questions users have about runs they have 
 performed recently or far in the past. The processor-based logfiles should also be slightly better at 
 helping users diagnose errors they encounter. However, crafting more informative logfiles is an ongoing 
 process which requires continual input from users and developers.
 
 ## Affected Files
 CCTM/scripts/EmissCtrl.nml  
+
 CCTM/scripts/run_cctm.csh  
+
 CCTM/src/ICL/fixed/const/CONST.EXT  
+
 CCTM/src/ICL/fixed/emctrl/EMISPRM.EXT  
+
 CCTM/src/ICL/fixed/filenames/FILES_CTM.EXT  
+
 CCTM/src/ICL/fixed/mpi/PE_COMM.EXT  
+
 CCTM/src/ICL/procan/pa/PA_CTL.EXT  
+
 CCTM/src/ICL/procan/pa/PA_DAT.EXT  
+
 CCTM/src/ICL/procan/pa_noop/PA_CTL.EXT  
+
 CCTM/src/ICL/procan/pa_noop/PA_DAT.EXT  
+
 CCTM/src/MECHS/cb6r3_ae6_aq/RXNS_FUNC_MODULE.F90  
+
 CCTM/src/MECHS/cb6r3_ae7_aq/RXNS_FUNC_MODULE.F90  
+
 CCTM/src/MECHS/racm2_ae6_aq/RXNS_FUNC_MODULE.F90  
+
 CCTM/src/MECHS/saprc07tc_ae6_aq/RXNS_FUNC_MODULE.F90  
+
 CCTM/src/MECHS/saprc07tic_ae6i_aq/RXNS_FUNC_MODULE.F90  
+
 CCTM/src/PARIO/boundary.f  
+
 CCTM/src/PARIO/pinterpb.f  
+
 CCTM/src/PARIO/pm3err.f  
+
 CCTM/src/PARIO/pm3exit.f  
+
 CCTM/src/PARIO/pm3warn.f  
+
 CCTM/src/PARIO/ptrwrite3.f  
+
 CCTM/src/PARIO/pwrite3.f  
+
 CCTM/src/PARIO/wrsubdmap.f  
+
 CCTM/src/STENEX/noop/noop_comm_module.f  
+
 CCTM/src/aero/aero6/AEROSOL_CHEMISTRY.F  
+
 CCTM/src/aero/aero6/AERO_DATA.F  
+
 CCTM/src/aero/aero6/AERO_EMIS.F  
+
 CCTM/src/aero/aero6/PRECURSOR_DATA.F  
+
 CCTM/src/aero/aero6/SOA_DEFN.F  
+
 CCTM/src/aero/aero6/aero_driver.F  
-CTM/scripts/run_cctm.csh  
+
+CCTM/scripts/run_cctm.csh  
+
 CCTM/scripts/run_cctm_2010_4CALIF1.csh  
+
 CCTM/scripts/run_cctm_2014_12US1.csh  
+
 CCTM/scripts/run_cctm_2015_HEMI.csh  
+
 CCTM/src/driver/yamo/advstep.F  
 
-## References
-NA           
 
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #277]   
-[PR #382]   
-[PR #384]   
+[PR #277](https://github.com/USEPA/CMAQ_Dev/pull/277)  
+
+[PR #382](https://github.com/USEPA/CMAQ_Dev/pull/382)
+
+[PR #384](https://github.com/USEPA/CMAQ_Dev/pull/384)
 
 #### Commit 
 IDs:                        
