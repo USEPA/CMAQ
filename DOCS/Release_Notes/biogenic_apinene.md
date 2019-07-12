@@ -1,4 +1,4 @@
-# Inline BEIS Speciation Updates
+# Biogenic Speciation Update for *AERO7*
 
 [Havala O. T. Pye](mailto:pye.havala@epa.gov), U.S. Environmental Protection Agency
 
