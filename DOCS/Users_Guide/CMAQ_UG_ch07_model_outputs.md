@@ -17,16 +17,16 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 |----------------------------|------|----|-----------------------------------|
 |**Standard**| | | |
 |[Output Log](#cmaq_output_log) <a id=cmaq_output_log_t></a>|ASCII|n/a|n/a
-|[CCTM_CONC](#conc)<a id=conc_t></a>|GRDDED3|Hourly|XYZ
-|[CCTM_ACONC](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|XY
+|[CCTM_CONC](#conc)<a id=conc_t></a>|GRDDED3|Hourly|XYZ'
+|[CCTM_ACONC](#aconc) <a id=aconc_t></a>|GRDDED3|Hourly|XYZ'
 |[CCTM_DRYDEP](#drydep) <a id=drydep_t></a>|GRDDED3|Hourly|XY
 |[CCTM_WETDEP1](#wetdep) <a id=wetdep_t></a>|GRDDED3|Hourly|XY
 |**Restart**| | | |
 |[CCTM_CGRID](#cgrid) <a id=cgrid_t></a>|GRDDED3|1-hour|XYZ
 |[CCTM_MEDIA](#media)<a id=media_t></a>|GRDDED3|Hourly|XY
-|[CCTM_SOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|Hourly|XY
+|[CCTM_SOILOUT](#soilout) <a id=soilout_t></a>|GRDDED3|n/a (see detailed file description below)|XY
 |**Diagnostic and Advanced**| | | |
-|[CCTM_PMDIAG](#pmdiag) <a id=pmdiag_t></a>|GRDDED3|Hourly|XYZ
+|[CCTM_PMDIAG](#pmdiag) <a id=pmdiag_t></a>|GRDDED3|Hourly|XYZ'
 |[CCTM_APMDIAG](#apmdiag) <a id=apmdiag_t></a>|GRDDED3|Hourly|XYZ'
 |[CCTM_B3GTS_S](#b3gts) <a id=b3gts_t></a>|GRDDED3|Hourly| XY
 |[CCTM_DEPV](#depv) <a id=depv_t></a>|GRDDED3|Hourly|XY
@@ -49,7 +49,7 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 
 <sup>1</sup>By default, output files are named CCTM_XXX_${CTM_APPL}.nc where XXX is the file identifier and ${CTM_APPL} is a user defined string that identifies the model run.   
 <sup>2</sup>While "Hourly" is indicated, users may define a different time step (e.g. 30 minutes) for model output by changing the TSTEP variable in the runscript. From here onward, the term "Hourly" will be used for description purposes.    
-<sup>3</sup>X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension (range from 1 to all layers) and W is a non-layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.    
+<sup>3</sup>X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension controlled by the environment variables CONC_BLEV_ELEV, ACONC_BLEV_ELEV, APMDIAG_BLEV_ELEV, and NLAYS_PHOTDIAG (range from 1 to all layers) and W is a non-layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.    
 <sup>4</sup>A special ASCII output file, FLOOR_xxx with xxx being the processor number, contains information when a simulation results in negative concentrations. 
 
 ## 7.1 CCTM Output Files
@@ -113,7 +113,7 @@ This 2-D CCTM file contains the soil NH<sub>4</sub><sup>+</sup> and pH concentra
 ### CCTM_SOILOUT
 [Return to Table 7-1](#soilout_t)
 
-This optional 2-D CCTM file contains name and location of hourly soil NO emissions calculated in-line by the CCTM. This file is only created if the CTM_BIOGEMIS environment variable is set to Y (Default is N). 
+This optional 2-D CCTM file contains hourly total rainfall information for subsequent use by the CCTM in-line biogenics module. It is written out at the end of each simulation day and is only created if the CTM_BIOGEMIS environment variable is set to Y (Default is N). With the expection of the first day of the simulation when the environment variable INITIAL_RUN is set to Y, the previous day's rainfall information contained in the file is used in the calculation of soil NO emissions by the CCTM in-line biogenics module. This is accomplished by setting the SOILINP environment variable for a given day to the CCTM_SOILOUT file created at the end of the previous day's simulation. Note that even though this file contains 24 hourly gridded rainfall fields, it has a time-independent file structure and stores these 24 values as 24 separate time-independent variables (RAINFALL01, ... RAINFALL24). However, while the structure of the file is time-independent, each day's CCTM_SOILOUT file is different from the previous day's file due to the daily variations in meteorology. Therefore, care must be taken to ensure that the SOILINP file specified for a given day is indeed the CCTM_SOILOUT file for the previous day rather than that for a different day.  
 
 
 ## 7.3 Diagnostic and Advanced CMAQ Output Files
