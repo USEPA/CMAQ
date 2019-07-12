@@ -1,81 +1,119 @@
 # DESID: Detailed Emissions Scaling, Isolation, and Diagnostic Module
 
-**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-Past versions of CMAQ have allowed users to set and scale emissions on a per-species basis for gases and 
-aerosols and turn on/off specific online modules like BEIS, wind-blown dust and lightning NO. However, 
-many tasks that users have were unsupported. For example, users could not run with multiple gridded 
+To address specific research questions, CMAQ allows users to set and scale emissions on a per-species basis for gases and 
+aerosols and turn on/off specific online modules, like BEIS, wind-blown dust and lightning NO. Yet, with previous versions of CMAQ,
+users could not run with multiple gridded 
 emission files, could not scale a species from different sources independently, could not turn off sea-spray 
 emissions, and could not easily detemrine how aerosol size distributions were applied.
 
-These and other features have now been supported with DESID, a new emissions module that treats emissions 
-from offline sources like SMOKE on an equal basis as online sources like BEIS or wind-blown dust. Gases and 
+These and other features have now been supported with *DESID*, a new emissions module that now considers emissions 
+from offline sources (such as those processed using SMOKE) similarly to online sources (such as wind-blown dust or those processed using BEIS). Gases and 
 aerosols can be scaled independently for different sources. All emissions can be scaled with respect to 
 gridded masks identified by the user. Rates can be scaled on a UNIT basis or by conserving moles or mass at 
-the users discretion. These tasks are accomplished using the newly instituted Emission control file available 
-in each Mechanism folder and copied to the build directoy when the build script is executed.  
+the user's discretion. These tasks are accomplished using the newly instituted emission control file, which is available 
+in each mechanism folder and copied to the build directory when the build script is executed.  
 
 Importantly, an extensive diagnostic output log has been designed to inform users about surrogates from emission 
 inputs that were not used, CMAQ species that received no emissions at all, and scale factors that were applied 
 for each source, species, and mask.
 
 ## Significance and Impact
-These updates will free users to implement research questions that involve scaling emissions with greater 
-ease and flexibility. It will also provide the log information necessary for them to diagnose potential 
+These updates enable users to implement research questions that involve scaling emissions with greater 
+ease and flexibility. These updates will also provide the log information to more readily diagnose potential 
 errors.
 
 ## Affected Files
 CCTM/scripts/EmissCtrl.nml  
-CCTM/src/ICL/fixed/filenames/FILES_CTM.EXT  
-CCTM/src/MECHS/cb6mp_ae6_aq/AE_cb6mp_ae6_aq.nml
-CCTM/src/MECHS/cb6mp_ae6_aq/NR_cb6mp_ae6_aq.nml
-CCTM/src/MECHS/racm2_ae6_aq/AE_racm2_ae6_aq.nml
-CCTM/src/MECHS/racm2_ae6_aq/GC_racm2_ae6_aq.nml
-CCTM/src/MECHS/racm2_ae6_aq/NR_racm2_ae6_aq.nml
-CCTM/src/MECHS/saprc07tc_ae6_aq/AE_saprc07tc_ae6_aq.nml
-CCTM/src/MECHS/saprc07tc_ae6_aq/GC_saprc07tc_ae6_aq.nml
-CCTM/src/MECHS/saprc07tc_ae6_aq/NR_saprc07tc_ae6_aq.nml
-CCTM/src/MECHS/saprc07tic_ae6i_aq/AE_saprc07tic_ae6i_aq.nml
-CCTM/src/MECHS/saprc07tic_ae6i_aq/GC_saprc07tic_ae6i_aq.nml
-CCTM/src/MECHS/saprc07tic_ae6i_aq/NR_saprc07tic_ae6i_aq.nml
-CCTM/src/MECHS/saprc07tic_ae6i_aqkmti/AE_saprc07tic_ae6i_aq.nml
-CCTM/src/MECHS/saprc07tic_ae6i_aqkmti/GC_saprc07tic_ae6i_aq.nml
-CCTM/src/MECHS/saprc07tic_ae7i_aq/AE_saprc07tic_ae7i_aq.nml
-CCTM/src/MECHS/saprc07tic_ae7i_aq/GC_saprc07tic_ae7i_aq.nml
-CCTM/src/MECHS/saprc07tic_ae7i_aq/NR_saprc07tic_ae7i_aq.nml
-CCTM/src/MECHS/cb6r3_ae6_aq/GC_cb6r3_ae6_aq.nml
-CCTM/src/MECHS/cb6r3_ae7_aq/GC_cb6r3_ae7_aq.nml
-CCTM/src/emis/emis/EMIS_VARS.F
-CCTM/src/aero/aero6/AERO_DATA.F
-CCTM/scripts/run_cctm.csh
-CCTM/scripts/run_cctm_2010_4CALIF1.csh
-CCTM/scripts/run_cctm_2014_12US1.csh
-CCTM/src/aero/aero6/AERO_EMIS.F
-CCTM/src/depv/m3dry/ABFLUX_MOD.F
-CCTM/src/depv/m3dry/m3dry.F
-CCTM/src/emis/emis/EMIS_DEFN.F
-CCTM/src/emis/emis/EMIS_VARS.F
-CCTM/src/emis/emis/LTNG_DEFN.F
-CCTM/src/emis/emis/PT3D_DEFN.F
-CCTM/src/emis/emis/PTMET.F
-CCTM/src/plrise/smoke/oppt3d_diag.F
-CCTM/src/util/util/RUNTIME_VARS.F
-CCTM/src/vdiff/acm2_m3dry/vdiffacmx.F
-CCTM/src/vdiff/acm2_stage/vdiffacmx.F
 
-## References
-NA           
+CCTM/src/ICL/fixed/filenames/FILES_CTM.EXT  
+
+CCTM/src/MECHS/cb6mp_ae6_aq/AE_cb6mp_ae6_aq.nml
+
+CCTM/src/MECHS/cb6mp_ae6_aq/NR_cb6mp_ae6_aq.nml
+
+CCTM/src/MECHS/racm2_ae6_aq/AE_racm2_ae6_aq.nml
+
+CCTM/src/MECHS/racm2_ae6_aq/GC_racm2_ae6_aq.nml
+
+CCTM/src/MECHS/racm2_ae6_aq/NR_racm2_ae6_aq.nml
+
+CCTM/src/MECHS/saprc07tc_ae6_aq/AE_saprc07tc_ae6_aq.nml
+
+CCTM/src/MECHS/saprc07tc_ae6_aq/GC_saprc07tc_ae6_aq.nml
+
+CCTM/src/MECHS/saprc07tc_ae6_aq/NR_saprc07tc_ae6_aq.nml
+
+CCTM/src/MECHS/saprc07tic_ae6i_aq/AE_saprc07tic_ae6i_aq.nml
+
+CCTM/src/MECHS/saprc07tic_ae6i_aq/GC_saprc07tic_ae6i_aq.nml
+
+CCTM/src/MECHS/saprc07tic_ae6i_aq/NR_saprc07tic_ae6i_aq.nml
+
+CCTM/src/MECHS/saprc07tic_ae6i_aqkmti/AE_saprc07tic_ae6i_aq.nml
+
+CCTM/src/MECHS/saprc07tic_ae6i_aqkmti/GC_saprc07tic_ae6i_aq.nml
+
+CCTM/src/MECHS/saprc07tic_ae7i_aq/AE_saprc07tic_ae7i_aq.nml
+
+CCTM/src/MECHS/saprc07tic_ae7i_aq/GC_saprc07tic_ae7i_aq.nml
+
+CCTM/src/MECHS/saprc07tic_ae7i_aq/NR_saprc07tic_ae7i_aq.nml
+
+CCTM/src/MECHS/cb6r3_ae6_aq/GC_cb6r3_ae6_aq.nml
+
+CCTM/src/MECHS/cb6r3_ae7_aq/GC_cb6r3_ae7_aq.nml
+
+CCTM/src/emis/emis/EMIS_VARS.F
+
+CCTM/src/aero/aero6/AERO_DATA.F
+
+CCTM/scripts/run_cctm.csh
+
+CCTM/scripts/run_cctm_2010_4CALIF1.csh
+
+CCTM/scripts/run_cctm_2014_12US1.csh
+
+CCTM/src/aero/aero6/AERO_EMIS.F
+
+CCTM/src/depv/m3dry/ABFLUX_MOD.F
+
+CCTM/src/depv/m3dry/m3dry.F
+
+CCTM/src/emis/emis/EMIS_DEFN.F
+
+CCTM/src/emis/emis/EMIS_VARS.F
+
+CCTM/src/emis/emis/LTNG_DEFN.F
+
+CCTM/src/emis/emis/PT3D_DEFN.F
+
+CCTM/src/emis/emis/PTMET.F
+
+CCTM/src/plrise/smoke/oppt3d_diag.F
+
+CCTM/src/util/util/RUNTIME_VARS.F
+
+CCTM/src/vdiff/acm2_m3dry/vdiffacmx.F
+
+CCTM/src/vdiff/acm2_stage/vdiffacmx.F
 
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #305]   
-[PR #355]   
-[PR #356]  
-[PR #371]   
-[PR #376]   
-[PR #383]   
+[PR #305](https://github.com/USEPA/CMAQ_Dev/pull/305)
+
+[PR #355](https://github.com/USEPA/CMAQ_Dev/pull/355)
+
+[PR #356](https://github.com/USEPA/CMAQ_Dev/pull/356)
+
+[PR #371](https://github.com/USEPA/CMAQ_Dev/pull/371) 
+
+[PR #376](https://github.com/USEPA/CMAQ_Dev/pull/376)
+
+[PR #383](https://github.com/USEPA/CMAQ_Dev/pull/383) 
 
 #### Commit 
 IDs:  
