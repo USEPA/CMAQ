@@ -1,12 +1,13 @@
 # Process Analysis for Aerosol Sub-Processes
 
-**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
 The Process Analysis (PA) module has been extended to quantify the contribution of aerosol subprocess
 such as condensation, coagulation, mode reallocation and new particle formation on all model species. 
 Process Analysis input and output have been integrated with this new feature. The short-names of these 
 new processes (to be used in the PA control file) are:
+
 - COND --> Condensation
 - COAG --> Coagulation
 - NPF --> New particle formation
@@ -19,43 +20,69 @@ future.
 
 ## Affected Files
 CCTM/scripts/EmissCtrl.nml  
-CCTM/scripts/PA.ctrl  
-CCTM/scripts/run_cctm.csh  
-CCTM/scripts/run_cctm_2010_4CALIF1.csh  
-CCTM/scripts/run_cctm_2014_12US1.csh  
-CCTM/src/ICL/fixed/filenames/FILES_CTM.EXT  
-CCTM/src/STENEX/se/se_data_copy_module.f  
-CCTM/src/aero/aero6/AERO_BUDGET.F  
-CCTM/src/aero/aero6/AERO_DATA.F  
-CCTM/src/aero/aero6/PRECURSOR_DATA.F  
-CCTM/src/aero/aero6/SOA_DEFN.F  
-CCTM/src/aero/aero6/aero_driver.F  
-CCTM/src/aero/aero6/aero_subs.F  
-CCTM/src/aero/aero6/opapmdiag.F  
-CCTM/src/aero/aero6/oppmdiag.F  
-CCTM/src/driver/wrf/sciproc.F  
-CCTM/src/driver/yamo/sciproc.F  
-CCTM/src/emis/emis/EMIS_DEFN.F  
-CCTM/src/grid/cartesian/PAGRD_DEFN.F  
-CCTM/src/procan/pa/PA_DEFN.F  
-CCTM/src/procan/pa/PA_GLOBAL.F  
-CCTM/src/procan/pa/PA_IPRDEF.F  
-CCTM/src/procan/pa/PA_IPRVARS.F  
-CCTM/src/procan/pa/pa_errcheck.F  
-CCTM/src/procan/pa/pa_init.F  
-CCTM/src/procan/pa/pa_output.F  
-CCTM/src/procan/pa/pa_read.F  
-CCTM/src/procan/pa/pa_report.F  
-CCTM/src/procan/pa/pa_setup_ipr.F  
-CCTM/src/procan/pa/pa_update.F  
 
-## References
-NA           
+CCTM/scripts/PA.ctrl  
+
+CCTM/scripts/run_cctm.csh  
+
+CCTM/scripts/run_cctm_2010_4CALIF1.csh  
+
+CCTM/scripts/run_cctm_2014_12US1.csh  
+
+CCTM/src/ICL/fixed/filenames/FILES_CTM.EXT  
+
+CCTM/src/STENEX/se/se_data_copy_module.f  
+
+CCTM/src/aero/aero6/AERO_BUDGET.F  
+
+CCTM/src/aero/aero6/AERO_DATA.F  
+
+CCTM/src/aero/aero6/PRECURSOR_DATA.F  
+
+CCTM/src/aero/aero6/SOA_DEFN.F  
+
+CCTM/src/aero/aero6/aero_driver.F  
+
+CCTM/src/aero/aero6/aero_subs.F  
+
+CCTM/src/aero/aero6/opapmdiag.F  
+
+CCTM/src/aero/aero6/oppmdiag.F  
+
+CCTM/src/driver/wrf/sciproc.F  
+
+CCTM/src/driver/yamo/sciproc.F  
+
+CCTM/src/emis/emis/EMIS_DEFN.F  
+
+CCTM/src/grid/cartesian/PAGRD_DEFN.F  
+
+CCTM/src/procan/pa/PA_DEFN.F  
+
+CCTM/src/procan/pa/PA_GLOBAL.F  
+
+CCTM/src/procan/pa/PA_IPRDEF.F  
+
+CCTM/src/procan/pa/PA_IPRVARS.F  
+
+CCTM/src/procan/pa/pa_errcheck.F  
+
+CCTM/src/procan/pa/pa_init.F  
+
+CCTM/src/procan/pa/pa_output.F  
+
+CCTM/src/procan/pa/pa_read.F  
+
+CCTM/src/procan/pa/pa_report.F  
+
+CCTM/src/procan/pa/pa_setup_ipr.F  
+
+CCTM/src/procan/pa/pa_update.F  
 
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #311]   
+[PR #311](https://github.com/USEPA/CMAQ_Dev/pull/311)  
 
 #### Commit 
 IDs:                        
