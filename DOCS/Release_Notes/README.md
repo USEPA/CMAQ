@@ -65,7 +65,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 
 ## Structural Improvements
  * [Log File Output: Streamlining and Centralization](logfile.md)
- * [Moved PHOT to Sciproc](move_phot_to_sciproc.md)
+ * [Move Photolysis Rate Calculation to SCIPROC](move_phot_to_sciproc.md)
  * [Standardized Units for Output Variables](output_units.md)
 
 ## Diagnostic Options
