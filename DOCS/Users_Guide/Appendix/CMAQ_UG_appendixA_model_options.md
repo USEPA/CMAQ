@@ -191,7 +191,7 @@ The following configuration settings may have multiple options. Select one optio
     -   `depv/stage`
     CMAQ stage dry deposition routine.  This option is new in version 5.3. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information. 
 -   `ModEmis: [default: emis/emis]`<a id=ModEmis></a>  
-    CMAQ inline anthropogenic and natural emissions module. In line emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    CMAQ inline anthropogenic and natural emissions module. Inline emissions are activated by the user via the CCTM run script. Do not change this module setting. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     -   `emis/emis`
 -   `ModBiog: [default: biog/beis3]`<a id=ModBiog></a>  
 Calculate biogenic emissions online with the BEIS3 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
@@ -418,7 +418,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `PA_BLEV_ELEV [default: 0]`<a id=PA_BLEV_ELEV></a>  
     Modeling grid domain layer range for the process analysis calculations. Set to the two digits representing the bottom and top layer numbers bounding the process analysis domain.  
 -   `PACM_INFILE` <a id=PACM_INFILE></a>  
-     Input file that specifies the desired output information (read by pa_read.F). See Table 1 in [Chapter 10](../CMAQ_UG_ch10_process_analysis.md) for details on the types of equations and operators that can be used in this file. A sample file is includedin the CCTM scripts directory.  
+     Input file that specifies the desired output information (read by pa_read.F). See Table 1 in [Chapter 10](../CMAQ_UG_ch10_process_analysis.md) for details on the types of equations and operators that can be used in this file. A sample file is included in each of the mechanism folders under the CCTM/src/MECHS directory. For example, the file pa_cb6r3_ae7_aq.ctl in CCTM/src/MECHS/cb6r3_ae7_aq provides a template of IRR and IPR commands.
 -   `PACM_REPORT` <a id=PACM_REPORT></a>  
      The output file that displays how CMAQ translates the variables listed in `PACM_INFILE`, and lists the reactions (including reactants, products and yields) that will be used in calculating the IPR and IRR values.  
 
@@ -442,11 +442,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `CTM_PMDIAG [default: False]`<a id=CTM_PMDIAG></a>  
-    Output aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). Set to Y to turn on; comment out or set to N to turn off.
+    Output aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). Set to Y to turn on; comment out or set to N to turn off. The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.  
 -   `CTM_APMDIAG [default: False]`<a id=CTM_APMDIAG></a>  
-    Output hourly average aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). Set to Y to turn on; comment out or set to N to turn off.  
+    Output hourly average aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). Set to Y to turn on; comment out or set to N to turn off. The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.   
 -   `APMDIAG_BLEV_ELEV [default: 0]`<a id=APMDIAG_BLEV_ELEV></a>  
-    Modeling grid domain layer range for the hourly average aerosol diagnostics and properties file. Set to the two digits representing the bottom and top layer numbers to bound the output domain.  
+    Modeling grid domain layer range for the hourly average aerosol diagnostics and properties file. Set to the two digits representing the bottom and top layer numbers to bound the output domain. Comment out this variable or set it to 0 to output all layers. Set the value to "1 1" to output just the surface layer.
 
 <a id=Diagnostic_Output_Flags></a>
 ### Diagnostic Output Flags
@@ -546,7 +546,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  
 
 -   `SOILINP [default: [Out Directory/CCTM_SOILOUT_$RUNID_$YESTERDSY]`<a id=SOILINP></a>  
-    Directory path and file name of biogenic NO soil emissions file. If INITIAL_RUN is set to N or F, the soil NO emissions file from the previous day’s simulation will be a required input file. See [Chapter 6](Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+    Directory path and file name of biogenic NO soil emissions file. If NEW_START is set to N or F, the soil NO emissions file from the previous day`s simulation will be a required input file. See [Chapter 6](Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
 -   `B3GTS_DIAG [default: False]`<a id=B3GTS_DIAG></a>  
     Write the online biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). Set to Y to turn on; comment out or set to N to turn off.  

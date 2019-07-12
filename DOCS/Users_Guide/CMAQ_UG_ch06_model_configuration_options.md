@@ -357,10 +357,55 @@ The CMAQ windblown dust module is controlled by the following RunScript flag:
 setenv CTM_WB_DUST Y
 ```
 
-Note that if this flag is set to N to indicate zero wind-blown dust emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it can't find species it is looking for from dust emissions.
+Note that if this flag is set to N to indicate zero wind-blown dust emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it cannot find species it is looking for from dust emissions.
 
-Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the wind-blown dust module. Please check the AERO_DATA module for the list of species produced by dust emissions.
+Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the wind-blown dust module. The following species are emitted by the Dust module and may be referenced in the emission control file [Table 6-1](#Table6-1):
 
+<a id=Table6-1></a>
+**Table 6-1. Aerosol Species Predicted by the Wind-Blown Dust Module** 
+
+|**Dust Surrogate Name** | **Default CMAQ Species** | **Description** |
+| --------------- | ---------|--------------------------------------- |
+| PMFINE_SO4      | ASO4     | Fine-mode Sulfate                      |               
+| PMCOARSE_SO4    | ASO4     | Coarse-mode Sulfate                    |             
+| PMFINE_NO3      | ANO3     | Fine-mode Nitrate                      |                       
+| PMCOARSE_NO3    | ANO3     | Coarse-mode Nitrate                    |                       
+| PMFINE_CL       | ACL      | Fine-mode Chlorine                     |                       
+| PMCOARSE_CL     | ACL      | Coarse-mode Chlorine                   |                       
+| PMFINE_NH4      | ANH4     | Fine-mode Ammonium                     |                       
+| PMFINE_NA       | ANA      | Fine-mode Sodium                       |                       
+| PMFINE_CA       | ACA      | Fine-mode Calcium                      |                       
+| PMFINE_MG       | AMG      | Fine-mode Magnesium                    |                       
+| PMFINE_K        | AK       | Fine-mode Potassium                    |                       
+| PMFINE_POC      | APOC     | Fine-mode Organic Carbon               |                       
+| PMFINE_PNCOM    | APNCOM   | Fine-mode Non-Carbon Organic Matter    |                       
+| PMFINE_LVPO1    | ALVPO1   | Fine-mode Low-Volatility hydrocarbon-like OA |                       
+| PMFINE_LVOO1    | ALVOO1   | Fine-mode Low-Volatility Oxygenated OA |                       
+| PMFINE_EC       | AEC      | Fine-mode Black or Elemental Carbon    |                       
+| PMFINE_FE       | AFE      | Fine-mode Iron                         |                       
+| PMFINE_AL       | AAL      | Fine-mode Aluminum                     |                       
+| PMFINE_SI       | ASI      | Fine-mode Silicon                      |                       
+| PMFINE_TI       | ATI      | Fine-mode Titanium                     |                       
+| PMFINE_MN       | AMN      | Fine-mode Manganese                    |                       
+| PMFINE_H2O      | AH2O     | Fine-mode Water                        |                       
+| PMCOARSE_H2O    | AH2O     | Coarse-mode Water                      |                       
+| PMFINE_OTHR     | AOTHR    | Fine-mode Other                        |                       
+| PMCOARSE_SOIL   | ASOIL    | Coarse-mode Non-Anion Dust             |             
+| PMFINE_MN_HAPS  | AMN_HAPS | Fine-mode Air toxics Manganese         |        
+| PMCOARSE_MN_HAPS| AMN_HAPS | Coarse-mode Air toxics Manganese       |      
+| PMFINE_NI       | ANI      | Fine-mode Nickel                       |           
+| PMCOARSE_NI     | ANI      | Coarse-mode Nickel                     |         
+| PMFINE_CR_III   | ACR_III  | Fine-mode Trivalent Chromium           |           
+| PMCOARSE_CR_III | ACR_III  | Coarse-mode Trivalent Chromium         |         
+| PMFINE_AS       | AAS      | Fine-mode Arsenic                      |            
+| PMCOARSE_AS     | AAS      | Coarse-mode Arsenic                    |          
+| PMFINE_PB       | APB      | Fine-mode Lead                         |           
+| PMCOARSE_PB     | APB      | Coarse-mode Lead                       |         
+| PMFINE_CD       | ACD      | Fine-mode Cadmium                      |            
+| PMCOARSE_CD     | ACD      | Coarse-mode Cadmium                    |          
+| PMFINE_PHG      | APHG     | Fine-mode Mercury                      |
+| PMCOARSE_PHG    | APHG     | Coarse-mode Mercury                    |
+ 
 <a id=Sea_Spray></a>
 #### Sea Spray
 Because sea spray particles are emitted during wave breaking and bubble bursting at the ocean surface, the main factor affecting the emission rate is the wind speed. The temperature of the ocean also affects bubble bursting and subsequent emission rate of sea spray particles. Wave breaking is enhanced near the surf zone just offshore, and CMAQ accounts for this by increasing sea spray particle emission rates in the surf zone.
@@ -375,9 +420,44 @@ setenv CTM_OCEAN_CHEM Y
 Speciation of sea spray emissions is controlled by AERO_DATA.F under CCTM/src/aero. 
 Note that CMAQ employing Carbon Bond 6 version r3 with DMS and marine halogen chemistry (cb6r3m_ae7_kmtbr) modifies the speciation of Sea Spray emissions. In addition to other chemical species, it speciates bromide from Sea Spray emissions.
 
-Note that if the CTM_OCEAN_CHEM flag is set to N to indicate zero sea spray emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it can't find species it is looking for from sea spray.
+Note that if the CTM_OCEAN_CHEM flag is set to N to indicate zero sea spray emissions, users should set the CTM_EMISCHK variable in the RunScript to FALSE to avoid crashing CMAQ when it cannot find species it is looking for from sea spray. 
 
-Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the sea spray module. Please check the AERO_DATA module for the list of species produced by sea spray emissions.
+Alternatively, users can also edit the emission control file by commenting out the coarse and fine species expected for the sea spray module. The following species are emitted by the Dust module and may be referenced in the emission control file [Table 6-2](#Table6-2):
+
+<a id=Table6-2></a>
+**Table 6-2. Aerosol Species Predicted by the Sea-Spray Aerosol Module** 
+
+|**Sea Spray Surrogate Name** | **Default CMAQ Species** | **Description** |
+| --------------- | ---------|--------------------------------------- |
+| PMFINE_SO4      | ASO4     | Fine-mode Sulfate                      |               
+| PMCOARSE_SO4    | ASO4     | Coarse-mode Sulfate                    |             
+| PMFINE_CL       | ACL      | Fine-mode Chlorine                     |                       
+| PMCOARSE_CL     | ACL      | Coarse-mode Chlorine                   |                       
+| PMFINE_NA       | ANA      | Fine-mode Sodium                       |                       
+| PMFINE_CA       | ACA      | Fine-mode Calcium                      |                       
+| PMFINE_MG       | AMG      | Fine-mode Magnesium                    |                       
+| PMFINE_K        | AK       | Fine-mode Potassium                    |                       
+| PMCOARSE_SEACAT | ASEACAT  | Coarse-mode Sea Spray Cations          |      
+| PMFINE_CR_VI    | ACR_VI   | Fine-mode Hexavalent Chromium          |                       
+| PMFINE_NI       | ANI      | Fine-mode Nickel                       |           
+| PMCOARSE_NI     | ANI      | Coarse-mode Nickel                     |         
+| PMFINE_AS       | AAS      | Fine-mode Arsenic                      |            
+| PMCOARSE_AS     | AAS      | Coarse-mode Arsenic                    |          
+| PMFINE_BE       | ABE      | Fine-mode Beryllium                    |            
+| PMCOARSE_BE     | ABE      | Coarse-mode Beryllium                  |          
+| PMFINE_PHG      | APHG     | Fine-mode Mercury                      |
+| PMCOARSE_PHG    | APHG     | Coarse-mode Mercury                    |
+| PMFINE_PB       | APB      | Fine-mode Lead                         |           
+| PMCOARSE_PB     | APB      | Coarse-mode Lead                       |         
+| PMFINE_CD       | ACD      | Fine-mode Cadmium                      |            
+| PMCOARSE_CD     | ACD      | Coarse-mode Cadmium                    |          
+| PMFINE_MN_HAPS  | AMN_HAPS | Fine-mode Air toxics Manganese         |        
+| PMCOARSE_MN_HAPS| AMN_HAPS | Coarse-mode Air toxics Manganese       |      
+| PMFINE_BR       | ABR      | Fine-mode Bromine                      |                       
+| PMCOARSE_BR     | ABR      | Coarse-mode Bromine                    |                       
+| PMFINE_H2O      | AH2O     | Fine-mode Water                        |                       
+| PMCOARSE_H2O    | AH2O     | Coarse-mode Water                      |                       
+
 
 <a id=Lightning_NO></a>
 #### Lightning NO
@@ -449,7 +529,7 @@ Gas-phase chemical mechanisms are defined in CMAQ through Fortran source files. 
 #### Using predefined chemical mechanisms
 [Return to Top](#Return_to_Top)
 
-To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the BuildScript to one of the mechanism names listed in [Table 6-1](#Table6-1). 
+To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the BuildScript to one of the mechanism names listed in [Table 6-3](#Table6-3). 
 
 ```
  set Mechanism = MECHANISM_NAME
@@ -457,10 +537,10 @@ To select a predefined mechanism configuration in CMAQ, set the *Mechanism* vari
 
 Refer to the [README.md](../../CCTM/src/MECHS/README.md) under CCTM/src/MECHS for detailed information reactions and on model species names for each mechanism. 
 
-Chemical Mechanisms available with CMAQv5.3 can be found in [Table 6-1](#Table6-1). Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
+Chemical Mechanisms available with CMAQv5.3 can be found in [Table 6-3](#Table6-3). Atmospheric chemistry mechanisms of varying complexity are available to support diverse applications across scales and explore extensions for emerging problems and contaminants.
 
-<a id=Table6-1></a>
-**Table 6-1. Chemical Mechanisms Available with CMAQv5.3** 
+<a id=Table6-3></a>
+**Table 6-3. Chemical Mechanisms Available with CMAQv5.3** 
 
 |**Mechanism Name** | **Comment** |
 | ----------------- | ---------------------------------------------------- |
@@ -516,7 +596,7 @@ or
  set ModPhot    = phot/table
 ``` 
 
-The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology, predicted ozone and aerosol concentrations. Three ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file, the **CSQY_DATA_${Mechanism}** file, that depends the Mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the Mechanism. The files are provided for each Mechanism in a released version of CMAQ. If a user creates a Mechanism using new or additional photolysis rates, they have to create a new **CSQY_DATA_${Mechanism}** file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the Mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM RunScript set values for each file's path through the environment variables, OPTICS_DATA, OMI, and CSQY_DATA.
+The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology, predicted ozone and aerosol concentrations. Three ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file, the **CSQY_DATA_${Mechanism}** file, that depends the Mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the Mechanism. The files are provided for each Mechanism in a released version of CMAQ. If a user creates a Mechanism using new or additional photolysis rates, they have to create a new **CSQY_DATA_${Mechanism}** file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the Mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM RunScript set values for each file`s path through the environment variables, OPTICS_DATA, OMI, and CSQY_DATA.
 
 The other option uses look-up tables that contain photolysis rates under cloud free conditions based on a fixed meridional cross-section of atmospheric composition, temperature, density and aerosols. The values represent rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorology. Tables are dependent on the photochemical mechanism used. The [jproc utility](../../UTIL/jproc/README.md) creates them based on the photochemical mechanism's FORTRAN modules. The CCTM RunScript set value for a table's path with the environment variable, XJ_DATA.
 
@@ -525,19 +605,23 @@ The other option uses look-up tables that contain photolysis rates under cloud f
 ## 6.11 Aerosol Dynamics and Chemistry
 [Return to Top](#Return_to_Top)
 
-Particulate Matter (PM) can be either primary (directly emitted) or secondary (formed in the atmosphere) and from natural or anthropogenic (man-made) sources. Secondary sources include gas-phase oxidation of SO<sub>2</sub> to sulfate, condensation of ammonia and nitrate, and oxidation of gas-phase VOCs such as isoprene, monoterpenes, aromatics, and alkanes. Cloud processes also contribute to the formation of PM; for example, aqueous oxidation of sulfur dioxide in cloud droplets is a significant pathway for production of particulate sulfate. CCTM represents PM using three interacting lognormal distributions, or modes. Two modes (Aitken and accumulation) are generally less than 2.5 &#956;m in diameter while the coarse mode contains significant amounts of mass above 2.5 &#956;m. PM<sub>2.5</sub> and PM<sub>10</sub>, species aggregate metrics within the NAAQS, can be obtained from the model mass concentration and size distribution information.
+Particulate Matter (PM) can be either primary (directly emitted) or secondary (formed in the atmosphere) and from natural or anthropogenic (man-made) sources. Secondary sources include gas-phase oxidation of SO2 to sulfate, condensation of ammonia and nitrate, and oxidation of gas-phase VOCs such as isoprene, monoterpenes, aromatics, and alkanes. Cloud processes also contribute to the formation of PM; for example, aqueous oxidation of sulfur dioxide in cloud droplets is a significant pathway for production of particulate sulfate. CCTM represents PM using three interacting lognormal distributions, or modes. Two modes (Aitken and accumulation) are generally less than 2.5 &#956;m in diameter while the coarse mode contains significant amounts of mass above 2.5 &#956;m. PM2.5 and PM10, species aggregate metrics within the NAAQS, can be obtained from the model mass concentration and size distribution information.
 
-The 6th generation CMAQ aerosol module (AERO6) was introduced in CMAQv5.0.2 and expanded the chemical speciation of PM. Eight new PM species were added to CMAQ in AERO6: Al, Ca, Fe, Si, Ti, Mg, K, and Mn. Four species that were explicitly treated in previous versions of CMAQ but were not modeled can now be treated as primary anthropogenic species: H<sub>2</sub>O, Na, Cl, and NH<sub>4</sub>. The PM emissions mass that remains after speciation into the new components is now input to the model as PMOTHER. AERO6 requires 18 PM emissions species: OC, EC, sulfate, nitrate, H<sub>2</sub>O, Na, Cl, NH<sub>4</sub>, NCOM, Al, Ca, Fe, Si, Ti, Mg, K, Mn, and Other (Reff et al., 2009).
+The 6th generation CMAQ aerosol module (AERO6) was introduced in CMAQv5.0.2 and expanded the chemical speciation of PM. Eight new PM species were added to CMAQ in AERO6: Al, Ca, Fe, Si, Ti, Mg, K, and Mn. Four species that were explicitly treated in previous versions of CMAQ but were not modeled can now be treated as primary anthropogenic species: H2O, Na, Cl, and NH4. The PM emissions mass that remains after speciation into the new components is now input to the model as PMOTHER. AERO6 requires 18 PM emissions species: OC, EC, sulfate, nitrate, H2O, Na, Cl, NH4, NCOM, Al, Ca, Fe, Si, Ti, Mg, K, Mn, and Other (Reff et al., 2009).  
 
-Aero6 mechanisms available in CMAQv5.3 are compatible with semivolatile primary organic aerosol (POA). For the nonvolatile POA configuration, mass is tracked separately in terms of its carbon (OC) and non-carbon (NCOM) content. With this approach, mass can be added to the non-carbon species to simulate the aging of POA in response to atmospheric oxidants. Simon and Bhave (2012) document the implementation of the second-order reaction between primary organic carbon and OH radicals. The semivolatile POA configuration segregates POA into several model species based on a combination of volatility and oxidation state (Murphy et al., 2017). There are five POA species at low oxidation state representing low volatility, semivolatile and intermediate volatility compounds (LVPO1, SVPO1, SVPO2, SVPO3, IVPO1). As the gas-phase species (e.g. VLVPO1) oxidize with OH they form species with higher oxidation state (i.e. LVOO1, LVOO2, SVOO1, SVOO2, SVOO3). The multigenerational aging chemistry for the semivolatile POA configuration is derived from the approach of Donahue et al. (2012) which takes into account the functionalization and fragmentation of organic vapors upon oxidation. The semivolatile POA configuration also includes the option (on by default) of potential secondary organic aerosol from combustion sources (pcSOA). This species is emitted as a VOC (pcVOC) and forms SOA after reaction with OH. The emissions of pcVOC may be zeroed out by the user.
+The 7th generation aerosol module (AERO7) is introduced in CMAQv5.3 with modificaitons and updates to the speciation of organic aerosols. The 2-product style speciation for SOA species from traditional aromatic VOC precursors like toluene, xylenes, and benzene has been replaced with four surrogate species with incremental vapor pressure (at 300 K). This approach is in line with VBS-style approaches used widely in models. The treatment of alpha-pinene has also been made explicit in AERO7 in order to support SOA and organic nitrate formation from this compound. If users are employing online biogenic VOC emissions (via BEIS), then the alpha-pinene emissions will be treated correctly. If however, users are providing biogenic emissions to CMAQ from offline and only TERP is specified, we recommend scaling the alpha-pinene emissions to 30% of the total TERP emisisons. This can be accomplished with the DESID emissions interface. Also, please be sure to reduce TERP emissions to 70%. AERO7 also includes consideration of water uptake to the organic phase (ORGH2O).
 
-AERO6 uses ISORROPIA in the “reverse mode” to calculate the condensation/evaporation of volatile inorganic gases to/from the gas-phase concentrations of known coarse particle surfaces. It also uses ISORROPIA in the “forward mode” to calculate instantaneous thermodynamic equilibrium between the gas and fine-particle modes. The mass transfer of all semivolatile organic species is calculated assuming equilibrium absorptive partitioning, although some nonvolatile species do exist (e.g. cloud-processed organic aerosol, oligomers, nonvolatile POA (if selected)).
+Selection of AERO7 or AERO6 is accomplished through selection of the chemical mechanism in the build script as described in section 6.10 and table 6-3. The aerosol microphysics (i.e. coagulation, condensation, new particle formation, deposition, etc.) are consistent for the two modules. The modules differ by the chemical species used to treat the PM constituents.
+
+Both AERO7 and AERO6 mechanisms available in CMAQv5.3 are compatible with semivolatile primary organic aerosol (POA). For the nonvolatile POA configuration, mass is tracked separately in terms of its carbon (OC) and non-carbon (NCOM) content. With this approach, mass can be added to the non-carbon species to simulate the aging of POA in response to atmospheric oxidants. Simon and Bhave (2012) document the implementation of the second-order reaction between primary organic carbon and OH radicals. The semivolatile POA configuration segregates POA into several model species based on a combination of volatility and oxidation state. There are five POA species at low oxidation state representing low volatility, semivolatile and intermediate volatility compounds (LVPO1, SVPO1, SVPO2, SVPO3, IVPO1). As the gas-phase species (e.g. VLVPO1) oxidize with OH they form species with higher oxidation state (i.e. LVOO1, LVOO2, SVOO1, SVOO2, SVOO3). The multigenerational aging chemistry for the semivolatile POA configuration is derived from the approach of Donahue et al. (2012) which takes into account the functionalization and fragmentation of organic vapors upon oxidation. The semivolatile POA configuration also includes the option (on by default) of potential secondary organic aerosol from combustion sources (pcSOA). This species is emitted as a VOC (pcVOC) and forms SOA after reaction with OH. The emissions of pcVOC may be zeroed out by the user for specific sources using the DESID emissions control file; zeroing out pcVOC emissions is recommended for biomass and wood burning sources.
+
+The aerosol module uses ISORROPIA in the reverse mode to calculate the condensation/evaporation of volatile inorganic gases to/from the gas-phase concentrations of known coarse particle surfaces. It also uses ISORROPIA in the forward mode to calculate instantaneous thermodynamic equilibrium between the gas and fine-particle modes. The mass transfer of all semivolatile organic species is calculated assuming equilibrium absorptive partitioning, although some nonvolatile species do exist (e.g. cloud-processed organic aerosol, oligomers, nonvolatile POA (if selected)).
 
 CMAQ can output the reduction in visual range caused by the presence of PM, perceived as haze. CCTM integrates Mie scattering (a generalized particulate light-scattering mechanism that follows from the laws of electromagnetism applied to particulate matter) over the entire range of particle sizes to obtain a single visibility value for each model grid cell at each time step. More detailed descriptions of the PM calculation techniques used in CCTM can be found in Binkowski and Shankar (1995),Binkowski and Roselle (2003), and Byun and Schere (2006).
 
-For easier comparison of CMAQ’s output PM values with measurements, time-dependent cutoff fractions may be output by the model (e.g. Jiang et al., 2006). These include quantities for describing the fraction of each mode that would be categorized as PM<sub>2.5</sub> (i.e. PM25AT, PM25AC, and PM25CO) and PM<sub>1.0</sub> (i.e. PM1AT, PM1AC, and PM1CO) as well as the fraction of particles from each mode that would be detected by an AMS (i.e AMSAT, AMSAC, and AMSCO). There is also a surface interaction module in the multipollutant version of CMAQ that calculates the flux of mercury to and from the surface (rather than just depositing mercury).
+For easier comparison of CMAQ`s output PM values with measurements, time-dependent cutoff fractions may be output by the model (e.g. Jiang et al., 2006). These include quantities for describing the fraction of each mode that would be categorized as PM2.5 (i.e. PM25AT, PM25AC, and PM25CO) and PM1.0 (i.e. PM1AT, PM1AC, and PM1CO) as well as the fraction of particles from each mode that would be detected by an AMS (i.e AMSAT, AMSAC, and AMSCO). There is also a surface interaction module in the multipollutant version of CMAQ that calculates the flux of mercury to and from the surface (rather than just depositing mercury).
 
-Further discussion on the scientific improvements to the CMAQ PM treatment is available in the release notes for each version of the model.
+Further discussion on the scientific improvements to the CMAQ PM treatment is available in the release notes.
 
 <a id=6.12_Aqueous_Chemistry></a>
 

@@ -30,7 +30,7 @@ With the rules present in this section, the user is able to exert sophisticated,
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 ```
 - 'Region Label' - Apply scaling for specific regions of the domain. Set this field to "EVERYWHERE" to apply the rule to the entire domain.
-- 'Stream Label' - Short Name from Run Script (ie. the value of GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few reserved names that apply to inline emissions streams. These are:
+- 'Stream Label' - Short Name from Run Script (ie. the value of GR_EMIS_01_LAB or STK_EMIS_01_LAB). There are a few reserved names that apply to online emissions streams. These are:
   - BIOG - Biogenic VOC emissions
   - MGEM - Marine Gas Emissions
   - LTNG - Lightning NO Emissions
@@ -38,7 +38,7 @@ With the rules present in this section, the user is able to exert sophisticated,
   - SeaSpray - Sea Spray Aerosol Emissions  
 
   Set this field to 'ALL' to apply the rule to all emission streams.  
-- 'Emission Surrogate' - The character string identifying the surrogate on the emission file or in the inline calculation that the CMAQ species should be mapped to. Usually this name is the same as the CMAQ species for convenience. For aerosols, it's usually slightly different (e.g ANO3 vs. PNO3). Set this field to 'ALL' to apply the rule to all emission surrogates.  
+- 'Emission Surrogate' - The character string identifying the surrogate on the emission file or in the online calculation that the CMAQ species should be mapped to. Usually this name is the same as the CMAQ species for convenience. For aerosols, it's usually slightly different (e.g ANO3 vs. PNO3). Set this field to 'ALL' to apply the rule to all emission surrogates.  
 - 'CMAQ-Species' - Internal Species Name. Set this field to 'ALL' to apply the rule to all CMAQ internal species.
 - 'Phase/Mode' - If the CMAQ-Species is a Gas, this field should equal 'Gas'. If the CMAQ-Species is an aerosol, this field should indicate one of the possible emission aerosol modes. Every stream by default is given a 'COARSE' and 'FINE' mode. The user may refer to these or define others above and refer to them as well. This level of specificity is needed so that aerosol number and surface area are calculated correctly, and so that any unit conversions between gases and aerosols can be handled correctly.  
 - 'Scale Factor' - Adjustment factor to be applied to the mapping
