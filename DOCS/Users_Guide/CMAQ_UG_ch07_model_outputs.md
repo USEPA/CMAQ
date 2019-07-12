@@ -72,14 +72,14 @@ The LOGFILE environment variable allows users to specify the name of a log file 
 ### CCTM_CONC: CCTM hourly instantaneous concentration file
 [Return to Table 7-1](#conc_t)
 
-The 3-D CCTM hourly concentration file (CONC) contains instantaneous gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>) at the end of each model output time step. The number and type of species contained in the CONC files depends on the chemical mechanism and aerosol model configurations that are selected when the CCTM is compiled. The [FORTRAN NameLists](#matrix.nml) within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file. User can also specify the output species list by modifying the environment variable CONC_SPCS in the run script. By default, concentrations for all model layers are output to the CONC file.  Users may specify the layers to output using the CONC_BLEV_ELEV environment variable where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number.
+The 2-D or 3-D CCTM hourly concentration file (CONC) contains instantaneous gas-phase species mixing ratios (ppmV) and aerosol species concentrations (µg m<sup>-3</sup>) at the end of each model output time step. The number and type of species contained in the CONC files depends on the chemical mechanism and aerosol model configurations that are selected when the CCTM is compiled. The [FORTRAN NameLists](#matrix.nml) within the mechanism directories list the modeled species, and contain a column that specifies which species are written to the CONC files. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the CONC file by editing the CONC column in the NameList file(s) to reduce the number of species that are written to, and thus the size of the CONC file. Users can also specify the output species list by modifying the environment variable CONC_SPCS in the run script which overrides the setting of the CONC column in the NameList file(s). By default, concentrations for all model layers are output to the CONC file.  Users may specify the layers to output using the CONC_BLEV_ELEV environment variable where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number.
 
 
 <a id=aconc></a>
 ### CCTM_ACONC: hourly average concentration file
 [Return to Table 7-1](#aconc_t)
 
-The 3-D CCTM integral average concentration file contains average model species concentrations for each model hour, as opposed to instantaneous concentrations at the end of each output time step. The species written to the ACONC file are set by the user in the CCTM run script using the environment variable AVG_CONC_SPCS. The model layers that are used to calculate the integral average concentration are also set in the CCTM run script using the environment variable ACONC_BLEV_ELEV, where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number. An example setting for the ACONC_BLEV_ELEV variable is “1 6”, which defines layers 1 through 6 as the vertical extent over which to calculate hourly average concentrations.
+The 2-D or 3-D CCTM integral average concentration file contains average model species concentrations for each model hour, as opposed to instantaneous concentrations at the end of each output time step. The species written to the ACONC file are set by the user in the CCTM run script using the environment variable AVG_CONC_SPCS. The model layers for which hourly average concentrations are calculated are also set in the CCTM run script using the environment variable ACONC_BLEV_ELEV, where BLEV corresponds to the bottom layer number and ELEV corresponds to the top layer number. An example setting for the ACONC_BLEV_ELEV variable is “1 6”, which defines layers 1 through 6 as the vertical extent for which hourly average concentrations are calculated and written to the ACONC file.
 
 <a id=drydep></a>
 ### CCTM_DRYDEP: hourly cumulative dry deposition file
@@ -113,7 +113,7 @@ This 2-D CCTM file contains the soil NH<sub>4</sub><sup>+</sup> and pH concentra
 ### CCTM_SOILOUT
 [Return to Table 7-1](#soilout_t)
 
-This optional 2-D CCTM file contains hourly total rainfall information for subsequent use by the CCTM in-line biogenics module. It is written out at the end of each simulation day and is only created if the CTM_BIOGEMIS environment variable is set to Y (Default is N). With the expection of the first day of the simulation when the environment variable INITIAL_RUN is set to Y, the previous day's rainfall information contained in the file is used in the calculation of soil NO emissions by the CCTM in-line biogenics module. This is accomplished by setting the SOILINP environment variable for a given day to the CCTM_SOILOUT file created at the end of the previous day's simulation. Note that even though this file contains 24 hourly gridded rainfall fields, it has a time-independent file structure and stores these 24 values as 24 separate time-independent variables (RAINFALL01, ... RAINFALL24). However, while the structure of the file is time-independent, each day's CCTM_SOILOUT file is different from the previous day's file due to the daily variations in meteorology. Therefore, care must be taken to ensure that the SOILINP file specified for a given day is indeed the CCTM_SOILOUT file for the previous day rather than that for a different day.  
+This optional 2-D CCTM file contains hourly total rainfall information for subsequent use by the CCTM in-line biogenics module. It is written out at the end of each simulation day and is only created if the CTM_BIOGEMIS environment variable is set to Y (Default is N). With the exception of the first day of the simulation when the environment variable INITIAL_RUN is set to Y, the previous day's rainfall information contained in the file is used in the calculation of soil NO emissions by the CCTM in-line biogenics module. This is accomplished by setting the SOILINP environment variable for a given day to the CCTM_SOILOUT file created at the end of the previous day's simulation. Note that even though this file contains 24 hourly gridded rainfall fields, it has a time-independent file structure and stores these 24 values as 24 separate time-independent variables (RAINFALL01, ... RAINFALL24). However, while the structure of the file is time-independent, each day's CCTM_SOILOUT file is unique due to the daily variations in meteorology. Therefore, care must be taken to ensure that the SOILINP file specified for a given day is indeed the CCTM_SOILOUT file for the previous day rather than that for a different day.  
 
 
 ## 7.3 Diagnostic and Advanced CMAQ Output Files
@@ -130,23 +130,23 @@ This optional ASCII file contains specific gridcells/timesteps in which species 
 ### CCTM_PMDIAG: instantaneous hourly aerosol diagnostics file
 [Return to Table 7-1](#pmdiag_t)
 
-This optional 2-D CCTM diagnostic file contains instantaneous information at the end of the hour for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
+This optional 2-D or 3-D CCTM diagnostic file contains instantaneous information at the end of the hour for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
 It also includes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmission factor for each mode. Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, 
-the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. This file is only created if the CTM_APMDIAG environment variable is set to Y (Default is N).
+the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. The number of layers in this output file is determined by the setting of the CONC_BLEV_ELEV environment variable. This file is only created if the CTM_APMDIAG environment variable is set to Y (Default is N).
 
 <a id=apmdiag></a>
 ### CCTM_APMDIAG: average hourly aerosol diagnostics file
 [Return to Table 7-1](#apmdiag_t)
 
-This optional 2-D CCTM diagnostic file contains integral average information for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
+This optional 2-D or 3-D CCTM diagnostic file contains integral average information for each model hour on the geometric mean diameters, geometric standard deviations, bulk densities, 2nd moments and 3rd moments for the lognormal modes. 
 It also includes the fraction of each mode that contributes to PM1, PM2.5, and PM10 and the AMS transmission factor for each mode. Many diagnostics relating to heterogenous chemistry are provided including the N<sub>2</sub>O<sub>5</sub> reaction probability, 
-the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. This file is only created if the CTM_APMDIAG environment variable is set to Y (Default is N).
+the ClNO<sub>2</sub> reaction yield, and the IEPOX uptake coefficient. Units for all variables are specified in the output file. The number of layers in this output file is determined by the setting of the APMDIAG_BLEV_ELEV environment variable. This file is only created if the CTM_APMDIAG environment variable is set to Y (Default is N).
 
 <a id=b3gts></a>
 ### CCTM_B3GTS_S: biogenic emissions diagnostic file
 [Return to Table 7-1](#b3gts_t)
 
-This optional 2-D CCTM hourly output file contains total hourly biogenic emissions in mass units calculated in-line by the CCTM. This file is only created if the B3GTS_DIAG environment variable is set to Y (Default is Y).
+This optional 2-D CCTM hourly output file contains total hourly biogenic emissions in mass units calculated in-line by the CCTM when the CTM_BIOGEMIS environment variable is set to Y. This file is only created if the B3GTS_DIAG environment variable is set to Y (Default is Y).
 
 <a id=depv></a>
 ### CCTM_DEPV: inline deposition diagnostics file
@@ -164,7 +164,7 @@ This optional 3-D CCTM file records the 3-D point source emissions for each laye
 ### CCTM_DUSTEMIS: dust emissions diagnostic file
 [Return to Table 7-1](#dust_t)
 
-This optional 2-D CCTM hourly output file contains dust emissions in mass units calculated in-line by the CCTM. This file is only created if the CTM_DUSTEM_DIAG environment variable is set to Y (Default is N).
+This optional 2-D CCTM hourly output file contains dust emissions in mass units calculated in-line by the CCTM when the CTM_WB_DUST environment variable is set to Y. This file is only created if the CTM_DUSTEM_DIAG environment variable is set to Y (Default is N).
 
 <a id=depv_mos></a>
 ### CCTM_DEPVMOS: land use specific deposition velocity file
@@ -206,13 +206,13 @@ This optional 3-D CCTM file contains diagnostic output of particle gravitational
 ### CCTM_LTNGHRLY: hourly lightning emissions file
 [Return to Table 7-1](#ltngdiag1_t)
 
-This optional 3-D CCTM file contains hourly lightning NO emissions (mol/s) calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_1 environment variable is set to Y (Default is N).
+This optional 3-D CCTM file contains hourly lightning NO emissions (mol/s) calculated in-line by the CCTM when setting the CTM_LTNG_NO environment variable to Y. This file is only created if the CTM_LTNGDIAG_1 environment variable is set to Y (Default is N).
 
 <a id=ltngdiag2></a>
 ### CCTM_LTNGCOL: hourly column total lightning emissions
 [Return to Table 7-1](#ltngdiag2_t)
 
-This optional 2-D CCTM file contains hourly column-total lightning NO emissions (mol/s) calculated in-line by the CCTM. This file is only created if the CTM_LTNGDIAG_2 environment variable is set to Y (Default is N).
+This optional 2-D CCTM file contains hourly column-total lightning NO emissions (mol/s) calculated in-line by the CCTM when setting the CTM_LTNG_NO environment variable to Y. This file is only created if the CTM_LTNGDIAG_2 environment variable is set to Y (Default is N).
 
 <a id=ctm_rj1></a>
 ### CCTM_PHOTDIAG1: In-line photolysis inputs and outputs - summary file
