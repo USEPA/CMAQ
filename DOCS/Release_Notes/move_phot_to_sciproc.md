@@ -1,9 +1,9 @@
-# Move Photolysis Rate Calculation from CHEM to SCIPROC
+# Move Photolysis Rate Calculation to SCIPROC
 
 [William T. Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-PHOT for the CHEM driver has been moved to SCIPROC for both the inline and the tabular method of calculating photolysis rates. It also adds variables to the cloud options that use the H<sub>2</sub>O<sub>2</sub> and HNO<sub>3</sub> photolysis rates calculated from PHOT. Finally, the *create_ebi* utility was updated to account for this structural change.
+PHOT has been moved to SCIPROC for both the inline and the tabular method of calculating photolysis rates. It also adds variables to the cloud options that use the H<sub>2</sub>O<sub>2</sub> and HNO<sub>3</sub> photolysis rates calculated from PHOT. Finally, the *create_ebi* utility was updated to account for this structural change.
 
 ## Significance and Impact
 The change allows cloud and aerosol modules to use results from the photolysis calculation, facilitates diagnosing the computational expense of photolysis module, improves profiling of CCTM, and simplifies debugging of CCTM when the photolysis module is causing run-time crashes.      
