@@ -1,35 +1,37 @@
-# BEIS default Chemical Mapping 
+# BEIS Default Chemical Mapping 
 
-**Author/P.O.C.:** [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
 Two minor updates were made to BEIS input and diagnostic output. 
 1) For input, a hard-coded lookup table was introduced that matches CMAQ chemical mechanisms to 
-the mechanism field on the BEIS gspro file. Previsouly, users were responsible for selecting 
-mechanisms on the gspro file to be compatible with the CMAQ chemical mechanism selected.
+the mechanism field on the BEIS *gspro* file. Previsouly, users were responsible for selecting 
+mechanisms on the *gspro* file to be compatible with the CMAQ chemical mechanism selected.
 2) For diagnostic output, an error was found in the initialization of NTICS which caused BEIS 
 diagnostic emissions to appear overestimated, since the running sum was accumulating too much
 mass from output time step to output time step.
 
 ## Significance and Impact  
-Protects users from incorrectly matching CMAQ chemical mechanisms to mechanism IDs on the gspro 
+Protects users from incorrectly matching CMAQ chemical mechanisms to mechanism IDs on the *gspro*
 input file. Resolves error in BEIS diagnostic output.
 
 ## Affected Files
 CCTM/src/biog/beis3/tmpbeis.F  
-CCTM/scripts/run_cctm.csh  
-CCTM/src/emis/emis/BIOG_EMIS.F  
 
-## References
-NA           
+CCTM/scripts/run_cctm.csh  
+
+CCTM/src/emis/emis/BIOG_EMIS.F  
 
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #307]
-[PR #308]
-[PR #309]
-[PR #318]
+[PR #307](https://github.com/USEPA/CMAQ_Dev/pull/307)
+
+[PR #308](https://github.com/USEPA/CMAQ_Dev/pull/308)
+
+[PR #309](https://github.com/USEPA/CMAQ_Dev/pull/309)
+
+[PR #318](https://github.com/USEPA/CMAQ_Dev/pull/318)
 
 #### Commit 
 IDs:                        
