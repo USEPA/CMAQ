@@ -55,9 +55,9 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [Minor updates to air-surface exchange options](asx_run_options.md)
 
 ## Emission Updates
- * [DESID: Detailed Emissions Scaling, Isolation and Diagnostic Module](emissions_redesign.md)
+ * [DESID: *Detailed Emissions Scaling, Isolation and Diagnostic* Module](emissions_redesign.md)
  * [BEIS Default Chemical Mapping](BEIS_mapping.md)
- * [Biogenic speciation update for aero7](biogenic_apinene.md)
+ * [Biogenic speciation update for *AERO7*](biogenic_apinene.md)
 
 ## Process Analysis
  * [Extension to aerosol sub-processes](aerosol_process_analysis.md)
