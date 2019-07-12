@@ -298,7 +298,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_CRO_3D $METpath/METCRO3D_${YYYYMMDD}
   setenv MET_DOT_3D $METpath/METDOT3D_${YYYYMMDD}
   setenv MET_BDY_3D $METpath/METBDY3D_${YYYYMMDD}
-  setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYYYMMDD}
+#  setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYYYMMDD}
 
   #> Emissions Control File
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
