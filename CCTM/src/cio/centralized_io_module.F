@@ -1,5 +1,4 @@
-!------------------------------------------------------------------------!
-!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!------------------------------------------------------------------------!  !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
 !  from these groups: Federal Government employees, contractors working  !
 !  within a United States Government contract, and non-Federal sources   !
@@ -45,6 +44,9 @@
 !                        * region files for scaling purposes
 !  06/19/19, D. Wong: -- fixed a bug in the EMIS regions subroutine
 !  07/08/19, F. Sidi: -- Renamed E2C_FERT -> E2C_CHEM & BELD4_LU -> E2C_LU
+!  07/09/19, T. Spero: -- Changed file for fractional land use from
+!                         GRIDCRO2D to LUFRAC_CRO.  Allow backward
+!                         compatibility.
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -81,7 +83,7 @@
      &                       LAT(:,:),          ! from GRID_CRO_2D data
      &                       LON(:,:),          ! from GRID_CRO_2D data
      &                       PURB(:,:),         ! from GRID_CRO_2D data
-     &                       LUFRAC(:,:,:),     ! from GRID_CRO_2D data
+     &                       LUFRAC(:,:,:),     ! from LUFRAC_CRO data
      &                       SOILCAT_A(:,:),    ! from MET_CRO_2D
      &                       MSFD2(:,:),        ! from GRID_DOT_2D data
      &                       X3HT0M(:,:),       ! from GRID_CRO_3D data
@@ -186,7 +188,8 @@
      &             WR_AVAIL,                ! flag for WR, canopy wetness available in MET_CRO_2D
      &             MEDC_AVAIL,              ! file INIT_MEDC_1 is available
      &             E2C_CHEM_AVAIL,          ! file E2C_CHEM is available
-     &             GMN_AVAIL                ! variable GMN exist or not
+     &             GMN_AVAIL,               ! variable GMN exist or not
+     &             LUCRO_AVAIL              ! file LUFRAC_CRO is available
 
 ! Met data is large enough to cover boundary and no MET_BDY_3D will be used
         logical :: window
@@ -208,7 +211,8 @@
      &             boundary_files_setup,
      &             retrieve_grid_cro_2d_data,
      &             retrieve_grid_dot_2d_data,
-     &             retrieve_ocean_data
+     &             retrieve_ocean_data,
+     &             retrieve_lufrac_cro_data
 
         integer, private :: count = 0
         integer, private :: cio_logdev, 
@@ -323,6 +327,24 @@
           END IF
           CALL SUBHFILE ( GRID_DOT_2D, GXOFF, GYOFF,
      &                    STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2 )
+
+! lufrac cro file
+          IF ( .NOT. OPEN3( LUFRAC_CRO, FSREAD3, PNAME ) ) THEN
+             XMSG = 'Could not open '// LUFRAC_CRO // ' file'
+             CALL M3WARN ( PNAME, 0, 0, XMSG )
+             LUCRO_AVAIL = .FALSE.
+             XMSG = 'Solution: Reading Land Use Fractions from GRID_CRO_2D file'
+             WRITE(LOGDEV,'(5X,A)')TRIM( XMSG )
+          ELSE
+             LUCRO_AVAIL = .TRUE.
+             IF ( .NOT. DESC3( LUFRAC_CRO ) ) THEN
+                XMSG = 'Could not get ' // LUFRAC_CRO //' file description'
+                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
+
+             CALL SUBHFILE ( LUFRAC_CRO, GXOFF, GYOFF,
+     &                       STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
+          END IF
 
 ! met cro 2d file
           IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
@@ -1906,6 +1928,44 @@ C Read the various categories of normalized emissions
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
+          IF ( .NOT. LUCRO_AVAIL ) THEN
+
+             CALL INIT_LSM( 0, 0 )
+
+             allocate (LUFRAC(ncols, nrows, n_lufrac), STAT=STAT)
+             IF ( STAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating LUFRAC array'
+                  CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
+             END IF
+
+             DO l = 1, n_lufrac
+                Write( vname,'( "LUFRAC_",I2.2 )' ) l
+                IF ( .Not. XTRACT3( GRID_CRO_2D, VNAME,
+     &                              1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                              0, 0, LUFRAC( :,:,l ) ) ) THEN
+                   XMSG = 'Error interpolating variable' // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                END IF
+             END DO
+
+          END IF
+
+        end subroutine retrieve_grid_cro_2d_data
+
+! -------------------------------------------------------------------------
+        subroutine retrieve_lufrac_cro_data
+
+          USE UTILIO_DEFN
+          USE HGRD_DEFN
+          USE LSM_Mod, ONLY: n_lufrac, init_lsm
+
+          INCLUDE SUBST_FILES_ID             ! file name parameters
+
+          Character( 40 ), parameter :: pname = 'retrieve_lufrac_cro_data'
+
+          CHARACTER( 120 ) :: XMSG = ' '
+          INTEGER          :: STAT
+
           CALL INIT_LSM( 0, 0 )
 
           allocate (LUFRAC(ncols, nrows, n_lufrac), STAT=STAT)
@@ -1914,17 +1974,14 @@ C Read the various categories of normalized emissions
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
-          DO l = 1, n_lufrac
-             Write( vname,'( "LUFRAC_",I2.2 )' ) l
-             IF ( .Not. XTRACT3( GRID_CRO_2D, VNAME,
-     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                           0, 0, LUFRAC( :,:,l ) ) ) THEN
-                XMSG = 'Error interpolating variable' // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
-                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-          END DO
+           IF ( .Not. XTRACT3( LUFRAC_CRO, 'LUFRAC',
+     &                         1, n_lufrac, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                         0, 0, LUFRAC ) ) THEN
+              XMSG = 'Error interpolating variable LUFRAC from ' // LUFRAC_CRO
+              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+           END IF
 
-        end subroutine retrieve_grid_cro_2d_data
+        end subroutine retrieve_lufrac_cro_data
 
 ! -------------------------------------------------------------------------
         subroutine retrieve_grid_dot_2d_data
@@ -2957,6 +3014,10 @@ C   mminlu and num_land_cat are WRF global variables
              call retrieve_grid_cro_2d_data
 
              call retrieve_grid_dot_2d_data
+
+             if (LUCRO_AVAIL) then
+                call retrieve_lufrac_cro_data
+             end if
 
              call retrieve_ocean_data
 
