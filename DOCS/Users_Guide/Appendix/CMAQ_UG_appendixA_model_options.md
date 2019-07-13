@@ -132,7 +132,7 @@ The following five options are invoked by uncommenting the line in the CCTM buil
     Build an executable for running on multiple processors. Invoking this command requires the availability of the MPI library/INCLUDE files.
 
 -   `MakeFileOnly`<a id=MakeFileOnly></a>  
-    Uncomment to build a Makefile to compile the executable. Comment out to both create a Makefile and compile.
+    Uncomment to build a Makefile but to not compile the executable. The Makefile will be located in the BLD directory and can subsequently be used to manually compile the executable by typing 'make' in the BLD direcotry. Comment out to both create a Makefile and compile the executable when invoking the bldit_cctm.csh script.
 
 -   `build_parallel_io`<a id=build_parallel_io></a>  
      Uncomment to build CMAQ with true parallel I/O feature (requires ioapi3.2 and pnetcdf)
