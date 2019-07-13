@@ -187,7 +187,7 @@ We have summed the throughputs over 2 weeks (July 1-14, 2011), within the first 
 - IRR_OUTPUT HNO3fromNO3 = PROD[HNO3] FROM [NO3];
 - IRR_OUTPUT HNO3frCLNO3= <HET_CLNO3_WAJ>;
 
-In this case, we have summed up all throughput over the first 15 levels of the model (approximating the PBL) and over the same 14-day time period.  Figure 10-2 shows the relative contribution of processes to the total HNO3 formation at three grids.  In this case, at the two more urban grids, the reaction of OH+NO2 dominates the formation of HNO3 in summer, while at the rural grid cell (Missouri), the heterogeneous hydrolysis of alkyl nitrates is predominant.
+In this case, we have summed up all throughput over the first 15 levels of the model (approximating the PBL) and over the same 14-day time period.  Figure 9-2 shows the relative contribution of processes to the total HNO3 formation at three grids.  In this case, at the two more urban grids, the reaction of OH+NO2 dominates the formation of HNO3 in summer, while at the rural grid cell (Missouri), the heterogeneous hydrolysis of alkyl nitrates is predominant.
 
 <a id=Figure9-2></a>
 
