@@ -17,7 +17,7 @@ Emissions sensitivities can be calculated by simply running the air quality mode
 
 Alternatively, model sensitivities can be calculated with CMAQ-DDM-3D. This is done by altering the existing model algorithms to allow for sensitivity propagation through every science module in CMAQ. While this process does require more computational resources than standard CMAQ, it scales favorably with the number of desired parameters.
 
-Besides emissions, sensitivities to other model parameters can also be calculated. Currently, CMAQ-DDM-3D can be used for sensitivity to emission rates, boundary conditions, initial conditions, reaction rates, potential vorticity, or any combination of these parameters. Second order sensitivity calculations, or sensitivity of sensitivity, sometimes knows as higher-order DDM-3D (HDDM-3D) are also available.  Note: second order sensitivity outputs for particulate matter species are still in development and should be considered as a research option. 
+Besides emissions, sensitivities to other model parameters can also be calculated. Currently, CMAQ-DDM-3D can be used for sensitivity to emission rates, boundary conditions, initial conditions, reaction rates, potential vorticity, or any combination of these parameters. Second order sensitivity calculations, or sensitivity of sensitivity, sometimes known as higher-order DDM-3D (HDDM-3D) are also available.  Note: second order sensitivity outputs for particulate matter species are still in development and should be considered as a research option. 
 
 ## 10.2 CMAQ-DDM-3D Releases
 
