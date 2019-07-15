@@ -40,7 +40,7 @@ introducing spatial misalignment issues in the model datasets.
 
 ### Spatial Data Projection
 
-CMAQ can use any of the [four map projections defined for WRF](http://www2.mmm.ucar.edu/wrf/users/docs/user_guide_V3/users_guide_chap3.htm)
+CMAQ can use any of the [four map projections defined for WRF.](http://www2.mmm.ucar.edu/wrf/users/docs/user_guide_V3/users_guide_chap3.htm) 
 The four map projection coordinate
 systems are regular latitude-longitude geographic, Lambert conformal conic, Mercator, and Polar
 stereographic. It is important to know that in projecting spatial data that is in WGS84 to the CMAQ
@@ -63,7 +63,7 @@ Geographic:  "+proj=latlong +a=6370000.0 +b=6370000.0"
 ### Spatial Data Generation
 
 Emission spatial allocation surrogates are required for generating anthropogenic emissions by SMOKE to
-spatially allocate county-based emission inventory to model grid cells. Emission surrogates can be based
+spatially allocate county-based emission inventories to model grid cells. Emission surrogates can be based
 on population, roads, airports, railroads, and land use spatial data sets. The SA Vector and Surrogate
 Tools can be used to generate all needed emission surrogates for SMOKE.
 
@@ -74,17 +74,17 @@ compute the required input for the domain covering the continental U.S. (CONUS).
 
 1. The original method—re-grid Biogenic Emissions Landuse Database, Version 3 (BELD3) using a SA Vector
 allocation tool. The BELD3 data is generated from the early 1990s AVHRR land cover data and FIA tree
-species at county.
+species at the county level.
 2. The second method—use the SA Raster BELD4 land cover generation tool to generate model domain land use
  data with tree species. Then, a provided utility is used to convert the generated land cover data into
- an I/O API format for CMAQ input. The limitation for this tool is that the early 1990s FIA tree species
- table at county is still used in allocating FIA tree species (same as the 1st approach).
+ an I/O API format for CMAQ input. The limitation for this tool is that the early 1990s county-level FIA tree species
+ table is still used in allocating FIA tree species (this is also the case for the 1st approach).
 
 - [SA Vector and Surrogate Tools](https://www.cmascenter.org/sa-tools/) 
 - [SA Raster BELD4 land cover generation tool](https://www.cmascenter.org/sa-tools/documentation/4.2/Raster_Users_Guide_4_2.pdf) 
 
 **Fire emissions** require fire location, burned areas, and detailed fuel load information.
-Fire locations are available vis satellite detections from the Hazard Mapping System (HMS) or ground
+Fire locations are available via satellite detections from the Hazard Mapping System (HMS) or ground
 level reports from the National Fire and Aviation Management web application.  Burn Area estimates can
 be obtained from GIS based sources such as the Geospatial Multi-Agency Coordination (GeoMac) website or
 the U.S. National Historical Fire Perimeters Data Basin Dataset.  Fuel loading is estimated using a
@@ -93,8 +93,8 @@ All these information sources can be used to estimate fire emissions. An example
 be used to generate fire emissions is the BlueSky modeling framework.  BlueSky modularly links a variety
 of independent models of fire information, fuel loading, fire consumption, fire emissions, and smoke
 dispersion.  Using these tools and estimating fire emissions can be quite complex so datasets of fire
-emissions have been created for the community. Examples of these datasets is the Fire INventory from
-the National Center for Atmospheric Research (FINN) or the Global Fire Emissions Database.
+emissions have been created for the community. Examples of such datasets are the Fire INventory from
+the National Center for Atmospheric Research (FINN) or the Global Fire Emissions Database (GFED).
 
 - [Hazard Mapping System Fire and Smoke Product](https://www.ospo.noaa.gov/Products/land/hms.html)
 - [National Fire and Aviation Management Web Application](https://fam.nwcg.gov/fam-web/)
@@ -105,7 +105,7 @@ the National Center for Atmospheric Research (FINN) or the Global Fire Emissions
 - [Fire INventory from the National Center for Atmospheric Research](https://www2.acom.ucar.edu/modeling/finn-fire-inventory-ncar)
 - [Global Fire Emissions Database](http://www.globalfiredata.org/)
 
-**Sea salt emissions** require open ocean and surface zone (50m) buffer fractions for the modeling grid
+**Sea salt emissions** require open ocean and surf zone (50m) buffer fractions for the modeling grid
  cells in an I/O API file. For most of North American domain, a SA Vector allocation tool can be used
  to generate the surf zone and open ocean file from a polygon shapefile with land, surf zone buffer,
  and open ocean in SA data directory. For areas outside U.S., users have to generate a surf zone polygon
@@ -129,10 +129,10 @@ using a utility program in FEST-C for CMAQ input. Note that the BELD4 data used 
 
 **Land use and land cover data for surface flux modeling** in meteorology and air quality can be
 generated using WPS or the SA Raster Tools. It is important to use consistent land use data in both
-meteorology and air quality modeling. For most of the North America, WPS contains re-gridded 9-arc
-second (around 250 m resolution) 2011 NLCD land cover, imperviousness, and canopy data with 2011 MODIS
-land cover for the area outside the U.S. In addition, users can use the land use re-gridding tool in the
-SA Raster Tools system to generate any domain land cover data directly using NLCD (at 30 m resolution)
+meteorology and air quality modeling. For the U.S., WPS contains re-gridded 9-arc
+second (around 250 m resolution) 2011 NLCD land cover, imperviousness, and canopy data while 2011 MODIS
+land cover is used for areas outside the U.S. In addition, users can use the land use re-gridding tool in the
+SA Raster Tools system to generate land cover data for any domain directly using NLCD (at 30 m resolution)
 or/and MODIS land cover data (at 1 km or 500 m resolution). Users can use a provided R utility in SA to
 update their geogrid land cover data using the more accurate land cover data generating using SA.
 
