@@ -104,9 +104,13 @@ SUBROUTINE getluse
 !                        21-category MODIS land use is used in WRF.  Added
 !                        processing of fractional land use for NOAH Mosaic.
 !                        (T. Spero)
+!           22 Jun 2018  Changed name of module LUVARS to LUCATS to minimize
+!                        confusion.  (T. Spero)
+!           08 Aug 2018  Corrected bug in setting land use category names in
+!                        MCIP for USGS24 + lakes.  (T. Spero)
 !-------------------------------------------------------------------------------
 
-  USE luvars
+  USE lucats
   USE metvars
   USE metinfo, nx => met_nx, ny => met_ny
   USE xvars
@@ -156,11 +160,15 @@ SUBROUTINE getluse
 
   lumax  = nummetlu
 
-  IF ( ( met_lu_src(1:3) == "USG" ) .AND. ( nummetlu == 24 ) .OR.  &
-       ( met_lu_src(1:3) == "USG" ) .AND. ( nummetlu == 28 ) ) THEN
+  IF ( ( met_lu_src(1:3) == "USG" ) .AND. ( nummetlu == 24 ) ) THEN
     xlusrc = "USGS24"  ! accounts for lake category 28
     DO i = 1, nummetlu
       xludesc(i) = TRIM(xlusrc) // ': ' // TRIM(lucatusgs24(i))
+    ENDDO
+  ELSE IF ( ( met_lu_src(1:3) == "USG" ) .AND. ( nummetlu == 28 ) ) THEN
+    xlusrc = "USGS28"
+    DO i = 1, nummetlu
+      xludesc(i) = TRIM(xlusrc) // ': ' // TRIM(lucatusgs28(i))
     ENDDO
   ELSE IF ( ( met_lu_src(1:3) == "USG" ) .AND. ( nummetlu == 33 ) ) THEN
     xlusrc = "USGS33"

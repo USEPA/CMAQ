@@ -70,13 +70,13 @@ SUBROUTINE resistcalc
 !                        adapted from F2 values for NLCD50.  (T. Otte)
 !           21 Apr 2017  Updated F2 for MODIS for category 21 as "Lake".
 !                        (T. Spero)
+!           26 Jun 2018  Now use netCDF tokens for missing data.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
   USE const
   USE const_pbl
   USE xvars
-  USE m3utilio, ONLY: badval3
 
   IMPLICIT NONE
 
@@ -266,7 +266,7 @@ SUBROUTINE resistcalc
 
         IF ( NINT(xlwmask(c,r)) == 0 ) THEN  ! water
 
-          xrstom(c,r) = badval3   ! inverse taken in metcro.F
+          xrstom(c,r) = fillreal  ! inverse taken in metcro.F
 
         ELSE
 
@@ -322,8 +322,8 @@ SUBROUTINE resistcalc
 
       ELSE  ! ustar = 0.0
 
-        xradyn(c,r) = badval3  ! inverse taken in metcro.F
-        xrstom(c,r) = badval3  ! inverse taken in metcro.F
+        xradyn(c,r) = fillreal  ! inverse taken in metcro.F
+        xrstom(c,r) = fillreal  ! inverse taken in metcro.F
 
       ENDIF
 

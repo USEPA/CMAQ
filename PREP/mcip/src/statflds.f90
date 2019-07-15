@@ -39,6 +39,7 @@ SUBROUTINE statflds
 !                        warning messages.  (T. Otte)
 !           29 Aug 2011  Improved error handling.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           14 Sep 2018  Removed support for MM5v3.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -86,14 +87,6 @@ SUBROUTINE statflds
 !-------------------------------------------------------------------------------
 
   CALL metgrid2ctm
-
-!-------------------------------------------------------------------------------
-! Calculate non-hydrostatic reference state for MM5v3.
-!-------------------------------------------------------------------------------
-
-  IF ( met_model == 1 ) THEN  ! non-hydrostatic MM5v3
-    CALL refstate
-  ENDIF
 
 !-------------------------------------------------------------------------------
 ! Create metadata for output files.

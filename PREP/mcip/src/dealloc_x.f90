@@ -73,6 +73,11 @@ SUBROUTINE dealloc_x
 !                        XLAI_MOS for NOAH Mosaic land-surface model.  Added
 !                        XZSOIL, and added 3D soil arrays, XSOIT3D and XSOIM3D.
 !                        Added XWSPDSFC and XXLAIDYN for Noah.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           18 Jun 2019  Added new surface variables with PX LSM that can
+!                        improve dust simulation in CCTM.  Added optional
+!                        variables from KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE xvars
@@ -192,10 +197,14 @@ SUBROUTINE dealloc_x
   DEALLOCATE ( xqsnow   )
   DEALLOCATE ( xqgraup  )
 
-  IF ( ALLOCATED (xtke)        ) DEALLOCATE ( xtke        )
-  IF ( ALLOCATED (xpvc)        ) DEALLOCATE ( xpvc        )
-  IF ( ALLOCATED (xtheta)      ) DEALLOCATE ( xtheta      )
-  IF ( ALLOCATED (xcfrac3d)    ) DEALLOCATE ( xcfrac3d    )
+  IF ( ALLOCATED (xtke)     ) DEALLOCATE ( xtke     )
+  IF ( ALLOCATED (xpvc)     ) DEALLOCATE ( xpvc     )
+  IF ( ALLOCATED (xtheta)   ) DEALLOCATE ( xtheta   )
+  IF ( ALLOCATED (xcfrac3d) ) DEALLOCATE ( xcfrac3d )
+  IF ( ALLOCATED (xqc_cu)   ) DEALLOCATE ( xqc_cu   )
+  IF ( ALLOCATED (xqi_cu)   ) DEALLOCATE ( xqi_cu   )
+  IF ( ALLOCATED (xcldfrad) ) DEALLOCATE ( xcldfrad )
+  IF ( ALLOCATED (xcldfras) ) DEALLOCATE ( xcldfras )
 
 !-------------------------------------------------------------------------------
 ! Dot-Point (and Face-Point) 3D Arrays.
@@ -217,29 +226,33 @@ SUBROUTINE dealloc_x
 ! Cross-Point Arrays for Mosaic.
 !-------------------------------------------------------------------------------
 
-  IF ( ALLOCATED (xlufrac2  ) ) DEALLOCATE ( xlufrac2   )
-  IF ( ALLOCATED (xmoscatidx) ) DEALLOCATE ( xmoscatidx )
-  IF ( ALLOCATED (xlai_mos  ) ) DEALLOCATE ( xlai_mos   )
-  IF ( ALLOCATED (xra_mos   ) ) DEALLOCATE ( xra_mos    )
-  IF ( ALLOCATED (xrs_mos   ) ) DEALLOCATE ( xrs_mos    )
-  IF ( ALLOCATED (xtsk_mos  ) ) DEALLOCATE ( xtsk_mos   )
-  IF ( ALLOCATED (xznt_mos  ) ) DEALLOCATE ( xznt_mos   )
-  IF ( ALLOCATED (xwspdsfc  ) ) DEALLOCATE ( xwspdsfc   )
-  IF ( ALLOCATED (xxlaidyn  ) ) DEALLOCATE ( xxlaidyn   )
+  IF ( ALLOCATED ( xlufrac2   ) ) DEALLOCATE ( xlufrac2   )
+  IF ( ALLOCATED ( xmoscatidx ) ) DEALLOCATE ( xmoscatidx )
+  IF ( ALLOCATED ( xlai_mos   ) ) DEALLOCATE ( xlai_mos   )
+  IF ( ALLOCATED ( xra_mos    ) ) DEALLOCATE ( xra_mos    )
+  IF ( ALLOCATED ( xrs_mos    ) ) DEALLOCATE ( xrs_mos    )
+  IF ( ALLOCATED ( xtsk_mos   ) ) DEALLOCATE ( xtsk_mos   )
+  IF ( ALLOCATED ( xznt_mos   ) ) DEALLOCATE ( xznt_mos   )
+  IF ( ALLOCATED ( xwspdsfc   ) ) DEALLOCATE ( xwspdsfc   )
+  IF ( ALLOCATED ( xxlaidyn   ) ) DEALLOCATE ( xxlaidyn   )
+
+!-------------------------------------------------------------------------------
+! Cross-Point Arrays for Pleim-Xiu land surface model with WRFv4.1.
+!-------------------------------------------------------------------------------
+
+  IF ( ALLOCATED ( xwsat_px   ) ) DEALLOCATE ( xwsat_px   )
+  IF ( ALLOCATED ( xwfc_px    ) ) DEALLOCATE ( xwfc_px    )
+  IF ( ALLOCATED ( xwwlt_px   ) ) DEALLOCATE ( xwwlt_px   )
+  IF ( ALLOCATED ( xcsand_px  ) ) DEALLOCATE ( xcsand_px  )
+  IF ( ALLOCATED ( xfmsand_px ) ) DEALLOCATE ( xfmsand_px )
+  IF ( ALLOCATED ( xclay_px   ) ) DEALLOCATE ( xclay_px   )
 
 !-------------------------------------------------------------------------------
 ! Variables for WRF only.
 !-------------------------------------------------------------------------------
 
-  IF ( ALLOCATED (xmu)         ) DEALLOCATE ( xmu         )
-  IF ( ALLOCATED (xgeof)       ) DEALLOCATE ( xgeof       )
-
-!-------------------------------------------------------------------------------
-! Reference state variables for non-hydrostatic MM5.
-!-------------------------------------------------------------------------------
-
-  IF ( ALLOCATED (xpstar0)     ) DEALLOCATE ( xpstar0     )
-  IF ( ALLOCATED (xdensaf_ref) ) DEALLOCATE ( xdensaf_ref )
+  IF ( ALLOCATED ( xmu )   ) DEALLOCATE ( xmu   )
+  IF ( ALLOCATED ( xgeof ) ) DEALLOCATE ( xgeof )
 
 !-------------------------------------------------------------------------------
 ! Internal arrrays.

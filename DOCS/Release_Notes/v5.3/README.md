@@ -78,5 +78,6 @@ CMAQ v5.3 introduces aero7 and aero7i. Aero6, available in previous versions of 
  
 ## Instrumented Models
 CMAQ-DDM and CMAQ-ISAM will be released with the final version of CMAQv5.3 in Spring 2019.
+ * [Sulfur Tracking Method (STM)](sulfur_tracking.md)
 
 

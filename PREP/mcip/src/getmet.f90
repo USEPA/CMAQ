@@ -41,6 +41,7 @@ SUBROUTINE getmet (mcip_now)
 !                        suppported.  (T. Otte)
 !           29 Aug 2011  Improved error handling.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo, ONLY: met_model
@@ -57,7 +58,7 @@ SUBROUTINE getmet (mcip_now)
   CHARACTER(LEN=256), PARAMETER :: f9000 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
     & /, 1x, '***   UNKNOWN INPUT MET MODEL SOURCE', &
-    & /, 1x, '***   MUST BE EITHER MM5v3 OR WRF-ARW', &
+    & /, 1x, '***   MUST BE WRF-ARW', &
     & /, 1x, '***   MET_MODEL = ', i4, &
     & /, 1x, 70('*'))"
 
@@ -65,9 +66,7 @@ SUBROUTINE getmet (mcip_now)
 ! Read meteorology information for this time period.
 !-------------------------------------------------------------------------------
 
-  IF ( met_model == 1 ) THEN       ! MM5v3
-    CALL rdmm5v3 (mcip_now)
-  ELSE IF ( met_model == 2 ) THEN  ! WRF-ARW
+  IF ( met_model == 2 ) THEN  ! WRF-ARW
     CALL rdwrfem (mcip_now)
   ELSE
     WRITE (*,f9000) TRIM(pname), met_model
