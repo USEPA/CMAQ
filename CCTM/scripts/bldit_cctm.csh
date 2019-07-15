@@ -546,7 +546,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
 
  set text = "stm"
  echo "// options are" $text                                       >> $Cfile
- echo "Module stm;"                                          >> $Cfile
+ echo "Module stm;"                                                >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "cio"
