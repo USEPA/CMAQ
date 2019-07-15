@@ -121,7 +121,7 @@ The configuration options listed here are set during compilation of the CCTM exe
 
 Several of the CCTM science modules have more than one option.  Brief descriptions of these options are provided here.
 
-The following five options are invoked by uncommenting the line in the CCTM build script.  Comment the line in the script using a "#" to turn the option off.
+The following options are invoked by uncommenting the line in the CCTM build script.  Comment the line in the script using a "#" to turn the option off.
 
 -   `REPO_HOME` <a id=REPO_HOME></a> The directory where the user has installed the CMAQ source code, either by cloning the CMAQ GitHub repository or installing from a Zip file. 
 
