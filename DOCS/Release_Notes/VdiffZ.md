@@ -1,6 +1,6 @@
 # Changed Vdiff-ACM2 to use Z-coordinates
  
-**Author/P.O.C.:** [Pleim](mailto:pleim.jon@epa.gov), Computational Exposure Division, U.S. EPA
+**Author/P.O.C.:** [Jon Pleim](mailto:pleim.jon@epa.gov), Computational Exposure Division, U.S. EPA
  
 ## Brief Description
 Changed ACM2 PBL model (vdiff) to use Z-coordinates rather than sigma-coordinates as in the preveous model. This makes the ACM2 compatable with the new hybrid vertical coordinate that is the default in WRF starting with version 4.0.  This also makes the ACM2 version in CMAQ consistent with the ACM2 versions in the latest versions of WRF and MPAS.
