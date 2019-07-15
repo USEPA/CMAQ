@@ -298,6 +298,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_CRO_3D $METpath/METCRO3D_${YYMMDD}.nc
   setenv MET_DOT_3D $METpath/METDOT3D_${YYMMDD}.nc
   setenv MET_BDY_3D $METpath/METBDY3D_${YYMMDD}.nc
+# setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYMMDD}.nc
 
   #> Emissions Control File
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
@@ -443,6 +444,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        setenv SA_DD_1         "$OUTDIR/CCTM_SA_DRYDEP_${CTM_APPL}.nc -v"
        setenv SA_WD_1         "$OUTDIR/CCTM_SA_WETDEP_${CTM_APPL}.nc -v"
        setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
+
+       #> Set optional ISAM regions files
+#      setenv ISAM_REGIONS /work/MOD3EVAL/nsu/isam_v53/CCTM/scripts/input/RGN_ISAM.nc
 
     endif
  endif
