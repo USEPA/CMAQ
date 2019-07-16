@@ -16,8 +16,8 @@ of the IEPOX aerosol. All *aero7* and *aero7i* mechanisms have been updated to c
 sulfate when IEPOX-SOA is formed. 
 The amount of inorganic sulfate consumed is determined based on the
 relative rate of particle phase reaction with sulfate compared to other nucleophiles, as indicated
-in Pye et al. (2013).  This change includes the updated organosulfate rate constant following Piletic
-et al. (2013) and as implemented in Pye et al. (2017).
+in Pye et al. (2013).  The organosulfate rate constant in v5.3 follows Piletic
+et al. (2013) as implemented in Pye et al. (2017) and is the same as in CMAQv5.2-5.2.1.
 
 Due to logistical considerations, *aero6i* was also updated, but the *aero6* mechanisms were not updated.
 
