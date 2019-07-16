@@ -19,7 +19,7 @@ CMAQ source code can be installed either using git or from tarballs downloaded f
 
 In the directory where you would like to install CMAQ, issue the following command to clone the official EPA GitHub repository for CMAQv5.3:
 
-`git clone -b 5.3 https://github.com/USEPA/CMAQ CMAQ_REPO`
+`git clone -b master https://github.com/USEPA/CMAQ CMAQ_REPO`
 
 Using the git clone option, CMAQ will install into the following directories:
 
@@ -33,25 +33,25 @@ CMAQ_REPO/DOCS
 
 ### 5.2.2 Zip file Installation
 
-Zip files of the CMAQ source code are available from the public GitHub repository. Click the button "Clone or download" from https://github.com/USEPA/CMAQ/tree/5.3 and select "Download ZIP" to download a Zip file of the CMAQv5.3 repository. Alternatively, you may download the Zip file from the [EPA CMAQ website](https://www.epa.gov/cmaq/access-cmaq-source-code).
+Zip files of the CMAQ source code are available from the public GitHub repository. Click the button "Clone or download" from https://github.com/USEPA/CMAQ and select "Download ZIP" to download a Zip file of the CMAQv5.3 repository. Alternatively, you may download the Zip file from the [EPA CMAQ website](https://www.epa.gov/cmaq/access-cmaq-source-code).
 
 Reference input/output data for testing the installation of the software are available from the CMAS Center; *data are not available through GitHub*. You must register/login to access the source codes and data from the CMAS Center.
 
 In the directory where you would like to install CMAQ, unzip the model distribution file:
 
-`unzip CMAQ-5.3.zip`
+`unzip CMAQ-master.zip`
 
 The following directories will be created:
 
 ```
-CMAQ-5.3/CCTM
-CMAQ-5.3/PREP
-CMAQ-5.3/POST
-CMAQ-5.3/UTIL
-CMAQ-5.3/DOCS
+CMAQ-master/CCTM
+CMAQ-master/PREP
+CMAQ-master/POST
+CMAQ-master/UTIL
+CMAQ-master/DOCS
 ```
 
-The Git and Zip file installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone command will be `CMAQ_REPO`; the directory from the Zip file will be `CMAQ-5.3`. The subsequent instructions in this guide will be based on the git clone installation. For Zip file installations, replace CMAQ_REPO with CMAQ-v5.3 in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the Zip file will only give access to version 5.3.
+The Git and Zip file installation options will produce slightly different subdirectories on your Linux system. The base installation directory using the git clone command will be `CMAQ_REPO`; the directory from the Zip file will be `CMAQ-master`. The subsequent instructions in this guide will be based on the git clone installation. For Zip file installations, replace `CMAQ_REPO` with `CMAQ-master` in the instructions that follow. The differences in the directory names highlights the difference in functionality between the two options. Cloning the repository gives the user access to the full repository and its history, while downloading the Zip file will only give access to version 5.3.
 
 ## 5.3 The CMAQ Repository Structure
 
@@ -63,7 +63,7 @@ After downloading the source codes the user is encouraged to look through the re
 
 **Figure 5‑1. CMAQ repository structure**
 
-In this image it can be seen that there four main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). 
+In this image it can be seen that there are four main sub folders within the CMAQ repository. The first folder, CCTM, houses all the source codes (i.e. fortran/C programs) and scripts that drive the CMAQ Chemistry Transport Model (CCTM). 
 
 The second folder, DOCS, contains all relevant documentation pertaining to the CMAQ program suite including the User Manual, Release Notes and Known issues associated with the current release and a Developers Guide for a general description of CMAQ's open-source collaboration workflow and step-by-step instructions for how to make code contributions through GitHub.
 
@@ -107,7 +107,7 @@ After running the above command, it should be noticed now under CMAQ_HOME, the d
 `CMAQ_LIB   = $CMAQ_HOME/lib` (M3LIB before CMAQv5.2)<br>
 `CMAQ_DATA  = $CMAQ_HOME/data` (M3DATA before CMAQv5.2)
 
-If you encounter errors about libraries not being found, check the settings of the `config_cmaq.csh` script variables IOAPI, NETCDF, or MPI to ensure that they are correctly point to the locations of these libraries on your Linux system.
+If you encounter errors about libraries not being found, check the settings of the `config_cmaq.csh` script variables IOAPI, NETCDF, or MPI to ensure that they correctly point to the locations of these libraries on your Linux system.
 
 Sourcing the `config_cmaq.csh` script only needs to be invoked during a new installation of CMAQ to make sure the links to these libraries are working correctly. For every successive session, links to these libraries will automatically be created when you run any of the build or run scripts.
 
@@ -130,7 +130,6 @@ Science Modules:
 -  Aqueous-phase reactions and cloud mixing (cloud)
 -  Aerosol dynamics and size distributions (aero)
 -  Potential vorticity scaling for stratosphere/troposphere exchange (pv_o3)
--  Meteorology-chemistry coupling (twoway)
 
 The user has the ability to configure the model in a multitude of ways by selecting from different options for each scientific process. Model configuration is split into build time options and run time options. To modify any science options during build time, edit the `bldit_cctm.csh` script. The `bldit_cctm.csh` script also contains other information, such as the option to run in single or multiprocessor mode as well as debug mode. To modify any run time options, such as turn on in-line biogenic emission calculation or use in-line windblown dust emission, edit the run script, `run_cctm.csh`, and set the corresponding environment variable. To read more about build and run time configurations for specific scientific processes, see the next chapter [(Chapter 6)](CMAQ_UG_ch06_model_configuration_options.md).  To see a complete list configuration options reference [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md).
 
