@@ -139,7 +139,7 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. This option is currently not supported. Please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
 
 -   `potvortO3`<a id=potvort03></a>   
-    Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information.
+    Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information.
 
 The following configuration settings may have multiple options. Select one option in the CCTM build script.
 
@@ -400,7 +400,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_GRAV_SETL [default Y]`<a id=CTM_GRAV_SETL></a>  
     Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.
 -   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
-    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings). See [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.      
+    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.      
 
 <a id=Process_Analysis_Options></a>
 ### Process analysis options
