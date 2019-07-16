@@ -1,36 +1,36 @@
-# Updates to Postprocessing Utilities
+# Updates to Post-processing Utilities
 
-**Author/P.O.C.:**, [Christian Hogrefe](mailto:hogrefe.christian@epa.gov), Computational Exposure Division, U.S. EPA
+[Christian Hogrefe](mailto:hogrefe.christian@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-hr2day was updated to handle multiple model input files and
+*hr2day* was updated to handle multiple model input files and
 (optional) processing start and end days.
 
-sitecmp and sitecmp_dailyo3 were updated to enable reading
-csv-formatted in addition to tab-delimited SITE_FILEs which in
-turn enables the passing-through of (optional) state, county,
+*sitecmp* and *sitecmp_dailyo3* were updated to enable reading of both
+csv-formatted and tab-delimited SITE_FILEs, which, in
+turn, enables the passing-through of (optional) state, county,
 and elevation information from the csv SITE_FILEs to the
 output file.
 
-The new calc_tmetric program creates gridded IOAPI files with
+The new *calc_tmetric* program creates gridded I/O API files with
 temporally averaged or summed values that are calculated from
-one or more gridded time-dependent IOAPI files.
+one or more gridded time-dependent I/O API files.
 
-Updated the maximum allowable number of IOAPI input files set in
-module_file used by block_extract, calc_tmetric, combine,
-hr2day, sitecmp, and sitecmp_dailyo3 to comply
-with the global IOAPI maximum value of MXFILE3. For the public
-IOAPI release, MXFILE3 is defined as 64. To allow the
+Updated the maximum allowable number of I/O API input files set in
+*module_file* used by *block_extract*, *calc_tmetric*, *combine*,
+*hr2day*, *sitecmp*, and *sitecmp_dailyo3* to comply
+with the global I/O API maximum value of MXFILE3. For the public
+I/O API release, MXFILE3 is defined as 64. To allow the
 opening of an output file, the maximum number of input files was
 set to MXFILE3 - 1 in module_file.                   
 
 ## Significance and Impact
-Allows for additional functionality in hr2day, sitecmp,
-sitecmp_dailyo3 as summarized above and described in more
-detail in the udpated README files for each of these tools.
-The new calc_tmetric program provides a quick way to compute
+Allows for additional functionality in *hr2day*, *sitecmp*,
+*sitecmp_dailyo3*, as summarized above and described in more
+detail in the updated README files for each of these tools.
+The new *calc_tmetric* program provides a quick way to compute
 monthly or annual averages or sums from one or more gridded
-time-dependent IOAPI files.
+time-dependent I/O API files.
                        
 
 ## Affected Files
@@ -69,13 +69,10 @@ sitecmp_dailyo3/src/module_sites.F
 sitecmp_dailyo3/src/process.F  
 
 
-## References
-NA           
-
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #343 ] (https://github.com/USEPA/CMAQ_Dev/pull/343)  
+[PR #343](https://github.com/USEPA/CMAQ_Dev/pull/343)  
 
 #### Commit 
 IDs:  2819c7c0e4597ff8b4767e902df64c2498c3bb43 (https://github.com/USEPA/CMAQ_Dev/commit/2819c7c0e4597ff8b4767e902df64c2498c3bb43#diff-bc1fef7602eb41d9b4879f71d0c6029b)  
