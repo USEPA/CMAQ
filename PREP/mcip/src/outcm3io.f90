@@ -26,6 +26,8 @@ SUBROUTINE outcm3io (sdate, stime)
 !                        from MCIPv4.5.  (T. Spero)
 !           19 Jun 2019  Added optional variables from KF convective scheme
 !                        with radiative feedbacks.  (T. Spero)
+!           15 Jul 2019  Corrected error in setting units for 3D microphysics
+!                        fields.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -158,11 +160,11 @@ SUBROUTINE outcm3io (sdate, stime)
       vname3d(n)(1:nchar)  = TRIM(fld3dxyzt_q(ii)%fldname)
       vname3d(n)(nchar+1:) = ' '
 
-      nchar = LEN_TRIM(fld3dxyzt(ii)%units)
+      nchar = LEN_TRIM(fld3dxyzt_q(ii)%units)
       units3d(n)(1:nchar)  = TRIM(fld3dxyzt_q(ii)%units)
       units3d(n)(nchar+1:) = ' '
 
-      nchar = LEN_TRIM(fld3dxyzt(ii)%long_name)
+      nchar = LEN_TRIM(fld3dxyzt_q(ii)%long_name)
       vdesc3d(n)(1:nchar)  = TRIM(fld3dxyzt_q(ii)%long_name)
       vdesc3d(n)(nchar+1:) = ' '
 
