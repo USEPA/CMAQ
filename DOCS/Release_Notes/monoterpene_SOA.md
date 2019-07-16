@@ -13,8 +13,8 @@ of monoterpenes. The fit allows for prompt formation of low-volatility
 material, which is more consistent with recent observations. No additional 
 chemistry, such as oligomerization, is applied to the prompt yields. 
 This update was implemented in Xu et al. (2018) and additional information is available
-in their supporting information. Note that 7 VBS bins were used initially. 
-The highest volatility bin was removed from CMAQ as it had very minor 
+in their supporting information. Note that 7 VBS bins were used in the implementation of Xu et al. 
+The highest volatility bin was not included in the CMAQ v5.3 implementation as it had very minor 
 contributions to the SOA even under cold conditions with high loadings. 
                        
 New Species: AMT1-6J, SVMT1-6  
