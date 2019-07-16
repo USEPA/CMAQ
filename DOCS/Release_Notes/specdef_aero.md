@@ -1,16 +1,16 @@
-# Species Definition File Organic Aerosol Update
+# Updates to the Species Definition Files for Organic Aerosols
 
-**Author/P.O.C.:**, [Havala O. T. Pye](mailto:pye.havala@epa.gov), Computational Exposure Division, U.S. EPA
+[Havala O. T. Pye](mailto:pye.havala@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
 Species definition files (SpecDef*.txt, available in CCTM/src/MECHS/\*) provide guidance
-in post-processing CMAQ species into quantities such as OC, PM2.5, and deposition fluxes.  The cb6r3_ae6 SpecDef descriptions 
-of OC and OM needed to be corrected (AGLYJ was missing in v5.2.1). Species 
-definition files were created for aero7.                    
+for post-processing CMAQ species into quantities such as OC, PM<sub>2.5</sub>, and deposition fluxes.  The *cb6r3_ae6* SpecDef descriptions 
+of OC and OM were corrected (AGLYJ was missing in v5.2.1). Species 
+definition files were created for *aero7*.                    
 
 ## Significance and Impact
-Allows for aero7 post-processing. Aero6 post-processed OC will slightly increase due to corrected
-formula. v5.2.1 simulations should also correct their SpecDef files to 
+Allows for *aero7* post-processing. *Aero6* post-processed OC will slightly increase due to corrected
+formula. CMAQv5.2.1 simulations should also correct their SpecDef files to 
 include AGLYJ.
                        
 
@@ -26,7 +26,7 @@ NA
 -----
 ## Internal Records:
 #### Relevant Pull Requests:
-[PR #327]
+[PR #327](https://github.com/USEPA/CMAQ_Dev/pull/327)
 
 #### Commit 
 IDs:                        
