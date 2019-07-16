@@ -75,7 +75,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 ## Pre-processors, Post-processors, and Utilities
  * [Updates in MCIPv5.0](../../PREP/mcip/docs/ReleaseNotes)
  * [Updates to the ICON and BCON pre-processors.](updates_to_ICON_BCON.md)
- * [New create_omi pre-processor.](Add_create_omi_tool.md)
+ * [*create_omi*: Creating the OMI data file for inline photolysis](Add_create_omi_tool.md)
  * [Updates to the create_ebi utility](updates_to_create_ebi.md)
  * [Updates to the inline_phot_preproc utility](updates_to_inline_phot_preproc.md)
  * [Updates to species definition files (SpecDef*.txt) for aerosol modules](specdef_aero.md)
