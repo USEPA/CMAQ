@@ -5,9 +5,9 @@
 ## Brief Description
 Several bug fixes have been addressed in the ICON and BCON updates, including:
 
-(1) compiler info issues in scripts for ICON and BCON
+1. compiler info issues in scripts for ICON and BCON
 
-(2) ICON and BCON compilation problems in v5.3 resulting from changes in files symbolically linked 
+2. ICON and BCON compilation problems in v5.3 resulting from changes in files symbolically linked 
 to CCTM/src
 
 An enhancement included in these updates allows for nesting from polar
@@ -15,11 +15,11 @@ stereographic projection grids.
 
 The preprocessors have also been simplified to:
 
-(1) enable selection of IC/BC type (profile, regrid, tracer) as a run-time option instead of a compile-time option
+1. enable selection of IC/BC type (profile, regrid, tracer) as a run-time option instead of a compile-time option
 
-(2) remove the species mapping; users will need to use the *combine* utility for species mapping
+2. remove the species mapping; users will need to use the *combine* utility for species mapping
 
-(3) remove the parallel processing code from ICON (feature no longer used/needed).
+3. remove the parallel processing code from ICON (feature no longer used/needed).
 
 The updates also included new profile data from an annual average HCMAQ simulation
 for a marine remote grid cell over the Pacific Ocean (37N, 157W)
