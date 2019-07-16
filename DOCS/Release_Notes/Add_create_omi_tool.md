@@ -1,12 +1,12 @@
-# create_omi: a tool to create the OMI data file for CMAQ in-line photolysis
+# *create_omi*: Creating the OMI Data File for Inline Photolysis
 
-**Author/P.O.C.:**, [William T. Hutzell](mailto:hutzell.bill@epa.gov), Computational Exposure Division, U.S. EPA
+[William T. Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
 
-A tool has been added to the PREP subdirectory that creates the OMI input file describing total ozone column density.
-The file supports the CMAQ model's in-line calculation of photolysis rates. The tool also creates IOAPI files for visualizing observations
-and the OMI file's data. Please check the [README](../../../PREP/create_omi/README.md) file for create_omi for more information.
+A *create_omi* tool has been added to the PREP subdirectory to create the OMI input file that describes total ozone column density.
+The file supports the inline calculation of photolysis rates. The tool also creates I/O API files for visualizing observations
+and the OMI file's data. Please check the [README](../../../PREP/create_omi/README.md) file for *create_omi* for more information.
 
 ## Significance and Impact
 
