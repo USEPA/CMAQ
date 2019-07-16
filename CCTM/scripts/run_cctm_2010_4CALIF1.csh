@@ -292,6 +292,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_CRO_3D  $METpath/METCRO3D.$GRID_NAME.${NZ}L.$YYMMDD
   setenv MET_DOT_3D  $METpath/METDOT3D.$GRID_NAME.${NZ}L.$YYMMDD
   setenv MET_BDY_3D  $METpath/METBDY3D.$GRID_NAME.${NZ}L.$YYMMDD
+#  setenv LUFRAC_CRO  $METpath/LUFRAC_CRO.$GRID_NAME.${NZ}L.$YYMMDD
 
   #> Emissions Control File
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
@@ -390,12 +391,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Bidirectional ammonia configuration
   if ( $CTM_ABFLUX == 'Y' ) then
-     setenv E2C_Soilfile  ${LUpath}/epic/US1_12km_soil.nc
-     setenv E2C_Fertfile  ${LUpath}/epic/US1_12km_time${YYYYMMDD}.nc    
-     setenv B4LU_file     ${LUpath}/beld4_12kmCONUS_2006nlcd.ncf
-     setenv E2C_SOIL ${E2C_Soilfile}
-     setenv E2C_FERT ${E2C_Fertfile}
-     setenv BELD4_LU ${B4LU_file}
+     setenv E2C_SOIL ${LUpath}/epic/US1_12km_soil.nc
+     setenv E2C_CHEM ${LUpath}/epic/US1_12km_time${YYYYMMDD}.nc
+     setenv E2C_LU ${LUpath}/beld4_12kmCONUS_2006nlcd.ncf
   endif
 
 #> Inline Process Analysis 
@@ -411,6 +409,48 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      endif
   endif
 
+#> Integrated Source Apportionment Method (ISAM) Options
+ setenv CTM_ISAM N
+ if ( $?CTM_ISAM ) then
+    if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
+       setenv SA_IOLIST ${WORKDIR}/isam_control.txt
+       setenv ISAM_BLEV_ELEV " 1 1"
+       setenv AISAM_BLEV_ELEV " 1 1"
+
+       #> Set Up ISAM Initial Condition Flags
+       if ($NEW_START == true || $NEW_START == TRUE ) then
+          setenv ISAM_NEW_START Y
+          setenv ISAM_PREVDAY
+       else
+          setenv ISAM_NEW_START N
+          setenv ISAM_PREVDAY "$OUTDIR/CCTM_SA_CGRID_${RUNID}_${YESTERDAY}.nc"
+       endif
+
+       #> Set Up ISAM Output Filenames
+       setenv SA_ACONC_1      "$OUTDIR/CCTM_SA_ACONC_${CTM_APPL}.nc -v"
+       setenv SA_CONC_1       "$OUTDIR/CCTM_SA_CONC_${CTM_APPL}.nc -v"
+       setenv SA_DD_1         "$OUTDIR/CCTM_SA_DRYDEP_${CTM_APPL}.nc -v"
+       setenv SA_WD_1         "$OUTDIR/CCTM_SA_WETDEP_${CTM_APPL}.nc -v"
+       setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
+
+       #> Set optional ISAM regions files
+#      setenv ISAM_REGIONS /work/MOD3EVAL/nsu/isam_v53/CCTM/scripts/input/RGN_ISAM.nc
+
+    endif
+ endif
+
+
+#> Sulfur Tracking Model (STM)
+ setenv STM_SO4TRACK N        #> sulfur tracking [ default: N ]
+ if ( $?STM_SO4TRACK ) then
+    if ( $STM_SO4TRACK == 'Y' || $STM_SO4TRACK == 'T' ) then
+
+      #> option to normalize sulfate tracers [ default: Y ]
+      setenv STM_ADJSO4 Y
+
+    endif
+ endif
+ 
 # =====================================================================
 #> Output Files
 # =====================================================================
@@ -464,6 +504,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
              $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )
+  if ( $?CTM_ISAM ) then
+     if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
+        set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
+                         ${SA_CGRID_1} )
+     endif
+  endif
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
   ( ls $OUT_FILES > buff.txt ) >& /dev/null
   set out_test = `cat buff.txt`; rm -f buff.txt

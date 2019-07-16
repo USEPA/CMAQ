@@ -129,7 +129,7 @@
       CHARACTER(256) :: AE_NAMELIST = '' ! Aerosol Species Namelist
       CHARACTER(256) :: NR_NAMELIST = '' ! Nonreactive Species Namelist
       CHARACTER(256) :: TR_NAMELIST = '' ! Tracer Species Namelist
-      
+     
       ! Chemistry and Photolysis
       LOGICAL :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
       INTEGER :: NLAYS_DIAG = 0      ! Number of Diagnostic Layers to write out for photolysis
@@ -230,6 +230,10 @@
       INTEGER :: PA_ENDROW = 0       ! ending row for PA output
       INTEGER :: PA_BEGLEV = 0       ! Starting layer for PA output
       INTEGER :: PA_ENDLEV = 0       ! ending layer for PA output
+
+      ! Sulfur tracking
+      LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
+      LOGICAL :: ADJ_STMSPC = .TRUE.  ! flag for normalizing sulfur tracking species
 
       CONTAINS
           
@@ -520,7 +524,19 @@
        
       ! APMDIAG File Species List 
       CALL GET_ENV ( 'AVG_PMDIAG_SPCS', N_APMDIAG_SPC, APMDIAG_SPC, VARDEV )
- 
+
+      !-------------------------------------------------------------------------------------------------------
+      !>> sulfur tracking option
+      !-------------------------------------------------------------------------------------------------------
+
+      ! Flag for sulfur tracking option
+      CALL GET_ENV ( STM, 'STM_SO4TRACK', STM, VARDEV )
+
+      IF ( STM ) THEN
+         ! Get sulfur tracking normalization flag
+         CALL GET_ENV ( ADJ_STMSPC, 'STM_ADJSO4', ADJ_STMSPC, VARDEV )
+      END IF      
+
       !-------------------------------------------------------------------------------------------------------
       !>> Cloud Parameters
       !-------------------------------------------------------------------------------------------------------

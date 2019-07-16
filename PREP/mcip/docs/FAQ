@@ -3,6 +3,149 @@ Frequently Asked Questions for MCIP
 --------------------------------------------------------------------------------
 --------------------------------------------------------------------------------
 
+MCIP Version 5.0 (20 June 2019)
+
+
+What are the changes in MCIPv5.0?
+
+  The changes in MCIPv5.0 are summarized in the "ReleaseNotes" file and in
+  greater detail in the "CHANGES" file.  You will need to use I/O API v3.1
+  or v3.2 with this release, and you will use the netCDF F90 module rather
+  than the netCDF F77 include.
+
+
+Do I need to update to MCIPv5.0?
+
+  It is entirely up to you.  Updating is required if you are using
+  ANY of the following:
+    - CMAQv5.3
+    - WRFv4.0+
+    - WRF with hybrid vertical coordinates
+
+
+Do I need to update my script from MCIPv4.5 to MCIPv5.0?
+
+  Yes.  If you want to use MCIPv5.0, you need to use the new script because the
+  input namelist has changed.
+
+
+Can I use netCDF 4 with MCIP?
+
+  Yes.
+
+
+Will MCIP work on a Mac?
+
+  Yes.  It has been tested with Intel Fortran and gfortran.
+
+
+Can I still use MM5v3 data in MCIPv5.0?
+
+  No.  It was eliminated in MCIPv5.0.
+
+
+Do I need to update to MCIPv5.0 to use CMAQv5.3?
+
+  Yes.
+
+
+If I run the two-way-coupled WRF-CMAQ system (available with CMAQv5.3), do
+I need to run MCIP?
+
+  No.  The functionality of MCIP is handled within the two-way-coupled WRF-CMAQ
+  system in AQPREP.
+
+
+Can I run MCIP on multiple processors?
+
+  No.  MCIP is not a parallel code.  Because there is so much time spent
+  reading and writing data, MCIP probably would be I/O bound and would not
+  scale well across multiple processors.
+
+
+Why do I need I/O API v3.1 or v3.2 for MCIPv5.0?
+
+  The I/O API include files PARMS3.EXT, FDESC3.EXT, and IODECL3.EXT have been
+  encapsulated in the I/O API  module M3UTILIO.  Using this module will
+  reduce user errors that had been associated with changes to I/O API parameters
+  in I/O API but not in the CMAQ system codes themselves.  It helps protect
+  users like you!
+
+
+Why do I need to use the netCDF F90 module instead of including the netCDF
+F77 include file?
+
+  MCIP relies on the F90 netCDF functions and routines rather than the
+  F77 versions.  Reading netCDF files under F90 is greatly simplified.
+
+
+How can I find out what model/version/options/MCIP I used for my MCIP output?
+
+  Check out the metadata that is included in the I/O API headers of MCIP output
+  files.  Use the command "ncdump -h <file>", and see the character field
+  FILEDESC that is part of the I/O API header (near the end).  That field has
+  been filled for MCIP since MCIPv3.3.  It is best viewed on a terminal of
+  80-character width.  It is also echoed at the end of the MCIP log file.
+
+
+I'm publishing a paper and I want to cite MCIP.  What reference should I use?
+
+  In general, the citable reference for MCIP is Otte and Pleim (2010):
+
+  Otte, T. L., and J. E. Pleim, 2010.  The Meteorology-Chemistry Interface
+     Processor (MCIP) for the CMAQ modeling system: updates through
+     MCIPv3.4.1.  Geoscientific Model Development, 3, 243-256.
+
+  A DOI will also be available for CMAQv5.3 (which includes MCIPv5.0).
+
+
+Can I use the netCDF MCIP output with the rest of the CMAQ system?
+
+  Not yet.  However, you can visualize the file in Verdi 2.0 and use various
+  netCDF tools to manipulate the file.
+
+
+MCIP is not compiling properly.  Can you help?
+
+  MCIP must be compiled to include the netCDF Fortran 90 module, as well as
+  the I/O API library.  All three of these elements (MCIP, netCDF, and I/O API)
+  *MUST* be compiled with the same Fortran compiler.  That is, you cannot mix
+  and match libraries compiled with gfortran with source code compiled with
+  the Intel compiler.
+
+  The three elements must be compiled sequentially so that the same versions
+  of the libraries are used consistently.  Build netCDF first, then include
+  that version of netCDF into the compile of I/O API, then use both to build
+  MCIP.
+
+  MCIP is not a parallel code; it only runs on a single processor.  Errors in
+  the compile that are related to "mpi" mean there is a mismatch in the version
+  of the Fortran compiler used among netCDF, I/O API, and MCIP.
+
+
+Where can I get help on MCIP-related issues?
+
+  The CMAS Center hosts an online Forum to address issues related to software
+  in the CMAQ system.  The MCIP Category is dedicated to MCIP-related issues,
+  and it can be found at:  https://forum.cmascenter.org/c/mcip.
+
+  Before creating a new Topic (thread) in the MCIP Category, users are strongly
+  encouraged to search previous entries to determine if other users have
+  reported similar issues, and if a solution has been posted.
+
+  Prior to the launch of the Forum, users submitted discussion through the
+  listserv "m3user".  That listserv is deprecated in favor of the Forum.
+  However, discussions in "m3user" can be accessed and searched from the
+  archive at https://lists.unc.edu/read/?forum=m3user.
+
+
+Do you take user suggestions?
+
+  All user suggestions are considered, but not all are accepted.
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
 MCIP Version 4.0 (9 September 2011)
 
 
