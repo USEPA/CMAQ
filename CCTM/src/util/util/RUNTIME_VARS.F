@@ -41,6 +41,9 @@
 !     -- updated environment variable ISAM_NEW_START with default value 'Y'
 !  15 May 2019  (David Wong)
 !     -- included check for using marine gas emission or not
+!  13 June 2019 (F. Sidi) 
+!     -- Set the default for ERODE_AGLAND to FALSE. No longer supported feature
+!        in CMAQv5.3
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -126,7 +129,7 @@
       CHARACTER(256) :: AE_NAMELIST = '' ! Aerosol Species Namelist
       CHARACTER(256) :: NR_NAMELIST = '' ! Nonreactive Species Namelist
       CHARACTER(256) :: TR_NAMELIST = '' ! Tracer Species Namelist
-      
+     
       ! Chemistry and Photolysis
       LOGICAL :: PHOTDIAG  = .FALSE. ! Flag for PHOTDIAG file
       INTEGER :: NLAYS_DIAG = 0      ! Number of Diagnostic Layers to write out for photolysis
@@ -193,7 +196,7 @@
       LOGICAL :: MGEMDIAG      = .FALSE. ! flag for MGEM diagnostic file
       LOGICAL :: OCEAN_CHEM    = .TRUE.  ! Flag for ocean halogen chemistry and sea spray aerosol emissions
       LOGICAL :: WB_DUST       = .FALSE. ! flag for On-Line Dust Emission Calculation
-      LOGICAL :: ERODE_AGLAND  = .TRUE.  ! Account for Erodible Agricultural Land when 
+      LOGICAL :: ERODE_AGLAND  = .FALSE.  ! Account for Erodible Agricultural Land when 
                                                !   computing dust Emissions
       LOGICAL :: DUSTEM_DIAG   = .FALSE. ! flag for dustemis diagnostic file
       LOGICAL :: SSEMDIAG      = .FALSE. ! flag for SSEMIS diagnostic file
@@ -215,9 +218,6 @@
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
       CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default Assumption for
                                          !     Emissions Diagnostic File Output
-      LOGICAL :: EMIS_DATE_OVRD = .FALSE. ! Overrider CMAQ not to check
-                                          ! if the dates on the emissions file match that of 
-                                          ! the internal model
       CHARACTER(  16 ), SAVE, ALLOCATABLE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
 
       LOGICAL :: USE_MARINE_GAS_EMISSION = .FALSE.
@@ -230,6 +230,10 @@
       INTEGER :: PA_ENDROW = 0       ! ending row for PA output
       INTEGER :: PA_BEGLEV = 0       ! Starting layer for PA output
       INTEGER :: PA_ENDLEV = 0       ! ending layer for PA output
+
+      ! Sulfur tracking
+      LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
+      LOGICAL :: ADJ_STMSPC = .TRUE.  ! flag for normalizing sulfur tracking species
 
       CONTAINS
           
@@ -520,7 +524,19 @@
        
       ! APMDIAG File Species List 
       CALL GET_ENV ( 'AVG_PMDIAG_SPCS', N_APMDIAG_SPC, APMDIAG_SPC, VARDEV )
- 
+
+      !-------------------------------------------------------------------------------------------------------
+      !>> sulfur tracking option
+      !-------------------------------------------------------------------------------------------------------
+
+      ! Flag for sulfur tracking option
+      CALL GET_ENV ( STM, 'STM_SO4TRACK', STM, VARDEV )
+
+      IF ( STM ) THEN
+         ! Get sulfur tracking normalization flag
+         CALL GET_ENV ( ADJ_STMSPC, 'STM_ADJSO4', ADJ_STMSPC, VARDEV )
+      END IF      
+
       !-------------------------------------------------------------------------------------------------------
       !>> Cloud Parameters
       !-------------------------------------------------------------------------------------------------------
@@ -672,8 +688,8 @@
       CALL GET_ENV ( WB_DUST, 'CTM_WB_DUST', WB_DUST, VARDEV )
 
       ! Get env var for erodible agriculture land fraction
-      CALL GET_ENV ( ERODE_AGLAND, 'CTM_ERODE_AGLAND', ERODE_AGLAND, VARDEV )
-      
+      !CALL GET_ENV ( ERODE_AGLAND, 'CTM_ERODE_AGLAND', ERODE_AGLAND, VARDEV )
+
       ! Get env var for diagnostic output
       CALL GET_ENV ( DUSTEM_DIAG, 'CTM_DUSTEM_DIAG', DUSTEM_DIAG, VARDEV )
        
@@ -736,10 +752,6 @@
       ! Determine user-defined default for emissions diagnostics
       CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
 
-      ! Determine user-defined default for emissions date override
-      CALL GET_ENV ( EMIS_DATE_OVRD, 'EMIS_DATE_OVRD', EMIS_DATE_OVRD, VARDEV )
- 
- 
       !-------------------------------------------------------------------------------------------------------
       !>> Process Analysis
       !-------------------------------------------------------------------------------------------------------

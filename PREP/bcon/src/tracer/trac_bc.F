@@ -26,7 +26,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE TRAC_BC( TRNAME, TCOUT )
+      SUBROUTINE TRAC_BC ( TRNAME, TCOUT )
 
 C***********************************************************************
  
@@ -47,6 +47,7 @@ C***********************************************************************
 
       USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN    ! vertical layer specifications
+      USE M3UTILIO     ! IOAPI module
       USE BC_PARMS     ! BCON parameters
 
       IMPLICIT NONE     
@@ -54,8 +55,8 @@ C***********************************************************************
 C Include Files:
 
 C Arguments: 
-      CHARACTER( 16 ) :: TRNAME     !  Tracer name
-      REAL    :: TCOUT( NBNDY,* )
+      CHARACTER( 16 ), INTENT( IN ) :: TRNAME     !  Tracer name
+      REAL, INTENT( OUT ) :: TCOUT( :,: )
 
 C Parameters:
       INTEGER, PARAMETER :: CELL_RAD = 3   ! Radius for superposition tracers
@@ -67,20 +68,22 @@ C Parameters:
 C External Functions: None
 
 C Saved Local Variables:
-      LOGICAL, SAVE :: LFIRST = .TRUE.    ! Flag for first call
+      LOGICAL, SAVE :: LFIRST = .TRUE.     ! Flag for first call
       REAL, SAVE, ALLOCATABLE :: SHAPE( : )   ! Shape factor for superposition tracers
 
 C Local Variables:
-      CHARACTER( 16 ) :: PNAME = 'TRAC_BC'      ! Procedure name
+      CHARACTER( 16 ) :: PNAME = 'TRAC_BC' ! Procedure name
+      CHARACTER( 80 ) :: MSG               ! Log message
 
       INTEGER COL_PEAK   ! Location of center of peak for superposition tracers
       INTEGER ROW_PEAK   ! Location of center of peak for superposition tracers
 
-      INTEGER C, R, L           ! Grid loop indices
-      INTEGER N                 ! Boundary cell counter
+      INTEGER C, R, L    ! Grid loop indices
+      INTEGER N          ! Boundary cell counter
+      INTEGER ALLOCSTAT  ! Status returned from array allocation
 
-      INTEGER BCOL( NBNDY)      ! Map from boundary cell no. to grid column
-      INTEGER BROW( NBNDY)      ! Map from boundary cell no. to grid row
+      INTEGER, SAVE, ALLOCATABLE :: BCOL( : )  ! Map from boundary cell no. to grid column
+      INTEGER, SAVE, ALLOCATABLE :: BROW( : )  ! Map from boundary cell no. to grid row
 
       REAL DISTSQ     ! Distance squared for for superposition tracers
       REAL RADSQ      ! Hill radius squared for superposition tracers
@@ -96,7 +99,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LFIRST = .FALSE.
 
 C Allocate memory for Saved array
-         ALLOCATE( SHAPE( NBNDY ) )
+         ALLOCATE( SHAPE( NBNDY ), BCOL( NBNDY ), BROW( NBNDY ),
+     &             STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            MSG = 'Failure allocating SHAPE, BCOL, BROW'
+            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+         END IF
 
          N = 0
 

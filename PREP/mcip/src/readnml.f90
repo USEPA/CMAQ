@@ -16,7 +16,7 @@
 !  subject to their copyright restrictions.                                    !
 !------------------------------------------------------------------------------!
 
-SUBROUTINE readnml (ctmlays)
+SUBROUTINE readnml
 
 !-------------------------------------------------------------------------------
 ! Name:     Read Namelist
@@ -78,17 +78,23 @@ SUBROUTINE readnml (ctmlays)
 !                        with F90 protected intrinsic.  Improved error
 !                        handling.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           18 Dec 2018  Removed support for MM5v3 input.  Added runtime option
+!                        to choose output format.  Removed runtime option to
+!                        not output time-independent files.  (T. Spero)
+!           17 Jun 2019  Removed layer collapsing.  Changed variable LUVCOUT to
+!                        LUVBOUT to reflect that the default 3D wind components
+!                        are on the Arakawa-C staggered grid, and the optional
+!                        additional 3D winds are now on the Arakawa-B staggered
+!                        grid.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
   USE const, ONLY: rearth, dg2m, pi180
   USE files
-  USE sat2mcip
 
   IMPLICIT NONE
 
   INTEGER                           :: btrim
-  REAL,               INTENT(OUT)   :: ctmlays    ( maxlays )
   INTEGER                           :: hh
   INTEGER                           :: istat
   INTEGER                           :: mm
@@ -97,12 +103,11 @@ SUBROUTINE readnml (ctmlays)
   INTEGER                           :: nrowsin
   CHARACTER(LEN=16),  PARAMETER     :: pname      = 'READNML'
 
-  NAMELIST /filenames/   file_gd, file_hdr, file_mm, file_ter, file_sat,  &
-                         makegrid
+  NAMELIST /filenames/   file_gd, file_mm, file_geo, ioform
 
-  NAMELIST /userdefs/    lpv, lwout, luvcout, lsat,           &
+  NAMELIST /userdefs/    lpv, lwout, luvbout,                 &
                          eradm, mcip_start, mcip_end, intvl,  &
-                         coordnam, grdnam, ctmlays,           &
+                         coordnam, grdnam,                    &
                          btrim, lprt_col, lprt_row,           &
                          wrf_lc_ref_lat
 
@@ -157,25 +162,6 @@ SUBROUTINE readnml (ctmlays)
     & /, 1x, '***   Input LPRT_COL and LPRT_ROW are ', i4, 2x, i4, &
     & /, 1x, 70('*'))"
 
-  CHARACTER(LEN=256), PARAMETER :: f9700 = "(/, 1x, 70('*'), &
-    & /, 1x, '*** SUBROUTINE: ', a, &
-    & /, 1x, '***   First CTM layer must be 1.0', &
-    & /, 1x, '***   First input CTM layer is ', f7.4, &
-    & /, 1x, 70('*'))"
-
-  CHARACTER(LEN=256), PARAMETER :: f9800 = "(/, 1x, 70('*'), &
-    & /, 1x, '*** SUBROUTINE: ', a, &
-    & /, 1x, '***   Input CTM layers seem to be out of order', &
-    & /, 1x, '***     Layers must be in descending order', &
-    & /, 1x, '***   Input CTM layers are ', 50f7.4, &
-    & /, 1x, 70('*'))"
-
-  CHARACTER(LEN=256), PARAMETER :: f9900 = "(/, 1x, 70('*'), &
-    & /, 1x, '*** SUBROUTINE: ', a, &
-    & /, 1x, '***   Last CTM layer must be 0.0', &
-    & /, 1x, '***   Last input CTM layer is ', f7.4, &
-    & /, 1x, 70('*'))"
-
   CHARACTER(LEN=256), PARAMETER :: f9950 = "(/, 1x, 70('*'), &
     & /, 1x, '*** SUBROUTINE: ', a, &
     & /, 1x, '***   Minimum value for X0 and Y0 is 1', &
@@ -204,11 +190,8 @@ SUBROUTINE readnml (ctmlays)
 !-------------------------------------------------------------------------------
 
   file_gd     = "GRIDDESC"
-  file_hdr    = "mmheader"
   file_mm(:)  = " "
-  file_ter    = " "
-  file_sat(:) = " "
-  makegrid    = .TRUE.
+  file_geo    = " "
 
 !-------------------------------------------------------------------------------
 ! Set default value for user-selected options.
@@ -219,17 +202,18 @@ SUBROUTINE readnml (ctmlays)
 !   LWOUT:   0 = Do not output vertical velocity
 !            1 = Output vertical velocity
 !
-!   LUVCOUT: 0 = Do not output u- and v-component winds on C-staggered grid
-!            1 = Output u- and v-component winds on C-staggered grid
+!   LUVBOUT: 0 = Do not output u- and v-component winds on B-staggered grid
+!            1 = Output u- and v-component winds on B-staggered grid
+!                in addition to the C-staggered grid
 !
-!   LSAT:    0 = No satellite input is available (default)
-!            1 = GOES observed cloud information replaces model-derived input
+!   IOFORM:  1 = Models-3 I/O API
+!            2 = netCDF
 !-------------------------------------------------------------------------------
 
   lpv        = 0
   lwout      = 0
-  luvcout    = 0
-  lsat       = 0
+  luvbout    = 0
+  ioform     = 1
 
 !-------------------------------------------------------------------------------
 ! Set default value for earth radius in meters (ERADM).  The default value is
@@ -259,12 +243,6 @@ SUBROUTINE readnml (ctmlays)
 
   lprt_col = 0
   lprt_row = 0
-
-!-------------------------------------------------------------------------------
-! Initialize CTM layers to an unrealistic value (-1).
-!-------------------------------------------------------------------------------
-
-  ctmlays(:) = -1.0
 
 !-------------------------------------------------------------------------------
 ! Set default meteorology "boundary" point removal to 5.
@@ -330,18 +308,13 @@ SUBROUTINE readnml (ctmlays)
 !-------------------------------------------------------------------------------
 
   file_gd  = TRIM( ADJUSTL(file_gd)  )
-  file_hdr = TRIM( ADJUSTL(file_hdr) )
 
   DO n = 1, SIZE(file_mm)
     file_mm(n) = TRIM( ADJUSTL( file_mm(n) ) )
   ENDDO
 
-  file_ter = TRIM( ADJUSTL(file_ter) )
-  IF ( file_ter(1:7) == "no_file" ) file_ter = " "
-
-  DO n = 1, SIZE(file_sat)
-    file_sat(n) = TRIM( ADJUSTL( file_sat(n) ) )
-  ENDDO
+  file_geo = TRIM( ADJUSTL(file_geo) )
+  IF ( file_geo(1:7) == "no_file" ) file_geo = " "
 
 !-------------------------------------------------------------------------------
 ! Verify values of user-defined options.
@@ -357,13 +330,13 @@ SUBROUTINE readnml (ctmlays)
     CALL graceful_stop (pname)
   ENDIF
 
-  IF ( ( luvcout /= 0 ) .AND. ( luvcout /= 1 ) ) THEN
-    WRITE (*,f9300) TRIM(pname), "LUVCOUT", luvcout
+  IF ( ( luvbout /= 0 ) .AND. ( luvbout /= 1 ) ) THEN
+    WRITE (*,f9300) TRIM(pname), "LUVBOUT", luvbout
     CALL graceful_stop (pname)
   ENDIF
 
-  IF ( ( lsat /= 0 ) .AND. ( lsat /= 1 ) ) THEN
-    WRITE (*,f9300) TRIM(pname), "LSAT", lsat
+  IF ( ( ioform /= 1 ) .AND. ( ioform /= 2 ) ) THEN
+    WRITE (*,f9300) TRIM(pname), "IOFORM", ioform
     CALL graceful_stop (pname)
   ENDIF
 
@@ -384,7 +357,7 @@ SUBROUTINE readnml (ctmlays)
 !-------------------------------------------------------------------------------
 ! Set start and end dates.  Ensure that "special characters" that separate
 ! components of date are set correctly.  If these are not set properly, the
-! lexical time comparisons in the driver (mcip.F) will not work properly.
+! lexical time comparisons in the driver (mcip.f90) will not work properly.
 !-------------------------------------------------------------------------------
 
   mcip_start( 5: 5) = "-"         ;  mcip_end  ( 5: 5) = "-"
@@ -405,45 +378,6 @@ SUBROUTINE readnml (ctmlays)
   IF ( ( lprt_col < 0 ) .OR. ( lprt_row < 0 ) ) THEN
     WRITE (*,f9650) TRIM(pname), lprt_col, lprt_row
     CALL graceful_stop (pname)
-  ENDIF
-
-!-------------------------------------------------------------------------------
-! Determine actual CTM layers and fill arrays.
-! If maximum value of CTMLAYS is -1.0 (which indicates that the namelist value
-! was not filled or was set with -1.0), use this as a flag to process MCIP
-! using the vertical structure of the input meteorology data with no collapsing.
-!-------------------------------------------------------------------------------
-
-  IF ( MAXVAL(ctmlays) < 0.0 ) THEN
-
-    needlayers = .TRUE.  ! read layer structure in setup.F from input met file
-
-  ELSE
-
-    needlayers = .FALSE.  ! using layer definition from namelist file
-
-    DO n = 1, maxlays
-      IF ( ctmlays(n) < 0.0 ) EXIT
-      IF ( n == 1 ) THEN
-        IF ( ctmlays(n) /= 1.0 ) THEN
-          WRITE (*,f9700) TRIM(pname), ctmlays(1)
-          CALL graceful_stop (pname)
-        ENDIF
-        CYCLE
-      ENDIF
-      IF ( ctmlays(n) >= ctmlays(n-1) ) THEN
-        WRITE (*,f9800) TRIM(pname), ctmlays(:)
-        CALL graceful_stop (pname)
-      ENDIF
-    ENDDO
-
-    IF ( ctmlays(n-1) /= 0.0 ) THEN
-      WRITE (*,f9900) TRIM(pname), ctmlays(n-1)
-      CALL graceful_stop (pname)
-    ENDIF
-
-    nlays = n - 2  ! one less than number in array, and one less than loop counter
-
   ENDIF
 
 !-------------------------------------------------------------------------------

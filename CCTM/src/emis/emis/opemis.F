@@ -124,11 +124,8 @@ C Open Gridded Emission Files (for gas chem, aerosols and non-reactive species)
               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
             END IF
 
-            ! Let the date for this emission stream come from the model
-            ! by default or the file if the user wishes to override the
-            ! default
-            EM_FILE_DATE( ISRM ) = JDATE
-            IF ( EM_FILE_DATE_OVRD( ISRM ) )  EM_FILE_DATE( ISRM ) = SDATE3D
+            ! Let the date for this emission stream come from the file
+            EM_FILE_DATE( ISRM ) = SDATE3D
 
             ! Save Area Source Species Names For Use in Emissions Species
             ! Check Routine

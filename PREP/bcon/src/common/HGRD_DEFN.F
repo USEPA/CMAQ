@@ -73,23 +73,12 @@ C latitude for coord-system center (degrees)
       REAL( 8 ), SAVE :: XCELL_GD ! X-coordinate cell width (M)
       REAL( 8 ), SAVE :: YCELL_GD ! Y-coordinate cell width (M)
 
-      INTEGER, SAVE :: GL_NCOLS   ! no. of columns in global grid
-      INTEGER, SAVE :: GL_NROWS   ! no. of rows in global grid
-      INTEGER, SAVE :: GL_NBNDY   ! no. of cells in one layer of global boundary
- 
-      INTEGER, SAVE :: NPCOL      ! no. of processors across grid columns
-      INTEGER, SAVE :: NPROW      ! no. of processors across grid rows
- 
       INTEGER, SAVE :: NCOLS      ! grid columns array dimension
       INTEGER, SAVE :: NROWS      ! grid rows array dimension
       INTEGER, SAVE :: NBNDY      ! no. of cells in one layer of local boundary
  
       INTEGER, SAVE :: NTHIK      ! boundary thickness (cells)
  
-      INTEGER, SAVE :: MY_NCOLS   ! local no. of computational grid columns
-      INTEGER, SAVE :: MY_NROWS   ! local no. of computational grid rows
-      INTEGER, SAVE :: MY_NBNDY   ! local no. of boundary cells
-
       CONTAINS
 
          FUNCTION HGRD_INIT () RESULT ( SUCCESS )
@@ -108,15 +97,6 @@ C environment variable grid name to select from GRIDDESC
          INTEGER :: STATUS
 
          CHARACTER( 48 ) :: VARDESC
-
-         INTERFACE
-            SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-               IMPLICIT NONE
-               CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-               INTEGER,         INTENT ( OUT ) :: NVARS
-               CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-            END SUBROUTINE GET_ENVLIST
-         END INTERFACE
 
 C-----------------------------------------------------------------------
 
@@ -151,20 +131,13 @@ C the grid description file pointed to by the GRIDDESC env var:
      &                           P_ALP_GD, P_BET_GD, P_GAM_GD,
      &                           XCENT_GD, YCENT_GD,
      &                           XORIG_GD, YORIG_GD, XCELL_GD, YCELL_GD,
-     &                           GL_NCOLS, GL_NROWS, NTHIK ) ) THEN
+     &                           NCOLS, NROWS, NTHIK ) ) THEN
                XMSG = 'Failure retrieving horizontal grid parameters'
                CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
 
-            MY_NCOLS = GL_NCOLS
-            MY_NROWS = GL_NROWS
-            MY_NBNDY = 2*NTHIK * ( MY_NCOLS + MY_NROWS + 2*NTHIK )
-            GL_NBNDY = 2*NTHIK * ( GL_NCOLS + GL_NROWS + 2*NTHIK )
-
-            NCOLS = MY_NCOLS
-            NROWS = MY_NROWS
-            NBNDY = MY_NBNDY
+            NBNDY = 2*NTHIK * ( NCOLS + NROWS + 2*NTHIK )
 
          ELSE
             XMSG = 'Horizontal domain decomposition already defined'

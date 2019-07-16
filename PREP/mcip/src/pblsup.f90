@@ -91,6 +91,8 @@ SUBROUTINE pblsup
 !                        of mosaic aerodynamic resistance following method
 !                        suggested by P. Campbell, and ensuring protection for
 !                        resistances over water cells.  (T. Spero)
+!           26 Jun 2018  Now use netCDF tokens for missing data.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -98,7 +100,6 @@ SUBROUTINE pblsup
   USE const
   USE const_pbl
   USE metinfo
-  USE m3utilio, ONLY: badval3
 
   IMPLICIT NONE
 
@@ -157,27 +158,11 @@ SUBROUTINE pblsup
        ( ABS(MAXVAL(xpbl))   < smallnum ) ) THEN  ! assume initialization period
 
     xwstar  (:,:) = 0.0
-    xmol    (:,:) = badval3   ! inverse taken in metcro.F
+    xmol    (:,:) = fillreal  ! inverse taken in metcro.F
 
     ! Compute 10-m wind speed and direction on scalar points.
 
-    IF ( met_model == 1 ) THEN  ! MM5: use native dot-point winds
-
-      DO c = 1, ncols_x
-        cp1 = c + 1
-        DO r = 1, nrows_x
-          rp1 = r + 1
-          uns = 0.25 * ( xuu_d(c,r,  1) + xuu_d(cp1,r,  1) +   &
-                         xuu_d(c,rp1,1) + xuu_d(cp1,rp1,1) )
-          vns = 0.25 * ( xvv_d(c,r,  1) + xvv_d(cp1,r,  1) +   &
-                         xvv_d(c,rp1,1) + xvv_d(cp1,rp1,1) )
-          xwspd10(c,r) = SQRT((uns * uns) + (vns * vns))
-          CALL wind (uns, vns, xwspd10(c,r), xwdir10(c,r),  &
-                     xlonc(c,r), met_proj_clon, met_cone_fac)
-        ENDDO
-      ENDDO
-
-    ELSE IF ( met_model == 2 ) THEN  ! WRF: use native flux-point winds
+    IF ( met_model == 2 ) THEN  ! WRF: use native flux-point winds
 
       DO c = 1, ncols_x
         cp1 = c + 1
@@ -213,31 +198,7 @@ SUBROUTINE pblsup
 
         ! Compute wind speed profile on scalar points.
 
-        IF ( met_model == 1 ) THEN  ! MM5: use native dot-point winds
-
-          DO k = 1, metlay
-
-            uns = 0.25 * ( xuu_d(c,r,  k) + xuu_d(cp1,r,  k) +   &
-                           xuu_d(c,rp1,k) + xuu_d(cp1,rp1,k) )
-
-            vns = 0.25 * ( xvv_d(c,r,  k) + xvv_d(cp1,r,  k) +   &
-                           xvv_d(c,rp1,k) + xvv_d(cp1,rp1,k) )
-
-            ul(k) = MAX( 0.5, SQRT( (uns * uns) + (vns * vns) ) )
-
-            IF ( k == 1 ) THEN
-              IF ( ifw10m ) THEN
-                ulev1 = xu10(c,r)  ! 10-m wind components already on scalar pts
-                vlev1 = xv10(c,r)
-              ELSE
-                ulev1 = uns
-                vlev1 = vns
-              ENDIF
-            ENDIF
-
-          ENDDO
-
-        ELSE IF ( met_model == 2 ) THEN  ! WRF: use native flux-point winds
+        IF ( met_model == 2 ) THEN  ! WRF: use native flux-point winds
 
           DO k = 1, metlay
 
@@ -303,24 +264,13 @@ SUBROUTINE pblsup
         ENDIF
 
         ! Limit MOL.
-        ! (Note that this is not part of ACM2 in WRF, but  per J. Pleim,
+        ! (Note that this is not part of ACM2 in WRF, but per J. Pleim,
         ! we will apply it for all MOL coming out of MCIP.  TLS 24 Aug 2015)
 
         xmol(c,r) = SIGN( MAX(ABS(xmol(c,r)), amolmini), xmol(c,r) )
 
-        ! Ensure that PBL heights from the Mellor-Yamada Eta PBL scheme in MM5
-        ! are set to a minimum of the height of the lowest model layer to ensure
-        ! that very small values and negative values are not used by CMAQ.
-
-        IF ( ( met_model == 1 ) .AND. ( met_pbl == 4 ) ) THEN  ! M-Y Eta PBL
-          xpbl(c,r) = MAX( xpbl(c,r), x3htf(c,r,1) )
-        ENDIF
-
-        ! Need to supply PBL height when Blackadar, MRF, or Gayno-Seaman PBL
-        ! schemes in MM5 suggest PBL height of 0.0.  (Blackadar and MRF regimes
-        ! 1 and 2, and G-S regime 1.)  Also need to specify PBL height for
-        ! schemes in WRF when it is input as lower than the height of the
-        ! lowest mid-layer.
+        ! Need to specify PBL height for schemes in WRF when it is input
+        ! as lower than the height of the lowest mid-layer.
 
         IF ( xpbl(c,r) <= x3htm(c,r,1) ) THEN
           CALL getpblht (c, r, ul)
@@ -396,8 +346,8 @@ SUBROUTINE pblsup
         IF ( ( NINT(xlwmask(c,r)) == 0 ) .OR.  &
              ( NINT(xdluse(c,r))  == met_lu_ice ) ) THEN  ! water or ice
 
-          xrs_mos(c,r,:) = badval3  ! inverse taken in metcro.f90, will be 0.0
-          xra_mos(c,r,:) = badval3  ! inverse taken in metcro.f90, will be 0.0
+          xrs_mos(c,r,:) = fillreal ! inverse taken in moscro.f90, will be 0.0
+          xra_mos(c,r,:) = fillreal ! inverse taken in moscro.f90, will be 0.0
 
         ELSE
 

@@ -329,7 +329,7 @@ C Find emissions stream in the list of available streams
                  IDX = INDEX1(TAGSTREAMS(ITAG,ISRM),N_EM_SRM,EM_FILE_LAB )
                  IF ( IDX .EQ. 0 ) THEN
                    XMSG = " User specified ISAM tag - " //
-     &                    TAGSTREAMS(ITAG,ISRM) // 
+     &                    TRIM( TAGSTREAMS(ITAG,ISRM) )// 
      &                    " - not found in available emissions streams "
                    CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
                  ELSE
@@ -387,7 +387,7 @@ C Map the user specified ISAM regions to available CMAQ regions
                 IDX = INDEX1(ISAMRGN(ITAG,ISRM),N_EM_RGN, EM_REGIONS%LABEL )
                 IF ( IDX .EQ. 0 ) THEN
                   XMSG = " User specified ISAM region - " //
-     &                    ISAMRGN(ITAG,ISRM) //
+     &                    TRIM( ISAMRGN(ITAG,ISRM) ) //
      &                    " - not found in available emissions regions "
                    CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
                 ELSE
@@ -540,7 +540,7 @@ c                SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
                MINCHECK = MINVAL( SA_VDEMIS_DIFF_OTHER( :,1:NL,:,: ) )
                IF ( MINCHECK .LT. -1.0e-7 ) THEN
                   XMSG = " ISAM mass balance error for emissions - " //
-     &                     EM_REGIONS(ISRM)%LABEL //
+     &                     TRIM( EM_REGIONS(ISRM)%LABEL ) //
      &                    " - check isam control file. "
                    CALL M3EXIT( 'ISAM_EMISSIONS', 1, 1, XMSG, XSTAT1 )
                 ELSE
@@ -971,7 +971,7 @@ C-----------------------------------------------------------------------
       INTEGER       :: LAYS, L, C, R, IVAR, NL, I
 
       LOGICAL :: FIRST_TIME = .TRUE.
-      CHARACTER( 200 ) :: XMSG
+      CHARACTER( 586 ) :: XMSG
 
       ! Get pressure info from ASX_DATA_MOD
       IF ( FIRST_TIME ) THEN
@@ -985,8 +985,10 @@ C-----------------------------------------------------------------------
      &             VDEMIS_OUT( NCOLS,NROWS,EMLAYS ) )
       END IF    !FirstTime
       
-      VDEMIS = 0.0
-      LAYS = 1
+      VDEMIS     = 0.0
+      VDEMIS_OUT = 0.0
+      LAYS       = 1
+
       IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' .OR. 
      &     EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) LAYS = NL
 
@@ -1037,7 +1039,7 @@ C-----------------------------------------------------------------------
             ! Write out the emissions data
             IF ( .NOT. WRITE3( EM_DIAG_FILE( ISRM ), DIFF_SPC( IVAR ),
      &                 MDATE, MTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
-                XMSG = 'Could not write ' // EM_DIAG_FILE( ISRM ) // ' file'
+                XMSG = 'Could not write ' // TRIM( EM_DIAG_FILE( ISRM ) ) // ' file'
                 CALL M3EXIT( 'WRITE_EMISS_DIAG', MDATE, MTIME, XMSG, XSTAT1 )
             END IF
       END DO
@@ -1504,7 +1506,7 @@ C and allowing the model to proceed.
      &             ') applied for Rule ',IRULE,' in the Emissions Control ',
      &             'Namelist does not match any of the allowed values (a, m, or o)',
      &             '. Please check the your emissions control inputs.'
-               WRITE( LOGDEV, * )XMSG
+               WRITE( LOGDEV, * )TRIM( XMSG )
                XMSG = 'Error in Emissions Map Processing.'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
@@ -2211,7 +2213,6 @@ C and allowing the model to proceed.
          Allocate( EM_FILE_LAPPLY( N_EM_SRM ) )
          Allocate( EM_FILE_LDIAG ( N_EM_SRM ) )
          Allocate( EM_DIAG_FILE  ( N_EM_SRM ) )
-         Allocate( EM_FILE_DATE_OVRD ( N_EM_SRM ) )
          Allocate( EM_FILE_DATE  ( N_EM_SRM ) )
          Allocate( EM_FILE_FIRE  ( N_EM_SRM ) )
          Allocate( IGSRM         ( N_EM_SRM ) )
@@ -2226,7 +2227,6 @@ C populated in individual subroutines. For example, opemis and
 C stkemis_init.
          ISRM = 0
          EM_FILE_LAPPLY = .TRUE.
-         EM_FILE_DATE_OVRD = EMIS_DATE_OVRD
          EM_FILE_DATE   = JDATE
          EM_FILE_FIRE   = .FALSE.
          EM_GRID_LAYS   = 0
@@ -2270,12 +2270,6 @@ C stkemis_init.
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
      &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
  
-              ! Retrieve Toggle for overriding emissions file date with
-              ! internal model date
-              WRITE( VLAB,'( "GR_EM_DTOVRD_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
-     &                      EMIS_DATE_OVRD, LOGDEV )
- 
               ! Retrieve Toggle for Outputing Gridded Emissions
               ! Diagnostic File
               WRITE( VLAB,'( "GR_EMIS_DIAG_",I3.3 )' ) N
@@ -2317,12 +2311,6 @@ C stkemis_init.
               WRITE( VLAB,'( "STK_EMIS_APPLY_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
      &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
- 
-              ! Retrieve Toggle for overriding emissions file date with
-              ! internal model date
-              WRITE( VLAB,'( "STK_EM_DTOVRD_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_DATE_OVRD( ISRM ), VLAB, 
-     &                      EMIS_DATE_OVRD, LOGDEV )
  
               ! Retrieve Toggle for Outputing Inline Emissions
               ! Diagnostic File

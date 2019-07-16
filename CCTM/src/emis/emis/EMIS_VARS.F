@@ -92,8 +92,6 @@
       CHARACTER( 16  ),ALLOCATABLE :: EM_DIAG_FILE( : )  ! Filename for Emissions Diagnostic Output
       LOGICAL         ,ALLOCATABLE :: EM_FILE_DIFF( :,: )! Test for whether or not a stream contributes to 
                                                          !   a particular transported variable
-      LOGICAL         ,ALLOCATABLE :: EM_FILE_DATE_OVRD( : ) ! Toggle for whether or not to let the 
-                                                                ! emission stream date override the model
       INTEGER         ,ALLOCATABLE :: EM_FILE_DATE( : )! Date to be read in from each emissions stream
       LOGICAL         ,ALLOCATABLE :: EM_FILE_FIRE( : )! Is this Emission Stream Representing Fires (1=Yes)
 
@@ -356,8 +354,10 @@
 !     speciated compounds.
 !-----------------------------------------------------------------------
 
-      IMPLICIT NONE
+      USE AERO_DATA, ONLY : ACORSEM_ASO4_FAC
 
+      IMPLICIT NONE
+      
       INTEGER,         INTENT( INOUT ) :: N_EM_RULE
       TYPE( EM_RULE_REG )              :: EM_NML_B( N_EM_RULE_REG  )
 
@@ -378,6 +378,61 @@
             EM_NML_B(N_EM_RULE_B)%OP    = 'a'
             EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
          END IF
+
+      ! sulfur tracking instrument model option
+         IF ( STM ) THEN
+      ! SULF emissions
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'SULF'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'MASS'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      !  PSO4 emissions 
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PSO4'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      ! Coarse-Mode Sulfate
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMC'
+            EM_NML_B(N_EM_RULE_B)%FAC   = REAL( ACORSEM_ASO4_FAC, 4 ) 
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      !  Wind blown dust and sea spray SO4 emissions 
+      !  Fine
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'FINE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMFINE_SO4'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+      !  Coarse 
+            N_EM_RULE_B = N_EM_RULE_B + 1
+            EM_NML_B(N_EM_RULE_B)%SPEC  = 'ASO4EMIS'
+            EM_NML_B(N_EM_RULE_B)%STREAM= 'ALL'
+            EM_NML_B(N_EM_RULE_B)%PHASE = 'COARSE'
+            EM_NML_B(N_EM_RULE_B)%SURR  = 'PMCOARSE_SO4'
+            EM_NML_B(N_EM_RULE_B)%FAC   = 1.0
+            EM_NML_B(N_EM_RULE_B)%BASIS = 'UNIT'
+            EM_NML_B(N_EM_RULE_B)%OP    = 'a' 
+            EM_NML_B(N_EM_RULE_B)%REGION= 'EVERYWHERE'
+         END IF ! stm
 
       ! Add Rules to Existing List at Beginning
          N_EM_RULE = N_EM_RULE + N_EM_RULE_B

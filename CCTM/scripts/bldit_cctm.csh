@@ -111,6 +111,7 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
  set ModPa     = procan/pa             #> CCTM process analysis
  set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphere
+ set ModStm    = stm                   #> STM utility module and namelist
  set ModISAM   = isam                  #> CCTM Integrated Source Apportionment Method
 
 #============================================================================================
@@ -331,7 +332,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo                                                              >> $Cfile
  echo "lib_base    $CMAQ_LIB;"                                     >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_1       ioapi/modules;"                                 >> $Cfile
+ echo "lib_1       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
@@ -342,7 +343,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
- set text = "$quote$CPP_FLAGS $PAR $cpp_depmod $POT $STX1 $STX2$quote;"
+ set text = "$quote$CPP_FLAGS $PAR $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
@@ -533,6 +534,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set text = "diag"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDiag};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "stm"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModStm};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "cio"

@@ -53,6 +53,11 @@ SUBROUTINE dealloc_met
 !                        and LAI_MOS for NOAH Mosaic land-surface model.
 !                        Added DZS, SOIT3D, and SOIM3D.  Added WSPDSFC and
 !                        XLAIDYN for Noah.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           18 Jun 2019  Added new surface variables with PX LSM that can
+!                        improve dust simulation in CCTM.  Added optional
+!                        variables from KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -144,36 +149,48 @@ SUBROUTINE dealloc_met
     DEALLOCATE ( phb   )
   ENDIF
 
-  IF ( ALLOCATED ( isltyp  ) )  DEALLOCATE ( isltyp  )
-  IF ( ALLOCATED ( lai     ) )  DEALLOCATE ( lai     )
-  IF ( ALLOCATED ( mol     ) )  DEALLOCATE ( mol     )
-  IF ( ALLOCATED ( ra      ) )  DEALLOCATE ( ra      )
-  IF ( ALLOCATED ( rstom   ) )  DEALLOCATE ( rstom   )
-  IF ( ALLOCATED ( soilt1  ) )  DEALLOCATE ( soilt1  )
-  IF ( ALLOCATED ( soilt2  ) )  DEALLOCATE ( soilt2  )
-  IF ( ALLOCATED ( soim3d  ) )  DEALLOCATE ( soim3d  )
-  IF ( ALLOCATED ( soit3d  ) )  DEALLOCATE ( soit3d  )
-  IF ( ALLOCATED ( veg     ) )  DEALLOCATE ( veg     )
-  IF ( ALLOCATED ( vegold  ) )  DEALLOCATE ( vegold  )
-  IF ( ALLOCATED ( w2      ) )  DEALLOCATE ( w2      )
-  IF ( ALLOCATED ( wg      ) )  DEALLOCATE ( wg      )
-  IF ( ALLOCATED ( wr      ) )  DEALLOCATE ( wr      )
+  IF ( ALLOCATED ( isltyp    ) )  DEALLOCATE ( isltyp    )
+  IF ( ALLOCATED ( lai       ) )  DEALLOCATE ( lai       )
+  IF ( ALLOCATED ( mol       ) )  DEALLOCATE ( mol       )
+  IF ( ALLOCATED ( ra        ) )  DEALLOCATE ( ra        )
+  IF ( ALLOCATED ( rstom     ) )  DEALLOCATE ( rstom     )
+  IF ( ALLOCATED ( soilt1    ) )  DEALLOCATE ( soilt1    )
+  IF ( ALLOCATED ( soilt2    ) )  DEALLOCATE ( soilt2    )
+  IF ( ALLOCATED ( soim3d    ) )  DEALLOCATE ( soim3d    )
+  IF ( ALLOCATED ( soit3d    ) )  DEALLOCATE ( soit3d    )
+  IF ( ALLOCATED ( veg       ) )  DEALLOCATE ( veg       )
+  IF ( ALLOCATED ( w2        ) )  DEALLOCATE ( w2        )
+  IF ( ALLOCATED ( wg        ) )  DEALLOCATE ( wg        )
+  IF ( ALLOCATED ( wr        ) )  DEALLOCATE ( wr        )
 
-  IF ( ALLOCATED ( tke     ) )  DEALLOCATE ( tke     )
+  IF ( ALLOCATED ( tke       ) )  DEALLOCATE ( tke       )
 
-  IF ( ALLOCATED ( theta   ) )  DEALLOCATE ( theta   )
+  IF ( ALLOCATED ( theta     ) )  DEALLOCATE ( theta     )
 
-  IF ( ALLOCATED ( frc_urb ) )  DEALLOCATE ( frc_urb )
+  IF ( ALLOCATED ( frc_urb   ) )  DEALLOCATE ( frc_urb   )
 
-  IF ( ALLOCATED ( cldfra  ) )  DEALLOCATE ( cldfra  )
+  IF ( ALLOCATED ( cldfra    ) )  DEALLOCATE ( cldfra    )
 
-  IF ( ALLOCATED ( lai_mos ) )  DEALLOCATE ( lai_mos )
-  IF ( ALLOCATED ( ra_mos  ) )  DEALLOCATE ( ra_mos  )
-  IF ( ALLOCATED ( rs_mos  ) )  DEALLOCATE ( rs_mos  )
-  IF ( ALLOCATED ( tsk_mos ) )  DEALLOCATE ( tsk_mos )
-  IF ( ALLOCATED ( znt_mos ) )  DEALLOCATE ( znt_mos )
+  IF ( ALLOCATED ( lai_mos   ) )  DEALLOCATE ( lai_mos   )
+  IF ( ALLOCATED ( ra_mos    ) )  DEALLOCATE ( ra_mos    )
+  IF ( ALLOCATED ( rs_mos    ) )  DEALLOCATE ( rs_mos    )
+  IF ( ALLOCATED ( tsk_mos   ) )  DEALLOCATE ( tsk_mos   )
+  IF ( ALLOCATED ( znt_mos   ) )  DEALLOCATE ( znt_mos   )
 
-  IF ( ALLOCATED ( wspdsfc ) )  DEALLOCATE ( wspdsfc )
-  IF ( ALLOCATED ( xlaidyn ) )  DEALLOCATE ( xlaidyn )
+  IF ( ALLOCATED ( wspdsfc   ) )  DEALLOCATE ( wspdsfc   )
+  IF ( ALLOCATED ( xlaidyn   ) )  DEALLOCATE ( xlaidyn   )
+
+  IF ( ALLOCATED ( lai_px    ) )  DEALLOCATE ( lai_px    )
+  IF ( ALLOCATED ( wsat_px   ) )  DEALLOCATE ( wsat_px   )
+  IF ( ALLOCATED ( wwlt_px   ) )  DEALLOCATE ( wwlt_px   )
+  IF ( ALLOCATED ( wfc_px    ) )  DEALLOCATE ( wfc_px    )
+  IF ( ALLOCATED ( csand_px  ) )  DEALLOCATE ( csand_px  )
+  IF ( ALLOCATED ( fmsand_px ) )  DEALLOCATE ( fmsand_px )
+  IF ( ALLOCATED ( clay_px   ) )  DEALLOCATE ( clay_px   )
+
+  IF ( ALLOCATED ( qc_cu     ) )  DEALLOCATE ( qc_cu     )
+  IF ( ALLOCATED ( qi_cu     ) )  DEALLOCATE ( qi_cu     )
+  IF ( ALLOCATED ( cldfra_dp ) )  DEALLOCATE ( cldfra_dp )
+  IF ( ALLOCATED ( cldfra_sh ) )  DEALLOCATE ( cldfra_sh )
 
 END SUBROUTINE dealloc_met

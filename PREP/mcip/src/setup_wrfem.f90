@@ -141,14 +141,32 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 !           09 Feb 2018  Added support for hybrid vertical coordinate in WRF
 !                        output.  Added capability to read and process data
 !                        from the NOAH Mosaic land-surface model.  (T. Spero)
+!           26 Jun 2018  Changed name of module with netCDF IO to broaden its
+!                        usage.  Now use netCDF tokens for missing data.
+!                        (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           23 Nov 2018  Modify criteria to determine whether incremental
+!                        precipitation is available in WRF output.  WRFv4.0
+!                        allows header variable PREC_ACC_DT to appear even if
+!                        the accompanying precipitation fields are not in the
+!                        output.  (T. Spero)
+!           14 Dec 2018  Added flag (IFRCURB) to determine if fraction of urban
+!                        area is obtained from urban canopy model.  (T. Spero)
+!           10 May 2019  Removed layer collapsing.  (T. Spero)
+!           18 Jun 2019  Added a flag (IFPXWRF41) to determine of new surface
+!                        variables with PX LSM are available to improve dust
+!                        simulation in CCTM.  Added a flag (IFCURADFDBK) to
+!                        indicate if the convective scheme included radiative
+!                        feedbacks.  Added a flag (IFKFRADEXTRAS) for extra
+!                        variables available with KF convective scheme with
+!                        radiative feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
   USE date_pack
   USE mcipparm
   USE files
-  USE m3utilio, ONLY: badval3
-  USE wrf_netcdf
+  USE netcdf_io
   USE const, ONLY: pi180
   USE netcdf
 
@@ -157,7 +175,7 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
   INTEGER     ,       INTENT(IN)    :: cdfid
   INTEGER                           :: cdfid2
   INTEGER                           :: cdfidg
-  REAL,               INTENT(INOUT) :: ctmlays    ( maxlays )
+  REAL,               INTENT(OUT)   :: ctmlays    ( maxlays )
   CHARACTER(LEN=19)                 :: date_init
   CHARACTER(LEN=19)                 :: date_start
   INTEGER                           :: dimid
@@ -340,13 +358,11 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 ! If layer structure was not defined in user namelist, use WRF layers.
 !-------------------------------------------------------------------------------
 
-  IF ( needlayers ) THEN
-    nlays = met_nz
-    CALL get_var_1d_real_cdf (cdfid, 'ZNW', ctmlays(1:nlays+1), 1, rcode)
-    IF ( rcode /= nf90_noerr ) THEN
-      WRITE (*,f9400) TRIM(pname), 'ZNW', TRIM(nf90_strerror(rcode))
-      CALL graceful_stop (pname)
-    ENDIF
+  nlays = met_nz
+  CALL get_var_1d_real_cdf (cdfid, 'ZNW', ctmlays(1:nlays+1), 1, rcode)
+  IF ( rcode /= nf90_noerr ) THEN
+    WRITE (*,f9400) TRIM(pname), 'ZNW', TRIM(nf90_strerror(rcode))
+    CALL graceful_stop (pname)
   ENDIF
 
 !-------------------------------------------------------------------------------
@@ -479,11 +495,11 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
                        met_xxctr, met_yyctr)
     
     CASE DEFAULT
-      met_p_bet_d  = badval3                  ! missing
-      met_p_alp_d  = badval3                  ! missing
-      met_p_gam_d  = badval3                  ! missing
-      met_cone_fac = badval3                  ! missing
-      met_ref_lat  = badval3                  ! missing
+      met_p_bet_d  = fillreal                 ! missing
+      met_p_alp_d  = fillreal                 ! missing
+      met_p_gam_d  = fillreal                 ! missing
+      met_cone_fac = fillreal                 ! missing
+      met_ref_lat  = fillreal                 ! missing
   
   END SELECT
 
@@ -740,6 +756,12 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 
   ENDIF
 
+  IF ( met_urban_phys >= 1 ) THEN
+    ifrcurb = .TRUE.
+  ELSE
+    ifrcurb = .FALSE.
+  ENDIF
+
 
   ! Determine if shallow convection was used.
 
@@ -790,7 +812,13 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
       met_pcp_incr = 0
     ENDIF
   ELSE
-    met_pcp_incr = NINT(rval)
+    rcode =         nf90_inq_varid (cdfid, 'PREC_ACC_C',  rcode)
+    rcode = rcode + nf90_inq_varid (cdfid, 'PREC_ACC_NC', rcode)
+    IF ( rcode /= nf90_noerr ) THEN
+      met_pcp_incr = 0
+    ELSE
+      met_pcp_incr = NINT(rval)
+    ENDIF
   ENDIF
 
   IF ( met_pcp_incr > 0 ) THEN
@@ -798,6 +826,24 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
       WRITE (*,f9550) TRIM(pname), met_pcp_incr, intvl
       CALL graceful_stop (pname)
     ENDIF
+  ENDIF
+
+
+  ! Determine if radiative feedbacks accompany the convective parameterization
+  ! scheme.
+
+  rcode = nf90_get_att (cdfid, nf90_global, 'ICLOUD_CU', ival)
+  IF ( rcode == nf90_noerr ) THEN  ! new enough version of WRF
+    SELECT CASE ( ival )
+      CASE ( 0 )
+        ifcuradfdbk = .FALSE.
+      CASE ( 1:2 )  ! 1=Grell, 2=KF or MSKF
+        ifcuradfdbk = .TRUE.
+      CASE DEFAULT
+        ifcuradfdbk = .FALSE.
+    END SELECT
+  ELSE
+    ifcuradfdbk = .FALSE.
   ENDIF
 
 !-------------------------------------------------------------------------------
@@ -931,7 +977,7 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
   met_p00   = 100000.0 ! base state sea-level pressure [Pa]
   met_ts0   =    290.0 ! base state sea-level temperature [K]
   met_tlp   =     50.0 ! base state lapse rate d(T)/d(ln P) from 1000 to 300 mb
-  met_tiso  = badval3  ! base state stratospheric isothermal T [K]  ! not used
+  met_tiso  = fillreal ! base state stratospheric isothermal T [K]  ! not used
 
 !-------------------------------------------------------------------------------
 ! Determine WRF release.
@@ -1117,13 +1163,13 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
     ifluwrfout = .TRUE.   ! fractional land use is located in WRF history file
   ELSE
     ifluwrfout = .FALSE.  ! fractional land use is not available in WRF history
-    geofile = TRIM( file_ter )
+    geofile = TRIM( file_geo )
     INQUIRE ( FILE=geofile, EXIST=ifgeo )
     IF ( .NOT. ifgeo ) THEN
       WRITE (*,f9800) TRIM(pname)
       iflufrc = .FALSE.
     ELSE
-      flg = file_ter
+      flg = file_geo
       rcode = nf90_open (flg, nf90_nowrite, cdfidg)
       IF ( rcode /= nf90_noerr ) THEN
         WRITE (*,f9600) TRIM(pname), TRIM(flg)
@@ -1246,8 +1292,21 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 
   IF ( met_soil_lsm == 7 ) THEN  ! PX was used in WRF
     ifmolpx = .TRUE.
+    rcode = nf90_inq_varid (cdfid, 'LAI_PX', varid)  ! there are 7 variables
+    rcode = rcode + nf90_inq_varid (cdfid, 'WWLT_PX', varid)
+    rcode = rcode + nf90_inq_varid (cdfid, 'WFC_PX', varid)
+    rcode = rcode + nf90_inq_varid (cdfid, 'WSAT_PX', varid)
+    rcode = rcode + nf90_inq_varid (cdfid, 'CSAND_PX', varid)
+    rcode = rcode + nf90_inq_varid (cdfid, 'FMSAND_PX', varid)
+    rcode = rcode + nf90_inq_varid (cdfid, 'CLAY_PX', varid)
+    IF ( rcode == nf90_noerr ) THEN
+      ifpxwrf41 = .TRUE.  !  all 7 variables are available
+    ELSE
+      ifpxwrf41 = .FALSE.
+    ENDIF
   ELSE
-    ifmolpx = .FALSE.
+    ifmolpx   = .FALSE.
+    ifpxwrf41 = .FALSE.
   ENDIF
 
   rcode = nf90_inq_varid (cdfid, 'RA', varid)
@@ -1316,6 +1375,20 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
     ifznt = .TRUE.  ! roughness length is in the file
   ELSE
     ifznt = .FALSE. ! roughness length is not in the file
+  ENDIF
+
+  IF ( met_cumulus == 1 .AND. ifcuradfdbk ) THEN  ! KF-Rad was used in WRF
+    rcode = nf90_inq_varid (cdfid, 'QC_CU', varid)  ! there are 4 variables
+    rcode = rcode + nf90_inq_varid (cdfid, 'QI_CU', varid)
+    rcode = rcode + nf90_inq_varid (cdfid, 'CLDFRA_DP', varid)
+    rcode = rcode + nf90_inq_varid (cdfid, 'CLDFRA_SH', varid)
+    IF ( rcode == nf90_noerr ) THEN
+      ifkfradextras = .TRUE.  !  all 4 variables are available
+    ELSE
+      ifkfradextras = .FALSE.
+    ENDIF
+  ELSE
+    ifkfradextras = .FALSE.
   ENDIF
 
 !-------------------------------------------------------------------------------
