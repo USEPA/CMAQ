@@ -705,33 +705,33 @@
       CALL GET_ENV ( NPTGRPS, 'N_EMIS_PT', NPTGRPS, VARDEV )
       
       ! PT3DDIAG
-      CALL GET_ENV ( PT3DDIAG, 'PT3DDIAG', PT3DDIAG, VARDEV )
+      !CALL GET_ENV ( PT3DDIAG, 'PT3DDIAG', PT3DDIAG, VARDEV )
 
       ! PT3DFRAC
-      CALL GET_ENV ( PT3DFRAC, 'PT3DFRAC', PT3DFRAC, VARDEV )
+      !CALL GET_ENV ( PT3DFRAC, 'PT3DFRAC', PT3DFRAC, VARDEV )
 
       ! Point Source Time Steps
-      CALL GET_ENV ( PT_NSTEPS, 'LAYP_NSTEPS', PT_NSTEPS, VARDEV )
+      !CALL GET_ENV ( PT_NSTEPS, 'LAYP_NSTEPS', PT_NSTEPS, VARDEV )
 
       ! Point Source Date
-      CALL GET_ENV ( PT_DATE, 'LAYP_STDATE', PT_DATE, VARDEV )
+      !CALL GET_ENV ( PT_DATE, 'LAYP_STDATE', PT_DATE, VARDEV )
 
       ! Point Source Time
-      CALL GET_ENV ( PT_TIME, 'LAYP_STTIME', PT_TIME, VARDEV )
+      !CALL GET_ENV ( PT_TIME, 'LAYP_STTIME', PT_TIME, VARDEV )
 
       ! IPVERT
       CALL GET_ENV ( IPVERT, 'IPVERT', IPVERT, VARDEV )
 
       ! REP_LAYR
-      CALL GET_ENV ( REP_LAYR, 'REP_LAYER_MIN', REP_LAYR, VARDEV )
+      !CALL GET_ENV ( REP_LAYR, 'REP_LAYER_MIN', REP_LAYR, VARDEV )
  
-      ALLOCATE( PLAY_BASE( NPTGRPS ) )
-      PLAY_BASE( : ) = ''
-      DO NV = 1,NPTGRPS
-         WRITE( PBASE,'( "PLAY_BASE", "_", I2.2 )' ) NV
-         CALL GET_ENV ( STRTEMP, PBASE, PLAY_BASE( NV ), VARDEV )
-         PLAY_BASE( NV ) = STRTEMP
-      END DO
+      !ALLOCATE( PLAY_BASE( NPTGRPS ) )
+      !PLAY_BASE( : ) = ''
+      !DO NV = 1,NPTGRPS
+      !   WRITE( PBASE,'( "PLAY_BASE", "_", I2.2 )' ) NV
+      !   CALL GET_ENV ( STRTEMP, PBASE, PLAY_BASE( NV ), VARDEV )
+      !   PLAY_BASE( NV ) = STRTEMP
+      !END DO
        
       ! Determine user-defined default for emissions diagnostics
       CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
