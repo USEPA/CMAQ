@@ -1,38 +1,42 @@
 # Updates to the ICON/BCON Preprocessors
 
-**Author/P.O.C.:** [Shawn Roselle](mailto:roselle.shawn@epa.gov), Computational Exposure Division, U.S. EPA
+[Shawn Roselle](mailto:roselle.shawn@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-Several bug fixes have been addressed in the ICON and BCON updates.  This included:
-(1) compiler info issues in scripts for ICON/BCON; and (2) ICON/BCON 
-compilation problems in v5.3 resulting from changes in files symbolicly linked 
-to the CCTM/src.
+Several bug fixes have been addressed in the ICON and BCON updates, including:
+
+(1) compiler info issues in scripts for ICON and BCON
+
+(2) ICON and BCON compilation problems in v5.3 resulting from changes in files symbolically linked 
+to CCTM/src
 
 An enhancement included in these updates allows for nesting from polar
 stereographic projection grids.
 
-The preprocessors have also been simplified to: (1) enable selection of IC/BC type 
-(profile, regrid, tracer) as a runtime option instead of the previous build option;
-(2) removal of the species mapping - users will need to use the combine utility
-for species mapping; and (3) removal of the parallel processing code from ICON 
-(feature no longer used/needed).
+The preprocessors have also been simplified to:
+
+(1) enable selection of IC/BC type (profile, regrid, tracer) as a run-time option instead of a compile-time option
+
+(2) remove the species mapping; users will need to use the *combine* utility for species mapping
+
+(3) remove the parallel processing code from ICON (feature no longer used/needed).
 
 The updates also included new profile data from an annual average HCMAQ simulation
-for a marine remote grid cell over the Pacific Ocean (lat 37, lon -157)
-from the OAQPS 2016 HCMAQ CMAQv5.2.1 CB6R3_AE6NVPOA_AQ simulation.
+for a marine remote grid cell over the Pacific Ocean (37N, 157W)
+from the OAQPS 2016 HCMAQ CMAQv5.2.1 *CB6R3_AE6NVPOA_AQ* simulation.
 
 
 
 ## Significance and Impact
-ICON and BCON can now be used to generate ICs/BCs from HCMAQ simulations, 
+ICON and BCON can now be used to generate ICs/BCs from HCMAQ simulations
 using vertical and horizontal interpolation methods already available in 
 ICON and BCON.
 
-The profile data being release with CMAQv5.3 is different from previous 
-model releases.  The profile data included in this release is based on
-a HCMAQ simulation that used chemical mechanism CB6R3_AE6NVPOA_AQ.
+The profile data being released with CMAQv5.3 differs from previous 
+model releases. The profile data included in this release is based on
+a HCMAQ simulation that used chemical mechanism *CB6R3_AE6NVPOA_AQ*.
 ICON and BCON will no longer map profile data species to different chemical 
-mechanisms. Users will need to use the combine utility on ICON/BCON output
+mechanisms. Users will need to use the *combine* utility on ICON and BCON output
 for species mapping to a different mechanism.
 
 
