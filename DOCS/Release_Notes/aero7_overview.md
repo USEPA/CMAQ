@@ -11,7 +11,7 @@
 * reorganization of anthropogenic SOA species
 * inorganic sulfate is consumed when IEPOX organosulfates are formed 
 
-Fewer species are required for *aero7/7i*, so more robust predictions require in less computation time than *aero6*. 
+Fewer species are required for *aero7/7i*, so more robust predictions require less computation time than *aero6*. 
 
 ### Species updates
 
@@ -35,14 +35,14 @@ New species introduced in *aero7* compared to *aero6*:
 |	11	|	SVMT5	|	gas	|	semivolatile gas from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=100&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
 |	12	|	SVMT6	|	gas	|	semivolatile gas from monoterpene photoxidation (OH and O<sub>3</sub> reaction), C*=1000&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>	|	dark &#945;&#8209;pinene ozonolysis (Saha and Grieshop, 2016, *ES&T*)	|	Xu et al., 2018, *ACP*	|
 |	13	|	AORGH2OJ	|	particle	|	water associated with organic species of particulate matter	|	hygroscopicity parameters (Petters and Kreidenweis, 2007, *ACP*) as a function of degree of oxygenation (Lambe et al., 2011, *ACP*)	|	Pye et al., 2017, *ACP*	|
-|	14	|	AAVB1J	|	particle	|	low volatility organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	GEOS-Chem VBS parameterization (Pye et al., 2010, *ACP*) for aromatics and PAHs with long-chain alkanes following Pye and Pouliot (2012, *ES&T*) but with Presto et al. (2010, *ES&T*) VBS fits; all underlying experimental datasets are the same as in *aero6*	|	M. Qin, EPA/ORD	|
-|	15	|	AAVB2J	|	particle	|	semivolatile organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
-|	16	|	AAVB3J	|	particle	|	semivolatile organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
-|	17	|	AAVB4J	|	particle	|	semivolatile organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
-|	18	|	SVAVB1	|	gas	|	low volatility organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
-|	19	|	SVAVB2	|	gas	|	semivolatile organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
-|	20	|	SVAVB3	|	gas	|	semivolatile organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
-|	21	|	SVAVB4	|	gas	|	semivolatile organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	M. Qin, EPA/ORD	|
+|	14	|	AAVB1J	|	particle	|	low volatility organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	GEOS-Chem VBS parameterization (Pye et al., 2010, *ACP*) for aromatics and PAHs with long-chain alkanes following Pye and Pouliot (2012, *ES&T*) but with Presto et al. (2010, *ES&T*) VBS fits; all underlying experimental datasets are the same as in *aero6*	|	Qin et al., *in prep.*	|
+|	15	|	AAVB2J	|	particle	|	semivolatile organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	| Qin et al., *in prep.*	|
+|	16	|	AAVB3J	|	particle	|	semivolatile organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	| Qin et al., *in prep.*	|
+|	17	|	AAVB4J	|	particle	|	semivolatile organic particulate matter from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	Qin et al., *in prep.*	|
+|	18	|	SVAVB1	|	gas	|	low volatility organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	Qin et al., *in prep.*	|
+|	19	|	SVAVB2	|	gas	|	semivolatile organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	Qin et al., *in prep.*	|
+|	20	|	SVAVB3	|	gas	|	semivolatile organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	Qin et al., *in prep.*	|
+|	21	|	SVAVB4	|	gas	|	semivolatile organic gas from oxidation of anthropogenic VOCs (benzene, toluene, xylene, PAHs, alkanes)	|	see AAVB1J	|	Qin et al., *in prep.*	|
 |	22	|	MTNO3	|	gas	|	organic nitrates from monoterpene oxidation	|	gas-phase SAPRC yields (should not be counted as gas-phase organic nitrate for evaluation purposes in CB6r3 mechanisms)	|	Pye et al., 2015, *ES&T*	|
 |	23	|	AMTNO3J	|	particle	|	semivolatile organic nitrates from monoterpene oxidation	|	Fry et al. (2009, *ACP*) for vapor pressure of monoterpene organic nitrates	|	Pye et al., 2015, *ES&T*	|
 |	24	|	AMTHYDJ	|	particle	|	organic pseudo-hydrolysis accretion product from monoterpene organic nitrates (AMTNO3J)	|	Boyd et al. (2015, *ACP*) for hydrolysis timescale for tertiary nitrates, but applied to all MTNO3 following Pye et al. (2015, *ES&T*)	|	Pye et al., 2015, *ES&T*	|
@@ -74,7 +74,7 @@ represented explicitly as organosulfates (AIEOSJ), 2-methyltetrols (AIETETJ),
 and dimers (AIDIMJ). In addition, *aero7i* includes explicit 
 methylglyceric acid (AIMGAJ) and its analogous 
 organosulfate (AIMOSJ), both of which are minor. *Aero7i* also includes
-a particle-phase isoprene dinitrate (Pye et al. 2015) that was not ported to *aero7*.
+a particle-phase isoprene dinitrate (Pye et al. 2015) that was not ported to *aero7*. Users may want to use *aero7i* if they require additional isoprene SOA speciation (for example, to evaluate with measurements).
 
 ### Required emission updates
 *Aero7* and *aero7i* require that &#945;&#8209;pinene (usually denoted APIN)
@@ -99,10 +99,6 @@ emissions are &#945;&#8209;pinene (Pye et al. 2010) and could be used if your bi
 emissions are preprocessed in input files. Approach 3 makes use of separate biogenic emission mapping
 profiles for CB6r3-aero6 and CB6r3-aero7 available within CMAQ (see [biogenic emission update](biogenic_apinene.md)). 
 Approach 3 is not an option if your biogenic emissions were pre-processed.
-
-Potential combustion SOA (pcSOA) formation is driven by emission of the VOC precursor, 
-pcVOC. In order to zero out contributions from pcSOA in your model run, set the emissions 
-scale factor for pcVOC to 0. in your emission control file.
 
 ### More information on science updates in *aero7*
 
@@ -133,11 +129,13 @@ Petters, M. D. and Kreidenweis, S. M.: A single parameter representation of hygr
 
 Pye, H. O. T., Murphy, B. N., Xu, L., Ng, N. L., Carlton, A. G., Guo, H., Weber, R., Vasilakos, P., Appel, K. W., Budisulistiorini, S. H., Surratt, J. D., Nenes, A., Hu, W., Jimenez, J. L., Isaacman-VanWertz, G., Misztal, P. K., and Goldstein, A. H.: On the implications of aerosol liquid water and phase separation for organic aerosol mass, *Atmospheric Chemistry and Physics*, **17**, 343-369, https://doi.org/10.5194/acp-17-343-2017, 2017.
 
-Pye, H. O. T., D. J. Luecken, L. Xu, C. M. Boyd, N. L. Ng, K. Baker, B. A. Ayres, J. O. Bash, K. Baumann, W. P. L. Carter, E. Edgerton, J. L. Fry, W. T. Hutzell, D. Schwede, P. B. Shepson, Modeling the current and future roles of particulate organic nitrates in the southeastern United States, *Environmental Science & Technology*, 2015. 
+Pye, H. O. T., D. J. Luecken, L. Xu, C. M. Boyd, N. L. Ng, K. Baker, B. A. Ayres, J. O. Bash, K. Baumann, W. P. L. Carter, E. Edgerton, J. L. Fry, W. T. Hutzell, D. Schwede, P. B. Shepson, Modeling the current and future roles of particulate organic nitrates in the southeastern United States, https://doi.org/10.1021/acs.est.5b03738, *Environmental Science & Technology*, 2015. 
 
 Pye, H. O. T., R. W. Pinder, I. Piletic, Y. Xie, S. L. Capps, Y.-H. Lin, J. D. Surratt, Z. Zhang, A. Gold, D. J. Luecken, W. T. Hutzell, M. Jaoui, J. H. Offenberg, T. E. Kleindienst, M. Lewandowski, and E. O. Edney, Epoxide pathways improve model predictions of isoprene markers and reveal key role of acidity in aerosol formation, *Environmental Science & Technology*, https://doi.org/10.1021/es402106h, 2013.
 
 Pye, H. O. T., Chan, A. W. H., Barkley, M. P., and Seinfeld, J. H.: Global modeling of organic aerosol: the importance of reactive nitrogen (NO<sub>x</sub> and NO<sub>3</sub>), *Atmospheric Chemistry and Physics*, **10**, 11261-11276, https://doi.org/10.5194/acp-10-11261-2010, 2010.
+
+Qin, M., Murphy, B. N., McDonald, B. C., McKeen, S. A., Koval, L., Isaacs, K., Lu, Q., Robinson, A. L., Strum, M., Snyder, J., Efstathious, C., Allen, C., and Pye, H. O. T.: The estimated impacts of volatile chemical products on particulate matter and ozone criteria pollutants in an urban atmosphere, *in preparation*.
 
 Xu, L., Pye, H. O. T., He, J., Chen, Y., Murphy, B. N., and Ng, N. L.: Experimental and model estimates of the contributions from biogenic monoterpenes and sesquiterpenes to secondary organic aerosol in the southeastern United States, *Atmospheric Chemistry and Physics*, **18**, 12613-12637, https://doi.org/10.5194/acp-18-12613-2018, 2018.        
 
