@@ -7,7 +7,7 @@ Changed the ACM2 PBL model _vdiff_ to use Z-coordinates rather than sigma-coordi
  
 ## Significance and Impact
 
-The ACM2 is a one-dimensional PBL model that was originally derived using Cartesian (Z) coordinates. When it was first applied to MM5 and WRF, it was coded in sigma coordinates. In CMAQ, it was coded in generalized vertical coordinates which were essentially sigma when run with MM5 or WRF.  Recently, with the new hybrid vertical coordinate in WRF, CMAQ automatically conforms to this coordinate system through the generalized coordinates.  However, the calculation of the convective mixing rates (Equation 9 in Pleim, 2007) is slightly different in sigma versus Z coordinates.  In recent versions of WRF, the ACM2 has been changed to Z-coordinates, which makes the ACM2 calculations consistent between WRF, MPAS, and with the original derivation in Pleim (2007).  The CMAQ version is now also in Z-coordinates.
+The ACM2 is a one-dimensional PBL model that was originally derived using Cartesian (Z) coordinates. When it was first applied to MM5 and WRF, it was coded in sigma coordinates. In CMAQ, it was coded in generalized vertical coordinates which were essentially sigma when run with MM5 or WRF.  Recently, with the new hybrid vertical coordinate in WRF, CMAQ automatically conforms to this coordinate system through the generalized coordinates.  However, the calculation of the convective mixing rates (Equation 9 in Pleim, 2007) is slightly different in sigma versus Z coordinates.  Starting with WRFv4.0, the ACM2 has been changed to Z-coordinates, which makes the ACM2 calculations consistent between WRF, MPAS, and with the original derivation in Pleim (2007).  The CMAQ version is now also in Z-coordinates.
  
 ## Affected Files
 #### Files modified:
