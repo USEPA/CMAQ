@@ -78,6 +78,6 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [*create_omi*: Creating the OMI data file for inline photolysis](Add_create_omi_tool.md)
  * [Updates to the *create_ebi* utility](updates_to_create_ebi.md)
  * [Updates to the *inline_phot_preproc* utility](updates_to_inline_phot_preproc.md)
- * [Updates to species definition files (SpecDef*.txt) for aerosol modules](specdef_aero.md)
+ * [Updates to species definition files for aerosol modules](specdef_aero.md)
  * [Updates to post-processing tools: hr2day, sitecmp, and sitecmp_dailyo3; release of new post-processing tool: calc_tmetric.](postprocessing_tools.md)
 
