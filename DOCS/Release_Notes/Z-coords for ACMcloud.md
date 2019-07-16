@@ -11,7 +11,7 @@ Without this change the ACM cloud model would be in error when using hybrid vert
 
 ![aso4j](vertical_profile_aso4j.PNG)
 
-Figure 1: Vertical profiles of ASO4j on June 6, 2011 at 13Z.  "Base" is CMAQv5.2.1, and "New" is CMAQv5.3. ("Prev" is a previous sensitivity simulation that had an error that affected mass conservation).    
+Figure 1: Vertical profiles of ASO4j on June 6, 2011 at 13Z.  "Base" is CMAQv5.2.1, and "New" is CMAQv5.3.    
 
 ## Affected Files
 CCTM/src/cloud/acm_ae6/acmcld.f
