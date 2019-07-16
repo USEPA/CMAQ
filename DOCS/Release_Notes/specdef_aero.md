@@ -20,8 +20,6 @@ CCTM/src/MECHS/cb6r3_ae6_aq/SpecDef_cb6r3_ae6_aq.txt
 CCTM/src/MECHS/cb6r3_ae7_aq/SpecDef_Dep_cb6r3_ae7_aq.txt  
 CCTM/src/MECHS/cb6r3_ae7_aq/SpecDef_cb6r3_ae7_aq.txt                  
 
-## References
-NA           
 
 -----
 ## Internal Records:
