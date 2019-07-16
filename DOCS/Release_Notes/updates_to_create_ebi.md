@@ -1,4 +1,4 @@
-# Updates to the utilities that create an EBI solver
+# Updates to the *create_ebi* Utility
 
 [William T. Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
