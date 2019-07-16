@@ -132,7 +132,7 @@ The lack of adequate turbulence measurements has limited the development of robu
 ## 6.7 Vertical Diffusion
 [Return to Top](#Return_to_Top)
 
-The vertical diffusion model in CMAQ is the Asymmetrical Convective Model Version 2 (ACM2) (Pleim 2007a,b).  The ACM2 is a combined local and non-local closure PBL scheme that is implemented in CMAQ, WRF, and MPAS for consistent PBL transport of meteorology and chemistry.  Thus, it is recommended that the ACM2 option in WRF or MPAS also be used when preparing meteorology for CMAQ.  
+The vertical diffusion model in CMAQ is the Asymmetrical Convective Model Version 2 (ACM2) (Pleim 2007a,b).  The ACM2 is a combined local and non-local closure PBL scheme that is implemented in CMAQ and WRF for consistent PBL transport of meteorology and chemistry.  Thus, it is recommended that the ACM2 option in WRF or MPAS also be used when preparing meteorology for CMAQ.  
 
 There are two options for the ACM2 model in the BuildScript that are compatible with either the M3Dry or STAGE dry deposition options.  
 
@@ -174,7 +174,7 @@ Deetails of each module are provided in the sections below.
 ### 6.8.1 Dry Deposition - m3dry
 [Return to Top](#Return_to_Top)
 
-The m3dry option for dry deposition and ammonia bidirectional surface flux is the continuing evolution of the dry deposition model that has been in CMAQ since its initial release and was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011).  In m3dry, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs.  Use of common model elements and parameters with the land surface model in the meteorology model ensures consistency between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum).  While the m3dry dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ.  It features consideration of subgrid land-use fractions through aggregation of key model parameters, such as LAI, veg fraction, roughness length and minimum stomatal conductance, to the grid cell level.  Land use specific dry deposition fluxes can be calculated using a postprocessing program.
+The m3dry option for dry deposition and ammonia bidirectional surface flux is the continuing evolution of the dry deposition model that has been in CMAQ since its initial release and was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011).  In m3dry, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs.  Use of common model elements and parameters with the land surface model in the meteorology model ensures consistency between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum).  While the m3dry dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ.  It features consideration of subgrid land-use fractions through aggregation of key model parameters, such as LAI, veg fraction, roughness length and minimum stomatal conductance, to the grid cell level. 
 
 Upgrades for version 5.3 includes much greater surface resistances to snow and ice and reduced resistance to bare ground for ozone with dependence on surface soil moisture content.  The aerosol deposition has also been revised including a new dependence on LAI.  The ammonia bidirectional surface flux from croplands has been substantially revised from earlier versions.  The new version has close linkages with the EPIC agricultural ecosystem model.  Daily values of all soil parameters needed to compute the available soil ammonia concentrations (soil ammonia content, soil moisture, soil texture parameters, soil pH, and Cation Exchange Capacity (CEC)) for each of 21 agricultural production types that are either rainfed or irrigated (42 types total) are input to CMAQ.  Soil ammonia concentrations and soil pH are combined to derive the soil compensation concentration for the bidirectional flux calculation (Pleim et al., 2019).
 
@@ -289,7 +289,6 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 
 ### 6.9.2 Online Emission Streams
 [Return to Top](#Return_to_Top)
-The following sections 
 
 <a id=BEIS></a>
 #### Biogenics
@@ -515,8 +514,6 @@ setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
 <a id=6.10_Gas_Phase_Chem></a>
 
 ## 6.10 Gas Phase Chemistry
-[Return to Top](#Return_to_Top)
-
 <a id=6.10.1_Gas_Phase_Mech></a>
 
 ### 6.10.1 Gas Phase Chemical Mechanisms
@@ -527,8 +524,6 @@ The CMAQ modeling system accounts for chemistry in three phases: a gas phase, ae
 Gas-phase chemical mechanisms are defined in CMAQ through Fortran source files. Located in subdirectories of the CCTM/src/MECHS directory (each corresponding to a mechanism name), these files define the source, reaction parameters, and atmospheric processes (e.g., diffusion, deposition, advection) of the various mechanism species. The species definitions for each mechanism are contained in namelist files that are read in during execution of the CMAQ programs. The CMAQ mechanism configuration is more similar to the science module configuration than to the horizontal grid or vertical layer configuration in that the mechanism is defined at compilation, resulting in executables that are hard-wired to a specific gas-phase mechanism. To change chemical mechanisms between simulations, a new executable that includes the desired mechanism configuration must be compiled.
 
 #### Using predefined chemical mechanisms
-[Return to Top](#Return_to_Top)
-
 To select a predefined mechanism configuration in CMAQ, set the *Mechanism* variable in the BuildScript to one of the mechanism names listed in [Table 6-3](#Table6-3). 
 
 ```
@@ -596,7 +591,7 @@ or
  set ModPhot    = phot/table
 ``` 
 
-The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology, predicted ozone and aerosol concentrations. Three ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file, the **CSQY_DATA_${Mechanism}** file, that depends on the mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the mechanism. The files are provided for each mechanism in a released version of CMAQ. If a user creates a mechanism using new or additional photolysis rates, they have to create a new **CSQY_DATA_${Mechanism}** file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM RunScript sets values for each file`s path through the environment variables OPTICS_DATA, OMI, and CSQY_DATA.
+The in-line method (Binkowski et al., 2007) is the preferred option because it includes feedbacks from meteorology, predicted ozone and aerosol concentrations. Three ASCII files support the in-line method. **PHOT_OPTICS** describes the optical properties of clouds, aerosols, and the earth’s surface. The **OMI** file is used to determine how much light is absorbed by ozone above the model domain. Both files are included in the released version of CMAQ. Calculating photolysis rates uses one more file, the **CSQY_DATA_${Mechanism}** file, that depends on the mechanism used. It contains the cross sections and quantum yields of photolysis rates used by the mechanism. The files are provided for each mechanism in a released version of CMAQ. If a user creates a mechanism using new or additional photolysis rates, they have to create a new **CSQY_DATA_${Mechanism}** file. The [inline_phot_preproc utility](../../UTIL/inline_phot_preproc/README.md) produces this file based on the Fortran modules describing the mechanism and data files describing the absorption cross-section and quantum yields described for each photolysis reaction. The CCTM RunScript sets values for each file's path through the environment variables OPTICS_DATA, OMI, and CSQY_DATA.
 
 The other option uses look-up tables that contain photolysis rates under cloud free conditions based on a fixed meridional cross-section of atmospheric composition, temperature, density and aerosols. The values represent rates as a function of altitude, latitude and the hour angle of the sun on a specified Julian date. In model simulations, the method interpolates rates in the table for the date and corrects them to account for clouds described by the meteorology. Tables are dependent on the photochemical mechanism used. The [jproc utility](../../UTIL/jproc/README.md) creates them based on the photochemical mechanism's FORTRAN modules. The CCTM RunScript sets the value for a table's path with the environment variable XJ_DATA.
 
@@ -619,7 +614,7 @@ The aerosol module uses ISORROPIA in the reverse mode to calculate the condensat
 
 CMAQ can output the reduction in visual range caused by the presence of PM, perceived as haze. CCTM integrates Mie scattering (a generalized particulate light-scattering mechanism that follows from the laws of electromagnetism applied to particulate matter) over the entire range of particle sizes to obtain a single visibility value for each model grid cell at each time step. More detailed descriptions of the PM calculation techniques used in CCTM can be found in Binkowski and Shankar (1995), Binkowski and Roselle (2003), and Byun and Schere (2006).
 
-For easier comparison of CMAQ`s output PM values with measurements, time-dependent cutoff fractions may be output by the model (e.g. Jiang et al., 2006). These include quantities for describing the fraction of each mode that would be categorized as PM2.5 (i.e. PM25AT, PM25AC, and PM25CO) and PM1.0 (i.e. PM1AT, PM1AC, and PM1CO) as well as the fraction of particles from each mode that would be detected by an AMS (i.e AMSAT, AMSAC, and AMSCO). There is also a surface interaction module in the multipollutant version of CMAQ that calculates the flux of mercury to and from the surface (rather than just depositing mercury).
+For easier comparison of CMAQ's output PM values with measurements, time-dependent cutoff fractions may be output by the model (e.g. Jiang et al., 2006). These include quantities for describing the fraction of each mode that would be categorized as PM2.5 (i.e. PM25AT, PM25AC, and PM25CO) and PM1.0 (i.e. PM1AT, PM1AC, and PM1CO) as well as the fraction of particles from each mode that would be detected by an AMS (i.e AMSAT, AMSAC, and AMSCO). There is also a surface interaction module in the multipollutant version of CMAQ that calculates the flux of mercury to and from the surface (rather than just depositing mercury).
 
 Further discussion on the scientific improvements to the CMAQ PM treatment is available in the release notes.
 
