@@ -581,7 +581,7 @@ or
 ### 6.10.3 Photolysis
 [Return to Top](#Return_to_Top)
 
-All the mechanisms includes photolysis rates. The BuildScript has two options for calculating the rates.
+All the mechanisms include photolysis rates. The BuildScript has two options for calculating the rates.
 
 ```
  set ModPhot    = phot/inline
