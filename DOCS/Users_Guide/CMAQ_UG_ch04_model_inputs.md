@@ -26,7 +26,7 @@ Most of the fields that are simulated by WRF are not modified by MCIP for the CC
 
 ICON generates a gridded netCDF file of the chemical conditions for all grid cells in the modeling domain for the initial time of a simulation. It can generate these initial conditions from either an existing CCTM output file or one of four ASCII files of vertically resolved concentration profiles distributed with CMAQ. Running ICON requires that the user already generated MCIP files for their target modeling domain. For both input file options, ICON will interpolate the data to the horizontal and vertical structure of the target domain as defined in the MCIP files. The species in the ICON output file are identical to those in the input (either CCTM output or ASCII profile) file.
 
-Using an existing CCTM output file to generate initial conditions is applicable when extrapolating initial conditions from a coarse to a fine grid simulation, as may occur when setting up nested simulations (simulations with finer-resolution grids that cover part of coarser-resolution grids). This is the preferred mode of specifying initial conditions since the spatial concentration patterns derived from the coarser-resolution simulation can be considered a first approximation of the concentration fields over the finer-resolution subdomain at the beginning of the simulation.
+Using an existing CCTM output file to generate initial conditions is applicable when interpolating initial conditions from a coarse to a fine grid domain, as may occur when setting up nested simulations (simulations with finer-resolution grids that cover part of coarser-resolution grids). This is the preferred mode of specifying initial conditions since the spatial concentration patterns derived from the coarser-resolution simulation can be considered a first approximation of the concentration fields over the finer-resolution subdomain at the beginning of the simulation.
 
 The four ASCII files of vertically resolved concentration profiles [distributed with CMAQ](../../PREP/bcon/src/profile) represent annual average concentrations at a grid cell over the Pacific derived from a simulation with the hemispheric version of CMAQv5.3 beta2 for the year 2016. As such, these concentration profiles are reflective of conditions in a remote marine environment. The simulation was performed with the cb6r3m_ae7_kmtbr chemical mechanism and profiles for racm_ae6_aq, saprc07tc_ae6_aq, and saprc07tic_ae7i_aq were derived using the species mapping approach described in Step 3 of the [CMAQ Tutorial on creating Initial and Boundary Conditions from Seasonal Average Hemispheric CMAQ Output](./Tutorials/HCMAQ_IC_BC_Tutorial.md). If one of these ASCII profile files is used to generate initial conditions, the resulting concentration fields will be uniform over the modeling domain and will not be a realistic representation of conditions over the modeling domain. As a result, simulations initialized with profile-derived rather than CCTM-derived concentration fields may require longer spin-up periods before conditions simulated within the domain no longer are influenced by these unrealistic initial concentration fields.  
 
@@ -170,22 +170,22 @@ Additional information about the parameters in the GRIDDESC file can be found in
 ### {gc|ae|nr|tr}_matrix.nml: Species namelist files
 [Return to Table 4-1](#matrix_nml_t)
 
-Used by: BCON, CCTM, ICON, CHEMMECH
+Used by: CCTM, CHEMMECH
 
 Namelist look-up tables for different classes of simulated pollutants are used to define the parameters of different model species during the execution of the CMAQ programs. Gas-phase (gc), aerosol (ae), non-reactive (nr), and tracer (tr) species namelist files contain parameters for the model species that are included in these different classifications. The species namelist files are used to control how the different CMAQ programs and processes handle the model species. The namelist files define the following processes for each model species:
 
 
+-   Initial conditions – which initial condition species is the pollutant mapped to; if not specified, this will default to the species name.
+-   IC Factor – if the pollutant is mapped to an initial condition species, uniformly apply a scaling factor to the concentrations.
+-   Boundary conditions – which boundary condition species is the pollutant mapped to; if not specified, this will default to the species name.
+-   BC Factor – if the pollutant is mapped to a boundary condition species, uniformly apply a scaling factor to the concentrations.
 -   Deposition velocity – which (if any) deposition velocity is the deposition velocity for the pollutant mapped to; allowed velocities are specified within the model source code.
 -   Deposition velocity factor – if the pollutant is mapped to a deposition velocity, uniformly apply a scaling factor to this velocity.
--   Initial condition– which initial condition species is the pollutant mapped to; if not specified, this will default to the species name.
--   IC Factor – if the pollutant is mapped to an initial condition species, uniformly apply a scaling factor to the concentrations.
--   Boundary condition – which boundary condition species is the pollutant mapped to; if not specified, this will default to the species name.
--   BC Factor – if the pollutant is mapped to a boundary condition species, uniformly apply a scaling factor to the concentrations.
--   Scavenging - which (if any) species is the pollutant mapped to; Allowed scavenging surrogates are specified within the model source code.
+-   Scavenging - which (if any) species is the pollutant mapped to; Allowed scavenging surrogates are specified within the model source code ("[hlconst.F](../../CCTM/src/cloud/acm_ae6/hlconst.F)").
 -   Scavenging factor - if the pollutant is mapped to a species for scavenging, uniformly apply a scaling factor to the scavenging rate.
--   Gas-to-aerosol conversion – which (if any) aerosol chemistry species does the gas phase pollutant concentration go into for transformation from the gas-phase to the aerosol-phase.
--   Gas-to-aqueous Surrogate – which (if any) cloud chemistry species does the gas pollutant concentration go into for simulating chemistry within cloud water.
--   Aerosol-to-aqueous Surrogate – which (if any) cloud chemistry species does the aerosol pollutant concentration go into for simulating chemistry within cloud water.
+-   Gas-to-aerosol conversion – which (if any) aerosol chemistry species does the gas phase pollutant concentration go into for transformation from the gas-phase to the aerosol-phase.  Allowed gas-to-aerosol surrogates are specified within the model source code ("[PRECURSOR_DATA.F](../../CCTM/src/aero/aero6/PRECURSOR_DATA.F)")
+-   Gas-to-aqueous Surrogate – which (if any) cloud chemistry species does the gas pollutant concentration go into for simulating chemistry within cloud water. Allowed gas-to-aqueous surrogates are specified within the model source code and depends on the cloud model/aqueous chemistry being used (for example, for the acm_ae6, see "[AQ_DATA.F](../../CCTM/src/cloud/acm_ae6/AQ_DATA.F)").
+-   Aerosol-to-aqueous Surrogate – which (if any) cloud chemistry species does the aerosol pollutant concentration go into for simulating chemistry within cloud water.  Allowed aerosol-to-aqueous surrogates are specified within the model source code and depends on the cloud model/aqueous chemistry being used (for example, for the acm_ae6, see "[AQ_DATA.F](../../CCTM/src/cloud/acm_ae6/AQ_DATA.F)").
 -   Transport – is the pollutant transported by advection and diffusion in the model?
 -   Dry deposition – Write the pollutant to the dry deposition output file?
 -   Wet deposition – Write the pollutant to the wet deposition output file?
@@ -204,15 +204,15 @@ The namelist files contain header information that describe which class of speci
 | 5 |1| SPECIES | String |CMAQ Species name, i.e. NO, HNO<sub>3</sub>, PAR; dependent on chemical mechanism|-|
 ||2| MOLWT| Integer |Species Molecular Weight|-|
 |  |3| IC | String |IC surrogate species name for the CMAQ Species|{'Species name', ' '}|
-|  |4| FAC | Integer |Scaling factor for the IC concentration|{Any integer: default = -1 if IC is not specified}|
+|  |4| FAC | Integer |Scaling factor for the IC concentration|{Any real: default = -1 if IC is not specified}|
 |  |5| BC | String |BC surrogate species name for the CMAQ Species|{'Species name', ' '}|
-|  |6| FAC | Integer |Scaling factor for the BC concentration|{Any integer: default = -1 if BC is not specified}|
-| |7| DRYDEP SURR | String |Deposition velocity variable name for the CMAQ Species|-|
-| |8| FAC | Integer |Scaling factor for the deposition velocity|{Any integer: default = -1 if SURR is not specified}|
-| |9| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|-|
-| | 10 | FAC | Integer |Scaling factor for Scavenging|{Any integer: default = -1 if SURR is not specified}|
-|| 11 | GC2AE SURR | String |Gas-to-aerosol transformation species|-|
-|| 12 | GC2AQ SURR | String |Gas-to-aqueous transformation species|-|
+|  |6| FAC | Integer |Scaling factor for the BC concentration|{Any real: default = -1 if BC is not specified}|
+| |7| DRYDEP SURR | String |Deposition velocity variable name for the CMAQ Species|{'Species name', ' '}|
+| |8| FAC | Integer |Scaling factor for the deposition velocity|{Any real: default = -1 if SURR is not specified}|
+| |9| WET-SCAV SURR | String |Wet Deposition Scavenging surrogate species|{'Species name', ' '}|
+| | 10 | FAC | Integer |Scaling factor for Scavenging|{Any real: default = -1 if SURR is not specified}|
+|| 11 | GC2AE SURR | String |Gas-to-aerosol transformation species|{'Species name', ' '}|
+|| 12 | GC2AQ SURR | String |Gas-to-aqueous transformation species|{'Species name', ' '}|
 || 13 | TRNS | String |Transport Switch. _NOTE_: Instead of using one column labeled "TRNS" to turn/off both advection and diffusion for a pollutant, two separate columns labeled "ADV" and "DIFF" can be used to switch on/off advection and diffusion separately.|{YES/NO}|
 || 14 | DDEP | String |Dry deposition output file switch|{YES/NO}|
 || 15 | WDEP | Real |Wet deposition output file switch|{YES/NO}|
