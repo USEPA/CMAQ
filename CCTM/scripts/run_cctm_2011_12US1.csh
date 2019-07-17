@@ -555,14 +555,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_STTIME      $STTIME
   setenv CTM_RUNLEN      $NSTEPS
   setenv CTM_TSTEP       $TSTEP
-  setenv INIT_GASC_1 $ICpath/$ICFILE
-  setenv INIT_AERO_1 $INIT_GASC_1
-  setenv INIT_NONR_1 $INIT_GASC_1
-  setenv INIT_TRAC_1 $INIT_GASC_1
-  setenv BNDY_GASC_1 $BCpath/$BCFILE
-  setenv BNDY_AERO_1 $BNDY_GASC_1
-  setenv BNDY_NONR_1 $BNDY_GASC_1
-  setenv BNDY_TRAC_1 $BNDY_GASC_1
+  setenv INIT_CONC_1 $ICpath/$ICFILE
+  setenv BNDY_CONC_1 $BCpath/$BCFILE
   setenv OMI $OMIpath/$OMIfile
   setenv OPTICS_DATA $OMIpath/$OPTfile
   #setenv XJ_DATA $JVALpath/$JVALfile

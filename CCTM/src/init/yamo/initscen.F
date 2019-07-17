@@ -167,7 +167,7 @@ C Initialize the CGRID array
 
 C Load CGRID
       IF ( N_GC_SPC .GT. 0 ) THEN
-         FNAME = INIT_GASC_1
+         FNAME = INIT_CONC_1
          CALL LOAD_CGRID ( FNAME, 'GC', CMIN, CGRID )
 #ifdef Verbose3
          write( logdev,'(/"@@@c ", i8, i7.6)') stdate, sttime
@@ -189,21 +189,21 @@ C load rhoj
       FNAME = MET_CRO_3D
       CALL LOAD_CGRID ( FNAME, 'RJ', CMIN, CGRID )
 
-C Get aerosols IC's. Note: INIT_AERO_1 may be setenv'ed to INIT_GASC_1
+C Get aerosols IC's
       IF ( N_AE_SPC .GT. 0 ) THEN
-         FNAME = INIT_AERO_1
+         FNAME = INIT_CONC_1
          CALL LOAD_CGRID ( FNAME, 'AE', CMIN, CGRID )
       END IF  ! N_AE_SPC > 0
 
-C Get non-reactives IC's. Note: INIT_NONR_1 may be setenv'ed to INIT_GASC_1
+C Get non-reactives IC's
       IF ( N_NR_SPC .GT. 0 ) THEN
-         FNAME = INIT_NONR_1
+         FNAME = INIT_CONC_1
          CALL LOAD_CGRID ( FNAME, 'NR', CMIN, CGRID )
       END IF  ! N_NR_SPC > 0
 
-C Get tracer IC's. Note: INIT_TRAC_1 may be setenv'ed to INIT_GASC_1
+C Get tracer IC's
       IF ( N_TR_SPC .GT. 0 ) THEN
-         FNAME = INIT_TRAC_1
+         FNAME = INIT_CONC_1
          CALL LOAD_CGRID ( FNAME, 'TR', CMIN, CGRID )
       END IF  ! N_TR_SPC > 0
 
