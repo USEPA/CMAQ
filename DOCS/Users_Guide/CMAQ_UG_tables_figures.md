@@ -12,7 +12,7 @@
 
 [Figure 5-1. CMAQ repository structure](CMAQ_UG_ch05_running_a_simulation.md#Figure5-1) 
 
-[Figure 6-1. STAGE resistance diagram (modified from Nemitz et al., 2001) with table of variables descriptions](CMAQ_UG_ch06_model_configuration_options.md#Figure6.8.2)
+[Figure 6-1. STAGE resistance diagram (modified from Nemitz et al., 2001) with table of variables descriptions](CMAQ_UG_ch06_model_configuration_options.md#Figure6-1)
 
 [Figure 9-1. Relative contribution of oxidation pathways for VOCs using Process Analysis](CMAQ_UG_ch09_process_analysis.md#Figure9-1) 
 
