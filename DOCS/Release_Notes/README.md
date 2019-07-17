@@ -11,7 +11,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 <a id="instrumented_models"></a>
 ## Instrumented Models
  * [ISAM for CMAQv5.3](updates_to_CMAQ_ISAM.md)
- * [Sulfur Tracking Model for CMAQv5.3](updates_to_CMAQ_STM.md)
+ * [Sulfur Tracking Model (STM) for CMAQv5.3](sulfur_tracking.md)
  * CMAQv5.3-DDM-3D will be released later in 2019. 
  * [Documentation for CMAQv5.2-DDM-3D](https://github.com/USEPA/CMAQ/blob/5.2_DDM-3D/DOCS/Instrumented_Docs/CMAQ_DDM.md)
 
