@@ -707,7 +707,10 @@ C converted to gravimetric [kg/kg]
      &              0.284,     ! Sandy Clay
      &              0.357,     ! Silty Clay
      &              0.344,     ! Clay
-     &              0.363 /)   ! Other
+     &              0.329,     ! Organic Material
+     &              0.000,     ! Water
+     &              0.170,     ! BedRock
+     &              0.280 /)   ! Other
 
 C---Soil texture: the amount of
 C   1: Coarse sand, 2: Fine-medium sand, 3: Silt, 4: Clay
