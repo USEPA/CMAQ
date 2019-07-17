@@ -104,6 +104,15 @@ The final line in the control file needs to be kept unchanged in order to aid th
 ENDLIST eof
 ```
 
+In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation (note, that at least one user-specified tag must be defined):
+
+```
+ICON - contribution from initial conditions specified for the first day of the simulation
+BCON - contribution form boundary condtions throughout the simulation
+OTHR - contribution from all emissions not tagged by the user through isam control file.
+```
+
+
 ## 11.4 References
 
 Kwok, R.H.F, Napelenok, S.L., & Baker, K.R. (2013). Implementation and evaluation of PM2.5 source contribution analysis in a photochemical model. Atmospheric Environment, 80, 398–407 [doi:10.1016/j.atmosenv.2013.08.017](https://doi.org/10.1016/j.atmosenv.2013.08.017).
