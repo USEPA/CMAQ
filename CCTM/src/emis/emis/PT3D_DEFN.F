@@ -605,7 +605,7 @@ C-----------------------------------------------------------------------
      &                   EM_FILE_SURR( ISRM )%UNITS( : ) )
  
 
-              ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLAYS,N_EMIS_ISTR ), STAT = IOS )
+              ALLOCATE ( VDEMIS_BUF( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ), STAT = IOS )
               CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
               VDEMIS_BUF = 0.0   ! array
               WRITE( LOGDEV,'(/5X, A /5X, A )' )
