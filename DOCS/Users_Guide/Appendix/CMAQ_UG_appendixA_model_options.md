@@ -1,5 +1,5 @@
 
- [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)
+ [<< Tables and Figures](CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)
 
 <!-- END COMMENT -->
 
@@ -225,7 +225,7 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 -    `ModDiag` <a id=ModDiag></a>
      use various diagnostic routines. Currently only the vertical extraction tool is implemented here.
 -   `ModAero: [default: aero7]`<a id=ModAero></a>  
-    CMAQ aero/aerosol module.
+    CMAQ aero/aerosol module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#611-aerosol-dynamics-and-chemistry) for further information.
     -   `aero7`  
     seventh-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
 -   `ModCloud: [default: cloud/acm_ae6]`<a id=ModCloud></a>  
@@ -570,5 +570,5 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Input BELD4 landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD4.  
 
 
- [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
+[<< Tables and Figures](CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
  CMAQ User's Guide (c) 2019<br>
