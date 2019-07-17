@@ -188,8 +188,8 @@ The model resistances are largely estimated following Massad et al. (2010) with 
 The ammonia bidirectional option follows the ammonia specific parameterizations of Massad et al. (2010). Mercury bidirectional exchange is also available and follows the parameterization of Bash (2010). In this modeling framework, it is possible to set any species as being bidirectional by providing a parametrization or constant that sets the stomatal, cuticular, soil and/or water compensation point as a value greater than 0. 
 
 <a id=Figure6-1></a>
-![Equation 6-1](images/Figure6_8_2.png)  
-Figure 6-1. STAGE resistance diagram (modified from Nemitz et al., 2001) with a table of variables descriptions.
+![Figure 6-1](images/Figure6_8_2.png)  
+**Figure 6-1. STAGE resistance diagram (modified from Nemitz et al., 2001) with a table of variables descriptions.**
 
 STAGE runtime options:
 ```
