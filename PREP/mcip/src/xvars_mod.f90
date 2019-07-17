@@ -98,6 +98,11 @@ MODULE xvars
 !                        Added XZSOIL to define depths of soil layers, and
 !                        added 3D soil arrays, XSOIT3D and XSOIM3D.  Added
 !                        XWSPDSFC and XXLAIDYN for Noah.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           18 Jun 2019  Added new surface variables with PX LSM that can
+!                        improve dust simulation in CCTM.  Added optional
+!                        variables from KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
@@ -121,79 +126,86 @@ MODULE xvars
 ! Dot-Point and Face 2D Arrays.
 !-------------------------------------------------------------------------------
 
-  REAL, ALLOCATABLE :: xlatd   ( : , : )   ! latitude at dot pts [degrees]
-  REAL, ALLOCATABLE :: xlatu   ( : , : )   ! latitude at U faces [degrees]
-  REAL, ALLOCATABLE :: xlatv   ( : , : )   ! latitude at V faces [degrees]
-  REAL, ALLOCATABLE :: xlond   ( : , : )   ! longitude at dot pts [degrees]
-  REAL, ALLOCATABLE :: xlonu   ( : , : )   ! longitude at U faces [degrees]
-  REAL, ALLOCATABLE :: xlonv   ( : , : )   ! longitude at V faces [degrees]
-  REAL, ALLOCATABLE :: xmapd   ( : , : )   ! map scale at dot pts [dim'less]
-  REAL, ALLOCATABLE :: xmapu   ( : , : )   ! map scale at U faces [dim'less]
-  REAL, ALLOCATABLE :: xmapv   ( : , : )   ! map scale at V faces [dim'less]
+  REAL, ALLOCATABLE :: xlatd      ( : , : )   ! latitude at dot pts [degrees]
+  REAL, ALLOCATABLE :: xlatu      ( : , : )   ! latitude at U faces [degrees]
+  REAL, ALLOCATABLE :: xlatv      ( : , : )   ! latitude at V faces [degrees]
+  REAL, ALLOCATABLE :: xlond      ( : , : )   ! longitude at dot pts [degrees]
+  REAL, ALLOCATABLE :: xlonu      ( : , : )   ! longitude at U faces [degrees]
+  REAL, ALLOCATABLE :: xlonv      ( : , : )   ! longitude at V faces [degrees]
+  REAL, ALLOCATABLE :: xmapd      ( : , : )   ! map scale at dot pts [dim'less]
+  REAL, ALLOCATABLE :: xmapu      ( : , : )   ! map scale at U faces [dim'less]
+  REAL, ALLOCATABLE :: xmapv      ( : , : )   ! map scale at V faces [dim'less]
 
 !-------------------------------------------------------------------------------
 ! Cross-Point 2D Arrays.
 !-------------------------------------------------------------------------------
 
-  REAL, ALLOCATABLE :: xcorl   ( : , : )  ! Coriolis at cross pts [s-1]
-  REAL, ALLOCATABLE :: xlatc   ( : , : )  ! latitude at cross pts [degree]
-  REAL, ALLOCATABLE :: xlonc   ( : , : )  ! longitude at cross pts [degree]
-  REAL, ALLOCATABLE :: xmapc   ( : , : )  ! map scale at cross pts [dim'less]
-  REAL, ALLOCATABLE :: xmapc2  ( : , : )  ! XMAPC**2 at cross pts [dim'less]
-  REAL, ALLOCATABLE :: xtopo   ( : , : )  ! topographic height (MSL) [m]
+  REAL, ALLOCATABLE :: xcorl      ( : , : )  ! Coriolis at cross pts [s-1]
+  REAL, ALLOCATABLE :: xlatc      ( : , : )  ! latitude at cross pts [degree]
+  REAL, ALLOCATABLE :: xlonc      ( : , : )  ! longitude at cross pts [degree]
+  REAL, ALLOCATABLE :: xmapc      ( : , : )  ! map scale at cross pts [dim'less]
+  REAL, ALLOCATABLE :: xmapc2     ( : , : )  ! XMAPC**2 at cross pts [dim'less]
+  REAL, ALLOCATABLE :: xtopo      ( : , : )  ! topographic height (MSL) [m]
 
-  REAL, ALLOCATABLE :: xprsfc  ( : , : )  ! sfc pressure at cross [Pa]
-  REAL, ALLOCATABLE :: xdenss  ( : , : )  ! surface air density [kg/m3]
-  REAL, ALLOCATABLE :: xtempg  ( : , : )  ! ground surface temperature [K]
-  REAL, ALLOCATABLE :: xrainn  ( : , : )  ! nonconvective rain (cumulative)
-  REAL, ALLOCATABLE :: xrainc  ( : , : )  ! convective rain (cumulative)
-  REAL, ALLOCATABLE :: xdluse  ( : , : )  ! dominant land use category
-  REAL, ALLOCATABLE :: xlwmask ( : , : )  ! land-water mask (1=land, 0=water)
-  REAL, ALLOCATABLE :: xpurb   ( : , : )  ! percentage of urban area [%]
+  REAL, ALLOCATABLE :: xprsfc     ( : , : )  ! sfc pressure at cross [Pa]
+  REAL, ALLOCATABLE :: xdenss     ( : , : )  ! surface air density [kg/m3]
+  REAL, ALLOCATABLE :: xtempg     ( : , : )  ! ground surface temperature [K]
+  REAL, ALLOCATABLE :: xrainn     ( : , : )  ! nonconvective rain (cumulative)
+  REAL, ALLOCATABLE :: xrainc     ( : , : )  ! convective rain (cumulative)
+  REAL, ALLOCATABLE :: xdluse     ( : , : )  ! dominant land use category
+  REAL, ALLOCATABLE :: xlwmask    ( : , : )  ! land-water mask (1=land, 0=water)
+  REAL, ALLOCATABLE :: xpurb      ( : , : )  ! percentage of urban area [%]
 
-  REAL, ALLOCATABLE :: xglw    ( : , : )  ! l/w rad at grnd [W/m2]
-  REAL, ALLOCATABLE :: xgsw    ( : , : )  ! s/w rad absorbed at grnd [W/m2]
-  REAL, ALLOCATABLE :: xhfx    ( : , : )  ! sensible heat flux [W/m2]
-  REAL, ALLOCATABLE :: xlh     ( : , : )  ! latent heat flux [W/m2]
-  REAL, ALLOCATABLE :: xustar  ( : , : )  ! friction velocity [m]
-  REAL, ALLOCATABLE :: xpbl    ( : , : )  ! PBL height [m]
-  REAL, ALLOCATABLE :: xzruf   ( : , : )  ! surface roughness [m]
-  REAL, ALLOCATABLE :: xmol    ( : , : )  ! Monin-Obukhov length [m] 
-  REAL, ALLOCATABLE :: xrgrnd  ( : , : )  ! s/w rad reaching grnd [W/m2]
-  REAL, ALLOCATABLE :: xqfx    ( : , : )  ! up moisture flux at sfc [kg m-2 s-1]
+  REAL, ALLOCATABLE :: xglw       ( : , : )  ! l/w rad at grnd [W/m2]
+  REAL, ALLOCATABLE :: xgsw       ( : , : )  ! s/w rad absorbed at grnd [W/m2]
+  REAL, ALLOCATABLE :: xhfx       ( : , : )  ! sensible heat flux [W/m2]
+  REAL, ALLOCATABLE :: xlh        ( : , : )  ! latent heat flux [W/m2]
+  REAL, ALLOCATABLE :: xustar     ( : , : )  ! friction velocity [m]
+  REAL, ALLOCATABLE :: xpbl       ( : , : )  ! PBL height [m]
+  REAL, ALLOCATABLE :: xzruf      ( : , : )  ! surface roughness [m]
+  REAL, ALLOCATABLE :: xmol       ( : , : )  ! Monin-Obukhov length [m] 
+  REAL, ALLOCATABLE :: xrgrnd     ( : , : )  ! s/w rad reaching grnd [W/m2]
+  REAL, ALLOCATABLE :: xqfx       ( : , : )  ! up moist flux at sfc [kg m-2 s-1]
 
-  REAL, ALLOCATABLE :: xwstar  ( : , : )  ! convective velocity scale [m/s]
-  REAL, ALLOCATABLE :: xrib    ( : , : )  ! bulk Richardson number
-  REAL, ALLOCATABLE :: xradyn  ( : , : )  ! aerodynamic resistance [s/m]
-  REAL, ALLOCATABLE :: xrstom  ( : , : )  ! stomatal resistance [s/m]
-  REAL, ALLOCATABLE :: xtemp2  ( : , : )  ! 2-m temperature [K]
-  REAL, ALLOCATABLE :: xq2     ( : , : )  ! 2-m mixing ratio [kg/kg]
-  REAL, ALLOCATABLE :: xwspd10 ( : , : )  ! 10-m wind speed at crs [m/s]
-  REAL, ALLOCATABLE :: xwdir10 ( : , : )  ! 10-m wind direction at crs [degrees]
-  REAL, ALLOCATABLE :: xalbedo ( : , : )  ! albedo [dim'less]
-  REAL, ALLOCATABLE :: xmavail ( : , : )  ! moisture availability
-  REAL, ALLOCATABLE :: xcfract ( : , : )  ! cloud fraction [fraction]
-  REAL, ALLOCATABLE :: xcldtop ( : , : )  ! cloud top height [m]
-  REAL, ALLOCATABLE :: xcldbot ( : , : )  ! cloud bottom height [m]
-  REAL, ALLOCATABLE :: xwbar   ( : , : )  ! avg liq water content of cld [g/m3]
-  REAL, ALLOCATABLE :: xsnocov ( : , : )  ! snow cover [1=yes, 0=no]
-  REAL, ALLOCATABLE :: xseaice ( : , : )  ! sea ice [1=yes, 0=no; or fractional]
-  REAL, ALLOCATABLE :: xsnowh  ( : , : )  ! snow height [m]
-  REAL, ALLOCATABLE :: xmuhyb  ( : , : )  ! dry mu in hybrid coordinate
+  REAL, ALLOCATABLE :: xwstar     ( : , : )  ! convective velocity scale [m/s]
+  REAL, ALLOCATABLE :: xrib       ( : , : )  ! bulk Richardson number
+  REAL, ALLOCATABLE :: xradyn     ( : , : )  ! aerodynamic resistance [s/m]
+  REAL, ALLOCATABLE :: xrstom     ( : , : )  ! stomatal resistance [s/m]
+  REAL, ALLOCATABLE :: xtemp2     ( : , : )  ! 2-m temperature [K]
+  REAL, ALLOCATABLE :: xq2        ( : , : )  ! 2-m mixing ratio [kg/kg]
+  REAL, ALLOCATABLE :: xwspd10    ( : , : )  ! 10-m wind speed at crs [m/s]
+  REAL, ALLOCATABLE :: xwdir10    ( : , : )  ! 10-m wind direction at crs [deg]
+  REAL, ALLOCATABLE :: xalbedo    ( : , : )  ! albedo [dim'less]
+  REAL, ALLOCATABLE :: xmavail    ( : , : )  ! moisture availability
+  REAL, ALLOCATABLE :: xcfract    ( : , : )  ! cloud fraction [fraction]
+  REAL, ALLOCATABLE :: xcldtop    ( : , : )  ! cloud top height [m]
+  REAL, ALLOCATABLE :: xcldbot    ( : , : )  ! cloud bottom height [m]
+  REAL, ALLOCATABLE :: xwbar      ( : , : )  ! avg liq water in cld [g/m3]
+  REAL, ALLOCATABLE :: xsnocov    ( : , : )  ! snow cover [1=yes, 0=no]
+  REAL, ALLOCATABLE :: xseaice    ( : , : )  ! sea ice [1=yes, 0=no; or frac]
+  REAL, ALLOCATABLE :: xsnowh     ( : , : )  ! snow height [m]
+  REAL, ALLOCATABLE :: xmuhyb     ( : , : )  ! dry mu in hybrid coordinate
 
-  REAL, ALLOCATABLE :: xu10    ( : , : )  ! 10-m u-component wind at crs [m/s]
-  REAL, ALLOCATABLE :: xv10    ( : , : )  ! 10-m v-component wind at crs [m/s]
+  REAL, ALLOCATABLE :: xu10       ( : , : )  ! 10-m u-comp wind at crs [m/s]
+  REAL, ALLOCATABLE :: xv10       ( : , : )  ! 10-m v-comp wind at crs [m/s]
 
-  REAL, ALLOCATABLE :: xtga    ( : , : )  ! ground temperature [K]
-  REAL, ALLOCATABLE :: xt2a    ( : , : )  ! deep layer soil temperature [K]
-  REAL, ALLOCATABLE :: xwga    ( : , : )  ! ground sfc soil moisture [m3/m3]
-  REAL, ALLOCATABLE :: xw2a    ( : , : )  ! deep layer soil moisture [m3/m3]
-  REAL, ALLOCATABLE :: xwr     ( : , : )  ! precip intercepted by canopy [m]
-  REAL, ALLOCATABLE :: xlai    ( : , : )  ! leaf area index [area/area]
-  REAL, ALLOCATABLE :: xveg    ( : , : )  ! vegetation coverage [decimal]
-  REAL, ALLOCATABLE :: xsltyp  ( : , : )  ! soil texture type [category]
+  REAL, ALLOCATABLE :: xtga       ( : , : )  ! ground temperature [K]
+  REAL, ALLOCATABLE :: xt2a       ( : , : )  ! deep layer soil temperature [K]
+  REAL, ALLOCATABLE :: xwga       ( : , : )  ! ground sfc soil moisture [m3/m3]
+  REAL, ALLOCATABLE :: xw2a       ( : , : )  ! deep layer soil moisture [m3/m3]
+  REAL, ALLOCATABLE :: xwr        ( : , : )  ! precip intercepted by canopy [m]
+  REAL, ALLOCATABLE :: xlai       ( : , : )  ! leaf area index [m2/m2]
+  REAL, ALLOCATABLE :: xveg       ( : , : )  ! vegetation coverage [decimal]
+  REAL, ALLOCATABLE :: xsltyp     ( : , : )  ! soil texture type [category]
 
-  REAL, ALLOCATABLE :: xluse   ( : , : , : ) ! landuse fractions [0-1]
+  REAL, ALLOCATABLE :: xwsat_px   ( : , : )  ! soil saturation (PX) [m3/m3]
+  REAL, ALLOCATABLE :: xwwlt_px   ( : , : )  ! soil wilt pt (PX) [m3/m3]
+  REAL, ALLOCATABLE :: xwfc_px    ( : , : )  ! soil fld capacity (PX) [m3/m3]
+  REAL, ALLOCATABLE :: xcsand_px  ( : , : )  ! coarse sand (PX) [fraction]
+  REAL, ALLOCATABLE :: xfmsand_px ( : , : )  ! fine-medium sand (PX) [fraction]
+  REAL, ALLOCATABLE :: xclay_px   ( : , : )  ! clay (PX) [fraction]
+
+  REAL, ALLOCATABLE :: xluse  ( : , : , : )  ! landuse fractions [0-1]
 
 !-------------------------------------------------------------------------------
 ! Cross-Point 3D arrays.
@@ -219,6 +231,10 @@ MODULE xvars
   REAL, ALLOCATABLE :: xpvc    ( : , : , : )  ! potential vorticity [m^2-K/kg-s]
   REAL, ALLOCATABLE :: xtheta  ( : , : , : )  ! potential temperature [K]
   REAL, ALLOCATABLE :: xcfrac3d( : , : , : )  ! resolved cloud fraction [frac]
+  REAL, ALLOCATABLE :: xqc_cu  ( : , : , : )  ! cld wtr mx rat from cu [kg/kg]
+  REAL, ALLOCATABLE :: xqi_cu  ( : , : , : )  ! cld ice mx rat from cu [kg/kg]
+  REAL, ALLOCATABLE :: xcldfrad( : , : , : )  ! subgrid deep cld fraction [frac]
+  REAL, ALLOCATABLE :: xcldfras( : , : , : )  ! subgrid shal cld fraction [frac]
 
 !-------------------------------------------------------------------------------
 ! Dot-Point (and Face-Point) 3D Arrays.
@@ -257,13 +273,6 @@ MODULE xvars
 
   REAL, ALLOCATABLE :: xmu     ( : , : )      ! Mu at cross points
   REAL, ALLOCATABLE :: xgeof   ( : , : , : )  ! geopotential at face points
-
-!-------------------------------------------------------------------------------
-! Reference state variables for non-hydrostatic MM5.
-!-------------------------------------------------------------------------------
-
-  REAL, ALLOCATABLE :: xpstar0     ( : , : )      ! reference Pstar [Pa]
-  REAL, ALLOCATABLE :: xdensaf_ref ( : , : , : )  ! full-lvl ref dens  [Kg/m^3]
 
 !-------------------------------------------------------------------------------
 ! Internal Arrays.

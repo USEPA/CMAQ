@@ -19,7 +19,7 @@
 !!!   CO        - CO
 !!!   OZONE     - all NITRATE species + all VOC species
 
-TAG CLASSES     |SULFATE, OZONE, NITRATE, AMMONIUM, EC
+TAG CLASSES     |SULFATE, OZONE
 
 !!! The following are source definition text blocks in the format:
 !!!   TAG NAME        |Three character text string
@@ -27,8 +27,8 @@ TAG CLASSES     |SULFATE, OZONE, NITRATE, AMMONIUM, EC
 !!!   FILENAME(S)     |Emissions labels (multiple labels need to be comma delimited)
 
 
-TAG NAME        |PS2
+TAG NAME        |GR1
 REGION(S)       |EVERYWHERE
-EMIS STREAM(S)  |PT_EGU, PT_NONEGU
+EMIS STREAM(S)  |GRIDDED_EMIS
 
 ENDLIST eof 

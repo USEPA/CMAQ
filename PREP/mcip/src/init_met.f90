@@ -58,6 +58,12 @@ SUBROUTINE init_met
 !                        Added DZS to capture soil layers, and added 3D soil
 !                        arrays, SOIT3D and SOIM3D.  Added WSPDSFC and XLAIDYN
 !                        for Noah.  (T. Spero)
+!           14 Sep 2018  Changed condition to enable hybrid vertical coordinate
+!                        in WRF.  Removed support for MM5v3 input.  (T. Spero)
+!           18 Jun 2019  Added new surface variables with PX LSM that can
+!                        improve dust simulation in CCTM.  Added optional
+!                        variables from KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -70,7 +76,7 @@ SUBROUTINE init_met
 ! Initialize meteorology arrays.
 !-------------------------------------------------------------------------------
 
-  IF ( met_hybrid == 2 ) THEN  ! using hybrid vertical coordinate in WRF
+  IF ( met_hybrid >= 0 ) THEN  ! using hybrid vertical coordinate in WRF
     c1f    (:)     = 0.0      ;      c1h      (:)     = 0.0
     c2f    (:)     = 0.0      ;      c2f      (:)     = 0.0
   ENDIF
@@ -140,7 +146,6 @@ SUBROUTINE init_met
   IF ( ALLOCATED ( soilt1    ) )  soilt1   (:,:) = 0.0
   IF ( ALLOCATED ( soilt2    ) )  soilt2   (:,:) = 0.0
   IF ( ALLOCATED ( veg       ) )  veg      (:,:) = 0.0
-  IF ( ALLOCATED ( vegold    ) )  vegold   (:,:) = 0.0
   IF ( ALLOCATED ( w2        ) )  w2       (:,:) = 0.0
   IF ( ALLOCATED ( wg        ) )  wg       (:,:) = 0.0
   IF ( ALLOCATED ( wr        ) )  wr       (:,:) = 0.0
@@ -165,5 +170,18 @@ SUBROUTINE init_met
 
   IF ( ALLOCATED ( wspdsfc   ) )  wspdsfc  (:,:)   = 0.0
   IF ( ALLOCATED ( xlaidyn   ) )  xlaidyn  (:,:)   = 0.0
+
+  IF ( ALLOCATED ( lai_px    ) )  lai_px   (:,:)   = 0.0
+  IF ( ALLOCATED ( wwlt_px   ) )  wwlt_px  (:,:)   = 0.0
+  IF ( ALLOCATED ( wsat_px   ) )  wsat_px  (:,:)   = 0.0
+  IF ( ALLOCATED ( wfc_px    ) )  wfc_px   (:,:)   = 0.0
+  IF ( ALLOCATED ( csand_px  ) )  csand_px (:,:)   = 0.0
+  IF ( ALLOCATED ( fmsand_px ) )  fmsand_px(:,:)   = 0.0
+  IF ( ALLOCATED ( clay_px   ) )  clay_px  (:,:)   = 0.0
+
+  IF ( ALLOCATED ( qc_cu     ) )  qc_cu    (:,:,:) = 0.0
+  IF ( ALLOCATED ( qi_cu     ) )  qi_cu    (:,:,:) = 0.0
+  IF ( ALLOCATED ( cldfra_dp ) )  cldfra_dp(:,:,:) = 0.0
+  IF ( ALLOCATED ( cldfra_sh ) )  cldfra_sh(:,:,:) = 0.0
 
 END SUBROUTINE init_met

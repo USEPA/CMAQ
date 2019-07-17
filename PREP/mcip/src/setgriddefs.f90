@@ -150,6 +150,17 @@ SUBROUTINE setgriddefs
 !                        Removed superfluous variables METROW and METCOL.
 !                        Defined METSOI.  Prevent MCIP from using meteorology
 !                        initialization time.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           18 Jun 2019  Added a flag for new surface variables with PX LSM
+!                        that can improve dust simulation in CCTM.  Changed
+!                        spacing in format statements improve readability in
+!                        log file.  Changed variable LUVCOUT to LUVBOUT to
+!                        reflect that the default 3D wind components are on the
+!                        Arakawa-C staggered grid, and the optional additional
+!                        3D winds are on the Arakawa-B staggered grid.  Added
+!                        write for IOFORM to log.  Added flag for optional
+!                        variable with KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -157,7 +168,6 @@ SUBROUTINE setgriddefs
   USE metinfo
   USE coord
   USE m3utilio
-  USE sat2mcip
 
   IMPLICIT NONE
 
@@ -170,7 +180,7 @@ SUBROUTINE setgriddefs
   REAL                              :: xorig_m
   REAL                              :: xorig_x
   REAL                              :: xtemp
-  CHARACTER(LEN=4)                  :: yesno
+  CHARACTER(LEN=3)                  :: yesno
   REAL                              :: yorig_ctm
   REAL                              :: yorig_m
   REAL                              :: yorig_x
@@ -196,7 +206,7 @@ SUBROUTINE setgriddefs
       "(1x, a, ' will be read from the ', a, ' file')"
 
   CHARACTER(LEN=256), PARAMETER :: f6175 = &
-      "(1x, a, ' will ', a, ' be in the output file')"
+      "(/, 1x, a, ' will ', a, ' be in the output file')"
 
   CHARACTER(LEN=256), PARAMETER :: f6180 = &
       "(/, 1x, a, ' was ', a, ' used in the meteorology model')"
@@ -434,12 +444,12 @@ SUBROUTINE setgriddefs
 !              (e.g., temporally or spatially changing vertical coordinates)
 !-------------------------------------------------------------------------------
 
-  IF ( met_model == 1 ) THEN       ! MM5
-    IF ( met_iversion == 3 ) THEN  !    v3: terrain-following non-hydrostatic
-      vgtyp_gd = vgsgpn3
+  IF ( met_model == 2 ) THEN     ! WRF-ARW
+    IF ( met_hybrid <= 0 ) THEN  ! sigma-type vertical coordinate
+      vgtyp_gd = vgwrfem         ! terrain-following dry hydrostatic pressure
+    ELSE                         ! hybrid sigma-pressure vertical coordinate
+      vgtyp_gd = imiss3
     ENDIF
-  ELSE IF ( met_model == 2 ) THEN  ! WRF EM
-    vgtyp_gd = vgwrfem             ! terrain-following dry hydrostatic pressure
   ENDIF
 
 !-------------------------------------------------------------------------------
@@ -507,22 +517,6 @@ SUBROUTINE setgriddefs
       yorig_ctm = ytemp * 500.0
     ENDIF
       
-  ELSE  ! MM5
-
-    xorig_m = ( ( met_x_11 - 0.5 * FLOAT(met_nxcoarse + 1) ) *  &
-                  met_gratio ) * met_resoln
-
-    yorig_m = ( ( met_y_11 - 0.5 * FLOAT(met_nycoarse + 1) ) *  &
-                  met_gratio ) * met_resoln
-
-    xorig_x = xorig_m + FLOAT(x0-nthik) * REAL(xcell_gd)
-    yorig_x = yorig_m + FLOAT(y0-nthik) * REAL(ycell_gd)
-
-    rnthik = FLOAT(nthik)
-
-    xorig_ctm = xorig_x + rnthik * REAL(xcell_gd)
-    yorig_ctm = yorig_x + rnthik * REAL(ycell_gd)
-
   ENDIF
 
 !-------------------------------------------------------------------------------
@@ -536,9 +530,6 @@ SUBROUTINE setgriddefs
   IF ( met_model == 2 ) THEN  ! WRF -- Allow trailing digits.
     xorig_gd   = DBLE(xorig_ctm)        ! X-origin [m]
     yorig_gd   = DBLE(yorig_ctm)        ! Y-origin [m]
-  ELSE  ! MM5 -- By restriction in setup of grids, must be "round" number.
-    xorig_gd   = DBLE(NINT(xorig_ctm))  ! X-origin [m]
-    yorig_gd   = DBLE(NINT(yorig_ctm))  ! Y-origin [m]
   ENDIF
 
 !-------------------------------------------------------------------------------
@@ -616,37 +607,37 @@ SUBROUTINE setgriddefs
   END SELECT
   WRITE (*,f6100) 'LWOUT  ', lwout, TRIM(option)
 
-  SELECT CASE ( luvcout )
+  SELECT CASE ( luvbout )
     CASE ( 0 )
-      option = 'Will not output u- and v-component winds on C grid'
+      option = 'Will not output u- and v-component winds on B grid'
     CASE ( 1 )
-      option = 'Will output u- and v-component winds on C grid'
+      option = 'Will output u- and v-component winds on B grid'
     CASE DEFAULT
       option = '*** invalid ***'
   END SELECT
-  WRITE (*,f6100) 'LUVCOUT', luvcout, TRIM(option)
+  WRITE (*,f6100) 'LUVBOUT', luvbout, TRIM(option)
 
-  SELECT CASE ( lsat )
-    CASE ( 0 )
-      option = 'Will not use satellite adjustment of clouds for photolysis'
+  SELECT CASE ( ioform )
     CASE ( 1 )
-      option = 'Using GOES observed cloud fields to replace model fields'
+      option = 'Will write output in Models-3 I/O API'
+    CASE ( 2 )
+      option = 'Will write output in netCDF'
     CASE DEFAULT
       option = '*** invalid ***'
   END SELECT
-  WRITE (*,f6100) 'LSAT   ', lsat, TRIM(option)
+  WRITE (*,f6100) 'IOFORM ', ioform, TRIM(option)
 
   IF ( iflai ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) 'LAI', TRIM(yesno)
 
   IF ( iflufrc ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
-    yesno = 'NOT'
+    yesno = 'NOT '
   ENDIF
   WRITE (*,f6150) 'FRACTIONAL LAND USE', TRIM(yesno)
 
@@ -660,70 +651,70 @@ SUBROUTINE setgriddefs
   ENDIF
 
   IF ( ifmol ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) 'MONIN-OBUKHOV LENGTH', TRIM(yesno)
 
   IF ( ifmolpx ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6155) 'MONIN-OBUKHOV LENGTH', TRIM(yesno)
 
   IF ( ifresist ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) 'AERODYNAMIC AND STOMATAL RESISTANCE', TRIM(yesno)
 
   IF ( ift2m ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) '2-m TEMPERATURE', TRIM(yesno)
 
   IF ( ifq2m ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) '2-m MIXING RATIO', TRIM(yesno)
 
   IF ( ifveg ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) 'VEGETATION FRACTION', TRIM(yesno)
 
   IF ( ifw10m ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) '10-m WIND', TRIM(yesno)
 
   IF ( ifwr ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) 'CANOPY WETNESS', TRIM(yesno)
 
   IF ( ifznt ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) 'ROUGHNESS LENGTH', TRIM(yesno)
 
   IF ( ifsoil ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
@@ -731,7 +722,7 @@ SUBROUTINE setgriddefs
   WRITE (*,f6175) 'SOIL MOISTURE, TEMPERATURE, AND TYPE', TRIM(yesno)
 
   IF ( iftke ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
@@ -743,7 +734,7 @@ SUBROUTINE setgriddefs
   ENDIF
 
   IF ( met_urban_phys >= 1 ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
@@ -752,18 +743,32 @@ SUBROUTINE setgriddefs
   ENDIF
 
   IF ( ifcld3d ) THEN
-    yesno = ' '
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
   WRITE (*,f6150) '3D RESOLVED CLOUD FRACTION', TRIM(yesno)
 
-  IF ( met_hybrid > 0 ) THEN
-    yesno = ' '
+  IF ( ifpxwrf41 ) THEN
+    yesno = ''
   ELSE
     yesno = 'NOT'
   ENDIF
-  WRITE (*,f6180) 'HYBRID VERTICAL COORDINATE (WRF ONLY)', TRIM(yesno)
+  WRITE (*,f6175) 'ADDITIONAL PX SURFACE VARIABLES', TRIM(yesno)
+
+  IF ( ifkfradextras ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6175) 'ADDITIONAL KF-RAD 3D VARIABLES', TRIM(yesno)
+
+  IF ( met_hybrid > 0 ) THEN
+    yesno = ''
+  ELSE
+    yesno = 'NOT'
+  ENDIF
+  WRITE (*,f6180) 'HYBRID VERTICAL COORDINATE', TRIM(yesno)
 
   WRITE (*,'(/)')
   WRITE (*,f6200) 'Met   ', met_nx,  met_ny,  metlay
