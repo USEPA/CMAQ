@@ -87,15 +87,9 @@ This section describes each of the input files required by the various CMAQ prog
 |[nr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[tr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |**Initial Condition Inputs**|  | | ||
-|[INIT_GASC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM |required|
-|[INIT_AERO_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
-|[INIT_NONR_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
-|[INIT_TRAC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM|required|
+|[INIT_CONC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM |required|
 |**Boundary Condition Inputs**| | | | ||
-|[BNDY_GASC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
-|[BNDY_AERO_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
-|[BNDY_NONR_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
-|[BNDY_TRAC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
+|[BNDY_CONC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
 |**MCIP**| | | | |||
 |[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>| GRDDED3 | Time-invariant | XY | MCIP|required|
 |[GRID_BDY_2D](#grid_bdy_2d) <a id=grid_bdy_2d_t></a>| BNDARY3 | Time-invariant | PERIM\*Z | MCIP|required|
