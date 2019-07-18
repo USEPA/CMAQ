@@ -24,9 +24,7 @@ This text input file has *N+1* lines where *N* is the number of desired location
 
 ## Significance and Impact
 
-This new feature incorporates directly into the CMAQ run script a post-processing step needed to evaluate 3D model data. Previously, the user would need to work with the 3D CONC output file to compare model output to vertical observations (Figure 1). The new CTM_VEXT_1 file contains model output for only the vertical columns of interest (Figure 2). The addition of this new diagnostic file enables the user to delete the full 3D CONC file after the model simulation is complete, thus dramatically reducing storage space required for model outputs when specific columns (e.g., sonde locations or aircraft or satellite) are all that are required.
-
-Note that the new feature can be used to extract columns for boundaries on a perimeter. However, the BCON tool does not currently support creating boundary conditions from the diagnostic profile files created by this option.  The addition of this option into the BCON preprocessor may be considered for a future release. 
+This new feature incorporates directly into the CMAQ run script a post-processing step needed to evaluate 3D model data. Previously, the user would need to work with the 3D CONC output file to compare model output to vertical observations (Figure 1). The new CTM_VEXT_1 file contains model output for only the vertical columns of interest (Figure 2). The addition of this new diagnostic file enables the user to delete the full 3D CONC file after the model simulation is complete, thus dramatically reducing storage space required for model outputs when specific columns (e.g., sonde locations or aircraft or satellite) are all that are required. Before deleting the full 3D CONC file, note that this file is needed by BCON to create boundary conditions for nested modeling domains.
 
 ![conc](conc_pic1.jpg) 
 
