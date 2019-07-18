@@ -51,19 +51,10 @@ As an illustration of interprocessor data access (Fig. D-3), consider the follow
 
 * sub-section data redistribution (Fig. D-5). This particular type of communication is being used in Process Analysis.
 
-![Figure D-6](../images/FigureD-6.png)
+![Figure D-5](../images/FigureD-5.png)
 
 **Figure D-5. Sub-section data redistribution communication**
 
-* The last two type of communication are interior to interior (Fig. D-6) and selective data collection (Fig. D-7) which both were used in PinG which is no longer supported in CMAQ.
-
-![Figure D-5](../images/FigureD-5.png)
-
-**Figure D-6. Interior to interior communication**
-
-![Figure D-7](../images/FigureD-7.png)
-
-**Figure D-7. Selective data collection**
 
 ## 3. Parallel I/O
 
