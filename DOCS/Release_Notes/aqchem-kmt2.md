@@ -12,11 +12,11 @@ Figure 1: KMT2 in-cloud mechanism updates
 
 ## Significance and Impact
 
-The species impacted and magnitude of effect depend heavily on season and domain. Previous simulations over the Eastern U.S. during June 2013 using CMAQv5.2 showed a surface-level increase in in-cloud SOA from small carbonyl compounds (AORGC) of 150-300+% compared to CMAQ's standard yield-based parameterization for GLY and MGLY+OH.  While the June 2013 average AORGC was <0.2&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>, max hourly change reached 3&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>. KMT2 shows elevated cloud SOA at the surface and aloft. For this simulation, AORGC made up ~2&#8209;6% of average surface SOA over much of the Eastern U.S., with the percentage increasing aloft. It is likely that the average for CMAQv5.3 will be somewhat lower.
+The species impacted and magnitude of effect depend heavily on season and domain. Previous simulations over the Eastern U.S. during June 2013 using CMAQv5.2 showed a surface-level increase in in-cloud SOA from small carbonyl compounds (AORGC) of 150-300+% compared to CMAQ's standard yield-based parameterization for GLY and MGLY+OH.  While the June 2013 average AORGC was <0.2&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>, max hourly change reached 3&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup>. KMT2 shows elevated cloud SOA at the surface and aloft. For the June 2013 simulation, AORGC made up ~2&#8209;6% of average surface SOA over much of the Eastern U.S., with the percentage increasing aloft. A recent hemispheric simulation showed monthly average changes in in-cloud SOA up to ~1&nbsp;&#956;g&nbsp;m<sup>&#8209;3</sup> in regions/seasons where oxidant levels and biogenic emissions were high and increased by at least a factor of 5 in much of the SE U.S. 
 
-In the winter, sulfate seems to be the most significantly impacted species. Recent hemispheric simulations for January 2016 saw a monthly average SO<sub>4</sub> increase of ~10&#8209;27% in Asia and the Eastern U.S. Nitrate decreases with a similar pattern to SO<sub>4</sub>. Monthly average O<sub>3</sub>, HCHO, and NO<sub>x</sub> saw small impacts over CONUS (<= ~2%), but one can see larger absolute impacts over shorter time periods and in other regions (e.g., change in average O<sub>3</sub> up to -11% in Asia). 
+In the winter, sulfate seems to be the most significantly impacted species. Recent hemispheric simulations for January 2016 saw a monthly average SO<sub>4</sub> increase of up to 17% in China and up to 34% in the United States. Nitrate decreased with a similar pattern to SO<sub>4</sub> increase. Monthly average O<sub>3</sub>, HCHO, and NO<sub>x</sub> saw small impacts over CONUS (typically within ~3%), but one can see larger absolute impacts over shorter time periods and in other regions (e.g., change in average O<sub>3</sub> up to -11% in Asia). 
 
-Impacts on CMAQ runtime also depend heavily on domain, season, and chemical mechanism, and they can be ~20% for some hemispheric applications, increasing from there.                  
+Impacts on CMAQ runtime also depend heavily on domain, season, and chemical mechanism, and they can be ~20-30% for some hemispheric applications, increasing from there.                  
 
 ## Affected Files
 
@@ -30,7 +30,7 @@ CCTM/src/MECHS/saprc07tic_ae7i_aqkmt2/AE_saprc07tic_ae7i_aq.nml
 
 Damian, V., Sandu, A., Damian, M., Potra, F., and G.R. Carmichael, The Kinetic PreProcessor KPP - A software environment for solving chemical kinetics, *Computers & Chemical Engineering*, **26**, 1567-1579, 2002.
 
-Fahey K., Carlton, A.G., Pye, H.O.T., Baek, J., Hutzell, W.T., Stanier, C.O., Baker, K.R, Appel, K.W, Jaoui, M., and J.H. Offenberg (2017) A framework for expanding aqueous chemistry in the Community Multiscale Air Quality (CMAQ) model version 5.1. *Geoscientific Model Development*
+Fahey K., Carlton, A.G., Pye, H.O.T., Baek, J., Hutzell, W.T., Stanier, C.O., Baker, K.R, Appel, K.W, Jaoui, M., and J.H. Offenberg (2017) A framework for expanding aqueous chemistry in the Community Multiscale Air Quality (CMAQ) model version 5.1. *Geoscientific Model Development*, **10**, 1587–1605, 2017.
 
 Leriche, M., J.-P. Pinty, C. Mari, and D. Gazen, A cloud chemistry module for the 3-D cloud-resolving mesoscale model Meso-NH with application to idealized cases, *Geoscientific Model Development*, **6**, 1275-1298, 2013
 
