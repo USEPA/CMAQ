@@ -7,7 +7,7 @@
 
 # 4. Model Input Files
 
-This chapter provides basic information on the format and content of CMAQ input files.  It also provides information on using the pre-processing tools provided in the repository for preparing initial and boundary conditions and meteorology inputs.  Links are provided for  the emissions processing tools that are released through their own repository or website.  A list of CMAQ input files can be found in [Table 4-1](#Input_Table). Some CMAQ input files are in ASCII format while the majority of them are in the [Network Common Data Form (netCDF)] format (http://www.unidata.ucar.edu/software/netcdf). CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
+This chapter provides basic information on the format and content of CMAQ input files.  It also provides information on using the pre-processing tools provided in the repository for preparing initial and boundary conditions and meteorology inputs.  Links are provided for  the emissions processing tools that are released through their own repository or website.  A list of CMAQ input files can be found in [Table 4-1](#Input_Table). Some CMAQ input files are in ASCII format while the majority of them are in the [Network Common Data Form (netCDF) format](http://www.unidata.ucar.edu/software/netcdf). CMAQ input and output files are self-describing netCDF-format files in which the file headers have all the dimensioning and descriptive information needed to define the resident data. Users should download the latest code for the NetCDF from the [NetCDF website](http://www.unidata.ucar.edu/software/netcdf). Compilation and configuration information for the NetCDF is available through the Unidata website.
 
 All CMAQ input and output files are conformed to I/O API netCDF file format. Please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html) for details.
 
@@ -98,7 +98,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[MET_CRO_2D](#met_cro_2d) <a id=met_cro_2d_t></a>| GRDDED3 | Hourly | XY | MCIP|required|
 |[MET_CRO_3D](#met_cro_3d) <a id=met_cro_3d_t></a>| GRDDED3 | Hourly | XYZ | MCIP|required|
 |[MET_DOT_3D](#met_dot_3d) <a id=met_dot_3d_t></a>| GRDDED3 | Hourly | (X+1)\*(Y+1)Z | MCIP|required|
-|[LUFRAC_CRO](#lufrac_cro) <a id=lufrac_cro_t></a>| GRDDED3 | Time-invariant | XYL | MCIP|optional (contains fractional landuse by category)|
+|[LUFRAC_CRO](#lufrac_cro) <a id=lufrac_cro_t></a>| GRDDED3 | Time-invariant | XYL | MCIP|required|
 |[SOI_CRO](#soi_cro) <a id=soi_cro_t></a>| GRDDED3 | Hourly | XYS | MCIP | optional (Contains soil moisture and soil temperature in layers. A two-layer representation of those fields is currently mirrored in MET_CRO_2D.)|
 |[MOSAIC_CRO](#mosaic_cro) <a id=mosaic_cro_t></a>| GRDDED3| Hourly| XYM | MCIP|optional (Contains surface fields in mosaic land use categories if Noah Mosaic LSM was run in WRF. Can work with STAGE deposition in CCTM.)|
 |[mcip.nc](#mcip) <a id=mcip_t></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
@@ -129,11 +129,11 @@ This section describes each of the input files required by the various CMAQ prog
 
 Used by: ICON, BCON, CCTM
 
-The CMAQ grid description file (**GRIDDESC**) is an ASCII file that contains two sections: a horizontal coordinate section, and grid description section.  The GRIDDESC file is generated automatically with MCIP; alternatively, GRIDDESC can be created using a text editor.
+The CMAQ grid description file (**GRIDDESC**) is an ASCII file that contains two sections: a horizontal coordinate section, and domain description section. The GRIDDESC file is generated automatically by MCIP; alternatively, GRIDDESC can be created using a text editor.
 
-The horizontal coordinate section consists of text records that provide the coordinate-system name, the map projection, and descriptive parameters that are relevant to the projection type (e.g. longitude for coordinate system center)
+The horizontal coordinate section consists of text records that provide the coordinate-system name, the map projection, and descriptive parameters that define the projection.  This section is used to provide projection information that is used by a family of nested domains, where the coordinate-system name is shared by each of the domains. 
 
-The grid description section consists of text records that indicate the grid name, related coordinate-system name (i.e., which GRIDDESC horizontal coordinate name that is defined in the previous section that is applied to this grid), and descriptive parameters for the coordinates of the lower-left corner of the grid, grid cell size, number of columns, and rows. For a typical CMAQ application, both "dot-point" and "cross-point" grids are defined in the GRIDDESC file; these grids are topological duals in the sense that the vertices (corners) of one correspond to the cell-centers of the other. There are at most 32 coordinate systems and 256 grids listed in one of these files. These files are small enough to be archived easily with a study and have a sufficiently simple format that new ones can easily be constructed "by hand."
+The grid description section consists of text records that indicate the grid name, related coordinate-system name (i.e., which GRIDDESC horizontal coordinate name that is defined in the previous section that is applied to this grid), and descriptive parameters for the coordinates of the lower-left corner of the grid, grid cell size, number of columns, and rows. There are at most 32 coordinate systems and 256 grids that can be listed in one of these files. These files are small enough to be archived easily with a study and have a sufficiently simple format that can easily be constructed "by hand."  The elements of the GRIDDESC files are typically included with the metadata for the output files in the CMAQ system.
 
 An example of a GRIDDESC file is shown below:
 
@@ -151,9 +151,9 @@ An example of a GRIDDESC file is shown below:
 
 ` ' '`
 
-The horizontal coordinate section (first section) in this example GRIDDESC file defines a horizontal coordinate named “LAM_40N100W”. The coordinate definition is for a Lambert conformal grid, keyed by the first column of the coordinate description line, which corresponds to the numeric code for the various I/O API-supported grid types (2 = Lambert). The next three parameters (P_ALP, P_BET, and P_GAM) have different definitions for different map projections. For Lambert conformal, P_ALP and P_BET are the true latitudes of the projection cone (30°N and 60°N in the example), and P_GAM (100°W in the example) is the central meridian of the projection. The last two parameters, XCENT and YCENT, are the latitude-longitude coordinates of the grid center of the Cartesian coordinate system, which are 100°W and 40°N in the example. If using WRF-ARW as the meteorological model, the user should be aware of differences from this method.
+The horizontal coordinate section (first section) in this example GRIDDESC file defines a horizontal coordinate named “LAM_40N100W”. The coordinate definition is for a Lambert conformal grid, keyed by the first column of the coordinate description line, which corresponds to the numeric code for the various I/O API-supported grid types (2 = Lambert). The next three parameters (P_ALP, P_BET, and P_GAM) have different definitions for different map projections. For Lambert conformal, P_ALP and P_BET are the true latitudes of the projection cone (30°N and 60°N in the example), and P_GAM (100°W in the example) is the central meridian of the projection. The last two parameters, XCENT and YCENT, are the reference longitude and latitude for the domain, which are 100°W and 40°N in the example.
 
-The example grid definition section above describes a grid named “M_32_99TUT02”. The definition of the grid begins with a reference to a coordinate name from the coordinate definition section of the file; in this example, the coordinate named “LAM_40N100W” is referenced in the grid definition. The next two parameters in the grid definition (XORIG and YORIG) are the east-west and north-south offsets from XCENT and YCENT in meters (WRF-ARW usages may differ). The next two parameters (XCELL and YCELL) are the horizontal grid spacing in meters for the X and Y directions (i.e., delta-x and delta-y). The next two parameters (NCOLS and NROWS) are the numbers of grid cells in the X and Y directions. The grid definition concludes with the number of boundary cells, NTHIK, which is typically set to 1.
+The second section in the example describes a domain named “M_32_99TUT02”. In this example, the coordinate named “LAM_40N100W” is referenced in the domain definition. The next two parameters in the domain definition (XORIG and YORIG) are the east-west and north-south offsets from XCENT and YCENT in meters. The next two parameters (XCELL and YCELL) are the horizontal grid spacing in meters for the X and Y directions (i.e., &#916;x and &#916;y). The next two parameters (NCOLS and NROWS) are the numbers of grid cells in the X and Y directions. The grid definition concludes with the number of boundary cells, NTHIK, which is typically set to 1. Note that the number of boundary cells for CMAQ differs from that used by WRF.
 
 Additional information about the parameters in the GRIDDESC file can be found in the [I/O API Documentation](https://www.cmascenter.org/ioapi/documentation/all_versions/html/GRIDS.html).
 
@@ -267,6 +267,7 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 - GRIDDESC:     Grid description used throughout the CMAQ System
 - mcip.nc:      All time-invariant and time-varying 2D and 3D fields (all dimensions)
 - mcip_bdy.nc:  All required time-invariant and time-varying 2D and 3D fields along lateral boundaries
+
 [Return to Table 4-1](#grid_cro_2d_t)
 
 Used by: ICON, BCON, CCTM, and some optional programs
