@@ -172,7 +172,7 @@ setenv FL_ERR_STOP N         #> stop on inconsistent input files
 setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ options: T | F ]
 setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
-setenv CTM_EMISCHK Y         #> Abort CMAQ if missing surrogates from emissions Input files
+setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
 setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
                              #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
                              #>   Individual streams can be modified using the variables:
@@ -298,7 +298,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MET_CRO_3D $METpath/METCRO3D_${YYMMDD}.nc
   setenv MET_DOT_3D $METpath/METDOT3D_${YYMMDD}.nc
   setenv MET_BDY_3D $METpath/METBDY3D_${YYMMDD}.nc
-# setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYMMDD}.nc
+  setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYMMDD}.nc
 
   #> Emissions Control File
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml

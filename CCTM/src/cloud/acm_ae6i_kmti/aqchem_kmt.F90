@@ -284,6 +284,11 @@
            XMSG = 'STM option not implemented in KMT AQCHEM'
            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
         END IF
+        
+#ifdef isam
+        XMSG = 'Source Apportionment is not implemented in KMT AQCHEM'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+#endif        
 
 !... set MW ratios and speciation factors for molar concentrations of coarse
 !... soluble aerosols

@@ -76,43 +76,36 @@ set ParOpt                             #> uncomment to build a multiple processo
 #>   archive for a list of the possible settings. Users 
 #>   may also refer to the CMAQ documentation.
 
- set ModDriver = driver/wrf            #> generalized coordinate driver module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/driver)
- set ModInit   = init/yamo             #> time-step initialization module 
- set ModGrid   = grid/cartesian        #> grid configuration module 
- set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/couple)
- set DepMod    = m3dry                 #> m3dry or stage
-
+ set ModGrid   = grid/cartesian             #> grid configuration module 
+ 
+ set DepMod    = m3dry                      #> m3dry or stage
 #set DepMod    = stage
- set ModHadv   = hadv/ppm              #> horizontal advection module
- set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
- set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
- set ModVdiff  = vdiff/acm2_${DepMod}  #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
- set ModDepv   = depv/${DepMod}        #> deposition velocity calculation module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/depv)
- set ModEmis   = emis/emis             #> in-line emissions module
- set ModBiog   = biog/beis3            #> BEIS3 in-line emissions module 
- set ModPlmrs  = plrise/smoke          #> in-line emissions plume rise
- set ModCgrds  = spcs/cgrid_spcs_nml   #> chemistry species configuration module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/spcs)
- set ModPhot   = phot/inline           #> photolysis calculation module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/phot)
- set Mechanism = cb6r3_ae7_aq          #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
- set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
-                                       #> use gas/ros3 or gas/smvgear for a solver independent 
-                                       #  of the photochemical mechanism
- set ModAero   = aero/aero7            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
- set ModCloud  = cloud/acm_ae7         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
-                                       #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
- set ModUtil   = util/util             #> CCTM utility modules
- set ModDiag   = diag                  #> CCTM diagnostic modules
- set Tracer    = trac0                 #> tracer configuration directory under 
-                                       #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
- set ModPa     = procan/pa             #> CCTM process analysis
- set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphere
- set ModStm    = stm                   #> STM utility module and namelist
- set ModISAM   = isam                  #> CCTM Integrated Source Apportionment Method
+ set ModAdv    = wrf_cons                   #> 3-D Advection Scheme [Options: wrf_cons (default), local_cons]
+ set ModHdiff  = hdiff/multiscale           #> horizontal diffusion module
+ set ModVdiff  = vdiff/acm2_${DepMod}       #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
+ set ModDepv   = depv/${DepMod}             #> deposition velocity calculation module 
+                                            #>     (see $CMAQ_MODEL/CCTM/src/depv)
+ set ModEmis   = emis/emis                  #> in-line emissions module
+ set ModBiog   = biog/beis3                 #> BEIS3 in-line emissions module 
+ set ModPlmrs  = plrise/smoke               #> in-line emissions plume rise
+ set ModCgrds  = spcs/cgrid_spcs_nml        #> chemistry species configuration module 
+                                            #>     (see $CMAQ_MODEL/CCTM/src/spcs)
+ set ModPhot   = phot/inline                #> photolysis calculation module 
+                                            #>     (see $CMAQ_MODEL/CCTM/src/phot)
+ set Mechanism = cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ set ModGas    = gas/ebi_${Mechanism}       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+                                            #> use gas/ros3 or gas/smvgear for a solver independent 
+                                            #  of the photochemical mechanism
+ set ModAero   = aero/aero7                 #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+ set ModCloud  = cloud/acm_ae7              #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+                                            #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
+ set ModUtil   = util/util                  #> CCTM utility modules
+ set ModDiag   = diag                       #> CCTM diagnostic modules
+ set Tracer    = trac0                      #> tracer configuration directory under 
+                                            #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
+ set ModPa     = procan/pa                  #> CCTM process analysis
+ set ModPvO3   = pv_o3                      #> potential vorticity from the free troposphere
+ set ModISAM   = isam                       #> CCTM Integrated Source Apportionment Method
 
 #============================================================================================
 #> Computing System Configuration:
@@ -316,6 +309,21 @@ set ParOpt                             #> uncomment to build a multiple processo
               -DSUBST_DATA_COPY=${Popt}_DATA_COPY\
               -DSUBST_IN_SYN=${Popt}_IN_SYN )
 
+
+#> 3-D Advection Options
+ if ( $ModAdv == wrf_cons ) then
+    set ModCpl    = couple/gencoor_wrf_cons    #> unit conversion and concentration coupling module 
+                                               #>     (see $CMAQ_MODEL/CCTM/src/couple)
+    set ModHadv   = hadv/ppm                   #> horizontal advection module   
+    set ModVadv   = vadv/wrf_cons              #> Vertical advection module                             
+ else if ($ModAdv == local_cons) then
+    set ModCpl    = couple/gencoor_local_cons  #> unit conversion and concentration coupling module 
+                                               #>     (see $CMAQ_MODEL/CCTM/src/couple)
+    set ModHadv = hadv/ppm                     #> horizontal advection module
+    set ModVadv = vadv/local_cons              #> Vertical advection module
+ endif
+
+
 # ============================================================================
 #> Create Config File 
 # ============================================================================
@@ -408,9 +416,9 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     echo                                                           >> $Cfile
  endif
 
- set text = "wrf and yamo"
+ set text = "driver"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModDriver};"                                       >> $Cfile
+ echo "Module driver;"                                             >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "cartesian"
@@ -418,22 +426,22 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGrid};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "yamo"
+ set text = "Init"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModInit};"                                         >> $Cfile
+ echo "Module init;"                                               >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "gencoor_wrf and gencoor"
+ set text = "gencoor_wrf_cons and gencoor_local_cons"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModCpl};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "ppm and yamo"
+ set text = "ppm"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModHadv};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "wrf and yamo"
+ set text = "wrf_cons and local_cons"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModVadv};"                                         >> $Cfile
  echo                                                              >> $Cfile
@@ -538,7 +546,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
 
  set text = "stm"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModStm};"                                          >> $Cfile
+ echo "Module stm;"                                                >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "cio"
