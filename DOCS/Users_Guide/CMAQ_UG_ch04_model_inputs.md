@@ -466,7 +466,9 @@ This file contains the following variables interpolated to the modeling grid:
 
 Used by: CCTM
 
-The CMAQ aerosol models AERO5 and AERO6 can compute sea spray emissions from both open ocean grid cells and surf zone grid cells. The addition of the surf zone option simulates the elevated emissions rates of sea salt in coastal regions where wave action occurs. The OCEAN_1 file contains data on the fraction of each grid cell that is either open ocean (OPEN) or in the surf zone (SURF). When CCTM is compiled with AERO5 or AERO6, it will expect the OCEAN_1 file as input.
+The CMAQ sea spray emissions module requires the input of an ocean mask file (OCEAN). OCEAN is a time-independent I/O API file that identifies the fractional [0-1] coverage in each model grid cell allocated to open ocean (OPEN) or surf zone (SURF). The CCTM uses this coverage information to calculate sea spray emission fluxes from the model grid cells online during a CCTM run.
+
+Additionally, CMAQ's gas-phase chemical mechanisms except cb6r3m_ae7_kmtbr contain an effective first order halogen mediated ozone loss over the ocean (where OPEN + SURF > 0.0). The OCEAN file is also required for this process. The cb6r3m_ae7_kmtbr mechanism contains more explicit marine chemistry, but also requires the OCEAN file.
 
 See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this file. 
 
