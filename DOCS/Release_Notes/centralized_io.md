@@ -1,5 +1,4 @@
-# Release Note Title
-
+# New Centralized Input/Output Module (CIO)
  
 
 [David Wong](wong.david-c@epa.gov), Computational Exposure Division, U.S. EPA
@@ -7,7 +6,7 @@
  
 ## Brief Description
 
-Centralized I/O (CIO) idea put all the OPEN3, DESC3, EXTRACT3, and interpolation function (INTERPX and INTERPB) into one location (module). This in line with object-oriented programming practice to encapsulate the I/O process in the model. The highlights of this implementation includes:
+The idea behind the new centralized I/O (CIO) module in CMAQv5.3 is to put all the OPEN3, DESC3, EXTRACT3, and interpolation functions (INTERPX and INTERPB) into one location. This is consistent with with object-oriented programming practices to encapsulate the I/O process in the model. The highlights of this implementation includes:
 
 * Encapsulation is done in two new modules: CENTRALIZED_IO_MODULE and CENTRALIZED_IO_UTIL_MODULE.
 * Variables are categorized as either time-dependent or time-independent. Two timesteps of data of a time dependent 
