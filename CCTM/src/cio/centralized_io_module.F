@@ -1,4 +1,5 @@
-!------------------------------------------------------------------------!  !  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
 !  from these groups: Federal Government employees, contractors working  !
 !  within a United States Government contract, and non-Federal sources   !
@@ -3569,6 +3570,9 @@ C   mminlu and num_land_cat are WRF global variables
                 tail_end_ind  = cio_grid_data_inx(2,loc_tail,var_loc)
                 store_beg_ind = cio_grid_data_inx(1,2,var_loc)
                 store_end_ind = cio_grid_data_inx(2,2,var_loc)
+                
+                cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
+     &                                                          + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
              end if
  
              adj_lvl = 0
