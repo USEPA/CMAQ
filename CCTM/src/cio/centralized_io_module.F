@@ -67,7 +67,7 @@
         integer, parameter :: f_met_dot_3d  = 3
 
         CHARACTER( 40 ), parameter :: NLDN_STRIKES = 'NLDN_STRIKES'
-        CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_GASC_1'
+        CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_CONC_1'
         CHARACTER( 40 ), parameter :: ISAM_PREVDAY = 'ISAM_PREVDAY'
 
         integer :: file_sdate(max_nfiles)
@@ -894,12 +894,12 @@
           end if
 
 ! BCON file
-          IF ( .NOT. OPEN3( BNDY_GASC_1, FSREAD3, PNAME ) ) THEN
-             XMSG = 'Could not open '// BNDY_GASC_1 // ' file'
+          IF ( .NOT. OPEN3( BNDY_CONC_1, FSREAD3, PNAME ) ) THEN
+             XMSG = 'Could not open '// BNDY_CONC_1 // ' file'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-          IF ( .NOT. DESC3( BNDY_GASC_1 ) ) THEN
-             XMSG = 'Could not get description of file  '// BNDY_GASC_1 
+          IF ( .NOT. DESC3( BNDY_CONC_1 ) ) THEN
+             XMSG = 'Could not get description of file  '// BNDY_CONC_1 
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
           n_b3d = nvars3d
@@ -2500,7 +2500,7 @@ C Read the various categories of normalized emissions
                    END IF
                 else if ((cio_bndy_var_name(v,2) == 'b') .or.
      &                   (cio_bndy_var_name(v,2) == 'bt')) then
-                   if (.not. read3 (BNDY_GASC_1, cio_bndy_var_name(v,1), -1,
+                   if (.not. read3 (BNDY_CONC_1, cio_bndy_var_name(v,1), -1,
      &                              loc_jdate, loc_jtime, cio_bndy_data(begin:end) ) ) THEN
                       XMSG = 'Could not read ' // MET_BDY_3D // ' file'
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
