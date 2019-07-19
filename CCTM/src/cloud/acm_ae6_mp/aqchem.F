@@ -558,6 +558,11 @@ C...  use Henry`s law constant for glyoxal as a surrogate for methyl glyoxal
            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
         END IF
 
+#ifdef isam
+        XMSG = 'Source Apportionment is not implemented in multipollutant version of AQCHEM'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+#endif        
+
 C... set MW ratios and speciation factors for molar concentrations of coarse
 C... soluble aerosols
 

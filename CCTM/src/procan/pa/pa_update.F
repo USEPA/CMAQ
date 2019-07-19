@@ -235,10 +235,10 @@ C Local Variables:
       REAL :: X3FACE( 0:NLAYS )   ! vertical coordinate layer surface
 
       INTERFACE
-         SUBROUTINE DECOUPLE ( CONC, JDATE, JTIME )
+         SUBROUTINE DECOUPLE_PA ( CONC, JDATE, JTIME )
             REAL,    INTENT( INOUT ) :: CONC( :,:,:,: )
             INTEGER, INTENT( IN ) :: JDATE, JTIME
-         END SUBROUTINE DECOUPLE
+         END SUBROUTINE DECOUPLE_PA
       END INTERFACE
 
 C-----------------------------------------------------------------------
@@ -276,7 +276,7 @@ C Get process index and convert units if necessary
       IF ( LCOUPLE ) THEN
          SDATE = JDATE; STIME = JTIME
          CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
-         CALL DECOUPLE( CNGRD, SDATE, STIME )
+         CALL DECOUPLE_PA( CNGRD, SDATE, STIME )
       END IF
 
 C..Compute delta conc for this process if requested
@@ -684,7 +684,7 @@ C-----------------------------------------------------------------------
       END SUBROUTINE PA_UPDATE_AERO
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE DECOUPLE ( CONC, JDATE, JTIME )
+      SUBROUTINE DECOUPLE_PA ( CONC, JDATE, JTIME )
 C-----------------------------------------------------------------------
 C Function:
 C   Convert units and decouple concentration values in CGRID from transport
@@ -728,7 +728,7 @@ C File Variables:
       REAL       RRHOJ  ( NCOLS,NROWS,NLAYS )  ! reciprocal Jacobian * air density
 
 C Local Variables:
-      CHARACTER( 16 ) :: PNAME = 'DECOUPLE'
+      CHARACTER( 16 ) :: PNAME = 'DECOUPLE_PA'
       CHARACTER( 16 ) :: VNAME
       CHARACTER( 96 ) :: XMSG = ' '
 
@@ -764,4 +764,4 @@ C be modified. Use DIFF_MAP
 
       RETURN
 
-      END SUBROUTINE DECOUPLE
+      END SUBROUTINE DECOUPLE_PA
