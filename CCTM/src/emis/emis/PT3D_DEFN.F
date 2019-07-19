@@ -141,7 +141,7 @@ C=======================================================================
      &                      METCGRID, METCXORIG, METCYORIG, XCELLCG, YCELLCG, 
      &                      METDGRID, METDXORIG, METDYORIG, XCELLDG, YCELLDG
          USE UTILIO_DEFN
-         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE,
+         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE, STDATE, STTIME,
      &                           PT_TIME, PT_NSTEPS, REP_LAYR
          USE EMIS_VARS, ONLY: EMLAYS, EMLAYS_MX
          USE BMATVEC_MODULE, ONLY: BMATVECN
@@ -265,8 +265,8 @@ C get diagnostic files options
 
 C get scenario timing
 
-         JDATE = PT_DATE
-         JTIME = PT_TIME
+         PT_DATE = JDATE 
+         PT_TIME = JTIME
 
 C open met files
 

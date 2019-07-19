@@ -212,7 +212,7 @@
       LOGICAL :: PT3DDIAG      = .FALSE. ! Write point source 3d emis diagnostic file
       LOGICAL :: PT3DFRAC      = .FALSE. ! Write layer fractions diagnostic file, if true
       INTEGER :: PT_NSTEPS     = 1
-      INTEGER :: PT_DATE       = 0       ! Julian start date (YYYYDDD)
+      INTEGER :: PT_DATE       = 1995192 ! Julian start date (YYYYDDD)
       INTEGER :: PT_TIME       = 0       ! start time (HHMMSS)
       INTEGER :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
