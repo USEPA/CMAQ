@@ -416,7 +416,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `PA_BLEV_ELEV [default: 0]`<a id=PA_BLEV_ELEV></a>  
     Modeling grid domain layer range for the process analysis calculations. Set to the two digits representing the bottom and top layer numbers bounding the process analysis domain.  
 -   `PACM_INFILE` <a id=PACM_INFILE></a>  
-     Input file that specifies the desired output information (read by pa_read.F). See Table 1 in [Chapter 10](../CMAQ_UG_ch10_process_analysis.md) for details on the types of equations and operators that can be used in this file. A sample file is included in each of the mechanism folders under the CCTM/src/MECHS directory. For example, the file pa_cb6r3_ae7_aq.ctl in CCTM/src/MECHS/cb6r3_ae7_aq provides a template of IRR and IPR commands.
+     Input file that specifies the desired output information (read by pa_read.F). See Table 1 in [Chapter 9](../CMAQ_UG_ch09_process_analysis.md) for details on the types of equations and operators that can be used in this file. A sample file is included in each of the mechanism folders under the CCTM/src/MECHS directory. For example, the file pa_cb6r3_ae7_aq.ctl in CCTM/src/MECHS/cb6r3_ae7_aq provides a template of IRR and IPR commands.
 -   `PACM_REPORT` <a id=PACM_REPORT></a>  
      The output file that displays how CMAQ translates the variables listed in `PACM_INFILE`, and lists the reactions (including reactants, products and yields) that will be used in calculating the IPR and IRR values.  
 
