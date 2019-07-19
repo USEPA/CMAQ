@@ -36,7 +36,7 @@ echo 'Start Model Run At ' `date`
  set VRSN      = v53               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set EMIS      = 2016ef            #> Emission Inventory Details
+ set EMIS      = 2016ff            #> Emission Inventory Details
  set APPL      = 2016_CONUS        #> Application Name (e.g. Gridname)
 
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -215,8 +215,9 @@ setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ de
 
 set ICpath    = $INPDIR/icbc              #> initial conditions input directory
 set BCpath    = $INPDIR/icbc              #> boundary conditions input directory
-set EMISpath  = $INPDIR/emis/cb6r3_ae6_20180730/cmaq_ready/gridded #> surface emissions input directory
-set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20180730/cmaq_ready  #> elevated emissions input directory (in-line point only)
+set EMISpath  = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/gridded #> surface emissions input directory
+set EMISpath2 = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/rwc	#> surface residential wood combustion emissions directory
+set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready  #> elevated emissions input directory (in-line point only)
 set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v43_wrf_v381_ltng              #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
@@ -268,7 +269,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE ICON_cb6r3_ae6_profile_12US1_timeind
+     setenv ICFILE ICON_v53_12US1_regrid_20151222
      setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
@@ -321,16 +322,20 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set all      = `echo $intable[8] | cut -d, -f1`
 
   #> Gridded Emissions files
-  setenv N_EMIS_GR 1
-  set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_nobeis_2016fe_16j.ncf
+  setenv N_EMIS_GR 2
+  set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_nobeis_2016ff_16j.ncf
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
 
+  set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016ff_16j.ncf
+  setenv GR_EMIS_002 ${EMISpath2}/${EMISfile}
+  setenv GR_EMIS_LAB_002 GRIDDED_RWC
+ 
   #> In-Line Point Emissions Files
   setenv N_EMIS_PT 8          #> Number of elevated source groups
 
-  set STKCASEE = 12US1_cmaq_cb6_2016fe_16j  # In-line Emission Rate File Suffix
-  set STKCASEG = 12US1_2016fe_16j                 # Stack parameter File Suffix
+  set STKCASEE = 12US1_cmaq_cb6_2016ff_16j  # In-line Emission Rate File Suffix
+  set STKCASEG = 12US1_2016ff_16j                 # Stack parameter File Suffix
 
   setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
   setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
