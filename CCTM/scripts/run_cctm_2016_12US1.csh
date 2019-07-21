@@ -36,7 +36,7 @@ echo 'Start Model Run At ' `date`
  set VRSN      = v53               #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set EMIS      = 2016ef            #> Emission Inventory Details
+ set EMIS      = 2016ff            #> Emission Inventory Details
  set APPL      = 2016_CONUS        #> Application Name (e.g. Gridname)
 
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -205,9 +205,6 @@ setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default:
 setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
 setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N ]
-setenv PT3DDIAG N            #> 3D point source emissions diagnostic file [ default: N];
-setenv PT3DFRAC N            #> layer fractions diagnostic file(s) [ default: N];
-setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ default: -1 ]
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -215,8 +212,9 @@ setenv REP_LAYER_MIN -1      #> Minimum layer for reporting plume rise info [ de
 
 set ICpath    = $INPDIR/icbc              #> initial conditions input directory
 set BCpath    = $INPDIR/icbc              #> boundary conditions input directory
-set EMISpath  = $INPDIR/emis/cb6r3_ae6_20180730/cmaq_ready/gridded #> surface emissions input directory
-set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20180730/cmaq_ready  #> elevated emissions input directory (in-line point only)
+set EMISpath  = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/gridded #> surface emissions input directory
+set EMISpath2 = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/rwc	#> surface residential wood combustion emissions directory
+set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready  #> elevated emissions input directory (in-line point only)
 set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v43_wrf_v381_ltng              #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
@@ -268,7 +266,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Initial conditions
   if ($NEW_START == true || $NEW_START == TRUE ) then
-     setenv ICFILE ICON_cb6r3_ae6_profile_12US1_timeind
+     setenv ICFILE ICON_v53_12US1_regrid_20151222
      setenv INIT_MEDC_1 notused
      setenv INITIAL_RUN Y #related to restart soil information file
   else
@@ -278,8 +276,9 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv INITIAL_RUN N
   endif
 
-  #> Boundary conditions
-  set BCFILE = bctr_12km_HCMAQ_V53BETA_RUNC_cb6r3m_ae7_kmtbr_BCON_V53_mapped_cb6r3_ae7_${YYYYMM}.ncf
+  #> Boundary conditions, use STAGE files if CCTM uses the stage option for depv
+# set BCFILE = bctr_12km_HCMAQ_V53BETA2_STAGE_cb6r3m_ae7_kmtbr_BCON_V53_${YYYYMM}.ncf
+  set BCFILE = bctr_12km_HCMAQ_V53BETA2_HONO_RUND_M3DRY_cb6r3m_ae7_kmtbr_BCON_V53_${YYYYMM}.ncf
 
   #> Off-line photolysis rates 
   #set JVALfile  = JTABLE_${YYYYJJJ}
@@ -320,16 +319,20 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set all      = `echo $intable[8] | cut -d, -f1`
 
   #> Gridded Emissions files
-  setenv N_EMIS_GR 1
-  set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_nobeis_2016fe_16j.ncf
+  setenv N_EMIS_GR 2
+  set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_nobeis_2016ff_16j.ncf
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
 
+  set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016ff_16j.ncf
+  setenv GR_EMIS_002 ${EMISpath2}/${EMISfile}
+  setenv GR_EMIS_LAB_002 GRIDDED_RWC
+ 
   #> In-Line Point Emissions Files
   setenv N_EMIS_PT 8          #> Number of elevated source groups
 
-  set STKCASEE = 12US1_cmaq_cb6_2016fe_16j  # In-line Emission Rate File Suffix
-  set STKCASEG = 12US1_2016fe_16j                 # Stack parameter File Suffix
+  set STKCASEE = 12US1_cmaq_cb6_2016ff_16j  # In-line Emission Rate File Suffix
+  set STKCASEG = 12US1_2016ff_16j                 # Stack parameter File Suffix
 
   setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
   setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
@@ -478,7 +481,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv MEDIA_CONC      "$OUTDIR/CCTM_MEDIA_CONC_${CTM_APPL}.nc -v" #> NH3 Conc. in Media
   setenv CTM_DRY_DEP_1   "$OUTDIR/CCTM_DRYDEP_${CTM_APPL}.nc -v"     #> Hourly Dry Deposition
   setenv CTM_DEPV_DIAG   "$OUTDIR/CCTM_DEPV_${CTM_APPL}.nc -v"       #> Dry Deposition Velocities
-  setenv CTM_PT3D_DIAG   "$OUTDIR/CCTM_PT3D_${CTM_APPL}.nc -v"       #> Point Source Emissions by Layer
   setenv B3GTS_S         "$OUTDIR/CCTM_B3GTS_S_${CTM_APPL}.nc -v"    #> Biogenic Emissions
   setenv SOILOUT         "$OUTDIR/CCTM_SOILOUT_${CTM_APPL}.nc"       #> Soil Emissions
   setenv CTM_WET_DEP_1   "$OUTDIR/CCTM_WETDEP1_${CTM_APPL}.nc -v"    #> Wet Dep From All Clouds
@@ -515,7 +517,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set log_test = `cat buff.txt`; rm -f buff.txt
 
   set OUT_FILES = (${FLOOR_FILE} ${S_CGRID} ${CTM_CONC_1} ${A_CONC_1} ${MEDIA_CONC}         \
-             ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $CTM_PT3D_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
+             ${CTM_DRY_DEP_1} $CTM_DEPV_DIAG $B3GTS_S $SOILOUT $CTM_WET_DEP_1\
              $CTM_WET_DEP_2 $CTM_PMDIAG_1 $CTM_APMDIAG_1             \
              $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
@@ -575,14 +577,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_STTIME      $STTIME
   setenv CTM_RUNLEN      $NSTEPS
   setenv CTM_TSTEP       $TSTEP
-  setenv INIT_GASC_1 $ICpath/$ICFILE
-  setenv INIT_AERO_1 $INIT_GASC_1
-  setenv INIT_NONR_1 $INIT_GASC_1
-  setenv INIT_TRAC_1 $INIT_GASC_1
-  setenv BNDY_GASC_1 $BCpath/$BCFILE
-  setenv BNDY_AERO_1 $BNDY_GASC_1
-  setenv BNDY_NONR_1 $BNDY_GASC_1
-  setenv BNDY_TRAC_1 $BNDY_GASC_1
+  setenv INIT_CONC_1 $ICpath/$ICFILE
+  setenv BNDY_CONC_1 $BCpath/$BCFILE
   setenv OMI $OMIpath/$OMIfile
   setenv OPTICS_DATA $OMIpath/$OPTfile
   #setenv XJ_DATA $JVALpath/$JVALfile
