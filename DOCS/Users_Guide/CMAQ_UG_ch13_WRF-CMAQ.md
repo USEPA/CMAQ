@@ -7,7 +7,7 @@
 
 # 13. WRF-CMAQ Coupled Model
 
-## 13.1 Overview
+## 13.1 Introduction
 Air quality models are typically run in two different ways:
 * Standalone – Archived output from a meteorological model is used to drive the air quality model.
 * Coupled – The air quality and meteorological models are run simultaneously and the chemistry can impact the weather.

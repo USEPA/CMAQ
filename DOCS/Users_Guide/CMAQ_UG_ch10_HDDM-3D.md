@@ -7,7 +7,7 @@
 
 # 10. Decoupled Direct Method in Three Dimensions (CMAQ-DDM-3D)
 
-## 10.1 Overview
+## 10.1 Introduction
 
 The Decoupled Direct Method in Three Dimensions (DDM-3D) provides CMAQ concentration and deposition sensitivity information for user specified model parameters.
 

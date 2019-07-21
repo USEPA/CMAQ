@@ -19,7 +19,7 @@ The following link summarizes the main updates to these utility programs since t
 * **[writesite](writesite/README.md)**: user can generate a csv file from an IOAPI data file for a set of species at defined site locations.
 
 ## Observed data for model evaluation
-The formatted observation data files needed for running the sitecmp and sitecmp_dailyo3 utilities are available for 2000 through 2015 from the CMAS Center Data Clearinghouse under the heading "2000-2015 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.
+The formatted observation data files needed for running the sitecmp and sitecmp_dailyo3 utilities are available for 2000 through 2017 from the CMAS Center Data Clearinghouse under the heading "2000-2017 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.
 
 ## A note on model-observation pairing for model evaluation
 The task of matching model simulations to observations is performed by the sitecmp and sitecmp_dailyo3 utility programs. Documentation on how these programs handle matching model and observed species in space and time is provided in [Chapter 8 of the CMAQ User's Guide](../DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.md).

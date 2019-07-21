@@ -7,7 +7,7 @@
 
 # 9. Process Analysis
 
-## 9.1 Overview 
+## 9.1 Introduction
 Most applications of CMAQ, as well as other 3-D grid models, output concentration fields of chemical species of interest at selected time steps that reflect the cumulative effect of all processes (emissions, chemical reaction, transport, etc.) that act on the chemical species over the time period.  While concentrations are useful per se, knowing only the net result of all processes can limit the understanding of *why* the concentrations are the levels that are calculated.  For some applications, the user may want to unravel this net impact and examine the quantitative impact of the individual processes, to identify those which are most important or uncertain. Process Analysis (PA) is a technique for separating out and quantifying the contributions of individual physical and chemical processes to the changes in the predicted concentrations of a pollutant. PA does *not* have to be activated in a CMAQ simulation but including PA in a simulation during runtime provides additional information that can be useful in interpreting CMAQ results. PA has two components:  Integrated Process Rate (IPR) analysis, and Integrated Reaction Rate (IRR) analysis. IPR analysis quantifies the net change in species through physical processes of advection, diffusion, emissions, dry deposition, aerosol processes, and cloud processes, and the overall impact of chemical processes. IRR analysis allows the output of individual chemical reaction rates or user-specified combinations of chemical reactions and species cycling.
 
 As a tool for identifying the relative importance of individual chemical and physical processes, PA has many applications, including:

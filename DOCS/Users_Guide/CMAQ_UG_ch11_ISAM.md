@@ -6,7 +6,7 @@
 <!-- END COMMENT -->
 
 # 11. Integrated Source Apportionment Method (CMAQ-ISAM)
-## 11.1 Overview
+## 11.1 Introduction
 
 The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated in the CMAQv5.3 release.
 
