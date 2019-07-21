@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE COUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
+      SUBROUTINE COUPLE ( CGRID, JDATE, JTIME, TSTEP )
 
 C-----------------------------------------------------------------------
 C Function:
@@ -46,6 +46,7 @@ C   11 Oct 11 J.Young: eliminate ppmv_msmr
 C   15 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C   01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all
 C                     MY_N clauses
+C   10 July 19 F. Sidi: Renamed Subroutine
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -83,7 +84,7 @@ C File Variables:
       REAL     :: RHOJ  ( NCOLS,NROWS,NLAYS )  !"total" Jacobian * air density
 
 C Local Variables:
-      CHARACTER( 16 ) :: PNAME = 'COUPLE_WRF'
+      CHARACTER( 16 ) :: PNAME = 'COUPLE'
       CHARACTER( 16 ) :: VNAME
       CHARACTER( 96 ) :: XMSG = ' '
 
@@ -287,7 +288,7 @@ C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing rati
 C............................................................................
 C entry DECOUPLE
  
-      ENTRY DECOUPLE_WRF ( CGRID, JDATE, JTIME, TSTEP )
+      ENTRY DECOUPLE ( CGRID, JDATE, JTIME, TSTEP )
 
       call interpolate_var ('JACOBM', jdate, jtime, JACOBM)
  
