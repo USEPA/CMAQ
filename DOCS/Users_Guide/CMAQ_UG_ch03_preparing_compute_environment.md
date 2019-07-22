@@ -7,9 +7,11 @@
 
 # 3. Preparing Compute Environment for CMAQ Simulations
 
+## 3.1 Introduction
+
 In this chapter the user will learn basic hardware and software requirements to run CMAQ. In addition, if the user does not have the required software, this chapter provides links to download the required software. 
 
-## 3.1 Hardware Requirements
+## 3.2 Hardware Requirements
 
 The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
 
@@ -34,7 +36,7 @@ Table 3-1 provides a general snapshot of three different CMAQ setups for a day o
 | 2016 N. Hemisphere | 187 X 187 X 44 | 255 |15GB| 40GB | 25 min/day (128) |
 
 
-## 3.2 Software Requirements
+## 3.3 Software Requirements
 
 To build the CMAQ program suite, users must install these libraries in the order listed: MPI, netCDF and IOAPI. As always, we recommend using the latest release available at the time of your CMAQ installation. A table of the minimum required software versions is shown below: 
 
@@ -50,17 +52,17 @@ To build the CMAQ program suite, users must install these libraries in the order
 
 **NOTE: The CMAQ team recommends using a single compiler suite when building these libraries. Mixing compiler suites when building these libraries can cause unexpected behavior (e.g., mixing intel 18.0 to build netCDF C libraries and gcc 6.1.0 to build netCDF fortran libraries is not going to work).** 
 
-## 3.2.1 Message Passing Interface (MPI) library
+### 3.3.1 Message Passing Interface (MPI) library
 
 CMAQ is a MPI based program that runs on parallel programming platforms. Various flavour of MPI libraries are available for users to choose. CMAQ has been tested with the [OpenMPI](https://www.open-mpi.org), [MPICH](https://www.mpich.org/downloads), [MVAPICH2](http://mvapich.cse.ohio-state.edu), and the [Intel MPI](https://software.intel.com/en-us/intel-mpi-library) libraries. The choice of MPI library may affect model run time. For example, if you have Intel compiler suite available on your system, chooses Intel MPI or if your system is using InfiniBand (IB) interconnect, chooses MVAPICH2 which is tailored for IB.
 
 Users can download the MPI library source code from one of these sites and follow provided procedures for proper installation. **Minimum versions: IntelMPI 2017.0 | MPICH 3.3.1 | MVAPICH2 2.3.1 | OpenMPI 2.1.0**
 
-## 3.2.2 netCDF library
+### 3.3.2 netCDF library
 
 Most of the CMAQ input files and all output files are in netCDF format (the rest are in ASCII format). Hence the netCDF library is an essential component of the CMAQ model. The netCDF library is available for download at http://www.unidata.ucar.edu/software/netcdf/ and users should follow the instructions for proper installation. Users should install **classic shared netCDF C and Fortran libraries only without netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support.** In order to do so, users should provide the appropriate flags to build and install minimal netCDF-3 with no DAP client support, such as --disable-netcdf-4 and --disable-dap, at the configure stage for netCDF C. After successful installation, check the environment PATH & LD_LIBRARY_PATH to ensure that the paths have been updated to include the path of the netCDF C and Fortran libraries and bin. Note you may have to set these paths manually if not set, and these paths must be loaded every time you start a new shell. **Minimum versions: NetCDF-C 4.2 | NetCDF-Fortran 4.4.2**
 
-## 3.2.3 IOAPI library
+### 3.3.3 IOAPI library
 
 The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32. Users should note that the IOAPI library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the IOAPI documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Minimum version: IOAPI 3.1**
 
@@ -104,7 +106,7 @@ make
 
 Other IOAPI library configuration options are available, and users can see a list of these options within the IOAPI documentation. For example, IOAPI can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" IOAPI libraries (Wong et al. 2015). More information about how to enable PIO within CMAQ can be found in [Appendix D](Appendix/CMAQ_UG_appendixD_parallel_implementation.md). 
 
-## 3.3 Optional Software
+## 3.4 Optional Software
 
 <a id=Table3-3></a>
 
@@ -124,7 +126,7 @@ Other IOAPI library configuration options are available, and users can see a lis
 |PGPROF|Portland Group Fortran code profiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
 |IDB|Intel Fortran debugger|[<https://software.intel.com/en-us/articles/idb-linux>](https://software.intel.com/en-us/articles/idb-linux)|
 
-### Reference:
+## Reference:
 
 Wong, D. C., Yang, C. E., Fu, J. S., Wong, K., and Gao, Y., “An approach to enhance pnetCDF performance in environmental modeling applications”, Geosci. Model Dev., 8, 1033-1046, 2015.
 
