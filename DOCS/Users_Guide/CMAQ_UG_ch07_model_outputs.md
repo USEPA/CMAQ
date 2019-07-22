@@ -6,6 +6,8 @@
 <!-- END COMMENT -->
 
 # 7. Model Output Files
+
+## 7.1 Introduction
 In this section, details on the routine CCTM output files are provided. All CMAQ programs produce model output files that adhere to the netCDF format.  In addition to model data output, CMAQ can optionally produce ASCII log files that contain intermediate model execution information from the various CMAQ processes and captured with respect to processor number. If the log file option is not selected by the user and the simulation is run interactively, CMAQ will write all of the log information to the screen along with the standard error, which can be captured to a text file using basic UNIX syntax. Additional output files are created when using the Process Analysis (PA), Integrated Source Apportionment Method (ISAM) and Detailed Emissions Scaling, Isolation and Diagnostics Module (DESID) options.  The files associated with these options are discussed in [Chapter 9](CMAQ_UG_ch09_process_analysis.md), [Chapter 11](CMAQ_UG_ch11_ISAM.md), and [Appendix B](Appendix/CMAQ_UG_appendixB_emissions_control.md), respectively.
 
 <a id=Output_Table></a>
@@ -50,7 +52,7 @@ In this section, details on the routine CCTM output files are provided. All CMAQ
 <sup>3</sup>X is the dimension along the x-axis, Y is the dimension along the y-axis, Z is the vertical dimension, Z' is the user pre-defined size of the vertical dimension controlled by the environment variables CONC_BLEV_ELEV, ACONC_BLEV_ELEV, APMDIAG_BLEV_ELEV, and NLAYS_PHOTDIAG (range from 1 to all layers) and W is a non-layer dimension, e.g. number of LU fractions, number of sites for vertical extraction.    
 <sup>4</sup>A special ASCII output file, FLOOR_xxx with xxx being the processor number, contains information when a simulation results in negative concentrations. 
 
-## 7.1 CCTM Output Files
+## 7.2 CCTM Output Files
 
 Some output files created by the CCTM are considered standard output as these contain hourly concentration and deposition values and information to document the run. Options for these files are controlled by their corresponding environment variable in the CCTM RunScript (e.g. run_cctm.csh).
 <a id=cmaq_output_log></a>
@@ -91,7 +93,7 @@ The 2-D CCTM dry deposition file contains cumulative hourly dry deposition fluxe
 
 The 2-D CCTM wet deposition file contains cumulative hourly wet deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates wet deposition for all of the species listed in the wet deposition column of the [Species NameLists files](CMAQ_UG_ch04_model_inputs.md#matrix_nml) within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the wet deposition file by editing the WDEP column in the NameList file(s).
 
-## 7.2 Restart Files
+## 7.3 Restart Files
 
 There are several files created by the CCTM that are used to enable a restart of the run for any specific day.  The files contain values for parameters at the end of the day which are used to initialize the values for the start of calculations for the next day.
 
@@ -114,7 +116,7 @@ This 2-D CCTM file contains the soil NH<sub>4</sub><sup>+</sup> and pH concentra
 This optional 2-D CCTM file contains hourly total rainfall information for subsequent use by the CCTM in-line biogenics module. It is written out at the end of each simulation day and is only created if the CTM_BIOGEMIS environment variable in the RunScript is set to Y (Default is N). With the exception of the first day of the simulation when the environment variable INITIAL_RUN is set to Y, the previous day's rainfall information contained in the file is used in the calculation of soil NO emissions by the CCTM in-line biogenics module. This is accomplished by setting the SOILINP environment variable in the RunScript for a given day to the CCTM_SOILOUT file created at the end of the previous day's simulation. Note that even though this file contains 24 hourly gridded rainfall fields, it has a time-independent file structure and stores these 24 values as 24 separate time-independent variables (RAINFALL01, ... RAINFALL24). However, while the structure of the file is time-independent, each day's CCTM_SOILOUT file is unique due to the daily variations in meteorology. Therefore, care must be taken to ensure that the SOILINP file specified for a given day is indeed the CCTM_SOILOUT file for the previous day rather than that for a different day.  
 
 
-## 7.3 Diagnostic and Advanced CMAQ Output Files
+## 7.4 Diagnostic and Advanced CMAQ Output Files
 
 Along with the standard output files detailed in the previous section, CCTM can be configured to output several auxiliary files for diagnostic model purposes. Each option is controlled by its corresponding environment variable in the CCTM RunScript (e.g. run_cctm.csh). For logical values, TRUE/T is equivalent to Y and FALSE/F is equivalent to N.
 
