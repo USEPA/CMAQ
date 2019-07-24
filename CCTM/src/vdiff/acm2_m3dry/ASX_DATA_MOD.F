@@ -635,7 +635,7 @@ C-----------------------------------------------------------------------
          If ( ABFLUX ) Then
             Grid_Data%LUFRAC = LUFRAC
 
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 16 )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
@@ -643,7 +643,7 @@ C-----------------------------------------------------------------------
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
             End Forall
          Else
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 16 )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
             End Forall
