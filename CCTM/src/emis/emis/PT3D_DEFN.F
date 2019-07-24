@@ -141,7 +141,7 @@ C=======================================================================
      &                      METCGRID, METCXORIG, METCYORIG, XCELLCG, YCELLCG, 
      &                      METDGRID, METDXORIG, METDYORIG, XCELLDG, YCELLDG
          USE UTILIO_DEFN
-         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE,
+         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE, STDATE, STTIME,
      &                           PT_TIME, PT_NSTEPS, REP_LAYR
          USE EMIS_VARS, ONLY: EMLAYS, EMLAYS_MX
          USE BMATVEC_MODULE, ONLY: BMATVECN
@@ -265,8 +265,8 @@ C get diagnostic files options
 
 C get scenario timing
 
-         JDATE = PT_DATE
-         JTIME = PT_TIME
+         PT_DATE = JDATE 
+         PT_TIME = JTIME
 
 C open met files
 
@@ -600,12 +600,12 @@ C-----------------------------------------------------------------------
             IF ( PT3DDIAG ) THEN
               NDATE = STDATE; NTIME = STTIME
               CALL NEXTIME( NDATE, NTIME, TSTEP(1) ) ! advance one output tstep
-              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP(1), 
+              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, TSTEP(1), 
      &                   EM_FILE_SURR( ISRM )%LEN, EM_FILE_SURR( ISRM )%ARRY( : ),
      &                   EM_FILE_SURR( ISRM )%UNITS( : ) )
  
 
-              ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLAYS,N_EMIS_ISTR ), STAT = IOS )
+              ALLOCATE ( VDEMIS_BUF( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ), STAT = IOS )
               CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
               VDEMIS_BUF = 0.0   ! array
               WRITE( LOGDEV,'(/5X, A /5X, A )' )
@@ -1135,7 +1135,8 @@ C calculate smoldering fraction:
                 SFRACT = 1.0 - BESIZE
              ELSE
                 SFRACT = 1.0
-                write( logdev,* ) "we can't get here: ", n, s
+                write( logdev,* ) "Warning: the value of ACRESBURNED for a fire source is negative. ",
+     &                            "CMAQ will set the smodlering fraction equal to 1.0 for (stream,source) = ", n, s
              END IF
 
              ZDIFF = ZBOT - P_D( N )%ZZF( 0 )   ! Note: ZDIFF redefined
