@@ -1135,7 +1135,8 @@ C calculate smoldering fraction:
                 SFRACT = 1.0 - BESIZE
              ELSE
                 SFRACT = 1.0
-                write( logdev,* ) "we can't get here: ", n, s
+                write( logdev,* ) "Warning: the value of ACRESBURNED for a fire source is negative. ",
+     &                            "CMAQ will set the smodlering fraction equal to 1.0 for (stream,source) = ", n, s
              END IF
 
              ZDIFF = ZBOT - P_D( N )%ZZF( 0 )   ! Note: ZDIFF redefined
