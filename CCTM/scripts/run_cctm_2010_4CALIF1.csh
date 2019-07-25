@@ -383,7 +383,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      # Input variables for BELD3 Landuse option
      setenv DUST_LU_1  $LUpath/beld3_4CALIF1_output_a.ncf
      setenv DUST_LU_2  $LUpath/beld3_4CALIF1_output_tot.ncf
-     setenv MODIS_FPAR $LUpath/MODIS_FPAR_LAI_daily_4CALIF1.nc
   endif
   
   #> In-line Sea Spray emissions configuration

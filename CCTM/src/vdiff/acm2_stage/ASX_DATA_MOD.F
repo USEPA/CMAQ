@@ -490,7 +490,7 @@ C-----------------------------------------------------------------------
             WFC_PX  = WSAT_PX * ( 33.0 / Psi_sat )**(-1.0/BSLP_PX)
             WRES_PX = WSAT_PX * ( 3.0e5 / Psi_sat )**(-1.0/BSLP_PX)
 
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 16 )
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
                Grid_Data%WSAT( C,R ) = WSAT_PX( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WWLT( C,R ) = WWLT_PX( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC_PX ( Grid_Data%SLTYP( C,R ) )
@@ -500,7 +500,7 @@ C-----------------------------------------------------------------------
             End Forall
 ! for cases where the default soil is water but fractional land use may not be water
 ! use sandy loam
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Eq. 14 )
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Gt. 11 )
                Grid_Data%WSAT( C,R ) = WSAT_PX( 3 )
                Grid_Data%WWLT( C,R ) = WWLT_PX( 3 )
                Grid_Data%WFC ( C,R ) = WFC_PX ( 3 )
