@@ -924,6 +924,7 @@ C Includes:
       
       ! If The Point File is for Fires, read and save the H-Flux Data in a
       ! Dedicated Variable, BFLUX
+      LACRESBURNED = 0
       IF ( FIREFLAG( N ) ) THEN
          call interpolate_var (STKENAME(N), 'HFLUX', LOC_STKDATE, JTIME, FIREVAR(N)%ARRY)
 
@@ -933,7 +934,6 @@ C Includes:
          END DO
 
          !Initialize negative ACRES-BURNED counter
-         lacresburned = 0
       END IF
  
 C Loop through sources and compute plume rise
