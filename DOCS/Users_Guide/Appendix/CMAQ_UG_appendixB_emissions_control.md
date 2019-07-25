@@ -230,10 +230,12 @@ setenv LTNG_EMIS_DIAG TRUE
 setenv DUST_EMIS_DIAG TRUE
 setenv SEASPRAY_EMIS_DIAG TRUE
 ```
-The gridded diagnostic output files that are created are named systematically with the format "CCTM_EMDIAG_[XXX]_[CTM_APPL]_[DATE].nc" where XXX is the emissions stream label, CTM_APPL is the application name defined in the CCTM runscript, and DATE is the date of the simulation. To change the default value of all emission streams modify the "EMIS_DIAG" variable:
+The gridded diagnostic output files that are created are named systematically with the format "CCTM_EMDIAG_[XXX]_[CTM_APPL]_[DATE].nc" where XXX is the emissions stream label, CTM_APPL is the application name defined in the CCTM runscript, and DATE is the date of the simulation. To change the default value for the diagnostic output of all emission streams, modify the "EMIS_DIAG" variable:
 ```
 setenv EMIS_DIAG TRUE
-```
+```  
+This variable sets the default behavior for all streams. If the variables for any specific streams are provided in the RunScript, they will override this default value.  
+
 The emission rates printed to the diagnostic files reflect all the scaling rules applied and are written just before the emissions are added to the CMAQ transport module. Because the model interpolates in time, it is very likely that the rates written to the diagnostic file will not correspond in time to the rates from the input files. In most cases, the rates will be one-half time step before the top of the hour, the time point of the emission inputs. For this reason, it is not entirely helpful for users to compare the scaled emissions directly to the rates on the input files. However, comparing them qualitatively can be helpful.
 
 
