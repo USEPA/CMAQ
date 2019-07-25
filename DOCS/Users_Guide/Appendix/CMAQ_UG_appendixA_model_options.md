@@ -464,9 +464,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_DUSTEM_DIAG [default: False]`<a id=CTM_DUSTEM_DIAG></a>  
     Output the online dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. Set to Y to turn on; comment out or set to N to turn off.  
 -   `CTM_DEPV_FILE [default: False]`<a id=CTM_DEPV_FILE></a>  
-    Output an hourly diagnostic file (CTM_DEPV_DIAG) for the inline deposition velocity calculations. If CTM_ILDEPV is set to N this variable is ignored. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_DEPV_DIAG.  
--   `VDIFF_DIAG_FILE [default: N]`<a id=VDIFF_DIAG_FILE></a>  
-    Output a diffusion and aero gravitational sedimentation diagnostic file. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_VDIFF_DIAG.    
+    Output an hourly diagnostic file (CTM_DEPV_DIAG) for the inline deposition velocity calculations. If CTM_ILDEPV is set to N this variable is ignored. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_DEPV_DIAG.      
 -   `LTNGDIAG [default: False]`<a id=LTNGDIAG></a>  
     Output a lightning NO emissions diagnostics file. Set to `Y` to turn on; comment out or set to `N` to turn off.  
 
