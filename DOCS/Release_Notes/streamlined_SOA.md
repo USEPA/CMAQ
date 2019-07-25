@@ -1,6 +1,7 @@
 # Streamlined SOA Module
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
+
 
 ## Brief Description
 Several updates were introduced to the SOA mapping and partitioning algorithm to improve code clarity and increase robustness as greater complexity in the organic aerosol phase is accomodated. The new unified organic compound properties table centralizes the vapor pressure, enthalpy of vaporization, SOA yields and gas-phase counterpart so that this information can be easily referenced by novice and advanced users. The partitioning algorithm has also been generalized so that any number and combination of semivolatile and nonvolatile species can be supported in the same model run with no changes to the model infrastructure.

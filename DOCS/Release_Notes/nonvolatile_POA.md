@@ -1,6 +1,7 @@
 # Nonvolatile POA Option in CMAQv5.3
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
+
 
 ## Brief Description
 Before CMAQv5.2, POA was assumed to be nonvolatile and represented by two model species for all sources: POC, which represents organic carbon mass; and PNCOM, which represents non-carbon organic mass. In CMAQv5.2, species were introduced to represent the semivolatile partitioning and gas-phase aging of POA. In this model version, users were able to choose from chemical mechanisms with semivolatile POA or mechanisms with nonvolatile POA, depending on their application. This arrangement led to a lot of overhead in both develpoment and use since the model had to be recompiled in order to toggle between options.  

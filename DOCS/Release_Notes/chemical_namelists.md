@@ -1,6 +1,6 @@
-# Implementation of new hemical Namelist Format
+# Implementation of New Chemical Namelist Format
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
 With this improvement the chemical namelists which specify names and properties for the reactive gas, aerosol, non-reactive, and tracer species have been revised to be fixed-width and comma delimted. In this way, the files may now be read in with standard Fortran namelist input functionality rather than relying on the manual parsing method that had been installed previously. 

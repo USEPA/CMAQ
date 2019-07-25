@@ -1,6 +1,7 @@
-# Simplify propagation of aerosol surface area to heterogeneous chemistry algorithm
+# Simplify Propagation of Aerosol Surface Area to Heterogeneous Chemistry Algorithm
 
-**Author/P.O.C.:**, [Ben Murphy](mailto:murphy.ben@epa.gov), Computational Exposure Division, U.S. EPA
+[Ben Murphy](mailto:murphy.ben@epa.gov),  U.S. Environmental Protection Agency
+
 
 ## Brief Description
 This update abstracts the algorithm for calculating aerosol surface area and aerosol diameter from the heterogeneous chemistry algorithm and locates it in the AERO_SUBS module instead. In this way, as modifications are made to the physics of the aerosol module, they will propagate automatically to the heterogeneous chemistry algorithm with limited maintenance required. An update was also made to generalize the calculation for the sum of the total organic aerosol mass in each grid cell. Previously this was accomplished by looking up specific species IDs. Now it utilizes a pre-populated mask of length (naero) which identifies each aerosol species as OM or not. 
