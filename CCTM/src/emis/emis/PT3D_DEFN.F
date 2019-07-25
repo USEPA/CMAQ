@@ -799,7 +799,7 @@ C-----------------------------------------------------------------------
       USE STK_EMIS, ONLY : FIREVAR, FIREFLAG
       USE STK_PRMS, ONLY : MY_STRT_SRC, MY_END_SRC, MY_NSRC, SOURCE
       USE PTMET, ONLY : EMLAYS, P_D => PTMET_DATA
-      USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR
+      USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR, LOG_MESSAGE
       USE UTILIO_DEFN, ONLY : CRLF, XSTAT2
       USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
@@ -1180,7 +1180,7 @@ C Possible report to REPRTLAY
       END DO    ! end loop on sources S
 
       ! Print warning if any ACRES-BURNED values were negative
-      IF ( LACRESBURNED .GT. 0 )
+      IF ( LACRESBURNED .GT. 0 ) THEN
            write( XMSG,'(A,I,A,I,A)') "Warning: the value of ACRESBURNED for ",LACRESBURNED, " fire sources on stream ",
      &                     N, " is negative. CMAQ will set the smodlering fraction equal to 1.0 for these cases." 
            call log_message( logdev, xmsg )
