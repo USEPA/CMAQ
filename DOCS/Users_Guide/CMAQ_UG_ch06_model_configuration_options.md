@@ -228,7 +228,7 @@ Depending on the nature of any stream and the information used to quantify its e
 CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams available for running Online in CMAQ are: [biogenics (BEIS)](#BEIS),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
 
 #### Gridded Stream (offline):
-CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the grid CMAQ is running. Typically, these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. Some common examples of Gridded emissions include:
+CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the grid CMAQ is running. Typically, these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. These files may be 2D to represent just the surface layer emissions or they may be 3D. If 3D, the file may have the same number of layers as the CMAQ grid or it may have fewer layers. Some common examples of Gridded emissions include:
 
 - Mobile sources such as passenger vehicles, trains, ships, scooters, etc.
 - Low-level point source emissions that are not large enough to be treated individually
@@ -258,7 +258,7 @@ setenv GR_EMIS_LAB_001 MOBILE
 If N_EMIS_GR is set 0, then CMAQ will run with no Gridded emissions even if the values for GR_EMIS_XXX and GR_EMIS_LAB_XXX are all set.
 
 #### Inline Stream (offline):
-For these streams, emission rates and stack characteristics are provided for many individual sources on the same file. CMAQ uses the stack information to calculate important quantities like the injection height online taking into account local meteorology. A specific latitude/longitude pair is given for each source to locate it in the CMAQ grid.  Some common examples of Inline emissions include:
+For these streams, emission rates and stack characteristics are provided for many individual sources on the same file. CMAQ uses the stack information to calculate important quantities like the injection height online taking into account local meteorology. A specific latitude/longitude pair is given for each source to locate it in the CMAQ grid. Sources outside the CMAQ grid domain will be ignored by CMAQ; thus the same files may be used for a large domain and a nest within that domain. Some common examples of Inline emissions include:
 
 - Stacks (electric generation units, industrial sources, manufacturing, etc.)
 - Forest fires
