@@ -141,7 +141,7 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to build a Makefile but to not compile the executable. The Makefile will be located in the BLD directory and can subsequently be used to manually compile the executable by typing 'make' in the BLD direcotry. Comment out to both create a Makefile and compile the executable when invoking the bldit_cctm.csh script.
 
 -   `build_parallel_io`<a id=build_parallel_io></a>  
-     Uncomment to build CMAQ with true parallel I/O feature (requires mpi version of ioapi 3.2 and pnetcdf, refer to [Appendix D](../CMAQ_UG_appendixD_parallel_implementation.md).)
+     Uncomment to build CMAQ with true parallel I/O feature (requires mpi version of ioapi 3.2 and pnetcdf, refer to [Appendix D](./CMAQ_UG_appendixD_parallel_implementation.md).)
 
 -   `build_twoway`<a id=build_twoway></a>  
     Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. This option is currently not supported. Please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
@@ -155,8 +155,8 @@ The following configuration settings may have multiple options. Select one optio
     The CCTM model grid configuration module. Currently only Cartesian coordinates are supported by CMAQ. Do not change this module setting.
     -   `grid/cartesian`
 
--    `ModAdv: [default: wrf_cons]`<a id=ModHadv></a>  
-      3-D Horizontal module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
+-   `ModAdv: [default: wrf_cons]`<a id=ModHadv></a>  
+    3-D Horizontal module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
     -   `wrf_cons`  
     use the WRF vertically integrated column mass to calculate vertical advection
     -   `local_cons`  
