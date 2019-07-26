@@ -97,11 +97,11 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `myFSTD` <a id=myFSTD></a>
     Standard Mode Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script  
 
--    `myDBG` <a id=myDBG></a>
-     Debug Mode Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script
+-   `myDBG` <a id=myDBG></a>
+    Debug Mode Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script
 
--     `myLINK_FLAGS` <a id=myLINK_FLAGS></a>
-      Fortran compile linker flags for your Linux system; suggested values for CMAQ are in the distributed script
+-   `myLINK_FLAGS` <a id=myLINK_FLAGS></a>
+    Fortran compile linker flags for your Linux system; suggested values for CMAQ are in the distributed script
 
 -   `myFFLAGS`<a id=myFFLAGS></a>
     Fixed-format Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script
@@ -141,7 +141,7 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to build a Makefile but to not compile the executable. The Makefile will be located in the BLD directory and can subsequently be used to manually compile the executable by typing 'make' in the BLD direcotry. Comment out to both create a Makefile and compile the executable when invoking the bldit_cctm.csh script.
 
 -   `build_parallel_io`<a id=build_parallel_io></a>  
-     Uncomment to build CMAQ with true parallel I/O feature (requires mpi version of ioapi 3.2 and pnetcdf, refer to [Appendix D](../CMAQ_UG_appendixD).)
+     Uncomment to build CMAQ with true parallel I/O feature (requires mpi version of ioapi 3.2 and pnetcdf, refer to [Appendix D](../CMAQ_UG_appendixD_parallel_implementation.md).)
 
 -   `build_twoway`<a id=build_twoway></a>  
     Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. This option is currently not supported. Please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
