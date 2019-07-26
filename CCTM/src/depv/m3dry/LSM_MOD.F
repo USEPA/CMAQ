@@ -48,16 +48,22 @@ C                              land use data sets.
 C      Aug  22 14 J. Bash      Moved all the data to defined data types for easier updates and data access. 
 C      June 2018  j. pleim     Removed all LSM specific data
 C      Feb. 2019  D. Wong      Implemented centralized I/O approach
+C      25 Jul 19 D.Wong        Based on logical variable WRF_V4P defined in RUNTIME_VARS to handle
+C                              various number of soil type from different WRF version
 C------------------------------------------------------------------------------
        
       Implicit None
+
+      INTEGER, PARAMETER :: N_SOIL_TYPE_WRFV4P = 16
+      INTEGER, PARAMETER :: N_SOIL_TYPE_WRFV3  = 11
+      INTEGER :: N_SOIL_TYPE
       
-      REAL,   SAVE               :: wwlt (11)
-      REAL,   SAVE               :: wsat (11)
-      REAL,   SAVE               :: bslp (11)
-      REAL,   SAVE               :: wres (11)
-      REAL,   SAVE               :: wfc  (11)
-      REAL,   SAVE               :: rhob (11)
+      REAL, ALLOCATABLE  :: wwlt (:)
+      REAL, ALLOCATABLE  :: wsat (:)
+      REAL, ALLOCATABLE  :: bslp (:)
+      REAL, ALLOCATABLE  :: wres (:)
+      REAL, ALLOCATABLE  :: wfc  (:)
+      REAL, ALLOCATABLE  :: rhob (:)
 
       REAL,   SAVE, ALLOCATABLE  :: LUF_FAC   ( : )
       REAL,   SAVE, ALLOCATABLE  :: HGLU_FAC  ( : )
@@ -82,7 +88,7 @@ C------------------------------------------------------------------------------
 
 
 C-------------------------------------------------------------------------------
-C Soil Characteristics by Type
+C Soil Characteristics by Type for WRFV38
 C
 C   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
 C   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
@@ -100,23 +106,77 @@ C  11  CLAY       .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
 C
 C-------------------------------------------------------------------------------
 !-- WSAT is saturated soil moisture (M^3/M^3) (JN90)
-      DATA WSAT  /  0.395, 0.410, 0.435, 0.485, 0.451, 0.420, 0.477,
-     &              0.476, 0.426, 0.482, 0.482 /
+      REAL, PARAMETER :: WSAT_WRFV3(N_SOIL_TYPE_WRFV3) =  
+     &      (/ 0.395, 0.410, 0.435, 0.485, 0.451, 0.420, 0.477,
+     &         0.476, 0.426, 0.482, 0.482 /)
 !-- WFC is soil field capacity (Rawls et al 1982)     
-      DATA WFC   /  0.135, 0.150, 0.195, 0.255, 0.240, 0.255, 0.322,
-     &              0.325, 0.310, 0.370, 0.367 /
+      REAL, PARAMETER :: WFC_WRFV3(N_SOIL_TYPE_WRFV3) =
+     &      (/ 0.135, 0.150, 0.195, 0.255, 0.240, 0.255, 0.322,
+     &         0.325, 0.310, 0.370, 0.367 /)
 !-- WWLT is wilting point (M^3/M^3) (JN90)
-      DATA WWLT  /  0.068, 0.075, 0.114, 0.179, 0.155, 0.175, 0.218,
-     &              0.250, 0.219, 0.283, 0.286 /
+      REAL, PARAMETER :: WWLT_WRFV3(N_SOIL_TYPE_WRFV3) =
+     &      (/ 0.068, 0.075, 0.114, 0.179, 0.155, 0.175, 0.218,
+     &         0.250, 0.219, 0.283, 0.286 /)
 !-- B is slop of the retention curve (NP89)
-      DATA BSLP  /  4.05,  4.38,  4.90,  5.30,  5.39,  7.12,  7.75,
-     &              8.52, 10.40, 10.40, 11.40 /
+      REAL, PARAMETER :: BSLP_WRFV3(N_SOIL_TYPE_WRFV3) =
+     &      (/  4.05,  4.38,  4.90,  5.30,  5.39,  7.12,  7.75,
+     &          8.52, 10.40, 10.40, 11.40 /)
 !-- WRES is residual soil moisture (Rawls et al 1982)
-      DATA WRES  /  0.020, 0.035, 0.041, 0.015, 0.027, 0.068, 0.040,
-     &              0.075, 0.109, 0.056, 0.090 /
+      REAL, PARAMETER :: WRES_WRFV3(N_SOIL_TYPE_WRFV3) =
+     &      (/  0.020, 0.035, 0.041, 0.015, 0.027, 0.068, 0.040,
+     &          0.075, 0.109, 0.056, 0.090 /)
 ! -- RHOB is the soil bulk dnesity following Lyons et al 1997   
-      DATA RHOB  /  1.59e6, 1.55e6, 1.53e6, 1.53e6, 1.55e6, 1.62e6, 1.67e6,
-     &              1.66e6, 1.83e6, 1.78e6, 1.83e6 /
+      REAL, PARAMETER :: RHOB_WRFV3(N_SOIL_TYPE_WRFV3) =
+     &      (/ 1.59e6, 1.55e6, 1.53e6, 1.53e6, 1.55e6, 1.62e6, 1.67e6,
+     &         1.66e6, 1.83e6, 1.78e6, 1.83e6 /)
+
+C-------------------------------------------------------------------------------
+C Soil Characteristics by Type for WRF4+
+C
+C   #  SOIL TYPE  WSAT  WFC  WWLT  BSLP  CGSAT   JP   AS   C2R  C1SAT  WRES
+C   _  _________  ____  ___  ____  ____  _____   ___  ___  ___  _____  ____
+C   1  SAND       .395 .135  .068  4.05  3.222    4  .387  3.9  .082   .020
+C   2  LOAMY SAND .410 .150  .075  4.38  3.057    4  .404  3.7  .098   .035
+C   3  SANDY LOAM .435 .195  .114  4.90  3.560    4  .219  1.8  .132   .041
+C   4  SILT LOAM  .485 .255  .179  5.30  4.418    6  .105  0.8  .153   .015
+C   5  SILT       .480 .260  .150  5.30  4.418    6  .105  0.8  .153   .020
+C   6  LOAM       .451 .240  .155  5.39  4.111    6  .148  0.8  .191   .027
+C   7  SND CLY LM .420 .255  .175  7.12  3.670    6  .135  0.8  .213   .068
+C   8  SLT CLY LM .477 .322  .218  7.75  3.593    8  .127  0.4  .385   .040
+C   9  CLAY LOAM  .476 .325  .250  8.52  3.995   10  .084  0.6  .227   .075
+C  10  SANDY CLAY .426 .310  .219 10.40  3.058    8  .139  0.3  .421   .109
+C  11  SILTY CLAY .482 .370  .283 10.40  3.729   10  .075  0.3  .375   .056
+C  12  CLAY       .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
+C  13  ORGANICMAT .451 .240  .155  5.39  4.111    6  .148  0.8  .191   .027
+C  14  WATER      .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
+C  15  BEDROCK    .482 .367  .286 11.40  3.600   12  .083  0.3  .342   .090
+C  16  OTHER      .420 .255  .175  7.12  3.670    6  .135  0.8  .213   .068
+C-------------------------------------------------------------------------------
+
+!-- WSAT is saturated soil moisture (M^3/M^3) (JN90)
+      REAL, PARAMETER :: WSAT_WRFV4P(N_SOIL_TYPE_WRFV4P) =  
+     &      (/  0.395, 0.410, 0.435, 0.485, 0.480, 0.451, 0.420, 0.477,
+     &          0.476, 0.426, 0.482, 0.482, 0.451, 0.482, 0.482, 0.420 /)
+!-- WFC is soil field capacity (Rawls et al 1982)     
+      REAL, PARAMETER :: WFC_WRFV4P(N_SOIL_TYPE_WRFV4P) =  
+     &      (/  0.135, 0.150, 0.195, 0.255, 0.260, 0.240, 0.255, 0.322,
+     &          0.325, 0.310, 0.370, 0.367, 0.240, 0.367, 0.367, 0.255 /)
+!-- WWLT is wilting point (M^3/M^3) (JN90)
+      REAL, PARAMETER :: WWLT_WRFV4P(N_SOIL_TYPE_WRFV4P) =  
+     &      (/  0.068, 0.075, 0.114, 0.179, 0.150, 0.155, 0.175, 0.218,
+     &          0.250, 0.219, 0.283, 0.286, 0.155, 0.286, 0.286, 0.175 /)
+!-- B is slop of the retention curve (NP89)
+      REAL, PARAMETER :: BSLP_WRFV4P(N_SOIL_TYPE_WRFV4P) =  
+     &      (/  4.05,  4.38,  4.90,  5.30,  5.30,  5.39,  7.12,  7.75,
+     &          8.52, 10.40, 10.40, 11.40,  5.39, 11.40, 11.40,  7.12 /)
+!-- WRES is residual soil moisture (Rawls et al 1982)
+      REAL, PARAMETER :: WRES_WRFV4P(N_SOIL_TYPE_WRFV4P) =  
+     &      (/  0.020, 0.035, 0.041, 0.015, 0.020, 0.027, 0.068, 0.040,
+     &          0.075, 0.109, 0.056, 0.090, 0.027, 0.090, 0.090, 0.068 /)
+! -- RHOB is the soil bulk dnesity following Lyons et al 1997   
+      REAL, PARAMETER :: RHOB_WRFV4P(N_SOIL_TYPE_WRFV4P) =  
+     &      (/  1.59e6, 1.55e6, 1.53e6, 1.53e6, 1.53e6, 1.55e6, 1.62e6, 1.67e6,
+     &          1.66e6, 1.83e6, 1.78e6, 1.83e6, 1.62e6, 1.83e6, 1.83e6, 1.67e6 /)
 
 
 !*****************************************************************************
@@ -291,6 +351,7 @@ C-------------------------------------------------------------------------------
                                                
          USE HGRD_DEFN                         
          USE UTILIO_DEFN                       
+         USE RUNTIME_VARS, ONLY : WRF_V4P
 #ifdef twoway                                  
          USE twoway_data_module, ONLY : num_land_cat
 #endif                                         
@@ -303,8 +364,39 @@ C-------------------------------------------------------------------------------
          INTEGER, INTENT( In )  :: jtime  
          CHARACTER( 240 )       :: XMSG = ' '  
          CHARACTER(  16 ), SAVE :: PNAME = 'Init_LSM'
-         INTEGER l                             
+         INTEGER l
+         INTEGER :: STAT
                                                
+         IF (WRF_V4P) THEN
+            N_SOIL_TYPE = N_SOIL_TYPE_WRFV4P
+         ELSE
+            N_SOIL_TYPE = N_SOIL_TYPE_WRFV3
+         END IF
+
+         ALLOCATE (WSAT(N_SOIL_TYPE),
+     &             WFC(N_SOIL_TYPE),
+     &             WWLT(N_SOIL_TYPE),
+     &             BSLP(N_SOIL_TYPE),
+     &             WRES(N_SOIL_TYPE),
+     &             RHOB(N_SOIL_TYPE),
+     &             STAT=STAT)
+
+         IF (WRF_V4P) THEN
+            WSAT = WSAT_WRFV4P
+            WFC  = WFC_WRFV4P
+            WWLT = WWLT_WRFV4P
+            BSLP = BSLP_WRFV4P
+            WRES = WRES_WRFV4P
+            RHOB = RHOB_WRFV4P
+         ELSE
+            WSAT = WSAT_WRFV3
+            WFC  = WFC_WRFV3
+            WWLT = WWLT_WRFV3
+            BSLP = BSLP_WRFV3
+            WRES = WRES_WRFV3
+            RHOB = RHOB_WRFV3
+         END IF
+
 #ifdef twoway                                  
          IF ( NUM_LAND_CAT .EQ. 24 ) THEN      
             LAND_SCHEME = 'USGS24'             

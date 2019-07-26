@@ -44,6 +44,9 @@
 !  13 June 2019 (F. Sidi) 
 !     -- Set the default for ERODE_AGLAND to FALSE. No longer supported feature
 !        in CMAQv5.3
+!  25 July 2019 (D. Wong) 
+!     -- Included a logic to determine whether met data was created from 
+!        WRF V4+ is used
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -84,6 +87,9 @@
       !-----------------------------------------------------------------------------------
       !>> Define Environment Variables for Controlling CMAQ Processes
       !-----------------------------------------------------------------------------------
+
+      ! Met model version
+      LOGICAL :: WRF_V4P         = .FALSE.  ! Indicator of whether WRF version is 4+ or not
 
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
@@ -212,7 +218,7 @@
       LOGICAL :: PT3DDIAG      = .FALSE. ! Write point source 3d emis diagnostic file
       LOGICAL :: PT3DFRAC      = .FALSE. ! Write layer fractions diagnostic file, if true
       INTEGER :: PT_NSTEPS     = 1
-      INTEGER :: PT_DATE       = 1995192 ! Julian start date (YYYYDDD)
+      INTEGER :: PT_DATE       = 0       ! Julian start date (YYYYDDD)
       INTEGER :: PT_TIME       = 0       ! start time (HHMMSS)
       INTEGER :: IPVERT        = 0       ! Numerical flag for plume vertical spread method
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
@@ -245,8 +251,11 @@
 !.........................................................................
 
       USE RXNS_DATA, ONLY : MECHNAME
+      USE M3UTILIO
 
       IMPLICIT NONE                         
+
+      INCLUDE SUBST_FILES_ID             ! file name parameters
 
 #ifdef parallel      
       include 'mpif.h'
@@ -266,6 +275,11 @@
       INTEGER          :: ERROR
       INTEGER          :: VARDEV = -1
 
+      LOGICAL          :: FOUND
+      INTEGER          :: LOC, STR_LEN
+      CHARACTER(10)    :: WRF_VERSION
+
+      CHARACTER( 16 ) :: PNAME = 'RUNTIME_VARS'
 
       !-------------------------------------------------------------------------------------------------------
       !>> Grid and High-Level Model Parameters
@@ -721,33 +735,33 @@
       CALL GET_ENV ( NPTGRPS, 'N_EMIS_PT', NPTGRPS, VARDEV )
       
       ! PT3DDIAG
-      !CALL GET_ENV ( PT3DDIAG, 'PT3DDIAG', PT3DDIAG, VARDEV )
+      CALL GET_ENV ( PT3DDIAG, 'PT3DDIAG', PT3DDIAG, VARDEV )
 
       ! PT3DFRAC
-      !CALL GET_ENV ( PT3DFRAC, 'PT3DFRAC', PT3DFRAC, VARDEV )
+      CALL GET_ENV ( PT3DFRAC, 'PT3DFRAC', PT3DFRAC, VARDEV )
 
       ! Point Source Time Steps
-      !CALL GET_ENV ( PT_NSTEPS, 'LAYP_NSTEPS', PT_NSTEPS, VARDEV )
+      CALL GET_ENV ( PT_NSTEPS, 'LAYP_NSTEPS', PT_NSTEPS, VARDEV )
 
       ! Point Source Date
-      !CALL GET_ENV ( PT_DATE, 'LAYP_STDATE', PT_DATE, VARDEV )
+      CALL GET_ENV ( PT_DATE, 'LAYP_STDATE', PT_DATE, VARDEV )
 
       ! Point Source Time
-      !CALL GET_ENV ( PT_TIME, 'LAYP_STTIME', PT_TIME, VARDEV )
+      CALL GET_ENV ( PT_TIME, 'LAYP_STTIME', PT_TIME, VARDEV )
 
       ! IPVERT
       CALL GET_ENV ( IPVERT, 'IPVERT', IPVERT, VARDEV )
 
       ! REP_LAYR
-      !CALL GET_ENV ( REP_LAYR, 'REP_LAYER_MIN', REP_LAYR, VARDEV )
+      CALL GET_ENV ( REP_LAYR, 'REP_LAYER_MIN', REP_LAYR, VARDEV )
  
-      !ALLOCATE( PLAY_BASE( NPTGRPS ) )
-      !PLAY_BASE( : ) = ''
-      !DO NV = 1,NPTGRPS
-      !   WRITE( PBASE,'( "PLAY_BASE", "_", I2.2 )' ) NV
-      !   CALL GET_ENV ( STRTEMP, PBASE, PLAY_BASE( NV ), VARDEV )
-      !   PLAY_BASE( NV ) = STRTEMP
-      !END DO
+      ALLOCATE( PLAY_BASE( NPTGRPS ) )
+      PLAY_BASE( : ) = ''
+      DO NV = 1,NPTGRPS
+         WRITE( PBASE,'( "PLAY_BASE", "_", I2.2 )' ) NV
+         CALL GET_ENV ( STRTEMP, PBASE, PLAY_BASE( NV ), VARDEV )
+         PLAY_BASE( NV ) = STRTEMP
+      END DO
        
       ! Determine user-defined default for emissions diagnostics
       CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
@@ -806,6 +820,37 @@
       call get_env (ncd_64bit_offset, 'ncd_64bit_offset', .false., vardev)
       call get_env( cell_num, 'cell_num', 1, vardev)
 #endif
+
+! to obtain WRF version information
+      IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
+         XMSG = 'Could not open '// MET_CRO_3D // ' file'
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
+      IF ( .NOT. DESC3( MET_CRO_3D ) ) THEN
+         XMSG = 'Could not get ' // MET_CRO_3D //' file description'
+         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
+      FOUND = .FALSE.
+      NV = 0
+      Do WHILE ((.NOT. FOUND) .AND. (NV .LT. MXDESC3))
+         NV = NV + 1
+         LOC = INDEX (FDESC3D(NV), 'WRF ARW V')
+         IF (LOC > 0) THEN
+            FOUND = .TRUE.
+            STR_LEN = LEN_TRIM(FDESC3D(NV))
+            READ (FDESC3D(NV)(LOC+9:STR_LEN), *) WRF_VERSION
+            IF (WRF_VERSION .GE. '4.1') THEN
+               WRF_V4P = .TRUE.
+            END IF
+         END IF   
+      END DO
+ 
+      IF ( .NOT. CLOSE3( MET_CRO_3D ) ) THEN
+        XMSG = 'Could not close ' // MET_CRO_3D
+        CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
 
       END SUBROUTINE INIT_ENV_VARS
 
