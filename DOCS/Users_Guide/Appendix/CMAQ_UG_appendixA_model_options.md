@@ -52,9 +52,6 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `compilerVrsn`<a id=compilerVrsn></a>
     (Optional) Set the Fortran compiler version number that you will use to compile CMAQ; if you employ this variable, it will be appended to the compiler type when naming build directories and executables
 
--   `IOAPI_MOD_DIR`<a id=IOAPI_MOD_DIR></a>
-    Location of the I/O API modules installed on your Linux system
-
 -   `IOAPI_INCL_DIR`<a id=IOAPI_INCL_DIR></a>
     Location of the I/O API include files installed on your Linux system
 
@@ -62,7 +59,16 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     Location of the I/O API library on your Linux system
 
 -   `NETCDF_LIB_DIR`<a id=NETCDF_LIB_DIR></a>
-    Location of the netCDF Library on your Linux system
+    Location of the netCDF C Library on your Linux system
+    
+-   `NETCDF_INCL_DIR`<a id=NETCDF_LIB_DIR></a>
+    Location of the netCDF C include files on your Linux system
+
+-   `NETCDFF_LIB_DIR`<a id=NETCDF_LIB_DIR></a>
+    Location of the netCDF Fortran Library on your Linux system
+    
+-   `NETCDFF_INCL_DIR`<a id=NETCDF_LIB_DIR></a>
+    Location of the netCDF Fortran include files on your Linux system
 
 -   `MPI_LIB_DIR`<a id=MPI_LIB_DIR></a>
     Location of the Message Passing Interface Library on your Linux system
@@ -71,8 +77,10 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     Name of the I/O API libraryar on your system; set to "-lioapi"
 
 -   `netcdf_lib`<a id=netcdf_lib></a>
-    Name of the netCDF library on your system;  set to "-lnetcdf" for versions < 4.2.0, "-lnetcdff -lnetcdf" for version 4.2.0 and later
-
+    Name of the netCDF library C on your system;  set to "-lnetcdf" for versions < 4.2.0, "-lnetcdf" for version 4.2.0 and later
+    
+-   `netcdff_lib`<a id=netcdf_lib></a>
+    Name of the netCDF Fortran library on your system;  set to "-lnetcdff" for versions 4.2.0 and later, for version before 4.2.0 this    library is bundled with the C library.
 
 -   `pnetcdf_lib`<a id=pnetcdf_lib></a>
     Name of the parallel netCDF library on your system; set to "-lpnetcdf"
@@ -87,13 +95,13 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     Set to match the `CC` (C compiler) you use to compile netCDF
 
 -   `myFSTD` <a id=myFSTD></a>
-    **>>COMMENT<<** Needs description
+    Standard Mode Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script  
 
 -    `myDBG` <a id=myDBG></a>
-	**>>COMMENT<<** Needs description
+     Debug Mode Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script
 
 -     `myLINK_FLAGS` <a id=myLINK_FLAGS></a>
-	**>>COMMENT<<** Needs description
+      Fortran compile linker flags for your Linux system; suggested values for CMAQ are in the distributed script
 
 -   `myFFLAGS`<a id=myFFLAGS></a>
     Fixed-format Fortran compiler optimization flags for your Linux system; suggested values for CMAQ are in the distributed script
@@ -133,87 +141,74 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to build a Makefile but to not compile the executable. The Makefile will be located in the BLD directory and can subsequently be used to manually compile the executable by typing 'make' in the BLD direcotry. Comment out to both create a Makefile and compile the executable when invoking the bldit_cctm.csh script.
 
 -   `build_parallel_io`<a id=build_parallel_io></a>  
-     Uncomment to build CMAQ with true parallel I/O feature (requires ioapi3.2 and pnetcdf)
+     Uncomment to build CMAQ with true parallel I/O feature (requires mpi version of ioapi 3.2 and pnetcdf, refer to [Appendix D](../CMAQ_UG_appendixD).)
 
 -   `build_twoway`<a id=build_twoway></a>  
     Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. This option is currently not supported. Please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
 
 -   `potvortO3`<a id=potvort03></a>   
-    Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information.
+    Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information before invoking this option.
 
 The following configuration settings may have multiple options. Select one option in the CCTM build script.
-
--   `ModDriver: [default: driver/wrf]`<a id=ModDriver></a>
-    The CCTM generalized -coordinate driver module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
-    - `driver/wrf`  
-    use WRF-based scheme for mass-conserving advection; select this option when using WRF meteorology
-    - `driver/yamo`  
-    use Yamartino scheme for mass-conserving advection
 
 -   `ModGrid: [default: Cartesian]`<a id=ModGrid></a>  
     The CCTM model grid configuration module. Currently only Cartesian coordinates are supported by CMAQ. Do not change this module setting.
     -   `grid/cartesian`
 
--   `ModInit: [default: init/yamo]`<a id=ModInit></a>  
-    The CCTM time-step initialization module that uses a Yamartino scheme for mass-conserving advection. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
-    -   `init/yamo`
-
--   `ModCpl: [default: couple/gencoor_wrf]`<a id=ModCpl></a>  
-    Mass coupling concentration conversion module options. Unit conversion and concentration coupling module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
-    -   `couple/gencoor_wrf`  
-    Coupling scheme compatible with the WRF-based advection scheme; select this option when `ModDriver` is set to `driver/wrf`
-    -  `couple/gencoor`  
-    Coupling scheme compatible with the Yamartino advection scheme; select this option when `ModDriver` is set to `driver/yamo`.  
-
--    `ModHadv: [default: hadv/yamo]`<a id=ModHadv></a>  
-      Horizontal advection module.  Currently only the Yamartino global mass-conserving horizontal advection scheme is supported. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
-     -   `hadv/yamo`
-
--   `ModVadv: [default: vadv/wrf]`<a id=ModVadv></a>  
-    Vertical advection module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
-    -   `vadv/wrf`  
-    use the WRF omega calculation with the Piecewise Parabolic Method (PPM) to calculate vertical advection; this module should be used only with WRF meteorology
-    -   `vadv/yamo`  
-    use the global mass-conserving scheme to calculate vertical advection
+-    `ModAdv: [default: wrf_cons]`<a id=ModHadv></a>  
+      3-D Horizontal module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#65-advection) for further information.
+    -   `wrf_cons`  
+    use the WRF vertically integrated column mass to calculate vertical advection
+    -   `local_cons`  
+    use the layer-by-layer integrated mass-conserving scheme to calculate vertical advection
+    
 -   `ModHdiff: [default: hdiff/multiscale]`<a id=ModHdiff></a>  
     The only option in CMAQv5 for the horizontal diffusion module is `hdiff/multiscale`, which uses a diffusion coefficient based on local wind deformation. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#66-horizontal-diffusion) for further information.
-    -   `hdiff/multiscale`  
+    -   `hdiff/multiscale`
+    
 -   `ModVdiff: [default: vdiff/acm2]`<a id=ModVdiff></a>  
     Vertical diffusion and surface exchange module. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#67-vertical-diffusion) for further information.
     -   `vdiff/acm2`  
     calculate vertical diffusion using the Asymmetric Convective Model version 2 (ACM2)
+    
 -   `ModDepv: [default: depv/m3dry]`<a id=ModDepv></a>  
     Deposition calculation module. Users may choose between the msdry and stage options.  If CMAQ output of land use specific deposition or stomatal flux is desired, then the stage option must be selected. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#68-dry-depositionair-surface-exchange) for further information. 
     -   `depv/m3dry`   
     CMAQ m3dry dry deposition routine.  This is an updated version of the routine that has always been in CMAQ. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#681-dry-deposition---m3dry) for further information.
     -   `depv/stage`
     CMAQ stage dry deposition routine.  This option is new in version 5.3. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information. 
+
 -   `ModEmis: [default: emis/emis]`<a id=ModEmis></a>  
     CMAQ inline anthropogenic and natural emissions module. Inline emissions are activated by the user via the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     -   `emis/emis`
+
 -   `ModBiog: [default: biog/beis3]`<a id=ModBiog></a>  
 Calculate biogenic emissions online with the BEIS3 model. Online biogenic emissions are activated in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
     - `biog/beis3`
 -   `ModPlmrs: [default: plrise/smoke]`<a id=ModPlmrs></a>  
 Calculate inline plume rise for large point sources using the Briggs algorithm as it is implemented in SMOKE. Inline emissions plume rise is controlled in the CCTM run script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     - `plrise/smoke`  
+
 -   `ModCgrds: [default: spcs/cgrid_spcs_nml]`<a id=ModCgrds></a>  
     CMAQ model species configuration module.
     -   `spcs/cgrid_spcs_nml`  
     namelist files used to configure CMAQ model species
     -   `spcs/cgrid_specs_icl`  
     use Fortran INCLUDE files to configure CMAQ model species
+
 -   `ModPhot: [default: phot/inline]`<a id=ModPhot></a>  
     Photolysis calculation module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#6103-photolysis) for further information.
     -   `phot/inline`  
     calculate photolysis rates inline using simulated aerosols and ozone concentrations
     -   `phot/table`  
     calculate clear-sky photolysis rates off-line using the CMAQ program JPROC; provide daily photolysis rate look-up tables to CCTM
+
 -   `Mechanism: [default: cb05e51_ae6_aq`]<a id=Mechanism></a>  
     Chemistry mechanism for gas, aerosol, and aqueous chemistry. See the [CMAQv5.3 Chemical Mechanisms Table](../../../CCTM/src/MECHS/README.md) for a listing of the mechanism choices that are available in CMAQv5.3. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#610-gas-phase-chemistry) for further information.
 -   `Tracer [default trac0] `<a id=Tracer></a>  
     Specifies tracer species. Invoking inert tracer species in CMAQ requires defining the tracers using namelist files and compiling the CMAQ programs with these files. The setting for this module corresponds to the directory name in the ``$CMAQ_HOME/CCTM/src/MECHS`` directory that contains the namelist files for the tracer configuration. The default setting does not use any tracers.
     - `trac[n]`
+
 -   `ModGas: [default: gas/ebi_${Mechanism}]`<a id=ModGas></a>  
      Gas-phase chemistry solver module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#6102-solvers) for further information.
      -  `smvgear`  
@@ -222,12 +217,15 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
      use gas/the Rosenbrock chemistry solver
      -  `ebi`  
      use the Euler Backward Iterative solver
+
 -    `ModDiag` <a id=ModDiag></a>
      use various diagnostic routines. Currently only the vertical extraction tool is implemented here.
+
 -   `ModAero: [default: aero7]`<a id=ModAero></a>  
     CMAQ aero/aerosol module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#611-aerosol-dynamics-and-chemistry) for further information.
     -   `aero7`  
     seventh-generation modal CMAQ aerosol model with extensions for sea salt emissions and thermodynamics; includes a new formulation for secondary organic aerosol yields
+
 -   `ModCloud: [default: cloud/acm_ae6]`<a id=ModCloud></a>  
     CMAQ cloud module for modeling the impacts of clouds on deposition, mixing, photolysis, and aqueous chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#612-aqueous-chemistry-scavenging-and-wet-deposition) for further information.
     -   `cloud/acm_ae6`  
@@ -238,12 +236,15 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
     ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver
     -   `cloud/acm_ae6i_kmti`  
     ACM cloud processor that uses the ACM methodology to compute convective mixing with heterogeneous chemistry for AERO6 and aqueous chemistry with kinetic mass transfer and Rosenbrock solver with an extension to simulate the aqueous phase formation of SOA in cloud droplets, see: [CMAQv5.1 Aqueous Chemistry](https://www.airqualitymodeling.org/index.php/CMAQv5.1_Aqueous_Chemistry)
+
 -   `ModUtil: [default: util]`<a id=ModUtil></a>  
     CMAQ utility modules. Do not change this module setting.
     -  `util/util`
--   `ModPa: [default: procan/pa]`<a id=ModPa></a>
+-
+`ModPa: [default: procan/pa]`<a id=ModPa></a>
     Process analysis is controlled in the CCTM run script. Do not change this module setting.
      - `procan/pa`
+
 -   `ModPvO3: [default: pv_o3]`<a id=ModPvO3></a>
     Potential vorticity parameterization for free-troposphere exchange of ozone. This option is configured using the potvorO3 variable in the CCTM build script. Do not change this module setting. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for further information.
     - `pv_o3`
@@ -261,7 +262,7 @@ The environment variables listed below are invoked during execution of the CCTM 
 -   `PROC [default: mpi]`<a id=PROC></a>   
 Sets if the CCTM will run in multi-processor or serial mode.
     - `mpi`  
-    Use MPI multi-processor configuration. Additional configuration settings are required when selecting `mpi`. The CCTM must have been built to support MPI. The run script requires settings for the number of processors and other MPI configuration variables required by the Linux system.  
+    Use MPI multi-processor configuration. The CCTM executable must have been built to support MPI, see bldit_cctm.csh compilation options above. The run script requires settings for the number of processors and other MPI configuration variables required by the Linux system.  
     - `serial`  
     Run the CCTM in serial, single-processor mode.  
 -   `MECH [default: None]`<a id=MECH></a>  
@@ -271,7 +272,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `RUNID [default: $VRSN_compiler_APPL]`<a id=RUNID></a>  
     Run ID used to track version number, compiler, and application case name.  
 -   `BLD` <a id=BLD></a>  
-    Directory path for compiling CMAQ and storing the executable  
+    Directory path of the built CCTM executable  
 -   `EXEC [default: CCTM_$APPL_$EXECID]`<a id=EXEC></a>  
     The name of the CCTM executable.  
 
@@ -299,7 +300,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `NEW_START [default: TRUE]`<a id=NEW_START></a>  
-    Value should be true for new simulations starting from an initial condition file. For a model restart, set to FALSE. For all standard runscripts, this variable is autmatically set to FALSE after looping to the second day of the simulation.  
+    Value should be true for new simulations starting from an initial condition file. To restart from a previous days simulation output, set to FALSE. For all standard runscripts, this variable is autmatically set to FALSE after looping to the second day of the simulation.  
 -   `START_DATE`<a id=START_DATE></a>  
     Simulation start date in Gregorian format (YYYY-MM-DD)  
 -   `END_DATE`<a id=END_DATE></a>  
@@ -347,11 +348,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_MINSYNC [default: 60]`<a id=CTM_MINSYNC></a>  
     Minimum synchronization time step in seconds  
 -   `SIGMA_SYNC_TOP [default: .70]`<a id=SIGMA_SYNC_TOP></a>  
-    Top sigma level thru which sync step determined  
+    Top sigma level thru. which sync step determined  
 -   `ADV_HDIV_LIM [default: .9]`<a id=ADV_HDIV_LIM></a>  
-     Maximum horizontal division limit for advection time step adjustment  
+     Maximum horizontal divergence limit for advection time step adjustment  
 -   `CTM_ADV_CFL [default: .75]`<a id=CTM_ADV_CFL></a>  
-    Maximum Courant–Friedrichs–Lewy (cfl) condition  
+    Maximum Courant–Friedrichs–Lewy (CFL) condition  
 -   `RB_ATOL [default: 1.0E-07]`<a id=RB_ATOL></a>  
     Global Rosenbrock (ROS3) chemistry solver absolute tolerance  
 
@@ -425,13 +426,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 [Return to Top](#TOC_A)
 
--   `IOAPI_LOG_WRITE [default:True]`<a id=IOAPI_LOG_WRITE></a>  
+-   `IOAPI_LOG_WRITE [default:False]`<a id=IOAPI_LOG_WRITE></a>  
     Set to T to turn on excess WRITE3 logging by the I/O API.  
--   `FL_ERR_STOP [default: True]`<a id=FL_ERR_STOP></a>  
+-   `FL_ERR_STOP [default: False]`<a id=FL_ERR_STOP></a>  
     Set to T to configure the program to exit if inconsistent headers are found in the input files.  
 -   `PROMPTFLAG [default: False]`<a id=PROMPTFLAG></a>  
     Turn on I/O-API PROMPTFILE interactive mode. Set to T to require interactive prompts for different I/O API operations.  
--   `IOAPI_OFFSET_64 [default: False]`<a id=IOAPI_OFFSET_64></a>  
+-   `IOAPI_OFFSET_64 [default: True]`<a id=IOAPI_OFFSET_64></a>  
     I/O API setting for large time step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.  
 
 <a id=Aersol_Diagnostics_Controls></a>
@@ -560,9 +561,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 -   `DUST_LU_2 [default: Path to BELD4 Data]`<a id=DUST_LU_2></a>  
     Input BELD "TOT" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
-
--   `MODIS_FPAR [default: path to FPAR data file]`<a id=MODIS_FPAR></a>  
-    Input MODIS FPAR time-varying vegetation netCDF file gridded to the modeling domain.  
 
 -   `BELD4_LU [default: path to BELD4 data file]`<a id=BELD4_LU></a>  
     Input BELD4 landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD4.  
