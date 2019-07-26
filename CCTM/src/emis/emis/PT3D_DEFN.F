@@ -799,7 +799,7 @@ C-----------------------------------------------------------------------
       USE STK_EMIS, ONLY : FIREVAR, FIREFLAG
       USE STK_PRMS, ONLY : MY_STRT_SRC, MY_END_SRC, MY_NSRC, SOURCE
       USE PTMET, ONLY : EMLAYS, P_D => PTMET_DATA
-      USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR
+      USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR, LOG_MESSAGE
       USE UTILIO_DEFN, ONLY : CRLF, XSTAT2
       USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
@@ -842,7 +842,7 @@ C Includes:
       INTEGER          LSTK       ! first L: ZF(L) > STKHT
 
       INTEGER :: S, L, SRC
-      INTEGER :: LTOP
+      INTEGER :: LTOP, LACRESBURNED
 
       INTERFACE
            SUBROUTINE PREPLM( FIREFLG, EMLAYS, HMIX, HTS, PSFC, TS, DDZF, QV,
@@ -924,6 +924,7 @@ C Includes:
       
       ! If The Point File is for Fires, read and save the H-Flux Data in a
       ! Dedicated Variable, BFLUX
+      LACRESBURNED = 0
       IF ( FIREFLAG( N ) ) THEN
          call interpolate_var (STKENAME(N), 'HFLUX', LOC_STKDATE, JTIME, FIREVAR(N)%ARRY)
 
@@ -931,6 +932,8 @@ C Includes:
             SRC = SOURCE( N )%ARRY( S )
             BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC ) * BTU2M4PS3
          END DO
+
+         !Initialize negative ACRES-BURNED counter
       END IF
  
 C Loop through sources and compute plume rise
@@ -1135,8 +1138,7 @@ C calculate smoldering fraction:
                 SFRACT = 1.0 - BESIZE
              ELSE
                 SFRACT = 1.0
-                write( logdev,* ) "Warning: the value of ACRESBURNED for a fire source is negative. ",
-     &                            "CMAQ will set the smodlering fraction equal to 1.0 for (stream,source) = ", n, s
+                LACRESBURNED = LACRESBURNED + 1
              END IF
 
              ZDIFF = ZBOT - P_D( N )%ZZF( 0 )   ! Note: ZDIFF redefined
@@ -1177,6 +1179,13 @@ C Possible report to REPRTLAY
 
       END DO    ! end loop on sources S
 
+      ! Print warning if any ACRES-BURNED values were negative
+      IF ( LACRESBURNED .GT. 0 ) THEN
+           write( XMSG,'(A,I8,A,I8,A)') "Warning: the value of ACRESBURNED for ",LACRESBURNED, " fire sources on stream ",
+     &                     N, " is negative. CMAQ will set the smodlering fraction equal to 1.0 for these cases." 
+           call log_message( logdev, xmsg )
+      END IF
+     
 
 94010 FORMAT( 12( A, :, I8, :, 1X ) )
 94020 FORMAT( 10( A, :, I7, :, 1X ) )
