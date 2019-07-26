@@ -149,7 +149,7 @@ The following options are invoked by uncommenting the line in the CCTM build scr
 -   `Debug_CCTM`<a id=CopySrc></a>  
     Uncomment to compile the CCTM executable in Debug Mode.
     
--   `Debug_CCTM`<a id=CopySrc></a>  
+-   `ISAM_CCTM`<a id=CopySrc></a>  
     Uncomment to compile the CCTM executable with Integrated Source Apportionment Method (ISAM). See [Chapter 11](../CMAQ_UG_ch11_ISAM.md) for futher information before invoking this option. 
     
 -   `build_twoway`<a id=build_twoway></a>  
