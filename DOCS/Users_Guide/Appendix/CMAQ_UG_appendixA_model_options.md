@@ -131,18 +131,27 @@ Several of the CCTM science modules have more than one option.  Brief descriptio
 
 The following options are invoked by uncommenting the line in the CCTM build script.  Comment the line in the script using a "#" to turn the option off.
 
+-   `CompileBLDMAKE`<a id=CopySrc></a>  
+    Uncomment to use an existing BLDMAKE executable to build CCTM executable. If commented out, recompile BLDMAKE utility from the source.
+
 -   `CopySrc`<a id=CopySrc></a>  
     Uncomment to copy the source code into a working build (BLD) directory. If commented, only the compiled object and executable files will be placed in the BLD directory.
 
--   `ParOpt`<a id=ParOpt></a>  
-    Build an executable for running on multiple processors. Invoking this command requires the availability of the MPI library/INCLUDE files.
-
 -   `MakeFileOnly`<a id=MakeFileOnly></a>  
     Uncomment to build a Makefile but to not compile the executable. The Makefile will be located in the BLD directory and can subsequently be used to manually compile the executable by typing 'make' in the BLD direcotry. Comment out to both create a Makefile and compile the executable when invoking the bldit_cctm.csh script.
+    
+-   `ParOpt`<a id=ParOpt></a>  
+    Build an executable for running on multiple processors. Invoking this command requires the availability of the MPI library/INCLUDE files.
 
 -   `build_parallel_io`<a id=build_parallel_io></a>  
      Uncomment to build CMAQ with true parallel I/O feature (requires mpi version of ioapi 3.2 and pnetcdf, refer to [Appendix D](./CMAQ_UG_appendixD_parallel_implementation.md).)
 
+-   `Debug_CCTM`<a id=CopySrc></a>  
+    Uncomment to compile the CCTM executable in Debug Mode.
+    
+-   `Debug_CCTM`<a id=CopySrc></a>  
+    Uncomment to compile the CCTM executable with Integrated Source Apportionment Method (ISAM). See [Chapter 11](../CMAQ_UG_ch11_ISAM.md) for futher information before invoking this option. 
+    
 -   `build_twoway`<a id=build_twoway></a>  
     Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. This option is currently not supported. Please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
 
