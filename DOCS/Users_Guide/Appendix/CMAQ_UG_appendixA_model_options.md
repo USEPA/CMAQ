@@ -499,16 +499,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Start time for calculating elevated-point-source emissions.  
 
 -   `LAYP_NSTEPS [HHHHHH]`<a id=LAYP_NSTEPS></a>  
-    Number of time steps for calculating elevated-point-source emissions.  
-
--   `PT3DDIAG [default: False]`<a id=PT3DDIAG></a>  
-    Output the inline 3-D point-source emissions to a diagnostic netCDF output file (CTM_PT3D_DIAG). Set to Y to turn on; comment out or set to N to turn off.  
-
--   `PT3DFRAC [default: False]`<a id=PT3DFRAC></a>  
-    Output the inline 3-D point-source layer fractions to a diagnostic netCDF output file (PLAY_SRCID_NAME). Set to Y to turn on; comment out or set to N to turn off.  
-
--   `REP_LAYER_MIN [default: -1]`<a id=REP_LAYER_MIN></a>  
-    Minimum layer number for reporting plume rise values to the plume rise diagnostics file. Set to `-1` or comment out to report all layers.  
+    Number of time steps for calculating elevated-point-source emissions.   
 
 <a id=Lightning_NOx_Config></a>
 ### Lightning NOx configuration
