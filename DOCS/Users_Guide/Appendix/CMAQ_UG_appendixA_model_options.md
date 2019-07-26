@@ -309,7 +309,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `NEW_START [default: TRUE]`<a id=NEW_START></a>  
-    Value should be true for new simulations starting from an initial condition file. To restart from a previous days simulation output, set to FALSE. For all standard runscripts, this variable is autmatically set to FALSE after looping to the second day of the simulation.  
+    Value should be true for new simulations starting from an initial condition file. To restart from a previous days simulation output, set to FALSE. For all standard runscripts, this variable is automatically set to FALSE after looping to the second day of the simulation.  
 -   `START_DATE`<a id=START_DATE></a>  
     Simulation start date in Gregorian format (YYYY-MM-DD)  
 -   `END_DATE`<a id=END_DATE></a>  
@@ -331,7 +331,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `GRIDDESC [default: Path to GRIDDESC file]`<a id=GRIDDESC></a>  
     Grid description file for setting the horizontal grid definition.  
 -   `CTM_APPL [default: ${RUNID}_${YYYYMMDD}]`<a id=CTM_APPL></a>  
-    CCTM log file naming extension.  
+    CCTM log and output file naming extension.      
 -   `CONC_SPCS [if commented out, all species]`<a id=CONC_SPCS></a>  
     Model species to be written to the CCTM_CONC file.
 -   `CONC_BLEV_ELEV [if commented out, all layers]`<a id=CONC_BLEV_ELEV></a>  
@@ -391,8 +391,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_FST [default: N]`<a id=CTM_FST></a>  
    Output land-use specific stomatal flux. This option is only available when using the STAGE deposition module and when CTM_MOSAIC is set to Y. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `PX_VERSION` <a id=PX_VERSION></a>
-**>>COMMENT<<** Needs description
-   See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+    Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CLM_VERSION` <a id=CLM_VERSION></a>
 **>>COMMENT<<** Needs description
   See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
@@ -403,10 +402,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (E2C_LU), soil properties (E2C_SOIL), fertilizer conditions (E2C_CHEM), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_BIDI_FERT_NH3` <a id=CTM_BIDI_FERT_NH3></a>
 **>>COMMENT<<** Needs description    
--   `CTM_HGBIDI [default: N]`<a id=CTM_HGBIDI></a>  
-    Activate mercury bidirectional flux for in-line emissions and deposition velocities. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
--   `CTM_SFC_HONO [default: Y]`<a id=CTM_SFC_HONO></a>  
-    Calculate surface HONO interactions. Comment out or set to Y to turn on; set to N to turn off.
+- `CTM_HGBIDI [default: N]`
+      Activate mercury bidirectional flux for in-line emissions and deposition velocities. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
+- `CTM_SFC_HONO [default: Y]`
+     Calculate surface HONO interactions. Comment out or set to Y to turn on; set to N to turn off.
 -   `CTM_GRAV_SETL [default Y]`<a id=CTM_GRAV_SETL></a>  
     Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.
 -   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
@@ -474,7 +473,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_DUSTEM_DIAG [default: False]`<a id=CTM_DUSTEM_DIAG></a>  
     Output the online dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. Set to Y to turn on; comment out or set to N to turn off.  
 -   `CTM_DEPV_FILE [default: False]`<a id=CTM_DEPV_FILE></a>  
-    Output an hourly diagnostic file (CTM_DEPV_DIAG) for the inline deposition velocity calculations. If CTM_ILDEPV is set to N this variable is ignored. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<**  Consider renaming this variable to CTM_DEPV_DIAG.      
+    Output an hourly diagnostic file (CTM_DEPV_DIAG) for the inline deposition velocity calculations. 
 -   `LTNGDIAG [default: False]`<a id=LTNGDIAG></a>  
     Output a lightning NO emissions diagnostics file. Set to `Y` to turn on; comment out or set to `N` to turn off.  
 
