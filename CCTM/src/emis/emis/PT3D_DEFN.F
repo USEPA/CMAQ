@@ -1181,7 +1181,7 @@ C Possible report to REPRTLAY
 
       ! Print warning if any ACRES-BURNED values were negative
       IF ( LACRESBURNED .GT. 0 ) THEN
-           write( XMSG,'(A,I,A,I,A)') "Warning: the value of ACRESBURNED for ",LACRESBURNED, " fire sources on stream ",
+           write( XMSG,'(A,I8,A,I8,A)') "Warning: the value of ACRESBURNED for ",LACRESBURNED, " fire sources on stream ",
      &                     N, " is negative. CMAQ will set the smodlering fraction equal to 1.0 for these cases." 
            call log_message( logdev, xmsg )
       END IF
