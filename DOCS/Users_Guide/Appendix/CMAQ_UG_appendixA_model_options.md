@@ -291,7 +291,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `NPCOL_NPROW [default: 1 1]`<a id=NPCOL_NPROW></a>  
-    The numbers of columns and rows for decomposing the modeling domain in an MPI configuration. The product of this pair of numbers must equal the total number of processors allocated to the CCTM simulation. For serial or single-processor MPI runs set to `1 1`. For multi-processor simulations, the number of columns (i.e, the first number in the pair) should be greater than or equal to the number of rows.  For example, for an 8 processor MPI simulation, set to `4 2`  
+    The numbers of columns and rows for decomposing the modeling domain in an MPI configuration. The product of this pair of numbers must equal the total number of processors allocated to the CCTM simulation. For serial or single-processor MPI runs set to `1 1`. For example, for an 8 processor MPI simulation, set to `4 2`.  
 -   `NPROCS [default: 1]`<a id=NPROCS></a>  
     Number of processors to allocate for the CCTM simulation; equal to the product of NPCOL x NPROW. For serial or single-processor MPI runs set to `1`, otherwise set to the product of the two numbers used in NPCOL_NPROW.  
 
