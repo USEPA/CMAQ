@@ -483,7 +483,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_PHOTDIAG [default: False]`<a id=CTM_PHOTDIAG></a>  
     Option output files for viewing the photolysis rates used in the model simulation and what meterological and other factors determined the rates. Set to Y to turn on; comment out or set to N to turn off. The inline and table options produce three files (`CTM_RJ_1`, `CTM_RJ_2` and `CTM_RJ_3`) and one file (`CTM_RJ_2`), respectively. `CTM_RJ_1` is a two dimensional file that contains key photolysis rates and radiative parameters. `CTM_RJ_2` contains the photolysis rates used over the model domain. `CTM_RJ_3` contains data used to calculate the photolysis rates.   
 --   `NLAYS_PHOTDIAG [default: 1]` <a id=NLAYS_PHOTDIAG></a>: Number of layers in `CTM_RJ_2` and
-     `CTM_RJ_3` files. Premitted values equal 1 to number of layers in model domain. Only the inline option uses this runtime option.  
+     `CTM_RJ_3` files. Permitted values equal 1 to number of layers in model domain. Only the inline option uses this runtime option.  
 --   `NWAVE_PHOTDIAG [default:294 303 310 316 333 381 607]` <a id= NWAVE_PHOTDIAG></a>: In 
      `CTM_RJ_3`, the wavelengths of diagnostic data written. The user can use or subset the default 
      values.  
