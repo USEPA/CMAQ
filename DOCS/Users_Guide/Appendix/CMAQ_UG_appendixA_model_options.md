@@ -423,7 +423,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `OPTICS_MIE_CALC  [default: N]`<a id=OPTICS_MIE_CALC></a>    
      In the inline option for photolysis rates, solve Mie Theory to calculate the optical
      properties of the aerosol modes based on uniformly mixed spheres.
--   `CORE_SHELL_OPTICS [default: N]`<a CORE_SHELL_OPTICS></a>    
+-   `CORE_SHELL_OPTICS [default: N]`<a id=CORE_SHELL_OPTICS></a>    
      In the inline option for photolysis rates, solve Mie Theory to calculate the optical
      properties of the aerosol modes based on spheres with an elemental carbon core.
 
