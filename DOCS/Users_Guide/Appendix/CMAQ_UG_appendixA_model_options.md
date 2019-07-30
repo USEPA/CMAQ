@@ -401,21 +401,19 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_FST [default: N]`<a id=CTM_FST></a>  
    Output land-use specific stomatal flux. This option is only available when using the STAGE deposition module and when CTM_MOSAIC is set to Y. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `PX_VERSION` <a id=PX_VERSION></a>
-    Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+    Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions. Additionally, the soil properties from PX will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CLM_VERSION` <a id=CLM_VERSION></a>
-**>>COMMENT<<** Needs description
-  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+   Setting to indicate whether the Community Land Model (CLM) land-surface model was used in generating the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  Additionally, the soil properties from CLM will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -    `NOAH_VERSION` <a id=NOAH_VERSION></a>
-**>>COMMENT<<** Needs description
-  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+   Setting to indicate whether the Noah land-surface model was used in generating the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  Additionally, the soil properties from Noah will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange.  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_ABFLUX [default: Y]`<a id=CTM_ABFLUX></a>  
     Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (E2C_LU), soil properties (E2C_SOIL), fertilizer conditions (E2C_CHEM), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
 -   `CTM_BIDI_FERT_NH3` <a id=CTM_BIDI_FERT_NH3></a>
-**>>COMMENT<<** Needs description    
+    Setting to indicate whether fertilizer NH3 should be subtracted from the emissions and handled instead by the NH3 bidirectional flux model.  Note that the bidirectional flux model must also be invoked by setting CTM_ABFLUX to Y.    
 - `CTM_HGBIDI [default: N]`
-      Activate mercury bidirectional flux for in-line emissions and deposition velocities. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
+     Setting to activate mercury bidirectional flux for in-line emissions and deposition velocities. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
 - `CTM_SFC_HONO [default: Y]`
-     Calculate surface HONO interactions. Comment out or set to Y to turn on; set to N to turn off.
+     Setting to include  surface HONO interactions.  Comment out or set to Y to turn on; set to N to turn off.
 -   `CTM_GRAV_SETL [default Y]`<a id=CTM_GRAV_SETL></a>  
     Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.
 -   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
