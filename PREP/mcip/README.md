@@ -22,7 +22,6 @@ As of MCIPv5.0, WRF is the only meteorological model that can be processed with 
 
 MCIP can be used to determine the spatial region that is processed by CMAQ. MCIP can process the full meteorological modeling domain, uniformly trim cells from that domain, or "window" a rectilinear subset of that domain. Configuration options for MCIP include the time periods over which to extract data from the meteorological model output files, horizontal and vertical grid definitions, and selections for integrating satellite cloud observations into MCIP output.
 
-
 ## Files, configuration, and environment variables
 
 All MCIP configurations are established at run-time (rather than at compile time) via Fortran namelist variables rather than environment variables, which is a distinction from the rest of the CMAQ programs. The user does not need to directly edit the MCIP namelist file. All configuration settings are contained in the MCIP run script (run_mcip.csh), which automatically creates a new namelist file each time the script is executed.  The MCIP output files are listed in Table 1, and the MCIP output files are listed in Table 2.
@@ -40,9 +39,9 @@ The variables listed here are set by the user in the MCIP script (run_mcip.csh),
 -   `APPL [default: None]`  
     Application name; scenario ID for file naming
 -   `CoordName [default: None]`  
-    Coordinate system name of the MCIP output grid that is written to the GRIDDESC file
+    Coordinate system name of the MCIP output grid that is written to the GRIDDESC file. Additional information about the parameters in the GRIDDESC file can be found in the [I/O API Documentation](https://www.cmascenter.org/ioapi/documentation/all_versions/html/GRIDDESC.html).
 -   `GridName [default: None]`  
-    Model grid name of the MCIP output grid that is written to the GRIDDESC file
+    Model grid name of the MCIP output grid that is written to the GRIDDESC file. 
 -   `DataPath [default: $CMAQ_DATA]`  
     Input/output data directory path
 -   `InMetDir [default: None]`  
