@@ -64,6 +64,10 @@ C                       Updated the dust diag output file accordingly.
 C  8 Jan 16 J.Young: Changes for computational efficiency
 C  2 Feb 16 J.Young: move dust aero speciation table to AERO_DATA
 C  01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all MY_N clauses
+C  9 Jul 19 Gilliam: Removed a lot of old commented out legacy tables. 
+C                    Removed the direct read of FPAR MODIS file as this data comes 
+C                    directly from WRF LSM models that have access to MODIS veg data now.
+C                    Number of soil types fixed to 16 to match WRF and tables updated.
 C-----------------------------------------------------------------------
       use lus_defn
       use aero_data
@@ -107,9 +111,8 @@ C of Binkowski & Roselle (2003)
       real       :: sumsplit, sumfrac
       integer    :: n, idx
 
-C Number of soil types: For both WRF and MM5-PX met models, there are 16 types;
-C the first 12 soil types are used and the rest lumped into Other.
-      integer, parameter :: nsltyp = 13
+C Number of soil types: For WRF there are 16 types;
+      integer, parameter :: nsltyp = 16
 
 C Variables for the windblown dust diagnostic file:
       integer, parameter :: fndust_diag = 19 ! number of fixed diagnostic output vars
@@ -166,7 +169,6 @@ C Module shared variables:
       real, allocatable, save :: kvh   ( :,:,: ) ! ratio of vertical flux / horizontal (k factor)
       real, allocatable, save :: sd_ep ( :,: )   ! soil->dust erodiblity potential
       real, allocatable, save :: tfb   ( :,: )   ! transport fraction in and below canopy
-      real, allocatable, save :: fpar  ( :,: )   ! modis fpar
 
       real :: eropot( 3 ) =     ! erodible potential of soil components
      &        (/ 0.08,   ! clay
@@ -203,8 +205,6 @@ C Local variables:
          character( 16 ) :: vname
          character( 80 ) :: vardesc
          character( 250 ) :: xmsg = ' '
-!        character( 16 ) :: modis_fpar_1 = 'MODIS_FPAR'
-                            ! Fraction of Absorbed Photosynthetically Active Radiation
 
          integer status
          integer c, r, i, j, k, l, n, im
@@ -286,19 +286,15 @@ C Allocate private arrays
          allocate( agland( ncols,nrows ),
      &             wmax  ( ncols,nrows ),
      &             sd_ep ( ncols,nrows ),
-     &             fpar  ( ncols,nrows ),
      &             tfb   ( ncols,nrows ), stat = status )
          if ( status .ne. 0 ) then
-            xmsg = '*** Failure allocating AGLAND, WMAX, FPAR, SD_EP, or TFB'
+            xmsg = '*** Failure allocating AGLAND, WMAX, SD_EP, or TFB'
             call m3warn( pname, jdate, jtime, xmsg )
             success = .false.; return
          end if
          agland = 0.0   ! array assignment
          wmax   = 0.0   ! array assignment
          sd_ep  = 0.0   ! array assignment
-         fpar   = 0.0   ! array assignment
-
-         call interpolate_var ('MODIS_FPAR_T', jdate, jtime, fpar)
 
 C Initialize land use/cover variables
          if ( .not. lus_init( jdate, jtime ) ) then
@@ -682,22 +678,6 @@ C Parameters:
 C---Height for veg elements
          real :: hv( 4 )
 
-C---Vegetation fraction for 4 land types  ! not used
-C from Federal Geographic Data Committee [1997]
-C Note: All other landuse types are mapped into these 4 types.
-!        real :: vegfra( 4 ) =
-!    &           (/ 0.11,     ! shrubland
-!    &              0.17,     ! shrubgrass
-!    &              0.01,     ! barrenland
-!    &              0.30 /)   ! cropland
-
-C---Height for solid elements
-!        real :: hb( 4 ) =
-!    &           (/ 0.01,     ! shrubland
-!    &              0.02,     ! shrubgrass
-!    &              0.005,    ! barrenland
-!    &              0.02 /)   ! cropland
-
 C---Roughness density for solid elements
 C from Darmenova et al. [JGR,2009] and Xi and Sokolik [JGR,2015]
         real :: lambdab( 4 ) =
@@ -713,48 +693,6 @@ C---Compound for computational efficiency
      &              2.0e-06,   ! barrenland
      &              3.0e-03 /) ! cropland
 
-C Soil moisture limit: 13 types and 3 variables, which are:
-C    1 - saturation moisture limit, (gravimetric units assumed, Kg/Kg)
-             !!!! This is probably volumetric-- NOAH
-C    2 - fill capacity, and   <- not used
-C    3 - wilting point        <- not used
-C Modified values compatiable with both MM5 & NAM.
-C Silt values are based on NAM documentation on soil types.
-C Other includes all types higher than 12. The values of Other, serving as
-C placeholders, are randomly chosen.  Values of Other, however, have no effect
-C on dust emissions as the threshold velocity of Other will be high.
-C        real :: soilml( nsltyp,3 ) = reshape (
-C    &           (/ 0.395,  0.135,  0.068,     ! Sand
-C    &              0.410,  0.150,  0.075,     ! Loamy Sand
-C    &              0.435,  0.195,  0.114,     ! Sandy Loam
-C    &              0.485,  0.255,  0.179,     ! Silt Loam
-C    &              0.476,  0.361,  0.084,     ! Silt
-C    &              0.451,  0.240,  0.155,     ! Loam
-C    &              0.420,  0.255,  0.175,     ! Sandy Clay Loam
-C    &              0.477,  0.322,  0.218,     ! Silty Clay Loam
-C    &              0.476,  0.325,  0.250,     ! Clay Loam
-C    &              0.426,  0.310,  0.219,     ! Sandy Clay
-C    &              0.482,  0.370,  0.283,     ! Silty Clay
-C    &              0.482,  0.367,  0.286,     ! Clay
-C    &              0.482,  0.367,  0.286 /),  ! Other
-C    &           (/ nsltyp,3 /), order = (/ 2,1 /) ) ! fill columns first
-
-C Since only soilml( nsltyp,1 ) is used, set the following:
-!        real :: soilml1( nsltyp ) =
-!    &           (/ 0.395,     ! Sand
-!    &              0.410,     ! Loamy Sand
-!    &              0.435,     ! Sandy Loam
-!    &              0.485,     ! Silt Loam
-!    &              0.476,     ! Silt
-!    &              0.451,     ! Loam
-!    &              0.420,     ! Sandy Clay Loam
-!    &              0.477,     ! Silty Clay Loam
-!    &              0.476,     ! Clay Loam
-!    &              0.426,     ! Sandy Clay
-!    &              0.482,     ! Silty Clay
-!    &              0.482,     ! Clay
-!    &              0.482 /)   ! Other
-
 C converted to gravimetric [kg/kg]
          real :: soilml1( nsltyp ) =
      &           (/ 0.242,     ! Sand
@@ -769,40 +707,10 @@ C converted to gravimetric [kg/kg]
      &              0.284,     ! Sandy Clay
      &              0.357,     ! Silty Clay
      &              0.344,     ! Clay
-     &              0.363 /)   ! Other
-
-!! FROM NCAR LSM Group 17 Apr 2007   "volumetric"
-!! ALSO in Spyrou, et al. [JGR,2010]
-!        real :: soilml1( nsltyp ) =
-!    &           (/ 0.339,     ! Sand
-!    &              0.421,     ! Loamy Sand
-!    &              0.434,     ! Sandy Loam
-!    &              0.476,     ! Silt Loam
-!    &              0.476,     ! Silt
-!    &              0.439,     ! Loam
-!    &              0.404,     ! Sandy Clay Loam
-!    &              0.464,     ! Silty Clay Loam
-!    &              0.465,     ! Clay Loam
-!    &              0.406,     ! Sandy Clay
-!    &              0.468,     ! Silty Clay
-!    &              0.468,     ! Clay
-!    &              0.482 /)   ! Other
-
-C convert to gravimetric [kg/kg]
-!        real :: soilml1( nsltyp ) =
-!    &           (/ 0.208,     ! Sand
-!    &              0.264,     ! Loamy Sand
-!    &              0.286,     ! Sandy Loam
-!    &              0.344,     ! Silt Loam
-!    &              0.350,     ! Silt
-!    &              0.299,     ! Loam
-!    &              0.266,     ! Sandy Clay Loam
-!    &              0.341,     ! Silty Clay Loam
-!    &              0.324,     ! Clay Loam
-!    &              0.271,     ! Sandy Clay
-!    &              0.347,     ! Silty Clay
-!    &              0.334,     ! Clay
-!    &              0.363 /)   ! Other
+     &              0.329,     ! Organic Material
+     &              0.000,     ! Water
+     &              0.170,     ! BedRock
+     &              0.280 /)   ! Other
 
 C---Soil texture: the amount of
 C   1: Coarse sand, 2: Fine-medium sand, 3: Silt, 4: Clay
@@ -820,6 +728,9 @@ C   in each soil type [Kg/Kg]. from Menut et al. [JGR,2013]
      &              0.00,   0.52,   0.06,   0.42,     ! Sandy Clay
      &              0.00,   0.06,   0.47,   0.47,     ! Silty Clay
      &              0.00,   0.22,   0.20,   0.58,     ! Clay
+     &              0.00,   0.00,   0.00,   0.00,     ! Organic Material
+     &              0.00,   0.00,   0.00,   0.00,     ! Water
+     &              0.00,   0.00,   0.00,   0.00,     ! BedRock
      &              0.00,   0.00,   0.00,   0.00 /),  ! Other
      &           (/ nsltyp,4 /), order = (/ 2,1 /) ) ! fill columns first
 
@@ -925,8 +836,10 @@ C --------- ###### Start Main Loop ###### ---------
  
             rlay1hgt = rjacm ( c,r ) / cellhgt
 
-C---Vegetation fraction based on the MODIS FPAR
-            vegfrac( c,r ) = max( min( fpar( c,r ), 0.95 ), 0.005 )
+C---Vegetation fraction based on the WRF/MCIP VEG variable. In WRF that would be VEGF_PX
+C-- for the case of PX and VEGFRA in the case of other LSMs. In more recent WRFv4+ versions
+C-- high resolution MODIS veg data is availiable and can be used in PX with pxlsm_modis_veg = 1
+            vegfrac( c,r ) = max( min( Met_Data%veg(c,r), 0.95 ), 0.005)
             vegfree = 1.0 - vegfrac( c,r )
             lambdav = -0.35 * log( vegfree ) ! Shao et al. [Aus. J. Soil Res.,1996]
 
