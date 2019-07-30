@@ -363,7 +363,17 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_ADV_CFL [default: .75]`<a id=CTM_ADV_CFL></a>  
     Maximum Courant–Friedrichs–Lewy (CFL) condition  
 -   `RB_ATOL [default: 1.0E-07]`<a id=RB_ATOL></a>  
-    Global Rosenbrock (ROS3) chemistry solver absolute tolerance  
+    If using Rosenbrock (ros3) photochemistry solver, the absolute tolerance for
+    converging to solution
+-   `RB_RTOL [default: 1.0E-03]`<a id=RB_RTOL></a>  
+    If using Rosenbrock (ros3) photochemistry solver, relative tolerance for converging 
+    to solution
+-   `GEAR_ATOL [default: 1.0E-09]`<a id=RB_ATOL></a>  
+    If using Gear (smvgear) photochemistry solver, the absolute tolerance for
+    converging to solution
+-   `GEAR_RTOL [default: 1.0E-03]`<a id=RB_RTOL></a>  
+    If using Gear (smvgear) photochemistry solver, relative tolerance for converging 
+    to solution
 
 <a id=Science_Options></a>
 ### Science Options
@@ -409,7 +419,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_GRAV_SETL [default Y]`<a id=CTM_GRAV_SETL></a>  
     Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.
 -   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
-    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.      
+    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
+-   `OPTICS_MIE_CALC  [default: N]`<a id=OPTICS_MIE_CALC></a>    
+     In the inline option for photolysis rates, solve Mie Theory to calculate the optical
+     properties of the aerosol modes based on uniformly mixed spheres.
+-   `CORE_SHELL_OPTICS [default: N]`<a id=CORE_SHELL_OPTICS></a>    
+     In the inline option for photolysis rates, solve Mie Theory to calculate the optical
+     properties of the aerosol modes based on spheres with an elemental carbon core.
 
 <a id=Process_Analysis_Options></a>
 ### Process analysis options
@@ -464,10 +480,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Write science processes summaries to the standard output. Impacts run speed and log file output size. Comment out or set to Y to turn on; set to N to turn off.  
 -   `CLD_DIAG [default: False]`<a id=CLD_DIAG></a>  
     Output an hourly wet deposition diagnostic file (CTM_WET_DEP_2) that includes convective wet deposition estimates. Set to Y to turn on; comment out or set to N to turn off.  
--   `NLAYS_PHOTDIAG [default: 0]` <a id=NLAYS_PHOTDIAG></a>  
-**>>COMMENT<<** Needs description  
 -   `CTM_PHOTDIAG [default: False]`<a id=CTM_PHOTDIAG></a>  
-    Output inline photolysis rates and associated data to diagnostic netCDF output files. The file CTM_RJ_1 contains gridded photolysis rates for O<sub>3</sub> (JO3O1D) and NO<sub>2</sub> (JNO2) that include both clear-sky and cloud effects, total downward irradiance at the surface (ETOT_SFC_W), aerosol optical depth (TAU_AERO_W), total optical depth (TAU_TOT_W), optical depth of ozone above the model domain (TAUO3_TOP_W), Rayleigh optical depth above the model domain (TAU_RAY_W), and surface albedo (ALBEDO_W). The file CTM_RJ_2 contains gridded photolysis rates for all other photolysis reactions in the selected chemical mechanism. Set to Y to turn on; comment out or set to N to turn off. **>>COMMENT<<** Bill needs to update this.  CMAQv5.3 has a CTM_RJ_3 file.  
+    Option output files for viewing the photolysis rates used in the model simulation and what meterological and other factors determined the rates. Set to Y to turn on; comment out or set to N to turn off. The inline and table options produce three files (`CTM_RJ_1`, `CTM_RJ_2` and `CTM_RJ_3`) and one file (`CTM_RJ_2`), respectively. `CTM_RJ_1` is a two dimensional file that contains key photolysis rates and radiative parameters. `CTM_RJ_2` contains the photolysis rates used over the model domain. `CTM_RJ_3` contains data used to calculate the photolysis rates.   
+--   `NLAYS_PHOTDIAG [default: 1]` <a id=NLAYS_PHOTDIAG></a>: Number of layers in `CTM_RJ_2` and
+     `CTM_RJ_3` files. Permitted values equal 1 to number of layers in model domain. Only the inline option uses this runtime option.  
+--   `NWAVE_PHOTDIAG [default:294 303 310 316 333 381 607]` <a id= NWAVE_PHOTDIAG></a>: In 
+     `CTM_RJ_3`, the wavelengths of diagnostic data written. The user can use or subset the default 
+     values.  
 -   `CTM_SSEMDIAG [default: False]`<a id=CTM_SSEMDIAG></a>  
     Output the calculated sea salt emissions to a diagnostic netCDF output file (CTM_SSEMIS_1). Set to Y to turn on; comment out or set to N to turn off.  
 -   `CTM_DUSTEM_DIAG [default: False]`<a id=CTM_DUSTEM_DIAG></a>  
