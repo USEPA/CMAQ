@@ -383,7 +383,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
     Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. Comment out variable or set to Y to turn on; set to N to turn off. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information. 
+    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information. 
 -   `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
     Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = FALSE`  
     - `BELD3`  
@@ -391,39 +391,37 @@ Sets if the CCTM will run in multi-processor or serial mode.
     - `BELD4`
     Use BELD4 landuse data
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
-    Setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. Set to Y to turn on; comment out variable or set to N to turn off. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
+    Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
 -   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
-    Setting to output the CCTM-calculated vertical velocities to the CONC file. Set to Y to turn on; comment out variable or set to N to turn off.
+    Y/N setting to output the CCTM-calculated vertical velocities to the CONC file. 
 -   `KZMIN [default: Y]`<a id=KZMIN></a>  
     If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
 -   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
-    Ouput land use specific deposition velocities and fluxes. This option is only available when using the STAGE deposition module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+    Y/N setting to ouput land use specific deposition velocities and fluxes. This option is only available when using the STAGE deposition module. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_FST [default: N]`<a id=CTM_FST></a>  
-   Output land-use specific stomatal flux. This option is only available when using the STAGE deposition module and when CTM_MOSAIC is set to Y. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+   Y/N setting to output land-use specific stomatal flux. This option is only available when using the STAGE deposition module and when CTM_MOSAIC is set to Y. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `PX_VERSION` <a id=PX_VERSION></a>
-    Setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions. Additionally, the soil properties from PX will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+    Y/N setting to indicate whether the Pleim-Xiu land-surface model was used for the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions. Additionally, the soil properties from PX will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CLM_VERSION` <a id=CLM_VERSION></a>
-   Setting to indicate whether the Community Land Model (CLM) land-surface model was used in generating the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  Additionally, the soil properties from CLM will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+   Y/N setting to indicate whether the Community Land Model (CLM) land-surface model was used in generating the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  Additionally, the soil properties from CLM will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -    `NOAH_VERSION` <a id=NOAH_VERSION></a>
-   Setting to indicate whether the Noah land-surface model was used in generating the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  Additionally, the soil properties from Noah will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange.  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
+   Y/N setting to indicate whether the Noah land-surface model was used in generating the input meteorology. If this setting is set to Y the input meteorology data must include soil moisture (SOILM), soil temperature (SOILT), and soil type (ISLTYP) variables for use in the calculation of soil NO emissions.  Additionally, the soil properties from Noah will be used in the dust model and in the STAGE deposition module for calculating the soil compensation point for ammonia bidirectional exchange.  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#682-dry-depostion---stage) for further information.
 -   `CTM_ABFLUX [default: Y]`<a id=CTM_ABFLUX></a>  
-    Activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (E2C_LU), soil properties (E2C_SOIL), fertilizer conditions (E2C_CHEM), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
+    Y/N setting to activate fertilizer ammonia bidirectional flux for in-line emissions and deposition velocities. Setting this variable to Y requires four additional input files that include gridded fractional crop distributions (E2C_LU), soil properties (E2C_SOIL), fertilizer conditions (E2C_CHEM), and an agricultural soil initial conditions file (INIT_MEDC_1). Activation of this setting will produce additional variables in the output dry deposition file. 
 -   `CTM_BIDI_FERT_NH3` <a id=CTM_BIDI_FERT_NH3></a>
-    Setting to indicate whether fertilizer NH3 should be subtracted from the emissions and handled instead by the NH3 bidirectional flux model.  Note that the bidirectional flux model must also be invoked by setting CTM_ABFLUX to Y.    
+    Y/N setting to indicate whether fertilizer NH3 should be subtracted from the emissions and handled instead by the NH3 bidirectional flux model.  Note that the bidirectional flux model must also be invoked by setting CTM_ABFLUX to Y.    
 - `CTM_HGBIDI [default: N]`
-     Setting to activate mercury bidirectional flux for in-line emissions and deposition velocities. Activation of this setting will produce additional variables in the output dry deposition file. Set to Y to turn on; comment out or set to N to turn off.
+     Y/N setting to activate mercury bidirectional flux for in-line emissions and deposition velocities. Activation of this setting will produce additional variables in the output dry deposition file. 
 - `CTM_SFC_HONO [default: Y]`
-     Setting to include  surface HONO interactions.  Comment out or set to Y to turn on; set to N to turn off.
+     Y/N setting to include  surface HONO interactions.  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#6.10.4_HONO) for further information. 
 -   `CTM_GRAV_SETL [default Y]`<a id=CTM_GRAV_SETL></a>  
-    Activate gravitational sedimentation for aerosols. Comment out or set to Y to turn on; set to N to turn off.
+    Y/N setting to activate gravitational sedimentation for aerosols. 
 -   `CTM_BIOGEMIS [default: Y]`<a id=CTM_BIOGEMIS></a>  
-    Calculate biogenic emissions. Comment out or set to Y to turn on; set to N to turn off.  If this option is activated, several additional variables must be set (see the In-line biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
+    Y/N setting to calculate biogenic emissions. If this option is activated, several additional variables must be set (see the online biogenic emissions configuration settings). See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.
 -   `OPTICS_MIE_CALC  [default: N]`<a id=OPTICS_MIE_CALC></a>    
-     In the inline option for photolysis rates, solve Mie Theory to calculate the optical
-     properties of the aerosol modes based on uniformly mixed spheres.
+     In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on uniformly mixed spheres.
 -   `CORE_SHELL_OPTICS [default: N]`<a id=CORE_SHELL_OPTICS></a>    
-     In the inline option for photolysis rates, solve Mie Theory to calculate the optical
-     properties of the aerosol modes based on spheres with an elemental carbon core.
+     In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on spheres with an elemental carbon core.
 
 <a id=Process_Analysis_Options></a>
 ### Process analysis options
@@ -463,9 +461,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `CTM_PMDIAG [default: False]`<a id=CTM_PMDIAG></a>  
-    Output aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). Set to Y to turn on; comment out or set to N to turn off. The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.  
+    Output aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.  
 -   `CTM_APMDIAG [default: False]`<a id=CTM_APMDIAG></a>  
-    Output hourly average aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). Set to Y to turn on; comment out or set to N to turn off. The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.   
+    Output hourly average aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.   
 -   `APMDIAG_BLEV_ELEV [default: 0]`<a id=APMDIAG_BLEV_ELEV></a>  
     Modeling grid domain layer range for the hourly average aerosol diagnostics and properties file. Set to the two digits representing the bottom and top layer numbers to bound the output domain. Comment out this variable or set it to 0 to output all layers. Set the value to "1 1" to output just the surface layer.
 
@@ -475,24 +473,24 @@ Sets if the CCTM will run in multi-processor or serial mode.
 [Return to Top](#TOC_A)
 
 -   `CTM_CKSUM [default: True]`<a id=CTM_CKSUM></a>  
-    Write science processes summaries to the standard output. Impacts run speed and log file output size. Comment out or set to Y to turn on; set to N to turn off.  
+    Write science processes summaries to the standard output. Impacts run speed and log file output size. 
 -   `CLD_DIAG [default: False]`<a id=CLD_DIAG></a>  
-    Output an hourly wet deposition diagnostic file (CTM_WET_DEP_2) that includes convective wet deposition estimates. Set to Y to turn on; comment out or set to N to turn off.  
+    Output an hourly wet deposition diagnostic file (CTM_WET_DEP_2) that includes convective wet deposition estimates. 
 -   `CTM_PHOTDIAG [default: False]`<a id=CTM_PHOTDIAG></a>  
-    Option output files for viewing the photolysis rates used in the model simulation and what meterological and other factors determined the rates. Set to Y to turn on; comment out or set to N to turn off. The inline and table options produce three files (`CTM_RJ_1`, `CTM_RJ_2` and `CTM_RJ_3`) and one file (`CTM_RJ_2`), respectively. `CTM_RJ_1` is a two dimensional file that contains key photolysis rates and radiative parameters. `CTM_RJ_2` contains the photolysis rates used over the model domain. `CTM_RJ_3` contains data used to calculate the photolysis rates.   
+    Output files for viewing the photolysis rates used in the model simulation and what meterological and other factors determined the rates. The inline and table options produce three files (`CTM_RJ_1`, `CTM_RJ_2` and `CTM_RJ_3`) and one file (`CTM_RJ_2`), respectively. `CTM_RJ_1` is a two dimensional file that contains key photolysis rates and radiative parameters. `CTM_RJ_2` contains the photolysis rates used over the model domain. `CTM_RJ_3` contains data used to calculate the photolysis rates.   
 --   `NLAYS_PHOTDIAG [default: 1]` <a id=NLAYS_PHOTDIAG></a>: Number of layers in `CTM_RJ_2` and
      `CTM_RJ_3` files. Permitted values equal 1 to number of layers in model domain. Only the inline option uses this runtime option.  
 --   `NWAVE_PHOTDIAG [default:294 303 310 316 333 381 607]` <a id= NWAVE_PHOTDIAG></a>: In 
      `CTM_RJ_3`, the wavelengths of diagnostic data written. The user can use or subset the default 
      values.  
 -   `CTM_SSEMDIAG [default: False]`<a id=CTM_SSEMDIAG></a>  
-    Output the calculated sea salt emissions to a diagnostic netCDF output file (CTM_SSEMIS_1). Set to Y to turn on; comment out or set to N to turn off.  
+    Output the calculated sea salt emissions to a diagnostic netCDF output file (CTM_SSEMIS_1). 
 -   `CTM_DUSTEM_DIAG [default: False]`<a id=CTM_DUSTEM_DIAG></a>  
-    Output the online dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. Set to Y to turn on; comment out or set to N to turn off.  
+    Output the online dust emissions to a diagnostic netCDF output file (CTM_DUST_EMIS_1). The diagnostic file includes not only the total dust emissions, but also dust emissions by land use category and dust model parameters, such as gridded erodible land use fractions. 
 -   `CTM_DEPV_FILE [default: False]`<a id=CTM_DEPV_FILE></a>  
     Output an hourly diagnostic file (CTM_DEPV_DIAG) for the inline deposition velocity calculations. 
 -   `LTNGDIAG [default: False]`<a id=LTNGDIAG></a>  
-    Output a lightning NO emissions diagnostics file. Set to `Y` to turn on; comment out or set to `N` to turn off.  
+    Output a lightning NO emissions diagnostics file. 
 
 <a id=Inline_Emissions_Config></a>
 ### Inline emissions configuration
@@ -526,7 +524,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Setting to define whether the lightning emissions calculation will be inline or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the inline emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating inline lightning NO emissions. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.  
 
 -   `USE_NLDN [default: False]`<a id=USE_NLDN></a>  
-    Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file.  Comment out or set to Y to turn on; set to N to turn off. If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.  
+    Use hourly NLDN strikes file to compute inline lightning NO emissions. Activating this setting requires the NLDN_STRIKES input file.  If USE_NLDN is set to N and LTNGNO set to "InLine", lightning NO emissions will be generated using parameters provided in the LTNGPARMS_FILE.  
     Lightning parameters netCDF file, which contains the linear regression parameters for generating lightning NO using the parameterization scheme when LTNGNO set to "InLine" and USE_NLDN set to N. In addition, it also contains the intercloud to cloud-to-ground flash ratios, scaling factors for calculating flashes using the convective precipitation rate, land-ocean masks, and the moles of NO per flash (cloud-to-ground and intercloud) which are used by both lightning production schemes (NLDN and parameterization). Ingore if LTINGNO set to an external input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.   
 
 -  `CTM_LTNGDIAG_1`<a id=LTNGOUT></a>  
@@ -547,7 +545,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Grid-normalized biogenic emissions input netCDF file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.  
     
 -   `BIOSW_YN [default: Y]`<a id=BIOSW_YN></a>  
-    Use the frost dates switch file to determine whether to use winter or summer biogenic emissions. Comment out or set to Y to turn on; set to N to turn off. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
+    Use the frost dates switch file to determine whether to use winter or summer biogenic emissions.  See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
 -   `BIOSEASON [default: False]`<a id=BIOSEASON></a>  
     File name for the frost dates switch input netCDF file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
@@ -562,7 +560,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Directory path and file name of biogenic NO soil emissions file. If NEW_START is set to N or F, the soil NO emissions file from the previous day's simulation will be a required input file. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information.   
 
 -   `B3GTS_DIAG [default: False]`<a id=B3GTS_DIAG></a>  
-    Write the online biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). Set to Y to turn on; comment out or set to N to turn off.  
+    Write the online biogenic emissions (mass units) to a diagnostic netCDF output file (B3GTS_S). 
 
 -   `B3GTS_S [default: [Output Directory]/CCTM_B3GTS_$CTM_APPL.nc`<a id=B3GTS_S></a>  
     Diagnostic output netCDF file of biogenic emissions. This variable is ignored if B3GTS_DIAG is set to N.  
