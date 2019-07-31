@@ -548,6 +548,11 @@ C-------------------------------------------------------------------------------
          INTEGER l                             
          INTEGER :: STAT
 
+         LOGICAL, SAVE :: INITIALIZED = .FALSE.
+
+         IF( INITIALIZED ) RETURN
+         INITIALIZED = .TRUE.
+
          IF (WRF_V4P) THEN
             N_SOIL_TYPE = N_SOIL_TYPE_WRFV4P
          ELSE

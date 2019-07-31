@@ -162,7 +162,6 @@ C External Functions
 
 C Parameters:
       INTEGER, PARAMETER :: MXRHRS = 24     ! no. of rainfall hours for YL95 algorithm
-      INTEGER, PARAMETER :: MAXSTYPES = 11
       INTEGER, PARAMETER :: LSM_WATER = 14
       REAL,    PARAMETER :: CFNODRYFC = ( 1.0 / 3.0 ) * ( 1.0 / 30.0 )
         
@@ -432,7 +431,7 @@ C Calculate NO emissions by going thru temperature cases
 
                   SOILCAT = GRID_DATA%SLTYP( C,R )
                   TSOI = 0.0
-                  IF ( SOILCAT .LE. MAXSTYPES .AND. PX_LSM ) THEN
+                  IF ( SOILCAT .LE. N_SOIL_TYPE .AND. PX_LSM ) THEN
                      RATIO = MET_DATA%SOIM1( C,R ) / Grid_Data%WSAT( C,R )
                      IF ( USE_SOILT ) THEN
                         TSOI = MET_DATA%SOIT1( C,R )
@@ -756,7 +755,7 @@ C   4. override adjustment for saturated soils
 
          SOILCAT = GRID_DATA%SLTYP( C,R )
 
-         IF ( SOILCAT .LE. MAXSTYPES .AND. PX_LSM ) THEN   ! not water
+         IF ( SOILCAT .LE. N_SOIL_TYPE .AND. PX_LSM ) THEN   ! not water
             IF ( SOILM .GE. SAT_THRES * WSAT ) THEN
                PRECIP_ADJ_PX = 0.0
             ELSE
