@@ -1,4 +1,3 @@
-
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch12_sulfur_tracking.md) - [Home](README.md) - [Tables and Figures >>](CMAQ_UG_tables_figures.md)
@@ -12,9 +11,9 @@ Air quality models are typically run in two different ways:
 * Standalone – Archived output from a meteorological model is used to drive the air quality model.
 * Coupled – The air quality and meteorological models are run simultaneously and the chemistry can impact the weather.
 
-The latter “coupled” method is beneficial for studying important interactions between chemistry and weather. For example, aerosols can affect the amount of sunlight that reaches the surface, thus impacting temperature. Aerosols also have important impacts on cloud formation and cloud albedoHelpalbedoThe amount of solar radiation reflected from an object or surface, often expressed as a percentage. CMAQ has been coupled to the Weather Research and Forecasting (WRF) model for this purpose. 
+The latter “coupled” method is beneficial for studying important interactions between present of aerosol and weather. For example, aerosols can affect the amount of sunlight that reaches the surface, thus impacting temperature (aerosol direct effect). Aerosols also have important impacts on cloud formation (aerosol indirect effect) and cloud albedo. CMAQ has been coupled to the Weather Research and Forecasting (WRF) model for this purpose with the emphasis on aerosol direct effect. In addition, meteorological information is passing to CMAQ in a high frequency than standalone mode. 
 
-In the WRF-CMAQ coupled model (Wong et al., 2012), WRF and CMAQ are simultaneously integrated and information from CMAQ, like aerosol concentration, is passed into WRF so that the chemistry can impact the weather. Specifically, the CMAQv5.3 coupled model gives users the options to pass aerosol optical properties to the radiation modules in WRF (aerosol direct radiative effects).  The ability to pass aerosol information into the cloud microphysics routines (aerosol indirect effects; Yu et al, 2014) is currently under development and will be available in a future release.   
+In the WRF-CMAQ coupled model (Wong et al., 2012), WRF and CMAQ are simultaneously integrated and information from CMAQ, like aerosol concentration, is passed into WRF so that the present of aerosol can impact the weather. Specifically, the CMAQv5.3 coupled model gives users the options to pass aerosol optical properties to the radiation modules in WRF (aerosol direct radiative effects).  The ability to pass aerosol information into the cloud microphysics routines (aerosol indirect effects; Yu et al, 2014) is currently under development and will be available in a future release.   
 
 ## 13.2 Aerosol Direct Radiative Feedback Effects
 Aerosol information from CMAQ is transferred to the meteorological model, WRF.  Wavelength dependent aerosol optical properties (extinction, single scattering albedo, and asymmetry factor) are estimated using aerosol composition and size distribution information simulated by CMAQ in conjunction with an algorithm based on Mie theory.  Black carbon is treated by the core-shell approach developed by Frank Binkowski based on Bohren and Huffman (1983). This has been implemented in the shortwave Rapid Radiative Transfer Model for General Circulation Models (RRTMG) radiation scheme in WRF, where aerosol optical properties are calculated for 14 wavelength bands (Clough et al. 2005). The aerosol optics calculations in the WRF-CMAQ model were assessed through comparison to measured optical properties of ambient aerosols made during the Carbonaceous Aerosol and Radiation Effects Study (CARES) as detailed by Gan et al. (2015a).
@@ -36,9 +35,9 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
 - Configure WRF by typing `configure`. This creates a configure.wrf file.
 - If you have never done WRF configure before, here are some guidelines:
    1. If the configure script does not find the NETCDF path, follow the prompt to enter the explicit NETCDF include path and library path.
-   2. Option selection determines by choosing an approriate compiler vendor and hardware description on right most column of the displayed option table and intercept with the third column (dmpar).  Example: for INTEL (ifort/icc), selection is 15.
+   2. Option selection determines by choosing an approriate compiler vendor and hardware description on right most column of the displayed option table and intercept with the third column (dmpar).  Example: for INTEL (ifort/icc), selection is 15 (you might consider 66 or 70 for a specific hardware if you own).
    3. In the compile for nesting section, choose the default value.
-- Download IOAPI_3.1 (or IOAPI 3.2) and install it.
+- Download IOAPI 3.2 and install it.
 - Go through regular building CMAQ model process. Make sure bldit.cctm script  have:
 
     `set MakeFileOnly` line uncomment out
@@ -47,9 +46,9 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
 
 - After running the blidit.cctm script, rename BLD_\* as cmaq and move it into WRFV411 directory.
 
- - Download coupled model tarball from the EPA ftp site: ftp://newftp.epa.gov/exposure/CMAQ/V5_2/WRF-CMAQ_Coupled_Model/ (file name="WRF3.8_CMAQ5.2_TwoWay_Model.tar.gz"). Unzip the tarball and then move the twoway directory inside WRFV38 as well.
+ - Download coupled model tarball from the EPA ftp site: ftp://newftp.epa.gov/exposure/CMAQ/V5_2/WRF-CMAQ_Coupled_Model/ (file name="WRF411_CMAQ5.3_TwoWay_Model.tar.gz"). Unzip the tarball and then move the twoway directory inside WRFV411 as well.
 
-- Go into directory WRFV38 and execute the following command:
+- Go into directory WRFV411 and execute the following command:
 
    `twoway/assemble`
 
