@@ -113,7 +113,7 @@ mkdir /home/netcdf-fortran-4.4.5-gcc9.1.0
 setenv NCDIR /home/netcdf-c-4.7.0-gcc9.1.0
 ```
 
-7. set the CC environment variable to use the gcc and gfortran compilers
+7. Set the CC environment variable to use the gcc and gfortran compilers
 
 ```
 which gfort
@@ -125,20 +125,20 @@ setenv FC /urs/local/apps/gcc/9.1.0/bin/gcc
 setenv CXX /urs/local/apps/gcc/9.1.0/bin/g++
 ```
 
-8. set your LD_LIBRARY_PATH to include the netcdf-C library path for netCDF build
+8. Set your LD_LIBRARY_PATH to include the netcdf-C library path for netCDF build
 
 ```
 setenv NCDIR /home/netcdf-c-4.7.0-gcc9.1.0
 setenv LD_LIBRARY_PATH ${NCDIR}/lib:${LD_LIBRARY_PATH}
 ```
 
-9. check your LD_LIBRARY_PATH
+9. Check your LD_LIBRARY_PATH
 
 ```
 echo $LD_LIBRARY_PATH
 ```
 
-10. set the install directory for netCDF fortran
+10. Set the install directory for netCDF fortran
 
 ```
 setenv NFDIR /home/netcdf-fortran-4.4.5-gcc9.1.0
@@ -147,7 +147,7 @@ setenv CPPFLAGS -I${NCDIR}/include
 setenv LDFLAGS -L${NCDIR}/lib
 ```
 
-11. check your LD_LIBRARY_PATH environment variable
+11. Check your LD_LIBRARY_PATH environment variable
 
 ```
 echo $LD_LIBRARY_PATH
@@ -221,20 +221,20 @@ git clone https://github.com/cjcoats/ioapi-3.2
 BIN        = Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
 ```
 
-3. copy an existing Makeinclude file to have this BIN name at the end
+3. Copy an existing Makeinclude file to have this BIN name at the end
 
 ```
 cd ioapi
 cp Makeinclude.Linux2_x86_64gfort Makeinclude.Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
 ```
 
-4. create a BIN directory
+4. Create a BIN directory
 
 ```
 mkdir $BIN
 ```
 
-5. link the netcdf-C and netcdf-Fortran library in the $BIN directory
+5. Link the netcdf-C and netcdf-Fortran library in the $BIN directory
 
 ```
 cd $BIN
@@ -248,7 +248,7 @@ ln -s /home/netcdf-fortran-4.4.5-gcc9.1.0/lib/libnetcdf.a
 make |& tee make.log
 ```
 
-7. change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
+7. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
 
 ```
 cd $BIN
