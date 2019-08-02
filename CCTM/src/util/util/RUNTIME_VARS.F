@@ -849,9 +849,10 @@
      
       XMSG = 'MET data determined based on WRF ARM version '
       IF( MYPE .EQ. 0 ) THEN
-          WRITE(OUTDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ) //  TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )
+          WRITE(OUTDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ), TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )
+          WRITE(LOGDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ), TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )
       ELSE
-          WRITE(LOGDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ) // TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )
+          WRITE(LOGDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ), TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )
       END IF
  
       IF ( .NOT. CLOSE3( MET_CRO_3D ) ) THEN

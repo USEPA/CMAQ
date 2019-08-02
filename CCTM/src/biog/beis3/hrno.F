@@ -120,6 +120,7 @@ C    09 Jan 15 J.Young: fix bug of not calculating NOPOL for last sync step of l
 C                       run output step; get saturation from LSM module; put PX_LSM
 C                       as first conditional clause
 C    01 Feb 19 D.Wong: Implemented centralized I/O approach
+C    30 June 19 J. Pleim: Corrected Soil Types to 16 and simplified code 
 C-----------------------------------------------------------------------
 C Modified from:
 
@@ -176,7 +177,6 @@ C Local Variables:
       CHARACTER( 16 ), SAVE :: SOILINP ! logical name for input NO soil data
       CHARACTER( 16 ), SAVE :: SOILOUT = 'SOILOUT' ! logical name for output NO soil data
       CHARACTER( 33 ), SAVE :: DESCSTR = 'hrly cnv. & non-cnv. rainfall for'
-                                         !123456789012345678901234567890123
 
       CHARACTER( 16 ) :: VAR        ! variable name
 
@@ -431,27 +431,7 @@ C Calculate NO emissions by going thru temperature cases
 
                   SOILCAT = GRID_DATA%SLTYP( C,R )
                   TSOI = 0.0
-                  IF ( SOILCAT .LE. N_SOIL_TYPE .AND. PX_LSM ) THEN
-                     RATIO = MET_DATA%SOIM1( C,R ) / Grid_Data%WSAT( C,R )
-                     IF ( USE_SOILT ) THEN
-                        TSOI = MET_DATA%SOIT1( C,R )
-                     ELSE
-                        TSOI = 0.72 * TAIR + 82.28
-                     END IF
-                     TSOI = MIN( MAX( TSOI, 273.16 ), 303.16 ) - 273.16   ! deg C
-                     CFNODRY = CFNODRYFC * TSOI ! see YL 1995 Eqn 9a p. 11452
-
-                     IF ( TSOI .LE. 10.0 ) THEN ! see YL 1995 Eqn 7b
-                        CFNOWET = 0.28 * EFAC * TSOI   ! linear cold case
-                     ELSE
-                        CFNOWET = EFAC * EXP( 0.103 * TSOI )   ! exponential case
-                     END IF
-
-                     CFNO = CFNODRY + RATIO * ( CFNOWET - CFNODRY )
-                     FAC1 = GROWAGNO( C,R ) * CFNO
-     &                    * FERTILIZER_ADJ( JDATE )
-     &                    * VEG_ADJ( JDATE )
-                  ELSE IF( SOILCAT .NE. LSM_WATER .AND. ( CLM_LSM .OR. NOAH_LSM ) ) THEN
+                  IF( SOILCAT .NE. LSM_WATER  ) THEN
                      RATIO = MET_DATA%SOIM1( C,R ) / Grid_Data%WSAT( C,R )
                      IF ( USE_SOILT ) THEN
                         TSOI = MET_DATA%SOIT1( C,R )
@@ -718,6 +698,7 @@ C Revision History:
 C    11/01 : Prototype by GAP
 C    3/05  : create separate functions for PX vs non-PX versions
 C    1/10  : J.Young - restructure
+C    7/31/19 J. Pleim : Corrected Soil Types and Simplified Code
 C-----------------------------------------------------------------------
 
          USE UTILIO_DEFN
@@ -754,20 +735,7 @@ C        otherwise continue present NO pulse
 C   4. override adjustment for saturated soils 
 
          SOILCAT = GRID_DATA%SLTYP( C,R )
-
-         IF ( SOILCAT .LE. N_SOIL_TYPE .AND. PX_LSM ) THEN   ! not water
-            IF ( SOILM .GE. SAT_THRES * WSAT ) THEN
-               PRECIP_ADJ_PX = 0.0
-            ELSE
-               PTYPE_TEST = PULSETYPE( RAIN )
-               IF ( PTYPE_TEST .GT. PTYPE ) THEN ! Rainfall class type increases
-                  PULSEDATE = JDATE              ! (NO emission pulse generated)
-                  PULSETIME = JTIME
-                  PTYPE = PTYPE_TEST
-               END IF
-               PRECIP_ADJ_PX = PRECIPFAC( JDATE, JTIME, PULSEDATE, PULSETIME, PTYPE )
-            END IF
-         ELSE IF ( SOILCAT .NE. LSM_WATER .AND. ( CLM_LSM .OR. NOAH_LSM ) ) THEN 
+         IF ( SOILCAT .NE. LSM_WATER  ) THEN 
             IF ( SOILM .GE. SAT_THRES * WSAT ) THEN
                PRECIP_ADJ_PX = 0.0
             ELSE
