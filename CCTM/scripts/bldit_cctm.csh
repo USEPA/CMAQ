@@ -120,7 +120,8 @@ set ParOpt                             #> uncomment to build a multiple processo
 #> Libraries/include files
 #set LIOAPI   = "${IOAPI_DIR}/lib ${ioapi_lib}"      #> I/O API library directory
 #set IOAPIMOD = "${IOAPI_DIR}/include"               #> I/O API module directory
- set NETCDF   = "${NETCDF_DIR}/lib ${netcdf_lib}"    #> netCDF library directory
+ set NETCDF   = "${NETCDF_DIR}/lib ${netcdf_lib}"    #> netCDF C library directory
+ set NETCDFF  = "${NETCDFF_DIR}/lib ${netcdff_lib}"  #> netCDF Fortran library directory
  set PNETCDF  = "${PNETCDF_DIR}/lib ${pnetcdf_lib}"  #> Parallel netCDF library directory
 #set PIO_INC  = "${IOAPI_DIR}/src"
 
@@ -373,6 +374,8 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "ioapi       $quote$LIB2$quote;     "                        >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "netcdff     $quote$netcdff_lib$quote;"                      >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
     echo "mpich       $quote$LIB3$quote;"                          >> $Cfile

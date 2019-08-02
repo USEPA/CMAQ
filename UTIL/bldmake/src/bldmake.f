@@ -34,8 +34,10 @@
 !     Oct 2015 J.Young: Rework to make macros in the makefile for libs and
 !                       compiler "I" references; get rid of the CVS option.
 !     Jan 2016 D.Wong: Fixed the include path of mpif.h
-!     June 2016 F. Sidi: Removed redundant IOAPI library. Makefile generated 
+!     June 2019 F. Sidi: Removed redundant IOAPI library. Makefile generated 
 !                        consistant with IOAPI library format.
+!     July 2019 F. Sidi: Added netCDF Fortran Library Path. Makefile generated 
+!                        consistent with netCDF library format. 
 !-------------------------------------------------------------------------------
 
       Program bldmake
@@ -311,12 +313,14 @@
       Call GETENV( 'IOAPI_INCL_DIR', ioapi_incl_dir )
       Call GETENV( 'IOAPI_LIB_DIR',  ioapi_lib_dir )
       Call GETENV( 'NETCDF_LIB_DIR', netcdf_lib_dir )
+      Call GETENV( 'NETCDFF_LIB_DIR', netcdff_lib_dir )
       Call GETENV( 'MPI_LIB_DIR',    mpi_lib_dir )
       Write( lfn, '("#   Library Paths:")' ) 
       Write( lfn, '("#      $(LIB)/ioapi/include_files -> ",a)' ) Trim( ioapi_incl_dir )
       Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
       Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
       Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
+      Write( lfn, '("#      $(LIB)/netcdff -> ",a)' ) Trim( netcdff_lib_dir )
       Write( lfn, '("#",/,"#   Command-Line Options:      ")' ) 
       Write( lfn, '("#      DEBUG = TRUE or true -- turn on debug flags ")' ) 
       Write( lfn, '("#  OR  debug = true or TRUE -- turn on debug flags ")' ) 
@@ -389,7 +393,9 @@
       End If
 
       Write( lfn, '(/" IOAPI  = -L$(LIB)/",a,1x,a)' ) Trim( lib_4 ), Trim( ioapi )
-      Write( lfn, '( " NETCDF = -L$(LIB)/",a,1x,a)' ) "netcdf/lib", Trim( netcdf )
+      Write( lfn, '( " NETCDF = -L$(LIB)/",a,1x,a, " -L$(LIB)/",a,1x,a)' ) 
+     &  ,"netcdff/lib", Trim( netcdff ), "netcdf/lib", Trim(netcdf)
+      
       If ( serial ) Then
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
       Else

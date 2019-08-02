@@ -83,7 +83,7 @@
  cp config_cmaq.csh $CMAQ_HOME/config_cmaq.csh
  sed -i '/setenv CMAQ_REPO \$CMAQ_HOME/c\ setenv CMAQ_REPO '"$REPO_HOME" $CMAQ_HOME/config_cmaq.csh
  if ( $IS_EPA  ) then
-   sed -i '/source \/work\/MOD3DEV/c\ source \/work\/MOD3DEV\/cmaq_common\/cmaq_env.csh  \#>>> Comment out if not at EPA' $CMAQ_HOME/config_cmaq.csh
+   sed -i 's/\# source\s\/work\/MOD3DEV/cmaq_common/cmaq_env.csh/source\s\/work\/MOD3DEV/cmaq_common/cmaq_env.csh/' $CMAQ_HOME/config_cmaq.csh
  endif
 
 #===============================================================================

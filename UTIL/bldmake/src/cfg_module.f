@@ -24,6 +24,8 @@
 !  increased name lengths from 32 to 64 with new NAME_LEN parameter J.Young (Sep 2013)
 !  Modified subroutine findGlobal to put all STENEX routines under STENEX and all PARIO 
 !  routines under PARIO rather than under GLOBAL_MODULES by D. Wong (Aug 2015)
+!  Added netCDF Fortran Library Path. Makefile generated consistent with 
+!  netCDF library format. (July 2019)
 !-------------------------------------------------------------------------------
       Module ModelCfg
 
@@ -138,12 +140,14 @@
 !     Character( FLD_LEN ) :: libraries
       Character( FLD_LEN ) :: ioapi
       Character( FLD_LEN ) :: netcdf
+      Character( FLD_LEN ) :: netcdff
       Character( FLD_LEN ) :: mpich
 
 ! library locations
       Character( FLD_LEN ) :: ioapi_incl_dir
       Character( FLD_LEN ) :: ioapi_lib_dir
       Character( FLD_LEN ) :: netcdf_lib_dir
+      Character( FLD_LEN ) :: netcdff_lib_dir
       Character( FLD_LEN ) :: mpi_lib_dir
 
 ! misc module number for local files
@@ -404,6 +408,12 @@
           If ( verbose ) Write( *, '("NETCDF set to ",a)' ) Trim( netcdf )
           Cycle
         End If
+        
+        If ( key .Eq. 'NETCDFF' ) Then
+          netcdff = fields(2)
+          If ( verbose ) Write( *, '("NETCDFF set to", a)' ) Trim( netcdff ) 
+          Cycle
+        End if
 
         If ( key .Eq. 'MPICH' ) Then
           mpich = fields(2)
@@ -557,6 +567,7 @@
 !     Write( *, '(/"   LIBRARIES       (Libraries in ''-L/-l'' format)             ")' )
       Write( *, '(/"   IOAPI           (Libraries in ''-L/-l'' format)             ")' )
       Write( *, '(/"   NETCDF          (Libraries in ''-L/-l'' format)             ")' )
+      Write( *, '(/"   NETCDFF         (Libraries in ''-L/-l'' format)             ")' )
       Write( *, '(/"   MPICH           (Libraries in ''-L/-l'' format)             ")' )
 
       Write( *, '(/"   INCLUDE         (Include Subsitution Name) (File)           ")' )
