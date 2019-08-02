@@ -24,9 +24,10 @@ module list
 module avail
 ```
 
-5. Load module environment for the compiler and mpi package
+5. Load module environment for a compiler (Intel|GCC|PGI) and mpi package corresponding to that compiler (e.g. openmpi).
 
 ```
+module load gcc9.1.0
 module load openmpi_4.0.1/gcc_9.1.0
 ```
 
@@ -38,24 +39,41 @@ more INSTALL.md
 
 7. Create a target installation directory that includes the loaded module environment name
 
+```
+mkdir /home/netcdf-c-4.7.0-gcc9.1.0
+```
+
+
 8. Run the configure --help command to see what settings can be used for the build.
 ```
 ./configure --help
 ```
 
-9. Run the configure command
+9. Set the Compiler environment variables
 
 ```
-./configure --prefix=/proj/ie/proj/staff/lizadams/netcdf-c-4.7.0/openmpi_4.0.1_gcc_9.1.0 --disable-netcdf-4 --disable-dap
+which gfort
+which gcc
+wihch g++
+
+setenv CC /urs/local/apps/gcc/9.1.0/bin/gfortran
+setenv FC /urs/local/apps/gcc/9.1.0/bin/gcc
+setenv CXX /urs/local/apps/gcc/9.1.0/bin/g++
 ```
 
-10. Check that the configure command worked correctly
+10. Run the configure command
+
+```
+./configure --prefix=/home/netcdf-c-4.7.0-gcc9.1.0 --disable-netcdf-4 --disable-dap
+```
+
+11. Check that the configure command worked correctly
 
 ```
 make check install
 ```
 
-11. Verify that the following message is obtained
+12. Verify that the following message is obtained
 
 ```
 | Congratulations! You have successfully installed netCDF!    |
@@ -84,7 +102,7 @@ cd netcdf-fortran-4.4.5
 4. Make an install directory that matches the name of your loaded module environment
 
 ```
-mkdir openmpi_4.0.1_gcc_9.1.0
+mkdir /home/netcdf-fortran-4.4.5-gcc9.1.0
 ```
 
 5. Review the installation document http://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html
@@ -92,23 +110,25 @@ mkdir openmpi_4.0.1_gcc_9.1.0
 6. Set the environment variable NCDIR
 
 ```
-setenv NCDIR /proj/ie/proj/staff/lizadams/netcdf-c-4.7.0/openmpi_4.0.1_gcc_9.1.0
+setenv NCDIR /home/netcdf-c-4.7.0-gcc9.1.0
 ```
 
 7. set the CC environment variable to use the gcc and gfortran compilers
 
 ```
+which gfort
 which gcc
-which gfortran
+wihch g++
 
-setenv CC /nas/longleaf/apps/gcc/9.1.0/bin/gcc
-setenv FC /nas/longleaf/apps/gcc/9.1.0/bin/gfortran
+setenv CC /urs/local/apps/gcc/9.1.0/bin/gfortran
+setenv FC /urs/local/apps/gcc/9.1.0/bin/gcc
+setenv CXX /urs/local/apps/gcc/9.1.0/bin/g++
 ```
 
 8. set your LD_LIBRARY_PATH to include the netcdf-C library path for netCDF build
 
 ```
-setenv NCDIR /proj/ie/proj/staff/lizadams/netcdf-c-4.7.0/openmpi_4.0.1_gcc_9.1.0
+setenv NCDIR /home/netcdf-c-4.7.0-gcc9.1.0
 setenv LD_LIBRARY_PATH ${NCDIR}/lib:${LD_LIBRARY_PATH}
 ```
 
@@ -121,7 +141,7 @@ echo $LD_LIBRARY_PATH
 10. set the install directory for netCDF fortran
 
 ```
-setenv NFDIR /proj/ie/proj/staff/lizadams/netcdf-fortran-4.4.5/openmpi_4.0.1_gcc_9.1.0
+setenv NFDIR /home/netcdf-fortran-4.4.5-gcc9.1.0
 
 setenv CPPFLAGS -I${NCDIR}/include
 setenv LDFLAGS -L${NCDIR}/lib
@@ -164,7 +184,8 @@ Output successful if you see:
 
 ```
 Libraries have been installed in:
-   /proj/ie/proj/staff/lizadams/netcdf-fortran-4.4.5/openmpi_4.0.1_gcc_9.1.0/lib
+   
+   /home/netcdf-fortran-4.4.5-gcc9.1.0
 
 If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
@@ -181,7 +202,7 @@ flag during linking and do at least one of the following:
 15. set your LD_LIBRARY_PATH to include the netcdf-Fortran library path for netCDF build
 
 ```
-setenv NFDIR /proj/ie/proj/staff/lizadams/netcdf-fortran-4.4.5/openmpi_4.0.1_gcc_9.1.0
+setenv NFDIR /home/netcdf-fortran-4.4.5-gcc9.1.0
 setenv LD_LIBRARY_PATH ${NFDIR}/lib:${LD_LIBRARY_PATH}
 ```
 (may need to add the NCDIR and NFDIR to .cshrc)
@@ -217,8 +238,8 @@ mkdir $BIN
 
 ```
 cd $BIN
-ln -s /proj/ie/proj/staff/lizadams/netcdf-fortran-4.4.5/openmpi_4.0.1_gcc_9.1.0/lib/libnetcdff.a
-ln -s /proj/ie/proj/staff/lizadams/netcdf-c-4.7.0/openmpi_4.0.1_gcc_9.1.0/lib/libnetcdf.a
+ln -s /home/netcdf-c-gcc9.1.0/lib/libnetcdff.a
+ln -s /home/netcdf-fortran-4.4.5-gcc9.1.0/lib/libnetcdf.a
 ```
 
 6. Run the make command to compile and link the ioapi library
@@ -235,93 +256,5 @@ ls -lrt libioapi.a
 ls -rlt m3xtract
 ```
 
-## Build CMAQ
-
-1. download the CMAQ code
-
-```
-git clone -b v53_20190613 https://github.com/kmfoley/CMAQ.git
-```
-
-2. edit the bldit_project.csh script to include the name of your loaded module
-
-```
-set CMAQ_HOME = /proj/ie/proj/CMAS/CMAQ/CMAQv5.3_branch_UNC5/openmpi_4.0.1_gcc_9.1.0
-```
-
-3. run the bldit_project.csh script to create your working directory
-
-```
-./bldit_project.csh
-```
-
-4. change directories to your working directory
-
-```
-cd /proj/ie/proj/CMAS/CMAQ/CMAQv5.3_branch_UNC5/openmpi_4.0.1_gcc_9.1.0
-```
-
-5. edit the config_cmaq.csh to set the netcdf-C, netcdf-Fortran and ioapi library and include locations
-
-go to the case gcc section
-
-        #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR   ioapi_mod_gcc  #> I/O API precompiled modules
-        setenv IOAPI_INCL_DIR  iopai_inc_gcc  #> I/O API include header files
-        setenv IOAPI_LIB_DIR   ioapi_lib_gcc  #> I/O API libraries
-        setenv NETCDF_LIB_DIR  netcdf_lib_gcc #> netCDF directory path
-        setenv NETCDF_INCL_DIR netcdf_inc_gcc #> netCDF directory path
-        setenv MPI_LIB_DIR     mpi_lib_gcc    #> MPI directory path
-        
-change this to
-
-```
- #> I/O API, netCDF, and MPI library locations
-        setenv IOAPI_MOD_DIR   /proj/ie/proj/staff/lizadams/ioapi-3.2/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0   #> I/O API precompiled modules
-        setenv IOAPI_INCL_DIR  /proj/ie/proj/staff/lizadams/ioapi-3.2/ioapi/fixed_src   #> I/O API include header files
-        setenv IOAPI_LIB_DIR   /proj/ie/proj/staff/lizadams/ioapi-3.2/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0  #> I/O API libraries
-        setenv NETCDF_LIB_DIR  /proj/ie/proj/staff/lizadams/netcdf-c-4.7.0/openmpi_4.0.1_gcc_9.1.0/lib  #netCDF library directory path
-        setenv NETCDF_INCL_DIR /proj/ie/proj/staff/lizadams/netcdf-c-4.7.0/openmpi_4.0.1_gcc_9.1.0/include #> netCDF include directory path
-        setenv MPI_LIB_DIR     /nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1   #> MPI directory path
-```
-        
-  To find the MPI_LIB_DIR verify that you have the module loaded
-  then use the command
-  ```
-  which mpirun
-  ```
-  
-  This points to
-  /nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1/bin/mpirun
-  
-  The include directory is 
-  /nas/longleaf/apps-dogwood/mpi/gcc_9.1.0/openmpi_4.0.1/include
-  
-  edit the mpi_lib environment variable to use -lmpi
-  setenv mpi_lib "-lmpi" 
-  
-  The following section on the config_cmaq.csh 
-   if ( ! -e $NETCDF_DIR/lib/libnetcdf.a ) then
-    echo "ERROR: $NETCDF_DIR/lib/libnetcdf.a does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
-    exit
- endif
-
-should be augmented to add a check for the libnetcdff.a 
-
-   if ( ! -e $NETCDF_DIR/lib/libnetcdff.a ) then
-    echo "ERROR: $NETCDF_DIR/lib/libnetcdff.a does not exist in your CMAQ_LIB directory!!! Check your installation before proceeding with CMAQ build."
-    exit
- endif
-
-        
-## Building CMAQ
-
-1. change to the CCTM/scripts directory
-```
-cd $CMAQ_HOME/CCTM/scripts
-```
-2. ./bldit_cctm.csh gcc |& tee ./bldit_cctm.gcc.log
-
-
-currently getting undefined references, as the config_cmaq.csh doesn't include instructions on how to set up the netcdf-fortran libraries and include files.
+8. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md)
 
