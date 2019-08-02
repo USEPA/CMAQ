@@ -73,11 +73,12 @@ The CMAQ build scripts require the following libraries and INCLUDE files to be a
 
 The config_cmaq.csh script will automatically link the required libraries into the CMAQ_LIB directory. Set the locations of the netCDF, I/O API, and MPI installations on your Linux system with the following config_cmaq.csh environment variables:
 
-- `setenv IOAPI_MOD_DIR`: the location of the precompiled I/O API module files on your system.
 - `setenv IOAPI_INCL_DIR`: the location of the I/O API include header files on your system.
 - `setenv IOAPI_LIB_DIR`: the location of compiled I/O API libraries on your system.
-- `setenv NETCDF_LIB_DIR`: the location of the netCDF installation on your system.
-- `setenv NETCDF_INCL_DIR`: the location of the netCDF include files on your system.
+- `setenv NETCDF_LIB_DIR`: the location of the netCDF C library installation on your system.
+- `setenv NETCDF_INCL_DIR`: the location of the netCDF C include files on your system.
+- `setenv NETCDFF_LIB_DIR`: the location of the netCDF Fortran library installation on your system.
+- `setenv NETCDFF_INCL_DIR`: the location of the netCDF Fortran include files on your system.
 - `setenv MPI_LIB_DIR`: the location of the MPI (OpenMPI or MVAPICH) on your system.
 
 For example, if your netCDF libraries are installed in /usr/local/netcdf/lib, set `NETCDF_LIB_DIR` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set `IOAPI_LIB_DIR` to /home/cmaq/ioapi/Linux2_x86_64ifort. 
@@ -132,8 +133,7 @@ For single-processor computing, edit the CCTM build script (bldit_cctm.csh) to i
 The build directory parameters for the benchmark test case include the following:
 
 -   Multiprocessor simulation 
--   Horizontal advection: Yamo 
--   Vertical advection: WRF
+-   3-D Advection Scheme: wrf_cons
 -   Horizontal diffusion: Multiscale
 -   Vertical diffusion: ACM2
 -   Deposition: M3Dry
