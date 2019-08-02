@@ -128,7 +128,7 @@ include_path = -I /home/CMAQ_PIO/CMAQ_libs/ioapi_3.2/Linux2_x86_64ifortmpi \
  
 Lastly, users must also edit the CCTM run script by inserting MPI: in front of the output file path as shown below:
 
-  setenv CTM_CONC_1      "MPI:$OUTDIR/CCTM_CONC_${CTM_APPL}.nc -v"       #> On-Hour Concentrations
+  setenv CTM_CONC_1      "MPI:\$OUTDIR/CCTM_CONC_\${CTM_APPL}.nc -v"       #> On-Hour Concentrations
   
 For further directions on installation of PIO please contact David Wong at wong.david-c@epa.gov
 
@@ -136,5 +136,8 @@ For further directions on installation of PIO please contact David Wong at wong.
 
 Wong, D.C., Yang, C.E., Fu, J.S., Wong, K., & Gao, Y. (2015). An approach to enhance pnetCDF performance in environmental modeling applications. Geosci. Model Dev., 8, 1033-1046.
 
+<!-- BEGIN COMMENT -->
 [<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md)<br>
 CMAQ User's Guide (c) 2019<br>
+
+<!-- END COMMENT -->
