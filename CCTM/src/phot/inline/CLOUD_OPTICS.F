@@ -314,7 +314,7 @@
                Else If( t(k) .ge. 273.0 )Then
                   index = 94
                Else
-                  index = int(t(k)-179.0)
+                  index = max( int(t(k)-179.0), 1 )
                End If
                corr = t(k) - aint( t(k) )      ! temperatures of retab values differ by one degree K
                dge(k) = retab(index) + (retab(index+1)-retab(index))*corr

@@ -444,10 +444,10 @@ C-------------------------------------------------------------------------------
          cnh3g2 = a1 * Max( cnh3g2, 0.01 ) / (1.0 - watfrac)   ! Land only (microgram/m3)
          cnh3g  = Max (cnh3g1, cnh3g2)   ! use greater of layer concs
          cnh3s = cnh3s / (1.0 - watfrac)   ! Land only (microgram/m3)
-         if(agfrac.GT.0.5.and.gamma1( c,r ).gt.50000.) then
-            write(logdev,*) ' frac_sol1',frac_sol1,' cnh3g1',cnh3g1,' gamma1',gamma1( c,r )
-            write(logdev,*) ' c,r=',c,r,' gamma2',gamma2( c,r )
-         endif
+!         if(agfrac.GT.0.5.and.gamma1( c,r ).gt.50000.) then
+!            write(logdev,*) ' frac_sol1',frac_sol1,' cnh3g1',cnh3g1,' gamma1',gamma1( c,r )
+!            write(logdev,*) ' c,r=',c,r,' gamma2',gamma2( c,r )
+!         endif
 101      Continue
 
 !> Cuticle resistance : rw = rwx * cnh3c + rwm

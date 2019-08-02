@@ -241,10 +241,13 @@ C   Tanya took JACOBF out of METCRO3D! Improvise
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   25 Jul 19 D.Wong: used N_SOIL_TYPE defined in LSM_Mod to handle
+C                     various number of soil type from different WRF version
 C-----------------------------------------------------------------------
 
          Use UTILIO_DEFN
          Use MOSAIC_MOD, Only: Init_Mosaic
+         Use LSM_Mod, only : N_SOIL_TYPE
 
          Implicit None
  
@@ -490,7 +493,7 @@ C-----------------------------------------------------------------------
             WFC_PX  = WSAT_PX * ( 33.0 / Psi_sat )**(-1.0/BSLP_PX)
             WRES_PX = WSAT_PX * ( 3.0e5 / Psi_sat )**(-1.0/BSLP_PX)
 
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
                Grid_Data%WSAT( C,R ) = WSAT_PX( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WWLT( C,R ) = WWLT_PX( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC_PX ( Grid_Data%SLTYP( C,R ) )
@@ -500,7 +503,7 @@ C-----------------------------------------------------------------------
             End Forall
 ! for cases where the default soil is water but fractional land use may not be water
 ! use sandy loam
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Gt. 11 )
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Gt. N_SOIL_TYPE )
                Grid_Data%WSAT( C,R ) = WSAT_PX( 3 )
                Grid_Data%WWLT( C,R ) = WWLT_PX( 3 )
                Grid_Data%WFC ( C,R ) = WFC_PX ( 3 )
