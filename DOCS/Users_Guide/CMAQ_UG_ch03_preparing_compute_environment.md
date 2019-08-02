@@ -126,7 +126,7 @@ Other IOAPI library configuration options are available, and users can see a lis
 |PGPROF|Portland Group Fortran code profiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
 |IDB|Intel Fortran debugger|[<https://software.intel.com/en-us/articles/idb-linux>](https://software.intel.com/en-us/articles/idb-linux)|
 
-## Reference:
+## 3.4 References:
 
 Wong, D. C., Yang, C. E., Fu, J. S., Wong, K., and Gao, Y., “An approach to enhance pnetCDF performance in environmental modeling applications”, Geosci. Model Dev., 8, 1033-1046, 2015.
 
