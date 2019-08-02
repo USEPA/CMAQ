@@ -246,7 +246,7 @@ ln -s /home/netcdf-fortran-4.4.5-intel18.2/libnetcdf.a
 make |& tee make.log
 ```
 
-7. change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
+7. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
 
 ```
 cd $BIN
