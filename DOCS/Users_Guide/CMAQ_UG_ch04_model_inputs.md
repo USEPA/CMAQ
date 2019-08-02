@@ -48,15 +48,15 @@ The configuration options for BCON include choosing whether the boundary conditi
 ### 4.2.4 External Software Programs for Preparing CMAQ Inputs
 The SMOKE and FEST-C modeling systems and the Spatial Allocator tools are used to create CMAQ emissions and land surface inputs. These systems are maintained by EPA and CMAS developers and are hosted and supported by the CMAS Center.  Links to documentation and software download for each system are provided below. 
 
-#### Emissions Processor (SMOKE) 
+**Emissions Processor (SMOKE)** 
 [Sparse Matrix Operator Kerner Emissions (SMOKE) Modeling System](https://www.cmascenter.org/smoke/) is designed to create gridded, speciated, hourly emissions for input into CMAQ and other air quality models. SMOKE supports area, biogenic, mobile (both onroad and nonroad), and point source emissions processing for criteria, particulate, and toxic pollutants. For biogenic emissions modeling, SMOKE uses the Biogenic Emission Inventory System. SMOKE is also integrated with the on-road emissions model MOBILE6 and MOVES.
 
-#### Fertilizer Emissions Processor (FEST-C)
+**Fertilizer Emissions Processor (FEST-C)**
 The [Fertilizer Emission Scenario Tool for CMAQ (FEST-C)](https://www.cmascenter.org/fest-c/) system is used to generate agricultural-land nitrogen and soil information for CMAQ bi-directional NH<sub>3</sub> modeling. FEST-C contains three main components: Java interface, Environmental Policy Integrated Climate (EPIC) model, and SA Raster Tools. The interface guides users through generating required land use and crop data and EPIC input files and simulating EPIC, and extracting EPIC output for CMAQ. 
 
 FEST-C is used to create the [E2C_LU](#e2c_lu), [E2C_SOIL](#e2c_soil), and [E2C_CHEM](#e2c_chem) files discussed later in this chapter. 
 
-#### Processing Spatial Data with the Spatial Allocator (SA)
+**Processing Spatial Data with the Spatial Allocator (SA)**
 The [Spatial Allocator](https://www.cmascenter.org/sa-tools/) is a set of tools that helps users manipulate and generate data files related to emissions and air quality modeling. The tools perform functions similar to Geographic Information Systems (GIS), but are provided to the modeling community free of charge. In addition, the tools are designed to support some of the unique aspects of the file formats used for CMAQ, SMOKE and WRF modeling.
 
 SA is used to generate the surf zone and open ocean file that is a required input for utilizing marine emissions and chemistry in CMAQ. This file is discussed later in this chapter under the [OCEAN_1: Sea spray mask](#ocean_1) section.
@@ -87,9 +87,9 @@ This section describes each of the input files required by the various CMAQ prog
 |[ae_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[nr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[tr_matrix_nml](#matrix_nml) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
-|**Initial Condition Inputs**|  | | ||
+|**Initial Conditions Inputs**|  | | ||
 |[INIT_CONC_1](#init_conc_1) <a id=init_conc_1_t></a>|GRDDED3|Time-invariant | XYZ | ICON or CCTM |required|
-|**Boundary Condition Inputs**| | | | ||
+|**Boundary Conditions Inputs**| | | | ||
 |[BNDY_CONC_1](#bndy_conc_1) <a id=bndy_conc_1_t></a> |BNDARY3| Hourly |PERIM\*Z|BCON|required|
 |**MCIP**| | | | |||
 |[GRID_CRO_2D](#grid_cro_2d) <a id=grid_cro_2d_t></a>| GRDDED3 | Time-invariant | XY | MCIP|required|
@@ -125,9 +125,9 @@ This section describes each of the input files required by the various CMAQ prog
 
 *XXX - three-digit variable indicating emission stream number. Gridded and Inline Point emissions are numbered independently.
 
-## General
+## GRIDDESC and Species Namelist Files
 <a id=griddesc></a> 
-### GRIDDESC: Horizontal domain definition
+**GRIDDESC: Horizontal domain definition**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#griddesc_t)
 <!-- END COMMENT -->
@@ -163,7 +163,7 @@ Additional information about the parameters in the GRIDDESC file can be found in
 
 <a id=matrix_nml></a>
 
-### {gc|ae|nr|tr}_matrix.nml: Species namelist files
+**{gc|ae|nr|tr}_matrix.nml: Species namelist files**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#matrix_nml_t)
 <!-- END COMMENT -->
@@ -220,9 +220,10 @@ The namelist files contain header information that describe which class of speci
 
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 4-2](#Table4-2). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
 
-
 <a id=init_conc_1></a>
-### INIT_CONC_1: Initial conditions
+## Initial Condistions Input
+
+**INIT_CONC_1: Initial conditions**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#init_conc_1_t)
 <!-- END COMMENT -->
@@ -231,7 +232,8 @@ Used by: CCTM
 The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The actual file data are organized in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose.
 
 <a id=bndy_conc_1></a>
-### BNDY_CONC_1: Boundary conditions
+## Initial Condistions Input
+**BNDY_CONC_1: Boundary conditions**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#bndy_conc_1_t)
 <!-- END COMMENT -->
@@ -256,7 +258,7 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 <a id=mosaic_cro></a>
 <a id=mcip></a>
 <a id=mcip_bdy></a>
-### _MCIP output files generated when IOFORM=1 (Models-3 I/O API)_
+**_MCIP output files generated when IOFORM=1 (Models-3 I/O API)_**
 - GRIDDESC:     Grid description used throughout the CMAQ System
 - GRID_CRO_2D:  Time-invariant 2D fields (XY) at cell centers (cross points)
 - GRID_BDY_2D:  Time-invariant fields from GRID_CRO_2D, but along domain lateral boundaries
@@ -269,7 +271,7 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 - SOI_CRO:      Time-varying 3D soil moisture and temperature (XYS) in model soil layers at cell centers
 - MOSAIC_CRO:   Time-varying 3D surface fields by mosaic land use category (XYM) at cell centers
 
-### _MCIP output files generated when IOFORM=2 (netCDF)_
+**_MCIP output files generated when IOFORM=2 (netCDF)_**
 - GRIDDESC:     Grid description used throughout the CMAQ System
 - mcip.nc:      All time-invariant and time-varying 2D and 3D fields (all dimensions)
 - mcip_bdy.nc:  All required time-invariant and time-varying 2D and 3D fields along lateral boundaries
@@ -389,7 +391,7 @@ Used by: ICON, BCON, CCTM, and some optional programs
 ## Emissions Inputs
 <a id=emis_xxx></a>
 
-### GR_EMIS_XXX: Emissions
+**GR_EMIS_XXX: Emissions**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#emis_xxx_t)
 <!-- END COMMENT -->
@@ -404,7 +406,7 @@ Starting in CMAQv5.3, users can run with as many gridded emission files as desir
 
 <a id=stk_grps></a>
 
-### STK_GRPS_XXX: Stack groups
+**STK_GRPS_XXX: Stack groups**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#stk_grps_t)
 <!-- END COMMENT -->
@@ -417,7 +419,7 @@ The stack groups file is an IOAPI file containing stack parameters for elevated 
 
 <a id=stk_emis></a>
 
-### STK_EMIS_XXX: Point source emissions
+**STK_EMIS_XXX: Point source emissions**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#stk_emis_t)
 <!-- END COMMENT -->
@@ -429,7 +431,7 @@ The elevated-point-source emissions file is an IOAPI GRDDED3 file with emissions
 
 <a id=nldn_strikes></a>
 
-### NLDN_STRIKES: Hourly observed lightning strikes
+**NLDN_STRIKES: Hourly observed lightning strikes**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#nldn_strikes_t)
 <!-- END COMMENT -->
@@ -448,7 +450,7 @@ The NLDN lightning strikes file is used for calculating online NO emissions from
 
 <a id=ltngparm_file></a>
 
-### LTNGPARMS_FILE: Lightning parameters file
+**LTNGPARMS_FILE: Lightning parameters file**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#ltngparm_file_t)
 <!-- END COMMENT -->
@@ -478,7 +480,7 @@ This file contains the following variables interpolated to the modeling grid:
 
 ## Biogenic and Land Surface Inputs
 <a id=ocean_1></a>
-### OCEAN_1: Sea spray mask
+**OCEAN_1: Sea spray mask**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#ocean_1_t)
 <!-- END COMMENT -->
@@ -492,7 +494,7 @@ Additionally, CMAQ's gas-phase chemical mechanisms except cb6r3m_ae7_kmtbr conta
 See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for step by step instructions on creating this file. 
 
 <a id=gspro></a>
-### GSPRO: Speciation profiles
+**GSPRO: Speciation profiles**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#gspro_t)
 <!-- END COMMENT -->
@@ -502,7 +504,7 @@ Used by: CCTM – online biogenics emissions version only
 The speciation profile file, GSPRO, contains the factors that are used to separate aggregated inventory pollutant emissions totals into emissions of model species in the form required by CMAQ. If only biogenic emissions are being calculated online in CMAQ, the GSPRO file used by CCTM needs to contain split factors only for the biogenic VOC emissions that are input in the B3GRD file. If other emissions sources are being calculated by CCTM, VOC split factors for these other sources must be included in the GSPRO file. The GSPRO file format is listed in the SMOKE user’s manual, see: [GSPRO documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch08s05s02.html).
 
 <a id=b3grd></a>
-### B3GRD: Gridded, normalized biogenic emissions
+**B3GRD: Gridded, normalized biogenic emissions**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#b3grd_t)
 <!-- END COMMENT -->
@@ -512,7 +514,7 @@ Used by: CCTM – online biogenics emissions version only
 An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The B3GRD file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS3 using gridded land use data. For additional information about creating the B3GRD file, see the [NORMBEIS3 documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s12.html) in the SMOKE users’ manual.
 
 <a id=bioseason></a>
-### BIOSEASON: Freeze dates
+**BIOSEASON: Freeze dates**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#bioseason_t)
 <!-- END COMMENT -->
@@ -522,7 +524,7 @@ Used by: CCTM – online biogenics emissions version only
 The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual.
 
 <a id=e2c_lu></a>
-### E2C_LU – Fractional crop distributions
+**E2C_LU – Fractional crop distributions**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#e2c_lu_t)
 <!-- END COMMENT -->
@@ -533,7 +535,7 @@ Land use data including fractional crop and tree distributions gridded to the mo
 
 
 <a id="e2c_soil"></a>
-### E2C_SOIL – EPIC soil properties
+**E2C_SOIL – EPIC soil properties**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#e2c_soil_t)
 <!-- END COMMENT -->
@@ -543,7 +545,7 @@ Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 This 3-D file is created by the EPIC to CMAQ tool via the FEST-C interface.  It contains soil properties for Layer 1 (0 to 1 cm depth) and Layer 2 (1 cm to 100 cm depth) and for each crop in grid cells with agricultural land.  Additional information on the EPIC simulation and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
 
 <a id="e2c_chem"></a>
-### E2C_CHEM – EPIC crop types and fertilizer application
+**E2C_CHEM – EPIC crop types and fertilizer application**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#e2c_chem_t)
 <!-- END COMMENT -->
@@ -553,7 +555,7 @@ Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 This is a 3-D daily file created by the EPIC to CMAQ tool via the FEST-C interface.  The tool extracts EPIC simulated soil chemistry information including fertilization for the Layer 1 and Layer 2 soil profiles along with plant growth information in each grid cell with agricultural land.  The FEST-C interface facilitates EPIC simulations for any CMAQ modeling domain over the conterminous U.S. area.  Additional information on the EPIC simulation and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
 
 <a id="dust_lu_1"></a>
-### DUST_LU_1 – Gridded land cover/land use
+**DUST_LU_1 – Gridded land cover/land use**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#dust_lu_1_t)
 <!-- END COMMENT -->
@@ -585,7 +587,7 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 These categories are used to determine dust source locations and canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD4 tiles. The DUST_LU_1 file corresponds to the “a” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
 
 <a id="dust_lu_2"></a>
-### DUST_LU_2 – BELD land use “TOT” data file
+**DUST_LU_2 – BELD land use “TOT” data file**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#dust_lu_1_t)
 <!-- END COMMENT -->
@@ -598,9 +600,9 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 
 This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
 
-## Photolysis
+## Photolysis Inputs
 <a id=omi></a>
-### OMI: Ozone Monitoring Instrument Column Data
+**OMI: Ozone Monitoring Instrument Column Data**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#omi_t)
 <!-- END COMMENT -->
