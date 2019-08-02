@@ -128,8 +128,9 @@ This section describes each of the input files required by the various CMAQ prog
 ## General
 <a id=griddesc></a> 
 ### GRIDDESC: Horizontal domain definition
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#griddesc_t)
-
+<!-- END COMMENT -->
 Used by: ICON, BCON, CCTM
 
 The CMAQ grid description file (**GRIDDESC**) is an ASCII file that contains two sections: a horizontal coordinate section, and domain description section. The GRIDDESC file is generated automatically by MCIP; alternatively, GRIDDESC can be created using a text editor.
@@ -163,7 +164,9 @@ Additional information about the parameters in the GRIDDESC file can be found in
 <a id=matrix_nml></a>
 
 ### {gc|ae|nr|tr}_matrix.nml: Species namelist files
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#matrix_nml_t)
+<!-- END COMMENT -->
 
 Used by: CCTM, CHEMMECH
 
@@ -217,21 +220,21 @@ The namelist files contain header information that describe which class of speci
 
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 4-2](#Table4-2). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
 
-## Initial Condition Inputs
+
 <a id=init_conc_1></a>
-
 ### INIT_CONC_1: Initial conditions
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#init_conc_1_t)
-
+<!-- END COMMENT -->
 Used by: CCTM
 
 The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The actual file data are organized in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose.
 
-## Boundary Condition Inputs
 <a id=bndy_conc_1></a>
-
 ### BNDY_CONC_1: Boundary conditions
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#bndy_conc_1_t)
+<!-- END COMMENT -->
 
 Used by: CCTM
 
@@ -271,7 +274,9 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 - mcip.nc:      All time-invariant and time-varying 2D and 3D fields (all dimensions)
 - mcip_bdy.nc:  All required time-invariant and time-varying 2D and 3D fields along lateral boundaries
 
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#grid_cro_2d_t)
+<!-- END COMMENT -->
 
 Used by: ICON, BCON, CCTM, and some optional programs
 
@@ -385,7 +390,9 @@ Used by: ICON, BCON, CCTM, and some optional programs
 <a id=emis_xxx></a>
 
 ### GR_EMIS_XXX: Emissions
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#emis_xxx_t)
+<!-- END COMMENT -->
 
 Used by: CCTM
 
@@ -398,7 +405,9 @@ Starting in CMAQv5.3, users can run with as many gridded emission files as desir
 <a id=stk_grps></a>
 
 ### STK_GRPS_XXX: Stack groups
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#stk_grps_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – inline emissions version only
 
@@ -409,8 +418,9 @@ The stack groups file is an IOAPI file containing stack parameters for elevated 
 <a id=stk_emis></a>
 
 ### STK_EMIS_XXX: Point source emissions
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#stk_emis_t)
-
+<!-- END COMMENT -->
 Used by: CCTM – inline emissions version only
 
 The XXX mark is unique and represents the stream identification. Make sure the N_EMIS_PT runtime variable is set to reflect the total number of inline emission streams.
@@ -420,7 +430,9 @@ The elevated-point-source emissions file is an IOAPI GRDDED3 file with emissions
 <a id=nldn_strikes></a>
 
 ### NLDN_STRIKES: Hourly observed lightning strikes
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#nldn_strikes_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
@@ -437,7 +449,9 @@ The NLDN lightning strikes file is used for calculating online NO emissions from
 <a id=ltngparm_file></a>
 
 ### LTNGPARMS_FILE: Lightning parameters file
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#ltngparm_file_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
@@ -465,7 +479,9 @@ This file contains the following variables interpolated to the modeling grid:
 ## Biogenic and Land Surface Inputs
 <a id=ocean_1></a>
 ### OCEAN_1: Sea spray mask
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#ocean_1_t)
+<!-- END COMMENT -->
 
 Used by: CCTM
 
@@ -477,7 +493,9 @@ See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for 
 
 <a id=gspro></a>
 ### GSPRO: Speciation profiles
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#gspro_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – online biogenics emissions version only
 
@@ -485,7 +503,9 @@ The speciation profile file, GSPRO, contains the factors that are used to separa
 
 <a id=b3grd></a>
 ### B3GRD: Gridded, normalized biogenic emissions
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#b3grd_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – online biogenics emissions version only
 
@@ -493,7 +513,9 @@ An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of c
 
 <a id=bioseason></a>
 ### BIOSEASON: Freeze dates
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#bioseason_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – online biogenics emissions version only
 
@@ -501,7 +523,9 @@ The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biog
 
 <a id=e2c_lu></a>
 ### E2C_LU – Fractional crop distributions
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#e2c_lu_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
@@ -510,7 +534,9 @@ Land use data including fractional crop and tree distributions gridded to the mo
 
 <a id="e2c_soil"></a>
 ### E2C_SOIL – EPIC soil properties
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#e2c_soil_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
@@ -518,7 +544,9 @@ This 3-D file is created by the EPIC to CMAQ tool via the FEST-C interface.  It 
 
 <a id="e2c_chem"></a>
 ### E2C_CHEM – EPIC crop types and fertilizer application
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#e2c_chem_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
@@ -526,7 +554,9 @@ This is a 3-D daily file created by the EPIC to CMAQ tool via the FEST-C interfa
 
 <a id="dust_lu_1"></a>
 ### DUST_LU_1 – Gridded land cover/land use
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#dust_lu_1_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – windblown dust version only
 
@@ -556,7 +586,9 @@ These categories are used to determine dust source locations and canopy scavengi
 
 <a id="dust_lu_2"></a>
 ### DUST_LU_2 – BELD land use “TOT” data file
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#dust_lu_1_t)
+<!-- END COMMENT -->
 
 Used by: CCTM – windblown dust version only
 
@@ -569,13 +601,15 @@ This variable is used in combination with the variables in the DUST_LU_1 file to
 ## Photolysis
 <a id=omi></a>
 ### OMI: Ozone Monitoring Instrument Column Data
+<!-- BEGIN COMMENT -->
 [Return to Table 4-1](#omi_t)
+<!-- END COMMENT -->
 
 Used by: CCTM
 
 OMI ozone column data by latitude and longitude for use in the photolysis calculations. CMAQ is distributed with ozone columns from 1978 to 2017 (CCTM/src/phot/inline/OMI_1979_to_2017.dat). The data are 22.5°x10° gridded ozone columns in Dobson units. The [create_omi](../../PREP/create_omi/README.md) tool under the PREP folder can be used to create a data file to support simulations after 2017 or a data file with a finer spatial resolution.
 
-
+<!-- BEGIN COMMENT -->
  [<< Previous Chapter](CMAQ_UG_ch03_preparing_compute_environment.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_a_simulation.md)
  
  CMAQ User's Guide (c) 2019<br>
