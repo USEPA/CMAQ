@@ -24,7 +24,7 @@ module list
 module avail
 ```
 
-5. Load module environment for the a compiler (Intel|GCC|PGI) and mpi package corresponding to that compiler (e.g. openmpi).
+5. Load module environment for a compiler (Intel|GCC|PGI) and mpi package corresponding to that compiler (e.g. openmpi).
 
 ```
 module load intel18.2
