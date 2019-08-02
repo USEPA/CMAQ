@@ -97,7 +97,7 @@ C                      with new re-structure of LUS_DEFN, most of the data decla
 C                      has been moved to lus_data_module (model_data_module.f) and to
 C                      call lus_setup to setup land use information according to land
 C                      use scheme
-C   08/02/19 F. Sidi:  Restored serial proccesing option
+C   08/02/19 F. Sidi:  Restored serial processing option
 C-----------------------------------------------------------------------
 
       USE RXNS_DATA             ! chemical mechanism data
