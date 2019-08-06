@@ -128,13 +128,17 @@
  endif
 
 #===============================================================================
-#> Copy MCIP scripts
+#> Copy MCIP scripts & src
 #===============================================================================
  if ( $EXT_MCIP == 'Y' ) then
     if ( ! -e "$CMAQ_HOME/PREP/mcip/scripts" ) then
        mkdir -pv $CMAQ_HOME/PREP/mcip/scripts
     endif
     cp PREP/mcip/scripts/run_mcip.csh $CMAQ_HOME/PREP/mcip/scripts/
+ if ( ! -e "$CMAQ_HOME/PREP/mcip/src" ) then
+       mkdir -pv $CMAQ_HOME/PREP/mcip/src
+    endif
+    cp PREP/mcip/src/* $CMAQ_HOME/PREP/mcip/src
  endif
  
 #===============================================================================
