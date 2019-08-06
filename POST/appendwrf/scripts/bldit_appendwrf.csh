@@ -12,7 +12,6 @@
 #> Preliminary error checking and environment configuration
 # =======================================================================
 
-
 #> Check that the host system is Linux-based
  set BLD_OS = `uname -s`        
  if ($BLD_OS != 'Linux') then
