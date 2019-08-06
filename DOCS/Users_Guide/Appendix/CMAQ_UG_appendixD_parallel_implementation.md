@@ -7,7 +7,7 @@
 
 # Appendix D: Parallel Implementation of CMAQ
 
-## 1. General Structure of data
+## D.1 General Structure of data
 
 There are a few approaches to parallelize an application, such as data-parallelism. Data-parallelism is a paradigm which decomposes data into "equal" sections and distributes them among allocated processors. Each processor works on the portion it owns. CMAQ parallel implementation is based on this methodology.
 
@@ -17,7 +17,7 @@ The CMAQ model operates on a 4D space (ncols, nrows, nlays, nspcs) and only the 
 
 **Figure D-1. Domain decomposition illustration**
 
-## 2. Interprocessor Communication
+## D.2 Interprocessor Communication
 
 In some science processes such as advection, a processor requires data from neighboring processors (interprocessor communication) when the model runs on a distributed memory system. An interprocessor communication library, STENEX, was developed to provide a simple and robust interface to handle various kinds of near neighbor communication. Near neighbor is defined as processors which are adjacent to a given processor (blue block) in the eight major geographical directions: N, NE, E, SE. S, SW, W, and NW (Fig. D-2).
 
@@ -56,7 +56,7 @@ As an illustration of interprocessor data access (Fig. D-3), consider the follow
 **Figure D-5. Sub-section data redistribution communication**
 
 
-## 3. Parallel I/O
+## D.3 Parallel I/O
 
 All I/O operations in CMAQ are handled by the IOAPI library. Furthermore, the IOAPI library was designed for serial code. As a result, CMAQ cannot utilize any I/O functions contained in the in IOAPI library (such as READ3 and WRITE3) directly in any parallel computing platform. 
 
@@ -132,7 +132,7 @@ Lastly, users must also edit the CCTM run script by inserting MPI: in front of t
   
 For further directions on installation of PIO please contact David Wong at wong.david-c@epa.gov
 
-### Reference:
+## D.4 References:
 
 Wong, D.C., Yang, C.E., Fu, J.S., Wong, K., & Gao, Y. (2015). An approach to enhance pnetCDF performance in environmental modeling applications. Geosci. Model Dev., 8, 1033-1046.
 
