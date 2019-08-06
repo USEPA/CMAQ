@@ -99,7 +99,7 @@ WRF-CMAQ outputs standard WRF (wrfout) and CMAQ output files.
 
 If you have any question, please contact David Wong at wong.david-c@epa.gov
 
-## References
+## 13.6 References
 
 Clough, S.A., Shephard, M. W., Mlawer, E. J., Delamere, J. S., Iacono, M. J., Cady-Pereira, K., Boukabara, S., & Brown, P. D. (2005). Atmospheric radiative transfer modeling: a summary of the AER codes. J. Quant. Spectrosc. Ra., 91, 233–244.
 
