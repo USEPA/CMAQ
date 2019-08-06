@@ -66,7 +66,7 @@ Note that several of the standard CMAQ output files (ACONC, CONC, CGRID, DDEP, a
 |AE           |OSO4EMISJ   | 96.0 |Loss of ASO4EMISJ to organosulfate |
 |AE           |OSO4ICBCJ   | 96.0 |Loss of ASO4ICBCJ to organosulfate |
 
-## Contact
+**Contact**
  [Shawn Roselle](mailto:roselle.shawn@epa.gov), Computational Exposure Division, U.S. EPA
  
 <!-- BEGIN COMMENT -->
