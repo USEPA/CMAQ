@@ -6,14 +6,14 @@
 
 # Appendix E: Configuring the Weather Research and Forecasting Model (WRF) for Use with Air Quality Models 
 
-## E.1 WRF4+
+## E.1 WRF version 4+
 
 * WRF4.0 has updates to the ACM2 PBL model to account for the new default hybrid coordinate system. Our internal model runs suggest that the hybrid option (hybrid_opt =2) improves the model in areas where topographical variations are more extreme like the Rocky Mountains. As such, it is suggested, but not a requirement, to use this option in WRF.
 
 * Several important updates were made to the Pleim-Xiu LSM in WRF4.1. Soil hydraulics are calculated using analytical equations (Noilhan and Mahfouf, 1996) rather than lookup tables. And, users can opt to use time-varying vegetation fraction from a wrflowinp input file in WRF that can be based off MODIS satellite data instead of the old weighting method that is based on lookup tables and landuse fraction. This satellite data option is activated using the physics namelist option "pxlsm_modis_veg = 1".
 
 
-## E.2 WRF3.7 
+## E.2 WRF version 3.7 
 * **[Section from WRFv3.7 Technical Documentation related to air quality modeling](http://www2.mmm.ucar.edu/wrf/users/docs/PX-ACM.pdf):** This 8 page pdf provides description and procedures for using the Pleim-Xiu LSM, ACM2 PBL and Pleim Surface Layer Scheme in WRF including best practices and namelist options.
 
 ## E.3 WRF with lightning assimilation 
