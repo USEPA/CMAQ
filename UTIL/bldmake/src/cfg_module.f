@@ -104,7 +104,10 @@
       Character( FLN_LEN ) :: lib_2
       Character( FLN_LEN ) :: lib_3
       Logical              :: l_lib_3
+      Logical              :: l_lib_5
       Character( FLN_LEN ) :: lib_4
+      Character( FLN_LEN ) :: lib_5
+
 
       Character( FLN_LEN ) :: fstd
       Character( FLN_LEN ) :: dbg
@@ -191,7 +194,8 @@
       n_modules = 0
       miscMod = 0
       l_lib_3 = .FALSE.
-
+      l_lib_5 = .FALSE.
+      
       model = 'a.out'
 
       f_compiler = 'mpiifort'
@@ -325,6 +329,12 @@
           Cycle
         End If
 
+        If ( key .Eq. 'LIB_5' ) Then
+          l_lib_5 = .TRUE.
+          lib_5 = fields(2)
+          If ( verbose ) Write( *, '("LIB_5 set to ",a)' ) Trim( lib_5 )
+          Cycle
+        End If
  
 ! check for Fortran compilers
         If ( key .Eq. 'F_COMPILER' ) Then
