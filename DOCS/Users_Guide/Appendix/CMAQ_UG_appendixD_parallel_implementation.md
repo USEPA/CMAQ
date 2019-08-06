@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md)
+[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixE_configuring_WRF.md)
 
 <!-- END COMMENT -->
 
@@ -137,7 +137,7 @@ For further directions on installation of PIO please contact David Wong at wong.
 Wong, D.C., Yang, C.E., Fu, J.S., Wong, K., & Gao, Y. (2015). An approach to enhance pnetCDF performance in environmental modeling applications. Geosci. Model Dev., 8, 1033-1046.
 
 <!-- BEGIN COMMENT -->
-[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md)<br>
-CMAQ User's Guide (c) 2019<br>
+
+[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixE_configuring_WRF.md)
 
 <!-- END COMMENT -->
