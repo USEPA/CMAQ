@@ -24,7 +24,7 @@ All of the necessary code modifications and data are described in the document.
 
 * **[WRF with Lightning Assimilation Code](https://wcms.epa.gov/sites/production/files/2017-02/ltgda_wrf_16feb2017.zip):** This .zip file (ltgda_wrf_16feb2017.zip; 220K) contains the registry and FORTRAN files with the updates needed to run WRF with lightning assimilation, as well as a generic Python script to grid lightning data to your WRF domain.
 
-## E.4 References:
+## E.4 Reference:
 Heath, N. K., J. E. Pleim, R. C. Gilliam, and D. Kang (2016), A simple lightning assimilation technique for improving retrospective WRF simulations, J. Adv. Model. Earth Syst., 8, 1806 – 1824, http://dx.doi.org/10.1002/2016MS000735.
 
 
