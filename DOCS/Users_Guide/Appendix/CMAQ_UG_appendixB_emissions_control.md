@@ -239,5 +239,5 @@ This variable sets the default behavior for all streams. If the variables for an
 The emission rates printed to the diagnostic files reflect all the scaling rules applied and are written just before the emissions are added to the CMAQ transport module. Because the model interpolates in time, it is very likely that the rates written to the diagnostic file will not correspond in time to the rates from the input files. In most cases, the rates will be one-half time step before the top of the hour, the time point of the emission inputs. For this reason, it is not entirely helpful for users to compare the scaled emissions directly to the rates on the input files. However, comparing them qualitatively can be helpful.
 
 
-[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
+[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
 CMAQ User's Guide (c) 2019<br>
