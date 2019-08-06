@@ -125,7 +125,7 @@ This section describes each of the input files required by the various CMAQ prog
 
 *XXX - three-digit variable indicating emission stream number. Gridded and Inline Point emissions are numbered independently.
 
-## GRIDDESC and Species Namelist Files
+## 4.4 GRIDDESC and Species Namelist Files
 <a id=griddesc></a> 
 **GRIDDESC: Horizontal domain definition**
 <!-- BEGIN COMMENT -->
@@ -221,7 +221,7 @@ The namelist files contain header information that describe which class of speci
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 4-2](#Table4-2). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
 
 <a id=init_conc_1></a>
-## Initial Condistions Input
+## 4.5 Initial Conditions Input
 
 **INIT_CONC_1: Initial conditions**
 <!-- BEGIN COMMENT -->
@@ -232,7 +232,7 @@ Used by: CCTM
 The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The actual file data are organized in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose.
 
 <a id=bndy_conc_1></a>
-## Initial Condistions Input
+## 4.6 Boundary Conditions Input
 **BNDY_CONC_1: Boundary conditions**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#bndy_conc_1_t)
@@ -244,7 +244,7 @@ CMAQ boundary condition data are of the BNDARY3 file type. Produced by the bound
 
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10e<sup>-30</sup>. The perimeter of the CMAQ domain is NTHIK cell wide (typically NTHIK = 1), where the number of boundary cells = NTHIK\*(2\*NCOLS + 2\*NROWS +4\*NTHIK).
 
-## Meteorological Inputs (Processed for the CMAQ System using MCIP)
+## 4.7 Meteorological Inputs (Processed for the CMAQ System using MCIP)
 
 <a id=grid_cro_2d></a>
 <a id=grid_bdy_2d></a>
@@ -388,7 +388,7 @@ Used by: ICON, BCON, CCTM, and some optional programs
 
 
 
-## Emissions Inputs
+## 4.8 Emissions Inputs
 <a id=emis_xxx></a>
 
 **GR_EMIS_XXX: Emissions**
@@ -478,7 +478,7 @@ This file contains the following variables interpolated to the modeling grid:
 
 *Regression equation generates flash counts (or log flash counts) per square km per cm convectic precipitation.
 
-## Biogenic and Land Surface Inputs
+## 4.9 Biogenic and Land Surface Inputs
 <a id=ocean_1></a>
 **OCEAN_1: Sea spray mask**
 <!-- BEGIN COMMENT -->
@@ -600,7 +600,7 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 
 This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
 
-## Photolysis Inputs
+## 4.10 Photolysis Inputs
 <a id=omi></a>
 **OMI: Ozone Monitoring Instrument Column Data**
 <!-- BEGIN COMMENT -->
