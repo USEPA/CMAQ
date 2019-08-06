@@ -132,7 +132,7 @@ Lastly, users must also edit the CCTM run script by inserting MPI: in front of t
   
 For further directions on installation of PIO please contact David Wong at wong.david-c@epa.gov
 
-## D.4 References:
+## D.4 Reference:
 
 Wong, D.C., Yang, C.E., Fu, J.S., Wong, K., & Gao, Y. (2015). An approach to enhance pnetCDF performance in environmental modeling applications. Geosci. Model Dev., 8, 1033-1046.
 
