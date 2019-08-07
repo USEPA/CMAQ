@@ -38,10 +38,13 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
   * [Reorganization of anthropogenic SOA species](anthro_SOA.md)  
   * [Added uptake of water onto hydrophilic organic aerosol](organic_water.md)  
   * [Corrected the conversion of inorganic to organic sulfate](inorganicsulfate_iepox_fix.md)  
+  * [Nonvolatile POA Option in CMAQv5.3](nonvolatile_POA.md)
+  * [Streamlined SOA Module](streamlined_SOA.md)
 
 ### Other Aerosol Processes
   * [Aerosol Dry Deposition Algorithm Updated](aerosol_dry_deposition.md)  
   * [Fix to Gravitational Settling Sub-Time-Step Calculation](gravitational_settling.md)  
+  * [Simplify Propagation of Aerosol Surface Area to Heterogeneous Chemistry Algorithm](HetChem_aerosol_param.md)
   
 ### Aqueous and Heterogeneous Chemistry
  * [AQCHEM-KMT2: Extended inorganic and organic cloud chemistry using the Kinetic PreProcessor](aqchem-kmt2.md)
@@ -69,6 +72,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
  * [Move Photolysis Rate Calculation to SCIPROC](move_phot_to_sciproc.md)
  * [Standardized Units for Output Variables](output_units.md)
  * [New Centralized Input/Output Module (CIO)](centralized_io.md)
+ * [Implementation of New Chemical Namelist Format](chemical_namelists.md)
 
 ## Diagnostic Options
  * [Vertical Profile Extraction: extend CCTM to output vertical profiles at specified locations](vertical_extraction.md)
