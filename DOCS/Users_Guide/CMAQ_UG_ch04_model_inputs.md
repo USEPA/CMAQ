@@ -240,7 +240,7 @@ The initial concentrations of each species being modeled must be input to CMAQ. 
 
 Used by: CCTM
 
-CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data using a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). Consult IOAPI User Guide for a pictorial description.
+CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data using a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). Consult I/O API User Guide for a pictorial description.
 
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10e<sup>-30</sup>. The perimeter of the CMAQ domain is NTHIK cell wide (typically NTHIK = 1), where the number of boundary cells = NTHIK\*(2\*NCOLS + 2\*NROWS +4\*NTHIK).
 
@@ -398,7 +398,7 @@ Used by: ICON, BCON, CCTM, and some optional programs
 
 Used by: CCTM
 
-CMAQ may accept emissions inputs from a variety of emissions models and preprocessors, as long as the input files created are compatible with IOAPI format. The most commonly used software for preparing emissions inputs is the Sparse Matrix Operator Kernel Emissions (SMOKE) modeling system, which is a collection of programs that separately process and merge emissions data for each emissions stream for input to air quality models.
+CMAQ may accept emissions inputs from a variety of emissions models and preprocessors, as long as the input files created are compatible with I/O API format. The most commonly used software for preparing emissions inputs is the Sparse Matrix Operator Kernel Emissions (SMOKE) modeling system, which is a collection of programs that separately process and merge emissions data for each emissions stream for input to air quality models.
 
 The emissions file provides primary pollutant emission rates by model grid cell and time. The file type is GRDDED3, and the units are in moles per second (moles s<sup>-1</sup>) for gas-phase species and grams per second (g s<sup>-1</sup>) for aerosol species. The file data are looped as follows: by column, by row, by layer, by variable, and by input time step. Elevated source emission rates may be provided to CCTM as vertically resolved emissions if the GR_EMIS_XXX file is 3D. The gridded emissions files should be assigned three-digit numeric suffixes to identify them. This suffix is used to link the emission filename to user-defined stream labels and other options (e.g. GR_EMIS_LAB_XXX, GR_EM_DTOVRD_XXX). Linking and modifying emissions streams is discussed further in [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md).
 
@@ -415,7 +415,7 @@ Used by: CCTM – inline emissions version only
 
 The XXX mark is unique and represents the stream identification. Make sure the N_EMIS_PT runtime variable is set to reflect the total number of inline emission streams.
 
-The stack groups file is an IOAPI file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
+The stack groups file is an I/O API file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
 
 <a id=stk_emis></a>
 
