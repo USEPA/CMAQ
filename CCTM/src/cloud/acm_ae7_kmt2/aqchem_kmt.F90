@@ -293,8 +293,8 @@
 
 !...Is a SAPRC07TIC or CB6 mechanism is being used?
  
-         IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0  .OR. &
-            ( INDEX ( MECHNAME, 'RACM' ) .GT. 0 ) ) THEN
+         IF ( INDEX ( MECHNAME, 'CB6' ) .LE. 0  .AND. &
+            ( INDEX ( MECHNAME, 'SAPRC07TIC' ) .LE. 0 ) ) THEN
             XMSG = 'This version of AQCHEM requires SAPRC07TIC or a CB6 gas mech'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF 
