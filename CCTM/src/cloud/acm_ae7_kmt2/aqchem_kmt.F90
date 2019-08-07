@@ -808,7 +808,7 @@ kron: DO WHILE (T < TEND)
          GAS( LPYRUV ) = ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) )*INVCFAC  ! returning G_PYRAC and L_PYRAC
                                                                               ! to the gas phase when gas phase
                                                                               ! pyruvic acid species exists in 
-									      ! gas phase mechanism
+                                                                              ! gas phase mechanism
          GASWDEP( LPYRUV ) = VAR( ind_WD_PYRAC )
          WDPYRAC = 0
          APYRAC = VAR( ind_L_PYRACMIN )
