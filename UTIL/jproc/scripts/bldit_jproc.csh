@@ -8,27 +8,41 @@
 #             http://www.cmascenter.org
 # =================================================================== 
 
-#> Source the config.cmaq file to set the build environment
- source ../../../config.cmaq
+ if ( $#argv == 1 ) then
+    setenv compiler $argv[1]
+    setenv compilerVrsn Empty
+ else if ( $#argv == 2 ) then
+    #> Compiler Name and Version have been provided
+    setenv compiler $1
+    setenv compilerVrsn $2
+ else
+    echo "usage: $0 <compiler>"
+    echo " where <compiler> is intel, pgi or gcc"
+    exit(2)
+ endif
+
+#> Source the config.cmaq file.csh to set the build environment
+ source ../../../config_cmaq.csh
  set echo
 
 #:#:#:#:#:#:#:#:#:#:#:# Begin User Input Section #:#:#:#:#:#:#:#:#:#:#:#
 
 #> Source Code Repository 
- set MODEL = $CMAQ_HOME/UTIL/jproc/src        #> location of the JPROC source code
+ set MODEL = $CMAQ_REPO/UTIL/jproc/src        #> location of the JPROC source code
  setenv REPOROOT $MODEL
- set GlobInc = $CMAQ_HOME/CCTM/src/ICL        #> location of the global include files
- set Mechs   = $CMAQ_HOME/CCTM/src/MECHS      #> location of the chemistry mechanism include files
+ set GlobInc = $CMAQ_REPO/CCTM/src/ICL        #> location of the global include files
+ set Mechs   = $CMAQ_REPO/CCTM/src/MECHS      #> location of the chemistry mechanism include files
 
 #> Working directory and application IDs
  set Base = $cwd                       #> working directory for compiling the source code
- set APPL = v52                       #> model configuration ID
+ set APPL = v53                       #> model configuration ID
  set EXEC = JPROC_${APPL}_$EXEC_ID    #> executable name
  set CFG  = cfg.$EXEC                #> configuration file name
 
 #> Controls for managing the source code compilation
  set CopySrc                           #> copy the source files into a working irectory
-# set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; comment out to compile the model (default if not set)
+ set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; comment out to compile the model (default if not set)
+ set CompileBLDMAKE  #> Recompile the BLDMAKE utility from source
 
 #======================================#>
 #> JPROC Science Modules
@@ -37,9 +51,9 @@
 #>   source code archive for a list of the possible settings; users may also refer to the CMAQ documentation
 
  set ModCommon = common
- set Mechanism = cb6r3_ae6_aq        #> chemical mechanism (see $CMAQ_HOME/CCTM/MECHS)
- set Tracer    = trac0                 #> tracer configuration directory under $CMAQ_HOME/CCTM/MECHS [ default: no tracer species ]
- set ModMisc = $Mechs/$Mechanism/RXNS_DATA_MODULE.F90
+ set Mechanism = cb6r3_ae7_aq        #> chemical mechanism (see $CMAQ_HOME/CCTM/MECHS)
+ set Tracer    = trac0                 #> tracer configuration directory under $CMAQ_HOME/CCTM/MECHS [ default: no tracer species 
+ set APPL       = ${APPL}_${Mechanism}
 
 #======================================#>
 #> Computing System Configuration:
@@ -48,12 +62,14 @@
 
  set FC = ${myFC}                      #> path of Fortan compiler; set in config.cmaq
  set FP = $FC                          #> path of Fortan preprocessor; set in config.cmaq
- set Blder = "$CMAQ_HOME/UTIL/bldmake/src/BLDMAKE -serial -verbose"  #> location of model builder executable
+
+ set Blder = "$CMAQ_REPO/UTIL/bldmake/src/bldmake "  #> location of model builder executable
 
 #> Set compiler flags
  set xLib_Base  = ${CMAQ_LIB}
  set xLib_1     = ioapi/lib
- set xLib_2     = ioapi/src
+ set xLib_2     = ioapi/include_files
+ set xLib_4     = ioapi/lib
  set FSTD       = "${myFSTD}"
  set DBG        = "${myDBG}"
  set F_FLAGS    = "${myFFLAGS}"
@@ -64,12 +80,12 @@
 
 #:#:#:#:#:#:#:#:#:#:#:# End of User Input Section :#:#:#:#:#:#:#:#:#:#:#:#:#
 
-#> Check for CMAQ_HOME and CMAQ_LIB settings:
- if ( ! -e $CMAQ_HOME || ! -e $CMAQ_LIB  ) then
-    echo "   CMAQ_HOME or CMAQ_LIB directory not found"
+#> Check for CMAQ_REPO and CMAQ_LIB settings:
+ if ( ! -e $CMAQ_REPO || ! -e $CMAQ_LIB  ) then
+    echo "   CMAQ_REPO or CMAQ_LIB directory not found"
     exit 1
  endif
- echo "    Model repository base path: $CMAQ_HOME"
+ echo "    Model repository base path: $CMAQ_REPO"
  echo "                  library path: $CMAQ_LIB"
  
  set BLD_OS = `uname -s`        ## Script set up for Linux only 
@@ -88,19 +104,18 @@
        exit 1
     endif
  endif
- cd $Bld
+#\cp -f $Mechs/$Mechanism/RXNS_DATA_MODULE.F90 ${Bld}/.
+ \cp -f $GlobInc/fixed/const/CONST.EXT ${Bld}/.
 
  set LIB1 = "$ioapi_lib"
- set LIB2 = "$netcdf_lib $extra_lib"
-
- source $Base/relinc.jproc
- if ( $status ) exit 1
+ set LIB2 = "$netcdf_lib"
+ set LIB3 = "$netcdff_lib"
 
  set ICL_CONST = $Bld
 
 #> make the config file
 
- set Cfile = ${CFG}.bld
+ set Cfile = ${Bld}/${CFG}.bld
  set quote = '"'
 
  echo                                                               > $Cfile
@@ -115,6 +130,8 @@
  echo "lib_1       $xLib_1;"                                       >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_2       $xLib_2;"                                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_4       $xLib_4;"                                       >> $Cfile
  echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
@@ -136,12 +153,14 @@
  echo                                                              >> $Cfile
  echo "netcdf      $quote$LIB2$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
+ echo "netcdff      $quote$LIB3$quote;"                             >> $Cfile
+ echo                                                              >> $Cfile
 
  set text="// mechanism:"
  echo "$text ${Mechanism}"                                         >> $Cfile
  echo "// model repository: ${REPOROOT}"                           >> $Cfile
  echo                                                              >> $Cfile
- echo "include SUBST_CONST      $ICL_CONST/CONST.EXT;"             >> $Cfile
+ echo "include SUBST_CONST      CONST.EXT;"                        >> $Cfile
 
  set text = "common"
  echo "// required" $text                                          >> $Cfile
@@ -154,41 +173,52 @@
 # echo "Module ${ModDriver};"                                       >> $Cfile
 # echo                                                              >> $Cfile
 
- if ( $?ModMisc ) then
-    echo "MISC ${ModMisc};"                                      >> $Cfile
-    echo                                                           >> $Cfile
- endif
+ set ModMisc = $Mechs/$Mechanism/RXNS_DATA_MODULE.F90
+ \cp -f $ModMisc ${MODEL}/common
+
+#> Recompile BLDMAKE from source if requested or if it does not exist
+if ( $?CompileBLDMAKE || ! ( -f $Blder ) ) then
+     cd ${CMAQ_REPO}/UTIL/bldmake/src
+     make clean
+     make
+endif
+cd $Bld
 
 #> make the Makefile or the model executable
 
  unalias mv rm
+ if ( -e $Bld/Makefile.$compiler || -e $Bld/Makefile ) then
+     rm $Bld/Makefile
+     rm $Bld/Makefile.$compiler
+ endif
+
  if ( $?MakeFileOnly ) then
     if ( $?CopySrc ) then
-       $Blder -makefo $Cfile
+       $Blder -makefo -serial -verbose $Cfile
     else
-       $Blder -makefo -git_local $Cfile   # $Cfile = ${CFG}.bld
-     # totalview -a $Blder -makefo $Cfile
+       $Blder -makefo -git_local -serial -verbose $Cfile   # $Cfile = ${CFG}.bld
+     # totalview -a $Blder -makefo -serial -verbose $Cfile
     endif
  else   # also compile the model
     if ( $?CopySrc ) then
-       $Blder $Cfile
+       $Blder -serial -verbose $Cfile
     else
-       $Blder -git_local $Cfile
+       $Blder -git_local -serial -verbosea $Cfile
     endif
  endif
  mv Makefile $Bld/Makefile.$compiler
- if ( -e $Bld/Makefile.$compiler && -e $Bld/Makefile ) rm $Bld/Makefile
  ln -s ./Makefile.$compiler Makefile
 
  if ( $status != 0 ) then
     echo "   *** failure in $Blder ***"
     exit 1
  endif
- if ( -e "$Base/${CFG}" ) then
-    echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
-    mv $Base/${CFG} $Base/${CFG}.old
- endif
- mv ${CFG}.bld $Bld/${CFG}
+#if ( -e "$Base/${CFG}" ) then
+#   echo "   >>> previous ${CFG} exists, re-naming to ${CFG}.old <<<"
+#   mv $Base/${CFG} $Base/${CFG}.old
+#endif
+#mv ${CFG}.bld $Bld/${CFG}
+\rm -f ${MODEL}/common/RXNS_DATA_MODULE.F90
 
 #:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#
  exit

@@ -302,6 +302,7 @@ set ParOpt                             #> uncomment to build a multiple processo
               -DSUBST_SUBGRID_INDEX=${Popt}_SUBGRID_INDEX )
  set STX2 = ( -DSUBST_HI_LO_BND_PE=${Popt}_HI_LO_BND_PE\
               -DSUBST_SUM_CHK=${Popt}_SUM_CHK\
+              -DSUBST_SE_INIT=${Popt}_INIT\
               -DSUBST_INIT_ARRAY=${Popt}_INIT_ARRAY\
               -DSUBST_COMM=${Popt}_COMM\
               -DSUBST_MY_REGION=${Popt}_MY_REGION\
