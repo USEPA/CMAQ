@@ -8,7 +8,7 @@
 
 ## E.1 WRF version 4+
 
-* WRF4.0 has updates to the ACM2 PBL model to account for the new default hybrid coordinate system. Our internal model runs suggest that the hybrid option (hybrid_opt =2) improves the model in areas where topographical variations are more extreme like the Rocky Mountains. As such, it is suggested, but not a requirement, to use this option in WRF.
+* WRF4.0 has updates to the ACM2 PBL model to account for the new default hybrid coordinate system. Our internal model runs suggest that the hybrid option (hybrid_opt =2) improves the model in areas where topographical variations are more extreme like the Rocky Mountains. As such, it is suggested, but not a requirement, to use this option in WRF that became the default in WRF4.0.
 
 * Several important updates were made to the Pleim-Xiu LSM in WRF4.1. Soil hydraulics are calculated using analytical equations (Noilhan and Mahfouf, 1996) rather than lookup tables. And, users can opt to use time-varying vegetation fraction from a wrflowinp input file in WRF that can be based off MODIS satellite data instead of the old weighting method that is based on lookup tables and landuse fraction. This satellite data option is activated using the physics namelist option "pxlsm_modis_veg = 1".
 
