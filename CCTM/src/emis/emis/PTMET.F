@@ -40,6 +40,9 @@ C                         - fixed a bug of incorrect assignment:
 C                           PTMET_DATA%LEN1 = EMLAYS, PTMET_DATA%LEN2 = MSRC
 C     01 Feb 2019 D.Wong: - Implemented centralized I/O approach and removed 
 C                           ZSTATIC implementation
+C     05 Aug 2019 D.Wong: - Used met information in the cell where a point source resides
+C                           rather than using bi-linear interpolation (call BMATVECN) to
+C                           obtain met information for that point source
 
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
@@ -166,18 +169,33 @@ C-----------------------------------------------------------------------
 
          SUBROUTINE PTMET_CONVT( JDATE, JTIME )
 
-         USE PTBILIN, B_D => BILIN_DATA   ! rename
-         USE STK_PRMS, ONLY: MY_NSRC, SOURCE
+         USE STK_PRMS, ONLY: MY_NSRC, SOURCE, MY_STKCOL, MY_STKROW
          USE stack_group_data_module, ONLY: STKHT
-         USE BMATVEC_MODULE
          USE CENTRALIZED_IO_MODULE, only : interpolate_var
+         USE HGRD_DEFN, only : ncols, nrows
+         USE VGRD_DEFN, only : nlays
 
          IMPLICIT NONE
 
          INTEGER, INTENT( IN ) :: JDATE, JTIME
 
-         INTEGER N, MSRC
+         INTEGER N, MSRC, S
          CHARACTER( 16 ) :: PNAME = 'PTMET_CONVT'   ! procedure name
+
+         integer :: myc, myr, stat
+         real, allocatable, save:: loc_zh(:,:,:),
+     &                             loc_zf(:,:,:),
+     &                             loc_hfx(:,:),
+     &                             loc_pbl(:,:),
+     &                             loc_temp2(:,:),
+     &                             loc_ustar(:,:),
+     &                             loc_prsfc(:,:),
+     &                             loc_ta(:,:,:),
+     &                             loc_qv(:,:,:),
+     &                             loc_pres(:,:,:),
+     &                             loc_dens(:,:,:),
+     &                             loc_uwind(:,:,:),
+     &                             loc_vwind(:,:,:)
 
          INTERFACE
             SUBROUTINE DELTA_ZS( EMLAYS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
@@ -192,75 +210,80 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 
+         if (.not. allocated(loc_zh)) then
+            allocate ( loc_zh(NCOLS,NROWS,NLAYS),
+     &                 loc_zf(NCOLS,NROWS,NLAYS),
+     &                 loc_hfx(NCOLS,NROWS),
+     &                 loc_pbl(NCOLS,NROWS),
+     &                 loc_temp2(NCOLS,NROWS),
+     &                 loc_ustar(NCOLS,NROWS),
+     &                 loc_prsfc(NCOLS,NROWS),
+     &                 loc_ta(NCOLS,NROWS,NLAYS),
+     &                 loc_qv(NCOLS,NROWS,NLAYS),
+     &                 loc_pres(NCOLS,NROWS,NLAYS),
+     &                 loc_dens(NCOLS,NROWS,NLAYS),
+     &                 loc_uwind(NCOLS+1,NROWS+1,NLAYS),
+     &                 loc_vwind(NCOLS+1,NROWS+1,NLAYS),
+     &                 stat=stat)
+         end if
+
+         call interpolate_var ('ZH', jdate, jtime, loc_zh)
+         call interpolate_var ('ZF', jdate, jtime, loc_zf)
+         call interpolate_var ('HFX', jdate, jtime, loc_hfx)
+         call interpolate_var ('PBL', jdate, jtime, loc_pbl)
+         call interpolate_var ('TEMP2', jdate, jtime, loc_temp2)
+         call interpolate_var ('USTAR', jdate, jtime, loc_ustar)
+         call interpolate_var ('PRSFC', jdate, jtime, loc_prsfc)
+         call interpolate_var ('TA', jdate, jtime, loc_ta)
+         call interpolate_var ('QV', jdate, jtime, loc_qv)
+         call interpolate_var ('PRES', jdate, jtime, loc_pres)
+         call interpolate_var ('DENS', jdate, jtime, loc_dens)
+         call interpolate_var ('UWIND', jdate, jtime, loc_uwind)
+         call interpolate_var ('VWIND', jdate, jtime, loc_vwind)
+
          DO N = 1, NPTGRPS
 
             MSRC = MY_NSRC( N )
 
+            DO S = 1, MY_NSRC (N )
+
+               myc = MY_STKCOL( N )%ARRY( S )
+               myr = MY_STKROW( N )%ARRY( S )
+
+               PTMET_DATA( N )%ZH(:,s) = loc_zh(myc, myr, :)
+
+               PTMET_DATA( N )%ZF(:,s) = loc_zf(myc, myr, :)
+
+               PTMET_DATA( N )%HFX(s) = loc_hfx(myc, myr)
+
+               PTMET_DATA( N )%HMIX(s) = loc_pbl(myc, myr)
+
+               PTMET_DATA( N )%TSFC(s) = loc_temp2(myc, myr)
+
+               PTMET_DATA( N )%USTAR(s) = loc_ustar(myc, myr)
+
+               PTMET_DATA( N )%PRSFC(s) = loc_prsfc(myc, myr)
+
+               PTMET_DATA( N )%TA(:,s) = loc_ta(myc, myr, :)
+
+               PTMET_DATA( N )%QV(:,s) = loc_qv(myc, myr, :)
+
+               PTMET_DATA( N )%PRES(:,s) = loc_pres(myc, myr, :)
+
+               PTMET_DATA( N )%DENS(:,s) = loc_dens(myc, myr, :)
+
+               PTMET_DATA( N )%UWIND(:,s) = loc_uwind(myc, myr, :)
+
+               PTMET_DATA( N )%VWIND(:,s) = loc_vwind(myc, myr, :)
+            END DO
+
             IF ( MY_NSRC( N ) .GT. 0 ) THEN
-
-               call interpolate_var ('ZH', jdate, jtime, xbuf, .true.)
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                        XBUF, PTMET_DATA( N )%ZH )
-
-               call interpolate_var ('ZF', jdate, jtime, xbuf, .true.)
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                        XBUF, PTMET_DATA( N )%ZF )
-
 C Compute ZSTK, DDZF
-
                CALL DELTA_ZS( EMLAYS, MSRC,
      &                        SOURCE( N )%ARRY, STKHT( N )%ARRY,
      &                        PTMET_DATA( N )%ZF,
      &                        PTMET_DATA( N )%ZSTK,
      &                        PTMET_DATA( N )%DDZF )
-
-C Read and transform meteorology:
-
-               call interpolate_var ('HFX', jdate, jtime, xbuf(:,1))
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%HFX )
-
-               call interpolate_var ('PBL', jdate, jtime, xbuf(:,1))
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%HMIX )
-
-               call interpolate_var ('TEMP2', jdate, jtime, xbuf(:,1))
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%TSFC )
-
-               call interpolate_var ('USTAR', jdate, jtime, xbuf(:,1))
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%USTAR )
-
-               call interpolate_var ('PRSFC', jdate, jtime, xbuf(:,1))
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%PRSFC )
-
-               call interpolate_var ('TA', jdate, jtime, xbuf, .true.)
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%TA )
-
-               call interpolate_var ('QV', jdate, jtime, xbuf, .true.)
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%QV )
-
-               call interpolate_var ('PRES', jdate, jtime, xbuf, .true.)
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%PRES )
-
-               call interpolate_var ('DENS', jdate, jtime, xbuf, .true.)
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%DENS )
-
-C UWIND and VWIND are on DOT points (NOT flux points)
-
-               call interpolate_var ('UWIND', jdate, jtime, dbuf, .true.)
-               CALL BMATVECN( METDGRID, MSRC, EMLAYS, B_D( N )%ND, B_D( N )%CD,
-     &                       DBUF, PTMET_DATA( N )%UWIND )
-
-               call interpolate_var ('VWIND', jdate, jtime, dbuf, .true.)
-               CALL BMATVECN( METDGRID, MSRC, EMLAYS, B_D( N )%ND, B_D( N )%CD,
-     &                       DBUF, PTMET_DATA( N )%VWIND )
             END IF ! MY_NSRC( N ) > 0
 
          END DO   ! NPTGRPS
