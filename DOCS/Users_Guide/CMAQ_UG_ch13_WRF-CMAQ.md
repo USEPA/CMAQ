@@ -37,7 +37,7 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
    1. If the configure script does not find the NETCDF path, follow the prompt to enter the explicit NETCDF include path and library path.
    2. Option selection determines by choosing an approriate compiler vendor and hardware description on right most column of the displayed option table and intercept with the third column (dmpar).  Example: for INTEL (ifort/icc), selection is 15 (you might consider 66 or 70 for a specific hardware if you own).
    3. In the compile for nesting section, choose the default value.
-- Download IOAPI 3.2 and install it.
+- Download I/O API 3.2 and install it.
 - Go through regular building CMAQ model process. Make sure bldit.cctm script  have:
 
     `set MakeFileOnly` line uncomment out
@@ -57,7 +57,7 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
    directory.
 
 - Note:  
-   1. You might need to edit the IOAPI and MPI paths in configure.wrf base on
+   1. You might need to edit the I/O API and MPI paths in configure.wrf base on
       the location of those two libraries on your system.
 
    2. You can also replace the netCDF link with explicit netCDF path under
