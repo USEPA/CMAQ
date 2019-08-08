@@ -174,7 +174,11 @@
 # echo                                                              >> $Cfile
 
  set ModMisc = $Mechs/$Mechanism/RXNS_DATA_MODULE.F90
- \cp -f $ModMisc ${MODEL}/common
+# \cp -f $ModMisc ${MODEL}/common
+ if ( $?ModMisc ) then
+    echo "MISC ${ModMisc};"                                        >> $Cfile
+    echo                                                           >> $Cfile
+ endif
 
 #> Recompile BLDMAKE from source if requested or if it does not exist
 if ( $?CompileBLDMAKE || ! ( -f $Blder ) ) then
@@ -218,7 +222,7 @@ cd $Bld
 #   mv $Base/${CFG} $Base/${CFG}.old
 #endif
 #mv ${CFG}.bld $Bld/${CFG}
-\rm -f ${MODEL}/common/RXNS_DATA_MODULE.F90
+#\rm -f ${MODEL}/common/RXNS_DATA_MODULE.F90
 
 #:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#:#
  exit
