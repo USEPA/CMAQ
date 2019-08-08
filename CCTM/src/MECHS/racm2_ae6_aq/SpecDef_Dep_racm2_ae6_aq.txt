@@ -8,7 +8,7 @@
 /
 /new species       ,units     ,expression
 
-RT                 ,cm        ,RN[3] + RC[3]  !>>> Total Rain
+RT                 ,cm        ,RC[3]>=0 ? RN[3]+RC[3] : RN[3]
 
 !---------------------------------------------------!
 !--------------- Gas Deposition --------------------!
