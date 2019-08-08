@@ -12,6 +12,13 @@ This chapter provides basic information on the format and content of CMAQ input 
 
 All CMAQ input and output files are conformed to I/O API netCDF file format. Please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html) for details.
 
+Full input datasets for 2016 over two domains are publically available to download from the CMAS Data Warehouse.  The input files are stored on Google Drive with metadata organized through Dataverse.  
+
+|**Domain**|**Simulation Dates**|**Dataverse DOI**| 
+|:--------------:|:----:|:--------:|
+| Southeast US | July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
+| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
+
 
 ## 4.2 CMAQ Pre-processors 
 [Figure 2-1](./images/Figure2-1.jpg) shows the relationship between CMAQ pre-processors and the main CMAQ program, the CMAQ Chemistry Transport Model (CCTM).  MCIP, ICON and BCON are included in the CMAQ repository and are used to create meteorological, initial conditions and boundary conditions inputs.  SMOKE, FEST-C and Spatial Allocator Tools are external software packages required for creating emissions inputs for CMAQ.  The following subsections provide more information on these software and point the user to additional sources of documentation. 
