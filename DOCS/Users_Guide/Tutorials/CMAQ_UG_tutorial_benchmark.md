@@ -98,15 +98,16 @@ source config_cmaq.csh intel 17.0
 
 ## Install the CMAQ input reference/benchmark data
 
-Download the CMAQ single day reference data from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software.cfm) and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the single day benchmark input and output files:
+Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE53BENCH](https://drive.google.com/drive/folders/1wvz0jQuqnuT8RNj_EMuLec154-rFXucv) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
-tar xvzf CMAQv5.3_Benchmark_SingleDay_Input.tar.gz
-tar xvzf CMAQv5.3_Benchmark_SingleDay_Output.tar.gz
+tar xvzf CMAQv5.3_Benchmark_2Day_Input.tar.gz
+tar xvzf CMAQv5.3_Benchmark_2Day_Output.tar.gz
 ```
 
-The CMAQ benchmark test case is a single day simulation for July 1, 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.
+The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  Input and output files for a two week case covering July 1-14, 2016 are also available within the same Google Drive folder. Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
+
 
 ## Compiling CMAQ
 

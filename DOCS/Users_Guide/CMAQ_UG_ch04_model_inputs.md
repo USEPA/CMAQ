@@ -12,6 +12,13 @@ This chapter provides basic information on the format and content of CMAQ input 
 
 All CMAQ input and output files are conformed to I/O API netCDF file format. Please refer to the [I/O API User's Manual](https://www.cmascenter.org/ioapi/documentation/all_versions/html) for details.
 
+Full input datasets for 2016 over two domains are publically available to download from the CMAS Data Warehouse.  The input files are stored on Google Drive with metadata organized through Dataverse.  
+
+|**Domain**|**Simulation Dates**|**Dataverse DOI**| 
+|:--------------:|:----:|:--------:|
+| Southeast US | July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
+| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
+
 
 ## 4.2 CMAQ Pre-processors 
 [Figure 2-1](./images/Figure2-1.jpg) shows the relationship between CMAQ pre-processors and the main CMAQ program, the CMAQ Chemistry Transport Model (CCTM).  MCIP, ICON and BCON are included in the CMAQ repository and are used to create meteorological, initial conditions and boundary conditions inputs.  SMOKE, FEST-C and Spatial Allocator Tools are external software packages required for creating emissions inputs for CMAQ.  The following subsections provide more information on these software and point the user to additional sources of documentation. 
@@ -118,14 +125,12 @@ This section describes each of the input files required by the various CMAQ prog
 |[E2C_LU](#e2c_lu) <a id=e2c_lu_t></a>| GRDDED3 | Time-invariant |XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|optional|
-|[DUST_LU_1](#dust_lu_1) <a id=dust_lu_1_t></a>| GRDDED3 | Time-invariant | XY|Spatial Allocator|required for running CMAQ with windblown dust|
-|[DUST_LU_2](#dust_lu_2) <a id=dust_lu_2_t></a>| GRDDED3 | Time-invariant | XY|Spatial Allocator|required for running CMAQ with windblown dust|
 |**Photolysis** | | | |||
 |[OMI](#omi) <a id=omi_t></a>| ASCII | Daily | n/a |CMAQ repo or create_omi|required|
 
 *XXX - three-digit variable indicating emission stream number. Gridded and Inline Point emissions are numbered independently.
 
-## GRIDDESC and Species Namelist Files
+## 4.4 GRIDDESC and Species Namelist Files
 <a id=griddesc></a> 
 **GRIDDESC: Horizontal domain definition**
 <!-- BEGIN COMMENT -->
@@ -221,7 +226,7 @@ The namelist files contain header information that describe which class of speci
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 4-2](#Table4-2). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
 
 <a id=init_conc_1></a>
-## Initial Condistions Input
+## 4.5 Initial Conditions Input
 
 **INIT_CONC_1: Initial conditions**
 <!-- BEGIN COMMENT -->
@@ -232,7 +237,7 @@ Used by: CCTM
 The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The actual file data are organized in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose.
 
 <a id=bndy_conc_1></a>
-## Initial Condistions Input
+## 4.6 Boundary Conditions Input
 **BNDY_CONC_1: Boundary conditions**
 <!-- BEGIN COMMENT -->
 [Return to Table 4-1](#bndy_conc_1_t)
@@ -240,11 +245,11 @@ The initial concentrations of each species being modeled must be input to CMAQ. 
 
 Used by: CCTM
 
-CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data using a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). Consult IOAPI User Guide for a pictorial description.
+CMAQ boundary condition data are of the BNDARY3 file type. Produced by the boundary condition processor, BCON, CCTM reads these data and correlates them with the interior data using a pointer system. This pointer system designates the beginning location of the data in memory that start a new side of the domain (i.e., south, east, north, or west). Consult I/O API User Guide for a pictorial description.
 
 Each species being modeled should be in the BNDY_CONC_1 file. If some modeled species are not contained in this file, the boundary condition for these species will default to the value 1 × 10e<sup>-30</sup>. The perimeter of the CMAQ domain is NTHIK cell wide (typically NTHIK = 1), where the number of boundary cells = NTHIK\*(2\*NCOLS + 2\*NROWS +4\*NTHIK).
 
-## Meteorological Inputs (Processed for the CMAQ System using MCIP)
+## 4.7 Meteorological Inputs (Processed for the CMAQ System using MCIP)
 
 <a id=grid_cro_2d></a>
 <a id=grid_bdy_2d></a>
@@ -388,7 +393,7 @@ Used by: ICON, BCON, CCTM, and some optional programs
 
 
 
-## Emissions Inputs
+## 4.8 Emissions Inputs
 <a id=emis_xxx></a>
 
 **GR_EMIS_XXX: Emissions**
@@ -398,7 +403,7 @@ Used by: ICON, BCON, CCTM, and some optional programs
 
 Used by: CCTM
 
-CMAQ may accept emissions inputs from a variety of emissions models and preprocessors, as long as the input files created are compatible with IOAPI format. The most commonly used software for preparing emissions inputs is the Sparse Matrix Operator Kernel Emissions (SMOKE) modeling system, which is a collection of programs that separately process and merge emissions data for each emissions stream for input to air quality models.
+CMAQ may accept emissions inputs from a variety of emissions models and preprocessors, as long as the input files created are compatible with I/O API format. The most commonly used software for preparing emissions inputs is the Sparse Matrix Operator Kernel Emissions (SMOKE) modeling system, which is a collection of programs that separately process and merge emissions data for each emissions stream for input to air quality models.
 
 The emissions file provides primary pollutant emission rates by model grid cell and time. The file type is GRDDED3, and the units are in moles per second (moles s<sup>-1</sup>) for gas-phase species and grams per second (g s<sup>-1</sup>) for aerosol species. The file data are looped as follows: by column, by row, by layer, by variable, and by input time step. Elevated source emission rates may be provided to CCTM as vertically resolved emissions if the GR_EMIS_XXX file is 3D. The gridded emissions files should be assigned three-digit numeric suffixes to identify them. This suffix is used to link the emission filename to user-defined stream labels and other options (e.g. GR_EMIS_LAB_XXX, GR_EM_DTOVRD_XXX). Linking and modifying emissions streams is discussed further in [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md).
 
@@ -415,7 +420,7 @@ Used by: CCTM – inline emissions version only
 
 The XXX mark is unique and represents the stream identification. Make sure the N_EMIS_PT runtime variable is set to reflect the total number of inline emission streams.
 
-The stack groups file is an IOAPI file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
+The stack groups file is an I/O API file containing stack parameters for elevated sources. This file can be created using the SMOKE program ELEVPOINT. For additional information about creating the stack groups file, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
 
 <a id=stk_emis></a>
 
@@ -427,7 +432,7 @@ Used by: CCTM – inline emissions version only
 
 The XXX mark is unique and represents the stream identification. Make sure the N_EMIS_PT runtime variable is set to reflect the total number of inline emission streams.
 
-The elevated-point-source emissions file is an IOAPI GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ inline plume rise calculation, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
+The elevated-point-source emissions file is an I/O API GRDDED3 file with emissions for point sources to be treated as elevated sources by CCTM. The emissions in this file are distributed through the vertical model layers using a plume-rise algorithm contained in CCTM. The elevated-point-source emissions file can be creating using SMOKE. For additional information about preparing point-source emissions for using the CMAQ inline plume rise calculation, see the [ELEVPOINT documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s03.html) in the SMOKE user’s manual.
 
 <a id=nldn_strikes></a>
 
@@ -478,7 +483,7 @@ This file contains the following variables interpolated to the modeling grid:
 
 *Regression equation generates flash counts (or log flash counts) per square km per cm convectic precipitation.
 
-## Biogenic and Land Surface Inputs
+## 4.9 Biogenic and Land Surface Inputs
 <a id=ocean_1></a>
 **OCEAN_1: Sea spray mask**
 <!-- BEGIN COMMENT -->
@@ -554,53 +559,8 @@ Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 This is a 3-D daily file created by the EPIC to CMAQ tool via the FEST-C interface.  The tool extracts EPIC simulated soil chemistry information including fertilization for the Layer 1 and Layer 2 soil profiles along with plant growth information in each grid cell with agricultural land.  The FEST-C interface facilitates EPIC simulations for any CMAQ modeling domain over the conterminous U.S. area.  Additional information on the EPIC simulation and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
 
-<a id="dust_lu_1"></a>
-**DUST_LU_1 – Gridded land cover/land use**
-<!-- BEGIN COMMENT -->
-[Return to Table 4-1](#dust_lu_1_t)
-<!-- END COMMENT -->
 
-Used by: CCTM – windblown dust version only
-
-The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following LCLU variables to be compatible with the CMAQ dust module:
-
--   USGS_urban
--   USGS_drycrop
--   USGS_irrcrop
--   USGS_cropgrass
--   USGS_cropwdlnd
--   USGS_grassland
--   USGS_shrubland
--   USGS_shrubgrass
--   USGS_savanna
--   USGS_decidforest
--   USGS_evbrdleaf
--   USGS_coniferfor
--   USGS_mxforest
--   USGS_water
--   USGS_wetwoods
--   USGS_sprsbarren
--   USGS_woodtundr
--   USGS_mxtundra
--   USGS_snowice
-
-These categories are used to determine dust source locations and canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD4 tiles. The DUST_LU_1 file corresponds to the “a” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
-
-<a id="dust_lu_2"></a>
-**DUST_LU_2 – BELD land use “TOT” data file**
-<!-- BEGIN COMMENT -->
-[Return to Table 4-1](#dust_lu_1_t)
-<!-- END COMMENT -->
-
-Used by: CCTM – windblown dust version only
-
-The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following variables to be compatible with the CMAQ dust module:
-
--   FOREST
-
-This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
-
-## Photolysis Inputs
+## 4.10 Photolysis Inputs
 <a id=omi></a>
 **OMI: Ozone Monitoring Instrument Column Data**
 <!-- BEGIN COMMENT -->

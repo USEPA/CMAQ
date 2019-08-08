@@ -6,7 +6,7 @@
 
 # Appendix C: Processing Spatial Data for CMAQ Inputs
 
-## Geospatial Data
+## C.1 Geospatial Data
 
 Air quality modeling requires many spatial data to generate anthropogenic,
 biogenic, fire, sea salt, dust, and NH<sub>3</sub> emissions. In addition, land surface characteristics such as
@@ -24,7 +24,7 @@ In using the spatial data, it is important to know the datum, which is a spheroi
  The following sections briefly describe the appropriate datum and projections to use with the CMAQ system
  and the methods for generating the needed spatial data in the correct form.
 
-### Geodetic datum
+## C.2 Geodetic datum
 
  A geodetic datum is a coordinate system used to define a location on the Earth.
  There are many datums used in spatial datasets depending on what geographic regions they are and
@@ -38,7 +38,7 @@ so that they are spatially aligned with the WRF files.  For simulations over Nor
 slightly different from the WGS84 datum.  As a result, NAD83 can be used for North America domains without
 introducing spatial misalignment issues in the model datasets.
 
-### Spatial Data Projection
+## C.3 Spatial Data Projection
 
 CMAQ can use any of the [four map projections defined for WRF.](http://www2.mmm.ucar.edu/wrf/users/docs/user_guide_V3/users_guide_chap3.htm) 
 The four map projection coordinate systems are regular latitude-longitude geographic, Lambert conformal conic, Mercator, and Polar
@@ -54,7 +54,7 @@ Mercator:  "+proj=merc +a=6370000.0 +b=6370000.0 +lat_ts=33 +lon_0=0"
 
 Geographic:  "+proj=latlong +a=6370000.0 +b=6370000.0"
 
-### Spatial Data Generation
+## C.4 Spatial Data Generation
 
 Emission spatial allocation surrogates are required for generating anthropogenic emissions by SMOKE to
 spatially allocate county-based emission inventories to model grid cells. Emission surrogates can be based

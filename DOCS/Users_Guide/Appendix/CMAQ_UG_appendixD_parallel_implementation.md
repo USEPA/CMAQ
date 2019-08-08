@@ -1,13 +1,13 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md)
+[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixE_configuring_WRF.md)
 
 <!-- END COMMENT -->
 
 
 # Appendix D: Parallel Implementation of CMAQ
 
-## 1. General Structure of data
+## D.1 General Structure of data
 
 There are a few approaches to parallelize an application, such as data-parallelism. Data-parallelism is a paradigm which decomposes data into "equal" sections and distributes them among allocated processors. Each processor works on the portion it owns. CMAQ parallel implementation is based on this methodology.
 
@@ -17,7 +17,7 @@ The CMAQ model operates on a 4D space (ncols, nrows, nlays, nspcs) and only the 
 
 **Figure D-1. Domain decomposition illustration**
 
-## 2. Interprocessor Communication
+## D.2 Interprocessor Communication
 
 In some science processes such as advection, a processor requires data from neighboring processors (interprocessor communication) when the model runs on a distributed memory system. An interprocessor communication library, STENEX, was developed to provide a simple and robust interface to handle various kinds of near neighbor communication. Near neighbor is defined as processors which are adjacent to a given processor (blue block) in the eight major geographical directions: N, NE, E, SE. S, SW, W, and NW (Fig. D-2).
 
@@ -56,11 +56,11 @@ As an illustration of interprocessor data access (Fig. D-3), consider the follow
 **Figure D-5. Sub-section data redistribution communication**
 
 
-## 3. Parallel I/O
+## D.3 Parallel I/O
 
-All I/O operations in CMAQ are handled by the IOAPI library. Furthermore, the IOAPI library was designed for serial code. As a result, CMAQ cannot utilize any I/O functions contained in the in IOAPI library (such as READ3 and WRITE3) directly in any parallel computing platform. 
+All I/O operations in CMAQ are handled by the I/O API library. Furthermore, the I/O API library was designed for serial code. As a result, CMAQ cannot utilize any I/O functions contained in the in I/O API library (such as READ3 and WRITE3) directly in any parallel computing platform. 
 
-CMAQv4.7.1 and later releases include a directory called 'PARIO' which was developed to bridge this gap. PARIO contains a smaller set of functions which are counterparts to equivalent functions in IOAPI but capable to run in parallel. The following IOAPI routines have PARIO equivalents: READ3, INTERP3, WRITE3, CHECK3, OPEN3, CLOSE3, DESC3, M3ERR, M3EXIT, M3WARN. Each file name in the PARIO library has a "P" prefix to distinguish it from its counterpart in the IOAPI library, e.g. POPEN3 and PINTERP3. Substitution with the PARIO subroutines is done at compilation through CPP flags. Note that the subroutine argument lists in any PARIO routine are identical to those in the IOAPI counterpart routine.
+CMAQv4.7.1 and later releases include a directory called 'PARIO' which was developed to bridge this gap. PARIO contains a smaller set of functions which are counterparts to equivalent functions in IOAPI but capable to run in parallel. The following I/O API routines have PARIO equivalents: READ3, INTERP3, WRITE3, CHECK3, OPEN3, CLOSE3, DESC3, M3ERR, M3EXIT, M3WARN. Each file name in the PARIO library has a "P" prefix to distinguish it from its counterpart in the I/O API library, e.g. POPEN3 and PINTERP3. Substitution with the PARIO subroutines is done at compilation through CPP flags. Note that the subroutine argument lists in any PARIO routine are identical to those in the I/O API counterpart routine.
 
 On the output side, all processors are required to send their portion of data to processor 0, which will stitch together each sub-part and then output it to the file (Fig. D-8). This is considered a “pseudo” parallel I/O approach and this approach is being using in PARIO.
 
@@ -82,11 +82,11 @@ The PnetCDF library is the parallel I/O implementation to complement the classic
 
 **IOAPI library**
 
-The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32.
+The I/O API library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32.
 
 The general steps for installation of IOAPI libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
-This approach also requires installation of "mpi" IOAPI libraries as shown below (note these steps should be followed after completing the steps in Chapter 3 section 3.2.3): 
+This approach also requires installation of "mpi" I/O API libraries as shown below (note these steps should be followed after completing the steps in Chapter 3 section 3.2.3): 
 
 ```
 setenv BIN Linux2_x86_64gfortmpi
@@ -105,14 +105,14 @@ make configure
 make
 ```
 
-After building the reqiured libraries, users must build CCTM. Before compilation of CCTM, users must turn on this feature by uncommenting the following line in bldit_cctm.csh at the model build step and link with IOAPI 3.2.
+After building the reqiured libraries, users must build CCTM. Before compilation of CCTM, users must turn on this feature by uncommenting the following line in bldit_cctm.csh at the model build step and link with I/O API 3.2.
 
 ```
 #set MakefileOnly                      #> uncomment to build a Makefile, but do not compile;
 #set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf);
 ```
 
-After building the BLD directory (where the Makefile lives), change to this directory and edit the Makefile to include PNETCDF and the correct IOAPI BIN before compiling the code. An example of these edits are shown below: 
+After building the BLD directory (where the Makefile lives), change to this directory and edit the Makefile to include PNETCDF and the correct I/O API BIN before compiling the code. An example of these edits are shown below: 
 
 ```
 LIB = /home/CMAQ_PIO/CMAQ_libs
@@ -132,12 +132,12 @@ Lastly, users must also edit the CCTM run script by inserting MPI: in front of t
   
 For further directions on installation of PIO please contact David Wong at wong.david-c@epa.gov
 
-### Reference:
+## D.4 Reference:
 
 Wong, D.C., Yang, C.E., Fu, J.S., Wong, K., & Gao, Y. (2015). An approach to enhance pnetCDF performance in environmental modeling applications. Geosci. Model Dev., 8, 1033-1046.
 
 <!-- BEGIN COMMENT -->
-[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md)<br>
-CMAQ User's Guide (c) 2019<br>
+
+[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixE_configuring_WRF.md)
 
 <!-- END COMMENT -->
