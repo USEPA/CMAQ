@@ -377,8 +377,6 @@ The actual amount of dust emitted from an arid surface depends on wind speed, su
 
 CMAQ uses time-varying vegetation coverage, soil moisture and wind speed from the meteorological model, WRF. The vegetation coverage in WRF can vary depending on the configuration. In WRFv4.1+, the Pleim-Xiu land-surface model (PX LSM) was modified to provide CMAQ vegetation fraction (VEGF_PX in WRF renamed VEG in MCIP) from either the old fractional landuse weighting table lookup method (pxlsm_modis_veg = 0), or a new option where vegetation fraction is directly read from the monthly MODIS derived vegetation coverage (pxlsm_modis_veg = 1) found in the wrflowinp_d0* file(s). This was done because in recent years WRF has provided high resolution ~1 km monthly vegetation coverage that is more accurate than tables. Updates are backward compatible with older version of MCIP or WRF as long as VEG and VEGF_PX/VEGFRA are in those files. If users employ a different land surface model like the NOAH LSM, MCIP will assign the values of VEGFRA in WRF to VEG for CMAQ and the dust module will operate the same. Using the MODIS data in WRF via the new PX vegetation option provides the dust model a more accurate representation of vegetation in regions where windblow dust most occurs. 
 
-The CMAQ windblown dust module requires two additional input data files, DUST_LU_1 and DUST_LU_2.  See [Chapter 4](https://github.com/kmfoley/CMAQ_Dev/blob/v53_UG_Update/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#dust_lu_1) for more information on these model inputs. 
-
 The CMAQ windblown dust module is controlled by the following RunScript flag:
 
 ```
