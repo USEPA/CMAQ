@@ -1,14 +1,15 @@
-combine
+Combine
 ========
 
 This Fortran program combines fields from a set of IOAPI or wrfout input files to an output file.  The file assigned to environmental variable SPECIES_DEF defines the new species variables and how they are constructed.  This means that all the species listed in the SPECIES_DEF files need to be output when CMAQ is being run. One option is  to set the ACONC (or CONC) output to be all species.  
 
-## Environment variables used:
+## Run Time Environment variables used:
 
 ```
  GENSPEC      Indicates to generate a new SPECIES_DEF file (does not generate OUTFILE)
               Choices are: Y, N. (e.g. setenv GENSPEC N)
- SPECIES_DEF  Species definition file defining the new variables of the output file
+ SPEC_DEP     Set location of species definition files for deposition species.
+ SPEC_CONC    Set location of species definition files for concentration species.
  INFILE1      input file number 1
               The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
 	      Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html),
@@ -17,7 +18,7 @@ This Fortran program combines fields from a set of IOAPI or wrfout input files t
               read/write/update if it already exists
 ```
 
-## Environment Variables (not required):
+## Run Time Environment Variables (not required):
 ```
  IOAPI_ISPH  projection sphere type (use type #20 to match WRF/CMAQ)
              (the default for this program is 20, overriding the ioapi default of 8) 
@@ -81,12 +82,22 @@ Examples of possible post-processing expressions are shown in the sample SPECIES
 
 **If you have questions about the sample species definition files or find something that does not seem correct please discuss it with us by creating an "Issue" through GitHub or contacting the CMAS Help Desk: http://www.cmascenter.org.**
 
-## To run:
+## Compile combine source code:
+
+Execute the build script to compile combine:
+
+```
+cd $CMAQ_HOME/POST/combine/scripts
+./bldit_combine.csh [compiler] [version] |& tee build_combine.log
+```
+
+## Run combine:
 Edit the sample run script (run.combine.aconc), then run:
 ```
- run.combine.aconc |& tee combine.aconc.log
+ ./run.combine |& tee combine.aconc.log
 ```
-A sample run script for creating a combine file for evaluating deposition is also provided (run.combine.dep).  
+A sample run script for creating a combine file for evaluating deposition and average concentration is also provided (run_combine.csh). 
+
 Check the log file to ensure complete and correct execution without errors.
 
 ## Note on the use of wrfout files as input to combine:
