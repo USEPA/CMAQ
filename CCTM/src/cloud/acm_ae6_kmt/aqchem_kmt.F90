@@ -253,7 +253,7 @@
 
          FIRSTIME = .FALSE.
  
-C...Make sure an AE6 version of the mechanism is being used
+!...Make sure an AE6 version of the mechanism is being used
 
         IF ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) THEN
           XMSG = 'This version of AQCHEM requires an AE6 chemical mechanism'
