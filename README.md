@@ -55,7 +55,7 @@ Benchmark/tutorial data for each CMAQ release version are available from the CMA
 |:----:|:--------------:|:----:|:--------:|
 |Input| Southeast US| July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
 |Output| Southeast US| July 1 - 14, 2016| |
-|Input| CONUS (input only)| Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
+|Input| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
 
 
 ## EPA Disclaimer
