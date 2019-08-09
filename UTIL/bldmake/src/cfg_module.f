@@ -624,6 +624,7 @@
 
       Eflag = .False.
       Do n = 1, n_modules
+         If ( n .Eq. miscMod ) Cycle   !! skip MISC module
 ! create filename for scratch file
         Call getSCRNAME( scrfile )
 ! run ls command using system function

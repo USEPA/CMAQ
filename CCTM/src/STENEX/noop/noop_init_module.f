@@ -61,8 +61,8 @@ C -----------------------------------------------------------------------------
         integer, intent(in) :: gl_nrows, gl_ncols, gl_nlays, gl_nspcs
         integer, intent(in) :: my_pe
         integer, intent(in) :: mndis, medis, msdis, mwdis
-        character (len = 2), intent(in) :: data_ori
-        integer, intent(in) :: geo_ori
+        character (len = 2), optional, intent(in) :: data_ori
+        integer, optional, intent(in) :: geo_ori
 
         end subroutine noop_init 
 

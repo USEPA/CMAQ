@@ -380,10 +380,11 @@ C Initialize PARIO
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-C Initialize stencil exchange
-         CALL SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
-     &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS )
 #endif
+C Initialize stencil exchange
+         CALL SUBST_SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
+     &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS )
+
 
 #ifdef verbose_driver
          write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
