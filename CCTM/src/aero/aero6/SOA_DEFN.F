@@ -1167,7 +1167,8 @@ C-----------------------------------------------------------------------
          ! Account for Kappa of Nonvolatile POC and PNCOM species. This
          ! must be done separately because PNCOM has infinite OM:OC
          poa = aerospc_conc( apoc_idx, im ) + aerospc_conc( apncom_idx, im )
-         kappaVorg = kappaVorg + (0.11*poa/aerospc_conc(apoc_idx, im ) -0.10)
+         kappaVorg = kappaVorg + 
+     &               (0.11*poa / ( aerospc_conc(apoc_idx, im ) + tiny(0.0) ) -0.10)
      &               * (aerospc_conc( apncom_idx, im ) / aerospc( apncom_idx )%density +
      &                  aerospc_conc( apoc_idx,   im ) / aerospc( apoc_idx )%density )*1.0e-9
 
