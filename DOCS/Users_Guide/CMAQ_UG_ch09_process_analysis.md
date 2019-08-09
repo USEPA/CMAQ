@@ -26,7 +26,7 @@ A user activates PA during CMAQ runtime and includes a PA input file to specify 
 
 ## 9.2 Use of Process Analysis
 
-### Step 1: Activate Process Analysis and specify control files.
+**Step 1: Activate Process Analysis and specify control files**
 
 - setenv CTM_PROCAN Y:N
 
@@ -45,7 +45,7 @@ The user can also specify an optional subdomain for the IPR/IRR output.  If thes
 
 where integers [start] and [end] are the starting and ending grid columns, rows, or vertical levels. These optional variables are used to specify the modeling grid domain column range, row range, and layer range for the process analysis calculations. Set to the two digits representing the start and end columns, rows and layer numbers bounding the process analysis domain. The user must be careful that the columns, rows, and levels are not outside of the current CMAQ domain.
 
-### Step 2: Ensure that output files are being written and that the output variables have been correctly specified
+**Step 2: Ensure that output files are being written and that the output variables have been correctly specified**
 
 A PACM_REPORT file, with the name specified in Step 1, is output for every day of simulation, along with daily IRR or IPR files, depending on whether IRR or IPR was specified.  If there is a formatting error in the PACM_INPUT file, CMAQ will not run and the CMAQ log files must be checked to determine where the error occurred. The PACM_REPORT file will list the reactions that are used to interpret each of the reactions/families/cycles/operators specified by the user in the PACM_INPUT file.  For complex operations (such as those including families or cycles), the user must ensure that the output conveys the appropriate quantities.
 
@@ -57,7 +57,7 @@ The output files are specified in the CMAQ runscript by:
 
 IPR files are only created if IPR is turned on in the PACM_INFILE (IPR_OUTPUT specified), and IRR files are only created if IRR is specified (IRRTYPE = PARTIAL or FULL).  The number of output files created (whether 1,2 or 3) depends on the number of variables specified; for example, only one will be created for the sample input file delivered as part of the CMAQ release.
 
-### Step 3: Post process output files
+**Step 3: Post process output files**
 
 The output files are in the same units as the concentration files and can be post-processed using the same utilities used to post-process the CMAQ concentration files. In particular the following utilities may be helpful:
 
@@ -192,7 +192,7 @@ In this case, we have summed up all throughput over the first 15 levels of the m
 
 **Figure 9-2. Relative contribution of HNO3 formation pathways at three grid locations**
 
-## References
+## 9.7 References
 
 Gipson, G.L. (1999). Chapter 16: Process analysis. In science algorithms of the EPA models-3 Community Multiscale Air Quality (CMAQ) Modeling System. EPA/600/R-99/030.
 

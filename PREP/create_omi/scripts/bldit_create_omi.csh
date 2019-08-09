@@ -22,7 +22,7 @@
     exit 1
  endif
 
-# if ( $#argv == 1 ) then
+if ( $#argv == 1 ) then
     setenv compiler $argv[1]
 else
     echo "usage: $0 <compiler>"

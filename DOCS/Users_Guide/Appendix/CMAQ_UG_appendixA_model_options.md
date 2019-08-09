@@ -1,5 +1,7 @@
 
- [<< Tables and Figures](../CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)
+<!-- BEGIN COMMENT -->
+
+[<< Tables and Figures](../CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)
 
 <!-- END COMMENT -->
 
@@ -26,7 +28,6 @@
 	* [Inline Emissions Configuration](#Inline_Emissions_Config)
 	* [Lightning NOx Configuration](#Lightning_NOx_Config)
 	* [Online Biogenic Emissions Configuration](#Online_Bio_Config)
-    * [Windblown Dust Emissions Configuration](#windblown_dust_config)
 
 <a id=config_cmaq.csh></a>
 ## A.1 Configuration Options (config_cmaq.csh)
@@ -383,13 +384,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
     Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y requires the availability of gridded land use input files that include the following BELD USGS land use classifications: shrubland, shrubgrass, and sprsbarren. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information. 
--   `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
-    Landuse database for identifying dust source regions;  ignore if `CTM_WB_DUST = FALSE`  
-    - `BELD3`  
-    Use BELD3 landuse data
-    - `BELD4`
-    Use BELD4 landuse data
+    Setting to calculate online windblown dust emissions in CCTM. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information. 
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
 -   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
@@ -565,20 +560,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `B3GTS_S [default: [Output Directory]/CCTM_B3GTS_$CTM_APPL.nc`<a id=B3GTS_S></a>  
     Diagnostic output netCDF file of biogenic emissions. This variable is ignored if B3GTS_DIAG is set to N.  
 
-<a id=windblown_dust_config></a>
-### Windblown dust emissions configuration
 
-[Return to Top](#TOC_A)
-
--   `DUST_LU_1 [default: Path to BELD3 Data]`<a id=DUST_LU_1></a>  
-    Input BELD "A" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
-
--   `DUST_LU_2 [default: Path to BELD4 Data]`<a id=DUST_LU_2></a>  
-    Input BELD "TOT" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
-
--   `BELD4_LU [default: path to BELD4 data file]`<a id=BELD4_LU></a>  
-    Input BELD4 landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD4.  
-
-
+<!-- BEGIN COMMENT -->
 [<< Tables and Figures](../CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
  CMAQ User's Guide (c) 2019<br>
+ 
+ <!-- END COMMENT -->
