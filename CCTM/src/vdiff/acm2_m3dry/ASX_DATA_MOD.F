@@ -428,9 +428,12 @@ C   Tanya took JACOBF out of METCRO3D! Improvise
 C   31 Jan 05 J.Young: dyn alloc - establish both horizontal & vertical
 C                      domain specifications in one module
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
+C   25 Jul 19 D.Wong: used N_SOIL_TYPE defined in LSM_Mod to handle
+C                     various number of soil type from different WRF version
 C-----------------------------------------------------------------------
 
          Use UTILIO_DEFN
+         Use LSM_Mod, only : N_SOIL_TYPE
 
          Implicit None
  
@@ -635,7 +638,7 @@ C-----------------------------------------------------------------------
          If ( ABFLUX ) Then
             Grid_Data%LUFRAC = LUFRAC
 
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WWLT( C,R ) = WWLT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
@@ -643,7 +646,7 @@ C-----------------------------------------------------------------------
                Grid_Data%BSLP( C,R ) = BSLP( Grid_Data%SLTYP( C,R ) )
             End Forall
          Else
-            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. 11 )
+            Forall( C = 1:NCOLS, R = 1:NROWS, Grid_Data%SLTYP(C,R) .Le. N_SOIL_TYPE )
                Grid_Data%WSAT( C,R ) = WSAT( Grid_Data%SLTYP( C,R ) )
                Grid_Data%WFC ( C,R ) = WFC ( Grid_Data%SLTYP( C,R ) )
             End Forall

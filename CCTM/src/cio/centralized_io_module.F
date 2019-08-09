@@ -45,6 +45,10 @@
 !                        * region files for scaling purposes
 !  06/19/19, D. Wong: -- fixed a bug in the EMIS regions subroutine
 !  07/08/19, F. Sidi: -- Renamed E2C_FERT -> E2C_CHEM & BELD4_LU -> E2C_LU
+!  07/09/19, T. Spero: -- Changed file for fractional land use from
+!                         GRIDCRO2D to LUFRAC_CRO.  Allow backward
+!                         compatibility.
+!  07/17/19, R. Gilliam:- Removed the FPAR file call for windblow dust. MCIP VEG is used.
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -58,14 +62,13 @@
 
         character (20), parameter :: bio_season_fname = 'BIOSEASON'
         character (20), parameter :: biogemis_fname   = 'B3GRD'
-        character (20), parameter :: dust_fname       = 'MODIS_FPAR'
 
         integer, parameter :: f_met_cro_2d  = 1
         integer, parameter :: f_met_cro_3d  = 2
         integer, parameter :: f_met_dot_3d  = 3
 
         CHARACTER( 40 ), parameter :: NLDN_STRIKES = 'NLDN_STRIKES'
-        CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_GASC_1'
+        CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_CONC_1'
         CHARACTER( 40 ), parameter :: ISAM_PREVDAY = 'ISAM_PREVDAY'
 
         integer :: file_sdate(max_nfiles)
@@ -81,7 +84,7 @@
      &                       LAT(:,:),          ! from GRID_CRO_2D data
      &                       LON(:,:),          ! from GRID_CRO_2D data
      &                       PURB(:,:),         ! from GRID_CRO_2D data
-     &                       LUFRAC(:,:,:),     ! from GRID_CRO_2D data
+     &                       LUFRAC(:,:,:),     ! from LUFRAC_CRO data
      &                       SOILCAT_A(:,:),    ! from MET_CRO_2D
      &                       MSFD2(:,:),        ! from GRID_DOT_2D data
      &                       X3HT0M(:,:),       ! from GRID_CRO_3D data
@@ -186,7 +189,8 @@
      &             WR_AVAIL,                ! flag for WR, canopy wetness available in MET_CRO_2D
      &             MEDC_AVAIL,              ! file INIT_MEDC_1 is available
      &             E2C_CHEM_AVAIL,          ! file E2C_CHEM is available
-     &             GMN_AVAIL                ! variable GMN exist or not
+     &             GMN_AVAIL,               ! variable GMN exist or not
+     &             LUCRO_AVAIL              ! file LUFRAC_CRO is available
 
 ! Met data is large enough to cover boundary and no MET_BDY_3D will be used
         logical :: window
@@ -208,7 +212,8 @@
      &             boundary_files_setup,
      &             retrieve_grid_cro_2d_data,
      &             retrieve_grid_dot_2d_data,
-     &             retrieve_ocean_data
+     &             retrieve_ocean_data,
+     &             retrieve_lufrac_cro_data
 
         integer, private :: count = 0
         integer, private :: cio_logdev, 
@@ -323,6 +328,24 @@
           END IF
           CALL SUBHFILE ( GRID_DOT_2D, GXOFF, GYOFF,
      &                    STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2 )
+
+! lufrac cro file
+          IF ( .NOT. OPEN3( LUFRAC_CRO, FSREAD3, PNAME ) ) THEN
+             XMSG = 'Could not open '// LUFRAC_CRO // ' file'
+             CALL M3WARN ( PNAME, 0, 0, XMSG )
+             LUCRO_AVAIL = .FALSE.
+             XMSG = 'Solution: Reading Land Use Fractions from GRID_CRO_2D file'
+             WRITE(LOGDEV,'(5X,A)')TRIM( XMSG )
+          ELSE
+             LUCRO_AVAIL = .TRUE.
+             IF ( .NOT. DESC3( LUFRAC_CRO ) ) THEN
+                XMSG = 'Could not get ' // LUFRAC_CRO //' file description'
+                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
+
+             CALL SUBHFILE ( LUFRAC_CRO, GXOFF, GYOFF,
+     &                       STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
+          END IF
 
 ! met cro 2d file
           IF ( .NOT. OPEN3( MET_CRO_2D, FSREAD3, PNAME ) ) THEN
@@ -580,18 +603,6 @@
 
 ! Wind blown dust data
           n_dust_vars = 0
-          if (WB_DUST) then
-             IF ( .NOT. OPEN3( dust_fname, FSREAD3, PNAME ) ) THEN
-                XMSG = 'Could not open '// dust_fname // ' file'
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             IF ( .NOT. DESC3( dust_fname ) ) THEN
-                XMSG = 'Could not get description of file  '// dust_fname
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             n_dust_vars = nvars3d
-             modis_data_sdate = sdate3d
-          end if
 
           n_e2d = n_e2d + n_bio_season_vars + n_dust_vars
 
@@ -609,17 +620,6 @@
              begin = n_e2d+n_e3d-n_dust_vars
              emis_name(begin:begin, 2) = 'bs'          ! bs denote bio season
              emis_name(begin:begin, 1) = vname3d(1)
-          end if
-
-          if (WB_DUST) then
-             IF ( .NOT. DESC3( dust_fname ) ) THEN
-                XMSG = 'Could not get description of file  '// dust_fname
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             begin = n_e2d+n_e3d-n_dust_vars+1
-             end   = begin + n_dust_vars - 1
-             emis_name(begin:end, 2) = 'wb'          ! bs denote bio season
-             emis_name(begin:end, 1) = vname3d(1:nvars3d)
           end if
 
 ! setup initial condition file
@@ -872,12 +872,12 @@
           end if
 
 ! BCON file
-          IF ( .NOT. OPEN3( BNDY_GASC_1, FSREAD3, PNAME ) ) THEN
-             XMSG = 'Could not open '// BNDY_GASC_1 // ' file'
+          IF ( .NOT. OPEN3( BNDY_CONC_1, FSREAD3, PNAME ) ) THEN
+             XMSG = 'Could not open '// BNDY_CONC_1 // ' file'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-          IF ( .NOT. DESC3( BNDY_GASC_1 ) ) THEN
-             XMSG = 'Could not get description of file  '// BNDY_GASC_1 
+          IF ( .NOT. DESC3( BNDY_CONC_1 ) ) THEN
+             XMSG = 'Could not get description of file  '// BNDY_CONC_1 
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
           n_b3d = nvars3d
@@ -1906,6 +1906,44 @@ C Read the various categories of normalized emissions
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
+          IF ( .NOT. LUCRO_AVAIL ) THEN
+
+             CALL INIT_LSM( 0, 0 )
+
+             allocate (LUFRAC(ncols, nrows, n_lufrac), STAT=STAT)
+             IF ( STAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating LUFRAC array'
+                  CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
+             END IF
+
+             DO l = 1, n_lufrac
+                Write( vname,'( "LUFRAC_",I2.2 )' ) l
+                IF ( .Not. XTRACT3( GRID_CRO_2D, VNAME,
+     &                              1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                              0, 0, LUFRAC( :,:,l ) ) ) THEN
+                   XMSG = 'Error interpolating variable' // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                END IF
+             END DO
+
+          END IF
+
+        end subroutine retrieve_grid_cro_2d_data
+
+! -------------------------------------------------------------------------
+        subroutine retrieve_lufrac_cro_data
+
+          USE UTILIO_DEFN
+          USE HGRD_DEFN
+          USE LSM_Mod, ONLY: n_lufrac, init_lsm
+
+          INCLUDE SUBST_FILES_ID             ! file name parameters
+
+          Character( 40 ), parameter :: pname = 'retrieve_lufrac_cro_data'
+
+          CHARACTER( 120 ) :: XMSG = ' '
+          INTEGER          :: STAT
+
           CALL INIT_LSM( 0, 0 )
 
           allocate (LUFRAC(ncols, nrows, n_lufrac), STAT=STAT)
@@ -1914,17 +1952,14 @@ C Read the various categories of normalized emissions
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
-          DO l = 1, n_lufrac
-             Write( vname,'( "LUFRAC_",I2.2 )' ) l
-             IF ( .Not. XTRACT3( GRID_CRO_2D, VNAME,
-     &                           1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                           0, 0, LUFRAC( :,:,l ) ) ) THEN
-                XMSG = 'Error interpolating variable' // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
-                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-          END DO
+           IF ( .Not. XTRACT3( LUFRAC_CRO, 'LUFRAC',
+     &                         1, n_lufrac, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
+     &                         0, 0, LUFRAC ) ) THEN
+              XMSG = 'Error interpolating variable LUFRAC from ' // LUFRAC_CRO
+              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+           END IF
 
-        end subroutine retrieve_grid_cro_2d_data
+        end subroutine retrieve_lufrac_cro_data
 
 ! -------------------------------------------------------------------------
         subroutine retrieve_grid_dot_2d_data
@@ -2325,29 +2360,6 @@ C Read the various categories of normalized emissions
 
                    deallocate (tdata)
 
-                else if (cio_grid_var_name(v,2) == 'wb') then
-
-                   if (iter .eq. 1) then
-                      if ( modis_data_sdate .eq. 2005001 ) then    ! climatological
-                         wb_tjdate = 2005000 + mod( jdate, 1000 )
-                      else                                         ! current
-                         wb_tjdate = jdate
-                      end if
-                      wb_tjtime = 0
-                      wb_pre_begin = begin
-                      wb_pre_end   = end
-
-                      IF ( .NOT. XTRACT3( dust_fname, cio_grid_var_name(v,1),
-     &                                    1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                                    wb_tjdate, wb_tjtime, cio_grid_data(begin:end) ) ) THEN
-                         XMSG = 'Could not extract ' // dust_fname // ' file'
-                         CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
-                      END IF
-                   
-                   else
-                      ! for MODIS_FPAR data, the circular buffer at position 0 and 1 are identical
-                      cio_grid_data(begin:end) = cio_grid_data(wb_pre_begin:wb_pre_end)
-                   end if
                 else
                    write (cio_logdev, *) ' ==d== Unknown type of file'
                    stop
@@ -2443,7 +2455,7 @@ C Read the various categories of normalized emissions
                    END IF
                 else if ((cio_bndy_var_name(v,2) == 'b') .or.
      &                   (cio_bndy_var_name(v,2) == 'bt')) then
-                   if (.not. read3 (BNDY_GASC_1, cio_bndy_var_name(v,1), -1,
+                   if (.not. read3 (BNDY_CONC_1, cio_bndy_var_name(v,1), -1,
      &                              loc_jdate, loc_jtime, cio_bndy_data(begin:end) ) ) THEN
                       XMSG = 'Could not read ' // MET_BDY_3D // ' file'
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
@@ -2957,6 +2969,10 @@ C   mminlu and num_land_cat are WRF global variables
              call retrieve_grid_cro_2d_data
 
              call retrieve_grid_dot_2d_data
+
+             if (LUCRO_AVAIL) then
+                call retrieve_lufrac_cro_data
+             end if
 
              call retrieve_ocean_data
 
@@ -3554,14 +3570,9 @@ C   mminlu and num_land_cat are WRF global variables
                 tail_end_ind  = cio_grid_data_inx(2,loc_tail,var_loc)
                 store_beg_ind = cio_grid_data_inx(1,2,var_loc)
                 store_end_ind = cio_grid_data_inx(2,2,var_loc)
-
-                if (vname == 'MODIS_FPAR_T') then
-                   ! for MODIS_FPAR_T xtraction but not interpolation is performed
-                   cio_grid_data(store_beg_ind:store_end_ind) = cio_grid_data(head_beg_ind:head_end_ind)
-                else
-                   cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
+                
+                cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
      &                                                          + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
-                end if
              end if
  
              adj_lvl = 0

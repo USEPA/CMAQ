@@ -139,7 +139,7 @@ C Map advected species to bc`s
          END DO
 
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1019 ) TRIM( BNDY_GASC_1 ), TRIM( CONCMIN )
+            WRITE( LOGDEV,1019 ) TRIM( BNDY_CONC_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
                WRITE( LOGDEV,1025 ) TRIM( WRVAR( VAR ) )
             END DO
@@ -190,7 +190,7 @@ C Map advected species to bc`s
          END DO
 
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1019 ) TRIM( BNDY_AERO_1 ), TRIM( CONCMIN )
+            WRITE( LOGDEV,1019 ) TRIM( BNDY_CONC_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
                WRITE( LOGDEV,1025 ) TRIM( WRVAR( VAR ) )
             END DO
@@ -241,7 +241,7 @@ C Map advected species to bc`s
          END DO
 
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1019 ) TRIM( BNDY_NONR_1 ), TRIM( CONCMIN )
+            WRITE( LOGDEV,1019 ) TRIM( BNDY_CONC_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
                WRITE( LOGDEV,1025 ) TRIM( WRVAR( VAR ) )
             END DO
@@ -292,7 +292,7 @@ C Map advected species to bc`s
          END DO
 
          IF ( WRCNT .GT. 0 ) THEN
-            WRITE( LOGDEV,1019 ) TRIM( BNDY_TRAC_1 ), TRIM( CONCMIN )
+            WRITE( LOGDEV,1019 ) TRIM( BNDY_CONC_1 ), TRIM( CONCMIN )
             DO VAR = 1, WRCNT
                WRITE( LOGDEV,1025 ) TRIM( WRVAR( VAR ) )
             END DO

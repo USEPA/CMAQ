@@ -139,7 +139,7 @@ DDEP_MNJ           ,kg ha-1   ,AMNJ[1]
 WDEP_MNJ           ,kg ha-1   ,AMNJ[2]
 
 WDEP_PNA           ,kg ha-1   ,HNO4[2]
-RT                 ,cm        ,RN[3] + RC[3]
+RT                 ,cm        ,RC[3]>=0 ? RN[3]+RC[3] : RN[3]
 
 ! Nitrogen Deposition
 DD_OXN_NOX         ,kgN ha-1  ,0.30435*NO2[1] + 0.46667*NO[1]
