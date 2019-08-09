@@ -83,7 +83,7 @@
  cp config_cmaq.csh $CMAQ_HOME/config_cmaq.csh
  sed -i '/setenv CMAQ_REPO \$CMAQ_HOME/c\ setenv CMAQ_REPO '"$REPO_HOME" $CMAQ_HOME/config_cmaq.csh
  if ( $IS_EPA  ) then
-   sed -i '/source \/work\/MOD3DEV/c\ source \/work\/MOD3DEV\/cmaq_common\/cmaq_env.csh  \#>>> Comment out if not at EPA' $CMAQ_HOME/config_cmaq.csh
+  sed -i 's/\# source \/work\/MOD3DEV\/cmaq_common\/cmaq_env.csh/source \/work\/MOD3DEV\/cmaq_common\/cmaq_env.csh/' $CMAQ_HOME/config_cmaq.csh
  endif
 
 #===============================================================================
@@ -128,13 +128,17 @@
  endif
 
 #===============================================================================
-#> Copy MCIP scripts
+#> Copy MCIP scripts & src
 #===============================================================================
  if ( $EXT_MCIP == 'Y' ) then
     if ( ! -e "$CMAQ_HOME/PREP/mcip/scripts" ) then
        mkdir -pv $CMAQ_HOME/PREP/mcip/scripts
     endif
     cp PREP/mcip/scripts/run_mcip.csh $CMAQ_HOME/PREP/mcip/scripts/
+ if ( ! -e "$CMAQ_HOME/PREP/mcip/src" ) then
+       mkdir -pv $CMAQ_HOME/PREP/mcip/src
+    endif
+    cp PREP/mcip/src/* $CMAQ_HOME/PREP/mcip/src
  endif
  
 #===============================================================================

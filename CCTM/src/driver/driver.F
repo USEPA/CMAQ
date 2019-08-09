@@ -97,6 +97,7 @@ C                      with new re-structure of LUS_DEFN, most of the data decla
 C                      has been moved to lus_data_module (model_data_module.f) and to
 C                      call lus_setup to setup land use information according to land
 C                      use scheme
+C   08/02/19 F. Sidi:  Restored serial processing option
 C-----------------------------------------------------------------------
 
       USE RXNS_DATA             ! chemical mechanism data
@@ -197,6 +198,8 @@ C Local variables:
       CHARACTER( 1000 ) :: CFILE
       CHARACTER(   16 ) :: ACT
       REAL( 8 )         :: CPU_TIME_START, CPU_TIME_FINISH
+      REAL              :: REAL_TIME
+
 
       CHARACTER(  2 ) :: COLROW = 'CR'  ! col/row arg list order
       CHARACTER( 16 ) :: PNAME = 'DRIVER'
@@ -376,11 +379,12 @@ C Initialize PARIO
             XMSG = 'Failed to initialize parallel I/O library.'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-#endif
 
+#endif
 C Initialize stencil exchange
-         CALL SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
+         CALL SUBST_SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
      &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS )
+
 #ifdef verbose_driver
          write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
          write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
