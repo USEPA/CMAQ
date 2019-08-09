@@ -385,6 +385,7 @@ C Initialize stencil exchange
          CALL SUBST_SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
      &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS )
 
+
 #ifdef verbose_driver
          write( logdev,* ) ' MYPE -> MNDIS:    ', mype, mndis
          write( logdev,* ) ' MYPE -> MEDIS:    ', mype, medis
