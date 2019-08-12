@@ -11,11 +11,11 @@
 
       HEADER_TXT( : ) = ''
 
-      HEADER_TXT( 1:23 ) = (/   
+      HEADER_TXT( 1:21 ) = (/   
      &   '================================================================================', 
      &   '|                                                                              |', 
      &   '|               The Community Multiscale Air Quality (CMAQ) Model              |', 
-     &   '|                                   Version 5.3                               |', 
+     &   '|                                   Version 5.3                                |', 
      &   '|                                                                              |', 
      &   '|                          Built and Maintained by the                         |', 
      &   '|                        Office of Research and Development                    |', 
