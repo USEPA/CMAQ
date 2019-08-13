@@ -49,6 +49,8 @@
 !                         GRIDCRO2D to LUFRAC_CRO.  Allow backward
 !                         compatibility.
 !  07/17/19, R. Gilliam:- Removed the FPAR file call for windblow dust. MCIP VEG is used.
+!  08/12/19, F. Sidi: -- Allowed lus_setup to use fractional land use from
+!                        GRIDCRO2D or LUFRAC_CRO. Allows backward compatibility. 
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -2584,10 +2586,15 @@ C Read the various categories of normalized emissions
 
 ! -------------------------------------------------------------------------
         subroutine lus_setup
+!     Function:
+
+!         Set-up land-use categories for dust. Allocate and fill in: 
+!             -- lut array --> landuse category fraction
+!             -- ladut array --> % of desertland 
 
           use RUNTIME_VARS
           use UTILIO_DEFN
-          use lus_data_module
+          use lus_data_module  ! Data module that contains info. on different land schemes
           use HGRD_DEFN, only : ncols, nrows
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
@@ -2597,6 +2604,8 @@ C Read the various categories of normalized emissions
           character (256) :: xmsg
           integer :: i, err
 
+
+         
           if ( dust_land_scheme .eq. 'BELD3' ) then
              isbeld = .true.
              lufile( 1 ) = dust_lu_1
@@ -2610,11 +2619,17 @@ C Read the various categories of normalized emissions
              lufile( 1 ) = grid_cro_2d
           end if
 
-          if ( .not. open3( lufile( 1 ), fsread3, pname ) ) then
-             xmsg = 'could not open ' // trim( lufile( 1 ) )
-             call m3exit ( pname, 0, 0, xmsg, xstat1 )
-          end if
 
+
+         if ( .not. lucro_avail .or. isbeld ) then ! TRUE if LUFRAC file isn't there or the land scheme is beld 
+
+            if ( .not. open3( lufile( 1 ), fsread3, pname ) ) then
+               xmsg = 'could not open ' // trim( lufile( 1 ) )
+               call m3exit ( pname, 0, 0, xmsg, xstat1 )
+            end if
+         
+         end if
+         
          if ( isbeld ) then  ! get the 2nd file (currently same as 1st for BELD4)
 
             if ( .not. open3( lufile( 2 ), fsread3, pname ) ) then
@@ -2625,11 +2640,6 @@ C Read the various categories of normalized emissions
          end if
 
           if ( .not. isbeld ) then   ! determine land_scheme from GRID_CRO_2D
-
-             if ( .not. desc3( lufile( 1 ) ) ) then
-                xmsg = 'Could not get GRID_CRO_2D file description '
-                call m3exit ( pname, 0, 0, xmsg, xstat1 )
-             end if
 
 #ifdef twoway
 
@@ -2679,32 +2689,13 @@ C   mminlu and num_land_cat are WRF global variables
              end select
 
 #else
-             l_s: do i = 1, n_grid_cro_data_vars   ! determine land scheme from GRID_CRO_2D
-                if ( vname3d( i ) .eq. 'DLUSE' ) then
-                   if ( index( vdesc3d( i ), 'USGS24' ) .ne. 0 ) then
-                      dust_land_scheme = 'USGS24'; exit l_s
-                   else if ( index( vdesc3d( i ), 'NLCD40' ) .ne. 0 ) then
-                      dust_land_scheme = 'NLCD40'; exit l_s
-                   else if ( index( vdesc3d( i ), 'NLCD50' ) .ne. 0 ) then
-                      dust_land_scheme = 'NLCD50'; exit l_s
-                   else if ( index( vdesc3d( i ), 'MODIS' ) .ne. 0 ) then
-                      if ( index( vdesc3d( i ), 'NLCD-MODIS' ) .ne. 0 ) then
-                         dust_land_scheme = 'NLCD-MODIS'; exit l_s
-                      else if ( index( vdesc3d( i ), 'MODIS NOAH' ) .ne.  0 ) then
-                         dust_land_scheme = 'MODIS_NOAH'; exit l_s
-                      else
-                         dust_land_scheme = 'MODIS'; exit l_s
-                      end if
-                   end if
-                end if
-             end do l_s
-!            dust_land_scheme = cio_dust_land_scheme
+          dust_land_scheme = cio_dust_land_scheme ! land scheme found from grid_cro_2D 'DLUSE' var-desc
 #endif
           end if   ! .not. isbeld
 
-          select case( dust_land_scheme )
+          select case( dust_land_scheme ) ! After land scheme is determined allocate number of land use categories & number of dustland categories from lus_data_module
 
-             case( 'BELD3' )
+             case( 'BELD3' )              ! If BELD3
                 n_lucat = n_lucat_beld3
                 n_dlcat = n_dlcat_beld3
                 allocate( vnmlu( n_lucat ),
@@ -2720,7 +2711,7 @@ C   mminlu and num_land_cat are WRF global variables
                 dmsk = dmsk_beld3     ! array assignment
                 dmap = dmap_beld3     ! array assignment
 
-             case( 'BELD4' )
+             case( 'BELD4' )              ! If BELD4
                 n_lucat = n_lucat_beld4
                 n_dlcat = n_dlcat_beld4
                 allocate( vnmlu( n_lucat ),
@@ -2736,7 +2727,7 @@ C   mminlu and num_land_cat are WRF global variables
                 dmsk = dmsk_beld4     ! array assignment
                 dmap = dmap_beld4     ! array assignment
 
-             case( 'USGS24' )
+             case( 'USGS24' )           ! If USGS34
                 n_lucat = n_lucat_usgs24
                 n_dlcat = n_dlcat_usgs24
                 allocate( vnmlu( n_lucat ),
@@ -2752,7 +2743,7 @@ C   mminlu and num_land_cat are WRF global variables
                 dmsk = dmsk_usgs24     ! array assignment
                 dmap = dmap_usgs24     ! array assignment
 
-             case( 'MODIS' )
+             case( 'MODIS' )            ! If MODIS
                 n_lucat = n_lucat_modis
                 n_dlcat = n_dlcat_modis
                 allocate( vnmlu( n_lucat ),
@@ -2768,7 +2759,7 @@ C   mminlu and num_land_cat are WRF global variables
                 dmsk = dmsk_modis     ! array assignment
                 dmap = dmap_modis     ! array assignment
 
-             case( 'NLCD40' )
+             case( 'NLCD40' )           ! If NLCD40
                 n_lucat = n_lucat_nlcd40
                 n_dlcat = n_dlcat_nlcd40
                 allocate( vnmlu( n_lucat ),
@@ -2784,7 +2775,7 @@ C   mminlu and num_land_cat are WRF global variables
                 dmsk = dmsk_nlcd40     ! array assignment
                 dmap = dmap_nlcd40     ! array assignment
 
-             case( 'NLCD-MODIS', 'NLCD50' )
+             case( 'NLCD-MODIS', 'NLCD50' ) ! If NCLD-MODIS or NCLD50
                 n_lucat = n_lucat_nlcd_modis
                 n_dlcat = n_dlcat_nlcd_modis
                 allocate( vnmlu( n_lucat ),
@@ -2800,7 +2791,7 @@ C   mminlu and num_land_cat are WRF global variables
                 dmsk = dmsk_nlcd_modis     ! array assignment
                 dmap = dmap_nlcd_modis     ! array assignment
 
-             case( 'MODIS_NOAH' )
+             case( 'MODIS_NOAH' )       ! If MODIS-NOAH
                 n_lucat = n_lucat_modis_noah
                 n_dlcat = n_dlcat_modis_noah
                 allocate( vnmlu( n_lucat ),
@@ -2816,12 +2807,13 @@ C   mminlu and num_land_cat are WRF global variables
                 dmsk = dmsk_modis_noah     ! array assignment
                 dmap = dmap_modis_noah     ! array assignment
 
-             case default
+             case default               ! Other land-schemes not supported
                 xmsg = 'Land use scheme not supported'
                 call m3exit ( pname, stdate, sttime, xmsg, xstat1 )
 
           end select
-
+          
+! Writing Landuse categories to logfiles
           write( logdev,* ) ' '
           write( logdev,* ) '    Land use scheme is ', trim( dust_land_scheme )
           write( logdev,* ) '    n_lucat,n_dlcat: ', n_lucat, n_dlcat
@@ -2842,48 +2834,64 @@ C   mminlu and num_land_cat are WRF global variables
              xmsg = '*** Error allocating ladut, lut or uland'
              call m3exit ( pname, stdate, sttime, xmsg, xstat1 )
           end if
+       
+          if ( .not. lucro_avail .or. isbeld ) then ! TRUE if LUFRAC file isn't there or the land scheme is beld 
 
 ! Get desert land (fraction) data (assume if BELD, all desert types are in file 1)
-          do i = 1, n_dlcat
-             if ( .not. xtract3( lufile( 1 ), vnmld( i )%name, 1,1,
-     &                           STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
-     &                           0, 0, ladut( :,:,i ) ) ) then
-                xmsg = 'Could not read ' // trim( vnmld( i )%name )
-     &               // ' from ' // trim( lufile( 1 ) )
-                call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-             end if
-          end do
+            do i = 1, n_dlcat
+               if ( .not. xtract3( lufile( 1 ), vnmld( i )%name, 1,1,
+     &                             STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
+     &                             0, 0, ladut( :,:,i ) ) ) then
+                  xmsg = 'Could not read ' // trim( vnmld( i )%name )
+     &                 // ' from ' // trim( lufile( 1 ) )
+                  call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+               end if
+            end do
 
-! Get landuse (fraction) data
-          do i = 1, n_lucat-1
-             if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
-     &                           STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
-     &                           0, 0, lut( :,:,i ) ) ) then
-                xmsg = 'Could not read ' // trim( vnmlu( i )%name )
-     &               // ' from ' // trim( lufile( 1 ) )
-                call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-             end if
-          end do
+! Get land  use (fraction) data
+            do i = 1, n_lucat-1
+               if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
+     &                             STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
+     &                             0, 0, lut( :,:,i ) ) ) then
+                  xmsg = 'Could not read ' // trim( vnmlu( i )%name )
+     &                 // ' from ' // trim( lufile( 1 ) )
+                  call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+               end if
+            end do
 
-          i = n_lucat
-          if ( .not. isbeld ) then
-             if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
-     &                           STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
-     &                           0, 0, lut( :,:,i ) ) ) then
-                xmsg = 'Could not read ' // trim( vnmlu( i )%name )
-     &               // ' from ' // trim( lufile( 1 ) )
-                call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-             end if
-          else
-             if ( .not. xtract3( lufile( 2 ), vnmlu( i )%name, 1,1,
-     &                           STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
-     &                           0, 0, lut( :,:,i ) ) ) then
-                xmsg = 'Could not read ' // trim( vnmlu( i )%name )
-     &               // ' from ' // trim( lufile( 2 ) )
-                call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
-             end if
-          end if
+            i = n_lucat
+            if ( .not. isbeld ) then
+               if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
+     &                             STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
+     &                             0, 0, lut( :,:,i ) ) ) then
+                  xmsg = 'Could not read ' // trim( vnmlu( i )%name )
+     &                 // ' from ' // trim( lufile( 1 ) )
+                  call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+               end if
+            else
+               if ( .not. xtract3( lufile( 2 ), vnmlu( i )%name, 1,1,
+     &                             STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2,  
+     &                             0, 0, lut( :,:,i ) ) ) then
+                  xmsg = 'Could not read ' // trim( vnmlu( i )%name )
+     &                 // ' from ' // trim( lufile( 2 ) )
+                  call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+               end if
+            end if
+          
+          else ! IF LUFRAC is there and not beld
+            
+            do i = 1, n_dlcat  ! Loop through the number of desertland categories and fill in ladut array
 
+              ladut( :,:,i) = lufrac( :,:,vnmld( i )%lu_idx ) ! Use mapped index in LUFRAC from lus_data_module to fill in ladut
+            
+            end do
+
+            lut = lufrac ! landuse category fraction is lufrac that is already been extracted 
+          
+          end if ! end of if block starting on line 2836
+        
+        
+        
         end subroutine lus_setup
 
 ! -------------------------------------------------------------------------
@@ -2946,6 +2954,10 @@ C   mminlu and num_land_cat are WRF global variables
              if (ABFLUX) then
                 call depv_data_setup
              end if
+             
+             if (LUCRO_AVAIL) then
+                call retrieve_lufrac_cro_data
+             end if
 
              if (WB_DUST) then
                 call lus_setup
@@ -2969,10 +2981,6 @@ C   mminlu and num_land_cat are WRF global variables
              call retrieve_grid_cro_2d_data
 
              call retrieve_grid_dot_2d_data
-
-             if (LUCRO_AVAIL) then
-                call retrieve_lufrac_cro_data
-             end if
 
              call retrieve_ocean_data
 
