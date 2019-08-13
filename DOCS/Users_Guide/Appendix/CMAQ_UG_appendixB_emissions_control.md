@@ -20,10 +20,10 @@ setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
 
 The Detailed Emissions Speciation, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
 
-## B.2 ***General Specs***
+## B.2 General Specs
 These variables modify or constrain the effects of other sections of the namelist. The "Guard_XXX" options allow the user to protect specific streams from being modified by scaling rules (explained in section B.3) with the "ALL" keyword in the stream field. For example, the "Guard_BiogenicVOC" option instructs the model not to scale biogenic VOC emissions from the online BEIS module, even if a rule indicates that "ALL" streams are to be scaled. The other "Guard_XXX" options achieve the same effect for other online emissions sources like wind-blown dust, sea spray, marine gas, and lightning NO.
 
-## B.3 ***Emission Scaling Rules***
+## B.3 Emission Scaling Rules
 With the rules present in this section, the user is able to exert sophisticated, precise control over the scaling applied to emissions from specific streams, in specific geographic areas, and/or for specific compounds. The set of rules used by CMAQ to interpret emissions shall be provided in one array called EM_NML. It is necessary that every field (i.e. column) be populated for every rule. The fields are given and defined here and in the comment section of the Emission Control Namelist:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
@@ -105,7 +105,7 @@ Gridded masks are used to apply rules to specific areas of the domain. For examp
 !  Label      |               |Surrogate| Species      |Mode  |Factor|      |
 'KENTUCKY'    , 'All'         ,'All'    ,'All'         ,'All' ,1.50 ,'UNIT','m',
 ```
-will scale emissions of all species from all streams by +50% but only in grid cells in the state of Kentucky. One or more ioapi formatted input files containing geographic region definitions are required to take advantage of this option.  Such files should contain a separate variable for each spatial region of interest.  Each variable is a gridded field of real numbers from 0.0 to 1.0, with 0.0 outside of the region of interest and 1.0 completely inside the region. Region border grid cells should have the geographic fraction attributed to the region (for example, a grid cell that 35% in Kentucky and 65% in Tennessee would have have the number 0.35 for the variable representing the Kentucky mask.
+will scale emissions of all species from all streams by +50% but only in grid cells in the state of Kentucky. One or more I/O API formatted input files containing geographic region definitions are required to take advantage of this option.  Such files should contain a separate variable for each spatial region of interest.  Each variable is a gridded field of real numbers from 0.0 to 1.0, with 0.0 outside of the region of interest and 1.0 completely inside the region. Region border grid cells should have the geographic fraction attributed to the region (for example, a grid cell that 35% in Kentucky and 65% in Tennessee would have have the number 0.35 for the variable representing the Kentucky mask.
 
 These mask files are read by CMAQ through environmental variables, which are identified in the RunScript. For example:
 
@@ -239,5 +239,5 @@ This variable sets the default behavior for all streams. If the variables for an
 The emission rates printed to the diagnostic files reflect all the scaling rules applied and are written just before the emissions are added to the CMAQ transport module. Because the model interpolates in time, it is very likely that the rates written to the diagnostic file will not correspond in time to the rates from the input files. In most cases, the rates will be one-half time step before the top of the hour, the time point of the emission inputs. For this reason, it is not entirely helpful for users to compare the scaled emissions directly to the rates on the input files. However, comparing them qualitatively can be helpful.
 
 
-[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
+[<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
 CMAQ User's Guide (c) 2019<br>

@@ -120,13 +120,15 @@
  echo                                                              >> $Cfile
  echo "lib_base    ${CMAQ_LIB};"                                   >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_1       ioapi/lib;"                                 >> $Cfile
+ echo "lib_1       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_3       netcdf/include;"                                >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_5       netcdff/include;"                               >> $Cfile
  echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
@@ -147,7 +149,9 @@
  echo "ioapi       $quote$LIB2$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
-
+ echo                                                              >> $Cfile
+ echo "netcdff     $quote$netcdff_lib$quote;"                      >> $Cfile
+ 
  set text = "bldoverlay"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDriver};"                                       >> $Cfile

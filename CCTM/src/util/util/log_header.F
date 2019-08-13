@@ -11,22 +11,20 @@
 
       HEADER_TXT( : ) = ''
 
-      HEADER_TXT( 1:23 ) = (/   
+      HEADER_TXT( 1:21 ) = (/   
      &   '================================================================================', 
      &   '|                                                                              |', 
      &   '|               The Community Multiscale Air Quality (CMAQ) Model              |', 
-     &   '|                                   Version 5.3 Beta3                          |', 
-     &   '|                            Interim Freeze March 1, 2019                      |', 
+     &   '|                                   Version 5.3                                |', 
      &   '|                                                                              |', 
      &   '|                          Built and Maintained by the                         |', 
-     &   '|                      National Exposure Research Laboratory                   |', 
      &   '|                        Office of Research and Development                    |', 
      &   '|                   United States Environmental Protection Agency              |', 
      &   '|                                                                              |', 
      &   '|                            https://www.epa.gov/cmaq                          |', 
      &   '|                                                                              |', 
-     &   '|       Source Code:   https://www.github.com/USEPA/cmaq/tree/5.2.1            |', 
-     &   '|       Documentation: https://www.github.com/USEPA/cmaq/tree/5.2.1/DOCS       |', 
+     &   '|       Source Code:   https://www.github.com/USEPA/cmaq/tree/master           |', 
+     &   '|       Documentation: https://www.github.com/USEPA/cmaq/tree/master/DOCS      |', 
      &   '|                                                                              |', 
      &   '|         The CMAQ Model is tested and released with cooperation from          |', 
      &   '|         the Community Modeling and Analysis System (CMAS) Center via         |', 
