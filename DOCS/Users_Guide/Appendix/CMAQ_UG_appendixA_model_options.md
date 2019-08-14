@@ -28,6 +28,7 @@
 	* [Inline Emissions Configuration](#Inline_Emissions_Config)
 	* [Lightning NOx Configuration](#Lightning_NOx_Config)
 	* [Online Biogenic Emissions Configuration](#Online_Bio_Config)
+	* [Windblown Dust Emissions Configuration](#windblown_dust_config)
 
 <a id=config_cmaq.csh></a>
 ## A.1 Configuration Options (config_cmaq.csh)
@@ -384,7 +385,16 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
     Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate online windblown dust emissions in CCTM. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information. 
+    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y also enables the option to provide additional gridded landuse input files beyond the land use information contained in the MCIP files. Whether or not additional landuse information is provide and, if yes, whether that additional landuse information is provided in one or two files is controlled by the environment variable CTM_WBDUST_BELD. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
+- `CTM_WBDUST_BELD [default: UNKNOWN]`
+Landuse database for identifying dust source regions; ignore if CTM_WB_DUST = FALSE
+ -- BELD3
+Use BELD3 landuse data for windblown dust calculations. The user needs to specify the DUST_LU_1 and DUST_LU_2 files described in Chapter 4. These files typically are available for North American domains only.
+-- BELD4
+Use BELD4 landuse data for windblown dust calculations. The user needs to specify the E2C_LU file described in Chapter 4. This file typically is available for North American domains only.
+-- UNKNOWN
+Use landuse information provided by MCIP for windblown dust calculations
+
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
 -   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
