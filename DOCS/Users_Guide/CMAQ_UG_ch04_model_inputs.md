@@ -125,6 +125,8 @@ This section describes each of the input files required by the various CMAQ prog
 |[E2C_LU](#e2c_lu) <a id=e2c_lu_t></a>| GRDDED3 | Time-invariant |XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|optional|
+|[DUST_LU_1](#dust_lu_1) <a id=dust_lu_1_t></a>| GRDDED3 | Time-invariant | XY|Spatial Allocator|optional when running CMAQ with windblown dust|
+|[DUST_LU_2](#dust_lu_2) <a id=dust_lu_2_t></a>| GRDDED3 | Time-invariant | XY|Spatial Allocator|optional when running CMAQ with windblown dust|
 |**Photolysis** | | | |||
 |[OMI](#omi) <a id=omi_t></a>| ASCII | Daily | n/a |CMAQ repo or create_omi|required|
 
@@ -559,6 +561,51 @@ Used by: CCTM – bidirectional NH<sub>3</sub> flux version only
 
 This is a 3-D daily file created by the EPIC to CMAQ tool via the FEST-C interface.  The tool extracts EPIC simulated soil chemistry information including fertilization for the Layer 1 and Layer 2 soil profiles along with plant growth information in each grid cell with agricultural land.  The FEST-C interface facilitates EPIC simulations for any CMAQ modeling domain over the conterminous U.S. area.  Additional information on the EPIC simulation and the FEST-C interface are available at https://www.cmascenter.org/fest-c/. 
 
+<a id="dust_lu_1"></a>
+**DUST_LU_1 – Gridded land cover/land use**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#dust_lu_1_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – windblown dust version only
+
+The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following LCLU variables to be compatible with the CMAQ dust module:
+
+-   USGS_urban
+-   USGS_drycrop
+-   USGS_irrcrop
+-   USGS_cropgrass
+-   USGS_cropwdlnd
+-   USGS_grassland
+-   USGS_shrubland
+-   USGS_shrubgrass
+-   USGS_savanna
+-   USGS_decidforest
+-   USGS_evbrdleaf
+-   USGS_coniferfor
+-   USGS_mxforest
+-   USGS_water
+-   USGS_wetwoods
+-   USGS_sprsbarren
+-   USGS_woodtundr
+-   USGS_mxtundra
+-   USGS_snowice
+
+These categories are used to determine dust source locations and canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD4 tiles. The DUST_LU_1 file corresponds to the “a” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
+
+<a id="dust_lu_2"></a>
+**DUST_LU_2 – BELD land use “TOT” data file**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#dust_lu_1_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – windblown dust version only
+
+The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 data projected to the modeling domain. This file must contain the following variables to be compatible with the CMAQ dust module:
+
+-   FOREST
+
+This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
 
 ## 4.10 Photolysis Inputs
 <a id=omi></a>
