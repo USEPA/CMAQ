@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ==================== SITECMP_DAILYO3v5.3 Build Script ===================== #
-# Usage: bldit_sitecmp_dailyo3.csh >&! bldit_sitecmp_dailyo3.log                          #
+# ==================== SITECMP_DAILYO3v5.3 Build Script ============= #
+# Usage: bldit_sitecmp_dailyo3.csh >&! bldit_sitecmp_dailyo3.log      #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -128,6 +128,8 @@
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
+ echo "lib_5       netcdff/include;"                               >> $Cfile
+ echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
@@ -147,6 +149,8 @@
  echo "ioapi       $quote$LIB2$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "netcdff     $quote$netcdff_lib$quote;"                      >> $Cfile
 
  set text = "sitecmp_dailyo3"
  echo "// options are" $text                                       >> $Cfile
