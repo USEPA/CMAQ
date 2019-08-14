@@ -37,7 +37,7 @@ Napelenok, S.L., Cohan, D.S., Odman, M.T., & Tonse, S. (2008). Extension and eva
 
 Napelenok, S.L., Cohan, D.S., Hu, Y.T., & Russell, A.G. (2006). Decoupled direct 3D sensitivity analysis for particulate matter (DDM-3D/PM). Atmospheric Environment, 40(32), 6112-6121. [doi: 10.1016/j.atmosenv.2006.05.039](https://www.sciencedirect.com/science/article/pii/S1352231006005012)
 
-## Contact
+**Contact**
 
 [Sergey L. Napelenok](mailto:napelenok.sergey@epa.gov), Computational Exposure Division, U.S. EPA
 

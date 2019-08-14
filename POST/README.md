@@ -12,6 +12,7 @@ The following link summarizes the main updates to these utility programs since t
 * **[appendwrf](appendwrf/README.md)**:  user can concatenate variables from multiple WRF input or output files into a single file along the time (unlimited) dimension.
 * **[bldoverlay](bldoverlay/README.md)**:  user can create an observation overlay file that can be imported into either PAVE or VERDI.
 * **[block_extract](block_extract/README.md)**: user can extract a time series of 1 or more variables from 1 or more (up to 99) IOAPI files for a specified range of cells.
+* **[calc_tmetric](calc_tmetric/README.md)**: user can create gridded IOAPI files with temporally averaged or summed values that were calculated from one or more gridded time-dependent IOAPI files.
 * **[combine](combine/README.md)**: user can combine species from raw CMAQ output files or wrfout input files into a new IOAPI output file.  Species can  be aggregated or transformed into variables of interest (i.e. to match observed quantities from a specific monitoring network).
 * **[hr2day](hr2day/README.md)**: user can create gridded IOAPI files with daily values (e.g. daily sum, daily max 8hr average, etc.) from gridded IOAPI files containing hourly values.  Daily values can be computed using GMT or LST.
 * **[sitecmp](sitecmp/README.md)**: user can generate a csv (comma separated values) file that compares CMAQ generated concentrations with an observed dataset.

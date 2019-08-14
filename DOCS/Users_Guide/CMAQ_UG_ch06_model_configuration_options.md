@@ -33,18 +33,23 @@
 * [6.11 Aerosol Dynamics and Chemistry](#6.11_Aerosol_Dynamics)
 * [6.12 Aqueous Chemistry, Scavenging and Wet Deposition](#6.12_Aqueous_Chemistry)
 * [6.13 Potential Vorticity Scaling](#6.13_Potential_Vort)
+* [6.14 References](#6.14_References)
 
 <a id=6.1_Introduction></a>
 
 ## 6.1 Introduction
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 As discussed in [Chapter 1](CMAQ_UG_ch01_overview.md), CMAQ is a multipollutant, multiscale air quality modeling system that estimates the transport and chemistry of ozone, PM, toxic airborne pollutants, and acidic and nutrient pollutant species, as well as visibility degradation and deposition totals. CMAQ includes state-of-the-art technical and computational techniques to simulate air quality from urban to global scales. It can model complex atmospheric processes affecting transformation, transport, and deposition of air pollutants using a system architecture that is designed for fast and efficient computing. (See [Appendix D](Appendix/CMAQ_UG_appendixD_parallel_implementation.md) for an introduction on how data-parallelism can be applied in the CMAQ system to increase computational efficiency.) This chapter presents a brief overview of the conceptual formulation of Eulerian air quality modeling and the science features in various components of the Chemistry-Transport Model (CTM) component of CMAQ, CCTM. 
 
 <a id=6.2_Numerical_Approach></a>
 
 ## 6.2 Numerical Approach
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 The theoretical basis for CMAQ’s formulation is the conservation of mass for atmospheric trace species emissions, transport, chemistry, and removal in the atmosphere. The general form of a chemical species equation derives from this conservation, so that changes in atmospheric concentrations of a species, C<sub>i</sub>, can mathematically be represented as
 
@@ -55,7 +60,9 @@ where the terms on the right-hand side of the equation represent the rate of cha
 <a id=6.3_Grid_Config></a>
 
 ## 6.3 Grid Configuration
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 CMAQ is a three-dimensional Eulerian air quality model. To solve the governing partial differential equations, the modeling domain (that is, the volume of the atmosphere over a geographic region of interest) is discretized with three-dimensional cells. The grid cells and lateral boundaries of the domain must be rigorously and consistently defined across the scientific components of the model, including chemistry, emissions, meteorology, and other peripheral scientific processors. In other words, all components of the CMAQ system must use the same map projections and horizontal grid spacing to maintain scientific consistency across the modeling domain. The number of grid cells in the west-east dimension is typically counted in "columns" or "NCOLS", and the number of grid cells in the south-north dimension is typically counted in "rows" or "NROWS". The vertical discretization is typically counted in "layers" or "NLAYS".
 
@@ -66,7 +73,9 @@ In general, the characteristics of the CMAQ modeling domain (including the map p
 <a id=6.3.1_Horizontal_Domains></a>
 
 ### 6.3.1 Horizontal Domains and Lateral Boundaries
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 After determining the horizontal and vertical extent of the domain of interest, the meteorological model must be run for a horizontal domain slightly larger than the CMAQ domain. A larger meteorology domain is required so the boundary conditions in the WRF simulation will fall outside the CMAQ simulation domain. Because there is a blend of larger-scale driving data and scale-specific physics within the WRF lateral boundaries, these data are inappropriate to use in the CCTM, so they are usually removed in MCIP. The lateral boundaries for WRF are typically a "picture frame" of the outermost 5 cells of the WRF domain. These lateral boundaries are used to blend the influence of larger-scale meteorological driving data with the WRF simulation. In WRF, the lateral boundaries are calculated and included as part of the modeling domain. By contrast, the lateral boundaries for the CCTM are external to the modeling domain.
 
@@ -77,25 +86,31 @@ Horizontal grids specifications for CMAQ are contained in the grid definition fi
 <a id=6.3.2_Vertical_Domains></a>
 
 ### 6.3.2 Vertical Domains
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 CMAQ can support multiple vertical coordinate systems via the generalized coordinate. Most of the grid transformation to maintain mass consistency in CMAQ occurs through the mathematical term, Jacobian; see Chapter 6 of Byun and Ching (1999) and Otte and Pleim (2010). In the CMAQ system, the Jacobian is calculated in MCIP. The vertical processes in the CCTM (such as mixing within the planetary boundary layer and convective mixing) must also be cast in a flexible coordinate system.
 
 There are two options for vertical coordinates in the WRF model: terrain-following ("sigma"), and hybrid sigma-pressure. In both vertical coordinate systems, there is a "model top" employed (often called PTOP, or pressure at the top of the model) to limit the vertical extent of the modeling domain. The model top is usually set within the lower stratosphere (for example, 50&nbsp;hPa), but can be higher for some modeling applications. The sigma coordinate system allows the influence of the terrain to gradually diminish with height toward the model top. The sigma coordinate (technically called "eta" in the WRF system) has been used since WRF was initially released to the public in the late 1990s. The hybrid sigma-pressure coordinate was introduced in WRFv3.9 (released in 2017), and it uses a terrain-following coordinate in the lower part of the atmosphere which transitions to a constant pressure coordinate in the upper part of the atmosphere. The hybrid sigma-pressure coordinate is often used to reduce the presence of gravity waves in the model in steep and complex terrain, and to enable a higher model top to be used.
 
-Beginning with CMAQv5.3 and MCIPv5.0, both the sigma and the hybrid sigma-pressure coordinates are supported. MCIPv5.0 was modified to calculate the Jacobian from the hybrid coordinate, and CMAQv5.3 has some scientific processes recast more generically so that both the sigma coordinate and the hybrid coordinate can be properly represented. CMAQ prior to v5.3 (and MCIP prior to v5.0) is not compatible with the hybrid coordinate system introduced in WRF 3.9.  If the hybrid coordinate is used in WRF (versions 3.9 or later), MCIPv5.0 must be used with CMAQv5.3.
+Beginning with CMAQv5.3 and MCIPv5.0, both the sigma and the hybrid sigma-pressure coordinates are supported. MCIPv5.0 was modified to calculate the Jacobian from the hybrid coordinate, and CMAQv5.3 has some scientific processes recast more generically so that both the sigma coordinate and the hybrid coordinate can be properly represented. CMAQ prior to v5.3 (and MCIP prior to v5.0) is not compatible with the hybrid coordinate system introduced in WRF 3.9.  If the hybrid coordinate is used in WRF (versions 3.9 or later), MCIPv5.0 must be used with CMAQv5.3.  See [Appendix E](Appendix/CMAQ_UG_appendixE_configuring_WRF.md) for notes on configuring WRF4.0 and later for use with CMAQv5.3. 
 
 <a id=6.4_Science_Config></a>
 
 ## 6.4 Science Configurations
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 CCTM contains several science configurations for simulating transport, chemistry, and deposition. All the science configuration options in CCTM, such as the chemical mechanism to be used, are set when building the executable. The model grid and vertical layer structure for CCTM are set at execution. The important distinction between selecting the science configuration and the model grid/layer configuration is that CCTM does not need to be recompiled when changing model grids/layers but does need to be recompiled when new science options are invoked.  The following sections describe how these science options can be utilized by configuring using the `bldit_cctm.csh` and `run_cctm.csh` scripts.  For the remainder of this chapter these files will be referred to as simply BuildScript and RunScript.
 
 <a id=6.5_Advection></a>
 
 ## 6.5 Advection
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 In CCTM, the 3-dimensional transport by mean winds (or advection) is numerically represented by sequentially solving locally-one dimensional equations for the two horizontal and vertical components. CMAQ uses the piecewise parabolic method (PPM) (Colella and Woodward, 1984) for representing tracer advection in each of the three directions. This algorithm is based on the finite-volume sub-grid definition of the advected scalar. In PPM, the sub-grid distribution is described by a parabola in each grid interval. PPM is a monotonic and positive-definite scheme. Positive-definite schemes maintain the sign of input values, which in this case means that positive concentrations will remain positive and cannot become negative.
 
@@ -119,14 +134,18 @@ set ModAdv = local_cons
 <a id=6.6_Horizontal_Diff></a>
 
 ## 6.6 Horizontal Diffusion
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 The lack of adequate turbulence measurements has limited the development of robust model parameterizations for horizontal turbulent diffusion, a scale and resolution dependent problem. With the advent of very accurate minimally diffusive numerical advection schemes and need for high resolution modeling, horizontal diffusion algorithms are needed to balance the numerical diffusion inherent in advection schemes relative to the physical horizontal diffusion in the atmosphere. Currently in CMAQ, horizontal diffusion fluxes for transported pollutants are parameterized using eddy diffusion theory. The horizontal diffusivity coefficients are in turn formulated using the approach of Smagorinsky (1963) which accounts for local horizontal wind deformation and are also scaled to the horizontal grid size.
 
 <a id=6.7_Vertical_Diff></a>
 
 ## 6.7 Vertical Diffusion
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 The vertical diffusion model in CMAQ is the Asymmetrical Convective Model Version 2 (ACM2) (Pleim 2007a,b).  The ACM2 is a combined local and non-local closure PBL scheme that is implemented in CMAQ and WRF for consistent PBL transport of meteorology and chemistry.  Thus, it is recommended that the ACM2 option in WRF or MPAS also be used when preparing meteorology for CMAQ.  
 
@@ -146,7 +165,9 @@ Set ModVdiff   = acm2_stage
 <a id=6.8_Dry_Dep/Air></a>
 
 ## 6.8 Dry Deposition/Air-surface exchange
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 Exchange of pollutants between the atmosphere and Earth's surface can be modeled as unidirectional exchange, commonly referred to as dry deposition, or bidirectional exchange where the direction of the flux depends on the relative concentration of the pollutant in the atmosphere and the surface (e.g. soil, plant stomata).  If the concentration in the atmosphere is greater than the concentration at the surface, then deposition occurs. If the concentration in the atmosphere is lower than the concentration at the surface, emission occurs.  CMAQ contains algorithms for modeling either of these situations.  The rate of exchange is controlled by surface characteristics such as vegetation type, leaf area index, and surface roughness as well as meteorological influences such as temperature, radiation, and surface wetness which are provided to CMAQ from the land surface model (LSM) in the driving meteorological model.
 
@@ -168,7 +189,9 @@ Deetails of each module are provided in the sections below.
 <a id=6.8.1_Dry_Depm3dry></a>
 
 ### 6.8.1 Dry Deposition - m3dry
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 The m3dry option for dry deposition and ammonia bidirectional surface flux in CMAQv5.3 is the next evolution of the dry deposition model that has been in CMAQ since its initial release and was originally based on the dry deposition model developed for the Acid Deposition and Oxidant Model (ADOM) (Pleim et al., 1984).  Dry deposition is computed by electrical resistance analogy where concentration gradients are analogous to voltage, flux is analogous to current, and deposition resistance is analogous to electrical resistance (Pleim and Ran, 2011).  In m3dry, several key resistances, such as aerodynamic resistance and bulk stomatal resistance, and other related parameters, such as LAI, vegetation fraction, roughness length, friction velocity etc., are expected to be provided from the meteorological inputs.  Use of common model elements and parameters with the land surface model in the meteorology model ensures consistency between chemical surface fluxes and meteorological surface fluxes (moisture, heat, momentum).  While the m3dry dry deposition model was designed to be used with the PX LSM option in WRF, any LSM can be used if the necessary parameters are output and then provided for input into CMAQ.  It features consideration of subgrid land-use fractions through aggregation of key model parameters, such as LAI, veg fraction, roughness length and minimum stomatal conductance, to the grid cell level. 
 
@@ -177,7 +200,9 @@ Upgrades for version 5.3 include larger surface resistances for deposition to sn
 <a id=6.8.2_Dry_STAGE></a>
 
 ### 6.8.2 Dry Depostion - STAGE
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 In CMAQ v5.3., a new tiled, land use specific, dry deposition scheme, the Surface Tiled Aerosol and Gaseous Exchange (STAGE), option has been developed to better estimate atmospheric deposition for terrestrial and aquatic ecosystem health and applications to evaluate the impact of dry deposition on ambient air quality. This new scheme explicitly supports Weather Research and Forecasting (WRF) simulations with a variety of land surface schemes (Noah, Pleim-Xiu, etc). The model resistance framework, [Figure 6-1](#Figure6-1), parameterizes air-surface exchange as a gradient process and is used for both bidirectional exchange and dry deposition following the widely used resistance model of Nemitz et al. (2001). Grid scale fluxes are estimated from sub-grid cell land use specific fluxes and are area weighted to the grid cell totals which are then output in the standard dry deposition file with positive values indicating deposition and negative values indicating evasion. 
 The model resistances are largely estimated following Massad et al. (2010) with the following exceptions.  Deposition to wetted surfaces considers the bulk accommodation coefficient, following Fahey et al. (2017), and can be a limiting factor for highly soluble compounds.  The in-canopy resistance is derived using the canopy momentum attenuation parameterization from Yi (2008). Aerosol dry deposition includes parameterizations for deposition to water or bare ground surfaces (Giorgi 1986), and vegetated surfaces (Slinn 1982), using the characteristic leaf radius parameterization of Zhang et al. (2001). 
@@ -207,7 +232,9 @@ Sets the correct soil hydrological properties and soil layer information needed 
 <a id=6.9_Emissions></a>
 
 ## 6.9 Emissions
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 CMAQ introduces emissions of trace gases and aerosols from a variety of important sources (e.g. electric generating utilities, vehicles, fires, trees, dust storms, farms, etc.). Some emissions are applied in the surface layer of the model grid, while others are applied at higher altitudes if, for example, they originate from point source like an elevated stack, or a large forest fire. Many sources that are related to local meteorology may be calculated online in CMAQ. However, most sources, especially anthropogenic ones, are preprocessed using software like the Sparse Matrix Operator Kerner Emissions (SMOKE) Modeling System. Once these external tools have calculated the offline emissions, they may merge them into larger aggregated files. We refer to emissions that are either calculated online or read into CMAQ from a file as emission "streams".
 
@@ -216,7 +243,9 @@ Because CMAQ represents both primary and secondary pollutants, emissions are pro
 <a id=6.9.1_Emission_Streams></a>
 
 ### 6.9.1 Emission Streams
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 Depending on the nature of any stream and the information used to quantify its emissions, it may be treated as one of three types:
 
@@ -286,7 +315,9 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 <a id=6.9.2_Online_Emission></a>
 
 ### 6.9.2 Online Emission Streams
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 <a id=BEIS></a>
 #### Biogenics
@@ -345,8 +376,6 @@ setenv SOILNP /home/user/path-to-file/cctm_soilout.nc
 The actual amount of dust emitted from an arid surface depends on wind speed, surface roughness, moisture content of the soil, vegetation coverage, soil type and texture, and air density.  The main mechanism behind strong dust storms is called “saltation bombardment” or “sandblasting.” The physics of saltation include the movement of sand particles due to wind, the impact of these particles to the surface that removes part of the soil volume, and the release of smaller dust particles. CMAQ first calculates friction velocity at the surface of the Earth. Once this friction velocity exceeds a threshold value, saltation, or horizontal movement, flux is obtained. Finally, the vertical flux of the dust is calculated based on a sandblasting efficiency formulation – a vertical-to-horizontal dust flux ratio.
 
 CMAQ uses time-varying vegetation coverage, soil moisture and wind speed from the meteorological model, WRF. The vegetation coverage in WRF can vary depending on the configuration. In WRFv4.1+, the Pleim-Xiu land-surface model (PX LSM) was modified to provide CMAQ vegetation fraction (VEGF_PX in WRF renamed VEG in MCIP) from either the old fractional landuse weighting table lookup method (pxlsm_modis_veg = 0), or a new option where vegetation fraction is directly read from the monthly MODIS derived vegetation coverage (pxlsm_modis_veg = 1) found in the wrflowinp_d0* file(s). This was done because in recent years WRF has provided high resolution ~1 km monthly vegetation coverage that is more accurate than tables. Updates are backward compatible with older version of MCIP or WRF as long as VEG and VEGF_PX/VEGFRA are in those files. If users employ a different land surface model like the NOAH LSM, MCIP will assign the values of VEGFRA in WRF to VEG for CMAQ and the dust module will operate the same. Using the MODIS data in WRF via the new PX vegetation option provides the dust model a more accurate representation of vegetation in regions where windblow dust most occurs. 
-
-The CMAQ windblown dust module requires two additional input data files, DUST_LU_1 and DUST_LU_2.  See [Chapter 4](https://github.com/kmfoley/CMAQ_Dev/blob/v53_UG_Update/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md#dust_lu_1) for more information on these model inputs. 
 
 The CMAQ windblown dust module is controlled by the following RunScript flag:
 
@@ -515,7 +544,9 @@ setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
 <a id=6.10.1_Gas_Phase_Mech></a>
 
 ### 6.10.1 Gas Phase Chemical Mechanisms
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 The CMAQ modeling system accounts for chemistry in three phases: a gas, particulate (solid or liquid), and aqueous-cloud phase. Refer to the release notes to find the gas‑phase chemistry mechanisms available in each version of CMAQ. Several variations of the base gas-phase mechanisms, with and without chlorine, mercury, and toxic species chemistry, are distributed with CMAQ. The modularity of CMAQ makes it possible to create or modify the gas-phase chemical mechanism.
 
@@ -552,7 +583,9 @@ Chemical mechanisms available with CMAQv5.3 can be found in [Table 6-3](#Table6-
 <a id=6.10.2_Solver></a>
 
 ### 6.10.2 Solvers
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 To solve the photochemistry, the model uses one of three numerical methods or solvers. They differ by accuracy, generalization, and computational efficiency, i.e. model run times. Options include Euler Backward Iterative (EBI) solver (Hertel et al., 1993),  Rosenbrock (ROS3) solver (Sandu et al., 1997), and Sparse Matrix Vectorized GEAR (SMVGEAR) solver (Jacobson and Turco, 1994). The EBI solver is default method because it is the fastest but is less accurate and must be _tailored_ for each mechanism. The BuildScript defines which EBI solver to use as below.   
 
@@ -575,7 +608,9 @@ or
 <a id=6.10.3_Photolysis></a>
  
 ### 6.10.3 Photolysis
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 All the mechanisms include photolysis rates. The BuildScript has two options for calculating the rates.
 
@@ -597,7 +632,9 @@ The other option uses look-up tables that contain photolysis rates under cloud f
 <a id=6.10.4_HONO></a>
  
 ### 6.10.4 Nitrous Acid (HONO)
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 In CMAQ, HONO is produced from emissions, gas-phase chemical reactions, and a heterogenous reaction on aerosol and ground surfaces. The contribution of emissions to HONO production is accounted for by including HONO emissions estimates from certain combustion sources. Each gas-phase chemical mechanism contains several gas-phase chemical reactions which also contributes to the HONO production. The heterogeneous production of HONO from the interaction of NO2 on aerosol surface is accounted for by including a heterogeneous reaction in the chemical mechanism. The heterogeneous production of HONO from the interaction of NO2 on ground surface is included in the air-surface exchange calculation and is controlled by the following RunScript flag:
 
@@ -611,7 +648,9 @@ CMAQ uses a default setting of Y to include the production of HONO from the hete
 <a id=6.11_Aerosol_Dynamics></a>
 
 ## 6.11 Aerosol Dynamics and Chemistry
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 Particulate Matter (PM) can be either primary (directly emitted) or secondary (formed in the atmosphere) and from natural or anthropogenic (man-made) sources. Secondary sources include gas-phase oxidation of SO<sub>2</sub> to sulfate, condensation of ammonia and nitrate, and oxidation of gas-phase VOCs such as isoprene, monoterpenes, aromatics, and alkanes. Cloud processes also contribute to the formation of PM; for example, aqueous oxidation of sulfur dioxide in cloud droplets is a significant pathway for production of particulate sulfate. CCTM represents PM size using three interacting lognormal distributions, or modes. Two modes (Aitken and accumulation) are generally less than 2.5 &#956;m in diameter while the coarse mode contains significant amounts of mass above 2.5 &#956;m. PM<sub>2.5</sub> and PM<sub>10</sub>, species aggregate metrics within the NAAQS, can be obtained from the model-predicted mass concentration and size distribution information.
 
@@ -634,7 +673,9 @@ Further discussion on the scientific improvements to the CMAQ PM treatment is av
 <a id=6.12_Aqueous_Chemistry></a>
 
 ## 6.12 Aqueous Chemistry, Scavenging and Wet Deposition
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 Clouds are an important component of air quality modeling and play a key role in aqueous chemical reactions, vertical mixing of pollutants, and removal of pollutants by wet deposition. Clouds also indirectly affect pollutant concentrations by altering the solar radiation, which in turn affects photochemical pollutants (such as ozone) and the flux of biogenic emissions. The cloud module in CMAQ performs several functions related to cloud physics and chemistry. Three types of clouds are modeled in CMAQ: sub-grid convective precipitating clouds, sub-grid nonprecipitating clouds, and grid-resolved clouds. Grid-resolved clouds are provided by the meteorological model and no additional diagnosis is performed by CMAQ for those clouds. For the two types of sub-grid clouds, the cloud module in CCTM vertically redistributes pollutants, calculates in-cloud and precipitation scavenging, performs aqueous chemistry calculations, and accumulates wet deposition amounts. Aqueous chemistry and scavenging is calculated for resolved clouds as well, using the cell liquid water content and precipitation from the meteorological model.
 
@@ -701,7 +742,9 @@ set ModCloud  = cloud/acm_ae6_mp
 <a id=6.13_Potential_Vort></a>
 
 ## 6.13 Potential Vorticity Scaling
+<!-- BEGIN COMMENT -->
 [Return to Top](#Return_to_Top)
+<!-- END COMMENT -->
 
 Since cross-tropopause transport of O<sub>3</sub> can be a significant contributor to the tropospheric O<sub>3</sub> budget, accurately characterizing the fraction of O<sub>3</sub> in the troposphere, especially at the surface, that is of stratospheric origin is of interest in many model applications. This fraction varies spatially and seasonally in response to the tropopause height, and perhaps even more episodically, from deep intrusion events associated with weather patterns and frontal movement (e.g., Mathur et al., 2017). Potential vorticity (PV; 1 PV unit = 10<sup>6</sup> m<sup>2</sup> K kg<sup>-1</sup> s<sup>-1</sup>) has been shown to be a robust indicator of air mass exchange between the stratosphere and the troposphere with strong positive correlation with O<sub>3</sub> and other trace species transported from the stratosphere to the upper troposphere (Danielsen, 1968).  This correlation can be used to develop scaling factors that specify O<sub>3</sub> in the modelled upper troposphere/lower stratosphere (UTLS) based on estimated PV. CMAQ uses a dynamical PV-scaling parameterization developed by correlating model potential vorticity fields and measured O<sub>3</sub> (from World Ozone and Ultraviolet Radiation Data Centre) between 100-50mb over a 21-year period. This generalized parameterization, detailed in Xing et al. (2016), can dynamically represent O<sub>3</sub> in the UTLS across the Northern Hemisphere. The implementation of the new function significantly improves CMAQ's simulation of UTLS O<sub>3</sub> in both magnitude and seasonality compared to observations, which results in a more accurate simulation of the vertical distribution of O<sub>3</sub> across the Northern Hemisphere (Xing et al., 2016; Mathur et al., 2017).  It should be noted that to represent stratosphere-troposphere exchange of O<sub>3</sub>, appropriate vertical grid resolution near the tropopause should also be used with the PV scaling scheme.
 
@@ -711,7 +754,9 @@ set potvortO3
 ```
 should be specified in the BuildScript.  Also, potential vorticity fields must be available in the METCRO3D files generated by MCIP. This is enabled by setting LPV = 1 in the MCIP runscript.
 
-## References
+<a id=6.14_References></a>
+
+## 6.14 References
 Bash, J.O. (2010). Description and initial simulation of a dynamic bidirectional air-surface exchange model for mercury in Community Multiscale Air Quality model. J. Geophys. Res., 115, D06305, [doi:10.1029/2009JD012834](https://doi.org/10.1029/2009JD012834).
 
 Binkowski, F.S., Arunachalam, S., Adelman, Z., & Pinto, J. (2007). Examining photolysis rates with a prototype on-line photolysis module in CMAQ. J. Appl. Meteor. and Clim., 46, 1252-1256. [doi:10.1175/JAM2531.1](https://doi.org/10.1175/JAM2531.1).

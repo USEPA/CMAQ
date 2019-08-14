@@ -272,7 +272,6 @@ C Get the contravariant x2 velocity component
 
       CALL SUBST_COMM (HALO_SOUTH, HALO_NORTH, DSPL_N1_E0_S0_W0, DRCN_N)
       CALL SUBST_COMM (BUF_NS,     HALO_SOUTH, DSPL_N0_E0_S1_W0, DRCN_S)
-#endif
 
 #ifdef isam
       DO SPC = 1, N_SPCTAG
@@ -291,6 +290,8 @@ C Get the contravariant x2 velocity component
 
       CALL SUBST_COMM (SA_HALO_SOUTH, SA_HALO_NORTH, DSPL_N1_E0_S0_W0, DRCN_N)
       CALL SUBST_COMM (SA_BUF_NS,     SA_HALO_SOUTH, DSPL_N0_E0_S1_W0, DRCN_S)
+
+#endif
 
 #endif
 
@@ -349,10 +350,12 @@ C North boundary
                    SA_CONY( ROW,SPC ) = ISAM( COL,ROW,LVL,S_SPCTAG( SPC ),T_SPCTAG( SPC ) )
                 END DO
                 
+#ifdef parallel
                 DO ROW = 1, SWP
                    SA_CONY( ROW-SWP,SPC ) = SA_HALO_SOUTH( COL,ROW,SPC )
                    SA_CONY( NROWS+ROW,SPC ) = SA_HALO_NORTH( COL,ROW,SPC )
                 END DO
+#endif
 
 C South boundary
                 IF ( BNDY_PE_LOY ) THEN
