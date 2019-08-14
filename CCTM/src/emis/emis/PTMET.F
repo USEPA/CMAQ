@@ -94,7 +94,7 @@ C-----------------------------------------------------------------------
 
          FUNCTION PTMET_INIT ( ) RESULT ( SUCCESS )
 
-         USE m3utilio
+         USE M3UTILIO
          USE STK_PRMS, ONLY: MY_NSRC         
 
          IMPLICIT NONE
@@ -170,33 +170,36 @@ C-----------------------------------------------------------------------
          SUBROUTINE PTMET_CONVT( JDATE, JTIME )
 
          USE STK_PRMS, ONLY: MY_NSRC, SOURCE, MY_STKCOL, MY_STKROW
-         USE stack_group_data_module, ONLY: STKHT
-         USE CENTRALIZED_IO_MODULE, only : interpolate_var
-         USE HGRD_DEFN, only : ncols, nrows
-         USE VGRD_DEFN, only : nlays
+         USE STACK_GROUP_DATA_MODULE, ONLY: STKHT
+         USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR
+         USE HGRD_DEFN, ONLY : NCOLS, NROWS
+         USE VGRD_DEFN, ONLY : NLAYS
 
          IMPLICIT NONE
 
          INTEGER, INTENT( IN ) :: JDATE, JTIME
 
-         INTEGER N, MSRC, S
-         CHARACTER( 16 ) :: PNAME = 'PTMET_CONVT'   ! procedure name
+         INTEGER         :: L, N, MSRC, S
+         CHARACTER( 16 ) :: PNAME = 'PTMET_CONVT'   ! PROCEDURE NAME
 
-         integer :: myc, myr, stat
-         real, allocatable, save:: loc_zh(:,:,:),
-     &                             loc_zf(:,:,:),
-     &                             loc_hfx(:,:),
-     &                             loc_pbl(:,:),
-     &                             loc_temp2(:,:),
-     &                             loc_ustar(:,:),
-     &                             loc_prsfc(:,:),
-     &                             loc_ta(:,:,:),
-     &                             loc_qv(:,:,:),
-     &                             loc_pres(:,:,:),
-     &                             loc_dens(:,:,:),
-     &                             loc_uwind(:,:,:),
-     &                             loc_vwind(:,:,:)
+         INTEGER :: MYC, MYR, STAT
+         
+         REAL, ALLOCATABLE, SAVE:: LOC_ZH(:,:,:),
+     &                             LOC_ZF(:,:,:),
+     &                             LOC_HFX(:,:),
+     &                             LOC_PBL(:,:),
+     &                             LOC_TEMP2(:,:),
+     &                             LOC_USTAR(:,:),
+     &                             LOC_PRSFC(:,:),
+     &                             LOC_TA(:,:,:),
+     &                             LOC_QV(:,:,:),
+     &                             LOC_PRES(:,:,:),
+     &                             LOC_DENS(:,:,:),
+     &                             LOC_UWIND(:,:,:),
+     &                             LOC_VWIND(:,:,:)
 
+         LOGICAL, SAVE :: INITIALIZE = .TRUE.
+         
          INTERFACE
             SUBROUTINE DELTA_ZS( EMLAYS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
                INTEGER, INTENT( IN )  :: EMLAYS, MY_NSRC
@@ -210,36 +213,41 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 
-         if (.not. allocated(loc_zh)) then
-            allocate ( loc_zh(NCOLS,NROWS,NLAYS),
-     &                 loc_zf(NCOLS,NROWS,NLAYS),
-     &                 loc_hfx(NCOLS,NROWS),
-     &                 loc_pbl(NCOLS,NROWS),
-     &                 loc_temp2(NCOLS,NROWS),
-     &                 loc_ustar(NCOLS,NROWS),
-     &                 loc_prsfc(NCOLS,NROWS),
-     &                 loc_ta(NCOLS,NROWS,NLAYS),
-     &                 loc_qv(NCOLS,NROWS,NLAYS),
-     &                 loc_pres(NCOLS,NROWS,NLAYS),
-     &                 loc_dens(NCOLS,NROWS,NLAYS),
-     &                 loc_uwind(NCOLS+1,NROWS+1,NLAYS),
-     &                 loc_vwind(NCOLS+1,NROWS+1,NLAYS),
-     &                 stat=stat)
-         end if
 
-         call interpolate_var ('ZH', jdate, jtime, loc_zh)
-         call interpolate_var ('ZF', jdate, jtime, loc_zf)
-         call interpolate_var ('HFX', jdate, jtime, loc_hfx)
-         call interpolate_var ('PBL', jdate, jtime, loc_pbl)
-         call interpolate_var ('TEMP2', jdate, jtime, loc_temp2)
-         call interpolate_var ('USTAR', jdate, jtime, loc_ustar)
-         call interpolate_var ('PRSFC', jdate, jtime, loc_prsfc)
-         call interpolate_var ('TA', jdate, jtime, loc_ta)
-         call interpolate_var ('QV', jdate, jtime, loc_qv)
-         call interpolate_var ('PRES', jdate, jtime, loc_pres)
-         call interpolate_var ('DENS', jdate, jtime, loc_dens)
-         call interpolate_var ('UWIND', jdate, jtime, loc_uwind)
-         call interpolate_var ('VWIND', jdate, jtime, loc_vwind)
+         IF ( INITIALIZE ) THEN
+         
+            ALLOCATE ( LOC_ZH(NCOLS,NROWS,NLAYS),
+     &                 LOC_ZF(NCOLS,NROWS,NLAYS),
+     &                 LOC_HFX(NCOLS,NROWS),
+     &                 LOC_PBL(NCOLS,NROWS),
+     &                 LOC_TEMP2(NCOLS,NROWS),
+     &                 LOC_USTAR(NCOLS,NROWS),
+     &                 LOC_PRSFC(NCOLS,NROWS),
+     &                 LOC_TA(NCOLS,NROWS,NLAYS),
+     &                 LOC_QV(NCOLS,NROWS,NLAYS),
+     &                 LOC_PRES(NCOLS,NROWS,NLAYS),
+     &                 LOC_DENS(NCOLS,NROWS,NLAYS),
+     &                 LOC_UWIND(NCOLS+1,NROWS+1,NLAYS),
+     &                 LOC_VWIND(NCOLS+1,NROWS+1,NLAYS),
+     &                 STAT=STAT)
+     
+           INITIALIZE = .FALSE.
+           
+         END IF
+
+         CALL INTERPOLATE_VAR ('ZH', JDATE, JTIME, LOC_ZH)
+         CALL INTERPOLATE_VAR ('ZF', JDATE, JTIME, LOC_ZF)
+         CALL INTERPOLATE_VAR ('HFX', JDATE, JTIME, LOC_HFX)
+         CALL INTERPOLATE_VAR ('PBL', JDATE, JTIME, LOC_PBL)
+         CALL INTERPOLATE_VAR ('TEMP2', JDATE, JTIME, LOC_TEMP2)
+         CALL INTERPOLATE_VAR ('USTAR', JDATE, JTIME, LOC_USTAR)
+         CALL INTERPOLATE_VAR ('PRSFC', JDATE, JTIME, LOC_PRSFC)
+         CALL INTERPOLATE_VAR ('TA', JDATE, JTIME, LOC_TA)
+         CALL INTERPOLATE_VAR ('QV', JDATE, JTIME, LOC_QV)
+         CALL INTERPOLATE_VAR ('PRES', JDATE, JTIME, LOC_PRES)
+         CALL INTERPOLATE_VAR ('DENS', JDATE, JTIME, LOC_DENS)
+         CALL INTERPOLATE_VAR ('UWIND', JDATE, JTIME, LOC_UWIND)
+         CALL INTERPOLATE_VAR ('VWIND', JDATE, JTIME, LOC_VWIND)
 
          DO N = 1, NPTGRPS
 
@@ -247,34 +255,40 @@ C-----------------------------------------------------------------------
 
             DO S = 1, MY_NSRC (N )
 
-               myc = MY_STKCOL( N )%ARRY( S )
-               myr = MY_STKROW( N )%ARRY( S )
+               MYC = MY_STKCOL( N )%ARRY( S )
+               MYR = MY_STKROW( N )%ARRY( S )
 
-               PTMET_DATA( N )%ZH(:,s) = loc_zh(myc, myr, :)
 
-               PTMET_DATA( N )%ZF(:,s) = loc_zf(myc, myr, :)
+               PTMET_DATA( N )%HFX(S) = LOC_HFX(MYC, MYR)
 
-               PTMET_DATA( N )%HFX(s) = loc_hfx(myc, myr)
+               PTMET_DATA( N )%HMIX(S) = LOC_PBL(MYC, MYR)
 
-               PTMET_DATA( N )%HMIX(s) = loc_pbl(myc, myr)
+               PTMET_DATA( N )%TSFC(S) = LOC_TEMP2(MYC, MYR)
 
-               PTMET_DATA( N )%TSFC(s) = loc_temp2(myc, myr)
+               PTMET_DATA( N )%USTAR(S) = LOC_USTAR(MYC, MYR)
 
-               PTMET_DATA( N )%USTAR(s) = loc_ustar(myc, myr)
+               PTMET_DATA( N )%PRSFC(S) = LOC_PRSFC(MYC, MYR)
 
-               PTMET_DATA( N )%PRSFC(s) = loc_prsfc(myc, myr)
+               DO L = 1, NLAYS
+               
+                  PTMET_DATA( N )%ZH(L,S)    = LOC_ZH(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%ZF(L,S)    = LOC_ZF(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%TA(L,S)    = LOC_TA(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%QV(L,S)    = LOC_QV(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%PRES(L,S)  = LOC_PRES(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%DENS(L,S)  = LOC_DENS(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%UWIND(L,S) = LOC_UWIND(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%VWIND(L,S) = LOC_VWIND(MYC, MYR, L)
 
-               PTMET_DATA( N )%TA(:,s) = loc_ta(myc, myr, :)
+               END DO
 
-               PTMET_DATA( N )%QV(:,s) = loc_qv(myc, myr, :)
-
-               PTMET_DATA( N )%PRES(:,s) = loc_pres(myc, myr, :)
-
-               PTMET_DATA( N )%DENS(:,s) = loc_dens(myc, myr, :)
-
-               PTMET_DATA( N )%UWIND(:,s) = loc_uwind(myc, myr, :)
-
-               PTMET_DATA( N )%VWIND(:,s) = loc_vwind(myc, myr, :)
             END DO
 
             IF ( MY_NSRC( N ) .GT. 0 ) THEN

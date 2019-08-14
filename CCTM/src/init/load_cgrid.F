@@ -413,7 +413,7 @@ C IOFDESC common now loaded with FNAME header
             IF ( SPC_CAT .EQ. 'AE' ) POC_CHK = AE_SPC( SPC )
 
             IF ( VNAME3D( NDX )( 1:4 ) .EQ. 'APOC' .AND.
-     &           POC_CHK .NE. 'APOC' ) THEN 
+     &           POC_CHK(1:4) .NE. 'APOC' ) THEN 
                ICNAME_TMP = 'APNCOM' // VNAME3D( NDX )( 5:5 )
                call interpolate_var (ICNAME_TMP, jdate, jtime, DBUFF_TMP)
                DBUFF = DBUFF + DBUFF_TMP
