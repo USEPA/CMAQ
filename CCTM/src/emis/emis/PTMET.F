@@ -238,8 +238,8 @@ C-----------------------------------------------------------------------
          call interpolate_var ('QV', jdate, jtime, loc_qv)
          call interpolate_var ('PRES', jdate, jtime, loc_pres)
          call interpolate_var ('DENS', jdate, jtime, loc_dens)
-         call interpolate_var ('UWIND', jdate, jtime, loc_uwind)
-         call interpolate_var ('VWIND', jdate, jtime, loc_vwind)
+         call interpolate_var ('UWINDC', jdate, jtime, loc_uwind)
+         call interpolate_var ('VWINDC', jdate, jtime, loc_vwind)
 
          DO N = 1, NPTGRPS
 
@@ -272,9 +272,11 @@ C-----------------------------------------------------------------------
 
                PTMET_DATA( N )%DENS(:,s) = loc_dens(myc, myr, :)
 
-               PTMET_DATA( N )%UWIND(:,s) = loc_uwind(myc, myr, :)
-
-               PTMET_DATA( N )%VWIND(:,s) = loc_vwind(myc, myr, :)
+               PTMET_DATA( N )%UWIND(:,s) = 0.5*( loc_uwind(myc, myr, :)
+     &                                          + loc_uwind(myc+1, myr, :) )
+               
+               PTMET_DATA( N )%VWIND(:,s) = 0.5*( loc_vwind(myc, myr, :)
+     &                                          + loc_vwind(myc, myr+1, :) )
             END DO
 
             IF ( MY_NSRC( N ) .GT. 0 ) THEN
