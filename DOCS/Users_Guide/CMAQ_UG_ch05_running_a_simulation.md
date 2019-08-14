@@ -195,7 +195,7 @@ Existing Logs and Output Files for Day YYYY-MM-DD Will Be Deleted
 
 CMAQ Processing of Day 20140620 Began at Tue Apr  9 08:18:07 EDT 2019
 ```
-This section documents the folder structure, username, and run date for the simulation, and is meant to aid in maintaining transparency of simulation results after runs have been completed. This section is followed by the CMAQ and I/O-API headers, and a record of all environment variables and their values for this simulation.
+This section documents the folder structure, username, and run date for the simulation, and is meant to aid in maintaining transparency of simulation results after runs have been completed. This section is followed by the CMAQ and I/O API headers, and a record of all environment variables and their values for this simulation.
 
 Next, the program outputs a table describing the domain decomposition breakdown for the run.  
 ```

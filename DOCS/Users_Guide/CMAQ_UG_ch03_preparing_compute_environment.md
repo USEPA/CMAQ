@@ -62,13 +62,13 @@ Users can download the MPI library source code from one of these sites and follo
 
 Most of the CMAQ input files and all output files are in netCDF format (the rest are in ASCII format). Hence the netCDF library is an essential component of the CMAQ model. The netCDF library is available for download at http://www.unidata.ucar.edu/software/netcdf/ and users should follow the instructions for proper installation. Users should install **classic shared netCDF C and Fortran libraries only without netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support.** In order to do so, users should provide the appropriate flags to build and install minimal netCDF-3 with no DAP client support, such as --disable-netcdf-4 and --disable-dap, at the configure stage for netCDF C. After successful installation, check the environment PATH & LD_LIBRARY_PATH to ensure that the paths have been updated to include the path of the netCDF C and Fortran libraries and bin. Note you may have to set these paths manually if not set, and these paths must be loaded every time you start a new shell. **Minimum versions: NetCDF-C 4.2 | NetCDF-Fortran 4.4.2**
 
-### 3.3.3 IOAPI library
+### 3.3.3 I/O API library
 
-The IOAPI library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32. Users should note that the IOAPI library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the IOAPI documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Minimum version: IOAPI 3.1**
+The I/O API library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the I/O API library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32. Users should note that the I/O API library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the I/O API documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Minimum version: IOAPI 3.1**
 
-The general steps for installation of IOAPI libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
+The general steps for installation of I/O API libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
-The following is a procedure to install "basic" IOAPI libraries (this is based on gfortran compiler, for other compilers, look for corresponding Linux2_x86_64*):
+The following is a procedure to install "basic" I/O API libraries (this is based on gfortran compiler, for other compilers, look for corresponding Linux2_x86_64*):
 
 ```
 mkdir ioapi_3.2
@@ -104,7 +104,7 @@ make configure
 make
 ```
 
-Other IOAPI library configuration options are available, and users can see a list of these options within the IOAPI documentation. For example, IOAPI can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" IOAPI libraries (Wong et al. 2015). More information about how to enable PIO within CMAQ can be found in [Appendix D](Appendix/CMAQ_UG_appendixD_parallel_implementation.md). 
+Other I/O API library configuration options are available, and users can see a list of these options within the I/O API documentation. For example, I/O API can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" I/O API libraries (Wong et al. 2015). More information about how to enable PIO within CMAQ can be found in [Appendix D](Appendix/CMAQ_UG_appendixD_parallel_implementation.md). 
 
 ## 3.4 Optional Software
 
@@ -126,7 +126,7 @@ Other IOAPI library configuration options are available, and users can see a lis
 |PGPROF|Portland Group Fortran code profiler|[<http://www.pgroup.com/>](http://www.pgroup.com/)|
 |IDB|Intel Fortran debugger|[<https://software.intel.com/en-us/articles/idb-linux>](https://software.intel.com/en-us/articles/idb-linux)|
 
-## Reference:
+## 3.5 References:
 
 Wong, D. C., Yang, C. E., Fu, J. S., Wong, K., and Gao, Y., “An approach to enhance pnetCDF performance in environmental modeling applications”, Geosci. Model Dev., 8, 1033-1046, 2015.
 

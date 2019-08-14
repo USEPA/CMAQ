@@ -120,7 +120,8 @@ Kwok, R.H.F, Napelenok, S.L., & Baker, K.R. (2013). Implementation and evaluatio
 Kwok, R.H.F, Baker, K.R., Napelenok, S.L., & Tonnesen, G.S. (2015). Photochemical grid model implementation of VOC, NOx, and O3 source apportionment. Geosci. Model Dev., 8, 99-114. [doi:10.5194/gmd-8-99-2015](https://doi.org/10.5194/gmd-8-99-2015).  
 
 
-## Contact
+**Contact**
+
 [Sergey L. Napelenok](mailto:napelenok.sergey@epa.gov), Computational Exposure Division, U.S. EPA
 
 
