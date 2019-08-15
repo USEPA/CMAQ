@@ -1,4 +1,5 @@
-!------------------------------------------------------------------------!  !  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
 !  from these groups: Federal Government employees, contractors working  !
 !  within a United States Government contract, and non-Federal sources   !
@@ -47,6 +48,7 @@
 !  07/09/19, T. Spero: -- Changed file for fractional land use from
 !                         GRIDCRO2D to LUFRAC_CRO.  Allow backward
 !                         compatibility.
+!  07/17/19, R. Gilliam:- Removed the FPAR file call for windblow dust. MCIP VEG is used.
 !------------------------------------------------------------------------!
 
       MODULE CENTRALIZED_IO_MODULE
@@ -60,14 +62,13 @@
 
         character (20), parameter :: bio_season_fname = 'BIOSEASON'
         character (20), parameter :: biogemis_fname   = 'B3GRD'
-        character (20), parameter :: dust_fname       = 'MODIS_FPAR'
 
         integer, parameter :: f_met_cro_2d  = 1
         integer, parameter :: f_met_cro_3d  = 2
         integer, parameter :: f_met_dot_3d  = 3
 
         CHARACTER( 40 ), parameter :: NLDN_STRIKES = 'NLDN_STRIKES'
-        CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_GASC_1'
+        CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_CONC_1'
         CHARACTER( 40 ), parameter :: ISAM_PREVDAY = 'ISAM_PREVDAY'
 
         integer :: file_sdate(max_nfiles)
@@ -602,18 +603,6 @@
 
 ! Wind blown dust data
           n_dust_vars = 0
-          if (WB_DUST) then
-             IF ( .NOT. OPEN3( dust_fname, FSREAD3, PNAME ) ) THEN
-                XMSG = 'Could not open '// dust_fname // ' file'
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             IF ( .NOT. DESC3( dust_fname ) ) THEN
-                XMSG = 'Could not get description of file  '// dust_fname
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             n_dust_vars = nvars3d
-             modis_data_sdate = sdate3d
-          end if
 
           n_e2d = n_e2d + n_bio_season_vars + n_dust_vars
 
@@ -631,17 +620,6 @@
              begin = n_e2d+n_e3d-n_dust_vars
              emis_name(begin:begin, 2) = 'bs'          ! bs denote bio season
              emis_name(begin:begin, 1) = vname3d(1)
-          end if
-
-          if (WB_DUST) then
-             IF ( .NOT. DESC3( dust_fname ) ) THEN
-                XMSG = 'Could not get description of file  '// dust_fname
-                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-             END IF
-             begin = n_e2d+n_e3d-n_dust_vars+1
-             end   = begin + n_dust_vars - 1
-             emis_name(begin:end, 2) = 'wb'          ! bs denote bio season
-             emis_name(begin:end, 1) = vname3d(1:nvars3d)
           end if
 
 ! setup initial condition file
@@ -894,12 +872,12 @@
           end if
 
 ! BCON file
-          IF ( .NOT. OPEN3( BNDY_GASC_1, FSREAD3, PNAME ) ) THEN
-             XMSG = 'Could not open '// BNDY_GASC_1 // ' file'
+          IF ( .NOT. OPEN3( BNDY_CONC_1, FSREAD3, PNAME ) ) THEN
+             XMSG = 'Could not open '// BNDY_CONC_1 // ' file'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-          IF ( .NOT. DESC3( BNDY_GASC_1 ) ) THEN
-             XMSG = 'Could not get description of file  '// BNDY_GASC_1 
+          IF ( .NOT. DESC3( BNDY_CONC_1 ) ) THEN
+             XMSG = 'Could not get description of file  '// BNDY_CONC_1 
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
           n_b3d = nvars3d
@@ -2382,29 +2360,6 @@ C Read the various categories of normalized emissions
 
                    deallocate (tdata)
 
-                else if (cio_grid_var_name(v,2) == 'wb') then
-
-                   if (iter .eq. 1) then
-                      if ( modis_data_sdate .eq. 2005001 ) then    ! climatological
-                         wb_tjdate = 2005000 + mod( jdate, 1000 )
-                      else                                         ! current
-                         wb_tjdate = jdate
-                      end if
-                      wb_tjtime = 0
-                      wb_pre_begin = begin
-                      wb_pre_end   = end
-
-                      IF ( .NOT. XTRACT3( dust_fname, cio_grid_var_name(v,1),
-     &                                    1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
-     &                                    wb_tjdate, wb_tjtime, cio_grid_data(begin:end) ) ) THEN
-                         XMSG = 'Could not extract ' // dust_fname // ' file'
-                         CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
-                      END IF
-                   
-                   else
-                      ! for MODIS_FPAR data, the circular buffer at position 0 and 1 are identical
-                      cio_grid_data(begin:end) = cio_grid_data(wb_pre_begin:wb_pre_end)
-                   end if
                 else
                    write (cio_logdev, *) ' ==d== Unknown type of file'
                    stop
@@ -2500,7 +2455,7 @@ C Read the various categories of normalized emissions
                    END IF
                 else if ((cio_bndy_var_name(v,2) == 'b') .or.
      &                   (cio_bndy_var_name(v,2) == 'bt')) then
-                   if (.not. read3 (BNDY_GASC_1, cio_bndy_var_name(v,1), -1,
+                   if (.not. read3 (BNDY_CONC_1, cio_bndy_var_name(v,1), -1,
      &                              loc_jdate, loc_jtime, cio_bndy_data(begin:end) ) ) THEN
                       XMSG = 'Could not read ' // MET_BDY_3D // ' file'
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jdate, XMSG, XSTAT1 )
@@ -3615,14 +3570,9 @@ C   mminlu and num_land_cat are WRF global variables
                 tail_end_ind  = cio_grid_data_inx(2,loc_tail,var_loc)
                 store_beg_ind = cio_grid_data_inx(1,2,var_loc)
                 store_end_ind = cio_grid_data_inx(2,2,var_loc)
-
-                if (vname == 'MODIS_FPAR_T') then
-                   ! for MODIS_FPAR_T xtraction but not interpolation is performed
-                   cio_grid_data(store_beg_ind:store_end_ind) = cio_grid_data(head_beg_ind:head_end_ind)
-                else
-                   cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
+                
+                cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
      &                                                          + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
-                end if
              end if
  
              adj_lvl = 0

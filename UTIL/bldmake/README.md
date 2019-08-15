@@ -1,9 +1,9 @@
-The bldmake utility can be compiled without invoking a script for separate program. The repository includes a Makefile to accomplish the task. It supports compiling with the INTEL (ifort), PGI (pgf90), and GCC (gfortran) compilers. The file uses ifort by default. Edit the Makefile to change the default compiler to pgf90 or gfortran. Note the Makefile uses relative paths for each compiler so the PATH environment variable needs to specify where to find the compiler used. 
+The bldmake utility is used to create a Makefile suitable for compiling the components of CMAQ (e.g. CCTM, post-processing tools, ICON, BCON, etc.). The Makefiles produced will contain the proper rules, compilation flags, and library paths to produce each executable.   
 
-Follow the below steps to compile bldmake.
+The utility relies on a text-based configuration file (e.g. CCTM_v53.cfg) to determine the contents of the Makefile. Each configuration file includes information about the build-time options for the target executable, the compiler brand and version, the paths to required libraries (i.e. NetCDF and IOAPI), and compilation flags. With this input, bldmake harvests source code from the CMAQ repository consistent with the selected build-time options and auto-populates the Makefile with the correct dependencies for each process module.  
 
-*  Go into its source code directory, **src**.
-*  Type "make clean" if recompiling the utility.
-*  Type "make" if using the default compiler or "make COMPILER=_compiler_ where _compiler_ equals INTEL, PGI, or GCC. 
+Note that each Makefile created by bldmake will only work for a specific compiler/version (set in the input to bldmake). Users should ensure that their compute environment is consistent when compiling with that Makefile and running the generated executable.  
 
-If the user is using a different compiler, they need to modify the Makefile.
+The CMAQ repo contains shell script drivers (e.g. bldit_cctm.csh, bldit_combine.csh, etc.) for choosing build options, populating the bldmake configuration file, running bldmake to generate a Makefile, and running the Makefile to create an executable. The CMAQ team recommends users refrain from modifying bldmake or executing it stand-alone. Instead, please use these shell script drivers.  
+
+

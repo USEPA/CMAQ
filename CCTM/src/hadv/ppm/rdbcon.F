@@ -317,17 +317,16 @@ C Read & interpolate boundary concentrations
 #endif
             ! Add Non-Carbon Mass to Carbon Mass if the model is
             ! running semivolatile POA
-            IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' ) THEN 
-               IF ( INDEX( MECHNAME,"NVPOA" ) .EQ. 0 ) THEN
-                 BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
+            IF ( BCNAME( VAR )( 1:4 ) .EQ. 'APOC' .AND.
+     &           AE_TRNS( SPC )( 1:4 ) .NE. 'APOC' ) THEN 
                  BBUF_TMP = 0.0
+                 BCNAME_TMP = 'APNCOM' // BCNAME( VAR )( 5:5 )
 #ifdef parallel
                  call interpolate_var (BCNAME_TMP, mdate, mtime, BBUF_TMP, 'b', lvl)
 #else
                  call interpolate_var (BCNAME_TMP, mdate, mtime, BBUF_TMP, 'b')
 #endif
                  BBUF = BBUF + BBUF_TMP
-               END IF
             END IF
 
             ! Units of JACOBM_BND are Meters, according to the input

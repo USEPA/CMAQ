@@ -1,19 +1,71 @@
 # Create EBI Solver (create_ebi)
 
-### Quick Start
+### Background
 
+The create_ebi utility generates an Euler Backward Iterative (EBI) solver for a photochemical mechanism. Source code generated should be used to build the CMAQ CCTM using the photochemical mechanism. The solver is based on Hertel et. al (1993) and was developed to solve the Ox, HOx, NOx-NOy, VOC cycles in tropospheric photochemistry. It combines analytical solutions for specific mechanism species and a numerical method for the remaining mechanism species. The photochemical mechanism must include the specific species and their chemistry needs to meet set rules (Tables 1 and 2).
+If it does not satisfy these constraints, an EBI solver produced by create_ebi should not be used. The create_ebi utility attempts to test for meeting these constraints and stops if they are not met but the tests may not detect all possible cases for violations.
+
+
+<center> Table 1. 
+Photochemistry Species or Compounds Required;    
+model species names can be different between CMAQ mechanisms
+</center>
+
+| Name  |   Formula            |   Group<sup>1</sup> | 
+|:------| :------:  |:-----:|
+| nitric oxide |  NO |  1 |
+| nitrogen dioxide | NO<sub>2</sub>  | 1 |
+| ozone |  O<sub>3</sub> | 1
+| ground state oxygen atom | O(3P)  | 1 |
+| excited state oxygen atom | O(1D) | 1 |
+| hydroxyl radical | OH | 2 |
+| hydroperoxy radical | HO<sub>2</sub>| 2 |
+| nitrous acid | HONO | 2
+| peroxynitric acid | HNO<sub>4</sub> | 2 |
+| peroxy acetyl nitrate | C<sub>2</sub>H<sub>3</sub>NO<sub>5</sub> | 3 |
+| peroxy acetyl radical | C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> | 3 |
+| nitrate radical |  NO<sub>3</sub> | 4 |
+| dinitrogen pentoxide | N<sub>2</sub>O<sub>5</sub> | 4 |
+
+1.  Hertel et al. (1993) sorted the analytically solved species into groups. The group number denote their order. Note that Hertel et al. did not analytically solve for O(1D) in the original paper but the CMAQ EBI solver does.
+
+<center> Table 2. 
+Photochemical Mechanism Constraints.    
+</center>
+
+| Mechanism Constraint  |   Notes            |     
+|:------|:------  |
+| All reactions destorying O(1D) are first order | Excludes reactants that are atmospheric species held constant such as N<sub>2</sub>, O<sub>2</sub>, H<sub>2</sub>O, etc. |  
+| O(1D) (+ Constant Species) ---> O(3P) present | Needed to solve Group 1 and 2  |
+| O(1D) (+ H</sub>2</sub>O) ---> 2OH present  |  Needed to solve Group 1 and 2  |
+| NO<sub>2</sub>           ---> NO+O(3P) present | Needed to solve Group 1 |
+| N<sub>2</sub>O and excited NO<sub>2</sub> are not active in NOx cycle  | If the two species are present, their chemistry upsets the accuracy of the analytical soluton for NOx species |
+| O(3P) (+ O<sub>2</sub>)    ---> O<sub>3</sub> present | Needed to solve Group 1  |
+| NO + O<sub>3</sub>       ---> NO<sub>2</sub> present | Needed to solve Group 1 and 2  |
+| HONO          ---> OH + NO present | Needed to solve Group 2; often a photolysis reaction  |
+| OH + NO       ---> HONO present | Needed to solve Group 2; often a photolysis reaction  |
+| HNO<sub>4</sub>         ---> HO<sub>2</sub> + NO<sub>2</sub> present | Needed to solve Group 2  |
+| HO<sub>2</sub> + NO<sub>2</sub>     ---> HNO<sub>4</sub> present | Needed to solve Group 2  |
+| HO<sub>2</sub> + HO<sub>2</sub>     --->  H<sub>2</sub>O<sub>2</sub> present | Needed to solve Group 2  |
+| C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> + C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> ---> _products_ present | Needed to solve Group 3; products mechanism dependent  |
+| Negative product coefficients are only allowed for a photochemical species named PAR | Exception made for Carbon Bond mechanisms  |
+
+
+### Using create_ebi
+
+The create_ebi utility is designed compiled and run once for each application. Beside the utility's own source code and data files, compiling needs a photochemical mechanism's data module defined by the run script (Table 3.). If compilation is successful, the utility runs based on the run script options. 
 
 To create a new EBI solver based on photochemical mechanism's reactions data module:
 
 1) Copy scripts/bldrun.create_ebi.csh into its parent directory. _The bldrun script assumes that value of base is {CMAQ_REPO}/UTIL/create_ebi._
 
-2) Edit to define the FORTRAN compiler and mechanism's data module. See to Table 1 for options set by bldrun script.
+2) Edit to define the FORTRAN compiler and mechanism's data module. See to Table 3 for options set by bldrun script.
 
 3) Execute the script. _The script compiles create_ebi then runs the utility._
 
 4) Check the OUTDIR for the code files for the ebi solver, produced.
 
- <center> Table 1. create_ebi environment settings or run time options </center>
+ <center> Table 3. create_ebi environment settings or run time options </center>
 
  |  Names | Definition | Notes or Recommeded Value |
  |:-----|:-----|:------|
@@ -44,95 +96,6 @@ To create a new EBI solver based on photochemical mechanism's reactions data mod
  2. The three photochemical mechanisms released in CMAQ version 5.3.
  
 To report potential program errors or EBI solver failures, contact Bill Hutzell/USEPA at hutzell.bill@epa.gov
-
-### Description
-
-The create_ebi utility generates an Euler Backward Iterative (EBI) solver for a photochemical mechanism. Source code generated should be used to build the CMAQ CCTM using the photochemical mechanism. The solver is based on Hertel et. al (1993) and was developed to solve the Ox, HOx, NOx-NOy, VOC cycles in tropospheric photochemistry. It combines analytical solutions for specific mechanism species and a numerical method for the remaining mechanism species. The photochemical mechanism must include the specific species and their chemistry needs to meet set rules. If it does not satisfy these constraints, an EBI solver produced by create_ebi should not be used. The create_ebi utility attempts to test for meeting these constraints and stops if they are not met but the tests may not detect all possible cases for violations.
-
-<center> Table 2. 
-Photochemistry Species or Compounds Required;    
-model species names can be different between CMAQ mechanisms
-</center>
-
-| Name  |   Formula            |   Group<sup>1</sup> | 
-|:------| :------:  |:-----:|
-| nitric oxide |  NO |  1 |
-| nitrogen dioxide | NO<sub>2</sub>  | 1 |
-| ozone |  O<sub>3</sub> | 1
-| ground state oxygen atom | O(3P)  | 1 |
-| excited state oxygen atom | O(1D) | 1 |
-| hydroxyl radical | OH | 2 |
-| hydroperoxy radical | HO<sub>2</sub>| 2 |
-| nitrous acid | HONO | 2
-| peroxynitric acid | HNO<sub>4</sub> | 2 |
-| peroxy acetyl nitrate | C<sub>2</sub>H<sub>3</sub>NO<sub>5</sub> | 3 |
-| peroxy acetyl radical | C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> | 3 |
-| nitrate radical |  NO<sub>3</sub> | 4 |
-| dinitrogen pentoxide | N<sub>2</sub>O<sub>5</sub> | 4 |
-
-1.  Hertel et al. (1993) sorted the analytically solved species into groups. The group number denote their order. Note that Hertel et al. did not analytically solve for O(1D) in the original paper but the CMAQ EBI solver does.
-
-<center> Table 3. 
-Photochemical Mechanism Constraints.    
-</center>
-
-| Mechanism Constraint  |   Notes            |     
-|:------|:------  |
-| All reactions destorying O(1D) are first order | Excludes reactants that are atmospheric species held constant such as N<sub>2</sub>, O<sub>2</sub>, H<sub>2</sub>O, etc. |  
-| O(1D) (+ Constant Species) ---> O(3P) present | Needed to solve Group 1 and 2  |
-| O(1D) (+ H</sub>2</sub>O) ---> 2OH present  |  Needed to solve Group 1 and 2  |
-| NO<sub>2</sub>           ---> NO+O(3P) present | Needed to solve Group 1 |
-| N<sub>2</sub>O and excited NO<sub>2</sub> are not active in NOx cycle  | If the two species are present, their chemistry upsets the accuracy of the analytical soluton for NOx species |
-| O(3P) (+ O<sub>2</sub>)    ---> O<sub>3</sub> present | Needed to solve Group 1  |
-| NO + O<sub>3</sub>       ---> NO<sub>2</sub> present | Needed to solve Group 1 and 2  |
-| HONO          ---> OH + NO present | Needed to solve Group 2; often a photolysis reaction  |
-| OH + NO       ---> HONO present | Needed to solve Group 2; often a photolysis reaction  |
-| HNO<sub>4</sub>         ---> HO<sub>2</sub> + NO<sub>2</sub> present | Needed to solve Group 2  |
-| HO<sub>2</sub> + NO<sub>2</sub>     ---> HNO<sub>4</sub> present | Needed to solve Group 2  |
-| HO<sub>2</sub> + HO<sub>2</sub>     --->  H<sub>2</sub>O<sub>2</sub> present | Needed to solve Group 2  |
-| C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> + C<sub>2</sub>H<sub>3</sub>O<sub>3</sub> ---> _products_ present | Needed to solve Group 3; products mechanism dependent  |
-| Negative product coefficients are only allowed for a photochemical species named PAR | Exception made for Carbon Bond mechanisms  |
-
-
-### Files, configuration, and environment variables
-
-To create an EBI solver for a photochemical mechanism to be used in the CMAQ model, a user needs the Fortran data module describing the photochemical mechanism. The chemmech utility produces the module based on a mechanism definitions file and species namelist files. For more information, consult the README under ${CMAQ_REPO}/UTIL/chemmech.
-
-#### CREATE_EBI usage requirements.
-
-The create_ebi utility is designed compiled and run once for each application. Beside the utility's own source code and data files, compiling needs a photochemical mechanism's data module (Table 3). If compilation is successful, the utility runs based on options set by environment variables (Table 1.)
-
-**Table 3. CREATE_EBI input files**
-
-|**File Name**|**Format**|**Description**|
-|----------------------------------|----------|----------------------------------------------------------|
-|RXNS_DATA_MODULE.F90|ASCII|a Fortran 90 module describing the photochemical mechanism produced by the chemmech utility |
-
-
-#### CREATE_EBI output files
-
-A successful application produces files under a directory defined the environment variable, OUTDIR. Their number depends on run time options (Table 4.) 
-
-**Table 4. CREATE_EBI output files**
-
-|File Name|Format|Description|
-|---------------------------------------|---------------|-------------------------------------------------------|
-| hr\*.F|ASCII | Fortran files for the CCTM EBI chemistry solver|
-| DEGRADE_SETUP_TOX.F<sup>1</sup> | ASCII | Fortran module that calculates exponent decay for a set of toxic air pollutants |
-| init_degrade.F<sup>1</sup> | ASCII | Fortran code that initializes arrays in DEGRADE_SETUP_TOX.F |
-| degrade_data.F<sup>1</sup> | ASCII | Fortran code that lists the set of toxic pollutants and their photochemical loss processes |
-| find_degrade.F<sup>1</sup> | ASCII | Fortran code that search for the toxic pollutants in species namelists |
-| degrade.F<sup>1</sup> | ASCII | Fortran code that calculated the exponental decay for the toxic pollutants |
-| final_degrade.F<sup>1</sup> | ASCII | Fortran code that updates CGRID array |
-
-1. Produced if DEGRADE_SUBS equals T.
-
-Compiling a version of the CMAQ model using this photochemical mechanism and its EBI solver. A user has two options. 
-
- 1. update the source code ( _the two photochemical reaction modules produced by CHEMMECH and EBI solver files_) and Makefile in an existing CMAQ build directory. 
- 2. Add the new mechanism and solver files to their CMAQ repository then use the cctm build-it script to build the CMAQ CCTM model. 
- 
-The latter option is more complicated because it creates subdirectories under `$CMAQ_HOME/CCTM/src/MECHS` and `$CMAQ_HOME/CCTM/src/gas` and involve files not produced by the user and other utilities. 
 
 ### Example Application.
 
@@ -208,6 +171,43 @@ if the execution is successful.
          hrprodloss.F                    
          hrrates.F                       
      Program CR_EBI_SOLVER completed successfully
+
+
+### Input and Output files
+
+To create an EBI solver for a photochemical mechanism to be used in the CMAQ model, a user needs the Fortran data module describing the photochemical mechanism. The chemmech utility produces the module based on a mechanism definitions file and species namelist files. For more information, consult the README under ${CMAQ_REPO}/UTIL/chemmech.
+
+**Table 4. CREATE_EBI input files**
+
+|**File Name**|**Format**|**Description**|
+|----------------------------------|----------|----------------------------------------------------------|
+|RXNS_DATA_MODULE.F90|ASCII|a Fortran 90 module describing the photochemical mechanism produced by the chemmech utility |
+
+
+#### CREATE_EBI output files
+
+A successful application produces files under a directory defined the environment variable, OUTDIR. Their number depends on run time options (Table 5.) 
+
+**Table 5. CREATE_EBI output files**
+
+|File Name|Format|Description|
+|---------------------------------------|---------------|-------------------------------------------------------|
+| hr\*.F|ASCII | Fortran files for the CCTM EBI chemistry solver|
+| DEGRADE_SETUP_TOX.F<sup>1</sup> | ASCII | Fortran module that calculates exponent decay for a set of toxic air pollutants |
+| init_degrade.F<sup>1</sup> | ASCII | Fortran code that initializes arrays in DEGRADE_SETUP_TOX.F |
+| degrade_data.F<sup>1</sup> | ASCII | Fortran code that lists the set of toxic pollutants and their photochemical loss processes |
+| find_degrade.F<sup>1</sup> | ASCII | Fortran code that search for the toxic pollutants in species namelists |
+| degrade.F<sup>1</sup> | ASCII | Fortran code that calculated the exponental decay for the toxic pollutants |
+| final_degrade.F<sup>1</sup> | ASCII | Fortran code that updates CGRID array |
+
+1. Produced if DEGRADE_SUBS equals T.
+
+Compiling a version of the CMAQ model using this photochemical mechanism and its EBI solver. A user has two options. 
+
+ 1. update the source code ( _the two photochemical reaction modules produced by CHEMMECH and EBI solver files_) and Makefile in an existing CMAQ build directory. 
+ 2. Add the new mechanism and solver files to their CMAQ repository then use the cctm build-it script to build the CMAQ CCTM model. 
+ 
+The latter option is more complicated because it creates subdirectories under `$CMAQ_HOME/CCTM/src/MECHS` and `$CMAQ_HOME/CCTM/src/gas` and involve files not produced by the user and other utilities. 
 
 
 ## References.

@@ -252,20 +252,13 @@
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-
+ 
 !...Make sure an AE6 version of the mechanism is being used
 
-         IF ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) THEN
-            XMSG = 'This version of AQCHEM requires an AE6 chemical mechanism'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-         END IF
-
-!...Special treatment of MGLY for CB05 mechanism:
-!...Use Henry's law constant for glyoxal as a surrogate for methyl glyoxal
-
-         IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
-            MGLYSUR = 'GLYOXAL         '
-         END IF
+        IF ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) THEN
+          XMSG = 'This version of AQCHEM requires an AE6 chemical mechanism'
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        END IF 
 
 !...Make sure STM option is not set
 
@@ -273,6 +266,11 @@
             XMSG = 'STM option not implemented in KMT AQCHEM'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
+
+#ifdef isam
+        XMSG = 'Source Apportionment is not implemented in KMT AQCHEM'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+#endif        
 
 !... set MW ratios and speciation factors for molar concentrations of coarse
 !... soluble aerosols

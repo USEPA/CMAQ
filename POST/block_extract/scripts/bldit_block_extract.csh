@@ -128,6 +128,8 @@
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
+ echo "lib_5       netcdff/include;"                               >> $Cfile
+ echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
@@ -147,6 +149,8 @@
  echo "ioapi       $quote$LIB2$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "netcdff     $quote$netcdff_lib$quote;"                       >> $Cfile
 
  set text = "block_extract"
  echo "// options are" $text                                       >> $Cfile
