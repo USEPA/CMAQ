@@ -15,3 +15,7 @@ Both in-line emissions and photolysis are invoked through compile-time configura
 ## Directories
 * **scripts**: build and run scripts
 * **src**: model source code
+
+## Documentation
+* CMAQ Science Options are discussed in [Chapter 6 of the User's Guide](../DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.md).
+* Description of CCTM environment variables are provided in comments in the CCTM build and run scripts and as well as [Appendix A of the User's Guide](../DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md).

@@ -88,6 +88,7 @@
  
  set LIB1 = "$ioapi_lib"
  set LIB2 = "$netcdf_lib $extra_lib"
+ set LIB3 = "$netcdff_lib"
 
 #============================================================================================
 #> Implement User Input
@@ -164,6 +165,9 @@
  echo                                                              >> $Cfile
  echo "netcdf      $quote$LIB2$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
+ echo "netcdff      $quote$LIB3$quote;"                            >> $Cfile
+ echo                                                              >> $Cfile
+
 
  echo "// project repository location: ${ICON_SRC}"                >> $Cfile
  echo                                                              >> $Cfile

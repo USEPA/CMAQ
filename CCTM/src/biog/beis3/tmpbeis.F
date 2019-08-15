@@ -250,7 +250,6 @@ C Build description for, and open beis diagnostic file
                VGLVS3D( I ) = VGLVS_GD( I )
             END DO
   
-            NVARS3D = MSPCS
 
             J = 0
             DO I = 1, MSPCS
@@ -263,6 +262,7 @@ C Build description for, and open beis diagnostic file
                END IF
             END DO
 
+            NVARS3D = J
             FDESC3D = ' '   ! array
 
             FDESC3D( 1 ) = 'Gridded biogenic emissions from CMAQ-BEIS3'

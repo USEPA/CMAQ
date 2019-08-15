@@ -3,7 +3,7 @@ calc_tmetric
 
 This Fortran program creates gridded IOAPI files with temporally averaged or summed values that were calculated from one or more gridded time-dependent IOAPI files.
 
-## Environment variables used:
+## Run Time Environment variables used:
 
 ```
  OPERATION     operation to perform - SUM for summation and AVG for averaging (default SUM)
@@ -20,9 +20,19 @@ This Fortran program creates gridded IOAPI files with temporally averaged or sum
  OUTFILE       output IOAPI file name with gridded summed or averaged values
 ```
 
-## To run:
+## Compile calc_tmetric source code:
+
+Execute the build script to compile calc_tmetric:
+
+```
+cd $CMAQ_HOME/POST/calc_tmetric/scripts
+./bldit_calc_tmetric.csh [compiler] [version] |& tee build_calc_tmetric.log
+```
+
+## Run calc_tmetric:
 Edit the sample run script (run.calc_tmetric.csh), then run:
 ```
- run.calc_tmetric.csh |& tee calc_tmetric.log
+ ./run.calc_tmetric.csh |& tee calc_tmetric.log
 ```
 Check the log file to ensure complete and correct execution without errors.
+
