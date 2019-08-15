@@ -536,20 +536,13 @@ C...Initialization
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-
+ 
 C...Make sure an AE6 version of the mechanism is being used
 
         IF ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) THEN
           XMSG = 'This version of AQCHEM requires an AE6 chemical mechanism'
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-        END IF
-
-C...special treatment of MGLY for CB05 mechanism:
-C...  use Henry`s law constant for glyoxal as a surrogate for methyl glyoxal
-
-        IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
-          MGLYSUR = 'GLYOXAL         '
-        END IF
+        END IF 
 
 !...Make sure STM option is not set
 
