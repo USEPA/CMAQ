@@ -213,7 +213,6 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 
-
          IF ( INITIALIZE ) THEN
          
             ALLOCATE ( LOC_ZH(NCOLS,NROWS,NLAYS),
@@ -258,7 +257,6 @@ C-----------------------------------------------------------------------
                MYC = MY_STKCOL( N )%ARRY( S )
                MYR = MY_STKROW( N )%ARRY( S )
 
-
                PTMET_DATA( N )%HFX(S) = LOC_HFX(MYC, MYR)
 
                PTMET_DATA( N )%HMIX(S) = LOC_PBL(MYC, MYR)
@@ -283,16 +281,16 @@ C-----------------------------------------------------------------------
                   
                   PTMET_DATA( N )%DENS(L,S)  = LOC_DENS(MYC, MYR, L)
                   
-                  PTMET_DATA( N )%UWIND(L,S) = LOC_UWIND(MYC, MYR, L)
-                  
-                  PTMET_DATA( N )%VWIND(L,S) = LOC_VWIND(MYC, MYR, L)
-
+                  PTMET_DATA( N )%UWIND(L,S) = 0.5*( LOC_UWIND(MYC, MYR, L)
+     &                                       +       LOC_UWIND(MYC+1, MYR, L) )
+               
+                  PTMET_DATA( N )%VWIND(L,S) = 0.5*( LOC_VWIND(MYC, MYR, L)
+     &                                       +       LOC_VWIND(MYC, MYR+1, L) )
                END DO
 
             END DO
 
-            IF ( MY_NSRC( N ) .GT. 0 ) THEN
-C Compute ZSTK, DDZF
+            IF ( MY_NSRC( N ) .GT. 0 ) THEN ! Compute ZSTK, DDZF
                CALL DELTA_ZS( EMLAYS, MSRC,
      &                        SOURCE( N )%ARRY, STKHT( N )%ARRY,
      &                        PTMET_DATA( N )%ZF,
