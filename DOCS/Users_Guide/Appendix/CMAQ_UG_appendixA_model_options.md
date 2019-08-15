@@ -28,11 +28,14 @@
 	* [Inline Emissions Configuration](#Inline_Emissions_Config)
 	* [Lightning NOx Configuration](#Lightning_NOx_Config)
 	* [Online Biogenic Emissions Configuration](#Online_Bio_Config)
+	* [Windblown Dust Emissions Configuration](#windblown_dust_config)
 
 <a id=config_cmaq.csh></a>
 ## A.1 Configuration Options (config_cmaq.csh)
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly, CMAQ includes the configuration script config_cmaq.csh to help enforce consistent environment settings for CMAQ and its associated libraries. The following lists the config_cmaq.csh variables defined for the build process and suggests values to which to set those variables.
 
@@ -124,7 +127,9 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 <a id=bldit_cctm.csh></a>
 ## A.2 Compilation Options (bldit_cctm.csh)
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 The configuration options listed here are set during compilation of the CCTM executable through the build script, bldit_cctm.csh, located under the CCTM/scripts folder. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options, you must recompile CCTM and create a new executable.
 
@@ -262,7 +267,9 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
 <a id=run_cctm.csh></a>
 ## A.3 Execution Options (run_cctm.csh)
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script, run_cctm.csh located under the CCTM/scripts folder.
 
@@ -289,7 +296,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=MPI_Config></a>
 ### MPI Configuration
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `NPCOL_NPROW [default: 1 1]`<a id=NPCOL_NPROW></a>  
     The numbers of columns and rows for decomposing the modeling domain in an MPI configuration. The product of this pair of numbers must equal the total number of processors allocated to the CCTM simulation. For serial or single-processor MPI runs set to `1 1`. For example, for an 8 processor MPI simulation, set to `4 2`.  
@@ -299,7 +308,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=Vertical_Ext></a>
 ### Vertical extent
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -    `NZ [default: 35]`<a id=NZ></a>  
       Set the number of vertical layers.  
@@ -307,7 +318,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=Timestep_Config></a>
 ### Timestep Configuration
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `NEW_START [default: TRUE]`<a id=NEW_START></a>  
     Value should be true for new simulations starting from an initial condition file. To restart from a previous days simulation output, set to FALSE. For all standard runscripts, this variable is automatically set to FALSE after looping to the second day of the simulation.  
@@ -325,7 +338,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=CCTM_Config_Options></a>
 ### CCTM Configuration Options
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `GRID_NAME [default: Blank]`<a id=GRID_NAME></a>  
     Name of the grid definition contained in the GRIDDESC file that specifies the horizontal grid for the current application of the model.  
@@ -351,7 +366,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=Syn_time_Option></a>
 ### Synchronization Time Step and Tolerance Options
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `CTM_MAXSYNC [default: 720]`<a id=CTM_MAXSYNC></a>  
     Maximum synchronization time step in seconds  
@@ -378,13 +395,19 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <a id=Science_Options></a>
 ### Science Options
-
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
     Use Online Sea Spray Aerosol emissions and Halogen ozone chemistry. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#sea-spray) for further information.  
 -   `CTM_WB_DUST [default: False]`<a id=CTM_WB_DUST></a>  
-    Setting to calculate online windblown dust emissions in CCTM. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information. 
+    Setting to calculate online windblown dust emissions in CCTM. Setting this variable to Y also enables the option to provide additional gridded landuse input files beyond the land use information contained in the MCIP files. Whether or not additional landuse information is provide and, if yes, whether that additional landuse information is provided in one or two files is controlled by the environment variable CTM_WBDUST_BELD. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#wind-blown-dust) for further information.
+- `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
+     Landuse database for identifying dust source regions; ignore if CTM_WB_DUST = FALSE
+    - BELD3: Use BELD3 landuse data for windblown dust calculations. The user needs to specify the DUST_LU_1 and DUST_LU_2 files described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). These files typically are available for North American domains only.
+    - BELD4: Use BELD4 landuse data for windblown dust calculations. The user needs to specify the E2C_LU file described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). This file typically is available for North American domains only.
+    - UNKNOWN: Use landuse information provided by MCIP for windblown dust calculations
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
 -   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
@@ -421,7 +444,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=Process_Analysis_Options></a>
 ### Process analysis options
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `CTM_PROCAN [default: N]`<a id=CTM_PROCAN></a>  
     Activate process analysis in the CCTM. Set this to Y and use $CMAQ_DATA/pacp/pacp.inp to configure the integrated process rate and integrated reaction rate settings for the CCTM.  Additional process analysis output files will be created when this setting is activated.  
@@ -439,7 +464,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=I/O_Controls></a>
 ### I/O Controls
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `IOAPI_LOG_WRITE [default:False]`<a id=IOAPI_LOG_WRITE></a>  
     Set to T to turn on excess WRITE3 logging by the I/O API.  
@@ -453,7 +480,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=Aersol_Diagnostics_Controls></a>
 ### Aerosol Diagnostics Controls
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `CTM_PMDIAG [default: False]`<a id=CTM_PMDIAG></a>  
     Output aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.  
@@ -465,7 +494,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=Diagnostic_Output_Flags></a>
 ### Diagnostic Output Flags
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `CTM_CKSUM [default: True]`<a id=CTM_CKSUM></a>  
     Write science processes summaries to the standard output. Impacts run speed and log file output size. 
@@ -490,7 +521,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=Inline_Emissions_Config></a>
 ### Inline emissions configuration
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `STK_GRPS_### `<a id=STK_GRPS_###></a>  
     Directory path and file name of the stack groups file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to one of the inline plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information. 
@@ -513,7 +546,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=Lightning_NOx_Config></a>
 ### Lightning NOx configuration
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `LTNGNO [default: "InLine"]`<a id=LTNGNO></a>  
     Setting to define whether the lightning emissions calculation will be inline or off-line. This variable can be set to a gridded netCDF file of lightning NO emissions to use emissions calculated with a preprocessor outside of CCTM. Setting this variable to “inline” activates the inline emissions calculation in CCTM and requires the LTNGPARMS_FILE variable (see below) to provide parameters for generating inline lightning NO emissions. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.  
@@ -531,7 +566,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 <a id=Online_Bio_Config></a>
 ### Online biogenic emissions configuration
 
+<!-- BEGIN COMMENT -->
 [Return to Top](#TOC_A)
+<!-- END COMMENT -->
 
 -   `GSPRO [default: Build Directory]`<a id=GSPRO></a>  
     Directory path and file name for input ASCII speciation profiles. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#biogenics) for further information. 
@@ -559,6 +596,22 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 -   `B3GTS_S [default: [Output Directory]/CCTM_B3GTS_$CTM_APPL.nc`<a id=B3GTS_S></a>  
     Diagnostic output netCDF file of biogenic emissions. This variable is ignored if B3GTS_DIAG is set to N.  
+
+<a id=windblown_dust_config></a>
+### Windblown dust emissions configuration
+
+<!-- BEGIN COMMENT -->
+[Return to Top](#TOC_A)
+<!-- END COMMENT -->
+
+-   `DUST_LU_1 [default: Path to BELD3 Data]`<a id=DUST_LU_1></a>  
+    Input BELD "A" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
+
+-   `DUST_LU_2 [default: Path to BELD3 Data]`<a id=DUST_LU_2></a>  
+    Input BELD "TOT" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
+
+-   `E2U_LU [default: path to BELD4 data file]`<a id=BELD4_LU></a>  
+    Input BELD4 landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD4.  
 
 
 <!-- BEGIN COMMENT -->
