@@ -43,7 +43,10 @@ C                           ZSTATIC implementation
 C     05 Aug 2019 D.Wong: - Used met information in the cell where a point source resides
 C                           rather than using bi-linear interpolation (call BMATVECN) to
 C                           obtain met information for that point source
-
+C     06 Aug 2019 D.Wong: - For two-way model, use UWIND/VWIND (wind U/V component on the
+C                           mass point and in offline CMAQ model, use average value of
+C                           UWINDC/VWINDC to approximate UWIND/VWIND. Hence no longer
+C                           need UWINDC_AVAIL/VWINDC_AVAIL
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE UDTYPES, ONLY: PTMET_TYPE
@@ -245,8 +248,13 @@ C-----------------------------------------------------------------------
          CALL INTERPOLATE_VAR ('QV', JDATE, JTIME, LOC_QV)
          CALL INTERPOLATE_VAR ('PRES', JDATE, JTIME, LOC_PRES)
          CALL INTERPOLATE_VAR ('DENS', JDATE, JTIME, LOC_DENS)
+#ifdef twoway
          CALL INTERPOLATE_VAR ('UWIND', JDATE, JTIME, LOC_UWIND)
          CALL INTERPOLATE_VAR ('VWIND', JDATE, JTIME, LOC_VWIND)
+#else
+         CALL INTERPOLATE_VAR ('UWINDC', JDATE, JTIME, LOC_UWIND)
+         CALL INTERPOLATE_VAR ('VWINDC', JDATE, JTIME, LOC_VWIND)
+#endif
 
          DO N = 1, NPTGRPS
 
@@ -280,12 +288,17 @@ C-----------------------------------------------------------------------
                   PTMET_DATA( N )%PRES(L,S)  = LOC_PRES(MYC, MYR, L)
                   
                   PTMET_DATA( N )%DENS(L,S)  = LOC_DENS(MYC, MYR, L)
-                  
+#ifdef twoway
+                  PTMET_DATA( N )%UWIND(:,S) = LOC_UWIND(MYC, MYR, L)
+
+                  PTMET_DATA( N )%VWIND(:,S) = LOC_VWIND(MYC, MYR, L)
+#else
                   PTMET_DATA( N )%UWIND(L,S) = 0.5*( LOC_UWIND(MYC, MYR, L)
      &                                       +       LOC_UWIND(MYC+1, MYR, L) )
                
                   PTMET_DATA( N )%VWIND(L,S) = 0.5*( LOC_VWIND(MYC, MYR, L)
      &                                       +       LOC_VWIND(MYC, MYR+1, L) )
+#endif                
                END DO
 
             END DO
