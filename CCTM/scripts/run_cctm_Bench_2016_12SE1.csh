@@ -95,7 +95,7 @@ echo ""
 echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
 #> Keep or Delete Existing Output Files
-set CLOBBER_DATA = FALSE 
+set CLOBBER_DATA = TRUE 
 
 #> Logfile Options
 #> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
@@ -215,7 +215,7 @@ set EMISpath  = $INPDIR/emis/gridded_area/gridded   #> gridded emissions input d
 set EMISpath2 = $INPDIR/emis/gridded_area/rwc       #> gridded surface residential wood combustion emissions directory
 set IN_PTpath = $INPDIR/emis/inln_point             #> point source emissions input directory
 set IN_LTpath = $INPDIR/lightning                   #> lightning NOx input directory
-set METpath   = $INPDIR/met/mcipv4.5                #> meteorology input directory 
+set METpath   = $INPDIR/met/mcipv5.0                #> meteorology input directory 
 #set JVALpath  = $INPDIR/jproc                      #> offline photolysis rate table directory
 set OMIpath   = $BLD                                #> ozone column data for the photolysis model
 set LUpath    = $INPDIR/land                        #> BELD landuse data for windblown dust model
