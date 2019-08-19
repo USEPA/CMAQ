@@ -95,7 +95,7 @@ echo ""
 echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 
 #> Keep or Delete Existing Output Files
-set CLOBBER_DATA = FALSE
+set CLOBBER_DATA = TRUE
 
 #> Logfile Options
 #> Master Log File Name; uncomment to write standard output to a log, otherwise write to screen
