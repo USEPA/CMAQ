@@ -700,7 +700,20 @@
              XMSG = 'Could not get description of file  '// ICFILE 
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-          n_i3d = nvars3d
+          
+! remove duplicate name from MET_CRO_3D file
+          adj = nvars3d
+          do v = nvars3d, 1, -1
+             n = index1 (vname3d(v), n_c3d, c3d_name) 
+             if (n .gt. 0) then
+                do idx = v+1, adj
+                   vname3d(idx-1) = vname3d(idx)
+                end do
+                adj = adj - 1
+             end if
+          end do
+          n_i3d = adj
+
           allocate (i3d_name(n_i3d, 3), stat=stat)
           if (stat .ne. 0) then
              xmsg = 'Failure allocating i3d_name '
@@ -709,21 +722,6 @@
           i3d_name(:,1) = vname3d(1:n_i3d) 
           i3d_name(:,2) = 'ic'                  ! denote initial condition variable
           i3d_name(:,3) = ' '                   ! denote non met variable
-
-! remove any same met variable in IC file as in metcro3d file
-          adj = n_i3d
-          if (n_i3d .gt. n_gc_spcd+n_ae_spc) then
-             do v = n_i3d, n_gc_spcd+n_ae_spc+1, -1
-                n = index1 (i3d_name(v,1), n_c3d, c3d_name)
-                if (n .gt. 0) then
-                   do idx = v+1, adj
-                      i3d_name(idx-1,:) = i3d_name(idx,:)
-                   end do
-                   adj = adj - 1
-                end if
-             end do
-             n_i3d = adj
-          end if
 
           CALL SUBHFILE ( ICFILE, GXOFF, GYOFF,
      &                    STRTCOLSTD, ENDCOLSTD, STRTROWSTD, ENDROWSTD )
