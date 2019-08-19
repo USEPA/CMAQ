@@ -61,6 +61,7 @@ C     16 Aug 2017 B.Murphy: Pull plume height calc. to separate subroutine.
 C     01 Feb 2019 D.Wong: Implemented centralized I/O approach and removed everything 
 C                         related to ZSTATIC
 C     05 June 2019 F. Sidi: Bugfix related to Parallel I/O Implementation
+C     05 Aug  2019 D. Wong: Removed USE BMATVEC_MODULE statement and PTBILIIN
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY1
@@ -137,14 +138,14 @@ C=======================================================================
          USE STK_EMIS, ONLY: EM_FILE_NAME, NSRC_EMIS, FIREFLAG,
      &                       MAP_PTtoISRM, STK_EMIS_INIT
          USE PTMET, ONLY: PTMET_DATA, MC2NAME, MC3NAME, MD3NAME, PTMET_INIT
-         USE PTBILIN, ONLY: BILIN_DATA, PTBILIN_INIT, NPTGRPS, XBUF,
-     &                      METCGRID, METCXORIG, METCYORIG, XCELLCG, YCELLCG, 
-     &                      METDGRID, METDXORIG, METDYORIG, XCELLDG, YCELLDG
+         USE PTBILIN, ONLY: NPTGRPS, 
+     &                      METCXORIG, METCYORIG, XCELLCG, YCELLCG, 
+     &                      METDXORIG, METDYORIG, XCELLDG, YCELLDG
+
          USE UTILIO_DEFN
          USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE, STDATE, STTIME,
      &                           PT_TIME, PT_NSTEPS, REP_LAYR
          USE EMIS_VARS, ONLY: EMLAYS, EMLAYS_MX
-         USE BMATVEC_MODULE, ONLY: BMATVECN
          USE stack_group_data_module
          USE centralized_io_module, only : window
 
@@ -503,12 +504,6 @@ C If wildfires, allocate fire parameters
             END IF   ! MY_NSRC > 0
 
          END DO
-
-         IF ( .NOT. PTBILIN_INIT ( ) ) THEN
-            XMSG = 'Could not initialize stack met bilinear interpolation data'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         END IF
 
          SUCCESS = .TRUE.; RETURN
 
