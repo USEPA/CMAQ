@@ -143,6 +143,12 @@ This optional 2-D CCTM file contains hourly total rainfall information for subse
 
 Along with the standard output files detailed in the previous section, CCTM can be configured to output several auxiliary files for diagnostic model purposes. Each option is controlled by its corresponding environment variable in the CCTM RunScript (e.g. run_cctm.csh). For logical values, TRUE/T is equivalent to Y and FALSE/F is equivalent to N.
 
+Note that I/O API supports up to MXFILE3=64 open files, each with up to MXVARS3=2048.  Turning on all of the diagnostic and advanced CMAQ output files can exceed this upper limit of open files, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. This version is available as a zip file from the following address:
+
+https://www.cmascenter.org/ioapi/download/ioapi-3.2-large.tar.gz
+
+Installation instructions for I/O API v5.3-large are provided in README.txt in the .tar.gz file. 
+
 <a id=floor></a>
 
 **FLOOR: concentration-reset diagnostics file**
