@@ -236,7 +236,8 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
 - Red Hat Enterprise Linux Server release 7.6 (Maipo)
 - Linux Kernel 3.10.0-957.12.2.el7.x86_64
-- Intel v18.0 compiler, 32 processors with OpenMPI
+- GNU GCC compiler version 9.1.0, 32 processors with OpenMPI
+- Debug mode (uncomment ```set Debug_CCTM``` in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
 - CMAQv5.3
 
 The CMAQv5.3 reference data include output from BCON, ICON, and the CCTM. You will only need to compare the results for the CCTM to evaluate the benchmark results.
