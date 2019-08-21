@@ -7,6 +7,8 @@
 !           31 Jan 2019  (David Wong)
 !              -- adopted the idea to process all twoway related environment
 !                 variables in one place
+!           01 Aug 2019  (David Wong)
+!              -- renamed convective_scheme to wrf_convective_scheme
 !===============================================================================
 
   module twoway_data_module
@@ -63,7 +65,7 @@
 
     real :: WRF_LC_REF_LAT
 
-    logical :: convective_scheme,         &
+    logical :: wrf_convective_scheme,     &
                CMAQ_WRF_FEEDBACK,         &
                sd_time_series,            &
                create_physical_file,      &

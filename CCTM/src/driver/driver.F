@@ -98,6 +98,7 @@ C                      has been moved to lus_data_module (model_data_module.f) a
 C                      call lus_setup to setup land use information according to land
 C                      use scheme
 C   08/02/19 F. Sidi:  Restored serial processing option
+C   03 AUG 19 D.Wong:  Modified code to work with two-way model
 C-----------------------------------------------------------------------
 
       USE RXNS_DATA             ! chemical mechanism data
@@ -306,7 +307,12 @@ C-----------------------------------------------------------------------
          TSTEP = 0
          STDATE     = MODEL_STDATE
          STTIME     = MODEL_STTIME
+#ifdef twoway
+         TSTEP( 1 ) = LOCAL_TSTEP
+         TSTEP( 3 ) = SEC2TIME(MODEL_TSTEP)
+#else
          TSTEP( 1 ) = MODEL_TSTEP
+#endif
 
          IF (PRESENT (COUPLE_TSTEP)) THEN
             TSTEP( 3 ) = SEC2TIME( COUPLE_TSTEP )
@@ -327,10 +333,12 @@ C-----------------------------------------------------------------------
          ALLOCATE (CGRID ( NCOLS,NROWS,NLAYS,NSPCSD ), STAT = ALLOCSTAT )
 
 #else
+#ifdef twoway
 C Initialize Environment Variables
-!        JDATE = 0
-!        JTIME = 0
-!        CALL INIT_ENV_VARS( JDATE, JTIME )
+         JDATE = 0
+         JTIME = 0
+         CALL INIT_ENV_VARS( JDATE, JTIME )
+#endif
 
 C Set up horizontal domain, calculate processor-to-subdomain maps
 C and define vertical layer structure (in module GRID_CONF)
@@ -383,7 +391,7 @@ C Initialize PARIO
 #endif
 C Initialize stencil exchange
          CALL SUBST_SE_INIT( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS, NLAYS,
-     &                 NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS )
+     &                       NSPCSD, MYPE, MNDIS, MEDIS, MSDIS, MWDIS )
 
 
 #ifdef verbose_driver

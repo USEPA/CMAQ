@@ -18,6 +18,8 @@ SUBROUTINE feedback_setup ( jdate, jtime, tstep )
 !           31 Jan 2019  (David Wong)
 !              -- adopted the idea to process all twoway related environment
 !                 variables in one place
+!           01 Aug 2019  (David Wong)
+!              -- updated abort message
 !===============================================================================
 
   USE twoway_header_data_module
@@ -261,7 +263,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
      do i = 1, num_ec_spc
         ec_spc_index(i) = index1 (ec_spc(i), n_ae_spc, ae_spc)
         if (ec_spc_index(i) == 0) then
-           write (logdev, *) ' in aero_driver ec species ', &
+           write (logdev, *) ' ABORT: in aero_driver ec species ', &
                  trim(ec_spc(i)), ' is not found '
            stop
         else
@@ -272,7 +274,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
      do i = 1, num_ss_spc
         ss_spc_index(i) = index1 (ss_spc(i), n_ae_spc, ae_spc)
         if (ss_spc_index(i) == 0) then
-           write (logdev, *) ' in aero_driver ss species ', &
+           write (logdev, *) ' ABORT: aero_driver ss species ', &
                  trim(ss_spc(i)), ' is not found '
            stop
         else
@@ -283,7 +285,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
      do i = 1, num_h2o_spc
         h2o_spc_index(i) = index1 (h2o_spc(i), n_ae_spc, ae_spc)
         if (h2o_spc_index(i) == 0) then
-           write (logdev, *) ' in aero_driver h2o species ', &
+           write (logdev, *) ' ABORT: in aero_driver h2o species ', &
                  trim(h2o_spc(i)), ' is not found '
            stop
         else
@@ -419,7 +421,7 @@ SUBROUTINE feedback_write ( c, r, l, cgrid, o3_value, jdate, jtime )
 !          end do
 !       end if
 ! end: this is for indirect effect only, temporary blocked
- 
+
         if ( .not. buf_write3 (feedback_fname, allvar3, jdate, jtime, feedback_data_cmaq) ) then
            print *, ' Error: Could not write to file ', trim(feedback_fname), jdate, jtime
            stop

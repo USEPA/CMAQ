@@ -23,6 +23,7 @@
 
 ! Revision History:
 !  02/01/19, D. Wong: initial implementation
+!  08/01/19, D. Wong: modified code to work with two-way model
 !------------------------------------------------------------------------!
 
       module centralized_io_util_module
@@ -78,27 +79,28 @@
           character (*), intent(out) :: name(:,:)
           integer, intent(in)         :: begin, end
 
-          integer        :: i, j
-          character (50) :: str1(2), str2(2)
+          integer        :: i, j, dsize
+          character (50) :: str1, str2(3)
           logical        :: done
 
+          dsize = size(name,2)
           str1 = name( (begin + end) / 2, 1 )
           i = begin
           j = end
           done = .false.
           do while (.not. done)
-             do while (name(i,1) < str1(1))
+             do while (name(i,1) < str1)
                 i = i + 1
              end do
-             do while (str1(1) < name(j, 1))
+             do while (str1 < name(j, 1))
                 j = j - 1
              end do
              if (i .ge. j) then
                 done = .true.
              else
-                str2 = name(i,:)  
+                str2(1:dsize) = name(i,:)  
                 name(i,:) = name(j,:)
-                name(j,:) = str2
+                name(j,:) = str2(1:dsize)
                 i = i + 1
                 j = j - 1
              end if
@@ -230,4 +232,5 @@
           End If
 
        end function next_day
+
       end module centralized_io_util_module
