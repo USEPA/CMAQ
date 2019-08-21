@@ -117,6 +117,8 @@ C       Oct 2018 D. Wong: Declared array, F as allocatable and added subroutine 
 C                         in the interface block
 C       Feb 2019 D. Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
+C       01 AUG 19 D.Wong: Modified code to work with two-way model and
+C                         introduced convective scheme logical
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -127,6 +129,7 @@ C-----------------------------------------------------------------------
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
      &                   LHNO3_PHOTOLYSIS => LHNO3
       USE CENTRALIZED_IO_MODULE
+      USE RUNTIME_VARS, ONLY: CONVECTIVE_SCHEME
 
       IMPLICIT NONE
 
@@ -232,7 +235,7 @@ C-------for ACM version - jp 2/05        REAL DPB
 C-------------------------------------------
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
-      LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
+!      LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
 
       CHARACTER( 16 ) :: PNAME = 'CONVCLD_ACM'   ! process name
       CHARACTER( 16 ) :: VARNM          ! variable name for IOAPI to get
@@ -476,7 +479,11 @@ C...  the met timestep in hours
 
         SDATE = cio_model_sdate
         STIME = cio_model_stime
+#ifdef twoway
+        MSTEP = cio_data_tstep_met
+#else                
         MSTEP = cio_data_tstep
+#endif
 
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
 
@@ -487,15 +494,7 @@ C...  field if a convective parameterization was not used in the WRF simulation
 
         call interpolate_var (RC_NAME, sdate, stime, RC)
 
-        IF ( MAXVAL( RC ) .LT. 0.0 ) THEN
-          CONVCLD = .FALSE.
-          XMSG = 'MCIP files indicate no convective parameterization was '
-     &        // 'used in the WRF simulation'
-          CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-          XMSG = 'Processing will continue without subgrid clouds'
-          CALL M3MESG ( XMSG )
-          RETURN
-        END IF
+        IF ( .NOT. CONVECTIVE_SCHEME) RETURN
 
 C...allocate saved arrays
 
@@ -551,7 +550,7 @@ C...Mocko and Cotton (1995)
 
       END IF   ! Firstime
 
-      IF ( .NOT. CONVCLD ) RETURN
+      IF ( .NOT. CONVECTIVE_SCHEME) RETURN
 
 C...check option for processing clouds on the synchronization timestep
 

@@ -89,6 +89,7 @@ C                     domain specifications in one module
 C       5/05 J.Pleim Replaced cloud mixing algorithm with ACM
 C       6/05 S.Roselle added new cloud diagnostic variables
 C       7/05 J.Young: clean up and mod for CMAQ-F
+C       7/06 S.Roselle Modified for sulfate tracking model
 C       8/10 J.Young: replace chem mechanism include files with namelists
 C                    and accomodate Shawn Roselle`s, Sergey Napelenok`s
 C                    and Steve Howard`s aerosol reengineering
@@ -124,12 +125,23 @@ C                         in the interface block
 C       26 Nov 2018 S. Napelenok: ISAM implementation
 C       Feb 2019 D. Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
+C       01 AUG 19 D.Wong: Modified code to work with two-way model and 
 C-----------------------------------------------------------------------
 
+      USE RUNTIME_VARS, ONLY: STM, CONVECTIVE_SCHEME
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE AQ_DATA
+      USE AERO_DATA, ONLY : ASO4_IDX, ASO4AQH2O2_IDX, ASO4AQO3_IDX,
+     &                      ASO4AQFEMN_IDX, ASO4AQMHP_IDX, ASO4AQPAA_IDX,
+     &                      ASO4GAS_IDX, ASO4EMIS_IDX, ASO4ICBC_IDX,
+     &                      OSO4AQH2O2_IDX, OSO4AQO3_IDX, OSO4AQFEMN_IDX,
+     &                      OSO4AQMHP_IDX, OSO4AQPAA_IDX, OSO4_IDX, 
+     &                      OSO4GAS_IDX, OSO4EMIS_IDX, OSO4ICBC_IDX,
+     &                      AEROSPC_MAP, N_MODE, AE6ISOA, MAP_AERO
+      USE PRECURSOR_DATA, ONLY: SULF_IDX, PRECURSOR_MAP, MAP_PRECURSOR
+      USE RXNS_DATA, ONLY: MECHNAME       ! chemical mechanism data
       USE ASX_DATA_MOD,  ONLY: GRID_DATA, MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2_PHOTOLYSIS => LH2O2,
      &                   LHNO3_PHOTOLYSIS => LHNO3
@@ -246,12 +258,14 @@ C-------for ACM version - jp 2/05        REAL DPB
 C-------------------------------------------
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
-      LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
+!     LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
 
       CHARACTER( 16 ) :: PNAME = 'CONVCLD_ACM'   ! process name
       CHARACTER( 16 ) :: VARNM          ! variable name for IOAPI to get
 
       CHARACTER( 16 ), SAVE :: RC_NAME  ! RC name: old is RC and new is RCA
+
+      INTEGER, ALLOCATABLE, SAVE :: SURCLDMX( : ) ! cloud mixing surrogate for stm
 
       INTEGER          ATIME            ! time diff from half-hour
       INTEGER          CLTOP            ! model LAY containing cloud top
@@ -261,6 +275,7 @@ C-------------------------------------------
       INTEGER          FINI             ! ending position
       INTEGER          I599C            ! entrainment solver iteration counter
       INTEGER          LAY              ! layer loop counter
+      INTEGER          M                ! mode index
       INTEGER          MDATE            ! process date
       INTEGER          MTIME            ! process time (half-hour)
       INTEGER, SAVE :: MSTEP            ! met file time step (hhmmss)
@@ -492,6 +507,12 @@ C...  event-statistics variables.
 
         FIRSTIME = .FALSE.
 
+C...Sulfur tracking
+        IF ( STM ) THEN
+          CALL MAP_AERO()
+          CALL MAP_PRECURSOR()
+        END IF
+
         IF ( N_AE_SPC .GT. 0 ) THEN
           ALLOCATE ( AECONCMIN( N_AE_SPC ), STAT = ALLOCSTAT )
           IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -515,7 +536,11 @@ C...  the met timestep in hours
 
         SDATE = cio_model_sdate
         STIME = cio_model_stime
+#ifdef twoway
+        MSTEP = cio_data_tstep_met
+#else
         MSTEP = cio_data_tstep
+#endif
 
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
 
@@ -526,15 +551,7 @@ C...  field if a convective parameterization was not used in the WRF simulation
 
         call interpolate_var (RC_NAME, sdate, stime, RC)
 
-        IF ( MAXVAL( RC ) .LT. 0.0 ) THEN
-          CONVCLD = .FALSE.
-          XMSG = 'MCIP files indicate no convective parameterization was '
-     &        // 'used in the WRF simulation'
-          CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-          XMSG = 'Processing will continue without subgrid clouds'
-          CALL M3MESG ( XMSG )
-          RETURN
-        END IF
+        IF ( .NOT. CONVECTIVE_SCHEME) RETURN
 
 C...allocate saved arrays
 
@@ -588,6 +605,69 @@ C...Mocko and Cotton (1995)
         RCRITW = 0.879 + SQRT( 1.0 / ( 100.0 + XKM * XKM ) )
         RCRITL = 0.839 + SQRT( 1.0 / ( 50.0 + 0.5 * XKM ** 3 ) )
 
+C...Sulfur tracking
+        IF ( STM ) THEN
+
+C...initialize surrogate array
+          ALLOCATE ( SURCLDMX( MXSPCS ), STAT = ALLOCSTAT )
+          DO SPC = 1, NSPCSD
+            SURCLDMX( SPC ) = SPC
+          END DO
+
+C...set cloud mixing surrogates for the sulfate tracking species
+
+          DO M = 1, N_MODE
+
+            SURCLDMX( AEROSPC_MAP( ASO4GAS_IDX, M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+            SURCLDMX( AEROSPC_MAP( ASO4EMIS_IDX,M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+            SURCLDMX( AEROSPC_MAP( ASO4ICBC_IDX,M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+
+C...  for the accumulation mode, add aqueous tracked species
+
+            IF ( M .EQ. 2 ) THEN
+
+              SURCLDMX( AEROSPC_MAP( ASO4AQH2O2_IDX,M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+              SURCLDMX( AEROSPC_MAP( ASO4AQO3_IDX,  M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+              SURCLDMX( AEROSPC_MAP( ASO4AQFEMN_IDX,M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+              SURCLDMX( AEROSPC_MAP( ASO4AQMHP_IDX, M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+              SURCLDMX( AEROSPC_MAP( ASO4AQPAA_IDX, M ) ) = AEROSPC_MAP( ASO4_IDX,M )
+
+            END IF
+
+            IF ( ( AE6ISOA ) .OR.
+     &           ( INDEX( MECHNAME, 'CB6R3_AE7'  ) .GT. 0 ) .OR.
+     &           ( INDEX( MECHNAME, 'CB6R3M_AE7' ) .GT. 0 ) ) THEN
+    
+C...  for the accumulation mode, add aqueous tracked species
+
+              IF ( M .EQ. 2 ) THEN
+
+                SURCLDMX( AEROSPC_MAP( OSO4GAS_IDX,   M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4EMIS_IDX,  M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4ICBC_IDX,  M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQH2O2_IDX,M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQO3_IDX,  M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQFEMN_IDX,M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQMHP_IDX, M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+                SURCLDMX( AEROSPC_MAP( OSO4AQPAA_IDX, M ) ) = AEROSPC_MAP( OSO4_IDX,M )
+
+              END IF
+
+            END IF
+
+          END DO
+
+          SPC = 0
+          STRT = AE_STRT
+          FINI = AE_STRT - 1 + N_AE_SPC
+          DO VAR = STRT, FINI
+            SPC = SPC + 1
+            WRITE( XMSG, '(i6,1x,A16,1x,i6,1x,a16)') VAR, AE_SPC( SPC ), SURCLDMX( VAR ), AE_SPC( SURCLDMX( VAR )-AE_STRT+1 )
+             CALL M3MESG ( XMSG )
+          END DO
+
+        END IF ! stm
+
 #ifdef isam
 C Move this to a better place later
         S_SO2  = INDEX1( 'SO2', NSPC_SA, SPC_NAME(:,OTHRTAG) )
@@ -620,7 +700,7 @@ C Move this to a better place later
 
       END IF   ! Firstime
 
-      IF ( .NOT. CONVCLD ) RETURN
+      IF ( .NOT. CONVECTIVE_SCHEME) RETURN
 
 C...check option for processing clouds on the synchronization timestep
 
@@ -1525,13 +1605,24 @@ C...  to be part of the aqueous reaction chamber
               AIRM = AIRM + RHOM2( LAY )
 
               DO SPC = 1, NSPCSD
-                IF ( CBASE0( SPC ) .EQ. 0.0 ) THEN
-                  BCLDWT = 1.0 / CLBASE
-                ELSE
+                IF ( CBASE0( SPC ) .GT. 0.0 ) THEN
                   BCLDWT = CONC( SPC,LAY ) / MAX( CBASE0( SPC ), 1.0E-30 )
+                ELSE
+                  BCLDWT = 1.0
                 END IF
+
+                IF ( STM ) THEN
+                  IF ( SPC .NE. SURCLDMX( SPC ) ) THEN      ! use its mixing surrogate
+                    IF ( CBASE0( SURCLDMX( SPC ) ) .GT. 0.0 ) THEN
+                      BCLDWT = CONC( SURCLDMX( SPC ),LAY ) / MAX( CBASE0( SURCLDMX( SPC ) ), 1.0E-30 )
+                    ELSE
+                      BCLDWT = 1.0
+                    END IF
+                  END IF
+                END IF ! stm
+  
                 PCLD( SPC,LAY ) = BCLDWT * CBASEF( SPC )
-         
+
 C...Necessary because CBASEF and CBASE0 are the ending vertical averages
 C...  below cloud concentrations in mol sp/mol air
 
@@ -1680,6 +1771,13 @@ C...convert mean photolysis rates to 1/sec
               JHNO3_HYDROMETEORS = REAL( JHNO3_BAR * MINPERSEC, 8 )
             END IF
 
+C...in aqchem, H2SO4 gas is added to ASO4J
+C...  mimic this for the ASO4GASJ tracking species
+            IF ( STM ) THEN
+              POLC( AEROSPC_MAP( ASO4GAS_IDX, 2 ) ) = POLC( AEROSPC_MAP( ASO4GAS_IDX, 2 ) )
+     &                                              + POLC( PRECURSOR_MAP( SULF_IDX ) )
+              CEND( AEROSPC_MAP( ASO4GAS_IDX, 2 ) ) = POLC( AEROSPC_MAP( ASO4GAS_IDX, 2 ) )
+            END IF
 
             CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                    CTHK1, AIRM, PRATE1, DTCLD, POLC, CEND,
@@ -1867,6 +1965,18 @@ C...   include raining region below cld base
                 IF ( SPC .NE. N_GC_SPCD ) THEN
                   INCLOUD = PCLD( SPC,LAY ) * CEND( SPC )
      &                    / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+
+                  IF ( STM ) THEN
+                    IF ( SPC .NE. SURCLDMX( SPC ) ) THEN       ! use its surrogate
+                      IF ( POLC( SURCLDMX( SPC ) ) .GT. 0.0 ) THEN
+                        INCLOUD = PCLD( SURCLDMX( SPC ),LAY ) * CEND( SPC )
+     &                          / MAX( POLC( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
+                      ELSE
+                        INCLOUD = CEND( SPC )
+                      END IF
+                    END IF
+                  END IF ! stm
+
                   OUTCLOUD = PCLD( SPC,LAY )
                   CGRID( COL,ROW,LAY,SPC ) = FRAC * INCLOUD
      &                                     + ( 1.0 - FRAC ) * OUTCLOUD
@@ -1944,6 +2054,18 @@ C...Now do changes in cloudy layers:
               IF ( SPC .NE. N_GC_SPCD ) THEN
                 INCLOUD = PCLD( SPC,LAY ) * CEND( SPC )
      &                  / MAX( POLC( SPC ), CONCMINL( SPC,LAY ) )
+
+                IF ( STM ) THEN
+                  IF ( SPC .NE. SURCLDMX( SPC ) ) THEN       ! use its surrogate
+                    IF ( POLC( SURCLDMX( SPC ) ) .GT. 0.0 ) THEN
+                      INCLOUD = PCLD( SURCLDMX( SPC ),LAY ) * CEND( SPC )
+     &                        / MAX( POLC( SURCLDMX( SPC ) ), CONCMINL( SURCLDMX( SPC ),LAY ) )
+                    ELSE
+                      INCLOUD = CEND( SPC )
+                    END IF
+                  END IF
+                END IF ! stm
+
                 OUTCLOUD = ( CCR( SPC,LAY ) - FRAC * PCLD( SPC,LAY ) )
      &                   / ( 1.0 - FRAC )
                 OUTCLOUD = MAX( OUTCLOUD, CONCMINL( SPC,LAY ) )

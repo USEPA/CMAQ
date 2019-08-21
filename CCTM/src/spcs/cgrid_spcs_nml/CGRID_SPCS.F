@@ -31,6 +31,7 @@ C 21 Apr 16 D.Luecken:  increased spc_dim to 1000
 C 07 Mar 2019 F. Sidi:  Split up ICBC for CMAQ species  namelist 
 c-----------------------------------------------------------------------
       USE RUNTIME_VARS
+      Use rxns_data, only: mechname       ! chemical mechanism data
 
       implicit none
 
@@ -144,7 +145,8 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
 
          function cgrid_spcs_init() result ( success )
             use UTILIO_DEFN
-     
+            use stm_vars
+
             implicit none
 
             logical success
@@ -437,6 +439,69 @@ c-------------------------------------------------------------------------------
      &               AE_SPECIES_DATA( IAE )%SCAV_FAC = 0.
             END DO
 
+            IF ( STM ) THEN
+               IF ( ( N_AE_SPC + N_STM_AE_SPC ) .GT. SPC_DIM ) THEN
+                  WRITE( LOGDEV,* ) '*** Allocated dimension exceeded for AE ', 
+     &                              ' species in Sulfur Tracking Model' 
+                  SUCCESS = .FALSE.
+                  RETURN
+               END IF
+               
+               DO IAE = 1, N_STM_AE_SPC
+                  N_AE_SPC = N_AE_SPC + 1
+                  AE_SPECIES_DATA( N_AE_SPC )%SPECIES_NAME = STM_AE_SPECIES_DATA( IAE )%SPECIES_NAME
+                  AE_SPECIES_DATA( N_AE_SPC )%MOLWT        = STM_AE_SPECIES_DATA( IAE )%MOLWT
+                  AE_SPECIES_DATA( N_AE_SPC )%IC_SURR      = STM_AE_SPECIES_DATA( IAE )%IC_SURR
+                  AE_SPECIES_DATA( N_AE_SPC )%IC_FAC       = STM_AE_SPECIES_DATA( IAE )%IC_FAC
+                  AE_SPECIES_DATA( N_AE_SPC )%BC_SURR      = STM_AE_SPECIES_DATA( IAE )%BC_SURR
+                  AE_SPECIES_DATA( N_AE_SPC )%BC_FAC       = STM_AE_SPECIES_DATA( IAE )%BC_FAC
+                  AE_SPECIES_DATA( N_AE_SPC )%DEPV_SURR    = STM_AE_SPECIES_DATA( IAE )%DEPV_SURR
+                  AE_SPECIES_DATA( N_AE_SPC )%DEPV_FAC     = STM_AE_SPECIES_DATA( IAE )%DEPV_FAC
+                  AE_SPECIES_DATA( N_AE_SPC )%SCAV_SURR    = STM_AE_SPECIES_DATA( IAE )%SCAV_SURR
+                  AE_SPECIES_DATA( N_AE_SPC )%SCAV_FAC     = STM_AE_SPECIES_DATA( IAE )%SCAV_FAC
+                  AE_SPECIES_DATA( N_AE_SPC )%CLOUD_SURR   = STM_AE_SPECIES_DATA( IAE )%CLOUD_SURR
+                  AE_SPECIES_DATA( N_AE_SPC )%TRNS_FLAG    = STM_AE_SPECIES_DATA( IAE )%TRNS_FLAG
+                  AE_SPECIES_DATA( N_AE_SPC )%DDEP_FLAG    = STM_AE_SPECIES_DATA( IAE )%DDEP_FLAG
+                  AE_SPECIES_DATA( N_AE_SPC )%WDEP_FLAG    = STM_AE_SPECIES_DATA( IAE )%WDEP_FLAG
+                  AE_SPECIES_DATA( N_AE_SPC )%CONC_FLAG    = STM_AE_SPECIES_DATA( IAE )%CONC_FLAG
+               END DO
+
+               If ( ( Index( mechname, 'SAPRC07TIC_AE6I' ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'SAPRC07TIC_AE7I' ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
+     &              ( Index( mechname, 'CB6R3M_AE7'      ) .Gt. 0 ) ) Then
+                
+                  ORGANOSULF = .TRUE.
+
+                  IF ( ( N_AE_SPC + N_STM_OAE_SPC ) .GT. SPC_DIM ) THEN
+                     WRITE( LOGDEV,* ) '*** Allocated dimension exceeded for AE ', 
+     &                                 ' species in Sulfur Tracking Model' 
+                     SUCCESS = .FALSE.
+                     RETURN
+                  END IF
+                  
+                  DO IAE = 1, N_STM_OAE_SPC
+                     N_AE_SPC = N_AE_SPC + 1
+                     AE_SPECIES_DATA( N_AE_SPC )%SPECIES_NAME = STM_OAE_SPECIES_DATA( IAE )%SPECIES_NAME
+                     AE_SPECIES_DATA( N_AE_SPC )%MOLWT        = STM_OAE_SPECIES_DATA( IAE )%MOLWT
+                     AE_SPECIES_DATA( N_AE_SPC )%IC_SURR      = STM_OAE_SPECIES_DATA( IAE )%IC_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%IC_FAC       = STM_OAE_SPECIES_DATA( IAE )%IC_FAC
+                     AE_SPECIES_DATA( N_AE_SPC )%BC_SURR      = STM_OAE_SPECIES_DATA( IAE )%BC_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%BC_FAC       = STM_OAE_SPECIES_DATA( IAE )%BC_FAC
+                     AE_SPECIES_DATA( N_AE_SPC )%DEPV_SURR    = STM_OAE_SPECIES_DATA( IAE )%DEPV_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%DEPV_FAC     = STM_OAE_SPECIES_DATA( IAE )%DEPV_FAC
+                     AE_SPECIES_DATA( N_AE_SPC )%SCAV_SURR    = STM_OAE_SPECIES_DATA( IAE )%SCAV_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%SCAV_FAC     = STM_OAE_SPECIES_DATA( IAE )%SCAV_FAC
+                     AE_SPECIES_DATA( N_AE_SPC )%CLOUD_SURR   = STM_OAE_SPECIES_DATA( IAE )%CLOUD_SURR
+                     AE_SPECIES_DATA( N_AE_SPC )%TRNS_FLAG    = STM_OAE_SPECIES_DATA( IAE )%TRNS_FLAG
+                     AE_SPECIES_DATA( N_AE_SPC )%DDEP_FLAG    = STM_OAE_SPECIES_DATA( IAE )%DDEP_FLAG
+                     AE_SPECIES_DATA( N_AE_SPC )%WDEP_FLAG    = STM_OAE_SPECIES_DATA( IAE )%WDEP_FLAG
+                     AE_SPECIES_DATA( N_AE_SPC )%CONC_FLAG    = STM_OAE_SPECIES_DATA( IAE )%CONC_FLAG
+                  END DO
+
+               End If
+            END IF
+
             ! Allocate and Initialize Permanent Variables
             allocate ( 
      &      ae_spc( n_ae_spc ), ae_molwt( n_ae_spc ),
@@ -599,6 +664,35 @@ c-------------------------------------------------------------------------------
                 IF ( NR_SPECIES_DATA( INR )%SCAV_FAC .EQ. -1. )
      &               NR_SPECIES_DATA( INR )%SCAV_FAC = 0.
             END DO
+
+            IF ( STM ) THEN
+               IF ( ( N_NR_SPC + N_STM_NR_SPC ) .GT. SPC_DIM ) THEN
+                  WRITE( LOGDEV,* ) '*** Allocated dimension exceeded for NR ', 
+     &                              ' species in Sulfur Tracking Model' 
+                  SUCCESS = .FALSE.
+                  RETURN
+               END IF
+               
+               DO INR = 1, N_STM_NR_SPC
+                  N_NR_SPC = N_NR_SPC + 1
+                  NR_SPECIES_DATA( N_NR_SPC )%SPECIES_NAME = STM_NR_SPECIES_DATA( INR )%SPECIES_NAME
+                  NR_SPECIES_DATA( N_NR_SPC )%MOLWT        = STM_NR_SPECIES_DATA( INR )%MOLWT
+                  NR_SPECIES_DATA( N_NR_SPC )%IC_SURR      = STM_NR_SPECIES_DATA( INR )%IC_SURR
+                  NR_SPECIES_DATA( N_NR_SPC )%IC_FAC       = STM_NR_SPECIES_DATA( INR )%IC_FAC
+                  NR_SPECIES_DATA( N_NR_SPC )%BC_SURR      = STM_NR_SPECIES_DATA( INR )%BC_SURR
+                  NR_SPECIES_DATA( N_NR_SPC )%BC_FAC       = STM_NR_SPECIES_DATA( INR )%BC_FAC
+                  NR_SPECIES_DATA( N_NR_SPC )%DEPV_SURR    = STM_NR_SPECIES_DATA( INR )%DEPV_SURR
+                  NR_SPECIES_DATA( N_NR_SPC )%DEPV_FAC     = STM_NR_SPECIES_DATA( INR )%DEPV_FAC
+                  NR_SPECIES_DATA( N_NR_SPC )%SCAV_SURR    = STM_NR_SPECIES_DATA( INR )%SCAV_SURR
+                  NR_SPECIES_DATA( N_NR_SPC )%SCAV_FAC     = STM_NR_SPECIES_DATA( INR )%SCAV_FAC
+                  NR_SPECIES_DATA( N_NR_SPC )%AERO_SURR    = STM_NR_SPECIES_DATA( INR )%AERO_SURR
+                  NR_SPECIES_DATA( N_NR_SPC )%CLOUD_SURR   = STM_NR_SPECIES_DATA( INR )%CLOUD_SURR
+                  NR_SPECIES_DATA( N_NR_SPC )%TRNS_FLAG    = STM_NR_SPECIES_DATA( INR )%TRNS_FLAG
+                  NR_SPECIES_DATA( N_NR_SPC )%DDEP_FLAG    = STM_NR_SPECIES_DATA( INR )%DDEP_FLAG
+                  NR_SPECIES_DATA( N_NR_SPC )%WDEP_FLAG    = STM_NR_SPECIES_DATA( INR )%WDEP_FLAG
+                  NR_SPECIES_DATA( N_NR_SPC )%CONC_FLAG    = STM_NR_SPECIES_DATA( INR )%CONC_FLAG
+               END DO
+            END IF ! stm
 
             ! Allocate and Initialize Permanent Variables
             allocate ( 

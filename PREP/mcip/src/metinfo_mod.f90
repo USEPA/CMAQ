@@ -63,14 +63,15 @@ MODULE metinfo
 !                        ice, lake, and urban (MET_LU_ICE, MET_LU_LAKE, and
 !                        MET_LU_URBAN).  (T. Spero)
 !           22 Jun 2017  Added MET_HYBRID.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
 
   ! Input data format.
 
-  INTEGER           :: met_model       ! 1=MM5, 2=WRF
-  INTEGER           :: met_iversion    ! MM5: 3=v3; WRF: 2=EM/ARW
+  INTEGER           :: met_model       ! 2=WRF (removed option: 1=MM5)
+  INTEGER           :: met_iversion    ! 2=WRF-ARW
   CHARACTER(LEN=8)  :: met_release     ! release version
 
   ! Grid information.

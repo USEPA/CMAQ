@@ -70,15 +70,19 @@ C      07 May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in A
 C      26 Nov 18 S. Napelenok: ISAM implementation
 C       1 Feb 19 D. Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
+C       01 AUG 19 D.Wong: Modified code to work with two-way model
 C  Called by:  CLDPROC
  
 C  Calls the following subroutines:  SCAVWDEP and AQ_MAP
 C-----------------------------------------------------------------------
 
+      USE RUNTIME_VARS, ONLY: STM
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
       USE AQ_DATA,       ONLY: JH2O2_HYDROMETEORS,  JHNO3_HYDROMETEORS
+      USE AERO_DATA, ONLY : ASO4GAS_IDX, MAP_AERO, AEROSPC_MAP
+      USE PRECURSOR_DATA, ONLY: SULF_IDX, PRECURSOR_MAP, MAP_PRECURSOR
       USE ASX_DATA_MOD,  ONLY: MET_DATA
       USE PHOT_MOD,      ONLY: RJ, RJ_RES, RJ_SUB, LH2O2, LHNO3
       USE CENTRALIZED_IO_MODULE
@@ -234,6 +238,12 @@ C...Initialization
 
         FIRSTIME = .FALSE.
 
+C...Sulfur tracking
+        IF ( STM ) THEN
+          CALL MAP_AERO()
+          CALL MAP_PRECURSOR()
+        END IF
+
         IF (RNA_AVAIL) THEN
            VNAME_RN = 'RNA'
         ELSE
@@ -245,7 +255,11 @@ C...  the met timestep in hours
 
         SDATE = cio_model_sdate
         STIME = cio_model_stime
+#ifdef twoway
+        MSTEP = cio_data_tstep_met
+#else
         MSTEP = cio_data_tstep
+#endif
 
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
 
@@ -591,6 +605,14 @@ C...  calculate cosine of zenith angle for the cell and determine day or night; 
                     JHNO3 = RJ_RES( COL, ROW, LAY, LHNO3 )
                     JH2O2_HYDROMETEORS = REAL( JH2O2*PERMIN_TO_PERSEC, 8 )
                     JHNO3_HYDROMETEORS = REAL( JHNO3*PERMIN_TO_PERSEC, 8 )
+                  END IF
+
+C...in aqchem, H2SO4 gas is added to ASO4J
+C...  mimic this for the ASO4GASJ tracking species
+                  IF ( STM ) THEN
+                    POLC( AEROSPC_MAP( ASO4GAS_IDX, 2 ) ) = POLC( AEROSPC_MAP( ASO4GAS_IDX, 2 ) )
+     &                                                    + POLC( PRECURSOR_MAP( SULF_IDX ) )
+                    CEND( AEROSPC_MAP( ASO4GAS_IDX, 2 ) ) = POLC( AEROSPC_MAP( ASO4GAS_IDX, 2 ) )
                   END IF
 
                   CALL AQ_MAP ( JDATE, JTIME, WTBAR, WCBAR, TBARC,

@@ -38,10 +38,14 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
 !           20 Jun 2017  Updated for WRFv3.8, WRFv3.8.1, and WRFv3.9
 !                        options.  (T. Spero)
 !           10 Feb 2018  Annotated LSM option if NOAH Mosaic is used. (T. Spero)
+!           23 Nov 2018  Updated for WRFv4.0 options.  (T. Spero)
+!           18 Jun 2019  Updated for WRFv4.1 options.  Improved metadata to
+!                        annotate if radiative feedbacks were included in the
+!                        convective scheme.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
-  USE mcipparm, ONLY: ifmosaic
+  USE mcipparm, ONLY: ifmosaic, ifcuradfdbk
 
   IMPLICIT NONE
 
@@ -67,19 +71,31 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 0 )
       txt_cupa = 'None'
     CASE ( 1 )
-      txt_cupa = 'Kain-Fritsch (new Eta)'
+      IF ( ifcuradfdbk ) THEN  ! feedback with radiation
+        txt_cupa = 'KF with radiative feedback'
+      ELSE
+        txt_cupa = 'Kain-Fritsch (new Eta)'
+      ENDIF
     CASE ( 2 )
       txt_cupa = 'Betts-Miller-Janjic'
     CASE ( 3 )
       IF ( met_release(1:4) >= "V3.5" ) THEN
-        txt_cupa = 'Grell-Freitas'
+        IF ( ifcuradfdbk ) THEN
+          txt_cupa = 'GF with radiative feedback'
+        ELSE
+          txt_cupa = 'Grell-Freitas'
+        ENDIF
       ELSE
         txt_cupa = 'Grell-Devenyi'
       ENDIF
     CASE ( 4 )
       txt_cupa = 'Simplified Arakawa-Schubert'
     CASE ( 5 )
-      txt_cupa = 'Grell G3'
+      IF ( ifcuradfdbk ) THEN
+        txt_cupa = 'Grell G3 w radiative feedback'
+      ELSE
+        txt_cupa = 'Grell G3'
+      ENDIF
     CASE ( 6 )
       txt_cupa = 'Tiedtke'
     CASE ( 7 )
@@ -87,7 +103,7 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 10 )
       txt_cupa = 'Modified K-F with PDF trigger'
     CASE ( 11 )
-      txt_cupa = 'Multi-Scale Kain-Fritsch'
+      txt_cupa = 'MSKF with radiative feedback'
     CASE ( 14 )
       txt_cupa = 'New Simpl. Arakawa-Schubert'
     CASE ( 16 )
@@ -96,6 +112,8 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_cupa = 'New Simpl. Ara-Schu HWRF'
     CASE ( 93 )
       txt_cupa = 'Grell-Devenyi'
+    CASE ( 96 )
+      txt_cupa = 'New Simpl. Ara-Schu (NSAS)'
     CASE ( 99 )
       txt_cupa = 'old Kain-Fritsch'
     CASE DEFAULT
@@ -112,7 +130,7 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
     CASE ( 1 )
       txt_microphys = 'Kessler'
     CASE ( 2 )
-      txt_microphys = 'Lin et al.'
+      txt_microphys = 'Purdue Lin et al.'
     CASE ( 3 )
       txt_microphys = 'WSM 3-Class Simple Ice'
     CASE ( 4 )
@@ -145,16 +163,28 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_microphys = 'NSSL 1-moment 7-class'
     CASE ( 21 )
       txt_microphys = 'NSSL 1-moment 6-class'
+    CASE ( 22 )
+      txt_microphys = 'NSSL 2-moment (no hail)'
+    CASE ( 24 )
+      txt_microphys = 'WSM 7-Class'
+    CASE ( 26 )
+      txt_microphys = 'WDM 7-Class'
     CASE ( 28 )
       txt_microphys = 'Aerosol-Aware Thompson'
     CASE ( 30 )
       txt_microphys = 'HUJI spectral bin -- fast'
     CASE ( 32 )
       txt_microphys = 'HUJI spectral bin -- full'
+    CASE ( 40 )
+      txt_microphys = 'Morrison+CESM aerosol'
     CASE ( 50 )
       txt_microphys = 'P3 1-category'
     CASE ( 51 )
       txt_microphys = 'P3 1-cat + dbl-mom cld water'
+    CASE ( 52 )
+      txt_microphys = 'P3 2 ice'
+    CASE ( 55 )
+      txt_microphys = 'Jensen ISHMAEL'
     CASE ( 95 )
       txt_microphys = 'Ferrier (old Eta) NAM'
     CASE ( 98 )
@@ -186,6 +216,8 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_lwrad = 'New Goddard'
     CASE ( 7 )
       txt_lwrad = 'Fu-Liou-Gu UCLA'
+    CASE ( 14 )
+      txt_lwrad = 'RRTMG-K'
     CASE ( 24 )
       txt_lwrad = 'Fast RRTMg'
     CASE ( 31 )
@@ -215,8 +247,10 @@ SUBROUTINE wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
       txt_swrad = 'New Goddard'
     CASE ( 7 )
       txt_swrad = 'Fu-Liou-Gu UCLA'
+    CASE ( 14 )
+      txt_swrad = 'RRTMG-K'
     CASE ( 24 )
-      txt_swrad = 'RRTMg'
+      txt_swrad = 'Fast RRTMg'
     CASE ( 31 )
       txt_swrad = 'Earth Held-Suarez'
     CASE ( 99 )

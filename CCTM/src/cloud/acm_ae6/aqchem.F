@@ -57,6 +57,7 @@ C                       discussions
 C     14  08/05/03 sjr  revision made to the coarse aerosol number washout
 C     15  04/20/05  us  revisions to add sea salt species in the fine and
 C                       coarse aerosol modes, and HCl dissolution/dissociation
+C         08/01/05 sjr  Modified for sulfate tracking model
 C     16  10/13/05 sjr  fixed bug in the integration time step calculation
 C                       (reported by Bonyoung Koo)
 C     17  03/01/06 sjr  added elemental carbon aerosol; organic aerosols
@@ -388,6 +389,13 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: TS6             ! SO4 conc in cloudwater (mol/liter)
       REAL( 8 ) :: TS6ACC          ! SO4 acc conc in cloudwater (mol/liter)
       REAL( 8 ) :: TS6COR          ! coarse SO4 conc in cloudwater   (mol/liter)
+C...for sulfur tracking
+      REAL( 8 ) :: TS6AQH2O2       ! SO4 conc from reaction 1 (mol/liter)
+      REAL( 8 ) :: TS6AQO3         ! SO4 conc from reaction 2 (mol/liter)
+      REAL( 8 ) :: TS6AQFEMN       ! SO4 conc from reaction 3 (mol/liter)
+      REAL( 8 ) :: TS6AQMHP        ! SO4 conc from reaction 4 (mol/liter)
+      REAL( 8 ) :: TS6AQPAA        ! SO4 conc from reaction 5 (mol/liter)
+
       REAL( 8 ) :: TSIV            ! total S(iv) available for oxidation
       REAL( 8 ) :: TST             !
       REAL( 8 ) :: TWASH           ! washout time for clouds (sec)
@@ -475,21 +483,6 @@ C...Initialization
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-
-C...Make sure an AE6 version of the mechanism is being used
-
-        IF ( ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) .AND.
-     &       ( INDEX ( MECHNAME, 'AE7' ) .LE. 0 ) ) THEN
-          XMSG = 'This version of AQCHEM requires an AE6/7 chemical mechanism'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
-        END IF
-
-C...special treatment of MGLY for CB05 mechanism:
-C...  use Henry`s law constant for glyoxal as a surrogate for methyl glyoxal
-
-        IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
-          MGLYSUR = 'GLYOXAL         '
-        END IF
 
 C... set MW ratios and speciation factors for molar concentrations of coarse
 C... soluble aerosols
@@ -805,6 +798,18 @@ C...   = Initial amount - amount deposited  (mol/liter)
         TS6     = LOADING( LSO4,  AKN ) + LOADING( LSO4, ACC ) + TS6COR
      &          - ( WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL ) ) * XC1
      &          - DS4( 0 )
+        IF ( STM ) THEN
+          TS6AQH2O2 = LOADING( LSO4AQH2O2, ACC ) - WETDEP( LTS6AQH2O2L ) * XC1
+     &              - DS4( 1 )
+          TS6AQO3   = LOADING( LSO4AQO3, ACC ) - WETDEP( LTS6AQO3L ) * XC1
+     &              - DS4( 2 )
+          TS6AQFEMN = LOADING( LSO4AQFEMN, ACC ) - WETDEP( LTS6AQFEMNL ) * XC1
+     &              - DS4( 3 )
+          TS6AQMHP  = LOADING( LSO4AQMHP, ACC ) - WETDEP( LTS6AQMHPL ) * XC1
+     &              - DS4( 4 )
+          TS6AQPAA  = LOADING( LSO4AQPAA, ACC ) - WETDEP( LTS6AQPAAL ) * XC1
+     &              - DS4( 5 )
+        END IF
 
         NA      = LOADING( LNA,   ACC ) + LOADING( LNA, AKN ) + NACOR
      &          - WETDEP( LNAACCL ) * XC1
@@ -834,6 +839,13 @@ C...   = Initial amount - amount deposited  (mol/liter)
 C...don't allow aerosol concentrations to go below zero
 
         TS6     = MAX( TS6,     0.0D0 )
+        IF ( STM ) THEN
+          TS6AQH2O2 = MAX( TS6AQH2O2, 0.0D0 )
+          TS6AQO3   = MAX( TS6AQO3,   0.0D0 )
+          TS6AQFEMN = MAX( TS6AQFEMN, 0.0D0 )
+          TS6AQMHP  = MAX( TS6AQMHP,  0.0D0 )
+          TS6AQPAA  = MAX( TS6AQPAA,  0.0D0 )
+        END IF
         NA      = MAX( NA,      0.0D0 )
         CA      = MAX( CA,      0.0D0 )
         MG      = MAX( MG,      0.0D0 )
@@ -1209,6 +1221,13 @@ C...load the liquid concentration array with current values
         LIQUID( LSEASCL   ) = SEASCOR ! AE6 - SLN 16March2011
         LIQUID( LFEACCL   ) = FEACC   ! AE6 - SLN 22March2011
         LIQUID( LMNACCL   ) = MNACC   ! AE6 - SLN 22March2011
+        IF ( STM ) THEN
+          LIQUID( LTS6AQH2O2L   ) = TS6AQH2O2
+          LIQUID( LTS6AQO3L     ) = TS6AQO3
+          LIQUID( LTS6AQFEMNL   ) = TS6AQFEMN
+          LIQUID( LTS6AQMHPL    ) = TS6AQMHP
+          LIQUID( LTS6AQPAAL    ) = TS6AQPAA
+        END IF
 
 C...Load array variable TXHG Version
 
@@ -1535,6 +1554,13 @@ C...  to the accumulation mode particles
       AERWDEP( LPOA, AKN ) = 0.0D0
 
       AERWDEP( LSO4, ACC ) = WETDEP( LSO4ACCL ) + WETDEP( LHSO4ACCL )
+      IF ( STM ) THEN
+        AERWDEP( LSO4AQH2O2, ACC ) = WETDEP( LTS6AQH2O2L )
+        AERWDEP( LSO4AQO3,   ACC ) = WETDEP( LTS6AQO3L   )
+        AERWDEP( LSO4AQFEMN, ACC ) = WETDEP( LTS6AQFEMNL )
+        AERWDEP( LSO4AQMHP,  ACC ) = WETDEP( LTS6AQMHPL  )
+        AERWDEP( LSO4AQPAA,  ACC ) = WETDEP( LTS6AQPAAL  )
+      END IF
       AERWDEP( LNH4, ACC ) = WETDEP( LNH4ACCL )
       AERWDEP( LNO3, ACC ) = WETDEP( LNO3ACCL )
       AERWDEP( LEC,  ACC ) = WETDEP( LECL     )
@@ -1598,6 +1624,13 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LPOA, AKN ) = AEROSOL( LPOA, AKN ) * EALFA3T
 
       AEROSOL( LSO4, ACC ) = TS6ACC * XL * RECIPAP1
+      IF ( STM ) THEN
+        AEROSOL( LSO4AQH2O2, ACC ) = TS6AQH2O2  * XL * RECIPAP1
+        AEROSOL( LSO4AQO3,   ACC ) = TS6AQO3    * XL * RECIPAP1
+        AEROSOL( LSO4AQFEMN, ACC ) = TS6AQFEMN  * XL * RECIPAP1
+        AEROSOL( LSO4AQMHP,  ACC ) = TS6AQMHP   * XL * RECIPAP1
+        AEROSOL( LSO4AQPAA,  ACC ) = TS6AQPAA   * XL * RECIPAP1
+      END IF
       AEROSOL( LEC,  ACC ) = EC     * XL * RECIPAP1
       AEROSOL( LPRI, ACC ) = PRIM   * XL * RECIPAP1
 

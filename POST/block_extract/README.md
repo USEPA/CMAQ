@@ -7,7 +7,7 @@ This Fortran program extracts time series of 1 or more variables from 1 or more 
 ```
 where VAR1 VAR2 ... are the variable names specified by SPECLIST.
 
-## Environment variables used:
+## Run Time Environment variables used:
 
 ```
   SPECLIST      list of species to extract, e.g. set SPECLIST = ( O3 NO2 ).  "ALL" is supported also.
@@ -43,11 +43,22 @@ Bldoverlay accepts "OBS" and "SITES" formats (FILETYPE) for the input file. For 
                  The format is a tab delimited file with the structure Site_ID Longitude Latitude.
 ```
 
-## To run:
+## Compile block_extract source code
+
+Execute the build script to compile block_extract:
+
+```
+cd $CMAQ_HOME/POST/block_extract/scripts
+./bldit_block_extract.csh [compiler] [version] |& tee build_block_extract.log
+```
+
+## Run block_extract:
 Edit the sample run script (run.block_extract), then run:
 ```
- run.block_extract |& tee block_extract.log
+ ./run.block_extract |& tee block_extract.log
 ```
 Check the log file to ensure complete and correct execution without errors.
 Note that in addition to the OUTFILE, the program generates a text file "specdef" which lists the variables that were extracted.
+
+
 

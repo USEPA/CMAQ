@@ -78,6 +78,7 @@ C             POC+NCOM kappa is set to zero and calculated in SOA_DEFN if those 
 C             Current kappaorg values are based on species specific
 C             OM/OC ratios (Pye et al. 2017 ACP).
 C GS  08/17/81 Added bromide in seasalt
+C SR 12/14/2018 Added sulfur tracking option
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -117,7 +118,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 93     ! number of aero species
+      Integer, Parameter :: n_aerolist = 110    ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
@@ -304,7 +305,28 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
      & spcs_list_type('AAS     ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Arsenic                 #92
 
       ! The following species are associated with the marine chemistry code
-     & spcs_list_type('ABR     ', cm_set, 2200.0, F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00)  ! Bromide 
+     & spcs_list_type('ABR     ', cm_set, 2200.0, F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Bromide 
+
+      ! The following species are associated with the sulfur tracking model
+     & spcs_list_type('ASO4AQH2O2', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous H2O2 rxn
+     & spcs_list_type('ASO4AQO3  ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous O3 rxn
+     & spcs_list_type('ASO4AQFEMN', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous FEMN cat rxn
+     & spcs_list_type('ASO4AQMHP ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous MHP rxn
+     & spcs_list_type('ASO4AQPAA ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous PAA rxn
+     & spcs_list_type('ASO4GAS   ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from gas rxn
+     & spcs_list_type('ASO4EMIS  ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! emitted SO4
+     & spcs_list_type('ASO4ICBC  ', cm_so4, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from ICBCs
+
+      ! The following species are associated with the sulfur tracking model, representing loss of tracked species to organosulfate
+     & spcs_list_type('OSO4      ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 loss to organosulfate
+     & spcs_list_type('OSO4AQH2O2', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous H2O2 rxn loss to organosulfate
+     & spcs_list_type('OSO4AQO3  ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous O3 rxn loss to organosulfate
+     & spcs_list_type('OSO4AQFEMN', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous FEMN cat rxn loss to organosulfate
+     & spcs_list_type('OSO4AQMHP ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous MHP rxn loss to organosulfate
+     & spcs_list_type('OSO4AQPAA ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from aqueous PAA rxn loss to organosulfate
+     & spcs_list_type('OSO4GAS   ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from gas rxn loss to organosulfate
+     & spcs_list_type('OSO4EMIS  ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00), ! SO4 from emitted SO4 loss to organosulfate
+     & spcs_list_type('OSO4ICBC  ', cm_set, 1800.0, F,T,  0,  0.0, 0.0,F, 'SOLUTE', 0.00)  ! SO4 from ICBCs loss to organosulfate
      & /)
  
 ! Define Reference Emissions Size Distributions
@@ -581,6 +603,23 @@ C Optional Species
       Character( 16 ), Private, Parameter :: req_phgj   = 'APHGJ'
       Character( 16 ), Private, Parameter :: req_orgh2o = 'AORGH2O'
       Character( 16 ), Private, Parameter :: req_br     = 'ABR' 
+      Character( 16 ), Private, Parameter :: req_so4aqh2o2 = 'ASO4AQH2O2'
+      Character( 16 ), Private, Parameter :: req_so4aqo3   = 'ASO4AQO3'
+      Character( 16 ), Private, Parameter :: req_so4aqfemn = 'ASO4AQFEMN'
+      Character( 16 ), Private, Parameter :: req_so4aqmhp  = 'ASO4AQMHP'
+      Character( 16 ), Private, Parameter :: req_so4aqpaa  = 'ASO4AQPAA'
+      Character( 16 ), Private, Parameter :: req_so4gas    = 'ASO4GAS'
+      Character( 16 ), Private, Parameter :: req_so4emis   = 'ASO4EMIS'
+      Character( 16 ), Private, Parameter :: req_so4icbc   = 'ASO4ICBC'
+      Character( 16 ), Private, Parameter :: req_oso4       = 'OSO4'
+      Character( 16 ), Private, Parameter :: req_oso4aqh2o2 = 'OSO4AQH2O2'
+      Character( 16 ), Private, Parameter :: req_oso4aqo3   = 'OSO4AQO3'
+      Character( 16 ), Private, Parameter :: req_oso4aqfemn = 'OSO4AQFEMN'
+      Character( 16 ), Private, Parameter :: req_oso4aqmhp  = 'OSO4AQMHP'
+      Character( 16 ), Private, Parameter :: req_oso4aqpaa  = 'OSO4AQPAA'
+      Character( 16 ), Private, Parameter :: req_oso4gas    = 'OSO4GAS'
+      Character( 16 ), Private, Parameter :: req_oso4emis   = 'OSO4EMIS'
+      Character( 16 ), Private, Parameter :: req_oso4icbc   = 'OSO4ICBC'
 
 C Indices of Optional species
       Integer :: aietet_idx = 0
@@ -591,6 +630,24 @@ C Indices of Optional species
       Integer :: aphgj_idx  = 0
       Integer :: aorgh2o_idx= 0
       Integer :: abr_idx    = 0
+C Indices of Optional sulfur tracking species
+      Integer :: aso4aqh2o2_idx = 0
+      Integer :: aso4aqo3_idx   = 0
+      Integer :: aso4aqfemn_idx = 0
+      Integer :: aso4aqmhp_idx  = 0
+      Integer :: aso4aqpaa_idx  = 0
+      Integer :: aso4gas_idx    = 0
+      Integer :: aso4emis_idx   = 0
+      Integer :: aso4icbc_idx   = 0
+      Integer :: oso4_idx       = 0
+      Integer :: oso4aqh2o2_idx = 0
+      Integer :: oso4aqo3_idx   = 0
+      Integer :: oso4aqfemn_idx = 0
+      Integer :: oso4aqmhp_idx  = 0
+      Integer :: oso4aqpaa_idx  = 0
+      Integer :: oso4gas_idx    = 0
+      Integer :: oso4emis_idx   = 0
+      Integer :: oso4icbc_idx   = 0
 
 C Common Arrays for Aerosol Data
       Real, Allocatable :: aerospc_mw( : )     ! molecular weights (from AE_SPC Namelist) [ g/mol ]
@@ -1002,6 +1059,30 @@ C AORGH2O is not required, but highly recommended for aero7
          aorgh2o_idx = 0
          ae7orgh2o   = .False.
       End If
+
+      If ( stm ) Then
+         aso4aqh2o2_idx = findAero( req_so4aqh2o2, .True. )
+         aso4aqo3_idx   = findAero( req_so4aqo3,   .True. )
+         aso4aqfemn_idx = findAero( req_so4aqfemn, .True. )
+         aso4aqmhp_idx  = findAero( req_so4aqmhp,  .True. )
+         aso4aqpaa_idx  = findAero( req_so4aqpaa,  .True. )
+         aso4gas_idx    = findAero( req_so4gas,    .True. )
+         aso4emis_idx   = findAero( req_so4emis,   .True. )
+         aso4icbc_idx   = findAero( req_so4icbc,   .True. )
+         If ( ( ae6isoa ) .OR.
+     &        ( Index( mechname, 'CB6R3_AE7'       ) .Gt. 0 ) .OR.
+     &        ( Index( mechname, 'CB6R3M_AE7'      ) .Gt. 0 ) ) Then
+            oso4_idx       = findAero( req_oso4,       .True. )
+            oso4aqh2o2_idx = findAero( req_oso4aqh2o2, .True. )
+            oso4aqo3_idx   = findAero( req_oso4aqo3,   .True. )
+            oso4aqfemn_idx = findAero( req_oso4aqfemn, .True. )
+            oso4aqmhp_idx  = findAero( req_oso4aqmhp,  .True. )
+            oso4aqpaa_idx  = findAero( req_oso4aqpaa,  .True. )
+            oso4gas_idx    = findAero( req_oso4gas,    .True. )
+            oso4emis_idx   = findAero( req_oso4emis,   .True. )
+            oso4icbc_idx   = findAero( req_oso4icbc,   .True. )
+         EndIf
+      EndIf
 
 C Compute common factors
       h2ofac = 1.0D-9 * f6dpi / Real( aerospc( ah2o_idx )%density, 8 )

@@ -293,8 +293,8 @@
 
 !...Is a SAPRC07TIC or CB6 mechanism is being used?
  
-         IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0  .OR. &
-            ( INDEX ( MECHNAME, 'RACM' ) .GT. 0 ) ) THEN
+         IF ( INDEX ( MECHNAME, 'CB6' ) .LE. 0  .AND. &
+            ( INDEX ( MECHNAME, 'SAPRC07TIC' ) .LE. 0 ) ) THEN
             XMSG = 'This version of AQCHEM requires SAPRC07TIC or a CB6 gas mech'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF 
@@ -302,6 +302,18 @@
          IF ( INDEX ( MECHNAME, 'SAPRC07TIC' ) .GT. 0 ) THEN
             STIC = .TRUE.
          END IF 
+
+!...Make sure STM option is not set
+
+         IF ( STM ) THEN
+            XMSG = 'STM option not implemented in KMT AQCHEM'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+         END IF
+
+#ifdef isam
+        XMSG = 'Source Apportionment is not implemented in KMT AQCHEM'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+#endif        
 
 !... set MW ratios and speciation factors for molar concentrations of coarse
 !... soluble aerosols
@@ -796,7 +808,7 @@ kron: DO WHILE (T < TEND)
          GAS( LPYRUV ) = ( VAR( ind_G_PYRAC ) + VAR( ind_L_PYRAC ) )*INVCFAC  ! returning G_PYRAC and L_PYRAC
                                                                               ! to the gas phase when gas phase
                                                                               ! pyruvic acid species exists in 
-									      ! gas phase mechanism
+                                                                              ! gas phase mechanism
          GASWDEP( LPYRUV ) = VAR( ind_WD_PYRAC )
          WDPYRAC = 0
          APYRAC = VAR( ind_L_PYRACMIN )

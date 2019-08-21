@@ -24,7 +24,85 @@
 #  Purpose: Runs Models-3/CMAQ Meteorology-Chemistry Interface
 #           Processor.  Part of the US EPA's Models-3/CMAQ system.
 #  Method:  In UNIX/Linux:  run.mcip >&! mcip.log
-#  Revised: See README.revisions
+#  Revised: 20 Sep 2001  Original version.  (T. Otte)
+#           18 Oct 2001  Added CoordName to user definitions.  Deleted
+#                        script variable DomIdMM5.  Added Fortran link
+#                        for GRIDDESC file.  Moved namelist output to
+#                        WorkDir, and mmheader output to OutDir.  Added
+#                        user variables I0, J0, NCOLS, and NROWS for
+#                        MCIP windowing.  (T. Otte)
+#           29 Jan 2002  Added new namelist for file names.  Generalized
+#                        the end-of-namelist delimiter.  (T. Otte)
+#           27 Feb 2002  Removed minimum size for windows.  (T. Otte)
+#           19 Mar 2002  Changed default grid cell for printing.
+#                        (T. Otte)
+#           11 Jun 2003  Clarified instructions on use of BTRIM and
+#                        setting I0 and J0 for windowing option.
+#                        Removed GRIDBDY2D, GRIDBDY3D, and METBDY2D
+#                        from output.  (T. Otte)
+#           01 Jul 2004  Restored GRIDBDY2D to output.  (T. Otte)
+#           29 Nov 2004  Added TERRAIN option for input to get
+#                        fractional land use from MM5 preprocessor.
+#                        (T. Otte)
+#           26 May 2005  Changed I0 and J0 to Y0 and X0 to make code
+#                        more general.  Removed "_G1" from environment
+#                        variables for output files.  Created two new
+#                        user options for calculating dry deposition
+#                        velocities.  Added capability to process more
+#                        than five input meteorology files in a single
+#                        MCIP run.  (T. Otte)
+#           27 Feb 2006  Updated automated namelist generator for
+#                        Linux on Mac (assumed to be) using the XLF
+#                        compiler.  (T. Otte)
+#           24 Jul 2007  Added option to bypass dry deposition velocity
+#                        calculations in MCIP so that they can be done
+#                        inline in the CCTM.  Eliminated options to
+#                        use RADM (Wesely) dry deposition, eliminated
+#                        multiple versions of M3Dry (Pleim) dry
+#                        deposition, and eliminated options and to
+#                        recalculate PBL and radiation fields in MCIP.
+#                        (T. Otte)
+#           27 May 2008  Added optional namelist variable to override
+#                        earth radius default from MM5 and WRF.  
+#                        (T. Otte)
+#                        Added variables to support GOES satellite
+#                        cloud processing (InSatDir, InSatFile, LSAT).
+#                        Requires additional data and preprocessing
+#                        package available from University of Alabama
+#                        at Huntsville.  Contributed by University of
+#                        Alabama at Huntsville.  (A. Biazar and T. Otte)
+#           23 Dec 2008  Added optional namelist variable to override
+#                        default setting for reference latitude for
+#                        WRF Lambert conformal projection.  (T. Otte)
+#           19 Mar 2010  Added namelist variable option to compute
+#                        and output potential vorticity.  Added namelist
+#                        variable option to output vertical velocity
+#                        predicted by meteorological model.  Allow
+#                        output from WRF Preprocessing System (WPS)
+#                        routine, GEOGRID, to provide fractional land
+#                        use output if it is unavailable in WRF output.
+#                        Add user option to output u- and v-component
+#                        winds on C-staggered grid.  (T. Otte)
+#           09 Sep 2010  Removed option to generate dry deposition
+#                        velocities in MCIP.  (T. Otte)
+#           07 Sep 2011  Corrected minor typos in error-checking (as
+#                        identified by Debra Baker, Univ. of Maryland).
+#                        Updated disclaimer.  (T. Otte)
+#           31 May 2012  Changed comment about MAX_MM to be consistent
+#                        with the change to the code.  (T. Otte)
+#           16 Mar 2018  Added new optional output files for land use,
+#                        soil, and mosaic output.  Now delete rather
+#                        than overwrite existing MCIP output files.
+#                        (T. Spero)
+#           18 Dec 2018  Removed support for MM5v3 input.  Added runtime
+#                        option to choose output format.  Removed option
+#                        to turn off static output.  (T. Spero)
+#           20 Jun 2019  Removed layer collapsing.  Changed LUVCOUT to
+#                        to LUVBOUT to make the default output for
+#                        u- and v-component winds on the Arakawa-C
+#                        staggering.  The Arakawa-B staggering is now
+#                        optional (additional fields), and the Arakawa-C
+#                        staggering is the default.  (T. Spero)
 #=======================================================================
 
 #-----------------------------------------------------------------------
@@ -34,16 +112,9 @@
 #   CoordName  = Coordinate system name for GRIDDESC
 #   GridName   = Grid Name descriptor for GRIDDESC
 #   InMetDir   = Directory that contains input meteorology files
-#   InTerDir   = Directory that contains input MM5 "TERRAIN" file or
-#                WRF Preprocessing System "GEOGRID" file.  (Used for
-#                providing fractional land-use categories.  For MM5,
-#                it will only work if IEXTRA was set to TRUE in
-#                MM5's TERRAIN program.  Is TRUE for P-X simulations.
-#                Not needed for WRF if "LANDUSEF" is part of history
-#                file.)
-#   InSatDir   = Directory that contains GOES satellite files.  (Used
-#                with satellite processing from UAH; otherwise leave
-#                blank.)
+#   InGeoDir   = Directory that contains input WRF "GEOGRID" file to
+#                provide fractional land-use categories if "LANDUSEF"
+#                was not included in the WRFOUT files.
 #   OutDir     = Directory to write MCIP output files
 #   ProgDir    = Directory that contains the MCIP executable
 #   WorkDir    = Working Directory for Fortran links and namelist
@@ -51,15 +122,14 @@
 
 source $CMAQ_HOME/config_cmaq.csh
 
-set APPL       = 110702   
-set CoordName  = LamCon_40N_97W # 16-character maximum
-set GridName   = SE52BENCH     # 16-character maximum
+set APPL       = 160702
+set CoordName  = LamCon_40N_97W    # 16-character maximum
+set GridName   = 2016_12SE1        # 16-character maximum
 
 set DataPath   = $CMAQ_DATA
 set InMetDir   = $DataPath/wrf
-set InTerDir   = $DataPath/wrf
-set InSatDir   = $DataPath/goes
-set OutDir     = $CMAQ_DATA/mcip/$GridName
+set InGeoDir   = $DataPath/wrf
+set OutDir     = $DataPath/mcip/$GridName
 set ProgDir    = $CMAQ_HOME/PREP/mcip/src
 set WorkDir    = $OutDir
 
@@ -77,19 +147,17 @@ set WorkDir    = $OutDir
 #   in MAX_MM in file_mod.F (default is 367).
 #
 #   Example:
-#     set InMetFiles = ( $InMetDir/MMOUT_DOMAIN2.time1 \
-#                        $InMetDir/MMOUT_DOMAIN2.time2 )
+#     set InMetFiles = ( $InMetDir/wrfout_d01_date1 \
+#                        $InMetDir/wrfout_d01_date2 )
 #
 #-----------------------------------------------------------------------
 
-set InMetFiles = ( $InMetDir/subset_wrfout_d01_2011-07-01_00:00:00 \
-                   $InMetDir/subset_wrfout_d01_2011-07-02_00:00:00 \
-                   $InMetDir/subset_wrfout_d01_2011-07-03_00:00:00 )
+set InMetFiles = ( $InMetDir/subset_wrfout_d01_2016-07-01_00:00:00 \
+                   $InMetDir/subset_wrfout_d01_2016-07-02_00:00:00 \
+                   $InMetDir/subset_wrfout_d01_2016-07-03_00:00:00 )
 
-set IfTer      = "F"
-set InTerFile  = $InTerDir/geo_em.d01.nc
-
-set InSatFiles = ( )
+set IfGeo      = "F"
+set InGeoFile  = $InGeoDir/geo_em_d01.nc
 
 #-----------------------------------------------------------------------
 # Set user control options.
@@ -100,17 +168,14 @@ set InSatFiles = ( )
 #   LWOUT:   0 = Do not output vertical velocity
 #            1 = Output vertical velocity
 #
-#   LUVCOUT: 0 = Do not output u- and v-component winds on C-grid
-#            1 = Output u- and v-component winds on C-grid
-#
-#   LSAT:    0 = No satellite input is available (default)
-#            1 = GOES observed cloud info replaces model-derived input
+#   LUVBOUT: 0 = Do not output u- and v-component winds on B-grid
+#            1 = Output u- and v-component winds on B-grid (cell corner)
+#                in addition to the C-grid (cell face) output
 #-----------------------------------------------------------------------
 
-set LPV     = 1
+set LPV     = 0
 set LWOUT   = 0
-set LUVCOUT = 1
-set LSAT    = 0
+set LUVBOUT = 1
 
 #-----------------------------------------------------------------------
 # Set run start and end date.  (YYYY-MO-DD-HH:MI:SS.SSSS)
@@ -119,29 +184,18 @@ set LSAT    = 0
 #   INTVL:       Frequency of output [minutes]
 #-----------------------------------------------------------------------
 
-set MCIP_START = 2011-07-02-00:00:00.0000  # [UTC]
-set MCIP_END   = 2011-07-03-00:00:00.0000  # [UTC]
+set MCIP_START = 2016-07-02-00:00:00.0000  # [UTC]
+set MCIP_END   = 2016-07-03-00:00:00.0000  # [UTC]
 
 set INTVL      = 60 # [min]
 
 #-----------------------------------------------------------------------
-# Set CTM layers.  Should be in descending order starting at 1 and 
-# ending with 0.  There is currently a maximum of 100 layers allowed.
-# To use all of the layers from the input meteorology without
-# collapsing (or explicitly specifying), set CTMLAYS = -1.0.
+# Choose output format.
+#   1 = Models-3 I/O API
+#   2 = netCDF
 #-----------------------------------------------------------------------
 
-set CTMLAYS = "-1.0"
-#set CTMLAYS = "1.000, 0.997, 0.993, 0.988, 0.980, 0.970, 0.960, 0.950, 0.930, \
-              #0.910, 0.890, 0.870, 0.840, 0.800, 0.760, 0.720, 0.680, 0.640, \
-              #0.600, 0.550, 0.450, 0.350, 0.250, 0.150, 0.060, 0.000"
-
-
-#-----------------------------------------------------------------------
-# Determine whether or not static output (GRID) files will be created.
-#-----------------------------------------------------------------------
-
-set MKGRID = T
+set IOFORM = 1
 
 #-----------------------------------------------------------------------
 # Set number of meteorology "boundary" points to remove on each of four
@@ -175,10 +229,10 @@ set BTRIM = 0
 #           lateral boundaries).
 #-----------------------------------------------------------------------
 
-set X0    =   6 
-set Y0    =   6
-set NCOLS =  72
-set NROWS = 100
+set X0    =  13
+set Y0    =  94
+set NCOLS =  89
+set NROWS = 104
 
 #-----------------------------------------------------------------------
 # Set coordinates for cell for diagnostic prints on output domain.
@@ -233,20 +287,13 @@ if ( ! -d $ProgDir ) then
   exit 1
 endif
 
-if ( $LSAT == 1 ) then
-  if ( ! -d $InSatDir ) then
-    echo "No such satellite input directory $InSatDir"
-    exit 1
-  endif
-endif
-
 #-----------------------------------------------------------------------
 # Make sure the input files exist.
 #-----------------------------------------------------------------------
 
-if ( $IfTer == "T" ) then
-  if ( ! -f $InTerFile ) then
-    echo "No such input file $InTerFile"
+if ( $IfGeo == "T" ) then
+  if ( ! -f $InGeoFile ) then
+    echo "No such input file $InGeoFile"
     exit 1
   endif
 endif
@@ -257,15 +304,6 @@ foreach fil ( $InMetFiles )
     exit 1
   endif
 end
-
-if ( $LSAT == 1 ) then
-  foreach fil ( $InSatFiles )
-    if ( ! -f $fil ) then
-      echo "No such input file $fil"
-      exit 1
-    endif
-  end
-endif
 
 #-----------------------------------------------------------------------
 # Make sure the executable exists.
@@ -294,18 +332,17 @@ cd $WorkDir
 # Set up script variables for input files.
 #-----------------------------------------------------------------------
 
-if ( $IfTer == "T" ) then
-  if ( -f $InTerFile ) then
-    set InTer = $InTerFile
+if ( $IfGeo == "T" ) then
+  if ( -f $InGeoFile ) then
+    set InGeo = $InGeoFile
   else
-    set InTer = "no_file"
+    set InGeo = "no_file"
   endif
 else
-  set InTer = "no_file"
+  set InGeo = "no_file"
 endif
 
 set FILE_GD  = $OutDir/GRIDDESC
-set FILE_HDR = $OutDir/mmheader.${APPL}
 
 #-----------------------------------------------------------------------
 # Create namelist with user definitions.
@@ -322,7 +359,6 @@ cat > $WorkDir/namelist.${PROG} << !
 
  &FILENAMES
   file_gd    = "$FILE_GD"
-  file_hdr   = "$FILE_HDR"
   file_mm    = "$InMetFiles[1]",
 !
 
@@ -336,42 +372,25 @@ if ( $#InMetFiles > 1 ) then
   end
 endif
 
-if ( $IfTer == "T" ) then
+if ( $IfGeo == "T" ) then
 cat >> $WorkDir/namelist.${PROG} << !
-  file_ter   = "$InTer"
+  file_ter   = "$InGeo"
 !
 endif
 
-if ( $LSAT == 1 ) then
-  cat >> $WorkDir/namelist.${PROG} << !
-  file_sat   = "$InSatFiles[1]",
-!
-  if ( $#InSatFiles > 1 ) then
-    @ nn = 2
-    while ( $nn <= $#InSatFiles )
-      cat >> $WorkDir/namelist.${PROG} << !
-               "$InSatFiles[$nn]",
-!
-      @ nn ++
-    end
-  endif
-endif
-
 cat >> $WorkDir/namelist.${PROG} << !
-  makegrid   = .${MKGRID}.
+  ioform     =  $IOFORM
  $Marker
 
  &USERDEFS
   lpv        =  $LPV
   lwout      =  $LWOUT
-  luvcout    =  $LUVCOUT
-  lsat       =  $LSAT
+  luvbout    =  $LUVBOUT
   mcip_start = "$MCIP_START"
   mcip_end   = "$MCIP_END"
   intvl      =  $INTVL
   coordnam   = "$CoordName"
   grdnam     = "$GridName"
-  ctmlays    =  $CTMLAYS
   btrim      =  $BTRIM
   lprt_col   =  $LPRT_COL
   lprt_row   =  $LPRT_ROW
@@ -394,12 +413,8 @@ cat >> $WorkDir/namelist.${PROG} << !
 rm fort.*
 if ( -f $FILE_GD ) rm -f $FILE_GD
 
-ln -s $FILE_HDR                  fort.2
 ln -s $FILE_GD                   fort.4
 ln -s $WorkDir/namelist.${PROG}  fort.8
-if ( $IfTer == "T" ) then
-  ln -s $InTerFile               fort.9
-endif
 
 set NUMFIL = 0
 foreach fil ( $InMetFiles )
@@ -417,12 +432,28 @@ setenv EXECUTION_ID         $PROG
 
 setenv GRID_BDY_2D          $OutDir/GRIDBDY2D_${APPL}.nc
 setenv GRID_CRO_2D          $OutDir/GRIDCRO2D_${APPL}.nc
-setenv GRID_CRO_3D          $OutDir/GRIDCRO3D_${APPL}.nc
 setenv GRID_DOT_2D          $OutDir/GRIDDOT2D_${APPL}.nc
 setenv MET_BDY_3D           $OutDir/METBDY3D_${APPL}.nc
 setenv MET_CRO_2D           $OutDir/METCRO2D_${APPL}.nc
 setenv MET_CRO_3D           $OutDir/METCRO3D_${APPL}.nc
 setenv MET_DOT_3D           $OutDir/METDOT3D_${APPL}.nc
+setenv LUFRAC_CRO           $OutDir/LUFRAC_CRO_${APPL}.nc
+setenv SOI_CRO              $OutDir/SOI_CRO_${APPL}.nc
+setenv MOSAIC_CRO           $OutDir/MOSAIC_CRO_${APPL}.nc
+
+if ( -f $GRID_BDY_2D ) rm -f $GRID_BDY_2D
+if ( -f $GRID_CRO_2D ) rm -f $GRID_CRO_2D
+if ( -f $GRID_DOT_2D ) rm -f $GRID_DOT_2D
+if ( -f $MET_BDY_3D  ) rm -f $MET_BDY_3D
+if ( -f $MET_CRO_2D  ) rm -f $MET_CRO_2D
+if ( -f $MET_CRO_3D  ) rm -f $MET_CRO_3D
+if ( -f $MET_DOT_3D  ) rm -f $MET_DOT_3D
+if ( -f $LUFRAC_CRO  ) rm -f $LUFRAC_CRO
+if ( -f $SOI_CRO     ) rm -f $SOI_CRO
+if ( -f $MOSAIC_CRO  ) rm -f $MOSAIC_CRO
+
+if ( -f $OutDir/mcip.nc      ) rm -f $OutDir/mcip.nc
+if ( -f $OutDir/mcip_bdy.nc  ) rm -f $OutDir/mcip_bdy.nc
 
 #-----------------------------------------------------------------------
 # Execute MCIP.

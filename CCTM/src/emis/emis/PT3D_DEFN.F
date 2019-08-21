@@ -61,6 +61,7 @@ C     16 Aug 2017 B.Murphy: Pull plume height calc. to separate subroutine.
 C     01 Feb 2019 D.Wong: Implemented centralized I/O approach and removed everything 
 C                         related to ZSTATIC
 C     05 June 2019 F. Sidi: Bugfix related to Parallel I/O Implementation
+C     05 Aug  2019 D. Wong: Removed USE BMATVEC_MODULE statement and PTBILIIN
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY1
@@ -137,14 +138,14 @@ C=======================================================================
          USE STK_EMIS, ONLY: EM_FILE_NAME, NSRC_EMIS, FIREFLAG,
      &                       MAP_PTtoISRM, STK_EMIS_INIT
          USE PTMET, ONLY: PTMET_DATA, MC2NAME, MC3NAME, MD3NAME, PTMET_INIT
-         USE PTBILIN, ONLY: BILIN_DATA, PTBILIN_INIT, NPTGRPS, XBUF,
-     &                      METCGRID, METCXORIG, METCYORIG, XCELLCG, YCELLCG, 
-     &                      METDGRID, METDXORIG, METDYORIG, XCELLDG, YCELLDG
+         USE PTBILIN, ONLY: NPTGRPS, 
+     &                      METCXORIG, METCYORIG, XCELLCG, YCELLCG, 
+     &                      METDXORIG, METDYORIG, XCELLDG, YCELLDG
+
          USE UTILIO_DEFN
-         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE,
+         USE RUNTIME_VARS, ONLY: LOGDEV, MYPE, PT3DFRAC, PT_DATE, STDATE, STTIME,
      &                           PT_TIME, PT_NSTEPS, REP_LAYR
          USE EMIS_VARS, ONLY: EMLAYS, EMLAYS_MX
-         USE BMATVEC_MODULE, ONLY: BMATVECN
          USE stack_group_data_module
          USE centralized_io_module, only : window
 
@@ -265,8 +266,8 @@ C get diagnostic files options
 
 C get scenario timing
 
-         JDATE = PT_DATE
-         JTIME = PT_TIME
+         PT_DATE = JDATE 
+         PT_TIME = JTIME
 
 C open met files
 
@@ -504,12 +505,6 @@ C If wildfires, allocate fire parameters
 
          END DO
 
-         IF ( .NOT. PTBILIN_INIT ( ) ) THEN
-            XMSG = 'Could not initialize stack met bilinear interpolation data'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            SUCCESS = .FALSE.; RETURN
-         END IF
-
          SUCCESS = .TRUE.; RETURN
 
 93053    FORMAT("#  Src Id's for play file", I2, ', with', I10, ' total sources',
@@ -600,12 +595,12 @@ C-----------------------------------------------------------------------
             IF ( PT3DDIAG ) THEN
               NDATE = STDATE; NTIME = STTIME
               CALL NEXTIME( NDATE, NTIME, TSTEP(1) ) ! advance one output tstep
-              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, NDATE, NTIME, TSTEP(1), 
+              CALL OPPT3D_DIAG( CTM_PT3D_DIAG, TSTEP(1), 
      &                   EM_FILE_SURR( ISRM )%LEN, EM_FILE_SURR( ISRM )%ARRY( : ),
      &                   EM_FILE_SURR( ISRM )%UNITS( : ) )
  
 
-              ALLOCATE ( VDEMIS_BUF( NCOLS,NROWS,EMLAYS,N_EMIS_ISTR ), STAT = IOS )
+              ALLOCATE ( VDEMIS_BUF( N_EMIS_ISTR,EMLAYS,NCOLS,NROWS ), STAT = IOS )
               CALL CHECKMEM( IOS, 'VDEMIS_BUF', PNAME )
               VDEMIS_BUF = 0.0   ! array
               WRITE( LOGDEV,'(/5X, A /5X, A )' )
@@ -799,7 +794,7 @@ C-----------------------------------------------------------------------
       USE STK_EMIS, ONLY : FIREVAR, FIREFLAG
       USE STK_PRMS, ONLY : MY_STRT_SRC, MY_END_SRC, MY_NSRC, SOURCE
       USE PTMET, ONLY : EMLAYS, P_D => PTMET_DATA
-      USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR
+      USE RUNTIME_VARS, ONLY : LOGDEV, IPVERT, PT3DFRAC, REP_LAYR, LOG_MESSAGE
       USE UTILIO_DEFN, ONLY : CRLF, XSTAT2
       USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
@@ -842,7 +837,7 @@ C Includes:
       INTEGER          LSTK       ! first L: ZF(L) > STKHT
 
       INTEGER :: S, L, SRC
-      INTEGER :: LTOP
+      INTEGER :: LTOP, LACRESBURNED
 
       INTERFACE
            SUBROUTINE PREPLM( FIREFLG, EMLAYS, HMIX, HTS, PSFC, TS, DDZF, QV,
@@ -924,6 +919,7 @@ C Includes:
       
       ! If The Point File is for Fires, read and save the H-Flux Data in a
       ! Dedicated Variable, BFLUX
+      LACRESBURNED = 0
       IF ( FIREFLAG( N ) ) THEN
          call interpolate_var (STKENAME(N), 'HFLUX', LOC_STKDATE, JTIME, FIREVAR(N)%ARRY)
 
@@ -931,6 +927,8 @@ C Includes:
             SRC = SOURCE( N )%ARRY( S )
             BFLUX( N )%ARRY( S ) = FIREVAR( N )%ARRY( SRC ) * BTU2M4PS3
          END DO
+
+         !Initialize negative ACRES-BURNED counter
       END IF
  
 C Loop through sources and compute plume rise
@@ -1135,7 +1133,7 @@ C calculate smoldering fraction:
                 SFRACT = 1.0 - BESIZE
              ELSE
                 SFRACT = 1.0
-                write( logdev,* ) "we can't get here: ", n, s
+                LACRESBURNED = LACRESBURNED + 1
              END IF
 
              ZDIFF = ZBOT - P_D( N )%ZZF( 0 )   ! Note: ZDIFF redefined
@@ -1176,6 +1174,13 @@ C Possible report to REPRTLAY
 
       END DO    ! end loop on sources S
 
+      ! Print warning if any ACRES-BURNED values were negative
+      IF ( LACRESBURNED .GT. 0 ) THEN
+           write( XMSG,'(A,I8,A,I8,A)') "Warning: the value of ACRESBURNED for ",LACRESBURNED, " fire sources on stream ",
+     &                     N, " is negative. CMAQ will set the smodlering fraction equal to 1.0 for these cases." 
+           call log_message( logdev, xmsg )
+      END IF
+     
 
 94010 FORMAT( 12( A, :, I8, :, 1X ) )
 94020 FORMAT( 10( A, :, I7, :, 1X ) )

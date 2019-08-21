@@ -7,6 +7,8 @@
 !           21 Oct 2015  Updated water insoluble species list
 !           22 Nov 2016  Constructed water soluble and insoluble list dynamically
 !                        based on a given chemical mechanism and AE scheme
+!           01 Aug 2019  -- renamed ASEACATK to ASEACAT
+!                        -- added a H2O species, AORGH2OJ
 !===============================================================================
 
   module twoway_cgrid_aerosol_spc_map_module
@@ -46,17 +48,17 @@
     character (len = 16), parameter :: ss_spc(num_ss_spc) = &
       (/ 'ANAJ            ', 'ACLJ            ',            &
          'ACLK            ', 'ASO4K           ',            &
-         'ASEACATK        '                                 &
+         'ASEACAT         '                                 &
       /)
 
     ! water
-    integer, parameter :: num_h2o_spc = 3
+    integer, parameter :: num_h2o_spc = 4
 
     integer :: h2o_spc_index(num_h2o_spc)
 
     character (len = 16), parameter :: h2o_spc(num_h2o_spc) = &
       (/ 'AH2OI           ', 'AH2OJ           ',              &
-         'AH2OK           '                                   &
+         'AH2OK           ', 'AORGH2OJ        '               &
       /)
 
     INTEGER, PARAMETER :: num_twoway_ae_cmaq_spc = 44
@@ -109,7 +111,7 @@
 ! this is for aerosol indirect effect to map cgrid species to wrf 
 
     character (len = 16), parameter :: twoway_ae_cmaq_spc_name_other (num_twoway_ae_cmaq_spc_other) =        &
-      (/ 'APOCI           ', 'APNCOMI         ', 'APOCJ           ', 'APNCOMJ         ', 'ASEACATK        ', &
+      (/ 'APOCI           ', 'APNCOMI         ', 'APOCJ           ', 'APNCOMJ         ', 'ASEACAT         ', &
          'ASOILK          ', 'ACORSK          ', 'AALJ            ', 'ASIJ            ', 'ACAJ            ', &
          'AFEJ            ', 'ATIJ            '  &
       /)

@@ -1,1 +1,0 @@
-../yamo/wr_init.F

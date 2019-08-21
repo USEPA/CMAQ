@@ -221,7 +221,7 @@ C..Save pointer for isam species found in chemistry species
            END IF
         ELSE
            MSG = 'NO ISAM species participate in photochemistry '
-           CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+           CALL M3WARN ( PNAME, 0, 0, MSG )
         END IF
         L = 0
         DO S = 1, SPC

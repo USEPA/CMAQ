@@ -22,7 +22,7 @@
     exit 1
  endif
 
-# if ( $#argv == 1 ) then
+if ( $#argv == 1 ) then
     setenv compiler $argv[1]
 else
     echo "usage: $0 <compiler>"
@@ -57,7 +57,7 @@ endif
  set MakeFileOnly    # builds a Makefile to make the model, but does not compile -
                      # comment out to also compile the model (default if not set)
 
-# set CompileBLDMAKE  #> Recompile the BLDMAKE utility from source
+ set CompileBLDMAKE  #> Recompile the BLDMAKE utility from source
                       #>   comment out to use an existing BLDMAKE executable
  set ModDriver = src  #> source code subdirectory
  set echo
@@ -139,8 +139,9 @@ set FP = $FC
  set LINK_FLAGS = ""  #> Link Flags
 
 #> Set libraries
- setenv netcdf_lib "-lnetcdf -lnetcdff"  #> -lnetcdff -lnetcdf for netCDF v4.2.0 and later
- setenv ioapi_lib  "-lioapi" 
+ setenv netcdf_lib  "-lnetcdf"  #> -lnetcdff -lnetcdf for netCDF v4.2.0 and later
+ setenv netcdff_lib "-lnetcdff"  #> -lnetcdff -lnetcdf for netCDF v4.2.0 and later
+ setenv ioapi_lib   "-lioapi" 
 
 #============================================================================================
 #> Set up the writesite build directory under the Tools directory
@@ -205,6 +206,7 @@ set FP = $FC
  echo "ioapi       $quote$ioapi_lib$quote;"                        >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
+ echo "netcdff     $quote$netcdff_lib$quote;"                      >> $Cfile
 
  set text = "create_omi"
  echo "// options are" $text                                       >> $Cfile
