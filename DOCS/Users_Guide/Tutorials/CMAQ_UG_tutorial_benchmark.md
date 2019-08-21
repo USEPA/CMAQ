@@ -26,10 +26,6 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 2. 16 GB RAM
 3. 400 GB hard drive storage
 
-8 processors
-8 GB RAM
-400 GB hard drive storage
-
 ## Install CMAQ and Required Libraries 
 
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3:
@@ -136,14 +132,14 @@ The build directory parameters for the benchmark test case include the following
 -   Multiprocessor simulation 
 -   3-D Advection Scheme: wrf_cons
 -   Horizontal diffusion: Multiscale
--   Vertical diffusion: ACM2
+-   Vertical diffusion: ACM2_M3Dry
 -   Deposition: M3Dry
 -   Chemistry solver: EBI
--   Aerosol module: AERO6
--   Cloud module: ACM_AE6
+-   Aerosol module: AERO7
+-   Cloud module: ACM_AE7
 -   Mechanism: cb6r3_ae7_aq
--   In-line biogenic emissions
--   In-line plume rise
+-   Online biogenic emissions
+-   Inline plume rise
 
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
@@ -177,19 +173,18 @@ For single-processor computing, set PROC to serial:
 set PROC     = serial
 ```
 
-CCTM run time Configuration Options for the benchmark case include the following: 
+CCTM Science Configuration Options set to **Y** in the RunScript for the benchmark case include the following: 
 
--   Mechanism: cb6r3_ae7_aq
--   Lightning NO<sub>x</sub> emissions calculated with hourly NLDN strike data
--   Dynamic vertical diffusivity
--   In-line deposition velocities
--   Surface HONO interaction
--   In-line biogenic emissions
--   In-line windblown dust emissions
--   Bi-directional ammonia flux
--   No stratosphere-troposphere ozone exchange
+-  ```CTM_OCEAN_CHEM``` - use ocean halgoen chemistry and sea spray aerosol emissions
+-  ```KZMIN``` - minimum eddy diffusivity in each grid cell determined by land use fraction
+-  ```PX_VERSION``` - WRF PX land surface model 
+-  ```CTM_ABFLUX``` - bidirectional ammonia flux for online deposition velocities
+-  ```CTM_BIDI_FERT_NH3``` - subtract fertilizer NH3 from emissions because it will be handled by the BiDi calculation
+-  ```CTM_SFC_HONO``` - surface HONO interaction
+-  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
+-  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the run_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
@@ -236,8 +231,8 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
 - Red Hat Enterprise Linux Server release 7.6 (Maipo)
 - Linux Kernel 3.10.0-957.12.2.el7.x86_64
-- GNU GCC compiler version 9.1.0, 32 processors with OpenMPI
-- Debug mode (uncomment ```set Debug_CCTM``` in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
+- GNU GCC compiler version 9.1.0, 8 processors with OpenMPIv4.0.1 and I/O APIv3.2
+- Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
 - CMAQv5.3
 
 The CMAQv5.3 reference data include output from BCON, ICON, and the CCTM. You will only need to compare the results for the CCTM to evaluate the benchmark results.
