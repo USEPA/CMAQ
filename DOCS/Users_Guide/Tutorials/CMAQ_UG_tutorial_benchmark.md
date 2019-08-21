@@ -160,7 +160,7 @@ For an MPI configuration with 8 processors,
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-Edit the CCTM run script (run_cctm.csh) for the MPI configuration that you will use:
+Edit the CCTM run script (run_cctm_Bench_2016_12SE1.csh) for the MPI configuration that you will use:
 
 ```
 @ NPCOL 4 ; @ NPROW = 2
