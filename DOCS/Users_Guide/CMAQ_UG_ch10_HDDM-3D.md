@@ -29,6 +29,14 @@ Current CMAQ-DDM-3D implementation is available for version 5.2 of the Community
 
 The migration of DDM-3D to the more recent CMAQ release is currently in development and will be included sometime after the base model release.  This documentation will be updated at that time.  
 
+**A note about I/O API installation for DDM applications**
+
+I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. DDM applications configured to calculate sensitivity to a large number of parameters may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. This version is available as a zip file from the following address:
+
+https://www.cmascenter.org/ioapi/download/ioapi-3.2-large.tar.gz
+
+Installation instructions for I/O API v5.3-large are provided in README.txt in the .tar.gz file. 
+
 ## 10.3 References
 
 Cohan, D.S., & Napelenok, S.L. (2011). Air Quality Response Modeling for Decision Support. Atmosphere, 2(3), 407-425. [doi: 10.3390/atmos2030407](https://www.mdpi.com/2073-4433/2/3/407)
