@@ -77,7 +77,7 @@ The config_cmaq.csh script will automatically link the required libraries into t
 - `setenv NETCDFF_INCL_DIR`: the location of the netCDF Fortran include files on your system.
 - `setenv MPI_LIB_DIR`: the location of the MPI (OpenMPI or MVAPICH) on your system.
 
-For example, if your netCDF libraries are installed in /usr/local/netcdf/lib, set `NETCDF_LIB_DIR` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set `IOAPI_LIB_DIR` to /home/cmaq/ioapi/Linux2_x86_64ifort. 
+For example, if your netCDF C libraries are installed in /usr/local/netcdf/lib, set `NETCDF_LIB_DIR` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64gfort, set `IOAPI_LIB_DIR` to /home/cmaq/ioapi/Linux2_x86_64gfort. 
 
 *1.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
 
@@ -85,11 +85,11 @@ For example, if your netCDF libraries are installed in /usr/local/netcdf/lib, se
 
 Links to these libraries will automatically be created when you run any of the build or run scripts. To manually create these libraries (this is optional), execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
 ```
-source config_cmaq.csh [compiler]
+source config_cmaq.csh [compiler] 
 ```
 You may also identify the version of the compiler if you wish it to be identified in build directory and executable names. This is optional. For example:
 ```
-source config_cmaq.csh intel 17.0
+source config_cmaq.csh gcc 9.1
 ```
 
 ## Install the CMAQ input reference/benchmark data
@@ -153,7 +153,7 @@ cd $CMAQ_HOME/CCTM/scripts
 
 ## Configure the CCTM script 
 
-For an MPI configuration with 6 processors,
+For an MPI configuration with 8 processors,
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
@@ -162,7 +162,7 @@ cd $CMAQ_HOME/CCTM/scripts
 Edit the CCTM run script (run_cctm.csh) for the MPI configuration that you will use:
 
 ```
-@ NPCOL 3 ; @ NPROW = 2
+@ NPCOL 4 ; @ NPROW = 2
 ```
 
 Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications.
@@ -190,7 +190,7 @@ To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/sc
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm.csh |& tee cctm.log
+./run_cctm_Bench_2016_12SE1.csh |& tee cctm.log
 ```
 
 ## Confirm that the Benchmark Simulation Completed
@@ -202,19 +202,19 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]/SE52BENCH 
+$CMAQ_DATA/output_CCTM_v53_[compiler]_Bench_2016_12SE1
 ```
 and these log files have the name convention: 
 
 ```
-CTM_LOG_[ProcessorID].v53_[compiler]_[CASE]/_[RUNDATE].log
-CTM_LOG_[ProcessorID].v53_gcc_SE53BENCH_20160701
+CTM_LOG_[ProcessorID].v53_[compiler]_[APPL]_[YYYYMMDD]
+CTM_LOG_[ProcessorID].v53_gcc_Bench_2016_12SE1_20160701
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]_SE53BENCH 
+$CMAQ_DATA/output_CCTM_v53_[compiler]_Bench_2016_12SE1
 ```
 
 and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
