@@ -1,6 +1,6 @@
 SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                    z_at_w_wrf, dz8w_wrf, p8w_wrf, t8w_wrf,  &
-                   numlu,                                   &
+                   numlu, release_version,                  &
                    ids, ide, jds, jde, kds, kde,            &
                    ims, ime, jms, jme, kms, kme,            &
                    its, ite, jts, jte, kts, kte,            &
@@ -99,6 +99,14 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !                 variables in one place
 !           04 Feb 2019  (Tanya Spero)
 !              -- updated Jacobian calculation for hybrid vertical coordinate
+!           04 Mar 2019  (Rob G. David Wong)
+!              -- logic for WRF version, hybrid coord, PX variables
+!              -- updated to work with PX LSM changed in WRFV4.1 that has
+!                 additional soil texture info and lai name change to lai_px
+!           01 Aug 2019  (David Wong)
+!              -- made nprocs available for CMAQ
+!              -- made two new variables, UWIND and VWIND as the wind component
+!                 on the mass point
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -141,6 +149,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   REAL,    INTENT(IN), OPTIONAL :: qg_curr_wrf  ( ims:ime, kms:kme, jms:jme )
 
   INTEGER, INTENT(IN)           :: numlu
+  CHARACTER(LEN=*), INTENT(IN)  :: release_version
 
   INTEGER, INTENT(IN)           :: ids, ide, jds, jde, kds, kde
   INTEGER, INTENT(IN)           :: ims, ime, jms, jme, kms, kme
@@ -266,6 +275,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
     integer :: lwater, lice
     real, allocatable :: land_use_index(:,:)
 
+    character(len=10) :: wrf_version
+    logical   :: hybrid_vert, px_modis
+    real      :: wrfv
+
     interface
       SUBROUTINE bcldprc_ak (wrf_ncols, wrf_nrows, nlays,                &
                              zf, ta, pres, qv, pbl, dzf, presf,  &
@@ -286,6 +299,40 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         REAL,          INTENT(OUT)   :: wbar       ( : , : )
       END SUBROUTINE bcldprc_ak
     end interface
+
+!-------------------------------------------------------------------------------
+! Set switches/logic that rely on WRF versions and/or namelist settings
+  hybrid_vert = .false.
+  px_modis    = .false.
+  wrf_version = TRIM(release_version)
+  read (wrf_version(2:4),'(F3.1)') wrfv
+
+  ! Check version for hybrid coord configuration option
+  IF(wrfv >= 3.9) THEN
+    if (config_flags%hybrid_opt == 2) then
+      hybrid_vert = .true.
+    end if
+  END IF
+
+  ! Check version for WRFV4.1 PX MODIS and SOIL implementation
+  IF(wrfv >= 4.1) THEN
+    if (config_flags%sf_surface_physics == 7) then
+      px_modis = .true.
+    end if
+  END IF
+
+  print *, 'WRF Version ', wrf_version
+  print *, 'WRF Version ', wrfv
+  print *, 'Hybrid option number ', config_flags%hybrid_opt
+  print *, 'Hybrid vertical coordinate (T/F) ', hybrid_vert
+  print *, 'PX MODIS (T/F)', px_modis
+
+  if (config_flags%cu_physics == 0) then
+     convective_scheme = .false.
+  else
+     convective_scheme = .true.
+  end if
+!-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
 ! Define horizontal bounds for CMAQ processing.
@@ -311,7 +358,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      wrf_halo_y_l = abs(jts - jms)
      wrf_halo_y_u = abs(jte - jme)
 
-     twoway_nprocs = grid%nproc_x * grid%nproc_y
+     nprocs = grid%nproc_x * grid%nproc_y
+     twoway_nprocs = nprocs
 
      north_adjustment = 0
      if (twoway_mype >= (twoway_nprocs - grid%nproc_x)) then
@@ -533,9 +581,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      end if
 
      if (config_flags%cu_physics == 0) then
-        convective_scheme = .false.
+        wrf_convective_scheme = .false.
      else
-        convective_scheme = .true.
+        wrf_convective_scheme = .true.
      end if
 
 !-------------------------------------------------------------------------------
@@ -1012,6 +1060,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         !        NLAYS+1 levels.
         !-----------------------------------------------------------------------
 
+           metcro3d_data_wrf (c,r,kk,15) = grid%u_phy(ii,kk,jj)   ! store u wind component on mass point
+           metcro3d_data_wrf (c,r,kk,16) = grid%v_phy(ii,kk,jj)   ! store v wind component on mass point
+
            metcro3d_data_wrf (c,r,kk,4) = t_phy_wrf   (ii,kk,jj)  ! ta
 
            if (turn_on_pv) then
@@ -1109,25 +1160,30 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         ! Replace MUT in the Jacobian calculations, below, with MUHYBF or
         ! MUHYBH, depending on the level where we want the Jacobian.
         !-----------------------------------------------------------------------
-
-           muhybf = grid%c1f(kp1) * grid%mut(ii,jj) + grid%c2f(kp1)
-           muhybh = grid%c1h(k)   * grid%mut(ii,jj) + grid%c2h(k)
+           if (hybrid_vert) then
+             muhybf = grid%c1f(kp1) * grid%mut(ii,jj) + grid%c2f(kp1)
+             muhybh = grid%c1h(kk)  * grid%mut(ii,jj) + grid%c2h(kk)
+           else
+             muhybf = grid%mut(ii,jj)
+             muhybh = grid%mut(ii,jj)
+           endif
 
            if (turn_on_pv) then
               metcro3d_data_wrf (c,r,kk,1) = tf*2
            else
-!             metcro3d_data_wrf (c,r,kk,1) = gravi * grid%mut(ii,jj) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
-              metcro3d_data_wrf (c,r,kk,1) = gravi * muhybf / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
+              metcro3d_data_wrf (c,r,kk,1) = gravi * muhybf / (densf * gridcro2d_data_wrf (c,r,3)) 
            end if
 
-!          metcro3d_data_wrf (c,r,kk,2) = gravi * grid%mut(ii,jj) / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))
-           metcro3d_data_wrf (c,r,kk,2) = gravi * muhybh / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))   ! calculate jacobm
-
-!          metcro3d_data_wrf(c,r,kk,3) = gravi * grid%mut(ii,jj) / gridcro2d_data_wrf (c,r,3)
-           metcro3d_data_wrf(c,r,kk,3) = gravi * muhybh) / gridcro2d_data_wrf (c,r,3)   ! calculate densaj
+           metcro3d_data_wrf (c,r,kk,2) = gravi * muhybh / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3)) 
+           metcro3d_data_wrf (c,r,kk,3) = gravi * muhybh / gridcro2d_data_wrf (c,r,3)   
 
         ENDDO
      ENDDO
+
+  metcro3d_data_wrf (:,:,1:nlays,15) = zf (:,:,1:nlays)
+
+  metcro3d_data_wrf (:,:,1:nlays,16) = zf (:,:,1:nlays)
+
   ENDDO
 
   metcro3d_data_wrf (:,:,1:nlays,14) = zf (:,:,1:nlays)
@@ -1589,7 +1645,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   !
   ! Note:  For rainfall:  biogenics code uses cm/h, CMAQ ultimately needs mm/h.
   !-----------------------------------------------------------------------------
-
   metcro2d_data_wrf  (:,:,2) =  grid%ust   (sc:ec, sr:er)   ! ustar
   metcro2d_data_wrf  (:,:,4) =  grid%pblh  (sc:ec, sr:er)   ! pbl
   metcro2d_data_wrf  (:,:,5) =  grid%znt   (sc:ec, sr:er)   ! zruf
@@ -1600,17 +1655,16 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   metcro2d_data_wrf (:,:,11) =  grid%gsw   (sc:ec, sr:er)   ! gsw
 
   metcro2d_data_wrf (:,:,13) =  (grid%rainnc(sc:ec, sr:er) - grid%prev_rainnc(sc:ec,sr:er)) * 0.1  ! RNA = SUM(RN), in cm
-  if (convective_scheme) then
+  if (wrf_convective_scheme) then
      metcro2d_data_wrf (:,:,14) = (grid%rainc (sc:ec, sr:er) - grid%prev_rainc(sc:ec,sr:er)) * 0.1   ! RCA = SUM(RC), in cm
   else
-     metcro2d_data_wrf (:,:,14) = -1.0
+     metcro2d_data_wrf (:,:,14) = 0.0
   end if
 
   metcro2d_data_wrf (:,:,19) =  grid%snowc (sc:ec, sr:er)           ! snowcov
   metcro2d_data_wrf (:,:,21) =  grid%t2    (sc:ec, sr:er)           ! temp2
   metcro2d_data_wrf (:,:,22) =  grid%canwat(sc:ec, sr:er) * 0.001   ! wr (in meter)
   metcro2d_data_wrf (:,:,23) =  grid%tsk   (sc:ec, sr:er)           ! tempg
-  metcro2d_data_wrf (:,:,24) =  grid%lai   (sc:ec, sr:er)           ! lai
   metcro2d_data_wrf (:,:,25) =  grid%isltyp(sc:ec, sr:er)           ! soil type
   metcro2d_data_wrf (:,:,26) =  grid%q2    (sc:ec, sr:er)           ! Q2
   metcro2d_data_wrf (:,:,27) =  grid%xice  (sc:ec, sr:er)           ! seaice
@@ -1619,15 +1673,23 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   metcro2d_data_wrf (:,:,30) =  grid%tslb  (sc:ec, 1, sr:er)        ! SOIT1
   metcro2d_data_wrf (:,:,31) =  grid%tslb  (sc:ec, 2, sr:er)        ! SOIT2
 
-  metcro2d_data_wrf (:,:,32) =  grid%lh   (sc:ec, sr:er)   ! lh (qfx)
+  metcro2d_data_wrf (:,:,32) =  grid%lh   (sc:ec, sr:er)            ! lh (qfx)
+
+  metcro2d_data_wrf (:,:,33) =  grid%wwlt_px  (sc:ec, sr:er)        ! WWLT_PX
+  metcro2d_data_wrf (:,:,34) =  grid%wfc_px   (sc:ec, sr:er)        ! WFC_PX
+  metcro2d_data_wrf (:,:,35) =  grid%wsat_px  (sc:ec, sr:er)        ! WSAT_PX
+  metcro2d_data_wrf (:,:,36) =  grid%clay_px  (sc:ec, sr:er)        ! CLAY_PX
+  metcro2d_data_wrf (:,:,37) =  grid%csand_px (sc:ec, sr:er)        ! CSAND_PX
+  metcro2d_data_wrf (:,:,38) =  grid%fmsand_px(sc:ec, sr:er)        ! FMSAND_PX
+
 
   where (metcro2d_data_wrf (:,:,13) .lt. 0.0)
     metcro2d_data_wrf (:,:,13) = 0.0
   end where
 
-! where (metcro2d_data_wrf (:,:,14) .lt. 0.0)
-!   metcro2d_data_wrf (:,:,14) = 0.0
-! end where
+  where (metcro2d_data_wrf (:,:,14) .lt. 0.0)
+    metcro2d_data_wrf (:,:,14) = 0.0
+  end where
 
   !-----------------------------------------------------------------------------
   ! Assign surface pressure (PRSFC) from WRF array P8W (i.e., "p at w levels").
@@ -1683,19 +1745,38 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   !-----------------------------------------------------------------------------
 
   albedo  (:,:) =  grid%albedo(sc:ec, sr:er)
-  ! rgrnd = gsw / ( 1.0 - albedo)
   metcro2d_data_wrf   (:,:,12) =  metcro2d_data_wrf(:,:,11) / (1.0 - albedo(:,:))
 
   !-----------------------------------------------------------------------------
-  ! Compute vegetation coverage (VEG) by converting WRF variable VEGFRA from
-  ! percent to decimal.
+  ! Get VEG and LAI from WRF dependent on WRF LSM option and WRF version number.
+  ! Also if WRF VEGFRA is used, it's in percent. Convert to fraction.
+  ! Also if PX MODIS version (WRFv4.1+) is used, add PX soil properties to MCIP
+  ! file for updated dust model. If PX MODIS is not used set to missing value
+  ! that will trigger old soil category based calculations in DUST_EMIS.F
   !-----------------------------------------------------------------------------
-
-  if (config_flags%sf_sfclay_physics == PXLSMSCHEME) then
-     metcro2d_data_wrf     (:,:,20) =  grid%vegf_px (sc:ec, sr:er)        ! veg
+  if (config_flags%sf_surface_physics == 7) then
+     metcro2d_data_wrf     (:,:,20) =  grid%vegf_px (sc:ec, sr:er)
   else
-     metcro2d_data_wrf     (:,:,20) =  grid%vegfra (sc:ec, sr:er) * 0.01  ! veg
+     metcro2d_data_wrf     (:,:,20) =  grid%vegfra (sc:ec, sr:er) * 0.01
   end if
+
+  if(px_modis) then                                                         
+     metcro2d_data_wrf (:,:,24) =  grid%lai_px(sc:ec, sr:er) 
+     metcro2d_data_wrf (:,:,33) =  grid%wwlt_px  (sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,34) =  grid%wfc_px   (sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,35) =  grid%wsat_px  (sc:ec, sr:er)   
+     metcro2d_data_wrf (:,:,36) =  grid%clay_px  (sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,37) =  grid%csand_px (sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,38) =  grid%fmsand_px(sc:ec, sr:er)
+  else 
+     metcro2d_data_wrf (:,:,24) =  grid%lai(sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,33) =  -9999.
+     metcro2d_data_wrf (:,:,34) =  -9999.
+     metcro2d_data_wrf (:,:,35) =  -9999.
+     metcro2d_data_wrf (:,:,36) =  -9999.
+     metcro2d_data_wrf (:,:,37) =  -9999.
+     metcro2d_data_wrf (:,:,38) =  -9999.
+  end if  
 
   !-----------------------------------------------------------------------------
   ! Compute total cloud fraction (CFRAC), cloud top layer height (CLDT), 
@@ -1713,7 +1794,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                          wrf_cmaq_ce_send_index_l, wrf_cmaq_ce_recv_index_l, 5)
 
   temp_rainnc = temp_rainnc + metcro2d_data_cmaq(:,:,13)
-  if (convective_scheme) then
+  if (wrf_convective_scheme) then
      temp_rainc  = temp_rainc  + metcro2d_data_cmaq(:,:,14)
   end if
 

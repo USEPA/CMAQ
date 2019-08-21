@@ -62,6 +62,7 @@ C      07 Nov 14 J.Bash: Updated call to czangle.F for the ASX_DATA_MOD shared d
 C      07 May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in ASX_DATA_MOD
 C       1 Feb 19 D. Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
+C     01 AUG 19 D.Wong: Modified code to work with two-way model
 C  Called by:  CLDPROC
  
 C  Calls the following subroutines:  SCAVWDEP and AQ_MAP
@@ -217,7 +218,11 @@ C...  the met timestep in hours
 
         SDATE = cio_model_sdate
         STIME = cio_model_stime
+#ifdef twoway
+        MSTEP = cio_data_tstep_met
+#else                
         MSTEP = cio_data_tstep
+#endif
 
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
 
