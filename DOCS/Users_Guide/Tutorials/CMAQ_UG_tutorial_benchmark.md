@@ -63,7 +63,8 @@ Now execute the script.
 ## Link the CMAQ Libraries
 The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note: the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
 
-- netCDF library files are located in the `$CMAQ_LIB/netcdf/lib` directory
+- netCDF C library files are located in the `$CMAQ_LIB/netcdf/lib` directory
+- netCDF Fortran library files are located in the `$CMAQ_LIB/netcdff/lib` directory
 - I/O API library, include files and module files are located in the `$CMAQ_LIB/ioapi` directory
 - MPI library and INCLUDE files are located in the `$CMAQ_LIB/mpi` directory
 
