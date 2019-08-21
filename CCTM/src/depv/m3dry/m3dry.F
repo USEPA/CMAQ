@@ -662,14 +662,14 @@ C--------------------------------------------------------------------------
             IF ( abflux .And. l .Eq. l_NH3 ) THEN   ! Ammonia Bidirectional Flux
                cnh3  = cgridl1( n,c,r ) * MolNH3/MolAir * 1000.0 * Met_Data%DENS1( C,R ) ! convert to micrograms/m3
 
-               IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 ) THEN  ! land
+               IF ( NINT( GRID_DATA%LWMASK( c,r ) ) .NE. 0 .and. ifsnow .EQ. 0 ) THEN  ! land
 
                   CALL Get_Flux( cnh3,rwetsfc,rgw,r,c,l,tpvd,lnh3, rbc, rinc, 
      >                           rstom, delta(c,r),rgnd,femis )
                    pvd( n,c,r ) = tpvd * 0.001 * MolAir / (MolNH3 * Met_Data%DENS1( C,R ))
                    nh3_emis(c,r) = nh3_emis(c,r) + femis * dt(2) * 1.0e-5  ! convert from microg/m2  to kg/ha
                    depvel_gas( n,c,r ) = lnh3
-               ELSE   ! water
+               ELSE   ! water or snow covered
 !                   ddep_nh3(c,r) = ddep_nh3(c,r) + depvel_gas( n,c,r ) * cnh3 * dt(2) * 1.0e-5
                    nh3_emis(c,r) = 0.0
                END IF

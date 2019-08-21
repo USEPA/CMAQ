@@ -113,6 +113,7 @@ C  D. Wong 31 Jan 2019 - adopted the idea to process all twoway related environm
 C                        variables in one place
 C    1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
+C    1 Aug 19 David Wong: Added a few more variables in the USE Only blcok for two-way model
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -131,7 +132,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                        H2OSATVP, H2OVP, MWWAT, MWAIR
       USE UTILIO_DEFN, ONLY: OPEN3, INTERPX, WRITE3, FSREAD3, ALLVAR3,
      &                       XSTAT1, TIME2SEC, SEC2TIME
+#ifdef twoway
+     &                       , INDEX1, XSTAT3
+#endif
       USE CGRID_SPCS, ONLY: NSPCSD
+#ifdef twoway
+     &                      , N_GC_CONC, GC_CONC, GC_STRT, GC_CONC_MAP
+#endif
       USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
      &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX, AERO_CHEM_SET
       USE PMDIAG_DATA_MODULE, ONLY: NUM_PMDIAG_SPC, A_PMDIAG_SPC_MAP, PMDIAG_SPC_RECORD

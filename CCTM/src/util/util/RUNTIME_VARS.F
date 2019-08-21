@@ -47,6 +47,8 @@
 !  25 July 2019 (D. Wong) 
 !     -- Included a logic to determine whether met data was created from 
 !        WRF V4+ is used
+!  01 Aug 2019 (D. Wong) 
+!     -- Modified code to work with two-way model
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -90,6 +92,9 @@
 
       ! Met model version
       LOGICAL :: WRF_V4P         = .FALSE.  ! Indicator of whether WRF version is 4+ or not
+
+      ! Convective scheme in met model
+      LOGICAL :: CONVECTIVE_SCHEME = .TRUE.
 
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
@@ -322,6 +327,8 @@
       CALL GET_ENV ( STRTEMP, 'GRID_NAME', GRID_NAME, VARDEV )
       GRID_NAME = STRTEMP(1:16)
 
+      ! Output Time Step
+      CALL GET_ENV ( LOCAL_TSTEP, 'CTM_TSTEP', LOCAL_TSTEP, VARDEV )
 
 #ifndef twoway
       ! Main Program Name
@@ -336,9 +343,6 @@
 
       ! Starting Time
       CALL GET_ENV ( STTIME, 'CTM_STTIME', STTIME, VARDEV )
-
-      ! Output Time Step
-      CALL GET_ENV ( LOCAL_TSTEP, 'CTM_TSTEP', LOCAL_TSTEP, VARDEV )
 
       ! Retrieve the domain decomposition processor array
       IF ( NPROCS .GT. 1 ) THEN
@@ -735,33 +739,33 @@
       CALL GET_ENV ( NPTGRPS, 'N_EMIS_PT', NPTGRPS, VARDEV )
       
       ! PT3DDIAG
-      !CALL GET_ENV ( PT3DDIAG, 'PT3DDIAG', PT3DDIAG, VARDEV )
+!     CALL GET_ENV ( PT3DDIAG, 'PT3DDIAG', PT3DDIAG, VARDEV )
 
       ! PT3DFRAC
-      !CALL GET_ENV ( PT3DFRAC, 'PT3DFRAC', PT3DFRAC, VARDEV )
+!     CALL GET_ENV ( PT3DFRAC, 'PT3DFRAC', PT3DFRAC, VARDEV )
 
       ! Point Source Time Steps
-      !CALL GET_ENV ( PT_NSTEPS, 'LAYP_NSTEPS', PT_NSTEPS, VARDEV )
+!     CALL GET_ENV ( PT_NSTEPS, 'LAYP_NSTEPS', PT_NSTEPS, VARDEV )
 
       ! Point Source Date
-      !CALL GET_ENV ( PT_DATE, 'LAYP_STDATE', PT_DATE, VARDEV )
+!     CALL GET_ENV ( PT_DATE, 'LAYP_STDATE', PT_DATE, VARDEV )
 
       ! Point Source Time
-      !CALL GET_ENV ( PT_TIME, 'LAYP_STTIME', PT_TIME, VARDEV )
+!     CALL GET_ENV ( PT_TIME, 'LAYP_STTIME', PT_TIME, VARDEV )
 
       ! IPVERT
       CALL GET_ENV ( IPVERT, 'IPVERT', IPVERT, VARDEV )
 
       ! REP_LAYR
-      !CALL GET_ENV ( REP_LAYR, 'REP_LAYER_MIN', REP_LAYR, VARDEV )
+!     CALL GET_ENV ( REP_LAYR, 'REP_LAYER_MIN', REP_LAYR, VARDEV )
  
-      !ALLOCATE( PLAY_BASE( NPTGRPS ) )
-      !PLAY_BASE( : ) = ''
-      !DO NV = 1,NPTGRPS
-      !   WRITE( PBASE,'( "PLAY_BASE", "_", I2.2 )' ) NV
-      !   CALL GET_ENV ( STRTEMP, PBASE, PLAY_BASE( NV ), VARDEV )
-      !   PLAY_BASE( NV ) = STRTEMP
-      !END DO
+!     ALLOCATE( PLAY_BASE( NPTGRPS ) )
+!     PLAY_BASE( : ) = ''
+!     DO NV = 1,NPTGRPS
+!        WRITE( PBASE,'( "PLAY_BASE", "_", I2.2 )' ) NV
+!        CALL GET_ENV ( STRTEMP, PBASE, PLAY_BASE( NV ), VARDEV )
+!        PLAY_BASE( NV ) = STRTEMP
+!     END DO
        
       ! Determine user-defined default for emissions diagnostics
       CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
@@ -821,6 +825,9 @@
       call get_env( cell_num, 'cell_num', 1, vardev)
 #endif
 
+#ifdef twoway
+      WRF_V4P = .TRUE.
+#else
 ! to obtain WRF version information
       IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open '// MET_CRO_3D // ' file'
@@ -844,9 +851,9 @@
             IF (WRF_VERSION .GE. '4.1') THEN
                WRF_V4P = .TRUE.
             END IF
-         END IF   
+         END IF
       END DO
-     
+
       XMSG = 'MET data determined based on WRF ARM version '
       IF( MYPE .EQ. 0 ) THEN
           WRITE(OUTDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ), TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )
@@ -854,11 +861,12 @@
       ELSE
           WRITE(LOGDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ), TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )
       END IF
- 
+
       IF ( .NOT. CLOSE3( MET_CRO_3D ) ) THEN
         XMSG = 'Could not close ' // MET_CRO_3D
         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
+#endif
 
       END SUBROUTINE INIT_ENV_VARS
 

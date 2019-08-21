@@ -63,6 +63,8 @@ C   28 Jul 11 David Wong: set REVERT to .false. for twoway model case since
 C                         buffered file has only two time steps data
 C    1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
+C    1 Aug 19 David Wong: Bug fixed -calling interpolate_var use RHOJ rather 
+C                         than DENSJ_BUF in WINDOW scenario
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -129,7 +131,7 @@ C local variables:
       INTEGER COUNT
 
       INTEGER, SAVE :: LCB, HCB, LRB, HRB ! convenience pointers
- 
+
 C-----------------------------------------------------------------------
  
       IF ( FIRSTIME ) THEN
@@ -195,11 +197,9 @@ C Interpolate Jacobian X Air Density
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-      RHOJ = -9999999.9
-
       IF ( WINDOW ) THEN
 
-         call interpolate_var ('DENSA_J', mdate, mtime, DENSJ_BUF)
+         call interpolate_var ('DENSA_J', mdate, mtime, RHOJ)
 
          ELSE ! need to extend data from bndy file
 

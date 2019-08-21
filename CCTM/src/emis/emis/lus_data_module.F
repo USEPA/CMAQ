@@ -22,7 +22,10 @@
 ! centralized I/O implementation by avoiding cyclic data dependence
 
 ! Revision History:
-!  01 Feb 2019 D.Wong initial implementation, 
+!  01 Feb 2019 D.Wong initial implementation
+!  12 Aug 2019 F.Sidi Moved vnmld to its on type, and created a integer entry 
+!                     to map dust categories from LUFRAC. **NOTE land use type
+!                     with no mapped index has a dummy -999 value.** 
 !------------------------------------------------------------------------!
 
           module lus_data_module
@@ -33,8 +36,15 @@
                character( 16 ) :: name
                character( 64 ) :: desc
             end type lus_type
+            
+            type lus_type_2
+               character( 16 ) :: name
+               character( 64 ) :: desc
+               integer :: lu_idx
+            end type lus_type_2
 
-            type( lus_type ), allocatable :: vnmld( : )
+
+            type( lus_type_2 ), allocatable :: vnmld( : )
             type( lus_type ), allocatable :: vnmlu( : )
 
             real, allocatable    :: ladut( :,:,: ) ! % of desertland
@@ -61,10 +71,10 @@
 !     read files: DUST_LU_1 & DUST_LU_2
 
             integer, parameter :: n_dlcat_beld3 = 3   ! number of desert land categories
-            type( lus_type ), parameter :: vnmld_beld3( n_dlcat_beld3 ) = (/
-     &            lus_type( 'USGS_shrubland ', 'shrub_land    ' ),
-     &            lus_type( 'USGS_shrubgrass', 'shrub_grass   ' ),
-     &            lus_type( 'USGS_sprsbarren', 'sparse_barren ' ) /)
+            type( lus_type_2 ), parameter :: vnmld_beld3( n_dlcat_beld3 ) = (/
+     &            lus_type_2( 'USGS_shrubland ', 'shrub_land    ',-999 ),
+     &            lus_type_2( 'USGS_shrubgrass', 'shrub_grass   ',-999 ),
+     &            lus_type_2( 'USGS_sprsbarren', 'sparse_barren ',-999 ) /)
 
             real :: dmsk_beld3( n_dlcat_beld3 ) = ! land use type desert fraction
      &               (/ 0.50,    ! shrubland
@@ -104,13 +114,13 @@
 !     read file: E2C_LU
 
             integer, parameter :: n_dlcat_beld4 = 6   ! number of desert land categories
-            type( lus_type ), parameter :: vnmld_beld4( n_dlcat_beld4 ) = (/
-     &            lus_type( 'NLCD_52 ', 'Shrub/Scrub                 ' ),  ! shrubland?
-     &            lus_type( 'MODIS_6 ', 'closed shrublands           ' ),
-     &            lus_type( 'MODIS_7 ', 'open shrublands             ' ),
-     &            lus_type( 'NLCD_51 ', 'Dwarf Scrub                 ' ),  ! shrubgrass?
-     &            lus_type( 'NLCD_31 ', 'Barren Land (Rock/Sand/Clay)' ),
-     &            lus_type( 'MODIS_16', 'barren or sparsely vegetated' ) /)
+            type( lus_type_2 ), parameter :: vnmld_beld4( n_dlcat_beld4 ) = (/
+     &            lus_type_2( 'NLCD_52 ', 'Shrub/Scrub                 ',-999 ),  ! shrubland?
+     &            lus_type_2( 'MODIS_6 ', 'closed shrublands           ',-999 ),
+     &            lus_type_2( 'MODIS_7 ', 'open shrublands             ',-999 ),
+     &            lus_type_2( 'NLCD_51 ', 'Dwarf Scrub                 ',-999 ),  ! shrubgrass?
+     &            lus_type_2( 'NLCD_31 ', 'Barren Land (Rock/Sand/Clay)',-999 ),
+     &            lus_type_2( 'MODIS_16', 'barren or sparsely vegetated',-999 ) /)
 
             real :: dmsk_beld4( n_dlcat_beld4 ) = ! land use type desert fraction
      &           (/ 0.50,    ! shrubland
@@ -186,11 +196,11 @@
 !     read file: GRID_CRO_2D
 
             integer, parameter :: n_dlcat_usgs24 = 4   ! number of desert land categories
-            type( lus_type ), parameter :: vnmld_usgs24( n_dlcat_usgs24 ) = (/
-     &            lus_type( 'LUFRAC_08', 'Shrubland                   ' ),
-     &            lus_type( 'LUFRAC_19', 'Barren or Sparsely Vegetated' ),
-     &            lus_type( 'LUFRAC_22', 'Mixed Tundra                ' ),
-     &            lus_type( 'LUFRAC_23', 'Bare Ground Tundra          ' ) /)
+            type( lus_type_2 ), parameter :: vnmld_usgs24( n_dlcat_usgs24 ) = (/
+     &            lus_type_2( 'LUFRAC_08', 'Shrubland                   ',8  ),
+     &            lus_type_2( 'LUFRAC_19', 'Barren or Sparsely Vegetated',19 ),
+     &            lus_type_2( 'LUFRAC_22', 'Mixed Tundra                ',22 ),
+     &            lus_type_2( 'LUFRAC_23', 'Bare Ground Tundra          ',23 ) /)
 
 !!!!!    Is some 'tundra' desert land?
 
@@ -238,8 +248,8 @@
 !     read file: GRID_CRO_2D
 
             integer, parameter :: n_dlcat_modis = 1   ! number of desert land categories
-            type( lus_type ), parameter :: vnmld_modis( n_dlcat_modis ) = (/
-     &            lus_type( 'nada', 'nada' ) /)
+            type( lus_type_2 ), parameter :: vnmld_modis( n_dlcat_modis ) = (/
+     &            lus_type_2( 'nada', 'nada',-999 ) /)
             real :: dmsk_modis( n_dlcat_modis ) = 0.0  ! land use type desert fraction
             integer :: dmap_modis( n_dlcat_modis+1 ) = 0 ! land use type desert map to BELD3
             integer, parameter :: n_lucat_modis = 1   ! number of landuse categories
@@ -271,11 +281,11 @@
 !     read file: GRID_CRO_2D
 
             integer, parameter :: n_dlcat_modis_noah = 4   ! number of desert land categories
-            type( lus_type ), parameter :: vnmld_modis_noah( n_dlcat_modis_noah ) = (/
-     &            lus_type( 'LUFRAC_06', 'Closed Shrublands           ' ),
-     &            lus_type( 'LUFRAC_07', 'Open Shrublands             ' ),
-     &            lus_type( 'LUFRAC_16', 'Barren or Sparsely Vegetated' ),
-     &            lus_type( 'LUFRAC_20', 'Barren Tundra               ' ) /)
+            type( lus_type_2 ), parameter :: vnmld_modis_noah( n_dlcat_modis_noah ) = (/
+     &            lus_type_2( 'LUFRAC_06', 'Closed Shrublands           ',6  ),
+     &            lus_type_2( 'LUFRAC_07', 'Open Shrublands             ',7  ),
+     &            lus_type_2( 'LUFRAC_16', 'Barren or Sparsely Vegetated',16 ),
+     &            lus_type_2( 'LUFRAC_20', 'Barren Tundra               ',20 ) /)
 
             real :: dmsk_modis_noah( n_dlcat_modis_noah ) =   ! land use type desert fraction
      &           (/ 0.50,    ! shrubland
@@ -317,14 +327,14 @@
 !     read file: GRID_CRO_2D
 ! includes both nlcd and MODIS versions of shrublands
             integer, parameter :: n_dlcat_nlcd_modis = 7   ! number of desert land types
-            type( lus_type ), parameter :: vnmld_nlcd_modis( n_dlcat_nlcd_modis ) = (/
-     &            lus_type( 'LUFRAC_37', 'Closed Shrublands           ' ),
-     &            lus_type( 'LUFRAC_38', 'Open Shrublands             ' ),
-     &            lus_type( 'LUFRAC_07', 'Barren Land (Rock-Sand-Clay)' ),
-     &            lus_type( 'LUFRAC_12', 'Dwarf Scrub                 ' ),
-     &            lus_type( 'LUFRAC_13', 'Shrub-Scrub                 ' ),
-     &            lus_type( 'LUFRAC_18', 'Tundra                      ' ),
-     &            lus_type( 'LUFRAC_47', 'Barren or Sparsely Vegetated' ) /)
+            type( lus_type_2 ), parameter :: vnmld_nlcd_modis( n_dlcat_nlcd_modis ) = (/
+     &            lus_type_2( 'LUFRAC_37', 'Closed Shrublands           ',37 ),
+     &            lus_type_2( 'LUFRAC_38', 'Open Shrublands             ',38 ),
+     &            lus_type_2( 'LUFRAC_07', 'Barren Land (Rock-Sand-Clay)',7  ),
+     &            lus_type_2( 'LUFRAC_12', 'Dwarf Scrub                 ',12 ),
+     &            lus_type_2( 'LUFRAC_13', 'Shrub-Scrub                 ',13 ),
+     &            lus_type_2( 'LUFRAC_18', 'Tundra                      ',18 ),
+     &            lus_type_2( 'LUFRAC_47', 'Barren or Sparsely Vegetated',47 ) /)
 
             real :: dmsk_nlcd_modis( n_dlcat_nlcd_modis ) =   ! land use type desert fraction
      &           (/ 0.50,    ! shrubland
@@ -402,13 +412,13 @@
 !     read file: GRID_CRO_2D
 ! includes both nlcd and MODIS versions of shrublands
             integer, parameter :: n_dlcat_nlcd40 = 6   ! number of desert land types
-            type( lus_type ), parameter :: vnmld_nlcd40( n_dlcat_nlcd40 ) = (/
-     &            lus_type( 'LUFRAC_06', 'Closed Shrublands           ' ),
-     &            lus_type( 'LUFRAC_07', 'Open Shrublands             ' ),
-     &            lus_type( 'LUFRAC_27', 'Barren Land (Rock-Sand-Clay)' ),
-     &            lus_type( 'LUFRAC_31', 'Dwarf Scrub                 ' ),
-     &            lus_type( 'LUFRAC_32', 'Shrub-Scrub                 ' ),
-     &            lus_type( 'LUFRAC_16', 'Barren or Sparsely Vegetated' ) /)
+            type( lus_type_2 ), parameter :: vnmld_nlcd40( n_dlcat_nlcd40 ) = (/
+     &            lus_type_2( 'LUFRAC_06', 'Closed Shrublands           ',6  ),
+     &            lus_type_2( 'LUFRAC_07', 'Open Shrublands             ',7  ),
+     &            lus_type_2( 'LUFRAC_27', 'Barren Land (Rock-Sand-Clay)',27 ),
+     &            lus_type_2( 'LUFRAC_31', 'Dwarf Scrub                 ',31 ),
+     &            lus_type_2( 'LUFRAC_32', 'Shrub-Scrub                 ',32 ),
+     &            lus_type_2( 'LUFRAC_16', 'Barren or Sparsely Vegetated',16 ) /)
 
             real :: dmsk_nlcd40( n_dlcat_nlcd40 ) =   ! land use type desert fraction
      &           (/ 0.50,    ! shrubland

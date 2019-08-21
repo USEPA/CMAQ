@@ -5,6 +5,8 @@
 !           31 Jan 2019  (David Wong)
 !              -- adopted the idea to process all twoway related environment
 !                 variables in one place
+!           01 Aug 2019  (David Wong)
+!              -- removed interface block for get_envlist
 !===============================================================================
 
 module sd_time_series_module
@@ -37,14 +39,6 @@ module sd_time_series_module
 !   integer, external :: index1
 
     character (len = 16), parameter :: pname = 'sd_time_series_i'
-
-    interface
-      subroutine get_envlist (env_var, nvars, var_list)
-        character (len = *), intent(in)   :: env_var
-        integer, intent(out)              :: nvars
-        character (len = 16), intent(out) :: var_list(:)
-      end subroutine get_envlist
-    end interface
 
     if ( .not. desc3( ctm_conc_1 ) ) then
        write (in_logdev, '(a14, a16, a17)') 'Could not get ', CTM_CONC_1, ' file description'
