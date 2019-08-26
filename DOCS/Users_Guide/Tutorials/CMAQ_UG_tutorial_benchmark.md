@@ -232,12 +232,13 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
 - Red Hat Enterprise Linux Server release 7.6 (Maipo)
 - Linux Kernel 3.10.0-957.12.2.el7.x86_64
-- GNU GCC compiler version 9.1.0, 8 processors with OpenMPIv4.0.1 and I/O APIv3.2
+- GNU GCC compiler version 6.1.0, 8 processors with OpenMPIv4.0.1 and I/O APIv3.2
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
 - CMAQv5.3
 
-The CMAQv5.3 reference data include output from BCON, ICON, and the CCTM. You will only need to compare the results for the CCTM to evaluate the benchmark results.
+The CMAQv5.3 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables.
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
-In general, if the largest domain-wide and simulation period differences between your simulation and the reference data are <1%, the model is considered to be successfully benchmarked (i.e., the installation is verified).
+Note, even with a successful installation and run of the benchmark case, some differences between your simulation and the reference data can occur due to differences in domain decomposition for multi-processor simulations as well as differences in compiler optimization.  These differences tend to manifest in upper layers of the model and are mostly found in predicting aerosol water (AH2O) and aerosol acidity (AH3OP), while differences are smaller for other key species like ASO4, ANO3, ACL, ALOO1, etc. These species have short atmospheric lifetimes with large changes in time and space derivatives or have model physics sensitive to small changes in concentration. Predicting these species is more sensitivity to small changes in machine precision and accuracy."
+
