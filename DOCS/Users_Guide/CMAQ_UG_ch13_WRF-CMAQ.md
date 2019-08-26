@@ -32,13 +32,15 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
 
 The new coupled WRF-CMAQ model is based on WRFv4.1.1 and CMAQv5.3. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculation rather than volume mixing technique as in the previous version of the coupled model. 
 
-The WRF-CMAQ coupled model is released as a tarball from the CMAS Center Data Warehouse Google Drive.
-- [Link to WRF411_CMAQ5.3_Coupled_Model_20190821.tar.gz](https://drive.google.com/open?id=1ru64xxZeRcE5buQ9fygV9jUHAQ9aDnL7)
+The WRF-CMAQ coupled model is released as a tarball (WRF411_CMAQ5.3_Coupled_Model_20190821.tar.gz) from the CMAS Center Data Warehouse Google Drive and from the US EPA annoymous ftp server.
+- [Link to WRFv4.1.1-CMAQv5.3 Coupled_Model on Google Drive](https://drive.google.com/open?id=1ru64xxZeRcE5buQ9fygV9jUHAQ9aDnL7)
+- [Link to WRFv4.1.1-CMAQv5.3 Couple Model on ftp](ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/)
 
 Build and run instructions are provided in the toplevel *readme* file in the tarball.
 
-Benchmark input and output datasets are also available from the CMAS Center Data Warehouse Google Drive.
-- [Link to WRF-CMAQ Benchmark input and output datasets](https://drive.google.com/drive/folders/1apg7_LXU4Kpzx5EZgdc07Q3UTTpL-jah)
+Benchmark input and output datasets are also available from the CMAS Center Data Warehouse Google Drive and the EPA ftp server.
+- [Link to WRF-CMAQ Benchmark input and output datasets on Google Drive](https://drive.google.com/drive/folders/1apg7_LXU4Kpzx5EZgdc07Q3UTTpL-jah)
+- [Link to WRF-CMAQ Benchmark input and output datasets on ftp](ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/)
 
 If you have any question, please contact David Wong at wong.david-c@epa.gov
 
