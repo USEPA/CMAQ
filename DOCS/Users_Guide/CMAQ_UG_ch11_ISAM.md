@@ -73,7 +73,7 @@ Additionally, ISAM can track emissions confined to geographic regions.  This fun
 
 ### 11.3.1 ISAM control file (SA_IOLIST)
 
-The ISAM `SA_IOLIST` is a text file used to configure which tag classes, emissions streams, and source regions the model will track.  An example of this file, `isam_control.txt`, is provided in the release package.  The formating of this file must be kept intact, but it does allow for insertion of comment lines.  
+The ISAM `SA_IOLIST` is a text file used to configure which tag classes, emissions streams, and source regions the model will track.  An example of this file, `isam_control.txt`, is provided in $CMAQ_HOME/CCTM/scripts.  The formating of this file must be kept intact, but it does allow for insertion of comment lines.  
 
 Each ISAM simulation requires the specification of the `TAG CLASSES` that the user desires to apportion.  The current list includes the following choices `SULFATE, NITRATE, AMMONIUM, EC, OC, VOC, PM25_IONS, CO, OZONE`.  Species associated with each of these are provided in section 11.1.  One or more of these tag classes must be specified in `SA_IOLIST`.  Multiple tag classes are comma delimited.
 
@@ -121,8 +121,16 @@ BCON - contribution form boundary condtions throughout the simulation
 OTHR - contribution from all emissions not tagged by the user through isam control file.
 ```
 
+## 11.4 ISAM Benchmark data
+The input files for the CMAQv5.3 ISAM benchmark case are the same as the benchmark inputs for the base model, described in the [CMAQ Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_benchmark.md).  Output source apportionment files associated with the sample `isam_control.txt` provided in this release package are included in the benchmark outputs for the base model.  
 
-## 11.4 References
+The CMAQ benchmark data can be downloaded from the [CMAS Center Data Warehouse SE53BENCH](https://drive.google.com/drive/folders/1wvz0jQuqnuT8RNj_EMuLec154-rFXucv) Google Drive folder.  The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  Input and output files for a two week case covering July 1-14, 2016 are also available within the same Google Drive folder.
+
+- Metadata for the CMAQ benchmark inputs: https://doi.org/10.15139/S3/IQVABD 
+- Metadata for the CMAQ benchmark outputs: https://doi.org/10.15139/S3/PDE4SS
+
+
+## 11.5 References
 
 Kwok, R.H.F, Napelenok, S.L., & Baker, K.R. (2013). Implementation and evaluation of PM2.5 source contribution analysis in a photochemical model. Atmospheric Environment, 80, 398–407 [doi:10.1016/j.atmosenv.2013.08.017](https://doi.org/10.1016/j.atmosenv.2013.08.017).
 
