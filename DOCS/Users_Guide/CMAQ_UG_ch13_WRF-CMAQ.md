@@ -28,76 +28,17 @@ Impacts of aerosol cooling are not limited to changes in surface temperature, si
 Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhanced surface PM2.5 concentrations in the most polluted regions of the world due to the aerosol direct effect.
 
 
-## 13.4 Build Instructions
+## 13.4 Latest WRF-CMAQ Release
 
-- Download WRF 4.1.1 and unzip it (recommend command: `tar xfz the_zip_file`). At the end of this step, you will see a new directory WRFV4 and rename it
-   to WRFV411.
-- Configure WRF by typing `configure`. This creates a configure.wrf file.
-- If you have never done WRF configure before, here are some guidelines:
-   1. If the configure script does not find the NETCDF path, follow the prompt to enter the explicit NETCDF include path and library path.
-   2. Option selection determines by choosing an approriate compiler vendor and hardware description on right most column of the displayed option table and intercept with the third column (dmpar).  Example: for INTEL (ifort/icc), selection is 15 (you might consider 66 or 70 for a specific hardware if you own).
-   3. In the compile for nesting section, choose the default value.
-- Download I/O API 3.2 and install it.
-- Go through regular building CMAQ model process. Make sure bldit.cctm script  have:
+The new coupled WRF-CMAQ model is based on WRFv4.1.1 and CMAQv5.3. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculation rather than volume mixing technique as in the previous version of the coupled model. 
 
-    `set MakeFileOnly` line uncomment out
+The WRF-CMAQ coupled model is released as a tarball from the CMAS Center Data Warehouse.
+- [Link to WRF411_CMAQ5.3_Coupled_Model_20190821.tar.gz](https://drive.google.com/open?id=1q34zB-4RfzjozgHg31Y7FxLIAOWcskCt)
 
-    `set build_twoway` line uncomment out
-
-- After running the blidit.cctm script, rename BLD_\* as cmaq and move it into WRFV411 directory.
-
- - Download coupled model tarball from the EPA ftp site: ftp://newftp.epa.gov/exposure/CMAQ/V5_2/WRF-CMAQ_Coupled_Model/ (file name="WRF411_CMAQ5.3_TwoWay_Model.tar.gz"). Unzip the tarball and then move the twoway directory inside WRFV411 as well.
-
-- Go into directory WRFV411 and execute the following command:
-
-   `twoway/assemble`
-
-   This command will update all necessary files in WRF and CMAQ to create
-   the twoway model. You can find the original files inside twoway/misc/orig
-   directory.
-
-- Note:  
-   1. You might need to edit the I/O API and MPI paths in configure.wrf base on
-      the location of those two libraries on your system.
-
-   2. You can also replace the netCDF link with explicit netCDF path under
-      LIB_EXTERNAL and NETCDFPATH. Copy configure.wrf to configure.wrf.saved.
-      Once you have this done and in the future if you type `clean -a`, you
-      can restore the configure file by `cp configure.wrf.saved configure.wrf`
-      without going through configure step again.
-
-   3. In the future, when you bring in a newer version of cmaq, you just
-      need to type:
-
-      `twoway/assemble m`
-
-      and a Makefile.twoway will be created inside that new cmaq directory.
-
-- Compile the twoway model by typing `compile em_real >& mylog`. This might take some time for completion and you can monitor size changes of file, mylog. If compilation is done successfully, you can find main/wrf.exe file.
-
-## 13.5 WRF-CMAQ Input/Output Data and Run Instructions
-A test dataset is available from the [CMAS Center Software Clearinghouse](https://www.cmascenter.org/download/software/cmaq). After logging in to the CMAS Center, select Download -> Software -> CMAQ and choose version 5.3.  Click on "Download Datasets" and then browse to the folder WRF411-CMAQ53_Coupled_Model to download model input and reference output (WRFv4.1.1_CMAQv5.3_Input.tar.gz, WRFv4.1.1_CMAQv5.3_Output.tar.gz). Once you unpack the files, you can store them anywhere you want.  
-
-A sample run script, twoway_model_run_script, is in the WRFv4.1.1_CMAQv5.3_TwoWay_Model.tar.gz under the script subdirectory.
-In order to use this script to run the WRF-CMAQ two-way model, you need to modify two variables: WRF_DIR and INPDIR.
-    In general, the area in between
-
-`# ##### begin user define area #####`
-
-and
-
-`# ##### end user define area #####`
-
-can be modified to suit a particular simulation.
-
-The WRF-CMAQ benchmark data provide examples of the files needed to run the model. The general list of inputs required for WRF-CMAQ include,
-
-* REAL outputs :: wrfbdy, wrflowinp, wrffdda, wrfsfdda, wrfrstrt
-* CMAQ inputs  :: emissions, IC, BC, OMI, ocean file
-
-WRF-CMAQ outputs standard WRF (wrfout) and CMAQ output files.
+Build and run instructions are provided in the toplevel *readme* file in the tarball.
 
 If you have any question, please contact David Wong at wong.david-c@epa.gov
+
 
 ## 13.6 References
 

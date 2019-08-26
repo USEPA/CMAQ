@@ -38,6 +38,15 @@ Starting with CMAQv5.3 model release, ISAM is provided directly with the source 
 set ISAM_CCTM
 ```
 
+**A note about I/O API installation for ISAM applications**
+
+I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. This version is available as a zip file from the following address:
+
+https://www.cmascenter.org/ioapi/download/ioapi-3.2-large.tar.gz
+
+Installation instructions for I/O API v5.3-large are provided in README.txt in the .tar.gz file. 
+
+
 ## 11.3 Run Instructions
 
 To begin a CMAQ simulation with source apportionment enabled, the ISAM section of the runscript must be configured.  The additional necessary environment variables are listed in Table 11-1.

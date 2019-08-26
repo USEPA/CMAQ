@@ -53,7 +53,7 @@ Benchmark/tutorial data for each CMAQ release version are available from the CMA
 |**Data Type**|**Domain**|**Simulation Dates**|**Dataverse DOI**| 
 |:----:|:--------------:|:----:|:--------:|
 |Input| Southeast US| July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
-|Output| Southeast US| July 1 - 14, 2016| |
+|Output| Southeast US| July 1 - 14, 2016|https://doi.org/10.15139/S3/PDE4SS |
 |Input| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
 
 
