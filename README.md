@@ -10,8 +10,7 @@ CMAQ combines current knowledge in atmospheric science and air quality modeling 
 computing techniques in an open-source framework to deliver fast, technically sound estimates of ozone,
 particulates, toxics, and acid deposition.
 
-## CMAQv5.3 
-New features in CMAQ version 5.3 include:
+## New features in CMAQ version 5.3 include:
 * Simplified emissions scaling
 * Improved representation of natural aerosols 
 * Expanded capability for ecological applications 
@@ -69,5 +68,4 @@ The followoing release versions of CMAQ are currently available on GitHub.  DOI 
  
 
 ## EPA Disclaimer
->>>>>>> 43ced8407b936aa352a2a35f0ede6ad14c60082c
 The United States Environmental Protection Agency (EPA) GitHub project code is provided on an "as is" basis and the user assumes responsibility for its use. EPA has relinquished control of the information and no longer has responsibility to protect the integrity , confidentiality, or availability of the information. Any reference to specific commercial products, processes, or services by service mark, trademark, manufacturer, or otherwise, does not constitute or imply their endorsement, recommendation or favoring by EPA. The EPA seal and logo shall not be used in any manner to imply endorsement of any commercial product or activity by EPA or the United States Government.    [<img src="https://licensebuttons.net/p/mark/1.0/88x31.png" width="50" height="15">](https://creativecommons.org/publicdomain/zero/1.0/)
