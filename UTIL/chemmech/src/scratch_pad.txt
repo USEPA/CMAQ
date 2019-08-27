@@ -1,0 +1,56 @@
+       DO NK =  1, NRXNS
+
+C...Set NET_EFFECT for reaction product
+            DO NP = 1, NPRDCT( NK )
+               ISP2 = IRR( NK,NP+3 )
+               
+               NET_EFFECT( ISP2, NK )    = 3
+               
+               NET_RXN_COEFF( ISP2, NK ) = NET_RXN_COEFF( ISP2, NK )
+     &                                    + REAL(SC( NK,NP ), 8)
+            END DO
+         
+C..Check whether reaction has a species as both reactant and product
+
+         
+         DO NRT = 1, NREACT( NK )
+
+            ISP = IRR( NK,NRT )
+            NET_RXN_COEFF( ISP, NK ) = NET_RXN_COEFF( ISP, NK ) - 1.0D0
+            DO NP = 1, NPRDCT( NK )
+               ISP2 = IRR( NK,NP+3 )
+
+               IF( ISP .EQ. ISP2 )THEN
+                   IF( NET_RXN_COEFF( ISP, NK ) .EQ. 0.0D0 )THEN ! reaction has no net effect
+
+                       NET_EFFECT( ISP, NK ) = 0
+
+                   ELSE IF( NET_RXN_COEFF( ISP, NK ) .LT. 0.0D0 )THEN ! net loss
+
+                       IF( NET_RXN_COEFF( ISP, NK ) .EQ. -1.0D0 )THEN ! only loss process
+                           NET_EFFECT( ISP, NK ) = -1
+                       ELSE
+                           NET_EFFECT( ISP, NK ) = -2
+                       END IF
+
+                   ELSE IF( NET_RXN_COEFF( ISP, NK ) .GT. 0.0D0 )THEN ! loss is not 100% 
+
+                       NET_EFFECT( ISP, NK ) = 2
+
+                   END IF
+               END IF
+            END DO
+            IF( NET_RXN_COEFF( ISP, NK ) .LT. 0.0D0 )THEN
+                IF( NET_RXN_COEFF( ISP, NK ) .EQ. -1.0D0 )THEN
+                     NET_EFFECT( ISP, NK ) = -1
+                ELSE
+                     NET_EFFECT( ISP, NK ) = -2
+                END IF
+            END IF                  
+         END DO                      
+
+         WRITE(6,'(5A,I2,A,ES12.4)')'For reactant ', TRIM(MECHANISM_SPC( ISP )),' : reaction ',
+     &   RXLABEL( NK ),' NET_EFFECT = ',NET_EFFECT( ISP, NK ),' NET_RXN_COEFF = ', NET_RXN_COEFF( ISP, NK )
+                       
+                   
+        END DO               ! END LOOP OVER REACTIONS

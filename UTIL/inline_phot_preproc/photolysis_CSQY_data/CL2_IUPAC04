@@ -1,0 +1,52 @@
+CL2_IUPAC04
+! CL2 + HV = 2*CL
+! 260 nm and 470 nm
+! IUPAC Subcommittee on Gas Kinetic Data Evaluation; Data Sheet PCl11 Website: 15th December 2000
+! Website: http://www.iupac-kinetic.ch.cam.ac.uk between 260 nm and 470 nm
+! > 260 nm
+! J. Tellinghuisen, "Precise equilibrium constants from spectrophotometric data: 
+! BrCl in Br2/Cl2," J. Phys. Chem. A 107, 753-757 (2003) 
+! > 470 nm
+! NASA JPL (2015) recommendation
+! Assume these are point values (not specified in data source)
+POINT
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+200     6.50e-22        1
+210     1.91e-22        1
+220     1.53e-22        1
+230     2.30e-22        1
+240     1.53e-22        1
+250     4.59e-22        1
+260	2.0E-21	        1	
+270	8.2E-21	        1	
+280	2.6E-20	        1	
+290	6.2E-20	        1	
+300	1.19E-19        1	
+310	1.85E-19        1	
+320	2.37E-19        1	
+330	2.55E-19        1	
+340	2.35E-19        1	
+350	1.88E-19        1	
+360	1.32E-19        1	
+370	8.4E-20	        1	
+380	5.0E-20	        1
+390	2.9E-20	        1	
+400	1.8E-20	        1	
+410	1.3E-20	        1	
+420	9.6E-21	        1	
+430	7.3E-21	        1	
+440	5.4E-21	        1	
+450	3.8E-21	        1	
+460	2.6E-21	        1	
+470	1.6E-21	        1	
+480     9.57E-22        1
+490     5.34E-22        1
+500     2.83E-22        1
+510     1.42E-22        1
+520     6.81E-23        1
+530     3.13E-23        1
+540     1.37E-23        1
+550     5.80E-23        1
+			
+			
