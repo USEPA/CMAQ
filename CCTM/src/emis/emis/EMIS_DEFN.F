@@ -331,8 +331,8 @@ C Parse out the stream names the user wants tagged
 
 C Find emissions stream in the list of available streams
               DO ISRM = 1, TAGSTREAMS_NUM( ITAG )
-#ifdef potvorto3
                  IF ( TAGSTREAMS(ITAG,ISRM) .EQ. 'PVO3' ) THEN
+#ifdef potvorto3
                     IF ( L_OZONE ) THEN
                       ISAM_PVO3_MAP(ITAG) = 1
                       CYCLE
@@ -341,8 +341,13 @@ C Find emissions stream in the list of available streams
      &                       " in isam_control to track PVO3 "
                       CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
                     ENDIF
-                 ENDIF
+#else
+                    XMSG = " To track PVO3, model must be compiled" //
+     &                     " with -Dpotvorto3 option. Check Makefile" //
+     &                     " and/or build script."
+                    CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
 #endif
+                 ENDIF
                  IDX = INDEX1(TAGSTREAMS(ITAG,ISRM),N_EM_SRM,EM_FILE_LAB )
                  IF ( IDX .EQ. 0 ) THEN
                    XMSG = " User specified ISAM tag - " //
