@@ -1,0 +1,17 @@
+&NR_nml
+
+NR_SPECIES_DATA = 
+
+!SPECIES         ,MOLWT   ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR       ,FAC  ,WET-SCAV SURR     ,FAC ,NR2AE SURR     ,NR2AQ SURR,TRNS  ,DDEP  ,WDEP  ,CONC
+'NH3'            , 17.0   ,''     ,-1     ,''     ,-1     ,'VD_NH3'          , 1   ,'NH3'             , 1  ,'NH3'          ,'NH3'     ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVISO1'         ,132.0   ,''     ,-1     ,''     ,-1     ,'VD_SVISO1'       , 1   ,'SVISO1'          , 1  ,'SVISO1'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVISO2'         ,133.0   ,''     ,-1     ,''     ,-1     ,'VD_SVISO2'       , 1   ,'SVISO2'          , 1  ,'SVISO2'       ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVSQT'          ,273.0   ,''     ,-1     ,''     ,-1     ,'VD_SVSQT'        , 1   ,'SVSQT'           , 1  ,'SVSQT'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'LVPCSOG'        ,170.0   ,''     ,-1     ,''     ,-1     ,'VD_LVPCSOG'      , 1   ,'ADIPIC_ACID'     , 1  ,'LVPCSOG'      ,''        ,'Yes' ,''    ,''    ,'Yes',
+'SVMT1'          ,300.0   ,''     ,-1     ,''     ,-1     ,'VD_SVMT1'        , 1   ,'SVMT1'           , 1  ,'SVMT1'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVMT2'          ,200.0   ,''     ,-1     ,''     ,-1     ,'VD_SVMT2'        , 1   ,'SVMT2'           , 1  ,'SVMT2'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVMT3'          ,186.0   ,''     ,-1     ,''     ,-1     ,'VD_SVMT3'        , 1   ,'SVMT3'           , 1  ,'SVMT3'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVMT4'          ,184.0   ,''     ,-1     ,''     ,-1     ,'VD_SVMT4'        , 1   ,'SVMT4'           , 1  ,'SVMT4'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVMT5'          ,170.0   ,''     ,-1     ,''     ,-1     ,'VD_SVMT5'        , 1   ,'SVMT5'           , 1  ,'SVMT5'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVMT6'          ,168.0   ,''     ,-1     ,''     ,-1     ,'VD_SVMT6'        , 1   ,'SVMT6'           , 1  ,'SVMT6'        ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+/

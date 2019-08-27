@@ -1,0 +1,53 @@
+ETHYNO3_MCMv32
+!ethyl nitrate cross-sections (CH3CH2ONO2)
+!CH3CH2ONO2 --> C2H5O + NO2
+!MPI-Mainz Spectral Atlas
+!IUPAC 2015 recommendation
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P15_C2H5ONO2+hv.pdf dated May 2002
+!
+!298K cs from:
+!M. P. Turberg, D. M. Giolando, C. Tilt, T. Soper, S. Mason, M. Davies, P. Klingensmith,
+!and G. A. Takacs, J. Photochem. Photobiol. A51, 281 (1990)
+!
+!T dependence average from:
+!1. L. Zhu and C.-F. Ding, Chem. Phys. Lett. 265, 177 (1997).
+!2. K. C. Clemitshaw, J. Williams, O. V. Rattigan, D. E. Shallcross, K. S. Law, and R. A.
+!   Cox, J. Photochem. Photobiol. A: Chemistry 102, 117 (1997).
+!3. R. K. Talukdar, J. B. Burkholder, M. Hunter, M. K. Giles, J. M. Roberts, and A. R.
+!   Ravishankara, J. Chem. Soc. Faraday Trans. 93, 2797 (1997)
+!
+!Quantum Yield
+!
+!phi (CH3CH2O + NO2) = unity from 290 nm to 340 nm
+!
+!ln(sigma(T,lambda)) - ln(sigma(298,lambda)) = B * (T-298)
+!
+!C2H5CHO (298K and 1 bar) photolysis quantum yields (C2H5 + HCO)				
+!				
+!Chen and Zhu J. Phys. Chem. A., 105, 9689 (2001)				
+!nm  sig(298K)  qy  B(K-1)
+Points (the mechanism evaluated with this format)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+235.0 1.10E-19 1.000 0.0014
+240.0 7.70E-20 1.000 0.0028
+245.0 5.40E-20 1.000 0.0029
+250.0 4.50E-20 1.000 0.0028
+255.0 4.10E-20 1.000 0.0026
+260.0 3.90E-20 1.000 0.0026
+265.0 3.60E-20 1.000 0.0029
+270.0 3.10E-20 1.000 0.0031
+275.0 2.70E-20 1.000 0.0033
+280.0 2.20E-20 1.000 0.0036
+285.0 1.70E-20 1.000 0.0038
+290.0 1.20E-20 0.980 0.0042
+295.0 8.50E-21 0.950 0.0047
+300.0 5.50E-21 0.920 0.0051
+305.0 3.30E-21 0.950 0.0058
+310.0 1.90E-21 0.980 0.0067
+315.0 1.00E-21 0.040 0.0079
+320.0 5.10E-22 0.028 0.0086
+325.0 2.60E-22 0.021 0.0104
+330.0 1.20E-22 0.023 0.0129
+335.0 4.90E-23 0.000 0.0141
+340.0 2.50E-23 0.000 0.0156

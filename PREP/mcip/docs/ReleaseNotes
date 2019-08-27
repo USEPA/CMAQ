@@ -1,0 +1,100 @@
+********************************************************************************
+Announcing the release of MCIP Version 5.0 (20 June 2019)
+********************************************************************************
+
+The MCIP code is updated to version 5.0.  This is a major update to MCIP.
+These release notes and the CHANGES file reflect all changes that have been
+made to MCIP since MCIPv4.5 (the previous release).  Changes to MCIPv5.0
+were made by Tanya Spero (U.S. EPA).
+
+MCIPv5.0 accompanies CMAQv5.3.  If you are using CMAQv5.3, you should upgrade
+to use MCIPv5.0.
+
+MCIPv5.0 requires I/O API version 3.1 or greater to support error-checking
+within the I/O API.
+
+MCIPv5.0 requires the netCDF F90 module (rather than the F77 include).
+
+
+MCIP can be cited with the following reference:
+
+  Otte, T. L., and J. E. Pleim, 2010.  The Meteorology-Chemistry Interface
+     Processor (MCIP) for the CMAQ modeling system: updates through
+     MCIPv3.4.1.  Geoscientific Model Development, 3, 243-256.
+
+A DOI will also be available for CMAQv5.3 (which includes MCIPv5.0).
+
+
+Background on MCIP and other useful information about the CMAQ system can be
+found online at http://www.epa.gov/cmaq.
+
+Inquiries related to potential bugs in MCIPv5.0 or questions related to
+proper use of the code should be submitted to the MCIP Category in the
+Forum hosted by the CMAS Center:  https://forum.cmascenter.org/c/mcip.
+
+Users are encouraged to read the Frequently Asked Questions (FAQ) file.
+Users should consult the FAQ and other issues raised within the Forum
+before submitting new inquiries.
+
+
+
+MCIPv5.0 has been tested with the following Fortran compilers under both debug
+and optimized options at various stages of development:  Intel 18.0, PGI 17.10,
+and GCC 6.0.1.  MCIPv5.0 has been tested with netCDF 4.6.3, and I/O API 3.2.
+
+
+With MCIPv5.0, the following remain deprecated:
+  - Including "SOIM1", "SOIM2", "SOIT1", and "SOIT2" in METCRO2D.
+    Those fields are now in a separate file that includes all soil layers and
+    their associated depths (SOI_CRO).
+  - Including "LUFRAC_xx" in GRIDCRO2D.  Those fields are now in a separate
+    file that includes each fractional land use classification (LUFRAC_CRO).
+
+With MCIPv5.0, the following output variables in METCRO2D remain deprecated:
+     - 2-D cloud fraction (CFRAC)
+     - cloud top (CLDT)
+     - cloud bottom (CLDB)
+     - liquid water content (WBAR)
+They will be removed from METCRO2D in a forthcoming release of MCIP.
+
+
+Interactions with members of the CMAQ user community led to some of the changes
+that have been incorporated into MCIPv5.0.
+
+
+The following is a summary of the changes in MCIPv5.0:
+
+ 1.  Enabled support for WRFv4.0+.
+
+ 2.  Enabled support for WRF using the hybrid vertical coordinate.
+
+ 3.  Removed support for using files from MM5.
+
+ 4.  Overhauled all I/O routines to make internal arrays more generalized to
+     support additional output formats.
+
+ 5.  Removed layer collapsing.
+
+ 6.  Added an option to write MCIP output in netCDF.
+
+ 7.  Updated the units of most output fields to conform to CF compliance.
+
+ 8.  Corrected bug in setting land use category names in MCIP for
+     WRF land use classification "USGS24 + lakes".
+
+ 9.  Changed fill value for convective rainfall with "no cumulus
+     parameterization" from -1 to a large negative number to prevent
+    inadvertent use in CCTM and post-processing.
+
+10. Corrected error in computing precipitation amounts when the tipping bucket
+    is used and less than 0.5 mm of precipitation accumulated during the same
+    hour that the bucket tips; correct erroneous precipitation spikes.
+
+11. Added 7 new 2D variables to the output if the Pleim-Xiu land-surface
+    model is run in WRFv4.1+.  These variables can be used to improve the
+    simulation of dust in CCTM.
+
+12. Changed the default output wind components to the "face" points (UWINDC
+    and VWINDC) from the "dot" points (UWIND and VWIND).  The "face" points
+    are on the Arakawa C staggered grid that is used by both WRF and CCTM.
+    The "dot" points are on the Arakawa B staggered grid used by MM5.

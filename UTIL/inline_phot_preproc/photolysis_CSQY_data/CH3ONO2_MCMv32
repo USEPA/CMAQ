@@ -1,0 +1,55 @@
+CH3ONO2_MCMv32
+!Methyl nitrate (CH3ONO2) T dependent cross sections
+!CH3ONO2 -->  CH3O + NO2
+!IUPAC 2005 recommendation
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P14_CH3ONO2+hv.pdf dated May 2002
+!
+!average values from:
+!1. J.M. Roberts and R.W. Fajer, Environ. Sci. Technol. 23, 945 (1989)
+!2. O. Rattigan, E. Lutman, R. L. Jones, R. A. Cox, K. Clemitshaw, and J. Williams, J.
+!Photochem. Photobiol. A: Chem. 66, 313 (1992); corrigendum, ibid, 69, 125 (1992)
+!3. R. K. Talukdar, J. B. Burkholder, M. Hunter, M. K. Giles, J. M. Roberts, and A. R.
+!Ravishankara, J. Chem. Soc. Faraday Trans. 93, 2797 (1997)
+!
+!Quantum Yield
+!R. K. Talukdar, J. B. Burkholder, M. Hunter, M. K. Giles, J. M. Roberts, and A. R.
+!Ravishankara, J. Chem. Soc. Faraday Trans. 93, 2797 (1997)
+!
+!phi (CH3O + NO2) = unity at wavlengths > 248 nm
+!
+!sigma(wavelength, T) = sig0(wavlength, 298K)*EXP(B*(T-298))
+!nm   sig0      qy   B (1e3 K-1)
+Points (the mechanism evaluated with this format)
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+240.0  5.88E-20 1.000 3.48
+245.0  4.19E-20 1.000 3.29
+250.0  3.59E-20 1.000 2.96
+255.0  3.30E-20 1.000 2.82
+260.0  3.06E-20 1.000 2.83
+265.0  2.77E-20 1.000 2.92
+270.0  2.39E-20 1.000 3.08
+275.0  2.00E-20 1.000 3.28
+280.0  1.58E-20 1.000 3.51
+285.0  1.19E-20 1.000 3.78
+290.0  8.05E-21 1.000 4.04
+295.0  5.68E-21 1.000 4.47
+300.0  3.60E-21 1.000 4.94
+305.0  2.14E-21 1.000 5.56
+310.0  1.34E-21 1.000 6.33
+315.0  6.33E-22 1.000 7.34
+320.0  3.16E-22 1.000 8.74
+325.0  1.44E-22 1.000 9.97
+330.0  6.61E-23 1.000 13.6
+335.0  2.74E-23 1.000 13.6
+340.0  1.22E-23 1.000 13.6
+
+
+
+
+
+
+
+
+
+

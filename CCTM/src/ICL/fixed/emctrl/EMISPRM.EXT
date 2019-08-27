@@ -1,0 +1,15 @@
+
+C.......................................................................
+C Include File  EMISPRM.EXT
+ 
+C Contains:  Gas chemistry emissions processing control parameters
+ 
+C Revision History: initial
+C    3 Apr 09 J.Young: replace EMISPRM.vdif.EXT, EMISPRM.chem.EXT include
+C                      files with simpler implementation
+C.......................................................................
+
+      LOGICAL, SAVE :: EMISVD   ! gas chem emis processing in vert. diff
+      INTEGER, SAVE :: NEMIS    ! no. of gas chem emis species for vdiff
+
+C.......................................................................

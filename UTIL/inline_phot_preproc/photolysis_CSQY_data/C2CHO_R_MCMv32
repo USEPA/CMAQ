@@ -1,0 +1,27 @@
+C2CHO_R_MCMv32
+!C2H5CHO:Propionaldehyde (298K and 1 bar) photolysis quantum yields (C2H5 + HCO)    
+!C2H5CHO --> C2H5 + HCO       
+!Chen and Zhu J. (2001). The Wavelength Dependence of the Photodissociation of Propionaldehyde in the
+!280-330 nm Region, Phys. Chem. A., 105, 9689-9696.
+!
+!Cross-Section recommended by IUPAC 2002 that gives no preferred quantum yields
+!http://iupac.pole-ether.fr/htdocs/datasheets/pdf/P3_C2H5CHO+hv.pdf
+!
+!
+!J14 in MCM v3.2:C2H5CHO-> C2H5 + HCO   
+!wvl(nm) XC(cm^2) qy_hco
+Points 
+! With FAC, units are (cm^2/molecule)
+FAC=1.0
+280.0 5.16E-20 0.850
+285.0 5.86E-20 1.000
+290.0 5.56E-20 0.950
+295.0 5.57E-20 0.980
+300.0 5.04E-20 0.920
+305.0 4.32E-20 0.950
+310.0 3.60E-20 0.980
+315.0 2.77E-20 0.910
+320.0 1.83E-20 1.000
+325.0 1.30E-20 1.000
+330.0 5.75E-21 0.840
+335.0 3.25E-21 0.000
