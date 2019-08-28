@@ -59,6 +59,9 @@
 !C  12 Mar 2019 D. Wong: Implemented centralized I/O approach to the twoway portion of the code
 !C                       and fixed a bug to handle the output time step is less than 1 hour
 !C                       scenario properly
+!C 28 Aug 2019 D. Kang: Added to scale factors for the vertical distribution and to make sure 
+!C                      the total weight across all layers to be 1 and the profile is similar
+!C                      to those reported in literature
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -446,6 +449,9 @@
          REAL,   PARAMETER :: W2MU = 600.0     ! mean
          REAL,   PARAMETER :: W2SIGMA = 50.0   ! standard deviation
          REAL,   PARAMETER :: SQRT2 = 1.414213562731
+         REAL,   PARAMETER :: SFACTOR1 = 0.95  ! the scaling factor for the wider distribution (WMU350)
+         REAL,   PARAMETER :: SFACTOR2 = 0.11  ! the scaling factor for the wider distribution (WMU350)
+         REAL,   PARAMETER :: WMU = 350.0      ! mean
 
          INTEGER COL, ROW, LAY ! iterator variables
 
@@ -631,8 +637,8 @@ C statement function for ERF approximation
                      TOP_FRAC2    = 0.5 * ( 1.0 + outErfT )
 
 !C Add weighted contribution to this level
-                     WEIGHT = ( BOTTOM_FRAC - TOP_FRAC )
-     &                      + ( BOTTOM_FRAC2 - TOP_FRAC2 ) * 0.2
+                     WEIGHT = ( BOTTOM_FRAC - TOP_FRAC ) * SFACTOR1
+     &                      + ( BOTTOM_FRAC2 - TOP_FRAC2 ) * SFACTOR2 
 
                      LTEMIS( LAY ) = WEIGHT * COLUMN_LTNG_NO( COL,ROW )
 
