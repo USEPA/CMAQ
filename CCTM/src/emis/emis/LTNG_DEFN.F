@@ -59,9 +59,9 @@
 !C  12 Mar 2019 D. Wong: Implemented centralized I/O approach to the twoway portion of the code
 !C                       and fixed a bug to handle the output time step is less than 1 hour
 !C                       scenario properly
-!C 28 Aug 2019 D. Kang: Added to scale factors for the vertical distribution and to make sure 
-!C                      the total weight across all layers to be 1 and the profile is similar
-!C                      to those reported in literature
+!C  3 Sep 2019 D. Kang: Added to scale factors for the vertical distribution and to make sure 
+!C                      the profile is similar to those reported in literature and fixed a bug 
+!C                      that was introduced two years ago for generating diagnotic 3D lightning emissions.
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -450,7 +450,7 @@
          REAL,   PARAMETER :: W2SIGMA = 50.0   ! standard deviation
          REAL,   PARAMETER :: SQRT2 = 1.414213562731
          REAL,   PARAMETER :: SFACTOR1 = 0.95  ! the scaling factor for the wider distribution (WMU350)
-         REAL,   PARAMETER :: SFACTOR2 = 0.11  ! the scaling factor for the wider distribution (WMU350)
+         REAL,   PARAMETER :: SFACTOR2 = 0.12  ! the scaling factor for the wider distribution (WMU350)
          REAL,   PARAMETER :: WMU = 350.0      ! mean
 
          INTEGER COL, ROW, LAY ! iterator variables
@@ -678,9 +678,7 @@ C statement function for ERF approximation
 
 !C Write lightning NO to the diagnostic file
             IF ( LTNGDIAG ) THEN 
-               DO LAY = 1,LTLYRS
-                  VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
-               END DO
+               VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
                COLUMN_DIAG = COLUMN_DIAG + COLUMN_LTNG_NO
                IF ( LASTTIC ) THEN   ! time to write out
                   DIVFAC = 1.0 / REAL( MTICS, 4 )
