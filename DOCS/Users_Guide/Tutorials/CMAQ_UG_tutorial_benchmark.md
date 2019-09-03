@@ -26,10 +26,6 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 2. 16 GB RAM
 3. 400 GB hard drive storage
 
-8 processors
-8 GB RAM
-400 GB hard drive storage
-
 ## Install CMAQ and Required Libraries 
 
 In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3:
@@ -67,7 +63,8 @@ Now execute the script.
 ## Link the CMAQ Libraries
 The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note: the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
 
-- netCDF library files are located in the `$CMAQ_LIB/netcdf/lib` directory
+- netCDF C library files are located in the `$CMAQ_LIB/netcdf/lib` directory
+- netCDF Fortran library files are located in the `$CMAQ_LIB/netcdff/lib` directory
 - I/O API library, include files and module files are located in the `$CMAQ_LIB/ioapi` directory
 - MPI library and INCLUDE files are located in the `$CMAQ_LIB/mpi` directory
 
@@ -81,7 +78,7 @@ The config_cmaq.csh script will automatically link the required libraries into t
 - `setenv NETCDFF_INCL_DIR`: the location of the netCDF Fortran include files on your system.
 - `setenv MPI_LIB_DIR`: the location of the MPI (OpenMPI or MVAPICH) on your system.
 
-For example, if your netCDF libraries are installed in /usr/local/netcdf/lib, set `NETCDF_LIB_DIR` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64ifort, set `IOAPI_LIB_DIR` to /home/cmaq/ioapi/Linux2_x86_64ifort. 
+For example, if your netCDF C libraries are installed in /usr/local/netcdf/lib, set `NETCDF_LIB_DIR` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64gfort, set `IOAPI_LIB_DIR` to /home/cmaq/ioapi/Linux2_x86_64gfort. 
 
 *1.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
 
@@ -89,11 +86,11 @@ For example, if your netCDF libraries are installed in /usr/local/netcdf/lib, se
 
 Links to these libraries will automatically be created when you run any of the build or run scripts. To manually create these libraries (this is optional), execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
 ```
-source config_cmaq.csh [compiler]
+source config_cmaq.csh [compiler] 
 ```
 You may also identify the version of the compiler if you wish it to be identified in build directory and executable names. This is optional. For example:
 ```
-source config_cmaq.csh intel 17.0
+source config_cmaq.csh gcc 9.1
 ```
 
 ## Install the CMAQ input reference/benchmark data
@@ -136,14 +133,14 @@ The build directory parameters for the benchmark test case include the following
 -   Multiprocessor simulation 
 -   3-D Advection Scheme: wrf_cons
 -   Horizontal diffusion: Multiscale
--   Vertical diffusion: ACM2
+-   Vertical diffusion: ACM2_M3Dry
 -   Deposition: M3Dry
 -   Chemistry solver: EBI
--   Aerosol module: AERO6
--   Cloud module: ACM_AE6
+-   Aerosol module: AERO7
+-   Cloud module: ACM_AE7
 -   Mechanism: cb6r3_ae7_aq
--   In-line biogenic emissions
--   In-line plume rise
+-   Online biogenic emissions
+-   Inline plume rise
 
 To configure these parameters, the CCTM Science Modules within the bldit_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
@@ -157,16 +154,16 @@ cd $CMAQ_HOME/CCTM/scripts
 
 ## Configure the CCTM script 
 
-For an MPI configuration with 6 processors,
+For an MPI configuration with 8 processors,
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-Edit the CCTM run script (run_cctm.csh) for the MPI configuration that you will use:
+Edit the CCTM run script (run_cctm_Bench_2016_12SE1.csh) for the MPI configuration that you will use:
 
 ```
-@ NPCOL 3 ; @ NPROW = 2
+@ NPCOL 4 ; @ NPROW = 2
 ```
 
 Most clustered multiprocessor systems require a command to start the MPI run-time environment. The default CCTM run script uses the *mpirun* command. Consult your system administrator to find out how to invoke MPI when running multiprocessor applications.
@@ -177,25 +174,24 @@ For single-processor computing, set PROC to serial:
 set PROC     = serial
 ```
 
-CCTM run time Configuration Options for the benchmark case include the following: 
+CCTM Science Configuration Options set to **Y** in the RunScript for the benchmark case include the following: 
 
--   Mechanism: cb6r3_ae7_aq
--   Lightning NO<sub>x</sub> emissions calculated with hourly NLDN strike data
--   Dynamic vertical diffusivity
--   In-line deposition velocities
--   Surface HONO interaction
--   In-line biogenic emissions
--   In-line windblown dust emissions
--   Bi-directional ammonia flux
--   No stratosphere-troposphere ozone exchange
+-  ```CTM_OCEAN_CHEM``` - use ocean halgoen chemistry and sea spray aerosol emissions
+-  ```KZMIN``` - minimum eddy diffusivity in each grid cell determined by land use fraction
+-  ```PX_VERSION``` - WRF PX land surface model 
+-  ```CTM_ABFLUX``` - bidirectional ammonia flux for online deposition velocities
+-  ```CTM_BIDI_FERT_NH3``` - subtract fertilizer NH3 from emissions because it will be handled by the BiDi calculation
+-  ```CTM_SFC_HONO``` - surface HONO interaction
+-  ```CTM_GRAV_SETL``` - vdiff aerosol gravitational sedmentation
+-  ```CTM_BIOGEMIS``` - online biogenic emissions
 
-To configure these parameters, the Science Options within the run_cctm.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
+To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
 ```
-./run_cctm.csh |& tee cctm.log
+./run_cctm_Bench_2016_12SE1.csh |& tee cctm.log
 ```
 
 ## Confirm that the Benchmark Simulation Completed
@@ -207,19 +203,19 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]/SE52BENCH 
+$CMAQ_DATA/output_CCTM_v53_[compiler]_Bench_2016_12SE1
 ```
 and these log files have the name convention: 
 
 ```
-CTM_LOG_[ProcessorID].v53_[compiler]_[CASE]/_[RUNDATE].log
-CTM_LOG_[ProcessorID].v53_gcc_SE53BENCH_20160701
+CTM_LOG_[ProcessorID].v53_[compiler]_[APPL]_[YYYYMMDD]
+CTM_LOG_[ProcessorID].v53_gcc_Bench_2016_12SE1_20160701
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]_SE53BENCH 
+$CMAQ_DATA/output_CCTM_v53_[compiler]_Bench_2016_12SE1
 ```
 
 and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
@@ -236,11 +232,13 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
 - Red Hat Enterprise Linux Server release 7.6 (Maipo)
 - Linux Kernel 3.10.0-957.12.2.el7.x86_64
-- Intel v18.0 compiler, 32 processors with OpenMPI
+- GNU GCC compiler version 6.1.0, 8 processors with OpenMPIv4.0.1 and I/O APIv3.2
+- Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
 - CMAQv5.3
 
-The CMAQv5.3 reference data include output from BCON, ICON, and the CCTM. You will only need to compare the results for the CCTM to evaluate the benchmark results.
+The CMAQv5.3 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables.
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
-In general, if the largest domain-wide and simulation period differences between your simulation and the reference data are <1%, the model is considered to be successfully benchmarked (i.e., the installation is verified).
+Note, even with a successful installation and run of the benchmark case, some differences between your simulation and the reference data can occur due to differences in domain decomposition for multi-processor simulations as well as differences in compiler optimization.  These differences tend to manifest in upper layers of the model and are mostly found in predicting aerosol water (AH2O) and aerosol acidity (AH3OP), while differences are smaller for other key species like ASO4, ANO3, ACL, ALOO1, etc. These species have short atmospheric lifetimes with large changes in time and space derivatives or have model physics sensitive to small changes in concentration. Predicting these species is more sensitivity to small changes in machine precision and accuracy.
+
