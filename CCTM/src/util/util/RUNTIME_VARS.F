@@ -95,6 +95,8 @@
 
       ! Convective scheme in met model
       LOGICAL :: CONVECTIVE_SCHEME = .TRUE.
+      ! Flag for column model
+      LOGICAL :: COLUMN_MODEL      = .FALSE.
 
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart

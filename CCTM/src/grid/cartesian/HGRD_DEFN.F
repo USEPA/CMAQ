@@ -153,6 +153,8 @@ C the grid description file pointed to by the GRIDDESC env var:
                CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
+ 
+            IF ( GL_NROWS .LE. 1 .AND. GL_NCOLS .LE. 1 ) COLUMN_MODEL = .TRUE.
 
 C Check NPROCS against NPCOL*NPROW
             IF ( NPROCS .NE. NPCOL*NPROW ) THEN
