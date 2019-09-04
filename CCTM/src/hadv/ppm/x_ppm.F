@@ -348,6 +348,9 @@ C East boundary
          END DO
 
 #ifdef isam
+
+         SA_CONX = 0.0
+
          DO SPC = 1, N_SPCTAG
          
             IF( TRANSPORT_SPC( SPC ) )THEN
