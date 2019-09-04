@@ -207,7 +207,7 @@ cd $Bld
     if ( $?CopySrc ) then
        $Blder -serial -verbose $Cfile
     else
-       $Blder -git_local -serial -verbosea $Cfile
+       $Blder -git_local -serial -verbose $Cfile
     endif
  endif
  mv Makefile $Bld/Makefile.$compiler

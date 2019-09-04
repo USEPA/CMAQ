@@ -99,7 +99,7 @@ C            S.Madronich  Program written
 C
 C*********************************************************************
 
-      USE M3UTILIO
+      USE GET_ENV_VARS, FILE_UNIT => JUNIT
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -110,7 +110,7 @@ C*********************************************************************
 
 C...........PARAMETERS and their descriptions
 
-      INTEGER, PARAMETER :: JVHT   = 10 ! number of output vert. levels
+      INTEGER, PARAMETER :: JVHT   = 13 ! number of output vert. levels
       INTEGER, PARAMETER :: JVTMAX = 13 ! number of hours output
       INTEGER, PARAMETER :: JVLAT  = 19 ! number of output latitudes
 
@@ -215,11 +215,16 @@ C...........LOCAL VARIABLES and their descriptions:
 
       REAL XZJV( JVHT )               ! vertical hts (m) for jvalue file
       DATA XZJV /    0.0,  1000.0,  2000.0,  3000.0, 4000.0,
-     &            5000.0, 8000.0, 10000.0, 15000.0, 20000.0 /  ! <<< 10 levels
+     &            5000.0,  8000.0, 10000.0, 15000.0, 20000.0,
+     &           25000.0, 30000.0, 35000.0 /  ! <<< 13 levels
 
 C...........FUNCTIONS and their descriptions:
 
       REAL         CHJ                ! Chapman function
+
+      CHARACTER( 3 ) :: MONTHS(1:12) = (/ 
+     &      'Jan','Feb','Mar','Apr','May','Jun',
+     &      'Jul','Aug','Sep','Oct','Nov','Dec' /)
 
 C*********************************************************************
 C     begin body of program JPROC
@@ -245,13 +250,14 @@ C...read the julian start date (yyyyddd)
         
       JDT = 1988215                 !  default:  1988215
       MSG = 'Scenario Starting Date (YYYYDDD)'
-      JDT = ENVINT( 'JPROC_STDATE', MSG, JDT, STATUS )
-
+      JDT = GET_ENV_INT( 'JPROC_STDATE', MSG, JDT, STATUS )
+       
       IF ( STATUS .NE. 0 ) WRITE( 6, '( 5X, A )' ) MSG
 
       IF ( STATUS .EQ. 1 ) THEN
         MSG = 'Environment variable improperly formatted'
-        CALL M3EXIT ( PNAME, JDT, 0, MSG, XSTAT2 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       ELSE IF ( STATUS .EQ. -1 ) THEN
         MSG = 'Environment variable set, but empty...Using default:'
         WRITE( 6, '( 5X, A, I9 )' ) MSG, JDT
@@ -260,19 +266,18 @@ C...read the julian start date (yyyyddd)
         WRITE( 6, '( 5X, A, I9 )' ) MSG, JDT
       END IF
 
-      WRITE( 6, 2005 ) DT2STR( JDT, 0 )
 
 C...check for the existence of TOMS data
 
       TOMS_EXIST = .FALSE.
       MSG = 'TOMS data exist (Y/N)'
-      TOMS_EXIST = ENVYN( 'JPROC_TOMSEXIST', MSG, TOMS_EXIST, STATUS )
-
+      TOMS_EXIST = GET_ENV_FLAG( 'JPROC_TOMSEXIST', MSG, TOMS_EXIST, STATUS )
       IF ( STATUS .NE. 0 ) WRITE( 6, '(5X, A)' ) MSG
 
       IF ( STATUS .EQ. 1 ) THEN
         MSG = 'Environment variable improperly formatted'
-        CALL M3EXIT ( PNAME, JDT, 0, MSG, XSTAT2 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       ELSE IF ( STATUS .EQ. -1 ) THEN
         MSG = 'Environment variable set, but empty ... Using default:'
         WRITE( 6, '(5X, A, L9)' ) MSG, TOMS_EXIST
@@ -288,9 +293,10 @@ C...check for the existence of TOMS data
 C...convert julian date to year, month, and day
 C...  and to yyyymmdd format
 
-      YEAR = INT( JDT / 1000 )
-      CALL DAYMON ( JDT, MONTH, DAY )
+      CALL JULIAN_YEAR_MONTH_DAY (JDT,YEAR,MONTH,DAY)
       IDATE = YEAR * 10000 + MONTH * 100 + DAY
+
+      WRITE( 6, 2005 ) TRIM( MONTHS( MONTH ) ), DAY, YEAR
 
 C...read the extra terrestrial radiation data
 
@@ -451,6 +457,7 @@ C...   for each level LEV and wavelength bin IWL.
      &                     VCLD, GCLD, OMCLD, VAER, AAER, GAER, OMAER,
      &                     ALBEDO, NLAYS, NLEVS, NSURF )
 
+            
             DO IWL = 1, NWL
               DO ILEV = 1, NLEVS
 
@@ -466,7 +473,7 @@ C...compute rate of photolysis (j-values) for each reaction
                 DO IPHOT = 1, NPHOTAB
                   DJ = DF * CSZ( ILEV, IWL, IPHOT )
      &                    * QYZ( ILEV, IWL, IPHOT )
-                  D( IPHOT, ILEV ) = D( IPHOT, ILEV ) + DJ
+                  D( IPHOT, ILEV ) = D( IPHOT, ILEV ) + DJ                  
                 END DO
 
               END DO
@@ -495,8 +502,8 @@ C...load output array and convert from 1/sec to 1/min
 
 C...write output file with file header 
 
-      CALL NAMEVAL ( JVFILE, EQNAME )
-      JVUNIT = JUNIT( )
+      CALL VALUE_NAME ( JVFILE, EQNAME )
+      JVUNIT = FILE_UNIT( )
         
       OPEN ( UNIT = JVUNIT,
      &       FILE = EQNAME,
@@ -508,7 +515,8 @@ C...check for open errors
 
       IF ( IOST .NE. 0) THEN
         MSG = 'Could not open the JVALUE data file'
-        CALL M3EXIT( PNAME, JDT, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       WRITE( 6, 2011 ) JVUNIT, EQNAME
@@ -544,13 +552,39 @@ C...Write Julian Date to output ***
           END DO
         END DO
       END DO
-
       CLOSE( JVUNIT )
 
+      IHT = 1
+      ILAT = 6
+      WRITE(6,2034)0.001 * XZJV( IHT ), XLATJV( ILAT )
+      WRITE(6,2035)'   Rate    ','Mean (1/min)','Max  (1/min)'
+      DO IPHOT = 1, NPHOTAB
+         WRITE(6,2036)PHOTAB(IPHOT), 
+     &   SUM( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) ) / REAL( JVTMAX ),
+     &   MAXVAL( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) )
+      END DO
+      ILAT = 10
+      WRITE(6,2034)0.001 * XZJV( IHT ), XLATJV( ILAT )
+      WRITE(6,2035)'   Rate    ','Mean (1/min)','Max  (1/min)'
+      DO IPHOT = 1, NPHOTAB
+         WRITE(6,2036)PHOTAB(IPHOT), 
+     &   SUM( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) ) / REAL( JVTMAX ),
+     &   MAXVAL( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) )
+      END DO
+      ILAT = 14
+      WRITE(6,2034)0.001 * XZJV( IHT ), XLATJV( ILAT )
+      WRITE(6,2035)'   Rate    ','Mean (1/min)','Max  (1/min)'
+      DO IPHOT = 1, NPHOTAB
+         WRITE(6,2036)PHOTAB(IPHOT), 
+     &   SUM( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) ) / REAL( JVTMAX ),
+     &   MAXVAL( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) )
+      END DO
+       
 C...formats
 
 2001  FORMAT( 5X, A )
-2005  FORMAT( 1X, '...Time and Date to be processed: ', A24 )
+2005  FORMAT( 1X, '...Date to be processed: ', A3, 1X, I2, 
+     &       ', ', I4, ' starting at 0:00 UT ' )
 2009  FORMAT( 1X, '...No TOMS data specified for this run.', /,
      &        '   Climatological O3 column data will be used...', / )
 2011  FORMAT( 1X, '...Opening File on UNIT ', I2, /, 1X, A255, / )
@@ -565,6 +599,9 @@ C...formats
 2029  FORMAT( 6X, '''', A16, ''',', 5X, F3.1 )
 2031  FORMAT( 1X, 3( I3, 1X ) )
 2033  FORMAT( 1X, 1P, 5( E13.7, 2X ) )
+2034  FORMAT('At Z = ', F6.2,' km and latitude ',F6.2 )     
+2035  FORMAT(A16,2(1X,A12))
+2036  FORMAT(A16,2(1X,ES12.4))
 
       STOP
       END
