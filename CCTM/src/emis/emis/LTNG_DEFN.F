@@ -450,8 +450,7 @@
          REAL,   PARAMETER :: W2SIGMA = 50.0   ! standard deviation
          REAL,   PARAMETER :: SQRT2 = 1.414213562731
          REAL,   PARAMETER :: SFACTOR1 = 0.95  ! the scaling factor for the wider distribution (WMU350)
-         REAL,   PARAMETER :: SFACTOR2 = 0.12  ! the scaling factor for the wider distribution (WMU350)
-         REAL,   PARAMETER :: WMU = 350.0      ! mean
+         REAL,   PARAMETER :: SFACTOR2 = 0.12  ! the scaling factor for the wider distribution (WMU350
 
          INTEGER COL, ROW, LAY ! iterator variables
 
