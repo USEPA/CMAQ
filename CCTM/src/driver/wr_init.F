@@ -30,6 +30,7 @@ C   Apr 16 D.Wong: Added INTEN attribute for arguments JDATE, JTIME, and TSTEP
 C                  so they match with the interface block in INITSCEN.F
 C   Feb 19 D.Wong: removed all MY_N clauses
 C   June 19 F. Sidi: Replaced BADVAL3 for TA, RH, & PRES with MET DATA
+C   Sept 19 F. Sidi: Replaced L_CONC_WVEL(depreciated) with W_VEL 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -186,7 +187,7 @@ C (inital data assumed to be in correct output units)
 
       END DO
  
-      IF ( L_CONC_WVEL ) THEN   ! for W_YAMO
+      IF ( W_VEL ) THEN   ! Vertical Velocity Calculated from Advection
 
          DBUFF = BADVAL3
 

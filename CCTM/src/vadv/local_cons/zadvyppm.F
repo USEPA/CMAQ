@@ -77,6 +77,7 @@ C                      the time needed for a CFL = 0.9. This provides a
 C                      longer subtime step for CFL < 10 and a shorter time
 C                      step for CFL > 10 than the earlier code.
 C    08 July 19 F. Sidi: Updated Code with CIO changes 
+C    09 Sept 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -89,9 +90,6 @@ C-----------------------------------------------------------------------
       USE NOOP_MODULES          ! stenex (using NOOP_GLOBAL_SUM_MODULE)
 #endif
       USE UTILIO_DEFN
-      USE STD_CONC, ONLY : L_CONC_WVEL
-      USE AVG_CONC, ONLY : L_ACONC_WVEL
-
 
 #ifdef isam
       USE SA_DEFN               ! 20120821
@@ -441,7 +439,7 @@ Ckrt...update ISAM with SA_CON....20120821
 222         CONTINUE   ! COL
 333      CONTINUE   ! ROW
 
-      IF ( L_CONC_WVEL .OR. L_ACONC_WVEL ) CALL GET_WVEL( JDATE,JTIME )
+      IF ( W_VEL ) CALL GET_WVEL( JDATE,JTIME )
 
       RETURN
       END SUBROUTINE ZADV 

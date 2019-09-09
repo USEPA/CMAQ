@@ -29,6 +29,13 @@ C           previous revision used dynamic allocation, but GET_ENV_LIST
 C           was called with the CONC_FILE_SPCS argument before it was allocated
 C           D.Wong 11 May 2016: Modified code to provide flexibility to handle
 C                environment variable CONC_FILE_SPCS is set to 'ALL' or not set.
+C           F.Sidi 09 Sep 2019: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL &
+C           added W_VEL to species conc_species list depending on
+C           if the user requests the vertical velocity to be output
+C
+C
+C
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       INTEGER, SAVE :: N_CSPCS = 0 ! Number of chemical species saved to conc file
       INTEGER, SAVE :: C_NLAYS = 1 ! Number of layers saved to conc file
@@ -54,7 +61,6 @@ C species classes configuration for CONC
       INTEGER, SAVE :: N_C_AE_SPCD
 
 C Logical to test whether met variables are included
-      LOGICAL, SAVE :: L_CONC_WVEL = .FALSE.
       LOGICAL, SAVE :: L_CONC_RH = .FALSE.
       LOGICAL, SAVE :: L_CONC_TA = .FALSE.
       LOGICAL, SAVE :: L_CONC_PRES = .FALSE.
@@ -104,11 +110,16 @@ C Retrieve the species saved to the concentration file
                V = V + 1
                CONC_FILE_SPCS( V ) = TR_SPC( VAR )
             END DO
-            CONC_FILE_SPCS( V + 1 ) = 'WVEL'
-            CONC_FILE_SPCS( V + 2 ) = 'RH'
-            CONC_FILE_SPCS( V + 3 ) = 'TA'
-            CONC_FILE_SPCS( V + 4 ) = 'PRES'
-            N_CONC_VARS = V + 4 
+            CONC_FILE_SPCS( V + 1 ) = 'RH'
+            CONC_FILE_SPCS( V + 2 ) = 'TA'
+            CONC_FILE_SPCS( V + 3 ) = 'PRES'
+            N_CONC_VARS = V + 3 
+         END IF
+
+C  Retrieve CTM_WVEL environmental variable to see if user wants diagnosed vertical velocity
+         IF ( W_VEL ) THEN
+            CONC_FILE_SPCS( N_CONC_VARS + 1 ) = 'WVEL'
+            N_CONC_VARS = N_CONC_VARS + 1
          END IF
 
 C Retrieve the layer range used in the concentration file
@@ -192,7 +203,8 @@ C get starting index in CGRID and total count for each species class
                         C_TR_SPC( N_C_TR_SPC ) = CONC_FILE_SPCS( VAR )
                         TR_MAP( N_C_TR_SPC ) = V + OFF
                      ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'WVEL' ) THEN
-                        L_CONC_WVEL = .TRUE.
+                        XMSG = 'User has requested vertical velocity information on conc file.' 
+                        CALL LOG_MESSAGE( LOGDEV, XMSG )
                      ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'RH' ) THEN
                         L_CONC_RH = .TRUE.
                      ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'TA' ) THEN

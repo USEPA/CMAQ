@@ -26,7 +26,8 @@ C
 C Revision history:
 C   1 Feb 19 David Wong: Implemented centralized I/O approach, removed
 C                        all MY_N clauses
-
+C   6 Sep 19 F. Sidi   : Removed USE STD_CONC and USE AVG_CONC statements
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       IMPLICIT NONE
 
       REAL, ALLOCATABLE, SAVE :: WVEL( :,:,: )
@@ -72,8 +73,6 @@ C-----------------------------------------------------------------------
       SUBROUTINE GET_WVEL( JDATE, JTIME )
 
       USE GRID_CONF
-      USE STD_CONC, ONLY : L_CONC_WVEL
-      USE AVG_CONC, ONLY : L_ACONC_WVEL 
       USE UTILIO_DEFN
       Use CENTRALIZED_IO_MODULE, only : MSFX2, JACOBF_AVAIL, interpolate_var
 
