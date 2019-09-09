@@ -450,9 +450,12 @@ c     input julian_date day (julday), year fraction (yrfrac)
             INTEGER   JDAY,YRLENGTH,LEAP,M4,M100,M400,
      &                I, J
             
-            INTEGER, SAVE :: DAYTAB(13,2) = (/
-     &                    0,31,28,31,30,31,30,31,31,30,31,30,31,
-     &                    0,31,29,31,30,31,30,31,31,30,31,30,31 /)
+            INTEGER, SAVE :: DAYTAB(13,2) 
+            
+            DATA  ( DAYTAB(I,1), I = 1, 13 ) /
+     &                    0,31,28,31,30,31,30,31,31,30,31,30,31 /
+            DATA  ( DAYTAB(I,2), I = 1, 13 ) /     
+     &                    0,31,29,31,30,31,30,31,31,30,31,30,31 /
             
             LOGICAL, SAVE :: INITIALIZE = .TRUE.
             
@@ -479,7 +482,7 @@ c     input julian_date day (julday), year fraction (yrfrac)
              YRLENGTH = 366
             ENDIF
             
-            DO I= 1, 12
+            DO I= 2, 13
                IF( JDAY .GT. DAYTAB(I-1,LEAP) .AND. JDAY .LE. DAYTAB(I,LEAP) )THEN
                    MONTH = I-1
                    DAY = JDAY - DAYTAB(I-1,LEAP)

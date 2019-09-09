@@ -144,7 +144,11 @@ C...........LOCAL VARIABLES and their descriptions:
       INTEGER      NWL                ! number of wavelength bands
       INTEGER      IOST               ! io status
       INTEGER      STATUS             ! status
-
+      
+! indices in latitude array to print rates to standard output 
+      INTEGER, PARAMETER :: NLAT_PRINT    = 7
+      INTEGER :: ILAT_PRINT( NLAT_PRINT ) = (/ 4, 6, 8, 10, 12, 14, 16 /)
+      
       REAL         COSZEN             ! cosine zenith angle
       REAL         DF                 ! actinic flux
       REAL         DJ                 ! jvalue for one wl,lev,react
@@ -204,19 +208,17 @@ C...........LOCAL VARIABLES and their descriptions:
       REAL         CSZ( 100, MXWL, NPHOTAB )! cross section at each level
       REAL         XJVAL( NPHOTAB, JVTMAX, JVLAT, JVHT ) ! jvalues
 
-      REAL XLATJV( JVLAT )            ! latitudes for jvalue file
-      DATA XLATJV / -90.0, -80.0, -70.0, -60.0, -50.0, -40.0, 
-     &              -30.0, -20.0, -10.0,   0.0,  10.0,  20.0, 30.0, 
-     &               40.0,  50.0,  60.0,  70.0,  80.0,  90.0 / 
-
-      REAL XHAJV( JVTMAX )            ! hours from noon for jvalue file
-      DATA XHAJV / 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0,
-     &             9.0, 10.0, 11.0, 12.0 /
-
-      REAL XZJV( JVHT )               ! vertical hts (m) for jvalue file
-      DATA XZJV /    0.0,  1000.0,  2000.0,  3000.0, 4000.0,
-     &            5000.0,  8000.0, 10000.0, 15000.0, 20000.0,
-     &           25000.0, 30000.0, 35000.0 /  ! <<< 13 levels
+! latitudes for jvalue file
+      REAL :: XLATJV( JVLAT )  = (/ -90.0, -80.0, -70.0, -60.0, -50.0, -40.0, 
+     &                              -30.0, -20.0, -10.0,   0.0,  10.0,  20.0, 30.0, 
+     &                               40.0,  50.0,  60.0,  70.0,  80.0,  90.0 /)
+! hours from noon for jvalue file
+      REAL :: XHAJV( JVTMAX )  = (/ 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0,
+     &                              9.0, 10.0, 11.0, 12.0 /)
+! vertical hts (m) for jvalue file
+      REAL :: XZJV( JVHT )     = (/    0.0,  1000.0,  2000.0,  3000.0, 4000.0,
+     &                              5000.0,  8000.0, 10000.0, 15000.0, 20000.0,
+     &                             25000.0, 30000.0, 35000.0 /)  ! <<< 13 levels
 
 C...........FUNCTIONS and their descriptions:
 
@@ -555,29 +557,18 @@ C...Write Julian Date to output ***
       CLOSE( JVUNIT )
 
       IHT = 1
-      ILAT = 6
-      WRITE(6,2034)0.001 * XZJV( IHT ), XLATJV( ILAT )
-      WRITE(6,2035)'   Rate    ','Mean (1/min)','Max  (1/min)'
+      WRITE(6,2034)0.001 * XZJV( IHT ),', Mean Values versus latitude'
+      WRITE(6,2035)'   Rate    ',( XLATJV( ILAT_PRINT( ILAT ) ), ILAT = 1, NLAT_PRINT )
       DO IPHOT = 1, NPHOTAB
          WRITE(6,2036)PHOTAB(IPHOT), 
-     &   SUM( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) ) / REAL( JVTMAX ),
-     &   MAXVAL( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) )
+     &   (SUM( XJVAL( IPHOT, 1:JVTMAX, ILAT_PRINT( ILAT ), IHT ) ) / REAL( JVTMAX ),
+     &    ILAT = 1, NLAT_PRINT )
       END DO
-      ILAT = 10
-      WRITE(6,2034)0.001 * XZJV( IHT ), XLATJV( ILAT )
-      WRITE(6,2035)'   Rate    ','Mean (1/min)','Max  (1/min)'
+      WRITE(6,2034)0.001 * XZJV( IHT ),', Max Values versus latitude'
+      WRITE(6,2035)'   Rate    ',( XLATJV( ILAT_PRINT( ILAT ) ), ILAT = 1, NLAT_PRINT )
       DO IPHOT = 1, NPHOTAB
          WRITE(6,2036)PHOTAB(IPHOT), 
-     &   SUM( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) ) / REAL( JVTMAX ),
-     &   MAXVAL( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) )
-      END DO
-      ILAT = 14
-      WRITE(6,2034)0.001 * XZJV( IHT ), XLATJV( ILAT )
-      WRITE(6,2035)'   Rate    ','Mean (1/min)','Max  (1/min)'
-      DO IPHOT = 1, NPHOTAB
-         WRITE(6,2036)PHOTAB(IPHOT), 
-     &   SUM( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) ) / REAL( JVTMAX ),
-     &   MAXVAL( XJVAL( IPHOT, 1:JVTMAX, ILAT, IHT ) )
+     &   (MAXVAL( XJVAL( IPHOT, 1:JVTMAX, ILAT_PRINT( ILAT ), IHT ) ), ILAT = 1, NLAT_PRINT )
       END DO
        
 C...formats
@@ -599,9 +590,10 @@ C...formats
 2029  FORMAT( 6X, '''', A16, ''',', 5X, F3.1 )
 2031  FORMAT( 1X, 3( I3, 1X ) )
 2033  FORMAT( 1X, 1P, 5( E13.7, 2X ) )
-2034  FORMAT('At Z = ', F6.2,' km and latitude ',F6.2 )     
-2035  FORMAT(A16,2(1X,A12))
-2036  FORMAT(A16,2(1X,ES12.4))
+2034  FORMAT('At Z = ', F6.2, A )     
+2035  FORMAT(A16,10(1X,F12.2))
+2036  FORMAT(A16,10(1X,ES12.4))
+
 
       STOP
       END
