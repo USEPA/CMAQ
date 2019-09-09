@@ -82,7 +82,11 @@ Extensive information on the model's scientific basis, applications, publication
 
 ___
 
+<!-- BEGIN COMMENT -->
+
 [CMAQ User's Guide List of Tables and Figures](CMAQ_UG_tables_figures.md)
+
+<!-- BEGIN COMMENT -->
 
 ___
 
