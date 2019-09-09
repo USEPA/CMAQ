@@ -71,6 +71,7 @@ SA is used to generate the surf zone and open ocean file that is a required inpu
 Additional information on processing data for CMAQ inputs is provided in [Appendix C](Appendix/CMAQ_UG_appendixC_spatial_data.md).
 
 <a id=inputs></a>
+
 ## 4.3 CMAQ Input Files
 
 [Jump to Table of Input Files](#Input_Table)<br>
@@ -133,11 +134,16 @@ This section describes each of the input files required by the various CMAQ prog
 *XXX - three-digit variable indicating emission stream number. Gridded and Inline Point emissions are numbered independently.
 
 ## 4.4 GRIDDESC and Species Namelist Files
+
 <a id=griddesc></a> 
 **GRIDDESC: Horizontal domain definition**
+
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#griddesc_t)
+
 <!-- END COMMENT -->
+
 Used by: ICON, BCON, CCTM
 
 The CMAQ grid description file (**GRIDDESC**) is an ASCII file that contains two sections: a horizontal coordinate section, and domain description section. The GRIDDESC file is generated automatically by MCIP; alternatively, GRIDDESC can be created using a text editor.
@@ -228,21 +234,31 @@ The namelist files contain header information that describe which class of speci
 The namelist files for the other pollutant classes have similar configurations as the gas-phase species configuration shown in [Table 4-2](#Table4-2). For an example see this [link](../../CCTM/src/MECHS/cb06r3_ae7_aq/GC_cb6r3_ae7_aq.nml) to the GC namelist species file for the cb06r3_ae7_aq mechanism.
 
 <a id=init_conc_1></a>
+
 ## 4.5 Initial Conditions Input
 
 **INIT_CONC_1: Initial conditions**
+
 <!-- BEGIN COMMENT -->
+ 
 [Return to Table 4-1](#init_conc_1_t)
+
 <!-- END COMMENT -->
+
 Used by: CCTM
 
 The initial concentrations of each species being modeled must be input to CMAQ. The initial conditions input file type is GRDDED3 and does not vary with time. The actual file data are organized in this manner: by column, by row, by layer, by variable. Initial conditions files have the same structure as concentration files, so the predicted concentrations from the last hour of day 1 can be used to initialize the following day’s simulation. This gives CMAQ users the flexibility to segment simulations in any way they choose.
 
 <a id=bndy_conc_1></a>
+
 ## 4.6 Boundary Conditions Input
+
 **BNDY_CONC_1: Boundary conditions**
+
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#bndy_conc_1_t)
+
 <!-- END COMMENT -->
 
 Used by: CCTM
@@ -265,6 +281,8 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 <a id=mosaic_cro></a>
 <a id=mcip></a>
 <a id=mcip_bdy></a>
+
+```
 **_MCIP output files generated when IOFORM=1 (Models-3 I/O API)_**
 - GRIDDESC:     Grid description used throughout the CMAQ System
 - GRID_CRO_2D:  Time-invariant 2D fields (XY) at cell centers (cross points)
@@ -282,9 +300,12 @@ Each species being modeled should be in the BNDY_CONC_1 file. If some modeled sp
 - GRIDDESC:     Grid description used throughout the CMAQ System
 - mcip.nc:      All time-invariant and time-varying 2D and 3D fields (all dimensions)
 - mcip_bdy.nc:  All required time-invariant and time-varying 2D and 3D fields along lateral boundaries
+```
 
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#grid_cro_2d_t)
+
 <!-- END COMMENT -->
 
 Used by: ICON, BCON, CCTM, and some optional programs
@@ -399,8 +420,11 @@ Used by: ICON, BCON, CCTM, and some optional programs
 <a id=emis_xxx></a>
 
 **GR_EMIS_XXX: Emissions**
+
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#emis_xxx_t)
+
 <!-- END COMMENT -->
 
 Used by: CCTM
@@ -414,8 +438,11 @@ Starting in CMAQv5.3, users can run with as many gridded emission files as desir
 <a id=stk_grps></a>
 
 **STK_GRPS_XXX: Stack groups**
+
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#stk_grps_t)
+
 <!-- END COMMENT -->
 
 Used by: CCTM – inline emissions version only
@@ -427,9 +454,13 @@ The stack groups file is an I/O API file containing stack parameters for elevate
 <a id=stk_emis></a>
 
 **STK_EMIS_XXX: Point source emissions**
+
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#stk_emis_t)
+
 <!-- END COMMENT -->
+
 Used by: CCTM – inline emissions version only
 
 The XXX mark is unique and represents the stream identification. Make sure the N_EMIS_PT runtime variable is set to reflect the total number of inline emission streams.
@@ -439,8 +470,11 @@ The elevated-point-source emissions file is an I/O API GRDDED3 file with emissio
 <a id=nldn_strikes></a>
 
 **NLDN_STRIKES: Hourly observed lightning strikes**
+
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#nldn_strikes_t)
+
 <!-- END COMMENT -->
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
@@ -458,8 +492,11 @@ The NLDN lightning strikes file is used for calculating online NO emissions from
 <a id=ltngparm_file></a>
 
 **LTNGPARMS_FILE: Lightning parameters file**
+
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#ltngparm_file_t)
+
 <!-- END COMMENT -->
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
@@ -486,10 +523,15 @@ This file contains the following variables interpolated to the modeling grid:
 *Regression equation generates flash counts (or log flash counts) per square km per cm convectic precipitation.
 
 ## 4.9 Biogenic and Land Surface Inputs
+
 <a id=ocean_1></a>
+
 **OCEAN_1: Sea spray mask**
+
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#ocean_1_t)
+
 <!-- END COMMENT -->
 
 Used by: CCTM
@@ -608,10 +650,15 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
 
 ## 4.10 Photolysis Inputs
+
 <a id=omi></a>
+
 **OMI: Ozone Monitoring Instrument Column Data**
+
 <!-- BEGIN COMMENT -->
+
 [Return to Table 4-1](#omi_t)
+
 <!-- END COMMENT -->
 
 Used by: CCTM
