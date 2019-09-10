@@ -75,9 +75,9 @@ Additional information on processing data for CMAQ inputs is provided in [Append
 ## 4.3 CMAQ Input Files
 
 [Jump to Table of Input Files](#Input_Table)<br>
-[Jump to CCTM Output Files in Chapter 6](CMAQ_UG_ch06_model_outputs.md)
+[Jump to CCTM Output Files in Chapter 7](CMAQ_UG_ch07_model_outputs.md)
 
-CMAQ requires a basic set of input files: initial condition file, which is created by ICON process or previous day output; boundary condition file, which is created by BCON process; emission files; and meteorological data created by MCIP using WRF and terrain data. Additional input files may be required based on specific run time options. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.  Model outputs are discussed in [Chapter 6](CMAQ_UG_ch06_model_outputs.md).
+CMAQ requires a basic set of input files: initial condition file, which is created by ICON process or previous day output; boundary condition file, which is created by BCON process; emission files; and meteorological data created by MCIP using WRF and terrain data. Additional input files may be required based on specific run time options. CMAQ output files include a basic set of files with aerosol and gas-phase species concentrations, wet and dry deposition estimates, and visibility metrics, and an auxiliary set of output files for diagnosing model performance and in-line-calculated emissions.  Model outputs are discussed in [Chapter 7](CMAQ_UG_ch07_model_outputs.md).
 
 Rather than forcing the user to deal with hard-coded file names or hard-coded unit numbers, the I/O API netCDF file format utilizes the concept of logical file names. The modelers can define the logical names as properties of a program, and then at run-time the logical names can be linked to the actual file name using environment variables. For programming purposes, the only limitations are that logical file names cannot contain blank spaces and must be at most 16 characters long. When a modeler runs a program that uses the I/O API format, environment variables must be used to set the values for the program’s logical file names. A complete list of CMAQ input is provided in [Table 4-1](#Input_Table).
 
