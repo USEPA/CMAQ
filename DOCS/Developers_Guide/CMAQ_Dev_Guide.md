@@ -39,11 +39,13 @@ In between published releases the development team may publish solutions to mode
 ## Development Versions
 
 Prior to the public release of each major CMAQ version, the unofficial source code is released to the public as a development version that is not intended for regulatory or research application use. The purpose of releasing the development version to the public is to give community members:
+
 - a reasonable amount of time to complete any pending feature submissions they would like to submit for the stable release.
 - a role in helping to test, troubleshoot, and debug the unofficial code before the stable release.
 - an opportunity to comment on the code improvements made in the new version.
 - the ability to take advantage of improvements for preliminary studies of their own interest.
 - a reasonable amount of time to ensure the new version is compatible with any features the member may have submitted in the past.
+
 The unofficial (or ***beta***) version of the code will first be vetted internally and then released generally 6 months in advance of the corresponding stable CMAQ release; this period is known as the *beta-phase*. At this time, EPA will announce the deadline for community contributions. This deadline will be chosen in order to balance both the time needed by developers to submit their contributions and the time needed by EPA to incorporate submissions before public release. Version numbering for the beta series will append the letter 'b' and an incrementing number to the expected version number of the stable release. The number of beta versions is variable among releases. For example, before the hypothetical release of CMAQv14.3 the following series of version numbers could be expected:  
 
 	v14.3.b0  (First tested internal EPA version)  
@@ -59,12 +61,15 @@ As stated previously, the “Known Issues” section of the documentation will b
 # Making Contributions
 ## Get in touch
 Community members with an idea for a code contribution are encouraged to contact the EPA development team well before the *beta-phase* in order to plan appropriately for the testing and inclusion of the contribution. The EPA team may be interested in knowing information including but not limited to the following:
+
 -   What science module or bug do you intend to address? What work do you intend to contribute to CMAQ?
 -   Are you comfortable with the development strategy including code consistency, benchmarking, configuration testing, compiler testing, model output validation, documentation and merging?
 -   Are you able to provide ongoing support and technical guidance for your proposed contribution?
  
 ## Nuts and Bolts
+
 As described above, the CMAQ development process follows a "Forking Workflow." Atlassian has provided a helpful [explanation](https://www.atlassian.com/git/tutorials/comparing-workflows#forking-workflow). Developers should follow the guidance at [GitHub Help](https://help.github.com/) and [Atlassian](https://www.atlassian.com/git/tutorials/what-is-version-control) in order to:  
+
 -   fork the CMAQ repo: https://help.github.com/articles/fork-a-repo/#platform-linux  
 -   clone their newly-created fork: https://help.github.com/articles/cloning-a-repository/#platform-linux  
 -   create a feature branch: https://www.atlassian.com/git/tutorials/using-branches  
@@ -80,6 +85,7 @@ CMAQ Developers at EPA will review all code submissions in order to ensure code 
 ### Code Consistency
 Please refer to the [code management instructions](Code_Management.md). 
 Examples of small, but important guidelines include:
+
 - Eliminate global memory references (across modules). In other words, no common blocks across modules, no hidden data paths, and no "back doors."
 - All subroutines should be named in a manner which prevents namespace conflicts.
 - In general, variable names should be self-descriptive (e.g. NCELLS rather than N).

@@ -31,12 +31,12 @@ git is a version control system that supports distributed workflows.  Every Git 
 -   If you would like to contribute changes to the EPA CMAQ repository, use the following steps
     1. Create a github account https://github.com/
     2. Go to the EPA github site and Fork your own copy of the EPA CMAQ to your github account
-    3. create a directory called CMAQv5.2.1 on the machine where you would like to obtain a copy of the code
-    4. `git clone -b 5.2.1 https://github.com/<your github name>/CMAQ.git CMAQv5.2.1` - Get a clone or copy of the 5.2.1 branch of the CMAQ repository from your github site.
-    5.  This will place a copy of the files from the 5.2.1 Branch into the CMAQv5.2.1 directory
-    6.  `cd CMAQv5.2.1` go into the CMAQv5.2.1 directory
+    3. create a directory called CMAQv5.3 on the machine where you would like to obtain a copy of the code
+    4. `git clone -b master https://github.com/<your github name>/CMAQ.git CMAQ_REPO` - Get a clone or copy of the master branch of the CMAQ repository from your github site.
+    5.  This will place a copy of the files from the master branch into the CMAQv5.3/CMAQ_REPO directory
+    6.  `cd CMAQv5.3/CMAQ_REPO` go into the CMAQv5.3/CMAQ_REPO directory
     7. `git status`   To confirm the status of the files in the repository and the branch that is currently checked out
-    8. `git checkout -b 5.2.1_update` To copy the 5.2.1 branch into a new branch called 5.2.1_update
+    8. `git checkout -b 5.3_update` To copy the 5.3 branch into a new branch called 5.3_update
     9.  To edit the config_cmaq.csh file take the following steps:<br>
 `vi config_cmaq.csh`  - or use the Atom, TextWrangler or other Editor
     10. To see what changes you made use the following command
@@ -45,11 +45,11 @@ git is a version control system that supports distributed workflows.  Every Git 
 `git add config_cmaq.csh`
     12. To commit changes to the local repostitory use the command:
 `git commit -m "changed config_cmaq.csh to fix issue X"`
-    13. To commit changes to your Github repository on the branch 5.2.1_update use the command:
+    13. To commit changes to your Github repository on the branch 5.3_update use the command:
 `git push`
     14. If you get a message that the push was rejected similar to the following:
         ```
-        ! [rejected]        5.2.1_update -> 5.2.1_update (fetch first)
+        ! [rejected]        5.3_update -> 5.3_update (fetch first)
           error: failed to push some refs to 'https://github.com/CEMPD/CMAQ.git'
           hint: Updates were rejected because the remote contains work that you do
           hint: not have locally. This is usually caused by another repository pushing
@@ -68,7 +68,8 @@ Use the following command to get the changes that have been made to the remote g
         ```
     17. Retry the push command to place the changes that you committed to the local repository on your Github repository:
 `git push`
-    18. Go to the fork of the EPA CMAQ on your github page and submit a pull request to ask that the changes that you have made be incorporated into the EPA github site.
+    18. Go to your github page and use the Compare link to the right of the Pull Request link to see what changes you are proposing to make as compared to what is on the base repository: USEPA/CMAQ. Review your proposed code changes in the github "Comparing Changes" page. 
+    19. Create a pull request to ask that the changes that you have made be incorporated into the EPA github site.
 
 
 ## Guidelines for Developing New CMAQ Source Code
