@@ -68,8 +68,8 @@ Use the following command to get the changes that have been made to the remote g
         ```
     17. Retry the push command to place the changes that you committed to the local repository on your Github repository:
 `git push`
-    18. Go to your github page and use the Compare link to the right of the Pull Request link to see what changes you are proposing to make as compared to what is on the base repository: USEPA/CMAQ. 
-    19. Submit a pull request to ask that the changes that you have made be incorporated into the EPA github site.
+    18. Go to your github page and use the Compare link to the right of the Pull Request link to see what changes you are proposing to make as compared to what is on the base repository: USEPA/CMAQ. Review your proposed code changes in the github "Comparing Changes" page. 
+    19. Create a pull request to ask that the changes that you have made be incorporated into the EPA github site.
 
 
 ## Guidelines for Developing New CMAQ Source Code
