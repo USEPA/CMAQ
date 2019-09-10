@@ -1,6 +1,6 @@
 **Developers' Guide for the Community Multiscale Air Quality (CMAQ) Modeling System**
 =
-**Consistent with CMAQ model version 5.2.1 (2018 Release)**
+**Consistent with CMAQ model version 5.3 (2019 Release)**
 
 Prepared in cooperation with the:  
 &nbsp;&nbsp;&nbsp; ***Community Modeling and Analysis System***  
@@ -17,9 +17,9 @@ The information contained here should be read prior to starting a project within
 # Summary of Developer Workflow
 The public CMAQ release repository is located on GitHub (<https://github.com/USEPA/CMAQ>). Users should refer to this repository for bug fixes, issues, documentation and major releases for CMAQ. Users can use the watch and star buttons on the public CMAQ release repository page to be notified of updates and changes. Developers interested in submitting code changes should read this Developer Guide and then contact the EPA CMAQ development team as soon as possible to discuss their motivation and plans for submitting a code change (CMAQ_Team@epa.gov).  
 
-In order to facilitate incorporation of a contribution, developers should follow the instructions on code requirements and repository layout as described in the CMAQ Operational Guidance Document, particularly [Chapter 11](https://github.com/USEPA/CMAQ/blob/5.2.1/DOCS/User_Manual/CMAQ_OGD_ch11_code_management.md). Documentation of the assumptions and results of the new code is a very important part of a meaningful code submission. If the submission involves a detailed new feature, developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission. 
+In order to facilitate incorporation of a contribution, developers should follow the instructions on code requirements and repository layout as described in the [code management instructions](Code_Management.md).  Documentation of the assumptions and results of the new code is a very important part of a meaningful code submission. If the submission involves a detailed new feature, developers are encouraged to publish the use of their feature in a peer-reviewed journal before submission. 
 
-To begin, the developer should fork the public CMAQ release repository within GitHub. This will create a copy of the public CMAQ release repository under your name (https://github.com/{user_name}/CMAQ). Developers should use standard git commands to clone the appropriate version branch (5.2.1, 5.2, 5.2_DDM, ..) from your forked repository to your local machine and then to create a new feature or bug fix branch. Developers will add, commit and push changes to their new feature or bug fix branch on their forked repository, not to the public release version of the repository.  
+To begin, the developer should fork the public CMAQ release repository within GitHub. This will create a copy of the public CMAQ release repository under your name (https://github.com/{user_name}/CMAQ). Developers should use standard git commands to clone the appropriate version branch (5.3, 5.2.1, 5.2, ..) from your forked repository to your local machine and then to create a new feature or bug fix branch. Developers will add, commit and push changes to their new feature or bug fix branch on their forked repository, not to the public release version of the repository.  
 
 Once a feature or bug fix branch meets requirements for code consistency, benchmark testing, model output evaluation, and documentation including release notes, the developer may submit a pull request from their local feature or bug fix branch of their fork of the CMAQ repository on Github to the CMAQ public repository. This process is described in the Nuts and Bolts section below, and in the following [tutorial](https://www.digitalocean.com/community/tutorials/how-to-create-a-pull-request-on-github), which also provides instructions on how to keep a fork up to date with changes on the public release repository.  
 
@@ -106,10 +106,10 @@ Documentation is of course an integral part of the integration of any contributi
 -   If the contribution is a new feature, developers are encouraged to publish its use in a peer-reviewed journal before submitting it to the CMAQ Public Repository.  
 
 *CMAQ Documentation Resources:*  
-Documentation for CMAQv5.2.1 is available at https://github.com/USEPA/CMAQ/tree/5.2.1/DOCS. Materials include:
--   an Operational Guidance Document which describes code structure and regular operation of the model.
--   several Release Notes describing code improvements relevant for this model release. 
--   several Tutorials that give specific instructions for common tasks like running CMAQ or adding chemical tracers.
+Documentation for CMAQv5.3 is available at https://github.com/USEPA/CMAQ/tree/master/DOCS. Materials include:
+-   User Guide which describes code structure and regular operation of the model.
+-   Release Notes describing code improvements relevant for this model release. 
+-   Tutorials that give specific instructions for common tasks like running CMAQ or adding chemical tracers.
 
 ## Ongoing Support
 Depending on the size, scope, and importance of the contribution, the CMAQ development team may or may not have the resources to support it through future releases. For example, bug fixes and minor, but helpful, changes to the existing code will likely be incorporated into the general code base and supported. Large code additions, like a new process module or an instrumented version of CMAQ may require more effort to support than can be provided by resources of the EPA Office of Research and Development. However, if the feature is particularly of interest for the CMAQ user community, it may be supported. Decisions regarding ongoing support will be made on a case-by-case basis.
@@ -117,7 +117,7 @@ Depending on the size, scope, and importance of the contribution, the CMAQ devel
 # Copyright Information
 Contact EPA (CMAQ_Team@epa.gov) with questions and concerns.
 
-CMAQ Developer Guide (c) 2018
+CMAQ Developer Guide (c) 2019
 
 # Appendix
 ## Appendix 1: Compiler Tests
