@@ -410,8 +410,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
     - UNKNOWN: Use landuse information provided by MCIP for windblown dust calculations
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
--   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
-    Y/N setting to output the CCTM-calculated vertical velocities to the CONC and ACONC file. 
 -   `KZMIN [default: Y]`<a id=KZMIN></a>  
     If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
 -   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
@@ -517,7 +515,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Output an hourly diagnostic file (CTM_DEPV_DIAG) for the inline deposition velocity calculations. 
 -   `LTNGDIAG [default: False]`<a id=LTNGDIAG></a>  
     Output a lightning NO emissions diagnostics file. 
-
+-   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
+    Y/N setting to output the CCTM-calculated vertical velocities to the CONC and ACONC file. 
+    
 <a id=Inline_Emissions_Config></a>
 ### Inline emissions configuration
 
