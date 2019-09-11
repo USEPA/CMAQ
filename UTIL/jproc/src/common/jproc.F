@@ -22,7 +22,7 @@ C RCS file, release, date & time of last delta, author, state, [and locker]
 C $Header: /project/yoj/arc/JPROC/src/driver/jproc_table/jproc.F,v 1.8 2011/10/29 01:03:53 sjr Exp $ 
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)jproc.F	1.3 /project/mod3/JPROC/src/driver/jproc_table/SCCS/s.jproc.F 04 Jul 1997 09:39:12
+C @(#)jproc.F 1.3 /project/mod3/JPROC/src/driver/jproc_table/SCCS/s.jproc.F 04 Jul 1997 09:39:12
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       PROGRAM JPROC
@@ -44,7 +44,7 @@ C  Revision History:
 C
 C  Date     Who           Changes Made
 C  -------  ------------  --------------------------------------------
-C	 10/6/09  S.Roselle     Increased dimensions on the output jtable
+C  10/6/09  S.Roselle     Increased dimensions on the output jtable
 C                         to accommodate Southern Hemisphere (issue 
 C                         reported by Erick Sperandio) and Global
 C                         applications:  extended to all latitudinal
@@ -70,19 +70,19 @@ C                         user specified CSQY files and calculated
 C                         jvalues only for these specified reations.
 C  6/26/95  S.Roselle&    Modified to become the Models-3 Photolysis
 C           C.Jang        Rate Preprocessor with the following changes
-C	                  1. Follow the Models-3 coding standard.
-C	                  2. Produce a unique set of J-value output
-C		             for RADM2, CB-IV, and SAPRC90 Mechanisms
-C		             (a total of 27 photolytic reactions).
-C	                  3. Increase the vertical resolution of
+C                         1. Follow the Models-3 coding standard.
+C                         2. Produce a unique set of J-value output
+C                            for RADM2, CB-IV, and SAPRC90 Mechanisms
+C                            (a total of 27 photolytic reactions).
+C                         3. Increase the vertical resolution of
 C                            J-value output from3 levels (0,1,10 km)
-C		             to 7 levels (0,1,2,3,4,5,10).
-C	                  4. Update the species quantum yield and
-C		             absorption cross-section (the 'P2' file,
+C                            to 7 levels (0,1,2,3,4,5,10).
+C                         4. Update the species quantum yield and
+C                            absorption cross-section (the 'P2' file,
 C                            now 'P3') from NASA-JPL-94 publications.
-C	                  5. Add comment lines to 'J3' output for the
-C		             benefits of chemical mechanism reader
-C		             used in the Models-3 and a clear 
+C                         5. Add comment lines to 'J3' output for the
+C                            benefits of chemical mechanism reader
+C                            used in the Models-3 and a clear 
 C                            description of the output information.
 C  04/24/95  S.Roselle    Removed as subroutine in Met Preprocessor
 C                         and made into a separate program
