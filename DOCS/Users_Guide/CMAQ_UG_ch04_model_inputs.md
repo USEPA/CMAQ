@@ -436,8 +436,8 @@ setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
 
 The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
 
-* [Jump to DESID Tutorial](../Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
-* [Jump to Emissions overview](../CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
+* [Jump to DESID Tutorial](Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
+* [Jump to Emissions overview](CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
 
 
 **GR_EMIS_XXX: Emissions**
