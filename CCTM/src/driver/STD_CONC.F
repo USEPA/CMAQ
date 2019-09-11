@@ -202,16 +202,13 @@ C get starting index in CGRID and total count for each species class
                         OFF = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC
                         C_TR_SPC( N_C_TR_SPC ) = CONC_FILE_SPCS( VAR )
                         TR_MAP( N_C_TR_SPC ) = V + OFF
-                     ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'WVEL' ) THEN
-                        XMSG = 'User has requested vertical velocity information on conc file.' 
-                        CALL LOG_MESSAGE( LOGDEV, XMSG )
                      ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'RH' ) THEN
                         L_CONC_RH = .TRUE.
                      ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'TA' ) THEN
                         L_CONC_TA = .TRUE.
                      ELSE IF ( CONC_FILE_SPCS( VAR ) .EQ. 'PRES' ) THEN
                         L_CONC_PRES = .TRUE.
-                     ELSE
+                     ELSE IF ( CONC_FILE_SPCS( VAR ) .NE. 'WVEL' ) THEN
                         XMSG = 'Variable ' // CONC_FILE_SPCS( VAR )
      &                  // ' incorrect for this model'
                         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
