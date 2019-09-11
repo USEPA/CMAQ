@@ -7,7 +7,7 @@
 * * *
 
 # Appendix B: Emissions Input and Control
-[Jump to DESID Tutorial](../Tutorials/CMAQ_UG_appendixB_emissions_control.md) for step by step instructions on performing some basic manipulation of emission streams.
+[Jump to DESID Tutorial](../Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
 
 [Jump to Emissions overview](../CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
 
