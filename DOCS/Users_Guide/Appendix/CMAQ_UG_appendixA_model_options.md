@@ -78,7 +78,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     Location of the Message Passing Interface Library on your Linux system
 
     -   `ioapi_lib`<a id=ioapi_lib></a>
-    Name of the I/O API libraryar on your system; set to "-lioapi"
+    Name of the I/O API library on your system; set to "-lioapi"
 
 -   `netcdf_lib`<a id=netcdf_lib></a>
     Name of the netCDF library C on your system;  set to "-lnetcdf" for versions < 4.2.0, "-lnetcdf" for version 4.2.0 and later
