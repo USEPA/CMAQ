@@ -224,7 +224,7 @@ The label for "KENTUCKY" should be linked to a specific gridded variable mask (o
                'KENTUCKY'    ,'CMAQ_STATES','KY',
 /
 ```
-This is just an example of defining one mask named "KENTUCKY". For a complete explanation of the spatial-dependent scaling feature, see the CMAQ User Guide (section 4.3.2 "Applying Masks").
+This is just an example of defining one mask named "KENTUCKY". For a complete explanation of the spatial-dependent scaling feature, see the CMAQ User Guide [4.3.2 "Applying Masks"](./Appendix/CMAQ_UG_appendixB_emissions_control.md#b4-applying-masks-for-spatial-dependence).
 
 
 <a id=appendix1></a>
