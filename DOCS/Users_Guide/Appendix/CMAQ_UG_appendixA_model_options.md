@@ -349,11 +349,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_APPL [default: ${RUNID}_${YYYYMMDD}]`<a id=CTM_APPL></a>  
     CCTM log and output file naming extension.      
 -   `CONC_SPCS [if commented out, all species]`<a id=CONC_SPCS></a>  
-    Model species to be written to the CCTM_CONC file.
+    Model species to be written to the CCTM_CONC file, including temperature, relative humidity and pressure. See [Chapter 6](../CMAQ_UG_ch07_model_outputs.md#72-cctm-output-files) for further information.
 -   `CONC_BLEV_ELEV [if commented out, all layers]`<a id=CONC_BLEV_ELEV></a>  
     Vertical model layer range for the CCTM_CONC file concentrations; this variable sets the lower and upper layers over which to output the CCTM_CONC file. In the example script, BLEV and ELEV are both set to 1, so concentrations will only be written for the first layer.
 -   `AVG_CONC_SPCS [if commented out, output all species]`<a id=AVG_CONC_SPCS></a>  
-    Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM_CONC file. The species in this list will be written to the CCTM_ACONC output file.
+    Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM_CONC file, including temperature, relative humidity and pressure. The species in this list will be written to the CCTM_ACONC output file. See [Chapter 6](../CMAQ_UG_ch07_model_outputs.md#72-cctm-output-files) for further information.
 -   `ACONC_BLEV_ELEV [default: if commented out, all layers]`<a id=ACONC_BLEV_ELEV></a>  
     Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.
 -   `AVG_FILE_END_TIME [default: N]`<a id=AVG_FILE_END_TIME></a>  
@@ -411,7 +411,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
 -   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
-    Y/N setting to output the CCTM-calculated vertical velocities to the CONC file. 
+    Y/N setting to output the CCTM-calculated vertical velocities to the CONC and ACONC file. 
 -   `KZMIN [default: Y]`<a id=KZMIN></a>  
     If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
 -   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
