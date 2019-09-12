@@ -191,7 +191,9 @@ C Get dx1 from HGRD_DEFN module
             XMSG = 'Failure allocating VELX, or CONX'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
          END IF
-
+#ifdef isam
+         SA_CONX = 0.0
+#endif
          ALLOCATE ( ADV_MAP( N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating ADV_MAP'

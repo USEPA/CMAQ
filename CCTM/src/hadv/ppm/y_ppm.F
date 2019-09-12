@@ -187,7 +187,9 @@ C Get dx2 from HGRD_DEFN module
             XMSG = 'Failure allocating VELY, or CONY'
             CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
          END IF
-
+#ifdef isam
+         SA_CONY = 0.0
+#endif
          ALLOCATE ( ADV_MAP( N_SPC_ADV ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating ADV_MAP'
