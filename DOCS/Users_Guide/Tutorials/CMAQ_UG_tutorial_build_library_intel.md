@@ -291,9 +291,10 @@ OMPLIBS   = -qopenmp
 setenv BIN Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
 ```
 
-7. Create a BIN directory
+7. Create a BIN directory under the ioapi-3.2 directory
 
 ```
+cd ..
 mkdir $BIN
 ```
 
