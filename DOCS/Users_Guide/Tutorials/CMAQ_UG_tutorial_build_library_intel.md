@@ -245,6 +245,14 @@ setenv LD_LIBRARY_PATH ${NFDIR}/lib:${LD_LIBRARY_PATH}
 
 ## Install I/O API
 
+Note The complete I/O API installation guide can be found at either of the following:
+
+https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html
+
+or
+
+https://cjcoats.github.io/ioapi/AVAIL.html
+
 1. Download I/O API
 
 ```
