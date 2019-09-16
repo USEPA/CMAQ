@@ -575,7 +575,7 @@ C Initialize Meteorology Structures
          CALL INIT_BIDI( )
          CALL INIT_MET( JDATE, JTIME )
          CALL GET_MET ( JDATE, JTIME, 0 )
-         CALL GET_WVEL( JDATE, JTIME )
+         IF ( W_VEL ) CALL GET_WVEL( JDATE, JTIME ) ! If the user wants vertical velocity written to file, retrieve it.
 
          FIRST_RUN = .FALSE.
 

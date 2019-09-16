@@ -431,10 +431,11 @@ Ckrt...update ISAM with SA_CON....20120821
                END IF   
             END DO
 #endif
-
-            DO LVL = 1, NLAYS
-               WY( LVL,COL,ROW ) = VEL( LVL+1 )
-            END DO
+            IF ( W_VEL ) THEN ! If the user wants vertical velocity written to file, fill in global scope array (WY)
+              DO LVL = 1, NLAYS
+                WY( LVL,COL,ROW ) = VEL( LVL+1 )
+              END DO
+            END IF
 
 222         CONTINUE   ! COL
 333      CONTINUE   ! ROW
