@@ -212,9 +212,9 @@ Note
 The complete I/O API installation guide can be found at either of the following:
 
 https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html
-<br>
+
 or
-<br>
+
 https://cjcoats.github.io/ioapi/AVAIL.html
 
 1. Download I/O API
