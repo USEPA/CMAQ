@@ -198,7 +198,7 @@ echo $LD_LIBRARY_PATH
 13. Run the make check command
 
 ```
-make check
+make check |& tee make.check.log.txt
 ```
 
 Output if successful:
@@ -213,7 +213,7 @@ Testsuite summary for netCDF-Fortran 4.4.5
 14. Run the make install command
 
 ```
-make install
+make install |& tee ./make.install.log.txt
 ```
 
 Output successful if you see:
