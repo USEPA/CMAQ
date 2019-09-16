@@ -92,10 +92,10 @@ setenv CXX /urs/local/apps/intel/18.2/bin/icpc
 11. Check that the configure command worked correctly
 
 ```
-make check install
+make check install |& tee make.install.log.txt
 ```
 
-12. Verify that the following message is obtained
+12. Verify that the following message is obtained at the end of your make.install.log.txt file
 
 ```
 | Congratulations! You have successfully installed netCDF!    |
