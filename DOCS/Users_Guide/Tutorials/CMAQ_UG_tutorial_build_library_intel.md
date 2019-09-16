@@ -12,6 +12,11 @@ wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-c-4.7.0.tar.gz
 tar -xzvf netcdf-c-4.7.0.tar.gz
 ```
 
+3. Change directories into the package
+```
+cd netcdf-c-4.7.0
+```
+
 3. Verify that no modules are currently loaded using module commands. 
 
 ```
@@ -40,7 +45,7 @@ more INSTALL.md
 7. Create a target installation directory that includes the loaded module environment name. 
 
 ```
-mkdir /home/netcdf-c-4.7.0-intel18.2
+mkdir $cwd/netcdf-c-4.7.0-intel18.2
 ```
 
 8. Run the configure --help command to see what settings can be used for the build.
@@ -50,20 +55,38 @@ mkdir /home/netcdf-c-4.7.0-intel18.2
 
 9. Set the Compiler environment variables
 
+First find the path to the CC compiler on your system using the which command
+```
+which icc
+```
+Next, replace the following path in the setenv command below to use the path to your CC compiler
+
+```
+setenv CC /urs/local/apps/intel/18.2/bin/icc
+```
+
+Find the path to the Fortran compiler on your ssystem using the which command
 ```
 which ifort
-which icc
-wihch icpc
-
-setenv CC /urs/local/apps/intel/18.2/bin/icc
+```
+Next, replace the following path in the setenv command below to use the path to the Fortran compiler on your system
+```
 setenv FC /urs/local/apps/intel/18.2/bin/ifort
+```
+
+Find the path to the CXX compiler on your system using the which command
+```
+which icpc
+```
+Next, replace the following path in the setenv command below to use the path to the CXX compiler on your system:
+```
 setenv CXX /urs/local/apps/intel/18.2/bin/icpc
 ```
 
 10. Run the configure command
 
 ```
-./configure --prefix=/home/netcdf-c-4.7.0-intel18.2 --disable-netcdf-4 --disable-dap
+./configure --prefix=$cwd/netcdf-c-4.7.0-intel18.2 --disable-netcdf-4 --disable-dap
 ```
 
 11. Check that the configure command worked correctly
