@@ -9,7 +9,7 @@ wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-c-4.7.0.tar.gz
 2. Untar the file 
 
 ```
-tar -tzvf netcdf-c-4.7.0.tar.gz
+tar -xzvf netcdf-c-4.7.0.tar.gz
 ```
 
 3. Verify that no modules are currently loaded using module commands. 
