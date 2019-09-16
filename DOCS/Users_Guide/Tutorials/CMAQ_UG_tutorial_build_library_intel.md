@@ -124,7 +124,7 @@ cd netcdf-fortran-4.4.5
 4. Make an install directory that matches the name of your loaded module environment
 
 ```
-mkdir /home/netcdf-fortran-4.4.5-intel18.2
+mkdir $cwd/netcdf-fortran-4.4.5-intel18.2
 ```
 
 5. Review the installation document http://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html
@@ -132,18 +132,33 @@ mkdir /home/netcdf-fortran-4.4.5-intel18.2
 6. Set the environment variable NCDIR
 
 ```
-setenv NCDIR /home/netcdf-c-4.7.0-intel18.2
+setenv NCDIR $cwd/netcdf-c-4.7.0-intel18.2
 ```
 
 7. Set the CC environment variable to use the intel compilers
 
+First find the path to the CC compiler on your system using the which command
+```
+which icc
+```
+Next, replace the following path in the setenv command below to use the path to your CC compiler
+```
+setenv CC /urs/local/apps/intel/18.2/bin/icc
+```
+Find the path to the Fortran compiler on your ssystem using the which command
 ```
 which ifort
-which icc
-wihch icpc
-
-setenv CC /urs/local/apps/intel/18.2/bin/icc
+```
+Next, replace the following path in the setenv command below to use the path to the Fortran compiler on your system
+```
 setenv FC /urs/local/apps/intel/18.2/bin/ifort
+```
+Find the path to the CXX compiler on your system using the which command
+```
+which icpc
+```
+Next, replace the following path in the setenv command below to use the path to the CXX compiler on your system:
+```
 setenv CXX /urs/local/apps/intel/18.2/bin/icpc
 ```
 
