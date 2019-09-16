@@ -254,14 +254,14 @@ git clone https://github.com/cjcoats/ioapi-3.2
 2. Change the BIN setting in the Makefile to include the loaded module name
 
 ```
-BIN        = Linux2_x86_64ifort_openmpi_4.0.1_intel18.2
+BIN        = Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
 ```
 
 3. Copy an existing Makeinclude file to have this BIN name at the end
 
 ```
 cd ioapi
-cp Makeinclude.Linux2_x86_64ifort Makeinclude.Linux2_x86_64ifort_openmpi_4.0.1_intel18.2
+cp Makeinclude.Linux2_x86_64ifort Makeinclude.Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
 ```
 
 4. Create a BIN directory
@@ -281,7 +281,7 @@ ln -s /home/netcdf-fortran-4.4.5-intel18.2/libnetcdf.a
 6. Run the make command to compile and link the ioapi library
 
 ```
-make |& tee make.log
+make all |& tee make.log
 ```
 
 7. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
