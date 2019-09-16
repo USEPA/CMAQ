@@ -251,7 +251,7 @@ setenv LD_LIBRARY_PATH ${NFDIR}/lib:${LD_LIBRARY_PATH}
 git clone https://github.com/cjcoats/ioapi-3.2
 ```
 
-2. Change the BIN setting in the Makefile to include the loaded module name
+2. Change the BIN setting on line 133 of the Makefile to include the loaded module name
 
 ```
 BIN        = Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
