@@ -257,20 +257,37 @@ git clone https://github.com/cjcoats/ioapi-3.2
 BIN        = Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
 ```
 
-3. Copy an existing Makeinclude file to have this BIN name at the end
+3. Change the NCFLIBS setting on line 141 of the Makefile to be
+
+```
+NCFLIBS    = -lnetcdff -lnetcdf
+```
+
+4. Copy an existing Makeinclude file to have this BIN name at the end
 
 ```
 cd ioapi
 cp Makeinclude.Linux2_x86_64ifort Makeinclude.Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
 ```
 
-4. Create a BIN directory
+5. Edit the Makeinclude file, lines 27 and 28 to use -qopenmp instead of -openmp
+
+OMPFLAGS  = -qopenmp
+OMPLIBS   = -qopenmp
+
+6. Set the environment variable BIN
+
+```
+setenv BIN Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
+```
+
+7. Create a BIN directory
 
 ```
 mkdir $BIN
 ```
 
-5. Link the netcdf-C and netcdf-Fortran library in the $BIN directory
+8. Link the netcdf-C and netcdf-Fortran library in the $BIN directory
 
 ```
 cd $BIN
@@ -278,13 +295,13 @@ ln -s /home/netcdf-c-4.7.0-intel18.2/libnetcdff.a
 ln -s /home/netcdf-fortran-4.4.5-intel18.2/libnetcdf.a
 ```
 
-6. Run the make command to compile and link the ioapi library
+9. Run the make command to compile and link the ioapi library
 
 ```
 make all |& tee make.log
 ```
 
-7. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
+10. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
 
 ```
 cd $BIN
@@ -292,5 +309,5 @@ ls -lrt libioapi.a
 ls -rlt m3xtract
 ```
 
-8. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md). 
+11. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md). 
 
