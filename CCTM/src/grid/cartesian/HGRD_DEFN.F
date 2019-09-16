@@ -165,6 +165,31 @@ C Check NPROCS against NPCOL*NPROW
                SUCCESS = .FALSE.; RETURN
             END IF
 
+            IF ( NPROCS .GT. GL_NCOLS*GL_NROWS ) THEN
+
+               WRITE( LOGDEV,* ) ' --- Nprocs, TOTAL_NCOLS, TOTAL_NROWS ',
+     &                                 NPROCS, GL_NCOLS, GL_NROWS
+               IF ( MYPE .EQ. 0 ) THEN
+                  WRITE( OUTDEV,'(A,4(1X,I4))') ' --- Nprocs, TOTAL_NCOLS, TOTAL_NROWS ',
+     &                                                NPROCS, GL_NCOLS, GL_NROWS
+               END IF
+
+               XMSG = 'NPROCS must be less or equal to TOTAL_NCOLS*TOTAL_NROWS'
+               IF ( MYPE .EQ. 0 ) THEN
+                  WRITE(OUTDEV,'(A)')TRIM( XMSG )
+               END IF 
+               CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
+
+               XMSG = 'Change NPROCS, NPCOL, NPROW in runscript to fit TOTAL_NCOLS and TOTAL_NROWS'
+               IF ( MYPE .EQ. 0 ) THEN
+                  WRITE(OUTDEV,'(A,/)')TRIM( XMSG )
+               END IF 
+               WRITE(LOGDEV,'(A)')TRIM( XMSG )
+
+               SUCCESS = .FALSE.; RETURN
+
+            END IF
+
             ALLOCATE ( COLSX_PE( 2,NPROCS ),
      &                 ROWSX_PE( 2,NPROCS ), STAT = ALST )
             IF ( ALST .NE. 0 ) THEN
