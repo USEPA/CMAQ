@@ -322,6 +322,8 @@ C...Allocate and set conversion factors for isam chemistry species
            MSG = 'Error allocating SOLD'
            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
         END IF 
+
+        SOLD = 0.0D0
         
         ALLOCATE( MECHANISM_BUDGET( NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
@@ -764,6 +766,7 @@ C..Includes:
 !         CHARACTER( 132 )  :: MSG
 
 !         SOLD = DCONMIN_TAG ! LOCAL_MIN
+          SOLD = 0.0D0
           INV_DENS = REAL( ONE/DENS, 8 )
           
           DO JSPC = 1, ISAM_CHEMISTRY_SPC
@@ -1122,6 +1125,8 @@ C...check for bad values
             DO KTAG = 1, NTAG_SA
                TOTAL_ISAM_CONC( ISP2 ) = TOTAL_ISAM_CONC( ISP2 )
      &                                 + SOLD( KTAG,ISP2 )
+!              print*,KTAG,":",TRIM(CHEMISTRY_SPC(ISP2))," = ",SOLD( KTAG,ISP2 )
+!              print*,TAGNAME(KTAG),":",TRIM(CHEMISTRY_SPC(ISP2))," = ",SOLD( KTAG,ISP2 )
                IF( SOLD( KTAG,ISP2 ) .LT. 0.0D0 )
      &         WRITE(ISAM_LOG,*)TRIM(CHEMISTRY_SPC(ISP2)) // ' bad value = ',SOLD( KTAG,ISP2 )
             END DO
