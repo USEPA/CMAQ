@@ -76,14 +76,13 @@ C    31 Jul 12 J.Bash: Changed the zadv dt for cases where cc > 1 to be
 C                      more stable for conditions when cc > 10
 C    01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all MY_N
 C                      clauses
+C    09 Sep 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID species number and offsets
       USE WVEL_DEFN             ! derived vertical velocity component
       USE UTILIO_DEFN
-      USE STD_CONC, ONLY : L_CONC_WVEL
-      USE AVG_CONC, ONLY : L_ACONC_WVEL
 
 #ifdef isam
       USE SA_DEFN               ! 20120821
@@ -454,16 +453,16 @@ Ckrt...update ISAM with SA_CON....20120821
                END IF   
             END DO
 #endif
-
-            DO LVL = 1, NLAYS
-               WY( LVL,COL,ROW ) = VEL( LVL+1 )
-            END DO
+            IF ( W_VEL ) THEN ! If the user wants vertical velocity written to file, fill in global scope array (WY)
+              DO LVL = 1, NLAYS
+                 WY( LVL,COL,ROW ) = VEL( LVL+1 )
+              END DO
+            END IF 
 
 222         CONTINUE   ! COL
 333      CONTINUE   ! ROW
 
-      IF ( L_CONC_WVEL .OR. L_ACONC_WVEL ) CALL GET_WVEL( JDATE,JTIME )
+      IF ( W_VEL ) CALL GET_WVEL( JDATE,JTIME )
 
       RETURN
       END SUBROUTINE ZADV
-
