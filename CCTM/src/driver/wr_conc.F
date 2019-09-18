@@ -44,6 +44,7 @@ C                       I/O implementation
 C                     - Added code to allow non IO processor to open
 C                       CTM_CONC_1
 C   01 Feb 19 D.Wong: - Implemented centralized I/O approach
+C   Sept 19 F. Sidi: Replaced L_CONC_WVEL(depreciated) with W_VEL 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -154,7 +155,7 @@ C open conc file for update
       END DO
 
       ! Write Vertical Velocity to Output CONC file
-      IF ( L_CONC_WVEL ) THEN
+      IF ( W_VEL ) THEN
          IF ( .NOT. WRITE3( CTM_CONC_1, 'W_VEL',
      &      JDATE, JTIME, WVEL( :,:,CONC_BLEV:CONC_ELEV ) ) ) THEN
             XMSG = 'Could not write W_VEL to ' // CTM_CONC_1

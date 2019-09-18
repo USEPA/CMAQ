@@ -20,7 +20,7 @@
 
          USE STD_CONC, ONLY: N_C_GC_SPC, C_GC_SPC, N_C_AE_SPC, C_AE_SPC,  
      &                       N_C_NR_SPC, C_NR_SPC, N_C_TR_SPC, C_TR_SPC,
-     &                       N_CSPCS, L_CONC_WVEL, L_CONC_RH, L_CONC_TA,
+     &                       N_CSPCS, L_CONC_RH, L_CONC_TA,
      &                       L_CONC_PRES
 
          INTEGER              :: NVERTEXT
@@ -48,10 +48,11 @@ C Revision history:
 C   24 Nov 17 B.Henderson: copied from OPCONC.
 C   09 Jan 18 D.Wong: put in parallel implementation
 C   01 Feb 19 D.Wong: removed USE ALLOC_DATA_MODULE clause
+C   09 Sep 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL
 C-----------------------------------------------------------------------
 
          USE GRID_CONF
-         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT, N_CONC_VARS
+         USE RUNTIME_VARS, ONLY: LOGDEV, LVEXT, N_CONC_VARS, W_VEL
          USE UTILIO_DEFN
 #ifdef parallel
          USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
@@ -277,7 +278,7 @@ C Set output file characteristics from GRID_CONF and open
          END DO
  
          VAR = FINI
-         IF ( L_CONC_WVEL ) THEN   ! for W_YAMO
+         IF ( W_VEL ) THEN   ! for W_YAMO
             VAR = VAR + 1
             VTYPE3D( VAR ) = M3REAL
             VNAME3D( VAR ) = 'W_VEL'
@@ -579,6 +580,7 @@ C Revision History:
 C   24 Nov 17 B.Henderson: copied from WR_CONC
 C   24 Jul 18 C. Nolte: removed call to INIT_MET that was causing conflict.
 C             Met should already be initialized by this point.
+C   09 Sep 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL
 C-----------------------------------------------------------------------
 
          USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -671,7 +673,7 @@ C open vext file for update
             END IF
          END DO
  
-         IF ( L_CONC_WVEL ) THEN
+         IF ( W_VEL ) THEN
          IF ( .NOT. PWRVEC(CTM_VEXT_1, 'W_VEL', JDATE, JTIME,
      &                     WVEL(:, :, :), NLAYS,
      &                     NCOLS, NROWS, NUMPROCS, 
