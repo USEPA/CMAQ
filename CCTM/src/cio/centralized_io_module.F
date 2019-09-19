@@ -53,6 +53,9 @@
 !                        GRIDCRO2D or LUFRAC_CRO. Allows backward compatibility.
 !  08/01/19, D. Wong:- Made modification so centralized I/O works with two-way model
 !                    - used new variable type descriptor
+!  09/10/19, D. Wong:- Extended to handle BC file with non 1-hr time step
+!  09/19/19, D. Wong:- Used the start simulation time to pick up the very first emission 
+!                      data point rather than the start time in the emission file
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -155,6 +158,7 @@
         integer, allocatable :: cio_bndy_data_inx (:,:,:),
      &                          head_bndy(:), tail_bndy(:),        ! head and tail of the boundary data circular buffer
      &                          cio_bndy_data_tstamp(:,:,:)
+        integer :: met_bc_tstep, bc_tstep                          ! tstep info for met_bc and regular bc files
 
 ! emission data
 ! - gridded emission data
@@ -811,7 +815,7 @@
           size_s2d    = s_cro_ncols * s_cro_nrows
 
           if ((cro_ncols .ne. ncols) .or. (cro_nrows .ne. nrows)) then
-             print *, ' ==d== NO ncols nrows '
+             write (cio_logdev, *) ' ==d== NO ncols nrows '
              stop
           end if
 
@@ -836,7 +840,7 @@
      &              cio_grid_data_inx(2, 0:2, n_cio_grid_vars),
      &              head_grid(n_cio_grid_vars),
      &              tail_grid(n_cio_grid_vars),
-     &              cio_grid_data_tstamp(2, 0:2, n_cio_grid_vars),
+     &              cio_grid_data_tstamp(3, 0:2, n_cio_grid_vars),
      &              cio_grid_data(  size_c2dx * 3 * n_c2d               ! 2d met data
      &                            + size_c2d  * 3 * n_e2d               ! 2d emis data
      &                            + size_c3d  * 3 * n_c3d                ! 3D met data
@@ -921,7 +925,7 @@
      &                (cio_grid_var_name(v,2) .eq. 'wb')) then
                 d_size = size_s2d
              else
-                print *, ' ==d== UNKNOWN'
+                write (cio_logdev, *) ' ==d== UNKNOWN'
                 stop
              end if
 
@@ -962,11 +966,16 @@
                 XMSG = 'Could not open '// MET_BDY_3D // ' file'
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+             IF ( .NOT. DESC3( MET_BDY_3D ) ) THEN
+                XMSG = 'Could not get file description from '// MET_BDY_3D
+                CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
 #endif
              n_mb3d = 2
              mb3d_name = 'mb'     ! denote met 3D boundary variable
              mb3d_name(1,1) = 'DENSA_J'
              mb3d_name(2,1) = 'JACOBM'
+             met_bc_tstep = tstep3d
           else
              n_mb3d = 0
           end if
@@ -983,6 +992,7 @@
           n_b3d = nvars3d
           size_b2d = (ncols3d + nrows3d + 2 * nthik3d) * 2 * nthik3d
           size_b3d = size_b2d * nlays
+          bc_tstep = tstep3d
 
           allocate (b3d_name(n_b3d, 2),
      &              cio_bc_file_var_name(nvars3d),
@@ -1039,6 +1049,9 @@
                  cio_bndy_data_inx(2, n, v) = end
                  begin = end + 1
              end do
+! this is for checking purposes
+!            write (logdev, '(a13, i5, 1x, a16, a4, 10i10)') ' ==d== bfile ', v,
+!    &                cio_bndy_var_name(v,:), cio_bndy_data_inx(:,:,v)
           end do
 
         end subroutine boundary_files_setup
@@ -2539,7 +2552,7 @@ C Read the various categories of normalized emissions
 
           LOGICAL :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations,
-     &               iter, loc_jdate, loc_jtime, v, beg_v, end_v
+     &               iter, loc_jdate, loc_jtime_met, loc_jtime, v, beg_v, end_v
 
           CHARACTER( 120 ) :: XMSG = ' '
 
@@ -2564,15 +2577,20 @@ C Read the various categories of normalized emissions
              end_v = n_cio_bndy_vars
           end if
 
-          loc_jdate = jdate
-          loc_jtime = jtime
+          loc_jdate     = jdate
+          loc_jtime     = jtime
+          loc_jtime_met = jtime
 
           do iter = 1, iterations
              do v = beg_v, end_v
                 buf_loc = mod((tail_bndy(v) + iter), 2)
 
                 cio_bndy_data_tstamp(1, buf_loc, v) = loc_jdate
-                cio_bndy_data_tstamp(2, buf_loc, v) = loc_jtime
+                if (cio_bndy_var_name(v,2) == 'mb') then
+                   cio_bndy_data_tstamp(2, buf_loc, v) = loc_jtime_met
+                else
+                   cio_bndy_data_tstamp(2, buf_loc, v) = loc_jtime
+                end if
 
                 begin = cio_bndy_data_inx(1,buf_loc,v)
                 end   = cio_bndy_data_inx(2,buf_loc,v)
@@ -2582,9 +2600,9 @@ C Read the various categories of normalized emissions
                    cio_bndy_data(begin:end) = 0.0
 #else
                    if (.not. read3 (MET_BDY_3D, cio_bndy_var_name(v,1), -1,
-     &                              loc_jdate, loc_jtime, cio_bndy_data(begin:end) ) ) THEN
+     &                              loc_jdate, loc_jtime_met, cio_bndy_data(begin:end) ) ) THEN
                       XMSG = 'Could not read ' // MET_BDY_3D // ' file'
-                      CALL M3EXIT ( PNAME, loc_jdate, loc_jtime, XMSG, XSTAT1 )
+                      CALL M3EXIT ( PNAME, loc_jdate, loc_jtime_met, XMSG, XSTAT1 )
                    END IF
 #endif
                 else if ((cio_bndy_var_name(v,2) == 'bc') .or.
@@ -2602,7 +2620,8 @@ C Read the various categories of normalized emissions
 
              end do
 
-             CALL NEXTIME ( loc_jdate, loc_jtime, cio_data_tstep )
+             CALL NEXTIME ( loc_jdate, loc_jtime_met, met_bc_tstep)
+             CALL NEXTIME ( loc_jdate, loc_jtime, bc_tstep)
 
           end do  ! end iter
 
@@ -2663,7 +2682,7 @@ C Read the various categories of normalized emissions
 
              if (firstime) then
                 loc_jdate = cio_stack_emis_sdate(pt)
-                loc_jtime = cio_stack_emis_stime(pt)
+                loc_jtime = jtime
              else
                 loc_jdate = jdate
                 loc_jtime = jtime
@@ -3587,6 +3606,8 @@ C   mminlu and num_land_cat are WRF global variables
              loc_tail = tail_stack_emis(var_loc, pt)
 
              if ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .lt. date) .or.
+     &           ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date) .and.
+     &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .eq. 0)) .or.
      &           ((cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .lt. time) .and.
      &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .ne. 0))) then
 
@@ -4064,8 +4085,7 @@ C   mminlu and num_land_cat are WRF global variables
           logical :: loc_firstime = .true.
           integer, save :: prev_time = -1
           integer, save :: prev_head_time = -1
-          integer, save :: lcount = 0
-          real, save :: ratio1, ratio2
+          real :: ratio1, ratio2
 
           if (loc_firstime) then
              loc_firstime = .false.
@@ -4101,7 +4121,11 @@ C   mminlu and num_land_cat are WRF global variables
              loc_head = head_bndy(var_loc)
              loc_tail = tail_bndy(var_loc)
 
-             loc_tstep = cio_data_tstep
+             if (cio_bndy_var_name(var_loc,2) == 'mb') then
+                loc_tstep = met_bc_tstep
+             else
+                loc_tstep = bc_tstep
+             end if
 
              if ((cio_bndy_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_bndy_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
@@ -4109,6 +4133,7 @@ C   mminlu and num_land_cat are WRF global variables
 
                 loc_jdate = cio_bndy_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_bndy_data_tstamp(2, loc_tail, var_loc)
+
                 CALL NEXTIME ( loc_jdate, loc_jtime, loc_tstep )
 
                 call retrieve_boundary_data (loc_jdate, loc_jtime, vname)
@@ -4128,8 +4153,7 @@ C   mminlu and num_land_cat are WRF global variables
                 if (cio_bndy_var_name(var_loc, 2) == 'bc') then
                    ratio1 = 1.0
                    ratio2 = 0.0
-                else if ((prev_time .ne. time) .or.
-     &              (prev_head_time .ne. cio_bndy_data_tstamp(2, loc_head, var_loc))) then
+                else
                    if (cio_bndy_data_tstamp(1, loc_head, var_loc) .eq. date) then
                       ratio2 =   real(time_diff(time, cio_bndy_data_tstamp(2, loc_head, var_loc))) 
      &                         / real(time_to_sec(loc_tstep))
@@ -4141,8 +4165,6 @@ C   mminlu and num_land_cat are WRF global variables
                    end if
                    prev_time = time
                    prev_head_time = cio_bndy_data_tstamp(2, loc_head, var_loc)
-                else
-                   lcount = lcount + 1
                 end if
 
                 head_beg_ind  = cio_bndy_data_inx(1,loc_head,var_loc)
