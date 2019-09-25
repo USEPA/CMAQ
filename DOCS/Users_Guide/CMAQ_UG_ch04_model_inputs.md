@@ -500,7 +500,7 @@ The elevated-point-source emissions file is an I/O API GRDDED3 file with emissio
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
-The NLDN lightning strikes file is used for calculating online NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
+The NLDN lightning strikes file is used for calculating online NO emissions from hourly observed strike counts. (Hourly NLDN lightning strike data can be purchased from a private vendor.) This file contains the following variables interpolated to the modeling grid:
 
 <a id=Table4-4></a>
 
@@ -511,6 +511,8 @@ The NLDN lightning strikes file is used for calculating online NO emissions from
  |LNT|hourly flash counts per sq. km.|km<sup>-2</sup>|yes|
 
 <a id=ltngparm_file></a>
+
+Use of lightning strike data in CMAQ simulations is discussed further in [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md).
 
 **LTNGPARMS_FILE: Lightning parameters file**
 
@@ -542,6 +544,8 @@ This file contains the following variables interpolated to the modeling grid:
 |OCNMASK| Land/water mask to remove spurious flashes over the ocean|unitless|yes|
 
 *Regression equation generates flash counts (or log flash counts) per square km per cm convectic precipitation.
+
+Use of lightning strike data in CMAQ simulations is discussed further in [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md).
 
 ## 4.9 Biogenic and Land Surface Inputs
 
