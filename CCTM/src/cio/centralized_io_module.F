@@ -54,6 +54,8 @@
 !  08/01/19, D. Wong:- Made modification so centralized I/O works with two-way model
 !                    - used new variable type descriptor
 !  09/10/19, D. Wong:- Extended to handle BC file with non 1-hr time step
+!  09/19/19, D. Wong:- Used the start simulation time to pick up the very first emission 
+!                      data point rather than the start time in the emission file
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -813,7 +815,7 @@
           size_s2d    = s_cro_ncols * s_cro_nrows
 
           if ((cro_ncols .ne. ncols) .or. (cro_nrows .ne. nrows)) then
-             print *, ' ==d== NO ncols nrows '
+             write (cio_logdev, *) ' ==d== NO ncols nrows '
              stop
           end if
 
@@ -923,7 +925,7 @@
      &                (cio_grid_var_name(v,2) .eq. 'wb')) then
                 d_size = size_s2d
              else
-                print *, ' ==d== UNKNOWN'
+                write (cio_logdev, *) ' ==d== UNKNOWN'
                 stop
              end if
 
@@ -2680,7 +2682,7 @@ C Read the various categories of normalized emissions
 
              if (firstime) then
                 loc_jdate = cio_stack_emis_sdate(pt)
-                loc_jtime = cio_stack_emis_stime(pt)
+                loc_jtime = jtime
              else
                 loc_jdate = jdate
                 loc_jtime = jtime
@@ -3604,6 +3606,8 @@ C   mminlu and num_land_cat are WRF global variables
              loc_tail = tail_stack_emis(var_loc, pt)
 
              if ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .lt. date) .or.
+     &           ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date) .and.
+     &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .eq. 0)) .or.
      &           ((cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .lt. time) .and.
      &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .ne. 0))) then
 
