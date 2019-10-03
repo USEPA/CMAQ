@@ -56,6 +56,7 @@ C                      Added a block of code to let non I/O processor to open
 C                        CTM_CONC_1 file
 C   Dec 15 D.Wong:     Removed all the data writing parts and moved it into a
 C                      new file, wr_init.F
+C   Sep 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -203,7 +204,7 @@ C Set output file characteristics based on COORD.EXT and open it
       END DO
 
       VAR = FINI
-      IF ( L_CONC_WVEL ) THEN   ! for W_YAMO
+      IF ( W_VEL ) THEN   ! for vertical velocity from advection
          VAR = VAR + 1
          VTYPE3D( VAR ) = M3REAL
          VNAME3D( VAR ) = 'W_VEL'
