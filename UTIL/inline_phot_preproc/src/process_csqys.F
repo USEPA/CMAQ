@@ -299,6 +299,18 @@ C...load output arrays with integrated data
 
 801   CONTINUE
       
+      IF( NPHOTAB .EQ. 0 )THEN
+          SPECTRA_TYPE = 'NULL'
+          WLIN = 0.0;  CSIN = 0.0; NWLIN = 0; SPECTRA_NAME = 'NULL'
+          IF(SPLIT_OUTPUTS)THEN
+             CALL WRT_CSQY_DATA_ONLY( WLIN, CSIN, QYIN, NWLIN, SPECTRA_NAME,
+     &                                SPECTRA_TYPE, WLL_AVE, WLU_AVE, CSOUT, QYOUT, NWL_AVE)
+          ELSE
+! use WRT_CSQY_DATA if the old version of CSQY_DATA is wanted.
+             CALL WRT_CSQY_DATA( WLIN, CSIN, QYIN, NWLIN, SPECTRA_NAME,
+     &                           SPECTRA_TYPE, WLL_AVE, WLU_AVE, CSOUT, QYOUT, NWL_AVE)
+          END IF
+      END IF
 
       RETURN
 C...formats
