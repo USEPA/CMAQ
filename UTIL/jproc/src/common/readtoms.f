@@ -46,7 +46,7 @@ C     04/10/96  Program received from NASA via web/ftp
 C
 C*********************************************************************
 
-      USE M3UTILIO
+      USE GET_ENV_VARS
 
       IMPLICIT NONE
 
@@ -93,7 +93,7 @@ C...calculate latitudes and longitudes
 C...open the input file
 
       TMUNIT = JUNIT( )
-      CALL NAMEVAL ( TMFILE, EQNAME )
+      CALL VALUE_NAME ( TMFILE, EQNAME )
 
       OPEN ( UNIT = TMUNIT,
      &       FILE = EQNAME,
@@ -105,7 +105,8 @@ C...check for open errors
 
       IF ( IOST .NE. 0 ) THEN
         MSG = 'Could not open the TOMS data file'
-        CALL M3EXIT( PNAME, JDT, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       WRITE( 6, 2001 ) TMUNIT, EQNAME
@@ -120,7 +121,7 @@ C...  and warn user if they do not match
 
       IF ( TJDATE .NE. JDT ) THEN
         MSG = 'Julian date of TOMS file does not match requested date '
-        CALL M3WARN( PNAME, JDT, 0, MSG )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
       END IF
       
 C...read longitude info and allocate array
@@ -130,7 +131,8 @@ C...read longitude info and allocate array
       ALLOCATE ( LON( NLON ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
         MSG = 'Failure allocating LON'
-        CALL M3EXIT ( PNAME, JDT, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       DO ILON = 1, NLON
@@ -144,7 +146,8 @@ C...read latitude info and allocate array
       ALLOCATE ( LAT( NLAT ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
         MSG = 'Failure allocating LAT'
-        CALL M3EXIT ( PNAME, JDT, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       DO ILAT = 1, NLAT
@@ -156,7 +159,8 @@ C...allocate and read in the data into the array ozone
       ALLOCATE ( OZONE( NLON, NLAT ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
         MSG = 'Failure allocating OZONE'
-        CALL M3EXIT ( PNAME, JDT, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       DO ILAT = 1, NLAT
@@ -165,7 +169,8 @@ C...allocate and read in the data into the array ozone
 
         IF ( IOST .NE. 0) THEN
           MSG = 'Errors occurred while reading TOMS file'
-          CALL M3EXIT( PNAME, JDT, 0, MSG, XSTAT1 )
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
         END IF
 
       END DO
