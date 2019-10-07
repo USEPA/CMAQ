@@ -325,7 +325,7 @@ C-------------------------------------------------------------------------------
                   frac_ir = frac_ir + Beld_ag( :,:,l )
                End If                    
             End Do
-            Where( frac_ag .gt. 0.0 )
+            Where( frac_ag .gt. 0.0 .and. fagam1 .gt. 0.0 )
                MHp1 = MHp1 / frac_ag
                MHp2 = MHp2 / frac_ag
                gamma1 = max( gamma1 + fagam1 / frac_ag, 630.0 )
