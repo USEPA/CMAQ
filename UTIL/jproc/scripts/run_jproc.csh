@@ -31,21 +31,24 @@
     endif
  echo " "; echo " Input data path, CMAQ_REPO set to $CMAQ_REPO"; echo " "
 
- set APPL     = v53 
+ set VRSN     = v53 
  set MECH     = cb6r3_ae7_aq 
- set EXEC     = JPROC_${APPL}_$EXEC_ID
- set CFG      = cfg.$EXEC                #> configuration file name
+#set MECH     = saprc07tic_ae7i_aq 
+ set APPL     = ${VRSN}_${MECH}
+ set EXEC     = JPROC_${APPL}_${compiler}${compilerVrsn}    #> executable name
+ set CFG      = cfg.$EXEC                                   #> configuration file name
+
 
 #> Set the working directory:
  set BASE  = $cwd
- set BLD   = ${BASE}/BLD_${APPL}_${MECH}
+ set BLD   = ${BASE}/BLD_${APPL}_${compiler}${compilerVrsn}
 
  cd $BASE; date; set timestamp; cat $BASE/cfg.${CFG}; echo " "; set echo
 
 #> JPROC run dates (produces one file per day)
 
- set STDATE   = 2011182         #> the beginning day for this run
- set ENDATE   = 2011182         #> the ending day
+ set STDATE   = 2016182         #> the beginning day for this run
+ set ENDATE   = 2016182         #> the ending day
 
 # =====================================================================
 #> Input/Output Directories
@@ -56,7 +59,7 @@
  set PROFpath   = $CMAQ_DATA # PROF input data
  set ETpath     = $CMAQ_DATA # ET input data
  set TOMSpath   = $CMAQ_DATA # TOMS input data
- set OUTDIR     = $BASE/jproc_${APPL}_${MECH}   # Output directory
+ set OUTDIR     = $BASE/jtable_${APPL}_${MECH}   # Output directory
 
 # =====================================================================
 #> Input Files
