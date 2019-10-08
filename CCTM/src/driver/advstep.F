@@ -212,14 +212,14 @@ C-----------------------------------------------------------------------
          ADVLAYR = L
          WRITE( LOGDEV,92005 ) ADVLAYR
 
-         SDATE = file_sdate(f_met_dot_3d)
-         STIME = file_stime(f_met_dot_3d)
-         FSTEP = file_tstep(f_met_dot_3d)
+         SDATE = FILE_SDATE(F_MET_DOT_3D)
+         STIME = FILE_STIME(F_MET_DOT_3D)
+         FSTEP = FILE_TSTEP(F_MET_DOT_3D)
 
 C Check file data against COORD.EXT
 
-         IF ( ABS( file_xcell(f_met_dot_3d) - XCELL_GD ) .GT. TOL .OR.
-     &        ABS( file_ycell(f_met_dot_3d) - YCELL_GD ) .GT. TOL      ) THEN
+         IF ( ABS( FILE_XCELL(F_MET_DOT_3D) - XCELL_GD ) .GT. TOL .OR.
+     &        ABS( FILE_YCELL(F_MET_DOT_3D) - YCELL_GD ) .GT. TOL      ) THEN
             WRITE( LOGDEV,* ) 'XCELL3D, XCELL_GD, YCELL3D, YCELL_GD: '
             WRITE( LOGDEV,* ) XCELL3D, XCELL_GD, YCELL3D,YCELL_GD
             XMSG = 'File grid sizes do not match CTM domain definition'
@@ -263,6 +263,9 @@ C Get the time of starting wind field: do not interpolate
          UWIND = 0.0
          VWIND = 0.0
          HDIV  = 0.0
+         WIND_IDX     = 0.0
+         MX_HDIV      = 0.0
+         WIND_IDX_BEG = 0.0
          WIND_IDX_END = 0.0
          MX_HDIV_END  = 0.0
          MX_HDIV_BEG  = 0.0
