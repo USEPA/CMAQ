@@ -44,6 +44,8 @@ c...Tagging maps
       INTEGER, ALLOCATABLE, SAVE   :: MAP_DIFFtoSA( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_ADVtoSA( : )
 
+      INTEGER, ALLOCATABLE, SAVE   :: ISAM_PVO3_MAP( : ) ! potential vorticity map
+
       INTEGER ::     NSPC_SA
       INTEGER ::     NTAG_SA
       INTEGER ::     NSPC_TRANSPORT

@@ -38,6 +38,13 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE CENTRALIZED_IO_MODULE, only : interpolate_var, lat
 
+#ifdef isam
+      USE SA_DEFN, ONLY: ISAM, N_SPCTAG, NTAG_SA, ITAG, OTHRTAG,
+     &                   ISAM_PVO3_MAP, SPC_NAME, L_OZONE,
+     &                   ISAMRGN_NUM, ISAMRGN_MAP, NSPC_SA
+      USE em_param_module, ONLY: EM_REG_FAC, N_EM_RGN
+#endif
+
       IMPLICIT NONE
 
 C..Includes:
@@ -95,6 +102,12 @@ C..Scratch Local Variables:
       REAL PV( NCOLS,NROWS,NLAYS )             ! potential vorticity
       REAL PRES( NCOLS,NROWS,NLAYS )           ! Air pressure [ Pa ]
 
+#ifdef isam
+      INTEGER, SAVE           :: S_O3 = 0
+      REAL                    :: PVO3_STORE = 1.0
+      INTEGER                 :: RGN = 0
+#endif 
+
 C First time: set up parameters
       IF ( LFIRST ) THEN
          LFIRST = .FALSE.
@@ -130,6 +143,10 @@ C Scale only top layer O3 to PV
             XMSG = 'Failure allocating CSTARZ, or CXX'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+
+#ifdef isam
+        IF ( L_OZONE ) S_O3  = INDEX1( 'O3', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+#endif
 
       END IF      ! First time
 
@@ -182,6 +199,43 @@ C   of a 22-layer configuration
                CSTAR  = MAX ( 30.0, ABS( FC * GC ) )
 
                CGRID( C,R,L,VO3 ) = 0.001 * CSTAR * ABS( PV( C,R,L ) )
+#ifdef isam
+               IF ( L_OZONE ) THEN
+                 ISAM( C,R,L,S_O3,: ) = 1E-30
+                 PVO3_STORE = 1.0
+                 IF ( SUM( ISAM_PVO3_MAP(:) ) .EQ. 0 ) THEN  ! no PV tracking specified, toss it into OTHER
+                   ISAM( C,R,L,S_O3,OTHRTAG ) = PVO3_STORE
+                 ELSE IF ( SUM( ISAM_PVO3_MAP(:) ) .GE. 1 ) THEN ! at least 1 PVO3 tag
+                   DO ITAG = 1, NTAG_SA-3
+                     IF( ISAM_PVO3_MAP(ITAG) .EQ. 1 ) THEN ! PV for this tag
+                        IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN ! full domain
+                          ISAM( C,R,L,S_O3,ITAG ) = PVO3_STORE
+                          PVO3_STORE = PVO3_STORE - ISAM( C,R,L,S_O3,ITAG )
+                        ELSE ! split into regions and other
+                          DO RGN = 1, ISAMRGN_NUM( ITAG )
+                            ISAM( C,R,L,S_O3,ITAG ) = ISAM( C,R,L,S_O3,ITAG )
+     &                            + CGRID( C,R,L,VO3 )
+     &                            * EM_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
+                            PVO3_STORE = PVO3_STORE
+     &                            - EM_REG_FAC(C,R,ISAMRGN_MAP(ITAG,RGN))
+                          END DO
+                        END IF 
+                     END IF
+                   END DO
+                   IF ( PVO3_STORE .LT. 1E-6 ) PVO3_STORE = 0.0 ! round off precision error
+                   IF ( PVO3_STORE .GE. 0.0 ) THEN ! put the rest into OTHER tag
+                     ISAM( C,R,L,S_O3,OTHRTAG ) = PVO3_STORE * CGRID( C,R,L,VO3 )
+                   ELSE
+                     XMSG = ' ERROR: Possible overspecification of ' //
+     &                      'ISAM tags for PV'
+                     CALL M3EXIT ( 'ISAM_PV', JDATE, JTIME, XMSG, XSTAT1 )
+                   ENDIF
+                 ELSE
+                   XMSG = ' ERROR in ISAM PV definitions '
+                   CALL M3EXIT ( 'ISAM_PV', JDATE, JTIME, XMSG, XSTAT1 )
+                 END IF
+               END IF
+#endif
                IF ( VO3T .GT. 0 ) THEN
                   CGRID( C,R,L,VO3T ) = CGRID( C,R,L,VO3 )
                END IF
