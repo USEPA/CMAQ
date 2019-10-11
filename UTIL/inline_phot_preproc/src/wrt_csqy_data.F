@@ -446,6 +446,17 @@ C            WRITE(JTABLE_UNIT,'(I3,2X,F6.2)')ITTR, TEMPERATURE(ITTR)
 
          ENDDO LOOP_STRAT
 
+         IF( NPHOTAB .EQ. 0 )THEN
+             WRITE(JTABLE_UNIT,5010)
+             WRITE(JTABLE_UNIT,'(A14,1X,I3)')'NTEMP_STRAT = ', N_TEMP_STRAT
+             WRITE(JTABLE_UNIT,'(A7,7X,A8,3X,A4,3X,40(A5,I3,A1,5X))')'!      ',
+     &      'QUANTITY','TEMP',('WBIN(',J,')', J = 1, N_INLINE_BAND)
+             DO I = 1, N_TEMP_STRAT
+                WRITE(JTABLE_UNIT,'(A16,1X,A5,1X,F8.3,1X,40(1PE12.6,2X))')'O3_STRAT ',
+     &          'CS',TEMP_STRAT(I),(O3_CS_STRAT( I, J), J = 1, N_INLINE_BAND)
+             ENDDO
+             RETURN
+         END IF
 
          ALLOCATE( MODIS_ALBEDO( NJO_NEW, NUMB_LANDUSE_MODIS ) )
 
@@ -668,7 +679,7 @@ c---    SR bands are split (by Opacity Distrib Fn) into a range of JX bins
 
       print*, ' Wrote CSQY DATA for ',SPECTRA_NAME
 
-      IF( SPECTRA_NAME .EQ. PHOTAB(NPHOTAB) )THEN
+      IF( SPECTRA_NAME .EQ. PHOTAB( MAX( NPHOTAB,1 ))  )THEN
 
 ! write out the ozone cross-section for stratospheric temperatures
 
