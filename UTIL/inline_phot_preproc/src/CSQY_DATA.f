@@ -1,1512 +1,1164 @@
+
+!------------------------------------------------------------------------!
+!  The Community Multiscale Air Quality (CMAQ) system software is in     !
+!  continuous development by various groups and is based on information  !
+!  from these groups: Federal Government employees, contractors working  !
+!  within a United States Government contract, and non-Federal sources   !
+!  including research institutions.  These groups give the Government    !
+!  permission to use, prepare derivative works of, and distribute copies !
+!  of their work in the CMAQ system to the public and to permit others   !
+!  to do so.  The United States Environmental Protection Agency          !
+!  therefore grants similar permission to use the CMAQ system software,  !
+!  but users are requested to provide copies of derivative works or      !
+!  products designed to operate in the CMAQ system to the United States  !
+!  Government without restrictions as to use by others.  Software        !
+!  that is used with the CMAQ system but distributed under the GNU       !
+!  General Public License or the GNU Lesser General Public License is    !
+!  subject to their copyright restrictions.                              !
+!------------------------------------------------------------------------!
+
+
+
+!:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE CSQY_DATA
 
       IMPLICIT NONE
 
-C.....PARAMETERS and their descriptions:
+      CHARACTER( 32 ), SAVE :: JTABLE_REF
 
-      INTEGER, PARAMETER :: NPHOT_REF =  25 ! # ref phot reactions 
+      INTEGER, SAVE :: NPHOT_REF  ! # ref phot reactions 
+      INTEGER, SAVE :: NTEMP_REF  ! # ref temperatures 
+      INTEGER, SAVE :: NWL_REF    ! # ref wavelengths 
 
-      INTEGER, PARAMETER :: NTEMP_REF =   3 ! # ref temperatures 
+!...Names of the mapped photolysis reactions (available to chemical)
+!... mechanisms) and their pointers to the reference photolysis rxn
 
-      INTEGER, PARAMETER :: NWL_REF   =   7 ! # ref wavelengths 
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: PNAME_REF( : )
 
-C...Names of the mapped photolysis reactions (available to chemical)
-C... mechanisms) and their pointers to the reference photolysis rxn
+!...Setup the Mapping from CMAQ chemical reactions to the reference data
 
+      INTEGER, SAVE :: NPHOT_MAP  ! #  phot mapped reactions 
 
-      INTEGER, PARAMETER :: INO2_SAPRC99      =   1 ! pointer to NO2_SAPRC99     
-      INTEGER, PARAMETER :: INO3NO_SAPRC99    =   2 ! pointer to NO3NO_SAPRC99   
-      INTEGER, PARAMETER :: INO3NO2_SAPRC99   =   3 ! pointer to NO3NO2_SAPRC99  
-      INTEGER, PARAMETER :: IO3O3P_SAPRC99    =   4 ! pointer to O3O3P_SAPRC99   
-      INTEGER, PARAMETER :: IO3O1D_SAPRC99    =   5 ! pointer to O3O1D_SAPRC99   
-      INTEGER, PARAMETER :: IHONO_NO_SAPRC99  =   6 ! pointer to HONO_NO_SAPRC99 
-      INTEGER, PARAMETER :: IHONO_NO2_SAPRC99 =   7 ! pointer to HONO_NO2_SAPRC99
-      INTEGER, PARAMETER :: IHNO3_SAPRC99     =   8 ! pointer to HNO3_SAPRC99    
-      INTEGER, PARAMETER :: IHO2NO2_SAPRC99   =   9 ! pointer to HO2NO2_SAPRC99  
-      INTEGER, PARAMETER :: IH2O2_SAPRC99     =  10 ! pointer to H2O2_SAPRC99    
-      INTEGER, PARAMETER :: IHCHO_R_SAPRC99   =  11 ! pointer to HCHO_R_SAPRC99  
-      INTEGER, PARAMETER :: IHCHO_M_SAPRC99   =  12 ! pointer to HCHO_M_SAPRC99  
-      INTEGER, PARAMETER :: ICCHO_R_SAPRC99   =  13 ! pointer to CCHO_R_SAPRC99  
-      INTEGER, PARAMETER :: IC2CHO_SAPRC99    =  14 ! pointer to C2CHO_SAPRC99   
-      INTEGER, PARAMETER :: IACETONE_SAPRC99  =  15 ! pointer to ACETONE_SAPRC99 
-      INTEGER, PARAMETER :: IKETONE_SAPRC99   =  16 ! pointer to KETONE_SAPRC99  
-      INTEGER, PARAMETER :: ICOOH_SAPRC99     =  17 ! pointer to COOH_SAPRC99    
-      INTEGER, PARAMETER :: IGLY_R_SAPRC99    =  18 ! pointer to GLY_R_SAPRC99   
-      INTEGER, PARAMETER :: IGLY_ABS_SAPRC99  =  19 ! pointer to GLY_ABS_SAPRC99 
-      INTEGER, PARAMETER :: IMGLY_ADJ_SAPRC99 =  20 ! pointer to MGLY_ADJ_SAPRC99
-      INTEGER, PARAMETER :: IBACL_ADJ_SAPRC99 =  21 ! pointer to BACL_ADJ_SAPRC99
-      INTEGER, PARAMETER :: IBZCHO_SAPRC99    =  22 ! pointer to BZCHO_SAPRC99   
-      INTEGER, PARAMETER :: IACROLEIN_SAPRC99 =  23 ! pointer to ACROLEIN_SAPRC99
-      INTEGER, PARAMETER :: IIC3ONO2_SAPRC99  =  24 ! pointer to IC3ONO2_SAPRC99 
-      INTEGER, PARAMETER :: IMGLY_ABS_SAPRC99 =  25 ! pointer to MGLY_ABS_SAPRC99
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: PNAME_MAP( : )
+      INTEGER, ALLOCATABLE,         SAVE :: PHOT_MAP ( : )
+      
+      REAL, SAVE, ALLOCATABLE :: STWL_REF ( : ) 
+      REAL, SAVE, ALLOCATABLE :: EFFWL_REF( : ) 
+      REAL, SAVE, ALLOCATABLE :: ENDWL_REF( : ) 
 
-      CHARACTER(16), SAVE :: PNAME_REF( NPHOT_REF )
+      REAL, ALLOCATABLE, SAVE :: CLD_BETA_REF    ( : )  ! cloud extinction coef divided by LWC
+      REAL, ALLOCATABLE, SAVE :: CLD_COALBEDO_REF( : )  ! cloud coalbedo
+      REAL, ALLOCATABLE, SAVE :: CLD_G_REF       ( : )  ! cloud asymmetry factor
 
-      DATA PNAME_REF( INO2_SAPRC99      ) / 'NO2_SAPRC99     ' /
-      DATA PNAME_REF( INO3NO_SAPRC99    ) / 'NO3NO_SAPRC99   ' /
-      DATA PNAME_REF( INO3NO2_SAPRC99   ) / 'NO3NO2_SAPRC99  ' /
-      DATA PNAME_REF( IO3O3P_SAPRC99    ) / 'O3O3P_SAPRC99   ' /
-      DATA PNAME_REF( IO3O1D_SAPRC99    ) / 'O3O1D_SAPRC99   ' /
-      DATA PNAME_REF( IHONO_NO_SAPRC99  ) / 'HONO_NO_SAPRC99 ' /
-      DATA PNAME_REF( IHONO_NO2_SAPRC99 ) / 'HONO_NO2_SAPRC99' /
-      DATA PNAME_REF( IHNO3_SAPRC99     ) / 'HNO3_SAPRC99    ' /
-      DATA PNAME_REF( IHO2NO2_SAPRC99   ) / 'HO2NO2_SAPRC99  ' /
-      DATA PNAME_REF( IH2O2_SAPRC99     ) / 'H2O2_SAPRC99    ' /
-      DATA PNAME_REF( IHCHO_R_SAPRC99   ) / 'HCHO_R_SAPRC99  ' /
-      DATA PNAME_REF( IHCHO_M_SAPRC99   ) / 'HCHO_M_SAPRC99  ' /
-      DATA PNAME_REF( ICCHO_R_SAPRC99   ) / 'CCHO_R_SAPRC99  ' /
-      DATA PNAME_REF( IC2CHO_SAPRC99    ) / 'C2CHO_SAPRC99   ' /
-      DATA PNAME_REF( IACETONE_SAPRC99  ) / 'ACETONE_SAPRC99 ' /
-      DATA PNAME_REF( IKETONE_SAPRC99   ) / 'KETONE_SAPRC99  ' /
-      DATA PNAME_REF( ICOOH_SAPRC99     ) / 'COOH_SAPRC99    ' /
-      DATA PNAME_REF( IGLY_R_SAPRC99    ) / 'GLY_R_SAPRC99   ' /
-      DATA PNAME_REF( IGLY_ABS_SAPRC99  ) / 'GLY_ABS_SAPRC99 ' /
-      DATA PNAME_REF( IMGLY_ADJ_SAPRC99 ) / 'MGLY_ADJ_SAPRC99' /
-      DATA PNAME_REF( IBACL_ADJ_SAPRC99 ) / 'BACL_ADJ_SAPRC99' /
-      DATA PNAME_REF( IBZCHO_SAPRC99    ) / 'BZCHO_SAPRC99   ' /
-      DATA PNAME_REF( IACROLEIN_SAPRC99 ) / 'ACROLEIN_SAPRC99' /
-      DATA PNAME_REF( IIC3ONO2_SAPRC99  ) / 'IC3ONO2_SAPRC99 ' /
-      DATA PNAME_REF( IMGLY_ABS_SAPRC99 ) / 'MGLY_ABS_SAPRC99' /
+      REAL, ALLOCATABLE, SAVE :: FSOLAR_REF( : )        ! initial solar flux [photons*cm-2*s-1]
 
-C...Setup the Mapping from CMAQ chemical reactions to the reference data
+      REAL, ALLOCATABLE, SAVE :: TEMP_BASE ( : )        ! reference temperatures
+      REAL, ALLOCATABLE, SAVE :: TEMP_REF( :,: )        ! reference temperatures
 
-      INTEGER, PARAMETER :: NPHOT_MAP =  25 ! #  phot mapped reactions 
+      REAL, ALLOCATABLE, SAVE :: CS_REF ( :,:,: )       ! effective cross sections
+      REAL, ALLOCATABLE, SAVE :: QY_REF ( :,:,: )       ! effective quantum yields
+      REAL, ALLOCATABLE, SAVE :: ECS_REF( :,:,: )       ! CS*QY averaged UCI Solar Flux
 
-      CHARACTER(16), SAVE :: PNAME_MAP( NPHOT_MAP )
-      INTEGER, SAVE       :: PHOT_MAP( NPHOT_MAP )
+      INTEGER,           SAVE :: NTEMP_STRAT_REF        ! number of stratos temperatures
+      REAL, ALLOCATABLE, SAVE :: TEMP_STRAT_REF( : )    ! temperature for stratos O3 xcross, K
+      REAL, ALLOCATABLE, SAVE :: O3_CS_STRAT_REF( :,: ) ! ozone xcross at stratos temperatures, cm2
 
-      DATA PNAME_MAP(   1 ),  PHOT_MAP(   1 )  / 'NO2_SAPRC99     ', INO2_SAPRC99      / 
-      DATA PNAME_MAP(   2 ),  PHOT_MAP(   2 )  / 'NO3NO_SAPRC99   ', INO3NO_SAPRC99    / 
-      DATA PNAME_MAP(   3 ),  PHOT_MAP(   3 )  / 'NO3NO2_SAPRC99  ', INO3NO2_SAPRC99   / 
-      DATA PNAME_MAP(   4 ),  PHOT_MAP(   4 )  / 'O3O3P_SAPRC99   ', IO3O3P_SAPRC99    / 
-      DATA PNAME_MAP(   5 ),  PHOT_MAP(   5 )  / 'O3O1D_SAPRC99   ', IO3O1D_SAPRC99    / 
-      DATA PNAME_MAP(   6 ),  PHOT_MAP(   6 )  / 'HONO_NO_SAPRC99 ', IHONO_NO_SAPRC99  / 
-      DATA PNAME_MAP(   7 ),  PHOT_MAP(   7 )  / 'HONO_NO2_SAPRC99', IHONO_NO2_SAPRC99 / 
-      DATA PNAME_MAP(   8 ),  PHOT_MAP(   8 )  / 'HNO3_SAPRC99    ', IHNO3_SAPRC99     / 
-      DATA PNAME_MAP(   9 ),  PHOT_MAP(   9 )  / 'HO2NO2_SAPRC99  ', IHO2NO2_SAPRC99   / 
-      DATA PNAME_MAP(  10 ),  PHOT_MAP(  10 )  / 'H2O2_SAPRC99    ', IH2O2_SAPRC99     / 
-      DATA PNAME_MAP(  11 ),  PHOT_MAP(  11 )  / 'HCHO_R_SAPRC99  ', IHCHO_R_SAPRC99   / 
-      DATA PNAME_MAP(  12 ),  PHOT_MAP(  12 )  / 'HCHO_M_SAPRC99  ', IHCHO_M_SAPRC99   / 
-      DATA PNAME_MAP(  13 ),  PHOT_MAP(  13 )  / 'CCHO_R_SAPRC99  ', ICCHO_R_SAPRC99   / 
-      DATA PNAME_MAP(  14 ),  PHOT_MAP(  14 )  / 'C2CHO_SAPRC99   ', IC2CHO_SAPRC99    / 
-      DATA PNAME_MAP(  15 ),  PHOT_MAP(  15 )  / 'ACETONE_SAPRC99 ', IACETONE_SAPRC99  / 
-      DATA PNAME_MAP(  16 ),  PHOT_MAP(  16 )  / 'KETONE_SAPRC99  ', IKETONE_SAPRC99   / 
-      DATA PNAME_MAP(  17 ),  PHOT_MAP(  17 )  / 'COOH_SAPRC99    ', ICOOH_SAPRC99     / 
-      DATA PNAME_MAP(  18 ),  PHOT_MAP(  18 )  / 'GLY_R_SAPRC99   ', IGLY_R_SAPRC99    / 
-      DATA PNAME_MAP(  19 ),  PHOT_MAP(  19 )  / 'GLY_ABS_SAPRC99 ', IGLY_ABS_SAPRC99  / 
-      DATA PNAME_MAP(  20 ),  PHOT_MAP(  20 )  / 'MGLY_ADJ_SAPRC99', IMGLY_ADJ_SAPRC99 / 
-      DATA PNAME_MAP(  21 ),  PHOT_MAP(  21 )  / 'BACL_ADJ_SAPRC99', IBACL_ADJ_SAPRC99 / 
-      DATA PNAME_MAP(  22 ),  PHOT_MAP(  22 )  / 'BZCHO_SAPRC99   ', IBZCHO_SAPRC99    / 
-      DATA PNAME_MAP(  23 ),  PHOT_MAP(  23 )  / 'ACROLEIN_SAPRC99', IACROLEIN_SAPRC99 / 
-      DATA PNAME_MAP(  24 ),  PHOT_MAP(  24 )  / 'IC3ONO2_SAPRC99 ', IIC3ONO2_SAPRC99  / 
-      DATA PNAME_MAP(  25 ),  PHOT_MAP(  25 )  / 'MGLY_ABS_SAPRC99', IMGLY_ABS_SAPRC99 / 
+!...    effective quantum yields were computed by performing separate
+!...    interval integrations for the cross sections and for the
+!...    effective cross sections (cs*qy) (calculated on the finer
+!...    wavelength grid.  The effective quantum yield values
+!...    were then calculated for the 7 wavelength intervals by 
+!...    dividing the effective cross sections by the interval average
+!...    cross sections (eQY=eCS/CS).
 
-      REAL, SAVE :: TEMP_REF( NTEMP_REF, NPHOT_REF )    ! reference temperatures
+      REAL, ALLOCATABLE, SAVE :: EQY_REF( :,:,: ) ! eCS/CS averaged 77 bins in UCI Model
 
-      REAL, SAVE :: CS_REF( NPHOT_REF, NTEMP_REF, NWL_REF ) ! effective cross sections
+      INTEGER, PARAMETER :: NUM_REFRACTIVE = 5
+      TYPE MODAL_COMPLEX
+         CHARACTER( 16 ) :: NAME                           ! name of complex property
+         REAL, ALLOCATABLE, DIMENSION( :, : ) :: REAL_PART ! real part
+         REAL, ALLOCATABLE, DIMENSION( :, : ) :: IMAG_PART ! imaginary part
+      END TYPE MODAL_COMPLEX
 
-      REAL, SAVE :: QY_REF( NPHOT_REF, NTEMP_REF, NWL_REF ) ! effective quantum yields
-
-      REAL, SAVE :: ECS_REF( NPHOT_REF, NTEMP_REF, NWL_REF ) ! CS*QY averaged UCI Solar Flux
-
-C...    effective quantum yields were computed by performing separate
-C...    interval integrations for the cross sections and for the
-C...    effective cross sections (cs*qy) (calculated on the finer
-C...    wavelength grid.  The effective quantum yield values
-C...    were then calculated for the 7 wavelength intervals by 
-C...    dividing the effective cross sections by the interval average
-C...    cross sections (eQY=eCS/CS).
-
-      REAL, SAVE :: EQY_REF( NPHOT_REF, NTEMP_REF, NWL_REF ) ! eCS/CS averaged 77 bins in UCI Model
-
+      TYPE( MODAL_COMPLEX ), SAVE :: REFRACTIVE_INDEX( NUM_REFRACTIVE )
 
       INTEGER  :: IWLR  ! wavelength loop variable
-      INTEGER  :: ITTR   ! temperature loop variable
-
-C...NO2_SAPRC99
-C..  NO2 + HV = NO + O
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, INO2_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( INO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.079359E-19, 1.478273E-19, 1.860793E-19, 2.249056E-19, 
-     & 3.335557E-19, 5.492276E-19, 1.146035E-20 /
-      DATA ( CS_REF( INO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.079359E-19, 1.478273E-19, 1.860793E-19, 2.249056E-19, 
-     & 3.335557E-19, 5.492276E-19, 1.146035E-20 /
-      DATA ( CS_REF( INO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.079359E-19, 1.478273E-19, 1.860793E-19, 2.249056E-19, 
-     & 3.335557E-19, 5.492276E-19, 1.146035E-20 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  INO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 9.986851E-01, 9.908283E-01, 
-     & 9.900000E-01, 7.922024E-01, 7.010609E-04 /
-      DATA ( QY_REF(  INO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 9.986851E-01, 9.908283E-01, 
-     & 9.900000E-01, 7.922024E-01, 7.010609E-04 /
-      DATA ( QY_REF(  INO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 9.986851E-01, 9.908283E-01, 
-     & 9.900000E-01, 7.922024E-01, 7.010609E-04 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( INO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.079359E-19, 1.478273E-19, 1.858225E-19, 2.228264E-19, 
-     & 3.302202E-19, 4.272925E-19, 4.015361E-22 /
-      DATA ( ECS_REF( INO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.079359E-19, 1.478273E-19, 1.858225E-19, 2.228264E-19, 
-     & 3.302202E-19, 4.272925E-19, 4.015361E-22 /
-      DATA ( ECS_REF( INO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.079359E-19, 1.478273E-19, 1.858225E-19, 2.228264E-19, 
-     & 3.302202E-19, 4.272925E-19, 4.015361E-22 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( INO2_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 9.900000E-01, 7.779881E-01, 3.503697E-02 /
-      DATA ( EQY_REF( INO2_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 9.900000E-01, 7.779881E-01, 3.503697E-02 /
-      DATA ( EQY_REF( INO2_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 9.900000E-01, 7.779881E-01, 3.503697E-02 /
-
-
-C...NO3NO_SAPRC99
-C..  NO3 + HV = NO + O2 (T=298)
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, INO3NO_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( INO3NO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 0.000000E+00, 5.693338E-19 /
-      DATA ( CS_REF( INO3NO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 0.000000E+00, 5.693338E-19 /
-      DATA ( CS_REF( INO3NO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 0.000000E+00, 5.693338E-19 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  INO3NO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 0.000000E+00, 2.027929E-02 /
-      DATA ( QY_REF(  INO3NO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 0.000000E+00, 2.027929E-02 /
-      DATA ( QY_REF(  INO3NO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 0.000000E+00, 2.027929E-02 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( INO3NO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 0.000000E+00, 8.172148E-20 /
-      DATA ( ECS_REF( INO3NO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 0.000000E+00, 8.172148E-20 /
-      DATA ( ECS_REF( INO3NO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 0.000000E+00, 8.172148E-20 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( INO3NO_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 0.000000E+00, 0.000000E+00, 1.435388E-01 /
-      DATA ( EQY_REF( INO3NO_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 0.000000E+00, 0.000000E+00, 1.435388E-01 /
-      DATA ( EQY_REF( INO3NO_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 0.000000E+00, 0.000000E+00, 1.435388E-01 /
-
-
-C...NO3NO2_SAPRC99
-C..  NO3 + HV = NO2 + O (T=298)
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, INO3NO2_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( INO3NO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 4.263211E-21, 1.112108E-18 /
-      DATA ( CS_REF( INO3NO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 4.263211E-21, 1.112108E-18 /
-      DATA ( CS_REF( INO3NO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 4.263211E-21, 1.112108E-18 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  INO3NO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 2.812680E-01, 4.333254E-01 /
-      DATA ( QY_REF(  INO3NO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 2.812680E-01, 4.333254E-01 /
-      DATA ( QY_REF(  INO3NO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 2.812680E-01, 4.333254E-01 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( INO3NO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 4.263211E-21, 7.608258E-19 /
-      DATA ( ECS_REF( INO3NO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 4.263211E-21, 7.608258E-19 /
-      DATA ( ECS_REF( INO3NO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 0.000000E+00, 0.000000E+00, 
-     & 0.000000E+00, 4.263211E-21, 7.608258E-19 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( INO3NO2_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 0.000000E+00, 1.000000E+00, 6.841297E-01 /
-      DATA ( EQY_REF( INO3NO2_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 0.000000E+00, 1.000000E+00, 6.841297E-01 /
-      DATA ( EQY_REF( INO3NO2_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 0.000000E+00, 1.000000E+00, 6.841297E-01 /
-
-
-C...O3O3P_SAPRC99
-C..  O3 + HV = O1D + O2
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-C..  Absorption cross sections from NASA (1999), using wavelength which is cente
-C..  r of intervals shown.
-C..  Quantum yields derived from O3->O1D quantum yields assuming total quantum y
-C..  ield is 1, though this is not adequately discussed in the evaluations.
-C..  Values given are interpolated for each 1 nm interval.
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IO3O3P_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IO3O3P_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 8.244175E-19, 2.732249E-19, 1.048015E-19, 4.476706E-20, 
-     & 6.115310E-21, 1.783046E-23, 1.650939E-21 /
-      DATA ( CS_REF( IO3O3P_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 8.244175E-19, 2.732249E-19, 1.048015E-19, 4.476706E-20, 
-     & 6.115310E-21, 1.783046E-23, 1.650939E-21 /
-      DATA ( CS_REF( IO3O3P_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 8.244175E-19, 2.732249E-19, 1.048015E-19, 4.476706E-20, 
-     & 6.115310E-21, 1.783046E-23, 1.650939E-21 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IO3O3P_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 6.227041E-02, 4.316183E-02, 4.576553E-01, 7.880843E-01, 
-     & 9.572257E-01, 1.000000E+00, 1.000000E+00 /
-      DATA ( QY_REF(  IO3O3P_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 6.227041E-02, 4.316183E-02, 4.576553E-01, 7.880843E-01, 
-     & 9.572257E-01, 1.000000E+00, 1.000000E+00 /
-      DATA ( QY_REF(  IO3O3P_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 6.227041E-02, 4.316183E-02, 4.576553E-01, 7.880843E-01, 
-     & 9.572257E-01, 1.000000E+00, 1.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IO3O3P_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 5.234537E-20, 1.108793E-20, 4.421269E-20, 3.478935E-20, 
-     & 5.673101E-21, 1.783046E-23, 1.650939E-21 /
-      DATA ( ECS_REF( IO3O3P_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 5.234537E-20, 1.108793E-20, 4.421269E-20, 3.478935E-20, 
-     & 5.673101E-21, 1.783046E-23, 1.650939E-21 /
-      DATA ( ECS_REF( IO3O3P_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 5.234537E-20, 1.108793E-20, 4.421269E-20, 3.478935E-20, 
-     & 5.673101E-21, 1.783046E-23, 1.650939E-21 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IO3O3P_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 9.276882E-01, 1.000000E+00, 1.000000E+00 /
-      DATA ( EQY_REF( IO3O3P_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 9.276882E-01, 1.000000E+00, 1.000000E+00 /
-      DATA ( EQY_REF( IO3O3P_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 9.276882E-01, 1.000000E+00, 1.000000E+00 /
-
-
-C...O3O1D_SAPRC99
-C..  O3 + HV = O1D + O2
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-C..  Absorption cross sections from NASA (1999), using wavelength which is cente
-C..  r of intervals shown.
-C..  Quantum yields from IUPAC, Supplement VI (1997).
-C..  No quantum yield recommendation is given for wl>335.  Assume they decrease
-C..  linearly to zero at 340 nm.
-C..  Values given are interpolated for each 1 nm interval.
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IO3O1D_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IO3O1D_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 8.244175E-19, 2.732249E-19, 1.048015E-19, 4.476706E-20, 
-     & 5.919636E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IO3O1D_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 8.244175E-19, 2.732249E-19, 1.048015E-19, 4.476706E-20, 
-     & 5.919636E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IO3O1D_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 8.244175E-19, 2.732249E-19, 1.048015E-19, 4.476706E-20, 
-     & 5.919636E-21, 0.000000E+00, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IO3O1D_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 9.377296E-01, 9.568382E-01, 5.423447E-01, 2.119156E-01, 
-     & 4.277415E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IO3O1D_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 9.377296E-01, 9.568382E-01, 5.423447E-01, 2.119156E-01, 
-     & 4.277415E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IO3O1D_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 9.377296E-01, 9.568382E-01, 5.423447E-01, 2.119156E-01, 
-     & 4.277415E-02, 0.000000E+00, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IO3O1D_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 7.720721E-19, 2.621370E-19, 6.058880E-20, 9.977705E-21, 
-     & 4.422088E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IO3O1D_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 7.720721E-19, 2.621370E-19, 6.058880E-20, 9.977705E-21, 
-     & 4.422088E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IO3O1D_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 7.720721E-19, 2.621370E-19, 6.058880E-20, 9.977705E-21, 
-     & 4.422088E-22, 0.000000E+00, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IO3O1D_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 7.470202E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IO3O1D_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 7.470202E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IO3O1D_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 7.470202E-02, 0.000000E+00, 0.000000E+00 /
-
-
-C...HONO_NO_SAPRC99
-C..  HONO + HV = HO. + NO
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IHONO_NO_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IHONO_NO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 1.218124E-20, 3.477931E-20, 
-     & 1.090586E-19, 8.781876E-20, 0.000000E+00 /
-      DATA ( CS_REF( IHONO_NO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 1.218124E-20, 3.477931E-20, 
-     & 1.090586E-19, 8.781876E-20, 0.000000E+00 /
-      DATA ( CS_REF( IHONO_NO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 1.218124E-20, 3.477931E-20, 
-     & 1.090586E-19, 8.781876E-20, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IHONO_NO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 2.821204E-01, 4.690968E-01, 
-     & 6.487832E-01, 6.909981E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IHONO_NO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 2.821204E-01, 4.690968E-01, 
-     & 6.487832E-01, 6.909981E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IHONO_NO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 2.821204E-01, 4.690968E-01, 
-     & 6.487832E-01, 6.909981E-01, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IHONO_NO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 5.061623E-21, 1.650458E-20, 
-     & 7.360098E-20, 8.336919E-20, 0.000000E+00 /
-      DATA ( ECS_REF( IHONO_NO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 5.061623E-21, 1.650458E-20, 
-     & 7.360098E-20, 8.336919E-20, 0.000000E+00 /
-      DATA ( ECS_REF( IHONO_NO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 5.061623E-21, 1.650458E-20, 
-     & 7.360098E-20, 8.336919E-20, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IHONO_NO_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 6.748757E-01, 9.493324E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IHONO_NO_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 6.748757E-01, 9.493324E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IHONO_NO_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 6.748757E-01, 9.493324E-01, 0.000000E+00 /
-
-
-C...HONO_NO2_SAPRC99
-C..  HONO + HV = H. + NO2
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IHONO_NO2_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IHONO_NO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 1.218124E-20, 3.477931E-20, 
-     & 1.090586E-19, 3.942653E-20, 0.000000E+00 /
-      DATA ( CS_REF( IHONO_NO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 1.218124E-20, 3.477931E-20, 
-     & 1.090586E-19, 3.942653E-20, 0.000000E+00 /
-      DATA ( CS_REF( IHONO_NO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 1.218124E-20, 3.477931E-20, 
-     & 1.090586E-19, 3.942653E-20, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IHONO_NO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 3.994613E-01, 5.309032E-01, 
-     & 3.512168E-01, 2.663601E-02, 0.000000E+00 /
-      DATA ( QY_REF(  IHONO_NO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 3.994613E-01, 5.309032E-01, 
-     & 3.512168E-01, 2.663601E-02, 0.000000E+00 /
-      DATA ( QY_REF(  IHONO_NO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 3.994613E-01, 5.309032E-01, 
-     & 3.512168E-01, 2.663601E-02, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IHONO_NO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 7.119612E-21, 1.827472E-20, 
-     & 3.545759E-20, 4.449553E-21, 0.000000E+00 /
-      DATA ( ECS_REF( IHONO_NO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 7.119612E-21, 1.827472E-20, 
-     & 3.545759E-20, 4.449553E-21, 0.000000E+00 /
-      DATA ( ECS_REF( IHONO_NO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 0.000000E+00, 7.119612E-21, 1.827472E-20, 
-     & 3.545759E-20, 4.449553E-21, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IHONO_NO2_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 3.251243E-01, 1.128568E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IHONO_NO2_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 3.251243E-01, 1.128568E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IHONO_NO2_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 3.251243E-01, 1.128568E-01, 0.000000E+00 /
-
-
-C...HNO3_SAPRC99
-C..  HNO3 + HV = products
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IHNO3_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IHNO3_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.358850E-21, 1.954554E-21, 8.462462E-22, 3.649777E-22, 
-     & 4.770195E-23, 3.875234E-25, 0.000000E+00 /
-      DATA ( CS_REF( IHNO3_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.358850E-21, 1.954554E-21, 8.462462E-22, 3.649777E-22, 
-     & 4.770195E-23, 3.875234E-25, 0.000000E+00 /
-      DATA ( CS_REF( IHNO3_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.358850E-21, 1.954554E-21, 8.462462E-22, 3.649777E-22, 
-     & 4.770195E-23, 3.875234E-25, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IHNO3_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.139071E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IHNO3_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.139071E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IHNO3_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.139071E-01, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IHNO3_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.358850E-21, 1.954554E-21, 8.462462E-22, 3.649777E-22, 
-     & 4.770195E-23, 3.875234E-25, 0.000000E+00 /
-      DATA ( ECS_REF( IHNO3_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.358850E-21, 1.954554E-21, 8.462462E-22, 3.649777E-22, 
-     & 4.770195E-23, 3.875234E-25, 0.000000E+00 /
-      DATA ( ECS_REF( IHNO3_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.358850E-21, 1.954554E-21, 8.462462E-22, 3.649777E-22, 
-     & 4.770195E-23, 3.875234E-25, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IHNO3_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IHNO3_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IHNO3_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-
-
-C...HO2NO2_SAPRC99
-C..  HO2NO2 + HV = PRODUCTS
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IHO2NO2_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IHO2NO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.591178E-20, 1.079991E-20, 5.527937E-21, 3.457473E-21, 
-     & 6.327373E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IHO2NO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.591178E-20, 1.079991E-20, 5.527937E-21, 3.457473E-21, 
-     & 6.327373E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IHO2NO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.591178E-20, 1.079991E-20, 5.527937E-21, 3.457473E-21, 
-     & 6.327373E-22, 0.000000E+00, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IHO2NO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 5.743980E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IHO2NO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 5.743980E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IHO2NO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 5.743980E-01, 0.000000E+00, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IHO2NO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.591178E-20, 1.079991E-20, 5.527937E-21, 3.457473E-21, 
-     & 6.327373E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IHO2NO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.591178E-20, 1.079991E-20, 5.527937E-21, 3.457473E-21, 
-     & 6.327373E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IHO2NO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.591178E-20, 1.079991E-20, 5.527937E-21, 3.457473E-21, 
-     & 6.327373E-22, 0.000000E+00, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IHO2NO2_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IHO2NO2_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IHO2NO2_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 0.000000E+00, 0.000000E+00 /
-
-
-C...H2O2_SAPRC99
-C..  H2O2 + HV = 2 OH
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IH2O2_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IH2O2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 9.353266E-21, 5.771016E-21, 3.923017E-21, 2.721918E-21, 
-     & 1.138123E-21, 3.606273E-23, 0.000000E+00 /
-      DATA ( CS_REF( IH2O2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 9.353266E-21, 5.771016E-21, 3.923017E-21, 2.721918E-21, 
-     & 1.138123E-21, 3.606273E-23, 0.000000E+00 /
-      DATA ( CS_REF( IH2O2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 9.353266E-21, 5.771016E-21, 3.923017E-21, 2.721918E-21, 
-     & 1.138123E-21, 3.606273E-23, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IH2O2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.139071E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IH2O2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.139071E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IH2O2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.139071E-01, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IH2O2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 9.353266E-21, 5.771016E-21, 3.923017E-21, 2.721918E-21, 
-     & 1.138123E-21, 3.606273E-23, 0.000000E+00 /
-      DATA ( ECS_REF( IH2O2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 9.353266E-21, 5.771016E-21, 3.923017E-21, 2.721918E-21, 
-     & 1.138123E-21, 3.606273E-23, 0.000000E+00 /
-      DATA ( ECS_REF( IH2O2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 9.353266E-21, 5.771016E-21, 3.923017E-21, 2.721918E-21, 
-     & 1.138123E-21, 3.606273E-23, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IH2O2_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IH2O2_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IH2O2_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-
-
-C...HCHO_R_SAPRC99
-C..  HCHO + HV = HCO + H
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IHCHO_R_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IHCHO_R_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 3.131429E-20, 3.361011E-20, 1.633825E-20, 3.089588E-20, 
-     & 1.384120E-20, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IHCHO_R_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 3.131429E-20, 3.361011E-20, 1.633825E-20, 3.089588E-20, 
-     & 1.384120E-20, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IHCHO_R_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 3.131429E-20, 3.361011E-20, 1.633825E-20, 3.089588E-20, 
-     & 1.384120E-20, 0.000000E+00, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IHCHO_R_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 7.530258E-01, 7.793080E-01, 7.694805E-01, 6.766393E-01, 
-     & 2.101615E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IHCHO_R_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 7.530258E-01, 7.793080E-01, 7.694805E-01, 6.766393E-01, 
-     & 2.101615E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IHCHO_R_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 7.530258E-01, 7.793080E-01, 7.694805E-01, 6.766393E-01, 
-     & 2.101615E-01, 0.000000E+00, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IHCHO_R_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.360363E-20, 2.619580E-20, 1.264450E-20, 2.110757E-20, 
-     & 3.830403E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IHCHO_R_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.360363E-20, 2.619580E-20, 1.264450E-20, 2.110757E-20, 
-     & 3.830403E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IHCHO_R_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.360363E-20, 2.619580E-20, 1.264450E-20, 2.110757E-20, 
-     & 3.830403E-21, 0.000000E+00, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IHCHO_R_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 2.767393E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IHCHO_R_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 2.767393E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IHCHO_R_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 2.767393E-01, 0.000000E+00, 0.000000E+00 /
-
-
-C...HCHO_M_SAPRC99
-C..  HCHO + HV = H2 + CO
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IHCHO_M_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IHCHO_M_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 3.131429E-20, 3.361011E-20, 1.633825E-20, 3.089588E-20, 
-     & 1.653456E-20, 7.218154E-22, 0.000000E+00 /
-      DATA ( CS_REF( IHCHO_M_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 3.131429E-20, 3.361011E-20, 1.633825E-20, 3.089588E-20, 
-     & 1.653456E-20, 7.218154E-22, 0.000000E+00 /
-      DATA ( CS_REF( IHCHO_M_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 3.131429E-20, 3.361011E-20, 1.633825E-20, 3.089588E-20, 
-     & 1.653456E-20, 7.218154E-22, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IHCHO_M_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.261845E-01, 2.137267E-01, 2.298757E-01, 3.233053E-01, 
-     & 5.541007E-01, 2.985781E-02, 0.000000E+00 /
-      DATA ( QY_REF(  IHCHO_M_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.261845E-01, 2.137267E-01, 2.298757E-01, 3.233053E-01, 
-     & 5.541007E-01, 2.985781E-02, 0.000000E+00 /
-      DATA ( QY_REF(  IHCHO_M_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.261845E-01, 2.137267E-01, 2.298757E-01, 3.233053E-01, 
-     & 5.541007E-01, 2.985781E-02, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IHCHO_M_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 7.068908E-21, 7.200789E-21, 3.679953E-21, 9.787576E-21, 
-     & 9.269445E-21, 1.144537E-22, 0.000000E+00 /
-      DATA ( ECS_REF( IHCHO_M_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 7.068908E-21, 7.200789E-21, 3.679953E-21, 9.787576E-21, 
-     & 9.269445E-21, 1.144537E-22, 0.000000E+00 /
-      DATA ( ECS_REF( IHCHO_M_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 7.068908E-21, 7.200789E-21, 3.679953E-21, 9.787576E-21, 
-     & 9.269445E-21, 1.144537E-22, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IHCHO_M_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 5.606101E-01, 1.585636E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IHCHO_M_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 5.606101E-01, 1.585636E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IHCHO_M_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 5.606101E-01, 1.585636E-01, 0.000000E+00 /
-
-
-C...CCHO_R_SAPRC99
-C..  CCHO + HV = CH3 + CHO
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, ICCHO_R_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( ICCHO_R_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.432586E-20, 3.717937E-20, 2.933103E-20, 2.104728E-20, 
-     & 3.707365E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( ICCHO_R_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.432586E-20, 3.717937E-20, 2.933103E-20, 2.104728E-20, 
-     & 3.707365E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( ICCHO_R_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.432586E-20, 3.717937E-20, 2.933103E-20, 2.104728E-20, 
-     & 3.707365E-21, 0.000000E+00, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  ICCHO_R_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.839485E-01, 3.902037E-01, 2.845214E-01, 1.538485E-01, 
-     & 1.409389E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  ICCHO_R_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.839485E-01, 3.902037E-01, 2.845214E-01, 1.538485E-01, 
-     & 1.409389E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  ICCHO_R_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.839485E-01, 3.902037E-01, 2.845214E-01, 1.538485E-01, 
-     & 1.409389E-02, 0.000000E+00, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( ICCHO_R_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.147745E-20, 1.461038E-20, 8.426962E-21, 3.330092E-21, 
-     & 1.731214E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( ICCHO_R_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.147745E-20, 1.461038E-20, 8.426962E-21, 3.330092E-21, 
-     & 1.731214E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( ICCHO_R_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.147745E-20, 1.461038E-20, 8.426962E-21, 3.330092E-21, 
-     & 1.731214E-22, 0.000000E+00, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( ICCHO_R_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 4.669661E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( ICCHO_R_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 4.669661E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( ICCHO_R_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 4.669661E-02, 0.000000E+00, 0.000000E+00 /
-
-
-C...C2CHO_SAPRC99
-C..  C2CHO + HV = C2H5. + CHO.
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IC2CHO_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IC2CHO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 3.094719E-20, 4.634689E-20, 3.579653E-20, 2.441742E-20, 
-     & 5.808274E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IC2CHO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 3.094719E-20, 4.634689E-20, 3.579653E-20, 2.441742E-20, 
-     & 5.808274E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IC2CHO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 3.094719E-20, 4.634689E-20, 3.579653E-20, 2.441742E-20, 
-     & 5.808274E-21, 0.000000E+00, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IC2CHO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 5.083616E-01, 7.954021E-01, 5.951666E-01, 4.312297E-01, 
-     & 1.520061E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IC2CHO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 5.083616E-01, 7.954021E-01, 5.951666E-01, 4.312297E-01, 
-     & 1.520061E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IC2CHO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 5.083616E-01, 7.954021E-01, 5.951666E-01, 4.312297E-01, 
-     & 1.520061E-01, 0.000000E+00, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IC2CHO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.721900E-20, 3.713801E-20, 2.133677E-20, 1.077360E-20, 
-     & 1.383933E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IC2CHO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.721900E-20, 3.713801E-20, 2.133677E-20, 1.077360E-20, 
-     & 1.383933E-21, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IC2CHO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.721900E-20, 3.713801E-20, 2.133677E-20, 1.077360E-20, 
-     & 1.383933E-21, 0.000000E+00, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IC2CHO_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 2.382693E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IC2CHO_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 2.382693E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IC2CHO_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 2.382693E-01, 0.000000E+00, 0.000000E+00 /
-
-
-C...ACETONE_SAPRC99
-C..  ACETONE + HV = CH3CO. + CH3.
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IACETONE_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IACETONE_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 3.565269E-20, 2.347503E-20, 1.411211E-20, 7.530059E-21, 
-     & 8.363443E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IACETONE_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 3.565269E-20, 2.347503E-20, 1.411211E-20, 7.530059E-21, 
-     & 8.363443E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IACETONE_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 3.565269E-20, 2.347503E-20, 1.411211E-20, 7.530059E-21, 
-     & 8.363443E-22, 0.000000E+00, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IACETONE_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.242420E-01, 1.142595E-01, 5.803515E-02, 2.870061E-02, 
-     & 4.434752E-03, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IACETONE_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.242420E-01, 1.142595E-01, 5.803515E-02, 2.870061E-02, 
-     & 4.434752E-03, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IACETONE_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.242420E-01, 1.142595E-01, 5.803515E-02, 2.870061E-02, 
-     & 4.434752E-03, 0.000000E+00, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IACETONE_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 8.097962E-21, 2.778257E-21, 8.357552E-22, 2.321761E-22, 
-     & 8.431038E-24, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IACETONE_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 8.097962E-21, 2.778257E-21, 8.357552E-22, 2.321761E-22, 
-     & 8.431038E-24, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IACETONE_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 8.097962E-21, 2.778257E-21, 8.357552E-22, 2.321761E-22, 
-     & 8.431038E-24, 0.000000E+00, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IACETONE_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.008082E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IACETONE_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.008082E-02, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IACETONE_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.008082E-02, 0.000000E+00, 0.000000E+00 /
-
-
-C...KETONE_SAPRC99
-C..  Methyl Ethyl Ketone Absorption Cross Sections
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IKETONE_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IKETONE_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.255141E-20, 2.715762E-20, 1.567299E-20, 7.669451E-21, 
-     & 7.479068E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IKETONE_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.255141E-20, 2.715762E-20, 1.567299E-20, 7.669451E-21, 
-     & 7.479068E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IKETONE_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.255141E-20, 2.715762E-20, 1.567299E-20, 7.669451E-21, 
-     & 7.479068E-22, 0.000000E+00, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IKETONE_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 9.157063E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IKETONE_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 9.157063E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IKETONE_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 9.157063E-01, 0.000000E+00, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IKETONE_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.255141E-20, 2.715762E-20, 1.567299E-20, 7.669451E-21, 
-     & 7.479068E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IKETONE_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.255141E-20, 2.715762E-20, 1.567299E-20, 7.669451E-21, 
-     & 7.479068E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IKETONE_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.255141E-20, 2.715762E-20, 1.567299E-20, 7.669451E-21, 
-     & 7.479068E-22, 0.000000E+00, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IKETONE_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IKETONE_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IKETONE_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 0.000000E+00, 0.000000E+00 /
-
-
-C...COOH_SAPRC99
-C..  CH3OOH + HV = PRODUCTS
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, ICOOH_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( ICOOH_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 5.623467E-21, 3.524633E-21, 2.410330E-21, 1.699588E-21, 
-     & 7.230005E-22, 5.395084E-23, 0.000000E+00 /
-      DATA ( CS_REF( ICOOH_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 5.623467E-21, 3.524633E-21, 2.410330E-21, 1.699588E-21, 
-     & 7.230005E-22, 5.395084E-23, 0.000000E+00 /
-      DATA ( CS_REF( ICOOH_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 5.623467E-21, 3.524633E-21, 2.410330E-21, 1.699588E-21, 
-     & 7.230005E-22, 5.395084E-23, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  ICOOH_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 3.012673E-01, 0.000000E+00 /
-      DATA ( QY_REF(  ICOOH_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 3.012673E-01, 0.000000E+00 /
-      DATA ( QY_REF(  ICOOH_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 3.012673E-01, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( ICOOH_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 5.623467E-21, 3.524633E-21, 2.410330E-21, 1.699588E-21, 
-     & 7.230005E-22, 5.395084E-23, 0.000000E+00 /
-      DATA ( ECS_REF( ICOOH_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 5.623467E-21, 3.524633E-21, 2.410330E-21, 1.699588E-21, 
-     & 7.230005E-22, 5.395084E-23, 0.000000E+00 /
-      DATA ( ECS_REF( ICOOH_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 5.623467E-21, 3.524633E-21, 2.410330E-21, 1.699588E-21, 
-     & 7.230005E-22, 5.395084E-23, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( ICOOH_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( ICOOH_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( ICOOH_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-
-
-C...GLY_R_SAPRC99
-C..  Glyoxal + hv = 2 HCO
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IGLY_R_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IGLY_R_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 2.034930E-20, 6.211823E-22 /
-      DATA ( CS_REF( IGLY_R_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 2.034930E-20, 6.211823E-22 /
-      DATA ( CS_REF( IGLY_R_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 2.034930E-20, 6.211823E-22 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IGLY_R_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 5.446526E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IGLY_R_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 5.446526E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IGLY_R_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 5.446526E-01, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IGLY_R_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 4.361289E-21, 0.000000E+00 /
-      DATA ( ECS_REF( IGLY_R_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 4.361289E-21, 0.000000E+00 /
-      DATA ( ECS_REF( IGLY_R_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 4.361289E-21, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IGLY_R_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 2.143213E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IGLY_R_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 2.143213E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IGLY_R_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 2.143213E-01, 0.000000E+00 /
-
-
-C...GLY_ABS_SAPRC99
-C..  Glyoxal Absorption Cross Sections
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IGLY_ABS_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IGLY_ABS_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 2.034930E-20, 7.746831E-21 /
-      DATA ( CS_REF( IGLY_ABS_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 2.034930E-20, 7.746831E-21 /
-      DATA ( CS_REF( IGLY_ABS_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 2.034930E-20, 7.746831E-21 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IGLY_ABS_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.000000E+00, 9.529012E-02 /
-      DATA ( QY_REF(  IGLY_ABS_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.000000E+00, 9.529012E-02 /
-      DATA ( QY_REF(  IGLY_ABS_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.000000E+00, 9.529012E-02 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IGLY_ABS_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 2.034930E-20, 7.746831E-21 /
-      DATA ( ECS_REF( IGLY_ABS_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 2.034930E-20, 7.746831E-21 /
-      DATA ( ECS_REF( IGLY_ABS_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 3.307062E-20, 3.064663E-20, 2.759448E-20, 2.066155E-20, 
-     & 6.469823E-21, 2.034930E-20, 7.746831E-21 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IGLY_ABS_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00 /
-      DATA ( EQY_REF( IGLY_ABS_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00 /
-      DATA ( EQY_REF( IGLY_ABS_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00 /
-
-
-C...MGLY_ADJ_SAPRC99
-C..  MGLY + HV = PRODUCTS
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IMGLY_ADJ_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IMGLY_ADJ_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.998223E-21, 3.697529E-20, 1.472530E-21 /
-      DATA ( CS_REF( IMGLY_ADJ_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.998223E-21, 3.697529E-20, 1.472530E-21 /
-      DATA ( CS_REF( IMGLY_ADJ_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.998223E-21, 3.697529E-20, 1.472530E-21 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IMGLY_ADJ_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 9.992942E-01, 3.801419E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IMGLY_ADJ_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 9.992942E-01, 3.801419E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IMGLY_ADJ_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 9.992942E-01, 3.801419E-01, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IMGLY_ADJ_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.996164E-21, 6.110804E-21, 0.000000E+00 /
-      DATA ( ECS_REF( IMGLY_ADJ_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.996164E-21, 6.110804E-21, 0.000000E+00 /
-      DATA ( ECS_REF( IMGLY_ADJ_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.996164E-21, 6.110804E-21, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IMGLY_ADJ_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 9.996566E-01, 1.652672E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IMGLY_ADJ_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 9.996566E-01, 1.652672E-01, 0.000000E+00 /
-      DATA ( EQY_REF( IMGLY_ADJ_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 9.996566E-01, 1.652672E-01, 0.000000E+00 /
-
-
-C...BACL_ADJ_SAPRC99
-C..  BACL + HV = PRODUCTS
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IBACL_ADJ_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IBACL_ADJ_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.617461E-20, 1.589011E-20, 9.041847E-21, 6.004408E-21, 
-     & 4.676505E-21, 3.224516E-20, 4.675102E-21 /
-      DATA ( CS_REF( IBACL_ADJ_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.617461E-20, 1.589011E-20, 9.041847E-21, 6.004408E-21, 
-     & 4.676505E-21, 3.224516E-20, 4.675102E-21 /
-      DATA ( CS_REF( IBACL_ADJ_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.617461E-20, 1.589011E-20, 9.041847E-21, 6.004408E-21, 
-     & 4.676505E-21, 3.224516E-20, 4.675102E-21 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IBACL_ADJ_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 5.303440E-01, 9.162429E-04 /
-      DATA ( QY_REF(  IBACL_ADJ_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 5.303440E-01, 9.162429E-04 /
-      DATA ( QY_REF(  IBACL_ADJ_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 5.303440E-01, 9.162429E-04 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IBACL_ADJ_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.617461E-20, 1.589011E-20, 9.041847E-21, 6.004408E-21, 
-     & 4.676505E-21, 1.215315E-20, 6.213299E-23 /
-      DATA ( ECS_REF( IBACL_ADJ_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.617461E-20, 1.589011E-20, 9.041847E-21, 6.004408E-21, 
-     & 4.676505E-21, 1.215315E-20, 6.213299E-23 /
-      DATA ( ECS_REF( IBACL_ADJ_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.617461E-20, 1.589011E-20, 9.041847E-21, 6.004408E-21, 
-     & 4.676505E-21, 1.215315E-20, 6.213299E-23 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IBACL_ADJ_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 3.768983E-01, 1.329019E-02 /
-      DATA ( EQY_REF( IBACL_ADJ_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 3.768983E-01, 1.329019E-02 /
-      DATA ( EQY_REF( IBACL_ADJ_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 3.768983E-01, 1.329019E-02 /
-
-
-C...BZCHO_SAPRC99
-C..  Benzaldehyde absorbtion coefs in n-Hexane
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IBZCHO_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IBZCHO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 9.224145E-20, 6.609039E-20, 6.730973E-20, 
-     & 8.248212E-20, 2.821756E-20, 0.000000E+00 /
-      DATA ( CS_REF( IBZCHO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 9.224145E-20, 6.609039E-20, 6.730973E-20, 
-     & 8.248212E-20, 2.821756E-20, 0.000000E+00 /
-      DATA ( CS_REF( IBZCHO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 9.224145E-20, 6.609039E-20, 6.730973E-20, 
-     & 8.248212E-20, 2.821756E-20, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IBZCHO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 9.339651E-01, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 5.150171E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IBZCHO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 9.339651E-01, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 5.150171E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IBZCHO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 9.339651E-01, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 5.150171E-01, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IBZCHO_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 9.224145E-20, 6.609039E-20, 6.730973E-20, 
-     & 8.248212E-20, 2.821756E-20, 0.000000E+00 /
-      DATA ( ECS_REF( IBZCHO_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 9.224145E-20, 6.609039E-20, 6.730973E-20, 
-     & 8.248212E-20, 2.821756E-20, 0.000000E+00 /
-      DATA ( ECS_REF( IBZCHO_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 0.000000E+00, 9.224145E-20, 6.609039E-20, 6.730973E-20, 
-     & 8.248212E-20, 2.821756E-20, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IBZCHO_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IBZCHO_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IBZCHO_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-
-
-C...ACROLEIN_SAPRC99
-C..  Absorption cross sections for Acrolein.
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IACROLEIN_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IACROLEIN_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.119555E-20, 3.145168E-20, 4.081558E-20, 4.837755E-20, 
-     & 5.750342E-20, 1.189679E-20, 0.000000E+00 /
-      DATA ( CS_REF( IACROLEIN_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.119555E-20, 3.145168E-20, 4.081558E-20, 4.837755E-20, 
-     & 5.750342E-20, 1.189679E-20, 0.000000E+00 /
-      DATA ( CS_REF( IACROLEIN_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.119555E-20, 3.145168E-20, 4.081558E-20, 4.837755E-20, 
-     & 5.750342E-20, 1.189679E-20, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IACROLEIN_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 4.561667E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IACROLEIN_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 4.561667E-01, 0.000000E+00 /
-      DATA ( QY_REF(  IACROLEIN_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 4.561667E-01, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IACROLEIN_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 2.119555E-20, 3.145168E-20, 4.081558E-20, 4.837755E-20, 
-     & 5.750342E-20, 1.189679E-20, 0.000000E+00 /
-      DATA ( ECS_REF( IACROLEIN_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 2.119555E-20, 3.145168E-20, 4.081558E-20, 4.837755E-20, 
-     & 5.750342E-20, 1.189679E-20, 0.000000E+00 /
-      DATA ( ECS_REF( IACROLEIN_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 2.119555E-20, 3.145168E-20, 4.081558E-20, 4.837755E-20, 
-     & 5.750342E-20, 1.189679E-20, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IACROLEIN_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IACROLEIN_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IACROLEIN_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 0.000000E+00 /
-
-
-C...IC3ONO2_SAPRC99
-C..  I-C3H7ONO2 + HV = PRODUCTS
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IIC3ONO2_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IIC3ONO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.255484E-20, 6.352138E-21, 3.286576E-21, 1.709805E-21, 
-     & 2.667170E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IIC3ONO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.255484E-20, 6.352138E-21, 3.286576E-21, 1.709805E-21, 
-     & 2.667170E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( CS_REF( IIC3ONO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.255484E-20, 6.352138E-21, 3.286576E-21, 1.709805E-21, 
-     & 2.667170E-22, 0.000000E+00, 0.000000E+00 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IIC3ONO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 5.743980E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IIC3ONO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 5.743980E-01, 0.000000E+00, 0.000000E+00 /
-      DATA ( QY_REF(  IIC3ONO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 5.743980E-01, 0.000000E+00, 0.000000E+00 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IIC3ONO2_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.255484E-20, 6.352138E-21, 3.286576E-21, 1.709805E-21, 
-     & 2.667170E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IIC3ONO2_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.255484E-20, 6.352138E-21, 3.286576E-21, 1.709805E-21, 
-     & 2.667170E-22, 0.000000E+00, 0.000000E+00 /
-      DATA ( ECS_REF( IIC3ONO2_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.255484E-20, 6.352138E-21, 3.286576E-21, 1.709805E-21, 
-     & 2.667170E-22, 0.000000E+00, 0.000000E+00 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IIC3ONO2_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IIC3ONO2_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 0.000000E+00, 0.000000E+00 /
-      DATA ( EQY_REF( IIC3ONO2_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 0.000000E+00, 0.000000E+00 /
-
-
-C...MGLY_ABS_SAPRC99
-C..  Methyl Glyoxal Absorption Cross Sections
-C..  SAPRC-99 Photolysis data.  Supplied by William P. L. Carter.
-C..  Created from PhotDat.xls on 29-Jan-2000 10:07
-
-C...  reference temperatures (K)
-
-      DATA ( TEMP_REF( ITTR, IMGLY_ABS_SAPRC99 ), ITTR=1,  3 ) / 248.0, 273.0, 298.0 /
-
-!...  CS  = absorption cross sections averaged over UCI Solar Flux
-
-      DATA ( CS_REF( IMGLY_ABS_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.998223E-21, 3.697529E-20, 7.930063E-21 /
-      DATA ( CS_REF( IMGLY_ABS_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.998223E-21, 3.697529E-20, 7.930063E-21 /
-      DATA ( CS_REF( IMGLY_ABS_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.998223E-21, 3.697529E-20, 7.930063E-21 /
-
-!...  QY  = quantum yields averaged over UCI Solar Flux
-
-      DATA ( QY_REF(  IMGLY_ABS_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.000000E+00, 1.688528E-01 /
-      DATA ( QY_REF(  IMGLY_ABS_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.000000E+00, 1.688528E-01 /
-      DATA ( QY_REF(  IMGLY_ABS_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00, 1.000000E+00, 
-     & 1.000000E+00, 1.000000E+00, 1.688528E-01 /
-
-!...  ECS = CS*QY averaged over UCI Solar Flux
-
-      DATA ( ECS_REF( IMGLY_ABS_SAPRC99,   1, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.998223E-21, 3.697529E-20, 7.930063E-21 /
-      DATA ( ECS_REF( IMGLY_ABS_SAPRC99,   2, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.998223E-21, 3.697529E-20, 7.930063E-21 /
-      DATA ( ECS_REF( IMGLY_ABS_SAPRC99,   3, IWLR ), IWLR = 1, 7 ) /
-     & 4.414885E-20, 3.510064E-20, 2.364210E-20, 1.814704E-20, 
-     & 5.998223E-21, 3.697529E-20, 7.930063E-21 /
-
-!...  EQY = eCS*eQY/CS averaged over Solar Flux and 77 bins in UCI Model
-
-      DATA ( EQY_REF( IMGLY_ABS_SAPRC99,   1, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00 /
-      DATA ( EQY_REF( IMGLY_ABS_SAPRC99,   2, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00 /
-      DATA ( EQY_REF( IMGLY_ABS_SAPRC99,   3, IWLR ), IWLR = 1,   7 ) /
-     & 1.000000E+00, 1.000000E+00, 1.000000E+00 /
+      INTEGER  :: ITTR  ! temperature loop variable
+      
+! arrays for the size and optical properties of liquid droplets. The latter
+! is a function of radius and wavelength
+      INTEGER  :: NRADIUS_LIQUID
+      
+      REAL, ALLOCATABLE ::  RADIUS_LIQUID( : )       ! droplet radius, um
+      
+      REAL, ALLOCATABLE ::  LIQUID_EXTINCT( :, : )   ! extinction coefficient, m**3/g
+      REAL, ALLOCATABLE :: LIQUID_ASYMFACT( :, : )   ! asymmetery factor, dimensionaless
+      REAL, ALLOCATABLE :: LIQUID_COALBEDO( :, : )   ! One minus single scattering albebo, dimensionaless
+      
+! arrays for the size and optical properties of ice particles. The latter
+! is a function of effective diameter and wavelength
+
+      INTEGER  :: NDIAMETER_ICE
+
+      REAL, ALLOCATABLE ::  DIAMETER_ICE( : )     ! particle effective diameter, um
+      
+      REAL, ALLOCATABLE ::  ICE_EXTINCT( :, : )   ! extinction coefficient, m**3/g
+      REAL, ALLOCATABLE :: ICE_ASYMFACT( :, : )   ! asymmetery factor, dimensionaless
+      REAL, ALLOCATABLE :: ICE_COALBEDO( :, : )   ! One minus single scattering albebo, dimensionaless
+
+!***Information for photolysis
 
+      INTEGER, SAVE :: NWL     ! number of wavelengths
+!     INTEGER, PARAMETER  :: NWL_INLINE_METHOD = 7
+
+      INTEGER IWL               ! index use for wavelength
+      INTEGER ITT               ! index for temperature
+      INTEGER IRRXN
+
+      REAL, ALLOCATABLE, SAVE :: WAVELENGTH( : )  ! effective wavelengths [nm ]
+
+      REAL, ALLOCATABLE, SAVE :: FEXT( : )   ! downward solar direct flux at the top of
+                                             ! of the Atmosphere.  [ photons / ( cm **2 s) ]
 
+!***surface albedo
+
+      REAL, ALLOCATABLE, SAVE :: ALB( : )  ! set in subroutine PHOT
+
+!**Cloud albedo values from JPROC
+
+      REAL, ALLOCATABLE, SAVE :: CLOUD_BETA_LWC( : ) ! cloud extinction coef divided by LWC
+      REAL, ALLOCATABLE, SAVE :: CLOUD_COALBEDO( : ) ! cloud coalbedo
+      REAL, ALLOCATABLE, SAVE :: CLOUD_G( : )        ! cloud asymmetry factor
+
+      INTEGER, SAVE :: NTEMP_STRAT
+      REAL, ALLOCATABLE, SAVE :: XO3CS( :,: )       !
+      REAL, ALLOCATABLE, SAVE :: TEMP_O3_STRAT( : ) ! temperature for XO3CS, K
+
+!***arrays for reference data for needed photolysis rates
+
+      REAL, ALLOCATABLE, SAVE :: XXCS( :,:,: )  ! absorption cross sections
+      REAL, ALLOCATABLE, SAVE :: XXQY( :,:,: )  ! quantum yield
+
+      REAL, ALLOCATABLE, SAVE :: RTEMP_S( :,: )
+
+      CHARACTER(16), ALLOCATABLE, SAVE  :: PHOTOLYSIS_RATE( : ) ! subset of photolysis rates from CSQY DATA
+
+
+!***Indices for special case photolysis cross sections
+
+      INTEGER, SAVE :: LNO2
+      INTEGER, SAVE :: LO3O1D
+      INTEGER, SAVE :: LO3O3P
+      INTEGER, SAVE :: LACETONE
+      INTEGER, SAVE :: LKETONE
+      INTEGER, SAVE :: LMGLY_ADJ
+      INTEGER, SAVE :: LMGLY_ABS
+      INTEGER, SAVE :: LHCHOR_06
+
+      INTEGER, SAVE :: IREFTEMPS  ! number of ref. temperatures
+
+      INTEGER, SAVE :: NUMB_LANDUSE_REF
+      INTEGER, SAVE :: INDEX_GRASSLAND_REF
+      INTEGER, SAVE :: INDEX_OCEAN_REF
+      INTEGER, SAVE :: INDEX_SEA_ICE
+
+      CHARACTER(30), ALLOCATABLE, SAVE :: LANDUSE_REF( : )
+      REAL,          ALLOCATABLE, SAVE :: ZENITH_COEFF_REF( : )
+      REAL,          ALLOCATABLE, SAVE :: SEASON_COEFF_REF( : )
+      REAL,          ALLOCATABLE, SAVE :: SNOW_COEFF_REF( : )
+      REAL,          ALLOCATABLE, SAVE :: SPECTRAL_ALBEDO_REF( :,: )
+
+      INTEGER, PARAMETER :: NUMB_EXPECT_NLCD50  = 50
+      INTEGER, SAVE      :: NUMB_LANDUSE_NLCD50
+      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_NLCD50( : )
+      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2NLCD50( : )
+      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2NLCD50( : )
+
+      INTEGER, PARAMETER :: NUMB_EXPECT_NLCD40  = 40
+      INTEGER, SAVE      :: NUMB_LANDUSE_NLCD40
+      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_NLCD40( : )
+      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2NLCD40( : )
+      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2NLCD40( : )
+
+      INTEGER, PARAMETER :: NUMB_EXPECT_USGS  = 24
+      INTEGER, SAVE      :: NUMB_LANDUSE_USGS
+      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_USGS( : )
+      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2USGS( : )
+      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2USGS( : )
+
+      INTEGER, PARAMETER :: NUMB_EXPECT_MODIS = 33
+      INTEGER, SAVE      :: NUMB_LANDUSE_MODIS
+      CHARACTER(60), ALLOCATABLE, SAVE :: LANDUSE_MODIS( : )
+      INTEGER,       ALLOCATABLE, SAVE :: ALBMAP_REF2MODIS( : )
+      REAL,          ALLOCATABLE, SAVE :: ALBFAC_REF2MODIS( : )
+
+      LOGICAL, SAVE      :: NO_NLCD40
+      LOGICAL, SAVE      :: WRITE_CELL
+
+!***special information for acetone
+!***  Reference:
+!***     Cameron-Smith, P., Incorporation of non-linear
+!***     effective cross section parameterization into a
+!***     fast photolysis computation  code (Fast-J)
+!***     Journal of Atmospheric Chemistry, Vol. 37,
+!***     pp 283-297, 2000.
+
+      INTEGER, PARAMETER :: NWL_ACETONE_FJX = 7
+
+      REAL, SAVE :: OP0( 2, NWL_ACETONE_FJX ) ! variable needed for acetone
+
+      DATA ( OP0( 1, IWL ), IWL = 1, NWL_ACETONE_FJX ) /
+     &     2.982E-20, 1.301E-20, 4.321E-21, 1.038E-21,
+     &     5.878E-23, 1.529E-25, 0.0/
+
+      DATA ( OP0( 2, IWL ), IWL = 1, NWL_ACETONE_FJX ) /
+     &     3.255E-20, 1.476E-20, 5.179E-21, 1.304E-21,
+     &     9.619E-23, 2.671E-25, 0.0 /
+
+      REAL, SAVE :: YY30( NWL_ACETONE_FJX )   ! variable needed for acetone
+
+      DATA YY30 / 5.651E-20, 1.595E-19, 2.134E-19,
+     &     1.262E-19, 1.306E-19, 1.548E-19, 0.0 /
+
+      REAL :: OPTT                ! variable needed for acetone
+      
+      CONTAINS
+      
+       
+      SUBROUTINE LOAD_CSQY_DATA ( )
+!-----------------------------------------------------------------------
+!  Purpose: read input file for 
+!           -wavelength bin and temperature structure.
+!           -photolysis cross-sections and quantum
+!
+!  Revision History:
+!   31 Jan 2014 B.Hutzell: Initial Version based on LOAD_REF_DATA in
+!   CMAQ version 5.0
+!-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
+
+      IMPLICIT NONE
+
+      INCLUDE SUBST_RXCMMN      ! chemical mechamism reactions COMMON
+
+C***arguments
+
+C     NONE
+
+C***local
+
+      LOGICAL :: WRITE_LOG = .TRUE.
+
+      CHARACTER(  32 ) :: PNAME = 'LOAD_CSQY_DATA'
+      CHARACTER(  16 ) :: CSQY_FILE = 'CSQY_DATA' ! CSQY_DATA i/o logical name
+      CHARACTER(  16 ) :: PHOT_EXPECT
+      CHARACTER(  30 ) :: LAND_EXPECT
+      CHARACTER( 120 ) :: MSG                     ! buffer for messages to output
+      CHARACTER( 240 ) :: FILE_LINE
+
+      CHARACTER(  16 ),  ALLOCATABLE :: AE_RERACT_REF( : )
+
+!     INTEGER, INTENT(OUT) :: NWL_PHOT    ! # of wavelengths used in PHOT_MOD.F
+      INTEGER :: NWL_PHOT    ! # of wavelengths used in PHOT_MOD.F
+      INTEGER :: IOST        ! IOST returned from OPEN function
+      INTEGER :: JDATE = 0
+      INTEGER :: LOG_UNIT
+      INTEGER :: PHOTAB_UNIT
+      INTEGER :: IPHOT, IPHOT_LOAD ! loop indices
+      INTEGER :: ITT, ITT_LOAD     ! loop indices 
+      INTEGER :: IP_MAP, IP_REF    ! photolysis reaction indicies
+      INTEGER :: IWL_LOAD
+      INTEGER :: STRT, FINI
+
+      INTEGER :: NAE_REFRACT_REF 
+
+      REAL,       ALLOCATABLE :: AE_IMAG_REFRACT( :, : )
+      REAL,       ALLOCATABLE :: AE_REAL_REFRACT( :, : )
+
+      LOGICAL                  :: ERROR_FLAG = .FALSE.
+
+C***external functions: none
+
+      LOG_UNIT = INIT3()
+
+      PHOTAB_UNIT = GETEFILE( CSQY_FILE, .TRUE., .TRUE., PNAME )
+
+      IF ( PHOTAB_UNIT .LT. 0 ) THEN
+         MSG = 'Error opening the CSQY data file: ' // TRIM( CSQY_FILE )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+C...begin read
+
+      READ( PHOTAB_UNIT,'(22X,A32)' ) JTABLE_REF
+
+      IF ( JTABLE_REF .NE. MECHNAME ) THEN
+         MSG =  'WARNING: JTABLE mechanism is for ' // JTABLE_REF
+     &       // ' but gas chemistry name is '       // MECHNAME
+         CALL M3WARN( PNAME, 0, 0, MSG )
+      END IF
+
+      READ( PHOTAB_UNIT,'(10X,I4)' ) NPHOT_MAP
+
+#ifdef verbose_phot
+      write( log_unit,'(22x,a32)' ) jtable_ref
+      write( log_unit,'(10x,i4)' ) nphot_map
+#endif
+
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+
+      ALLOCATE( PNAME_MAP( NPHOT_MAP ) )
+      ALLOCATE( PNAME_REF( NPHOT_MAP ) )
+      ALLOCATE( PHOT_MAP ( NPHOT_MAP ) )
+
+      DO IPHOT_LOAD = 1, NPHOT_MAP
+         READ( PHOTAB_UNIT,'(A16)' ) PNAME_REF( IPHOT_LOAD )
+
+#ifdef verbose_phot
+         write( log_unit,'(i3,1x,a16)' ) iphot_load, pname_ref( iphot_load )
+#endif
+
+         PNAME_MAP( IPHOT_LOAD ) = PNAME_REF( IPHOT_LOAD )
+         PHOT_MAP ( IPHOT_LOAD ) = IPHOT_LOAD
+      END DO
+
+      READ( PHOTAB_UNIT,'(10X,I3)' ) NTEMP_REF
+
+#ifdef verbose_phot
+      write( log_unit,'(10x,i3)' ) ntemp_ref
+#endif
+
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+
+#ifdef verbose_phot
+      write( log_unit,* ) trim( file_line )
+#endif
+
+      IREFTEMPS = NTEMP_REF
+
+      ALLOCATE( TEMP_BASE( NTEMP_REF ) )
+
+      DO ITT_LOAD = 1, NTEMP_REF
+         READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+
+#ifdef verbose_phot
+         write( log_unit,* ) trim( file_line )
+#endif
+
+         READ( FILE_LINE,* ) IPHOT_LOAD, TEMP_BASE( ITT_LOAD )
+
+#ifdef verbose_phot
+         write( log_unit,'(4x,f6.2)' ) temp_base( itt_load )
+#endif
+
+      END DO
+
+      ALLOCATE( TEMP_REF( NTEMP_REF, NPHOT_MAP) )
+
+      DO ITT_LOAD = 1, 15 ! skip next 15 lines
+         READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+#ifdef verbose_phot
+         write( log_unit, '(I2,1X,A)' )ITT_LOAD,TRIM(FILE_LINE)
+#endif
+      END DO
+
+      READ( FILE_LINE, 4999) NWL_REF
+
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+      
+#ifdef verbose_phot
+      write( log_unit, * )TRIM(FILE_LINE)
+#endif
+
+4999  FORMAT(17X,I3,2X,17X,I3)
+
+     
+      
+      NWL       = NWL_REF
+      NWL_PHOT  = NWL
+
+#ifdef verbose_phot
+      write( log_unit,'(17x,i3)' ) nwl_ref
+#endif
+
+      IF ( NWL_REF .NE. NWL_PHOT ) THEN
+         WRITE( LOG_UNIT,* ) 'NWL_PHOT = ', NWL_PHOT
+         WRITE( LOG_UNIT,* ) 'NWL_REF  = ', NWL_REF
+         MSG = 'NWL_REF used in ' // CSQY_FILE
+     &       // ' does equal NWL in PHOT_MOD.F file. '
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+      END IF
+
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+#ifdef verbose_phot
+      write( log_unit, * )FILE_LINE
+#endif
+
+      ALLOCATE( STWL_REF        ( NWL_REF ) )
+      ALLOCATE( EFFWL_REF       ( NWL_REF ) )
+      ALLOCATE( ENDWL_REF       ( NWL_REF ) )
+      ALLOCATE( FSOLAR_REF      ( NWL_REF ) )
+      ALLOCATE( CLD_BETA_REF    ( NWL_REF ) )
+      ALLOCATE( CLD_COALBEDO_REF( NWL_REF ) )
+      ALLOCATE( CLD_G_REF       ( NWL_REF ) )
+      ALLOCATE( AE_REAL_REFRACT ( NAE_REFRACT_REF, NWL_REF ) )
+      ALLOCATE( AE_IMAG_REFRACT ( NAE_REFRACT_REF, NWL_REF ) )
+
+      DO IWL_LOAD = 1, NWL_REF
+!         READ( PHOTAB_UNIT,'(4X,3(F8.3,2X),2X,ES12.4,2X,2(F8.3,2X),ES12.4,2X)' )
+         READ( PHOTAB_UNIT, * )iphot_load,
+     &         STWL_REF( IWL_LOAD ), EFFWL_REF( IWL_LOAD ),
+     &         ENDWL_REF( IWL_LOAD ), FSOLAR_REF( IWL_LOAD )
+     
+#ifdef verbose_phot
+         write( log_unit,'(4x,3(f8.3,2x),2x,2(es12.4,2x),f8.3,2x,12(es12.4,2x))' )
+     &          stwl_ref( iwl_load ), effwl_ref( iwl_load ),
+     &          endwl_ref( iwl_load ),fsolar_ref( iwl_load )
+#endif
+
+      END DO
+
+
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+
+      ALLOCATE( CS_REF ( NPHOT_MAP, NTEMP_REF, NWL_REF ) )
+      ALLOCATE( QY_REF ( NPHOT_MAP, NTEMP_REF, NWL_REF ) )
+      ALLOCATE( EQY_REF( NPHOT_MAP, NTEMP_REF, NWL_REF ) )
+      ALLOCATE( ECS_REF( NPHOT_MAP, NTEMP_REF, NWL_REF ) )
+
+      CS_REF = 0.0
+      QY_REF  = 0.0
+      EQY_REF = 0.0
+      ECS_REF = 0.0
+
+      DO IPHOT_LOAD = 1, NPHOT_MAP
+         DO ITT_LOAD = 1, NTEMP_REF
+            READ( PHOTAB_UNIT,'(A16,7X,F8.3,1X,40(1PE12.6,2X))' )
+     &            PHOT_EXPECT, TEMP_REF( ITT_LOAD, IPHOT_LOAD),
+     &            ( CS_REF( IPHOT_LOAD, ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_REF )
+
+#ifdef verbose_phot
+            write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
+     &             phot_expect, temp_ref( itt_load, iphot_load),
+     &             ( cs_ref( iphot_load, itt_load, iwl_load), iwl_load = 1, nwl_ref )
+#endif
+
+            IF ( PHOT_EXPECT .NE. PNAME_REF( IPHOT_LOAD ) ) THEN
+                MSG =  'CS for ' // TRIM( PHOT_EXPECT )
+     &              // ' does match the order the PHOT_MAP array.'
+                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+            END IF
+
+            READ( PHOTAB_UNIT,'(A16,7X,F8.3,1X,40(1PE12.6,2X))' )
+     &            PHOT_EXPECT, TEMP_REF( ITT_LOAD, IPHOT_LOAD),
+     &            ( EQY_REF( IPHOT_LOAD, ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_REF )
+
+            QY_REF( IPHOT_LOAD, ITT_LOAD, 1:NWL_REF) = EQY_REF( IPHOT_LOAD, ITT_LOAD, 1:NWL_REF)
+
+#ifdef verbose_phot
+            write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
+     &             phot_expect, temp_ref( itt_load, iphot_load),
+     &             ( qy_ref( iphot_load, itt_load, iwl_load), iwl_load = 1, nwl_ref )
+#endif
+
+            IF ( PHOT_EXPECT .NE. PNAME_REF(IPHOT_LOAD) ) THEN
+               MSG =  'EQY for ' // TRIM( PHOT_EXPECT )
+     &             // ' does match the order the PHOT_MAP array.'
+               CALL M3WARN( PNAME, 0, 0, MSG )
+               ERROR_FLAG = .TRUE.
+            END IF
+         END DO
+      END DO
+
+      DO ITT_LOAD = 1, 3 ! skip next 3 lines
+         READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+      END DO
+
+      READ( PHOTAB_UNIT,'(15X,I3)' ) NTEMP_STRAT_REF
+
+#ifdef verbose_phot
+      write( log_unit,'(16x,i3)' ) ntemp_strat_ref
+#endif
+
+      ALLOCATE( TEMP_STRAT_REF ( NTEMP_STRAT_REF ) )
+      ALLOCATE( O3_CS_STRAT_REF( NTEMP_STRAT_REF, NWL_REF ) )
+
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+
+      DO ITT_LOAD = 1, NTEMP_STRAT_REF
+         READ( PHOTAB_UNIT,'(A16,7X,F8.3,1X,40(1PE12.6,2X))' )
+     &         PHOT_EXPECT, TEMP_STRAT_REF( ITT_LOAD ),
+     &         ( O3_CS_STRAT_REF( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_REF )
+
+#ifdef verbose_phot
+         write( log_unit,'(a16,7x,f8.3,1x,40(1pe12.6,2x))' )
+     &          phot_expect, temp_strat_ref( itt_load ),
+     &          ( o3_cs_strat_ref( itt_load, iwl_load), iwl_load = 1, nwl_ref )
+#endif
+
+         IF ( PHOT_EXPECT .NE. 'O3_STRAT' ) THEN
+            MSG = 'O3_STRAT not found at expected location in CSQY_FILE. ' //
+     &            TRIM( PHOT_EXPECT ) // ' found.'
+            CALL M3WARN( PNAME, 0, 0, MSG )
+            ERROR_FLAG = .TRUE.
+         END IF
+      END DO
+
+
+      NTEMP_STRAT = NTEMP_STRAT_REF
+      ALLOCATE( TEMP_O3_STRAT( NTEMP_STRAT_REF ) )
+      ALLOCATE( XO3CS        ( NTEMP_STRAT_REF, NWL_PHOT ) )
+
+      DO ITT_LOAD = 1, NTEMP_STRAT_REF
+         TEMP_O3_STRAT( ITT_LOAD ) = TEMP_STRAT_REF( ITT_LOAD )
+         DO IWL_LOAD = 1, NWL_PHOT
+            XO3CS( ITT_LOAD, IWL_LOAD ) = O3_CS_STRAT_REF( ITT_LOAD, IWL_LOAD )
+         END DO
+      END DO
+
+C***initialize pointers for mandatory photolysis rates
+
+      LNO2      = 0
+      LO3O1D    = 0
+      LO3O3P    = 0
+      LACETONE  = 0
+      LKETONE   = 0
+      LMGLY_ADJ = 0
+      LMGLY_ABS = 0
+
+C***get needed photolysis data for the model chemistry from the
+C***CSQY_DATA
+
+       ALLOCATE( PHOTOLYSIS_RATE ( NPHOTAB ) )
+       ALLOCATE( XXCS( NPHOTAB, IREFTEMPS, NWL ) )
+       ALLOCATE( XXQY( NPHOTAB, IREFTEMPS, NWL ) )
+       ALLOCATE( RTEMP_S( IREFTEMPS, NPHOTAB ) )
+
+       DO IPHOT = 1, NPHOTAB
+          IP_MAP = INDEXR( PHOTAB( IPHOT ), NPHOT_MAP, PNAME_MAP )
+          IF ( IP_MAP .LE. 0 ) THEN
+             MSG = 'FATAL ERROR: photolysis reaction ' // TRIM( PHOTAB( IPHOT ) )
+     &          // ' not found in ' //
+     &             'the reference data! '
+             ERROR_FLAG = .TRUE.
+             CALL M3WARN ( PNAME, 0, 0, MSG )
+          END IF
+          IP_REF = PHOT_MAP( IP_MAP )
+          PHOTOLYSIS_RATE( IPHOT ) = PNAME_MAP( IP_MAP )
+
+C***check to see if this photolysis reaction is a special case that
+C***  is referenced in other sections of the code.  if so, then set
+C***  the appropriate pointers for later processing
+
+           SELECT CASE ( TRIM( PHOTOLYSIS_RATE( IPHOT ) ) )
+              CASE( 'O3O3P', 'O3O3P_SAPRC99', 'O3O3P_06', 'O3_O3P_IUPAC04', 'O3O3P_NASA06' )
+                    LO3O3P = IPHOT
+              CASE( 'NO2', 'NO2_SAPRC99', 'NO2_06', 'NO2_RACM2' )
+                    LNO2 = IPHOT
+              CASE( 'O3O1D',  'O3O1D_SAPRC99' , 'O3O1D_06', 'O3_O1D_IUPAC04', 'O3O1D_NASA06' )
+                    LO3O1D = IPHOT
+              CASE( 'KETONE', 'KET_RACM2' )
+                    LKETONE   = IPHOT
+              CASE( 'MGLY_ADJ' )
+                    LMGLY_ADJ = IPHOT
+              CASE(  'MGLY_ABS' )
+                    LMGLY_ABS = IPHOT
+              CASE( 'ACETONE', 'CH3COCH3_RACM2' )
+                    LACETONE  = IPHOT
+              CASE( 'HCHOR_06', 'HCHO_RAD_RACM2')
+                    LHCHOR_06 = IPHOT
+           END SELECT
+
+
+C***load the local cross section & quantum yield data from the reference
+C***  dataset for this photolysis reaction
+
+            DO ITT = 1, IREFTEMPS
+               DO IWL = 1, NWL
+                  XXCS( IPHOT, ITT, IWL ) = CS_REF( IP_REF, ITT, IWL )
+                  XXQY( IPHOT, ITT, IWL ) = QY_REF( IP_REF, ITT, IWL )
+                  RTEMP_S( ITT, IPHOT ) = TEMP_REF( ITT, IP_REF )
+               END DO   ! iwl
+            END DO   ! itt
+
+       END DO   ! iphot
+
+       IF ( LNO2   .EQ. 0 ) THEN
+          MSG = 'NO2 cross-section not found in the CSQY data! '
+          ERROR_FLAG = .TRUE.
+          CALL M3WARN ( PNAME, 0, 0, MSG )
+       END IF
+       IF ( LO3O1D .EQ. 0 ) THEN
+          MSG = 'O3(1D) production not found in the CSQY data! '
+          CALL M3WARN ( 'NEW_OPTICS', 0, 0, MSG )
+       END IF
+       IF ( LO3O3P .EQ. 0 ) THEN
+          MSG = 'O3 cross-section not found in the CSQY data! '
+          ERROR_FLAG = .TRUE.
+          CALL M3WARN ( PNAME, 0, 0, MSG )
+       END IF
+
+       IF( ERROR_FLAG )THEN
+         MSG = 'The above fatal error(s) found in CSQY data! '
+         CALL M3EXIT( PNAME, 0, 0, MSG, 1 )
+       END IF
+
+      WRITE( LOG_UNIT,* ) 'Sucessfully Loaded CSQY_DATA file'
+      
+      CLOSE(LOG_UNIT)
+      CLOSE(PHOTAB_UNIT)
+
+5012  FORMAT( 4X,A30,1X,3(F8.3,2X) )
+5013  FORMAT( 22X,I3 )
+5016  FORMAT( 4X,A60,1X,I3,2X,3(F8.3,2X) )
+
+#ifdef verbose_phot
+6009  format( a3,', ',8(a,', ') )
+6013  format( a22,1x,i3 )
+6016  format( i3,1x,a60,1x,i3,2x,3(f8.3,2x) )
+#endif
+
+      RETURN
+      END SUBROUTINE LOAD_CSQY_DATA
+
+
+
+      SUBROUTINE LOAD_OPTICS_DATA()
+!-----------------------------------------------------------------------
+!  Purpose: read input file for 
+!           -wavelength bin for cross check against
+!           -size dependent optical data for liquid droplets and ice 
+!            ice particles
+!           -landuse type data for surface alebdo
+!
+!  Revision History:
+!   31 Jan 2014 B.Hutzell: Initial Version based on LOAD_REF_DATA in
+!   CMAQ version 5.0
+!-----------------------------------------------------------------------
+
+      USE UTILIO_DEFN
+
+      IMPLICIT NONE
+
+!***arguments
+
+!     NONE
+
+!***local
+
+      LOGICAL :: WRITE_LOG = .TRUE.
+
+      CHARACTER(  32 ) :: PNAME         = 'LOAD_OPTICS_DATA'
+      CHARACTER(  16 ) :: OPTICS_FILE   =  'OPTICS_DATA'      ! OPTICS_DATA i/o logical name
+      CHARACTER(  16 ) :: OPTICS_EXPECT
+      CHARACTER(  16 ) :: QUANTITY
+      CHARACTER(  30 ) :: LAND_EXPECT
+      CHARACTER( 120 ) :: MSG                               ! buffer for messages to output
+      CHARACTER( 240 ) :: FILE_LINE
+
+      CHARACTER(  16 ),  ALLOCATABLE :: AE_RERACT_REF( : )
+
+!     INTEGER, INTENT(OUT) :: NWL_OPTICS    ! # of wavelengths used in PHOT_MOD.F
+      INTEGER :: NWL_OPTICS    ! # of wavelengths used in PHOT_MOD.F
+      INTEGER :: IOST        ! IOST returned from OPEN function
+      INTEGER :: JDATE = 0
+      INTEGER :: LOG_UNIT
+      INTEGER :: OPTICS_UNIT
+      INTEGER :: IPHOT, IPHOT_LOAD ! loop indices
+      INTEGER :: ITT, ITT_LOAD     ! loop indices 
+      INTEGER :: IP_MAP, IP_REF    ! photolysis reaction indicies
+      INTEGER :: IWL_LOAD
+      INTEGER :: STRT, FINI
+
+      INTEGER :: NAE_REFRACT_REF 
+
+      REAL,       ALLOCATABLE :: AE_IMAG_REFRACT( :, : )
+      REAL,       ALLOCATABLE :: AE_REAL_REFRACT( :, : )
+
+      LOGICAL                  :: ERROR_FLAG = .FALSE.
+
+C***external functions: none
+
+      LOG_UNIT = INIT3()
+
+      OPTICS_UNIT = GETEFILE( OPTICS_FILE, .TRUE., .TRUE., PNAME )
+
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+      
+#ifdef verbose_phot
+      write( log_unit, * )TRIM(FILE_LINE)
+#endif
+
+      READ( FILE_LINE, 4999) NWL_REF
+      
+      NWL_OPTICS = NWL_REF
+
+      DO ITT_LOAD = 1, 14 ! skip next 14 lines
+         READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+      END DO
+
+      DO IWL_LOAD = 1, NWL_REF
+         READ( PHOTAB_UNIT, * )iphot_load,
+     &         STWL_REF( IWL_LOAD ), EFFWL_REF( IWL_LOAD ),
+     &         ENDWL_REF( IWL_LOAD ) 
+     
+#ifdef verbose_phot
+         write( log_unit, 99946 )
+     &          stwl_ref( iwl_load ), effwl_ref( iwl_load ),
+     &          endwl_ref( iwl_load )
+#endif
+
+      END DO
+      
+      DO ITT_LOAD = 1, 6 ! skip next 6 lines
+         READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+      END DO
+
+      READ( FILE_LINE, 4999)NAE_REFRACT_REF
+
+
+      IF( NAE_REFRACT_REF .NE. NUM_REFRACTIVE )THEN
+         WRITE( LOG_UNIT,* ) 'NAE_REFRACT_REF  = ', NAE_REFRACT_REF
+         MSG = 'NAERO_REFRACT used in ' // OPTICS_FILE
+     &       // ' does not equal NUM_REFRACTIVE in CSQY_DATA.F file. '
+         CALL M3WARN( PNAME, 0, 0, MSG )
+         ERROR_FLAG = .TRUE.
+      END IF
+      
+      ALLOCATE( AE_RERACT_REF   ( NAE_REFRACT_REF ) )
+
+      READ( PHOTAB_UNIT,'(A)' ) FILE_LINE
+                
+#ifdef verbose_phot
+      write( log_unit, '(a)')TRIM(FILE_LINE)
+#endif
+
+      STRT = SCAN(FILE_LINE, '=', BACK = .TRUE.) + 1
+      FINI =  LEN(FILE_LINE)
+
+      READ( FILE_LINE( STRT:FINI ), * )( AE_RERACT_REF( ITT_LOAD ), 
+     &                                   ITT_LOAD = 1, NAE_REFRACT_REF )
+
+#ifdef verbose_phot
+      write( log_unit, 99947)'REFRACTIVE_INDICES'
+      write( log_unit, 99948 )(AE_RERACT_REF( ITT_LOAD ),ITT_LOAD = 1, 
+     &                                 NAE_REFRACT_REF )
+#endif
+
+      DO ITT_LOAD = 1, NAE_REFRACT_REF 
+! set up refractive indices used by aero_photdata routine
+
+          REFRACTIVE_INDEX( ITT_LOAD )%NAME = AE_RERACT_REF( ITT_LOAD )
+          ALLOCATE( REFRACTIVE_INDEX( ITT_LOAD )%REAL_PART( N_MODE, NWL_REF ) )         
+          ALLOCATE( REFRACTIVE_INDEX( ITT_LOAD )%IMAG_PART( N_MODE, NWL_REF )  ) 
+           
+#ifdef verbose_phot
+          write( log_unit, '(i3, 1x, a16)')itt_load, refractive_index( itt_load )%name
+#endif
+
+      END DO
+
+      DO IWL_LOAD = 1, NWL_REF
+         READ( PHOTAB_UNIT, * )iphot_load,
+     &         STWL_REF( IWL_LOAD ), EFFWL_REF( IWL_LOAD ),
+     &         ENDWL_REF( IWL_LOAD ), FSOLAR_REF( IWL_LOAD ),
+     &         ( AE_REAL_REFRACT( ITT_LOAD, IWL_LOAD ), 
+     &           AE_IMAG_REFRACT( ITT_LOAD, IWL_LOAD ),
+     &           ITT_LOAD = 1, NAE_REFRACT_REF )
+
+               DO ITT_LOAD = 1, NAE_REFRACT_REF
+                  REFRACTIVE_INDEX( ITT_LOAD )%REAL_PART( 1:N_MODE, IWL_LOAD ) 
+     &                                      = AE_REAL_REFRACT( ITT_LOAD, IWL_LOAD )
+                  REFRACTIVE_INDEX( ITT_LOAD )%IMAG_PART( 1:N_MODE, IWL_LOAD ) 
+     &                                      = AE_IMAG_REFRACT( ITT_LOAD, IWL_LOAD )
+               END DO
+#ifdef verbose_phot
+         write( log_unit, 99949 )
+     &          stwl_ref( iwl_load ), effwl_ref( iwl_load ),
+     &          endwl_ref( iwl_load ),fsolar_ref( iwl_load ),
+     &          ( ae_real_refract( itt_load, iwl_load ),
+     &            ae_imag_refract( itt_load, iwl_load ), itt_load = 1, nae_refract_ref )
+#endif
+
+      END DO
+
+      DO ITT_LOAD = 1, 6 ! skip next 6 lines
+         READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+      END DO
+
+! read optical data for liquid droplets
+
+      READ( FILE_LINE, 4999)NRADIUS_LIQUID
+
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+
+      ALLOCATE(LIQUID_RADIUS( NRADIUS_LIQUID ))
+      
+      ALLOCATE( LIQUID_EXTINCT(NRADIUS_LIQUID, NWL_PHOT),
+     &         LIQUID_ASYMFACT(NRADIUS_LIQUID, NWL_PHOT),
+     &         LIQUID_COALBEDO(NRADIUS_LIQUID, NWL_PHOT))
+
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+
+      QUANTITY = 'LIQ_EXT'
+      
+      DO ITT_LOAD = 1, NRADIUS_LIQUID
+         READ( OPTICS_UNIT, 99950 )
+     &         OPTICS_EXPECT, RADIUD_LIQUID( ITT_LOAD ),
+     &         ( LIQUID_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+
+#ifdef verbose_phot
+          write( log_unit, 99950 )
+     &         OPTICS_EXPECT, RADIUD_LIQUID( ITT_LOAD ),
+     &         ( LIQUID_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+#endif
+            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+               MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
+     &             // ' does match expected quantity, ' // TRIM( QUANTITY )
+               CALL M3WARN( PNAME, 0, 0, MSG )
+               ERROR_FLAG = .TRUE.
+            END IF
+      END DO
+
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+
+      QUANTITY = 'LIQ_ASY'
+      
+      DO ITT_LOAD = 1, NRADIUS_LIQUID
+         READ( OPTICS_UNIT, 99950 )
+     &         OPTICS_EXPECT, RADIUD_LIQUID( ITT_LOAD ),
+     &         ( LIQUID_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+
+#ifdef verbose_phot
+          write( log_unit, 99950 )
+     &         OPTICS_EXPECT, RADIUD_LIQUID( ITT_LOAD ),
+     &         ( LIQUID_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+#endif
+            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+               MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
+     &             // ' does match expected quantity, ' // TRIM( QUANTITY )
+               CALL M3WARN( PNAME, 0, 0, MSG )
+               ERROR_FLAG = .TRUE.
+            END IF
+      END DO
+
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+
+      QUANTITY = 'LIQ_COA'
+      
+      DO ITT_LOAD = 1, NRADIUS_LIQUID
+         READ( OPTICS_UNIT, 99950 )
+     &         OPTICS_EXPECT, RADIUD_LIQUID( ITT_LOAD ),
+     &         ( LIQUID_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+
+#ifdef verbose_phot
+          write( log_unit, 99950 )
+     &         OPTICS_EXPECT, RADIUD_LIQUID( ITT_LOAD ),
+     &         ( LIQUID_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+#endif
+            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+               MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
+     &             // ' does match expected quantity, ' // TRIM( QUANTITY )
+               CALL M3WARN( PNAME, 0, 0, MSG )
+               ERROR_FLAG = .TRUE.
+            END IF
+      END DO
+
+
+      DO ITT_LOAD = 1, 6 ! skip next 6 lines
+         READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+      END DO
+
+! read optical data for liquid droplets
+
+      READ( FILE_LINE, 4999)NDIAMETER_ICE
+
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+
+      ALLOCATE(DIAMETER_ICE( NDIAMETER_ICE ))
+      
+      ALLOCATE( ICE_EXTINCT(NDIAMETER_ICE, NWL_PHOT),
+     &         ICE_ASYMFACT(NDIAMETER_ICE, NWL_PHOT),
+     &         ICE_COALBEDO(NDIAMETER_ICE, NWL_PHOT))
+
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+
+      QUANTITY = 'ICE_EXT'
+      
+      DO ITT_LOAD = 1, NDIAMETER_ICE
+         READ( OPTICS_UNIT, 99950 )
+     &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
+     &         ( ICE_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+
+#ifdef verbose_phot
+          write( log_unit, 99950 )
+     &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
+     &         ( ICE_EXTINCT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+#endif
+            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+               MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
+     &             // ' does match expected quantity, ' // TRIM( QUANTITY )
+               CALL M3WARN( PNAME, 0, 0, MSG )
+               ERROR_FLAG = .TRUE.
+            END IF
+      END DO
+ 
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+
+      QUANTITY = 'ICE_ASY'
+      
+      DO ITT_LOAD = 1, NDIAMETER_ICE
+         READ( OPTICS_UNIT, 99950 )
+     &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
+     &         ( ICE_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+
+#ifdef verbose_phot
+          write( log_unit, 99950 )
+     &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
+     &         ( ICE_ASYMFACT( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+#endif
+            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+               MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
+     &             // ' does match expected quantity, ' // TRIM( QUANTITY )
+               CALL M3WARN( PNAME, 0, 0, MSG )
+               ERROR_FLAG = .TRUE.
+            END IF
+      END DO
+
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+
+      QUANTITY = 'ICE_COA'
+      
+      DO ITT_LOAD = 1, NDIAMETER_ICE
+         READ( OPTICS_UNIT, 99950 )
+     &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
+     &         ( ICE_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+
+#ifdef verbose_phot
+          write( log_unit, 99950 )
+     &         OPTICS_EXPECT, DIAMETER_ICE( ITT_LOAD ),
+     &         ( ICE_COALBEDO( ITT_LOAD, IWL_LOAD), IWL_LOAD = 1, NWL_OPTICS )
+#endif
+            IF ( TRIM( OPTICS_EXPECT ) .NE. TRIM( QUANTITY ) ) THEN
+               MSG =  'Optical quantity read ' // TRIM( OPTICS_EXPECT )
+     &             // ' does match expected quantity, ' // TRIM( QUANTITY )
+               CALL M3WARN( PNAME, 0, 0, MSG )
+               ERROR_FLAG = .TRUE.
+            END IF
+      END DO
+
+!  read data for calculating surface     
+
+      DO ITT_LOAD = 1, 5 ! skip next 5 lines
+         READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+      END DO
+
+      READ( OPTICS_UNIT,5013 ) NUMB_LANDUSE_REF
+
+      DO ITT_LOAD = 1, 3 ! skip next 3 lines
+         READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+      END DO
+
+      READ( OPTICS_UNIT,5013 ) INDEX_GRASSLAND_REF
+      READ( OPTICS_UNIT,5013 ) INDEX_OCEAN_REF
+      READ( OPTICS_UNIT,5013 ) INDEX_SEA_ICE
+
+#ifdef verbose_phot
+      write( log_unit,6013 )'NUMB_LANDUSE_REF    = ', numb_landuse_ref
+      write( log_unit,6013 )'INDEX_GRASSLAND_REF = ', index_grassland_ref
+      write( log_unit,6013 )'INDEX_OCEAN_REF     = ', index_ocean_ref
+      write( log_unit,6013 )'INDEX_SEA_ICE       = ', index_sea_ice
+#endif
+
+      ALLOCATE( LANDUSE_REF     ( NUMB_LANDUSE_REF ) )
+      ALLOCATE( ZENITH_COEFF_REF( NUMB_LANDUSE_REF ) )
+      ALLOCATE( SEASON_COEFF_REF( NUMB_LANDUSE_REF ) )
+      ALLOCATE( SNOW_COEFF_REF  ( NUMB_LANDUSE_REF ) )
+      ALLOCATE( SPECTRAL_ALBEDO_REF( NWL_OPTICS, NUMB_LANDUSE_REF ) )
+
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
+
+      DO ITT_LOAD = 1, NUMB_LANDUSE_REF
+         READ( OPTICS_UNIT,5012 ) LANDUSE_REF( ITT_LOAD ),
+     &                            ZENITH_COEFF_REF( ITT_LOAD ),
+     &                            SEASON_COEFF_REF( ITT_LOAD ),
+     &                            SNOW_COEFF_REF( ITT_LOAD )
+#ifdef verbose_phot
+         write( log_unit,5012 ) landuse_ref( itt_load ),
+     &                          zenith_coeff_ref( itt_load ),
+     &                          season_coeff_ref( itt_load ),
+     &                          snow_coeff_ref( itt_load )
+#endif
+      END DO
+
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
+
+      DO ITT_LOAD = 1, NUMB_LANDUSE_REF
+         READ( OPTICS_UNIT,'(A30,1X,40(1PE12.6,2X))' ) LAND_EXPECT,
+     &        ( SPECTRAL_ALBEDO_REF(IWL_LOAD, ITT_LOAD), IWL_LOAD = 1, NWL_REF )
+
+#ifdef verbose_phot
+         write( log_unit,'(a30,1x,40(1pe12.6,2x))' ) trim( land_expect ),
+     &        ( spectral_albedo_ref(iwl_load, itt_load), iwl_load = 1, nwl_ref )
+#endif
+
+      END DO
+
+      DO ITT_LOAD = 1, 3 ! skip next 3 lines
+         READ( OPTICS_UNIT,'(A)' ) FILE_LINE
+      END DO
+
+      READ( OPTICS_UNIT,5013 ) NUMB_LANDUSE_NLCD50
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
+
+#ifdef verbose_phot
+      write( log_unit,6013 ) 'NUMB_NLCD50_MODIS = ', numb_landuse_NLCD50
+      write( log_unit,6009 ) '! I', 'LANDUSE_NLCD50-MODIS', 'INDEX_ALBREF',
+     &                       'FAC_ALBREF'
+#endif
+
+      ALLOCATE( LANDUSE_NLCD50( NUMB_LANDUSE_NLCD50 )  )
+      ALLOCATE( ALBMAP_REF2NLCD50( NUMB_LANDUSE_NLCD50 )  )
+      ALLOCATE( ALBFAC_REF2NLCD50( NUMB_LANDUSE_NLCD50 )  )
+
+      DO ITT_LOAD = 1, NUMB_LANDUSE_NLCD50
+         READ( OPTICS_UNIT,5016 ) LANDUSE_NLCD50( ITT_LOAD ),
+     &                            ALBMAP_REF2NLCD50( ITT_LOAD ),
+     &                            ALBFAC_REF2NLCD50( ITT_LOAD )
+
+#ifdef verbose_phot
+         write( log_unit,6016 ) itt_load, landuse_NLCD50( itt_load ),
+     &                          albmap_ref2NLCD50( itt_load ),
+     &                          albfac_ref2NLCD50( itt_load )
+#endif
+
+      END DO
+
+      READ( OPTICS_UNIT,5013 ) NUMB_LANDUSE_USGS
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
+
+#ifdef verbose_phot
+      write( log_unit,6013 ) 'NUMB_USGS = ', numb_landuse_usgs
+      write( log_unit,6009 ) '! I','LANDUSE_USGS', 'INDEX_ALBREF', 'FAC_ALBREF'
+#endif
+
+      ALLOCATE( LANDUSE_USGS   ( NUMB_LANDUSE_USGS ) )
+      ALLOCATE( ALBMAP_REF2USGS( NUMB_LANDUSE_USGS ) )
+      ALLOCATE( ALBFAC_REF2USGS( NUMB_LANDUSE_USGS ) )
+
+      DO ITT_LOAD = 1, NUMB_LANDUSE_USGS
+         READ( OPTICS_UNIT,5016 ) LANDUSE_USGS( ITT_LOAD ),
+     &                            ALBMAP_REF2USGS( ITT_LOAD ),
+     &                            ALBFAC_REF2USGS( ITT_LOAD )
+
+#ifdef verbose_phot
+         write( log_unit,6016 ) itt_load, landuse_usgs( itt_load ),
+     &                          albmap_ref2usgs( itt_load ),
+     &                          albfac_ref2usgs( itt_load )
+#endif
+
+      END DO
+
+      READ( OPTICS_UNIT,5013 ) NUMB_LANDUSE_MODIS
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
+
+#ifdef verbose_phot
+      write( log_unit,6013 ) 'NUMB_MODIS = ', numb_landuse_modis
+      write( log_unit,6009 ) '! I','LANDUSE_MODIS', 'INDEX_ALBREF', 'FAC_ALBREF'
+#endif
+
+      ALLOCATE( LANDUSE_MODIS   ( NUMB_LANDUSE_MODIS ) )
+      ALLOCATE( ALBMAP_REF2MODIS( NUMB_LANDUSE_MODIS ) )
+      ALLOCATE( ALBFAC_REF2MODIS( NUMB_LANDUSE_MODIS ) )
+
+      DO ITT_LOAD = 1, NUMB_LANDUSE_MODIS
+         READ( OPTICS_UNIT,5016 ) LANDUSE_MODIS( ITT_LOAD ),
+     &                            ALBMAP_REF2MODIS( ITT_LOAD ),
+     &                            ALBFAC_REF2MODIS( ITT_LOAD )
+
+#ifdef verbose_phot
+         write( log_unit,6016 ) itt_load, landuse_modis( itt_load ),
+     &                          albmap_ref2modis( itt_load ),
+     &                          albfac_ref2modis( itt_load )
+#endif
+
+      END DO
+
+      NO_NLCD40 = .TRUE.  ! default condition that file does not contain NLCD40 Landuse data
+      
+      READ( OPTICS_UNIT,5013, END = 101 ) NUMB_LANDUSE_NLCD40
+      READ( OPTICS_UNIT,'(A)' ) FILE_LINE ! skip line
+
+#ifdef verbose_phot
+      write( log_unit,6013 ) 'NUMB_NLCD40_MODIS = ', numb_landuse_NLCD40
+      write( log_unit,6009 ) '! I', 'LANDUSE_NLCD40-MODIS', 'INDEX_ALBREF',
+     &                       'FAC_ALBREF'
+#endif
+
+      ALLOCATE( LANDUSE_NLCD40( NUMB_LANDUSE_NLCD40 )  )
+      ALLOCATE( ALBMAP_REF2NLCD40( NUMB_LANDUSE_NLCD40 )  )
+      ALLOCATE( ALBFAC_REF2NLCD40( NUMB_LANDUSE_NLCD40 )  )
+
+      DO ITT_LOAD = 1, NUMB_LANDUSE_NLCD40
+         READ( OPTICS_UNIT,5016 ) LANDUSE_NLCD40( ITT_LOAD ),
+     &                            ALBMAP_REF2NLCD40( ITT_LOAD ),
+     &                            ALBFAC_REF2NLCD40( ITT_LOAD )
+
+#ifdef verbose_phot
+         write( log_unit,6016 ) itt_load, landuse_NLCD40( itt_load ),
+     &                          albmap_ref2NLCD40( itt_load ),
+     &                          albfac_ref2NLCD40( itt_load )
+#endif
+
+      END DO
+      
+      NO_NLCD40 = .FALSE.
+
+101   IF( NO_NLCD40 )THEN
+          MSG = TRIM( PNAME ) // ':'
+     &       // TRIM( CSQY_FILE )
+     &       // ' does not contain data for NLCD40 land use and'
+     &       // ' corresponds to CMAQ version 5.01.'
+          CALL M3MESG( MSG )
+      END IF
+
+! set the default values for surface albedo
+
+      DO IWL_LOAD = 1, NWL_OPTICS
+         IF ( WAVELENGTH( IWL_LOAD ) .LE. 380.1 ) THEN
+            ALB( IWL_LOAD ) = 0.05
+         ELSE
+            ALB( IWL_LOAD ) = 0.10
+         END IF
+      END DO
+
+
+      WRITE( LOG_UNIT,* ) 'Sucessfully Loaded OPTICS_DATA file'
+            
+      CLOSE(LOG_UNIT)
+      CLOSE(PHOTAB_UNIT)
+
+4999  FORMAT(17X,I3,2X,17X,I3)
+5012  FORMAT( 4X,A30,1X,3(F8.3,2X) )
+5013  FORMAT( 22X,I3 )
+5016  FORMAT( 4X,A60,1X,I3,2X,3(F8.3,2X) )
+99946 FORMAT(4x,3(f8.3,2x),2x,2(es12.4,2x),f8.3,2x,12(es12.4,2x))
+99947 FORMAT(a3, 1x, a16)
+99948 FORMAT(10(a16,1x))
+99949 FORMAT(4x,3(f8.3,2x),2x,2(es12.4,2x),f8.3,2x,12(es12.4,2x))
+99950 FORMAT(a8,1x,f10.3,1x,40(1pe12.6,2x))
+
+#ifdef verbose_phot
+6009  format( a3,', ',8(a,', ') )
+6013  format( a22,1x,i3 )
+6016  format( i3,1x,a60,1x,i3,2x,3(f8.3,2x) )
+#endif
+
+      RETURN
+      END SUBROUTINE LOAD_OPTICS_DATA()     
+            
       END MODULE CSQY_DATA
