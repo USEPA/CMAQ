@@ -570,6 +570,9 @@ C Subset the emissions array for ISAM traced species
 
 #endif  
          ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
+         IF ( EM_SUM_LDIAG .NE. 'FALSE' .AND. WRTIME ) 
+     &         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_DIFF, N_EM_SRM+1, EMLAYS )
+
          END IF
 
          RETURN
@@ -998,8 +1001,16 @@ C-----------------------------------------------------------------------
       VDEMIS_OUT = 0.0
       LAYS       = 1
 
-      IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' .OR. 
-     &     EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) LAYS = NL
+      IF ( ISRM .EQ. (N_EM_SRM + 1) ) THEN
+          EM_LDIAG = EM_SUM_LDIAG
+          EM_FDIAG = EM_SUM_FILE
+      ELSE
+          EM_LDIAG = EM_FILE_LDIAG( ISRM )
+          EM_FDIAG = EM_DIAG_FILE( ISRM )
+      END IF
+
+      IF ( EM_LDIAG .EQ. '3D' .OR. 
+     &     EM_LDIAG .EQ. '2DSUM' ) LAYS = NL
 
       ! Convert All Emissions to Units Appropriate for the Dispersion Solver
       CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL )
@@ -1033,22 +1044,26 @@ C-----------------------------------------------------------------------
       DO IVAR = 1,N_SPC_DIFF
             ! Skip Writing this species if this source did not
             ! contribute to it
-            IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
-
-            ! Sum the column if requested
-            IF ( EM_FILE_LDIAG( ISRM ) .EQ. '2DSUM' ) THEN
-                VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),1 )
-                LAYS = 1
+            IF ( ISRM .LT. (N_EM_SRM+1) ) 
+              IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
+            ELSE
+              IF ( .NOT. ANY(EM_FILE_DIFF( IVAR,: )) ) CYCLE
             END IF
 
+            ! Sum the column if requested
+            IF ( EM_LDIAG .EQ. '2DSUM' ) THEN
+                 VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),1 )
+                 LAYS = 1
+            END IF 
+   
             DO L = 1,LAYS
                 VDEMIS_OUT( :,:,L ) = VDEMIS( IVAR,L,:,: )
             END DO
 
             ! Write out the emissions data
-            IF ( .NOT. WRITE3( EM_DIAG_FILE( ISRM ), DIFF_SPC( IVAR ),
+            IF ( .NOT. WRITE3( EM_FDIAG, DIFF_SPC( IVAR ),
      &                 MDATE, MTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
-                XMSG = 'Could not write ' // TRIM( EM_DIAG_FILE( ISRM ) ) // ' file'
+                XMSG = 'Could not write ' // TRIM( EM_FDIAG ) // ' file'
                 CALL M3EXIT( 'WRITE_EMISS_DIAG', MDATE, MTIME, XMSG, XSTAT1 )
             END IF
       END DO
@@ -2250,7 +2265,11 @@ C stkemis_init.
          
          EM_DIAG_SUFFIX = '.nc'
          IF ( APPL_NAME(1:8 ) .NE. 'CTM_APPL' ) EM_DIAG_SUFFIX = '_' // TRIM(APPL_NAME) // '.nc'
-
+ 
+         CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, LOGDEV )
+         EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) ) 
+         VALUE = SETENVVAR( EM_SUM_FILE, TRIM( EM_DIAG_PREFIX ) // 
+     &           'SUM' // TRIM( EM_DIAG_SUFFIX ) ) 
 
          ! Gridded Emission Files
          IF ( N_FILE_GR .GT. 0 ) THEN
