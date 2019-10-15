@@ -24,6 +24,28 @@
  Guard_SeaSpray      = .FALSE.
 
 /
+
+&ChemicalFamilies
+ NChemFamilies       = 1
+ ChemFamilyName[1]   = 'VOC'
+ ChemFamilyNum[1]    = 4
+ ChemFamilyMembers[1]= 'TOL','XYLMN','BENZENE','NAPH'
+/
+
+&StreamFamilies
+ NStreamFamilies        = 1
+ StreamFamilyName[1]    = 'Anthropogenic'
+ StreamFamilyNum[1]     = 3
+ StreamFamilyMembers[1] = 'GR_ONROAD_DIESEL','GR_ONROAD_GAS','PT_EGU'
+/
+
+&RegionFamilies
+ NRegionFamilies        = 1
+ RegionFamilyName[1]    = 'Region9'
+ RegionFamilyNum[1]     = 3
+ RegionFamilyMembers[1] = 'CA','NV','NM'
+/
+
 !------------------------------------------------------------------------------!
 ! Emissions Scaling Specification Section                                      !
 !   Each rule is presented as a row of inputs. The syntax of the               !

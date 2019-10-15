@@ -3288,6 +3288,28 @@ C   mminlu and num_land_cat are WRF global variables
                   END IF
               END IF
           END DO
+
+          ! Augment Emission Region Structure with Region Families
+          N_BASE_REGIONS = N_EM_RGN
+          DO IFAM = 1:NRegionFamilies
+             N_EM_RGN = N_EM_RGN + 1
+             CALL UPCASE( RegionFamilyName( IFAM ) )
+             EM_REGIONS( N_EM_RGN )%LABEL   = RegionFamilyName( IFAM )
+             EM_REGIONS( N_EM_RGN )%VAR     = 'Family'
+             EM_REGIONS( N_EM_RGN )%FILE    = 'Family'
+             EM_REGIONS( N_EM_RGN )%FILENUM = 'Family'
+
+             DO IRGN = 1:RegionFamilyNum
+                CALL UPCASE( RegionFamilyMember( IRGN ) )
+                JRGN = INDEX( RegionFamilyMember( IRGN ), 
+     &                        EM_REGIONS( 1:N_BASE_REGIONS )%VAR )
+                IF ( JRGN .GT. 0 ) 
+     &               EM_REG_FAC( :,:,N_EM_RGN ) = 
+     &                  EM_REG_FAC( :,:,N_EM_RGN ) + 
+     &                  EM_REG_FAC( :,:,JRGN )
+             END DO
+          END DO
+
           EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
           EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
 
@@ -3342,10 +3364,47 @@ C   mminlu and num_land_cat are WRF global variables
      &              Guard_MarineGas, Guard_LightningNO, Guard_WindBlownDust,
      &              Guard_SeaSpray
 
+         ! Define Chemical Families
+         NAMELIST / ChemicalFamilies / NChemFamilies, ChemFamilyName, 
+     &              ChemFamilyNum, ChemFamilyMembers
+
+         ! Define Stream Families
+         NAMELIST / StreamFamilies / NStreamFamilies, StreamFamilyName, 
+     &              StreamFamilyNum, StreamFamilyMembers
+
+         ! Define Region Families
+         NAMELIST / RegionFamilies / NRegionFamilies, RegionFamilyName, 
+     &              RegionFamilyNum, RegionFamilyMembers
+
          ! Define Emissions Rules Input from Emissions Control Namelist
          NAMELIST / EmissionScalingRules / EM_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
+
+         ! ALlocate and Initialize Family Variables
+         ALLOCATE( CHEMFAMILYNAME( N_CHEM_FAMILY_REG ),
+     &             CHEMFAMILYNUM( N_CHEM_FAMILY_REG ),
+     &             CHEMFAMILYMEMBERS( N_CHEM_FAMILY_REG,N_CHEM_MEMBER_REG ) )
+         NCHEMFAMILIES = 0
+         CHEMFAMILYNAME    = ''
+         CHEMFAMILYNUM     = 0
+         CHEMFAMILYMEMBERS = ''
+
+         ALLOCATE( STREAMFAMILYNAME( N_STREAM_FAMILY_REG ),
+     &             STREAMFAMILYNUM( N_STREAM_FAMILY_REG ),
+     &             STREAMFAMILYMEMBERS( N_STREAM_FAMILY_REG,N_STREAM_MEMBER_REG ) )
+         NSTREAMFAMILIES = 0
+         STREAMFAMILYNAME    = ''
+         STREAMFAMILYNUM     = 0
+         STREAMFAMILYMEMBERS = ''
+
+         ALLOCATE( REGIONFAMILYNAME( N_REGION_FAMILY_REG ),
+     &             REGIONFAMILYNUM( N_REGION_FAMILY_REG ),
+     &             REGIONFAMILYMEMBERS( N_REGION_FAMILY_REG,N_REGION_MEMBER_REG ) )
+         NREGFAMILIES = 0
+         REGIONFAMILYNAME    = ''
+         REGIONFAMILYNUM     = 0
+         REGIONFAMILYMEMBERS = ''
 
          ! Allocate and Initialize Namelist Variables
          ALLOCATE( EM_NML( N_EM_RULE_REG ) )
@@ -3407,6 +3466,48 @@ C   mminlu and num_land_cat are WRF global variables
              Guard_LightningNO   = .FALSE.
              Guard_WindBlownDust = .FALSE.
              Guard_SeaSpray      = .FALSE.
+         END IF
+ 
+         ! Read Chemical Family Specification Section
+         READ( NML = ChemicalFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .NE. 0 ) THEN
+             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
+     &              'Warning! Something went wrong while reading the ',
+     &              'ChemicalFamilies section of the Emissions Control ',
+     &              'Namelist. Default values for this section will be ',
+     &              'assumed.'
+             NChemFamilies      = 0
+             ChemFamilyName     = ''
+             ChemFamilyNum      = 0
+             ChemFamilyMembers  = ''
+         END IF
+ 
+         ! Read Stream Family Specification Section
+         READ( NML = StreamFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .NE. 0 ) THEN
+             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
+     &              'Warning! Something went wrong while reading the ',
+     &              'StreamFamilies section of the Emissions Control ',
+     &              'Namelist. Default values for this section will be ',
+     &              'assumed.'
+             NStreamFamilies      = 0
+             StreamFamilyName     = ''
+             StreamFamilyNum      = 0
+             StreamFamilyMembers  = ''
+         END IF
+ 
+         ! Read Region Family Specification Section
+         READ( NML = RegionFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .NE. 0 ) THEN
+             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
+     &              'Warning! Something went wrong while reading the ',
+     &              'RegionFamilies section of the Emissions Control ',
+     &              'Namelist. Default values for this section will be ',
+     &              'assumed.'
+             NRegionFamilies      = 0
+             RegionFamilyName     = ''
+             RegionFamilyNum      = 0
+             RegionFamilyMembers  = ''
          END IF
 
          ! Read the Regions Registry

@@ -72,10 +72,33 @@
             INTEGER, PARAMETER :: N_SD_REG = 200
             TYPE( SD_RULE ), ALLOCATABLE :: SD_NML( : )
 
+            ! Define General Parameters for Ignoring Online Streams when
+            ! Scaling All Streams with the "ALL" Keyword
             LOGICAL :: Guard_BiogenicVOC   = .FALSE.
             LOGICAL :: Guard_MarineGas     = .FALSE.
             LOGICAL :: Guard_LightningNO   = .FALSE.
             LOGICAL :: Guard_WindBlownDust = .FALSE.
             LOGICAL :: Guard_SeaSpray      = .FALSE.
+
+            ! Define Chemical Family Variables
+            INTEGER, PARAMETER          :: N_CHEM_FAMILY_REG = 50
+            INTEGER                     :: NCHEMFAMILIES
+            CHARACTER( 32 ),ALLOCATABLE :: CHEMFAMILYNAME( : )
+            INTEGER, ALLOCATABLE        :: CHEMFAMILYNUM( : )
+            CHARACTER( 32 ),ALLOCATABLE :: CHEMFAMILYMEMBERS( :,: )
+
+            ! Define Stream Family Variables
+            INTEGER, PARAMETER          :: N_STREAM_FAMILY_REG = 50
+            INTEGER                     :: NSTREAMFAMILIES
+            CHARACTER( 32 ),ALLOCATABLE :: STREAMFAMILYNAME( : )
+            INTEGER, ALLOCATABLE        :: STREAMFAMILYNUM( : )
+            CHARACTER( 32 ),ALLOCATABLE :: STREAMFAMILYMEMBERS( :,: )
+
+            ! Define Region Family Variables
+            INTEGER, PARAMETER          :: N_REGION_FAMILY_REG = 50
+            INTEGER                     :: NREGIONFAMILIES
+            CHARACTER( 32 ),ALLOCATABLE :: REGIONFAMILYNAME( : )
+            INTEGER, ALLOCATABLE        :: REGIONFAMILYNUM( : )
+            CHARACTER( 32 ),ALLOCATABLE :: REGIONFAMILYMEMBERS( :,: )
 
           end module em_param_module
