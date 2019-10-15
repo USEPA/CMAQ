@@ -54,8 +54,11 @@
 !  08/01/19, D. Wong:- Made modification so centralized I/O works with two-way model
 !                    - used new variable type descriptor
 !  09/10/19, D. Wong:- Extended to handle BC file with non 1-hr time step
+!  09/19/19, D. Wong:- Used the start simulation time to pick up the very first emission 
+!                      data point rather than the start time in the emission file
 !  09/20/19, D. Wong:- Extended the capability to handle 3D emission files with various
 !                      number of layers less than of equal to the model number of layers
+!  10/04/19, D. Wong:- fixed the time advancement, NEXTIME, for a multi-day run
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -3519,7 +3522,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. loc_date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
+     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
@@ -3616,7 +3619,7 @@ C   mminlu and num_land_cat are WRF global variables
      &           ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date) .and.
      &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .eq. 0)) .or.
      &           ((cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .lt. time) .and.
-     &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .ne. 0))) then
+     &            (cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date))) then
 
                 loc_jdate = cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt)
                 loc_jtime = cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) 
@@ -3716,7 +3719,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
+     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
@@ -3848,7 +3851,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
+     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
@@ -3960,7 +3963,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
+     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
@@ -4136,7 +4139,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_bndy_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_bndy_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_bndy_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
+     &            (cio_bndy_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
 
                 loc_jdate = cio_bndy_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_bndy_data_tstamp(2, loc_tail, var_loc)
@@ -4293,7 +4296,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. loc_date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
+     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
