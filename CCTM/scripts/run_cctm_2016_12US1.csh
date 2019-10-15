@@ -186,6 +186,7 @@ setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date 
                              #>   time will be used and an error check will be performed (recommended). Users 
                              #>   may switch the behavior for individual emission files below using the variables:
                              #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [default : N ] 
+setenv EMISDIAG_SUM 2DSUM    #> Print Sum of Emission Rates to Gridded Diagnostic File
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]

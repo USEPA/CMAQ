@@ -511,32 +511,30 @@ C Retrieve Emissions from All Stream Types
 
              IF ( TAGS_PER_STREAM( ISRM ) .GT. 0 ) THEN 
  
-             SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
+               SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
 
+               ! Loop through all of the ISAM tags associated with this
+               ! emissions stream. 
                DO IDX = 1, TAGS_PER_STREAM( ISRM )
 
                  ITAG = STREAM_TO_TAG(ISRM,IDX)
 
-c                SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
                  IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN ! full domain 
-                   SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG ) = SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG )
-     &                                                   + VDEMIS_CONV(:,1:NL,:,: )
+                   SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG ) = 
+     &                  SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG )
+     &                        + VDEMIS_CONV(:,1:NL,:,: )
                    SA_VDEMIS_DIFF_OTHER = 0.0
                  ELSE
                    DO RGN = 1, ISAMRGN_NUM( ITAG )
-                     DO LAYER = 1, NL
-                       DO SPC = 1, N_SPC_DIFF
-
-      SA_VDEMIS_DIFF_ALL( SPC,LAYER,:,:,ITAG ) = SA_VDEMIS_DIFF_ALL( SPC,LAYER,:,:,ITAG )
-     &                                         + VDEMIS_CONV( SPC,LAYER,:,: )
-     &                                         * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+                     SA_VDEMIS_DIFF_ALL( 1:N_SPC_DIFF,1:NL,:,:,ITAG ) = 
+     &                    SA_VDEMIS_DIFF_ALL( 1:N_SPC_DIFF,1:NL,:,:,ITAG )
+     &                       + VDEMIS_CONV( 1:N_SPC_DIFF,1:NL,:,: )
+     &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
             
-      SA_VDEMIS_DIFF_OTHER( SPC,LAYER,:,: ) = SA_VDEMIS_DIFF_OTHER( SPC,LAYER,:,: )
-     &                                      - VDEMIS_CONV( SPC,LAYER,:,: )
-     &                                      * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
-
-                       END DO
-                     END DO
+                     SA_VDEMIS_DIFF_OTHER( 1:N_SPC_DIFF,1:NL,:,: ) = 
+     &                    SA_VDEMIS_DIFF_OTHER( 1:N_SPC_DIFF,1:NL,:,: )
+     &                       - VDEMIS_CONV( 1:N_SPC_DIFF,1:NL,:,: )
+     &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
                    END DO
                  END IF
                END DO
@@ -548,12 +546,14 @@ c                SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
      &                    " - check isam control file. "
                    CALL M3EXIT( 'ISAM_EMISSIONS', 1, 1, XMSG, XSTAT1 )
                 ELSE
-                  SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG ) = SA_VDEMIS_DIFF_ALL  ( :,1:NL,:,:,OTHRTAG )
-     &                                                     + SA_VDEMIS_DIFF_OTHER( :,1:NL,:,: )
+                  SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG ) = 
+     &                 SA_VDEMIS_DIFF_ALL  ( :,1:NL,:,:,OTHRTAG )
+     &                       + SA_VDEMIS_DIFF_OTHER( :,1:NL,:,: )
                 END IF
              ELSE ! dump all into 'OTHRTAG'
-               SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG ) = SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG )
-     &                                                  + VDEMIS_CONV( :,1:NL,:,: )
+               SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG ) = 
+     &              SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG )
+     &                    + VDEMIS_CONV( :,1:NL,:,: )
              END IF
 
            END IF
@@ -561,15 +561,19 @@ c                SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
          END DO 
 
 #ifdef isam
-C Subset the emissions array for ISAM traced species  
+         ! Subset the emissions array for ISAM traced species  
          DO SPC = 1, NSPC_SA
            IF ( MAP_DIFFtoSA( SPC ) .NE. 0 ) THEN
-             SA_VDEMIS_DIFF( SPC,:,:,:,: ) =  SA_VDEMIS_DIFF_ALL( MAP_DIFFtoSA( SPC ),:,:,:,: )
+             SA_VDEMIS_DIFF( SPC,:,:,:,: ) =  
+     &            SA_VDEMIS_DIFF_ALL( MAP_DIFFtoSA( SPC ),:,:,:,: )
            END IF
          END DO
 
 #endif  
+         ! Check for Negative Emission Rates in Final Array
          ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
+         
+         ! Write Out the Sum of All Emissions to Gridded Diagnostic File
          IF ( EM_SUM_LDIAG .NE. 'FALSE' .AND. WRTIME ) 
      &         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_DIFF, N_EM_SRM+1, EMLAYS )
 
@@ -981,6 +985,8 @@ C-----------------------------------------------------------------------
       REAL,ALLOCATABLE, SAVE :: CONVN( :,:,: ) ! Aerosol Number conversion factor       
  
       INTEGER       :: LAYS, L, C, R, IVAR, NL, I
+      CHARACTER( 6 ):: EM_LDIAG
+      CHARACTER( 16):: EM_FDIAG
 
       LOGICAL :: FIRST_TIME = .TRUE.
       CHARACTER( 586 ) :: XMSG
@@ -1001,13 +1007,8 @@ C-----------------------------------------------------------------------
       VDEMIS_OUT = 0.0
       LAYS       = 1
 
-      IF ( ISRM .EQ. (N_EM_SRM + 1) ) THEN
-          EM_LDIAG = EM_SUM_LDIAG
-          EM_FDIAG = EM_SUM_FILE
-      ELSE
-          EM_LDIAG = EM_FILE_LDIAG( ISRM )
-          EM_FDIAG = EM_DIAG_FILE( ISRM )
-      END IF
+      EM_LDIAG = EM_FILE_LDIAG( ISRM )
+      EM_FDIAG = EM_DIAG_FILE( ISRM )
 
       IF ( EM_LDIAG .EQ. '3D' .OR. 
      &     EM_LDIAG .EQ. '2DSUM' ) LAYS = NL
@@ -1414,10 +1415,15 @@ C and allowing the model to proceed.
             ! Initialize CMAQ Species Array
             EM_SPEC_RULE = .FALSE.
 
-            IF ( EM_NML( IRULE )%SPEC .EQ. 'ALL' ) THEN
-               ! Expand the Rule to Apply to All Species
-                EM_SPEC_RULE = .TRUE.
+            MDX = INDEX( EM_NML( IRULE )%SPEC, NCHEMFAMILIES, CHEMFAMILYNAME )
+            IF ( MDX .GT. 0 ) THEN
+               ! Expand the Rule to Apply to Species Indicated by this
+               ! Keyword
+                EM_SPEC_RULE = EM_CHEM_KEYWORD( MDX,: )
+                LSPEC_KEYWORD = .TRUE.
             ELSE
+
+
                ! Find the Specific Species this Rule Identifies
                IDX = INDEX1( EM_NML( IRULE )%SPEC, N_SPC_DIFF, DIFF_SPC )
                JDX = INDEX1( EM_NML( IRULE )%SPEC, N_AEROSPC,  AEROSPC( : )%BULKNAME )
@@ -2235,8 +2241,8 @@ C and allowing the model to proceed.
          Allocate( EM_FILE_ITYPE ( N_EM_SRM ) )
          Allocate( EM_FILE_DESC  ( N_EM_SRM ) )
          Allocate( EM_FILE_LAPPLY( N_EM_SRM ) )
-         Allocate( EM_FILE_LDIAG ( N_EM_SRM ) )
-         Allocate( EM_DIAG_FILE  ( N_EM_SRM ) )
+         Allocate( EM_FILE_LDIAG ( N_EM_SRM+1 ) )
+         Allocate( EM_DIAG_FILE  ( N_EM_SRM+1 ) )
          Allocate( EM_FILE_DATE  ( N_EM_SRM ) )
          Allocate( EM_FILE_SYM_DATE ( N_EM_SRM ) ) 
          Allocate( EM_FILE_FIRE  ( N_EM_SRM ) )
@@ -2266,9 +2272,9 @@ C stkemis_init.
          EM_DIAG_SUFFIX = '.nc'
          IF ( APPL_NAME(1:8 ) .NE. 'CTM_APPL' ) EM_DIAG_SUFFIX = '_' // TRIM(APPL_NAME) // '.nc'
  
-         CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, LOGDEV )
-         EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) ) 
-         VALUE = SETENVVAR( EM_SUM_FILE, TRIM( EM_DIAG_PREFIX ) // 
+         CALL GET_ENV( EM_FILE_LDIAG(N_EM_SRM+1), "EMISDIAG_SUM", EMISDIAG, LOGDEV )
+         EM_FILE_LDIAG( N_EM_SRM + 1 ) = RESOLVE_YN_TF_2D3D(EM_FILE_LDIAG(N_EM_SRM+1) ) 
+         VALUE = SETENVVAR( EM_DIAG_FILE( N_EM_SRM+1 ), TRIM( EM_DIAG_PREFIX ) // 
      &           'SUM' // TRIM( EM_DIAG_SUFFIX ) ) 
 
          ! Gridded Emission Files
@@ -2574,7 +2580,11 @@ C stkemis_init.
 
           NVARS3D = 0
           DO IVAR = 1,N_SPC_DIFF
-              IF ( EM_FILE_DIFF( IVAR,ISRM ) ) NVARS3D = NVARS3D + 1
+              IF ( ISRM .EQ. N_EM_SRM+1 ) THEN
+                IF ( ANY(EM_FILE_DIFF( IVAR,: )) ) NVARS3D = NVARS3D + 1
+              ELSE
+                IF ( EM_FILE_DIFF( IVAR,ISRM ) ) NVARS3D = NVARS3D + 1
+              END IF
           END DO
           NCOLS3D = GL_NCOLS
           NROWS3D = GL_NROWS
@@ -2597,7 +2607,11 @@ C stkemis_init.
 
           V = 0
           DO IVAR = 1,N_SPC_DIFF
-             IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
+              IF ( ISRM .EQ. N_EM_SRM+1 ) THEN
+                IF ( .NOT. ANY(EM_FILE_DIFF( IVAR,: )) ) CYCLE
+              ELSE
+                IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
+              END IF
              V = V + 1
 
              VTYPE3D( V ) = M3REAL
