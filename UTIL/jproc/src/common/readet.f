@@ -43,7 +43,7 @@ C     F(mxwl)               - extraterrestrial solar irradiance
 C
 C*********************************************************************
 
-      USE M3UTILIO
+      USE GET_ENV_VARS
 
       IMPLICIT NONE
 
@@ -78,7 +78,7 @@ C     begin body of subroutine READET
 
 C...open and read the wavelength bands and extraterrestrial radiation
 
-      CALL NAMEVAL ( ETFILE, EQNAME )
+      CALL VALUE_NAME ( ETFILE, EQNAME )
       ETUNIT = JUNIT( )
 
       OPEN( UNIT = ETUNIT,
@@ -90,7 +90,8 @@ C...check for open errors
 
       IF ( IOST .NE. 0 ) THEN
         MSG = 'Could not open the ET data file'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       WRITE( 6, 2001 ) ETUNIT, EQNAME
@@ -105,7 +106,8 @@ C...check for read errors
 
       IF ( IOST .NE. 0 ) THEN
         MSG = 'Errors occurred while reading TYPE from ET file'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       IF ( TYPE .EQ. '!' ) GO TO 101
@@ -118,7 +120,8 @@ C...check for read errors
 
       IF ( IOST .NE. 0 ) THEN
         MSG = 'Errors occurred while reading FACTOR from ET file'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
 C...initialize arrays
@@ -143,7 +146,8 @@ C...check for read errors
 
         IF ( IOST .GT. 0 ) THEN
           MSG = 'Errors occurred while reading WL,F from ET file'
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
         END IF
 
 C...end loop if we reach EOF, otherwise continue looping
@@ -205,8 +209,9 @@ C...stop program if wavelength data type not found
 
       ELSE
 
-        MSG = 'Unrecognized spectra type in ' // PNAME
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+        MSG = 'Unrecognized spectra type in ' // TRIM( EQNAME )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
 
       END IF
 

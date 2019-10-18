@@ -246,7 +246,7 @@ C... Setup indices for reactions
         IALD    = INDEX2( 'ALD',     NPHOTAB, PHOTAB )
         IF (IALD .EQ. 0) IALD = INDEX2( 'CCHO',     NPHOTAB, PHOTAB )
 
-        IACETONE= INDEX2( 'ACET_06', NPHOTAB, PHOTAB )
+        IACETONE= INDEX2( 'ACET_', NPHOTAB, PHOTAB )
         IF (IACETONE .EQ. 0) IACETONE = INDEX2( 'CH3COCH3',     NPHOTAB, PHOTAB )
 
         IKETONE = INDEX2( 'KET',  NPHOTAB, PHOTAB )
@@ -281,8 +281,12 @@ C...check to see if O1D is from IUPAC, NASA94, or RADM data
         IF ( IO3O1D .GT. 0 ) THEN
           IF ( INDEX( PHOTAB( IO3O1D ), 'IUPAC04' ) .GT. 0 ) THEN
             SRO1D = 'IUPAC04'
+          ELSE IF ( INDEX( PHOTAB( IO3O1D ), 'IUPAC10' ) .GT. 0 ) THEN
+            SRO1D = 'IUPAC10'
           ELSE IF ( INDEX( PHOTAB( IO3O1D ), 'NASA94' ) .GT. 0 ) THEN
             SRO1D = 'NASA94'
+          ELSE IF ( INDEX( PHOTAB( IO3O1D ), 'NASA06' ) .GT. 0 ) THEN
+            SRO1D = 'NASA06'
           ELSE IF ( INDEX( PHOTAB( IO3O1D ), 'JPL06-2' ) .GT. 0 ) THEN
             SRO1D = 'JPL06-2'
           ELSE IF ( INDEX( PHOTAB( IO3O1D ), 'RADM' ) .GT. 0 ) THEN
@@ -383,7 +387,8 @@ C...Adjust quantum yields for temperature dependencies
 
 C...O3O1D:  jpl06-2 and iupac04
         
-      IF ( ( SRO1D .EQ. 'IUPAC04' ) .OR. ( SRO1D .EQ. 'JPL06-2' ) ) THEN
+      IF ( ( SRO1D .EQ. 'IUPAC10' ) .OR. ( SRO1D .EQ. 'IUPAC04' ) 
+     &                 .OR. ( SRO1D .EQ. 'JPL06-2' ) .OR. SRO1D .EQ. 'NASA06' ) THEN
 
         DO ILEV = 1, NLEVS   ! level loop
           jTEMP = MIN( 320.0, MAX( 200.0, ZT( ILEV ) ) )

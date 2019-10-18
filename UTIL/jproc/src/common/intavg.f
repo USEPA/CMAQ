@@ -41,8 +41,6 @@ C                        beginning, and ending data
 C
 C*********************************************************************
 
-      USE M3UTILIO
-
       IMPLICIT NONE      
       
       INCLUDE 'JVALPARMS.EXT'         ! jproc parameters
@@ -208,8 +206,9 @@ C...stop program if wavelength data type not found
 
         ELSE
 
-          MSG = 'Unrecognized spectra type in ' // TRIM( PNAME )
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+          MSG = 'Unrecognized spectra type in CSQY file '
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
 
         END IF
 
