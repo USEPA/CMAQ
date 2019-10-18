@@ -787,6 +787,17 @@
 
           cio_emis_nlays = maxval(cio_emis_file_layer)
 
+          ! If there are 3D (inline point or Lightning) sources, 
+          ! revise the top to be the model top.
+          IF ( NPTGRPS .GT. 0 .OR. LTNG_NO ) cio_emis_nlays = NLAYS
+
+          ! Make sure the top is not greater than the model top
+          cio_emis_nlays = MAX( MIN( cio_emis_nlays, NLAYS ), 1 )
+
+          WRITE( LOGDEV,1009 ) cio_emis_nlays, NLAYS
+1009      FORMAT(    5X, 'Number of Emissions Layers:         ', I3
+     &            /  5X, 'out of total Number of Model Layers:', I3 )
+
 ! lightning file
           n_l2d = 0
           if (cio_LTNG_NO) then
