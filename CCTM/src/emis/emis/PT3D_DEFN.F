@@ -62,6 +62,7 @@ C     01 Feb 2019 D.Wong: Implemented centralized I/O approach and removed every
 C                         related to ZSTATIC
 C     05 June 2019 F. Sidi: Bugfix related to Parallel I/O Implementation
 C     05 Aug  2019 D. Wong: Removed USE BMATVEC_MODULE statement and PTBILIIN
+C     19 Sep  2019 D. Wong: Fixed the way to advance to next day on an emission file, EM_FILE_DATE
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: RARRY1
@@ -581,6 +582,7 @@ C=======================================================================
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
          INTEGER       :: NDATE, NTIME
+         INTEGER, ALLOCATABLE, SAVE :: PRE_EM_FILE_DATE(:)
          
 #ifdef Verbose1
          real mxzplm
@@ -615,6 +617,8 @@ C-----------------------------------------------------------------------
                END IF
 #endif
             END IF
+            ALLOCATE (PRE_EM_FILE_DATE(SIZE(EM_FILE_DATE)), STAT=IOS)
+            PRE_EM_FILE_DATE = STDATE
          END IF
 
 C Based on the current time step, find whether or not a report should be written
@@ -675,10 +679,11 @@ C Initialize Output Array
          END IF
 
 C Ensure that the model and stack groups emissions timestamp dates stay synchronized
-         IF ( STDATE .NE. JDATE ) THEN
+         IF ( PRE_EM_FILE_DATE(ISRM) .NE. JDATE ) THEN
             NDATE = JDATE; NTIME = JTIME
             CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
             CALL NEXTIME( EM_FILE_DATE( ISRM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
+            PRE_EM_FILE_DATE(ISRM) = JDATE
          END IF
 
 C Allocate Array to Store the Layer Heights of All Stacks (i.e. sources)
