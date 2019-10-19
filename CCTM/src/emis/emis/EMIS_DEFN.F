@@ -592,7 +592,7 @@ C Retrieve Emissions from All Stream Types
          ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
          
          ! Write Out the Sum of All Emissions to Gridded Diagnostic File
-         IF ( EM_SUM_LDIAG .NE. 'FALSE' .AND. WRTIME ) 
+         IF ( EM_FILE_LDIAG( N_EM_SRM+1 ) .NE. 'FALSE' .AND. WRTIME ) 
      &         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_DIFF, N_EM_SRM+1, EMLAYS )
 
          END IF
@@ -1058,7 +1058,7 @@ C-----------------------------------------------------------------------
       DO IVAR = 1,N_SPC_DIFF
             ! Skip Writing this species if this source did not
             ! contribute to it
-            IF ( ISRM .LT. (N_EM_SRM+1) ) 
+            IF ( ISRM .LT. (N_EM_SRM+1) ) THEN
               IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
             ELSE
               IF ( .NOT. ANY(EM_FILE_DIFF( IVAR,: )) ) CYCLE
@@ -1117,7 +1117,7 @@ C-----------------------------------------------------------------------
          INTEGER    :: STRT, PTSTRT, ISPC, IDX, IX, ISUR, IRULE,
      &                 N, IM, IAERO, V, ISRM, NSPC, IA, IDIFF, JDX, JM,
      &                 ISTR, ISUR0, ISRM0, IEM, KDX, JSD, JEM, ISD,
-     &                 IFAC, IRGN, ISTRN, NFAC
+     &                 IFAC, IRGN, ISTRN, NFAC, NCHEM, ICHEM, IFAM
          REAL       :: AERO_SPLIT, UNIT_FAC_1, UNIT_FAC_2, SURR_MW, 
      &                 SPEC_MW, BASIS_FAC
 
@@ -1138,6 +1138,8 @@ C-----------------------------------------------------------------------
          LOGICAL, ALLOCATABLE, SAVE :: EM_STREAM_RULE( : ), EM_SPEC_RULE( : )
          TYPE( LARRY1 ), ALLOCATABLE, SAVE :: EM_SURR_RULE( : ), EM_PHASE_RULE( : )
          INTEGER, PARAMETER :: N_SCALEFAC = 100
+         LOGICAL            :: LSPEC_KEY( NISTR0 )
+         CHARACTER( 16 )    :: CHEM_NAME( 100 )
         
          INTEGER            :: IC, N_COMMANDS
          INTEGER, PARAMETER :: NCOMM0 = 4000000
@@ -1427,43 +1429,54 @@ C and allowing the model to proceed.
 
             ! Initialize CMAQ Species Array
             EM_SPEC_RULE = .FALSE.
+            LSPEC_KEY = .FALSE.
 
-            MDX = INDEX( EM_NML( IRULE )%SPEC, NCHEMFAMILIES, CHEMFAMILYNAME )
-            IF ( MDX .GT. 0 ) THEN
-               ! Expand the Rule to Apply to Species Indicated by this
-               ! Keyword
-                EM_SPEC_RULE = EM_CHEM_KEYWORD( MDX,: )
-                LSPEC_KEYWORD = .TRUE.
-            ELSE
-
-
-               ! Find the Specific Species this Rule Identifies
-               IDX = INDEX1( EM_NML( IRULE )%SPEC, N_SPC_DIFF, DIFF_SPC )
-               JDX = INDEX1( EM_NML( IRULE )%SPEC, N_AEROSPC,  AEROSPC( : )%BULKNAME )
-               IF ( IDX .NE. 0 ) THEN
-                 EM_SPEC_RULE( IDX ) = .TRUE.
-               ELSE IF ( JDX .NE. 0 ) THEN
-                  ! This is an aerosol species, and it is being
-                  ! identified with a bulk name (no mode suffix). 
-                  ! We need to allow for all possible DIFF_SPC with
-                  ! all used suffixes
-                  SN = EM_NML( IRULE )%SPEC
-                  DO IM = 1,N_MODE
-                    KDX = INDEX1( TRIM( SN )//MODESUFF( IM ), N_SPC_DIFF, DIFF_SPC )
-                    IF ( KDX .NE. 0 ) EM_SPEC_RULE( KDX ) = .TRUE.
-                  END DO
+            IF ( EM_NML( IRULE )%SPEC .EQ. 'ALL' ) THEN
+               ! Expand the Rule to Apply to All Species
+               EM_SPEC_RULE = .TRUE.
+               LSPEC_KEY( IRULE ) = .TRUE.
+            ELSE     
+               ! Determine if the SPecies Label Refers to A Family and if So, 
+               ! Apply the Rule to all members of that Family
+               IFAM = INDEX1( EM_NML( IRULE )%SPEC, NChemFamilies, ChemFamilyName )
+               IF ( IFAM .EQ. 0 ) THEN
+                  NCHEM = 1
+                  CHEM_NAME(1) = EM_NML( IRULE )%SPEC
                ELSE
-                 WRITE( LOGDEV, * )
-                 WRITE( LOGDEV, '(3A,/,A,/,A,/,A,/,A)' ),
+                  NCHEM = ChemFamilyNum( IFAM )
+                  CHEM_NAME(1:NCHEM) = ChemFamilyMembers( IFAM,1:NCHEM )
+                  LSPEC_KEY( IRULE ) = .TRUE.
+               END IF
+
+               DO ICHEM = 1,NCHEM
+                 ! Find the Specific Species this Rule Identifies
+                 IDX = INDEX1( CHEM_NAME( ICHEM ), N_SPC_DIFF, DIFF_SPC )
+                 JDX = INDEX1( CHEM_NAME( ICHEM ), N_AEROSPC,  AEROSPC( : )%BULKNAME )
+                 IF ( IDX .NE. 0 ) THEN
+                   EM_SPEC_RULE( IDX ) = .TRUE.
+                 ELSE IF ( JDX .NE. 0 ) THEN
+                   ! This is an aerosol species, and it is being
+                   ! identified with a bulk name (no mode suffix). 
+                   ! We need to allow for all possible DIFF_SPC with
+                   ! all used suffixes
+                   SN = CHEM_NAME( ICHEM )
+                   DO IM = 1,N_MODE
+                     KDX = INDEX1( TRIM( SN )//MODESUFF( IM ), N_SPC_DIFF, DIFF_SPC )
+                     IF ( KDX .NE. 0 ) EM_SPEC_RULE( KDX ) = .TRUE.
+                   END DO
+                 ELSE
+                   WRITE( LOGDEV, * )
+                   WRITE( LOGDEV, '(3A,/,A,/,A,/,A,/,A)' ),
      &               'Species ',TRIM(EM_NML( IRULE )%SPEC),' was used in the Emissions',
      &               ' Control Instructions Namelist but it is not a valid CMAQ ',
-     &               'transported species. Please add it to one of the ',
+     &               'transported speciesi or family. Please add it to one of the ',
      &               'input chemical namelists (ie. GC, AE, etc). Note that aerosol',
      &               'Number and Surface Area Species are not valid for scaling.'
-                 XMSG = 'Error in Emissions Map Processing.'
-                 CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-            END IF 
+                   XMSG = 'Error in Emissions Map Processing.'
+                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+                 END IF
+               END DO
+           END IF 
  
             !------   ------   ------   ------   ------   ------
             ! Now Error Check and Expand the Phase Field
@@ -1596,7 +1609,8 @@ C and allowing the model to proceed.
                     ! exact matches or existing relationships should be
                     ! populated.
                     IF ( (EM_NML( IRULE )%SURR .EQ. 'ALL' .OR. 
-     &                    EM_NML( IRULE )%SPEC .EQ. 'ALL' .OR.
+   !  &                    EM_NML( IRULE )%SPEC .EQ. 'ALL' .OR.
+     &                    LSPEC_KEY( IRULE ) .EQ. .TRUE.  .OR.
      &                    EM_NML( IRULE )%PHASE.EQ. 'ALL' .OR.
      &                    EM_NML( IRULE )%PHASE.EQ. 'AERO'     ) .AND.
      &                   (EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 
