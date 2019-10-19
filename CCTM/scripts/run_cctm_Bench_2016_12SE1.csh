@@ -179,6 +179,7 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
+setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
 
 setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
                              #>   rather than checking the emissions date against the internal model date.

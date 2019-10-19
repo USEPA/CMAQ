@@ -3419,7 +3419,7 @@ C   mminlu and num_land_cat are WRF global variables
       CHARACTER( 32 )    :: FILENAMES( NFILE0 ) = ''
       CHARACTER( 32 ) :: VNAME
 
-      INTEGER :: IRGN, NFILE, IDX, IFILE, IREAD, IVAR
+      INTEGER :: IRGN, NFILE, IDX, IFILE, IREAD, IVAR, IFAM, JRGN
       INTEGER :: GXOFF, GYOFF, ENDCOL, ENDROW, STARTCOL, STARTROW
       INTEGER :: N_EM_READ
       CHARACTER( 16 )    :: PNAME = "INIT_REGIONS"
@@ -3565,19 +3565,18 @@ C   mminlu and num_land_cat are WRF global variables
         END DO ! IFILE
  
         ! Augment Emission Region Structure with Region Families
-        N_BASE_REGIONS = N_EM_RGN
-        DO IFAM = 1:NRegionFamilies
+        DO IFAM = 1,NRegionFamilies
            N_EM_RGN = N_EM_RGN + 1
            CALL UPCASE( RegionFamilyName( IFAM ) )
            EM_REGIONS( N_EM_RGN )%LABEL   = RegionFamilyName( IFAM )
            EM_REGIONS( N_EM_RGN )%VAR     = 'Family'
            EM_REGIONS( N_EM_RGN )%FILE    = 'Family'
-           EM_REGIONS( N_EM_RGN )%FILENUM = 'Family'
+           EM_REGIONS( N_EM_RGN )%FILENUM = 0
 
-           DO IRGN = 1:RegionFamilyNum
-              CALL UPCASE( RegionFamilyMember( IRGN ) )
-              JRGN = INDEX( RegionFamilyMember( IRGN ), 
-     &                      EM_REGIONS( 1:N_BASE_REGIONS )%VAR )
+           DO IRGN = 1,RegionFamilyNum( IFAM )
+              CALL UPCASE( RegionFamilyMembers( IFAM,IRGN ) )
+              JRGN = INDEX1( RegionFamilyMembers( IFAM,IRGN ), N_EM_RGN-1,
+     &                      EM_REGIONS( 1:(N_EM_RGN-1) )%VAR )
               IF ( JRGN .GT. 0 ) 
      &             EM_REG_FAC( :,:,N_EM_RGN ) = 
      &                EM_REG_FAC( :,:,N_EM_RGN ) + 
@@ -3652,7 +3651,7 @@ C   mminlu and num_land_cat are WRF global variables
          ALLOCATE( REGIONFAMILYNAME( N_REGION_FAMILY_REG ),
      &             REGIONFAMILYNUM( N_REGION_FAMILY_REG ),
      &             REGIONFAMILYMEMBERS( N_REGION_FAMILY_REG,N_REGION_MEMBER_REG ) )
-         NREGFAMILIES = 0
+         NREGIONFAMILIES = 0
          REGIONFAMILYNAME    = ''
          REGIONFAMILYNUM     = 0
          REGIONFAMILYMEMBERS = ''

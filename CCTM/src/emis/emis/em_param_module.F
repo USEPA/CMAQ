@@ -82,6 +82,7 @@
 
             ! Define Chemical Family Variables
             INTEGER, PARAMETER          :: N_CHEM_FAMILY_REG = 50
+            INTEGER, PARAMETER          :: N_CHEM_MEMBER_REG = 100
             INTEGER                     :: NCHEMFAMILIES
             CHARACTER( 32 ),ALLOCATABLE :: CHEMFAMILYNAME( : )
             INTEGER, ALLOCATABLE        :: CHEMFAMILYNUM( : )
@@ -89,6 +90,7 @@
 
             ! Define Stream Family Variables
             INTEGER, PARAMETER          :: N_STREAM_FAMILY_REG = 50
+            INTEGER, PARAMETER          :: N_STREAM_MEMBER_REG = 100
             INTEGER                     :: NSTREAMFAMILIES
             CHARACTER( 32 ),ALLOCATABLE :: STREAMFAMILYNAME( : )
             INTEGER, ALLOCATABLE        :: STREAMFAMILYNUM( : )
@@ -96,6 +98,7 @@
 
             ! Define Region Family Variables
             INTEGER, PARAMETER          :: N_REGION_FAMILY_REG = 50
+            INTEGER, PARAMETER          :: N_REGION_MEMBER_REG = 100
             INTEGER                     :: NREGIONFAMILIES
             CHARACTER( 32 ),ALLOCATABLE :: REGIONFAMILYNAME( : )
             INTEGER, ALLOCATABLE        :: REGIONFAMILYNUM( : )
