@@ -818,11 +818,11 @@ C...   = Initial amount - amount deposited  (mol/liter)
 !       K       = LOADING( LK,    COR ) - WETDEP( LKL  ) * XC1
 !       FE      = LOADING( LA3FE, COR ) - WETDEP( LFEL ) * XC1
 !       MN      = LOADING( LB2MN, COR ) - WETDEP( LMNL ) * XC1
-        CA      = LOADING( LCAACC, ACC) - WETDEP( LCAACCL ) * XC1 + CACOR
-        MG      = LOADING( LMGACC, ACC) - WETDEP( LMGACCL ) * XC1 + MGCOR
-        K       = LOADING( LKACC,  ACC) - WETDEP( LKACCL  ) * XC1 + KCOR
-        FE      = LOADING( LFEACC, ACC) - WETDEP( LFEACCL ) * XC1 + FECOR
-        MN      = LOADING( LMNACC, ACC) - WETDEP( LMNACCL ) * XC1 + MNCOR
+        CA      = LOADING( LCAACC, ACC) + LOADING( LCAACC, AKN) - WETDEP( LCAACCL ) * XC1 + CACOR
+        MG      = LOADING( LMGACC, ACC) + LOADING( LMGACC, AKN) - WETDEP( LMGACCL ) * XC1 + MGCOR
+        K       = LOADING( LKACC,  ACC) + LOADING( LKACC,  AKN) - WETDEP( LKACCL  ) * XC1 + KCOR
+        FE      = LOADING( LFEACC, ACC) + LOADING( LFEACC, AKN) - WETDEP( LFEACCL ) * XC1 + FECOR
+        MN      = LOADING( LMNACC, ACC) + LOADING( LMNACC, AKN) - WETDEP( LMNACCL ) * XC1 + MNCOR
         SOA     = LOADING( LSOA,  ACC ) - WETDEP( LSOAL  ) * XC1
         ORGC    = LOADING( LORGC, ACC ) + DORGC - WETDEP( LORGCL ) * XC1             ! new in-cloud organic
         POA     = LOADING( LPOA,  ACC ) + LOADING( LPOA, AKN ) - WETDEP( LPOAL ) * XC1
@@ -1587,6 +1587,12 @@ C...  to the accumulation mode particles
 !     AERWDEP( LB2MN,  COR ) = WETDEP( LMNCORL )
 !     AERWDEP( LCACO3, COR ) = WETDEP( LCACORL )
 !     AERWDEP( LMGCO3, COR ) = WETDEP( LMGCORL )
+
+      AERWDEP( LCAACC, AKN  ) = 0.0D0
+      AERWDEP( LMGACC, AKN  ) = 0.0D0
+      AERWDEP( LKACC, AKN  ) = 0.0D0
+      AERWDEP( LFEACC, AKN  ) = 0.0D0
+      AERWDEP( LMNACC, AKN  ) = 0.0D0
 
       AERWDEP( LCAACC, ACC ) = WETDEP( LCAACCL )  ! AE6 - SLN 16March2011
       AERWDEP( LMGACC, ACC ) = WETDEP( LMGACCL )  ! AE6 - SLN 16March2011
