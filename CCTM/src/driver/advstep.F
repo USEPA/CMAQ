@@ -260,16 +260,6 @@ C Get the time of starting wind field: do not interpolate
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
  
-         UWIND = 0.0
-         VWIND = 0.0
-         HDIV  = 0.0
-         WIND_IDX     = 0.0
-         MX_HDIV      = 0.0
-         WIND_IDX_BEG = 0.0
-         WIND_IDX_END = 0.0
-         MX_HDIV_END  = 0.0
-         MX_HDIV_BEG  = 0.0
-         
          IF ( .NOT. COLUMN_MODEL ) THEN
 
             CALL HVELOC( FDATE, FTIME, WSTEP, UWIND, VWIND, HDIV )
@@ -288,6 +278,18 @@ C Get the time of starting wind field: do not interpolate
                WIND_IDX_BEG( L ) = SUBST_GLOBAL_MAX( WIND_IDX_BEG( L ) )
                MX_HDIV_BEG( L )  = SUBST_GLOBAL_MAX( MX_HDIV_BEG( L ) )
             END DO
+
+         ELSE
+
+            UWIND = 0.0
+            VWIND = 0.0
+            HDIV  = 0.0
+            WIND_IDX     = 0.0
+            MX_HDIV      = 0.0
+            WIND_IDX_BEG = 0.0
+            WIND_IDX_END = 0.0
+            MX_HDIV_END  = 0.0
+            MX_HDIV_BEG  = 0.0
 
          END IF
       END IF   ! FIRSTIME
