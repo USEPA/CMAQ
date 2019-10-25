@@ -59,6 +59,8 @@
 !C  12 Mar 2019 D. Wong: Implemented centralized I/O approach to the twoway portion of the code
 !C                       and fixed a bug to handle the output time step is less than 1 hour
 !C                       scenario properly
+!C  03 Sep 2019 D. Kang: fixed a bug that was introduced two years ago for generating 
+!C                       diagnotic 3D lightning emissions.
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -672,9 +674,7 @@ C statement function for ERF approximation
 
 !C Write lightning NO to the diagnostic file
             IF ( LTNGDIAG ) THEN 
-               DO LAY = 1,LTLYRS
-                  VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
-               END DO
+               VDEMIS_DIAG = VDEMIS_DIAG + VDEMIS_LT   ! array assignment
                COLUMN_DIAG = COLUMN_DIAG + COLUMN_LTNG_NO
                IF ( LASTTIC ) THEN   ! time to write out
                   DIVFAC = 1.0 / REAL( MTICS, 4 )
