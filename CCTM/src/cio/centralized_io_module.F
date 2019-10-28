@@ -56,6 +56,8 @@
 !  09/10/19, D. Wong:- Extended to handle BC file with non 1-hr time step
 !  09/19/19, D. Wong:- Used the start simulation time to pick up the very first emission 
 !                      data point rather than the start time in the emission file
+!  09/20/19, D. Wong:- Extended the capability to handle 3D emission files with various
+!                      number of layers less than of equal to the model number of layers
 !  10/04/19, D. Wong:- fixed the time advancement, NEXTIME, for a multi-day run
 !------------------------------------------------------------------------!
 
@@ -166,7 +168,8 @@
         character (16), allocatable :: cio_emis_file_name(:),
      &                                 cio_emis_var_name(:,:)
         integer, allocatable :: cio_emis_nvars(:)
-        integer, allocatable :: cio_emis_file_date(:)
+        integer, allocatable :: cio_emis_file_date(:), cio_emis_file_layer(:)
+        integer              :: cio_emis_nlays                     ! max value among cio_emis_file_layer
 
 ! - stack emission data
         real, allocatable    :: cio_stack_data(:)
@@ -247,7 +250,8 @@
 
         integer, private :: count = 0
         integer, private :: cio_logdev, 
-     &                              size_s2d,    ! stanad 2d cro file size (in twoway model, size_s2d not equal to size_c2d
+     &                              size_s2d,    ! standard 2d cro file size (in twoway model, size_s2d not equal to size_c2d
+     &                              size_s3d,    ! standard 3d file size
      &                      n_c2d,  size_c2d,    ! cro 2d file info: # of variables and a variable size
      &                              size_c2dx,   ! extended cro 2d variable size
      &                              size_d2d,    ! a 2d dot variable size
@@ -756,6 +760,7 @@
 
 ! setup gridded emission file
           end = 0
+          allocate (cio_emis_file_layer(N_FILE_GR), stat=stat)
           do n = 1, N_FILE_GR
              WRITE (fname, '(a8, i3.3)') "GR_EMIS_", n
              IF ( .NOT. DESC3( fname ) ) THEN
@@ -777,8 +782,21 @@
                 emis_name(begin:end, 2) = 'e3d'        ! E denote emission 3d variable
              end if
              emis_name(begin:end, 3) = ' '             ! denote non met variable
-
+             cio_emis_file_layer(n) = nlays3d
           end do
+
+          cio_emis_nlays = maxval(cio_emis_file_layer)
+
+          ! If there are 3D (inline point or Lightning) sources, 
+          ! revise the top to be the model top.
+          IF ( NPTGRPS .GT. 0 .OR. LTNG_NO ) cio_emis_nlays = NLAYS
+
+          ! Make sure the top is not greater than the model top
+          cio_emis_nlays = MAX( MIN( cio_emis_nlays, NLAYS ), 1 )
+
+          WRITE( LOGDEV,1009 ) cio_emis_nlays, NLAYS
+1009      FORMAT(    5X, 'Number of Emissions Layers:         ', I3
+     &            /  5X, 'out of total Number of Model Layers:', I3 )
 
 ! lightning file
           n_l2d = 0
@@ -833,7 +851,8 @@
              size_c3d = size_c2dx * nlays
           end if
 
-          size_e3d = size_s2d * nlays
+          size_e3d = size_s2d * cio_emis_nlays
+          size_s3d = size_s2d * nlays
 
           size_lt = size_s2d * cio_LTLYRS
 
@@ -846,8 +865,8 @@
      &                            + size_c2d  * 3 * n_e2d               ! 2d emis data
      &                            + size_c3d  * 3 * n_c3d                ! 3D met data
      &                            + size_e3d  * 3 * n_e3d                ! 3d emis data 
-     &                            + size_e3d  * 3 * n_i3d                ! 3d initial condition data 
-     &                            + size_e3d  * 3 * n_is3d               ! 3d ISAM initial condition data 
+     &                            + size_s3d  * 3 * n_i3d                ! 3d initial condition data 
+     &                            + size_s3d  * 3 * n_is3d               ! 3d ISAM initial condition data 
      &                            + size_d3dx * 3 * n_d3d                ! 3d dot data
      &                            + size_lt   * 3 * n_l2d),              ! lightning data
      &              stat = stat)
@@ -915,10 +934,11 @@
                 d_size = size_s2d
              else if (cio_grid_var_name(v,2) .eq. 'mc3') then
                 d_size = size_c3d
-             else if ((cio_grid_var_name(v,2) .eq. 'e3d') .or.
-     &                (cio_grid_var_name(v,2) .eq. 'ic') .or.
-     &                (cio_grid_var_name(v,2) .eq. 'is')) then
+             else if (cio_grid_var_name(v,2) .eq. 'e3d') then
                 d_size = size_e3d
+             else if ((cio_grid_var_name(v,2) .eq. 'ic') .or.
+     &                (cio_grid_var_name(v,2) .eq. 'is')) then
+                d_size = size_s3d
              else if (cio_grid_var_name(v,2) .eq. 'md3') then
                 d_size = size_d3dx
              else if ((cio_grid_var_name(v,2) .eq. 'lnt') .or.
@@ -2441,7 +2461,7 @@ C Read the various categories of normalized emissions
                    cio_grid_data_tstamp(1, buf_loc, v) = loc_emis_jdate
 
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
-     &                                 1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                 1, cio_emis_file_layer(fnum), STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                                 loc_emis_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
