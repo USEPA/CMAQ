@@ -36,9 +36,6 @@
       INTEGER S,V,K
       INTEGER JSPCTAG
       INTEGER IBGN
-      INTEGER VNO, VNO2, VNO3, VN2O5, VHONO, VPNA
-      INTEGER VNH3, VHNO3
-      INTEGER KNH3, KHNO3
       REAL    TOTAL_OLD, TOTAL_NEW
       CHARACTER( 16 ) :: PRECUR
       REAL, ALLOCATABLE, SAVE :: TTLB4( :,:,:,: )
@@ -61,36 +58,33 @@
       REAL, PARAMETER :: MWNH4 = 18.03858
       REAL, PARAMETER :: MWHNO3 = 63.01287
       REAL, PARAMETER :: MWNO3 = 62.0049
+      REAL, PARAMETER :: MWCL  = 35.453
       REAL, PARAMETER :: MWSO4 = 96.0576
 
 ! ppm2mole conversion
       REAL ppm2mole( NCOLS,NROWS,NLAYS )
 
-! ISAM species indices
+! Identify ISAM species indices 20130529
       INTEGER, SAVE :: JNH3, JNH4I, JNH4J, JHNO3, JNO3I, JNO3J
+      INTEGER, SAVE :: JHCL, JCLI , JCLJ
       INTEGER, SAVE :: JSULF, JSO4I, JSO4J, JSRXN
 
       INTEGER :: ISA1, ISA2, ICG1, ICG2, IAER, IM, INDX
 
       INTEGER, SAVE :: CNH3, CNH4I, CNH4J, CHNO3, CNO3I, CNO3J
+      INTEGER, SAVE :: CHCL, CCLI,  CCLJ
 
-      INTEGER, SAVE :: CACLI, CACLJ, CANAI, CANAJ, CAMGJ, CAKJ, CACAJ 
-      INTEGER, SAVE :: CAFEJ, CAALJ, CASIJ, CATIJ, CAMNJ, CAOTHRI, CAOTHRJ
-      INTEGER, SAVE :: JACLI, JACLJ, JANAI, JANAJ, JAMGJ, JAKJ, JACAJ
-      INTEGER, SAVE :: JAFEJ, JAALJ, JASIJ, JATIJ, JAMNJ, JAOTHRI, JAOTHRJ
-
-      INTEGER, SAVE :: PM25_IONS_CGRID_MAP( 14 )
-      INTEGER, SAVE :: PM25_IONS_ISAM_MAP( 14 )  
-      INTEGER :: CGRID_IDX, ISAM_IDX
 
 ! Arrays for combined ammonium, combined nitrates, and combined sulfates
       REAL, ALLOCATABLE, SAVE :: AMMONIA_TAG (:,:,:)
       REAL, ALLOCATABLE, SAVE :: NITRATE_TAG (:,:,:)
+      REAL, ALLOCATABLE, SAVE :: CHLORINE_TAG(:,:,:)
       REAL, ALLOCATABLE, SAVE :: SULFATE_TAG (:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTAER_TAG (:,:,:)
 
       REAL, ALLOCATABLE, SAVE :: TOTNH3(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTNO3(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: TOTCL (:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTSO4(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTAER(:,:,:)
       REAL, ALLOCATABLE, SAVE :: FRAC1(:,:,:)
@@ -105,15 +99,13 @@
 ! Logicals for determining presence of inorganic ions
       LOGICAL, SAVE :: LAE_NH4 
       LOGICAL, SAVE :: LAE_NO3 
+      LOGICAL, SAVE :: LAE_CL 
       LOGICAL, SAVE :: LAE_SO4 
      
       REAL, PARAMETER :: MIN_VAL = 1.0E-25
       REAL, SAVE :: MIN_TAGTOT 
 
       INTEGER ALLOCSTAT
-
-
-      INTEGER COL,ROW,LAY, SPC
 !-------------------------------------------------------------------
 
 
@@ -124,6 +116,7 @@ Ckrt Identify species index in ISAM array
 
         LAE_NH4 = .FALSE.
         LAE_NO3 = .FALSE.
+        LAE_CL  = .FALSE.
         LAE_SO4 = .FALSE.
 
         JNH3  = INDEX1( 'NH3', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
@@ -145,72 +138,23 @@ Ckrt Identify species index in ISAM array
           CNO3I = SPC_INDEX( JNO3I,2 )
           CNO3J = SPC_INDEX( JNO3J,2 )
         END IF
-
+ 
+        JHCL = INDEX1( 'HCL',  NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        JCLI = INDEX1( 'ACLI', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        JCLJ = INDEX1( 'ACLJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        IF ( JHCL .GT. 0 .AND. JCLI .GT. 0 .AND. JCLJ .GT. 0 ) THEN
+          LAE_CL = .TRUE.
+          CHCL = SPC_INDEX( JHCL,2 )
+          CCLI = SPC_INDEX( JCLI,2 )
+          CCLJ = SPC_INDEX( JCLJ,2 )
+        END IF
+ 
         JSULF = INDEX1( 'SULF', NSPC_SA, SPC_NAME( :,OTHRTAG ) )  
         JSO4I = INDEX1( 'ASO4I', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
         JSO4J = INDEX1( 'ASO4J', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
         JSRXN = INDEX1( 'SULRXN', NSPC_SA, SPC_NAME( :,OTHRTAG ) )  
         IF ( JSULF .GT. 0 .AND. JSO4I .GT. 0 .AND. JSO4J .GT. 0 
      &       .AND. JSRXN .GT. 0 ) LAE_SO4 = .TRUE.
-
-        IF ( L_PM25 )  THEN ! L_PM25 defined in SA_DEFN.F
-          JACLI   = INDEX1( 'ACLI', NSPC_SA, SPC_NAME( :,OTHRTAG ) ) 
-          JACLJ   = INDEX1( 'ACLJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JANAI   = INDEX1( 'ANAI', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JANAJ   = INDEX1( 'ANAJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JAMGJ   = INDEX1( 'AMGJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JAKJ    = INDEX1( 'AKJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JACAJ   = INDEX1( 'ACAJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JAFEJ   = INDEX1( 'AFEJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JAALJ   = INDEX1( 'AALJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JASIJ   = INDEX1( 'ASIJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JATIJ   = INDEX1( 'ATIJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JAMNJ   = INDEX1( 'AMNJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JAOTHRI = INDEX1( 'AOTHRI', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          JAOTHRJ = INDEX1( 'AOTHRJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
-          PM25_IONS_ISAM_MAP(1)  = JACLI
-          PM25_IONS_ISAM_MAP(2)  = JACLJ
-          PM25_IONS_ISAM_MAP(3)  = JANAI
-          PM25_IONS_ISAM_MAP(4)  = JANAJ
-          PM25_IONS_ISAM_MAP(5)  = JAMGJ
-          PM25_IONS_ISAM_MAP(6)  = JAKJ
-          PM25_IONS_ISAM_MAP(7)  = JACAJ
-          PM25_IONS_ISAM_MAP(8)  = JAFEJ
-          PM25_IONS_ISAM_MAP(9)  = JAALJ
-          PM25_IONS_ISAM_MAP(10) = JASIJ
-          PM25_IONS_ISAM_MAP(11) = JATIJ
-          PM25_IONS_ISAM_MAP(12) = JAMNJ
-          PM25_IONS_ISAM_MAP(13) = JAOTHRI
-          PM25_IONS_ISAM_MAP(14) = JAOTHRJ
-          CACLI   = SPC_INDEX( JACLI,2 ) 
-          CACLJ   = SPC_INDEX( JACLJ,2 )
-          CANAI   = SPC_INDEX( JANAI,2 )
-          CANAJ   = SPC_INDEX( JANAJ,2 )
-          CAMGJ   = SPC_INDEX( JAMGJ,2 )
-          CAKJ    = SPC_INDEX( JAKJ,2 )
-          CACAJ   = SPC_INDEX( JACAJ,2 )
-          CAFEJ   = SPC_INDEX( JAFEJ,2 )
-          CAALJ   = SPC_INDEX( JAALJ,2 )
-          CASIJ   = SPC_INDEX( JASIJ,2 )
-          CATIJ   = SPC_INDEX( JATIJ,2 )
-          CAMNJ   = SPC_INDEX( JAMNJ,2 )
-          CAOTHRI = SPC_INDEX( JAOTHRI,2 )
-          CAOTHRJ = SPC_INDEX( JAOTHRJ,2 )
-          PM25_IONS_CGRID_MAP(1)  = CACLI
-          PM25_IONS_CGRID_MAP(2)  = CACLJ
-          PM25_IONS_CGRID_MAP(3)  = CANAI
-          PM25_IONS_CGRID_MAP(4)  = CANAJ
-          PM25_IONS_CGRID_MAP(5)  = CAMGJ
-          PM25_IONS_CGRID_MAP(6)  = CAKJ
-          PM25_IONS_CGRID_MAP(7)  = CACAJ
-          PM25_IONS_CGRID_MAP(8)  = CAFEJ
-          PM25_IONS_CGRID_MAP(9)  = CAALJ
-          PM25_IONS_CGRID_MAP(10) = CASIJ
-          PM25_IONS_CGRID_MAP(11) = CATIJ
-          PM25_IONS_CGRID_MAP(12) = CAMNJ
-          PM25_IONS_CGRID_MAP(13) = CAOTHRI
-          PM25_IONS_CGRID_MAP(14) = CAOTHRJ
-        END IF
 
         ! Map Aerosol Modes and Names to Source Apportionment Species
         ALLOCATE( MAP_AEROtoSA( N_AEROSPC, N_MODE ), STAT = ALLOCSTAT )
@@ -247,9 +191,10 @@ Ckrt Identify species index in ISAM array
         END IF
 
         ALLOCATE( AMMONIA_TAG( NCOLS,NROWS,NLAYS ),
-     &     NITRATE_TAG( NCOLS,NROWS,NLAYS ),
-     &     SULFATE_TAG( NCOLS,NROWS,NLAYS ),
-     &     TOTAER_TAG( NCOLS,NROWS,NLAYS ),
+     &     NITRATE_TAG ( NCOLS,NROWS,NLAYS ),
+     &     CHLORINE_TAG( NCOLS,NROWS,NLAYS ),
+     &     SULFATE_TAG ( NCOLS,NROWS,NLAYS ),
+     &     TOTAER_TAG  ( NCOLS,NROWS,NLAYS ),
      &     STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating AMMONIA_TAG, NITRATE_TAG, '
@@ -259,6 +204,7 @@ Ckrt Identify species index in ISAM array
 
         ALLOCATE( TOTNH3( NCOLS,NROWS,NLAYS ),
      &     TOTNO3( NCOLS,NROWS,NLAYS ),
+     &     TOTCL ( NCOLS,NROWS,NLAYS ),
      &     TOTSO4( NCOLS,NROWS,NLAYS ),
      &     TOTAER( NCOLS,NROWS,NLAYS ),
      &     FRAC1( NCOLS,NROWS,NLAYS ),
@@ -293,16 +239,17 @@ Ckrt Identify species index in ISAM array
       ppm2mole( :,:,: ) = MAX( DENS( :,:,: ) * 1000. / MWAIR, 1e-10 )
       
       ! Create 1D array of combined ammonium tags and combined nitrate tags
-      AMMONIA_TAG = 0.0
-      NITRATE_TAG = 0.0
-      SULFATE_TAG = 0.0
+      AMMONIA_TAG  = 0.0
+      NITRATE_TAG  = 0.0
+      CHLORINE_TAG = 0.0
+      SULFATE_TAG  = 0.0
 
       ! Sum up pre-process tags for each species at each grid cell
 c     ISAM = MAX( ISAM, MIN_VAL )
       CGRID0 = MAX( CGRID0, MIN_TAGTOT )
       ISAM0(:,:,:,:,:) = ISAM(:,:,:,:,:)
       ISAM1(:,:,:,:,:) = ISAM(:,:,:,:,:)
-      TTLB4( :,:,:,: ) = MAX( SUM( ISAM( :,:,:,:,: ),5 ), MIN_VAL )
+      TTLB4( :,:,:,: ) = SUM( ISAM( :,:,:,:,: ),5 )
 
       CCOND = MAX( CGRID0 + AERO_COND, MIN_TAGTOT )
 
@@ -320,7 +267,8 @@ c     ISAM = MAX( ISAM, MIN_VAL )
         CCOND( :,:,:,CNH3 )  = CCOND( :,:,:,CNH3 ) * ppm2mole ! umol / m3
         CCOND( :,:,:,CNH4I ) = CCOND( :,:,:,CNH4I ) / MWNH4   ! umol / m3
         CCOND( :,:,:,CNH4J ) = CCOND( :,:,:,CNH4J ) / MWNH4   ! umol / m3
-        TOTNH3 = CCOND( :,:,:,CNH3 ) + CCOND( :,:,:,CNH4I ) + CCOND( :,:,:,CNH4J )
+        TOTNH3 = TTLB4( :,:,:,JNH3 ) * ppm2mole + TTLB4( :,:,:,JNH4I ) / MWNH4 
+     &          +TTLB4( :,:,:,JNH4J ) / MWNH4
       ENDIF 
 
       ! Preprocess total nitrate
@@ -328,9 +276,19 @@ c     ISAM = MAX( ISAM, MIN_VAL )
         CCOND( :,:,:,CHNO3 ) = CCOND( :,:,:,CHNO3 ) * ppm2mole
         CCOND( :,:,:,CNO3I ) = CCOND( :,:,:,CNO3I ) / MWNO3
         CCOND( :,:,:,CNO3J ) = CCOND( :,:,:,CNO3J ) / MWNO3
-        TOTNO3 = CCOND( :,:,:,CHNO3 ) + CCOND( :,:,:,CNO3I ) + CCOND( :,:,:,CNO3J )
+        TOTNO3 = TTLB4( :,:,:,JHNO3 ) * ppm2mole + TTLB4( :,:,:,JNO3I ) / MWNO3 
+     &          +TTLB4( :,:,:,JNO3J ) / MWNO3
       ENDIF 
-
+ 
+      ! Preprocess total chlorine
+      IF ( LAE_CL ) THEN
+        CCOND( :,:,:,CHCL ) = CCOND( :,:,:,CHCL ) * ppm2mole
+        CCOND( :,:,:,CCLI ) = CCOND( :,:,:,CCLI ) / MWCL
+        CCOND( :,:,:,CCLJ ) = CCOND( :,:,:,CCLJ ) / MWCL
+        TOTCL = TTLB4( :,:,:,JHCL ) * ppm2mole + TTLB4( :,:,:,JCLI ) / MWCL
+     &         +TTLB4( :,:,:,JCLJ ) / MWCL
+      ENDIF 
+ 
       ! Preprocess total sulfate
       IF ( LAE_SO4 ) THEN
         TTLB4( :,:,:,JSULF ) = TTLB4( :,:,:,JSULF ) * ppm2mole
@@ -339,7 +297,8 @@ c     ISAM = MAX( ISAM, MIN_VAL )
         TTLB4( :,:,:,JSO4J ) = TTLB4( :,:,:,JSO4J ) / MWSO4
       ENDIF 
 
-      !> CONDENSATION <!
+c  !------------------------!
+c  !>>>>> CONDENSATION <<<<<!
       ! Find preprocess bulk fraction for condensable species and
       ! propagate source apporitonment through aerosol condensation changes
       DO K = 1, NTAG_SA
@@ -350,12 +309,10 @@ c     ISAM = MAX( ISAM, MIN_VAL )
           AMMONIA_TAG( :,:,: ) = (  ISAM0( :,:,:,JNH3,K ) * ppm2mole
      &                              + ISAM0( :,:,:,JNH4I,K )/ MWNH4
      &                              + ISAM0( :,:,:,JNH4J,K )/ MWNH4 ) /
-c    &                                MAX( TOTNH3, MIN_TAGTOT*3.0 )
-     &                            (    TTLB4( :,:,:,JNH4I ) / MWNH4
-     &                              + TTLB4( :,:,:,JNH4J ) / MWNH4
-     &                              + TTLB4( :,:,:,JNH3 ) * ppm2mole )     
-          !WHERE( TOTNH3( :,:,: ) < 1.e6 * MIN_TAGTOT ) 
-          !&           AMMONIA_TAG( :,:,:,K ) = MIN_TAGTOT 
+     &                                MAX( TOTNH3, MIN_TAGTOT*3.0 )
+c     &                            (    TTLB4( :,:,:,JNH4I ) / MWNH4
+c     &                              + TTLB4( :,:,:,JNH4J ) / MWNH4
+c     &                              + TTLB4( :,:,:,JNH3 ) * ppm2mole )     
 
           ISAM1( :,:,:,JNH3,K )  = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,CNH3 ) / ppm2mole
           ISAM1( :,:,:,JNH4I,K ) = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,CNH4I ) * MWNH4
@@ -367,19 +324,31 @@ c    &                                MAX( TOTNH3, MIN_TAGTOT*3.0 )
            NITRATE_TAG( :,:,: ) = ( ISAM0( :,:,:,JHNO3,K ) * ppm2mole
      &                              + ISAM0( :,:,:,JNO3I,K )/ MWNO3
      &                              + ISAM0( :,:,:,JNO3J,K )/ MWNO3 ) /
-c    &                                MAX( TOTNO3, MIN_TAGTOT*3.0 )
-     &                            (    TTLB4( :,:,:,JNO3I ) / MWNO3
-     &                              + TTLB4( :,:,:,JNO3J ) / MWNO3
-     &                              + TTLB4( :,:,:,JHNO3 ) * ppm2mole )
+     &                                MAX( TOTNO3, MIN_TAGTOT*3.0 )
+c     &                            (    TTLB4( :,:,:,JNO3I ) / MWNO3
+c     &                              + TTLB4( :,:,:,JNO3J ) / MWNO3
+c     &                              + TTLB4( :,:,:,JHNO3 ) * ppm2mole )
 
-          !WHERE( TOTNO3( :,:,: ) < 1.e6 * MIN_TAGTOT ) 
-          !&           NITRATE_TAG( :,:,:,K ) = MIN_TAGTOT 
-          
           ISAM1( :,:,:,JHNO3,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CHNO3 ) / ppm2mole
           ISAM1( :,:,:,JNO3I,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CNO3I ) * MWNO3
           ISAM1( :,:,:,JNO3J,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CNO3J ) * MWNO3
         ENDIF
 
+        ! Chlorine
+        IF ( LAE_CL ) THEN
+           CHLORINE_TAG( :,:,: ) = ( ISAM0( :,:,:,JHCL,K ) * ppm2mole
+     &                             + ISAM0( :,:,:,JCLI,K )/ MWCL
+     &                             + ISAM0( :,:,:,JCLJ,K )/ MWCL ) /
+     &                                MAX( TOTCL, MIN_TAGTOT*3.0 )
+c     &                            (    TTLB4( :,:,:,JNO3I ) / MWNO3
+c     &                              + TTLB4( :,:,:,JNO3J ) / MWNO3
+c     &                              + TTLB4( :,:,:,JHNO3 ) * ppm2mole )
+
+          ISAM1( :,:,:,JHCL,K ) = CHLORINE_TAG( :,:,: ) * CCOND( :,:,:,CHCL ) / ppm2mole
+          ISAM1( :,:,:,JCLI,K ) = CHLORINE_TAG( :,:,: ) * CCOND( :,:,:,CCLI ) * MWCL
+          ISAM1( :,:,:,JCLJ,K ) = CHLORINE_TAG( :,:,: ) * CCOND( :,:,:,CCLJ ) * MWCL
+        ENDIF
+ 
         ! Sulfate
         IF ( LAE_SO4 ) THEN
           ! Use Source Distribution of Sulfuric Acid Produced and apply
@@ -408,7 +377,8 @@ c    &                                MAX( TOTNO3, MIN_TAGTOT*3.0 )
          END DO
       END IF
 
-      !> COAGULATION <!
+c  !-----------------------!
+c  !>>>>> COAGULATION <<<<<!
       ! Propagate source apportionment changes through coagulation and
       ! growth processes
       DO IAER = 1,N_AEROSPC
@@ -437,38 +407,12 @@ c    &                                MAX( TOTNO3, MIN_TAGTOT*3.0 )
              ! Calculate New Tag Concentrations
              ISAM1( :,:,:,ISA1,K ) = TOTAER_TAG * FRAC1
              ISAM1( :,:,:,ISA2,K ) = TOTAER_TAG * FRAC2
-          END DO
 
+          END DO
       END DO
 
-! PM25_IONS - ACLI/J,ANAI/J,AMGJ,AKJ,ACAJ,AFEJ,AALJ,ASIJ,ATIJ,AMNJ,AOTHRI/J
-      IF ( L_PM25 ) THEN  ! L_PM25 defined in SA_DEFN.F
-        DO SPC = 1, 14
-          CGRID_IDX = PM25_IONS_CGRID_MAP(SPC)
-          ISAM_IDX  = PM25_IONS_ISAM_MAP(SPC)
-          DO K = 1,NTAG_SA
-            DO COL = 1, NCOLS
-              DO ROW = 1, NROWS
-                DO LAY = 1, NLAYS
-                  IF ( ( CGRID( COL,ROW,LAY,CGRID_IDX ) - CGRID0 ( COL,ROW,LAY,CGRID_IDX ) ) .LT. 0.0 ) THEN ! loss
-                    ISAM1( COL,ROW,LAY,ISAM_IDX,K ) = ISAM0 ( COL,ROW,LAY,ISAM_IDX,K )
-     &                           * CGRID ( COL,ROW,LAY,CGRID_IDX )
-     &                           / CGRID0( COL,ROW,LAY,CGRID_IDX )
-                  ELSE ! production
-                    ISAM1( COL,ROW,LAY,ISAM_IDX,K ) = ISAM0 ( COL,ROW,LAY,ISAM_IDX,K )
-     &                 + ( CGRID( COL,ROW,LAY,CGRID_IDX ) - CGRID0 ( COL,ROW,LAY,CGRID_IDX ) )
-     &                 * ISAM0 ( COL,ROW,LAY,ISAM_IDX,K )
-     &                 / TTLB4 ( COL,ROW,LAY,ISAM_IDX )
-                  END IF
-                END DO
-              END DO
-            END DO
-          END DO
-        END DO
-      END IF
-
       ! Update global ISAM array with modified attribution array ISAM1
-      ISAM = MAX( ISAM1,  MIN_VAL )
+      ISAM = ISAM1
 
       END 
 
