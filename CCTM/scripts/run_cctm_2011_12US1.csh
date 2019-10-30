@@ -270,7 +270,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
-     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}.nc
      setenv INITIAL_RUN N
   endif
 
