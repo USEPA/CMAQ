@@ -60,7 +60,7 @@
                 CHARACTER( 32 ) :: FILE
                 CHARACTER( 32 ) :: VAR
             END TYPE REGIONS_REG
-            INTEGER, PARAMETER  :: N_REGIONS_REG = 200
+            INTEGER, PARAMETER  :: N_REGIONS_REG = 600
             TYPE( REGIONS_REG ), ALLOCATABLE :: RGN_NML( : )
 
             ! Define Structure for Size Distribution Rule      

@@ -3332,9 +3332,6 @@ C   mminlu and num_land_cat are WRF global variables
              END DO
           END DO
 
-          EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
-          EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
-
           ! Close Regions File
           IF ( .NOT. CLOSE3( FILENAMES( IFILE ) ) ) THEN
             XMSG = 'Could not close ' // FILENAMES( IFILE )
@@ -3359,6 +3356,8 @@ C   mminlu and num_land_cat are WRF global variables
 
         END DO ! IFILE
       END IF
+      EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
+      EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
       
       END SUBROUTINE INIT_EMIS_REGIONS
 
