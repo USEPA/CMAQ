@@ -48,6 +48,8 @@ C     16 NOv 2018 S.Napelenok: ISAM implementation
 C     01 Feb 2019 D.Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses, replaced IOS with LOGDEV when calling GET_ENV
 C     15 May 2019 D.Wong: Put the check for using marine gas emission or not in RUNTIME_VAR.F
+C     4 Oct 2019 D.Wong: fixed the time advancement, NEXTIME, for a multi-day run in subroutine
+C                        GRIDEMIS
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -633,6 +635,7 @@ C Retrieve Emissions from All Stream Types
          CHARACTER( 16 ) :: PNAME = 'GRIDEMIS'
          CHARACTER( 200 ) :: XMSG = ' '
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
+         INTEGER, ALLOCATABLE, SAVE :: LOC_STDATE(:)
 
 C-----------------------------------------------------------------------
 
@@ -642,13 +645,17 @@ C-----------------------------------------------------------------------
 
             ! Allocate Persistent Variables
             ALLOCATE( BUFF( NCOLS,NROWS,MAXVAL( EM_GRID_LAYS ) ) )
+            ALLOCATE( LOC_STDATE( SIZE(EM_FILE_DATE) ) )
+
+            LOC_STDATE = STDATE
          END IF    !FirstTime
  
 C Ensure that the model and emissions timestamp dates stay synchronized
-         IF ( STDATE .NE. JDATE ) THEN
+         IF (LOC_STDATE(FSTREAM) .NE. JDATE ) THEN
             NDATE = JDATE; NTIME = JTIME
             CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
             CALL NEXTIME( EM_FILE_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
+            LOC_STDATE(FSTREAM) = EM_FILE_DATE( FSTREAM )
          END IF
 
 C Read & Interpolate Emissions 
