@@ -27,6 +27,7 @@
 * [6.9 Emissions](#6.9_Emissions)
 	* [6.9.1 Emission Streams](#6.9.1_Emission_Streams)
 	* [6.9.2 Online Emission Streams](#6.9.2_Online_Emission)
+	* [6.9.3 Emission Compatability](#6.9.3_Emission_Compatability)
 * [6.10 Gas Phase Chemistry](#6.10_Gas_Phase_Chem)
 	* [6.10.1 Gas Phase Chemical Mechanisms](#6.10.1_Gas_Phase_Mech)
 	* [6.10.2 Solvers](#6.10.2_Solver)
@@ -589,6 +590,25 @@ setenv USE_NLDN N
 ```
 setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
 ```
+
+<a id=6.9.3_Emission_Compatability></a>
+
+### 6.9.3 Emission Compatability for CMAQv5.3+
+
+<!-- BEGIN COMMENT -->
+
+[Return to Top](#Return_to_Top)
+
+<!-- END COMMENT -->
+
+<a id=PCSOA></a>
+#### Potential Combustion SOA
+Potential Combustion SOA (PCSOA) was added to CMAQv5.2 to account for missing PM2.5 from fossil-fuel combustion sources.  PCSOA is not intended to be applied to non-fossil-fuel combustion sources such as residential wood combustion (RWC).  The new DECID option introduced in CMAQv5.3 introduces the ability to read multiple gridd emissions files, allowing RWC to be treated as an entirely separate emissions source from the rest of the gridded emissions.  Using DECID, PCSOA can be applied to the other gridded combustion sources, but not RWC.
+
+<a id=a-pinene></a>
+#### A-Pinene separated from other monoterpenes
+If using chemical mechanism CB6r3 and aerosol module AERO7 (cb6r3_ae7) with offline biogenic emissions, a-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as a-pinene should not make SOA through NO3 reaction.  Users can still use existing biogenic emission files by updating the emission control file. No action required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/aero7_overview.md) for further details. 
+
 <a id=6.10_Gas_Phase_Chem></a>
 
 ## 6.10 Gas Phase Chemistry
