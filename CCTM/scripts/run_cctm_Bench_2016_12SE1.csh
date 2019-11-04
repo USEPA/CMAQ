@@ -298,6 +298,22 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYMMDD}.nc
 
   #> Emissions Control File
+  #>
+  #> IMPORTANT NOTE
+  #>
+  #> The emissions control file defined below is an integral part of controlling the behavior of the model simulation.
+  #> Among other things, it controls the mapping of species in the emission files to chemical species in the model and
+  #> several aspects related to the simulation of organic aerosols.
+  #> Please carefully review the emissions control file to ensure that it is configured to be consistent with the assumptions
+  #> made when creating the emission files defined below and the desired representation of organic aerosols.
+  #> For further information, please see:
+  #> + AERO7 Release Notes section on 'Required emission updates':
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Release_Notes/aero7_overview.md
+  #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability': 
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability
+  #> + Emission Control (DESID) Documentation in the CMAQ User's Guide: 
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
+  #>
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
   #> Spatial Masks For Emissions Scaling
