@@ -500,7 +500,7 @@
           JACOBF_AVAIL   = (INDEX1( 'JACOBF', NVARS3D, VNAME3D ) .gt. 0)
           QC_AVAIL       = .true.
 
-          cio_data_tstep     = local_tstep
+          cio_data_tstep     = tstep3d ! assumes same timestep in all input files 
           cio_data_tstep_met = tstep3d
 
           CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
