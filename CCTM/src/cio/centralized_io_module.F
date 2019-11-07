@@ -3607,7 +3607,7 @@ C   mminlu and num_land_cat are WRF global variables
          ! Define Dummy Variables for Opening Emission Control Namelist
          CHARACTER( 300 ) :: EQNAME
          INTEGER          :: EMCTRL_NML
-         INTEGER          :: STAT
+         INTEGER          :: STAT, IFAM, INUM
 
          ! Define General Parameters in Emission Control Namelist
          NAMELIST / GeneralSpecs / Guard_BiogenicVOC,
@@ -3731,7 +3731,14 @@ C   mminlu and num_land_cat are WRF global variables
              ChemFamilyNum      = 0
              ChemFamilyMembers  = ''
          END IF
- 
+         ! Capitalize All Family and Member Names
+         DO IFAM = 1,NChemFamilies
+             CALL UPCASE( ChemFamilyName( IFAM ) )
+             DO INUM = 1,ChemFamilyNum ( IFAM )
+                 CALL UPCASE( ChemFamilyMembers( IFAM,INUM ) )
+             END DO
+         END DO
+
          ! Read Stream Family Specification Section
          READ( NML = StreamFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
@@ -3745,6 +3752,13 @@ C   mminlu and num_land_cat are WRF global variables
              StreamFamilyNum      = 0
              StreamFamilyMembers  = ''
          END IF
+         ! Capitalize All Family and Member Names
+         DO IFAM = 1,NStreamFamilies
+             CALL UPCASE( StreamFamilyName( IFAM ) )
+             DO INUM = 1,StreamFamilyNum( INUM )
+                 CALL UPCASE( StreamFamilyMembers( IFAM,INUM ) )
+             END DO
+         END DO
  
          ! Read Region Family Specification Section
          READ( NML = RegionFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )

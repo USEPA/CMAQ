@@ -342,10 +342,9 @@
              EM_STREAM_RULE( IDX ) = .TRUE.
            ELSE 
              ! Print warning that this stream is being ignored
-             WRITE( LOGDEV, * )
-             WRITE( LOGDEV, '(/,3A,I3,/,2A,/,2A,/,1A)' ),
-     &         'WARNING: The Emissions Stream Label (',TRIM( RULE_STREAM ),
-     &         ') applied for Rule ',IRULE,' in the Emissions Control ',
+             WRITE( LOGDEV, '(/,5x,3A,I3,/,5x,2A,4(/,5x,A))' ),
+     &         'ATTENTION: The Emissions Stream Label (',TRIM( RULE_STREAM ),
+     &         ') applied for Rule ',IRULE,'in the Emissions Control ',
      &         'Namelist does not match any of the emissions streams ',
      &         'labels or families provided to CMAQ. Please check the ',
      &         'runscript against your emissions control inputs',
