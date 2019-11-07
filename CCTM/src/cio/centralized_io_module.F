@@ -3312,26 +3312,6 @@ C   mminlu and num_land_cat are WRF global variables
               END IF
           END DO
 
-          ! Augment Emission Region Structure with Region Families
-          DO IFAM = 1,NRegionFamilies
-             N_EM_RGN = N_EM_RGN + 1
-             CALL UPCASE( RegionFamilyName( IFAM ) )
-             EM_REGIONS( N_EM_RGN )%LABEL   = RegionFamilyName( IFAM )
-             EM_REGIONS( N_EM_RGN )%VAR     = 'Family'
-             EM_REGIONS( N_EM_RGN )%FILE    = 'Family'
-             EM_REGIONS( N_EM_RGN )%FILENUM = 0
-
-             DO IRGN = 1,RegionFamilyNum( IFAM )
-                CALL UPCASE( RegionFamilyMembers( IFAM,IRGN ) )
-                JRGN = INDEX1( RegionFamilyMembers( IFAM,IRGN ), N_EM_RGN-1,
-     &                        EM_REGIONS( 1:(N_EM_RGN-1) )%VAR )
-                IF ( JRGN .GT. 0 ) 
-     &               EM_REG_FAC( :,:,N_EM_RGN ) = 
-     &                  EM_REG_FAC( :,:,N_EM_RGN ) + 
-     &                  EM_REG_FAC( :,:,JRGN )
-             END DO
-          END DO
-
           ! Close Regions File
           IF ( .NOT. CLOSE3( FILENAMES( IFILE ) ) ) THEN
             XMSG = 'Could not close ' // FILENAMES( IFILE )
@@ -3355,6 +3335,26 @@ C   mminlu and num_land_cat are WRF global variables
           END DO
 
         END DO ! IFILE
+ 
+        ! Augment Emission Region Structure with Region Families
+        DO IFAM = 1,NRegionFamilies
+           N_EM_RGN = N_EM_RGN + 1
+           CALL UPCASE( RegionFamilyName( IFAM ) )
+           EM_REGIONS( N_EM_RGN )%LABEL   = RegionFamilyName( IFAM )
+           EM_REGIONS( N_EM_RGN )%VAR     = 'Family'
+           EM_REGIONS( N_EM_RGN )%FILE    = 'Family'
+           EM_REGIONS( N_EM_RGN )%FILENUM = 0
+
+           DO IRGN = 1,RegionFamilyNum( IFAM )
+              CALL UPCASE( RegionFamilyMembers( IFAM,IRGN ) )
+              JRGN = INDEX1( RegionFamilyMembers( IFAM,IRGN ), N_EM_RGN-1,
+     &                      EM_REGIONS( 1:(N_EM_RGN-1) )%VAR )
+              IF ( JRGN .GT. 0 ) 
+     &             EM_REG_FAC( :,:,N_EM_RGN ) = 
+     &                EM_REG_FAC( :,:,N_EM_RGN ) + 
+     &                EM_REG_FAC( :,:,JRGN )
+           END DO
+        END DO
       END IF
       EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
       EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
@@ -3378,7 +3378,7 @@ C   mminlu and num_land_cat are WRF global variables
          ! Define Dummy Variables for Opening Emission Control Namelist
          CHARACTER( 300 ) :: EQNAME
          INTEGER          :: EMCTRL_NML
-         INTEGER          :: STAT
+         INTEGER          :: STAT, IFAM, INUM
 
          ! Define General Parameters in Emission Control Namelist
          NAMELIST / GeneralSpecs / Guard_BiogenicVOC,
@@ -3502,7 +3502,14 @@ C   mminlu and num_land_cat are WRF global variables
              ChemFamilyNum      = 0
              ChemFamilyMembers  = ''
          END IF
- 
+         ! Capitalize All Family and Member Names
+         DO IFAM = 1,NChemFamilies
+             CALL UPCASE( ChemFamilyName( IFAM ) )
+             DO INUM = 1,ChemFamilyNum ( IFAM )
+                 CALL UPCASE( ChemFamilyMembers( IFAM,INUM ) )
+             END DO
+         END DO
+
          ! Read Stream Family Specification Section
          READ( NML = StreamFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
@@ -3516,6 +3523,13 @@ C   mminlu and num_land_cat are WRF global variables
              StreamFamilyNum      = 0
              StreamFamilyMembers  = ''
          END IF
+         ! Capitalize All Family and Member Names
+         DO IFAM = 1,NStreamFamilies
+             CALL UPCASE( StreamFamilyName( IFAM ) )
+             DO INUM = 1,StreamFamilyNum( INUM )
+                 CALL UPCASE( StreamFamilyMembers( IFAM,INUM ) )
+             END DO
+         END DO
  
          ! Read Region Family Specification Section
          READ( NML = RegionFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )

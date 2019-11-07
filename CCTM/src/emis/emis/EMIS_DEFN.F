@@ -1038,8 +1038,8 @@ C-----------------------------------------------------------------------
       DO L = 1,NL
         CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) )   ! Gas Moles: ppmv/s -> mol/s
         CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )      ! Aer. Mass: ppmv/s -> umol/s
-      END DO                                                                ! m2/mol/s -> m2/m3/s
-      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) / RAVO / 1.0E+12                ! Aer. Num:  N/molec/s -> N/cm3/s
+      END DO                                                                ! m2/mol/s -> m2/s
+      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) / RAVO / 1.0E+12                ! Aer. Num:  N/molec/s -> N/s
 
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
       !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
@@ -1119,19 +1119,20 @@ C-----------------------------------------------------------------------
          IMPLICIT NONE
 
          INTEGER, INTENT(IN)  :: JDATE, JTIME
-         INTEGER    :: N_UNUSED, REGNUM
+         INTEGER    :: N_UNUSED, REGNUM, N_USED
 
          INTEGER    :: STRT, PTSTRT, ISPC, IDX, IX, ISUR, IRULE,
      &                 N, IM, IAERO, V, ISRM, NSPC, IA, IDIFF, JDX, JM,
      &                 ISTR, ISUR0, ISRM0, IEM, KDX, JSD, JEM, ISD,
-     &                 IFAC, IRGN, ISTRN, NFAC, NCHEM, ICHEM, IFAM
+     &                 IFAC, IRGN, ISTRN, NFAC, NCHEM, ICHEM, IFAM, F,
+     &                 IRGN2, N_SURR_CATCH, ICATCH
          REAL       :: AERO_SPLIT, UNIT_FAC_1, UNIT_FAC_2, SURR_MW, 
      &                 SPEC_MW, BASIS_FAC
 
          LOGICAL    :: LERROR, LFOUND, L_WDIFF, L_WISD, LTEST
-         LOGICAL    :: LGAS_DIFF, LGAS_SURR
+         LOGICAL    :: LGAS_DIFF, LGAS_SURR, L_CATCH
          
-         CHARACTER( 16 )  :: SPECNAME, SN, SM
+         CHARACTER( 16 )  :: SPECNAME, SN, SM, EM_SURR_CATCH( 200 )
 
          CHARACTER( 16 )  :: PNAME = 'EMIS_SPC_CHECK'
          CHARACTER( 100)  :: VARDESC
@@ -1179,19 +1180,27 @@ C and allowing the model to proceed.
          WRITE( LOGDEV, '(/,5x,A)' ),'|> Regions Available for Scaling:'
          WRITE( LOGDEV, '(5x,A)'   ),'================================='
 
-         ! First Print Information about All the Available Regions for Scaling
+         ! Print Information about All the Available Regions for Scaling
          WRITE( LOGDEV,'(8x,A,2x,A,8x,A,10x,A)' ),'Number','Region Label','File Label','Variable'
          WRITE( LOGDEV,'(8x,A,2x,A,8x,A,10x,A)' ),'------','------------','----------','--------'
          DO IRGN = 1,N_EM_RGN
             WRITE( LOGDEV,'(8x,I3,5x,A18,2x,A18,2x,A)' ),IRGN, EM_REGIONS(IRGN)%LABEL( 1:18 ),
-     &             EM_REGIONS( IRGN )%File( 1:18 ), TRIM(EM_REGIONS( IRGN )%VAR )
+     &             EM_REGIONS( IRGN )%File( 1:18 ), TRIM(EM_REGIONS( IRGN )%VAR ) 
+            IF ( EM_REGIONS(IRGN)%FILE(1:6) .EQ. 'Family' ) THEN
+                 F = INDEX1( EM_REGIONS(IRGN)%LABEL(1:18), NREGIONFAMILIES, REGIONFAMILYNAME )
+                 DO IRGN2 = 1,REGIONFAMILYNUM( F )
+                     WRITE( LOGDEV,'(56x,A)' ), REGIONFAMILYMEMBERS( F,IRGN2 )
+                 END DO
+            END IF
          END DO
- 
-! Retrieve the Surrogates Available From Emissions Streams
-         ! Map the Emission Surrogate Species to Default CMAQ Internal
-         ! Species, default size distributions, and default molecular
-         ! weights based on SMOKE/MOVES/SPECIATE guidelines
 
+! Retrieve the Surrogates Available From Emissions Streams
+         ! Load Default Molecular Weights and Units based on 
+         ! SMOKE/MOVES/SPECIATE specifications
+
+         WRITE( LOGDEV, '(/,5x,A)' ),'|> Map Available Emissions Surrogates to Defaults:'
+         WRITE( LOGDEV, '(5x,A)'   ),'=================================================='
+         N_SURR_CATCH = 0
          DO ISRM = 1,N_EM_SRM
 
             IF ( ISRM .EQ. ISEASRM .OR. ISRM .EQ. IBIOSRM .OR. 
@@ -1215,11 +1224,21 @@ C and allowing the model to proceed.
                   ! belong to the default list of commonly used
                   ! surrogates.
                   EM_FILE_SURR( ISRM )%MW   ( ISUR ) = 1.0
+
+                  ! Only Write a Note to the User if this species hasn't
+                  ! been caught from a different stream already
+                  IF ( N_SURR_CATCH .EQ. 0 .OR.
+     &                 INDEX1( B, 200, EM_SURR_CATCH ) .EQ. 0 ) THEN
+                     N_SURR_CATCH = N_SURR_CATCH + 1
+                     EM_SURR_CATCH( N_SURR_CATCH ) = B
+                  END IF
                END IF
             END DO
 
          END DO
 
+         WRITE( LOGDEV, '(/,5x,A)' ),'|> Checking Emissions Surrogate Units:'
+         WRITE( LOGDEV, '(5x,A)'   ),'======================================'
          DO ISRM = 1,N_EM_SRM
             DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
                ! Check Units and Assign Conversion Factors for
@@ -1233,12 +1252,43 @@ C and allowing the model to proceed.
             END DO
          END DO
 
+! Write Out All Available Stream Families to the Log File
+         WRITE( LOGDEV, '(/,5x,A)' ),'|> Emission Stream Family Definitions:'
+         WRITE( LOGDEV, '(5x,A)'   ),'======================================'
+         WRITE( LOGDEV,'(8x,A19,15x,A)' ),'Stream Family Label','Stream Family Members'
+         WRITE( LOGDEV,'(8x,A19,15x,A)' ),'-------------------','---------------------'
+         DO IFAM = 1,NSTREAMFAMILIES
+            WRITE( LOGDEV,'(8x,A32,2x,A)' ), STREAMFAMILYNAME( IFAM ), 
+     &             STREAMFAMILYMEMBERS( IFAM,1 )
+            IF ( STREAMFAMILYNUM( IFAM ) .GT. 1 ) THEN
+                DO ISRM = 2,STREAMFAMILYNUM( IFAM )
+                   WRITE( LOGDEV,'(42x,A)' ), STREAMFAMILYMEMBERS( IFAM,ISRM )
+                END DO
+            END IF
+         END DO
+
+! Write Out All Available Species Families to the Log File
+         WRITE( LOGDEV, '(/,5x,A)' ),'|> CMAQ Species Family Definitions:'
+         WRITE( LOGDEV, '(5x,A)'   ),'======================================'
+         WRITE( LOGDEV,'(8x,A20,14x,A)' ),'Species Family Label','Species Family Members'
+         WRITE( LOGDEV,'(8x,A20,14x,A)' ),'--------------------','---------------------'
+         DO IFAM = 1,NCHEMFAMILIES
+            WRITE( LOGDEV,'(8x,A32,2x,A)' ), CHEMFAMILYNAME( IFAM ), 
+     &             CHEMFAMILYMEMBERS( IFAM,1 )
+            IF ( CHEMFAMILYNUM( IFAM ) .GT. 1 ) THEN
+                DO ISRM = 2,CHEMFAMILYNUM( IFAM )
+                   WRITE( LOGDEV,'(42x,A)' ), CHEMFAMILYMEMBERS( IFAM,ISRM )
+                END DO
+            END IF
+         END DO
 
 ! Set up Stream <-> Size Distribution relationship. This routine
 ! populates the EM_STREAM_SIZE structure which tells the logic below which
 ! modes are present on which streams.
+         WRITE( LOGDEV, '(/,5x,A)' ),'|> Mapping Particle Size Distributions to Each Emission Stream:'
+         WRITE( LOGDEV, '(5x,A)'   ),'==============================================================='
          CALL EM_SD_INIT( JDATE, JTIME )
-         
+
 ! Process Default Emissions Mapping (if requested in namelist; i.e. 
          ALLOCATE( EM_SPEC( NISTR0 ) )                ! CMAQ Species Names
          EM_SPEC = ""
@@ -1301,6 +1351,7 @@ C and allowing the model to proceed.
                MAP_EMtoNUM( N_EMIS_ISTR+1 ) = IM
                MAP_EMtoDIFF( N_EMIS_ISTR+1 ) = 
      &            INDEX1( EM_SPEC( N_EMIS_ISTR+1 ), N_SPC_DIFF, DIFF_SPC )
+               EM_FILE_DIFF( MAP_EMtoDIFF( N_EMIS_ISTR+1 ),: ) = .TRUE.
                MAP_EMtoSD( N_EMIS_ISTR+1, : ) = 0
 
                ! Aerosol Surface Area
@@ -1309,12 +1360,13 @@ C and allowing the model to proceed.
                EM_FAC_BULK ( N_EMIS_ISTR+2,:,1 ) = 1.0         
                EM_BASIS( N_EMIS_ISTR+2,:,1 ) = 'UNIT'
                EM_CONV( N_EMIS_ISTR+2,:,1 ) = 1.0
-               EM_OP ( N_EMIS_ISTR+1,:,1 ) = "a"
-               EM_REG ( N_EMIS_ISTR+1,:,1 ) = 1
+               EM_OP ( N_EMIS_ISTR+2,:,1 ) = "a"
+               EM_REG ( N_EMIS_ISTR+2,:,1 ) = 1
                MAP_SRFtoEM( IM ) = N_EMIS_ISTR+2
                MAP_EMtoSRF( N_EMIS_ISTR+2 ) = IM
                MAP_EMtoDIFF( N_EMIS_ISTR+2 ) = 
      &            INDEX1( EM_SPEC( N_EMIS_ISTR+2 ), N_SPC_DIFF, DIFF_SPC )
+               EM_FILE_DIFF( MAP_EMtoDIFF( N_EMIS_ISTR+2 ),: ) = .TRUE.
                MAP_EMtoSD( N_EMIS_ISTR+2, : ) = 0
 
                N_EMIS_ISTR = N_EMIS_ISTR + 2
@@ -1400,21 +1452,17 @@ C and allowing the model to proceed.
             
             IF ( LERROR ) THEN
               IF ( .NOT. EMISCHK ) THEN
-                 WRITE( LOGDEV, '(/,A,/,2A,3(/,A))') 
-     &                  '****************************WARNING**************************:',
+                 WRITE( LOGDEV, '(/,5x,A,/,5x,2A,4(/,5x,A))') 
+     &                  '*** ATTENTION **********************************************:',
      &                  'The emission surrogate ',TRIM( EM_NML( IRULE )%SURR ),
-     &                  ' was not found in emissions streams but the CTM_EMISCHK ',
-     &                  'environment variable set to False so simulation will proceed.',
-     &                  '**************************************************************'
-                 WRITE( LOGDEV, * )
-                 WRITE( LOGDEV, * )
-                 XMSG = 'For optimal predictions, all surrogates '
-     &                //'should be found on at least one stream.'
-                 CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+     &                  'was not found in the requested emission streams but the ',
+     &                  'CTM_EMISCHK environment variable set to False so simulation ',
+     &                  'will proceed.',
+     &                  '*************************************************************'
                  CYCLE
               ELSE     
-                 WRITE( LOGDEV, '(A,/,2A,/,8(/,A))') 
-     &                  '*****************************ERROR***************************************:',
+                 WRITE( LOGDEV, '(5x,A,/,5x,2A,/,8(/,5x,A))') 
+     &                  '*** ERROR **************************************************************:',
      &                  'The emission surrogate ',TRIM( EM_NML( IRULE )%SURR ),
      &                  ' is not found in any of the emission streams.',
      &                  'Use one of the below options to continue.', 
@@ -1423,7 +1471,6 @@ C and allowing the model to proceed.
      &                  '2) Change CTM_EMISCHK environment variable to False (F) in the runscript',
      &                  'if model predictions are acceptable without using the above emissions.',
      &                  '*************************************************************************'
-                 WRITE( LOGDEV, * )
                  XMSG = 'Species with the missing surrogates ' 
      &                //'must have a surrogate found in at least one stream.'
                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -1443,7 +1490,7 @@ C and allowing the model to proceed.
                EM_SPEC_RULE = .TRUE.
                LSPEC_KEY( IRULE ) = .TRUE.
             ELSE     
-               ! Determine if the SPecies Label Refers to A Family and if So, 
+               ! Determine if the Species Label Refers to A Family and if So, 
                ! Apply the Rule to all members of that Family
                IFAM = INDEX1( EM_NML( IRULE )%SPEC, NChemFamilies, ChemFamilyName )
                IF ( IFAM .EQ. 0 ) THEN
@@ -1472,11 +1519,10 @@ C and allowing the model to proceed.
                      IF ( KDX .NE. 0 ) EM_SPEC_RULE( KDX ) = .TRUE.
                    END DO
                  ELSE
-                   WRITE( LOGDEV, * )
-                   WRITE( LOGDEV, '(3A,/,A,/,A,/,A,/,A)' ),
+                   WRITE( LOGDEV, '(/,3A,/,A,/,A,/,A,/,A)' ),
      &               'Species ',TRIM(EM_NML( IRULE )%SPEC),' was used in the Emissions',
      &               ' Control Instructions Namelist but it is not a valid CMAQ ',
-     &               'transported speciesi or family. Please add it to one of the ',
+     &               'transported species or family. Please add it to one of the ',
      &               'input chemical namelists (ie. GC, AE, etc). Note that aerosol',
      &               'Number and Surface Area Species are not valid for scaling.'
                    XMSG = 'Error in Emissions Map Processing.'
@@ -1591,15 +1637,21 @@ C and allowing the model to proceed.
 
                     LTEST = .TRUE.
                     
-                    ! Test to make sure that if this is a Gas CMAQ species,
-                    ! the aerosol-relevant 'phases' are not added as well.
+                    ! If this command applies to a Gas CMAQ species, make
+                    ! sure the aerosol phases are not invoked so that 
+                    ! double-counting is avoided
                     IF ( .NOT. DIFF_MASK_AERO( IDIFF ) .AND. 
      &                   EM_STREAM_SIZE( ISRM )%NAME( ISD ) .NE. 'GAS' )
      &                 LTEST = .FALSE.
 
-                    ! Test to make sure if this is an aerosol species
-                    ! that the 'phase/mode' selection will actually populate 
-                    ! this CMAQ species, DIFF_SPC( IDIFF )
+                    ! If this command applies to an aerosol CMAQ species,
+                    ! then make sure that the 'mode' selection will apply
+                    ! mass to this CMAQ species, DIFF_SPC( IDIFF ).
+                    ! Because CMAQ species are resolved in modes, it
+                    ! could be that this 'mode' selection will not put
+                    ! any mass in this species. For example, if this
+                    ! species is for the Aitken mode, but the selection
+                    ! was meant to populate the coarse mode.
                     IF ( DIFF_MASK_AERO( IDIFF ) ) THEN
                         DO IAERO = 1,N_AEROSPC
                            IM = INDEX1( DIFF_SPC( IDIFF ), N_MODE,
@@ -1611,17 +1663,15 @@ C and allowing the model to proceed.
                         END DO
                     END IF
 
-                    ! Test to confirm that if the 'ALL' keyword was used
-                    ! for the Surrogate or the Species field, then only
-                    ! exact matches or existing relationships should be
-                    ! populated.
-                    IF ( (EM_NML( IRULE )%SURR .EQ. 'ALL' .OR. 
-   !  &                    EM_NML( IRULE )%SPEC .EQ. 'ALL' .OR.
-     &                    LSPEC_KEY( IRULE ) .EQ. .TRUE.  .OR.
-     &                    EM_NML( IRULE )%PHASE.EQ. 'ALL' .OR.
-     &                    EM_NML( IRULE )%PHASE.EQ. 'AERO'     ) .AND.
-     &                   (EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 
-     &                    DIFF_SPC( IDIFF ) ) ) THEN
+                    ! If the 'ALL' keyword was used for the Surrogate 
+                    ! AND multiple CMAQ Species are selected, then 
+                    ! only exact matches or existing relationships 
+                    ! should be populated.
+                    IF (   (EM_NML( IRULE )%SURR .EQ. 'ALL' .AND. 
+     &                      LSPEC_KEY( IRULE ) .EQ. .TRUE. )
+     &                  .AND.
+     &                     (EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 
+     &                      DIFF_SPC( IDIFF ) ) ) THEN
                       ! Look for this relationship in at least one
                       ! of the existing instructions
                       LTEST = .FALSE.
@@ -1882,17 +1932,17 @@ C and allowing the model to proceed.
               END IF
             END DO
 
-         END DO
+        END DO !End Rule Loop
 
-! Warn the User if there are no emissions instructions provided        
+         ! Warn the User if there are no emissions instructions provided        
          IF ( N_EMIS_ISTR .LE. 0 ) THEN
             XMSG = 'There are no emissions instructions: VDEMIS is set to zero' ! below
             CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
          END IF
 
-! Print a message for each emissions stream surrogate that is not used.
-         WRITE( LOGDEV, '(/,5x,A)' ) '|> Checking for unused Emissions Surrogates'
-         WRITE( LOGDEV, '(5x,A)'   ),'==========================================='
+         ! Print a message for each emissions stream surrogate that is not used.
+         WRITE( LOGDEV, '(/,5x,A)' ) '|> Checking for unused Emissions Surrogates:'
+         WRITE( LOGDEV, '(5x,A)'   ),'============================================'
 
          LERROR = .FALSE.
          DO ISRM = 1,N_EM_SRM
@@ -1913,9 +1963,38 @@ C and allowing the model to proceed.
              WRITE( LOGDEV, '()' )
          END DO
          IF ( LERROR ) WRITE( LOGDEV, '(5x,A,/,5x,A,/,5x,A)' ),
-     &       'ATTENTION: Some Emissions Surrogates are unused by your current', 
+     &       'NOTE: Some Emissions Surrogates are unused by your current', 
      &       'emission control configuration. You may want to include these ',
      &       'emissions if they are relevant to your application.'
+
+         ! Print a message for every used surrogate that is not recognized on 
+         ! the EMIS_SURR_TABLE                 
+         WRITE( LOGDEV, '(/,5x,A)' ) '|> Checking status of used Emissions Surrogates:'
+         WRITE( LOGDEV, '(5x,A)'   ),'================================================'
+
+         DO ICATCH = 1,N_SURR_CATCH
+             B = EM_SURR_CATCH( ICATCH )
+             N_USED = 0
+             !L_CATCH = .FALSE.
+             DO ISRM = 1,N_EM_SRM
+                 N = EM_FILE_SURR( ISRM )%LEN
+                 N_USED = N_USED + COUNT( EM_FILE_SURR(ISRM)%ARRY( 1:N ) .EQ. B 
+     &                                    .AND. EM_FILE_SURR(ISRM)%USED( 1:N ) )
+
+                 !N = INDEX1( B,EM_FILE_SURR(ISRM)%LEN, EM_FILE_SURR(ISRM)%ARRY )
+                 !IF ( N .GT. 0 ) THEN
+                 !  IF ( EM_FILE_SURR( ISRM )%USED( N ) ) L_CATCH = .TRUE.
+                 !END IF
+             END DO
+             IF ( N_USED .GT. 0 )
+     &           WRITE( LOGDEV, '(/,5x,3A,/,5x,A,/,5x,3A,/,5x,A,/,5x,A,/,5x,A)') 
+     &                  'WARNING: Surrogate ',TRIM(B),' is being used but does not have a',
+     &                  '         default entry in the EMIS_SURR_TABLE in EMIS_VARS.F. Currently,',
+     &                  '         the molecular weight of ',TRIM(B),' is assumed to be 1.0',
+     &                  '         g/mol for any emissions scaling operations requiring mass-mole',
+     &                  '         conversions. If you are only prescribing UNIT scaling, then this',
+     &                  '         assumption will not be problematic.'
+         END DO 
 
 ! Resize Important Arrays
          MAP_EMtoDIFF = MAP_EMtoDIFF( 1:N_EMIS_ISTR )
@@ -1972,11 +2051,11 @@ C and allowing the model to proceed.
              L_WDIFF = .TRUE.
              DO ISD = 1,EM_STREAM_SIZE( ISRM )%LEN
                L_WISD = .TRUE.
-               DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
-                 DO ISTR = 1,N_EMIS_ISTR
+               DO ISTR = 1,N_EMIS_ISTR
+             !    DO ISUR = 1,EM_FILE_SURR( ISRM )%LEN
                    IF ( EM_SPEC( ISTR ) .EQ. DIFF_SPC( IDIFF ) .AND.
-     &                  MAP_EMtoSD( ISTR,ISRM ) .EQ. ISD       .AND.
-     &                  MAP_EMtoSURR( ISTR,ISRM ) .EQ. ISUR ) THEN
+     &                  MAP_EMtoSD( ISTR,ISRM ) .EQ. ISD     ) THEN !  .AND.
+   !  &                  MAP_EMtoSURR( ISTR,ISRM ) .EQ. ISUR ) THEN
                      IF ( L_WDIFF ) THEN
                         WRITE( LOGDEV, '(10x,A,1x,A,1x,A,1x,A,1x,A,2x,F6.3,4x,A,2x,F6.3)' ),
      &                         EM_SPEC( ISTR ),
@@ -2018,7 +2097,7 @@ C and allowing the model to proceed.
                       END IF
 
                    END IF
-                 END DO
+                 !END DO
                END DO
              END DO
            END DO
@@ -2270,7 +2349,7 @@ C and allowing the model to proceed.
 
        ! Allocate Emission File Structure Variables
          Allocate( EM_FILE_NAME  ( N_EM_SRM ) )
-         Allocate( EM_FILE_LAB   ( N_EM_SRM ) )
+         Allocate( EM_FILE_LAB   ( N_EM_SRM+1 ) )
          Allocate( EM_FILE_TYPE  ( N_EM_SRM ) )
          Allocate( EM_FILE_ITYPE ( N_EM_SRM ) )
          Allocate( EM_FILE_DESC  ( N_EM_SRM ) )
@@ -2304,10 +2383,13 @@ C stkemis_init.
          EM_DIAG_SUFFIX = '.nc'
          IF ( APPL_NAME(1:8 ) .NE. 'CTM_APPL' ) EM_DIAG_SUFFIX = '_' // TRIM(APPL_NAME) // '.nc'
  
+         ! Set Diagnostic Type and Name for Total Emissions Diagnostic File
          CALL GET_ENV( EM_FILE_LDIAG(N_EM_SRM+1), "EMISDIAG_SUM", EMISDIAG, LOGDEV )
-         EM_FILE_LDIAG( N_EM_SRM + 1 ) = RESOLVE_YN_TF_2D3D(EM_FILE_LDIAG(N_EM_SRM+1) ) 
+         EM_FILE_LDIAG( N_EM_SRM + 1 ) = RESOLVE_YN_TF_2D3D(EM_FILE_LDIAG(N_EM_SRM+1) )  
+         EM_DIAG_FILE( N_EM_SRM+1 ) = 'SUM_EMDGFILE'
          VALUE = SETENVVAR( EM_DIAG_FILE( N_EM_SRM+1 ), TRIM( EM_DIAG_PREFIX ) // 
-     &           'SUM' // TRIM( EM_DIAG_SUFFIX ) ) 
+     &           'SUM' // TRIM( EM_DIAG_SUFFIX ) )  
+         EM_FILE_LAB( N_EM_SRM+1 ) = 'TOTAL'
 
          ! Gridded Emission Files
          IF ( N_FILE_GR .GT. 0 ) THEN
@@ -2581,7 +2663,7 @@ C stkemis_init.
       INTEGER :: ISRM, IVAR, NLAYERS, V
       CHARACTER( 2 ) :: CSRM
       
-      DO ISRM = 1,N_EM_SRM
+      DO ISRM = 1,N_EM_SRM+1
       
         ! Test whether or not each file should be opened
         IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) THEN
