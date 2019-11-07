@@ -3579,8 +3579,8 @@ C   mminlu and num_land_cat are WRF global variables
      &                      EM_REGIONS( 1:(N_EM_RGN-1) )%VAR )
               IF ( JRGN .GT. 0 ) 
      &             EM_REG_FAC( :,:,N_EM_RGN ) = 
-     &                EM_REG_FAC( :,:,N_EM_RGN ) + 
-     &                EM_REG_FAC( :,:,JRGN )
+     &                MIN( 1.0, EM_REG_FAC( :,:,N_EM_RGN ) + 
+     &                          EM_REG_FAC( :,:,JRGN ) )
            END DO
         END DO
       END IF
