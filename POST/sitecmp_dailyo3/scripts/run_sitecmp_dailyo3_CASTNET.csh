@@ -117,7 +117,7 @@
 #> The column headings for the optional variables need to be
 #> gmt_offset, state, county, and elevation (case insensitive)
 #> This file can be downloaded from
-#> https://github.com/USEPA/AMET/tree/1.4/obs/AQ/site_metadata_files
+#> https://github.com/USEPA/AMET/tree/master/obs/AQ/site_metadata_files
  setenv SITE_FILE CASTNET_full_site_list.csv
 #> On EPA system:
 #  setenv SITE_FILE /work/MOD3EVAL/aq_obs/routine/site_metadata_files/CASTNET_full_site_list.csv

@@ -9,7 +9,12 @@ wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-c-4.7.0.tar.gz
 2. Untar the file 
 
 ```
-tar -tzvf netcdf-c-4.7.0.tar.gz
+tar -xzvf netcdf-c-4.7.0.tar.gz
+```
+
+3. Change directories into the package
+```
+cd netcdf-c-4.7.0
 ```
 
 3. Verify that no modules are currently loaded using module commands. 
@@ -40,7 +45,7 @@ more INSTALL.md
 7. Create a target installation directory that includes the loaded module environment name. 
 
 ```
-mkdir /home/netcdf-c-4.7.0-intel18.2
+mkdir $cwd/netcdf-c-4.7.0-intel18.2
 ```
 
 8. Run the configure --help command to see what settings can be used for the build.
@@ -50,29 +55,47 @@ mkdir /home/netcdf-c-4.7.0-intel18.2
 
 9. Set the Compiler environment variables
 
+First find the path to the CC compiler on your system using the which command
+```
+which icc
+```
+Next, replace the following path in the setenv command below to use the path to your CC compiler
+
+```
+setenv CC /urs/local/apps/intel/18.2/bin/icc
+```
+
+Find the path to the Fortran compiler on your ssystem using the which command
 ```
 which ifort
-which icc
-wihch icpc
-
-setenv CC /urs/local/apps/intel/18.2/bin/icc
+```
+Next, replace the following path in the setenv command below to use the path to the Fortran compiler on your system
+```
 setenv FC /urs/local/apps/intel/18.2/bin/ifort
+```
+
+Find the path to the CXX compiler on your system using the which command
+```
+which icpc
+```
+Next, replace the following path in the setenv command below to use the path to the CXX compiler on your system:
+```
 setenv CXX /urs/local/apps/intel/18.2/bin/icpc
 ```
 
 10. Run the configure command
 
 ```
-./configure --prefix=/home/netcdf-c-4.7.0-intel18.2 --disable-netcdf-4 --disable-dap
+./configure --prefix=$cwd/netcdf-c-4.7.0-intel18.2 --disable-netcdf-4 --disable-dap
 ```
 
 11. Check that the configure command worked correctly
 
 ```
-make check install
+make check install |& tee make.install.log.txt
 ```
 
-12. Verify that the following message is obtained
+12. Verify that the following message is obtained at the end of your make.install.log.txt file
 
 ```
 | Congratulations! You have successfully installed netCDF!    |
@@ -101,7 +124,7 @@ cd netcdf-fortran-4.4.5
 4. Make an install directory that matches the name of your loaded module environment
 
 ```
-mkdir /home/netcdf-fortran-4.4.5-intel18.2
+mkdir $cwd/netcdf-fortran-4.4.5-intel18.2
 ```
 
 5. Review the installation document http://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html
@@ -109,18 +132,33 @@ mkdir /home/netcdf-fortran-4.4.5-intel18.2
 6. Set the environment variable NCDIR
 
 ```
-setenv NCDIR /home/netcdf-c-4.7.0-intel18.2
+setenv NCDIR $cwd/netcdf-c-4.7.0-intel18.2
 ```
 
 7. Set the CC environment variable to use the intel compilers
 
+First find the path to the CC compiler on your system using the which command
+```
+which icc
+```
+Next, replace the following path in the setenv command below to use the path to your CC compiler
+```
+setenv CC /urs/local/apps/intel/18.2/bin/icc
+```
+Find the path to the Fortran compiler on your ssystem using the which command
 ```
 which ifort
-which icc
-wihch icpc
-
-setenv CC /urs/local/apps/intel/18.2/bin/icc
+```
+Next, replace the following path in the setenv command below to use the path to the Fortran compiler on your system
+```
 setenv FC /urs/local/apps/intel/18.2/bin/ifort
+```
+Find the path to the CXX compiler on your system using the which command
+```
+which icpc
+```
+Next, replace the following path in the setenv command below to use the path to the CXX compiler on your system:
+```
 setenv CXX /urs/local/apps/intel/18.2/bin/icpc
 ```
 
@@ -160,7 +198,7 @@ echo $LD_LIBRARY_PATH
 13. Run the make check command
 
 ```
-make check
+make check |& tee make.check.log.txt
 ```
 
 Output if successful:
@@ -175,7 +213,7 @@ Testsuite summary for netCDF-Fortran 4.4.5
 14. Run the make install command
 
 ```
-make install
+make install |& tee ./make.install.log.txt
 ```
 
 Output successful if you see:
@@ -221,26 +259,46 @@ https://cjcoats.github.io/ioapi/AVAIL.html
 git clone https://github.com/cjcoats/ioapi-3.2
 ```
 
-2. Change the BIN setting in the Makefile to include the loaded module name
+2. Change the BIN setting on line 133 of the Makefile to include the loaded module name
 
 ```
-BIN        = Linux2_x86_64ifort_openmpi_4.0.1_intel18.2
+BIN        = Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
 ```
 
-3. Copy an existing Makeinclude file to have this BIN name at the end
+3. Change the NCFLIBS setting on line 141 of the Makefile to be
+
+```
+NCFLIBS    = -lnetcdff -lnetcdf
+```
+
+4. Copy an existing Makeinclude file to have this BIN name at the end
 
 ```
 cd ioapi
-cp Makeinclude.Linux2_x86_64ifort Makeinclude.Linux2_x86_64ifort_openmpi_4.0.1_intel18.2
+cp Makeinclude.Linux2_x86_64ifort Makeinclude.Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
 ```
 
-4. Create a BIN directory
+5. Edit the Makeinclude file, lines 27 and 28 to use -qopenmp instead of -openmp
 
 ```
+OMPFLAGS  = -qopenmp
+OMPLIBS   = -qopenmp
+```
+
+6. Set the environment variable BIN
+
+```
+setenv BIN Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
+```
+
+7. Create a BIN directory under the ioapi-3.2 directory
+
+```
+cd ..
 mkdir $BIN
 ```
 
-5. Link the netcdf-C and netcdf-Fortran library in the $BIN directory
+8. Link the netcdf-C and netcdf-Fortran library in the $BIN directory
 
 ```
 cd $BIN
@@ -248,13 +306,13 @@ ln -s /home/netcdf-c-4.7.0-intel18.2/libnetcdff.a
 ln -s /home/netcdf-fortran-4.4.5-intel18.2/libnetcdf.a
 ```
 
-6. Run the make command to compile and link the ioapi library
+9. Run the make command to compile and link the ioapi library
 
 ```
-make |& tee make.log
+make all |& tee make.log
 ```
 
-7. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
+10. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
 
 ```
 cd $BIN
@@ -262,5 +320,5 @@ ls -lrt libioapi.a
 ls -rlt m3xtract
 ```
 
-8. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md). 
+11. After successfull completion of this tutorial, the user is now ready to proceed to the [CMAQ Installation & Benchmarking Tutorial](./CMAQ_UG_tutorial_benchmark.md). 
 

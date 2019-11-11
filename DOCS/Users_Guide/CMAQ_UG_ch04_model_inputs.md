@@ -113,7 +113,7 @@ This section describes each of the input files required by the various CMAQ prog
 |[mcip.nc](#mcip) <a id=mcip_t></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
 |[mcip_bdy.nc](#mcip_bdy) <a id=mcip_bdyt></a>| netCDF | varies by field | varies by field | MCIP|required if IOFORM=2 (Currently not compatible with rest of CMAQ system.)|
 |**Emissions Inputs**||||||
-|[EmissCtrl_matrix_nml](./Appendix/CMAQ_UG_appendixB_emissions_control.md#) <a id=matrix_nml_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
+|[EmissCtrl_matrix_nml](#emissctrl) <a id=emissctrl_t></a>|ASCII|n/a|n/a|CMAQ repo|required|
 |[GR_EMIS_XXX*](#emis_xxx) <a id=emis_xxx_t></a> | GRDDED3 | Hourly | XYZ | SMOKE|required|
 |[STK_GRPS_XXX](#stk_grps) <a id=stk_grps_t></a> | GRDDED3 |Time-invariant|XY | SMOKE|required|
 |[STK_EMIS_XXX](#stk_emis) <a id=stk_emis_t></a> | GRDDED3 | Hourly | XY | SMOKE|required|
@@ -420,6 +420,26 @@ Used by: ICON, BCON, CCTM, and some optional programs
 ## 4.8 Emissions Inputs
 <a id=emis_xxx></a>
 
+**EmissCtrl_matrix_nml: Emissions Control Namelist**
+<a id=emissctrl></a>
+
+<!-- BEGIN COMMENT -->
+
+[Return to Table 4-1](#emissctrl_t)
+
+<!-- END COMMENT -->
+
+In addition to the options available in the RunScript, CMAQ now reads a dedicated namelist in order to apply comprehensive rules for reading and scaling emissions. The namelist, called the Emission Control Namelist is named "EmissCtrl.nml" by default and a separate version exists for every mechanism because these namelists are preloaded with likely rules linking emissions of important CMAQ primary species to their typical surrogate names as output by SMOKE. By default, this namelist is stored in each chemical mechanism folder (e.g. MECHS/cb6r3_ae7_aq) and is copied into the user's build directory when bldit_cctm.csh is executed. If the user modifies the name or location of this namelist, then the following command in the RunScript should be updated as well:
+```
+setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
+```
+
+The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
+
+* [Jump to DESID Tutorial](Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
+* [Jump to Emissions overview](CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
+
+
 **GR_EMIS_XXX: Emissions**
 
 <!-- BEGIN COMMENT -->
@@ -480,7 +500,7 @@ The elevated-point-source emissions file is an I/O API GRDDED3 file with emissio
 
 Used by: CCTM – lightning NO<sub>x</sub> version only
 
-The NLDN lightning strikes file is used for calculating online NO emissions from hourly observed strike counts. This file contains the following variables interpolated to the modeling grid:
+The NLDN lightning strikes file is used for calculating online NO emissions from hourly observed strike counts. (Hourly NLDN lightning strike data can be purchased from a private vendor.) This file contains the following variables interpolated to the modeling grid:
 
 <a id=Table4-4></a>
 
@@ -491,6 +511,8 @@ The NLDN lightning strikes file is used for calculating online NO emissions from
  |LNT|hourly flash counts per sq. km.|km<sup>-2</sup>|yes|
 
 <a id=ltngparm_file></a>
+
+Use of lightning strike data in CMAQ simulations is discussed further in [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md).
 
 **LTNGPARMS_FILE: Lightning parameters file**
 
@@ -522,6 +544,8 @@ This file contains the following variables interpolated to the modeling grid:
 |OCNMASK| Land/water mask to remove spurious flashes over the ocean|unitless|yes|
 
 *Regression equation generates flash counts (or log flash counts) per square km per cm convectic precipitation.
+
+Use of lightning strike data in CMAQ simulations is discussed further in [Chapter 6](CMAQ_UG_ch06_model_configuration_options.md).
 
 ## 4.9 Biogenic and Land Surface Inputs
 
