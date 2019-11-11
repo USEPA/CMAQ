@@ -129,30 +129,7 @@ mkdir $cwd/netcdf-c-4.7.0-pgi_19.7
 
 First find the path to the CC compiler on your system using the which command
 ```
-which pgicc
-```
-Next, replace the following path in the setenv command below to use the path to your CC compiler
-
-```
-setenv CC pgicc
-```
-
-Find the path to the Fortran compiler on your ssystem using the which command
-```
-which pgf90
-```
-Next, replace the following path in the setenv command below to use the path to the Fortran compiler on your system
-```
-setenv FC pgf90
-```
-
-Find the path to the CXX compiler on your system using the which command
-```
-which pgc++
-```
-Next, replace the following path in the setenv command below to use the path to the CXX compiler on your system:
-```
-setenv CXX pgc++
+which pgcc
 ```
 
 10. Run the configure command
@@ -324,20 +301,13 @@ NCFLIBS    = -lnetcdff -lnetcdf
 
 ```
 cd ioapi
-cp Makeinclude.Linux2_x86_64ifort Makeinclude.Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
+cp Makeinclude.Linux2_x86_64pg Makeinclude.Linux2_x86_64_openmpi_4.0.2_pgi_19.7
 ```
 
-5. Edit the Makeinclude file, lines 27 and 28 to use -qopenmp instead of -openmp
+5. Set the environment variable BIN
 
 ```
-OMPFLAGS  = -qopenmp
-OMPLIBS   = -qopenmp
-```
-
-6. Set the environment variable BIN
-
-```
-setenv BIN Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
+setenv BIN Linux2_x86_64_openmpi_4.0.2_pgi_19.7
 ```
 
 7. Create a BIN directory under the ioapi-3.2 directory
@@ -351,8 +321,8 @@ mkdir $BIN
 
 ```
 cd $BIN
-ln -s /home/netcdf-c-4.7.0-intel18.2/libnetcdff.a
-ln -s /home/netcdf-fortran-4.4.5-intel18.2/libnetcdf.a
+ln -s /proj/ie/proj/CMAS/CMAQ/CMAQv5.3_branch_pgi/pgi_19.7_openmpi_4.0.2/LIB/netcdf-c-4.7.0/netcdf-c-4.7.0-pgi_19.7/lib/libnetcdf.a
+ln -s /proj/ie/proj/CMAS/CMAQ/CMAQv5.3_branch_pgi/pgi_19.7_openmpi_4.0.2/LIB/netcdf-fortran-4.4.5/netcdf-fortran-4.4.5-pgi_19.7/lib/libnetcdff.a
 ```
 
 9. Run the make command to compile and link the ioapi library
