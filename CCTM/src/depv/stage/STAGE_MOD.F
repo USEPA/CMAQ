@@ -498,15 +498,12 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                      Rwat   = scw_pr_23 / ( heff_wat * d3 * ustar )
                   END IF
                   Flux     = (c_atm-c_wat)/( Ra + Rb + Rwat )                         ! positive values for deposition
-                  If( c_wat .Gt. 0.0 ) Then
-                     pvd( n ) =  pvd( n ) + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
-                     depvel_gas( n ) = depvel_gas( n ) + frac_lu / ( Ra + Rb + Rwat )
-                     f_emis = f_emis + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
-                     f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
-                     f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
-                  Else
-                     depvel_gas( n ) = depvel_gas( n ) + frac_lu / ( Ra + Rb + Rwat )
-                  End If
+
+                  pvd( n ) =  pvd( n ) + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
+                  depvel_gas( n ) = depvel_gas( n ) + frac_lu / ( Ra + Rb + Rwat )
+                  f_emis = f_emis + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
+                  f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
+                  f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
                   Tile_Data%pol( l,s,c,r ) = c_wat / ( Ra + Rb + Rwat )
                   Tile_Data%depvel_gasj( l,s,c,r ) = Flux / c_atm
                Else ! Land
