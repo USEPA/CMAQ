@@ -610,8 +610,8 @@ Potential Combustion SOA (PCSOA) was added to CMAQv5.2 to account for missing PM
 [Jump to DESID Tutorial](Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
 
 <a id=a-pinene></a>
-#### A-Pinene separated from other monoterpenes
-If using chemical mechanism CB6r3 and aerosol module AERO7 (cb6r3_ae7) with offline biogenic emissions, a-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as a-pinene should not make SOA through NO3 reaction.  Users can still use existing biogenic emission files by updating the emission control file. No action required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/aero7_overview.md) for further details. 
+#### &#945;-Pinene separated from other monoterpenes
+If using chemical mechanism CB6r3 and aerosol module AERO7 (cb6r3_ae7) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/aero7_overview.md) for further details. 
 
 <a id=6.10_Gas_Phase_Chem></a>
 
