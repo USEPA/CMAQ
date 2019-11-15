@@ -498,17 +498,15 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                      Rwat   = scw_pr_23 / ( heff_wat * d3 * ustar )
                   END IF
                   Flux     = (c_atm-c_wat)/( Ra + Rb + Rwat )                         ! positive values for deposition
-                  If(ABFLUX .And. s .Eq. s_NH3 ) Then 
-                     pvd( n ) =  pvd( n ) + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
-                     depvel_gas( n ) = depvel_gas( n ) + frac_lu / ( Ra + Rb + Rwat )
-                     f_emis = f_emis + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
-                     f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
-                     f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
+                  If(c_wat .Gt. 0.0 ) Then 
+                     Tile_Data%depvel_gasj( l,s,c,r ) = 1.0 / ( Ra + Rb + Rwat )
+                     Tile_Data%pol( l,s,c,r ) = c_wat / ( Ra + Rb + Rwat )
                   Else
-                     depvel_gas( n ) = depvel_gas( n ) + frac_lu / ( Ra + Rb + Rwat )
+                     Tile_Data%depvel_gasj( l,s,c,r ) = Flux / c_atm
                   End If
-                  Tile_Data%pol( l,s,c,r ) = c_wat / ( Ra + Rb + Rwat )
-                  Tile_Data%depvel_gasj( l,s,c,r ) = Flux / c_atm
+                  f_emis = f_emis + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
+                  f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
+                  f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
                Else ! Land
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-snow exchange
@@ -522,14 +520,10 @@ C Calcuate Rwet
 C The conditional slowed down model run time and was uncessary as the resistance model only uses rwet
 C if wet or metl_snow > 1
 
-!                  If ( wet .Gt. 0.0 .OR. melt_snow .Gt. 0.0 ) Then
-                     rad_wat = 1.9e-4
-                     rmsv    = sqrt( 3.0 * RGASUNIV * 1.0e3 * temp_g / molwt_all( s ) ) 
-                     rawmt   = rad_wat / dif_T  + 4.0 / ( rmsv  * M_ac( s ) )
-                     rwet   = rawmt + rawmt/( heff * rad_wat )
-!                  Else 
-!                     rwet = 1.0e6
-!                  End If
+                  rad_wat = 1.9e-4
+                  rmsv    = sqrt( 3.0 * RGASUNIV * 1.0e3 * temp_g / molwt_all( s ) ) 
+                  rawmt   = rad_wat / dif_T  + 4.0 / ( rmsv  * M_ac( s ) )
+                  rwet   = rawmt + rawmt/( heff * rad_wat )
 
 !-------------------------------------------------------------------------------------------------
 ! Resistance to air-canopy exchange
@@ -611,7 +605,6 @@ C Calcuate Bare Soil Resistance
          ! Wet Ground
                   If(ABFLUX .And. s .Eq. s_NH3) Then
                      Call Get_NH3_Comp( c_stom, c_grnd, rgdry, dif_T, r, c, l, s )
-!                     rgdry  = rgdry
                      Rgc = no_snow * rgdry +                                                   ! Snow free soil 
      &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff + rwet ) ) ) +    ! Snow covered soil
      &                     Rbgc + Rinc                                                                ! Incanopy resistances
@@ -632,8 +625,6 @@ C Calcuate Bare Soil Resistance
                      Else                   
                         rgdry  = rg0 * a0 / rel_rx( s )     
                      End If
-!                     Write(logdev,*) 'JOB: rwet ',rwet, 'melt_snow',melt_snow,'snow',snow
-
                      Rgc = no_snow * ( 1.0/ ( dry / rgdry +                                      ! Snow free dry soil 
      &                     wet / rwet ) ) +                                                          ! Snow free wet soil 
      &                     snow * ( 1.0 / ( ice_snow / Rsnow + melt_snow / ( rsndiff + rwet ) ) ) +  ! Snow covered soil
@@ -682,17 +673,17 @@ C Calcuate Bare Soil Resistance
      &                  1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst)+1.0/(Rgc*Rcut)) 
                      cs0_z0     = (c_atm/Ra+cs0_leaf/Rb_leaf)/(1.0/Ra+1.0/Rb_leaf+1.0/Rgc)
                     If( Ag( l ) ) Then
-                        flux_ag = flux_ag + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra + 
-     &                                        no_veg * ( c_grnd - c_atm ) / Rg )
-                        soil_dep  = soil_dep + frac_lu * ( veg * cs0_z0 / Rgc
-     &                            + no_veg / ( Ra + Rg ) * c_atm )  ! soil layer
-                        soil_emis = soil_emis + max( frac_lu * ( veg * (c_grnd-ca0_z0) / Rgc  
-     &                            + no_veg / (Ra + Rg) * c_grnd ),0.0)             ! soil layer
-                        soil_flux  = soil_flux + veg * ( c_grnd - c_z0 ) / Rgc
-     &                             + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg )  ! soil layer
+                       flux_ag = flux_ag + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra + 
+     &                                       no_veg * ( c_grnd - c_atm ) / Rg )
+                       soil_dep  = soil_dep + frac_lu * ( veg * cs0_z0 / Rgc
+     &                           + no_veg / ( Ra + Rg ) * c_atm )  ! soil layer
+                       soil_emis = soil_emis + max( frac_lu * ( veg * (c_grnd-ca0_z0) / Rgc  
+     &                           + no_veg / (Ra + Rg) * c_grnd ),0.0)             ! soil layer
+                       soil_flux  = soil_flux + veg * ( c_grnd - c_z0 ) / Rgc
+     &                            + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg )  ! soil layer
                     Else
                        f_nat = f_nat + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra - 
-     &                                          no_veg * c_atm / Rg )          
+     &                                            no_veg * c_atm / Rg )          
                     End If
                     f_dep = f_dep + frac_lu * ( veg * ( c_atm - cs0_z0 ) / Ra + 
      &                      no_veg * c_atm / ( Ra + Rg ) )
@@ -703,25 +694,23 @@ C Calcuate Bare Soil Resistance
 !-------------------------------------------------------------------------------------------------
 ! Bidirectional exchange
 !-------------------------------------------------------------------------------------------------                                                               
-                     pvd( n ) =  pvd( n ) + frac_lu * ( veg * c_z0 / Ra                  !Vegetation flux
-     &                       + no_snow * no_veg * c_grnd / ( Ra + Rg ) )                 !Bare soil flux w/ no snow emissions
                      Tile_Data%pol( l,s,c,r ) = ( veg * c_z0 / Ra                        !Vegetation flux
      &                       + no_snow * no_veg * c_grnd / ( Ra + Rg ) )                 !Bare soil flux w/ no snow emissions
                      Tile_Data%depvel_gasj( l,s,c,r ) = veg / Ra + no_veg / ( Ra + Rg )  !Exchange velocity with compensation point
-                     depvel_gas( n ) = depvel_gas( n ) + frac_lu * Tile_Data%depvel_gasj( l,s,c,r )
-                    f_soil = f_soil + frac_lu * ( veg * ( ( c_grnd - c_z0 ) / Rgc ) + 
+                     f_soil = f_soil + frac_lu * ( veg * ( ( c_grnd - c_z0 ) / Rgc ) + 
      &                                         no_veg * (c_grnd - c_atm)/( Ra + Rg ) )            ! air-soil flux
-                    f_stom = f_stom + frac_lu * veg * ( c_stom - c_leaf ) / Rst 
-                    f_cut  = f_cut  + frac_lu * veg * ( c_cut  - c_leaf ) / Rcut  
-
+                     f_stom = f_stom + frac_lu * veg * ( c_stom - c_leaf ) / Rst 
+                     f_cut  = f_cut  + frac_lu * veg * ( c_cut  - c_leaf ) / Rcut  
                   Else
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
 !-------------------------------------------------------------------------------------------------   
-                     Tile_Data%depvel_gasj( l,s,c,r ) =  veg * (1.0-c_z0/c_atm)/Ra + no_veg /( Ra + Rg )                                                            
-                     depvel_gas( n ) = depvel_gas( n ) + frac_lu * Tile_Data%depvel_gasj( l,s,c,r )                  
+                     Tile_Data%depvel_gasj( l,s,c,r ) =  Flux / c_atm               
                   End If ! compensation points greater than 0
-               End If ! Water      
+               End If ! Water    
+! Generalization of the production and deposition velocity terms
+               pvd( n )        = pvd( n )        + frac_lu * Tile_Data%pol( l,s,c,r )
+               depvel_gas( n ) = depvel_gas( n ) + frac_lu * Tile_Data%depvel_gasj( l,s,c,r )
             End Do lu_loop
             If(ABFLUX .And. s .Eq. s_NH3 ) Then
                cmp( 1 ) = max( f_emis, 0.0 )
@@ -781,22 +770,12 @@ C unit per second). Calculate pseudo-first order rate constant using Eq 1
 C of Vogel et al. (2003).  Unit of KNO2 is in 1/min in the paper; divide it
 C by 60 to convert it into 1/sec.
 
-!                 kno2 = MAX( 0.0, 3.0E-3 * (surf_leaf + surf_bldg) / 60.0 )
                kno2 = MAX( 0.0, 5.0E-5 * (surf_leaf + surf_bldg) )
 
 C Determine NO2 concentration needed for HONO production term.
 
                IF ( s .EQ. s_NO2 ) THEN
                   conc_no2 = cgridl1( n )
-
-C Loss of NO2 via the heterogeneous reaction is accounted as additional
-C depositional loss. Add the loss of NO2 via the heterogeneous reaction
-C to the regular deposition velocity (increased dep. vel.).  This will
-C reduce the NO2 conc. in the atmosphere. Dep vel is adjusted back to the
-C original value in vdiffacm2 after NO2 conc is reduced but before calculating
-C depositional loss.
-
-!                    depvel_gas( n,c,r ) = depvel_gas( n,c,r ) + 2.0 * kno2 * zf( c,r )
 
                END IF
 C Calculate production (pvd) for HONO; unit = ppm * m/s
