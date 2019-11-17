@@ -181,8 +181,6 @@ C-------------------------------------------------------------------------------
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          End If
 
-         gamma1  = 0.0
-         gamma2  = 0.0
          fagam1  = 0.0
          fagam2  = 0.0
          MHp1    = 0.0
@@ -200,6 +198,9 @@ C-------------------------------------------------------------------------------
 ! time in the files is not the same
          If ( .Not. MEDC_AVAIL ) Then
             Write(Logdev,*) 'Estimating soil NHx from EPIC output'
+            gamma1  = 0.0
+            gamma2  = 0.0
+
             If ( .Not. E2C_CHEM_AVAIL ) Then
                xmsg = E2C_CHEM // ' file not available'
                Call M3exit ( pname, jdate, jtime, xmsg, xstat1 )
@@ -317,8 +318,6 @@ C-------------------------------------------------------------------------------
                   Knit2  = Knit2  + Beld_ag(:,:,l) * Nit2(:,:,l)
                   NH4_G1 = NH4_G1 + Beld_ag(:,:,l) * NH4ps1(:,:,l)
                   NH4_G2 = NH4_G2 + Beld_ag(:,:,l) * NH4ps2(:,:,l)
-                  gamma1 = gamma1 + convl1 * NH4ps1(:,:,l) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
-                  gamma2 = gamma2 + convl2 * NH4ps2(:,:,l) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
                   fagam1 = fagam1 + convl1 * F1_NH4(:,:,l) / 10.0 ** (-pHs1(:,:,l) ) * Beld_ag(:,:,l)
                   fagam2 = fagam2 + convl2 * F2_NH4(:,:,l) / 10.0 ** (-pHs2(:,:,l) ) * Beld_ag(:,:,l)
                End Where
@@ -326,7 +325,7 @@ C-------------------------------------------------------------------------------
                   frac_ir = frac_ir + Beld_ag( :,:,l )
                End If                    
             End Do
-            Where( frac_ag .gt. 0.0 )
+            Where( frac_ag .gt. 0.0 .and. fagam1 .gt. 0.0 )
                MHp1 = MHp1 / frac_ag
                MHp2 = MHp2 / frac_ag
                gamma1 = max( gamma1 + fagam1 / frac_ag, 630.0 )
