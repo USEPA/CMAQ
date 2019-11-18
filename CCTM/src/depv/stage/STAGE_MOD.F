@@ -517,9 +517,6 @@ C Calcuate Rsnow
 ! Resistance to air-wet surface exchange
 !-------------------------------------------------------------------------------------------------
 C Calcuate Rwet
-C The conditional slowed down model run time and was uncessary as the resistance model only uses rwet
-C if wet or metl_snow > 1
-
                   rad_wat = 1.9e-4
                   rmsv    = sqrt( 3.0 * RGASUNIV * 1.0e3 * temp_g / molwt_all( s ) ) 
                   rawmt   = rad_wat / dif_T  + 4.0 / ( rmsv  * M_ac( s ) )
