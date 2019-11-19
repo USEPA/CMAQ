@@ -10,43 +10,6 @@
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
-! Emissions Scaling Variables                                                  !
-!    This section includes specific variables for governing the behavior of the!
-!    emissions scaling routines. Explanations are provided below.              !
-!------------------------------------------------------------------------------!
-
-&GeneralSpecs
-
- Guard_BiogenicVOC   = .FALSE.  !If True, then using 'ALL' to identify all of the available 
- Guard_MarineGas     = .FALSE.  !  streams will not apply to these streams. They will, in
- Guard_LightningNO   = .FALSE.  !  effect, be 'guarded' from the scaling operation.
- Guard_WindBlownDust = .FALSE.
- Guard_SeaSpray      = .FALSE.
-
-/
-
-&ChemicalFamilies
- NChemFamilies         = 1
- ChemFamilyName(1)     = 'VOC'
- ChemFamilyNum(1)      = 4
- ChemFamilyMembers(1,:)= 'TOL','XYLMN','BENZENE','NAPH'
-/
-
-&StreamFamilies
- NStreamFamilies         = 1
- StreamFamilyName(1)     = 'Anthropogenic'
- StreamFamilyNum(1)      = 3
- StreamFamilyMembers(1,:)= 'POINT_NONEGU','POINT_EGU','POINT_OTHER'
-/
-
-&RegionFamilies
- NRegionFamilies         = 1
- RegionFamilyName(1)     = 'Water'
- RegionFamilyNum(1)      = 2
- RegionFamilyMembers(1,:)= 'SURF','OPEN'
-/
-
-!------------------------------------------------------------------------------!
 ! Emissions Scaling Specification Section                                      !
 !   Each rule is presented as a row of inputs. The syntax of the               !
 !   emissions scaling rules is the following:                                  !
@@ -318,14 +281,6 @@
    'EVERYWHERE', 'ALL'   ,'PMCOARSE_SOIL','ASOIL'     ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL' ,'PMCOARSE_SEACAT','ASEACAT'   ,'COARSE',1.   ,'UNIT','a', 
    
-   ! Practice Rules for Testing out DESID Families -------------------------------
-   'EVERYWHERE', 'ALL' ,            'ALL' ,'VOC'       ,'GAS'   ,0.5  ,'UNIT','m', 
-   'EVERYWHERE', 'ANTHROPOGENIC' ,  'PEC' ,'AEC'       ,'FINE'  ,0.1  ,'UNIT','m', 
-   'SURF'      , 'ANTHROPOGENIC' ,  'ALL' ,'VOC'       ,'GAS'   ,4.0  ,'UNIT','m', 
-   'OPEN'      , 'ANTHROPOGENIC' ,  'NVOL','ALD2'      ,'GAS'   ,0.66 ,'UNIT','a', 
-   'WATER'     , 'GRIDDED_EMIS'  ,  'UNK' ,'VOC'       ,'GAS'   ,1.7  ,'MASS','a',
-   ! -----------------------------------------------------------------------------
-
                                                                     
                             !> CUSTOM MAPPING EXAMPLES <!              
                                                                     
@@ -415,11 +370,46 @@
 
 &RegionsRegistry
  RGN_NML  =   
- !          | Region Label   | File_Label    | Variable on File
+ !          | Region Label  | File_Label    | Variable on File
  !<Default>    'EVERYWHERE'  ,'N/A'          ,'N/A',
                'OPEN'       ,'CMAQ_MASKS'   ,'OPEN',
                'SURF'       ,'CMAQ_MASKS'   ,'SURF',
 /
 
+!------------------------------------------------------------------------------!
+! Emissions Scaling Family Definitions                                         !
+!    This section includes definitions for families of CMAQ chemical species,  !
+!    emission streams and region combinations. Please see the Emissions        !
+!    Scaling Specification Section for a definitions of CMAQ species, Regions, !
+!    and Streams. For each type of family, please indicate the number of       !
+!    families you are prescribing (e.g. NChemFamilies=1). Then for each Family !
+!    indicate the Name, the number of components, and the name of each         !
+!    component. All entries are case-insensitive. See the Emissions tutorial   !
+!    in the CMAQ Repository for detailed directions for how to work with       !
+!    Families.                                                                 !
+!                                                                              !
+!    The examples below may be uncommented and modified for your use.          !
+!------------------------------------------------------------------------------!
 
+!&ChemicalFamilies
+! NChemFamilies         = 1
+! ChemFamilyName(1)     = 'NOX'
+! ChemFamilyNum(1)      = 2
+! ChemFamilyMembers(1,:)= 'NO','NO2'
+!/
+
+!&StreamFamilies
+! NStreamFamilies         = 1
+! StreamFamilyName(1)     = 'POINT_SOURCES'
+! StreamFamilyNum(1)      = 3
+! StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
+!/
+
+!&RegionFamilies
+! NRegionFamilies         = 1
+! RegionFamilyName(1)     = 'Water'
+! RegionFamilyNum(1)      = 2
+! RegionFamilyMembers(1,:)= 'SURF','OPEN'
+!/
+ 
  

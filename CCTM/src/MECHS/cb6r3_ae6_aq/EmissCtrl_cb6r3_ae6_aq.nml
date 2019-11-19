@@ -10,21 +10,6 @@
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
-! Emissions Scaling Variables                                                  !
-!    This section includes specific variables for governing the behavior of the!
-!    emissions scaling routines. Explanations are provided below.              !
-!------------------------------------------------------------------------------!
-
-&GeneralSpecs
-
- Guard_BiogenicVOC   = .FALSE.  !If True, then using 'ALL' to identify all of the available 
- Guard_MarineGas     = .FALSE.  !  streams will not apply to these streams. They will, in
- Guard_LightningNO   = .FALSE.  !  effect, be 'guarded' from the scaling operation.
- Guard_WindBlownDust = .FALSE.
- Guard_SeaSpray      = .FALSE.
-
-/
-!------------------------------------------------------------------------------!
 ! Emissions Scaling Specification Section                                      !
 !   Each rule is presented as a row of inputs. The syntax of the               !
 !   emissions scaling rules is the following:                                  !
@@ -392,5 +377,40 @@
  !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
 /
 
+!------------------------------------------------------------------------------!
+! Emissions Scaling Family Definitions                                         !
+!    This section includes definitions for families of CMAQ chemical species,  !
+!    emission streams and region combinations. Please see the Emissions        !
+!    Scaling Specification Section for a definitions of CMAQ species, Regions, !
+!    and Streams. For each type of family, please indicate the number of       !
+!    families you are prescribing (e.g. NChemFamilies=1). Then for each Family !
+!    indicate the Name, the number of components, and the name of each         !
+!    component. All entries are case-insensitive. See the Emissions tutorial   !
+!    in the CMAQ Repository for detailed directions for how to work with       !
+!    Families.                                                                 !
+!                                                                              !
+!    The examples below may be uncommented and modified for your use.          !
+!------------------------------------------------------------------------------!
 
+!&ChemicalFamilies
+! NChemFamilies         = 1
+! ChemFamilyName(1)     = 'NOX'
+! ChemFamilyNum(1)      = 2
+! ChemFamilyMembers(1,:)= 'NO','NO2'
+!/
+
+!&StreamFamilies
+! NStreamFamilies         = 1
+! StreamFamilyName(1)     = 'POINT_SOURCES'
+! StreamFamilyNum(1)      = 3
+! StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
+!/
+
+!&RegionFamilies
+! NRegionFamilies         = 1
+! RegionFamilyName(1)     = 'Water'
+! RegionFamilyNum(1)      = 2
+! RegionFamilyMembers(1,:)= 'SURF','OPEN'
+!/
+ 
  
