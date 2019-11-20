@@ -119,6 +119,7 @@ C       Feb 2019 D. Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
 C       01 AUG 19 D.Wong: Modified code to work with two-way model and
 C                         introduced convective scheme logical
+C       11 Nov 19 F. Sidi: Changed MTSEP to accomdate Centralized I/O changes
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -479,11 +480,7 @@ C...  the met timestep in hours
 
         SDATE = cio_model_sdate
         STIME = cio_model_stime
-#ifdef twoway
-        MSTEP = cio_data_tstep_met
-#else                
-        MSTEP = cio_data_tstep
-#endif
+        MSTEP = file_tstep(f_met)
 
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
 
