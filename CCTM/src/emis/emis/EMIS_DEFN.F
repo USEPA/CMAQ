@@ -262,7 +262,8 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
      &                       SA_VDEMIS_DIFF_OTHER,
      &                       MAP_DIFFtoSA, SPC_NAME, NSPC_SA,
      &                       ISAMRGN_TEMP, ISAMRGN, ISAMRGN_NUM,
-     &                       ISAMRGN_MAP, TAGS_PER_STREAM
+     &                       ISAMRGN_MAP, TAGS_PER_STREAM,
+     &                       ISAM_PVO3_MAP, L_OZONE
          USE VDIFF_MAP, ONLY : DIFF_MAP, DIFF_SPC
 #endif
 
@@ -317,6 +318,10 @@ C Map Emissions streams to ISAM tags
             MAP_DIFFtoSA    = 0
             TAGSTREAMS      = 'empty'
 
+#ifdef potvorto3
+            ALLOCATE ( ISAM_PVO3_MAP( NTAG_SA ) )
+            ISAM_PVO3_MAP = 0
+#endif
             DO ITAG = 1, NTAG_SA-3
 
 C Count the number of streams going to each ISAM tag
@@ -328,6 +333,23 @@ C Parse out the stream names the user wants tagged
 
 C Find emissions stream in the list of available streams
               DO ISRM = 1, TAGSTREAMS_NUM( ITAG )
+                 IF ( TAGSTREAMS(ITAG,ISRM) .EQ. 'PVO3' ) THEN
+#ifdef potvorto3
+                    IF ( L_OZONE ) THEN
+                      ISAM_PVO3_MAP(ITAG) = 1
+                      CYCLE
+                    ELSE
+                      XMSG = " Must specifiy OZONE ISAM TAG CLASS" //
+     &                       " in isam_control to track PVO3 "
+                      CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
+                    ENDIF
+#else
+                    XMSG = " To track PVO3, model must be compiled" //
+     &                     " with -Dpotvorto3 option. Check Makefile" //
+     &                     " and/or build script."
+                    CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
+#endif
+                 ENDIF
                  IDX = INDEX1(TAGSTREAMS(ITAG,ISRM),N_EM_SRM,EM_FILE_LAB )
                  IF ( IDX .EQ. 0 ) THEN
                    XMSG = " User specified ISAM tag - " //

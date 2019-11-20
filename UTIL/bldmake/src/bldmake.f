@@ -322,13 +322,20 @@
       Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
       Write( lfn, '("#      $(LIB)/netcdff -> ",a)' ) Trim( netcdff_lib_dir )
       Write( lfn, '("#",/,"#   Command-Line Options:      ")' ) 
-      Write( lfn, '("#      DEBUG = TRUE or true -- turn on debug flags ")' ) 
-      Write( lfn, '("#  OR  debug = true or TRUE -- turn on debug flags ")' ) 
-      Write( lfn, '("#  Can set either variable by using the setenv command for")' ) 
-      Write( lfn, '("#  a debugging session with multiple compilations")' ) 
+      
+      If( debug_cctm )Then
+         Write( lfn, '("#      DEBUG = FALSE or false -- turn off debug flags ")' )
+         Write( lfn, '("#  OR  debug = false or FALSE -- turn off debug flags ")' )
+         Write( lfn, '("#  Can set either variable by using the setenv command to")' )
+         Write( lfn, '("#  turn off debugging session with multiple compilations")' )
+      Else
+         Write( lfn, '("#      DEBUG = TRUE or true -- turn on debug flags ")' ) 
+         Write( lfn, '("#  OR  debug = true or TRUE -- turn on debug flags ")' ) 
+         Write( lfn, '("#  Can set either variable by using the setenv command for")' ) 
+         Write( lfn, '("#  a debugging session with multiple compilations")' ) 
+      End if
       Write( lfn, '("#")' ) 
       Write( lfn, '("#------------------------------------------------- ")' ) 
-
 
       ! Begin Makefile Commands
       Write( lfn, '(/" EXEC = ",a)' ) Trim( model )
@@ -352,6 +359,12 @@
       Write( lfn, '(/" WARN = ")' )
       Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
       Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
+
+      If( debug_cctm )Then
+         Write( lfn, '(/" ifndef debug")')
+         Write( lfn, '( "   debug = true")')
+         Write( lfn, '( " endif")')
+      End If
 
       Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true True T ))")')
       Write( lfn, '( "     DEBUG = TRUE")' )
@@ -516,8 +529,14 @@
 
       End If
 
+      If( isam_cctm )Then
+         Write( lfn, '(/" ifndef isam")')
+         Write( lfn, '( "   isam = true")')
+         Write( lfn, '( " endif")')
+      End If
+
       Write( lfn, '(/" ifneq (,$(filter $(isam), TRUE true True T ))")')
-      Write( lfn, '( "     CPP_FLAGS   = $(cpp_flags) -Disam" )' ) 
+      Write( lfn, '( "     CPP_FLAGS   = -Disam $(cpp_flags)" )' ) 
       Write( lfn, '( " else")' )
       Write( lfn, '( "     CPP_FLAGS   = $(cpp_flags)" )' ) 
       Write( lfn, '( " endif")' )
