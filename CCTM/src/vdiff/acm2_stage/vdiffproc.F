@@ -147,6 +147,7 @@ C Local Variables:
       REAL, ALLOCATABLE, SAVE :: EMIS_PA( :,:,:,: )   ! emis for process analysis
 
       INTEGER, SAVE :: N_SPC_CGRID              ! no. of CGRID species
+      INTEGER, SAVE :: NH3_HIT
 
       REAL     :: EDDYV ( NCOLS,NROWS,NLAYS )   ! from EDYINTB
       REAL     :: SEDDY ( NLAYS,NCOLS,NROWS )   ! flipped EDDYV
@@ -342,6 +343,11 @@ C Set up for grav. settling
             END IF   ! if Fst
          END IF   ! if Mosaic
 !--------------------------------------------------------------------------------------------------
+         DO V = 1, N_SPC_DEPV
+            IF ( DV2DF_SPC( V ) .EQ. 'NH3' ) THEN
+               NH3_HIT = V
+            END IF
+         END DO
 
       END IF   !  if Firstime
 
@@ -671,6 +677,20 @@ C Write other diagnostics
                END DO
             END DO
             CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
+         END IF
+         IF( ABFLUX ) THEN
+! Swap diagnostic deposition and fluxes for NH3 to allow the same post processing scripts for
+! both bidirectional and unidirectional simulations.
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3',
+     &           MDATE, MTIME, ICMP( 2,:,: ) ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF     
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, 'NH3_Flux',
+     &           MDATE, MTIME, DDEP(NH3_HIT,:,:) ) ) THEN
+               XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
+               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF     
          END IF
 
 C re-set dry deposition array to zero

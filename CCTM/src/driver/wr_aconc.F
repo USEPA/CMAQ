@@ -36,6 +36,7 @@ C                      Added a section of code to allow non IO processors
 C                        to open A_CONC_1
 C   19 May 16 D.Wong: renamed ACONC_END_TIME to AVG_FILE_ENDTIME
 C   27 Mar 17 D.Wong: removed redundant parallel_io ifdef construct
+C   09 Sep 19 F. Sidi: Replaced L_ACONC_WVEL(depreciated) with W_VEL
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -147,7 +148,7 @@ C Override default beginning time timestamp for ACONC?
       END DO
  
       ! Write Vertical Velocity to Average Concentration File
-      IF ( L_ACONC_WVEL ) THEN
+      IF ( W_VEL ) THEN
         IF ( .NOT. WRITE3( A_CONC_1, 'WVEL',
      &        MDATE, MTIME, AVG_WVEL ) ) THEN
               XMSG = 'Could not write Vertical Wind Velocity'

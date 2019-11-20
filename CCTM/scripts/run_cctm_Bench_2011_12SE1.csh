@@ -142,8 +142,6 @@ setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y
 setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
                              #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO Y         #> turn on lightning NOx [ default: N ]
-setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
-                             #>    file [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
@@ -204,6 +202,8 @@ setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default:
 setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
 setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N ]
+setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
+                             #>    file [ default: Y ]
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -269,7 +269,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
-     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}.nc
      setenv INITIAL_RUN N
   endif
 

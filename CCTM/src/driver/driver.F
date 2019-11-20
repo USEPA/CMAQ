@@ -97,8 +97,9 @@ C                      with new re-structure of LUS_DEFN, most of the data decla
 C                      has been moved to lus_data_module (model_data_module.f) and to
 C                      call lus_setup to setup land use information according to land
 C                      use scheme
-C   08/02/19 F. Sidi:  Restored serial processing option
+C   02 Aug 19 F. Sidi: Restored serial processing option
 C   03 AUG 19 D.Wong:  Modified code to work with two-way model
+C   09 Sep 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL 
 C-----------------------------------------------------------------------
 
       USE RXNS_DATA             ! chemical mechanism data
@@ -574,7 +575,7 @@ C Initialize Meteorology Structures
          CALL INIT_BIDI( )
          CALL INIT_MET( JDATE, JTIME )
          CALL GET_MET ( JDATE, JTIME, 0 )
-         CALL GET_WVEL( JDATE, JTIME )
+         IF ( W_VEL ) CALL GET_WVEL( JDATE, JTIME ) ! If the user wants vertical velocity written to file, retrieve it.
 
          FIRST_RUN = .FALSE.
 
@@ -658,7 +659,7 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
             END DO
 #endif
 
-         IF ( L_ACONC_WVEL )
+         IF ( W_VEL )
      &      AVG_WVEL( :,:,: ) = WVEL( :,:,ACONC_BLEV:ACONC_ELEV )
          IF ( L_ACONC_RH )
      &      AVG_RH( :,:,: ) = MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV)
@@ -678,12 +679,14 @@ C science process sequence:
             CALL SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
 
 #ifndef mpas
+C Use trapezoidal rule to time-average data
+
          DO V = 1, N_ASPCS
             S = AVG_CONC_MAP( V )
             AGRID( :,:,:,V ) = AGRID( :,:,:,V )
      &            + 2.0 * CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S )
          END DO
-         IF ( L_ACONC_WVEL )
+         IF ( W_VEL )
      &      AVG_WVEL( :,:,: ) = AVG_WVEL + 2.0 * WVEL( :,:,ACONC_BLEV:ACONC_ELEV )
          IF ( L_ACONC_RH )
      &      AVG_RH( :,:,: ) = AVG_RH + 2.0 * MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV )
@@ -724,7 +727,7 @@ C science process sequence:
             AGRID( :,:,:,V ) = DIVFAC * ( AGRID( :,:,:,V )
      &           - CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S ) )
          END DO
-         IF ( L_ACONC_WVEL )
+         IF ( W_VEL )
      &         AVG_WVEL( :,:,: ) = DIVFAC * ( AVG_WVEL( :,:,: ) - WVEL( :,:,ACONC_BLEV:ACONC_ELEV ) )
          IF ( L_ACONC_RH )
      &         AVG_RH( :,:,: ) = DIVFAC * ( AVG_RH( :,:,: ) - MET_DATA%RH( :,:,ACONC_BLEV:ACONC_ELEV ) )
