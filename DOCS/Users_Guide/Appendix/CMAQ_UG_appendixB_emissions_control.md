@@ -7,7 +7,7 @@
 * * *
 
 # Appendix B: Emissions Input and Control
-[Jump to DESID Tutorial](../Tutorials/CMAQ_UG_appendixB_emissions_control.md) for step by step instructions on performing some basic manipulation of emission streams.
+[Jump to DESID Tutorial](../Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
 
 [Jump to Emissions overview](../CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
 
@@ -18,7 +18,7 @@ In addition to the options available in the RunScript, CMAQ now reads a dedicate
 setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
 ```
 
-The Detailed Emissions Speciation, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
+The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
 
 ## B.2 General Specs
 These variables modify or constrain the effects of other sections of the namelist. The "Guard_XXX" options allow the user to protect specific streams from being modified by scaling rules (explained in section B.3) with the "ALL" keyword in the stream field. For example, the "Guard_BiogenicVOC" option instructs the model not to scale biogenic VOC emissions from the online BEIS module, even if a rule indicates that "ALL" streams are to be scaled. The other "Guard_XXX" options achieve the same effect for other online emissions sources like wind-blown dust, sea spray, marine gas, and lightning NO.
@@ -238,6 +238,9 @@ This variable sets the default behavior for all streams. If the variables for an
 
 The emission rates printed to the diagnostic files reflect all the scaling rules applied and are written just before the emissions are added to the CMAQ transport module. Because the model interpolates in time, it is very likely that the rates written to the diagnostic file will not correspond in time to the rates from the input files. In most cases, the rates will be one-half time step before the top of the hour, the time point of the emission inputs. For this reason, it is not entirely helpful for users to compare the scaled emissions directly to the rates on the input files. However, comparing them qualitatively can be helpful.
 
+<!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
 CMAQ User's Guide (c) 2019<br>
+
+<!-- END COMMENT -->

@@ -1,5 +1,5 @@
 !!! CMAQ-ISAM tag definition control file
-!!!   (lines begining with !!! - three exclamation marks - are ignored by the text parser
+!!!   (lines begining with !!! - three exclamaition marks - are ignored by the text parser)
 !!!
 !!!   Example file provided with CMAQ v5.3 release
 !!!   05 June 2019: Sergey L. Napelenok
