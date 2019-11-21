@@ -9,6 +9,8 @@
 
 # Appendix A: Model options
 
+<!-- BEGIN COMMENT -->
+
 <a id=TOC_A></a>
 ## Table of Contents:
 
@@ -30,11 +32,16 @@
 	* [Online Biogenic Emissions Configuration](#Online_Bio_Config)
 	* [Windblown Dust Emissions Configuration](#windblown_dust_config)
 
+<!-- END COMMENT -->
+
 <a id=config_cmaq.csh></a>
+
 ## A.1 Configuration Options (config_cmaq.csh)
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 Consistency of configuration variables is critical for building CMAQ itself, not just its libraries. Accordingly, CMAQ includes the configuration script config_cmaq.csh to help enforce consistent environment settings for CMAQ and its associated libraries. The following lists the config_cmaq.csh variables defined for the build process and suggests values to which to set those variables.
@@ -125,10 +132,13 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
 -   `CMAQ_REPO` <a id=CMAQ_REPO></a> This is always the location of the CMAQ repository that the user will pull from to create exectuables. If the user is building CMAQ inside the repository then it will be equal to CMAQ_HOME. If not, the user must supply an alternative folder location.
 
 <a id=bldit_cctm.csh></a>
+
 ## A.2 Compilation Options (bldit_cctm.csh)
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 The configuration options listed here are set during compilation of the CCTM executable through the build script, bldit_cctm.csh, located under the CCTM/scripts folder. When these options are invoked they create a binary executable that is fixed to the specified configuration. To change these options, you must recompile CCTM and create a new executable.
@@ -265,10 +275,13 @@ Calculate inline plume rise for large point sources using the Briggs algorithm a
     - `pv_o3`
     
 <a id=run_cctm.csh></a>
+
 ## A.3 Execution Options (run_cctm.csh)
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 The environment variables listed below are invoked during execution of the CCTM and are set in the CCTM run script, run_cctm.csh located under the CCTM/scripts folder.
@@ -294,10 +307,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     The name of the CCTM executable.  
 
 <a id=MPI_Config></a>
+
 ### MPI Configuration
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `NPCOL_NPROW [default: 1 1]`<a id=NPCOL_NPROW></a>  
@@ -306,20 +322,26 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Number of processors to allocate for the CCTM simulation; equal to the product of NPCOL x NPROW. For serial or single-processor MPI runs set to `1`, otherwise set to the product of the two numbers used in NPCOL_NPROW.  
 
 <a id=Vertical_Ext></a>
+
 ### Vertical extent
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -    `NZ [default: 35]`<a id=NZ></a>  
       Set the number of vertical layers.  
 
 <a id=Timestep_Config></a>
+
 ### Timestep Configuration
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `NEW_START [default: TRUE]`<a id=NEW_START></a>  
@@ -336,10 +358,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Simulation output time step interval (HHMMSS)  
 
 <a id=CCTM_Config_Options></a>
+
 ### CCTM Configuration Options
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `GRID_NAME [default: Blank]`<a id=GRID_NAME></a>  
@@ -364,10 +389,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     The name of the CCTM executable; automatically set by the script.  
 
 <a id=Syn_time_Option></a>
+
 ### Synchronization Time Step and Tolerance Options
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `CTM_MAXSYNC [default: 720]`<a id=CTM_MAXSYNC></a>  
@@ -394,9 +422,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     to solution
 
 <a id=Science_Options></a>
+
 ### Science Options
+
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `CTM_OCEAN_CHEM [default: True]`<a id=CTM_SS_AERO></a>   
@@ -440,10 +472,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
      In the inline option for photolysis rates, solve Mie Theory to calculate the optical properties of the aerosol modes based on spheres with an elemental carbon core.
 
 <a id=Process_Analysis_Options></a>
+
 ### Process analysis options
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `CTM_PROCAN [default: N]`<a id=CTM_PROCAN></a>  
@@ -460,10 +495,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
      The output file that displays how CMAQ translates the variables listed in `PACM_INFILE`, and lists the reactions (including reactants, products and yields) that will be used in calculating the IPR and IRR values.  
 
 <a id=I/O_Controls></a>
+
 ### I/O Controls
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `IOAPI_LOG_WRITE [default:False]`<a id=IOAPI_LOG_WRITE></a>  
@@ -476,10 +514,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     I/O API setting for large time step records. If your output time step is going to produce data that are >2GB per time step, then this needs to be set to YES.  
 
 <a id=Aersol_Diagnostics_Controls></a>
+
 ### Aerosol Diagnostics Controls
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `CTM_PMDIAG [default: False]`<a id=CTM_PMDIAG></a>  
@@ -490,10 +531,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Modeling grid domain layer range for the hourly average aerosol diagnostics and properties file. Set to the two digits representing the bottom and top layer numbers to bound the output domain. Comment out this variable or set it to 0 to output all layers. Set the value to "1 1" to output just the surface layer.
 
 <a id=Diagnostic_Output_Flags></a>
+
 ### Diagnostic Output Flags
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `CTM_CKSUM [default: True]`<a id=CTM_CKSUM></a>  
@@ -519,10 +563,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Y/N setting to output the CCTM-calculated vertical velocities to the CONC and ACONC file. 
     
 <a id=Inline_Emissions_Config></a>
+
 ### Inline emissions configuration
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `STK_GRPS_### `<a id=STK_GRPS_###></a>  
@@ -544,10 +591,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Number of time steps for calculating elevated-point-source emissions.   
 
 <a id=Lightning_NOx_Config></a>
+
 ### Lightning NOx configuration
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `LTNGNO [default: "InLine"]`<a id=LTNGNO></a>  
@@ -567,7 +617,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 ### Online biogenic emissions configuration
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `GSPRO [default: Build Directory]`<a id=GSPRO></a>  
@@ -598,10 +650,13 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Diagnostic output netCDF file of biogenic emissions. This variable is ignored if B3GTS_DIAG is set to N.  
 
 <a id=windblown_dust_config></a>
+
 ### Windblown dust emissions configuration
 
 <!-- BEGIN COMMENT -->
+
 [Return to Top](#TOC_A)
+
 <!-- END COMMENT -->
 
 -   `DUST_LU_1 [default: Path to BELD3 Data]`<a id=DUST_LU_1></a>  
@@ -615,6 +670,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 
 <!-- BEGIN COMMENT -->
+
 [<< Tables and Figures](../CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
  CMAQ User's Guide (c) 2019<br>
  
