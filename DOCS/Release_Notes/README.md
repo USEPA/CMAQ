@@ -6,11 +6,14 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor updat
 [Tutorial on installing and running the CMAQ test case](../Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)  
 [CMAQv5.3.1 User's Guide](../Users_Guide/README.md)
 
-# Summary of CMAQv5.2.1 Updates  
-
+# Summary of CMAQv5.3.1 Updates  
+* [Bug Fixes](CMAQv5.3.1_bugfixes.md)
+* [Add support for defining chemical, region and stream families in DESID](DESID_families.md)
+* [New  grid mask files to support regional analysis with DESID and ISAM](regional_12US1_gridmask.md)
 
 
 -----
+
 # Summary of CMAQv5.3 Updates
 
 The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a major update. CMAQv5.3 includes several changes to the science algorithms in the base model (CCTM), as well as updates to instrumented models, pre-processors, post-processors and utilities. CMAQv5.3 was primarily developed by the U.S. EPA, and it includes contributions from research partners.  The enhancements to the CMAQ modeling system since the previous release (CMAQv5.2.1) are summarized below.
