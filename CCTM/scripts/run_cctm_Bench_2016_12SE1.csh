@@ -335,7 +335,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016ff_16j.nc
   setenv GR_EMIS_002 ${EMISpath2}/${EMISfile}
-  setenv GR_EMIS_LAB_002 GRIDDED_RWC
+  setenv GR_EMIS_LAB_002 GR_RES_FIRES
   setenv GR_EM_SYM_DATE_002 F
 
   #> In-line point emissions configuration
