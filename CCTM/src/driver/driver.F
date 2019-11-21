@@ -99,7 +99,8 @@ C                      call lus_setup to setup land use information according to
 C                      use scheme
 C   02 Aug 19 F. Sidi: Restored serial processing option
 C   03 AUG 19 D.Wong:  Modified code to work with two-way model
-C   09 Sep 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL 
+C   09 Sep 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL
+C   21 Nov 19 S.L.Napelenok: Include DDM3D for versions 5.3.1
 C-----------------------------------------------------------------------
 
       USE RXNS_DATA             ! chemical mechanism data
@@ -136,6 +137,10 @@ C-----------------------------------------------------------------------
       USE SA_DEFN
       USE PISAM_DEFN            ! SA array definition (borrowed )
 c     USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
+#endif
+
+#ifdef sens
+      USE DDM3D_DEFN
 #endif
 
 #ifdef parallel
@@ -458,14 +463,6 @@ C Initialize PISAM
          END IF
          ISAM => PISAM( 1:NCOLS,1:NROWS,:,:,: )
 
-C Pointer for mapfrac
-c        IF ( .NOT. PMFRC_INIT ( NTAG_SA-3 ) ) THEN
-c           XMSG = 'Failure in defining SA horizontal domain'
-c           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
-c        END IF
-c        MFRC_P = PMFRC( 1:NCOLS,1:NROWS,: )
-c        MFRC_P = MAPFRAC
-
 C Allocate arrays of species indices, tagging indices, and
 C variable names for the combined species-tags
 C i.e. set s_spctag, t_spctag, and vnam_spctag
@@ -484,6 +481,14 @@ C Initialize optional derived vertical velocity writes to conc file
             XMSG = 'Failure initializing derived vertical velocity writes'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2  )
          END IF
+
+#ifdef sens
+C Initialize ddm3d calculations
+         CALL INIT_DDM3D
+
+#endif
+
+
 #endif
 
          call centralized_io_init
