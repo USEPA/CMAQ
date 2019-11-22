@@ -177,6 +177,13 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
 
+setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
+                             #>   rather than checking the emissions date against the internal model date.
+                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
+                             #>   time will be used and an error check will be performed (recommended). Users 
+                             #>   may switch the behavior for individual emission files below using the variables:
+                             #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [default: N]
+
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
 setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
@@ -317,6 +324,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set    EMISfile  = emis_mole_all_${YYYYMMDD}_4CALIF1_cmaq_saprc07TB_2011eh_saprc_10g.ncf
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
+  setenv GR_EMIS_SYM_DATE_001 F
   
   #> In-Line Point Emissions configuration
   setenv N_EMIS_PT 7          #> Number of elevated source groups
@@ -351,6 +359,16 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_LAB_005 PT_RXFIRES
   setenv STK_EMIS_LAB_006 PT_OILGAS
   setenv STK_EMIS_LAB_007 PT_MARINE
+
+  # Allow CMAQ to Use Point Source files with dates that do not
+  # match the internal model date (Representative Days)
+  setenv STK_EM_SYM_DATE_001 T
+  setenv STK_EM_SYM_DATE_002 T
+  setenv STK_EM_SYM_DATE_003 T
+  setenv STK_EM_SYM_DATE_004 T
+  setenv STK_EM_SYM_DATE_005 T
+  setenv STK_EM_SYM_DATE_006 T
+  setenv STK_EM_SYM_DATE_007 T
 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
