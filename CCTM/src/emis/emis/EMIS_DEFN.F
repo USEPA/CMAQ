@@ -50,6 +50,8 @@ C                         clauses, replaced IOS with LOGDEV when calling GET_ENV
 C     15 May 2019 D.Wong: Put the check for using marine gas emission or not in RUNTIME_VAR.F
 C     4 Oct 2019 D.Wong: fixed the time advancement, NEXTIME, for a multi-day run in subroutine
 C                        GRIDEMIS
+C     22 Nov 2019 F. Sidi: Re-introduced date override variable for representative
+C                          Day Emissions
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -2194,7 +2196,7 @@ C and allowing the model to proceed.
          INTEGER ISRM, N
 
          CHARACTER( 16 )  :: PNAME = 'EM_FILE_INIT'
-         CHARACTER( 22 )  :: VLAB
+         CHARACTER( 32 )  :: VLAB
          CHARACTER( 16 )  :: VNAME
          INTEGER          :: STATUS
          CHARACTER( 200 ) :: XMSG
@@ -2243,6 +2245,7 @@ C and allowing the model to proceed.
          Allocate( EM_FILE_LDIAG ( N_EM_SRM ) )
          Allocate( EM_DIAG_FILE  ( N_EM_SRM ) )
          Allocate( EM_FILE_DATE  ( N_EM_SRM ) )
+         Allocate( EM_FILE_SYM_DATE ( N_EM_SRM ) ) 
          Allocate( EM_FILE_FIRE  ( N_EM_SRM ) )
          Allocate( IGSRM         ( N_EM_SRM ) )
          Allocate( IPSRM         ( N_EM_SRM ) )
@@ -2257,6 +2260,7 @@ C stkemis_init.
          ISRM = 0
          EM_FILE_LAPPLY = .TRUE.
          EM_FILE_DATE   = JDATE
+         EM_FILE_SYM_DATE = EMIS_SYM_DATE ! representative day files (default: false)
          EM_FILE_FIRE   = .FALSE.
          EM_GRID_LAYS   = 0
          
@@ -2299,6 +2303,12 @@ C stkemis_init.
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
      &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
  
+              ! Retrieve Toggle for overriding emissions file date with
+              ! internal model date
+              WRITE( VLAB,'( "GR_EM_SYM_DATE_",I3.3 )' ) N
+              CALL GET_ENV( EM_FILE_SYM_DATE( ISRM ), VLAB, 
+     &                      EMIS_SYM_DATE, LOGDEV )
+ 
               ! Retrieve Toggle for Outputing Gridded Emissions
               ! Diagnostic File
               WRITE( VLAB,'( "GR_EMIS_DIAG_",I3.3 )' ) N
@@ -2340,6 +2350,12 @@ C stkemis_init.
               WRITE( VLAB,'( "STK_EMIS_APPLY_",I3.3 )' ) N
               CALL GET_ENV( EM_FILE_LAPPLY( ISRM ), VLAB, 
      &                      EM_FILE_LAPPLY( ISRM ), LOGDEV )
+ 
+              ! Retrieve Toggle for overriding emissions file date with
+              ! internal model date
+              WRITE( VLAB,'( "STK_EM_SYM_DATE_",I3.3 )' ) N
+              CALL GET_ENV( EM_FILE_SYM_DATE( ISRM ), VLAB, 
+     &                      EMIS_SYM_DATE, LOGDEV )
  
               ! Retrieve Toggle for Outputing Inline Emissions
               ! Diagnostic File
