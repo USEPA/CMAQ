@@ -18,7 +18,7 @@ To activate the STM option, edit the CTM runscript and set the following environ
 
 - setenv STM_SO4TRACK Y
 
-The STM option does not require any additional input files, and will used the initial conditions, boundary conditions, and emissions files available for use with the standard, non-instrumented CCTM.
+The STM option does not require any additional input files, and uses the initial conditions, boundary conditions, and emissions files available for with the standard, non-instrumented CCTM.
 
 Next, run the CMAQ CTM following the instructions described in Chapter 5, section 5.7.
 
