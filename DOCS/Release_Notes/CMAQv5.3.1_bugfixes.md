@@ -1,4 +1,4 @@
-# CMAQv5.3.1 Bugfixes
+# CMAQv5.3.1 Bug fixes
 
 ## 1. *CTM_WVEL* run script option 
 [Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
@@ -13,8 +13,19 @@ file is never allocated and is being used to calculate the average vertical velo
 
 ### Files Affected 
 
+## 2. Error reading multiple Region Files for use in DESID 
+[Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
 
-## 2. Diagnostic File for Lightning NOx
+### Description of model issue
+When multiple region files were read in, the model crashed with segmentaion fault.
+
+### Solution in CMAQv5.3.1 
+In the initialization routine for region masks, the population of the region masks should to occur outside of the file loop rather than inside. Essentially, the arrays storing the region values were being incremented incorrectly and beyond the appropriate length set by the allocation commands. 
+
+### Files Affected 
+centralized_io_module.F
+
+## 3. Diagnostic File for Lightning NOx
 [Daiwen Kang](mailto:Kang.Daiwen@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -23,8 +34,8 @@ file is never allocated and is being used to calculate the average vertical velo
 
 ### Files Affected 
 
-## 3. Time step limiation for boundary condition input file
-[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+## 4. Time step limiation for boundary condition input file
+[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 The current implementation of the Centralized Input/Output Module only supports BNDY_CONC_1 files that have a time step of 1 hour. 
@@ -38,8 +49,8 @@ that the BNDY_CONC_1 cannot be read for the requested time step.
 CCTM/src/cio/centralized_io_module.F
 
 
-## 4. Start Time at 8:00UTC
-[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+## 5. Start Time at 8:00UTC
+[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -48,8 +59,8 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-## 5. Emission Layers
-[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+## 6. Emission Layers
+[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -58,8 +69,8 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-## 6. Variable Output Timestep
-[Bill Hutzell](mailto:Hutzell.Bill@epa.gov), U.S. Environmental Protection Agency
+## 7. Variable Output Timestep
+[Bill Hutzell](mailto: Hutzell.Bill@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -68,8 +79,8 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-## 7. STAGE
-[Jesse Bash](mailto:Bash.Jesse@epa.gov), U.S. Environmental Protection Agency
+## 8. STAGE
+[Jesse Bash](mailto: Bash.Jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -78,8 +89,8 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-## 8. ISAM Chlorine
-[Sergey Napelenok](mailto:Napelenok.Sergey@epa.gov), U.S. Environmental Protection Agency
+## 9. ISAM
+[Sergey Napelenok](mailto: Napelenok.Sergey@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -88,26 +99,9 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-## 9. Coupled WRF-CMAQ Model issue with RUNLEN environment variable
-[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
-### Description of model issue
-
-### Solution in CMAQv5.3.1
-
-### Files Affected 
-
-## 10. Bugfix for Reading Multiple Regions Files
-[Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
-
-### Description of model issue
-
-### Solution in CMAQv5.3.1
-
-### Files Affected 
-
-## 11. Bugfixs for MCIP
-[Tanya Spero](mailto:Spero.Tanya@epa.gov), U.S. Environmental Protection Agency
+## 10. Coupled WRF-CMAQ Model
+[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
