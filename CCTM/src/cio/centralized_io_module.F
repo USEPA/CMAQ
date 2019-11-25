@@ -2589,6 +2589,11 @@ C Read the various categories of normalized emissions
                    loc_vname = cio_grid_var_name(v,1)(1:str_len-4)
 
                    data_jdate = loc_jdate(f_emis(fnum))
+                   ! Check if its a representative day on start-up (every other time it will
+                   ! be managed by the emissions processing) 
+                   if (firstime) then  
+                     if (file_sym_date(f_emis(fnum))) loc_jdate(f_emis(fnum)) = file_sdate(f_emis(fnum))
+                   end if
                    data_jtime = loc_jtime(f_emis(fnum))
 
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
