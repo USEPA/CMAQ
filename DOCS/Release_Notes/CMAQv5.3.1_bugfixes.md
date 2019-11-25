@@ -99,7 +99,6 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-
 ## 10. Coupled WRF-CMAQ Model
 [David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
@@ -108,3 +107,14 @@ CCTM/src/cio/centralized_io_module.F
 ### Solution in CMAQv5.3.1
 
 ### Files Affected 
+
+
+## 11. Bugfixes for MCIP
+[Tanya Spero](mailto:Spero.Tanya@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+
+### Solution in CMAQv5.3.1
+
+### Files Affected
+
