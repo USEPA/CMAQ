@@ -10,8 +10,27 @@ the model immediately crashes. This is because the array that stores the vertica
 file is never allocated and is being used to calculate the average vertical velocity to be written to the average concentration file.
 
 ### Solution in CMAQv5.3.1
+The array that stores the vertical velocity component for writing is now properly allocated. The model will no longer terminate execution with a segmentation fault. The updates will also allow users to flexibly toggle CTM_WVEL on/off independently of the CONC_SPCS_LIST. Note: If the user decides to write this diagnostic variable out, the variable will be reported to both the conc and aconc species.
 
 ### Files Affected 
+ modified: CCTM/src/driver/AVG_CONC.F
+ modified: CCTM/src/driver/STD_CONC.F
+ modified: CCTM/src/driver/WVEL_DEFN.F
+ modified: CCTM/src/driver/driver.F
+ modified: CCTM/src/driver/wr_aconc.F
+ modified: CCTM/src/driver/wr_conc.F
+ modified: CCTM/src/driver/wr_init.F
+ modified: CCTM/src/init/opaconc.F
+ modified: CCTM/src/init/opconc.F
+ modified: CCTM/src/vadv/local_cons/zadvyppm.F
+ modified: CCTM/src/vadv/wrf_cons/zadvppmwrf.F
+ modified: CCTM/scripts/run_cctm_2010_4CALIF1.csh (Moved CTM_WVEL to diagnostic outputs)
+ modified: CCTM/scripts/run_cctm_2011_12US1.csh (Moved CTM_WVEL to diagnostic outputs)
+ modified: CCTM/scripts/run_cctm_2014_12US1.csh (Moved CTM_WVEL to diagnostic outputs)
+ modified: CCTM/scripts/run_cctm_2015_HEMI.csh (Moved CTM_WVEL to diagnostic outputs)
+ modified: CCTM/scripts/run_cctm_2016_12US1.csh (Moved CTM_WVEL to diagnostic outputs)
+ modified: CCTM/scripts/run_cctm_Bench_2011_12SE1.csh (Moved CTM_WVEL to diagnostic outputs)
+ modified: CCTM/scripts/run_cctm_Bench_2016_12SE1.csh (Moved CTM_WVEL to diagnostic outputs)
 
 ## 2. Error reading multiple Region Files for use in DESID 
 [Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
