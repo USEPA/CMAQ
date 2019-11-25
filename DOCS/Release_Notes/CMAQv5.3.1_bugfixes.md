@@ -1,4 +1,4 @@
-# CMAQv5.3.1 Bug fixex
+# CMAQv5.3.1 Bugfixes
 
 ## 1. *CTM_WVEL* run script option 
 [Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
@@ -99,6 +99,15 @@ CCTM/src/cio/centralized_io_module.F
 
 ## 10. Bugfix for Reading Multiple Regions Files
 [Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+
+### Solution in CMAQv5.3.1
+
+### Files Affected 
+
+## 11. Bugfixs for MCIP
+[Tanya Spero](mailto:Spero.Tanya@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
