@@ -35,7 +35,7 @@ centralized_io_module.F
 ### Files Affected 
 
 ## 4. Time step limiation for boundary condition input file
-[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 The current implementation of the Centralized Input/Output Module only supports BNDY_CONC_1 files that have a time step of 1 hour. 
@@ -50,7 +50,7 @@ CCTM/src/cio/centralized_io_module.F
 
 
 ## 5. Start Time at 8:00UTC
-[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -60,7 +60,7 @@ CCTM/src/cio/centralized_io_module.F
 
 
 ## 6. Emission Layers
-[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -70,7 +70,7 @@ CCTM/src/cio/centralized_io_module.F
 
 
 ## 7. Variable Output Timestep
-[Bill Hutzell](mailto: Hutzell.Bill@epa.gov), U.S. Environmental Protection Agency
+[Bill Hutzell](mailto:Hutzell.Bill@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -80,7 +80,7 @@ CCTM/src/cio/centralized_io_module.F
 
 
 ## 8. STAGE
-[Jesse Bash](mailto: Bash.Jesse@epa.gov), U.S. Environmental Protection Agency
+[Jesse Bash](mailto:Bash.Jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -90,7 +90,7 @@ CCTM/src/cio/centralized_io_module.F
 
 
 ## 9. ISAM
-[Sergey Napelenok](mailto: Napelenok.Sergey@epa.gov), U.S. Environmental Protection Agency
+[Sergey Napelenok](mailto:Napelenok.Sergey@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -100,7 +100,7 @@ CCTM/src/cio/centralized_io_module.F
 
 
 ## 10. Coupled WRF-CMAQ Model
-[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
