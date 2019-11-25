@@ -1,6 +1,6 @@
 # CMAQv5.3.1 Bug fixex
 
-## *CTM_WVEL* run script option 
+## 1. *CTM_WVEL* run script option 
 [Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -14,7 +14,7 @@ file is never allocated and is being used to calculate the average vertical velo
 ### Files Affected 
 
 
-## Diagnostic File for Lightning NOx
+## 2. Diagnostic File for Lightning NOx
 [Daiwen Kang](mailto:Kang.Daiwen@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -23,8 +23,8 @@ file is never allocated and is being used to calculate the average vertical velo
 
 ### Files Affected 
 
-## Time step limiation for boundary condition input file
-[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+## 3. Time step limiation for boundary condition input file
+[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 The current implementation of the Centralized Input/Output Module only supports BNDY_CONC_1 files that have a time step of 1 hour. 
@@ -38,8 +38,8 @@ that the BNDY_CONC_1 cannot be read for the requested time step.
 CCTM/src/cio/centralized_io_module.F
 
 
-## Start Time at 8:00UTC
-[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+## 4. Start Time at 8:00UTC
+[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -48,8 +48,8 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-## Emission Layers
-[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+## 5. Emission Layers
+[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -58,8 +58,8 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-## Variable Output Timestep
-[Bill Hutzell](mailto: Hutzell.Bill@epa.gov), U.S. Environmental Protection Agency
+## 6. Variable Output Timestep
+[Bill Hutzell](mailto:Hutzell.Bill@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -68,8 +68,8 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-## STAGE
-[Jesse Bash](mailto: Bash.Jesse@epa.gov), U.S. Environmental Protection Agency
+## 7. STAGE
+[Jesse Bash](mailto:Bash.Jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -78,8 +78,8 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
-## ISAM
-[Sergey Napelenok](mailto: Napelenok.Sergey@epa.gov), U.S. Environmental Protection Agency
+## 8. ISAM Chlorine
+[Sergey Napelenok](mailto:Napelenok.Sergey@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
@@ -88,9 +88,17 @@ CCTM/src/cio/centralized_io_module.F
 ### Files Affected 
 
 
+## 9. Coupled WRF-CMAQ Model issue with RUNLEN environment variable
+[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
-## Coupled WRF-CMAQ Model
-[David Wong](mailto: Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+### Description of model issue
+
+### Solution in CMAQv5.3.1
+
+### Files Affected 
+
+## 10. Bugfix for Reading Multiple Regions Files
+[Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
 
