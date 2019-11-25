@@ -1,5 +1,32 @@
 CHANGES for MCIP
 
+MCIP Version 5.1 (25 November 2019)
+
+- Expanded options to allow for surface analysis nudging option 2 (FASDAS),
+  which has been available since WRFv3.8.
+
+  Changed files:  mcip5/blddesc.f90
+                  mcip5/setup_wrfem.f90
+
+
+- Corrected setting for namelist variable file_geo in namelist generation
+  part of the script.
+
+  Changed files:  mcip5/run_mcip.csh
+
+
+- Corrected error in setting the 3D fractional cloud coverage on one of the
+  lateral boundaries.
+
+  Changed files:  mcip5/ctmproc.f90
+
+
+- Updated release stamp.
+
+  Changed files:  mcip5/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
 MCIP Version 5.0 (19 June 2019)
 
 - Updated units of output fields to conform to CF compliance.  These units
