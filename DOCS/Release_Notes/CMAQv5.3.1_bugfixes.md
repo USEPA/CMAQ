@@ -78,11 +78,17 @@ CCTM/src/cloud/acm_ae7_kmt2/convcld_acm.F, CCTM/src/cloud/acm_ae6_mp/rescld.F, C
 [David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
+Setting [CTM_BIOGEMIS](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to Y in the WRF-CMAQ model did not correctly produce the SOILOUT file after a simulation period was completed. This led to a crash when restarting the model the next day with inilization from the previous days run. This issue was traced back to the inline biogenics algorithm which only writes the SOILOUT file if the model has reached its run length, a runscript environmental variable (CTM_RUNLEN). However, in the WRF-CMAQ Model this runscript environmental variable was not being read in picking up the default value of 48 hours defined in RUNTIME_VARS.F. Thus, if no value is read in and a simulation period other than 48 hours was used the SOILOUT file would not be produced.
+
+Setting [CTM_WBDUST](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to Y in the WRF-CMAQ model when running this option with the land-use database being what is provided from WRF results in a crash. This crash is a result of the bounds of extraction being incorrect. The bounds of extraction are calculated once for all standard files (i.e. files with the same spatial information as the initial condition file). This is not an issue in the offline model, as WRF outputs are processed through MCIP and physical files are created to be read in, where the file size is the same as the IC file. However, in the WRF-CMAQ model WRF outputs are processed *by each processor* through aq_prep and are written to in-memory buffers for each processor. Therefore, each processor stores a piece of the entire domain and the same bounds for a standard physical file cannot be used to extract this data. 
 
 ### Solution in CMAQv5.3.1
+To solve the SOILOUT issue, the WRF-CMAQ model was updated to properly read the environmental variable CTM_RUNLEN in RUNTIME_VARS.F resolving this issue.
+
+The second issue was resolved by adding variables to store the calculation of the bounds for the land-use database from the appropriate file whether it be from WRF or from BELD data. The dust setup will no longer use the standard bounds to extract the data.
 
 ### Files Affected 
-
+CCTM/src/cio/centralized_io_module.F, CCTM/src/util/util/RUNTIME_VARS.F
 
 ## 11. Bugfixes for MCIP
 [Tanya Spero](mailto:Spero.Tanya@epa.gov), U.S. Environmental Protection Agency
