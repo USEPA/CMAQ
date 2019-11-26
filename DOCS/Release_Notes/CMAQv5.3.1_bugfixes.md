@@ -51,7 +51,7 @@ Lastly, to address the issue of the improper interpolation in the emissions proc
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F, CCTM/src/cio/centralized_io_util_module.F, CCTM/src/emis/emis/EMIS_DEFN.F, CCTM/src/emis/emis/PT3D_DEFN.F, CCTM/src/driver/advstep.F, CCTM/src/phot/inline/concld_prop_acm.F, CCTM/src/cloud/acm_ae7_kmt2/rescld.F,
-CCTM/src/cloud/acm_ae7_kmt2/convcld_acm.F, CCTM/src/cloud/acm_ae6_mp/rescld.F, CCTM/src/cloud/acm_ae6_mp/convcld_acm.F, CCTM/src/cloud/acm_ae6/rescld.F, CCTM/src/cloud/acm_ae6/convcld_acm.F
+CCTM/src/cloud/acm_ae7_kmt2/convcld_acm.F, CCTM/src/cloud/acm_ae6_mp/rescld.F, CCTM/src/cloud/acm_ae6_mp/convcld_acm.F, CCTM/src/cloud/acm_ae6/rescld.F, CCTM/src/cloud/acm_ae6/convcld_acm.F, CCTM/src/emis/emis/EMIS_VARS.F, CCTM/src/emis/emis/STK_EMIS.F, CCTM/src/emis/emis/opemis.F, CCTM/src/util/util/RUNTIME_VARS.F, CCTM/scripts/run_cctm_2010_4CALIF1.csh, CCTM/scripts/run_cctm_2011_12US1.csh, CCTM/scripts/run_cctm_2014_12US1.csh, CCTM/scripts/run_cctm_2015_HEMI.csh, CCTM/scripts/run_cctm_2016_12US1.csh, CCTM/scripts/run_cctm_Bench_2011_12SE1.csh, CCTM/scripts/run_cctm_Bench_2016_12SE1.csh
 
 
 ## 8. STAGE
