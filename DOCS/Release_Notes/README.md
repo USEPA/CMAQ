@@ -7,7 +7,8 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor updat
 [CMAQv5.3.1 User's Guide](../Users_Guide/README.md)
 
 # Summary of CMAQv5.3.1 Updates  
-* [Bug Fixes](CMAQv5.3.1_bugfixes.md)
+* [CMAQv5.3.1 Bugfixes](CMAQv5.3.1_bugfixes.md)
+* [MCIPv5.1 Bugfixes](MCIPv5.1_bugfixes.md)
 * [Add support for defining chemical, region and stream families in DESID](DESID_families.md)
 * [New  grid mask files to support regional analysis with DESID and ISAM](regional_12US1_gridmask.md)
 
