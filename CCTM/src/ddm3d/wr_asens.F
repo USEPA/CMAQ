@@ -1,3 +1,4 @@
+#ifdef sens
 
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
@@ -43,7 +44,7 @@ C                      Added a section of code to allow non IO processors
 C                        to open A_CONC_1
 C   19 May 16 D.Wong: renamed ACONC_END_TIME to AVG_FILE_ENDTIME
 C   27 Mar 17 D.Wong: removed redundant parallel_io ifdef construct
-C   26 Nov 19 S.Napelenok: create for WR_ACONC.F for cmaq-ddm3d-v5.3.1
+C   26 Nov 19 S.Napelenok: create from WR_ACONC.F for cmaq-ddm3d-v5.3.1
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -55,7 +56,7 @@ C-----------------------------------------------------------------------
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
 
-      USE DDM3D_DEFN
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, SPCNAME, SEN_PAR, SAGRID
 
       IMPLICIT NONE
 
@@ -85,6 +86,13 @@ C Local variables:
       INTEGER      L, K, VAR, SPC ! loop counters
       INTEGER      STATUS
 
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: VARNAME_ASENS( :,: )
+      INTEGER, SAVE :: N_ASENS_SPC
+
+      Character( 96 ) :: XMSG = ' '
+      Integer ALLOCSTAT, IDX
+
+
 C-----------------------------------------------------------------------
 
 C Change output date/time to starting date/time - e.g. timestamp 1995196:090000
@@ -113,7 +121,46 @@ C Override default beginning time timestamp for ACONC?
             END IF
          END IF
 
-      END IF
+c Create a species name list of ASENS file
+         N_ASENS_SPC = N_A_GC_SPC + N_A_AE_SPC + N_A_NR_SPC + N_A_TR_SPC
+
+         ALLOCATE( VARNAME_ASENS( NPMAX, N_ASENS_SPC ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating VARNAME_ASENS(NPMAX,N_ASENS_SPC)'
+            CALL M3EXIT ( 'PNAME', 0, 0, XMSG, XSTAT2 )
+         END IF
+         VARNAME_ASENS = ''
+
+         DO NP = 1, NPMAX
+
+           DO SPC = 1, N_A_GC_SPC
+             IDX = SPC
+             VARNAME_ASENS( NP, IDX ) = TRIM( A_GC_SPC( SPC )( 1:12 ) )
+     &                               // '_' // SEN_PAR( NP )
+           END DO
+
+           DO SPC = 1, N_A_AE_SPC
+             IDX = SPC + N_A_GC_SPC
+             VARNAME_ASENS( NP, IDX ) = TRIM( A_AE_SPC( SPC )( 1:12 ) )
+     &                               // '_' // SEN_PAR( NP )
+           END DO
+
+           DO SPC = 1, N_A_NR_SPC
+             IDX = SPC + N_A_GC_SPC + N_A_AE_SPC
+             VARNAME_ASENS( NP, IDX ) = TRIM( A_NR_SPC( SPC )( 1:12 ) )
+     &                               // '_' // SEN_PAR( NP )
+           END DO
+
+           DO SPC = 1, N_A_TR_SPC
+             IDX = SPC + N_A_GC_SPC + N_A_AE_SPC + N_A_NR_SPC
+             VARNAME_ASENS( NP, IDX ) = TRIM( A_TR_SPC( SPC )( 1:12 ) )
+     &                               // '_' // SEN_PAR( NP )
+           END DO
+
+         END DO
+
+      END IF ! FIRSTIME
+
 
       IF ( END_TIME ) THEN   ! ending time timestamp
          MDATE = JDATE; MTIME = JTIME
@@ -122,63 +169,23 @@ C Override default beginning time timestamp for ACONC?
          CALL NEXTIME ( MDATE, MTIME, -TSTEP )
       END IF
 
-      VAR = 0
-
-      DO SPC = 1, N_A_GC_SPC
-         SPCNAME = A_GC_SPC( SPC )( 1:12 )
-         VAR = VAR + 1
-         DO NP = 1, NPMAX
-            SENNAME( NP,VAR ) = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
-            IF ( .NOT. WRITE3( A_SENS_1, SENNAME( NP,VAR ),
-     &         MDATE, MTIME, SAGRID( :,:,:,NP,VAR ) ) ) THEN
-               XMSG = 'Could not write '// SENNAME( NP,VAR ) // ' to ' // A_SENS_1
+      DO SPC = 1, N_ASENS_SPC
+        DO NP = 1, NPMAX
+          IF ( .NOT. WRITE3( A_SENS_1, VARNAME_ASENS( NP, SPC ),
+     &         MDATE, MTIME, SAGRID( :,:,:,NP,SPC ) ) ) THEN
+               XMSG = 'Could not write '// VARNAME_ASENS( NP, SPC ) 
+     &              // ' to ' // A_SENS_1
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
          END DO
       END DO
 
-      DO SPC = 1, N_A_AE_SPC
-         SPCNAME = A_AE_SPC( SPC )( 1:12 )
-         VAR = VAR + 1
-         DO NP = 1, NPMAX
-            SENNAME( NP,VAR ) = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
-            IF ( .NOT. WRITE3( A_SENS_1, SENNAME( NP,VAR ),
-     &         MDATE, MTIME, SAGRID( :,:,:,NP,VAR ) ) ) THEN
-               XMSG = 'Could not write '// SENNAME( NP,VAR ) // ' to ' // A_SENS_1
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-         END DO
-      END DO
-
-      DO SPC = 1, N_A_NR_SPC
-         SPCNAME = A_NR_SPC( SPC )( 1:12 )
-         VAR = VAR + 1
-         DO NP = 1, NPMAX
-            SENNAME( NP,VAR ) = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
-            IF ( .NOT. WRITE3( A_SENS_1, SENNAME( NP,VAR ),
-     &         MDATE, MTIME, SAGRID( :,:,:,NP,VAR ) ) ) THEN
-               XMSG = 'Could not write '// SENNAME( NP,VAR ) // ' to ' // A_SENS_1
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-         END DO
-      END DO
-
-      DO SPC = 1, N_A_TR_SPC
-         SPCNAME = A_TR_SPC( SPC )( 1:12 )
-         VAR = VAR + 1
-         DO NP = 1, NPMAX
-            SENNAME( NP,VAR ) = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
-            IF ( .NOT. WRITE3( A_SENS_1, SENNAME( NP,VAR ),
-     &         MDATE, MTIME, SAGRID( :,:,:,NP,VAR ) ) ) THEN
-               XMSG = 'Could not write '// SENNAME( NP,VAR ) // ' to ' // A_SENS_1
-               CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
-         END DO
-      END DO
- 
       WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &      'Timestep written to', A_SENS_1,
      &      'for date and time', MDATE, MTIME
 
       RETURN 
       END
+
+
+#endif

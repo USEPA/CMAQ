@@ -76,7 +76,7 @@ C Local variables:
       INTEGER VGTYP_RF 
       REAL VGTOP_RF
 
-      INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
+c     INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
 
@@ -94,7 +94,7 @@ C-----------------------------------------------------------------------
          FIRSTIME = .FALSE.
          LOGDEV = INIT3 ()
 
-         ALLOCATE ( WRBUFF( MY_NCOLS,MY_NROWS,NLAYS,NSPCSD*NPMAX ), STAT = ALLOCSTAT  )
+         ALLOCATE ( WRBUFF( NCOLS,NROWS,NLAYS,NSPCSD*NPMAX ), STAT = ALLOCSTAT  )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'WRBUFF memory allocation failed'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -313,14 +313,13 @@ c         CALL SUBST_BARRIER
       END IF   ! FIRSTIME
 
 
-!     WRBUFF = RESHAPE(SENGRID,(/MY_NCOLS,MY_NROWS,NLAYS,NSPCSD*NPMAX/))
       i = 0
       do s = 1, NSPCSD
          do d = 1, NPMAX
             i = i + 1
             do k = 1, NLAYS
-               do r = 1, MY_NROWS
-                  do c = 1, MY_NCOLS
+               do r = 1, NROWS
+                  do c = 1, NCOLS
                      WRBUFF(c,r,k,i) = SENGRID(c,r,k,d,s)
                   end do
                end do
