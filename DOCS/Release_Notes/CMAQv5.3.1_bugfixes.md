@@ -1,4 +1,4 @@
-# CMAQv5.3.1 and MCIPv5.1 Bugfixes
+# CMAQv5.3.1 Bugfixes
 
 ## 1. *CTM_WVEL* run script option 
 [Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
@@ -108,13 +108,4 @@ CCTM/src/cio/centralized_io_module.F
 
 ### Files Affected 
 
-
-## 11. Bugfixes for MCIP
-[Tanya Spero](mailto:Spero.Tanya@epa.gov), U.S. Environmental Protection Agency
-
-### Description of model issue
-
-### Solution in MCIPv5.1
-
-### Files Affected
 
