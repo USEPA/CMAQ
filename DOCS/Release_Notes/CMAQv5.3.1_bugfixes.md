@@ -93,10 +93,15 @@ CCTM/src/cio/centralized_io_module.F
 [Sergey Napelenok](mailto:Napelenok.Sergey@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
+Specifying “PM25_IONS” as a TAG CLASS resulted in unstable attribution output for ACLI and ACLJ concentration and deposition.
 
 ### Solution in CMAQv5.3.1
+ACLI and ACLJ were removed from the “PM25_IONS” TAG CLASS and a new class was added called “CHLORINE.”  This TAG CLASS also includes HCL gas in addition to ACLI and ACLJ, and the algorithms now include partitioning calculations.
 
 ### Files Affected 
+CCTM/scripts/isam_control.txt
+CCTM/src/isam/SA_DEFN.F
+CCTM/src/isam/SA_WRAP_AE.F
 
 
 ## 10. Coupled WRF-CMAQ Model
