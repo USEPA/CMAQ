@@ -61,7 +61,7 @@ C--------------------------------------------------------------------
 
       INCLUDE SUBST_FILES_ID                 ! file name parameters
 
-      CHARACTER( 80 ) :: TXT, TXT2, EMISTYPE
+      CHARACTER( 256 ) :: TXT, TXT2, EMISTYPE
       INTEGER      STDATE                    ! starting date,    format YYYYDDD
       INTEGER      STTIME                    ! starting time,    format HHMMSS
       INTEGER      NSPC( NPMAX )             ! number of species chosen
@@ -86,19 +86,7 @@ C--------------------------------------------------------------------
       INTEGER      JVUNIT
       INTEGER      NUM                       ! spc indx num returned by
                                              ! SEN_NUM or REAC_NUM
-      INTEGER      P, LVL, ROW, COL
-      INTEGER      GCOL, GROW, GLVL
-      INTEGER      COLMIN, COLMAX, ROWMIN, ROWMAX, LVLMIN, LVLMAX
-
-      INTEGER      NREG, NGCELLS, NCORNERS, NCIRCLES
-      REAL         GRIDSIZE
-      INTEGER      C_CENTER, R_CENTER, C_MIN, C_MAX, R_MIN, R_MAX
-      REAL         MINRAD, MAXRAD
-      INTEGER      C_DIST, R_DIST
-      REAL         TOT_DIST
-      INTEGER      R, R2
-      INTEGER      GCELL, CORNER, CIRCLE
-      INTEGER SPC, S
+      INTEGER SPC, S, P, ROW
 
       CHARACTER( 255) :: INFLNAME          ! input file name
       CHARACTER( 16 ) :: SEN_INPUT = 'SEN_INPUT       '  ! input file name
@@ -107,9 +95,9 @@ C--------------------------------------------------------------------
       CHARACTER( 3  ) :: BLANK3 = '   '
       CHARACTER( 10 ) :: BLANK10= '          '
       CHARACTER( 1  ) :: JUNK
-      CHARACTER( 1  ) :: JUNKA
-      CHARACTER( 1  ) :: JUNKB, JUNKC, JUNKD
-      CHARACTER( 2  ) :: JUNK2
+c     CHARACTER( 1  ) :: JUNKA
+c     CHARACTER( 1  ) :: JUNKB, JUNKC, JUNKD
+c     CHARACTER( 2  ) :: JUNK2
       CHARACTER( 16 ), SAVE :: PNAME = 'SINPUT'
       CHARACTER( 120) :: XMSG = ' '
 
@@ -118,14 +106,8 @@ C--------------------------------------------------------------------
       CHARACTER( 80 )     :: VARDESC       ! environment variable description
       INTEGER      STATUS                  ! ENVYN status
 
-C Variables used for regional sensitivity calculations
-      REAL, ALLOCATABLE :: RGNS ( :,:,: )
-      CHARACTER( 16 ), ALLOCATABLE :: REGNNAME ( : )
-      INTEGER REGNTIME, REGNDATE, NREGIONS
-      INTEGER     GXOFF, GYOFF              ! global origin offset from file
-      INTEGER, SAVE :: STARTCOL, ENDCOL, STARTROW, ENDROW
       INTEGER     LOGDEV
-      INTEGER I
+c     INTEGER I
 
 C Variables used for hddm-3d
       INTEGER      CHECK
@@ -164,9 +146,10 @@ C SEN_PAR to blank
       ILAYER = 1
       IREGION  = 0.0
 
-      S_NSTREAMS( : ) = 0
-      S_STREAMLBL( :,: ) = 'empty' 
-      
+      S_NSTREAMS = 0
+      S_STREAMLBL = 'empty' 
+      S_NRGN = 0
+      S_RGNLBL = 'empty'      
 
       NPSEN = 0
 
@@ -195,32 +178,27 @@ C Open input file SEN_INPUT
       SEN_PAR( NPSEN ) = TXT( 1:3 ) 
 
       ! Read in the type of sensitivity 
-      ! (only INIT, EMIS, BOUN, RATE, HIGH, and PVO3 implemented so far)
+      ! (only ICON, EMIS, BCON, RATE, HIGH, and PVO3 implemented so far)
       READ( JVUNIT, '(A80)', END = 999 ) TXT
-c       IF ( TXT( :1 ) .NE. BLANK ) THEN
-c         XMSG = 'Need one space before specifying the sentype.'
-c         CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
-c       END IF
 
 CCCCCCC Sensitivity to Emissions CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         IF ( INDEX( TXT, 'EMIS' ) .NE. 0 ) THEN
           IPT( NPSEN ) = 3
+          S_NSTREAMS( NPSEN ) = 99 ! assume all streams at first
+          S_STREAMLBL( NPSEN,: ) = 'all'
   30      CONTINUE
 
           ! Check if an emissions label has been specified. Otherwise, assume total.
           READ( JVUNIT, '(A80)', END = 999 ) EMISTYPE
 
-          IF ( INDEX(EMISTYPE,'SPECIES' .NE. 0 )  THEN ! assume all streams
-            S_NSTREAMS( NPSEN ) = 99
+          IF ( INDEX(EMISTYPE,'SPECIES') .NE. 0 )  THEN ! start reading species
             GOTO 35 ! 
-          END IF
-
-          IF ( INDEX(EMISTYPE,'TOTA') .NE. 0 ) THEN
-            S_NSTREAMS( NPSEN ) = 99 ! total emissions - all streams
+          ELSE IF ( INDEX(EMISTYPE,'TOTA') .NE. 0 ) THEN ! all streams
             GOTO 30
-          ELSE
+          ELSE ! 
             S_NSTREAMS( NPSEN ) = 1 + COUNT(TRANSFER(EMISTYPE, 'A', LEN(EMISTYPE)) == "," )
             READ(EMISTYPE,*) S_STREAMLBL( NPSEN, 1:S_NSTREAMS( NPSEN ) )
+            GOTO 30
           END IF
 
 CCCCCCC Sensitivity to vorticity CCCCCCCCCCCCCCCCCCCCC
@@ -236,7 +214,7 @@ CCCCCCC Sensitivity to vorticity CCCCCCCCCCCCCCCCCCCCC
           END IF
 
 CCCCCCC Sensitivity to initial conditions CCCCCCCCCCCCCCCCCCCCC
-        ELSE IF ( TXT( 2:5 ) .EQ. 'INIT' ) THEN
+        ELSE IF ( INDEX( TXT, 'ICON' ) .NE. 0 ) THEN
           IPT( NPSEN ) = 1 
 
           READ( JVUNIT, '(A80)', END = 999 ) TXT
@@ -248,7 +226,7 @@ CCCCCCC Sensitivity to initial conditions CCCCCCCCCCCCCCCCCCCCC
           END IF  
 
 CCCCCCC Sensitivity to boundary conditions CCCCCCCCCCCCCCCCCC
-        ELSE IF ( TXT( 2:5 ) .EQ. 'BOUN' ) THEN
+        ELSE IF ( INDEX( TXT, 'BCON' ) .NE. 0 ) THEN
           IPT( NPSEN ) = 2
           
           READ( JVUNIT, '(A80)', END = 999 ) TXT
@@ -260,7 +238,7 @@ CCCCCCC Sensitivity to boundary conditions CCCCCCCCCCCCCCCCCC
           END IF
 
 CCCCCCC Higher-order sensitivity CCCCCCCCCCCCCCCCCCCCCCCCCCCC
-        ELSE IF ( TXT( 2:5 ) .EQ. 'HIGH' ) THEN
+        ELSE IF ( INDEX( TXT, 'HIGH' ) .NE. 0 ) THEN
 
           IF ( .NOT. HIGH ) THEN
              XMSG = 'hddm-3d option not set'
@@ -319,6 +297,7 @@ CCCCCCC Higher-order sensitivity CCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
           READ( JVUNIT, '(A80)', END = 999 ) TXT
 
+
           IF ( TXT( :10 ) .EQ. BLANK10 ) GOTO 32
           IF ( TXT( :3 ) .EQ. 'END' ) GOTO 999
           IF ( TXT( :1 ) .NE. BLANK ) THEN
@@ -329,7 +308,7 @@ CCCCCCC Higher-order sensitivity CCCCCCCCCCCCCCCCCCCCCCCCCCCC
           END IF
 
 CCCCCCC Sensitivity to a chemical reaction rate constant CCCCC
-        ELSE IF ( TXT( 2:5 ) .EQ. 'RATE' ) THEN
+        ELSE IF ( INDEX( TXT, 'RATE' ) .NE. 0 ) THEN
           IPT( NPSEN ) = 5
 
           READ( JVUNIT, '(A80)', END = 999 ) TXT
@@ -368,7 +347,7 @@ CCCCCCC Sensitivity to a chemical reaction rate constant CCCCC
 CCCCCCC Unrecognized or non-implemented sens type CCCCCCCCCCCC
         ELSE
           XMSG = 'Sentype not recognized: ' // TXT //
-     &           '. Use EMIS, INIT, BOUN, RATE, HIGH, or PVO3 '
+     &           '. Use EMIS, ICON, BCON, RATE, HIGH, or PVO3 '
           CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
 
         END IF  ! Finished setting sentype
@@ -376,27 +355,29 @@ CCCCCCC Unrecognized or non-implemented sens type CCCCCCCCCCCC
  35     CONTINUE
 
 CCCCCCC Which species? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-        READ( JVUNIT, '(A80)', END = 999 ) TXT
+        READ( JVUNIT, '(A256)', END = 999 ) TXT
 
         IF ( TXT( :2 ) .NE. BLANK2 ) THEN
           XMSG = 'Need two leading spaces before a species.'
           CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
         END IF
 
-        IF ( TXT( :5 ) .EQ. '  ALL' ) THEN
+        IF ( INDEX( TXT, 'ALL' ) .NE. 0 ) THEN ! all CMAQ species
+          NSPC( NPSEN ) = NSPCSD
           DO SPC = 1, NSPCSD
             IPARM( NPSEN, SPC ) = 1
             SPCORDER( NPSEN, SPC ) = SPC
           END DO
           GOTO 45
+        ELSE ! Map specified species
+          NSPC( NPSEN ) = 1+COUNT(TRANSFER(TXT, 'A', LEN(TXT)) == ",")
+          READ(TXT,*) S_SPCLIST( NPSEN, 1:NSPC( NPSEN ) )
+          DO SPC = 1, NSPC( NPSEN )
+            CALL SEN_NUM( S_SPCLIST( NPSEN,SPC), NUM )
+            IPARM( NPSEN, NUM ) = 1
+            SPCORDER( NPSEN, NSPC( NPSEN ) ) = NUM
+          END DO
         END IF
-
- 40     CONTINUE
-
-        CALL SEN_NUM( TXT( 3:10 ), NUM ) 
-        IPARM( NPSEN, NUM ) = 1
-        NSPC( NPSEN ) = NSPC( NPSEN ) + 1
-        SPCORDER( NPSEN, NSPC( NPSEN ) ) = NUM
 
  45     CONTINUE
  
@@ -404,7 +385,7 @@ CCCCCCC Which species? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
         IF ( TXT( :10 ) .EQ. BLANK10 ) GOTO 45
 
-        IF ( TXT( :2 ) .EQ. BLANK2 ) GOTO 40 ! Another species
+c       IF ( TXT( :2 ) .EQ. BLANK2 ) GOTO 40 ! Another species
 
 CCCCCCC Specify emission amount? CCCCCCCCCCCCCCCCCCCCCCCCC
 
@@ -579,13 +560,9 @@ CCCCCCC Which region(s) ? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         ! If true, then region and gridcell not specified, 
         ! so set as domainwide and go to next sensitivity
         IF ( TXT( :1 ) .NE. BLANK ) THEN
-          DO LVL = 1, NLAYS
-            DO ROW = 1, NROWS
-              DO COL = 1, NCOLS
-                IREGION( COL, ROW, LVL, NPSEN ) = 1.0
-              END DO
-            END DO
-          END DO
+          S_NRGN( NPSEN ) = 99
+          S_RGNLBL( NPSEN, : ) = 'all'
+          IREGION = 1.0
           IF ( TXT( :3 ) .EQ. 'END' ) THEN
             GOTO 999
           ELSE
@@ -594,278 +571,13 @@ CCCCCCC Which region(s) ? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
           END IF
         END IF
 
-        IF ( TXT( :7 ) .EQ. ' REGION' ) THEN
-
-          IF ( RGN ) THEN
-             READ( JVUNIT, '(a2,i2)' ) TXT, NREG
-             IF ( TXT .NE. BLANK2 ) THEN
-               XMSG = 'Expected two spaces before number of regions.'
-               CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-             END IF
-             ! 99 is the code for all regions (domainwide)
-             IF ( NREG .EQ. 99 ) THEN
-               DO LVL = 1, NLAYS
-                 DO ROW = 1, NROWS
-                   DO COL = 1, NCOLS
-                     IREGION( COL, ROW, LVL, NPSEN ) = 1.0
-                   END DO
-                 END DO
-               END DO
-             ELSE IF ( NREG .GT. NREGIONS ) THEN
-               XMSG = 'Number of regions requested ' //
-     &                'exceeds total number of regions ' //
-     &                'available.'
-               CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-             ELSE
-               DO R = 1, NREG
-                 READ( JVUNIT, '(A80)' ) TXT
-                 IF ( TXT( :2 ) .NE. BLANK2 ) THEN
-                   XMSG = 'Expected 2 leading blanks ' //
-     &                    'before region name.'
-                   CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-                 END IF
-                 DO R2 = 1, NREGIONS
-                   IF ( TXT( 3:18 ) .EQ. REGNNAME( R2 ) ) THEN
-                     DO LVL = 1, NLAYS
-                       DO ROW = 1, NROWS
-                         DO COL = 1, NCOLS
-                           IREGION( COL, ROW, LVL, NPSEN ) =
-     &                     MIN( (IREGION( COL, ROW, LVL, NPSEN ) +
-     &                        RGNS( COL, ROW, R2 ) ), 1.0 )
-                         END DO
-                       END DO
-                     END DO
-                     GOTO 60
-                   ELSE IF ( R2 .EQ. NREGIONS ) THEN
-                     XMSG = 'Could not identify region ' //
-     &                      TXT( 3:18 ) //
-     &                      ' from region list.'
-                     CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-                   END IF
-                 END DO  ! loop over NREGIONS
- 60              CONTINUE
-               END DO  ! loop over NREG
-             END IF
-
- 65          CONTINUE
-             READ( JVUNIT, '(A80)' ) TXT
-
-             IF ( TXT( :10 ) .EQ. BLANK10 ) GOTO 65
-             IF ( TXT( :3 ) .EQ. 'END' ) GOTO 999
-             IF ( TXT( :1 ) .NE. BLANK ) GOTO 20
-             IF ( TXT( :8 ) .EQ. ' GRIDCEL' ) GOTO 100
-             IF ( TXT( :8 ) .EQ. ' CORNERS' ) GOTO 130
-             IF ( TXT( :8 ) .EQ. ' CIRCLES' ) GOTO 140
-             XMSG = 'Could not interpret entry after RGNS.'
-             CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-
-          ELSE
-
-             XMSG = 'Regions option is not set.'
-             CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-          END IF
-
+        IF (  INDEX( TXT, 'REGION' ) .NE. 0 ) THEN
+          READ( JVUNIT, '(A80)' ) TXT
+          S_NRGN( NPSEN ) = 1+COUNT(TRANSFER(TXT, 'A', LEN(TXT)) == "," )
+          READ(TXT,*) S_RGNLBL( NPSEN, 1:S_NRGN( NPSEN ) )
         END IF  ! TXT .EQ. REGION
 
-        IF ( TXT( :8 ) .EQ. ' GRIDCEL' ) THEN
-          GOTO 100
-        END IF
-        IF ( TXT( :8 ) .EQ. ' CORNERS' ) THEN
-          GOTO 130
-        END IF
-        IF ( TXT( :8 ) .EQ. ' CIRCLES' ) THEN
-          GOTO 140
-        ELSE
-          XMSG = 'Subheading ' // TXT // ' not recognized.'
-          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-        END IF
-
-CCCCCCC Which gridcell(s)? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
- 100    CONTINUE
-        ! How many gridcell(s) will be input?
-        READ( JVUNIT, * ) NGCELLS
-
-        IF ( NGCELLS .LT. 1 ) THEN
-          XMSG = 'Expected at least one gridcell.'
-          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-        END IF
-
-        DO GCELL = 1, NGCELLS
-          READ( JVUNIT , *) GCOL, GROW, GLVL
-C global grid tests first
-          IF ( .NOT.(( GCOL .GE. 1 .AND. GCOL .LE. GL_NCOLS )
-     &        .AND.(GROW .GE. 1 .AND. GROW .LE. GL_NROWS )) ) THEN
-             XMSG = 'Gridcell column or row out of global bounds.'
-             CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-          END IF
-CTON translate the row & col limits from global to PE-specific values 
-C using the info from module HGRD_DEFN
-          GCOL = GCOL - COLSX_PE(1,MYPE+1) + 1
-          GROW = GROW - ROWSX_PE(1,MYPE+1) + 1
-          IF ( ( GCOL .GE. 1 .AND. GCOL .LE. NCOLS )
-     &        .AND.(GROW .GE. 1 .AND. GROW .LE. NROWS ) ) THEN
-            IF ( GLVL .GE. 1 .AND. GLVL .LE. NLAYS ) THEN
-              IREGION( GCOL, GROW, GLVL, NPSEN ) = 1.0
-            ELSE IF (GLVL .EQ. 99 ) THEN  ! 99 means all layers
-              DO LVL = 1, NLAYS
-                IREGION ( GCOL, GROW, LVL, NPSEN ) = 1.0
-              END DO
-            ELSE
-              XMSG = 'Gridcell level out of bounds.'
-              CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-            END IF
-          END IF
-        END DO ! Loop over NGCELLS
-
- 105    CONTINUE
-
-        READ( JVUNIT, '(A80)' ) TXT
-
-        IF ( TXT( :10 ) .EQ. BLANK10 ) GOTO 105
-        IF ( TXT( :3 ) .EQ. 'END' ) GOTO 999
-        IF ( TXT( :1 ) .NE. BLANK ) GOTO 20
-        IF ( TXT( :8 ) .EQ. ' CORNERS' ) GOTO 130
-        IF ( TXT( :8 ) .EQ. ' CIRCLES' ) GOTO 140
-        XMSG = 'Could not interpret entry after GRIDCELL.'
-        CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-
-CCCCCCC Which corner-defined zones? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
- 130    CONTINUE
-
-        ! How many corner-defined zones?
-        READ( JVUNIT, * ) NCORNERS
-
-        IF ( NCORNERS .LT. 1 ) THEN
-          XMSG = 'Expected at least one corner region.'
-          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-        END IF
-
-        DO CORNER = 1, NCORNERS
-          READ( JVUNIT, * )
-     &                COLMIN, COLMAX,  
-     &                ROWMIN, ROWMAX, 
-     &                LVLMIN, LVLMAX  
-          IF ( ( COLMIN .GT. COLMAX ) .OR. ( ROWMIN .GT. ROWMAX ) ) THEN
-            XMSG = 'Minimum column and row must be less than maximum.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-          END IF
-CTON This test must be against global #cols and rows not local to PE
-          IF ( ( COLMAX .GT. GL_NCOLS ) .OR. ( ROWMAX .GT. GL_NROWS ) ) THEN
-            XMSG = 'Maximum column or row out of global bounds.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-          END IF
-          IF ( ( LVLMIN .GT. LVLMAX ) .OR. ( LVLMAX .GT. NLAYS ) ) THEN
-            XMSG = 'Unacceptable level numbers for corner boundaries.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-          END IF 
-
-CTON translate the row & col limits from global to PE-specific values 
-C using the info from module HGRD_DEFN
-          COLMIN = COLMIN - COLSX_PE(1,MYPE+1) + 1
-          COLMAX = COLMAX - COLSX_PE(1,MYPE+1) + 1
-          ROWMIN = ROWMIN - ROWSX_PE(1,MYPE+1) + 1
-          ROWMAX = ROWMAX - ROWSX_PE(1,MYPE+1) + 1
-C if the box is completely outside this PE's range do nothing
-          IF(.NOT.(COLMAX .LT. 1 .OR. COLMIN .GT. NCOLS
-     &    .OR. ROWMAX .LT. 1 .OR. ROWMIN .GT. NROWS))THEN
-C  yes, there is some overlap. Crop it to fit
-             COLMIN = MAX(COLMIN,1)
-             COLMAX = MIN(COLMAX,NCOLS)
-             ROWMIN = MAX(ROWMIN,1)
-             ROWMAX = MIN(ROWMAX,NROWS)
-             DO COL = COLMIN, COLMAX
-                DO ROW = ROWMIN, ROWMAX
-                   DO LVL = LVLMIN, LVLMAX
-                      IREGION( COL, ROW, LVL, NPSEN ) = 1.0
-                   END DO
-                END DO
-             END DO
-          END IF
-   
-        END DO 
-
- 135    CONTINUE
-
-        READ( JVUNIT, '(A80)' ) TXT
-
-        IF ( TXT( :10 ) .EQ. BLANK10 ) GOTO 135
-        IF ( TXT( :3 ) .EQ. 'END' ) GOTO 999
-        IF ( TXT( :1 ) .NE. BLANK ) GOTO 20
-        IF ( TXT( :8 ) .EQ. ' CIRCLES' ) GOTO 140
-        XMSG = 'Could not interpret entry after GRIDCELL.'
-        CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )   
-
-CCCCCCC End CORNERS CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
-CCCCCCC Which Circle zones? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
-
- 140    CONTINUE
-
-        ! How many circle-defined zones?
-        READ( JVUNIT, * ) NCIRCLES
-
-        ! What is the grid resolution (e.g., 12km)?
-        READ( JVUNIT, * ) GRIDSIZE
-
-        IF ( NCIRCLES .LT. 1 ) THEN
-          XMSG = 'Expected at least one circle region.'
-          CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-        END IF
-
-        DO CIRCLE = 1, NCIRCLES
-          ! Read coordinates of circle's center and 
-          ! the minimum and maximum radii
-          READ( JVUNIT, * ) C_CENTER, R_CENTER, MINRAD, MAXRAD
-
-          IF ( ( MINRAD .LT. 0.0 ) .OR. 
-     &         ( MAXRAD .LT. MINRAD ) ) THEN
-            XMSG = 'Radii lengths unacceptable.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-          END IF
-           
-          C_MIN = C_CENTER - FLOOR( MAXRAD / GRIDSIZE )
-          C_MAX = C_CENTER + FLOOR( MAXRAD / GRIDSIZE )
-          R_MIN = R_CENTER - FLOOR( MAXRAD / GRIDSIZE )
-          R_MAX = R_CENTER + FLOOR( MAXRAD / GRIDSIZE )
-          IF ( ( C_MIN .LT. 1 ) .OR. 
-     &         ( C_MAX .GT. GL_NCOLS ) ) THEN
-            XMSG = 'Circle columns out of global bounds.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-          END IF
-          IF ( ( R_MIN .LT. 1 ) .OR.
-     &         ( R_MAX .GT. GL_NROWS ) ) THEN
-            XMSG = 'Circle rows out of global bounds.'
-            CALL M3EXIT( PNAME,STDATE,STTIME,XMSG,XSTAT1 )
-          END IF
-
-          ! A cell is within the circle-zone iff the distance between
-          ! its center and the circle center is .ge. the minimum radius
-          ! and .le. the maximum radius. Thus, the zone is in the shape
-          ! of a circle (if minimum radius = 0) or ring.
-CTON transform centers to local PE-specific col & row numbers. Does not matter
-C if they are <1 or >NCOLS or >NROWS as they are used to calculate a distance
-          C_CENTER = C_CENTER - COLSX_PE(1,MYPE+1) + 1
-          R_CENTER = R_CENTER - ROWSX_PE(1,MYPE+1) + 1
-          DO COL = 1, NCOLS
-            C_DIST = COL - C_CENTER
-            DO ROW = 1, NROWS
-              R_DIST = ROW - R_CENTER
-              TOT_DIST = GRIDSIZE *
-     &                   ( ( C_DIST**2.0 + R_DIST**2.0 ) ** 0.5 )
-              IF ( ( TOT_DIST .GE. MINRAD ) .AND.
-     &             ( TOT_DIST .LE. MAXRAD ) ) THEN
-                DO LVL = 1, NLAYS
-                  IREGION( COL, ROW, LVL, NPSEN ) = 1.0
-                END DO
-              END IF
-            END DO
-          END DO
-
-        END DO  ! Loop over NCIRCLES
-
-CCCCCCC End CIRCLES CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
+CCCCCCC End REGION CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 
  150    CONTINUE
         READ( JVUNIT, '(A80)' ) TXT
@@ -890,11 +602,13 @@ CCCCCCC End CIRCLES CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
       END IF
 
+
+
+
       Write(LOGDEV,*) " "
       Write(LOGDEV,*) "Sensitivity parameters in this simulation:"
       Write(LOGDEV,*) "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
       Write(LOGDEV,'(a2,1x,a4,1x,a4,1x,a10)') "#","name","type"
-
       Do NP = 1, NPMAX
         Write(LOGDEV,'(i2,1x,a4,1x,i4.4,9(1x,i2.2))') NP,SEN_PAR(NP),IPT(NP)
       End Do
@@ -941,19 +655,11 @@ C Function: Assigns to NUM the species number corresponding
 C           to the input string "TEMP"
 C------------------------------------------------------------ 
       USE CGRID_SPCS
-c     USE SUBST_MODULES         ! stenex
       USE UTILIO_DEFN
 
       IMPLICIT NONE  
 
-c     INCLUDE SUBST_GC_SPC
-c     INCLUDE SUBST_AE_SPC      ! aerosol species table
-c     INCLUDE SUBST_NR_SPC      ! non-reactive species table
-c     INCLUDE SUBST_TR_SPC      ! tracer species table
       INCLUDE SUBST_FILES_ID  ! file name parameters
-c     INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-c     INCLUDE SUBST_IOFDESC   ! file header data structure
-c     INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
       CHARACTER*8 TEMP
       CHARACTER*16 TEMP2
@@ -1006,18 +712,13 @@ C Function: Assigns to NUM the reaction number corresponding
 C           to the input string "TEMP"
 C------------------------------------------------------------
 
-c     USE SUBST_MODULES         ! stenex
       USE UTILIO_DEFN
 
       USE RXNS_DATA, Only: NRXNS, RXLABEL
 
       IMPLICIT NONE
 
-c     INCLUDE SUBST_RXCMMN    ! Mechanism reaction common block
       INCLUDE SUBST_FILES_ID  ! file name parameters
-c     INCLUDE SUBST_IOPARMS   ! I/O parameters definitions
-c     INCLUDE SUBST_IOFDESC   ! file header data structure
-c     INCLUDE SUBST_IODECL    ! I/O definitions and declarations
 
       CHARACTER*16 TEMP
       CHARACTER*16 TEMP2
@@ -1029,7 +730,6 @@ c     INCLUDE SUBST_IODECL    ! I/O definitions and declarations
       CHARACTER*120 XMSG
       DATA          XMSG / ' ' /
 
-CCCC
       NUM = 0
       DO RXN = 1, NRXNS
         TEMP2 = RXLABEL(RXN)

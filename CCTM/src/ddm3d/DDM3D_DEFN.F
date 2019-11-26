@@ -86,7 +86,7 @@ C     NDAYS - No of dates in model run
       Logical, Save           :: RST  ! Flag for using restart file
       Logical, Save           :: BCS  ! Flag for reading in boundary sensitivities
       Logical, Save           :: HIGH ! Flag for higher order sensitivities
-      Logical, Save           :: RGN  ! Flag for using regions files
+c     Logical, Save           :: RGN  ! Flag for using regions files
 c     Logical, Save           :: ES   ! Flag for pre-merged emissions
 
       Integer, Save           :: STARTDATE ! copy from STDATE and save for ddm to use 
@@ -124,6 +124,11 @@ c Emissisons module variables
       Integer, Allocatable, Save         :: S_NSTREAMS( : )     ! Number of emissions streams per parameter
       Character( 16 ), Allocatable, Save :: S_STREAMLBL( :,: )  ! Emissions stream names per parameter (max = 99)
 
+      Integer, Allocatable, Save         :: S_NRGN( : )         ! Number of emissions streams per parameter
+      Character( 16 ), Allocatable, Save :: S_RGNLBL( :,: )     ! Emissions stream names per parameter (max = 99)
+
+      Character( 16 ), Allocatable, Save :: S_SPCLIST( :,: )    ! User-specified species list
+
 c VDIFF module variables
       REAL, ALLOCATABLE, SAVE :: SNGRD( :,:,:,:,: )        ! sengrid replacement
       REAL, ALLOCATABLE, SAVE :: S_DDEP( :,:,:,: )         ! ddep sens accumulator 
@@ -159,8 +164,8 @@ c     Integer STDATE, STTIME  ! Starting date/time
       Character( 16 ) :: DDM3D_RST  = 'DDM3D_RST'   ! switch for sens restart file
       Character( 16 ) :: DDM3D_BCS  = 'DDM3D_BCS'   ! switch for reading boundary sensitivities
       Character( 16 ) :: DDM3D_HIGH = 'DDM3D_HIGH'  ! switch for higher order sensitivities
-      Character( 16 ) :: DDM3D_RGN  = 'DDM3D_RGN'   ! switch for using regions files
-      Character( 16 ) :: DDM3D_ES   = 'DDM3D_ES'    ! switch for pre-merged emissions
+c     Character( 16 ) :: DDM3D_RGN  = 'DDM3D_RGN'   ! switch for using regions files
+c     Character( 16 ) :: DDM3D_ES   = 'DDM3D_ES'    ! switch for pre-merged emissions
 
       Integer RUNLEN, BGNTIME
 
@@ -398,38 +403,6 @@ c        XMSG = 'Failure allocating YCDDM'
 c        CALL M3EXIT ( 'YCDDM', 0, 0, XMSG, XSTAT2 )
 c     END IF
 
-c Using regions file
-      RGN = .FALSE.         ! default
-      VARDESC = 'Flag for using sensitivity regions file'
-      RGN = ENVYN( DDM3D_RGN, VARDESC, RGN, STATUS )
-      IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-      IF ( STATUS .EQ. 1 ) THEN
-         XMSG = 'Environment variable improperly formatted'
-         CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
-      ELSE IF ( STATUS .EQ. -1 ) THEN
-         XMSG = 'Environment variable set, but empty ... Using default:'
-         WRITE( LOGDEV, '(5X, A, A16, L5)' ) XMSG, DDM3D_RGN, RGN
-      ELSE IF ( STATUS .EQ. -2 ) THEN
-         XMSG = 'Environment variable not set ... Using default:'
-         WRITE( LOGDEV, '(5X, A, A16, L5)' ) XMSG, DDM3D_RGN, RGN
-      END IF
-
-c Using pre-merged emissions files
-c     ES = .FALSE.         ! default
-c     VARDESC = 'Flag for using split emissions files'
-c     ES = ENVYN( DDM3D_ES, VARDESC, ES, STATUS )
-c     IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-c     IF ( STATUS .EQ. 1 ) THEN
-c        XMSG = 'Environment variable improperly formatted'
-c        CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )
-c     ELSE IF ( STATUS .EQ. -1 ) THEN
-c        XMSG = 'Environment variable set, but empty ... Using default:'
-c        WRITE( LOGDEV, '(5X, A, A16, L5)' ) XMSG, DDM3D_ES, ES
-c     ELSE IF ( STATUS .EQ. -2 ) THEN
-c        XMSG = 'Environment variable not set ... Using default:'
-c        WRITE( LOGDEV, '(5X, A, A16, L5)' ) XMSG, DDM3D_ES, ES
-c     END IF
-
 c IHIGH
       ALLOCATE   ( TGT_IHIGH( NPMAX, 2 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -443,17 +416,37 @@ c Emissions
       ALLOCATE ( S_NSTREAMS( NPMAX ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating S_NSTREAMS(NPMAX)'
-         CALL M3EXIT ( 'N_STREAMS', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
       END IF
       S_NSTREAMS = 0
 
       ALLOCATE ( S_STREAMLBL( NPMAX, 99 ), STAT = ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
          XMSG = 'Failure allocating S_STREAMLBL(NPMAX,99)'
-         CALL M3EXIT ( 'S_STREAMLBL', 0, 0, XMSG, XSTAT2 )
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
       END IF
       S_STREAMLBL = 'empty'
 
+      ALLOCATE ( S_NRGN( NPMAX ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         XMSG = 'Failure allocating S_NRGN(NPMAX)'
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
+      END IF
+      S_NRGN = 0
+
+      ALLOCATE ( S_RGNLBL( NPMAX,99 ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         XMSG = 'Failure allocating S_RGNLBL(NPMAX,99)'
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
+      END IF
+      S_RGNLBL = 'empty'
+
+      ALLOCATE ( S_SPCLIST( NPMAX, 999 ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         XMSG = 'Failure allocating S_SPCLIST( NPMAX, 999 )'
+         CALL M3EXIT ( 'INIT_DDM3D', 0, 0, XMSG, XSTAT2 )
+      END IF
+      S_SPCLIST = ''
 
 
 c Get sensitivity parameter information from control file
