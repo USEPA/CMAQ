@@ -54,11 +54,6 @@
 !  08/01/19, D. Wong:- Made modification so centralized I/O works with two-way model
 !                    - used new variable type descriptor
 !  09/10/19, D. Wong:- Extended to handle BC file with non 1-hr time step
-!  09/19/19, D. Wong:- Used the start simulation time to pick up the very first emission 
-!                      data point rather than the start time in the emission file
-!  09/20/19, D. Wong:- Extended the capability to handle 3D emission files with various
-!                      number of layers less than of equal to the model number of layers
-!  10/04/19, D. Wong:- fixed the time advancement, NEXTIME, for a multi-day run
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -168,8 +163,7 @@
         character (16), allocatable :: cio_emis_file_name(:),
      &                                 cio_emis_var_name(:,:)
         integer, allocatable :: cio_emis_nvars(:)
-        integer, allocatable :: cio_emis_file_date(:), cio_emis_file_layer(:)
-        integer              :: cio_emis_nlays                     ! max value among cio_emis_file_layer
+        integer, allocatable :: cio_emis_file_date(:)
 
 ! - stack emission data
         real, allocatable    :: cio_stack_data(:)
@@ -250,8 +244,7 @@
 
         integer, private :: count = 0
         integer, private :: cio_logdev, 
-     &                              size_s2d,    ! standard 2d cro file size (in twoway model, size_s2d not equal to size_c2d
-     &                              size_s3d,    ! standard 3d file size
+     &                              size_s2d,    ! stanad 2d cro file size (in twoway model, size_s2d not equal to size_c2d
      &                      n_c2d,  size_c2d,    ! cro 2d file info: # of variables and a variable size
      &                              size_c2dx,   ! extended cro 2d variable size
      &                              size_d2d,    ! a 2d dot variable size
@@ -500,7 +493,7 @@
           JACOBF_AVAIL   = (INDEX1( 'JACOBF', NVARS3D, VNAME3D ) .gt. 0)
           QC_AVAIL       = .true.
 
-          cio_data_tstep     = tstep3d ! assumes same timestep in all input files 
+          cio_data_tstep     = local_tstep
           cio_data_tstep_met = tstep3d
 
           CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
@@ -760,7 +753,6 @@
 
 ! setup gridded emission file
           end = 0
-          allocate (cio_emis_file_layer(N_FILE_GR), stat=stat)
           do n = 1, N_FILE_GR
              WRITE (fname, '(a8, i3.3)') "GR_EMIS_", n
              IF ( .NOT. DESC3( fname ) ) THEN
@@ -782,21 +774,8 @@
                 emis_name(begin:end, 2) = 'e3d'        ! E denote emission 3d variable
              end if
              emis_name(begin:end, 3) = ' '             ! denote non met variable
-             cio_emis_file_layer(n) = nlays3d
+
           end do
-
-          cio_emis_nlays = maxval(cio_emis_file_layer)
-
-          ! If there are 3D (inline point or Lightning) sources, 
-          ! revise the top to be the model top.
-          IF ( NPTGRPS .GT. 0 .OR. LTNG_NO ) cio_emis_nlays = NLAYS
-
-          ! Make sure the top is not greater than the model top
-          cio_emis_nlays = MAX( MIN( cio_emis_nlays, NLAYS ), 1 )
-
-          WRITE( LOGDEV,1009 ) cio_emis_nlays, NLAYS
-1009      FORMAT(    5X, 'Number of Emissions Layers:         ', I3
-     &            /  5X, 'out of total Number of Model Layers:', I3 )
 
 ! lightning file
           n_l2d = 0
@@ -834,7 +813,7 @@
           size_s2d    = s_cro_ncols * s_cro_nrows
 
           if ((cro_ncols .ne. ncols) .or. (cro_nrows .ne. nrows)) then
-             write (cio_logdev, *) ' ==d== NO ncols nrows '
+             print *, ' ==d== NO ncols nrows '
              stop
           end if
 
@@ -851,8 +830,7 @@
              size_c3d = size_c2dx * nlays
           end if
 
-          size_e3d = size_s2d * cio_emis_nlays
-          size_s3d = size_s2d * nlays
+          size_e3d = size_s2d * nlays
 
           size_lt = size_s2d * cio_LTLYRS
 
@@ -865,8 +843,8 @@
      &                            + size_c2d  * 3 * n_e2d               ! 2d emis data
      &                            + size_c3d  * 3 * n_c3d                ! 3D met data
      &                            + size_e3d  * 3 * n_e3d                ! 3d emis data 
-     &                            + size_s3d  * 3 * n_i3d                ! 3d initial condition data 
-     &                            + size_s3d  * 3 * n_is3d               ! 3d ISAM initial condition data 
+     &                            + size_e3d  * 3 * n_i3d                ! 3d initial condition data 
+     &                            + size_e3d  * 3 * n_is3d               ! 3d ISAM initial condition data 
      &                            + size_d3dx * 3 * n_d3d                ! 3d dot data
      &                            + size_lt   * 3 * n_l2d),              ! lightning data
      &              stat = stat)
@@ -934,11 +912,10 @@
                 d_size = size_s2d
              else if (cio_grid_var_name(v,2) .eq. 'mc3') then
                 d_size = size_c3d
-             else if (cio_grid_var_name(v,2) .eq. 'e3d') then
-                d_size = size_e3d
-             else if ((cio_grid_var_name(v,2) .eq. 'ic') .or.
+             else if ((cio_grid_var_name(v,2) .eq. 'e3d') .or.
+     &                (cio_grid_var_name(v,2) .eq. 'ic') .or.
      &                (cio_grid_var_name(v,2) .eq. 'is')) then
-                d_size = size_s3d
+                d_size = size_e3d
              else if (cio_grid_var_name(v,2) .eq. 'md3') then
                 d_size = size_d3dx
              else if ((cio_grid_var_name(v,2) .eq. 'lnt') .or.
@@ -946,7 +923,7 @@
      &                (cio_grid_var_name(v,2) .eq. 'wb')) then
                 d_size = size_s2d
              else
-                write (cio_logdev, *) ' ==d== UNKNOWN'
+                print *, ' ==d== UNKNOWN'
                 stop
              end if
 
@@ -2461,7 +2438,7 @@ C Read the various categories of normalized emissions
                    cio_grid_data_tstamp(1, buf_loc, v) = loc_emis_jdate
 
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
-     &                                 1, cio_emis_file_layer(fnum), STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
+     &                                 1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                                 loc_emis_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
@@ -2703,7 +2680,7 @@ C Read the various categories of normalized emissions
 
              if (firstime) then
                 loc_jdate = cio_stack_emis_sdate(pt)
-                loc_jtime = jtime
+                loc_jtime = cio_stack_emis_stime(pt)
              else
                 loc_jdate = jdate
                 loc_jtime = jtime
@@ -3311,6 +3288,8 @@ C   mminlu and num_land_cat are WRF global variables
                   END IF
               END IF
           END DO
+          EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
+          EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
 
           ! Close Regions File
           IF ( .NOT. CLOSE3( FILENAMES( IFILE ) ) ) THEN
@@ -3336,8 +3315,6 @@ C   mminlu and num_land_cat are WRF global variables
 
         END DO ! IFILE
       END IF
-      EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
-      EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
       
       END SUBROUTINE INIT_EMIS_REGIONS
 
@@ -3533,7 +3510,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. loc_date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
+     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
@@ -3627,10 +3604,8 @@ C   mminlu and num_land_cat are WRF global variables
              loc_tail = tail_stack_emis(var_loc, pt)
 
              if ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .lt. date) .or.
-     &           ((cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date) .and.
-     &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .eq. 0)) .or.
      &           ((cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .lt. time) .and.
-     &            (cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt) .eq. date))) then
+     &            (cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) .ne. 0))) then
 
                 loc_jdate = cio_stack_emis_data_tstamp(1, loc_tail, var_loc, pt)
                 loc_jtime = cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt) 
@@ -3730,7 +3705,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
+     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
@@ -3862,7 +3837,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
+     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
@@ -3974,7 +3949,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
+     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
@@ -4150,7 +4125,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_bndy_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_bndy_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_bndy_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
+     &            (cio_bndy_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
 
                 loc_jdate = cio_bndy_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_bndy_data_tstamp(2, loc_tail, var_loc)
@@ -4307,7 +4282,7 @@ C   mminlu and num_land_cat are WRF global variables
 
              if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. loc_date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
+     &            (cio_grid_data_tstamp(2, loc_tail, var_loc) .ne. 0))) then
 
                 loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
                 loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)

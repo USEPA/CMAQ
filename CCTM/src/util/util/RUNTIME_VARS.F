@@ -49,6 +49,8 @@
 !        WRF V4+ is used
 !  01 Aug 2019 (D. Wong) 
 !     -- Modified code to work with two-way model
+!  07 Nov 2019 (D. Wong) 
+!     -- Made RUNLEN environment variable avilable to two-way model as well
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -330,14 +332,14 @@
       ! Output Time Step
       CALL GET_ENV ( LOCAL_TSTEP, 'CTM_TSTEP', LOCAL_TSTEP, VARDEV )
 
+      ! Run Duration
+      CALL GET_ENV ( RUNLEN,  'CTM_RUNLEN', RUNLEN, VARDEV )
+      
 #ifndef twoway
       ! Main Program Name
       CALL GET_ENV ( STRTEMP, 'CTM_PROGNAME', PROGNAME, VARDEV )
       PROGNAME = STRTEMP( 1:16 )
 
-      ! Run Duration
-      CALL GET_ENV ( RUNLEN,  'CTM_RUNLEN', RUNLEN, VARDEV )
-      
       ! Starting Date
       CALL GET_ENV ( STDATE, 'CTM_STDATE', STDATE, VARDEV )
 
