@@ -71,7 +71,7 @@ C Try to open existing file for update
       IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSRDWR3, PNAME ) ) THEN
       
          CMPSPC( 1 ) = 'NH3_Emis'
-         CMPSPC( 2 ) = 'NH3_Dep '
+         CMPSPC( 2 ) = 'NH3_Flux '
          CMPSPC( 3 ) = 'NH3_Stom'
          CMPSPC( 4 ) = 'NH3_Cut '
          CMPSPC( 5 ) = 'NH3_Soil'
