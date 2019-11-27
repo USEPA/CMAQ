@@ -74,10 +74,20 @@ CCTM/src/cio/centralized_io_module.F
 
 ### Description of model issue
 
+The model stops when the the output timestep, TSTEP in the cctm run-script, is not an integer multiple of the input files' timestep. The example error messge is below.
+
+     *** ERROR ABORT in subroutine retrieve_time_de on PE 002
+     Could not extract GR_EMIS_001      file
+
+The problem occurs because the centralized data module uses TSTEP to set the timestep of the input data. 
+
 ### Solution in CMAQv5.3.1
+
+The solution changes the data module to use the timestep of the meteorological input files instead of TSTEP. The fix assumes that the timesteps across input files are the same. Later code changes may remove the constraint.
 
 ### Files Affected 
 
+CCTM/src/cio/centralized_io_module.F 
 
 ## 8. STAGE
 [Jesse Bash](mailto:Bash.Jesse@epa.gov), U.S. Environmental Protection Agency
