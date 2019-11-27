@@ -40,14 +40,14 @@ centralized_io_module.F
 [David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-The current implementation of the Centralized Input/Output Module was encoded based on three assumptions: 1. non-metrology input data was expected to be at the same frequency as the output [tstep] (../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#timestep-configuration) (a runscript environment variable the user set). 2. all gridded emissions have the same number of layers. 3. model starts at 0 hour.
+The current implementation of the Centralized Input/Output Module was encoded based on three assumptions: 1. non-metrology input data was expected to be at the same frequency as the output [tstep] (../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#timestep-configuration) (a runscript environment variable the user set). 2. all gridded emissions have the same number of layers. 3. the CCTM run starts at the zeroth hour.
 
 ### Solution in CMAQv5.3.1
-For issue #1: a new algorithm was developed to keep track of time step from each input file and allow the model to write data out at the pre-defined frequency in the run script. The algorithm was also implemented to store the start date and start time of each file, incase the user had emissions input data that used representative days. A new environmental variable was also re-introduced to keep track of which emissions files were representative days and which are not. **Note: this algorithm only allows a maximum of 500 files to be opened.**
+Issue #1: A new algorithm was developed to keep track of the time step from each input file and to allow the model to write data out at the pre-defined frequency in the run script. The algorithm was also implemented to store the start date and start time of each file, incase the user had emissions input data that used representative days. A new environmental variable was also re-introduced to keep track of which emissions files were representative days and which are not. **Note: this algorithm only allows a maximum of 500 files to be opened.**
 
-for issue #2: a new array was introduced to store the number of layers in each emisison file. Using this new information, the buffer array storing the emissions data being read in was re-allocated to be the no greater than the size of the initial condition file, but no smaller than the size of the largest emissions file. In addition, each gridded emission file was extracted using the newly introduce array that stored the number of layers in each emission file. **Note: this algorithm does not limit the extraction of data greater than the model top (i.e. files that have nlays greater than the model top). However doing so will cause a segmentation fault with memory issues as what is allocated will not match what is being extracted.**
+Issue #2: A new array was introduced to store the number of layers in each emisison file. Using this new information, the buffer array storing the emissions data being read in was re-allocated to be the no greater than the size of the initial condition file, but no smaller than the size of the largest emissions file. In addition, each gridded emission file was extracted using the newly introduce array that stored the number of layers in each emission file. **Note: this algorithm does not limit the extraction of data greater than the model top (i.e. files that have nlays greater than the model top). However doing so will cause a segmentation fault with memory issues as what is allocated will not match what is being extracted.**
 
-for issue #3: the date advancement is now properly updated, i.e. performs the model date updates only once. An exit call is also implemented to stop the model when an improper interpolation takes place. During the exit call, the following information: the interpolation date, time and bounds, will be sent to the [processor log files](../Users_Guide/CMAQ_UG_ch05_running_a_simulation.md#571-cctm-logfiles) for further debugging. 
+Issue #3: The date advancement is now properly updated, i.e. performs the local time update only when the model date is updated. An exit call is also implemented to stop the model when an improper interpolation takes place. During the exit call, the following information: the interpolation date, time and bounds, will be sent to the [processor log files](../Users_Guide/CMAQ_UG_ch05_running_a_simulation.md#571-cctm-logfiles) for further debugging. 
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F, CCTM/src/cio/centralized_io_util_module.F, CCTM/src/emis/emis/EMIS_DEFN.F, CCTM/src/emis/emis/PT3D_DEFN.F, CCTM/src/driver/advstep.F, CCTM/src/phot/inline/concld_prop_acm.F, CCTM/src/cloud/acm_ae7_kmt2/rescld.F,
@@ -83,9 +83,9 @@ CCTM/src/cloud/acm_ae7_kmt2/convcld_acm.F, CCTM/src/cloud/acm_ae6_mp/rescld.F, C
 2. Setting [CTM_WBDUST](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to Y in the WRF-CMAQ model when running this option with the land-use database being what is provided from WRF results in a crash. This crash is a result of the bounds of extraction being incorrect. 
 
 ### Solution in CMAQv5.3.1
-For issue #1: the WRF-CMAQ model was updated to properly read the environmental variable CTM_RUNLEN in RUNTIME_VARS.F.
+Issue #1: The WRF-CMAQ model was updated to properly read the environmental variable CTM_RUNLEN in RUNTIME_VARS.F.
 
-For issue #2: adding variables to store the calculation of the bounds for the land-use database from the appropriate file whether it be from WRF or from BELD data.
+Issue #2: Adding variables to store the calculation of the bounds for the land-use database from the appropriate file whether it be from WRF or from BELD data.
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F, CCTM/src/util/util/RUNTIME_VARS.F
