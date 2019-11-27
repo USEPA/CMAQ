@@ -29,11 +29,11 @@ centralized_io_module.F
 [Daiwen Kang](mailto:Kang.Daiwen@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-
+The 3D diagnostic files are meant to provide the lightning NO emissions at each vertical grid cell. The current implementation has mistakenly accumulated the emissions from lower layers, i.e, it is correct for the lowest layer (Layer 1), but the values at Layer 2 is the sum of Layer 1 and Layer 2, and the values at Layer 3, is the sum of Layer 1 through Layer 3, and so on, so forth. 
 ### Solution in CMAQv5.3.1
-
+We have now revoved the accumulation loop and output emissions at each layer correctly.
 ### Files Affected 
-
+CCTM/emis/emis/LTNG_DEFN.F
 ## 4. Time step limiation for boundary condition input file
 [David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
