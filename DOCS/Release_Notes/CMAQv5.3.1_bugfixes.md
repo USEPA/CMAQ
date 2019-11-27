@@ -83,10 +83,37 @@ CCTM/src/cio/centralized_io_module.F
 [Jesse Bash](mailto:Bash.Jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
+Two issues were identified in CMAQv5.3 NH3 output when running with bidirectional exchange. 
+1) The deposition to surface waters was omitted from the diagnostic NH3_Dep output. 
+2) Modifications were needed to the deposition species definition file for post processing to accurate capture nitrogen deposition.
 
 ### Solution in CMAQv5.3.1
+The aggregation of fluxes from land use types was simplified and a model conditional statement was removed to correct the omission of NH3 deposition to surface waters in the diagnostic deposition output. Note, this bug did not impact the diagnostic land use specific deposition totals output when *setenv CTM_MOSAIC = T*. The diagnostic deposition output was remapped to allow users to use the standard deposition species definition file (*SpecDef_Dep*) distributed with the model. The new mapped diagnostic species in the DRYDEP file are:
+
+NH3 – NH<sub>3</sub> dry deposition (positive values are deposition)
+
+NH3_Flux – NH<sub>3</sub> surface flux (positive values are deposition and negative values are emission)
+
+NH3_Wat - NH<sub>3</sub> flux over water bodies (positive values are emissions and negative values are deposition)
+
+NH3_Ag - NH<sub>3</sub> flux over agriculture land use (positive values are emissions and negative values are deposition)
+
+NH3_Nat - NH<sub>3</sub> flux over non-agriculture land use (positive values are emissions and negative values are deposition)
+
+NH3_Emis – Diagnostic grid cell NH<sub>3</sub> emissions from fertilizers and biogenic sources (positive values are emissions)
+
+NH3_Soil - NH<sub>3</sub> flux from soil pathways (positive values are emissions and negative values are deposition)
+
+NH3_Stom - NH<sub>3</sub> flux from leaf stomatal pathways (positive values are emissions and negative values are deposition)
+
+NH3_Cut - NH<sub>3</sub> flux from leaf cuticular pathways (positive values are emissions and negative values are deposition)
 
 ### Files Affected 
+STAGE_MOD.F
+
+Vdiffproc.F
+
+opddep.F
 
 
 ## 9. ISAM
