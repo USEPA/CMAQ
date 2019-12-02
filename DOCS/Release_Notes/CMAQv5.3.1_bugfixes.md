@@ -40,7 +40,7 @@ centralized_io_module.F
 [David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-The current implementation of the Centralized Input/Output Module was encoded based on three assumptions: 1. non-metrology input data was expected to be at the same frequency as the output [tstep] (../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#timestep-configuration) (a runscript environment variable the user set). 2. all gridded emissions have the same number of layers. 3. the CCTM run starts at the zeroth hour.
+The current implementation of the Centralized Input/Output Module was encoded based on three assumptions: 1. non-metrology input data was expected to be at the same frequency as the output [tstep](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#timestep-configuration) (a runscript environment variable the user set). 2. all gridded emissions have the same number of layers. 3. the CCTM run starts at the zeroth hour.
 
 ### Solution in CMAQv5.3.1
 Issue #1: A new algorithm was developed to keep track of the time step from each input file and to allow the model to write data out at the pre-defined frequency in the run script. The algorithm was also implemented to store the start date and start time of each file, incase the user had emissions input data that used representative days. A new environmental variable was also re-introduced to keep track of which emissions files were representative days and which are not. **Note: this algorithm only allows a maximum of 500 files to be opened.**
@@ -80,12 +80,12 @@ CCTM/src/cloud/acm_ae7_kmt2/convcld_acm.F, CCTM/src/cloud/acm_ae6_mp/rescld.F, C
 ### Description of model issue
 1. Setting [CTM_BIOGEMIS](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to Y in the WRF-CMAQ model did not correctly produce the SOILOUT file after a simulation period was completed. This led to a crash when restarting the model the next day with inilization from the previous days run. This issue was traced back to the inline biogenics algorithm which only writes the SOILOUT file if the model has reached its run length, a runscript environmental variable (CTM_RUNLEN). However, in the WRF-CMAQ Model this runscript environmental variable was not being read in so the default value of 48 hours defined in RUNTIME_VARS.F was used. Hence SOILOUT will only be produced at the 48th hour.
 
-2. Setting [CTM_WBDUST](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to Y in the WRF-CMAQ model when running this option with the land-use database being what is provided from WRF results in a crash. This crash is a result of the bounds of extraction being incorrect. 
+2. Setting [CTM_WBDUST](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to Y in the WRF-CMAQ model and setting [CTM_WBDUST](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to "unknown" results in a crash. This crash is a result of the bounds of extraction being incorrect. 
 
 ### Solution in CMAQv5.3.1
 Issue #1: The WRF-CMAQ model was updated to properly read the environmental variable CTM_RUNLEN in RUNTIME_VARS.F.
 
-Issue #2: Adding variables to store the calculation of the bounds for the land-use database from the appropriate file whether it be from WRF or from BELD data.
+Issue #2: Adding variables to store the calculation of the bounds for the land-use database from the appropriate file whether it be from aqprep (mcip counterpart) or from BELD data.
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F, CCTM/src/util/util/RUNTIME_VARS.F
