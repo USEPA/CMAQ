@@ -185,7 +185,7 @@ setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date 
                              #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
                              #>   time will be used and an error check will be performed (recommended). Users 
                              #>   may switch the behavior for individual emission files below using the variables:
-                             #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_## [ default : N ]
+                             #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [ default : N ]
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
 setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
