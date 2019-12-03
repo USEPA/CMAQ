@@ -140,6 +140,9 @@ c DEPV_DEF/m3dry variables
       REAL,    ALLOCATABLE, SAVE :: S_CMP ( :,:,:,: )
       REAL,    ALLOCATABLE, SAVE :: S_PLDV( :,:,:,: )
 
+c I/O variables
+      Integer, Save         :: N_ASENS_VARS = 0
+
       Contains
 
 C-----------------------------------------------------------------------

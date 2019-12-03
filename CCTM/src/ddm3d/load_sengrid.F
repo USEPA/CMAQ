@@ -308,16 +308,16 @@ C IOFDESC common now loaded with FNAME header
                   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         SENGRID( C,R,L,NP,V ) = DBUFF( C,R,L )
                      END DO
                   END DO
                END DO
             ELSE
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         SENGRID( C,R,L,NP,V ) = 0.0
                      END DO
                   END DO
@@ -344,8 +344,8 @@ C Load RHOJ for transport and mixing ratio advection adjustment
          ASPC = GC_STRT - 1 + N_GC_SPCD
          DO NP = 1, NPMAX
             DO L = 1, NLAYS
-               DO R = 1, MY_NROWS
-                  DO C = 1, MY_NCOLS
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
                      SENGRID( C,R,L,NP,ASPC ) = RHOJ( C,R,L )
                   END DO
                END DO

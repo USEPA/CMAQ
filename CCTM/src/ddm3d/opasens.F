@@ -38,7 +38,7 @@ C   S.Napelenok 26 Nov 2019 - create from opaconc.f for cmaq-ddm3d-v5.3.1
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
 
-      USE DDM3D_DEFN, ONLY: NP, NPMAX, SEN_PAR
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, SEN_PAR, N_ASENS_VARS
 
       IMPLICIT NONE
 
@@ -113,7 +113,7 @@ C   S.Napelenok 26 Nov 2019 - create from opaconc.f for cmaq-ddm3d-v5.3.1
             SDATE3D = MDATE
             STIME3D = MTIME
             TSTEP3D = TSTEP
-            NVARS3D = N_ACONC_VARS * NPMAX
+            NVARS3D = N_ASENS_VARS * NPMAX
             NLAYS3D = A_NLYS
 
             L = 0
@@ -205,7 +205,7 @@ C   S.Napelenok 26 Nov 2019 - create from opaconc.f for cmaq-ddm3d-v5.3.1
             END DO
 
             DO SPC = 1, VAR
-               WRITE( LOGDEV,'( 7X, "=> VNAME3D(", I3, " ): ", A )' )
+               WRITE( LOGDEV,'( 7X, "=> VNAME3D(", I5, " ): ", A )' )
      &                SPC, VNAME3D( SPC )
             END DO
 
