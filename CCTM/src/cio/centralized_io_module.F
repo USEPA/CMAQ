@@ -3356,26 +3356,23 @@ C   mminlu and num_land_cat are WRF global variables
      &               TRIM( S_RGNLBL(NP,IRGN) ) //
      &               " - not found in available emissions regions. " //
      &               " Check sensinput.dat file "
+              WRITE(LOGDEV,*) " Available region definitions: "
+              DO IFILE = 1, N_EM_RGN
+                WRITE(LOGDEV,*) IFILE, EM_REGIONS( IFILE )%LABEL
+              END DO
               CALL M3EXIT( PNAME, 1, 1, XMSG, XSTAT1 )
             ELSE
-              IREGION(:,:,1:NLAYS,NP) = IREGION( :,:,1:NLAYS,NP )
-     &                                + EM_REG_FAC( :,:,IREAD )
+              IREGION(:,:,1,NP) = IREGION( :,:,1,NP )
+     &                          + EM_REG_FAC( :,:,IREAD )
             END IF
           END DO
 ! Limit IREGION to < 1.0 incase some regions overlap.
-
-          write(logdev,*) "NP=",NP,"S_NRGN(NP)=",S_NRGN(NP)
-          write(logdev,*) IREGION(:,:,1,NP)
-
-
           IREGION(:,:,:,NP) = MIN ( IREGION(:,:,:,NP), 1.0 )
-
+! Copy up to layers above
+          DO IFILE = 1, NLAYS
+            IREGION(:,:,IFILE,NP) = IREGION(:,:,1,NP)
+          END DO
         END IF
-          write(logdev,*) "after min"
-
-          write(logdev,*) IREGION(:,:,1,NP)
-
-
       END DO
 
 #endif

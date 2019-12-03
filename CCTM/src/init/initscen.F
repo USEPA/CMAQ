@@ -301,7 +301,7 @@ C Open SA_CONC_1 and SA_CGRID_1
                            SENGRID( COL, ROW, LAY, NP, SPC) =
      &                               CGRID( COL, ROW, LAY, SPC )
      &                             * REAL( IPARM( NP, SPC ) )
-c    &                             * IREGION( COL, ROW, LAY, NP )
+     &                             * IREGION( COL, ROW, LAY, NP )
                         END DO
                      END DO
                   END DO
