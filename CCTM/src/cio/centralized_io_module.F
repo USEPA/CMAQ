@@ -3185,6 +3185,10 @@ C   mminlu and num_land_cat are WRF global variables
       USE UTILIO_DEFN
       USE em_param_module
 
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, S_NRGN, S_RGNLBL, IREGION
+#endif
+
       IMPLICIT NONE
                                                      
       TYPE( EM_REG      ) :: EM_REG_READ( N_REGIONS_REG )
@@ -3338,6 +3342,43 @@ C   mminlu and num_land_cat are WRF global variables
       END IF
       EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
       EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
+
+#ifdef sens
+! Populate IREGION(NCOLS,NROW,NLAYS,NPMAX) with regions data if specified
+!'
+
+      DO NP = 1, NPMAX
+        IF ( S_NRGN( NP ) .GT. 0 .AND. S_NRGN( NP ) .LT. 99 ) THEN !  
+          DO IRGN = 1, S_NRGN( NP )
+            IREAD = INDEX1( S_RGNLBL(NP,IRGN), N_EM_RGN, EM_REGIONS%LABEL ) ! identify region
+            IF ( IREAD .EQ. 0 ) THEN
+              XMSG = " User specified DDM3D region - " //
+     &               TRIM( S_RGNLBL(NP,IRGN) ) //
+     &               " - not found in available emissions regions. " //
+     &               " Check sensinput.dat file "
+              CALL M3EXIT( PNAME, 1, 1, XMSG, XSTAT1 )
+            ELSE
+              IREGION(:,:,1:NLAYS,NP) = IREGION( :,:,1:NLAYS,NP )
+     &                                + EM_REG_FAC( :,:,IREAD )
+            END IF
+          END DO
+! Limit IREGION to < 1.0 incase some regions overlap.
+
+          write(logdev,*) "NP=",NP,"S_NRGN(NP)=",S_NRGN(NP)
+          write(logdev,*) IREGION(:,:,1,NP)
+
+
+          IREGION(:,:,:,NP) = MIN ( IREGION(:,:,:,NP), 1.0 )
+
+        END IF
+          write(logdev,*) "after min"
+
+          write(logdev,*) IREGION(:,:,1,NP)
+
+
+      END DO
+
+#endif
       
       END SUBROUTINE INIT_EMIS_REGIONS
 

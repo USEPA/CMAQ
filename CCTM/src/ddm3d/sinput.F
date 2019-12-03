@@ -56,6 +56,8 @@ C--------------------------------------------------------------------
       USE HGRD_DEFN, ONLY: NCOLS, NROWS, GL_NCOLS, GL_NROWS, COLSX_PE, ROWSX_PE, MYPE
       USE VGRD_DEFN, ONLY: NLAYS
       USE RXNS_DATA, ONLY: NRXNS
+      USE em_param_module, ONLY: EM_REGIONS, EM_REG_FAC, N_EM_RGN
+
 
       IMPLICIT NONE
 
@@ -562,7 +564,7 @@ CCCCCCC Which region(s) ? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
         IF ( TXT( :1 ) .NE. BLANK ) THEN
           S_NRGN( NPSEN ) = 99
           S_RGNLBL( NPSEN, : ) = 'all'
-          IREGION = 1.0
+          IREGION( :,:,:,NPSEN ) = 1.0
           IF ( TXT( :3 ) .EQ. 'END' ) THEN
             GOTO 999
           ELSE
@@ -575,6 +577,8 @@ CCCCCCC Which region(s) ? CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
           READ( JVUNIT, '(A80)' ) TXT
           S_NRGN( NPSEN ) = 1+COUNT(TRANSFER(TXT, 'A', LEN(TXT)) == "," )
           READ(TXT,*) S_RGNLBL( NPSEN, 1:S_NRGN( NPSEN ) )
+            ! Process these regions in central_io_module after the regions
+            ! file is opened. Populate IREGION there also.
         END IF  ! TXT .EQ. REGION
 
 CCCCCCC End REGION CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC

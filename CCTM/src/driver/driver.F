@@ -141,6 +141,7 @@ c     USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
 
 #ifdef sens
       USE DDM3D_DEFN
+      USE S_PCGRID_DEFN
 #endif
 
 #ifdef parallel
@@ -291,7 +292,16 @@ C Local variables:
             INTEGER                  :: JDATE, JTIME, TSTEP
          END SUBROUTINE WR_SA_CGRID
 #endif
-
+#ifdef sens
+         SUBROUTINE WR_SENGRID ( JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP
+         END SUBROUTINE WR_SENGRID
+         SUBROUTINE WR_ASENS ( JDATE, JTIME, TSTEP )
+            IMPLICIT NONE
+            INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP
+         END SUBROUTINE WR_ASENS
+#endif
 #endif
 
          SUBROUTINE SCIPROC ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
@@ -486,6 +496,21 @@ C Initialize optional derived vertical velocity writes to conc file
 C Initialize ddm3d calculations
          CALL INIT_DDM3D
 
+         IF ( .NOT. S_PCGRID_IN( NPMAX ) ) THEN
+            XMSG = 'Failure defining horizontal sens domain'
+            CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2  )
+         END IF
+
+         SENGRID => S_PCGRID(1:NCOLS,1:NROWS,:,:,:)
+         SENGRID_TEMP => S_PCGRID_TEMP(1:NCOLS,1:NROWS,:,:)
+
+         ALLOCATE ( SAGRID( NCOLS,NROWS,A_NLYS,NPMAX,N_ASPCS ), STAT = STATUS)
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'SAGRID memory allocation failed'
+            CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+         END IF
+
+         SAGRID = 0.0
 #endif
 
 
@@ -497,6 +522,10 @@ C Initialize conc field: Copy IC's to CONC file as step 0
 C Convention: the input file concentration units are always ppmV.
          CALL INITSCEN ( CGRID, TSTEP )
          JDATE = STDATE; JTIME = STTIME
+
+#ifdef sens
+         STARTDATE = STDATE   ! save variable into DDM3D module
+#endif
 
 #ifndef mpas
          CALL CKSUMMER ( 'INITSCEN', CGRID, JDATE, JTIME )
@@ -647,6 +676,11 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
          DO V = 1, N_ASPCS
             S = AVG_CONC_MAP( V )
             AGRID( :,:,:,V ) = CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S )
+#ifdef sens
+            DO NP = 1, NPMAX
+               SAGRID( :,:,:,NP,V ) = SENGRID( :,:,ACONC_BLEV:ACONC_ELEV,NP,S )
+            END DO
+#endif if
          END DO
 #ifdef isam
             DO ITAG = 1, NTAG_SA ! average isam
@@ -690,6 +724,12 @@ C Use trapezoidal rule to time-average data
             S = AVG_CONC_MAP( V )
             AGRID( :,:,:,V ) = AGRID( :,:,:,V )
      &            + 2.0 * CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S )
+#ifdef sens
+            DO NP = 1, NPMAX
+               SAGRID( :,:,:,NP,V ) = SAGRID( :,:,:,NP,V )
+     &            + 2.0 * SENGRID( :,:,ACONC_BLEV:ACONC_ELEV,NP,S )
+            END DO
+#endif 
          END DO
          IF ( W_VEL )
      &      AVG_WVEL( :,:,: ) = AVG_WVEL + 2.0 * WVEL( :,:,ACONC_BLEV:ACONC_ELEV )
@@ -731,6 +771,12 @@ C Use trapezoidal rule to time-average data
             S = AVG_CONC_MAP( V )
             AGRID( :,:,:,V ) = DIVFAC * ( AGRID( :,:,:,V )
      &           - CGRID( :,:,ACONC_BLEV:ACONC_ELEV,S ) )
+#ifdef sens
+            DO NP = 1, NPMAX
+               SAGRID( :,:,:,NP,V ) = DIVFAC * ( SAGRID( :,:,:,NP,V )
+     &           - SENGRID( :,:,ACONC_BLEV:ACONC_ELEV,NP,S ) )
+            END DO
+#endif
          END DO
          IF ( W_VEL )
      &         AVG_WVEL( :,:,: ) = DIVFAC * ( AVG_WVEL( :,:,: ) - WVEL( :,:,ACONC_BLEV:ACONC_ELEV ) )
@@ -780,10 +826,13 @@ C write conc fields
 #endif
          CALL WR_ACONC ( AGRID, JDATE, JTIME, TSTEP( 1 ) )
 #ifdef isam
-            CALL WR_SA     ( JDATE, JTIME, TSTEP, 1 )
-            CALL WR_AVG_SA ( JDATE, JTIME, TSTEP( 1 ) )
+         CALL WR_SA     ( JDATE, JTIME, TSTEP, 1 )
+         CALL WR_AVG_SA ( JDATE, JTIME, TSTEP( 1 ) )
 #endif
 
+#ifdef sens
+         CALL WR_ASENS ( JDATE, JTIME, TSTEP( 1 ) )
+#endif
          IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
       END IF
@@ -806,6 +855,9 @@ C write CGRID state file for subsequent runs
          CALL WR_CGRID ( CGRID, JDATE, JTIME, TSTEP( 1 ) )
 #ifdef isam
          CALL WR_SA_CGRID ( JDATE, JTIME, TSTEP( 1 ) )
+#endif
+#ifdef sens
+         CALL WR_SENGRID ( JDATE, JTIME, TSTEP( 1 )  )
 #endif
 
 C Shut down IOAPI
