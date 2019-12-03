@@ -10,8 +10,44 @@ the model immediately crashes. This is because the array that stores the vertica
 file is never allocated and is being used to calculate the average vertical velocity to be written to the average concentration file.
 
 ### Solution in CMAQv5.3.1
+The array that stores the vertical velocity component for writing is now properly allocated. The model will no longer terminate execution with a segmentation fault. The updates will also allow users to flexibly toggle CTM_WVEL on/off independently of the CONC_SPCS_LIST. **Note: If the user decides to write this diagnostic variable out, the variable will be reported to both the conc and aconc species.**
 
 ### Files Affected 
+CCTM/src/driver/AVG_CONC.F
+
+CCTM/src/driver/STD_CONC.F
+
+CCTM/src/driver/WVEL_DEFN.F
+
+CCTM/src/driver/driver.F
+
+CCTM/src/driver/wr_aconc.F
+
+CCTM/src/driver/wr_conc.F
+
+CCTM/src/driver/wr_init.F
+
+CCTM/src/init/opaconc.F
+
+CCTM/src/init/opconc.F 
+
+CCTM/src/vadv/local_cons/zadvyppm.F
+
+CCTM/src/vadv/wrf_cons/zadvppmwrf.F
+
+CCTM/scripts/run_cctm_2010_4CALIF1.csh (Moved CTM_WVEL to diagnostic outputs) 
+
+CCTM/scripts/run_cctm_2011_12US1.csh (Moved CTM_WVEL to diagnostic outputs)
+ 
+CCTM/scripts/run_cctm_2014_12US1.csh (Moved CTM_WVEL to diagnostic outputs) 
+
+CCTM/scripts/run_cctm_2015_HEMI.csh (Moved CTM_WVEL to diagnostic outputs) 
+
+CCTM/scripts/run_cctm_2016_12US1.csh (Moved CTM_WVEL to diagnostic outputs)
+
+CCTM/scripts/run_cctm_Bench_2011_12SE1.csh (Moved CTM_WVEL to diagnostic outputs)
+
+CCTM/scripts/run_cctm_Bench_2016_12SE1.csh (Moved CTM_WVEL to diagnostic outputs)
 
 ## 2. Error reading multiple Region Files for use in DESID 
 [Ben Murphy](mailto:Murphy.Ben@epa.gov), U.S. Environmental Protection Agency
@@ -34,62 +70,68 @@ The 3D diagnostic files are meant to provide the lightning NO emissions at each 
 We have now revoved the accumulation loop and output emissions at each layer correctly.
 ### Files Affected 
 CCTM/emis/emis/LTNG_DEFN.F
-## 4. Time step limiation for boundary condition input file
+
+## 4. Updates to CCTM Centralized I/O (CIO) module 
 [David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-The current implementation of the Centralized Input/Output Module only supports BNDY_CONC_1 files that have a time step of 1 hour. 
-Previous versions of CMAQ were able to process boundary condition files with time steps greater than 1 hour. If providing a 
-boundary condition file with a time step greater than 1 hour, the model will terminate execution with an error message 
-that the BNDY_CONC_1 cannot be read for the requested time step.
+The current implementation of the Centralized Input/Output Module was encoded based on three assumptions: 1. non-metrology input data was expected to be at the same frequency as the output [tstep](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#timestep-configuration) (a runscript environment variable the user set). 2. all gridded emissions have the same number of layers. 3. the CCTM run starts at the zeroth hour.
 
 ### Solution in CMAQv5.3.1
+Issue #1: A new algorithm was developed to keep track of the time step from each input file and to allow the model to write data out at the pre-defined frequency in the run script. The algorithm was also implemented to store the start date and start time of each file, incase the user had emissions input data that used representative days. A new environmental variable was also re-introduced to keep track of which emissions files were representative days and which are not. **Note: this algorithm only allows a maximum of 500 files to be opened.**
+
+Issue #2: A new array was introduced to store the number of layers in each emisison file. Using this new information, the buffer array storing the emissions data being read in was re-allocated to be the no greater than the size of the initial condition file, but no smaller than the size of the largest emissions file. In addition, each gridded emission file was extracted using the newly introduce array that stored the number of layers in each emission file. **Note: this algorithm does not limit the extraction of data greater than the model top (i.e. files that have nlays greater than the model top). However doing so will cause a segmentation fault with memory issues as what is allocated will not match what is being extracted.**
+
+Issue #3: The date advancement is now properly updated, i.e. performs the local time update only when the model date is updated. An exit call is also implemented to stop the model when an improper interpolation takes place. During the exit call, the following information: the interpolation date, time and bounds, will be sent to the [processor log files](../Users_Guide/CMAQ_UG_ch05_running_a_simulation.md#571-cctm-logfiles) for further debugging. 
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F
 
+CCTM/src/cio/centralized_io_util_module.F 
 
-## 5. Start Time at 8:00UTC
-[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+CCTM/src/emis/emis/EMIS_DEFN.F 
 
-### Description of model issue
+CCTM/src/emis/emis/PT3D_DEFN.F
 
-### Solution in CMAQv5.3.1
+CCTM/src/driver/advstep.F
 
-### Files Affected 
+CCTM/src/phot/inline/concld_prop_acm.F
 
+CCTM/src/cloud/acm_ae7_kmt2/rescld.F
 
-## 6. Emission Layers
-[David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
+CCTM/src/cloud/acm_ae7_kmt2/convcld_acm.F
 
-### Description of model issue
+CCTM/src/cloud/acm_ae6_mp/rescld.F
 
-### Solution in CMAQv5.3.1
+CCTM/src/cloud/acm_ae6_mp/convcld_acm.F
 
-### Files Affected 
+CCTM/src/cloud/acm_ae6/rescld.F
 
+CCTM/src/cloud/acm_ae6/convcld_acm.F
 
-## 7. Variable Output Timestep
-[Bill Hutzell](mailto:Hutzell.Bill@epa.gov), U.S. Environmental Protection Agency
+CCTM/src/emis/emis/EMIS_VARS.F
 
-### Description of model issue
+CCTM/src/emis/emis/STK_EMIS.F
 
-The model stops when the the output timestep, TSTEP in the cctm run-script, is not an integer multiple of the input files' timestep. The example error messge is below.
+CCTM/src/emis/emis/opemis.F
 
-     *** ERROR ABORT in subroutine retrieve_time_de on PE 002
-     Could not extract GR_EMIS_001      file
+CCTM/src/util/util/RUNTIME_VARS.F
 
-The problem occurs because the centralized data module uses TSTEP to set the timestep of the input data. 
+CCTM/scripts/run_cctm_2010_4CALIF1.csh
 
-### Solution in CMAQv5.3.1
+CCTM/scripts/run_cctm_2011_12US1.csh
 
-The solution changes the data module to use the timestep of the meteorological input files instead of TSTEP. The fix assumes that the timesteps across input files are the same. Later code changes may remove the constraint.
+CCTM/scripts/run_cctm_2014_12US1.csh
 
-### Files Affected 
+CCTM/scripts/run_cctm_2015_HEMI.csh
 
-CCTM/src/cio/centralized_io_module.F 
+CCTM/scripts/run_cctm_2016_12US1.csh
 
-## 8. STAGE
+CCTM/scripts/run_cctm_Bench_2011_12SE1.csh
+
+CCTM/scripts/run_cctm_Bench_2016_12SE1.csh
+
+## 5. STAGE
 [Jesse Bash](mailto:Bash.Jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -126,7 +168,7 @@ Vdiffproc.F
 opddep.F
 
 
-## 9. ISAM
+## 6. ISAM
 [Sergey Napelenok](mailto:Napelenok.Sergey@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -143,13 +185,19 @@ CCTM/src/isam/SA_DEFN.F
 CCTM/src/isam/SA_WRAP_AE.F
 
 
-## 10. Coupled WRF-CMAQ Model
+## 7. Coupled WRF-CMAQ Model
 [David Wong](mailto:Wong.David-C@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
+1. Setting [CTM_BIOGEMIS](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to Y in the WRF-CMAQ model did not correctly produce the SOILOUT file after a simulation period was completed. This led to a crash when restarting the model the next day with inilization from the previous days run. This issue was traced back to the inline biogenics algorithm which only writes the SOILOUT file if the model has reached its run length, a runscript environmental variable (CTM_RUNLEN). However, in the WRF-CMAQ Model this runscript environmental variable was not being read in so the default value of 48 hours defined in RUNTIME_VARS.F was used. Hence SOILOUT will only be produced at the 48th hour.
+
+2. Setting [CTM_WBDUST](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to Y in the WRF-CMAQ model and setting [CTM_WBDUST](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#science-options) to "unknown" results in a crash. This crash is a result of the bounds of extraction being incorrect. 
 
 ### Solution in CMAQv5.3.1
+Issue #1: The WRF-CMAQ model was updated to properly read the environmental variable CTM_RUNLEN in RUNTIME_VARS.F.
+
+Issue #2: Adding variables to store the calculation of the bounds for the land-use database from the appropriate file whether it be from aqprep (mcip counterpart) or from BELD data.
 
 ### Files Affected 
-
+CCTM/src/cio/centralized_io_module.F, CCTM/src/util/util/RUNTIME_VARS.F
 
