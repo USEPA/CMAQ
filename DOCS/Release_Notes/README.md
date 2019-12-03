@@ -4,7 +4,8 @@ CMAQv5.3.1 Release Notes
 The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes and a few  feature additions.  
 
 [Tutorial on installing and running the CMAQ test case](../Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)  
-[CMAQv5.3.1 User's Guide](../Users_Guide/README.md)
+[CMAQv5.3.1 User's Guide](../Users_Guide/README.md)  
+[Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md)
 
 # Summary of CMAQv5.3.1 Updates  
 * [CMAQv5.3.1 Bugfixes](CMAQv5.3.1_bugfixes.md)
