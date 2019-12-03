@@ -420,12 +420,12 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
-setenv EMIS_DATE_OVRD N      #> Master switch for allowing CMAQ to use the date from each Emission file
+setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
                              #>   rather than checking the emissions date against the internal model date.
-                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQs internal
+                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
                              #>   time will be used and an error check will be performed (recommended). Users 
                              #>   may switch the behavior for individual emission files below using the variables:
-                             #>       GR_EM_DTOVRD_## | STK_EM_DTOVRD_## 
+                             #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [ default : N ]                             
 ...
 #> Emissions Control File
 setenv EMISSCTRL_NML ${WORKDIR}/EmissCtrl.nml
@@ -454,7 +454,7 @@ setenv N_EMIS_GR 1
 set EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
 setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
 setenv GR_EMIS_LAB_001 GRIDDED_EMIS
-setenv GR_EM_DTOVRD_001 F
+setenv GR_EM_SYM_DATE_001 F
 
 #> In-line point emissions configuration
 setenv N_EMIS_PT 5          #> Number of elevated source groups
@@ -492,6 +492,14 @@ setenv STK_EMIS_LAB_005 POINT_OILGAS
 #setenv STK_EMIS_DIAG_003 2DSUM
 #setenv STK_EMIS_DIAG_004 2DSUM
 #setenv STK_EMIS_DIAG_005 2DSUM
+
+# Allow CMAQ to Use Point Source files with dates that do not
+# match the internal model date
+setenv STK_EM_SYM_DATE_001 T
+setenv STK_EM_SYM_DATE_002 T
+setenv STK_EM_SYM_DATE_003 T
+setenv STK_EM_SYM_DATE_004 T
+setenv STK_EM_SYM_DATE_005 T
 ```
 
 
