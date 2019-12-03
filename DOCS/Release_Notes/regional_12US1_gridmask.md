@@ -6,8 +6,8 @@
 ## Brief Description
 Two GRIDMASK files (I/O API formatted netcdf files) are now available on the CMAS Data Warehouse.  These GRIDMASK files can be used with the 12US1 modeling grid domain (grid origin x = -2556000 m, y = -1728000 m; N columns = 459, N rows = 299).
 
-1. **GRIDMASK_STATES_12US1.nc** - This file containes 49 variables for the 48 states in the conterminous U.S. plus DC. Each state variable (e.g., AL, AZ, AR, etc.), is a 2D array (299 x 459) providing the fractional area of each grid cell that falls within that state. 
-2. **GRIDMASK_CLIMATE_REGIONS_12US1.nc** This file containes 9 variables for 9 NOAA climate regions based on the [Karl and Koss (1984) definition of climate regions](https://www.ncdc.noaa.gov/monitoring-references/maps/us-climate-regions.php). Each climate region variable (e.g., CLIMATE_REGION_1, CLIMATE_REGION_2, etc.), is a 2D array (299 x 459) providing the fractional area of each grid cell that falls within that climate region.  
+1. **GRIDMASK_STATES_12US1.nc** - This file containes 49 variables for the 48 states in the conterminous U.S. plus DC. Each state variable (e.g., AL, AZ, AR, etc.) is a 2D array (299 x 459) providing the fractional area of each grid cell that falls within that state. 
+2. **GRIDMASK_CLIMATE_REGIONS_12US1.nc** This file containes 9 variables for 9 NOAA climate regions based on the [Karl and Koss (1984) definition of climate regions](https://www.ncdc.noaa.gov/monitoring-references/maps/us-climate-regions.php). Each climate region variable (e.g., CLIMATE_REGION_1, CLIMATE_REGION_2, etc.) is a 2D array (299 x 459) providing the fractional area of each grid cell that falls within that climate region.  
 
  NOAA Climate regions:
  * CLIMATE_REGION_1: Northwest (OR, WA, ID)
