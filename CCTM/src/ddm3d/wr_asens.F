@@ -78,10 +78,10 @@ C Local variables:
       CHARACTER( 80 ) :: VARDESC = ' '
       CHARACTER( 96 ) :: XMSG = ' '
 
-      INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
+c     INTEGER, SAVE :: LOGDEV       ! FORTRAN unit number for log file
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL OK
-      LOGICAL, SAVE :: END_TIME = .FALSE.
+c     LOGICAL, SAVE :: END_TIME = .FALSE.
 
       INTEGER      L, K, VAR, SPC ! loop counters
       INTEGER      STATUS
@@ -89,7 +89,6 @@ C Local variables:
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: VARNAME_ASENS( :,: )
       INTEGER, SAVE :: N_ASENS_SPC
 
-      Character( 96 ) :: XMSG = ' '
       Integer ALLOCSTAT, IDX
 
 

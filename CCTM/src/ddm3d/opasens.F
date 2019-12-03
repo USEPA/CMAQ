@@ -38,7 +38,7 @@ C   S.Napelenok 26 Nov 2019 - create from opaconc.f for cmaq-ddm3d-v5.3.1
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
 
-      USE DDM3D_DEFN, ONLY: NPMAX, SEN_PAR
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, SEN_PAR
 
       IMPLICIT NONE
 
@@ -87,7 +87,7 @@ C   S.Napelenok 26 Nov 2019 - create from opaconc.f for cmaq-ddm3d-v5.3.1
  
 
 ! Try to open existing file for update
-      OK = OPEN3( A_ASENS_1, FSRDWR3, PNAME )
+      OK = OPEN3( A_SENS_1, FSRDWR3, PNAME )
       CALL SUBST_GLOBAL_LOGICAL( OK, 'AND' )
       IF ( .NOT. OK ) THEN
 #ifndef twoway
@@ -254,7 +254,7 @@ C   S.Napelenok 26 Nov 2019 - create from opaconc.f for cmaq-ddm3d-v5.3.1
 
          IF ( N_ACONC_VARS*NPMAX .NE. NVARS3D ) THEN
             WRITE( XMSG, '( A, 2I6 )' )
-     &      'Number of variables don''t match file: ', N_ACONC_VARS*NPAX, NVARS3D
+     &      'Number of variables don''t match file: ', N_ACONC_VARS*NPMAX, NVARS3D
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
          END IF
 
