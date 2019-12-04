@@ -27,8 +27,6 @@ wget https://download.open-mpi.org/release/open-mpi/v4.0/openmpi-4.0.2.tar.gz
 3. Run configure command
 
 ```
-#./configure --with-ucx=no --prefix=/proj/ie/proj/CMAS/CMAQ/CMAQv5.3_branch_pgi/pgi_19.7_openmpi_4.0.2/LIB/openmpi-4.0.2/build 
-# ./configure CC=pgcc CXX=pgc++ F77=pgf77 FC=pgf90 CFLAGS='-fPIC -m64 ' CXXFLAGS='-fPIC -m64 ' FCFLAGS='-fPIC -m64 ' --prefix="/proj/ie/proj/CMAS/CMAQ/CMAQv5.3_branch_pgi/pgi_19.7_openmpi_4.0.2/LIB/openmpi-4.0.2/build"
 ./configure CC=pgcc CXX=pgc++ F77=pgf77 FC=pgf90 CFLAGS='-fPIC -m64' CXXFLAGS='-fPIC -m64' FCFLAGS='-fPIC -m64' --enable-mpi-fortran --enable-mpi-cxx --with-ucx=/proj/ie/proj/CMAS/CMAQ/CMAQv5.3_branch_pgi/pgi_19.7_openmpi_4.0.2/LIB/ucx/install --enable-mca-no-build=btl-uct --prefix=/proj/ie/proj/CMAS/CMAQ/CMAQv5.3_branch_pgi/pgi_19.7_openmpi_4.0.2/LIB/openmpi-4.0.2/build
 
 ```
@@ -135,7 +133,6 @@ which pgcc
 10. Run the configure command
 
 ```
-./configure --prefix=$cwd/netcdf-c-4.7.0-pgi_19.7 --disable-netcdf-4 --disable-dap
 ./configure CC=pgcc CXX=pgc++ F77=pgf77 FC=pgf90  --prefix=$cwd/netcdf-c-4.7.0-pgi_19.7 --disable-netcdf-4 --disable-dap
 ```
 
