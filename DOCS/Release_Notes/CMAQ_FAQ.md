@@ -18,7 +18,7 @@ emissions are being read as you expect. In particular pay attention to the secti
 * If you are upgrading to a new mechanism (i.e. cb6r3_ae6 --> cb6r3_ae7) then it is even more imperative 
 that you review the log file, tutorials for how to control the emissions, and the Emissions Control File 
 itself to make sure the correct assignments are being made. Alpha-pinene is of particular concern and you 
-may read more about that in the [CMAQ User’s Guide section 6.9.3](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md).
+may read more about that in the [CMAQ User’s Guide section 6.9.3](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability).
 * If you have custom-mapped any CMAQ species to an emission surrogate species, then DESID will help you 
 perform this action in a more transparent way. Note that the previous method of mapping emissions (in CMAQv5.2 and before) 
 via the chemical species namelists has been removed. Please see the User's Guide documentation (User’s Guide section 6.9.3) and 
@@ -27,8 +27,8 @@ the [DESID tutorial for the Emission Control File](../Users_Guide/Tutorials/CMAQ
 to prepare EPIC soil properties (L2C_SOIL) and EPIC crop types and fertilizer application 
 (E2C_CHEM) input files using the latest version of FEST-C, version 1.4. See Chapter 6 for further information. Running CMAQ with the 
 STAGE option and ammonia bidirectional surface flux is compatible with previous versions of FEST-C.  
-Please see the User's Guide [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md) for further information on 
-M3DRY and STAGE and [Chapter 4](CMAQ_UG_ch04_model_inputs.md) to read more about the land surface input files required for running with ammonia bidi. 
+Please see the User's Guide [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#68-dry-depositionair-surface-exchange) for further information on 
+M3DRY and STAGE and [Chapter 4](CMAQ_UG_ch04_model_inputs.md#e2c_lu) to read more about the land surface input files required for running with ammonia bidi. 
 
 
 ## What differences should I expect in my model results with v5.3 compared to v5.2.1?
