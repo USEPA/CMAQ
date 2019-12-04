@@ -3,7 +3,7 @@
 ## What do I need to do to update to v5.3?
 * A major change to CMAQ in version 5.3 is the incorporation of the new emissions module, DESID, and 
 its control via a number of RunScript variables and the Emission Control File, which is explained in 
-the [CMAQ User’s Guide section 6.9.3](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md).
+the [CMAQ User’s Guide section 6.9.3](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability). **Due to this change and other changes in environment variables, it is strongly recommended that you start with one of the run scripts released with the latest CMAQ version and adapt it for your application rather than working off of run scripts you may have developed for your application using earlier versions of CMAQ.**
 * If you are upgrading to CMAQv5.3 but you are not changing mechanisms (i.e. you have been using cb6r3_ae6 and you 
 will continue to do so), it is hoped that you will not need to do anything special to maintain default behavior. 
 In other words, the default emission control files will handle simple assignment of CMAQ species to emissions 
@@ -23,10 +23,10 @@ may read more about that in the [CMAQ User’s Guide section 6.9.3](../Users_Gui
 perform this action in a more transparent way. Note that the previous method of mapping emissions (in CMAQv5.2 and before) 
 via the chemical species namelists has been removed. Please see the User's Guide documentation (User’s Guide section 6.9.3) and 
 the [DESID tutorial for the Emission Control File](../Users_Guide/Tutorials/CMAQ_UG_tutorial_emissions.md) to learn how to implement your changes from now on. 
-* If you are running CMAQ with the M3DRY m3dry option for dry deposition and ammonia bidirectional surface flux (bidi) you will need 
-to prepare EPIC soil properties (L2C_SOIL) and  EPIC crop types and fertilizer application 
+* If you are running CMAQ with the M3DRY option for dry deposition and ammonia bidirectional surface flux (bidi) you will need 
+to prepare EPIC soil properties (L2C_SOIL) and EPIC crop types and fertilizer application 
 (E2C_CHEM) input files using the latest version of FEST-C, version 1.4. See Chapter 6 for further information. Running CMAQ with the 
-STAGE m3dry option and ammonia bidirectional surface flux is compatible with previous versions of FEST-C.  
+STAGE option and ammonia bidirectional surface flux is compatible with previous versions of FEST-C.  
 Please see the User's Guide [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md) for further information on 
 M3DRY and STAGE and [Chapter 4](CMAQ_UG_ch04_model_inputs.md) to read more about the land surface input files required for running with ammonia bidi. 
 
