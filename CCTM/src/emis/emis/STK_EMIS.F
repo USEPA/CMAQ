@@ -109,7 +109,10 @@ C-----------------------------------------------------------------------
                SUCCESS = .FALSE.; RETURN
             END IF
 
-            EM_FILE_DATE( ISRM ) = SDATE3D
+            ! Each file will use the default jdate, unless specified by the user 
+            ! that the file is a representative day file
+            EM_FILE_DATE( ISRM ) = JDATE    
+            IF ( EM_FILE_SYM_DATE( ISRM ) ) EM_FILE_DATE( ISRM ) = SDATE3D
 
             NSRC_EMIS( N ) = NROWS3D
             NVARS_EMIS( N ) = NVARS3D
