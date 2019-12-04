@@ -1,6 +1,6 @@
 # Frequently Asked Questions for Upgrading to the Latest CMAQ Version
 
-## What do I need to do to update to v5.3 from v5.2.1?
+## What do I need to do to update from v5.2.1 to v5.3?
 * A major change to CMAQ in version 5.3 is the incorporation of the new emissions module, DESID, and 
 its control via a number of RunScript variables and the Emission Control File, which is explained in 
 the [CMAQ User’s Guide section 6.9.3](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability). **Due to this change and other changes in environment variables, it is strongly recommended that you start with one of the run scripts released with the latest CMAQ version and adapt it for your application rather than working off of run scripts you may have developed for your application using earlier versions of CMAQ.**
@@ -34,7 +34,7 @@ M3DRY and STAGE and [Chapter 4](CMAQ_UG_ch04_model_inputs.md#e2c_lu) to read mor
 ## What differences should I expect in my model results with v5.3 compared to v5.2.1?
 
 
-## What do I need to do to update to v5.3.1 form v5.3?
+## What do I need to do to update from v5.3 to v5.3.1?
 CMAQv5.3.1 is a minor bugfix release.  If you have already successfully migrated to v5.3, you will not need to do anything special to maintain default behavior in v5.3.1.
 
 ## What differences should I expect in my model results with v5.3.1 compared to v5.3?
