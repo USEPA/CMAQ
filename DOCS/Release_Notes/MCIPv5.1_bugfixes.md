@@ -45,3 +45,5 @@ PREP/mcip/docs/CHANGES
 
 PREP/mcip/docs/ReleaseNotes
 
+## A note about MCIP compatibility with CMAQ
+If running MCIPv5.0+ you must use CMAQv5.3+ because of a change in where fractional land use is stored.  In MCIPv5.0+ the fractional land use is no longer in GRIDCRO2D.  It is now in a new file, LUFRAC_CRO and is stored as a 3D array rather than a suite of 2D arrays.
