@@ -40,7 +40,7 @@ CMAQv5.3.1 is a minor bugfix release.  If you have already successfully migrated
 ## What differences should I expect in my model results with v5.3.1 compared to v5.3?
 Two updates in v5.3.1 have the potential to change model output.  
 1. If running CMAQ with the STAGE option for dry deposition, the [STAGE bugfix ](CMAQv5.3.1_bugfixes.md#5-stage) will lead to small changes in dry deposition fluxes and concentration values. Most of the difference follow a random spatial pattern with the exception of NH3 dry deposition which shows the effect of including the deposition to water in the updated code.
-2. In the v5.3 release there was a mismatch between the emission stream labels in the 2016 SE benchmark run script and the EmissCtrl file for cb6r3_ae7_aq. The result was that in the benchmark output files, PCSOA was not “switched off” for residential wood combustion.  The emission stream labels have now been corrected, resulting in lower PM2.5. The other run scripts in the repository had the correct emissions stream lables, and so are not changed in this release.  
+2. In the v5.3 release there was a mismatch between the emission stream labels in the 2016 SE benchmark run script and the EmissCtrl file for cb6r3_ae7_aq. The result was that in the benchmark output files, PCSOA was not “switched off” for fire related emissions streams, including residential wood combustion.  The emission stream labels have now been corrected, resulting in lower PM2.5. The other run scripts in the repository had the correct emissions stream lables, and so are not changed in this release.  
 
 ## Additional FAQ
 A more general list of Frequent CMAQ Questions can be found on our website: https://www.epa.gov/cmaq/frequent-cmaq-questions
