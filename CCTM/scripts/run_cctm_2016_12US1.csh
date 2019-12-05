@@ -284,7 +284,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Boundary conditions, use STAGE files if CCTM uses the stage option for depv
 # set BCFILE = bctr_12km_HCMAQ_V53BETA2_STAGE_cb6r3m_ae7_kmtbr_BCON_V53_${YYYYMM}.ncf
-  set BCFILE = bctr_12km_HCMAQ_V53BETA2_HONO_RUND_M3DRY_cb6r3m_ae7_kmtbr_BCON_V53_${YYYYMM}.ncf
+  set BCFILE = bctr_12km_HCMAQ_V53R_RUNA_M3DRY_cb6r3m_ae7_kmtbr_BCON_V53_${YYYYMM}.ncf
 
   #> Off-line photolysis rates 
   #set JVALfile  = JTABLE_${YYYYJJJ}
