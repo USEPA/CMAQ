@@ -90,7 +90,14 @@
 !                          'o' - find existing scaling instructions matching   !
 !                                this rule and overwrite them.                 !
 !                                                                              !
-!                                                                              !
+!    You may confirm the effect of the (default and custom) rules below by     !
+!       inspecting the processor-dependent log files ("CTM_LOG_XXX...") in the !
+!       section titled "EMISSIONS SCALING DIAGNOSTIC" or by outputting the     !
+!       gridded emission diagnostic files for each or all the streams. The     !
+!       latter is accomplished by setting the environment variables EMISDIAG   !
+!       (sum of all streams) or GR_EMIS_DIAG_XXX, STK_EMIS_DIAG_XXX,           !
+!       BIOG_EMIS_DIAG, etc (stream-specific). Please see runscript for        !
+!       output options.                                                        !
 !------------------------------------------------------------------------------!
 
 &EmissionScalingRules
@@ -298,7 +305,20 @@
  ! 'EVERYWHERE','AIRCRAFT'     ,'VOC_INV','PAR'         ,'GAS' ,0.02 ,'MOLE','a',!Add more mass to PAR from aircraft
                                                                                  ! equal to 2% of the VOC_INV from
                                                                                  ! aircraft
-                                                                    
+ ! 'EVERYWHERE','ALL'          ,'ALL'    ,'VOC'         ,'GAS' ,0.5  ,'UNIT','m',!Scale all species defined as members
+                                                                                 ! of the VOC family (see families below)
+                                                                                 ! by 50%
+ ! 'REGION9'   ,'ALL'          ,'ALL'    ,'NO2'         ,'GAS' ,2.0  ,'UNIT','m',!Scale NO2 in the region labelled
+                                                                                 ! "REGION9" by 200%
+ ! 'EVERYWHERE','PT_SOURCES'   ,'PEC'    ,'AEC'         ,'FINE',0.1  ,'UNIT','m',!Scale black carbon PM from the custom
+                                                                                 ! stream family "PT_SOURCES" to 10%
+ ! 'REGION9'   ,'PT_SOURCES'   ,'ALL'    ,'VOC'         ,'GAS' ,4.0  ,'UNIT','m',!Scale all VOCs from the family 
+                                                                                 ! "PT_SOURCES" by 400% only in the region
+                                                                                 ! labelled "REGION9"
+ ! 'REGION9'   ,'PT_SOURCES'   ,'NVOL'   ,'ALD2'        ,'GAS' ,0.66 ,'UNIT','a',!Add 0.66*NVOL as ALD2 in the region
+                                                                                 ! labelled "REGION9", but only from 
+                                                                                 ! streams in the "PT_SOURCES" family
+
 /
 
 !------------------------------------------------------------------------------!
@@ -400,7 +420,7 @@
 
 !&StreamFamilies
 ! NStreamFamilies         = 1
-! StreamFamilyName(1)     = 'POINT_SOURCES'
+! StreamFamilyName(1)     = 'PT_SOURCES'
 ! StreamFamilyNum(1)      = 3
 ! StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
 !/
