@@ -26,9 +26,13 @@ residential heating, etc.
 - [8. Overwrite the scale factor for a single stream or species](#overwrite)  
 - [9. Scale all species except one by a common factor](#scale_all_but_one)  
 - [10. Apply scaling while conserving moles or mass](#scale_moles_mass)  
-- [11. Apply scaling with spatial dependence](#apply_mask)  
-- [A1. Appendix: Example Emission Control File](#appendix1)
-- [A2. Appendix: Example Emissions Section of CCTM RunScript File](#appendix2)
+- [11. Apply scaling with spatial dependence](#apply_mask) 
+- [12. Define families of streams, regions, or chemical species](#define_families) 
+- [13. Use a family of streams to scale emissions for a group of sources](#fam_stream)  
+- [14. Use a family of regions to scale emissions in a new location](#fam_region)  
+- [15. Use a family of species to scale emissions for a custom group of pollutants](#fam_chem)  
+- [A1. Appendix: Example Emission Control File](#appendix1)  
+- [A2. Appendix: Example Emissions Section of CCTM RunScript File](#appendix2)  
 
 
 <a id=zero_out></a>
@@ -227,6 +231,102 @@ The label for "KENTUCKY" should be linked to a specific gridded variable mask (o
 This is just an example of defining one mask named "KENTUCKY". For a complete explanation of the spatial-dependent scaling feature, see the CMAQ Appendix [B.4 "Applying Masks"](../Appendix/CMAQ_UG_appendixB_emissions_control.md#b4-applying-masks-for-spatial-dependence).
 
 
+<a id=apply_mask></a>
+### 12.  Define families of streams, regions, or chemical species
+Users can define any number of custom groups or "families" of emission streams, regions or chemical species to be used to streamline (i.e. enhance) prescribed emissions rules. For example, if a user would like to scale NOx by 50% from 4 different emission streams (e.g. PT_EGU, GRIDDED, MOBILE and PT_NONEGU) without using famlies, they would need 8 rules, one for NO and NO2 for each of 4 streams. However, by defining a family of 4 streams and another family of two chemical species (i.e. NOx), 1 rule can be used to achieve the same result.  
+
+Chemical families are defined by prescribing, via the Emission Control File, the total number of chemical families to be used, the name of each, the number of members of each family, and the name of each family member. For example,  
+```
+&ChemicalFamilies
+ NChemFamilies         = 2     
+ ChemFamilyName(1)     = 'NOX'    
+ ChemFamilyNum(1)      = 2  
+ ChemFamilyMembers(1,:)= 'NO','NO2'  
+ ChemFamilyName(2)     = 'POA'    
+ ChemFamilyNum(2)      = 2  
+ ChemFamilyMembers(2,:)= 'POC','PNCOM'  
+/
+```  
+In this example, only 1 chemical family "NOX" is defined with 2 members, "NO" and "NO2".  
+Stream families are defined analogously:  
+```
+&StreamFamilies  
+ NStreamFamilies         = 1  
+ StreamFamilyName(1)     = 'CONTROLLED_SOURCES'  
+ StreamFamilyNum(1)      = 4  
+ StreamFamilyMembers(1,:)= 'PT_EGU','GRIDDED','MOBILE','PT_NONEGU'  
+/  
+```
+
+As are region families:  
+```
+&RegionFamilies
+ NRegionFamilies         = 1
+ RegionFamilyName(1)     = 'SouthEastUS'
+ RegionFamilyNum(1)      = 9
+ RegionFamilyMembers(1,:)= 'KY','VA','TN','NC','MS','AL','GA','SC','FL'
+/
+```
+
+<a id=apply_mask></a>
+### 13. Use a family of streams to scale emissions for a group of sources
+To then use a stream family to apply a rule to multiple streams, just use the family name in the Stream Label column. 
+```
+! Region      | Stream Label         |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+!  Label      |                      |Surrogate| Species      |Mode  |Factor|      |
+'EVERYWHERE'  , 'CONTROLLED_SOURCES' ,'NO2'    ,'NO2'         ,'GAS' ,0.50 ,'UNIT','m',
+```
+
+<a id=apply_mask></a>
+### 14. Use a family of regions to scale emissions in a new location
+To use a region family, use the family name in the Region Label column.  
+```
+! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+!  Label      |               |Surrogate| Species      |Mode  |Factor|      |
+'SouthEastUS' , 'ALL'         ,'NO2'    ,'NO2'         ,'GAS' ,0.50 ,'UNIT','m',
+```
+
+<a id=apply_mask></a>
+### 15. Use a family of species to scale emissions for a custom group of pollutants
+Chemical families may be applied in the CMAQ-species column:  
+```
+! Region      | Stream Label |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+!  Label      |              |Surrogate| Species      |Mode  |Factor|      |
+'EVERYWHERE'  , 'GRIDDED'    ,'ALL'    ,'NOX'         ,'GAS' ,0.50 ,'UNIT','m',
+```  
+or in the Emission Surrogate column:  
+```
+! Region      | Stream Label |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+!  Label      |              |Surrogate| Species      |Mode  |Factor|      |
+'EVERYWHERE'  , 'GRIDDED'    ,'NOX'    ,'ALL'         ,'GAS' ,0.50 ,'UNIT','m',
+```  
+In both of these cases, both NO and NO2 (as NOx is defined above) are multiplied by 50%. The same is accomplished by using NOX in both columns.  
+```
+! Region      | Stream Label |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+!  Label      |              |Surrogate| Species      |Mode  |Factor|      |
+'EVERYWHERE'  , 'GRIDDED'    ,'NOX'    ,'NOX'         ,'GAS' ,0.50 ,'UNIT','m',
+```  
+Because the 'm' operator is used, CMAQ will look for pre-existing relationships between the members of 'NOX' in order to apply the scaling rule, which 'multiplies' the existing scaling by 50%. So this example assumes that the following two rules, or something similar, preceed the instructions in this section:  
+```
+! Region      | Stream Label |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+!  Label      |              |Surrogate| Species      |Mode  |Factor|      |
+'EVERYWHERE'  , 'GRIDDED'    ,'NO'     ,'NO'          ,'GAS' ,1.00  ,'UNIT','a',
+'EVERYWHERE'  , 'GRIDDED'    ,'NO2'    ,'NO2'         ,'GAS' ,1.00  ,'UNIT','a',
+```  
+In this case, CMAQ is adding a relationship between NO and NO2 surrogates and model species. Thus families are most useful when using the 'm' or 'o' operators. 
+
+However, sometimes the 'a' operator is useful with chemical families. In the example below, a relationship is added between POA surrogates (defined in example 12 above) and CMAQ model species:  
+```
+! Region      | Stream Label |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
+!  Label      |              |Surrogate| Species      |Mode  |Factor|      |
+'EVERYWHERE'  , 'GRIDDED'    ,'POA'    ,'ALVPO1'      ,'FINE',0.09  ,'UNIT','a',
+```  
+CMAQ will use this rule to add POC and PNCOM surrogates together, multiply by 0.09 and assign their emissions to ALVPO1, a semivolatile POA species.  
+The way CMAQ uses chemical families for adding relationships with the 'a' is nuanced. The following logic is applied: 
+- If a chemical family is used for either the emissions surrogate or the CMAQ-Species but not both, then connections are made between each member of the family and the prescribed single-species in the other column.  
+- If both columns include chemical families, then each pair of members will be compared. If the names match exactly or a relationship already exists, then the 'a' operation will be applied. If not, then the pair will be ignored. This precaution is in place to protect against the case where a user prescribes an addition (i.e. 'a') rule with the keyword 'ALL' or very large chemical families in both the Emission Surrogate and CMAQ-Species columns. Without the precaution in place, adding relationships for ALL surrogates to ALL model species would be an extremely large data structure and almost certainly not an intended use of CMAQ.  
+
+
 <a id=appendix1></a>
 ### A1. Appendix 1: Example Emission Control File
 ```
@@ -292,25 +392,40 @@ This is just an example of defining one mask named "KENTUCKY". For a complete ex
 
 &EmissionScalingRules
  EM_NML=
- !          Region      | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  |Basis | Op  
- !           Label      |               |Surrogate| Species |Mode   |Factor |      |     
- !<EXAMPLE> 'WATER'     , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'MASS','o', !Zero out all emissions over 
-                                                                                         ! water grid cells
- !<EXAMPLE> 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','o', !Scale NO from gasoline 
-                                                                                         ! vehicles by a factor of 2
- !<EXAMPLE> 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','m', !Alternative: Scale NO 
-                                                                                         ! from gasoline vehicles
-                                                                                         ! by a factor of 2
- !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'POC'    ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Carbon 
-                                                                                         ! mass from fires by 50%
- !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
-                                                                                         ! mass from fires by 50%
- !<EXAMPLE> 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
-                                                                                         ! mass from fires by 50%
+ ! Region      | Stream Label  |Emission | CMAQ-   |Phase/ |Scale  |Basis | Op  
+ !  Label      |               |Surrogate| Species |Mode   |Factor |      |     
+ ! 'WATER'     , 'All'         ,'All'    ,'All'    ,'All'  ,0.     ,'MASS','o', !Zero out all emissions over 
+                                                                                ! water grid cells
+ ! 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','o', !Scale NO from gasoline 
+                                                                                ! vehicles by a factor of 2
+ ! 'EVERYWHERE', 'ONROAD_GAS'  ,'NO'     ,'NO'     ,'GAS'  ,2.     ,'MOLE','m', !Alternative: Scale NO 
+                                                                                ! from gasoline vehicles
+                                                                                ! by a factor of 2
+ ! 'EVERYWHERE', 'FIRES'       ,'POC'    ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Carbon 
+                                                                                ! mass from fires by 50%
+ ! 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
+                                                                                ! mass from fires by 50%
+ ! 'EVERYWHERE', 'FIRES'       ,'PNCOM'  ,'ALL'    ,'ALL'  ,0.5    ,'MASS','m', !Scale all Organic Non-Carbon 
+                                                                                ! mass from fires by 50%
  
- !<EXAMPLE> 'EVERYWHERE', 'AIRCRAFT'    ,'VOC_INV','PAR'    ,'GAS'  ,0.02   ,'MOLE','a', !Add more mass to PAR from aircraft
+ ! 'EVERYWHERE', 'AIRCRAFT'    ,'VOC_INV','PAR'    ,'GAS'  ,0.02   ,'MOLE','a', !Add more mass to PAR from aircraft
                                                                                          ! equal to 2% of the VOC_INV from
                                                                                          ! aircraft
+ ! 'EVERYWHERE','ALL'          ,'ALL'    ,'VOC'    ,'GAS'  ,0.5    ,'UNIT','m', !Scale all species defined as members
+                                                                                ! of the VOC family (see families below)
+                                                                                ! by 50%
+ ! 'REGION9'   ,'ALL'          ,'ALL'    ,'NO2'    ,'GAS'  ,2.0    ,'UNIT','m', !Scale NO2 in the region labelled
+                                                                                ! "REGION9" by 200%
+ ! 'EVERYWHERE','PT_SOURCES'   ,'PEC'    ,'AEC'    ,'FINE' ,0.1    ,'UNIT','m', !Scale black carbon PM from the custom
+                                                                                ! stream family "PT_SOURCES" to 10%
+ ! 'REGION9'   ,'PT_SOURCES'   ,'ALL'    ,'VOC'    ,'GAS'  ,4.0    ,'UNIT','m', !Scale all VOCs from the family 
+                                                                                ! "PT_SOURCES" by 400% only in the region
+                                                                                ! labelled "REGION9"
+ ! 'REGION9'   ,'PT_SOURCES'   ,'NVOL'   ,'HONO'   ,'GAS'  ,0.66   ,'UNIT','a', !Add 0.66*NVOL as HONO in the region
+                                                                                ! labelled "REGION9", but only from 
+                                                                                ! streams in the "PT_SOURCES" family
+
+
 /
 
 !------------------------------------------------------------------------------!
@@ -385,22 +500,41 @@ This is just an example of defining one mask named "KENTUCKY". For a complete ex
 /
 
 !------------------------------------------------------------------------------!
-! Additional Emissions Scaling Variables                                       !
-!    This section includes additional specific variables for governing the     !
-!    behavior of the emissions scaling routines. Explanations are provided     !
-!    below.                                                                    !
+! Emissions Scaling Family Definitions                                         !
+!    This section includes definitions for families of CMAQ chemical species,  !
+!    emission streams and region combinations. Please see the Emissions        !
+!    Scaling Specification Section for a definitions of CMAQ species, Regions, !
+!    and Streams. For each type of family, please indicate the number of       !
+!    families you are prescribing (e.g. NChemFamilies=1). Then for each Family !
+!    indicate the Name, the number of components, and the name of each         !
+!    component. All entries are case-insensitive. See the Emissions tutorial   !
+!    in the CMAQ Repository for detailed directions for how to work with       !
+!    Families.                                                                 !
+!                                                                              !
+!    The examples below may be uncommented and modified for your use.          !
 !------------------------------------------------------------------------------!
 
-&GeneralSpecs
+!&ChemicalFamilies
+! NChemFamilies         = 1
+! ChemFamilyName(1)     = 'NOX'
+! ChemFamilyNum(1)      = 2
+! ChemFamilyMembers(1,:)= 'NO','NO2'
+!/
 
- DefaultScaling      = .TRUE.   !Find All matches and map them 1:1. Map Aerosols as usual
- Guard_BiogenicVOC   = .FALSE.  !If True, then using 'ALL' to identify all of the available 
- Guard_MarineGas     = .FALSE.  !  streams will not apply to these streams. They will, in
- Guard_LightningNO   = .FALSE.  !  effect, be 'guarded' from the scaling operation.
- Guard_WindBlownDust = .FALSE.
- Guard_SeaSpray      = .FALSE.
+!&StreamFamilies
+! NStreamFamilies         = 1
+! StreamFamilyName(1)     = 'PT_SOURCES'
+! StreamFamilyNum(1)      = 3
+! StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
+!/
 
-/
+!&RegionFamilies
+! NRegionFamilies         = 1
+! RegionFamilyName(1)     = 'Water'
+! RegionFamilyNum(1)      = 2
+! RegionFamilyMembers(1,:)= 'SURF','OPEN'
+!/
+ 
 ```
 
 

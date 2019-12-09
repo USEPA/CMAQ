@@ -1686,12 +1686,14 @@ C and allowing the model to proceed.
                         END DO
                     END IF
 
-                    ! If the 'ALL' keyword was used for the Surrogate 
-                    ! AND multiple CMAQ Species are selected, then 
-                    ! only exact matches or existing relationships 
-                    ! should be populated.
+                    ! If any family name was used for the Surrogate 
+                    ! and Species fields and those family or keyword
+                    ! names match, then only exact matches or existing 
+                    ! relationships should be populated.
                     IF (   (LSURR_KEY( IRULE ) .EQ. .TRUE. .AND. 
      &                      LSPEC_KEY( IRULE ) .EQ. .TRUE. )
+     &                  .AND.
+     &                     (EM_NML( IRULE )%SPEC .EQ. EM_NML( IRULE )%SURR )
      &                  .AND.
      &                     (EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 
      &                      DIFF_SPC( IDIFF ) ) ) THEN
