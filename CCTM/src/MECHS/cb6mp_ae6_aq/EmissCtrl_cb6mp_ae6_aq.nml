@@ -323,6 +323,19 @@
  ! 'EVERYWHERE','AIRCRAFT'     ,'VOC_INV','PAR'         ,'GAS' ,0.02 ,'MOLE','a',!Add more mass to PAR from aircraft
                                                                                  ! equal to 2% of the VOC_INV from
                                                                                  ! aircraft
+ ! 'EVERYWHERE','ALL'          ,'ALL'    ,'VOC'         ,'GAS' ,0.5  ,'UNIT','m',!Scale all species defined as members
+                                                                                 ! of the VOC family (see families below)
+                                                                                 ! by 50%
+ ! 'REGION9'   ,'ALL'          ,'ALL'    ,'NO2'         ,'GAS' ,2.0  ,'UNIT','m',!Scale NO2 in the region labelled
+                                                                                 ! "REGION9" by 200%
+ ! 'EVERYWHERE','PT_SOURCES'   ,'PEC'    ,'AEC'         ,'FINE',0.1  ,'UNIT','m',!Scale black carbon PM from the custom
+                                                                                 ! stream family "PT_SOURCES" to 10%
+ ! 'REGION9'   ,'PT_SOURCES'   ,'ALL'    ,'VOC'         ,'GAS' ,4.0  ,'UNIT','m',!Scale all VOCs from the family 
+                                                                                 ! "PT_SOURCES" by 400% only in the region
+                                                                                 ! labelled "REGION9"
+ ! 'REGION9'   ,'PT_SOURCES'   ,'NVOL'   ,'HONO'        ,'GAS' ,0.66 ,'UNIT','a',!Add 0.66*NVOL as HONO in the region
+                                                                                 ! labelled "REGION9", but only from 
+                                                                                 ! streams in the "PT_SOURCES" family
                                                                     
 /
 

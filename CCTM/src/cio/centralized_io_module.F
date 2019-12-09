@@ -3475,6 +3475,7 @@ C   mminlu and num_land_cat are WRF global variables
          END IF
          
          ! Read General Specification Section
+         REWIND( EMCTRL_NML )
          READ( NML = GeneralSpecs, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
@@ -3490,6 +3491,7 @@ C   mminlu and num_land_cat are WRF global variables
          END IF
  
          ! Read Chemical Family Specification Section
+         REWIND( EMCTRL_NML )
          READ( NML = ChemicalFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
@@ -3511,6 +3513,7 @@ C   mminlu and num_land_cat are WRF global variables
          END DO
 
          ! Read Stream Family Specification Section
+         REWIND( EMCTRL_NML )
          READ( NML = StreamFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
@@ -3532,6 +3535,7 @@ C   mminlu and num_land_cat are WRF global variables
          END DO
  
          ! Read Region Family Specification Section
+         REWIND( EMCTRL_NML )
          READ( NML = RegionFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
