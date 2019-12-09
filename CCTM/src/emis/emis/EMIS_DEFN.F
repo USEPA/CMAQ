@@ -1126,9 +1126,9 @@ C-----------------------------------------------------------------------
          LOGICAL, ALLOCATABLE, SAVE :: EM_STREAM_RULE( : ), EM_SPEC_RULE( : )
          TYPE( LARRY1 ), ALLOCATABLE, SAVE :: EM_SURR_RULE( : ), EM_PHASE_RULE( : )
          INTEGER, PARAMETER :: N_SCALEFAC = 100
-         LOGICAL            :: LSPEC_KEY( NISTR0 ), LSURR_KRY( NISTR0 )
+         LOGICAL            :: LSPEC_KEY( NISTR0 ), LSURR_KEY( NISTR0 )
          CHARACTER( 16 )    :: CHEM_NAME( 150 )
-         LOGICAL            :: LERROR2( 150 )
+         LOGICAL            :: LERROR2, LERROR3( 150 )
         
          INTEGER            :: IC, N_COMMANDS
          INTEGER, PARAMETER :: NCOMM0 = 4000000
@@ -1415,11 +1415,12 @@ C and allowing the model to proceed.
             LERROR = .TRUE.
             IF ( EM_NML( IRULE )%SURR .EQ. 'ALL' ) THEN
                ! Expand the Rule to Apply to All Surrogates
-               FORALL( ISRM = 1,N_EM_SRM, EM_STREAM_RULE( ISRM ) )
+               DO ISRM = 1,N_EM_SRM
+                 IF ( .NOT. EM_STREAM_RULE( ISRM ) ) CYCLE
                  EM_SURR_RULE( ISRM )%ARRY = .TRUE.
                  LSURR_KEY( IRULE ) = .TRUE.
                  LERROR = .FALSE.
-               END FORALL
+               END DO
             ELSE
                ! Determine if the Surrogate Label Refers to A Family and if So, 
                ! Apply the Rule to all members of that Family
@@ -1443,8 +1444,10 @@ C and allowing the model to proceed.
                   CHEM_NAME(1:NCHEM) = ChemFamilyMembers( IFAM,1:NCHEM )
                   LSURR_KEY( IRULE ) = .TRUE.
  
-                  LERROR2(1:NCHEM) = .TRUE.
+                  LERROR = .FALSE.
+                  LERROR3( ICHEM ) = .FALSE.
                   DO ICHEM = 1,NCHEM
+                     LERROR2 = .TRUE.
                      DO ISRM = 1,N_EM_SRM
                         IF ( .NOT. EM_STREAM_RULE( ISRM ) ) CYCLE
                         ! Find the Specific Species this Rule Identifies
@@ -1452,11 +1455,14 @@ C and allowing the model to proceed.
      &                                EM_FILE_SURR( ISRM )%ARRY )
                         IF ( IDX .NE. 0 ) THEN
                            EM_SURR_RULE( ISRM )%ARRY( IDX ) = .TRUE.
-                           LERROR2( ICHEM ) = .FALSE.
+                           LERROR2 = .FALSE.
                         END IF
                      END DO
-                  END DO
-                  IF ( .ANY.LERROR2(1:NCHEM) ) LERROR = .TRUE.
+                     IF ( LERROR2 ) THEN
+                         LERROR3( ICHEM ) = .TRUE.
+                         LERROR = .TRUE.
+                     END IF
+                  END DO          
                END IF
  
             END IF
@@ -1465,22 +1471,27 @@ C and allowing the model to proceed.
               IF ( .NOT. EMISCHK ) THEN
                  WRITE( LOGDEV, '(/,5x,A,/,5x,2A,4(/,5x,A))') 
      &                  '*** ATTENTION **********************************************:',
-     &                  'The emission surrogate ',TRIM( EM_NML( IRULE )%SURR ),
+     &                  'The emission surrogate or member of family ',TRIM( EM_NML( IRULE )%SURR ),
      &                  'was not found in the requested emission streams but the ',
      &                  'CTM_EMISCHK environment variable set to False so simulation ',
      &                  'will proceed.',
      &                  '*************************************************************'
                  IF ( IFAM .NE. 0 ) THEN
-                    WRITE( LOGDEV, '(7x,A,/,7x,A,/,7x,A,1x,A ))') 
+                    WRITE( LOGDEV, '(7x,A,/,7x,A,/,7x,A,1x,A )') 
      &                  'The surrogate label applied was a chemical family. The specific',
      &                  'family member(s) that did not appear on any emission stream',
-     &                  'inputs was:', TRIM( CHEM_NAME( LERROR2 ) ) 
+     &                  'inputs was:'
+                    DO ICHEM = 1,NCHEM
+                        IF ( LERROR3( ICHEM ) ) WRITE( LOGDEV, '(20x,A)' ) TRIM( CHEM_NAME( ICHEM ) )
+                    END DO
+                    WRITE( LOGDEV, '(7x,A)' )
      &                  '*************************************************************'
+                 END IF
                  CYCLE
               ELSE     
                  WRITE( LOGDEV, '(5x,A,/,5x,2A,/,8(/,5x,A))') 
      &                  '*** ERROR **************************************************************:',
-     &                  'The emission surrogate ',TRIM( EM_NML( IRULE )%SURR ),
+     &                  'The emission surrogate or member of family ',TRIM( EM_NML( IRULE )%SURR ),
      &                  ' is not found in any of the emission streams.',
      &                  'Use one of the below options to continue.', 
      &                  '1) Change or remove this emission rule so that it refers to an existing surrogate.', 
@@ -1489,11 +1500,16 @@ C and allowing the model to proceed.
      &                  'if model predictions are acceptable without using the above emissions.',
      &                  '*************************************************************************'
                  IF ( IFAM .NE. 0 ) THEN
-                    WRITE( LOGDEV, '(7x,A,/,7x,A,/,7x,A,1x,A ))') 
+                    WRITE( LOGDEV, '(7x,A,/,7x,A,/,7x,A,1x,A )') 
      &                  'The surrogate label applied was a chemical family. The specific',
      &                  'family member(s) that did not appear on any emission stream',
-     &                  'inputs was:', TRIM( CHEM_NAME( LERROR2 ) ) 
+     &                  'inputs was:'
+                    DO ICHEM = 1,NCHEM
+                        IF ( LERROR3( ICHEM ) ) WRITE( LOGDEV, '(20x,A)' ) TRIM( CHEM_NAME( ICHEM ) )
+                    END DO
+                    WRITE( LOGDEV, '(7x,A)' )
      &                  '*************************************************************'
+                 END IF
                  XMSG = 'Species with the missing surrogates ' 
      &                //'must have a surrogate found in at least one stream.'
                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -1692,8 +1708,6 @@ C and allowing the model to proceed.
                     ! relationships should be populated.
                     IF (   (LSURR_KEY( IRULE ) .EQ. .TRUE. .AND. 
      &                      LSPEC_KEY( IRULE ) .EQ. .TRUE. )
-     &                  .AND.
-     &                     (EM_NML( IRULE )%SPEC .EQ. EM_NML( IRULE )%SURR )
      &                  .AND.
      &                     (EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 
      &                      DIFF_SPC( IDIFF ) ) ) THEN
