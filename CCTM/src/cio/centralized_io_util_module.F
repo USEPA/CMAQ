@@ -24,6 +24,7 @@
 ! Revision History:
 !  02/01/19, D. Wong: initial implementation
 !  08/01/19, D. Wong: modified code to work with two-way model
+!  11/20/19, F. Sidi: Modified time to sec to handle negative numbers
 !------------------------------------------------------------------------!
 
       module centralized_io_util_module
@@ -173,7 +174,7 @@
         integer function time_to_sec (time)
 
           integer, intent(in) :: time
-
+          integer :: neg_time
           integer :: time_in_sec, hr, min, sec
 
           if (time .gt. 0) then
@@ -182,7 +183,11 @@
              sec = mod(time, 100)
              time_to_sec = hr * 3600 + min * 60 + sec
           else
-             time_to_sec = 0
+             neg_time = abs(time)
+             hr = neg_time / 10000
+             min = mod(neg_time/100, 100)
+             sec = mod(neg_time, 100)
+             time_to_sec = -1*(hr * 3600 + min * 60 + sec)
           end if
           
         end function time_to_sec

@@ -541,7 +541,7 @@ C statement function for ERF approximation
 
             IF( R_READY ) THEN
                IF ( NLDNSTRIKE ) THEN
-                  call interpolate_var ('NLDNstrk', ldate, ltime, NLDN_STRIKE)
+                  call interpolate_var (LT_NAME, ldate, ltime, NLDN_STRIKE)
                   R_READY = .FALSE.
                END IF  ! NLDNSTRIKE
             END IF     !R_READY

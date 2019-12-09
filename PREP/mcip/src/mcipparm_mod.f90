@@ -141,6 +141,7 @@ MODULE mcipparm
 !                        a flag for extra variables available with KF convective
 !                        scheme with radiative feedbacks.  (T. Spero)
 !           15 Jul 2019  Updated release stamp.  (T. Spero)
+!           21 Nov 2019  Updated release stamp.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE m3utilio, ONLY: mxdesc3
@@ -309,7 +310,7 @@ MODULE mcipparm
 
   CHARACTER(LEN=80)                 :: fdesc      ( mxdesc3 )
   CHARACTER(LEN=16),  PARAMETER     :: progname   = 'MCIP'
-  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '07/15/2019'
-  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V5.0'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '11/21/2019'
+  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V5.1'
 
 END MODULE mcipparm

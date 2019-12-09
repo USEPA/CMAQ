@@ -103,6 +103,8 @@
 #                        staggering.  The Arakawa-B staggering is now
 #                        optional (additional fields), and the Arakawa-C
 #                        staggering is the default.  (T. Spero)
+#           17 Nov 2019  Corrected variable setting for file_geo in
+#                        namelist generation code.  (T. Spero)
 #=======================================================================
 
 #-----------------------------------------------------------------------
@@ -374,7 +376,7 @@ endif
 
 if ( $IfGeo == "T" ) then
 cat >> $WorkDir/namelist.${PROG} << !
-  file_ter   = "$InGeo"
+  file_geo   = "$InGeo"
 !
 endif
 

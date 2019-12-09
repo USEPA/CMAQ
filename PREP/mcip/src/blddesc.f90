@@ -38,6 +38,9 @@ SUBROUTINE blddesc
 !           26 Jan 2018  Added coefficient for spectral nudging of moisture to
 !                        metadata.  (T. Spero)
 !           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           12 Nov 2019  Expanded options to allow for surface analysis
+!                        nudging option 2 (FASDAS), which has been available
+!                        since WRFv3.8.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -161,7 +164,24 @@ SUBROUTINE blddesc
   fdesc(34)  = '   GEOP COEFF:  ' // TRIM(coeff_g)
 
   IF ( met_fdda_sfan == 1 ) THEN
-    text = 'ON'
+    text = 'STANDARD'
+    IF ( met_fdda_gvsfc >= 0.0 ) THEN
+      WRITE ( coeff_v, '(es10.3, a)' ) met_fdda_gvsfc, ' s-1'
+    ELSE
+      coeff_v = 'unknown'
+    ENDIF
+    IF ( met_fdda_gtsfc >= 0.0 ) THEN
+      WRITE ( coeff_t, '(es10.3, a)' ) met_fdda_gtsfc, ' s-1'
+    ELSE
+      coeff_t = 'unknown'
+    ENDIF
+    IF ( met_fdda_gqsfc >= 0.0 ) THEN
+      WRITE ( coeff_q, '(es10.3, a)' ) met_fdda_gqsfc, ' s-1'
+    ELSE
+      coeff_q = 'unknown'
+    ENDIF
+  ELSE IF ( met_fdda_sfan == 2 ) THEN
+    text = 'FASDAS'
     IF ( met_fdda_gvsfc >= 0.0 ) THEN
       WRITE ( coeff_v, '(es10.3, a)' ) met_fdda_gvsfc, ' s-1'
     ELSE
