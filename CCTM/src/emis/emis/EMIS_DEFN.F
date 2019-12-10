@@ -1706,8 +1706,8 @@ C and allowing the model to proceed.
                     ! and Species fields and those family or keyword
                     ! names match, then only exact matches or existing 
                     ! relationships should be populated.
-                    IF (   (LSURR_KEY( IRULE ) .EQ. .TRUE. .AND. 
-     &                      LSPEC_KEY( IRULE ) .EQ. .TRUE. )
+                    IF (   (LSURR_KEY( IRULE ) .AND. 
+     &                      LSPEC_KEY( IRULE ) )
      &                  .AND.
      &                     (EM_FILE_SURR( ISRM )%ARRY( ISUR ) .NE. 
      &                      DIFF_SPC( IDIFF ) ) ) THEN
