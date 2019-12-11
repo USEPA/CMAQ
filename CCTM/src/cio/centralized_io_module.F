@@ -2442,8 +2442,7 @@ C Read the various categories of normalized emissions
           LOGICAL :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations, iter,
      &               data_jdate, data_jtime, t_time,
-     &               bs_tjdate, wb_tjdate, v, beg_v, end_v, fnum, str_len, 
-     &               bs_tjtime, wb_tjtime, wb_pre_begin, wb_pre_end
+     &               v, beg_v, end_v, fnum, str_len 
           integer, allocatable :: tdata(:), loc_jdate(:), loc_jtime(:)
           character (16) :: loc_vname
           logical :: advanced
@@ -2497,7 +2496,6 @@ C Read the various categories of normalized emissions
           loc_jdate = jdate
           loc_jtime = jtime
 
-          advanced = .false.
           do iter = 1, iterations
              do v = beg_v, end_v
                 buf_loc = mod((tail_grid(v) + iter), 2)
@@ -2668,21 +2666,14 @@ C Read the various categories of normalized emissions
 
                 else if (cio_grid_var_name(v,2) == 'bs') then
 
-                   if (iter .eq. 1) then
-                      bs_tjdate = loc_jdate(f_bios)
-                      bs_tjtime = 0
-                   else
-                      if (.not. advanced) then
-                         CALL NEXTIME ( bs_tjdate, bs_tjtime, 240000 )
-                         advanced = .true.
-                      end if
-                   end if
+                   data_jdate = loc_jdate(f_bios)
+                   data_jtime = 0
 
                    allocate (tdata((ENDCOLSTD-STRTCOLSTD+1)*(ENDROWSTD-STRTROWSTD+1)), stat=stat)
 
                    IF ( .NOT. XTRACT3( bio_season_fname, 'SEASON',
      &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
-     &                                 bs_tjdate, bs_tjtime, tdata) ) then
+     &                                 data_jdate, data_jtime, tdata) ) then
                       XMSG = 'Could not extract ' // bio_season_fname // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                    END IF
@@ -3800,13 +3791,14 @@ C   mminlu and num_land_cat are WRF global variables
                    
                    if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
-                      write(logdev,'(5X,a)'),
-     &               'ERROR: Incorrect Interpolation in 1-D Stack Interpolation'
+                      write(logdev,'(5X,a,a)'),
+     &               'ERROR: Incorrect Interpolation in 1-D Stack Interpolation for variable: ',
+     &                trim(vname)
                      
-                     write(*,'(5X,a,i7,a,i6)'), 
+                     write(logdev,'(5X,a,i7,a,i6)'), 
      &               'Requested TIME & DATE: ',date,':',time
                      
-                     write(*,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
      &               'Interpolation Bounds ',cio_stack_emis_data_tstamp(1,0,var_loc,pt),
      &               ':',cio_stack_emis_data_tstamp(2,0,var_loc,pt),' to ',
      &                cio_stack_emis_data_tstamp(1,1,var_loc,pt),':',cio_stack_emis_data_tstamp(2,1,var_loc,pt)
@@ -3939,13 +3931,14 @@ C   mminlu and num_land_cat are WRF global variables
                    
                    if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
-                      write(logdev,'(5X,a)'),
-     &               'ERROR: Incorrect Interpolation in 2-D Generic Real Interpolation' 
-                     
-                     write(*,'(5X,a,i7,a,i6)'), 
+                      write(logdev,'(5X,a,a)'),
+     &               'ERROR: Incorrect Interpolation in 2-D Generic Real Interpolation for variable: ', 
+     &                trim(vname) 
+
+                     write(logdev,'(5X,a,i7,a,i6)'), 
      &               'Requested TIME & DATE: ',date,':',time
                      
-                     write(*,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
@@ -4107,13 +4100,14 @@ C   mminlu and num_land_cat are WRF global variables
 
                    if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
-                      write(logdev,'(5X,a)'),
-     &               'ERROR: Incorrect Interpolation in 2-D Generic Integer Interpolation' 
+                      write(logdev,'(5X,a,a)'),
+     &               'ERROR: Incorrect Interpolation in 2-D Generic Integer Interpolation for variable: ',
+     &                trim(vname) 
                      
-                     write(*,'(5X,a,i7,a,i6)'), 
+                     write(logdev,'(5X,a,i7,a,i6)'), 
      &               'Requested TIME & DATE: ',date,':',time
                      
-                     write(*,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
@@ -4265,12 +4259,13 @@ C   mminlu and num_land_cat are WRF global variables
                    if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
                       write(logdev,'(5X,a)'),
-     &               'ERROR: Incorrect Interpolation in 2-D Boundary Interpolation' 
+     &               'ERROR: Incorrect Interpolation in 2-D Boundary Interpolation for variable: ',
+     &                trim(vname) 
                      
-                     write(*,'(5X,a,i7,a,i6)'), 
+                     write(logdev,'(5X,a,i7,a,i6)'), 
      &               'Requested TIME & DATE: ',date,':',time
                      
-                     write(*,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
      &               'Interpolation Bounds ',cio_bndy_data_tstamp(1,0,var_loc),
      &               ':',cio_bndy_data_tstamp(2,0,var_loc),' to ',
      &                cio_bndy_data_tstamp(1,1,var_loc),':',cio_bndy_data_tstamp(2,1,var_loc)
@@ -4446,12 +4441,13 @@ C   mminlu and num_land_cat are WRF global variables
                    if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
                      write(logdev,'(5X,a)'),
-     &               'ERROR: Incorrect Interpolation in 3-D Generic Interpolation' 
+     &               'ERROR: Incorrect Interpolation in 3-D Generic Interpolation for variable: ',
+     &                trim(vname) 
                      
-                     write(*,'(5X,a,i7,a,i6)'), 
+                     write(logdev,'(5X,a,i7,a,i6)'), 
      &               'Requested TIME & DATE: ',date,':',time
                      
-                     write(*,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
