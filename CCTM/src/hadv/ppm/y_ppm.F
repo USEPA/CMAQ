@@ -43,6 +43,7 @@ C   19 Oct 2015: Jeff Young: Remove stmnt func to resolve PGI compiler error
 C   29 Nov 17 David Wong: removed all SWAP routines and replaced with SE_COMM
 C   16 NOv 2018 S.Napelenok: ISAM implementation
 C    1 Feb 19 David Wong: removed all MY_N clauses
+C   11 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -58,6 +59,10 @@ C-----------------------------------------------------------------------
       USE SA_DEFN, Only: ISAM, N_SPCTAG, S_SPCTAG, T_SPCTAG,
      &                   TRANSPORT_SPC, BCON_SPC, MAP_ADVtoSA
 #endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY:SENGRID, NPMAX, NP, BSEN, BCS, DATENUM, IPT, IDATE, IPARM, IREGION, CKTIME, STARTDATE
+#endif 
 
       IMPLICIT NONE
 
@@ -135,6 +140,17 @@ C Local Variables:
 #endif
       INTEGER, SAVE :: SFX    ! fixed parameter for southern boundary
       INTEGER, SAVE :: NFX    ! fixed parameter for northern boundary
+
+#ifdef sens
+      LOGICAL TIMEFLAG                  ! checks if within desired time
+      REAL, ALLOCATABLE, SAVE :: SENY( :,: )    ! Sens along a col
+      REAL,    EXTERNAL :: S_ZFDBC   ! similar to zfdbc, for sens
+#ifdef parallel
+      REAL, ALLOCATABLE, SAVE :: S_HALO_NORTH( :,:,:,: )
+      REAL, ALLOCATABLE, SAVE :: S_HALO_SOUTH( :,:,:,: )
+      REAL, ALLOCATABLE, SAVE :: S_BUF_NS( :,: )
+#endif
+#endif
 
 C Required interface for allocatable array dummy arguments
 
@@ -221,6 +237,27 @@ C Get dx2 from HGRD_DEFN module
 #endif
 #endif
 
+#ifdef sens
+         ALLOCATE ( SENY( 1-SWP:NROWS+SWP,N_SPC_ADV ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SENY'
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+            END IF
+#ifdef parallel
+         ALLOCATE ( S_HALO_NORTH( NCOLS,SWP,N_SPC_ADV,NPMAX ),
+     &              S_HALO_SOUTH( NCOLS,SWP,N_SPC_ADV,NPMAX ),
+     &              S_BUF_NS    ( SWP*NCOLS*N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG =
+     &      'Failure allocating S_HALO_NORTH, S_HALO_SOUTH, or S_BUF_NS'
+            CALL M3EXIT ( PNAME, FDATE, FTIME, XMSG, XSTAT1 )
+         END IF
+         S_HALO_NORTH = 0.0   ! array
+         S_HALO_SOUTH = 0.0   ! array
+         S_BUF_NS     = 0.0   ! array
+#endif
+#endif
+
          ASPC = GC_STRT - 1 + N_GC_SPCD
 
 C Create global map to CGRID
@@ -251,6 +288,11 @@ C Create global map to CGRID
 
       DT = FLOAT ( TIME2SEC ( TSTEP ) )
 
+#ifdef sens
+      ! index that will be used by IDATE
+      DATENUM = 1 + FDATE - STARTDATE
+#endif
+
 C Do the computation for y advection
 
 C Get the contravariant x2 velocity component
@@ -268,12 +310,28 @@ C Get the contravariant x2 velocity component
                HALO_SOUTH( COL,ROW,SPC ) = CGRID( COL,ROW,LVL,A2C )
                HALO_NORTH( COL,ROW,SPC ) = CGRID( COL,NORTH_ROW+ROW,LVL,A2C )
                BUF_NS( COL,ROW,SPC ) = HALO_NORTH( COL,ROW,SPC )
+#ifdef sens
+               DO NP = 1, NPMAX
+                 S_HALO_SOUTH( COL,ROW,SPC,NP ) = SENGRID( COL,ROW,LVL,NP,A2C )
+                 S_HALO_NORTH( COL,ROW,SPC,NP ) = SENGRID( COL,NORTH_ROW+ROW,LVL,NP,A2C )
+                 S_BUF_NS( M,NP ) = S_HALO_NORTH( COL,ROW,SPC,NP )
+               END DO
+#endif
             END DO
          END DO
       END DO
 
       CALL SUBST_COMM (HALO_SOUTH, HALO_NORTH, DSPL_N1_E0_S0_W0, DRCN_N)
       CALL SUBST_COMM (BUF_NS,     HALO_SOUTH, DSPL_N0_E0_S1_W0, DRCN_S)
+#ifdef sens
+      DO NP = 1, NPMAX
+         CALL SUBST_COMM( S_HALO_SOUTH(:,:,:,NP), S_HALO_NORTH(:,:,:,NP),
+     &                    DSPL_N1_E0_S0_W0, DRCN_N )
+         CALL SUBST_COMM( S_BUF_NS(:,NP),         S_HALO_SOUTH(:,:,:,NP),
+     &                    DSPL_N0_E0_S1_W0, DRCN_S )
+      END DO
+#endif
+
 
 #ifdef isam
       DO SPC = 1, N_SPCTAG
@@ -412,6 +470,94 @@ C PPM scheme
               END DO
            END IF   
         END DO
+#endif
+
+
+#ifdef sens
+         DO NP = 1, NPMAX
+
+           CALL CKTIME( FDATE,FTIME,NP,TIMEFLAG) ! Check if the current time is within the time range
+
+           DO SPC = 1, N_SPC_ADV
+             A2C = ADV_MAP( SPC )
+             DO ROW = 1, NROWS
+               SENY( ROW,SPC ) = SENGRID( COL,ROW,LVL,NP,A2C )
+             END DO
+
+#ifdef parallel
+             DO COL = 1, SWP
+               SENY( ROW-SWP,SPC )   = S_HALO_SOUTH( COL,ROW,SPC,NP )
+               SENY( NROWS+ROW,SPC ) = S_HALO_NORTH( COL,ROW,SPC,NP )
+             END DO
+#endif
+
+C South boundary
+             IF ( BNDY_PE_LOX ) THEN
+               IF ( VELY( 1 ) .LT. 0.0 ) THEN          ! outflow
+                 IF ( CONY( 0, SPC ) .EQ. 0.0 ) THEN
+                   SENY( 1-SWP:0, SPC ) = 0.0
+                 ELSE ! Zero-flux divergence boundary condition for sens
+                   SENY( 1-SWP:0,SPC ) =
+     &               S_ZFDBC ( SENY( 1,SPC ), SENY( 2,SPC ),
+     &                         VELY( 1 ),     VELY( 2 ) )
+                 END IF
+               ELSE    ! inflow
+                 IF ( BCS ) THEN
+                   SENY( 1-SWP:0,SPC ) = BSEN( SFX+COL,SPC,NP )
+                 ELSE IF ( ( IPT( NP ) .EQ. 2 ) .AND. ( TIMEFLAG ) ) THEN
+                 ! Insert boundary condition to SEN iff time, date,
+                 ! species, and region match and senstype is BOUN
+                   SENY( 1-SWP:0,SPC ) = BCON( SFX+COL,SPC )
+     &                                 * IREGION( COL, 1, LVL, NP )
+     &                                 * REAL ( IDATE ( NP, DATENUM ) )
+     &                                 * REAL ( IPARM ( NP, A2C     ) )
+                 ELSE
+                 ! Otherwise, set to 0
+                   SENY( 1-SWP:0, SPC ) = 0.0
+                 END IF
+               END IF
+             END IF
+
+C North boundary
+             IF ( BNDY_PE_HIX ) THEN
+               IF ( VELY( NROWS+1 ) .GT. 0.0 ) THEN     ! outflow
+                 IF ( CONY( NROWS+1, SPC ) .EQ. 0.0 ) THEN
+                   SENY( NROWS+1:NROWS+SWP, SPC ) = 0.0
+                 ELSE
+                 ! Zero-flux divergence boundary condition for sens
+                   SENY( NROWS+1:NROWS+SWP,SPC ) =
+     &               S_ZFDBC ( SENY( NROWS,SPC ), SENY( NROWS-1,SPC ),
+     &                         VELY( NROWS+1 ),   VELY( NROWS ) )
+                 END IF
+               ELSE    ! inflow
+                 IF ( BCS ) THEN
+                   SENY( NROWS+1:NROWS+SWP,SPC ) = BSEN( EFX+COL,SPC,NP
+                 ELSE IF ( ( IPT( NP ) .EQ. 2 ) .AND. ( TIMEFLAG ) ) THEN
+                 ! Insert boundary condition to SEN iff time, date,
+                 ! species, and region match and senstype is BOUN
+                   SENY( NROWS+1:NROWS+SWP,SPC ) = BCON( NFX+COL,SPC )
+     &                               * IREGION( COL, NROWS, LVL, NP )
+     &                               * REAL ( IDATE ( NP, DATENUM ) )
+     &                               * REAL ( IPARM ( NP, A2C     ) )
+                 ELSE
+                   SENY( NROWS+1:NROWS+SWP,SPC ) = 0.0
+                 END IF
+               END IF
+             END IF
+
+           END DO
+
+C PPM scheme
+           CALL HPPM ( NCOLS, NROWS, SENY, VELY, DT, DX1, 'R' )
+
+           DO SPC = 1, N_SPC_ADV
+             A2C = ADV_MAP( SPC )
+             DO ROW = 1, NROWS
+               SENGRID( COL,ROW,LVL,NP,A2C ) = SENY( COL,SPC )
+             END DO
+           END DO
+
+         END DO   ! NP
 #endif
 
 233   CONTINUE

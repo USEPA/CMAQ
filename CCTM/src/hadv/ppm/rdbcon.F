@@ -49,6 +49,8 @@ C   08 Jun 12 J.Young: remove full character blank padding for GNU Fortran (GCC)
 C   14 Sep 15 J.Young: change Fortran string comparison to logical from advbc_map
 C   01 Feb 19 D.Wong: Implemented centralized I/O approach, removed all MY_N
 C                     clauses
+C   11 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
+
 C-----------------------------------------------------------------------
 
       USE GRID_CONF            ! horizontal & vertical domain specifications
@@ -57,6 +59,10 @@ C-----------------------------------------------------------------------
       USE RXNS_DATA, ONLY : MECHNAME
       USE AERO_DATA, only : CHECK_AERO_ICBC, N_MODE
       use CENTRALIZED_IO_MODULE, only : interpolate_var, window
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY:SENGRID, NPMAX, NP, BSEN, SEN_PAR, BCS
+#endif 
 
       IMPLICIT NONE
  
@@ -124,6 +130,12 @@ C Local variables:
       INTEGER   ALLOCSTAT
 
       INTEGER   COUNT             ! Counter for constructing boundary arrays
+
+#ifdef sens
+      INTEGER SENNUM
+      CHARACTER(16 ) :: SNAME    ! Name of sens bc parameter
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: S_BCNAME( :,: )
+#endif
 
       INTERFACE
          SUBROUTINE ADVBC_MAP( CONCMIN, BCNAME, BCFAC, ONFILE )
@@ -197,6 +209,24 @@ C create advected species map to bc`s
             END IF
 
          END IF
+
+#ifdef sens
+         ALLOCATE ( S_BCNAME( N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_BCNAME'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         IF ( BCS ) THEN
+            DO NP = 1, NPMAX
+               FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV
+               DO VAR = 1, FINI
+                  S_BCNAME( VAR,NP ) = TRIM( BCNAME( VAR ) ) // '_' // SEN_PAR( NP )
+               END DO
+            END DO
+         ENDIF
+#endif
+
 
       END IF                    ! if FIRSTIME
 
@@ -457,6 +487,134 @@ C for advecting Air Density X Jacobian
       DO BND = 1, NBNDY
          BCON( BND,N_SPC_ADV ) = RHOJ_BND( BND,LVL )
       END DO
+
+#ifdef sens
+C Initialize BSEN as zero, if flag is set for using bc files, use those,
+C otherwise skip all of this.'
+
+      BSEN = 0.0
+
+      IF ( BCS ) THEN
+         DO NP = 1, NPMAX
+
+            STRT = 1
+            FINI = N_GC_TRNS
+            DO 241 VAR = STRT, FINI
+               IF ( ONFILE( VAR ) ) THEN
+                  BBUF = 0.0   ! array assignment
+                  IF ( .NOT. INTERPB( BNDY_GASC_S, S_BCNAME( VAR,NP ), PNAME,
+     &                                MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+                     XMSG = 'Could not read ' // TRIM( S_BCNAME( VAR,NP ) ) // ' from '
+     &                    // BNDY_GASC_S
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  ELSE   ! found bc's (PPM) on file; convert
+                     DO BND = 1, NBNDY
+                        BSEN( BND,VAR,NP ) = BCFAC( VAR ) * BBUF( BND,LVL )
+     &                                     * RHOJ_BND( BND,LVL )
+                     END DO
+                  END IF
+               ELSE
+                  DO BND = 1, NBNDY
+                     BSEN( BND,VAR,NP ) = 0.0
+                  END DO
+               END IF
+241         CONTINUE
+
+            SPC = 0
+            STRT = N_GC_TRNS + 1
+            FINI = N_GC_TRNS + N_AE_TRNS
+            DO 251 VAR = STRT, FINI
+               SPC = SPC + 1
+               IF ( ONFILE( VAR ) ) THEN
+                  BBUF = 0.0   ! array assignment
+                  IF ( .NOT. INTERPB ( BNDY_AERO_S, S_BCNAME( VAR,NP ), PNAME,
+     &                                 MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+                     XMSG = 'Could not read ' // TRIM( S_BCNAME ( VAR,NP ) ) // ' from '
+     &                    // BNDY_AERO_S
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  ELSE   ! found bc's (microgram/m**3, m**2/m**3, or number/m**3)
+                            ! on file; convert
+                     IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'NUM' ) THEN
+                        DO BND = 1, NBNDY
+                           BSEN( BND,VAR,NP ) = BCFAC( VAR ) * BBUF( BND,LVL )
+     &                                        * JACOBM_BND( BND,LVL )
+                        END DO
+                     ELSE IF ( AE_TRNS( SPC )( 1:3 ) .EQ. 'SRF' ) THEN
+                        DO BND = 1, NBNDY
+                           BSEN( BND,VAR,NP ) = BCFAC( VAR ) * BBUF( BND,LVL )
+     &                                        * JACOBM_BND( BND,LVL )
+                        END DO
+                     ELSE
+                        DO BND = 1, NBNDY
+                           BSEN( BND,VAR,NP ) = BCFAC( VAR ) * BBUF( BND,LVL ) * KGPMG
+     &                                        * JACOBM_BND( BND,LVL )
+                        END DO
+                     END IF
+                  END IF
+               ELSE
+                  DO BND = 1, NBNDY
+                     BSEN( BND,VAR,NP ) = 0.0
+                  END DO
+               END IF
+251         CONTINUE
+
+            STRT = N_GC_TRNS + N_AE_TRNS + 1
+            FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS
+            DO 261 VAR = STRT, FINI
+               IF ( ONFILE( VAR ) ) THEN
+                  BBUF = 0.0   ! array assignment
+                  IF ( .NOT. INTERPB ( BNDY_NONR_S, S_BCNAME( VAR,NP ), PNAME,
+     &                                 MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+                     XMSG = 'Could not read ' // TRIM( S_BCNAME( VAR,NP ) ) // ' from '
+     &                    // BNDY_NONR_S
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                     ELSE   ! found bc's (PPM) on file; convert
+                     DO BND = 1, NBNDY
+                        BSEN( BND,VAR,NP ) = BCFAC( VAR ) * BBUF( BND,LVL )
+     &                                     * RHOJ_BND( BND,LVL )
+                        END DO
+                     END IF
+               ELSE
+                  DO BND = 1, NBNDY
+                     BSEN( BND,VAR,NP ) = 0.0
+                  END DO
+               END IF
+261         CONTINUE
+
+            STRT = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + 1
+            FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV
+            DO 271 VAR = STRT, FINI
+               IF ( ONFILE( VAR ) ) THEN
+                  BBUF = 0.0   ! array assignment
+                  IF ( .NOT. INTERPB ( BNDY_TRAC_S, S_BCNAME( VAR,NP ), PNAME,
+     &                                 MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
+                     XMSG = 'Could not read ' // TRIM( S_BCNAME( VAR,NP ) ) // ' from '
+     &                    // BNDY_TRAC_S
+                     CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+                  ELSE   ! found bc's (PPM) on file; convert
+                     DO BND = 1, NBNDY
+                        BSEN( BND,VAR,NP ) = BCFAC( VAR ) * BBUF( BND,LVL )
+     &                                     * RHOJ_BND( BND,LVL )
+                     END DO
+                  END IF
+               ELSE
+                  DO BND = 1, NBNDY
+                     BSEN( BND,VAR,NP ) = 0.0
+                  END DO
+               END IF
+271         CONTINUE
+
+            DO BND = 1, NBNDY
+               BSEN( BND,N_SPC_ADV,NP ) = 0.0
+            END DO
+
+         END DO
+      ENDIF
+#endif
+
+
+
+
 
       RETURN
       END
