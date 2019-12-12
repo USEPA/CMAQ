@@ -1753,14 +1753,17 @@ C and allowing the model to proceed.
                   ! This entry needs to be created, but first we need
                   ! to check whether to add it as a new row or add it
                   ! to a previous row. We can add to a previous row
-                  ! if the CMAQ species matches exactly but this
-                  ! surrogate is not present
+                  ! if the CMAQ species matches exactly, there is no 
+                  ! surrogate present for this stream, and the same
+                  ! Emissions Surrogate is being used for another 
+                  ! stream.
                   LFOUND = .FALSE.
                   ! Look For a suitable previous instruction to add to.
                   IF ( N_EMIS_ISTR .GT. 0 ) THEN
                   DO ISTRN = 1,N_EMIS_ISTR
                     IF ( EM_SPEC( ISTRN ) .EQ. RULE_ISTR_SPEC( IC ) .AND.
-     &                   EM_SURR( ISTRN,RULE_ISTR_ISRM( IC ) ) .EQ. '' ) THEN
+     &                   EM_SURR( ISTRN,RULE_ISTR_ISRM( IC ) ) .EQ. '' .AND.
+     &                   ANY( EM_SURR( ISTRN,: ) .EQ. RULE_ISTR_SURR( IC )) ) THEN
                       ! Add This Command to Instruction number ISTR
                       ISTR = ISTRN
                       LFOUND = .TRUE.
@@ -1770,8 +1773,8 @@ C and allowing the model to proceed.
 
                   ! If no suitable instruction was found to add to, add a new
                   ! instruction. This means either there was no previous
-                  ! instruction with the same CMAQ species or there was
-                  ! an instruction with this CMAQ species but it already
+                  ! instruction with the same CMAQ species and surrogate or there 
+                  ! was an instruction with this CMAQ species but it already
                   ! had a surrogate and scale factor associated with this stream.
                   IF ( .NOT. LFOUND ) THEN
                     N_EMIS_ISTR = N_EMIS_ISTR + 1
