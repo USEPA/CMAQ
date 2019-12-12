@@ -14,7 +14,7 @@ particulates, toxics, and acid deposition.
 ## CMAQ version 5.3.1 Overview:
 The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes to both CMAQ and MCIP (released as MCIP version 5.1), as well as a feature addition to the Detailed Emission Scaling Isolation and Diagnostic (DESID) module to allow for defining of chemical, region and stream families. 
 * [CMAQv5.3.1 Release Notes](DOCS/Release_Notes/README.md)   
-* [Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md) **- NEW with v5.3.1 release!** 
+* [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- NEW with v5.3.1 release!** 
 
 ## New features in CMAQ version 5.3 include:
 * Simplified emissions scaling
@@ -51,6 +51,7 @@ Release Notes and code documentation are included within this repository (they a
 [CMAQv5.3.1 Known Issues](DOCS/Known_Issues/README.md)   
 [CMAQv5.3.1 Tutorials](DOCS/Users_Guide/Tutorials/README.md)   
 [CMAQv5.3.1 Developers' Guide](DOCS/Developers_Guide/CMAQ_Dev_Guide.md)   
+[FAQ for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) 
 
 ## CMAQ Test Cases
 Benchmark/tutorial data for each CMAQ release version are available from the CMAS Data Warehouse.  The input and output files are stored on Google Drive with metadata organized through Dataverse.  
