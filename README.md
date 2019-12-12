@@ -11,7 +11,7 @@ computing techniques in an open-source framework to deliver fast, technically so
 particulates, toxics, and acid deposition.
 
 
-## CMAQv5.3.1 Overview:
+## CMAQ version 5.3.1 Overview:
 The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes to both CMAQ and MCIP (released as MCIP version 5.1), as well as a feature addition to the Detailed Emission Scaling Isolation and Diagnostic (DESID) module to allow for defining of chemical, region and stream families. 
 * [CMAQv5.3.1 Release Notes](DOCS/Release_Notes/README.md)   
 * [Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md) **- NEW with v5.3.1 release!** 
