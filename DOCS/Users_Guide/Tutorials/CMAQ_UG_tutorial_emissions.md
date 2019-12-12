@@ -231,7 +231,7 @@ The label for "KENTUCKY" should be linked to a specific gridded variable mask (o
 This is just an example of defining one mask named "KENTUCKY". For a complete explanation of the spatial-dependent scaling feature, see the CMAQ Appendix [B.4 "Applying Masks"](../Appendix/CMAQ_UG_appendixB_emissions_control.md#b4-applying-masks-for-spatial-dependence).
 
 
-<a id=apply_mask></a>
+<a id=define_families></a>
 ### 12.  Define families of streams, regions, or chemical species
 Users can define any number of custom groups or "families" of emission streams, regions or chemical species to be used to streamline (i.e. enhance) prescribed emissions rules. For example, if a user would like to scale NOx by 50% from 4 different emission streams (e.g. PT_EGU, GRIDDED, MOBILE and PT_NONEGU) without using famlies, they would need 8 rules, one for NO and NO2 for each of 4 streams. However, by defining a family of 4 streams and another family of two chemical species (i.e. NOx), 1 rule can be used to achieve the same result.  
 
