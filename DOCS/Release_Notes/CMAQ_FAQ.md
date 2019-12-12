@@ -1,5 +1,15 @@
 # Frequently Asked Questions for Upgrading to the Latest CMAQ Version
 
+## Table of Contents:
+
+* [What do I need to do to update from v5.2.1 to v5.3?](#update_v521_v53)
+* [What differences should I expect in my model results with v5.3 compared to v5.2.1?](#diff_v521_v53)
+* [What do I need to do to update from v5.3 to v5.3.1?](#update_v53_v531)
+* [What differences should I expect in my model results with v5.3.1 compared to v5.3?](#diff_v53_v531)
+* [Additional FAQ](#additional_faq)
+* [Technical support for CMAQ](#tech_support)
+
+<a id=update_v521_v53></a>
 ## What do I need to do to update from v5.2.1 to v5.3?
 * A major change to CMAQ in version 5.3 is the incorporation of the new emissions module, DESID, and 
 its control via a number of RunScript variables and the Emission Control File, which is explained in 
@@ -31,7 +41,7 @@ STAGE option and ammonia bidirectional surface flux is compatible with previous 
 Please see the User's Guide [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#68-dry-depositionair-surface-exchange) for further information on 
 M3DRY and STAGE and [Chapter 4](CMAQ_UG_ch04_model_inputs.md#e2c_lu) to read more about the land surface input files required for running with ammonia bidi. 
 
-
+<a id=diff_v521_v53></a>
 ## What differences should I expect in my model results with v5.3 compared to v5.2.1?
 The following summary is based off of our incremental testing of the science updates in CMAQv5.3 using v5.3 and v5.2.1 annual 2016 simulations over the CONUS (12km horizontal grid resolution, 35 vertical layers, cb6r3_ae7_aq chemical mechanism).
 ### Ozone
@@ -46,17 +56,21 @@ The following summary is based off of our incremental testing of the science upd
 Bottom Line Takeaways:
 * **Summary**: PM<sub>2.5</sub> is slightly lower (~0-0.5 µgm<sup>-3</sup> on average across all sites) in the late fall, winter and early spring; and higher (~0.5 – 1 µgm<sup>-3</sup> on average across all sites) in late spring, summer and early fall.
 
+<a id=update_v53_v531></a>
 ## What do I need to do to update from v5.3 to v5.3.1?
 CMAQv5.3.1 is a minor bugfix release.  If you have already successfully migrated to v5.3, you will not need to do anything special to maintain default behavior in v5.3.1.
 
+<a id=diff_v53_v531></a>
 ## What differences should I expect in my model results with v5.3.1 compared to v5.3?
 Two updates in v5.3.1 have the potential to change model output.  
 1. If running CMAQ with the STAGE option for dry deposition, the [STAGE bugfix ](CMAQv5.3.1_bugfixes.md#5-stage) will lead to small changes in dry deposition fluxes and concentration values. Most of the difference follow a random spatial pattern with the exception of NH<sub>3</sub> dry deposition which shows the effect of including the deposition to water in the updated code.  The CMAQv5.3 benchmark output reference files were created using the M3DRY option for dry deposition and so are not impacted by this model update. 
 2. In the v5.3 release there was a mismatch between the emission stream labels in the 2016 SE benchmark run script and the EmissCtrl file for cb6r3_ae7_aq. The result was that in the benchmark output files, PCSOA was not “switched off” for fire related emissions streams, including wildfires, agricultural burning, and residential wood combustion.  The emission stream labels have now been corrected.  This results in lower PM<sub>2.5</sub> for the 2016 SE benchmark case and updated benchmark output reference files have been posted on the [CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY). The other run scripts in the repository had the correct emissions stream labels, and so are not changed in this release.  
 
+<a id=additional_faq></a>
 ## Additional FAQ
 A more general list of Frequent CMAQ Questions can be found on our website: https://www.epa.gov/cmaq/frequent-cmaq-questions
 
+<a id=tech_support></a>
 ## Technical support for CMAQ
 Technical support for CMAQ, including questions about model inputs, downloading, compiling, and running the model, 
 and pre- and post-processing utilities, should be directed to the [CMAS Center User Forum](https://forum.cmascenter.org/). 
