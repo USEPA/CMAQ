@@ -665,7 +665,7 @@ C Add evasion as negative dep flux
                   DO NP = 1, NPMAX
                      SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC1( V )
                      S_DDBF( V, NP ) = S_DDBF( V, NP ) + THETA * ( DD_FAC( V ) * SENS( S, 1,NP )
-     &                      - DTDENS1 * DD_CONV( V ) * S_PLDV( V,C,R,NP ) )
+     &                      - DTDENS1 * DD_CONV( V ) * S_PLDV( NP,V,C,R ) )
                   END DO
 #endif
 
@@ -949,7 +949,7 @@ C Add evasion as negative dep flux
                   DO NP = 1, NPMAX
                      SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC2( V )
                      S_DDBF( V,NP ) = S_DDBF( V,NP ) + THBAR * ( DD_FAC( V ) * SENS( S,1,NP )
-     &                      - DTDENS1 * DD_CONV( V ) * S_PLDV( V,C,R,NP ) )
+     &                      - DTDENS1 * DD_CONV( V ) * S_PLDV( NP,V,C,R ) )
                   END DO
 #endif
                   

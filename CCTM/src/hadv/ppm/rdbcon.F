@@ -502,10 +502,10 @@ c           FINI = N_GC_TRNS
 c           DO 241 VAR = STRT, FINI
 c              IF ( ONFILE( VAR ) ) THEN
 c                 BBUF = 0.0   ! array assignment
-c                 IF ( .NOT. INTERPB( BNDY_GASC_S, S_BCNAME( VAR,NP ), PNAME,
+c                 IF ( .NOT. INTERPB( BNDY_SENS_1, S_BCNAME( VAR,NP ), PNAME,
 c    &                                MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
 c                    XMSG = 'Could not read ' // TRIM( S_BCNAME( VAR,NP ) ) // ' from '
-c    &                    // BNDY_GASC_S
+c    &                    // BNDY_SENS_1
 c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 c                 ELSE   ! found bc's (PPM) on file; convert
 c                    DO BND = 1, NBNDY
@@ -527,10 +527,10 @@ c           DO 251 VAR = STRT, FINI
 c              SPC = SPC + 1
 c              IF ( ONFILE( VAR ) ) THEN
 c                 BBUF = 0.0   ! array assignment
-c                 IF ( .NOT. INTERPB ( BNDY_AERO_S, S_BCNAME( VAR,NP ), PNAME,
+c                 IF ( .NOT. INTERPB ( BNDY_SENS_1, S_BCNAME( VAR,NP ), PNAME,
 c    &                                 MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
 c                    XMSG = 'Could not read ' // TRIM( S_BCNAME ( VAR,NP ) ) // ' from '
-c    &                    // BNDY_AERO_S
+c    &                    // BNDY_SENS_1
 c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 c                 ELSE   ! found bc's (microgram/m**3, m**2/m**3, or number/m**3)
 c                           ! on file; convert
@@ -563,10 +563,10 @@ c           FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS
 c           DO 261 VAR = STRT, FINI
 c              IF ( ONFILE( VAR ) ) THEN
 c                 BBUF = 0.0   ! array assignment
-c                 IF ( .NOT. INTERPB ( BNDY_NONR_S, S_BCNAME( VAR,NP ), PNAME,
+c                 IF ( .NOT. INTERPB ( BNDY_SENS_1, S_BCNAME( VAR,NP ), PNAME,
 c    &                                 MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
 c                    XMSG = 'Could not read ' // TRIM( S_BCNAME( VAR,NP ) ) // ' from '
-c    &                    // BNDY_NONR_S
+c    &                    // BNDY_SENS_1
 c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 c                    ELSE   ! found bc's (PPM) on file; convert
 c                    DO BND = 1, NBNDY
@@ -586,10 +586,10 @@ c           FINI = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV
 c           DO 271 VAR = STRT, FINI
 c              IF ( ONFILE( VAR ) ) THEN
 c                 BBUF = 0.0   ! array assignment
-c                 IF ( .NOT. INTERPB ( BNDY_TRAC_S, S_BCNAME( VAR,NP ), PNAME,
+c                 IF ( .NOT. INTERPB ( BNDY_SENS_1, S_BCNAME( VAR,NP ), PNAME,
 c    &                                 MDATE, MTIME, NBNDY*NLAYS, BBUF ) ) THEN
 c                    XMSG = 'Could not read ' // TRIM( S_BCNAME( VAR,NP ) ) // ' from '
-c    &                    // BNDY_TRAC_S
+c    &                    // BNDY_SENS_1
 c                    CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
 c                 ELSE   ! found bc's (PPM) on file; convert
 c                    DO BND = 1, NBNDY

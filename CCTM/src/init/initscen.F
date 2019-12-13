@@ -268,7 +268,7 @@ C Open SA_CONC_1 and SA_CGRID_1
       IF ( RST ) THEN ! Load SENGRID from a file
 
          IF ( N_GC_SPC .GT. 0 ) THEN
-            FNAME = INIT_GASC_S
+            FNAME = INIT_SENS_1
             CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'GC' )
          END IF  ! N_GC_SPC > 0
 
@@ -276,17 +276,17 @@ C Open SA_CONC_1 and SA_CGRID_1
          CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'RJ' )
 
          IF ( N_AE_SPC .GT. 0 ) THEN
-            FNAME = INIT_AERO_S
+            FNAME = INIT_SENS_1
             CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'AE')
          END IF  ! N_AE_SPC > 0
 
          IF ( N_NR_SPC .GT. 0 ) THEN
-            FNAME = INIT_NONR_S
+            FNAME = INIT_SENS_1
             CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'NR' )
          END IF  ! N_NR_SPC > 0
 
          IF ( N_TR_SPC .GT. 0 ) THEN
-            FNAME = INIT_TRAC_S
+            FNAME = INIT_SENS_1
             CALL LOAD_SENGRID ( FNAME, STDATE, STTIME, 'TR' )
          END IF  ! N_TR_SPC > 0
 

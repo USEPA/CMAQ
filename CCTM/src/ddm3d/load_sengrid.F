@@ -40,7 +40,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE DDM3D_DEFN
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, SENNUM, SPCNAME, SEN_PAR, SENGRID
 
       IMPLICIT NONE
 
@@ -149,6 +149,9 @@ C IOFDESC common now loaded with MET_CRO_3D header
 
 c     WRITE( CONCMIN,'(1PE8.2)' ) CMIN
 
+       write(logdev,*) "BEFORE OPEN load_sengrid"
+
+
       IF ( .NOT. OPEN3( FNAME, FSREAD3, PNAME ) ) THEN
          XMSG = 'Could not open ' // FNAME // ' file'
          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -184,16 +187,20 @@ C Get INDX
          INDX( SPC ) = 0
       END DO
 
+
+       write(logdev,*) "load_sengrid", SPC_CAT
+
       IF ( SPC_CAT .EQ. 'GC' ) THEN
 
          WRITE( LOGDEV,1009 ) 'transported gas-phase species'
          SPC_STRT = GC_STRT
          N_SPCS = N_GC_SPC
          DO SPC = 1, N_SPCS
-            SPCNAME = GC_SPC( SPC )( 1:12 )
+c           SPCNAME = GC_SPC( SPC )( 1:12 )
             DO NP = 1, NPMAX
-               SENNUM = ( SPC - 1 ) * NPMAX + NP
+               SPCNAME = GC_SPC( SPC )( 1:12 )
                SPCNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
+               SENNUM = ( SPC - 1 ) * NPMAX + NP
                NDX = INDEX1( SPCNAME, NVARS3D, VNAME3D )
                INDX( SENNUM ) = NDX
                IF ( NDX .EQ. 0 ) THEN
@@ -213,8 +220,9 @@ C Get INDX
          SPC_STRT = AE_STRT
          N_SPCS = N_AE_SPC
          DO SPC = 1, N_SPCS
-            SPCNAME = AE_SPC( SPC )( 1:12 )
+c           SPCNAME = AE_SPC( SPC )( 1:12 )
             DO NP = 1, NPMAX
+               SPCNAME = AE_SPC( SPC )( 1:12 )
                SENNUM = ( SPC + SPC_STRT - 2 ) * NPMAX + NP
                SPCNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
                NDX = INDEX1( SPCNAME, NVARS3D, VNAME3D )
@@ -236,8 +244,9 @@ C Get INDX
          SPC_STRT = NR_STRT
          N_SPCS = N_NR_SPC
          DO SPC = 1, N_SPCS
-            SPCNAME = NR_SPC( SPC )( 1:12 )
+c           SPCNAME = NR_SPC( SPC )( 1:12 )
             DO NP = 1, NPMAX
+               SPCNAME = NR_SPC( SPC )( 1:12 )
                SENNUM = ( SPC + SPC_STRT - 2 ) * NPMAX + NP
                SPCNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
                NDX = INDEX1( SPCNAME, NVARS3D, VNAME3D )
@@ -259,8 +268,9 @@ C Get INDX
          SPC_STRT = TR_STRT
          N_SPCS = N_TR_SPC
          DO SPC = 1, N_SPCS
-            SPCNAME = TR_SPC( SPC )( 1:12 )
+c           SPCNAME = TR_SPC( SPC )( 1:12 )
             DO NP = 1, NPMAX
+               SPCNAME = TR_SPC( SPC )( 1:12 )
                SENNUM = ( SPC + SPC_STRT - 2 ) * NPMAX + NP
                SPCNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
                NDX = INDEX1( SPCNAME, NVARS3D, VNAME3D )
