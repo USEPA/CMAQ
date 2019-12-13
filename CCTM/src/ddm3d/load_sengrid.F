@@ -33,7 +33,8 @@ C Function:
 C   Initialize the model CGRID array from file data
 
 C Revision history:
-C   29 Nov 12 S.L. Napelenok: adapted from load_cgrid for cmaq 5.0
+C   29 Nov 12 S.L.Napelenok: adapted from load_cgrid for cmaq 5.0
+C   12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -124,9 +125,9 @@ c     CHARACTER( 34 ) :: ESTR2 = ' '
 
 c     INTEGER, SAVE :: LOGDEV
 
-      INTEGER SENNUM
+c     INTEGER SENNUM
 c     CHARACTER( 8 ) :: SPCNAME
-      CHARACTER( 16) :: SENNAME
+c     CHARACTER( 16) :: SENNAME
 
 
 C-----------------------------------------------------------------------
@@ -192,12 +193,12 @@ C Get INDX
             SPCNAME = GC_SPC( SPC )( 1:12 )
             DO NP = 1, NPMAX
                SENNUM = ( SPC - 1 ) * NPMAX + NP
-               SENNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
-               NDX = INDEX1( SENNAME, NVARS3D, VNAME3D )
+               SPCNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
+               NDX = INDEX1( SPCNAME, NVARS3D, VNAME3D )
                INDX( SENNUM ) = NDX
                IF ( NDX .EQ. 0 ) THEN
                  XMSG = 'No IC found for sensitivity '
-     &                // SENNAME  // ' in ' // TRIM(FNAME)
+     &                // SPCNAME  // ' in ' // TRIM(FNAME)
      &                // ' Set to zero.'
                  CALL M3MESG ( XMSG )
                END IF
@@ -215,12 +216,12 @@ C Get INDX
             SPCNAME = AE_SPC( SPC )( 1:12 )
             DO NP = 1, NPMAX
                SENNUM = ( SPC + SPC_STRT - 2 ) * NPMAX + NP
-               SENNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
-               NDX = INDEX1( SENNAME, NVARS3D, VNAME3D )
+               SPCNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
+               NDX = INDEX1( SPCNAME, NVARS3D, VNAME3D )
                INDX( SENNUM ) = NDX
                IF ( NDX .EQ. 0 ) THEN
                  XMSG = 'No IC found for sensitivity ' 
-     &                // SENNAME  // ' in ' // TRIM(FNAME) 
+     &                // SPCNAME  // ' in ' // TRIM(FNAME) 
      &                // ' Set to zero.'
                  CALL M3MESG ( XMSG )
                END IF
@@ -238,12 +239,12 @@ C Get INDX
             SPCNAME = NR_SPC( SPC )( 1:12 )
             DO NP = 1, NPMAX
                SENNUM = ( SPC + SPC_STRT - 2 ) * NPMAX + NP
-               SENNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
-               NDX = INDEX1( SENNAME, NVARS3D, VNAME3D )
+               SPCNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
+               NDX = INDEX1( SPCNAME, NVARS3D, VNAME3D )
                INDX( SENNUM ) = NDX
                IF ( NDX .EQ. 0 ) THEN
                  XMSG = 'No IC found for sensitivity '
-     &                // SENNAME  // ' in ' // TRIM(FNAME)
+     &                // SPCNAME  // ' in ' // TRIM(FNAME)
      &                // ' Set to zero.'
                  CALL M3MESG ( XMSG )
                END IF
@@ -261,12 +262,12 @@ C Get INDX
             SPCNAME = TR_SPC( SPC )( 1:12 )
             DO NP = 1, NPMAX
                SENNUM = ( SPC + SPC_STRT - 2 ) * NPMAX + NP
-               SENNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
-               NDX = INDEX1( SENNAME, NVARS3D, VNAME3D )
+               SPCNAME = TRIM(SPCNAME) // '_' // SEN_PAR( NP )
+               NDX = INDEX1( SPCNAME, NVARS3D, VNAME3D )
                INDX( SENNUM ) = NDX
                IF ( NDX .EQ. 0 ) THEN
                  XMSG = 'No IC found for sensitivity '
-     &                // SENNAME  // ' in ' // TRIM(FNAME)
+     &                // SPCNAME  // ' in ' // TRIM(FNAME)
      &                // ' Set to zero.'
                  CALL M3MESG ( XMSG )
                END IF

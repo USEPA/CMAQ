@@ -92,12 +92,12 @@ c     Logical, Save           :: ES   ! Flag for pre-merged emissions
       Integer, Save           :: STARTDATE ! copy from STDATE and save for ddm to use 
       Integer                 :: DATENUM   ! 1 + jdate - stdate
 
-      Integer NP
+      Integer NP, SENNUM
 
       Integer, Allocatable, Save, Target :: TGT_IHIGH( :,: )
       Integer, Pointer :: IHIGH ( :,: ) ! 2nd order mapping; IHIGH(NP,1) is 1st term; IHIGH(NP,2) is 2nd term
 
-      CHARACTER( 12 ) :: SPCNAME
+      CHARACTER( 16 ) :: SPCNAME
 
 c Cloud module variables
       REAL( 8 ), ALLOCATABLE, SAVE :: S_CONDEP( :,:,:,: )  ! sens of conv wdep
@@ -120,24 +120,30 @@ c Cloud module variables
       REAL( 8 ), ALLOCATABLE, SAVE :: S_CCR     ( :,:,: )
       REAL( 8 ), ALLOCATABLE, SAVE :: S_CBELOW  ( :,: )
 
-c Emissisons module variables
-      Integer, Allocatable, Save         :: S_NSTREAMS( : )     ! Number of emissions streams per parameter
-      Character( 16 ), Allocatable, Save :: S_STREAMLBL( :,: )  ! Emissions stream names per parameter (max = 99)
-
-      Integer, Allocatable, Save         :: S_NRGN( : )         ! Number of emissions streams per parameter
-      Character( 16 ), Allocatable, Save :: S_RGNLBL( :,: )     ! Emissions stream names per parameter (max = 99)
-
-      Character( 16 ), Allocatable, Save :: S_SPCLIST( :,: )    ! User-specified species list
-
 c VDIFF module variables
       REAL, ALLOCATABLE, SAVE :: SNGRD( :,:,:,:,: )        ! sengrid replacement
-      REAL, ALLOCATABLE, SAVE :: S_DDEP( :,:,:,: )         ! ddep sens accumulator 
+      REAL, ALLOCATABLE, SAVE :: S_DDEP( :,:,:,: )         ! ddep sens accumulator
+      REAL, ALLOCATABLE, SAVE :: SENS( :,:,: )             ! secondary SENGRID expression
+      REAL, ALLOCATABLE, SAVE :: S_EMIS( :,:,: )           ! stores SVDEMIS*DTS
+      REAL, ALLOCATABLE, SAVE :: S_DD ( :,:,: )            ! DD for sens 
+      REAL, ALLOCATABLE, SAVE :: S_UU ( :,:,: )            ! UU for sens
+      REAL, ALLOCATABLE, SAVE :: S_DDBF( :,: )             ! incremental SENDDEP
+      REAL, ALLOCATABLE, SAVE :: S_POL( :,: )
+      REAL S_DELC
+      REAL, ALLOCATABLE, SAVE :: S_PLDV_HONO( : )
 
+c Emissisons module variables
+      Integer, Allocatable, Save         :: S_NSTREAMS( : )           ! Number of emissions streams per parameter
+      Character( 16 ), Allocatable, Save :: S_STREAMLBL( :,: )        ! Emissions stream names per parameter (max = 99)
+      Integer, Allocatable, Save         :: S_NRGN( : )               ! Number of emissions streams per parameter
+      Character( 16 ), Allocatable, Save :: S_RGNLBL( :,: )           ! Emissions stream names per parameter (max = 99)
+      Character( 16 ), Allocatable, Save :: S_SPCLIST( :,: )          ! User-specified species list
+      REAL,    ALLOCATABLE               :: SVDEMIS_DIFF( :,:,:,:,: ) ! sensitivity emissions array mapped to diffused species
 
 c DEPV_DEF/m3dry variables
       REAL,    ALLOCATABLE, SAVE :: S_PVD( :,:,:,: )
       REAL,    ALLOCATABLE, SAVE :: S_CGRIDL1( :,:,:,: )
-      REAL,    ALLOCATABLE, SAVE :: S_CMP ( :,:,:,: )
+c     REAL,    ALLOCATABLE, SAVE :: S_CMP ( :,:,:,: )
       REAL,    ALLOCATABLE, SAVE :: S_PLDV( :,:,:,: )
 
 c I/O variables

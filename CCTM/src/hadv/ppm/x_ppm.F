@@ -152,7 +152,7 @@ C Local Variables:
 #ifdef parallel
       REAL, ALLOCATABLE, SAVE :: S_HALO_EAST( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: S_HALO_WEST( :,:,:,: )
-      REAL, ALLOCATABLE, SAVE :: S_BUF_EW( :,: )
+      REAL, ALLOCATABLE, SAVE :: S_BUF_EW( :,:,:,: )
 #endif
 #endif
 
@@ -252,7 +252,7 @@ C Get dx1 from HGRD_DEFN module
 #ifdef parallel
          ALLOCATE ( S_HALO_EAST( SWP,NROWS,N_SPC_ADV,NPMAX ),
      &              S_HALO_WEST( SWP,NROWS,N_SPC_ADV,NPMAX ),
-     &              S_BUF_EW   ( SWP*NROWS*N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
+     &              S_BUF_EW   ( SWP,NROWS,N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG =
      &        'Failure allocating S_HALO_EAST, S_HALO_WEST, or S_BUF_EW'
@@ -320,7 +320,7 @@ C Get the contravariant x1 velocity component
                DO NP = 1, NPMAX
                   S_HALO_WEST( COL,ROW,SPC,NP ) = SENGRID( COL,ROW,LVL,NP,A2C )
                   S_HALO_EAST( COL,ROW,SPC,NP ) = SENGRID( EAST_COL+COL,ROW,LVL,NP,A2C )
-                  S_BUF_EW( M,NP ) = S_HALO_EAST( COL,ROW,SPC,NP )
+                  S_BUF_EW( COL,ROW,SPC,NP ) = S_HALO_EAST( COL,ROW,SPC,NP )
                END DO
 #endif
             END DO
@@ -334,7 +334,7 @@ C Get the contravariant x1 velocity component
       DO NP = 1, NPMAX
          CALL SUBST_COMM( S_HALO_WEST(:,:,:,NP), S_HALO_EAST(:,:,:,NP), 
      &                    DSPL_N0_E1_S0_W0, DRCN_E )
-         CALL SUBST_COMM( S_BUF_EW(:,NP),        S_HALO_WEST(:,:,:,NP), 
+         CALL SUBST_COMM( S_BUF_EW(:,:,:,NP),        S_HALO_WEST(:,:,:,NP), 
      &                    DSPL_N0_E0_S0_W1, DRCN_W )
       END DO
 #endif
@@ -537,7 +537,7 @@ C East boundary
                  END IF
                ELSE    ! inflow
                  IF ( BCS ) THEN
-                   SENX( NCOLS+1:NCOLS+SWP,SPC ) = BSEN( EFX+ROW,SPC,NP 
+                   SENX( NCOLS+1:NCOLS+SWP,SPC ) = BSEN( EFX+ROW,SPC,NP )
                  ELSE IF ( ( IPT( NP ) .EQ. 2 ) .AND. ( TIMEFLAG ) ) THEN
                  ! Insert boundary condition to SEN iff time, date,
                  ! species, and region match and senstype is BOUN

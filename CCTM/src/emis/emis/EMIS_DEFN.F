@@ -100,6 +100,10 @@ C-----------------------------------------------------------------------
      &                       SA_VDEMIS_DIFF_OTHER
 #endif
 
+#ifdef sens
+        USE DDM3D_DEFN, ONLY: NP, NPMAX, SVDEMIS_DIFF
+#endif
+
          IMPLICIT NONE
 
 C Includes:
@@ -227,6 +231,15 @@ C Allocate Space for Master Emissions Computation
          END IF
 #endif
 
+#ifdef sens
+         ALLOCATE ( SVDEMIS_DIFF( N_SPC_DIFF,EMLAYS,NCOLS,NROWS,NPMAX ),STAT = STATUS )
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'SVDEMIS_DIFF memory allocation failed'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+#endif
+
 C Return From Initialization
          SUCCESS = .TRUE.; RETURN
 
@@ -265,6 +278,10 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
      &                       ISAMRGN_MAP, TAGS_PER_STREAM,
      &                       ISAM_PVO3_MAP, L_OZONE
          USE VDIFF_MAP, ONLY : DIFF_MAP, DIFF_SPC
+#endif
+
+#ifdef sens
+         USE DDM3D_DEFN, ONLY: NP, NPMAX, SVDEMIS_DIFF
 #endif
 
          IMPLICIT NONE
@@ -442,6 +459,10 @@ C Initialize Emissions Array
         SA_VDEMIS_DIFF = 0.0
         SA_VDEMIS_DIFF_ALL = 0.0
         SA_VDEMIS_DIFF_OTHER = 0.0
+#endif
+
+#ifdef sens
+        SVDEMIS_DIFF = 0.0
 #endif
 
 C Retrieve Emissions from All Stream Types

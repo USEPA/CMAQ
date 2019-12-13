@@ -148,7 +148,7 @@ C Local Variables:
 #ifdef parallel
       REAL, ALLOCATABLE, SAVE :: S_HALO_NORTH( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: S_HALO_SOUTH( :,:,:,: )
-      REAL, ALLOCATABLE, SAVE :: S_BUF_NS( :,: )
+      REAL, ALLOCATABLE, SAVE :: S_BUF_NS( :,:,:,: )
 #endif
 #endif
 
@@ -246,7 +246,7 @@ C Get dx2 from HGRD_DEFN module
 #ifdef parallel
          ALLOCATE ( S_HALO_NORTH( NCOLS,SWP,N_SPC_ADV,NPMAX ),
      &              S_HALO_SOUTH( NCOLS,SWP,N_SPC_ADV,NPMAX ),
-     &              S_BUF_NS    ( SWP*NCOLS*N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
+     &              S_BUF_NS    ( NCOLS,SWP,N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG =
      &      'Failure allocating S_HALO_NORTH, S_HALO_SOUTH, or S_BUF_NS'
@@ -314,7 +314,7 @@ C Get the contravariant x2 velocity component
                DO NP = 1, NPMAX
                  S_HALO_SOUTH( COL,ROW,SPC,NP ) = SENGRID( COL,ROW,LVL,NP,A2C )
                  S_HALO_NORTH( COL,ROW,SPC,NP ) = SENGRID( COL,NORTH_ROW+ROW,LVL,NP,A2C )
-                 S_BUF_NS( M,NP ) = S_HALO_NORTH( COL,ROW,SPC,NP )
+                 S_BUF_NS( COL,ROW,SPC,NP ) = S_HALO_NORTH( COL,ROW,SPC,NP )
                END DO
 #endif
             END DO
@@ -327,7 +327,7 @@ C Get the contravariant x2 velocity component
       DO NP = 1, NPMAX
          CALL SUBST_COMM( S_HALO_SOUTH(:,:,:,NP), S_HALO_NORTH(:,:,:,NP),
      &                    DSPL_N1_E0_S0_W0, DRCN_N )
-         CALL SUBST_COMM( S_BUF_NS(:,NP),         S_HALO_SOUTH(:,:,:,NP),
+         CALL SUBST_COMM( S_BUF_NS(:,:,:,NP),         S_HALO_SOUTH(:,:,:,NP),
      &                    DSPL_N0_E0_S1_W0, DRCN_S )
       END DO
 #endif
@@ -485,14 +485,14 @@ C PPM scheme
              END DO
 
 #ifdef parallel
-             DO COL = 1, SWP
+             DO ROW = 1, SWP
                SENY( ROW-SWP,SPC )   = S_HALO_SOUTH( COL,ROW,SPC,NP )
                SENY( NROWS+ROW,SPC ) = S_HALO_NORTH( COL,ROW,SPC,NP )
              END DO
 #endif
 
 C South boundary
-             IF ( BNDY_PE_LOX ) THEN
+             IF ( BNDY_PE_LOY ) THEN
                IF ( VELY( 1 ) .LT. 0.0 ) THEN          ! outflow
                  IF ( CONY( 0, SPC ) .EQ. 0.0 ) THEN
                    SENY( 1-SWP:0, SPC ) = 0.0
@@ -519,7 +519,7 @@ C South boundary
              END IF
 
 C North boundary
-             IF ( BNDY_PE_HIX ) THEN
+             IF ( BNDY_PE_HIY ) THEN
                IF ( VELY( NROWS+1 ) .GT. 0.0 ) THEN     ! outflow
                  IF ( CONY( NROWS+1, SPC ) .EQ. 0.0 ) THEN
                    SENY( NROWS+1:NROWS+SWP, SPC ) = 0.0
@@ -531,7 +531,7 @@ C North boundary
                  END IF
                ELSE    ! inflow
                  IF ( BCS ) THEN
-                   SENY( NROWS+1:NROWS+SWP,SPC ) = BSEN( EFX+COL,SPC,NP
+                   SENY( NROWS+1:NROWS+SWP,SPC ) = BSEN( NFX+COL,SPC,NP )
                  ELSE IF ( ( IPT( NP ) .EQ. 2 ) .AND. ( TIMEFLAG ) ) THEN
                  ! Insert boundary condition to SEN iff time, date,
                  ! species, and region match and senstype is BOUN
@@ -548,12 +548,12 @@ C North boundary
            END DO
 
 C PPM scheme
-           CALL HPPM ( NCOLS, NROWS, SENY, VELY, DT, DX1, 'R' )
+           CALL HPPM ( NROWS, NCOLS, SENY, VELY, DT, DX2, 'R' )
 
            DO SPC = 1, N_SPC_ADV
              A2C = ADV_MAP( SPC )
              DO ROW = 1, NROWS
-               SENGRID( COL,ROW,LVL,NP,A2C ) = SENY( COL,SPC )
+               SENGRID( COL,ROW,LVL,NP,A2C ) = SENY( ROW,SPC )
              END DO
            END DO
 

@@ -43,6 +43,7 @@ C   30 May 14 J.Young: split vdiff calculation out of vdiff proc.
 C   07 Nov 14 J.Bash: Updated for the ASX_DATA_MOD shared data module. 
 C   02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C   May 2019  J.Pleim Changed from sigma coords to Z coords for compatability w/ MPAS and WRF
+C   12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -62,6 +63,13 @@ C-----------------------------------------------------------------------
      &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, SPC_NAME,
      &                   L_NITRATE
 #endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, SNGRD, S_DDEP, S_PLDV, SVDEMIS_DIFF,
+     &                       SENS, S_EMIS, S_DD, S_UU, S_DDBF, S_POL,
+     &                       S_DELC, S_PLDV_HONO
+#endif
+
 
       IMPLICIT NONE
 
@@ -346,8 +354,46 @@ C set auxiliary depv arrays
         END DO          
 #endif
 
+#ifdef sens
+         ALLOCATE ( S_POL   ( NPMAX, N_SPC_DEPV ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_POL'
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+         S_POL = 0.0
+
+         ALLOCATE ( S_DDBF( N_SPC_DEPV, NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_DBF'
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+            END IF
+         S_DDBF = 0.0
+
+         ALLOCATE ( SENS( N_SPC_DIFF,NLAYS,NPMAX ),
+     &              S_EMIS( N_SPC_DIFF,NLAYS,NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SENS or S_EMIS'
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+         SENS = 0.0; S_EMIS = 0.0   ! array assignment
+
+         ALLOCATE ( S_DD( N_SPC_DIFF,NLAYS,NPMAX ),
+     &              S_UU( N_SPC_DIFF,NLAYS,NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_DD or S_UU'
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+         S_DD = 0.0; S_UU = 0.0   ! array assignment
+
+         ALLOCATE ( S_PLDV_HONO( NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_PLDV_HONO'
+            CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+         END IF
+         S_PLDV_HONO = 0.0  ! array assignment
 
 
+#endif
  
       END IF   !  if Firstime
 
@@ -448,6 +494,16 @@ C-----------------------------------------------------------------------
 #endif
          END DO
 
+#ifdef sens
+         DO NP = 1, NPMAX
+            DO L = 1, NLAYS
+               DO V = 1, N_SPC_DIFF
+                  SENS( V,L,NP ) = SNGRD( DIFF_MAP( V ),L,C,R,NP )
+               END DO
+            END DO
+         END DO
+#endif
+
 #ifdef isam
          IF( L_NITRATE .AND. SFC_HONO ) THEN
 ! compute the flux partitioning for HONO from NO2 surface reaction
@@ -476,6 +532,13 @@ C-----------------------------------------------------------------------
          END DO
 #endif
 
+#ifdef sens
+         S_EMIS = 0.0
+         DO NP = 1, NPMAX
+            S_EMIS( :,1:EMLAYS,NP ) = DTS * SVDEMIS_DIFF( :,:,C,R,NP )
+         END DO
+#endif
+
          DO L = 1, NLAYS
             DFSP( L ) = DFACP * DZHI( L )
             DFSQ( L ) = DFACQ * DZHI( L )
@@ -491,8 +554,19 @@ C-----------------------------------------------------------------------
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
             POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )
+#ifdef sens
+            DO NP = 1, NPMAX
+               S_POL   ( NP,V ) = S_PLDV( NP,V,C,R ) / DEPVCR( V )
+               S_DDBF( V, NP ) = S_DDEP( V, C, R, NP )
+            END DO
+#endif
          END DO
          PLDV_HONO = PLDV( HONO_HIT,C,R )
+#ifdef sens
+         DO NP = 1, NPMAX
+            S_PLDV_HONO( NP ) = S_PLDV( NP,HONO_HIT,C,R )
+         END DO
+#endif
 
 #ifdef isam
          DO JSPCTAG = 1, N_SPCTAG
@@ -550,6 +624,12 @@ C is accounted as depositional loss; calculate increased deposition loss
                   DEPV_HNO3 = DEPVCR( V ) + PLDV_HONO / CONC( NO2_MAP,1 )
                   DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPV_HNO3
                   DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC1( V )
+                     S_DDBF( V, NP ) = S_DDBF( V, NP ) + THETA * DD_FAC( V ) * SENS ( S,1,NP )
+                  END DO
+#endif
 
 C Use special treatment for NO2
 C Loss of NO2 via the heterogeneous reaction is accounted for as an additional
@@ -564,6 +644,13 @@ C reduce the NO2 conc. in the atmosphere without affecting the depositional loss
                   POL   ( V ) = PLDV( V,C,R ) / DEPV_NO2
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
                   DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * CONC( S,1 )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_POL( NP, V ) = S_PLDV( NP,V,C,R ) / DEPV_NO2
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC1( V )
+                     S_DDBF( V, NP ) = S_DDBF( V, NP ) + THETA * DD_FAC( V ) * SENS ( S,1,NP )
+                  END DO
+#endif
   
 C --------- END of HET HONO RX ----------
 
@@ -573,6 +660,15 @@ C --------- END of HET HONO RX ----------
                   DDBF( V ) = DDBF( V ) + THETA * ( DD_FAC( V ) * CONC( S,1 ) 
 C Add evasion as negative dep flux                  
      &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )         
+
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC1( V )
+                     S_DDBF( V, NP ) = S_DDBF( V, NP ) + THETA * ( DD_FAC( V ) * SENS( S, 1,NP )
+     &                      - DTDENS1 * DD_CONV( V ) * S_PLDV( V,C,R,NP ) )
+                  END DO
+#endif
+
                END IF
 
             END DO
@@ -581,6 +677,12 @@ C Add evasion as negative dep flux
                DO V = 1, N_SPC_DIFF
                   DD( V,L ) = 0.0
                   UU( V,L ) = 0.0
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_DD( V,L,NP) = 0.0
+                     S_UU( V,L,NP) = 0.0
+                  END DO
+#endif
                END DO
             END DO
 
@@ -617,6 +719,13 @@ C Set MATRIX1 elements A (col 1), B (diag.), E (superdiag.) and D (RHS)
                   DD( V,L ) = CONC( V,L )
      &                      - LFAC1( L ) * CONC( V,L )
      &                      + LFAC2( L ) * CONC( V,L+1 ) 
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_DD( V,L,NP ) = SENS( V,L,NP )
+     &                         - LFAC1( L ) * SENS( V,L,NP )
+     &                         + LFAC2( L ) * SENS( V,L+1,NP )
+                  END DO
+#endif
                END DO
 
 #ifdef isam
@@ -633,6 +742,14 @@ C Set MATRIX1 elements A (col 1), B (diag.), E (superdiag.) and D (RHS)
      &                    -   MDWN( L ) * CONC( V,L )
      &                    +   MFAC( L ) * CONC( V,L+1 )
                      DD( V,L ) = CONC( V,L ) + DFACQ * DELC
+#ifdef sens    
+                     DO NP = 1, NPMAX
+                        S_DELC = MBARKS( L ) * SENS( V,1,NP )
+     &                       -   MDWN( L ) * SENS( V,L,NP )
+     &                       +   MFAC( L ) * SENS( V,L+1,NP )
+                        S_DD( V,L,NP ) = SENS( V,L,NP ) + DFACQ * S_DELC
+                     END DO
+#endif         
                   END DO
 
 #ifdef isam
@@ -651,10 +768,22 @@ C Set MATRIX1 elements A (col 1), B (diag.), E (superdiag.) and D (RHS)
                CALL SA_MATRIX1( LCBL, AA, BB1,EE1, SA_DD, SA_UU)
 #endif
 
+#ifdef sens
+               DO NP = 1, NPMAX
+                  CALL MATRIX1 ( LCBL, AA, BB1, EE1, S_DD(:,:,NP), S_UU(:,:,NP) )
+               END DO
+#endif
+
+
 C update conc
                DO L = 1, LCBL
                   DO V = 1, N_SPC_DIFF
                      CONC( V,L ) = UU( V,L )
+#ifdef sens
+                     DO NP = 1, NPMAX
+                        SENS( V,L,NP ) = S_UU( V,L,NP )
+                     END DO
+#endif
                   END DO
 #ifdef isam
                   DO JSPCTAG = 1, N_SPCTAG
@@ -668,6 +797,12 @@ C reinitialize for TRI solver
                   DO V = 1, N_SPC_DIFF
                      DD( V,L ) = 0.0
                      UU( V,L ) = 0.0
+#ifdef sens
+                     DO NP = 1, NPMAX
+                        S_DD( V,L,NP ) = 0.0
+                        S_UU( V,L,NP ) = 0.0
+                     END DO
+#endif
                   END DO
 #ifdef isam
                   DO JSPCTAG = 1, N_SPCTAG
@@ -684,6 +819,13 @@ C reinitialize for TRI solver
                DD( V,L ) = CONC( V,L )
      &                   + LFAC3( L ) * ( CONC( V,L+1 ) - CONC( V,L ) )
      &                   + EMIS( V,L )
+#ifdef sens
+               DO NP = 1, NPMAX
+                  S_DD( V,L,NP ) = SENS( V,L,NP )
+     &                           + LFAC3( L ) * ( SENS( V,L+1,NP ) - SENS( V,L,NP ) )
+     &                           + S_EMIS( V,L,NP )
+               END DO
+#endif
             END DO
 
 #ifdef isam
@@ -700,6 +842,14 @@ C reinitialize for TRI solver
      &                      + LFAC3( L ) * ( CONC( V,L+1 ) - CONC( V,L ) )
      &                      - LFAC4( L ) * ( CONC( V,L ) - CONC( V,L-1 ) )
      &                      + EMIS( V,L )
+#ifdef sens 
+                  DO NP = 1, NPMAX
+                     S_DD( V,L,NP ) = SENS( V,L,NP )
+     &                              + LFAC3( L ) * ( SENS( V,L+1,NP ) - SENS( V,L,NP ) )
+     &                              - LFAC4( L ) * ( SENS( V,L,NP ) - SENS( V,L-1,NP ) )
+     &                              + S_EMIS( V,L,NP )
+                  END DO
+#endif
                END DO
 #ifdef isam
                DO JSPCTAG = 1, N_SPCTAG
@@ -715,6 +865,12 @@ C reinitialize for TRI solver
             DO V = 1, N_SPC_DIFF
                DD( V,L ) = CONC( V,L )
      &                   - LFAC4( L ) * ( CONC( V,L ) - CONC( V,L-1 ) )
+#ifdef sens
+               DO NP = 1, NPMAX
+                  S_DD( V,L,NP ) = SENS( V,L,NP )
+     &                           - LFAC4( L ) * ( SENS( V,L,NP ) - SENS( V,L-1,NP ) )
+               END DO
+#endif
             END DO
 #ifdef isam
             DO JSPCTAG = 1, N_SPCTAG
@@ -728,10 +884,22 @@ C reinitialize for TRI solver
             CALL SA_TRI ( CC, BB2, EE2, SA_DD, SA_UU )
 #endif
 
+#ifdef sens
+            DO NP = 1, NPMAX
+               CALL TRI ( CC, BB2, EE2, S_DD(:,:,NP), S_UU(:,:,NP) )
+            END DO
+#endif
+
+
 C Load into CGRID
             DO L = 1, NLAYS
                DO V = 1, N_SPC_DIFF
                   CONC( V,L ) = UU( V,L )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( V,L,NP ) = S_UU( V,L,NP )
+                  END DO
+#endif
                END DO
 #ifdef isam
                DO JSPCTAG = 1, N_SPCTAG
@@ -749,10 +917,24 @@ C --------- HET HONO RX -----------------
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
                   DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
 
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC2( V )
+                     S_DDBF( V,NP ) = S_DDBF( V,NP ) + THBAR * DD_FAC( V ) * SENS( S,1,NP )
+                  END DO
+#endif
+
                ELSE IF ( V .EQ. NO2_HIT ) THEN
                   S = NO2_MAP
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC2( V )
                   DDBF( V ) = DDBF( V ) + THBAR * DD_FAC( V ) * CONC( S,1 )
+
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC2( V )
+                     S_DDBF( V,NP ) = S_DDBF( V,NP ) + THBAR * DD_FAC( V ) * SENS( S,1,NP )
+                  END DO
+#endif
 
 C --------- END of HET HONO RX ----------
 
@@ -762,6 +944,14 @@ C --------- END of HET HONO RX ----------
                   DDBF( V ) = DDBF( V ) + THBAR * ( DD_FAC( V ) * CONC( S,1 )
 C Add evasion as negative dep flux                      
      &                      - DTDENS1 * DD_CONV( V ) * PLDV( V,C,R ) )
+
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENS( S,1,NP ) = S_POL( NP,V ) + ( SENS( S,1,NP ) - S_POL( NP,V ) ) * EFAC2( V )
+                     S_DDBF( V,NP ) = S_DDBF( V,NP ) + THBAR * ( DD_FAC( V ) * SENS( S,1,NP )
+     &                      - DTDENS1 * DD_CONV( V ) * S_PLDV( V,C,R,NP ) )
+                  END DO
+#endif
                   
                END IF
 
@@ -808,6 +998,24 @@ C Update ISAM Dry Deposition
             SA_DDEP( C,R,JSPCTAG ) = SA_DDBF( JSPCTAG )
          END DO
 #endif
+
+#ifdef sens
+         DO NP = 1, NPMAX
+
+            DO L = 1, NLAYS
+               DO V = 1, N_SPC_DIFF
+                  SNGRD( DIFF_MAP( V ),L,C,R,NP ) = SENS( V,L,NP )
+               END DO
+            END DO
+
+            DO V = 1, N_SPC_DEPV
+               S_DDEP( V,C,R,NP ) = S_DDBF( V,NP )
+            END DO
+
+         END DO
+#endif
+
+
  
 344   CONTINUE         !  end loop on col C
 345   CONTINUE         !  end loop on row R
