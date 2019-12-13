@@ -1467,8 +1467,8 @@ C and allowing the model to proceed.
                   LSURR_KEY( IRULE ) = .TRUE.
  
                   LERROR = .FALSE.
-                  LERROR3( ICHEM ) = .FALSE.
                   DO ICHEM = 1,NCHEM
+                     LERROR3( ICHEM ) = .FALSE.
                      LERROR2 = .TRUE.
                      DO ISRM = 1,N_EM_SRM
                         IF ( .NOT. EM_STREAM_RULE( ISRM ) ) CYCLE
