@@ -235,31 +235,42 @@
     'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'       ,'FINE',0.   ,'MASS','a', 
     'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'     ,'FINE',0.   ,'MASS','a', 
    ! --> Semivolatile POA
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'VLVPO1'     ,'GAS' ,0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'ASVPO2'     ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'ASVPO3'     ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POA'    ,'AIVPO1'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VLVPO1'     ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VLVPO1'     ,'GAS' ,0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO2'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO2'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO3'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO3'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'AIVPO1'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AIVPO1'     ,'FINE',0.   ,'MASS','a', 
    
    ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
    ! formation from combustion sources. It includes IVOC oxidation as well as other
    ! phenomena (Murphy et al., ACP, 2017). It was parameterized primarily in LA,
    ! where vehicle exhaust continues to dominate.
-    'EVERYWHERE', 'ALL'          ,'POA'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+    'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+    'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
    ! However, the added pcSOA is probably inappropriate for Fire sources, especially
    ! in its current configuration. This pathway should be zeroed out for all fire
    ! and wood-burning related sources.
-    'EVERYWHERE', 'PT_FIRES'     ,'POA'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'PT_RXFIRES'   ,'POA'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'PT_AGFIRES'   ,'POA'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'PT_OTHFIRES'  ,'POA'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'PT_FIRES_MXCA','POA'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'GR_RES_FIRES' ,'POA'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_FIRES'     ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_RXFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_AGFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+    'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
    
    ! Wind-Blown Dust and Sea Spray Scaling
    ! Fine Components
@@ -423,9 +434,9 @@
 
 &ChemicalFamilies
  NChemFamilies         = 1
- ChemFamilyName(1)     = 'POA'
+ ChemFamilyName(1)     = 'NOX'
  ChemFamilyNum(1)      = 2
- ChemFamilyMembers(1,:)= 'POC','PNCOM'
+ ChemFamilyMembers(1,:)= 'NO','NO2'
 /
 
 !&StreamFamilies
