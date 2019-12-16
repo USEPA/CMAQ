@@ -56,13 +56,14 @@ In addition to the air pollutant concentration and deposition fields output by C
 
 1.  *[Integrated Source Apportionment Method (ISAM)](CMAQ_UG_ch11_ISAM.md)*: Estimates source attribution information for user specified ozone and particulate matter precursors modeled in CMAQ. Such apportionment information could be used to gain insight on, for example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
 2.  *[Decoupled Direct Method in Three Dimensions (DDM-3D)](CMAQ_UG_ch10_HDDM-3D.md)*: A formal mathematical formulation that propagates sensitivity of CMAQ estimated concentrations and/or deposition to specified parameters (e.g., emissions) through the science modules in CMAQ. CMAQ-DDM-3D can be used for sensitivity to emission rates, boundary conditions, initial conditions, reaction rates, potential vorticity, or any combination of these parameters. Second order sensitivity calculations, or sensitivity of sensitivity, are also available.
-3.  *[Sulfur Tracking Model (STM)](CMAQ_UG_ch12_sulfur_tracking.md)*: Tracks sulfate production from gas- and aqueous-phase chemical reactions, as well as contributions from emissions and initial and boundary conditions. The additional diagnostic information enables users to better understand the relative contribution of various pathways for airborne sulfate, a dominant contributor to fine particulate matter.
+3.  *[Sulfur Tracking Method (STM)](CMAQ_UG_ch12_sulfur_tracking.md)*: Tracks sulfate production from gas- and aqueous-phase chemical reactions, as well as contributions from emissions and initial and boundary conditions. The additional diagnostic information enables users to better understand the relative contribution of various pathways for airborne sulfate, a dominant contributor to fine particulate matter.
 4.  *[Integrated Process Rates (IPR)](CMAQ_UG_ch09_process_analysis.md)*: CMAQ can be configured to output the process rates for each of the modeled processes impacting change in ambient concentrations of modeled species. This essentially provides a breakdown of the various terms contributing to the overall species mass-balance and thus helps with species mass-budget analysis.
 5.  *[Integrated Reaction Rates (IRR)](CMAQ_UG_ch09_process_analysis.md)*: This technique involves integrating the rates of individual chemical reactions represented in the gas-phase chemical mechanism employed by CMAQ. As an example, this information can then be used to infer the relative importance of various precursor species contributing to ozone production in a grid cell or region.
 
 
 ## 1.4 New Features in CMAQv5.3
 Building on previous versions of the modeling system, numerous updates to the process science and model structure have been implemented in CMAQv5.3 including:
+
 1.	Advances in the science of modeling particulate matter composition, size distribution and optical properties. These updates are encapsulated in a new version of the CMAQ aerosol module named AERO7.
 2.	Improvements and updates to the representation of multi-phase chemistry in the CMAQ modeling system, including incorporation of new gas-phase chemical mechanisms, expansion of aqueous chemistry pathways, incorporation of improved data sets to estimate photolysis rates, and updates to numerical integration schemes to improve runtime efficiency.
 3.	Improvements in representation of land-atmosphere exchange processes, including consistent representation of deposition process for unidirectional and bidirectional species, explicit mapping of wet and dry deposited species to modeled chemical species and incorporation of land-use specific deposition output.
@@ -82,7 +83,11 @@ Extensive information on the model's scientific basis, applications, publication
 
 ___
 
+<!-- BEGIN COMMENT -->
+
 [CMAQ User's Guide List of Tables and Figures](CMAQ_UG_tables_figures.md)
+
+<!-- BEGIN COMMENT -->
 
 ___
 

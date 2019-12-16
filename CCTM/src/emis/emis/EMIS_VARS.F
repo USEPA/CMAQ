@@ -92,6 +92,8 @@
       CHARACTER( 16  ),ALLOCATABLE :: EM_DIAG_FILE( : )  ! Filename for Emissions Diagnostic Output
       LOGICAL         ,ALLOCATABLE :: EM_FILE_DIFF( :,: )! Test for whether or not a stream contributes to 
                                                          !   a particular transported variable
+      LOGICAL         ,ALLOCATABLE :: EM_FILE_SYM_DATE( : ) ! Toggle for whether or not to let the 
+                                                             ! emission stream date override the model
       INTEGER         ,ALLOCATABLE :: EM_FILE_DATE( : )! Date to be read in from each emissions stream
       LOGICAL         ,ALLOCATABLE :: EM_FILE_FIRE( : )! Is this Emission Stream Representing Fires (1=Yes)
 

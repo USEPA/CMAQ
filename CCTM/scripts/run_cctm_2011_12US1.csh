@@ -181,6 +181,12 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
  
+setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
+                             #>   rather than checking the emissions date against the internal model date.
+                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
+                             #>   time will be used and an error check will be performed (recommended). Users 
+                             #>   may switch the behavior for individual emission files below using the variables:
+                             #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [default : N ] 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
 setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
@@ -298,6 +304,22 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 #  setenv LUFRAC_CRO $METpath/LUFRAC_CRO_${YYYYMMDD}
 
   #> Emissions Control File
+  #>
+  #> IMPORTANT NOTE
+  #>
+  #> The emissions control file defined below is an integral part of controlling the behavior of the model simulation.
+  #> Among other things, it controls the mapping of species in the emission files to chemical species in the model and
+  #> several aspects related to the simulation of organic aerosols.
+  #> Please carefully review the emissions control file to ensure that it is configured to be consistent with the assumptions
+  #> made when creating the emission files defined below and the desired representation of organic aerosols.
+  #> For further information, please see:
+  #> + AERO7 Release Notes section on 'Required emission updates':
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Release_Notes/aero7_overview.md
+  #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability': 
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability
+  #> + Emission Control (DESID) Documentation in the CMAQ User's Guide: 
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
+  #>
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
   #> Spatial Masks For Emissions Scaling
@@ -308,7 +330,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_cmaq_cb6e51_2011ek_cb6cmaq_v6_11g.ncf
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
-
+  setenv GR_EM_SYM_DATE_001 F
+  
   #> In-Line Point Emissions Files
   setenv N_EMIS_PT 5          #> Number of elevated source groups
 
@@ -342,6 +365,15 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #setenv STK_EMIS_DIAG_003 2DSUM
   #setenv STK_EMIS_DIAG_004 2DSUM
   #setenv STK_EMIS_DIAG_005 2DSUM
+
+  # Allow CMAQ to Use Point Source files with dates that do not
+  # match the internal model date
+  setenv STK_EM_SYM_DATE_001 T
+  setenv STK_EM_SYM_DATE_002 T
+  setenv STK_EM_SYM_DATE_003 T
+  setenv STK_EM_SYM_DATE_004 T
+  setenv STK_EM_SYM_DATE_005 T
+
 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
