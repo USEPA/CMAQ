@@ -12,7 +12,7 @@ particulates, toxics, and acid deposition.
 
 
 ## CMAQ version 5.3.1 Overview:
-CMAQ model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes to both CMAQ and MCIP (released as MCIP version 5.1), as well as a feature addition to the Detailed Emission Scaling Isolation and Diagnostic (DESID) module to allow for defining of chemical, region and stream families. 
+CMAQ model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes to both CMAQ and MCIP (released as MCIP version 5.1), as well as a feature addition to the Detailed Emission Scaling Isolation and Diagnostic (DESID) module to allow for the definition of chemical, region and stream families. 
 * [CMAQv5.3.1 Release Notes](DOCS/Release_Notes/README.md)   
 * [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- NEW with v5.3.1 release!** 
 
