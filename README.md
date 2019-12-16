@@ -12,7 +12,7 @@ particulates, toxics, and acid deposition.
 
 
 ## CMAQ version 5.3.1 Overview:
-The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes to both CMAQ and MCIP (released as MCIP version 5.1), as well as a feature addition to the Detailed Emission Scaling Isolation and Diagnostic (DESID) module to allow for defining of chemical, region and stream families. 
+CMAQ model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes to both CMAQ and MCIP (released as MCIP version 5.1), as well as a feature addition to the Detailed Emission Scaling Isolation and Diagnostic (DESID) module to allow for defining of chemical, region and stream families. 
 * [CMAQv5.3.1 Release Notes](DOCS/Release_Notes/README.md)   
 * [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- NEW with v5.3.1 release!** 
 
@@ -27,8 +27,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor updat
 * Additional updates are documented in the Release Notes
 
 ## Getting the CMAQ Repository
-This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository.
-To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
+This CMAQ Git archive is organized with each official public release stored as a branch on the main USEPA/CMAQ repository. The most recently released version of the the model will always be on the branch called 'master'. To clone code from the CMAQ Git archive, specify the branch (i.e. version number) and issue the following command from within
 a working directory on your server:
 
 ```
@@ -41,7 +40,7 @@ Source code and scripts are organized as follows:
 * **DOCS:** Release notes for the release version of CMAQ, CMAQ User's Guide, developers guidance, short tutorials and known issues.
 * **PREP:** Data preprocessing tools for important input files like initial and boundary conditions, meteorology, etc.
 * **POST:** Data postprocessing tools for aggregating and evaluating CMAQ output products (e.g. Combine, Site-Compare, etc)
-* **UTIL:** Utilities for generating code and using CMAQ (e.g. chemical mechanism generation, IO-API, etc)
+* **UTIL:** Utilities for generating code and using CMAQ (e.g. chemical mechanism generation)
 
 ## Documentation
 Release Notes and code documentation are included within this repository (they are version-controlled along with the code itself).  
@@ -54,13 +53,15 @@ Release Notes and code documentation are included within this repository (they a
 [FAQ for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) 
 
 ## CMAQ Test Cases
-Benchmark/tutorial data for each CMAQ release version are available from the CMAS Data Warehouse.  The input and output files are stored on Google Drive with metadata organized through Dataverse.  
+Benchmark/tutorial data for each CMAQ release version are available from the CMAS Data Warehouse.  The input and output files are stored on Google Drive with metadata organized through Dataverse.  CMAQv5.3.1 comes with new input and output benchmark data for July 2016 over the Southeast US (links provided below).  The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3 coupled model on the Southeast benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3.1 files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.1 is slightly different from what was released with v5.3 as described in the [CMAQv5.3.1 Rlease Notes FAQ](DOCS/Release_Notes/CMAQ_FAQ.md).
 
-|**Data Type**|**Domain**|**Simulation Dates**|**Dataverse DOI**| 
-|:----:|:--------------:|:----:|:--------:|
-|Input| Southeast US| July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
-|Output| Southeast US| July 1 - 14, 2016|https://doi.org/10.15139/S3/PDE4SS |
-|Input| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
+|**CMAQ Version**|**Data Type**|**Domain**|**Simulation Dates**|**Dataverse DOI**| 
+|:----:|:----:|:--------------:|:----:|:--------:|
+|v5.3.1|Input| Southeast US| July 1 - 14, 2016| FILL IN LINK |
+|v5.3.1|Output| Southeast US| July 1 - 14, 2016|FILL IN LINK |
+|v5.3|Input| Southeast US| July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
+|v5.3|Output| Southeast US| July 1 - 14, 2016|https://doi.org/10.15139/S3/PDE4SS |
+|v5.3|Input| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
 
 ## Previous CMAQ Versions
 The followoing release versions of CMAQ are currently available on GitHub.  DOI values from Zenodo can be used when referencing a specific version.
