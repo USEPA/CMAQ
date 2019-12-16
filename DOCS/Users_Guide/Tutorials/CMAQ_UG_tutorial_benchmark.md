@@ -105,8 +105,7 @@ tar xvzf CMAQv5.3.1_Benchmark_2Day_Output.tar.gz
 
 The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  Input and output files for a two week case covering July 1-14, 2016 are also available within the same Google Drive folder. Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
 
-*A Note about v5.3.1 benchmark data compared to v5.3*
-
+#### A note about differences in the v5.3.1 and v5.3 benchmark data
 CMAQv5.3.1 comes with new input and output benchmark data for the July 2016 test case over the Southeast US.  The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3 coupled model on the Southeast benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3.1 files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.1 is slightly different from what was released with v5.3 as described in the [CMAQv5.3.1 Rlease Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
 
 
