@@ -28,7 +28,7 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 
 ## Install CMAQ and Required Libraries 
 
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.1:
 
 ```
 git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
@@ -53,7 +53,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = /home/username/CMAQ_v5.3
+set CMAQ_HOME = /home/username/CMAQ_v5.3.1
 ```
 Now execute the script.
 ```
@@ -95,15 +95,19 @@ source config_cmaq.csh gcc 9.1
 
 ## Install the CMAQ input reference/benchmark data
 
-Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE53BENCH](https://drive.google.com/drive/folders/1wvz0jQuqnuT8RNj_EMuLec154-rFXucv) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE531BENCH](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
-tar xvzf CMAQv5.3_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.3_Benchmark_2Day_Output.tar.gz
+tar xvzf CMAQv5.3.1_Benchmark_2Day_Input.tar.gz
+tar xvzf CMAQv5.3.1_Benchmark_2Day_Output.tar.gz
 ```
 
 The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  Input and output files for a two week case covering July 1-14, 2016 are also available within the same Google Drive folder. Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
+
+*A Note about v5.3.1 benchmark data compared to v5.3*
+CMAQv5.3.1 comes with new input and output benchmark data for the July 2016 test case over the Southeast US.  The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3 coupled model on the Southeast benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3.1 files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.1 is slightly different from what was released with v5.3 as described in the [CMAQv5.3.1 Rlease Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
+
 
 
 ## Compiling CMAQ
@@ -234,9 +238,9 @@ To determine if CMAQ is correctly installed on your Linux system compare the res
 - Linux Kernel 3.10.0-957.12.2.el7.x86_64
 - GNU GCC compiler version 6.1.0, 8 processors with OpenMPIv4.0.1 and I/O APIv3.2
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
-- CMAQv5.3
+- CMAQv5.3.1
 
-The CMAQv5.3 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables.
+The CMAQv5.3.1 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables.
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
