@@ -59,6 +59,10 @@
 !  09/20/19, D. Wong:- Extended the capability to handle 3D emission files with various
 !                      number of layers less than of equal to the model number of layers
 !  10/04/19, D. Wong:- fixed the time advancement, NEXTIME, for a multi-day run
+!  11/22/19, F. Sidi:- Updated cio with new algorithm (developed by D. Wong) 
+!                      to enable running CMAQ with different files having
+!                      different time steps, cleaned up code no longer needed
+!                      & two-way model bugfixes
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -84,27 +88,37 @@
      &                           NPTGRPS, USE_MARINE_GAS_EMISSION, logdev,
      &                           CONVECTIVE_SCHEME
         use CENTRALIZED_IO_UTIL_MODULE
-   
+        use get_env_module 
         implicit none
 
-        integer, parameter :: max_nfiles = 3
+        integer, parameter :: max_nfiles = 500
 
         character (20), parameter :: bio_season_fname = 'BIOSEASON'
         character (20), parameter :: biogemis_fname   = 'B3GRD'
 
-        integer, parameter :: f_met_cro_2d  = 1
-        integer, parameter :: f_met_cro_3d  = 2
-        integer, parameter :: f_met_dot_3d  = 3
+! to recognize the time step in each file could be different, in the new revised 
+! implementation will address that and here is the algorithm. When open a new file, 
+! n_opened_file will be incremented by one to keep track of how many have been 
+! opened. Each file has a unique f_name except met files which will be shared with 
+! one f_met since their tsteps should be the same. Then n_opened_file is assigned 
+! to an opened time dependent file (defined below) and time information will be 
+! stored accordingly.
+
+        integer :: n_opened_file = 0
+        integer :: f_met, f_bios, f_ltng, f_bcon, f_icon, f_is_icon
+        integer, allocatable :: f_emis(:), f_stk_emis(:)
+
+        integer :: file_sdate(max_nfiles) = -1
+        integer :: file_stime(max_nfiles) = -1
+        integer :: file_tstep(max_nfiles) = -1
+        real*8  :: file_xcell(max_nfiles) = 0.0d0
+        real*8  :: file_ycell(max_nfiles) = 0.0d0
+        logical :: file_sym_date(max_nfiles) = .false. 
 
         CHARACTER( 40 ), parameter :: NLDN_STRIKES = 'NLDN_STRIKES'
         CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_CONC_1'
+        CHARACTER( 40 ), parameter :: BCFILE       = 'BNDY_CONC_1'
         CHARACTER( 40 ), parameter :: ISAM_PREVDAY = 'ISAM_PREVDAY'
-
-        integer :: file_sdate(max_nfiles)
-        integer :: file_stime(max_nfiles)
-        integer :: file_tstep(max_nfiles)
-        real*8  :: file_xcell(max_nfiles)
-        real*8  :: file_ycell(max_nfiles)
 
 ! time independent data
         real, allocatable :: MSFX2(:,:),        ! from GRID_CRO_2D data
@@ -161,14 +175,13 @@
         integer, allocatable :: cio_bndy_data_inx (:,:,:),
      &                          head_bndy(:), tail_bndy(:),        ! head and tail of the boundary data circular buffer
      &                          cio_bndy_data_tstamp(:,:,:)
-        integer :: met_bc_tstep, bc_tstep                          ! tstep info for met_bc and regular bc files
 
 ! emission data
 ! - gridded emission data
         character (16), allocatable :: cio_emis_file_name(:),
      &                                 cio_emis_var_name(:,:)
         integer, allocatable :: cio_emis_nvars(:)
-        integer, allocatable :: cio_emis_file_date(:), cio_emis_file_layer(:)
+        integer, allocatable :: cio_emis_file_layer(:)
         integer              :: cio_emis_nlays                     ! max value among cio_emis_file_layer
 
 ! - stack emission data
@@ -182,18 +195,12 @@
      &                          n_cio_stack_emis_pts(:),
      &                          cio_stack_emis_data_inx (:,:,:,:),
      &                          head_stack_emis(:,:), tail_stack_emis(:,:),  ! head and tail of the stack emis data circular buffer
-     &                          cio_stack_emis_data_tstamp(:,:,:,:),
-     &                          cio_stack_emis_sdate(:),
-     &                          cio_stack_emis_stime(:)
-
-        logical, allocatable :: cio_stack_emis_sdate_normal(:)               ! indication of date in file is same as model simulation 
+     &                          cio_stack_emis_data_tstamp(:,:,:,:)
 
         integer :: modis_data_sdate         ! modis dust data start date
 
         integer :: cio_model_sdate, 
-     &             cio_model_stime,         ! model start date and time
-     &             cio_data_tstep,          ! non met grided data time step (usually 1 hr)
-     &             cio_data_tstep_met       ! met data time step (usually 1hr but for twoway model it will less than that)
+     &             cio_model_stime         ! model start date and time
 
         logical, private :: cio_LTNG_NO 
 
@@ -281,15 +288,14 @@
         integer, private :: cio_LTLYRS                  ! number of layers in lightning strike dataset
 
         interface interpolate_var
-          module procedure r_interpolate_var_1dx,
-     &                     r_interpolate_var_1ds,
-     &                     r_interpolate_var_2d,
-     &                     i_interpolate_var_2d,
-     &                     r_interpolate_var_2dx,
-     &                     r_interpolate_var_2db,
-     &                     r_interpolate_var_3d
+          module procedure r_interpolate_var_1ds,       ! Interpolation for Stack Group 4 byte Real 1-D Data 
+     &                     r_interpolate_var_2d,        ! Interpolation for generic 4 byte Real 2-D Data 
+     &                     i_interpolate_var_2d,        ! Interpolation for generic 4 byte Integer 2-D Data
+     &                     r_interpolate_var_2db,       ! Interpolation for Boundary 4 byte Real 2-D Data
+     &                     r_interpolate_var_3d         ! Interpolation for generic 4 byte Real 3-D Data 
         end interface
 
+        
         contains
 
 ! -------------------------------------------------------------------------
@@ -311,7 +317,7 @@
           CHARACTER( 120 ) :: XMSG = ' '
           INTEGER          :: GXOFF, GYOFF, stat, n, v, d_size, begin, end, adj,
      &                        n_bio_season_vars, n_dust_vars, idx
-          character( 16 )  :: tname, fname
+          character( 32 )  :: tname, fname
 
           character( 24 ), allocatable :: c2d_name(:, :), c3d_name(:, :), 
      &                                    d3d_name(:,:), emis_name(:,:),
@@ -377,6 +383,7 @@
              XMSG = 'Solution: Reading Land Use Fractions from GRID_CRO_2D file'
              WRITE(LOGDEV,'(5X,A)')TRIM( XMSG )
           ELSE
+             n_opened_file = n_opened_file + 1
              LUCRO_AVAIL = .TRUE.
              IF ( .NOT. DESC3( LUFRAC_CRO ) ) THEN
                 XMSG = 'Could not get ' // LUFRAC_CRO //' file description'
@@ -392,16 +399,18 @@
              XMSG = 'Could not open '// MET_CRO_2D // ' file'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
+          n_opened_file = n_opened_file + 1
+          f_met = n_opened_file
           IF ( .NOT. DESC3( MET_CRO_2D ) ) THEN
              XMSG = 'Could not get ' // MET_CRO_2D //' file description'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
-          file_sdate(f_met_cro_2d) = sdate3d
-          file_stime(f_met_cro_2d) = stime3d
-          file_tstep(f_met_cro_2d) = tstep3d
-          file_xcell(f_met_cro_2d) = xcell3d
-          file_ycell(f_met_cro_2d) = ycell3d
+          file_sdate(f_met) = sdate3d
+          file_stime(f_met) = stime3d
+          file_tstep(f_met) = tstep3d
+          file_xcell(f_met) = xcell3d
+          file_ycell(f_met) = ycell3d
 
           IF (INDEX1( 'TSEASFC', NVARS3D, VNAME3D ) .gt. 0) then
              TSEASFC_AVAIL = .true.
@@ -477,12 +486,6 @@
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
-          file_sdate(f_met_cro_3d) = sdate3d
-          file_stime(f_met_cro_3d) = stime3d
-          file_tstep(f_met_cro_3d) = tstep3d
-          file_xcell(f_met_cro_3d) = xcell3d
-          file_ycell(f_met_cro_3d) = ycell3d
-
           n_c3d = nvars3d
           allocate (c3d_name(n_c3d, 3), stat=stat)
           if (stat .ne. 0) then
@@ -499,9 +502,6 @@
           QG_AVAIL       = (INDEX1( 'QG', NVARS3D, VNAME3D ) .gt. 0)
           JACOBF_AVAIL   = (INDEX1( 'JACOBF', NVARS3D, VNAME3D ) .gt. 0)
           QC_AVAIL       = .true.
-
-          cio_data_tstep     = tstep3d ! assumes same timestep in all input files 
-          cio_data_tstep_met = tstep3d
 
           CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
      &                    STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
@@ -576,12 +576,6 @@
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
 
-          file_sdate(f_met_dot_3d) = sdate3d
-          file_stime(f_met_dot_3d) = stime3d
-          file_tstep(f_met_dot_3d) = tstep3d
-          file_xcell(f_met_dot_3d) = xcell3d
-          file_ycell(f_met_dot_3d) = ycell3d
-
           n_d3d = nvars3d
           allocate (d3d_name(n_d3d, 3), stat=stat)
           if (stat .ne. 0) then
@@ -634,7 +628,7 @@
 
           allocate (cio_emis_file_name(N_FILE_GR),
      &              cio_emis_nvars(N_FILE_GR),
-     &              cio_emis_file_date(N_FILE_GR),
+     &              f_emis(N_FILE_GR),
      &              stat=stat)
 
           n_e2d = 0
@@ -648,19 +642,31 @@
                 XMSG = 'Could not open '// fname // ' file'
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+             n_opened_file = n_opened_file + 1
+             f_emis(n) = n_opened_file
              IF ( .NOT. DESC3( fname ) ) THEN
                 XMSG = 'Could not get description of file  '// fname
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
 
+             file_sdate(f_emis(n)) = sdate3d
+             file_stime(f_emis(n)) = stime3d
+             file_tstep(f_emis(n)) = tstep3d
+             file_xcell(f_emis(n)) = xcell3d
+             file_ycell(f_emis(n)) = ycell3d
+
+! Check whether file is a representative day type
+             write (fname, '(a15, i3.3)') "GR_EM_SYM_DATE_", n
+             call get_env(file_sym_date(f_emis(n)), fname, 
+     &                    file_sym_date(f_emis(n)), logdev )             
+             
              cio_emis_nvars(n) = nvars3d
              if (nlays3d .eq. 1) then
                 n_e2d = n_e2d + cio_emis_nvars(n)
              else
                 n_e3d = n_e3d + nvars3d
              end if
-
-             cio_emis_file_date(n) = sdate3d
+          
           end do
 
 ! Bio_season data
@@ -671,10 +677,18 @@
                 XMSG = 'Could not open '// bio_season_fname // ' file'
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+             n_opened_file = n_opened_file + 1
+             f_bios = n_opened_file
              IF ( .NOT. DESC3( bio_season_fname ) ) THEN
                 XMSG = 'Could not get description of file  '// bio_season_fname
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+
+             file_sdate(f_bios) = sdate3d
+             file_stime(f_bios) = stime3d
+             file_tstep(f_bios) = tstep3d
+             file_xcell(f_bios) = xcell3d
+             file_ycell(f_bios) = ycell3d
           end if
 
 ! Wind blown dust data
@@ -705,6 +719,8 @@
              XMSG = 'Open failure for ' // ICFILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
+          n_opened_file = n_opened_file + 1
+          f_icon = n_opened_file
           IF ( .NOT. DESC3( ICFILE ) ) THEN
              XMSG = 'Could not get description of file  '// ICFILE 
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -743,6 +759,8 @@
                 XMSG = 'Open failure for ' // ISAM_PREVDAY
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+             n_opened_file = n_opened_file + 1
+             f_is_icon = n_opened_file
              IF ( .NOT. DESC3( ISAM_PREVDAY ) ) THEN
                 XMSG = 'Could not get description of file  '// ISAM_PREVDAY 
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -756,6 +774,13 @@
              is3d_name(:,1) = vname3d(1:n_is3d) 
              is3d_name(:,2) = 'is'                   ! denote ISAM initial condition variable
              is3d_name(:,3) = ' '                    ! denote non met variable
+
+             file_sdate(f_is_icon) = sdate3d
+             file_stime(f_is_icon) = stime3d
+             file_tstep(f_is_icon) = tstep3d
+             file_xcell(f_is_icon) = xcell3d
+             file_ycell(f_is_icon) = ycell3d
+
           end if   ! ISAM_NEW_START
 
 ! setup gridded emission file
@@ -786,16 +811,15 @@
           end do
 
           cio_emis_nlays = maxval(cio_emis_file_layer)
-
           ! If there are 3D (inline point or Lightning) sources, 
           ! revise the top to be the model top.
           IF ( NPTGRPS .GT. 0 .OR. LTNG_NO ) cio_emis_nlays = NLAYS
-
+ 
           ! Make sure the top is not greater than the model top
           cio_emis_nlays = MAX( MIN( cio_emis_nlays, NLAYS ), 1 )
-
+ 
           WRITE( LOGDEV,1009 ) cio_emis_nlays, NLAYS
-1009      FORMAT(    5X, 'Number of Emissions Layers:         ', I3
+ 1009     FORMAT(    5X, 'Number of Emissions Layers:         ', I3
      &            /  5X, 'out of total Number of Model Layers:', I3 )
 
 ! lightning file
@@ -805,10 +829,19 @@
                 XMSG = 'Open failure for ' // NLDN_STRIKES
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+             n_opened_file = n_opened_file + 1
+             f_ltng = n_opened_file
              IF ( .NOT. DESC3( NLDN_STRIKES ) ) THEN
                 XMSG = 'Could not get description of file  '// NLDN_STRIKES 
                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
+
+             file_sdate(f_ltng) = sdate3d
+             file_stime(f_ltng) = stime3d
+             file_tstep(f_ltng) = tstep3d
+             file_xcell(f_ltng) = xcell3d
+             file_ycell(f_ltng) = ycell3d
+
              n_l2d = nvars3d
              cio_LTLYRS = nlays3d
              allocate (l2d_name(n_l2d, 3), stat=stat)
@@ -834,7 +867,7 @@
           size_s2d    = s_cro_ncols * s_cro_nrows
 
           if ((cro_ncols .ne. ncols) .or. (cro_nrows .ne. nrows)) then
-             write (cio_logdev, *) ' ==d== NO ncols nrows '
+             print *, ' ==d== NO ncols nrows '
              stop
           end if
 
@@ -860,9 +893,9 @@
      &              cio_grid_data_inx(2, 0:2, n_cio_grid_vars),
      &              head_grid(n_cio_grid_vars),
      &              tail_grid(n_cio_grid_vars),
-     &              cio_grid_data_tstamp(3, 0:2, n_cio_grid_vars),
-     &              cio_grid_data(  size_c2dx * 3 * n_c2d               ! 2d met data
-     &                            + size_c2d  * 3 * n_e2d               ! 2d emis data
+     &              cio_grid_data_tstamp(2, 0:2, n_cio_grid_vars),
+     &              cio_grid_data(  size_c2dx * 3 * n_c2d                ! 2d met data
+     &                            + size_c2d  * 3 * n_e2d                ! 2d emis data
      &                            + size_c3d  * 3 * n_c3d                ! 3D met data
      &                            + size_e3d  * 3 * n_e3d                ! 3d emis data 
      &                            + size_s3d  * 3 * n_i3d                ! 3d initial condition data 
@@ -946,7 +979,7 @@
      &                (cio_grid_var_name(v,2) .eq. 'wb')) then
                 d_size = size_s2d
              else
-                write (cio_logdev, *) ' ==d== UNKNOWN'
+                print *, ' ==d== UNKNOWN'
                 stop
              end if
 
@@ -996,24 +1029,31 @@
              mb3d_name = 'mb'     ! denote met 3D boundary variable
              mb3d_name(1,1) = 'DENSA_J'
              mb3d_name(2,1) = 'JACOBM'
-             met_bc_tstep = tstep3d
           else
              n_mb3d = 0
           end if
 
 ! BCON file
-          IF ( .NOT. OPEN3( BNDY_CONC_1, FSREAD3, PNAME ) ) THEN
-             XMSG = 'Could not open '// BNDY_CONC_1 // ' file'
+          IF ( .NOT. OPEN3( BCFILE, FSREAD3, PNAME ) ) THEN
+             XMSG = 'Could not open '// BCFILE // ' file'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-          IF ( .NOT. DESC3( BNDY_CONC_1 ) ) THEN
-             XMSG = 'Could not get description of file  '// BNDY_CONC_1 
+          n_opened_file = n_opened_file + 1
+          f_bcon = n_opened_file
+          IF ( .NOT. DESC3( BCFILE ) ) THEN
+             XMSG = 'Could not get description of file  '// BCFILE 
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
+
+          file_sdate(f_bcon) = sdate3d
+          file_stime(f_bcon) = stime3d
+          file_tstep(f_bcon) = tstep3d
+          file_xcell(f_bcon) = xcell3d
+          file_ycell(f_bcon) = ycell3d
+
           n_b3d = nvars3d
           size_b2d = (ncols3d + nrows3d + 2 * nthik3d) * 2 * nthik3d
           size_b3d = size_b2d * nlays
-          bc_tstep = tstep3d
 
           allocate (b3d_name(n_b3d, 2),
      &              cio_bc_file_var_name(nvars3d),
@@ -1089,6 +1129,7 @@
 
           Character( 40 ), parameter :: pname = 'stack_files_setup'
 
+          Character( 32 )  :: fname
           CHARACTER( 120 ) :: XMSG = ' '
           integer :: n, v, pt, max_nsrc_pts, max_nvars, begin, end, stat, delta
           integer, allocatable :: d_size(:), pt_size(:),
@@ -1099,9 +1140,6 @@
      &              n_cio_stack_emis_vars(NPTGRPS), 
      &              n_cio_stack_emis_lays(NPTGRPS), 
      &              n_cio_stack_emis_pts(NPTGRPS),
-     &              cio_stack_emis_sdate(NPTGRPS),
-     &              cio_stack_emis_stime(NPTGRPS),
-     &              cio_stack_emis_sdate_normal(NPTGRPS),
      &              STKGNAME(NPTGRPS),
      &              d_size(NPTGRPS),
      &              pt_size(NPTGRPS),
@@ -1128,6 +1166,7 @@
                 XMSG = 'Could not open '// TRIM( STKGNAME( N ) ) // ' file'
                 call m3exit (pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
              END IF
+             n_opened_file = n_opened_file + 1
 
              IF ( .NOT. DESC3( STKGNAME( N ) ) ) THEN
                 XMSG = 'Could not get ' // TRIM( STKGNAME( N ) ) // ' file description'
@@ -1149,6 +1188,7 @@
           allocate (xloca(max_nsrc_pts, NPTGRPS),
      &              yloca(max_nsrc_pts, NPTGRPS),
      &              stkid(max_nsrc_pts, NPTGRPS),
+     &              f_stk_emis(NPTGRPS),
      &              stat = stat)
           if (stat .ne. 0) then
              xmsg = 'Failure allocating other stack group variable arrays'
@@ -1237,18 +1277,28 @@
                 XMSG = 'Could not open '// TRIM( cio_stack_file_name( pt ) ) // ' file'
                 CALL M3MESG( XMSG )
              END IF
+             n_opened_file = n_opened_file + 1
+             f_stk_emis(pt) = n_opened_file
 
              IF ( .NOT. DESC3( cio_stack_file_name( pt ) ) ) THEN
                 XMSG = 'Could not get ' // TRIM( cio_stack_file_name( pt ) ) // ' file description'
                 CALL M3MESG( XMSG )
              END IF
+
              n_cio_stack_emis_vars(pt) = nvars3d
              n_cio_stack_emis_lays(pt) = nlays3d
              n_cio_stack_emis_pts(pt)  = nrows3d
-             cio_stack_emis_sdate(pt)  = sdate3d
-             cio_stack_emis_stime(pt)  = stime3d
 
-             cio_stack_emis_sdate_normal(pt) = .true.
+             file_sdate(f_stk_emis(pt)) = sdate3d
+             file_stime(f_stk_emis(pt)) = stime3d
+             file_tstep(f_stk_emis(pt)) = tstep3d
+             file_xcell(f_stk_emis(pt)) = xcell3d
+             file_ycell(f_stk_emis(pt)) = ycell3d
+
+! Check whether file is a representative day type
+             write (fname, '(a16, i3.3)') "STK_EM_SYM_DATE_", pt 
+             call get_env(file_sym_date(f_stk_emis(pt)), fname, 
+     &                    file_sym_date(f_stk_emis(pt)), logdev)             
 
              if (max_nvars .lt. nvars3d) then
                 max_nvars = nvars3d
@@ -1326,6 +1376,7 @@
              XMSG = 'Could not open ' // trim(biogemis_fname) // ' file'
              CALL M3MESG( XMSG )
           END IF
+          n_opened_file = n_opened_file + 1
 
           IF ( .NOT. DESC3( biogemis_fname ) ) THEN
              XMSG = 'Could not get ' // trim(biogemis_fname) // ' file description'
@@ -1385,6 +1436,7 @@ C Read the various categories of normalized emissions
              MESG = 'Could not open ' // trim(fname) // ' file '
              CALL M3MESG( MESG )
           END IF
+          n_opened_file = n_opened_file + 1
 
           VAR = 'AVG_NOAG_GROW'
           IF ( .NOT. XTRACT3( fname, VAR,
@@ -1441,6 +1493,7 @@ C Read the various categories of normalized emissions
              mesg = 'Could not open ' // trim(E2C_LU) // ' file'
              CALL M3MESG( mesg )
           END IF
+          n_opened_file = n_opened_file + 1
 
           Do k = 1, e2c_cats
              vname = BELD_Names(k)
@@ -1458,6 +1511,7 @@ C Read the various categories of normalized emissions
             mesg = 'Could not open '// E2C_SOIL // ' file'
             Call M3exit ( pname, 0, 0, mesg, xstat1 )
           End If
+          n_opened_file = n_opened_file + 1
 
           vname = 'L1_PH'
           If ( .Not. Xtract3 ( E2C_SOIL, vname, 1, e2c_cats, STRTROWSTD, ENDROWSTD, 
@@ -1538,6 +1592,7 @@ C Read the various categories of normalized emissions
              mesg = 'Could not open '// E2C_CHEM // ' file'
              Call M3exit ( pname, 0, 0, mesg, xstat1 )
           End If
+          n_opened_file = n_opened_file + 1
 
           IF ( .NOT. DESC3( E2C_CHEM ) ) THEN
              MESG = 'Could not get description of file "' //
@@ -1728,6 +1783,7 @@ C Read the various categories of normalized emissions
                    mesg = 'Could not open '// E2C_CHEM_YEST // ' file'
                    Call M3exit ( pname, 0, 0, mesg, xstat1 )
                 End If
+                n_opened_file = n_opened_file + 1
 
                 IF ( .NOT. DESC3( E2C_CHEM_YEST ) ) THEN
                    MESG = 'Could not get description of file "' //
@@ -1802,6 +1858,7 @@ C Read the various categories of normalized emissions
           end if
 
           if (dust_lu_avail) then
+             n_opened_file = n_opened_file + 1
 ! Read in 17 species crop land fraction
              do m = 1, nlcrp
                 if ( .not. xtract3( dust_lu_1, crop_vnmld( m ), 1, 1,
@@ -1821,6 +1878,7 @@ C Read the various categories of normalized emissions
                    xmsg = 'Could not open ' // crname( i )
                    call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
                 end if
+                n_opened_file = n_opened_file + 1
              end do
 
 ! Read crop calendar: 1 = begin planting, 2 = end planting, 3 = end harvesting
@@ -1857,6 +1915,7 @@ C Read the various categories of normalized emissions
              XMSG = 'Open failure for ' // INIT_MEDC_1
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
+          n_opened_file = n_opened_file + 1
 
           DO v = 1, Hg_TOT
             IF ( .NOT. Xtract3( INIT_MEDC_1, MEDIA_NAMES( V ), 1, 1, 
@@ -1901,6 +1960,7 @@ C Read the various categories of normalized emissions
                 mesg = 'Open failure for ' // SOILINP
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
              END IF
+             n_opened_file = n_opened_file + 1
 
 ! Get description of NO rain data file
              IF ( .NOT. DESC3( SOILINP ) ) THEN
@@ -1998,6 +2058,72 @@ C Read the various categories of normalized emissions
                CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
+#ifdef twoway
+          IF ( .NOT. INTERPX( GRID_CRO_2D, 'MSFX2', PNAME,
+     &                        STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1,
+     &                        0, 0, MSFX2 ) ) THEN
+             XMSG = ' Error interpolating variable MSFX2 from ' // GRID_CRO_2D
+             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          IF ( .NOT. INTERPX( GRID_CRO_2D, 'LWMASK', PNAME,
+     &                        STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1, 
+     &                        0, 0, LWMASK ) ) THEN
+             XMSG = ' Error interpolating variable LWMASK from ' // GRID_CRO_2D
+             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          IF ( .NOT. INTERPX( GRID_CRO_2D, 'HT', PNAME,
+     &                        STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1 ,
+     &                        0, 0, HT ) ) THEN
+             XMSG = ' Error interpolating variable HT from ' // GRID_CRO_2D
+             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          IF ( .NOT. INTERPX( GRID_CRO_2D, 'LAT', PNAME, 
+     &                        STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1 ,
+     &                        0, 0, LAT ) ) THEN
+             XMSG = ' Error interpolating variable LAT from ' // GRID_CRO_2D
+             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          IF ( .NOT. INTERPX( GRID_CRO_2D, 'LON', PNAME,
+     &                        STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1 ,
+     &                        0, 0, LON ) ) THEN
+             XMSG = ' Error interpolating variable LON from ' // GRID_CRO_2D
+             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          IF ( .NOT. INTERPX( GRID_CRO_2D, 'PURB', PNAME,
+     &                        STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1 ,
+     &                        0, 0, PURB ) ) THEN
+             XMSG = ' Error interpolating variable PURB from ' // GRID_CRO_2D
+             Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          IF ( .NOT. LUCRO_AVAIL ) THEN
+
+             CALL INIT_LSM( 0, 0 )
+
+             allocate (LUFRAC(ncols, nrows, n_lufrac), STAT=STAT)
+             IF ( STAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating LUFRAC array'
+                  CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
+             END IF
+
+             DO l = 1, n_lufrac
+                Write( vname,'( "LUFRAC_",I2.2 )' ) l
+                IF ( .Not. INTERPX( GRID_CRO_2D, VNAME, PNAME,
+     &                              STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2, 1, 1,
+     &                              0, 0, LUFRAC( :,:,l ) ) ) THEN
+                   XMSG = 'Error interpolating variable' // TRIM( VNAME ) // ' from ' // GRID_CRO_2D
+                   Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+                END IF
+             END DO
+
+          END IF
+
+#else
           IF ( .NOT. XTRACT3( GRID_CRO_2D, 'MSFX2',
      &                        1, 1, STRTROWGC2, ENDROWGC2, STRTCOLGC2, ENDCOLGC2, 
      &                        0, 0, MSFX2 ) ) THEN
@@ -2061,7 +2187,7 @@ C Read the various categories of normalized emissions
              END DO
 
           END IF
-
+#endif
         end subroutine retrieve_grid_cro_2d_data
 
 ! -------------------------------------------------------------------------
@@ -2114,13 +2240,21 @@ C Read the various categories of normalized emissions
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
           END IF
 
+#ifdef twoway
+          IF ( .NOT. INTERPX( GRID_DOT_2D, 'MSFD2', PNAME, 
+     &                        STRTCOLGD2, ENDCOLGD2,STRTROWGD2, ENDROWGD2, 1, 1,
+     &                        0, 0, MSFD2 ) ) THEN
+             XMSG = 'Could not interpolate MSFD2 from ' // GRID_DOT_2D
+             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+          END IF
+#else
           IF ( .NOT. XTRACT3( GRID_DOT_2D, 'MSFD2',
      &                        1, 1, STRTROWGD2, ENDROWGD2, STRTCOLGD2, ENDCOLGD2, 
      &                        0, 0, MSFD2 ) ) THEN
              XMSG = 'Could not interpolate MSFD2 from ' // GRID_DOT_2D
              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-
+#endif
         end subroutine retrieve_grid_dot_2d_data
 
 ! -------------------------------------------------------------------------
@@ -2149,6 +2283,7 @@ C Read the various categories of normalized emissions
                 XMSG = 'Could not open ' // OCEAN_1
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              ELSE 
+                n_opened_file = n_opened_file + 1
                 IF ( .NOT. XTRACT3( OCEAN_1, 'OPEN',
      &                        1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                        0, 0, ocean ) ) Then
@@ -2206,12 +2341,10 @@ C Read the various categories of normalized emissions
         end subroutine retrieve_ocean_data
 
 ! -------------------------------------------------------------------------
-        subroutine retrieve_ltng_param_data (jdate, jtime)
+        subroutine retrieve_ltng_param_data 
 
           USE UTILIO_DEFN
           USE HGRD_DEFN
-
-          integer, intent(in) :: jdate, jtime
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
@@ -2238,6 +2371,7 @@ C Read the various categories of normalized emissions
              XMSG = 'Open failure for ' // LTNGPARMS_FILE
              Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
+          n_opened_file = n_opened_file + 1
 
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "OCNMASK", 1, 1,
      &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
@@ -2307,17 +2441,15 @@ C Read the various categories of normalized emissions
 
           LOGICAL :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations, iter,
-     &               loc_jdate, loc_jdate_met, loc_emis_jdate, loc_jtime,
-     &               loc_jtime_met, data_jdate, data_jtime, t_time,
-     &               bs_tjdate, wb_tjdate, v, beg_v, end_v, fnum, str_len, 
-     &               bs_tjtime, wb_tjtime, wb_pre_begin, wb_pre_end
-          integer, allocatable :: tdata(:)
+     &               data_jdate, data_jtime, t_time,
+     &               v, beg_v, end_v, fnum, str_len 
+          integer, allocatable :: tdata(:), loc_jdate(:), loc_jtime(:)
           character (16) :: loc_vname
           logical :: advanced
 
-       integer :: ss, ee
-
           CHARACTER( 120 ) :: XMSG = ' '
+
+          allocate (loc_jdate(n_opened_file), loc_jtime(n_opened_file), STAT=STAT)
 
           if (firstime) then
 
@@ -2327,14 +2459,21 @@ C Read the various categories of normalized emissions
                 XMSG = 'Failure allocating SLTYP array'
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT3 )
              END IF
-
+#ifdef twoway
+             If ( .Not. INTERPX( MET_CRO_2D, 'SLTYP', PNAME, 
+     &                           STRTCOLMC2, ENDCOLMC2,STRTROWMC2, ENDROWMC2, 1, 1,
+     &                           jdate, jtime, SOILCAT_A ) ) THEN
+                XMSG = ' Error interpolating variable SLTYP from ' // MET_CRO_2D
+                Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+             END IF
+#else
              If ( .Not. XTRACT3( MET_CRO_2D, 'SLTYP',
      &                           1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
      &                           jdate, jtime, SOILCAT_A ) ) THEN
-                XMSG = ' Error interpolating variable MSFX2 from ' // GRID_CRO_2D
+                XMSG = ' Error interpolating variable SLTYP from ' // MET_CRO_2D
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
-
+#endif
              head_grid = -1
              tail_grid = -1
 
@@ -2354,38 +2493,37 @@ C Read the various categories of normalized emissions
              end_v = n_cio_grid_vars
           end if
 
-          loc_jdate     = jdate
-          loc_jdate_met = jdate
-          loc_jtime     = jtime
-          loc_jtime_met = jtime
+          loc_jdate = jdate
+          loc_jtime = jtime
 
-          advanced = .false.
           do iter = 1, iterations
              do v = beg_v, end_v
                 buf_loc = mod((tail_grid(v) + iter), 2)
-
-                data_jdate = loc_jdate
-                if (cio_grid_var_name(v,3) == 'm') then
-                   data_jtime = loc_jtime_met
-                else
-                   data_jtime = loc_jtime
-                end if
-
-                cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
-                cio_grid_data_tstamp(2, buf_loc, v) = data_jtime
 
                 begin = cio_grid_data_inx(1,buf_loc,v)
                 end   = cio_grid_data_inx(2,buf_loc,v)
 
                 if (cio_grid_var_name(v,2) == 'mc2') then
 
+                   data_jdate = loc_jdate(f_met)
+                   data_jtime = loc_jtime(f_met)
+
                    if ((cio_grid_var_name(v,1) .ne. 'TSEASFC') .or.  TSEASFC_AVAIL) then
+#ifdef twoway
+                      IF ( .NOT. INTERPX( MET_CRO_2D, cio_grid_var_name(v,1), PNAME, 
+     &                                    STRTCOLMC2x, ENDCOLMC2x, STRTROWMC2x, ENDROWMC2x, 1, 1,
+     &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
+                         XMSG = 'Could not extract ' // MET_CRO_2D // ' file'
+                         CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
+                      END IF
+#else
                       IF ( .NOT. XTRACT3( MET_CRO_2D, cio_grid_var_name(v,1), 
      &                                    1, 1, STRTROWMC2x, ENDROWMC2x, STRTCOLMC2x, ENDCOLMC2x, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                          XMSG = 'Could not extract ' // MET_CRO_2D // ' file'
                          CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                       END IF
+#endif
                    END IF
 
 ! deal with convective scheme
@@ -2406,40 +2544,59 @@ C Read the various categories of normalized emissions
 
                 else if (cio_grid_var_name(v,2) == 'mc3') then
 
+                   data_jdate = loc_jdate(f_met)
+                   data_jtime = loc_jtime(f_met)
+#ifdef twoway
+                   IF ( .NOT. INTERPX( MET_CRO_3D, cio_grid_var_name(v,1), PNAME, 
+     &                                 STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3, 1, nlays, 
+     &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
+                      XMSG = 'Could not extract ' // MET_CRO_3D // ' file'
+                      CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
+                   END IF
+#else
                    IF ( .NOT. XTRACT3( MET_CRO_3D, cio_grid_var_name(v,1), 
      &                                 1, nlays, STRTROWMC3, ENDROWMC3, STRTCOLMC3, ENDCOLMC3, 
      &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // MET_CRO_3D // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                    END IF
-
+#endif
                 else if (cio_grid_var_name(v,2) == 'md3') then
 
+                   data_jdate = loc_jdate(f_met)
+                   data_jtime = loc_jtime(f_met)
+#ifdef twoway
+                   IF ( .NOT. INTERPX( MET_DOT_3D, cio_grid_var_name(v,1), PNAME,
+     &                                 STRTCOLMD3x, ENDCOLMD3x, STRTROWMD3x, ENDROWMD3x, 1, nlays, 
+     &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
+                      XMSG = 'Could not extract ' // MET_DOT_3D // ' file'
+                      CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
+                   END IF
+#else
                    IF ( .NOT. XTRACT3( MET_DOT_3D, cio_grid_var_name(v,1), 
      &                                 1, nlays, STRTROWMD3x, ENDROWMD3x, STRTCOLMD3x, ENDCOLMD3x, 
      &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // MET_DOT_3D // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                    END IF
-
+#endif
                 else if (cio_grid_var_name(v,2) == 'e2d') then
 
                    str_len = len_trim(cio_grid_var_name(v,1))
                    read (cio_grid_var_name(v,1)(str_len-2:str_len), *) fnum
                    loc_vname = cio_grid_var_name(v,1)(1:str_len-4)
 
-                   ! if not initial step to setup the entire circular buffer and jdate is not the same in the file
-                   if ((iterations .ne. 2) .and. (jdate .ne. cio_emis_file_date(fnum))) then
-!                      cio_emis_file_date(fnum) = cio_emis_file_date(fnum) + 1  ! advance to next day
-                      cio_emis_file_date(fnum) = next_day(cio_emis_file_date(fnum)) ! advance to next day
+                   data_jdate = loc_jdate(f_emis(fnum))
+                   ! Check if its a representative day on start-up (every other time it will
+                   ! be managed by the emissions processing) 
+                   if (firstime) then  
+                     if (file_sym_date(f_emis(fnum))) loc_jdate(f_emis(fnum)) = file_sdate(f_emis(fnum))
                    end if
-                   loc_emis_jdate = cio_emis_file_date(fnum)
-
-                   cio_grid_data_tstamp(1, buf_loc, v) = loc_emis_jdate
+                   data_jtime = loc_jtime(f_emis(fnum))
 
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
      &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
-     &                                 loc_emis_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
+     &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                    END IF
@@ -2450,19 +2607,17 @@ C Read the various categories of normalized emissions
                    read (cio_grid_var_name(v,1)(str_len-2:str_len), *) fnum
                    loc_vname = cio_grid_var_name(v,1)(1:str_len-4)
 
-                   ! if not initial step to setup the entire circular buffer and jdate is not the same in the file
-                   if ((iterations .ne. 2) .and. (jdate .ne. cio_emis_file_date(fnum))) then
-!                      cio_emis_file_date(fnum) = cio_emis_file_date(fnum) + 1  ! advance to next day
-                      cio_emis_file_date(fnum) = next_day(cio_emis_file_date(fnum)) ! advance to next day
+                   data_jdate = loc_jdate(f_emis(fnum))
+                   ! Check if its a representative day on start-up (every other time it will
+                   ! be managed by the emissions processing) 
+                   if (firstime) then  
+                     if (file_sym_date(f_emis(fnum))) loc_jdate(f_emis(fnum)) = file_sdate(f_emis(fnum))
                    end if
-
-                   loc_emis_jdate = cio_emis_file_date(fnum)
-
-                   cio_grid_data_tstamp(1, buf_loc, v) = loc_emis_jdate
+                   data_jtime = loc_jtime(f_emis(fnum))
 
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
      &                                 1, cio_emis_file_layer(fnum), STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
-     &                                 loc_emis_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
+     &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
                       XMSG = 'Could not extract ' // cio_emis_file_name(fnum) // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                    END IF
@@ -2470,6 +2625,10 @@ C Read the various categories of normalized emissions
                 else if (cio_grid_var_name(v,2) == 'ic') then
 
                    if (iter == 1) then
+
+                      data_jdate = loc_jdate(f_icon)
+                      data_jtime = loc_jtime(f_icon)
+
                       IF ( .NOT. XTRACT3( ICFILE, cio_grid_var_name(v,1),
      &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
@@ -2481,6 +2640,10 @@ C Read the various categories of normalized emissions
                 else if (cio_grid_var_name(v,2) == 'is') then
 
                    if ((iter == 1) .and. (ISAM_NEW_START == 'N')) then
+
+                      data_jdate = loc_jdate(f_is_icon)
+                      data_jtime = loc_jtime(f_is_icon)
+
                       IF ( .NOT. XTRACT3( ISAM_PREVDAY, cio_grid_var_name(v,1),
      &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
@@ -2491,6 +2654,9 @@ C Read the various categories of normalized emissions
 
                 else if (cio_grid_var_name(v,2) == 'lnt') then
 
+                   data_jdate = loc_jdate(f_ltng)
+                   data_jtime = loc_jtime(f_ltng)
+
                    IF ( .NOT. XTRACT3( NLDN_STRIKES, cio_grid_var_name(v,1), 
      &                                 1, cio_LTLYRS, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                                 data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
@@ -2500,21 +2666,14 @@ C Read the various categories of normalized emissions
 
                 else if (cio_grid_var_name(v,2) == 'bs') then
 
-                   if (iter .eq. 1) then
-                      bs_tjdate = data_jdate
-                      bs_tjtime = 0
-                   else
-                      if (.not. advanced) then
-                         CALL NEXTIME ( bs_tjdate, bs_tjtime, 240000 )
-                         advanced = .true.
-                      end if
-                   end if
+                   data_jdate = loc_jdate(f_bios)
+                   data_jtime = 0
 
                    allocate (tdata((ENDCOLSTD-STRTCOLSTD+1)*(ENDROWSTD-STRTROWSTD+1)), stat=stat)
 
                    IF ( .NOT. XTRACT3( bio_season_fname, 'SEASON',
      &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
-     &                                 bs_tjdate, bs_tjtime, tdata) ) then
+     &                                 data_jdate, data_jtime, tdata) ) then
                       XMSG = 'Could not extract ' // bio_season_fname // ' file'
                       CALL M3EXIT ( PNAME, data_jdate, data_jtime, XMSG, XSTAT1 )
                    END IF
@@ -2524,9 +2683,13 @@ C Read the various categories of normalized emissions
                    deallocate (tdata)
 
                 else
-                   write (cio_logdev, *) ' ==d== Unknown type of file'
+                   print *, ' ==d== Unknown type of file'
                    stop
                 end if
+
+                cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
+                cio_grid_data_tstamp(2, buf_loc, v) = data_jtime
+
              end do
 
 ! assign TEMPG to TSEASFC when TSEASFC is not available in the input file
@@ -2538,8 +2701,22 @@ C Read the various categories of normalized emissions
                 cio_grid_data(i:j) = cio_grid_data(begin:end)
              end if
 
-             CALL NEXTIME ( loc_jdate, loc_jtime, cio_data_tstep )
-             CALL NEXTIME ( loc_jdate_met, loc_jtime_met, cio_data_tstep_met )
+             CALL NEXTIME ( loc_jdate(f_met), loc_jtime(f_met), file_tstep(f_met) )
+             if (BIOGEMIS_SEASON) then
+                 CALL NEXTIME ( loc_jdate(f_bios), loc_jtime(f_bios), file_tstep(f_bios) )
+             end if
+             if (cio_LTNG_NO) then
+                 CALL NEXTIME ( loc_jdate(f_ltng), loc_jtime(f_ltng), file_tstep(f_ltng) )
+             end if
+             CALL NEXTIME ( loc_jdate(f_bcon), loc_jtime(f_bcon), file_tstep(f_bcon) )
+
+             do i = 1, N_FILE_GR
+                CALL NEXTIME ( loc_jdate(f_emis(i)), loc_jtime(f_emis(i)), file_tstep(f_emis(i)) )
+             end do
+
+             do i = 1, NPTGRPS
+                CALL NEXTIME ( loc_jdate(f_stk_emis(i)), loc_jtime(f_stk_emis(i)), file_tstep(f_stk_emis(i)) )
+             end do
 
           end do  ! end iter
 
@@ -2553,6 +2730,8 @@ C Read the various categories of normalized emissions
                 tail_grid(v) = mod(tail_grid(v)+1, 2)
              end do
           end if
+
+          deallocate (loc_jdate, loc_jtime)
 
         end subroutine retrieve_time_dep_gridded_data
 
@@ -2629,20 +2808,20 @@ C Read the various categories of normalized emissions
                 else if ((cio_bndy_var_name(v,2) == 'bc') .or.
      &                   (cio_bndy_var_name(v,2) == 'bct')) then
 
-                   if (.not. read3 (BNDY_CONC_1, cio_bndy_var_name(v,1), -1,
+                   if (.not. read3 (BCFILE, cio_bndy_var_name(v,1), -1,
      &                              loc_jdate, loc_jtime, cio_bndy_data(begin:end) ) ) THEN
-                      XMSG = 'Could not read ' // BNDY_CONC_1 // ' file'
+                      XMSG = 'Could not read ' // BCFILE // ' file'
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jtime, XMSG, XSTAT1 )
                    END IF
                 else
-                   write (cio_logdev, *) ' ==d== Unknown type of file'
+                   print *, ' ==d== Unknown type of file'
                    stop
                 end if
 
              end do
 
-             CALL NEXTIME ( loc_jdate, loc_jtime_met, met_bc_tstep)
-             CALL NEXTIME ( loc_jdate, loc_jtime, bc_tstep)
+             CALL NEXTIME ( loc_jdate, loc_jtime_met, file_tstep(f_met))
+             CALL NEXTIME ( loc_jdate, loc_jtime, file_tstep(f_bcon))
 
           end do  ! end iter
 
@@ -2702,7 +2881,8 @@ C Read the various categories of normalized emissions
           do pt = beg_pt, end_pt
 
              if (firstime) then
-                loc_jdate = cio_stack_emis_sdate(pt)
+                loc_jdate = jdate
+                if (file_sym_date(f_stk_emis(pt))) loc_jdate = file_sdate(f_stk_emis(pt)) ! Representative day check
                 loc_jtime = jtime
              else
                 loc_jdate = jdate
@@ -2737,8 +2917,7 @@ C Read the various categories of normalized emissions
                    end if
                 end do
 
-                CALL NEXTIME ( loc_jdate, loc_jtime, cio_data_tstep )
-
+                CALL NEXTIME ( loc_jdate, loc_jtime, file_tstep(f_stk_emis(pt)) )
              end do  ! end iter
           end do
 
@@ -2781,7 +2960,9 @@ C Read the various categories of normalized emissions
           character (40), parameter :: pname = 'lus_setup'
 
           character (256) :: xmsg
-          integer :: i, err
+          integer :: i, err, strtcol1,endcol1, strtrow1, endrow1,
+     &               strtcol2, endcol2, strtrow2, endrow2, gxoff1,
+     &               gyoff1, gxoff2, gyoff2
 
           if ( dust_land_scheme .eq. 'BELD3' ) then
              isbeld = .true.
@@ -2802,7 +2983,13 @@ C Read the various categories of normalized emissions
                xmsg = 'could not open ' // trim( lufile( 1 ) )
                call m3exit ( pname, 0, 0, xmsg, xstat1 )
             end if
+            n_opened_file = n_opened_file + 1
 
+            ! Retrieve domain decomposition offsets for first lufile 
+            call subhfile( lufile( 1 ), gxoff1, gyoff1, strtcol1, 
+     &                     endcol1, strtrow1, endrow1 )   
+ 
+          
           end if
 
          if ( isbeld ) then  ! get the 2nd file (currently same as 1st for BELD4)
@@ -2811,7 +2998,12 @@ C Read the various categories of normalized emissions
                xmsg = 'could not open ' // trim( lufile( 2 ) )
                call m3exit ( pname, 0, 0, xmsg, xstat1 )
             end if
+            n_opened_file = n_opened_file + 1
 
+            ! Retrieve domain decomposition offsets for second lufile 
+            call subhfile ( lufile( 2 ), gxoff2, gyoff2, strtcol2,
+     &                      endcol2, strtrow2, endrow2 )   
+ 
          end if
 
           if ( .not. isbeld ) then   ! determine land_scheme from GRID_CRO_2D
@@ -3014,38 +3206,68 @@ C   mminlu and num_land_cat are WRF global variables
 
 ! Get desert land (fraction) data (assume if BELD, all desert types are in file 1)
             do i = 1, n_dlcat
+#ifdef twoway
+               if ( .not. interpx( lufile( 1 ), vnmld( i )%name, pname,
+     &                             strtcol1, endcol1, strtrow1, endrow1,
+     &                             1, 1, 0, 0, ladut( :,:,i ) ) ) then
+                  xmsg = 'Could not read ' // trim( vnmld( i )%name )
+     &                 // ' from ' // trim( lufile( 1 ) )
+                  call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+               end if
+#else
                if ( .not. xtract3( lufile( 1 ), vnmld( i )%name, 1,1,
-     &                             STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                             strtrow1, endrow1,strtcol1, endcol1,
      &                             0, 0, ladut( :,:,i ) ) ) then
                   xmsg = 'Could not read ' // trim( vnmld( i )%name )
      &                 // ' from ' // trim( lufile( 1 ) )
                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
                end if
+#endif    
             end do
 
 ! Get land  use (fraction) data
             do i = 1, n_lucat-1
+#ifdef twoway
+               if ( .not. interpx( lufile( 1 ), vnmlu( i )%name, pname,
+     &                             strtcol1, endcol1, strtrow1, endrow1,
+     &                             1, 1, 0, 0, lut( :,:,i ) ) ) then
+                  xmsg = 'Could not read ' // trim( vnmlu( i )%name )
+     &                 // ' from ' // trim( lufile( 1 ) )
+                  call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+               end if
+#else
                if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
-     &                             STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                             strtrow1, endrow1,strtcol1, endcol1,
      &                             0, 0, lut( :,:,i ) ) ) then
                   xmsg = 'Could not read ' // trim( vnmlu( i )%name )
      &                 // ' from ' // trim( lufile( 1 ) )
                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
                end if
+#endif 
             end do
 
             i = n_lucat
             if ( .not. isbeld ) then
+#ifdef twoway
+               if ( .not. interpx( lufile( 1 ), vnmlu( i )%name, pname, 
+     &                             strtcol1, endcol1, strtrow1, endrow1,
+     &                             1, 1, 0, 0, lut( :,:,i ) ) ) then
+                  xmsg = 'Could not read ' // trim( vnmlu( i )%name )
+     &                 // ' from ' // trim( lufile( 1 ) )
+                  call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
+               end if
+#else
                if ( .not. xtract3( lufile( 1 ), vnmlu( i )%name, 1,1,
-     &                             STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                             strtrow1, endrow1,strtcol1, endcol1,
      &                             0, 0, lut( :,:,i ) ) ) then
                   xmsg = 'Could not read ' // trim( vnmlu( i )%name )
      &                 // ' from ' // trim( lufile( 1 ) )
                   call m3exit( pname, cio_model_sdate, cio_model_stime, xmsg, xstat1 )
                end if
+#endif 
             else
                if ( .not. xtract3( lufile( 2 ), vnmlu( i )%name, 1,1,
-     &                             STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                             strtrow2, endrow2, strtcol2, endcol2,
      &                             0, 0, lut( :,:,i ) ) ) then
                   xmsg = 'Could not read ' // trim( vnmlu( i )%name )
      &                 // ' from ' // trim( lufile( 2 ) )
@@ -3108,10 +3330,15 @@ C   mminlu and num_land_cat are WRF global variables
                       Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
                       E2C_CHEM_AVAIL = .false.
                    END IF
+                   n_opened_file = n_opened_file + 1
                 else
                    E2C_CHEM_AVAIL = .false.
                 end if
              END IF
+
+             if (MEDC_AVAIL) then
+                n_opened_file = n_opened_file + 1
+             end if
 
              call gridded_files_setup
 
@@ -3158,7 +3385,7 @@ C   mminlu and num_land_cat are WRF global variables
              call retrieve_ocean_data
 
              if (cio_LTNG_NO) then
-                call retrieve_ltng_param_data (cio_model_sdate, cio_model_stime)
+                call retrieve_ltng_param_data 
              end if
 
           end if
@@ -3168,7 +3395,7 @@ C   mminlu and num_land_cat are WRF global variables
           call retrieve_boundary_data (cio_model_sdate, cio_model_stime)
 
           call retrieve_stack_data (cio_model_sdate, cio_model_stime)
-
+        
         end subroutine centralized_io_init
  
 !-----------------------------------------------------------------------
@@ -3258,6 +3485,7 @@ C   mminlu and num_land_cat are WRF global variables
               XMSG = 'Could not open '// FILENAMES( IFILE ) // ' file'
              CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
           END IF
+          n_opened_file = n_opened_file + 1
          
           ! Retrieve File Header Information
           IF ( .NOT. DESC3( FILENAMES( IFILE ) ) ) THEN
@@ -3336,6 +3564,7 @@ C   mminlu and num_land_cat are WRF global variables
 
         END DO ! IFILE
       END IF
+      
       EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
       EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
       
@@ -3484,112 +3713,9 @@ C   mminlu and num_land_cat are WRF global variables
       END SUBROUTINE READ_EMISS_NAMELIST  
 
 ! -------------------------------------------------------------------------
-        subroutine r_interpolate_var_1dx (vname, date, time, data)
-
-          USE UTILIO_DEFN
-          use HGRD_DEFN, only : ncols, nrows
-          USE VGRD_DEFN, ONLY : NLAYS
-
-          character (*), intent(in) :: vname
-          integer, intent(in)       :: date, time
-          real, intent(out)         :: data(:)
-
-          integer :: head_beg_ind, head_end_ind,
-     &               tail_beg_ind, tail_end_ind,
-     &               store_beg_ind, store_end_ind,
-     &               var_loc, loc_head, loc_tail, m, r, c,
-     &               loc_jdate, loc_jtime, dsize, loc_date,
-     &               str_len, fnum, loc_tstep
-          integer, save :: prev_time = -1
-          integer, save :: prev_head_time = -1
-          integer, save :: lcount = 0
-          real, save :: ratio1, ratio2
-
-          var_loc = binary_search (vname, cio_grid_var_name(:,1), n_cio_grid_vars)
-          dsize = size(data)
-
-          if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in any 2D file.'
-          else
-             loc_head = head_grid(var_loc)
-             loc_tail = tail_grid(var_loc)
-
-             if (cio_grid_var_name(var_loc,3) == 'm') then
-                loc_tstep = cio_data_tstep_met
-             else
-                loc_tstep = cio_data_tstep
-             end if
-
-             if ((cio_grid_var_name(var_loc,2) == 'e2d') .or.
-     &           (cio_grid_var_name(var_loc,2) == 'e3d')) then
-
-                str_len = len_trim(cio_grid_var_name(var_loc,1))
-                read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
-
-                loc_date = cio_emis_file_date(fnum)
-             else
-                loc_date = date
-             end if
-
-             if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. loc_date) .or.
-     &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
-
-                loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
-                loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
-                CALL NEXTIME ( loc_jdate, loc_jtime, loc_tstep )
-                call retrieve_time_dep_gridded_data (loc_jdate, loc_jtime, vname)
-                loc_head = head_grid(var_loc)
-                loc_tail = tail_grid(var_loc)
-             end if
-
-             if ((cio_grid_data_tstamp(1, 2, var_loc) .eq. loc_date) .and.
-     &           (cio_grid_data_tstamp(2, 2, var_loc) .eq. time)) then
-                count = count + 1
-             else
-
-                cio_grid_data_tstamp(1, 2, var_loc) = loc_date
-                cio_grid_data_tstamp(2, 2, var_loc) = time
-
-                if ((prev_time .ne. time) .or.
-     &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc))) then
-                   if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. loc_date) then
-                      ratio2 =   real(time_diff(time, cio_grid_data_tstamp(2, loc_head, var_loc))) 
-     &                         / real(time_to_sec(loc_tstep))
-                      ratio1 = 1.0 - ratio2
-                   else
-                      ratio2 =   real(time_diff(240000, cio_grid_data_tstamp(2, loc_head, var_loc))) 
-     &                         / real(time_to_sec(loc_tstep))
-                      ratio1 = 1.0 - ratio2
-                   end if
-                   prev_time = time
-                   prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
-                else
-                   lcount = lcount + 1
-                end if
-
-                head_beg_ind  = cio_grid_data_inx(1,loc_head,var_loc)
-                head_end_ind  = cio_grid_data_inx(2,loc_head,var_loc)
-                tail_beg_ind  = cio_grid_data_inx(1,loc_tail,var_loc)
-                tail_end_ind  = cio_grid_data_inx(2,loc_tail,var_loc)
-                store_beg_ind = cio_grid_data_inx(1,2,var_loc)
-                store_end_ind = cio_grid_data_inx(2,2,var_loc)
-
-                cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
-     &                                                       + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
-
-             end if
- 
-             store_beg_ind = cio_grid_data_inx(1,2,var_loc)
-
-             data = cio_grid_data(store_beg_ind:store_beg_ind+dsize-1)
-
-          end if
-
-        end subroutine r_interpolate_var_1dx
-
-! -------------------------------------------------------------------------
         subroutine r_interpolate_var_1ds (fname, vname, date, time, data)
+
+! Function: Interpolation for Stack Group 4 byte Real 1-D Data
 
           USE UTILIO_DEFN
           USE STK_PRMS, only : MY_STRT_SRC, MY_END_SRC
@@ -3605,6 +3731,7 @@ C   mminlu and num_land_cat are WRF global variables
      &               loc_jdate, loc_jtime, dsize, pt, loc_tstep
           integer, save :: prev_time = -1
           integer, save :: prev_head_time = -1
+          integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
 
@@ -3614,14 +3741,11 @@ C   mminlu and num_land_cat are WRF global variables
 
           if (var_loc .lt. 0) then
              write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in a stack file.'
+             stop 
           else
              dsize = MY_END_SRC( pt ) - MY_STRT_SRC( pt ) + 1
 
-             if (cio_grid_var_name(var_loc,3) == 'm') then
-                loc_tstep = cio_data_tstep_met
-             else
-                loc_tstep = cio_data_tstep
-             end if
+             loc_tstep = file_tstep(f_stk_emis(pt)) 
 
              loc_head = head_stack_emis(var_loc, pt)
              loc_tail = tail_stack_emis(var_loc, pt)
@@ -3649,7 +3773,9 @@ C   mminlu and num_land_cat are WRF global variables
                 cio_stack_emis_data_tstamp(2, 2, var_loc, pt) = time
 
                 if ((prev_time .ne. time) .or.
-     &              (prev_head_time .ne. cio_stack_emis_data_tstamp(2, loc_head, var_loc, pt))) then
+     &              (prev_head_time .ne. cio_stack_emis_data_tstamp(2, loc_head, var_loc, pt)) .or.
+     &              (prev_tail_time .ne. cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt))) then
+
                    if (cio_stack_emis_data_tstamp(1, loc_head, var_loc, pt) .eq. date) then
                       ratio2 =   real(time_diff(time, cio_stack_emis_data_tstamp(2, loc_head, var_loc, pt))) 
      &                         / real(time_to_sec(loc_tstep))
@@ -3661,6 +3787,23 @@ C   mminlu and num_land_cat are WRF global variables
                    end if
                    prev_time = time
                    prev_head_time = cio_stack_emis_data_tstamp(2, loc_head, var_loc, pt)
+                   prev_tail_time = cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt)
+                   
+                   if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
+     &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
+                      write(logdev,'(5X,a,a)'),
+     &               'ERROR: Incorrect Interpolation in 1-D Stack Interpolation for variable: ',
+     &                trim(vname)
+                     
+                     write(logdev,'(5X,a,i7,a,i6)'), 
+     &               'Requested TIME & DATE: ',date,':',time
+                     
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+     &               'Interpolation Bounds ',cio_stack_emis_data_tstamp(1,0,var_loc,pt),
+     &               ':',cio_stack_emis_data_tstamp(2,0,var_loc,pt),' to ',
+     &                cio_stack_emis_data_tstamp(1,1,var_loc,pt),':',cio_stack_emis_data_tstamp(2,1,var_loc,pt)
+                     call exit(2) 
+                   end if 
                 else
                    lcount = lcount + 1
                 end if
@@ -3689,6 +3832,8 @@ C   mminlu and num_land_cat are WRF global variables
         subroutine r_interpolate_var_2d (vname, date, time, data,
      &                                   scol, ecol, srow, erow, slay)
 
+! Function: Interpolation for generic 4 byte Real 2-D Data
+
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
           USE VGRD_DEFN, ONLY : NLAYS
@@ -3703,23 +3848,40 @@ C   mminlu and num_land_cat are WRF global variables
      &               store_beg_ind, store_end_ind,
      &               var_loc, loc_head, loc_tail, m, r, c,
      &               loc_jdate, loc_jtime, adj_lvl, adj1, adj2,
-     &               loc_size_spatial, loc_tstep
+     &               loc_size_spatial, loc_tstep, str_len, fnum
           integer, save :: prev_time = -1
           integer, save :: prev_head_time = -1
+          integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
 
           var_loc = binary_search (vname, cio_grid_var_name(:,1), n_cio_grid_vars)
           if (var_loc .lt. 0) then
              write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in any 2D file.'
+             stop 
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
 
              if (cio_grid_var_name(var_loc,3) == 'm') then
-                loc_tstep = cio_data_tstep_met
-             else
-                loc_tstep = cio_data_tstep
+                loc_tstep = file_tstep(f_met) 
+             else if ((cio_grid_var_name(var_loc,2) == 'e2d') .or.
+     &           (cio_grid_var_name(var_loc,2) == 'e3d')) then
+
+                str_len = len_trim(cio_grid_var_name(var_loc,1))
+                read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
+
+                loc_tstep = file_tstep(f_emis(fnum)) 
+             else if (cio_grid_var_name(var_loc,2) == 'bs') then
+                loc_tstep = file_tstep(f_bios)
+             else if (cio_grid_var_name(var_loc,2) == 'lnt') then
+                loc_tstep = file_tstep(f_ltng)
+             else if (cio_grid_var_name(var_loc,2) == 'ic') then
+                loc_tstep = file_tstep(f_icon)
+             else if (cio_grid_var_name(var_loc,2) == 'bct') then
+                loc_tstep = file_tstep(f_bcon)
+             else if (cio_grid_var_name(var_loc,2) == 'is') then
+                loc_tstep = file_tstep(f_is_icon)
              end if
 
              if (cio_grid_var_name(var_loc,2) .eq. 'md3') then
@@ -3751,7 +3913,9 @@ C   mminlu and num_land_cat are WRF global variables
                 cio_grid_data_tstamp(2, 2, var_loc) = time
 
                 if ((prev_time .ne. time) .or.
-     &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc))) then
+     &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc)) .or.
+     &              (prev_tail_time .ne. cio_grid_data_tstamp(2, loc_tail, var_loc))) then
+                
                    if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. date) then
                       ratio2 =   real(time_diff(time, cio_grid_data_tstamp(2, loc_head, var_loc))) 
      &                         / real(time_to_sec(loc_tstep))
@@ -3763,6 +3927,24 @@ C   mminlu and num_land_cat are WRF global variables
                    end if
                    prev_time = time
                    prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
+                   prev_tail_time = cio_grid_data_tstamp(2, loc_tail, var_loc)
+                   
+                   if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
+     &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
+                      write(logdev,'(5X,a,a)'),
+     &               'ERROR: Incorrect Interpolation in 2-D Generic Real Interpolation for variable: ', 
+     &                trim(vname) 
+
+                     write(logdev,'(5X,a,i7,a,i6)'), 
+     &               'Requested TIME & DATE: ',date,':',time
+                     
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+     &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
+     &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
+     &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
+                     
+                     call exit(2) 
+                   end if 
                 else
                    lcount = lcount + 1
                 end if
@@ -3822,6 +4004,8 @@ C   mminlu and num_land_cat are WRF global variables
 ! -------------------------------------------------------------------------
         subroutine i_interpolate_var_2d (vname, date, time, data)
 
+! Function: Interpolation for generic 4 byte Integer 2-D Data
+ 
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
           USE VGRD_DEFN, ONLY : NLAYS
@@ -3835,25 +4019,42 @@ C   mminlu and num_land_cat are WRF global variables
      &               store_beg_ind, store_end_ind,
      &               var_loc, loc_head, loc_tail, m, r, c,
      &               loc_jdate, loc_jtime, adj_lvl, adj1, adj2,
-     &               loc_size_spatial, loc_tstep
+     &               loc_size_spatial, loc_tstep, str_len, fnum
           integer, save :: prev_time = -1
           integer, save :: prev_head_time = -1
+          integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
 
           var_loc = binary_search (vname, cio_grid_var_name(:,1), n_cio_grid_vars)
           if (var_loc .lt. 0) then
              write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in any 2D file.'
+             stop 
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
 
              if (cio_grid_var_name(var_loc,3) == 'm') then
-                loc_tstep = cio_data_tstep_met
-             else
-                loc_tstep = cio_data_tstep
-             end if
+                loc_tstep = file_tstep(f_met) 
+             else if ((cio_grid_var_name(var_loc,2) == 'e2d') .or.
+     &           (cio_grid_var_name(var_loc,2) == 'e3d')) then
 
+                str_len = len_trim(cio_grid_var_name(var_loc,1))
+                read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
+
+                loc_tstep = file_tstep(f_emis(fnum)) 
+             else if (cio_grid_var_name(var_loc,2) == 'bs') then
+                loc_tstep = file_tstep(f_bios)
+             else if (cio_grid_var_name(var_loc,2) == 'lnt') then
+                loc_tstep = file_tstep(f_ltng)
+             else if (cio_grid_var_name(var_loc,2) == 'ic') then
+                loc_tstep = file_tstep(f_icon)
+             else if (cio_grid_var_name(var_loc,2) == 'bct') then
+                loc_tstep = file_tstep(f_bcon)
+             else if (cio_grid_var_name(var_loc,2) == 'is') then
+                loc_tstep = file_tstep(f_is_icon)
+             end if
+             
              if (cio_grid_var_name(var_loc,2) .eq. 'md3') then
                 loc_size_spatial = size_d2dx
              else
@@ -3881,7 +4082,9 @@ C   mminlu and num_land_cat are WRF global variables
                 cio_grid_data_tstamp(2, 2, var_loc) = time
 
                 if ((prev_time .ne. time) .or.
-     &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc))) then
+     &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc)) .or.
+     &              (prev_tail_time .ne. cio_grid_data_tstamp(2, loc_tail, var_loc))) then
+                
                    if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. date) then
                       ratio2 =   real(time_diff(time, cio_grid_data_tstamp(2, loc_head, var_loc))) 
      &                         / real(time_to_sec(loc_tstep))
@@ -3893,6 +4096,24 @@ C   mminlu and num_land_cat are WRF global variables
                    end if
                    prev_time = time
                    prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
+                   prev_tail_time = cio_grid_data_tstamp(2, loc_tail, var_loc) 
+
+                   if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
+     &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
+                      write(logdev,'(5X,a,a)'),
+     &               'ERROR: Incorrect Interpolation in 2-D Generic Integer Interpolation for variable: ',
+     &                trim(vname) 
+                     
+                     write(logdev,'(5X,a,i7,a,i6)'), 
+     &               'Requested TIME & DATE: ',date,':',time
+                     
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+     &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
+     &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
+     &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
+                     
+                     call exit(2) 
+                   end if 
                 else
                    lcount = lcount + 1
                 end if
@@ -3928,161 +4149,10 @@ C   mminlu and num_land_cat are WRF global variables
         end subroutine i_interpolate_var_2d
 
 ! -------------------------------------------------------------------------
-        subroutine r_interpolate_var_2dx (vname, date, time, data, flag)
-
-          USE UTILIO_DEFN
-          use HGRD_DEFN, only : ncols, nrows
-          USE VGRD_DEFN, ONLY : NLAYS
-
-          character (*), intent(in) :: vname
-          integer, intent(in)       :: date, time
-          logical, intent(in)       :: flag
-          real, intent(out)         :: data(:,:)
-
-          integer :: head_beg_ind, head_end_ind,
-     &               tail_beg_ind, tail_end_ind,
-     &               store_beg_ind, store_end_ind,
-     &               var_loc, loc_head, loc_tail, m, r, c, k, w,
-     &               beg_k, end_k,
-     &               loc_jdate, loc_jtime, adj1, adj2, adj3,
-     &               loc_ncols, loc_nrows, loc_tstep
-          integer, save :: prev_time = -1
-          integer, save :: prev_head_time = -1
-          integer, save :: lcount = 0
-          real, save :: ratio1, ratio2
-
-          var_loc = binary_search (vname, cio_grid_var_name(:,1), n_cio_grid_vars)
-          if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in any 2D file.'
-          else
-             loc_head = head_grid(var_loc)
-             loc_tail = tail_grid(var_loc)
-
-             if (cio_grid_var_name(var_loc,3) == 'm') then
-                loc_tstep = cio_data_tstep_met
-             else
-                loc_tstep = cio_data_tstep
-             end if
-
-             if (cio_grid_var_name(var_loc, 2) .eq. 'md3') then
-                loc_ncols = ENDCOLMD3x - STRTCOLMD3x + 1
-                loc_nrows = ENDROWMD3x - STRTROWMD3x + 1
-             else
-                loc_ncols = ENDCOLMC2x - STRTCOLMC2x + 1
-                loc_nrows = ENDROWMC2x - STRTROWMC2x + 1
-             end if
-
-             if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
-     &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
-
-                loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
-                loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
-                CALL NEXTIME ( loc_jdate, loc_jtime, loc_tstep )
-                call retrieve_time_dep_gridded_data (loc_jdate, loc_jtime, vname)
-                loc_head = head_grid(var_loc)
-                loc_tail = tail_grid(var_loc)
-             end if
-
-             if ((cio_grid_data_tstamp(1, 2, var_loc) .eq. date) .and.
-     &           (cio_grid_data_tstamp(2, 2, var_loc) .eq. time)) then
-                count = count + 1
-             else
-
-                cio_grid_data_tstamp(1, 2, var_loc) = date
-                cio_grid_data_tstamp(2, 2, var_loc) = time
-
-                if ((prev_time .ne. time) .or.
-     &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc))) then
-                   if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. date) then
-                      ratio2 =   real(time_diff(time, cio_grid_data_tstamp(2, loc_head, var_loc))) 
-     &                         / real(time_to_sec(loc_tstep))
-                      ratio1 = 1.0 - ratio2
-                   else
-                      ratio2 =   real(time_diff(240000, cio_grid_data_tstamp(2, loc_head, var_loc))) 
-     &                         / real(time_to_sec(loc_tstep))
-                      ratio1 = 1.0 - ratio2
-                   end if
-                   prev_time = time
-                   prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
-                else
-                   lcount = lcount + 1
-                end if
-
-                head_beg_ind  = cio_grid_data_inx(1,loc_head,var_loc)
-                head_end_ind  = cio_grid_data_inx(2,loc_head,var_loc)
-                tail_beg_ind  = cio_grid_data_inx(1,loc_tail,var_loc)
-                tail_end_ind  = cio_grid_data_inx(2,loc_tail,var_loc)
-                store_beg_ind = cio_grid_data_inx(1,2,var_loc)
-                store_end_ind = cio_grid_data_inx(2,2,var_loc)
-
-                cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
-     &                                                       + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
-
-             end if
- 
-             if (cio_grid_var_name(var_loc, 2) .eq. 'md3') then
-                loc_ncols = ENDCOLMD3x - STRTCOLMD3x + 1
-                loc_nrows = ENDROWMD3x - STRTROWMD3x + 1
-             else
-                loc_ncols = ENDCOLMC2x - STRTCOLMC2x + 1
-                loc_nrows = ENDROWMC2x - STRTROWMC2x + 1
-             end if
-
-             adj1 = 0
-             adj2 = 0
-             adj3 = 0
-             if (window) then
-                if (cio_grid_var_name(var_loc, 2) .ne. 'md3') then
-
-                   adj1 = ncols + 3
-                   if (.not. east_pe) then
-                      adj2 = 1
-                   else
-                      adj2 = 2
-                   end if
-
-                   if (north_pe .and. east_pe) then
-                      adj3 = 2 * ncols + 6
-                   else if (north_pe) then
-                      adj3 = 2 * ncols + 5
-                   else if (east_pe) then
-                      adj3 = ncols + 4
-                   else
-                      adj3 = ncols + 3
-                   end if
-                end if
-             end if
-
-             store_beg_ind = cio_grid_data_inx(1,2,var_loc)
-             m = store_beg_ind - 1 + adj1
-
-             beg_k = 1
-             if (cio_grid_var_name(var_loc, 2) .eq. 'mc2') then
-                end_k = 1
-             else
-                end_k = size(data,2)
-             end if
-
-             do k = beg_k, end_k
-                w = 0
-                do r = 1, loc_nrows
-                   do c = 1, loc_ncols
-                      m = m + 1
-                      w = w + 1
-                      data(w,k) = cio_grid_data(m)
-                   end do
-                   m = m + adj2
-                end do
-                m = m - adj2 + adj3
-             end do
-          end if
-
-        end subroutine r_interpolate_var_2dx
-
-! -------------------------------------------------------------------------
         subroutine r_interpolate_var_2db (vname, date, time, data, type, lvl)
 
+! Function: Interpolation for Boundary 4 byte Real 2-D Data
+          
           USE UTILIO_DEFN
           USE HGRD_DEFN
           USE VGRD_DEFN, ONLY : NLAYS
@@ -4105,7 +4175,6 @@ C   mminlu and num_land_cat are WRF global variables
      &                     gs_skip, ge_skip, gn_skip, gw_skip
           logical :: loc_firstime = .true.
           integer, save :: prev_time = -1
-          integer, save :: prev_head_time = -1
           real :: ratio1, ratio2
 
           if (loc_firstime) then
@@ -4138,14 +4207,15 @@ C   mminlu and num_land_cat are WRF global variables
 
           if (var_loc .lt. 0) then
              write (cio_logdev, '(a9, a, a35)') 'Warning: ', trim(vname), ' is not available in any bndy file.'
+             stop 
           else
              loc_head = head_bndy(var_loc)
              loc_tail = tail_bndy(var_loc)
 
              if (cio_bndy_var_name(var_loc,2) == 'mb') then
-                loc_tstep = met_bc_tstep
+                loc_tstep = file_tstep(f_met)
              else
-                loc_tstep = bc_tstep
+                loc_tstep = file_tstep(f_bcon)
              end if
 
              if ((cio_bndy_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
@@ -4185,7 +4255,23 @@ C   mminlu and num_land_cat are WRF global variables
                       ratio1 = 1.0 - ratio2
                    end if
                    prev_time = time
-                   prev_head_time = cio_bndy_data_tstamp(2, loc_head, var_loc)
+                   
+                   if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
+     &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
+                      write(logdev,'(5X,a)'),
+     &               'ERROR: Incorrect Interpolation in 2-D Boundary Interpolation for variable: ',
+     &                trim(vname) 
+                     
+                     write(logdev,'(5X,a,i7,a,i6)'), 
+     &               'Requested TIME & DATE: ',date,':',time
+                     
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+     &               'Interpolation Bounds ',cio_bndy_data_tstamp(1,0,var_loc),
+     &               ':',cio_bndy_data_tstamp(2,0,var_loc),' to ',
+     &                cio_bndy_data_tstamp(1,1,var_loc),':',cio_bndy_data_tstamp(2,1,var_loc)
+            
+                     call exit(2) 
+                   end if 
                 end if
 
                 head_beg_ind  = cio_bndy_data_inx(1,loc_head,var_loc)
@@ -4252,6 +4338,8 @@ C   mminlu and num_land_cat are WRF global variables
 ! -------------------------------------------------------------------------
         subroutine r_interpolate_var_3d (vname, date, time, data, fname)
 
+!Function: Interpolation for generic 4 byte Real 3-D Data 
+
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
 
@@ -4266,11 +4354,12 @@ C   mminlu and num_land_cat are WRF global variables
      &               var_loc, loc_head, loc_tail, m, r, c, k,
      &               loc_jdate, loc_jtime, beg_k, end_k, dot,
      &               col_size, extra_c, extra_r, adj1, adj2, adj3,
-     &               slen, loc_date, str_len, fnum, loc_tstep
+     &               slen, str_len, fnum, loc_tstep
 
           character (20) :: loc_vname
           integer, save :: prev_time = -1
           integer, save :: prev_head_time = -1
+          integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
 
@@ -4284,28 +4373,33 @@ C   mminlu and num_land_cat are WRF global variables
           var_loc = binary_search (loc_vname, cio_grid_var_name(:,1), n_cio_grid_vars)
           if (var_loc .lt. 0) then
              write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(loc_vname), ' is not available in any 3D file.'
+             stop 
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
 
              if (cio_grid_var_name(var_loc,3) == 'm') then
-                loc_tstep = cio_data_tstep_met
-             else
-                loc_tstep = cio_data_tstep
-             end if
-
-             if ((cio_grid_var_name(var_loc,2) == 'e2d') .or.
+                loc_tstep = file_tstep(f_met) 
+             else if ((cio_grid_var_name(var_loc,2) == 'e2d') .or.
      &           (cio_grid_var_name(var_loc,2) == 'e3d')) then
 
                 str_len = len_trim(cio_grid_var_name(var_loc,1))
                 read (cio_grid_var_name(var_loc,1)(str_len-2:str_len), *) fnum
 
-                loc_date = cio_emis_file_date(fnum)
-             else
-                loc_date = date
+                loc_tstep = file_tstep(f_emis(fnum)) 
+             else if (cio_grid_var_name(var_loc,2) == 'bs') then
+                loc_tstep = file_tstep(f_bios)
+             else if (cio_grid_var_name(var_loc,2) == 'lnt') then
+                loc_tstep = file_tstep(f_ltng)
+             else if (cio_grid_var_name(var_loc,2) == 'ic') then
+                loc_tstep = file_tstep(f_icon)
+             else if (cio_grid_var_name(var_loc,2) == 'bct') then
+                loc_tstep = file_tstep(f_bcon)
+             else if (cio_grid_var_name(var_loc,2) == 'is') then
+                loc_tstep = file_tstep(f_is_icon)
              end if
 
-             if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. loc_date) .or.
+             if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
      &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
      &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
 
@@ -4319,17 +4413,19 @@ C   mminlu and num_land_cat are WRF global variables
                 loc_tail = tail_grid(var_loc)
              end if
 
-             if ((cio_grid_data_tstamp(1, 2, var_loc) .eq. loc_date) .and.
+             if ((cio_grid_data_tstamp(1, 2, var_loc) .eq. date) .and.
      &           (cio_grid_data_tstamp(2, 2, var_loc) .eq. time)) then
                 count = count + 1
              else
 
-                cio_grid_data_tstamp(1, 2, var_loc) = loc_date
+                cio_grid_data_tstamp(1, 2, var_loc) = date
                 cio_grid_data_tstamp(2, 2, var_loc) = time
 
                 if ((prev_time .ne. time) .or.
-     &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc))) then
-                   if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. loc_date) then
+     &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc)) .or.
+     &              (prev_tail_time .ne. cio_grid_data_tstamp(2, loc_tail, var_loc))) then
+
+                   if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. date) then
                       ratio2 =   real(time_diff(time, cio_grid_data_tstamp(2, loc_head, var_loc))) 
      &                         / real(time_to_sec(loc_tstep))
                       ratio1 = 1.0 - ratio2
@@ -4340,6 +4436,24 @@ C   mminlu and num_land_cat are WRF global variables
                    end if
                    prev_time = time
                    prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
+                   prev_tail_time = cio_grid_data_tstamp(2, loc_tail, var_loc)
+                   
+                   if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
+     &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
+                     write(logdev,'(5X,a)'),
+     &               'ERROR: Incorrect Interpolation in 3-D Generic Interpolation for variable: ',
+     &                trim(vname) 
+                     
+                     write(logdev,'(5X,a,i7,a,i6)'), 
+     &               'Requested TIME & DATE: ',date,':',time
+                     
+                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+     &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
+     &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
+     &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
+                     
+                     call exit(2) 
+                   end if 
                 else
                    lcount = lcount + 1
                 end if
