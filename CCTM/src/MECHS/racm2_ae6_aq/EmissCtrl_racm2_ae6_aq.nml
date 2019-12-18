@@ -207,10 +207,6 @@
    !           conserve the total. For Example,
    !            'EVERYWHERE', 'ALL' ,'POC'  ,'VSVPO2'   ,'GAS' ,0.14 ,'MASS','a', 
    !            'EVERYWHERE', 'ALL' ,'PNCOM','VSVPO2'   ,'GAS' ,0.14 ,'MASS','a', 
-   !           It is attractive to define a chemical family named 'POA' as the sum of
-   !           POC and PNCOM.
-   !            'EVERYWHERE', 'ALL' ,'POA'  ,'VSVPO2'   ,'GAS' ,0.14 ,'MASS','a', 
-   !           See the chemical families section below for the definition of POA.
    !     Note: To avoid large swigns in repartitioning after emission, it's a good idea
    !           to split mass between gas and particle phases, with all mass going to 
    !           the particle in the C* = 0.1-1 range and all gas for C* = 100-1000. 
@@ -423,12 +419,12 @@
 !    The examples below may be uncommented and modified for your use.          !
 !------------------------------------------------------------------------------!
 
-&ChemicalFamilies
- NChemFamilies         = 1
- ChemFamilyName(1)     = 'NOX'
- ChemFamilyNum(1)      = 2
- ChemFamilyMembers(1,:)= 'NO','NO2'
-/
+!&ChemicalFamilies
+! NChemFamilies         = 1
+! ChemFamilyName(1)     = 'NOX'
+! ChemFamilyNum(1)      = 2
+! ChemFamilyMembers(1,:)= 'NO','NO2'
+!/
 
 !&StreamFamilies
 ! NStreamFamilies         = 1
@@ -443,6 +439,5 @@
 ! RegionFamilyNum(1)      = 2
 ! RegionFamilyMembers(1,:)= 'SURF','OPEN'
 !/
- 
  
  
