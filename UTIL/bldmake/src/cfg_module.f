@@ -93,7 +93,10 @@
       Character( 20 ) :: currentDate
 
 ! model name
-      Character( 128 ) :: model
+      Character( FLN_LEN ) :: make_options
+
+! model name
+      Character( 128 )     :: model
 
 ! make file search path for source files
       Character( FLD_LEN ) :: VPATH = ' '
@@ -196,6 +199,8 @@
       l_lib_3 = .FALSE.
       l_lib_5 = .FALSE.
       
+      make_options = ' '
+
       model = 'a.out'
 
       f_compiler = 'mpiifort'
@@ -275,6 +280,13 @@
 ! set key to upper case of field 1
         key = fields(1)
         Call ucase( key )
+
+! check for executable name
+        If ( key .Eq. 'MAKE_OPTIONS' ) Then
+          make_options = fields(2)
+          If ( verbose ) Write( *, '("make options set to ",a)' ) Trim( make_options )
+          Cycle
+        End If
 
 ! check for executable name
         If ( key .Eq. 'MODEL' ) Then
