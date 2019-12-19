@@ -25,9 +25,10 @@ AMMONIUM  - ANH4J, ANH4I, NH3
 EC        - AECJ, AECI
 OC        - ALVPO1I, ALVPO1J, ASVPO1I, ASVPO1J, ASVPO2I, ASVPO2J, ASVPO3J, AIVPO1J, VLVPO1, VSVPO1, VSVPO2, VSVO3, VIVPO1
 VOC       - 21 species in CB6R3 (see CCTM/src/isam/SA_DEFN.F)
-PM25_IONS - ACLI/J,ANAI/J,AMGJ,AKJ,ACAJ,AFEJ,AALJ,ASIJ,ATIJ,AMNJ,AOTHRI/J
+PM25_IONS - ANAI/J, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ,A TIJ, AMNJ, AOTHRI/J
 CO        - CO
 OZONE     - all NITRATE species + all VOC species
+CHLORINE  - ACLI/J, HCL
 ```
 
 ## 11.2 Build Instructions
@@ -89,7 +90,7 @@ TAG NAME        |EGU
 
 It is recommended that the text string for the tag name be kept short (ideally three characters) in order to accommodate the longer species names from some chemical mechanisms in the ISAM output files.
 
-The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissions, variable names from the regions file specified in the `EmissCtrl` namelist are used instead of the "EVERYWHERE' keyword. The regions file requirements are identical to the optional file used to scale emissions in predetermined geographical areas (Appendix B.4).
+The second option is the comma delimited list of regions to track with this tag.  The keyword 'EVERYWHERE' is used to track domain-wide emissions.  To track region-constrained emissions, variable names from the regions file specified in the `EmissCtrl` namelist are used instead of the "EVERYWHERE' keyword. The regions file requirements are identical to the optional file used to scale emissions in predetermined geographical areas. See [Appendix B.4](Appendix/CMAQ_UG_appendixB_emissions_control.md#b4-applying-masks-for-spatial-dependence) for further details on the regions file, including how to download an example file.
 
 ```
 REGION(S)       |EVERYWHERE

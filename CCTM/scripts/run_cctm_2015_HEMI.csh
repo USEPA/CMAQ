@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.3 Run Script ========================= 
+# ===================== CCTMv5.3.1 Run Script ========================= 
 # Usage: run.cctm >&! cctm_2015_HEMI.log &                                
 #
 # To report problems or request help with this script/program:     
@@ -33,7 +33,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v53               #> Code Version
+ set VRSN      = v531              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set APPL      = 2015_HEMI         #> Application Name (e.g. Gridname)
@@ -142,8 +142,6 @@ setenv CTM_WB_DUST Y         #> use inline windblown dust emissions [ default: Y
 #setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
                              #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
-setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
-                             #>    file [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
@@ -182,6 +180,13 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
+setenv EMIS_SYM_DATE N      #> Master switch for allowing CMAQ to use the date from each Emission file
+                             #>   rather than checking the emissions date against the internal model date.
+                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
+                             #>   time will be used and an error check will be performed (recommended). Users 
+                             #>   may switch the behavior for individual emission files below using the variables:
+                             #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [default : N ]
+setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
@@ -205,7 +210,10 @@ setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default:
 setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
 setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N ]
-
+setenv CTM_WVEL Y            #> save derived vertical velocity component to conc & aconc
+                             #>    file [ default: Y ]
+setenv CTM_MGEMDIAG  N       # marine emissions diagnostic file [ default: N ]
+                             # it will generate the file only if MECH = cb6r3m_ae7_kmtbr
 # =====================================================================
 #> Input Directories and Filenames
 # =====================================================================
@@ -272,7 +280,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
-     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}.nc
      setenv INITIAL_RUN N
   endif
 
@@ -369,7 +377,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
-
+  setenv GR_EM_SYM_DATE_001 F
   #> In-line point emissions configuration
   setenv N_EMIS_PT 0          #> Number of elevated source groups
 
@@ -404,6 +412,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #setenv STK_EMIS_DIAG_003 2DSUM
   #setenv STK_EMIS_DIAG_004 2DSUM
   #setenv STK_EMIS_DIAG_005 2DSUM
+  
+  # Allow CMAQ to Use Point Source files with dates that do not
+  # match the internal model date
+  setenv STK_EM_SYM_DATE_001 T
+  setenv STK_EM_SYM_DATE_002 T
+  setenv STK_EM_SYM_DATE_003 T
+  setenv STK_EM_SYM_DATE_004 T
+  setenv STK_EM_SYM_DATE_005 T
 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
@@ -524,6 +540,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_RJ_2        "$OUTDIR/CCTM_PHOTDIAG2_${CTM_APPL}.nc -v"  #> 3D Photolysis Rates 
   setenv CTM_RJ_3        "$OUTDIR/CCTM_PHOTDIAG3_${CTM_APPL}.nc -v"  #> 3D Optical and Radiative Results from Photolysis
   setenv CTM_SSEMIS_1    "$OUTDIR/CCTM_SSEMIS_${CTM_APPL}.nc -v"     #> Sea Spray Emissions
+  setenv CTM_MGEM_1      "$OUTDIR/CCTM_MGEM_${CTM_APPL}.nc -v"       #> Marine Gas Emissions  
   setenv CTM_DUST_EMIS_1 "$OUTDIR/CCTM_DUSTEMIS_${CTM_APPL}.nc -v"   #> Dust Emissions
   setenv CTM_IPR_1       "$OUTDIR/CCTM_PA_1_${CTM_APPL}.nc -v"       #> Process Analysis
   setenv CTM_IPR_2       "$OUTDIR/CCTM_PA_2_${CTM_APPL}.nc -v"       #> Process Analysis
@@ -555,7 +572,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
              $CTM_RJ_1 $CTM_RJ_2 $CTM_RJ_3 $CTM_SSEMIS_1 $CTM_DUST_EMIS_1 $CTM_IPR_1 $CTM_IPR_2       \
              $CTM_IPR_3 $CTM_IRR_1 $CTM_IRR_2 $CTM_IRR_3 $CTM_DRY_DEP_MOS                   \
              $CTM_DRY_DEP_FST $CTM_DEPV_MOS $CTM_DEPV_FST $CTM_VDIFF_DIAG $CTM_VSED_DIAG    \
-             $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 )
+             $CTM_LTNGDIAG_1 $CTM_LTNGDIAG_2 $CTM_VEXT_1 $CTM_MGEM_1 )
   if ( $?CTM_ISAM ) then
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
         set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \

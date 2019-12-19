@@ -126,6 +126,7 @@ C       26 Nov 2018 S. Napelenok: ISAM implementation
 C       Feb 2019 D. Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
 C       01 AUG 19 D.Wong: Modified code to work with two-way model and 
+C       11 Nov 19 F. Sidi: Changed MSTEP to accomdate Centralized I/O changes 
 C-----------------------------------------------------------------------
 
       USE RUNTIME_VARS, ONLY: STM, CONVECTIVE_SCHEME
@@ -536,11 +537,7 @@ C...  the met timestep in hours
 
         SDATE = cio_model_sdate
         STIME = cio_model_stime
-#ifdef twoway
-        MSTEP = cio_data_tstep_met
-#else
-        MSTEP = cio_data_tstep
-#endif
+        MSTEP = file_tstep(f_met) 
 
         METSTEP = FLOAT( TIME2SEC( MSTEP ) ) / 3600.0
 

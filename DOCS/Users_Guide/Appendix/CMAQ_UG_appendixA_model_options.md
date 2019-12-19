@@ -27,7 +27,7 @@
 	* [I/O Controls](#I/O_Controls)
 	* [Aerosol Diagnostics Controls](#Aersol_Diagnostics_Controls)
 	* [Diagnostic Output Flags](#Diagnostic_Output_Flags)
-	* [Inline Emissions Configuration](#Inline_Emissions_Config)
+	* [Offline Emissions Configuration](#Offline_Emissions_Config)
 	* [Lightning NOx Configuration](#Lightning_NOx_Config)
 	* [Online Biogenic Emissions Configuration](#Online_Bio_Config)
 	* [Windblown Dust Emissions Configuration](#windblown_dust_config)
@@ -85,7 +85,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     Location of the Message Passing Interface Library on your Linux system
 
     -   `ioapi_lib`<a id=ioapi_lib></a>
-    Name of the I/O API libraryar on your system; set to "-lioapi"
+    Name of the I/O API library on your system; set to "-lioapi"
 
 -   `netcdf_lib`<a id=netcdf_lib></a>
     Name of the netCDF library C on your system;  set to "-lnetcdf" for versions < 4.2.0, "-lnetcdf" for version 4.2.0 and later
@@ -374,11 +374,11 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_APPL [default: ${RUNID}_${YYYYMMDD}]`<a id=CTM_APPL></a>  
     CCTM log and output file naming extension.      
 -   `CONC_SPCS [if commented out, all species]`<a id=CONC_SPCS></a>  
-    Model species to be written to the CCTM_CONC file.
+    Model species to be written to the CCTM_CONC file, including temperature, relative humidity and pressure. See [Chapter 6](../CMAQ_UG_ch07_model_outputs.md#72-cctm-output-files) for further information.
 -   `CONC_BLEV_ELEV [if commented out, all layers]`<a id=CONC_BLEV_ELEV></a>  
     Vertical model layer range for the CCTM_CONC file concentrations; this variable sets the lower and upper layers over which to output the CCTM_CONC file. In the example script, BLEV and ELEV are both set to 1, so concentrations will only be written for the first layer.
 -   `AVG_CONC_SPCS [if commented out, output all species]`<a id=AVG_CONC_SPCS></a>  
-    Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM_CONC file. The species in this list will be written to the CCTM_ACONC output file.
+    Model species for calculating integral average concentrations for each output time step. Options can be any of the standard output species that are written to the CCTM_CONC file, including temperature, relative humidity and pressure. The species in this list will be written to the CCTM_ACONC output file. See [Chapter 6](../CMAQ_UG_ch07_model_outputs.md#72-cctm-output-files) for further information.
 -   `ACONC_BLEV_ELEV [default: if commented out, all layers]`<a id=ACONC_BLEV_ELEV></a>  
     Vertical model layer range for integral average concentrations; this variable sets the lower and upper layers over which to calculate integral average concentrations. For example, setting this variable to “1 5” will produce integral average concentrations for model layers 1 through 5.
 -   `AVG_FILE_END_TIME [default: N]`<a id=AVG_FILE_END_TIME></a>  
@@ -442,8 +442,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
     - UNKNOWN: Use landuse information provided by MCIP for windblown dust calculations
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
--   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
-    Y/N setting to output the CCTM-calculated vertical velocities to the CONC file. 
 -   `KZMIN [default: Y]`<a id=KZMIN></a>  
     If KZMIN is set to Y, CCTM will read the urban land use fraction variable (PURB) from the GRID_CRO_2D meteorology file and use this information to determine the minimum eddy diffusivity in each grid cell. In CMAQv5, grid cells that are predominantly urban use a KZMIN value of 1.0 m<sup>2</sup>/s and non-urban cells use a value of 0.01 m<sup>2</sup>/s. If this variable is set to N, the PURB variable will not be used and a uniform KZMIN value of 1.0 m<sup>2</sup>/s will be used throughout the modeling domain.
 -   `CTM_MOSAIC [default N]`<a id=CTM_MOSAIC></a>  
@@ -561,10 +559,12 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Output an hourly diagnostic file (CTM_DEPV_DIAG) for the inline deposition velocity calculations. 
 -   `LTNGDIAG [default: False]`<a id=LTNGDIAG></a>  
     Output a lightning NO emissions diagnostics file. 
+-   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
+    Y/N setting to output the CCTM-calculated vertical velocities to the CONC and ACONC file. 
+    
+<a id=Offline_Emissions_Config></a>
 
-<a id=Inline_Emissions_Config></a>
-
-### Inline emissions configuration
+### Offline emissions configuration
 
 <!-- BEGIN COMMENT -->
 
@@ -572,6 +572,21 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
+-   `EMIS_SYM_DATE `<a id=EMIS_SYM_DATE></a>  
+    Master switch to allow all offline emissions to use the start date from the file instead of the internal model date. This switch maybe useful if all offline emissions are of representative day type. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+
+-   `N_EMIS_GR `<a id=N_EMIS_GR></a>  
+    The number of offline gridded streams to be used by the model. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    
+-   `GR_EMIS_### `<a id=GR_EMIS_###></a>  
+    Directory path and file name of the gridded file for stream number ###, where ### = 001, 002,…,N_EMIS_GR. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    
+-   `GR_EMIS_LAB_### `<a id=GR_EMIS_LAB_###></a>  
+    Short label of the gridded file for stream ###, where ### = 001, 002,…,N_EMIS_GR. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information. 
+
+-   `GR_EM_SYM_DATE_### [default: False]`<a id=GR_EM_SYM_DATE_###></a>  
+    Switch to indicate whether gridded emission is of representative day type for stream ###, where ### = 01, 02,…,N_EMIS_GR. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    
 -   `STK_GRPS_### `<a id=STK_GRPS_###></a>  
     Directory path and file name of the stack groups file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to one of the inline plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information. 
 
@@ -580,6 +595,12 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 -   `STK_EMIS_DIAG_###`<a id=STK_EMIS_DIAG_###></a>  
     Logical for turning on/off diagnostic output for point emissions file for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. These data reflect the emission rates after scaling rules have been applied by DESID, the emissions control interface. Values for STK_EMIS_DIAG_### include FALSE, TRUE, 2D, 2DSUM, and 3D. The TRUE and 2D options are synonymous and will output just the surface layer of emissions. The 2DSUM option outputs a 2D file with values calculated from summing the entire column of emissions in each horizontal grid cell. The 3D option outputs a full 3D file. All options provide output across all output time steps during the simulation day. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.  
+    
+ -   `STK_EMIS_LAB_### `<a id=STK_EMIS_LAB_###></a>  
+    Short label of the point emissions file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    
+ -   `STK_EM_SYM_DATE_### [default: False]`<a id=STK_EM_SYM_DATE_###></a>  
+    Switch to indicate whether point emission file is of representative day type for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.   
 
 -   `LAYP_STDATE [HHMMSS]`<a id=LAYP_STDATE></a>  
     Start date for calculating elevated-point-source emissions.  

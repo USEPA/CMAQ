@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.3 Run Script ========================= 
-# Usage: run.cctm >&! cctm_v53.log &                                
+# ===================== CCTMv5.3.1 Run Script ========================= 
+# Usage: run.cctm >&! cctm_v531.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -33,7 +33,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v53               #> Code Version
+ set VRSN      = v531              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1  #> Application Name (e.g. Gridname)
@@ -142,8 +142,6 @@ setenv CTM_WB_DUST N         #> use inline windblown dust emissions [ default: Y
 setenv CTM_WBDUST_BELD BELD3 #> landuse database for identifying dust source regions 
                              #>    [ default: UNKNOWN ]; ignore if CTM_WB_DUST = N 
 setenv CTM_LTNG_NO N         #> turn on lightning NOx [ default: N ]
-setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
-                             #>    file [ default: N ]
 setenv KZMIN Y               #> use Min Kz option in edyintb [ default: Y ], 
                              #>    otherwise revert to Kz0UT
 setenv CTM_MOSAIC N          #> landuse specific deposition velocities [ default: N ]
@@ -181,7 +179,14 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
+setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
 
+setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
+                             #>   rather than checking the emissions date against the internal model date.
+                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
+                             #>   time will be used and an error check will be performed (recommended). Users 
+                             #>   may switch the behavior for individual emission files below using the variables:
+                             #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [ default : N ]
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
 setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
@@ -204,6 +209,8 @@ setenv CTM_DEPV_FILE N       #> deposition velocities diagnostic file [ default:
 setenv VDIFF_DIAG_FILE N     #> vdiff & possibly aero grav. sedimentation diagnostic file [ default: N ]
 setenv LTNGDIAG N            #> lightning diagnostic file [ default: N ]
 setenv B3GTS_DIAG N          #> BEIS mass emissions diagnostic file [ default: N ]
+setenv CTM_WVEL Y            #> save derived vertical velocity component to conc 
+                             #>    file [ default: Y ]
 
 # =====================================================================
 #> Input Directories and Filenames
@@ -270,7 +277,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
-     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}.nc
      setenv INITIAL_RUN N
   endif
 
@@ -324,10 +331,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set EMISfile  = emis_mole_all_${YYYYMMDD}_cb6_bench.nc
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
+  setenv GR_EM_SYM_DATE_001 F
 
   set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016ff_16j.nc
   setenv GR_EMIS_002 ${EMISpath2}/${EMISfile}
-  setenv GR_EMIS_LAB_002 GRIDDED_RWC
+  setenv GR_EMIS_LAB_002 GR_RES_FIRES
+  setenv GR_EM_SYM_DATE_002 F
 
   #> In-line point emissions configuration
   setenv N_EMIS_PT 8          #> Number of elevated source groups
@@ -359,14 +368,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv LAYP_STDATE $YYYYJJJ
 
   # Label Each Emissions Stream
-  setenv STK_EMIS_LAB_001 POINT_NONEGU
-  setenv STK_EMIS_LAB_002 POINT_EGU
-  setenv STK_EMIS_LAB_003 POINT_OTHER
-  setenv STK_EMIS_LAB_004 POINT_AGFIRES
-  setenv STK_EMIS_LAB_005 POINT_FIRES
-  setenv STK_EMIS_LAB_006 POINT_OTHFIRES
-  setenv STK_EMIS_LAB_007 POINT_OILGAS
-  setenv STK_EMIS_LAB_008 POINT_CMV
+  setenv STK_EMIS_LAB_001 PT_NONEGU
+  setenv STK_EMIS_LAB_002 PT_EGU
+  setenv STK_EMIS_LAB_003 PT_OTHER
+  setenv STK_EMIS_LAB_004 PT_AGFIRES
+  setenv STK_EMIS_LAB_005 PT_FIRES
+  setenv STK_EMIS_LAB_006 PT_OTHFIRES
+  setenv STK_EMIS_LAB_007 PT_OILGAS
+  setenv STK_EMIS_LAB_008 PT_CMV
 
   # Stack emissions diagnostic files
   #setenv STK_EMIS_DIAG_001 2DSUM
@@ -375,6 +384,16 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #setenv STK_EMIS_DIAG_004 2DSUM
   #setenv STK_EMIS_DIAG_005 2DSUM
 
+  # Allow CMAQ to Use Point Source files with dates that do not
+  # match the internal model date
+  setenv STK_EM_SYM_DATE_001 T
+  setenv STK_EM_SYM_DATE_002 T
+  setenv STK_EM_SYM_DATE_003 T
+  setenv STK_EM_SYM_DATE_004 T
+  setenv STK_EM_SYM_DATE_005 T
+  setenv STK_EM_SYM_DATE_006 T
+  setenv STK_EM_SYM_DATE_007 T
+  setenv STK_EM_SYM_DATE_008 T
 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
