@@ -179,6 +179,7 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
+setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
 
 setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
                              #>   rather than checking the emissions date against the internal model date.
@@ -334,7 +335,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016ff_16j.nc
   setenv GR_EMIS_002 ${EMISpath2}/${EMISfile}
-  setenv GR_EMIS_LAB_002 GRIDDED_RWC
+  setenv GR_EMIS_LAB_002 GR_RES_FIRES
   setenv GR_EM_SYM_DATE_002 F
 
   #> In-line point emissions configuration
@@ -367,14 +368,14 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv LAYP_STDATE $YYYYJJJ
 
   # Label Each Emissions Stream
-  setenv STK_EMIS_LAB_001 POINT_NONEGU
-  setenv STK_EMIS_LAB_002 POINT_EGU
-  setenv STK_EMIS_LAB_003 POINT_OTHER
-  setenv STK_EMIS_LAB_004 POINT_AGFIRES
-  setenv STK_EMIS_LAB_005 POINT_FIRES
-  setenv STK_EMIS_LAB_006 POINT_OTHFIRES
-  setenv STK_EMIS_LAB_007 POINT_OILGAS
-  setenv STK_EMIS_LAB_008 POINT_CMV
+  setenv STK_EMIS_LAB_001 PT_NONEGU
+  setenv STK_EMIS_LAB_002 PT_EGU
+  setenv STK_EMIS_LAB_003 PT_OTHER
+  setenv STK_EMIS_LAB_004 PT_AGFIRES
+  setenv STK_EMIS_LAB_005 PT_FIRES
+  setenv STK_EMIS_LAB_006 PT_OTHFIRES
+  setenv STK_EMIS_LAB_007 PT_OILGAS
+  setenv STK_EMIS_LAB_008 PT_CMV
 
   # Stack emissions diagnostic files
   #setenv STK_EMIS_DIAG_001 2DSUM

@@ -1,7 +1,6 @@
 # Frequently Asked Questions for Upgrading to the Latest CMAQ Version
 
 ## Table of Contents:
-
 * [What do I need to do to update from v5.2.1 to v5.3?](#update_v521_v53)
 * [What differences should I expect in my model results with v5.3 compared to v5.2.1?](#diff_v521_v53)
 * [What do I need to do to update from v5.3 to v5.3.1?](#update_v53_v531)
@@ -10,6 +9,7 @@
 * [Technical support for CMAQ](#tech_support)
 
 <a id=update_v521_v53></a>
+=======
 ## What do I need to do to update from v5.2.1 to v5.3?
 * A major change to CMAQ in version 5.3 is the incorporation of the new emissions module, DESID, and 
 its control via a number of RunScript variables and the Emission Control File, which is explained in 
@@ -36,8 +36,7 @@ via the chemical species namelists has been removed. Please see the User's Guide
 the [DESID tutorial for the Emission Control File](../Users_Guide/Tutorials/CMAQ_UG_tutorial_emissions.md) to learn how to implement your changes from now on. 
 * If you are running CMAQ with the M3DRY option for dry deposition and ammonia bidirectional surface flux (bidi) you will need 
 to prepare EPIC soil properties (L2C_SOIL) and EPIC crop types and fertilizer application 
-(E2C_CHEM) input files using the latest version of FEST-C, version 1.4. See Chapter 6 for further information. Running CMAQ with the 
-STAGE option and ammonia bidirectional surface flux is compatible with previous versions of FEST-C. 
+(E2C_CHEM) input files using the latest version of FEST-C, version 1.4. See Chapter 6 for further information. Running CMAQ with the STAGE option and ammonia bidirectional surface flux is compatible with previous versions of FEST-C. 
 * If you are running CMAQ with the STAGE option for dry deposition and ammonia bidirectional surface flux (bidi), you will need to use EPIC soil properties (L2C_SOIL) and EPIC crop types and fertilizer applications (E2C_CHEM) files from FEST-C (STAGE is compatible with the latest version and backward compatible with earlier versions of FEST-C).
 Please see the User's Guide [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#68-dry-depositionair-surface-exchange) for further information on 
 M3DRY and STAGE and [Chapter 4](CMAQ_UG_ch04_model_inputs.md#e2c_lu) to read more about the land surface input files required for running with ammonia bidi. 
@@ -77,6 +76,26 @@ Two updates in v5.3.1 have the potential to change model output.
 A more general list of Frequent CMAQ Questions can be found on our website: https://www.epa.gov/cmaq/frequent-cmaq-questions
 
 <a id=tech_support></a>
+=======
+STAGE option and ammonia bidirectional surface flux is compatible with previous versions of FEST-C.  
+Please see the User's Guide [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#68-dry-depositionair-surface-exchange) for further information on 
+M3DRY and STAGE and [Chapter 4](CMAQ_UG_ch04_model_inputs.md#e2c_lu) to read more about the land surface input files required for running with ammonia bidi. 
+
+
+## What differences should I expect in my model results with v5.3 compared to v5.2.1?
+
+
+## What do I need to do to update from v5.3 to v5.3.1?
+CMAQv5.3.1 is a minor bugfix release.  If you have already successfully migrated to v5.3, you will not need to do anything special to maintain default behavior in v5.3.1.
+
+## What differences should I expect in my model results with v5.3.1 compared to v5.3?
+Two updates in v5.3.1 have the potential to change model output.  
+1. If running CMAQ with the STAGE option for dry deposition, the [STAGE bugfix ](CMAQv5.3.1_bugfixes.md#5-stage) will lead to small changes in dry deposition fluxes and concentration values. Most of the difference follow a random spatial pattern with the exception of NH3 dry deposition which shows the effect of including the deposition to water in the updated code.  The CMAQv5.3 benchmark output reference files were created using the M3DRY options for dry deposition and so are not impacted by this model update. 
+2. In the v5.3 release there was a mismatch between the emission stream labels in the 2016 SE benchmark run script and the EmissCtrl file for cb6r3_ae7_aq. The result was that in the benchmark output files, PCSOA was not “switched off” for fire related emissions streams, including wildfires, agricultural burning, and residential wood combustion.  The emission stream labels have now been corrected.  This results in lower PM2.5 for the 2016 SE benchmark case and updated benchmark output reference files have been posted on the [CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY). The other run scripts in the repository had the correct emissions stream labels, and so are not changed in this release.  
+
+## Additional FAQ
+A more general list of Frequent CMAQ Questions can be found on our website: https://www.epa.gov/cmaq/frequent-cmaq-questions
+
 ## Technical support for CMAQ
 Technical support for CMAQ, including questions about model inputs, downloading, compiling, and running the model, 
 and pre- and post-processing utilities, should be directed to the [CMAS Center User Forum](https://forum.cmascenter.org/). 
