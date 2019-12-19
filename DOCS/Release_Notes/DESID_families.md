@@ -23,6 +23,8 @@ This pull request implements family definitions for emission streams, chemical f
 ```  
 This feature drastically improves the usability of the DESID features for practical applications. 
 
+**See the [DESID Tutorial in the CMAQ User's Guide](../Users_Guide/Tutorials/CMAQ_UG_tutorial_emissions.md) for further instructions on how to utilize the emission control namelist to perform manipulation of emission streams.**
+
 ## Significance and Impact  
 There is no quantitative impact on results, but there will be a noticeable impact on the time necessary to articualte emission control files.  
 

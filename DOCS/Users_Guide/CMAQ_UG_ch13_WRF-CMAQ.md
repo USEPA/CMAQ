@@ -40,7 +40,7 @@ Build and run instructions are provided in the top level **readme** file in the 
 
 ## 13.5 Benchmarking WRF-CMAQ
 
-Benchmark input and output datasets are available from the CMAS Center Data Warehouse Google Drive and the EPA ftp server. The WRF-CMAQ Benchmark dataset is now part of the CMAQ data set, in the top level folder called **WRF-CMAQ**. This folder provides inputs (WRF-CMAQ/wrfv4.1.1_inputs) and outputs (WRF-CMAQ/wrfv4.1.1_cmaqv5.3.1_outputs) as well as runscripts to run WRF-CMAQ with and without short-wave radiation calculations.
+Benchmark input and output datasets are available from the CMAS Center Data Warehouse Google Drive and the EPA ftp server. This folder provides inputs (WRF-CMAQ/wrfv4.1.1_inputs) and outputs (WRF-CMAQ/wrfv4.1.1_cmaqv5.3.1_outputs) as well as runscripts to run WRF-CMAQ with and without short-wave radiation calculations.
 
 - [Link to WRF-CMAQ Benchmark input and output datasets on Google Drive](https://drive.google.com/drive/folders/1apg7_LXU4Kpzx5EZgdc07Q3UTTpL-jah)
 - WRF-CMAQ Benchmark input and output datasets on ftp: [ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/](ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/)

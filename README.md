@@ -57,10 +57,8 @@ Benchmark/tutorial data for each CMAQ release version are available from the CMA
 
 |**CMAQ Version**|**Data Type**|**Domain**|**Simulation Dates**|**Dataverse DOI**| 
 |:----:|:----:|:--------------:|:----:|:--------:|
-|v5.3.1|Input| Southeast US| July 1 - 14, 2016| FILL IN LINK |
-|v5.3.1|Output| Southeast US| July 1 - 14, 2016|FILL IN LINK |
-|v5.3|Input| Southeast US| July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
-|v5.3|Output| Southeast US| July 1 - 14, 2016|https://doi.org/10.15139/S3/PDE4SS |
+|v5.3, v5.3.1|Input| Southeast US| July 1 - 14, 2016| https://doi.org/10.15139/S3/IQVABD |
+|v5.3, v5.3.1|Output| Southeast US| July 1 - 14, 2016|https://doi.org/10.15139/S3/PDE4SS |
 |v5.3|Input| CONUS | Jan 1 - Dec 31, 2016 | https://doi.org/10.15139/S3/MHNUNE |
 
 ## Previous CMAQ Versions
