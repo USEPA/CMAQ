@@ -10,21 +10,6 @@
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
-! Emissions Scaling Variables                                                  !
-!    This section includes specific variables for governing the behavior of the!
-!    emissions scaling routines. Explanations are provided below.              !
-!------------------------------------------------------------------------------!
-
-&GeneralSpecs
-
- Guard_BiogenicVOC   = .FALSE.  !If True, then using 'ALL' to identify all of the available 
- Guard_MarineGas     = .FALSE.  !  streams will not apply to these streams. They will, in
- Guard_LightningNO   = .FALSE.  !  effect, be 'guarded' from the scaling operation.
- Guard_WindBlownDust = .FALSE.
- Guard_SeaSpray      = .FALSE.
-
-/
-!------------------------------------------------------------------------------!
 ! Emissions Scaling Specification Section                                      !
 !   Each rule is presented as a row of inputs. The syntax of the               !
 !   emissions scaling rules is the following:                                  !
@@ -105,7 +90,14 @@
 !                          'o' - find existing scaling instructions matching   !
 !                                this rule and overwrite them.                 !
 !                                                                              !
-!                                                                              !
+!    You may confirm the effect of the (default and custom) rules below by     !
+!       inspecting the processor-dependent log files ("CTM_LOG_XXX...") in the !
+!       section titled "EMISSIONS SCALING DIAGNOSTIC" or by outputting the     !
+!       gridded emission diagnostic files for each or all the streams. The     !
+!       latter is accomplished by setting the environment variables EMISDIAG   !
+!       (sum of all streams) or GR_EMIS_DIAG_XXX, STK_EMIS_DIAG_XXX,           !
+!       BIOG_EMIS_DIAG, etc (stream-specific). Please see runscript for        !
+!       output options.                                                        !
 !------------------------------------------------------------------------------!
 
 &EmissionScalingRules
@@ -157,6 +149,7 @@
    'EVERYWHERE', 'ALL'    ,'FORM_PRIMARY','FORM_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACRO_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'     ,'BUTADIENE13','BUTADIENE13' ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
 
    ! Marine Halogen Chemistry
    'EVERYWHERE', 'ALL'         ,'HOI'    ,'HOI'         ,'GAS'  ,1.  ,'UNIT','a', 
@@ -260,8 +253,8 @@
    ! formation from combustion sources. It includes IVOC oxidation as well as other
    ! phenomena (Murphy et al., ACP, 2017). It was parameterized primarily in LA,
    ! where vehicle exhaust continues to dominate.
-    'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
     'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+    'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
    ! However, the added pcSOA is probably inappropriate for Fire sources, especially
    ! in its current configuration. This pathway should be zeroed out for all fire
    ! and wood-burning related sources.
@@ -329,7 +322,20 @@
  ! 'EVERYWHERE','AIRCRAFT'     ,'VOC_INV','PAR'         ,'GAS' ,0.02 ,'MOLE','a',!Add more mass to PAR from aircraft
                                                                                  ! equal to 2% of the VOC_INV from
                                                                                  ! aircraft
-                                                                    
+ ! 'EVERYWHERE','ALL'          ,'ALL'    ,'VOC'         ,'GAS' ,0.5  ,'UNIT','m',!Scale all species defined as members
+                                                                                 ! of the VOC family (see families below)
+                                                                                 ! by 50%
+ ! 'REGION9'   ,'ALL'          ,'ALL'    ,'NO2'         ,'GAS' ,2.0  ,'UNIT','m',!Scale NO2 in the region labelled
+                                                                                 ! "REGION9" by 200%
+ ! 'EVERYWHERE','PT_SOURCES'   ,'PEC'    ,'AEC'         ,'FINE',0.1  ,'UNIT','m',!Scale black carbon PM from the custom
+                                                                                 ! stream family "PT_SOURCES" to 10%
+ ! 'REGION9'   ,'PT_SOURCES'   ,'ALL'    ,'VOC'         ,'GAS' ,4.0  ,'UNIT','m',!Scale all VOCs from the family 
+                                                                                 ! "PT_SOURCES" by 400% only in the region
+                                                                                 ! labelled "REGION9"
+ ! 'REGION9'   ,'PT_SOURCES'   ,'NVOL'   ,'HONO'        ,'GAS' ,0.66 ,'UNIT','a',!Add 0.66*NVOL as HONO in the region
+                                                                                 ! labelled "REGION9", but only from 
+                                                                                 ! streams in the "PT_SOURCES" family
+                                                                   
 /
 
 !------------------------------------------------------------------------------!
@@ -407,5 +413,40 @@
  !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
 /
 
+!------------------------------------------------------------------------------!
+! Emissions Scaling Family Definitions                                         !
+!    This section includes definitions for families of CMAQ chemical species,  !
+!    emission streams and region combinations. Please see the Emissions        !
+!    Scaling Specification Section for a definitions of CMAQ species, Regions, !
+!    and Streams. For each type of family, please indicate the number of       !
+!    families you are prescribing (e.g. NChemFamilies=1). Then for each Family !
+!    indicate the Name, the number of components, and the name of each         !
+!    component. All entries are case-insensitive. See the Emissions tutorial   !
+!    in the CMAQ Repository for detailed directions for how to work with       !
+!    Families.                                                                 !
+!                                                                              !
+!    The examples below may be uncommented and modified for your use.          !
+!------------------------------------------------------------------------------!
 
+!&ChemicalFamilies
+! NChemFamilies         = 1
+! ChemFamilyName(1)     = 'NOX'
+! ChemFamilyNum(1)      = 2
+! ChemFamilyMembers(1,:)= 'NO','NO2'
+!/
+
+!&StreamFamilies
+! NStreamFamilies         = 1
+! StreamFamilyName(1)     = 'PT_SOURCES'
+! StreamFamilyNum(1)      = 3
+! StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
+!/
+
+!&RegionFamilies
+! NRegionFamilies         = 1
+! RegionFamilyName(1)     = 'Water'
+! RegionFamilyNum(1)      = 2
+! RegionFamilyMembers(1,:)= 'SURF','OPEN'
+!/
+ 
  
