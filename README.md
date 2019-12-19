@@ -3,6 +3,8 @@ CMAQv5.3.1
 
 Community Multiscale Air Quality Model US EPA CMAQ Website: (https://www.epa.gov/cmaq).
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3585898.svg)](https://doi.org/10.5281/zenodo.3585898)
+
 CMAQ is an active open-source development project of the U.S. EPA's Office of Research and Development that consists of a suite of programs for conducting air quality model simulations.
 CMAQ is supported by the CMAS Center: (http://www.cmascenter.org).
 
