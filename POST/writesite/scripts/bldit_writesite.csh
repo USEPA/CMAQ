@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ==================== WRITESITEv5.3 Build Script =================== #
+# ==================== WRITESITEv5.3.1 Build Script ================= #
 # Usage: bldit_writesite.csh >&! bldit_writesite.log                  #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
