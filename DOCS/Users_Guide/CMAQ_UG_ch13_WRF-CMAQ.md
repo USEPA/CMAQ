@@ -30,24 +30,28 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
 
 ## 13.4 Latest WRF-CMAQ Release
 
-The new coupled WRF-CMAQ model is based on WRFv4.1.1 and CMAQv5.3. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculation rather than volume mixing technique as in the previous version of the coupled model. 
+The new coupled WRF-CMAQ model is based on WRFv4.1.1 and CMAQv5.3.1. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculation rather than volume mixing technique as in the previous version of the coupled model. 
 
-The WRF-CMAQ coupled model is released as a tarball (WRF411_CMAQ5.3_Coupled_Model_20190821.tar.gz) from the CMAS Center Data Warehouse Google Drive and from the US EPA annoymous ftp server.
-- [Link to WRFv4.1.1-CMAQv5.3 Coupled_Model on Google Drive](https://drive.google.com/open?id=1ru64xxZeRcE5buQ9fygV9jUHAQ9aDnL7)
-- WRFv4.1.1-CMAQv5.3 Couple Model on ftp:  [ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/](ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/)
+The WRFv4.1.1-CMAQv5.3.1 coupled model is released as a tarball (WRF4.1.1_CMAQ5.3.1_Coupled_Model_20191220.tar) from the CMAS Center Data Warehouse Google Drive.
+- [Link to WRFv4.1.1-CMAQv5.3.1 Coupled_Model on Google Drive](https://drive.google.com/open?id=10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY)
+
+The coupled model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
+[ftp://newftp.epa.gov/exposure/CMAQ/V5_3_1/Benchmark](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_1/Benchmark)
 
 Build and run instructions are provided in the top level **readme** file in the tarball.
 
 ## 13.5 Benchmarking WRF-CMAQ
 
-Benchmark input and output datasets are available from the CMAS Center Data Warehouse Google Drive and the EPA ftp server. This folder provides inputs (WRF-CMAQ/wrfv4.1.1_inputs) and outputs (WRF-CMAQ/wrfv4.1.1_cmaqv5.3.1_outputs) as well as runscripts to run WRF-CMAQ with and without short-wave radiation calculations.
+Benchmark input and output datasets are available from the CMAS Center Data Warehouse Google Drive.  Beginning with CMAQv5.3.1, the .tar.gz file with benchmark inputs for the base (uncoupled) model also contains a folder (WRF-CMAQ) with the additional input files needed to run the WRF-CMAQ model and sample WRF-CMAQ runscripts (run_twoway_sf_Bench_2016_12SE1.csh to run with short-wave radiation calculations and run_twoway_nf_Bench_2016_12SE1.csh to run without feedback).  Similarly, the .tar.gz file with benchmark output for the base model also contais a folder (WRFv4.1.1_CMAQv5.3.1_outputs) with reference output for the coupled model with short-wave radiation calculations (files ending with "sf.nc") and without short-wave radiation (files ending with "nf.nc").  These input and output benchmark files have also been posted on the US EPA annoymous ftp server.  The the ftp server, the benchmark data has been split into several .tar.gz files to allow for faster download times.  
 
-- [Link to WRF-CMAQ Benchmark input and output datasets on Google Drive](https://drive.google.com/drive/folders/1apg7_LXU4Kpzx5EZgdc07Q3UTTpL-jah)
-- WRF-CMAQ Benchmark input and output datasets on ftp: [ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/](ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/)
+- [Link to WRF-CMAQ Benchmark input and output datasets on Google Drive](https://drive.google.com/open?id=10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY)
+- WRF-CMAQ Benchmark input and output datasets on ftp: [ftp://newftp.epa.gov/exposure/CMAQ/V5_3_1/Benchmark](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_1/Benchmark)
 
-Once users have successfully completed installation and are able to run the simulation, users can compare their WRF-CMAQ results to their offline CMAQ results (this can also be done by looking at the reference output given). Users should note, comparing the results of running WRF-CMAQ with the given input to the results of running CMAQ (offline) with the given input, while on the same domain, will include differences from other sources other than just the coupling of WRF and CMAQ. These differences are due to the version and nudging of WRF used to generate input files for CMAQ (offline) through MCIP, as well as the effect of windowing down to the south-east benchmark from the CONUS done for the CMAQ (offline) case. 
+Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
 
-If users want a better comparison, they are free to run WRF without feedback then CMAQ and compare it to the coupled WRF-CMAQ with feedback.
+Once users have successfully completed installation and are able to run the simulation, users can compare their WRF-CMAQ results to their offline CMAQv5.3.1 results (this can also be done by looking at the reference output given). Users should note, comparing the results of running WRF-CMAQ with the given input to the results of running CMAQ (offline) with the given input, while on the same domain, will include differences from other sources other than just the coupling of WRF and CMAQ. These differences are due to the version and nudging of WRF used to generate input files for CMAQ (offline) through MCIP, as well as the effect of windowing down to the south-east benchmark from the CONUS done for the CMAQ (offline) case. 
+
+If users want a better comparison, they are free to run WRFv4.1.1 without feedback then CMAQv5.3.1 and compare it to the coupled WRF-CMAQ with feedback.
 
 If you have any question, please contact David Wong at wong.david-c@epa.gov
 
