@@ -45,7 +45,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v53                        #> model version
+ set VRSN     = v531                        #> model version
  set EXEC     = writesite_${VRSN}.exe        #> executable name for this application
  set CFG      = writesite_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 
