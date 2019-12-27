@@ -197,7 +197,8 @@ CCCCCCC Sensitivity to Emissions CCCCCCCCCCCCCCCCCCCCCCCCCCCCC
             GOTO 35 ! 
           ELSE IF ( INDEX(EMISTYPE,'TOTA') .NE. 0 ) THEN ! all streams
             GOTO 30
-          ELSE ! 
+          ELSE !
+            S_STREAMLBL( NPSEN,: ) = 'empty'
             S_NSTREAMS( NPSEN ) = 1 + COUNT(TRANSFER(EMISTYPE, 'A', LEN(EMISTYPE)) == "," )
             READ(EMISTYPE,*) S_STREAMLBL( NPSEN, 1:S_NSTREAMS( NPSEN ) )
             GOTO 30

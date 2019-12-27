@@ -50,6 +50,7 @@ C                         clauses, replaced IOS with LOGDEV when calling GET_ENV
 C     15 May 2019 D.Wong: Put the check for using marine gas emission or not in RUNTIME_VAR.F
 C     4 Oct 2019 D.Wong: fixed the time advancement, NEXTIME, for a multi-day run in subroutine
 C                        GRIDEMIS
+C     16 Dec 2019 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -281,7 +282,10 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
 #endif
 
 #ifdef sens
-         USE DDM3D_DEFN, ONLY: NP, NPMAX, SVDEMIS_DIFF
+         USE DDM3D_DEFN, ONLY: NP, NPMAX, SVDEMIS_DIFF, IPT, SENNUM,
+     &                         S_STREAMLBL, S_NSTREAMS, IPARM, IREGION,
+     &                         STREAM_TO_SENS, SENS_PER_STREAM
+         USE VDIFF_MAP, ONLY : DIFF_MAP
 #endif
 
          IMPLICIT NONE
@@ -381,24 +385,11 @@ C Find emissions stream in the list of available streams
 
             END DO
 
-c           write(logdev,*) " =-= ISAM emissions mapping "
-c           write(logdev,*) "     Stream, Tags for this stream "
-c           DO ISRM = 1,N_EM_SRM 
-c             write(logdev,'(i2,1x,a12,999(i2,1x))') ISRM, EM_FILE_LAB(ISRM), STREAM_TO_TAG(ISRM,1:TAGS_PER_STREAM(ISRM))
-c           END DO
-
 C Develop a map of emitted/diffused ISAM species
             MAP_DIFFtoSA = 0
             DO SPC = 1, NSPC_SA
               MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(SPC_NAME(SPC,1)), N_SPC_DIFF, DIFF_SPC )
             END DO
-
-c           write(logdev,*) " =-= ISAM emissions species mapping "
-c           write(logdev,*) " Spc#, Spc Name, Map#"
-c           DO SPC = 1, NSPC_SA
-c             write(logdev,*) SPC, SPC_NAME(SPC,1), MAP_DIFFtoSA( SPC )
-c           END DO
-
 
 C Initialize geographic regions for ISAM tagging
             ALLOCATE( ISAMRGN( NTAG_SA, N_EM_RGN ) )
@@ -438,13 +429,36 @@ C Map the user specified ISAM regions to available CMAQ regions
 
             END DO
 
-c           write(logdev,*) " =-= ISAM regions mapping "
-c           write(logdev,*) "     Tag, Regions for this tag " 
-c           DO ITAG = 1, NTAG_SA-3
-c             write(logdev,'(i2,1x,999(a12,1x))') ITAG, ISAMRGN(ITAG, 1:ISAMRGN_NUM(ITAG))
-c           END DO
-
 #endif
+
+#ifdef sens
+            ALLOCATE( STREAM_TO_SENS( N_EM_SRM, NPMAX ),
+     &                SENS_PER_STREAM( N_EM_SRM ))
+            STREAM_TO_SENS = 0
+            SENS_PER_STREAM = 0
+
+            DO NP = 1, NPMAX
+              IF ( IPT ( NP ) .EQ. 3 ) THEN ! This is an emissions sensitivity
+                IF ( S_NSTREAMS(NP) .EQ. 99 ) THEN ! all emissions streams
+                  S_NSTREAMS(NP) = N_EM_SRM
+                  S_STREAMLBL(NP,1:N_EM_SRM)=EM_FILE_LAB(1:N_EM_SRM)
+                END IF
+                DO ISRM = 1, S_NSTREAMS(NP)
+                  SENNUM = INDEX1(S_STREAMLBL(NP,ISRM),N_EM_SRM,EM_FILE_LAB)
+                  IF ( SENNUM .EQ. 0 ) THEN
+                    XMSG = " User specified DDM Emissions Stream - " //
+     &                    TRIM( S_STREAMLBL(NP,ISRM) )//
+     &                    " - not found in available emissions streams "
+                    CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
+                  ELSE
+                    SENS_PER_STREAM( SENNUM ) = SENS_PER_STREAM( SENNUM ) + 1
+                    STREAM_TO_SENS(SENNUM,SENS_PER_STREAM( SENNUM )) = NP
+                  END IF
+                END DO
+              END IF
+            END DO
+#endif
+
          END IF
 
 C Initialize Emissions Array
@@ -598,7 +612,19 @@ c                SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
              END IF
 
            END IF
-#endif 
+#endif
+
+
+#ifdef sens
+           IF ( SENS_PER_STREAM( ISRM ) .GT. 0 ) THEN ! This stream is used by DDM3D
+
+             DO SENNUM = 1, SENS_PER_STREAM( ISRM )
+               NP = STREAM_TO_SENS( ISRM,SENNUM )
+               SVDEMIS_DIFF( :,1:NL,:,:,NP ) = SVDEMIS_DIFF( :,1:NL,:,:,NP ) 
+     &                                       + VDEMIS_CONV(:,1:NL,:,: )
+             END DO
+           END IF
+#endif
          END DO 
 
 #ifdef isam
@@ -609,7 +635,19 @@ C Subset the emissions array for ISAM traced species
            END IF
          END DO
 
-#endif  
+#endif 
+
+#ifdef sens
+C Subset the emissions array for DDM-3D (by species and region)
+         DO NP = 1, NPMAX
+           DO S = 1, N_SPC_DIFF
+             SVDEMIS_DIFF( S,1:EMLAYS,:,:,NP ) = 
+     &                        SVDEMIS_DIFF( S,1:EMLAYS,:,:,NP )
+     &                      * IREGION( :,:,1:EMLAYS,NP )
+     &                      * IPARM( NP, DIFF_MAP( S ) )
+           END DO
+         END DO
+#endif
          ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
          END IF
 

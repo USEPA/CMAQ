@@ -1,4 +1,4 @@
-
+#ifdef sens
 
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -139,6 +139,8 @@ c Emissisons module variables
       Character( 16 ), Allocatable, Save :: S_RGNLBL( :,: )           ! Emissions stream names per parameter (max = 99)
       Character( 16 ), Allocatable, Save :: S_SPCLIST( :,: )          ! User-specified species list
       REAL,    ALLOCATABLE               :: SVDEMIS_DIFF( :,:,:,:,: ) ! sensitivity emissions array mapped to diffused species
+      INTEGER, ALLOCATABLE, SAVE         :: SENS_PER_STREAM( : )      ! number of senstivity parameters using the numbered stream
+      INTEGER, ALLOCATABLE, SAVE         :: STREAM_TO_SENS( :,: )     ! mapping
 
 c DEPV_DEF/m3dry variables
       REAL,    ALLOCATABLE, SAVE :: S_PVD( :,:,:,: )
@@ -530,4 +532,4 @@ C test on date, and only pick times that straddle 2 active dates
 C-----------------------------------------------------------------------
 
       End Module DDM3D_DEFN
-
+#endif

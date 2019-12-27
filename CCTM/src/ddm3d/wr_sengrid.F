@@ -1,4 +1,4 @@
-
+#ifdef sens
 C***********************************************************************
 C   Portions of Models-3/CMAQ software were developed or based on      *
 C   information from various groups: Federal Government employees,     *
@@ -371,3 +371,5 @@ c         CALL SUBST_BARRIER
 
       RETURN
       END
+
+#endif
