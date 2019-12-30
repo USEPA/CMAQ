@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.3 Run Script ========================= 
-# Usage: run.cctm >&! cctm_v53.log &                                
+# ===================== CCTMv5.3.1 Run Script ========================= 
+# Usage: run.cctm >&! cctm_v531.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -33,7 +33,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v53               #> Code Version
+ set VRSN      = v531              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1  #> Application Name (e.g. Gridname)

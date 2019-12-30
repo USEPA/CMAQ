@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ======================= ICONv5.3 Run Script ========================
+# ======================= ICONv5.3.1 Run Script ========================
 # Usage: run.icon.csh >&! icon_v53.log &                                   
 #
 # To report problems or request help with this script/program:         
@@ -28,7 +28,7 @@
  echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN     = v53                     #> Code Version
+ set VRSN     = v531                     #> Code Version
  set APPL     = SE53BENCH               #> Application Name
  set ICTYPE   = regrid                  #> Initial conditions type [profile|regrid]
 

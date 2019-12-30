@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ====================== ICONv5.3 Build Script ====================   
+# ====================== ICONv5.3.1 Build Script ====================   
 # Usage: bldit_icon.csh >&! bldit.icon.log                                
 # Requirements: I/O API & netCDF libs, and a Fortran compiler    
 # Note that this script is configured/tested for Red Hat Linux O/S    
@@ -38,7 +38,7 @@
  setenv REPOROOT $ICON_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v53                    #> Code Version
+ set VRSN  = v531                    #> Code Version
  set EXEC = ICON_${VRSN}.exe        #> executable name for this application
  set CFG  = ICON_${VRSN}.cfg        #> BLDMAKE configuration file name
 

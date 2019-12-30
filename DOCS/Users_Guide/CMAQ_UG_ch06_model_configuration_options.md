@@ -322,7 +322,8 @@ The RunScript must also specify the location of the input files using three-digi
 setenv GR_EMIS_001 /home/user/path-to-file/emiss_stream_1_${DATE}.nc
 ```
 
-the short-name label to be used to refer to the stream in logfiles:
+
+the short-name label to be used to refer to the Stream in logfiles:
 
 ```
 setenv GR_EMIS_LAB_001 MOBILE
@@ -360,7 +361,8 @@ The location to the "stack file" with static information about the properties of
 setenv STK_GRPS_002 /home/user/path-to-file/inline_stack_groups_2.nc
 ```
 
-the short-name label to be used to refer to the stream in logfiles:
+
+the short-name label to be used to refer to the Stream in logfiles:
 
 ```
 setenv STK_EMIS_LAB_002 POINT_FIRES
