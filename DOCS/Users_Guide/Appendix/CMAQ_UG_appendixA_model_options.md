@@ -27,7 +27,7 @@
 	* [I/O Controls](#I/O_Controls)
 	* [Aerosol Diagnostics Controls](#Aersol_Diagnostics_Controls)
 	* [Diagnostic Output Flags](#Diagnostic_Output_Flags)
-	* [Inline Emissions Configuration](#Inline_Emissions_Config)
+	* [Offline Emissions Configuration](#Offline_Emissions_Config)
 	* [Lightning NOx Configuration](#Lightning_NOx_Config)
 	* [Online Biogenic Emissions Configuration](#Online_Bio_Config)
 	* [Windblown Dust Emissions Configuration](#windblown_dust_config)
@@ -562,9 +562,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `CTM_WVEL [default: Y]`<a id=CTM_WVEL></a>  
     Y/N setting to output the CCTM-calculated vertical velocities to the CONC and ACONC file. 
     
-<a id=Inline_Emissions_Config></a>
+<a id=Offline_Emissions_Config></a>
 
-### Inline emissions configuration
+### Offline emissions configuration
 
 <!-- BEGIN COMMENT -->
 
@@ -572,6 +572,21 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
+-   `EMIS_SYM_DATE `<a id=EMIS_SYM_DATE></a>  
+    Master switch to allow all offline emissions to use the start date from the file instead of the internal model date. This switch maybe useful if all offline emissions are of representative day type. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+
+-   `N_EMIS_GR `<a id=N_EMIS_GR></a>  
+    The number of offline gridded streams to be used by the model. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    
+-   `GR_EMIS_### `<a id=GR_EMIS_###></a>  
+    Directory path and file name of the gridded file for stream number ###, where ### = 001, 002,…,N_EMIS_GR. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    
+-   `GR_EMIS_LAB_### `<a id=GR_EMIS_LAB_###></a>  
+    Short label of the gridded file for stream ###, where ### = 001, 002,…,N_EMIS_GR. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information. 
+
+-   `GR_EM_SYM_DATE_### [default: False]`<a id=GR_EM_SYM_DATE_###></a>  
+    Switch to indicate whether gridded emission is of representative day type for stream ###, where ### = 01, 02,…,N_EMIS_GR. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    
 -   `STK_GRPS_### `<a id=STK_GRPS_###></a>  
     Directory path and file name of the stack groups file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to one of the inline plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information. 
 
@@ -580,6 +595,12 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 -   `STK_EMIS_DIAG_###`<a id=STK_EMIS_DIAG_###></a>  
     Logical for turning on/off diagnostic output for point emissions file for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. These data reflect the emission rates after scaling rules have been applied by DESID, the emissions control interface. Values for STK_EMIS_DIAG_### include FALSE, TRUE, 2D, 2DSUM, and 3D. The TRUE and 2D options are synonymous and will output just the surface layer of emissions. The 2DSUM option outputs a 2D file with values calculated from summing the entire column of emissions in each horizontal grid cell. The 3D option outputs a full 3D file. All options provide output across all output time steps during the simulation day. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.  
+    
+ -   `STK_EMIS_LAB_### `<a id=STK_EMIS_LAB_###></a>  
+    Short label of the point emissions file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
+    
+ -   `STK_EM_SYM_DATE_### [default: False]`<a id=STK_EM_SYM_DATE_###></a>  
+    Switch to indicate whether point emission file is of representative day type for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.   
 
 -   `LAYP_STDATE [HHMMSS]`<a id=LAYP_STDATE></a>  
     Start date for calculating elevated-point-source emissions.  

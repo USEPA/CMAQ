@@ -24,7 +24,7 @@ MCIP can be used to determine the spatial region that is processed by CMAQ. MCIP
 
 ## Files, configuration, and environment variables
 
-All MCIP configurations are established at run-time (rather than at compile time) via Fortran namelist variables rather than environment variables, which is a distinction from the rest of the CMAQ programs. The user does not need to directly edit the MCIP namelist file. All configuration settings are contained in the MCIP run script (run_mcip.csh), which automatically creates a new namelist file each time the script is executed.  The MCIP output files are listed in Table 1, and the MCIP output files are listed in Table 2.
+All MCIP configurations are established at run-time (rather than at compile time) via Fortran namelist variables rather than environment variables, which is a distinction from the rest of the CMAQ programs. The user does not need to directly edit the MCIP namelist file. All configuration settings are contained in the MCIP run script (run_mcip.csh), which automatically creates a new namelist file each time the script is executed.  The MCIP input files are listed in Table 1, and the MCIP output files are listed in Table 2.
 
 
 ## Compilation Configuration

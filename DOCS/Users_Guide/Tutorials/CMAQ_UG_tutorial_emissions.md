@@ -230,8 +230,13 @@ The label for "KENTUCKY" should be linked to a specific gridded variable mask (o
 ```
 This is just an example of defining one mask named "KENTUCKY". For a complete explanation of the spatial-dependent scaling feature, see the CMAQ Appendix [B.4 "Applying Masks"](../Appendix/CMAQ_UG_appendixB_emissions_control.md#b4-applying-masks-for-spatial-dependence).
 
+Two example mask files are available on the CMAS Data Warehouse: US states grid mask file and NOAA climate regions grid mask file.  These mask files can be used with the 12US1 modeling grid domain (grid origin x = -2556000 m, y = -1728000 m; N columns = 459, N rows = 299).
 
-<a id=apply_mask></a>
+* [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
+* [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
+
+
+<a id=define_families></a>
 ### 12.  Define families of streams, regions, or chemical species
 Users can define any number of custom groups or "families" of emission streams, regions or chemical species to be used to streamline (i.e. enhance) prescribed emissions rules. For example, if a user would like to scale NOx by 50% from 4 different emission streams (e.g. PT_EGU, GRIDDED, MOBILE and PT_NONEGU) without using famlies, they would need 8 rules, one for NO and NO2 for each of 4 streams. However, by defining a family of 4 streams and another family of two chemical species (i.e. NOx), 1 rule can be used to achieve the same result.  
 
@@ -268,7 +273,7 @@ As are region families:
 /
 ```
 
-<a id=apply_mask></a>
+<a id=fam_stream></a>
 ### 13. Use a family of streams to scale emissions for a group of sources
 To then use a stream family to apply a rule to multiple streams, just use the family name in the Stream Label column. 
 ```
@@ -277,7 +282,7 @@ To then use a stream family to apply a rule to multiple streams, just use the fa
 'EVERYWHERE'  , 'CONTROLLED_SOURCES' ,'NO2'    ,'NO2'         ,'GAS' ,0.50 ,'UNIT','m',
 ```
 
-<a id=apply_mask></a>
+<a id=fam_region></a>
 ### 14. Use a family of regions to scale emissions in a new location
 To use a region family, use the family name in the Region Label column.  
 ```
@@ -286,7 +291,7 @@ To use a region family, use the family name in the Region Label column.
 'SouthEastUS' , 'ALL'         ,'NO2'    ,'NO2'         ,'GAS' ,0.50 ,'UNIT','m',
 ```
 
-<a id=apply_mask></a>
+<a id=fam_chem></a>
 ### 15. Use a family of species to scale emissions for a custom group of pollutants
 Chemical families may be applied in the CMAQ-species column:  
 ```
@@ -324,7 +329,7 @@ However, sometimes the 'a' operator is useful with chemical families. In the exa
 CMAQ will use this rule to add POC and PNCOM surrogates together, multiply by 0.09 and assign their emissions to ALVPO1, a semivolatile POA species.  
 The way CMAQ uses chemical families for adding relationships with the 'a' is nuanced. The following logic is applied: 
 - If a chemical family is used for either the emissions surrogate or the CMAQ-Species but not both, then connections are made between each member of the family and the prescribed single-species in the other column.  
-- If both columns include chemical families or the 'ALL' keyword, then each pair of members will be compared. If the names match exactly or a relationship already exists, then the 'a' operation will be applied. If not, then the pair will be ignored. This precaution is in place to protect against the case where a user prescribes an addition (i.e. 'a') rule with the keyword 'ALL' or very large chemical families in both the Emission Surrogate and CMAQ-Species columns. Without the precaution in place, adding relationships for ALL surrogates to ALL model species would be an extremely large data structure and almost certainly not an intended use of CMAQ.  
+- If both columns include chemical families or the 'ALL' keyword, then each pair of members will be compared. If the names match exactly or a relationship already exists, then the 'a' operation will be applied. If not, then the pair will be ignored. This precaution is in place to protect against the case where a user prescribes an addition (i.e. 'a') rule with the keyword 'ALL' or very large chemical families in both the Emission Surrogate and CMAQ-Species columns. Without the precaution in place, adding relationships for ALL surrogates to ALL model species would be an extremely large data structure and almost certainly not an intended use of CMAQ.   
 
 
 <a id=appendix1></a>
