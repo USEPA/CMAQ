@@ -163,6 +163,11 @@ C Open input file SEN_INPUT
 
       ! Read in name of sensitivity
       READ(JVUNIT,'(A80)',END=999) TXT
+
+      IF ( TXT( 1:3 ) .EQ. 'END' ) THEN
+        GOTO 999
+      END IF
+
       IF ( TXT( :1 ) .EQ. BLANK ) THEN
           XMSG = 'Expecting sensitivity name. ' //
      &           'Cannot begin with a space.'
@@ -173,7 +178,8 @@ C Open input file SEN_INPUT
       NPSEN = NPSEN + 1
 
       IF ( NPSEN .GT. NPMAX ) THEN
-        XMSG = 'NPSEN exceeds NPMAX.  Change NPMAX in run script.'
+        XMSG = 'NPSEN exceeds NPMAX.  Change NPMAX in run script.' 
+        write(logdev,*) 'NPSEN counter up to ', NPSEN, ' NPMAX = ', NPMAX
         CALL M3EXIT( PNAME, STDATE, STTIME, XMSG, XSTAT1 )
       END IF
 

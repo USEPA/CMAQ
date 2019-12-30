@@ -36,6 +36,7 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
 C                        real(8) variables
+C   27 Dec 19 S.Napelenok: ddm-3d implementation for v5.3.1
 C**********************************************************************
 
       USE RUNTIME_VARS
@@ -46,6 +47,11 @@ C**********************************************************************
 #ifdef isam
       USE SA_IRR_DEFN
 #endif
+
+#ifdef sens
+      USE DDM3D_CHEM, ONLY: YCDDM, DDM_CHECK, N_EBI_MID, ODD_STEPS
+      USE CGRID_SPCS, ONLY: GC_SPC
+#endif 
 
 
       IMPLICIT NONE
@@ -168,6 +174,17 @@ C**********************************************************************
 
        END IF
 
+#ifdef sens
+      DO S = 1, N_SPEC
+         DDM_CHECK( S ) = .FALSE.
+      END DO
+      N_EBI_MID = CEILING( N_EBI_STEPS / 2.0 )
+      IF ( MOD( N_EBI_STEPS, 2 ) .EQ. 1 ) THEN
+         ODD_STEPS = .TRUE.
+      ELSE
+         ODD_STEPS = .FALSE.
+      END IF
+#endif
 
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
@@ -323,6 +340,20 @@ c..test if predictions growing too large
                      LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
+
+#ifdef sens
+C YCDDM is the value at the middle time step
+                  IF ( N_EBI_MID .EQ. NEBI ) THEN
+                     DDM_CHECK ( S ) = .TRUE.
+                     IF ( ODD_STEPS ) THEN
+                        YCDDM( S ) = 0.5 * ( YC( S ) + YCP( S ) )
+                     ELSE
+                        YCDDM( S ) = YCP( S )
+                     END IF
+                     IF ( YCDDM( S ) .LT. 1.e-25) YCDDM( S ) = 0.
+                  END IF
+#endif
+
                   YC( S ) = YCP( S )
                END DO
 c..test if predictions growing too large, abort interation loop
@@ -429,6 +460,16 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          END IF
 
       END DO TSTEP_EBI
+
+#ifdef sens
+      DO S = 1, N_SPEC
+         IF ( .NOT. DDM_CHECK( S ) ) THEN
+            MSG = 'ERROR: HRSOLVER failed to assign YCDDM to ' //
+     &             GC_SPC( S )
+            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, STAT )
+         END IF
+      END DO
+#endif
 
       RETURN
 

@@ -57,6 +57,7 @@ C    Nov 2018 S.Napelenok     ISAM implementation
 C    Apr 2019 F.Sidi & 
 C             S.Roselle:      Fixed bug relating to incorrect unit conversions
 C                             in GC, NR and TR. 
+C    Dec 2019 S.Napelenok     DDM-3D implementation for v 5.3.1
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -68,6 +69,11 @@ C-----------------------------------------------------------------------
       USE SA_DEFN, ONLY: ISAM, NSPC_SA, N_SPCTAG, TOT_SADEP, CONV_SADEP,
      &                   SPC_INDEX, VNAM_SPCTAG, NTAG_SA, S_SPCTAG, 
      &                   ITAG, T_SPCTAG
+#endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, SENGRID, SENNUM, 
+     &                      S_TOTDEP, S_CONDEP, S_DEPWRT, SEN_PAR
 #endif
 
       IMPLICIT NONE
@@ -343,6 +349,35 @@ Ckrt deposition arrays for tagged species.....
         END IF
 #endif
 
+#ifdef sens
+         ALLOCATE ( S_TOTDEP ( NCOLS,NROWS,NPMAX,N_SPC_WDEP+1 ),
+     &             STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating S_TOTDEP'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         S_TOTDEP = 0.0
+
+         ALLOCATE ( S_CONDEP( NCOLS,NROWS,NPMAX,N_SPC_WDEP+1 ),
+     &             STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating S_CONDEP'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         S_CONDEP = 0.0
+
+         ALLOCATE ( S_DEPWRT ( NCOLS,NROWS, ( N_SPC_WDEP + 1 ) * NPMAX ),
+     &             STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating S_DEPWRT'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+
+         S_DEPWRT = 0.0
+#endif
+
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSREAD3, PNAME ) ) THEN
@@ -378,6 +413,16 @@ C...  determine no. of moles of gas per moles of air by volume
             DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6,  1.0E-36 )
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                  SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                  SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC ) 
+     &                                              * 1.0E-6
+                END IF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -396,6 +441,15 @@ C...  convert to moles of aerosol per mole of air by volume
               FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( SPC - AE_STRT + 1 )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+                ENDIF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -414,6 +468,15 @@ C...    convert to # per mole of air by volume
               FAC = CNV3 / DENS( COL, ROW, LAY )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+                ENDIF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -432,6 +495,15 @@ C...    convert to m2 per mole of air by volume
               FAC = CNV2 / DENS( COL, ROW, LAY )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+                ENDIF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -447,6 +519,16 @@ C...determine no. of moles of non-reactive gas per moles of air by volume
             DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6, 1.0E-36 )
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                   SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC )
+     &                                               * 1.0E-6
+                ENDIF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -462,6 +544,16 @@ C...determine no. of moles of tracer gas per moles of air by volume
             DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E-6, 1.0E-36 )
+#ifdef sens
+              DO NP = 1, NPMAX
+                IF ( CGRID( COL, ROW, LAY, SPC ) .LE. 1.0E-30 ) THEN
+                  SENGRID( COL, ROW, LAY, NP, SPC ) = 0.0
+                ELSE
+                  SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC ) 
+     &                                           * 1.0E-6
+                END IF
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -513,12 +605,12 @@ C...compute cloud effects for the resolved clouds and resolved rainwater
 C...compute cloud effects for convective (subgrid) clouds
 
 #ifdef isam
-      CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS,
-     &                   CONV_SADEP )
+c     CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+c    &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS,
+c    &                   CONV_SADEP )
 #else
-      CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
+c     CALL CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
+c    &                   N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
 #endif
 
 C...now check to see if it's time to write the deposition file
@@ -534,6 +626,13 @@ C...now check to see if it's time to write the deposition file
             DO COL = 1, NCOLS
               TOT_DEP( COL, ROW, VAR ) = TOT_DEP ( COL, ROW, VAR )
      &                                 + CONV_DEP( COL, ROW, VAR )
+#ifdef sens
+              DO NP = 1, NPMAX
+                 S_TOTDEP( COL, ROW, NP, VAR ) =
+     &                 S_TOTDEP( COL, ROW, NP, VAR )
+     &               + S_CONDEP( COL, ROW, NP, VAR )
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -582,6 +681,29 @@ C...write data to the normal wet deposition file
      &         'Timestep written to', CTM_WET_DEP_1,
      &         'for date and time', NDATE, NTIME
 
+#ifdef sens
+C...write data to the sensitivity wet deposition file
+c gas species
+        DO NP = 1, NPMAX
+          DO SPC = 1, ( N_SPC_WDEP + 1 ) * NPMAX
+            SENNUM = ( SPC - 1 ) * NPMAX + NP
+            S_DEPWRT(:,:,SENNUM) = S_TOTDEP( :,:,NP,VAR )
+          END DO
+        END DO
+
+        IF ( .NOT. WRITE3( CTM_SWETDEP_1, ALLVAR3, NDATE,
+     &                     NTIME, S_DEPWRT ) ) THEN
+          XMSG = 'Could not write ' // CTM_SWETDEP_1 // ' file'
+          CALL M3EXIT ( PNAME, NDATE, NTIME, XMSG, XSTAT1 )
+        END IF
+
+        WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6)' )
+     &         'Timestep written to', CTM_SWETDEP_1,
+     &         'for date and time', NDATE, NTIME
+
+#endif
+
+
 C...write data to the diagnostic file if requested by the user
 
         IF ( CLD_DIAG ) THEN
@@ -603,6 +725,11 @@ C...reinitialize deposition array
         TOT_DEP  = 0.0
         CONV_DEP = 0.0
 
+#ifdef sens
+        S_TOTDEP = 0.0
+        S_CONDEP = 0.0
+#endif
+
 #ifdef isam
         BUFF2 = 0.0
         DO SPC = 1, N_SPCTAG
@@ -622,8 +749,6 @@ C...reinitialize deposition array
        CONV_SADEP = 0.0
 #endif
 
-
-
       END IF   ! time to write
 
 C...convert units on cgrid back to original units
@@ -637,6 +762,12 @@ C...  convert to ppmV gas
             DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) =
+     &               SENGRID( COL, ROW, LAY, NP, SPC ) * 1.0E+6
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -654,6 +785,12 @@ C...convert to ug/m3 of aerosol mass
               FAC = CNV1I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
      &                                    * AE_MOLWT( SPC - AE_STRT + 1 )
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+     &                                            * AE_MOLWT( SPC - AE_STRT + 1 )
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -670,6 +807,11 @@ C...convert to #/m3 of aerosol number
             DO COL = 1, NCOLS
               FAC = CNV3I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -686,6 +828,11 @@ C...convert to m2/m3 of aerosol surface area
             DO COL = 1, NCOLS
               FAC = CNV2I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = FAC * SENGRID( COL, ROW, LAY, NP, SPC )
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -701,6 +848,12 @@ C...convert to ppmV non-reactive gas
             DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC )
+     &                                            * 1.0E+6
+              END DO
+#endif
             END DO
           END DO
         END DO
@@ -716,6 +869,12 @@ C...convert to ppmV tracer gas
             DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
+#ifdef sens
+              DO NP = 1, NPMAX
+                SENGRID( COL, ROW, LAY, NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC )
+     &                                           * 1.0E+6
+              END DO
+#endif
             END DO
           END DO
         END DO

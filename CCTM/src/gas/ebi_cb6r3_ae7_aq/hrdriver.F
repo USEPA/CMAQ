@@ -78,7 +78,7 @@ C**********************************************************************
 
 #ifdef sens
       USE DDM3D_CHEM
-      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, IPARM, HIGH, NP, NPMAX, CKTIME
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
 #endif 
 
 

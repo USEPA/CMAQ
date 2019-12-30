@@ -100,25 +100,27 @@ c     Logical, Save           :: ES   ! Flag for pre-merged emissions
       CHARACTER( 16 ) :: SPCNAME
 
 c Cloud module variables
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_CONDEP( :,:,:,: )  ! sens of conv wdep
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_TOTDEP( :,:,:,: )  ! sens of tot dep
-      REAL( 4 ), ALLOCATABLE, SAVE :: S_DEPWRT( :,: )      ! wdep write array
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_CONDEP( :,:,:,: )  ! sens of conv wdep
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_TOTDEP( :,:,:,: )  ! sens of tot dep
+      REAL( 4 ), ALLOCATABLE, SAVE       :: S_DEPWRT( :,:,: )      ! wdep write array
 
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_POLC ( :,: )       ! sens of incloud conc (mol/mol) 
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_CEND ( :,: )       ! sens of ending conc (mol/mol)
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_REMOV( :,: )       ! sens of moles/m2 or mm*mol/lit scavenged
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_REMOVAC( : )       ! sens of variable storing H+ deposition
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_POLC ( :,: )       ! sens of incloud conc (mol/mol) 
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_CEND ( :,: )       ! sens of ending conc (mol/mol)
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_REMOV( :,: )       ! sens of moles/m2 or mm*mol/lit scavenged
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_REMOVAC( : )       ! sens of variable storing H+ deposition
 
-      REAL,      ALLOCATABLE, SAVE :: S_HPWDEP ( : )       ! hydrogen wet dep (mm mol/liter)
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_GAS    ( :,: )     ! gas phase conc (mol/mol)
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_GASWDEP( :,: )     ! gas phase wet dep array (mm mol/liter)
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_AEROSOL( :,:,: )   ! aerosol conc (mol/mol)
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_AERWDEP( :,:,: )   ! aerosol wet dep array (mm mol/liter)
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_WSRGGAS( :,:,: )   ! weights for surrogate
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_WSRGAER( :,:,:,: ) ! weights for surrogate
+      REAL,      ALLOCATABLE, SAVE       :: S_HPWDEP ( : )       ! hydrogen wet dep (mm mol/liter)
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_GAS    ( :,: )     ! gas phase conc (mol/mol)
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_GASWDEP( :,: )     ! gas phase wet dep array (mm mol/liter)
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_AEROSOL( :,:,: )   ! aerosol conc (mol/mol)
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_AERWDEP( :,:,: )   ! aerosol wet dep array (mm mol/liter)
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_WSRGGAS( :,:,: )   ! weights for surrogate
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_WSRGAER( :,:,:,: ) ! weights for surrogate
 
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_CCR     ( :,:,: )
-      REAL( 8 ), ALLOCATABLE, SAVE :: S_CBELOW  ( :,: )
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_CCR     ( :,:,: )
+      REAL( 8 ), ALLOCATABLE, SAVE       :: S_CBELOW  ( :,: )
+
+      Character( 16 ), Allocatable, Save :: S_WETDEPSPC( : )     ! List of variable names in sens wet dep file
 
 c VDIFF module variables
       REAL, ALLOCATABLE, SAVE :: SNGRD( :,:,:,:,: )        ! sengrid replacement
