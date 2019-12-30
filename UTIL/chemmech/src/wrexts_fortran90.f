@@ -721,7 +721,7 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
       ELSE
 
          WRITE( WRUNIT, 1707 )
-1707     FORMAT( /'C Photolysis reactions information not available ...'
+1707     FORMAT( /'! Photolysis reactions information not available ...'
      &           /6X, 'INTEGER, PARAMETER', 1X, ':: NMPHOT = 0' )
 
          WRITE( WRUNIT, 1709 )
@@ -1261,8 +1261,6 @@ c-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-
          WRITE( WRUNIT, 1719 )
 1719     FORMAT( /'! Photolysis table information not available ...'
      &           /6X, 'CHARACTER( 16 )', 4X, ':: PHOTAB( 1 )' )
-
-         WRITE( WRUNIT, 1801 )
 
 
       END IF

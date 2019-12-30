@@ -3584,7 +3584,7 @@ C   mminlu and num_land_cat are WRF global variables
            END DO
         END DO
       END IF
-     
+
       EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
       EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
       

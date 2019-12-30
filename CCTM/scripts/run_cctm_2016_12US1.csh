@@ -180,13 +180,14 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
+setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
 setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
                              #>   rather than checking the emissions date against the internal model date.
                              #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
                              #>   time will be used and an error check will be performed (recommended). Users 
                              #>   may switch the behavior for individual emission files below using the variables:
                              #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [default : N ] 
-setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
+
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
 setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
