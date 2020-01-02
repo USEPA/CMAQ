@@ -283,11 +283,12 @@
 
       CHARACTER(32), INTENT( IN ) :: RULE_STREAM0
       CHARACTER(32)               :: RULE_STREAM
+      CHARACTER(32)               :: STREAM_NAME( N_EM_SRM )
       INTEGER, INTENT( IN )       :: IRULE
       LOGICAL, INTENT( INOUT )    :: EM_STREAM_RULE( N_EM_SRM )
       LOGICAL, INTENT( INOUT )    :: LREMOVE
 
-      INTEGER ISRM, IDX
+      INTEGER ISRM, IDX, NSRM, IFAM
       CHARACTER( 200 ) :: XMSG
       CHARACTER( 16 )  :: PNAME = "EMIS_SPC_MAP"
       INTEGER  :: JDATE = 0
@@ -323,24 +324,36 @@
          IF ( IDUSTSRM.GT.0 .AND. .NOT. Guard_WindBlownDust ) EM_STREAM_RULE( IDUSTSRM ) = .TRUE.
 
       ELSE
-         ! Find the Specific Stream this Rule Identifies
-         IDX = INDEX1( RULE_STREAM, N_EM_SRM, EM_FILE_LAB ) 
-         IF ( IDX .NE. 0 ) THEN
-           EM_STREAM_RULE( IDX ) = .TRUE.
-         ELSE 
-           ! Print warning that this stream is being ignored
-           WRITE( LOGDEV, * )
-           WRITE( LOGDEV, '(/,3A,I3,/,2A,/,2A,/,2A)' ),
-     &         'WARNING: The Emissions Stream Label (',TRIM( RULE_STREAM ),
-     &         ') applied for Rule ',IRULE,' in the Emissions Control ',
-     &         'Namelist does not match any of the emissions streams ',
-     &         'labels provided to CMAQ. Please check the runscript against ',
-     &         'your emissions control inputs','to confirm that this stream ',
-     &         'should be ignored.'
-
-           ! Remove this rule from the list of rules
-           LREMOVE = .TRUE.
+         ! Determine if the Stream Label Refers to A Family and if So, 
+         ! Apply the Rule to all members of that Family
+         IFAM = INDEX1( RULE_STREAM, NStreamFamilies, StreamFamilyName )
+         IF ( IFAM .EQ. 0 ) THEN
+             NSRM = 1
+             STREAM_NAME(1) = RULE_STREAM
+         ELSE
+             NSRM = StreamFamilyNum( IFAM )
+             STREAM_NAME(1:NSRM) = StreamFamilyMembers( IFAM,1:NSRM )
          END IF
+
+         ! Find the Specific Stream this Rule Identifies
+         DO ISRM = 1,NSRM
+           IDX = INDEX1( STREAM_NAME( ISRM ), N_EM_SRM, EM_FILE_LAB ) 
+           IF ( IDX .NE. 0 ) THEN
+             EM_STREAM_RULE( IDX ) = .TRUE.
+           ELSE 
+             ! Print warning that this stream is being ignored
+             WRITE( LOGDEV, '(/,5x,3A,I3,/,5x,2A,4(/,5x,A))' ),
+     &         'ATTENTION: The Emissions Stream Label (',TRIM( RULE_STREAM ),
+     &         ') applied for Rule ',IRULE,'in the Emissions Control ',
+     &         'Namelist does not match any of the emissions streams ',
+     &         'labels or families provided to CMAQ. Please check the ',
+     &         'runscript against your emissions control inputs',
+     &         'confirm that this stream should be ignored.'
+
+             ! Remove this rule from the list of rules
+             LREMOVE = .TRUE.
+           END IF
+         END DO
       END IF
  
       END SUBROUTINE INTERPRET_EM_RULE_STREAM

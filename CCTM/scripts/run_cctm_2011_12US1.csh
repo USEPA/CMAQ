@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.3 Run Script ========================= 
+# ===================== CCTMv5.3.1 Run Script ========================= 
 # Usage: run.cctm >&! cctm_2011_12US1.log &                                
 #
 # To report problems or request help with this script/program:     
@@ -33,7 +33,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v53               #> Code Version
+ set VRSN      = v531              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set EMIS      = 2013ef            #> Emission Inventory Details
@@ -180,6 +180,7 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
+setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
  
 setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
                              #>   rather than checking the emissions date against the internal model date.
