@@ -61,6 +61,10 @@ set ParOpt                             #> uncomment to build a multiple processo
 #> Integrated Source Apportionment Method (ISAM)
 #set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
                                        #>   comment out to use standard process
+
+#set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
+                                       #>   comment out to use standard process
+
 #> Two-way WRF-CMAQ 
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
                                        #>   comment out for off-line chemistry 
@@ -106,6 +110,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModPa     = procan/pa                  #> CCTM process analysis
  set ModPvO3   = pv_o3                      #> potential vorticity from the free troposphere
  set ModISAM   = isam                       #> CCTM Integrated Source Apportionment Method
+ set ModDDM3D  = ddm3d                      #> Decoupled Direct Method in 3D
 
 #============================================================================================
 #> Computing System Configuration:
@@ -222,6 +227,13 @@ set ParOpt                             #> uncomment to build a multiple processo
     set Str1 =
     set Str2 =
  endif 
+
+#> if DDM-3D is set, add the pre-processor flag for it.
+ if ( $?DDM3D_CCTM ) then
+    set SENS = ( -Dsens )
+ else
+    set SENS = ""
+ endif
  
 #> Mechanism location
  set ModMech = MECHS/$Mechanism        #> chemical mechanism module
@@ -353,7 +365,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
- set text = "$quote$CPP_FLAGS $PAR $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
+ set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
