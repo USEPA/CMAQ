@@ -116,8 +116,8 @@ C----------------------------------------------------------------------
       USE RUNTIME_VARS
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX
-      Use aero6_ddm3d, ONLY : s_aerospc_conc, ae_ddm3d_ready,
-     &                        init_aero_ddm3d, s_aerospc_conc
+      Use aero_ddm3d, ONLY : s_aerospc_conc, ae_ddm3d_ready,
+     &                       init_aero_ddm3d, s_aerospc_conc
 #endif 
 
 
