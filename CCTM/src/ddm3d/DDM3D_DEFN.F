@@ -102,7 +102,7 @@ c     Logical, Save           :: ES   ! Flag for pre-merged emissions
 c Cloud module variables
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_CONDEP( :,:,:,: )  ! sens of conv wdep
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_TOTDEP( :,:,:,: )  ! sens of tot dep
-      REAL( 4 ), ALLOCATABLE, SAVE       :: S_DEPWRT( :,:,: )      ! wdep write array
+      REAL( 4 ), ALLOCATABLE, SAVE       :: S_DEPWRT( :,:,: )    ! wdep write array
 
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_POLC ( :,: )       ! sens of incloud conc (mol/mol) 
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_CEND ( :,: )       ! sens of ending conc (mol/mol)
@@ -121,6 +121,17 @@ c Cloud module variables
       REAL( 8 ), ALLOCATABLE, SAVE       :: S_CBELOW  ( :,: )
 
       Character( 16 ), Allocatable, Save :: S_WETDEPSPC( : )     ! List of variable names in sens wet dep file
+
+      REAL( 8 ), ALLOCATABLE, SAVE :: S_CONC    ( :,:,: )
+      REAL( 8 ), ALLOCATABLE, SAVE :: S_BMOL    ( :,: )   ! moles/m2 species below cloud
+      REAL( 8 ), ALLOCATABLE, SAVE :: S_CBASE0  ( :,: )   ! initial ave trace gas mix rat below cld
+      REAL( 8 ), ALLOCATABLE, SAVE :: S_CBASEF  ( :,: )   ! final ave trac gas mix rat blw cld (moles/mole)
+      REAL( 8 ), ALLOCATABLE, SAVE :: S_BCLDWT  ( :,:,: ) ! below cloud weighting function
+      REAL( 8 ), ALLOCATABLE, SAVE :: S_INCLOUD ( :,:,: ) ! fin. in cloud conc. after mix and chem moles/mole
+      REAL( 8 ), ALLOCATABLE, SAVE :: S_OUTCLOUD( :,:,: ) ! fin. outside cld conc. "   "   "   " moles/mole
+      REAL( 8 ), ALLOCATABLE, SAVE :: S_PCLD    ( :,:,: ) ! moles sp/mole air in cloud
+      REAL( 8 ) S_CONDIS
+      REAL( 8 ) DDM3D_CONCMINL                            ! the conc small number is too small even with real(8)!!!!
 
 c VDIFF module variables
       REAL, ALLOCATABLE, SAVE :: SNGRD( :,:,:,:,: )        ! sengrid replacement
