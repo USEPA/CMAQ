@@ -93,6 +93,8 @@ C    6 Apr 12 J.Young: changed default HDIV_LIM to 0.9; made CFL an env var
 C    1 Nov 18 David Wong: removed MY_N clause for NCOLS and NROWS
 C    1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
+C   20 Nov 19 F. Sidi: Updated MET STIME, SDATE, TSTEP, XCELL, YCELL to correspond
+C                      to updates in Centralized I/O 
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -212,14 +214,14 @@ C-----------------------------------------------------------------------
          ADVLAYR = L
          WRITE( LOGDEV,92005 ) ADVLAYR
 
-         SDATE = file_sdate(f_met_dot_3d)
-         STIME = file_stime(f_met_dot_3d)
-         FSTEP = file_tstep(f_met_dot_3d)
+         SDATE = file_sdate(f_met)
+         STIME = file_stime(f_met)
+         FSTEP = file_tstep(f_met)
 
 C Check file data against COORD.EXT
 
-         IF ( ABS( file_xcell(f_met_dot_3d) - XCELL_GD ) .GT. TOL .OR.
-     &        ABS( file_ycell(f_met_dot_3d) - YCELL_GD ) .GT. TOL      ) THEN
+         IF ( ABS( file_xcell(f_met) - XCELL_GD ) .GT. TOL .OR.
+     &        ABS( file_ycell(f_met) - YCELL_GD ) .GT. TOL      ) THEN
             WRITE( LOGDEV,* ) 'XCELL3D, XCELL_GD, YCELL3D, YCELL_GD: '
             WRITE( LOGDEV,* ) XCELL3D, XCELL_GD, YCELL3D,YCELL_GD
             XMSG = 'File grid sizes do not match CTM domain definition'

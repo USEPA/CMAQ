@@ -51,6 +51,9 @@
 !     -- Modified code to work with two-way model
 !  07 Nov 2019 (D. Wong) 
 !     -- Made RUNLEN environment variable avilable to two-way model as well
+!  22 Nov 2019 (F. Sidi) 
+!     -- Re-introduced master switch to overide emissions file date for
+!        representative day files
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -231,6 +234,9 @@
       INTEGER :: REP_LAYR      = -1      ! Minimum layer for reporting srcs w/ high plumes
       CHARACTER( 6 ) :: EMISDIAG = 'FALSE' ! Default Assumption for
                                          !     Emissions Diagnostic File Output
+      LOGICAL :: EMIS_SYM_DATE = .FALSE.  ! Overrider CMAQ not to check
+                                          ! if the dates on the emissions file match that of 
+                                          ! the interal model (representative day case)
       CHARACTER(  16 ), SAVE, ALLOCATABLE :: PLAY_BASE( : ) ! Use for Plume Rise Calculation
 
       LOGICAL :: USE_MARINE_GAS_EMISSION = .FALSE.
@@ -772,6 +778,9 @@
       ! Determine user-defined default for emissions diagnostics
       CALL GET_ENV ( EMISDIAG, 'EMISDIAG', EMISDIAG, VARDEV )
 
+      ! Determine user-defined default for emissions date override for representative days
+      CALL GET_ENV ( EMIS_SYM_DATE, 'EMIS_SYM_DATE', EMIS_SYM_DATE, VARDEV )
+ 
       !-------------------------------------------------------------------------------------------------------
       !>> Process Analysis
       !-------------------------------------------------------------------------------------------------------

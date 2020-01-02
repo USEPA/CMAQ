@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ======================= CCTMv5.3 Build Script ========================= 
+# ======================= CCTMv5.3.1 Build Script ========================= 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
@@ -40,7 +40,7 @@
  setenv REPOROOT $CCTM_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v53                       #> model configuration ID
+ set VRSN  = v531                       #> model configuration ID
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
