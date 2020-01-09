@@ -30,4 +30,4 @@ Using a 2-D and/or 3-D Gridded Emission File with representative day format spec
 The model will terminate execution with a time retrievel error. No model results will change.
 
 ### Solution
-Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i2](CMAQv5.3-i2). This code fix will also be included with the next minor CMAQ release. 
+Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i2](CMAQv5.3.1-i2). This code fix will also be included with the next minor CMAQ release. 
