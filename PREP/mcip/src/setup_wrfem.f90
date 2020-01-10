@@ -160,6 +160,9 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
 !                        feedbacks.  Added a flag (IFKFRADEXTRAS) for extra
 !                        variables available with KF convective scheme with
 !                        radiative feedbacks.  (T. Spero)
+!           07 Nov 2019  Expanded options to allow for surface analysis
+!                        nudging option 2 (FASDAS), which has been available
+!                        since WRFv3.8.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -1071,7 +1074,7 @@ SUBROUTINE setup_wrfem (cdfid, ctmlays)
       CALL graceful_stop (pname)
     ENDIF
 
-    IF ( met_fdda_sfan == 1 ) THEN
+    IF ( met_fdda_sfan == 1 .OR. met_fdda_sfan == 2 ) THEN
 
       rcode = nf90_get_att (cdfid, nf90_global, 'GUV_SFC', met_fdda_gvsfc)
       IF ( rcode /= nf90_noerr ) THEN

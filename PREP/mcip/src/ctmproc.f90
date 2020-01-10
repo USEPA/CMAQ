@@ -142,6 +142,8 @@ SUBROUTINE ctmproc
 !                        Arakawa-B staggered grid.  Added optional variables
 !                        from KF convective scheme with radiative feedbacks.
 !                        (T. Spero)
+!           21 Nov 2019  Corrected error in setting the 3D fractional cloud
+!                        coverage on one of the lateral boundaries.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -756,7 +758,7 @@ SUBROUTINE ctmproc
         ENDIF
 
         IF ( ifcld3d ) THEN
-          c_wwind%bdy(idx,lvl) = xcfrac3d(c,r,lvl)
+          c_cfrac_3d%bdy(idx,lvl) = xcfrac3d(c,r,lvl)
         ENDIF
 
         IF ( ifkfradextras ) THEN
