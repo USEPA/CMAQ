@@ -261,6 +261,10 @@
       Character( FLD_LEN ) :: cmdline
 
       cmdline = 'make'
+     
+      if ( LEN_TRIM( make_options ) .gt. 0 ) then
+         cmdline = trim(cmdline) // ' ' // Trim( make_options )
+      end if
 
       if ( debug_cctm ) then
          cmdline = trim(cmdline) // ' DEBUG=TRUE'

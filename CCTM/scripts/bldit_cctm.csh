@@ -57,6 +57,8 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   comment out to use standard netCDF I/O
 #set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
                                        #>   comment out to use standard, optimized compile process
+set make_options = "-j"                #> additional options for make command if MakeFileOnly is not set
+                                       #>   comment out if no additional options are wanted.
 
 #> Integrated Source Apportionment Method (ISAM)
 #set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
@@ -346,49 +348,53 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set quote = '"'
 
  echo                                                               > $Cfile
- echo "model       $EXEC;"                                         >> $Cfile
+if ( $?make_options ) then
+    echo "make_options $quote$make_options$quote;"                 >> $Cfile
+    echo                                                           >> $Cfile
+endif
+ echo "model        $EXEC;"                                        >> $Cfile
  echo                                                              >> $Cfile
- echo "repo        $CCTM_SRC;"                                     >> $Cfile
+ echo "repo         $CCTM_SRC;"                                    >> $Cfile
  echo                                                              >> $Cfile
- echo "mechanism   $Mechanism;"                                    >> $Cfile
+ echo "mechanism    $Mechanism;"                                   >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_base    $CMAQ_LIB;"                                     >> $Cfile
+ echo "lib_base     $CMAQ_LIB;"                                    >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_1       ioapi/lib;"                                     >> $Cfile
+ echo "lib_1        ioapi/lib;"                                    >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_2       ioapi/include_files;"                           >> $Cfile
+ echo "lib_2        ioapi/include_files;"                          >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
     echo "lib_3       ${quote}mpi -I.$quote;"                      >> $Cfile
     echo                                                           >> $Cfile
  endif
  echo                                                              >> $Cfile
- echo "lib_4       ioapi/lib;"                                     >> $Cfile
+ echo "lib_4        ioapi/lib;"                                    >> $Cfile
  echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
  echo                                                              >> $Cfile
- echo "fstd        $quote$FSTD$quote;"                             >> $Cfile
+ echo "fstd         $quote$FSTD$quote;"                            >> $Cfile
  echo                                                              >> $Cfile
- echo "dbg         $quote$DBG$quote;"                              >> $Cfile
+ echo "dbg          $quote$DBG$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
- echo "f_flags     $quote$F_FLAGS$quote;"                          >> $Cfile
+ echo "f_flags      $quote$F_FLAGS$quote;"                         >> $Cfile
  echo                                                              >> $Cfile
- echo "f90_flags   $quote$F90_FLAGS$quote;"                        >> $Cfile
+ echo "f90_flags    $quote$F90_FLAGS$quote;"                       >> $Cfile
  echo                                                              >> $Cfile
- echo "c_compiler  $CC;"                                           >> $Cfile
+ echo "c_compiler   $CC;"                                          >> $Cfile
  echo                                                              >> $Cfile
- echo "c_flags     $quote$C_FLAGS$quote;"                          >> $Cfile
+ echo "c_flags      $quote$C_FLAGS$quote;"                         >> $Cfile
  echo                                                              >> $Cfile
- echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
+ echo "link_flags   $quote$LINK_FLAGS$quote;"                      >> $Cfile
  echo                                                              >> $Cfile
- echo "ioapi       $quote$LIB2$quote;     "                        >> $Cfile
+ echo "ioapi        $quote$LIB2$quote;     "                       >> $Cfile
  echo                                                              >> $Cfile
- echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
+ echo "netcdf       $quote$netcdf_lib$quote;"                      >> $Cfile
  echo                                                              >> $Cfile
- echo "netcdff     $quote$netcdff_lib$quote;"                      >> $Cfile
+ echo "netcdff      $quote$netcdff_lib$quote;"                     >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
     echo "mpich       $quote$LIB3$quote;"                          >> $Cfile
