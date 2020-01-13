@@ -681,8 +681,7 @@ REACTIONS[CM] =
 <DMS1>  DMS + OH           = SO2     + MEO2
                                      + FORM           # 1.12E-11@250;
 <DMS2>  DMS + OH           = 0.75*SO2 + 0.25*MSA
-                                     + MEO2
-                                     + HO2            # 1.99E-39@-5270
+                                     + MEO2           # 1.99E-39@-5270
                                                       & 1.26E-10@+340 &1.0 &1;
 <DMS3>  DMS + NO3          = SO2     + HNO3
                                      + MEO2
