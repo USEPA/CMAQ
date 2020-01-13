@@ -340,20 +340,6 @@ c..test if predictions growing too large
                      LEBI_CONV     = .FALSE.
                      LEBISPFL( S ) = .TRUE.
                   END IF
-
-#ifdef sens
-C YCDDM is the value at the middle time step
-                  IF ( N_EBI_MID .EQ. NEBI ) THEN
-                     DDM_CHECK ( S ) = .TRUE.
-                     IF ( ODD_STEPS ) THEN
-                        YCDDM( S ) = 0.5 * ( YC( S ) + YCP( S ) )
-                     ELSE
-                        YCDDM( S ) = YCP( S )
-                     END IF
-                     IF ( YCDDM( S ) .LT. 1.e-25) YCDDM( S ) = 0.
-                  END IF
-#endif
-
                   YC( S ) = YCP( S )
                END DO
 c..test if predictions growing too large, abort interation loop
@@ -394,6 +380,17 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
                  IF( NEBI .EQ. N_EBI_STEPS )UPDATE_SOLD = .TRUE.
                  CALL SA_IRR_UNBLOCKED ( .FALSE., RKI, YC, DTC )
                  UPDATE_PROBABILITIES = .FALSE.
+#endif
+
+#ifdef sens
+C YCDDM is the value at the middle time step
+                  IF ( N_EBI_MID .EQ. NEBI ) THEN
+                   DO S = 1, NUMB_MECH_SPC
+                     DDM_CHECK ( S ) = .TRUE.
+                     YCDDM( S ) = YC( S )
+                     IF ( YCDDM( S ) .LT. 1.e-25) YCDDM( S ) = 0.0
+                   END DO
+                  END IF
 #endif
 
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step

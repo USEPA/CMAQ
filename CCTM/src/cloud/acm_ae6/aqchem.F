@@ -1485,11 +1485,11 @@ C...compute modal concentrations
           S_MNACC( NP )   = S_MN( NP )     - S_MNCOR( NP )
         END DO
 
-        IF ( HSO4COR .EQ. 0.0D0 ) THEN
-          DO NP = 1, NPMAX
-            S_HSO4COR( NP ) = 0.0D0
-          END DO
-        END IF
+c       IF ( HSO4COR .EQ. 0.0D0 ) THEN
+c         DO NP = 1, NPMAX
+c           S_HSO4COR( NP ) = 0.0D0
+c         END DO
+c       END IF
 
         IF ( TS6ACC .EQ. 0.0D0 ) THEN
           DO NP = 1, NPMAX
@@ -1509,11 +1509,11 @@ C...compute modal concentrations
           END DO
         END IF
 
-        IF ( NO3ACC .EQ. 0.0D0 ) THEN
-          DO NP = 1, NPMAX
-            S_NO3ACC( NP ) = 0.0D0
-          END DO
-        END IF
+c       IF ( NO3ACC .EQ. 0.0D0 ) THEN
+c         DO NP = 1, NPMAX
+c           S_NO3ACC( NP ) = 0.0D0
+c         END DO
+c       END IF
 
         IF ( NAACC .EQ. 0.0D0 ) THEN
           DO NP = 1, NPMAX
@@ -1521,17 +1521,17 @@ C...compute modal concentrations
           END DO
         END IF
 
-        IF ( CLACC .EQ. 0.0D0 ) THEN
-          DO NP = 1, NPMAX
-            S_CLACC( NP ) = 0.0D0
-          END DO
-        END IF
+c       IF ( CLACC .EQ. 0.0D0 ) THEN
+c         DO NP = 1, NPMAX
+c           S_CLACC( NP ) = 0.0D0
+c         END DO
+c       END IF
 
-        IF ( NH4ACC .EQ. 0.0D0 ) THEN
-          DO NP = 1, NPMAX
-            S_NH4ACC( NP ) = 0.0D0
-          END DO
-        END IF
+c       IF ( NH4ACC .EQ. 0.0D0 ) THEN
+c         DO NP = 1, NPMAX
+c           S_NH4ACC( NP ) = 0.0D0
+c         END DO
+c       END IF
 
         IF ( CAACC .EQ. 0.0D0 ) THEN
           DO NP = 1, NPMAX

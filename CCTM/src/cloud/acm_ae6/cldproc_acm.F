@@ -685,9 +685,9 @@ C...write data to the normal wet deposition file
 C...write data to the sensitivity wet deposition file
 c gas species
         DO NP = 1, NPMAX
-          DO SPC = 1, ( N_SPC_WDEP + 1 ) * NPMAX
+          DO SPC = 1, ( N_SPC_WDEP + 1 ) 
             SENNUM = ( SPC - 1 ) * NPMAX + NP
-            S_DEPWRT(:,:,SENNUM) = S_TOTDEP( :,:,NP,VAR )
+            S_DEPWRT(:,:,SENNUM) = S_TOTDEP( :,:,NP,SPC )
           END DO
         END DO
 

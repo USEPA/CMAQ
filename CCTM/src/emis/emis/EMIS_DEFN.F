@@ -643,10 +643,12 @@ C Retrieve Emissions from All Stream Types
 C Subset the emissions array for DDM-3D (by species and region)
          DO NP = 1, NPMAX
            DO S = 1, N_SPC_DIFF
-             SVDEMIS_DIFF( S,1:EMLAYS,:,:,NP ) = 
-     &                        SVDEMIS_DIFF( S,1:EMLAYS,:,:,NP )
-     &                      * IREGION( :,:,1:EMLAYS,NP )
+             DO L = 1, EMLAYS
+               SVDEMIS_DIFF( S,L,:,:,NP ) = 
+     &                        SVDEMIS_DIFF( S,L,:,:,NP )
+     &                      * IREGION( :,:,L,NP )
      &                      * IPARM( NP, DIFF_MAP( S ) )
+             END DO
            END DO
          END DO
 #endif
