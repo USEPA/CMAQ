@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ======================= CCTMv5.3.1 Build Script ========================= 
+# ======================= CCTMv5.3 Build Script ========================= 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
@@ -40,7 +40,7 @@
  setenv REPOROOT $CCTM_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v531                       #> model configuration ID
+ set VRSN  = v531                      #> model configuration ID
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
@@ -49,7 +49,7 @@ set CompileBLDMAKE                     #> Recompile the BLDMAKE utility from sou
                                        #>   comment out to use an existing BLDMAKE executable
 set CopySrc                            #> copy the source files into the build directory
 #set CopySrcTree                       #> copy the source files and directory tree into the build directory
-#set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
+set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
                                        #>   comment out to compile the model (default if not set)
 set ParOpt                             #> uncomment to build a multiple processor (MPI) executable; 
                                        #>   comment out for a single processor (serial) executable
@@ -57,8 +57,6 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   comment out to use standard netCDF I/O
 #set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
                                        #>   comment out to use standard, optimized compile process
-set make_options = "-j"                #> additional options for make command if MakeFileOnly is not set
-                                       #>   comment out if no additional options are wanted.
 
 #> Integrated Source Apportionment Method (ISAM)
 #set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
@@ -66,7 +64,6 @@ set make_options = "-j"                #> additional options for make command if
 
 #set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
                                        #>   comment out to use standard process
-
 #> Two-way WRF-CMAQ 
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
                                        #>   comment out for off-line chemistry 
@@ -348,53 +345,49 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set quote = '"'
 
  echo                                                               > $Cfile
-if ( $?make_options ) then
-    echo "make_options $quote$make_options$quote;"                 >> $Cfile
-    echo                                                           >> $Cfile
-endif
- echo "model        $EXEC;"                                        >> $Cfile
+ echo "model       $EXEC;"                                         >> $Cfile
  echo                                                              >> $Cfile
- echo "repo         $CCTM_SRC;"                                    >> $Cfile
+ echo "repo        $CCTM_SRC;"                                     >> $Cfile
  echo                                                              >> $Cfile
- echo "mechanism    $Mechanism;"                                   >> $Cfile
+ echo "mechanism   $Mechanism;"                                    >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_base     $CMAQ_LIB;"                                    >> $Cfile
+ echo "lib_base    $CMAQ_LIB;"                                     >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_1        ioapi/lib;"                                    >> $Cfile
+ echo "lib_1       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_2        ioapi/include_files;"                          >> $Cfile
+ echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
     echo "lib_3       ${quote}mpi -I.$quote;"                      >> $Cfile
     echo                                                           >> $Cfile
  endif
  echo                                                              >> $Cfile
- echo "lib_4        ioapi/lib;"                                    >> $Cfile
+ echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
  echo                                                              >> $Cfile
- echo "fstd         $quote$FSTD$quote;"                            >> $Cfile
+ echo "fstd        $quote$FSTD$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
- echo "dbg          $quote$DBG$quote;"                             >> $Cfile
+ echo "dbg         $quote$DBG$quote;"                              >> $Cfile
  echo                                                              >> $Cfile
- echo "f_flags      $quote$F_FLAGS$quote;"                         >> $Cfile
+ echo "f_flags     $quote$F_FLAGS$quote;"                          >> $Cfile
  echo                                                              >> $Cfile
- echo "f90_flags    $quote$F90_FLAGS$quote;"                       >> $Cfile
+ echo "f90_flags   $quote$F90_FLAGS$quote;"                        >> $Cfile
  echo                                                              >> $Cfile
- echo "c_compiler   $CC;"                                          >> $Cfile
+ echo "c_compiler  $CC;"                                           >> $Cfile
  echo                                                              >> $Cfile
- echo "c_flags      $quote$C_FLAGS$quote;"                         >> $Cfile
+ echo "c_flags     $quote$C_FLAGS$quote;"                          >> $Cfile
  echo                                                              >> $Cfile
- echo "link_flags   $quote$LINK_FLAGS$quote;"                      >> $Cfile
+ echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
  echo                                                              >> $Cfile
- echo "ioapi        $quote$LIB2$quote;     "                       >> $Cfile
+ echo "ioapi       $quote$LIB2$quote;     "                        >> $Cfile
  echo                                                              >> $Cfile
- echo "netcdf       $quote$netcdf_lib$quote;"                      >> $Cfile
+ echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
  echo                                                              >> $Cfile
- echo "netcdff      $quote$netcdff_lib$quote;"                     >> $Cfile
+ echo "netcdff     $quote$netcdff_lib$quote;"                      >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
     echo "mpich       $quote$LIB3$quote;"                          >> $Cfile
@@ -556,6 +549,11 @@ endif
  echo "Module ${ModISAM};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
+ set text = "// compile of decoupled direct method in 3d"
+ echo $text                                                        >> $Cfile
+ echo "Module ${ModDDM3D};"                                        >> $Cfile
+ echo                                                              >> $Cfile
+
  set text = "util"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModUtil};"                                         >> $Cfile
@@ -621,11 +619,12 @@ endif
  if ( $?Debug_CCTM ) then
     set bld_flags = "${bld_flags} -debug_cctm"
  endif
+
  if ( $?ISAM_CCTM ) then
     set bld_flags = "${bld_flags} -isam_cctm"
  endif
- 
- # Run BLDMAKE with source code in build directory
+
+#> Run BLDMAKE with source code in build directory
  $Blder $bld_flags $Cfile   
 
 #> Rename Makefile to specify compiler option and link back to Makefile

@@ -521,7 +521,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
 #> CMAQ-DDM-3D
  set NPMAX    = 1
- setenv SEN_INPUT /work/MOD3EVAL/nsu/ddm_v531/CCTM/scripts/sensinput.dat
+ setenv SEN_INPUT ${WORKDIR}/sensinput.dat
 
  setenv DDM3D_HIGH N     # allow higher-order sensitivity parameters [ T | Y | F | N ] (default is N/F)
 
@@ -606,6 +606,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
         set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
                          ${SA_CGRID_1} )
+     endif
+  endif
+  if ( $?CTM_DDM3D ) then
+     if ( $CTM_DDM3D == 'Y' || $CTM_DDM3D == 'T' ) then
+        set OUT_FILES = (${OUT_FILES} ${CTM_SENS_1} ${A_SENS_1} ${CTM_SWETDEP_1} ${CTM_SDRYDEP_1} )
      endif
   endif
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `
