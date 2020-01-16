@@ -86,7 +86,7 @@
 
         use RUNTIME_VARS, only : LTNG_NO, STDATE, STTIME, ABFLUX, MOSAIC, 
      &                           NPTGRPS, USE_MARINE_GAS_EMISSION, logdev,
-     &                           CONVECTIVE_SCHEME
+     &                           CONVECTIVE_SCHEME, log_message
         use CENTRALIZED_IO_UTIL_MODULE
         use get_env_module 
         implicit none
@@ -3971,11 +3971,14 @@ C   mminlu and num_land_cat are WRF global variables
           integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
+          character(200) :: xmsg
 
           var_loc = binary_search (vname, cio_grid_var_name(:,1), n_cio_grid_vars)
           if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in any 2D file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on any 2D file. Simulation will now terminate.'
+             call log_message( logdev,xmsg )
+             call exit(2) 
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
@@ -4142,11 +4145,14 @@ C   mminlu and num_land_cat are WRF global variables
           integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
+          character(200) :: xmsg
 
           var_loc = binary_search (vname, cio_grid_var_name(:,1), n_cio_grid_vars)
           if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in any 2D file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on any 2D file. Simulation will now terminate.'
+             call log_message( logdev,xmsg )
+             call exit(2) 
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
@@ -4293,6 +4299,7 @@ C   mminlu and num_land_cat are WRF global variables
           logical :: loc_firstime = .true.
           integer, save :: prev_time = -1
           real :: ratio1, ratio2
+          character(200) :: xmsg
 
           if (loc_firstime) then
              loc_firstime = .false.
@@ -4323,8 +4330,10 @@ C   mminlu and num_land_cat are WRF global variables
           var_loc = binary_search (vname, cio_bndy_var_name(:,1), n_cio_bndy_vars)
 
           if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a35)') 'Warning: ', trim(vname), ' is not available in any bndy file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on any BNDY file. Simulation will now terminate.'
+             call log_message( logdev,xmsg )
+             call exit(2) 
           else
              loc_head = head_bndy(var_loc)
              loc_tail = tail_bndy(var_loc)
@@ -4479,6 +4488,7 @@ C   mminlu and num_land_cat are WRF global variables
           integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
+          character(200) :: xmsg
 
           if (present(fname)) then
              slen = len_trim(fname)
@@ -4489,8 +4499,10 @@ C   mminlu and num_land_cat are WRF global variables
 
           var_loc = binary_search (loc_vname, cio_grid_var_name(:,1), n_cio_grid_vars)
           if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(loc_vname), ' is not available in any 3D file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on any 3D file. Simulation will now terminate.'
+             call log_message( logdev,xmsg )
+             call exit(2) 
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
