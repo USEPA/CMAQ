@@ -3921,6 +3921,9 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_stack_emis_data_tstamp(1,0,var_loc,pt),
      &               ':',cio_stack_emis_data_tstamp(2,0,var_loc,pt),' to ',
      &                cio_stack_emis_data_tstamp(1,1,var_loc,pt),':',cio_stack_emis_data_tstamp(2,1,var_loc,pt)
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_1ds in module centralized io'
+
                      call exit(2) 
                    end if 
                 else
@@ -4061,6 +4064,9 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
+
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_2d in module centralized io'
                      
                      call exit(2) 
                    end if 
@@ -4230,7 +4236,10 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
-                     
+     
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine i_interpolate_var_2d in module centralized io'
+                    
                      call exit(2) 
                    end if 
                 else
@@ -4388,7 +4397,10 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_bndy_data_tstamp(1,0,var_loc),
      &               ':',cio_bndy_data_tstamp(2,0,var_loc),' to ',
      &                cio_bndy_data_tstamp(1,1,var_loc),':',cio_bndy_data_tstamp(2,1,var_loc)
-            
+
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_2db in module centralized io'
+           
                      call exit(2) 
                    end if 
                 end if
@@ -4570,7 +4582,10 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
-                     
+
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_3d in module centralized io'
+                    
                      call exit(2) 
                    end if 
                 else
