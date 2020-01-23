@@ -86,7 +86,7 @@
 
         use RUNTIME_VARS, only : LTNG_NO, STDATE, STTIME, ABFLUX, MOSAIC, 
      &                           NPTGRPS, USE_MARINE_GAS_EMISSION, logdev,
-     &                           CONVECTIVE_SCHEME, log_message
+     &                           CONVECTIVE_SCHEME
         use CENTRALIZED_IO_UTIL_MODULE
         use get_env_module 
         implicit none
@@ -1218,8 +1218,8 @@
           end do
 
           IF ( .NOT. STK_PRMS_INIT( STKGNAME ) ) THEN
-             write (cio_logdev, *) 'Could not initialize stack parameters'
-             stop
+             xmsg = 'Could not initialize stack parameters'
+             call m3exit( 'Stack Files Setup', 0, 0, xmsg, 2 )
           END IF
 
           do N = 1, NPTGRPS
@@ -3851,6 +3851,7 @@ C   mminlu and num_land_cat are WRF global variables
           integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
+          character(200) :: xmsg
 
           pt = binary_search (fname, cio_stack_file_name, NPTGRPS)
 
@@ -3858,7 +3859,9 @@ C   mminlu and num_land_cat are WRF global variables
 
           if (var_loc .lt. 0) then
              write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in a stack file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on a Stack Emisison file. Simulation will now terminate.'
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              dsize = MY_END_SRC( pt ) - MY_STRT_SRC( pt ) + 1
 
@@ -3977,8 +3980,7 @@ C   mminlu and num_land_cat are WRF global variables
           if (var_loc .lt. 0) then
              write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
      &             'on any 2D file. Simulation will now terminate.'
-             call log_message( logdev,xmsg )
-             call exit(2) 
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
@@ -4151,8 +4153,7 @@ C   mminlu and num_land_cat are WRF global variables
           if (var_loc .lt. 0) then
              write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
      &             'on any 2D file. Simulation will now terminate.'
-             call log_message( logdev,xmsg )
-             call exit(2) 
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
@@ -4332,8 +4333,7 @@ C   mminlu and num_land_cat are WRF global variables
           if (var_loc .lt. 0) then
              write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
      &             'on any BNDY file. Simulation will now terminate.'
-             call log_message( logdev,xmsg )
-             call exit(2) 
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              loc_head = head_bndy(var_loc)
              loc_tail = tail_bndy(var_loc)
@@ -4501,8 +4501,7 @@ C   mminlu and num_land_cat are WRF global variables
           if (var_loc .lt. 0) then
              write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
      &             'on any 3D file. Simulation will now terminate.'
-             call log_message( logdev,xmsg )
-             call exit(2) 
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)

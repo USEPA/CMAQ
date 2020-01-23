@@ -536,8 +536,7 @@ C Verify input file header consistency and run duration
 #endif
 #else
         if (.not. lus_init (mminlu_mpas, lufrac_data(:,:,1)) ) then
-           print *, ' Error: Cannot initialize Land Use category'
-           stop
+           CALL M3EXIT( 'DRIVER',JDATE,JTIME,'ERROR: Cannot initialize Land Use Category, 2')
         end if
 
         if (ncd_64bit_offset) then
