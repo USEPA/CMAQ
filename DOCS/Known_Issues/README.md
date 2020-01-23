@@ -31,3 +31,17 @@ The model will terminate execution with a time retrievel error. No model results
 
 ### Solution
 Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i2](CMAQv5.3.1-i2). This code fix will also be included with the next minor CMAQ release. 
+
+
+## *CMAQv5.3.1-i3:* 
+Date: 2020-01-23
+Contact: Sergey Napelenok (napelenok.sergey@epa.gov)
+
+### Description  
+CMAQ version 5.3.1 release included an inadvertently modified version of EMIS_DEFN.F causing crashes during compiling. 
+
+### Scope and Impact
+The model did not compile with the -Disam option with errors pointing to EMIS_DEFN.F
+
+### Solution
+Redownload the model after 1/23/2020 or replace CCTM/src/emis/emis/EMIS_DEFN.F in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i3](CMAQv5.3.1-i3).
