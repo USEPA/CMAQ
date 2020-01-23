@@ -867,8 +867,7 @@
           size_s2d    = s_cro_ncols * s_cro_nrows
 
           if ((cro_ncols .ne. ncols) .or. (cro_nrows .ne. nrows)) then
-             print *, ' ==d== NO ncols nrows '
-             stop
+             call m3exit( 'Centralized I/O',0,0,' ==d== NO ncols nrows ',1 )
           end if
 
           x_cro_ncols = ENDCOLMC2x - STRTCOLMC2x + 1
@@ -979,8 +978,7 @@
      &                (cio_grid_var_name(v,2) .eq. 'wb')) then
                 d_size = size_s2d
              else
-                print *, ' ==d== UNKNOWN'
-                stop
+                call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN',1 )
              end if
 
              do n = 0, 2
@@ -2683,8 +2681,7 @@ C Read the various categories of normalized emissions
                    deallocate (tdata)
 
                 else
-                   print *, ' ==d== Unknown type of file'
-                   stop
+                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWNi Type of File',1 )
                 end if
 
                 cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
@@ -2814,8 +2811,7 @@ C Read the various categories of normalized emissions
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jtime, XMSG, XSTAT1 )
                    END IF
                 else
-                   print *, ' ==d== Unknown type of file'
-                   stop
+                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWNi Type of File',1 )
                 end if
 
              end do
@@ -3605,7 +3601,7 @@ C   mminlu and num_land_cat are WRF global variables
       IMPLICIT NONE
 
          ! Define Dummy Variables for Opening Emission Control Namelist
-         CHARACTER( 300 ) :: EQNAME
+         CHARACTER( 300 ) :: EQNAME, XMSG
          INTEGER          :: EMCTRL_NML
          INTEGER          :: STAT, IFAM, INUM
 
@@ -3698,9 +3694,9 @@ C   mminlu and num_land_cat are WRF global variables
 
          ! Check for Error in File Open Process
          IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, '(5x,A,A,/,8x,A)' ),'ERROR: Could not read ',
+             WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
      &              'emissions control namelist file: ',TRIM( EQNAME )
-             CALL EXIT(1)
+             CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
          
          ! Read General Specification Section
@@ -3922,7 +3918,7 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_stack_emis_data_tstamp(1,0,var_loc,pt),
      &               ':',cio_stack_emis_data_tstamp(2,0,var_loc,pt),' to ',
      &                cio_stack_emis_data_tstamp(1,1,var_loc,pt),':',cio_stack_emis_data_tstamp(2,1,var_loc,pt)
-                     call exit(2) 
+                     call m3exit( 'Centralized I/O',date,time,'',1 )
                    end if 
                 else
                    lcount = lcount + 1
@@ -4065,7 +4061,7 @@ C   mminlu and num_land_cat are WRF global variables
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
                      
-                     call exit(2) 
+                     call m3exit( 'Centralized I/O',date,time,'',1 )
                    end if 
                 else
                    lcount = lcount + 1
@@ -4236,7 +4232,7 @@ C   mminlu and num_land_cat are WRF global variables
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
                      
-                     call exit(2) 
+                     call m3exit( 'Centralized I/O',date,time,'',1 )
                    end if 
                 else
                    lcount = lcount + 1
@@ -4396,7 +4392,7 @@ C   mminlu and num_land_cat are WRF global variables
      &               ':',cio_bndy_data_tstamp(2,0,var_loc),' to ',
      &                cio_bndy_data_tstamp(1,1,var_loc),':',cio_bndy_data_tstamp(2,1,var_loc)
             
-                     call exit(2) 
+                     call m3exit( 'Centralized I/O',date,time,'',1 )
                    end if 
                 end if
 
@@ -4580,7 +4576,7 @@ C   mminlu and num_land_cat are WRF global variables
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
                      
-                     call exit(2) 
+                     call m3exit( 'Centralized I/O',date,time,'',1 )
                    end if 
                 else
                    lcount = lcount + 1
