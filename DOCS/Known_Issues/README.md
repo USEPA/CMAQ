@@ -45,4 +45,4 @@ The model did not compile with the -Disam option with errors pointing to EMIS_DE
 
 ### Solution
 1. Option 1: Replace CCTM/src/emis/emis/EMIS_DEFN.F in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i3](CMAQv5.3.1-i3). Directions on how to replace this file in your repository can be found in [Appendix F of the CMAQ User's Guide](../Users_Guide/Appendix/CMAQ_UG_appendixF_importing_bugfixes.md). 
-2. Option 2: The code fix to EMIS_DEFN.F was merged into the master branch on 1/23/2020. You can download the updated source code from this link: https://github.com/USEPA/CMAQ.git, or use git commands to update your current repository. 
+2. Option 2: The code fix to EMIS_DEFN.F was merged into the master branch on 1/23/2020. You can download the updated source code from this link: https://github.com/USEPA/CMAQ/archive/master.zip, or use git commands to update your current repository. 
