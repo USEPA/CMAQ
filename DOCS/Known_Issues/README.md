@@ -27,7 +27,7 @@ Contact: David Wong (dwongepa@epa.gov)
 Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration). set to T, will prompt the centralized i/o module to store the start date of the file. However, this information was never passed on to the function used to extract the data from the netCDF file causing an error, as the time is not available on file. The information is now properly passed on to the variable required to extract the data from the netCDF file.
 
 ### Scope and Impact
-The model will terminate execution with a time retrievel error. No model results will change.
+The model will terminate execution with a time retrieval error. No model results will change.
 
 ### Solution
 Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i2](CMAQv5.3.1-i2). Directions on how to replace this file in your repository can be found in [Appendix F of the CMAQ User's Guide](../Users_Guide/Appendix/CMAQ_UG_appendixF_importing_bugfixes.md). This code fix will also be included with the next minor CMAQ release. 
@@ -45,4 +45,4 @@ The model did not compile with the -Disam option with errors pointing to EMIS_DE
 
 ### Solution
 1. Option 1: Replace CCTM/src/emis/emis/EMIS_DEFN.F in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i3](CMAQv5.3.1-i3). Directions on how to replace this file in your repository can be found in [Appendix F of the CMAQ User's Guide](../Users_Guide/Appendix/CMAQ_UG_appendixF_importing_bugfixes.md). 
-2. Option 2: The code fix to EMIS_DEFN.F was merged into the master branch on 1/23/2020. Downloading the source code after this date will include this bugfix.   
+2. Option 2: The code fix to EMIS_DEFN.F was merged into the master branch on 1/23/2020. You can download the updated source code from this link: https://github.com/USEPA/CMAQ.git, or use git commands to update your current repository. 
