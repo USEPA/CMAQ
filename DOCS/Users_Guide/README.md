@@ -50,6 +50,8 @@ The CMAQ User's Guide is designed to support the installation, configuration, an
 
 [Appendix E (Configuring WRF):](Appendix/CMAQ_UG_appendixE_configuring_WRF.md) Configuring the Weather Research and Forecasting Model (WRF) for use with CMAQ
 
+[Appendix F (Importing bugfixes):](Appendix/CMAQ_UG_appendixF_importing_bugfixes.md) Directions on importing bugfixes from CMAQ GitHub Issues page
+
 ***
 
 CMAQ User's Guide (c) 2019<br>
