@@ -30,7 +30,7 @@ Using a 2-D and/or 3-D Gridded Emission File with representative day format spec
 The model will terminate execution with a time retrievel error. No model results will change.
 
 ### Solution
-Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i2](CMAQv5.3.1-i2). This code fix will also be included with the next minor CMAQ release. 
+Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i2](CMAQv5.3.1-i2). Directions on how to replace this file in your repository can be found in [Appendix F of the CMAQ User's Guide](../Users_Guide/Appendix/CMAQ_UG_appendixF_importing_bugfixes.md). This code fix will also be included with the next minor CMAQ release. 
 
 
 ## *CMAQv5.3.1-i3:* 
@@ -44,4 +44,5 @@ CMAQ version 5.3.1 release included an inadvertently modified version of EMIS_DE
 The model did not compile with the -Disam option with errors pointing to EMIS_DEFN.F
 
 ### Solution
-Redownload the model after 1/23/2020 or replace CCTM/src/emis/emis/EMIS_DEFN.F in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i3](CMAQv5.3.1-i3).
+1. Option 1: Replace CCTM/src/emis/emis/EMIS_DEFN.F in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i3](CMAQv5.3.1-i3). Directions on how to replace this file in your repository can be found in [Appendix F of the CMAQ User's Guide](../Users_Guide/Appendix/CMAQ_UG_appendixF_importing_bugfixes.md). 
+2. Option 2: The code fix to EMIS_DEFN.F was merged into the master branch on 1/23/2020. Downloading the source code after this date will include this bugfix.   
