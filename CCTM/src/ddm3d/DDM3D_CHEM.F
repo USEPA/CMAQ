@@ -13,7 +13,7 @@ C-----------------------------------------------------------------------
       
       Implicit None
 
-      Real, Allocatable, Save ::  YCDDM( : )  ! Concs used by DDM
+      Real(8), Allocatable, Save ::  YCDDM( : )  ! Concs used by DDM
                                               ! (avg of pre- and post-chem,
                                               !  or mid-chemstep concs,
                                               !  depending on implementation)
@@ -38,7 +38,7 @@ C Variables used for hddm-3d
       LOGICAL, Allocatable, Save :: ORDER1 ( : )           ! true if order 1; else, false
       Real, Allocatable, Save :: PDT2( :, : )              ! Used for 2nd order call of JAC
       Real, Allocatable, Save :: SMID( :, : )              ! SENGRID in middle of timestep
-      Real, Allocatable, Save :: SMIDJAC( : )              ! SMID for the relevant 1st order
+      Real(8), Allocatable, Save :: SMIDJAC( : )              ! SMID for the relevant 1st order
                                               ! sensitivity parameter
       Real*8, Allocatable, Save :: RK ( : )
 
@@ -125,6 +125,9 @@ C-----------------------------------------------------------------------
       Use DDM3D_DEFN, Only: SENGRID, NPMAX, NP, DATENUM, IPT, 
      &                      IDATE, HIGH, IREGION, IRXN, IPARM, STARTDATE
       Use RXNS_DATA, Only: NRXNS, NREACT, NPRDCT, SC, IRR, CGRID_INDEX, NUMB_MECH_SPC
+
+      Use MECHANISM_FUNCTIONS  
+
       Use UTILIO_DEFN                   ! IOAPI parameters and functions declarations
 
       Implicit None
@@ -161,9 +164,11 @@ C-----------------------------------------------------------------------
          FIRSTIME = .FALSE.
          LOGDEV = INIT3()
 
+         CALL SET_MECHANISM( ) ! determine formulas for Mechanism Jacobain and Species Rate of Change
+
       END IF
 
-      CALL JAC ( YCDDM, PDT, SRK ) ! Create the Jacobian matrix; YCDDM is set in mid-timestep of hrsolver.F
+      CALL  EVALUATE_F_JAC_MECH( YCDDM, SRK, PDT ) ! Evaluate Jacobian based on YCDDM and SKR values
 
       DO 433 J = 1, NUMB_MECH_SPC
          DO 434 I = 1, NUMB_MECH_SPC
@@ -319,7 +324,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   ! Jacobian for first-order,
                   ! called with sensitivities and
                   ! rxn rates with 1st order rxns effective  
-                  CALL JAC ( YCDDM, PDT, RK )
+                  CALL  EVALUATE_F_JAC_MECH( YCDDM, RK, PDT ) ! Evaluate Jacobian based on YCDDM and RK values
                   DO S = 1, NUMB_MECH_SPC
                      DO J = 1, NUMB_MECH_SPC
                         PRD( S ) = PRD( S ) + CHEMSTEP * PDT( S,J ) * SMID( HITMP2,J ) * IREGTEMP
@@ -338,7 +343,7 @@ C End of modification by A.Digar
             ! Jacobian for higher-order,
             ! called with sensitivities and
             ! rxn rates with 1st order rxns removed
-            CALL JAC ( SMIDJAC, PDT2, SRK2 )
+            CALL  EVALUATE_F_JAC_MECH( SMIDJAC, SRK2, PDT2 ) ! Evaluate Jacobian based on SMIDJAC and SKR2 values
 
             DO S = 1, NUMB_MECH_SPC
                SUM = 0.0

@@ -263,7 +263,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       PD( NO2         ,N2O5         ) =             RK( 037 )                                                           
      &                                  +           RK( 038 )                                                           
       PD( NO2         ,HNO3         ) =             RK( 047 )                                                           
-      PD( NO2         ,HONO         ) =   4.00000 * RK( 042 ) * C( HONO         )                                       
+      PD( NO2         ,HONO         ) =   2.00000 * RK( 042 ) * C( HONO         )                                       
      &                                  +           RK( 044 ) * C( OH           )                                       
       PD( NO2         ,PNA          ) =             RK( 049 )                                                           
      &                                  + 0.59000 * RK( 050 )                                                           
@@ -343,7 +343,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                                  +           RK( 030 ) * C( NO2          )                                       
       PD( NO          ,OH           ) = -           RK( 040 ) * C( NO           )                                       
       PD( NO          ,HO2          ) = -           RK( 025 ) * C( NO           )                                       
-      PD( NO          ,HONO         ) =   4.00000 * RK( 042 ) * C( HONO         )                                       
+      PD( NO          ,HONO         ) =   2.00000 * RK( 042 ) * C( HONO         )                                       
      &                                  +           RK( 043 )                                                           
       PD( NO          ,C2O3         ) = -           RK( 053 ) * C( NO           )                                       
       PD( NO          ,MEO2         ) = -           RK( 071 ) * C( NO           )                                       
@@ -391,7 +391,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                                  -           RK( 031 ) * C( O            )                                       
       PD( O           ,O1D          ) =             RK( 010 )                                                           
       PD( O           ,OH           ) = -           RK( 014 ) * C( O            )                                       
-     &                                  + 4.00000 * RK( 016 ) * C( OH           )                                       
+     &                                  + 2.00000 * RK( 016 ) * C( OH           )                                       
       PD( O           ,HO2          ) = -           RK( 015 ) * C( O            )                                       
       PD( O           ,H2O2         ) = -           RK( 023 ) * C( O            )                                       
       PD( O           ,ALD2         ) = -           RK( 105 ) * C( O            )                                       
@@ -926,10 +926,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       PD( H2O2        ,O            ) = -           RK( 023 ) * C( H2O2         )                                       
       PD( H2O2        ,O3           ) =   0.04000 * RK( 143 ) * C( OLE          )                                       
      &                                  + 0.08000 * RK( 147 ) * C( IOLE         )                                       
-      PD( H2O2        ,OH           ) =   4.00000 * RK( 017 ) * C( OH           )                                       
+      PD( H2O2        ,OH           ) =   2.00000 * RK( 017 ) * C( OH           )                                       
      &                                  -           RK( 022 ) * C( H2O2         )                                       
-      PD( H2O2        ,HO2          ) =   4.00000 * RK( 019 ) * C( HO2          )                                       
-     &                                  + 4.00000 * RK( 020 ) * C( HO2          )                                       
+      PD( H2O2        ,HO2          ) =   2.00000 * RK( 019 ) * C( HO2          )                                       
+     &                                  + 2.00000 * RK( 020 ) * C( HO2          )                                       
       PD( H2O2        ,H2O2         ) = -           RK( 021 )                                                           
      &                                  -           RK( 022 ) * C( OH           )                                       
      &                                  -           RK( 023 ) * C( O            )                                       
@@ -2879,7 +2879,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  PDs of the rate of change of species  88: CL2                                                                        
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       PD( CL2         ,CL2          ) = -           RK( 225 )                                                           
-      PD( CL2         ,CLO          ) =   4.00000 * RK( 228 ) * C( CLO          )                                       
+      PD( CL2         ,CLO          ) =  0.600000 * RK( 228 ) * C( CLO          )                                       
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 C  PDs of the rate of change of species  89: CL                                                                         
@@ -2923,7 +2923,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &                                  -           RK( 249 ) * C( XYLMN        )                                       
      &                                  -           RK( 250 ) * C( NAPH         )                                       
       PD( CL          ,HOCL         ) =             RK( 226 )                                                           
-      PD( CL          ,CLO          ) =   4.00000 * RK( 228 ) * C( CLO          )                                       
+      PD( CL          ,CLO          ) =   2.80000 * RK( 228 ) * C( CLO          )                                       
      &                                  +           RK( 229 ) * C( NO           )                                       
      &                                  +           RK( 231 ) * C( MEO2         )                                       
       PD( CL          ,FMCL         ) =             RK( 232 ) * C( OH           )                                       
