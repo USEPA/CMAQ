@@ -28,13 +28,13 @@
   
   - Download these files to your system storing them in a scratch folder, for those on Unix Systems the following commands can be used:
 
-``
+```
 wget https://raw.githubusercontent.com/USEPA/CMAQ/master/DOCS/Known_Issues/CMAQv5.3.1-i#/your_files .
 
-``
+```
   - Once you have the updated versions of bugfixed files, you need to find where these files are located in your source code, so you can replace them. Most often, these files will be located in one of the CCTM/src folder within the CMAQ repo. You will then just go to where that file is located and simple replace that file with the bugfixed file. For those on Unix systems the following commands can be used: 
   
-``
+```
 To find where the file is located use:
 
   find /path_to_my_src -name foo.f 
@@ -42,7 +42,7 @@ To find where the file is located use:
 Once the file is located use: 
 
   cp /foo.f /path_to_my_src/foo.f 
-``
+```
 
 * Now users may follow the instructions provided in the [Users Guide](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.md#56-compiling-cmaq-chemistry-transport-model-cctm) to build a CMAQ Project.
 
@@ -68,10 +68,10 @@ Once the file is located use:
   
   - Download these files to your system storing them in a scratch folder, for those on Unix Systems the following commands can be used:
 
-``
+```
 wget https://raw.githubusercontent.com/USEPA/CMAQ/master/DOCS/Known_Issues/CMAQv5.3.1-i#/your_files .
 
-``
+```
   - Once you have the bugfixed files, go to your scripts directory where your BLD directory is created. 
   
   - Within your scripts directory, go to your BLD directory where. Here is where your source code exists for your local project and where your executable lives. 
