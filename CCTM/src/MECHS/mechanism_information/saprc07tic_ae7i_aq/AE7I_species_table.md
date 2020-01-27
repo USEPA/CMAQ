@@ -9,21 +9,21 @@
 | AAVB4 | semivolailte organic particulate matter from oxidation of anthropogenic VOCs | 158.0 |  L |
 | ACA               | Calcium                                              | 40.1                 | E                      |
 | ACL               | Chloride                                             | 35.5                 | E                      |
-|ADIM |IEPOX-derived organosulfate from IEPOX uptake onto particles|248.23 |L|
 | ACORS             | Anthropogenic Coarse-mode particle mass              | 100.0                | L                      |
 | AEC               | Elemental Carbon                                     | 12                   | E                      |
 | AFE               | Iron                                                 | 55.8                 | E                      |
 | AGLY              | Glyoxal and Methylglyoxal SOA                        | 66.4                 | L                      |
 | AH2O              | Water                                                | 18                   | E                      |
 | AH3OP             | Hydronium Ion                                        | 19                   | E                      |
-|AIEOS |2-methyltetrols from IEPOX uptake onto particles|216.2 |L|
-|AIETET |Hydroxymethyl-methyl-a-lactone|136.15 |E|
-|AIMGA |IEPOX-derived oligomers from IEPOX uptake onto particles|120.1 |L|
-|AIMOS |2-methylglyceric acid from MAE+HMML uptake onto particles|200.16 |E|
+| AIEOS             | IEPOX-derived organosulfate                          | 216.20               | E                      |
+| AIETET            | 2-methyltetrols from IEPOX uptake onto particles     |136.15                | E                      |
+| ADIM              | oligomers (dimers) from IEPOX uptake onto particles  |248.23                | L                      |
+| AIMGA             | 2-methylglyceric acid from MAE+HMMLL uptake onto particles  | 120.10        | E                      |
+| AIMOS             | organosulfate from MAE+HMML uptake onto particles    |200.16                | E                      |
 | AISO1             | Semivolatile SOA Product from Isoprene               | 132.0                | L                      |
 | AISO2             | High-Volatility SOA Product from Isoprene            | 133.0                | L                      |
 | AISO3             | Acid-Catalyzed Isoprene SOA compounds                | 168.2                | L                      |
-|AISOPNN|SOA from isoprene dinitrates (C*=8.9 ug/m3)|226 |L|
+| AISOPNN           | SOA from isoprene dinitrates (C*=8.9 ug/m3)          |226 |L|
 | AIVPO1            | Intermediate Volatility Primary Organic Compounds    | 266                  | L                      |
 | AK                | Potassium                                            | 39.1                 | E                      |
 | ALVOO1            | Low Volatility Oxidized Combustion Organic Compounds | 136                  | L                      |

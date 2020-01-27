@@ -322,11 +322,19 @@ The RunScript must also specify the location of the input files using three-digi
 setenv GR_EMIS_001 /home/user/path-to-file/emiss_stream_1_${DATE}.nc
 ```
 
-and the short-name label to be used to refer to the Stream in logfiles:
+
+the short-name label to be used to refer to the Stream in logfiles:
 
 ```
 setenv GR_EMIS_LAB_001 MOBILE
 ```
+
+and if the stream contains data in a representative day fashion (i.e. data from 2016 maybe used to model emissions in 2019 since the diurnal pattern maybe the same for that stream): 
+
+```
+setenv GR_EM_SYM_DATE_001 F
+```
+
 If N_EMIS_GR is set 0, then CMAQ will run with no Gridded emissions even if the values for GR_EMIS_XXX and GR_EMIS_LAB_XXX are all set.
 
 #### Inline Stream (offline):
@@ -348,13 +356,24 @@ setenv STK_EMIS_002 /home/user/path-to-file/inline_emiss_stream_2_${DATE}.nc
 ```
 
 The location to the "stack file" with static information about the properties of each source on the stream:
+
 ```
 setenv STK_GRPS_002 /home/user/path-to-file/inline_stack_groups_2.nc
 ```
-and the short-name label to be used to refer to the Stream in logfiles:
+
+
+the short-name label to be used to refer to the Stream in logfiles:
+
 ```
 setenv STK_EMIS_LAB_002 POINT_FIRES
 ```
+
+and if the stream contains data in a representative day fashion (i.e. data from 2016 maybe used to model emissions in 2019 since the diurnal pattern maybe the same for that stream): 
+
+```
+setenv STK_EM_SYM_DATE_002 F
+```
+
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
 *Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide (https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s03.html). It is required that emission files have been processed to include the necessary stack parameters (e.g. exit velocity, diameter, stack gas temperature, stack height, etc.). 
