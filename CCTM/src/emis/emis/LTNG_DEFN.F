@@ -62,6 +62,9 @@
 !C  3 Sep 2019 D. Kang: Added to scale factors for the vertical distribution and to make sure 
 !C                      the profile is similar to those reported in literature and fixed a bug 
 !C                      that was introduced two years ago for generating diagnotic 3D lightning emissions.
+!C 28 Jan 2020 D. Kang: Remove the SATLAM function call that is redundant.Though there is no effect 
+!C                      when run the model over the continental US (Lambert projection), when run over the hemisphere
+!C                      and turning lightning NOx on, the run would crash due to uncompatible projection (polar)
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -264,16 +267,6 @@
             END IF  !END if NLDNSTRIKE
 
             LT_TSTEP_F = SEC2TIME (LT_TSTEP)
-
-!C Set Lambert projection
-            IF ( .NOT. SETLAM( SNGL( P_ALP3D ),
-     &            SNGL( P_BET3D ),
-     &            SNGL( P_GAM3D ),
-     &            SNGL( XCENT3D ),
-     &            SNGL( YCENT3D ) ) ) THEN
-                  CALL M3EXIT( 'CELL_LL', 0, 0,
-     &            'Lambert projection setup error', 2 )
-            END IF
 
             SQUAREKM = REAL( ( XCELL3D * YCELL3D * 1.0D-6 ), 4 )
 !C Set up vertical layers
