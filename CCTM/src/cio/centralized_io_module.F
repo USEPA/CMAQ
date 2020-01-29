@@ -2586,12 +2586,12 @@ C Read the various categories of normalized emissions
                    read (cio_grid_var_name(v,1)(str_len-2:str_len), *) fnum
                    loc_vname = cio_grid_var_name(v,1)(1:str_len-4)
 
-                   data_jdate = loc_jdate(f_emis(fnum))
                    ! Check if its a representative day on start-up (every other time it will
                    ! be managed by the emissions processing) 
                    if (firstime) then  
                      if (file_sym_date(f_emis(fnum))) loc_jdate(f_emis(fnum)) = file_sdate(f_emis(fnum))
                    end if
+                   data_jdate = loc_jdate(f_emis(fnum))
                    data_jtime = loc_jtime(f_emis(fnum))
 
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
@@ -2607,12 +2607,12 @@ C Read the various categories of normalized emissions
                    read (cio_grid_var_name(v,1)(str_len-2:str_len), *) fnum
                    loc_vname = cio_grid_var_name(v,1)(1:str_len-4)
 
-                   data_jdate = loc_jdate(f_emis(fnum))
                    ! Check if its a representative day on start-up (every other time it will
                    ! be managed by the emissions processing) 
                    if (firstime) then  
                      if (file_sym_date(f_emis(fnum))) loc_jdate(f_emis(fnum)) = file_sdate(f_emis(fnum))
                    end if
+                   data_jdate = loc_jdate(f_emis(fnum))
                    data_jtime = loc_jtime(f_emis(fnum))
 
                    IF ( .NOT. XTRACT3( cio_emis_file_name(fnum), loc_vname,
@@ -3584,7 +3584,7 @@ C   mminlu and num_land_cat are WRF global variables
            END DO
         END DO
       END IF
-      
+
       EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
       EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
       
