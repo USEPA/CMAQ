@@ -476,6 +476,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  endif
 
 #> CMAQ-DDM-3D
+ setenv CTM_DDM3D N
  set NPMAX    = 1
  setenv SEN_INPUT ${WORKDIR}/sensinput.dat
 

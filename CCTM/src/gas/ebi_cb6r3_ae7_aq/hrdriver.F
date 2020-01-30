@@ -287,6 +287,17 @@ C..Determine which cells need IRR
 
 #ifdef sens
          CALL INIT_DDM3D_CHEM()
+
+C For higher order sensitivities
+         IF ( HIGH ) THEN
+            DO RXN = 1, NRXNS
+               IF( NREACT( RXN ) .EQ. 1 ) THEN
+                  ORDER1( RXN ) = .TRUE.
+               ELSE
+                  ORDER1( RXN ) = .FALSE.
+               END IF
+            END DO
+         END IF
 #endif
 
       END IF      ! First time
@@ -352,15 +363,15 @@ C For reaction rate sensitivities
       END DO
 
 C For higher order sensitivities
-      IF ( HIGH ) THEN
-         DO RXN = 1, NRXNS
-            IF( NREACT( RXN ) .EQ. 1 ) THEN
-               ORDER1( RXN ) = .TRUE.
-            ELSE
-               ORDER1( RXN ) = .FALSE.
-            END IF
-         END DO
-      END IF
+c     IF ( HIGH ) THEN
+c        DO RXN = 1, NRXNS
+c           IF( NREACT( RXN ) .EQ. 1 ) THEN
+c              ORDER1( RXN ) = .TRUE.
+c           ELSE
+c              ORDER1( RXN ) = .FALSE.
+c           END IF
+c        END DO
+c     END IF
 #endif sens
 
 
