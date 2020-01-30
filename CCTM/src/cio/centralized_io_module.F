@@ -86,7 +86,7 @@
 
         use RUNTIME_VARS, only : LTNG_NO, STDATE, STTIME, ABFLUX, MOSAIC, 
      &                           NPTGRPS, USE_MARINE_GAS_EMISSION, logdev,
-     &                           CONVECTIVE_SCHEME
+     &                           CONVECTIVE_SCHEME, EMIS_SYM_DATE
         use CENTRALIZED_IO_UTIL_MODULE
         use get_env_module 
         implicit none
@@ -113,7 +113,7 @@
         integer :: file_tstep(max_nfiles) = -1
         real*8  :: file_xcell(max_nfiles) = 0.0d0
         real*8  :: file_ycell(max_nfiles) = 0.0d0
-        logical :: file_sym_date(max_nfiles) = .false. 
+        logical :: file_sym_date(max_nfiles)  
 
         CHARACTER( 40 ), parameter :: NLDN_STRIKES = 'NLDN_STRIKES'
         CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_CONC_1'
@@ -656,6 +656,7 @@
              file_ycell(f_emis(n)) = ycell3d
 
 ! Check whether file is a representative day type
+             file_sym_date(f_emis(n)) = emis_sym_date ! Master switch to change default 
              write (fname, '(a15, i3.3)') "GR_EM_SYM_DATE_", n
              call get_env(file_sym_date(f_emis(n)), fname, 
      &                    file_sym_date(f_emis(n)), logdev )             
@@ -1295,6 +1296,7 @@
 
 ! Check whether file is a representative day type
              write (fname, '(a16, i3.3)') "STK_EM_SYM_DATE_", pt 
+             file_sym_date(f_stk_emis(pt)) = emis_sym_date ! Master switch to change default 
              call get_env(file_sym_date(f_stk_emis(pt)), fname, 
      &                    file_sym_date(f_stk_emis(pt)), logdev)             
 
@@ -2622,11 +2624,11 @@ C Read the various categories of normalized emissions
 
                 else if (cio_grid_var_name(v,2) == 'ic') then
 
-                   if (iter == 1) then
-
                       data_jdate = loc_jdate(f_icon)
                       data_jtime = loc_jtime(f_icon)
 
+                   if (iter == 1) then
+                   
                       IF ( .NOT. XTRACT3( ICFILE, cio_grid_var_name(v,1),
      &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
@@ -2637,11 +2639,11 @@ C Read the various categories of normalized emissions
 
                 else if (cio_grid_var_name(v,2) == 'is') then
 
-                   if ((iter == 1) .and. (ISAM_NEW_START == 'N')) then
-
                       data_jdate = loc_jdate(f_is_icon)
                       data_jtime = loc_jtime(f_is_icon)
 
+                   if ((iter == 1) .and. (ISAM_NEW_START == 'N')) then
+                      
                       IF ( .NOT. XTRACT3( ISAM_PREVDAY, cio_grid_var_name(v,1),
      &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
@@ -3919,6 +3921,8 @@ C   mminlu and num_land_cat are WRF global variables
      &               ':',cio_stack_emis_data_tstamp(2,0,var_loc,pt),' to ',
      &                cio_stack_emis_data_tstamp(1,1,var_loc,pt),':',cio_stack_emis_data_tstamp(2,1,var_loc,pt)
                      call m3exit( 'Centralized I/O',date,time,'',1 )
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_1ds in module centralized io'
                    end if 
                 else
                    lcount = lcount + 1
@@ -4060,6 +4064,9 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
+
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_2d in module centralized io'
                      
                      call m3exit( 'Centralized I/O',date,time,'',1 )
                    end if 
@@ -4232,8 +4239,11 @@ C   mminlu and num_land_cat are WRF global variables
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
                      
-                     call m3exit( 'Centralized I/O',date,time,'',1 )
-                   end if 
+                     call m3exit( 'Centralized I/O',date,time,'',1 )     
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine i_interpolate_var_2d in module centralized io'
+                  
+                  end if 
                 else
                    lcount = lcount + 1
                 end if
@@ -4391,8 +4401,12 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_bndy_data_tstamp(1,0,var_loc),
      &               ':',cio_bndy_data_tstamp(2,0,var_loc),' to ',
      &                cio_bndy_data_tstamp(1,1,var_loc),':',cio_bndy_data_tstamp(2,1,var_loc)
-            
+
                      call m3exit( 'Centralized I/O',date,time,'',1 )
+
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_2db in module centralized io'
+           
                    end if 
                 end if
 
@@ -4575,9 +4589,12 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
-                     
+
                      call m3exit( 'Centralized I/O',date,time,'',1 )
-                   end if 
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_3d in module centralized io'
+                    
+                    end if 
                 else
                    lcount = lcount + 1
                 end if
