@@ -50,8 +50,13 @@ C                        Added a block of code to let non I/O processors to
 C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C   1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
 C                        clauses
+C   12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, S_PVD, S_CGRIDL1, S_PLDV
+#endif
 
       IMPLICIT NONE
 
@@ -201,6 +206,17 @@ C-----------------------------------------------------------------------
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
+
+#ifdef sens
+         ALLOCATE ( S_PLDV( NPMAX,N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_PLDV array'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+         S_PLDV = 0.0   ! array assignment
+#endif
+
 
 C DEPVEL_GAS is used also for non-ILDEPV in the sgtot calculation
          ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
@@ -405,6 +421,17 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
             CGRIDL1 = 0.0   ! array assignment (PVD initalized in m3dry)
             NH3_EMIS = 0.0
 
+#ifdef sens
+               ALLOCATE ( S_CGRIDL1( NPMAX,N_GAS_DEPV,NCOLS,NROWS ),
+     &                    S_PVD    ( NPMAX,N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+               IF ( ALLOCSTAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating S_CGRIDL1 or S_PVD arrays'
+                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+               S_CGRIDL1 = 0.0
+#endif
+
          END IF INIT_GAS_DV
 
          WRITE( LOGDEV,'( 5X, A / )' ) 'DEPV_INIT: completed INIT_GAS_DV block '
@@ -532,6 +559,11 @@ C-----------------------------------------------------------------------
                DO C = 1, NCOLS
                   DEPV( V,C,R ) = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                   PLDV( V,C,R ) = PVD( NDX,C,R )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_PLDV( NP,V,C,R ) = S_PVD( NP,NDX,C,R )
+                  END DO
+#endif
 #ifdef Verbose
                   if ( c .eq. cw .and. r .eq. rw ) then
                      write( logdev,1039 ) v, n, gc_depv( n ), ndx,
@@ -555,6 +587,12 @@ C-----------------------------------------------------------------------
                DO C = 1, NCOLS
                   DEPV( V,C,R ) = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                   PLDV( V,C,R ) = PVD( NDX,C,R )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_PLDV( NP,V,C,R ) = S_PVD( NP,NDX,C,R )
+                  END DO
+#endif
+
 #ifdef Verbose
                   if ( c == cw .and. r == rw ) then
                      write( logdev,1039 ) v, n, nr_depv( n ), ndx,
@@ -577,6 +615,11 @@ C-----------------------------------------------------------------------
                DO C = 1, NCOLS
                   DEPV( V,C,R ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                   PLDV( V,C,R ) = PVD( NDX,C,R )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_PLDV( NP,V,C,R ) = S_PVD( NP,NDX,C,R )
+                  END DO
+#endif
 #ifdef Verbose
                   if ( c == cw .and. r == rw ) then
                      write( logdev,1039 ) v, n, tr_depv( n ), ndx,
