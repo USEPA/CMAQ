@@ -63,6 +63,9 @@
 !                      to enable running CMAQ with different files having
 !                      different time steps, cleaned up code no longer needed
 !                      & two-way model bugfixes
+!  01/30/20, D. Wong:- fixed IC file interpolation time stamp issue by bypassing the
+!                      check whether the new request falls within the circular buffer
+!                      for IC variable which only has one time step of data.
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -4537,67 +4540,26 @@ C   mminlu and num_land_cat are WRF global variables
                 loc_tstep = file_tstep(f_is_icon)
              end if
 
-             if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
-     &           ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
+             if (cio_grid_var_name(var_loc,2) .ne. 'ic') then
+                if ((cio_grid_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
+     &              ((cio_grid_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
+     &               (cio_grid_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
 
-                loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
-                loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
+                   loc_jdate = cio_grid_data_tstamp(1, loc_tail, var_loc)
+                   loc_jtime = cio_grid_data_tstamp(2, loc_tail, var_loc)
 
-                CALL NEXTIME ( loc_jdate, loc_jtime, loc_tstep )
+                   CALL NEXTIME ( loc_jdate, loc_jtime, loc_tstep )
 
-                call retrieve_time_dep_gridded_data (loc_jdate, loc_jtime, loc_vname)
-                loc_head = head_grid(var_loc)
-                loc_tail = tail_grid(var_loc)
+                   call retrieve_time_dep_gridded_data (loc_jdate, loc_jtime, loc_vname)
+                   loc_head = head_grid(var_loc)
+                   loc_tail = tail_grid(var_loc)
+                end if
              end if
 
              if ((cio_grid_data_tstamp(1, 2, var_loc) .eq. date) .and.
      &           (cio_grid_data_tstamp(2, 2, var_loc) .eq. time)) then
                 count = count + 1
              else
-
-                cio_grid_data_tstamp(1, 2, var_loc) = date
-                cio_grid_data_tstamp(2, 2, var_loc) = time
-
-                if ((prev_time .ne. time) .or.
-     &              (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc)) .or.
-     &              (prev_tail_time .ne. cio_grid_data_tstamp(2, loc_tail, var_loc))) then
-
-                   if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. date) then
-                      ratio2 =   real(time_diff(time, cio_grid_data_tstamp(2, loc_head, var_loc))) 
-     &                         / real(time_to_sec(loc_tstep))
-                      ratio1 = 1.0 - ratio2
-                   else
-                      ratio2 =   real(time_diff(240000, cio_grid_data_tstamp(2, loc_head, var_loc))) 
-     &                         / real(time_to_sec(loc_tstep))
-                      ratio1 = 1.0 - ratio2
-                   end if
-                   prev_time = time
-                   prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
-                   prev_tail_time = cio_grid_data_tstamp(2, loc_tail, var_loc)
-                   
-                   if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
-     &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
-                     write(logdev,'(5X,a)'),
-     &               'ERROR: Incorrect Interpolation in 3-D Generic Interpolation for variable: ',
-     &                trim(vname) 
-                     
-                     write(logdev,'(5X,a,i7,a,i6)'), 
-     &               'Requested TIME & DATE: ',date,':',time
-                     
-                     write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
-     &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
-     &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
-     &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
-
-                     call m3exit( 'Centralized I/O',date,time,'',1 )
-                      write(logdev,'(5X,a)'),
-     &                'ERROR: Program EXIT in subroutine r_interpolate_var_3d in module centralized io'
-                    
-                    end if 
-                else
-                   lcount = lcount + 1
-                end if
 
                 head_beg_ind  = cio_grid_data_inx(1,loc_head,var_loc)
                 head_end_ind  = cio_grid_data_inx(2,loc_head,var_loc)
@@ -4610,6 +4572,49 @@ C   mminlu and num_land_cat are WRF global variables
      &              (cio_grid_var_name(var_loc, 2) .eq. 'is')) then
                    cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind)
                 else
+                   cio_grid_data_tstamp(1, 2, var_loc) = date
+                   cio_grid_data_tstamp(2, 2, var_loc) = time
+
+                   if ((prev_time .ne. time) .or.
+     &                 (prev_head_time .ne. cio_grid_data_tstamp(2, loc_head, var_loc)) .or.
+     &                 (prev_tail_time .ne. cio_grid_data_tstamp(2, loc_tail, var_loc))) then
+
+                      if (cio_grid_data_tstamp(1, loc_head, var_loc) .eq. date) then
+                         ratio2 =   real(time_diff(time, cio_grid_data_tstamp(2, loc_head, var_loc))) 
+     &                            / real(time_to_sec(loc_tstep))
+                         ratio1 = 1.0 - ratio2
+                      else
+                         ratio2 =   real(time_diff(240000, cio_grid_data_tstamp(2, loc_head, var_loc))) 
+     &                            / real(time_to_sec(loc_tstep))
+                         ratio1 = 1.0 - ratio2
+                      end if
+                      prev_time = time
+                      prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
+                      prev_tail_time = cio_grid_data_tstamp(2, loc_tail, var_loc)
+                   
+                      if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
+     &                .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
+                        write(logdev,'(5X,a)'),
+     &                  'ERROR: Incorrect Interpolation in 3-D Generic Interpolation for variable: ',
+     &                   trim(vname) 
+                     
+                        write(logdev,'(5X,a,i7,a,i6)'), 
+     &                  'Requested TIME & DATE: ',date,':',time
+                     
+                        write(logdev,'(5X,a,i7,a,i6,a,i7,a,i6)'),
+     &                  'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
+     &                  ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
+     &                   cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
+
+                        call m3exit( 'Centralized I/O',date,time,'',1 )
+                         write(logdev,'(5X,a)'),
+     &                   'ERROR: Program EXIT in subroutine r_interpolate_var_3d in module centralized io'
+                    
+                       end if 
+                   else
+                      lcount = lcount + 1
+                   end if
+
                    cio_grid_data(store_beg_ind:store_end_ind) =   cio_grid_data(head_beg_ind:head_end_ind) * ratio1
      &                                                          + cio_grid_data(tail_beg_ind:tail_end_ind) * ratio2
                 end if
