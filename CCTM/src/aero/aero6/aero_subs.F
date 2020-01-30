@@ -2363,7 +2363,6 @@ C     for ZSR calculation below
       ELSE
          PRINT*, 'aero_subs.f: case not supported ',
      &          '(metastable reverse only)'
-!        STOP
       END IF
 
 C     Get single-solute molalities for ZSR calculation

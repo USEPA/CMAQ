@@ -2269,8 +2269,7 @@ C and allowing the model to proceed.
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
      &              'Please correct them to proceed.'
-            CALL LOG_MESSAGE( OUTDEV, XMSG )
-            STOP
+            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
          END IF
           
          ! Check for Time Units
@@ -2298,8 +2297,7 @@ C and allowing the model to proceed.
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
      &              'Please correct them to proceed.'
-            CALL LOG_MESSAGE( OUTDEV, XMSG )
-            STOP
+            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
          END IF
 
          END SUBROUTINE CHECK_EMIS_UNITS
@@ -2326,8 +2324,7 @@ C and allowing the model to proceed.
              WRITE( XMSG,'(A,I3,A,A1)' ),
      &              'ERROR: OP parameter for rule ',IRULE,
      &              ' has invalid value: ',OP
-             CALL LOG_MESSAGE( OUTDEV, XMSG )
-             STOP
+             CALL M3EXIT( 'CHECK_OP (EMIS_DEFN)', 0, 0, XMSG, 2 )
          END IF
 
          END SUBROUTINE CHECK_OP
@@ -2357,8 +2354,7 @@ C and allowing the model to proceed.
              WRITE( XMSG,'(A,I3,A,A4)' ),
      &              'ERROR: BASIS parameter for rule ',IRULE,
      &              ' has invalid value: ',BASIS
-             CALL LOG_MESSAGE( OUTDEV, XMSG )
-             STOP
+             CALL M3EXIT( 'CHECK_BASIS (EMIS_DEFN)', 0, 0, XMSG, 2 )
          END IF
 
          END SUBROUTINE CHECK_BASIS
