@@ -180,13 +180,6 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
 setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
-setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
-                             #>   rather than checking the emissions date against the internal model date.
-                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
-                             #>   time will be used and an error check will be performed (recommended). Users 
-                             #>   may switch the behavior for individual emission files below using the variables:
-                             #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [default : N ] 
-
  
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
@@ -343,7 +336,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j.ncf
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
-  setenv GR_EM_SYM_DATE_001 F
+  setenv GR_EM_SYM_DATE_001 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
   #> In-Line Point Emissions Files
   setenv N_EMIS_PT 7          #> Number of elevated source groups
 
@@ -380,6 +373,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   # Allow CMAQ to Use Point Source files with dates that do not
   # match the internal model date
+  # To change default behaviour please see Users Guide for EMIS_SYM_DATE
   setenv STK_EM_SYM_DATE_001 T
   setenv STK_EM_SYM_DATE_002 T
   setenv STK_EM_SYM_DATE_003 T
