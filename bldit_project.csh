@@ -17,7 +17,7 @@
 #> directory.
 
 
- set CMAQ_HOME = /home/username/CMAQ_Project
+ set CMAQ_HOME = /work/MOD3DEV/dkj/github_CMAQ/master
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -26,23 +26,23 @@
  set EXT_CCTM    = Y
 
  #Utilities
- set EXT_JPROC = Y
+ set EXT_JPROC = N
 
  # Pre-Processing Tools
- set EXT_BCON = Y
- set EXT_ICON = Y
- set EXT_MCIP = Y
+ set EXT_BCON = N 
+ set EXT_ICON = N 
+ set EXT_MCIP = N 
  
  # Post-Processing Tools
- set EXT_COMBINE = Y
- set EXT_APPENDWRF = Y
- set EXT_BLDOVERLAY = Y
- set EXT_BLOCK_EXTRACT = Y
- set EXT_CALC_TMETRIC = Y
- set EXT_HR2DAY = Y
- set EXT_SITECMP = Y
- set EXT_SITECMP_DAILYO3 = Y
- set EXT_WRITESITE = Y
+ set EXT_COMBINE = N 
+ set EXT_APPENDWRF = N 
+ set EXT_BLDOVERLAY = N 
+ set EXT_BLOCK_EXTRACT = N 
+ set EXT_CALC_TMETRIC = N 
+ set EXT_HR2DAY = N 
+ set EXT_SITECMP = N 
+ set EXT_SITECMP_DAILYO3 = N
+ set EXT_WRITESITE = N 
 
 
 #> model source code repository location 

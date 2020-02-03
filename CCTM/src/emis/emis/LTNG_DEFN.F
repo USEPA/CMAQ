@@ -191,25 +191,6 @@
          WRITE( SJDATE, '(I7)' ) JDATE
          READ( SJDATE, '(4X, I3)' ) CJDATE
 
-!C Check grid definition (initialize if first call)
-!C Set up domain based on met file
-!C Open met file
-#ifdef twoway
-            IF ( IO_PE_INCLUSIVE ) THEN
-               MNAME = PROMPTMFILE(
-     &                 'Enter name for gridded met input file',
-     &                 FSRDWR3, CTM_CONC_1, PNAME )
-            ELSE
-               MNAME = PROMPTMFILE(
-     &                 'Enter name for gridded met input file',
-     &                 FSREAD3, CTM_CONC_1, PNAME )
-            END IF
-#else
-            MNAME = PROMPTMFILE(
-     &              'Enter name for gridded met input file',
-     &              FSREAD3, 'MET_CRO_3D', PNAME )
-#endif
-
 !C Is lightning NO production inline, or from a file?
          IF ( LTNG_FNAME .EQ. "InLine" ) THEN  ! inline lightning NO production
             XMSG = 'Using in-line lightning NO production'
@@ -220,20 +201,13 @@
               NLDNSTRIKE = .FALSE.
            END IF
 #endif
-!C Open lightning parameters file?
-               ONAME = PROMPTMFILE(
-     &                    'Enter name for lightning parameters file',
-     &                    FSREAD3, 'LTNGPARMS_FILE', PNAME )
-               RNAME = PROMPTMFILE(
-     &                    'Enter name for gridded met input file',
-     &                    FSREAD3, 'MET_CRO_2D', PNAME )
 !C Read description of normalized emissions file
-           IF ( .NOT. DESC3( RNAME ) ) THEN
-                  XMSG = 'Could not get description of file "'
-     &                 // TRIM( RNAME ) // '"'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-           END IF
+!           IF ( .NOT. DESC3( RNAME ) ) THEN
+!                  XMSG = 'Could not get description of file "'
+!     &                 // TRIM( RNAME ) // '"'
+!                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+!                  SUCCESS = .FALSE.; RETURN
+!           END IF
            IF ( RCA_AVAIL ) THEN
                RC_NAME = 'RCA'
            ELSE
@@ -242,15 +216,15 @@
            IF ( NLDNSTRIKE ) THEN
                   XMSG = 'Using hourly NLDN Strike data'
                   CALL M3MSG2( XMSG )
-                  ANAME = PROMPTMFILE(
-     &                    'Enter name for NLDN STRIKE Parameters',
-     &                    FSREAD3, 'NLDN_STRIKES', PNAME )
-               IF ( .NOT. DESC3( ANAME ) ) THEN
-                  XMSG = 'Could not get description of file "'
-     &                 // TRIM( ANAME ) // '"'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
+!                  ANAME = PROMPTMFILE(
+!     &                    'Enter name for NLDN STRIKE Parameters',
+!     &                    FSREAD3, 'NLDN_STRIKES', PNAME )
+!               IF ( .NOT. DESC3( ANAME ) ) THEN
+!                  XMSG = 'Could not get description of file "'
+!     &                 // TRIM( ANAME ) // '"'
+!                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+!                  SUCCESS = .FALSE.; RETURN
+!               END IF
                SPC = INDEX1( 'NLDNstrk', NVARS3D, VNAME3D )
                IF ( SPC .GT. 0 ) THEN
                   LT_NAME = 'NLDNstrk'
@@ -375,18 +349,13 @@
 !C Lightning NO production from an input file
             CALL M3MSG2( 'Using lightning NO production from a file' )
 
-!C Open lightning emissions input file
-            LTNG_FNAME = PROMPTMFILE(
-     &              'Enter name for lightning emissions input file',
-     &              FSREAD3, 'LTNGNO', PNAME )
-
 !C Get description of emissions file
-            IF ( .NOT. DESC3( LTNG_FNAME ) ) THEN
-               XMSG = 'Could not get description of file "'
-     &              // TRIM( LTNG_FNAME ) // '"'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
+!            IF ( .NOT. DESC3( LTNG_FNAME ) ) THEN
+!               XMSG = 'Could not get description of file "'
+!     &              // TRIM( LTNG_FNAME ) // '"'
+!               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+!               SUCCESS = .FALSE.; RETURN
+!            END IF
 
 !C Check grid definition (intialize, if first call)
             OK = CHKGRID( LTNG_FNAME )
@@ -494,12 +463,12 @@ C statement function for ERF approximation
             DTSTEP = TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) 
             !C Open me filet
 !C Get domain window info for met_cro_2d file
-            IF (FIRSTIME) THEN
-                CALL SUBHFILE ( RNAME, GXOFF, GYOFF,
-     &              STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-                TOT_TSTEP = 0
-                FIRSTIME = .FALSE.
-            END IF
+!            IF (FIRSTIME) THEN
+!                CALL SUBHFILE ( RNAME, GXOFF, GYOFF,
+!     &              STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
+!                TOT_TSTEP = 0
+!                FIRSTIME = .FALSE.
+!            END IF
             WRITE( SJDATE, '(I7)') JDATE
             READ( SJDATE, '(4X, I3)') CJDATE
 
