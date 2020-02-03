@@ -1,4 +1,4 @@
-
+#ifdef sens
 
       MODULE MECHANISM_FUNCTIONS
 
@@ -979,4 +979,5 @@ c..Add the number of species molecules produced in this reaction
         END SUBROUTINE WRITE_OUTPUT
       END MODULE 
       
-      
+    
+#endif    
