@@ -549,10 +549,12 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModISAM};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "// compile of decoupled direct method in 3d"
- echo $text                                                        >> $Cfile
- echo "Module ${ModDDM3D};"                                        >> $Cfile
- echo                                                              >> $Cfile
+ if ( $?DDM3D_CCTM ) then
+   set text = "// compile for decoupled direct method in 3d"
+   echo $text                                                        >> $Cfile
+   echo "Module ${ModDDM3D};"                                        >> $Cfile
+   echo                                                              >> $Cfile
+ endif
 
  set text = "util"
  echo "// options are" $text                                       >> $Cfile
