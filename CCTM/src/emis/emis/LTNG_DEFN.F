@@ -128,8 +128,8 @@
          USE CGRID_SPCS         ! CGRID mechanism species
          USE UTILIO_DEFN
          USE CENTRALIZED_IO_MODULE, only : RCA_AVAIL, ICCG_SUM, ICCG_WIN,
-      &                                    FILE_TSTEP, F_MET, F_LTNG,
-      &                                    LT_NAME, FILE_XCELL, LE_YCELL
+     &                                     FILE_TSTEP, F_MET, F_LTNG,
+     &                                     LT_NAME, FILE_XCELL, LE_YCELL
 
 #ifdef twoway
          USE twoway_data_module
