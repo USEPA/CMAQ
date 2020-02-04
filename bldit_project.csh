@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ================= CMAQv5.2.1 Extraction Script ==================== #
+# ================= CMAQv5.3.1 Extraction Script ==================== #
 # Requirements: CMAQ git source code repository                       #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -26,23 +26,23 @@
  set EXT_CCTM    = Y
 
  #Utilities
- set EXT_JPROC = N
+ set EXT_JPROC = Y 
 
  # Pre-Processing Tools
- set EXT_BCON = N 
- set EXT_ICON = N 
- set EXT_MCIP = N 
+ set EXT_BCON = Y 
+ set EXT_ICON = Y 
+ set EXT_MCIP = Y 
  
  # Post-Processing Tools
- set EXT_COMBINE = N 
- set EXT_APPENDWRF = N 
- set EXT_BLDOVERLAY = N 
- set EXT_BLOCK_EXTRACT = N 
- set EXT_CALC_TMETRIC = N 
- set EXT_HR2DAY = N 
- set EXT_SITECMP = N 
- set EXT_SITECMP_DAILYO3 = N
- set EXT_WRITESITE = N 
+ set EXT_COMBINE = Y 
+ set EXT_APPENDWRF = Y 
+ set EXT_BLDOVERLAY = Y 
+ set EXT_BLOCK_EXTRACT = Y 
+ set EXT_CALC_TMETRIC = Y 
+ set EXT_HR2DAY = Y 
+ set EXT_SITECMP = Y
+ set EXT_SITECMP_DAILYO3 = Y 
+ set EXT_WRITESITE = Y 
 
 
 #> model source code repository location 
