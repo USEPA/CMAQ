@@ -62,9 +62,10 @@
 !C  3 Sep 2019 D. Kang: Added to scale factors for the vertical distribution and to make sure 
 !C                      the profile is similar to those reported in literature and fixed a bug 
 !C                      that was introduced two years ago for generating diagnotic 3D lightning emissions.
-!C 28 Jan 2020 D. Kang: Remove the SATLAM function call that is redundant.Though there is no effect 
-!C                      when run the model over the continental US (Lambert projection), when run over the hemisphere
-!C                      and turning lightning NOx on, the run would crash due to uncompatible projection (polar)
+!C 4 Feb 2020 D. Kang: Remove the SATLAM function call that is redundant and clean up the code to comply with 
+!C                      the implementation of CIO.Though there is no effect when run the model over the continental
+!C                      US (Lambert projection), when run over the hemisphere and turning lightning NOx on,
+!C                       the run would crash due to uncompatible projection (polar)
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -89,13 +90,13 @@
 
 !C file name for off line lightning NO input; set to "InLine" for inline production
 !C file name for inline lightning parameters, (only used if LTNG_FNAME = "InLine")
-      CHARACTER( 16 ),      SAVE :: ANAME
-      CHARACTER( 16 ),      SAVE :: ONAME
+!      CHARACTER( 16 ),      SAVE :: ANAME
+!      CHARACTER( 16 ),      SAVE :: ONAME
 !C file name for met file for inline lightning
-      CHARACTER( 16 ),      SAVE :: MNAME
-      CHARACTER( 16 ),      SAVE :: RNAME
+!      CHARACTER( 16 ),      SAVE :: MNAME
+!      CHARACTER( 16 ),      SAVE :: RNAME
       CHARACTER( 16 ),      SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
-      CHARACTER( 16 ),      SAVE :: LT_NAME       ! LNT name: old is NLDNstrk and new is LNT
+!      CHARACTER( 16 ),      SAVE :: LT_NAME       ! LNT name: old is NLDNstrk and new is LNT
 
 !C allocate these if LTNG_FNAME = 'InLine'
       REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC     ( :,: ) ! surface pressure
@@ -126,7 +127,10 @@
          USE GRID_CONF ! horizontal & vertical domain specifications
          USE CGRID_SPCS         ! CGRID mechanism species
          USE UTILIO_DEFN
-         USE CENTRALIZED_IO_MODULE, only : RCA_AVAIL, ICCG_SUM, ICCG_WIN
+         USE CENTRALIZED_IO_MODULE, only : RCA_AVAIL, ICCG_SUM, ICCG_WIN,
+      &                                    FILE_TSTEP, F_MET, F_LTNG,
+      &                                    LT_NAME, FILE_XCELL, LE_YCELL
+
 #ifdef twoway
          USE twoway_data_module
 #endif
@@ -225,14 +229,14 @@
 !                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
 !                  SUCCESS = .FALSE.; RETURN
 !               END IF
-               SPC = INDEX1( 'NLDNstrk', NVARS3D, VNAME3D )
-               IF ( SPC .GT. 0 ) THEN
-                  LT_NAME = 'NLDNstrk'
-               ELSE
-                  LT_NAME = 'LNT'
-               END IF
+!               SPC = INDEX1( 'NLDNstrk', NVARS3D, VNAME3D )
+!               IF ( SPC .GT. 0 ) THEN
+!                  LT_NAME = 'NLDNstrk'
+!               ELSE
+!                  LT_NAME = 'LNT'
+!               END IF
 
-               LT_TSTEP = TIME2SEC ( TSTEP3D )
+               LT_TSTEP = TIME2SEC ( FILE_TSTEP(F_LTNG)  )
 
             ELSE
                  LT_TSTEP = TIME2SEC ( TSTEP )
@@ -242,7 +246,7 @@
 
             LT_TSTEP_F = SEC2TIME (LT_TSTEP)
 
-            SQUAREKM = REAL( ( XCELL3D * YCELL3D * 1.0D-6 ), 4 )
+            SQUAREKM = REAL( ( FILE_XCELL(F_LTNG) * FILE_YCELL(F_LTNG) * 1.0D-6 ), 4 )
 !C Set up vertical layers
             ALLOCATE( VGLVSLT( 0:EMLAYS ), STAT = STATUS )
             CALL CHECKMEM( STATUS, 'VGLVSLT', PNAME )
@@ -265,7 +269,7 @@
 !            END IF  !LPARAM
 !C Store local layer information
             DO L = EMLAYS, 0, -1
-                  VGLVSLT( L ) = VGLVS3D( L+1 )
+                  VGLVSLT( L ) = VGLVS_GD( L+1 )
                   WRITE( LOGDEV,'(5X, A, I3, A, F11.7)' ) 'VGLVSLT(', L, ' ):', VGLVSLT( L )
             END DO
 
@@ -373,7 +377,7 @@
             SUCCESS = .FALSE.; RETURN
          END IF
  
-         RETURN
+!         RETURN
 
          END FUNCTION LTNG_INIT
 
@@ -391,7 +395,8 @@
      &                                     SLOPE_lg,
      &                                     INTERCEPT_lg,
      &                                     ICCG_SUM,
-     &                                     ICCG_WIN
+     &                                     ICCG_WIN,
+     &                                     LT_NAME
 #ifdef twoway
          USE twoway_data_module
 #endif
@@ -437,8 +442,8 @@
          CHARACTER( 120 )  :: XMSG = ' '
          REAL, ALLOCATABLE :: COLUMN_LTNG_NO ( :,: ) ! column total NO
          
-         INTEGER,     SAVE :: GXOFF, GYOFF   ! global origin offset from file
-         INTEGER,     SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
+!         INTEGER,     SAVE :: GXOFF, GYOFF   ! global origin offset from file
+!         INTEGER,     SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
 
          INTEGER           :: cjdate
          INTEGER           :: DTSTEP
@@ -463,12 +468,12 @@ C statement function for ERF approximation
             DTSTEP = TIME2SEC( TSTEP( 1 ) ) / TIME2SEC( TSTEP( 2 ) ) 
             !C Open me filet
 !C Get domain window info for met_cro_2d file
-!            IF (FIRSTIME) THEN
+            IF (FIRSTIME) THEN
 !                CALL SUBHFILE ( RNAME, GXOFF, GYOFF,
 !     &              STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-!                TOT_TSTEP = 0
-!                FIRSTIME = .FALSE.
-!            END IF
+                TOT_TSTEP = 0
+                FIRSTIME = .FALSE.
+            END IF
             WRITE( SJDATE, '(I7)') JDATE
             READ( SJDATE, '(4X, I3)') CJDATE
 
