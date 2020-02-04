@@ -454,7 +454,7 @@ Information is based on the mech.def file.
 | HET_HOI_BRJ   | HOI + ABRJ ----> IBR  | HETERO_HOI_BRJ | Not Available<sup>2</sup> | 
 | HET_HI_AJ   | HI ----> | HETERO_HI_AJ | Not Available<sup>2</sup> | 
 | DMS1   | DMS + OH ----> SO2 + MEO2 + FORM  |   1.12E-11e<sup>  -250.00/T</sup> |   4.8424E-12 |
-| DMS2   | DMS + OH ---->   0.750\*SO2 +    0.250\*MSA + MEO2 + HO2  | k<sub>o</sub>=  1.99E-39e<sup>  5270.0/T</sup>(T/300)<sup>  0.00</sup><br>k<sub>i</sub> =   1.26E-10e<sup>  -340.0/T</sup>(T/300)<sup>  0.00</sup><br>n=     1.00;F=     1.00 |   2.1985E-12 |
+| DMS2   | DMS + OH ---->   0.750\*SO2 +    0.250\*MSA + MEO2 | k<sub>o</sub>=  1.99E-39e<sup>  5270.0/T</sup>(T/300)<sup>  0.00</sup><br>k<sub>i</sub> =   1.26E-10e<sup>  -340.0/T</sup>(T/300)<sup>  0.00</sup><br>n=     1.00;F=     1.00 |   2.1985E-12 |
 | DMS3   | DMS + NO3 ----> SO2 + HNO3 + MEO2 + FORM  |   1.90E-13e<sup>   520.00/T</sup> |   1.0869E-12 |
 | DMS4   | DMS + CL ---->   0.860\*SO2 + MEO2 +    0.450\*FORM +    0.450\*HCL +    0.140\*MSA +    0.550\*CLO  |   3.40E-13e<sup>  2081.00/T</sup> |   3.6537E-10 |
 | DMS5   | DMS + CLO ---->   0.750\*SO2 +    0.250\*MSA + MEO2 + CL  |   1.70E-15e<sup>   340.00/T</sup> |   5.3174E-15 |

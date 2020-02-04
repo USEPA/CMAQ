@@ -86,7 +86,7 @@
 
         use RUNTIME_VARS, only : LTNG_NO, STDATE, STTIME, ABFLUX, MOSAIC, 
      &                           NPTGRPS, USE_MARINE_GAS_EMISSION, logdev,
-     &                           CONVECTIVE_SCHEME
+     &                           CONVECTIVE_SCHEME, EMIS_SYM_DATE
         use CENTRALIZED_IO_UTIL_MODULE
         use get_env_module 
         implicit none
@@ -113,7 +113,7 @@
         integer :: file_tstep(max_nfiles) = -1
         real*8  :: file_xcell(max_nfiles) = 0.0d0
         real*8  :: file_ycell(max_nfiles) = 0.0d0
-        logical :: file_sym_date(max_nfiles) = .false. 
+        logical :: file_sym_date(max_nfiles)  
 
         CHARACTER( 40 ), parameter :: NLDN_STRIKES = 'NLDN_STRIKES'
         CHARACTER( 40 ), parameter :: ICFILE       = 'INIT_CONC_1'
@@ -286,6 +286,7 @@
      &                      x_dot_ncols, x_dot_nrows    ! extended dot file nools and nrows 
 
         integer, private :: cio_LTLYRS                  ! number of layers in lightning strike dataset
+        CHARACTER( 16 )  :: LT_NAME                     ! LNT name: old Cis NLDNstrk and new is LNT
 
         interface interpolate_var
           module procedure r_interpolate_var_1ds,       ! Interpolation for Stack Group 4 byte Real 1-D Data 
@@ -656,6 +657,7 @@
              file_ycell(f_emis(n)) = ycell3d
 
 ! Check whether file is a representative day type
+             file_sym_date(f_emis(n)) = emis_sym_date ! Master switch to change default 
              write (fname, '(a15, i3.3)') "GR_EM_SYM_DATE_", n
              call get_env(file_sym_date(f_emis(n)), fname, 
      &                    file_sym_date(f_emis(n)), logdev )             
@@ -852,6 +854,14 @@
              l2d_name(:,1) = vname3d(1:n_l2d) 
              l2d_name(:,2) = 'lnt'   ! denote lightning variable
              l2d_name(:,3) = ' '     ! denote non met variable
+             ! Check to see what the lightning variable name is called
+             ! backwards (NLDNstrk) & forwards compatible (LNT)  
+             if ( index1('NLDNstrk', n_l2d ,l2d_name(:,1)) .gt. 0 ) then
+              lt_name = 'NLDNstrk'
+             else
+              lt_name = 'LNT'
+             end if
+
           end if
 
 ! combining all files
@@ -867,8 +877,7 @@
           size_s2d    = s_cro_ncols * s_cro_nrows
 
           if ((cro_ncols .ne. ncols) .or. (cro_nrows .ne. nrows)) then
-             print *, ' ==d== NO ncols nrows '
-             stop
+             call m3exit( 'Centralized I/O',0,0,' ==d== NO ncols nrows ',1 )
           end if
 
           x_cro_ncols = ENDCOLMC2x - STRTCOLMC2x + 1
@@ -979,8 +988,7 @@
      &                (cio_grid_var_name(v,2) .eq. 'wb')) then
                 d_size = size_s2d
              else
-                print *, ' ==d== UNKNOWN'
-                stop
+                call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN',1 )
              end if
 
              do n = 0, 2
@@ -1218,8 +1226,8 @@
           end do
 
           IF ( .NOT. STK_PRMS_INIT( STKGNAME ) ) THEN
-             write (cio_logdev, *) 'Could not initialize stack parameters'
-             stop
+             xmsg = 'Could not initialize stack parameters'
+             call m3exit( 'Stack Files Setup', 0, 0, xmsg, 2 )
           END IF
 
           do N = 1, NPTGRPS
@@ -1297,6 +1305,7 @@
 
 ! Check whether file is a representative day type
              write (fname, '(a16, i3.3)') "STK_EM_SYM_DATE_", pt 
+             file_sym_date(f_stk_emis(pt)) = emis_sym_date ! Master switch to change default 
              call get_env(file_sym_date(f_stk_emis(pt)), fname, 
      &                    file_sym_date(f_stk_emis(pt)), logdev)             
 
@@ -2624,11 +2633,11 @@ C Read the various categories of normalized emissions
 
                 else if (cio_grid_var_name(v,2) == 'ic') then
 
-                   if (iter == 1) then
-
                       data_jdate = loc_jdate(f_icon)
                       data_jtime = loc_jtime(f_icon)
 
+                   if (iter == 1) then
+                   
                       IF ( .NOT. XTRACT3( ICFILE, cio_grid_var_name(v,1),
      &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
@@ -2639,11 +2648,11 @@ C Read the various categories of normalized emissions
 
                 else if (cio_grid_var_name(v,2) == 'is') then
 
-                   if ((iter == 1) .and. (ISAM_NEW_START == 'N')) then
-
                       data_jdate = loc_jdate(f_is_icon)
                       data_jtime = loc_jtime(f_is_icon)
 
+                   if ((iter == 1) .and. (ISAM_NEW_START == 'N')) then
+                      
                       IF ( .NOT. XTRACT3( ISAM_PREVDAY, cio_grid_var_name(v,1),
      &                                    1, nlays, STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                                    data_jdate, data_jtime, cio_grid_data(begin:end) ) ) THEN
@@ -2683,8 +2692,7 @@ C Read the various categories of normalized emissions
                    deallocate (tdata)
 
                 else
-                   print *, ' ==d== Unknown type of file'
-                   stop
+                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWNi Type of File',1 )
                 end if
 
                 cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
@@ -2814,8 +2822,7 @@ C Read the various categories of normalized emissions
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jtime, XMSG, XSTAT1 )
                    END IF
                 else
-                   print *, ' ==d== Unknown type of file'
-                   stop
+                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWNi Type of File',1 )
                 end if
 
              end do
@@ -3605,7 +3612,7 @@ C   mminlu and num_land_cat are WRF global variables
       IMPLICIT NONE
 
          ! Define Dummy Variables for Opening Emission Control Namelist
-         CHARACTER( 300 ) :: EQNAME
+         CHARACTER( 300 ) :: EQNAME, XMSG
          INTEGER          :: EMCTRL_NML
          INTEGER          :: STAT, IFAM, INUM
 
@@ -3698,9 +3705,9 @@ C   mminlu and num_land_cat are WRF global variables
 
          ! Check for Error in File Open Process
          IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, '(5x,A,A,/,8x,A)' ),'ERROR: Could not read ',
+             WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
      &              'emissions control namelist file: ',TRIM( EQNAME )
-             CALL EXIT(1)
+             CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
          
          ! Read General Specification Section
@@ -3851,6 +3858,7 @@ C   mminlu and num_land_cat are WRF global variables
           integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
+          character(200) :: xmsg
 
           pt = binary_search (fname, cio_stack_file_name, NPTGRPS)
 
@@ -3858,7 +3866,9 @@ C   mminlu and num_land_cat are WRF global variables
 
           if (var_loc .lt. 0) then
              write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in a stack file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on a Stack Emisison file. Simulation will now terminate.'
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              dsize = MY_END_SRC( pt ) - MY_STRT_SRC( pt ) + 1
 
@@ -3919,7 +3929,9 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_stack_emis_data_tstamp(1,0,var_loc,pt),
      &               ':',cio_stack_emis_data_tstamp(2,0,var_loc,pt),' to ',
      &                cio_stack_emis_data_tstamp(1,1,var_loc,pt),':',cio_stack_emis_data_tstamp(2,1,var_loc,pt)
-                     call exit(2) 
+                     call m3exit( 'Centralized I/O',date,time,'',1 )
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_1ds in module centralized io'
                    end if 
                 else
                    lcount = lcount + 1
@@ -3971,11 +3983,13 @@ C   mminlu and num_land_cat are WRF global variables
           integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
+          character(200) :: xmsg
 
           var_loc = binary_search (vname, cio_grid_var_name(:,1), n_cio_grid_vars)
           if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in any 2D file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on any 2D file. Simulation will now terminate.'
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
@@ -4059,8 +4073,11 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
+
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_2d in module centralized io'
                      
-                     call exit(2) 
+                     call m3exit( 'Centralized I/O',date,time,'',1 )
                    end if 
                 else
                    lcount = lcount + 1
@@ -4142,11 +4159,13 @@ C   mminlu and num_land_cat are WRF global variables
           integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
+          character(200) :: xmsg
 
           var_loc = binary_search (vname, cio_grid_var_name(:,1), n_cio_grid_vars)
           if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(vname), ' is not available in any 2D file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on any 2D file. Simulation will now terminate.'
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
@@ -4229,8 +4248,11 @@ C   mminlu and num_land_cat are WRF global variables
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
                      
-                     call exit(2) 
-                   end if 
+                     call m3exit( 'Centralized I/O',date,time,'',1 )     
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine i_interpolate_var_2d in module centralized io'
+                  
+                  end if 
                 else
                    lcount = lcount + 1
                 end if
@@ -4293,6 +4315,7 @@ C   mminlu and num_land_cat are WRF global variables
           logical :: loc_firstime = .true.
           integer, save :: prev_time = -1
           real :: ratio1, ratio2
+          character(200) :: xmsg
 
           if (loc_firstime) then
              loc_firstime = .false.
@@ -4323,8 +4346,9 @@ C   mminlu and num_land_cat are WRF global variables
           var_loc = binary_search (vname, cio_bndy_var_name(:,1), n_cio_bndy_vars)
 
           if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a35)') 'Warning: ', trim(vname), ' is not available in any bndy file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on any BNDY file. Simulation will now terminate.'
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              loc_head = head_bndy(var_loc)
              loc_tail = tail_bndy(var_loc)
@@ -4386,8 +4410,12 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_bndy_data_tstamp(1,0,var_loc),
      &               ':',cio_bndy_data_tstamp(2,0,var_loc),' to ',
      &                cio_bndy_data_tstamp(1,1,var_loc),':',cio_bndy_data_tstamp(2,1,var_loc)
-            
-                     call exit(2) 
+
+                     call m3exit( 'Centralized I/O',date,time,'',1 )
+
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_2db in module centralized io'
+           
                    end if 
                 end if
 
@@ -4479,6 +4507,7 @@ C   mminlu and num_land_cat are WRF global variables
           integer, save :: prev_tail_time = -1
           integer, save :: lcount = 0
           real, save :: ratio1, ratio2
+          character(200) :: xmsg
 
           if (present(fname)) then
              slen = len_trim(fname)
@@ -4489,8 +4518,9 @@ C   mminlu and num_land_cat are WRF global variables
 
           var_loc = binary_search (loc_vname, cio_grid_var_name(:,1), n_cio_grid_vars)
           if (var_loc .lt. 0) then
-             write (cio_logdev, '(a9, a, a33)') 'Warning: ', trim(loc_vname), ' is not available in any 3D file.'
-             stop 
+             write (xmsg, '(A9,A,A,A)' ) 'ERROR: ',trim(vname), ' is not available ',
+     &             'on any 3D file. Simulation will now terminate.'
+             call m3exit ( 'Centralized I/O Module', date, time, xmsg, 1 )
           else
              loc_head = head_grid(var_loc)
              loc_tail = tail_grid(var_loc)
@@ -4568,9 +4598,12 @@ C   mminlu and num_land_cat are WRF global variables
      &               'Interpolation Bounds ',cio_grid_data_tstamp(1,0,var_loc),
      &               ':',cio_grid_data_tstamp(2,0,var_loc),' to ',
      &                cio_grid_data_tstamp(1,1,var_loc),':',cio_grid_data_tstamp(2,1,var_loc)
-                     
-                     call exit(2) 
-                   end if 
+
+                     call m3exit( 'Centralized I/O',date,time,'',1 )
+                      write(logdev,'(5X,a)'),
+     &                'ERROR: Program EXIT in subroutine r_interpolate_var_3d in module centralized io'
+                    
+                    end if 
                 else
                    lcount = lcount + 1
                 end if
