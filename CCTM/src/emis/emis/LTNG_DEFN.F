@@ -88,15 +88,7 @@
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
       REAL,    ALLOCATABLE, SAVE :: COLUMN_DIAG( :,: ) ! column total NO
 
-!C file name for off line lightning NO input; set to "InLine" for inline production
-!C file name for inline lightning parameters, (only used if LTNG_FNAME = "InLine")
-!      CHARACTER( 16 ),      SAVE :: ANAME
-!      CHARACTER( 16 ),      SAVE :: ONAME
-!C file name for met file for inline lightning
-!      CHARACTER( 16 ),      SAVE :: MNAME
-!      CHARACTER( 16 ),      SAVE :: RNAME
       CHARACTER( 16 ),      SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
-!      CHARACTER( 16 ),      SAVE :: LT_NAME       ! LNT name: old is NLDNstrk and new is LNT
 
 !C allocate these if LTNG_FNAME = 'InLine'
       REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC     ( :,: ) ! surface pressure
@@ -205,13 +197,6 @@
               NLDNSTRIKE = .FALSE.
            END IF
 #endif
-!C Read description of normalized emissions file
-!           IF ( .NOT. DESC3( RNAME ) ) THEN
-!                  XMSG = 'Could not get description of file "'
-!     &                 // TRIM( RNAME ) // '"'
-!                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-!                  SUCCESS = .FALSE.; RETURN
-!           END IF
            IF ( RCA_AVAIL ) THEN
                RC_NAME = 'RCA'
            ELSE
@@ -220,31 +205,18 @@
            IF ( NLDNSTRIKE ) THEN
                   XMSG = 'Using hourly NLDN Strike data'
                   CALL M3MSG2( XMSG )
-!                  ANAME = PROMPTMFILE(
-!     &                    'Enter name for NLDN STRIKE Parameters',
-!     &                    FSREAD3, 'NLDN_STRIKES', PNAME )
-!               IF ( .NOT. DESC3( ANAME ) ) THEN
-!                  XMSG = 'Could not get description of file "'
-!     &                 // TRIM( ANAME ) // '"'
-!                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-!                  SUCCESS = .FALSE.; RETURN
-!               END IF
-!               SPC = INDEX1( 'NLDNstrk', NVARS3D, VNAME3D )
-!               IF ( SPC .GT. 0 ) THEN
-!                  LT_NAME = 'NLDNstrk'
-!               ELSE
-!                  LT_NAME = 'LNT'
-!               END IF
 
                LT_TSTEP = TIME2SEC ( FILE_TSTEP(F_LTNG)  )
+               LT_TSTEP_F = FILE_TSTEP(F_LTNG) 
 
             ELSE
                  LT_TSTEP = TIME2SEC ( TSTEP )
+                 LT_TSTEP_F = TSTEP 
                  XMSG = 'Using derived parameters for KF scheme '
                  CALL M3MSG2( XMSG )
             END IF  !END if NLDNSTRIKE
 
-            LT_TSTEP_F = SEC2TIME (LT_TSTEP)
+!            LT_TSTEP_F = SEC2TIME (LT_TSTEP)
 
             SQUAREKM = REAL( ( FILE_XCELL(F_LTNG) * FILE_YCELL(F_LTNG) * 1.0D-6 ), 4 )
 !C Set up vertical layers
@@ -270,7 +242,7 @@
 !C Store local layer information
             DO L = EMLAYS, 0, -1
                   VGLVSLT( L ) = VGLVS_GD( L+1 )
-                  WRITE( LOGDEV,'(5X, A, I3, A, F11.7)' ) 'VGLVSLT(', L, ' ):', VGLVSLT( L )
+!                  WRITE( LOGDEV,'(5X, A, I3, A, F11.7)' ) 'VGLVSLT(', L, ' ):', VGLVSLT( L )
             END DO
 
 
@@ -353,14 +325,6 @@
 !C Lightning NO production from an input file
             CALL M3MSG2( 'Using lightning NO production from a file' )
 
-!C Get description of emissions file
-!            IF ( .NOT. DESC3( LTNG_FNAME ) ) THEN
-!               XMSG = 'Could not get description of file "'
-!     &              // TRIM( LTNG_FNAME ) // '"'
-!               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-!               SUCCESS = .FALSE.; RETURN
-!            END IF
-
 !C Check grid definition (intialize, if first call)
             OK = CHKGRID( LTNG_FNAME )
 
@@ -442,9 +406,6 @@
          CHARACTER( 120 )  :: XMSG = ' '
          REAL, ALLOCATABLE :: COLUMN_LTNG_NO ( :,: ) ! column total NO
          
-!         INTEGER,     SAVE :: GXOFF, GYOFF   ! global origin offset from file
-!         INTEGER,     SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-
          INTEGER           :: cjdate
          INTEGER           :: DTSTEP
          CHARACTER( 7 )    :: SJDATE
@@ -469,8 +430,6 @@ C statement function for ERF approximation
             !C Open me filet
 !C Get domain window info for met_cro_2d file
             IF (FIRSTIME) THEN
-!                CALL SUBHFILE ( RNAME, GXOFF, GYOFF,
-!     &              STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
                 TOT_TSTEP = 0
                 FIRSTIME = .FALSE.
             END IF
