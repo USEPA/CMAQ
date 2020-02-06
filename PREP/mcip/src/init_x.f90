@@ -81,11 +81,24 @@ SUBROUTINE init_x
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Fill THETA
 !                        and add moisture flux (QFX) for IFMOLACM.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added XMUHYB to support hybrid
+!                        vertical coordinate in WRF output.  Added XLUFRAC2,
+!                        XMOSCATIDX, XLAI_MOS, XRA_MOS, XRS_MOS, XTSK_MOS, and
+!                        XZNT_MOS to support NOAH Mosaic land-surface model.
+!                        Added XZSOIL to define soil layer depths, and added
+!                        3D soil arrays, XSOIT3D and XSOIM3D.  Added
+!                        XWSPDSFC and XXLAIDYN for Noah.  (T. Spero)
+!           26 Jun 2018  Now use netCDF tokens for missing data.  (T. Spero)
+!           14 Sep 2018  Changed condition to enable hybrid vertical coordinate
+!                        in WRF.  Removed support for MM5v3 input.  (T. Spero)
+!           18 Jun 2019  Added new surface variables with PX LSM that can
+!                        improve dust simulation in CCTM.  Added optional
+!                        variables from KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
   USE xvars
-  USE m3utilio, ONLY: badval3
   USE metinfo
 
   IMPLICIT NONE
@@ -94,93 +107,127 @@ SUBROUTINE init_x
 ! Initialize X-arrays.
 !-------------------------------------------------------------------------------
 
-  xx3face (:)     = badval3  ;    xx3midl (:)     = badval3
+  xx3face (:)     = fillreal  ;    xx3midl (:)     = fillreal
 
-  xalbedo (:,:)   = badval3  ;    xcfract (:,:)   = badval3
-  xcldbot (:,:)   = badval3  ;    xcldtop (:,:)   = badval3
-  xdenss  (:,:)   = badval3  ;    xdluse  (:,:)   = badval3
-  xglw    (:,:)   = badval3  ;    xgsw    (:,:)   = badval3
-  xhfx    (:,:)   = badval3  ;    xlai    (:,:)   = badval3
-  xlatc   (:,:)   = badval3  ;    xlatd   (:,:)   = badval3
-  xlatu   (:,:)   = badval3  ;    xlatv   (:,:)   = badval3
-  xlh     (:,:)   = badval3  ;    xlonc   (:,:)   = badval3
-  xlond   (:,:)   = badval3  ;    xlonu   (:,:)   = badval3
-  xlonv   (:,:)   = badval3  ;    xlwmask (:,:)   = badval3
-  xmapc   (:,:)   = badval3  ;    xmapc2  (:,:)   = badval3
-  xmapd   (:,:)   = badval3  ;    xmapu   (:,:)   = badval3
-  xmapv   (:,:)   = badval3  ;    xmol    (:,:)   = badval3
-  xpbl    (:,:)   = badval3  ;    xprsfc  (:,:)   = badval3
-  xq2     (:,:)   = badval3  ;    xradyn  (:,:)   = badval3
-  xrainc  (:,:)   = badval3  ;    xrainn  (:,:)   = badval3
-  xrgrnd  (:,:)   = badval3  ;    xrib    (:,:)   = badval3
-  xrstom  (:,:)   = badval3  ;    xseaice (:,:)   = badval3
-  xsnocov (:,:)   = badval3  ;    xtemp2  (:,:)   = badval3
-  xtempg  (:,:)   = badval3  ;    xtopo   (:,:)   = badval3
-  xustar  (:,:)   = badval3  ;    xveg    (:,:)   = badval3
-  xwbar   (:,:)   = badval3  ;    xwdir10 (:,:)   = badval3
-  xwr     (:,:)   = badval3  ;    xwspd10 (:,:)   = badval3
-  xwstar  (:,:)   = badval3  ;    xzruf   (:,:)   = badval3
+  xalbedo (:,:)   = fillreal  ;    xcfract (:,:)   = fillreal
+  xcldbot (:,:)   = fillreal  ;    xcldtop (:,:)   = fillreal
+  xdenss  (:,:)   = fillreal  ;    xdluse  (:,:)   = fillreal
+  xglw    (:,:)   = fillreal  ;    xgsw    (:,:)   = fillreal
+  xhfx    (:,:)   = fillreal  ;    xlai    (:,:)   = fillreal
+  xlatc   (:,:)   = fillreal  ;    xlatd   (:,:)   = fillreal
+  xlatu   (:,:)   = fillreal  ;    xlatv   (:,:)   = fillreal
+  xlh     (:,:)   = fillreal  ;    xlonc   (:,:)   = fillreal
+  xlond   (:,:)   = fillreal  ;    xlonu   (:,:)   = fillreal
+  xlonv   (:,:)   = fillreal  ;    xlwmask (:,:)   = fillreal
+  xmapc   (:,:)   = fillreal  ;    xmapc2  (:,:)   = fillreal
+  xmapd   (:,:)   = fillreal  ;    xmapu   (:,:)   = fillreal
+  xmapv   (:,:)   = fillreal  ;    xmol    (:,:)   = fillreal
+  xpbl    (:,:)   = fillreal  ;    xprsfc  (:,:)   = fillreal
+  xq2     (:,:)   = fillreal  ;    xradyn  (:,:)   = fillreal
+  xrainc  (:,:)   = fillreal  ;    xrainn  (:,:)   = fillreal
+  xrgrnd  (:,:)   = fillreal  ;    xrib    (:,:)   = fillreal
+  xrstom  (:,:)   = fillreal  ;    xseaice (:,:)   = fillreal
+  xsnocov (:,:)   = fillreal  ;    xsnowh  (:,:)   = fillreal
+  xtemp2  (:,:)   = fillreal  ;    xtempg  (:,:)   = fillreal
+  xtopo   (:,:)   = fillreal  ;    xustar  (:,:)   = fillreal
+  xveg    (:,:)   = fillreal  ;    xwbar   (:,:)   = fillreal
+  xwdir10 (:,:)   = fillreal  ;    xwr     (:,:)   = fillreal
+  xwspd10 (:,:)   = fillreal  ;    xwstar  (:,:)   = fillreal
+  xzruf   (:,:)   = fillreal
+
+  IF ( met_hybrid >= 0 ) THEN
+    xmuhyb(:,:)   = fillreal
+  ENDIF
 
   IF ( ifw10m ) THEN
-    xu10  (:,:)   = badval3  ;    xv10    (:,:)   = badval3
+    xu10  (:,:)   = fillreal  ;    xv10    (:,:)   = fillreal
   ENDIF
 
   IF ( ( iflufrc ) .OR. ( met_urban_phys >= 1 ) ) THEN
-    xpurb (:,:)   = badval3
+    xpurb (:,:)   = fillreal
   ENDIF
 
   IF ( lpv > 0 ) THEN
-    xcorl (:,:)   = badval3
+    xcorl (:,:)   = fillreal
   ENDIF
 
   IF ( ifmolpx ) THEN
-    xqfx  (:,:)   = badval3
+    xqfx  (:,:)   = fillreal
   ENDIF
 
   IF ( ifsoil ) THEN
-    xsltyp(:,:)   = badval3
-    xt2a  (:,:)   = badval3
-    xtga  (:,:)   = badval3  
-    xw2a  (:,:)   = badval3  
-    xwga  (:,:)   = badval3
-  ENDIF
-
-  IF ( met_model == 1 ) THEN  ! MM5
-    xpstar0    (:,:)   = badval3
-    xdensaf_ref(:,:,:) = badval3
+    xsltyp(:,:)   = fillreal
+    xt2a  (:,:)   = fillreal
+    xtga  (:,:)   = fillreal 
+    xw2a  (:,:)   = fillreal 
+    xwga  (:,:)   = fillreal
   ENDIF
 
   IF ( met_model == 2 ) THEN  ! WRF
-    xmu   (:,:)   = badval3
-    xgeof (:,:,:) = badval3
+    xmu   (:,:)   = fillreal
+    xgeof (:,:,:) = fillreal
   ENDIF
 
-  x3htf   (:,:,:) = badval3  ;    x3htm   (:,:,:) = badval3
-  x3jacobf(:,:,:) = badval3  ;    x3jacobm(:,:,:) = badval3
-  xcldwtr (:,:,:) = badval3  ;    xdensam (:,:,:) = badval3
-  xdenswm (:,:,:) = badval3  ;    xdx3htf (:,:,:) = badval3
-  xluse   (:,:,:) = badval3  ;    xpresm  (:,:,:) = badval3
-  xqgraup (:,:,:) = badval3  ;    xqice   (:,:,:) = badval3
-  xqsnow  (:,:,:) = badval3  ;    xranwtr (:,:,:) = badval3
-  xtempm  (:,:,:) = badval3  ;    xuu_d   (:,:,:) = badval3
-  xuu_s   (:,:,:) = badval3  ;    xvv_d   (:,:,:) = badval3
-  xvv_t   (:,:,:) = badval3  ;    xwhat   (:,:,:) = badval3
-  xwvapor (:,:,:) = badval3  ;    xwwind  (:,:,:) = badval3
+  x3htf   (:,:,:) = fillreal  ;    x3htm   (:,:,:) = fillreal
+  x3jacobf(:,:,:) = fillreal  ;    x3jacobm(:,:,:) = fillreal
+  xcldwtr (:,:,:) = fillreal  ;    xdensam (:,:,:) = fillreal
+  xdenswm (:,:,:) = fillreal  ;    xdx3htf (:,:,:) = fillreal
+  xluse   (:,:,:) = fillreal  ;    xpresm  (:,:,:) = fillreal
+  xqgraup (:,:,:) = fillreal  ;    xqice   (:,:,:) = fillreal
+  xqsnow  (:,:,:) = fillreal  ;    xranwtr (:,:,:) = fillreal
+  xtempm  (:,:,:) = fillreal  ;    xuu_d   (:,:,:) = fillreal
+  xuu_s   (:,:,:) = fillreal  ;    xvv_d   (:,:,:) = fillreal
+  xvv_t   (:,:,:) = fillreal  ;    xwhat   (:,:,:) = fillreal
+  xwvapor (:,:,:) = fillreal  ;    xwwind  (:,:,:) = fillreal
 
   IF ( iftke ) THEN
-    xtke  (:,:,:) = badval3
+    xtke  (:,:,:) = fillreal
   ENDIF
 
   IF ( lpv > 0 ) THEN
-    xpvc  (:,:,:) = badval3
+    xpvc  (:,:,:) = fillreal
   ENDIF
 
   IF ( lpv > 0 .OR. ifmolpx ) THEN
-    xtheta(:,:,:) = badval3
+    xtheta(:,:,:) = fillreal
   ENDIF
 
   IF ( ifcld3d ) THEN
-    xcfrac3d(:,:,:) = badval3
+    xcfrac3d(:,:,:) = fillreal
+  ENDIF
+
+  IF ( ( ifsoil ) .AND. ( metsoi > 0 ) ) THEN
+    xzsoil (:)     = fillreal
+    xsoit3d(:,:,:) = fillreal
+    xsoim3d(:,:,:) = fillreal
+  ENDIF
+
+  IF ( nummosaic > 0 ) THEN
+    xlufrac2  (:,:,:) = fillreal
+    xmoscatidx(:,:,:) = fillreal
+    xlai_mos  (:,:,:) = fillreal
+    xra_mos   (:,:,:) = fillreal
+    xrs_mos   (:,:,:) = fillreal
+    xtsk_mos  (:,:,:) = fillreal
+    xznt_mos  (:,:,:) = fillreal
+    xwspdsfc  (:,:)   = fillreal
+    xxlaidyn  (:,:)   = fillreal
+  ENDIF
+
+  IF ( ifpxwrf41 ) THEN
+    xwsat_px  (:,:) = fillreal
+    xwfc_px   (:,:) = fillreal
+    xwwlt_px  (:,:) = fillreal
+    xcsand_px (:,:) = fillreal
+    xfmsand_px(:,:) = fillreal
+    xclay_px  (:,:) = fillreal
+  ENDIF
+
+  IF ( ifkfradextras ) THEN
+    xqc_cu  (:,:,:) = fillreal
+    xqi_cu  (:,:,:) = fillreal
+    xcldfrad(:,:,:) = fillreal
+    xcldfras(:,:,:) = fillreal
   ENDIF
 
 END SUBROUTINE init_x

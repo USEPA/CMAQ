@@ -23,7 +23,7 @@ C $Header: /project/yoj/arc/CCTM/src/gas/ros3/rbsparse.F,v 1.4 2011/10/21 16:11:
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-      SUBROUTINE RBSPARSE( LOGDEV )
+      SUBROUTINE RBSPARSE( )
  
 C***********************************************************************      
  
@@ -55,7 +55,6 @@ C***********************************************************************
 C..Includes:
       
 C..Arguments:
-      INTEGER, INTENT( IN ) :: LOGDEV                   ! Logical unit number for log file
 
 C..Parameters:
       INTEGER, PARAMETER :: IZERO = 0  ! Integer zero
@@ -647,7 +646,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   JARRP(  NK,NPR,NCSP ) = IAR
                   JPIAL(  NK,NPR,NCSP ) = IAL
                   ICOEFF( NK,NPR,NCSP ) = 0
-                  IF ( ABS( SC( NK,IAP ) - 1.0 ) .GT. 1.0E-06 ) THEN
+                  IF ( ABS( SC( NK,IAP ) - 1.0D0 ) .GT. 1.0D-06 ) THEN
                      ICOEFF( NK,NPR,NCSP ) = IAP
                   END IF
                   NDPMAX = MAX( NPR,NDPMAX )

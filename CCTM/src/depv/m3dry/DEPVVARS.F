@@ -1,4 +1,3 @@
-
 !------------------------------------------------------------------------!
 !  The Community Multiscale Air Quality (CMAQ) system software is in     !
 !  continuous development by various groups and is based on information  !
@@ -44,11 +43,13 @@ C           26 Jan 2016: H. Pye added info for SOA SVOCs
 C           24 Mar 2016: G. Sarwar: added iodine and bromine species
 C           26 Sep 2016: D. Wong: removed unnecessary use module statements
 C           29 Dec 2015: H.Pye: added new monoterpene SOA surrogates
-
+C           06 Aug 2018: M.Qin: added new lumped anthropogenic semivolatiles
+C           16 Aug 2018: G. Sarwar: added ClNO3 and FMBR, and updated INO3 and BRNO3 name changes
+C           21 Nov 2018: G. Srawar: added several halogen species
 C-----------------------------------------------------------------------
 
       INTEGER, PARAMETER :: LDDEP = 4
-      INTEGER, PARAMETER :: LTOTG = 112
+      INTEGER, PARAMETER :: LTOTG = 178
       INTEGER, PARAMETER :: LCMP  = 8
       CHARACTER( 16 )    :: DEPV_METHOD
 
@@ -174,11 +175,11 @@ C-------------------------------------------------------------------------------
          DEPSPC( 89 ) = 'HOI             '
          DEPSPC( 90 ) = 'INO             '
          DEPSPC( 91 ) = 'INO2            '
-         DEPSPC( 92 ) = 'IONO2           '
+         DEPSPC( 92 ) = 'INO3            '
          DEPSPC( 93 ) = 'BRO             '
          DEPSPC( 94 ) = 'HOBR            '
          DEPSPC( 95 ) = 'HBR             '
-         DEPSPC( 96 ) = 'BRONO2          '
+         DEPSPC( 96 ) = 'BRNO3           '
          DEPSPC( 97 ) = 'BRNO2           '
          DEPSPC( 98 ) = 'BRCL            '
          DEPSPC( 99 ) = 'DMS             '
@@ -186,15 +187,81 @@ C-------------------------------------------------------------------------------
          DEPSPC( 101) = 'METHANE         '
          DEPSPC( 102) = 'ACRYACID        '
          DEPSPC( 103) = 'CARBSULFIDE     '
-         DEPSPC( 104) = 'ACETONITRILE    ' 
+         DEPSPC( 104) = 'ACETONITRILE    '
          DEPSPC( 105) = 'METH_NIT_PHEN   ' ! 6-methyl-2-nitrophenol aka 6-nitro-o-cresol
-         DEPSPC( 106) = 'SVMT1           '
-         DEPSPC( 107) = 'SVMT2           '
-         DEPSPC( 108) = 'SVMT3           '
-         DEPSPC( 109) = 'SVMT4           '
-         DEPSPC( 110) = 'SVMT5           '
-         DEPSPC( 111) = 'SVMT6           '
-         DEPSPC( 112) = 'SVMT7           '
+         DEPSPC( 106) = 'PCVOC           '
+         DEPSPC( 107) = 'INTR            '
+         DEPSPC( 108) = 'ISPX            '
+         DEPSPC( 109) = 'ROOH            '
+         DEPSPC( 110) = 'LVPCSOG         '
+         DEPSPC( 111) = 'VIVPO1          '
+         DEPSPC( 112) = 'VLVOO1          '
+         DEPSPC( 113) = 'VLVOO2          '
+         DEPSPC( 114) = 'VLVPO1          '
+         DEPSPC( 115) = 'VSVOO1          '
+         DEPSPC( 116) = 'VSVOO2          '
+         DEPSPC( 117) = 'VSVOO3          '
+         DEPSPC( 118) = 'VSVPO1          '
+         DEPSPC( 119) = 'VSVPO2          '
+         DEPSPC( 120) = 'VSVPO3          '
+         DEPSPC( 121) = 'FACD            '
+         DEPSPC( 122) = 'KET             '
+         DEPSPC( 123) = 'ETH             '
+         DEPSPC( 124) = 'PNA             '
+         DEPSPC( 125) = 'GLY             '
+         DEPSPC( 126) = 'GLYD            '
+         DEPSPC( 127) = 'MGLY            '
+         DEPSPC( 128) = 'ETHA            '
+         DEPSPC( 129) = 'ETOH            '
+         DEPSPC( 130) = 'PAR             '
+         DEPSPC( 131) = 'ACET            '
+         DEPSPC( 132) = 'PRPA            '
+         DEPSPC( 133) = 'ETHY            '
+         DEPSPC( 134) = 'OLE             '
+         DEPSPC( 135) = 'IOLE            '
+         DEPSPC( 136) = 'IEPOX           '
+         DEPSPC( 137) = 'BENZ            '
+         DEPSPC( 138) = 'CRES            '
+         DEPSPC( 139) = 'TOL             '
+         DEPSPC( 140) = 'XYLMN           '
+         DEPSPC( 141) = 'NAPH            '
+         DEPSPC( 142) = 'CAT1            '
+         DEPSPC( 143) = 'SESQ            '
+         DEPSPC( 144) = 'TERP            '
+         DEPSPC( 145) = 'ISOP            '
+         DEPSPC( 146) = 'OPEN            '
+         DEPSPC( 147) = 'XOPN            '
+         DEPSPC( 148) = 'SOAALK          '
+         DEPSPC( 149) = 'BUTADIENE13     '
+         DEPSPC( 150) = 'ACROLEIN        '
+         DEPSPC( 151) = 'SVMT1           '
+         DEPSPC( 152) = 'SVMT2           '
+         DEPSPC( 153) = 'SVMT3           '
+         DEPSPC( 154) = 'SVMT4           '
+         DEPSPC( 155) = 'SVMT5           '
+         DEPSPC( 156) = 'SVMT6           '
+         DEPSPC( 157) = 'SVMT7           '
+         DEPSPC( 158) = 'SVAVB1         '
+         DEPSPC( 159) = 'SVAVB2         '
+         DEPSPC( 160) = 'SVAVB3         '
+         DEPSPC( 161) = 'SVAVB4         '
+         DEPSPC( 162) = 'CLNO3           '
+         DEPSPC( 163) = 'FMBR            '
+         DEPSPC( 164) = 'I2             '
+         DEPSPC( 165) = 'CH3I           '
+         DEPSPC( 166) = 'ICL            '
+         DEPSPC( 167) = 'IBR            '
+         DEPSPC( 168) = 'MI2            '
+         DEPSPC( 169) = 'MIB            '
+         DEPSPC( 170) = 'MIC            '
+         DEPSPC( 171) = 'BR2            '
+         DEPSPC( 172) = 'MB3            '
+         DEPSPC( 173) = 'CH3BR          '
+         DEPSPC( 174) = 'MB2            '
+         DEPSPC( 175) = 'MB2C           '
+         DEPSPC( 176) = 'MBC2           '
+         DEPSPC( 177) = 'MBC            '
+         DEPSPC( 178) = 'CLO            '
 
          N_USE_DEPSPC = 0
          USE_DEPSPC = .FALSE.   ! array

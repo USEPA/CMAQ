@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/util/util/cksummer.F,v 1.5 2012/01/19 15:34:21 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)cksummer.F        1.1 /project/mod3/CMAQ/src/util/util/SCCS/s.cksummer.F 03 Jun 1997 12:08:53
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CKSUMMER ( SCIPROC, CGRID, JDATE, JTIME )
 
@@ -58,9 +51,14 @@ C   18 Mar 16 J.Young: Add "INTENT" attribute; remove commented out code;
 C                      rearrange logic for efficiency
 C-----------------------------------------------------------------------
 
-      USE GRID_CONF           ! horizontal & vertical domain specifications
-      USE CGRID_SPCS          ! CGRID mechanism species
-      USE UTILIO_DEFN
+      USE GRID_CONF, ONLY:  NCOLS, NROWS, NLAYS
+      USE CGRID_SPCS, ONLY: N_GC_SPC, GC_STRT, GC_SPC, 
+     &                      N_AE_SPC, AE_STRT, AE_SPC,
+     &                      N_NR_SPC, NR_STRT, NR_SPC,
+     &                      N_TR_SPC, TR_STRT, TR_SPC
+      USE RUNTIME_VARS, ONLY: LOGDEV, OUTDEV, CMYPE, APPL_NAME
+
+      USE UTILIO_DEFN, ONLY: GETEFILE
 #ifdef parallel
       USE SE_MODULES          ! stenex (using SE_GLOBAL_SUM_MODULE)
 #else
@@ -83,21 +81,15 @@ C Parameters:
 C Local variables:
  
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV         ! FORTRAN unit number for log file
 
       CHARACTER( 16 ), SAVE :: PNAME = 'CKSUMMER'
-      !CHARACTER( 96 ) :: XMSG = ' '
-      CHARACTER(  8 ) :: APPL = 'CTM_APPL'
-      CHARACTER( 48 ) :: EQNAME
       CHARACTER(  6 ) :: PRESTR = 'FLOOR_'
-      CHARACTER(  3 ) :: CMYPE
       CHARACTER( 96 ), SAVE :: DEVNAME ! Name of output file.
 
-      INTEGER, SAVE :: OUTDEV    ! FORTRAN unit number for neg conc ascii file
+      INTEGER, SAVE :: FLOORDEV    ! FORTRAN unit number for neg conc ascii file
 
       LOGICAL ::  RDONLY = .FALSE.
       LOGICAL ::  FMTTED = .TRUE.
-      !INTEGER     STATUS       !  ENVSTR status
 
       INTEGER     S, V, L, C, R
       REAL( 8 ) :: DBL_CKSUM
@@ -111,13 +103,9 @@ C-----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
-         LCELLS = FLOAT( MY_NCOLS * MY_NROWS * NLAYS )
-
-         CALL NAMEVAL ( APPL, EQNAME )
-         WRITE( CMYPE,'(I3.3)' ) MYPE
-         DEVNAME = PRESTR // CMYPE // '.' // TRIM( EQNAME )
+         LCELLS = FLOAT( NCOLS * NROWS * NLAYS )
+         DEVNAME = PRESTR // CMYPE // '.' // TRIM( APPL_NAME )
 
       END IF
 
@@ -132,19 +120,19 @@ C-----------------------------------------------------------------------
             DO S = GC_STRT, GC_STRT - 1 + N_GC_SPC
                V = V + 1
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
                         IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
                            IF ( EXFLG ) THEN
                               EXFLG = .FALSE.
                               IF ( OPFLG ) THEN   ! open output ASCII file
                                  OPFLG = .FALSE.
-                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                                 FLOORDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
                               END IF
-                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                              WRITE( FLOORDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+                           WRITE( FLOORDEV,1003 ) JDATE, JTIME, C, R, L, S,
      &                                          GC_SPC( V ), CGRID( C,R,L,S )
                            CGRID( C,R,L,S ) = CMIN
                         END IF
@@ -168,19 +156,19 @@ C-----------------------------------------------------------------------
             DO S = AE_STRT, AE_STRT - 1 + N_AE_SPC
                V = V + 1
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
                         IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
                            IF ( EXFLG ) THEN
                               EXFLG = .FALSE.
                               IF ( OPFLG ) THEN   ! open output ASCII file
                                  OPFLG = .FALSE.
-                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                                 FLOORDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
                               END IF
-                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                              WRITE( FLOORDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+                           WRITE( FLOORDEV,1003 ) JDATE, JTIME, C, R, L, S,
      &                                          AE_SPC( V ), CGRID( C,R,L,S )
                            CGRID( C,R,L,S ) = CMIN
                         END IF
@@ -204,19 +192,19 @@ C-----------------------------------------------------------------------
             DO S = NR_STRT, NR_STRT - 1 + N_NR_SPC
                V = V + 1
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
                         IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
                            IF ( EXFLG ) THEN
                               EXFLG = .FALSE.
                               IF ( OPFLG ) THEN   ! open output ASCII file
                                  OPFLG = .FALSE.
-                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                                 FLOORDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
                               END IF
-                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                              WRITE( FLOORDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+                           WRITE( FLOORDEV,1003 ) JDATE, JTIME, C, R, L, S,
      &                                          NR_SPC( V ), CGRID( C,R,L,S )
                            CGRID( C,R,L,S ) = CMIN
                         END IF
@@ -240,19 +228,19 @@ C-----------------------------------------------------------------------
             DO S = TR_STRT, TR_STRT - 1 + N_TR_SPC
                V = V + 1
                DO L = 1, NLAYS
-                  DO R = 1, MY_NROWS
-                     DO C = 1, MY_NCOLS
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
                         DBL_CKSUM = DBL_CKSUM + CGRID( C,R,L,S )
                         IF ( CGRID( C,R,L,S ) .LT. CMIN ) THEN
                            IF ( EXFLG ) THEN
                               EXFLG = .FALSE.
                               IF ( OPFLG ) THEN   ! open output ASCII file
                                  OPFLG = .FALSE.
-                                 OUTDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
+                                 FLOORDEV = GETEFILE ( DEVNAME, RDONLY, FMTTED, PNAME )
                               END IF
-                              WRITE( OUTDEV,1001 ) CMIN, SCIPROC
+                              WRITE( FLOORDEV,1001 ) CMIN, SCIPROC
                            END IF
-                           WRITE( OUTDEV,1003 ) JDATE, JTIME, C, R, L, S,
+                           WRITE( FLOORDEV,1003 ) JDATE, JTIME, C, R, L, S,
      &                                          TR_SPC( V ), CGRID( C,R,L,S )
                            CGRID( C,R,L,S ) = CMIN
                         END IF
@@ -271,11 +259,11 @@ C-----------------------------------------------------------------------
 
       ELSE   ! MINVAL( CGRID ) .GE. CMIN
 
-         GC_CKSUM = SUM( CGRID( :,:,:,GC_STRT : ( GC_STRT - 1 + N_GC_SPC ) ) )
-         AE_CKSUM = SUM( CGRID( :,:,:,AE_STRT : ( AE_STRT - 1 + N_AE_SPC ) ) )
-         NR_CKSUM = SUM( CGRID( :,:,:,NR_STRT : ( NR_STRT - 1 + N_NR_SPC ) ) )
+         GC_CKSUM = SUM( CGRID( :,:,:,GC_STRT : ( GC_STRT - 1 + N_GC_SPC ) ) ) 
+         AE_CKSUM = SUM( CGRID( :,:,:,AE_STRT : ( AE_STRT - 1 + N_AE_SPC ) ) ) 
+         NR_CKSUM = SUM( CGRID( :,:,:,NR_STRT : ( NR_STRT - 1 + N_NR_SPC ) ) ) 
          IF ( N_TR_SPC .GT. 0 ) THEN
-            TR_CKSUM = SUM( CGRID( :,:,:,TR_STRT : ( TR_STRT - 1 + N_TR_SPC ) ) )
+            TR_CKSUM = SUM( CGRID( :,:,:,TR_STRT : ( TR_STRT - 1 + N_TR_SPC ) ) ) 
          END IF
      
       END IF
@@ -285,12 +273,26 @@ C-----------------------------------------------------------------------
      &                        GC_CKSUM / LCELLS,
      &                        AE_CKSUM / LCELLS,
      &                        NR_CKSUM / LCELLS
+         IF ( ( GC_CKSUM .NE. GC_CKSUM ) .OR. ( GC_CKSUM*2. .EQ. GC_CKSUM ) .OR.
+     &        ( AE_CKSUM .NE. AE_CKSUM ) .OR. ( AE_CKSUM*2. .EQ. AE_CKSUM ) .OR.
+     &        ( NR_CKSUM .NE. NR_CKSUM ) .OR. ( NR_CKSUM*2. .EQ. NR_CKSUM ) ) THEN
+              WRITE( OUTDEV, '(7x,A,A)' ),'NaN or Infinity detected on processor ',TRIM(CMYPE)
+              WRITE( OUTDEV,1008 ) SCIPROC,GC_CKSUM/LCELLS,AE_CKSUM/LCELLS,NR_CKSUM/LCELLS
+         END IF
+ 
       ELSE
          WRITE( LOGDEV,1007 ) SCIPROC,
      &                        GC_CKSUM / LCELLS,
      &                        AE_CKSUM / LCELLS,
      &                        NR_CKSUM / LCELLS,
      &                        TR_CKSUM / LCELLS
+         IF ( ( GC_CKSUM .NE. GC_CKSUM ) .OR. ( GC_CKSUM*2. .EQ. GC_CKSUM ) .OR.
+     &        ( AE_CKSUM .NE. AE_CKSUM ) .OR. ( AE_CKSUM*2. .EQ. AE_CKSUM ) .OR.
+     &        ( NR_CKSUM .NE. NR_CKSUM ) .OR. ( NR_CKSUM*2. .EQ. NR_CKSUM ) .OR.
+     &        ( TR_CKSUM .NE. TR_CKSUM ) .OR. ( TR_CKSUM*2. .EQ. TR_CKSUM ) ) THEN
+              WRITE( OUTDEV, '(7x,A,A)' ),'NaN or Infinity detected on processor ',TRIM(CMYPE)
+              WRITE( OUTDEV,1009 ) SCIPROC,GC_CKSUM/LCELLS,AE_CKSUM/LCELLS,NR_CKSUM/LCELLS,TR_CKSUM/LCELLS
+         END IF
       END IF
 
       RETURN
@@ -303,15 +305,26 @@ C-----------------------------------------------------------------------
 
 1003  FORMAT( 5X, I8, ':', I6.6, 4I5, 1X, '(', A16, ')', 1PE12.3)
 
-1005  FORMAT( 1X, 'after',
-     &        1X, A09, 1X, 'G ', 1PE14.7,
-     &                 1X, 'A ', 1PE14.7,
-     &                 1X, 'N ', 1PE14.7 )
+1005  FORMAT( 5X, 'After',
+     &        1X, A12, 1X, ':  Gas ', 1PE10.3,
+     &                 1X, ' | Aer ', 1PE10.3,
+     &                 1X, ' | Non ', 1PE10.3 )
 
-1007  FORMAT( 1X, 'after',
-     &        1X, A09, 1X, 'G ', 1PE14.7,
-     &                 1X, 'A ', 1PE14.7,
-     &                 1X, 'N ', 1PE14.7,
-     &                 1X, 'T ', 1PE14.7 )
+1007  FORMAT( 5X, 'After',
+     &        1x, A12, 1X, ':  Gas ', 1PE10.3,
+     &                 1X, ' | Aer ', 1PE10.3,
+     &                 1X, ' | Non ', 1PE10.3,
+     &                 1X, ' | Trc ', 1PE10.3 )
+ 
+1008  FORMAT( 7X, 'During',
+     &        1X, A12, 1X, ':  Gas ', 1PE10.3,
+     &                 1X, ' | Aer ', 1PE10.3,
+     &                 1X, ' | Non ', 1PE10.3 )
 
+1009  FORMAT( 7X, 'During',
+     &        1x, A12, 1X, ':  Gas ', 1PE10.3,
+     &                 1X, ' | Aer ', 1PE10.3,
+     &                 1X, ' | Non ', 1PE10.3,
+     &                 1X, ' | Trc ', 1PE10.3 )
+ 
       END

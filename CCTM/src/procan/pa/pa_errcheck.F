@@ -17,10 +17,7 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/pa_errcheck.F,v 1.10 2011/11/02 14:33:56 yoj Exp $
-
+C-----------------------------------------------------------------------
       SUBROUTINE PA_ERRCHECK
 
 C-----------------------------------------------------------------------
@@ -41,12 +38,12 @@ C  J.Young: fix LCHEMFAM array index bug, fix N_IPR_SPC value for no ipr,
 C  fix blank in 'Air density' species name (found by Michael Bane in UK)
 C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI`s M3UTILIO
 C  Jul 2016 Jeff Young: modify for model inline
+C  Sep 2018 C. Nolte, S. Roselle: replace M3UTILIO with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
-      USE M3UTILIO      ! IOAPI module
+      USE UTILIO_DEFN   
       USE PA_GLOBAL     ! Mech and Grid data used 
-      USE CGRID_SPCS, Only: N_GC_SPC, GC_SPC, N_AE_SPC, AE_SPC,
-     &                      N_NR_SPC, NR_SPC, N_TR_SPC, TR_SPC
+      USE CGRID_SPCS, Only: N_CGRID_SPC, CGRID_NAME
       USE PA_IPRVARS
       USE PA_VARS
       USE PA_PARSE
@@ -116,32 +113,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL M3MESG( MSG )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Set up array of names of all species
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      N_SPC = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC + N_TR_SPC
-
-      DO N = 1, N_GC_SPC
-         SPC_NAME( N ) = GC_SPC( N )
-      END DO
-
-      SPC_NAME( N_GC_SPC + 1 ) = 'Air_Density'
-
-      DO N = 1, N_AE_SPC
-         INDX = N_GC_SPC + 1 + N
-         SPC_NAME( INDX ) = AE_SPC( N )
-      END DO 
-        
-      DO N = 1, N_NR_SPC
-         INDX = N_GC_SPC + 1 + N_AE_SPC + N
-         SPC_NAME( INDX ) = NR_SPC( N )
-      END DO    
-
-      DO N = 1, N_TR_SPC
-         INDX = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC + N
-         SPC_NAME( INDX ) = TR_SPC( N )
-      END DO  
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Check that all family names are valid
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LERROR = .FALSE.
@@ -149,7 +120,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INDX = 0
       LCHEMFAM( 0 ) = .FALSE.
       DO 40 NFAM = 1, NFAMLYS
-         INDX = INDEX1( FAMNAME( NFAM ), N_SPC, SPC_NAME )
+         INDX = INDEX1( FAMNAME( NFAM ), N_CGRID_SPC, CGRID_NAME )
          IF ( INDX .NE. 0 ) THEN
             WRITE( MSG, 94000 ) NFAM, FAMNAME( NFAM )
             CALL M3MESG( MSG )
@@ -165,7 +136,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          LCHEMFAM( NFAM ) = .TRUE.
          DO NMEM = 1, NUMFAMMEM( NFAM )
-            INDX = INDEX1( FAMMEMNAM( NFAM,NMEM ), N_SPC, SPC_NAME ) 
+            INDX = INDEX1( FAMMEMNAM( NFAM,NMEM ), N_CGRID_SPC, CGRID_NAME ) 
             IF ( INDX .NE. 0 ) THEN               
                FAMSPIDS( NFAM, NMEM ) = INDX
                JNDX = INDEX1( FAMMEMNAM( NFAM,NMEM ), NUMB_MECH_SPC, CHEMISTRY_SPC )              
@@ -192,7 +163,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 80 NRXS = 1, NRXSUMS
          LRXUSED( NRXS ) = .FALSE.
 
-         INDX = INDEX1( RXSUMNAME( NRXS ), N_SPC, SPC_NAME )
+         INDX = INDEX1( RXSUMNAME( NRXS ), N_CGRID_SPC, CGRID_NAME )
          IF ( INDX .NE. 0 ) THEN 
             WRITE( MSG, 94060 ) NRXS, RXSUMNAME( NRXS )
             CALL M3MESG( MSG )
@@ -236,7 +207,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 100 NCYC = 1, NCYCLES
          LCYUSED( NCYC ) = .FALSE.
 
-         INDX = INDEX1( CYCLNAME( NCYC ), N_SPC, SPC_NAME )
+         INDX = INDEX1( CYCLNAME( NCYC ), N_CGRID_SPC, CGRID_NAME )
          IF ( INDX .NE. 0 ) THEN
             WRITE( MSG, 94120 ) NCYC, CYCLNAME( NCYC )
             CALL M3MESG( MSG )
@@ -280,7 +251,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO 140 NOUT = 1, NIRROUT
 
 c..check that the output name itself is unique
-         INDX = INDEX1( IRRNAME( NOUT ), N_SPC, SPC_NAME )
+         INDX = INDEX1( IRRNAME( NOUT ), N_CGRID_SPC, CGRID_NAME )
          IF ( INDX .NE. 0 ) THEN 
             WRITE( MSG, 94180 ) NOUT, IRRNAME( NOUT )
             CALL M3MESG( MSG )
@@ -497,7 +468,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          DO 160 NOUT = 1, N_IPR_SPC
             PAINDX = NOUT + OFFSET 
             LFOUND = .FALSE.
-            INDX = INDEX1( IPR_SPNAM( PAINDX ), N_SPC, SPC_NAME )
+            INDX = INDEX1( IPR_SPNAM( PAINDX ), N_CGRID_SPC, CGRID_NAME )
             IF ( INDX .NE. 0 ) THEN 
                LFOUND = .TRUE.
                IPR_SPTYPE( PAINDX ) = 'SPEC'
@@ -518,7 +489,7 @@ c..If all species requested, insert all species into position
      &            ( IPR_SPNAM( PAINDX )( 1:3 ) .EQ. 'ALL' .OR.
      &              IPR_SPNAM( NOUT )( 1:3 ) .EQ. 'all' ) ) THEN
                LFOUND = .TRUE.
-               NEWNPASP = PAINDX - 1 + N_SPC + ( N_IPR_SPC - NOUT )
+               NEWNPASP = PAINDX - 1 + N_CGRID_SPC + ( N_IPR_SPC - NOUT )
                IF ( NEWNPASP .GT. MAXIPRSPC ) THEN
                   WRITE( MSG, 94800 )
                   CALL M3MESG( MSG )
@@ -529,7 +500,7 @@ c..If all species requested, insert all species into position
                   CALL M3EXIT( 'ERRCHECK', IZERO, IZERO, ' ', XSTAT1 )
                END IF
 
-               OFFSET = PAINDX - 1 + N_SPC - NOUT
+               OFFSET = PAINDX - 1 + N_CGRID_SPC - NOUT
                IF ( N_IPR_SPC .GT. NOUT ) THEN
                   CINDX = PAINDX
                   DO N = NOUT + 1, N_IPR_SPC
@@ -546,8 +517,8 @@ c..If all species requested, insert all species into position
                END IF
 
                LINDX = PAINDX
-               DO N = 1, N_SPC
-                  IPR_SPNAM( LINDX )  = SPC_NAME( N )
+               DO N = 1, N_CGRID_SPC
+                  IPR_SPNAM( LINDX )  = CGRID_NAME( N )
                   N_IPR_OPS( LINDX )  = N_IPR_OPS( PAINDX )
                   IPR_SPTYPE( LINDX ) = 'SPEC'
                   IPR_SPNUM( LINDX )  = N
@@ -755,7 +726,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          LDIFF = .FALSE.
          DO NMEM = 1, NUMFAMMEM( NFAM )
             SP_UNITS( NMEM ) = 'ppm'
-            INDX = INDEX1( FAMMEMNAM( NFAM,NMEM ), N_SPC, SPC_NAME )
+            INDX = INDEX1( FAMMEMNAM( NFAM,NMEM ), N_CGRID_SPC, CGRID_NAME )
             IF ( NMEM .EQ. 1 ) THEN
                FAM_UNITS = SP_UNITS( NMEM )
             ELSE

@@ -35,6 +35,12 @@ SUBROUTINE blddesc
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
 !           07 Dec 2011  Added MET_FDDA_GPH3D for spectral nudging coefficient
 !                        toward geopotential.  (T. Otte)
+!           26 Jan 2018  Added coefficient for spectral nudging of moisture to
+!                        metadata.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           12 Nov 2019  Expanded options to allow for surface analysis
+!                        nudging option 2 (FASDAS), which has been available
+!                        since WRFv3.8.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -69,9 +75,7 @@ SUBROUTINE blddesc
 
   fdesc( 4)  = TRIM(progname) // ' ' // TRIM(ver) // '  FROZEN ' // vdate
 
-  IF ( ( met_model == 1 ) .AND. ( met_iversion == 3 ) ) THEN
-    text = 'MM5'
-  ELSE IF ( ( met_model == 2 ) .AND. ( met_iversion == 2 ) ) THEN
+  IF ( ( met_model == 2 ) .AND. ( met_iversion == 2 ) ) THEN
     text = 'WRF ARW'
   ELSE
     text = 'UNKNOWN SOURCE'
@@ -80,10 +84,7 @@ SUBROUTINE blddesc
   fdesc( 7)  = 'INPUT METEOROLOGY DATA FROM ' // TRIM(text) // ' ' // TRIM(met_release)
   fdesc( 8)  = 'INPUT RUN INITIALIZED:  ' // TRIM(met_startdate)
 
-  IF ( ( met_model == 1 ) .AND. ( met_iversion == 3 ) ) THEN
-    CALL mm5v3opts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
-                    txt_pbl, txt_sflay, txt_lsm, txt_urban, txt_shcu, txt_lu)
-  ELSE IF ( ( met_model == 2 ) .AND. ( met_iversion == 2 ) ) THEN
+  IF ( ( met_model == 2 ) .AND. ( met_iversion == 2 ) ) THEN
     CALL wrfemopts (txt_cupa, txt_microphys, txt_lwrad, txt_swrad,  &
                     txt_pbl, txt_sflay, txt_lsm, txt_urban, txt_shcu, txt_lu)
   ENDIF
@@ -116,12 +117,7 @@ SUBROUTINE blddesc
       coeff_v = 'unknown'
     ENDIF
     IF ( met_fdda_gt3d >= 0.0 ) THEN
-      IF ( ( met_model == 1 ) .AND. ( met_fdda_gt3d == 0.0 ) .AND.  &
-           ( met_fdda_gq3d > 0.0 ) ) THEN  ! Bug in MM5 header for GT?
-        WRITE ( coeff_t, '(es10.3, a)' ) met_fdda_gt3d, ' ? BUG?'
-      ELSE
-        WRITE ( coeff_t, '(es10.3, a)' ) met_fdda_gt3d, ' s-1'
-      ENDIF
+      WRITE ( coeff_t, '(es10.3, a)' ) met_fdda_gt3d, ' s-1'
     ELSE
       coeff_t = 'unknown'
     ENDIF
@@ -143,7 +139,11 @@ SUBROUTINE blddesc
     ELSE
       coeff_t = 'unknown'
     ENDIF
-    coeff_q = 'not applicable'
+    IF ( met_fdda_gq3d >= 0.0 ) THEN
+      WRITE ( coeff_q, '(es10.3, a)' ) met_fdda_gq3d, ' s-1'
+    ELSE
+      coeff_q = 'not applicable'
+    ENDIF
     IF ( met_fdda_gph3d >= 0.0 ) THEN
       WRITE ( coeff_g, '(es10.3, a)' ) met_fdda_gph3d, ' s-1'
     ELSE
@@ -164,7 +164,24 @@ SUBROUTINE blddesc
   fdesc(34)  = '   GEOP COEFF:  ' // TRIM(coeff_g)
 
   IF ( met_fdda_sfan == 1 ) THEN
-    text = 'ON'
+    text = 'STANDARD'
+    IF ( met_fdda_gvsfc >= 0.0 ) THEN
+      WRITE ( coeff_v, '(es10.3, a)' ) met_fdda_gvsfc, ' s-1'
+    ELSE
+      coeff_v = 'unknown'
+    ENDIF
+    IF ( met_fdda_gtsfc >= 0.0 ) THEN
+      WRITE ( coeff_t, '(es10.3, a)' ) met_fdda_gtsfc, ' s-1'
+    ELSE
+      coeff_t = 'unknown'
+    ENDIF
+    IF ( met_fdda_gqsfc >= 0.0 ) THEN
+      WRITE ( coeff_q, '(es10.3, a)' ) met_fdda_gqsfc, ' s-1'
+    ELSE
+      coeff_q = 'unknown'
+    ENDIF
+  ELSE IF ( met_fdda_sfan == 2 ) THEN
+    text = 'FASDAS'
     IF ( met_fdda_gvsfc >= 0.0 ) THEN
       WRITE ( coeff_v, '(es10.3, a)' ) met_fdda_gvsfc, ' s-1'
     ELSE

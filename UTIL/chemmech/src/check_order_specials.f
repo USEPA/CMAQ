@@ -81,7 +81,8 @@
             NRK = INDEX_KTERM( ISP, IKC_TERM )
 
             IF ( NRK .LT. 0 )THEN ! empty array entry
-               CYCLE LOOP_KC  
+               COUNT_TERMS = 1 + COUNT_TERMS
+!               CYCLE LOOP_KC  
 	    ELSE IF( NRK .GT. 0 )THEN ! existing rate constant
                COUNT_TERMS = 1 + COUNT_TERMS
                ORDER_TERM( IKC_TERM ) = IORDER( NRK )

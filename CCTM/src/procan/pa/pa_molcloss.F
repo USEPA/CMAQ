@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/PROCAN/src/driver/pa/pa_molcloss.F,v 1.5 2011/11/02 14:33:59 yoj Exp $
-
       REAL FUNCTION MOLCLOSS( NAMETYP, NAMINDX, NRX, NRFND )
 
 C-----------------------------------------------------------------------
@@ -89,7 +85,7 @@ c..Add the number of species/family member molecules lost in this reaction
                   SPECIS = CHEMISTRY_SPC( NAMINDX )
                   COEF = 1.0
                END IF
-               IF ( GC_SPC( INDX ) .EQ. SPECIS ) THEN
+               IF ( CHEMISTRY_SPC( INDX ) .EQ. SPECIS ) THEN
                   SUM = SUM + COEF
                   NRFND = NRFND + 1
                END IF

@@ -1,6 +1,6 @@
 SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                    z_at_w_wrf, dz8w_wrf, p8w_wrf, t8w_wrf,  &
-                   numlu,                                   &
+                   numlu, release_version,                  &
                    ids, ide, jds, jde, kds, kde,            &
                    ims, ime, jms, jme, kms, kme,            &
                    its, ite, jts, jte, kts, kte,            &
@@ -92,6 +92,21 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 !              -- fixed a bug in outputing MET_CRO_2D physical file
 !           11 Jan 2017  (David Wong)
 !              -- fixed a bug to handle simulation with convective scheme or not
+!           11 Jan 2018  (David Wong)
+!              -- Added convective_scheme to set rainc accordingly
+!           31 Jan 2019  (David Wong)
+!              -- adopted the idea to process all twoway related environment
+!                 variables in one place
+!           04 Feb 2019  (Tanya Spero)
+!              -- updated Jacobian calculation for hybrid vertical coordinate
+!           04 Mar 2019  (Rob G. David Wong)
+!              -- logic for WRF version, hybrid coord, PX variables
+!              -- updated to work with PX LSM changed in WRFV4.1 that has
+!                 additional soil texture info and lai name change to lai_px
+!           01 Aug 2019  (David Wong)
+!              -- made nprocs available for CMAQ
+!              -- made two new variables, UWIND and VWIND as the wind component
+!                 on the mass point
 !===============================================================================
 
   USE module_domain                                ! WRF module
@@ -134,6 +149,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   REAL,    INTENT(IN), OPTIONAL :: qg_curr_wrf  ( ims:ime, kms:kme, jms:jme )
 
   INTEGER, INTENT(IN)           :: numlu
+  CHARACTER(LEN=*), INTENT(IN)  :: release_version
 
   INTEGER, INTENT(IN)           :: ids, ide, jds, jde, kds, kde
   INTEGER, INTENT(IN)           :: ims, ime, jms, jme, kms, kme
@@ -201,6 +217,8 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   REAL, ALLOCATABLE, SAVE :: zf      ( : , : , : )
   REAL, ALLOCATABLE, SAVE :: dzf     ( : , : , : )
   REAL, ALLOCATABLE, SAVE :: presf   ( : , : , : )
+  REAL                    :: muhybf                 ! for hybrid vertical coord
+  REAL                    :: muhybh                 ! for hybrid vertical coord
 
 ! metdot3d temporary storage
 
@@ -227,17 +245,15 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   real, allocatable, save :: temp_rainnc(:,:)
   real, allocatable, save :: temp_rainc(:,:)
 
-  real :: wrf_lc_ref_lat
-
   integer :: east_adjustment, north_adjustment
 
-    integer, save :: jdate, jtime, sdate, stime, logdev, nstep
+    integer, save :: jdate, jtime, sdate, stime, loc_logdev, nstep
     integer       :: wrf_halo_x_l, wrf_halo_x_r
     integer       :: wrf_halo_y_l, wrf_halo_y_u
 
-    logical, save :: run_cmaq_driver, create_physical_file, write_to_physical_file, &
-                     north_bdy_pe, south_bdy_pe, east_bdy_pe, west_bdy_pe, turn_on_pv
-    integer, save :: file_time_step, file_time_step_in_sec
+    logical, save :: write_to_physical_file,                                 &
+                     north_bdy_pe, south_bdy_pe, east_bdy_pe, west_bdy_pe
+    integer, save :: file_time_step_in_sec
 
     integer :: i, j, status(MPI_STATUS_SIZE)
     character (len = 50) :: myfmt
@@ -246,7 +262,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
     logical, parameter :: debug = .true.
 
-    integer, save :: wrf_cmaq_freq, cmaq_tstep
+    integer, save :: cmaq_tstep
 
     TYPE(WRFU_Time) :: current_wrf_time
     integer :: rc
@@ -258,6 +274,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
     integer :: lwater, lice
     real, allocatable :: land_use_index(:,:)
+
+    character(len=10) :: wrf_version
+    logical   :: hybrid_vert, px_modis
+    real      :: wrfv
 
     interface
       SUBROUTINE bcldprc_ak (wrf_ncols, wrf_nrows, nlays,                &
@@ -279,6 +299,40 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         REAL,          INTENT(OUT)   :: wbar       ( : , : )
       END SUBROUTINE bcldprc_ak
     end interface
+
+!-------------------------------------------------------------------------------
+! Set switches/logic that rely on WRF versions and/or namelist settings
+  hybrid_vert = .false.
+  px_modis    = .false.
+  wrf_version = TRIM(release_version)
+  read (wrf_version(2:4),'(F3.1)') wrfv
+
+  ! Check version for hybrid coord configuration option
+  IF(wrfv >= 3.9) THEN
+    if (config_flags%hybrid_opt == 2) then
+      hybrid_vert = .true.
+    end if
+  END IF
+
+  ! Check version for WRFV4.1 PX MODIS and SOIL implementation
+  IF(wrfv >= 4.1) THEN
+    if (config_flags%sf_surface_physics == 7) then
+      px_modis = .true.
+    end if
+  END IF
+
+  print *, 'WRF Version ', wrf_version
+  print *, 'WRF Version ', wrfv
+  print *, 'Hybrid option number ', config_flags%hybrid_opt
+  print *, 'Hybrid vertical coordinate (T/F) ', hybrid_vert
+  print *, 'PX MODIS (T/F)', px_modis
+
+  if (config_flags%cu_physics == 0) then
+     convective_scheme = .false.
+  else
+     convective_scheme = .true.
+  end if
+!-------------------------------------------------------------------------------
 
 !-------------------------------------------------------------------------------
 ! Define horizontal bounds for CMAQ processing.
@@ -305,9 +359,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      wrf_halo_y_u = abs(jte - jme)
 
      nprocs = grid%nproc_x * grid%nproc_y
+     twoway_nprocs = nprocs
 
      north_adjustment = 0
-     if (twoway_mype >= (nprocs - grid%nproc_x)) then
+     if (twoway_mype >= (twoway_nprocs - grid%nproc_x)) then
         north_bdy_pe = .true.
         north_adjustment = -1
      else
@@ -334,10 +389,10 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         west_bdy_pe = .false.
      end if
 
-     allocate (wrf_c_domain_map(3, 2, 0:nprocs-1), cmaq_c_domain_map(3, 2, 0:nprocs-1),           &
-               wrf_d_domain_map(3, 2, 0:nprocs-1), cmaq_d_domain_map(3, 2, 0:nprocs-1),           &
-                                                   cmaq_ce_domain_map(3, 2, 0:nprocs-1),          &
-                                                   cmaq_de_domain_map(3, 2, 0:nprocs-1), stat=stat)
+     allocate (wrf_c_domain_map(3, 2, 0:twoway_nprocs-1), cmaq_c_domain_map(3, 2, 0:twoway_nprocs-1),           &
+               wrf_d_domain_map(3, 2, 0:twoway_nprocs-1), cmaq_d_domain_map(3, 2, 0:twoway_nprocs-1),           &
+                                                   cmaq_ce_domain_map(3, 2, 0:twoway_nprocs-1),          &
+                                                   cmaq_de_domain_map(3, 2, 0:twoway_nprocs-1), stat=stat)
      if (stat .ne. 0) then
         print *, ' Error: Allocating domain_maps'
         stop
@@ -374,17 +429,11 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      cmaq_c_col_dim = envint ('CMAQ_COL_DIM', ' ', wrf_c_col_dim-10, stat)
      cmaq_c_row_dim = envint ('CMAQ_ROW_DIM', ' ', wrf_c_row_dim-10, stat)
-     delta_x        = envint ('TWOWAY_DELTA_X', ' ', 5, stat)
-     delta_y        = envint ('TWOWAY_DELTA_Y', ' ', 5, stat)
 
-     wrf_lc_ref_lat = envreal ('WRF_LC_REF_LAT', ' ', 0.0, stat)
+     loc_logdev = init3 ()
 
-     logdev = init3 ()
-
-     wrf_cmaq_freq = envint ('WRF_CMAQ_FREQ', ' ', 1, stat)
-
-     stime = envint ('CTM_STTIME', ' ', 0, stat)
-     sdate = envint ('CTM_STDATE', ' ', 0, stat)
+     stime = cmaq_stime
+     sdate = cmaq_sdate
 
      cmaq_tstep = sec2time(grid%time_step*wrf_cmaq_freq)
 
@@ -394,8 +443,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      nstep = ((grid%run_days * 24 + grid%run_hours) * 3600 + grid%run_minutes * 60 + grid%run_seconds) / &
              (grid%time_step * wrf_cmaq_freq)
 
-     turn_on_pv = envyn ('CTM_TURN_ON_PV', ' ', def_false, stat)
-
+!-------------------------------------------------------------------------------
 ! Allocate arrays for CCTM...to mimic MCIP output arrays.
 !-------------------------------------------------------------------------------
 
@@ -431,7 +479,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      se_twoway_npcol = npcol
      se_twoway_nprow = nprow
 
-     nprocs = npcol * nprow
+     twoway_nprocs = npcol * nprow
 
      wrf_d_domain_map(1,:,:) = wrf_c_domain_map(1,:,:)
      wrf_d_domain_map(2,:,:) = wrf_c_domain_map(2,:,:) + 1
@@ -461,53 +509,53 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
      cmaq_d_ncols = cmaq_d_domain_map(3, 1, twoway_mype)
      cmaq_d_nrows = cmaq_d_domain_map(3, 2, twoway_mype)
 
-! the reason for nprocs*3 is in the worst scenario, the entire cmaq domain is inside one wrf processor domain
-     allocate (wrf_cmaq_c_send_to(0:9, 0:nprocs-1),               &
-               wrf_cmaq_c_recv_from(0:9, 0:nprocs-1),             &
-               wrf_cmaq_c_send_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_c_send_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_c_recv_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_c_recv_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_send_to(0:9, 0:nprocs-1),               &
-               wrf_cmaq_d_recv_from(0:9, 0:nprocs-1),             &
-               wrf_cmaq_d_send_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_send_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_recv_index_g(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_d_recv_index_l(9*3, 2, 0:nprocs-1),       &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_send_to(0:9, 0:nprocs-1),              &
-               wrf_cmaq_ce_recv_from(0:9, 0:nprocs-1),            &
-               wrf_cmaq_ce_send_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_send_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_recv_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_ce_recv_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_send_to(0:9, 0:nprocs-1),              &
-               wrf_cmaq_de_recv_from(0:9, 0:nprocs-1),            &
-               wrf_cmaq_de_send_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_send_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_recv_index_g(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
-               wrf_cmaq_de_recv_index_l(9*3, 2, 0:nprocs-1),      &    ! starting and ending dimension, dimenionality
+! the reason for twoway_nprocs*3 is in the worst scenario, the entire cmaq domain is inside one wrf processor domain
+     allocate (wrf_cmaq_c_send_to(0:9, 0:twoway_nprocs-1),               &
+               wrf_cmaq_c_recv_from(0:9, 0:twoway_nprocs-1),             &
+               wrf_cmaq_c_send_index_g(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_send_index_l(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_recv_index_g(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_c_recv_index_l(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_send_to(0:9, 0:twoway_nprocs-1),               &
+               wrf_cmaq_d_recv_from(0:9, 0:twoway_nprocs-1),             &
+               wrf_cmaq_d_send_index_g(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_send_index_l(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_recv_index_g(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_d_recv_index_l(9*3, 2, 0:twoway_nprocs-1),       &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_send_to(0:9, 0:twoway_nprocs-1),              &
+               wrf_cmaq_ce_recv_from(0:9, 0:twoway_nprocs-1),            &
+               wrf_cmaq_ce_send_index_g(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_send_index_l(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_recv_index_g(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_ce_recv_index_l(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_send_to(0:9, 0:twoway_nprocs-1),              &
+               wrf_cmaq_de_recv_from(0:9, 0:twoway_nprocs-1),            &
+               wrf_cmaq_de_send_index_g(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_send_index_l(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_recv_index_g(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
+               wrf_cmaq_de_recv_index_l(9*3, 2, 0:twoway_nprocs-1),      &    ! starting and ending dimension, dimenionality
                stat=stat) 
      if (stat .ne. 0) then
         print *, ' Error: Allocating communication indices arrays'
         stop
      end if
 
-     call compute_comm_indices (nprocs, wrf_c_domain_map, cmaq_c_domain_map,      &
+     call compute_comm_indices (twoway_nprocs, wrf_c_domain_map, cmaq_c_domain_map,      &
                                 wrf_cmaq_c_send_to, wrf_cmaq_c_recv_from,         &
                                 wrf_cmaq_c_send_index_g, wrf_cmaq_c_send_index_l, &
                                 wrf_cmaq_c_recv_index_g, wrf_cmaq_c_recv_index_l   )
 
-     call compute_comm_indices (nprocs, wrf_d_domain_map, cmaq_d_domain_map,      &
+     call compute_comm_indices (twoway_nprocs, wrf_d_domain_map, cmaq_d_domain_map,      &
                                 wrf_cmaq_d_send_to, wrf_cmaq_d_recv_from,         &
                                 wrf_cmaq_d_send_index_g, wrf_cmaq_d_send_index_l, &
                                 wrf_cmaq_d_recv_index_g, wrf_cmaq_d_recv_index_l   )
 
-     call compute_comm_indices (nprocs, wrf_c_domain_map, cmaq_ce_domain_map,       &
+     call compute_comm_indices (twoway_nprocs, wrf_c_domain_map, cmaq_ce_domain_map,       &
                                 wrf_cmaq_ce_send_to, wrf_cmaq_ce_recv_from,         &
                                 wrf_cmaq_ce_send_index_g, wrf_cmaq_ce_send_index_l, &
                                 wrf_cmaq_ce_recv_index_g, wrf_cmaq_ce_recv_index_l   )
 
-     call compute_comm_indices (nprocs, wrf_d_domain_map, cmaq_de_domain_map,       &
+     call compute_comm_indices (twoway_nprocs, wrf_d_domain_map, cmaq_de_domain_map,       &
                                 wrf_cmaq_de_send_to, wrf_cmaq_de_recv_from,         &
                                 wrf_cmaq_de_send_index_g, wrf_cmaq_de_send_index_l, &
                                 wrf_cmaq_de_recv_index_g, wrf_cmaq_de_recv_index_l   )
@@ -521,27 +569,21 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      CALL setup_griddesc_file (cmaq_c_col_dim, cmaq_c_row_dim)
 
-     create_physical_file = envyn ('CREATE_PHYSICAL_FILE', ' ', def_false, stat)
-
      if (create_physical_file) then
-        file_time_step = envint ('FILE_TIME_STEP', ' ', 10000, stat)
-
         file_time_step_in_sec = time2sec (file_time_step)
 
         if (.not.  pio_init (colrow, cmaq_c_col_dim, cmaq_c_row_dim,    &
                              nlays, 1, cmaq_c_ncols, cmaq_c_nrows,      &
-                             npcol, nprow, nprocs, twoway_mype, wflg=.false.) ) then
+                             npcol, nprow, twoway_nprocs, twoway_mype, wflg=.false.) ) then
            print *, ' Error: in invoking pio_init'
            stop
         end if
      end if
 
-     RUN_CMAQ_DRIVER = envyn ('RUN_CMAQ_DRIVER', ' ', def_false, stat)
-
      if (config_flags%cu_physics == 0) then
-        convective_scheme = .false.
+        wrf_convective_scheme = .false.
      else
-        convective_scheme = .true.
+        wrf_convective_scheme = .true.
      end if
 
 !-------------------------------------------------------------------------------
@@ -568,11 +610,11 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
 
      do v = 1, numlu
         write (vname3d(v+n_gridcro2d_var), '(a7, i2.2)') 'LUFRAC_', v
-        units3d(v+n_gridcro2d_var) = 'FRACTION'
+        units3d(v+n_gridcro2d_var) = '1'
      end do
 
 ! this is particular for m3dry LUFRAC_01
-     units3d(1+n_gridcro2d_var) = 'USGS24'
+     units3d(1+n_gridcro2d_var) = '1'
 
      nvars3d = numlu+n_gridcro2d_var
      tstep3d = 0
@@ -1018,6 +1060,9 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
         !        NLAYS+1 levels.
         !-----------------------------------------------------------------------
 
+           metcro3d_data_wrf (c,r,kk,15) = grid%u_phy(ii,kk,jj)   ! store u wind component on mass point
+           metcro3d_data_wrf (c,r,kk,16) = grid%v_phy(ii,kk,jj)   ! store v wind component on mass point
+
            metcro3d_data_wrf (c,r,kk,4) = t_phy_wrf   (ii,kk,jj)  ! ta
 
            if (turn_on_pv) then
@@ -1104,18 +1149,41 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
            qf    = 0.5 * ( qv_curr_wrf(ii,kk,jj) + qv_curr_wrf(ii,kp1,jj) )
            densf = presf(c,r,kk) / ( r_d * tf * (1.0 + r_v*qf/r_d) )
 
+        !-----------------------------------------------------------------------
+        ! Update calculation of Jacobian for hybrid vertical coordinate.
+        ! TLS 1 Feb 19
+        !
+        ! Calculate new variables MUHYBF and MUHYBH (mu hybrid on full and half
+        ! levels).  Note that full level indexing in vertical differs by 1 from
+        ! WRF because CMAQ's arrays are zero-based.
+        !
+        ! Replace MUT in the Jacobian calculations, below, with MUHYBF or
+        ! MUHYBH, depending on the level where we want the Jacobian.
+        !-----------------------------------------------------------------------
+           if (hybrid_vert) then
+             muhybf = grid%c1f(kp1) * grid%mut(ii,jj) + grid%c2f(kp1)
+             muhybh = grid%c1h(kk)  * grid%mut(ii,jj) + grid%c2h(kk)
+           else
+             muhybf = grid%mut(ii,jj)
+             muhybh = grid%mut(ii,jj)
+           endif
+
            if (turn_on_pv) then
               metcro3d_data_wrf (c,r,kk,1) = tf*2
            else
-              metcro3d_data_wrf (c,r,kk,1) = gravi * grid%mut(ii,jj) / (densf * gridcro2d_data_wrf (c,r,3))   ! calculate jacobf
+              metcro3d_data_wrf (c,r,kk,1) = gravi * muhybf / (densf * gridcro2d_data_wrf (c,r,3)) 
            end if
 
-           metcro3d_data_wrf (c,r,kk,2) = gravi * grid%mut(ii,jj) / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3))
-
-           metcro3d_data_wrf(c,r,kk,3) = gravi * grid%mut(ii,jj) / gridcro2d_data_wrf (c,r,3)
+           metcro3d_data_wrf (c,r,kk,2) = gravi * muhybh / (metcro3d_data_wrf(c,r,kk,12) * gridcro2d_data_wrf (c,r,3)) 
+           metcro3d_data_wrf (c,r,kk,3) = gravi * muhybh / gridcro2d_data_wrf (c,r,3)   
 
         ENDDO
      ENDDO
+
+  metcro3d_data_wrf (:,:,1:nlays,15) = zf (:,:,1:nlays)
+
+  metcro3d_data_wrf (:,:,1:nlays,16) = zf (:,:,1:nlays)
+
   ENDDO
 
   metcro3d_data_wrf (:,:,1:nlays,14) = zf (:,:,1:nlays)
@@ -1577,7 +1645,6 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   !
   ! Note:  For rainfall:  biogenics code uses cm/h, CMAQ ultimately needs mm/h.
   !-----------------------------------------------------------------------------
-
   metcro2d_data_wrf  (:,:,2) =  grid%ust   (sc:ec, sr:er)   ! ustar
   metcro2d_data_wrf  (:,:,4) =  grid%pblh  (sc:ec, sr:er)   ! pbl
   metcro2d_data_wrf  (:,:,5) =  grid%znt   (sc:ec, sr:er)   ! zruf
@@ -1588,18 +1655,16 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   metcro2d_data_wrf (:,:,11) =  grid%gsw   (sc:ec, sr:er)   ! gsw
 
   metcro2d_data_wrf (:,:,13) =  (grid%rainnc(sc:ec, sr:er) - grid%prev_rainnc(sc:ec,sr:er)) * 0.1  ! RNA = SUM(RN), in cm
-
-  if (convective_scheme) then
+  if (wrf_convective_scheme) then
      metcro2d_data_wrf (:,:,14) = (grid%rainc (sc:ec, sr:er) - grid%prev_rainc(sc:ec,sr:er)) * 0.1   ! RCA = SUM(RC), in cm
   else
-     metcro2d_data_wrf (:,:,14) = -1.0
+     metcro2d_data_wrf (:,:,14) = 0.0
   end if
 
   metcro2d_data_wrf (:,:,19) =  grid%snowc (sc:ec, sr:er)           ! snowcov
   metcro2d_data_wrf (:,:,21) =  grid%t2    (sc:ec, sr:er)           ! temp2
   metcro2d_data_wrf (:,:,22) =  grid%canwat(sc:ec, sr:er) * 0.001   ! wr (in meter)
   metcro2d_data_wrf (:,:,23) =  grid%tsk   (sc:ec, sr:er)           ! tempg
-  metcro2d_data_wrf (:,:,24) =  grid%lai   (sc:ec, sr:er)           ! lai
   metcro2d_data_wrf (:,:,25) =  grid%isltyp(sc:ec, sr:er)           ! soil type
   metcro2d_data_wrf (:,:,26) =  grid%q2    (sc:ec, sr:er)           ! Q2
   metcro2d_data_wrf (:,:,27) =  grid%xice  (sc:ec, sr:er)           ! seaice
@@ -1608,15 +1673,23 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   metcro2d_data_wrf (:,:,30) =  grid%tslb  (sc:ec, 1, sr:er)        ! SOIT1
   metcro2d_data_wrf (:,:,31) =  grid%tslb  (sc:ec, 2, sr:er)        ! SOIT2
 
-  metcro2d_data_wrf (:,:,32) =  grid%lh   (sc:ec, sr:er)   ! lh (qfx)
+  metcro2d_data_wrf (:,:,32) =  grid%lh   (sc:ec, sr:er)            ! lh (qfx)
+
+  metcro2d_data_wrf (:,:,33) =  grid%wwlt_px  (sc:ec, sr:er)        ! WWLT_PX
+  metcro2d_data_wrf (:,:,34) =  grid%wfc_px   (sc:ec, sr:er)        ! WFC_PX
+  metcro2d_data_wrf (:,:,35) =  grid%wsat_px  (sc:ec, sr:er)        ! WSAT_PX
+  metcro2d_data_wrf (:,:,36) =  grid%clay_px  (sc:ec, sr:er)        ! CLAY_PX
+  metcro2d_data_wrf (:,:,37) =  grid%csand_px (sc:ec, sr:er)        ! CSAND_PX
+  metcro2d_data_wrf (:,:,38) =  grid%fmsand_px(sc:ec, sr:er)        ! FMSAND_PX
+
 
   where (metcro2d_data_wrf (:,:,13) .lt. 0.0)
     metcro2d_data_wrf (:,:,13) = 0.0
   end where
 
-! where (metcro2d_data_wrf (:,:,14) .lt. 0.0)
-!   metcro2d_data_wrf (:,:,14) = 0.0
-! end where
+  where (metcro2d_data_wrf (:,:,14) .lt. 0.0)
+    metcro2d_data_wrf (:,:,14) = 0.0
+  end where
 
   !-----------------------------------------------------------------------------
   ! Assign surface pressure (PRSFC) from WRF array P8W (i.e., "p at w levels").
@@ -1672,19 +1745,38 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
   !-----------------------------------------------------------------------------
 
   albedo  (:,:) =  grid%albedo(sc:ec, sr:er)
-  ! rgrnd = gsw / ( 1.0 - albedo)
   metcro2d_data_wrf   (:,:,12) =  metcro2d_data_wrf(:,:,11) / (1.0 - albedo(:,:))
 
   !-----------------------------------------------------------------------------
-  ! Compute vegetation coverage (VEG) by converting WRF variable VEGFRA from
-  ! percent to decimal.
+  ! Get VEG and LAI from WRF dependent on WRF LSM option and WRF version number.
+  ! Also if WRF VEGFRA is used, it's in percent. Convert to fraction.
+  ! Also if PX MODIS version (WRFv4.1+) is used, add PX soil properties to MCIP
+  ! file for updated dust model. If PX MODIS is not used set to missing value
+  ! that will trigger old soil category based calculations in DUST_EMIS.F
   !-----------------------------------------------------------------------------
-
-  if (config_flags%sf_sfclay_physics == PXLSMSCHEME) then
-     metcro2d_data_wrf     (:,:,20) =  grid%vegf_px (sc:ec, sr:er)        ! veg
+  if (config_flags%sf_surface_physics == 7) then
+     metcro2d_data_wrf     (:,:,20) =  grid%vegf_px (sc:ec, sr:er)
   else
-     metcro2d_data_wrf     (:,:,20) =  grid%vegfra (sc:ec, sr:er) * 0.01  ! veg
+     metcro2d_data_wrf     (:,:,20) =  grid%vegfra (sc:ec, sr:er) * 0.01
   end if
+
+  if(px_modis) then                                                         
+     metcro2d_data_wrf (:,:,24) =  grid%lai_px(sc:ec, sr:er) 
+     metcro2d_data_wrf (:,:,33) =  grid%wwlt_px  (sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,34) =  grid%wfc_px   (sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,35) =  grid%wsat_px  (sc:ec, sr:er)   
+     metcro2d_data_wrf (:,:,36) =  grid%clay_px  (sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,37) =  grid%csand_px (sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,38) =  grid%fmsand_px(sc:ec, sr:er)
+  else 
+     metcro2d_data_wrf (:,:,24) =  grid%lai(sc:ec, sr:er)
+     metcro2d_data_wrf (:,:,33) =  -9999.
+     metcro2d_data_wrf (:,:,34) =  -9999.
+     metcro2d_data_wrf (:,:,35) =  -9999.
+     metcro2d_data_wrf (:,:,36) =  -9999.
+     metcro2d_data_wrf (:,:,37) =  -9999.
+     metcro2d_data_wrf (:,:,38) =  -9999.
+  end if  
 
   !-----------------------------------------------------------------------------
   ! Compute total cloud fraction (CFRAC), cloud top layer height (CLDT), 
@@ -1702,7 +1794,7 @@ SUBROUTINE aqprep (grid, config_flags, t_phy_wrf, p_phy_wrf, rho_wrf,     &
                          wrf_cmaq_ce_send_index_l, wrf_cmaq_ce_recv_index_l, 5)
 
   temp_rainnc = temp_rainnc + metcro2d_data_cmaq(:,:,13)
-  if (convective_scheme) then
+  if (wrf_convective_scheme) then
      temp_rainc  = temp_rainc  + metcro2d_data_cmaq(:,:,14)
   end if
 

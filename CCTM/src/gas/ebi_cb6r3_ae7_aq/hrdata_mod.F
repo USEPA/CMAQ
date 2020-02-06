@@ -17,31 +17,25 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
       MODULE  HRDATA
 
 C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3_AE7_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan  8, 2018
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
 
 c..EBI solver fixed parameters
-      INTEGER, PARAMETER    ::  NEBITER       = 1000     ! No. of iterations for EBI
-      INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1        ! max # cells in local conc arrays
-      REAL( 8 ), PARAMETER  ::  DELTAT        = 2.5D+00  ! EBI time step
+      INTEGER, PARAMETER    ::  NEBITER       = 1000      ! No. of iterations for EBI
+      INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1         ! max # cells in local conc arrays
+      REAL( 8 ), PARAMETER  ::  DELTAT        = 2.500D+00 ! EBI time step (min)
 
 c..Mechanism specific variables
       INTEGER   N_SPEC       ! No. of species in mechanism
@@ -56,15 +50,17 @@ c..Mechanism specific variables
 c..Control flags
       LOGICAL   L_AE_VRSN    ! Flag for aerosol version of mech
       LOGICAL   L_AQ_VRSN    ! Flag for aqueous chemistry version of mech
+      LOGICAL   CALL_IRR     ! Flag initializing for IRR and calling PA_IRR
 
   ! SWITCH for calling DEGRADE routine
       LOGICAL, SAVE :: CALL_DEG = .TRUE.
 
 c..Miscellaneous variables
-      INTEGER   LOGDEV        ! Unit number of output log
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
+      INTEGER   PECOL_OFFSET  ! Local Column Offset for processor
+      INTEGER   PEROW_OFFSET  ! Local Column Offset for processor
   
       INTEGER, SAVE ::   MODEL_SPECIES ! No. of species in CGRID
 
@@ -97,19 +93,18 @@ c...Allocatable arrays
       REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
       REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
       REAL, ALLOCATABLE      :: TA  ( :, :, : )          ! temperature (K)
-      REAL, ALLOCATABLE      :: RJ  ( :, :, :, : )       ! J-values (min-1)
 
       REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
       REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
 
-      REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
-      REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+      LOGICAL, ALLOCATABLE   :: LFLAGIRR    ( :,:,: )     ! Conduct IRR for cell
 
       REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
 !      REAL( 8 ), ALLOCATABLE ::  PRESCELL( : )         ! Cell pressure, Pa
       REAL( 8 ), ALLOCATABLE ::  H2O     ( : )     ! Cell H2O mixing ratio (ppmV)
       REAL( 8 ), ALLOCATABLE ::  TEMP    ( : )     ! Cell Temperature
+      REAL( 8 ), ALLOCATABLE ::  DENSITY ( : )     ! Cell mass density (Kg/m3)
       REAL( 8 ), ALLOCATABLE ::  HET     ( :, : )  ! cell heterogeneous reaction rates
       REAL( 8 ), ALLOCATABLE ::  RJIN    ( :, : )  ! J-values for a cell
       LOGICAL, ALLOCATABLE   ::  LAND    ( : )     ! land_zone value for specific cell
@@ -209,63 +204,58 @@ c..Species indices
       INTEGER, PARAMETER :: FMCL             =   92
       INTEGER, PARAMETER :: HCL              =   93
       INTEGER, PARAMETER :: CLNO2            =   94
-      INTEGER, PARAMETER :: TOLNRXN          =   95
-      INTEGER, PARAMETER :: TOLHRXN          =   96
-      INTEGER, PARAMETER :: XYLNRXN          =   97
-      INTEGER, PARAMETER :: XYLHRXN          =   98
-      INTEGER, PARAMETER :: BNZNRXN          =   99
-      INTEGER, PARAMETER :: BNZHRXN          =  100
-      INTEGER, PARAMETER :: SESQ             =  101
-      INTEGER, PARAMETER :: SESQRXN          =  102
-      INTEGER, PARAMETER :: PAHNRXN          =  103
-      INTEGER, PARAMETER :: PAHHRXN          =  104
-      INTEGER, PARAMETER :: SOAALK           =  105
-      INTEGER, PARAMETER :: ALKRXN           =  106
-      INTEGER, PARAMETER :: H2NO3PIJ         =  107
-      INTEGER, PARAMETER :: H2NO3PK          =  108
-      INTEGER, PARAMETER :: ACLI             =  109
-      INTEGER, PARAMETER :: ACLJ             =  110
-      INTEGER, PARAMETER :: ACLK             =  111
-      INTEGER, PARAMETER :: AISO3J           =  112
-      INTEGER, PARAMETER :: AGLYJ            =  113
-      INTEGER, PARAMETER :: MTNO3            =  114
-      INTEGER, PARAMETER :: AMTNO3J          =  115
-      INTEGER, PARAMETER :: AMTHYDJ          =  116
-      INTEGER, PARAMETER :: AXYL1J           =  117
-      INTEGER, PARAMETER :: AOLGAJ           =  118
-      INTEGER, PARAMETER :: AXYL2J           =  119
-      INTEGER, PARAMETER :: ATOL1J           =  120
-      INTEGER, PARAMETER :: ATOL2J           =  121
-      INTEGER, PARAMETER :: ABNZ1J           =  122
-      INTEGER, PARAMETER :: ABNZ2J           =  123
-      INTEGER, PARAMETER :: AISO1J           =  124
-      INTEGER, PARAMETER :: AOLGBJ           =  125
-      INTEGER, PARAMETER :: AISO2J           =  126
-      INTEGER, PARAMETER :: ASQTJ            =  127
-      INTEGER, PARAMETER :: APAH1J           =  128
-      INTEGER, PARAMETER :: APAH2J           =  129
-      INTEGER, PARAMETER :: AALK1J           =  130
-      INTEGER, PARAMETER :: AALK2J           =  131
-      INTEGER, PARAMETER :: PCVOC            =  132
-      INTEGER, PARAMETER :: PCSOARXN         =  133
-      INTEGER, PARAMETER :: VLVPO1           =  134
-      INTEGER, PARAMETER :: VSVPO1           =  135
-      INTEGER, PARAMETER :: VSVPO2           =  136
-      INTEGER, PARAMETER :: VSVPO3           =  137
-      INTEGER, PARAMETER :: VIVPO1           =  138
-      INTEGER, PARAMETER :: VLVOO1           =  139
-      INTEGER, PARAMETER :: VLVOO2           =  140
-      INTEGER, PARAMETER :: VSVOO2           =  141
-      INTEGER, PARAMETER :: VSVOO3           =  142
-      INTEGER, PARAMETER :: VSVOO1           =  143
-      INTEGER, PARAMETER :: FORM_PRIMARY     =  144
-      INTEGER, PARAMETER :: ALD2_PRIMARY     =  145
-      INTEGER, PARAMETER :: BUTADIENE13      =  146
-      INTEGER, PARAMETER :: ACROLEIN         =  147
-      INTEGER, PARAMETER :: ACRO_PRIMARY     =  148
-      INTEGER, PARAMETER :: TOLU             =  149
-      INTEGER, PARAMETER :: HG               =  150
-      INTEGER, PARAMETER :: HGIIAER          =  151
-      INTEGER, PARAMETER :: HGIIGAS          =  152
+      INTEGER, PARAMETER :: CLNO3            =   95
+      INTEGER, PARAMETER :: SVAVB2           =   96
+      INTEGER, PARAMETER :: SVAVB3           =   97
+      INTEGER, PARAMETER :: SVAVB4           =   98
+      INTEGER, PARAMETER :: SVAVB1           =   99
+      INTEGER, PARAMETER :: SESQ             =  100
+      INTEGER, PARAMETER :: SESQRXN          =  101
+      INTEGER, PARAMETER :: SOAALK           =  102
+      INTEGER, PARAMETER :: H2NO3PIJ         =  103
+      INTEGER, PARAMETER :: H2NO3PK          =  104
+      INTEGER, PARAMETER :: ACLI             =  105
+      INTEGER, PARAMETER :: ACLJ             =  106
+      INTEGER, PARAMETER :: ACLK             =  107
+      INTEGER, PARAMETER :: IEPOXP           =  108
+      INTEGER, PARAMETER :: ASO4J            =  109
+      INTEGER, PARAMETER :: AISO3J           =  110
+      INTEGER, PARAMETER :: AGLYJ            =  111
+      INTEGER, PARAMETER :: MTNO3            =  112
+      INTEGER, PARAMETER :: AMTNO3J          =  113
+      INTEGER, PARAMETER :: AMTHYDJ          =  114
+      INTEGER, PARAMETER :: AAVB2J           =  115
+      INTEGER, PARAMETER :: AOLGAJ           =  116
+      INTEGER, PARAMETER :: AAVB3J           =  117
+      INTEGER, PARAMETER :: AAVB4J           =  118
+      INTEGER, PARAMETER :: AISO1J           =  119
+      INTEGER, PARAMETER :: AOLGBJ           =  120
+      INTEGER, PARAMETER :: AISO2J           =  121
+      INTEGER, PARAMETER :: ASQTJ            =  122
+      INTEGER, PARAMETER :: APOCI            =  123
+      INTEGER, PARAMETER :: APNCOMI          =  124
+      INTEGER, PARAMETER :: APOCJ            =  125
+      INTEGER, PARAMETER :: APNCOMJ          =  126
+      INTEGER, PARAMETER :: PCVOC            =  127
+      INTEGER, PARAMETER :: PCSOARXN         =  128
+      INTEGER, PARAMETER :: VLVPO1           =  129
+      INTEGER, PARAMETER :: VSVPO1           =  130
+      INTEGER, PARAMETER :: VSVPO2           =  131
+      INTEGER, PARAMETER :: VSVPO3           =  132
+      INTEGER, PARAMETER :: VIVPO1           =  133
+      INTEGER, PARAMETER :: VLVOO1           =  134
+      INTEGER, PARAMETER :: VLVOO2           =  135
+      INTEGER, PARAMETER :: VSVOO2           =  136
+      INTEGER, PARAMETER :: VSVOO3           =  137
+      INTEGER, PARAMETER :: VSVOO1           =  138
+      INTEGER, PARAMETER :: FORM_PRIMARY     =  139
+      INTEGER, PARAMETER :: ALD2_PRIMARY     =  140
+      INTEGER, PARAMETER :: BUTADIENE13      =  141
+      INTEGER, PARAMETER :: ACROLEIN         =  142
+      INTEGER, PARAMETER :: ACRO_PRIMARY     =  143
+      INTEGER, PARAMETER :: TOLU             =  144
+      INTEGER, PARAMETER :: HG               =  145
+      INTEGER, PARAMETER :: HGIIAER          =  146
+      INTEGER, PARAMETER :: HGIIGAS          =  147
 
       END MODULE HRDATA

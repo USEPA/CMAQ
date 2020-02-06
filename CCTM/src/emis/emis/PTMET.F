@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/PTMET.F,v 1.5 2012/01/19 15:26:14 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PTMET
 
@@ -44,10 +38,19 @@ C                         - Based on the condition of MY_NSRC ( > 0 or not) to
 C                           determine execution of certain section of code or not
 C                         - fixed a bug of incorrect assignment:
 C                           PTMET_DATA%LEN1 = EMLAYS, PTMET_DATA%LEN2 = MSRC
-
+C     01 Feb 2019 D.Wong: - Implemented centralized I/O approach and removed 
+C                           ZSTATIC implementation
+C     05 Aug 2019 D.Wong: - Used met information in the cell where a point source resides
+C                           rather than using bi-linear interpolation (call BMATVECN) to
+C                           obtain met information for that point source
+C     06 Aug 2019 D.Wong: - For two-way model, use UWIND/VWIND (wind U/V component on the
+C                           mass point and in offline CMAQ model, use average value of
+C                           UWINDC/VWINDC to approximate UWIND/VWIND. Hence no longer
+C                           need UWINDC_AVAIL/VWINDC_AVAIL
 C-----------------------------------------------------------------------
-
+      USE RUNTIME_VARS
       USE UDTYPES, ONLY: PTMET_TYPE
+      USE EMIS_VARS, ONLY : EMLAYS
 
       IMPLICIT NONE
 
@@ -92,14 +95,13 @@ C dot-point layered met file name
 C-----------------------------------------------------------------------
       CONTAINS
 
-         FUNCTION PTMET_INIT ( NPTGRPS, EMLAYS ) RESULT ( SUCCESS )
+         FUNCTION PTMET_INIT ( ) RESULT ( SUCCESS )
 
-         USE STK_PRMS, ONLY: MY_NSRC
+         USE M3UTILIO
+         USE STK_PRMS, ONLY: MY_NSRC         
 
          IMPLICIT NONE
 
-         INTEGER, INTENT( IN ) :: NPTGRPS
-         INTEGER, INTENT( IN ) :: EMLAYS
          LOGICAL               :: SUCCESS                          
 
          INTEGER N, MSRC, IOS
@@ -168,22 +170,39 @@ C Allocate per-layer arrays from 0:EMLAYS
 
 C-----------------------------------------------------------------------
 
-         SUBROUTINE PTMET_CONVT( JDATE, JTIME, NPTGRPS, EMLAYS, ZSTATIC )
+         SUBROUTINE PTMET_CONVT( JDATE, JTIME )
 
-         USE PTBILIN, B_D => BILIN_DATA   ! rename
-         USE STK_PRMS, ONLY: MY_NSRC, SOURCE, STKHT
-         USE BMATVEC_MODULE
+         USE STK_PRMS, ONLY: MY_NSRC, SOURCE, MY_STKCOL, MY_STKROW
+         USE STACK_GROUP_DATA_MODULE, ONLY: STKHT
+         USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR
+         USE HGRD_DEFN, ONLY : NCOLS, NROWS
+         USE VGRD_DEFN, ONLY : NLAYS
 
          IMPLICIT NONE
 
          INTEGER, INTENT( IN ) :: JDATE, JTIME
-         INTEGER, INTENT( IN ) :: NPTGRPS
-         INTEGER, INTENT( IN ) :: EMLAYS
-         LOGICAL, INTENT( IN ) :: ZSTATIC
 
-         INTEGER N, MSRC
-         CHARACTER( 16 ) :: PNAME = 'PTMET_CONVT'   ! procedure name
+         INTEGER         :: L, N, MSRC, S
+         CHARACTER( 16 ) :: PNAME = 'PTMET_CONVT'   ! PROCEDURE NAME
 
+         INTEGER :: MYC, MYR, STAT
+         
+         REAL, ALLOCATABLE, SAVE:: LOC_ZH(:,:,:),
+     &                             LOC_ZF(:,:,:),
+     &                             LOC_HFX(:,:),
+     &                             LOC_PBL(:,:),
+     &                             LOC_TEMP2(:,:),
+     &                             LOC_USTAR(:,:),
+     &                             LOC_PRSFC(:,:),
+     &                             LOC_TA(:,:,:),
+     &                             LOC_QV(:,:,:),
+     &                             LOC_PRES(:,:,:),
+     &                             LOC_DENS(:,:,:),
+     &                             LOC_UWIND(:,:,:),
+     &                             LOC_VWIND(:,:,:)
+
+         LOGICAL, SAVE :: INITIALIZE = .TRUE.
+         
          INTERFACE
             SUBROUTINE DELTA_ZS( EMLAYS, MY_NSRC, SRC_MAP, STKHT, ZF, ZSTK, DDZF )
                INTEGER, INTENT( IN )  :: EMLAYS, MY_NSRC
@@ -197,318 +216,103 @@ C-----------------------------------------------------------------------
 
 C-----------------------------------------------------------------------
 
+         IF ( INITIALIZE ) THEN
+         
+            ALLOCATE ( LOC_ZH(NCOLS,NROWS,NLAYS),
+     &                 LOC_ZF(NCOLS,NROWS,NLAYS),
+     &                 LOC_HFX(NCOLS,NROWS),
+     &                 LOC_PBL(NCOLS,NROWS),
+     &                 LOC_TEMP2(NCOLS,NROWS),
+     &                 LOC_USTAR(NCOLS,NROWS),
+     &                 LOC_PRSFC(NCOLS,NROWS),
+     &                 LOC_TA(NCOLS,NROWS,NLAYS),
+     &                 LOC_QV(NCOLS,NROWS,NLAYS),
+     &                 LOC_PRES(NCOLS,NROWS,NLAYS),
+     &                 LOC_DENS(NCOLS,NROWS,NLAYS),
+     &                 LOC_UWIND(NCOLS+1,NROWS+1,NLAYS),
+     &                 LOC_VWIND(NCOLS+1,NROWS+1,NLAYS),
+     &                 STAT=STAT)
+     
+           INITIALIZE = .FALSE.
+           
+         END IF
+
+         CALL INTERPOLATE_VAR ('ZH', JDATE, JTIME, LOC_ZH)
+         CALL INTERPOLATE_VAR ('ZF', JDATE, JTIME, LOC_ZF)
+         CALL INTERPOLATE_VAR ('HFX', JDATE, JTIME, LOC_HFX)
+         CALL INTERPOLATE_VAR ('PBL', JDATE, JTIME, LOC_PBL)
+         CALL INTERPOLATE_VAR ('TEMP2', JDATE, JTIME, LOC_TEMP2)
+         CALL INTERPOLATE_VAR ('USTAR', JDATE, JTIME, LOC_USTAR)
+         CALL INTERPOLATE_VAR ('PRSFC', JDATE, JTIME, LOC_PRSFC)
+         CALL INTERPOLATE_VAR ('TA', JDATE, JTIME, LOC_TA)
+         CALL INTERPOLATE_VAR ('QV', JDATE, JTIME, LOC_QV)
+         CALL INTERPOLATE_VAR ('PRES', JDATE, JTIME, LOC_PRES)
+         CALL INTERPOLATE_VAR ('DENS', JDATE, JTIME, LOC_DENS)
+#ifdef twoway
+         CALL INTERPOLATE_VAR ('UWIND', JDATE, JTIME, LOC_UWIND)
+         CALL INTERPOLATE_VAR ('VWIND', JDATE, JTIME, LOC_VWIND)
+#else
+         CALL INTERPOLATE_VAR ('UWINDC', JDATE, JTIME, LOC_UWIND)
+         CALL INTERPOLATE_VAR ('VWINDC', JDATE, JTIME, LOC_VWIND)
+#endif
          DO N = 1, NPTGRPS
 
             MSRC = MY_NSRC( N )
 
-            IF ( MY_NSRC( N ) .GT. 0 ) THEN
-               IF ( .NOT. ZSTATIC ) THEN
+            DO S = 1, MY_NSRC (N )
 
-                  CALL READMC3 ( 'ZH', JDATE, JTIME, XBUF )
-                  CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                          XBUF, PTMET_DATA( N )%ZH )
+               MYC = MY_STKCOL( N )%ARRY( S )
+               MYR = MY_STKROW( N )%ARRY( S )
 
-                  CALL READMC3 ( 'ZF', JDATE, JTIME, XBUF )
-                  CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                          XBUF, PTMET_DATA( N )%ZF )
+               PTMET_DATA( N )%HFX(S) = LOC_HFX(MYC, MYR)
 
-C Compute ZSTK, DDZF
+               PTMET_DATA( N )%HMIX(S) = LOC_PBL(MYC, MYR)
 
-                  CALL DELTA_ZS( EMLAYS, MSRC,
-     &                           SOURCE( N )%ARRY, STKHT( N )%ARRY,
-     &                           PTMET_DATA( N )%ZF,
-     &                           PTMET_DATA( N )%ZSTK,
-     &                           PTMET_DATA( N )%DDZF )
+               PTMET_DATA( N )%TSFC(S) = LOC_TEMP2(MYC, MYR)
 
-               END IF
+               PTMET_DATA( N )%USTAR(S) = LOC_USTAR(MYC, MYR)
 
-C Read and transform meteorology:
+               PTMET_DATA( N )%PRSFC(S) = LOC_PRSFC(MYC, MYR)
 
-               CALL READMC2 ( 'HFX', JDATE, JTIME, XBUF )
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%HFX )
+               DO L = 1, NLAYS
+               
+                  PTMET_DATA( N )%ZH(L,S)    = LOC_ZH(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%ZF(L,S)    = LOC_ZF(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%TA(L,S)    = LOC_TA(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%QV(L,S)    = LOC_QV(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%PRES(L,S)  = LOC_PRES(MYC, MYR, L)
+                  
+                  PTMET_DATA( N )%DENS(L,S)  = LOC_DENS(MYC, MYR, L)
+#ifdef twoway
+                  PTMET_DATA( N )%UWIND(:,S) = LOC_UWIND(MYC, MYR, L)
 
-               CALL READMC2 ( 'PBL', JDATE, JTIME, XBUF )
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%HMIX )
+                  PTMET_DATA( N )%VWIND(:,S) = LOC_VWIND(MYC, MYR, L)
+#else
+                  PTMET_DATA( N )%UWIND(L,S) = 0.5*( LOC_UWIND(MYC, MYR, L)
+     &                                       +       LOC_UWIND(MYC+1, MYR, L) )
+               
+                  PTMET_DATA( N )%VWIND(L,S) = 0.5*( LOC_VWIND(MYC, MYR, L)
+     &                                       +       LOC_VWIND(MYC, MYR+1, L) )
+#endif                
+               END DO
 
-!           CALL READMC2 ( 'TEMP1P5', JDATE, JTIME, XBUF )
-               CALL READMC2 ( 'TEMP2', JDATE, JTIME, XBUF )
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%TSFC )
+            END DO
 
-               CALL READMC2 ( 'USTAR', JDATE, JTIME, XBUF )
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%USTAR )
-
-               CALL READMC2 ( 'PRSFC', JDATE, JTIME, XBUF )
-               CALL BMATVECN( METCGRID, MSRC, 1, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%PRSFC )
-
-               CALL READMC3 ( 'TA', JDATE, JTIME, XBUF )
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%TA )
-
-               CALL READMC3 ( 'QV', JDATE, JTIME, XBUF )
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%QV )
-
-               CALL READMC3 ( 'PRES', JDATE, JTIME, XBUF )
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%PRES )
-
-               CALL READMC3 ( 'DENS', JDATE, JTIME, XBUF )
-               CALL BMATVECN( METCGRID, MSRC, EMLAYS, B_D( N )%NX, B_D( N )%CX,
-     &                       XBUF, PTMET_DATA( N )%DENS )
-
-C UWIND and VWIND are on DOT points (NOT flux points)
-
-               CALL READMD3 ( 'UWIND', JDATE, JTIME, DBUF )
-               CALL BMATVECN( METDGRID, MSRC, EMLAYS, B_D( N )%ND, B_D( N )%CD,
-     &                       DBUF, PTMET_DATA( N )%UWIND )
-
-               CALL READMD3 ( 'VWIND', JDATE, JTIME, DBUF )
-               CALL BMATVECN( METDGRID, MSRC, EMLAYS, B_D( N )%ND, B_D( N )%CD,
-     &                       DBUF, PTMET_DATA( N )%VWIND )
+            IF ( MY_NSRC( N ) .GT. 0 ) THEN ! Compute ZSTK, DDZF
+               CALL DELTA_ZS( EMLAYS, MSRC,
+     &                        SOURCE( N )%ARRY, STKHT( N )%ARRY,
+     &                        PTMET_DATA( N )%ZF,
+     &                        PTMET_DATA( N )%ZSTK,
+     &                        PTMET_DATA( N )%DDZF )
             END IF ! MY_NSRC( N ) > 0
 
          END DO   ! NPTGRPS
 
          END SUBROUTINE PTMET_CONVT
-
-C-----------------------------------------------------------------------
-
-         SUBROUTINE READMC2 ( VNAME, JDATE, JTIME, XBUF )
-
-            USE PTBILIN, ONLY: XBND, YBND
-            USE UTILIO_DEFN
-
-            IMPLICIT NONE
-
-            INCLUDE SUBST_FILES_ID  ! file name parameters
-
-            CHARACTER( * ) :: VNAME     ! variable name
-            INTEGER           JDATE     ! Julian date
-            INTEGER           JTIME     ! time
-            REAL              XBUF( * ) ! read buffer
-
-            INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-            INTEGER, SAVE   :: STRTCOL, ENDCOL, STRTROW, ENDROW
-
-            INTEGER, SAVE   :: LAY1, LAY2
-            INTEGER            L1
-            CHARACTER( 16 ) :: PNAME = 'READMC2'   ! procedure name
-            CHARACTER( 96 ) :: XMSG = ' '
-            LOGICAL         :: FIRSTIME = .TRUE.
-
-            integer, save :: logdev
-            integer, external :: setup_logdev
-
-            IF ( FIRSTIME )  THEN
-               FIRSTIME = .FALSE.
-               logdev = setup_logdev()
-
-               MET_CRO_2D  = MC2NAME
-
-               CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
-
-!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
-               IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
-               IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
-
-               LAY1 = 1; LAY2 = 1
-
-!              write( logdev,* ) 'file: ', met_cro_2d, 'var: ', vname
-!              write( logdev,* ) 'cols: ', endcol-strtcol+1
-!              write( logdev,* ) 'rows: ', endrow-strtrow+1
-!              write( logdev,* ) 'lays: ', lay2-lay1+1
-!              write( logdev,* ) 'read size: ', ( endcol-strtcol+1 )
-!    &                              * ( endrow-strtrow+1 )
-!    &                              * ( lay2-lay1+1 )
-!!             write( logdev,* ) 'xbuf size: ', size( xbuf )
-
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_2D, VNAME, PNAME,
-     &                          STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                          JDATE, JTIME, XBUF ) ) THEN
-
-               L1 = LEN_TRIM( VNAME )
-               XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                ' from MET_CRO_2D'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-            RETURN
-
-         END SUBROUTINE READMC2
-
-C-----------------------------------------------------------------------
-
-         SUBROUTINE READMC3 ( VNAME, JDATE, JTIME, XBUF )
-
-            USE VGRD_DEFN             ! vertical layer specifications
-            USE PTBILIN, ONLY: XBND, YBND
-            USE UTILIO_DEFN
-
-            IMPLICIT NONE
-
-            INCLUDE SUBST_FILES_ID  ! file name parameters
-
-            CHARACTER( * ) :: VNAME     ! variable name
-            INTEGER           JDATE     ! Julian date
-            INTEGER           JTIME     ! time
-            REAL              XBUF( :,: ) ! read buffer
-
-            INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-            INTEGER, SAVE   :: STRTCOL, ENDCOL, STRTROW, ENDROW
-
-            INTEGER, SAVE   :: LAY1, LAY2
-            INTEGER            L1
-            CHARACTER( 16 ) :: PNAME = 'READMC3'   ! procedure name
-            CHARACTER( 96 ) :: XMSG = ' '
-            LOGICAL         :: FIRSTIME = .TRUE.
-
-            integer, save :: logdev
-            integer, external :: setup_logdev
-
-            IF ( FIRSTIME )  THEN
-               FIRSTIME = .FALSE.
-               logdev = setup_logdev()
-
-               MET_CRO_3D  = MC3NAME
-
-               CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
-
-!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
-               IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
-               IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
-
-!              LAY1 = 1; LAY2 = NLAYS
-               LAY1 = 1; LAY2 = SIZE( XBUF,2 )
-
-!              write( logdev,* ) 'file: ', MET_CRO_3D, 'var: ', vname
-!              write( logdev,* ) 'cols: ', endcol-strtcol+1
-!              write( logdev,* ) 'rows: ', endrow-strtrow+1
-!              write( logdev,* ) 'lays: ', lay2-lay1+1
-!              write( logdev,* ) 'read size: ', ( endcol-strtcol+1 )
-!    &                              * ( endrow-strtrow+1 )
-!    &                              * ( lay2-lay1+1 )
-!!             write( logdev,* ) 'xbuf size: ', size( xbuf )
-
-            END IF
-
-            IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                          STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                          JDATE, JTIME, XBUF ) ) THEN
-
-               L1 = LEN_TRIM( VNAME )
-               XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                ' from file MET_CRO_3D'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-            END IF
-
-            RETURN
-
-         END SUBROUTINE READMC3
-
-C-----------------------------------------------------------------------
-
-         SUBROUTINE READMD3( VNAME, JDATE, JTIME, DBUF )
-
-            USE VGRD_DEFN             ! vertical layer specifications
-            USE PTBILIN, ONLY: XBND, YBND
-            USE UTILIO_DEFN
-
-            IMPLICIT NONE
-
-            INCLUDE SUBST_FILES_ID  ! file name parameters
-
-            CHARACTER( * ) :: VNAME     ! variable name
-            INTEGER           JDATE     ! Julian date
-            INTEGER           JTIME     ! time
-            REAL              DBUF( :,: ) ! read buffer
-
-            INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-            INTEGER, SAVE   :: STRTCOL, ENDCOL, STRTROW, ENDROW
-
-            INTEGER, SAVE   :: LAY1, LAY2
-            INTEGER            L1
-            CHARACTER( 16 ) :: PNAME = 'READMD3'   ! procedure name
-            CHARACTER( 96 ) :: XMSG = ' '
-            LOGICAL         :: FIRSTIME = .TRUE.
-            CHARACTER( 16 ) :: LOC_VNAME
-
-            integer, save :: logdev
-            integer, external :: setup_logdev
-
-            IF ( FIRSTIME )  THEN
-               FIRSTIME = .FALSE.
-               logdev = setup_logdev()
-
-               MET_DOT_3D  = MD3NAME
-
-               CALL SUBHFILE ( MET_DOT_3D, GXOFF, GYOFF,
-     &                         STRTCOL, ENDCOL, STRTROW, ENDROW )
-
-!              IF ( .NOT. XBND( 1 ) ) STRTCOL = STRTCOL - 1
-               IF ( .NOT. XBND( 2 ) ) ENDCOL  = ENDCOL + 1
-!              IF ( .NOT. YBND( 1 ) ) STRTROW = STRTROW - 1
-               IF ( .NOT. YBND( 2 ) ) ENDROW  = ENDROW + 1
-
-!              LAY1 = 1; LAY2 = NLAYS
-               LAY1 = 1; LAY2 = SIZE( DBUF,2 )
-
-!              write( logdev,* ) 'file: ', met_dot_3d, 'var: ', vname
-!              write( logdev,* ) 'cols: ', endcol-strtcol+1
-!              write( logdev,* ) 'rows: ', endrow-strtrow+1
-!              write( logdev,* ) 'lays: ', lay2-lay1+1
-!              write( logdev,* ) 'read size: ', ( endcol-strtcol+1 )
-!    &                              * ( endrow-strtrow+1 )
-!    &                              * ( lay2-lay1+1 )
-!!             write( logdev,* ) 'xbuf size: ', size( xbuf )
-
-            END IF
-
-            IF ( ( VNAME .EQ. 'UWIND' ) .OR. ( VNAME .EQ. 'VWIND' ) ) THEN
-!cccccccccccccccccccc enable backward compatiblity ccccccccccccccccccccc
-               IF (       INTERPX( MET_DOT_3D, VNAME, PNAME,
-     &                             STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                             JDATE, JTIME, DBUF ) ) THEN
-               ELSE
-                  XMSG = 'Could not read ' // TRIM( VNAME ) //
-     &                   ' from file MET_DOT_3D'
-                  LOC_VNAME = TRIM( VNAME ) // 'C'
-                  IF ( .NOT. INTERPX( MET_DOT_3D, LOC_VNAME, PNAME,
-     &                                STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                                JDATE, JTIME, DBUF ) ) THEN
-                     L1 = LEN_TRIM( LOC_VNAME )
-                     XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                      ' from file MET_DOT_3D'
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-                  END IF
-               END IF 
-            ELSE
-               IF ( .NOT. INTERPX( MET_DOT_3D, VNAME, PNAME,
-     &                             STRTCOL,ENDCOL, STRTROW,ENDROW, LAY1,LAY2,
-     &                             JDATE, JTIME, DBUF ) ) THEN
-                  L1 = LEN_TRIM( VNAME )
-                  XMSG = 'Could not read ' // VNAME( 1:L1 ) //
-     &                   ' from file MET_DOT_3D'
-                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-               END IF 
-            END IF
-
-            RETURN
-
-         END SUBROUTINE READMD3
 
 C-----------------------------------------------------------------------
 

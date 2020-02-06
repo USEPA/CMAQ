@@ -26,7 +26,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE INBNDY( LOGUNIT, SDATE, STIME, RUNLEN )   
+      SUBROUTINE TRAC_INBNDY ( LOGUNIT )
 
 C***********************************************************************
  
@@ -48,141 +48,105 @@ C***********************************************************************
       USE HGRD_DEFN    ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN    ! vertical layer specifications
       USE M3UTILIO     ! IOAPI
-      USE CGRID_SPCS   ! CGRID mechanism species
       USE BC_PARMS     ! BCON parameters
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments: 
-      INTEGER LOGUNIT                 ! Unit number for output log
-      INTEGER SDATE                   ! Date for IC Output
-      INTEGER STIME                   ! Time for IC output
-      INTEGER RUNLEN                  ! No. of hours for BC output
+      INTEGER, INTENT( IN ) :: LOGUNIT                 ! Unit number for output log
 
 C Parameters: None
 
-C External Functions: 
-      INTEGER FINDEX    ! Finds the index of a number in a list 
+C External Functions: None
       
 C Local Variables:
-      CHARACTER( 16 ) :: BLANK  = ' '     ! String of blanks
       CHARACTER( 80 ) :: MSG              ! Log message
-      CHARACTER( 16 ) :: PNAME = 'INBNDY' ! Procedure name
-      CHARACTER( 16 ) :: SUROUT           ! Surrogate output to log
+      CHARACTER( 16 ) :: PNAME = 'TRAC_INBNDY' ! Procedure name
       CHARACTER( 16 ) :: VNAME            ! Output variable name
 
-      CHARACTER( 16 ) :: SPNAME_OUT( N_TR_SPC )    ! Output tracer names
+      CHARACTER( 16 ), ALLOCATABLE :: SPNAME_OUT( : )  ! Output tracer names
+      CHARACTER( 16 ), ALLOCATABLE :: UNITS_OUT( : )   ! Output tracer units
 
-      CHARACTER( 16 ) :: TRNML_SPC_NF( N_TR_SPC )  ! TR_SPC.NML species not found
-      CHARACTER( 16 ) :: TRNML_SUR_NF( N_TR_ICBC ) ! TR_SPC.NML surr not found
-      CHARACTER( 16 ) :: TR_FNAME( MXCTMS )        ! Output file name
+      CHARACTER( 16 ), ALLOCATABLE :: TR_FNAME( : )    ! Output file name
                             
       INTEGER FLN          ! Output file number
-      INTEGER ICBC_IND     ! Index of surrogate in TR_ICBC
       INTEGER N            ! Loop index
-      INTEGER NSP          ! Counter
       INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
-      INTEGER TRIND        ! Index for catalogued tracer
+      INTEGER ALLOCSTAT    ! Status returned from array allocation
+      INTEGER SDATE        ! Date for IC Output
+      INTEGER STIME        ! Time for IC output
       INTEGER TSTEP        ! Time step for output file
-      INTEGER ALST         ! Allocate status
 
-      INTEGER :: TRMAP( N_TR_SPC ) ! Map to get catalogued tracer for NML species
-      LOGICAL :: LUSED( N_TR_SPC ) ! Flag for output for TR_SPC species
+      INTEGER, ALLOCATABLE :: VTYPE_OUT( : )  ! Output tracer variable type
 
-!     REAL    :: TCOUT( NBNDY,NLAYS )   ! Output tracer concs
       REAL, ALLOCATABLE :: TCOUT( :,: )   ! Output tracer concs
+
+      INTERFACE
+
+         SUBROUTINE OPN_BC_FILE ( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT,
+     &                            SPNAME_OUT, VTYPE_OUT, UNITS_OUT,
+     &                            VDESC_OUT, BC_FNAME, RINDX )
+            CHARACTER( 16 ), INTENT( OUT ) :: BC_FNAME( : )
+            CHARACTER( 16 ), INTENT( IN )  :: SPNAME_OUT( : )
+            CHARACTER( 16 ), INTENT( IN )  :: UNITS_OUT( : )
+            CHARACTER( 80 ), INTENT( IN )  :: VDESC_OUT( : )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+            INTEGER, INTENT( IN ) :: NSPCS_OUT
+            INTEGER, INTENT( IN ) :: RINDX
+            INTEGER, INTENT( IN ) :: SDATE
+            INTEGER, INTENT( IN ) :: STIME
+            INTEGER, INTENT( IN ) :: TSTEP
+            INTEGER, INTENT( IN ) :: VTYPE_OUT( : )
+         END SUBROUTINE OPN_BC_FILE
+
+         SUBROUTINE TRAC_BC ( TRNAME, TCOUT )
+            CHARACTER( 16 ), INTENT( IN ) :: TRNAME
+            REAL, INTENT( OUT ) :: TCOUT( :,: )
+         END SUBROUTINE TRAC_BC
+
+      END INTERFACE
 
 C***********************************************************************
 
       WRITE( LOGUNIT, 92000 )
  
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Build a species map and report
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      NSPCS_OUT = 0
-      DO N = 1, N_TR_SPC
-
-         LUSED( N ) = .TRUE.
-         TRMAP( N ) = 0
-
-C get the index of the NML TR_SPC name in the catalogued list
-         TRIND = INDEX1( TR_SPC( N ), NTRACERS, TRAC_NAME )
-         TRMAP( N )  = TRIND
-         SUROUT = BLANK
-
-         IF ( TRIND .LE. 0 ) THEN   ! look for a surrogate
-C get the index of the NML TR_ICBC surrogate name in the catalogued list
-            ICBC_IND  = FINDEX( N, N_TR_ICBC, TR_ICBC_MAP )
-
-            IF ( ICBC_IND .NE. 0 ) THEN
-               TRIND = INDEX1( TR_ICBC( ICBC_IND ), NTRACERS, TRAC_NAME )
-               TRMAP( N ) = TRIND
-               SUROUT = TR_ICBC( ICBC_IND )
-            END IF
-         END IF
-         
-C list the ones found and tag the ones not found
-         IF ( TRMAP( N ) .GT. 0 .AND. TRMAP( N ) .LE. NTRACERS ) THEN
-            WRITE( LOGUNIT, 92020 ) TR_SPC( N ), SUROUT, 
-     &                            TRAC_NAME( TRMAP( N ) ), 
-     &                            TRAC_DESC( TRMAP( N ) )
-            NSPCS_OUT = NSPCS_OUT + 1
-            SPNAME_OUT( NSPCS_OUT ) = TRAC_NAME( TRMAP( N ) )
-         ELSE
-            LUSED( N ) = .FALSE.
-         END IF
-
-      END DO
-
-      IF ( NSPCS_OUT .EQ. 0 ) THEN
-          MSG = 'ERROR: No NML species could be mapped to a'
-     &           // ' catalogued tracer species.'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
-      END IF 
-
-C list *.NML species with no BC output
-      NSP = 0
-      DO N = 1, N_TR_SPC
-         IF ( .NOT. LUSED( N ) ) THEN
-            NSP = NSP + 1
-            TRNML_SPC_NF( NSP ) = TR_SPC( N )
-         END IF
-      END DO
-
-      IF ( NSP .GT. 0 ) THEN
-         WRITE( LOGUNIT, 92040 )
-         WRITE( LOGUNIT, 92060 ) ( TRNML_SPC_NF( N ), N = 1, NSP )
+      ALLOCATE( TR_FNAME( MXCTMS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating TR_FNAME'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
-         
-C list surrogate species not found on the 
-      NSP = 0
-      DO N = 1, N_TR_ICBC
-         TRIND = INDEX1( TR_ICBC( N ), NTRACERS, TRAC_NAME )
-         IF ( TRIND .EQ. 0 ) THEN
-            NSP = NSP + 1
-            TRNML_SUR_NF( NSP ) = TR_ICBC( N )
-         END IF
-      END DO
 
-      IF ( NSP .GT. 0 ) THEN
-         WRITE( LOGUNIT, 92080 )
-         WRITE( LOGUNIT, 92060 ) ( TRNML_SUR_NF( N ), N = 1, NSP )
+      ALLOCATE( UNITS_OUT( NTRACERS ),
+     &          SPNAME_OUT( NTRACERS ),
+     &          VTYPE_OUT( NTRACERS ),
+     &          STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating UNITS_OUT, SPNAME_OUT, VTYPE_OUT'
+         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
+
+      NSPCS_OUT = NTRACERS
+      DO N = 1, NSPCS_OUT
+         SPNAME_OUT( N ) = TRAC_NAME( N )
+         VTYPE_OUT( N ) = M3REAL
+         UNITS_OUT( N ) = "N/A"
+      END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  open the Models3 IC output file(s)
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      SDATE = 0
+      STIME = 0
       TSTEP = 0
-      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT, 
-     &                  SPNAME_OUT, TR_FNAME, 1 )  
+      CALL OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP,
+     &                  NSPCS_OUT, SPNAME_OUT, VTYPE_OUT, UNITS_OUT, TRAC_DESC,
+     &                  TR_FNAME, 1 )  
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  compute the BCs and then write the ooutput file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      ALLOCATE ( TCOUT( NBNDY,NLAYS ), STAT = ALST )
-      IF ( ALST .NE. 0 ) THEN
+      ALLOCATE ( TCOUT( NBNDY,NLAYS ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
          MSG = 'Error allocating TCOUT'
          CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
@@ -211,26 +175,6 @@ C************************* FORMAT STATEMENTS ***************************
      &         / 1X, '#  TRACER species section '
      &         / 1X, 79( '#' )
      &        // 5X, 'The tracer species module has been invoked; ',
-     &               'BCs will be generated for tracer species ONLY.'
-     &        // 5X, 'BCs set for the following tracer species:'
-     &        //10X, 'NML Species       ICBC Surrogate    ',
-     &               'Catalogued Tracer' )
-
-92020 FORMAT(   10X, A16, 2X, A16, 2X, A16,': ', A )
-
-92040 FORMAT( // 5X, 'WARNING: The following *.NML species could not be '
-     &               'mapped to a catalogued tracer.'
-     &         / 5X, '         BCs were not generated for them. ' )
-
-92060 FORMAT(   (15X, 4( A, 2X ) ) )
-
-
-92080 FORMAT( // 5X, 'WARNING: The following *.NML surrogate species ',
-     &               'are not catalogued tracers.'
-     &         / 5X, '         BCs were generated only when the *.NML '
-     &               'species could be mapped to a catalogued tracer.')
-
-
-94000 FORMAT( A )
+     &               'BCs will be generated for tracer species ONLY.' )
 
       END

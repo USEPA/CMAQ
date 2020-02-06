@@ -16,12 +16,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-! RCS file, release, date & time of last delta, author, state, [and locker]
-! $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/aqchem.F,v 1.6 2012/03/19 15:43:49 yoj Exp $
-!
-! what(1) key, module and SID; SCCS file; date and time of last delta:
-! %W% %P% %G% %U%
-
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP2, PRES_PA, TAUCLD, PRCRATE,   &
                           WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,    &
@@ -251,9 +245,6 @@
 
       REAL, EXTERNAL :: HLCONST
 
-      INTEGER, SAVE :: LOGDEV
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 !*********************************************************************
 
 !...Initialization
@@ -261,22 +252,25 @@
       IF ( FIRSTIME ) THEN
 
          FIRSTIME = .FALSE.
-
-         LOGDEV = SETUP_LOGDEV()
-
+ 
 !...Make sure an AE6 version of the mechanism is being used
 
-         IF ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) THEN
-            XMSG = 'This version of AQCHEM requires an AE6 chemical mechanism'
+        IF ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) THEN
+          XMSG = 'This version of AQCHEM requires an AE6 chemical mechanism'
+          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        END IF 
+
+!...Make sure STM option is not set
+
+         IF ( STM ) THEN
+            XMSG = 'STM option not implemented in KMT AQCHEM'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
          END IF
 
-!...Special treatment of MGLY for CB05 mechanism:
-!...Use Henry's law constant for glyoxal as a surrogate for methyl glyoxal
-
-         IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
-            MGLYSUR = 'GLYOXAL         '
-         END IF
+#ifdef isam
+        XMSG = 'Source Apportionment is not implemented in KMT AQCHEM'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+#endif        
 
 !... set MW ratios and speciation factors for molar concentrations of coarse
 !... soluble aerosols
@@ -284,40 +278,40 @@
         SOIL_FE_FAC = ASOIL_FE_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ASOIL_RENORM
         CORS_FE_FAC = ACORS_FE_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )  &
-                                  / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ACORS_RENORM
+                                  / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ACORSEM_RENORM
 
         SOIL_MN_FAC = ASOIL_MN_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ASOIL_RENORM
         CORS_MN_FAC = ACORS_MN_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )  &
-                                  / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ACORS_RENORM
+                                  / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_NA_FAC = ASCAT_NA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( ANA_IDX ), 8 )
         SOIL_NA_FAC = ASOIL_NA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ASOIL_RENORM
         CORS_NA_FAC = ACORS_NA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )  &
-                                  / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ACORS_RENORM
+                                  / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_MG_FAC = ASCAT_MG_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( AMG_IDX ), 8 )
         SOIL_MG_FAC = ASOIL_MG_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ASOIL_RENORM
         CORS_MG_FAC = ACORS_MG_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )  &
-                                  / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ACORS_RENORM
+                                  / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_CA_FAC = ASCAT_CA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( ACA_IDX ), 8 )
         SOIL_CA_FAC = ASOIL_CA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ASOIL_RENORM
         CORS_CA_FAC = ACORS_CA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )  &
-                                  / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ACORS_RENORM
+                                  / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_K_FAC = ASCAT_K_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( AK_IDX ), 8 )
         SOIL_K_FAC = ASOIL_K_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )  &
                                   / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ASOIL_RENORM
         CORS_K_FAC = ACORS_K_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )  &
-                                  / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORS_RENORM 
+                                  / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORSEM_RENORM 
       
       END IF    ! FIRSTIME
       

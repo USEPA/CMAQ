@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/STK_PRMS.F,v 1.5 2012/01/19 15:28:13 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE STK_PRMS
 
@@ -35,6 +29,9 @@ C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C      3 Nov 2011 D.Wong: fix source location within grid determination bug
 C     30 Apr 2016 J.Young: add multiple fire source capability, in affiliation with
 C                          Yongtao Hu (Georgia Tech)
+C     01 Feb 2019 D.Wong: Implemented centralized I/O approach and moved some of
+C                         data declaration in this module to stack_group_data_module 
+C                         (model_data_module.f) to avoid cyclic dependence
 C-----------------------------------------------------------------------
 
       USE UDTYPES, ONLY: IARRY1, RARRY1
@@ -42,17 +39,6 @@ C-----------------------------------------------------------------------
       IMPLICIT NONE
 
       INTEGER,        ALLOCATABLE, SAVE :: MY_NSRC( : )
-      INTEGER,        ALLOCATABLE, SAVE :: NSRC( : )
-
-c     TYPE :: IARRY1
-c        INTEGER, POINTER :: ARRY( : )
-c        INTEGER          :: LEN
-c     END TYPE IARRY1
-
-c     TYPE :: RARRY1
-c        REAL,    POINTER :: ARRY( : )
-c        INTEGER          :: LEN
-c     END TYPE RARRY1
 
       TYPE( IARRY1 ), ALLOCATABLE, SAVE :: SOURCE     ( : ) ! my stack source index
       TYPE( IARRY1 ), ALLOCATABLE, SAVE :: MY_STKCOL  ( : )
@@ -63,34 +49,23 @@ c     END TYPE RARRY1
       INTEGER,        ALLOCATABLE, SAVE :: MY_STRT_SRC( : )
       INTEGER,        ALLOCATABLE, SAVE :: MY_END_SRC ( : )
 
-      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKDIAM( : )
-      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKHT  ( : )
-      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKTK  ( : )
-      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: STKVEL ( : )
-      TYPE( RARRY1 ), ALLOCATABLE, SAVE :: ACRES_BURNED( : )
-
       CONTAINS
 
          FUNCTION STK_PRMS_INIT ( STKPRMS ) RESULT ( SUCCESS )
 
          USE HGRD_DEFN             ! horizontal domain specifications
          USE UTILIO_DEFN
+         USE stack_group_data_module
 
          IMPLICIT NONE
 
          CHARACTER( 16 ), INTENT( IN ) :: STKPRMS( : )   ! stack groups file names
          LOGICAL SUCCESS
-         INTEGER LOGDEV
 
-         REAL,    ALLOCATABLE :: XLOCA( : )
-         REAL,    ALLOCATABLE :: YLOCA( : )
-         INTEGER, ALLOCATABLE :: STKID( : )
          INTEGER, ALLOCATABLE :: LOC_MAP( : )
-         LOGICAL, ALLOCATABLE :: FIRE_ON( : )
 
-         INTEGER SDATE, STIME
          INTEGER SCOL, ECOL, SROW, EROW
-         INTEGER NLAYS, C, R, STRT_SRC, END_SRC, MY_DELTA, N, NGRPS
+         INTEGER C, R, STRT_SRC, END_SRC, MY_DELTA, N, NGRPS
          REAL    X, Y
 
          INTEGER M, S, SRC, V, ASTAT
@@ -101,15 +76,11 @@ C-----------------------------------------------------------------------
 
          SUCCESS = .TRUE.
 
-         LOGDEV = INIT3()
          M = MYPE + 1
          SCOL = COLSX_PE( 1,M ); ECOL = COLSX_PE( 2,M )
          SROW = ROWSX_PE( 1,M ); EROW = ROWSX_PE( 2,M )
 
          NGRPS = SIZE( STKPRMS )
-
-         ALLOCATE ( NSRC( NGRPS ), STAT = ASTAT )
-         CALL CHECKMEM( ASTAT, 'NSRC', PNAME )
 
          ALLOCATE ( MY_NSRC( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'MY_NSRC', PNAME )
@@ -150,68 +121,25 @@ C-----------------------------------------------------------------------
          ALLOCATE ( STKVEL( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'STKVEL', PNAME )
 
-         ALLOCATE ( FIRE_ON( NGRPS ), STAT = ASTAT )
-         CALL CHECKMEM( ASTAT, 'FIRE_ON', PNAME )
-         FIRE_ON = .FALSE.   ! array assignment
-
          ALLOCATE ( ACRES_BURNED( NGRPS ), STAT = ASTAT )
          CALL CHECKMEM( ASTAT, 'ACRES_BURNED', PNAME )
 
          DO N = 1, NGRPS
 
-            IF ( .NOT. OPEN3( STKPRMS( N ), FSREAD3, PNAME ) ) THEN
-               XMSG = 'Could not open '// TRIM( STKPRMS( N ) ) // ' file'
-               CALL M3MESG( XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
+!           IF ( .NOT. OPEN3( STKPRMS( N ), FSREAD3, PNAME ) ) THEN
+!              XMSG = 'Could not open '// TRIM( STKPRMS( N ) ) // ' file'
+!              CALL M3MESG( XMSG )
+!              SUCCESS = .FALSE.; RETURN
+!           END IF
 
-            IF ( .NOT. DESC3( STKPRMS( N ) ) ) THEN
-               XMSG = 'Could not get ' // TRIM( STKPRMS( N ) ) // ' file description'
-               CALL M3MESG( XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            NSRC( N ) = NROWS3D
-            NLAYS = NLAYS3D
-            SDATE = SDATE3D
-            STIME = STIME3D
-
-            DO V = 1, NVARS3D
-               IF ( VNAME3D( V ) .EQ. 'ACRESBURNED' ) FIRE_ON( N ) = .TRUE.
-            END DO
-
-            ALLOCATE ( XLOCA( NSRC( N ) ), STAT = ASTAT )
-            CALL CHECKMEM( ASTAT, 'XLOCA', PNAME )
-
-            ALLOCATE ( YLOCA( NSRC( N ) ), STAT = ASTAT )
-            CALL CHECKMEM( ASTAT, 'YLOCA', PNAME )
-
-            ALLOCATE ( STKID( NSRC( N ) ), STAT = ASTAT )
-            CALL CHECKMEM( ASTAT, 'STKID', PNAME )
+!           IF ( .NOT. DESC3( STKPRMS( N ) ) ) THEN
+!              XMSG = 'Could not get ' // TRIM( STKPRMS( N ) ) // ' file description'
+!              CALL M3MESG( XMSG )
+!              SUCCESS = .FALSE.; RETURN
+!           END IF
 
             ALLOCATE ( LOC_MAP( NSRC( N ) ), STAT = ASTAT )
             CALL CHECKMEM( ASTAT, 'LOC_MAP', PNAME )
-
-            IF ( .NOT. READ3( STKPRMS( N ), 'XLOCA', ALLAYS3,
-     &                        SDATE, STIME, XLOCA ) ) THEN
-               XMSG = 'Could not read XLOCA from ' // TRIM( STKPRMS( N ) )
-               CALL M3MESG( XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            IF ( .NOT. READ3( STKPRMS( N ), 'YLOCA', ALLAYS3,
-     &                        SDATE, STIME, YLOCA ) ) THEN
-               XMSG = 'Could not read YLOCA from ' // TRIM( STKPRMS( N ) )
-               CALL M3MESG( XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            IF ( .NOT. READ3( STKPRMS( N ), 'ISTACK', ALLAYS3,
-     &                        SDATE, STIME, STKID ) ) THEN
-               XMSG = 'Could not read ISTACK from ' // TRIM( STKPRMS( N ) )
-               CALL M3MESG( XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
 
             SOURCE( N )%LEN = NSRC( N )
             ALLOCATE ( SOURCE( N )%ARRY( NSRC( N ) ), STAT = ASTAT )
@@ -232,14 +160,14 @@ C-----------------------------------------------------------------------
             MY_NSRC( N ) = 0
             STRT_SRC = 0; END_SRC = 0
             DO S = 1, NSRC( N )
-               X = ( XLOCA( S ) - REAL( XORIG_GD, 4 ) ) / REAL( XCELL_GD, 4 )
+               X = ( XLOCA( S, N ) - REAL( XORIG_GD, 4 ) ) / REAL( XCELL_GD, 4 )
                IF ( X .GE. 0.0 ) THEN
                   C = 1 + INT( X )
                ELSE
                   C = -1 - INT( -X )
                END IF
                IF ( C .GE. SCOL .AND. C .LE. ECOL ) THEN
-                  Y = ( YLOCA( S ) - REAL( YORIG_GD, 4 ) ) / REAL( YCELL_GD, 4 )
+                  Y = ( YLOCA( S, N ) - REAL( YORIG_GD, 4 ) ) / REAL( YCELL_GD, 4 )
                   IF ( Y .GE. 0.0 ) THEN
                      R = 1 + INT( Y )
                   ELSE
@@ -253,7 +181,7 @@ C-----------------------------------------------------------------------
                      SOURCE( N )%ARRY( MY_NSRC( N ) ) = S - STRT_SRC + 1  !**
                      MY_STKCOL( N )%ARRY( MY_NSRC( N ) ) = C - SCOL + 1
                      MY_STKROW( N )%ARRY( MY_NSRC( N ) ) = R - SROW + 1
-                     MY_STKID( N )%ARRY( MY_NSRC( N ) ) = STKID( S )
+                     MY_STKID( N )%ARRY( MY_NSRC( N ) ) = STKID( S, N )
                   END IF
                END IF
             END DO
@@ -267,16 +195,6 @@ C SOURCE maps STKEMIS read from stk emis file to local STKEM in GET_PT3D_EMIS.
             MY_STRT_SRC( N ) = STRT_SRC
             MY_END_SRC( N ) = END_SRC
             MY_DELTA = END_SRC - STRT_SRC + 1
-
-            WRITE( LOGDEV,1009 ) MYPE, N, MY_STRT_SRC( N ), MY_END_SRC( N ),
-     &                           MY_DELTA, MY_NSRC( N )
-!           write( logdev,'( 5x, a, i2, a )' ) '-> my_stkid(', n, ' )'
-!           write( logdev,'( 5x, "->", 24i3 )' )
-!    &                     ( my_stkid( n )%arry( s ), s = 1, my_nsrc( n ) )
-
-!           write( logdev,'( 5x, a, i2, a )' ) '-> source(', n, ' )'
-!           write( logdev,'( 5x, "->", 24i3 )' )
-!    &                     ( source( n )%arry( s ), s = 1, my_nsrc( n ) )
 
             STKDIAM( N )%LEN = MY_DELTA
             ALLOCATE ( STKDIAM( N )%ARRY( MY_DELTA ), STAT = ASTAT )
@@ -310,78 +228,26 @@ C SOURCE maps STKEMIS read from stk emis file to local STKEM in GET_PT3D_EMIS.
             CALL CHECKMEM( ASTAT, 'MY_YLOCA', PNAME )
             MY_YLOCA( N )%ARRY = 0.0   ! array
 
-            IF ( MY_NSRC( N ) .GT. 0 ) THEN
-
-               IF ( .NOT. XTRACT3( STKPRMS( N ), 'STKDM', 1,NLAYS,
-     &                             MY_STRT_SRC( N ),MY_END_SRC( N ),
-     &                             1,1, SDATE, STIME, STKDIAM( N )%ARRY ) ) THEN
-                  XMSG = 'Could not read STKDM from ' // TRIM( STKPRMS( N ) )
-                  CALL M3MESG( XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
-
-               IF ( .NOT. XTRACT3( STKPRMS( N ), 'STKHT', 1,NLAYS,
-     &                             MY_STRT_SRC( N ),MY_END_SRC( N ),
-     &                             1,1, SDATE, STIME, STKHT( N )%ARRY ) ) THEN
-                  XMSG = 'Could not read STKHT from ' // TRIM( STKPRMS( N ) )
-                  CALL M3MESG( XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
-
-               IF ( .NOT. XTRACT3( STKPRMS( N ), 'STKTK', 1,NLAYS,
-     &                             MY_STRT_SRC( N ),MY_END_SRC( N ),
-     &                             1,1, SDATE, STIME, STKTK( N )%ARRY ) ) THEN
-                  XMSG = 'Could not read STKTK from ' // TRIM( STKPRMS( N ) )
-                  CALL M3MESG( XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
-
-               IF ( .NOT. XTRACT3( STKPRMS( N ), 'STKVE', 1,NLAYS,
-     &                             MY_STRT_SRC( N ),MY_END_SRC( N ),
-     &                             1,1, SDATE, STIME, STKVEL( N )%ARRY ) ) THEN
-                  XMSG = 'Could not read STKVE from ' // TRIM( STKPRMS( N ) )
-                  CALL M3MESG( XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
-
-               IF ( FIRE_ON( N ) ) THEN
-                  IF ( .NOT. XTRACT3( STKPRMS( N ), 'ACRESBURNED', 1,NLAYS,
-     &                                MY_STRT_SRC( N ),MY_END_SRC( N ),
-     &                                1,1, SDATE, STIME, ACRES_BURNED( N )%ARRY ) ) THEN
-                     XMSG = 'Could not read ACRESBURNED from ' // TRIM( STKPRMS( N ) )
-                     CALL M3MESG( XMSG )
-                     SUCCESS = .FALSE.; RETURN
-                  END IF
-               END IF
-
-            ELSE
+            IF ( MY_NSRC( N ) .LE. 0 ) THEN
 
                MY_DELTA = 0
 
                MY_XLOCA( N )%LEN = MY_NSRC( N )
                MY_YLOCA( N )%LEN = MY_NSRC( N )
 
-!              IF ( FIRE_ON( N ) ) THEN
-!                 ACRES_BURNED( MY_STRT_SRC( N ):MY_END_SRC( N ) ) = 0.0
-!              END IF
-
             END IF   ! MY_NSRC( N ) .GT. 0
         
             DO S = 1, MY_NSRC( N )
                SRC = LOC_MAP( S )
-               MY_XLOCA( N )%ARRY( S ) = XLOCA( SRC )
-               MY_YLOCA( N )%ARRY( S ) = YLOCA( SRC )
+               MY_XLOCA( N )%ARRY( S ) = XLOCA( SRC, N )
+               MY_YLOCA( N )%ARRY( S ) = YLOCA( SRC, N )
             END DO
 
-            DEALLOCATE ( XLOCA, YLOCA, STKID, LOC_MAP )
+            DEALLOCATE ( LOC_MAP )
 
          END DO   ! NGRPS
 
          RETURN
-
-1009     FORMAT( / 5X, '->  me', 3X, 'file', 3X, 'my_strt_src', 3X, 'my_end_src',
-     &             2X, 'delta', 6X, 'my_nsrc'
-     &           / 5X, '->', I3, 4X, I2, 4( 2X, I10 ) )
 
          END FUNCTION STK_PRMS_INIT
 

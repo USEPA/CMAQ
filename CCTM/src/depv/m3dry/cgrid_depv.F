@@ -17,15 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/cgrid_depv.F,v 1.4 2011/10/21 16:10:37 yoj Exp $
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/cgrid_depv.F,v 1.4 2011/10/21 16:10:37 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
@@ -37,6 +28,7 @@ C Revision History:
 C   Jeff Young 11 Jan 07: created
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN;
+C   1 Feb 19 David Wong: removed MY_N clauses
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS            ! CGRID mechanism species
@@ -53,14 +45,12 @@ C Arguments:
 C Local Variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      integer, save :: logdev
 
        INTEGER C, R, S, N, V, NDX, STRT
 
 C-----------------------------------------------------------------------
       IF ( FIRSTIME )  THEN
          FIRSTIME  =  .FALSE.
-         logdev = init3()
       END IF
 
       N = 0
@@ -70,13 +60,12 @@ C-----------------------------------------------------------------------
          IF ( GAS_DEPV_FOUND( N ) ) THEN
             NDX = GAS_DEPV_SUR( N )
             S = STRT + GC_DEPV_MAP( V )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   CGRIDL1( NDX,C,R ) = CGRID( C,R,1,S )
                END DO
             END DO
          END IF
-!        write( logdev,* ) strt, v, n, ndx, s
       END DO
 
       STRT = N_GC_SPC + 1 + N_AE_SPC  ! +1 for RHOJ
@@ -85,13 +74,12 @@ C-----------------------------------------------------------------------
          IF ( GAS_DEPV_FOUND( N ) ) THEN
             NDX = GAS_DEPV_SUR( N )
             S = STRT + NR_DEPV_MAP( V )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   CGRIDL1( NDX,C,R ) = CGRID( C,R,1,S )
                END DO
             END DO
          END IF
-!        write( logdev,* ) strt, v, n, ndx, s
       END DO
 
       STRT = N_GC_SPC + 1 + N_AE_SPC + N_NR_SPC
@@ -100,13 +88,12 @@ C-----------------------------------------------------------------------
          IF ( GAS_DEPV_FOUND( N ) ) THEN
             NDX = GAS_DEPV_SUR( N )
             S = STRT + TR_DEPV_MAP( V )
-            DO R = 1, MY_NROWS
-               DO C = 1, MY_NCOLS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
                   CGRIDL1( NDX,C,R ) = CGRID( C,R,1,S )
                END DO
             END DO
          END IF
-!        write( logdev,* ) strt, v, n, ndx, s
       END DO
 
       END SUBROUTINE CGRID_DEPV

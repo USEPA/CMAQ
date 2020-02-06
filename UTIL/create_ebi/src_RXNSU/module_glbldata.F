@@ -22,7 +22,7 @@ c..Group species indices
       INTEGER    ::  C2O3 = 0
       INTEGER    ::  PAN  = 0
       INTEGER    ::  NO2EX = 0
-
+      INTEGER    ::  RXN_C2O3_SELF = 0
 
 
       INTEGER    ::  CL = 0               ! Largest species character length

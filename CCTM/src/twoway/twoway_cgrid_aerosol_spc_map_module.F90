@@ -7,6 +7,8 @@
 !           21 Oct 2015  Updated water insoluble species list
 !           22 Nov 2016  Constructed water soluble and insoluble list dynamically
 !                        based on a given chemical mechanism and AE scheme
+!           01 Aug 2019  -- renamed ASEACATK to ASEACAT
+!                        -- added a H2O species, AORGH2OJ
 !===============================================================================
 
   module twoway_cgrid_aerosol_spc_map_module
@@ -50,13 +52,13 @@
       /)
 
     ! water
-    integer, parameter :: num_h2o_spc = 3
+    integer, parameter :: num_h2o_spc = 4
 
     integer :: h2o_spc_index(num_h2o_spc)
 
     character (len = 16), parameter :: h2o_spc(num_h2o_spc) = &
       (/ 'AH2OI           ', 'AH2OJ           ',              &
-         'AH2OK           '                                   &
+         'AH2OK           ', 'AORGH2OJ        '               &
       /)
 
     INTEGER, PARAMETER :: num_twoway_ae_cmaq_spc = 44
@@ -85,7 +87,7 @@
          'AOLGAJ          ', 'AOLGBJ          ', 'AORGCJ          ', 'AORGPAI         ', 'AORGPAJ         ', &
          'AECI            ', 'AECJ            ', 'AOTHRI          ', 'AOTHRJ          ', 'ANAI            ', &
          'ANAJ            ', 'ANAK            ', 'ACLI            ', 'ACLJ            ', 'ACLK            ', &
-         'ACORS           ', 'ASOILJ          ', 'ASOIL           ',                                         &
+         'ACORSK          ', 'ASOILJ          ', 'ASOIL           ',                                         &
          'PMASSAT         ', 'PMASSAC         ', 'PMASSCO         '                                          &
       /)
 
@@ -101,7 +103,7 @@
          'AOLGAJ          ', 'AOLGBJ          ', 'AORGCJ          ', 'AORGPAI         ', 'AORGPAJ         ', &
          'AECI            ', 'AECJ            ', 'AOTHRI          ', 'AOTHRJ          ', 'ANAI            ', &
          'ANAJ            ', 'ANAK            ', 'ACLI            ', 'ACLJ            ', 'ACLK            ', &
-         'ACORS           ', 'ASOILJ          ', 'ASOIL           '                                          &
+         'ACORSK          ', 'ASOILJ          ', 'ASOILK          '                                          &
       /)
 
     integer :: twoway_ae_cmaq_spc_name_index (num_twoway_ae_cmaq_spc)
@@ -110,7 +112,7 @@
 
     character (len = 16), parameter :: twoway_ae_cmaq_spc_name_other (num_twoway_ae_cmaq_spc_other) =        &
       (/ 'APOCI           ', 'APNCOMI         ', 'APOCJ           ', 'APNCOMJ         ', 'ASEACAT         ', &
-         'ASOIL           ', 'ACORS           ', 'AALJ            ', 'ASIJ            ', 'ACAJ            ', &
+         'ASOILK          ', 'ACORSK          ', 'AALJ            ', 'ASIJ            ', 'ACAJ            ', &
          'AFEJ            ', 'ATIJ            '  &
       /)
 

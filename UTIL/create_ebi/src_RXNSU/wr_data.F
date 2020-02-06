@@ -15,6 +15,7 @@ C**********************************************************************
       USE ENV_VARS
       USE GLOBAL_DATA
       !!USE M3UTILIO ! IOAPI parameters and declarations
+      USE RXNS_DATA
 
       IMPLICIT NONE
 
@@ -49,6 +50,7 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL  :: LOUT3 = .FALSE.  ! Flag for line 3 output processed
       LOGICAL  :: LOUT4 = .FALSE.  ! Flag for group 4 output processed
       LOGICAL  :: LOUT5 = .FALSE.  ! Flag for group 5 output processed
+      LOGICAL  :: LOUT6 = .FALSE.  ! Flag for line 6 output processed
 
 
 C**********************************************************************
@@ -95,7 +97,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          IF( LINEIN( 2 : 2 ) .EQ. '1' .AND. .NOT. LOUT1 ) THEN
 
-            WRITE( IOUT, 93000 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
+            WRITE( IOUT, 93000 ) TRIM( MECHNAME )
 
             LOUT1 = .TRUE. 
 
@@ -117,6 +119,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             LOUT5 = .FALSE.
 
+         ELSEIF( LINEIN( 2 : 2 ) .EQ. '6' .AND. .NOT. LOUT6 ) THEN
+
+            WRITE( IOUT, 93082 ) REAL( TIME_STEP,8 )
+
+            LOUT6 = .TRUE. 
+            
          END IF
 
       END IF
@@ -130,54 +138,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c Generate the species indices
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      IF( .NOT. L_ALL_MECHS ) THEN
+      WRITE( IOUT, 93050 )
 
-         WRITE( IOUT, 93050 )
+      DO N = 1, N_SPECIES
 
-         DO N = 1, N_SPECIES
-
-            EPOS = 16 ! LEN_TRIM( SPECIES( N ) )
+         EPOS = 16 ! LEN_TRIM( SPECIES( N ) )
            
-            WRITE( IOUT, 93081 ) SPECIES( N ) ( 1 : EPOS ), N
+         WRITE( IOUT, 93081 ) SPECIES( N ) ( 1 : EPOS ), N
 
-         END DO
-
-      ELSE
-
-
-c..write gas species indices (names)
-         WRITE( IOUT, 93060 )
-
-         DO N = 1, N_GC_ONLY_SPC
-
-            EPOS = 16 ! LEN_TRIM( GC_ONLY_SPC( N ) )
-
-            WRITE( IOUT, 93081 ) GC_ONLY_SPC( N ) ( 1 : EPOS ), N
-  
-         END DO
-
-c..write the ae and aq species
-         IF( N_AE_SPC .GT. 0 ) THEN
- 
-            WRITE( IOUT, 93100 )
-
-            DO N = 1, N_AE_SPC
-               WRITE( IOUT, 93080 ) AE_SPC( N )
-            END DO
-
-         END IF
-            
-         IF( N_AQ_SPC .GT. 0 ) THEN
-
-            WRITE( IOUT, 93120 )
-
-            DO N = 1, N_AQ_SPC
-               WRITE( IOUT, 93080 ) AQ_SPC( N )
-            END DO
-
-         END IF
-
-      END IF
+      END DO
 
       WRITE( IOUT, 93140 )
 
@@ -197,7 +166,7 @@ c..write the ae and aq species
        
 92000 FORMAT( A )
 
-93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
+93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' mechanism' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
 93040 FORMAT( 6X, 'REAL( 8 ), ALLOCATABLE ::  PNEG(  : )',
      &            '! Negative production rates' )
@@ -205,6 +174,7 @@ c..write the ae and aq species
 93060 FORMAT( 'c..Gas species indices' )
 93080 FORMAT( 6X, 'INTEGER  :: ', A16,' = ',I4 )
 93081 FORMAT( 6X, 'INTEGER, PARAMETER :: ', A16,' = ',I4 )
+93082 FORMAT( 6X, 'REAL( 8 ), PARAMETER  ::  DELTAT        = ', 1PD9.3, ' ! EBI time step (min)' )
 93100 FORMAT( /'c..Aerosol species indices' )
 93120 FORMAT( /'c..AQ chemistry species indices' )
 93140 FORMAT( /6X, 'END MODULE HRDATA' )

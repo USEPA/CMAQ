@@ -24,8 +24,8 @@ C $Header: /project/yoj/arc/BCON/src/common/lat_lon.F,v 1.2 2011/10/21 16:52:32 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
-      SUBROUTINE LAT_LON( COL, ROW, GDTYP, XORIG, YORIG, XCELL, YCELL, 
-     &                    XCENT, YCENT, P_ALP, P_BET, P_GAM, LAT, LON )
+      SUBROUTINE LAT_LON ( COL, ROW, GDTYP, XORIG, YORIG, XCELL, YCELL,
+     &                     XCENT, YCENT, P_ALP, P_BET, P_GAM, LAT, LON )
  
 C***********************************************************************
  
@@ -34,12 +34,16 @@ C Function: Computes latitude and longitude of center of grid cells
 C Preconditions: None
   
 C Key Subroutines/Functions Called: SETLAM
+C                                   SETPOL
 C                                   LAM2LL
+C                                   POL2LL
 C                                   UTM2LL
  
 C Revision History: Modified form of LAT_LON program originally created
 C                      by C. J. Coats  -- Jerry Gipson, January 1998    
 C    06 Jun 11 J.Young: Replaced I/O API include files with M3UTILIO
+C    28 Aug 18 R.Mathur/S.Roselle: Added polar stereographic projection
+C                      grid type option 
  
 C***********************************************************************
 
@@ -48,23 +52,23 @@ C***********************************************************************
       IMPLICIT NONE     
 
 C Arguments:
-      INTEGER GDTYP       ! Grid type
-      INTEGER COL         ! column 
-      INTEGER ROW         ! row
+      INTEGER, INTENT( IN ) :: GDTYP       ! Grid type
+      INTEGER, INTENT( IN ) :: COL         ! column
+      INTEGER, INTENT( IN ) :: ROW         ! row
 
-      REAL( 8 ) :: P_ALP  ! 1st map projection parameter
-      REAL( 8 ) :: P_BET  ! 2nd map projection parameter
-      REAL( 8 ) :: P_GAM  ! 3rd map projection parameter
+      REAL( 8 ), INTENT( IN ) :: P_ALP  ! 1st map projection parameter
+      REAL( 8 ), INTENT( IN ) :: P_BET  ! 2nd map projection parameter
+      REAL( 8 ), INTENT( IN ) :: P_GAM  ! 3rd map projection parameter
 
-      REAL( 8 ) :: XCELL  ! X-dimension of cell (m)
-      REAL( 8 ) :: XCENT  ! Longitude of coordinate system center
-      REAL( 8 ) :: XORIG  ! X-origin of grid
-      REAL( 8 ) :: YCELL  ! Y-dimension of cell (m)
-      REAL( 8 ) :: YCENT  ! Latitude of coordinate system center
-      REAL( 8 ) :: YORIG  ! Y-origin of grid
+      REAL( 8 ), INTENT( IN ) :: XCELL  ! X-dimension of cell (m)
+      REAL( 8 ), INTENT( IN ) :: XCENT  ! Longitude of coordinate system center
+      REAL( 8 ), INTENT( IN ) :: XORIG  ! X-origin of grid
+      REAL( 8 ), INTENT( IN ) :: YCELL  ! Y-dimension of cell (m)
+      REAL( 8 ), INTENT( IN ) :: YCENT  ! Latitude of coordinate system center
+      REAL( 8 ), INTENT( IN ) :: YORIG  ! Y-origin of grid
 
-      REAL LAT            ! Output latitude
-      REAL LON            ! Output longitude
+      REAL, INTENT( OUT ) :: LAT            ! Output latitude
+      REAL, INTENT( OUT ) :: LON            ! Output longitude
 
 C Parameters: None
 
@@ -102,20 +106,38 @@ C***********************************************************************
          Y = Y0 + FLOAT( ROW ) * SNGL( YCELL )
          IF ( .NOT. LAM2LL( X, Y, LON, LAT ) ) THEN
             MSG = 'Lambert conversion error for CTM CONC file'
-            CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+            CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
          END IF                          
+
+      ELSE IF ( GDTYP .EQ. POLGRD3 ) THEN  ! Polar Stereographic Projection
+
+         IF ( .NOT. SETPOL( SNGL( P_ALP ),        !  first, initialize
+     &                      SNGL( P_BET ),        !  for POL2LL()
+     &                      SNGL( P_GAM ),
+     &                      SNGL( XCENT ),
+     &                      SNGL( YCENT ) ) ) THEN
+            MSG='Polar stereographic projection setup error for CTM CONC file'
+            CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
+         END IF
+
+         X = X0 + FLOAT( COL ) * SNGL( XCELL )
+         Y = Y0 + FLOAT( ROW ) * SNGL( YCELL )
+         IF ( .NOT. POL2LL( X, Y, LON, LAT ) ) THEN
+            MSG = 'Polar stereographic conversion error for CTM CONC file'
+            CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
+         END IF
 
       ELSE IF ( GDTYP .EQ. UTMGRD3 ) THEN   ! UTM Coordinates
 
          ZONE = NINT( P_ALP )
          X = X0 + FLOAT( COL ) * SNGL( XCELL )
          Y = Y0 + FLOAT( ROW ) * SNGL( YCELL )
-         CALL UTM2LL( X, Y, ZONE, LON, LAT )
+         CALL UTM2LL ( X, Y, ZONE, LON, LAT )
 
       ELSE                                   !  Unsupported Coordinates
 
          WRITE( MSG, 94000) GDTYP
-         CALL M3EXIT( PNAME, 0, 0, MSG, 2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, 2 )
 
       END IF 
 

@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6_mp/aqchem.F,v 1.4 2012/03/28 15:39:52 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AQCHEM ( JDATE, JTIME, TEMP, PRES_PA, TAUCLD, PRCRATE,
      &                    WCAVG, WTAVG, AIRM, ALFA0, ALFA2, ALFA3, GAS,
@@ -121,6 +114,10 @@ C                        aerosols to improve efficiency
 C   15 Jun 15 J.Young:  Fixed bug found by Martin Otte in calculations for scavenging
 C                       aitken aerosols
 C   15 Apr 16 J.Young:  Use aerosol factors from AERO_DATA module named constants
+C   19 Apr 18 K.Fahey:  For species with both gas phase and coarse mode aerosol components, avoid
+C                       introducing extra mass when the coarse mode concentration is greater than 
+C                       the total amount left in the aqueous phase after redistribution between the 
+C                       phases. 
 C
 C  References:
 C     Walcek & Taylor, 1986, A theoretical Method for computing
@@ -256,11 +253,14 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: EC              ! elemental carbon acc+akn aerosol in cloudwater (mol/liter)
       REAL( 8 ) :: FA              ! functional value ??
       REAL( 8 ) :: FB              ! functional value ??
+      REAL( 8 ) :: FCLCOR          ! frac weight of coarse CL to (acc+coarse) CL
       REAL( 8 ) :: FE              ! Fe+++ conc in cloudwater (mol/liter)
       REAL( 8 ) :: FNH3            ! frac weight of NH3 to total ammonia
       REAL( 8 ) :: FNH4ACC         ! frac weight of NH4 acc to total ammonia
+      REAL( 8 ) :: FNH4COR         ! frac weight of coarse NH4 to (acc+coarse) NH4
       REAL( 8 ) :: FHNO3           ! frac weight of HNO3 to total NO3
       REAL( 8 ) :: FNO3ACC         ! frac weight of NO3 acc to total NO3
+      REAL( 8 ) :: FNO3COR         ! frac weight of coarse NO3 to (acc+coarse) NO3
       REAL( 8 ) :: FRACLIQ         ! fraction of water in liquid form
       REAL( 8 ) :: FOA1            ! First dissociation constant for FOA (Formic Acid)
       REAL( 8 ) :: FOAH            ! Henry's Law constant for FOA
@@ -369,6 +369,7 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: SO4COR          ! coarse SO4= conc in cloudwater (mol/liter)
       REAL( 8 ) :: STION           ! ionic strength
       REAL( 8 ) :: TAC             !
+      REAL( 8 ) :: TCLa            ! sum of accumulation and coarse mode chloride
       REAL( 8 ) :: TEMP1           ! (1/T) - (1/298) (1/K)
       REAL( 8 ) :: TIMEW           ! cloud chemistry clock (sec)
 !     REAL( 8 ) :: THO             ! total hydroxyl radical available for oxidation
@@ -378,6 +379,8 @@ C...........Local Variables (scalars):
       REAL( 8 ) :: TH2O2
       REAL( 8 ) :: TO3
       REAL( 8 ) :: TMHP
+      REAL( 8 ) :: TNH4a           ! sum of accumulation and coarse mode ammonium
+      REAL( 8 ) :: TNO3a           ! sum of accumulation and coarse mode nitrate   
       REAL( 8 ) :: TPAA
       REAL( 8 ) :: TOTAMM          ! total ammonium
       REAL( 8 ) :: TOTNIT          ! total nitrate (excluding coarse mode)
@@ -526,9 +529,6 @@ C...........External Functions:
      &                 - C_HINTCL2 * TEMPC
      &                 + D_HINTCL2
 
-      INTEGER, SAVE :: LOGDEV
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
-
 C*********************************************************************
 
 C...Initialization
@@ -536,22 +536,25 @@ C...Initialization
       IF ( FIRSTIME ) THEN
 
         FIRSTIME = .FALSE.
-
-        LOGDEV = SETUP_LOGDEV()
-
+ 
 C...Make sure an AE6 version of the mechanism is being used
 
         IF ( INDEX ( MECHNAME, 'AE6' ) .LE. 0 ) THEN
           XMSG = 'This version of AQCHEM requires an AE6 chemical mechanism'
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+        END IF 
+
+!...Make sure STM option is not set
+
+        IF ( STM ) THEN
+           XMSG = 'STM option not implemented in multipollutant version of AQCHEM'
+           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
         END IF
 
-C...special treatment of MGLY for CB05 mechanism:
-C...  use Henry`s law constant for glyoxal as a surrogate for methyl glyoxal
-
-        IF ( INDEX ( MECHNAME, 'CB05' ) .GT. 0 ) THEN
-          MGLYSUR = 'GLYOXAL         '
-        END IF
+#ifdef isam
+        XMSG = 'Source Apportionment is not implemented in multipollutant version of AQCHEM'
+        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+#endif        
 
 C... set MW ratios and speciation factors for molar concentrations of coarse
 C... soluble aerosols
@@ -559,40 +562,40 @@ C... soluble aerosols
         SOIL_FE_FAC = ASOIL_FE_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ASOIL_RENORM
         CORS_FE_FAC = ACORS_FE_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( AFE_IDX ), 8 ) / ACORSEM_RENORM
 
         SOIL_MN_FAC = ASOIL_MN_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ASOIL_RENORM
         CORS_MN_FAC = ACORS_MN_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( AMN_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_NA_FAC = ASCAT_NA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 )
         SOIL_NA_FAC = ASOIL_NA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ASOIL_RENORM
         CORS_NA_FAC = ACORS_NA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( ANA_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_MG_FAC = ASCAT_MG_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 )
         SOIL_MG_FAC = ASOIL_MG_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ASOIL_RENORM
         CORS_MG_FAC = ACORS_MG_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( AMG_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_CA_FAC = ASCAT_CA_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 )
         SOIL_CA_FAC = ASOIL_CA_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ASOIL_RENORM
         CORS_CA_FAC = ACORS_CA_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( ACA_IDX ), 8 ) / ACORSEM_RENORM
 
         SEAS_K_FAC = ASCAT_K_FAC * REAL( AEROSPC_MW( ASEACAT_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AK_IDX ), 8 )
         SOIL_K_FAC = ASOIL_K_FAC * REAL( AEROSPC_MW( ASOIL_IDX ), 8 )
      &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ASOIL_RENORM
         CORS_K_FAC = ACORS_K_FAC * REAL( AEROSPC_MW( ACORS_IDX ), 8 )
-     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORS_RENORM
+     &                             / REAL( AEROSPC_MW( AK_IDX ), 8 ) / ACORSEM_RENORM
 
       END IF    ! FIRSTIME
 
@@ -712,6 +715,27 @@ C...compute fractional weights for several species
         FNH4ACC = 0.0D0
       END IF
 
+      TNO3a = AEROSOL( LNO3, ACC ) + AEROSOL( LNO3, COR ) 
+      IF ( TNO3a .GT. 0.0D0) THEN
+         FNO3COR = AEROSOL( LNO3, COR ) / TNO3a
+      ELSE
+         FNO3COR = 0.0D0
+      END IF
+      
+      TNH4a = AEROSOL( LNH4, ACC ) + AEROSOL( LNH4, COR )
+      IF ( TNH4a .GT. 0.0D0) THEN
+         FNH4COR = AEROSOL( LNH4, COR ) / TNH4a
+      ELSE
+         FNH4COR = 0.0D0
+      END IF
+      
+      TCLa  = AEROSOL( LCL, ACC )  + AEROSOL( LCL, COR )
+      IF ( TCLa .GT. 0.0D0) THEN
+         FCLCOR = AEROSOL( LCL, COR ) / TCLa
+      ELSE
+         FCLCOR = 0.0D0
+      END IF
+      
 C...Assign fraction partitioning of FE(III) and MN(II)
 
       IF ( DARK ) THEN
@@ -1452,15 +1476,37 @@ C...compute modal concentrations
         TS6ACC  = MAX( TS6  - TS6COR,   0.0D0 )
         SO4ACC  = MAX( SO4  - SO4COR,   0.0D0 )
         HSO4ACC = MAX( HSO4 - HSO4COR,  0.0D0 )
-        NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
         NAACC   = MAX( NA   - NACOR,    0.0D0 )
-        CLACC   = MAX( CL   - CLCOR,    0.0D0 )
-        NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
         CAACC   = MAX( CA   - CACOR,    0.0D0 ) ! AE6
         MGACC   = MAX( MG   - MGCOR,    0.0D0 ) ! AE6
         KACC    = MAX( K    - KCOR,     0.0D0 ) ! AE6
         FEACC   = MAX( FE   - FECOR,    0.0D0 ) ! AE6
         MNACC   = MAX( MN   - MNCOR,    0.0D0 ) ! AE6
+
+C...Avoid adding mass when the coarse mode concentration is greater
+C...  than the total amount left in the aqueous phase after redistribution
+C...  of a species between the gas/aqueous phases
+
+        IF ( NO3COR .GT. NO3 ) then
+           NO3ACC = (1.0D0 - FNO3COR) * NO3
+           NO3COR = FNO3COR * NO3
+        ELSE
+           NO3ACC  = MAX( NO3  - NO3COR,   0.0D0 )
+        END IF
+
+        IF ( CLCOR .GT. CL ) then
+           CLACC = (1.0D0 - FCLCOR) * CL
+           CLCOR = FCLCOR * CL
+        ELSE
+           CLACC   = MAX( CL   - CLCOR,    0.0D0 )
+        END IF
+
+        IF ( NH4COR .GT. NH4 ) THEN
+           NH4ACC = (1.0D0 - FNH4COR) * NH4
+           NH4COR = FNH4COR * NH4
+        ELSE
+           NH4ACC  = MAX( NH4  - NH4COR,   0.0D0 )
+        END IF
 
 C...load the liquid concentration array with current values
 
@@ -2050,7 +2096,7 @@ C...aerosol concentrations (mol/molV)
 
       AEROSOL( LNUM, AKN ) = AEROSOL( LNUM, AKN ) * EALFA0T
       AEROSOL( LNUM, ACC ) = AEROSOL( LNUM, ACC ) * EBETASO4T
-      AEROSOL( LNUM, COR ) = NUMCOR * XL * RECIPAP1
+      AEROSOL( LNUM, COR ) = AEROSOL( LNUM, COR ) * EXP(-TAUCLD / TWASH )
 
       AEROSOL( LCAACC, ACC ) = CAACC   * XL * RECIPAP1 ! AE6 - SLN 16March2011
       AEROSOL( LMGACC, ACC ) = MGACC   * XL * RECIPAP1 ! AE6 - SLN 16March2011

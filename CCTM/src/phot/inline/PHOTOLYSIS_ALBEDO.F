@@ -35,6 +35,8 @@ C                          place. The change uses a snow albedo, computed in the
 C                          initialization routine instead of using the the snow
 C                          correction factor at each call for the surface albedo
 C                          calculation. The goal is to make the code easier to modify.
+C  02/01/19 David Wong   - Implemented centralized I/O approach, removed all MY_N
+C                          clauses
 C-----------------------------------------------------------------------
 
          IMPLICIT NONE 
@@ -50,11 +52,9 @@ C-----------------------------------------------------------------------
          INTEGER :: STRTHR ! starting GMT hour [HH]
          REAL    :: JYFREQ ! 2PI/(# days in JYEAR)
 
-         LOGICAL :: HAS_SEAICE = .FALSE. ! does metcro2d file contain sea ice data
-
 ! public variables:
          PUBLIC SURFACE_ALBEDO, DIFFUSE_ALBEDO, WATER_FRACTION, SEAICE, SNOCOV,
-     &          STDATE, STTIME, STRTHR, JYFREQ, HAS_SEAICE
+     &          STDATE, STTIME, STRTHR, JYFREQ
 
 ! public procedures:
          PUBLIC INITIALIZE_ALBEDO, GET_ALBEDO
@@ -69,7 +69,6 @@ C-----------------------------------------------------------------------
          INTEGER              :: N_LAND_CLASSES            ! number of land classes in scheme
          INTEGER              :: N_WATER_CLASSES           ! number of water classes in scheme
 
-         REAL,    ALLOCATABLE :: BUFFER  ( :,: )           ! temp array for reading inputs
          REAL,    ALLOCATABLE :: LANDMASK( :,: )           ! land-water mask: 1 for land and 0 for water
          INTEGER, ALLOCATABLE :: ALBMAP_TO_REF( : )        ! map from reference to used landuse for albedo
          REAL,    ALLOCATABLE :: ALBFAC_TO_REF( : )        ! factor from reference to used landuse for albedo
@@ -102,15 +101,9 @@ C-----------------------------------------------------------------------
          REAL SEA_MODULATE    ! seasonal modulation in surface albedo
          REAL ZEN_MODULATE    ! zenith angle modulation in surface albedo
 
-         INTEGER :: GXOFF, GYOFF        ! global origin offset from file
-C for INTERPX
-         INTEGER :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-         INTEGER :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-         INTEGER :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
-
       CONTAINS
 
-         FUNCTION INITIALIZE_ALBEDO( MDATE, MTIME, LOGDEV ) RESULT ( SUCCESS )
+         FUNCTION INITIALIZE_ALBEDO( MDATE, MTIME ) RESULT ( SUCCESS )
 C...        Function sets up arrays and data needed to calculate surface albedos
 C           use in radiative transfer calculation for actinic fluxes
 
@@ -125,6 +118,8 @@ C           use in radiative transfer calculation for actinic fluxes
 
             USE LSM_MOD, ONLY: N_LUFRAC, LSM_SCHEME => LAND_SCHEME
 
+            USE CENTRALIZED_IO_MODULE, only : interpolate_var, LWMASK, LUFRAC, HAS_SEAICE
+
             IMPLICIT NONE
 
             INCLUDE SUBST_FILES_ID   ! file name parameters
@@ -133,7 +128,6 @@ C...Arguments:
 
             INTEGER, INTENT( IN ) :: MDATE     ! Julian date (YYYYDDD)
             INTEGER, INTENT( IN ) :: MTIME     ! time        (HHMMSS)
-            INTEGER, INTENT( IN ) :: LOGDEV    ! messaging IO unit number  
 
 C...Local:
             REAL                       :: JYEAR                      ! year, ADE
@@ -175,32 +169,6 @@ C...compute start time data and frequency of annual cycle considering leap year
                JYFREQ = 2.0 * PI / 365.0
             END IF
 
-C...Get met file offsets
-
-            CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                      STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-            CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                      STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-            CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                      STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-            IF ( .NOT. DESC3( MET_CRO_2D ) ) THEN
-               XMSG = 'COULD NOT GET MET_CRO_2D  FILE DESCRIPTION '
-               WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
-               SUCCESS = .FALSE.
-               RETURN
-            END IF
-
-            HAS_SEAICE  = .TRUE.
-            VARNM = 'SEAICE'
-            V = INDEX1( VARNM, NVARS3D, VNAME3D )
-
-            IF ( V .EQ. 0 ) THEN
-               HAS_SEAICE = .FALSE.
-               XMSG = 'Could not find ' // VARNM // 'in ' // MET_CRO_2D
-               WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
-            END IF
-
             SELECT CASE( LSM_SCHEME )
                CASE( 'USGS24' )
                   NUMB_LANDUSE = NUMB_LANDUSE_USGS  ! 24
@@ -224,7 +192,7 @@ C...Get met file offsets
                   END IF
                CASE DEFAULT
                   LAND_SCHEME = 'UNKNOWN'
-                  NUMB_LANDUSE = 2 ! simple land-water suface albedo
+                  NUMB_LANDUSE = 2 ! simple land-water surface albedo
             END SELECT
 
             IF ( NUMB_LANDUSE .NE. 2 ) THEN ! test N_LUFRAC
@@ -266,14 +234,6 @@ C...Get met file offsets
                RETURN
             END IF
 
-            ALLOCATE ( BUFFER( NCOLS,NROWS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating BUFFER'
-               WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
-               SUCCESS = .FALSE.
-               RETURN
-            END IF
-
             FRACTION_LANDUSE = 0.0
             ALBMAP_TO_REF    = -1
             ALBFAC_TO_REF    = 0.0
@@ -307,23 +267,12 @@ C...Get met file offsets
 
                N_WATER_CLASSES = 0
                DO V = 1, NUMB_LANDUSE
-                  WRITE( LU_INDEX, '(I2.2)' ) V
-                  VARNM = 'LUFRAC_' // LU_INDEX
-                  IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
-     &                                STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                                1,1, 0000000, 000000, BUFFER ) ) THEN
-                     XMSG =  'Could not read ' // TRIM( VARNM )
-     &                    // ' from ' // GRID_CRO_2D
-                     WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
-                     SUCCESS = .FALSE.
-                     RETURN
-                  END IF
                   IF ( ALBMAP_TO_REF( V ) .EQ. INDEX_OCEAN_REF ) THEN
                       N_WATER_CLASSES = N_WATER_CLASSES + 1
                   END IF
-                  DO ROW = 1, MY_NROWS
-                     DO COL = 1, MY_NCOLS
-                        FRACTION_LANDUSE( V,COL,ROW ) = BUFFER( COL,ROW )
+                  DO ROW = 1, NROWS
+                     DO COL = 1, NCOLS
+                        FRACTION_LANDUSE( V,COL,ROW ) = LUFRAC( COL,ROW,V )
                      END DO
                   END DO
                END DO
@@ -353,19 +302,9 @@ C...Get met file offsets
      &              // ' Using default land-water albedo for inline photolysis'
      &              // ' calculation.'
                WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
-               VARNM = 'LWMASK'
-               IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
-     &                             STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2,
-     &                             1,1, 0000000, 000000, BUFFER ) ) THEN
-                  XMSG  = 'Could not read ' // TRIM( VARNM )
-     &                  // ' from ' // GRID_CRO_2D
-                  WRITE(LOGDEV,'( A )')TRIM( PNAME ) // ' : ' // XMSG
-                  SUCCESS = .FALSE.
-                  RETURN
-               END IF
-               DO ROW = 1, MY_NROWS
-                  DO COL = 1, MY_NCOLS
-                     IF ( BUFFER( COL,ROW ) .LT. 0.5 ) THEN
+               DO ROW = 1, NROWS
+                  DO COL = 1, NCOLS
+                     IF ( LWMASK( COL,ROW ) .LT. 0.5 ) THEN
                         FRACTION_LANDUSE( 2,COL,ROW ) = 1.0
                      ELSE
                         FRACTION_LANDUSE( 1,COL,ROW ) = 1.0
@@ -566,8 +505,8 @@ C...determine average albedo and its adjustment factors for zenith angle, season
                   NW = NW + 1
                   WATER_SEASONAL( NW ) = SEASON_COEFF_REF( L )
                   WATER_ZENITH  ( NW ) = ZENITH_COEFF_REF( L )
-                  DO ROW = 1, MY_NROWS
-                     DO COL = 1, MY_NCOLS
+                  DO ROW = 1, NROWS
+                     DO COL = 1, NCOLS
                         WATER_FRACTION( COL,ROW ) = WATER_FRACTION( COL,ROW )
      &                                             + FRACTION_LANDUSE( V,COL,ROW )
                         WATER_SCALE = ALBFAC_TO_REF( V ) * FRACTION_LANDUSE( V,COL,ROW )
@@ -580,8 +519,8 @@ C...determine average albedo and its adjustment factors for zenith angle, season
                   NL = NL + 1
                   LAND_SEASONAL( NL ) = SEASON_COEFF_REF( L )
                   LAND_ZENITH  ( NL ) = ZENITH_COEFF_REF( L )
-                  DO ROW = 1, MY_NROWS
-                     DO COL = 1, MY_NCOLS
+                  DO ROW = 1, NROWS
+                     DO COL = 1, NCOLS
                         MSCALE = ALBFAC_TO_REF( V ) * FRACTION_LANDUSE( V, COL, ROW )
                         DO IWAVE = 1, NWL
                            LAND_ANNUAL( NL,IWAVE,COL,ROW ) = MSCALE * SPECTRAL_ALBEDO_REF( IWAVE, L )
@@ -610,7 +549,7 @@ C...set up sea ice annual and snow albedos along with correction factors
             
          END FUNCTION INITIALIZE_ALBEDO
             
-         SUBROUTINE GET_ALBEDO( MDATE, MTIME, LOGDEV, COSZENS, LAT, LON )
+         SUBROUTINE GET_ALBEDO( MDATE, MTIME, COSZENS, LAT, LON )
             
 C... Subroutine calculates diffuse and direct surface albedo versus wavelength over a set of
 C    latitudes and longitudes
@@ -623,6 +562,7 @@ C    latitudes and longitudes
             USE NOOP_MODULES      ! stenex (using NOOP_UTIL_MODULE)
 #endif
             USE PCGRID_DEFN       ! get cgrid
+            USE CENTRALIZED_IO_MODULE, only : interpolate_var, HAS_SEAICE
 
             IMPLICIT NONE
 
@@ -632,7 +572,6 @@ C arguments:
 
             INTEGER, INTENT( IN ) :: MDATE            ! Julian date (YYYYDDD)
             INTEGER, INTENT( IN ) :: MTIME            ! time        (HHMMSS)
-            INTEGER, INTENT( IN ) :: LOGDEV           ! messaging IO unit number  
             REAL,    INTENT( IN ) :: COSZENS( :,: )   ! cosine of the solar zenith angle
             REAL,    INTENT( IN ) :: LAT( :,: )       ! north lat at cell center [deg]
             REAL,    INTENT( IN ) :: LON( :,: )       ! west long at cell center [deg] 
@@ -671,33 +610,15 @@ C local:
 
 C...Read & Interpolate SNOCOV
 
-            VARNM = 'SNOCOV'
-            IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
-     &                    STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2,
-     &                    1, 1, MDATE, MTIME, SNOCOV ) ) THEN
-               XMSG = 'Could not read SNOCOV from ' // MET_CRO_2D
-               CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-            END IF
+            call interpolate_var ('SNOCOV', mdate, mtime, SNOCOV)
 
             IF ( HAS_SEAICE ) THEN
 
-               VARNM = 'SEAICE'
-               IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2,
-     &                       1, 1, MDATE, MTIME, SEAICE ) ) THEN
-                  XMSG = 'Could not read SEAICE from ' // MET_CRO_2D
-                  CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-               END IF
+               call interpolate_var ('SEAICE', mdate, mtime, SEAICE)
 
             ELSE
 
-               VARNM = 'TEMPG'
-               IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
-     &                       STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2,
-     &                       1, 1, MDATE, MTIME, TEMPG ) ) THEN
-                  XMSG = 'Could not read TEMPG from ' // MET_CRO_2D
-                  CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-               END IF
+               call interpolate_var ('TEMPG', mdate, mtime, TEMPG)
 
             END IF
 
@@ -711,8 +632,8 @@ C...Calculate current hour in GMT and julian day
 
 C...Calculate cosines of the zenith angles
 
-            DO ROW = 1, MY_NROWS
-               DO COL = 1, MY_NCOLS
+            DO ROW = 1, NROWS
+               DO COL = 1, NCOLS
 
                   SINLAT = SIN( PI180 * LAT ( COL,ROW ) )
                   COSLAT = COS( PI180 * LAT ( COL,ROW ) )

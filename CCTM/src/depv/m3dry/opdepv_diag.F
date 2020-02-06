@@ -17,10 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry/opdepv_diag.F,v 1.7 2012/01/19 14:27:23 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPDEPV_DIAG ( JDATE, JTIME, TSTEP,
      &                         N_GDEPV_NAMES, GDEPV_NAMES,
@@ -67,13 +63,10 @@ C Local variables:
 
       CHARACTER( 16 ) :: PNAME = 'OPDDEP_DIAG'
       CHARACTER( 96 ) :: XMSG = ' '
-      INTEGER         :: LOGDEV
 
       INTEGER      V, N, L     ! loop induction variables
 
 C-----------------------------------------------------------------------
-
-      LOGDEV = INIT3()
 
 C Try to open existing file for update
 
@@ -130,7 +123,7 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
                N = N + 1
                VTYPE3D( V ) = M3REAL
                VNAME3D( V ) = GDEPV_NAMES( V )
-               UNITS3D( V ) = 'cm/sec'
+               UNITS3D( V ) = 'cm s-1'
                VDESC3D( V ) = 'gas phase dry deposition velocity'
             END DO
 
@@ -140,7 +133,7 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
                N = N + 1
                VTYPE3D( N ) = M3REAL
                VNAME3D( N ) = ADEPV_NAMES( V )
-               UNITS3D( N ) = 'cm/sec'
+               UNITS3D( N ) = 'cm s-1'
                VDESC3D( N ) = 'aerosol phase dry deposition velocity'
             END DO
 
@@ -150,7 +143,7 @@ C Set output file characteristics based on GRIDDESC and open the dep velocity di
 !           N = N + 1
 !           VTYPE3D( N ) = M3REAL
 !           VNAME3D( N ) = SDEPV_NAMES( V )
-!           UNITS3D( N ) = 'cm/sec'
+!           UNITS3D( N ) = 'cm s-1'
 !           VDESC3D( N ) = 'deposition velocity for (GAS-AEROSOL) '
 !    &                  // ' semi-volatile compound'
 !        END DO

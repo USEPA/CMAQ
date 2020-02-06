@@ -17,31 +17,25 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
       MODULE  HRDATA
 
 C*************************************************************************
 C
 C  FUNCTION:  Mechanism & solver data for EBI solver
 C
-C  PRECONDITIONS: For the RACM2 family of mechanisms
+C  PRECONDITIONS: For the RACM2_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
 
 c..EBI solver fixed parameters
-      INTEGER, PARAMETER    ::  NEBITER       = 1000     ! No. of iterations for EBI
-      INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1        ! max # cells in local conc arrays
-      REAL( 8 ), PARAMETER  ::  DELTAT        = 2.5D+00  ! EBI time step
+      INTEGER, PARAMETER    ::  NEBITER       = 1000      ! No. of iterations for EBI
+      INTEGER, PARAMETER    ::  MAX_CELLS_EBI = 1         ! max # cells in local conc arrays
+      REAL( 8 ), PARAMETER  ::  DELTAT        = 2.500D+00 ! EBI time step (min)
 
 c..Mechanism specific variables
       INTEGER   N_SPEC       ! No. of species in mechanism
@@ -56,13 +50,15 @@ c..Mechanism specific variables
 c..Control flags
       LOGICAL   L_AE_VRSN    ! Flag for aerosol version of mech
       LOGICAL   L_AQ_VRSN    ! Flag for aqueous chemistry version of mech
+      LOGICAL   CALL_IRR     ! Flag initializing for IRR and calling PA_IRR
 
 
 c..Miscellaneous variables
-      INTEGER   LOGDEV        ! Unit number of output log
       INTEGER   N_EBI_IT      ! No. of iterations for EBI
       INTEGER   N_EBI_STEPS   ! No. of time steps for EBI
       INTEGER   N_INR_STEPS   ! No. of inner time steps for EBI
+      INTEGER   PECOL_OFFSET  ! Local Column Offset for processor
+      INTEGER   PEROW_OFFSET  ! Local Column Offset for processor
 
       REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
 
@@ -91,19 +87,18 @@ c...Allocatable arrays
       REAL, ALLOCATABLE      :: PRES( :, :, : )          ! pressure (Pa)
       REAL, ALLOCATABLE      :: QV  ( :, :, : )          ! water vapor (Kg/Kg air)
       REAL, ALLOCATABLE      :: TA  ( :, :, : )          ! temperature (K)
-      REAL, ALLOCATABLE      :: RJ  ( :, :, :, : )       ! J-values (min-1)
 
       REAL, ALLOCATABLE      :: SEAICE ( :, :)            ! fractional seaice cover, [-]
       REAL, ALLOCATABLE      :: DENS( :, :, : )           ! mass density (Kg/m^3)
 
-      REAL,    ALLOCATABLE   :: OPEN_ZONE   ( :,: )       ! fractional sea water cover, [-]
-      REAL,    ALLOCATABLE   :: SURF_ZONE   ( :,: )       ! fractional surf-zone cover, [-]
       LOGICAL, ALLOCATABLE   :: LAND_ZONE   ( :,: )       ! Is the surface totally land?
+      LOGICAL, ALLOCATABLE   :: LFLAGIRR    ( :,:,: )     ! Conduct IRR for cell
 
       REAL( 8 ), ALLOCATABLE ::  ATMPRES ( : )     ! Cell pressure, Atm
 !      REAL( 8 ), ALLOCATABLE ::  PRESCELL( : )         ! Cell pressure, Pa
       REAL( 8 ), ALLOCATABLE ::  H2O     ( : )     ! Cell H2O mixing ratio (ppmV)
       REAL( 8 ), ALLOCATABLE ::  TEMP    ( : )     ! Cell Temperature
+      REAL( 8 ), ALLOCATABLE ::  DENSITY ( : )     ! Cell mass density (Kg/m3)
       REAL( 8 ), ALLOCATABLE ::  HET     ( :, : )  ! cell heterogeneous reaction rates
       REAL( 8 ), ALLOCATABLE ::  RJIN    ( :, : )  ! J-values for a cell
       LOGICAL, ALLOCATABLE   ::  LAND    ( : )     ! land_zone value for specific cell
@@ -261,17 +256,21 @@ c..Species indices
       INTEGER, PARAMETER :: APAH2J           =  150
       INTEGER, PARAMETER :: AALK1J           =  151
       INTEGER, PARAMETER :: AALK2J           =  152
-      INTEGER, PARAMETER :: PCVOC            =  153
-      INTEGER, PARAMETER :: PCSOARXN         =  154
-      INTEGER, PARAMETER :: VLVPO1           =  155
-      INTEGER, PARAMETER :: VSVPO1           =  156
-      INTEGER, PARAMETER :: VSVPO2           =  157
-      INTEGER, PARAMETER :: VSVPO3           =  158
-      INTEGER, PARAMETER :: VIVPO1           =  159
-      INTEGER, PARAMETER :: VLVOO1           =  160
-      INTEGER, PARAMETER :: VLVOO2           =  161
-      INTEGER, PARAMETER :: VSVOO2           =  162
-      INTEGER, PARAMETER :: VSVOO3           =  163
-      INTEGER, PARAMETER :: VSVOO1           =  164
+      INTEGER, PARAMETER :: APOCI            =  153
+      INTEGER, PARAMETER :: APNCOMI          =  154
+      INTEGER, PARAMETER :: APOCJ            =  155
+      INTEGER, PARAMETER :: APNCOMJ          =  156
+      INTEGER, PARAMETER :: PCVOC            =  157
+      INTEGER, PARAMETER :: PCSOARXN         =  158
+      INTEGER, PARAMETER :: VLVPO1           =  159
+      INTEGER, PARAMETER :: VSVPO1           =  160
+      INTEGER, PARAMETER :: VSVPO2           =  161
+      INTEGER, PARAMETER :: VSVPO3           =  162
+      INTEGER, PARAMETER :: VIVPO1           =  163
+      INTEGER, PARAMETER :: VLVOO1           =  164
+      INTEGER, PARAMETER :: VLVOO2           =  165
+      INTEGER, PARAMETER :: VSVOO2           =  166
+      INTEGER, PARAMETER :: VSVOO3           =  167
+      INTEGER, PARAMETER :: VSVOO1           =  168
 
       END MODULE HRDATA

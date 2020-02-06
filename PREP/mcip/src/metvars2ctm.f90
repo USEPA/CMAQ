@@ -121,13 +121,29 @@ SUBROUTINE metvars2ctm
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Fill THETA
 !                        and add moisture flux (QFX) for IFMOLACM.  (T. Spero)
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Changed calculation of Jacobian
+!                        for hybrid vertical coordinate in WRF, but disabled it
+!                        for this release until addtional modifications and
+!                        testing with CMAQ can be conducted.  Calculate soil
+!                        layer depths in XZSOIL, and map 3D soil data into 3D
+!                        soil arrays.  Process data for NOAH Mosaic.  Added
+!                        mapping of Noah wind speed and dynamic LAI.  (T. Spero)
+!           28 Aug 2018  Enabled Jacobian calculation for hybrid vertical
+!                        coordinate in WRF.  (T. Spero)
+!           19 Sep 2018  Removed support for MM5v3 input.  Now use netCDF tokens
+!                        for missing data.  Changed fill value for "no cumulus
+!                        parameterization" from -1 to a large negative number
+!                        to prevent inadverent use in CMAQ.  (T. Spero)
+!           18 Jun 2019  Added new surface variables with PX LSM that can
+!                        improve dust simulation in CCTM.  Added optional
+!                        variables from KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
   USE metinfo
   USE xvars
   USE metvars
-  USE m3utilio, ONLY: badval3
 
   IMPLICIT NONE
 
@@ -143,12 +159,9 @@ SUBROUTINE metvars2ctm
   INTEGER                           :: jj
   INTEGER                           :: k
   INTEGER                           :: kp1
-  REAL,               PARAMETER     :: nocupa     = -1.0   ! fill value
   CHARACTER(LEN=16),  PARAMETER     :: pname      = 'METVARS2CTM'
-  REAL,    SAVE,      ALLOCATABLE   :: pstar      ( : , : )
   REAL                              :: qf
   INTEGER                           :: r
-  REAL,               PARAMETER     :: rdmm5      = 287.04 ! [J/kg/K]
   REAL,               PARAMETER     :: rdovcp     = 2.0 / 7.0  ! Rd / cP
   REAL,               PARAMETER     :: rdwrf      = 287.0  ! [J/kg/K]
   REAL,               PARAMETER     :: rvwrf      = 461.6  ! [J/kg/K]
@@ -156,8 +169,6 @@ SUBROUTINE metvars2ctm
   REAL,               PARAMETER     :: smallnum   = 1.0e-7
   INTEGER                           :: sr
   REAL                              :: tf
-  REAL                              :: tv
-  REAL                              :: tv2
   REAL,               EXTERNAL      :: vtemp
   REAL                              :: wgt1
   REAL                              :: wgt2
@@ -319,9 +330,8 @@ SUBROUTINE metvars2ctm
   er = y0 + nrows_x - 1
 
   xtempg (:,:) = groundt (sc:ec,sr:er)
-  IF ( ( met_model == 1 .AND. met_cumulus == 1 ) .OR.  &
-       ( met_model == 2 .AND. met_cumulus == 0 ) ) THEN  ! no cumulus scheme
-    xrainc (:,:) = nocupa  ! fill will negative values as flag for CMAQv5.0
+  IF ( met_model == 2 .AND. met_cumulus == 0 ) THEN  ! no cumulus scheme
+    xrainc (:,:) = fillreal  ! fill with negative values as flag for CMAQv5.0
   ELSE
     xrainc (:,:) = raincon (sc:ec,sr:er)  ! rain is already incremental here
   ENDIF
@@ -335,6 +345,7 @@ SUBROUTINE metvars2ctm
   xzruf  (:,:) = znt     (sc:ec,sr:er)
   xalbedo(:,:) = albedo  (sc:ec,sr:er)
   xsnocov(:,:) = snowcovr(sc:ec,sr:er)
+  xsnowh (:,:) = snowh   (sc:ec,sr:er)
 
   xgsw   (:,:) = xrgrnd(:,:) * ( 1.0 - xalbedo(:,:) )
 
@@ -361,8 +372,11 @@ SUBROUTINE metvars2ctm
     xqfx(:,:) = qfx(sc:ec,sr:er)
   ENDIF
 
-  IF ( ( .NOT. iflai ) .OR.  &
-       ( (     iflai ) .AND. ( MAXVAL(lai) < smallnum ) ) ) THEN
+  IF ( iflai .AND. ifpxwrf41 ) THEN
+      xlai(:,:) = lai_px(sc:ec,sr:er)
+  ELSE IF ( iflai  .AND. ( MAXVAL(lai) > smallnum ) ) THEN
+      xlai(:,:) = lai(sc:ec,sr:er)
+  ELSE
 
     IF ( ( met_model == 2 ) .AND. ( met_soil_lsm == 2 ) ) THEN
       xlai(:,:) = 4.0
@@ -410,8 +424,6 @@ SUBROUTINE metvars2ctm
       ENDDO
     ENDIF
 
-  ELSE
-    xlai   (:,:) = lai   (sc:ec,sr:er)
   ENDIF  ! iflai
 
   IF ( ifveg ) THEN
@@ -453,10 +465,10 @@ SUBROUTINE metvars2ctm
     xrstom (:,:) = rstom (sc:ec,sr:er)
 
     ! At water points, stomatal resistance is 0.0.  Since
-    ! inverse of XRSTOM is output in metcro.F, need to avoid
-    ! division by 0.0.  Use BADVAL3 as place-holder.
+    ! inverse of XRSTOM is output in ctmproc.f90, need to avoid
+    ! division by 0.0.  Use netCDF token as place-holder.
 
-    WHERE ( xrstom == 0.0 ) xrstom = badval3
+    WHERE ( xrstom == 0.0 ) xrstom = fillreal
 
   ELSE
 !  ~ Calculate in RESISTCALC.
@@ -498,9 +510,29 @@ SUBROUTINE metvars2ctm
     xsltyp (:,:)   = FLOAT( isltyp(sc:ec,sr:er) )
     xtga   (:,:)   =        soilt1(sc:ec,sr:er)
     xt2a   (:,:)   =        soilt2(sc:ec,sr:er)
+    xsoim3d(:,:,:) =        soim3d(sc:ec,sr:er,:)
+    xsoit3d(:,:,:) =        soit3d(sc:ec,sr:er,:)
   ELSE
 !  ~ Downstream options that request these fields cannot be invoked
 !  ~ as they will not be in the output.
+  ENDIF
+
+  IF ( ifmosaic ) THEN
+    xlai_mos(:,:,:) = lai_mos(sc:ec,sr:er,:)
+    xrs_mos (:,:,:) =  rs_mos(sc:ec,sr:er,:)
+    xtsk_mos(:,:,:) = tsk_mos(sc:ec,sr:er,:)
+    xznt_mos(:,:,:) = znt_mos(sc:ec,sr:er,:)
+    xwspdsfc(:,:)   = wspdsfc(sc:ec,sr:er)
+    xxlaidyn(:,:)   = xlaidyn(sc:ec,sr:er)
+  ENDIF
+
+  IF ( ifpxwrf41 ) THEN
+    xwwlt_px(:,:)   = wwlt_px  (sc:ec,sr:er)
+    xwfc_px(:,:)    = wfc_px   (sc:ec,sr:er)
+    xwsat_px(:,:)   = wsat_px  (sc:ec,sr:er)
+    xcsand_px(:,:)  = csand_px (sc:ec,sr:er)
+    xfmsand_px(:,:) = fmsand_px(sc:ec,sr:er)
+    xclay_px(:,:)   = clay_px  (sc:er,sr:er)
   ENDIF
 
   IF ( lpv > 0 ) THEN
@@ -515,6 +547,13 @@ SUBROUTINE metvars2ctm
   xqsnow (:,:,:)  = qsa(sc:ec,sr:er,:)
   xqgraup(:,:,:)  = qga(sc:ec,sr:er,:)
 
+  IF ( ifkfradextras ) THEN
+    xqc_cu  (:,:,:)  = qc_cu    (sc:ec,sr:er,:)
+    xqi_cu  (:,:,:)  = qi_cu    (sc:ec,sr:er,:)
+    xcldfrad(:,:,:)  = cldfra_dp(sc:ec,sr:er,:)
+    xcldfras(:,:,:)  = cldfra_sh(sc:ec,sr:er,:)
+  ENDIF
+
   xwwind (:,:,0:) = wa(sc:ec,sr:er,1:)
 
   IF ( ( iftke ) .AND. ( .NOT. iftkef ) ) THEN  ! TKE on half-layers
@@ -525,7 +564,7 @@ SUBROUTINE metvars2ctm
 
   ! Ensure that very small (and sometimes negative!) values from WRF moisture
   ! fields are not used.  Here, EPSILONQ is the same minimum value as is set
-  ! in metcro.F.  Floor value for XWVAPOR (EPSILONQV) is based on MM5 value.
+  ! in ctmproc.f90.  Floor value for XWVAPOR (EPSILONQV) is based on MM5 value.
 
   WHERE ( xwvapor < epsilonqv ) xwvapor = epsilonqv
   WHERE ( xcldwtr < epsilonq  ) xcldwtr = 0.0
@@ -533,6 +572,11 @@ SUBROUTINE metvars2ctm
   WHERE ( xqice   < epsilonq  ) xqice   = 0.0
   WHERE ( xqsnow  < epsilonq  ) xqsnow  = 0.0
   WHERE ( xqgraup < epsilonq  ) xqgraup = 0.0
+
+  IF ( ifkfradextras ) THEN
+    WHERE ( xqc_cu  < epsilonq  ) xqc_cu  = 0.0
+    WHERE ( xqi_cu  < epsilonq  ) xqi_cu  = 0.0
+  ENDIF
 
 !-------------------------------------------------------------------------------
 ! Put time-variant dot-point arrays on MCIP_X grid.  XUU_D and XVV_D are on
@@ -544,17 +588,7 @@ SUBROUTINE metvars2ctm
   sr = y0
   er = y0 + nrows_x
 
-  IF ( met_model == 1 ) THEN  ! MM5: UA and VA on B-grid (dot points)
-
-    xuu_d(:,:,:)         = ua(sc:ec,sr:er,:)
-    xvv_d(:,:,:)         = va(sc:ec,sr:er,:)
-
-    xuu_s(:,1:nrows_x,:) = 0.5 * (ua(sc:ec,sr:er-1,:) + ua(sc:ec,sr+1:er,:))
-    xuu_s(:,nrows_x+1,:) = xuu_s(:,nrows_x,:)
-    xvv_t(1:ncols_x,:,:) = 0.5 * (va(sc:ec-1,sr:er,:) + va(sc+1:ec,sr:er,:))
-    xvv_t(ncols_x+1,:,:) = xvv_t(ncols_x,:,:)
-
-  ELSE IF ( met_model == 2 ) THEN  ! WRF: UA and VA on C-grid (face points)
+  IF ( met_model == 2 ) THEN  ! WRF: UA and VA on C-grid (face points)
 
     xuu_d(:,1,        :) = ua(sc:ec,sr,:)
     xuu_d(:,2:nrows_x,:) = 0.5 * (ua(sc:ec,sr:er-2,:) + ua(sc:ec,sr+1:er-1,:))
@@ -578,28 +612,7 @@ SUBROUTINE metvars2ctm
   sr = y0
   er = y0 + nrows_x - 1
 
-  IF ( met_model == 1 ) THEN  ! MM5
-
-    IF ( .NOT. ALLOCATED ( pstar ) ) ALLOCATE ( pstar ( ncols_x, nrows_x ) )
-
-    pstar (:,:)   = psa(sc:ec,sr:er) + pp(sc:ec,sr:er,1)  ! PSA contains PSTAR
-    xprsfc(:,:)   = pstar(:,:) + x3top
-    xpresf(:,:,0) = xprsfc(:,:)
-
-    ! Compute 3D pressure fields for nonhydrostatic MM5.
-
-    DO k = 1, metlay
-      xpresm(:,:,k) = psa(sc:ec,sr:er) * (1.0 - xx3midl(k)) +  &
-                      pp (sc:ec,sr:er,k) + x3top
-      xpresf(:,:,k) = - pstar(:,:) * ( xx3face(k) - xx3midl(k) )  &
-                      + xpresm(:,:,k)
-    ENDDO
-
-    IF ( lpv > 0 ) THEN  ! need theta
-      xtheta(:,:,:) = xtempm(:,:,:) * (100000.0/xpresm(:,:,:))**rdovcp
-    ENDIF
-
-  ELSE IF ( met_model == 2 ) THEN  ! WRF
+  IF ( met_model == 2 ) THEN  ! WRF
 
     xpresm(:,:,:) = pb (sc:ec,sr:er,:) + pp(sc:ec,sr:er,:)
     xmu   (:,:)   = mub(sc:ec,sr:er)   + mu(sc:ec,sr:er)
@@ -650,52 +663,7 @@ SUBROUTINE metvars2ctm
 ! kg m^-2 to m by dividing by density.
 !------------------------------------------------------------------------------
 
-  IF ( met_model == 1 ) THEN  ! MM5
-
-    DO k = 1, metlay
-      kp1 = MIN(k+1,metlay)
-
-      DO c = 1, ncols_x
-        DO r = 1, nrows_x
-
-          tv = vtemp( xtempm(c,r,k), xwvapor(c,r,k) )
-          xdensam(c,r,k) = xpresm(c,r,k) / ( rdmm5 * tv )
-
-          tv  = vtemp( xtempm(c,r,k),   xwvapor(c,r,k)   )
-          tv2 = vtemp( xtempm(c,r,kp1), xwvapor(c,r,kp1) )
-          xdensaf(c,r,k) = 2.0 * xpresf(c,r,k) / ( rdmm5 * ( tv + tv2 ) )
-
-        ENDDO
-      ENDDO
-    ENDDO
-
-    IF ( ift2m ) THEN
-      IF ( MAXVAL(xtemp2) > smallnum ) THEN
-        DO c = 1, ncols_x
-          DO r = 1, nrows_x
-            tv = vtemp( xtemp2(c,r), xwvapor(c,r,1) )
-            xdensaf(c,r,0) = xpresf(c,r,0) / ( rdmm5 * tv )
-          ENDDO
-        ENDDO
-      ELSE  ! 2-m temp = 0 at init, use layer-1 temperature
-        DO c = 1, ncols_x
-          DO r = 1, nrows_x
-            tv = vtemp( xtempm(c,r,1), xwvapor(c,r,1) )
-            xdensaf(c,r,0) = xpresf(c,r,0) / ( rdmm5 * tv )
-          ENDDO
-        ENDDO
-      ENDIF
-    ELSE  ! use layer-1 temperature
-      DO c = 1, ncols_x
-        DO r = 1, nrows_x
-          tv = vtemp( xtempm(c,r,1), xwvapor(c,r,1) )
-          xdensaf(c,r,0) = xpresf(c,r,0) / ( rdmm5 * tv )
-        ENDDO
-      ENDDO
-    ENDIF
-    xdenss(:,:) = xdensaf(:,:,0)
-
-  ELSE IF ( met_model == 2 ) THEN  ! WRF
+  IF ( met_model == 2 ) THEN  ! WRF
 
     DO k = 1, metlay
       kp1 = MIN(k+1,metlay)
@@ -741,22 +709,30 @@ SUBROUTINE metvars2ctm
 !-------------------------------------------------------------------------------
 ! If input meteorology has a time-varying vertical coordinate, compute Jacobian
 ! and layer heights.
-!
-! Note:  Time-independent MM5v3 Jacobian and layer heights computed
-!        in refstate.f90.
 !-------------------------------------------------------------------------------
 
   IF ( met_model == 2 ) THEN
 
-    DO k = 0, metlay
-      ! Calculate Jacobian from WRF relation:
-      !   J*g = - d(phi)/d(eta) = - d(g z)/d(eta) = mu alpha = mu/rho
-      x3jacobf(:,:,k) = giwrf * xmu(:,:) / xdensaf(:,:,k)
-      IF ( k == 0 ) CYCLE
-      x3jacobm(:,:,k) = giwrf * xmu(:,:) / xdensam(:,:,k)
-!!!   deta = xx3face(k) - xx3face(k-1)  ! negative delta eta
-!!!   x3jacobm(:,:,k) = giwrf * (xgeof(:,:,k) - xgeof(:,:,k-1)) / deta
-    ENDDO
+    IF ( met_hybrid >= 0 ) THEN
+      DO k = 0, metlay
+        ! Adjust mu (a.k.a., ps - ptop) for hybrid coordinate.
+        ! Calculate Jacobian from WRF relation:
+        !   J*g = - d(phi)/d(eta) = - d(g z)/d(eta) = mu alpha = mu/rho
+        xmuhyb(:,:)     = c1f(k+1) * xmu(:,:) + c2f(k+1)
+        x3jacobf(:,:,k) = giwrf  * xmuhyb(:,:) / xdensaf(:,:,k)
+        IF ( k == 0 ) CYCLE
+        xmuhyb(:,:)     = c1h(k) * xmu(:,:) + c2h(k)
+        x3jacobm(:,:,k) = giwrf  * xmuhyb(:,:) / xdensam(:,:,k)
+      ENDDO
+    ELSE
+      DO k = 0, metlay
+        ! Calculate Jacobian from WRF relation:
+        !   J*g = - d(phi)/d(eta) = - d(g z)/d(eta) = mu alpha = mu/rho
+        x3jacobf(:,:,k) = giwrf * xmu(:,:) / xdensaf(:,:,k)
+        IF ( k == 0 ) CYCLE
+        x3jacobm(:,:,k) = giwrf * xmu(:,:) / xdensam(:,:,k)
+      ENDDO
+    ENDIF
 
     CALL layht  (xx3face, xx3midl, x3jacobf, x3jacobm, x3htf, x3htm)
 
@@ -774,16 +750,20 @@ SUBROUTINE metvars2ctm
 ! Calculate contravariant velocity (w-component).
 !-------------------------------------------------------------------------------
 
-  IF ( met_model == 1 ) THEN  ! MM5v3
-    CALL vertnhy
-  ELSE IF ( met_model == 2 ) THEN  ! WRF-ARW
+  IF ( met_model == 2 ) THEN  ! WRF-ARW
     CALL vertnhy_wrf
   ENDIF
 
 !-------------------------------------------------------------------------------
-! Deallocate arrays.
+! Calculate depths of soil layers.
 !-------------------------------------------------------------------------------
 
-! DEALLOCATE ( pstar )  ! commented out to avoid memory fragmentation
+  IF ( met_model == 2 ) THEN  ! WRF-ARW
+    IF ( met_ns > 0 ) THEN
+      DO k = 1, met_ns
+        xzsoil(k) = 0.0 - (SUM(dzs(1:k)))  ! m
+      ENDDO
+    ENDIF
+  ENDIF
 
 END SUBROUTINE metvars2ctm

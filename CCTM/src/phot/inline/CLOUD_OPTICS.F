@@ -27,6 +27,7 @@
 ! aggregates
 ! History:
 ! 09/15/14: B.Hutzell: Initial version created
+! 02/01/19: D.Wong:    Cleaned up USE module clauses
 
          Implicit None
 
@@ -82,8 +83,6 @@
          real, parameter, private :: high     = 1.0e0 - low ! 1.0 - epsilon
          real, parameter, private :: cldtiny  = high*cldmin ! minimum value for cloud scattering
          
-         integer, private         :: log_cloud_optics  
-
 ! Abscissas of Gauss-Laguerre Integration
 ! for 32 point quadrature
          real( 8 ), parameter, private :: xk(32) = 
@@ -130,12 +129,17 @@
      
          real( 8 ), private            :: gauss_laguerre_total( 16 )
      
+         real( 8 ), parameter :: cloud_largest      = 9.0d+307 
+         real( 8 ), parameter :: cloud_smallest     = 9.0d-307
+         real( 8 ), parameter :: cloud_log_largest  =  709.090848126508d0
+         real( 8 ), parameter :: cloud_log_smallest = -709.090848126508d0
+         
          contains         
       
 !-----------------------------------------------------------------------
          subroutine init_cloud_optics()
 
-         USE GRID_CONF           ! horizontal & vertical domain specifications
+         use VGRD_DEFN, ONLY : NLAYS
          USE UTILIO_DEFN
          USE CSQY_DATA
 
@@ -143,7 +147,7 @@
 
          integer          :: allocstat           ! memory allocation status
          integer          :: i
-         
+
          Character( 132 ) :: xmsg
          Character(  32 ) :: pname = 'init_cloud_optics'
          Logical, Save    :: initialized = .false.
@@ -151,8 +155,6 @@
          If ( initialized ) Return
          
          initialized = .true.
-         
-         log_cloud_optics = init3()
          
          allocate( cloud_layering( nlays ),
      &             rel           ( nlays ),
@@ -261,7 +263,6 @@
 !         RRTMG
 ! returns the effect raduis, re,  of cloud ice particles, at
 ! temperature, t
-            USE GRID_CONF           ! horizontal & vertical domain specifications
 
             Implicit None
 
@@ -313,7 +314,7 @@
                Else If( t(k) .ge. 273.0 )Then
                   index = 94
                Else
-                  index = int(t(k)-179.0)
+                  index = max( int(t(k)-179.0), 1 )
                End If
                corr = t(k) - aint( t(k) )      ! temperatures of retab values differ by one degree K
                dge(k) = retab(index) + (retab(index+1)-retab(index))*corr
@@ -337,7 +338,6 @@
 ! Algorithm adapted Rapid Radiative Model Global (RRTMG) version 3.8 and Weather Research Forecasting model
 ! (WRF) version 3.5
 
-            USE GRID_CONF           ! horizontal & vertical domain specifications
             USE UTILIO_DEFN         ! IO functions and parameters
             USE CSQY_DATA           ! number and value of wavelengths
 
@@ -528,7 +528,6 @@
 ! analytic formula following the formulation originally developed by J. T. Kiehl
 ! for CAM version 3.0 and 4.0 
 !-----------------------------------------------------------------------
-            USE GRID_CONF           ! horizontal & vertical domain specifications
             Implicit None
 
 ! Arguments:
@@ -572,7 +571,6 @@
 !-----------------------------------------------------------------------
          subroutine get_droplet_optics( levels, t, owater_frac, icefrac, snowfrac, lwc )
 
-            USE GRID_CONF           ! horizontal & vertical domain specifications
             USE UTILIO_DEFN         ! IO functions and parameters
             USE CSQY_DATA           ! number and value of wavelengths
             
@@ -755,7 +753,8 @@
             real( 8 ) :: n0
             real( 8 ) :: chi
             real( 8 ) :: comp
-            real( 8 ) :: psd   ! partical size distribution
+            real( 8 ) :: psd      ! partical size distribution
+            real( 8 ) :: argument
             real      :: factor
             real      :: dmin  ! value if q .le. limit
 
@@ -790,6 +789,7 @@
                   reff( 1:nlayers )  = min_dge
                   return
                end select
+               
             do lay = 1, nlayers
 !              lamda = (1.0e+3*pi*rho_hydro*n0/q(lay))**0.25
                if( q(lay) .le.  limit )then
@@ -801,7 +801,9 @@
                sum2 = 0.0D0
 !original method used thirty-two nodes
                do nk = 1, 32
-                  psd  = n0*dexp(lamda*xk(nk))
+                  argument = lamda*xk(nk)
+                  if( argument .lt. cloud_log_smallest ) cycle ! assume dexp( argument ) equals zero
+                  psd = n0*dexp( argument ) 
                   comp = newtotalw(nk) * psd
                   sum2 = sum2 + comp 
                   sum1 = sum1 + xk(nk)*comp
@@ -812,7 +814,11 @@
 !                 sum2 = sum2 + comp 
 !                 sum1 = sum1 + gauss_laguerre_node(nk)*comp
                end do
-               reff(lay) = factor * real( sum1/sum2, 4 )    ! microns
+               if( sum2 .lt. cloud_smallest )then
+                 reff(lay) = dmin
+               else
+                 reff(lay) = factor * real( sum1/sum2, 4 )    ! microns
+               end if
             end do
 
          end subroutine aggreg_size_effective
@@ -824,7 +830,7 @@
 ! Algorithm adapted Rapid Radiative Model Global (RRTMG) version 3.9 and Weather Research Forecasting model
 ! (WRF) version 3.6
 
-            USE GRID_CONF           ! horizontal & vertical domain specifications
+            use VGRD_DEFN, ONLY : NLAYS
             USE UTILIO_DEFN         ! IO functions and parameters
             USE CSQY_DATA           ! number and value of wavelengths
 
@@ -1119,7 +1125,7 @@
                      cloud_aggreg_asy(layer, iwl)  = cloud_aggreg_asy(layer, iwl)  + (graupel_asy*graupel_scat)
 #ifdef phot_debug                     
                      if( abs( cloud_aggreg_asy(layer, iwl) ) .gt. cloud_aggreg_scat(layer, iwl) )then
-                        write(log_cloud_optics,99962)
+                        write(logdev,99962)
      &                  'gwc,deff_hydro,graupel_ext,graupel_scat,graupel_asy*graupel_scat,ssa,del, cloud_aggreg_asy = ',
      &                  gwc( layer ),deff_hydro(layer),graupel_ext,graupel_scat,(graupel_asy*graupel_scat),
      &                  graupel_ssa, graupel_del, cloud_aggreg_asy(layer, iwl), cloud_aggreg_scat(layer, iwl)

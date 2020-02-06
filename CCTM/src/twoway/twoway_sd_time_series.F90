@@ -2,6 +2,11 @@
 ! Purpose:  To capture the variation of CGRID in a pre-defined sub domain
 !
 ! Revised:  May 2010  Original version.  David Wong
+!           31 Jan 2019  (David Wong)
+!              -- adopted the idea to process all twoway related environment
+!                 variables in one place
+!           01 Aug 2019  (David Wong)
+!              -- removed interface block for get_envlist
 !===============================================================================
 
 module sd_time_series_module
@@ -16,9 +21,10 @@ module sd_time_series_module
   contains
 
 ! --------------------------------------------------------------------------------
-  subroutine sd_time_series_init (logdev, tstep)
+  subroutine sd_time_series_init (in_logdev, tstep)
 
-    use hgrd_defn
+    use hgrd_defn, only : mype
+    use get_env_module
 
     use utilio_defn
 !   include 'PARMS3.EXT'
@@ -26,7 +32,7 @@ module sd_time_series_module
 !   include 'IODECL3.EXT'
     include SUBST_FILES_ID    ! I/O definitions and declarations
 
-    integer, intent(in) :: logdev, tstep
+    integer, intent(in) :: in_logdev, tstep
 
     character (len = 80), allocatable :: temp(:,:)
     integer :: stat, n
@@ -34,21 +40,8 @@ module sd_time_series_module
 
     character (len = 16), parameter :: pname = 'sd_time_series_i'
 
-    interface
-      subroutine get_envlist (env_var, nvars, var_list)
-        character (len = *), intent(in)   :: env_var
-        integer, intent(out)              :: nvars
-        character (len = 16), intent(out) :: var_list(:)
-      end subroutine get_envlist
-    end interface
-
-    sd_scol = envint ('SD_SCOL', ' ', 1, stat)
-    sd_ecol = envint ('SD_ECOL', ' ', 1, stat)
-    sd_srow = envint ('SD_SROW', ' ', 1, stat)
-    sd_erow = envint ('SD_EROW', ' ', 1, stat)
-
     if ( .not. desc3( ctm_conc_1 ) ) then
-       write (logdev, '(a14, a16, a17)') 'Could not get ', CTM_CONC_1, ' file description'
+       write (in_logdev, '(a14, a16, a17)') 'Could not get ', CTM_CONC_1, ' file description'
        stop
     end if
 
@@ -84,9 +77,9 @@ module sd_time_series_module
 
     if (mype .eq. 0) then
        if ( .not. open3 (ctm_sd_ts, FSRDWR3, pname) ) then
-          write (logdev, '(a30, a16, a11)') ' Warning: Could not open file ', ctm_sd_ts, ' for update'
+          write (in_logdev, '(a30, a16, a11)') ' Warning: Could not open file ', ctm_sd_ts, ' for update'
           if ( .not. open3 (ctm_sd_ts, FSNEW3, pname) ) then
-             write (logdev, '(a30, a16)') ' Warning: Could not open file ', ctm_sd_ts
+             write (in_logdev, '(a30, a16)') ' Warning: Could not open file ', ctm_sd_ts
           end if
        end if
     end if

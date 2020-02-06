@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/STENEX/src/noop_f90/noop_comm_module.f,v 1.1 2000/12/14 16:19:14 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C --------------------------------------------------------------------------
 C Purpose:
 C
@@ -41,7 +35,7 @@ C --------------------------------------------------------------------------
         interface noop_comm
           module procedure noop_pe_comm1, 
      &                     noop_pe_comm2, noop_pe_comm2e, 
-     &                     noop_pe_comm3, noop_pe_comm3e, 
+     &                     noop_pe_comm3, noop_pe_comm3e, noop_pe_comm3s,
      &                     noop_pe_comm4
         end interface
 
@@ -164,6 +158,25 @@ C --------------------------------------------------------------------------
 
         end subroutine noop_pe_comm3e 
 
+        subroutine noop_pe_comm3s (sdata, ddata, dispstr, dirstr, str)
+C --------------------------------------------------------------------------
+C Purpose:
+C
+C   to provide a no-op noop_comm3s counter part for serial code
+C
+C Revision history:
+C
+C   Original version: Oct 01, 2018
+C --------------------------------------------------------------------------
+        implicit none
+
+        real, intent(in)  ::  sdata(:,:,:)
+        real, intent(in) ::  ddata(:,:,:)
+        character (len = 16), intent(in) :: dirstr
+        character (len = 12), intent(in) :: dispstr
+        character (len = *), optional, intent(in) :: str
+ 
+        end subroutine noop_pe_comm3s
 C --------------------------------------------------------------------------
 C Purpose:
 C

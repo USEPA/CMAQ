@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/getalpha.F,v 1.1 2012/01/19 13:41:21 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE GETALPHA ( NUMI, MASSI, SURFI,
      &                      LWC, T, P, RHOAIR, ALFA0, ALFA2, ALFA3 )

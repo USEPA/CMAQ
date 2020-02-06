@@ -17,24 +17,19 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
       SUBROUTINE HRINIT
 C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3_AE7_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan  8, 2018
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -72,15 +67,15 @@ C***********************************************************************
       N_SPCL_RKS =   0
       ALLOCATE( RKI( NRXNS ),
      &          RKI_SAV( MAX_CELLS_EBI, NRXNS ),
-     &          FORWARD_CONV( N_SPEC),
-     &          REVERSE_CONV( N_SPEC),
+     &          FORWARD_CONV( NUMB_MECH_SPC),
+     &          REVERSE_CONV( NUMB_MECH_SPC),
      &          RXRAT( NRXNS ),
-     &          RTOL( N_SPEC),
-     &          YC(   N_SPEC),
-     &          YC0(  N_SPEC),
-     &          YCP(  N_SPEC),
-     &          PROD( N_SPEC),
-     &          LOSS( N_SPEC),
+     &          RTOL( NUMB_MECH_SPC),
+     &          YC(   NUMB_MECH_SPC),
+     &          YC0(  NUMB_MECH_SPC),
+     &          YCP(  NUMB_MECH_SPC),
+     &          PROD( NUMB_MECH_SPC),
+     &          LOSS( NUMB_MECH_SPC),
      &          PNEG( N_SPEC),
      &          STAT = IOS )
 
@@ -93,6 +88,7 @@ C***********************************************************************
        ALLOCATE( ATMPRES( MAX_CELLS_EBI ),
      &           H2O    ( MAX_CELLS_EBI ),
      &           TEMP   ( MAX_CELLS_EBI ),
+     &           DENSITY( MAX_CELLS_EBI ),
      &           HET    ( MAX_CELLS_EBI, NHETERO ),
      &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ),
      &           LAND   ( MAX_CELLS_EBI ) ,
@@ -104,12 +100,12 @@ C***********************************************************************
        END IF
 
        IF( NSPECIAL .GT. 0 )THEN
-          ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
+          ALLOCATE( SYC( MAX_CELLS_EBI, NUMB_MECH_SPC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating SYC'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
           END IF
-          ALLOCATE( IOLD2NEW( N_SPEC, 1 ), STAT = IOS )
+          ALLOCATE( IOLD2NEW( NUMB_MECH_SPC, 1 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating IOLD2NEW'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
@@ -150,7 +146,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 139
+      N_EBISP  = 134
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -238,64 +234,59 @@ c..Allocate and define ebi species
       EBISP(  79 ) = FMCL
       EBISP(  80 ) = HCL
       EBISP(  81 ) = CLNO2
-      EBISP(  82 ) = TOLNRXN
-      EBISP(  83 ) = TOLHRXN
-      EBISP(  84 ) = XYLNRXN
-      EBISP(  85 ) = XYLHRXN
-      EBISP(  86 ) = BNZNRXN
-      EBISP(  87 ) = BNZHRXN
-      EBISP(  88 ) = SESQ
-      EBISP(  89 ) = SESQRXN
-      EBISP(  90 ) = PAHNRXN
-      EBISP(  91 ) = PAHHRXN
-      EBISP(  92 ) = SOAALK
-      EBISP(  93 ) = ALKRXN
-      EBISP(  94 ) = H2NO3PIJ
-      EBISP(  95 ) = H2NO3PK
-      EBISP(  96 ) = ACLI
-      EBISP(  97 ) = ACLJ
-      EBISP(  98 ) = ACLK
-      EBISP(  99 ) = AISO3J
-      EBISP( 100 ) = AGLYJ
-      EBISP( 101 ) = MTNO3
-      EBISP( 102 ) = AMTNO3J
-      EBISP( 103 ) = AMTHYDJ
-      EBISP( 104 ) = AXYL1J
-      EBISP( 105 ) = AOLGAJ
-      EBISP( 106 ) = AXYL2J
-      EBISP( 107 ) = ATOL1J
-      EBISP( 108 ) = ATOL2J
-      EBISP( 109 ) = ABNZ1J
-      EBISP( 110 ) = ABNZ2J
-      EBISP( 111 ) = AISO1J
-      EBISP( 112 ) = AOLGBJ
-      EBISP( 113 ) = AISO2J
-      EBISP( 114 ) = ASQTJ
-      EBISP( 115 ) = APAH1J
-      EBISP( 116 ) = APAH2J
-      EBISP( 117 ) = AALK1J
-      EBISP( 118 ) = AALK2J
-      EBISP( 119 ) = PCVOC
-      EBISP( 120 ) = PCSOARXN
-      EBISP( 121 ) = VLVPO1
-      EBISP( 122 ) = VSVPO1
-      EBISP( 123 ) = VSVPO2
-      EBISP( 124 ) = VSVPO3
-      EBISP( 125 ) = VIVPO1
-      EBISP( 126 ) = VLVOO1
-      EBISP( 127 ) = VLVOO2
-      EBISP( 128 ) = VSVOO2
-      EBISP( 129 ) = VSVOO3
-      EBISP( 130 ) = VSVOO1
-      EBISP( 131 ) = FORM_PRIMARY
-      EBISP( 132 ) = ALD2_PRIMARY
-      EBISP( 133 ) = BUTADIENE13
-      EBISP( 134 ) = ACROLEIN
-      EBISP( 135 ) = ACRO_PRIMARY
-      EBISP( 136 ) = TOLU
-      EBISP( 137 ) = HG
-      EBISP( 138 ) = HGIIAER
-      EBISP( 139 ) = HGIIGAS
+      EBISP(  82 ) = CLNO3
+      EBISP(  83 ) = SVAVB2
+      EBISP(  84 ) = SVAVB3
+      EBISP(  85 ) = SVAVB4
+      EBISP(  86 ) = SVAVB1
+      EBISP(  87 ) = SESQ
+      EBISP(  88 ) = SESQRXN
+      EBISP(  89 ) = SOAALK
+      EBISP(  90 ) = H2NO3PIJ
+      EBISP(  91 ) = H2NO3PK
+      EBISP(  92 ) = ACLI
+      EBISP(  93 ) = ACLJ
+      EBISP(  94 ) = ACLK
+      EBISP(  95 ) = IEPOXP
+      EBISP(  96 ) = ASO4J
+      EBISP(  97 ) = AISO3J
+      EBISP(  98 ) = AGLYJ
+      EBISP(  99 ) = MTNO3
+      EBISP( 100 ) = AMTNO3J
+      EBISP( 101 ) = AMTHYDJ
+      EBISP( 102 ) = AAVB2J
+      EBISP( 103 ) = AOLGAJ
+      EBISP( 104 ) = AAVB3J
+      EBISP( 105 ) = AAVB4J
+      EBISP( 106 ) = AISO1J
+      EBISP( 107 ) = AOLGBJ
+      EBISP( 108 ) = AISO2J
+      EBISP( 109 ) = ASQTJ
+      EBISP( 110 ) = APOCI
+      EBISP( 111 ) = APNCOMI
+      EBISP( 112 ) = APOCJ
+      EBISP( 113 ) = APNCOMJ
+      EBISP( 114 ) = PCVOC
+      EBISP( 115 ) = PCSOARXN
+      EBISP( 116 ) = VLVPO1
+      EBISP( 117 ) = VSVPO1
+      EBISP( 118 ) = VSVPO2
+      EBISP( 119 ) = VSVPO3
+      EBISP( 120 ) = VIVPO1
+      EBISP( 121 ) = VLVOO1
+      EBISP( 122 ) = VLVOO2
+      EBISP( 123 ) = VSVOO2
+      EBISP( 124 ) = VSVOO3
+      EBISP( 125 ) = VSVOO1
+      EBISP( 126 ) = FORM_PRIMARY
+      EBISP( 127 ) = ALD2_PRIMARY
+      EBISP( 128 ) = BUTADIENE13
+      EBISP( 129 ) = ACROLEIN
+      EBISP( 130 ) = ACRO_PRIMARY
+      EBISP( 131 ) = TOLU
+      EBISP( 132 ) = HG
+      EBISP( 133 ) = HGIIAER
+      EBISP( 134 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -395,43 +386,38 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( FMCL         ) = 5.0D-04
       RTOL( HCL          ) = 5.0D-04
       RTOL( CLNO2        ) = 5.0D-04
-      RTOL( TOLNRXN      ) = 1.0D+00
-      RTOL( TOLHRXN      ) = 1.0D+00
-      RTOL( XYLNRXN      ) = 1.0D+00
-      RTOL( XYLHRXN      ) = 1.0D+00
-      RTOL( BNZNRXN      ) = 1.0D+00
-      RTOL( BNZHRXN      ) = 1.0D+00
+      RTOL( CLNO3        ) = 5.0D-04
+      RTOL( SVAVB2       ) = 5.0D-04
+      RTOL( SVAVB3       ) = 5.0D-04
+      RTOL( SVAVB4       ) = 5.0D-04
+      RTOL( SVAVB1       ) = 5.0D-04
       RTOL( SESQ         ) = 5.0D-04
       RTOL( SESQRXN      ) = 1.0D+00
-      RTOL( PAHNRXN      ) = 1.0D+00
-      RTOL( PAHHRXN      ) = 1.0D+00
       RTOL( SOAALK       ) = 5.0D-04
-      RTOL( ALKRXN       ) = 1.0D+00
       RTOL( H2NO3PIJ     ) = 5.0D-04
       RTOL( H2NO3PK      ) = 5.0D-04
       RTOL( ACLI         ) = 5.0D-04
       RTOL( ACLJ         ) = 5.0D-04
       RTOL( ACLK         ) = 5.0D-04
+      RTOL( IEPOXP       ) = 5.0D-04
+      RTOL( ASO4J        ) = 5.0D-04
       RTOL( AISO3J       ) = 5.0D-04
       RTOL( AGLYJ        ) = 5.0D-04
       RTOL( MTNO3        ) = 5.0D-04
       RTOL( AMTNO3J      ) = 5.0D-04
       RTOL( AMTHYDJ      ) = 5.0D-04
-      RTOL( AXYL1J       ) = 5.0D-04
+      RTOL( AAVB2J       ) = 5.0D-04
       RTOL( AOLGAJ       ) = 5.0D-04
-      RTOL( AXYL2J       ) = 5.0D-04
-      RTOL( ATOL1J       ) = 5.0D-04
-      RTOL( ATOL2J       ) = 5.0D-04
-      RTOL( ABNZ1J       ) = 5.0D-04
-      RTOL( ABNZ2J       ) = 5.0D-04
+      RTOL( AAVB3J       ) = 5.0D-04
+      RTOL( AAVB4J       ) = 5.0D-04
       RTOL( AISO1J       ) = 5.0D-04
       RTOL( AOLGBJ       ) = 5.0D-04
       RTOL( AISO2J       ) = 5.0D-04
       RTOL( ASQTJ        ) = 5.0D-04
-      RTOL( APAH1J       ) = 5.0D-04
-      RTOL( APAH2J       ) = 5.0D-04
-      RTOL( AALK1J       ) = 5.0D-04
-      RTOL( AALK2J       ) = 5.0D-04
+      RTOL( APOCI        ) = 5.0D-04
+      RTOL( APNCOMI      ) = 5.0D-04
+      RTOL( APOCJ        ) = 5.0D-04
+      RTOL( APNCOMJ      ) = 5.0D-04
       RTOL( PCVOC        ) = 5.0D-04
       RTOL( PCSOARXN     ) = 5.0D-04
       RTOL( VLVPO1       ) = 5.0D-04

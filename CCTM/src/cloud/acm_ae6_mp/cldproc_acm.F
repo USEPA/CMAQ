@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/work/rep/arc/CCTM/src/cloud/cloud_acm_ae6/cldproc_acm.F,v 1.6 2011/10/21 16:10:23 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -58,7 +51,11 @@ C                             CTM_WET_DEP_1 and CTM_WET_DEP_2 and put it in opwd
 C                             Added a section of code to let non I/O processors
 C                             open CTM_WET_DEP_1 and CTM_WET_DEP_2 for parallel I/O
 C                             implementation
-
+C     Feb 2018 D. Wong        Implemented centralized I/O approach, removed all MY_N
+C                             clauses
+C     April 2019 F.Sidi & 
+C                S. Roselle:  Fixed bug relating to incorrect unit conversions
+C                             for GC, NR and TR.  
 C-----------------------------------------------------------------------
 
       USE GRID_CONF                  ! horizontal & vertical domain specifications
@@ -66,6 +63,7 @@ C-----------------------------------------------------------------------
       USE BIDI_MOD,   ONLY: HGBIDI   ! Flag for bidirectional Hg flux 
       USE HGSIM,      ONLY: GET_WDEP ! bidirection hg exchange
       USE UTILIO_DEFN
+      use CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE
 
@@ -74,7 +72,7 @@ C...........INCLUDES
       INCLUDE SUBST_CONST            ! constants
       INCLUDE SUBST_FILES_ID         ! file name parameters
 
-      CHARACTER( 120 ) :: XMSG = ' ' ! exit status message string
+      CHARACTER( 120 ) :: XMSG = ' ' ! exit message string
 
 C...........PARAMETERS
 
@@ -103,8 +101,6 @@ C...........Local Variables
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
 
-      LOGICAL, SAVE :: CLD_DIAG          ! flag to output cloud diagnostic files
-
       CHARACTER( 16 ), SAVE :: PNAME = 'CLDPROC' ! driver program name
       CHARACTER( 16 ) :: VNAME            ! input variable name list
 
@@ -123,15 +119,12 @@ C...........Local Variables
       INTEGER       ROW              ! row subscript indices
       INTEGER       SPC              ! species subscript indices
       INTEGER       STRT             ! starting position
-      INTEGER       STATUS           !  ENVINT status
       INTEGER       VAR              ! variable subscript indices
       INTEGER       ALLOCSTAT
       INTEGER, ALLOCATABLE, SAVE :: WDEP_MAP( : ) ! wet deposition map to CGRID
       INTEGER, ALLOCATABLE, SAVE :: QAE( : ) ! CGRID pointer to ug/m3 species
       INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to #/m3 species
       INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m2/m3 species
-
-      INTEGER, SAVE :: LOGDEV           ! output log unit number
 
 
 !     REAL          DENS    ( NCOLS,NROWS,NLAYS ) ! air density (kg/m3)
@@ -147,10 +140,6 @@ C...........Local Variables
 
       REAL FAC                       ! temp conversion factor
       REAL CCMIN
-
-      INTEGER      GXOFF, GYOFF              ! global origin offset from file
-C for INTERPX
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
 
 C...........EXTERNAL FUNCTIONS
 
@@ -184,7 +173,6 @@ C   begin body of subroutine  CLDPROC
 C...Initialization
 
       IF ( FIRSTIME ) THEN
-        LOGDEV = INIT3()
         FIRSTIME = .FALSE.
 
 C...first check to make sure that some species in CGRID were specified
@@ -210,23 +198,6 @@ C...and return
         END IF
 
 C...check to see if user wants to output extra diagnostic files
-
-        CLD_DIAG = .FALSE.
-        XMSG = 'Output cloud diagnostic files? (Y/N)'
-        CLD_DIAG = ENVYN( 'CLD_DIAG', XMSG, CLD_DIAG, STATUS )
-
-        IF ( STATUS .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) XMSG
-
-        IF ( STATUS .EQ. 1 ) THEN
-          XMSG = 'Environment variable improperly formatted'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-        ELSE IF ( STATUS .EQ. -1 ) THEN
-          XMSG = 'Environment variable set, but empty ... Using default:'
-          WRITE( LOGDEV, '(5X, A, L9)' ) XMSG, CLD_DIAG
-        ELSE IF ( STATUS .EQ. -2 ) THEN
-          XMSG = 'Environment variable not set ... Using default:'
-          WRITE( LOGDEV, '(5X, A, L9)' ) XMSG, CLD_DIAG
-        END IF
 
         SPC = 0
         STRT = 1
@@ -329,9 +300,6 @@ C...initialize the deposition array before processing clouds
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_WET_DEP_1, FSREAD3, PNAME ) ) THEN
@@ -354,14 +322,7 @@ C...initialize the deposition array before processing clouds
       MDATE = JDATE
       MTIME = JTIME
 
-      VNAME = 'DENS'
-
-      IF ( .NOT. INTERPX( MET_CRO_3D, VNAME, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, DENS ) ) THEN
-        XMSG = 'Could not interpolate DENS'
-        CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('DENS', mdate, mtime, DENS)
 
 C...convert units on cgrid to molar mixing ratio (by volume)
 C...  determine no. of moles of gas per moles of air by volume
@@ -370,10 +331,10 @@ C...  determine no. of moles of gas per moles of air by volume
       FINI = GC_STRT + N_GC_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6,  1.0E-30)
+     &                                    * 1.0E-6,  1.0E-36 )
             END DO
           END DO
         END DO
@@ -387,8 +348,8 @@ C...  convert to moles of aerosol per mole of air by volume
       DO VAR = STRT, FINI
         SPC = QAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( SPC - AE_STRT + 1 )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
@@ -405,8 +366,8 @@ C...    convert to # per mole of air by volume
       DO VAR = STRT, FINI
         SPC = NAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV3 / DENS( COL, ROW, LAY )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
@@ -423,8 +384,8 @@ C...    convert to m2 per mole of air by volume
       DO VAR = STRT, FINI
         SPC = SAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV2 / DENS( COL, ROW, LAY )
               CCMIN = MAX( CGRID( COL, ROW, LAY, SPC ), 1.0E-30/FAC )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CCMIN
@@ -439,10 +400,10 @@ C...determine no. of moles of non-reactive gas per moles of air by volume
       FINI = NR_STRT + N_NR_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30 )
+     &                                    * 1.0E-6, 1.0E-36 )
             END DO
           END DO
         END DO
@@ -454,10 +415,10 @@ C...determine no. of moles of tracer gas per moles of air by volume
       FINI = TR_STRT + N_TR_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = MAX( CGRID( COL, ROW, LAY, SPC )
-     &                                    * 1.0E-6, 1.0E-30 )
+     &                                    * 1.0E-6, 1.0E-36 )
             END DO
           END DO
         END DO
@@ -478,8 +439,8 @@ C...share wet deposition with bidirectional surface exchange algorithms
       IF ( HGBIDI ) THEN
         DO VAR = 1, N_GC_WDEP
            IF ( GC_WDEP( VAR ) .EQ. 'HG' ) THEN
-             DO ROW = 1, MY_NROWS
-                DO COL = 1, MY_NCOLS
+             DO ROW = 1, NROWS
+                DO COL = 1, NCOLS
                    ACCM_WDEP = TOT_DEP( COL, ROW, VAR ) 
      &                       + CONV_DEP( COL, ROW, VAR )
                    CALL GET_WDEP ( 'HG      ', ACCM_WDEP, COL, ROW )
@@ -487,8 +448,8 @@ C...share wet deposition with bidirectional surface exchange algorithms
              END DO
            END IF
            IF ( GC_WDEP( VAR ) .EQ. 'HGIIGAS' ) THEN
-             DO ROW = 1, MY_NROWS
-                DO COL = 1, MY_NCOLS
+             DO ROW = 1, NROWS
+                DO COL = 1, NCOLS
                    ACCM_WDEP = TOT_DEP( COL, ROW, VAR ) 
      &                       + CONV_DEP( COL, ROW, VAR )
                    CALL GET_WDEP ( 'HGIIGAS ', ACCM_WDEP, COL, ROW )
@@ -508,16 +469,16 @@ C...now check to see if it's time to write the deposition file
         WSTEP = 0
 
         DO VAR = 1, N_SPC_WDEP + 1
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               TOT_DEP( COL, ROW, VAR ) = TOT_DEP ( COL, ROW, VAR )
      &                                 + CONV_DEP( COL, ROW, VAR )
             END DO
           END DO
         END DO
 
-        DO ROW = 1, MY_NROWS
-          DO COL = 1, MY_NCOLS
+        DO ROW = 1, NROWS
+          DO COL = 1, NCOLS
             VAR = N_SPC_WDEP + 8 + 1
             CONV_DEP( COL, ROW, VAR ) = SUBTRANS( COL, ROW, 1 )
             VAR = VAR + 1
@@ -576,8 +537,8 @@ C...  convert to ppmV gas
       FINI = GC_STRT + N_GC_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
             END DO
@@ -592,8 +553,8 @@ C...convert to ug/m3 of aerosol mass
       DO VAR = STRT, FINI
         SPC = QAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV1I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
      &                                    * AE_MOLWT( SPC - AE_STRT + 1 )
@@ -609,8 +570,8 @@ C...convert to #/m3 of aerosol number
       DO VAR = STRT, FINI
         SPC = NAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV3I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
             END DO
@@ -625,8 +586,8 @@ C...convert to m2/m3 of aerosol surface area
       DO VAR = STRT, FINI
         SPC = SAE( VAR )
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               FAC = CNV2I * DENS( COL, ROW, LAY )
               CGRID( COL, ROW, LAY, SPC ) = FAC * CGRID( COL, ROW, LAY, SPC )
             END DO
@@ -640,8 +601,8 @@ C...convert to ppmV non-reactive gas
       FINI = NR_STRT + N_NR_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
             END DO
@@ -655,8 +616,8 @@ C...convert to ppmV tracer gas
       FINI = TR_STRT + N_TR_SPC - 1
       DO SPC = STRT, FINI
         DO LAY = 1, NLAYS
-          DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+          DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
               CGRID( COL, ROW, LAY, SPC ) = CGRID( COL, ROW, LAY, SPC )
      &                                    * 1.0E+6
             END DO

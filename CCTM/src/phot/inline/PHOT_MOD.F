@@ -17,8 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C $Header$
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE PHOT_MOD
 
@@ -67,6 +65,7 @@ C  23Jun15   B.Hutzell: made TWOSTREAM and TRIDIAGONAL routine use REAL(8) varia
 C  30Jul15  J.Young: REAL(4) -> REAL for code portability
 C-----------------------------------------------------------------------
 
+      USE RUNTIME_VARS    
       USE CSQY_DATA
 
       IMPLICIT NONE
@@ -101,13 +100,20 @@ C-----------------------------------------------------------------------
       
       INTEGER, SAVE :: NEW_OPTICS_LOG
 
-      INTEGER, SAVE              :: NLAYS_DIAG    ! number of layers for PHOTDIAG2 & 3 file, covering first to NLAYS_DIAG
       INTEGER, SAVE              :: N_DIAG_WVL    ! number of diagnostic wavelengths in PHOTDIAG3 file
       INTEGER, ALLOCATABLE, SAVE :: DIAG_WVL( : ) ! pointers to diagnostic wavelengths
       
       INTEGER            :: N_TROPO_O3_TOGGLE      ! number of adjustments to ozone extinction 
+ 
+      REAL, ALLOCATABLE  :: RJ      ( :, :, :, : ) ! average grid cell J-values (min-1)
+      REAL, ALLOCATABLE  :: RJ_RES  ( :, :, :, : ) ! resolved cloud J-values (min-1)
+      REAL, ALLOCATABLE  :: RJ_SUB  ( :, :, :, : ) ! subgrid cloud J-values (min-1)
+      REAL, ALLOCATABLE  :: ETOT_SFC_WL ( :,:,: )  ! total downward irradiance at sfc [ Watts / m**2  ]
       
-      REAL, ALLOCATABLE  :: BLKDZ( : )             ! layer thicknesses [ m ]
+      REAL, ALLOCATABLE  :: BLKHCHO( : )           ! formaldehyde concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE  :: BLKCO  ( : )           ! CO concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE  :: BLKSO2 ( : )           ! SO2 concentration [ molecules/cm**3 ]
+      REAL, ALLOCATABLE  :: BLKDZ  ( : )           ! layer thicknesses [ m ]
       REAL, ALLOCATABLE  :: GAS_EXTINCTION( :,: )  ! extinction from gases per layer [1/m]
       REAL, ALLOCATABLE  :: EXTINCTION    ( :,: )  ! total extinction per layer [1/m]
       REAL, ALLOCATABLE  :: ACTINIC_FLUX  ( :,: )  ! actinic fluxes, initially [Photons/(cm^2s)] then  [Watts/m^2] 
@@ -135,6 +141,47 @@ C-----------------------------------------------------------------------
 
 
       CONTAINS
+      
+      SUBROUTINE INIT_PHOT_SHARED()
+
+          USE RXNS_DATA            ! chemistry variables and data
+          USE GRID_CONF            ! horizontal & vertical domain specifications
+          USE UTILIO_DEFN
+! Purpose: initialize data and arrays shared by other science processes      
+          IMPLICIT NONE
+!Arguments: None
+
+!Local:          
+          INTEGER          :: ALLOCSTAT
+          CHARACTER( 240 ) :: XMSG = ' '
+          LOGICAL, SAVE    :: INITIALIZED = .FALSE.
+          
+          IF ( INITIALIZED ) RETURN
+          
+          INITIALIZED = .TRUE.
+
+          CALL LOAD_CSQY_DATA( )
+
+          CALL LOAD_OPTICS_DATA( )
+
+          ALLOCATE( RJ      ( NCOLS, NROWS, NLAYS, NPHOTAB ),
+     &              RJ_RES  ( NCOLS, NROWS, NLAYS, NPHOTAB ),
+     &              RJ_SUB  ( NCOLS, NROWS, NLAYS, NPHOTAB ), STAT = ALLOCSTAT )
+          IF ( ALLOCSTAT .NE. 0 ) THEN
+              XMSG = 'Failure allocating photolysis rate arrays'
+              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          ALLOCATE( ETOT_SFC_WL( NCOLS,NROWS,NWL ), STAT = ALLOCSTAT )
+          IF ( ALLOCSTAT .NE. 0 ) THEN
+              XMSG = 'Failure allocating irradiance rate array'
+              CALL M3EXIT ( 'INIT_PHOT_SHARED', 0, 0, XMSG, XSTAT1 )
+          END IF
+
+          RJ = 0.0; RJ_RES = 0.0; RJ_SUB = 0.0
+          ETOT_SFC_WL = 0.0
+          
+      END SUBROUTINE INIT_PHOT_SHARED
 
 C///////////////////////////////////////////////////////////////////////
       SUBROUTINE NEW_OPTICS ( JDATE, JTIME, NLAYS, 
@@ -332,8 +379,6 @@ C-----------------------------------------------------------------------
 
       IF ( FIRST ) THEN
 
-         NEW_OPTICS_LOG = INIT3()
-         
          ALLOCATE( CONV_WM2( NWL ) )
          ALLOCATE( SRAYL   ( NWL ) )
          ALLOCATE( TAU_SCAT( NWL ) )
@@ -346,7 +391,6 @@ C-----------------------------------------------------------------------
          ALLOCATE( IRRADIANCE    ( NLAYS,NWL ) )
          
          ALLOCATE( DSDH_TD ( NLAYS+1 ),
-     &             BLKDZ   ( NLAYS ),
      &             DSDH    ( NLAYS ),
      &             DTAU    ( NLAYS+1 ),
      &             DT_AERO ( NLAYS+1 ),
@@ -425,7 +469,6 @@ C-----------------------------------------------------------------------
       IF ( COSZEN .LE. COS85 ) THEN
          TAUO3_TOP = 0.0
          TAU_RAY   = 0.0
-         TOTAL_O3_COLUMN = 0.0
          TROPO_O3_COLUMN = 0.0
          TROPO_O3_TOGGLE = 1.0
          RETURN
@@ -475,7 +518,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             TROPO_O3_COLUMN = TROPO_O3_COLUMN + DELTA_O3_COLUMN
             IF ( STRAT_O3_COLUMN .LT. STRAT_O3_COLMIN  .AND. SUCCESS ) THEN
                IF( OBEY_STRATO3_MINS )THEN
-                   WRITE( NEW_OPTICS_LOG,'( /A, F5.2, A, 3(/A), I3, A,  F8.3, A , 2(I4,1X) )' )
+                   WRITE( LOGDEV,'( /A, F5.2, A, 3(/A), I3, A,  F8.3, A , 2(I4,1X) )' )
      &             'PHOT WARNING: First Occurance where computed stratospheric O3 column < ',
      &              100.0*MIN_STRATO3_FRAC,'%',
      &             'observed total column. The percentage is a global minimum based on ',
@@ -492,7 +535,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
 
 #ifdef verbose_PHOT_MOD
          IF( PHOT_COL .EQ. 1 .AND. PHOT_ROW .EQ. 1 )THEN
-              WRITE( NEW_OPTICS_LOG,*)'TOTAL_O3_COLUMN, TROPO_O3_COLUMN = ',TOTAL_O3_COLUMN, TROPO_O3_COLUMN
+              WRITE( LOGDEV,*)'TOTAL_O3_COLUMN, TROPO_O3_COLUMN = ',TOTAL_O3_COLUMN, TROPO_O3_COLUMN
          END IF
 #endif
 
@@ -505,11 +548,11 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             STRATO3_MINS_MET  = .FALSE. 
             STRAT_O3_COLUMN = CONC_TO_DU * STRAT_O3_COLMIN
            IF( OBEY_STRATO3_MINS )THEN ! write to PE log for first occurance
-               WRITE( NEW_OPTICS_LOG, 99983)STRAT_O3_COLUMN
-               IF( ADJUST_OZONE ) WRITE( NEW_OPTICS_LOG, 99984)TROPO_O3_TOGGLE
-               WRITE( NEW_OPTICS_LOG, 99887)
-               WRITE( NEW_OPTICS_LOG, 99888)TOTAL_O3_COLUMN, TROPO_O3_COLUMN, MAX_TROPOO3_FRAC
-               WRITE( NEW_OPTICS_LOG, 99999)
+               WRITE( LOGDEV, 99983)STRAT_O3_COLUMN
+               IF( ADJUST_OZONE ) WRITE( LOGDEV, 99984)TROPO_O3_TOGGLE
+               WRITE( LOGDEV, 99887)
+               WRITE( LOGDEV, 99888)TOTAL_O3_COLUMN, TROPO_O3_COLUMN, MAX_TROPOO3_FRAC
+               WRITE( LOGDEV, 99999)
                OBEY_STRATO3_MINS = .FALSE.
             END IF
             IF( .NOT. ADJUST_OZONE ) TROPO_O3_TOGGLE = 1.0 ! reset toggle to one 
@@ -639,15 +682,15 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                IF ( DT_CLOUD( L ) .GT. 1.0E-6 ) THEN
                   OM_CLOUD = MAX( DTSCAT_CLOUD /DT_CLOUD( L ), 1.0) 
                   IF ( OM_CLOUD .LT. 0.0 .OR. OM_CLOUD .GT. 1.0 .OR. OM_CLOUD .NE. OM_CLOUD) THEN
-                     WRITE( NEW_OPTICS_LOG,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO')
+                     WRITE( LOGDEV,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO')
      &               'OM_CLOUD( L = ', L, ' ) = ', OM_CLOUD,' resetting to '
                      OM_CLOUD = MAX( 0.000001, MIN( OM_CLOUD, 0.99999))
-                     WRITE( NEW_OPTICS_LOG,'(ES12.4)')OM_CLOUD
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'LIQUID_EXT, LIQUID_SCAT = ',
+                     WRITE( LOGDEV,'(ES12.4)')OM_CLOUD
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))')'LIQUID_EXT, LIQUID_SCAT = ',
      &               CLOUD_LIQUID_EXT( II,IWL ), CLOUD_LIQUID_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'ICE_EXT, ICE_SCAT = ',
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))')'ICE_EXT, ICE_SCAT = ',
      &               CLOUD_ICE_EXT( II,IWL ), CLOUD_ICE_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))')'AGGREG_EXT, AGGREG_SCAT = ',
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))')'AGGREG_EXT, AGGREG_SCAT = ',
      &               CLOUD_AGGREG_EXT( II,IWL ), CLOUD_AGGREG_SCAT( II,IWL )
                      CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', XSTAT1 )
                   END IF
@@ -663,16 +706,17 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
      &                    +   (CLOUD_AGGREG_ASY( II,IWL ) * CLOUD_AGGREG_SCAT( II,IWL )) )
      &                    *   BLKDZ( II ) * LAYERING_FACTOR
 
+
 #ifdef phot_debug
                   IF ( .NOT. ONLY_SOLVE_RAD ) THEN
                      AVE_ASYMM_CLD( IWL ) = AVE_ASYMM_CLD( IWL ) + G_CLOUD
                      IF ( AVE_ASYMM_CLD( IWL ) .GT. TAU_SCAT_CLD ) THEN
-                        WRITE( NEW_OPTICS_LOG,'(A,I3,2(A,ES12.4))' )
+                        WRITE( LOGDEV,'(A,I3,2(A,ES12.4))' )
      &                  'Sum for AVE_ASYMM_CLD at L (', L,') = ', AVE_ASYMM_CLD( IWL ),
      &                  ' Sum for TAU_SCAT_CLD = ',TAU_SCAT_CLD 
-                        WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                        WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'AVE_ASYMM_CLD Increment = ', G_CLOUD
-                        WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                        WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'TAU_SCAT_CLD Increment = ', DTSCAT_CLOUD
                      END IF
                   END IF
@@ -681,17 +725,17 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                   G_CLOUD  = G_CLOUD / DTSCAT_CLOUD
 
                   IF ( G_CLOUD .GE. 1.0 .OR. G_CLOUD .LE. -1.0 .OR. G_CLOUD .NE. G_CLOUD ) THEN
-                     WRITE( NEW_OPTICS_LOG,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO' )
+                     WRITE( LOGDEV,'(A,I3,A,ES12.4,A)',ADVANCE = 'NO' )
      &                  'G_CLOUD( L = ', L, ' ) = ', G_CLOUD,' resetting to '
                         G_CLOUD = MIN( 0.9999, MAX( G_CLOUD, -0.9999) )
-                     WRITE( NEW_OPTICS_LOG,'(ES12.4)') G_CLOUD
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                     WRITE( LOGDEV,'(ES12.4)') G_CLOUD
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'LIQUID_ASY, LIQUID_SCAT = ',
      &                  CLOUD_LIQUID_ASY( II,IWL ), CLOUD_LIQUID_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'ICE_ASY, ICE_SCAT = ',
      &                  CLOUD_ICE_ASY( II,IWL ), CLOUD_ICE_SCAT( II,IWL )
-                     WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+                     WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &                  'AGGREG_ASY, AGGREG_SCAT = ',
      &                  CLOUD_AGGREG_ASY( II,IWL ), CLOUD_AGGREG_SCAT( II,IWL )
                      CALL M3EXIT( 'NEW_OPTICS', JDATE, JTIME, ' ', XSTAT1 )
@@ -704,7 +748,7 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                G_CLOUD      = 0.0
                OM_CLOUD     = 1.0
             END IF
-             
+
 !***calculate total absorption and scattering contributions
 !***to optical depth
 
@@ -724,47 +768,47 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
             G   ( L ) = ( G_BAR * DTSCAT_A + G_CLOUD * DTSCAT_CLOUD ) / DTSCAT
 
             IF ( G( L ) .GE. 1.0 .OR. G( L ) .LE. -1.0 .OR. G( L ) .NE. G( L ) ) THEN
-               WRITE( NEW_OPTICS_LOG,'(A,ES12.4,A)',ADVANCE = 'NO' )
+               WRITE( LOGDEV,'(A,ES12.4,A)',ADVANCE = 'NO' )
      &         'G( L ) = ', G( L ),' resetting to '
                G( L ) = MIN( 0.9999, MAX( G( L ), -0.9999) )
-               WRITE( NEW_OPTICS_LOG,'(ES12.4)')G( L )
-               WRITE( NEW_OPTICS_LOG,'(A,10(1X,ES12.4))' )
+               WRITE( LOGDEV,'(ES12.4)')G( L )
+               WRITE( LOGDEV,'(A,10(1X,ES12.4))' )
      &         'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD, G_BAR, G_CLOUD = ',
      &          DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD, G_BAR, G_CLOUD
             END IF
 
             IF ( OM( L ) .GT. 1.0 .OR. OM( L ) .LE. 0.0 .OR. OM( L ) .NE. OM( L ) ) THEN
-               WRITE( NEW_OPTICS_LOG,'(A,ES12.4,A)',ADVANCE = 'NO' )
+               WRITE( LOGDEV,'(A,ES12.4,A)',ADVANCE = 'NO' )
      &         'OM( L ) = ', OM( L ),' resetting to '
                OM( L ) = MIN( 0.9999, MAX( OM( L ), 0.0001) )
 #ifdef phot_debug
-               WRITE( NEW_OPTICS_LOG,'(ES12.4)' ) OM( L )
-               WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+               WRITE( LOGDEV,'(ES12.4)' ) OM( L )
+               WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &         'DTSCAT, DTABS, ( DTSCAT + DTABS) = ',
      &         DTSCAT, DTABS, ( DTSCAT + DTABS )
-               WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+               WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &         'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD = ',
      &         DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD
-               WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+               WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &         'DDTABS_M, DTABS_A, MAX(( 1.0-OM_CLOUD ), 0.0) * DT_CLOUD( L ) = ',
      &         DTABS_M, DTABS_A, MAX(( 1.0 - OM_CLOUD ), 0.0) * DT_CLOUD( L )
-               WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+               WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &         ' AO3, ANO2,AERO_BEXT, AERO_BSCAT = ',
      &         AO3, ANO2,BEXT, BSCAT
 #endif
             ELSE
 #ifdef phot_debug
                IF ( OM( L ) .EQ. 1.0 ) THEN
-                  WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+                  WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &            'DTSCAT, DTABS, ( DTSCAT + DTABS ) = ',
      &             DTSCAT, DTABS, (DTSCAT + DTABS)
-                  WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+                  WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &            'DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD = ',
      &             DTSCAT_M, DTSCAT_A, DTSCAT_CLOUD
-                  WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+                  WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &            'DDTABS_M, DTABS_A, MAX(( 1.0-OM_CLOUD ), 0.0) * DT_CLOUD( L ) = ',
      &            DTABS_M, DTABS_A, MAX(( 1.0 - OM_CLOUD ), 0.0 ) * DT_CLOUD( L)
-                  WRITE( NEW_OPTICS_LOG,'(A,4(1X,ES12.4))' )
+                  WRITE( LOGDEV,'(A,4(1X,ES12.4))' )
      &            'AO3, ANO2,AERO_BEXT, AERO_BSCAT = ',
      &            AO3, ANO2,BEXT, BSCAT
                END IF
@@ -821,7 +865,6 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
          EDN  = 0.0
 
 !***calculate fluxes and irradiances
-
          CALL TWOSTREAM_S ( NLEVEL, COSZEN, ALB( IWL ), DTAU, OM, G, DSDH_TD,
      &                      FDIR, FUP, FDN, EDIR, EUP, EDN )
 
@@ -850,12 +893,12 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
 #ifdef phot_debug
          IF ( TAU_CLOUD( 1,IWL ) .GT. 1.0E-20 ) THEN
             IF ( AVE_ASYMM_CLD( IWL ) .GT. TAU_SCAT_CLD ) THEN
-               WRITE( NEW_OPTICS_LOG,'(A,I3,2(A,ES12.4))' )
+               WRITE( LOGDEV,'(A,I3,2(A,ES12.4))' )
      &         'Sum for AVE_ASYMM_CLD at L(', 1,') = ', AVE_ASYMM_CLD( IWL ),
      &         'Sum for TAU_SCAT_CLD = ',TAU_SCAT_CLD 
-               WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+               WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &         'AVE_ASYMM_CLD Increment = ', G_CLOUD
-               WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+               WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &         'TAU_SCAT_CLD Increment = ',
      &         DTSCAT_CLOUD
             END IF
@@ -867,12 +910,12 @@ C*** find ozone column density for atmosphere, stratosphere, and troposphere
                AVE_SSA_CLD  ( IWL ) = 0.0
             END IF
             IF ( ABS( AVE_ASYMM_CLD( IWL ) ) .GE.  1.0 ) THEN
-               WRITE( NEW_OPTICS_LOG,'(A,I3,2(A,ES12.4))' )
+               WRITE( LOGDEV,'(A,I3,2(A,ES12.4))' )
      &         'Sum for AVE_ASYMM_CLD at L(', 1,') = ', AVE_ASYMM_CLD( IWL )*TAU_SCAT_CLD,
      &         'Sum for TAU_SCAT_CLD = ',TAU_SCAT_CLD 
-               WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+               WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &         'AVE_ASYMM_CLD Increment = ', G_CLOUD
-               WRITE( NEW_OPTICS_LOG,'(A,2(ES12.4,1X))' )
+               WRITE( LOGDEV,'(A,2(ES12.4,1X))' )
      &         'TAU_SCAT_CLD Increment = ', DTSCAT_CLOUD
             END IF
          ELSE
@@ -1502,7 +1545,8 @@ C-----------------------------------------------------------------------
       REAL( 8 ) :: F, G, OM
       REAL( 8 ) :: GAM1, GAM2, GAM3, GAM4
 
-      REAL( 8 ) :: EXPON, EXPON0, EXPON1, DIVISR, TEMP, UP, DN
+      REAL( 8 ) :: EXPON0, EXPON1
+      REAL( 8 ) :: EXPON, DIVISR, TEMP, UP, DN
       REAL( 8 ) :: SSFC
 
       REAL( 8 ) :: MU1  ! reciprocal of constant from delta_Eddington method
@@ -1520,6 +1564,9 @@ C-----------------------------------------------------------------------
       REAL( 8 ), PARAMETER :: SQRTLRGSTM1 = 1.0D-18 ! 1/sqrt(largest)
       REAL( 8 ), PARAMETER :: EPS         = 1.0D-03
       REAL( 8 ), PARAMETER :: PRECIS      = ( 1.0D0 - 1.0D-07 )
+
+      REAL( 8 ), PARAMETER :: LOG_DBLE_SMALLEST = -709.090848126508D0
+      REAL( 8 ), PARAMETER :: LOG_DBLE_LARGEST  =  709.090848126508D0
 
 C-----------------------------------------------------------------------
 
@@ -1541,6 +1588,8 @@ C-----------------------------------------------------------------------
 !***start diagnostic prinout
 
       DO I = 1, NLAYER
+      
+!         print*,'ACM TWSTREAM GU, F = ', F, GU(I)
          F = REAL( GU(I) * GU(I), 8 )
          GI  (I) = ( REAL( GU(I), 8 ) - F ) / ( 1.0D0 - F )
          OMI (I) = ( 1.0D0 - F ) * REAL( OMU(I), 8 ) 
@@ -1598,7 +1647,6 @@ C-----------------------------------------------------------------------
 
          G = GI(I)
          OM = OMI(I)
-
 !***stay away from 1 by precision.  For g, also stay away from -1
 
 !        TEMPG = MIN( ABS( G ), 1.0D0 - PRECIS )
@@ -1619,13 +1667,13 @@ C-----------------------------------------------------------------------
 !***big gamma = pg 16,290 equation 22
 
          IF ( ABS( GAM2 ) .LE. SMALLEST ) THEN
-            WRITE( NEW_OPTICS_LOG, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
-            WRITE( NEW_OPTICS_LOG, 2610)
+            WRITE( LOGDEV, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
+            WRITE( LOGDEV, 2610)
          END IF
 
          IF ( ( GAM1*GAM1 - GAM2*GAM2 ) .LT. 0.0D0 ) THEN
-            WRITE( NEW_OPTICS_LOG, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
-            WRITE( NEW_OPTICS_LOG, 2611)
+            WRITE( LOGDEV, 2609) I, GI(I), OMI(I), G, OM, GAM1, GAM2
+            WRITE( LOGDEV, 2611)
          END IF
  
      
@@ -1638,7 +1686,7 @@ C-----------------------------------------------------------------------
             BGAM(I) = ( GAM1 - LAM(I) ) / GAM2
          END IF
 
-         EXPON = EXP( -LAM(I) * TAUN(I) )
+         EXPON = EXP( MAX( LOG_DBLE_SMALLEST, -LAM(I) * TAUN(I) ) ) 
 
 !***e1 - e4 = pg 16,292 equation 44
 
@@ -1653,21 +1701,21 @@ C-----------------------------------------------------------------------
 !***  shift 1/MU^2 by  EPS = 1.E-3
 !***  which is approx equiv to shifting MU by 0.5*EPS* (MU)**3
 
-         EXPON0 = EXP( -TAUSLA(I-1) )
-         EXPON1 = EXP( -TAUSLA(I) )
-
          DIVISR = LAM(I) * LAM(I) - MU2(I) * MU2(I)
          TEMP = MAX( EPS, ABS( DIVISR ) )
          DIVISR = SIGN( TEMP , DIVISR )
-
          UP = OM * PIFS *
      &        ( ( GAM1 - MU2(I) ) * GAM3 + GAM4 * GAM2 ) / DIVISR
+
 
          DN = OM * PIFS *
      &        ( ( GAM1 + MU2(I) ) * GAM4 + GAM2 * GAM3 ) / DIVISR
 
 !***cup and cdn are when tau is equal to zero
 !***cuptn and cdntn are when tau is equal to taun
+
+         EXPON0 = EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(I-1) ) )
+         EXPON1 = EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(I) ) )
 
          CUP(I)   = UP * EXPON0
          CDN(I)   = DN * EXPON0
@@ -1678,8 +1726,8 @@ C-----------------------------------------------------------------------
 
 !***set up matrix
 !*** ssfc = pg 16,292 equation 37  where pi Fs is one (unity).
-
-      SSFC = REAL( RSFC * MU, 8 ) * EXP( -TAUSLA( NLAYER ) ) * PIFS
+      SSFC   = REAL( RSFC * MU, 8 ) * PIFS
+     &       * EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA( NLAYER ) ) ) 
 
 !***MROWS = the number of rows in the matrix
 
@@ -1731,7 +1779,6 @@ C-----------------------------------------------------------------------
       E(ROW) = SSFC - CUPTN(I) + F * CDNTN(I)
 
 !***solve tri-diagonal matrix:
-
       CALL TRIDIAGONAL ( A, B, D, E, Y, MROWS )
 
 !*** unfold solution of matrix, compute output fluxes:
@@ -1750,7 +1797,8 @@ C-----------------------------------------------------------------------
       FUP(LEV) = EUP(LEV) * REAL( MU1 )
 
       DO 60, LEV = 2, NLAYER + 1
-         FDR(LEV) = REAL( EXP( -TAUSLA(LEV-1) ) )
+         FDR(LEV) = REAL( EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(LEV-1) )  ) )
+!         FDR(LEV) = REAL( EXPONS(LEV-1) ) ! REAL( EXP( MAX( LOG_DBLE_SMALLEST, -TAUSLA(LEV-1) )  ) )
          EDR(LEV) = MU * FDR(LEV)
          EDN(LEV) = REAL( Y(ROW) * E3(J) + Y(ROW + 1) * E4(J) + CDNTN(J) )
          EUP(LEV) = REAL( Y(ROW) * E1(J) + Y(ROW + 1) * E2(J) + CUPTN(J) )
@@ -1777,7 +1825,6 @@ C-----------------------------------------------------------------------
       RETURN
       END SUBROUTINE TWOSTREAM_S
 
-C///////////////////////////////////////////////////////////////////////
 
       SUBROUTINE TRIDIAGONAL ( A, B, D, E, Y, N )
 C-----------------------------------------------------------------------

@@ -1,5 +1,529 @@
 CHANGES for MCIP
 
+MCIP Version 5.1 (25 November 2019)
+
+- Expanded options to allow for surface analysis nudging option 2 (FASDAS),
+  which has been available since WRFv3.8.
+
+  Changed files:  mcip5/blddesc.f90
+                  mcip5/setup_wrfem.f90
+
+
+- Corrected setting for namelist variable file_geo in namelist generation
+  part of the script.
+
+  Changed files:  mcip5/run_mcip.csh
+
+
+- Corrected error in setting the 3D fractional cloud coverage on one of the
+  lateral boundaries.
+
+  Changed files:  mcip5/ctmproc.f90
+
+
+- Updated release stamp.
+
+  Changed files:  mcip5/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 5.0 (19 June 2019)
+
+- Updated units of output fields to conform to CF compliance.  These units
+  were formerly set in gridout.f90, groutcom_mod.f90, luoutcom_mod.f90,
+  mcoutcom_mod.f90, mdoutcom_mod.f90, metcro.f90, mosoutcom_mod.f90, and
+  soioutcom_mod.f90.  They are now all contained in a new routine.
+
+  New file:       mcip5/init_ctm.f90
+
+
+- Renamed module with land use categories to avoid confusion.
+
+  Changed file:   mcip5/getluse.f90
+
+  New file:       mcip5/lucats_mod.f90
+
+  Deleted file:   mcip5/luvars_mod.f90
+
+
+- Renamed module with netCDF IO routines to broaden usage beyond WRF.
+
+  Changed file:   mcip5/rdwrfem.f90
+                  mcip5/setup_wrfem.f90
+
+  New file:       mcip5/netcdf_io_mod.f90
+
+  Deleted file:   mcip5/wrf_netcdf_mod.f90
+
+
+- Combined elements of MCIP output fields from several modules into a single
+  Fortran module.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/dealloc_ctm.f90
+                  mcip5/gridout.f90
+                  mcip5/lucro.f90
+                  mcip5/metcro.f90
+                  mcip5/metdot.f90
+                  mcip5/moscro.f90
+                  mcip5/soilcro.f90
+
+  New file:       mcip5/ctmvars_mod.f90
+
+  Deleted files:  mcip5/groutcom_mod.f90
+                  mcip5/luoutcom_mod.f90
+                  mcip5/mcoutcom_mod.f90
+                  mcip5/mdoutcom_mod.f90
+                  mcip5/mosoutcom_mod.f90
+                  mcip5/soioutcom_mod.f90
+
+
+- Created a missing value token for MCIP.
+
+  Changed files:  mcip5/gridout.f90
+                  mcip5/init_x.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/metcro.f90
+                  mcip5/metvars2ctm.f90
+                  mcip5/pblsup.f90
+                  mcip5/resistcalc.f90
+                  mcip5/setup_wrfem.f90
+
+
+- Changed internal data formats for output variables to use data structures.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/ctmvars_mod.f90
+                  mcip5/dealloc_ctm.f90
+                  mcip5/gridout.f90
+                  mcip5/init_ctm.f90
+                  mcip5/lucro.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/metcro.f90
+                  mcip5/metdot.f90
+                  mcip5/moscro.f90
+                  mcip5/soicro.f90
+
+
+- Corrected bug in setting land use category names in MCIP for USGS24 + lakes.
+
+  Changed files:  mcip5/getluse.f90
+                  mcip5/lucats_mod.f90
+
+
+- Enabled hybrid option for vertical coordinate in WRF.  Was already coded, but
+  was commented out.  Changed condition to enable processing for the hybrid
+  vertical coordinate.
+
+  Changed files:  mcip5/alloc_met.f90
+                  mcip5/alloc_x.f90
+                  mcip5/init_met.f90
+                  mcip5/init_x.f90
+                  mcip5/metvars2ctm.f90
+                  mcip5/rdwrfem.f90
+
+
+- Removed support for MM5v3 input.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/alloc_met.f90
+                  mcip5/alloc_x.f90
+                  mcip5/blddesc.f90
+                  mcip5/dealloc_ctm.f90
+                  mcip5/dealloc_met.f90
+                  mcip5/dealloc_x.f90
+                  mcip5/files_mod.f90
+                  mcip5/getmet.f90
+                  mcip5/gridout.f90
+                  mcip5/groutcom_mod.f90
+                  mcip5/init_met.f90
+                  mcip5/init_x.f90
+                  mcip5/metcro.f90
+                  mcip5/metinfo_mod.f90
+                  mcip5/metvars_mod.f90
+                  mcip5/metvars2ctm.f90
+                  mcip5/mcip.f90
+                  mcip5/pblsup.f90
+                  mcip5/rdwrfem.f90
+                  mcip5/readnml.f90
+                  mcip5/setgriddefs.f90
+                  mcip5/setup.f90
+                  mcip5/setup_wrfem.f90
+                  mcip5/statflds.f90
+                  mcip5/xvars_mod.f90
+                  mcip5/Makefile
+                  mcip5/run_mcip.csh
+
+  Deleted files:  mcip5/cori.f90
+                  mcip5/getgist.f90
+                  mcip5/getversion.f90
+                  mcip5/mm5v3opts.f90
+                  mcip5/rdmm5v3.f90
+                  mcip5/refstate.f90
+                  mcip5/sat2mcip_mod.f90
+                  mcip5/setup_mm5v3.f90
+                  mcip5/readter.f90
+                  mcip5/vertnhy.f90
+
+
+- Changed fill value for convective rainfall when "no cumulus parameterization"
+  was used from -1 to a large negative number to prevent inadvertent use in
+  CCTM and post-processing.
+
+  Changed files:  mcip5/metvars2ctm.f90
+
+
+- Corrected error in computing precipitation amounts when the tipping bucket
+  is used and less than 0.5 mm of precipitation accumulated during the same
+  hour that the bucket tips; corrects erroneous precipitation spikes.
+  Corrected error in array mapping for precipitation on initial time step in
+  the outermost row and column (dummy cells not used by CMAQ).
+
+  Changed files:  mcip5/rdwrfem.f90
+
+
+- Allowed WRFv4.0+ input to be used.
+
+  Changed file:   mcip5/setup.f90
+
+
+- Modified criteria to determine whether incremental precipitation is available
+  in WRF output.  WRFv4.0 allows header variable PREC_ACC_DT to appear even
+  if the accompanying precipitation fields are not in the output.
+
+  Changed file:   mcip5/setup_wrfem.f90
+
+
+- Moved parsing and processing of output fields on the CCTM grid to routines
+  separated from the output functions.
+
+  Changed files:  mcip5/Makefile
+                  mcip5/gridout.f90
+                  mcip5/mcip.f90
+
+  Deleted files:  mcip5/lucro.f90
+                  mcip5/metcro.f90
+                  mcip5/metdot.f90
+                  mcip5/moscro.f90
+                  mcip5/soilcro.f90
+
+  New files:      mcip5/ctmproc.f90
+                  mcip5/gridproc.f90
+                  mcip5/ctmout.f90
+                  mcip5/outcm3io.f90
+                  mcip5/outgm3io.f90
+                  mcip5/outncf.f90
+                  mcip5/outncfglobal.f90
+
+
+- Added flag (IFRCURB) to determine if fraction of urban area is obtained from
+  an urban canopy model in WRF.
+
+  Changed files:  mcip5/gridproc.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/setup_wrfem.f90
+
+
+- Added runtime option to choose output format.
+
+  Changed files:  mcip5/Makefile
+                  mcip5/close_files.f90
+                  mcip5/ctmout.f90
+                  mcip5/files_mod.f90
+                  mcip5/gridout.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/readnml.f90
+
+  New files:      mcip5/outcm3io.f90
+                  mcip5/outgm3io.f90
+                  mcip5/outglog.f90
+                  mcip5/outclog.f90
+                  mcip5/outncf.f90
+                  mcip5/outncfglobal.f90
+
+
+- Updated to identify physics options from WRFv4.0 and WRFv4.1.
+
+  Changed file:   mcip5/wrfemopts.f90
+
+
+- Removed layer collapsing.
+
+  Changed files:  mcip5/ctmproc.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/readnml.f90
+                  mcip5/setup_wrfem.f90
+                  mcip5/Makefile
+                  mcip5/run_mcip.csh
+
+  Deleted files:  mcip5/collapx.f90
+
+
+- Updated metadata descriptions for JACOBF, JACOBM, DENSA_J, and WWIND.
+
+  Changed files:  mcip5/init_ctm.f90
+
+
+- Added 7 new 2D variables to the output if the Pleim-Xiu land-surface model
+  is run in WRFv4.1.  These variables can be used to improve simulation of dust
+  in CCTM.  LAI_PX replaces LAI in the output, and the following 6 variables
+  are added: WSAT_PX, WFC_PX, WWLT_PX, CSAND_PX, FMSAND_PX, and CLAY_PX.
+
+  Added 4 optional 3D variables with Kain-Fritsch convective parameterization
+  scheme with radiative feedbacks on.  These variables can enhance cloud
+  representation in CCTM.  The variables include: QC_CU, QI_CU, CLDFRA_DP, and
+  CLDFRA_SH.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/alloc_met.f90
+                  mcip5/alloc_x.f90
+                  mcip5/ctmproc.f90
+                  mcip5/ctmvars_mod.f90
+                  mcip5/dealloc_ctm.f90
+                  mcip5/dealloc_met.f90
+                  mcip5/dealloc_x.f90
+                  mcip5/init_ctm.f90
+                  mcip5/init_met.f90
+                  mcip5/init_x.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/metvars2ctm.f90
+                  mcip5/metvars_mod.f90
+                  mcip5/outcm3io.f90
+                  mcip5/rdwrfem.f90
+                  mcip5/setup_wrfem.f90
+                  mcip5/setgriddefs.f90
+                  mcip5/xvars_mod.f90
+
+
+- Modified calculations of the total Jacobian (Jacobian divided by the square
+  of the map scale factors) to eliminate unnecessary multiplication and division
+  by density.
+
+  Changed files:  mcip5/ctmproc.f90
+
+
+- Commensurate with removing support for MM5, changed default 3D winds output
+  to be on the Arakawa-C staggering (like CCTM) instead of on the Arakawa-B
+  staggering.  In METDOT3D, now the default output will be UWINDC and VWINDC
+  instead of UWIND and VWIND.  Instead of allowing UWINDC and VWINDC to be
+  optional via the runtime switch, LUVCOUT, the runtime switch is renamed
+  LUVBOUT, and the optional variables are UWIND and VWIND.  The switch remains
+  "on" by default.
+
+  Changed files:  mcip5/alloc_ctm.f90
+                  mcip5/ctmproc.f90
+                  mcip5/init_ctm.f90
+                  mcip5/mcipparm_mod.f90
+                  mcip5/readnml.f90
+                  mcip5/setgriddefs.f90
+                  mcip5/run_mcip.csh
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
+MCIP Version 4.5 (16 March 2018)
+
+- Corrected error in calculation of dot-point latitude and longitude for polar
+  steroegraphic WRF.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Refined calculation of interval between WRF output times to account for
+  small drifts when advection time steps do not fall exactly on the hour.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setgriddefs.f90
+
+
+- Corrected error in print statement for CLDFRA in the log file.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Corrected error in print statement and comment for Monin-Obukhov length from
+  the Pleim-Xiu land-surface model in WRF.  Print statement and comment
+  erroneously attributed MOL to ACM2 PBL scheme.
+
+  Changed files:  mcip4/pblsup.f90
+                  mcip4/setgriddefs.f90
+
+
+- Updated options for compiling with Intel Fortran by eliminating the need for
+  the IMF library. Reversed the order of loading netcdff and netcdf so
+  the netCDF Fortran library is loaded first for all compilers.
+
+  Changed files:  mcip4/Makefile
+
+
+- Added snow height (SNOWH) to METCRO2D output.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcoutcom_mod.f90
+                  mcip4/metcro.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- Changed initial value for MET_PCP_INCR from real to integer to align with
+  type specified for the variable.
+
+  Changed files:  mcip4/setup_mm5v3.f90
+
+
+- Removed unused variables.
+
+  Changed files:  mcip4/sat2mcip_mod.f90
+
+
+- Added capability to properly process PURB when the 21-category MODIS land use
+  is used in WRF.  Corrected an internal list for the 21-category MODIS for
+  the lake category.
+
+  Changed files:  mcip4/getluse.f90
+                  mcip4/luvars_mod.f90
+
+
+- Created a minumum value for rainfall in order to avoid underflow condition.
+
+  Changed files:  mcip4/rdwrfem.f90
+
+
+- Removed superfluous variables METROW and METCOL.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+                  mcip4/sat2mcip_mod.f90
+                  mcip4/setgriddefs.f90
+
+
+- Added support for hybrid vertical coordinate in WRF output.
+  Disabled the effects on the Jacobian pending additional testing and
+  modifications within CMAQ.
+
+  Changed files:  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/xvars_mod.f90
+
+
+- Added coefficient for spectral nudging of moisture to metadata.
+
+  Changed file:   mcip4/blddesc.f90
+
+
+- Changed print statement preceding the printing of metadata in the log file.
+
+  Changed file:   mcip4/mcip.f90
+
+
+- Added capability to read and process data from the NOAH Mosaic land-surface
+  model in WRF via MCIP.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/getluse.f90
+                  mcip4/files_mod.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcip.f90
+                  mcip4/mcipparm_mod.f90
+                  mcip4/metgrid2ctm.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/pblsup.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/run_mcip.csh
+                  mcip4/setgriddefs.f90
+                  mcip4/setup_mm5v3.f90
+                  mcip4/setup_wrfem.f90
+                  mcip4/wrf_netcdf_mod.f90
+                  mcip4/wrfemopts.f90
+                  mcip4/xvars_mod.f90
+
+  New files:      mcip4/comheader_mos.f90
+                  mcip4/getpsih.f90
+                  mcip4/moscro.f90
+                  mcip4/mosoutcom_mod.f90
+
+
+- Removed unnecessary variable MAXLUC and replaced it with existing variable
+  NUMMETLU.
+
+  Changed files:  mcip4/alloc_x.f90
+                  mcip4/mcipparm_mod.f90
+
+
+- Created new M3 I/O API output file for data within soil layers.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/alloc_met.f90
+                  mcip4/alloc_x.f90
+                  mcip4/comheader.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/dealloc_met.f90
+                  mcip4/dealloc_x.f90
+                  mcip4/files_mod.f90
+                  mcip4/init_met.f90
+                  mcip4/init_x.f90
+                  mcip4/mcip.f90
+                  mcip4/metvars_mod.f90
+                  mcip4/metvars2ctm.f90
+                  mcip4/rdwrfem.f90
+                  mcip4/run_mcip.csh
+                  mcip4/xvars_mod.f90
+
+  New files:      mcip4/comheader_soi.f90
+                  mcip4/soicro.f90
+                  mcip4/soioutcom_mod.f90
+
+
+- Created new M3 I/O API output file for fractional land use data.
+
+  Changed files:  mcip4/alloc_ctm.f90
+                  mcip4/dealloc_ctm.f90
+                  mcip4/mcip.f90
+
+  New files:      mcip4/comheader_lufrac.f90
+                  mcip4/lucro.f90
+                  mcip4/luoutcom_mod.f90
+
+
+- Prevent MCIP from using meteorology initialization time period.
+
+  Changed file:   mcip4/setgriddefs.f90
+
+
+- Updated release stamp.
+
+  Changed files:  mcip4/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
 MCIP Version 4.4 (23 June 2017)
 
 - Changed name of run script to "run_mcip.csh" and changed names of MCIP output

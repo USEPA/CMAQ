@@ -25,8 +25,9 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE OPN_IC_FILE( LOGUNIT, SDATE, STIME, NSPCS_OUT, 
-     &                        SPNAME_OUT, IC_FNAME, RINDX )  
+      SUBROUTINE OPN_IC_FILE ( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT,
+     &                         SPNAME_OUT, VTYPE_OUT, UNITS_OUT,
+     &                         VDESC_OUT, IC_FNAME, RINDX )
 
 C***********************************************************************
  
@@ -51,29 +52,31 @@ C    12/13/04 J.Young: vert dyn alloc - Use VGRD_DEFN
 C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    13 Jun 11 J.Young: Convert for Namelist redesign
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
-                    
+C    07 Nov 18 S.Roselle: Removed parallel processing code; 
+C                         replaced UTILIO_DEFN with M3UTILIO
+
 C***********************************************************************
 
-      USE HGRD_DEFN      ! Module to store and load the horizontal grid variables
-      USE VGRD_DEFN      ! vertical layer specifications
-!     USE SUBST_MODULES  ! for BARRIER
-      USE UTILIO_DEFN
-      USE CGRID_SPCS     ! CGRID mechanism species
-      USE IC_PARMS       ! ICON parameters
+      USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
+      USE VGRD_DEFN   ! vertical layer specifications
+      USE M3UTILIO    ! IOAPI module
+      USE IC_PARMS    ! ICON parameters
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments: 
-      CHARACTER( 16 ) :: IC_FNAME( * )    ! Logical names of IC Output file(s) 
-      CHARACTER( 16 ) :: SPNAME_OUT( * )  ! Ouput file species names
+      CHARACTER( 16 ), INTENT( OUT ) :: IC_FNAME( : )    ! Logical names of IC Output file(s)
+      CHARACTER( 16 ), INTENT( IN )  :: SPNAME_OUT( : )  ! Output file species names
+      CHARACTER( 16 ), INTENT( IN )  :: UNITS_OUT( : )
+      CHARACTER( 80 ), INTENT( IN )  :: VDESC_OUT( : )
 
-      INTEGER LOGUNIT      ! Unit number for output log
-      INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
-      INTEGER RINDX        ! Index of root file name
-      INTEGER SDATE        ! Date for IC Output
-      INTEGER STIME        ! Time for IC output
+      INTEGER, INTENT( IN ) :: LOGUNIT      ! Unit number for output log
+      INTEGER, INTENT( IN ) :: NSPCS_OUT    ! Number of IC species on output file(s)
+      INTEGER, INTENT( IN ) :: RINDX        ! Index of root file name
+      INTEGER, INTENT( IN ) :: SDATE        ! Date for IC Output
+      INTEGER, INTENT( IN ) :: STIME        ! Time for IC output
+      INTEGER, INTENT( IN ) :: TSTEP        ! Timestep for IC Output
+      INTEGER, INTENT( IN ) :: VTYPE_OUT( : ) ! Variable type (e.g. integer, real, ...)
 
 C Parameters: None
 
@@ -107,7 +110,7 @@ c  Get the value of environment variable EXECUTION_ID
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENV_DESC = 'Value of environment variable EXECUTION_ID' 
       ENV_DFLT = '-----------'        
-      CALL ENVSTR( 'EXECUTION_ID', ENV_DESC, ENV_DFLT, RET_VAL, STATUS )
+      CALL ENVSTR ( 'EXECUTION_ID', ENV_DESC, ENV_DFLT, RET_VAL, STATUS )
       EXECN3D = RET_VAL
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -115,15 +118,15 @@ c  Set start date, start time, and time step
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       SDATE3D = SDATE
       STIME3D = STIME
-      TSTEP3D = 00000
+      TSTEP3D = TSTEP
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set start date, start time, and time step
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       FTYPE3D = GRDDED3
       NVARS3D = NSPCS_OUT
-      NCOLS3D = GL_NCOLS
-      NROWS3D = GL_NROWS
+      NCOLS3D = NCOLS
+      NROWS3D = NROWS
       NLAYS3D = NLAYS
       NTHIK3D = NTHIK
 
@@ -189,37 +192,25 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          ENV_DESC = 'IC Output file ' // IC_FNAME( N ) 
          ENV_DFLT = ' '       
-         CALL ENVSTR( IC_FNAME( N ), ENV_DESC, ENV_DFLT, RET_VAL, STATUS )
+         CALL ENVSTR ( IC_FNAME( N ), ENV_DESC, ENV_DFLT, RET_VAL, STATUS )
 
          IF ( STATUS .NE. 0 ) THEN
             MSG = 'IC output file ' // IC_FNAME( N ) // ' not assigned' 
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+            CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
          END IF
 
          FDESC3D( 1 ) = 'ICON output file ' // IC_FNAME( N )
-         NVARS3D = MIN( MXVARS3, ( NSPCS_OUT - ( N-1 )*MXVARS3 ) )
+         NVARS3D = MIN( MXVARS3,
+     &                  ( NSPCS_OUT - ( N - 1 ) * MXVARS3 ) )
           
          DO V = 1, NVARS3D
 
             VARINDX = ( N - 1 ) * MXVARS3 + V
-            VTYPE3D( V ) = M3REAL
-
+            VTYPE3D( V ) = VTYPE_OUT( VARINDX )
             VNAME3D( V ) = SPNAME_OUT( VARINDX )
-            UNITS3D( V ) = 'ppmV'
-            VDESC3D( V ) = 'Variable ' // SPNAME_OUT( VARINDX )
+            UNITS3D( V ) = UNITS_OUT( VARINDX )
+            VDESC3D( V ) = VDESC_OUT( VARINDX )
             
-            IF ( INDEX1( SPNAME_OUT( VARINDX ), N_AE_SPC, AE_SPC ) .GT. 0 ) THEN
-
-               IF ( SPNAME_OUT( V )( 1:3 ) .EQ. 'NUM' ) THEN
-                  UNITS3D( V ) = '#/m**3'
-               ELSE IF ( SPNAME_OUT( V )( 1:3 ) .EQ. 'SRF' ) THEN
-                  UNITS3D( V ) = 'm**2/m**3'
-               ELSE
-                  UNITS3D( V ) = 'micrograms/m**3'
-               END IF
-
-            END IF
-
          END DO
          
          WRITE( LOGUNIT, 92040 ) N, IC_FNAME( N )
@@ -236,20 +227,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          WRITE( LOGUNIT, 92100 )
 
          DO V = 1, NVARS3D
-            WRITE( LOGUNIT, 92120 ) V, VNAME3D( V ), VTYPE3D( V ),
-     &                                 UNITS3D( V ), TRIM( VDESC3D( V ) )
+            WRITE( LOGUNIT, 92120 ) VNAME3D( V ), VTYPE3D( V ),
+     &                              UNITS3D( V ), TRIM( VDESC3D( V ) )
          END DO
 
-C Only PE 0 opens file
-         IF ( MYPE .EQ. 0 ) THEN   ! open new
-            IF ( .NOT. OPEN3( IC_FNAME( N ), FSUNKN3, PNAME ) ) THEN
-               MSG = 'Could not open nor create ' //  IC_FNAME( N ) //
+         IF ( .NOT. OPEN3( IC_FNAME( N ), FSUNKN3, PNAME ) ) THEN
+            MSG = 'Could not open nor create ' //  IC_FNAME( N ) //
      &            ' file '
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
-            END IF
+            CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
-
-!        CALL SUBST_BARRIER
 
       END DO
 
@@ -291,6 +277,6 @@ C************************* FORMAT STATEMENTS ***************************
      &        ( 10X, '        ', 5 ( 1PE14.5 ) ) )
 92100 FORMAT( //10X, 'Output Variables:'
      &         /10X, 'Name', 15X, 'Type', 2X, 'Units', 13X, 'Description' )
-92120 FORMAT( 4X, I4, 2X, A16, 2X, I2, 5X, A, 2X, A )    
+92120 FORMAT(   10X, A16, 5X, I1, 3X, A16, 2X, A )    
 
       END

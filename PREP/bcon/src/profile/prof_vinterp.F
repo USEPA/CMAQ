@@ -25,8 +25,8 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE PROF_VINTERP( LOGUNIT, NSPCS_IN, NLAYS_IN, VGLVS_IN,
-     &                         CONCIN, CONCOUT )    
+      SUBROUTINE PROF_VINTERP ( LOGUNIT, NSPCS_IN, NLAYS_IN, ZH_IN,
+     &                          CONCIN, CONCOUT )
 
 C***********************************************************************
  
@@ -50,6 +50,12 @@ C    02/25/02 Steve Howard (Jeff Young) - dynamic allocation
 C    01/05/05 J.Young: vert dyn alloc - Use VGRD_DEFN
 C    13 Jul 11 J.Young: Replaced I/O API include files with M3UTILIO
 C    23 May 12 J.Young: Replaced BC_PARMS include file with an F90 module
+C    21 Sep 19 S.Roselle: Reconfigured to do vertical interpolation to
+C                       target boundary vertical layer heights (ZH)
+C    30 Nov 18 S.Roselle: To provide spatially uniform BCs, target boundary 
+C                       average mid-layer heights are used for the vertical
+C                       interpolation
+C    10 June 19 F.Sidi  : Commented out INTEGER STATUS unused variable                    
                     
 C***********************************************************************
 
@@ -60,102 +66,79 @@ C***********************************************************************
 
       IMPLICIT NONE     
 
-C Include Files:
-
 C Arguments: 
-      INTEGER LOGUNIT                   ! Unit number for output log
-      INTEGER NSPCS_IN                  ! No. of species in input conc file
-      INTEGER NLAYS_IN                  ! No. of layers in input conc file
-      REAL    :: VGLVS_IN( * )          ! Input vertical levels
-      REAL    :: CONCIN( MXLAYS3,4,* )  ! Input conc array
-      REAL    :: CONCOUT( NLAYS,4,* )   ! Output IC array
+      INTEGER, INTENT( IN ) :: LOGUNIT    ! Unit number for output log
+      INTEGER, INTENT( IN ) :: NSPCS_IN   ! No. of species in input profile
+      INTEGER, INTENT( IN ) :: NLAYS_IN   ! No. of layers in input profile
+
+      REAL, INTENT( IN )  :: ZH_IN( : )          ! Input layer heights
+      REAL, INTENT( IN )  :: CONCIN( :,: )       ! Input conc array
+      REAL, INTENT( OUT ) :: CONCOUT( :,:,: )    ! Output BC array
 
 C Parameters: None
 
 C External Functions: None
 
 C Local Variables:
-      CHARACTER( 20 ) :: CHR1     ! Value of variable 1 in character data
-      CHARACTER( 20 ) :: CHR2     ! Value of variable 1 in character data
       CHARACTER( 80 ) :: MSG      ! Log message
       CHARACTER( 16 ) :: PNAME = 'PROF_VINTERP'    ! Procedure Name
+      CHARACTER( 16 ) :: VNAME    ! Variable Name
 
-      INTEGER EDG            ! Boundary edge loop index
       INTEGER L              ! Loop index for vertical layers
-      INTEGER MXLEV          ! Max no. of levels
       INTEGER N              ! Loop index
-      INTEGER STATUS         ! Status code
+      INTEGER C              ! Loop index for boundary cells
+!      INTEGER STATUS         ! Status code
+      INTEGER JDATE          ! Date for first record on BDY file
+      INTEGER JTIME          ! Time for first record on BDY file
+      INTEGER ALLOCSTAT      ! Status returned from array allocation
 
-      LOGICAL LDEC           ! Flag for monotonic decreasing layer levels
-      LOGICAL LINC           ! Flag for monotonic increasing layer levels
-      LOGICAL L_IDENTICAL    ! Flag for identical vert coord systems      
       LOGICAL L_RATINT       ! Flag to use rational function interpolation 
 
       REAL    DELY  ! Error estimate for conc interpolated by rational func
       REAL    X3    ! Vertical coordinate used in interpolation
       REAL    Y     ! Interpolated concentration
 
-      REAL    :: WORKA( MXLAYS3 )   ! Work array for conc input
-      REAL    :: X3_OLD( MXLAYS3 )  ! Old Vertical coordinate values
-     
+      REAL, ALLOCATABLE :: WORKA( : )      ! Work array for conc input
+      REAL, ALLOCATABLE :: X3_OLD( : )     ! Old Vertical coordinate values
+      REAL, ALLOCATABLE :: ZH_OUT( :,: )   ! mid-layer heights for target BDY file
+      REAL, ALLOCATABLE :: ZH_OUT_AVG( : ) ! avg mid-layer hts for target BDY file
+
+      INTERFACE
+
+         SUBROUTINE LR_INTERP ( L_RATINT, XA, YA, N, X, Y, DELY )
+            LOGICAL, INTENT( IN ) :: L_RATINT
+            REAL, INTENT( IN )  :: XA( : )
+            REAL, INTENT( IN )  :: YA( : )
+            REAL, INTENT( IN )  :: X
+            REAL, INTENT( OUT ) :: Y
+            REAL, INTENT( OUT ) :: DELY
+            INTEGER, INTENT( IN ) :: N
+         END SUBROUTINE LR_INTERP
+
+      END INTERFACE
+
 C***********************************************************************
 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Write log info
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      WRITE( LOGUNIT, 92000 )
+      ALLOCATE( WORKA( NLAYS_IN ),
+     &          X3_OLD( NLAYS_IN ),
+     &          ZH_OUT( NBNDY,NLAYS ),
+     &          ZH_OUT_AVG( NLAYS ),
+     &          STAT = ALLOCSTAT )
 
-      WRITE( LOGUNIT, 92020 ) VGDESC( VGTYP_GD )
-
-      WRITE( LOGUNIT, 92040 ) 
-
-      MXLEV = MAX( NLAYS + 1, NLAYS_IN + 1 )
-
-      DO L = 1, MXLEV 
-
-         IF ( L .LE. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
-            WRITE( LOGUNIT, 92080 ) L, VGLVS_GD( L ), VGLVS_IN( L )
-         ELSE IF ( L .LE. NLAYS + 1 .AND. L .GT. NLAYS_IN + 1 ) THEN
-            WRITE( LOGUNIT, 92080 ) L, VGLVS_GD( L )
-         ELSE IF ( L .GT. NLAYS + 1 .AND. L .LE. NLAYS_IN + 1 ) THEN
-            WRITE( LOGUNIT, 92100 ) L, VGLVS_IN( L )
-         END IF
-
-      END DO        
-     
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Check for consistent vertical coordinates
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      L_IDENTICAL  = .TRUE.
-
-      IF ( NLAYS .EQ. NLAYS_IN ) THEN
-         DO L = 1, NLAYS + 1
-            WRITE( CHR1, 94060 ) VGLVS_GD( L )
-            WRITE( CHR2, 94060 ) VGLVS_IN( L )
-            IF ( CHR1 .NE. CHR2 ) L_IDENTICAL = .FALSE.
-         END DO
-      ELSE
-         L_IDENTICAL  = .FALSE. 
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+         MSG = 'Failure allocating WORKA, X3_OLD, ZH_OUT, ZH_OUT_AVG'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
-            
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  For identical vertical coordinates, copy the input profile
-C  to the interpolated profile and return
+c  open MET_BDY_3D_FIN file
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( L_IDENTICAL ) THEN
-
-         WRITE( LOGUNIT, 92120 ) 
-
-         DO N = 1, NSPCS_IN
-            DO EDG = 1, 4
-            DO L = 1, NLAYS
-                  CONCOUT( L,EDG,N ) = CONCIN( L,EDG,N )
-               END DO
-            END DO
-         END DO
-         RETURN
-
+      IF ( .NOT. OPEN3 ( MET_BDY_3D_FIN, FSREAD3, PNAME ) ) THEN
+         MSG = 'Could not open ' // MET_BDY_3D_FIN // ' file'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
       END IF
+      JDATE = SDATE3D
+      JTIME = STIME3D
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Determine type of interpolation to use: linear or rational function
@@ -171,79 +154,81 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL M3MESG( MSG )
          
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Interpolate by VGLEVS for vertical coords of same type but different
-c  resolution
+c  Interpolate by ZH
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      DO L = 1, NLAYS_IN 
-         X3_OLD( L ) = 0.5 * ( VGLVS_IN ( L ) +  VGLVS_IN ( L + 1 ) )
-      END DO
 
-      LINC = .FALSE.
-      LDEC = .FALSE.
-      IF ( VGLVS_IN ( NLAYS_IN ) .GT. VGLVS_IN ( 1 ) ) THEN
-         LINC = .TRUE.
-      ELSE
-         LDEC = .TRUE.
+C Get the layer mid-point heights
+      VNAME = 'ZH'
+      IF ( .NOT. READ3( MET_BDY_3D_FIN, VNAME, ALLAYS3, JDATE, JTIME,
+     &                  ZH_OUT ) ) THEN
+         MSG = 'Could not read layer heights form file  ' // MET_BDY_3D_FIN 
+         CALL M3ERR( PNAME, JDATE, JTIME, MSG, .TRUE. )
       END IF
 
+C Compute domain average layer mid-point heights
+
+      ZH_OUT_AVG = 0.0
+      DO L = 1, NLAYS
+         DO C = 1, NBNDY
+            ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) + ZH_OUT( C,L )
+         END DO
+         ZH_OUT_AVG( L ) = ZH_OUT_AVG( L ) / NBNDY
+      END DO
+
+      DO L = 1, NLAYS_IN 
+         X3_OLD( L ) = ZH_IN( L )
+      END DO
+
+      CONCOUT = 0.0
       DO N = 1, NSPCS_IN    
 
-         DO EDG = 1, 4
+         DO L = 1, NLAYS_IN
+            WORKA( L ) = CONCIN( L,N )
+         END DO
 
-            DO L = 1, NLAYS_IN
-               WORKA( L ) = CONCIN( L,EDG,N )
+
+         IF ( NLAYS_IN .EQ. 1 ) THEN
+
+            DO L = 1, NLAYS
+               DO C = 1, NBNDY
+                  CONCOUT( C,L,N ) = WORKA( 1 )
+               END DO
             END DO
+
+         ELSE
 
             DO L = 1, NLAYS
 
-               IF ( NLAYS_IN .EQ. 1 ) THEN
-                  CONCOUT( L,EDG,N ) = WORKA( 1 )
+               X3 = ZH_OUT_AVG( L )
+
+               IF ( X3 .LT. X3_OLD( 1 ) ) THEN
+
+                  DO C = 1, NBNDY
+                     CONCOUT( C,L,N ) = WORKA( 1 )
+                  END DO
+
+               ELSE IF ( X3 .GT. X3_OLD( NLAYS_IN ) ) THEN
+
+                  DO C = 1, NBNDY
+                     CONCOUT( C,L,N ) = WORKA( NLAYS_IN )
+                  END DO
+
                ELSE
-                  X3 = 0.5 * ( VGLVS_GD ( L ) +  VGLVS_GD ( L + 1 ) )
-                  IF ( LINC .AND. X3 .LE. X3_OLD( 1 ) ) THEN
-                     CONCOUT( L,EDG,N ) = WORKA( 1 )
-                  ELSE IF ( LDEC .AND. X3 .GE. X3_OLD( 1 ) ) THEN
-                     CONCOUT( L,EDG,N ) = WORKA( 1 )
-                  ELSE IF ( LINC .AND. X3 .GE. X3_OLD( NLAYS_IN ) ) THEN
-                     CONCOUT( L,EDG,N ) = WORKA( NLAYS_IN )
-                  ELSE IF ( LDEC .AND. X3 .LE. X3_OLD( NLAYS_IN ) ) THEN
-                     CONCOUT( L,EDG,N ) = WORKA( NLAYS_IN )
-                  ELSE
+
+                  DO C = 1, NBNDY
                      CALL LR_INTERP( L_RATINT, X3_OLD, WORKA, NLAYS_IN,
      &                               X3, Y, DELY )
-                     CONCOUT( L,EDG,N ) = Y
-                  END IF
+                     CONCOUT( C,L,N ) = Y
+                  END DO
+
                END IF
 
             END DO 
 
-         END DO
- 
+         END IF
+
       END DO
 
       RETURN
-
-C************************* FORMAT Statements ***************************
-
-92000 FORMAT( // 1X, 79( '#' ) 
-     &         / 1X, '#  Vertical Interpolation Section '
-     &         / 1X, 79( '#' ) 
-     &        // 5X, 'WARNING: The vertical grid type used for the ',
-     &               'profile data is assumed to be '
-     &         / 5X, 'the same as the type specified in the LAYER file. The ',
-     &               'resolution of '
-     &         / 5X, 'each is listed below.' )
-
-92020 FORMAT(  / 5X, 'LAYER file vertical grid type: ', A )
-92040 FORMAT(  / 5X, 'Vertical layer surface values: '
-     &         /10X, ' K   LAYER File    Input Profile data' )
-92060 FORMAT( A )
-92080 FORMAT(   10X, I2, 1X, F12.3, 10X, F12.3 )
-92100 FORMAT(   10X, I2,       13X, 10X, F12.3 )
-92120 FORMAT( // 5X, 'The vertical structure in LAYER file is identical',
-     &               ' to that of the input profile data. '
-     &        /  5X, 'No vertical interpolation necessary.' )
-
-94060 FORMAT( 1PE20.4 )
 
       END

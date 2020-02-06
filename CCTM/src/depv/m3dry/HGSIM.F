@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/depv/m3dry_mp/HGSIM.F,v 1.3 2012/01/24 21:15:18 sjr Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE HGSIM
 
@@ -54,6 +48,8 @@ C     17 Jan  2012  J. Bash Removed the dependence on the LAPACK libraries
 C                           and found analytical solutions to all the Hg
 C                           exchange equations.
 C     14 Feb 2013   J. Bash Added support for the NLCD 40 (2006) land use data
+C     15 Oct 2018   D. wong Moved INIT_MEDC_1 data extraction code to centralized_io_module.F
+C     01 Feb 2019 David Wong: Implemented centralized I/O approach, removed all MY_N clauses
 C
 C  References:
 C
@@ -86,7 +82,6 @@ C-----------------------------------------------------------------------
       REAL(8), PARAMETER, PRIVATE :: ZG = 5d-2
 
       CHARACTER( 96 ), PRIVATE :: XMSG = ' '
-      INTEGER, SAVE,PRIVATE :: LOGDEV
       CHARACTER( 80 ), SAVE, Private   :: LAND_SCHEME
 
 ! variable needed for analytical solutions of exchange equations
@@ -129,7 +124,6 @@ C input/output parameters
 
       CHARACTER( 16 ), ALLOCATABLE, PRIVATE :: MEDIA_NAMES( : )
 
-      REAL(8), ALLOCATABLE, PRIVATE ::  WRMC( :,: ) ! media read/write buffer
       REAL(8), ALLOCATABLE, PRIVATE :: MLAI( :,: ) ! used to track change in LAI
 
       CONTAINS
@@ -150,8 +144,8 @@ C input/output parameters
          INTEGER, INTENT( IN ) :: JTIME
 
          INTEGER      GXOFF, GYOFF              ! global origin offset from file
-         integer, save :: strtcol, endcol, strtrow, endrow
-         INTEGER, SAVE :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
+         integer, save :: loc_strtcol, loc_endcol, loc_strtrow, loc_endrow
+         INTEGER, SAVE :: loc_STRTCOLGC2, loc_ENDCOLGC2, loc_STRTROWGC2, loc_ENDROWGC2
 
          CHARACTER( 16 ) :: PNAME = 'INIT_HGSIM'
          CHARACTER( 96 ) :: MSG = ' '
@@ -159,20 +153,14 @@ C input/output parameters
          INTEGER  V, L, C, R
 
 C--------------------------------------------------------------------------
-         LOGDEV = INIT3()
-
          INIT_LAI = .TRUE.
 
-         IF( .NOT. ALLOCATED (WRMC) ) THEN
-            ALLOCATE( WRMC(MY_NCOLS,MY_NROWS) )
-            WRMC( :,: ) = 0.0
-         END IF
          IF( .NOT. ALLOCATED (MLAI) ) THEN
-            ALLOCATE( MLAI(MY_NCOLS,MY_NROWS) )
+            ALLOCATE( MLAI(NCOLS,NROWS) )
             MLAI( :,: ) = 0.0
          END IF
          IF ( .NOT. ALLOCATED ( fevgrn ) ) THEN
-            ALLOCATE ( fevgrn( MY_NCOLS,MY_NROWS ) )
+            ALLOCATE ( fevgrn( NCOLS,NROWS ) )
             fevgrn( :,: ) = 0.0
          END IF
 
@@ -180,8 +168,8 @@ C--------------------------------------------------------------------------
 !            CASE( 'USGS24' )
 !               ALLOCATE (  Hglu_fac( n_lufrac ) )
 !               Hglu_fac = HGLU_FAC_USGS            
-         DO C = 1, MY_NCOLS
-            DO R = 1, MY_NROWS
+         DO C = 1, NCOLS
+            DO R = 1, NROWS
                DO L = 1, N_LUFRAC
                   IF(CAT_LU(L) .EQ. 'EVEFOR') THEN
                      fevgrn(c,r) = fevgrn(c,r) + Grid_Data%lufrac(c,r,l)
@@ -195,16 +183,16 @@ C--------------------------------------------------------------------------
 !            CASE( 'MODIS' )
 !               ALLOCATE (  Hglu_fac( n_lufrac ) )
 !               Hglu_fac = HGLU_FAC_MODIS
-!               DO C = 1, MY_NCOLS
-!                   DO R = 1, MY_NROWS
+!               DO C = 1, NCOLS
+!                   DO R = 1, NROWS
 !                     fevgrn(c,r) = lufrac(1,c,r)+lufrac(2,c,r)+0.5*lufrac(5,c,r)
 !                  END DO
 !               END DO
 !             CASE( 'NLCD40' )
 !               ALLOCATE (  Hglu_fac( n_lufrac ) )
 !               Hglu_fac = HGLU_FAC_NLCD40
-!               DO C = 1, MY_NCOLS
-!                   DO R = 1, MY_NROWS
+!               DO C = 1, NCOLS
+!                   DO R = 1, NROWS
 !                      fevgrn(c,r) = lufrac(1,c,r) + lufrac(2,c,r) +
 !     &                              0.5*lufrac(5,c,r) + lufrac(29,c,r) +
 !     &                              0.5*lufrac(30,c,r)
@@ -213,8 +201,8 @@ C--------------------------------------------------------------------------
 !             CASE( 'NLCD50' )
 !               ALLOCATE (  Hglu_fac( n_lufrac ) )
 !               Hglu_fac = HGLU_FAC_NLCD50
-!               DO C = 1, MY_NCOLS
-!                   DO R = 1, MY_NROWS
+!               DO C = 1, NCOLS
+!                   DO R = 1, NROWS
 !                      fevgrn(c,r) = lufrac(10,c,r) + 0.5*lufrac(11,c,r) +
 !     &                              lufrac(32,c,r) + lufrac(32,c,r) + 
 !     &                              0.5*lufrac(36,c,r)
@@ -226,7 +214,7 @@ C--------------------------------------------------------------------------
 !         END SELECT
 
 C **** Read in saved surface layer concentrations
-         IF ( .NOT. OPEN3( INIT_MEDC_1, FSREAD3, PNAME ) ) THEN
+         IF ( .NOT. MEDC_AVAIL ) THEN
             INIT_ASX = .TRUE.
             INIT_ATX = .TRUE.
 
@@ -235,32 +223,7 @@ C **** Read in saved surface layer concentrations
             INIT_ASX = .FALSE.
             INIT_ATX = .FALSE.
 
-            IF ( .NOT. DESC3( INIT_MEDC_1 ) ) THEN
-               XMSG = 'Could not get ' // TRIM( INIT_MEDC_1 ) // ' file description'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-            CALL SUBHFILE ( INIT_MEDC_1, GXOFF, GYOFF, STRTCOL, ENDCOL, STRTROW, ENDROW )
-
-            DO V = 1, Hg_TOT
-               IF( .NOT. Xtract3( INIT_MEDC_1, MEDIA_NAMES( V ), 1, 1, STRTROW,
-     &                   ENDROW, STRTCOL, ENDCOL, JDATE, 0, WRMC ) )THEN
-                  WRITE(xmsg,9001) Media_Names( V ), INIT_MEDC_1
-                  CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-               END IF
-
-               WRITE(LOGDEV,*) MEDIA_NAMES( V ),' read into surface array'
-
-               DO R = 1, MY_NROWS
-                  DO C = 1,MY_NCOLS
-                     CMEDIA( C,R,V ) = WRMC( C,R )
-                  END DO
-               END DO
-            END DO
-
          END IF ! load surface arrays
-
-         DEALLOCATE( WRMC )
 
          RETURN
 
@@ -431,10 +394,6 @@ C Arguments passed to and from m3dry
          rbg  = ( scn - LOG( 1.0D1 * del0 ) ) / ( karman * ustg )
 ! Compute soil resistance
          ist = Grid_Data%SLTYP(c,r)
-!         IF (ist.lt.1.or.ist.gt.11) THEN
-!            WRITE(logdev,*) ' ist=',ist
-!            ist = 4
-!         END IF
          wg_min = REAL(MAX(Met_Data%SOIM1(c,r),Grid_Data%Wres(c,r)),8)
          ldry= MAX(ZG*(EXP((1.0D0-wg_min/Grid_Data%Wsat(c,r))**5)-1.0D0)/1.718D0,1.0D-12)
          dp  = dif0(l)*1.D-4 * Grid_Data%Wsat(c,r)**2 

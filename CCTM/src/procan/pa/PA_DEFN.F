@@ -60,14 +60,13 @@ c    SV2GRD    = Array of CTM indicies for saved concs
 c    SPCOEF    = Array of coefficients for IPR familys
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
-      INTEGER, PARAMETER :: NPRCS = 13
+      INTEGER, PARAMETER :: NPRCS = 12
 
       CHARACTER( 16 ), PARAMETER :: PROCNAME( NPRCS ) = (/
-     &   'XADV            ',  'YADV            ',  'ZADV            ',
-     &   'ADJC            ',  'HADV            ',  'HDIF            ',
+     &   'ZADV            ',  'HADV            ',  'HDIF            ',
      &   'VDIF            ',  'EMIS            ',  'DDEP            ',
-     &   'CLDS            ',  'CHEM            ',  'AERO            ',
-     &   'PING            ' /)
+     &   'CLDS            ',  'CHEM            ',  'COND            ',
+     &   'COAG            ',  'GROW            ',  'NPF             ' /)
 
 c this is set in pa_getiprout.F, pa_errcheck.F?
       INTEGER :: N_IPR_SPC = 0
@@ -79,7 +78,7 @@ c these are allocated in pa_setpadefn.F
       LOGICAL, ALLOCATABLE, SAVE :: LPROCOUT( : )   ! LPROCOUT( NPRCS )
 
       INTEGER, ALLOCATABLE, SAVE :: NCGRID ( : )    ! ( N_IPR_SPC )
-      INTEGER, ALLOCATABLE, SAVE :: SV2GRD ( : )    ! ( NCSAVE )
+      INTEGER, ALLOCATABLE, SAVE :: SAV2GRD( : )    ! ( NCSAVE )
       INTEGER, ALLOCATABLE, SAVE :: IPROUT ( :,: )  ! ( N_IPR_SPC,NPRCS )
       INTEGER, ALLOCATABLE, SAVE :: IPR2GRD( :,: )  ! ( N_IPR_SPC,MXCGRID )
       INTEGER, ALLOCATABLE, SAVE :: IPR2SAV( :,: )  ! ( N_IPR_SPC,MXCGRID )
@@ -131,7 +130,6 @@ c these are set in pa_setup_irr.F, pa_errcheck.F
       INTEGER, SAVE :: MXTEMPTRMS = 0
 
 c this is set in the Model`s GRID_CONF
-!     INTEGER, SAVE :: BLKSIZED = BLKSIZE
       INTEGER, SAVE :: BLKSIZED = 50
 
 c these are allocated in pa_setup_irr.F
@@ -153,5 +151,7 @@ c these are allocated in pa_setup_irr.F
       REAL,    ALLOCATABLE, SAVE :: IRRCOEF   ( :,: )  ! ( NIRRVAR,MXNIRRRXNS )
       REAL,    ALLOCATABLE, SAVE :: IRRSTEP   ( :,: )  ! ( BLKSIZED,NIRRVAR )
       REAL,    ALLOCATABLE, SAVE :: IRRBLK    ( :,: )  ! ( BLKSIZED,NIRRVAR )
+      REAL,    ALLOCATABLE, SAVE :: IRRDEL    ( : )    ! ( NIRRVAR )
+      REAL,    ALLOCATABLE, SAVE :: IRRSUM    ( : )    ! ( NIRRVAR )
 
       END MODULE PA_DEFN

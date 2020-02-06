@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae6/AQ_DATA.F,v 1.7 2012/01/19 13:53:19 yoj Exp $
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Module aq_data
 
@@ -40,6 +37,7 @@ C     index equals the values for H3OP species as for aerosol water
 C     species 
 C-----------------------------------------------------------------------
       Use aero_data, Only: n_aerolist, n_aerospc, conmin
+      Use runtime_vars
 
       Implicit None
 
@@ -51,9 +49,9 @@ C-----------------------------------------------------------------------
       Integer, Parameter :: max_naer = n_aerolist + naddaer +  nadd_tx ! max number aero surrogates
 
       Integer, Save      :: naer        ! number of aerosol surrogate species for AQCHEM
-      Integer, Parameter :: nliqs = 55  ! number of liquid-phase species in AQCHEM
+      Integer, Parameter :: nliqs = 60  ! number of liquid-phase species in AQCHEM
       Integer, Parameter :: nmodes = 3  ! number of aerosol modes
-      Integer, Parameter :: mxsrg = 35  ! maximum number of species for surrogate
+      Integer, Parameter :: mxsrg = 70  ! maximum number of species for surrogate
 
       integer, parameter :: akn = 1     ! number for Aitken mode
       Integer, Parameter :: acc = 2     ! number for Accumulation mode
@@ -111,11 +109,11 @@ C...Pointers for the AQCHEM array GAS
       Integer :: ln2o5    ! Dinitrogen Pentoxide
       Integer :: lco2     ! Carbon Dioxide
       Integer :: lnh3     ! Ammonia
-      Integer :: lh2o2    ! Hydrogen Perioxide
+      Integer :: lh2o2    ! Hydrogen Peroxide
       Integer :: lo3      ! Ozone
       Integer :: lfoa     ! Formic Acid
       Integer :: lmhp     ! Methyl Hydrogen Peroxide
-      Integer :: lpaa     ! Peroxyacidic Acid
+      Integer :: lpaa     ! Peroxyacetic Acid
       Integer :: lh2so4   ! Sulfuric Acid
       Integer :: lhcl     ! Hydrogen Chloride
       Integer :: lgly     ! Glyoxal
@@ -130,7 +128,7 @@ CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
          Character( 16 ) :: name( nmodes )     ! surrogate name
          Real            :: backgnd            ! background value
          Real            :: molwt              ! molecular weight
-         Real            :: density            ! density (kg/m^3) 
+         Real            :: density            ! density [kg m-3] 
       End Type sur_aer_type
 
       Type ( sur_aer_type ), Allocatable, Save  :: srgaer( : )
@@ -190,9 +188,15 @@ C...For TX version
       Character( 16 ), Parameter, Private :: req_traceri = 'TRACER_AITKEN'
       Character( 16 ), Parameter, Private :: req_tracerj = 'TRACER_ACCUM'
       Character( 16 ), Parameter, Private :: req_tracerk = 'TRACER_COARSE'
-      Character( 16 ), Parameter, Private :: req_phgi     = 'PHG_AITKEN'
-      Character( 16 ), Parameter, Private :: req_phgj     = 'PHG_ACCUM'
+      Character( 16 ), Parameter, Private :: req_phgi    = 'PHG_AITKEN'
+      Character( 16 ), Parameter, Private :: req_phgj    = 'PHG_ACCUM'
       Character( 16 ), Parameter, Private :: req_phgk    = 'PHG_COARSE'
+C...For Sulfur tracking
+      Character( 16 ), Parameter, Private :: req_aso4aqh2o2 = 'SO4_AQH2O2_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aso4aqo3   = 'SO4_AQO3_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aso4aqfemn = 'SO4_AQFEMN_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aso4aqmhp  = 'SO4_AQMHP_ACCUM'
+      Character( 16 ), Parameter, Private :: req_aso4aqpaa  = 'SO4_AQPAA_ACCUM'
 
 
 C...Pointers for the AQCHEM array AEROSOL
@@ -221,6 +225,12 @@ C...TXHG aersosols
       Integer :: lphg_akn     !  Mercuric aerosols (Aitken and Accumulation)
       Integer :: lphg_acc     !  Mercuric aerosols (Aitken and Accumulation)
       Integer :: lphg_cor     !  Mercuric aerosols (Coarse)
+C...Sulfur Tracking Model      
+      Integer :: lso4aqh2o2 ! Sulfate from aq H2O2 rxn
+      Integer :: lso4aqo3   ! Sulfate from aq O3 rxn
+      Integer :: lso4aqfemn ! Sulfate from aq rxn catalyzed by FE&MN
+      Integer :: lso4aqmhp  ! Sulfate from aq MHP rxn
+      Integer :: lso4aqpaa  ! Sulfate from aq PAA rxn
 
       Integer :: lcaacc   !  Ca in Accumulation mode (AE6) SLN 16March2011
       Integer :: lmgacc   !  Mg in Accumulation mode (AE6) SLN 16March2011
@@ -289,7 +299,12 @@ C for TX version
       integer, parameter :: ltracercorl = 53 ! Coarse-mode TRACER
       integer, parameter :: lphgfinel   = 54 ! Fine-mode Mercury Tracer
       integer, parameter :: lphgcorl    = 55 ! Coarse-mode Mercury Tracer
-
+C for sulfur tracking model
+      Integer, Parameter :: lts6aqh2o2l = 56 ! total S(VI) from aq H2O2 rxn
+      Integer, Parameter :: lts6aqo3l   = 57 ! total S(VI) from aq O3 rxn
+      Integer, Parameter :: lts6aqfemnl = 58 ! total S(VI) from aq FE&MN catalyzed rxn
+      Integer, Parameter :: lts6aqmhpl  = 59 ! total S(VI) from aq MHP rxn
+      Integer, Parameter :: lts6aqpaal  = 60 ! total S(VI) from aq PAA rxn
 
       Integer    :: nsrggas( ngas )           ! # surrogates in CGRID for each gas
       Integer    :: lsrggas( ngas,mxsrg )
@@ -300,10 +315,10 @@ C for TX version
       Integer, Allocatable, Save :: cgrid2aq_map( : ) ! allocated in AQ_DATA_INIT
       Character( 16 ), Allocatable, Save :: cgrid2aq_name( : ) ! allocated in AQ_DATA_INIT
 
-      Logical, Private, Save :: mapped = .False.
+      Real( 8 )   :: jh2o2_hydrometeors    ! H2O2 photolysis rate in condensed water [sec-1]
+      Real( 8 )   :: jhno3_hydrometeors    ! HNO3 photolysis rate in condensed water [sec-1]
 
-      Integer, Private, Save :: logdev
-      Integer, Private, External :: setup_logdev
+      Logical, Private, Save :: mapped = .False.
 
       Contains
  
@@ -321,8 +336,9 @@ C-----------------------------------------------------------------------
 
       Use cgrid_spcs          ! CGRID mechanism species
       Use utilio_defn
-      Use aero_data
-
+      Use aero_data 
+      Use phot_mod, Only: init_phot_shared  ! set-up shared photolysis arrays
+      
       Implicit None
 
 C Functions:
@@ -357,11 +373,12 @@ C-----------------------------------------------------------------------
 
       If ( Firstcall ) Then
          Firstcall = .False.
-         logdev    = setup_logdev()
       Else
          Return
       End if
  
+      Call init_phot_shared()
+      
       Allocate ( aename( n_ae_a2aq ), stat = ios )
       If ( ios .Ne. 0 ) Then
          xmsg = '*** Error allocating aename'
@@ -373,7 +390,7 @@ C...Build array of AE names that are mapped to AE_A2AQ
          aename( spc ) = ae_spc( ae_a2aq_map( spc ) )
       End Do
 
-C...Set number of species in CGRID and used in Aqeuous module
+C...Set number of species in CGRID and used in Aqueous module
       n_cgrid2aq = n_gc_g2aq + n_ae_a2aq + n_nr_n2aq + n_tr_t2aq
 
 !     Allocate ( cgrid2aq( n_cgrid2aq ),
@@ -626,6 +643,14 @@ C...For TXHG version
       lphg_akn       = findSgrAer( req_phgi )       !  Mercuric aitken and accumulation modes
       lphg_acc       = findSgrAer( req_phgj )       !  Mercuric aitken and accumulation modes
       lphg_cor       = findSgrAer( req_phgk )       !  Mercuric coarse mode
+C...For sulfur tracking model
+      If ( stm ) Then
+         lso4aqh2o2 = findSgrAer( req_aso4aqh2o2 ) ! Sulfate from aq H2O2 rxn
+         lso4aqo3   = findSgrAer( req_aso4aqo3 )   ! Sulfate from aq O3 rxn
+         lso4aqfemn = findSgrAer( req_aso4aqfemn ) ! Sulfate from aq rxn catalyzed by FE&MN
+         lso4aqmhp  = findSgrAer( req_aso4aqmhp )  ! Sulfate from aq MHP rxn
+         lso4aqpaa  = findSgrAer( req_aso4aqpaa )  ! Sulfate from aq PAA rxn
+      End If
 
       mapped = .True.
 
@@ -674,6 +699,13 @@ C...For TXHG version
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_akn:     ', lphg_akn
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_acc:     ', lphg_acc
       Write( logdev,'( 5x, a, i4 )' ) 'lphg_cor:     ', lphg_cor
+      If ( stm ) Then
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqh2o2:', lso4aqh2o2
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqo3:  ', lso4aqo3
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqfemn:', lso4aqfemn
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqmhp: ', lso4aqmhp
+         Write( logdev,'( 5x, a, i4 )' ) 'lso4aqpaa: ', lso4aqpaa
+      End If
 #endif
 
       Write( logdev,'( / 5x, a / )' ) ' --- AQCHEM Gas and Aerosol Species Mapped ---'
@@ -794,9 +826,6 @@ C..Includes:
 
 C..Functions:
 
-C..Parameters:
-      Real, Parameter :: cmin = 1.0E-34   ! minimum concentration for most species
-
 C..Arguments:
       Real, Intent( Out ) :: aeconcmin( : ) ! array of minimum concentrations
 
@@ -807,15 +836,15 @@ C..Local Variables:
       Integer n        ! aerospc loop counter
       Integer spc      ! species loop counter
 
-      aeconcmin = cmin
 
       ! compute minimums for numbers and surfaces
+
       Do m = 1, n_mode
          spc = index1( aeromode( m )%num_name, n_ae_spc, ae_spc )
          aeconcmin( spc ) = aeromode_minNum( m ) * mwair * 1.0E-3
 
          spc = index1( aeromode( m )%srf_name, n_ae_spc, ae_spc )
-         aeconcmin( spc ) = aeromode_minM2( m ) * pi * mwair * 1.0E-3
+         aeconcmin( spc ) = aeromode_minM2( m ) * mwair * 1.0E-3
       End Do
 
       ! compute minimums for aerosol species
@@ -825,8 +854,7 @@ C..Local Variables:
                spc = index1( aerospc( n )%name( m ), n_ae_spc, ae_spc )
                If ( spc .Ne. 0 ) Then
                   aeconcmin( spc ) = aerospc( n )%min_conc( m ) * mwair * 1.0E-9 / ae_molwt( spc )
-                  aeconcmin( spc ) = Max( aeconcmin( spc ), cmin )
-               End If
+               End If               
             End If
          End Do
       End Do 

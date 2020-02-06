@@ -16,17 +16,44 @@
 #  subject to their copyright restrictions.                                    #
 #------------------------------------------------------------------------------#
 
-# Requirements: source config.cmaq before running this script
-
 .SUFFIXES:
 .SUFFIXES: .o .f90 .F90
 
 MODEL = mcip.exe
 
-FC     = ${myFC}
-FFLAGS = $(myFRFLAGS) -I$(NETCDF_DIR)/include -I$(IOAPI_DIR)/include
-LIBS   = -L$(IOAPI_DIR)/lib $(ioapi_lib) \
-	 -L$(NETCDF_DIR)/lib $(netcdf_lib) $(extra_lib) 
+#...Portland Group Fortran
+#FC     = /usr/local/apps/pgi/linux86-64/17.10/bin/pgf90
+#NETCDF = /usr/local/apps/netcdf-4.6.3/pgi-17.10
+#IOAPI_ROOT = /usr/local/apps/ioapi-3.2_20181011/pgi-17.10
+###FFLAGS = -g -O0 -Ktrap=unf -Ktrap=denorm -Ktrap=inv -Ktrap=ovf -Ktrap=divz  \
+###         -Ktrap=fp -pc 32 -Mbounds -Mchkfpstk -Mchkptr -Kieee     \
+###         -Minform,inform -Mfree -byteswapio -I$(NETCDF)/include \
+###         -I$(IOAPI_ROOT)/Linux2_x86_64pg
+#FFLAGS = -O4 -fastsse -pc 32 -Mfree -byteswapio -I$(NETCDF)/include \
+#         -I$(IOAPI_ROOT)/Linux2_x86_64pg
+#LIBS   = -L$(IOAPI_ROOT)/Linux2_x86_64pg -lioapi \
+#	 -L$(NETCDF)/lib -lnetcdff -lnetcdf
+
+#...gfortran
+#FC	= gfortran
+#NETCDF = /usr/local/apps/netcdf-4.6.3/gcc-6.1.0
+#IOAPI_ROOT = /usr/local/apps/ioapi-3.2_20181011/gcc-6.1.0
+#FFLAGS	= -O3 -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64
+###FFLAGS	= -g -O0  \
+###          -ffpe-trap='invalid','zero','overflow','underflow'  \
+###          -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64
+#LIBS    = -L$(IOAPI_ROOT)/Linux2_x86_64 -lioapi  \
+#          -L$(NETCDF)/lib -lnetcdff -lnetcdf
+
+#...Intel Fortran
+FC      = ifort
+NETCDF = /usr/local/apps/netcdf-4.6.3/intel-18.0
+IOAPI_ROOT = /usr/local/apps/ioapi-3.2/intel-18.0
+###FFLAGS  = -g -O0 -check all -C -traceback -FR -I$(NETCDF)/include  \
+###          -I$(IOAPI_ROOT)/Linux2_x86_64ifort
+FFLAGS  = -FR -O3 -traceback -I$(NETCDF)/include -I$(IOAPI_ROOT)/Linux2_x86_64ifort
+LIBS    = -L$(IOAPI_ROOT)/lib -lioapi \
+          -L$(NETCDF)/lib -lnetcdff -lnetcdf
 
 DEFS   = 
 
@@ -35,20 +62,17 @@ MODULES =\
  const_mod.o \
  const_pbl_mod.o \
  coord_mod.o \
+ ctmvars_mod.o \
  date_time_mod.o \
  date_pack_mod.o \
  files_mod.o \
- groutcom_mod.o \
- luvars_mod.o \
+ lucats_mod.o \
  mcipparm_mod.o \
- mcoutcom_mod.o \
- mdoutcom_mod.o \
  metinfo_mod.o \
  metvars_mod.o \
+ netcdf_io_mod.o \
  vgrd_mod.o \
- wrf_netcdf_mod.o \
- xvars_mod.o \
- sat2mcip_mod.o
+ xvars_mod.o
  
 OBJS =\
  mcip.o \
@@ -60,23 +84,27 @@ OBJS =\
  chkwpshdr.o \
  chkwrfhdr.o \
  close_files.o \
- collapx.o \
  comheader.o \
- cori.o \
+ comheader_lufrac.o \
+ comheader_mos.o \
+ comheader_soi.o \
+ ctmout.o \
+ ctmproc.o \
  dealloc_ctm.o \
  dealloc_met.o \
  dealloc_x.o \
  detangle_soil_px.o \
  e_aerk.o \
  dynflds.o \
- getgist.o \
  getluse.o \
  getmet.o \
  getpblht.o \
+ getpsih.o \
  getsdt.o \
- getversion.o \
  graceful_stop.o \
  gridout.o \
+ gridproc.o \
+ init_ctm.o \
  init_io.o \
  init_met.o \
  init_x.o \
@@ -91,29 +119,28 @@ OBJS =\
  mapfac_lam.o \
  mapfac_merc.o \
  mapfac_ps.o \
- metcro.o \
- metdot.o \
  metgrid2ctm.o \
  metvars2ctm.o \
- mm5v3opts.o \
+ outclog.o \
+ outcm3io.o \
+ outglog.o \
+ outgm3io.o \
+ outncf.o \
+ outncfbdy.o \
+ outncfglobal.o \
  pblsup.o \
  ptemp.o \
  pvs.o \
  qsat.o \
- rdmm5v3.o \
  rdwrfem.o \
  readnml.o \
- readter.o \
- refstate.o \
  resistcalc.o \
  setgriddefs.o \
  setup.o \
- setup_mm5v3.o \
  setup_wrfem.o \
  sfclayer.o \
  statflds.o \
  vertarys.o \
- vertnhy.o \
  vertnhy_wrf.o \
  vstamp.o \
  vtemp.o \

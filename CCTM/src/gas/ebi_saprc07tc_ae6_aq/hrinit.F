@@ -17,24 +17,19 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
       SUBROUTINE HRINIT
 C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the SAPRC07TC family of mechanisms
+C  PRECONDITIONS: For the SAPRC07TC_AE6_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 26, 2017
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -72,15 +67,15 @@ C***********************************************************************
       N_SPCL_RKS =   0
       ALLOCATE( RKI( NRXNS ),
      &          RKI_SAV( MAX_CELLS_EBI, NRXNS ),
-     &          FORWARD_CONV( N_SPEC),
-     &          REVERSE_CONV( N_SPEC),
+     &          FORWARD_CONV( NUMB_MECH_SPC),
+     &          REVERSE_CONV( NUMB_MECH_SPC),
      &          RXRAT( NRXNS ),
-     &          RTOL( N_SPEC),
-     &          YC(   N_SPEC),
-     &          YC0(  N_SPEC),
-     &          YCP(  N_SPEC),
-     &          PROD( N_SPEC),
-     &          LOSS( N_SPEC),
+     &          RTOL( NUMB_MECH_SPC),
+     &          YC(   NUMB_MECH_SPC),
+     &          YC0(  NUMB_MECH_SPC),
+     &          YCP(  NUMB_MECH_SPC),
+     &          PROD( NUMB_MECH_SPC),
+     &          LOSS( NUMB_MECH_SPC),
      &          STAT = IOS )
 
        IF ( IOS .NE. 0 ) THEN
@@ -92,6 +87,7 @@ C***********************************************************************
        ALLOCATE( ATMPRES( MAX_CELLS_EBI ),
      &           H2O    ( MAX_CELLS_EBI ),
      &           TEMP   ( MAX_CELLS_EBI ),
+     &           DENSITY( MAX_CELLS_EBI ),
      &           HET    ( MAX_CELLS_EBI, NHETERO ),
      &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ),
      &           LAND   ( MAX_CELLS_EBI ) ,
@@ -103,12 +99,12 @@ C***********************************************************************
        END IF
 
        IF( NSPECIAL .GT. 0 )THEN
-          ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
+          ALLOCATE( SYC( MAX_CELLS_EBI, NUMB_MECH_SPC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating SYC'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
           END IF
-          ALLOCATE( IOLD2NEW( N_SPEC, 1 ), STAT = IOS )
+          ALLOCATE( IOLD2NEW( NUMB_MECH_SPC, 1 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating IOLD2NEW'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
@@ -144,7 +140,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 181
+      N_EBISP  = 185
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -319,19 +315,23 @@ c..Allocate and define ebi species
       EBISP( 166 ) = APAH2J
       EBISP( 167 ) = AALK1J
       EBISP( 168 ) = AALK2J
-      EBISP( 169 ) = PCVOC
-      EBISP( 170 ) = PCSOARXN
-      EBISP( 171 ) = VLVPO1
-      EBISP( 172 ) = VSVPO1
-      EBISP( 173 ) = VSVPO2
-      EBISP( 174 ) = VSVPO3
-      EBISP( 175 ) = VIVPO1
-      EBISP( 176 ) = VLVOO1
-      EBISP( 177 ) = VLVOO2
-      EBISP( 178 ) = VSVOO2
-      EBISP( 179 ) = VSVOO3
-      EBISP( 180 ) = VSVOO1
-      EBISP( 181 ) = AISO3J
+      EBISP( 169 ) = APOCI
+      EBISP( 170 ) = APNCOMI
+      EBISP( 171 ) = APOCJ
+      EBISP( 172 ) = APNCOMJ
+      EBISP( 173 ) = PCVOC
+      EBISP( 174 ) = PCSOARXN
+      EBISP( 175 ) = VLVPO1
+      EBISP( 176 ) = VSVPO1
+      EBISP( 177 ) = VSVPO2
+      EBISP( 178 ) = VSVPO3
+      EBISP( 179 ) = VIVPO1
+      EBISP( 180 ) = VLVOO1
+      EBISP( 181 ) = VLVOO2
+      EBISP( 182 ) = VSVOO2
+      EBISP( 183 ) = VSVOO3
+      EBISP( 184 ) = VSVOO1
+      EBISP( 185 ) = AISO3J
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -518,6 +518,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( APAH2J       ) = 5.0D-04
       RTOL( AALK1J       ) = 5.0D-04
       RTOL( AALK2J       ) = 5.0D-04
+      RTOL( APOCI        ) = 5.0D-04
+      RTOL( APNCOMI      ) = 5.0D-04
+      RTOL( APOCJ        ) = 5.0D-04
+      RTOL( APNCOMJ      ) = 5.0D-04
       RTOL( PCVOC        ) = 5.0D-04
       RTOL( PCSOARXN     ) = 5.0D-04
       RTOL( VLVPO1       ) = 5.0D-04

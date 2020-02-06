@@ -2,7 +2,7 @@ MI2_IUPAC10
 ! MI2 + HV = 2.0*I  
 ! MI2 Photolysis data  
 ! Supplied by Golam Sarwar 
-! Created from IUPAC dataset 
+! Created from IUPAC dataset PI12
 Points (these data can be treated as point values)
 ! With FAC, units are (cm^2/molecule)
 FAC=1.0

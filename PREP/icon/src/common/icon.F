@@ -29,10 +29,9 @@ C***********************************************************************
  
 C Function: To produce a Models-3 CTM Initial Concentration file.
 C           Valid input options include: 
-C           1) a Models-3 CTM output file,
-C           2) a user specified ASCII file of vertical profiles,
-C           3) a RADM model output conc file,
-C           4) subroutines that produce catalogued tracer species concs.
+C           1) a user specified ASCII file of vertical profiles,
+C           2) a CMAQ CTM output file,
+C           3) subroutines that produce catalogued test pattern species concs.
               
 C Preconditions: None
   
@@ -50,149 +49,105 @@ C    24 May 06 J.Young: par_init/pio_init col/row order check
 C    06 Jun 11 J.Young: Replaced I/O API include files with UTILIO_DEFN
 C    13 Jun 11 J.Young: Convert for Namelist redesign
 C    21 May 12 J.Young: Replaced IC_PARMS include file with an F90 module
-                   
+C    02 Nov 18 S.Roselle: Removed species mapping; updates to enable runtime
+C                     option for profile, regrid, or test patterns BCs
+C    07 Nov 18 S.Roselle: Removed parallel processing code; 
+C                         replaced UTILIO_DEFN with M3UTILIO
+                  
 C***********************************************************************
 
       USE HGRD_DEFN     ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN     ! vertical layer specifications
-      USE UTILIO_DEFN
-      USE CGRID_SPCS    ! CGRID mechanism species
+      USE M3UTILIO      ! IOAPI module
       USE IC_PARMS      ! ICON parameters
 
       IMPLICIT NONE       
 
-C Include Files:
+C Include Files: None
 
 C Arguments: None
 
 C Parameters: None
 
-C External Procedures:
-      INTEGER, EXTERNAL :: SETUP_LOGDEV
+C External Procedures: None
 
 C Local Variables:
-      CHARACTER(  2 ) :: COLROW = 'CR'          ! PARIO col/row arg list order
-!     CHARACTER( 16 ) :: NML_IC_NAME( NSPCSD )  ! Names of species in *.NMLs
-      CHARACTER( 16 ), ALLOCATABLE :: NML_IC_NAME( : )  ! Names of species in CGRID
-      CHARACTER( 16 ) :: PNAME = 'ICON'         ! Procedure name
-      CHARACTER( 80 ) :: XMSG                   ! Log message 
+      CHARACTER( 16 ) :: PNAME = 'ICON'          ! Procedure name
+      CHARACTER( 16 ) :: ICON_TYPE = 'ICON_TYPE' ! ICON type environment variable
+      CHARACTER( 16 ) :: IC_MODULE = 'regrid'    ! selected module
+
+      CHARACTER( 80 ) :: MSG                    ! Log message 
+      CHARACTER( 80 ) :: VARDESC                ! variable description
 
       INTEGER    LOGUNIT      ! Unit number for output log
-      INTEGER    ISP          ! Species counter
-      INTEGER    N            ! Loop index
-      INTEGER :: SDATE = 0    ! Start date 
-      INTEGER :: STIME = 0    ! Start time 
       INTEGER    STATUS       ! Status code
-      INTEGER    ALST         ! Allocate status
 
-      INTEGER NPROCS          ! number of processors
-      REAL    :: CLOCK = 0.0  ! Wall-clock time (sec) at initialization.
-      INTEGER :: PAR_ERR = 0  ! Error code from parallel initialization.
+      INTERFACE
 
+         SUBROUTINE M3_INIC ( LOGUNIT )
+            INTEGER, INTENT( IN )    :: LOGUNIT
+         END SUBROUTINE M3_INIC
+
+         SUBROUTINE PROF_INIC ( LOGUNIT )
+            INTEGER, INTENT( IN ) :: LOGUNIT
+         END SUBROUTINE PROF_INIC
+
+!        SUBROUTINE TRAC_INIC ( LOGUNIT )
+!           INTEGER, INTENT( IN ) :: LOGUNIT
+!        END SUBROUTINE TRAC_INIC
+
+      END INTERFACE
 C***********************************************************************
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Initialize IO/API
+c  Initialize IO/API and get environment variables
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-#ifdef parallel
-C Start up processor communication
-      CALL MPCOMM_INIT( NPROCS, MYPE, CLOCK, PAR_ERR )
-#else
-      NPROCS = 1; MYPE = 0
-#endif
 
-      IF ( PAR_ERR .NE. 0 ) THEN
-         XMSG = 'Error in initialization program PAR_INIT.'
-         CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT2 )
+      LOGUNIT = INIT3( )
+
+      VARDESC = 'Initial condition type: (regrid, profile)'
+      CALL ENVSTR ( ICON_TYPE, VARDESC, IC_MODULE, IC_MODULE, STATUS )
+      IF ( STATUS .NE. 0 ) WRITE( LOGUNIT, '(5X, A)' ) VARDESC
+      IF ( STATUS .EQ. 1 ) THEN
+         MSG = 'Environment variable improperly formatted'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+      ELSE IF ( STATUS .EQ. -1 ) THEN
+         MSG = 'Environment variable set, but empty ... Using default:'
+         WRITE( LOGUNIT, '(5X, A, A)' ) MSG, IC_MODULE
+      ELSE IF ( STATUS .EQ. -2 ) THEN
+         MSG = 'Environment variable not set ... Using default:'
+         WRITE( LOGUNIT, '(5X, A, A)' ) MSG, IC_MODULE
       END IF
 
-!     LOGUNIT = INIT3( )
-      LOGUNIT = SETUP_LOGDEV( )
-
-C Set up horizontal domain, define vertical layer structure and
-C calculate processor-to-subdomain maps
-      IF ( .NOT. HGRD_INIT ( NPROCS, MYPE ) ) THEN
-         XMSG = '*** Failure defining horizontal domain'
-         CALL M3EXIT ( PNAME, SDATE, STIME, XMSG, XSTAT2 )
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c  Load horizontal grid variables calling GRID_DEF->HGRD_INIT function
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      IF ( .NOT. HGRD_INIT() ) THEN
+         MSG = '*** Failure defining horizontal domain'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
 
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+c define vertical layer structure
+cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( .NOT. VGRD_INIT() ) THEN
-         XMSG = '*** Failure defining vertical structure'
-         CALL M3EXIT ( PNAME, SDATE, STIME, XMSG, XSTAT2 )
+         MSG = '*** Failure defining vertical structure'
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
       END IF
-
-C Set CMAQ CGRID mechanism species
-      IF ( .NOT. CGRID_SPCS_INIT() ) THEN
-         XMSG = 'Error in CGRID_SPCS:CGRID_SPCS_INIT'
-         CALL M3EXIT ( PNAME, SDATE, STIME, XMSG, XSTAT2 )
-      END IF
-
-#ifdef parallel
-C Initialize parallel I/O
-      IF ( .NOT. PIO_INIT( COLROW, GL_NCOLS, GL_NROWS, NLAYS, NTHIK,
-     &                     NCOLS, NROWS, NPCOL, NPROW, NPROCS,
-     &                     MYPE ) ) THEN
-         XMSG = 'Failed to initialize parallel I/O library.'
-         CALL M3EXIT ( PNAME, SDATE, STIME, XMSG, XSTAT2 )
-      END IF
-#endif
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  get environment variables
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      IF ( NSPCSD .LE. 0 ) THEN
-         XMSG = 'Number of species in *.NML files must be greater than zero'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT2 )
-      END IF
-
-      SDATE = ENVINT( 'SDATE', 'START DATE', 0, STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         SDATE = 0
-      END IF
-
-      STIME = ENVINT( 'STIME', 'START TIME', 0, STATUS )
-      IF ( STATUS .NE. 0 ) THEN
-         STIME = 0
-      END IF
-
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c  Build one array containing the names of the species in *.NML files 
-cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      ALLOCATE ( NML_IC_NAME( NSPCSD ), STAT = ALST ) 
-      IF ( ALST .NE. 0 ) THEN
-         XMSG = 'Error allocating NML_IC_NAME'
-         CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-      END IF
-
-      ISP = 0
-      DO N = 1, N_GC_SPC
-         ISP = ISP + 1
-         NML_IC_NAME( ISP ) = GC_SPC( N )
-      END DO
-
-      DO N = 1, N_AE_SPC
-         ISP = ISP + 1
-         NML_IC_NAME( ISP ) = AE_SPC( N )
-      END DO
-
-      DO N = 1, N_NR_SPC
-         ISP = ISP + 1
-         NML_IC_NAME( ISP ) = NR_SPC( N )
-      END DO
-
-      DO N = 1, N_TR_SPC
-         ISP = ISP + 1
-         NML_IC_NAME( ISP ) = TR_SPC( N )
-      END DO
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Generate the IC output file and quit
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      CALL INIC( LOGUNIT, SDATE, STIME, NML_IC_NAME )
-
-#ifdef parallel
-      CALL PAR_TERM ( PNAME, SDATE, STIME, CLOCK )
-#endif
+      IF ( IC_MODULE .EQ. 'regrid' ) THEN
+         CALL M3_INIC ( LOGUNIT )
+      ELSE IF ( IC_MODULE .EQ. 'profile' ) THEN
+         CALL PROF_INIC ( LOGUNIT )
+!     ELSE IF ( IC_MODULE .EQ. 'patterns' ) THEN
+!        CALL TRAC_INIC ( LOGUNIT )
+      ELSE
+         MSG = '*** Unknown ICON type requested: ' // IC_MODULE
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
+      END IF
 
       IF ( SHUT3() ) THEN
          WRITE ( LOGUNIT,92999 )

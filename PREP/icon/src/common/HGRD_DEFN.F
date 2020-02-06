@@ -39,6 +39,7 @@ C                                         dyn alloc appropriately
 C                   J Young    22 Dec 05: move proc. anayl. stuff to PAGRD_DEFN
 C                   S. Roselle 29 Mar 11: Replaced I/O API include files
 C                                         with UTILIO_DEFN
+C                   S.Roselle  07 Nov 18: Removed parallel processing code
 C.......................................................................
 
       IMPLICIT NONE
@@ -73,47 +74,18 @@ C latitude for coord-system center (degrees)
       REAL( 8 ), SAVE :: XCELL_GD ! X-coordinate cell width (M)
       REAL( 8 ), SAVE :: YCELL_GD ! Y-coordinate cell width (M)
 
-      INTEGER, SAVE :: MYPE = -1  ! set in par_init
-
-      INTEGER, SAVE :: GL_NCOLS   ! no. of columns in global grid
-      INTEGER, SAVE :: GL_NROWS   ! no. of rows in global grid
-      INTEGER, SAVE :: GL_NBNDY   ! no. of cells in one layer of global boundary
- 
-      INTEGER, SAVE :: NPCOL      ! no. of processors across grid columns
-      INTEGER, SAVE :: NPROW      ! no. of processors across grid rows
- 
       INTEGER, SAVE :: NCOLS      ! grid columns array dimension
       INTEGER, SAVE :: NROWS      ! grid rows array dimension
       INTEGER, SAVE :: NBNDY      ! no. of cells in one layer of local boundary
  
       INTEGER, SAVE :: NTHIK      ! boundary thickness (cells)
- 
-      INTEGER, SAVE :: MY_NCOLS   ! local no. of computational grid columns
-      INTEGER, SAVE :: MY_NROWS   ! local no. of computational grid rows
-      INTEGER, SAVE :: MY_NCOLS_DOT ! local no. of dot file grid columns
-      INTEGER, SAVE :: MY_NROWS_DOT ! local no. of dot file grid rows
-      INTEGER, SAVE :: MY_NBNDY   ! local no. of boundary cells
-C column range for each processor
-      INTEGER, ALLOCATABLE, SAVE :: COLSX_PE( :,: )
-      INTEGER, ALLOCATABLE, SAVE :: COLSD_PE( :,: )  ! dot file
-C row range for each processor
-      INTEGER, ALLOCATABLE, SAVE :: ROWSX_PE( :,: )
-      INTEGER, ALLOCATABLE, SAVE :: ROWSD_PE( :,: )  ! dot file
- 
-C maximum stencil displacement in the north, east, south, and west direction
-      INTEGER, PARAMETER :: MNDIS = 2
-      INTEGER, PARAMETER :: MEDIS = 2
-      INTEGER, PARAMETER :: MSDIS = 2
-      INTEGER, PARAMETER :: MWDIS = 2
 
       CONTAINS
 
-         FUNCTION HGRD_INIT ( NPROCS, MYID ) RESULT ( SUCCESS )
+         FUNCTION HGRD_INIT ( ) RESULT ( SUCCESS )
 
-         USE UTILIO_DEFN
+         USE M3UTILIO   ! IOAPI module
 
-         INTEGER, INTENT( IN ) :: NPROCS  ! total worker processors
-         INTEGER, INTENT( IN ) :: MYID
          LOGICAL :: SUCCESS
 
          INTEGER, SAVE :: LOGDEV
@@ -123,25 +95,9 @@ C maximum stencil displacement in the north, east, south, and west direction
 C environment variable grid name to select from GRIDDESC
          CHARACTER( 16 ) :: HGRD_NAME = 'GRID_NAME'
          INTEGER, EXTERNAL :: SETUP_LOGDEV
-         INTEGER :: STATUS, ALST
+         INTEGER :: STATUS
 
-         INTEGER, ALLOCATABLE :: NCOLS_PE( : )  ! Column range for each PE
-         INTEGER, ALLOCATABLE :: NROWS_PE( : )  ! Row range for each PE
-
-         CHARACTER( 32 ) :: NPCOL_NPROW     = 'NPCOL_NPROW'
-         CHARACTER( 16 ) :: V_LIST( 2 )
          CHARACTER( 48 ) :: VARDESC
-
-         INTEGER I, NV
-
-         INTERFACE
-            SUBROUTINE GET_ENVLIST ( ENV_VAR, NVARS, VAL_LIST )
-               IMPLICIT NONE
-               CHARACTER( * ),  INTENT ( IN )  :: ENV_VAR
-               INTEGER,         INTENT ( OUT ) :: NVARS
-               CHARACTER( 16 ), INTENT ( OUT ) :: VAL_LIST( : )
-            END SUBROUTINE GET_ENVLIST
-         END INTERFACE
 
 C-----------------------------------------------------------------------
 
@@ -149,10 +105,9 @@ C This function is expected to be called only once - at startup
 
          IF ( FIRSTIME ) THEN
             FIRSTIME = .FALSE.
-            LOGDEV = SETUP_LOGDEV()
+!           LOGDEV = SETUP_LOGDEV()
+            LOGDEV = INIT3()
             SUCCESS = .TRUE.
-
-            MYPE = MYID
 
             VARDESC = 'Horizontal Domain Definition '
             CALL ENVSTR( HGRD_NAME, VARDESC, 'GRID_NAME', GRID_NAME, STATUS )
@@ -177,100 +132,13 @@ C the grid description file pointed to by the GRIDDESC env var:
      &                           P_ALP_GD, P_BET_GD, P_GAM_GD,
      &                           XCENT_GD, YCENT_GD,
      &                           XORIG_GD, YORIG_GD, XCELL_GD, YCELL_GD,
-     &                           GL_NCOLS, GL_NROWS, NTHIK ) ) THEN
+     &                           NCOLS, NROWS, NTHIK ) ) THEN
                XMSG = 'Failure retrieving horizontal grid parameters'
                CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
                SUCCESS = .FALSE.; RETURN
             END IF
 
-C    Retrieve the domain decompostion processor array
-
-            IF ( NPROCS .GT. 1 ) THEN
-               CALL GET_ENVLIST ( NPCOL_NPROW, NV, V_LIST )
-               IF ( NV .NE. 2 ) THEN
-                  XMSG = 'Environment variable problem for ' // NPCOL_NPROW
-     &                 // ' using default 1X1'
-                  CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
-!                 SUCCESS = .FALSE.; RETURN
-                  NV = 2
-                  V_LIST( 1 ) = '1'
-                  V_LIST( 2 ) = '1'
-               END IF
-               READ( V_LIST( 1 ), '( I4 )' ) NPCOL
-               READ( V_LIST( 2 ), '( I4 )' ) NPROW
-            ELSE
-               NPCOL = 1
-               NPROW = 1
-            END IF
-
-C Check NPROCS against NPCOL*NPROW
-            IF ( NPROCS .NE. NPCOL*NPROW ) THEN
-               WRITE( LOGDEV,* ) ' --- Nprocs, NProw, NPcol ',
-     &                                 NPROCS, NPROW, NPCOL
-               XMSG = 'NPROCS is not equal to NPCOL*NPROW'
-               CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            ALLOCATE ( COLSX_PE( 2,NPROCS ),
-     &                 ROWSX_PE( 2,NPROCS ), STAT = ALST )
-            IF ( ALST .NE. 0 ) THEN
-               XMSG = '*** COLSX_PE or ROWSX_PE Memory allocation failed'
-               CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            ALLOCATE ( COLSD_PE( 2,NPROCS ),
-     &                 ROWSD_PE( 2,NPROCS ), STAT = ALST )
-            IF ( ALST .NE. 0 ) THEN
-               XMSG = '*** COLSD_PE or ROWSD_PE  Memory allocation failed'
-               CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-            ALLOCATE ( NCOLS_PE( NPROCS ),
-     &                 NROWS_PE( NPROCS ), STAT = ALST )
-            IF ( ALST .NE. 0 ) THEN
-               XMSG = '*** NCOLS_PE or NROWS_PE Memory allocation failed'
-               CALL M3WARN ( 'HGRD_INIT', 0, 0, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
-C Construct the processor-to-subdomain map for main domain
-            CALL SUBHDOMAIN( NPROCS, NPCOL, NPROW, GL_NCOLS, GL_NROWS,
-     &                       NCOLS_PE, NROWS_PE, COLSX_PE, ROWSX_PE )
-
-C Get corresponding dot file map
-
-            DO I = 1, NPROCS
-               COLSD_PE( 1,I ) = COLSX_PE( 1,I )
-               COLSD_PE( 2,I ) = COLSX_PE( 2,I )
-               ROWSD_PE( 1,I ) = ROWSX_PE( 1,I )
-               ROWSD_PE( 2,I ) = ROWSX_PE( 2,I )
-            END DO
-
-            DO I = NPCOL, NPROCS, NPCOL
-               COLSD_PE( 2,I ) = COLSD_PE( 2,I ) + 1
-            END DO
-
-            DO I = NPROCS, NPROCS - NPCOL + 1, -1
-               ROWSD_PE( 2,I ) = ROWSD_PE( 2,I ) + 1
-            END DO
-
-            MY_NCOLS = NCOLS_PE( MYPE+1 )
-            MY_NROWS = NROWS_PE( MYPE+1 )
-            MY_NBNDY = 2*NTHIK * ( MY_NCOLS + MY_NROWS + 2*NTHIK )
-            GL_NBNDY = 2*NTHIK * ( GL_NCOLS + GL_NROWS + 2*NTHIK )
-
-            MY_NCOLS_DOT = COLSD_PE( 2,MYPE+1 ) - COLSD_PE( 1,MYPE+1 ) + 1
-            MY_NROWS_DOT = ROWSD_PE( 2,MYPE+1 ) - ROWSD_PE( 1,MYPE+1 ) + 1
-
-            NCOLS = MY_NCOLS
-            NROWS = MY_NROWS
-            NBNDY = MY_NBNDY
-
-            DEALLOCATE ( NCOLS_PE )
-            DEALLOCATE ( NROWS_PE )
+            NBNDY = 2*NTHIK * ( NCOLS + NROWS + 2*NTHIK )
 
          ELSE
             XMSG = 'Horizontal domain decomposition already defined'

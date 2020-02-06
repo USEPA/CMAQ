@@ -121,11 +121,71 @@ MODULE mcipparm
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  Updated release stamp.
 !                        (T. Spero)
 !           20 Jun 2017  Updated release stamp.  (T. Spero)
+!           16 Mar 2018  Added variables TTOL_SEC, IFLU2WRFOUT, IFMOSAIC, 
+!                        NUMMOSAIC, and METSOI.  Removed variables MAXLUC,
+!                        METROW, and METCOL.  Updated release stamp.  (T. Spero)
+!           27 Jun 2018  Added netCDF fill value (FILLREAL and FILLINT) and
+!                        missing value (XMISSING) tokens.  Added counters for
+!                        number of output fields in each category.  (T. Spero)
+!           18 Dec 2018  Updated to use new data structures.  Added runtime
+!                        option to choose output format.  Updated release
+!                        stamp.  (T. Spero)
+!           19 Jun 2019  Removed layer collapsing.  Added flag for new surface
+!                        variables with PX LSM that can improve dust
+!                        simulation in CCTM.  Changed variable LUVCOUT to
+!                        LUVBOUT to reflect that the default 3D wind components
+!                        are now on the Arakawa-C staggered grid, and the
+!                        optional additional 3D winds are on the Arakawa-B
+!                        staggered grid.  Added a flag to indicate if the
+!                        convective scheme included radiative feedbacks.  Added
+!                        a flag for extra variables available with KF convective
+!                        scheme with radiative feedbacks.  (T. Spero)
+!           15 Jul 2019  Updated release stamp.  (T. Spero)
+!           21 Nov 2019  Updated release stamp.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE m3utilio, ONLY: mxdesc3
 
   IMPLICIT NONE
+
+!-------------------------------------------------------------------------------
+! Token parameters for netCDF.
+!-------------------------------------------------------------------------------
+
+  INTEGER, PARAMETER :: fillint   = -9e8     ! netCDF _FillValue
+  REAL,    PARAMETER :: fillreal  = -9.0e20  ! netCDF _FillValue
+  REAL,    PARAMETER :: xmissing  = -1.0e20  ! netCDF missing_value
+
+!-------------------------------------------------------------------------------
+! Dimensions for netCDF output.
+!-------------------------------------------------------------------------------
+
+  INTEGER           :: nlucat
+  INTEGER           :: nmos
+  INTEGER           :: nperim
+  INTEGER           :: nsoi
+  INTEGER           :: nsoicat
+  INTEGER           :: nx
+  INTEGER           :: nxp1       ! nx + 1
+  INTEGER           :: ny
+  INTEGER           :: nyp1       ! ny + 1
+  INTEGER           :: nz
+  INTEGER           :: nzp1       ! nz + 1
+
+!-------------------------------------------------------------------------------
+! Number of output fields in each category.
+!-------------------------------------------------------------------------------
+
+  INTEGER           :: nfld2dxy       ! time-independent 2d cell centers
+  INTEGER           :: nfld2dxy_d     ! time-independent 2d cell corners/faces
+  INTEGER           :: nfld2dxyt      ! time-varying 2d cell centers
+  INTEGER           :: nfld3dxyl      ! time-independent 3d (lu) cell centers
+  INTEGER           :: nfld3dxym      ! time-independent 3d (mos) cell centers
+  INTEGER           :: nfld3dxymt     ! time-3d (mos) cell centers
+  INTEGER           :: nfld3dxyst     ! time-varying 3d (soil) cell centers
+  INTEGER           :: nfld3dxyzt     ! time-varying 3d cell centers
+  INTEGER           :: nfld3dxyzt_d   ! time-varying 3d cell corners/faces
+  INTEGER           :: nfld3dxyzt_q   ! time-varying 3d cell centers (moisture)
 
 !-------------------------------------------------------------------------------
 ! Dimensions of CTM domain.
@@ -142,31 +202,28 @@ MODULE mcipparm
   INTEGER            :: ncg_y         ! coarse grid Y
 
   INTEGER, PARAMETER :: maxlays = 100 ! max allowed in NLAYS
-  LOGICAL            :: needlayers    ! "TRUE" if using all input met layers
-                                      ! without defining in namelist
+
+  INTEGER, PARAMETER :: ttol_sec = 300 ! time tolerance [in seconds] for output
+                                       ! from the meteorological model to
+                                       ! deviate from valid time and still be
+                                       ! considered valid at that time
 
 !-------------------------------------------------------------------------------
-! Horizontal dimensions of "X" domain (CTM + BNDARY area).
+! Dimensions of "X" domain (CTM + BNDARY area).
 !-------------------------------------------------------------------------------
 
+  INTEGER            :: metlay         ! met. grid dimension for layers
+  INTEGER            :: metsoi         ! number of soil layers
   INTEGER            :: nrows_x
   INTEGER            :: ncols_x
-
-!-------------------------------------------------------------------------------
-! Dimensions for MET input data.
-!-------------------------------------------------------------------------------
-
-  INTEGER            :: metrow      ! met. grid dimension for rows (N-S)
-  INTEGER            :: metcol      ! met. grid dimension for columns (E-W)
-  INTEGER            :: metlay      ! met. grid dimension for layers
 
 !-------------------------------------------------------------------------------
 ! Other dimensional parameters.
 !-------------------------------------------------------------------------------
 
-  INTEGER, PARAMETER :: maxluc = 100  ! max number of land use categories
   INTEGER            :: nqspecies     ! number of hydrometeor species in met
   INTEGER            :: nummetlu      ! number of met. land use categories
+  INTEGER            :: nummosaic     ! number of mosaic land use categories
   REAL               :: eradm         ! earth radius [m]
   REAL               :: wrf_lc_ref_lat ! WRF Lambert conformal ref. latitude
 
@@ -175,12 +232,18 @@ MODULE mcipparm
 !-------------------------------------------------------------------------------
 
   LOGICAL            :: ifcld3d       ! 3D resolved clouds in input file?
+  LOGICAL            :: ifcuradfdbk   ! cumulus-radiative feedbacks used?
+  LOGICAL            :: ifkfradextras ! KF-radiative feedbacks extra arrays?
   LOGICAL            :: iflai         ! leaf area index in input file?
   LOGICAL            :: iflufrc       ! fractional land use available?
   LOGICAL            :: ifluwrfout    ! is fractional land use in WRF history?
+  LOGICAL            :: iflu2wrfout   ! is fractional land use 2 in WRF history?
   LOGICAL            :: ifmol         ! Monin-Obukhov length in input file?
   LOGICAL            :: ifmolpx       ! MOL to be updated from WRF/PX?
+  LOGICAL            :: ifmosaic      ! NOAH Mosaic LSM used in WRF?
+  LOGICAL            :: ifpxwrf41     ! WRFv4.1 + PX additional sfc vars?
   LOGICAL            :: ifq2m         ! 2-m mixing ratio in input file?
+  LOGICAL            :: ifrcurb       ! get PURB from urban canopy model?
   LOGICAL            :: ifresist      ! aero and stom resistances in input file?
   LOGICAL            :: ifsoil        ! soil mois, temp, and type in input file?
   LOGICAL            :: ift2m         ! 2-m temperature in input file?
@@ -202,8 +265,10 @@ MODULE mcipparm
   INTEGER :: lwout           ! user input: 0 = Do not output WWIND
                              !             1 = Output WWIND
 
-  INTEGER :: luvcout         ! user input: 0 = Do not output UWINDC and VWINDC
-                             !             1 = Output UWINDC and VWINDC
+  INTEGER :: luvbout         ! user input: 0 = Do not output UWIND and VWIND,
+                             !                 and use UWINDC and VWINDC instead
+                             !             1 = Output UWIND and VWIND
+                             !                 in addition to UWINDC and VWINDC
 
 !-------------------------------------------------------------------------------
 ! Grid/Domain Related Parameters
@@ -225,6 +290,9 @@ MODULE mcipparm
   CHARACTER(LEN=16) :: coordnam   ! user input: Coordinate name
   CHARACTER(LEN=16) :: grdnam     ! user input: Grid name 
 
+  INTEGER           :: ioform     ! user input: 1 = Models-3 I/O API
+                                  !             2 = netCDF
+
 !-------------------------------------------------------------------------------
 ! Coordinates for diagnostic prints.
 !-------------------------------------------------------------------------------
@@ -242,7 +310,7 @@ MODULE mcipparm
 
   CHARACTER(LEN=80)                 :: fdesc      ( mxdesc3 )
   CHARACTER(LEN=16),  PARAMETER     :: progname   = 'MCIP'
-  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '06/23/2017'
-  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V4.4'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '11/21/2019'
+  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V5.1'
 
 END MODULE mcipparm

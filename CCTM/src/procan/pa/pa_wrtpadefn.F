@@ -33,15 +33,12 @@ C  Modified May, 1997 by Jerry Gipson to be consistent with beta CTM
 C  Modified Sept, 1997 by Jerry Gipson to be consistent with targeted CTM
 C  Modified Jan, 2006 by J. Young I couldn't resist the temptation to F90-ize the output
 C  Aug 2011 Jeff Young: Replaced I/O API include files with IOAPI's M3UTILIO
- 
+C  Sep 2018 C. Nolte, S. Roselle: replace M3UTILIO with UTILIO_DEFN
 C-----------------------------------------------------------------------
-      USE M3UTILIO      ! IOAPI module
-!     USE PA_GLOBAL     ! Mech and Grid data used 
+      USE UTILIO_DEFN
       USE PA_VARS, Only: TDATOUT
       USE PA_IPRVARS, Only: MAXIPROUT
       USE PA_PARSE
-!     USE PA_IPRDEF
-!     USE PA_INCDATA
       USE PA_DEFN
 
       IMPLICIT NONE
@@ -57,7 +54,7 @@ C External Functions: None
 C Local Variables:
 
 !     CHARACTER(  1 ) :: DOT = '.'  ! Dot character
-      CHARACTER(  1 ) :: DIT = '='  ! Dot character
+      CHARACTER(  1 ) :: DIT = '='  ! Dit character
       CHARACTER( 72 ) :: DELIM      ! Delimiter line output
       CHARACTER( 72 ) :: CEES       ! Line of 'c's
       CHARACTER( 80 ) :: LINOUT     ! Output line
@@ -77,9 +74,6 @@ C Local Variables:
       INTEGER NUMOUTNEGD      ! Dimension parameter for NUMOUTNEG
       INTEGER NUMOUTINDD      ! Dimension parameter for NUMOUTIND
 
-!     LOGICAL LIRR            ! Flag for IRR computations
-!     LOGICAL LIPR            ! Flag for process monitoring
-         
       CHARACTER(  7 ) :: BUF6 ( MAXIPROUT )  ! 6-Character buffer
       CHARACTER( 13 ) :: BUF12( MAXIPROUT )  ! 12-Character buffer
       CHARACTER( 21 ) :: BUF20( MAXIPROUT )  ! 20-Character buffer
@@ -146,22 +140,6 @@ c..LIRR -- for integrated reaction rates
          WRITE( IOUT, 94160 )
       END IF
 
-!     IF ( LFULLIRR ) THEN
-!        LIRR    = .TRUE.
-!        NIRRVAR = NRXNS
-!     ELSE IF ( LPARTIRR ) THEN
-!        LIRR    = .TRUE.
-!        NIRRVAR = NIRROUT
-!     ELSE
-!        LIRR = .FALSE.     
-!     END IF
-
-!     IF ( N_IPR_SPC .GT. 0 ) THEN
-!        LIPR = .TRUE.
-!     ELSE
-!        LIPR = .FALSE.
-!     END IF
- 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Write messages about array dimensioning if needed
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -301,7 +279,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                BUF20( NPA ) = ' "' // IPRNAME( NPA ) // '",'
             END DO
             BUF20( NHI )( 20:21 ) = ' /'
-!           WRITE( IOUT, 96020 ) ( BUF20( NPA ), NPA = NLO, NHI )
             call listout( NLO, NHI, 3, IOUT, BUF20 )
          END DO
 
@@ -332,7 +309,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                BUF20( NIRR ) = ' "' // IRRNAME( NIRR ) // '",'
             END DO
             BUF20( NHI )( 20:21 ) = ' /'
-!           WRITE( IOUT, 96020 ) ( BUF20( NIRR ), NIRR = NLO, NHI )
             call listout( NLO, NHI, 3, IOUT, BUF20 )
          END DO
 
@@ -369,7 +345,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                BUF20( NPA ) = ' "' // PROCNAME( NPA ) // '",' 
             END DO
             BUF20( NHI )( 20:21 ) = ' /'
-!           WRITE( IOUT, 96020 ) ( BUF20( NPA ), NPA = NLO, NHI )
             call listout( NLO, NHI, 3, IOUT, BUF20 )
          END DO
       END IF
@@ -384,7 +359,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                WRITE( BUF6( NPA ), "( I5, ',' )" ) NCGRID( NPA )
             END DO
             BUF6( NHI )( 6:7 ) = ' /'
-!           WRITE( IOUT, 96040 ) ( BUF6( NPA ), NPA = NLO, NHI )
             call listout( NLO, NHI, 10, IOUT, BUF6 )
          END DO
       END IF
@@ -396,10 +370,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             NHI = MIN( ( NS * 10 * MAXCNT ), NCSAVE )         
             WRITE( IOUT, 96320 ) NLO, NHI
             DO NPA = NLO,  NHI
-               WRITE( BUF6( NPA ), 96080 ) SV2GRD( NPA )
+               WRITE( BUF6( NPA ), 96080 ) SAV2GRD( NPA )
             END DO
             BUF6( NHI )( 6:7 ) = ' /'
-!           WRITE( IOUT, 96040 ) ( BUF6( NPA ), NPA = NLO, NHI )
             call listout( NLO, NHI, 10, IOUT, BUF6 )
          END DO
       END IF
@@ -415,7 +388,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( N ), 96080 ) IPROUT( NPA, N )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( N ), N = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO 
          END DO
@@ -432,7 +404,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( N ), 96080 ) IPR2GRD( NPA, N )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( N ), N = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO 
          END DO
@@ -449,7 +420,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( N ), 96080 ) IPR2SAV( NPA, N )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( N ), N = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO 
          END DO
@@ -509,7 +479,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( NIRR ), 96080 ) NIRRRXNS( NIRR )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( NIRR ), NIRR = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO
          END IF     
@@ -524,7 +493,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( NIRR ), 96080 ) TEMPTERMS( NIRR )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( NIRR ), NIRR = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO
          END IF     
@@ -539,7 +507,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( NIRR ), 96080 ) TEMPOUTPOS( NIRR )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( NIRR ), NIRR = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO
          END IF 
@@ -554,7 +521,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( NIRR ), 96080 ) TEMPOUTNEG( NIRR )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( NIRR ), NIRR = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO
          END IF 
@@ -569,7 +535,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( NIRR ), 96080 ) TEMPOUTIND( NIRR )
               END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( NIRR ), NIRR = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO
          END IF 
@@ -584,7 +549,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( NIRR ), 96080 ) INDXOUTPOS( NIRR )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( NIRR ), NIRR = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO
          END IF 
@@ -599,7 +563,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( NIRR ), 96080 ) INDXOUTNEG( NIRR )
               END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( NIRR ), NIRR = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO
          END IF 
@@ -614,7 +577,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                   WRITE( BUF6( NIRR ), 96080 ) INDXOUTIND( NIRR )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
-!              WRITE( IOUT, 96040 ) ( BUF6( NIRR ), NIRR = NLO, NHI )
                call listout( NLO, NHI, 10, IOUT, BUF6 )
             END DO
          END IF
@@ -631,7 +593,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                         WRITE( BUF6( N ), 96080 ) IRRRXN( NIRR, N )
                      END DO
                      BUF6( NHI )( 6:7 ) = ' /'
-!                    WRITE( IOUT, 96040 ) ( BUF6( N ), N = NLO, NHI )
                      call listout( NLO, NHI, 10, IOUT, BUF6 )
                   END DO
                END IF 
@@ -650,7 +611,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                         WRITE( BUF6( N ), 96080 ) TEMPRXN( NIRR, N )
                      END DO
                      BUF6( NHI )( 6:7 ) = ' /'
-!                    WRITE( IOUT, 96040 ) ( BUF6( N ), N = NLO,  NHI ) 
                      call listout( NLO, NHI, 10, IOUT, BUF6 )
                   END DO
                END IF
@@ -843,8 +803,6 @@ C----------------------- FORMAT Statements -----------------------------
      & 6X, 'INTEGER IPR2SAV( N_IPR_SPCD,MXCGRIDD )' //
      & 6X, 'REAL    SPCOEF ( N_IPR_SPCD,MXCGRIDD )' )
 
-95322 FORMAT( / )
-
 95360 FORMAT( 
      & 'c  The following variables are used in the integrated reaction', 
      &     ' rate' / 'c  computations.' )
@@ -940,58 +898,9 @@ C----------------------- FORMAT Statements -----------------------------
      & 6X, 'REAL    IRRCOEF   ( NIRRVARD,MXNIRRRXNSD )' /
      & 6X, 'REAL    IRRSTEP   ( BLKSIZED,NIRRVARD )' /
      & 6X, 'REAL    IRRBLK    ( BLKSIZED,NIRRVARD )' )
-
-! Common blocks format labels not used
-!   Warning: Label 95781 defined but not used
-!   Warning: Label 95760 defined but not used
-!   Warning: Label 95740 defined but not used
-!   Warning: Label 95720 defined but not used
-!   Warning: Label 95700 defined but not used
-!   Warning: Label 95322 defined but not used
-
-!95700 FORMAT( 'c  Common Blocks:' )
-
-!95720 FORMAT( 
-!    & 5X, ' COMMON /PACHAR/ IPRNAME,' /
-!    & 5X, '&                IPRDESC,' /
-!    & 5X, '&                IRRNAME,' /
-!    & 5X, '&                IRRDESC,' /
-!    & 5X, '&                PROCNAME' / )
-     
-!95740 FORMAT( 
-!    & 5X, ' COMMON /PALGCL/ LPROCOUT' / )
-
-!95760 FORMAT( 
-!    & 5X, ' COMMON /PAINTG/ NCGRID,' /
-!    & 5X, '&                SV2GRD,' /
-!    & 5X, '&                IPROUT,' /
-!    & 5X, '&                IPR2GRD,' /
-!    & 5X, '&                IPR2SAV,' /
-!    & 5X, '&                NIRRRXNS,' /
-!    & 5X, '&                TEMPTERMS,' /
-!    & 5X, '&                TEMPOUTPOS,' /
-!    & 5X, '&                TEMPOUTNEG,' /
-!    & 5X, '&                TEMPOUTIND,' /
-!    & 5X, '&                INDXOUTPOS,' /
-!    & 5X, '&                INDXOUTNEG,' /
-!    & 5X, '&                INDXOUTIND,' /
-!    & 5X, '&                TEMPRXN,' /
-!    & 5X, '&                IRRRXN' / )
-
-!95781 FORMAT( 
-!    & 5X, ' COMMON /PAREAL/ SPCOEF,' /
-!    & 5X, '&                COEFOUTPOS,' /
-!    & 5X, '&                COEFOUTNEG,' /
-!    & 5X, '&                COEFOUTIND,' /
-!    & 5X, '&                TEMPCOEF,' /
-!    & 5X, '&                IRRCOEF,' /
-!    & 5X, '&                IRRSTEP,' /
-!    & 5X, '&                IRRBLK' / )
  
 C----------------------- FORMAT Statements -----------------------------
 
-96020 FORMAT( 5X, '&  ', 3A21 )
-96040 FORMAT( 5X, '&  ', 10A7 )
 96060 FORMAT( 5X, '&  ', 5A13 )
 96080 FORMAT( I5, ',' )
 96100 FORMAT( F11.4, ',' )
@@ -1040,19 +949,15 @@ C    n_form can be 3, 5, or 10
          character( * ), intent( in ) :: buf( * )
 
          character( 80 ) :: linout
-!        character(  4 ) :: fstr
          character( 19 ) :: fstr
          integer i, j, k, n, rng, last
 
          select case ( n_form )
             case(  3 )   ! associated w/ buf20
-!              fstr = '2021'         
                fstr = "( 5x, '&  ', 3a21 )"
             case(  5 )   ! associated w/ buf12
-!              fstr = '2041'         
                fstr = "( 5x, '&  ', 5a13 )"
             case( 10 )   ! associated w/ buf6
-!              fstr = '2061'         
                fstr = "( 5x, '&  ', 10a7 )"
             case default
                write( *,* ) '*** INVALID format ', n_form
@@ -1074,9 +979,6 @@ C    n_form can be 3, 5, or 10
          write( iout, '( a )' ) linout( 1:len_trim( linout ) )
          end if
 
-2021     format( 5x, '&  ', 3a21 )
-2041     format( 5x, '&  ', 5a13 )
-2061     format( 5x, '&  ', 10a7 )
 
          end subroutine listout
 

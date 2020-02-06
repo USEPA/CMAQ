@@ -17,24 +17,19 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header$
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
 
       SUBROUTINE HRINIT
 C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the CB6R3 family of mechanisms
+C  PRECONDITIONS: For the CB6R3_AE6_AQ mechanism
 C
 C  RETURN VALUES: None
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 10, 2017
+C  REVISION HISTORY: Created by EBI solver program, Aug  6, 2019
 C   21 Jun 10 J.Young:   convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files
@@ -72,15 +67,15 @@ C***********************************************************************
       N_SPCL_RKS =   0
       ALLOCATE( RKI( NRXNS ),
      &          RKI_SAV( MAX_CELLS_EBI, NRXNS ),
-     &          FORWARD_CONV( N_SPEC),
-     &          REVERSE_CONV( N_SPEC),
+     &          FORWARD_CONV( NUMB_MECH_SPC),
+     &          REVERSE_CONV( NUMB_MECH_SPC),
      &          RXRAT( NRXNS ),
-     &          RTOL( N_SPEC),
-     &          YC(   N_SPEC),
-     &          YC0(  N_SPEC),
-     &          YCP(  N_SPEC),
-     &          PROD( N_SPEC),
-     &          LOSS( N_SPEC),
+     &          RTOL( NUMB_MECH_SPC),
+     &          YC(   NUMB_MECH_SPC),
+     &          YC0(  NUMB_MECH_SPC),
+     &          YCP(  NUMB_MECH_SPC),
+     &          PROD( NUMB_MECH_SPC),
+     &          LOSS( NUMB_MECH_SPC),
      &          PNEG( N_SPEC),
      &          STAT = IOS )
 
@@ -93,6 +88,7 @@ C***********************************************************************
        ALLOCATE( ATMPRES( MAX_CELLS_EBI ),
      &           H2O    ( MAX_CELLS_EBI ),
      &           TEMP   ( MAX_CELLS_EBI ),
+     &           DENSITY( MAX_CELLS_EBI ),
      &           HET    ( MAX_CELLS_EBI, NHETERO ),
      &           RJIN   ( MAX_CELLS_EBI, NPHOTAB ),
      &           LAND   ( MAX_CELLS_EBI ) ,
@@ -104,12 +100,12 @@ C***********************************************************************
        END IF
 
        IF( NSPECIAL .GT. 0 )THEN
-          ALLOCATE( SYC( MAX_CELLS_EBI, N_SPEC ), STAT = IOS )
+          ALLOCATE( SYC( MAX_CELLS_EBI, NUMB_MECH_SPC ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating SYC'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
           END IF
-          ALLOCATE( IOLD2NEW( N_SPEC, 1 ), STAT = IOS )
+          ALLOCATE( IOLD2NEW( NUMB_MECH_SPC, 1 ), STAT = IOS )
           IF ( IOS .NE. 0 ) THEN
                MSG = 'Error allocating IOLD2NEW'
                CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
@@ -150,7 +146,7 @@ C***********************************************************************
 
 c..Allocate and define ebi species
 
-      N_EBISP  = 136
+      N_EBISP  = 141
       ALLOCATE( EBISP( N_EBISP ), STAT = IOS ) 
       IF ( IOS .NE. 0 ) THEN
          MSG = 'Error allocating EBISP' 
@@ -236,63 +232,68 @@ c..Allocate and define ebi species
       EBISP(  77 ) = FMCL
       EBISP(  78 ) = HCL
       EBISP(  79 ) = CLNO2
-      EBISP(  80 ) = TOLNRXN
-      EBISP(  81 ) = TOLHRXN
-      EBISP(  82 ) = XYLNRXN
-      EBISP(  83 ) = XYLHRXN
-      EBISP(  84 ) = BNZNRXN
-      EBISP(  85 ) = BNZHRXN
-      EBISP(  86 ) = SESQ
-      EBISP(  87 ) = SESQRXN
-      EBISP(  88 ) = PAHNRXN
-      EBISP(  89 ) = PAHHRXN
-      EBISP(  90 ) = SOAALK
-      EBISP(  91 ) = ALKRXN
-      EBISP(  92 ) = H2NO3PIJ
-      EBISP(  93 ) = H2NO3PK
-      EBISP(  94 ) = ACLI
-      EBISP(  95 ) = ACLJ
-      EBISP(  96 ) = ACLK
-      EBISP(  97 ) = AISO3J
-      EBISP(  98 ) = AGLYJ
-      EBISP(  99 ) = AXYL1J
-      EBISP( 100 ) = AOLGAJ
-      EBISP( 101 ) = AXYL2J
-      EBISP( 102 ) = ATOL1J
-      EBISP( 103 ) = ATOL2J
-      EBISP( 104 ) = ABNZ1J
-      EBISP( 105 ) = ABNZ2J
-      EBISP( 106 ) = ATRP1J
-      EBISP( 107 ) = AOLGBJ
-      EBISP( 108 ) = ATRP2J
-      EBISP( 109 ) = AISO1J
-      EBISP( 110 ) = AISO2J
-      EBISP( 111 ) = ASQTJ
-      EBISP( 112 ) = APAH1J
-      EBISP( 113 ) = APAH2J
-      EBISP( 114 ) = AALK1J
-      EBISP( 115 ) = AALK2J
-      EBISP( 116 ) = PCVOC
-      EBISP( 117 ) = PCSOARXN
-      EBISP( 118 ) = VLVPO1
-      EBISP( 119 ) = VSVPO1
-      EBISP( 120 ) = VSVPO2
-      EBISP( 121 ) = VSVPO3
-      EBISP( 122 ) = VIVPO1
-      EBISP( 123 ) = VLVOO1
-      EBISP( 124 ) = VLVOO2
-      EBISP( 125 ) = VSVOO2
-      EBISP( 126 ) = VSVOO3
-      EBISP( 127 ) = VSVOO1
-      EBISP( 128 ) = FORM_PRIMARY
-      EBISP( 129 ) = ALD2_PRIMARY
-      EBISP( 130 ) = BUTADIENE13
-      EBISP( 131 ) = ACROLEIN
-      EBISP( 132 ) = ACRO_PRIMARY
-      EBISP( 133 ) = TOLU
-      EBISP( 134 ) = HG
-      EBISP( 135 ) = HGIIAER
-      EBISP( 136 ) = HGIIGAS
+      EBISP(  80 ) = CLNO3
+      EBISP(  81 ) = TOLNRXN
+      EBISP(  82 ) = TOLHRXN
+      EBISP(  83 ) = XYLNRXN
+      EBISP(  84 ) = XYLHRXN
+      EBISP(  85 ) = BNZNRXN
+      EBISP(  86 ) = BNZHRXN
+      EBISP(  87 ) = SESQ
+      EBISP(  88 ) = SESQRXN
+      EBISP(  89 ) = PAHNRXN
+      EBISP(  90 ) = PAHHRXN
+      EBISP(  91 ) = SOAALK
+      EBISP(  92 ) = ALKRXN
+      EBISP(  93 ) = H2NO3PIJ
+      EBISP(  94 ) = H2NO3PK
+      EBISP(  95 ) = ACLI
+      EBISP(  96 ) = ACLJ
+      EBISP(  97 ) = ACLK
+      EBISP(  98 ) = AISO3J
+      EBISP(  99 ) = AGLYJ
+      EBISP( 100 ) = AXYL1J
+      EBISP( 101 ) = AOLGAJ
+      EBISP( 102 ) = AXYL2J
+      EBISP( 103 ) = ATOL1J
+      EBISP( 104 ) = ATOL2J
+      EBISP( 105 ) = ABNZ1J
+      EBISP( 106 ) = ABNZ2J
+      EBISP( 107 ) = ATRP1J
+      EBISP( 108 ) = AOLGBJ
+      EBISP( 109 ) = ATRP2J
+      EBISP( 110 ) = AISO1J
+      EBISP( 111 ) = AISO2J
+      EBISP( 112 ) = ASQTJ
+      EBISP( 113 ) = APAH1J
+      EBISP( 114 ) = APAH2J
+      EBISP( 115 ) = AALK1J
+      EBISP( 116 ) = AALK2J
+      EBISP( 117 ) = APOCI
+      EBISP( 118 ) = APNCOMI
+      EBISP( 119 ) = APOCJ
+      EBISP( 120 ) = APNCOMJ
+      EBISP( 121 ) = PCVOC
+      EBISP( 122 ) = PCSOARXN
+      EBISP( 123 ) = VLVPO1
+      EBISP( 124 ) = VSVPO1
+      EBISP( 125 ) = VSVPO2
+      EBISP( 126 ) = VSVPO3
+      EBISP( 127 ) = VIVPO1
+      EBISP( 128 ) = VLVOO1
+      EBISP( 129 ) = VLVOO2
+      EBISP( 130 ) = VSVOO2
+      EBISP( 131 ) = VSVOO3
+      EBISP( 132 ) = VSVOO1
+      EBISP( 133 ) = FORM_PRIMARY
+      EBISP( 134 ) = ALD2_PRIMARY
+      EBISP( 135 ) = BUTADIENE13
+      EBISP( 136 ) = ACROLEIN
+      EBISP( 137 ) = ACRO_PRIMARY
+      EBISP( 138 ) = TOLU
+      EBISP( 139 ) = HG
+      EBISP( 140 ) = HGIIAER
+      EBISP( 141 ) = HGIIGAS
 
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -390,6 +391,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( FMCL         ) = 5.0D-04
       RTOL( HCL          ) = 5.0D-04
       RTOL( CLNO2        ) = 5.0D-04
+      RTOL( CLNO3        ) = 5.0D-04
       RTOL( TOLNRXN      ) = 1.0D+00
       RTOL( TOLHRXN      ) = 1.0D+00
       RTOL( XYLNRXN      ) = 1.0D+00
@@ -426,6 +428,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       RTOL( APAH2J       ) = 5.0D-04
       RTOL( AALK1J       ) = 5.0D-04
       RTOL( AALK2J       ) = 5.0D-04
+      RTOL( APOCI        ) = 5.0D-04
+      RTOL( APNCOMI      ) = 5.0D-04
+      RTOL( APOCJ        ) = 5.0D-04
+      RTOL( APNCOMJ      ) = 5.0D-04
       RTOL( PCVOC        ) = 5.0D-04
       RTOL( PCSOARXN     ) = 5.0D-04
       RTOL( VLVPO1       ) = 5.0D-04

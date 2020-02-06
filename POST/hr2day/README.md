@@ -3,7 +3,7 @@ hr2day
 
 This Fortran program creates gridded IOAPI files with daily values from gridded IOAPI files containing hourly values.
 
-##Environment variables used:
+## Environment Run Time Variables:
 
 ```
  USELOCAL      use local time when computing daily values (default N)
@@ -18,23 +18,37 @@ This Fortran program creates gridded IOAPI files with daily values from gridded 
                GMT, this should be set to 5 (default 0).  
  START_HOUR    starting hour to use when computing daily values (default 0)
  END_HOUR      ending hour to use when computing daily values (default 23)
- TEMPERATURE   temperature variable to be used in the @MAXT operation (default TEMP2)
  HOURS_8HRMAX  Number of 8hr values to use when computing daily maximum 8hr ozone.
                Allowed values are 24 (use all 8-hr averages with starting hours 
                from 0 - 23 hr local time) and 17 (use only the 17 8-hr averages
                with starting hours from 7 - 23 hr local time) (default is 24)
- INFILE        input IOAPI file name with hourly values. Supported map projections are 
-               Lambert conformal, polar stereographic, and lat/lon
+ M3_FILE_#     List of input IOAPI file names with hourly values.
+               If only a single input file is provided, INFILE can be used instead of
+	       M3_FILE_1.
+               The program will concatenate time steps from all input files to construct the
+	       longest possible time record which can be processed. Duplicate time steps are
+	       eliminated.
+	       The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
+	       Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html),
+	       the maximum number of IOAPI input files is 63.
+	       Supported map projections are Lambert conformal, polar
+	       stereographic, and lat/lon
  OUTFILE       output IOAPI file name with computed daily values
+ SPECIES_#     Defines the name, units, expression and daily operation for each variable in OUTFILE. For configuration options see below. 
 ```
 
-##Environment Variables (not required):
+## Environment Run Time Variables (not required):
 ```
  IOAPI_ISPH  projection sphere type (use type #20 to match WRF/CMAQ)
              (ioapi default is 8)
+ START_DATE  Optional desired first and last processing date.
+ END_DATE    The program will adjust the requested dates if the desired range is not covered
+             by the input file(s). If these dates are not specified, the processing will be
+	     performed for the longest possible time record that can be derived from the
+	     model input file(s). 
 ```
 
-##Species and operator definitions: 
+## Species and operator definitions: 
 Defines the name, units, expression and daily operation for each variable in OUTFILE. These definitions are specified by environment variables SPECIES_[n]
 
 ```
@@ -82,9 +96,21 @@ Defines the name, units, expression and daily operation for each variable in OUT
                                               ASO4J_MAX with units ug/m3)
 ```
 
-##To run:
+## Compile hr2day source code:
+
+Execute the build script to compile hr2day:
+
+```
+cd $CMAQ_HOME/POST/hr2day/scripts
+./bldit_hr2day.csh [compiler] [version] |& tee build_hr2day.log
+```
+
+## Run hr2day:
 Edit the sample run script (run.hr2day.make8hrmax), then run:
+
 ```
- run.hr2day |& tee hr2day.log
+ ./run.hr2day |& tee hr2day.log
 ```
+
 Check the log file to ensure complete and correct execution without errors.
+

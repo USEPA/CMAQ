@@ -48,33 +48,42 @@ MODULE files
 !           31 May 2012  Increased MAX_MM from 300 to 367 to allow for a full
 !                        year to be run (including leap year and previous day
 !                        for precipitation calculation).  (T. Otte)
+!           10 Feb 2018  Added new optional output files for fractional land
+!                        use, layered soil data, and mosaic data.  (T. Spero)
+!           18 Dec 2018  Removed support for MM5v3 input files.  Added file
+!                        names for netCDF output.  Removed runtime option
+!                        to not output time-independent files.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   IMPLICIT NONE
 
   INTEGER                           :: iutmm
   INTEGER,            PARAMETER     :: iutgd      =  4
-  INTEGER,            PARAMETER     :: iuthdr     =  2
   INTEGER,            PARAMETER     :: iutmmi     = 10
   INTEGER,            PARAMETER     :: iutnml     =  8
-  INTEGER,            PARAMETER     :: iutter     =  9
 
   INTEGER,            PARAMETER     :: max_mm     = 367
 
   CHARACTER(LEN=256)                :: file_gd
-  CHARACTER(LEN=256)                :: file_hdr
   CHARACTER(LEN=256)                :: file_mm    ( max_mm )
   CHARACTER(LEN=256), PARAMETER     :: file_nml   = 'namelist.mcip'
-  CHARACTER(LEN=256)                :: file_ter
-  LOGICAL                           :: makegrid
+  CHARACTER(LEN=256)                :: file_geo
 
   CHARACTER(LEN=16),  PARAMETER     :: gridbdy2d  = 'GRID_BDY_2D     '
   CHARACTER(LEN=16),  PARAMETER     :: gridcro2d  = 'GRID_CRO_2D     '
-  CHARACTER(LEN=16),  PARAMETER     :: gridcro3d  = 'GRID_CRO_3D     '
   CHARACTER(LEN=16),  PARAMETER     :: griddot2d  = 'GRID_DOT_2D     '
+  CHARACTER(LEN=16),  PARAMETER     :: lufraccro  = 'LUFRAC_CRO      '
   CHARACTER(LEN=16),  PARAMETER     :: metbdy3d   = 'MET_BDY_3D      '
   CHARACTER(LEN=16),  PARAMETER     :: metcro2d   = 'MET_CRO_2D      '
   CHARACTER(LEN=16),  PARAMETER     :: metcro3d   = 'MET_CRO_3D      '
   CHARACTER(LEN=16),  PARAMETER     :: metdot3d   = 'MET_DOT_3D      '
+  CHARACTER(LEN=16),  PARAMETER     :: mosaiccro  = 'MOSAIC_CRO      '
+  CHARACTER(LEN=16),  PARAMETER     :: soicro     = 'SOI_CRO         ' 
+
+  CHARACTER(LEN=16),  PARAMETER     :: mcipbdyncf = 'mcip_bdy.nc     '
+  CHARACTER(LEN=16),  PARAMETER     :: mcipncf    = 'mcip.nc         '
+
+  INTEGER                           :: cdfid_b
+  INTEGER                           :: cdfid_m
 
 END MODULE files

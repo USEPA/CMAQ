@@ -1,62 +1,74 @@
 ********************************************************************************
-Announcing the release of MCIP Version 4.4 (20 June 2017)
+Announcing the release of MCIP Version 5.1 (25 November 2019)
 ********************************************************************************
 
-The MCIP code is updated to version 4.4.  These release notes and the change
-log reflect all changes that have been made to MCIP since MCIPv4.3 (the last
-official release).  Changes to MCIPv4.4 were made by Tanya Spero (U.S. EPA).
-User contributions are also noted below.  The detailed list of changes to the
-MCIP code is in the CHANGES file, which is part of the MCIP tar file in the
-"doc" sub-directory.
+The MCIP code is updated to version 5.1.  This is a minor update to MCIP.
+These release notes and the CHANGES file reflect all changes that have been
+made to MCIP since MCIPv5.0 (the previous release).  Changes to MCIPv5.1
+were made by Tanya Spero (U.S. EPA).
 
-MCIPv4.4 requires I/O API version 3.1 or greater to support error-checking
-within the I/O API.  Note that CMAQv5.2 requires I/O API v3.2.
+MCIPv5.1 accompanies CMAQv5.3.1.  If you are using CMAQv5.3+, you should upgrade
+to use MCIPv5.0+.
 
-MCIPv4.4 requires the netCDF F90 module (rather than the F77 include).
+MCIPv5.0 requires I/O API version 3.1 or greater to support error-checking
+within the I/O API.
 
-Users are encouraged to read the Frequently Asked Questions (FAQ) file,
-which is located in the MCIP tar file in the "doc" sub-directory.
-
-***Users should consult the FAQ before submitting inquiries to M3User,
-   CMAS, or the code developers.***
-
-MCIPv4.4 has been tested with the following Fortran compilers under both debug
-and optimized options:  Intel 17.0.  MCIPv4.4 has been tested with netCDF 4.4.1
-and I/O API 3.2.
+MCIPv5.0 requires the netCDF F90 module (rather than the F77 include).
 
 
-Interactions with members of the CMAQ user community led to some of the changes
-that have been incorporated into MCIPv4.4.
+MCIP can be cited with the following reference:
+
+  Otte, T. L., and J. E. Pleim, 2010.  The Meteorology-Chemistry Interface
+     Processor (MCIP) for the CMAQ modeling system: updates through
+     MCIPv3.4.1.  Geoscientific Model Development, 3, 243-256.
+
+A DOI will also be available for CMAQv5.3.1 (which includes MCIPv5.1).
 
 
-The following is a summary of the changes in MCIPv4.4:
+Background on MCIP and other useful information about the CMAQ system can be
+found online at http://www.epa.gov/cmaq.
 
- 1.  Changed name of the run script to "run_mcip.csh" and changed the names of
-     MCIP files referenced in the script to have the extension ".nc" to be
-     consistent with other changes in the CMAQ system.
+Inquiries related to potential bugs in MCIPv5.1 or questions related to
+proper use of the code should be submitted to the MCIP Category in the
+Forum hosted by the CMAS Center:  https://forum.cmascenter.org/c/mcip.
 
- 2.  Made minor changes to WRF implementation of MODIS land use with category
-     21 representing "lake".
+Users are encouraged to read the Frequently Asked Questions (FAQ) file.
+Users should consult the FAQ and other issues raised within the Forum
+before submitting new inquiries.
 
- 3.  Corrected error in the calculation of 10-m wind speed from WRF simulations.
 
- 4.  Refined coding in some places to increase robustness under different
-     Fortran compilers.
 
- 5.  Changed reference to WRF variable for fraction of urban area to be
-     consistent with its usage in WRF.
+MCIPv5.0 was tested with the following Fortran compilers under both debug
+and optimized options at various stages of development:  Intel 18.0, PGI 17.10,
+and GCC 6.0.1.  MCIPv5.0 was tested with netCDF 4.6.3, and I/O API 3.2.
 
- 6.  Updated metadata for new physics options in WRFv3.8, WRFv3.8.1, and
-     WRFv3.9.
 
- 7.  Determine whether or not the hybrid vertical coordinate was used in WRF;
-     it is available as of WRFv3.9.  Currently prevent data with hybrid
-     coordinate from being used in MCIP and CMAQ until additional modifications
-     and testing are performed.
+With MCIPv5.1, the following remain deprecated:
+  - Including "SOIM1", "SOIM2", "SOIT1", and "SOIT2" in METCRO2D.
+    Those fields are now in a separate file that includes all soil layers and
+    their associated depths (SOI_CRO).
+  - Including "LUFRAC_xx" in GRIDCRO2D.  Those fields are now in a separate
+    file that includes each fractional land use classification (LUFRAC_CRO).
 
- 8.  The following output variables in METCRO2D remain deprecated:
+With MCIPv5.1, the following output variables in METCRO2D remain deprecated:
      - 2-D cloud fraction (CFRAC)
      - cloud top (CLDT)
      - cloud bottom (CLDB)
      - liquid water content (WBAR)
-     They will be removed from METCRO2D in a forthcoming release of MCIP.
+They will be removed from METCRO2D in a forthcoming release of MCIP.
+
+
+Interactions with members of the CMAQ user community led to some of the changes
+that have been incorporated into MCIPv5.1.
+
+
+The following is a summary of the changes in MCIPv5.1:
+
+ 1.  Corrected an error in the MCIP script that interfered with reading
+     Geogrid files (introduced in MCIPv5.0).
+
+ 2.  Corrected an error in filling the lateral boundaries of the WWIND and
+     CFRAC3D fields when CFRAC3D is available (introduced in MCIPv5.0).
+
+ 3.  Added support for processing surface FDDA fields generated with FASDAS
+     in WRF.

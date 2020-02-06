@@ -2,7 +2,7 @@ MIB_IUPAC10
 ! MIB + HV = I + BR  
 ! MIB Photolysis data  
 ! Supplied by Golam Sarwar 
-! Created from IUPAC dataset
+! Created from IUPAC dataset PI11
 Points (these data can be treated as point values)
 ! With FAC, units are (cm^2/molecule)
 FAC=1.0

@@ -1,0 +1,34 @@
+!!! CMAQ-ISAM tag definition control file
+!!!   (lines begining with !!! - three exclamaition marks - are ignored by the text parser)
+!!!
+!!!   Example file provided with CMAQ v5.3 release
+!!!   05 June 2019: Sergey L. Napelenok
+!!!
+!!!
+!!! The following line defines the tag classes to track for the simulation. Species in NITRATE and VOC classes depend on the
+!!! the chemical mechanism used. The below definitions apply for the cb6r3_ae7_aq mechanism.
+!!!   Choose any/all from the list of nine:  SULFATE, NITRATE, AMMONIUM, EC, OC, VOC, PM25_IONS, CO, OZONE 
+!!!   SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN
+!!!   NITRATE   - ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR, CLNO2, CLNO3
+!!!   AMMONIUM  - ANH4J, ANH4I, NH3
+!!!   EC        - AECJ, AECI
+!!!   OC        - APOCI, APOCJ, APNCOMI, APNCOMJ
+!!!   VOC       - 22 species, check CCTM/src/isam/SA_DEFN.F for species names
+!!!   PM25_IONS - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ
+!!!   CO        - CO
+!!!   OZONE     - all NITRATE species + all VOC species
+!!!   CHLORINE  - ACLI, ACLJ, HCL
+
+TAG CLASSES     |SULFATE, OZONE
+
+!!! The following are source definition text blocks in the format:
+!!!   TAG NAME        |Three character text string
+!!!   REGION(S)       |Keyword EVERYWHERE or variable names from the region file (multiple regions need to be comma delimited)
+!!!   FILENAME(S)     |Emissions labels (multiple labels need to be comma delimited)
+
+
+TAG NAME        |GR1
+REGION(S)       |EVERYWHERE
+EMIS STREAM(S)  |GRIDDED_EMIS
+
+ENDLIST eof 

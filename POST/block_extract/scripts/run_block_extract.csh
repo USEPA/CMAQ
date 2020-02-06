@@ -1,8 +1,8 @@
 #! /bin/csh -f
 
 
-# ====================== BLOCK_EXTRACTv5.2 Run Script =====================
-# Usage: run.block_extract.csh >&! block_extract_V52.log &
+# ====================== BLOCK_EXTRACTv5.3.1 Run Script =====================
+# Usage: run.block_extract.csh >&! block_extract_v531.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -20,9 +20,17 @@
  cd ../../..
  source ./config_cmaq.csh
 
-#> Set the model version
- set VRSN = v52
-
+#> Set General Parameters for Configuring the Simulation
+ set VRSN      = v531               #> Code Version
+ set PROC      = mpi               #> serial or mpi
+ set MECH      = cb6r3_ae7_aq      #> Mechanism ID
+ set APPL      = SE531BENCH         #> Application Name (e.g. Gridname)
+                                                      
+#> Define RUNID as any combination of parameters above or others. By default,
+#> this information will be collected into this one string, $RUNID, for easy
+#> referencing in output binaries and log files as well as in other scripts.
+ setenv RUNID  ${VRSN}_${compilerString}_${APPL}
+ 
 #> Set the build directory if this was not set above 
 #> (this is where the bldoverlay executable is located by default).
  if ( ! $?BINDIR ) then
@@ -66,7 +74,7 @@
   setenv HILEV         1
  
 #> First IOAPI input file.
-  setenv M3_FILE_1  ${CMAQ_DATA}/POST/COMBINE_ACONC_201107.nc 
+  setenv M3_FILE_1  ${CMAQ_DATA}/POST/COMBINE_ACONC_${RUNID}_201607.nc 
           #[Add location of input file, e.g. COMBINE_ACONC file.]
 # setenv M3_FILE_2  additional files up to 99.
   

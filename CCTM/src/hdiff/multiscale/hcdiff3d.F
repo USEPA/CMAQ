@@ -17,13 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/hdiff/multiscale/hcdiff3d.F,v 1.5 2011/10/21 16:11:22 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE HCDIFF3D ( JDATE, JTIME, K11BAR, K22BAR, DT )
       
@@ -72,10 +65,13 @@ C                      domain specifications in one module
 C   16 Feb 11 S. Roselle: replaced I/O-API include files w/UTILIO_DEFN
 C   03 Aug 11 David Wong: moved DT calculation outside the loop for efficency
 C                         purposes
+C   01 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
+C                         clauses
 C-----------------------------------------------------------------------
       
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
+      USE CENTRALIZED_IO_MODULE
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_GLOBAL_MAX_MODULE, SE_COMM_MODULE,
                                 !               SE_UTIL_MODULE)
@@ -118,18 +114,12 @@ C "Courant" factor = 99%(1/sqrt(2))
 !     REAL, PARAMETER :: CFC = 0.700
       REAL, PARAMETER :: CFC = 0.300
       
-C file variables:
-
-!     REAL    MSFD2( NCOLS+1,NROWS+1 ) ! Squared map scale factors
-      REAL, ALLOCATABLE, SAVE :: MSFD2( :,: ) ! Squared map scale factors
-      
 C local variables:
       
       CHARACTER( 16 ) :: PNAME = 'HCDIFF3D'
       CHARACTER( 96 ) :: XMSG = ' '
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
-      INTEGER, SAVE :: LOGDEV
       INTEGER, SAVE :: MLAYS
  
       REAL, SAVE :: DX1, DX2            ! CX x1- and x2-cell widths
@@ -151,10 +141,6 @@ C local variables:
       INTEGER, SAVE :: STARTROW, ENDROW
       INTEGER, SAVE :: STARTCOL, ENDCOL
  
-      INTEGER GXOFF, GYOFF             ! global origin offset from file
-C for INTERPX
-      INTEGER :: STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2
-
       INTERFACE
          SUBROUTINE DEFORM( JDATE, JTIME, DEFORM3D )
             INTEGER, INTENT( IN )  :: JDATE, JTIME
@@ -166,15 +152,12 @@ C-----------------------------------------------------------------------
       
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
-         LOGDEV = INIT3()
 
          MLAYS = SIZE ( K11BAR,3 )
  
          CALL SUBST_LOOP_INDEX ( 'R', 1, NROWS, 1, MY_TEMP, STARTROW, ENDROW )
-!        write( LOGDEV,* ) 'STARTROW, ENDROW = ', STARTROW, ENDROW
 
          CALL SUBST_LOOP_INDEX ( 'C', 1, NCOLS, 1, MY_TEMP, STARTCOL, ENDCOL )
-!        write( LOGDEV,* ) 'STARTCOL, ENDCOL = ', STARTCOL, ENDCOL
 
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD ! in m.
@@ -187,43 +170,15 @@ C-----------------------------------------------------------------------
 
 C Get map scale factor
 
-         ALLOCATE ( MSFD2( MY_NCOLS+1,MY_NROWS+1 ), STAT = ALLOCSTAT )
-         IF ( ALLOCSTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating MSFD2'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-         CALL SUBHFILE ( GRID_DOT_2D, GXOFF, GYOFF,
-     &                   STRTCOLGD2, ENDCOLGD2, STRTROWGD2, ENDROWGD2 )
-
-         IF ( .NOT. INTERPX( GRID_DOT_2D, 'MSFD2', PNAME,
-     &                       STRTCOLGD2,ENDCOLGD2, STRTROWGD2,ENDROWGD2, 1,1,
-     &                       JDATE, JTIME, MSFD2 ) ) THEN
-            XMSG = 'Could not interpolate MSFD2 from ' // GRID_DOT_2D
-            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
-!        write( LOGDEV,* ) ' MSFD2(2,2) = ',  MSFD2(2,2) 
          KHA = ( DXB * DXB ) / ( DX1 * DX2 ) * KH 
-!        write( LOGDEV,* ) ' KHA = ', KHA
 
          ACOEF = ALP * ALP * ( DX1 * DX2 )
 
-!        MS2MAX = 0.0
-!        DO ROW = 1, MY_NROWS+1
-!           DO COL = 1, MY_NCOLS+1
-!              MS2MAX = MAX( MS2MAX, MSFD2( COL,ROW ) )
-!           END DO
-!        END DO
-!        WRITE( LOGDEV,* ) ' MS2MAX = ', MS2MAX
- 
          END IF                    ! if firstime
  
 C get wind deformation 
  
       CALL DEFORM ( JDATE, JTIME, DEFORM3D )
-
-!     write( LOGDEV,* ) '  DEFORM3D( 5,5,5 ): ', DEFORM3D( 5,5,5 )
 
       EDDYH3D = 0.0
 
@@ -240,12 +195,9 @@ C get wind deformation
                EDDYH3D( COL,ROW,LVL ) = MSFD2( COL,ROW )
      &                                * KHA * KHD / ( KHA + KHD )
 !              EKHMAX = MAX( EKHMAX, EDDYH3D( COL,ROW,LVL ) )
-!              write( LOGDEV,* ) ' EKHMAX: ', EKHMAX,
-!    &                           ' EDDYH3D( 5,5,5) :', EDDYH3D( 5,5,5 )
-               END DO
             END DO
-!        WRITE( LOGDEV,* ) ' LVL, EKHMAX = ', LVL, EKHMAX
          END DO
+      END DO
 
       CALL SUBST_COMM ( EDDYH3D, DSPL_N1_E1_S0_W0, DRCN_N_E )
 
@@ -253,40 +205,39 @@ C Obtain flux average values of contravariant diffusivities
 
       EFFKB = 0.0
       DO LVL = 1, MLAYS
-         DO ROW = 1, MY_NROWS + 1
-            DO COL = 1, MY_NCOLS + 1
+         DO ROW = 1, NROWS + 1
+            DO COL = 1, NCOLS + 1
                K11BAR( COL,ROW,LVL ) = 0.0
                K22BAR( COL,ROW,LVL ) = 0.0
                END DO
              END DO
           END DO
 
-!     WRITE( LOGDEV,1003 )
 1003  FORMAT( / '@2@Layer', 5X, 'Time Step', 9X, 'EffKB' )
 
       DO LVL = 1, MLAYS
-         DO ROW = 1, MY_NROWS
+         DO ROW = 1, NROWS
             DO COL = STARTCOL, ENDCOL
                K11BAR( COL,ROW,LVL ) = 0.5 * ( EDDYH3D( COL,ROW+1,LVL )
      &                               +         EDDYH3D( COL,ROW,LVL ) )
                END DO
             END DO
          DO COL = STARTCOL, ENDCOL
-            K11BAR( COL,MY_NROWS+1,LVL ) = 0.0
+            K11BAR( COL,NROWS+1,LVL ) = 0.0
             END DO
 
          DO ROW = STARTROW, ENDROW
-            DO COL = 1, MY_NCOLS
+            DO COL = 1, NCOLS
                K22BAR( COL,ROW,LVL ) = 0.5 * ( EDDYH3D( COL,ROW,LVL )
      &                               +         EDDYH3D( COL+1,ROW,LVL ) )
               END DO
             END DO
          DO ROW = STARTROW, ENDROW
-            K22BAR( MY_NCOLS+1,ROW,LVL ) = 0.0
+            K22BAR( NCOLS+1,ROW,LVL ) = 0.0
             END DO
 
-         DO ROW = 1, MY_NROWS
-            DO COL = 1, MY_NCOLS
+         DO ROW = 1, NROWS
+            DO COL = 1, NCOLS
                EFFKB =  MAX ( EFFKB, 
      &                        K11BAR( COL,ROW,LVL ),
      &                        K22BAR( COL,ROW,LVL ) )
@@ -295,7 +246,6 @@ C Obtain flux average values of contravariant diffusivities
 
 !        DT = CFC * DX1 * DX2 / SUBST_GLOBAL_MAX ( EFFKB )
 
-!        WRITE( LOGDEV,1005 ) LVL, DT, EFFKB
 1005     FORMAT( '@2@ ', I3, 1X, F18.7, 1X, F12.7 )
 
          END DO ! for LVL

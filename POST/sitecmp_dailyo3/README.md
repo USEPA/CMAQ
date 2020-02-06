@@ -4,14 +4,23 @@ sitecmp_dailyo3
 This Fortran program generates a csv (comma separated values) file that compares various daily ozone metrics computed from hourly CMAQ generated and observed ozone concentrations. The metrics included in the output file are daily maximum 1-hr ozone concentrations, daily maximum 1-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 1-hr ozone concentrations, daily maximum 8-hr ozone concentrations, daily maximum 8-hr ozone concentrations in the nine cells surrounding a monitor, time of occurrence of daily maximum 8-hr ozone concentrations, the daily W126 ozone value, and the daily SUM06 ozone value. 
 
 
-## Environment variables used:
+## Run Time Environment variables used:
 ```
- M3_FILE_n      IOAPI input file(s) containing hourly modeled ozone values (max of 12). 
+ M3_FILE_#      IOAPI input file(s) containing hourly modeled ozone values.
+                The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
+		Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html),
+		the maximum number of IOAPI input files is 63.
                 [Note: Supported map projections are Lambert conformal, polar stereographic, and lat/lon.
                 If an ioapi file is supplied that has a projection not in this list the program will 
                 stop with an error message.]
- SITE_FILE      input file containing site information for each monitor (site-id, longitude, latitude, and 
-                optionally time zone offset between local time and GMT) (tab delimited)
+ SITE_FILE      csv-formatted input file containing the station ID, latitude, longitude, and optionally 
+                GMT offset, state, county, and elevation for each monitor.  
+                The column headings for the required variables need to be stat_id, lat, and lon.
+                The column headings for the optional variables (if present) need to be gmt_offset, state, county, and elevation.
+	               The column headings are case insensitve and the order of the columns does not matter.
+                For legacy purposes, SITE_FILE can also be a tab delimited file with no header and three 
+                or four columns that contains site information for each monitor in the following fixed order:
+	               site-id, longitude, latitude, and optionally time zone offset between local time and GMT
  IN_TABLE       input file containing hourly observed ozone data (comma delimited with header). The file can 
                 contain columns with species other than ozone, these will be ignored by sitecmp_dailyo3
  OBS_SPECIES    name of the ozone species in the header line of IN_TABLE 
@@ -26,7 +35,7 @@ This Fortran program generates a csv (comma separated values) file that compares
  OUT_TABLE      file for output data with columns of paired observed and modeled daily ozone metrics
 ```
 
-## Environment Variables (not required):
+## Run Time Environment Variables (not required):
 ```
  START_DATE     starting date of time period to process (YYYYJJJ)
  START_TIME     starting time of time period to process (HHMMSS)
@@ -55,10 +64,16 @@ This Fortran program generates a csv (comma separated values) file that compares
 
 ```
 
-## File formats:
+## Run Time File formats:
 ```
- SITE_FILE - tab delimited text file containing site-id, longitude,
-             latitude, and optionally time zone offset between local time and GMT
+ SITE_FILE - csv-formatted input file containing the station ID, latitude, longitude, and optionally 
+             GMT offset, state, county, and elevation for each monitor.  
+             The column headings for the required variables need to be stat_id, lat, and lon.
+             The column headings for the optional variables (if present) need to be gmt_offset, state, county, and elevation.
+	            The column headings are case insensitve and the order of the columns does not matter.
+             For legacy purposes, SITE_FILE can also be a tab delimited file with no header and three 
+             or four columns that contains site information for each monitor in the following fixed order:
+	            site-id, longitude, latitude, and optionally time zone offset between local time and GMT
  
  M3_FILE_n - IOAPI file containing hourly modeled ozone data (n=1->12)
  
@@ -72,10 +87,19 @@ This Fortran program generates a csv (comma separated values) file that compares
              modeled values
 ```
 
-## To run:
+## Compile sitecmp_dailyo3 source code:
+
+Execute the build script to compile sitecmp_dailyo3:
+
+```
+cd $CMAQ_HOME/POST/sitecmp_dailyo3/scripts
+./bldit_sitecmp_dailyo3.csh [compiler] [version] |& tee build_sitecmp_dailyo3.log
+```
+
+## Run sitecmp_dailyo3:
 Edit the sample run script (run.sitecmp_dailyo3), then run:
 ```
- run.sitecmp_dailyo3|& tee sitecmp_dailyo3.log
+ ./run.sitecmp_dailyo3|& tee sitecmp_dailyo3.log
 ```
 Check the log file to ensure complete and correct execution without errors.
 

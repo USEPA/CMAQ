@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ==================== HR2DAYv5.2 Build Script ===================== #
+# ==================== HR2DAYv5.3.1 Build Script ===================== #
 # Usage: bldit_hr2day.csh >&! bldit_hr2day.log                          #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
@@ -45,7 +45,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v52                        #> model version
+ set VRSN     = v531                       #> model version
  set EXEC     = hr2day_${VRSN}.exe        #> executable name for this application
  set CFG      = hr2day_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 
@@ -120,13 +120,15 @@
  echo                                                              >> $Cfile
  echo "lib_base    ${CMAQ_LIB};"                                   >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_1       ioapi/modules;"                                 >> $Cfile
+ echo "lib_1       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_2       ioapi/include_files;"                           >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_3       netcdf/include;"                                >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
+ echo                                                              >> $Cfile
+ echo "lib_5       netcdff/include;"                               >> $Cfile
  echo                                                              >> $Cfile
  set text = "$quote$CPP_FLAGS$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
@@ -147,6 +149,8 @@
  echo "ioapi       $quote$LIB2$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
+ echo                                                              >> $Cfile
+ echo "netcdff     $quote$netcdff_lib$quote;"                      >> $Cfile
 
  set text = "hr2day"
  echo "// options are" $text                                       >> $Cfile

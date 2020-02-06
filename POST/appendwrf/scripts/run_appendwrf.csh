@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ===================== APPENDWRFv5.2 Run Script ====================
-# Usage: run.appendwrf >&! appendwrf_V52.log &
+# ===================== APPENDWRFv5.3.1 Run Script ==================
+# Usage: run.appendwrf >&! appendwrf_v531.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -20,7 +20,7 @@
  source ./config_cmaq.csh
 
 #> Set the model version
- set VRSN = v52
+ set VRSN = v531
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).

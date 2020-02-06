@@ -25,7 +25,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
       
-       SUBROUTINE LR_INTERP( L_RATINT, XA, YA, N, X, Y, DELY )
+       SUBROUTINE LR_INTERP ( L_RATINT, XA, YA, N, X, Y, DELY )
 
 C***********************************************************************
  
@@ -47,23 +47,25 @@ C     large conc gradients
 C     Improved Linear interpolation algorithm by JG 4/18/00 for interpolants
 C     close to interval end points
 C     UTILIO_DEFN for M3EXIT by J.Young 6/9/11
- 
+C     replaced UTILIO_DEFN with M3UTILIO
+
 C***********************************************************************
 
-      USE UTILIO_DEFN
+      USE M3UTILIO   ! IOAPI module
 
       IMPLICIT NONE 
 
-C Includes: None
       
 C Arguments:
-      LOGICAL L_RATINT  ! Flag for rational function interpolation
-      REAL :: XA( * )   ! Independent variable array
-      REAL :: YA( * )   ! Dependent variable array
-      INTEGER N         ! Number of values in arrays XA and YA
-      REAL    X         ! Value of independent variable to be interpolated 
-      REAL    Y         ! Interpolated value of dependent variable
-      REAL    DELY      ! Error estimate for rational function interpolation
+      LOGICAL, INTENT( IN ) :: L_RATINT  ! Flag for rational function interpolation
+
+      REAL, INTENT( IN )  :: XA( : )     ! Independent variable array
+      REAL, INTENT( IN )  :: YA( : )     ! Dependent variable array
+      REAL, INTENT( IN )  :: X           ! Value of independent variable to be interpolated
+      REAL, INTENT( OUT ) :: Y           ! Interpolated value of dependent variable
+      REAL, INTENT( OUT ) :: DELY        ! Error estimate for rational function interpolation
+
+      INTEGER, INTENT( IN ) :: N         ! Number of values in arrays XA and YA
                                            
 C Parameters:
       INTEGER, PARAMETER :: NMAX = 100  ! Maximum number of points in arrays AX and YA
@@ -105,7 +107,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             IF ( DX .EQ. 0.0 ) THEN
                MSG = 'Invalid Independent variables for interpolation'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+               CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
             END IF
 
             Y = YA( 1 ) + ( ( X - XA( 1 ) ) / DX ) * YA( 1 )
@@ -121,7 +123,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             IF ( DX .EQ. 0.0 ) THEN
                MSG = 'Invalid Independent variables for interpolation'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+               CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
             END IF
 
             Y = YA( N ) + ( ( X - XA( N ) ) / DX ) * YA( N - 1 )
@@ -135,7 +137,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             DX = ABS( XA( I + 1 ) - XA( I ) )
             IF ( DX .EQ. 0.0 ) THEN
                MSG = 'Invalid Independent variables for interpolation'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+               CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
             END IF
 !           DY = YA( I + 1 ) - YA( I )
             SX = ABS( X - XA( I ) )
@@ -158,7 +160,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          END DO
 
          MSG = 'No interval found for linear interpolation'
-         CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+         CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
 
       END IF
  
@@ -194,7 +196,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
             IF ( DD .EQ. 0.0 ) THEN
                MSG = 'Rational function interpolation error'
-               CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT2 )
+               CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT2 )
             END IF
             DD = W / DD
             D( I ) = C( I + 1 ) * DD

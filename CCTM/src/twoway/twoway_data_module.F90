@@ -3,7 +3,12 @@
 !
 ! Revised:  April 2007  Original version.  David Wong
 ! Revised:  April 7, 2016 David Wong: Added variable mminlu
-!           Jan 11, 2018 David Wong: Added variable convective_scheme
+! Revised:  Jan. 11, 2018 David Wong: Added variable convective_scheme
+!           31 Jan 2019  (David Wong)
+!              -- adopted the idea to process all twoway related environment
+!                 variables in one place
+!           01 Aug 2019  (David Wong)
+!              -- renamed convective_scheme to wrf_convective_scheme
 !===============================================================================
 
   module twoway_data_module
@@ -12,24 +17,26 @@
 
     CHARACTER (LEN = 40) :: mminlu
 
-    INTEGER, SAVE :: num_land_cat
-    INTEGER, SAVE :: twoway_mype, nprocs
+    INTEGER :: num_land_cat
+    INTEGER :: twoway_mype, twoway_nprocs
 
-    INTEGER, SAVE :: wrf_c_ncols, wrf_c_nrows, cmaq_c_ncols, cmaq_c_nrows
-    INTEGER, SAVE :: wrf_d_ncols, wrf_d_nrows, cmaq_d_ncols, cmaq_d_nrows
+    INTEGER :: wrf_c_ncols, wrf_c_nrows, cmaq_c_ncols, cmaq_c_nrows
+    INTEGER :: wrf_d_ncols, wrf_d_nrows, cmaq_d_ncols, cmaq_d_nrows
 
-    INTEGER, ALLOCATABLE, SAVE :: wrf_c_domain_map (:, :, :)
-    INTEGER, ALLOCATABLE, SAVE :: wrf_d_domain_map (:, :, :)
-    INTEGER, ALLOCATABLE, SAVE :: cmaq_c_domain_map (:, :, :)
-    INTEGER, ALLOCATABLE, SAVE :: cmaq_d_domain_map (:, :, :)
-    INTEGER, ALLOCATABLE, SAVE :: cmaq_ce_domain_map (:, :, :)
-    INTEGER, ALLOCATABLE, SAVE :: cmaq_de_domain_map (:, :, :)
+    INTEGER, ALLOCATABLE :: wrf_c_domain_map (:, :, :)
+    INTEGER, ALLOCATABLE :: wrf_d_domain_map (:, :, :)
+    INTEGER, ALLOCATABLE :: cmaq_c_domain_map (:, :, :)
+    INTEGER, ALLOCATABLE :: cmaq_d_domain_map (:, :, :)
+    INTEGER, ALLOCATABLE :: cmaq_ce_domain_map (:, :, :)
+    INTEGER, ALLOCATABLE :: cmaq_de_domain_map (:, :, :)
 
     integer :: cmaq_c_col_dim
     integer :: cmaq_c_row_dim
     integer :: wrf_c_col_dim
     integer :: wrf_c_row_dim
     integer :: delta_x, delta_y
+    integer :: wrf_cmaq_freq
+    integer :: cmaq_sdate, cmaq_stime, file_time_step
 
 ! cmaq_c stands for cmaq cross grid
 ! cmaq_d stands for cmaq dot grid
@@ -53,9 +60,22 @@
     integer, pointer :: cmaq_wrf_c_send_index_g (:,:,:), cmaq_wrf_c_recv_index_g (:,:,:)
     integer, pointer :: cmaq_wrf_c_send_index_l (:,:,:), cmaq_wrf_c_recv_index_l (:,:,:)
 
-    INTEGER, SAVE :: sc, ec, sr, er
-    INTEGER, SAVE :: sc_d, ec_d, sr_d, er_d
+    INTEGER :: sc, ec, sr, er
+    INTEGER :: sc_d, ec_d, sr_d, er_d
 
-    LOGICAL :: convective_scheme
+    real :: WRF_LC_REF_LAT
+
+    logical :: wrf_convective_scheme,     &
+               CMAQ_WRF_FEEDBACK,         &
+               sd_time_series,            &
+               create_physical_file,      &
+               run_cmaq_driver,           &
+               wrf_restart,               &
+               turn_on_pv
+
+    logical :: wrf_lightning_assim = .false.
+
+    character (len = 16)  :: grid_name_str
+    character (len = 500) :: griddesc_fname
 
   end module twoway_data_module

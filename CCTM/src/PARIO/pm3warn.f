@@ -17,9 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker] 
-C $Header: /project/work/rep/PARIO/src/pm3warn.f,v 1.4 2011/03/30 18:13:05 sjr Exp $
-
         SUBROUTINE PM3WARN( CALLER, JDATE, JTIME, ERRTXT )
 C.....................................................................
 C
@@ -79,13 +76,9 @@ C...........   LOCAL VARIABLES
       CHARACTER*16 CALL16       ! First 16 characters of CALLER.
       CHARACTER*26 PCALLER      ! New caller string with PE information.
 
-      INTEGER LOGDEV
-
 C.............................................................................
 C   begin subroutine PM3WARN
   
-
-      LOGDEV = INIT3()
 
 C.......  Create strings to append to CALLER.
       WRITE (PE_STR,'(A7)') ' on PE '

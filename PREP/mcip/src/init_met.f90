@@ -51,6 +51,19 @@ SUBROUTINE init_met
 !                        fraction to output.  (T. Spero)
 !           21 Aug 2015  Changed latent heat flux from QFX to LH.  Added
 !                        moisture flux (QFX) for IFMOLACM.  (T. Spero)
+!           16 Mar 2018  Added SNOWH to output.  Added C1H, C2H, C1F, and C2F to
+!                        support hybrid vertical coordinate in WRF.  Added
+!                        LUFRAC2, MOSCATIDX, LAI_MOS, RA_MOS, RS_MOS, TSK_MOS,
+!                        and ZNT_MOS to support NOAH Mosaic land-surface model.
+!                        Added DZS to capture soil layers, and added 3D soil
+!                        arrays, SOIT3D and SOIM3D.  Added WSPDSFC and XLAIDYN
+!                        for Noah.  (T. Spero)
+!           14 Sep 2018  Changed condition to enable hybrid vertical coordinate
+!                        in WRF.  Removed support for MM5v3 input.  (T. Spero)
+!           18 Jun 2019  Added new surface variables with PX LSM that can
+!                        improve dust simulation in CCTM.  Added optional
+!                        variables from KF convective scheme with radiative
+!                        feedbacks.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE metinfo
@@ -63,7 +76,16 @@ SUBROUTINE init_met
 ! Initialize meteorology arrays.
 !-------------------------------------------------------------------------------
 
-  sigmah   (:)     = 0.0      ;      sigmaf   (:)     = 0.0
+  IF ( met_hybrid >= 0 ) THEN  ! using hybrid vertical coordinate in WRF
+    c1f    (:)     = 0.0      ;      c1h      (:)     = 0.0
+    c2f    (:)     = 0.0      ;      c2f      (:)     = 0.0
+  ENDIF
+
+  sigmaf   (:)     = 0.0      ;      sigmah   (:)     = 0.0
+
+  IF ( met_ns > 0 ) THEN  ! using multi-layer land-surface model
+    dzs    (:)     = 0.0
+  ENDIF
 
   albedo   (:,:)   = 0.0      ;      glw      (:,:)   = 0.0
   groundt  (:,:)   = 0.0      ;      hfx      (:,:)   = 0.0
@@ -80,9 +102,9 @@ SUBROUTINE init_met
   raincon  (:,:)   = 0.0      ;      rainnon  (:,:)   = 0.0
   rcold    (:,:)   = 0.0      ;      rgrnd    (:,:)   = 0.0
   rnold    (:,:)   = 0.0      ;      seaice   (:,:)   = 0.0
-  snowcovr (:,:)   = 0.0      ;      terrain  (:,:)   = 0.0
-  ust      (:,:)   = 0.0      ;      znt      (:,:)   = 0.0
-  zpbl     (:,:)   = 0.0
+  snowcovr (:,:)   = 0.0      ;      snowh    (:,:)   = 0.0
+  terrain  (:,:)   = 0.0      ;      ust      (:,:)   = 0.0
+  znt      (:,:)   = 0.0      ;      zpbl     (:,:)   = 0.0
 
   IF ( ift2m ) THEN  ! 2-m temperature available
     t2     (:,:)   = 0.0
@@ -114,26 +136,52 @@ SUBROUTINE init_met
     ph     (:,:,:) = 0.0      ;      phb      (:,:,:) = 0.0
   ENDIF
 
-  IF ( ALLOCATED ( coriolis) )  coriolis(:,:) = 0.0
-  IF ( ALLOCATED ( isltyp  ) )  isltyp  (:,:) = 0
-  IF ( ALLOCATED ( lai     ) )  lai     (:,:) = 0.0
-  IF ( ALLOCATED ( mol     ) )  mol     (:,:) = 0.0
-  IF ( ALLOCATED ( qfx     ) )  qfx     (:,:) = 0.0
-  IF ( ALLOCATED ( ra      ) )  ra      (:,:) = 0.0
-  IF ( ALLOCATED ( rstom   ) )  rstom   (:,:) = 0.0
-  IF ( ALLOCATED ( soilt1  ) )  soilt1  (:,:) = 0.0
-  IF ( ALLOCATED ( soilt2  ) )  soilt2  (:,:) = 0.0
-  IF ( ALLOCATED ( veg     ) )  veg     (:,:) = 0.0
-  IF ( ALLOCATED ( vegold  ) )  vegold  (:,:) = 0.0
-  IF ( ALLOCATED ( w2      ) )  w2      (:,:) = 0.0
-  IF ( ALLOCATED ( wg      ) )  wg      (:,:) = 0.0
-  IF ( ALLOCATED ( wr      ) )  wr      (:,:) = 0.0
+  IF ( ALLOCATED ( coriolis  ) )  coriolis (:,:) = 0.0
+  IF ( ALLOCATED ( isltyp    ) )  isltyp   (:,:) = 0
+  IF ( ALLOCATED ( lai       ) )  lai      (:,:) = 0.0
+  IF ( ALLOCATED ( mol       ) )  mol      (:,:) = 0.0
+  IF ( ALLOCATED ( qfx       ) )  qfx      (:,:) = 0.0
+  IF ( ALLOCATED ( ra        ) )  ra       (:,:) = 0.0
+  IF ( ALLOCATED ( rstom     ) )  rstom    (:,:) = 0.0
+  IF ( ALLOCATED ( soilt1    ) )  soilt1   (:,:) = 0.0
+  IF ( ALLOCATED ( soilt2    ) )  soilt2   (:,:) = 0.0
+  IF ( ALLOCATED ( veg       ) )  veg      (:,:) = 0.0
+  IF ( ALLOCATED ( w2        ) )  w2       (:,:) = 0.0
+  IF ( ALLOCATED ( wg        ) )  wg       (:,:) = 0.0
+  IF ( ALLOCATED ( wr        ) )  wr       (:,:) = 0.0
 
-  IF ( ALLOCATED ( tke     ) )  tke     (:,:,:) = 0.0
-  IF ( ALLOCATED ( theta   ) )  theta   (:,:,:) = 0.0
+  IF ( ALLOCATED ( tke       ) )  tke      (:,:,:) = 0.0
+  IF ( ALLOCATED ( theta     ) )  theta    (:,:,:) = 0.0
 
-  IF ( ALLOCATED ( frc_urb ) )  frc_urb (:,:) = 0.0
+  IF ( ALLOCATED ( frc_urb   ) )  frc_urb  (:,:) = 0.0
 
-  IF ( ALLOCATED ( cldfra  ) )  cldfra  (:,:,:) = 0.0
+  IF ( ALLOCATED ( cldfra    ) )  cldfra   (:,:,:) = 0.0
+
+  IF ( ALLOCATED ( soim3d    ) )  soim3d   (:,:,:) = 0.0
+  IF ( ALLOCATED ( soit3d    ) )  soit3d   (:,:,:) = 0.0
+
+  IF ( ALLOCATED ( lufrac2   ) )  lufrac2  (:,:,:) = 0.0
+  IF ( ALLOCATED ( moscatidx ) )  moscatidx(:,:,:) = 0
+  IF ( ALLOCATED ( lai_mos   ) )  lai_mos  (:,:,:) = 0.0
+  IF ( ALLOCATED ( ra_mos    ) )  ra_mos   (:,:,:) = 0.0
+  IF ( ALLOCATED ( rs_mos    ) )  rs_mos   (:,:,:) = 0.0
+  IF ( ALLOCATED ( tsk_mos   ) )  tsk_mos  (:,:,:) = 0.0
+  IF ( ALLOCATED ( znt_mos   ) )  znt_mos  (:,:,:) = 0.0
+
+  IF ( ALLOCATED ( wspdsfc   ) )  wspdsfc  (:,:)   = 0.0
+  IF ( ALLOCATED ( xlaidyn   ) )  xlaidyn  (:,:)   = 0.0
+
+  IF ( ALLOCATED ( lai_px    ) )  lai_px   (:,:)   = 0.0
+  IF ( ALLOCATED ( wwlt_px   ) )  wwlt_px  (:,:)   = 0.0
+  IF ( ALLOCATED ( wsat_px   ) )  wsat_px  (:,:)   = 0.0
+  IF ( ALLOCATED ( wfc_px    ) )  wfc_px   (:,:)   = 0.0
+  IF ( ALLOCATED ( csand_px  ) )  csand_px (:,:)   = 0.0
+  IF ( ALLOCATED ( fmsand_px ) )  fmsand_px(:,:)   = 0.0
+  IF ( ALLOCATED ( clay_px   ) )  clay_px  (:,:)   = 0.0
+
+  IF ( ALLOCATED ( qc_cu     ) )  qc_cu    (:,:,:) = 0.0
+  IF ( ALLOCATED ( qi_cu     ) )  qi_cu    (:,:,:) = 0.0
+  IF ( ALLOCATED ( cldfra_dp ) )  cldfra_dp(:,:,:) = 0.0
+  IF ( ALLOCATED ( cldfra_sh ) )  cldfra_sh(:,:,:) = 0.0
 
 END SUBROUTINE init_met

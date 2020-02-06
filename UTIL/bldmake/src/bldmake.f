@@ -34,6 +34,10 @@
 !     Oct 2015 J.Young: Rework to make macros in the makefile for libs and
 !                       compiler "I" references; get rid of the CVS option.
 !     Jan 2016 D.Wong: Fixed the include path of mpif.h
+!     June 2019 F. Sidi: Removed redundant IOAPI library. Makefile generated 
+!                        consistant with IOAPI library format.
+!     July 2019 F. Sidi: Added netCDF Fortran Library Path. Makefile generated 
+!                        consistent with netCDF library format. 
 !-------------------------------------------------------------------------------
 
       Program bldmake
@@ -72,6 +76,8 @@
 
       Close (unit=lfn)
 
+! Delete Stray temp.* files
+      Call deletefile( 'temp.*', status )
 ! If not makefile only (makefo), Then run the make command to compile
       If ( .not. makefo ) Then
         Call RunMake( status )
@@ -112,6 +118,7 @@
       serial    = .False.
       debug     = .False.
       debug_cctm= .False.
+      isam_cctm = .False.
       checkout  = .False.
       makefo    = .False.
       twoway    = .False.
@@ -190,6 +197,10 @@
           debug_cctm = .True.; Cycle
         End If
 
+        If ( argv .Eq. '-ISAM_CCTM' ) Then
+          isam_cctm = .True.; Cycle
+        End If
+
         If ( argv .Eq. '-VERBOSE' ) Then
           verbose = .True.; Cycle
         End If
@@ -239,6 +250,7 @@
       Write( *,'("  -git_local  Does NOT copy source files to BLD directory")' )
       Write( *,'("  -help       Displays help screen")' )
       Write( *,'("  -debug_cctm Execute make with DEBUG option set to TRUE")' )
+      Write( *,'("  -isam_cctm  Execute make with ISAM option set to TRUE")' )
       Write( *,'(//)' )
 
       End Subroutine help_msg
@@ -289,28 +301,41 @@
       If ( Trim( mechanism ) .Ne. 'X' )
      &   Write( lfn, '("#   With mechanism [",a,"]")' )    Trim( mechanism )
 
-      ! Document Explicit Compiler Execution Paths
-      Write( lfn, '("#   Full Compiler Paths when Makefile was Built:")' ) 
-      Write( lfn, '("#       FC = ",a)' ) Trim( f_compiler_path )
-      Write( lfn, '("#       CC = ",a)' ) Trim( c_compiler_path )
+      ! Document Explicit Compiler Execution Paths if not given explicitly
+      If( Trim( f_compiler ) .Ne. Trim( f_compiler_path ) 
+     &     .Or.  Trim( c_compiler ) .Ne. Trim( c_compiler_path ) )Then
+         Write( lfn, '("#   Full Compiler Paths when Makefile was Built:")' ) 
+         Write( lfn, '("#       FC = ",a)' ) Trim( f_compiler_path )
+         Write( lfn, '("#       CC = ",a)' ) Trim( c_compiler_path )
+      End If 
 
       ! Document Explicit Library Paths
-      Call GETENV( 'IOAPI_MOD_DIR',  ioapi_mod_dir )
       Call GETENV( 'IOAPI_INCL_DIR', ioapi_incl_dir )
       Call GETENV( 'IOAPI_LIB_DIR',  ioapi_lib_dir )
       Call GETENV( 'NETCDF_LIB_DIR', netcdf_lib_dir )
+      Call GETENV( 'NETCDFF_LIB_DIR', netcdff_lib_dir )
       Call GETENV( 'MPI_LIB_DIR',    mpi_lib_dir )
       Write( lfn, '("#   Library Paths:")' ) 
-      Write( lfn, '("#      $(LIB)/ioapi/modules -> ",a)' ) Trim( ioapi_mod_dir )
       Write( lfn, '("#      $(LIB)/ioapi/include_files -> ",a)' ) Trim( ioapi_incl_dir )
       Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
       Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
       Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
+      Write( lfn, '("#      $(LIB)/netcdff -> ",a)' ) Trim( netcdff_lib_dir )
       Write( lfn, '("#",/,"#   Command-Line Options:      ")' ) 
-      Write( lfn, '("#      DEBUG=TRUE -- turn on debug flags ")' ) 
+      
+      If( debug_cctm )Then
+         Write( lfn, '("#      DEBUG = FALSE or false -- turn off debug flags ")' )
+         Write( lfn, '("#  OR  debug = false or FALSE -- turn off debug flags ")' )
+         Write( lfn, '("#  Can set either variable by using the setenv command to")' )
+         Write( lfn, '("#  turn off debugging session with multiple compilations")' )
+      Else
+         Write( lfn, '("#      DEBUG = TRUE or true -- turn on debug flags ")' ) 
+         Write( lfn, '("#  OR  debug = true or TRUE -- turn on debug flags ")' ) 
+         Write( lfn, '("#  Can set either variable by using the setenv command for")' ) 
+         Write( lfn, '("#  a debugging session with multiple compilations")' ) 
+      End if
       Write( lfn, '("#")' ) 
       Write( lfn, '("#------------------------------------------------- ")' ) 
-
 
       ! Begin Makefile Commands
       Write( lfn, '(/" EXEC = ",a)' ) Trim( model )
@@ -320,7 +345,11 @@
 
       Write( lfn, '(/" LIB = ",a)' ) Trim( lib_base )
       Write( lfn, '( " include_path = -I $(LIB)/",a,1x,a)' ) Trim( lib_1 ), backslash 
-      If ( l_lib_3 ) Then
+      If ( l_lib_5) Then
+         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 ), backslash 
+         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_3 ), backslash
+         Write( lfn, '( "                -I $(LIB)/",a)' )      Trim( lib_5 )
+      Else if ( l_lib_3 ) Then
          Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 ), backslash 
          Write( lfn, '( "                -I $(LIB)/",a)' )      Trim( lib_3 )
       Else
@@ -331,7 +360,17 @@
       Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
       Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
 
-      Write( lfn, '(/" ifeq ""$(DEBUG)"" ""TRUE"" ")' )
+      If( debug_cctm )Then
+         Write( lfn, '(/" ifndef debug")')
+         Write( lfn, '( "   debug = true")')
+         Write( lfn, '( " endif")')
+      End If
+
+      Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true True T ))")')
+      Write( lfn, '( "     DEBUG = TRUE")' )
+      Write( lfn, '( " endif")' )
+      
+      Write( lfn, '(/" ifneq (,$(filter $(DEBUG), TRUE true ))")')
       Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
       Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
 
@@ -371,7 +410,9 @@
       End If
 
       Write( lfn, '(/" IOAPI  = -L$(LIB)/",a,1x,a)' ) Trim( lib_4 ), Trim( ioapi )
-      Write( lfn, '( " NETCDF = -L$(LIB)/",a,1x,a)' ) "netcdf/lib", Trim( netcdf )
+      Write( lfn, '( " NETCDF = -L$(LIB)/",a,1x,a, " -L$(LIB)/",a,1x,a)' ) 
+     &  ,"netcdff/lib", Trim( netcdff ), "netcdf/lib", Trim(netcdf)
+      
       If ( serial ) Then
          Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
       Else
@@ -474,19 +515,31 @@
       nfields = getFieldCount( cpp_flags, ' ' )
 
       If ( nfields .Le. 1 ) Then
-        Write( lfn, '(" CPP_FLAGS = "a)' ) Trim( cpp_flags )
-        Return
+        Write( lfn, '(" cpp_flags = "a)' ) Trim( cpp_flags )
+      Else
+
+        Write( lfn, '(" cpp_flags =",$)')
+
+        ! print each field at a time
+        Do n = 1, nfields
+          Call getField( cpp_flags, ' ', n, field )
+          Write( lfn, '(1x,a,/,2x,a,$)' ) backslash, Trim( field )
+        End Do
+        Write( lfn, '(1x)' )
+
       End If
 
-      Write( lfn, '(" CPP_FLAGS =",$)')
+      If( isam_cctm )Then
+         Write( lfn, '(/" ifndef isam")')
+         Write( lfn, '( "   isam = true")')
+         Write( lfn, '( " endif")')
+      End If
 
-! print each field at a time
-      Do n = 1, nfields
-        Call getField( cpp_flags, ' ', n, field )
-        Write( lfn, '(1x,a,/,2x,a,$)' ) backslash, Trim( field )
-      End Do
-
-      Write( lfn, '(1x)' )
+      Write( lfn, '(/" ifneq (,$(filter $(isam), TRUE true True T ))")')
+      Write( lfn, '( "     CPP_FLAGS   = -Disam $(cpp_flags)" )' ) 
+      Write( lfn, '( " else")' )
+      Write( lfn, '( "     CPP_FLAGS   = $(cpp_flags)" )' ) 
+      Write( lfn, '( " endif")' )
 
       Return
       End Subroutine writeCPP
@@ -804,7 +857,7 @@
 
       modname1 = module(1)%name; Call ucase( modname1 )
       modname2 = module(2)%name; Call ucase( modname2 )
-
+      
       If ( Trim( modname1 ) .Eq. 'STENEX' .And. Trim( modname2 ) .Eq. 'PARIO' ) Then
         Do n = 1, n_modules
           Call orderfiles( module(n), .False., nfiles, filename )
@@ -879,7 +932,6 @@
         Call getField( objStr, ' ', n, obj )
         Write( lfn, '(1x,a/2x,a,$)' ) backslash, Trim( obj )
       End Do
-
       Write( lfn,'(1x)' )
 
       Return

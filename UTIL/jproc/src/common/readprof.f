@@ -39,7 +39,7 @@ C     XDOBS(nlat,MONTH)    - average dobson values
 C
 C*********************************************************************
 
-      USE M3UTILIO
+      USE GET_ENV_VARS
 
       IMPLICIT NONE
       
@@ -78,7 +78,7 @@ C...  molecules/cm**3).  T and M data is from Louis (Ph.D. thesis 1974
 C...  U.of Colorado).  O3 profiles are from Isaksen et al.
 C...  diabatic 2D model
 
-      CALL NAMEVAL ( PFFILE, EQNAME )
+      CALL VALUE_NAME ( PFFILE, EQNAME )
       PFUNIT = JUNIT( )
 
       OPEN( UNIT = PFUNIT,
@@ -90,7 +90,8 @@ C...check for open errors
 
       IF ( IOST .NE. 0) THEN
         MSG = 'Could not open the PROFILES data file'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       WRITE( 6, 2001 ) PFUNIT, EQNAME
@@ -107,8 +108,9 @@ C...check for read errors
 
           IF ( IOST .GT. 0) THEN
             MSG = 'Errors occurred while reading XO3 in PROFILES file'
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
-          END IF
+            WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+            STOP
+         END IF
 
         END DO
 
@@ -122,7 +124,8 @@ C...check for read errors
 
           IF ( IOST .GT. 0) THEN
             MSG = 'Errors occurred while reading XT in PROFILES file'
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+            WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+            STOP
           END IF
         END DO
 
@@ -136,7 +139,8 @@ C...check for read errors
 
           IF ( IOST .GT. 0) THEN
             MSG = 'Errors occurred while reading XAIR in PROFILES file'
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+            WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+            STOP
           END IF
 
         END DO
@@ -154,7 +158,8 @@ C...check for read errors
 
         IF ( IOST .GT. 0) THEN
           MSG = 'Errors occurred while reading XDOBS in PROFILES file'
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
         END IF
 
       END DO
@@ -175,7 +180,8 @@ C...check for read errors
 
         IF ( IOST .GT. 0) THEN
           MSG ='Errors occurred while reading STD PROF in PROFILES file'
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
         END IF
 
       END DO

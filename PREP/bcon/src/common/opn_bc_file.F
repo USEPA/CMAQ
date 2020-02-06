@@ -25,8 +25,9 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE OPN_BC_FILE( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT, 
-     &                        SPNAME_OUT, BC_FNAME, RINDX  )  
+      SUBROUTINE OPN_BC_FILE ( LOGUNIT, SDATE, STIME, TSTEP, NSPCS_OUT,
+     &                         SPNAME_OUT, VTYPE_OUT, UNITS_OUT,
+     &                         VDESC_OUT, BC_FNAME, RINDX )
 
 C***********************************************************************
  
@@ -51,7 +52,6 @@ C***********************************************************************
       USE HGRD_DEFN   ! Module to store and load the horizontal grid variables
       USE VGRD_DEFN   ! vertical layer specifications
       USE M3UTILIO    ! IOAPI module
-      USE CGRID_SPCS
       USE BC_PARMS    ! BCON parameters
 
       IMPLICIT NONE     
@@ -59,21 +59,22 @@ C***********************************************************************
 C Include Files: None
 
 C Arguments: 
-      CHARACTER( 16 ) :: BC_FNAME( * )    ! Logical names of BC Output file(s) 
-      CHARACTER( 16 ) :: SPNAME_OUT( * )  ! Ouput file species names
+      CHARACTER( 16 ), INTENT( OUT ) :: BC_FNAME( : )    ! Logical names of BC Output file(s)
+      CHARACTER( 16 ), INTENT( IN )  :: SPNAME_OUT( : )  ! Ouput file species names
+      CHARACTER( 16 ), INTENT( IN )  :: UNITS_OUT( : )
+      CHARACTER( 80 ), INTENT( IN )  :: VDESC_OUT( : )
 
-      INTEGER LOGUNIT      ! Unit number for output log
-      INTEGER NSPCS_OUT    ! Number of IC species on output file(s)
-      INTEGER RINDX        ! Index of root file name
-      INTEGER SDATE        ! Date for IC Output
-      INTEGER STIME        ! Time for IC output
-      INTEGER TSTEP        ! Time step
+      INTEGER, INTENT( IN ) :: LOGUNIT      ! Unit number for output log
+      INTEGER, INTENT( IN ) :: NSPCS_OUT    ! Number of IC species on output file(s)
+      INTEGER, INTENT( IN ) :: RINDX        ! Index of root file name
+      INTEGER, INTENT( IN ) :: SDATE        ! Date for IC Output
+      INTEGER, INTENT( IN ) :: STIME        ! Time for IC output
+      INTEGER, INTENT( IN ) :: TSTEP        ! Time step
+      INTEGER, INTENT( IN ) :: VTYPE_OUT( : ) ! Variable type (e.g. integer, real, ...)
 
 C Parameters: None
 
-C External Functions: Nonde
-
-C Saved Local Variables: None
+C External Functions: None
 
 C Local Variables:
       CHARACTER(  16 ) :: BUF16          ! 16 character buffer
@@ -103,8 +104,7 @@ c  Get the value of environment variable EXECUTION_ID
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ENV_DESC = 'Value of environment variable EXECUTION_ID' 
       ENV_DFLT = '-----------'        
-      CALL ENVSTR( 'EXECUTION_ID', ENV_DESC, ENV_DFLT, RET_VAL,
-     &              STATUS)
+      CALL ENVSTR ( 'EXECUTION_ID', ENV_DESC, ENV_DFLT, RET_VAL, STATUS )
       EXECN3D = RET_VAL
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -186,44 +186,28 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          ENV_DESC = 'BC Output file ' // BC_FNAME( N ) 
          ENV_DFLT = ' '       
-         CALL ENVSTR( BC_FNAME( N ), ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
+         CALL ENVSTR ( BC_FNAME( N ), ENV_DESC, ENV_DFLT, RET_VAL, STATUS)
 
          IF ( STATUS .NE. 0 ) THEN
-            MSG = 'BC output file ' // BC_FNAME( N ) //
-     &            ' not assigned' 
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+            MSG = 'BC output file ' // BC_FNAME( N ) // ' not assigned'
+            CALL M3EXIT ( PNAME, 0, 0, MSG, XSTAT1 )
          END IF
 
          FDESC3D( 1 ) = 'BCON output file ' // BC_FNAME( N )
-         NVARS3D = MIN( MXVARS3 , ( NSPCS_OUT - ( N - 1 ) * 
-     &                  MXVARS3 ) )
+         NVARS3D = MIN( MXVARS3,
+     &                  ( NSPCS_OUT - ( N - 1 ) * MXVARS3 ) )
           
          DO V = 1, NVARS3D
 
             VARINDX = ( N - 1 ) * MXVARS3 + V
-            VTYPE3D( V ) = M3REAL
-
+            VTYPE3D( V ) = VTYPE_OUT( VARINDX )
             VNAME3D( V ) = SPNAME_OUT( VARINDX )
-            UNITS3D( V ) = 'ppmV'
-            VDESC3D( V ) = 'Variable ' // SPNAME_OUT( VARINDX )
+            UNITS3D( V ) = UNITS_OUT( VARINDX )
+            VDESC3D( V ) = VDESC_OUT( VARINDX )
             
-            IF ( INDEX1( SPNAME_OUT( VARINDX ), N_AE_SPC, AE_SPC ) .GT. 0 )
-     &            THEN
-
-               IF ( SPNAME_OUT( V )( 1:3 ) .EQ. 'NUM' ) THEN
-                  UNITS3D( V ) = '#/m**3'
-               ELSE IF ( SPNAME_OUT( V )( 1:3 ) .EQ. 'SRF' ) THEN
-                  UNITS3D( V ) = 'm**2/m**3'
-               ELSE
-                  UNITS3D( V ) = 'micrograms/m**3'
-               END IF
-
-            END IF
-
          END DO
          
          WRITE( LOGUNIT, 92040 ) N, BC_FNAME( N )
-
 
          WRITE( LOGUNIT, 92060 ) EXECN3D, FTYPE3D, SDATE3D, STIME3D,
      &                           TSTEP3D, NCOLS3D, NROWS3D, NLAYS3D,

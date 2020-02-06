@@ -4,17 +4,27 @@ sitecmp
 This Fortran program generates a csv (comma separated values) file that compares CMAQ generated concentrations with an observed dataset.
 
 
-## Environment variables used:
+## Environment Run Time Variables:
 
 ```
  TABLE_TYPE  dataset type {IMPROVE, CASTNET, STN, NADP, MDN, SEARCH,
              DEARS, AIRMON, OUT_TABLE}
- M3_FILE_n   ioapi input files containing modeled species data (max of 12). 
+ M3_FILE_#   ioapi input files containing modeled species data. 
+	     The maximum number of IOAPI files is set to be one less than the global IOAPI parameter MXFILE3.
+	     Since this parameter is currently set to 64 (https://www.cmascenter.org/ioapi/documentation/all_versions/html/TUTORIAL.html),
+	     the maximum number of IOAPI input files is 63.
              [Note: Supported map projections are Lambert conformal, polar stereographic, and lat/lon.
              If an ioapi file is supplied that has a projection not in this list the program will 
              stop with an error message.]
- SITE_FILE   input file containing site information for each monitor (site-id, longitude, latitude, 
-             and optionally time zone offset between local time and GMT) (tab delimited)
+ SITE_FILE   csv-formatted input file containing the station ID, latitude, longitude, and optionally 
+             GMT offset, state, county, and elevation for each monitor.  
+             The column headings for the required variables need to be stat_id, lat, and lon.
+             The column headings for the optional variables (if present) need to be gmt_offset, state, county, 
+	     and elevation.
+	     The column headings are case insensitve and the order of the columns does not matter.
+             For legacy purposes, SITE_FILE can also be a tab delimited file with no header and three 
+	     or four columns that contains site information for each monitor in the following fixed order:
+	     site-id, longitude, latitude, and optionally time zone offset between local time and GMT
  IN_TABLE    input file with observed data (comma delimited with header)
  OUT_TABLE   file for output data with columns of paired observed and modeled
              values
@@ -82,8 +92,15 @@ Defines the data columns for your output file. Each can specify the observed and
 ```
 ## File formats:
 ```
- SITE_FILE - tab delimited text file containing site-id, longitude,
-             latitude, and optionally time zone offset between local time and GMT
+ SITE_FILE - csv-formatted input file containing the station ID, latitude, longitude, and optionally 
+             GMT offset, state, county, and elevation for each monitor.  
+             The column headings for the required variables need to be stat_id, lat, and lon.
+             The column headings for the optional variables (if present) need to be gmt_offset, state, county, 
+	     and elevation.
+	     The column headings are case insensitve and the order of the columns does not matter.
+             For legacy purposes, SITE_FILE can also be a tab delimited file with no header and three 
+	     or four columns that contains site information for each monitor in the following fixed order:
+	     site-id, longitude, latitude, and optionally time zone offset between local time and GMT
  
  M3_FILE_n - IOAPI file containing modeled species data (n=1->12)
  
@@ -137,14 +154,25 @@ Defines the data columns for your output file. Each can specify the observed and
              modeled values
 ```
 
-## To run:
-Edit the sample run script (run.sitecmp*), then run:
+## Compile sitecmp source code:
+
+Execute the build script to compile sitecmp:
+
 ```
- run.sitecmp |& tee sitecmp.log
+cd $CMAQ_HOME/POST/sitecmp/scripts
+./bldit_sitecmp.csh [compiler] [version] |& tee build_sitecmp.log
 ```
+
+## Run sitecmp:
+Edit the sample run script (run_sitecmp_AQS_Hourly.csh*), then run:
+
+```
+ ./run_sitecmp_AQS_Hourly.csh |& tee sitecmp.log
+```
+
 Check the log file to ensure complete and correct execution without errors.
 
 
-A sample run scripts has been provided for matching model data to hourly observations from AQS.  The README.txt file in the scripts folder shows the changes need to adapt this run script to one of the following networks: AERONET, AMON, CASTNET (hourly and weekly data), CSN, IMPROVE, NADP, and SEARCH (hourly and daily data).  The formatted observation data files needed for running the sitecmp utility are available for 2000 through 2014 from the CMAS Center Data Clearinghouse under the heading "2000-2014 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.  
+*A sample run scripts has been provided for matching model data to hourly observations from AQS.  The README.txt file in the scripts folder shows the changes need to adapt this run script to one of the following networks: AERONET, AMON, CASTNET (hourly and weekly data), CSN, IMPROVE, NADP, and SEARCH (hourly and daily data).  The formatted observation data files needed for running the sitecmp utility are available for 2000 through 2014 from the CMAS Center Data Clearinghouse under the heading "2000-2014 North American Air Quality Observation Data": https://www.cmascenter.org/download/data.cfm.  
 
 Note that the run scripts rely on model output that has already been processed using the combine utility. The user should first run combine on ACONC and DEP output files to create the necessary COMBINE_ACONC and COMBINE_DEP files that contain the model species that can be matched to available observations. See the sample run scripts for the combine utility for examples on creating COMBINE_ACONC and COMBINE_DEP.

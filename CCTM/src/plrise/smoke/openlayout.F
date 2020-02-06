@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/plrise/smoke/openlayout.F,v 1.4 2011/10/21 16:11:30 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE OPENLAYOUT( SDATE, STIME, TSTEP, EMLAYS, VGLVSXG,
      &                       NPTGRPS, MY_NSRC, LNAME )
@@ -60,16 +54,14 @@ C Pathname: $Source: /project/yoj/arc/CCTM/src/plrise/smoke/openlayout.F,v $
 C Last updated: $Date: 2011/10/21 16:11:30 $ 
  
 C-----------------------------------------------------------------------
- 
+
+      USE RUNTIME_VARS, ONLY : LOGDEV, PLAY_BASE
       USE HGRD_DEFN, ONLY: MYPE
       USE UTILIO_DEFN
 
       IMPLICIT NONE
  
 C Includes:
-
-C External Functions:
-      INTEGER,         EXTERNAL :: SETUP_LOGDEV
 
 C Local Parameters:
 
@@ -91,16 +83,13 @@ C Local variables:
 
       CHARACTER(   3 ) :: CMYPE
       CHARACTER(   4 ) :: POSTSTR = '.ncf'
-      CHARACTER(  16 ) :: PLAY_BASE
       CHARACTER(  96 ) :: PLAY_EQ
       CHARACTER(  96 ) :: EQNAME
       CHARACTER( 256 ) :: BASE
 
-      INTEGER :: LOGDEV, IOS
+      INTEGER :: IOS
 
 C-----------------------------------------------------------------------
-
-      LOGDEV = SETUP_LOGDEV()
 
 C Set up and open diagnostic file(s)
 
@@ -129,15 +118,15 @@ C Set up and open diagnostic file(s)
 
       VNAME3D = ' '     ! array
       VTYPE3D = 0       ! array
-      UNITS3D = ' '     ! array
+      UNITS3D = ''     ! array
       VDESC3D = ' '     ! array
       VNAME3D( 1 ) = 'LFRAC'
       VTYPE3D( 1 ) = M3REAL
-      UNITS3D( 1 ) = 'none'
+      UNITS3D( 1 ) = '1'
       VDESC3D( 1 ) = 'Fraction of plume emitted into layer'
       VNAME3D( 2 ) = 'ZPLUME'
       VTYPE3D( 2 ) = M3REAL
-      UNITS3D( 2 ) = 'none'
+      UNITS3D( 2 ) = '1'
       VDESC3D( 2 ) = 'plume elevation above ground'
 
       VGLVS3D = 0.0     ! array
@@ -159,15 +148,7 @@ C Set up and open diagnostic file(s)
          IF ( MY_NSRC( N ) .GT. 0 ) THEN
             NCOLS3D = MY_NSRC( N )
 
-            WRITE( PLAY_BASE,'( "PLAY_BASE", "_", I2.2 )' ) N
-            XMSG = 'Logical name for LAYER FRACTIONS MATRIX'
-            CALL ENVSTR( PLAY_BASE, XMSG, ' ', BASE, IOS )
-            IF ( IOS .NE. 0 ) THEN
-               XMSG = 'Error retrieving Layer Fractions File base name env var'
-               CALL M3EXIT( PNAME, SDATE, STIME, XMSG, XSTAT3 )
-            END IF
-
-            PLAY_EQ = TRIM( BASE ) // '_' // CMYPE // POSTSTR
+            PLAY_EQ = TRIM( PLAY_BASE( N ) ) // '_' // CMYPE // POSTSTR
             WRITE( LNAME( N ),'( "PLAY_", I2.2 )' ) N
             IF ( .NOT. SETENVVAR ( LNAME( N ), PLAY_EQ ) ) THEN
                XMSG = 'Could not set environment variable for ' // PLAY_EQ

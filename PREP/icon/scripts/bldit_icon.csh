@@ -1,6 +1,6 @@
 #! /bin/csh -f
 
-# ====================== ICONv5.2 Build Script ====================   
+# ====================== ICONv5.3.1 Build Script ====================   
 # Usage: bldit_icon.csh >&! bldit.icon.log                                
 # Requirements: I/O API & netCDF libs, and a Fortran compiler    
 # Note that this script is configured/tested for Red Hat Linux O/S    
@@ -36,46 +36,35 @@
 #> Source Code Locations
  set ICON_SRC = ${CMAQ_REPO}/PREP/icon/src #> location of the ICON source code
  setenv REPOROOT $ICON_SRC
- set Mechs = ${CMAQ_REPO}/CCTM/src/MECHS   #> location of the chemistry mechanism defining files
 
 #> Working directory and Version IDs
- set VRSN  = v52                    #> Code Version
- set INPT = profile                #> Input data type: profile or m3conc?
- set EXEC = ICON_${VRSN}_$INPT.exe  #> executable name for this application
- set CFG  = ICON_${VRSN}_$INPT.cfg  #> BLDMAKE configuration file name
+ set VRSN  = v531                    #> Code Version
+ set EXEC = ICON_${VRSN}.exe        #> executable name for this application
+ set CFG  = ICON_${VRSN}.cfg        #> BLDMAKE configuration file name
 
 #> Controls for managing the source code and MPI compilation
-set CompileBLDMAKE                     #> Recompile the BLDMAKE utility from source
-                                       #>   comment out to use an existing BLDMAKE executable
-set CopySrc                            #> copy the source files into the BLD directory
-#set CopySrcTree                       #> copy the source files and directory tree into the build directory
-#set Opt = verbose                     #> show requested commands as they are executed
-#set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
+ set CompileBLDMAKE                 #> Recompile the BLDMAKE utility from source
+                                    #>   comment out to use an existing BLDMAKE executable
+ set CopySrc                        #> copy the source files into the BLD directory
+#set CopySrcTree                    #> copy the source files and directory tree into the build directory
+#set Opt = verbose                  #> show requested commands as they are executed
+#set MakeFileOnly                   #> uncomment to build a Makefile, but do not compile; 
+                                    #>   comment out to compile the model (default if not set)
+#set Debug_ICON                     #> uncomment to compile ICON with debug option equal to TRUE
+                                    #>   comment out to use standard, optimized compile process
 
 #>==============================================================================
-#> ICON Science Modules selection
-#> NOTE: For the modules with multiple choices, choose by uncommenting.
-#> look in the ICON source code repository or refer to the CMAQ documentation
-#> for other possible options. Be careful. Not all options work together.
+#> ICON Science Modules
+#>
+#> NOTE:  IC type is now a runtime option.  All IC types are included at
+#>        compile time
 #>==============================================================================
 
  set ModCommon = common
 
- set ModType   = profile
-#set ModType   = m3conc
-#set ModType   = tracer
+ set ModM3conc = m3conc
 
- set ModMech   = prof_data/cb05_ae6_aq #> static boundary conditions profiles (see $CMAQ_HOME/PREP/bcon/src/prof_data)
-
-#set Mechanism = cb05tucl_ae6_aq/
-#set Mechanism = cb05tump_ae6_aq/
- set Mechanism = cb05e51_ae6_aq/
-#set Mechanism = cb05mp51_ae6_aq/
-#set Mechanism = saprc07tb_ae6_aq/
-#set Mechanism = saprc07tc_ae6_aq/
-#set Mechanism = saprc07tic_ae6i_aq/
-#set Mechanism = racm2_ae6_aq/
- set Tracer    = trac0               # default: no tracer species
+ set ModProfile = profile
 
 #>#>#>#>#>#>#>#>#>#>#>#>#>#> End User Input Section #<#<#<#<#<#<#<#<#<#<#<#<#<#
 #>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#>#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#<#
@@ -83,11 +72,11 @@ set CopySrc                            #> copy the source files into the BLD dir
 #> Set full path of Fortran 90 compiler
  set FC = ${myFC}
  set FP = $FC
- setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compiler}.exe   #> name of model builder executable
+ setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe   #> name of model builder executable
 
 #> Set compiler flags
  set xLib_Base  = ${CMAQ_LIB}
- set xLib_1     = ioapi/modules
+ set xLib_1     = ioapi/lib
  set xLib_2     = ioapi/include_files
  set xLib_4     = ioapi/lib
  set FSTD       = "${myFSTD}"
@@ -99,6 +88,7 @@ set CopySrc                            #> copy the source files into the BLD dir
  
  set LIB1 = "$ioapi_lib"
  set LIB2 = "$netcdf_lib $extra_lib"
+ set LIB3 = "$netcdff_lib"
 
 #============================================================================================
 #> Implement User Input
@@ -127,7 +117,7 @@ set CopySrc                            #> copy the source files into the BLD dir
 
 #> Set and create the "BLD" directory for checking out and compiling 
 #> source code. Move current directory to that build directory.
- set Bld = $CMAQ_HOME/PREP/icon/scripts/BLD_ICON_${VRSN}_${INPT}_${compiler}
+ set Bld = $CMAQ_HOME/PREP/icon/scripts/BLD_ICON_${VRSN}_${compilerString}
  if ( ! -e "$Bld" ) then
     mkdir $Bld
  else
@@ -138,14 +128,6 @@ set CopySrc                            #> copy the source files into the BLD dir
  endif
  cd $Bld
 
- if ( $?CopySrc ) then
-    /bin/cp -fp $Mechs/$Mechanism/*.nml $Bld
-    /bin/cp -fp $Mechs/$Tracer/*.nml $Bld
- else
-    /bin/ln -s $Mechs/$Mechanism/*.nml $Bld
-    /bin/ln -s $Mechs/$Tracer/*.nml $Bld
- endif
-
 #> make the config file
 
  set Cfile = ${CFG}.bld
@@ -154,9 +136,7 @@ set CopySrc                            #> copy the source files into the BLD dir
  echo                                                               > $Cfile
  echo "model       $EXEC;"                                         >> $Cfile
  echo                                                              >> $Cfile
- echo "repo        $ICON_SRC;"                                        >> $Cfile
- echo                                                              >> $Cfile
- echo "mechanism   $Mechanism;"                                    >> $Cfile
+ echo "repo        $ICON_SRC;"                                     >> $Cfile
  echo                                                              >> $Cfile
  echo "lib_base    $xLib_Base;"                                    >> $Cfile
  echo                                                              >> $Cfile
@@ -184,11 +164,12 @@ set CopySrc                            #> copy the source files into the BLD dir
  echo "ioapi       $quote$LIB1$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
  echo "netcdf      $quote$LIB2$quote;"                             >> $Cfile
- echo   
+ echo                                                              >> $Cfile
+ echo "netcdff      $quote$LIB3$quote;"                            >> $Cfile
+ echo                                                              >> $Cfile
 
- set text="// mechanism:"
- echo "$text ${Mechanism}"                                         >> $Cfile
- echo "// project repository: ${ICON_SRC}"                         >> $Cfile
+
+ echo "// project repository location: ${ICON_SRC}"                >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "common"
@@ -196,14 +177,14 @@ set CopySrc                            #> copy the source files into the BLD dir
  echo "Module ${ModCommon};"                                       >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "profile, m3conc, tracer"
+ set text = "m3conc"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModType};"                                         >> $Cfile
+ echo "Module ${ModM3conc};"                                       >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "cb05, saprc99, saprc07t"
+ set text = "profile"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModMech};"                                         >> $Cfile
+ echo "Module ${ModProfile};"                                      >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then
@@ -227,6 +208,11 @@ set CopySrc                            #> copy the source files into the BLD dir
 #> Relocate to the BLD_* directory 
  cd $Bld
 
+# Set ICON debug flags if true
+ if ( $?Debug_ICON ) then
+    set Blder = "${Blder} -debug_cctm"
+ endif
+
 #> Run BLDMAKE Utility
  if ( $?MakeFileOnly ) then
     if ( $?CopySrc ) then
@@ -244,10 +230,11 @@ set CopySrc                            #> copy the source files into the BLD dir
  endif
 
 #> Rename Makefile to specify compiler option and link back to Makefile
- mv Makefile Makefile.$compiler
- # if ( -e Makefile.$compiler && -e Makefile ) rm Makefile
- ln -s Makefile.$compiler Makefile
+ mv Makefile Makefile.$compilerString
+ if ( -e Makefile.$compilerString && -e Makefile ) rm Makefile
+ ln -s Makefile.$compilerString Makefile
  
+#> Alert user of error in BLDMAKE if it ocurred
  if ( $status != 0 ) then
     echo "   *** failure in $Blder ***"
     exit 1

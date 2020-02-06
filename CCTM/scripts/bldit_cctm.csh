@@ -1,13 +1,13 @@
 #!/bin/csh -f
 
-# ======================== CCTMv5.2 Build Script ======================= 
+# ======================= CCTMv5.3.1 Build Script ========================= 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
 #
 # To report problems or request help with this script/program:           
 #             http://www.cmascenter.org
-# ====================================================================== 
+# ======================================================================= 
 
 #> Set Compiler Identity by User Input: Options -> intel | pgi | gcc
  if ( $#argv == 1 ) then
@@ -34,13 +34,13 @@
 # =======================================================================
 
 #> Source Code Locations
- setenv CCTM_SRC ${CMAQ_REPO}/CCTM/src   #> location of the CCTM source code
+ setenv CCTM_SRC ${CMAQ_REPO}/CCTM/src #> location of the CCTM source code
  set GlobInc = $CCTM_SRC/ICL           #> location of the global include files
  set Mechs   = $CCTM_SRC/MECHS         #> location of the chemistry mechanism include files
  setenv REPOROOT $CCTM_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v52                       #> model configuration ID
+ set VRSN  = v531                       #> model configuration ID
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
@@ -57,7 +57,12 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   comment out to use standard netCDF I/O
 #set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
                                        #>   comment out to use standard, optimized compile process
+set make_options = "-j"                #> additional options for make command if MakeFileOnly is not set
+                                       #>   comment out if no additional options are wanted.
 
+#> Integrated Source Apportionment Method (ISAM)
+#set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
+                                       #>   comment out to use standard process
 #> Two-way WRF-CMAQ 
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
                                        #>   comment out for off-line chemistry 
@@ -73,35 +78,36 @@ set ParOpt                             #> uncomment to build a multiple processo
 #>   archive for a list of the possible settings. Users 
 #>   may also refer to the CMAQ documentation.
 
- set ModDriver = driver/wrf            #> generalized coordinate driver module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/driver)
- set ModInit   = init/yamo             #> time-step initialization module 
- set ModGrid   = grid/cartesian        #> grid configuration module 
- set ModCpl    = couple/gencoor_wrf    #> unit conversion and concentration coupling module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/couple)
- set ModHadv   = hadv/yamo             #> horizontal advection module
- set ModVadv   = vadv/wrf              #> vertical advection module (see $CMAQ_MODEL/CCTM/src/vadv)
- set ModHdiff  = hdiff/multiscale      #> horizontal diffusion module
- set ModVdiff  = vdiff/acm2            #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
- set ModDepv   = depv/m3dry            #> deposition velocity calculation module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/depv)
- set ModEmis   = emis/emis             #> in-line emissions module
- set ModBiog   = biog/beis3            #> BEIS3 in-line emissions module 
- set ModPlmrs  = plrise/smoke          #> in-line emissions plume rise
- set ModCgrds  = spcs/cgrid_spcs_nml   #> chemistry species configuration module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/spcs)
- set ModPhot   = phot/inline           #> photolysis calculation module 
-                                       #>     (see $CMAQ_MODEL/CCTM/src/phot)
- set Mechanism = cb6r3_ae7_aq        #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
- set ModGas    = gas/ebi_${Mechanism}  #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
- set ModAero   = aero/aero7            #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
- set ModCloud  = cloud/acm_ae7         #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
- set ModUtil   = util/util             #> CCTM utility modules
- set Tracer    = trac0                 #> tracer configuration directory under 
-                                       #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
- set ModPa     = procan/pa             #> name of process analysis. Include files are in directory 
-                                       #>   $CMAQ_MODEL/CCTM/src/ICL
- set ModPvO3   = pv_o3                 #> potential vorticity from the free troposphee
+ set ModGrid   = grid/cartesian             #> grid configuration module 
+ 
+ set DepMod    = m3dry                      #> m3dry or stage
+#set DepMod    = stage
+ set ModAdv    = wrf_cons                   #> 3-D Advection Scheme [Options: wrf_cons (default), local_cons]
+ set ModHdiff  = hdiff/multiscale           #> horizontal diffusion module
+ set ModVdiff  = vdiff/acm2_${DepMod}       #> vertical diffusion module (see $CMAQ_MODEL/CCTM/src/vdiff)
+ set ModDepv   = depv/${DepMod}             #> deposition velocity calculation module 
+                                            #>     (see $CMAQ_MODEL/CCTM/src/depv)
+ set ModEmis   = emis/emis                  #> in-line emissions module
+ set ModBiog   = biog/beis3                 #> BEIS3 in-line emissions module 
+ set ModPlmrs  = plrise/smoke               #> in-line emissions plume rise
+ set ModCgrds  = spcs/cgrid_spcs_nml        #> chemistry species configuration module 
+                                            #>     (see $CMAQ_MODEL/CCTM/src/spcs)
+ set ModPhot   = phot/inline                #> photolysis calculation module 
+                                            #>     (see $CMAQ_MODEL/CCTM/src/phot)
+ set Mechanism = cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ set ModGas    = gas/ebi_${Mechanism}       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+                                            #> use gas/ros3 or gas/smvgear for a solver independent 
+                                            #  of the photochemical mechanism
+ set ModAero   = aero/aero7                 #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
+ set ModCloud  = cloud/acm_ae7              #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
+                                            #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
+ set ModUtil   = util/util                  #> CCTM utility modules
+ set ModDiag   = diag                       #> CCTM diagnostic modules
+ set Tracer    = trac0                      #> tracer configuration directory under 
+                                            #>   $CMAQ_MODEL/CCTM/src/MECHS [ default: no tracer species ]
+ set ModPa     = procan/pa                  #> CCTM process analysis
+ set ModPvO3   = pv_o3                      #> potential vorticity from the free troposphere
+ set ModISAM   = isam                       #> CCTM Integrated Source Apportionment Method
 
 #============================================================================================
 #> Computing System Configuration:
@@ -114,20 +120,21 @@ set ParOpt                             #> uncomment to build a multiple processo
  setenv BLDER ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe   #> name of model builder executable
 
 #> Libraries/include files
-# set LIOAPI   = "${IOAPI_DIR}/lib ${ioapi_lib}"      #> I/O API library directory
-# set IOAPIMOD = "${IOAPI_DIR}/include"               #> I/O API module directory
- set NETCDF   = "${NETCDF_DIR}/lib ${netcdf_lib}"    #> netCDF library directory
+#set LIOAPI   = "${IOAPI_DIR}/lib ${ioapi_lib}"      #> I/O API library directory
+#set IOAPIMOD = "${IOAPI_DIR}/include"               #> I/O API module directory
+ set NETCDF   = "${NETCDF_DIR}/lib ${netcdf_lib}"    #> netCDF C library directory
+ set NETCDFF  = "${NETCDFF_DIR}/lib ${netcdff_lib}"  #> netCDF Fortran library directory
  set PNETCDF  = "${PNETCDF_DIR}/lib ${pnetcdf_lib}"  #> Parallel netCDF library directory
-# set PIO_INC  = "${IOAPI_DIR}/src"
+#set PIO_INC  = "${IOAPI_DIR}/src"
 
 #> Compiler flags set in config.cmaq
  set FSTD       = "${myFSTD}"
  set DBG        = "${myDBG}"
- setenv F_FLAGS   "${myFFLAGS}"  #> F77 flags
- set F90_FLAGS  = "${myFRFLAGS}" #> F90 flags
- set CPP_FLAGS  = "" #> Fortran preprocessor flags
+ setenv F_FLAGS   "${myFFLAGS}"            #> F77 flags
+ set F90_FLAGS  = "${myFRFLAGS}"           #> F90 flags
+ set CPP_FLAGS  = ""                       #> Fortran preprocessor flags
  set C_FLAGS    = "${myCFLAGS} -DFLDMN -I" #> C flags
- set LINK_FLAGS = "${myLINK_FLAG}" # Link flags
+ set LINK_FLAGS = "${myLINK_FLAG}"         # Link flags
 
 
 #============================================================================================
@@ -177,6 +184,12 @@ set ParOpt                             #> uncomment to build a multiple processo
     set PIO = ""
  endif
 
+ if ($DepMod == m3dry) then
+    set cpp_depmod = '-Dm3dry_opt'
+ else if ($DepMod == stage) then
+    set cpp_depmod = '-Dstage_opt'
+ endif
+
 #> Set variables needed for multiprocessor and serial builds
  if ( $?ParOpt ) then    
     #Multiprocessor system configuration
@@ -215,9 +228,9 @@ set ParOpt                             #> uncomment to build a multiple processo
 #> Mechanism location
  set ModMech = MECHS/$Mechanism        #> chemical mechanism module
 
-#> Gas-phase chemistry solver options
- if ( $Mechanism == saprc07tic_ae6i_aqkmti ) then
-    set ModGas = gas/ebi_saprc07tic_ae6i_aq
+#> Cloud chemistry options
+ if ( $Mechanism == cb6r3m_ae7_kmtbr ) then
+    set ModCloud = cloud/acm_ae7_kmtbr
  endif
 
 #> Tracer configuration files
@@ -243,12 +256,12 @@ set ParOpt                             #> uncomment to build a multiple processo
  endif
  cd $Bld
 
-#> Set locations for the inlude files of various modules
+#> Set locations for the include files of various modules
  set ICL_PAR   = $GlobInc/fixed/mpi         
  set ICL_CONST = $GlobInc/fixed/const       
  set ICL_FILES = $GlobInc/fixed/filenames
  set ICL_EMCTL = $GlobInc/fixed/emctrl
- #set ICL_PA    = $GlobInc/procan/$PAOpt
+#set ICL_PA    = $GlobInc/procan/$PAOpt
 
  #Test with xlib commented out
  if ( $?ParOpt ) then
@@ -291,6 +304,7 @@ set ParOpt                             #> uncomment to build a multiple processo
               -DSUBST_SUBGRID_INDEX=${Popt}_SUBGRID_INDEX )
  set STX2 = ( -DSUBST_HI_LO_BND_PE=${Popt}_HI_LO_BND_PE\
               -DSUBST_SUM_CHK=${Popt}_SUM_CHK\
+              -DSUBST_SE_INIT=${Popt}_INIT\
               -DSUBST_INIT_ARRAY=${Popt}_INIT_ARRAY\
               -DSUBST_COMM=${Popt}_COMM\
               -DSUBST_MY_REGION=${Popt}_MY_REGION\
@@ -298,6 +312,21 @@ set ParOpt                             #> uncomment to build a multiple processo
               -DSUBST_GATHER=${Popt}_GATHER\
               -DSUBST_DATA_COPY=${Popt}_DATA_COPY\
               -DSUBST_IN_SYN=${Popt}_IN_SYN )
+
+
+#> 3-D Advection Options
+ if ( $ModAdv == wrf_cons ) then
+    set ModCpl    = couple/gencoor_wrf_cons    #> unit conversion and concentration coupling module 
+                                               #>     (see $CMAQ_MODEL/CCTM/src/couple)
+    set ModHadv   = hadv/ppm                   #> horizontal advection module   
+    set ModVadv   = vadv/wrf_cons              #> Vertical advection module                             
+ else if ($ModAdv == local_cons) then
+    set ModCpl    = couple/gencoor_local_cons  #> unit conversion and concentration coupling module 
+                                               #>     (see $CMAQ_MODEL/CCTM/src/couple)
+    set ModHadv = hadv/ppm                     #> horizontal advection module
+    set ModVadv = vadv/local_cons              #> Vertical advection module
+ endif
+
 
 # ============================================================================
 #> Create Config File 
@@ -307,47 +336,53 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set quote = '"'
 
  echo                                                               > $Cfile
- echo "model       $EXEC;"                                         >> $Cfile
+if ( $?make_options ) then
+    echo "make_options $quote$make_options$quote;"                 >> $Cfile
+    echo                                                           >> $Cfile
+endif
+ echo "model        $EXEC;"                                        >> $Cfile
  echo                                                              >> $Cfile
- echo "repo        $CCTM_SRC;"                                     >> $Cfile
+ echo "repo         $CCTM_SRC;"                                    >> $Cfile
  echo                                                              >> $Cfile
- echo "mechanism   $Mechanism;"                                    >> $Cfile
+ echo "mechanism    $Mechanism;"                                   >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_base    $CMAQ_LIB;"                                     >> $Cfile
+ echo "lib_base     $CMAQ_LIB;"                                    >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_1       ioapi/modules;"                                 >> $Cfile
+ echo "lib_1        ioapi/lib;"                                    >> $Cfile
  echo                                                              >> $Cfile
- echo "lib_2       ioapi/include_files;"                           >> $Cfile
+ echo "lib_2        ioapi/include_files;"                          >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
-    echo "lib_3       ${quote}mpi -I.$quote;"              >> $Cfile
+    echo "lib_3       ${quote}mpi -I.$quote;"                      >> $Cfile
     echo                                                           >> $Cfile
  endif
  echo                                                              >> $Cfile
- echo "lib_4       ioapi/lib;"                                     >> $Cfile
+ echo "lib_4        ioapi/lib;"                                    >> $Cfile
  echo                                                              >> $Cfile
- set text = "$quote$CPP_FLAGS $PAR $POT $STX1 $STX2$quote;"
+ set text = "$quote$CPP_FLAGS $PAR $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
  echo                                                              >> $Cfile
- echo "fstd        $quote$FSTD$quote;"                             >> $Cfile
+ echo "fstd         $quote$FSTD$quote;"                            >> $Cfile
  echo                                                              >> $Cfile
- echo "dbg         $quote$DBG$quote;"                              >> $Cfile
+ echo "dbg          $quote$DBG$quote;"                             >> $Cfile
  echo                                                              >> $Cfile
- echo "f_flags     $quote$F_FLAGS$quote;"                          >> $Cfile
+ echo "f_flags      $quote$F_FLAGS$quote;"                         >> $Cfile
  echo                                                              >> $Cfile
- echo "f90_flags   $quote$F90_FLAGS$quote;"                        >> $Cfile
+ echo "f90_flags    $quote$F90_FLAGS$quote;"                       >> $Cfile
  echo                                                              >> $Cfile
- echo "c_compiler  $CC;"                                           >> $Cfile
+ echo "c_compiler   $CC;"                                          >> $Cfile
  echo                                                              >> $Cfile
- echo "c_flags     $quote$C_FLAGS$quote;"                          >> $Cfile
+ echo "c_flags      $quote$C_FLAGS$quote;"                         >> $Cfile
  echo                                                              >> $Cfile
- echo "link_flags  $quote$LINK_FLAGS$quote;"                       >> $Cfile
+ echo "link_flags   $quote$LINK_FLAGS$quote;"                      >> $Cfile
  echo                                                              >> $Cfile
- echo "ioapi       $quote$LIB2$quote;     "                        >> $Cfile
+ echo "ioapi        $quote$LIB2$quote;     "                       >> $Cfile
  echo                                                              >> $Cfile
- echo "netcdf      $quote$netcdf_lib$quote;"                       >> $Cfile
+ echo "netcdf       $quote$netcdf_lib$quote;"                      >> $Cfile
+ echo                                                              >> $Cfile
+ echo "netcdff      $quote$netcdff_lib$quote;"                     >> $Cfile
  echo                                                              >> $Cfile
  if ( $?ParOpt ) then
     echo "mpich       $quote$LIB3$quote;"                          >> $Cfile
@@ -391,9 +426,9 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     echo                                                           >> $Cfile
  endif
 
- set text = "wrf and yamo"
+ set text = "driver"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModDriver};"                                       >> $Cfile
+ echo "Module driver;"                                             >> $Cfile
  echo                                                              >> $Cfile
 
  set text = "cartesian"
@@ -401,22 +436,22 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGrid};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "yamo"
+ set text = "Init"
  echo "// options are" $text                                       >> $Cfile
- echo "Module ${ModInit};"                                         >> $Cfile
+ echo "Module init;"                                               >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "gencoor_wrf and gencoor"
+ set text = "gencoor_wrf_cons and gencoor_local_cons"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModCpl};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "yamo"
+ set text = "ppm"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModHadv};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "wrf and yamo"
+ set text = "wrf_cons and local_cons"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModVadv};"                                         >> $Cfile
  echo                                                              >> $Cfile
@@ -426,12 +461,12 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModHdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm2"
+ set text = "acm2_m3dry or acm2_stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModVdiff};"                                        >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "m3dry"
+ set text = "m3dry or stage"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModDepv};"                                         >> $Cfile
  echo                                                              >> $Cfile
@@ -468,8 +503,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
 
- set MechList = " cb05e51_ae6_aq, cb05e51_ae6nvPOA_aq, cb05eh51_ae6_aq, cb05mp51_ae6_aq, cb05tucl_ae6_aq, cb05tump_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae6nvPOA_aq, racm2_ae6_aq, saprc07tb_ae6_aq, saprc07tc_ae6_aq, saprc07tc_ae6nvPOA_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae6invPOA_aq"
-
+ set MechList = " cb6mp_ae6_aq, cb6r3_ae6_aq, cb6r3_ae7_aq, cb6r3_ae7_aqkmt2, cb6r3m_ae7_kmtbr, racm2_ae6_aq, saprc07tc_ae6_aq, saprc07tic_ae6i_aq, saprc07tic_ae6i_aqkmti, saprc07tic_ae7i_aq, saprc07tic_ae7i_aqkmt2"
  set text = "gas chemistry mechanisms"
  echo "// " $text                                                  >> $Cfile
  set text = "$MechList"
@@ -495,7 +529,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModAero};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
- set text = "acm_ae6, acm_ae6_kmt, and acm_ae6_mp, acm_ae7"
+ set text = "acm_ae6, acm_ae6_kmt, acm_ae7_kmt2, acm_ae6_mp, acm_ae7"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModCloud};"                                        >> $Cfile
  echo                                                              >> $Cfile
@@ -505,9 +539,29 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModPa};"                                           >> $Cfile
  echo                                                              >> $Cfile
 
+ set text = "// compile for integrated source apportionment method"
+ echo $text                                                        >> $Cfile
+ echo "Module ${ModISAM};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
  set text = "util"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModUtil};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "diag"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModDiag};"                                         >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "stm"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module stm;"                                                >> $Cfile
+ echo                                                              >> $Cfile
+
+ set text = "cio"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module cio;"                                                >> $Cfile
  echo                                                              >> $Cfile
 
  if ( $?ModMisc ) then
@@ -537,35 +591,30 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  endif
 
 #> Run BLDMAKE Utility
+ set bld_flags = ""
  if ( $?MakeFileOnly ) then   # Do not compile the Model
-    if ( $?CopySrc ) then
-       $Blder -makefo $Cfile  # Run BLDMAKE with source code in build directory
-    else if ( $?CopySrcTree ) then 
-       $Blder -makefo -co $Cfile  # Copy repository directory tree as well
-    else
-       $Blder -makefo -git_local $Cfile   # Run BLDMAKE with source code in 
-                                          # version-controlled git repo
-                                          # $Cfile = ${CFG}.bld
-    endif
- else  # Also compile the model
-    if ( $?CopySrc ) then
-       if ( $?Debug_CCTM ) then
-         $Blder -debug_cctm $Cfile   # Run BLDMAKE with source code in build directory
-       else
-         $Blder $Cfile   # Run BLDMAKE with source code in build directory
-       endif
-    else if ( $?CopySrcTree ) then 
-       $Blder -makefo -co $Cfile  # Copy repository directory tree as well
-    else
-       # Run BLDMAKE with source code in version-controlled git repo $Cfile = ${CFG}.bld
-       if ( $?Debug_CCTM ) then
-         $Blder -debug_cctm -git_local $Cfile 
-       else
-         $Blder -git_local $Cfile
-       endif
-         
-    endif
+    set bld_flags = "${bld_flags} -makefo"
  endif
+
+ if ( $?CopySrc ) then
+    set bld_flags = "${bld_flags}"
+ else if ( $?CopySrcTree ) then   
+    set bld_flags = "${bld_flags} -co"
+ else 
+    set bld_flags = "{bld_flags} -git_local" # Run BLDMAKE with source code in 
+                                              # version-controlled git repo
+                                              # $Cfile = ${CFG}.bld
+ endif
+
+ if ( $?Debug_CCTM ) then
+    set bld_flags = "${bld_flags} -debug_cctm"
+ endif
+ if ( $?ISAM_CCTM ) then
+    set bld_flags = "${bld_flags} -isam_cctm"
+ endif
+ 
+ # Run BLDMAKE with source code in build directory
+ $Blder $bld_flags $Cfile   
 
 #> Rename Makefile to specify compiler option and link back to Makefile
  mv Makefile Makefile.$compilerString

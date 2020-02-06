@@ -42,7 +42,7 @@ C..SCRATCH LOCAL VARIABLES:
       CHARACTER( 256 )  ::    LINOUT
       CHARACTER( 150 )  ::    RXOUT
       CHARACTER( 100 )  ::    BLANK_LINE
-      CHARACTER*(  3 )  ::    RNUM                 ! Reaction number
+      CHARACTER*(  5 )  ::    RNUM                 ! Reaction number
       CHARACTER*(  6 )  ::    COUT                 ! Output coefficient
       CHARACTER*(  1 )  ::    SGN                  ! Coefficient sign
    
@@ -125,7 +125,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       IF( LINEIN( 1 : 2 ) .EQ. 'R1' ) THEN
 
-         WRITE( IOUT, 93000 ) GC_TAG( 1 : LEN_TRIM( GC_TAG ) )
+         WRITE( IOUT, 93000 ) TRIM( MECHNAME )
 
          GO TO 100
 
@@ -220,7 +220,7 @@ C           PRINT*,'For reaction ',N,', ', P, OH
 
 C         IF ( IRR( N, 1 ) .NE. O1D .OR. IRR( N, 4 ) .NE. OH ) CYCLE 
 
-         COEFF = REAL( SC( N, 1 ), 8 )
+         COEFF = SC( N, 1 )
 
          NPOS  = 20
          RPOS1 = O1D
@@ -266,7 +266,7 @@ C           PRINT*,'For reaction ',N,', ', P, HO2
             PRINT*,' Found HO2 production via O1D in reaction #',N
          END IF
 
-         COEFF = REAL( SC( N, 1 ), 8 )
+         COEFF = SC( N, 1 )
 
          NPOS  = 20
          RPOS1 = O1D
@@ -740,7 +740,7 @@ c..Find OH+NO=HONO Rxn
      &         IRR( N, 4 ) .EQ. HONO ) .OR.
      &       ( IRR( N, 1 ) .EQ. NO .AND. IRR( N, 2 ) .EQ. OH .AND.
      &         IRR( N, 4 ) .EQ. HONO ) ) 
-     &     WRITE( RNUM, '(I3)' ) N
+     &     WRITE( RNUM, '(I5)' ) N
         
 
       END DO  
@@ -835,13 +835,13 @@ c..Find OH+NO=HONO Rxn
      &         IRR( N, 4 ) .EQ. HNO4 ) .OR.
      &       ( IRR( N, 1 ) .EQ. NO2 .AND. IRR( N, 2 ) .EQ. HO2 .AND.
      &         IRR( N, 4 ) .EQ. HNO4 ) ) 
-     &     WRITE( RNUM, '(I3)' ) N
+     &     WRITE( RNUM, '(I5)' ) N
         
 
       END DO  
 
       SPOUT = ADJUSTL( SPECIES( NO2 ) )
-      LINOUT = '      R21_5 =   RKI( ' // RNUM // ' ) * YC( ' //
+      LINOUT = '      R21_5 =   RKI( ' // RNUM // ' ) * YCP( ' //
      &    SPOUT // ' ) * DTC      ! HO2+NO2=HNO4'
 
       E1 = LEN_TRIM( LINOUT )
@@ -954,7 +954,7 @@ c..Determine the rxn to include & get the coefficient for the loss term
      &       ROH - POH  .GT.  PHO2 - RHO2 )           ! Rxns w/ Loh > 0 &
      &      COEFF =  ROH - POH - ( PHO2 - RHO2 )      ! Pho2 > 0
 
-         IF( COEFF .EQ. 0.0D0 ) CYCLE
+         IF( ABS( COEFF ) .LT. 1.0D-8 ) CYCLE
 
 c..call routine to create output line & write it
          NPOS  = 20
@@ -1171,7 +1171,7 @@ c..Build line for the A term (coefficient of [HO2]**2 )
       LRXN1 = .TRUE.
       DO N = 1, NRXNS
          IF( IRR( N, 1 ) .NE. HO2 .OR. IRR( N, 2 ) .NE. HO2 ) CYCLE
-         WRITE( RNUM, '(I3)' ) N
+         WRITE( RNUM, '(I5)' ) N
          IF( LRXN1 ) THEN
             LINOUT = LINOUT( 1 : E1 ) // RNUM // ' )'
             E1 = LEN_TRIM( LINOUT )
@@ -1242,7 +1242,7 @@ c..Build line for the A term (coefficient of [HO2]**2 )
 92000 FORMAT( A )
 92020 FORMAT( / )
 
-93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' family of mechanisms' )
+93000 FORMAT( 'C  PRECONDITIONS: For the ', A, ' mechanism' )
 93020 FORMAT( 'C  REVISION HISTORY: Created by EBI solver program, ', A )
 
 94000 FORMAT( 
@@ -1292,7 +1292,7 @@ c..Build line for the A term (coefficient of [HO2]**2 )
      & 'c..', A, ' loss terms not included in R4_19' )
 
 94280 FORMAT( 
-     & 'c..', A, ' loss terms not inluded in R5_21' )
+     & 'c..', A, ' loss terms not included in R5_21' )
 
 95000 FORMAT( 
      & 'c..solve quadratic equation for ', A )

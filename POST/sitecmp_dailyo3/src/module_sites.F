@@ -19,14 +19,17 @@
       MODULE SITE_DATA
 
       TYPE SITE
-         character*9 ::  site_id
-         REAL        ::  LAT
-         REAL        ::  LON
-         REAL        ::  LAMBX
-         REAL        ::  LAMBY
-         Integer     ::  TZ
-         Integer     ::  row
-         Integer     ::  column 
+         character*9  ::  site_id
+         CHARACTER*25 ::  STATE
+         CHARACTER*25 ::  COUNTY
+         REAL         ::  LAT
+         REAL         ::  LON
+         REAL         ::  LAMBX
+         REAL         ::  LAMBY
+         REAL         ::  ELEV
+         Integer      ::  TZ
+         Integer      ::  row
+         Integer      ::  column 
       END TYPE SITE
 
 c      TYPE ( SITE ), PRIVATE, ALLOCATABLE :: SITES(:)
@@ -63,7 +66,7 @@ C..SAVED LOCAL VARIABLES: None
 
 C..SCRATCH LOCAL VARIABLES:
          CHARACTER*256   SITE_FNAME  
-         CHARACTER*80    RECORD       ! input record buffer
+         CHARACTER*300   RECORD       ! input record buffer
          CHARACTER*80    FIELD        ! input field
          CHARACTER*16    ENV_DFLT     ! Environment variable default value
          CHARACTER*16    PNAME        ! Program Name
@@ -78,6 +81,16 @@ C..SCRATCH LOCAL VARIABLES:
          INTEGER   tzone              ! time zone offset number read from field 4
          INTEGER   N                  ! Loop index
          INTEGER   STATUS             ! Status code
+
+         Integer                     ::    siteField
+         Integer                     ::    latField
+         Integer                     ::    lonField
+         Integer                     ::    stateField
+         Integer                     ::    countyField
+         Integer                     ::    elevField
+         Integer                     ::    tzField
+
+         LOGICAL IS_CSV  
 
 !        CHARACTER*16 site,lonfld,latfld,tzfld
 
@@ -103,35 +116,63 @@ C**********************************************************************
            CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
            endif
 
+
+         !  read the first line to determine whether this site file
+         !  is using tab-delimited (no header line) or csv format
+         
+         READ( LFN, '(A)', iostat=status ) RECORD
+         if(status.ne.0) then
+           MSG = 'Cannot read first line of site file:' // trim(SITE_FNAME)
+           CALL M3ERR( PNAME, 0, 0, MSG, .TRUE. )
+           endif
+         nfields = getNumberOfFields(record, ",")
+         if (nfields .le. 1) then
+          IS_CSV = .FALSE. !assume tab delimited site file, no comma in first line
+         else
+          IS_CSV = .TRUE.  !assume csv site file, commas in first line.
+                             !find columns for stat_id, lat, lon, 
+                             !timezone, elevation, state, county
+          
+         endif
+         REWIND( LFN )
+
+
          !  read file to determine number of sites
-         NSITES = 0
-         DO
+
+         IF (.NOT.IS_CSV) THEN 
+          write(*,'(''ASSUMING TAB-DELIMITED SITE FILE: '',a)') trim(SITE_FNAME)
+
+          NSITES = 0
+          DO
            read(lfn, '(a)', iostat=status ) RECORD
            if(status.ne.0) EXIT
            Call getField(record, char(9), 1, field)
            nfields = getNumberOfFields(record, char(9))
            IF(nfields.ge.3 .and. LEN_TRIM(field).ge.4) NSITES = NSITES + 1
-           ENDDO
+          ENDDO
       
-         if( NSITES.eq.0 ) then
+          if( NSITES.eq.0 ) then
            write(*,'(''**ERROR**, No sites found in site file:'',a)') trim(SITE_FNAME)
            Stop
-           endif
+          endif
  
        
-         ALLOCATE( SITES( nsites ) )
+          ALLOCATE( SITES( nsites ) )
 
-         REWIND( lfn )
+          SITES%ELEV = -999. !default elevation is missing
+          SITES%STATE = "NotAvailable" !default state name
+          SITES%COUNTY = "NotAvailable" !default state name
 
-         ! read in site data
-         N = 0
-         DO 
+          REWIND( lfn )
+
+          ! read in site data
+          N = 0
+          DO 
             READ( LFN, '(A)', iostat=status ) RECORD
             if( status.ne.0 ) EXIT
  
             nfields = getNumberOfFields(record, char(9))
             Call getField(record, char(9), 1, field)
-c            IF(nfields.ge.3 .and. LEN_TRIM(field).ge.9) THEN                           
             IF(nfields.ge.3 ) THEN                           
                N = N + 1                                                               
                SITES(N)%site_id = field                                                       
@@ -141,16 +182,14 @@ c            IF(nfields.ge.3 .and. LEN_TRIM(field).ge.9) THEN
                if( status.ne.0 ) then                                                  
                  write(*,'(''**ERROR** Cannot read longitude from record:'',a)') trim(record)        
                  stop                                                                  
-                 endif                                                                 
-                                                                                       
-c               if( SITES(N)%LON .gt. 0.0 ) SITES(N)%LON = -(SITES(N)%LON)  ! assume western longitude      
-                                                                                       
+               endif                                                                 
+                                                                                                                                                                              
                Call getField(record, char(9), 3, field)                                
                READ(field, '(BN,f15.0)', iostat=status) SITES(N)%LAT
                if( status.ne.0 ) then                                                  
                  write(*,'(''**ERROR** Cannot read latitude from record:'',a)') trim(record)
                  stop                                                                  
-                 endif                                                                 
+               endif                                                                 
                                                                                        
                ! compute Time zone offset from longitude                               
                SITES(N)%TZ = -(SITES(N)%LON) / 15                                                  
@@ -160,12 +199,226 @@ c               if( SITES(N)%LON .gt. 0.0 ) SITES(N)%LON = -(SITES(N)%LON)  ! as
                  Call getField(record, char(9), 4, field)                              
                  READ(field, '(BN,i10)', iostat=status) tzone                          
                  if(status.eq.0 .and. tzone.gt.0) SITES(N)%TZ = tzone                        
-                 endif                                                                 
+               endif                                                                 
                                                                                        
-               ENDIF
-            ENDDO
+            ENDIF
+          ENDDO
         
-         close(lfn)
+          close(lfn)
+          
+         ELSE !csv-formatted site file
+         
+          write(*,'(''ASSUMING CSV SITE FILE: '',a)') trim(SITE_FNAME)
+          
+          nsites = 0
+          
+          ! read header line first to find the position of the 
+          ! lat, lon, time zone, state,county, and elevation fields
+          
+
+          siteField = 0
+          stateField  = 0
+          countyField  = 0
+          latField  = 0
+          lonField  = 0
+          elevField  = 0
+          tzField  = 0
+
+          read(lfn,'(a)',iostat=status) record
+          if( status.ne.0 ) then
+           write(*,'(''**ERROR** Invalid table header in table file'')')
+           Stop
+          endif
+
+          call UCASE( record )
+          call rmCommas(record)
+          nfields = getNumberOfFields(record, ',')
+          
+          Do n=1,nfields
+           call getField(record, ',', n, field)
+           call rmQuots( field )
+           call LeftTrim(field)
+           if( INDEX(field,'STAT_ID').gt.0 ) then
+            siteField = n
+            exit
+           endif
+          EndDo
+
+          Do n=1,nfields
+           call getField(record, ',', n, field)
+           call rmQuots( field )
+           call LeftTrim(field)
+           if( INDEX(field,'LAT').gt.0 )  then
+            latField = n
+            exit
+           endif
+          EndDo
+
+          Do n=1,nfields
+           call getField(record, ',', n, field)
+           call rmQuots( field )
+           call LeftTrim(field)
+           if( INDEX(field,'LON').gt.0 )  then
+            lonField = n
+            exit
+           endif
+          EndDo
+
+
+          Do n=1,nfields
+           call getField(record, ',', n, field)
+           call rmQuots( field )
+           call LeftTrim(field)
+           if( INDEX(field,'ELEVATION').gt.0 )  then
+            elevField = n
+            exit
+           endif
+          EndDo
+
+
+          Do n=1,nfields
+           call getField(record, ',', n, field)
+           call rmQuots( field )
+           call LeftTrim(field)
+           if( INDEX(field,'STATE').gt.0 )  then
+            stateField = n
+            exit
+           endif
+          EndDo
+
+
+          Do n=1,nfields
+           call getField(record, ',', n, field)
+           call rmQuots( field )
+           call LeftTrim(field)
+           if( INDEX(field,'COUNTY').gt.0 )  then
+            countyField = n
+            exit
+           endif
+          EndDo
+
+
+          Do n=1,nfields
+           call getField(record, ',', n, field)
+           call rmQuots( field )
+           call LeftTrim(field)
+           if( INDEX(field,'GMT_OFFSET').gt.0 )  then
+            tzField = n
+            exit
+           endif
+          EndDo
+
+          if( ( siteField .eq. 0 ) .or. ( latField .eq. 0 ) .or. 
+     *        ( lonField .eq. 0 ) ) then
+           write(*,'(''**ERROR**, stat_id, lat, and/or lon column ''//''
+     *       missing in:'',a)') trim(SITE_FNAME)
+           Stop
+          endif
+          
+          ! done reading and processing header line, now read station data
+          
+          DO
+           READ( LFN, '(A)', iostat=status ) RECORD
+           if(status.ne.0) EXIT
+           Call getField(record, ',' , siteField, field)
+           nfields = getNumberOfFields(record, ',' )
+           IF(nfields.ge.3 .and. LEN_TRIM(field).ge.3) nsites = nsites + 1
+          ENDDO
+      
+          if( nsites.eq.0 ) then
+           write(*,'(''**ERROR**, No sites found in site file:'',a)') trim(SITE_FNAME)
+           Stop
+          endif
+
+          ALLOCATE( SITES( nsites ) )
+                  
+          SITES%ELEV = -999. !default elevation is missing
+          SITES%STATE = "NotAvailable" !default state name
+          SITES%COUNTY = "NotAvailable" !default state name
+
+          REWIND( LFN )
+          
+          ! read header line
+          read(lfn,'(a)',iostat=status) record
+          if( status.ne.0 ) then
+           write(*,'(''**ERROR** Invalid table header in table file'')')
+           Stop
+          endif
+
+          ! read all site data from LFN
+          N = 0
+          DO
+            READ( LFN, '(A)', iostat=status ) RECORD
+            if( status.ne.0 ) EXIT
+            
+            Call getField(record, ',', siteField, field)
+            call rmQuots( field )
+                        
+            IF(LEN_TRIM(field).ge.3) THEN
+               N = N + 1
+               SITES( N )%site_id = field
+
+               Call getField(record, ',', lonField, field)
+               call rmQuots( field )
+               read(field,'(f16.0)',iostat=status) SITES( N )%LON
+               if( status.ne.0 ) then
+                 write(*,'(''**WARNING**  Invalid site record for lon:'',a)') TRIM(record)
+                 write(*,'(''**WARNING**  field = '',a)') TRIM(field)
+                 CYCLE
+                 endif
+
+               Call getField(record, ',', latField, field)
+               call rmQuots( field )
+               read(field,'(f16.0)',iostat=status) SITES( N )%LAT
+               if( status.ne.0 ) then
+                 write(*,'(''**WARNING**  Invalid site record for lat:'',a)') TRIM(record)
+                 write(*,'(''**WARNING**  field = '',a)') TRIM(field)
+                 CYCLE
+                 endif
+
+               if (stateField .gt. 0) then
+                Call getField(record, ',', stateField, field)
+                call rmQuots( field )
+                SITES( N )%STATE = field
+               endif
+               
+               if (countyField .gt. 0) then
+                Call getField(record, ',', countyField, field)
+                call rmQuots( field )
+                SITES( N )%COUNTY = field
+               endif
+               
+
+               if (elevField .gt. 0) then
+                Call getField(record, ',', elevField, field)
+                call rmQuots( field )
+                read(field,'(f16.0)',iostat=status) SITES( N )%ELEV
+                if( status.ne.0 ) then
+                 write(*,'(''**WARNING**  Invalid site record for elev:'',a)') TRIM(record)
+                 write(*,'(''**WARNING**  field = '',a)') TRIM(field)
+                 CYCLE
+                endif
+               endif
+
+               ! compute Time zone offset from longitude
+               SITES( N )%TZ = -( SITES( N )%LON + 7.5 ) / 15
+
+               ! try to read Time zone offset from field 4
+               if (tzField .gt. 0) then
+                 Call getField(record, ',', tzField, field)
+                 call rmQuots( field )
+                 READ(field, '(BN,i10)', iostat=status) tzone
+                 if(status.eq.0 .and. field.ne.' ') SITES( N )%TZ = tzone
+                 endif
+
+             endif
+          enddo
+
+          close(unit=LFN)
+         
+         ENDIF !tab-delimited or csv site file
+          
+          
          RETURN
 
          END SUBROUTINE LOAD_SITES

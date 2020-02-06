@@ -86,6 +86,13 @@ SUBROUTINE pblsup
 !           17 Sep 2015  Changed IFMOLACM to IFMOLPX.  (T. Spero)
 !           01 Mar 2017  Corrected the reference longitude for the wind
 !                        direction calculation for both MM5 and WRF.  (T. Spero)
+!           16 Mar 2018  Corrected comment that attributed Monin-Obukhov length
+!                        to ACM2 rather than Pleim-Xiu LSM.  Added calculation
+!                        of mosaic aerodynamic resistance following method
+!                        suggested by P. Campbell, and ensuring protection for
+!                        resistances over water cells.  (T. Spero)
+!           26 Jun 2018  Now use netCDF tokens for missing data.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -93,7 +100,6 @@ SUBROUTINE pblsup
   USE const
   USE const_pbl
   USE metinfo
-  USE m3utilio, ONLY: badval3
 
   IMPLICIT NONE
 
@@ -106,6 +112,7 @@ SUBROUTINE pblsup
   INTEGER                      :: k
   REAL                         :: lv
   REAL                         :: p2
+  REAL                         :: psih
   REAL                         :: ql1
   REAL                         :: qst
   INTEGER                      :: r
@@ -122,6 +129,7 @@ SUBROUTINE pblsup
   REAL,    SAVE, ALLOCATABLE   :: ul         ( : )
   REAL                         :: ulev1
   REAL                         :: uns
+  REAL                         :: ustmos
   REAL                         :: vlev1
   REAL                         :: vns
   REAL                         :: wvflx
@@ -150,27 +158,11 @@ SUBROUTINE pblsup
        ( ABS(MAXVAL(xpbl))   < smallnum ) ) THEN  ! assume initialization period
 
     xwstar  (:,:) = 0.0
-    xmol    (:,:) = badval3   ! inverse taken in metcro.F
+    xmol    (:,:) = fillreal  ! inverse taken in metcro.F
 
     ! Compute 10-m wind speed and direction on scalar points.
 
-    IF ( met_model == 1 ) THEN  ! MM5: use native dot-point winds
-
-      DO c = 1, ncols_x
-        cp1 = c + 1
-        DO r = 1, nrows_x
-          rp1 = r + 1
-          uns = 0.25 * ( xuu_d(c,r,  1) + xuu_d(cp1,r,  1) +   &
-                         xuu_d(c,rp1,1) + xuu_d(cp1,rp1,1) )
-          vns = 0.25 * ( xvv_d(c,r,  1) + xvv_d(cp1,r,  1) +   &
-                         xvv_d(c,rp1,1) + xvv_d(cp1,rp1,1) )
-          xwspd10(c,r) = SQRT((uns * uns) + (vns * vns))
-          CALL wind (uns, vns, xwspd10(c,r), xwdir10(c,r),  &
-                     xlonc(c,r), met_proj_clon, met_cone_fac)
-        ENDDO
-      ENDDO
-
-    ELSE IF ( met_model == 2 ) THEN  ! WRF: use native flux-point winds
+    IF ( met_model == 2 ) THEN  ! WRF: use native flux-point winds
 
       DO c = 1, ncols_x
         cp1 = c + 1
@@ -206,31 +198,7 @@ SUBROUTINE pblsup
 
         ! Compute wind speed profile on scalar points.
 
-        IF ( met_model == 1 ) THEN  ! MM5: use native dot-point winds
-
-          DO k = 1, metlay
-
-            uns = 0.25 * ( xuu_d(c,r,  k) + xuu_d(cp1,r,  k) +   &
-                           xuu_d(c,rp1,k) + xuu_d(cp1,rp1,k) )
-
-            vns = 0.25 * ( xvv_d(c,r,  k) + xvv_d(cp1,r,  k) +   &
-                           xvv_d(c,rp1,k) + xvv_d(cp1,rp1,k) )
-
-            ul(k) = MAX( 0.5, SQRT( (uns * uns) + (vns * vns) ) )
-
-            IF ( k == 1 ) THEN
-              IF ( ifw10m ) THEN
-                ulev1 = xu10(c,r)  ! 10-m wind components already on scalar pts
-                vlev1 = xv10(c,r)
-              ELSE
-                ulev1 = uns
-                vlev1 = vns
-              ENDIF
-            ENDIF
-
-          ENDDO
-
-        ELSE IF ( met_model == 2 ) THEN  ! WRF: use native flux-point winds
+        IF ( met_model == 2 ) THEN  ! WRF: use native flux-point winds
 
           DO k = 1, metlay
 
@@ -261,7 +229,7 @@ SUBROUTINE pblsup
         theta1 = xtempm(c,r,1) * (100000.0/xpresm(c,r,1))**0.286
 
         ! Calculate Monin-Obukhov length if unavailable in input meteorology,
-        ! except if missing from WRF/ACM2 simulation...which is done, below.
+        ! except if missing from WRF/P-X simulation...which is done, below.
 
         IF ( .NOT. ifmol .AND. .NOT. ifmolpx ) THEN
           thetav1   = theta1 * (1.0 + ep1 * ql1)            
@@ -296,24 +264,13 @@ SUBROUTINE pblsup
         ENDIF
 
         ! Limit MOL.
-        ! (Note that this is not part of ACM2 in WRF, but  per J. Pleim,
+        ! (Note that this is not part of ACM2 in WRF, but per J. Pleim,
         ! we will apply it for all MOL coming out of MCIP.  TLS 24 Aug 2015)
 
         xmol(c,r) = SIGN( MAX(ABS(xmol(c,r)), amolmini), xmol(c,r) )
 
-        ! Ensure that PBL heights from the Mellor-Yamada Eta PBL scheme in MM5
-        ! are set to a minimum of the height of the lowest model layer to ensure
-        ! that very small values and negative values are not used by CMAQ.
-
-        IF ( ( met_model == 1 ) .AND. ( met_pbl == 4 ) ) THEN  ! M-Y Eta PBL
-          xpbl(c,r) = MAX( xpbl(c,r), x3htf(c,r,1) )
-        ENDIF
-
-        ! Need to supply PBL height when Blackadar, MRF, or Gayno-Seaman PBL
-        ! schemes in MM5 suggest PBL height of 0.0.  (Blackadar and MRF regimes
-        ! 1 and 2, and G-S regime 1.)  Also need to specify PBL height for
-        ! schemes in WRF when it is input as lower than the height of the
-        ! lowest mid-layer.
+        ! Need to specify PBL height for schemes in WRF when it is input
+        ! as lower than the height of the lowest mid-layer.
 
         IF ( xpbl(c,r) <= x3htm(c,r,1) ) THEN
           CALL getpblht (c, r, ul)
@@ -372,6 +329,44 @@ SUBROUTINE pblsup
 
   IF ( .NOT. ifresist ) THEN
     CALL resistcalc
+  ENDIF
+
+!-------------------------------------------------------------------------------
+! If NOAH Mosaic was used in WRF and the necessary variables were available in
+! WRF output, compute aerodynamic resistance in each mosaic land use category.
+! Method below was suggested by P. Campbell and is consistent with STAGE
+! deposition in CMAQv5.3+.
+!-------------------------------------------------------------------------------
+
+  IF ( ifmosaic ) THEN
+
+    DO c = 1, ncols_x
+      DO r = 1, nrows_x
+
+        IF ( ( NINT(xlwmask(c,r)) == 0 ) .OR.  &
+             ( NINT(xdluse(c,r))  == met_lu_ice ) ) THEN  ! water or ice
+
+          xrs_mos(c,r,:) = fillreal ! inverse taken in moscro.f90, will be 0.0
+          xra_mos(c,r,:) = fillreal ! inverse taken in moscro.f90, will be 0.0
+
+        ELSE
+
+          DO k = 1, nummosaic
+            ustmos = xustar(c,r) * SQRT( LOG(x3htm(c,r,1) / xzruf(c,r)) /  &
+                                         LOG(x3htm(c,r,1) / xznt_mos(c,r,k)) )
+
+            CALL getpsih (x3htm(c,r,1), xznt_mos(c,r,k), ustmos, xmol(c,r),  &
+                          psih)
+
+            xra_mos(c,r,k) = pro * (LOG(x3htm(c,r,1)/xznt_mos(c,r,k))-psih) /  &
+                             (vkar * ustmos)
+          ENDDO
+
+        ENDIF
+
+      ENDDO
+    ENDDO
+
   ENDIF
 
 END SUBROUTINE pblsup

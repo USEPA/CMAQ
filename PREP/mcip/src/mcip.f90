@@ -63,13 +63,23 @@ PROGRAM mcip
 !                        with F90 protected intrinsic.  Removed calls to
 !                        ALLOC_LU, DEALLOC_LU, and INIT_LU.  (T. Otte)
 !           07 Sep 2011  Updated disclaimer.  (T. Otte)
+!           13 Feb 2018  Added optional output files for land use, soil, and
+!                        mosaic data.  Changed print statement preceding the
+!                        printing of metadata in the log file.  (T. Spero)
+!           27 Jun 2018  Added call to INIT_CTM.  (T. Spero)
+!           14 Sep 2018  Removed support for MM5v3 input.  (T. Spero)
+!           18 Dec 2018  Separated parsing and processing of output fields on
+!                        the CCTM grid from the output routines.  Removed
+!                        runtime option to not output time-independent files.
+!                        (T. Spero)
+!           09 Jul 2019  Remove argument CTMLAYS from subroutine READNML.
+!                        (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
   USE date_pack
   USE date_time
   USE files
-  USE sat2mcip
 
   IMPLICIT NONE
 
@@ -87,7 +97,7 @@ PROGRAM mcip
     & /,  1x, 78('~'), /)"
 
   CHARACTER(LEN=256), PARAMETER :: f200 = "(//, 1x, 78('~'), &
-    & /,  1x, '~~~ Metadata summary (from I/O API header)', &
+    & /,  1x, '~~~ Metadata summary', &
     & /,  1x, 78('~'), /)"
 
 !-------------------------------------------------------------------------------
@@ -101,7 +111,7 @@ PROGRAM mcip
 !-------------------------------------------------------------------------------
 
   CALL vstamp
-  CALL readnml (ctmlays)
+  CALL readnml
 
   mcip_now = mcip_start
   CALL getsdt (mcip_now, sdate, stime)
@@ -132,6 +142,7 @@ PROGRAM mcip
 
   CALL init_met
   CALL init_x
+  CALL init_ctm
 
 !-------------------------------------------------------------------------------
 ! Fill vertical arrays.
@@ -150,23 +161,16 @@ PROGRAM mcip
     CALL getmet (mcip_now)            ! Read input meteorology file.
 
     IF ( first ) THEN
-      CALL statflds                   ! Put time-invariant fields on MCIP grid.
-      IF ( makegrid ) THEN
-        CALL gridout (sdate, stime)   ! Output to GRID files.
-        CALL wrgdesc                  ! Write GRIDDESC file.
-      ENDIF
+      CALL statflds                   ! Put time-independent fields on MCIP grid
+      CALL gridproc                   ! Parse and process time-independent data.
       first = .FALSE.
     ENDIF
 
     CALL dynflds                      ! Put time-varying fields on MCIP grid.
 
-    IF ( lsat == 1 ) THEN
-      CALL getsat (mcip_now)          ! Read input satellite file.
-      CALL satvars2ctm (mcip_now)     ! Put time-variant sat data on MCIP grid
-    ENDIF
-
-    CALL metcro (sdate, stime)        ! Output to MET_CRO and MET_BDY files.
-    CALL metdot (sdate, stime)        ! Output to MET_DOT files.
+    CALL ctmproc                      ! Parse and process time-varying data.
+    CALL gridout (sdate, stime)       ! Output time-independent data.
+    CALL ctmout  (mcip_now, sdate, stime)        ! Output time-varying data.
 
 
     ! Update SDATE and STIME for next I/O API header.

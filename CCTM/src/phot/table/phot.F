@@ -17,14 +17,7 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/phot/phot_table/phot.F,v 1.4 2011/10/21 16:11:29 yoj Exp $ 
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C @(#)phot.F    1.2 /project/mod3/CMAQ/src/phot/phot/SCCS/s.phot.F 04 Jul 1997 10:09:53
-
-      SUBROUTINE PHOT ( MDATE, MTIME, JDATE, JTIME, DTSTEP, RJ )
+      SUBROUTINE PHOT ( CGRID, JDATE, JTIME, DTSTEP )
 C----------------------------------------------------------------------
 C Function:
 C    PHOT, adapted from RADM, calculates the photolysis rate constants
@@ -35,7 +28,7 @@ C    above, below and in cumulus clouds.
 
 C Preconditions: HGRD_INIT() called from PAR_INIT, which is called from DRIVER
 
-C Subroutines/Functions called: INIT3, opphot
+C Subroutines/Functions called: opphot
 
 C Revision history:
 C    prototype(adaptation from RADM), Rohit Mathur, April 1993.
@@ -64,13 +57,16 @@ C    06 Apr 11 B.Hutzell: added code that opens and writes photolysis rates
 C                         to an optional diagnostic file
 C    07 Jul 14 B.Hutzell: replaced mechanism include file(s) with fortran module
 C    Aug 12, 15 D. Wong: Replaced MYPE with IO_PE_INCLUSIVE for parallel I/O implementation
+C    Mar 12, 19 D. Wong: Implemented centralized I/O approach, removed all MY_N clauses
 C
 C----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE RXNS_DATA           ! chemical mechanism data
       USE UTILIO_DEFN         ! IO and other utility routines
-      USE PHOT_MET_DATA       ! Met and Grid data
+      USE PHOT_MOD            ! Module with photolysis rate arrays and pointers
+      Use CENTRALIZED_IO_MODULE, only : interpolate_var, LAT, LON, HT
+      Use RUNTIME_VARS , only : PHOTDIAG
 
       IMPLICIT NONE
 
@@ -80,13 +76,10 @@ C include files:
       INCLUDE SUBST_CONST      ! physical constants
 
 C arguments:
-
-      INTEGER, INTENT( IN ) :: MDATE          ! "centered" Julian date (YYYYDDD)
-      INTEGER, INTENT( IN ) :: MTIME          ! "centered" time (HHMMSS)
-      INTEGER, INTENT( IN ) :: JDATE          ! current Julian date (YYYYDDD)
-      INTEGER, INTENT( IN ) :: JTIME          ! current time (HHMMSS)
-      INTEGER, INTENT( IN ) :: DTSTEP( : )    ! time step vector (HHMMSS)
-      REAL,    INTENT( OUT ) :: RJ(:,:,:,:)   ! gridded J-values  (1/min units)
+      REAL,    POINTER      :: CGRID( :,:,:,: )  ! Species concentrations
+      INTEGER, INTENT( IN ) :: JDATE         ! current Julian date (YYYYDDD)
+      INTEGER, INTENT( IN ) :: JTIME         ! current time (HHMMSS)
+      INTEGER, INTENT( IN ) :: DTSTEP( : )   ! time step vector (HHMMSS)
 
 C local parameters:
 
@@ -100,38 +93,31 @@ C saved local variables:
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.  ! Flag for first call to PHOT
 
-      INTEGER, SAVE :: STDATE             ! Julian date
-      INTEGER, SAVE :: STTIME             ! current time
+      INTEGER, SAVE :: LOC_STDATE         ! Julian date
+      INTEGER, SAVE :: LOC_STTIME         ! current time
       INTEGER, SAVE :: JPHOT              ! # of photolytic reactions
       INTEGER, SAVE :: JVHT               ! number of vertical levels
       INTEGER, SAVE :: JVTMAX             ! number of hour angles
       INTEGER, SAVE :: JVLAT              ! number of latitudes
-      INTEGER, SAVE :: LOGDEV
 
       INTEGER, ALLOCATABLE, SAVE :: PHID( : )     ! index of phot tab name in file list
 
       REAL, SAVE    :: STRTHR             ! starting GMT hour
       REAL, SAVE    :: JDSTRT             ! current Julian day (DDD)
-!     REAL, SAVE    :: LAT ( NCOLS, NROWS ) ! north lat in deg (cross pt.)
-!     REAL, SAVE    :: LON ( NCOLS, NROWS ) ! west long in deg (cross pt.)
-!     REAL, SAVE    :: HT  ( NCOLS, NROWS ) ! ground elevation msl (meters)
-!      REAL, ALLOCATABLE, SAVE :: LAT( :,: ) ! north lat in deg (cross pt.)
-!      REAL, ALLOCATABLE, SAVE :: LON( :,: ) ! west long in deg (cross pt.)
-!      REAL, ALLOCATABLE, SAVE :: HT( :,: ) ! ground elevation msl (meters)
+
       REAL, ALLOCATABLE, SAVE :: XJVAL( :,:,:,: ) ! file jvalues
       REAL, ALLOCATABLE, SAVE :: XHAJV ( : ) ! hours from noon
       REAL, ALLOCATABLE, SAVE :: XLATJV( : ) ! latitudes of file photolytic rates
       REAL, ALLOCATABLE, SAVE :: XZJV  ( : ) ! vertical heights of file photolytic
       REAL, ALLOCATABLE, SAVE :: ACLD  ( : ) ! ??????????
+      REAL, ALLOCATABLE, SAVE :: ZM    ( :,:,: )     ! layer half height agl [m]
 
 
       CHARACTER( 16 ), SAVE :: PNAME = 'PHOT'
-      CHARACTER( 16 ), SAVE :: CTM_PHOTDIAG  = 'CTM_PHOTDIAG' ! PHOTDIAG env var
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: PHOTNM( : )
 
 
       LOGICAL       :: NDARK          ! Are all cells in darkness?
-      LOGICAL, SAVE :: PHOTDIAG       ! Flag for PHOTDIAG file
 
 C scratch local variables:
 
@@ -163,6 +149,10 @@ C scratch local variables:
       INTEGER      ALLOCSTAT
       INTEGER      JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER      ESTAT              ! status from environment var check
+
+      INTEGER      ITMSTEP            ! one half synchronization timestep (sec)
+      INTEGER      MDATE              ! Date at time step midpoint
+      INTEGER      MTIME              ! Time at time step midpoint
 
       REAL         CURRHR             ! current GMT hour
       REAL         THETA              ! function dummy argument
@@ -198,11 +188,6 @@ C scratch local variables:
 !      REAL         ZM   ( NCOLS, NROWS, NLAYS ) ! Mid-layer ht. agl (m)
       REAL         DUMP                  ! dump unwanted data read
 
-      INTEGER      GXOFF, GYOFF            ! global origin offset from file
-C for INTERPX
-      INTEGER       :: STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2
-      INTEGER, SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-      INTEGER, SAVE :: STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3
       INTEGER, SAVE :: TSTEP     ! current timestep
 
 C internal functions:
@@ -213,13 +198,13 @@ C internal functions:
       SINE   ( THETA ) = SIN ( PI180 * THETA )
       COSINE ( THETA ) = COS ( PI180 * THETA )
 
+
 C----------------------------------------------------------------------
 
       IF ( FIRSTIME ) THEN
         FIRSTIME = .FALSE.
-        LOGDEV = INIT3()
-        STDATE = JDATE
-        STTIME = JTIME
+        LOC_STDATE = JDATE
+        LOC_STTIME = JTIME
         STRTHR = FLOAT ( JTIME / 10000 )
         JDSTRT = FLOAT ( MOD ( JDATE, 1000 ) )
         TSTEP  = DTSTEP( 1 )  ! output timestep for photolysis diagnostic files
@@ -242,7 +227,7 @@ C...read julian start date from the file..............................
 C...note differences in start dates to the log
 
         XMSG = 'Date on JVALUE file differs from model start date'
-        IF ( JVDATE .NE. STDATE )
+        IF ( JVDATE .NE. LOC_STDATE )
      &    CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
 
 C...read number of levels.............................................
@@ -420,93 +405,13 @@ C...close the jvalue file
 
         CLOSE ( JVUNIT )
 
-C...Get met file offsets
-
-        CALL SUBHFILE ( GRID_CRO_2D, GXOFF, GYOFF,
-     &                  STRTCOLGC2, ENDCOLGC2, STRTROWGC2, ENDROWGC2 )
-        CALL SUBHFILE ( MET_CRO_2D, GXOFF, GYOFF,
-     &                  STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
-        CALL SUBHFILE ( MET_CRO_3D, GXOFF, GYOFF,
-     &                  STRTCOLMC3, ENDCOLMC3, STRTROWMC3, ENDROWMC3 )
-
-C...Get latitudes
-
-        ALLOCATE ( LAT( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
+        ALLOCATE ( ZM( NCOLS,NROWS, NLAYS ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
           XMSG = 'Failure allocating LAT'
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        VARNM = 'LAT'
-        XMSG = 'Could not read LAT from ' // GRID_CRO_2D
-!       IF ( .NOT. INTERP3 ( GRID_CRO_2D, VARNM, PNAME,
-!    &                       JDATE, JTIME, NCOLS * NROWS, LAT ) )
-        IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
-     &                      STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-     &                      JDATE, JTIME, LAT ) ) THEN
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-C...Get longitudes
-
-        ALLOCATE ( LON( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating LON'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-        VARNM = 'LON'
-        XMSG = 'Could not read LON from ' // GRID_CRO_2D
-!       IF ( .NOT. INTERP3 ( GRID_CRO_2D, VARNM, PNAME,
-!    &                       JDATE, JTIME, NCOLS * NROWS, LON ) )
-        IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
-     &                      STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-     &                      JDATE, JTIME, LON ) ) THEN
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-C...get height
-
-        ALLOCATE ( HT( MY_NCOLS,MY_NROWS ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating HT'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-        VARNM = 'HT'
-        XMSG = 'Could not read HT from ' // GRID_CRO_2D
-!       IF ( .NOT. INTERP3 ( GRID_CRO_2D, VARNM, PNAME,
-!    &                       JDATE, JTIME, NCOLS * NROWS, HT ) )
-        IF ( .NOT. INTERPX( GRID_CRO_2D, VARNM, PNAME,
-     &                      STRTCOLGC2,ENDCOLGC2, STRTROWGC2,ENDROWGC2, 1,1,
-     &                      JDATE, JTIME, HT ) ) THEN
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-        ALLOCATE ( ZM( MY_NCOLS,MY_NROWS, NLAYS ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
-          XMSG = 'Failure allocating LAT'
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-
-C...Get photolysis rate diagnostic file flag
-
-        PHOTDIAG = .FALSE.         ! default
-        VARDESC= 'Flag for writing the photolysis rate diagnostic file'
-        PHOTDIAG = ENVYN( CTM_PHOTDIAG, VARDESC, PHOTDIAG, ESTAT )
-        IF ( ESTAT .NE. 0 ) WRITE( LOGDEV, '(5X, A)' ) VARDESC
-        IF ( ESTAT .EQ. 1 ) THEN
-          XMSG = 'Environment variable improperly formatted'
-          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
-        ELSE IF ( ESTAT .EQ. -1 ) THEN
-          XMSG =
-     &          'Environment variable set, but empty ... Using default:'
-          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-        ELSE IF ( ESTAT .EQ. -2 ) THEN
-          XMSG = 'Environment variable not set ... Using default:'
-          WRITE( LOGDEV, '(5X, A, I9)' ) XMSG, JTIME
-        END IF
+        CALL INIT_PHOT_SHARED()
 
         IF ( PHOTDIAG ) THEN
 C...open the photolysis rate diagnostic files
@@ -530,11 +435,11 @@ C...  correct for current *positive* West longitude convention
       JTIME_CHK = MOD( JTIME, 10000 )
 
       CURRHR = STRTHR
-     &       + FLOAT ( SECSDIFF ( STDATE, STTIME, JDATE, JTIME ) )
+     &       + FLOAT ( SECSDIFF ( LOC_STDATE, LOC_STTIME, JDATE, JTIME ) )
      &       / 3600.0
       NDARK = .TRUE.
-      DO ROW = 1, MY_NROWS
-        DO COL = 1, MY_NCOLS
+      DO ROW = 1, NROWS
+        DO COL = 1, NCOLS
           XLHA( COL, ROW ) = CURRHR + LON( COL, ROW ) / 15.0 - 12.0
           NDAYS = NINT ( XLHA( COL, ROW ) / 24.0 )
           XLHA( COL, ROW ) = ABS ( XLHA( COL, ROW ) - NDAYS * 24.0 )
@@ -548,8 +453,8 @@ C...  (assumes sun below horizon at *all* levels!)
       IF ( NDARK ) THEN
         DO JP = 1, NPHOTAB
           DO LEV = 1, NLAYS
-            DO ROW = 1, MY_NROWS
-              DO COL =1, MY_NCOLS
+            DO ROW = 1, NROWS
+              DO COL =1, NCOLS
                 RJ( COL, ROW, LEV, JP ) = 0.0
               END DO
             END DO
@@ -578,22 +483,20 @@ C...  (assumes sun below horizon at *all* levels!)
         RETURN
       END IF
 
+C...Calculate mid date and time
+      MDATE = JDATE
+      MTIME = JTIME
+      ITMSTEP = TIME2SEC( DTSTEP( 2 ) ) / 2
+      CALL NEXTIME( MDATE, MTIME, SEC2TIME( ITMSTEP ) )
+
 C...Get heights of each level
 
-      VARNM = 'ZH'
-      XMSG = 'Could not read ZH from ' // MET_CRO_3D
-!     IF( .NOT. INTERP3 ( MET_CRO_3D, VARNM, PNAME,
-!    &                    MDATE, MTIME, NCOLS * NROWS * NLAYS, ZM ) )
-      IF ( .NOT. INTERPX( MET_CRO_3D, VARNM, PNAME,
-     &                    STRTCOLMC3,ENDCOLMC3, STRTROWMC3,ENDROWMC3, 1,NLAYS,
-     &                    MDATE, MTIME, ZM ) ) THEN
-        CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-      END IF
+      call interpolate_var ('ZH', mdate, mtime, ZM)
 
 C...compute clear-sky photolysis rates
 
-      DO ROW = 1, MY_NROWS
-        DO COL = 1, MY_NCOLS
+      DO ROW = 1, NROWS
+        DO COL = 1, NCOLS
 
 C...Compute interpolation indices and weighting factors
 
@@ -682,51 +585,19 @@ C...Get time dependent non-layered data
 
 C...Read & Interpolate WBAR
 
-        VARNM = 'WBAR'
-        XMSG = 'Could not read WBAR from ' // MET_CRO_2D
-!       IF ( .NOT. INTERP3 ( MET_CRO_2D, VARNM, PNAME,
-!    &                       MDATE, MTIME, NCOLS * NROWS, WBAR ) )
-        IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
-     &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                      MDATE, MTIME, WBAR ) ) THEN
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
+        call interpolate_var ('WBAR', mdate, mtime, WBAR)
 
 C..Read & Interpolate CLDT
 
-        VARNM = 'CLDT'
-        XMSG = 'Could not read CLDT from ' // MET_CRO_2D
-!       IF ( .NOT. INTERP3 ( MET_CRO_2D, VARNM, PNAME,
-!    &                       MDATE, MTIME, NCOLS * NROWS, CLDT ) )
-        IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
-     &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                      MDATE, MTIME, CLDT ) ) THEN
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
+        call interpolate_var ('CLDT', mdate, mtime, CLDT)
 
 C..Read & Interpolate CLDB
 
-        VARNM = 'CLDB'
-        XMSG = 'Could not read CLDB from ' // MET_CRO_2D
-!       IF ( .NOT. INTERP3 ( MET_CRO_2D, VARNM, PNAME,
-!    &                       MDATE, MTIME, NCOLS * NROWS, CLDB ) )
-        IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
-     &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                      MDATE, MTIME, CLDB ) ) THEN
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
+        call interpolate_var ('CLDB', mdate, mtime, CLDB)
 
 C...Read & Interpolate CFRAC
 
-        VARNM = 'CFRAC'
-        XMSG = 'Could not read CFRAC from ' // MET_CRO_2D
-!       IF ( .NOT. INTERP3 ( MET_CRO_2D, VARNM, PNAME,
-!    &                       MDATE, MTIME, NCOLS * NROWS, CFRAC ) )
-        IF ( .NOT. INTERPX( MET_CRO_2D, VARNM, PNAME,
-     &                      STRTCOLMC2,ENDCOLMC2, STRTROWMC2,ENDROWMC2, 1,1,
-     &                      MDATE, MTIME, CFRAC ) ) THEN
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
+        call interpolate_var ('CFRAC', mdate, mtime, CFRAC)
 
 C...inclination angle used for zenith angle calculation
 
@@ -735,8 +606,8 @@ C...inclination angle used for zenith angle calculation
 
 C...loop through all cell and make the cloud correction
 
-        DO ROW = 1, MY_NROWS
-          DO COL = 1, MY_NCOLS
+        DO ROW = 1, NROWS
+          DO COL = 1, NCOLS
 
             CLDFR = CFRAC( COL, ROW )
 
@@ -801,6 +672,8 @@ C...  in cloud - linearly interpolate between base and top value
                     RJ( COL, ROW, LEV, JP ) = FCLD
      &                                      * RJ( COL, ROW, LEV, JP )
 
+                    RJ_RES( COL, ROW, LEV, JP ) = RJ( COL, ROW, LEV, JP )
+                    RJ_SUB( COL, ROW, LEV, JP ) = RJ( COL, ROW, LEV, JP )
                   END DO
                 END DO
               END IF

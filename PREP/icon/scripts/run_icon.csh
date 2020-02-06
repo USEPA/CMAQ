@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
-# ======================= ICONv5.2 Run Script ========================
-# Usage: run.icon.csh >&! icon_v52.log &                                   
+# ======================= ICONv5.3.1 Run Script ========================
+# Usage: run.icon.csh >&! icon_v53.log &                                   
 #
 # To report problems or request help with this script/program:         
 #             http://www.cmascenter.org
@@ -14,11 +14,10 @@
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  setenv compiler intel 
- setenv compilerVrsn 15.0
 
 #> Source the config_cmaq file to set the run environment
  pushd ../../../
- source ./config_cmaq.csh
+ source ./config_cmaq.csh $compiler
  popd
 
 #> Check that CMAQ_DATA is set:
@@ -29,96 +28,85 @@
  echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN     = v52                     #> Code Version
- set APPL     = SE52BENCH               #> Application Name
- set INPT     = profile                 #> Input data type: profile or m3conc?
- set MECH     = cb05e51_ae6_aq          #> Mechanism ID
+ set VRSN     = v531                     #> Code Version
+ set APPL     = SE53BENCH               #> Application Name
+ set ICTYPE   = regrid                  #> Initial conditions type [profile|regrid]
 
 #> Set the working directory:
- set BLD      = ${CMAQ_HOME}/PREP/icon/scripts/BLD_ICON_${VRSN}_${INPT}_${compiler}
- set EXEC     = ICON_${VRSN}_$INPT.exe  
- cat $BLD/ICON_${VRSN}_$INPT.cfg; echo " "; set echo
+ set BLD      = ${CMAQ_HOME}/PREP/icon/scripts/BLD_ICON_${VRSN}_${compilerString}
+ set EXEC     = ICON_${VRSN}.exe  
+ cat $BLD/ICON_${VRSN}.cfg; echo " "; set echo
 
 #> Horizontal grid definition 
- setenv GRID_NAME SE52BENCH               #> check GRIDDESC file for GRID_NAME options
- setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
+ setenv GRID_NAME SE53BENCH               #> check GRIDDESC file for GRID_NAME options
+#setenv GRIDDESC $CMAQ_DATA/$APPL/met/mcip/GRIDDESC #> grid description file 
+ setenv GRIDDESC /work/MOD3DATA/SE53BENCH/met/mcip/GRIDDESC
  setenv IOAPI_ISPH 20                     #> GCTP spheroid, use 20 for WRF-based modeling
-
-#> Vertical layer definition
- setenv LAYER_FILE $CMAQ_DATA/$APPL/met/mcip/METCRO3D_110701.nc #>METCRO3D file from MCIP
 
 #> I/O Controls
  setenv IOAPI_LOG_WRITE F     #> turn on excess WRITE3 logging [ options: T | F ]
- setenv IOAPI_OFFSET_64 NO    #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
+ setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
  setenv EXECUTION_ID $EXEC    #> define the model execution id
 
 # =====================================================================
 #> ICON Configuration Options
 #
 # ICON can be run in one of two modes:                                     
-#     1) use default profile inputs (IC = profile)
-#     2) use CMAQ CTM concentration files for nested runs (IC = m3conc)     
+#     1) regrids CMAQ CTM concentration files (IC type = regrid)     
+#     2) use default profile inputs (IC type = profile)
 # =====================================================================
 
- set IC = profile      #> either profile or m3conc 
- set DATE = 2001182    #> only needed for nested runs
+ setenv ICON_TYPE ` echo $ICTYPE | tr "[A-Z]" "[a-z]" ` 
 
 # =====================================================================
 #> Input/Output Directories
 # =====================================================================
 
- set OUTDIR   = $CMAQ_DATA/icon       #> output file directory
+ set OUTDIR   = $CMAQ_HOME/data/icon       #> output file directory
 
 # =====================================================================
 #> Input Files
 #  
-#  Profile Mode (IC = profile)
-#     IC_PROFILE = static/default IC profiles 
-#  Nesting mode (IC = m3conc)
+#  Regrid mode (IC = regrid) (includes nested domains, windowed domains,
+#                             or general regridded domains)
 #     CTM_CONC_1 = the CTM concentration file for the coarse domain          
 #     MET_CRO_3D_CRS = the MET_CRO_3D met file for the coarse domain
-#                  only set if  or if the vertical grid type is   
-#                  changed between nests                                     
-#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the inner, nested, domain 
-#                  only set if the vertical grid type is changed between  
-#                  nests                                                     
+#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target nested domain 
 #                                                                            
-# NOTE: SDATE (yyyyddd) and STIME (hhmmss) must always be set           
+#  Profile Mode (IC = profile)
+#     IC_PROFILE = static/default IC profiles 
+#     MET_CRO_3D_FIN = the MET_CRO_3D met file for the target domain 
+#
+# NOTE: SDATE (yyyyddd) and STIME (hhmmss) are only relevant to the
+#       regrid mode and if they are not set, these variables will 
+#       be set from the input MET_CRO_3D_FIN file
+# =====================================================================
+#> Output File
+#     INIT_CONC_1 = gridded IC file for target domain
 # =====================================================================
 
- if ( $IC == profile ) then
-    setenv IC_PROFILE      $BLD/ic_profile_CB05.dat
+    set DATE = "2016-07-01"
+    set YYYYJJJ  = `date -ud "${DATE}" +%Y%j`   #> Convert YYYY-MM-DD to YYYYJJJ
+    set YYMMDD   = `date -ud "${DATE}" +%y%m%d` #> Convert YYYY-MM-DD to YYMMDD
+    set YYYYMMDD = `date -ud "${DATE}" +%Y%m%d` #> Convert YYYY-MM-DD to YYYYMMDD
+#   setenv SDATE           ${YYYYJJJ}
+#   setenv STIME           000000
+
+ if ( $ICON_TYPE == regrid ) then
+    setenv CTM_CONC_1 /work/MOD3EVAL/sjr/CCTM_CONC_v53_intel18.0_2016_CONUS_test_${YYYYMMDD}.nc
+    setenv MET_CRO_3D_CRS /work/MOD3DATA/2016_12US1/met/mcip_v43_wrf_v381_ltng/METCRO3D.12US1.35L.${YYMMDD}
+    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_${YYMMDD}.nc
+    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE}_${YYYYMMDD} -v"
+ endif
+
+ if ( $ICON_TYPE == profile ) then
+    setenv IC_PROFILE $BLD/avprofile_cb6r3m_ae7_kmtbr_hemi2016_v53beta2_m3dry_col051_row068.csv
+    setenv MET_CRO_3D_FIN /work/MOD3DATA/SE53BENCH/met/mcip/METCRO3D_${YYMMDD}.nc
+    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${ICON_TYPE}_${YYYYMMDD} -v"
  endif
  
- if ( $IC == m3conc ) then 
-    setenv CTM_CONC_1 $CMAQ_DATA/cctm/CCTM_d1bCONC.d1b
-    setenv MET_CRO_3D_CRS
-    setenv MET_CRO_3D_FIN
-    setenv SDATE           ${DATE}
-    setenv STIME           000000
- endif
-
-# =====================================================================
-#> Output Files
-# =====================================================================
-
-
- if ( $IC == profile ) then
-    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_profile -v"
-    endif
- if ( $IC == m3conc ) then 
-    set DATE = 2011182  # July 1, 2011
-    setenv INIT_CONC_1    "$OUTDIR/ICON_${VRSN}_${APPL}_${DATE} -v"
- endif
-
 #>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-#> species defn
- setenv gc_matrix_nml ${BLD}/GC_$MECH.nml
- setenv ae_matrix_nml ${BLD}/AE_$MECH.nml
- setenv nr_matrix_nml ${BLD}/NR_$MECH.nml
- setenv tr_matrix_nml ${BLD}/Species_Table_TR_0.nml
- 
  if ( ! -d "$OUTDIR" ) mkdir -p $OUTDIR
 
  ls -l $BLD/$EXEC; size $BLD/$EXEC

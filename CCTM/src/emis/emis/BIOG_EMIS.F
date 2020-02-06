@@ -17,12 +17,6 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/emis/emis/BIOG_EMIS.F,v 1.5 2012/01/19 15:23:37 yoj Exp $
-
-C what(1) key, module and SID; SCCS file; date and time of last delta:
-C %W% %P% %G% %U%
-
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       MODULE BIOG_EMIS
 
@@ -33,8 +27,15 @@ C Revision History:
 C     ?? ??? ???? ?.?????: initial implementation
 C     20 Sep 2007 J.Young: inline DSCSPROF, eliminate MODSPRO module
 C     16 Feb 2011 S.Roselle: replaced I/O API include files with UTILIO_DEFN
-
+C     16 Aug 2018 G. Sarwar: updated for CB6R3M_AE7_KMTBR
+C     01 Feb 2019 D. Wong: Implemented centralized I/O approach, and 
+C                          created a new module biog_emis_param_module 
+C                          (model_data_module.F) to hold some of information
+C                          originally stored here to avoid cyclic dependence
 C-----------------------------------------------------------------------
+      USE RUNTIME_VARS
+      USE EMIS_VARS
+      USE biog_emis_param_module
 
       IMPLICIT NONE
 
@@ -45,43 +46,14 @@ C Mole and mass factors:
       REAL,            ALLOCATABLE, SAVE :: MLFAC( :,: ) ! mole factors
       REAL,            ALLOCATABLE, SAVE :: MSFAC( :,: ) ! mass factors
 
-C----------------------------------------------------------------------
-C Former include file  B3V12DIMS3.EXT
-C dimensioning parameters for BEIS v3.12 
-
-      INTEGER, PARAMETER :: NSEF     = 35 ! # of em class in Summer emis factor table
-      INTEGER, PARAMETER :: NSEASONS = 2  ! number of seasons modeled (2 for now)
-      INTEGER, PARAMETER :: NLAI     = 3  ! no. of different LAIs (ISOP and MBO)
-      INTEGER, PARAMETER :: NSUMMER  = 1  ! summer flag
-      INTEGER, PARAMETER :: NWINTER  = 2  ! winter flag
-
-C Names for BEIS species, emitted model species
-C DO NOT CHANGE THE ORDER OF THESE ARRAYS
-
-      CHARACTER( 5 ) :: BIOTYPES( NSEF ) =
-     &                          (/ 'ISOP ', 'MBO  ', 'METH ', 
-     &                             'APIN ', 'BPIN ', 'D3CAR', 'DLIM ',
-     &                             'CAMPH', 'MYRC ', 'ATERP', 'BPHE ', 
-     &                             'SABI ', 'PCYM ', 'OCIM ', 'ATHU ',
-     &                             'TRPO ', 'GTERP', 'ETHE ', 'PROPE',
-     &                             'ETHO ', 'ACET ', 'HEXA ', 'HEXE ',
-     &                             'HEXY ', 'FORM ', 'ACTAL', 'BUTE ',
-     &                             'ETHA ', 'FORAC', 'ACTAC', 'BUTO ',
-     &                             'CO   ', 'ORVOC', 'SESQT',
-     &                             'NO   ' /)
-
-      CHARACTER( 5 ) :: LAITYPES( NLAI ) =
-     &                          (/ 'ISOP ', 'MBO  ', 'METH ' /)
-
-      CHARACTER( 1 ) :: SEASON( NSEASONS ) =
-     &                          (/ 'S', 'W' /)
-
 C-----------------------------------------------------------------------
 
       CONTAINS
          FUNCTION BIOG_INIT() RESULT ( SUCCESS )
-
+      
+         USE RXNS_DATA, ONLY : MECHNAME
          USE UTILIO_DEFN
+         USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MW
 
          IMPLICIT NONE
 
@@ -96,6 +68,7 @@ C (A line from the profile file is a record.)
          INTEGER,        PARAMETER :: NSEGS = 6  ! # of potential line segments (fields)
          INTEGER,        PARAMETER :: MXLINES = 100 ! max lines for requested sppro name
          INTEGER,        PARAMETER :: MXSPPOL = 10  ! max no. spc per pollutant
+         INTEGER,        PARAMETER :: NMECHS = 14   ! dimension for number of mechanisms considered
          CHARACTER,      PARAMETER :: CINVHDR = '#' ! Indicator for inventory hdr fields
 !        REAL,           PARAMETER :: GM2TON  = 1.0 / 907184.74  ! grams to tons
 
@@ -134,7 +107,7 @@ C Local variables
          INTEGER        NIPOS      ! number of pollutant matches
          INTEGER        PNDX       ! position (from INDEX1) of pol in POLNAMA
          INTEGER        SNDX       ! position (from INDEX1) of pol in SPECNMA
-         INTEGER        NDX        ! index position
+         INTEGER        NDX, INDX  ! index position
 
          LOGICAL     :: INHEADER = .FALSE.   ! true: in file header
 
@@ -143,32 +116,48 @@ C Local variables
          CHARACTER(  16 ) :: SPNPRF     ! record (line) speciation profile name
          CHARACTER(  16 ) :: POLNAM     ! record (line) pollutant name
          CHARACTER(  16 ) :: SPECNM     ! record (line) species name
-         CHARACTER(  16 ) :: SPPRO      ! requested speciation profile name
          CHARACTER(  16 ) :: FILE_SPPRO ! label read from gspro
 
          REAL                SPLTFAC, SDIV, SMFAC ! line speciation profile factors
+ 
+         TYPE BIOG_MECH_TYPE
+              CHARACTER( 32 ) :: CHEMMECH
+              CHARACTER( 16 ) :: BIOGMECH
+         END TYPE BIOG_MECH_TYPE
 
+         TYPE( BIOG_MECH_TYPE ) :: BIOG_MECH_MAP( NMECHS ) = (/
+     &         BIOG_MECH_TYPE( 'CB05E51_AE6_AQ         ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05EH51_AE6_AQ        ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05MP51_AE6_AQ        ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB05TUCL51_AE6_AQ      ','B10C5   '),
+     &         BIOG_MECH_TYPE( 'CB6R3_AE6_AQ           ','B10C6   '),
+     &         BIOG_MECH_TYPE( 'CB6MP_AE6_AQ           ','B10C6   '),
+     &         BIOG_MECH_TYPE( 'CB6R3_AE7_AQ           ','B10C6AE7'),     
+     &         BIOG_MECH_TYPE( 'CB6R3M_AE7_KMTBR       ','B10C6AE7'),
+     &         BIOG_MECH_TYPE( 'RACM2_AE6_AQ           ','B10RD   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TB_AE6_AQ       ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TC_AE6_AQ       ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQ     ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE7I_AQ     ','B10SP   '),
+     &         BIOG_MECH_TYPE( 'SAPRC07TIC_AE6I_AQKMTI ','B10SP   ') /)
+ 
          CHARACTER( 16 ) :: PNAME = 'BIOG_INIT'
-#ifdef Verbose
-         integer logdev   ! debug
-#endif
 
 C-----------------------------------------------------------------------
 
-#ifdef Verbose
-         logdev = init3()   ! debug
-#endif
          SUCCESS = .TRUE.
 
 C Open speciation profiles file
          RDEV = PROMPTFFILE(
      &            'Enter logical name for Speciation Profiles file',
      &            .TRUE., .TRUE., 'GSPRO', PNAME )
-C                 rdonly  fmtted
 
-C Get the speciation profile to use
-         MESG = 'Speciation profile to use for biogenics'
-         CALL ENVSTR( 'BIOG_SPRO', MESG, 'B3V10', SPPRO, IOS )
+         IF ( SPPRO .EQ. 'DEFAULT' ) THEN 
+            INDX = INDEX1( MECHNAME, NMECHS, BIOG_MECH_MAP%CHEMMECH )
+            SPPRO = BIOG_MECH_MAP( INDX )%BIOGMECH
+            WRITE( LOGDEV, '(5X,A,A,A)' ), 'Accessing compatible biogenic ',
+     &             'emissions mechanism: ',TRIM( SPPRO )
+         END IF
 
 C Scan speciation profiles file to get all of the pollutant-species combinations
 C that are valid for the pollutants in the inventory. The species names are sorted
@@ -222,7 +211,7 @@ C Check for header start
                SUCCESS = .FALSE.; RETURN
             END IF
 
-C Skip lines that don't reference the requested speciation profile name
+C Skip lines that dont reference the requested speciation profile name
             IF ( LINE( 1:1 ) .EQ. '"' ) THEN
                FILE_SPPRO = LINE( 2: INDEX( LINE,'"' )-1 )
                IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
@@ -405,7 +394,7 @@ C Reposition sequential file for second pass
          write( logdev,* ) '    Biogenic emissions species:'
          write( logdev,* ) '    Pol POLNAMES  Spc SPCNAMES         Mspcs EMSPC'
 #endif
-C Find emitted species names
+C Find emitted CMAQ species names
          MSPCS = 0
          DO POL = 1, NSEF
             DO ISP = 1, MXSPEC
@@ -424,6 +413,38 @@ C Find emitted species names
 #endif
                END IF
             END DO
+         END DO
+
+C Save Species names in global array for mapping emissions
+         EM_FILE_SURR( IBIOSRM )%LEN = MSPCS
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%ARRY ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%UNITS( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%MW   ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%USED ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%CONV ( MSPCS ) )
+         ALLOCATE( EM_FILE_SURR( IBIOSRM )%BASIS( MSPCS ) )
+
+         EM_FILE_SURR( IBIOSRM )%ARRY  = EMSPC
+         EM_FILE_SURR( IBIOSRM )%UNITS = 'MOLES/S'
+         EM_FILE_SURR( IBIOSRM )%MW    = 1.0
+         EM_FILE_SURR( IBIOSRM )%USED  = .FALSE.
+         EM_FILE_SURR( IBIOSRM )%CONV  = 1.0
+         EM_FILE_SURR( IBIOSRM )%BASIS = 'MOLE'
+
+         ! Populate the Molecular Weight Field by Matching Gas Species
+         ! to the CMAQ mechanism species
+         DO ISP = 1,MSPCS
+             INDX = INDEX1( EMSPC( ISP ), N_CGRID_SPC, CGRID_NAME )
+             IF ( INDX .NE. 0 ) THEN
+                 EM_FILE_SURR( IBIOSRM )%MW( ISP ) = CGRID_MW( INDX )
+             ELSE
+                 WRITE( MESG, '(A,A,A,A)' ) 'WARNING: BEIS emission species ',
+     &               EMSPC( ISP ),' is not found in the Gas-Phase Mechanism. ',
+     &               'The surrogate molecular weight will be set to 1.0'
+                 CALL LOG_MESSAGE( LOGDEV, MESG )
+                 EM_FILE_SURR( IBIOSRM )%MW( ISP ) = 1.0
+             END IF
+
          END DO
 
 C Allocate memory for storing mole- and mass-based factors
@@ -453,7 +474,7 @@ C conversions
 C Skip blank and comment lines
             IF ( LINE .EQ. ' ' .OR. LINE( 1:1 ) .EQ. CINVHDR ) CYCLE
 
-C Skip lines that don't reference the requested speciation profile name
+C Skip lines that dont reference the requested speciation profile name
             IF ( LINE( 1:1 ) .EQ. '"' ) THEN
                FILE_SPPRO = LINE( 2: INDEX( LINE,'"' )-1 )
                IF ( FILE_SPPRO .NE. SPPRO ) CYCLE 
@@ -480,7 +501,6 @@ C not found (skip entry)
             SNDX = INDEX1( SPECNM, MSPCS, EMSPC )
             IF ( SNDX .GT. 0 ) THEN
                MLFAC( SNDX,PNDX ) = SPLTFAC / SDIV
-!              MSFAC( SNDX,PNDX ) = SMFAC * GM2TON
                MSFAC( SNDX,PNDX ) = SMFAC
             END IF
 

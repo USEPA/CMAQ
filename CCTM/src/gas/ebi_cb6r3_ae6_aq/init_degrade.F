@@ -25,7 +25,7 @@ C %W% %P% %G% %U%
 
 
       SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL,
-     &                         JDATE, JTIME, LOGDEV )
+     &                         JDATE, JTIME )
 C**********************************************************************
 C
 C  FUNCTION:  Initialize arrays used by degrade routines then load
@@ -40,6 +40,7 @@ C                                is less than zero
 C
 C**********************************************************************
 
+      USE RUNTIME_VARS
       USE RXNS_DATA
       USE DEGRADE_SETUP_TOX
 
@@ -55,7 +56,6 @@ C.....ARGUMENTS:
 
       INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
       INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
-      INTEGER, INTENT( IN ) :: LOGDEV ! unit number for the log
 
 C.....LOCAL VARIABLES:
 
