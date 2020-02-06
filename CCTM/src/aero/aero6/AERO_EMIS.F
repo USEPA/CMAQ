@@ -414,7 +414,7 @@ C-----------------------------------------------------------------------
          IF ( SD_NML( IRULE )%STREAM .EQ. '' ) CYCLE
          CALL INTERPRET_EM_RULE_STREAM( SD_NML( IRULE )%STREAM, IRULE, 
      &                 EM_STREAM_RULE, LREMOVE )
-         IF ( LREMOVE .EQ. .TRUE. ) CYCLE
+         IF ( LREMOVE ) CYCLE
 
          ! Loop through streams, set defaults, and build map array
          DO ISRM = 1, N_EM_SRM
