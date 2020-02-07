@@ -60,7 +60,7 @@ C-----------------------------------------------------------------------
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
      &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, SPC_NAME,
-     &                   L_NITRATE
+     &                   L_NITRATE, SA_BIDI, BIDITAG
 #endif
 
       IMPLICIT NONE
@@ -159,6 +159,8 @@ C ACM Local Variables
       REAL, ALLOCATABLE,SAVE :: SA_NO2( : )      
 
       INTEGER, SAVE              :: ISAM_INDEX_NO2 = 0   ! ...Index locating NO2 in ISAM
+      INTEGER, SAVE              :: ISAM_INDEX_NH3 = 0   ! ...Index locating NH3 in ISAM
+      INTEGER, SAVE              :: PLDV_INDEX_NH3 = 0   ! ...Index locating NH3 in PLDV
 
       INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_HONO( : )
@@ -309,6 +311,25 @@ C set auxiliary depv arrays
                 EXIT
             END IF            
          END DO
+
+! find NH3 in tracked species
+         IF ( SA_BIDI ) THEN
+           DO S = 1, NSPC_SA
+              IF( SPC_NAME( S,1 ) .EQ. 'NH3' )THEN
+                  ISAM_INDEX_NH3 = S
+                  EXIT
+              END IF
+           END DO
+           S = -1
+           S = INDEX1( 'NH3', N_SPC_DEPV, DEPV_SPC )
+           IF ( S .GT. 0 ) THEN
+             PLDV_INDEX_NH3 = S
+           ELSE
+             XMSG = 'NH3 not found in DEPV_SPC array'
+             CALL M3EXIT( 'PLDV_INDEX_NH3', 0, 0, XMSG, XSTAT1 )
+           END IF
+         END IF
+
 ! set indices determining depv treatment, equals zero if none
          ITAG = 0
          WRITE(LOGDEV,'(/,A7,1X,2(A16,1X))')'JSPCTAG','ISAM_SPECIES','DEPV Value'
@@ -467,6 +488,14 @@ C-----------------------------------------------------------------------
 
 #ifdef isam
          SAEMIS = 0.0
+
+! modify ground emissions for bidirectional species (for bidi, PLVD > 0.0)
+         IF ( SA_BIDI ) THEN
+           SA_VDEMIS_DIFF( ISAM_INDEX_NH3,1,C,R,BIDITAG )
+     &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
+         END IF
+
+! collapse ISAM emissions array
          DO L = 1, EMLAYS
             DO ITAG = 1, NTAG_SA
                BOT = (ITAG-1)*NSPC_SA+1

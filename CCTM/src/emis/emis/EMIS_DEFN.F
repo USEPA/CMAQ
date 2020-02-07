@@ -352,6 +352,17 @@ C Find emissions stream in the list of available streams
                     CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
 #endif
                  ENDIF
+
+                 IF ( TAGSTREAMS(ITAG,ISRM) .EQ. 'BIDIRECTIONALNH3' )THEN
+                   IF ( ABFLUX ) THEN
+                     CYCLE ! don't need a stream for this
+                   ELSE
+                     XMSG = " BIDIRECTIONALNH3 specified,"
+     &                      " but ABLUX set to FALSE "
+                     CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
+                   ENDIF           
+                 END IF
+
                  IDX = INDEX1(TAGSTREAMS(ITAG,ISRM),N_EM_SRM,EM_FILE_LAB )
                  IF ( IDX .EQ. 0 ) THEN
                    XMSG = " User specified ISAM tag - " //
