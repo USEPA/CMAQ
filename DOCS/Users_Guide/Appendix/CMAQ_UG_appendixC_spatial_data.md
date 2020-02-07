@@ -40,9 +40,11 @@ introducing spatial misalignment issues in the model datasets.
 
 ## C.3 Spatial Data Projection
 
-CMAQ can use any of the [four map projections defined for WRF.](http://www2.mmm.ucar.edu/wrf/users/docs/user_guide_V3/users_guide_chap3.htm) 
+CCTM can use any of the [four map projections defined for WRF.](http://www2.mmm.ucar.edu/wrf/users/docs/user_guide_V3/users_guide_chap3.htm) 
 The four map projection coordinate systems are regular latitude-longitude geographic, Lambert conformal conic, Mercator, and Polar
-stereographic. It is important to know that in projecting spatial data that is in WGS84 to the CMAQ projection or projecting CMAQ data to another map projection, users SHOULD NOT do any datum transformation. This is consistent with the WRF preprocessing system (WPS). Datum transformation will result in  geographic location shifting.
+stereographic. However, users should note that several of the PREP and POST tools that are part of the CMAQ system do not currently support the Mercator projection.  These include ICON, BCON, sitecmp, sitecmp_dailyo3, bldoverlay, hr2day and writesite.
+
+It is important to know that in projecting spatial data that is in WGS84 to the CMAQ projection or projecting CMAQ data to another map projection, users SHOULD NOT do any datum transformation. This is consistent with the WRF preprocessing system (WPS). Datum transformation will result in  geographic location shifting.
 
 The CMAQ domain projection is defined through the [PROJ](https://proj.org) coordinate transformation software library using a spherical surface with an earth radius of 6370000 m to match the WRF domain projection definition.  Once an input dataset is in WGS84 the following examples can be used to define the projection transformation needed to match the WRF data:
 
