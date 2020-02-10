@@ -54,6 +54,9 @@
 !  22 Nov 2019 (F. Sidi) 
 !     -- Re-introduced master switch to overide emissions file date for
 !        representative day files
+!  10 Feb 2020 (D. Wong) 
+!     -- Added new environmental variable, MET_TSTEP, to enable
+!        running with temporally finer meteorology
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -110,6 +113,7 @@
       INTEGER :: STDATE          = 1995192  ! Start Date
       INTEGER :: STTIME          = 000000   ! Start Time
       INTEGER :: LOCAL_TSTEP     = 010000   ! set to TSTEP( 1 ) in initscen.F
+      INTEGER :: MET_TSTEP       = 0        ! set meterology input temporal frequency
       INTEGER :: NPCOL           = 1        ! no. of processors across grid columns
       INTEGER :: NPROW           = 1        ! no. of processors across grid rows
       INTEGER :: MAXSYNC         = 720      ! force max TSTEP(2) (sec)

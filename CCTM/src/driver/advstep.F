@@ -95,6 +95,9 @@ C    1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
 C   20 Nov 19 F. Sidi: Updated MET STIME, SDATE, TSTEP, XCELL, YCELL to correspond
 C                      to updates in Centralized I/O 
+C   10 Feb 20 D. Wong: Updated sync step calculation to include input 
+C                      meterology temporal frequency, to allow running with
+C                      finer temporal scale.
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -287,7 +290,7 @@ C condition (force TSTEP(2) to be no greater than MAXSYNC):
 #ifdef twoway
       OSTEP = TIME2SEC( TSTEP( 3 ) )
 #else
-      OSTEP = TIME2SEC( TSTEP( 1 ) )
+      OSTEP = TIME2SEC( min(TSTEP( 1 ), FSTEP) )
 #endif
       MAXSYNC = MIN( OSTEP, MAXSYNC )
 
@@ -330,7 +333,7 @@ C Establish ending time for this Courant number calculation:
 #ifdef twoway
       CALL NEXTIME( EDATE, ETIME, TSTEP( 3 ) )
 #else
-      CALL NEXTIME( EDATE, ETIME, TSTEP( 1 ) )
+      CALL NEXTIME( EDATE, ETIME, min(TSTEP( 1 ), FSTEP) )
 #endif
 
       IF ( SECSDIFF( FDATE, FTIME, EDATE, ETIME ) .GT. 0 )
@@ -405,7 +408,7 @@ C satisfies both conditions).
 
 C If you get here: could not determine satisfactory advection time step.
 
-      WRITE( LOGDEV,94011 ) TSTEP( 1 ), MXUOVDX
+      WRITE( LOGDEV,94011 ) min(TSTEP( 1 ), FSTEP), MXUOVDX
       XMSG = ' '
       CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 
@@ -437,7 +440,7 @@ C If you get here: could not determine satisfactory advection time step.
 
 C If you get here: could not determine satisfactory advection time step.
 
-         WRITE( LOGDEV,94013 ) TSTEP( 1 ), L, WIND_IDX( L )
+         WRITE( LOGDEV,94013 ) min(TSTEP( 1 ), FSTEP), L, WIND_IDX( L )
          XMSG = ' '
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 
@@ -465,7 +468,7 @@ C For each layer ensure that Max(HDIV)*ADV < 1.
             END DO
 C If you get here: could not determine satisfactory advection time step.
 
-            WRITE( LOGDEV,94013 ) TSTEP( 1 ), L, WIND_IDX( L )
+            WRITE( LOGDEV,94013 ) min(TSTEP( 1 ), FSTEP), L, WIND_IDX( L )
             XMSG = ' '
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 

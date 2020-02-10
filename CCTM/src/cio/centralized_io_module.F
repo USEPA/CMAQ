@@ -66,6 +66,9 @@
 !  01/30/20, D. Wong:- fixed IC file interpolation time stamp issue by bypassing the
 !                      check whether the new request falls within the circular buffer
 !                      for IC variable which only has one time step of data.
+!  02/10/20, F. Sidi:- Changed file_tstep from tstep3d to met_tstep an environment
+!                      variable the flexlible allows users to toggle the temporal 
+!                      frequency of their input meterology. 
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -309,7 +312,7 @@
           USE VGRD_DEFN, only : VGTYP_GD, nlays
           USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON,
      &                             STDATE, WB_DUST, ISAM_NEW_START,
-     &                             local_tstep
+     &                             local_tstep, met_tstep
           use LSM_Mod, only : LAND_SCHEME
           use cgrid_spcs, only : n_gc_spcd, n_ae_spc
 
@@ -408,10 +411,25 @@
              XMSG = 'Could not get ' // MET_CRO_2D //' file description'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-
+          
+          ! The two-way model does not grab and set the environmental variable
+          ! met_tstep initilized to 0. Therfore if this is 
+          ! the case, the met_tstep will be to that of the file.
+          if ( met_tstep .eq. 0 ) met_tstep = tstep3d 
+          
+          ! Ensure users cannot pick a met_tstep that is not smaller than the
+          ! file time step and something that is not a multiple of that tstep
+          
+          if (mod(time_to_sec(met_tstep), time_to_sec(tstep3d)) .ne. 0) then
+            xmsg = 'MET_TSTEP environmental variable not equal to or a 
+     & multiple greater than time step of met file ' // MET_CRO_2D
+          
+          call m3exit(pname, 0, 0, xmsg, xstat1)
+          end if 
+          
           file_sdate(f_met) = sdate3d
           file_stime(f_met) = stime3d
-          file_tstep(f_met) = tstep3d
+          file_tstep(f_met) = met_tstep 
           file_xcell(f_met) = xcell3d
           file_ycell(f_met) = ycell3d
 
