@@ -355,7 +355,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `NSTEPS [default: 240000]`<a id=NSTEPS></a>  
     Number of simulation time steps (HHMMSS)  
 -   `TSTEP [default: 010000]`<a id=TSTEP></a>   
-    Simulation output time step interval (HHMMSS)  
+    Simulation output time step interval (HHMMSS)
+-   `MET_TSTEP [default: 010000]`<a id=MET_TSTEP></a>   
+    Meteorology input time step interval (HHMMSS). Users should note the simulation will be terminated IF MET_TSTEP is not atleast as small as the file tstep and not a multiple of the file tstep. Ex. If the meteorology files have data available at 10 minute intervals, valid MET_STEPS are {10,20,30,40...} minutes. 
 
 <a id=CCTM_Config_Options></a>
 
@@ -601,15 +603,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
     
 -   `EMIS_SYM_DATE [default: False]`<a id=EMIS_SYM_DATE></a>  
     The default for GR_EM_SYM_DATE_### and STK_EM_SYM_DATE_### if not set explicitly is false, however users have the option to set this default by setting this environment variable. Users should note, that if this variable is set and GR_EM_SYM_DATE_### or STK_EM_SYM_DATE_### is set, the individual stream switch takes precedent over this variable. This switch maybe useful if all offline emissions are of representative day type. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
-
--   `LAYP_STDATE [HHMMSS]`<a id=LAYP_STDATE></a>  
-    Start date for calculating elevated-point-source emissions.  
-
--   `LAYP_STTIME [HHMMSS]`<a id=LAYP_STTIME></a>   
-    Start time for calculating elevated-point-source emissions.  
-
--   `LAYP_NSTEPS [HHHHHH]`<a id=LAYP_NSTEPS></a>  
-    Number of time steps for calculating elevated-point-source emissions.   
 
 <a id=Lightning_NOx_Config></a>
 
