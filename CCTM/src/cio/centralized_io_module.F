@@ -2704,7 +2704,7 @@ C Read the various categories of normalized emissions
                    deallocate (tdata)
 
                 else
-                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWNi Type of File',1 )
+                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN Type of File',1 )
                 end if
 
                 cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
@@ -2732,10 +2732,6 @@ C Read the various categories of normalized emissions
 
              do i = 1, N_FILE_GR
                 CALL NEXTIME ( loc_jdate(f_emis(i)), loc_jtime(f_emis(i)), file_tstep(f_emis(i)) )
-             end do
-
-             do i = 1, NPTGRPS
-                CALL NEXTIME ( loc_jdate(f_stk_emis(i)), loc_jtime(f_stk_emis(i)), file_tstep(f_stk_emis(i)) )
              end do
 
           end do  ! end iter
