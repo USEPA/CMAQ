@@ -356,6 +356,9 @@
       ! Starting Time
       CALL GET_ENV ( STTIME, 'CTM_STTIME', STTIME, VARDEV )
 
+      ! Get environ. variable met_tstep to control meteorology frequency
+      CALL GET_ENV ( MET_TSTEP, 'MET_TSTEP', MODEL_TSTEP, VARDEV)
+
       ! Retrieve the domain decomposition processor array
       IF ( NPROCS .GT. 1 ) THEN
          CALL GET_ENV ( 'NPCOL_NPROW', NV, V_LIST2, VARDEV )
@@ -869,7 +872,7 @@
          END IF
       END DO
 
-      XMSG = 'MET data determined based on WRF ARM version '
+      XMSG = 'MET data determined based on WRF ARW version '
       IF( MYPE .EQ. 0 ) THEN
           WRITE(OUTDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ), TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )
           WRITE(LOGDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ), TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )

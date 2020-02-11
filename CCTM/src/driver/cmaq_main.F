@@ -80,9 +80,6 @@ C processes (NPROCS)
 
         TOTSECS  = TIME2SEC( RUNLEN )
 
-        ! Get environ. variable met_tstep to control meteorology frequency
-        CALL GET_ENV ( MET_TSTEP, 'MET_TSTEP', MODEL_TSTEP, -1 )
-
         STEPSECS = TIME2SEC( MIN( MODEL_TSTEP, MET_TSTEP) )
 
         IF ( MOD( TOTSECS, STEPSECS ) .EQ. 0 ) THEN
