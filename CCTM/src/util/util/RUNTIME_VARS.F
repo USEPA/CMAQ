@@ -357,7 +357,7 @@
       CALL GET_ENV ( STTIME, 'CTM_STTIME', STTIME, VARDEV )
 
       ! Get environ. variable met_tstep to control meteorology frequency
-      CALL GET_ENV ( MET_TSTEP, 'MET_TSTEP', MODEL_TSTEP, VARDEV)
+      CALL GET_ENV ( MET_TSTEP, 'MET_TSTEP', LOCAL_TSTEP, VARDEV)
 
       ! Retrieve the domain decomposition processor array
       IF ( NPROCS .GT. 1 ) THEN
