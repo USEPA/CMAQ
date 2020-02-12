@@ -163,8 +163,8 @@ IRR can be endlessly customized to examine many different processes and combinat
  +IOLE +ACET +TOL +XYLMN +GLYD +GLY +MGLY +KET +CRON +NTR1 +OPEN +CAT1 +CRES
  +XOPN +NAPH + TO2 + BZO2 + XLO2 + ROR + XPRP + ROOH;
 - IRR_OUTPUT aVOCwithOH = LOSS[aVOC] AND [OH];
-- IRR_OUTPUT aVOCwithO3 = LOSS[aVOC] AND [NO3];
-- IRR_OUTPUT aVOCwithNO3 = LOSS[aVOC] AND [O3];
+- IRR_OUTPUT aVOCwithO3 = LOSS[aVOC] AND [O3];
+- IRR_OUTPUT aVOCwithNO3 = LOSS[aVOC] AND [NO3];
 
 We have summed the throughputs over 2 weeks (July 1-14, 2011), within the first level of the model, and compared these three output pathways at four locations throughout the U.S. Figure 9-1 shows the sum through each of these processes at 6 different grid areas, including 4 urban areas and 2 rural areas.  This figure also includes the corresponding fate for the largely biogenic VOCs, although note that some VOCs, such as formaldehyde and ethanol can be both anthropogenic and biogenic.
 
