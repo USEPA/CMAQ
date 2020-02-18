@@ -151,7 +151,6 @@
          LOGICAL LTNGPARAM           ! env var to use lightning NO parameters file
          INTEGER LSPCS               ! no. of lightning species
          INTEGER               :: I, J, K, L, V, STATUS
-         INTEGER               :: NSTEPS
          INTEGER               :: CJDATE
          CHARACTER( 7 )        :: SJDATE
 
@@ -182,7 +181,6 @@
          EM_FILE_SURR( ILTSRM )%BASIS = 'MOLE'
  
 !C Read in scenario time/date
-         NSTEPS = RUNLEN / TSTEP           ! initscen guarantees divisibility
 
          WRITE( SJDATE, '(I7)' ) JDATE
          READ( SJDATE, '(4X, I3)' ) CJDATE
