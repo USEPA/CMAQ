@@ -289,6 +289,7 @@
      &                      x_dot_ncols, x_dot_nrows    ! extended dot file nools and nrows 
 
         integer, private :: cio_LTLYRS                  ! number of layers in lightning strike dataset
+        CHARACTER( 16 )  :: LT_NAME                     ! LNT name: old Cis NLDNstrk and new is LNT
 
         interface interpolate_var
           module procedure r_interpolate_var_1ds,       ! Interpolation for Stack Group 4 byte Real 1-D Data 
@@ -856,6 +857,14 @@
              l2d_name(:,1) = vname3d(1:n_l2d) 
              l2d_name(:,2) = 'lnt'   ! denote lightning variable
              l2d_name(:,3) = ' '     ! denote non met variable
+             ! Check to see what the lightning variable name is called
+             ! backwards (NLDNstrk) & forwards compatible (LNT)  
+             if ( index1('NLDNstrk', n_l2d ,l2d_name(:,1)) .gt. 0 ) then
+              lt_name = 'NLDNstrk'
+             else
+              lt_name = 'LNT'
+             end if
+
           end if
 
 ! combining all files
