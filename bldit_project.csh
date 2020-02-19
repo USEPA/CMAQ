@@ -105,6 +105,7 @@
     cp CCTM/scripts/run_cctm_2016_12US1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_2016_12US1.csh
     cp CCTM/scripts/lonlat.csv $CMAQ_HOME/CCTM/scripts/lonlat.csv
     cp CCTM/scripts/isam_control.txt $CMAQ_HOME/CCTM/scripts/isam_control.txt
+    cp CCTM/scripts/sensinput.dat $CMAQ_HOME/CCTM/scripts/sensinput.dat
     cp CCTM/scripts/run_cctm_Bench_2016_12SE1.csh $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh
  endif
 
