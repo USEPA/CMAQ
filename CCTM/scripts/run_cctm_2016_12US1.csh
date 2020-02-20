@@ -80,7 +80,6 @@ echo 'Start Model Run At ' `date`
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
 set NSTEPS     = 240000            #> time duration (HHMMSS) for this run
 set TSTEP      = 010000            #> output time step interval (HHMMSS)
-setenv MET_TSTEP 010000            #> meteorology input time step interval (HHMMSS)
 
 #> Horizontal domain decomposition
 if ( $PROC == serial ) then

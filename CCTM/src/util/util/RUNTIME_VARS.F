@@ -356,9 +356,6 @@
       ! Starting Time
       CALL GET_ENV ( STTIME, 'CTM_STTIME', STTIME, VARDEV )
 
-      ! Get environ. variable met_tstep to control meteorology frequency
-      CALL GET_ENV ( MET_TSTEP, 'MET_TSTEP', LOCAL_TSTEP, VARDEV)
-
       ! Retrieve the domain decomposition processor array
       IF ( NPROCS .GT. 1 ) THEN
          CALL GET_ENV ( 'NPCOL_NPROW', NV, V_LIST2, VARDEV )
@@ -856,6 +853,9 @@
          XMSG = 'Could not get ' // MET_CRO_3D //' file description'
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
+
+      ! Get environ. variable met_tstep to control meteorology frequency
+      CALL GET_ENV ( MET_TSTEP, 'MET_TSTEP', TSTEP3D, VARDEV)
 
       FOUND = .FALSE.
       NV = 0
