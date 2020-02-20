@@ -312,7 +312,8 @@ C Local Variables:
          CHARACTER( 16 ) :: VNAME
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ):: XMSG = ' '
-         INTEGER         :: ERROR_NEG, MDATE, MTIME
+         INTEGER         :: ERROR_NEG
+         INTEGER, SAVE   :: WSTEP, MDATE, MTIME
          LOGICAL         :: WRTIME
          LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
 
@@ -460,21 +461,27 @@ C Map the user specified ISAM regions to available CMAQ regions
               END IF
             END DO
 #endif
-
-         END IF
+            ! Initialize Diagnostic Write Counter
+            WSTEP = 0 
+            MDATE = STDATE
+            MTIME = STTIME
+         END IF  ! First Time
 
 C Initialize Emissions Array
          VDEMIS_DIFF = 0.0
+
          WRTIME = .FALSE.
-         MTIME = JTIME
-         MDATE = JDATE
-         CALL NEXTIME( MDATE, MTIME,  SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) )
-         IF ( MOD( TIME2SEC( MTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) WRTIME = .TRUE.
+         WSTEP  = WSTEP + TIME2SEC( TSTEP( 2 ) )
+         WRTIME = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
+         IF ( WRTIME ) THEN 
+           WSTEP = 0
+           CALL NEXTIME( MDATE, MTIME,  TSTEP( 1 ) )
+         END IF
 
 #ifdef isam
-        SA_VDEMIS_DIFF = 0.0
-        SA_VDEMIS_DIFF_ALL = 0.0
-        SA_VDEMIS_DIFF_OTHER = 0.0
+         SA_VDEMIS_DIFF = 0.0
+         SA_VDEMIS_DIFF_ALL = 0.0
+         SA_VDEMIS_DIFF_OTHER = 0.0
 #endif
 
 #ifdef sens
@@ -1112,8 +1119,9 @@ C-----------------------------------------------------------------------
       DO L = 1,NL
         CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) )   ! Gas Moles: ppmv/s -> mol/s
         CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )      ! Aer. Mass: ppmv/s -> umol/s
-      END DO                                                                ! m2/mol/s -> m2/s
-      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) / RAVO / 1.0E+12                ! Aer. Num:  N/molec/s -> N/s
+     &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( L )           ! m2/mol/s -> m2/s
+      END DO                                                                
+      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) / RAVO / 1.0E+6                 ! Aer. Num:  N/molec/s -> N/s
 
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
       !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
@@ -2866,16 +2874,16 @@ C stkemis_init.
              VNAME3D( V ) = DIFF_SPC( IVAR )
              IF ( DIFF_MASK_GAS( IVAR ) ) THEN
                     ! GAS SPECIES
-                    UNITS3D( V ) = 'mol/s'
+                    UNITS3D( V ) = 'mol s-1'
              ELSE IF ( DIFF_MASK_NUM( IVAR ) ) THEN
                     ! AEROSOL NUMBER SPECIES
-                    UNITS3D( V ) = 'particles/s'
+                    UNITS3D( V ) = 'particles s-1'
              ELSE IF ( DIFF_MASK_SRF( IVAR ) ) THEN
                     ! AEROSOL SURFACE AREA SPECIES
-                    UNITS3D( V ) = 'm2/s'
+                    UNITS3D( V ) = 'm2 s-1'
              ELSE
                     ! AEROSOL MASS SPECIES
-                    UNITS3D( V ) = 'g/s'
+                    UNITS3D( V ) = 'g s-1'
              END IF
             
              VDESC3D( V ) = 'Emission Rate of ' // TRIM( VNAME3D( V ) )
