@@ -78,6 +78,7 @@ C                      longer subtime step for CFL < 10 and a shorter time
 C                      step for CFL > 10 than the earlier code.
 C    08 July 19 F. Sidi: Updated Code with CIO changes 
 C    09 Sept 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL 
+C    11 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -99,6 +100,10 @@ C-----------------------------------------------------------------------
       USE TIMING
 #endif
       
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: SENGRID, NPMAX, NP
+#endif 
+
       IMPLICIT NONE
 
 C Includes:
@@ -169,12 +174,17 @@ C Local variables:
       REAL    :: SA_CON( NLAYS,N_SPCTAG )
 #endif
 
+#ifdef sens
+      REAL, ALLOCATABLE, SAVE :: SEN1( :,:,: ) ! ( NLAYS,N_SPC_ADV,NPMAX ) sens subset
+#endif
  
       INTERFACE
 
 #ifdef isam
          SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON, SA_CON )
          USE SA_DEFN
+#elif sens
+         SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON, SEN1 )
 #else
          SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON )
 #endif
@@ -185,7 +195,9 @@ C Local variables:
             REAL,    INTENT( INOUT ) :: VEL( NI+1 )
             REAL,    INTENT( INOUT ) :: CON( :,: )
 #ifdef isam
-            REAL,    INTENT( INOUT ) :: SA_CON( NI,N_SPCTAG ) ! KRT
+            REAL,    INTENT( INOUT ) :: SA_CON( NI,N_SPCTAG )
+#elif sens
+            REAL,    INTENT( INOUT ) :: SEN1( :,:,: )
 #endif
          END SUBROUTINE VPPM
       END INTERFACE
@@ -217,8 +229,15 @@ C-----------------------------------------------------------------------
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 #endif
-        
 
+#ifdef sens
+         ALLOCATE ( SEN1( NLAYS,N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SEN1'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+#endif
+        
 C Get default file header attibutes from MET_CRO_3D (assumes file already open)
 
 C Get dx3 from GRID_CONF module
@@ -297,6 +316,11 @@ C Get rho*J at end of sync step
                A2C = ADV_MAP( SPC )
                DO LVL = 1, NLAYS
                   CON1( LVL,SPC ) = CGRID( COL,ROW,LVL,A2C )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SEN1 ( LVL,SPC,NP ) = SENGRID( COL,ROW,LVL,NP,A2C )
+                  END DO
+#endif
                END DO
             END DO
 
@@ -374,6 +398,8 @@ C sub-steps.
 
 #ifdef isam
                CALL VPPM ( NLAYS, DTNEW, DS, FLX, VEL, CON1, SA_CON )
+#elif sens
+               CALL VPPM ( NLAYS, DTNEW, DS, FLX, VEL, CON1, SEN1 )
 #else
                CALL VPPM ( NLAYS, DTNEW, DS, FLX, VEL, CON1 )
 #endif
@@ -410,6 +436,8 @@ C sub-steps.
 
 #ifdef isam
             CALL VPPM ( NLAYS, DELT, DS, FLX, VEL, CON1, SA_CON )
+#elif sens
+            CALL VPPM ( NLAYS, DELT, DS, FLX, VEL, CON1, SEN1 )
 #else
             CALL VPPM ( NLAYS, DELT, DS, FLX, VEL, CON1 )
 #endif
@@ -418,6 +446,11 @@ C sub-steps.
                A2C = ADV_MAP( SPC )
                DO LVL = 1, NLAYS
                   CGRID( COL,ROW,LVL,A2C ) = CON1( LVL,SPC )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     SENGRID( COL,ROW,LVL,NP,A2C ) = SEN1 ( LVL,SPC,NP )
+                  END DO
+#endif
                END DO
             END DO
 

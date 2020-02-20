@@ -24,7 +24,7 @@ MCIP can be used to determine the spatial region that is processed by CMAQ. MCIP
 
 ## Files, configuration, and environment variables
 
-All MCIP configurations are established at run-time (rather than at compile time) via Fortran namelist variables rather than environment variables, which is a distinction from the rest of the CMAQ programs. The user does not need to directly edit the MCIP namelist file. All configuration settings are contained in the MCIP run script (run_mcip.csh), which automatically creates a new namelist file each time the script is executed.  The MCIP output files are listed in Table 1, and the MCIP output files are listed in Table 2.
+All MCIP configurations are established at run-time (rather than at compile time) via Fortran namelist variables rather than environment variables, which is a distinction from the rest of the CMAQ programs. The user does not need to directly edit the MCIP namelist file. All configuration settings are contained in the MCIP run script (run_mcip.csh), which automatically creates a new namelist file each time the script is executed.  The MCIP input files are listed in Table 1, and the MCIP output files are listed in Table 2.
 
 
 ## Compilation Configuration
@@ -156,3 +156,10 @@ cd $CMAQ_HOME/PREP/mcip/scripts
 |mcip_bdy.nc|netCDF|contains time-independent and time-varying output along the domain perimeter|required, if IOFORM=2| 
 
 The default location of the MCIP output files is the `$CMAQ_HOME/data/mcip/$GridName` directory, but it can be changed in the MCIP script using the `$OutDir` variable. The names of the MCIP output files are generic and do not have any information about the model grid that they are simulating or the time period that is covered. These attributes can be controlled by the MCIP script. For example, the name of the grid can be used in the output directory path. In addition, the default naming convention for all MCIP output files appends the `APPL` environment variable to the file name to identify files by the time period that is represented by the file. All of the file naming variables for the MCIP outputs are set in the run script, and they can be easily tailored to fit each user's application or style.
+
+**Previous Versions of MCIP**
+
+MCIPv4.3 and MCIPv4.2 were released via the CMASCenter MCIP GitHub repository.  Beginning with version 4.5, MCIP is released as part of the CMAQ repository.  
+* [MCIP v4.5 (October 2018)](https://github.com/USEPA/CMAQ/tree/CMAQv5.3.b2_19Oct2018) - bundled under CMAQv5.3beta2 
+* [MCIP v4.3 (November 2015)](https://github.com/CMASCenter/MCIP/tree/4.3) - available on CMASCenter GitHub repository
+* [MCIP v4.2 (December 2013)](https://github.com/CMASCenter/MCIP/tree/4.2) - available on CMASCenter GitHub repository

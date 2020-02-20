@@ -114,6 +114,7 @@ C                        variables in one place
 C    1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
 C    1 Aug 19 David Wong: Added a few more variables in the USE Only blcok for two-way model
+C   30 Dec 19 S. Napelenok: ddm-3d implementation for v 5.3.1
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO ( CGRID, JDATE, JTIME, TSTEP )
 
@@ -149,6 +150,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE twoway_data_module
 #endif
       use CENTRALIZED_IO_MODULE, only : interpolate_var
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, SENGRID
+      Use aero_ddm3d, ONLY : s_so4rate, s_precursor_conc, s_aerospc_conc, s_phg_rate
+#endif 
 
 
       IMPLICIT NONE
@@ -404,7 +410,11 @@ C *** Grid cell meteorological data.
 
 C *** Extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module (set minimum)
+#ifdef sens
+               CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE., SENGRID( C,R,L,:,: ), .TRUE. )
+#else
                CALL EXTRACT_AERO( CGRID( C,R,L,: ), .TRUE. )
+#endif
 
 C *** Extract grid cell concentrations of gas precursors from CGRID (ppm)
 C     into precursr_conc in precursor_data
@@ -429,7 +439,11 @@ C *** Aerosol process routines
 
 C *** Update aerosol variables conc back into CGRID (set minimum) 
 C     and convert M2 to dry and save as surface area
+#ifdef sens
+               CALL UPDATE_AERO( CGRID( C,R,L,: ), .TRUE., SENGRID(C,R,L,:,: ) )
+#else
                CALL UPDATE_AERO( CGRID( C,R,L,: ), .TRUE. )
+#endif
 
 C *** Update precursor variables conc back into CGRID
                CALL UPDATE_PRECURSOR( CGRID( C,R,L,: ) )

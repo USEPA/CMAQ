@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.3 Run Script ========================= 
+# ===================== CCTMv5.3.1 Run Script ========================= 
 # Usage: run.cctm >&! cctm_2014_12US1.log &                                
 #
 # To report problems or request help with this script/program:     
@@ -33,7 +33,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v53               #> Code Version
+ set VRSN      = v531              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set APPL      = 2014_12US1        #> Application Name (e.g. Domain)
@@ -179,6 +179,7 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>       SEASPRAY_EMIS_DIAG   
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
+setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
  
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
@@ -269,7 +270,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   else
      set ICpath = $OUTDIR
      setenv ICFILE CCTM_CGRID_${RUNID}_${YESTERDAY}.nc
-     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}
+     setenv INIT_MEDC_1 $ICpath/CCTM_MEDIA_CONC_${RUNID}_${YESTERDAY}.nc
      setenv INITIAL_RUN N
   endif
 
@@ -309,6 +310,22 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set all      = `echo $intable[8] | cut -d, -f1`
  
   #> Emissions Control File
+  #>
+  #> IMPORTANT NOTE
+  #>
+  #> The emissions control file defined below is an integral part of controlling the behavior of the model simulation.
+  #> Among other things, it controls the mapping of species in the emission files to chemical species in the model and
+  #> several aspects related to the simulation of organic aerosols.
+  #> Please carefully review the emissions control file to ensure that it is configured to be consistent with the assumptions
+  #> made when creating the emission files defined below and the desired representation of organic aerosols.
+  #> For further information, please see:
+  #> + AERO7 Release Notes section on 'Required emission updates':
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Release_Notes/aero7_overview.md
+  #> + CMAQ User's Guide section 6.9.3 on 'Emission Compatability': 
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch06_model_configuration_options.md#6.9.3_Emission_Compatability
+  #> + Emission Control (DESID) Documentation in the CMAQ User's Guide: 
+  #>   https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixB_emissions_control.md 
+  #>
   setenv EMISSCTRL_NML ${BLD}/EmissCtrl_${MECH}.nml
 
   #> Spatial Masks For Emissions Scaling
@@ -319,7 +336,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j.ncf
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
-  
+  setenv GR_EM_SYM_DATE_001 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
   #> In-Line Point Emissions Files
   setenv N_EMIS_PT 7          #> Number of elevated source groups
 
@@ -353,6 +370,17 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_LAB_005 PT_FIRES_MXCA
   setenv STK_EMIS_LAB_006 PT_OILGAS
   setenv STK_EMIS_LAB_007 PT_MARINE
+
+  # Allow CMAQ to Use Point Source files with dates that do not
+  # match the internal model date
+  # To change default behaviour please see Users Guide for EMIS_SYM_DATE
+  setenv STK_EM_SYM_DATE_001 T
+  setenv STK_EM_SYM_DATE_002 T
+  setenv STK_EM_SYM_DATE_003 T
+  setenv STK_EM_SYM_DATE_004 T
+  setenv STK_EM_SYM_DATE_005 T
+  setenv STK_EM_SYM_DATE_006 T
+  setenv STK_EM_SYM_DATE_007 T
 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
@@ -451,6 +479,36 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
     endif
  endif
+
+#> CMAQ-DDM-3D
+ setenv CTM_DDM3D N
+ set NPMAX    = 1
+ setenv SEN_INPUT ${WORKDIR}/sensinput.dat
+
+ setenv DDM3D_HIGH N     # allow higher-order sensitivity parameters [ T | Y | F | N ] (default is N/F)
+
+ if ($NEW_START == true || $NEW_START == TRUE ) then
+    setenv DDM3D_RST N   # begins from sensitivities from a restart file [ T | Y | F | N ] (default is Y/T)
+    set S_ICpath =
+    set S_ICfile =
+ else
+    setenv DDM3D_RST Y
+    set S_ICpath = $OUTDIR
+    set S_ICfile = CCTM_SENGRID_${RUNID}_${YESTERDAY}.nc
+ endif
+
+ setenv DDM3D_BCS F      # use sensitivity bc file for nested runs [ T | Y | F | N ] (default is N/F)
+ set S_BCpath =
+ set S_BCfile =
+
+ setenv CTM_NPMAX       $NPMAX
+ setenv CTM_SENS_1      "$OUTDIR/CCTM_SENGRID_${CTM_APPL}.nc -v"
+ setenv A_SENS_1        "$OUTDIR/CCTM_ASENS_${CTM_APPL}.nc -v"
+ setenv CTM_SWETDEP_1   "$OUTDIR/CCTM_SENWDEP_${CTM_APPL}.nc -v"
+ setenv CTM_SDRYDEP_1   "$OUTDIR/CCTM_SENDDEP_${CTM_APPL}.nc -v"
+ setenv CTM_NPMAX       $NPMAX
+ setenv INIT_SENS_1     $S_ICpath/$S_ICfile
+ setenv BNDY_SENS_1     $S_BCpath/$S_BCfile
  
 # =====================================================================
 #> Output Files
@@ -509,6 +567,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
         set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
                          ${SA_CGRID_1} )
+     endif
+  endif
+  if ( $?CTM_DDM3D ) then
+     if ( $CTM_DDM3D == 'Y' || $CTM_DDM3D == 'T' ) then
+        set OUT_FILES = (${OUT_FILES} ${CTM_SENS_1} ${A_SENS_1} ${CTM_SWETDEP_1} ${CTM_SDRYDEP_1} )
      endif
   endif
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `

@@ -44,6 +44,7 @@ C   21 Jun 10 J.Young: convert for Namelist redesign
 C   16 Feb 11 S.Roselle: replaced I/O API include files with UTILIO_DEFN
 C   11 May 11 D.Wong: incorporated twoway model implementation
 C   May 2019 j. pleim:  removed yamo hadvect subroutines
+C   11 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
       
 C-----------------------------------------------------------------------
 
@@ -55,6 +56,10 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_COMM_MODULE, NOOP_UTIL_MODULE)
 #endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY:SENGRID, NPMAX, NP, BSEN
+#endif 
 
       IMPLICIT NONE
       
@@ -163,6 +168,14 @@ C Get CGRID offsets
          END IF
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
+
+#ifdef sens
+         ALLOCATE ( BSEN( NBNDY,N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating BSEN'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+#endif
 
       END IF                    ! if firstime
 

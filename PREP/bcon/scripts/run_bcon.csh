@@ -28,7 +28,7 @@
  echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN     = v53                     #> Code Version
+ set VRSN     = v531                     #> Code Version
  set APPL     = SE53BENCH               #> Application Name
  set BCTYPE   = regrid                  #> Boundary condition type [profile|regrid]
 

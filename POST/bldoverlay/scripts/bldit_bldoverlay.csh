@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ==================== BLDOVERLAYv5.3 Build Script ===================== #
-# Usage: bldit_bldoverlay.csh >&! bldit_bldoverlay.log                          #
+# ==================== BLDOVERLAYv5.3.1 Build Script ================ #
+# Usage: bldit_bldoverlay.csh >&! bldit_bldoverlay.log                #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -45,7 +45,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v53                        #> model version
+ set VRSN     = v531                        #> model version
  set EXEC     = bldoverlay_${VRSN}.exe        #> executable name for this application
  set CFG      = bldoverlay_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 

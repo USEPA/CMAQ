@@ -7,7 +7,7 @@
 * * *
 
 # Appendix B: Emissions Input and Control
-[Jump to DESID Tutorial](../Tutorials/CMAQ_UG_appendixB_emissions_control.md) for step by step instructions on performing some basic manipulation of emission streams.
+[Jump to DESID Tutorial](../Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
 
 [Jump to Emissions overview](../CMAQ_UG_ch06_model_configuration_options.md) in Chapter 6 of this User's Guide.
 
@@ -18,7 +18,7 @@ In addition to the options available in the RunScript, CMAQ now reads a dedicate
 setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
 ```
 
-The Detailed Emissions Speciation, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
+The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
 
 ## B.2 General Specs
 These variables modify or constrain the effects of other sections of the namelist. The "Guard_XXX" options allow the user to protect specific streams from being modified by scaling rules (explained in section B.3) with the "ALL" keyword in the stream field. For example, the "Guard_BiogenicVOC" option instructs the model not to scale biogenic VOC emissions from the online BEIS module, even if a rule indicates that "ALL" streams are to be scaled. The other "Guard_XXX" options achieve the same effect for other online emissions sources like wind-blown dust, sea spray, marine gas, and lightning NO.
@@ -129,6 +129,12 @@ As indicated, the Region Label "EVERYWHERE" is active by default and returns a m
 
 In the first case, a region with label "WATER" is defined and referenced to the variable "OPEN" (which is short for *open water*) in the file 'CMAQ_MASKS' which needs to be defined in the RunScript. Using this "WATER" region will apply a scaling rule only for open water grid cells and fractionally along coastlines. The second example provides a shortcut for files with many variables that are all desired (e.g. states of the Unites States). Rather than listing out all variables on the file and explicitly linking them to "Region Labels", the user can invoke the "ALL" keyword and all variables will be read and stored with "Region Labels" that equal the names of the variables on the file.
 
+Two example mask files are available on the CMAS Data Warehouse: US states grid mask file and NOAA climate regions grid mask file.  These mask files can be used with the 12US1 modeling grid domain (grid origin x = -2556000 m, y = -1728000 m; N columns = 459, N rows = 299).
+
+* [Link to grid mask files on CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl)
+* [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
+
+
 ## B.5 Aerosol Size Distributions
 The treatment of aerosol size distributions in CMAQv5.3 has been updated to be more consistent with the way particle sizes and modes are treated by the National Emission Inventory and in emissions processing tools like SMOKE, MOVES, SPECIATE, and Speciation Tool. Specifically, in these tools, aerosol emissions are typically parameterized into two main modes, Fine and Coarse. Although the size distribution parameters (i.e. total number, diameter, standard deviation, etc.) for these modes will vary among emission sources, previous versions of CMAQ assumed that all primary fine particles had the same size distribution upon emission. Coarse-mode particles were assumed to exhibit a larger diameter but were also uniform across all sources (excluding wind-blown dust and sea spray).
 
@@ -238,6 +244,9 @@ This variable sets the default behavior for all streams. If the variables for an
 
 The emission rates printed to the diagnostic files reflect all the scaling rules applied and are written just before the emissions are added to the CMAQ transport module. Because the model interpolates in time, it is very likely that the rates written to the diagnostic file will not correspond in time to the rates from the input files. In most cases, the rates will be one-half time step before the top of the hour, the time point of the emission inputs. For this reason, it is not entirely helpful for users to compare the scaled emissions directly to the rates on the input files. However, comparing them qualitatively can be helpful.
 
+<!-- BEGIN COMMENT -->
 
 [<< Previous Appendix](CMAQ_UG_appendixA_model_options.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixC_spatial_data.md)<br>
 CMAQ User's Guide (c) 2019<br>
+
+<!-- END COMMENT -->

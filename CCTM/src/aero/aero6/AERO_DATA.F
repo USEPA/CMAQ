@@ -79,6 +79,7 @@ C             Current kappaorg values are based on species specific
 C             OM/OC ratios (Pye et al. 2017 ACP).
 C GS  08/17/81 Added bromide in seasalt
 C SR 12/14/2018 Added sulfur tracking option
+C SLN 12/30/2019 ddm-3d implementaiton for v 5.3.1
 
 C References:
 C 1. Eddingsaas, N. C., Vandervelde, D. G., Wennberg, P. O., "Kinetics and
@@ -113,6 +114,12 @@ C extinction efficiency [m^2/g], see White, Atmos.Env., 294(10)(1990), pp 2673-1
 C and Malm, et al., JGR, 99(D1)(1994), pp 1347-1370
 C----------------------------------------------------------------------
       USE RUNTIME_VARS
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+      Use aero_ddm3d, ONLY : s_aerospc_conc, ae_ddm3d_ready,
+     &                       init_aero_ddm3d, s_aerospc_conc
+#endif 
+
 
       Implicit None
 
@@ -877,6 +884,10 @@ C Build mapping to CGRID for each species in the master AeroList
       Allocate ( aerospc_conc  ( n_aerospc, n_mode ) )
       Allocate ( aero_missing  ( n_aerospc, n_mode ) )
 
+#ifdef sens
+      Allocate ( s_aerospc_conc( n_aerospc,n_mode,npmax ) )
+#endif
+
       aero_missing( :,: ) = .True.
 
       Do spc = 1, n_aerospc ! Loop through user-requested chemical species
@@ -1083,7 +1094,11 @@ C compute aeromode_minNum and aeromode_minM2
       End Subroutine map_aero
 
 C-----------------------------------------------------------------------
+#ifdef sens
+      Subroutine extract_aero( conc, minchk, s_conc, schk )
+#else
       Subroutine extract_aero( conc, minchk )
+#endif
 
 C  Extracts aerosol data into the AERO_DATA:aerospc_conc array
 C  The original idea is that the data for conc comes from CGRID
@@ -1102,6 +1117,10 @@ C-----------------------------------------------------------------------
 C Arguments:
       Real,    Intent( In ) :: conc( : )
       Logical, Intent( In ) :: minchk
+#ifdef sens
+      Real,    Intent( In ) :: s_conc( :,: )
+      Logical, Intent( In ) :: schk  ! necessary because some routines don't require sensitivity updates
+#endif
 
 C Local Variables:
       Integer m, n, spc
@@ -1110,14 +1129,38 @@ C Local Variables:
          Call map_aero()
       End If
 
+#ifdef sens
+      If ( schk ) Then
+         If ( .Not. ae_ddm3d_ready ) Then
+            Call init_aero_ddm3d()
+         End If
+      End If
+#endif
+
 C Copy grid cell concentrations of aero species to aerospc_conc
       aerospc_conc = 0.0
+#ifdef sens
+      If ( schk ) Then
+         s_aerospc_conc = 0.0D0
+      End If
+#endif
       If ( minchk ) Then
          Do m = 1, n_mode
             Do spc = 1, n_aerospc
                n = aerospc_map( spc,m )
                If ( n .Ne. 0 ) Then
                   aerospc_conc( spc,m ) = Max( conc( n ), aerospc( spc )%min_conc( m ) ) ! [ug/m^3]
+#ifdef sens
+                  If ( schk ) Then
+                     Do np = 1, npmax
+                        If ( aerospc_conc( spc,m ) .Eq. aerospc( spc )%min_conc( m ) ) Then
+                           s_aerospc_conc( spc,m,np ) = 0.0D0
+                        Else
+                           s_aerospc_conc( spc,m,np ) = Real( s_conc( np,n ), 8 )
+                        End If
+                     End Do
+                  End If
+#endif
                End If
             End Do
          End Do
@@ -1127,6 +1170,13 @@ C Copy grid cell concentrations of aero species to aerospc_conc
                n = aerospc_map( spc,m )
                If ( n .Ne. 0 ) Then
                   aerospc_conc( spc,m ) = conc( n )   ! [ug/m^3]
+#ifdef sens
+                  If ( schk ) Then
+                     Do np = 1, npmax
+                        s_aerospc_conc( spc,m,np ) = Real( s_conc( np,n ), 8 )
+                     End Do
+                  End If
+#endif
                End If
             End Do
          End Do
@@ -1172,7 +1222,11 @@ C flag will be set to .true.
       End Subroutine extract_aero
 
 C-----------------------------------------------------------------------
+#ifdef sens
+      Subroutine update_aero( conc, minchk, s_conc )
+#else
       Subroutine update_aero( conc, minchk )
+#endif
 
 C  Updates conc from the AERO_DATA:aerospc_conc array.
 C  The original idea is that the data in conc updates CGRID
@@ -1193,6 +1247,9 @@ C-----------------------------------------------------------------------
 C Arguments:
       Real, Intent( Out ) :: conc( : )
       Logical, Intent( In ) :: minchk
+#ifdef sens 
+      Real,    Intent( Out ) :: s_conc( :,: )
+#endif
 
 C Local variables:
       Character( 80 ) :: xmsg
@@ -1211,6 +1268,15 @@ C Copy aerospc_conc back to grid cell concentrations
                n = aerospc_map( spc,m )
                If ( n .Ne. 0 ) Then
                     conc( n ) = Max( aerospc_conc( spc,m ), aerospc( spc )%min_conc( m ) )
+#ifdef sens
+                    Do np = 1, npmax
+                       If ( conc( n ) .Eq. aerospc( spc )%min_conc( m ) ) Then
+                          s_conc( np,n ) = 0.0
+                       Else
+                          s_conc( np,n ) = Real( s_aerospc_conc( spc,m,np ), 4 )
+                       End If
+                    End Do
+#endif
                End If
             End Do
          End Do
@@ -1220,6 +1286,11 @@ C Copy aerospc_conc back to grid cell concentrations
                n = aerospc_map( spc,m )
                If ( n .Ne. 0 ) Then
                     conc( n ) = aerospc_conc( spc,m )
+#ifdef sens
+                    Do np = 1, npmax
+                       s_conc( np,n ) = Real( s_aerospc_conc( spc,m,np ), 4 )
+                    End Do
+#endif
                End If
             End Do
          End Do
