@@ -70,13 +70,13 @@ C Local Variables:
 
       REAL      DENS( NCOLS,NROWS,NLAYS )  ! air density (kg m-3)
       REAL      RDENS( NCOLS,NROWS,NLAYS ) ! air density (m3 mol-1)
+      REAL      FAC1( NCOLS,NROWS ) ! air density (m3 mol-1)
 
       INTEGER   NSPCS, OFF
       INTEGER   C, R, L, S, V, I           ! loop induction variables
-      REAL,    ALLOCATABLE, SAVE :: MOLWT( : ) ! only for "QAE" species
       INTEGER IOS
 
-      REAL    CONV, FAC            ! temp var
+      REAL    CONV            ! temp var
 
 C-----------------------------------------------------------------------
 
@@ -87,25 +87,32 @@ C Convert non-molar mixing ratio species and re-order CGRID
        DO L = 1, NLAYS
 
 C Gas - no conversion
-       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_GAS( I ) .OR.
-     &                            DIFF_MASK_NR( I )  .OR.
-     &                            DIFF_MASK_TRAC( I ) )
+       FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_GAS( I ) .OR.
+     &                             CGRID_MASK_NR( I )  .OR.
+     &                             CGRID_MASK_TRAC( I ) )
             CNGRD( I,L,:,: ) = CGRID( :,:,L,I )
        END FORALL
 
 C Aerosol Mass: ug/m3 -> ppmv
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ) .AND.
-     &                      .NOT. DIFF_MASK_NUM( I ) .AND.
-     &                      .NOT. DIFF_MASK_SRF( I )  )
-            CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) * RDENS( :,:,L ) / DIFF_MW( I )
+      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_AERO( I ) .AND.
+     &                      .NOT. CGRID_MASK_NUM( I ) .AND.
+     &                      .NOT. CGRID_MASK_SRF( I )  )
+            CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) * RDENS( :,:,L ) / CGRID_MW( I )
       END FORALL
 
 C Aerosol Number: N m-3 -> N mol-1
 C Aerosol Surface Area: m2/m3 -> m2 / mol air
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) .OR.
-     &                           DIFF_MASK_SRF( I )      )
+            FAC1(:,:) = 1.0e6/6.0221367E23 * RDENS( :,:,L)
+      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) )
+            CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) * FAC1( :,: ) 
+      END FORALL
+      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_SRF( I ) )
             CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) * RDENS( :,:,L )
       END FORALL
+    !  FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) .OR.
+    ! &                           DIFF_MASK_SRF( I )      )
+    !        CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) * RDENS( :,:,L )
+    !  END FORALL
       
       END DO
 
@@ -118,7 +125,7 @@ C Aerosol Surface Area: m2/m3 -> m2 / mol air
             DO L = 1, NLAYS
                ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
      &            ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
-     &              * DENS( :,:,L ) / AE_MOLWT( S )
+     &              * RDENS( :,:,L ) / AE_MOLWT( S )
             END DO 
          END IF
       END DO CONV_SPCTAG
@@ -132,29 +139,36 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C Revert non-molar mixing ratio species and re-order CGRID
 
       call interpolate_var ('DENS', jdate, jtime, DENS) ! kg m-3
-      DENS = DENS / MWAIR_SI  ! kg m-3 -> mol m-3
+      RDENS = DENS / MWAIR_SI  ! kg m-3 -> mol m-3
 
        DO L = 1, NLAYS
 C Gas - no conversion
-       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_GAS( I ) .OR.
-     &                            DIFF_MASK_NR( I )  .OR.
-     &                            DIFF_MASK_TRAC( I ) )
+       FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_GAS( I ) .OR.
+     &                             CGRID_MASK_NR( I )  .OR.
+     &                             CGRID_MASK_TRAC( I ) )
             CGRID( :,:,L,I ) = CNGRD( I,L,:,: )
        END FORALL
 
 C Aerosol Mass:  ppmv -> ug m-3
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ) .AND.
-     &                      .NOT. DIFF_MASK_NUM( I ) .AND.
-     &                      .NOT. DIFF_MASK_SRF( I )  )
-            CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * DENS( :,:,L ) * DIFF_MW( I )
+      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_AERO( I ) .AND.
+     &                      .NOT. CGRID_MASK_NUM( I ) .AND.
+     &                      .NOT. CGRID_MASK_SRF( I )  )
+            CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * RDENS( :,:,L ) * CGRID_MW( I )
       END FORALL
 
 C Aerosol Number: N mol-1 -> N m-3
 C Aerosol Surface Area: m2 mol-1 -> m2 m-3
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) .OR.
-     &                           DIFF_MASK_SRF( I )      )
-            CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * DENS( :,:,L )
+            FAC1(:,:) = 1.0E-6 * 6.0221367E23 * RDENS(:,:,L)
+      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) )
+            CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * FAC1( :,: )
       END FORALL
+      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_SRF( I ) )
+            CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * RDENS( :,:,L )
+      END FORALL
+    !  FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) .OR.
+    ! &                           DIFF_MASK_SRF( I )      )
+    !        CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * RDENS( :,:,L )
+    !  END FORALL
 
       END DO
 #ifdef isam
@@ -166,7 +180,7 @@ Ckrt....JSPCTAG loop on PM mass only.....
             DO L = 1, NLAYS
                 ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
      &             ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
-     &              * DENS( :,:,L ) * AE_MOLWT( S )
+     &              * RDENS( :,:,L ) * AE_MOLWT( S )
             END DO
          END IF
       END DO REV_SPCTAG

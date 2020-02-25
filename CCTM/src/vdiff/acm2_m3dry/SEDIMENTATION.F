@@ -51,7 +51,8 @@ C 03 Jul 15 J.Young: inital
       integer gxoff, gyoff         ! global origin offset from file
 C for interpx
       integer, save :: strtcolmc3, endcolmc3, strtrowmc3, endrowmc3
-      integer, allocatable, save :: map_diff2sedi( : )
+      integer, allocatable, save :: map_sedi2cgrid( : )
+      integer, save :: n_sedi_map   ! aero species, all modes
 
       contains
 
@@ -108,7 +109,6 @@ C Local Variables:
       real       adts, dts, rdts
       real       ldt, fs
       integer    off, dtc, iter 
-      integer, save :: n_sedi_map   ! aero species, all modes
       integer    c, r, l, n, s, v
       integer    astat
       integer    mdate, mtime
@@ -132,22 +132,23 @@ C-----------------------------------------------------------------------
 c sedi_map - from ae_trns to ae_spc (currently, all ae spc`s are transported)
 c conc_map - from cgrid to ae_trns species
          allocate ( sedi_map( n_ae_spc ),
-     &              map_diff2sedi( n_spc_diff ),
+     &              map_sedi2cgrid( n_cgrid_spc ),
      &              conc_map( n_ae_spc ),  stat = astat )
          if ( astat .ne. 0 ) then
             xmsg = 'Failure allocating VSED_MAP or CONC_MAP'
             call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
 
-         map_diff2sedi = 0
+         map_sedi2cgrid = 0
          off = n_gc_trns   ! 48
+         cg_off = ae_strt - 1   ! 48
          n_sedi_map = 0
          do v = 1, n_ae_spc
             n = index1( ae_spc( v ), n_ae_trns, ae_trns )
             if ( n .gt. 0 ) then
                n_sedi_map = n_sedi_map + 1
                sedi_map( n_sedi_map ) = n
-               map_diff2sedi( n+off ) = n_sedi_map
+               map_sedi2cgrid( n_sedi_map ) = n+cg_off
                conc_map( n_sedi_map ) = diff_map( n + off )
             end if
          end do
@@ -313,6 +314,7 @@ C subset all the layers and species in cgrid for this grid cell
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       subroutine conv_cgrd( )
+         use cgrid_spcs          ! cgrd mechanism species
          use grid_conf        ! horizontal & vertical domain specifications
          use utilio_defn
          use asx_data_mod
@@ -322,23 +324,27 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          integer   i, l, v            ! loop induction variables
          real rdens( nlays )
-         integer, parameter :: mwair_si = mwair * 1.0e-3
+         real, parameter :: mwair_si = mwair * 1.0e-3
 
 C-----------------------------------------------------------------------
 
       RDENS = MWAIR_SI / LDENS  ! kg m-3 -> m3 mol-1
 
 C Aerosol Mass: ug/m3 -> ppmv
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ) .AND.
-     &                      .NOT. DIFF_MASK_NUM( I ) .AND.
-     &                      .NOT. DIFF_MASK_SRF( I )  )
-     &    CONC( MAP_DIFF2SEDI(I),: ) = CGRD( :,I ) * RDENS( : ) / DIFF_MW( I )
+      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_AERO( MAP_SEDI2CGRID(I) ) .AND.
+     &                      .NOT. CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .AND.
+     &                      .NOT. CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )  )
+     &    CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) * RDENS( : ) / CGRID_MW( MAP_SEDI2CGRID(I) )
 
 C Aerosol Number: N m-3 -> N mol-1
 C Aerosol Surface Area: m2/m3 -> m2 / mol air
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) .OR.
-     &                           DIFF_MASK_SRF( I )      )
-     &    CONC( MAP_DIFF2SEDI(I),: ) = CGRD( :,I ) * RDENS( : )
+      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) )
+     &    CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) * RDENS( : ) * 1.0E6 / AVO
+      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_SRF( MAP_SEDI2CGRID(I) ) )
+     &    CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) * RDENS( : )
+    !  FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) .OR.
+    ! &                           CGRID_MASK_SRF( I )      )
+    ! &    CONC( MAP_sedi2cgrid(I),: ) = CGRD( :,I ) * RDENS( : )
  
       RETURN
 
@@ -347,29 +353,34 @@ C Aerosol Surface Area: m2/m3 -> m2 / mol air
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       subroutine conv_conc ( )
+         use cgrid_spcs          ! cgrd mechanism species
          use grid_conf        ! horizontal & vertical domain specifications
          use vdiff_map
 
          implicit none
 
          integer   i, l, v            ! loop induction variables
-         integer, parameter :: mwair_si = mwair * 1.0e-3
+         real, parameter :: mwair_si = mwair * 1.0e-3
          real rdens( nlays )
 
 C-----------------------------------------------------------------------
-      RDENS = LDENS * MWAIR_SI  ! kg m-3 -> mol m-3
+      RDENS = LDENS / MWAIR_SI  ! kg m-3 -> mol m-3
 
 C Aerosol Mass: ug/m3 -> ppmv
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_AERO( I ) .AND.
-     &                      .NOT. DIFF_MASK_NUM( I ) .AND.
-     &                      .NOT. DIFF_MASK_SRF( I )  )
-     &    CGRD( :,I ) = CONC( MAP_DIFF2SEDI(I),: ) * RDENS( : ) * DIFF_MW( I )
+      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_AERO( MAP_SEDI2CGRID(I) ) .AND.
+     &                      .NOT. CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .AND.
+     &                      .NOT. CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )  )
+     &    CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * RDENS( : ) * CGRID_MW( MAP_SEDI2CGRID(I) )
 
 C Aerosol Number: N m-3 -> N mol-1
 C Aerosol Surface Area: m2/m3 -> m2 / mol air
-      FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) .OR.
-     &                           DIFF_MASK_SRF( I )      )
-     &    CGRD( :,I ) = CONC( MAP_DIFF2SEDI(I),: ) * RDENS( : )
+      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) )
+     &    CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * RDENS( : ) * 1.0E-6 * AVO
+      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_SRF( MAP_SEDI2CGRID(I) ) )
+     &    CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * RDENS( : )
+    !  FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) .OR.
+    ! &                           CGRID_MASK_SRF( I )      )
+    ! &    CGRD( :,I ) = CONC( MAP_sedi2cgrid(I),: ) * RDENS( : )
  
       RETURN
 
