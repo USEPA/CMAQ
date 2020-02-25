@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ======================= CCTMv5.3 Build Script ========================= 
+# ======================= CCTMv5.3.1 Build Script ========================= 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
@@ -57,6 +57,8 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   comment out to use standard netCDF I/O
 #set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
                                        #>   comment out to use standard, optimized compile process
+set make_options = "-j"                #> additional options for make command if MakeFileOnly is not set
+                                       #>   comment out if no additional options are wanted.
 
 #> Integrated Source Apportionment Method (ISAM)
 #set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
@@ -345,7 +347,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set quote = '"'
 
  echo                                                               > $Cfile
- echo "model       $EXEC;"                                         >> $Cfile
+ if ( $?make_options ) then
+    echo "make_options $quote$make_options$quote;"                 >> $Cfile
+    echo                                                           >> $Cfile
+ endif
+ echo "model        $EXEC;"                                        >> $Cfile
  echo                                                              >> $Cfile
  echo "repo        $CCTM_SRC;"                                     >> $Cfile
  echo                                                              >> $Cfile
