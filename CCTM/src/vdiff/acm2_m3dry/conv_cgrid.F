@@ -102,17 +102,10 @@ C Aerosol Mass: ug/m3 -> ppmv
 
 C Aerosol Number: N m-3 -> N mol-1
 C Aerosol Surface Area: m2/m3 -> m2 / mol air
-            FAC1(:,:) = 1.0e6/6.0221367E23 * RDENS( :,:,L)
-      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) )
-            CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) * FAC1( :,: ) 
-      END FORALL
-      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_SRF( I ) )
+      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) .OR.
+     &                            CGRID_MASK_SRF( I )      )
             CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) * RDENS( :,:,L )
       END FORALL
-    !  FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) .OR.
-    ! &                           DIFF_MASK_SRF( I )      )
-    !        CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) * RDENS( :,:,L )
-    !  END FORALL
       
       END DO
 
@@ -158,17 +151,10 @@ C Aerosol Mass:  ppmv -> ug m-3
 
 C Aerosol Number: N mol-1 -> N m-3
 C Aerosol Surface Area: m2 mol-1 -> m2 m-3
-            FAC1(:,:) = 1.0E-6 * 6.0221367E23 * RDENS(:,:,L)
-      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) )
-            CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * FAC1( :,: )
-      END FORALL
-      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_SRF( I ) )
+      FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) .OR.
+     &                            CGRID_MASK_SRF( I )      )
             CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * RDENS( :,:,L )
       END FORALL
-    !  FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) .OR.
-    ! &                           DIFF_MASK_SRF( I )      )
-    !        CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * RDENS( :,:,L )
-    !  END FORALL
 
       END DO
 #ifdef isam

@@ -338,13 +338,9 @@ C Aerosol Mass: ug/m3 -> ppmv
 
 C Aerosol Number: N m-3 -> N mol-1
 C Aerosol Surface Area: m2/m3 -> m2 / mol air
-      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) )
-     &    CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) * RDENS( : ) * 1.0E6 / AVO
-      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_SRF( MAP_SEDI2CGRID(I) ) )
+      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .OR.
+     &                           CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )      )
      &    CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) * RDENS( : )
-    !  FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) .OR.
-    ! &                           CGRID_MASK_SRF( I )      )
-    ! &    CONC( MAP_sedi2cgrid(I),: ) = CGRD( :,I ) * RDENS( : )
  
       RETURN
 
@@ -374,13 +370,9 @@ C Aerosol Mass: ug/m3 -> ppmv
 
 C Aerosol Number: N m-3 -> N mol-1
 C Aerosol Surface Area: m2/m3 -> m2 / mol air
-      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) )
-     &    CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * RDENS( : ) * 1.0E-6 * AVO
-      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_SRF( MAP_SEDI2CGRID(I) ) )
+      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .OR.
+     &                           CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )      )
      &    CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * RDENS( : )
-    !  FORALL ( I = 1:N_CGRID_SPC, CGRID_MASK_NUM( I ) .OR.
-    ! &                           CGRID_MASK_SRF( I )      )
-    ! &    CGRD( :,I ) = CONC( MAP_sedi2cgrid(I),: ) * RDENS( : )
  
       RETURN
 
