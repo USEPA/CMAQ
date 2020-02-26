@@ -49,6 +49,9 @@ C**********************************************************************
 
       USE RXNS_DATA
       USE DEGRADE_SETUP_TOX
+#ifdef isam
+      USE SA_DEFN
+#endif      
 
       IMPLICIT NONE
 
@@ -76,6 +79,8 @@ C.....LOCAL VARIABLES:
       INTEGER        :: I_RXT, I_RAD, J_RAD, I_PROD ! indices
       INTEGER        :: I, J, K, L                  ! loop counters
       INTEGER, SAVE  :: I_SIZE                      ! scratch
+      
+      integer        :: icount
 
       LOGICAL, SAVE  :: FIRSTCALL  = .TRUE.
 
@@ -84,7 +89,10 @@ C.....LOCAL VARIABLES:
       REAL(8)        :: NET_RATE                 ! net rate of transfer   [sec^-1]
       REAL(8)        :: NET_LIFE                 ! lifetime based on net transfer rate  [sec]
       REAL(8)        :: TSTEP                    ! degradation time step, sec
-
+      REAL(8)       ::  EQU_FACTOR               ! equilibrium concentration, [ dimensionaless ] 
+#ifdef isam
+      REAL(8)        :: FACTOR                   ! relative change in bulk concentration
+#endif      
 C**********************************************************************
 
       IF ( FIRSTCALL ) THEN  ! initialize maps
@@ -115,9 +123,9 @@ C..Quality Control on time step
 
 C..Loop over each reactant
 
+      icount = 0
       LOOP_REACT: DO I = 1, N_REACT
       
-
          LOSS_RATE = 0.0D0
          NET_RATE  = 0.0D0
          NET_LIFE  = 0.0D0
@@ -127,6 +135,8 @@ C..Loop over each reactant
          
 
          IF( CURR_CONC( I_RXT ) <= CONMIN )CYCLE LOOP_REACT
+
+         icount = icount + 1
 
          LOOP_UNIRATE: DO J = UNI_START, UNI_STOP
              LOSS_RATE( J ) = RATE_CONST( I, J )
@@ -138,13 +148,12 @@ C..Loop over each reactant
             L = L + 1
             I_RAD = RAD_MAP( I, L )
             IF ( I_RAD < 1 ) CYCLE   ! radical species is undefined
-            IF ( I_RAD > 900 ) THEN
-               LOSS_RATE( J ) = RATE_CONST( I, J )
-     &                        * NUMB_DENS
+            IF( I_RAD < 9000 )THEN
+                LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
+     &                         * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
             ELSE
-               LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
-     &                        * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
-            ENDIF
+                LOSS_RATE( J ) = RATE_CONST( I, J )
+            END IF
          ENDDO LOOP_BIRATE
 
          L = 0
@@ -154,9 +163,19 @@ C..Loop over each reactant
             I_RAD = RAD2_MAP( I, L, 1 )
             J_RAD = RAD2_MAP( I, L, 2 )
             IF ( I_RAD < 1 .OR. J_RAD < 1 ) CYCLE   ! radical species are undefined
-            LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
-     &                     * ( PREV_CONC( I_RAD ) * PREV_CONC( J_RAD )
-     &                     +   CURR_CONC( I_RAD ) * CURR_CONC( J_RAD ) )
+            IF ( I_RAD > 9000 .AND. J_RAD < 9000 ) THEN
+               LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
+     &                        * ( PREV_CONC( J_RAD ) + CURR_CONC( J_RAD ) )
+            ELSE IF ( J_RAD > 9000 .AND. I_RAD < 9000 ) THEN
+               LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
+     &                        * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
+            ELSE IF ( J_RAD < 9000 .AND. I_RAD < 9000 ) THEN
+               LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
+     &                        * ( PREV_CONC( I_RAD ) * PREV_CONC( J_RAD )
+     &                        +   CURR_CONC( I_RAD ) * CURR_CONC( J_RAD ) )
+            ELSE 
+               LOSS_RATE( J ) = RATE_CONST( I, J )
+            END IF
          ENDDO LOOP_TRIRATE
 
          L = 0
@@ -165,10 +184,27 @@ C..Loop over each reactant
             LOSS_RATE( J ) = RATE_CONST( I, J )
          ENDDO LOOP_PHOTORATE
 
+         L = 0 
+
+         LOOP_LHRATE: DO J = LANHIN_START, LANHIN_STOP
+            L = L + 1
+            I_RAD = RAD_MAP( I, L + N_BI_LOSS )
+            IF ( I_RAD < 1 ) CYCLE   ! radical species is undefined
+            IF ( I_RAD < 9000 )THEN
+               EQU_FACTOR = 0.5D0 * RATE_CONST( I, J )
+     &                    * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
+            ELSE
+               EQU_FACTOR = RATE_CONST( I, J ) 
+            END IF
+            LOSS_RATE( J ) = LHRATE( I, L ) * EQU_FACTOR 
+     &                     / ( 1.0D0 + EQU_FACTOR )
+         ENDDO LOOP_LHRATE
+
          LOOP_RATE :  DO J = 1, N_PROCESSES
                NET_RATE = NET_RATE + LOSS_RATE( J )
          ENDDO LOOP_RATE
                   
+         
          IF ( NET_RATE * DT .LE. 1.0D-20 ) CYCLE LOOP_REACT
 
          NET_LIFE = 1.0D0 / NET_RATE         
@@ -176,6 +212,7 @@ C..Loop over each reactant
          TRANS = CURR_CONC( I_RXT ) * ( 1.0D0 - DEXP( -NET_RATE * DT ) )
 
          IF ( TRANS <= CONMIN ) CYCLE LOOP_REACT
+!         write(6,'(i3,12(es12.4,1x))') Icount , CURR_CONC( I_RXT ) ,TRANS, NET_RATE, ( 1.0D0 - DEXP( -NET_RATE * DT ) ) 
 
          DELT_CONC( I_RXT ) = TRANS
 
@@ -209,6 +246,27 @@ C..update concentrations
          ENDDO LOOP_UPDATE2
 
       ENDDO LOOP_UPDATE1
+#ifdef isam
+      LOOP_ISAM: DO I = 1, ISAM_DEGRADED_SPC
+      
+         I_RXT = ISAM_TO_DEGRADED( I ) 
+         IF( I_RXT .GT. 0 )THEN 
+
+            IF ( DELT_CONC( I_RXT ) .GT. CONMIN .AND. PREV_CONC( I_RXT ) .GT. CONMIN )THEN
+! scale loss of tag based on their fraction of the bulk
+               FACTOR = 1.0D0 - MIN( 1.0D0,( DELT_CONC( I_RXT )/PREV_CONC( I_RXT ) )  )
+!               write(6,'(a,12(es12.4,1x))')TRIM( REACT( ISAM_TO_REACTANT( I ) ) ) // ':degrade before/after ', 
+!     &         PREV_CONC( I_RXT ), CURR_CONC( I_RXT )
+!               write(6,'(a,12(es12.4,1x))')'Initial Tags and Total: ',CONC_ISAM( 1:NTAG_SA,I ),SUM( CONC_ISAM( :,I ) )
+               DO J = 1,  NTAG_SA
+                  CONC_ISAM( J,I ) = MAX( CONC_ISAM( J,I ) * FACTOR,1.0D-30 )
+               END DO ! ktag loop
+!               write(6,'(a,12(es12.4,1x))')'Final Tags and Total: ',CONC_ISAM( 1:NTAG_SA,I ),SUM( CONC_ISAM( :,I ) )
+            END IF
+          
+         END IF
+      ENDDO LOOP_ISAM
+#endif
 
       RETURN
       END
