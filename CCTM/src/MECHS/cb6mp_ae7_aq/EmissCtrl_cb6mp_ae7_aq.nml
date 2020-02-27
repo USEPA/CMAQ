@@ -166,7 +166,7 @@
    'EVERYWHERE', 'ALL' ,'CL4_ETHE','CL4_ETHE',              'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'CL3_ETHE','CL3_ETHE',              'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'CL_ETHE','CL_ETHE',                'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'NAPHTHALENE','NAPH',               'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'NAPH','NAPHTHALENE',               'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'QUINOLINE','QUINOLINE',            'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'HEXAMETHY_DIIS','HEXAMETHY_DIIS',  'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'HYDRAZINE','HYDRAZINE',            'GAS'  ,1.  ,'UNIT','a',
