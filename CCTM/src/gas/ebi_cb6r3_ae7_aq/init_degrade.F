@@ -235,7 +235,7 @@ C..initialize concentrations and their changes
             IF ( RAD_MAP( I, J + N_BI_LOSS ) < 0 ) CYCLE
             IF( LHRATE( I, J ) .GT. EFFECTIVE_ZERO 
      &             .AND. TCELL .GT. LH_RHMIN( I, J ) 
-     &                 .AND. RHUM .GT. LH_RHMIN( I, J )  )THEN
+     &                 .AND. RHUM .GT. LH_TAMIN( I, J )  )THEN
              SELECT CASE ( RAD_MAP( I, J + N_BI_LOSS ) )
                CASE ( 9999 )
                   FACTOR = NUMB_DENS
