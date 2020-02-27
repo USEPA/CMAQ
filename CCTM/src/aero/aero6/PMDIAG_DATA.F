@@ -36,8 +36,7 @@ c-----------------------------------------------------------------------
 
         TYPE (PMDIAG_SPC_RECORD_TYPE), PARAMETER :: PMDIAG_SPC_RECORD(41) = (/
      &    PMDIAG_SPC_RECORD_TYPE( 'STDEVATKN       ', 5, '                ', 'Aitken mode standard deviation (dry and wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'STDEVACC        ', 5, '                ', 
-     &                            'Accumulation mode standard deviation (dry and wet)' ),
+     &    PMDIAG_SPC_RECORD_TYPE( 'STDEVACC        ', 5, '                ', 'Acc. mode standard deviation (dry and wet)' ),
      &    PMDIAG_SPC_RECORD_TYPE( 'STDEVCOR        ', 5, '                ', 'Coarse mode standard deviation (dry and wet)' ),
      &    PMDIAG_SPC_RECORD_TYPE( 'DGATKN_DRY      ', 5, 'um              ', 'Aitken mode mean diameter (dry)' ),
      &    PMDIAG_SPC_RECORD_TYPE( 'DGACC_DRY       ', 5, 'um              ', 'Accumulation mode mean diameter (dry)' ),
@@ -67,10 +66,8 @@ c-----------------------------------------------------------------------
      &    PMDIAG_SPC_RECORD_TYPE( 'AMSAT           ', 5, '1               ', 'AMS Transmission Fraction of Aitken mode' ),
      &    PMDIAG_SPC_RECORD_TYPE( 'AMSAC           ', 5, '1               ', 'AMS Transmission Fraction of Accumulation mode' ),
      &    PMDIAG_SPC_RECORD_TYPE( 'AMSCO           ', 5, '1               ', 'AMS Transmission Fraction of Coarse mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_N2O5      ', 5, '1               ', 
-     &                            'Fine Mode N2O5 Heterogeneous reaction probability' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_N2O5K     ', 5, '1               ', 
-     &                            'Coarse Mode N2O5 Heterogeneous reaction probability' ),
+     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_N2O5      ', 5, '1               ', 'Fine Mode N2O5 Heterogeneous rxn probability' ),
+     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_N2O5K     ', 5, '1               ', 'Coarse Mode N2O5 Heterogeneous rxn probability' ),
      &    PMDIAG_SPC_RECORD_TYPE( 'YIELD_CLNO2     ', 5, '1               ', 'Fine Mode CLNO2 Heterogeneous reaction yield' ),
      &    PMDIAG_SPC_RECORD_TYPE( 'YIELD_CLNO2K    ', 5, '1               ', 'Coarse Mode CLNO2 Heterogeneous reaction yield' ),
      &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_IEPOX     ', 5, '1               ', 'IEPOX heterogeneous uptake coefficient' ),
