@@ -113,7 +113,7 @@
       INTEGER :: STDATE          = 1995192  ! Start Date
       INTEGER :: STTIME          = 000000   ! Start Time
       INTEGER :: LOCAL_TSTEP     = 010000   ! set to TSTEP( 1 ) in initscen.F
-      INTEGER :: MET_TSTEP       = 0        ! set meterology input temporal frequency
+      INTEGER :: MET_TSTEP                  ! set meterology input temporal frequency
       INTEGER :: NPCOL           = 1        ! no. of processors across grid columns
       INTEGER :: NPROW           = 1        ! no. of processors across grid rows
       INTEGER :: MAXSYNC         = 720      ! force max TSTEP(2) (sec)
@@ -856,6 +856,15 @@
 
       ! Get environ. variable met_tstep to control meteorology frequency
       CALL GET_ENV ( MET_TSTEP, 'MET_TSTEP', TSTEP3D, VARDEV)
+
+      ! Ensure users cannot pick a met_tstep that is not smaller than the
+      ! file time step and something that is not a multiple of that tstep
+          
+      IF (MOD(TIME2SEC(MET_TSTEP), TIME2SEC(TSTEP3D)) .NE. 0) then
+          XMSG = 'MET_TSTEP environmental variable not equal to or a 
+     & multiple greater than time step of met file ' // MET_CRO_3D
+          CALL M3EXIT(PNAME, 0, 0, XMSG, XSTAT1)
+      end if 
 
       FOUND = .FALSE.
       NV = 0

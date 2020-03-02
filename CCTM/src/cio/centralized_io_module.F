@@ -412,24 +412,13 @@
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
           
-          ! The two-way model does not grab and set the environmental variable
-          ! met_tstep initilized to 0. Therfore if this is 
-          ! the case, the met_tstep will be to that of the file.
-          if ( met_tstep .eq. 0 ) met_tstep = tstep3d 
-          
-          ! Ensure users cannot pick a met_tstep that is not smaller than the
-          ! file time step and something that is not a multiple of that tstep
-          
-          if (mod(time_to_sec(met_tstep), time_to_sec(tstep3d)) .ne. 0) then
-            xmsg = 'MET_TSTEP environmental variable not equal to or a 
-     & multiple greater than time step of met file ' // MET_CRO_2D
-          
-          call m3exit(pname, 0, 0, xmsg, xstat1)
-          end if 
-          
           file_sdate(f_met) = sdate3d
           file_stime(f_met) = stime3d
-          file_tstep(f_met) = met_tstep 
+#ifdef twoway
+          file_tstep(f_met) = tstep3d
+#else
+          file_tstep(f_met) = met_tstep ! offline model controlled by runtime var MET_TSTEP 
+#endif
           file_xcell(f_met) = xcell3d
           file_ycell(f_met) = ycell3d
 
