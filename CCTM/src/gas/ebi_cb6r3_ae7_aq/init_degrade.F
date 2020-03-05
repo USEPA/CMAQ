@@ -42,6 +42,7 @@ C**********************************************************************
 
       USE RUNTIME_VARS
       USE RXNS_DATA
+      USE AERO_DATA
       USE DEGRADE_SETUP_TOX
 
       IMPLICIT NONE
@@ -96,6 +97,9 @@ C.....LOCAL VARIABLES:
       REAL    :: QVSW       ! water vapor saturation mixing ratio (Kg/Kg)
       REAL    :: RHUM       ! relative humidity (fraction)
 
+      REAL    :: ORG_H2O    ! moles water in organic aeosol mass
+      REAL    :: ORG_AERO   ! moles organic mass
+      REAL    :: H2O_MOLAR_FRACTION ! molar fraction of water in organic aerosol mass
 
 C**********************************************************************
 
@@ -111,10 +115,17 @@ C**********************************************************************
          ALLOCATE( PREV_CONC( ISIZE ) )
          ALLOCATE( CURR_CONC( ISIZE ) )
          ALLOCATE( DELT_CONC( ISIZE ) )
+         ALLOCATE( IS_AERO_ORGANIC ( N_AEROSPC ) )
+         
+!         IF ( AE7ORGH2O ) THEN
+            IS_AERO_ORGANIC( : ) = ( AEROSPC( : )%OM .AND. .NOT. AEROSPC( : )%TRACER )
+!         ELSE
+!            IS_AERO_ORGANIC( : ) = .NOT. AEROSPC( : )%TRACER 
+!         END IF
 
          FIRSTCALL = .FALSE.
 
-         EFFECTIVE_ZERO  = 5.0D0 * TINY( CONV_M2N )
+         EFFECTIVE_ZERO  = TINY( CONV_M2N )
 
       ENDIF
 
@@ -145,16 +156,16 @@ C..initialize concentrations and their changes
          IF( RXTANT_MAP( I ) < 0 )CYCLE LOOP_REACT
 
          LOOP_UNIRATE: DO J = 1, N_UNI_LOSS
-            IF( UNIRATE( I, J ) .LT. EFFECTIVE_ZERO )CYCLE
-            RATE_CONST( I, J ) = UNIRATE( I, J )
-     &                         * TEMP**UNI_TEXP( I, J )
-     &                         * DEXP( -UNI_ACT( I, J )*INV_TEMP )
+            IF( UNIRATE( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
+            RATE_CONST( J, I ) = UNIRATE( J, I )
+     &                         * TEMP**UNI_TEXP( J, I )
+     &                         * DEXP( -UNI_ACT( J, I )*INV_TEMP )
          END DO LOOP_UNIRATE
 
          LOOP_BIRATE: DO J = 1, N_BI_LOSS
-            IF( BIRATE( I, J ) .LT. EFFECTIVE_ZERO )CYCLE
-             IF ( RAD_MAP( I, J ) < 0 ) CYCLE
-             SELECT CASE ( RAD_MAP( I, J ) )
+            IF( BIRATE( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
+             IF ( RAD_MAP( J, I ) < 0 ) CYCLE
+             SELECT CASE ( RAD_MAP( J, I ) )
                CASE ( 9999 )
                   FACTOR = NUMB_DENS
                CASE ( 9998 )
@@ -170,16 +181,16 @@ C..initialize concentrations and their changes
                CASE DEFAULT
                   FACTOR = CONV_FACT 
              END SELECT 
-             RATE_CONST( I, J+UNI_STOP ) = FACTOR * BIRATE( I, J )
-     &                                   * TEMP**BI_TEXP( I, J )
-     &                                   * DEXP( -BI_ACT( I, J )*INV_TEMP )
+             RATE_CONST( J+UNI_STOP, I  ) = FACTOR * BIRATE( J, I )
+     &                                   * TEMP**BI_TEXP( J, I )
+     &                                   * DEXP( -BI_ACT( J, I )*INV_TEMP )
 
          END DO LOOP_BIRATE
 
          LOOP_TRIRATE: DO J = 1, N_TRI_LOSS
-            IF( TRIRATE( I, J ) .LT. EFFECTIVE_ZERO )CYCLE
-             IF ( RAD2_MAP( I, J, 1 ) < 0 .AND. RAD2_MAP( I, J, 2 ) < 0 ) CYCLE
-             SELECT CASE ( RAD2_MAP( I, J, 1 ) )
+            IF( TRIRATE( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
+             IF ( RAD2_MAP( 1, J, I ) < 0 .OR. RAD2_MAP( 2, J, I ) < 0 ) CYCLE
+             SELECT CASE ( RAD2_MAP( 1, J, I ) )
                CASE ( 9999 )
                   FACTOR = NUMB_DENS
                CASE ( 9998 )
@@ -195,7 +206,7 @@ C..initialize concentrations and their changes
                CASE DEFAULT
                   FACTOR = CONV_FACT 
              END SELECT 
-             SELECT CASE ( RAD2_MAP( I, J, 2 ) )
+             SELECT CASE ( RAD2_MAP( 2, J, I ) )
                CASE ( 9999 )
                   FACTOR = FACTOR * NUMB_DENS
                CASE ( 9998 )
@@ -211,32 +222,41 @@ C..initialize concentrations and their changes
                CASE DEFAULT
                   FACTOR = FACTOR * CONV_FACT 
              END SELECT
-             RATE_CONST( I, J+BI_STOP ) = FACTOR * TRIRATE( I, J )
-     &                                  * TEMP**TRI_TEXP( I, J )
-     &                                  * DEXP( -TRI_ACT( I, J )*INV_TEMP )
+             RATE_CONST( J+BI_STOP, I ) = FACTOR * TRIRATE( J, I )
+     &                                  * TEMP**TRI_TEXP( J, I )
+     &                                  * DEXP( -TRI_ACT( J, I )*INV_TEMP )
          END DO LOOP_TRIRATE
 
          LOOP_PHOTORATE: DO J = 1, N_PHOTO_LOSS
 
-            K = PHOTO_MAP( I, J )
+            K = PHOTO_MAP( J, I )
             IF ( K < 1 ) CYCLE
-            IF( A_PHOTO( I, J ) .LT. EFFECTIVE_ZERO )CYCLE
-            RATE_CONST( I, J+TRI_STOP ) = A_PHOTO( I, J )
+            IF( A_PHOTO( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
+            RATE_CONST( J+TRI_STOP, I ) = A_PHOTO( J, I )
      &                                  * PHOTO_CELL( K )
 
          END DO LOOP_PHOTORATE
 
-         ESW  = SVP1 * EXP( SVP2  * ( TCELL - STDTEMP ) / ( TCELL - SVP3  ) )
-         QVSW = EP_2 * ESW / ( PRESS_CELL - ESW )
-         RHUM = QV_CELL / QVSW   !--- Relative Humidity                  
 
+         IF ( AE7ORGH2O ) THEN ! use water absorbed by organic mass
+             ORG_H2O  = SUM( AEROSPC_CONC( AORGH2O_IDX, 1:2 ) ) * AEROSPC_MWINV( AORGH2O_IDX )
+             ORG_AERO = SUM( SUM( AEROSPC_CONC( :,1:2 ),2 ) * AEROSPC_MWINV( : ), 
+     &                            MASK=IS_AERO_ORGANIC( : ) ) 
+             H2O_MOLAR_FRACTION = ORG_H2O / MAX( (ORG_H2O + ORG_AERO), EFFECTIVE_ZERO )
+         ELSE                  ! use relative humidity as surrogate
+             ESW  = SVP1 * EXP( SVP2  * ( TCELL - STDTEMP ) / ( TCELL - SVP3  ) )
+             QVSW = ( EP_2 * ESW ) / ( PRESS_CELL - ESW )
+             RHUM = QV_CELL / QVSW                   
+             H2O_MOLAR_FRACTION = RHUM
+         END IF
+         
          LOOP_LHRATE: DO J = 1, N_LANHIN_LOSS
 
-            IF ( RAD_MAP( I, J + N_BI_LOSS ) < 0 ) CYCLE
-            IF( LHRATE( I, J ) .GT. EFFECTIVE_ZERO 
-     &             .AND. TCELL .GT. LH_RHMIN( I, J ) 
-     &                 .AND. RHUM .GT. LH_TAMIN( I, J )  )THEN
-             SELECT CASE ( RAD_MAP( I, J + N_BI_LOSS ) )
+            IF ( RAD_MAP( J + N_BI_LOSS, I ) < 0 ) CYCLE
+            IF( LHRATE( J, I ) .GT. EFFECTIVE_ZERO 
+     &             .AND. TCELL .GT. LH_TAMIN( J, I ) 
+     &                 .AND. H2O_MOLAR_FRACTION .GT. LH_RHMIN( J, I )  )THEN
+             SELECT CASE ( RAD_MAP( J + N_BI_LOSS, I ) )
                CASE ( 9999 )
                   FACTOR = NUMB_DENS
                CASE ( 9998 )
@@ -252,18 +272,12 @@ C..initialize concentrations and their changes
                CASE DEFAULT
                   FACTOR = CONV_FACT 
              END SELECT 
-             RATE_CONST( I, J+PHOTO_STOP ) = LH_EQU( I, J ) * FACTOR
+             RATE_CONST( J+PHOTO_STOP, I ) = LH_EQU( J, I ) * FACTOR
             END IF
 
          END DO LOOP_LHRATE
 
       END DO LOOP_REACT
-
-
-      DO I = 1, N_REACT
-         J = RXTANT_MAP( I )
-         IF( J < 0 )CYCLE 
-      END DO
 
       RETURN
 

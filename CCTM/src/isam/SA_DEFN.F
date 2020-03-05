@@ -85,6 +85,9 @@ c...Logical values for tagging species
       LOGICAL, SAVE :: L_OZONE
       LOGICAL, SAVE :: L_VOC
       LOGICAL, SAVE :: L_CHLORINE
+      LOGICAL, SAVE :: L_GAS_HAPS  
+      LOGICAL, SAVE :: L_AERO_HAPS  
+      
 ! Full chemistry commented out because it produced floating
 ! point error in advection when using debug flags.
 !     LOGICAL, SAVE :: L_CHEMISTRY
@@ -126,7 +129,7 @@ C
 
         USE UTILIO_DEFN     ! 20120615
         USE HGRD_DEFN       ! just for mype0 20130702
-
+        
         IMPLICIT NONE
 
 !0615   INCLUDE SUBST_IOPARMS
@@ -253,6 +256,7 @@ C
         USE RUNTIME_VARS
         USE GRID_CONF    ! just for mype 20140327
         USE RXNS_DATA, ONLY : MECHNAME, NUMB_MECH_SPC !Get Chemical Mechanism Name
+        USE DEGRADE_PARAMETERS
         USE UTILIO_DEFN  ! 20130627
 
         IMPLICIT NONE
@@ -280,6 +284,8 @@ c----------------------------------------------------------
         L_OZONE   = .FALSE.   
         L_VOC     = .FALSE.   
         L_CHLORINE  = .FALSE.
+        L_GAS_HAPS  = .FALSE.
+        L_AERO_HAPS = .FALSE.
 !       L_CHEMISTRY = .FALSE.   
 
         NSPC_SA = 0
@@ -336,6 +342,22 @@ c----------------------------------------------------------
 
         BGN_SP = INDEX( TAGCLASSES,'VOC',LBACK )
         L_VOC = ( BGN_SP .NE. 0 .OR. L_VOC )
+
+        BGN_SP     = INDEX( TAGCLASSES,'GAS_HAPS',LBACK )        
+        L_GAS_HAPS = ( BGN_SP .NE. 0 .OR. L_GAS_HAPS )
+        IF ( L_GAS_HAPS ) THEN
+          SELECT CASE( MECHNAME )
+             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
+                NSPC_SA = NSPC_SA + 5  ! FORM_PRIM, ALD2_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE
+!                NSPC_SA = NSPC_SA + 23  
+             CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
+                NSPC_SA = NSPC_SA + 5  ! HCHO_PRIM, CCHO_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE 
+             CASE( 'RACM2_AE6_AQ') 
+                NSPC_SA = NSPC_SA + 0   
+          END SELECT
+          CALL DEGRADE_DATA()        
+          NSPC_SA = NSPC_SA + NDEGRADED_FOUND ! degradation species found in species namelists
+        ENDIF
 
         DEFINED = .TRUE.
 
@@ -427,6 +449,7 @@ C
         USE CGRID_SPCS       ! 20120615
         USE RXNS_DATA, ONLY : MECHNAME, NUMB_MECH_SPC, CHEMISTRY_SPC !Get Chemical Mechanism Name
         USE HGRD_DEFN        ! 20120710 just for print out from single processor
+        USE DEGRADE_PARAMETERS
         USE UTILIO_DEFN      ! 20120725 for external functions such as INDEX1
 
         IMPLICIT NONE
@@ -1125,7 +1148,13 @@ c----------------------------------------------------------
           SPC_LIST( J_SPC ) = 'CO'
         ENDIF
 
-
+        IF ( L_GAS_HAPS ) THEN
+            DO I_SPC = 1, NDEGRADED_FOUND
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = DEGRADED_SPECIES( I_SPC )
+            END DO
+        END IF
+        
         IF ( L_OZONE ) THEN
           J_SPC = J_SPC + 1
           SPC_LIST( J_SPC ) = 'HO2'

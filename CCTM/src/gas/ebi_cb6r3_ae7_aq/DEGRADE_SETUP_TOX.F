@@ -80,6 +80,8 @@ C..saved cell concentrations
       REAL(8), ALLOCATABLE :: CONC_ISAM( :,: )      ! concentrations apportioned to sources
 #endif
 
+      LOGICAL, ALLOCATABLE :: IS_AERO_ORGANIC( : )  ! is aerosol species as OA and not a tracer
+
 C**********************************************************************
 
       CONTAINS
@@ -115,14 +117,15 @@ C.....LOCAL VARIABLES:
 
          CHARACTER(  16 ) :: PNAME =  'DEGRADE_MAP    '     ! name of routine
          CHARACTER(  16 ) :: EMTPTY
-         CHARACTER(  16 ) :: WNAME                          ! SCRATCH variable
+         CHARACTER(  16 ) :: WNAME, XNAME                   ! SCRATCH variables
          CHARACTER(  16 ) :: VNAME( N_PROCESSES+1 )         ! SCRATCH variable
          CHARACTER( 128 ) :: XMSG = 'FATAL ERROR in DEGRADE_SETUP'
 
          INTEGER :: MARKER, N, M       ! indexes
-         INTEGER :: I, J, K            ! loop counters
+         INTEGER :: I, J, K, L         ! loop counters
          INTEGER :: LEN_NAME           ! number of nonblank characters in species name
-
+         INTEGER :: ICOUNT 
+          
          REAL(8), PARAMETER :: INV_T298K = 1.0D0 / TEMP_298K   ! K^-1
 
          LOGICAL, SAVE :: INITIALIZED = .FALSE.
@@ -138,10 +141,11 @@ C..arrays to store indices to CGRID
 
          ALLOCATE( RXTANT_MAP   ( N_REACT ) )
          ALLOCATE( DEGRADE_INDEX( N_REACT ) )
-         ALLOCATE( PROD_MAP  ( N_REACT, N_PROCESSES ) )
-         ALLOCATE( RAD_MAP   ( N_REACT, N_BI_LOSS + N_LANHIN_LOSS) )
-         ALLOCATE( RAD2_MAP  ( N_REACT, N_TRI_LOSS, 2 ) )
-         ALLOCATE( PHOTO_MAP ( N_REACT, N_PHOTO_LOSS ) )
+         ALLOCATE( PROD_MAP  ( N_PROCESSES, N_REACT  ) )
+         ALLOCATE( RAD_MAP   ( N_BI_LOSS + N_LANHIN_LOSS, N_REACT ) )
+         ALLOCATE( RAD2_MAP  ( 2, N_TRI_LOSS, N_REACT ) )
+         ALLOCATE( PHOTO_MAP ( N_PHOTO_LOSS, N_REACT ) )
+
 C..Initialize maps
 
          RXTANT_MAP    = -1
@@ -166,17 +170,17 @@ C..Quality control on pairs of Reactant and Products
             VNAME( 1 ) = REACT( I )
             
 
-            VNAME( UNI_START+1  :  UNI_STOP+1 ) = UNI_PROD  ( I, 1:N_UNI_LOSS )
-            VNAME( BI_START+1   :   BI_STOP+1 ) = BI_PROD   ( I, 1:N_BI_LOSS  )
-            VNAME( TRI_START+1  :  TRI_STOP+1 ) = TRI_PROD  ( I, 1:N_TRI_LOSS )
-            VNAME( PHOTO_START+1:PHOTO_STOP+1 ) = PHOTO_PROD( I, 1:N_PHOTO_LOSS )
-            VNAME( LANHIN_START+1:LANHIN_STOP+1 ) = LH_PROD( I, 1:N_LANHIN_LOSS )
+            VNAME( UNI_START+1  :  UNI_STOP+1 )   = UNI_PROD  ( 1:N_UNI_LOSS, I )
+            VNAME( BI_START+1   :   BI_STOP+1 )   = BI_PROD   ( 1:N_BI_LOSS, I  )
+            VNAME( TRI_START+1  :  TRI_STOP+1 )   = TRI_PROD  ( 1:N_TRI_LOSS, I )
+            VNAME( PHOTO_START+1:PHOTO_STOP+1 )   = PHOTO_PROD( 1:N_PHOTO_LOSS, I )
+            VNAME( LANHIN_START+1:LANHIN_STOP+1 ) = LH_PROD   ( 1:N_LANHIN_LOSS, I )
 
-            RATE_YIELD( I,   UNI_START:UNI_STOP   ) = UNI_YIELD  ( I, 1:N_UNI_LOSS )
-            RATE_YIELD( I,    BI_START:BI_STOP    ) =   BI_YIELD   ( I, 1:N_BI_LOSS  )
-            RATE_YIELD( I,   TRI_START:TRI_STOP   )   = TRI_YIELD  ( I, 1:N_TRI_LOSS )
-            RATE_YIELD( I, PHOTO_START:PHOTO_STOP )   = PHOTO_YIELD( I, 1:N_PHOTO_LOSS )
-            RATE_YIELD( I, LANHIN_START:LANHIN_STOP ) = LH_YIELD( I, 1:N_LANHIN_LOSS )
+            RATE_YIELD( UNI_START:UNI_STOP, I ) = UNI_YIELD( 1:N_UNI_LOSS, I )
+            RATE_YIELD( BI_START:BI_STOP,   I ) = BI_YIELD ( 1:N_BI_LOSS, I  )
+            RATE_YIELD( TRI_START:TRI_STOP, I ) = TRI_YIELD( 1:N_TRI_LOSS, I )
+            RATE_YIELD( PHOTO_START:PHOTO_STOP, I ) = PHOTO_YIELD( 1:N_PHOTO_LOSS, I )
+            RATE_YIELD( LANHIN_START:LANHIN_STOP, I ) = LH_YIELD( 1:N_LANHIN_LOSS, I )
 
 
             CALL UPCASE( VNAME( 1 ) )
@@ -188,38 +192,57 @@ C..Quality control on pairs of Reactant and Products
      &              // ' Check file degrade module'
                CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
             ENDIF
+            
+            DO K = 1, N_REACT
+
+               WNAME = REACT( K )
+               CALL UPCASE( WNAME )
+               
+               DO J = 2, N_PROCESSES+1
+                  XNAME = VNAME( J ) 
+                  IF( TRIM( WNAME ) == TRIM( XNAME ) )THEN
+                     WRITE( XMSG,* ) 'ERROR: ',
+     &                 TRIM( VNAME( 1 ) ), ' is a destroyed  and produced.'
+     &                 // ' The property is not allowed because it'
+     &                 // ' brakes linear assumptions used.'
+                    CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
+                  END IF
+               END DO    
+            
+            END DO
 
             DO K = 1, N_BI_LOSS
-               IF ( VNAME( 1 ) == BICAUSE( I, K ) ) THEN
-                  WRITE( LOGDEV,* ) 'WARNING: ',
-     &                 VNAME( 1 )( 1:LEN_NAME ), ' is',
-     &                 ' same as a species causing bimolecular degradation, hence'
-     &                 // ' brakes linear assumptions '
+               IF ( VNAME( 1 ) == BICAUSE( K, I ) ) THEN
+                  WRITE( XMSG,* ) 'ERROR: ',
+     &                 TRIM( VNAME( 1 ) ), ' has same name'
+     &                 // ' same as a species causing its bimolecular loss.'
+     &                 // ' This brakes linear assumptions used.'
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                ENDIF
             ENDDO
 
             DO K = 1, N_TRI_LOSS
-               IF ( VNAME( 1 ) == TRICAUSE( I, K, 1 ) .OR.
-     &              VNAME( 1 ) == TRICAUSE( I, K, 2 ) ) THEN
-                  WRITE( LOGDEV,* ) 'WARNING: ',
-     &                 VNAME( 1 )( 1:LEN_NAME ), ' is same as',
-     &                 ' a species causing trimolecular degradation,'
-     &                 // ' hence brakes linear assumptions '
+               IF ( VNAME( 1 ) == TRICAUSE( 1, K, I ) .OR.
+     &              VNAME( 1 ) == TRICAUSE( 2, K, I ) ) THEN
+                  WRITE( XMSG,* ) 'ERROR: ',
+     &                 TRIM( VNAME( 1 ) ), ' has same name as'
+     &                 // ' a species causing its trimolecular loss.'
+     &                 // ' This brakes linear assumptions used.'
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                ENDIF
             ENDDO
 
-            DO J = 1, N_PROCESSES
-
-               WNAME = VNAME( J + 1 )
-               CALL UPCASE( WNAME )
-               LEN_NAME = LEN_TRIM( WNAME )
-
-               IF ( VNAME( 1 ) == WNAME ) THEN
-                 WRITE( LOGDEV,* ) 'Warning: ', WNAME( 1:LEN_NAME ),
-     &                ' and its parent share the same name.'
+            DO K = 1, N_LANHIN_LOSS
+               IF ( VNAME( 1 ) == LHCAUSE( K, I ) ) THEN
+                  WRITE( XMSG,* ) 'ERROR: ',
+     &                 VNAME( 1 )( 1:LEN_NAME ), ' has'
+     &                 // ' same name as a species causing its Langmuir'
+     &                 // '-Hinshwood loss. This brakes linear assumptions used. '
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                ENDIF
-
             ENDDO
+
+
 
 C..Set up indices that point to concentrations in CGRID.
 
@@ -274,7 +297,7 @@ C..set map values
                   DEGRADE_INDEX( N_REACT_FOUND ) = I
                   RXTANT_MAP ( I ) = N + MARKER - 1
                ELSE
-                  PROD_MAP( I, J-1 ) = N + MARKER - 1
+                  PROD_MAP( J-1, I ) = N + MARKER - 1
                ENDIF
 
 20          CONTINUE
@@ -289,7 +312,7 @@ C..check UNIMOLECULAR decay rates
 
             DO J = 1, N_UNI_LOSS
 
-               IF ( UNIRATE( I, J ) < 0.0 ) THEN
+               IF ( UNIRATE( J, I ) < 0.0 ) THEN
                   WRITE( LOGDEV,* ) 'Species ', REACT( I ), ' has a'
      &                 // 'negative rate for unimolecular decay.'
      &                 // 'Check degrade module'
@@ -298,9 +321,9 @@ C..check UNIMOLECULAR decay rates
 
                WRITE( LOGDEV,1100 ) VNAME( 1 ), RXTANT_MAP( I ),
      &              ' Unimolecular ',
-     &              UNIRATE( I, J ) * TEMP_298K**UNI_TEXP( I, J )
-     &              * EXP( -UNI_ACT( I, J ) * INV_T298K ),
-     &              VNAME( J+1 ), PROD_MAP( I, J )
+     &              UNIRATE( J, I ) * TEMP_298K**UNI_TEXP( J, I )
+     &              * EXP( -UNI_ACT( J, I ) * INV_T298K ),
+     &              VNAME( J+1 ), PROD_MAP( J, I )
 
             ENDDO
 
@@ -312,110 +335,72 @@ C..locating degradation causes in CGRID
 
 C..checking degradation rates
 
-               IF ( BIRATE( I, J ) < 0.0 ) THEN
+               IF ( BIRATE( J, I ) < 0.0 ) THEN
                   WRITE( LOGDEV,* ) 'Species ', REACT( I ), 'has a negative'
      &                 // ' rate for degradation by ', WNAME( 1:LEN_NAME ), '.'
      &                 // ' Check degrade module.'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                ENDIF
 
-               WNAME = BICAUSE( I, J )
+               WNAME = BICAUSE( J, I )
 
                CALL UPCASE( WNAME )
 
                LEN_NAME = LEN_TRIM( WNAME )
 
                IF ( LEN_NAME < 1 ) CYCLE
+               MARKER = 0
 
                IF ( WNAME == 'DENSITY' .OR. WNAME == 'M' ) THEN      ! special case rate proportion to air density
-                  RAD_MAP( I, J ) = 9999
-                  WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                 BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                 * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                  CYCLE
+                  RAD_MAP( J, I ) = 9999
                ENDIF
 
                IF ( WNAME == 'N2' ) THEN      ! special case rate proportion to molecular nitrogen
-                  RAD_MAP( I, J ) = 9998
-                  WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                 BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                 * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                  CYCLE
+                  RAD_MAP( J, I ) = 9998
                ENDIF
 
                IF ( WNAME == 'O2' ) THEN      ! special case rate proportion to molecular oxygen
-                  RAD_MAP( I, J ) = 9997
-                  WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                 BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                 * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                  CYCLE
+                  RAD_MAP( J, I ) = 9997
                ENDIF
 
                IF ( WNAME == 'CH4' ) THEN      ! special case rate proportion to methane
-                  RAD_MAP( I, J ) = 9996
-                  WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                 BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                 * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                  CYCLE
+                  RAD_MAP( J, I ) = 9996
                ENDIF
 
                IF ( WNAME == 'H2' ) THEN      ! special case rate proportion to hydrogen
-                  RAD_MAP( I, J ) = 9995
-                  WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                 BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                 * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                  CYCLE
+                  RAD_MAP( J, I ) = 9995
                ENDIF
 
                IF ( WNAME == 'H2O' ) THEN      ! special case rate proportion to water vapor
-                  RAD_MAP( I, J ) = 9994
-                  WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                 BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                 * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                  CYCLE
+                  RAD_MAP( J, I ) = 9994
                ENDIF
 
-               N = INDEX1( WNAME, N_GC_SPC, GC_SPC )   ! search gas species for index
-               MARKER = GC_STRT
+               IF ( RAD_MAP( J, I ) < 0 ) THEN ! search model species
+                  N = INDEX1( WNAME, N_GC_SPC, GC_SPC )   ! gas species for index
+                  IF ( N == 0 ) THEN                      ! non-reactive species
+                     N = INDEX1( WNAME, N_NR_SPC, NR_SPC )
+                     IF ( N > 0 ) THEN
+                        MARKER = NR_STRT
+                     END IF
+                  ELSE   
+                     MARKER = GC_STRT
+                  ENDIF 
+                  RAD_MAP( J, I ) = N + MARKER - 1
+               END IF   
 
-               IF ( N == 0 ) THEN                  ! search non-reactive species
-                  N = INDEX1( WNAME, N_NR_SPC, NR_SPC )
-                  MARKER = NR_STRT
-
-                  IF ( N == 0 ) THEN
-                     WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                    'NOT INCLUDED', WNAME, RAD_MAP( I, J ),
-     &                    BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                    * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                    VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                     MARKER = 0
-                  ENDIF
-
-               ENDIF ! End IF block that searches non-reactive species
-
-C..set value in map
-
-               RAD_MAP( I, J ) = N + MARKER - 1
-
-               IF ( RAD_MAP( I, J ) > 0 ) THEN
+               IF ( RAD_MAP( J, I ) > 0 ) THEN
                   WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                 BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                 * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
-               ENDIF
+     &                 ' Bimolecular ', WNAME, RAD_MAP( J, I ),
+     &                 BIRATE( J, I ) * TEMP_298K**BI_TEXP( J, I )
+     &                 * EXP( -BI_ACT( J, I ) * INV_T298K ),
+     &                 VNAME( J+K+1 ), PROD_MAP( J+K, I )
+               ELSE
+                   WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
+     &                 'NOT INCLUDED', WNAME, RAD_MAP( J, I ),
+     &                  BIRATE( J,I ) * TEMP_298K**BI_TEXP( J, I )
+     &                  * EXP( -BI_ACT( J, I ) * INV_T298K ),
+     &                  VNAME( J+K+1 ), PROD_MAP( J+K, I )
+               END IF
 
 40          CONTINUE
 
@@ -425,115 +410,81 @@ C..set value in map
 
 C..checking degradation rates
 
-               IF ( TRIRATE( I, J ) < 0.0D0 ) THEN
+               IF ( TRIRATE( J, I ) < 0.0D0 ) THEN
                   WRITE( LOGDEV,* ) 'Species ', REACT( I ), 'has a negative'
      &                 // ' rate for trimolecular degradation.'
      &                 // ' Check degrade module.'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                ENDIF
 
-               DO 60 K = 1, 2
+               ICOUNT = 0
+               
+               DO 60 L = 1, 2
 
-                  WNAME = TRICAUSE( I, J, K )
+                  WNAME = TRICAUSE( L, J, I )
 
                   CALL UPCASE( WNAME )
 
                   LEN_NAME = LEN_TRIM( WNAME )
-
+    
                   IF ( LEN_NAME < 1 ) CYCLE
 
+                  ICOUNT  = ICOUNT + 1
+                  MARKER  = 0
+
                   IF ( WNAME == 'DENSITY' .OR. WNAME == 'M' ) THEN      ! special case rate proportion to air density
-                     RAD_MAP( I, J ) = 9999
-                     WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                    ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                    BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                    * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                    VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                     CYCLE
+                     RAD2_MAP( L, J, I ) = 9999
                   ENDIF
               
                   IF ( WNAME == 'N2' ) THEN      ! special case rate proportion to molecular nitrogen
-                     RAD_MAP( I, J ) = 9998
-                     WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                    ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                    BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                    * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                    VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                     CYCLE
+                     RAD2_MAP( L, J, I  ) = 9998
                   ENDIF
               
                   IF ( WNAME == 'O2' ) THEN      ! special case rate proportion to molecular oxygen
-                     RAD_MAP( I, J ) = 9997
-                     WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                    ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                    BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                    * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                    VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                     CYCLE
+                     RAD2_MAP( L, J, I  ) = 9997
                   ENDIF
               
                   IF ( WNAME == 'CH4' ) THEN      ! special case rate proportion to methane
-                     RAD_MAP( I, J ) = 9996
-                     WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                    ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                    BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                    * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                    VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                     CYCLE
+                     RAD2_MAP( L, J, I  ) = 9996
                   ENDIF
               
                   IF ( WNAME == 'H2' ) THEN      ! special case rate proportion to hydrogen
-                     RAD_MAP( I, J ) = 9995
-                     WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                    ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                    BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                    * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                    VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                     CYCLE
+                     RAD2_MAP( L, J, I  ) = 9995
                   ENDIF
               
                   IF ( WNAME == 'H2O' ) THEN      ! special case rate proportion to water vapor
-                     RAD_MAP( I, J ) = 9994
-                     WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                    ' Bimolecular ', WNAME, RAD_MAP( I, J ),
-     &                    BIRATE( I, J ) * TEMP_298K**BI_TEXP( I, J )
-     &                    * EXP( -BI_ACT( I, J ) * INV_T298K ),
-     &                    VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                     CYCLE
+                     RAD2_MAP( L, J, I  ) = 9994
                   ENDIF
 
-                  N = INDEX1( WNAME, N_GC_SPC, GC_SPC )   ! search gas species for index
-                  MARKER = GC_STRT
-
-                  IF ( N == 0 ) THEN                  ! search non-reactive species
-                     N = INDEX1( WNAME, N_NR_SPC, NR_SPC )
-                     MARKER = NR_STRT
-                  ENDIF ! End IF block that searches non-reactive species
-
-C..set value in map
-
-                  RAD2_MAP( I, J, K ) = N + MARKER - 1
+                  IF ( RAD2_MAP( L, J, I  ) < 0 ) THEN ! search model species
+                     N = INDEX1( WNAME, N_GC_SPC, GC_SPC )   ! gas species for index
+                     IF ( N == 0 ) THEN                      ! non-reactive species
+                        N = INDEX1( WNAME, N_NR_SPC, NR_SPC )
+                        IF ( N > 0 ) THEN
+                           MARKER = NR_STRT
+                        END IF
+                    ELSE   
+                       MARKER = GC_STRT
+                    ENDIF 
+                    RAD2_MAP( L, J, I ) = N + MARKER - 1
+                 END IF   
 
 60             CONTINUE
 
-               IF ( RAD2_MAP( I, J, 1 ) > 0 .AND. RAD2_MAP( I, J, 2 ) > 0 ) THEN
-
+               IF ( RAD2_MAP( 1, J, I ) > 0 .AND. RAD2_MAP( 2, J, I ) > 0 ) THEN
                   WRITE( LOGDEV,1300 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' Trimolecular ', TRICAUSE( I, J, 1 ), RAD2_MAP( I, J, 1 ),
-     &                 TRICAUSE( I, J, 2 ), RAD2_MAP( I, J, 2 ),
-     &                 TRIRATE( I, J ) * TEMP_298K**TRI_TEXP( I, J )
-     &                 * EXP( -TRI_ACT( I, J ) * INV_T298K ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
-
-               ELSE
-
+     &                 ' Trimolecular ', TRICAUSE( 1, J, I ), RAD2_MAP( 1, J, I ),
+     &                 TRICAUSE( 2, J, I ), RAD2_MAP( 2, J, I ),
+     &                 TRIRATE( J, I ) * TEMP_298K**TRI_TEXP( J, I )
+     &                 * EXP( -TRI_ACT( J, I ) * INV_T298K ),
+     &                 VNAME( J+K+1 ), PROD_MAP( J+K, I )
+               ELSE IF ( ICOUNT .GT. 0 ) THEN
                   WRITE( LOGDEV,1300 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' NOT INCLUDED ', TRICAUSE( I, J, 1 ), RAD2_MAP( I, J, 1 ),
-     &                 TRICAUSE( I, J, 2 ), RAD2_MAP( I, J, 2 ),
-     &                 TRIRATE( I, J ) * TEMP_298K**TRI_TEXP( I, J )
-     &                 * EXP( -TRI_ACT( I, J ) * INV_T298K ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
-
+     &                 ' NOT INCLUDED ', TRICAUSE( 1, J, I ), RAD2_MAP( 1, J, I ),
+     &                 TRICAUSE( 2, J, I ), RAD2_MAP( 2, J, I ),
+     &                 TRIRATE( J, I ) * TEMP_298K**TRI_TEXP( J, I )
+     &                 * EXP( -TRI_ACT( J, I ) * INV_T298K ),
+     &                 VNAME( J+K+1 ), PROD_MAP( J+K, I )
                ENDIF
 
 50          CONTINUE
@@ -544,7 +495,7 @@ C..set value in map
 
             DO 70 J = 1, N_PHOTO_LOSS
 
-               WNAME = PHOTO_NAME( I, J )
+               WNAME = PHOTO_NAME( J, I )
 
                CALL UPCASE( WNAME )
 
@@ -559,12 +510,12 @@ C..set value in map
                   CYCLE
                ENDIF
 
-               PHOTO_MAP( I, J ) = N
+               PHOTO_MAP( J, I ) = N
 
                WRITE( LOGDEV,1400 ) VNAME( 1 ), RXTANT_MAP( I ),
      &              ' Photolysis ', PHOTAB( N ), ' ', 'times', ' ',
-     &              A_PHOTO( I, J ),
-     &              VNAME( J+K+1 ), PROD_MAP( I, J+K )
+     &              A_PHOTO( J, I ),
+     &              VNAME( J+K+1 ), PROD_MAP( J+K, I )
 
 70          CONTINUE
 
@@ -576,14 +527,14 @@ C..locating degradation causes in CGRID
 
 C..checking degradation rates
 
-               IF ( LHRATE( I, J ) < 0.0 ) THEN
+               IF ( LHRATE( J, I ) < 0.0 ) THEN
                   WRITE( LOGDEV,* ) 'Species ', REACT( I ), 'has a negative'
      &                 // ' rate for degradation by ', WNAME( 1:LEN_NAME ), '.'
      &                 // ' Check degrade module.'
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
                ENDIF
 
-               WNAME = LHCAUSE( I, J )
+               WNAME = LHCAUSE( J, I )
 
                CALL UPCASE( WNAME )
 
@@ -591,33 +542,54 @@ C..checking degradation rates
 
                IF ( LEN_NAME < 1 ) CYCLE
 
-               WRITE( LOGDEV,*)VNAME( 1 ), WNAME
-               N = INDEX1( WNAME, N_GC_SPC, GC_SPC )   ! search gas species for index
-               MARKER = GC_STRT
+               MARKER = 0
+               IF ( WNAME == 'DENSITY' .OR. WNAME == 'M' ) THEN      ! special case rate proportion to air density
+                  RAD_MAP( J + N_BI_LOSS, I ) = 9999
+               ENDIF
 
-               IF ( N == 0 ) THEN                  ! search non-reactive species
-                  N = INDEX1( WNAME, N_NR_SPC, NR_SPC )
-                  MARKER = NR_STRT
+               IF ( WNAME == 'N2' ) THEN      ! special case rate proportion to molecular nitrogen
+                  RAD_MAP( J + N_BI_LOSS, I ) = 9998
+               ENDIF
 
-                  IF ( N == 0 ) THEN
-                     WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                    'NOT INCLUDED', WNAME, RAD_MAP( I, J + N_BI_LOSS ),
-     &                    LHRATE( I, J ) * LH_EQU( I, J ),
-     &                    VNAME( J+K+1 ), PROD_MAP( I, J+K )
-                     MARKER = 0
-                  ENDIF
+               IF ( WNAME == 'O2' ) THEN      ! special case rate proportion to molecular oxygen
+                  RAD_MAP( J + N_BI_LOSS, I ) = 9997
+               ENDIF
 
-               ENDIF ! End IF block that searches non-reactive species
+               IF ( WNAME == 'CH4' ) THEN      ! special case rate proportion to methane
+                  RAD_MAP( J + N_BI_LOSS, I ) = 9996
+               ENDIF
 
-C..set value in map
+               IF ( WNAME == 'H2' ) THEN      ! special case rate proportion to hydrogen
+                  RAD_MAP( J + N_BI_LOSS, I ) = 9995
+               ENDIF
 
-               RAD_MAP( I, J + N_BI_LOSS ) = N + MARKER - 1
+               IF ( WNAME == 'H2O' ) THEN      ! special case rate proportion to water vapor
+                  RAD_MAP( J + N_BI_LOSS, I ) = 9994
+               ENDIF
 
-               IF ( RAD_MAP( I, J + N_BI_LOSS ) > 0 ) THEN
+               IF ( RAD_MAP( J + N_BI_LOSS, I ) < 0 ) THEN ! search model species
+                  N = INDEX1( WNAME, N_GC_SPC, GC_SPC )   ! gas species for index
+                  IF ( N == 0 ) THEN                      ! non-reactive species
+                     N = INDEX1( WNAME, N_NR_SPC, NR_SPC )
+                     IF ( N > 0 ) THEN
+                        MARKER = NR_STRT
+                     END IF
+                  ELSE   
+                     MARKER = GC_STRT
+                  ENDIF 
+                  RAD_MAP( J + N_BI_LOSS, I ) = N + MARKER - 1
+               END IF   
+
+               IF ( RAD_MAP( J + N_BI_LOSS, I ) > 0 ) THEN
                   WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
-     &                 ' Langm-Hinsh ', WNAME, RAD_MAP( I, J + N_BI_LOSS  ),
-     &                 LHRATE( I, J ) * LH_EQU( I, J ),
-     &                 VNAME( J+K+1 ), PROD_MAP( I, J+K )
+     &                 ' Langm-Hinsh ', WNAME, RAD_MAP( J + N_BI_LOSS, I  ),
+     &                 LHRATE( J, I ) * LH_EQU( J, I ),
+     &                 VNAME( J+K+1 ), PROD_MAP( J+K, I )
+               ELSE
+                  WRITE( LOGDEV,1200 ) VNAME( 1 ), RXTANT_MAP( I ),
+     &                 'NOT INCLUDED', WNAME, RAD_MAP( J + N_BI_LOSS, I ),
+     &                 LHRATE( J, I ) * LH_EQU( J, I ),
+     &                 VNAME( J+K+1 ), PROD_MAP( J+K, I )
                ENDIF
 
 80          CONTINUE
@@ -626,7 +598,7 @@ C..set value in map
 
          IF( N_REACT_FOUND .LT. 1 )RETURN
 
-         WRITE( LOGDEV,* ) 'Note: If INDEX of CAUSE A OR B equals -1, the '
+         WRITE( LOGDEV,'(A)' ) 'Note: If INDEX of CAUSE A OR B equals -1, the '
      &        // 'process is dropped from degradation '
      &        // 'calculation.'
 
@@ -713,7 +685,7 @@ C=======================================================
                  MSG = 'ISAM SPECIES: ' 
      &              // TRIM( FIND_IN_ISAM( S ) ) 
      &              // ' not found in  REACT array  '
-                 CALL M3WARN( PNAME, 0, 0, MSG )
+!                CALL M3WARN( PNAME, 0, 0, MSG )
                  CYCLE
               END IF
               IF( RXTANT_MAP( R ) .LT. 1 )CYCLE

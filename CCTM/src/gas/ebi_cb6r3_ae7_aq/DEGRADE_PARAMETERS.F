@@ -117,6 +117,9 @@ C..looping data
       REAL,    ALLOCATABLE :: LH_YIELD( :,: )  ! production yield
       REAL,    ALLOCATABLE :: LH_RHMIN( :,: )  ! Minimum Relative Humidity for nonzero rate [fractional]
       REAL,    ALLOCATABLE :: LH_TAMIN( :,: )  ! Minimum Air temperature for nonzero rate   [K]
+      
+      INTEGER :: NDEGRADED_FOUND = 0
+      CHARACTER( 16 ), ALLOCATABLE :: DEGRADED_SPECIES( : )
 
 C**********************************************************************
       CONTAINS
@@ -141,9 +144,16 @@ C                      08/31/11 : B.Hutzell - Removed removed capabilities with 
 C                                             HAPs mechanisms
 C**********************************************************************
 
+            USE CGRID_SPCS           ! CGRID species number and offsets
+            
             IMPLICIT NONE
             
             LOGICAL, SAVE :: INITIALIZED = .FALSE.
+
+            INTEGER :: MARKER, N, M       ! indexes
+            INTEGER :: I, J, K, L         ! loop counters
+            
+            INTEGER, ALLOCATABLE :: INDEX_FOUND( : )
 
 C**********************************************************************
 
@@ -166,45 +176,48 @@ C..looping data
             LANHIN_STOP = N_PROCESSES
             
             ALLOCATE( REACT     ( N_REACT ) )                 ! names of species being degraded
-            ALLOCATE( BICAUSE   ( N_REACT, N_BI_LOSS ) )      ! species name that cause degradation
-            ALLOCATE( TRICAUSE  ( N_REACT, N_TRI_LOSS, 2 ) )  ! species name that cause degradation
-            ALLOCATE( PHOTO_NAME( N_REACT, N_PHOTO_LOSS ) )   ! name of photolysis rate for react(i)
-            ALLOCATE( LHCAUSE   ( N_REACT, N_LANHIN_LOSS ) )  ! species name that cause degradation
+            ALLOCATE( BICAUSE   ( N_BI_LOSS, N_REACT ) )      ! species name that cause degradation
+            ALLOCATE( TRICAUSE  ( 2, N_TRI_LOSS, N_REACT ) )  ! species name that cause degradation
+            ALLOCATE( PHOTO_NAME( N_PHOTO_LOSS, N_REACT ) )   ! name of photolysis rate for react(i)
+            ALLOCATE( LHCAUSE   ( N_LANHIN_LOSS, N_REACT ) )  ! species name that cause degradation
             
-            ALLOCATE( UNIRATE  ( N_REACT, N_UNI_LOSS ) )  ! rate for unimolecular decay for react(i) [molecules/sec^1]
-            ALLOCATE( UNI_ACT  ( N_REACT, N_UNI_LOSS ) )  ! activation energy for UNIRATE(I) [K]. Positive if exothermic
-            ALLOCATE( UNI_TEXP ( N_REACT, N_UNI_LOSS ) )  ! exponent of Temperature and UNIRATE(I) factored by (1/298)**UNI_TEXP
-            ALLOCATE( UNI_PROD ( N_REACT, N_UNI_LOSS ) )  ! name of daughter product for react(i)
-            ALLOCATE( UNI_YIELD( N_REACT, N_UNI_LOSS ) )  ! yield of daughter product for react(i)
+            ALLOCATE( UNIRATE  ( N_UNI_LOSS, N_REACT ) )  ! rate for unimolecular decay for react(i) [molecules/sec^1]
+            ALLOCATE( UNI_ACT  ( N_UNI_LOSS, N_REACT ) )  ! activation energy for UNIRATE(I) [K]. Positive if exothermic
+            ALLOCATE( UNI_TEXP ( N_UNI_LOSS, N_REACT ) )  ! exponent of Temperature and UNIRATE(I) factored by (1/298)**UNI_TEXP
+            ALLOCATE( UNI_PROD ( N_UNI_LOSS, N_REACT ) )  ! name of daughter product for react(i)
+            ALLOCATE( UNI_YIELD( N_UNI_LOSS, N_REACT ) )  ! yield of daughter product for react(i)
             
-            ALLOCATE( BIRATE  ( N_REACT, N_BI_LOSS ) )  ! degradation rates for bimolecular reactions,  [cm^3/(sec*molecules)]
-            ALLOCATE( BI_ACT  ( N_REACT, N_BI_LOSS ) )  ! activation energy for BIRATE(I) [K]. Positive if exothermic
-            ALLOCATE( BI_TEXP ( N_REACT, N_BI_LOSS ) )  ! exponent of Temperature and BIRATE(I) factored by (1/298)**BI_TEXP
-            ALLOCATE( BI_PROD ( N_REACT, N_BI_LOSS ) )  ! name of daughter product for react(i)
-            ALLOCATE( BI_YIELD( N_REACT, N_BI_LOSS ) )  ! yield of daughter product for react(i)
+            ALLOCATE( BIRATE  ( N_BI_LOSS, N_REACT ) )  ! degradation rates for bimolecular reactions,  [cm^3/(sec*molecules)]
+            ALLOCATE( BI_ACT  ( N_BI_LOSS, N_REACT ) )  ! activation energy for BIRATE(I) [K]. Positive if exothermic
+            ALLOCATE( BI_TEXP ( N_BI_LOSS, N_REACT ) )  ! exponent of Temperature and BIRATE(I) factored by (1/298)**BI_TEXP
+            ALLOCATE( BI_PROD ( N_BI_LOSS, N_REACT ) )  ! name of daughter product for react(i)
+            ALLOCATE( BI_YIELD( N_BI_LOSS, N_REACT ) )  ! yield of daughter product for react(i)
             
-            ALLOCATE( TRIRATE  ( N_REACT, N_TRI_LOSS ) )  ! degradation rates for trimolecular reactions,  [cm^3/(sec*molecules)]
-            ALLOCATE( TRI_ACT  ( N_REACT, N_TRI_LOSS ) )  ! activation energy for TRIRATE(I) [K]. Positive if exothermic
-            ALLOCATE( TRI_TEXP ( N_REACT, N_TRI_LOSS ) )  ! exponent of Temperature and TRIRATE(I) factored by (1/298)**TRI_TEXP
-            ALLOCATE( TRI_PROD ( N_REACT, N_TRI_LOSS ) )  ! name of daughter product for react(i)
-            ALLOCATE( TRI_YIELD( N_REACT, N_TRI_LOSS ) )  ! yield of daughter product for react(i)
+            ALLOCATE( TRIRATE  ( N_TRI_LOSS, N_REACT ) )  ! degradation rates for trimolecular reactions,  [cm^3/(sec*molecules)]
+            ALLOCATE( TRI_ACT  ( N_TRI_LOSS, N_REACT ) )  ! activation energy for TRIRATE(I) [K]. Positive if exothermic
+            ALLOCATE( TRI_TEXP ( N_TRI_LOSS, N_REACT ) )  ! exponent of Temperature and TRIRATE(I) factored by (1/298)**TRI_TEXP
+            ALLOCATE( TRI_PROD ( N_TRI_LOSS, N_REACT ) )  ! name of daughter product for react(i)
+            ALLOCATE( TRI_YIELD( N_TRI_LOSS, N_REACT ) )  ! yield of daughter product for react(i)
             
-            ALLOCATE( A_PHOTO    ( N_REACT, N_PHOTO_LOSS ) )  ! multiplier of photolysis rates
-            ALLOCATE( PHOTO_PROD ( N_REACT, N_PHOTO_LOSS ) )  ! name of daughter product for react(i)
-            ALLOCATE( PHOTO_YIELD( N_REACT, N_PHOTO_LOSS ) )  ! yield of daughter product for react(i)
-            
-            
-            ALLOCATE( LHRATE  ( N_REACT, N_LANHIN_LOSS ) )  
-            ALLOCATE( LH_EQU  ( N_REACT, N_LANHIN_LOSS ) )  
-            ALLOCATE( LH_PROD ( N_REACT, N_LANHIN_LOSS ) )  
-            ALLOCATE( LH_YIELD( N_REACT, N_LANHIN_LOSS ) )  
-            ALLOCATE( LH_RHMIN( N_REACT, N_PROCESSES ) )
-            ALLOCATE( LH_TAMIN( N_REACT, N_PROCESSES ) )
-            
-            ALLOCATE( RATE_CONST( N_REACT, N_PROCESSES ) )
-            ALLOCATE( RATE_YIELD( N_REACT, N_PROCESSES ) )
+            ALLOCATE( A_PHOTO    ( N_PHOTO_LOSS, N_REACT ) )  ! multiplier of photolysis rates
+            ALLOCATE( PHOTO_PROD ( N_PHOTO_LOSS, N_REACT  ) )  ! name of daughter product for react(i)
+            ALLOCATE( PHOTO_YIELD( N_PHOTO_LOSS, N_REACT  ) )  ! yield of daughter product for react(i)
             
             
+            ALLOCATE( LHRATE  ( N_LANHIN_LOSS, N_REACT ) )  
+            ALLOCATE( LH_EQU  ( N_LANHIN_LOSS, N_REACT ) )  
+            ALLOCATE( LH_PROD ( N_LANHIN_LOSS, N_REACT ) )  
+            ALLOCATE( LH_YIELD( N_LANHIN_LOSS, N_REACT ) )  
+            ALLOCATE( LH_RHMIN( N_LANHIN_LOSS, N_REACT ) )
+            ALLOCATE( LH_TAMIN( N_LANHIN_LOSS, N_REACT ) )
+            
+            ALLOCATE( RATE_CONST( N_PROCESSES, N_REACT ) )
+            ALLOCATE( RATE_YIELD( N_PROCESSES, N_REACT ) )
+            
+
+            ALLOCATE( INDEX_FOUND( N_REACT ) )
+            
+            INDEX_FOUND = -1 
             REACT       = BLANK
             PHOTO_NAME  = BLANK
             BICAUSE     = BLANK
@@ -235,7 +248,7 @@ C..looping data
             LH_RHMIN = 0.0
             LH_TAMIN = 0.0
             
-            RATE_YIELD = 1.0D0
+            RATE_YIELD = 0.0D0
 
 ! product are unused aspect and results not returned cgrid 
             UNI_PROD   = BLANK
@@ -250,279 +263,278 @@ C..toxic VOC's
 C.. ACRYLONITRILE
 
             REACT(1)       = 'ACRYLONITRILE'
-            UNIRATE( 1, 1) = 0.0D0
-            UNI_ACT( 1, 1) = 0.0D0
-            UNI_TEXP(1, 1) = 0.0
-            BICAUSE(1,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(1,1:5)  = (/ 4.8D-12, 4.8D-12, 1.9D-19, 6.3D-18, 5.2D-14/)
-            BI_ACT(1,1:5)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, -1.4D+3/)
+            BICAUSE(1:5,1) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,1)  = (/ 4.8D-12, 4.8D-12, 1.9D-19, 6.3D-18, 5.2D-14/)
+            BI_ACT(1:5,1)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, -1.4D+3/)
 
 C.. CARBON TETRACHLORIDE
 
             REACT(2)       = 'CARBONTET'
-            UNIRATE( 2, 1) = 0.0D0
-            UNI_ACT( 2, 1) = 0.0D0
-            UNI_TEXP(2, 1) = 0.0
-            BICAUSE(2,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(2,1:5)  = (/ 1.0D-12, 1.0D-12, 0.0D0, 0.0D0, 9.55D-11/)
-            BI_ACT(2,1:5)  = (/2300.0D0,2300.0D0, 0.0D0, 0.0D0, 7.80D+03/)
+            BICAUSE(1:5,2) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,2)  = (/ 1.0D-12, 1.0D-12, 0.0D0, 0.0D0, 9.55D-11/)
+            BI_ACT(1:5,2)  = (/2300.0D0,2300.0D0, 0.0D0, 0.0D0, 7.80D+03/)
 
 C.. PROPYLENE DICHLORIDE
 
             REACT(3)       = 'PROPDICHLORIDE'
-            UNIRATE( 3, 1) = 0.0D0
-            UNI_ACT( 3, 1) = 0.0D0
-            UNI_TEXP(3, 1) = 0.0
-            BICAUSE(3,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(3,1:5)  = (/ 2.2D-13, 2.2D-13, 0.0D0, 0.0D0, 1.1D-11/)
-            BI_ACT(3,1:5)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, 0.0D0/)
+            BICAUSE(1:5,3) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,3)  = (/ 2.2D-13, 2.2D-13, 0.0D0, 0.0D0, 1.1D-11/)
+            BI_ACT(1:5,3)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, 0.0D0/)
 
 C.. DICHLORIPROPENE
 
             REACT(4)       = 'DICHLOROPROPENE'
-            UNIRATE( 4, 1) = 0.0D0
-            UNI_ACT( 4, 1) = 0.0D0
-            UNI_TEXP(4, 1) = 0.0
-            BICAUSE(4,1:4) = (/'OH ','HO ','O3 ','NO3'/)
-            BIRATE(4,1:4)  = (/1.04D-11, 1.04D-11, 4.10D-19, 0.0D0/)
-            BI_ACT(4,1:4)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0/)
+            BICAUSE(1:4,4) = (/'OH ','HO ','O3 ','NO3'/)
+            BIRATE(1:4,4)  = (/1.04D-11, 1.04D-11, 4.10D-19, 0.0D0/)
+            BI_ACT(1:4,4)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0/)
 
 C.. 1,1,2,2TETRACHLOROETHANE
 
             REACT(5)       = 'CL4_ETHANE1122'
-            UNIRATE( 5, 1) = 0.0D0
-            UNI_ACT( 5, 1) = 0.0D0
-            UNI_TEXP(5, 1) = 0.0
-            BICAUSE(5,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(5,1:5)  = (/2.46D-13, 2.46D-13, 0.0D0, 0.0D0, 1.91D-13/)
-            BI_ACT(5,1:5)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0, 0.00D0/)
+            BICAUSE(1:5,5) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,5)  = (/2.46D-13, 2.46D-13, 0.0D0, 0.0D0, 1.91D-13/)
+            BI_ACT(1:5,5)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0, 0.00D0/)
 
 C.. CHLOROFORM
 
             REACT(6)       = 'CHCL3'
-            UNIRATE( 6, 1) = 0.0D0
-            UNI_ACT( 6, 1) = 0.0D0
-            UNI_TEXP(6, 1) = 0.0
-            BICAUSE(6,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(6,1:5)  = (/6.30D-18, 6.30D-18, 0.0D0, 0.0D0, 4.9D-12/)
-            BI_ACT(6,1:5)  = (/  504.D0,   504.D0, 0.0D0, 0.0D0, 1.24D+3/)
-            BI_TEXP(6,1:2) = (/   2.0D0,    2.0D0/)
+            BICAUSE(1:5,6) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,6)  = (/6.30D-18, 6.30D-18, 0.0D0, 0.0D0, 4.9D-12/)
+            BI_ACT(1:5,6)  = (/  504.D0,   504.D0, 0.0D0, 0.0D0, 1.24D+3/)
+            BI_TEXP(1:2,6) = (/   2.0D0,    2.0D0/)
 
 C.. 1,2DIBROMOETHANE
 
             REACT(7)       = 'BR2_C2_12'
-            UNIRATE( 7, 1) = 0.0D0
-            UNI_ACT( 7, 1) = 0.0D0
-            UNI_TEXP(7, 1) = 0.0
-            BICAUSE(7,1:4) = (/'OH ','HO ','O3 ','NO3'/)
-            BIRATE(7,1:4)  = (/1.03D-17, 1.03D-17, 0.0D0, 0.0D0/)
-            BI_ACT(7,1:4)  = (/  422.D0,   422.D0, 0.0D0, 0.0D0/)
-            BI_TEXP(7,1:2) = (/   2.0D0,    2.0D0/)
+            BICAUSE(1:4,7) = (/'OH ','HO ','O3 ','NO3'/)
+            BIRATE(1:4,7)  = (/1.03D-17, 1.03D-17, 0.0D0, 0.0D0/)
+            BI_ACT(1:4,7)  = (/  422.D0,   422.D0, 0.0D0, 0.0D0/)
+            BI_TEXP(1:2,7) = (/   2.0D0,    2.0D0/)
 
 C.. 1,2DICHLOROTHANE
 
             REACT(8)       = 'CL2_C2_12'
-            UNIRATE( 8, 1) = 0.0D0
-            UNI_ACT( 8, 1) = 0.0D0
-            UNI_TEXP(8, 1) = 0.0
-            BICAUSE(8,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(8,1:5)  = (/1.10D-17, 1.10D-17, 0.0D0, 0.0D0, 4.93D-11/)
-            BI_ACT(8,1:5)  = (/  409.D0,   409.D0, 0.0D0, 0.0D0, 1.09D+3/)
-            BI_TEXP(8,1:2) = (/   2.0D0,    2.0D0/)
+            BICAUSE(1:5,8) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,8)  = (/1.10D-17, 1.10D-17, 0.0D0, 0.0D0, 4.93D-11/)
+            BI_ACT(1:5,8)  = (/  409.D0,   409.D0, 0.0D0, 0.0D0, 1.09D+3/)
+            BI_TEXP(1:2,8) = (/   2.0D0,    2.0D0/)
 
 C.. ETHYLENE OXIDE
 
             REACT(9)       = 'ETOX'
-            UNIRATE( 9, 1) = 0.0D0
-            UNI_ACT( 9, 1) = 0.0D0
-            UNI_TEXP(9, 1) = 0.0
-            BICAUSE(9,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(9,1:5)  = (/7.60D-14, 7.60D-14, 0.0D0, 0.0D0, 5.0D-12/)
-            BI_ACT(9,1:5)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0, 0.0D0/)
+            BICAUSE(1:5,9) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,9)  = (/7.60D-14, 7.60D-14, 0.0D0, 0.0D0, 5.0D-12/)
+            BI_ACT(1:5,9)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0, 0.0D0/)
 
 C.. METHYLENE CHLORIDE
 
             REACT(10)       = 'CL2_ME'
-            UNIRATE( 10, 1) = 0.0D0
-            UNI_ACT( 10, 1) = 0.0D0
-            UNI_TEXP(10, 1) = 0.0
-            BICAUSE(10,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(10,1:5)  = (/8.54D-18, 8.54D-18, 0.0D0, 0.0D0, 2.81D-11/)
-            BI_ACT(10,1:5)  = (/  500.D0,   500.D0, 0.0D0, 0.0D0, 1.3D+3/)
-            BI_TEXP(10,1:2) = (/   2.0D0,    2.0D0/)
+            BICAUSE(1:5,10) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,10)  = (/8.54D-18, 8.54D-18, 0.0D0, 0.0D0, 2.81D-11/)
+            BI_ACT(1:5,10)  = (/  500.D0,   500.D0, 0.0D0, 0.0D0, 1.3D+3/)
+            BI_TEXP(1:2,10) = (/   2.0D0,    2.0D0/)
 
 C.. PERCHLOROETHYLENE
 
             REACT(11)       = 'CL4_ETHE'
-            UNIRATE(11, 1)  = 0.0D0
-            UNI_ACT( 11, 1) = 0.0D0
-            UNI_TEXP(11, 1) = 0.0
-            BICAUSE(11,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(11,1:5)  = (/9.64D-12, 9.64D-12, 0.0D0, 0.0D0, 3.72D-8/)
-            BI_ACT(11,1:5)  = (/ 1209.D0,  1209.D0, 0.0D0, 0.0D0, 0.0D0/)
-            BI_TEXP(11,1:5) = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0,-1.2D0/)
+            BICAUSE(1:5,11) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,11)  = (/9.64D-12, 9.64D-12, 0.0D0, 0.0D0, 3.72D-8/)
+            BI_ACT(1:5,11)  = (/ 1209.D0,  1209.D0, 0.0D0, 0.0D0, 0.0D0/)
+            BI_TEXP(1:5,11) = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0,-1.2D0/)
 
 C.. TRICHLOROETHYLENE
 
             REACT(12)       = 'CL3_ETHE'
-            UNIRATE( 12, 1) = 0.0D0
-            UNI_ACT( 12, 1) = 0.0D0
-            UNI_TEXP(12, 1) = 0.0
-            BICAUSE(12,1:5) = (/'OH ','HO ','O3 ','NO3','CL '/)
-            BIRATE(12,1:5)  = (/5.63D-13, 5.63D-13, 0.0D0, 0.0D0, 8.07D-11/)
-            BI_ACT(12,1:5)  = (/ -427.D0,  -427.D0, 0.0D0, 0.0D0, 0.0D0/)
+            BICAUSE(1:5,12) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,12)  = (/5.63D-13, 5.63D-13, 0.0D0, 0.0D0, 8.07D-11/)
+            BI_ACT(1:5,12)  = (/ -427.D0,  -427.D0, 0.0D0, 0.0D0, 0.0D0/)
 
 C.. VINYL CHLORIDE
 
             REACT(13)       = 'CL_ETHE'
-            UNIRATE(13, 1)  = 0.0D0
-            UNI_ACT( 13, 1) = 0.0D0
-            UNI_TEXP(13, 1) = 0.0
-            BICAUSE(13,1:5) = (/'OH ','HO ','O3 ','NO3', 'CL '/)
-            BIRATE(13,1:5)  = (/1.69D-12, 1.69D-12, 0.0D0,1.84D-13, 1.27D-10/)
-            BI_ACT(13,1:5)  = (/ -422.D0,  -422.D0, 0.0D0, 1764.D0, 0.0D0/)
+            BICAUSE(1:5,13) = (/'OH ','HO ','O3 ','NO3', 'CL '/)
+            BIRATE(1:5,13)  = (/1.69D-12, 1.69D-12, 0.0D0,1.84D-13, 1.27D-10/)
+            BI_ACT(1:5,13)  = (/ -422.D0,  -422.D0, 0.0D0, 1764.D0, 0.0D0/)
 
 C.. NAPHTHALENE
 
             REACT(14)       = 'NAPHTHALENE'
-            BICAUSE(14,1:3) = (/'OH ','HO ','O3 '/)
-            BIRATE(14,1:3)  = (/1.05D-12, 1.05D-12, 2.01D-19/)
-            BI_ACT(14,1:3)  = (/ -901.D0,  -901.D0,    0.0D0/)
-            TRICAUSE(14,1,1:2) = (/'NO3 ','NO2 '/)
-            TRIRATE( 14,1)     =  3.94D-34
-            TRI_ACT( 14,1)     = -4.10D+03
+            BICAUSE(1:3,14) = (/'OH ','HO ','O3 '/)
+            BIRATE(1:3,14)  = (/1.05D-12, 1.05D-12, 2.01D-19/)
+            BI_ACT(1:3,14)  = (/ -901.D0,  -901.D0,    0.0D0/)
+            TRICAUSE(1:2,1,14) = (/'NO3 ','NO2 '/)
+            TRIRATE( 1,14)     =  3.94D-34
+            TRI_ACT( 1,14)     = -4.10D+03
 
 C.. QUINOLINE
 
             REACT(15)       = 'QUINOLINE'
-            BICAUSE(15,1:4) = (/'OH ','HO ','O3 ','NO2'/)
-            BIRATE(15,1:4)  = (/1.16D-11, 1.16D-11, 1.00D-19, 1.60D-20/)
+            BICAUSE(1:4,15) = (/'OH ','HO ','O3 ','NO2'/)
+            BIRATE(1:4,15)  = (/1.16D-11, 1.16D-11, 1.00D-19, 1.60D-20/)
 
 C.. HEXAMETHYLENE DIISOCAYNATE
 
             REACT(16)       = 'HEXAMETHY_DIIS'
-            BICAUSE(16,1:2) = (/'OH ','HO '/)
-            BIRATE(16,1:2)  = (/7.94D-12, 7.94D-12/)
+            BICAUSE(1:2,16) = (/'OH ','HO '/)
+            BIRATE(1:2,16)  = (/7.94D-12, 7.94D-12/)
 
 C.. HYDRAZINE
 
             REACT(17)       = 'HYDRAZINE'
-            BICAUSE(17,1:3) = (/'OH ','HO ','O3 '/)
-            BIRATE(17,1:3)  = (/3.60D-11, 3.60D-11, 3.00D-17/)
+            BICAUSE(1:3,17) = (/'OH ','HO ','O3 '/)
+            BIRATE(1:3,17)  = (/3.60D-11, 3.60D-11, 3.00D-17/)
 
 C.. MALEIC ANHYDRIDE
 
             REACT(18)       = 'MAL_ANHYDRIDE'
-            BICAUSE(18,1:3) = (/'OH  ','HO  ','NO3 '/)
-            BIRATE(18,1:3)  = (/1.45D-12, 1.45D-12, 1.02D-13/)
+            BICAUSE(1:3,18) = (/'OH  ','HO  ','NO3 '/)
+            BIRATE(1:3,18)  = (/1.45D-12, 1.45D-12, 1.02D-13/)
 
 C.. TOULENE DIISOCYANATE 
 
             REACT(19)       = 'TOL_DIIS'
-            BICAUSE(19,1:2) = (/'OH ','HO '/)
-            BIRATE(19,1:2)  = (/7.41D-12, 7.41D-12/)
+            BICAUSE(1:2,19) = (/'OH ','HO '/)
+            BIRATE(1:2,19)  = (/7.41D-12, 7.41D-12/)
 
 C.. TRIETHYLAMINE
 
             REACT(20)       = 'TRIETHYLAMINE'
-            BICAUSE(20,1:5) = (/'OH  ','HO  ','O   ','O3P ', 'O3  '/)
-            BIRATE(20,1:5)  = (/3.60D-11, 3.60D-11, 1.09D-11, 1.09D-11, 7.84D-18/)
+            BICAUSE(1:5,20) = (/'OH  ','HO  ','O   ','O3P ', 'O3  '/)
+            BIRATE(1:5,20)  = (/3.60D-11, 3.60D-11, 1.09D-11, 1.09D-11, 7.84D-18/)
 
 C.. P-DICHLOROBENZENE 
 
             REACT(21)       = 'DICHLOROBENZENE'
-            BICAUSE(21,1:2) = (/'OH ','HO '/)
-            BIRATE(21,1:2)  = (/3.60D-13, 3.60D-13/)
+            BICAUSE(1:2,21) = (/'OH ','HO '/)
+            BIRATE(1:2,21)  = (/3.60D-13, 3.60D-13/)
 
 C.. XYLENE
 
             REACT(22)       = 'XYLENE         '
-            BICAUSE(22,1:3) = (/'OH','OH','CL'/)
-            BIRATE(22,1:3)  = (/1.717D-11,                  1.717D-11,         1.433D-10/)
+            BICAUSE(1:3,22) = (/'OH','OH','CL'/)
+            BIRATE(1:3,22)  = (/1.717D-11, 1.717D-11, 1.433D-10/)
 
 C.. STYRENE
 
             REACT(23)       = 'STYRENE        '
-            BICAUSE(23,1:4) = (/'OH','OH','O3','CL'/)
-            BIRATE(23,1:4)  = (/1.02D-11, 1.02D-11, 1.51D-13, 3.6D-10/)
-            BI_ACT(23,1:2)  = (/    532.0D0,   532.0D0/)
+            BICAUSE(1:4,23) = (/'OH','OH','O3','CL'/)
+            BIRATE(1:4,23)  = (/1.02D-11, 1.02D-11, 1.51D-13, 3.6D-10/)
+            BI_ACT(1:2,23)  = (/    532.0D0,   532.0D0/)
 
 C.. ACETONITRILE
 
             REACT(24)       = 'ACETONITRILE   '
-            BICAUSE(24,1:3) = (/'OH','OH','CL'/)
-            BIRATE(24,1:3)  = (/          8.31D-13,          8.31D-13,          1.60D-11/)
-            BI_ACT(24,1:3)  = (/          1080.0D0,          1080.0D0,          2140.0D0/)
+            BICAUSE(1:3,24) = (/'OH','OH','CL'/)
+            BIRATE(1:3,24)  = (/          8.31D-13,          8.31D-13,          1.60D-11/)
+            BI_ACT(1:3,24)  = (/          1080.0D0,          1080.0D0,          2140.0D0/)
 
 C.. ACRYACID
 
             REACT(25)       = 'ACRYACID       '
-            BICAUSE(25,1:4) = (/'OH','OH','O3','CL'/)
-            BIRATE(25,1:4)  = (/1.75D-11, 1.75D-11, 6.50D-19, 4.00D-10/)
+            BICAUSE(1:4,25) = (/'OH','OH','O3','CL'/)
+            BIRATE(1:4,25)  = (/1.75D-11, 1.75D-11, 6.50D-19, 4.00D-10/)
 
 C.. HEXANE 
  
             REACT(26)       = 'HEXANE         '
-            BICAUSE(26,1:3) = (/'OH','OH','CL'/)
-            BIRATE(26,1:3)  = (/          1.98D-11,          1.91D-11,          3.30D-10/)
-            BI_ACT(26,1:2)  = (/           394.0D0,           394.0D0/)
+            BICAUSE(1:3,26) = (/'OH','OH','CL'/)
+            BIRATE(1:3,26)  = (/          1.98D-11,          1.91D-11,          3.30D-10/)
+            BI_ACT(1:2,26)  = (/           394.0D0,           394.0D0/)
 
 C.. METHCHLORIDE
  
             REACT(27)       = 'METHCHLORIDE   '
-            BICAUSE(27,1:3) = (/'OH','OH','CL'/)
-            BIRATE(27,1:3)  = (/          2.10D-12,          2.10D-12,          1.80D-11/)
-            BI_ACT(27,1:3)  = (/          1210.0D0,          1210.0D0,            1081D0/)
+            BICAUSE(1:3,27) = (/'OH','OH','CL'/)
+            BIRATE(1:3,27)  = (/          2.10D-12,          2.10D-12,          1.80D-11/)
+            BI_ACT(1:3,27)  = (/          1210.0D0,          1210.0D0,            1081D0/)
 
 C.. CARBSULFIDE
 
             REACT(28)       = 'CARBSULFIDE    '
-            BICAUSE(28,1:3) = (/'OH','OH','O3'/)
-            BIRATE(28,1:3)  = (/          1.10D-13,          1.10D-13,           3.01D-16/)
-            BI_ACT(28,1:2)  = (/          1200.0D0,          1200.0D0/)
+            BICAUSE(1:3,28) = (/'OH','OH','O3'/)
+            BIRATE(1:3,28)  = (/          1.10D-13,          1.10D-13,           3.01D-16/)
+            BI_ACT(1:2,28)  = (/          1200.0D0,          1200.0D0/)
 
 C.. CHLOROPRENE
 
            REACT(29)       = 'CHLOROPRENE    '
-           BICAUSE(29,1:5) = (/'OH ','OH ','O3 ','NO3','CL '/)
-           BIRATE(29,1:5)  = (/          6.20D-11,          6.20D-11,          1.40D-16,
+           BICAUSE(1:5,29) = (/'OH ','OH ','O3 ','NO3','CL '/)
+           BIRATE(1:5,29)  = (/          6.20D-11,          6.20D-11,          1.40D-16,
      &                                   3.60D-13,          3.62D-10/)
 
 C.. ETHYLBENZENE
 
            REACT(30)       = 'ETHYLBENZENE   '
-           BICAUSE(30,1:4) = (/'OH ','OH ','NO3','CL '/)
-           BIRATE(30,1:4)  = (/          7.00D-12,          7.00D-12,          5.70D-16,
-     &                                      1.15D-10/)
+           BICAUSE(1:4,30) = (/'OH ','OH ','NO3','CL '/)
+           BIRATE(1:4,30)  = (/          7.00D-12,          7.00D-12,          5.70D-16,
+     &                                   1.15D-10/)
 
 C.. BENZO[A]PYRENE    
 
            REACT(31)       = 'BENAPY         '
-           BICAUSE(31,1:2) = (/'OH ','HO '/)
-           BIRATE(31,1:2)  = (/ 5.00D-11,   5.00D-11/)
+           BICAUSE(1:2,31) = (/'OH ','HO '/)
+           BIRATE(1:2,31)  = (/ 5.00D-11,   5.00D-11/)
 
 C.. BENZO[A]PYRENE, accumulation mode
 
            REACT(32)       = 'ABENAPYJ       '
-           LHCAUSE(32,1) = 'O3 '
-!           LHRATE(32,1)  =  5.40D-02  ! average between 0% and 70%  Rel. Hum. Points in Owususa et al. (2004)
-!           LH_EQU(32,1)  =  2.00D-15  ! average between 0% and 70%  Rel. Hum. Points in Owususa et al. (2004)
-           LHRATE(32,1)  = 3.10D-02   ! average between 50% and 70% Rel. Hum. Points in Zhou et al. (2013) for organic shell around NH4SO4 core
-           LH_EQU(32,1)  = 10.1D-15   ! average between 50% and 70% Rel. Hum. Points in Zhou et al. (2013) for organic shell around NH4SO4 core
-           LH_TAMIN(32,1)  =  275.15  ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
-           LH_RHMIN(32,1)  =  0.50    ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
+           LHCAUSE(1,32) = 'O3 '
+!           LHRATE(1,32)  =  5.40D-02  ! average between 0% and 70%  Rel. Hum. Points in Owususa et al. (2004)
+!           LH_EQU(32)  =  2.00D-15  ! average between 0% and 70%  Rel. Hum. Points in Owususa et al. (2004)
+           LHRATE(1,32)  = 3.10D-02   ! average between 50% and 70% Rel. Hum. Points in Zhou et al. (2013) for organic shell around NH4SO4 core
+           LH_EQU(1,32)  = 10.1D-15   ! average between 50% and 70% Rel. Hum. Points in Zhou et al. (2013) for organic shell around NH4SO4 core
+           LH_TAMIN(1,32)  =  275.15  ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
+           LH_RHMIN(1,32)  =  0.50    ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
 
 C.. BENZO[A]PYRENE, Aitken mode
 
            REACT(33)       = 'ABENAPYI       '
-           LHCAUSE(33,1) = 'O3 '
-!           LHRATE(33,1)  = 5.40D-02 ! average between 0% and 70% Rel. Hum. Points in Owususa et al. (2004)
-!           LH_EQU(33,1)  = 2.00D-15 ! average between 0% and 70% Rel. Hum. Points in Owususa et al. (2004)
-           LHRATE(33,1)  = 3.10D-02  ! average between 50% and 70% Rel. Hum. Points in Zhou et al. (2013)
-           LH_EQU(33,1)  = 10.1D-15  ! average between 50% and 70% Rel. Hum. Points in Zhou et al. (2013)
-           LH_TAMIN(33,1)  =  275.15 ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
-           LH_RHMIN(33,1)  =  0.50   ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
+           LHCAUSE(1,33) = 'O3 '
+!           LHRATE(1,33)  = 5.40D-02 ! average between 0% and 70% Rel. Hum. Points in Owususa et al. (2004)
+!           LH_EQU(1,33)  = 2.00D-15 ! average between 0% and 70% Rel. Hum. Points in Owususa et al. (2004)
+           LHRATE(1,33)  = 3.10D-02  ! average between 50% and 70% Rel. Hum. Points in Zhou et al. (2013)
+           LH_EQU(1,33)  = 10.1D-15  ! average between 50% and 70% Rel. Hum. Points in Zhou et al. (2013)
+           LH_TAMIN(1,33)  =  275.15 ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
+           LH_RHMIN(1,33)  =  0.50   ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
 
+           NDEGRADED_FOUND = 0
+           DO I = 1, N_REACT
+               N = 0
+               DO J = 1, N_GC_SPC
+                  IF ( TRIM( REACT( I ) ) == TRIM( GC_SPC( J ) ) ) THEN
+                     N = J
+                     EXIT
+                  END IF
+               END DO
+               IF ( N == 0 ) THEN  ! search aerosol them  non-reactive species for index
+                  DO J = 1, N_AE_SPC
+                     IF ( TRIM( REACT( I ) ) ==  TRIM( AE_SPC( J ) ) ) THEN
+                       N = J
+                       EXIT
+                     END IF
+                  END DO
+                  IF ( N == 0 ) THEN
+                     DO J = 1, N_NR_SPC
+                        IF ( TRIM( REACT( I ) ) == TRIM( NR_SPC( J ) ) ) THEN
+                          N = J
+                          EXIT
+                        END IF
+                     END DO
+                  ENDIF
+                ENDIF
+                IF ( N == 0 ) CYCLE
+                NDEGRADED_FOUND = NDEGRADED_FOUND + 1 
+                INDEX_FOUND( NDEGRADED_FOUND ) = I
+           END DO
+           IF ( NDEGRADED_FOUND .GT. 0 ) THEN
+              ALLOCATE( DEGRADED_SPECIES( NDEGRADED_FOUND ) )
+              DO I = 1, NDEGRADED_FOUND 
+                 DEGRADED_SPECIES( I ) = REACT( INDEX_FOUND( I ) )
+              END DO
+           END IF
+           
+           DEALLOCATE( INDEX_FOUND )
+                  
          RETURN
          END SUBROUTINE DEGRADE_DATA
       
