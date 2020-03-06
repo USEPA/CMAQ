@@ -175,7 +175,7 @@
    'EVERYWHERE', 'ALL' ,'TRIETHYLAMINE','TRIETHYLAMINE',    'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'DICHLOROBENZENE','DICHLOROBENZENE','GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'ACETONITRILE','ACETONITRILE',      'GAS'  ,1.  ,'UNIT','a',
-   'EVERYWHERE', 'ALL' ,'XYLENE','XYLENES',                 'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'XYLENES','XYLENE',                 'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'STYRENE','STYRENE',                'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'ACRYACID','ACRYACID',              'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'HEXANE','HEXANE','                  GAS'  ,1.  ,'UNIT','a',
