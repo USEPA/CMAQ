@@ -357,7 +357,7 @@ C Find emissions stream in the list of available streams
                    IF ( ABFLUX ) THEN
                      CYCLE ! don't need a stream for this
                    ELSE
-                     XMSG = " BIDIRECTIONALNH3 specified,"
+                     XMSG = " BIDIRECTIONALNH3 specified," //
      &                      " but ABLUX set to FALSE "
                      CALL M3EXIT( 'ISAM_PVO3', 1, 1, XMSG, XSTAT1 )
                    ENDIF           
