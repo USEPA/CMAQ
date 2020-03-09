@@ -128,7 +128,7 @@ grep -i error CTM_LOG*
 
 * [Visit the category](https://forum.cmascenter.org/categories) that best describes your issue.
 
-* For example, if you are having an issue running CMAQ [choose the category](https://forum.cmascenter.org/c/cmaq/run-time-errors-and-issues/14)
+* For example, if you are having an issue running CMAQ [choose the category cmaq runtime issues](https://forum.cmascenter.org/c/cmaq/run-time-errors-and-issues/14)
 
 * Or choose the [parent CMAQ category](https://forum.cmascenter.org/c/cmaq/7) 
 
