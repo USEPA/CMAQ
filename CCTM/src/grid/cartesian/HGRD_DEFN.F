@@ -174,7 +174,7 @@ C Check NPROCS against NPCOL*NPROW
      &                                                NPROCS, GL_NCOLS, GL_NROWS
                END IF
 
-               XMSG = 'NPROCS must be less or equal to TOTAL_NCOLS*TOTAL_NROWS'
+               XMSG = 'NPROCS must be less than or equal to TOTAL_NCOLS*TOTAL_NROWS'
                IF ( MYPE .EQ. 0 ) THEN
                   WRITE(OUTDEV,'(A)')TRIM( XMSG )
                END IF 
