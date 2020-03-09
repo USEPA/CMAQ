@@ -143,7 +143,7 @@ Example Title:
 CMAQv5.3.1 segmentation fault using gcc and openmpi
 ```
 
-#### In the body provide the output from the following commands
+#### In the body of the new issue please provide the output from the following commands
 * Report the compiler and version used to run CMAQ
 ```
 mpif90 --version
