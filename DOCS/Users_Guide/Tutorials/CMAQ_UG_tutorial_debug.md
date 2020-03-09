@@ -25,7 +25,7 @@ tail bldit_cctm.log
 If you don’t find an answer that solves the issue that you are having, create a new topic on the CMAS Center Forum.
 Submit a new topic issue, even if you are having an issue similar to another user.
 
-See the [following instructions for creating a new topic](https://github.com/lizadams/CMAQ/new/master/DOCS/Users_Guide/Tutorials#submit-a-new-topic-issue-even-if-you-are-having-an-issue-similar-to-another-user) in the CMAS Center Forum.
+See the [following instructions for creating a new topic](https://github.com/lizadams/CMAQ/new/master/DOCS/Users_Guide/Tutorials#submit-a-new-topic-issue) in the CMAS Center Forum.
 
 
 ### Running CMAQ:
@@ -124,7 +124,7 @@ grep -i error CTM_LOG*
 
 * If you don’t see a similar error reported in an issue or in a FAQ that provides enough information for you to troubleshoot and solve the issue then submit a new topic.
 
-#### Submit a new topic issue, even if you are having an issue similar to another user.
+### Submit a new topic issue
 
 * [Visit the category](https://forum.cmascenter.org/categories) that best describes your issue.
 
