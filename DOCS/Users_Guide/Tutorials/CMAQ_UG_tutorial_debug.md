@@ -189,4 +189,5 @@ run_cctm_Bench_2016_12SE1.csh
 cp CTM_LOG_000.v531_intel_Bench_2016_12SE1_20160701 CTM_LOG_000.v531_intel_Bench_2016_12SE1_20160701.txt
 ```
 
-### When someone replies to your topic, you will receive an e-mail notification. Please click on the “VISIT TOPIC” button in your e-mail to return to your CMAS Center Forum Issue and reply to any follow-up questions or suggestions. 
+* When someone replies to your topic, you will receive an e-mail notification. 
+* Please click on the “VISIT TOPIC” button in your e-mail to return to your CMAS Center Forum Issue and reply to any follow-up questions or suggestions. 
