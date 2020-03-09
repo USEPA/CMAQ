@@ -54,7 +54,7 @@ IF you use slurm, with the sbatch command to submit the job, the standard error 
 > grep -i 'PROGRAM COMPLETED SUCCESSFULLY' slurm-*.out
 ```
 
-#### Use grep to check for any errors in the slurm standard output files.
+#### Use grep to check for any errors in the slurm log files.
 ```
 > grep -i 'error' slurm-*.out
 ```
