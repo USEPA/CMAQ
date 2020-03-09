@@ -355,9 +355,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `NSTEPS [default: 240000]`<a id=NSTEPS></a>  
     Number of simulation time steps (HHMMSS)  
 -   `TSTEP [default: 010000]`<a id=TSTEP></a>   
-    Simulation output time step interval (HHMMSS)
+    Simulation output time step interval (HHMMSS). Must be a mutiple of the run length. 
 -   `MET_TSTEP [default: time step of METCRO3D file]`<a id=MET_TSTEP></a>   
-    Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meterology may do so using this environment variable. It should noted the simulation will be terminated IF MET_TSTEP is not atleast as small as the file tstep and not a multiple of the file tstep. Ex. If the meteorology files have data available at 10 minute intervals, valid MET_STEPS are {10,20,30,40...} minutes. 
+    Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meteorology may do so using this environment variable. The default value of MET_TSTEP is the time-step of the METCRO3D file (input meteorology data step). Users may however specify MET_TSTEP to be multiples of the input meterology time-step as long as they add up to the output time step (define as environmental variable TSTEP). Ex. If the meteorology files have data available at 10 minute intervals and a desired 1-hour output frequency, valid MET_STEPS are {10,20,30,30,60...} minutes. 
 
 <a id=CCTM_Config_Options></a>
 
