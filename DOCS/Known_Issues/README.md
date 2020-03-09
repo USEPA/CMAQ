@@ -7,6 +7,7 @@ The following issues have been recognized for CMAQv5.3.1:
 
 ## *CMAQv5.3.1-i1:* 
 Date: 12/19/2019
+
 Contact: Sergey Napelenok (napelenok.sergey@epa.gov)
 
 ### Description  
@@ -21,6 +22,7 @@ A modification to the ISAM chemistry algorithms is currenlty in testing.  It wil
 
 ## *CMAQv5.3.1-i2:* 
 Date: 2019-12-31
+
 Contact: David Wong (Wong.David-C@epa.gov) 
 
 ### Description  
@@ -35,6 +37,7 @@ Replace CCTM/src/cio/centralized_io_module.F file in repository with the version
 
 ## *CMAQv5.3.1-i3:* 
 Date: 2020-01-23
+
 Contact: Sergey Napelenok (napelenok.sergey@epa.gov)
 
 ### Description  
@@ -50,6 +53,7 @@ The model did not compile with the -Disam option with errors pointing to EMIS_DE
 
 ## *CMAQv5.3.1-i4:* 
 Date: 2020-03-09
+
 Contact: David Wong (Wong.David-C@epa.gov) 
 
 ### Description  
@@ -80,6 +84,7 @@ Do not use the environmental variable EMIS_SYM_DATE and a code fix will also be 
 
 ## *CMAQv5.3.1-i6:* 
 Date: 2020-03-09
+
 Contact: Christian Hogrefe (hogrefe.christian@epa.gov)
 
 ### Description  
@@ -88,9 +93,9 @@ In CMAQv5.3.1, there is an inconsistency in the naming convention of the bi-dire
 |:--------------:|:--------:|:--------:|
 |Downward Deposition Flux (always positive)  |	NH3	      | NH3_DDEP|
 |Upward Emissions Flux (always positive)	   |  NH3_Emis	| NH3_EMIS|
-|Net Flux(positive if downward and negative if upward)  | NH3_Flux |	NH3|
+|Net Flux (positive if downward and negative if upward)  | NH3_Flux |	NH3|
 
-When using the STAGE dry deposition option with bi-directional NH3 flux enabled, the CCTM_DRYDEP file contains additional diagnostic deposition values (NH3_Stom, NH3_Cut, NH3_Soil, NH3_Ag, NH3_Nat, and NH3_Wat) that are described in the [CMAQv5.3.1 Release Notes]( ../Release_Notes/CMAQv5.3.1_bugfixes.md#5-stage)
+When using the STAGE dry deposition option with bi-directional NH3 flux enabled, the CCTM_DRYDEP file contains additional diagnostic deposition values (NH3_Stom, NH3_Cut, NH3_Soil, NH3_Ag, NH3_Nat, and NH3_Wat) that are described in the [CMAQv5.3.1 Release Notes]( ../Release_Notes/CMAQv5.3.1_bugfixes.md#5-stage).
 
 Note that when the model is run without the bi-directional NH3 flux option enabled (CTM_ABFLUX set to N in the run script), the variable NH3 in the CCTM_DRYDEP file represents the unidirectional NH3 dry deposition flux in both STAGE and M3DRY.
 
