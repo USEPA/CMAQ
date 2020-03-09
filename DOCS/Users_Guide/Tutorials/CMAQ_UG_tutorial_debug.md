@@ -80,8 +80,8 @@ more .cshrc
 * Edit your .cshrc to set the LD_LIBRARY_PATH to include the location of the netcdf libraries
 * Note this path is dependent on what compiler you used, replace intel with gcc if you used gnu rather than the intel compiler.
 ```
-setenv NCDIR {CMAQ_HOME}/lib/x86_64/intel/netcdf
-setenv NCFDIR {CMAQ_HOME}/lib/x86_64/intel/netcdff
+setenv NCDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdf
+setenv NCFDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdff
 setenv LD_LIBRARY_PATH ${NCDIR}/lib:$NCFDIR/lib:${LD_LIBRARY_PATH}
 ```
 
