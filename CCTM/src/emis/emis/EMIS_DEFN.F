@@ -1121,7 +1121,7 @@ C-----------------------------------------------------------------------
         CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )    ! Aer. Mass: ppmv/s -> umol/s
      &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( L )         ! m2/mol/s -> m2/s
       END DO                                                                
-      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: )                               ! Aer. Num:  N/molec/s -> N/s
+      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: )                               ! Aer. Num:  N/mol/s -> N/s
 
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
       !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
