@@ -1,6 +1,7 @@
 # CMAQ Debugging Tips
 
-Purpose: This guide describes how to examine log files and debug issues found when installing and running the CMAQ test case
+Purpose: This guide describes how to examine log files and debug issues found when installing and running the CMAQ test case.
+This guide helps you to find and report errors to the CMAS Center Forum and follows the [best practices for posting new issues to the forum](https://forum.cmascenter.org/t/please-read-before-posting/1321).
 
 ## Prerequisite: Build Libraries and CMAQ using gcc and intel compilers: 
 Follow the CMAQ Build Tutorials for the appropriate compiler: https://github.com/USEPA/CMAQ/tree/master/DOCS/Users_Guide/Tutorials
