@@ -128,28 +128,29 @@ grep -i error CTM_LOG*
 
 * [Visit the category](https://forum.cmascenter.org/categories) that best describes your issue.
 
-#### For example, if you are having an issue running CMAQ [choose the category](https://forum.cmascenter.org/c/cmaq/run-time-errors-and-issues/14)
+* For example, if you are having an issue running CMAQ [choose the category](https://forum.cmascenter.org/c/cmaq/run-time-errors-and-issues/14)
 
-Or choose the [parent CMAQ category](https://forum.cmascenter.org/c/cmaq/7) 
+* Or choose the [parent CMAQ category](https://forum.cmascenter.org/c/cmaq/7) 
 
-#### Click on + New Topic in the upper right corner
+* Click on + New Topic in the upper right corner
 The Category will be pre-selected if you start a new topic request from within a category, if the category is “Uncategorized”, then use the pull-down menu to select the category for your topic.
 
 #### Selecting a category is important, as the CMAS Center and EPA staff are only monitoring topics submitted within a category that matches their expertise.
  
-#### Type in a title for your topic that describes your CMAQ compiler environment
+* Type in a title for your topic that describes your CMAQ compiler environment
 Example Title: 
 ```
 CMAQv5.3.1 segmentation fault using gcc and openmpi
 ```
 
 #### In the body of the new issue please provide the output from the following commands
+
 * Report the compiler and version used to run CMAQ
 ```
 mpif90 --version
 ```
 
-* Example Compiler Version:
+* Example Compiler Version output:
 ```
 GNU Fortran (GCC) 9.1.0
 ```
@@ -159,7 +160,7 @@ GNU Fortran (GCC) 9.1.0
 ls */*.exe
 ```
 
-* Example CMAQ version:
+* Example CMAQ version output:
 ```
 BLD_CCTM_v531_intel/CCTM_v531.exe
 ```
