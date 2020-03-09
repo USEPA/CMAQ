@@ -573,7 +573,7 @@ C ----------------------------------------------------------------------
 
          IF ( XMOSAIC ) THEN
             DDBFJ( :,: )   = DDEPJ( :,:,C,R )
-            DEPVJCR( :,: ) = DEPVJ( :,:,C,R )           
+            DEPVJCR( :,: ) = DEPVJ( :,1:N_SPC_DEPV,C,R )           
             DO V = 1, N_SPC_DEPV
                WHERE( GRID_DATA%LUFRAC( c,r,: ) .GT. 0.0 .AND. DEPVJCR( :,V ) .GT. 0.0 ) 
                   POLJ( :,V )    = PLDVJ( :,V,C,R ) / DEPVJCR( :,V )

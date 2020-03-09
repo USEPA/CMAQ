@@ -108,6 +108,7 @@ C                          More consistent with WRF
 C       01Feb19 D.Wong: Implemented centralized I/O approach, removed all MY_N
 C                       clauses
 C       01AUG19 D.Wong: Modified code to work with two-way model
+C       11 Nov 19 F. Sidi: Changed MSTEP to accomdate Centralized I/O changes
 C-----------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
@@ -116,9 +117,9 @@ C-----------------------------------------------------------------------
       USE PHOT_MET_DATA, ONLY: USE_ACM_CLOUD, CLEAR_ACM_CLOUD, CAPTURE_ACM_CLOUD
       USE ASX_DATA_MOD,  ONLY: INIT_MET, GRID_DATA
       USE CENTRALIZED_IO_MODULE,  ONLY: RCA_AVAIL, cio_model_sdate,
-     &                                  cio_model_stime, cio_data_tstep,
-     &                                  interpolate_var, 
-     &                                  cio_data_tstep_met
+     &                                  cio_model_stime, 
+     &                                  interpolate_var,
+     &                                  file_tstep, f_met 
 
       IMPLICIT NONE
 
@@ -405,11 +406,8 @@ C...  the met timestep in hours
 
         SDATE = cio_model_sdate
         STIME = cio_model_stime
-#ifdef twoway
-        MSTEP = cio_data_tstep_met
-#else
-        MSTEP = cio_data_tstep
-#endif
+        MSTEP = file_tstep(f_met) 
+        
         METSTEP = 3600.0 / FLOAT( TIME2SEC( MSTEP ) ) ! convert to 1/hours
 
 C...check convective precipitation on met files to determine if WRF used

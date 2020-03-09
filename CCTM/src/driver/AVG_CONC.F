@@ -26,9 +26,16 @@ C Revision History
 C   10 May 2016 D. Wong Modified code to provide flexibility to handle
 C                       environment variable ACONC_FILE_SPCS is set to 'ALL' 
 C                       or not set.
-
+C 
+C   09 Sep 19 F. Sidi: Replaced L_CONC_WVEL & L_ACONC_WVEL (depreciated) with W_VEL &
+C                      added W_VEL to species aconc_species list depending on
+C                      if the user requests the vertical velocity to be output
+C
+C
 C Function: species, layer pointers and definitions for integral average
 C CONC calculations
+C
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER, SAVE :: N_ASPCS = 0
 
       INTEGER, SAVE, ALLOCATABLE :: AVG_CONC_MAP( : ) ! pointer into CGRID
@@ -59,7 +66,6 @@ C Average Arrays for Met variables
       REAL, SAVE, ALLOCATABLE :: AVG_PRES( :,:,: )
 
 C Logical to test whether met variables are included
-      LOGICAL, SAVE :: L_ACONC_WVEL = .FALSE.
       LOGICAL, SAVE :: L_ACONC_RH = .FALSE.
       LOGICAL, SAVE :: L_ACONC_TA = .FALSE.
       LOGICAL, SAVE :: L_ACONC_PRES = .FALSE.
@@ -109,13 +115,16 @@ C RETRIEVE THE SPECIES SAVED TO INTEGRAL AVERAGE CONCENTRATION FILE
                V = V + 1
                ACONC_FILE_SPCS( V ) = TR_SPC( VAR )
             END DO
-            ACONC_FILE_SPCS( V + 1 ) = 'WVEL'
-            ACONC_FILE_SPCS( V + 2 ) = 'RH'
-            ACONC_FILE_SPCS( V + 3 ) = 'TA'
-            ACONC_FILE_SPCS( V + 4 ) = 'PRES'
-            N_ACONC_VARS = V + 4
+            ACONC_FILE_SPCS( V + 1 ) = 'RH'
+            ACONC_FILE_SPCS( V + 2 ) = 'TA'
+            ACONC_FILE_SPCS( V + 3 ) = 'PRES'
+            N_ACONC_VARS = V + 3
          END IF
-
+C  Retrieve CTM_WVEL environmental variable to see if user wants diagnosed vertical velocity
+         IF ( W_VEL ) THEN 
+            ACONC_FILE_SPCS( N_ACONC_VARS + 1 ) = 'WVEL'
+            N_ACONC_VARS = N_ACONC_VARS + 1
+         END IF
 C Retrieve the layer range used in integral average concentration file
          IF ( ACONC_ELEV .EQ. -1 ) ACONC_ELEV = NLAYS
 
@@ -186,7 +195,6 @@ C and the classes must be in the sequence: GC, AE, NR, TR
                         A_TR_SPC( N_A_TR_SPC ) = ACONC_FILE_SPCS( VAR )
                         TR_MAP( N_A_TR_SPC ) = V + OFF
                      ELSE IF ( ACONC_FILE_SPCS( VAR ) .EQ. 'WVEL' ) THEN
-                        L_ACONC_WVEL = .TRUE.
                         ALLOCATE( AVG_WVEL( NCOLS,NROWS,A_NLYS ) )
                      ELSE IF ( ACONC_FILE_SPCS( VAR ) .EQ. 'RH' ) THEN
                         L_ACONC_RH = .TRUE.

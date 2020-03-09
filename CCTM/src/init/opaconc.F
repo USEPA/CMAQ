@@ -23,6 +23,7 @@
 ! Revision History:
 !   D. Wong - July 15: initial version
 !   D. Wong 19 May 2016 - renamed ACONC_END_TIME to AVG_FILE_ENDTIME
+!   F. Sidi 09 Sep 2019 - Replaced L_ACONC_WVEL(depreciated) with W_VEL
 !-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -182,7 +183,7 @@
                VDESC3D( VAR ) = 'Average Molar Mixing Ratio of ' // VNAME3D( VAR )
             END DO
 
-            IF ( L_ACONC_WVEL ) THEN
+            IF ( W_VEL ) THEN
                VAR = VAR + 1 
                VTYPE3D( VAR ) = M3REAL
                VNAME3D( VAR ) = 'WVEL'

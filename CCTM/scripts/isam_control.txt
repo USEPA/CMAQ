@@ -9,14 +9,15 @@
 !!! the chemical mechanism used. The below definitions apply for the cb6r3_ae7_aq mechanism.
 !!!   Choose any/all from the list of nine:  SULFATE, NITRATE, AMMONIUM, EC, OC, VOC, PM25_IONS, CO, OZONE 
 !!!   SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN
-!!!   NITRATE   - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR, CLNO2, CLNO3
+!!!   NITRATE   - ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR, CLNO2, CLNO3
 !!!   AMMONIUM  - ANH4J, ANH4I, NH3
 !!!   EC        - AECJ, AECI
 !!!   OC        - APOCI, APOCJ, APNCOMI, APNCOMJ
 !!!   VOC       - 22 species, check CCTM/src/isam/SA_DEFN.F for species names
-!!!   PM25_IONS - ACLI/J,ANAI/J,AMGJ,AKJ,ACAJ,AFEJ,AALJ,ASIJ,ATIJ,AMNJ,AOTHRI/J
+!!!   PM25_IONS - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ
 !!!   CO        - CO
 !!!   OZONE     - all NITRATE species + all VOC species
+!!!   CHLORINE  - ACLI, ACLJ, HCL
 
 TAG CLASSES     |SULFATE, OZONE
 

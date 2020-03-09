@@ -27,6 +27,7 @@
 * [6.9 Emissions](#6.9_Emissions)
 	* [6.9.1 Emission Streams](#6.9.1_Emission_Streams)
 	* [6.9.2 Online Emission Streams](#6.9.2_Online_Emission)
+	* [6.9.3 Emission Compatability](#6.9.3_Emission_Compatability)
 * [6.10 Gas Phase Chemistry](#6.10_Gas_Phase_Chem)
 	* [6.10.1 Gas Phase Chemical Mechanisms](#6.10.1_Gas_Phase_Mech)
 	* [6.10.2 Solvers](#6.10.2_Solver)
@@ -321,11 +322,18 @@ The RunScript must also specify the location of the input files using three-digi
 setenv GR_EMIS_001 /home/user/path-to-file/emiss_stream_1_${DATE}.nc
 ```
 
-and the short-name label to be used to refer to the Stream in logfiles:
+the short-name label to be used to refer to the Stream in logfiles:
 
 ```
 setenv GR_EMIS_LAB_001 MOBILE
 ```
+
+and if the stream contains data in a representative day fashion (i.e. data from 2016 maybe used to model emissions in 2019 since the diurnal pattern maybe the same for that stream): 
+
+```
+setenv GR_EM_SYM_DATE_001 F
+```
+
 If N_EMIS_GR is set 0, then CMAQ will run with no Gridded emissions even if the values for GR_EMIS_XXX and GR_EMIS_LAB_XXX are all set.
 
 #### Inline Stream (offline):
@@ -347,13 +355,23 @@ setenv STK_EMIS_002 /home/user/path-to-file/inline_emiss_stream_2_${DATE}.nc
 ```
 
 The location to the "stack file" with static information about the properties of each source on the stream:
+
 ```
 setenv STK_GRPS_002 /home/user/path-to-file/inline_stack_groups_2.nc
 ```
-and the short-name label to be used to refer to the Stream in logfiles:
+
+the short-name label to be used to refer to the Stream in logfiles:
+
 ```
 setenv STK_EMIS_LAB_002 POINT_FIRES
 ```
+
+and if the stream contains data in a representative day fashion (i.e. data from 2016 maybe used to model emissions in 2019 since the diurnal pattern maybe the same for that stream): 
+
+```
+setenv STK_EM_SYM_DATE_002 F
+```
+
 If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the values for STK_EMIS_XXX, STK_GRPS_XXX and STK_EMIS_LAB_XXX are all set.
 
 *Plume Rise* - Plume rise can be calculated inline within CMAQ using the Briggs solution as it is implemented in SMOKE and documented in the SMOKE user guide (https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s03.html). It is required that emission files have been processed to include the necessary stack parameters (e.g. exit velocity, diameter, stack gas temperature, stack height, etc.). 
@@ -589,6 +607,29 @@ setenv USE_NLDN N
 ```
 setenv LTNGPARMS_FILE /home/user/path-to-file/LTNG_AllParms_12US1.nc
 ```
+
+<a id=6.9.3_Emission_Compatability></a>
+
+### 6.9.3 Emission Compatability for CMAQv5.3+
+
+<!-- BEGIN COMMENT -->
+
+[Return to Top](#Return_to_Top)
+
+<!-- END COMMENT -->
+
+<a id=PCSOA></a>
+#### Potential Combustion SOA
+Potential Combustion SOA (PCSOA) was added to CMAQv5.2 to account for missing PM2.5 from fossil-fuel combustion sources (Murphy et al., 2017).  PCSOA is not intended to be applied to non-fossil-fuel combustion sources such as residential wood combustion (RWC).  The new DECID option introduced in CMAQv5.3 introduces the ability to read multiple gridd emissions files, allowing RWC to be treated as an entirely separate emissions source from the rest of the gridded emissions.  Using DECID, PCSOA can be applied to the other gridded combustion sources, but not RWC.
+
+[Jump to DESID Appendix](Appendix/CMAQ_UG_appendixB_emissions_control.md) for an introduction to using the Emissions Control Namelist for customization of emissions processing.
+
+[Jump to DESID Tutorial](Tutorials/CMAQ_UG_tutorial_emissions.md) for step by step instructions on performing some basic manipulation of emission streams.
+
+<a id=a-pinene></a>
+#### &#945;-Pinene separated from other monoterpenes
+If using chemical mechanism CB6r3 and aerosol module AERO7 (cb6r3_ae7) with offline biogenic emissions, &#945;-pinene should be separated from all other monoterpenes. This will prevent overestimation in PM2.5 SOA as &#945;-pinene should not make SOA through nitrate radical reaction.  Users can use biogenic emission files created for older model versions by updating the emission control file to separate &#945;-pinene. No action is required for aerosol module AERO6 (any mechanism), in-line biogenics (any mechanism, any aerosol module), or aero7 with SAPRC mechanisms. See the [AERO7 overview release notes](../Release_Notes/aero7_overview.md) for further details. 
+
 <a id=6.10_Gas_Phase_Chem></a>
 
 ## 6.10 Gas Phase Chemistry

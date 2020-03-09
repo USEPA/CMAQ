@@ -1,33 +1,48 @@
-CMAQv5.3 Known Issues
+CMAQv5.3.1 Known Issues
 =====================
 
 This directory contains descriptions and solutions for Known Issues in the [Community Multiscale Air Quality (CMAQ)](http://www.epa.gov/cmaq) modeling system.
-The following issues have been recognized for CMAQv5.3:
+The following issues have been recognized for CMAQv5.3.1:
 
-## *CMAQv5.3-i1:* 
-Date: 2019-09-05
-Contact: Kristen Foley (foley.kristen@epa.gov) 
 
-### Description  
-Setting CTM_WVEL, a run time science option to write out the vertical velocity component to the concentration file, to N. The default setting, currently, is listed as Y in all runscripts within the repository. If the CTM_WVEL science option is set to N, the model immediately crashes. This is because the array that stores the vertical velocity component for writing to the concentration file is never allocated and is being used to calculate the average vertical velocity to be written to the average concentration file.
-
-### Scope and Impact
-The model will terminate execution with a segmentation fault.
-
-### Solution
-Users should leave CTM_WVEL set to Y in all runscripts. A code fix will be included with the next minor CMAQ release.
-
-## *CMAQv5.3-i2:* 
-Date: 2019-09-11
-Contact: David Wong (wong.david-c@epa.gov) 
+## *CMAQv5.3.1-i1:* 
+Date: 12/19/2019
+Contact: Sergey Napelenok (napelenok.sergey@epa.gov)
 
 ### Description  
-The current implementation of the Centralized Input/Output Module only supports BNDY_CONC_1 files that have a time step of 1 hour. Previous versions of CMAQ were able to process boundary condition files with time steps greater than 1 hour. 
+CMAQ-ISAM overcontributes apportionment of secondary gaseous pollutants to the ICON and BCON tags.  As the result, contributions to other tracked sources is underestimated.  
 
 ### Scope and Impact
-If providing a boundary condition file with a time step greater than 1 hour, the model will terminate execution with an error message that the BNDY_CONC_1 cannot be read for the requested time step.
+All secondary gas-phase species (O3, NOx, etc.) in CMAQ-ISAM v5.3 and v5.3.1.
 
 ### Solution
-Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder DOCS/Known_Issues/CMAQv5.3-i2.
-This code fix will also be included with the next minor CMAQ release.
+A modification to the ISAM chemistry algorithms is currenlty in testing.  It will be released in the near future. 
 
+
+## *CMAQv5.3.1-i2:* 
+Date: 2019-12-31
+Contact: David Wong (dwongepa@epa.gov) 
+
+### Description  
+Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration). set to T, will prompt the centralized i/o module to store the start date of the file. However, this information was never passed on to the function used to extract the data from the netCDF file causing an error, as the time is not available on file. The information is now properly passed on to the variable required to extract the data from the netCDF file.
+
+### Scope and Impact
+The model will terminate execution with a time retrieval error. No model results will change.
+
+### Solution
+Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i2](CMAQv5.3.1-i2). Directions on how to replace this file in your repository can be found in [Appendix F of the CMAQ User's Guide](../Users_Guide/Appendix/CMAQ_UG_appendixF_importing_bugfixes.md). This code fix will also be included with the next minor CMAQ release. 
+
+
+## *CMAQv5.3.1-i3:* 
+Date: 2020-01-23
+Contact: Sergey Napelenok (napelenok.sergey@epa.gov)
+
+### Description  
+CMAQ version 5.3.1 release included an inadvertently modified version of EMIS_DEFN.F causing crashes during compiling. 
+
+### Scope and Impact
+The model did not compile with the -Disam option with errors pointing to EMIS_DEFN.F
+
+### Solution
+1. Option 1: Replace CCTM/src/emis/emis/EMIS_DEFN.F in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i3](CMAQv5.3.1-i3). Directions on how to replace this file in your repository can be found in [Appendix F of the CMAQ User's Guide](../Users_Guide/Appendix/CMAQ_UG_appendixF_importing_bugfixes.md). 
+2. Option 2: The code fix to EMIS_DEFN.F was merged into the master branch on 1/23/2020. You can download the updated v5.3.1 source code from this link: https://github.com/USEPA/CMAQ/archive/master.zip, or use git commands to update your current repository. 
