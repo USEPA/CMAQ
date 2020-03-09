@@ -504,7 +504,11 @@ C *** initialize internal and external dimensions of aerosols
 C *** extract grid cell concentrations of aero species from CGRID into aerospc_conc 
 C *** in aero_data module
 C     Also converts dry surface area to wet second moment
+#ifdef sens
+         CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE., CGRID( COL,ROW,:,: ), .FALSE. )
+#else
          CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE. )
+#endif
 
 C *** extract soa concentrations from CGRID
          CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ) )
@@ -1046,7 +1050,11 @@ C *** initialize internal and external dimensions of aerosols
 C *** extract grid cell concentrations of aero species from CGRID into aerospc_conc 
 C *** in aero_data module
 C     Also converts surface area to wet second moment
+#ifdef sens
+         CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE., CGRID( COL,ROW,:,: ), .FALSE. )
+#else
          CALL EXTRACT_AERO ( CGRID( COL,ROW,L,: ), .TRUE. )
+#endif
 
 C *** extract soa concentrations from CGRID
          CALL EXTRACT_SOA ( CGRID( COL,ROW,L,: ) )

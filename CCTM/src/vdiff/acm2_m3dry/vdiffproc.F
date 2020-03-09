@@ -76,6 +76,7 @@ C 03 Mar 16 G.Sarwar: updated for halogen emissions
 C 16 Sep 16 J.Young: update for inline procan (IPR)
 C 02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C  1 Feb 19 D.Wong: removed all MY_N clauses
+C 12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -98,7 +99,9 @@ C-----------------------------------------------------------------------
       USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
 #endif
 
-
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, SENGRID, SPCNAME, S_DDEP, SNGRD, SENGRID_TEMP, SEN_PAR
+#endif 
 
       IMPLICIT NONE
 
@@ -318,6 +321,22 @@ C Set up for grav. settling
             IF ( DDEP_SPC( V ) .EQ. 'NH3' ) NH3_HIT = V
          END DO
 
+#ifdef sens
+         ALLOCATE ( S_DDEP( N_SPC_DEPV,NCOLS,NROWS,NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_DDEP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+         S_DDEP = 0.0
+
+         ALLOCATE ( SNGRD( N_SPC_CGRID,NLAYS,NCOLS,NROWS,NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SNGRD'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         SNGRD = 0.0
+#endif
+
       END IF   !  if Firstime
 
       MDATE = JDATE
@@ -328,6 +347,21 @@ C Set up for grav. settling
 
 C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
+
+#ifdef sens
+      DO NP = 1, NPMAX
+         DO L = 1, NLAYS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  DO S = 1, N_SPC_CGRID
+                     SENGRID_TEMP( C,R,L,S ) = SENGRID( C,R,L,NP,S )
+                  END DO
+               END DO
+            END DO
+         END DO
+         CALL CONV_CGRID ( SENGRID_TEMP,MDATE, MTIME, SNGRD(:,:,:,:,NP) )
+      END DO
+#endif
 
 C read & interpolate met data
       CALL GET_MET ( MDATE, MTIME, MSTEP )
@@ -375,6 +409,9 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
          DDEP = 0.0                      ! array assignment
          ICMP = 0.0                      ! array assignment
          DDEP_NH3 = 0.0
+#ifdef sens
+         S_DDEP = 0.0
+#endif
       END IF
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
@@ -405,6 +442,21 @@ C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual 
 C Revert non-molar mixing ratio species and re-order CGRID
       CALL REV_CGRID ( CNGRD, MDATE, MTIME, CGRID )
 
+#ifdef sens
+      DO NP = 1, NPMAX
+         CALL REV_CGRID ( SNGRD(:,:,:,:,NP), MDATE, MTIME, SENGRID_TEMP )
+         DO L = 1, NLAYS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  DO S = 1, N_SPC_CGRID
+                     SENGRID( C,R,L,NP,S ) = SENGRID_TEMP( C,R,L,S )
+                  END DO
+               END DO
+            END DO
+         END DO
+      END DO
+#endif
+
 C If last call this hour:  write accumulated depositions:
 
       WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
@@ -423,6 +475,14 @@ C If last call this hour:  write accumulated depositions:
                   XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
+
+#ifdef sens
+               IF ( .NOT. OPEN3( CTM_SDRYDEP_1, FSNONIO, PNAME ) ) THEN
+                  XMSG = 'Could not open ' // TRIM(CTM_SDRYDEP_1`)
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+#endif 
+
             END IF   ! .NOT. IO_PE_INCLUSIVE
          END IF
 #endif
@@ -602,6 +662,34 @@ C re-set dry deposition array to zero
          END DO
 
          SA_DDEP = 0.0
+#endif
+
+#ifdef sens
+C WT - write out dry deposition sensitivities
+         DO V = 1, N_SPC_DDEP
+            S = DD2DV( V )
+            SPCNAME = DDEP_SPC( V )( 1:12 )                       ! <- these lines have to
+            DO NP = 1, NPMAX
+               SPCNAME = TRIM( SPCNAME ) //'_' // SEN_PAR( NP )   ! <- match what is in opddep.F
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
+                     WRDD( C,R ) = S_DDEP( S, C, R, NP )
+                  ENDDO
+               ENDDO
+
+               IF ( .NOT. WRITE3( CTM_SDRYDEP_1, SPCNAME,
+     &                 MDATE, MTIME, WRDD ) ) THEN
+                  XMSG = 'Could not write ' // CTM_SDRYDEP_1 // ' file'
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+
+            ENDDO
+         ENDDO
+         WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &         'Timestep written to', CTM_SDRYDEP_1,
+     &         'for date and time', MDATE, MTIME
+
+         S_DDEP = 0.0
 #endif
 
       END IF

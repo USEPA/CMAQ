@@ -180,13 +180,6 @@ setenv EMISDIAG F            #> Print Emission Rates at the output time step aft
                              #>   Note that these diagnostics are different than other emissions diagnostic
                              #>   output because they occur after scaling.
 setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnostic File
-setenv EMIS_SYM_DATE N       #> Master switch for allowing CMAQ to use the date from each Emission file
-                             #>   rather than checking the emissions date against the internal model date.
-                             #>   [options: T | F or Y | N]. If false (F/N), then the date from CMAQ's internal
-                             #>   time will be used and an error check will be performed (recommended). Users 
-                             #>   may switch the behavior for individual emission files below using the variables:
-                             #>       GR_EM_SYM_DATE_## | STK_EM_SYM_DATE_## [default : N ] 
-
  
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
@@ -343,7 +336,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_cmaq_cb6_2014fb_cdc_cb6cmaq_14j.ncf
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
-  setenv GR_EM_SYM_DATE_001 F
+  setenv GR_EM_SYM_DATE_001 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
   #> In-Line Point Emissions Files
   setenv N_EMIS_PT 7          #> Number of elevated source groups
 
@@ -380,6 +373,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   # Allow CMAQ to Use Point Source files with dates that do not
   # match the internal model date
+  # To change default behaviour please see Users Guide for EMIS_SYM_DATE
   setenv STK_EM_SYM_DATE_001 T
   setenv STK_EM_SYM_DATE_002 T
   setenv STK_EM_SYM_DATE_003 T
@@ -485,6 +479,36 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
     endif
  endif
+
+#> CMAQ-DDM-3D
+ setenv CTM_DDM3D N
+ set NPMAX    = 1
+ setenv SEN_INPUT ${WORKDIR}/sensinput.dat
+
+ setenv DDM3D_HIGH N     # allow higher-order sensitivity parameters [ T | Y | F | N ] (default is N/F)
+
+ if ($NEW_START == true || $NEW_START == TRUE ) then
+    setenv DDM3D_RST N   # begins from sensitivities from a restart file [ T | Y | F | N ] (default is Y/T)
+    set S_ICpath =
+    set S_ICfile =
+ else
+    setenv DDM3D_RST Y
+    set S_ICpath = $OUTDIR
+    set S_ICfile = CCTM_SENGRID_${RUNID}_${YESTERDAY}.nc
+ endif
+
+ setenv DDM3D_BCS F      # use sensitivity bc file for nested runs [ T | Y | F | N ] (default is N/F)
+ set S_BCpath =
+ set S_BCfile =
+
+ setenv CTM_NPMAX       $NPMAX
+ setenv CTM_SENS_1      "$OUTDIR/CCTM_SENGRID_${CTM_APPL}.nc -v"
+ setenv A_SENS_1        "$OUTDIR/CCTM_ASENS_${CTM_APPL}.nc -v"
+ setenv CTM_SWETDEP_1   "$OUTDIR/CCTM_SENWDEP_${CTM_APPL}.nc -v"
+ setenv CTM_SDRYDEP_1   "$OUTDIR/CCTM_SENDDEP_${CTM_APPL}.nc -v"
+ setenv CTM_NPMAX       $NPMAX
+ setenv INIT_SENS_1     $S_ICpath/$S_ICfile
+ setenv BNDY_SENS_1     $S_BCpath/$S_BCfile
  
 # =====================================================================
 #> Output Files
@@ -543,6 +567,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
         set OUT_FILES = (${OUT_FILES} ${SA_ACONC_1} ${SA_CONC_1} ${SA_DD_1} ${SA_WD_1}      \
                          ${SA_CGRID_1} )
+     endif
+  endif
+  if ( $?CTM_DDM3D ) then
+     if ( $CTM_DDM3D == 'Y' || $CTM_DDM3D == 'T' ) then
+        set OUT_FILES = (${OUT_FILES} ${CTM_SENS_1} ${A_SENS_1} ${CTM_SWETDEP_1} ${CTM_SDRYDEP_1} )
      endif
   endif
   set OUT_FILES = `echo $OUT_FILES | sed "s; -v;;g" `

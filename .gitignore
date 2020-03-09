@@ -66,4 +66,8 @@ UTIL/inline_phot_preproc/bldrun.log
 #user specific scripts
 /scripts/
 
+
 #unique to user; below section unlikely to add and commit to repository
+bldit_project.csh
+
+

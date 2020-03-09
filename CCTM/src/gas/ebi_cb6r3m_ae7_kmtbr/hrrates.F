@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CB6R3M_AE7_KMTBR mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
+C  REVISION HISTORY: Created by EBI solver program, Jan  9, 2020
 C
 C***********************************************************************
       USE HRDATA

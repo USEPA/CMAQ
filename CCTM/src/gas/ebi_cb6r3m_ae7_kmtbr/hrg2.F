@@ -28,7 +28,7 @@ C  PRECONDITIONS: For the CB6R3M_AE7_KMTBR mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
+C  REVISION HISTORY: Created by EBI solver program, Jan  9, 2020
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************
@@ -167,7 +167,6 @@ c..Production of HO2 from OH ( r5,4 terms )
      &     +                 RKI(   352 ) * YC ( BRO          )   ! OH+BRO=HO2+BR
      &     +                 RKI(   365 ) * YC ( MB2          )   ! OH+MB2=HO2+...
      &     +                 RKI(   368 ) * YC ( MBC          )   ! OH+MBC=HO2+CL+CO+BR
-     &     +                 RKI(   440 ) * YC ( DMS          )   ! OH+DMS=HO2+...
 
       R5_4  = R5_4 * DTC
 
@@ -325,6 +324,7 @@ c..OH loss terms not in R5_4 & R19_4
      &   +                 RKI(   389 ) * YC ( HOI          )   ! OH+HOI=IO
      &   +                 RKI(   411 ) * YC ( CH3I         )   ! OH+CH3I=I+FORM
      &   +                 RKI(   439 ) * YC ( DMS          )   ! OH+DMS=SO2+MEO2+FORM
+     &   +                 RKI(   440 ) * YC ( DMS          )   ! OH+DMS=0.7500D+...
 
       L4    = 1.0D0 + L4 * DTC + R5_4 + R19_4
 

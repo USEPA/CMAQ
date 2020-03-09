@@ -52,6 +52,7 @@ C     4 Oct 2019 D.Wong: fixed the time advancement, NEXTIME, for a multi-day ru
 C                        GRIDEMIS
 C     22 Nov 2019 F. Sidi: Re-introduced date override variable for representative
 C                          Day Emissions
+C     16 Dec 2019 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
@@ -100,6 +101,10 @@ C-----------------------------------------------------------------------
 #ifdef isam
          USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, NTAG_SA, SA_VDEMIS_DIFF_ALL, NSPC_SA,
      &                       SA_VDEMIS_DIFF_OTHER
+#endif
+
+#ifdef sens
+        USE DDM3D_DEFN, ONLY: NP, NPMAX, SVDEMIS_DIFF
 #endif
 
          IMPLICIT NONE
@@ -229,6 +234,15 @@ C Allocate Space for Master Emissions Computation
          END IF
 #endif
 
+#ifdef sens
+         ALLOCATE ( SVDEMIS_DIFF( N_SPC_DIFF,EMLAYS,NCOLS,NROWS,NPMAX ),STAT = STATUS )
+         IF ( STATUS .NE. 0 ) THEN
+            XMSG = 'SVDEMIS_DIFF memory allocation failed'
+            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+#endif
+
 C Return From Initialization
          SUCCESS = .TRUE.; RETURN
 
@@ -269,6 +283,13 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE VDIFF_MAP, ONLY : DIFF_MAP, DIFF_SPC
 #endif
 
+#ifdef sens
+         USE DDM3D_DEFN, ONLY: NP, NPMAX, SVDEMIS_DIFF, IPT, SENNUM,
+     &                         S_STREAMLBL, S_NSTREAMS, IPARM, IREGION,
+     &                         STREAM_TO_SENS, SENS_PER_STREAM
+         USE VDIFF_MAP, ONLY : DIFF_MAP
+#endif
+
          IMPLICIT NONE
 
 C Includes:
@@ -291,7 +312,8 @@ C Local Variables:
          CHARACTER( 16 ) :: VNAME
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ):: XMSG = ' '
-         INTEGER         :: ERROR_NEG, MDATE, MTIME
+         INTEGER         :: ERROR_NEG
+         INTEGER, SAVE   :: WSTEP, MDATE, MTIME
          LOGICAL         :: WRTIME
          LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
 
@@ -366,24 +388,11 @@ C Find emissions stream in the list of available streams
 
             END DO
 
-c           write(logdev,*) " =-= ISAM emissions mapping "
-c           write(logdev,*) "     Stream, Tags for this stream "
-c           DO ISRM = 1,N_EM_SRM 
-c             write(logdev,'(i2,1x,a12,999(i2,1x))') ISRM, EM_FILE_LAB(ISRM), STREAM_TO_TAG(ISRM,1:TAGS_PER_STREAM(ISRM))
-c           END DO
-
 C Develop a map of emitted/diffused ISAM species
             MAP_DIFFtoSA = 0
             DO SPC = 1, NSPC_SA
               MAP_DIFFtoSA( SPC ) = INDEX1(TRIM(SPC_NAME(SPC,1)), N_SPC_DIFF, DIFF_SPC )
             END DO
-
-c           write(logdev,*) " =-= ISAM emissions species mapping "
-c           write(logdev,*) " Spc#, Spc Name, Map#"
-c           DO SPC = 1, NSPC_SA
-c             write(logdev,*) SPC, SPC_NAME(SPC,1), MAP_DIFFtoSA( SPC )
-c           END DO
-
 
 C Initialize geographic regions for ISAM tagging
             ALLOCATE( ISAMRGN( NTAG_SA, N_EM_RGN ) )
@@ -423,27 +432,60 @@ C Map the user specified ISAM regions to available CMAQ regions
 
             END DO
 
-c           write(logdev,*) " =-= ISAM regions mapping "
-c           write(logdev,*) "     Tag, Regions for this tag " 
-c           DO ITAG = 1, NTAG_SA-3
-c             write(logdev,'(i2,1x,999(a12,1x))') ITAG, ISAMRGN(ITAG, 1:ISAMRGN_NUM(ITAG))
-c           END DO
-
 #endif
-         END IF
+
+#ifdef sens
+            ALLOCATE( STREAM_TO_SENS( N_EM_SRM, NPMAX ),
+     &                SENS_PER_STREAM( N_EM_SRM ))
+            STREAM_TO_SENS = 0
+            SENS_PER_STREAM = 0
+
+            DO NP = 1, NPMAX
+              IF ( IPT ( NP ) .EQ. 3 ) THEN ! This is an emissions sensitivity
+                IF ( S_NSTREAMS(NP) .EQ. 99 ) THEN ! all emissions streams
+                  S_NSTREAMS(NP) = N_EM_SRM
+                  S_STREAMLBL(NP,1:N_EM_SRM)=EM_FILE_LAB(1:N_EM_SRM)
+                END IF
+                DO ISRM = 1, S_NSTREAMS(NP)
+                  SENNUM = INDEX1(S_STREAMLBL(NP,ISRM),N_EM_SRM,EM_FILE_LAB)
+                  IF ( SENNUM .EQ. 0 ) THEN
+                    XMSG = " User specified DDM Emissions Stream - " //
+     &                    TRIM( S_STREAMLBL(NP,ISRM) )//
+     &                    " - not found in available emissions streams "
+                    CALL M3EXIT( 'ISAM_STREAMS', 1, 1, XMSG, XSTAT1 )
+                  ELSE
+                    SENS_PER_STREAM( SENNUM ) = SENS_PER_STREAM( SENNUM ) + 1
+                    STREAM_TO_SENS(SENNUM,SENS_PER_STREAM( SENNUM )) = NP
+                  END IF
+                END DO
+              END IF
+            END DO
+#endif
+            ! Initialize Diagnostic Write Counter
+            WSTEP = 0 
+            MDATE = STDATE
+            MTIME = STTIME
+         END IF  ! First Time
 
 C Initialize Emissions Array
          VDEMIS_DIFF = 0.0
+
          WRTIME = .FALSE.
-         MTIME = JTIME
-         MDATE = JDATE
-         CALL NEXTIME( MDATE, MTIME,  SEC2TIME( TIME2SEC( TSTEP( 2 ) ) / 2 ) )
-         IF ( MOD( TIME2SEC( MTIME ), TIME2SEC( TSTEP( 1 ) ) ) .EQ. 0 ) WRTIME = .TRUE.
+         WSTEP  = WSTEP + TIME2SEC( TSTEP( 2 ) )
+         WRTIME = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
+         IF ( WRTIME ) THEN 
+           WSTEP = 0
+           CALL NEXTIME( MDATE, MTIME,  TSTEP( 1 ) )
+         END IF
 
 #ifdef isam
-        SA_VDEMIS_DIFF = 0.0
-        SA_VDEMIS_DIFF_ALL = 0.0
-        SA_VDEMIS_DIFF_OTHER = 0.0
+         SA_VDEMIS_DIFF = 0.0
+         SA_VDEMIS_DIFF_ALL = 0.0
+         SA_VDEMIS_DIFF_OTHER = 0.0
+#endif
+
+#ifdef sens
+        SVDEMIS_DIFF = 0.0
 #endif
 
 C Retrieve Emissions from All Stream Types
@@ -548,15 +590,27 @@ C Retrieve Emissions from All Stream Types
                    SA_VDEMIS_DIFF_OTHER = 0.0
                  ELSE
                    DO RGN = 1, ISAMRGN_NUM( ITAG )
-                     SA_VDEMIS_DIFF_ALL( 1:N_SPC_DIFF,1:NL,:,:,ITAG ) = 
-     &                    SA_VDEMIS_DIFF_ALL( 1:N_SPC_DIFF,1:NL,:,:,ITAG )
-     &                       + VDEMIS_CONV( 1:N_SPC_DIFF,1:NL,:,: )
-     &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
-            
-                     SA_VDEMIS_DIFF_OTHER( 1:N_SPC_DIFF,1:NL,:,: ) = 
-     &                    SA_VDEMIS_DIFF_OTHER( 1:N_SPC_DIFF,1:NL,:,: )
-     &                       - VDEMIS_CONV( 1:N_SPC_DIFF,1:NL,:,: )
-     &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+c                    SA_VDEMIS_DIFF_ALL( 1:N_SPC_DIFF,1:NL,:,:,ITAG ) = 
+c    &                    SA_VDEMIS_DIFF_ALL( 1:N_SPC_DIFF,1:NL,:,:,ITAG )
+c    &                       + VDEMIS_CONV( 1:N_SPC_DIFF,1:NL,:,: )
+c    &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+c           
+c                    SA_VDEMIS_DIFF_OTHER( 1:N_SPC_DIFF,1:NL,:,: ) = 
+c    &                    SA_VDEMIS_DIFF_OTHER( 1:N_SPC_DIFF,1:NL,:,: )
+c    &                       - VDEMIS_CONV( 1:N_SPC_DIFF,1:NL,:,: )
+c    &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+                     DO LAYER = 1, NL
+                       DO SPC = 1, N_SPC_DIFF
+      SA_VDEMIS_DIFF_ALL( SPC,LAYER,:,:,ITAG ) = SA_VDEMIS_DIFF_ALL( SPC,LAYER,:,:,ITAG )
+     &                                         + VDEMIS_CONV( SPC,LAYER,:,: )
+     &                                         * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+
+      SA_VDEMIS_DIFF_OTHER( SPC,LAYER,:,: ) = SA_VDEMIS_DIFF_OTHER( SPC,LAYER,:,: )
+     &                                      - VDEMIS_CONV( SPC,LAYER,:,: )
+     &                                      * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+
+                       END DO
+                     END DO
                    END DO
                  END IF
                END DO
@@ -579,7 +633,19 @@ C Retrieve Emissions from All Stream Types
              END IF
 
            END IF
-#endif 
+#endif
+
+
+#ifdef sens
+           IF ( SENS_PER_STREAM( ISRM ) .GT. 0 ) THEN ! This stream is used by DDM3D
+
+             DO SENNUM = 1, SENS_PER_STREAM( ISRM )
+               NP = STREAM_TO_SENS( ISRM,SENNUM )
+               SVDEMIS_DIFF( :,1:NL,:,:,NP ) = SVDEMIS_DIFF( :,1:NL,:,:,NP ) 
+     &                                       + VDEMIS_CONV(:,1:NL,:,: )
+             END DO
+           END IF
+#endif
          END DO 
 
 #ifdef isam
@@ -590,9 +656,22 @@ C Retrieve Emissions from All Stream Types
      &            SA_VDEMIS_DIFF_ALL( MAP_DIFFtoSA( SPC ),:,:,:,: )
            END IF
          END DO
+#endif 
 
-#endif  
-         ! Check for Negative Emission Rates in Final Array
+#ifdef sens
+C Subset the emissions array for DDM-3D (by species and region)
+         DO NP = 1, NPMAX
+           DO S = 1, N_SPC_DIFF
+             DO L = 1, EMLAYS
+               SVDEMIS_DIFF( S,L,:,:,NP ) = 
+     &                        SVDEMIS_DIFF( S,L,:,:,NP )
+     &                      * IREGION( :,:,L,NP )
+     &                      * IPARM( NP, DIFF_MAP( S ) )
+             END DO
+           END DO
+         END DO
+#endif
+
          ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
          
          ! Write Out the Sum of All Emissions to Gridded Diagnostic File
@@ -1040,8 +1119,9 @@ C-----------------------------------------------------------------------
       DO L = 1,NL
         CNVTC( L,:,: ) = 1.0E3 / ( CNVTI( L ) * Met_Data%RRHOJ( :,:,L ) )   ! Gas Moles: ppmv/s -> mol/s
         CONVM( L,:,: ) = (1.0 / MWAIR) * GPKG * Met_Data%DENS( :,:,L )      ! Aer. Mass: ppmv/s -> umol/s
-      END DO                                                                ! m2/mol/s -> m2/s
-      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) / RAVO / 1.0E+12                ! Aer. Num:  N/molec/s -> N/s
+     &                   / Met_Data%RJACM( :,:,L ) * CELLVOL( L )           ! m2/mol/s -> m2/s
+      END DO                                                                
+      CONVN( 1:NL,:,: ) = CONVM( 1:NL,:,: ) / RAVO / 1.0E+6                 ! Aer. Num:  N/molec/s -> N/s
 
       !MAKE SURE TO APPLY RELEVANT UNIT CONVERSION TO EACH
       !TYPE OF VARIABLE (GAS, AEROSOL MASS, AEROSOL NUMBER,
@@ -2257,8 +2337,7 @@ C and allowing the model to proceed.
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
      &              'Please correct them to proceed.'
-            CALL LOG_MESSAGE( OUTDEV, XMSG )
-            STOP
+            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
          END IF
           
          ! Check for Time Units
@@ -2286,8 +2365,7 @@ C and allowing the model to proceed.
      &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
      &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
      &              'Please correct them to proceed.'
-            CALL LOG_MESSAGE( OUTDEV, XMSG )
-            STOP
+            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
          END IF
 
          END SUBROUTINE CHECK_EMIS_UNITS
@@ -2314,8 +2392,7 @@ C and allowing the model to proceed.
              WRITE( XMSG,'(A,I3,A,A1)' ),
      &              'ERROR: OP parameter for rule ',IRULE,
      &              ' has invalid value: ',OP
-             CALL LOG_MESSAGE( OUTDEV, XMSG )
-             STOP
+             CALL M3EXIT( 'CHECK_OP (EMIS_DEFN)', 0, 0, XMSG, 2 )
          END IF
 
          END SUBROUTINE CHECK_OP
@@ -2345,8 +2422,7 @@ C and allowing the model to proceed.
              WRITE( XMSG,'(A,I3,A,A4)' ),
      &              'ERROR: BASIS parameter for rule ',IRULE,
      &              ' has invalid value: ',BASIS
-             CALL LOG_MESSAGE( OUTDEV, XMSG )
-             STOP
+             CALL M3EXIT( 'CHECK_BASIS (EMIS_DEFN)', 0, 0, XMSG, 2 )
          END IF
 
          END SUBROUTINE CHECK_BASIS
@@ -2798,16 +2874,16 @@ C stkemis_init.
              VNAME3D( V ) = DIFF_SPC( IVAR )
              IF ( DIFF_MASK_GAS( IVAR ) ) THEN
                     ! GAS SPECIES
-                    UNITS3D( V ) = 'mol/s'
+                    UNITS3D( V ) = 'mol s-1'
              ELSE IF ( DIFF_MASK_NUM( IVAR ) ) THEN
                     ! AEROSOL NUMBER SPECIES
-                    UNITS3D( V ) = 'particles/s'
+                    UNITS3D( V ) = 'particles s-1'
              ELSE IF ( DIFF_MASK_SRF( IVAR ) ) THEN
                     ! AEROSOL SURFACE AREA SPECIES
-                    UNITS3D( V ) = 'm2/s'
+                    UNITS3D( V ) = 'm2 s-1'
              ELSE
                     ! AEROSOL MASS SPECIES
-                    UNITS3D( V ) = 'g/s'
+                    UNITS3D( V ) = 'g s-1'
              END IF
             
              VDESC3D( V ) = 'Emission Rate of ' // TRIM( VNAME3D( V ) )
