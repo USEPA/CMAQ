@@ -66,6 +66,18 @@ error while loading shared libraries  …  cannot open shared object file …
 ```
 
 * Set the $LD_LIBRARY_PATH in your .cshrc to include the location of your netCDF and netCDFF library shared object files. 
+* Note: your .cshrc file should be located in your home directory
+
+* Change directories to your home directory
+```
+cd ~
+```
+* View the contents of your .cshrc
+```
+more .cshrc
+```
+
+* Edit your .cshrc to set the LD_LIBRARY_PATH to include the location of the netcdf libraries
 * Note this path is dependent on what compiler you used, replace intel with gcc if you used gnu rather than the intel compiler.
 ```
 setenv NCDIR {CMAQ_HOME}/lib/x86_64/intel/netcdf
