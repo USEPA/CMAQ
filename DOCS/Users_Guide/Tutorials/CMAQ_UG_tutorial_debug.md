@@ -54,9 +54,7 @@ IF you use slurm, with the sbatch command to submit the job, the standard error 
 > grep -i 'PROGRAM COMPLETED SUCCESSFULLY' slurm-*.out
 ```
 
-* If the program completes successfully, then there should be no errors in the per processor log files.
-
-#### Use grep to check for any errors in the per processor log files
+#### Use grep to check for any errors in the slurm standard output files.
 ```
 > grep -i 'error' slurm-*.out
 ```
@@ -76,12 +74,15 @@ setenv LD_LIBRARY_PATH ${NCDIR}/lib:$NCFDIR/lib:${LD_LIBRARY_PATH}
 ```
 
 #### If the program did not completed successfully for another reason, you will need to check the per processor log files which begin with the name: CTM_LOG_*.
-These files may either be located in the run directory, if the run script was aborted, or they may have been moved by the run script to a LOGS directory under the output directory. 
+* These files may either be located in the run directory, if the run script was aborted
+* Or they may have been moved by the run script to a LOGS directory under the output directory. 
 
-#### Change directory to the location where the CTM_LOG* log files are located:
+#### Look in the following locations for the CTM_LOG* log files:
 ```
 cd $CMAQ_HOME/CCTM/scripts
+```
 or
+```
 cd $CMAQ_HOME/data/LOGS
 ```
 
