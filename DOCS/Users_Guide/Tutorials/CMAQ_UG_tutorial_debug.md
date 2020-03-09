@@ -138,14 +138,17 @@ The Category will be pre-selected if you start a new topic request from within a
 #### Selecting a category is important, as the CMAS Center and EPA staff are only monitoring topics submitted within a category that matches their expertise.
  
 #### Type in a title for your topic that describes your CMAQ compiler environment
-Example: CMAQv5.3.1 segmentation fault using gcc and openmpi
+Example Title: 
+```
+CMAQv5.3.1 segmentation fault using gcc and openmpi
+```
 
 #### In the body provide the output from the following commands
 * Report the compiler and version used to run CMAQ
 ```
 > mpif90 --version
 ```
-Example output:
+Example Compiler Version:
 ```
 GNU Fortran (GCC) 9.1.0
 ```
@@ -154,13 +157,13 @@ GNU Fortran (GCC) 9.1.0
 ```
 > ls */*.exe
 ```
-Example output:
+Example CMAQ version:
 ```
 BLD_CCTM_v531_intel/CCTM_v531.exe
 ```
 
 * Report the name of the run script if it is a benchmark case, or report the Domain and resolution
-Example output:
+Example CMAQ run script:
 ```
 run_cctm_Bench_2016_12SE1.csh
 ```
@@ -174,9 +177,14 @@ The following grep command -B NUM, prints NUM lines before the error statement i
 >grep -B 5 -i error CTM_LOG*
 ```
 
-* Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:
+### Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:
 * your run script
 * standard out log file
 * per-processor log file that contains the error message.
+* Note You will need to rename any files to match one of the following extensions (jpg, jpeg, png, gif, csh, txt, csv), for instance, copy cmaq.log to cmaq.log.txt
 
-#### When someone replies to your topic, you will receive an e-mail notification. Please click on the “VISIT TOPIC” button in your e-mail to return to your CMAS Center Forum Issue and reply to any follow-up questions or suggestions. 
+```
+cp CTM_LOG_000.v531_intel_Bench_2016_12SE1_20160701 CTM_LOG_000.v531_intel_Bench_2016_12SE1_20160701.txt
+```
+
+### When someone replies to your topic, you will receive an e-mail notification. Please click on the “VISIT TOPIC” button in your e-mail to return to your CMAS Center Forum Issue and reply to any follow-up questions or suggestions. 
