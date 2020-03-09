@@ -14,8 +14,8 @@ ls */*.exe
 
 ### Inspecting CMAQ Build log files:
 ```
-> grep -i error  bldit_cctm.log
-> tail bldit_cctm.log
+grep -i error  bldit_cctm.log
+tail bldit_cctm.log
 ```
 
 ### If you encounter an error building CMAQ
@@ -37,7 +37,7 @@ See the [following instructions for creating a new topic](https://github.com/liz
 
 #### Check the output log file in the run directory to see if it has completed successfully
 ```
-> cd $CMAQ_HOME/CCTM/scripts
+cd $CMAQ_HOME/CCTM/scripts
 ```
 
 #### The type of output log file that is created depends on how you submit the job.
@@ -46,18 +46,18 @@ IF you use slurm, with the sbatch command to submit the job, the standard error 
 #### Use grep to verify how many processors were used to run cmaq
 
 ```
-> grep -i ‘Number of Processors’ slurm-*.out
+grep -i ‘Number of Processors’ slurm-*.out
 ```
 
 #### Use grep to determine if CMAQ completed successfully.
 
 ```
-> grep -i 'PROGRAM COMPLETED SUCCESSFULLY' slurm-*.out
+grep -i 'PROGRAM COMPLETED SUCCESSFULLY' slurm-*.out
 ```
 
 #### Use grep to check for any errors in the slurm log files.
 ```
-> grep -i 'error' slurm-*.out
+grep -i 'error' slurm-*.out
 ```
 
 ### If your run error contains the following message:
@@ -101,21 +101,21 @@ cd $CMAQ_HOME/data/LOGS
 
 #### Determine the number of log files that exist using the ls command and word count command
 ```
-> ls CTM_LOG* | wc
+ls CTM_LOG* | wc
 ```
 
 * There should be 1 log command for each processor used to run CMAQ for each day.
 
 #### Use the grep command to determine if the message “PROGRAM COMPLETED SUCCESSFULLY” is at the bottom of all of the log files.
 ```
-> grep -i 'PROGRAM COMPLETED SUCCESSFULLY' CTM_LOG* | wc
+grep -i 'PROGRAM COMPLETED SUCCESSFULLY' CTM_LOG* | wc
 ```
 
 * If you ran the program on 16 processors, you should see a word count of 16 files that contain this message for each day that you run the model.
 * If there were fewer findings of the successful run command message than the number of processors that were used to run CMAQ:
 Use the grep command to find an error in any of the files
 ```
-> grep -i error CTM_LOG*
+grep -i error CTM_LOG*
 ```
 
 ### If you encounter an error running CMAQ.
@@ -146,7 +146,7 @@ CMAQv5.3.1 segmentation fault using gcc and openmpi
 #### In the body provide the output from the following commands
 * Report the compiler and version used to run CMAQ
 ```
-> mpif90 --version
+mpif90 --version
 ```
 
 * Example Compiler Version:
@@ -156,7 +156,7 @@ GNU Fortran (GCC) 9.1.0
 
 * Report the version of CMAQ that you are using.
 ```
-> ls */*.exe
+ls */*.exe
 ```
 
 * Example CMAQ version:
@@ -172,11 +172,11 @@ run_cctm_Bench_2016_12SE1.csh
 
 * Report a limited amount of the error message contents in the body of the issue with output obtained by using the following commands:
 ```
-> cd $CMAQ_HOME/data/{YOUR_OUTPUT_DIR}/LOGS/
+cd $CMAQ_HOME/data/{YOUR_OUTPUT_DIR}/LOGS/
 ```
 * The following grep command -B NUM, prints NUM lines before the error statement is found.
 ```
->grep -B 5 -i error CTM_LOG*
+grep -B 5 -i error CTM_LOG*
 ```
 
 ### Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:
