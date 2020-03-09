@@ -670,6 +670,7 @@ C Variables for converting emission rates into molar-mixing-ratio units
 
 C-------------------------------------------------------------------------------------------------------
       Type mode_type
+         Character( 3  ) :: suff         ! Suffix
          Character( 16 ) :: num_name     ! name of aerosol number variable
          Character( 16 ) :: srf_name     ! name of aerosol surface area variable
          Real            :: min_numconc  ! minimum number concentration
@@ -678,12 +679,12 @@ C-------------------------------------------------------------------------------
       End Type mode_type
 
       Type ( mode_type ), Parameter  :: aeromode( n_mode ) = (/
-C                   number     surface   minimum minimum minimum
-C                    name       name     numconc  m2conc  m3conc
-C                  ----------  -------  -------- -------  ------
-     &   mode_type('NUMATKN', 'SRFATKN', conmin,  conmin, conmin),
-     &   mode_type('NUMACC ', 'SRFACC ', conmin,  conmin, conmin),
-     &   mode_type('NUMCOR ', 'SRFCOR ', conmin,  conmin, conmin)/)
+C                  suffix   number     surface   minimum minimum minimum
+C                            name       name     numconc  m2conc  m3conc
+C                  ------- ----------  -------  -------- -------  ------
+     &   mode_type('AIT'  ,'NUMATKN', 'SRFATKN', conmin,  conmin, conmin),
+     &   mode_type('ACC'  ,'NUMACC ', 'SRFACC ', conmin,  conmin, conmin),
+     &   mode_type('COR'  ,'NUMCOR ', 'SRFCOR ', conmin,  conmin, conmin)/)
 
 
       Real          :: moment0_conc( n_mode )     ! 0th moment concentration
@@ -714,11 +715,21 @@ C Mapping for loading from and unloading to CGRID array
       Integer              :: aeronum_map( n_mode )  ! indices of aero number variable to CGRID
       Integer              :: aerosrf_map( n_mode )  ! indices of aero surf area variable to CGRID
 
+! Diagnostic Aerosol Distribution Parameters 
+      Logical, Save :: L_AERODIST_PARAMS
+      Real :: wet_aero_diam( n_mode )
+      Real :: dry_aero_diam( n_mode )
+      Real :: wet_aero_m2  ( n_mode )
+      Real :: dry_aero_m2  ( n_mode )
+      Real :: wet_aero_m3  ( n_mode )
+      Real :: dry_aero_m3  ( n_mode )
+      Real :: wet_aero_dens( n_mode )
+      Real :: dry_aero_dens( n_mode )
+
 C Missing aerosol species map
       Logical, Allocatable :: aero_missing( :,: )  
-
-      Logical, Save :: V51_SOA_mechanism   = .False. !
       Logical, Save :: AE_eflag            = .False. ! error flag for AERO_DATA
+
 C IC/BC Correction Mapping
       !The following vectors store masks of the aerosol species
       !identities. For example, LBCNUM stores 1's for every species that
@@ -1652,5 +1663,57 @@ C Local variables:
       ENDDO
 
       End Subroutine CHECK_AERO_ICBC
+
+!-----------------------------------------------------------------------
+      Subroutine CALC_AERODIST_PARAMS( )
+
+! Subroutine calculates the dry and wet aerosol distribution parameters
+!     and stores them in public arrays to be passed to the diagnostic 
+!     array.
+!-----------------------------------------------------------------------
+ 
+      IMPLICIT NONE
+
+
+      IF ( WET_MOMENTS_FLAG ) THEN
+
+         WET_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
+         WET_AERO_M2  ( : ) = MOMENT2_CONC( : )
+         WET_AERO_M3  ( : ) = MOMENT3_CONC( : )
+         WET_AERO_DENS( : ) = AEROMODE_DENS( : )
+
+         CALL CALCMOMENTS( .FALSE. )
+         CALL GETPAR( FIXED_sg )
+
+         DRY_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
+         DRY_AERO_M2  ( : ) = MOMENT2_CONC( : )
+         DRY_AERO_M3  ( : ) = MOMENT3_CONC( : )
+         DRY_AERO_DENS( : ) = AEROMODE_DENS( : )
+
+         CALL CALCMOMENTS( .TRUE. )
+         CALL GETPAR( FIXED_sg )
+
+      ELSE
+         DRY_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
+         DRY_AERO_M2  ( : ) = MOMENT2_CONC( : )
+         DRY_AERO_M3  ( : ) = MOMENT3_CONC( : )
+         DRY_AERO_DENS( : ) = AEROMODE_DENS( : )
+
+         CALL CALCMOMENTS( .TRUE. )
+         CALL GETPAR( FIXED_sg )
+
+         WET_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
+         WET_AERO_M2  ( : ) = MOMENT2_CONC( : )
+         WET_AERO_M3  ( : ) = MOMENT3_CONC( : )
+         WET_AERO_DENS( : ) = AEROMODE_DENS( : )
+
+         CALL CALCMOMENTS( .FALSE. )
+         CALL GETPAR( FIXED_sg )
+
+      END IF
+
+      L_AERODIST_PARAMS = .TRUE.
+
+      END SUBROUTINE CALC_AERODIST_PARAMS
 
       End Module aero_data

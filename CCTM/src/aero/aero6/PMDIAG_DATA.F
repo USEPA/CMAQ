@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      MODULE PMDIAG_DATA_MODULE
+      MODULE PMDIAG_DATA
 
 c-----------------------------------------------------------------------
 c Revision History:
@@ -26,57 +26,51 @@ c David Wong 11 May 16: created
 c-----------------------------------------------------------------------
 
         IMPLICIT NONE
+         
+        ! Define Logical values as T and F for the aerospc table
+        Logical, Parameter, Private :: T = .true.
+        Logical, Parameter, Private :: F = .false.
 
-        TYPE PMDIAG_SPC_RECORD_TYPE
-          CHARACTER (LEN = 16) :: SPC_NAME
-          INTEGER              :: VAR_TYPE
-          CHARACTER (LEN = 16) :: SPC_UNIT
-          CHARACTER (LEN = 80) :: SPC_DESC
-        END TYPE PMDIAG_SPC_RECORD_TYPE
+        LOGICAL, SAVE :: L_PMDIAG
+        INTEGER, SAVE :: PMDIAG_AVRG_STEP = 0
 
-        TYPE (PMDIAG_SPC_RECORD_TYPE), PARAMETER :: PMDIAG_SPC_RECORD(41) = (/
-     &    PMDIAG_SPC_RECORD_TYPE( 'STDEVATKN       ', 5, '                ', 'Aitken mode standard deviation (dry and wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'STDEVACC        ', 5, '                ', 'Acc. mode standard deviation (dry and wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'STDEVCOR        ', 5, '                ', 'Coarse mode standard deviation (dry and wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'DGATKN_DRY      ', 5, 'um              ', 'Aitken mode mean diameter (dry)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'DGACC_DRY       ', 5, 'um              ', 'Accumulation mode mean diameter (dry)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'DGCOR_DRY       ', 5, 'um              ', 'Coarse mode mean diameter (dry)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'DGATKN_WET      ', 5, 'um              ', 'Aitken mode mean diameter (wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'DGACC_WET       ', 5, 'um              ', 'Accumulation mode mean diameter (wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'DGCOR_WET       ', 5, 'um              ', 'Coarse mode mean diameter (wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'M2ATKN_WET      ', 5, 'm2 m-3          ', 'Aitken mode 2nd moment (wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'M2ACC_WET       ', 5, 'm2 m-3          ', 'Accumulation mode 2nd moment (wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'M2COR_WET       ', 5, 'm2 m-3          ', 'Coarse mode 2nd moment (wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'M3ATKN_DRY      ', 5, 'm3 m-3          ', 'Aitken mode 3rd moment (dry)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'M3ACC_DRY       ', 5, 'm3 m-3          ', 'Accumulation mode 3rd moment (dry)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'M3COR_DRY       ', 5, 'm3 m-3          ', 'Coarse mode 3rd moment (dry)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'M3ATKN_WET      ', 5, 'm3 m-3          ', 'Aitken mode 3rd moment (wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'M3ACC_WET       ', 5, 'm3 m-3          ', 'Accumulation mode 3rd moment (wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'M3COR_WET       ', 5, 'm3 m-3          ', 'Coarse mode 3rd moment (wet)' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'RH              ', 5, '1               ', 'Relative humidity' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'PM1AT           ', 5, '1               ', 'PM1 fraction of Aitken mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'PM1AC           ', 5, '1               ', 'PM1 fraction of accumulation mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'PM1CO           ', 5, '1               ', 'PM1 fraction of coarse mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'PM25AT          ', 5, '1               ', 'PM2.5 fraction of Aitken mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'PM25AC          ', 5, '1               ', 'PM2.5 fraction of accumulation mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'PM25CO          ', 5, '1               ', 'PM2.5 fraction of coarse mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'PM10AT          ', 5, '1               ', 'PM10 fraction of Aitken mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'PM10AC          ', 5, '1               ', 'PM10 fraction of accumulation mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'PM10CO          ', 5, '1               ', 'PM10 fraction of coarse mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'AMSAT           ', 5, '1               ', 'AMS Transmission Fraction of Aitken mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'AMSAC           ', 5, '1               ', 'AMS Transmission Fraction of Accumulation mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'AMSCO           ', 5, '1               ', 'AMS Transmission Fraction of Coarse mode' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_N2O5      ', 5, '1               ', 'Fine Mode N2O5 Heterogeneous rxn probability' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_N2O5K     ', 5, '1               ', 'Coarse Mode N2O5 Heterogeneous rxn probability' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'YIELD_CLNO2     ', 5, '1               ', 'Fine Mode CLNO2 Heterogeneous reaction yield' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'YIELD_CLNO2K    ', 5, '1               ', 'Coarse Mode CLNO2 Heterogeneous reaction yield' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_IEPOX     ', 5, '1               ', 'IEPOX heterogeneous uptake coefficient' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'DENS_ATKN       ', 5, 'kg m-3          ', 'Bulk Density of Aitken-Mode Particles' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'DENS_ACC        ', 5, 'kg m-3          ', 'Bulk Density of Accumulation-Mode Particles' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'DENS_COR        ', 5, 'kg m-3          ', 'Bulk Density of Coarse-Mode Particles' ), 
-     &    PMDIAG_SPC_RECORD_TYPE( 'k_prtcl_iepox   ', 5, 's-1             ', 'IEPOX pseudo particle phase reaction rate const' ),
-     &    PMDIAG_SPC_RECORD_TYPE( 'GAMMA_IMAE      ', 5, '1               ', 'IMAE heterogeneous uptake coefficient' ) /)
+        INTEGER, PARAMETER :: N_PMDIAG_LIST = 20
 
-        INTEGER :: A_PMDIAG_SPC_MAP (41), NUM_PMDIAG_SPC
+        TYPE PMDIAG_TYPE
+          CHARACTER (LEN = 16) :: NAME   !Parameter Name
+          INTEGER              :: FXN       !Function Number in Case Statement
+          INTEGER              :: VAR_TYPE  !IOAPI Variable Type
+          LOGICAL              :: MODE      !Is this property mode-dependent?
+          CHARACTER (LEN = 16) :: UNIT      !Units for Parameter
+          CHARACTER (LEN = 80) :: DESC      !Description
+        END TYPE PMDIAG_TYPE
 
-      END MODULE PMDIAG_DATA_MODULE
+        TYPE (PMDIAG_TYPE), PARAMETER :: PMDIAG_LIST( N_PMDIAG_LIST ) = (/
+     &    PMDIAG_TYPE( 'STDEV        ',  1, 5, T, '      ', 'Mode standard deviation (dry and wet)' ),
+     &    PMDIAG_TYPE( 'DRY_DG       ',  2, 5, T, 'um    ', 'Mode mean diameter (dry)' ),
+     &    PMDIAG_TYPE( 'WET_DG       ',  3, 5, T, 'um    ', 'Mode mean diameter (wet)' ),
+     &    PMDIAG_TYPE( 'WET_M2       ',  4, 5, T, 'm2 m-3', 'Mode 2nd moment (wet)' ),
+     &    PMDIAG_TYPE( 'DRY_M3       ',  5, 5, T, 'm3 m-3', 'Mode 3rd moment (dry)' ),
+     &    PMDIAG_TYPE( 'WET_M3       ',  6, 5, T, 'm3 m-3', 'Mode 3rd moment (wet)' ),
+     &    PMDIAG_TYPE( 'RH           ',  7, 5, F, '1     ', 'Relative humidity' ),
+     &    PMDIAG_TYPE( 'FPM1         ',  8, 5, T, '1     ', 'PM1 fraction of mode' ),
+     &    PMDIAG_TYPE( 'FPM25        ',  9, 5, T, '1     ', 'PM2.5 fraction of mode' ),
+     &    PMDIAG_TYPE( 'FPM10        ', 10, 5, T, '1     ', 'PM10 fraction of mode' ),
+     &    PMDIAG_TYPE( 'FAMS         ', 11, 5, T, '1     ', 'AMS Transmission Fraction of mode' ),
+     &    PMDIAG_TYPE( 'GAMMA_N2O5   ', 12, 5, F, '1     ', 'Fine Mode N2O5 Heterogeneous rxn probability' ),
+     &    PMDIAG_TYPE( 'GAMMA_N2O5K  ', 13, 5, F, '1     ', 'Coarse Mode N2O5 Heterogeneous rxn probability' ),
+     &    PMDIAG_TYPE( 'YIELD_CLNO2  ', 14, 5, F, '1     ', 'Fine Mode CLNO2 Heterogeneous reaction yield' ),
+     &    PMDIAG_TYPE( 'YIELD_CLNO2K ', 15, 5, F, '1     ', 'Coarse Mode CLNO2 Heterogeneous reaction yield' ),
+     &    PMDIAG_TYPE( 'GAMMA_IEPOX  ', 16, 5, F, '1     ', 'IEPOX heterogeneous uptake coefficient' ),
+     &    PMDIAG_TYPE( 'DENS_        ', 17, 5, T, 'kg m-3', 'Bulk Density of Particles' ),
+     &    PMDIAG_TYPE( 'K_IEPOX      ', 18, 5, F, 's-1   ', 'IEPOX pseudo particle phase reaction rate const' ),
+     &    PMDIAG_TYPE( 'GAMMA_IMAE   ', 19, 5, F, '1     ', 'IMAE heterogeneous uptake coefficient' ),
+     &    PMDIAG_TYPE( 'PM25         ', 20, 5, F, 'ug m-3', 'Bulk PM2.5 Concentration' ) /)
+
+
+        ! Variables for Storing Values of PMDIAG Output
+        REAL, ALLOCATABLE, SAVE :: PMDIAG_INST( :,:,:,: )
+        REAL, ALLOCATABLE, SAVE :: PMDIAG_AVRG( :,:,:,: )
+        REAL, ALLOCATABLE, SAVE :: PMDIAG_LOCAL( : )
+
+      END MODULE PMDIAG_DATA

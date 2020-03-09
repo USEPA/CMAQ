@@ -3747,7 +3747,7 @@ C   mminlu and num_land_cat are WRF global variables
          ! Check for Error in File Open Process
          IF ( STAT .NE. 0 ) THEN
              WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
-     &              'emissions control namelist file: ',TRIM( EQNAME )
+     &              'emissions control namelist file: ',TRIM( EMISSCTRL )
              CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
          

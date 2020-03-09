@@ -432,4 +432,26 @@
 ! RegionFamilyMembers(1,:)= 'SURF','OPEN'
 !/
  
+!------------------------------------------------------------------------------!
+! PM Diagnostic Output File Specifications                                     !
+!------------------------------------------------------------------------------!
+
+&PMDIAG_ACTIVATE
+  INSTANT = .TRUE.
+  AVERAGE = .TRUE.
+/
+
+&PMDIAG_INST
+  INST_LAYER_TOP = 1
+  INST_LAYER_BOT = 1
+  INST_PARS_REG  = 'ALL'
+/
+
+&PMDIAG_AVRG
+  AVRG_LAYER_TOP = 1
+  AVRG_LAYER_BOT = 1
+  AVRG_PARS_REG  = 'ALL'
+/
+
+ 
  
