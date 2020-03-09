@@ -148,7 +148,8 @@ CMAQv5.3.1 segmentation fault using gcc and openmpi
 ```
 > mpif90 --version
 ```
-Example Compiler Version:
+
+* Example Compiler Version:
 ```
 GNU Fortran (GCC) 9.1.0
 ```
@@ -157,7 +158,8 @@ GNU Fortran (GCC) 9.1.0
 ```
 > ls */*.exe
 ```
-Example CMAQ version:
+
+* Example CMAQ version:
 ```
 BLD_CCTM_v531_intel/CCTM_v531.exe
 ```
@@ -172,7 +174,7 @@ run_cctm_Bench_2016_12SE1.csh
 ```
 > cd $CMAQ_HOME/data/{YOUR_OUTPUT_DIR}/LOGS/
 ```
-The following grep command -B NUM, prints NUM lines before the error statement is found.
+* The following grep command -B NUM, prints NUM lines before the error statement is found.
 ```
 >grep -B 5 -i error CTM_LOG*
 ```
