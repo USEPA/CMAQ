@@ -106,8 +106,9 @@ Use the grep command to find an error in any of the files
 
 ### If you encounter an error running CMAQ.
 * [Search the CMAS Forum](https://forum.cmascenter.org/search?expanded=true) for an error similar to the one that you are seeing in your CTM_LOG file.
+* [Review the CMAQ FAQ](https://www.epa.gov/cmaq/frequent-cmaq-questions)
 
-* If you don’t see a similar error reported in an issue that provides enough information for you to troubleshoot and solve the issue then submit a new topic.
+* If you don’t see a similar error reported in an issue or in a FAQ that provides enough information for you to troubleshoot and solve the issue then submit a new topic.
 
 #### Submit a new topic issue, even if you are having an issue similar to another user.
 
