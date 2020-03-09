@@ -6,8 +6,7 @@ The following issues have been recognized for CMAQv5.3.1:
 
 
 ## *CMAQv5.3.1-i1:* 
-Date: 12/19/2019
-
+Date: 12/19/2019  
 Contact: Sergey Napelenok (napelenok.sergey@epa.gov)
 
 ### Description  
@@ -21,8 +20,7 @@ A modification to the ISAM chemistry algorithms is currenlty in testing.  It wil
 
 
 ## *CMAQv5.3.1-i2:* 
-Date: 2019-12-31
-
+Date: 2019-12-31  
 Contact: David Wong (Wong.David-C@epa.gov) 
 
 ### Description  
@@ -36,8 +34,7 @@ Replace CCTM/src/cio/centralized_io_module.F file in repository with the version
 
 
 ## *CMAQv5.3.1-i3:* 
-Date: 2020-01-23
-
+Date: 2020-01-23  
 Contact: Sergey Napelenok (napelenok.sergey@epa.gov)
 
 ### Description  
@@ -52,8 +49,7 @@ The model did not compile with the -Disam option with errors pointing to EMIS_DE
 
 
 ## *CMAQv5.3.1-i4:* 
-Date: 2020-03-09
-
+Date: 2020-03-09  
 Contact: David Wong (Wong.David-C@epa.gov) 
 
 ### Description  
@@ -70,7 +66,7 @@ The model will terminate execution with a time retrievel error for the initial c
 Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i2](CMAQv5.3.1-i2). Directions on how to replace this file in your repository can be found in [Appendix F of the CMAQ User's Guide](../Users_Guide/Appendix/CMAQ_UG_appendixF_importing_bugfixes.md). This code fix will also be included with the next minor CMAQ release.
 
 ## *CMAQv5.3.1-i5:* 
-Date: 2020-03-09
+Date: 2020-03-09  
 Contact: David Wong (Wong.David-C@epa.gov) 
 
 ### Description  
@@ -83,8 +79,7 @@ The model will terminate execution with a time retrievel error for the emission 
 Do not use the environmental variable EMIS_SYM_DATE and a code fix will also be included with the next minor CMAQ release.
 
 ## *CMAQv5.3.1-i6:* 
-Date: 2020-03-09
-
+Date: 2020-03-09  
 Contact: Christian Hogrefe (hogrefe.christian@epa.gov)
 
 ### Description  
