@@ -368,9 +368,6 @@
      &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
      &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS
       USE AEROMET_DATA, ONLY: AIRRH
-      USE AEROSOL_CHEMISTRY, ONLY: AERO_CHEM_SET, GAMMA_N2O5IJ,
-     &           GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, GAMMA_IEPOX,
-     &           KPARTIEPOX, GAMMA_IMAE
 
       IMPLICIT NONE
 
@@ -677,7 +674,7 @@
       END SUBROUTINE OPEN_PMDIAG 
 
 !-------------------------------------------------------------------------
-      SUBROUTINE WRITE_PMDIAG ( JDATE, JTIME, TSTEP, WRITETIME )
+      SUBROUTINE WRITE_PMDIAG ( JDATE, JTIME, TSTEP )
 ! Revision history
 !   20 Feb - B. Murphy: Created
 !-------------------------------------------------------------------------
@@ -690,49 +687,46 @@
 
       INTEGER JDATE, JTIME, TSTEP(3)
       INTEGER MDATE, MTIME
-      LOGICAL WRITETIME
       CHARACTER( 300 ) XMSG
 
-       CHARACTER( 16 ), SAVE :: PNAME = 'WRITE_PMDIAG'
+      CHARACTER( 16 ), SAVE :: PNAME = 'WRITE_PMDIAG'
+      LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-C *** If last call this hour, write visibility information.
-      IF ( WRITETIME ) THEN
+      IF ( FIRSTIME ) THEN
+         FIRSTIME = .FALSE.
+ 
+         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
+            IF ( INST_ACTIVE ) THEN
+         !      IF ( .NOT. OPEN3( CTM_PMDIAG_1, FSREAD3, PNAME ) ) THEN
+         !         XMSG = 'Could not open ' // CTM_CONC_1 // ' file for update'
+         !         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         !      END IF
+            END IF
+ 
+            IF ( AVRG_ACTIVE ) THEN
+         !      IF ( .NOT. OPEN3( CTM_APMDIAG_1, FSREAD3, PNAME ) ) THEN
+         !         XMSG = 'Could not open ' // A_CONC_1 // ' file for update'
+         !         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         !      END IF
+            END IF
+         END IF
+
+      END IF 
+C *** If IO Proceesor, then Write Data
+      !IF ( IO_PE_INCLUSIVE ) THEN
          MDATE = JDATE
          MTIME = JTIME
          CALL NEXTIME ( MDATE, MTIME, TSTEP( 2 ) )
-         WRITETIME = .FALSE.
-
-#ifdef parallel_io
-         IF ( FIRST_CTM_PMDIAG_1 ) THEN
-            FIRST_CTM_PMDIAG_1 = .FALSE.
-            IF ( INST_ACTIVE ) THEN
-               IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                  IF ( .NOT. OPEN3( CTM_PMDIAG_1, FSREAD3, PNAME ) ) THEN
-                     XMSG = 'Could not open ' // TRIM( CTM_PMDIAG_1 )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF
-               END IF
-            END IF
-            IF ( AVRG_ACTIVE ) THEN
-               IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-                  IF ( .NOT. OPEN3( CTM_APMDIAG_1, FSREAD3, PNAME ) ) THEN
-                     XMSG = 'Could not open ' // TRIM( CTM_APMDIAG_1 )
-                     CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-                  END IF
-               END IF
-            END IF
-         END IF
-#endif
 
 C *** Write data to the aerosol diagnostic file.
          IF ( INST_ACTIVE ) THEN
 
-            IF ( .NOT. WRITE3( CTM_PMDIAG_1, INST_PARS_OUT, MDATE, MTIME,
+            IF ( .NOT. WRITE3( CTM_PMDIAG_1, 
+     &           INST_PARS_OUT(1:N_PMDIAG_INST_OUT), MDATE, MTIME,
      &           PMDIAG_INST(:,:,INST_LAYER_BOT:INST_LAYER_TOP,:) ) ) THEN
                XMSG = 'Could not write ' // CTM_PMDIAG_1 // ' file'
                CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
-            PMDIAG_INST = 0.0
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                     'Timestep written to', CTM_PMDIAG_1,
@@ -746,23 +740,20 @@ C *** Write data to the average aerosol diagnostic file.
                CALL NEXTIME ( MDATE, MTIME, -TSTEP(1) )
             END IF
 
-            PMDIAG_AVRG = PMDIAG_AVRG / PMDIAG_AVRG_STEP 
-
-            IF ( .NOT. WRITE3( CTM_APMDIAG_1, AVRG_PARS_OUT, MDATE, MTIME, 
-     &           PMDIAG_AVRG(:,:,AVRG_LAYER_BOT:AVRG_LAYER_TOP,:) ) ) THEN
+            IF ( .NOT. WRITE3( CTM_APMDIAG_1, 
+     &           AVRG_PARS_OUT(1:N_PMDIAG_AVRG_OUT), MDATE, MTIME, 
+     &           PMDIAG_AVRG(:,:,AVRG_LAYER_BOT:AVRG_LAYER_TOP,:) / 
+     &           PMDIAG_AVRG_STEP ) ) THEN
                XMSG = 'Could not write ' // CTM_APMDIAG_1 // ' file'
                CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
-            PMDIAG_AVRG = 0.0
 
             WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &                     'Timestep written to', CTM_APMDIAG_1,
      &                     'for date and time', MDATE, MTIME
-
-            PMDIAG_AVRG_STEP = 0
          END IF
      
-      END IF   ! WRITETIME
+      !END IF   ! WRITETIME
 
       RETURN 
 

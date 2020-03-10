@@ -139,8 +139,6 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef twoway
      &                      , N_GC_CONC, GC_CONC, GC_STRT, GC_CONC_MAP
 #endif
-      USE AEROSOL_CHEMISTRY, ONLY : GAMMA_N2O5IJ, GAMMA_N2O5K, YCLNO2IJ, YCLNO2K, 
-     &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX, AERO_CHEM_SET
       USE PMDIAG_DATA, ONLY: L_PMDIAG, PMDIAG_AVRG_STEP
       USE PMDIAG_PROC
       USE RUNTIME_VARS, ONLY: LOGDEV, PMDIAG, APMDIAG, APMDIAG_ZHI, END_TIME
@@ -308,7 +306,7 @@ C ------------------ begin body of AERO_DRIVER -------------------------
 #endif
 
 C *** Open the aerosol parameters file (diameters and standard deviations).
-         IF ( L_PMDIAG ) THEN
+         IF ( L_PMDIAG .AND. IO_PE_INCLUSIVE ) THEN
              CALL OPEN_PMDIAG ( JDATE, JTIME, TSTEP( 1 ) )
              PMDIAG_AVRG_STEP = 0
          END IF
@@ -327,7 +325,10 @@ C *** Open the aerosol parameters file (diameters and standard deviations).
            WSTEP = 0
       END IF
       
-      IF ( L_PMDIAG ) PMDIAG_AVRG_STEP = PMDIAG_AVRG_STEP + 1
+      IF ( L_PMDIAG ) THEN 
+         IF ( PMDIAG_AVRG_STEP .EQ. 0 ) PMDIAG_AVRG = 0.0
+         PMDIAG_AVRG_STEP = PMDIAG_AVRG_STEP + 1
+      END IF
 
 C *** Set floating point synchronization time step:
       DT = FLOAT( MSTEP ) ! set time step in seconds
@@ -449,7 +450,11 @@ C *** OUTPUT DIAGNOSTIC INFORMATION
          END DO ! loop on ROWS
       END DO ! loop on NLAYS
 
-      CALL WRITE_PMDIAG( JDATE, JTIME, TSTEP, WRITETIME )
+      IF ( L_PMDIAG .AND. WRITETIME ) THEN
+          CALL WRITE_PMDIAG( JDATE, JTIME, TSTEP )
+          PMDIAG_AVRG_STEP = 0
+          WRITETIME = .FALSE.
+      END IF
 
       RETURN
       END

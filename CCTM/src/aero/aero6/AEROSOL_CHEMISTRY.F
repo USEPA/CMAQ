@@ -43,18 +43,8 @@
        
        REAL( 8 ), ALLOCATABLE :: KHETERO( :,:,:,: ) ! heterogeneous rx rates, 
                                                     ! [ppm**(RXN Order-1)*min]**-1
-       REAL,      ALLOCATABLE :: GAMMA_N2O5IJ( :,:,:  ) ! Fine modes N2O5 rx effic.
-       REAL,      ALLOCATABLE :: GAMMA_N2O5K(  :,:,:  ) ! Coarse mode N2O5 rx effic.
-       REAL,      ALLOCATABLE :: KPARTIEPOX (  :,:,:  ) ! IEPOX particle-phase reaction rate constant (sec-1)
-       REAL,      ALLOCATABLE :: GAMMA_IEPOX(  :,:,:  ) ! IEPOX uptake coeff
-       REAL,      ALLOCATABLE :: GAMMA_IMAE (  :,:,:  ) ! IMAE uptake coeff
-       REAL,      ALLOCATABLE :: YCLNO2IJ   (  :,:,:  ) ! Yield CLNO2 in Fine modes 
-       REAL,      ALLOCATABLE :: YCLNO2K    (  :,:,:  ) ! Yield CLNO2 in coarse mode 
-
-       LOGICAL                :: AERO_CHEM_SET = .FALSE.
-      
-       PUBLIC  KHETERO, GAMMA_N2O5IJ, GAMMA_N2O5K, KPARTIEPOX, GAMMA_IEPOX, GAMMA_IMAE, 
-     &         YCLNO2IJ, YCLNO2K, HETCHEM_RATES, AERO_CHEM_SET
+     
+       PUBLIC  KHETERO, HETCHEM_RATES
        
        PRIVATE 
 
@@ -386,15 +376,14 @@ C  15. Deiber et al., Uptake of ClONO2 and BrONO2 by halide containing droplets
 C      ACP, 4, 1291-1299, 2004
 C-----------------------------------------------------------------------
       USE RUNTIME_VARS
-      USE UTILIO_DEFN
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE RXNS_DATA
       USE AERO_DATA
       USE AEROMET_DATA, ONLY: f6dpi
       USE PRECURSOR_DATA
       USE SOA_DEFN
-      USE PMDIAG_DATA, ONLY: L_PMDIAG
-      USE PMDIAG_PROC, ONLY: MAP_PMDIAG
+      USE PMDIAG_DATA
+      USE PMDIAG_PROC
 
       IMPLICIT NONE
 

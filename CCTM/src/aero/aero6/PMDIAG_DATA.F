@@ -34,8 +34,6 @@ c-----------------------------------------------------------------------
         LOGICAL, SAVE :: L_PMDIAG
         INTEGER, SAVE :: PMDIAG_AVRG_STEP = 0
 
-        INTEGER, PARAMETER :: N_PMDIAG_LIST = 20
-
         TYPE PMDIAG_TYPE
           CHARACTER (LEN = 16) :: NAME   !Parameter Name
           INTEGER              :: FXN       !Function Number in Case Statement
@@ -44,6 +42,8 @@ c-----------------------------------------------------------------------
           CHARACTER (LEN = 16) :: UNIT      !Units for Parameter
           CHARACTER (LEN = 80) :: DESC      !Description
         END TYPE PMDIAG_TYPE
+
+        INTEGER, PARAMETER :: N_PMDIAG_LIST = 20
 
         TYPE (PMDIAG_TYPE), PARAMETER :: PMDIAG_LIST( N_PMDIAG_LIST ) = (/
      &    PMDIAG_TYPE( 'STDEV        ',  1, 5, T, '      ', 'Mode standard deviation (dry and wet)' ),
@@ -72,5 +72,16 @@ c-----------------------------------------------------------------------
         REAL, ALLOCATABLE, SAVE :: PMDIAG_INST( :,:,:,: )
         REAL, ALLOCATABLE, SAVE :: PMDIAG_AVRG( :,:,:,: )
         REAL, ALLOCATABLE, SAVE :: PMDIAG_LOCAL( : )
-
+       
+        ! Variables for Aerosol Chemistry
+        REAL, SAVE, ALLOCATABLE :: GAMMA_N2O5IJ( :,:,:  ) ! Fine modes N2O5 rx effic.
+        REAL, SAVE, ALLOCATABLE :: GAMMA_N2O5K(  :,:,:  ) ! Coarse mode N2O5 rx effic.
+        REAL, SAVE, ALLOCATABLE :: KPARTIEPOX (  :,:,:  ) ! IEPOX particle-phase reaction rate constant (sec-1)
+        REAL, SAVE, ALLOCATABLE :: GAMMA_IEPOX(  :,:,:  ) ! IEPOX uptake coeff
+        REAL, SAVE, ALLOCATABLE :: GAMMA_IMAE (  :,:,:  ) ! IMAE uptake coeff
+        REAL, SAVE, ALLOCATABLE :: YCLNO2IJ   (  :,:,:  ) ! Yield CLNO2 in Fine modes 
+        REAL, SAVE, ALLOCATABLE :: YCLNO2K    (  :,:,:  ) ! Yield CLNO2 in coarse mode 
+  
+        LOGICAL, SAVE           :: AERO_CHEM_SET = .FALSE.
+ 
       END MODULE PMDIAG_DATA
