@@ -38,12 +38,12 @@ Submit a new topic issue, even if you are having an issue similar to another use
 
 ### Inspect the CMAQ  run log files:
 
-Check the output log file in the run directory to see if it has completed successfully  
+Check the output log file in the run directory to see if it has completed successfully. 
 ```
 cd $CMAQ_HOME/CCTM/scripts
 ```
 
-**The type of output log file that is created depends on how you submit the job.** If you use slurm, with the sbatch command to submit the job, the standard error and output is logged to a slurm-*.out file
+**The type of output log file that is created depends on how you submit the job.** If you use slurm, with the sbatch command to submit the job, the standard error and output is logged to a slurm-\*.out file.
  
 Use grep to verify how many processors were used to run cmaq.  
 ```
@@ -68,18 +68,18 @@ error while loading shared libraries  …  cannot open shared object file …
 ```
 
 Set the $LD_LIBRARY_PATH in your .cshrc to include the location of your netCDF and netCDFF library shared object files.   
-Note: your .cshrc file should be located in your home directory  
+Note: your .cshrc file should be located in your home directory.  
 
-Change directories to your home directory  
+Change directories to your home directory.  
 ```
 cd ~
 ```
-View the contents of your .cshrc  
+View the contents of your .cshrc.  
 ```
 more .cshrc
 ```
 
-Edit your .cshrc to set the LD_LIBRARY_PATH to include the location of the netcdf libraries  
+Edit your .cshrc to set the LD_LIBRARY_PATH to include the location of the netcdf libraries.  
 Note this path is dependent on what compiler you used, replace intel with gcc if you used gnu rather than the intel compiler.  
 ```
 setenv NCDIR ${CMAQ_HOME}/lib/x86_64/intel/netcdf
@@ -88,8 +88,8 @@ setenv LD_LIBRARY_PATH ${NCDIR}/lib:$NCFDIR/lib:${LD_LIBRARY_PATH}
 ```
 
 ### If the program did not completed successfully for another reason
-If the program did not completed successfully for another reason, you will need to check the per processor log files which begin with the name: CTM_LOG_*.
-* These files may either be located in the run directory, if the run script was aborted
+If the program did not completed successfully for another reason, you will need to check the per processor log files which begin with the name: CTM_LOG_\*.
+* These files may either be located in the run directory, if the run script was aborted.
 * Or they may have been moved by the run script to a LOGS directory under the output directory. 
 
 Look in the following locations for the CTM_LOG* log files:  
@@ -101,7 +101,7 @@ or
 cd $CMAQ_HOME/data/LOGS
 ```
 
-Determine the number of log files that exist using the ls command and word count command  
+Determine the number of log files that exist using the ls command and word count command.  
 ```
 ls CTM_LOG* | wc
 ```
@@ -149,32 +149,36 @@ CMAQv5.3.1 segmentation fault using gcc and openmpi
 ### Template for what to include in your new issue.
 **Please include the following information when creating a new issue.**  This will make it much faster and easier for others to understand your issue and respond with an appropriate suggestion.
 
-1. Report the compiler and version used to run CMAQ
+1. Report the **compiler and version used to run CMAQ**
 ```
 mpif90 --version
 ```
-2. Report the version of CMAQ that you are using.
+2. Report the **version of CMAQ** that you are using.
 ```
 ls */*.exe
 ```
-3. Report the name of the run script if it is a benchmark case, or report the Domain and resolution
-4. Report a limited amount of the error message contents in the body of the issue with output obtained by using the following commands:
+3. Report the name of the run script if it is a benchmark case, or **report the Domain and resolution**
+4. Report a limited amount of the **error message contents** in the body of the issue with output obtained by using the following commands:
 ```
 cd $CMAQ_HOME/data/{YOUR_OUTPUT_DIR}/LOGS/
 ```
-The following grep command -B NUM, prints NUM lines before the error statement is found.  
+* The following grep command -B NUM, prints NUM lines before the error statement is found.  
 ```
 grep -B
 ```
 
-#### Example of a new issue post:
+#### Example of information to include in a new issue post:
 
+| | |
+|:--------:|:----------------:|
 | Compiler Version | GNU Fortran (GCC) 9.1.0 |
 |CMAQ Version | BLD_CCTM_v531_intel/CCTM_v531.exe |
 | Run Script | run_cctm_Bench_2016_12SE1.csh|
 
 Error message encountered: 
-
+```
+error while loading shared libraries  …  cannot open shared object file …
+```
 
 ### Upload additional files by clicking on the up arrow icon in the menu underneath the Create New Topic Title including:
 * your run script
