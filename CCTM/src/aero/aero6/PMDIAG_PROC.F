@@ -160,6 +160,7 @@
 
       ! Check Top-Layer Specification
       IF ( INST_LAYER_TOP .EQ. -1 ) INST_LAYER_TOP = NLAYS
+      NLAY_PMDIAG_INST = INST_LAYER_TOP - INST_LAYER_BOT + 1
 
       ! Read Desired PMDIAG_AVRG parameters from input namelist
       REWIND( EMCTRL_NML )
@@ -189,6 +190,7 @@
       
       ! Check Top-Layer Specification
       IF ( AVRG_LAYER_TOP .EQ. -1 ) AVRG_LAYER_TOP = NLAYS
+      NLAY_PMDIAG_AVRG = AVRG_LAYER_TOP - AVRG_LAYER_BOT + 1
  
       END SUBROUTINE READ_PMDIAG_NML
 
@@ -270,7 +272,7 @@
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
-         ALLOCATE( PMDIAG_INST( NCOLS,NROWS,NLAYS,N_PMDIAG_INST_OUT ) )
+         ALLOCATE( PMDIAG_INST( NCOLS,NROWS,NLAY_PMDIAG_INST,N_PMDIAG_INST_OUT ) )
          PMDIAG_INST = 0.0
       END IF
       
@@ -347,7 +349,7 @@
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
-         ALLOCATE( PMDIAG_AVRG( NCOLS,NROWS,NLAYS,N_PMDIAG_AVRG_OUT ) )
+         ALLOCATE( PMDIAG_AVRG( NCOLS,NROWS,NLAY_PMDIAG_AVRG,N_PMDIAG_AVRG_OUT ) )
          PMDIAG_AVRG = 0.0
       END IF
       
@@ -372,12 +374,11 @@
       IMPLICIT NONE
 
       INTEGER C, R, L
-      INTEGER IDG, IM
-      LOGICAL L_AERODIST_PARAMS, L_INLET_FRAC( N_MODE ), 
-     &        L_AMS_FRAC( N_MODE )
+      INTEGER IDG, IM, AL, IL
+      LOGICAL L_AERODIST_PARAMS
 
-      REAL :: fPM1( N_MODE ), fPM25( N_MODE ), fPM10( N_MODE ),
-     &        fAMS( N_MODE )
+      REAL :: fPM1, fPM25, fPM10, fAMS,
+     &        PM25
 
       LOGICAL :: WRITETIME
 
@@ -385,6 +386,8 @@
 
       IF ( ( L.GE.INST_LAYER_BOT .OR. L.GE.AVRG_LAYER_BOT ) .AND.
      &     ( L.LE.INST_LAYER_TOP .OR. L.LE.AVRG_LAYER_TOP ) ) THEN
+      IL = L - INST_LAYER_BOT + 1
+      AL = L - AVRG_LAYER_BOT + 1
 
       ! Loop Through PMDIAG Functions and Assign Values to Local Array
       DO IDG = 1,N_PMDIAG 
@@ -399,27 +402,27 @@
 
             ! Retrieve Mode Dry Diameter
             CASE ( 2 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
                PMDIAG_LOCAL( IDG ) = DRY_AERO_DIAM( IM )  ! dry diam.
 
             ! Retrieve Mode Wet Diameter
             CASE ( 3 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
                PMDIAG_LOCAL( IDG ) = WET_AERO_DIAM( IM )  ! wet diam.
 
             ! Retrieve Mode Wet Second Moment
             CASE ( 4 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
                PMDIAG_LOCAL( IDG ) = WET_AERO_M2( IM )  ! dry M2
 
             ! Retrieve Dry Third Moment
             CASE ( 5 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
                PMDIAG_LOCAL( IDG ) = DRY_AERO_M3( IM )  ! dry M3
 
             ! Retrieve Wet Third Moment
             CASE ( 6 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
                PMDIAG_LOCAL( IDG ) = WET_AERO_M3( IM )  ! wet M3
 
             ! Retrieve Relative Humidity
@@ -428,41 +431,33 @@
 
             ! Retrieve PM1 Fraction in Each Mode
             CASE ( 8 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
-               IF ( .NOT. L_INLET_FRAC( IM ) )
-     &             CALL AERO_INLET( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
-     &                  WET_AERO_DENS( IM ), fPM1( IM ), fPM25( IM ), fPM10( IM ) ) 
-               L_INLET_FRAC( IM ) = .TRUE. 
-               PMDIAG_LOCAL( IDG ) = fPM1( IM )
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
+               CALL AERO_INLET_PM1( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
+     &              WET_AERO_DENS( IM ), fPM1 ) 
+               PMDIAG_LOCAL( IDG ) = fPM1
 
             ! Retrieve PM25 Fraction in Each Mode
             CASE ( 9 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
-               IF ( .NOT. L_INLET_FRAC( IM ) )
-     &             CALL AERO_INLET( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
-     &                  WET_AERO_DENS( IM ), fPM1( IM ), fPM25( IM ), fPM10( IM ) )
-               L_INLET_FRAC( IM ) = .TRUE. 
-               PMDIAG_LOCAL( IDG ) = fPM25( IM )
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
+               CALL AERO_INLET_PM25( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
+     &              WET_AERO_DENS( IM ), fPM25 )
+               PMDIAG_LOCAL( IDG ) = fPM25
 
             ! Retrieve PM10 Fraction in Each Mode
             CASE ( 10 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
-               IF ( .NOT. L_INLET_FRAC( IM ) )
-     &             CALL AERO_INLET( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
-     &                  WET_AERO_DENS( IM ), fPM1( IM ), fPM25( IM ), fPM10( IM ) )
-               L_INLET_FRAC( IM ) = .TRUE. 
-               PMDIAG_LOCAL( IDG ) = fPM10( IM )
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
+               CALL AERO_INLET_PM10( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
+     &              WET_AERO_DENS( IM ), fPM10 )
+               PMDIAG_LOCAL( IDG ) = fPM10
 
             ! Retrieve AMS Fraction in Each Mode
             CASE ( 11 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
-               IF ( .NOT. L_AMS_FRAC( IM ) )
-     &             CALL AERO_AMS( WET_AERO_M3( IM ),  WET_AERO_M2( IM ),
-     &                            MOMENT0_CONC( IM ), AEROSPC_CONC( AH2O_IDX,IM ),
-     &                            WET_AERO_DENS( IM ),AEROSPC( AH2O_IDX )%DENSITY, 
-     &                            fAMS( IM ) )
-               L_AMS_FRAC( IM ) = .TRUE. 
-               PMDIAG_LOCAL( IDG ) = fAMS( IM )
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
+               CALL AERO_AMS( WET_AERO_M3( IM ),  WET_AERO_M2( IM ),
+     &                        MOMENT0_CONC( IM ), AEROSPC_CONC( AH2O_IDX,IM ),
+     &                        WET_AERO_DENS( IM ),AEROSPC( AH2O_IDX )%DENSITY, 
+     &                        fAMS )
+               PMDIAG_LOCAL( IDG ) = fAMS
             
             ! Retrieve GAMMA_N2O5IJ - fine N2O5 heterogeneous rxn probability
             CASE ( 12 )
@@ -491,7 +486,7 @@
 
             ! Retrieve Mode Density [kg m-3]
             CASE ( 17 )
-               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS()
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
                PMDIAG_LOCAL( IDG ) = WET_AERO_DENS( IM )  ! dry i-mode Density
 
             ! Retrieve Particle-Phase Reaction Rate Constant for IEPOX
@@ -506,23 +501,31 @@
 
             ! Retrieve Bulk PM2.5 Concentration
             CASE ( 20 )
-               PMDIAG_LOCAL( IDG ) = 0 
+               IF ( .NOT. L_AERODIST_PARAMS ) CALL CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
+               PM25 = 0.0
+               DO IM = 1,N_MODE
+                  CALL AERO_INLET_PM25( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
+     &                 WET_AERO_DENS( IM ), fPM25 )
+                  PM25 = PM25 + SUM( AEROSPC_CONC( :,IM ), 
+     &                               MASK = .NOT.AEROSPC(:)%TRACER ) * fPM25
+               END DO
+               PMDIAG_LOCAL( IDG ) = PM25 
 
             END SELECT
       END DO
 
       ! *** Aggregate Diagnostic Parameters in Average Array
       IF ( AVRG_ACTIVE ) THEN
-         FORALL ( IDG=1:N_PMDIAG_AVRG_OUT )
-            PMDIAG_AVRG( C,R,L,IDG ) = PMDIAG_AVRG( C,R,L,IDG ) + PMDIAG_LOCAL( MAP_AVRG2PMDIAG( IDG ) )
-         END FORALL
+         DO  IDG = 1,N_PMDIAG_AVRG_OUT
+            PMDIAG_AVRG( C,R,AL,IDG ) = PMDIAG_AVRG( C,R,AL,IDG ) + PMDIAG_LOCAL( MAP_AVRG2PMDIAG( IDG ) )
+         END DO
       END IF
 
       ! *** Populate Diagnostic Parameters to Instantaneous Array if this is a write step
       IF ( WRITETIME .AND. INST_ACTIVE ) THEN
-         FORALL ( IDG=1:N_PMDIAG_INST_OUT )
-            PMDIAG_INST( C,R,L,IDG ) = PMDIAG_INST( C,R,L,IDG ) + PMDIAG_LOCAL( MAP_INST2PMDIAG( IDG ) )
-         END FORALL
+         DO IDG = 1,N_PMDIAG_INST_OUT
+            PMDIAG_INST( C,R,IL,IDG ) = PMDIAG_LOCAL( MAP_INST2PMDIAG( IDG ) )
+         END DO
       END IF
  
       END IF
@@ -680,6 +683,7 @@
 !-------------------------------------------------------------------------
 
       USE RUNTIME_VARS
+      USE UTILIO_DEFN
 
       IMPLICIT NONE 
 
@@ -720,10 +724,11 @@ C *** If IO Proceesor, then Write Data
 
 C *** Write data to the aerosol diagnostic file.
          IF ( INST_ACTIVE ) THEN
-
             IF ( .NOT. WRITE3( CTM_PMDIAG_1, 
-     &           INST_PARS_OUT(1:N_PMDIAG_INST_OUT), MDATE, MTIME,
-     &           PMDIAG_INST(:,:,INST_LAYER_BOT:INST_LAYER_TOP,:) ) ) THEN
+!    &           INST_PARS_OUT(1:N_PMDIAG_INST_OUT), MDATE, MTIME,
+!    &           PMDIAG_INST(:,:,INST_LAYER_BOT:INST_LAYER_TOP,:) ) ) THEN
+     &           ALLVAR3, MDATE, MTIME,
+     &           PMDIAG_INST(:,:,:,:) ) ) THEN
                XMSG = 'Could not write ' // CTM_PMDIAG_1 // ' file'
                CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
@@ -741,8 +746,9 @@ C *** Write data to the average aerosol diagnostic file.
             END IF
 
             IF ( .NOT. WRITE3( CTM_APMDIAG_1, 
-     &           AVRG_PARS_OUT(1:N_PMDIAG_AVRG_OUT), MDATE, MTIME, 
-     &           PMDIAG_AVRG(:,:,AVRG_LAYER_BOT:AVRG_LAYER_TOP,:) / 
+       !&           AVRG_PARS_OUT(1:N_PMDIAG_AVRG_OUT), MDATE, MTIME, 
+     &           ALLVAR3, MDATE, MTIME, 
+     &           PMDIAG_AVRG(:,:,:,:) / 
      &           PMDIAG_AVRG_STEP ) ) THEN
                XMSG = 'Could not write ' // CTM_APMDIAG_1 // ' file'
                CALL M3EXIT ( PNAME, MDATE, MTIME, XMSG, XSTAT1 )

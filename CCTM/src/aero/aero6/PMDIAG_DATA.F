@@ -33,6 +33,8 @@ c-----------------------------------------------------------------------
 
         LOGICAL, SAVE :: L_PMDIAG
         INTEGER, SAVE :: PMDIAG_AVRG_STEP = 0
+        INTEGER, SAVE :: NLAY_PMDIAG_INST
+        INTEGER, SAVE :: NLAY_PMDIAG_AVRG
 
         TYPE PMDIAG_TYPE
           CHARACTER (LEN = 16) :: NAME   !Parameter Name

@@ -716,7 +716,6 @@ C Mapping for loading from and unloading to CGRID array
       Integer              :: aerosrf_map( n_mode )  ! indices of aero surf area variable to CGRID
 
 ! Diagnostic Aerosol Distribution Parameters 
-      Logical, Save :: L_AERODIST_PARAMS
       Real :: wet_aero_diam( n_mode )
       Real :: dry_aero_diam( n_mode )
       Real :: wet_aero_m2  ( n_mode )
@@ -1665,7 +1664,7 @@ C Local variables:
       End Subroutine CHECK_AERO_ICBC
 
 !-----------------------------------------------------------------------
-      Subroutine CALC_AERODIST_PARAMS( )
+      Subroutine CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
 
 ! Subroutine calculates the dry and wet aerosol distribution parameters
 !     and stores them in public arrays to be passed to the diagnostic 
@@ -1674,6 +1673,7 @@ C Local variables:
  
       IMPLICIT NONE
 
+      LOGICAL :: L_AERODIST_PARAMS
 
       IF ( WET_MOMENTS_FLAG ) THEN
 

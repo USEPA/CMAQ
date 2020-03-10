@@ -2696,9 +2696,9 @@ C     the 2 modes.
 
       RETURN
       END FUNCTION GETAF
-
+ 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE AERO_INLET ( DGN, XXLSG, RHOP, fPM1, fPM25, fPM10 )
+      SUBROUTINE AERO_INLET_PM1 ( DGN, XXLSG, RHOP, fPM1 )
 
 C  Calculates the volume fraction of a given aerosol mode that would enter
 C  a sharp-cut inlet, using equations from Jiang et al (2006). The
@@ -2778,8 +2778,6 @@ C    Input variables
 
 C    Output variable
       REAL, INTENT( OUT ) :: fPM1   ! fraction of particulate volume transmitted through 1
-      REAL, INTENT( OUT ) :: fPM25  ! fraction of particulate volume transmitted through 2
-      REAL, INTENT( OUT ) :: fPM10  ! fraction of particulate volume transmitted through 10
 
 C    Internal variables
       REAL, PARAMETER :: SQRT2 = 1.4142136  !  SQRT( 2 )
@@ -2789,7 +2787,7 @@ C    Internal variables
       REAL, PARAMETER :: B = 0.21470 ! Cunningham slip-correction approx. param [ um ]
                                      ! This factor works well applied to the entire particle size-range
                                      ! The approximation is: Cc(Dp) = 1 + B/Dp
-      REAL D_ST1, D_ST25, D_ST10     ! Stokes diameter equivalent of DCA..
+      REAL D_ST1                     ! Stokes diameter equivalent of DCA..
       REAL DG                        ! DGN converted to [ um ]
       REAL ERFARG                    ! argument of ERF, from Step#6 of Jiang et al. (2006)
 
@@ -2802,29 +2800,259 @@ C ----------------------- Begin solution -------------------------------
 
 C *** Calculate Transmission Fractions for Inlets with Aerodynamic
 C     Cutoffs
-      DG = DGN * 1.0E+06 ! [um] The units need to be equivalent with the B parameter
+      DG = DGN  ! [um] The units need to be equivalent with the B parameter
 
       ! Convert size cut to equivalent Stokes diameter using
       ! equation 2 of Jiang et al. (2006). Note: the equation in Step 5
       ! of this paper has a typo (i.e., eq. 2 is correct).
       D_ST1  = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD1 *
      &                     ( D_AD1 + B ) * 1.0E+03 / RHOP ) - B )
-      D_ST25 = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD25 *
-     &                     ( D_AD25 + B ) * 1.0E+03 / RHOP ) - B )
-      D_ST10 = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD10 *
-     &                     ( D_AD10 + B ) * 1.0E+03 / RHOP ) - B )
 
       ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
       ! from Meng & Seinfeld (1994) and modified form of Fk(X) equation
       ! in Step#6 of Jiang et al. (2006).
       ERFARG = ( LOG( D_ST1 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
       fPM1   = 0.5 * ( 1.0 + ERF( ERFARG ) )
+
+      END SUBROUTINE AERO_INLET_PM1
+
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE AERO_INLET_PM25 ( DGN, XXLSG, RHOP, fPM25 )
+
+C  Calculates the volume fraction of a given aerosol mode that would enter
+C  a sharp-cut inlet, using equations from Jiang et al (2006). The
+C  subroutine calculates transmission factors for PM1, PM2.5 and PM10,
+C  after first converting those cutoffs from Aerodynamic Diameter to
+C  Stokes Diameter (used internally within CMAQ).
+ 
+C  CMAQ aerosols are represented with Stokes Diameter. There are many
+C  alternate forms of diameter including the following:
+C       Volume Equivalent Diameter (D_ve) - the diameter of a sphere with the
+C          same volume as the particle.
+C       Stokes Diameter (D_st) - the diameter of a sphere with the same
+C          terminal velocity as the real particle. If the shape factor
+C          is 1, then the Stokes and Volume Equivalent Diameters are
+C          equal.
+C       Aerodynamic Diameter (D_ad) - the diameter of a sphere with unit
+C          density and the same terminal velocity as the real particle.
+C          If the density is 1, then the Aerodynamic Diameter and Stokes
+C          Diameter are equal.
+C       Vacuum Aerodynamic Diameter (D_va) - the diameter of a sphere with very
+C          high Knudsen number and thus a simplified relationship with
+C          Stokes diameter that is only dependent on density and shape
+C          factor, not Slip Correction. The very high Knudsen number
+C          could be because the particle is very small or because the
+C          system pressure is very low.
+C       Electrical Mobility Diameter (D_em) - the diameter of a sphere with the
+C          same migration velocity as the real particle. Requires a
+C          slip-correction and a shape factor correction when converting
+C          from volume equivalent diameter.
+ 
+C  Conversions:
+C       Parameters
+C         rho  - Density
+C         rho0 - Unit Density (1 g cm-3)
+C         Cc( ) - Cunningham Slip Correction of a particular diameter
+C         X   - Shape factor = (NonSpherical Drag Force)/(Spherical Drag Force)
+C       Aerodynamic -> Stokes
+C         D_st = D_ad * sqrt(rho0/rho) * sqrt( Cc(D_ad) / Cc(D_st) )
+C       Volume Equivalent -> Stokes
+C         D_st = D_ve * sqrt(1/X) * sqrt( Cc(D_ve) / Cc(D_st) )
+C       Electrical Mobility -> Volume Equivalent
+C         D_ve = D_em * [Cc(D_ve) / Cc(D_em)] * 1/X
+C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_em )
+C       Vacuum Aerodynamic -> Volume Equivalent (DeCarlo et al., 2004)
+C         D_ve = D_va * rho0/rho * X
+C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_va * rho0/rho )
+ 
+C  Key Subroutines called: none
+ 
+C  Key Functions called:  ERF
+ 
+C  Revision History:
+C    Coded Jul 2005 by Prakash Bhave
+C          Apr 2008 J.Kelly: corrected equation for Dst25 calculation
+C          Feb 2016 B.Murphy: modified to output PM1 and PM10 mode
+C                             fractions in addition to PM2.5
+ 
+C  References:
+C   1. Jiang, W., Smyth, S., Giroux, E., Roth, H., Yin, D., Differences
+C   between CMAQ fine mode particle and PM2.5 concentrations and their
+C   impact on model performance evaluation in the Lower Fraser Valley,
+C   Atmos. Environ., 40:4973-4985, 2006.
+C   2. Meng, Z., Seinfeld, J.H., On the source of the submicrometer
+C   droplet mode of urban and regional aerosols, Aerosol Sci. and
+C   Technology, 20:253-265, 1994.
+ 
+C-----------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+      INCLUDE SUBST_CONST    ! for PI
+
+C    Input variables
+      REAL   DGN     ! geometric mean Stokes diameter by number [ m ]
+      REAL   XXLSG   ! natural log of geometric standard deviation
+      REAL   RHOP    ! average particle density [ kg/m**3 ]
+
+C    Output variable
+      REAL, INTENT( OUT ) :: fPM25  ! fraction of particulate volume transmitted through 2
+
+C    Internal variables
+      REAL, PARAMETER :: SQRT2 = 1.4142136  !  SQRT( 2 )
+      REAL, PARAMETER :: D_AD1  = 1.0  ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD25 = 2.5  ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD10 = 10.0 ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: B = 0.21470 ! Cunningham slip-correction approx. param [ um ]
+                                     ! This factor works well applied to the entire particle size-range
+                                     ! The approximation is: Cc(Dp) = 1 + B/Dp
+      REAL D_ST25                    ! Stokes diameter equivalent of DCA..
+      REAL DG                        ! DGN converted to [ um ]
+      REAL ERFARG                    ! argument of ERF, from Step#6 of Jiang et al. (2006)
+
+C *** Error function approximation, from Meng & Seinfeld (1994)
+      REAL ERF        ! Error function
+      REAL XX         ! dummy argument for ERF
+      ERF( XX )  = SIGN( 1.0, XX ) * SQRT( 1.0 - EXP( -4.0 * XX * XX / PI ) )
+
+C ----------------------- Begin solution -------------------------------
+
+C *** Calculate Transmission Fractions for Inlets with Aerodynamic
+C     Cutoffs
+      DG = DGN  ! [um] The units need to be equivalent with the B parameter
+
+      ! Convert size cut to equivalent Stokes diameter using
+      ! equation 2 of Jiang et al. (2006). Note: the equation in Step 5
+      ! of this paper has a typo (i.e., eq. 2 is correct).
+      D_ST25 = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD25 *
+     &                     ( D_AD25 + B ) * 1.0E+03 / RHOP ) - B )
+
+      ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
+      ! from Meng & Seinfeld (1994) and modified form of Fk(X) equation
+      ! in Step#6 of Jiang et al. (2006).
       ERFARG = ( LOG( D_ST25 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
       fPM25  = 0.5 * ( 1.0 + ERF( ERFARG ) )
+
+      END SUBROUTINE AERO_INLET_PM25
+ 
+C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+      SUBROUTINE AERO_INLET_PM10 ( DGN, XXLSG, RHOP, fPM10 )
+
+C  Calculates the volume fraction of a given aerosol mode that would enter
+C  a sharp-cut inlet, using equations from Jiang et al (2006). The
+C  subroutine calculates transmission factors for PM1, PM2.5 and PM10,
+C  after first converting those cutoffs from Aerodynamic Diameter to
+C  Stokes Diameter (used internally within CMAQ).
+ 
+C  CMAQ aerosols are represented with Stokes Diameter. There are many
+C  alternate forms of diameter including the following:
+C       Volume Equivalent Diameter (D_ve) - the diameter of a sphere with the
+C          same volume as the particle.
+C       Stokes Diameter (D_st) - the diameter of a sphere with the same
+C          terminal velocity as the real particle. If the shape factor
+C          is 1, then the Stokes and Volume Equivalent Diameters are
+C          equal.
+C       Aerodynamic Diameter (D_ad) - the diameter of a sphere with unit
+C          density and the same terminal velocity as the real particle.
+C          If the density is 1, then the Aerodynamic Diameter and Stokes
+C          Diameter are equal.
+C       Vacuum Aerodynamic Diameter (D_va) - the diameter of a sphere with very
+C          high Knudsen number and thus a simplified relationship with
+C          Stokes diameter that is only dependent on density and shape
+C          factor, not Slip Correction. The very high Knudsen number
+C          could be because the particle is very small or because the
+C          system pressure is very low.
+C       Electrical Mobility Diameter (D_em) - the diameter of a sphere with the
+C          same migration velocity as the real particle. Requires a
+C          slip-correction and a shape factor correction when converting
+C          from volume equivalent diameter.
+ 
+C  Conversions:
+C       Parameters
+C         rho  - Density
+C         rho0 - Unit Density (1 g cm-3)
+C         Cc( ) - Cunningham Slip Correction of a particular diameter
+C         X   - Shape factor = (NonSpherical Drag Force)/(Spherical Drag Force)
+C       Aerodynamic -> Stokes
+C         D_st = D_ad * sqrt(rho0/rho) * sqrt( Cc(D_ad) / Cc(D_st) )
+C       Volume Equivalent -> Stokes
+C         D_st = D_ve * sqrt(1/X) * sqrt( Cc(D_ve) / Cc(D_st) )
+C       Electrical Mobility -> Volume Equivalent
+C         D_ve = D_em * [Cc(D_ve) / Cc(D_em)] * 1/X
+C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_em )
+C       Vacuum Aerodynamic -> Volume Equivalent (DeCarlo et al., 2004)
+C         D_ve = D_va * rho0/rho * X
+C             (If X = 1 (i.e. spherical), then D_st = D_ve = D_va * rho0/rho )
+ 
+C  Key Subroutines called: none
+ 
+C  Key Functions called:  ERF
+ 
+C  Revision History:
+C    Coded Jul 2005 by Prakash Bhave
+C          Apr 2008 J.Kelly: corrected equation for Dst25 calculation
+C          Feb 2016 B.Murphy: modified to output PM1 and PM10 mode
+C                             fractions in addition to PM2.5
+ 
+C  References:
+C   1. Jiang, W., Smyth, S., Giroux, E., Roth, H., Yin, D., Differences
+C   between CMAQ fine mode particle and PM2.5 concentrations and their
+C   impact on model performance evaluation in the Lower Fraser Valley,
+C   Atmos. Environ., 40:4973-4985, 2006.
+C   2. Meng, Z., Seinfeld, J.H., On the source of the submicrometer
+C   droplet mode of urban and regional aerosols, Aerosol Sci. and
+C   Technology, 20:253-265, 1994.
+ 
+C-----------------------------------------------------------------------
+
+      IMPLICIT NONE
+
+      INCLUDE SUBST_CONST    ! for PI
+
+C    Input variables
+      REAL   DGN     ! geometric mean Stokes diameter by number [ m ]
+      REAL   XXLSG   ! natural log of geometric standard deviation
+      REAL   RHOP    ! average particle density [ kg/m**3 ]
+
+C    Output variable
+      REAL, INTENT( OUT ) :: fPM10  ! fraction of particulate volume transmitted through 10
+
+C    Internal variables
+      REAL, PARAMETER :: SQRT2 = 1.4142136  !  SQRT( 2 )
+      REAL, PARAMETER :: D_AD1  = 1.0  ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD25 = 2.5  ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: D_AD10 = 10.0 ! aerodynamic diameter cut point [ um ]
+      REAL, PARAMETER :: B = 0.21470 ! Cunningham slip-correction approx. param [ um ]
+                                     ! This factor works well applied to the entire particle size-range
+                                     ! The approximation is: Cc(Dp) = 1 + B/Dp
+      REAL D_ST10                    ! Stokes diameter equivalent of DCA..
+      REAL DG                        ! DGN converted to [ um ]
+      REAL ERFARG                    ! argument of ERF, from Step#6 of Jiang et al. (2006)
+
+C *** Error function approximation, from Meng & Seinfeld (1994)
+      REAL ERF        ! Error function
+      REAL XX         ! dummy argument for ERF
+      ERF( XX )  = SIGN( 1.0, XX ) * SQRT( 1.0 - EXP( -4.0 * XX * XX / PI ) )
+
+C ----------------------- Begin solution -------------------------------
+
+C *** Calculate Transmission Fractions for Inlets with Aerodynamic
+C     Cutoffs
+      DG = DGN  ! [um] The units need to be equivalent with the B parameter
+
+      ! Convert size cut to equivalent Stokes diameter using
+      ! equation 2 of Jiang et al. (2006). Note: the equation in Step 5
+      ! of this paper has a typo (i.e., eq. 2 is correct).
+      D_ST10 = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD10 *
+     &                     ( D_AD10 + B ) * 1.0E+03 / RHOP ) - B )
+
+      ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
+      ! from Meng & Seinfeld (1994) and modified form of Fk(X) equation
+      ! in Step#6 of Jiang et al. (2006).
       ERFARG = ( LOG( D_ST10 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
       fPM10  = 0.5 * ( 1.0 + ERF( ERFARG ) )
 
-      END SUBROUTINE AERO_INLET
+      END SUBROUTINE AERO_INLET_PM10
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE AERO_AMS ( M3_WET, M2_WET, M0, M_H2O, RHOP, RHO_H2O, fAMS )
