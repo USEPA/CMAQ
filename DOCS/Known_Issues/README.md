@@ -24,7 +24,7 @@ Date: 2019-12-31
 Contact: David Wong (Wong.David-C@epa.gov) 
 
 ### Description  
-Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T, will prompt the centralized i/o module to store the start date of the file. However, this information was never passed on to the function used to extract the data from the netCDF file causing an error, as the time is not available on file. The information is now properly passed on to the variable required to extract the data from the netCDF file.
+Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T will prompt the centralized i/o module to store the start date of the file. However, this information was never passed on to the function used to extract the data from the netCDF file causing an error, as the time is not available on file. The information is now properly passed on to the variable required to extract the data from the netCDF file.
 
 ### Scope and Impact
 The model will terminate execution with a time retrieval error. No model results will change.
@@ -53,14 +53,14 @@ Date: 2020-03-09
 Contact: David Wong (Wong.David-C@epa.gov) 
 
 ### Description  
-Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T, will prompt the centralized i/o module to store the start date of the file. However a memory issue related to the implementation of 2-D or 3-D Emission file is a representative day type will occur. This issue stems from the choice to psuedo-interpolate the ICs instead of extracting them directly, which is problematic if an emissions file is a 2-D or 3-D Emissions file of representative type. This is because to linearly interpolate temporally, two points are required stored as the head and tail. The head was stored correctly, but the tail was not being stored correctly and was picking up from whatever was in memory last, which usually is the 2-D/3-D Gridded Emissions file. This resulted in an error when trying to extract the data at the second point as the IC file only has data at the head.
+Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](../Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T will cause a model crash when reading time-dependent initial conditions (ICs) due to a memory issue. This issue stems from the choice to psuedo-interpolate the ICs instead of extracting them directly, which is problematic if an emissions file is a 2-D or 3-D Emissions file of representative type. This is because to linearly interpolate temporally, two points are required stored as the head and tail. The head was stored correctly, but the tail was not being stored correctly and was picking up from whatever was in memory last, which usually is the 2-D/3-D Gridded Emissions file. This resulted in an error when trying to extract the data at the second point as the IC file only has data at the head.
 
-If no emissions are present, it would pick the point from whatever file was read last whether that be a MET file, bioseason file, lightning file or IC file.
+If no emissions are present, the interpolation would pick the point from whatever file was read last whether that be a MET file, bioseason file, lightning file or IC file.
 
 It should be noted, this issue would have not been seen if the IC file were time independent as IOAPI ignores the time input when trying to extract data from time independent files.
 
 ### Scope and Impact
-The model will terminate execution with a time retrievel error for the initial conditions. No model results will change.
+The model will terminate execution with a time retrieval error for the initial conditions. No model results will change.
 
 ### Solution
 Replace CCTM/src/cio/centralized_io_module.F file in repository with the version located in the folder [DOCS/Known_Issues/CMAQv5.3.1-i2](CMAQv5.3.1-i2). Directions on how to replace this file in your repository can be found in [Appendix F of the CMAQ User's Guide](../Users_Guide/Appendix/CMAQ_UG_appendixF_importing_bugfixes.md). This code fix will also be included with the next minor CMAQ release.
@@ -73,10 +73,10 @@ Contact: David Wong (Wong.David-C@epa.gov)
 The inability to run with the EMIS_SYM_DATE flag due inconsistent implementation between cio and the emissions modules.
 
 ### Scope and Impact
-The model will terminate execution with a time retrievel error for the emission stream.
+The model will terminate execution with a time retrieval error for the emission stream.
 
 ### Solution
-Do not use the environmental variable EMIS_SYM_DATE and a code fix will also be included with the next minor CMAQ release.
+Do not use the environmental variable EMIS_SYM_DATE. A code fix will be included with the next minor CMAQ release.
 
 ## *CMAQv5.3.1-i6:* 
 Date: 2020-03-09  
