@@ -33,7 +33,6 @@ C 03 Jul 15 J.Young: inital
       real,    allocatable, save :: cgrd( :,: )   ! density units
       real,    allocatable, save :: conc( :,: )   ! mixing ratio units
 
-      real,    allocatable, save :: dens( :,:,: ) ! air density kg m-3
       real,    allocatable, save :: ldens( : )    ! local density kg m-3
 
       integer, save :: nqae              ! number of micro-grams/m**3 species
@@ -140,8 +139,8 @@ c conc_map - from cgrid to ae_trns species
          end if
 
          map_sedi2cgrid = 0
-         off = n_gc_trns   ! 48
-         cg_off = ae_strt - 1   ! 48
+         off = n_gc_trns   
+         cg_off = ae_strt - 1   
          n_sedi_map = 0
          do v = 1, n_ae_spc
             n = index1( ae_spc( v ), n_ae_trns, ae_trns )
@@ -323,25 +322,29 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
          implicit none
 
          integer   i, l, v            ! loop induction variables
-         real rdens( nlays )
+         real FAC1( nlays )
          real, parameter :: mwair_si = mwair * 1.0e-3
 
 C-----------------------------------------------------------------------
 
-      RDENS = MWAIR_SI / LDENS  ! kg m-3 -> m3 mol-1
+      FAC1 = MWAIR_SI / LDENS  ! kg m-3 -> m3 mol-1
 
-C Aerosol Mass: ug/m3 -> ppmv
-      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_AERO( MAP_SEDI2CGRID(I) ) .AND.
-     &                      .NOT. CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .AND.
-     &                      .NOT. CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )  )
-     &    CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) * RDENS( : ) / CGRID_MW( MAP_SEDI2CGRID(I) )
+      DO I = 1,N_SEDI_MAP
+          ! Aerosol Mass: ug/m3 -> ppmv
+          IF ( CGRID_MASK_AERO( MAP_SEDI2CGRID(I) ) .AND.
+     &         .NOT. CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .AND.
+     &         .NOT. CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )  )
+     &       CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) 
+     &                    *FAC1( : ) / CGRID_MW( MAP_SEDI2CGRID(I) )
 
-C Aerosol Number: N m-3 -> N mol-1
-C Aerosol Surface Area: m2/m3 -> m2 / mol air
-      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .OR.
-     &                           CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )      )
-     &    CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) * RDENS( : )
- 
+          ! Aerosol Number: N m-3 -> N mol-1
+          ! Aerosol Surface Area: m2/m3 -> m2 / mol air
+          IF ( CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .OR.
+     &         CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )      )
+     &       CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) * FAC1( : )
+
+      END DO
+
       RETURN
 
       end subroutine conv_cgrd
@@ -357,22 +360,26 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
          integer   i, l, v            ! loop induction variables
          real, parameter :: mwair_si = mwair * 1.0e-3
-         real rdens( nlays )
+         real fac1( nlays )
 
 C-----------------------------------------------------------------------
-      RDENS = LDENS / MWAIR_SI  ! kg m-3 -> mol m-3
+      FAC1 = LDENS / MWAIR_SI  ! kg m-3 -> mol m-3
 
-C Aerosol Mass: ug/m3 -> ppmv
-      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_AERO( MAP_SEDI2CGRID(I) ) .AND.
-     &                      .NOT. CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .AND.
-     &                      .NOT. CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )  )
-     &    CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * RDENS( : ) * CGRID_MW( MAP_SEDI2CGRID(I) )
+      DO I = 1,N_SEDI_MAP
+          ! Aerosol Mass: ug/m3 -> ppmv
+          IF ( CGRID_MASK_AERO( MAP_SEDI2CGRID(I) ) .AND.
+     &         .NOT. CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .AND.
+     &         .NOT. CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )  )
+     &      CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * FAC1( : ) 
+     &                                  * CGRID_MW( MAP_SEDI2CGRID(I) )
 
-C Aerosol Number: N m-3 -> N mol-1
-C Aerosol Surface Area: m2/m3 -> m2 / mol air
-      FORALL ( I = 1:N_SEDI_MAP, CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .OR.
-     &                           CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )      )
-     &    CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * RDENS( : )
+          ! Aerosol Number: N m-3 -> N mol-1
+          ! Aerosol Surface Area: m2/m3 -> m2 / mol air
+          IF ( CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .OR.
+     &         CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )      ) 
+     &      CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * FAC1( : )
+
+      END DO
  
       RETURN
 
