@@ -66,7 +66,7 @@ C global dry dep species
 
 C component flux output variables 
       INTEGER, PARAMETER :: LCMP  = 8
-      CHARACTER( 16 ), SAVE :: CMPSPC( LCMP )
+      CHARACTER( 16 ), SAVE :: CMPSPC( LCMP ) = ' '
 
       CONTAINS
 
@@ -250,7 +250,11 @@ C Local variables:
          END DO
 
          CMPSPC( 1 ) = 'NH3_Emis'
+#ifdef stage_opt
+         CMPSPC( 2 ) = 'NH3_Flux'
+#elif m3dry_opt
          CMPSPC( 2 ) = 'NH3_Dep '
+#endif
          CMPSPC( 3 ) = 'NH3_Stom'
          CMPSPC( 4 ) = 'NH3_Cut '
          CMPSPC( 5 ) = 'NH3_Soil'
