@@ -76,7 +76,7 @@ The inability to run with the EMIS_SYM_DATE flag due inconsistent implementation
 The model will terminate execution with a time retrieval error for the emission stream.
 
 ### Solution
-Do not use the environmental variable EMIS_SYM_DATE. A code fix will be included with the next minor CMAQ release.
+Do not use the environmental variable EMIS_SYM_DATE. Instead, if you wish to use representative day emissions for some or all of your emission streams, individually set the GR_EM_SYM_DATE_### and/or STK_EM_SYM_DATE_### environment variables to T for the desired streams. A code fix will be included with the next minor CMAQ release.
 
 ## *CMAQv5.3.1-i6:* 
 Date: 2020-03-09  
