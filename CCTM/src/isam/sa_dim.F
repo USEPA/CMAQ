@@ -45,7 +45,7 @@ C...Count the number of tags specified by user
 C...Reading in the tag information
           ALLOCATE ( TAGNAME( NTAGS + 4 ), STAT = IOST )
           CALL CHECKMEM( IOST, 'TAGNAME', PNAME )
-          TAGNAME = "NOTI"
+          TAGNAME = "NOT"
 
           ALLOCATE ( TAGSTREAMS_TEMP( NTAGS ), STAT = IOST )
           CALL CHECKMEM( IOST, 'TAGSTREAMS_TEMP', PNAME )
@@ -70,9 +70,9 @@ C...Assign Tag Indices To ICON, BCON, OTHER *in that order*
           ICONTAG = OTHRTAG + 1
           NTAG_SA = ICONTAG
 
-          TAGNAME( BCONTAG ) = "BCON"
-          TAGNAME( OTHRTAG ) = "OTHR"
-          TAGNAME( ICONTAG ) = "ICON"
+          TAGNAME( BCONTAG ) = "BCO"
+          TAGNAME( OTHRTAG ) = "OTH"
+          TAGNAME( ICONTAG ) = "ICO"
 
            
           CALL GET_NSPC_SA 

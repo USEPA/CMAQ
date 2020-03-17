@@ -331,7 +331,7 @@ c----------------------------------------------------------
 
         BGN_SP = INDEX( TAGCLASSES,'OZONE',LBACK )
         IF ( BGN_SP .NE. 0 ) THEN
-          NSPC_SA = NSPC_SA + 5  ! O3, O1D, O or O3P, HO2
+          NSPC_SA = NSPC_SA + 4  ! O3, O1D, O or O3P, HO2
           L_OZONE   = .TRUE.
           L_NITRATE = .TRUE.
           L_VOC     = .TRUE.
@@ -349,7 +349,6 @@ c----------------------------------------------------------
           SELECT CASE( MECHNAME )
              CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
                 NSPC_SA = NSPC_SA + 5  ! FORM_PRIM, ALD2_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE
-!                NSPC_SA = NSPC_SA + 23  
              CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
                 NSPC_SA = NSPC_SA + 5  ! HCHO_PRIM, CCHO_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE 
              CASE( 'RACM2_AE6_AQ') 
@@ -1148,13 +1147,6 @@ c----------------------------------------------------------
           SPC_LIST( J_SPC ) = 'CO'
         ENDIF
 
-        IF ( L_GAS_HAPS ) THEN
-            DO I_SPC = 1, NDEGRADED_FOUND
-               J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = DEGRADED_SPECIES( I_SPC )
-            END DO
-        END IF
-        
         IF ( L_OZONE ) THEN
           J_SPC = J_SPC + 1
           SPC_LIST( J_SPC ) = 'HO2'
@@ -1169,10 +1161,39 @@ c----------------------------------------------------------
              CASE( 'SAPRC07TC_AE6_AQ', 'RACM2_AE6_AQ', 'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
                 SPC_LIST( J_SPC ) = 'O3P'
           END SELECT
-          J_SPC = J_SPC + 1
-          SPC_LIST( J_SPC ) = 'HO2'
         ENDIF
 
+        IF ( L_GAS_HAPS ) THEN
+          SELECT CASE( MECHNAME )
+             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'FORM_PRIMARY'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ALD2_PRIMARY'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ACROLEIN'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'BUTADIENE13'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ACRO_PRIMARY'
+             CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ')
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'HCHO_PRIMARY'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'CCHO_PRIMARY'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ACROLEIN'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'BUTADIENE13'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ACRO_PRIMARY'
+            END SELECT
+            DO I_SPC = 1, NDEGRADED_FOUND
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = DEGRADED_SPECIES( I_SPC )
+            END DO
+        END IF
+        
 !       IF ( L_CHEMISTRY ) THEN
 !          SPC_LIST( ( J_SPC+1 ):( J_SPC+NUMB_MECH_SPC ) ) = CHEMISTRY_SPC( 1:NUMB_MECH_SPC )
 !          J_SPC = J_SPC + NUMB_MECH_SPC 
@@ -1184,9 +1205,16 @@ C...Check if the above adds up to number of tagging species
      &    ', does not equal expected, ',  NSPC_SA,
      &    ', for the ', TRIM( MECHNAME ), ' mechanism.'
           EFLAG = .TRUE.
+        ELSE
+         WRITE(LOGDEV,'(A,I4,A,I4,3A)')'Tagged species found, ', J_SPC,
+     &    ', equals expected, ',  NSPC_SA,
+     &    ', for the ', TRIM( MECHNAME ), ' mechanism.'
         ENDIF
 
 ! check for redundant species names
+        DO I_SPC = 1, NSPC_SA
+             WRITE(LOGDEV,'(A,I4,1X,A16)')'ISAM_INIT: SPC_LIST: ',I_SPC,SPC_LIST( I_SPC )
+        END DO
         DO I_SPC = 1, NSPC_SA
            IF ( .NOT. SPC_KEEP( I_SPC ) )CYCLE
            IF ( LEN_TRIM( SPC_LIST( I_SPC ) ) .LT. 1 ) THEN
@@ -1281,21 +1309,23 @@ C...Assign species index with CMAQ species mappings
         ALLOCATE( MAP_CGRtoSA( NSPCSD ) )
         MAP_CGRtoSA = 0
 
-        DO N = 1, NSPCSD
+        LOOP_FIND: DO N = 1, NSPCSD
           IF ( N .GE. GC_STRT .AND. N .LE. GC_FINI ) THEN
             DO J_SPC = 1, NSPC_SA
               IF ( SPC_NAME( J_SPC,ICONTAG ) .EQ. GC_SPC( N ) ) THEN  
                 SPC_INDEX( J_SPC,1 ) = 1
                 SPC_INDEX( J_SPC,2 ) = N
                 MAP_CGRtoSA( N ) = J_SPC
+                CYCLE LOOP_FIND
               END IF ! spc_name and gc_spc match
             END DO
-          ELSE IF ( N .GE. AE_STRT .AND. N .LT. AE_FINI ) THEN
+          ELSE IF ( N .GE. AE_STRT .AND. N .LE. AE_FINI ) THEN
             DO J_SPC = 1, NSPC_SA
-              IF ( SPC_NAME( J_SPC,ICONTAG ) .EQ. AE_SPC( N-AE_STRT+1 ) ) THEN
+              IF ( TRIM( SPC_NAME( J_SPC,ICONTAG ) ) .EQ. TRIM( AE_SPC( N-AE_STRT+1 ) ) ) THEN
                 SPC_INDEX( J_SPC,1 ) = 1
                 SPC_INDEX( J_SPC,2 ) = N
                 MAP_CGRtoSA( N ) = J_SPC
+                CYCLE LOOP_FIND
               END IF ! spc_name and ae_spc match
             END DO
           ELSE IF ( N .GE. NR_STRT .AND. N .LE. NR_FINI ) THEN
@@ -1304,10 +1334,20 @@ C...Assign species index with CMAQ species mappings
                 SPC_INDEX( J_SPC,1 ) = 1
                 SPC_INDEX( J_SPC,2 ) = N
                 MAP_CGRtoSA( N ) = J_SPC
+                CYCLE LOOP_FIND
               END IF
             END DO          
-          END IF          
-        END DO ! number of tagging species
+          END IF
+        END DO LOOP_FIND ! number of tagging species
+
+        DO J_SPC = 1, NSPC_SA
+          IF ( SPC_INDEX( J_SPC,2 ) .LT. 1 ) THEN
+             write(logdev,'(A)')'Tracked species '
+     &       // TRIM( SPC_NAME( J_SPC,ICONTAG ) ) //
+     &          ' not found among model species '
+             EFLAG = .TRUE.
+          END IF
+        END DO 
 
 C...Map SA species for Advection
         ALLOCATE( MAP_ADVtoSA ( N_SPCTAG ) )
