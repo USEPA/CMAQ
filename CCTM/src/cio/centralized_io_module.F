@@ -66,6 +66,9 @@
 !  01/30/20, D. Wong:- fixed IC file interpolation time stamp issue by bypassing the
 !                      check whether the new request falls within the circular buffer
 !                      for IC variable which only has one time step of data.
+!  02/10/20, F. Sidi:- Changed file_tstep from tstep3d to met_tstep an environment
+!                      variable the flexlible allows users to toggle the temporal 
+!                      frequency of their input meterology. 
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -289,6 +292,7 @@
      &                      x_dot_ncols, x_dot_nrows    ! extended dot file nools and nrows 
 
         integer, private :: cio_LTLYRS                  ! number of layers in lightning strike dataset
+        CHARACTER( 16 )  :: LT_NAME                     ! LNT name: old Cis NLDNstrk and new is LNT
 
         interface interpolate_var
           module procedure r_interpolate_var_1ds,       ! Interpolation for Stack Group 4 byte Real 1-D Data 
@@ -309,7 +313,7 @@
           USE VGRD_DEFN, only : VGTYP_GD, nlays
           USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON,
      &                             STDATE, WB_DUST, ISAM_NEW_START,
-     &                             local_tstep
+     &                             local_tstep, met_tstep
           use LSM_Mod, only : LAND_SCHEME
           use cgrid_spcs, only : n_gc_spcd, n_ae_spc
 
@@ -408,10 +412,14 @@
              XMSG = 'Could not get ' // MET_CRO_2D //' file description'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-
+          
           file_sdate(f_met) = sdate3d
           file_stime(f_met) = stime3d
+#ifdef twoway
           file_tstep(f_met) = tstep3d
+#else
+          file_tstep(f_met) = met_tstep ! offline model controlled by runtime var MET_TSTEP 
+#endif
           file_xcell(f_met) = xcell3d
           file_ycell(f_met) = ycell3d
 
@@ -856,6 +864,14 @@
              l2d_name(:,1) = vname3d(1:n_l2d) 
              l2d_name(:,2) = 'lnt'   ! denote lightning variable
              l2d_name(:,3) = ' '     ! denote non met variable
+             ! Check to see what the lightning variable name is called
+             ! backwards (NLDNstrk) & forwards compatible (LNT)  
+             if ( index1('NLDNstrk', n_l2d ,l2d_name(:,1)) .gt. 0 ) then
+              lt_name = 'NLDNstrk'
+             else
+              lt_name = 'LNT'
+             end if
+
           end if
 
 ! combining all files
@@ -2686,7 +2702,7 @@ C Read the various categories of normalized emissions
                    deallocate (tdata)
 
                 else
-                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWNi Type of File',1 )
+                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN Type of File',1 )
                 end if
 
                 cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
@@ -2714,10 +2730,6 @@ C Read the various categories of normalized emissions
 
              do i = 1, N_FILE_GR
                 CALL NEXTIME ( loc_jdate(f_emis(i)), loc_jtime(f_emis(i)), file_tstep(f_emis(i)) )
-             end do
-
-             do i = 1, NPTGRPS
-                CALL NEXTIME ( loc_jdate(f_stk_emis(i)), loc_jtime(f_stk_emis(i)), file_tstep(f_stk_emis(i)) )
              end do
 
           end do  ! end iter
@@ -3413,6 +3425,10 @@ C   mminlu and num_land_cat are WRF global variables
       USE UTILIO_DEFN
       USE em_param_module
 
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, S_NRGN, S_RGNLBL, IREGION
+#endif
+
       IMPLICIT NONE
                                                      
       TYPE( EM_REG      ) :: EM_REG_READ( N_REGIONS_REG )
@@ -3588,6 +3604,40 @@ C   mminlu and num_land_cat are WRF global variables
 
       EM_REGIONS = EM_REGIONS( 1:N_EM_RGN )
       EM_REG_FAC = EM_REG_FAC( :,:,1:N_EM_RGN )
+
+#ifdef sens
+! Populate IREGION(NCOLS,NROW,NLAYS,NPMAX) with regions data if specified
+!'
+
+      DO NP = 1, NPMAX
+        IF ( S_NRGN( NP ) .GT. 0 .AND. S_NRGN( NP ) .LT. 99 ) THEN !  
+          DO IRGN = 1, S_NRGN( NP )
+            IREAD = INDEX1( S_RGNLBL(NP,IRGN), N_EM_RGN, EM_REGIONS%LABEL ) ! identify region
+            IF ( IREAD .EQ. 0 ) THEN
+              XMSG = " User specified DDM3D region - " //
+     &               TRIM( S_RGNLBL(NP,IRGN) ) //
+     &               " - not found in available emissions regions. " //
+     &               " Check sensinput.dat file "
+              WRITE(LOGDEV,*) " Available region definitions: "
+              DO IFILE = 1, N_EM_RGN
+                WRITE(LOGDEV,*) IFILE, EM_REGIONS( IFILE )%LABEL
+              END DO
+              CALL M3EXIT( PNAME, 1, 1, XMSG, XSTAT1 )
+            ELSE
+              IREGION(:,:,1,NP) = IREGION( :,:,1,NP )
+     &                          + EM_REG_FAC( :,:,IREAD )
+            END IF
+          END DO
+! Limit IREGION to < 1.0 incase some regions overlap.
+          IREGION(:,:,:,NP) = MIN ( IREGION(:,:,:,NP), 1.0 )
+! Copy up to layers above
+          DO IFILE = 1, NLAYS
+            IREGION(:,:,IFILE,NP) = IREGION(:,:,1,NP)
+          END DO
+        END IF
+      END DO
+
+#endif
       
       END SUBROUTINE INIT_EMIS_REGIONS
 

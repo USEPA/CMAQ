@@ -27,6 +27,8 @@ C %W% %P% %G% %U%
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef isam
       SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON, SA_CON  )
+#elif sens
+      SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON, SEN )
 #else
       SUBROUTINE VPPM ( NI, DT, DS, FLX, VEL, CON )
 #endif
@@ -104,12 +106,15 @@ C                     the relationship between the flux and velocity is
 C                     roughly a second order polynomial and adjustments
 C                     under conditions with CFL near 1 could result in 
 C                     errors using a linear approximation. 
+C   11 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C----------------------------------------------------------------------
       
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
 #ifdef isam
       USE SA_DEFN
+#elif sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
 #endif
 
       IMPLICIT NONE
@@ -159,6 +164,10 @@ C Local variables:
       
       INTEGER I, S             ! loop index
       INTEGER, PARAMETER :: MAXCNT = 50
+
+#ifdef sens
+      REAL,    INTENT( INOUT ) :: SEN( :,:,: )
+#endif
 
 C----------------------------------------------------------------------
       
@@ -327,6 +336,58 @@ Ckrt... Advect the apportioning tags ......
 
 602   CONTINUE
 #endif
+
+#ifdef sens
+      DO NP = 1, NPMAX
+
+         DO 701 S = 1, N_SPC_ADV
+
+            DO I = 1, NI
+               CN( I ) = SEN( I,S,NP )
+            END DO
+
+            CALL PPM ( NI, DT, DS, CN, CR, CL, DC, C6 )
+
+            FM( 1:NI+1 ) = 0.0
+            FP( 0:NI ) = 0.0
+
+            DO I = 1, NI
+
+               IF ( VEL( I ) .LT. 0.0 ) THEN
+                  Y = -VEL( I ) * DT
+                  X = Y / DS( I )
+                  FM( I ) = Y * ( CL( I ) + 0.5 * X
+     &                    * ( DC( I ) + C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
+               END IF
+
+               IF ( VEL( I+1 ) .GT. 0.0 ) THEN
+                  Y = VEL( I+1 ) * DT
+                  X = Y / DS( I )
+                  FP( I ) = Y * ( CR( I ) - 0.5 * X
+     &                    * ( DC( I ) - C6( I ) * ( 1.0 - TWO3RDS * X ) ) )
+               END IF
+
+            END DO
+
+c compute fluxes for top face
+
+            I = NI+1
+            IF ( VEL( I ) .LT. 0.0 ) THEN
+               Y = -VEL( I ) * DT
+               FM( I ) = Y * SEN ( I-1,S,NP )
+            END IF
+
+            DO I = 1, NI
+               SEN( I,S,NP ) = SEN( I,S,NP )
+     &                       + ( FP( I-1 ) - FP( I ) + FM( I+1 ) - FM( I ) ) / DS( I )
+            END DO
+
+701      CONTINUE
+
+      END DO
+#endif
+
+
 
       RETURN
       END SUBROUTINE VPPM
