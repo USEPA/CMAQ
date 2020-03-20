@@ -130,7 +130,7 @@ AMNJ            ,ug m-3     ,AMNJ[1]
 ASOILJ          ,ug m-3     ,2.20*AALJ[1]+2.49*ASIJ[1]+1.63*ACAJ[1]+2.42*AFEJ[1]+1.94*ATIJ[1]
 
 !! Non-Crustal Inorganic Particle Species
-AHPLUSIJ        ,ug m-3     ,(AH3OPI[1]+AH3OPJ[1])*1.0/19.0
+AHPLUSIJ        ,umol m-3   ,(AH3OPI[1]+AH3OPJ[1])*1.0/19.0
 ANAK            ,ug m-3     ,0.8373*ASEACAT[1]+0.0626*ASOIL[1]+0.0023*ACORS[1]
 AMGK            ,ug m-3     ,0.0997*ASEACAT[1]+0.0170*ASOIL[1]+0.0032*ACORS[1]
 AKK             ,ug m-3     ,0.0310*ASEACAT[1]+0.0242*ASOIL[1]+0.0176*ACORS[1]
@@ -275,8 +275,7 @@ PM25_UNSPEC1    ,ug m-3     ,PM25_TOT[0]-(PM25_CL[0]+PM25_EC[0]+PM25_NA[0]+PM25_
 !Do not trust predictions when hourly water is <0.01 ug m-3. FINEPHF will
 !have -999999 when pH is not to be trusted.
 !AH2OIJ         ,ug m-3     ,AH2OI[1]+AH2OJ[1]
-!AHPLUSIJ       ,nmol m-3   ,(AH3OPI[1]+AH3OPJ[1])/19.0*1000.0
-!HPMOLAL        ,mol L-1    ,AHPLUSIJ[0]/AH2OIJ[0]
+!HPMOLAL        ,mol L-1    ,AHPLUSIJ[0]/AH2OIJ[0]*1000.0
 !ACIDITYTEMP    ,na         ,-1*LOG10(HPMOLAL[0])
 !FINEPHF        ,na         ,AH2OIJ[0]>0.01 ? ACIDITYTEMP[0] : -999999
 
