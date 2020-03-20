@@ -95,6 +95,9 @@ C    1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
 C   20 Nov 19 F. Sidi: Updated MET STIME, SDATE, TSTEP, XCELL, YCELL to correspond
 C                      to updates in Centralized I/O 
+C   10 Feb 20 D. Wong: Updated sync step calculation to include input 
+C                      meterology temporal frequency, to allow running with
+C                      finer temporal scale.
 C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
@@ -214,14 +217,14 @@ C-----------------------------------------------------------------------
          ADVLAYR = L
          WRITE( LOGDEV,92005 ) ADVLAYR
 
-         SDATE = file_sdate(f_met)
-         STIME = file_stime(f_met)
-         FSTEP = file_tstep(f_met)
+         SDATE = FILE_SDATE(F_MET)
+         STIME = FILE_STIME(F_MET)
+         FSTEP = FILE_TSTEP(F_MET)
 
 C Check file data against COORD.EXT
 
-         IF ( ABS( file_xcell(f_met) - XCELL_GD ) .GT. TOL .OR.
-     &        ABS( file_ycell(f_met) - YCELL_GD ) .GT. TOL      ) THEN
+         IF ( ABS( FILE_XCELL(F_MET) - XCELL_GD ) .GT. TOL .OR.
+     &        ABS( FILE_YCELL(F_MET) - YCELL_GD ) .GT. TOL      ) THEN
             WRITE( LOGDEV,* ) 'XCELL3D, XCELL_GD, YCELL3D, YCELL_GD: '
             WRITE( LOGDEV,* ) XCELL3D, XCELL_GD, YCELL3D,YCELL_GD
             XMSG = 'File grid sizes do not match CTM domain definition'
@@ -261,24 +264,39 @@ C Get the time of starting wind field: do not interpolate
             XMSG = 'Failure allocating MX_HDIV*'
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+ 
+         IF ( .NOT. COLUMN_MODEL ) THEN
 
-         CALL HVELOC( FDATE, FTIME, WSTEP, UWIND, VWIND, HDIV )
+            CALL HVELOC( FDATE, FTIME, WSTEP, UWIND, VWIND, HDIV )
 
-         DO L = 1, NLAYS
-            WIND_IDX_BEG( L ) = 0.0
-            MX_HDIV_BEG( L ) = 0.0
-            DO R = 1, NROWS
-               DO C = 1, NCOLS
-                  WIND_IDX_BEG( L ) = MAX( WIND_IDX_BEG( L ),
-     &                                     ABS( UWIND( C,R,L ) ) * IDX1,
-     &                                     ABS( VWIND( C,R,L ) ) * IDX2 )
-                  MX_HDIV_BEG( L ) = MAX( MX_HDIV_BEG( L ), HDIV( C,R,L ) )
+            DO L = 1, NLAYS
+               WIND_IDX_BEG( L ) = 0.0
+               MX_HDIV_BEG( L ) = 0.0
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
+                     WIND_IDX_BEG( L ) = MAX( WIND_IDX_BEG( L ),
+     &                                   ABS( UWIND( C,R,L ) ) * IDX1,
+     &                                   ABS( VWIND( C,R,L ) ) * IDX2 )
+                     MX_HDIV_BEG( L ) = MAX( MX_HDIV_BEG( L ), HDIV( C,R,L ) )
+                  END DO
                END DO
+               WIND_IDX_BEG( L ) = SUBST_GLOBAL_MAX( WIND_IDX_BEG( L ) )
+               MX_HDIV_BEG( L )  = SUBST_GLOBAL_MAX( MX_HDIV_BEG( L ) )
             END DO
-            WIND_IDX_BEG( L ) = SUBST_GLOBAL_MAX( WIND_IDX_BEG( L ) )
-            MX_HDIV_BEG( L )  = SUBST_GLOBAL_MAX( MX_HDIV_BEG( L ) )
-         END DO
 
+         ELSE
+
+            UWIND = 0.0
+            VWIND = 0.0
+            HDIV  = 0.0
+            WIND_IDX     = 0.0
+            MX_HDIV      = 0.0
+            WIND_IDX_BEG = 0.0
+            WIND_IDX_END = 0.0
+            MX_HDIV_END  = 0.0
+            MX_HDIV_BEG  = 0.0
+
+         END IF
       END IF   ! FIRSTIME
 
 C Compute the least number of equal time steps that satisfy the Courant
@@ -287,7 +305,7 @@ C condition (force TSTEP(2) to be no greater than MAXSYNC):
 #ifdef twoway
       OSTEP = TIME2SEC( TSTEP( 3 ) )
 #else
-      OSTEP = TIME2SEC( TSTEP( 1 ) )
+      OSTEP = TIME2SEC( min(TSTEP( 1 ), FSTEP) )
 #endif
       MAXSYNC = MIN( OSTEP, MAXSYNC )
 
@@ -330,31 +348,33 @@ C Establish ending time for this Courant number calculation:
 #ifdef twoway
       CALL NEXTIME( EDATE, ETIME, TSTEP( 3 ) )
 #else
-      CALL NEXTIME( EDATE, ETIME, TSTEP( 1 ) )
+      CALL NEXTIME( EDATE, ETIME, min(TSTEP( 1 ), FSTEP) )
 #endif
 
       IF ( SECSDIFF( FDATE, FTIME, EDATE, ETIME ) .GT. 0 )
 C Get the next wind field: do not interpolate
      &   CALL NEXTIME( FDATE, FTIME, FSTEP )
 
-      CALL HVELOC( FDATE, FTIME, WSTEP, UWIND, VWIND, HDIV )
+      IF ( .NOT. COLUMN_MODEL ) THEN
 
-      DO L = 1, NLAYS
-         WIND_IDX_END( L ) = 0.0
-         MX_HDIV_END( L ) = 0.0
-         DO R = 1, NROWS
-            DO C = 1, NCOLS
-               WIND_IDX_END( L ) = MAX( WIND_IDX_END( L ),
-     &                                  ABS( UWIND( C,R,L ) ) * IDX1,
-     &                                  ABS( VWIND( C,R,L ) ) * IDX2 )
-               MX_HDIV_END( L ) = MAX( MX_HDIV_END( L ), HDIV( C,R,L ) )
+         CALL HVELOC( FDATE, FTIME, WSTEP, UWIND, VWIND, HDIV )
+
+         DO L = 1, NLAYS
+            WIND_IDX_END( L ) = 0.0
+            MX_HDIV_END( L ) = 0.0
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  WIND_IDX_END( L ) = MAX( WIND_IDX_END( L ),
+     &                                ABS( UWIND( C,R,L ) ) * IDX1,
+     &                                ABS( VWIND( C,R,L ) ) * IDX2 )
+                   MX_HDIV_END( L ) = MAX( MX_HDIV_END( L ), HDIV( C,R,L ) )
+               END DO
             END DO
+            WIND_IDX_END( L ) = SUBST_GLOBAL_MAX( WIND_IDX_END( L ) )
+            MX_HDIV_END( L )  = SUBST_GLOBAL_MAX( MX_HDIV_END( L ) )
          END DO
 
-         WIND_IDX_END( L ) = SUBST_GLOBAL_MAX( WIND_IDX_END( L ) )
-         MX_HDIV_END( L )  = SUBST_GLOBAL_MAX( MX_HDIV_END( L ) )
-
-      END DO
+      END IF
 
       WIND_IDX = MAX( WIND_IDX_BEG, WIND_IDX_END ) ! array
       WIND_IDX_BEG = WIND_IDX_END                  ! save for next call
@@ -405,7 +425,7 @@ C satisfies both conditions).
 
 C If you get here: could not determine satisfactory advection time step.
 
-      WRITE( LOGDEV,94011 ) TSTEP( 1 ), MXUOVDX
+      WRITE( LOGDEV,94011 ) min(TSTEP( 1 ), FSTEP), MXUOVDX
       XMSG = ' '
       CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 
@@ -437,7 +457,7 @@ C If you get here: could not determine satisfactory advection time step.
 
 C If you get here: could not determine satisfactory advection time step.
 
-         WRITE( LOGDEV,94013 ) TSTEP( 1 ), L, WIND_IDX( L )
+         WRITE( LOGDEV,94013 ) min(TSTEP( 1 ), FSTEP), L, WIND_IDX( L )
          XMSG = ' '
          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 
@@ -465,7 +485,7 @@ C For each layer ensure that Max(HDIV)*ADV < 1.
             END DO
 C If you get here: could not determine satisfactory advection time step.
 
-            WRITE( LOGDEV,94013 ) TSTEP( 1 ), L, WIND_IDX( L )
+            WRITE( LOGDEV,94013 ) min(TSTEP( 1 ), FSTEP), L, WIND_IDX( L )
             XMSG = ' '
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT3 )
 

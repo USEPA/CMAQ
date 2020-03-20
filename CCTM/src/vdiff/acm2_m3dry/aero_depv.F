@@ -240,7 +240,11 @@ C ***    extract grid cell concentrations of aero species from CGRID
 C        into aerospc_conc in aero_data module
 C        Also determines second moment from surface area and adds wet
 C        species
+#ifdef sens
+         CALL EXTRACT_AERO( CGRID( C,R,1,: ), .TRUE., CGRID( C,R,:,: ), .FALSE. ) 
+#else
          CALL EXTRACT_AERO( CGRID( C,R,1,: ), .TRUE. )
+#endif
 
 C ***    Calculate geometric mean diameters and standard deviations of the
 C        "wet" size distribution
