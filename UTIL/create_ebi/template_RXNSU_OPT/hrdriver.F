@@ -426,13 +426,13 @@ c..Set physical quantities
 
 c..Get rate constants
                LSUNLIGHT = .FALSE.
-               RJIN( NCELL,: ) = REAL( RJ( C,R,L,: ), 8)
+               FORALL( NPH = 1:NPHOTAB ) RJIN( NCELL,NPH ) = REAL( RJ( C,R,L,NPH ), 8)
                IF( MAXVAL(RJIN) .GT. 0.0D0 ) LSUNLIGHT = .TRUE.
-                                     
-               HET( NCELL,: ) = REAL( KHETERO( :,C,R,L ), 8)
+
+               FORALL ( NPH = 1:NHETERO )HET( NCELL,NPH ) = REAL( KHETERO( NPH,C,R,L ), 8)
 
                CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
-               RKI( : ) = RKI_SAV( NCELL,: )
+               FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
 #ifdef isam
 #if defined(isam) || defined(verbose_isam)
