@@ -66,6 +66,9 @@
 !  01/30/20, D. Wong:- fixed IC file interpolation time stamp issue by bypassing the
 !                      check whether the new request falls within the circular buffer
 !                      for IC variable which only has one time step of data.
+!  02/10/20, F. Sidi:- Changed file_tstep from tstep3d to met_tstep an environment
+!                      variable the flexlible allows users to toggle the temporal 
+!                      frequency of their input meterology. 
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -310,7 +313,7 @@
           USE VGRD_DEFN, only : VGTYP_GD, nlays
           USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON,
      &                             STDATE, WB_DUST, ISAM_NEW_START,
-     &                             local_tstep
+     &                             local_tstep, met_tstep
           use LSM_Mod, only : LAND_SCHEME
           use cgrid_spcs, only : n_gc_spcd, n_ae_spc
 
@@ -409,10 +412,14 @@
              XMSG = 'Could not get ' // MET_CRO_2D //' file description'
              CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
           END IF
-
+          
           file_sdate(f_met) = sdate3d
           file_stime(f_met) = stime3d
+#ifdef twoway
           file_tstep(f_met) = tstep3d
+#else
+          file_tstep(f_met) = met_tstep ! offline model controlled by runtime var MET_TSTEP 
+#endif
           file_xcell(f_met) = xcell3d
           file_ycell(f_met) = ycell3d
 
@@ -2695,7 +2702,7 @@ C Read the various categories of normalized emissions
                    deallocate (tdata)
 
                 else
-                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWNi Type of File',1 )
+                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN Type of File',1 )
                 end if
 
                 cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
@@ -2723,10 +2730,6 @@ C Read the various categories of normalized emissions
 
              do i = 1, N_FILE_GR
                 CALL NEXTIME ( loc_jdate(f_emis(i)), loc_jtime(f_emis(i)), file_tstep(f_emis(i)) )
-             end do
-
-             do i = 1, NPTGRPS
-                CALL NEXTIME ( loc_jdate(f_stk_emis(i)), loc_jtime(f_stk_emis(i)), file_tstep(f_stk_emis(i)) )
              end do
 
           end do  ! end iter
