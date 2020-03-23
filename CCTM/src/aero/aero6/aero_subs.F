@@ -185,6 +185,8 @@ C HP/BM  4/16 Removed m3_wet_flag since wet/dry status is now
 C             tracked by AERO_DATA variable. Moments are always wet in AEROPROC
 C             Updated treatment of aerosol moments
 
+C SLN 12/30/19 Update for ddm-3d implementation in version 5.3.1
+
 C  REFERENCES:
 C   1. Binkowski, F.S. and U. Shankar, The regional particulate matter
 C      model 1. Model description and preliminary results, J. Geophys.
@@ -207,6 +209,12 @@ C-----------------------------------------------------------------------
       USE AEROMET_DATA
       USE UTILIO_DEFN
       USE AERO_BUDGET
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX
+      USE AERO_DDM3D, ONLY : s_aerospc_conc, s_precursor_conc, s_so4rate, s_vapor_conc, s_orgprod_conc
+#endif
+
 
       IMPLICIT NONE
 
@@ -3016,6 +3024,10 @@ C  Called by: Gas-Phase Chemistry Driver
       USE GRID_CONF, ONLY: NLAYS, NCOLS, NROWS
       USE PRECURSOR_DATA, ONLY: EXTRACT_PRECURSOR
 
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: SENGRID
+
+#endif
       IMPLICIT NONE
       
       REAL, INTENT( IN ) :: CONCVEC ( : )  ! pointer to model concentrations
@@ -3036,7 +3048,11 @@ C  Called by: Gas-Phase Chemistry Driver
 C *** extract grid cell concentrations of aero species from CGRID
 C     into aerospc_conc in aero_data module
 C     also converts dry surface area to wet second moment
+#ifdef sens
+               CALL EXTRACT_AERO ( CONCVEC(:), .TRUE., SENGRID(NCOLS,NROWS,NLAYS,:,:), .FALSE. )
+#else
                CALL EXTRACT_AERO ( CONCVEC(:), .TRUE. )
+#endif
 
 C *** extract in inorganic aerosol processors
 
@@ -3102,7 +3118,11 @@ C  Called by: Gas-Phase Chemistry Driver
                ! Extract grid cell concentrations of aero species from CGRID
                ! into aerospc_conc in aero_data module
                ! also converts dry surface area to wet second moment
+#ifdef sens
+               CALL EXTRACT_AERO ( CGRID( C,R,L,: ), .TRUE., CGRID(C,R,:,: ), .FALSE. )
+#else
                CALL extract_aero ( CGRID( C,R,L,: ), .True. )
+#endif
 
                ! Recalculate Dry 3rd Moment After Chemistry Processes
                ! 2nd moment hasnt been update yet.

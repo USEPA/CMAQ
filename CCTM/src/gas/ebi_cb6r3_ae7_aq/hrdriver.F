@@ -55,6 +55,7 @@ C                        dependent reactions and 2) modified the call CALC_RCONS
 C                        routine
 C   01 Feb 19 D.Wong:    Implemented centralized I/O approach, removed all MY_N
 C                        clauses
+C   27 Dec 19 S.Napelenok: DDM-3D implementation for version 5.3.1
 C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -79,6 +80,12 @@ C**********************************************************************
      &                              SA_DEGRADE_UPLOAD
 #endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
+
+#ifdef sens
+      USE DDM3D_CHEM
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
+#endif 
+
 
       IMPLICIT NONE
 
@@ -285,6 +292,21 @@ C..Determine which cells need IRR
 #endif
          LFIRST = .FALSE.
 
+#ifdef sens
+         CALL INIT_DDM3D_CHEM()
+
+C For higher order sensitivities
+         IF ( HIGH ) THEN
+            DO RXN = 1, NRXNS
+               IF( NREACT( RXN ) .EQ. 1 ) THEN
+                  ORDER1( RXN ) = .TRUE.
+               ELSE
+                  ORDER1( RXN ) = .FALSE.
+               END IF
+            END DO
+         END IF
+#endif
+
       END IF      ! First time
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -333,6 +355,33 @@ C.. Get pressure in Pascals
 
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
+
+#ifdef sens
+      DATENUM = 1 + JDATE - STARTDATE !  Set the date and hour counters used in sensitivity calls
+
+C For reaction rate sensitivities
+      DO NP = 1, NPMAX
+         IF ( IPT( NP ) .EQ. 5 ) THEN
+            CALL CKTIME( JDATE,JTIME,NP,RXNFLAG(NP) ) ! Rxnflag set to true iff ipt=5 and time, date within bounds
+            IF ( IDATE( NP, DATENUM ) .NE. 1 ) RXNFLAG( NP ) = .FALSE.
+         ELSE
+            RXNFLAG( NP ) = .FALSE.
+         END IF
+      END DO
+
+C For higher order sensitivities
+c     IF ( HIGH ) THEN
+c        DO RXN = 1, NRXNS
+c           IF( NREACT( RXN ) .EQ. 1 ) THEN
+c              ORDER1( RXN ) = .TRUE.
+c           ELSE
+c              ORDER1( RXN ) = .FALSE.
+c           END IF
+c        END DO
+c     END IF
+#endif sens
+
+
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells
@@ -461,6 +510,22 @@ c..Update concentration array
 
 c..update irrout arrays if needed
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
+
+#ifdef sens
+               DO RXN = 1, NRXNS
+                  SRK( RXN ) = RKI( RXN )
+                  IF ( HIGH ) THEN
+                     IF ( ORDER1 (RXN ) ) THEN
+                        SRK2( RXN ) = 0.0
+                     ELSE
+                        SRK2( RXN ) = RKI( RXN )
+                     END IF
+                  END IF
+               END DO
+
+
+               CALL SOLVE_DDM3D_CHEM( C,R,L,CHEMSTEP )
+#endif
 
             END DO
          END DO
