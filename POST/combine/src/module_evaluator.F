@@ -293,6 +293,9 @@ C  subroutine to find location of parentheses depth
 
 C  subroutine to return buffer array value
       Subroutine getBuffer(field, buffer)
+ 
+      USE M3UTILIO, ONLY: BADVAL3
+
       IMPLICIT NONE
 
       Character*(*), Intent( InOut ) :: field
@@ -345,7 +348,7 @@ C  subroutine to return buffer array value
              buffer = LOG(buffer)
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where   
           If( Any( eflag ) )Then
@@ -358,11 +361,11 @@ C  subroutine to return buffer array value
              buffer = LOG10(buffer)
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where   
           If( Any( eflag ) )Then
-            write(emsg,99950)"LOG10",MinVal(buffer),MaxVal(buffer)
+            write(emsg,99950)"LOG10",MinVal(parsebuffer(1:isize,nbuf) ),MaxVal(parsebuffer(1:isize,nbuf) )
           End If
           return
         End If
@@ -374,11 +377,11 @@ C  subroutine to return buffer array value
              buffer = 0.0
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where
           If( Any( eflag ) )Then
-            write(emsg,99951)"EXP",MaxVal(buffer)
+            write(emsg,99951)"EXP",MaxVal(parsebuffer(1:isize,nbuf) )
           End If
           return
         End If
@@ -399,11 +402,11 @@ C  subroutine to return buffer array value
              buffer = ASIN(buffer)
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where   
           If( Any( eflag ) )Then
-            write(emsg,99950)"ASIN",MinVal(buffer),MaxVal(buffer)
+            write(emsg,99950)"ASIN",MinVal(parsebuffer(1:isize,nbuf) ),MaxVal(parsebuffer(1:isize,nbuf) )
           End If
           return
         End If
@@ -412,11 +415,11 @@ C  subroutine to return buffer array value
              buffer = ACOS(buffer)
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where   
           If( Any( eflag ) )Then
-            write(emsg,99950)"ACOS",MinVal(buffer),MaxVal(buffer)
+            write(emsg,99950)"ACOS",MinVal(parsebuffer(1:isize,nbuf) ),MaxVal(parsebuffer(1:isize,nbuf) )
           End If
           return
         End If
@@ -429,11 +432,11 @@ C  subroutine to return buffer array value
              buffer = SINH(buffer)
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where
           If( Any( eflag ) )Then
-            write(emsg,99950)"SINH",MinVal(buffer),MaxVal(buffer)
+            write(emsg,99950)"SINH",MinVal(parsebuffer(1:isize,nbuf) ),MaxVal(parsebuffer(1:isize,nbuf) )
           End If
           return
         End If
@@ -442,11 +445,11 @@ C  subroutine to return buffer array value
              buffer = COSH(buffer)
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where
           If( Any( eflag ) )Then
-            write(emsg,99950)"SINH",MinVal(buffer),MaxVal(buffer)
+            write(emsg,99950)"SINH",MinVal(parsebuffer(1:isize,nbuf) ),MaxVal(parsebuffer(1:isize,nbuf) )
           End If
           return
         End If
@@ -455,11 +458,11 @@ C  subroutine to return buffer array value
              buffer = TANH(buffer)
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where
           If( Any( eflag ) )Then
-            write(emsg,99950)"TANH",MinVal(buffer),MaxVal(buffer)
+            write(emsg,99950)"TANH",MinVal(parsebuffer(1:isize,nbuf) ),MaxVal(parsebuffer(1:isize,nbuf) )
           End If
           return
         End If
@@ -468,11 +471,11 @@ C  subroutine to return buffer array value
              buffer = SQRT(buffer)
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where
           If( Any( eflag ) )Then
-            write(emsg,99951)"SQRT",MinVal(buffer)
+            write(emsg,99951)"SQRT",MinVal(parsebuffer(1:isize,nbuf) )
           End If
           return
         End If
@@ -494,11 +497,11 @@ C  subroutine to return buffer array value
              buffer = ERF(buffer)
              eflag = .False.
           Else Where
-             buffer = -99999.9
+             buffer = BADVAL3
              eflag = .True.
           End Where
           If( Any( eflag ) )Then
-            write(emsg,99950)"ERF",MinVal(buffer),MaxVal(buffer)
+            write(emsg,99950)"ERF",MinVal(parsebuffer(1:isize,nbuf) ),MaxVal(parsebuffer(1:isize,nbuf) )
           End If
           return
         End If
@@ -510,8 +513,8 @@ C  subroutine to return buffer array value
 
       return
 
-99950 Format("**ERROR** evaluating ",a," equal to ",es12.4," or ",es12.4)
-99951 Format("**ERROR** evaluating ",a," equal to ",es12.4)
+99950 Format("**ERROR** evaluating ",a," equal to ",es16.7," or ",es16.7)
+99951 Format("**ERROR** evaluating ",a," equal to ",es16.7)
 
       end Subroutine getBuffer
 
@@ -560,7 +563,8 @@ C
       ! parse major fields (?:)
       nmajor = getFldCount(expression, '?:')
 
-      emsg = ' '
+      emsg  = ' '
+      eflag = .False.
       
       ! if conditional 
       if( nmajor.eq.3 ) then 
@@ -602,18 +606,20 @@ C
             field     = field2
             endif 
           enddo 
-        
-        If( Any( eflag ) .And. .Not. Allow_BadValues ) then
-          Write(*,'(//a)')"Problem evaluating " 
+       
+        If( Any( eflag ) ) then
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula )
-          If( Count( flags .And. eflag1 ) .Gt. 0 )Then
+          If( Any( eflag .And. eflag1 ) )Then
              Write(*,'(a//)')Trim(emsg1)
           endif   
-          If( Count( flags .And. eflag2 ) .Gt. 0 )Then
+          If( Any( eflag .And. eflag2 ) )Then
              Write(*,'(a//)')Trim(emsg2)
-          endif   
-          KSWIT = SHUT3()
-          STOP
+          endif
+          If( .Not. Allow_BadValues )Then
+            KSWIT = SHUT3()
+            STOP
+          End IF  
         endif
         Deallocate (flags, value1, value2)
         Deallocate (eflag1,eflag2)
@@ -623,12 +629,14 @@ C
       ! if no conditional
       if( nmajor.eq.1 ) then
         call eval2( trim(expression), buffer )
-        If( Any( eflag ).And. .Not. Allow_BadValues ) then
-          Write(*,'(//a)')"Problem evaluating " 
+        If( Any( eflag )  ) then
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula  )
           Write(*,'(a//)')Trim(emsg)
-          KSWIT = SHUT3()
-          STOP
+          If( .Not. Allow_BadValues )Then
+            KSWIT = SHUT3()
+            STOP
+          End IF  
         endif
         return
         endif
@@ -679,7 +687,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call getFld( expression, '<=', 1, operator, field ) 
         call eval2( field, value1)
         If( Any( eflag ) )Then
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula  )
           Write(*,*)Trim(emsg)
           KSWIT = SHUT3()
@@ -688,7 +696,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call getFld( expression, '<=', 3, operator, field ) 
         call eval2( field, value2)
         If( Any( eflag ) )Then
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula  )
           Write(*,*)Trim(emsg)
           KSWIT = SHUT3()
@@ -704,7 +712,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call getFld( expression, '>=', 1, operator, field ) 
         call eval2( field, value1)
         If( Any( eflag ) )Then
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula  )
           Write(*,*)Trim(emsg)
           KSWIT = SHUT3()
@@ -713,7 +721,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call getFld( expression, '>=', 3, operator, field ) 
         call eval2( field, value2)
         If( Any( eflag ) )Then
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula  )
           Write(*,*)Trim(emsg)
           KSWIT = SHUT3()
@@ -729,7 +737,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call getFld( expression, '>', 1, operator, field ) 
         call eval2( field, value1)
         If( Any( eflag ) )Then
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula  )
           Write(*,*)Trim(emsg)
           KSWIT = SHUT3()
@@ -738,7 +746,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call getFld( expression, '>', 2, operator, field ) 
         call eval2( field, value2)
         If( Any( eflag ) ) then
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating:" 
      &    // Trim( formula  )
           Write(*,*)Trim(emsg)
           KSWIT = SHUT3()
@@ -755,7 +763,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call eval2( field, value1)
         If( Any( eflag ) )Then
           Write(*,'(/''**Error** Syntax error encountered: '',a)') trim(expression)
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula  )
           KSWIT = SHUT3()
           STOP
@@ -763,7 +771,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call getFld( expression, '<', 2, operator, field ) 
         call eval2( field, value2)
         If( Any( eflag ) )Then
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula  )
           Write(*,*)Trim(emsg)
           KSWIT = SHUT3()
@@ -779,7 +787,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call getFld( expression, '=', 1, operator, field ) 
         call eval2( field, value1)
         If( Any( eflag ) )Then
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating: " 
      &    // Trim( formula  )
           Write(*,*)Trim(emsg)
           KSWIT = SHUT3()
@@ -788,7 +796,7 @@ C  subroutine to evaluate condition expression (called from eval1)
         call getFld( expression, '=', 2, operator, field ) 
         call eval2( field, value2)
         If( Any( eflag ) )Then
-          Write(*,'(//a)')"Problem evaluating " 
+          Write(*,'(//a)')"Problem evaluating:" 
      &    // Trim( formula  )
           Write(*,*)Trim(emsg)
           KSWIT = SHUT3()
@@ -883,8 +891,6 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
       Do n=1,nflds
         call getFld( trim(expression), '*/^', n, operator, field ) 
 
-!       print*,Trim(field)
-
         ! check for buffer array
         If( index(field,'buffer[') .gt.0 ) Then
           Call getBuffer(field, specValue)
@@ -936,6 +942,8 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
 C  routine to compute a field of the expression (parses minor fields (*/^))
       Subroutine eval3b(expression, value)
       
+      USE M3UTILIO, ONLY: BADVAL3
+
       IMPLICIT NONE
 
       ! arguments
@@ -965,7 +973,21 @@ C  routine to compute a field of the expression (parses minor fields (*/^))
 !        print*,operator,value,specValue
 
         If( operator.eq.'*' ) value = value * specValue
-        If( operator.eq.'/' ) value = value / specValue
+        If( operator.eq.'/' )Then
+          Where( specValue .Ne. 0.0 )
+             value = value / specValue
+             eflag = .false.
+          Else Where
+             value = BADVAL3
+             eflag = .true.
+          End Where
+          If( Any( eflag ) )Then
+!            write(6,*) "Denominator, "
+!     &      // Trim( field ) // ", equals zero."
+            write(emsg,*) "Denominator, "
+     &      // Trim( field ) // ", equals zero."
+          End If
+        End If
 !        If( operator.eq.'^' ) value = value ** specValue
 
       End Do
