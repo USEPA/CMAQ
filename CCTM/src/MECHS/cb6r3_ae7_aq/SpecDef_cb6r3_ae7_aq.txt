@@ -236,8 +236,5 @@ PMC_SO4         ,ug m-3    ,PM25TO10_SO4[3]
 PMC_TOT         ,ug m-3    ,PM25TO10[3] 
  
 !! FRM PM Equivalent Calculation
-!! This section calculates the FRM applicable PM species, PMIJ_FRM and
-!! PM25_FRM. The intermediate variablse K...ANH4IJ_loss are needed to 
-!! calculate the final quantities.
 PMIJ_FRM        ,ug m-3    ,PMF_FRM[3]
 PM25_FRM        ,ug m-3    ,PM25_FRM[3]

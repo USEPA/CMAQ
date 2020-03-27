@@ -293,8 +293,5 @@ HG_PM10         ,ng m-3    ,1000.0*PM10_HG[3]
 HG_PM25         ,ng m-3    ,1000.0*PM25_HG[3]
  
 !! FRM PM Equivalent Calculation
-!! This section calculates the FRM applicable PM species, PMIJ_FRM and
-!! PM25_FRM. The intermediate variablse K...ANH4IJ_loss are needed to 
-!! calculate the final quantities.
 PMF_FRM         ,ug m-3    ,PMF_FRM[3]
 PM25_FRM        ,ug m-3    ,PM25_FRM[3]

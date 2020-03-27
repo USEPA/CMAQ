@@ -170,21 +170,44 @@ c-----------------------------------------------------------------------
         INTEGER = PARAMETER :: ID_PM25to10_NH4=125
         INTEGER = PARAMETER :: ID_PM25to10_CL =126
         INTEGER = PARAMETER :: ID_PM25to10_NA =127
-        INTEGER = PARAMETER :: ID_TNO3 =       128
-        INTEGER = PARAMETER :: ID_PM25_FRM =   129
-        INTEGER = PARAMETER :: ID_PMF_FRM =    130
-        INTEGER = PARAMETER :: ID_AOD550 =     131
-        INTEGER = PARAMETER :: ID_PMEXT550 =   132
-        INTEGER = PARAMETER :: ID_RH =         133
-        INTEGER = PARAMETER :: ID_TEMP =       134
-        INTEGER = PARAMETER :: ID_PRES =       135
-        INTEGER = PARAMETER :: ID_GN2O5F =     136
-        INTEGER = PARAMETER :: ID_GN2O5C =     137
-        INTEGER = PARAMETER :: ID_YCLNO2F =    138
-        INTEGER = PARAMETER :: ID_YCLNO2C =    139
-        INTEGER = PARAMETER :: ID_GIEPOX =     140
-        INTEGER = PARAMETER :: ID_KIEPOX =     141
-        INTEGER = PARAMETER :: ID_GIMAE =      142
+        INTEGER = PARAMETER :: ID_PM25_DSL    =128
+        INTEGER = PARAMETER :: ID_PM25_HBE    =129
+        INTEGER = PARAMETER :: ID_PM25_HCD    =130
+        INTEGER = PARAMETER :: ID_PM25_HCR3   =131
+        INTEGER = PARAMETER :: ID_PM25_HCR6   =132
+        INTEGER = PARAMETER :: ID_PM25_HCR    =133
+        INTEGER = PARAMETER :: ID_PM25_HPB    =134
+        INTEGER = PARAMETER :: ID_PM25_HMN    =135
+        INTEGER = PARAMETER :: ID_PM25_HNI    =136
+        INTEGER = PARAMETER :: ID_PM25_HAS    =137
+        INTEGER = PARAMETER :: ID_PM25_HG     =138
+        INTEGER = PARAMETER :: ID_PM10_DSL    =139
+        INTEGER = PARAMETER :: ID_PM10_HBE    =140
+        INTEGER = PARAMETER :: ID_PM10_HCD    =141
+        INTEGER = PARAMETER :: ID_PM10_HCR3   =142
+        INTEGER = PARAMETER :: ID_PM10_HCR6   =143
+        INTEGER = PARAMETER :: ID_PM10_HCR    =144
+        INTEGER = PARAMETER :: ID_PM10_HPB    =145
+        INTEGER = PARAMETER :: ID_PM10_HMN    =146
+        INTEGER = PARAMETER :: ID_PM10_HNI    =147
+        INTEGER = PARAMETER :: ID_PM10_HAS    =148
+        INTEGER = PARAMETER :: ID_PM10_HG     =149
+        INTEGER = PARAMETER :: ID_TNO3 =       150
+        INTEGER = PARAMETER :: ID_TNO3TOT =    151
+        INTEGER = PARAMETER :: ID_PM25_FRM =   152
+        INTEGER = PARAMETER :: ID_PMF_FRM =    153
+        INTEGER = PARAMETER :: ID_AOD550 =     154
+        INTEGER = PARAMETER :: ID_PMEXT550 =   155
+        INTEGER = PARAMETER :: ID_RH =         156
+        INTEGER = PARAMETER :: ID_TEMP =       157
+        INTEGER = PARAMETER :: ID_PRES =       158
+        INTEGER = PARAMETER :: ID_GN2O5F =     159
+        INTEGER = PARAMETER :: ID_GN2O5C =     160
+        INTEGER = PARAMETER :: ID_YCLNO2F =    161
+        INTEGER = PARAMETER :: ID_YCLNO2C =    162
+        INTEGER = PARAMETER :: ID_GIEPOX =     163
+        INTEGER = PARAMETER :: ID_KIEPOX =     164
+        INTEGER = PARAMETER :: ID_GIMAE =      165
 
         TYPE PMDTP
           CHARACTER (LEN = 16) :: NAME      !Parameter Name
@@ -195,7 +218,7 @@ c-----------------------------------------------------------------------
           CHARACTER (LEN = 80) :: DESC      !Description
         END TYPE PMDTP
 
-        INTEGER, PARAMETER :: N_PMDIAG_LIST = 142
+        INTEGER, PARAMETER :: N_PMDIAG_LIST = 165
 
         TYPE (PMDTP), PARAMETER :: PMDIAG_LIST( N_PMDIAG_LIST ) = (/
      &PMDTP( 'STDEV        ',ID_STDEV,      5, T, '      ', 'Mode standard deviation (dry and wet)' ),
@@ -365,7 +388,8 @@ c-----------------------------------------------------------------------
      &PMDTP( 'PM10_HG      ',ID_PM10_HG,     5,F, 'ug m-3', 'PM10.0 Mercury from HAP inventory' ),
 
       ! Other Special Variables and Properties
-     &PMDTP( 'TNO3         ',ID_TNO3,       5, F, 'ug m-3', 'Total Nitrate' ),
+     &PMDTP( 'TNO3         ',ID_TNO3,       5, F, 'ug m-3', 'Total Nitrate only Including Inorganics' ),
+     &PMDTP( 'TNO3TOT      ',ID_TNO3TOT,    5, F, 'ug m-3', 'Total Nitrate including Inorganics and Organics' ),
      &PMDTP( 'PM25_FRM     ',ID_PM25_FRM,   5, F, 'ug m-3', 'Federal Reference Method PM2.5' ),
      &PMDTP( 'PMF_FRM      ',ID_PMF_FRM,    5, F, 'ug m-3', 'Federal Reference Method PMIJ' ),
      &PMDTP( 'AOD_550      ',ID_AOD550,     5, F, '1     ', 'Aerosol Optical Depth at 550 nm (Angstrom interp)' ),
@@ -381,138 +405,7 @@ c-----------------------------------------------------------------------
      &PMDTP( 'K_IEPOX      ',ID_KIEPOX,     5, F, 's-1   ', 'IEPOX pseudo particle phase reaction rate const' ),
      &PMDTP( 'GAMMA_IMAE   ',ID_GIMAE,      5, F, '1     ', 'IMAE heterogeneous uptake coefficient' ) /)
      
-        LOGICAL, SAVE :: L_OLDNAMES = .FALSE.
-        INTEGER, PARAMETER :: N_OLD = 122
 
-        TYPE PMDIAG_OLD_NAMES_TYPE
-            INTEGER ID           ! ID For Each Parameter
-            CHARACTER( 16 ) NAME ! Old name for parameter in CMAQv5.3.1 and previous
-        END TYPE PMDIAG_OLD_NAMES
-
-        TYPE (PMDIAG_OLD_NAMES_TYPE), PARAMETER :: PMDIAG_OLD_NAMES( N_OLD ) = (/
-     &PMDIAG_OLD_NAMES_TYPE( ID_STDEV,      'STDEV         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_DRY_DG,     'DRY_DG        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_WET_DG,     'WET_DG        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_WET_M2,     'WET_M2        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_DRY_M3,     'DRY_M3        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_WET_M3,     'WET_M3        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM_NUM,     'NUM           ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMU_NUM,    'PMU_NUM       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_NUM,    'NUMFINE       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_SRF,    'SRFFINE       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM_MASS,    'ATOTIJK       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMU_MASS,   'ATOTI         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_MASS,   'ATOTIJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_MASS,   'ATOTK         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMAIT_MASS, 'ATOTI         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMACC_MASS, 'ATOTJ         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_WET_DENS,   'DENS_ATKN     ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM01,       'PM01          ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1,        'PM1_TOT       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25,       'PM25_TOT      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM10,       'PM10          ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25to10,   'PMC_TOT       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMAMS,      'PMAMS         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_SO4,    'ASO4K         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_NO3,    'ANO3K         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_NH4,    'ANH4K         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_NA,     'ANAK          ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_MG,     'AMGK          ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_K,      'AKK           ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_CA,     'ACAK          ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_SO4,    'ASO4IJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_NO3,    'ANO3IJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_NH4,    'ANH4IJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_CL,     'ACLIJ         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_NA,     'ANAIJ         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMC_EC,     'AECIJ         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_OC,     'AOCIJ         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_OA,     'AOMIJ         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_H2O,    'AH2OIJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_SOIL_IMPV,  'ASOILJ_IMPV   ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_UNSP1,  'AUNSPEC1IJ    ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_UNSP2,  'AUNSPEC2IJ    ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_HP,     'AHPLUSIJ      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_HPM,    'HPMOLAL       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_PH,     'PMF_PH        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_POC,    'APOCIJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_SOC,    'ASOCIJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_POA,    'APOMIJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_SOA,    'ASOMIJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_NCOM,   'ANCOMIJ       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_OMOC,   'AOMOCRAT_TOT  ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_OtoC,   'OTOCIJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_ASOA,   'AORGAJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_BSOA,   'AORGBJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_CLDGLY, 'AORGCGLYJ     ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_ISOP,   'AISOPJ        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_IEPOX,  'AIEPOXJ       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_MTNSOA, 'AMTNJ         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_MTSOA,  'AMTJ          ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_AMS_SO4,    'PMAMS_SO4     ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_AMS_NO3,    'PMAMS_NO3     ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_AMS_NH4,    'PMAMS_NH4     ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_AMS_CL,     'PMAMS_CL      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_AMS_OA,     'PMAMS_OM      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_AMS_OTOC,   'PMAMS_OTOC    ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_SO4,    'PM1_SO4       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_NO3,    'PM1_NO3       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_NH4,    'PM1_NH4       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_CL,     'PM1_CL        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_NA,     'PM1_NA        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_EC,     'PM1_EC        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_OC,     'PM1_OC        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_OA,     'PM1_OM        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_MG,     'PM1_MG        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_K,      'PM1_K         ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_CA,     'PM1_CA        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_OT,     'PM1_OTHER     ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_FE,     'PM1_FE        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_SI,     'PM1_SI        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_TI,     'PM1_TI        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_MN,     'PM1_MN        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_AL,     'PM1_AL        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_SOIL,   'PM1_SOIL      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_UNSP1,  'PM1_UNSPEC1   ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM1_UN,     'PM1_UNSPCRS   ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_SO4,   'PM25_SO4      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_NO3,   'PM25_NO3      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_NH4,   'PM25_NH4      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_CL,    'PM25_CL       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_NA,    'PM25_NA       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_EC,    'PM25_EC       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_OC,    'PM25_OC       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_OA,    'PM25_OM       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_MG,    'PM25_MG       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_K,     'PM25_K        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_CA,    'PM25_CA       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_OT,    'PM25_OTHER    ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_FE,    'PM25_FE       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_SI,    'PM25_SI       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_TI,    'PM25_TI       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_MN,    'PM25_MN       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_AL,    'PM25_AL       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_SOIL,  'PM25_SOIL     ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_UNSP1, 'PM25_UNSPEC1  ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_UN,    'PM25_UNSPCRS  ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_HP,    'PM25_HP       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25t10_SO4,'PMC_SO4       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25t10_NO3,'PMC_NO3       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25t10_NH4,'PMC_NH4       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25t10_CL, 'PMC_CL        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25t10_NA, 'PMC_NA        ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_TNO3,       'TNO3          ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PM25_FRM,   'PM25_FRM      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_PMF_FRM,    'PMIJ_FRM      ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_RH,         'RH            ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_GN2O5F,     'GAMMA_N2O5    ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_GN2O5C,     'GAMMA_N2O5K   ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_YCLNO2F,    'YIELD_CLNO2   ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_YCLNO2C,    'YIELD_CLNO2K  ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_GIEPOX,     'GAMMA_IEPOX   ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_KIEPOX,     'K_IEPOX       ' ),
-     &PMDIAG_OLD_NAMES_TYPE( ID_GIMAE,      'GAMMA_IMAE    ' ) /)
-      
         TYPE PMDIAG_KEY_TYPE
             CHARACTER( 24 )             :: WORD    ! Keyword for selecting mulitple PMDIAG parameters
             INTEGER                     :: N       ! Number of Parameters associated with the Keyword
