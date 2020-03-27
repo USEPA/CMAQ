@@ -297,7 +297,6 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: CLR_TRANSMISSION( :,: ) ! diffuse transmission coefficient of clouds
       REAL, ALLOCATABLE, SAVE :: CLR_REFLECTION  ( :,: ) ! reflection coefficient of cloud
       REAL, ALLOCATABLE, SAVE :: CLR_TRANS_DIRECT( :,: ) ! direct transmission coefficient of clouds
-      REAL, ALLOCATABLE, SAVE :: TAU_AERO_550    ( :,: ) ! total aerosol optical depth at 550 nm (Angstrom Interpolation)
 #ifdef phot_debug
       REAL, ALLOCATABLE, SAVE :: ASY_CLOUD_WL( :,:,: ) ! columm average of cloud asymmetry factor
       REAL, ALLOCATABLE, SAVE :: SSA_CLOUD_WL( :,:,: ) ! columm average of cloud single scattering albedo
@@ -311,7 +310,6 @@ C...modules
       REAL, ALLOCATABLE, SAVE :: GAS_EXT   ( :,:,:,: ) ! clear sky extinction for layer [1/m]
       REAL, ALLOCATABLE, SAVE :: AERO_EXT  ( :,:,:,: ) ! aerosol extinction for layer [1/m]
       REAL, ALLOCATABLE, SAVE :: ACTINIC_FX( :,:,:,: ) ! net actinic flux [watts/m**2]
-      REAL, ALLOCATABLE, SAVE :: AERO_EXT_550( :,:,: ) ! aerosol extinction at 550 nm for layer [1/m]
       REAL, ALLOCATABLE, SAVE :: OUTPUT_BUFF ( :,:,: ) ! output buffer for DIAG2 and DIAG3 files
 
       INTERFACE

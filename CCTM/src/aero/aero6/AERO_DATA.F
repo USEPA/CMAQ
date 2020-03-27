@@ -337,7 +337,7 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
      & /)
  
 ! Define Reference Emissions Size Distributions
-!   Geometric mean diameter by volume (or mass) of emitted particles in
+!   Geometric mean (or median) diameter by volume (or mass) of emitted particles in
 !   each mode [ m ] and geometric standard deviation of emitted particles.  
 !   See paragraph #14 of Binkowski & Roselle (2003).
 !   09/17/14 change by Kathleen Fahey - see Revision History, above.
@@ -673,18 +673,24 @@ C-------------------------------------------------------------------------------
          Character( 3  ) :: suff         ! Suffix
          Character( 16 ) :: num_name     ! name of aerosol number variable
          Character( 16 ) :: srf_name     ! name of aerosol surface area variable
+         Logical         :: ultrafine_mask ! is this mode ultrafine PM?
+         Logical         :: fine_mask    ! is this mode fine PM?
+         Logical         :: coarse_mask  ! is this mode coarse PM?
+         Logical         :: accum_mask   ! is this accumulation-mode PM?
+         Logical         :: aitken_mask  ! is this aitken-mode PM?
+         Logical         :: nuc_mask     ! is this nucleation-mode PM?
          Real            :: min_numconc  ! minimum number concentration
          Real            :: min_m2conc   ! minimum 2nd moment concentration
          Real            :: min_m3conc   ! minimum 3rd moment concentration
       End Type mode_type
 
       Type ( mode_type ), Parameter  :: aeromode( n_mode ) = (/
-C                  suffix   number     surface   minimum minimum minimum
-C                            name       name     numconc  m2conc  m3conc
-C                  ------- ----------  -------  -------- -------  ------
-     &   mode_type('AIT'  ,'NUMATKN', 'SRFATKN', conmin,  conmin, conmin),
-     &   mode_type('ACC'  ,'NUMACC ', 'SRFACC ', conmin,  conmin, conmin),
-     &   mode_type('COR'  ,'NUMCOR ', 'SRFCOR ', conmin,  conmin, conmin)/)
+C                  suffix   number     surface         Masks       minimum minimum minimum
+C                            name       name     U  F  C AC AI NU  numconc  m2conc  m3conc
+C                  ------- ----------  -------   -  -  - -- -- --  -------- -------  ------
+     &   mode_type('AIT'  ,'NUMATKN', 'SRFATKN', T, T, F, F, T, F, conmin,  conmin, conmin),
+     &   mode_type('ACC'  ,'NUMACC ', 'SRFACC ', F, F, F, T, F, F, conmin,  conmin, conmin),
+     &   mode_type('COR'  ,'NUMCOR ', 'SRFCOR ', F, F, T, F, F, F, conmin,  conmin, conmin)/)
 
 
       Real          :: moment0_conc( n_mode )     ! 0th moment concentration
@@ -698,10 +704,13 @@ C Mass concentration (calculated by GETPAR)
 C Particle density (calculated by GETPAR)
       Real :: aeromode_dens( n_mode )   ! [ kg/m^3 ]
 
-C Geometric mean diameter (calculated by GETPAR)
+C Geometric mean diameter (calculated by GETPAR) for the NUMBER
+C distribution. Remember that for log-normal distributions the geometric
+C mean and the median are identical!
       Real :: aeromode_diam( n_mode )   ! [ m ]
 
-C Log of geometric standard deviation (calculated by GETPAR )
+C Log of geometric standard deviation (calculated by GETPAR ) for the
+C NUMBER distribution.
       Real :: aeromode_lnsg( n_mode )
 
 C Minimum number (calculated in map_aero routine)
@@ -1664,7 +1673,7 @@ C Local variables:
       End Subroutine CHECK_AERO_ICBC
 
 !-----------------------------------------------------------------------
-      Subroutine CALC_AERODIST_PARAMS( L_AERODIST_PARAMS )
+      Subroutine CALC_AERODIST_PARAMS
 
 ! Subroutine calculates the dry and wet aerosol distribution parameters
 !     and stores them in public arrays to be passed to the diagnostic 
@@ -1672,8 +1681,6 @@ C Local variables:
 !-----------------------------------------------------------------------
  
       IMPLICIT NONE
-
-      LOGICAL :: L_AERODIST_PARAMS
 
       IF ( WET_MOMENTS_FLAG ) THEN
 
@@ -1711,8 +1718,6 @@ C Local variables:
          CALL GETPAR( FIXED_sg )
 
       END IF
-
-      L_AERODIST_PARAMS = .TRUE.
 
       END SUBROUTINE CALC_AERODIST_PARAMS
 

@@ -50,6 +50,7 @@ C Concentration lower limit used for gas species
 
 C Meteorological variables (data from MET_CRO_3D file)
       Real :: airtemp      ! air temp [ K ]
+      Real :: srftemp      ! 2-meter temp [ K ]
       Real :: airpres      ! air pressure [ Pa]
       Real :: airdens      ! air density [ kg/m^3]
       Real :: airRH        ! fractional relative humidity

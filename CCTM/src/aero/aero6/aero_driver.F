@@ -130,7 +130,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                          EXTRACT_PRECURSOR, UPDATE_PRECURSOR
       USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_ORGVAPOR
       USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
-     &                        H2OSATVP, H2OVP, MWWAT, MWAIR
+     &                        H2OSATVP, H2OVP, MWWAT, MWAIR, SRFTEMP
       USE UTILIO_DEFN, ONLY: TIME2SEC, SEC2TIME
 #ifdef twoway
      &                       , INDEX1, XSTAT3
@@ -199,6 +199,7 @@ C *** Variable to set time step for writing visibility file
 C *** meteorological variables
       REAL PRES   ( NCOLS,NROWS,NLAYS )  ! Atmospheric pressure [ Pa ]
       REAL TA     ( NCOLS,NROWS,NLAYS )  ! Air temperature [ K ]
+      REAL TEMP2  ( NCOLS,NROWS )        ! 2-meter temperature [ K ]
       REAL DENS   ( NCOLS,NROWS,NLAYS )  ! Air density [ kg/m**-3 ]
       REAL QV     ( NCOLS,NROWS,NLAYS )  ! Water vapor mixing ratio [ kg/kg ]
 
@@ -339,7 +340,8 @@ C *** pressure [Pa]
       call interpolate_var ('PRES', mdate, mtime, PRES)
 
 C *** temperature [K]
-      call interpolate_var ('TA', mdate, mtime, TA)
+      call interpolate_var ('TA', mdate, mtime, TA)       ! Grid Cell Temp
+      call interpolate_var ('TEMP2',mdate, mtime, TEMP2 ) ! 2-m Temp
 
 C *** specific humidity [g H2O/g air]
       call interpolate_var ('QV', mdate, mtime, QV)
@@ -372,12 +374,13 @@ C --------------------- Begin loops over grid cells --------------------------
 
 C *** Grid cell meteorological data.
                AIRTEMP  = TA   ( C,R,L )
+               SRFTEMP  = TEMP2( C,R )     ! 2-meter temperature (K)
                AIRPRES  = PRES ( C,R,L )   ! Note pascals
                AIRQV    = QV   ( C,R,L )
                AIRDENS  = DENS ( C,R,L )
                H2OSATVP = ESATL( AIRTEMP )
                H2OVP    = AIRPRES * AIRQV / ( EPSWATER  + AIRQV )
-               AIRRH    = MAX( 0.005, MIN( 0.99, H2OVP / H2OSATVP ) )
+               AIRRH    = MAX( 0.005, MIN( 0.99, H2OVP / H2OSATVP ) ) ! 0-1
 
 ! *** Initialize aerosol process variables
                COND_BUDGET = 0.
