@@ -25,6 +25,8 @@ c Revision History:
 c David Wong 11 May 16: created
 c-----------------------------------------------------------------------
 
+        USE AERO_DATA, ONLY : N_MODE
+
         IMPLICIT NONE
          
         ! Define Logical values as T and F for the aerospc table
@@ -43,171 +45,173 @@ c-----------------------------------------------------------------------
         ! link to this list of integers so that each parameter can be
         ! easily referenced during the run without having to do string
         ! lookups.
-        INTEGER = PARAMETER :: ID_STDEV =        1
-        INTEGER = PARAMETER :: ID_DRY_DG =       2
-        INTEGER = PARAMETER :: ID_WET_DG =       3 
-        INTEGER = PARAMETER :: ID_WET_M2 =       4
-        INTEGER = PARAMETER :: ID_DRY_M3 =       5
-        INTEGER = PARAMETER :: ID_WET_M3 =       6
-        INTEGER = PARAMETER :: ID_PM_NUM =       7
-        INTEGER = PARAMETER :: ID_PMU_NUM =      8
-        INTEGER = PARAMETER :: ID_PMF_NUM =      9
-        INTEGER = PARAMETER :: ID_PMC_NUM =     10
-        INTEGER = PARAMETER :: ID_N10 =         11
-        INTEGER = PARAMETER :: ID_N20 =         12
-        INTEGER = PARAMETER :: ID_N40 =         13
-        INTEGER = PARAMETER :: ID_N100 =        14
-        INTEGER = PARAMETER :: ID_PM_SRF =      15
-        INTEGER = PARAMETER :: ID_PMU_SRF =     16
-        INTEGER = PARAMETER :: ID_PMF_SRF =     17
-        INTEGER = PARAMETER :: ID_PMC_SRF =     18
-        INTEGER = PARAMETER :: ID_PM_MASS =     19
-        INTEGER = PARAMETER :: ID_PMU_MASS =    20
-        INTEGER = PARAMETER :: ID_PMF_MASS =    21
-        INTEGER = PARAMETER :: ID_PMC_MASS =    22
-        INTEGER = PARAMETER :: ID_PMNUC_MASS =  23
-        INTEGER = PARAMETER :: ID_PMAIT_MASS =  24
-        INTEGER = PARAMETER :: ID_PMACC_MASS =  25
-        INTEGER = PARAMETER :: ID_DRY_DENS =    26
-        INTEGER = PARAMETER :: ID_WET_DENS =    27
-        INTEGER = PARAMETER :: ID_FPM01 =       28
-        INTEGER = PARAMETER :: ID_FPM1 =        29
-        INTEGER = PARAMETER :: ID_FPM25 =       30
-        INTEGER = PARAMETER :: ID_FPM10 =       31
-        INTEGER = PARAMETER :: ID_FPM25to10 =   32
-        INTEGER = PARAMETER :: ID_FAMS =        33
-        INTEGER = PARAMETER :: ID_PM01 =        34
-        INTEGER = PARAMETER :: ID_PM1 =         35
-        INTEGER = PARAMETER :: ID_PM25 =        36
-        INTEGER = PARAMETER :: ID_PM10 =        37
-        INTEGER = PARAMETER :: ID_PM25to10 =    38
-        INTEGER = PARAMETER :: ID_PMAMS =       39
-        INTEGER = PARAMETER :: ID_PMC_SO4 =     40
-        INTEGER = PARAMETER :: ID_PMC_NO3 =     41
-        INTEGER = PARAMETER :: ID_PMC_NH4 =     42
-        INTEGER = PARAMETER :: ID_PMC_NA =      43
-        INTEGER = PARAMETER :: ID_PMC_MG =      44
-        INTEGER = PARAMETER :: ID_PMC_K =       45
-        INTEGER = PARAMETER :: ID_PMC_CA =      46
-        INTEGER = PARAMETER :: ID_PMF_SO4 =     47
-        INTEGER = PARAMETER :: ID_PMF_NO3 =     48
-        INTEGER = PARAMETER :: ID_PMF_NH4 =     49
-        INTEGER = PARAMETER :: ID_PMC_CL =      50
-        INTEGER = PARAMETER :: ID_PMF_NA =      51
-        INTEGER = PARAMETER :: ID_PMC_EC =      52
-        INTEGER = PARAMETER :: ID_PMF_OC =      53
-        INTEGER = PARAMETER :: ID_PMF_OA =      54
-        INTEGER = PARAMETER :: ID_PMF_H2O =     55
-        INTEGER = PARAMETER :: ID_SOIL_IMPV =   56
-        INTEGER = PARAMETER :: ID_PMF_UNSP1 =   57
-        INTEGER = PARAMETER :: ID_PMF_UNSP2 =   58
-        INTEGER = PARAMETER :: ID_PMF_HP =      59
-        INTEGER = PARAMETER :: ID_PMF_HPM =     60
-        INTEGER = PARAMETER :: ID_PMF_PH =      61
-        INTEGER = PARAMETER :: ID_PMF_POC =     62
-        INTEGER = PARAMETER :: ID_PMF_SOC =     63
-        INTEGER = PARAMETER :: ID_PMF_POA =     64
-        INTEGER = PARAMETER :: ID_PMF_SOA =     65
-        INTEGER = PARAMETER :: ID_PMF_NCOM =    66
-        INTEGER = PARAMETER :: ID_PMF_OMOC =    67
-        INTEGER = PARAMETER :: ID_PMF_OtoC =    68
-        INTEGER = PARAMETER :: ID_PMF_ASOA =    69
-        INTEGER = PARAMETER :: ID_PMF_BSOA =    70
-        INTEGER = PARAMETER :: ID_PMF_CLDGLY =  71
-        INTEGER = PARAMETER :: ID_PMF_ISOP =    72
-        INTEGER = PARAMETER :: ID_PMF_IEPOX =   73
-        INTEGER = PARAMETER :: ID_PMF_MTNSOA =  74
-        INTEGER = PARAMETER :: ID_PMF_MTSOA =   75
-        INTEGER = PARAMETER :: ID_AMS_SO4 =     76
-        INTEGER = PARAMETER :: ID_AMS_NO3 =     77
-        INTEGER = PARAMETER :: ID_AMS_NH4 =     78
-        INTEGER = PARAMETER :: ID_AMS_CL =      79
-        INTEGER = PARAMETER :: ID_AMS_OA =      80
-        INTEGER = PARAMETER :: ID_AMS_O2C =     81
-        INTEGER = PARAMETER :: ID_PM1_SO4 =     82
-        INTEGER = PARAMETER :: ID_PM1_NO3 =     83
-        INTEGER = PARAMETER :: ID_PM1_NH4 =     84
-        INTEGER = PARAMETER :: ID_PM1_CL =      85
-        INTEGER = PARAMETER :: ID_PM1_NA =      86
-        INTEGER = PARAMETER :: ID_PM1_EC =      87
-        INTEGER = PARAMETER :: ID_PM1_OC =      88
-        INTEGER = PARAMETER :: ID_PM1_OA =      89
-        INTEGER = PARAMETER :: ID_PM1_MG =      90
-        INTEGER = PARAMETER :: ID_PM1_K =       91
-        INTEGER = PARAMETER :: ID_PM1_CA =      92
-        INTEGER = PARAMETER :: ID_PM1_OT =      93
-        INTEGER = PARAMETER :: ID_PM1_FE =      94
-        INTEGER = PARAMETER :: ID_PM1_SI =      95
-        INTEGER = PARAMETER :: ID_PM1_TI =      96
-        INTEGER = PARAMETER :: ID_PM1_MN =      97
-        INTEGER = PARAMETER :: ID_PM1_AL =      98
-        INTEGER = PARAMETER :: ID_PM1_SOIL =    99
-        INTEGER = PARAMETER :: ID_PM1_UNSP1 =  100
-        INTEGER = PARAMETER :: ID_PM1_UN =     101
-        INTEGER = PARAMETER :: ID_PM25_SO4 =   102
-        INTEGER = PARAMETER :: ID_PM25_NO3 =   103
-        INTEGER = PARAMETER :: ID_PM25_NH4 =   104
-        INTEGER = PARAMETER :: ID_PM25_CL =    105
-        INTEGER = PARAMETER :: ID_PM25_NA =    106
-        INTEGER = PARAMETER :: ID_PM25_EC =    107
-        INTEGER = PARAMETER :: ID_PM25_OC =    108
-        INTEGER = PARAMETER :: ID_PM25_OA =    109
-        INTEGER = PARAMETER :: ID_PM25_MG =    100
-        INTEGER = PARAMETER :: ID_PM25_K =     111
-        INTEGER = PARAMETER :: ID_PM25_CA =    112
-        INTEGER = PARAMETER :: ID_PM25_OT =    113
-        INTEGER = PARAMETER :: ID_PM25_FE =    114
-        INTEGER = PARAMETER :: ID_PM25_SI =    115
-        INTEGER = PARAMETER :: ID_PM25_TI =    116
-        INTEGER = PARAMETER :: ID_PM25_MN =    117
-        INTEGER = PARAMETER :: ID_PM25_AL =    118
-        INTEGER = PARAMETER :: ID_PM25_SOIL =  119
-        INTEGER = PARAMETER :: ID_PM25_UNSP1 = 120
-        INTEGER = PARAMETER :: ID_PM25_UN =    121
-        INTEGER = PARAMETER :: ID_PM25_HP =    122
-        INTEGER = PARAMETER :: ID_PM25to10_SO4=123
-        INTEGER = PARAMETER :: ID_PM25to10_NO3=124
-        INTEGER = PARAMETER :: ID_PM25to10_NH4=125
-        INTEGER = PARAMETER :: ID_PM25to10_CL =126
-        INTEGER = PARAMETER :: ID_PM25to10_NA =127
-        INTEGER = PARAMETER :: ID_PM25_DSL    =128
-        INTEGER = PARAMETER :: ID_PM25_HBE    =129
-        INTEGER = PARAMETER :: ID_PM25_HCD    =130
-        INTEGER = PARAMETER :: ID_PM25_HCR3   =131
-        INTEGER = PARAMETER :: ID_PM25_HCR6   =132
-        INTEGER = PARAMETER :: ID_PM25_HCR    =133
-        INTEGER = PARAMETER :: ID_PM25_HPB    =134
-        INTEGER = PARAMETER :: ID_PM25_HMN    =135
-        INTEGER = PARAMETER :: ID_PM25_HNI    =136
-        INTEGER = PARAMETER :: ID_PM25_HAS    =137
-        INTEGER = PARAMETER :: ID_PM25_HG     =138
-        INTEGER = PARAMETER :: ID_PM10_DSL    =139
-        INTEGER = PARAMETER :: ID_PM10_HBE    =140
-        INTEGER = PARAMETER :: ID_PM10_HCD    =141
-        INTEGER = PARAMETER :: ID_PM10_HCR3   =142
-        INTEGER = PARAMETER :: ID_PM10_HCR6   =143
-        INTEGER = PARAMETER :: ID_PM10_HCR    =144
-        INTEGER = PARAMETER :: ID_PM10_HPB    =145
-        INTEGER = PARAMETER :: ID_PM10_HMN    =146
-        INTEGER = PARAMETER :: ID_PM10_HNI    =147
-        INTEGER = PARAMETER :: ID_PM10_HAS    =148
-        INTEGER = PARAMETER :: ID_PM10_HG     =149
-        INTEGER = PARAMETER :: ID_TNO3 =       150
-        INTEGER = PARAMETER :: ID_TNO3TOT =    151
-        INTEGER = PARAMETER :: ID_PM25_FRM =   152
-        INTEGER = PARAMETER :: ID_PMF_FRM =    153
-        INTEGER = PARAMETER :: ID_AOD550 =     154
-        INTEGER = PARAMETER :: ID_PMEXT550 =   155
-        INTEGER = PARAMETER :: ID_RH =         156
-        INTEGER = PARAMETER :: ID_TEMP =       157
-        INTEGER = PARAMETER :: ID_PRES =       158
-        INTEGER = PARAMETER :: ID_GN2O5F =     159
-        INTEGER = PARAMETER :: ID_GN2O5C =     160
-        INTEGER = PARAMETER :: ID_YCLNO2F =    161
-        INTEGER = PARAMETER :: ID_YCLNO2C =    162
-        INTEGER = PARAMETER :: ID_GIEPOX =     163
-        INTEGER = PARAMETER :: ID_KIEPOX =     164
-        INTEGER = PARAMETER :: ID_GIMAE =      165
+        INTEGER, PARAMETER :: ID_STDEV =        1
+        INTEGER, PARAMETER :: ID_DRY_DG =       2
+        INTEGER, PARAMETER :: ID_WET_DG =       3 
+        INTEGER, PARAMETER :: ID_WET_M2 =       4
+        INTEGER, PARAMETER :: ID_DRY_M3 =       5
+        INTEGER, PARAMETER :: ID_WET_M3 =       6
+        INTEGER, PARAMETER :: ID_PM_NUM =       7
+        INTEGER, PARAMETER :: ID_PMU_NUM =      8
+        INTEGER, PARAMETER :: ID_PMF_NUM =      9
+        INTEGER, PARAMETER :: ID_PMC_NUM =     10
+        INTEGER, PARAMETER :: ID_N10 =         11
+        INTEGER, PARAMETER :: ID_N20 =         12
+        INTEGER, PARAMETER :: ID_N40 =         13
+        INTEGER, PARAMETER :: ID_N100 =        14
+        INTEGER, PARAMETER :: ID_PM_SRF =      15
+        INTEGER, PARAMETER :: ID_PMU_SRF =     16
+        INTEGER, PARAMETER :: ID_PMF_SRF =     17
+        INTEGER, PARAMETER :: ID_PMC_SRF =     18
+        INTEGER, PARAMETER :: ID_PM_MASS =     19
+        INTEGER, PARAMETER :: ID_PMU_MASS =    20
+        INTEGER, PARAMETER :: ID_PMF_MASS =    21
+        INTEGER, PARAMETER :: ID_PMC_MASS =    22
+        INTEGER, PARAMETER :: ID_PMNUC_MASS =  23
+        INTEGER, PARAMETER :: ID_PMAIT_MASS =  24
+        INTEGER, PARAMETER :: ID_PMACC_MASS =  25
+        INTEGER, PARAMETER :: ID_DRY_DENS =    26
+        INTEGER, PARAMETER :: ID_WET_DENS =    27
+        INTEGER, PARAMETER :: ID_FPM01 =       28
+        INTEGER, PARAMETER :: ID_FPM1 =        29
+        INTEGER, PARAMETER :: ID_FPM25 =       30
+        INTEGER, PARAMETER :: ID_FPM10 =       31
+        INTEGER, PARAMETER :: ID_FPM25to10 =   32
+        INTEGER, PARAMETER :: ID_FAMS =        33
+        INTEGER, PARAMETER :: ID_PM01 =        34
+        INTEGER, PARAMETER :: ID_PM1 =         35
+        INTEGER, PARAMETER :: ID_PM25 =        36
+        INTEGER, PARAMETER :: ID_PM10 =        37
+        INTEGER, PARAMETER :: ID_PM25to10 =    38
+        INTEGER, PARAMETER :: ID_PMAMS =       39
+        INTEGER, PARAMETER :: ID_PMC_SO4 =     40
+        INTEGER, PARAMETER :: ID_PMC_NO3 =     41
+        INTEGER, PARAMETER :: ID_PMC_NH4 =     42
+        INTEGER, PARAMETER :: ID_PMC_CL =      43
+        INTEGER, PARAMETER :: ID_PMC_NA =      44
+        INTEGER, PARAMETER :: ID_PMC_MG =      45
+        INTEGER, PARAMETER :: ID_PMC_K =       46
+        INTEGER, PARAMETER :: ID_PMC_CA =      47
+        INTEGER, PARAMETER :: ID_PMF_SO4 =     48
+        INTEGER, PARAMETER :: ID_PMF_NO3 =     49
+        INTEGER, PARAMETER :: ID_PMF_NH4 =     50
+        INTEGER, PARAMETER :: ID_PMF_CL =      51
+        INTEGER, PARAMETER :: ID_PMF_NA =      52
+        INTEGER, PARAMETER :: ID_PMF_EC =      53
+        INTEGER, PARAMETER :: ID_PMF_OC =      54
+        INTEGER, PARAMETER :: ID_PMF_OA =      55
+        INTEGER, PARAMETER :: ID_PMF_H2O =     56
+        INTEGER, PARAMETER :: ID_SOIL_IMPV =   57
+        INTEGER, PARAMETER :: ID_PMF_UNSP1 =   58
+        INTEGER, PARAMETER :: ID_PMF_UNSP2 =   59
+        INTEGER, PARAMETER :: ID_PMF_HP =      60
+        INTEGER, PARAMETER :: ID_PMF_HPM =     61
+        INTEGER, PARAMETER :: ID_PMF_PH =      62
+        INTEGER, PARAMETER :: ID_PMF_POC =     63
+        INTEGER, PARAMETER :: ID_PMF_SOC =     64
+        INTEGER, PARAMETER :: ID_PMF_POA =     65
+        INTEGER, PARAMETER :: ID_PMF_SOA =     66
+        INTEGER, PARAMETER :: ID_PMF_NCOM =    67
+        INTEGER, PARAMETER :: ID_PMF_OMOC =    68
+        INTEGER, PARAMETER :: ID_PMF_OtoC =    69
+        INTEGER, PARAMETER :: ID_PMF_ASOA =    70
+        INTEGER, PARAMETER :: ID_PMF_BSOA =    71
+        INTEGER, PARAMETER :: ID_PMF_CLDGLY =  72
+        INTEGER, PARAMETER :: ID_PMF_ISOP =    73
+        INTEGER, PARAMETER :: ID_PMF_IEPOX =   74
+        INTEGER, PARAMETER :: ID_PMF_MTNSOA =  75
+        INTEGER, PARAMETER :: ID_PMF_MTSOA =   76
+        INTEGER, PARAMETER :: ID_AMS_SO4 =     77
+        INTEGER, PARAMETER :: ID_AMS_NO3 =     78
+        INTEGER, PARAMETER :: ID_AMS_NH4 =     79
+        INTEGER, PARAMETER :: ID_AMS_CL =      80
+        INTEGER, PARAMETER :: ID_AMS_OA =      81
+        INTEGER, PARAMETER :: ID_AMS_OTOC =    82
+        INTEGER, PARAMETER :: ID_PM1_SO4 =     83
+        INTEGER, PARAMETER :: ID_PM1_NO3 =     84
+        INTEGER, PARAMETER :: ID_PM1_NH4 =     85
+        INTEGER, PARAMETER :: ID_PM1_CL =      86
+        INTEGER, PARAMETER :: ID_PM1_NA =      87
+        INTEGER, PARAMETER :: ID_PM1_EC =      88
+        INTEGER, PARAMETER :: ID_PM1_OC =      89
+        INTEGER, PARAMETER :: ID_PM1_OA =      90
+        INTEGER, PARAMETER :: ID_PM1_MG =      91
+        INTEGER, PARAMETER :: ID_PM1_K =       92
+        INTEGER, PARAMETER :: ID_PM1_CA =      93
+        INTEGER, PARAMETER :: ID_PM1_OT =      94
+        INTEGER, PARAMETER :: ID_PM1_FE =      95
+        INTEGER, PARAMETER :: ID_PM1_SI =      96
+        INTEGER, PARAMETER :: ID_PM1_TI =      97
+        INTEGER, PARAMETER :: ID_PM1_MN =      98
+        INTEGER, PARAMETER :: ID_PM1_AL =      99
+        INTEGER, PARAMETER :: ID_PM1_SOIL =   100
+        INTEGER, PARAMETER :: ID_PM1_UNSP1 =  101
+        INTEGER, PARAMETER :: ID_PM1_UN =     102
+        INTEGER, PARAMETER :: ID_PM1_HP =     103
+        INTEGER, PARAMETER :: ID_PM25_SO4 =   104
+        INTEGER, PARAMETER :: ID_PM25_NO3 =   105
+        INTEGER, PARAMETER :: ID_PM25_NH4 =   106
+        INTEGER, PARAMETER :: ID_PM25_CL =    107
+        INTEGER, PARAMETER :: ID_PM25_NA =    108
+        INTEGER, PARAMETER :: ID_PM25_EC =    109
+        INTEGER, PARAMETER :: ID_PM25_OC =    110
+        INTEGER, PARAMETER :: ID_PM25_OA =    111
+        INTEGER, PARAMETER :: ID_PM25_MG =    112
+        INTEGER, PARAMETER :: ID_PM25_K =     113
+        INTEGER, PARAMETER :: ID_PM25_CA =    114
+        INTEGER, PARAMETER :: ID_PM25_OT =    115
+        INTEGER, PARAMETER :: ID_PM25_FE =    116
+        INTEGER, PARAMETER :: ID_PM25_SI =    117
+        INTEGER, PARAMETER :: ID_PM25_TI =    118
+        INTEGER, PARAMETER :: ID_PM25_MN =    119
+        INTEGER, PARAMETER :: ID_PM25_AL =    120
+        INTEGER, PARAMETER :: ID_PM25_SOIL =  121
+        INTEGER, PARAMETER :: ID_PM25_UNSP1 = 122
+        INTEGER, PARAMETER :: ID_PM25_UN =    123
+        INTEGER, PARAMETER :: ID_PM25_HP =    124
+        INTEGER, PARAMETER :: ID_PM25to10_SO4=125
+        INTEGER, PARAMETER :: ID_PM25to10_NO3=126
+        INTEGER, PARAMETER :: ID_PM25to10_NH4=127
+        INTEGER, PARAMETER :: ID_PM25to10_CL =128
+        INTEGER, PARAMETER :: ID_PM25to10_NA =129
+        INTEGER, PARAMETER :: ID_PM25_HDSL   =130
+        INTEGER, PARAMETER :: ID_PM25_HBE    =131
+        INTEGER, PARAMETER :: ID_PM25_HCD    =132
+        INTEGER, PARAMETER :: ID_PM25_HCR3   =133
+        INTEGER, PARAMETER :: ID_PM25_HCR6   =134
+        INTEGER, PARAMETER :: ID_PM25_HCR    =135
+        INTEGER, PARAMETER :: ID_PM25_HPB    =136
+        INTEGER, PARAMETER :: ID_PM25_HMN    =137
+        INTEGER, PARAMETER :: ID_PM25_HNI    =138
+        INTEGER, PARAMETER :: ID_PM25_HAS    =139
+        INTEGER, PARAMETER :: ID_PM25_HG     =140
+        INTEGER, PARAMETER :: ID_PM10_HDSL   =141
+        INTEGER, PARAMETER :: ID_PM10_HBE    =142
+        INTEGER, PARAMETER :: ID_PM10_HCD    =143
+        INTEGER, PARAMETER :: ID_PM10_HCR3   =144
+        INTEGER, PARAMETER :: ID_PM10_HCR6   =145
+        INTEGER, PARAMETER :: ID_PM10_HCR    =146
+        INTEGER, PARAMETER :: ID_PM10_HPB    =147
+        INTEGER, PARAMETER :: ID_PM10_HMN    =148
+        INTEGER, PARAMETER :: ID_PM10_HNI    =149
+        INTEGER, PARAMETER :: ID_PM10_HAS    =150
+        INTEGER, PARAMETER :: ID_PM10_HG     =151
+        INTEGER, PARAMETER :: ID_TNO3 =       152
+        INTEGER, PARAMETER :: ID_TNO3TOT =    153
+        INTEGER, PARAMETER :: ID_PM25_FRM =   154
+        INTEGER, PARAMETER :: ID_PMF_FRM =    155
+        INTEGER, PARAMETER :: ID_AOD550 =     156
+        INTEGER, PARAMETER :: ID_PMEXT550 =   157
+        INTEGER, PARAMETER :: ID_RH =         158
+        INTEGER, PARAMETER :: ID_TEMP =       159
+        INTEGER, PARAMETER :: ID_PRES =       160
+        INTEGER, PARAMETER :: ID_GN2O5F =     161
+        INTEGER, PARAMETER :: ID_GN2O5C =     162
+        INTEGER, PARAMETER :: ID_YCLNO2F =    163
+        INTEGER, PARAMETER :: ID_YCLNO2C =    164
+        INTEGER, PARAMETER :: ID_GIEPOX =     165
+        INTEGER, PARAMETER :: ID_KIEPOX =     166
+        INTEGER, PARAMETER :: ID_GIMAE =      167
 
         TYPE PMDTP
           CHARACTER (LEN = 16) :: NAME      !Parameter Name
@@ -218,7 +222,7 @@ c-----------------------------------------------------------------------
           CHARACTER (LEN = 80) :: DESC      !Description
         END TYPE PMDTP
 
-        INTEGER, PARAMETER :: N_PMDIAG_LIST = 165
+        INTEGER, PARAMETER :: N_PMDIAG_LIST = 167
 
         TYPE (PMDTP), PARAMETER :: PMDIAG_LIST( N_PMDIAG_LIST ) = (/
      &PMDTP( 'STDEV        ',ID_STDEV,      5, T, '      ', 'Mode standard deviation (dry and wet)' ),
@@ -252,19 +256,20 @@ c-----------------------------------------------------------------------
      &PMDTP( 'FPM1         ',ID_FPM1,       5, T, '1     ', 'PM1 fraction of mode' ),
      &PMDTP( 'FPM25        ',ID_FPM25,      5, T, '1     ', 'PM2.5 fraction of mode' ),
      &PMDTP( 'FPM10        ',ID_FPM10,      5, T, '1     ', 'PM10 fraction of mode' ),
-     &PMDTP( 'FPM25to10    ',ID_FPM25to10,  5, T, '1     ', 'PM2.5-10 fraction of mode' ),
+     &PMDTP( 'FPM25TO10    ',ID_FPM25to10,  5, T, '1     ', 'PM2.5-10 fraction of mode' ),
      &PMDTP( 'FAMS         ',ID_FAMS,       5, T, '1     ', 'AMS Transmission Fraction of mode' ),
      &PMDTP( 'PM01         ',ID_PM01,       5, F, 'ug m-3', 'Bulk PM0.1 Concentration' ), 
      &PMDTP( 'PM1          ',ID_PM1,        5, F, 'ug m-3', 'Bulk PM1.0 Concentration' ), 
      &PMDTP( 'PM25         ',ID_PM25,       5, F, 'ug m-3', 'Bulk PM2.5 Concentration' ), 
      &PMDTP( 'PM10         ',ID_PM10,       5, F, 'ug m-3', 'Bulk PM10.0 Concentration' ),
-     &PMDTP( 'PM25t10      ',ID_PM25to10,   5, F, 'ug m-3', 'Coarse-Mode Total' ),
+     &PMDTP( 'PM25TO10     ',ID_PM25to10,   5, F, 'ug m-3', 'Coarse-Mode Total' ),
      &PMDTP( 'PMAMS        ',ID_PMAMS,      5, F, 'ug m-3', 'Bulk PM Concentration in AMS' ),
                                                             
       ! Coarse-Mode PM Species                              
      &PMDTP( 'PMC_SO4      ',ID_PMC_SO4,    5, F, 'ug m-3', 'Coarse-Mode Sulfate' ),
      &PMDTP( 'PMC_NO3      ',ID_PMC_NO3,    5, F, 'ug m-3', 'Coarse-Mode Nitrate' ),
      &PMDTP( 'PMC_NH4      ',ID_PMC_NH4,    5, F, 'ug m-3', 'Coarse-Mode Ammonium' ),
+     &PMDTP( 'PMC_NH4      ',ID_PMC_CL,     5, F, 'ug m-3', 'Coarse-Mode Chloride' ),
      &PMDTP( 'PMC_NA       ',ID_PMC_NA,     5, F, 'ug m-3', 'Recon Coarse-Mode Sodium (.8373*ASEACAT+.0626*ASOIL+.0023*ACORS)' ),
      &PMDTP( 'PMC_MG       ',ID_PMC_MG,     5, F, 'ug m-3', 'Recon Coarse-Mode Magnesium (.0997*ASEACAT+.0170*ASOIL+.0032*ACORS)' ),
      &PMDTP( 'PMC_K        ',ID_PMC_K,      5, F, 'ug m-3', 'Recon Coarse-Mode Potasium (.0310*ASEACAT+.0242*ASOIL+.0176*ACORS)' ),
@@ -274,9 +279,9 @@ c-----------------------------------------------------------------------
      &PMDTP( 'PMF_SO4      ',ID_PMF_SO4,    5, F, 'ug m-3', 'Fine-Mode Sulfate' ),
      &PMDTP( 'PMF_NO3      ',ID_PMF_NO3,    5, F, 'ug m-3', 'Fine-Mode Nitrate' ),
      &PMDTP( 'PMF_NH4      ',ID_PMF_NH4,    5, F, 'ug m-3', 'Fine-Mode Ammonium' ),
-     &PMDTP( 'PMF_CL       ',ID_PMC_CL,     5, F, 'ug m-3', 'Fine-Mode Chloride' ),
+     &PMDTP( 'PMF_CL       ',ID_PMF_CL,     5, F, 'ug m-3', 'Fine-Mode Chloride' ),
      &PMDTP( 'PMF_NA       ',ID_PMF_NA,     5, F, 'ug m-3', 'Fine-Mode Sodium' ),
-     &PMDTP( 'PMF_EC       ',ID_PMC_EC,     5, F, 'ug m-3', 'Fine-Mode Black Carbon' ),
+     &PMDTP( 'PMF_EC       ',ID_PMF_EC,     5, F, 'ug m-3', 'Fine-Mode Black Carbon' ),
      &PMDTP( 'PMF_OC       ',ID_PMF_OC,     5, F, 'ugC m-3','Fine-Mode Organic Carbon' ),
      &PMDTP( 'PMF_OA       ',ID_PMF_OA,     5, F, 'ug m-3', 'Fine-Mode Organic Aerosol' ),
      &PMDTP( 'PMF_H2O      ',ID_PMF_H2O,    5, F, 'ug m-3', 'Fine-Mode Particle Water' ),
@@ -332,6 +337,7 @@ c-----------------------------------------------------------------------
      &PMDTP( 'PM1_SOIL     ',ID_PM1_SOIL,   5, F, 'ug m-3', 'PM1 Recon Soil (Fine) and Explicit (Coarse)' ),
      &PMDTP( 'PM1_UNSP1    ',ID_PM1_UNSP1,  5, F, 'ug m-3', 'PM1 Unspeciated Coarse Mass' ),
      &PMDTP( 'PM1_UNSPCRS  ',ID_PM1_UN,     5, F, 'ug m-3', 'PM1 Unspeciated Coarse Mass' ),
+     &PMDTP( 'PM1_HP       ',ID_PM1_HP,     5, F, 'ug m-3', 'PM1 H+ Ion' ),
                                                             
       ! PM2.5 Speciation                                    
      &PMDTP( 'PM25_SO4     ',ID_PM25_SO4,   5, F, 'ug m-3', 'PM2.5 Sulfate' ),
@@ -357,14 +363,14 @@ c-----------------------------------------------------------------------
      &PMDTP( 'PM25_HP      ',ID_PM25_HP,    5, F, 'ug m-3', 'PM2.5 H+ Ion' ),
 
       ! PM2.5-10.0 Speciation
-     &PMDTP( 'PM25t10_SO4  ',ID_PM25to10_SO4,5,F, 'ug m-3', 'Coarse-Mode Sulfate' ),
-     &PMDTP( 'PM25t10_NO3  ',ID_PM25to10_NO3,5,F, 'ug m-3', 'Coarse-Mode Nitrate' ),
-     &PMDTP( 'PM25t10_NH4  ',ID_PM25to10_NH4,5,F, 'ug m-3', 'Coarse-Mode Ammonium' ),
-     &PMDTP( 'PM25t10_CL   ',ID_PM25to10_CL, 5,F, 'ug m-3', 'Coarse-Mode Chloride' ),
-     &PMDTP( 'PM25t10_NA   ',ID_PM25to10_NA, 5,F, 'ug m-3', 'Coarse-Mode Sodium' ),
+     &PMDTP( 'PM25TO10_SO4 ',ID_PM25to10_SO4,5,F, 'ug m-3', 'Coarse-Mode Sulfate' ),
+     &PMDTP( 'PM25TO10_NO3 ',ID_PM25to10_NO3,5,F, 'ug m-3', 'Coarse-Mode Nitrate' ),
+     &PMDTP( 'PM25TO10_NH4 ',ID_PM25to10_NH4,5,F, 'ug m-3', 'Coarse-Mode Ammonium' ),
+     &PMDTP( 'PM25TO10_CL  ',ID_PM25to10_CL, 5,F, 'ug m-3', 'Coarse-Mode Chloride' ),
+     &PMDTP( 'PM25TO10_NA  ',ID_PM25to10_NA, 5,F, 'ug m-3', 'Coarse-Mode Sodium' ),
 
       ! PM Toxics that are part of the Multipollutant (mp) Mechanism
-     &PMDTP( 'PM25_HDIESEL ',ID_PM25_DSL,    5,F, 'ug m-3', 'PM2.5 Diesel Total from HAP inventory' ),
+     &PMDTP( 'PM25_HDIESEL ',ID_PM25_HDSL,   5,F, 'ug m-3', 'PM2.5 Diesel Total from HAP inventory' ),
      &PMDTP( 'PM25_HBE     ',ID_PM25_HBE,    5,F, 'ug m-3', 'PM2.5 Beryllium from HAP inventory' ),
      &PMDTP( 'PM25_HCD     ',ID_PM25_HCD,    5,F, 'ug m-3', 'PM2.5 Cadmium from HAP inventory' ),
      &PMDTP( 'PM25_HCR3    ',ID_PM25_HCR3,   5,F, 'ug m-3', 'PM2.5 Chromium-III from HAP inventory' ),
@@ -375,7 +381,7 @@ c-----------------------------------------------------------------------
      &PMDTP( 'PM25_HNI     ',ID_PM25_HNI,    5,F, 'ug m-3', 'PM2.5 Nickel from HAP inventory' ),
      &PMDTP( 'PM25_HAS     ',ID_PM25_HAS,    5,F, 'ug m-3', 'PM2.5 Arsenic from HAP inventory' ),
      &PMDTP( 'PM25_HG      ',ID_PM25_HG,     5,F, 'ug m-3', 'PM2.5 Mercury from HAP inventory' ),
-     &PMDTP( 'PM10_HDIESEL ',ID_PM10_DSL,    5,F, 'ug m-3', 'PM10.0 Diesel Total from HAP inventory' ),
+     &PMDTP( 'PM10_HDIESEL ',ID_PM10_HDSL,   5,F, 'ug m-3', 'PM10.0 Diesel Total from HAP inventory' ),
      &PMDTP( 'PM10_HBE     ',ID_PM10_HBE,    5,F, 'ug m-3', 'PM10.0 Beryllium from HAP inventory' ),
      &PMDTP( 'PM10_HCD     ',ID_PM10_HCD,    5,F, 'ug m-3', 'PM10.0 Cadmium from HAP inventory' ),
      &PMDTP( 'PM10_HCR3    ',ID_PM10_HCR3,   5,F, 'ug m-3', 'PM10.0 Chromium-III from HAP inventory' ),
@@ -412,14 +418,19 @@ c-----------------------------------------------------------------------
             CHARACTER( 16 ),ALLOCATABLE :: LIST(:) ! List of parameters
         END TYPE PMDIAG_KEY_TYPE
 
-        TYPE (PMDIAG_KEY_TYPE), ALLOCATABLE( : ), SAVE :: PMDIAG_KEY( : )
+        TYPE (PMDIAG_KEY_TYPE), ALLOCATABLE, SAVE :: PMDIAG_KEY( : )
+        INTEGER, SAVE :: N_KEY
+
+        INTEGER, SAVE :: MAP_ID2LIST( N_PMDIAG_LIST ) 
 
         ! Variables for Storing Values of PMDIAG Output      
         REAL, ALLOCATABLE, SAVE :: PMDIAG_INST( :,:,:,: )
         REAL, ALLOCATABLE, SAVE :: PMDIAG_AVRG( :,:,:,: )
         REAL, ALLOCATABLE, SAVE :: PMDIAG_LOCAL( : )
         LOGICAL, ALLOCATABLE, SAVE :: L_CALC( : )
-       
+        REAL, ALLOCATABLE, SAVE :: CONC_VEC( : )
+        INTEGER, SAVE           :: C1, R1, L1
+
         ! Variables for Aerosol Chemistry
         REAL, SAVE, ALLOCATABLE :: GAMMA_N2O5IJ( :,:,:  ) ! Fine modes N2O5 rx effic.
         REAL, SAVE, ALLOCATABLE :: GAMMA_N2O5K(  :,:,:  ) ! Coarse mode N2O5 rx effic.
@@ -434,17 +445,17 @@ c-----------------------------------------------------------------------
         ! Define type for storing coeffieicnets and variable indices for
         ! aggregating PM diagnostics like ATOTIJ, ACLK, etc.
         TYPE PMDIAG_COEFFS_TYPE
-            LOGICAL L_USED                   ! Record whether or not this aggregate has been mapped
+            LOGICAL L_MAPPED                 ! Record whether or not this aggregate has been mapped
             INTEGER N_VARS                   ! Number of variables to store coefficients for. 
                                              !   This should not account for modes. For example, 
                                              !   to sum ASO4IJK, N_VARS would be 1 since only 
                                              !   ASO4 is being used.
-            LOGICAL, ALLOCATABLE L_GAS(:)    ! Is this variable a gas?
-            LOGICAL, ALLOCATABLE L_PREC(:)   ! Is this variable a gas-phase precursor already in the aerosol module?
-            LOGICAL, ALLOCATABLE L_AGG(:)    ! Is this variable another aggregated diagnostic parameter?
-            LOGICAL, ALLOCATABLE L_MODE(:)   ! For which modes does this aggregate apply
-            INTEGER, ALLOCATABLE I_SPEC(:)   ! Index of this Variable in Aerosol/Gas/Aggregate Array
-            REAL, ALLOCATABLE COEFF(:)       ! Coefficient for each variable
+            LOGICAL, ALLOCATABLE :: L_GAS(:)    ! Is this variable a gas?
+            LOGICAL, ALLOCATABLE :: L_PREC(:)   ! Is this variable a gas-phase precursor already in the aerosol module?
+            LOGICAL, ALLOCATABLE :: L_AGG(:)    ! Is this variable another aggregated diagnostic parameter?
+            LOGICAL, ALLOCATABLE :: L_MODE(:)   ! For which modes does this aggregate apply
+            INTEGER, ALLOCATABLE :: I_SPEC(:)   ! Index of this Variable in Aerosol/Gas/Aggregate Array
+            REAL,    ALLOCATABLE :: COEFF(:)       ! Coefficient for each variable
             INTEGER INLET                    ! Integer pointing to the corresponding inlet of choice 
                                              !   in the PMDIAG_INLET structure
             INTEGER WETNESS                  ! Integer prescribing wet or dry aerosol (1 = wet, 2 = dry)
@@ -462,22 +473,23 @@ c-----------------------------------------------------------------------
 
         INTEGER, PARAMETER :: N_INLET = 10
         INTEGER, PARAMETER :: IPM01 = 1, IPM1 = 2, IPM25 = 3, IPM10 = 4, 
-     &                        IPM25to10 = 5, IPMAMS = 6
+     &                        IPM25to10 = 5, IPMAMS = 6, INUM10 = 7,
+     &                        INUM20 = 8, INUM40 = 9, INUM100 = 10
         INTEGER, PARAMETER :: IWET = 1, IDRY = 2
 
         TYPE (PMDIAG_INLET_TYPE), PARAMETER :: PMDIAG_INLET( N_INLET ) = (/
-     !                            Inlet Name D_Lo  D_Hi
-     !                            ---------- ----  ----
-     &        PMDIAG_INLET_TYPET( 'PM01    ', 0.0,  0.1 ),
-     &        PMDIAG_INLET_TYPET( 'PM1     ', 0.0,  1.0 ),
-     &        PMDIAG_INLET_TYPET( 'PM25    ', 0.0,  2.5 ),
-     &        PMDIAG_INLET_TYPET( 'PM10    ', 0.0, 10.0 ),
-     &        PMDIAG_INLET_TYPET( 'PM25to10', 2.5, 10.0 ),
-     &        PMDIAG_INLET_TYPET( 'PMAMS   ', 0.0,  0.0 ),
-     &        PMDIAG_INLET_TYPET( 'INUM10  ', 0.01,1.0e3),
-     &        PMDIAG_INLET_TYPET( 'INUM20  ', 0.02,1.0e3),
-     &        PMDIAG_INLET_TYPET( 'INUM40  ', 0.04,1.0e3),
-     &        PMDIAG_INLET_TYPET( 'INUM100 ', 0.1, 1.0e3) /)
+       !                          Inlet Name D_Lo  D_Hi
+       !                          ---------- ----  ----
+     &        PMDIAG_INLET_TYPE( 'PM01    ', 0.0,  0.1 ),
+     &        PMDIAG_INLET_TYPE( 'PM1     ', 0.0,  1.0 ),
+     &        PMDIAG_INLET_TYPE( 'PM25    ', 0.0,  2.5 ),
+     &        PMDIAG_INLET_TYPE( 'PM10    ', 0.0, 10.0 ),
+     &        PMDIAG_INLET_TYPE( 'PM25to10', 2.5, 10.0 ),
+     &        PMDIAG_INLET_TYPE( 'PMAMS   ', 0.0,  0.0 ),
+     &        PMDIAG_INLET_TYPE( 'INUM10  ', 0.01,1.0e3),
+     &        PMDIAG_INLET_TYPE( 'INUM20  ', 0.02,1.0e3),
+     &        PMDIAG_INLET_TYPE( 'INUM40  ', 0.04,1.0e3),
+     &        PMDIAG_INLET_TYPE( 'INUM100 ', 0.1, 1.0e3) /)
 
         REAL, SAVE :: INLET_FRAC( N_INLET,N_MODE,2 )  ! Fraction of each aerosol mode 
                                                       !   collected by each inlet

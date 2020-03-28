@@ -432,7 +432,7 @@ C *** Update gas soa concentrations back to CGRID
                CALL UPDATE_ORGVAPOR( CGRID( C,R,L,: ) )
 
 C *** OUTPUT DIAGNOSTIC INFORMATION
-               CALL CALC_PMDIAG( C,R,L, WRITETIME )
+               CALL LOAD_PMDIAG( C,R,L, CGRID(C,R,L,:), WRITETIME )
 
 ! *** Collect Aerosol Sub-Process Rates in shared arrays
                AERO_COND  ( C,R,L,: ) = COND_BUDGET( : )

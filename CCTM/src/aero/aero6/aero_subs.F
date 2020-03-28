@@ -2788,7 +2788,7 @@ C    Internal variables
                                      ! The approximation is: Cc(Dp) = 1 + B/Dp
       REAL D_ST1, D_ST2              ! Stokes diameter equivalent of DCA..
       REAL DG                        ! DGN converted to [ um ]
-      REAL ERFARG                    ! argument of ERF, from Step#6 of Jiang et al. (2006)
+      REAL ERF1, ERF2, ERFARG        ! argument of ERF, from Step#6 of Jiang et al. (2006)
 
 C *** Error function approximation, from Meng & Seinfeld (1994)
       REAL ERF        ! Error function
@@ -2809,21 +2809,22 @@ C     Cutoffs
           ! Convert size cut to equivalent Stokes diameter using
           ! equation 2 of Jiang et al. (2006). Note: the equation in Step 5
           ! of this paper has a typo (i.e., eq. 2 is correct).
-          D_ST1  = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD *
+          D_ST1  = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD1 *
      &                        ( D_AD1 + B ) * 1.0E+03 / RHOP ) - B )
           ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
-          ERF1 = ERF( ( LOG( D_ST1 ) - LOG( DG ) ) 
-     &                / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2)
+          ERFARG = ( LOG( D_ST1 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
+          ERF1 = ERF( ERFARG )
       END IF
 
       ! Convert size cut to equivalent Stokes diameter using
       ! equation 2 of Jiang et al. (2006). Note: the equation in Step 5
       ! of this paper has a typo (i.e., eq. 2 is correct).
-      D_ST2  = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD *
+      D_ST2  = 0.5 * ( SQRT( B ** 2 + 4.0 * D_AD2 *
      &                     ( D_AD2 + B ) * 1.0E+03 / RHOP ) - B )
 
       ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
-      ERF2 = ERF( ( LOG( D_ST2 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2)
+      ERFARG = ( LOG( D_ST2 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) - 3.0 * XXLSG / SQRT2
+      ERF2 = ERF( ERFARG )
 
       ! Calculate fraction between Lower and Upper Cut Points
       fPM = 0.5 * ( ERF2 - ERF1 )
@@ -3160,6 +3161,7 @@ C  Called by: Gas-Phase Chemistry Driver
 !     or Aerodynamic Diameter in um.
 !-----------------------------------------------------------------------
 
+      USE AERO_DATA, ONLY : AEROSPC_CONC, AEROSPC, N_MODE
       USE PMDIAG_DATA
 
       IMPLICIT NONE
@@ -3173,7 +3175,7 @@ C  Called by: Gas-Phase Chemistry Driver
       REAL, INTENT( OUT ) :: PM   ! PM Mass below cut point
 
       INTEGER IM
-      REAL    fPM
+      REAL    VAL
 
 C ----------------------- Begin solution -------------------------------
       PM = 0.0
@@ -3230,7 +3232,10 @@ C ----------------------- Begin solution -------------------------------
      &                      FRAC )
          END IF
          
-      INLET_FRAC( INLET,IMODE,WETNESS ) = FRAC      
+         INLET_FRAC( INLET,IMODE,WETNESS ) = FRAC 
+      ELSE
+         FRAC = INLET_FRAC( INLET,IMODE,WETNESS )
+      END IF
  
       END SUBROUTINE GET_AERO_INLET
  
@@ -3241,6 +3246,8 @@ C ----------------------- Begin solution -------------------------------
 !     for each aerosol mode and then sums them up.
 !-----------------------------------------------------------------------
 
+      USE AERO_DATA, ONLY : DRY_AERO_DIAM, WET_AERO_DIAM,
+     &                      AEROMODE_LNSG, MOMENT0_CONC
       USE PMDIAG_DATA
 
       IMPLICIT NONE
@@ -3251,24 +3258,22 @@ C ----------------------- Begin solution -------------------------------
       INTEGER WETNESS           ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
       ! Output variable
-      REAL, INTENT( OUT ) :: PM   ! PM Mass below cut point
+      REAL, INTENT( OUT ) :: NUM   ! PM Mass below cut point
 
       INTEGER IM
-      REAL    fPM
+      REAL    FRAC
 
 C ----------------------- Begin solution -------------------------------
       NUM = 0.0
       
       DO IM = 1,N_MODE
          IF ( WETNESS .EQ. IWET ) THEN
-           CALL NUM_INLET( WET_AERO_DIAM( IMODE ), AEROMODE_LNSG( IMODE ),
-     &                      WET_AERO_DENS( IMODE ), 
+           CALL NUM_INLET( WET_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
      &                      PMDIAG_INLET( INLET )%DIAM_LO, 
      &                      PMDIAG_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
          ELSE
-           CALL NUM_INLET( DRY_AERO_DIAM( IMODE ), AEROMODE_LNSG( IMODE ),
-     &                      DRY_AERO_DENS( IMODE ), 
+           CALL NUM_INLET( DRY_AERO_DIAM( IM ), AEROMODE_LNSG( IM ),
      &                      PMDIAG_INLET( INLET )%DIAM_LO, 
      &                      PMDIAG_INLET( INLET )%DIAM_HI, 
      &                      FRAC )
@@ -3280,7 +3285,7 @@ C ----------------------- Begin solution -------------------------------
       END SUBROUTINE SUM_INLET_NUM
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE NUM_INLET ( DGN, XXLSG, RHOP, D_ST1, D_ST2, fPM )
+      SUBROUTINE NUM_INLET ( DGN, XXLSG, D_ST1, D_ST2, fPM )
 
 C  Calculates the number fraction of a given aerosol mode that is above
 C  a threshold diamter. The Stokes diameter used by CMAQ is assumed to
@@ -3358,6 +3363,8 @@ C    Output variable
 C    Internal variables
       REAL, PARAMETER :: SQRT2 = 1.4142136  !  SQRT( 2 )
       REAL ERF1, ERF2 ! argument of ERF, from Step#6 of Jiang et al. (2006)
+      REAL ERFARG
+      REAL DG         ! Internal units for median diameter
 
 C *** Error function approximation, from Meng & Seinfeld (1994)
       REAL ERF        ! Error function
@@ -3376,11 +3383,13 @@ C     Cutoffs
           ERF1 = -1.0
       ELSE
           ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
-          ERF1 = ERF( ( LOG( D_ST1 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) )
+          ERFARG = ( LOG( D_ST1 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) 
+          ERF1 = ERF( ERFARG )
       END IF
 
       ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
-      ERF2 = ERF( ( LOG( D_ST2 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) )
+      ERFARG = ERF( ( LOG( D_ST2 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) )
+      ERF2 = ERF( ERFARG )
 
       ! Calculate fraction between Lower and Upper Cut Points
       fPM = 0.5 * ( ERF2 - ERF1 )

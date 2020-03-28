@@ -53,9 +53,10 @@
      &                 N_PMDIAG_INST_OUT, N_PMDIAG_AVRG_OUT
 
       INTEGER, ALLOCATABLE, SAVE :: 
-     &        MAP_INST2USED( : ), MAP_AVRG2PMDIAG( : ), 
+     &        MAP_INST2USED( : ), MAP_AVRG2USED( : ), 
      &        USED_PMDIAG_PARS( : ), USED_PMDIAG_MODE( : ),
-     &        INST_TYPE_OUT( : ), AVRG_TYPE_OUT( : )
+     &        INST_TYPE_OUT( : ), AVRG_TYPE_OUT( : ),
+     &        MAP_ID2USED( :,: )
 
       CONTAINS
 
@@ -70,7 +71,7 @@
       IMPLICIT NONE
 
       INTEGER, PARAMETER :: N_REG = 1000
-      INTEGER            :: INUM
+      INTEGER            :: INUM, N_END, I1, I2, JNUM
       INTEGER            :: EMCTRL_NML
       INTEGER            :: STAT
       LOGICAL, SAVE      :: INSTANT  =.TRUE., 
@@ -152,30 +153,31 @@
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
          CALL UPCASE( INST_PARS_REG( INUM ) )
-         A = INDEX1( INST_PARS_REG( INUM ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
-    !     B = INDEX1( INST_PARS_REG( INUM ), N_OLD, PMDIAG_OLD_NAMES%NAME )
-         C = INDEX1( INST_PARS_REG( INUM ), N_KEY, PMDIAG_KEY%WORD )
+         I1 = INDEX1( INST_PARS_REG( INUM ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
+         I2 = INDEX1( INST_PARS_REG( INUM ), N_KEY, PMDIAG_KEY%WORD )
 
          IF ( INST_PARS_REG( INUM ) .EQ. 'ALL' ) THEN
              ! Add All Parameters to the End of the Registry List
             INST_PARS_REG( N_END+1:N_END+N_PMDIAG_LIST ) = PMDIAG_LIST%NAME
             N_END = N_END + N_PMDIAG_LIST
-         ELSE IF ( A .GT. 0 ) THEN
+            INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
+            INST_PARS_REG( N_END ) = ''
+            N_END = N_END - 1
+         ELSE IF ( I1 .GT. 0 ) THEN
             ! Entry Matches a parameter on the PMDIAG list. 
-  !       ELSE IF ( B .GT. 0 ) THEN
-            ! Entry Matches a parameter on the Old PMDIAG list. Change
-            ! it to the new parameter name and let it through.
-  !          IL = INDEX1( PMDIAG_OLD_NAMES( B )%ID, N_PMDIAG_LIST, PMDIAG_LIST%ID )
-  !          INST_PARS_REG( INUM ) = PMDIAG_LIST( IL )%NAME
-         ELSE IF ( C .GT. 0 ) THEN
+         ELSE IF ( I2 .GT. 0 ) THEN
             ! Add Parameters associated with a keyword
-            INST_PARS_REG( N_END+1:N_END+PMDIAG_KEY( C )%N ) =
-     &                                   PMDIAG_KEY( C )%LIST
-            N_END = N_END + PMDIAG_KEY( C )%N
+            INST_PARS_REG( N_END+1:N_END+PMDIAG_KEY( I2 )%N ) =
+     &                                   PMDIAG_KEY( I2 )%LIST
+            N_END = N_END + PMDIAG_KEY( I2 )%N
+            INST_PARS_REG( INUM:N_END-1 ) = INST_PARS_REG( INUM+1:N_END )
+            INST_PARS_REG( N_END ) = ''
+            N_END = N_END - 1
          ELSE
             ! Entry Doesn't Match any parameter or Keyword. Crash the
             ! model.
-            XMSG = 'An Instantaneous PMDIAG Parameter has been requested that does not exist.'
+            XMSG = 'An Instantaneous PMDIAG Parameter ' // TRIM( INST_PARS_REG( INUM )) //
+     &             ' has been requested that does not exist.'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
          INUM = INUM + 1
@@ -219,30 +221,31 @@
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
          CALL UPCASE( AVRG_PARS_REG( INUM ) )
-         A = INDEX1( AVRG_PARS_REG( INUM ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
-   !      B = INDEX1( AVRG_PARS_REG( INUM ), N_OLD, PMDIAG_OLD_NAMES%NAME )
-         C = INDEX1( AVRG_PARS_REG( INUM ), N_KEY, PMDIAG_KEY%WORD )
+         I1 = INDEX1( AVRG_PARS_REG( INUM ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
+         I2 = INDEX1( AVRG_PARS_REG( INUM ), N_KEY, PMDIAG_KEY%WORD )
 
          IF ( AVRG_PARS_REG( INUM ) .EQ. 'ALL' ) THEN
              ! Add All Parameters to the End of the Registry List
             AVRG_PARS_REG( N_END+1:N_END+N_PMDIAG_LIST ) = PMDIAG_LIST%NAME
             N_END = N_END + N_PMDIAG_LIST
-         ELSE IF ( A .GT. 0 ) THEN
+            AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
+            AVRG_PARS_REG( N_END ) = ''
+            N_END = N_END - 1
+         ELSE IF ( I1 .GT. 0 ) THEN
             ! Entry Matches a parameter on the PMDIAG list. 
-  !       ELSE IF ( B .GT. 0 ) THEN
-  !          ! Entry Matches a parameter on the Old PMDIAG list. Change
-  !          ! it to the new parameter name and let it through.
-  !          IL = INDEX1( PMDIAG_OLD_NAMES( B )%ID, N_PMDIAG_LIST, PMDIAG_LIST%ID )
-  !          AVRG_PARS_REG( INUM ) = PMDIAG_LIST( IL )%NAME
-         ELSE IF ( C .GT. 0 ) THEN
+         ELSE IF ( I2 .GT. 0 ) THEN
             ! Add Parameters associated with a keyword
-            AVRG_PARS_REG( N_END+1:N_END+PMDIAG_KEY( C )%N ) =
-     &                                   PMDIAG_KEY( C )%LIST
-            N_END = N_END + PMDIAG_KEY( C )%N
+            AVRG_PARS_REG( N_END+1:N_END+PMDIAG_KEY( I2 )%N ) =
+     &                                   PMDIAG_KEY( I2 )%LIST
+            N_END = N_END + PMDIAG_KEY( I2 )%N
+            AVRG_PARS_REG( INUM:N_END-1 ) = AVRG_PARS_REG( INUM+1:N_END )
+            AVRG_PARS_REG( N_END ) = ''
+            N_END = N_END - 1
          ELSE
             ! Entry Doesn't Match any parameter or Keyword. Crash the
             ! model.
-            XMSG = 'An Average PMDIAG Parameter has been requested that does not exist.'
+            XMSG = 'An Average PMDIAG Parameter ' // TRIM( AVRG_PARS_REG( INUM )) //
+     &             ' has been requested that does not exist.'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
          INUM = INUM + 1
@@ -282,8 +285,8 @@
 
       IMPLICIT NONE
 
-
-      ALLOCATE( PMDIAG_KEY( 19 ) )
+      N_KEY = 19
+      ALLOCATE( PMDIAG_KEY( N_KEY ) )
 
       ! Define AMET Variables
       PMDIAG_KEY( 1 )%WORD = 'DEFAULT'
@@ -317,7 +320,7 @@
       PMDIAG_KEY( 4 )%N = 7
       ALLOCATE( PMDIAG_KEY( 4 )%LIST( 7 ) )
       PMDIAG_KEY( 4 )%LIST = (/'PM_NUM ','PMF_NUM','PMC_NUM','N10    ',
-     &                         'N20    ','N40    ','N100   '
+     &                         'N20    ','N40    ','N100   ' /)
      
       PMDIAG_KEY( 5 )%WORD = 'SIZE'
       PMDIAG_KEY( 5 )%N = 9
@@ -435,10 +438,11 @@
 !-------------------------------------------------------------------------
       
       USE AERO_DATA, ONLY: N_MODE, AEROMODE
+      USE CGRID_SPCS, ONLY : N_CGRID_SPC
 
       IMPLICIT NONE
 
-      INTEGER N, M, P, J, IM
+      INTEGER N, M, P, J, IM, ILIST
       CHARACTER( 16 ), SAVE :: PNAME = 'MAP_PMDIAG'
       CHARACTER( 300 ) :: XMSG
 
@@ -457,6 +461,12 @@
       USED_PMDIAG_MODE = 0
       USED_PMDIAG_PARS = 0
       MAP_ID2USED = 0
+
+      ! Map Parameter ID's to PMDIAG_List Entries
+      MAP_ID2LIST = 0
+      DO ILIST = 1,N_PMDIAG_LIST
+          MAP_ID2LIST( PMDIAG_LIST( ILIST )%ID ) = ILIST
+      END DO
 
       IF ( INST_ACTIVE ) THEN
          ALLOCATE( MAP_INST2USED( N_PMDIAG_INST*N_MODE ),
@@ -600,6 +610,9 @@
       ALLOCATE( PMDIAG_LOCAL( N_PMDIAG ) )
       ALLOCATE( L_CALC( N_PMDIAG ) )
 
+      ! Allocate local image of CGRID so it can be used each time step
+      ALLOCATE( CONC_VEC( N_CGRID_SPC ) )
+
       ! Map Diagnostic Variables to Model Species and Coefficients
       CALL MAP_PMDIAG_COEFFS
 
@@ -636,25 +649,25 @@
              ! Map ASO4K - Coarse-Mode Sulfate
              CASE ( ID_PMC_SO4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map ANO3K - Coarse-Mode Nitrate
              CASE ( ID_PMC_NO3 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map ANH4K - Coarse-Mode Ammonium
              CASE ( ID_PMC_NH4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map Coarse-Mode Sodium
              CASE ( ID_PMC_NA ) 
                N_VARS = 3
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.8373 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0626 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0023 )
@@ -662,7 +675,7 @@
              ! Map Coarse-Mode Magnesium
              CASE ( ID_PMC_MG ) 
                N_VARS = 3
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0997 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0170 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0032 )
@@ -670,7 +683,7 @@
              ! Map Coarse-Mode Potassium
              CASE ( ID_PMC_K ) 
                N_VARS = 3
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0310 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0242 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0176 )
@@ -678,7 +691,7 @@
              ! Map Coarse-Mode Calcium
              CASE ( ID_PMC_CA ) 
                N_VARS = 3
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0320 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0838 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0562 )
@@ -689,49 +702,49 @@
              ! Map ASO4IJ - Fine-Mode Sulfate
              CASE ( ID_PMF_SO4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map ANO3IJ - Fine-Mode Nitrate
              CASE ( ID_PMF_NO3 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map ANH4IJ - Fine-Mode Ammonium
              CASE ( ID_PMF_NH4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS , 'FINE')
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS , 'FINE')
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map ACLIJ - Fine-Mode Chloride
              CASE ( ID_PMF_CL ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map ANAIJ - Fine-Mode Sodium
              CASE ( ID_PMF_NA ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
              ! Map AECIJ - Fine-Mode Elemental Carbon
              CASE ( ID_PMF_EC ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )
  
              ! Map AH2OIJ - Fine-Mode Particle Water
              CASE ( ID_PMF_H2O ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH2O', 1.0/19.0 )
  
              ! Map ASOILJ_IMPV - IMPROVE reconstruction of Soil PM
              CASE ( ID_SOIL_IMPV )
                N_VARS = 5
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'ACCUMULATION' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ACCUMULATION' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 2.20 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASI', 2.49 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACA', 1.63 )
@@ -743,7 +756,7 @@
              !   NCOM in the unspeciated portion
              CASE ( ID_PMF_UNSP1 )
                N_VARS = 9
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PMF_MASS', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
@@ -759,7 +772,7 @@
              !   NCOM in the unspeciated portion
              CASE ( ID_PMF_UNSP2 )
                N_VARS = 9
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PMF_MASS', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
@@ -773,46 +786,46 @@
              ! Map AHPLUSIJ - Fine-Mode Hydronium Ion
              CASE ( ID_PMF_HP ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 )
  
              ! Map ANCOMIJ - Fine-Mode Non-Carbon Organic Mass
              CASE ( ID_PMF_NCOM ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANCOM', 1.0 )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APNCOM', 1.0 )
  
              ! Map AORGCJ - Fine-Mode Cloud-Processed OA
              CASE ( ID_PMF_CLDGLY ) 
-               N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               N_VARS = 2
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AORGC', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AGLY', 1.0 )
  
              ! Map AISOPJ - Fine-Mode Isoprene SOA
              CASE ( ID_PMF_ISOP ) 
                N_VARS = 2
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AISO1', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AISO2', 1.0 )
  
              ! Map AIEPOXJ - Fine-Mode IEPOX SOA
              CASE ( ID_PMF_IEPOX ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AISO3', 1.0 )
  
              ! Map AMTNJ - Fine-Mode Monoterpene Nitrate SOA
              CASE ( ID_PMF_MTNSOA ) 
                N_VARS = 2
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMTNO3', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AMTHYD', 1.0 )
  
              ! Map AMTJ - Fine-Mode Monoterpene SOA
              CASE ( ID_PMF_MTSOA ) 
                N_VARS = 6
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMT1', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AMT2', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'AMT3', 1.0 )
@@ -826,25 +839,25 @@
              ! Map PMAMS_SO4 - AMS-Measure Sulfate
              CASE ( ID_AMS_SO4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
              
              ! Map PMAMS_NO3 - AMS-Measured Nitrate
              CASE ( ID_AMS_NO3 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PMAMS_NH4 - AMS-Measured Ammonium
              CASE ( ID_AMS_NH4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PMAMS_CL - AMS-Measured Chloride
              CASE ( ID_AMS_CL ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              
@@ -853,98 +866,98 @@
              ! Map PM1_SO4 - PM1 Sulfate
              CASE ( ID_PM1_SO4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map PM1_NO3 - PM1 Nitrate
              CASE ( ID_PM1_NO3 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PM1_NH4 - PM1 Ammonium
              CASE ( ID_PM1_NH4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PM1_CL - PM1 Chloride
              CASE ( ID_PM1_CL ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map PM1_NA - PM1 Sodium
              CASE ( ID_PM1_NA ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
              ! Map PM1_EC - PM1 Elemental Carbon
              CASE ( ID_PM1_EC ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )
  
              ! Map PM1_MG - PM1 Magnesium
              CASE ( ID_PM1_MG ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
  
              ! Map PM1_K - PM1 Potassium
              CASE ( ID_PM1_K ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
  
              ! Map PM1_CA - PM1 Calcium
              CASE ( ID_PM1_CA ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
  
              ! Map PM1_Other - PM1 Other 
              CASE ( ID_PM1_OT ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AOTHR', 1.0 )
  
              ! Map PM1_FE - PM1 Iron
              CASE ( ID_PM1_FE ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
  
              ! Map PM1_SI - PM1 Silicon
              CASE ( ID_PM1_SI ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
  
              ! Map PM1_TI - PM1 Titanium
              CASE ( ID_PM1_TI ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
  
              ! Map PM1_MN - PM1 Manganese
              CASE ( ID_PM1_MN ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
  
              ! Map PM1_AL - PM1 Aluminum
              CASE ( ID_PM1_AL ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
   
              ! Map PM1_Soil - PM1.0 Reconstructed Soil for the fine
              ! mode + explicit soil for the coarse mode
              CASE ( ID_PM1_SOIL ) 
                N_VARS = 6
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASOIL', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AAL', 2.20 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ASI', 2.49 )
@@ -957,8 +970,8 @@
              ! unspeciated portion
              CASE ( ID_PM1_UNSP1 )
                N_VARS = 9
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PM1_MASS', 1.0 )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PM1', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
@@ -971,110 +984,115 @@
              ! Map PM1_UNSPCRS - PM1.0 Unspeciated Coarse Mass
              CASE ( ID_PM1_UN ) 
                N_VARS = 3
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0 ) ! All Seaspray Cation mass has been 
                                                                            ! apportined to Na, Mg, K, and Ca
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.8124 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.9207 )
- 
+              
+             ! Map PM1_HP - PM1.0 Hydronium Ion
+             CASE ( ID_PM1_HP ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 ) 
              
              !!!! PM2.5 Parameters !!!!  
 
              ! Map PM25_SO4 - PM2.5 Sulfate
              CASE ( ID_PM25_SO4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map PM25_NO3 - PM2.5 Nitrate
              CASE ( ID_PM25_NO3 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PM25_NH4 - PM2.5 Ammonium
              CASE ( ID_PM25_NH4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PM25_CL - PM2.5 Chloride
              CASE ( ID_PM25_CL ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map PM25_NA - PM2.5 Sodium
              CASE ( ID_PM25_NA ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
              ! Map PM25_EC - PM2.5 Elemental Carbon
              CASE ( ID_PM25_EC ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )
  
              ! Map PM25_MG - PM2.5 Magnesium
              CASE ( ID_PM25_MG ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
  
              ! Map PM25_K - PM2.5 Potassium
              CASE ( ID_PM25_K ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
  
              ! Map PM25_CA - PM2.5 Calcium
              CASE ( ID_PM25_CA ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
  
              ! Map PM25_Other - PM25 Other 
              CASE ( ID_PM25_OT ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AOTHR', 1.0 )
  
              ! Map PM25_FE - PM2.5 Iron
              CASE ( ID_PM25_FE ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
  
              ! Map PM25_SI - PM2.5 Silicon
              CASE ( ID_PM25_SI ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
  
              ! Map PM25_TI - PM2.5 Titanium
              CASE ( ID_PM25_TI ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
  
              ! Map PM25_MN - PM2.5 Manganese
              CASE ( ID_PM25_MN ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
  
              ! Map PM25_AL - PM2.5 Aluminum
              CASE ( ID_PM25_AL ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
  
              ! Map PM25_Soil - PM2.5 Reconstructed Soil for the fine
              ! mode + explicit soil for the coarse mode
              CASE ( ID_PM25_SOIL ) 
                N_VARS = 6
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASOIL', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AAL', 2.20 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ASI', 2.49 )
@@ -1087,8 +1105,8 @@
              ! unspeciated portion
              CASE ( ID_PM25_UNSP1 )
                N_VARS = 9
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PM25_MASS', 1.0 )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG',  'PM25', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASO4', -1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ANO3', -1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ANH4', -1.0 )
@@ -1101,16 +1119,16 @@
              ! Map PM25_UNSPCRS - PM2.5 Unspeciated Coarse Mass
              CASE ( ID_PM25_UN ) 
                N_VARS = 3
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASEACAT', 0.0 ) ! All Seaspray Cation mass has been 
                                                                            ! apportined to Na, Mg, K, and Ca
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.8124 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.9207 )
  
              ! Map PM25_HP - PM2.5 Hydronium Ion
-             CASE ( ID_PM1_HP ) 
+             CASE ( ID_PM25_HP ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 )
  
              
@@ -1119,31 +1137,31 @@
              ! Map PM25to10_SO4 - PM2.5-10.0 Sulfate
              CASE ( ID_PM25to10_SO4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map PM25to10_NO3 - PM2.5-10.0 Nitrate
              CASE ( ID_PM25to10_NO3 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PM25to10_NH4 - PM2.5-10.0 Ammonium
              CASE ( ID_PM25to10_NH4 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PM25to10_CL - PM2.5-10.0 Chloride
              CASE ( ID_PM25to10_CL ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map PM25to10_NA - PM2.5-10.0 Sodium
              CASE ( ID_PM25to10_NA ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
              !!!! Toxics !!!!  
@@ -1151,7 +1169,7 @@
              ! Map PM25_HDSL - HAP inventory PM2.5 diesel mass
              CASE ( ID_PM25_HDSL ) 
                N_VARS = 6
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ADE_OTHR', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ADE_EC', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
@@ -1162,68 +1180,68 @@
              ! Map PM25_HBE - HAP inventory Beryllium
              CASE ( ID_PM25_HBE ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABE', 1.0 )
  
              ! Map PM25_HCD - HAP inventory Cadmium
              CASE ( ID_PM25_HCD ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACD', 1.0 )
  
              ! Map PM25_HCR3 - HAP inventory Chromium III
              CASE ( ID_PM25_HCR3 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACR_III', 1.0 )
  
              ! Map PM25_HCR6 - HAP inventory Chromium VI
              CASE ( ID_PM25_HCR6 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACR_VI', 1.0 )
  
              ! Map PM25_HCR - HAP inventory Total Chromium
              CASE ( ID_PM25_HCR ) 
                N_VARS = 2
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PM25_HCR3', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AGG', 'PM25_HCR6', 1.0 )
  
              ! Map PM25_HPB - HAP inventory Lead
              CASE ( ID_PM25_HPB ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APB', 1.0 )
  
              ! Map PM25_HMN - HAP inventory Manganese
              CASE ( ID_PM25_HMN ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN_HAPS', 1.0 )
  
              ! Map PM25_HNI - HAP inventory Nickel
              CASE ( ID_PM25_HNI ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANI', 1.0 )
  
              ! Map PM25_HAS - HAP inventory Arsenic
              CASE ( ID_PM25_HAS ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAS', 1.0 )
  
              ! Map PM25_HG - Mercury
              CASE ( ID_PM25_HG ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APHG', 1.0 )
  
              ! Map PM10_HDSL - HAP inventory PM2.5 diesel mass
              CASE ( ID_PM10_HDSL ) 
                N_VARS = 6
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ADE_OTHR', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ADE_EC', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
@@ -1234,62 +1252,62 @@
              ! Map PM10_HBE - HAP inventory Beryllium
              CASE ( ID_PM10_HBE ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABE', 1.0 )
  
              ! Map PM10_HCD - HAP inventory Cadmium
              CASE ( ID_PM10_HCD ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACD', 1.0 )
  
              ! Map PM10_HCR3 - HAP inventory Chromium III
              CASE ( ID_PM10_HCR3 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACR_III', 1.0 )
  
              ! Map PM10_HCR6 - HAP inventory Chromium VI
              CASE ( ID_PM10_HCR6 ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACR_VI', 1.0 )
  
              ! Map PM10_HCR - HAP inventory Total Chromium
              CASE ( ID_PM10_HCR ) 
                N_VARS = 2
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PM10_HCR3', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AGG', 'PM10_HCR6', 1.0 )
  
              ! Map PM10_HPB - HAP inventory Lead
              CASE ( ID_PM10_HPB ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APB', 1.0 )
  
              ! Map PM10_HMN - HAP inventory Manganese
              CASE ( ID_PM10_HMN ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN_HAPS', 1.0 )
  
              ! Map PM10_HNI - HAP inventory Nickel
              CASE ( ID_PM10_HNI ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANI', 1.0 )
  
              ! Map PM10_HAS - HAP inventory Arsenic
              CASE ( ID_PM10_HAS ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAS', 1.0 )
  
              ! Map PM10_HG - Mercury
              CASE ( ID_PM10_HG ) 
                N_VARS = 1
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APHG', 1.0 )
  
              !!!! Other Parameters !!!!  
@@ -1297,14 +1315,14 @@
              ! Map TNO3 - Total Inorganic Nitrate
              CASE ( ID_TNO3 ) 
                N_VARS = 2
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 )
  
              ! Map TNO3TOT - Total Inorganic+Organic Nitrate
              CASE ( ID_TNO3TOT ) 
                N_VARS = 4
-               CALL INITIALIZE_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'AISOPNN', 2.0*62.0/226.0 )
@@ -1316,7 +1334,7 @@
       END SUBROUTINE MAP_PMDIAG_COEFFS
  
 !-------------------------------------------------------------------------
-      SUBROUTINE INITALIZE_PMDIAG_COEFFS( IDG, N_VARS, AEROTYPE )
+      SUBROUTINE INIT_PMDIAG_COEFFS( IDG, N_VARS, AEROTYPE_TMP )
 !     This subroutine allocates and initalizes all of the elements of an 
 !        index IDG within the PMDIAG_COEFFS structure
 !
@@ -1333,19 +1351,22 @@
 !     
 !-------------------------------------------------------------------------
 
+      USE AERO_DATA, ONLY : N_MODE, AEROMODE
+
       IMPLICIT NONE
 
-      USE AERO_DATA, ONLY : N_MODE
-
       INTEGER IDG, N_VARS
-      CHARACTER( 16 ) : AEROTYPE
-      CHARACTER( 200 ) : XMSG
+      CHARACTER( * )  AEROTYPE_TMP
+      CHARACTER( 20 ) AEROTYPE
+      CHARACTER( 200 ) XMSG
 
       ! Initialize All Components of PMDIAG_COEFFS
       PMDIAG_COEFFS( IDG )%L_MAPPED = .TRUE.
       PMDIAG_COEFFS( IDG )%N_VARS = N_VARS
-      ALLOCATE( PMDIAG_COEFFS( IDG )%L_AERO( N_VARS ),
-     &          PMDIAG_COEFFS( IDG )%L_MODE( N_MODE ),
+      ALLOCATE( PMDIAG_COEFFS( IDG )%L_MODE( N_MODE ),
+     &          PMDIAG_COEFFS( IDG )%L_GAS ( N_VARS ),
+     &          PMDIAG_COEFFS( IDG )%L_PREC( N_VARS ),
+     &          PMDIAG_COEFFS( IDG )%L_AGG ( N_VARS ),
      &          PMDIAG_COEFFS( IDG )%I_SPEC( N_VARS ),
      &          PMDIAG_COEFFS( IDG )%COEFF ( N_VARS ) )
       PMDIAG_COEFFS( IDG )%L_GAS  ( : )   = .FALSE.
@@ -1353,12 +1374,15 @@
       PMDIAG_COEFFS( IDG )%L_AGG  ( : )   = .FALSE.
       PMDIAG_COEFFS( IDG )%I_SPEC ( : )   = 0
       PMDIAG_COEFFS( IDG )%L_MODE ( : )   = .FALSE.
+      PMDIAG_COEFFS( IDG )%COEFF  ( : )   = 0.
       PMDIAG_COEFFS( IDG )%INLET          = 0
+      PMDIAG_COEFFS( IDG )%WETNESS        = IWET
 
       ! Specify the Aerosol Modes Needed and Inlet Type based on User
       ! Input through the AEROTYPE variable.
+      AEROTYPE = AEROTYPE_TMP
       CALL UPCASE( AEROTYPE )
-      SELECT CASE AEROTYPE
+      SELECT CASE ( AEROTYPE )
          CASE ( 'ALL' )
              PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
          CASE ('NONE' )
@@ -1378,45 +1402,58 @@
          CASE ('PM01' )
              PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
              PMDIAG_COEFFS( IDG )%INLET = IPM01
+             PMDIAG_COEFFS( IDG )%WETNESS = IWET
          CASE ('PM1' )
              PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
              PMDIAG_COEFFS( IDG )%INLET = IPM1
+             PMDIAG_COEFFS( IDG )%WETNESS = IWET
          CASE ('PM25' )
              PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
              PMDIAG_COEFFS( IDG )%INLET = IPM25
+             PMDIAG_COEFFS( IDG )%WETNESS = IWET
          CASE ('PM10' )
              PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
              PMDIAG_COEFFS( IDG )%INLET = IPM10
-         CASE ('PM25to10' )
+             PMDIAG_COEFFS( IDG )%WETNESS = IWET
+         CASE ('PM25TO10' )
              PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
              PMDIAG_COEFFS( IDG )%INLET = IPM25to10
+             PMDIAG_COEFFS( IDG )%WETNESS = IWET
          CASE ('PMAMS' )
              PMDIAG_COEFFS( IDG )%L_MODE( : ) = .TRUE.
              PMDIAG_COEFFS( IDG )%INLET = IPMAMS
+             PMDIAG_COEFFS( IDG )%WETNESS = IWET
          CASE DEFAULT
-             XMSG = 'An aerosol descriptor (',trim(AEROTYPE),') has been given ' //
+             XMSG = 'An aerosol descriptor (' // trim(AEROTYPE) // ') has been given ' //
      &              'for the mapping of a PMDIAG parameter. It is not recognized.'
-             CALL M3EXIT( 'INITIALIZE_PMDIAG_COEFFS', 0, 0, XMSG, XSTAT1 )
+             CALL M3EXIT( 'INIT_PMDIAG_COEFFS', 0, 0, XMSG, XSTAT1 )
       END SELECT
 
 
-      END SUBROUTINE INITIALIZE_PMDIAG_COEFFS
+      END SUBROUTINE INIT_PMDIAG_COEFFS
 
 !-------------------------------------------------------------------------
-      SUBROUTINE SET_PMDIAG_COEFF_MAP( IDG, IVAR, TSPEC, CSPEC, COEFF )
+      SUBROUTINE SET_PMDIAG_COEFF_MAP( IDG, IVAR, TSPEC_TMP, CSPEC, COEFF )
 !     This subroutine maps the modes designated by the variable CMODE to
 !        to the indices available in L_MODE.
 !-------------------------------------------------------------------------
 
+      USE PRECURSOR_DATA, ONLY : N_PRECURSOR, PRECURSOR
+      USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME
+      USE AERO_DATA, ONLY : N_AEROSPC, AEROSPC
+      USE RUNTIME_VARS
       IMPLICIT NONE
 
-      INTEGER  IVAR
-      CHARACTER( 16 ) :: CSPEC
-      CHARACTER( 4  ) :: TSPEC  ! AERO, PREC, GAS, or AGG
+      INTEGER  IDG, IVAR
+      CHARACTER( * ) :: CSPEC
+      CHARACTER( * ) :: TSPEC_TMP  ! AERO, PREC, GAS, or AGG
+      CHARACTER( 4 ) :: TSPEC  ! AERO, PREC, GAS, or AGG
       REAL COEFF
-      INTEGER  ISPEC, IUSED
-      CHARACTER( 500 ) :: XMSG
+      INTEGER  ISPEC, IUSED, JSPEC
+      LOGICAL  USED
+      CHARACTER( 1000 ) :: XMSG
 
+      TSPEC = TSPEC_TMP
       CALL UPCASE( TSPEC )
 
       ! Find Index of CSPEC in Gas Array, Aggregate Array or AEROSPC%BULKNAME
@@ -1437,8 +1474,9 @@
      &           "on gas precursor species " // TRIM(CSPEC) // ". This species has not been " //
      &           "incorporated in the precursor array though. Please check that the table "//
      &           "in PRECURSOR_DATA is compatible with the PM diagnostics you have called "//
-     &           "for in the Emmissions Control Namelist."
-             CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, XMSG, XSTAT1 )
+     &           "for in the Emissions Control Namelist."
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
           END IF 
       ELSE IF ( TSPEC .EQ. 'GAS' ) THEN 
           ! Map to Generic Gas Species
@@ -1459,7 +1497,7 @@
           ELSE
              ! Then check the CGRID array
              PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) = .TRUE.
-     &       ISPEC = INDEX1( CSPEC, N_CGRID_SPC, CGRID_NAME(:) )
+             ISPEC = INDEX1( CSPEC, N_CGRID_SPC, CGRID_NAME(:) )
           END IF
  
           IF ( ISPEC .GT. 0 ) THEN
@@ -1473,13 +1511,14 @@
      &           "incorporated in the GC namelist though. Please check that your "//
      &           "GC_namelist is compatible with the PM diagnostics you have called "//
      &           "for in the Emmissions Control Namelist."
-             CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, XMSG, XSTAT1 )
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
           END IF
       
       ELSE IF ( TSPEC .EQ. 'AGG' ) THEN 
           ! Map to Index on PMDIAG_LIST, not the ID column
-          PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) = 'AGG'
-          ISPEC = INDEX1( CSPEC, N_PMDIAG_LIST, PMDIAG_LIST )
+          PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) = .TRUE.
+          ISPEC = INDEX1( CSPEC, N_PMDIAG_LIST, PMDIAG_LIST%NAME )
       
           IF ( ISPEC .GT. 0 ) THEN
              ! Found the Index. Save the ID for this entry on the PMDIAG_LIST
@@ -1487,8 +1526,11 @@
              
              ! Check if it is used and add it to the USED_PMDIAG_PARS
              ! vector if not
-             IF ( INDEX1( PMDIAG_LIST( ISPEC )%ID, N_PMDIAG, 
-     &                    USED_PMDIAG_PARS ) .EQ. 0 ) THEN
+             USED = .FALSE.
+             DO JSPEC = 1,N_PMDIAG
+                IF ( PMDIAG_LIST( ISPEC )%ID .EQ. USED_PMDIAG_PARS( JSPEC ) ) USED = .TRUE.
+             END DO
+             IF ( .NOT. USED ) THEN
                  N_PMDIAG = N_PMDIAG + 1
                  USED_PMDIAG_PARS( N_PMDIAG ) = PMDIAG_LIST( ISPEC )%ID
              END IF
@@ -1501,7 +1543,8 @@
      &           "has not been incorporated in the PMDIAG List though. Please check that the "//
      &           "table in PMDIAG_DATA is compatible with the PM diagnostics you have defined "//
      &           "in PMDIAG_PROC."
-             CALL M3EXIT( 'MAP_PMDIAG_COEFFS', 0, 0, XMSG, XSTAT1 )
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             CALL M3EXIT( 'MAP_PMDIAG_COEFFS', 0, 0, '', XSTAT1 )
           END IF          
   
       ELSE
@@ -1515,11 +1558,12 @@
              ! Could not find the species in the Aerosol Array. Print an
              ! Error and Warn
              XMSG = "A PM Diagnostic variable has been requested that relies " //
-     &           "on species " // TRIM(CSPEC) // ". This species has not been " //
+     &           "on the aerosol species "//TRIM(CSPEC)//". This species has not been " //
      &           "incorporated in the AE namelist though. Please check that your "//
      &           "AE_namelist is compatible with the PM diagnostics you have called "//
      &           "for in the Emmissions Control Namelist."
-             CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, XMSG, XSTAT1 )
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
           END IF
       END IF
       PMDIAG_COEFFS( IDG )%COEFF( IVAR ) = COEFF
@@ -1532,35 +1576,46 @@
 !         PMDIAG_COEFFS structure as a guide for summing aerosol
 !         components.          
 !-------------------------------------------------------------------------
-    
+      USE AERO_DATA, ONLY : WET_AERO_M3, WET_AERO_M2, MOMENT0_CONC,
+     &                      AH2O_IDX, AEROSPC, AEROSPC_CONC,
+     &                      WET_AERO_DENS, N_MODE, AERO_MISSING,
+     &                      AEROMODE
+      USE PRECURSOR_DATA, ONLY : PRECURSOR_CONC
+      USE AEROMET_DATA, ONLY : AIRDENS
+      USE RUNTIME_VARS
+
       IMPLICIT NONE
 
       INTEGER IDG
-      REAL    VAL
+      REAL    VAL, VAL2
       INTEGER IVAR, ILIST
       LOGICAL L_CALC( N_PMDIAG )
       REAl    COEFF
-      
+      INTEGER IM, WETNESS, ISPEC, INLET
+      LOGICAL LMODE
+      REAL    FRAC( N_MODE )
+
       CHARACTER( 500 ) :: XMSG
 
       ! If this Aggregate has not been mapped already, then return an
       ! error and crash the model
       IF ( .NOT. PMDIAG_COEFFS( IDG )%L_MAPPED ) THEN
-         ILIST = MAP_ID2USED( IDG, 1 )  
-         XMSG = 'PMDIAG Parameter ', TRIM( PMDIAG_LIST( ILIST ) ),
+         ILIST = MAP_ID2LIST( IDG )  
+         XMSG = 'PMDIAG Parameter ' // TRIM( PMDIAG_LIST( ILIST )%NAME ) //
      &          ' has not been mapped to a procedure within PMDIAG_PROC even ' //
      &          'though it does appear to be an acceptable parameter on the ' //
      &          'PMDIAG_LIST. If you have added this parameter yourself, make ' //
      &          'sure it is being mapped to an actual calculation in CALC_PMDIAG ' //
      &          'or MAP_PMDIAG_COEFFS.'
-         CALL M3EXIT( 'CALC_PMDIAG_AGG', 0, 0, XMSG, XSTAT1 )
+         CALL LOG_MESSAGE( LOGDEV, XMSG )
+         CALL M3EXIT( 'CALC_PMDIAG_AGG', 0, 0, '', XSTAT1 )
       END IF
 
       ! Initialize value of aggregate parameter
       VAL = 0.0
       
       ! Retrieve size cutoff if necessary
-      IF ( PMDIAG_COEFF( IDG )%INLET .EQ. IPMAMS ) THEN
+      IF ( PMDIAG_COEFFS( IDG )%INLET .EQ. IPMAMS ) THEN
          ! Inlet is for AMS Colection
          DO IM = 1,N_MODE
            IF ( INLET_FRAC( IPMAMS,IM,IWET ) .LT. 0. ) 
@@ -1570,12 +1625,12 @@
      &                       INLET_FRAC( IPMAMS,IM,IWET ) )
            FRAC( IM ) = INLET_FRAC( IPMAMS,IM,IWET )
          END DO
-      ELSE IF ( PMDIAG_COEFF(IDG)%INLET .GT. 0 .AND.
-     &          PMDIAG_COEFF(IDG)%INLET .LE. N_INLET ) THEN
+      ELSE IF ( PMDIAG_COEFFS(IDG)%INLET .GT. 0 .AND.
+     &          PMDIAG_COEFFS(IDG)%INLET .LE. N_INLET ) THEN
          ! Inlet is for a filter with a specific size-range. Call the
          ! AERO_INLET wrapper, GET_AERO_INLET.
-         INLET = PMDIAG_COEFF( IDG )%INLET
-         WETNESS = PMDIAG_COEFF( IDG )%WETNESS
+         INLET = PMDIAG_COEFFS( IDG )%INLET
+         WETNESS = PMDIAG_COEFFS( IDG )%WETNESS
          DO IM = 1,N_MODE
            IF ( INLET_FRAC( INLET,IM,WETNESS ) .LT. 0. ) 
      &        CALL GET_AERO_INLET( INLET, IM, WETNESS,
@@ -1585,21 +1640,21 @@
       ELSE 
          ! No inlet was indicated or the number was outside defined
          ! bounds
-         FRAC( IM ) = 1.0
+         FRAC( : ) = 1.0
       END IF
 
       ! Loop through N_VARS and add species together
       DO IVAR = 1,PMDIAG_COEFFS( IDG )%N_VARS
-          ISPEC = PMDIAG_COEFFS( IDG )%I_SPEC
-          COEFF = PMDIAG_COEFFS( IDG )%COEFF
+          ISPEC = PMDIAG_COEFFS( IDG )%I_SPEC( IVAR )
+          COEFF = PMDIAG_COEFFS( IDG )%COEFF( IVAR )
 
           ! First check if this is a Precursor Gas
           IF ( PMDIAG_COEFFS( IDG )%L_PREC( IVAR ) ) THEN
-              VAL = VAL + PRECURSOR_CONC( ISPEC ) * COEFF
+              VAL = VAL + REAL( PRECURSOR_CONC( ISPEC ), 4) * COEFF
           
           ! Next check if this is a Gas from CGRID
           ELSE IF  ( PMDIAG_COEFFS( IDG )%L_GAS( IVAR ) ) THEN
-              VAL = VAL + CGRID( C,R,L,ISPEC ) * COEFF * AIRDENS
+              VAL = VAL + CONC_VEC( ISPEC ) * COEFF * AIRDENS
 
           ! Next check for aggregate variable
           ELSE IF  ( PMDIAG_COEFFS( IDG )%L_AGG( IVAR ) ) THEN
@@ -1607,13 +1662,13 @@
               VAL = VAL + VAL2 * COEFF
 
           ! Add Aerosol Components
-          ELSE
+          ELSE IF ( ISPEC .GT. 0 ) THEN
 
               DO IM = 1,N_MODE
                  ! If this mode is supposed to be added (LMODE) and the
                  ! species is not missing, then add it up
-                 LMODE = PMDIAG_COEFF( IDG )%L_MODE( IM )
-                 IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC, LMODE ) ) ) 
+                 LMODE = PMDIAG_COEFFS( IDG )%L_MODE( IM )
+                 IF ( LMODE .AND. ( .NOT. AERO_MISSING( ISPEC,IM ) ) ) 
      &               VAL = VAL + AEROSPC_CONC( ISPEC, IM ) * COEFF * FRAC( IM )
 
               END DO
@@ -1624,7 +1679,7 @@
       END SUBROUTINE CALC_PMDIAG_AGG
  
 !-------------------------------------------------------------------------
-      SUBROUTINE CALC_PMDIAG( IDG, IM, OUTVAL )
+      RECURSIVE SUBROUTINE CALC_PMDIAG( IDG, IM, OUTVAL )
 !     This subroutine maps the PM diagnostic variables that the user has
 !       requested to the entries in the PMDIAG_DATA table.
 !-------------------------------------------------------------------------
@@ -1633,10 +1688,22 @@
      &                     DRY_AERO_M2, WET_AERO_M2, DRY_AERO_M3, 
      &                     WET_AERO_M3, N_MODE, MOMENT0_CONC, MOMENT2_CONC,
      &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
-     &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS
-      USE AEROMET_DATA, ONLY: AIRRH
+     &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
+     &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
+      USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
+      USE SOA_DEFN, ONLY : N_OA, OASPC, MAP_OAtoAERO
+      USE PHOT_MOD, ONLY : TAU_AERO_550, AERO_EXT_550
+      USE RUNTIME_VARS, ONLY : PHOTDIAG
 
-      INTEGER IUSED
+      INTEGER IDG, IM
+      REAL OUTVAL
+      INTEGER IUSED, IMODE, IVAR, IOA
+      REAL VAL4, VAL3, VAL2, VAL, FRAC( N_MODE )
+      REAL PM01, PM1, PM25, PM10, PMAMS, PM25to10
+      REAL K, P1, P2, P3, a, K2, PMF_NO3, PMF_NO3_LOSS,
+     &     PMF_NH4_LOSS, PMF_NH4, PMF_SO4, PMF_MASS,
+     &     PM25_NH4, PM25_NO3, PM25_SO4, PM25_NO3_LOSS,
+     &     PM25_NH4_LOSS
 
       ! Map this combination of ID number and mode to the USED
       ! Parameters list, which is how PMDIAG_LOCAL is defined.
@@ -1734,44 +1801,62 @@
 
          ! Retrieve Total Particle Mass
          CASE ( ID_PM_MASS )
-            OUTVAL = SUM( SUM( AEROSPC_CONC( :,: ) ),
-     &                          MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            OUTVAL = SUM( SUM( AEROSPC_CONC( :,: ), DIM=1 ),
+     &                    MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
 
          ! Retrieve Ultrafine Particle Mass
          CASE ( ID_PMU_MASS )
-            OUTVAL = SUM( SUM( AEROSPC_CONC( :,: )  
-     &                          MASK=AEROMODE(:)%ULTRAFINE_MASK ) 
-     &                          MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            DO IMODE = 1,N_MODE
+               IF ( AEROMODE( IMODE )%ULTRAFINE_MASK )
+     &              OUTVAL = OUTVAL +
+     &                 SUM( AEROSPC_CONC( :,IMODE ),
+     &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            END DO
 
          ! Retrieve Fine Particle Mass
          CASE ( ID_PMF_MASS )
-            OUTVAL = SUM( SUM( AEROSPC_CONC( :,: )  
-     &                          MASK=AEROMODE(:)%FINE_MASK ) 
-     &                          MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            DO IMODE = 1,N_MODE
+               IF ( AEROMODE( IMODE )%FINE_MASK )
+     &              OUTVAL = OUTVAL +
+     &                 SUM( AEROSPC_CONC( :,IMODE ),
+     &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            END DO
 
          ! Retrieve Coarse Particle Mass
          CASE ( ID_PMC_MASS )
-            OUTVAL = SUM( SUM( AEROSPC_CONC( :,: )  
-     &                          MASK=AEROMODE(:)%COARSE_MASK ) 
-     &                          MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
- 
+            DO IMODE = 1,N_MODE
+               IF ( AEROMODE( IMODE )%COARSE_MASK )
+     &              OUTVAL = OUTVAL +
+     &                 SUM( AEROSPC_CONC( :,IMODE ),
+     &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            END DO
+
          ! Retrieve Nucleation-Mode Particle Mass
          CASE ( ID_PMNUC_MASS )
-            OUTVAL = PI * SUM( SUM( AEROSPC_CONC( :,: )  
-     &                          MASK=AEROMODE(:)%NUC_MASK ) 
-     &                          MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            DO IMODE = 1,N_MODE
+               IF ( AEROMODE( IMODE )%NUC_MASK )
+     &              OUTVAL = OUTVAL +
+     &                 SUM( AEROSPC_CONC( :,IMODE ),
+     &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            END DO
 
          ! Retrieve Aitken-Mode Particle Mass
          CASE ( ID_PMAIT_MASS )
-            OUTVAL = PI * SUM( SUM( AEROSPC_CONC( :,: )  
-     &                          MASK=AEROMODE(:)%AIT_MASK ) 
-     &                          MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            DO IMODE = 1,N_MODE
+               IF ( AEROMODE( IMODE )%AITKEN_MASK )
+     &              OUTVAL = OUTVAL +
+     &                 SUM( AEROSPC_CONC( :,IMODE ),
+     &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            END DO
 
          ! Retrieve Accumution-Mode Particle Mass
          CASE ( ID_PMACC_MASS )
-            OUTVAL = PI * SUM( SUM( AEROSPC_CONC( :,: )  
-     &                          MASK=AEROMODE(:)%ACC_MASK ) 
-     &                          MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            DO IMODE = 1,N_MODE
+               IF ( AEROMODE( IMODE )%ACCUM_MASK )
+     &              OUTVAL = OUTVAL +
+     &                 SUM( AEROSPC_CONC( :,IMODE ),
+     &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            END DO
 
          ! Retrieve Dry Mode Density [kg m-3]
          CASE ( ID_DRY_DENS )
@@ -1845,36 +1930,36 @@
          ! Retrieve Bulk PM Concentration Relevant for the AMS
          CASE ( ID_PMAMS )
             PMAMS = 0.0 
-            DO IM = 1,N_MODE
-               IF ( INLET_FRAC( IPMAMS,IM,IWET ) .LT. 0. ) THEN
-                  CALL AERO_AMS( WET_AERO_M3( IM ),  WET_AERO_M2( IM ),
-     &                           MOMENT0_CONC( IM ), AEROSPC_CONC( AH2O_IDX,IM ),
-     &                           WET_AERO_DENS( IM ),AEROSPC( AH2O_IDX )%DENSITY, 
+            DO IMODE = 1,N_MODE
+               IF ( INLET_FRAC( IPMAMS,IMODE,IWET ) .LT. 0. ) THEN
+                  CALL AERO_AMS( WET_AERO_M3( IMODE ),  WET_AERO_M2( IMODE ),
+     &                           MOMENT0_CONC( IMODE ), AEROSPC_CONC( AH2O_IDX,IMODE ),
+     &                           WET_AERO_DENS( IMODE ),AEROSPC( AH2O_IDX )%DENSITY, 
      &                           VAL )
-                  INLET_FRAC( IPMAMS,IM,IWET ) = VAL
+                  INLET_FRAC( IPMAMS,IMODE,IWET ) = VAL
                END IF
-               PMAMS = PMAMS +  SUM( AEROSPC_CONC( :,IM ),
+               PMAMS = PMAMS +  SUM( AEROSPC_CONC( :,IMODE ),
      &                                 MASK = .NOT.AEROSPC(:)%TRACER ) 
-     &                          * INLET_FRAC( IPMAMS,IM,IWET ) 
+     &                          * INLET_FRAC( IPMAMS,IMODE,IWET ) 
             END DO
             OUTVAL = PMAMS
          
          ! Calculate AHPMOLAL - Fine Mode Concentration of H+ in
          ! Particle Water
-         CASE ( ID_PMF_HPML )
+         CASE ( ID_PMF_HPM )
             ! Retrieve AHPLUSIJ
-            CALL CALC_PMDIAG( IDG_AHPLUSIJ, 1, VAL )
+            CALL CALC_PMDIAG( ID_PMF_HP, 1, VAL )
             ! Retrieve AH2OIJ
-            CALL CALC_PMDIAG( IDG_AH2OIJ, 1, VAL2 )
+            CALL CALC_PMDIAG( ID_PMF_H2O, 1, VAL2 )
             ! HPMOLAL = AHPLUSIJ / AH2OIJ * 1000.0 [mol L-1]
             OUTVAL = VAL / VAL2 * 1000.0
 
          ! Calculate PMF_PH - Fine-Mode pH
          CASE ( ID_PMF_PH )
             ! Retrieve HPMOLAL
-            CALL CALC_PMDIAG( IDG_HPMOLAL, 1, VAL )
+            CALL CALC_PMDIAG( ID_PMF_HPM, 1, VAL )
             ! Retrieve AH2OIJ
-            CALL CALC_PMDIAG( IDG_AH2OIJ, 1, VAL2 )
+            CALL CALC_PMDIAG( ID_PMF_H2O, 1, VAL2 )
 
             !PMF_PH = -1*LOG10(HPMOLAL)
             OUTVAL = -999999.0
@@ -1890,7 +1975,7 @@
                 ! Just Select Primary Species
                 IF ( OASPC( IOA )%PRIMARY ) THEN  
                    IF ( OASPC( IOA )%OMtoOC .gt. 0.0 ) 
-     &                VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ),
+     &                VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                            MASK = AEROMODE(:)%FINE_MASK ) 
      &                          / OASPC( IOA )%OMtoOC
                 END IF
@@ -1905,7 +1990,7 @@
             DO IOA = 1,N_OA
                 ! Just Select Secondary Species
                 IF ( .NOT. OASPC( IOA )%PRIMARY ) THEN  
-                      VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ),
+                      VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                            MASK = AEROMODE(:)%FINE_MASK ) 
      &                          / OASPC( IOA )%OMtoOC
                 END IF
@@ -1918,7 +2003,7 @@
             ! just carbon mass
             VAL = 0.0
             DO IOA = 1,N_OA
-               VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ),
+               VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                     MASK = AEROMODE(:)%FINE_MASK ) 
      &                   / OASPC( IOA )%OMtoOC
             END DO
@@ -1931,7 +2016,7 @@
             DO IOA = 1,N_OA
                 ! Just Select Primary Species
                 IF ( OASPC( IOA )%PRIMARY ) 
-     &             VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ),
+     &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                         MASK = AEROMODE(:)%FINE_MASK ) 
             END DO
             OUTVAL = VAL
@@ -1943,17 +2028,17 @@
             DO IOA = 1,N_OA
                 ! Just Select Secondary Species
                 IF ( .NOT.OASPC( IOA )%PRIMARY ) 
-     &             VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ),
+     &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                         MASK = AEROMODE(:)%FINE_MASK ) 
             END DO
             OUTVAL = VAL
  
          ! Calculate PMF_OA - Fine-Mode Organic Aerosol Mass
-         CASE ( ID_PMF_POA )
+         CASE ( ID_PMF_OA )
             ! Sum up primary organic aerosol species 
             VAL = 0.0
             DO IOA = 1,N_OA
-     &          VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ),
+                VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                      MASK = AEROMODE(:)%FINE_MASK ) 
             END DO
             OUTVAL = VAL
@@ -1965,7 +2050,7 @@
             DO IOA = 1,N_OA
                 ! Just Select Anthropogenic Species
                 IF ( .NOT.OASPC( IOA )%PRIMARY .AND. OASPC( IOA )%ANTHRO  ) 
-     &             VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ),
+     &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                         MASK = AEROMODE(:)%FINE_MASK ) 
             END DO
             OUTVAL = VAL
@@ -1977,7 +2062,7 @@
             DO IOA = 1,N_OA
                 ! Just Select Biogenic Secondary Species
                 IF ( .NOT.OASPC( IOA )%PRIMARY .AND. OASPC( IOA )%BIOG  ) 
-     &             VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ),
+     &             VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ),
      &                         MASK = AEROMODE(:)%FINE_MASK ) 
             END DO
             OUTVAL = VAL
@@ -1999,9 +2084,10 @@
                IF ( MAP_OAtoAERO(IOA) .NE. APOC_IDX .AND.
      &              MAP_OAtoAERO(IOA) .NE. APNCOM_IDX ) THEN
                   ! Weight OA Sum by O:C
-                  VAL2 = VAL2 + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ), 
-                                MASK = AEROMODE(:)%FINE_MASK )        
-                               *OAPSC(IOA)%OtoC                    
+                  VAL2 = VAL2 + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ), 
+     &                               MASK = AEROMODE(:)%FINE_MASK )        
+     &                          * OASPC(IOA)%OtoC                    
+               END IF
             END DO
             ! Add POC/PNCOM Contribution to Weighted O:C
             VAL3 = SUM( AEROSPC_CONC(APOC_IDX,:) + AEROSPC_CONC(APNCOM_IDX,:),
@@ -2023,7 +2109,7 @@
             VAL = 0.0
             DO IOA = 1,N_OA
                IF ( OASPC( IOA )%OMtoOC .GE. 0.0 ) 
-     &              VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ) * FRAC(:))
+     &              VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:))
      &                         / OASPC( IOA )%OMtoOC
             END DO
             OUTVAL = VAL  
@@ -2037,7 +2123,7 @@
             ! Sum up primary organic aerosol species
             VAL = 0.0
             DO IOA = 1,N_OA
-               VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ) * FRAC(:))
+               VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:))
             END DO
             OUTVAL = VAL  
  
@@ -2052,7 +2138,7 @@
             VAL = 0.0
             DO IOA = 1,N_OA
                IF ( OASPC( IOA )%OMtoOC .GE. 0.0 ) 
-     &              VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ) * FRAC(:) )
+     &              VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:) )
      &                        / OASPC( IOA )%OMtoOC
             END DO
             OUTVAL = VAL  
@@ -2066,10 +2152,61 @@
             ! Sum up primary organic aerosol species
             VAL = 0.0
             DO IOA = 1,N_OA
-               VAL = VAL + SUM( AEROSPC_CONC( OAtoAERO(IOA),: ) * FRAC(:) )
+               VAL = VAL + SUM( AEROSPC_CONC( MAP_OAtoAERO(IOA),: ) * FRAC(:) )
             END DO
             OUTVAL = VAL  
-  
+ 
+         ! Retrieve OA Concentration Relevant for the AMS
+         CASE ( ID_AMS_OA )
+            VAL2 = 0.0 
+            DO IMODE = 1,N_MODE
+               IF ( INLET_FRAC( IPMAMS,IMODE,IWET ) .LT. 0. ) THEN
+                  CALL AERO_AMS( WET_AERO_M3( IMODE ),  WET_AERO_M2( IMODE ),
+     &                           MOMENT0_CONC( IMODE ), AEROSPC_CONC( AH2O_IDX,IMODE ),
+     &                           WET_AERO_DENS( IMODE ),AEROSPC( AH2O_IDX )%DENSITY, 
+     &                           VAL )
+                  INLET_FRAC( IPMAMS,IMODE,IWET ) = VAL
+               END IF
+               VAL2 = VAL2 +  SUM( AEROSPC_CONC( :,IMODE ),
+     &                 MASK = (.NOT.AEROSPC(:)%TRACER .AND. AEROSPC(:)%OM) ) 
+     &                          * INLET_FRAC( IPMAMS,IMODE,IWET ) 
+            END DO
+            OUTVAL = VAL2
+              
+         ! Calculate O:C relevant for AMS observations
+         CASE ( ID_AMS_OtoC )
+            CALL CALC_PMDIAG( ID_AMS_OA, 1, VAL  )
+
+            VAL2 = 0.0
+            VAL4 = 0.0
+            DO IMODE = 1,N_MODE
+               IF ( INLET_FRAC( IPMAMS,IMODE,IWET ) .LT. 0. ) THEN
+                  CALL AERO_AMS( WET_AERO_M3( IMODE ),  WET_AERO_M2( IMODE ),
+     &                           MOMENT0_CONC( IMODE ), AEROSPC_CONC( AH2O_IDX,IMODE ),
+     &                           WET_AERO_DENS( IMODE ),AEROSPC( AH2O_IDX )%DENSITY, 
+     &                           FRAC(IMODE) )
+                  INLET_FRAC( IPMAMS,IMODE,IWET ) = FRAC(IMODE)
+               END IF
+ 
+               DO IOA = 1,N_OA
+                  IF ( MAP_OAtoAERO(IOA) .NE. APOC_IDX .AND.
+     &                 MAP_OAtoAERO(IOA) .NE. APNCOM_IDX ) THEN
+                     ! Weight OA Sum by O:C
+                     VAL2 = VAL2 + AEROSPC_CONC( MAP_OAtoAERO(IOA),IMODE )        
+     &                         * OASPC(IOA)%OtoC * INLET_FRAC( IPMAMS,IMODE,IWET )
+                  END IF
+               END DO
+               ! Add POC/PNCOM Contribution to Weighted O:C
+               VAL3 = ( AEROSPC_CONC(APOC_IDX,IMODE) 
+     &                + AEROSPC_CONC(APNCOM_IDX,IMODE) )
+     &                     * INLET_FRAC( IPMAMS,IMODE,IWET )
+               VAL3 = ( 12./15. * ( VAL3 / ( AEROSPC_CONC(APOC_IDX,IMODE)
+     &                                      *INLET_FRAC(IPMAMS,IMODE,IWET) 
+     &                           + TINY(0.0) ) ) - 14./15. ) * VAL3
+               VAL4 = VAL4 + VAL3
+            END DO
+            OUTVAL = ( VAL2 + VAL4 ) / ( VAL + TINY(0.0))
+ 
          ! Retrieve Fine-Mode Particle Mass Collected by the Federal
          ! Reference Method compliant sampler
          CASE ( ID_PMF_FRM )
@@ -2078,22 +2215,20 @@
             P2 = EXP( 9969/SRFTEMP + 16.22*LOG( SRFTEMP ) - 122.65 )
             P3 = EXP( 13875/SRFTEMP + 24.46*LOG( SRFTEMP ) - 182.61 )
             a = 1 - AIRRH 
-            IF ( RH .LE. 0.61 ) THEN
+            IF ( AIRRH .LE. 0.61 ) THEN
                 K2 = K ** 0.5
             ELSE
                 K2 = ( K * ( P1 - P2*a + P3*a*a ) * ( a**1.75 ) ) ** 0.5
             END IF
 
-            CALL CALC_PMDIAG_AGG( ID_PMF_NO3, L_CALC_AGG, PMF_NO3 )
+            CALL CALC_PMDIAG( ID_PMF_NO3, 1, PMF_NO3 )
             PMF_NO3_LOSS = MIN( 745.7/SRFTEMP * K2, PMF_NO3 )
 
             PMF_NH4_LOSS = PMF_NO3_LOSS * 18.0 / 62.0
 
-            CALL CALC_PMDIAG_AGG( ID_PMF_NH4, L_CALC_AGG, PMF_NH4 )
-            CALL CALC_PMDIAG_AGG( ID_PMF_SO4, L_CALC_AGG, PMF_SO4 ) 
-            PMF_MASS = SUM( SUM( AEROSPC_CONC( :,: )  
-     &                           MASK=AEROMODE(:)%FINE_MASK ) 
-     &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            CALL CALC_PMDIAG( ID_PMF_NH4, 1, PMF_NH4 )
+            CALL CALC_PMDIAG( ID_PMF_SO4, 1, PMF_SO4 ) 
+            CALL CALC_PMDIAG( ID_PMF_MASS,1, PMF_MASS) 
 
             OUTVAL = PMF_MASS - PMF_NO3_LOSS - PMF_NH4_LOSS
      &                      +0.24 * ( PMF_SO4 + PMF_NH4 - PMF_NH4_LOSS ) + 0.5
@@ -2106,19 +2241,19 @@
             P2 = EXP( 9969/SRFTEMP + 16.22*LOG( SRFTEMP ) - 122.65 )
             P3 = EXP( 13875/SRFTEMP + 24.46*LOG( SRFTEMP ) - 182.61 )
             a = 1 - AIRRH 
-            IF ( RH .LE. 0.61 ) THEN
+            IF ( AIRRH .LE. 0.61 ) THEN
                 K2 = K ** 0.5
             ELSE
                 K2 = ( K * ( P1 - P2*a + P3*a*a ) * ( a**1.75 ) ) ** 0.5
             END IF
 
-            CALL CALC_PMDIAG_AGG( ID_PM25_NO3, L_CALC_AGG, PM25_NO3 )
-            PMF_NO3_LOSS = MIN( 745.7/SRFTEMP * K2, PMF_NO3 )
+            CALL CALC_PMDIAG( ID_PM25_NO3, 1, PM25_NO3 )
+            PM25_NO3_LOSS = MIN( 745.7/SRFTEMP * K2, PM25_NO3 )
 
-            PMF_NH4_LOSS = PMF_NO3_LOSS * 18.0 / 62.0
+            PM25_NH4_LOSS = PM25_NO3_LOSS * 18.0 / 62.0
 
-            CALL CALC_PMDIAG_AGG( ID_PM25_NH4, L_CALC_AGG, PM25_NH4 )
-            CALL CALC_PMDIAG_AGG( ID_PM25_SO4, L_CALC_AGG, PM25_SO4 ) 
+            CALL CALC_PMDIAG( ID_PM25_NH4, 1, PM25_NH4 )
+            CALL CALC_PMDIAG( ID_PM25_SO4, 1, PM25_SO4 ) 
             CALL SUM_INLET_PM( IPM25, IWET, PM25 )
 
             OUTVAL = PM25 - PM25_NO3_LOSS - PM25_NH4_LOSS
@@ -2126,39 +2261,39 @@
           
          ! Retrieve GAMMA_N2O5IJ - fine N2O5 heterogeneous rxn probability
          CASE ( ID_GN2O5F )
-            IF ( AERO_CHEM_SET ) OUTVAL = GAMMA_N2O5IJ( C,R,L )
+            IF ( AERO_CHEM_SET ) OUTVAL = GAMMA_N2O5IJ( C1,R1,L1 )
 
          ! Retrieve GAMMA_N2O5K - coarse N2O5 heterogeneous rxn probability
          CASE ( ID_GN2O5C )
-            IF ( AERO_CHEM_SET ) OUTVAL = GAMMA_N2O5K( C,R,L )
+            IF ( AERO_CHEM_SET ) OUTVAL = GAMMA_N2O5K( C1,R1,L1 )
 
          ! Retrieve YCLNO2IJ - fine CLNO2 heterogeneous rxn probability
          CASE ( ID_YCLNO2F )
-            IF ( AERO_CHEM_SET ) OUTVAL = YCLNO2IJ( C,R,L )
+            IF ( AERO_CHEM_SET ) OUTVAL = YCLNO2IJ( C1,R1,L1 )
 
          ! Retrieve YCLNO2K - coarse CLNO2 heterogeneous rxn probability
          CASE ( ID_YCLNO2C )
-            IF ( AERO_CHEM_SET ) OUTVAL = YCLNO2K( C,R,L )
+            IF ( AERO_CHEM_SET ) OUTVAL = YCLNO2K( C1,R1,L1 )
 
          ! Retrieve GAMMA_IEPOX - heterogeneous uptake coefficient
          CASE ( ID_GIEPOX )
-            IF ( AERO_CHEM_SET ) OUTVAL = GAMMA_IEPOX( C,R,L )
+            IF ( AERO_CHEM_SET ) OUTVAL = GAMMA_IEPOX( C1,R1,L1 )
 
          ! Retrieve Particle-Phase Reaction Rate Constant for IEPOX
          CASE ( ID_KIEPOX )
-            IF ( AERO_CHEM_SET ) OUTVAL = KPARTIEPOX( C,R,L )
+            IF ( AERO_CHEM_SET ) OUTVAL = KPARTIEPOX( C1,R1,L1 )
 
          ! Retrieve IMAE Heterogeneous Uptake Coefficient
          CASE ( ID_GIMAE )
-            IF ( AERO_CHEM_SET ) OUTVAL = GAMMA_IMAE( C,R,L )
+            IF ( AERO_CHEM_SET ) OUTVAL = GAMMA_IMAE( C1,R1,L1 )
 
          ! Retrieve AOD at 550 nm
          CASE ( ID_AOD550 )
-            OUTVAL = TAU_AERO_550 ( C,R )
+            IF ( PHOTDIAG ) OUTVAL = TAU_AERO_550( C1,R1 )
 
          ! Retrieve Aerosol Extinction at 550 nm
          CASE ( ID_PMEXT550 )
-            OUTVAL = AERO_EXT_550( C,R,L )
+            IF ( PHOTDIAG ) OUTVAL = AERO_EXT_550( C1,R1,L1 )
 
          ! Retrieve Relative Humidity
          CASE ( ID_RH )
@@ -2190,7 +2325,7 @@
       END SUBROUTINE CALC_PMDIAG
           
 !-------------------------------------------------------------------------
-      SUBROUTINE LOAD_PMDIAG( C,R,L,WRITETIME )
+      SUBROUTINE LOAD_PMDIAG( C,R,L,CONC,WRITETIME )
 !     This subroutine maps the PM diagnostic variables that the user has
 !       requested to the entries in the PMDIAG_DATA table.
 !-------------------------------------------------------------------------
@@ -2205,16 +2340,20 @@
       IMPLICIT NONE
 
       INTEGER C, R, L
-      INTEGER IDG, IM, AL, IL
+      INTEGER IDG, IM, AL, IL, IUSED, IAVRG, IINST
 
-      REAL :: PM01, PM1, PM25, PM10, PMAMS
+      REAL :: CONC( : )
 
       LOGICAL :: WRITETIME
 
       ! Initalize Local Parameters
       PMDIAG_LOCAL( : ) = 0.0
-      INLET_FRAC( :,: ) = -1.
+      INLET_FRAC(:,:,:) = -1.
       L_CALC            = .FALSE.
+      CONC_VEC( : )     = CONC( : )
+      C1                = C
+      R1                = R
+      L1                = L
 
       ! Check to make sure the current layer is requested for diagnostic
       ! output.

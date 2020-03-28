@@ -689,7 +689,7 @@ C                  suffix   number     surface         Masks       minimum minim
 C                            name       name     U  F  C AC AI NU  numconc  m2conc  m3conc
 C                  ------- ----------  -------   -  -  - -- -- --  -------- -------  ------
      &   mode_type('AIT'  ,'NUMATKN', 'SRFATKN', T, T, F, F, T, F, conmin,  conmin, conmin),
-     &   mode_type('ACC'  ,'NUMACC ', 'SRFACC ', F, F, F, T, F, F, conmin,  conmin, conmin),
+     &   mode_type('ACC'  ,'NUMACC ', 'SRFACC ', F, T, F, T, F, F, conmin,  conmin, conmin),
      &   mode_type('COR'  ,'NUMCOR ', 'SRFCOR ', F, F, T, F, F, F, conmin,  conmin, conmin)/)
 
 

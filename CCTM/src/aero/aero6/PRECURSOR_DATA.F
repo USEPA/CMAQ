@@ -59,7 +59,7 @@ C-----------------------------------------------------------------------
          Logical         :: required           ! required for model run
       End Type precursor_type
 
-      Type ( precursor_type ), Private :: precursor( n_precursor ) = (/
+      Type ( precursor_type ) :: precursor( n_precursor ) = (/
 C                       Name    RxnCounter  Update  Required
 C                    ---------   ---------- ------  ------
      & precursor_type( 'NO2    ', .False. , .True., .True.  ),
