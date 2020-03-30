@@ -2429,18 +2429,17 @@
      &         L.GE.AVRG_LAYER_BOT .AND. L.LE.AVRG_LAYER_TOP ) THEN
              AL = L - AVRG_LAYER_BOT + 1
              DO  IAVRG = 1,N_PMDIAG_AVRG_OUT
-                IF ( MAP_AVRG2USED( IAVRG ) .EQ. ID_PMF_PH ) THEN
+                IF ( USED_PMDIAG_PARS( MAP_AVRG2USED( IAVRG )) .EQ. ID_PMF_PH
+     &               .AND. PMDIAG_LOCAL( MAP_AVRG2USED( IAVRG ) ) .LT. -100. ) THEN
                    ! Special Averageing for Particle pH
-                   IF ( PMDIAG_LOCAL( MAP_AVRG2USED( IAVRG ) ) .LT. -100 ) THEN
-                       ! Add whatever the current average is right now.
-                       ! Certainly this is problematic, particularly
-                       ! at the beginning of an hour where PMDIAG_AVRG =
-                       ! 0. It's best to either use the instantaneous
-                       ! value or recalculate the average fine particle acidity
-                       ! offline.
-                       PMDIAG_AVRG( C,R,AL,IAVRG ) = PMDIAG_AVRG( C,R,AL,IAVRG ) 
-     &                         + PMDIAG_AVRG( C,R,AL,IAVRG ) / PMDIAG_AVRG_STEP
-                   END IF
+                   ! Add whatever the current average is right now.
+                   ! Certainly this is problematic, particularly
+                   ! at the beginning of an hour where PMDIAG_AVRG =
+                   ! 0. It's best to either use the instantaneous
+                   ! value or recalculate the average fine particle acidity
+                   ! offline.
+                   PMDIAG_AVRG( C,R,AL,IAVRG ) = PMDIAG_AVRG( C,R,AL,IAVRG ) 
+     &                     + PMDIAG_AVRG( C,R,AL,IAVRG ) / PMDIAG_AVRG_STEP
                 ELSE
                    PMDIAG_AVRG( C,R,AL,IAVRG ) = PMDIAG_AVRG( C,R,AL,IAVRG ) 
      &                                         + PMDIAG_LOCAL( MAP_AVRG2USED( IAVRG ) )
