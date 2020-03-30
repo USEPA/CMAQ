@@ -2,7 +2,7 @@
 [Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-The ELMO Sythesizer streamlines the definition, calculation, and maintenance of aggregate particulate matter parameters online in CMAQ. Previsouly, aggregate parameters like PM2.5 and Fine-mode Sulfate (ASO4I + ASO4J) were calculated through the COMBINE post-processing utility and documented via the SpecDef input file for that program. With ELMO, these variables are defined in PMDIAG_DATA and their calculations are prescribed in PMDIAG_PROC. Thus, CMAQ can now output higher-level parameters without needing to run any particular post-processing tool.  
+The ELMO Sythesizer streamlines the definition, calculation, and maintenance of over 170 aggregate particulate matter parameters online in CMAQ. Previsouly, aggregate parameters like PM2.5 and Fine-mode Sulfate (ASO4I + ASO4J) were calculated through the COMBINE post-processing utility and documented via the SpecDef input file for that program. With ELMO, these variables are defined in PMDIAG_DATA and their calculations are prescribed in PMDIAG_PROC. Thus, CMAQ can now output higher-level parameters without needing to run any particular post-processing tool.  
 
 The interface for using ELMO is on the EmissionControlFile. Please see that file for a description of how to use the options relevant for ELMO.  
 

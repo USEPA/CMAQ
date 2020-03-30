@@ -729,14 +729,62 @@
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
-             ! Map AECIJ - Fine-Mode Elemental Carbon
-             CASE ( ID_PMF_EC ) 
+             ! Map AECIJ - Fine-Mode Elemental Carbon                                   
+             CASE ( ID_PMF_EC )                                                         
+               N_VARS = 1                                                               
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )                           
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )                  
+                                                                                        
+             ! Map AFEJ - Fine-Mode Iron
+             CASE ( ID_PMF_FE ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
  
-             ! Map AH2OIJ - Fine-Mode Particle Water
-             CASE ( ID_PMF_H2O ) 
+             ! Map AALJ - Fine-Mode Aluminum
+             CASE ( ID_PMF_AL ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
+ 
+             ! Map ASIJ - Fine-Mode Silicon
+             CASE ( ID_PMF_SI ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
+ 
+             ! Map ATIJ - Fine-Mode Titanium
+             CASE ( ID_PMF_TI ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
+ 
+             ! Map ACAJ - Fine-Mode Calcium
+             CASE ( ID_PMF_CA ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
+ 
+             ! Map AMGJ - Fine-Mode Magnesium
+             CASE ( ID_PMF_MG ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
+ 
+             ! Map AKJ - Fine-Mode Potassium
+             CASE ( ID_PMF_K ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
+ 
+             ! Map AMNJ - Fine-Mode Manganese
+             CASE ( ID_PMF_MN ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
+ 
+             ! Map AH2OIJ - Fine-Mode Particle Water           
+             CASE ( ID_PMF_H2O )                               
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH2O', 1.0/19.0 )
@@ -2381,8 +2429,22 @@
      &         L.GE.AVRG_LAYER_BOT .AND. L.LE.AVRG_LAYER_TOP ) THEN
              AL = L - AVRG_LAYER_BOT + 1
              DO  IAVRG = 1,N_PMDIAG_AVRG_OUT
-                PMDIAG_AVRG( C,R,AL,IAVRG ) = PMDIAG_AVRG( C,R,AL,IAVRG ) 
-     &                                      + PMDIAG_LOCAL( MAP_AVRG2USED( IAVRG ) )
+                IF ( MAP_AVRG2USED( IAVRG ) .EQ. ID_PMF_PH ) THEN
+                   ! Special Averageing for Particle pH
+                   IF ( PMDIAG_LOCAL( MAP_AVRG2USED( IAVRG ) ) .LT. -100 ) THEN
+                       ! Add whatever the current average is right now.
+                       ! Certainly this is problematic, particularly
+                       ! at the beginning of an hour where PMDIAG_AVRG =
+                       ! 0. It's best to either use the instantaneous
+                       ! value or recalculate the average fine particle acidity
+                       ! offline.
+                       PMDIAG_AVRG( C,R,AL,IAVRG ) = PMDIAG_AVRG( C,R,AL,IAVRG ) 
+     &                         + PMDIAG_AVRG( C,R,AL,IAVRG ) / PMDIAG_AVRG_STEP
+                   END IF
+                ELSE
+                   PMDIAG_AVRG( C,R,AL,IAVRG ) = PMDIAG_AVRG( C,R,AL,IAVRG ) 
+     &                                         + PMDIAG_LOCAL( MAP_AVRG2USED( IAVRG ) )
+                END IF
              END DO
           END IF
        

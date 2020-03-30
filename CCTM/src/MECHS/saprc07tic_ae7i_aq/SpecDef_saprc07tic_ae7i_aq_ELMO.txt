@@ -182,7 +182,7 @@ PMF_UN_IMPV2    ,ug m-3    ,PMF_UN_IMPV2[3]
 PMAMS_CL        ,ug m-3    ,PMAMS_CL[3]
 PMAMS_NH4       ,ug m-3    ,PMAMS_NH4[3]
 PMAMS_NO3       ,ug m-3    ,PMAMS_NO3[3]
-PMAMS_OM        ,ugC m-3   ,PMAMS_OM[3]
+PMAMS_OA        ,ug m-3    ,PMAMS_OA[3]
 PMAMS_SO4       ,ug m-3    ,PMAMS_SO4[3]
 
 !! Unused PM1 Species. Included Here for demonstration
