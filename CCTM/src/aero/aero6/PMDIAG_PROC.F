@@ -1862,6 +1862,8 @@
      &              OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
          ! Retrieve Fine Particle Mass
@@ -1870,7 +1872,9 @@
                IF ( AEROMODE( IMODE )%FINE_MASK )
      &              OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
-     &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+     &                      MASK=.NOT.AEROSPC(:)%TRACER )
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
          ! Retrieve Coarse Particle Mass
@@ -1880,6 +1884,8 @@
      &              OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
          ! Retrieve Nucleation-Mode Particle Mass
@@ -1889,6 +1895,8 @@
      &              OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
          ! Retrieve Aitken-Mode Particle Mass
@@ -1898,6 +1906,8 @@
      &              OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
          ! Retrieve Accumution-Mode Particle Mass
@@ -1907,6 +1917,8 @@
      &              OUTVAL = OUTVAL +
      &                 SUM( AEROSPC_CONC( :,IMODE ),
      &                      MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ! ug m-3
             END DO
 
          ! Retrieve Dry Mode Density [kg m-3]
@@ -1967,6 +1979,7 @@
          CASE ( ID_PM25 )
             CALL SUM_INLET_PM( IPM25, IWET, PM25 )
             OUTVAL = PM25 
+            CALL CALC_PMDIAG( ID_PM25_H2O, 1, VAL  )
 
          ! Retrieve Bulk PM10.0 Concentration
          CASE ( ID_PM10 )
