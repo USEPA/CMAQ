@@ -307,7 +307,7 @@ C
         USE GRID_CONF    ! just for mype 20140327
         USE CGRID_SPCS, ONLY : N_AE_SPC, AE_SPC
         USE RXNS_DATA,  ONLY : MECHNAME, NUMB_MECH_SPC !Get Chemical Mechanism Name
-        USE DEGRADE_PARAMETERS
+!       USE DEGRADE_PARAMETERS
         USE UTILIO_DEFN  ! 20130627
 
         IMPLICIT NONE
