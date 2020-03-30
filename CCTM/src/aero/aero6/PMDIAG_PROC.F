@@ -839,9 +839,10 @@
  
              ! Map ANCOMIJ - Fine-Mode Non-Carbon Organic Mass
              CASE ( ID_PMF_NCOM ) 
-               N_VARS = 1
+               N_VARS = 2
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APNCOM', 1.0 )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OA', 1.0 )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OC',-1.0 )
  
              ! Map AORGCJ - Fine-Mode Cloud-Processed OA
              CASE ( ID_PMF_CLDGLY ) 
