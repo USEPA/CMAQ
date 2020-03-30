@@ -1801,8 +1801,10 @@
 
          ! Retrieve Total Particle Mass
          CASE ( ID_PM_MASS )
-            OUTVAL = SUM( SUM( AEROSPC_CONC( :,: ), DIM=1 ),
-     &                    MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            DO IMODE = 1,N_MODE
+               OUTVAL = SUM( AEROSPC_CONC( :,IMODE ), 
+     &                  MASK=.NOT.AEROSPC(:)%TRACER ) ! ug m-3
+            END DO
 
          ! Retrieve Ultrafine Particle Mass
          CASE ( ID_PMU_MASS )
