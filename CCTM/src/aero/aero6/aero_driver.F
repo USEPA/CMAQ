@@ -131,7 +131,8 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_ORGVAPOR
       USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
      &                        H2OSATVP, H2OVP, MWWAT, MWAIR, SRFTEMP
-      USE UTILIO_DEFN, ONLY: TIME2SEC, SEC2TIME
+      USE UTILIO_DEFN, ONLY: OPEN3, INTERPX, FSREAD3, ALLVAR3,
+     &                       XSTAT1, TIME2SEC, SEC2TIME
 #ifdef twoway
      &                       , INDEX1, XSTAT3
 #endif
@@ -432,7 +433,18 @@ C *** Update gas soa concentrations back to CGRID
                CALL UPDATE_ORGVAPOR( CGRID( C,R,L,: ) )
 
 C *** OUTPUT DIAGNOSTIC INFORMATION
+C *** Get wet moment info (dry will be converted to wet)
+               CALL calcmoments( .true. )
+               CALL GETPAR( FIXED_sg ) ! update AEROMODE_DIAM,DENS,SDEV
+
+C *** OUTPUT DIAGNOSTIC INFORMATION
                CALL LOAD_PMDIAG( C,R,L, CGRID(C,R,L,:), WRITETIME )
+
+! *** Calculate 2nd and 3rd moments of the "dry" aerosol distribution
+!     NOTE! "dry" aerosol excludes both H2O and SOA  (Jan 2004 --SJR)
+!     EXCEPT nonvolatile SOA is part of dry aerosol (Oct 2007 --PVB)
+!               CALL CALCMOMENTS( .FALSE. )
+!               CALL GETPAR( FIXED_sg ) ! update AEROMODE_DIAM,DENS,SDEV
 
 ! *** Collect Aerosol Sub-Process Rates in shared arrays
                AERO_COND  ( C,R,L,: ) = COND_BUDGET( : )

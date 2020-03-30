@@ -87,19 +87,20 @@ C-----------------------------------------------------------------------
          Real            :: enth        ! Enthalphy of Vaporization [J/mol]
          Real            :: otoc        ! O:C - Ratio of Oxygen and to Carbon
          Real            :: OMtoOC      ! OM:OC - Ratio of Total Organic Mass to Organic Carbon Mass
-         Logical         :: nonvol      ! Flag identifying nonvolatile species
          Logical         :: primary     ! Flag identifying primary species
          Logical         :: anthro      ! Flag identifying anthropogenic species
          Logical         :: biog        ! Flag identifying biogenic species
+         Logical         :: nonvol      ! Flag identifying nonvolatile species
       End Type oa_type
 
       Type( oa_type ), Allocatable, Save :: oaspc( : )
 
       Type( oa_type ), Save :: oa_list( n_oa_list ) = (/
-
-      !         PM          Vapor       Rxn Cntr     Alpha   CStar^    Enth-   O:C OM:OC POA ANT BIO Nonvol-     
-      !         Name        Name        Name*                           alpy                         atile        
-      !        ----------  ----------  ----------   ------  --------  -------  --- ----- --- --- ---  ---    
+      !                                                                                  ANTHROPOGENIC
+      !                                                                                      | BIOGENIC
+      !         PM          Vapor       Rxn Cntr     Alpha   CStar^    Enth-   O:C OM:OC     |   |   Nonvol-     
+      !         Name        Name        Name*                           alpy             POA |   |   atile        
+      !        ----------  ----------  ----------   ------  --------  -------  --- ----- --- --- --- ---    
      & oa_type('AALK1  ', 'SVALK1  ', 'ALKRXN  ',  0.0334,   0.1472,  53.0E3, .315,1.56, F,  T,  F,  F ),
      & oa_type('AALK2  ', 'SVALK2  ', 'ALKRXN  ',  0.2164,  51.8775,  53.0E3, .203,1.42, F,  T,  F,  F ),
      & oa_type('AXYL1  ', 'SVXYL1  ', 'XYLNRXN ',  0.0310,   1.3140,  32.0E3,1.002,2.42, F,  T,  F,  F ),
