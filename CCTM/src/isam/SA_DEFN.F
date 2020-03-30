@@ -43,6 +43,7 @@ c...Tagging maps
       INTEGER, ALLOCATABLE, SAVE   :: TAGS_PER_STREAM( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_DIFFtoSA( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_ADVtoSA( : )
+c     INTEGER, ALLOCATABLE, SAVE   :: MAP_DEPVtoSA( : )
 
       INTEGER, ALLOCATABLE, SAVE   :: ISAM_PVO3_MAP( : ) ! potential vorticity map
 
@@ -86,6 +87,8 @@ c...Logical values for tagging species
       LOGICAL, SAVE :: L_VOC
       LOGICAL, SAVE :: L_CHLORINE
 
+      LOGICAL, SAVE :: SA_BIDI = .FALSE.
+
 ! Cloud Module variables - sln 4 june 2018
       REAL, SAVE :: DEPSUM_SAVE = 0.0
       REAL, SAVE :: DS4_SAVE    = 0.0
@@ -98,9 +101,10 @@ c...Final, combined tags
       CHARACTER( 16 ), ALLOCATABLE :: VNAM_SPCTAG( : )
 
 C ...Tagging indices for bcon, others, icon
-      INTEGER :: BCONTAG
-      INTEGER :: OTHRTAG
-      INTEGER :: ICONTAG
+      INTEGER,SAVE :: BCONTAG
+      INTEGER,SAVE :: OTHRTAG
+      INTEGER,SAVE :: ICONTAG
+      INTEGER,SAVE :: BIDITAG
 
       REAL, PRIVATE, ALLOCATABLE :: BUFF2( :,: )
 
@@ -121,13 +125,11 @@ C         Called by sa_dim.F
 C
 C
 
-        USE UTILIO_DEFN     ! 20120615
-        USE HGRD_DEFN       ! just for mype0 20130702
+        USE UTILIO_DEFN
+c       USE HGRD_DEFN
+        USE RUNTIME_VARS, ONLY: ABFLUX, MYPE, LOGDEV
 
         IMPLICIT NONE
-
-!0615   INCLUDE SUBST_IOPARMS
-C       INCLUDE SUBST_IODECL 
 
         CHARACTER( 16 ) :: PNAME = 'CNT_SA_IO_LIST'
         CHARACTER( 256 ) :: EQNAME 
@@ -138,8 +140,7 @@ C external functions
         INTEGER LEN_TRIM
 
         INTEGER, INTENT( OUT ) :: NTAGS
-        INTEGER ILINE
-        CHARACTER( 21 ) :: TXTLINE
+        CHARACTER( 128 ) :: TXTLINE
         
 C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )
@@ -163,7 +164,19 @@ C-----------------------------------------------------------
             NTAGS = NTAGS + 1
             IF ( MYPE .EQ. 0 ) PRINT*, TXTLINE
           ENDIF ! if tag_name
+c check to see if bidirectional tag is necessary
+          IF ( ABFLUX ) THEN
+            IF ( TXTLINE( 1:11 ) .EQ. 'TAG CLASSES' ) THEN
+              IOST = INDEX( TXTLINE,'AMMONIUM', BACK = .FALSE. )
+              IF ( IOST .NE. 0 ) THEN
+                NTAGS = NTAGS + 1
+                SA_BIDI = .TRUE.
+              END IF
+            END IF
+          END IF
         ENDDO COUNTTAG
+
+        IF ( ABFLUX ) BIDITAG = NTAGS ! set to last tag
 
         CLOSE( INPUT_UNIT )
 
@@ -179,8 +192,9 @@ C
 C 05 Nov 2018: L.Zhou, S.Napelenok: Reorganized the control file
 c 
 
-        USE UTILIO_DEFN      ! 20120615
-        USE HGRD_DEFN        ! just for mype
+        USE UTILIO_DEFN
+c       USE HGRD_DEFN        ! just for mype
+        USE RUNTIME_VARS, ONLY: ABFLUX, MYPE, LOGDEV
 
         IMPLICIT NONE
 
@@ -193,8 +207,8 @@ C external functions
         INTEGER LEN_TRIM
 
         INTEGER, INTENT( IN ) :: NTAGS
-        INTEGER ILINE
-        INTEGER ITAG
+C       INTEGER ILINE
+        INTEGER ITAG, TAGLOOP
         CHARACTER( 128 ) :: TXTLINE
 
 C...multi-sectors-for-a-single-tag 20130702
@@ -224,7 +238,13 @@ C-----------------------------------------------------------
           WRITE(LOGDEV, *) '  for ', NTAGS, ' tags'
         ENDIF
 
-        DO ITAG = 1, ( NTAGS )
+        IF ( SA_BIDI ) THEN
+          TAGLOOP = NTAGS -1
+        ELSE
+          TAGLOOP = NTAGS
+        ENDIF
+
+        DO ITAG = 1, ( TAGLOOP )
 102       READ ( INPUT_UNIT, '(A)' ) TXTLINE
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 102
           TAGNAME( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
@@ -238,6 +258,13 @@ C-----------------------------------------------------------
           TAGSTREAMS_TEMP( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
         END DO
 
+c add a bidirectional tag if necesssary
+        IF ( SA_BIDI ) THEN
+          TAGNAME( NTAGS )         = 'BID' 
+          ISAMRGN_TEMP( NTAGS )    = 'EVERYWHERE'
+          TAGSTREAMS_TEMP( NTAGS ) = 'BIDIRECTIONALNH3'
+        ENDIF
+
         END SUBROUTINE RD_SA_IO_LIST
 C============================================================
         
@@ -250,7 +277,7 @@ C
         USE RUNTIME_VARS
         USE GRID_CONF    ! just for mype 20140327
         USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
-        USE UTILIO_DEFN  ! 20130627
+        USE UTILIO_DEFN
 
         IMPLICIT NONE
 
@@ -409,8 +436,9 @@ C
 
         USE CGRID_SPCS       ! 20120615
         USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
-        USE HGRD_DEFN        ! 20120710 just for print out from single processor
+c       USE HGRD_DEFN        ! 20120710 just for print out from single processor
         USE UTILIO_DEFN      ! 20120725 for external functions such as INDEX1
+        USE RUNTIME_VARS, ONLY: MYPE
 
         IMPLICIT NONE
       
@@ -420,6 +448,9 @@ C
 
         CHARACTER( 16 ), ALLOCATABLE, SAVE :: CMAQ_ADV_NAMES( : )  
         INTEGER FRST, LAST, CMAQ_ADV
+
+        CHARACTER( 16 ), ALLOCATABLE, SAVE :: CMAQ_DEPV_NAMES( : )
+        INTEGER CMAQ_DEPV
 
         CHARACTER( 132 ) :: XMSG
 
@@ -1253,6 +1284,55 @@ C...Map SA species for Advection
         END IF 
 
 95000    FORMAT(2(I3,1X),A,L4,1X,I4)
+
+
+C...Map SA species for DEPV
+C
+C...  DO THIS LATER IF NEEDED FOR THE GENERAL CASE - RIGHT NOW ONLY DO AMMONIA
+c       ALLOCATE( MAP_DEPVtoSA ( N_SPCTAG ) )
+
+c       CMAQ_DEPV = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV + N_TR_DEPV
+c       ALLOCATE( CMAQ_DEPV_NAMES( CMAQ_DEPV ) )
+
+c       FRST = 0
+c       LAST = 0
+c       IF ( N_GC_DEPV .NE. 0 ) THEN
+c          FRST = 1
+c          LAST = N_GC_DEPV
+c          CMAQ_DEPV_NAMES( FRST:LAST ) = GC_DEPV(1:N_GC_DEPV)
+c       ENDIF
+
+c       IF ( N_AE_DEPV .NE. 0 ) THEN
+c          FRST = LAST + 1
+c          LAST = LAST + N_AE_DEPV
+c          CMAQ_DEPV_NAMES( FRST:LAST ) = AE_DEPV(1:N_AE_DEPV)
+c       END IF
+
+c       IF ( N_NR_DEPV .NE. 0 ) THEN
+c          FRST = LAST + 1
+c          LAST = LAST + N_NR_DEPV
+c          CMAQ_DEPV_NAMES( FRST:LAST ) = NR_DEPV(1:N_NR_DEPV)
+c       END IF
+
+c       IF ( N_TR_DEPV .NE. 0 ) THEN
+c          FRST = LAST + 1
+c          LAST = LAST + N_TR_DEPV
+c          CMAQ_DEPV_NAMES( FRST:LAST ) = TR_DEPV(1:N_TR_DEPV)
+c       END IF
+
+c       MAP_DEPVtoSA = -1
+c       N = 0
+!       DO ITAG = 1, NTAG_SA
+c          DO J_SPC = 1, NSPC_SA
+c             N = N + 1
+c             MAP_DEPVtoSA(N) = INDEX1( SPC_NAME(J_SPC,1), CMAQ_DEPV, CMAQ_DEPV_NAMES )
+c             IF( MAP_DEPVtoSA(N) .LT. 1 )THEN
+c                XMSG = 'ISAM WARNING: Tagged Species, ' // TRIM( SPC_NAME(J_SPC,1) )
+c    &               // ' not in DEPV list.'
+c                CALL M3EXIT ( 'MAP_DEPVtoSA', 0, 0, XMSG, XSTAT1 )
+c             END IF
+c          END DO
+!       END DO
 
         END SUBROUTINE GET_SPC_INDEX
 
