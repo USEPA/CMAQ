@@ -1249,12 +1249,8 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
 !               SPC_LIST( J_SPC ) = 'ACRO_PRIMARY'
 !            END SELECT
 !            DO I_SPC = 1, NDEGRADED_FOUND
-!               IF ( INDEX1( DEGRADED_SPECIES( I_SPC ), J_SPC, SPC_LIST ) .LE. 0  ) THEN
-!                  J_SPC = J_SPC + 1
-!                  SPC_LIST( J_SPC ) = DEGRADED_SPECIES( I_SPC )
-!               ELSE 
-!                  NSPC_SA = NSPC_SA - 1
-!               END IF    
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = DEGRADED_SPECIES( I_SPC )
 !            END DO
 !        END IF
 
@@ -1263,12 +1259,8 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
 !             DO K_SPC = 1, N_AE_SPC
 ! find HAP aerosols in aerosol species and adjust NSPC_SA if in SPC_LIST
 !                IF ( INDEX(  AE_SPC( K_SPC ), AERO_HAPS_LIST( I_SPC ) ) .GT. 0 ) THEN 
-!                   IF ( INDEX1(  AE_SPC( K_SPC ), J_SPC, SPC_LIST ) .LE. 0  ) THEN
-!                      J_SPC = J_SPC + 1
-!                      SPC_LIST( J_SPC ) = AE_SPC( K_SPC )
-!                   ELSE 
-!                      NSPC_SA = NSPC_SA - 1
-!                   END IF    
+!                   J_SPC = J_SPC + 1
+!                   SPC_LIST( J_SPC ) = AE_SPC( K_SPC )
 !                END IF 
 !             END DO            
 !          END DO
