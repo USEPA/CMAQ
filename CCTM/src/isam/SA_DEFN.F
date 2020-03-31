@@ -43,7 +43,8 @@ c...Tagging maps
       INTEGER, ALLOCATABLE, SAVE   :: TAGS_PER_STREAM( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_DIFFtoSA( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_ADVtoSA( : )
-
+c     INTEGER, ALLOCATABLE, SAVE   :: MAP_DEPVtoSA( : )
+ 
       INTEGER, ALLOCATABLE, SAVE   :: ISAM_PVO3_MAP( : ) ! potential vorticity map
 
       INTEGER ::     NSPC_SA
@@ -75,18 +76,43 @@ c...Variables regarding the tag list
       INTEGER, ALLOCATABLE, SAVE         :: ISAMRGN_MAP( :, : )
 
 c...Logical values for tagging species
-      LOGICAL, SAVE :: L_EC
-      LOGICAL, SAVE :: L_OC
-      LOGICAL, SAVE :: L_SFATE
-      LOGICAL, SAVE :: L_NITRATE
-      LOGICAL, SAVE :: L_NH4
-      LOGICAL, SAVE :: L_PM25
-      LOGICAL, SAVE :: L_CO
-      LOGICAL, SAVE :: L_OZONE
-      LOGICAL, SAVE :: L_VOC
-      LOGICAL, SAVE :: L_CHLORINE
-      LOGICAL, SAVE :: L_GAS_HAPS  
-      LOGICAL, SAVE :: L_AERO_HAPS  
+      LOGICAL, SAVE :: L_EC      = .FALSE.
+      LOGICAL, SAVE :: L_OC      = .FALSE.
+      LOGICAL, SAVE :: L_SFATE   = .FALSE.
+      LOGICAL, SAVE :: L_NITRATE = .FALSE.
+      LOGICAL, SAVE :: L_NH4     = .FALSE.
+      LOGICAL, SAVE :: L_PM25    = .FALSE.
+      LOGICAL, SAVE :: L_CO      = .FALSE.
+      LOGICAL, SAVE :: L_OZONE   = .FALSE.
+      LOGICAL, SAVE :: L_VOC     = .FALSE.
+      LOGICAL, SAVE :: L_CHLORINE  = .FALSE.
+      LOGICAL, SAVE :: L_GAS_HAPS  = .FALSE.
+      LOGICAL, SAVE :: L_AERO_HAPS = .FALSE.
+      
+      LOGICAL, SAVE :: SA_BIDI = .FALSE.
+
+      INTEGER,         PARAMETER :: N_AERO_HAPS_LIST = 16       
+      CHARACTER( 16 ), PARAMETER :: AERO_HAPS_LIST(  N_AERO_HAPS_LIST ) =
+     & (/ 'ANI     ',
+     &    'ACR_VI  ',
+     &    'ACR_III ',
+     &    'ABE     ',
+     &    'APB     ',
+     &    'ADE_OTHR',
+     &    'ADE_EC  ',
+     &    'ADE_OC  ',
+     &    'ADE_NO3 ',
+     &    'ADE_SO4 ',
+     &    'ADE_CORS',
+     &    'ACD     ',
+     &    'AMN_HAPS',
+     &    'APHG    ',
+     &    'AAS     ',
+     &    'ABENAPY '  /)
+     
+      INTEGER                      :: N_AERO_HAPS = 0
+      CHARACTER( 16 ), ALLOCATABLE :: AERO_HAPS(  : ) 
+     
       
 ! Full chemistry commented out because it produced floating
 ! point error in advection when using debug flags.
@@ -104,9 +130,10 @@ c...Final, combined tags
       CHARACTER( 16 ), ALLOCATABLE :: VNAM_SPCTAG( : )
 
 C ...Tagging indices for bcon, others, icon
-      INTEGER :: BCONTAG
-      INTEGER :: OTHRTAG
-      INTEGER :: ICONTAG
+      INTEGER :: BIDITAG = 0
+      INTEGER :: BCONTAG = 0
+      INTEGER :: OTHRTAG = 0
+      INTEGER :: ICONTAG = 0
 
       REAL, PRIVATE, ALLOCATABLE :: BUFF2( :,: )
 
@@ -128,12 +155,10 @@ C
 C
 
         USE UTILIO_DEFN     ! 20120615
-        USE HGRD_DEFN       ! just for mype0 20130702
-        
+c       USE HGRD_DEFN    
+        USE RUNTIME_VARS, ONLY: ABFLUX, MYPE, LOGDEV
+                
         IMPLICIT NONE
-
-!0615   INCLUDE SUBST_IOPARMS
-C       INCLUDE SUBST_IODECL 
 
         CHARACTER( 16 ) :: PNAME = 'CNT_SA_IO_LIST'
         CHARACTER( 256 ) :: EQNAME 
@@ -158,8 +183,8 @@ C-----------------------------------------------------------
         ENDIF
 
         IF ( MYPE .EQ. 0 ) THEN        
-          PRINT*, 'SA_IO_LIST Sucessfully Opened'
-          PRINT*, 'Start counting the list...'
+          WRITE(LOGDEV, *) 'SA_IO_LIST Sucessfully Opened'
+          WRITE(LOGDEV, *) 'Start counting the list...'
         ENDIF
         NTAGS = 0
         COUNTTAG: DO 
@@ -169,6 +194,17 @@ C-----------------------------------------------------------
             NTAGS = NTAGS + 1
             IF ( MYPE .EQ. 0 ) PRINT*, TXTLINE
           ENDIF ! if tag_name
+c check to see if bidirectional tag is necessary
+          IF ( ABFLUX .AND. .NOT. SA_BIDI ) THEN
+            IF ( TXTLINE( 1:11 ) .EQ. 'TAG CLASSES' ) THEN
+              IOST = INDEX( TXTLINE,'AMMONIUM', BACK = .FALSE. )
+              IF ( IOST .NE. 0 ) THEN
+                SA_BIDI = .TRUE.
+                NTAGS   = NTAGS + 1
+                BIDITAG = NTAGS ! set to last tag
+              END IF
+            END IF
+          END IF
         ENDDO COUNTTAG
 
         CLOSE( INPUT_UNIT )
@@ -185,22 +221,23 @@ C
 C 05 Nov 2018: L.Zhou, S.Napelenok: Reorganized the control file
 c 
 
-        USE UTILIO_DEFN      ! 20120615
-        USE HGRD_DEFN        ! just for mype
+        USE UTILIO_DEFN 
+        USE RUNTIME_VARS, ONLY: ABFLUX, MYPE, LOGDEV
 
         IMPLICIT NONE
+C arguments
+        INTEGER, INTENT( IN ) :: NTAGS
 
-        CHARACTER( 16 ) :: PNAME = 'RD_SA_IO_LIST'
-        CHARACTER( 256 ) :: EQNAME 
+        CHARACTER( 16 )    :: PNAME = 'RD_SA_IO_LIST'
+        CHARACTER( 256 )   :: EQNAME 
         INTEGER INPUT_UNIT
         INTEGER IOST
         CHARACTER( 80 ) :: XMSG   
 C external functions
         INTEGER LEN_TRIM
 
-        INTEGER, INTENT( IN ) :: NTAGS
         INTEGER ILINE
-        INTEGER ITAG
+        INTEGER ITAG, TAGLOOP
         CHARACTER( 128 ) :: TXTLINE
 
 C...multi-sectors-for-a-single-tag 20130702
@@ -230,7 +267,13 @@ C-----------------------------------------------------------
           WRITE(LOGDEV, *) '  for ', NTAGS, ' tags'
         ENDIF
 
-        DO ITAG = 1, ( NTAGS )
+        IF ( SA_BIDI ) THEN
+          TAGLOOP = NTAGS -1
+        ELSE
+          TAGLOOP = NTAGS
+        ENDIF
+
+        DO ITAG = 1, ( TAGLOOP )
 102       READ ( INPUT_UNIT, '(A)' ) TXTLINE
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 102
           TAGNAME( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
@@ -244,6 +287,13 @@ C-----------------------------------------------------------
           TAGSTREAMS_TEMP( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
         END DO
         
+c add a bidirectional tag if necesssary
+        IF ( SA_BIDI ) THEN
+          TAGNAME( NTAGS )         = 'BID' 
+          ISAMRGN_TEMP( NTAGS )    = 'EVERYWHERE'
+          TAGSTREAMS_TEMP( NTAGS ) = 'BIDIRECTIONALNH3'
+        ENDIF
+
         END SUBROUTINE RD_SA_IO_LIST
 C============================================================
         
@@ -255,14 +305,15 @@ C
 
         USE RUNTIME_VARS
         USE GRID_CONF    ! just for mype 20140327
-        USE RXNS_DATA, ONLY : MECHNAME, NUMB_MECH_SPC !Get Chemical Mechanism Name
+        USE CGRID_SPCS, ONLY : N_AE_SPC, AE_SPC
+        USE RXNS_DATA,  ONLY : MECHNAME, NUMB_MECH_SPC !Get Chemical Mechanism Name
         USE DEGRADE_PARAMETERS
         USE UTILIO_DEFN  ! 20130627
 
         IMPLICIT NONE
 
         INTEGER :: ITAG
-        INTEGER :: J
+        INTEGER :: J, K
 
         LOGICAL :: LBACK
         LOGICAL :: DEFINED 
@@ -306,7 +357,6 @@ c----------------------------------------------------------
         L_CHLORINE = ( BGN_SP .NE. 0 .OR. L_CHLORINE )
         IF ( L_CHLORINE ) THEN
           NSPC_SA = NSPC_SA + 3  ! ACLI, ACLJ, HCL
-          L_CHLORINE = .TRUE.
         ENDIF
 
         BGN_SP = INDEX( TAGCLASSES,'EC',LBACK )
@@ -317,7 +367,7 @@ c----------------------------------------------------------
 
         BGN_SP = INDEX( TAGCLASSES,'OC',LBACK )
         IF ( BGN_SP .NE. 0 ) THEN
-          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASVPO2J,ASVPO3J,AIVPO1J
+c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASVPO2J,ASVPO3J,AIVPO1J
                                   ! VLVPO1,VSVPO1,VSVPO2,VSVO3,VIVPO1
           NSPC_SA = NSPC_SA + 4   ! APOCJ, APOCI, APNCOMJ, APNCOMI  
           L_OC = .TRUE.
@@ -381,13 +431,11 @@ c----------------------------------------------------------
         IF ( L_NITRATE ) THEN
           SELECT CASE( MECHNAME )
              CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ' )
-!                NSPC_SA = NSPC_SA + 11  
                 NSPC_SA = NSPC_SA + 13  
-!                NSPC_SA = NSPC_SA + 18
+!                NSPC_SA = NSPC_SA + 19
              CASE( 'CB6R3M_AE7_KMTBR' )
-!                NSPC_SA = NSPC_SA + 16  
                 NSPC_SA = NSPC_SA + 18  
-!                NSPC_SA = NSPC_SA + 23  
+!                NSPC_SA = NSPC_SA + 24  
              CASE( 'SAPRC07TC_AE6_AQ' ) 
                 NSPC_SA = NSPC_SA + 16   
              CASE( 'RACM2_AE6_AQ') 
@@ -433,8 +481,24 @@ c----------------------------------------------------------
           L_CO = .TRUE.
         ENDIF
 
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'AERO_HAPS',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN          
+          L_AERO_HAPS = .TRUE.
+          DO J = 1, N_AERO_HAPS_LIST
+             DO K = 1, N_AE_SPC
+                IF( INDEX( AE_SPC( K ), TRIM( AERO_HAPS_LIST( J ) ) ) .GT. 0 ) THEN
+                   NSPC_SA     = NSPC_SA + 1
+                   N_AERO_HAPS = N_AERO_HAPS + 1
+                   WRITE(LOGDEV,*)"AERO HAPS found: ",AE_SPC( K )
+!                ELSE   
+!                   WRITE(LOGDEV,*)"Not AERO HAPS: ",AE_SPC( K )
+                END IF  
+             END DO           
+          END DO
+!          WRITE(LOGDEV,*)" N_AERO_HAPS = ",N_AERO_HAPS
+        ENDIF
 
- 
         END SUBROUTINE GET_NSPC_SA
 
 c===============================================================
@@ -445,11 +509,11 @@ C20140428  Map CGRID species index to ISAM tracer species index
 C         Called by driver.F
 C
 
-        USE CGRID_SPCS       ! 20120615
-        USE RXNS_DATA, ONLY : MECHNAME, NUMB_MECH_SPC, CHEMISTRY_SPC !Get Chemical Mechanism Name
-        USE HGRD_DEFN        ! 20120710 just for print out from single processor
+        USE CGRID_SPCS     
+        USE RXNS_DATA,    ONLY : MECHNAME, NUMB_MECH_SPC, CHEMISTRY_SPC 
         USE DEGRADE_PARAMETERS
-        USE UTILIO_DEFN      ! 20120725 for external functions such as INDEX1
+        USE RUNTIME_VARS, ONLY: MYPE, LOGDEV
+        USE UTILIO_DEFN    
 
         IMPLICIT NONE
       
@@ -501,32 +565,32 @@ c----------------------------------------------------------
         ENDIF
 
         IF ( L_OC ) THEN
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'ALVPO1J'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'ALVPO1I'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'ASVPO1J'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'ASVPO1I'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'ASVPO2J'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'ASVPO2I'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'ASVPO3J'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'AIVPO1J'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'VLVPO1'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'VSVPO1'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'VSVPO2'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'VSVPO3'
-            J_SPC = J_SPC + 1
-            SPC_LIST( J_SPC ) = 'VIVPO1'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'ALVPO1J'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'ALVPO1I'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'ASVPO1J'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'ASVPO1I'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'ASVPO2J'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'ASVPO2I'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'ASVPO3J'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'AIVPO1J'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'VLVPO1'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'VSVPO1'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'VSVPO2'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'VSVPO3'
+c            J_SPC = J_SPC + 1
+c            SPC_LIST( J_SPC ) = 'VIVPO1'
             J_SPC = J_SPC + 1
             SPC_LIST( J_SPC ) = 'APOCJ'
             J_SPC = J_SPC + 1
@@ -1193,10 +1257,23 @@ c----------------------------------------------------------
                SPC_LIST( J_SPC ) = DEGRADED_SPECIES( I_SPC )
             END DO
         END IF
+
+        IF ( L_AERO_HAPS ) THEN          
+          DO I_SPC = 1, N_AERO_HAPS_LIST
+             DO K_SPC = 1, N_AE_SPC
+! find HAP aerosols in aerosol species and adjust NSPC_SA if in SPC_LIST
+                IF ( INDEX(  AE_SPC( K_SPC ), TRIM( AERO_HAPS_LIST( I_SPC ) ) ) .GT. 0 ) THEN 
+                    J_SPC = J_SPC + 1
+                    SPC_LIST( J_SPC ) = AE_SPC( K_SPC )
+                    WRITE(LOGDEV,*)' AERO HAPS added: ',J_SPC,AE_SPC( K_SPC ) 
+                END IF 
+             END DO            
+          END DO
+        ENDIF
         
 !       IF ( L_CHEMISTRY ) THEN
 !          SPC_LIST( ( J_SPC+1 ):( J_SPC+NUMB_MECH_SPC ) ) = CHEMISTRY_SPC( 1:NUMB_MECH_SPC )
-!          J_SPC = J_SPC + NUMB_MECH_SPC 
+!       cd   J_SPC = J_SPC + NUMB_MECH_SPC 
 !       END IF
 
 C...Check if the above adds up to number of tagging species
@@ -1238,10 +1315,23 @@ C...Check if the above adds up to number of tagging species
            END DO
         END DO
 
+        WRITE(LOGDEV,*)"COUNT(SPC_KEEP), J_SPC = ",COUNT(SPC_KEEP), J_SPC   
+        I_SPC = 0
+        WRITE(LOGDEV,*)'# FINAL List of ISAM species = ', NSPC_SA 
+        DO K_SPC = 1, NLIST
+           IF( SPC_KEEP( K_SPC ) )THEN
+              I_SPC = I_SPC + 1
+              WRITE(LOGDEV,*)'I_SPC, SPC_LIST( K_SPC ) = ',I_SPC, SPC_LIST( K_SPC )
+           END IF
+        END DO
+        IF( J_SPC .NE. COUNT(SPC_KEEP) )THEN
+          WRITE(LOGDEV,*)"COUNT(SPC_KEEP) .NE. J_SPC"
+          EFLAG = .TRUE.
+        END IF
+           
         IF ( EFLAG ) THEN
           CALL M3EXIT( 'GET_SPC_INDEX', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
         END IF 
-
 ! reset number of track species        
         NSPC_SA  = J_SPC
         N_SPCTAG = NSPC_SA * NTAG_SA
@@ -1261,10 +1351,10 @@ C...Check if the above adds up to number of tagging species
 
 ! set species names
         I_SPC = 0
-        WRITE(LOGDEV,*)'# FINAL List of ISAM species = ', NSPC_SA 
         DO K_SPC = 1, NLIST
            IF( SPC_KEEP( K_SPC ) )THEN
               I_SPC = I_SPC + 1
+!              WRITE(LOGDEV,*)'K_SPC, SPC_LIST( K_SPC ) = ',SPC_LIST( K_SPC )
               SPC_NAME( I_SPC,: ) = SPC_LIST( K_SPC )
            END IF
         END DO
@@ -1408,6 +1498,55 @@ C...Map SA species for Advection
         END IF 
 
 95000    FORMAT(2(I3,1X),A,L4,1X,I4)
+
+
+C...Map SA species for DEPV
+C
+C...  DO THIS LATER IF NEEDED FOR THE GENERAL CASE - RIGHT NOW ONLY DO AMMONIA
+c       ALLOCATE( MAP_DEPVtoSA ( N_SPCTAG ) )
+
+c       CMAQ_DEPV = N_GC_DEPV + N_AE_DEPV + N_NR_DEPV + N_TR_DEPV
+c       ALLOCATE( CMAQ_DEPV_NAMES( CMAQ_DEPV ) )
+
+c       FRST = 0
+c       LAST = 0
+c       IF ( N_GC_DEPV .NE. 0 ) THEN
+c          FRST = 1
+c          LAST = N_GC_DEPV
+c          CMAQ_DEPV_NAMES( FRST:LAST ) = GC_DEPV(1:N_GC_DEPV)
+c       ENDIF
+
+c       IF ( N_AE_DEPV .NE. 0 ) THEN
+c          FRST = LAST + 1
+c          LAST = LAST + N_AE_DEPV
+c          CMAQ_DEPV_NAMES( FRST:LAST ) = AE_DEPV(1:N_AE_DEPV)
+c       END IF
+
+c       IF ( N_NR_DEPV .NE. 0 ) THEN
+c          FRST = LAST + 1
+c          LAST = LAST + N_NR_DEPV
+c          CMAQ_DEPV_NAMES( FRST:LAST ) = NR_DEPV(1:N_NR_DEPV)
+c       END IF
+
+c       IF ( N_TR_DEPV .NE. 0 ) THEN
+c          FRST = LAST + 1
+c          LAST = LAST + N_TR_DEPV
+c          CMAQ_DEPV_NAMES( FRST:LAST ) = TR_DEPV(1:N_TR_DEPV)
+c       END IF
+
+c       MAP_DEPVtoSA = -1
+c       N = 0
+!       DO ITAG = 1, NTAG_SA
+c          DO J_SPC = 1, NSPC_SA
+c             N = N + 1
+c             MAP_DEPVtoSA(N) = INDEX1( SPC_NAME(J_SPC,1), CMAQ_DEPV, CMAQ_DEPV_NAMES )
+c             IF( MAP_DEPVtoSA(N) .LT. 1 )THEN
+c                XMSG = 'ISAM WARNING: Tagged Species, ' // TRIM( SPC_NAME(J_SPC,1) )
+c    &               // ' not in DEPV list.'
+c                CALL M3EXIT ( 'MAP_DEPVtoSA', 0, 0, XMSG, XSTAT1 )
+c             END IF
+c          END DO
+!       END DO
 
         END SUBROUTINE GET_SPC_INDEX
 
