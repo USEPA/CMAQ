@@ -89,8 +89,6 @@ c...Logical values for tagging species
       LOGICAL, SAVE :: L_GAS_HAPS  = .FALSE.
       LOGICAL, SAVE :: L_AERO_HAPS = .FALSE.
       
-      LOGICAL, SAVE :: SA_BIDI = .FALSE.
-
       INTEGER,         PARAMETER :: N_AERO_HAPS_LIST = 16       
       CHARACTER( 16 ), PARAMETER :: AERO_HAPS_LIST(  N_AERO_HAPS_LIST ) =
      & (/ 'ANI     ',
