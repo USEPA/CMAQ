@@ -136,6 +136,25 @@ C ...Tagging indices for bcon, others, icon
       INTEGER :: BCONTAG = 0
       INTEGER :: OTHRTAG = 0
       INTEGER :: ICONTAG = 0
+
+      REAL, PRIVATE, ALLOCATABLE :: BUFF2( :,: )
+
+! Diffusion module variables
+      REAL, ALLOCATABLE, SAVE :: SA_DDEP( :,:,: )
+
+! Advection module variables
+      LOGICAL, ALLOCATABLE, SAVE :: BCON_SPC( : )
+
+      CONTAINS
+
+C============================================================
+
+        SUBROUTINE CNT_SA_IO_LIST ( NTAGS )
+
+C20140428  Counts the number of emissions tags in the input control file
+C         Called by sa_dim.F
+C
+C
         USE UTILIO_DEFN     ! 20120615
 c       USE HGRD_DEFN    
         USE RUNTIME_VARS, ONLY: ABFLUX, MYPE, LOGDEV
