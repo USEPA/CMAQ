@@ -399,6 +399,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
+      Use aero_data, only : cond_budget, npf_budget
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
       Use utilio_defn, only: xstat3
 
@@ -846,7 +847,7 @@ C Key Subroutines/Functions called:  newt, soabisection
       REAL :: CBUDGET0_NUM ( N_MODE )
       REAL :: CBUDGET0_SRF ( N_MODE )
       REAL :: CBUDGET0_MASS( N_AEROSPC,N_MODE )
-      REAL :: CBUDGET_VAP  ( N_OA )
+      REAL :: CBUDGET0_VAP ( N_OA )
 
 
       ! Variables for water uptake onto organics
