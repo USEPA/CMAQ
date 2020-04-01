@@ -3,7 +3,7 @@
 [Havala O. T. Pye](mailto:pye.havala@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-Fine aerosol pH is an important property of particles containing liquid water. Lines have been added to the ae7/7i species definition files to calculate fine aerosol acidity. The value reported corresponds to free H+ on the molality scale (pH<sub>F</sub>, see Pye et al., 2020). When aerosol liquid water is less than 0.01 mug m<sup>-3</sup>, pH<sub>F</sub> should not be trusted and is replaced by a large negative number. The lines must be uncommented to active.
+Fine aerosol pH is an important property of particles containing liquid water. Lines have been added to the ae7/7i species definition files to calculate fine aerosol acidity. The value reported corresponds to free H+ on the molality scale (pH<sub>F</sub>, see Pye et al., 2020). When aerosol liquid water is less than 0.01 &mu;g m<sup>-3</sup>, pH<sub>F</sub> should not be trusted and is replaced by a large negative number. The lines must be uncommented to active.
 
 ## Significance and Impact
 Allows for additional diagnostic information useful for model evaluation, understanding chemical regimes, and analysis.
