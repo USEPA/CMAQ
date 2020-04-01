@@ -3161,7 +3161,8 @@ C  Called by: Gas-Phase Chemistry Driver
 !     or Aerodynamic Diameter in um.
 !-----------------------------------------------------------------------
 
-      USE AERO_DATA, ONLY : AEROSPC_CONC, AEROSPC, N_MODE
+      USE AERO_DATA, ONLY : AEROSPC_CONC, AEROSPC, N_MODE, 
+     &                      AH2O_IDX, AORGH2O_IDX
       USE PMDIAG_DATA
 
       IMPLICIT NONE
@@ -3182,8 +3183,10 @@ C ----------------------- Begin solution -------------------------------
       
       DO IM = 1,N_MODE
          CALL GET_AERO_INLET( INLET, IM, WETNESS, VAL )
-         PM = PM + SUM( AEROSPC_CONC( :,IM ), 
-     &                  MASK = .NOT.AEROSPC(:)%TRACER ) * VAL
+         PM = PM + VAL * ( SUM( AEROSPC_CONC( :,IM ), 
+     &                  MASK = .NOT.AEROSPC(:)%TRACER )
+     &                  - AEROSPC_CONC( AH2O_IDX,IM )
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IM ) ) ! ug m-3
       END DO
  
       END SUBROUTINE SUM_INLET_PM

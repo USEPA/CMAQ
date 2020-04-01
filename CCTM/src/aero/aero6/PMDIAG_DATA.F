@@ -212,14 +212,15 @@ c-----------------------------------------------------------------------
         INTEGER, PARAMETER :: ID_PMEXT550 =   165
         INTEGER, PARAMETER :: ID_RH =         166
         INTEGER, PARAMETER :: ID_TEMP =       167
-        INTEGER, PARAMETER :: ID_PRES =       168
-        INTEGER, PARAMETER :: ID_GN2O5F =     169
-        INTEGER, PARAMETER :: ID_GN2O5C =     170
-        INTEGER, PARAMETER :: ID_YCLNO2F =    171
-        INTEGER, PARAMETER :: ID_YCLNO2C =    172
-        INTEGER, PARAMETER :: ID_GIEPOX =     173
-        INTEGER, PARAMETER :: ID_KIEPOX =     174
-        INTEGER, PARAMETER :: ID_GIMAE =      175
+        INTEGER, PARAMETER :: ID_SRFTEMP =    168
+        INTEGER, PARAMETER :: ID_PRES =       169
+        INTEGER, PARAMETER :: ID_GN2O5F =     170
+        INTEGER, PARAMETER :: ID_GN2O5C =     171
+        INTEGER, PARAMETER :: ID_YCLNO2F =    172
+        INTEGER, PARAMETER :: ID_YCLNO2C =    173
+        INTEGER, PARAMETER :: ID_GIEPOX =     174
+        INTEGER, PARAMETER :: ID_KIEPOX =     175
+        INTEGER, PARAMETER :: ID_GIMAE =      176
 
         TYPE PMDTP
           CHARACTER (LEN = 16) :: NAME      !Parameter Name
@@ -230,7 +231,7 @@ c-----------------------------------------------------------------------
           CHARACTER (LEN = 80) :: DESC      !Description
         END TYPE PMDTP
 
-        INTEGER, PARAMETER :: N_PMDIAG_LIST = 175
+        INTEGER, PARAMETER :: N_PMDIAG_LIST = 176
 
         TYPE (PMDTP), PARAMETER :: PMDIAG_LIST( N_PMDIAG_LIST ) = (/
      &PMDTP( 'STDEV        ',ID_STDEV,      5, T, '      ', 'Mode standard deviation (dry and wet)' ),
@@ -418,6 +419,7 @@ c-----------------------------------------------------------------------
      &PMDTP( 'PM_EXT_550   ',ID_PMEXT550,   5, F, 'Mm-1  ', 'Aerosol Extinction at 550 nm (Angstrom interp)' ),
      &PMDTP( 'RH           ',ID_RH,         5, F, '1     ', 'Relative humidity' ),
      &PMDTP( 'T            ',ID_TEMP,       5, F, 'K     ', 'Temperature' ),
+     &PMDTP( 'TSURF        ',ID_SRFTEMP,    5, F, 'K     ', '2-meter Surface Temperature' ),
      &PMDTP( 'P            ',ID_PRES,       5, F, 'Pa    ', 'Pressure' ),
      &PMDTP( 'GAMMA_N2O5   ',ID_GN2O5F,     5, F, '1     ', 'Fine Mode N2O5 Heterogeneous rxn probability' ),
      &PMDTP( 'GAMMA_N2O5K  ',ID_GN2O5C,     5, F, '1     ', 'Coarse Mode N2O5 Heterogeneous rxn probability' ),

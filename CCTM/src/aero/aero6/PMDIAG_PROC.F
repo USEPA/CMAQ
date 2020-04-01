@@ -165,6 +165,7 @@
             N_END = N_END - 1
          ELSE IF ( I1 .GT. 0 ) THEN
             ! Entry Matches a parameter on the PMDIAG list. 
+            INUM = INUM + 1
          ELSE IF ( I2 .GT. 0 ) THEN
             ! Add Parameters associated with a keyword
             INST_PARS_REG( N_END+1:N_END+PMDIAG_KEY( I2 )%N ) =
@@ -180,7 +181,6 @@
      &             ' has been requested that does not exist.'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
-         INUM = INUM + 1
       END DO
 
       ! Capitalize Entries and Remove Duplicates
@@ -233,6 +233,7 @@
             N_END = N_END - 1
          ELSE IF ( I1 .GT. 0 ) THEN
             ! Entry Matches a parameter on the PMDIAG list. 
+            INUM = INUM + 1
          ELSE IF ( I2 .GT. 0 ) THEN
             ! Add Parameters associated with a keyword
             AVRG_PARS_REG( N_END+1:N_END+PMDIAG_KEY( I2 )%N ) =
@@ -248,7 +249,6 @@
      &             ' has been requested that does not exist.'
             CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
          END IF
-         INUM = INUM + 1
       END DO
 
       ! Capitalize Entries and Remove Duplicates
@@ -285,17 +285,18 @@
 
       IMPLICIT NONE
 
-      N_KEY = 19
+      N_KEY = 20
       ALLOCATE( PMDIAG_KEY( N_KEY ) )
 
       ! Define AMET Variables
       PMDIAG_KEY( 1 )%WORD = 'DEFAULT'
-      PMDIAG_KEY( 1 )%N = 11
-      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 11 ) )
-      PMDIAG_KEY( 1 )%LIST = (/'AMET          ','CUTOFF_FRAC   ',
-     &        'MASS          ','PM_NUM        ','PMF_NUM       ',
-     &        'PMC_NUM       ','MET           ','CHEM          ', 
-     &        'FINE_SPECIES  ','COARSE_SPECIES','PM25_SPECIES  ' /)
+      PMDIAG_KEY( 1 )%N = 12
+      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 12 ) )
+      PMDIAG_KEY( 1 )%LIST = (/'AMET            ','CUTOFF_FRACTIONS',
+     &      'MASS            ','PM_NUM          ','PMF_NUM         ',
+     &      'PMC_NUM         ','MET             ','CHEM            ', 
+     &      'FINE_SPECIES    ','COARSE_SPECIES  ','PM25_SPECIES    ',
+     &      'SIZE            ' /)
 
       PMDIAG_KEY( 2 )%WORD = 'AMET'
       PMDIAG_KEY( 2 )%N = 35
@@ -308,7 +309,7 @@
      &          'PMF_SI      ','PMF_TI      ','PMF_CA      ','PMF_MG      ',
      &          'PMF_K       ','PMF_MN      ','PMF_SOILIMPV','PMF_UN_IMPV1',
      &          'PMF_NCOM    ','PMF_UN_IMPV2','TNO3        ','PM_MASS     ',
-     &          'PMC_MASS    ','MET         ','SFC_TMP     ','AOD_550     ' /)
+     &          'PMC_MASS    ','MET         ','Tsurf       ','AOD_550     ' /)
 
       PMDIAG_KEY( 3 )%WORD = 'MASS'
       PMDIAG_KEY( 3 )%N = 9
@@ -428,6 +429,11 @@
      &           'PM10_HPB    ','PM10_HMN    ','PM10_HMN    ','PM10_HNI    ',
      &           'PM10_HNI    ','PM10_HAS    ','PM10_HG     '  /)
 
+      PMDIAG_KEY( 20 )%WORD = 'SIMPLE'
+      PMDIAG_KEY( 20 )%N = 2
+      ALLOCATE( PMDIAG_KEY( 20 )%LIST( 2 ) )
+      PMDIAG_KEY( 20 )%LIST = (/'PM25','PM10'/)
+
       END SUBROUTINE POPULATE_PMDIAG_KEY
 
 
@@ -517,7 +523,8 @@
                     INST_DESC_OUT( N_PMDIAG_INST_OUT ) = PMDIAG_LIST( N )%DESC     
                 END IF
              ELSE
-                XMSG = 'A PMDIAG Parameter has been requested that does not exist.'
+                XMSG = 'An Instantaneous PMDIAG Parameter '//TRIM(INST_PARS(J))//
+     &                 ' has been requested that does not exist.'
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
@@ -598,7 +605,8 @@
                 END IF 
 
              ELSE
-                XMSG = 'A PMDIAG Parameter has been requested that does not exist.'
+                XMSG = 'An Average PMDIAG Parameter '//TRIM(AVRG_PARS(J))//
+     &                 ' has been requested that does not exist.'
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
@@ -1737,7 +1745,7 @@
      &                     DRY_AERO_M2, WET_AERO_M2, DRY_AERO_M3, 
      &                     WET_AERO_M3, N_MODE, MOMENT0_CONC, MOMENT2_CONC,
      &                     MOMENT3_CONC, WET_AERO_DENS, AEROSPC_CONC,
-     &                     AH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
+     &                     AH2O_IDX, AORGH2O_IDX, AEROSPC, CALC_AERODIST_PARAMS,
      &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
       USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
       USE SOA_DEFN, ONLY : N_OA, OASPC, MAP_OAtoAERO
@@ -1748,7 +1756,7 @@
       REAL OUTVAL
       INTEGER IUSED, IMODE, IVAR, IOA
       REAL VAL4, VAL3, VAL2, VAL, FRAC( N_MODE )
-      REAL PM01, PM1, PM25, PM10, PMAMS, PM25to10
+      REAL PM01, PM1, PM25, PM10, PMAMS, PM25to10, POM, POC, OtoC
       REAL K, P1, P2, P3, a, K2, PMF_NO3, PMF_NO3_LOSS,
      &     PMF_NH4_LOSS, PMF_NH4, PMF_SO4, PMF_MASS,
      &     PM25_NH4, PM25_NO3, PM25_SO4, PM25_NO3_LOSS,
@@ -1979,7 +1987,6 @@
          CASE ( ID_PM25 )
             CALL SUM_INLET_PM( IPM25, IWET, PM25 )
             OUTVAL = PM25 
-            CALL CALC_PMDIAG( ID_PM25_H2O, 1, VAL  )
 
          ! Retrieve Bulk PM10.0 Concentration
          CASE ( ID_PM10 )
@@ -2002,9 +2009,11 @@
      &                           VAL )
                   INLET_FRAC( IPMAMS,IMODE,IWET ) = VAL
                END IF
-               PMAMS = PMAMS +  SUM( AEROSPC_CONC( :,IMODE ),
+               PMAMS = PMAMS +  ( SUM( AEROSPC_CONC( :,IMODE ),
      &                                 MASK = .NOT.AEROSPC(:)%TRACER ) 
-     &                          * INLET_FRAC( IPMAMS,IMODE,IWET ) 
+     &                  - AEROSPC_CONC( AH2O_IDX,IMODE )
+     &                  - AEROSPC_CONC( AORGH2O_IDX,IMODE ) ) ! ug m-3
+     &                  * INLET_FRAC( IPMAMS,IMODE,IWET ) 
             END DO
             OUTVAL = PMAMS
          
@@ -2154,13 +2163,11 @@
                END IF
             END DO
             ! Add POC/PNCOM Contribution to Weighted O:C
-            VAL3 = SUM( AEROSPC_CONC(APOC_IDX,:) + AEROSPC_CONC(APNCOM_IDX,:),
-     &                  MASK = AEROMODE(:)%FINE_MASK )
-            VAL3 = ( 12./15. * ( VAL3 / (SUM( AEROSPC_CONC(APOC_IDX,:), 
-     &                                 MASK = AEROMODE(:)%FINE_MASK ) + TINY(0.0) ) )
-     &               - 14./15. ) * VAL3
-
-            OUTVAL = ( VAL2 + VAL3 ) / ( VAL + TINY(0.0))
+            POC = SUM( AEROSPC_CONC(APOC_IDX,:),MASK = AEROMODE(:)%FINE_MASK )
+            POM = POC + SUM( AEROSPC_CONC(APNCOM_IDX,:), MASK = AEROMODE(:)%FINE_MASK )
+            OtoC = 12./15. * ( POM / ( POC + TINY(0.0) ) )- 14./15.  
+            
+            OUTVAL = ( VAL2 + OtoC*POM ) / ( VAL + TINY(0.0))
 
          ! Calculate PM1_OC - PM1.0 Organic Carbon Mass
          CASE ( ID_PM1_OC )
@@ -2363,11 +2370,15 @@
          CASE ( ID_RH )
             OUTVAL = AIRRH
 
-         ! Retrieve Relative Humidity
+         ! Retrieve Air Temperature
          CASE ( ID_TEMP )
             OUTVAL = AIRTEMP
+         
+         ! Retrieve 2-meter Temperature
+         CASE ( ID_SRFTEMP )
+            OUTVAL = SRFTEMP
 
-         ! Retrieve Relative Humidity
+         ! Retrieve Air Pressure
          CASE ( ID_PRES )
             OUTVAL = AIRPRES
 
@@ -2384,6 +2395,7 @@
  
          ! Save the fact that this parameter has been calculated
          L_CALC( IUSED ) = .TRUE.
+         PMDIAG_LOCAL( IUSED ) = OUTVAL
  
 
       END SUBROUTINE CALC_PMDIAG
