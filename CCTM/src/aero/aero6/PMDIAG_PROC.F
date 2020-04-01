@@ -207,7 +207,7 @@
 
       ! Read Desired PMDIAG_AVRG parameters from input namelist
       REWIND( EMCTRL_NML )
-      READ( NML = PMDIAG_INST, UNIT = EMCTRL_NML, IOSTAT=STAT )
+      READ( NML = PMDIAG_AVRG, UNIT = EMCTRL_NML, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
           WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &           'Warning! Something went wrong while reading the ',
@@ -542,7 +542,9 @@
          N_PMDIAG_AVRG_OUT = 0
          DO J = 1,N_PMDIAG_AVRG
              N = INDEX1( AVRG_PARS( J ), N_PMDIAG_LIST, PMDIAG_LIST%NAME ) 
-             M = INDEX1( AVRG_PARS( J ), N_PMDIAG_INST, INST_PARS ) 
+             M = 0
+             IF ( INST_ACTIVE ) 
+     &            M = INDEX1( AVRG_PARS( J ), N_PMDIAG_INST, INST_PARS ) 
              IF ( N .NE. 0 ) THEN
                 ! Add Entry for this Parameter
                 N_PMDIAG_AVRG_OUT = N_PMDIAG_AVRG_OUT + 1
