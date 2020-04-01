@@ -44,7 +44,7 @@ c...Tagging maps
       INTEGER, ALLOCATABLE, SAVE   :: MAP_DIFFtoSA( : )
       INTEGER, ALLOCATABLE, SAVE   :: MAP_ADVtoSA( : )
 c     INTEGER, ALLOCATABLE, SAVE   :: MAP_DEPVtoSA( : )
- 
+
       INTEGER, ALLOCATABLE, SAVE   :: ISAM_PVO3_MAP( : ) ! potential vorticity map
 
       INTEGER ::     NSPC_SA
@@ -118,6 +118,8 @@ c...Logical values for tagging species
 ! point error in advection when using debug flags.
 !     LOGICAL, SAVE :: L_CHEMISTRY
 
+      LOGICAL, SAVE :: SA_BIDI = .FALSE.
+
 ! Cloud Module variables - sln 4 june 2018
       REAL, SAVE :: DEPSUM_SAVE = 0.0
       REAL, SAVE :: DS4_SAVE    = 0.0
@@ -134,26 +136,6 @@ C ...Tagging indices for bcon, others, icon
       INTEGER :: BCONTAG = 0
       INTEGER :: OTHRTAG = 0
       INTEGER :: ICONTAG = 0
-
-      REAL, PRIVATE, ALLOCATABLE :: BUFF2( :,: )
-
-! Diffusion module variables
-      REAL, ALLOCATABLE, SAVE :: SA_DDEP( :,:,: )
-
-! Advection module variables
-      LOGICAL, ALLOCATABLE, SAVE :: BCON_SPC( : )
-
-      CONTAINS
-
-C============================================================
-
-        SUBROUTINE CNT_SA_IO_LIST ( NTAGS )
-
-C20140428  Counts the number of emissions tags in the input control file
-C         Called by sa_dim.F
-C
-C
-
         USE UTILIO_DEFN     ! 20120615
 c       USE HGRD_DEFN    
         USE RUNTIME_VARS, ONLY: ABFLUX, MYPE, LOGDEV
@@ -169,8 +151,7 @@ C external functions
         INTEGER LEN_TRIM
 
         INTEGER, INTENT( OUT ) :: NTAGS
-        INTEGER ILINE
-        CHARACTER( 21 ) :: TXTLINE
+        CHARACTER( 128 ) :: TXTLINE
         
 C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )
@@ -207,6 +188,7 @@ c check to see if bidirectional tag is necessary
           END IF
         ENDDO COUNTTAG
 
+
         CLOSE( INPUT_UNIT )
 
         END SUBROUTINE CNT_SA_IO_LIST
@@ -237,6 +219,7 @@ C external functions
         INTEGER LEN_TRIM
 
         INTEGER ILINE
+        INTEGER, INTENT( IN ) :: NTAGS
         INTEGER ITAG, TAGLOOP
         CHARACTER( 128 ) :: TXTLINE
 
@@ -287,6 +270,13 @@ C-----------------------------------------------------------
           TAGSTREAMS_TEMP( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
         END DO
         
+c add a bidirectional tag if necesssary
+        IF ( SA_BIDI ) THEN
+          TAGNAME( NTAGS )         = 'BID' 
+          ISAMRGN_TEMP( NTAGS )    = 'EVERYWHERE'
+          TAGSTREAMS_TEMP( NTAGS ) = 'BIDIRECTIONALNH3'
+        ENDIF
+
 c add a bidirectional tag if necesssary
         IF ( SA_BIDI ) THEN
           TAGNAME( NTAGS )         = 'BID' 
@@ -530,6 +520,9 @@ C
 
         INTEGER I_SPC, K_SPC, NLIST
          
+        CHARACTER( 16 ), ALLOCATABLE, SAVE :: CMAQ_DEPV_NAMES( : )
+        INTEGER CMAQ_DEPV
+
         CHARACTER( 132 ) :: XMSG
 
         LOGICAL FOUND
