@@ -1,5 +1,13 @@
-CMAQv5.3.1 Release Notes 
+CMAQv5.3.2 Release Notes
 =====================================
+
+The Community Multiscale Air Quality (CMAQ) Model version 5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few  feature additions.  
+
+# Summary of CMAQv5.3.2 Updates  
+* [Fine aerosol acidity output](specdef_ae7_pH.md)
+
+-----
+# CMAQv5.3.1 Release Notes 
 
 The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes and a few  feature additions.  
 
@@ -12,9 +20,6 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor updat
 * [MCIPv5.1 Bugfixes](MCIPv5.1_bugfixes.md)
 * [Add support for defining chemical, region and stream families in DESID](DESID_families.md)
 * [New  grid mask files to support regional analysis with DESID and ISAM](regional_12US1_gridmask.md)
-
-
------
 
 # Summary of CMAQv5.3 Updates
 

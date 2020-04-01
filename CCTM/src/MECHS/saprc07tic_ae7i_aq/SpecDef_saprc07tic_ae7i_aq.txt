@@ -276,11 +276,11 @@ PM25_UNSPEC1    ,ug m-3    ,PM25_TOT[0]-(PM25_CL[0]+PM25_EC[0]+PM25_NA[0]+PM25_N
 
 !! Fine particle acidity (pH). pH is undefined if there is no aerosol water.
 !Do not trust predictions when hourly water is <0.01 ug m-3. FINEPHF will
-!have large negative value (BADVAL3) when pH is not to be trusted.
+!have large negative value (-9.999E36) when pH is not to be trusted.
 !AH2OIJ         ,ug m-3     ,AH2OI[1]+AH2OJ[1]
 !HPMOLAL        ,mol kg-1   ,AHPLUSIJ[0]/AH2OIJ[0]*1000.0
 !ACIDITYTEMP    ,           ,-1*LOG10(HPMOLAL[0])
-!FINEPHF        ,           ,AH2OIJ[0]>0.01 ? ACIDITYTEMP[0] : BADVAL3
+!FINEPHF        ,           ,AH2OIJ[0]>0.01 ? ACIDITYTEMP[0] : -9.999E36
 
 !! PM10.0 and Coarse-Sized Species
 PM10            ,ug m-3    ,ATOTI[0]*PM10AT[3]+ATOTJ[0]*PM10AC[3]+ATOTK[0]*PM10CO[3]
