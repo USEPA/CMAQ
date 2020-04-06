@@ -10,6 +10,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.2 is a minor updat
 
 * [CMAQv5.3.2 Bugfixes](CMAQv5.3.2_bugfixes.md)
 * [Fine aerosol acidity output](specdef_ae7_pH.md)
+* [Update to the DMS chemistry with CB6r3](DMS_chemistry_update.md)
 
 # Summary of CMAQv5.3.1 Updates  
 
