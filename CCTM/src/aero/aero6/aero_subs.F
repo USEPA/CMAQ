@@ -776,7 +776,6 @@ C *** Parameters:
       INTEGER, PARAMETER :: NVOLINORG = 3   ! number of volatile inorganic species
 
       ! indices for inorganic species
-!     INTEGER, PARAMETER :: KNH4 = 1, KNO3 = 2, KCL = 3, KSO4 = 4, KNA = 5, KHP = 6, KMG = 7, KK = 8, KCA = 9
       INTEGER, PARAMETER :: KNH4 = 1, KNO3 = 2, KCL = 3, KSO4 = 4, KNA = 5, KMG = 6, KK = 7, KCA = 8, KHP = 9
 
       REAL( 8 ), PARAMETER :: D_TWOTHIRDS = 2.0D0 / 3.0D0
@@ -1082,6 +1081,7 @@ C *** Initialize Variables
       DNDT      = 0.0D0
       DM2DT     = 0.0D0
       SCONDRATE = 0.0D0
+
 
 C *** Produce new particles only during time steps when the gas-phase 
 C     production rate of H2SO4 is non-zero
@@ -1673,8 +1673,8 @@ C     aerospc_conc variables. This should be for the wet distribution.
 
  
 C *** Update gas-phase concentrations from Aitken and Accumulation Mode Partitioning
-      PRECURSOR_CONC( SULF_IDX   = GNH3R8 + sum( CINORG( KNH4,1:2 )
-     &                            -CFINAL( KNH4,1:2 ) ) * NH3RAT 
+      PRECURSOR_CONC( SULF_IDX ) = PRECURSOR_CONC( SULF_IDX )
+     &                            +SUM( REAL( -DELSO4(:) * H2SO4RAT, 4 ))
       PRECURSOR_CONC( NH3_IDX )  = GNH3R8 + sum( CINORG( KNH4,1:2 )
      &                            -CFINAL( KNH4,1:2 ) ) * NH3RAT 
       PRECURSOR_CONC( HNO3_IDX ) = GNO3R8 + sum( CINORG( KNO3,1:2 )
