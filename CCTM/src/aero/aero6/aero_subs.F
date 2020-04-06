@@ -1099,7 +1099,7 @@ C     on Equations A21 and A23 of Binkowski & Shankar (1995).
 
          XH2SO4 = SO4RATE / REAL( TMP,4 )
          XH2SO4 = MAX( XH2SO4, CONMIN )
-         PRECURSOR_CONC( SULF_IDX ) = REAL( XH2SO4, 8 )
+         !PRECURSOR_CONC( SULF_IDX ) = REAL( XH2SO4, 8 )
 
 C *** Calculate new particle production rate for 0th, 2nd, & 3rd moments
          CALL NEWPART3 ( AIRRH, AIRTEMP, XH2SO4, SO4RATE,
@@ -1673,6 +1673,8 @@ C     aerospc_conc variables. This should be for the wet distribution.
 
  
 C *** Update gas-phase concentrations from Aitken and Accumulation Mode Partitioning
+      PRECURSOR_CONC( SULF_IDX   = GNH3R8 + sum( CINORG( KNH4,1:2 )
+     &                            -CFINAL( KNH4,1:2 ) ) * NH3RAT 
       PRECURSOR_CONC( NH3_IDX )  = GNH3R8 + sum( CINORG( KNH4,1:2 )
      &                            -CFINAL( KNH4,1:2 ) ) * NH3RAT 
       PRECURSOR_CONC( HNO3_IDX ) = GNO3R8 + sum( CINORG( KNO3,1:2 )
