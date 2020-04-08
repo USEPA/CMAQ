@@ -441,7 +441,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
              CASE( 'RACM2_AE6_AQ') 
                 NSPC_SA = NSPC_SA + 14   
              CASE( 'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
-                NSPC_SA = NSPC_SA + 35  
+                NSPC_SA = NSPC_SA + 33  
           END SELECT
 ! specices common to all mechanisms          
           NSPC_SA = NSPC_SA + 11  ! NO, NO2, NO3, ANO3J, ANO3I, HNO3, HONO, N2O5, PNA or HNO4, PAN, PANX or PAN2 or MPAN
@@ -752,7 +752,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                SPC_LIST( J_SPC ) = 'RO2C'
 
                J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = 'RO2CX'
+               SPC_LIST( J_SPC ) = 'RO2XC'
                J_SPC = J_SPC + 1
                SPC_LIST( J_SPC ) = 'MECO3'
                
@@ -818,7 +818,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                SPC_LIST( J_SPC ) = 'RO2C'
 
                J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = 'RO2CX'
+               SPC_LIST( J_SPC ) = 'RO2XC'
                J_SPC = J_SPC + 1
                SPC_LIST( J_SPC ) = 'MECO3'
                
