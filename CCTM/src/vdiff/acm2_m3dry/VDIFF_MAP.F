@@ -250,11 +250,7 @@ C Local variables:
          END DO
 
          CMPSPC( 1 ) = 'NH3_Emis'
-#ifdef stage_opt
          CMPSPC( 2 ) = 'NH3_Flux'
-#elif m3dry_opt
-         CMPSPC( 2 ) = 'NH3_Dep '
-#endif
          CMPSPC( 3 ) = 'NH3_Stom'
          CMPSPC( 4 ) = 'NH3_Cut '
          CMPSPC( 5 ) = 'NH3_Soil'
