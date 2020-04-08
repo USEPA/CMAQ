@@ -31,5 +31,7 @@ The files can also be used for state or region-specific scaling of emissions usi
 
 Information on how these files were created is provided in the [README_GRIDMASK_Processing.txt](https://drive.google.com/drive/folders/1x9mJUbKjJaMDFawgy2PUbETwEUopAQDl) file that accompanies the .ncf GRIDMASK files.  Users can follow a similar set of steps for creating their own custom GRIDMASK files.
 
+Note, these grid mask files are provided as examples to give the user community a starting point for exploring CMAQ-ISAM and DESID region capabilities. They are not intended as official or sanctioned maps for any specific analysis.  Users are encouraged to review how the maps were created to judge whether or not it satisfies the needs of a given application.
+
 ## Affected Files
 None
