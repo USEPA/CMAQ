@@ -159,7 +159,7 @@ C**********************************************************************
 
             IF( INITIALIZED )RETURN
       
-            INITIALIZED = .FALSE.
+            INITIALIZED = .TRUE.
 
 C..looping data
 
@@ -262,7 +262,7 @@ C..toxic VOC's
 
 C.. ACRYLONITRILE
 
-            REACT(1)       = 'ACRYLONITRILE'
+            REACT(1)       = 'ACRY_NITRILE'
             BICAUSE(1:5,1) = (/'OH ','HO ','O3 ','NO3','CL '/)
             BIRATE(1:5,1)  = (/ 4.8D-12, 4.8D-12, 1.9D-19, 6.3D-18, 5.2D-14/)
             BI_ACT(1:5,1)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, -1.4D+3/)
@@ -276,21 +276,21 @@ C.. CARBON TETRACHLORIDE
 
 C.. PROPYLENE DICHLORIDE
 
-            REACT(3)       = 'PROPDICHLORIDE'
+            REACT(3)       = 'PROPYL_DICL'
             BICAUSE(1:5,3) = (/'OH ','HO ','O3 ','NO3','CL '/)
             BIRATE(1:5,3)  = (/ 2.2D-13, 2.2D-13, 0.0D0, 0.0D0, 1.1D-11/)
             BI_ACT(1:5,3)  = (/   0.0D0,   0.0D0, 0.0D0, 0.0D0, 0.0D0/)
 
 C.. DICHLORIPROPENE
 
-            REACT(4)       = 'DICHLOROPROPENE'
+            REACT(4)       = 'DICL_PROPENE'
             BICAUSE(1:4,4) = (/'OH ','HO ','O3 ','NO3'/)
             BIRATE(1:4,4)  = (/1.04D-11, 1.04D-11, 4.10D-19, 0.0D0/)
             BI_ACT(1:4,4)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0/)
 
 C.. 1,1,2,2TETRACHLOROETHANE
 
-            REACT(5)       = 'CL4_ETHANE1122'
+            REACT(5)       = 'CL4_ETHANE'
             BICAUSE(1:5,5) = (/'OH ','HO ','O3 ','NO3','CL '/)
             BIRATE(1:5,5)  = (/2.46D-13, 2.46D-13, 0.0D0, 0.0D0, 1.91D-13/)
             BI_ACT(1:5,5)  = (/   0.0D0,    0.0D0, 0.0D0, 0.0D0, 0.00D0/)
@@ -374,7 +374,7 @@ C.. QUINOLINE
 
 C.. HEXAMETHYLENE DIISOCAYNATE
 
-            REACT(16)       = 'HEXAMETHY_DIIS'
+            REACT(16)       = 'HEXMETH_DIS'
             BICAUSE(1:2,16) = (/'OH ','HO '/)
             BIRATE(1:2,16)  = (/7.94D-12, 7.94D-12/)
 
@@ -386,7 +386,7 @@ C.. HYDRAZINE
 
 C.. MALEIC ANHYDRIDE
 
-            REACT(18)       = 'MAL_ANHYDRIDE'
+            REACT(18)       = 'MAL_ANHYDRID'
             BICAUSE(1:3,18) = (/'OH  ','HO  ','NO3 '/)
             BIRATE(1:3,18)  = (/1.45D-12, 1.45D-12, 1.02D-13/)
 
@@ -398,13 +398,13 @@ C.. TOULENE DIISOCYANATE
 
 C.. TRIETHYLAMINE
 
-            REACT(20)       = 'TRIETHYLAMINE'
+            REACT(20)       = 'TRIETHYLAMIN'
             BICAUSE(1:5,20) = (/'OH  ','HO  ','O   ','O3P ', 'O3  '/)
             BIRATE(1:5,20)  = (/3.60D-11, 3.60D-11, 1.09D-11, 1.09D-11, 7.84D-18/)
 
 C.. P-DICHLOROBENZENE 
 
-            REACT(21)       = 'DICHLOROBENZENE'
+            REACT(21)       = 'DICL_BENZENE'
             BICAUSE(1:2,21) = (/'OH ','HO '/)
             BIRATE(1:2,21)  = (/3.60D-13, 3.60D-13/)
 

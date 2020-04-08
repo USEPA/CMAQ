@@ -87,6 +87,7 @@ AE_SPECIES_DATA =
 'AMT4J'    ,184.00  ,''     ,-1    ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AMT5J'    ,170.00  ,''     ,-1    ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'AMT6J'    ,168.00  ,''     ,-1    ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ANII'     , 58.70   ,''    ,-1    ,''     ,-1     ,'VMASSI'    , 1  ,'TRACER_AITKEN', 1  ,'TRACER_AITKEN','Yes'   ,'Yes'
 'ANIJ'     , 58.70   ,''    ,-1    ,''     ,-1     ,'VMASSJ'    , 1  ,'TRACER_ACCUM' , 1  ,'TRACER_ACCUM' ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ANIK'     , 58.70   ,''    ,-1    ,''     ,-1     ,'VMASSC'    , 1  ,'TRACER_COARSE', 1  ,'TRACER_COARSE','Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ACR_VII'  , 52.00   ,''    ,-1    ,''     ,-1     ,'VMASSI'    , 1  ,'TRACER_AITKEN', 1  ,'TRACER_AITKEN','Yes'   ,'Yes'   ,'Yes'   ,'Yes',
