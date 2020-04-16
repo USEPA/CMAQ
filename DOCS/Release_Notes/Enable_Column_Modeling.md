@@ -23,8 +23,6 @@ requires one processor (_it stops with a run time error if multiple processors a
 cctm run-script can be executed at the prompt or interactively. Typical run times for a 24 hour simulation vary 
 between 30 to 60 seconds for the base model and the Intel compiler dependent on whether the model was compiled using standard or debug flags.
 
-A user may have problems viewing results from the column model because Verdi and Pave are move readily display 2D or 3D files. R can be used
-
 ## Significance and Impact
 
 The code changes intent to support  developing new cloud, aerosol or chemistry processes in _sciproc_ or diagnosing existing ones. 
