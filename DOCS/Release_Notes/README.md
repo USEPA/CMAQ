@@ -11,7 +11,11 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.2 is a minor updat
 * [CMAQv5.3.2 Bugfixes](CMAQv5.3.2_bugfixes.md)
 * [Fine aerosol acidity output](specdef_ae7_pH.md)
 * [Update to the DMS chemistry with CB6r3](DMS_chemistry_update.md)
-
+* [Add make options to bldmake configuration file](Add_make_options_to_the_cfg_file_for_bldmake.md)
+* [Column Modeling](Enable_Column_Modeling.md)
+* [Add ERF and SIGN functions to COMBINE](Add_ERF_and_SIGN_to_COMBINEs_grid_cell_functions.md)
+* [Add 2019 data to CMAQ OMI input file](OMI_through_2019.md)
+ 
 # Summary of CMAQv5.3.1 Updates  
 
 The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes and a few  feature additions.
