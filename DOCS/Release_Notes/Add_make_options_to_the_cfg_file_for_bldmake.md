@@ -1,4 +1,4 @@
-# Update to the DMS che:mistry with CB6r3
+#  Add make_options to the cfg file for bldmake
 
 [William T. Hutzell](mailto:hutzell.bill@epa.gov), U.S. Environmental Protection Agency
 
@@ -14,7 +14,7 @@ Note that pull report does not support a user to use the option when they execut
 
 ## Significance and Impact
 
-The option reduce CCTM compile time on multi-node processors.
+The option reduces CCTM compile time on multi-node processors.
 
 ## Files Affected
 * UTIL/bldmake/src/cfg_module.f

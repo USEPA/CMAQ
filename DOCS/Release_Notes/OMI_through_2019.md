@@ -4,7 +4,7 @@
 
 ## Brief Description
 
-This change replaces the OMI_1979_to_2017.dat with the OMI_1979_to_2019.dat file and updates csh scripts that use it.
+This change replaces the OMI_1979_to_2017.dat with the OMI_1979_to_2019.dat file and updates cshell scripts that use it.
 
 ## Significance and Impact
 
@@ -24,7 +24,7 @@ the old file, where there are less than 1% differences in a few cells.
 
 # Internal Records
 #### Relevant Pull Requests:
-[PR #](https://github.com/usepa/cmaq_dev/pull/)
+[PR # 626](https://github.com/usepa/cmaq_dev/pull/626)
 
 #### Commit IDs:  
 5f437c7894960523a140f0cfc76240f46c2405b3  
