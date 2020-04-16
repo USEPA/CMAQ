@@ -1,4 +1,4 @@
-# Release Note Title
+# Correct Typos in Sample Process Analysis Control File
 
 **Author/P.O.C.:** [Chris Nolte](mailto:nolte.chris@epa.gov), U.S. Environmental Protection Agency
 
@@ -18,9 +18,6 @@ specific application.
 * CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl
 * CCTM/src/MECHS/cb6r3_ae6_aq/pa_cb6r3_ae6_aq.ctl
 * CCTM/src/MECHS/cb6r3_ae7_aqkmt2/pa_cb6r3_ae7_aq.ctl
-
-
-## References
       
 ## Internal Records:
 #### Relevant Pull Requests:
