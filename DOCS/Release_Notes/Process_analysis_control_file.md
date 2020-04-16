@@ -15,18 +15,16 @@ specific application.
 
 ## Affected Files
 #### Files modified:
-CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl
-CCTM/src/MECHS/cb6r3_ae6_aq/pa_cb6r3_ae6_aq.ctl
-CCTM/src/MECHS/cb6r3_ae7_aqkmt2/pa_cb6r3_ae7_aq.ctl
+* CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl
+* CCTM/src/MECHS/cb6r3_ae6_aq/pa_cb6r3_ae6_aq.ctl
+* CCTM/src/MECHS/cb6r3_ae7_aqkmt2/pa_cb6r3_ae7_aq.ctl
 
 
 ## References
       
------
 ## Internal Records:
 #### Relevant Pull Requests:
 [PR #617](https://github.com/USEPA/CMAQ_Dev/pull/617)  
 
 #### Commit IDs:
-Example of a linked commit ID:
 [839561b85521b3dc35374cd810d2fbf109641bec](https://github.com/USEPA/CMAQ_Dev/pull/617/commits/839561b85521b3dc35374cd810d2fbf109641bec)
