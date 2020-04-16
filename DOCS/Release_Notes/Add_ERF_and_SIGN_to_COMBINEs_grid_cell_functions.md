@@ -21,7 +21,7 @@ PH_TEST0, na, AH2OIJ[0]<0.01 ? -999999: -LOG10(HPMOLAL_TEST[0])
 
 ## Significance and Impact
 
-New functions allows calculate aerosol properties based on the modal distribution. They also improve error checking and messaging.
+New functions allows to calculate aerosol properties based on the modal distribution. They also improve error checking and messaging.
 
 ## Affected Files
 
