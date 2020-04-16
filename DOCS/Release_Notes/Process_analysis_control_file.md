@@ -4,7 +4,7 @@
 
 ## Brief Description
 The sample Process Analysis control file for the cb6r3_ae7_aq mechanism and documented in the 
-[User's Guide](Users_Guide/CMAQ_UG_ch09_process_analysis.md) had typos in the definitions of
+[User's Guide](../Users_Guide/CMAQ_UG_ch09_process_analysis.md) had typos in the definitions of
 two of the IRR output variables. These have been corrected so that the definitions match
 the variable names.
 
