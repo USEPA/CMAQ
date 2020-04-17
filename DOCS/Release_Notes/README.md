@@ -15,6 +15,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.2 is a minor updat
 * [Column Modeling](Enable_Column_Modeling.md)
 * [Add ERF and SIGN functions to COMBINE](Add_ERF_and_SIGN_to_COMBINEs_grid_cell_functions.md)
 * [Add 2019 data to CMAQ OMI input file](OMI_through_2019.md)
+* [Correct Typos in Sample Process Analysis Control File](Process_analysis_control_file.md)
  
 # Summary of CMAQv5.3.1 Updates  
 
