@@ -32,7 +32,7 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
 
 The new coupled WRF-CMAQ model is based on WRFv4.1.1 and CMAQv5.3.1. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculation rather than volume mixing technique as in the previous version of the coupled model. 
 
-The WRFv4.1.1-CMAQv5.3.1 coupled model is released as a tarball (WRF4.1.1_CMAQ5.3.1_Coupled_Model_20191220.tar) from the CMAS Center Data Warehouse Google Drive.
+The WRFv4.1.1-CMAQv5.3.1 coupled model is released as a tarball (need to update) from the CMAS Center Data Warehouse Google Drive.
 - [Link to WRFv4.1.1-CMAQv5.3.1 Coupled_Model on Google Drive](https://drive.google.com/open?id=10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY)
 
 The coupled model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
