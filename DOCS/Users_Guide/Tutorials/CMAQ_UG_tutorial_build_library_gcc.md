@@ -56,8 +56,8 @@ which gfort
 which gcc
 wihch g++
 
-setenv CC /urs/local/apps/gcc/9.1.0/bin/gfortran
-setenv FC /urs/local/apps/gcc/9.1.0/bin/gcc
+setenv FC /urs/local/apps/gcc/9.1.0/bin/gfortran
+setenv CC /urs/local/apps/gcc/9.1.0/bin/gcc
 setenv CXX /urs/local/apps/gcc/9.1.0/bin/g++
 ```
 

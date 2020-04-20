@@ -37,7 +37,9 @@ C-----------------------------------------------------------------------
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE VDIFF_MAP
       use CENTRALIZED_IO_MODULE, only : interpolate_var
+      
 #ifdef isam
       USE SA_DEFN
 #endif
@@ -58,12 +60,7 @@ C Arguments:
 #endif
 
 C Parameters:
-
-      REAL, PARAMETER :: GPKG = 1.0E+03        ! g/Kg
-      REAL, PARAMETER :: MAOGPKG = MWAIR / GPKG
-      REAL, PARAMETER :: GPKGOMA = 1.0 / MAOGPKG
-      REAL, PARAMETER :: MAOAVO1000 = 1.0E+03 * MWAIR / AVO
-      REAL, PARAMETER :: AVOOMA_001 = 1.0 / MAOAVO1000
+      REAL, PARAMETER :: MWAIR_SI = MWAIR / 1.0E+03 ! kg mol-1
 
 C Local Variables:
 
@@ -71,199 +68,57 @@ C Local Variables:
       CHARACTER( 16 ), SAVE :: PNAME = 'CONV_CGRID'
       CHARACTER( 96 ) :: XMSG = ' '
 
-      REAL      DENS( NCOLS,NROWS,NLAYS )  ! air density
+      REAL      DENS( NCOLS,NROWS,NLAYS )  ! air density (kg m-3)
+      REAL      FAC1( NCOLS,NROWS,NLAYS )  ! conversion factor
 
       INTEGER   NSPCS, OFF
-      INTEGER   C, R, L, S, V            ! loop induction variables
-      INTEGER, SAVE :: NQAE              ! number of micro-grams/m**3 species
-      INTEGER, SAVE :: NNAE              ! number of #/m**3 species
-      INTEGER, SAVE :: NSAE              ! number of m**2/m**3 species
-      INTEGER, ALLOCATABLE, SAVE :: QAE( : ) ! CGRID pointer to micro-grams/m**3 species
-      INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to #/m**3 species
-      INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m**2/m**3 species
-      REAL,    ALLOCATABLE, SAVE :: MOLWT( : ) ! only for "QAE" species
+      INTEGER   C, R, L, S, V, I           ! loop induction variables
       INTEGER IOS
 
-      REAL    CONV, FAC            ! temp var
+      REAL    CONV            ! temp var
 
 C-----------------------------------------------------------------------
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
-
-         IF ( N_AE_SPC .GT. 0 ) THEN
-C create aerosol species pointers to distinguish micro-grams/m**3,
-C #/m**3 (number density), and m**2/m**3 (surface area) species
-
-            ALLOCATE ( QAE( N_AE_SPC ),
-     &                 NAE( N_AE_SPC ),
-     &                 SAE( N_AE_SPC ),
-     &                 MOLWT( N_AE_SPC ), STAT = IOS )
-            IF ( IOS .NE. 0 ) THEN
-               XMSG = 'Failure allocating QAE, NAE, SAE, or MOLWT'
-               CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-            NQAE = 0       ! no. of micro-grams/m**3 species
-            NNAE = 0       ! no. of  #/m**3 species
-            NSAE = 0       ! no. of  m**2/m**3 species
-            OFF = AE_STRT - 1
-            DO S = 1, N_AE_SPC
-               IF ( AE_SPC( S )( 1:3 ) .EQ. 'NUM' ) THEN
-                  NNAE = NNAE + 1
-                  NAE( NNAE ) = OFF + S
-               ELSE IF ( AE_SPC( S )( 1:3 ) .EQ. 'SRF' ) THEN
-                  NSAE = NSAE + 1
-                  SAE( NSAE ) = OFF + S
-               ELSE
-                  NQAE = NQAE + 1
-                  QAE( NQAE ) = OFF + S
-                  MOLWT( NQAE ) = AE_MOLWT( S )
-               END IF
-            END DO
-
-         END IF
-
-      END IF          !  if Firstime
-
-      call interpolate_var ('DENS', jdate, jtime, DENS)
+      call interpolate_var ('DENS', jdate, jtime, DENS) ! kg m-3
+      FAC1 = MWAIR_SI / DENS  ! m3 mol-1
 
 C Convert non-molar mixing ratio species and re-order CGRID
+      DO L = 1, NLAYS
 
-C Gas - no conversion
+        DO I = 1,N_CGRID_SPC
+            ! Gas - no conversion
+            IF ( CGRID_MASK_GAS( I ) .OR.
+     &           CGRID_MASK_NR( I )  .OR.
+     &           CGRID_MASK_TRAC( I ) )
+     &         CNGRD( I,L,:,: ) = CGRID( :,:,L,I )
 
-      NSPCS = N_GC_SPC
-      IF ( NSPCS .GT. 0 ) THEN
-         OFF = GC_STRT - 1
-         DO R = 1, NROWS
-            DO C = 1, NCOLS
-               DO L = 1, NLAYS
-                  DO V = 1, NSPCS
-                     CNGRD( OFF+V,L,C,R ) = CGRID( C,R,L,OFF+V )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
+            ! Aerosol Mass: ug/m3 -> ppmv
+            IF ( CGRID_MASK_AERO( I ) .AND.
+     &           .NOT. CGRID_MASK_NUM( I ) .AND.
+     &           .NOT. CGRID_MASK_SRF( I )  )
+     &         CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) 
+     &                          * FAC1( :,:,L ) / CGRID_MW( I )
 
-C micro-grams/m**3 aerosol -> mol/mol air <- no
-C micro-grams/m**3 aerosol -> ppmv
-C (Don't divide by MGPG, then multiply by 1.0E+6: 1/MGPG = 10**-6 cancels out
-C ppm = 10**6)
-
-      NSPCS = NQAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO R = 1, NROWS
-            DO C = 1, NCOLS
-               DO L = 1, NLAYS
-                  FAC = MAOGPKG / DENS( C,R,L )
-                  DO V = 1, NSPCS
-                     CONV = FAC / MOLWT( V )
-                     CNGRD( QAE( V ),L,C,R ) = CONV * CGRID( C,R,L,QAE( V ) )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-!     NSPCS = NQAE
-!     IF ( NSPCS .GT. 0 ) THEN
-!        DO V = 1, NSPCS
-!           CONV = MAOGPKG / MOLWT( V )
-!           DO L = 1, NLAYS
-!              DO R = 1, NROWS
-!                 DO C = 1, NCOLS
-!                    CGRID( C,R,L,QAE( V ) ) = CGRID( C,R,L,QAE( V ) ) * CONV
-!    &                                       / DENS( C,R,L )
-!                 END DO
-!              END DO
-!           END DO
-!        END DO
-!     END IF
-
-
-C number/m**3 aerosol -> ppmv
-C (Don't divide by MGPG, etc. See note above)
-
-      NSPCS = NNAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO R = 1, NROWS
-            DO C = 1, NCOLS
-               DO L = 1, NLAYS
-                  CONV = MAOAVO1000 / DENS( C,R,L )
-                  DO V = 1, NSPCS
-                     CNGRD( NAE( V ),L,C,R ) = CONV * CGRID( C,R,L,NAE( V ) )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-C m**2/m**3 aerosol -> m**2/mol air
-
-      NSPCS = NSAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO R = 1, NROWS
-            DO C = 1, NCOLS
-               DO L = 1, NLAYS
-                  CONV = MAOGPKG / DENS( C,R,L )
-                  DO V = 1, NSPCS
-                     CNGRD( SAE( V ),L,C,R ) = CONV * CGRID( C,R,L,SAE( V ) )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-C Non-reactives - no conversion
-
-      NSPCS = N_NR_SPC
-      IF ( NSPCS .GT. 0 ) THEN
-         OFF = NR_STRT - 1
-         DO R = 1, NROWS
-            DO C = 1, NCOLS
-               DO L = 1, NLAYS
-                  DO V = 1, NSPCS
-                     CNGRD( OFF+V,L,C,R ) = CGRID( C,R,L,OFF+V )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-C Tracers - no conversion
-
-      NSPCS = N_TR_SPC
-      IF ( NSPCS .GT. 0 ) THEN
-         OFF = TR_STRT - 1
-         DO R = 1, NROWS
-            DO C = 1, NCOLS
-               DO L = 1, NLAYS
-                  DO V = 1, NSPCS
-                     CNGRD( OFF+V,L,C,R ) = CGRID( C,R,L,OFF+V )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
+            ! Aerosol Number: N m-3 -> N mol-1
+            ! Aerosol Surface Area: m2/m3 -> m2 / mol air
+            IF ( CGRID_MASK_NUM( I ) .OR.
+     &           CGRID_MASK_SRF( I )      )
+     &         CNGRD( I,L,:,: ) = CGRID( :,:,L,I ) * FAC1( :,:,L )
+        END DO
+      
+      END DO
 
 #ifdef isam
-Ckrt....JSPCTAG loop on PM mass only.....
-!krt  write( *,* ) 'JSPCTAG, VNAM_SPCTAG'
+      ! Convert PM Mass Only
       CONV_SPCTAG: DO JSPCTAG = 1, N_SPCTAG
          IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
          S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
          IF ( S .GT. 0 ) THEN
-!krt        write( *,* )  JSPCTAG , VNAM_SPCTAG( JSPCTAG )
-            DO R = 1, NROWS
-               DO C = 1, NCOLS
-                  DO L = 1, NLAYS
-                     FAC = MAOGPKG / DENS( C,R,L )
-                     CONV = FAC / AE_MOLWT( S )
-                     ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
-     &                  CONV * ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
-                  END DO 
-               END DO
-            END DO
+            DO L = 1, NLAYS
+               ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
+     &            ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
+     &              * FAC1( :,:,L ) / AE_MOLWT( S )
+            END DO 
          END IF
       END DO CONV_SPCTAG
 #endif
@@ -275,123 +130,41 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C Revert non-molar mixing ratio species and re-order CGRID
 
-      call interpolate_var ('DENS', jdate, jtime, DENS)
+      call interpolate_var ('DENS', jdate, jtime, DENS) ! kg m-3
+      FAC1 = DENS / MWAIR_SI  ! mol m-3
 
-C Gas - no conversion
+       DO L = 1, NLAYS
+         DO I = 1,N_CGRID_SPC
+             ! Gas - no conversion
+             IF ( CGRID_MASK_GAS( I ) .OR.
+     &            CGRID_MASK_NR( I )  .OR.
+     &            CGRID_MASK_TRAC( I ) )
+     &          CGRID( :,:,L,I ) = CNGRD( I,L,:,: )
 
-      NSPCS = N_GC_SPC
-      IF ( NSPCS .GT. 0 ) THEN
-         OFF = GC_STRT - 1
-         DO V = 1, NSPCS
-            DO L = 1, NLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     CGRID( C,R,L,OFF+V ) = CNGRD( OFF+V,L,C,R )
-                  END DO
-               END DO
-            END DO
+             ! Aerosol Mass:  ppmv -> ug m-3
+             IF ( CGRID_MASK_AERO( I ) .AND.
+     &            .NOT. CGRID_MASK_NUM( I ) .AND.
+     &            .NOT. CGRID_MASK_SRF( I )  )
+     &          CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) 
+     &                           * FAC1( :,:,L ) * CGRID_MW( I )
+
+             ! Aerosol Number: N mol-1 -> N m-3
+             ! Aerosol Surface Area: m2 mol-1 -> m2 m-3
+             IF ( CGRID_MASK_NUM( I ) .OR.
+     &            CGRID_MASK_SRF( I )      )
+     &          CGRID( :,:,L,I ) = CNGRD( I,L,:,: ) * FAC1( :,:,L )
          END DO
-      END IF
-
-C aerosol ppmv -> micro-grams/m**3
-C (Don't multiply by MGPG, then divide by 1.0E+6: 1/MGPG = 10**-6 cancels out
-C ppm = 10**6)
-
-      NSPCS = NQAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO V = 1, NSPCS
-            FAC = GPKGOMA * MOLWT( V )
-            DO L = 1, NLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     CONV = FAC * DENS( C,R,L )
-                     CGRID( C,R,L,QAE( V ) ) = CONV * CNGRD( QAE( V ),L,C,R )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-C aerosol ppmv -> number/m**3
-C (Don't multiply by MGPG, etc. See note above)
-
-      NSPCS = NNAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO V = 1, NSPCS
-            DO L = 1, NLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     CONV = AVOOMA_001 * DENS( C,R,L )
-                     CGRID( C,R,L,NAE( V ) ) = CONV * CNGRD( NAE( V ),L,C,R )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-C m**2/m**3 aerosol -> m**2/mol air
-
-      NSPCS = NSAE
-      IF ( NSPCS .GT. 0 ) THEN
-         DO V = 1, NSPCS
-            DO L = 1, NLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     CONV = GPKGOMA * DENS( C,R,L )
-                     CGRID( C,R,L,SAE( V ) ) = CONV * CNGRD( SAE( V ),L,C,R )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-C Non-reactives - no conversion
-
-      NSPCS = N_NR_SPC
-      IF ( NSPCS .GT. 0 ) THEN
-         OFF = NR_STRT - 1
-         DO V = 1, NSPCS
-            DO L = 1, NLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     CGRID( C,R,L,OFF+V ) = CNGRD( OFF+V,L,C,R )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
-C Tracers - no conversion
-
-      NSPCS = N_TR_SPC
-      IF ( NSPCS .GT. 0 ) THEN
-         OFF = TR_STRT - 1
-         DO V = 1, NSPCS
-            DO L = 1, NLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     CGRID( C,R,L,OFF+V ) = CNGRD( OFF+V,L,C,R )
-                  END DO
-               END DO
-            END DO
-         END DO
-      END IF
-
+      END DO
 #ifdef isam
 Ckrt....JSPCTAG loop on PM mass only.....
       REV_SPCTAG: DO JSPCTAG = 1, N_SPCTAG
          IBGN = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
          S = INDEX1( VNAM_SPCTAG( JSPCTAG )( 1:IBGN ), N_AE_SPC, AE_SPC )
          IF ( S .GT. 0 ) THEN
-            FAC = GPKGOMA * AE_MOLWT( S )
             DO L = 1, NLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     CONV = FAC * DENS( C,R,L )
-                     ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
-     &                  CONV * ISAM( C,R,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
-                  END DO
-               END DO
+                ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) ) =
+     &             ISAM( :,:,L,S_SPCTAG( JSPCTAG ),T_SPCTAG( JSPCTAG ) )
+     &              * FAC1( :,:,L ) * AE_MOLWT( S )
             END DO
          END IF
       END DO REV_SPCTAG

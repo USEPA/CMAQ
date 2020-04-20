@@ -61,7 +61,7 @@ C-----------------------------------------------------------------------
       USE SA_DEFN, ONLY: N_SPCTAG, ISAM, VNAM_SPCTAG, TRANSPORT_SPC,
      &                   SA_VDEMIS_DIFF, ITAG, NTAG_SA, NSPC_SA,
      &                   S_SPCTAG, T_SPCTAG, SA_DDEP, OTHRTAG, SPC_NAME,
-     &                   L_NITRATE
+     &                   L_NITRATE, SA_BIDI, BIDITAG, L_NH4
 #endif
 
       IMPLICIT NONE
@@ -172,9 +172,12 @@ C ACM Local Variables
       REAL, ALLOCATABLE,SAVE :: SA_NO2( : )      
 
       INTEGER, SAVE              :: ISAM_INDEX_NO2 = 0   ! ...Index locating NO2 in ISAM
+      INTEGER, SAVE              :: ISAM_INDEX_NH3 = 0   ! ...Index locating NH3 in ISAM
+      INTEGER, SAVE              :: PLDV_INDEX_NH3 = 0   ! ...Index locating NH3 in PLDV
 
       INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_HONO( : )
+      INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_NH3( : )
 
 
       CHARACTER( 16 ) :: ISAM_SPECIES
@@ -310,9 +313,10 @@ C set auxiliary depv arrays
          END IF
          
          ALLOCATE ( SA_NO2( NTAG_SA ),
-     &              INDEX_SA_HONO( NTAG_SA ), STAT = ASTAT )
+     &              INDEX_SA_HONO( NTAG_SA ), 
+     &              INDEX_SA_NH3 ( NTAG_SA ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'Failure ISAM HONO variables'
+            XMSG = 'Failure ISAM HONO/NH3 variables'
             CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
          END IF
          
@@ -325,6 +329,7 @@ C set auxiliary depv arrays
          ISAM_DEPV     = 0
          SA_NO2        = 1.0 / REAL( NTAG_SA )
          INDEX_SA_HONO = 0
+         INDEX_SA_NH3  = 0
 
 ! set default partitioning of surface fluxes
          DO JSPCTAG = 1, N_SPCTAG
@@ -334,6 +339,7 @@ C set auxiliary depv arrays
                SAFRAC( JSPCTAG ) = 0.0
             END IF
          END DO
+
 ! find NO2 in tracked species
          DO S = 1, NSPC_SA
             IF( SPC_NAME( S,1 ) .EQ. 'NO2' )THEN
@@ -341,6 +347,24 @@ C set auxiliary depv arrays
                 EXIT
             END IF            
          END DO
+! find NH3 in tracked species
+         IF ( SA_BIDI ) THEN
+           DO S = 1, NSPC_SA
+              IF( SPC_NAME( S,1 ) .EQ. 'NH3' )THEN
+                  ISAM_INDEX_NH3 = S
+                  EXIT
+              END IF
+           END DO
+           S = -1
+           S = INDEX1( 'NH3', N_SPC_DEPV, DEPV_SPC )
+           IF ( S .GT. 0 ) THEN
+             PLDV_INDEX_NH3 = S
+           ELSE
+             XMSG = 'NH3 not found in DEPV_SPC array'
+             CALL M3EXIT( 'PLDV_INDEX_NH3', 0, 0, XMSG, XSTAT1 )
+           END IF
+         END IF
+
 ! set indices determining depv treatment, equals zero if none
          ITAG = 0
          WRITE(LOGDEV,'(/,A7,1X,2(A16,1X))')'JSPCTAG','ISAM_SPECIES','DEPV Value'
@@ -376,6 +400,23 @@ C set auxiliary depv arrays
         DO JSPCTAG = 1, N_SPCTAG
           WRITE(LOGDEV,*)VNAM_SPCTAG( JSPCTAG ),' ,',SAFRAC( JSPCTAG )
         END DO          
+
+        IF ( ABFLUX .AND. L_NH4 ) THEN
+          ITAG = 0
+          DO JSPCTAG = 1, N_SPCTAG
+            IBGN         = INDEX( VNAM_SPCTAG( JSPCTAG ), '_', .FALSE. ) - 1
+            ISAM_SPECIES = VNAM_SPCTAG( JSPCTAG )( 1:IBGN )
+            IF( TRIM( ISAM_SPECIES ) .EQ. 'NH3' )THEN
+               ITAG = ITAG + 1
+               INDEX_SA_NH3( ITAG ) = JSPCTAG
+            END IF
+          END DO
+
+          DO ITAG = 1, NTAG_SA
+            JSPCTAG = INDEX_SA_NH3( ITAG )
+            SAFRAC( JSPCTAG ) = 0.0 ! to not double count the bi-di emmissions
+          END DO
+        END IF
 #endif
  
       END IF   !  if Firstime
@@ -496,6 +537,15 @@ C-----------------------------------------------------------------------
 
 #ifdef isam
          SAEMIS = 0.0
+
+! modify ground emissions for bidirectional species (for bidi, PLVD > 0.0)
+         IF ( SA_BIDI ) THEN
+           SA_VDEMIS_DIFF( ISAM_INDEX_NH3,1,C,R,BIDITAG )
+c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
+     &             = PLDV(PLDV_INDEX_NH3,C,R) * Met_Data%RDEPVHT( C,R )
+         END IF
+
+! collapse ISAM emissions array
          DO L = 1, EMLAYS
             DO ITAG = 1, NTAG_SA
                BOT = (ITAG-1)*NSPC_SA+1
@@ -705,7 +755,7 @@ C --------------- END of HET HONO RX ----------
                   IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
                      SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                   - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                        
-                   END IF
+                  END IF
                END IF
             END DO
 

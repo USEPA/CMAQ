@@ -30,17 +30,10 @@ C 03 Jul 15 J.Young: inital
       include SUBST_CONST     ! constants
       include SUBST_FILES_ID  ! file name parameters
 
-      real,    parameter :: gpkg = 1.0e+03        ! g/Kg
-      real,    parameter :: maogpkg = mwair / gpkg
-      real,    parameter :: gpkgoma = 1.0 / maogpkg
-      real,    parameter :: maoavo1000 = 1.0e+03 * mwair / avo
-      real,    parameter :: avooma_001 = 1.0 / maoavo1000
-
       real,    allocatable, save :: cgrd( :,: )   ! density units
       real,    allocatable, save :: conc( :,: )   ! mixing ratio units
 
-      real,    allocatable, save :: dens( :,:,: ) ! air density
-      real,    allocatable, save :: ldens( : )    ! time-local
+      real,    allocatable, save :: ldens( : )    ! local density kg m-3
 
       integer, save :: nqae              ! number of micro-grams/m**3 species
       integer, save :: nnae              ! number of #/m**3 species
@@ -57,6 +50,8 @@ C 03 Jul 15 J.Young: inital
       integer gxoff, gyoff         ! global origin offset from file
 C for interpx
       integer, save :: strtcolmc3, endcolmc3, strtrowmc3, endrowmc3
+      integer, allocatable, save :: map_sedi2cgrid( : )
+      integer, save :: n_sedi_map   ! aero species, all modes
 
       contains
 
@@ -113,17 +108,9 @@ C Local Variables:
       real       adts, dts, rdts
       real       ldt, fs
       integer    off, dtc, iter 
-      integer, save :: n_sedi_map   ! aero species, all modes
       integer    c, r, l, n, s, v
       integer    astat
       integer    mdate, mtime
-
-!     logical    chk
-!     logical :: wrt1 = .true.
-!     character( 43 ), save :: dbgstr = "@@c    l   Dzf           vsed          jacf"
-!     character( 75 ), save :: dbgstr1 =
-!    &  "@@1    l    v   srdl          rdl           svsed         vsed         rdts"
-!     real       srdl, svsed
 
       interface   ! for external procedures
          subroutine aero_sedv ( col, row, cgrd, vsed_ae )
@@ -144,19 +131,23 @@ C-----------------------------------------------------------------------
 c sedi_map - from ae_trns to ae_spc (currently, all ae spc`s are transported)
 c conc_map - from cgrid to ae_trns species
          allocate ( sedi_map( n_ae_spc ),
+     &              map_sedi2cgrid( n_cgrid_spc ),
      &              conc_map( n_ae_spc ),  stat = astat )
          if ( astat .ne. 0 ) then
             xmsg = 'Failure allocating VSED_MAP or CONC_MAP'
             call m3exit( pname, mdate, mtime, xmsg, xstat1 )
          end if
 
-         off = n_gc_trns   ! 48
+         map_sedi2cgrid = 0
+         off = n_gc_trns   
+         cg_off = ae_strt - 1   
          n_sedi_map = 0
          do v = 1, n_ae_spc
             n = index1( ae_spc( v ), n_ae_trns, ae_trns )
             if ( n .gt. 0 ) then
                n_sedi_map = n_sedi_map + 1
                sedi_map( n_sedi_map ) = n
+               map_sedi2cgrid( n_sedi_map ) = n+cg_off
                conc_map( n_sedi_map ) = diff_map( n + off )
             end if
          end do
@@ -203,37 +194,6 @@ c conc_map - from cgrid to ae_trns species
                call m3exit( pname, mdate, mtime, xmsg, xstat1 )
             end if
          end if
-
-C set up the convert arrays
-c create aerosol species pointers to distinguish micro-grams/m**3,
-C #/m**3 (number density), and m**2/m**3 (surface area) species
-
-         allocate ( qae( n_ae_spc ),
-     &              nae( n_ae_spc ),
-     &              sae( n_ae_spc ),
-     &              molwt( n_ae_spc ), stat = ios )
-         if ( ios .ne. 0 ) then
-            xmsg = 'Failure allocating qae, nae, sae, or molwt'
-            call m3exit( pname, jdate, jtime, xmsg, xstat1 )
-         end if
-         nqae = 0       ! no. of micro-grams/m**3 species
-         nnae = 0       ! no. of  #/m**3 species
-         nsae = 0       ! no. of  m**2/m**3 species
-         cg_off = ae_strt - 1
-         off = 0        ! aero species offset to local conc array
-         do s = 1, n_ae_spc
-            if ( ae_spc( s )( 1:3 ) .eq. 'NUM' ) then
-               nnae = nnae + 1
-               nae( nnae ) = off + s
-            else if ( ae_spc( s )( 1:3 ) .eq. 'SRF' ) then
-               nsae = nsae + 1
-               sae( nsae ) = off + s
-            else
-               nqae = nqae + 1
-               qae( nqae ) = off + s
-               molwt( nqae ) = ae_molwt( s )
-            end if
-         end do
 
       end if   !  if firstime
 
@@ -353,92 +313,75 @@ C subset all the layers and species in cgrid for this grid cell
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       subroutine conv_cgrd( )
+         use cgrid_spcs          ! cgrd mechanism species
          use grid_conf        ! horizontal & vertical domain specifications
          use utilio_defn
          use asx_data_mod
+         use vdiff_map
+
          implicit none
 
-         integer   l, v            ! loop induction variables
+         integer   i, l, v            ! loop induction variables
+         real FAC1( nlays )
+         real, parameter :: mwair_si = mwair * 1.0e-3
 
 C-----------------------------------------------------------------------
 
-C micro-grams/m**3 aerosol -> ppmv
-C (Don`t divide by MGPG, then multiply by 1.0E+6: 1/MGPG = 1.0E-6 cancels out ppm = 1.0E6)
+      FAC1 = MWAIR_SI / LDENS  ! kg m-3 -> m3 mol-1
 
-         do l = 1, nlays
-            fac = maogpkg / ldens( l )
-            do v = 1, nqae
-               conv = fac / molwt( v )
-               conc( qae( v ),l ) = conv * cgrd( l,cg_off+qae( v ) )
-            end do
-         end do
+      DO I = 1,N_SEDI_MAP
+          ! Aerosol Mass: ug/m3 -> ppmv
+          IF ( CGRID_MASK_AERO( MAP_SEDI2CGRID(I) ) .AND.
+     &         .NOT. CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .AND.
+     &         .NOT. CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )  )
+     &       CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) 
+     &                    *FAC1( : ) / CGRID_MW( MAP_SEDI2CGRID(I) )
 
-C number/m**3 aerosol -> ppmv
-C (Don`t divide by MGPG, etc. See note above)
+          ! Aerosol Number: N m-3 -> N mol-1
+          ! Aerosol Surface Area: m2/m3 -> m2 / mol air
+          IF ( CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .OR.
+     &         CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )      )
+     &       CONC( I,: ) = CGRD( :,MAP_SEDI2CGRID(I) ) * FAC1( : )
 
-         do l = 1, nlays
-            conv = maoavo1000 / ldens( l )
-            do v = 1, nnae
-               conc( nae( v ),l ) = conv * cgrd( l,cg_off+nae( v ) )
-            end do
-         end do
+      END DO
 
-C m**2/m**3 aerosol -> m**2/mol air
-
-         do l = 1, nlays
-            conv = maogpkg / ldens( l )
-            do v = 1, nsae
-               conc( sae( v ),l ) = conv * cgrd( l,cg_off+sae( v ) )
-            end do
-         end do
-
-      return
+      RETURN
 
       end subroutine conv_cgrd
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       subroutine conv_conc ( )
+         use cgrid_spcs          ! cgrd mechanism species
          use grid_conf        ! horizontal & vertical domain specifications
+         use vdiff_map
+
          implicit none
 
-         integer   l, v            ! loop induction variables
+         integer   i, l, v            ! loop induction variables
+         real, parameter :: mwair_si = mwair * 1.0e-3
+         real fac1( nlays )
 
 C-----------------------------------------------------------------------
+      FAC1 = LDENS / MWAIR_SI  ! kg m-3 -> mol m-3
 
-C m**2/m**3 aerosol -> m**2/mol air
-C aerosol ppmv -> micro-grams/m**3
-C (Don`t multiply by MGPG, then divide by 1.0E+6: 1/MGPG = 10**-6 cancels out
-C ppm = 10**6)
+      DO I = 1,N_SEDI_MAP
+          ! Aerosol Mass: ug/m3 -> ppmv
+          IF ( CGRID_MASK_AERO( MAP_SEDI2CGRID(I) ) .AND.
+     &         .NOT. CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .AND.
+     &         .NOT. CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )  )
+     &      CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * FAC1( : ) 
+     &                                  * CGRID_MW( MAP_SEDI2CGRID(I) )
 
-         do v = 1, nqae
-            fac = gpkgoma * molwt( v )
-            do l = 1, nlays
-               conv = fac * ldens( l )
-               cgrd( l,cg_off+qae( v ) ) = conv * conc( qae( v ),l )
-            end do
-         end do
+          ! Aerosol Number: N m-3 -> N mol-1
+          ! Aerosol Surface Area: m2/m3 -> m2 / mol air
+          IF ( CGRID_MASK_NUM( MAP_SEDI2CGRID(I) ) .OR.
+     &         CGRID_MASK_SRF( MAP_SEDI2CGRID(I) )      ) 
+     &      CGRD( :,MAP_SEDI2CGRID(I) ) = CONC( I,: ) * FAC1( : )
 
-C aerosol ppmv -> number/m**3
-C (Don`t multiply by MGPG, etc. See note above)
-
-         do v = 1, nnae
-            do l = 1, nlays
-               conv = avooma_001 * ldens( l )
-               cgrd( l,cg_off+nae( v ) ) = conv * conc( nae( v ),l )
-            end do
-         end do
-
-C m**2/m**3 aerosol -> m**2/mol air
-
-         do v = 1, nsae
-            do l = 1, nlays
-               conv = gpkgoma * ldens( l )
-               cgrd( l,cg_off+sae( v ) ) = conv * conc( sae( v ),l )
-            end do
-         end do
-
-      return
+      END DO
+ 
+      RETURN
 
       end subroutine conv_conc
 

@@ -66,6 +66,9 @@
 !  01/30/20, D. Wong:- fixed IC file interpolation time stamp issue by bypassing the
 !                      check whether the new request falls within the circular buffer
 !                      for IC variable which only has one time step of data.
+!  02/10/20, F. Sidi:- Changed file_tstep from tstep3d to met_tstep an environment
+!                      variable the flexlible allows users to toggle the temporal
+!                      frequency of their input meterology.
 !  03/05/20, D. Wong: Expanded CIO functionalities to MPAS as well
 !------------------------------------------------------------------------!
 
@@ -192,6 +195,7 @@
 ! - gridded emission data
         character (16), allocatable :: cio_emis_file_name(:),
      &                                 cio_emis_var_name(:,:)
+        integer, allocatable :: cio_emis_file_loc(:)
         integer, allocatable :: cio_emis_nvars(:)
         integer, allocatable :: cio_emis_file_layer(:)
         integer              :: cio_emis_nlays                     ! max value among cio_emis_file_layer
@@ -210,6 +214,7 @@
      &                                 cio_mpas_stack_emis_timestamp(:)    ! for MPAS only
 
         integer, allocatable :: n_cio_stack_emis_vars(:),
+     &                          cio_stack_file_loc(:),
      &                          n_cio_stack_emis_lays(:),
      &                          n_cio_stack_emis_pts(:),
      &                          cio_stack_emis_data_inx (:,:,:,:),
@@ -269,7 +274,9 @@
 
         private :: gridded_files_setup,
      &             retrieve_lufrac_cro_data
-#ifndef mpas
+#ifdef mpas
+     &             ,retrieve_ocean_data_mpas
+#else
      &             ,boundary_files_setup,
      &             retrieve_grid_cro_2d_data,
      &             retrieve_grid_dot_2d_data,
@@ -328,6 +335,7 @@
 
 !  stack_files_setup_mpas
 !  retrieve_stack_data_mpas
+!  retrieve_ocean_data_mpas
 
 !  r_interpolate_var_1d    ?
 !  r_interpolate_var_1ds
@@ -379,7 +387,7 @@
           USE VGRD_DEFN, only : VGTYP_GD, nlays
           USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON,
      &                             STDATE, WB_DUST, ISAM_NEW_START,
-     &                             local_tstep
+     &                             local_tstep, met_tstep
           use LSM_Mod, only : LAND_SCHEME
           use cgrid_spcs, only : n_gc_spcd, n_ae_spc
 #ifdef mpas
@@ -395,7 +403,8 @@
 
           CHARACTER( 120 ) :: XMSG = ' '
           INTEGER          :: GXOFF, GYOFF, stat, n, v, d_size, begin, end, adj,
-     &                        n_bio_season_vars, n_dust_vars, idx, nl, s, e, c, time
+     &                        n_bio_season_vars, n_dust_vars, idx, t, ldate, ltime,
+     &                        nl, s, e, c, time, floc
           character( 32 )  :: tname, fname
 
           character( 24 ), allocatable :: c2d_name(:, :), c3d_name(:, :), 
@@ -403,6 +412,7 @@
      &                                    i3d_name(:,:), is3d_name(:,:),
      &                                    l2d_name(:,:), medc_name(:,:)
           logical :: done = .false.
+          logical :: found
 
           integer, allocatable :: bottom(:), top(:)
           integer :: emis_file_dist_layer, tdate(2), ttime(2), diffsec
@@ -511,7 +521,11 @@
 
           file_sdate(f_met) = sdate3d
           file_stime(f_met) = stime3d
+#ifdef twoway
           file_tstep(f_met) = tstep3d
+#else
+          file_tstep(f_met) = met_tstep ! offline model controlled by runtime var MET_TSTEP
+#endif
           file_xcell(f_met) = xcell3d
           file_ycell(f_met) = ycell3d
 
@@ -732,6 +746,7 @@
           call init_emis_regions()
 
           allocate (cio_emis_file_name(N_FILE_GR),
+     &              cio_emis_file_loc(N_FILE_GR),
      &              cio_emis_nvars(N_FILE_GR),
      &              f_emis(N_FILE_GR),
      &              stat=stat)
@@ -749,18 +764,25 @@
           n_e2d = 0
           n_e3d = 0
           do n = 1, N_FILE_GR
-             write (fname, '(a8, i3.3)') "GR_EMIS_", n
-
-             cio_emis_file_name(n) = fname
 
              n_opened_file = n_opened_file + 1
              f_emis(n)     = n_opened_file
 
-#ifdef mpas
-             call setfile (cio_emis_file_name(n))
+! Check whether file is a representative day type
+             file_sym_date(f_emis(n)) = emis_sym_date ! Master switch to change default
+             write (fname, '(a15, i3.3)') "GR_EM_SYM_DATE_", n
+             call get_env(file_sym_date(f_emis(n)), fname,
+     &                    file_sym_date(f_emis(n)), logdev )
 
-             call mpas_date_time_to_julian (mio_file_data(mio_cfile)%timestamp(1), tdate(1), ttime(1))
-             call mpas_date_time_to_julian (mio_file_data(mio_cfile)%timestamp(2), tdate(2), ttime(2))
+             write (fname, '(a8, i3.3)') "GR_EMIS_", n
+             cio_emis_file_name(n) = fname
+
+#ifdef mpas
+             floc = search_fname (cio_emis_file_name(n))
+             cio_emis_file_loc(n) = floc
+
+             call mpas_date_time_to_julian (mio_file_data(floc)%timestamp(1), tdate(1), ttime(1))
+             call mpas_date_time_to_julian (mio_file_data(floc)%timestamp(2), tdate(2), ttime(2))
 
              file_sdate(f_emis(n)) = tdate(1)
              file_stime(f_emis(n)) = ttime(1)
@@ -768,15 +790,15 @@
              diffsec = secsdiff (tdate(1), ttime(1), tdate(2), ttime(2))
 
              file_tstep(f_emis(n)) = sec2time(diffsec)
-             mio_file_data(mio_cfile)%tstep = file_tstep(f_emis(n))
+             mio_file_data(floc)%tstep = file_tstep(f_emis(n))
 
              layer_exist = .false.
-             do v = 1, mio_file_data(mio_cfile)%n_global_atts
-                if (mio_file_data(mio_cfile)%glo_att_name(v) .eq. 'layers') then
+             do v = 1, mio_file_data(floc)%n_global_atts
+                if (mio_file_data(floc)%glo_att_name(v) .eq. 'layers') then
                    layer_exist = .true.
-                   s = mio_file_data(mio_cfile)%glo_catt_range(2*v-1)
-                   e = mio_file_data(mio_cfile)%glo_catt_range(2*v)
-                   call ext_layer_info (mio_file_data(mio_cfile)%glo_att_cval(s:e), 
+                   s = mio_file_data(floc)%glo_catt_range(2*v-1)
+                   e = mio_file_data(floc)%glo_catt_range(2*v)
+                   call ext_layer_info (mio_file_data(floc)%glo_att_cval(s:e), 
      &                                  emis_file_dist_layer, bottom, top, 
      &                                  emis_file_layer_frac(:,n))
                 end if
@@ -795,14 +817,14 @@
                 dist_frac(:,:,n) = 1.0
              end if
 
-             cio_emis_nvars(n) = mio_file_data(mio_cfile)%nvars
-             if (mio_file_data(mio_cfile)%nlays .eq. 1) then
+             cio_emis_nvars(n) = mio_file_data(floc)%nvars
+             if (mio_file_data(floc)%nlays .eq. 1) then
                 n_e2d = n_e2d + cio_emis_nvars(n)
              else
                 n_e3d = n_e3d + cio_emis_nvars(n)
              end if
 
-             call mpas_date_time_to_julian (mio_file_data(mio_cfile)%timestamp(1), file_sdate(f_emis(n)), time)
+             call mpas_date_time_to_julian (mio_file_data(floc)%timestamp(1), file_sdate(f_emis(n)), time)
 #else
              IF ( .NOT. OPEN3( fname, FSREAD3, PNAME ) ) THEN
                 XMSG = 'Could not open '// fname // ' file'
@@ -819,11 +841,21 @@
              file_xcell(f_emis(n)) = xcell3d
              file_ycell(f_emis(n)) = ycell3d
 
-! Check whether file is a representative day type
-             file_sym_date(f_emis(n)) = emis_sym_date ! Master switch to change default 
-             write (fname, '(a15, i3.3)') "GR_EM_SYM_DATE_", n
-             call get_env(file_sym_date(f_emis(n)), fname, 
-     &                    file_sym_date(f_emis(n)), logdev )             
+             found = .false.
+             ldate = sdate3d
+             ltime = stime3d
+             if (ldate == stdate) then
+                found = .true.
+             else
+                t = 1
+                do while ((t < mxrec3d) .and. (.not. found))
+                   call nextime (ldate, ltime, tstep3d)
+                   if (ldate == stdate) then
+                      found = .true.
+                   end if
+                   t = t + 1
+                end do
+             end if
              
              cio_emis_nvars(n) = nvars3d
              if (nlays3d .eq. 1) then
@@ -964,8 +996,8 @@
           do n = 1, N_FILE_GR
              WRITE (fname, '(a8, i3.3)') "GR_EMIS_", n
 #ifdef mpas
-             call setfile (fname)
-             nl = mio_file_data(mio_cfile)%nlays
+             floc = cio_emis_file_loc(n)
+             nl = mio_file_data(floc)%nlays
 #else
              IF ( .NOT. DESC3( fname ) ) THEN
                 XMSG = 'Could not get description of file  '// fname
@@ -978,9 +1010,9 @@
 
              write (tname, '(a1, i3.3)') '_', n
 #ifdef mpas
-             do v = 1, mio_file_data(mio_cfile)%nvars
+             do v = 1, mio_file_data(floc)%nvars
                 end = end + 1
-                emis_name(end,1) = trim(mio_file_data(mio_cfile)%var_name(v)) // tname
+                emis_name(end,1) = trim(mio_file_data(floc)%var_name(v)) // tname
              end do
 
 #else
@@ -1246,31 +1278,36 @@
      &               loc_jtime_met, data_jdate, data_jtime, t_time,
      &               bs_tjdate, wb_tjdate, v, beg_v, end_v, fnum, str_len, 
      &               bs_tjtime, wb_tjtime, wb_pre_begin, wb_pre_end,
-     &               t_beg, t_end
+     &               t_beg, t_end, floc
           integer, allocatable :: tdata(:), loc_jdate(:), loc_jtime(:)
           character (16) :: loc_vname
+          character (20) :: fname
           logical :: advanced
-          character (20), allocatable :: mpas_loc_time_stamp(:)
+          character (20), allocatable, save :: mpas_loc_time_stamp(:)
 
           CHARACTER( 120 ) :: XMSG = ' '
 
 #ifdef mpas
           real, save, allocatable :: mpas_tdata(:,:), temp_data_1d(:), temp_data_2d(:,:)
           character (20) :: loc_mpas_time_stamp                           ! this is for mpas only
-          character (20), save :: mpas_time_stamp, pre_mpas_time_stamp    ! this is for mpas only
+          character (20), save :: mpas_time_stamp                         ! this is for mpas only
           integer, save :: pre_jdate, pre_jtime                           ! this is fore mpas only
           character( 40 ), save :: exception1, exception2
 #endif
 
           allocate (loc_jdate(n_opened_file), loc_jtime(n_opened_file), STAT=STAT)
-#ifdef mpas
-          allocate (mpas_loc_time_stamp(n_opened_file), STAT=STAT)
-#endif
 
           if (firstime) then
 
 #ifdef mpas
-             pre_mpas_time_stamp = ''
+             allocate (mpas_loc_time_stamp(n_opened_file), STAT=STAT)
+
+             do k = 1, N_FILE_GR
+                write (fname, '(a8, i3.3)') "GR_EMIS_", k
+                i = search_fname (fname)
+                mpas_loc_time_stamp(f_emis(k)) = mio_file_data(i)%timestamp(1)
+             end do
+
              pre_jdate = -1
              pre_jtime = -1
 
@@ -1319,11 +1356,6 @@
 
           loc_jdate = jdate
           loc_jtime = jtime
-
-#ifdef mpas
-          call julian_to_mpas_date_time (jdate, jtime, loc_mpas_time_stamp)
-          mpas_loc_time_stamp = loc_mpas_time_stamp
-#endif
 
           advanced = .false.
           do iter = 1, iterations
@@ -1419,7 +1451,7 @@
                    loc_vname = cio_grid_var_name(v,1)(1:str_len-4)
 
 #ifdef mpas
-                   call setfile (cio_emis_file_name(fnum))
+                   floc = cio_emis_file_loc(fnum)
 
                    if (.not. allocated(mpas_tdata)) then
                       allocate (mpas_tdata(ncols, nlays), 
@@ -1482,7 +1514,7 @@
                    loc_vname = cio_grid_var_name(v,1)(1:str_len-4)
 
 #ifdef mpas
-                   call setfile (cio_emis_file_name(fnum))
+                   floc = cio_emis_file_loc(fnum)
 
                    if (.not. allocated(mpas_tdata)) then
                       allocate (mpas_tdata(ncols, nlays), 
@@ -1490,9 +1522,17 @@
      &                          stat=stat)
                    end if
 
-                   loc_mpas_time_stamp = mpas_loc_time_stamp(f_emis(fnum))
+                   file_tstep(f_emis(fnum)) = mio_file_data(floc)%tstep
 
-                   file_tstep(f_emis(fnum)) = mio_file_data(mio_cfile)%tstep
+                   ! Check if its a representative day on start-up (every other
+                   ! time it will be managed by the emissions processing)
+                   if (firstime) then
+                     if (file_sym_date(f_emis(fnum))) loc_jdate(f_emis(fnum)) = file_sdate(f_emis(fnum))
+                   end if
+                   data_jdate = loc_jdate(f_emis(fnum))
+                   data_jtime = loc_jtime(f_emis(fnum))
+
+                   call julian_to_mpas_date_time (data_jdate, data_jtime, loc_mpas_time_stamp)
 
                    call fread (cio_emis_file_name(fnum),
      &                         loc_vname,
@@ -1613,7 +1653,7 @@
 #endif
 
                 else
-                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWNi Type of File',1 )
+                   call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN Type of File',1 )
                 end if
 
                 cio_grid_data_tstamp(1, buf_loc, v) = data_jdate
@@ -1642,11 +1682,7 @@
 #endif
 
              do i = 1, N_FILE_GR
-#ifdef mpas
-                call mpas_nextime (cio_emis_file_name(i),  mpas_loc_time_stamp(f_emis(i)))
-#else
                 CALL NEXTIME ( loc_jdate(f_emis(i)), loc_jtime(f_emis(i)), file_tstep(f_emis(i)) )
-#endif
              end do
 
           end do  ! end iter
@@ -1665,7 +1701,6 @@
 #ifdef mpas
           pre_jdate = jdate
           pre_jtime = jtime
-          deallocate (mpas_loc_time_stamp)
 #endif
           deallocate (loc_jdate, loc_jtime)
 
@@ -1723,6 +1758,7 @@
           use coupler_module, only : pres_ind, g3ddata
           use centralized_io_util_module, only : quicksort
           use util_module, only : index1
+          use RUNTIME_VARS, only : emis_sym_date
 
           use mydata_module
 
@@ -1731,9 +1767,9 @@
           character( 40 ), parameter :: pname = 'stack_files_setup_mpas'
 
           character( 120 ) :: xmsg = ' '
-          character( 500 ) :: map_fname
+          character( 500 ) :: map_fname, fname
           integer :: n, v, pt, max_nsrc_pts, max_nvars, begin, end, stat, delta,
-     &               num_mesh_points, my_num_mesh_points, t_nvars
+     &               num_mesh_points, my_num_mesh_points, t_nvars, floc
           integer, allocatable :: d_size(:), pt_size(:),
      &                            stk_gp_sdate(:), stk_gp_stime(:),
      &                            stk_gp_nlays(:), mpas_map(:), my_mpas_map_index(:),
@@ -1744,6 +1780,7 @@
           call get_env (num_mesh_points, 'num_mesh_points', 1)
 
           allocate (cio_stack_file_name(nptgrps),
+     &              cio_stack_file_loc(nptgrps),
      &              n_cio_stack_emis_vars(nptgrps),
      &              n_cio_stack_emis_lays(nptgrps),
      &              n_cio_stack_emis_pts(nptgrps),
@@ -1801,16 +1838,16 @@
 
           do n = 1, nptgrps
 
-             call setfile (stkgname(n))
+             floc = search_fname(stkgname(n))
 
-!            stk_gp_sdate(n) = mio_file_data(mio_cfile)%var_name(ivar)
-!            stk_gp_stime(n) = mio_file_data(mio_cfile)%var_name(ivar)
-             stk_gp_nlays(n) = mio_file_data(mio_cfile)%dim_len(3)
+!            stk_gp_sdate(n) = mio_file_data(floc)%var_name(ivar)
+!            stk_gp_stime(n) = mio_file_data(floc)%var_name(ivar)
+             stk_gp_nlays(n) = mio_file_data(floc)%dim_len(3)
 
-             nsrc( n ) = mio_file_data(mio_cfile)%dim_len(5)
+             nsrc( n ) = mio_file_data(floc)%dim_len(5)
 
-             do v = 1, mio_file_data(mio_cfile)%nvars
-                if ( mio_file_data(mio_cfile)%var_name(v) .eq. 'ACRESBURNED' ) fire_on( n ) = .true.
+             do v = 1, mio_file_data(floc)%nvars
+                if ( mio_file_data(floc)%var_name(v) .eq. 'ACRESBURNED' ) fire_on( n ) = .true.
              end do
           end do
           max_nsrc_pts = maxval(nsrc)
@@ -1917,21 +1954,22 @@
 
              write( cio_stack_file_name(pt), '( "STK_EMIS_",I3.3 )' ) pt
 
-             call setfile (cio_stack_file_name(pt))
+             floc = search_fname(cio_stack_file_name(pt))
+             cio_stack_file_loc(pt) = floc
 
-             n_cio_stack_emis_vars(pt) = mio_file_data(mio_cfile)%nvars
-             n_cio_stack_emis_lays(pt) = mio_file_data(mio_cfile)%nlays
+             n_cio_stack_emis_vars(pt) = mio_file_data(floc)%nvars
+             n_cio_stack_emis_lays(pt) = mio_file_data(floc)%nlays
              n_cio_stack_emis_pts(pt)  = nsrc( pt )
 
-             cio_mpas_stack_emis_timestamp(pt) = mio_file_data(mio_cfile)%timestamp(1)
+             cio_mpas_stack_emis_timestamp(pt) = mio_file_data(floc)%timestamp(1)
 
-             if (max_nvars .lt. mio_file_data(mio_cfile)%nvars) then
-                max_nvars = mio_file_data(mio_cfile)%nvars
+             if (max_nvars .lt. mio_file_data(floc)%nvars) then
+                max_nvars = mio_file_data(floc)%nvars
              end if
 
              if (my_strt_src(pt) .gt. 0) then
                 pt_size(pt) = (my_end_src(pt) - my_strt_src(pt) + 1) * n_cio_stack_emis_lays(pt)
-                d_size(pt)  = mio_file_data(mio_cfile)%nvars * pt_size(pt) * 3
+                d_size(pt)  = mio_file_data(floc)%nvars * pt_size(pt) * 3
              else
                 pt_size(pt) = 0
                 d_size(pt)  = 0
@@ -1956,23 +1994,29 @@
           cio_stack_emis_data_inx = -1
           do pt = 1, nptgrps
 
-             call setfile (cio_stack_file_name(pt))
+             floc = cio_stack_file_loc(pt)
 
              n_opened_file = n_opened_file + 1
              f_stk_emis(pt) = n_opened_file
 
-             file_sdate(f_stk_emis(pt)) = mio_file_data(mio_cfile)%tflag(1,1)
-             file_stime(f_stk_emis(pt)) = mio_file_data(mio_cfile)%tflag(2,1)
-             file_tstep(f_stk_emis(pt)) = mio_file_data(mio_cfile)%tstep
+! Check whether file is a representative day type
+             write (fname, '(a16, i3.3)') "STK_EM_SYM_DATE_", pt
+             file_sym_date(f_stk_emis(pt)) = emis_sym_date ! Master switch to change default
+             call get_env(file_sym_date(f_stk_emis(pt)), fname,
+     &                    file_sym_date(f_stk_emis(pt)), logdev)
 
-             t_nvars = mio_file_data(mio_cfile)%nvars
+             file_sdate(f_stk_emis(pt)) = mio_file_data(floc)%tflag(1,1)
+             file_stime(f_stk_emis(pt)) = mio_file_data(floc)%tflag(2,1)
+             file_tstep(f_stk_emis(pt)) = mio_file_data(floc)%tstep
 
-             cio_stack_var_name(1:t_nvars, pt) = mio_file_data(mio_cfile)%var_name(1:t_nvars)
+             t_nvars = mio_file_data(floc)%nvars
+
+             cio_stack_var_name(1:t_nvars, pt) = mio_file_data(floc)%var_name(1:t_nvars)
 
              call quicksort(cio_stack_var_name(1:t_nvars,pt), 1, t_nvars)
 
              if (my_nsrc(pt) .gt. 0) then
-                do v = 1, mio_file_data(mio_cfile)%nvars
+                do v = 1, mio_file_data(floc)%nvars
                    do n = 0, 2
                       cio_stack_emis_data_inx(1,n,v,pt) = begin
                       end = begin + pt_size(pt) - 1
@@ -2008,11 +2052,19 @@
      &               iter, loc_jdate, loc_jtime, v, beg_v, end_v,
      &               beg_gp, end_gp, gp, fnum
           real, allocatable :: tdata_1dr(:)
-          character (20) :: mpas_time_stamp, pre_mpas_time_stamp
+          character (20) :: mpas_time_stamp
+          character (20), allocatable, save :: mpas_stack_loc_time_stamp(:)
 
           character( 120 ) :: xmsg = ' '
 
           if (firstime) then
+
+             allocate (mpas_stack_loc_time_stamp(nptgrps), stat=stat)
+
+             do i = 1, nptgrps
+                j = search_fname (cio_stack_file_name(i))
+                mpas_stack_loc_time_stamp(i) = mio_file_data(j)%timestamp(1)
+             end do
 
              head_stack_emis = -1
              tail_stack_emis = -1
@@ -2100,6 +2152,66 @@
           end if
 
         end subroutine retrieve_stack_data_mpas
+
+! -------------------------------------------------------------------------
+        subroutine retrieve_ocean_data_mpas
+
+          USE HGRD_DEFN
+          USE mio_module, only : search_fname
+
+          character (20)   :: ocean_file = 'OCEAN_1'
+          character (120)  :: xmsg = ' '
+          character (1000) :: fname
+          integer          :: floc
+          logical          :: exist
+
+          call get_env (fname, ocean_file, ' ')
+          inquire (file=fname, exist=exist)
+
+          if (exist) then
+             floc = search_fname (ocean_file)
+          end if
+
+          if (ocean_chem) then
+
+! if OCEAN file does not exist, g2ddata with open_ind and surf_ind have
+! been setup in subroutne mpas_cmaq_coupler, mpas_atmchem_interface.F
+             if (exist) then
+                call fread (ocean_file,
+     &                      'OPEN',
+     &                      g2ddata(:, 1, open_ind),
+     &                      mio_file_data(floc)%timestamp(1))
+
+                call fread (ocean_file,
+     &                      'SURF',
+     &                      g2ddata(:, 1, surf_ind),
+     &                      mio_file_data(floc)%timestamp(1))
+             end if
+          end if
+
+          if (use_marine_gas_emission) then
+             if (.not. ocean_chem) then
+                XMSG = 'CTM_OCEAN_CHEM must be set to TRUE when using CB6R3M mechanism'
+                call prog_interrupt ('reading ocean file', 0, 0, xmsg, 1)
+             else
+                if (exist) then
+                   call fread (ocean_file,
+     &                         'CHLO',
+     &                         g2ddata(:, 1, chlo_ind),
+     &                         mio_file_data(floc)%timestamp(1))
+
+                   call fread (ocean_file,
+     &                         'DMS',
+     &                         g2ddata(:, 1, dms_ind),
+     &                         mio_file_data(floc)%timestamp(1))
+                else
+                   XMSG = 'Ocean file doese not exist'
+                   call prog_interrupt ('reading ocean file', 0, 0, xmsg, 1)
+                end if
+             end if
+          end if
+
+        end subroutine retrieve_ocean_data_mpas
 
 #else
 
@@ -2243,6 +2355,9 @@
           integer, allocatable :: d_size(:), pt_size(:),
      &                            stk_gp_sdate(:), stk_gp_stime(:),
      &                            stk_gp_nlays(:)
+
+          integer :: ldate, ltime, t
+          logical :: found, done
 
           allocate (cio_stack_file_name(NPTGRPS), 
      &              n_cio_stack_emis_vars(NPTGRPS), 
@@ -2408,6 +2523,22 @@
              file_sym_date(f_stk_emis(pt)) = emis_sym_date ! Master switch to change default 
              call get_env(file_sym_date(f_stk_emis(pt)), fname, 
      &                    file_sym_date(f_stk_emis(pt)), logdev)             
+
+             found = .false.
+             ldate = sdate3d
+             ltime = stime3d
+             if ((ldate == stdate) .and. (mxrec3d > 1)) then
+                found = .true.
+             else
+                t = 1
+                do while ((t < mxrec3d) .and. (.not. found))
+                   call nextime (ldate, ltime, tstep3d)
+                   if (ldate == stdate) then
+                      found = .true.
+                   end if
+                   t = t + 1
+                end do
+             end if
 
              if (max_nvars .lt. nvars3d) then
                 max_nvars = nvars3d
@@ -4081,7 +4212,7 @@ C   mminlu and num_land_cat are WRF global variables
 
 #ifdef mpas
           use hgrd_defn, only : nrows
-          use RUNTIME_VARS, only : WB_DUST
+          use RUNTIME_VARS, only : WB_DUST, ocean_chem
           use lus_defn, only : lus_init
 #else
           USE HGRD_DEFN
@@ -4133,8 +4264,18 @@ C   mminlu and num_land_cat are WRF global variables
              lat    = g2ddata(:,:,lat_ind)
              ht     = g2ddata(:,:,ht_ind)
              lwmask = g2ddata(:,:,lwmask_ind)
-             ocean  = g2ddata(:,:,open_ind)
-             szone  = g2ddata(:,:,surf_ind)
+
+             call retrieve_ocean_data_mpas
+
+             if (ocean_chem) then
+                ocean = g2ddata(:,:,open_ind)
+                szone = g2ddata(:,:,surf_ind)
+             end if
+
+             if (use_marine_gas_emission) then
+                dmsl = g2ddata(:,:,dms_ind)
+                chlr = g2ddata(:,:,chlo_ind)
+             end if
 
              cio_model_sdate = stdate
              cio_model_stime = sttime
@@ -4263,7 +4404,7 @@ C   mminlu and num_land_cat are WRF global variables
       INTEGER :: N_EM_READ
       CHARACTER( 16 )    :: PNAME = "INIT_REGIONS"
       CHARACTER( 250)    :: XMSG
-      integer :: ldate, ltime
+      integer :: ldate, ltime, floc
       CHARACTER( 16 ) :: lvname
 
       ! Find the total number of regions to be processed
@@ -4318,7 +4459,7 @@ C   mminlu and num_land_cat are WRF global variables
           IF ( FILENAMES( IFILE ) .EQ. 'N/A' ) CYCLE
          
 #ifdef mpas
-          call setfile (filenames( ifile ))
+          floc = search_fname (filenames( ifile ))
 
           ldate = 0
           ltime = 0
@@ -4356,7 +4497,7 @@ C   mminlu and num_land_cat are WRF global variables
                      ELSE   
 #ifdef mpas
                         DO IVAR = 1, cio_emis_nvars(ifile)
-                           lvname = mio_file_data(mio_cfile)%var_name(ivar)
+                           lvname = mio_file_data(floc)%var_name(ivar)
 #else
                         DO IVAR = 1,NVARS3D
                            lvname = vname3d( ivar )

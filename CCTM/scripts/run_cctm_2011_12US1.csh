@@ -77,9 +77,9 @@ echo 'Start Model Run At ' `date`
  set END_DATE   = "2011-06-21"     #> ending date    (July 14, 2011)
 
 #> Set Timestepping Parameters
- set STTIME     = 000000           #> beginning GMT time (HHMMSS)
- set NSTEPS     = 240000           #> time duration (HHMMSS) for this run
- set TSTEP      = 010000           #> output time step interval (HHMMSS)
+set STTIME     = 000000            #> beginning GMT time (HHMMSS)
+set NSTEPS     = 240000            #> time duration (HHMMSS) for this run
+set TSTEP      = 010000            #> output time step interval (HHMMSS)
 
 #> Horizontal domain decomposition
 if ( $PROC == serial ) then
@@ -282,7 +282,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #set JVALfile  = JTABLE_${YYYYJJJ}
 
   #> Ozone column data
-  set OMIfile   = OMI_1979_to_2017.dat
+  set OMIfile   = OMI_1979_to_2019.dat
 
   #> Optics file
   set OPTfile = PHOT_OPTICS.dat
@@ -338,15 +338,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_GRPS_003 $IN_PTpath/stack_groups/stack_groups_othpt_${STKCASEG}.ncf
   setenv STK_GRPS_004 $IN_PTpath/stack_groups/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.ncf
   setenv STK_GRPS_005 $IN_PTpath/stack_groups/stack_groups_pt_oilgas_${STKCASEG}.ncf
-  setenv LAYP_STTIME $STTIME
-  setenv LAYP_NSTEPS $NSTEPS
 
   setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${YYYYMMDD}_${STKCASEE}.ncf
   setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
   setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${YYYYMMDD}_${STKCASEE}.ncf
   setenv STK_EMIS_004 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.ncf
   setenv STK_EMIS_005 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv LAYP_STDATE $YYYYJJJ
 
   # Label Each Emissions Stream
   setenv STK_EMIS_LAB_001 PT_NONEGU
@@ -617,8 +614,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv OMI $OMIpath/$OMIfile
   setenv OPTICS_DATA $OMIpath/$OPTfile
   #setenv XJ_DATA $JVALpath/$JVALfile
-  set TR_DVpath = $METpath
-  set TR_DVfile = $MET_CRO_2D
  
   #> species defn & photolysis
   setenv gc_matrix_nml ${NMLpath}/GC_$MECH.nml
