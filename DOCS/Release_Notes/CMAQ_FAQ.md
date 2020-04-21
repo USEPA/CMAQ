@@ -11,7 +11,6 @@
 * [Technical support for CMAQ](#tech_support)
 
 <a id=update_v521_v53></a>
-=======
 ## What do I need to do to update from v5.2.1 to v5.3?
 * A major change to CMAQ in version 5.3 is the incorporation of the new emissions module, DESID, and 
 its control via a number of RunScript variables and the Emission Control File, which is explained in 
@@ -63,7 +62,6 @@ The following summary is based off of our incremental testing of the science upd
 * Wet deposition NH<sub>4</sub> is slightly lower in the spring, summer and fall with CMAQv5.3 versus CMAQv5.2.1. Monthly accumulated NH<sub>4</sub> wet deposition averaged across the entire domain is underestimated throughout the year by approximately 20-50 kg/ha. This underestimation increases by approximately 2-10 kg/ha with CMAQv5.3, with the largest increase occuring during the summer. The largest increases in bias in the summer occur in the Midwest and Great Lakes regions. In the fall, the largest increases in bias occur in the upper Midwest, Great Lakes and Northeast regions. Simulating with bi-directional NH<sub>3</sub> exchange (BiDi) turned on greatly improves the wet deposition NH<sub>4</sub> underestimation, particularly in the late spring through early fall. Bias in the summer is reduced by 25-35 kg/ha, while in the spring and fall the bias is reduced by 5-15 kg/ha. This represents a significant reduction in bias and large improvement in model performance for wet deposition NH<sub>4</sub>.
 * **Summary**: Wet deposition SO<sub>4</sub> is generally higher with CMAQv5.3 (versus CMAQv5.2.1), particularly in the winter and spring, resulting in an improvement in the underestimation of wet deposition SO<sub>4</sub>. Wet deposition NO<sub>3</sub> is also higher with CMAQv5.3, resulting in a improvement in bias in the winter, spring and late summer and slight increase in bias in the late summer and fall. Wet deposition NH<sub>4</sub> is generally lower with CMAQv5.3, particularly in the late spring through early fall, which results in increased bias, particularly in the summer. Invoking bi-directional NH<sub>3</sub> exchange greatly improves the underestimation in wet deposition NH<sub>4</sub> in the late spring through early fall.
 
-=======
 <a id=update_v53_v531></a>
 ## What do I need to do to update from v5.3 to v5.3.1?
 CMAQv5.3.1 is a minor bugfix release.  If you have already successfully migrated to v5.3, you will not need to do anything special to maintain default behavior in v5.3.1.  CMAQv5.3.1 comes with new input and output benchmark data for the July 2016 test case over the Southeast US.  The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3 coupled model on the Southeast benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3.1 files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.1 is slightly different from what was released with v5.3 as described in the following FAQ.
@@ -74,14 +72,13 @@ Two updates in v5.3.1 have the potential to change model output.
 1. If running CMAQ with the STAGE option for dry deposition, the [STAGE bugfix ](CMAQv5.3.1_bugfixes.md#5-stage) will lead to small changes in dry deposition fluxes and concentration values. Most of the difference follow a random spatial pattern with the exception of NH<sub>3</sub> dry deposition which shows the effect of including the previously omitted deposition to water in the updated code. This omission was only written to the output file and the impact on ambient concentrations are much smaller and only due to the simplication of the numerics in the STAGE module.   
 2. In the v5.3 release there was a mismatch between the emission stream labels in the 2016 SE benchmark run script and the EmissCtrl file for cb6r3_ae7_aq. The result was that in the benchmark output files, PCSOA was not “switched off” for fire related emissions streams, including wildfires, agricultural burning, and residential wood combustion.  The emission stream labels have now been corrected.  This results in lower PM<sub>2.5</sub> for the 2016 SE benchmark case and updated benchmark output reference files have been posted on the [CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY). The other run scripts in the repository had the correct emissions stream labels, and so are not changed in this release.  
 
-=======
+
 <a id=update_v531_v532></a>
 ## What do I need to do to update from v5.3.1 to v5.3.2?
 
 <a id=diff_v531_v532></a>
 ## What differences should I expect in my model results with v5.3.2 compared to v5.3.1?
 
-=======
 <a id=additional_faq></a>
 ## Additional FAQ
 A more general list of Frequent CMAQ Questions can be found on our website: https://www.epa.gov/cmaq/frequent-cmaq-questions
