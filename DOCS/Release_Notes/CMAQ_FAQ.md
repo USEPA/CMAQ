@@ -74,6 +74,7 @@ Two updates in v5.3.1 have the potential to change model output.
 
 <a id=update_v531_v532></a>
 ## What do I need to do to update from v5.3.1 to v5.3.2?
+CMAQv5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions.  Most notably, several important updates have been made to the Integrated Source Apportionment Method (ISAM). Users of ISAM are strongly encouraged to update to v5.3.2. If you have already successfully migrated to v5.3 or v5.3.1, you will not need to do anything special to maintain default behavior in v5.3.2.  
 
 <a id=diff_v531_v532></a>
 ## What differences should I expect in my model results with v5.3.2 compared to v5.3.1?
