@@ -22,10 +22,7 @@ If the user does not provide an Emission Control File or the path to the file in
 
 The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
 
-## B.2 General Specs
-These variables modify or constrain the effects of other sections of the namelist. The "Guard_XXX" options allow the user to protect specific streams from being modified by scaling rules (explained in section B.3) with the "ALL" keyword in the stream field. For example, the "Guard_BiogenicVOC" option instructs the model not to scale biogenic VOC emissions from the online BEIS module, even if a rule indicates that "ALL" streams are to be scaled. The other "Guard_XXX" options achieve the same effect for other online emissions sources like wind-blown dust, sea spray, marine gas, and lightning NO.
-
-## B.3 Emission Scaling Rules
+## B.2 Emission Scaling Rules
 With the rules present in this section, the user is able to exert sophisticated, precise control over the scaling applied to emissions from specific streams, in specific geographic areas, and/or for specific compounds. The set of rules used by CMAQ to interpret emissions shall be provided in one array called EM_NML. It is necessary that every field (i.e. column) be populated for every rule. The fields are given and defined here and in the comment section of the Emission Control Namelist:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
@@ -53,7 +50,7 @@ With the rules present in this section, the user is able to exert sophisticated,
   - 'm' - find existing scaling instructions matching this rule's features (ie. species, streams, etc) and multiply them by the factor in this particular rule.
   - 'o' - find existing scaling instructions matching this rule and overwrite them.  
 
-### B.3.1 Default Rules
+### B.2.1 Default Rules
 The Emission Control Namelists provided with the CMAQ repo have default rules included that correspond to each chemical mechanism. Here is an example default rule that links NO in CMAQ to NO from every emission stream in every model grid cell with a scale factor of 1.0.
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
@@ -62,10 +59,10 @@ The Emission Control Namelists provided with the CMAQ repo have default rules in
 ```
 Many rules are needed here in order to properly link every emitted pollutant to a CMAQ species. Rules are needed for gas- and aerosol-phase species. Additional rules also exist for online aerosol modules like wind-blown dust and sea spray because the names of aerosol surrogates from these modules are different than those typically used for SMOKE output. For example, fine-mode aerosol sulfate is commonly called PSO4 in SMOKE, but is PMFINE_SO4 from dust and sea spray.
 
-### B.3.2 Modifying Default rules
+### B.2.2 Modifying Default rules
 The user can modify any default rule to change the scale factor applied. Alternatively, the user can add new rules after the default rules to customize the emissions. Typical modifications may include multiplying the emissions of a particular species from a particular stream by a factor of 2, zeroing out emissions of all species from a particular stream, etc. Please see the tutorial on [Prescribing Emissions with DESID](../Tutorials/CMAQ_UG_appendixB_emissions_control.md) for specific examples of modifications and the syntax used to invoke them.
 
-#### B.3.2.1 Supporting the Volatility Basis Set
+#### B.2.2.1 Supporting the Volatility Basis Set
 The *Volatility Basis Set* for treating the semivolatile partitioning of primary organic emissions is an example of a model feature that is well-supported by DESID. The approach involves distributing the emissions of total primary organic aerosol (carbon and noncarbon mass, or POC and PNCOM) among a series of aerosol and gas species of varying volatility.
 
 If the user would like to invoke the nonvolatile partitioning assumption, it can be accomplished by directing all POC and PNCOM emissions to the POC and PNCOM species in CMAQ.
@@ -100,7 +97,7 @@ If the user would like to apply the default volatility distribution to the POA e
 ```
 Notice that for each species (e.g. ALVPO1) a rule is needed to link the species to the emissions of POC and another rule is needed to add PNCOM. This is because both carbon and noncarbon mass are part of the emissions of every semivolatile species. To change the volatility distribution for all streams, the user may modify the scaling factors in the default rules above. To introduce specialized volatility distributions for specific stream (e.g. residential wood burning, forest fires, diesel vehicles, etc), rules may be added which explicitly identify a stream in the "Stream Label" field.
 
-## B.4 Applying Masks for Spatial Dependence
+## B.3 Applying Masks for Spatial Dependence
 Gridded masks are used to apply rules to specific areas of the domain. For example, the following rule:
 ```
 ! Region      | Stream Label  |Emission | CMAQ-        |Phase/|Scale |Basis |Op  
@@ -137,7 +134,7 @@ Two example mask files are available on the CMAS Data Warehouse: US states grid 
 * [Link to metadata for the grid mask files is posted on the CMAS Center Dataverse site](https://doi.org/10.15139/S3/XDYYB9)
 
 
-## B.5 Aerosol Size Distributions
+## B.4 Aerosol Size Distributions
 The treatment of aerosol size distributions in CMAQv5.3 has been updated to be more consistent with the way particle sizes and modes are treated by the National Emission Inventory and in emissions processing tools like SMOKE, MOVES, SPECIATE, and Speciation Tool. Specifically, in these tools, aerosol emissions are typically parameterized into two main modes, Fine and Coarse. Although the size distribution parameters (i.e. total number, diameter, standard deviation, etc.) for these modes will vary among emission sources, previous versions of CMAQ assumed that all primary fine particles had the same size distribution upon emission. Coarse-mode particles were assumed to exhibit a larger diameter but were also uniform across all sources (excluding wind-blown dust and sea spray).
 
 In CMAQv5.3, users link particle emission surrogates to CMAQ particle species via the [EmissionScalingRules](CMAQ_UG_appendixB_emissions_control.md#b3-emission-scaling-rules) section of the Emission Control Namelist. Examples of default mapping rules can be found in any of the Emission Control Namelists in the CMAQ repository. The three lines below assign emissions for all streams for particulate-phase sulfate, ammonium, and nitrate.
@@ -204,8 +201,8 @@ In the example above, fine mode Wind-Blown Dust are linked to 'FINE_WBDUST', sea
 'EVERYWHERE'  , 'ALL'         ,'ALL'    ,'ALL'         ,'FINE',1.0   ,'UNIT','m',
 ```
 
-## B.6 Additional DESID Features
-### B.6.1 Summary Output to Processor-Specific Logfiles
+## B.5 Additional DESID Features
+### B.5.1 Summary Output to Processor-Specific Logfiles
 Diagnostic output is an important feature of the new emissions module, DESID. Because the impact of emissions is so critical for CMAQ predictions and because the features available for scaling emissions are now quite complex, a comprehensive text-based output has been added to the CMAQ logfiles to enhance transparency.
 
 The logfiles now provide several lists of information to help protect users from mistakes like inconsistent naming between emissions and CMAQ speciation. First, CMAQ reports for each stream the number and names of all the surrogate species that were not used. Second, it prints the names of surrogates that the user told it to look for but that it could not find on any of the emission streams. If the environment variable:
@@ -216,7 +213,7 @@ is set to 'Y' or 'True', then the model will abort if it cannot find any individ
 
 Finally, CMAQ loops through streams and outputs the size distribution modes available for each stream and the full list of every emission instructions applied to each stream. These are ordered by CMAQ species (with 'i', 'j', and 'k' modes listed separately) and surrogate species name so that a full understanding of the scaling rules applied to each CMAQ species' emissions can be grasped quickly. Columns are printed for the applicable region(s) of the grid, the phase/mode applied, the input scale factor, the scaling basis, the operation, and the final scale factor applied taking into account any molecular weight conversions, if needed, and size distribution fractions.
 
-### B.6.2 Diagnostic Gridded Output Files
+### B.5.2 Diagnostic Gridded Output Files
 Many complex scaling procedures are now possible with DESID. Users are advised to confirm that the emissions are scaled the way they have intended. One tool to help this step is the Gridded Diagnostic Output. This is enabled on a stream-by-stream basis in the CMAQ RunScript with the following options:
 ```
 # Gridded Emissions Diagnostic files
