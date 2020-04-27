@@ -57,7 +57,21 @@ It should be noted, this issue would have not been seen if the IC file were time
 
 ### Solution in CMAQv5.3.2
 
-The memory issue relating to the tail of the circular buffer is now correctly implemented.
+The memory issue relating to the tail of the circular buffer is now correctly implemented. The head and tail of this file is now automatically set to the start date and time of the simulation for all species.
+
+### Files Affected 
+CCTM/src/cio/centralized_io_module.F
+
+## 5. Bugfix for Runscript Variable EMIS_SYM_DATE
+[David Wong](mailto:dwongepa@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+
+The second issue is the inability to run with the EMIS_SYM_DATE flag due inconsistent implementation between cio and the emissions modules. The EMIS_SYM_DATE flag has subsequently been removed from the runscripts to avoid confusion as the behavior of this flag is unconventional and cannot be explained in a concise manner. To learn more about this flag please visit [Appendix A](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md).
+
+### Solution in CMAQv5.3.2
+
+EMIS_SYM_DATE is now consistent beween both DESID and CIO. The implementation flows the following logic: Using EMIS_SYM_DATE you can change the default behavior of a stream that you have. E.g. If you set EMIS_SYM_DATE to TRUE, the default for every stream will be TRUE (meaning it will expect each stream to be of representative day type) – you can still override this behavior for specific streams via the individual streams GR_EM_SYM_DATE variable. For further information you can look here
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F
