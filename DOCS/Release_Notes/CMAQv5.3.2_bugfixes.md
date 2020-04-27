@@ -39,7 +39,25 @@ Using a 2-D and/or 3-D Gridded Emission File with representative day format spec
 
 ### Solution in CMAQv5.3.2
 
-The information is now properly passed on to the variable required to extract the data from the netCDF file
+The information is now properly passed on to the variable required to extract the data from the netCDF file.
+
+### Files Affected 
+CCTM/src/cio/centralized_io_module.F
+
+## 4. Centralized I/O (CIO) Bugfix for Initial Conditions Caused by Representative Day 2-D & 3-D Surface Gridded Emissions Files
+[David Wong](mailto:dwongepa@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+
+Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration). set to T, will prompt the centralized i/o module to store the start date of the file. However a memory issue related to the implementation of 2-D or 3-D Emission file is a representative day type will occur. This issue stems from the choice to psuedo-interpolate the initial conditions (ICs) instead of extracting them directly, which is problematic if an emissions file is a 2-D or 3-D Emissions file of representative type. This is because to linearly interpolate temporally, two points are required stored as the head and tail. The head was stored correctly, but the tail was not being stored correctly and was picking up from whatever was in memory last, which usually is the 2-D/3-D Gridded Emissions file. This resulted in an error when trying to extract the data at the second point as the IC file only has data at the head.
+
+If no emissions are present, it would pick the point from whatever file was read last whether that be a MET file, bioseason file,  lightning file or IC file. 
+
+It should be noted, this issue would have not been seen if the IC file were time independent as IOAPI ignores the time input when trying to extract data from time independent files.
+
+### Solution in CMAQv5.3.2
+
+The memory issue relating to the tail of the circular buffer is now correctly implemented.
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F
