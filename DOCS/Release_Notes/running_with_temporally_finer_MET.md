@@ -1,4 +1,4 @@
-# Enable run with temporally fine scale MET (Enhancement)
+# Running with temporally fine scale MET (Enhancement)
  
 **Author/P.O.C.:** [D. Wong](mailto:wong.david-c@epa.gov), Center for Environmental Measurement and Modeling (CEMM), U.S. EPA
  
