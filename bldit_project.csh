@@ -17,7 +17,7 @@
 #> directory.
 
 
- set CMAQ_HOME = /home/username/CMAQ_Project
+ set CMAQ_HOME = /home/bmurphy/cmaq_projects/bldrxn
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,
@@ -27,6 +27,7 @@
 
  #Utilities
  set EXT_JPROC = Y 
+ set EXT_MECH_BUILD = Y 
 
  # Pre-Processing Tools
  set EXT_BCON = Y 
@@ -118,6 +119,21 @@
     endif
     cp UTIL/jproc/scripts/bldit_jproc.csh $CMAQ_HOME/UTIL/jproc/scripts/bldit_jproc.csh
     cp UTIL/jproc/scripts/run_jproc.csh $CMAQ_HOME/UTIL/jproc/scripts/run_jproc.csh
+ endif
+
+#===============================================================================
+#> Copy CHEMMECH and CREATE_EBI scripts
+#===============================================================================
+ if ( $EXT_MECH_BUILD == 'Y' ) then
+    if ( ! -e "$CMAQ_HOME/UTIL/chemmech/scripts" ) then
+       mkdir -pv $CMAQ_HOME/UTIL/chemmech/scripts
+    endif
+    cp UTIL/chemmech/scripts/bldit_chemmech.csh $CMAQ_HOME/UTIL/chemmech/scripts/bldit_chemmech.csh
+    cp UTIL/chemmech/scripts/run_chemmech.csh $CMAQ_HOME/UTIL/chemmech/scripts/run_chemmech.csh
+    
+    if ( ! -e "$CMAQ_HOME/UTIL/create_ebi/scripts" ) then
+       mkdir -pv $CMAQ_HOME/UTIL/create_ebi/scripts/bldrun_create_ebi.csh
+    endif
  endif
 
 #===============================================================================

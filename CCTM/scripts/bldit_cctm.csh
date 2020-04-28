@@ -98,9 +98,9 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
  set Mechanism = cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
- set ModGas    = gas/ebi_${Mechanism}       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
-                                            #> use gas/ros3 or gas/smvgear for a solver independent 
-                                            #  of the photochemical mechanism
+ set ChemSolver= ebi                        #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+ set ModGas    = gas/${ChemSolver}          #> use gas/ros3 or gas/smvgear for a solver independent 
+                                            #  of the photochemical mechanism [ default: ebi ]
  set ModAero   = aero/aero7                 #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7              #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
                                             #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
@@ -238,6 +238,17 @@ set make_options = "-j"                #> additional options for make command if
  
 #> Mechanism location
  set ModMech = MECHS/$Mechanism        #> chemical mechanism module
+
+#> Build Mechanism Files and Put them back in the Mechanism
+#> folder of the Repo. Gitignore will be set to ignore them
+ 
+
+#> if EBI Chemical Solver is set, build mechanism-dependent 
+#> EBI files in repo folder.
+ if ( $ChemSolver == ebi ) then
+    # 
+
+ endif
 
 #> Cloud chemistry options
  if ( $Mechanism == cb6r3m_ae7_kmtbr ) then
@@ -509,7 +520,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
 
  set text = "gas chemistry solvers"
  echo "// " $text                                                  >> $Cfile
- set text = "smvgear, ros3, and ebi_<mech>; see 'gas chemistry mechanisms' for <mech>"
+ set text = "smvgear, ros3, and ebi; see 'gas chemistry mechanisms' for <mech>"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModGas};"                                          >> $Cfile
  echo                                                              >> $Cfile
