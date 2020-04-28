@@ -5,8 +5,7 @@
 ## Brief Description
 The vertical distribution algorithm (Kang et al., 2019) is composed of two Gaussian normal distributions centered (mean)
 at two pressure levels with different standard deviation. The first distribution has mean of 350 hPa and standard deviation
-of 200 hpa and the second distribution has the mean of 600 hPa and a standard deviation of 50 hPa as shown in the following plots:
-![VerticalDistribution](SingleVerticalDistubution.jpg) 
+of 200 hpa and the second distribution has the mean of 600 hPa and a standard deviation of 50 hPa.
 
 At each model layer, the weight (W) is the combination of the PDFs from each of the distribution. To distribute the column
 LNO corrected, two conditions apply: (1) the total W across all the layers should be 1, and (2) the shape of the vertical profile
