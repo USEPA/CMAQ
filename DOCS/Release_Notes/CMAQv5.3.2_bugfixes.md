@@ -77,7 +77,7 @@ EMIS_SYM_DATE is now consistent beween both DESID and CIO. The implementation fl
 CCTM/src/cio/centralized_io_module.F
 
 
-## 6. Bug fix and code cleanup to lightning NOx production
+## 6. Bugfix and code cleanup for lightning NOx production
 [Daiwen Kang](mailto:kang.daiwen@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
