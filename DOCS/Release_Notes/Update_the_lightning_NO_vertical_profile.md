@@ -19,9 +19,9 @@ respectively: F1=0.95 and F2=0.12. The resulted vertical weight profile resemble
 This update would change model results when lightning NO is used.
 
 ### References:
-*Kang, D., Pickering, K. E., Allen, D. J., Foley, K. M., Wong, D., Mathur, R., and Roselle, S. J.: Simulating Lightning NOx Production
+* Kang, D., Pickering, K. E., Allen, D. J., Foley, K. M., Wong, D., Mathur, R., and Roselle, S. J.: Simulating Lightning NOx Production
   in CMAQv5.2: Evolution of Scientific Updates, Geosci. Model Dev., 12, 3071-3083, doi:10.5194/gmd-12-3071, 2019.
-*Allen, D. J., Pickering, K. E., Pinder, R. W., Henderson, B. H., Appel, K. W., and Prados, A.: Impact of lightning-NO on eastern 
+* Allen, D. J., Pickering, K. E., Pinder, R. W., Henderson, B. H., Appel, K. W., and Prados, A.: Impact of lightning-NO on eastern 
   United States photochemistry during the summer of 2006 as determined using the CMAQ model, Atmos. Chem. Phys., 12, 1737–1758, https://doi.org/10.5194/acp-12-1737-2012, 2012.
 
 
