@@ -75,3 +75,17 @@ EMIS_SYM_DATE is now consistent beween both DESID and CIO. The implementation fl
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F
+
+
+## 6. Bug fix and code cleanup to lightning NOx production
+[Daiwen Kang](mailto:kang.daiwen@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+The changes (1) remove redundant calculations related to mapping lat/lon locations to model grid cells - these are no longer needed, (2) make the code better conform with the CIO implementation in v5.3 and on-wards, and (3) remove redundant calculations. These changes do not impact model calculations.
+
+### Solution in CMAQv5.3.2
+The code changes fixed a bug that previously would prevent the CMAQ model from running with lightning NOx using non-lambert projection grid (such as HCMAQ with polar map projection). These changes don’t impact model results.
+
+### Files Affected 
+CCTM/src/emis/emis/LTNG_DEFN.F
+
