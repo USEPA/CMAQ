@@ -127,13 +127,18 @@
  if ( $EXT_MECH_BUILD == 'Y' ) then
     if ( ! -e "$CMAQ_HOME/UTIL/chemmech/scripts" ) then
        mkdir -pv $CMAQ_HOME/UTIL/chemmech/scripts
+       mkdir -pv $CMAQ_HOME/UTIL/chemmech/input
+       mkdir -pv $CMAQ_HOME/UTIL/chemmech/output
     endif
     cp UTIL/chemmech/scripts/bldit_chemmech.csh $CMAQ_HOME/UTIL/chemmech/scripts/bldit_chemmech.csh
     cp UTIL/chemmech/scripts/run_chemmech.csh $CMAQ_HOME/UTIL/chemmech/scripts/run_chemmech.csh
     
     if ( ! -e "$CMAQ_HOME/UTIL/create_ebi/scripts" ) then
-       mkdir -pv $CMAQ_HOME/UTIL/create_ebi/scripts/bldrun_create_ebi.csh
+       mkdir -pv $CMAQ_HOME/UTIL/create_ebi/scripts
+       mkdir -pv $CMAQ_HOME/UTIL/create_ebi/input
+       mkdir -pv $CMAQ_HOME/UTIL/create_ebi/output
     endif
+    cp UTIL/create_ebi/scripts/bldrun_create_ebi.csh $CMAQ_HOME/UTIL/create_ebi/scripts/bldrun_create_ebi.csh
  endif
 
 #===============================================================================

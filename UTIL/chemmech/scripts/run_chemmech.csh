@@ -1,86 +1,114 @@
 #! /bin/csh -f
 
+# ==================================================================
+#> Runtime Environment Options
+# ==================================================================
 
-# Script to run the program CHEMMECH for CMAQv5.2beta
+#> Choose compiler and set up CMAQ environment with correct
+#> libraries using config.cmaq. Options: intel | gcc | pgi
+ setenv compiler intel
 
- set Xpath = ../src               #> Executable directory
- set EXEC  = CHEMMECH                  #> Executable name
-
-#> option to set compiler and build a new executable (not required)
- setenv COMPILER GFORT   #> INTEL, PGF90, or GFORT
- set compile = "F"       #> Compile the COMPILE? T or F
-
-#> compile the program 
- if( ${compile} == "T" )then
-   cd ${Xpath}; make clean; make
-   if( ! ( -e ${EXEC} ) )then
-      echo "failed to compile ${Xpath}/${EXEC}"
-      exit()
-   endif
-   cd ${BASE}
- endif
+ #> Source the config.cmaq file to set the build environment
+ cd ../../..
+ source ./config_cmaq.csh
+       
+#> Set General Parameters for Configuring the Simulation
+ set VRSN      = v532               #> Code Version
 
 #> CMAQv5.1 Mechanism Options: cb05tucl_ae6_aq cb05tump_ae6_aq cb05e51_ae6_aq saprc07tb_ae6_aq saprc07tc_ae6_aq  saprc07tic_ae6i_aq   racm2_ae6_aq 
- set Mechanism = racm2_ae6_aq          #> CMAQ mechanism ID
+ if ( ! $?MECH ) then
+    set MECH      = cb6r3_ae7_aq       #> Mechanism ID
+ endif
+                                                      
+#> Set working, input and output directories
+ set CHEMMECH_DIR = ${CMAQ_HOME}/UTIL/chemmech
+ set WORKDIR =      ${CHEMMECH_DIR}/scripts
+ set INPDIR =       ${CHEMMECH_DIR}/input/${MECH}
+ setenv OUTDIR      ${CHEMMECH_DIR}/output/${MECH}
+
+#> Set the build directory if this was not set above 
+#> (this is where the CMAQ executable is located by default).
+ if ( ! $?BINDIR ) then
+    setenv BINDIR $WORKDIR/BLD_chemmech_${VRSN}_${compilerString}
+ endif
+
+#> Set the name of the executable.
+ setenv EXEC CHEMMECH_${VRSN}.exe
+
+#> compile the program if it does not already exist
+ if ( ! -e ${BINDIR}/${EXEC} ) then
+   cd ${BINDIR}; make clean; make
+   if ( ! ( -e ${EXEC} ) ) then
+      echo "failed to compile ${BINDIR}/${EXEC}"
+      exit()
+   endif
+ endif
+
+# =====================================================================
+#> CHEMMECH Configuration Options
+# =====================================================================
 
 #> option use CMAQ species namelists to determine CGRID species indices
  setenv USE_SPCS_NAMELISTS T
 
- set Opath = ../output/${Mechanism}   #> Output Directory
- set Mpath = ../input/${Mechanism}  #> Directory with mechanism definitions
+# =====================================================================
+#> CHEMMECH Input Files
+# =====================================================================
+
+ setenv MECHDEF         $INPDIR/mech_${MECH}.def
+ setenv MAPPING_ROUTINE "${BINDIR}/map_chemistry_spc.F90"
  
- setenv MECHDEF  $Mpath/mech_${Mechanism}.def
- setenv MAPPING_ROUTINE "${Xpath}/map_chemistry_spc.F90"
- 
- set NML    = ${Mpath}
-# set NML_TR = ../input/trac0 # allows separate directory containing tracer species namelist
- set GC_NML = $NML/GC_${Mechanism}.nml
- set AE_NML = $NML/AE_${Mechanism}.nml
- set NR_NML = $NML/NR_${Mechanism}.nml
- set TR_NML = $NML/Species_Table_TR_0.nml
+ setenv gc_matrix_nml $INPDIR/GC_${MECH}.nml
+ setenv ae_matrix_nml $INPDIR/AE_${MECH}.nml
+ setenv nr_matrix_nml $INPDIR/NR_${MECH}.nml
+ setenv tr_matrix_nml $INPDIR/Species_Table_TR_0.nml
+ #setenv tr_matrix_nml $INPDIR/trac0/Species_Table_TR_0.nml
 
-setenv gc_matrix_nml $GC_NML
-setenv ae_matrix_nml $AE_NML
-setenv nr_matrix_nml $NR_NML
-setenv tr_matrix_nml $TR_NML
-
-set day = ` date "+%b-%d-%Y" `
-  set Opath = ../output/${Mechanism}"-"${day}
-  if( ! ( -d $Opath ) ) mkdir -p $Opath
-
-# output files ................................................................
-
- if( $Opath != ${Mpath} )then
-    \cp -f $MECHDEF  $Opath/.
-    \cp -f $NML/*nml $Opath/.
+ # Check for input folder and if it doesn't exists, try to find it in
+ # the Repository
+ if ( ! -e $INPDIR ) then
+     mkdir -p $INPDIR
+     if ( ! -e ${CMAQ_REPO}/CCTM/src/MECHS/${MECH} ) then
+        echo "Cannot Find Inputs for CHEMMECH. Please put them in ${INPDIR}"
+        exit()
+     endif
+     cp -f ${CMAQ_REPO}/CCTM/src/MECHS/${MECH}/* ${INPDIR}/
+     cp -f ${CMAQ_REPO}/CCTM/src/MECHS/trac0/* ${INPDIR}/
  endif
 
- setenv SPCSDATX    $Opath/SPCS.ext # lists species in mechanism
+# =====================================================================
+#> CHEMMECH Output Files
+# =====================================================================
 
- setenv RXNS_DATA_MODULE $Opath/RXNS_DATA_MODULE.F90
- setenv RXNS_FUNC_MODULE $Opath/RXNS_FUNC_MODULE.F90
- setenv OUTDIR           $Opath
+ # Create Output Folder if it doesn't exist already
+ if ( ! -e $OUTDIR ) then
+     mkdir -p $OUTDIR
+ endif
 
- set KPP_Out_Path = ${Opath}
- if( ! ( -d ${KPP_Out_Path} ) )mkdir -p ${KPP_Out_Path}
+ # Copy input files to Output Directory
+ cp -f $MECHDEF $OUTDIR/
+ cp -f $INPDIR/*nml $OUTDIR/
 
- set KPP_EQN =  mech_${Mechanism}.eqn
- set KPP_SPC =  mech_${Mechanism}.spc
+ # Set Path for Output Files
+ setenv SPCSDATX         ${OUTDIR}/SPCS.ext # lists species in mechanism
+ setenv RXNS_DATA_MODULE ${OUTDIR}/RXNS_DATA_MODULE.F90
+ setenv RXNS_FUNC_MODULE ${OUTDIR}/RXNS_FUNC_MODULE.F90
+ setenv EQNS_KPP_FILE    ${OUTDIR}/mech_${MECH}.eqn
+ setenv SPCS_KPP_FILE    ${OUTDIR}/mech_${MECH}.spc
 
- setenv EQNS_KPP_FILE ${KPP_Out_Path}/${KPP_EQN}
- setenv SPCS_KPP_FILE ${KPP_Out_Path}/${KPP_SPC} 
+# =====================================================================
+#> Run CHEMMECH 
+# =====================================================================
 
- if( !( -e $Xpath/$EXEC ) )then
-  ls -l $Xpath/$EXEC
+ if( !( -e $BINDIR/$EXEC ) )then
+  ls -l $BINDIR/$EXEC
   exit()
  endif
 
- $Xpath/$EXEC
-
- unset echo 
+ $BINDIR/$EXEC
 
  if( ( -e ${RXNS_DATA_MODULE} ) && ( -e ${RXNS_FUNC_MODULE} ) )then
-      echo "output written to ${Opath}"
+      echo "output written to ${OUTDIR}"
  else
       echo "failed to create ${RXNS_DATA_MODULE} or ${RXNS_FUNC_MODULE}"
       exit()

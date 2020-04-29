@@ -7,9 +7,7 @@ else
 endif
 
 ifndef compiler
-# compiler = intel
-# compiler = PGF90
- compiler = gcc
+ compiler = gcc   # other options (intel | pgi )
 endif
 
 ifeq "$(compiler)" "intel"

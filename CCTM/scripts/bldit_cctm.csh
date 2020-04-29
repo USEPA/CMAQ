@@ -51,6 +51,8 @@ set CopySrc                            #> copy the source files into the build d
 #set CopySrcTree                       #> copy the source files and directory tree into the build directory
 #set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
                                        #>   comment out to compile the model (default if not set)
+#set build_mech                         #> uncomment to build mechanism source code files using the 
+                                       #>   chemmech utility.
 set ParOpt                             #> uncomment to build a multiple processor (MPI) executable; 
                                        #>   comment out for a single processor (serial) executable
 #set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf); 
@@ -98,9 +100,16 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
  set Mechanism = cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
- set ChemSolver= ebi                        #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
- set ModGas    = gas/${ChemSolver}          #> use gas/ros3 or gas/smvgear for a solver independent 
+ set ModMech   = MECHS/${Mechanism}
+ set ChemSolver = ebi                       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
+                                            #> use gas/ros3 or gas/smvgear for a solver independent 
                                             #  of the photochemical mechanism [ default: ebi ]
+ if ( $ChemSolver == ebi ) then             
+    set ModGas    = gas/${ChemSolver}_${Mechanism}   
+ else                                       
+    set ModGas    = gas/${ChemSolver}
+ endif
+    
  set ModAero   = aero/aero7                 #> aerosol chemistry module (see $CMAQ_MODEL/CCTM/src/aero)
  set ModCloud  = cloud/acm_ae7              #> cloud chemistry module (see $CMAQ_MODEL/CCTM/src/cloud)
                                             #>   overwritten below if using cb6r3m_ae7_kmtbr mechanism
@@ -236,22 +245,34 @@ set make_options = "-j"                #> additional options for make command if
     set SENS = ""
  endif
  
-#> Mechanism location
- set ModMech = MECHS/$Mechanism        #> chemical mechanism module
+#> Build Mechanism Files and instruct build-make to look
+#> in the CHEMMECH output folder for the files
+ if ( $?build_mech ) then
+    setenv MECH $Mechanism
+    cd ${CMAQ_HOME}/UTIL/chemmech/scripts
+    ./bldit_chemmech.csh $compiler
+    cd ${CMAQ_HOME}/UTIL/chemmech/scripts
+    ./run_chemmech.csh
 
-#> Build Mechanism Files and Put them back in the Mechanism
-#> folder of the Repo. Gitignore will be set to ignore them
- 
+    #> Copy Files Back to Mechanism location
+    cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/* ${ModMech}
 
-#> if EBI Chemical Solver is set, build mechanism-dependent 
-#> EBI files in repo folder.
- if ( $ChemSolver == ebi ) then
-    # 
-
+    #> if EBI Chemical Solver is set, build mechanism-dependent 
+    #> EBI files and instruct build-make to look in the 
+    #> create-ebi output folder for the files.
+    if ( ${ChemSolver} == ebi ) then
+       cd ${CMAQ_HOME}/UTIL/create_ebi/scripts
+       ./bldrun_create_ebi.csh $compiler
+       if ( ! -e ${ModGas} ) then
+          mkdir -p ${ModGas}
+       endif
+       cp -f ${CMAQ_HOME}/UTIL/create_ebi/output/$Mechanism/* ${ModGas}
+       rm -rf ${ModGas}/RXNS_DATA_MODULE.F90
+    endif
  endif
 
 #> Cloud chemistry options
- if ( $Mechanism == cb6r3m_ae7_kmtbr ) then
+ if ( ${Mechanism} == cb6r3m_ae7_kmtbr ) then
     set ModCloud = cloud/acm_ae7_kmtbr
  endif
 

@@ -1,11 +1,15 @@
  
-ifndef COMPILER
-  COMPILER = INTEL
-# COMPILER = PGF90
-# COMPILER = GFORT
+ifndef EXEC
+  MODEL = CREATE_EBI.EXE
+else
+  MODEL = $(EXEC)
+endif
+
+ifndef compiler
+ compiler = gcc   # other options (intel | pgi )
 endif
  
-ifeq ($(COMPILER),INTEL)
+ifeq ($(compiler),intel)
 
   FC = ifort
   CC = icc
@@ -20,9 +24,9 @@ ifeq ($(COMPILER),INTEL)
   CPP = $(FPP)
   CPP_FLAGS  =  
  
-  LINK_FLAGS = -i-static
+  LINK_FLAGS = -static-intel
 
-else ifeq ($(COMPILER),PGF90)
+else ifeq ($(compiler),pgi)
   FC = pgf90
   CC = pgcc
  
@@ -33,10 +37,9 @@ else ifeq ($(COMPILER),PGF90)
   C_FLAGS   = -O2  -DFLDMN=1
   LINK_FLAGS = -Bstatic  -Bstatic_pgi
 
-else ifeq ($(COMPILER),GFORT)
+else ifeq ($(compiler),gcc)
 
    FC    = gfortran
-#  FC    = /usr/local/gcc-4.6/bin/gfortran
    CC    = gcc
    f_FLAGS       = -ffixed-form -ffixed-line-length-132 -O0 -funroll-loops -I. -fcheck=all -fbounds-check
    F_FLAGS       = $(f_FLAGS)
@@ -47,7 +50,7 @@ else ifeq ($(COMPILER),GFORT)
    LINK_FLAGS    = 
 
 else
- ERROR1 = "Makefile not configured to support the specified compiler, $(COMPILER). USER MUST USE INTEL, PGF90 or GFORT options or MODIFY makefile.v50XX."
+ ERROR1 = "Makefile not configured to support the specified compiler, $(compiler). USER MUST USE INTEL, PGF90 or GFORT options or MODIFY makefile.v50XX."
 endif
 
 ifdef ERROR1
@@ -92,8 +95,8 @@ OBJS = module_env_functions.o \
  
 
 #
-cr_ebi_solver: $(OBJS) 
-	$(LOAD) $(LDFLAGS) -o cr_ebi_solver $(OBJS) $(LIBS)
+$(MODEL): $(OBJS) 
+	$(LOAD) $(LDFLAGS) -o $(MODEL) $(OBJS) $(LIBS)
 
 RXNS_DATA_MODULE.o: $(RXNS_DATA_SRC)
 	$(LOAD_F90) -c $(INCLUDES) $(RXNS_DATA_SRC)
@@ -113,8 +116,8 @@ driver.o:  $(SRCDIR)/driver.F
 set_glbldata.o:  $(SRCDIR)/set_glbldata.F 
 	$(LOAD) -c $(INCLUDES) $(SRCDIR)/set_glbldata.F
 
-junit.o:  $(SRCDIR)/junit.f
-	$(LOAD) -c $(INCLUDES) $(SRCDIR)/junit.f
+junit.o:  $(SRCDIR)/junit.F
+	$(LOAD) -c $(INCLUDES) $(SRCDIR)/junit.F
 
 name_index.o:  $(SRCDIR)/name_index.f
 	$(LOAD) -c $(INCLUDES) $(SRCDIR)/name_index.f

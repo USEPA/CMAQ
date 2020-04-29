@@ -46,8 +46,9 @@
 
 #> User choices: working directory and application ID
  set VRSN     = v532                       #> model version
- set EXEC     = chemmech_${VRSN}.exe        #> executable name for this application
- set CFG      = chemmech_${VRSN}.cfg        #> BLDMAKE configuration file name!
+ setenv EXEC    CHEMMECH_${VRSN}.exe       #> executable name for this application
+ setenv CFG     CHEMMECH_${VRSN}.cfg       #> BLDMAKE configuration file name!
+
 
 #============================================================================================
 #> Set up the CHEMMECH build directory under the UTIL directory
@@ -64,13 +65,18 @@
     endif
  endif
 
+#============================================================================================
+#> Copy Chemmech Source Code into new build folder and compile
+#============================================================================================
  cd $Bld
- 
-cd ${Bld}; make clean; make
-if( ! ( -e ${EXEC} ) )then
-   echo "failed to compile ${Bld}/${EXEC}"
-   exit()
-endif
+
+ cp ${CMAQ_REPO}/UTIL/chemmech/src/* $Bld
+
+ cd ${Bld}; make clean; make 
+ if( ! ( -e ${EXEC} ) )then
+    echo "failed to compile ${Bld}/${EXEC}"
+    exit()
+ endif
 
 exit()
 
