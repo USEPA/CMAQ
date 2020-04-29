@@ -4,7 +4,7 @@
 
 ## Brief Description
 
-This implementation within CMAQ's centralized I/O (cio) utilizes the fact that initial conidtion (IC) variables are read in once to enhance code efficiency. Two types of calculation which are applying to non-IC variable: checking a requested time falls within the time stamps of data stored within the circular buffer,  and computing interpolation ratios, are omitted.
+This implementation within CMAQ's centralized I/O (cio) utilizes the fact that initial condition (IC) variables are read in once to enhance code efficiency. Two types of calculation which are applying to non-IC variable: checking a requested time falls within the time stamps of data stored within the circular buffer,  and computing interpolation ratios, are omitted.
 
 ## Significance and Impact
 
