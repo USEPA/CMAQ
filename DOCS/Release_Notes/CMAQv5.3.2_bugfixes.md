@@ -81,11 +81,10 @@ CCTM/src/cio/centralized_io_module.F
 [Daiwen Kang](mailto:kang.daiwen@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-The changes (1) remove redundant calculations related to mapping lat/lon locations to model grid cells - these are no longer needed, (2) make the code better conform with the CIO implementation in v5.3 and on-wards, and (3) remove redundant calculations. These changes do not impact model calculations.
+The CMAQ model could not be run with lightning NO emissions if the model domain used a non-lambert projection (such as hemispheric CMAQ applications which use a polar sterographic projection).
 
 ### Solution in CMAQv5.3.2
-The code changes fixed a bug that previously would prevent the CMAQ model from running with lightning NOx using non-lambert projection grid (such as HCMAQ with polar map projection). These changes don’t impact model results.
-
+The LTNG_DEFN.F file was updated to (1) remove redundant calculations related to mapping lat/lon locations to model grid cells - these are no longer needed, (2) make the code better conform with the centralized I/O (CIO) implementation in v5.3 and on-wards, and (3) remove redundant calculations. These changes do not impact model calculations. 
 ### Files Affected 
 CCTM/src/emis/emis/LTNG_DEFN.F
 
