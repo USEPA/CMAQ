@@ -23,7 +23,7 @@ C***********************************************************************
 C
 C  FUNCTION: To calculate rates of reactions
 C
-C  PRECONDITIONS: For the CB6R3_AE6_AQ mechanism
+C  PRECONDITIONS: For the CB6MP_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C

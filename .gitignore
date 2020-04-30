@@ -42,9 +42,6 @@
 *.swp
 *~
 
-#mechanism-dependent EBI files
-CCTM/src/gas/ebi/
-
 #library symbolic links
 lib/
 

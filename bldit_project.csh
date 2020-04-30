@@ -122,7 +122,7 @@
  endif
 
 #===============================================================================
-#> Copy CHEMMECH and CREATE_EBI scripts
+#> Copy CHEMMECH, INLINE_PHOT_PREPROC and CREATE_EBI scripts
 #===============================================================================
  if ( $EXT_MECH_BUILD == 'Y' ) then
     if ( ! -e "$CMAQ_HOME/UTIL/chemmech/scripts" ) then
@@ -133,6 +133,13 @@
     cp UTIL/chemmech/scripts/bldit_chemmech.csh $CMAQ_HOME/UTIL/chemmech/scripts/bldit_chemmech.csh
     cp UTIL/chemmech/scripts/run_chemmech.csh $CMAQ_HOME/UTIL/chemmech/scripts/run_chemmech.csh
     
+    if ( ! -e "$CMAQ_HOME/UTIL/inline_phot_preproc/scripts" ) then
+       mkdir -pv $CMAQ_HOME/UTIL/inline_phot_preproc/scripts
+       mkdir -pv $CMAQ_HOME/UTIL/inline_phot_preproc/input
+       mkdir -pv $CMAQ_HOME/UTIL/inline_phot_preproc/output
+    endif
+    cp UTIL/inline_phot_preproc/scripts/bldrun.inline_phot_preproc.csh $CMAQ_HOME/UTIL/inline_phot_preproc/scripts/bldrun.inline_phot_preproc.csh
+
     if ( ! -e "$CMAQ_HOME/UTIL/create_ebi/scripts" ) then
        mkdir -pv $CMAQ_HOME/UTIL/create_ebi/scripts
        mkdir -pv $CMAQ_HOME/UTIL/create_ebi/input

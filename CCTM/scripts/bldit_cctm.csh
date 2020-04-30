@@ -99,11 +99,13 @@ set make_options = "-j"                #> additional options for make command if
                                             #>     (see $CMAQ_MODEL/CCTM/src/spcs)
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
+
  set Mechanism = cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModMech   = MECHS/${Mechanism}
+ 
  set ChemSolver = ebi                       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
                                             #> use gas/ros3 or gas/smvgear for a solver independent 
-                                            #  of the photochemical mechanism [ default: ebi ]
+                                            #> of the photochemical mechanism [ default: ebi ]
  if ( $ChemSolver == ebi ) then             
     set ModGas    = gas/${ChemSolver}_${Mechanism}   
  else                                       
@@ -249,13 +251,25 @@ set make_options = "-j"                #> additional options for make command if
 #> in the CHEMMECH output folder for the files
  if ( $?build_mech ) then
     setenv MECH $Mechanism
+    if ( ! -e ${CMAQ_REPO}/CCTM/src/${ModMech} ) then
+        echo "$Mechanism is not a valid mechanism in the CMAQ Repository. "
+        echo "    Please select a valid mechanism from CCTM/src/MECHS."
+        exit()
+    endif
     cd ${CMAQ_HOME}/UTIL/chemmech/scripts
     ./bldit_chemmech.csh $compiler
     cd ${CMAQ_HOME}/UTIL/chemmech/scripts
     ./run_chemmech.csh
 
     #> Copy Files Back to Mechanism location
-    cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/* ${ModMech}
+    cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModMech}
+    cd ${CMAQ_REPO}/CCTM/src/${ModMech}
+    rm -rf *.ext *.csv *.eqn *.html *.md *.spc wiki* Species_Table_TR_0.nml 
+
+    #> Build CSQY Data Table for Inline Photolysis
+    cd ${CMAQ_HOME}/UTIL/inline_phot_preproc/scripts
+    ./bldrun.inline_phot_preproc.csh $compiler
+    cp -f ${CMAQ_HOME}/UTIL/inline_phot_preproc/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModMech}
 
     #> if EBI Chemical Solver is set, build mechanism-dependent 
     #> EBI files and instruct build-make to look in the 
@@ -263,11 +277,11 @@ set make_options = "-j"                #> additional options for make command if
     if ( ${ChemSolver} == ebi ) then
        cd ${CMAQ_HOME}/UTIL/create_ebi/scripts
        ./bldrun_create_ebi.csh $compiler
-       if ( ! -e ${ModGas} ) then
-          mkdir -p ${ModGas}
+       if ( ! -e ${CMAQ_REPO}/CCTM/src/${ModGas} ) then
+          mkdir -p ${CMAQ_REPO}/CCTM/src/${ModGas}
        endif
-       cp -f ${CMAQ_HOME}/UTIL/create_ebi/output/$Mechanism/* ${ModGas}
-       rm -rf ${ModGas}/RXNS_DATA_MODULE.F90
+       cp -f ${CMAQ_HOME}/UTIL/create_ebi/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModGas}
+       rm -rf ${CMAQ_REPO}/CCTM/src/${ModGas}/RXNS_DATA_MODULE.F90
     endif
  endif
 

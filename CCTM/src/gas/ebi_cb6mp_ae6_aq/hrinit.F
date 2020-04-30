@@ -23,7 +23,7 @@ C***********************************************************************
 C
 C  FUNCTION: To initialize species tolerances, arrays, and indices
 C
-C  PRECONDITIONS: For the CB6R3_AE6_AQ mechanism
+C  PRECONDITIONS: For the CB6MP_AE6_AQ mechanism
 C
 C  RETURN VALUES: None
 C

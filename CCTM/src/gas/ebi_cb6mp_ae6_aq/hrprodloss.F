@@ -23,7 +23,7 @@ C***********************************************************************
 C
 C  FUNCTION: To compute the production and loss rates for EBI species
 C
-C  PRECONDITIONS: For the CB6R3_AE6_AQ mechanism
+C  PRECONDITIONS: For the CB6MP_AE6_AQ mechanism
 C
 C  RETURN VALUES: None
 C

@@ -25,7 +25,7 @@ C
 C  FUNCTION: To solve for the concentration of NO2, NO, O3, and O3P
 C            algebraically.
 C
-C  PRECONDITIONS: For the CB6R3_AE6_AQ mechanism
+C  PRECONDITIONS: For the CB6MP_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C

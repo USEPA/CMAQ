@@ -26,7 +26,7 @@ C  PRECONDITIONS: For the SAPRC07TIC_AE7I_AQKMT2 mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Apr 29, 2020
+C  REVISION HISTORY: Created by EBI solver program, Apr 30, 2020
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,

@@ -6,8 +6,8 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/bmurphy/cmaq_projects/bldrxn/UTIL/chemmech/input/saprc07tic_ae7i_aqkmt2/mech_saprc07tic_ae7i_aqkmt2.def
-! for Mechanism Name: SAPRC07TIC_AE7I_AQKMT2          
+! Source file: /home/bmurphy/cmaq_projects/bldrxn/UTIL/chemmech/input/saprc07tic_ae7i_aq/mech_saprc07tic_ae7i_aq.def
+! for Mechanism Name: SAPRC07TIC_AE7I_AQ          
 
 ! This file is used to create mechanism data and functions
 
@@ -84,7 +84,7 @@
 !    NHETERO   = Number of unique heteorogenous rate constants
 !    IHETERO   = Reactions list pointer to heteorogenous reactions and tables
 
-      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'SAPRC07TIC_AE7I_AQKMT2'
+      CHARACTER( 32 ), PARAMETER :: MECHNAME = 'SAPRC07TIC_AE7I_AQ'
 
       INTEGER, PARAMETER :: N_GAS_CHEM_SPC = 205
       INTEGER, PARAMETER :: NUMB_MECH_SPC  = 230

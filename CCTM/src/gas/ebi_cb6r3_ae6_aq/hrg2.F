@@ -28,7 +28,7 @@ C  PRECONDITIONS: For the CB6R3_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug  6, 2019
+C  REVISION HISTORY: Created by EBI solver program, Apr 30, 2020
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C**********************************************************************

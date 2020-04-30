@@ -5,7 +5,7 @@
 
 
 
-! Name of Mechanism CB6R3_AE7_AQKMT2
+! Name of Mechanism CB6R3_AE7_AQ
 
        PUBLIC             :: CALC_RCONST, SPECIAL_RATES, MAP_CHEMISTRY_SPECIES
 

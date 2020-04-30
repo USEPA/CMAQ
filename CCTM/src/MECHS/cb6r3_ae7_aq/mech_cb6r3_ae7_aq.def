@@ -20,7 +20,7 @@
 ! 040319 HOT Pye: IEPOX uptake now consumes inorganic sulfate
 !
 !---------------------------------
-CB6R3_AE7_AQKMT2
+CB6R3_AE7_AQ
 
 REACTIONS[CM] =
 
