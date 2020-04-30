@@ -88,3 +88,33 @@ The LTNG_DEFN.F file was updated to (1) remove redundant calculations related to
 ### Files Affected 
 CCTM/src/emis/emis/LTNG_DEFN.F
 
+## 7. Update Warnings for "Missing Variables" to Errors
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+When variables are missing from input files but requested by the model, CMAQ produces a warning and then exits with a 'stop' command, providing no error message to indicate the problem. 'Stop' commands are generally to be avoided.  
+
+### Solution in CMAQv5.3.2
+Revised 'stop' commands to call m3exit instead with an appropriate error message instructing the user of the nature of the error.
+
+### Files Affected 
+CCTM/src/cio/centralized_io_module.F  
+CCTM/src/aero/aero6/aero_subs.F90  
+CCTM/src/aero/aero6/SOA_DEFN.F90  
+CCTM/src/driver/driver.F  
+CCTM/src/emis/emis/EMIS_DEFN.F  
+CCTM/src/util/util/setup_logdev.F  
+
+## 8. Resolve errors in unmatched emission aerosol modes and diagnostic output
+[Ben Murphy](mailto:murphy.ben@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue and solution in CMAQv5.3.2
+This bugfix restores the emissions diagnostic output procedure to full functionality, regardless of time step. Previously, the algorithm would fail if the time step was an odd number of seconds.
+
+There was also a missing error-check in the case that a user references an aerosol mode in their Emission Control file that does not exist in the AERO_DATA reference table. This error was previously caught if the user were adding a mode in addition to fine and coarse modes, but not if they were reassigning the properties of the fine and coarse aerosol modes.
+
+There are also important corrections to the diagnostic calculation and units of aerosol number, mass and surface area for the emission diagnostic files. Everything is consistent on NetCDF files now. 
+
+### Files Affected 
+CCTM/src/aero/aero6/AERO_EMIS.F  
+CCTM/src/emis/emis/EMIS_DEFN.F  
