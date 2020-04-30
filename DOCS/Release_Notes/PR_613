@@ -1,5 +1,0 @@
-This implementation utilizes the fact that IC variables are read in once to enhance code efficiency. 
-Two types of calculation which are applying to non-IC variable: checking a requested time falls within 
-the time stamps of data stored within the circular buffer,  and computing interpolation ratios, are omitted.
-
-This pull request does not alter any result.
