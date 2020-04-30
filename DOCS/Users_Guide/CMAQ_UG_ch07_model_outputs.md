@@ -98,26 +98,27 @@ The 2-D or 3-D CCTM integral average concentration file contains average model s
 
 The 2-D CCTM dry deposition file contains cumulative hourly dry deposition fluxes (kg hectare<sup>-1</sup>) for selected model species. CCTM calculates dry deposition for all of the species listed in the dry deposition column of the [Species NameLists files](CMAQ_UG_ch04_model_inputs.md#matrix_nml) within the mechanism directories. The GC_*mechname*.nml file lists the gas-phase species, the AE_*mechname*.nml file lists the aerosol species, and the NR_*mechname*.nml lists the nonreactive (inert) species. Species can be removed from the dry deposition file by editing the DDEP column in the NameList file(s).
 
-##### Defining NH3 flux components 
-CMAQ v5.3 and later contains two build-time options for calculating dry deposition/surface exchange: M3DRY and STAGE. (See Section 6.8 for further information).  Both options support modeling ammonia bidirectional surface flux which is a run-time option controlled by setting CTM_ABFLUX to Y or N.  The definition of the NH3 flux components in the CCTM_DRYDEP file will depend on whether or not bidirectional NH3 flux option has been enabled.  When the model is run without the bidirectional NH3 flux option enabled (CTM_ABFLUX set to N), the variable NH3 in the CCTM_DRYDEP file represents the unidirectional NH3 dry deposition flux in both STAGE and M3DRY.
+##### Defining NH<sub>3</sub> flux components 
+CMAQ v5.3 and later contains two build-time options for calculating dry deposition/surface exchange: M3DRY and STAGE. (See Section 6.8 for further information).  Both options support modeling ammonia bidirectional surface flux which is a run-time option controlled by setting CTM_ABFLUX to Y or N.  The definition of the NH3 flux components in the CCTM_DRYDEP file will depend on whether or not bidirectional NH<sub>3</sub> flux option has been enabled.  When the model is run without the bidirectional NH<sub>3</sub> flux option enabled (CTM_ABFLUX set to N), the variable NH3 in the CCTM_DRYDEP file represents the unidirectional ammonia dry deposition flux in both STAGE and M3DRY.
 
 When the model is run with CTM_ABFLUX set to Y, the CCTM_DRYDEP file will contain additional NH3 flux components defined in Table 7-2.
+
 <a id=Table7-2></a>
-Table 7-2. NH3 Flux components in CCTM_DRYDEP Output files when ammonia bidirectional surface flus is enabled
+**Table 7-2. NH3 Flux components in CCTM_DRYDEP Output files when ammonia bidirectional surface flus is enabled**
 
 |**Variable Name**|**Variable Description**|
-|:-:|:----------------------------:|
+|:----:|:----------------------------:|
 |NH3|Downward Deposition Flux (always positive)  |	
 |NH3_Emis|Upward Emissions Flux (always positive)	   |  
 |NH3_Flux|Net Flux (positive if downward and negative if upward)  | 
 |NH3_Stom*|NH3 flux from leaf stomatal pathways (positive values are emissions and negative values are deposition) |
 |NH3_Cut*|NH3 flux from leaf cuticular pathways (positive values are emissions and negative values are deposition) |
 |NH3_Soil*|NH3 flux from soil pathways (positive values are emissions and negative values are deposition) |
-|NH3_Ag*| NH3 flux over agriculture land use (positive values are emissions and negative values are deposition)|
+|NH3_Ag*|NH3 flux over agriculture land use (positive values are emissions and negative values are deposition)|
 |NH3_Nat*|NH3 flux over non-agriculture land use (positive values are emissions and negative values are deposition) |
-|NH3_Wat*| NH3 flux over water bodies (positive values are emissions and negative values are deposition) |
+|NH3_Wat*|NH3 flux over water bodies (positive values are emissions and negative values are deposition) |
 
-\*Additional diagnostic deposition values available when using the STAGE dry deposition option with bi-directional NH3 flux enabled
+\*Additional diagnostic deposition values available when using the STAGE dry deposition option with bi-directional ammonia flux enabled.
 
 <a id=wetdep></a>
 
