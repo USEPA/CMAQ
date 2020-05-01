@@ -31,12 +31,11 @@ C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
+C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
 C                        real(8) variables
-C   27 Dec 19 S.Napelenok: ddm-3d implementation for v5.3.1
 C**********************************************************************
 
       USE RUNTIME_VARS
@@ -47,11 +46,10 @@ C**********************************************************************
 #ifdef isam
       USE SA_IRR_DEFN
 #endif
-
 #ifdef sens
-      USE DDM3D_CHEM, ONLY: YCDDM, DDM_CHECK, N_EBI_MID, ODD_STEPS
+      USE DDM3D_CHEM, ONLY: YCDDM
       USE CGRID_SPCS, ONLY: GC_SPC
-#endif 
+#endif
 
 
       IMPLICIT NONE
@@ -175,15 +173,7 @@ C**********************************************************************
        END IF
 
 #ifdef sens
-      DO S = 1, N_SPEC
-         DDM_CHECK( S ) = .FALSE.
-      END DO
-      N_EBI_MID = CEILING( N_EBI_STEPS / 2.0 )
-      IF ( MOD( N_EBI_STEPS, 2 ) .EQ. 1 ) THEN
-         ODD_STEPS = .TRUE.
-      ELSE
-         ODD_STEPS = .FALSE.
-      END IF
+       YCDDM = 0.0D0
 #endif
 
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
@@ -255,7 +245,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          SUBSTEP_EBI: DO NINR = 1, N_INR_STEPS   ! time substeps loop
 !  first attempt is sub time-step equals EBI time-step
 
-            IF( LEBI_CONV ) FORALL( S = 1:NUMB_MECH_SPC )YC0( S ) = YC( S )   ! Set ICs for EBI iterations
+            IF( LEBI_CONV ) YC0 = YC   ! Set ICs for EBI iterations
 
             ITER_SUBSTEP: DO ITER = 1, NEBITER  ! iteration loop solving for sub time-step
 
@@ -383,14 +373,9 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #endif
 
 #ifdef sens
-C YCDDM is the value at the middle time step
-                  IF ( N_EBI_MID .EQ. NEBI ) THEN
-                   DO S = 1, NUMB_MECH_SPC
-                     DDM_CHECK ( S ) = .TRUE.
-                     YCDDM( S ) = YC( S )
-                     IF ( YCDDM( S ) .LT. 1.e-25) YCDDM( S ) = 0.0
-                   END DO
-                  END IF
+C Update the sum for the average over the chemistry integration
+                 YCDDM = YCDDM
+     &                 + ( ( 0.5D0 * DTC ) * ( YC + YC0 )  )
 #endif
 
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step
@@ -419,7 +404,7 @@ C YCDDM is the value at the middle time step
                   END DO
                END IF
 
-               FORALL( S = 1:NUMB_MECH_SPC )YC( S ) = YC0( S )   ! Set ICs for EBI time-step
+               YC = YC0   ! Set ICs for EBI time-step
 
                DTC = 0.5D0 * DTC
 
@@ -447,7 +432,7 @@ C YCDDM is the value at the middle time step
          IF( LEBI_CONV )THEN
              NEBI        = 1 + NEBI
 ! test for completing final EBI time-step
-             IF( NEBI .GT. N_EBI_STEPS )RETURN
+             IF( NEBI .GT. N_EBI_STEPS )EXIT TSTEP_EBI
 ! test whether backups were done
              IF( NBKUPS .EQ. 0 )CYCLE TSTEP_EBI
 ! Reset NBKUPS, N_INR_STEPS and sub-time step
@@ -459,14 +444,11 @@ C YCDDM is the value at the middle time step
       END DO TSTEP_EBI
 
 #ifdef sens
-      DO S = 1, N_SPEC
-         IF ( .NOT. DDM_CHECK( S ) ) THEN
-            MSG = 'ERROR: HRSOLVER failed to assign YCDDM to ' //
-     &             GC_SPC( S )
-            CALL M3EXIT( PNAME, JDATE, JTIME, MSG, STAT )
-         END IF
-      END DO
+! Compute average over integration and filter values
+      YCDDM = YCDDM / CHEMSTEP
+      WHERE (  YCDDM .LT. 1.0D-25 ) YCDDM = 0.0D0
 #endif
+
 
       RETURN
 
