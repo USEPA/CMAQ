@@ -40,7 +40,7 @@
    cd ${BINDIR}; make clean; make
    if ( ! ( -e ${EXEC} ) ) then
       echo "failed to compile ${BINDIR}/${EXEC}"
-      exit()
+      exit 1
    endif
  endif
 
@@ -70,7 +70,7 @@
      mkdir -p $INPDIR
      if ( ! -e ${CMAQ_REPO}/CCTM/src/MECHS/${MECH} ) then
         echo "Cannot Find Inputs for CHEMMECH. Please put them in ${INPDIR}"
-        exit()
+        exit 1
      endif
      cp -f ${CMAQ_REPO}/CCTM/src/MECHS/${MECH}/* ${INPDIR}/
      cp -f ${CMAQ_REPO}/CCTM/src/MECHS/trac0/* ${INPDIR}/
@@ -102,7 +102,7 @@
 
  if( !( -e $BINDIR/$EXEC ) )then
   ls -l $BINDIR/$EXEC
-  exit()
+  exit 1
  endif
 
  $BINDIR/$EXEC
@@ -111,8 +111,7 @@
       echo "output written to ${OUTDIR}"
  else
       echo "failed to create ${RXNS_DATA_MODULE} or ${RXNS_FUNC_MODULE}"
-      exit()
+      exit 1
  endif
 
- exit()
 

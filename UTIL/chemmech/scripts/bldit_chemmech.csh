@@ -30,7 +30,7 @@
  else
    echo "usage: $0 <compiler>"
    echo " where <compiler> is intel, pgi or gcc"
-   exit(2)
+   exit 1
  endif
 
 #> Source the config.cmaq file to set the build environment
@@ -75,8 +75,7 @@
  cd ${Bld}; make 
  if( ! ( -e ${EXEC} ) )then
     echo "failed to compile ${Bld}/${EXEC}"
-    exit()
+    exit 1
  endif
 
-exit()
 

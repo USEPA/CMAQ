@@ -84,7 +84,7 @@
           if ( ! -e ${CMAQ_REPO}/CCTM/src/MECHS/${MECH}/RXNS_DATA_MODULE.F90 ) then
              echo 'RXNS_DATA_MODULE input file does not exist'
              ls ${RXNS_DATA_SRC}
-             exit()
+             exit 1
           else
              cp ${CMAQ_REPO}/CCTM/src/MECHS/${MECH}/RXNS_DATA_MODULE.F90 $RXNS_DATA_SRC
           endif
@@ -126,7 +126,7 @@ setenv N_WAVEBANDS_OUT 7
  cd $BLDIR ; make -f inline_phot_preproc.makefile
  if( ! ( -e ${EXEC} ) )then
     echo "failed to compile ${BLDIR}/${EXEC}"
-    exit()
+    exit 1
  endif
 
 #set up input data file directories
@@ -177,4 +177,3 @@ echo "Check directory ${OUTDIR} for CSQY_DATA_${MECH} and PHOT_OPTICS.dat files"
 echo " "
 echo " "
 
- exit()

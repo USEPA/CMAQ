@@ -106,7 +106,7 @@
  cd ${BLDIR}; make 
  if( ! ( -e ${EXEC} ) )then
     echo "failed to compile ${BLDIR}/${EXEC}"
-    exit()
+    exit 1
  endif
 
 
@@ -115,20 +115,16 @@
 #============================================================================================
 
 #Set options for the photochemical mechanism
- if ( ${MECH} =~ *"cb6"* ) then
-   setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
-   setenv DEGRADE_SUBS    T    # include calls for HAPs degrade routines (true cb6 mechanisms)  
- else
-   setenv PAR_NEG_FLAG    F    # True for CB6 but false for SAPRC07t and RACM2 
-   setenv DEGRADE_SUBS    F    # include calls for HAPs degrade routines (true cb6 mechanisms)  
- endif
+   setenv DEGRADE_SUBS    T    # include calls for HAPs degrade routines 
 
- setenv SOLVER_DELT     2.5  # maximum time step (minutes) of solver integration up to four 
-                             # significant figures in general or scientific notation
-                             # For saprc07tic based mechanisms, 1.25 minutes is recommended.
-
+ 
 #Set the below compound names within the mechanism
- if ( ${MECH} =~ *"cb"* ) then
+ if ( ${MECH} =~ *"cb"* -o ${MECH} =~ *"CB"* ) then
+   setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
+   setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
+                               # significant figures in general or scientific notation
+                               # For saprc07tic based mechanisms, 1.25 minutes is recommended.
+
    #                 #Mech   #   Mechanism     # Description
    #                         # cb6r3/cb05      #
     setenv MECH_NO    NO     # NO              # Species name for nitric oxide
@@ -144,7 +140,13 @@
     setenv MECH_C2O3  C2O3   # C2O3            # Species name for peroxy acetyl radical
     setenv MECH_NO3   NO3    # NO3             # Species name for nitrate radical
     setenv MECH_N2O5  N2O5   # N2O5            # Species name for dinitrogen pentoxide
- else
+
+ else if ( ${MECH} =~ *"saprc"* -o ${MECH} =~ *"SAPRC"* ) then
+   setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
+   setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
+                               # significant figures in general or scientific notation
+                               # For saprc07tic based mechanisms, 1.25 minutes is recommended.
+
    #                 #Mech   #   Mechanism     # Description
    #                  cb6r3  # SAPRC07/RACM2   #
     setenv MECH_NO    NO     #  NO             # Species name for nitric oxide
@@ -161,6 +163,32 @@
     setenv MECH_NO3   NO3    #  NO3            # Species name for nitrate radical
     setenv MECH_N2O5  N2O5   #  N2O5           # Species name for dinitrogen pentoxide 
 
+ else if ( ${MECH} =~ *"racm"* -o ${MECH} =~ *"RACM"* ) then
+   setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
+   setenv SOLVER_DELT     2.5  # maximum time step (minutes) of solver integration up to four 
+                               # significant figures in general or scientific notation
+                               # For saprc07tic based mechanisms, 1.25 minutes is recommended.
+
+   #                 #Mech   #   Mechanism     # Description
+   #                  cb6r3  # SAPRC07/RACM2   #
+    setenv MECH_NO    NO     #  NO             # Species name for nitric oxide
+    setenv MECH_NO2   NO2    #  NO2            # Species name for nitrogen dioxide
+    setenv MECH_O3    O3     #  O3             # Species name for ozone
+    setenv MECH_O3P   O3P    #  O3P            # Species name for ground state oxygen atom
+    setenv MECH_O1D   O1D    #  O1D            # Species name for excited state oxygen atom
+    setenv MECH_OH    OH     #  OH / HO        # Species name for hydroxyl radical
+    setenv MECH_HO2   HO2    #  HO2            # Species name for hydroperoxy radical
+    setenv MECH_HONO  HONO   #  HONO           # Species name for nitrous acid
+    setenv MECH_HNO4  HNO4   #  HNO4           # Species name for peroxynitric acid
+    setenv MECH_PAN   PAN    #  PAN            # Species name for peroxy acetyl nitrate
+    setenv MECH_C2O3  MECO3  #  MECO3 / ACO3   # Species name for peroxy acetyl radical
+    setenv MECH_NO3   NO3    #  NO3            # Species name for nitrate radical
+    setenv MECH_N2O5  N2O5   #  N2O5           # Species name for dinitrogen pentoxide 
+ 
+ else
+   echo 'Undetermined chemical mechanism: the user must include case defining its key species and options.'
+   echo 'Please update CREATE_EBI with new case'
+   exit 1
  endif
 
 #============================================================================================
@@ -184,4 +212,3 @@
  # Run CREATE_EBI.EXE
  $BLDIR/$EXEC
 
- exit() 
