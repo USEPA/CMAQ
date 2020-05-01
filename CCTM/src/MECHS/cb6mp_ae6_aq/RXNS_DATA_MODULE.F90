@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/bmurphy/cmaq_projects/bldrxn2/UTIL/chemmech/input/cb6mp_ae6_aq/mech_cb6mp_ae6_aq.def
+! Source file: /home/bmurphy/cmaq_projects/bldrxn/UTIL/chemmech/input/cb6mp_ae6_aq/mech_cb6mp_ae6_aq.def
 ! for Mechanism Name: CB6MP_AE6_AQ                    
 
 ! This file is used to create mechanism data and functions

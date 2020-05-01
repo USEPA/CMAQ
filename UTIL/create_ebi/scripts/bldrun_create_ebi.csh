@@ -142,7 +142,7 @@
     setenv MECH_N2O5  N2O5   # N2O5            # Species name for dinitrogen pentoxide
 
  else if ( ${MECH} =~ *"saprc"* || ${MECH} =~ *"SAPRC"* ) then
-   setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
+   setenv PAR_NEG_FLAG    F    # True for CB6 but false for SAPRC07t and RACM2 
    setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
                                # significant figures in general or scientific notation
                                # For saprc07tic based mechanisms, 1.25 minutes is recommended.
@@ -164,7 +164,7 @@
     setenv MECH_N2O5  N2O5   #  N2O5           # Species name for dinitrogen pentoxide 
 
  else if ( ${MECH} =~ *"racm"* || ${MECH} =~ *"RACM"* ) then
-   setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
+   setenv PAR_NEG_FLAG    F    # True for CB6 but false for SAPRC07t and RACM2 
    setenv SOLVER_DELT     2.5  # maximum time step (minutes) of solver integration up to four 
                                # significant figures in general or scientific notation
                                # For saprc07tic based mechanisms, 1.25 minutes is recommended.

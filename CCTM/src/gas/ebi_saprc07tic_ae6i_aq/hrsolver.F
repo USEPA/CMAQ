@@ -29,8 +29,9 @@ C  PRECONDITIONS: For the SAPRC07TIC_AE6I_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
+C                                     DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
+C  REVISION HISTORY: Created by EBI solver program, May  1, 2020
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
@@ -97,6 +98,7 @@ C..SCRATCH LOCAL VARIABLES:
 #ifdef hrdebug
       INTEGER N               ! Loop index
 #endif
+      INTEGER M               ! species index
       INTEGER EBI             ! Loop index
       INTEGER NBKUPS          ! No. of times time step reduced
       INTEGER ERR             ! Allocate error flag
@@ -106,6 +108,7 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL MXFL               ! hit MAXPRED flag
 
       REAL( 8 ) DTC              ! Time step to take
+      REAL( 8 ) DTG         ! Time step in degrade routines, sec
       REAL( 8 ) FXDLOSS          ! Total loss due to negative stoichiometry
       REAL( 8 ) VARLOSS          ! Loss excluding negative stoichiometry
 
@@ -122,6 +125,14 @@ C..SCRATCH LOCAL VARIABLES:
       LOGICAL, SAVE  :: LOPEN = .FALSE.
 #endif
 
+      INTERFACE ! for degrade algorithm
+        SUBROUTINE DEGRADE( CBLK, DT, JDATE, JTIME )
+          REAL( 8 ), INTENT( IN ) :: CBLK( : )      ! array holding species concentrations
+          REAL( 8 ), INTENT( IN ) :: DT             ! time step for integrations [sec]
+          INTEGER,   INTENT( IN ) :: JDATE          ! current model date , coded YYYYDDD
+          INTEGER,   INTENT( IN ) :: JTIME          ! current model time , coded HHMMSS
+        END SUBROUTINE
+      END INTERFACE
 
 C**********************************************************************
 
@@ -337,6 +348,13 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
                IF( LEBI_CONV ) THEN
+
+                DTG = 60.0D0 * DTC
+                DO S = 1, NUMB_MECH_SPC
+                   M = CGRID_INDEX( S )
+                   YCCELL( M ) = YC( S )
+                END DO
+                IF( CALL_DEG )CALL DEGRADE(YCCELL, DTG, JDATE, JTIME) ! :WTH Call degradation routine
 
                  IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )
 #ifdef isam
