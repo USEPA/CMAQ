@@ -92,7 +92,7 @@ C**********************************************************************
 
          FIRSTCALL = .FALSE.
 
-         EFFECTIVE_ZERO  = TINY( CONV_M2N )
+         EFFECTIVE_ZERO  = 5.0D0 * TINY( CONV_M2N )
 
       ENDIF
 

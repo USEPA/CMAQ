@@ -119,7 +119,7 @@
 
  
 #Set the below compound names within the mechanism
- if ( ${MECH} =~ *"cb"* -o ${MECH} =~ *"CB"* ) then
+ if ( ${MECH} =~ *"cb"* || ${MECH} =~ *"CB"* ) then
    setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
    setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
                                # significant figures in general or scientific notation
@@ -141,7 +141,7 @@
     setenv MECH_NO3   NO3    # NO3             # Species name for nitrate radical
     setenv MECH_N2O5  N2O5   # N2O5            # Species name for dinitrogen pentoxide
 
- else if ( ${MECH} =~ *"saprc"* -o ${MECH} =~ *"SAPRC"* ) then
+ else if ( ${MECH} =~ *"saprc"* || ${MECH} =~ *"SAPRC"* ) then
    setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
    setenv SOLVER_DELT     1.25 # maximum time step (minutes) of solver integration up to four 
                                # significant figures in general or scientific notation
@@ -163,7 +163,7 @@
     setenv MECH_NO3   NO3    #  NO3            # Species name for nitrate radical
     setenv MECH_N2O5  N2O5   #  N2O5           # Species name for dinitrogen pentoxide 
 
- else if ( ${MECH} =~ *"racm"* -o ${MECH} =~ *"RACM"* ) then
+ else if ( ${MECH} =~ *"racm"* || ${MECH} =~ *"RACM"* ) then
    setenv PAR_NEG_FLAG    T    # True for CB6 but false for SAPRC07t and RACM2 
    setenv SOLVER_DELT     2.5  # maximum time step (minutes) of solver integration up to four 
                                # significant figures in general or scientific notation
@@ -216,3 +216,4 @@
     echo "CREATE_EBI ($BLDIR/$EXEC) failed for some reason. Halt Build Process!"
     exit 1
  endif
+
