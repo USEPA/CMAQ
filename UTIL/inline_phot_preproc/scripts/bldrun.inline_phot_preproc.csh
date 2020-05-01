@@ -169,6 +169,11 @@ setenv N_WAVEBANDS_OUT 7
 # Execute CSQY_TABLE_PROCESSOR
  $BLDIR/$EXEC >&! bldrun.log
 
+ if ( $? != 0 ) then
+    echo "INLINE_PHOT_PREPROC ($BLDIR/$EXEC) failed for some reason. Halt Build Process!"
+    exit 1
+ end if
+
  cd $WORKDIR
 
 echo " "

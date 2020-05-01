@@ -212,3 +212,7 @@
  # Run CREATE_EBI.EXE
  $BLDIR/$EXEC
 
+ if ( $? != 0 ) then
+    echo "CREATE_EBI ($BLDIR/$EXEC) failed for some reason. Halt Build Process!"
+    exit 1
+ end if
