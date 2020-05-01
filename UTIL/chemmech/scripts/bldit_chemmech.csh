@@ -72,7 +72,7 @@
 
  cp ${CMAQ_REPO}/UTIL/chemmech/src/* $Bld
 
- cd ${Bld}; make 
+ cd ${Bld}; make clean; make 
  if( ! ( -e ${EXEC} ) )then
     echo "failed to compile ${Bld}/${EXEC}"
     exit 1

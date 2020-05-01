@@ -109,7 +109,7 @@
  if ( $? != 0 ) then
     echo "CHEMMECH ($BINDIR/$EXEC) failed for some reason. Halt Build Process!"
     exit 1
- end if
+ endif
 
  if( ( -e ${RXNS_DATA_MODULE} ) && ( -e ${RXNS_FUNC_MODULE} ) )then
       echo "output written to ${OUTDIR}"

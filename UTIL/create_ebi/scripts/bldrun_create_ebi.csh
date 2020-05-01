@@ -103,7 +103,7 @@
  endif
  
  cp -r ${CMAQ_REPO}/UTIL/create_ebi/src/* ${BLDIR}
- cd ${BLDIR}; make 
+ cd ${BLDIR}; make clean; make 
  if( ! ( -e ${EXEC} ) )then
     echo "failed to compile ${BLDIR}/${EXEC}"
     exit 1
@@ -215,4 +215,4 @@
  if ( $? != 0 ) then
     echo "CREATE_EBI ($BLDIR/$EXEC) failed for some reason. Halt Build Process!"
     exit 1
- end if
+ endif

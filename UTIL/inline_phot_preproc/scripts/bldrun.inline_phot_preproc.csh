@@ -123,7 +123,7 @@ setenv N_WAVEBANDS_OUT 7
 
 #>Compile the Executable
  cp -r ${SRCDIR}/* ${BLDIR}
- cd $BLDIR ; make -f inline_phot_preproc.makefile
+ cd $BLDIR ; make clean; make -f inline_phot_preproc.makefile
  if( ! ( -e ${EXEC} ) )then
     echo "failed to compile ${BLDIR}/${EXEC}"
     exit 1
@@ -172,7 +172,7 @@ setenv N_WAVEBANDS_OUT 7
  if ( $? != 0 ) then
     echo "INLINE_PHOT_PREPROC ($BLDIR/$EXEC) failed for some reason. Halt Build Process!"
     exit 1
- end if
+ endif
 
  cd $WORKDIR
 

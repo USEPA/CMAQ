@@ -261,13 +261,13 @@ set make_options = "-j"                #> additional options for make command if
     if ( $? != 0 ) then
       echo "CHEMMECH did not build correctly --> Build Process Halted"
       exit 1
-    end if
+    endif
     cd ${CMAQ_HOME}/UTIL/chemmech/scripts
     ./run_chemmech.csh
     if ( $? != 0 ) then
       echo "CHEMMECH did not run correctly --> Build Process Halted"
       exit 1
-    end if
+    endif
 
     #> Copy Files Back to Mechanism location
     cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModMech}
@@ -280,7 +280,7 @@ set make_options = "-j"                #> additional options for make command if
     if ( $? != 0 ) then
       echo "Preparation of CSQY Table did not build or run correctly --> Build Process Halted"
       exit 1
-    end if
+    endif
     cp -f ${CMAQ_HOME}/UTIL/inline_phot_preproc/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModMech}
 
     #> if EBI Chemical Solver is set, build mechanism-dependent 
@@ -292,7 +292,7 @@ set make_options = "-j"                #> additional options for make command if
        if ( $? != 0 ) then
           echo "CREATE_EBI did not build or run correctly --> Build Process Halted"
           exit 1
-       end if
+       endif
        if ( ! -e ${CMAQ_REPO}/CCTM/src/${ModGas} ) then
           mkdir -p ${CMAQ_REPO}/CCTM/src/${ModGas}
        endif
