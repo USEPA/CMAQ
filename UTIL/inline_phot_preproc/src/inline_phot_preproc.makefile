@@ -146,4 +146,4 @@ $(MODEL): $(OBJECTS)
 	$(CC) $(C_FLAGS) -c $<
 
 clean:
-	rm -f $(OBJECTS) *.o $(BASE)_* *.mod
+	rm -f $(OBJECTS) *.o $(MODEL)_* *.mod

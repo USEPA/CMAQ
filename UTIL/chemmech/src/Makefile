@@ -45,7 +45,7 @@ else ifeq "$(compiler)" "gcc"
  LINK_FLAGS    = 
 
 else
- ERROR1 = "Makefile not configured to support the specified compiler, $(COMPILER). User must modify Makefile."
+ ERROR1 = "Makefile not configured to support the specified compiler, $(compiler). User must modify Makefile."
 endif
  
 ifdef ERROR1
