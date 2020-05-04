@@ -440,7 +440,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 - `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
      Landuse database for identifying dust source regions; ignore if CTM_WB_DUST = FALSE
     - BELD3: Use BELD3 landuse data for windblown dust calculations. The user needs to specify the DUST_LU_1 and DUST_LU_2 files described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). These files typically are available for North American domains only.
-    - BELD4: Use BELD4 landuse data for windblown dust calculations. The user needs to specify the E2C_LU file described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). This file typically is available for North American domains only.
     - UNKNOWN: Use landuse information provided by MCIP for windblown dust calculations
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
@@ -679,8 +678,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `DUST_LU_2 [default: Path to BELD3 Data]`<a id=DUST_LU_2></a>  
     Input BELD "TOT" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
 
--   `E2U_LU [default: path to BELD4 data file]`<a id=BELD4_LU></a>  
-    Input BELD4 landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD4.  
 
 
 <!-- BEGIN COMMENT -->
