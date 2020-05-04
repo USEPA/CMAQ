@@ -118,3 +118,18 @@ There are also important corrections to the diagnostic calculation and units of 
 ### Files Affected 
 CCTM/src/aero/aero6/AERO_EMIS.F  
 CCTM/src/emis/emis/EMIS_DEFN.F  
+
+## 9. Correct Typos in Sample Process Analysis Control File
+[Chris Nolte](mailto:nolte.chris@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+The sample Process Analysis control file for the cb6r3_ae7_aq mechanism and documented in Chapter 9 of the User's Guide had typos in the definitions of two of the IRR output variables (aVOCwithO3 and aVOCwithNO3). These have been corrected so that the definitions match the variable names.
+
+### Solution in CMAQv5.3.2
+The typos in the control files and documentation ave been corrected so that the definitions match the variable names.  These changes have no effect on results for the base model. The process analysis control file that is provided is merely an illustrative example that is intended to be modified by the user for a specific application.
+
+### Files Affected 
+CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl
+CCTM/src/MECHS/cb6r3_ae6_aq/pa_cb6r3_ae6_aq.ctl
+CCTM/src/MECHS/cb6r3_ae7_aqkmt2/pa_cb6r3_ae7_aq.ctl
+DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.md
