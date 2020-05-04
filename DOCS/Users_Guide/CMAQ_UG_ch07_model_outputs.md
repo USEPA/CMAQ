@@ -101,7 +101,7 @@ The 2-D CCTM dry deposition file contains cumulative hourly dry deposition fluxe
 ##### NH<sub>3</sub> flux components in CCTM_DRYDEP
 CMAQ v5.3 and later contains two build-time options for calculating dry deposition/surface exchange: M3DRY and STAGE. (See [Section 6.8 ](CMAQ_UG_ch06_model_configuration_options.md#68-dry-depositionair-surface-exchange) for further information).  Both M3DRY and STAGE support modeling ammonia bidirectional surface flux.  The definition of the NH3 flux components in the CCTM_DRYDEP file will depend on whether or not bidirectional NH<sub>3</sub> flux option has been enabled (a run-time option controlled by setting CTM_ABFLUX to Y or N).  When the model is run without the bidirectional NH<sub>3</sub> flux option enabled (CTM_ABFLUX set to N), the variable NH3 in the CCTM_DRYDEP file represents the unidirectional ammonia dry deposition flux in both STAGE and M3DRY.
 
-When the model is run with CTM_ABFLUX set to Y, the CCTM_DRYDEP file will contain additional NH3 flux components.  The variable names and definitions *used in CMAQv5.3.2 and later* are defined in Table 7-2. 
+When the model is run with CTM_ABFLUX set to Y, the CCTM_DRYDEP file will contain additional NH3 flux components.  The variable names and definitions are defined in Table 7-2. 
 
 <a id=Table7-2></a>
 **Table 7-2. NH3 Flux components in CCTM_DRYDEP Output files when ammonia bidirectional surface flus is enabled**
