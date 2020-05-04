@@ -129,7 +129,7 @@ The sample Process Analysis control file for the cb6r3_ae7_aq mechanism and docu
 The typos in the control files and documentation ave been corrected so that the definitions match the variable names.  These changes have no effect on results for the base model. The process analysis control file that is provided is merely an illustrative example that is intended to be modified by the user for a specific application.
 
 ### Files Affected 
-CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl
-CCTM/src/MECHS/cb6r3_ae6_aq/pa_cb6r3_ae6_aq.ctl
-CCTM/src/MECHS/cb6r3_ae7_aqkmt2/pa_cb6r3_ae7_aq.ctl
-DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.md
+CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl  
+CCTM/src/MECHS/cb6r3_ae6_aq/pa_cb6r3_ae6_aq.ctl  
+CCTM/src/MECHS/cb6r3_ae7_aqkmt2/pa_cb6r3_ae7_aq.ctl  
+DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.md  
