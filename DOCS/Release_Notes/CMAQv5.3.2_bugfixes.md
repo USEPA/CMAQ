@@ -133,3 +133,16 @@ CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl
 CCTM/src/MECHS/cb6r3_ae6_aq/pa_cb6r3_ae6_aq.ctl  
 CCTM/src/MECHS/cb6r3_ae7_aqkmt2/pa_cb6r3_ae7_aq.ctl  
 DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.md  
+
+## 10. Correct Periodic Underflow in the STAGE deposition option
+[Jesse Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+An underflow error was found in the STAGE resulting in a deposition velocity of 0 under highly stable conditions over water/coastal grid cells. This results in a NaN in vdiffacmx.F that is then rest to the model floor value in clouds. This underflow is encountered a handful of time for a handful of grid cells in the span of an annual simulation. In all cases and several years of simulations the NaN has been reset to the model minimum once encountered in clouds.
+
+### Solution in CMAQv5.3.2
+A lower bound of the machine specific single precision value, TINY(1.0),  was set on the deposition velocity in STAGE_MOD.F.  Additionally, cksummer.F has been modified to exit when a NaN or infinity has been encountered.
+
+### Files Affected 
+CCTM/src/depv/stage/STAGE_MOD.F
+CCTM/src/util/util/cksummer.F 
