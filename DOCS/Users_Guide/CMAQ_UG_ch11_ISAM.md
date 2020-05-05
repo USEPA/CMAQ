@@ -124,7 +124,7 @@ OTH - contribution from all non-tagged emissions streams and other processes in 
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
 
-For item 1), this includes internally calculated emissions that a user decides to exclude from the control file (perhaps to reduce computational cost of running with tags that are not of interest to a particular application). These are things like inline biogenics, inline lightning, dust, etc.
+For item 1), this includes internally calculated emissions that a user decides to exclude from the control file (perhaps to reduce computational cost of running with tags that are not of interest to a particular application). These are things like online biogenics, online lightning, dust, etc.
 
 An example for item 2) is ozone production from CO if a user specifies only the OZONE tag class. To capture this effect in the user-defined tags rather than the 'OTH' tag, a user would have to speficy both the OZONE and CO tag classes in their control file.
 
