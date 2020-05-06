@@ -601,7 +601,7 @@ C-----------------------------------------------------------------------
             DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPVCR( V )
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
-            POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )
+            POL   ( V ) = PLDV( V,C,R ) / ( DEPVCR( V ) + TINY( 0.0 ) )
 #ifdef sens
             DO NP = 1, NPMAX
                S_POL   ( NP,V ) = S_PLDV( NP,V,C,R ) / DEPVCR( V )

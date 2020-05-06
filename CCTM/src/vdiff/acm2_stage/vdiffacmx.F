@@ -569,8 +569,22 @@ c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
             DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPVCR( V )
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
-            If(DEPVCR( V ) .Eq. 0.0) Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'plvd', PLDV( V,C,R )
-            POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )            
+
+            IF ( PLDV( V,C,R ) .gt. 0.0 ) THEN
+                ! POL is only used for bidirectional exchange and is
+                ! otherwise 0.0. The following was found to be
+                ! problematic with low deposition velocities and now is
+                ! only estimated if PLDV > 0 which would also imply that
+                ! VD > 0 as they are both estimated from the same
+                ! resistance model.
+                IF ( DEPVCR( V ) .LE. 1.0E-36 ) 
+     &             WRITE( LOGDEV,'(10x,A12,I3,A3,I3,1x,A6,1x,E12.5,1x,A5,1x,E12.5,2x,A)')
+     &                  'Bad Vdep: C=',C,' R=',R,'depvcr',DEPVCR(V),
+     &                  'plvd',PLDV(V,C,R),TRIM(DV2DF_SPC(V))
+                POL   ( V ) = PLDV( V,C,R ) / ( DEPVCR( V ) TINY(0.0) )
+            ELSE
+                POL(V) = 0.0
+            END IF
             IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                DO I = 1, LCMP          
                   CMPF( I ) = ICMP( I,C,R )

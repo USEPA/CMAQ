@@ -35,6 +35,7 @@
 
 #> Source Code Locations
  setenv CCTM_SRC ${CMAQ_REPO}/CCTM/src #> location of the CCTM source code
+ set shaID   = `git --git-dir=${CMAQ_REPO}/.git rev-parse --short=10 HEAD`
  set GlobInc = $CCTM_SRC/ICL           #> location of the global include files
  set Mechs   = $CCTM_SRC/MECHS         #> location of the chemistry mechanism include files
  setenv REPOROOT $CCTM_SRC
@@ -354,6 +355,8 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "model        $EXEC;"                                        >> $Cfile
  echo                                                              >> $Cfile
  echo "repo        $CCTM_SRC;"                                     >> $Cfile
+ echo                                                              >> $Cfile
+ echo "sha_ID      $shaID;"                                        >> $Cfile
  echo                                                              >> $Cfile
  echo "mechanism   $Mechanism;"                                    >> $Cfile
  echo                                                              >> $Cfile
