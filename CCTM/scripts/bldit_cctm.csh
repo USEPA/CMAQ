@@ -35,7 +35,6 @@
 
 #> Source Code Locations
  setenv CCTM_SRC ${CMAQ_REPO}/CCTM/src #> location of the CCTM source code
- set shaID   = `git --git-dir=${CMAQ_REPO}/.git rev-parse --short=10 HEAD`
  set GlobInc = $CCTM_SRC/ICL           #> location of the global include files
  set Mechs   = $CCTM_SRC/MECHS         #> location of the chemistry mechanism include files
  setenv REPOROOT $CCTM_SRC
@@ -339,6 +338,11 @@ set make_options = "-j"                #> additional options for make command if
     set ModVadv = vadv/local_cons              #> Vertical advection module
  endif
 
+ # Retrieve git repository sha ID for this source code version
+ set shaID   = `git --git-dir=${CMAQ_REPO}/.gi rev-parse --short=10 HEAD`
+ if ( $? != 0 ) then
+    set shaID   = "not_a_repo"
+ endif
 
 # ============================================================================
 #> Create Config File 
