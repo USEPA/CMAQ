@@ -581,7 +581,7 @@ c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
      &             WRITE( LOGDEV,'(10x,A12,I3,A3,I3,1x,A6,1x,E12.5,1x,A5,1x,E12.5,2x,A)')
      &                  'Bad Vdep: C=',C,' R=',R,'depvcr',DEPVCR(V),
      &                  'plvd',PLDV(V,C,R),TRIM(DV2DF_SPC(V))
-                POL   ( V ) = PLDV( V,C,R ) / ( DEPVCR( V ) TINY(0.0) )
+                POL   ( V ) = PLDV( V,C,R ) / ( DEPVCR( V ) + TINY(0.0) )
             ELSE
                 POL(V) = 0.0
             END IF
