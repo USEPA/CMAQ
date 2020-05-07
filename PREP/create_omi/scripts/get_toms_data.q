@@ -26,7 +26,7 @@ set echo
 
      set year = `date -ud "${TODAYG}" +%Y`
 
-     wget ftp://toms.gsfc.nasa.gov/pub/omi/data/Level3e/ozone/Y$year/L3e_ozone_omi_"${TODAYG}".txt
+     wget https://acd-ext.gsfc.nasa.gov/anonftp/toms/omi/data/Level3e/ozone/Y$year/L3e_ozone_omi_"${TODAYG}".txt
 
      #> Increment both File and Julian Dates
      set TODAYG = `date -ud "${TODAYG}+1days" +%Y%m%d` #> Add a day for tomorrow

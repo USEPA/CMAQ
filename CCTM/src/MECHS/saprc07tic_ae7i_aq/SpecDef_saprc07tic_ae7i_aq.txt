@@ -122,7 +122,7 @@ AMNJ            ,ug m-3     ,AMNJ[1]
 ASOILJ          ,ug m-3     ,2.20*AALJ[1]+2.49*ASIJ[1]+1.63*ACAJ[1]+2.42*AFEJ[1]+1.94*ATIJ[1]
 
 !! Non-Crustal Inorganic Particle Species
-AHPLUSIJ        ,ug m-3    ,PMF_HP[3]
+AHPLUSIJ        ,umol m-3  ,PMF_HP[3]
 ANAK            ,ug m-3    ,PMC_NA[3]
 AMGK            ,ug m-3    ,PMC_MG[3]
 AKK             ,ug m-3    ,PMC_K[3]
@@ -221,6 +221,14 @@ PM25_TOT        ,ug m-3    ,PM25[3]
 PM25_UNSPEC1    ,ug m-3    ,PM25_UNSP1[3] 
 PM25_UNSPCRS    ,ug m-3    ,PM25_UNSPCRS[3] 
                            
+
+!! Fine particle acidity (pH). pH is undefined if there is no aerosol water.
+!Do not trust predictions when hourly water is <0.01 ug m-3. FINEPHF will
+!have large negative value (-9.999E36) when pH is not to be trusted.
+!AH2OIJ         ,ug m-3     ,AH2OI[1]+AH2OJ[1]
+!HPMOLAL        ,mol kg-1   ,AHPLUSIJ[0]/AH2OIJ[0]*1000.0
+!ACIDITYTEMP    ,           ,-1*LOG10(HPMOLAL[0])
+!FINEPHF        ,           ,AH2OIJ[0]>0.01 ? ACIDITYTEMP[0] : -9.999E36
 
 !! PM10.0 and Coarse-Sized Species
 PM10            ,ug m-3    ,PM10[3]
