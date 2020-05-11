@@ -144,8 +144,8 @@ An underflow error was found in the STAGE resulting in a deposition velocity of 
 A lower bound of the machine specific single precision value, TINY(1.0),  was set on the deposition velocity in STAGE_MOD.F.  Additionally, cksummer.F has been modified to exit when a NaN or infinity has been encountered.
 
 ### Files Affected 
-CCTM/src/depv/stage/STAGE_MOD.F
-CCTM/src/util/util/cksummer.F 
+CCTM/src/depv/stage/STAGE_MOD.F  
+CCTM/src/util/util/cksummer.F  
 
 ## 11. M3DRY/STAGE unified naming conventions for deposition
 Jon Pleim,(mailto:pleim.jon@epa.gov), U.S. Environmental Protection Agency
@@ -157,9 +157,9 @@ The variable names in the DRYDEP output file for ammonia when the M3dry bidirect
 The variable names in the DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were changed to be consistent with past versions of CMAQ and with current version of STAGE. There are 3 variables related to NH3: the dry deposition flux is in the variable named "NH3", the emission flux is in the variable "NH3_Emis", and the net flux is in the variable "NH3_Flux"
 
 ### Files Affected
-CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F 
-CCTM/src/vdiff/acm2_m3dry/opddep.F 
-CCTM/src/vdiff/acm2_m3dry/vdiffproc.F 
+CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F  
+CCTM/src/vdiff/acm2_m3dry/opddep.F  
+CCTM/src/vdiff/acm2_m3dry/vdiffproc.F   
 
 
 
