@@ -148,16 +148,16 @@ CCTM/src/depv/stage/STAGE_MOD.F
 CCTM/src/util/util/cksummer.F  
 
 ## 11. M3DRY/STAGE unified naming conventions for deposition
-Jon Pleim,(mailto:pleim.jon@epa.gov), U.S. Environmental Protection Agency
+[Jon Pleim](mailto:pleim.jon@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-The variable names in the DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were inconsistent with past versions of CMAQ and with current version of STAGE.  This created some difficulties with postprocessors.
+The variable names in the DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were inconsistent with past versions of CMAQ and with the current version of STAGE.  This created some difficulties with postprocessors.
    
 ### Solution in CMAQv5.3.2
 The variable names in the DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were changed to be consistent with past versions of CMAQ and with current version of STAGE. There are 3 variables related to NH3: the dry deposition flux is in the variable named "NH3", the emission flux is in the variable "NH3_Emis", and the net flux is in the variable "NH3_Flux"
 
 ### Files Affected
-CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F  
+CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F        
 CCTM/src/vdiff/acm2_m3dry/opddep.F  
 CCTM/src/vdiff/acm2_m3dry/vdiffproc.F   
 
