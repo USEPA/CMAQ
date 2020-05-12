@@ -49,7 +49,7 @@ CCTM/src/cio/centralized_io_module.F
 
 ### Description of model issue
 
-Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T, will prompt the centralized i/o module to store the start date of the file.
+Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T, will prompt the centralized i/o module to store the start date of the file. This, however, resulted in a memory issue in the subsequent pseudo-interpolation of the initial conditions (IC). Ideally, ICs should be extracted at the specified date and time. To linearly interpolate in time, data at the start and end of a time-step are stored in the “head and “tail”, respectively. The head was stored correctly, but the tail was not being stored correctly and was being picked up from whatever was in memory last. This resulted in an error when trying to extract the data at the second point as the IC file only has data at the head. If no emissions are present, it would pick the point from whatever file was read last whether that be a MET file, bioseason file, lightning file or IC file. 
 
 ### Solution in CMAQv5.3.2
 
