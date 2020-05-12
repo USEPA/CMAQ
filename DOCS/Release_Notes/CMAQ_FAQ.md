@@ -114,6 +114,13 @@ CMAQv5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and 
 
 <a id=diff_v531_v532></a>
 ## What differences should I expect in my model results with v5.3.2 compared to v5.3.1?
+Five updates in v5.3.2 have the potential to change model output.
+1. If running CMAQ with the STAGE option for dry deposition, the (STAGE underflow bugfix)[CMAQv5.3.2_bugfixes.md] will lead to small changes in the deposition of gaseous species. Most of the difference arise from water/coastal grid cells and can change the values of all species in the modeling domain by a few percentile. 
+2. In the v5.3 and subsequent v5.3.1 release, running with the CB6r3m mechanism (Dimethyl Sulfide (DMS) chemistry combined with CB6r3) resulted in a double counting of HO2 in one of the chemical reactions. This mainly resulted in an overprediction of Ozone over large areas of seawater in the modeling domain. For more information please visit the (DMS Chemistry Update Release Note)[DMS_chemistry_update.md].
+3. If running v5.3.2 with the Inline Lightning Option, users should expect to see changes of less than a ppb for species such as Ozone due to the update in the Inline Lightning NOx algorithm. This update seeks to correct the algorithm by updating the vertical distribution of Lightning NO according to what is seen in literature. For more information please visit the (Lightning NO Vertical Profile Release Notes)[Update_the_lightning_NO_vertical_profile.md]. 
+4. The v5.3.2 release also features an update to the Ozone Monitoring Instrument (OMI) Column Data through 2019. Most users should observe no changes, however, those working with modeling data in 2018 could see a difference between their v5.3.1 and v5.3.2 simulations caused by a 1% difference in a few grid cells in the new OMI data compared to the older OMI data for overlapping time periods in 2018. . For more information please visit the (OMI data Release Notes)[OMI_through_2019.md]
+5. **ISAM Place Holder.**
+
 
 <a id=additional_faq></a>
 ## Additional FAQ
