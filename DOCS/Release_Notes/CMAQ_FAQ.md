@@ -16,7 +16,7 @@
 
 <a id=why_more_releases></a>
 ## Why are there more CMAQ releases?
-CMAQ is being updated more frequently to provide bug fixes to the community in a more timely fashion. For these minor releases, users should carefully read the release notes associated with a new version and evaluate the impcat of the updates for their application to inform their decision on whether the newer version is beneficial for their application. 
+CMAQ is being updated more frequently to provide bug fixes to the community in a more timely fashion. For these minor releases, users should carefully read the release notes associated with the new version and evaluate the impact of the updates for their application to inform their decision on whether the newer version is beneficial for their application. 
 
 <a id=why_update_v521_v53></a>
 ## Do I need to update from v5.2.1 to v5.3?
