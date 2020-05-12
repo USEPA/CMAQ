@@ -67,11 +67,11 @@ CCTM/src/cio/centralized_io_module.F
 
 ### Description of model issue
 
-The second issue is the inability to run with the EMIS_SYM_DATE flag due inconsistent implementation between cio and the emissions modules. The EMIS_SYM_DATE flag has subsequently been removed from the runscripts to avoid confusion as the behavior of this flag is unconventional and cannot be explained in a concise manner. To learn more about this flag please visit [Appendix A](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md).
+An inconsistency was found in the use of the EMIS_SYM_DATE flag between cio and the emissions modules. The EMIS_SYM_DATE flag is no longer a default runscript environmental variable and has subsequently been removed from the runscripts to avoid confusion as the behavior of this flag is unconventional and cannot be explained in a concise manner. To learn more about this flag please visit [Appendix A](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md).
 
 ### Solution in CMAQv5.3.2
 
-EMIS_SYM_DATE is now consistent beween both DESID and CIO. The implementation flows the following logic: Using EMIS_SYM_DATE you can change the default behavior of a stream that you have. E.g. If you set EMIS_SYM_DATE to TRUE, the default for every stream will be TRUE (meaning it will expect each stream to be of representative day type) – you can still override this behavior for specific streams via the individual streams GR_EM_SYM_DATE variable. For further information you can look here
+EMIS_SYM_DATE is now consistent beween both DESID and CIO. For users who wish to use the EMIS_SYM_DATE environmental variable in their runscripts can visit [Appendix A](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md) for a complete description of the variable.
 
 ### Files Affected 
 CCTM/src/cio/centralized_io_module.F
