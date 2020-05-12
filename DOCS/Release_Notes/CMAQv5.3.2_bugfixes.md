@@ -126,7 +126,7 @@ CCTM/src/emis/emis/EMIS_DEFN.F
 The sample Process Analysis control file for the cb6r3_ae7_aq mechanism and documented in Chapter 9 of the User's Guide had typos in the definitions of two of the IRR output variables (aVOCwithO3 and aVOCwithNO3). These have been corrected so that the definitions match the variable names.
 
 ### Solution in CMAQv5.3.2
-The typos in the control files and documentation ave been corrected so that the definitions match the variable names.  These changes have no effect on results for the base model. The process analysis control file that is provided is merely an illustrative example that is intended to be modified by the user for a specific application.
+The typos in the control files and documentation have been corrected so that the definitions match the variable names.  These changes have no effect on results for the base model. The process analysis control file that is provided is merely an illustrative example that is intended to be modified by the user for a specific application.
 
 ### Files Affected 
 CCTM/src/MECHS/cb6r3_ae7_aq/pa_cb6r3_ae7_aq.ctl  
@@ -138,7 +138,7 @@ DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.md
 [Jesse Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-An underflow error was found in the STAGE resulting in a deposition velocity of 0 under highly stable conditions over water/coastal grid cells. This results in a NaN in vdiffacmx.F that is then rest to the model floor value in clouds. This underflow is encountered a handful of time for a handful of grid cells in the span of an annual simulation. In all cases and several years of simulations the NaN has been reset to the model minimum once encountered in clouds.
+An underflow error was found in the STAGE resulting in a deposition velocity of 0 under highly stable conditions over water/coastal grid cells. This results in a NaN in vdiffacmx.F that is then reset to the model floor value in clouds. This underflow is encountered a handful of times for a handful of grid cells in the span of an annual simulation. In all cases and several years of simulations the NaN has been reset to the model minimum once encountered in clouds.
 
 ### Solution in CMAQv5.3.2
 A lower bound of the machine specific single precision value, TINY(1.0),  was set on the deposition velocity in STAGE_MOD.F.  Additionally, cksummer.F has been modified to exit when a NaN or infinity has been encountered.
