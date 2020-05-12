@@ -118,7 +118,7 @@ In addition to the user-specified list, ISAM will alway track and output three a
 
 ```
 ICO - contribution from initial conditions specified for the first day of the simulation
-BCO - contribution form boundary condtions throughout the simulation
+BCO - contribution from boundary conditions throughout the simulation
 OTH - contribution from all non-tagged emissions streams and other processes in the model.
 ```
 #### Interpretation of 'OTH' tag
