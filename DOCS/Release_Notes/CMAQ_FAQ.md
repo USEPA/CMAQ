@@ -16,23 +16,24 @@
 
 <a id=why_more_releases></a>
 ## Why are there more CMAQ releases?
-As you may have noticed, we are now doing more frequent minor releases. The objective is to provide bug fixes in a more timely fashion. A user should evaluate the updates and decide whether a newer version is required for your application. **(<- This text is from 3/10/2020 WRFv4.1.5 announcment.  Please reword as needed.)**
+CMAQ is being updated more frequently to provide bug fixes to the community in a more timely fashion. For these minor releases, users should evaluate the updates and decide whether the newer version is beneficial for their application. 
 
 <a id=why_update_v521_v53></a>
 ## Do I need to update from v5.2.1 to v5.3?
 CMAQv5.3 is a major update from version 5.2.1 including many scientific updates and new features.
 #### CMAQv5.3 System Updates
-* Incorporated updated instrumented models: Sulfur Tacking, Integrated Source Apportionment (ISAM) consistent with science process updates. Improvements in computational efficiency of these instrumented techniques have led to substantially faster run times to support their practical applications.
-* A new emissions interface allows for substantial flexibility in the way emissions are mapped, scaled, and checked for quality and can greatly simplify the task of assessing air quality improvements resulting from emission changes.
+* Updated instrumented models: Previously, the Sulfur Tracking Model (STM) and the Integrated Source Apportionment Method (ISAM) were at least one version behind the base model. As of CMAQv5.3, these instrumented models are now compile-time options available with the current base version of the model. Additionally, improvements in computational efficiency of these instrumented techniques have led to substantially faster run times to support their practical applications.
+* The new DESID emissions interface allows for substantial flexibility in the way emissions are mapped, scaled, and checked for quality and can greatly simplify the task of assessing air quality improvements resulting from emission changes.
 * Incorporated updates (new data sources, updated vertical coordinate system) to CMAQ and the Meteorology-Chemistry Interface Processor (MCIPv5.0) to increase scientific consistency between the atmospheric dynamics and chemistry calculations.
 #### New Features and Processes in v5.3
 * Updated marine chemistry to represent impacts of (1) halogen chemistry on ozone depletion and sulfate formation and (2) dimethyl sulfide on aerosol sulfate.
 * Expanded the representation of secondary pollutant formation in clouds (AQCHEM-KMT2).
-* Updated aerosol module (AERO7) that explicitly tracks 84 particulate species .
-* Updated pathways for secondary organic aerosol formation from biogenic VOCs .
-* Harmonized treatment of water uptake to aerosol organic phase to improve representation of aerosol chemistry, mixing, state and optical properties.
-* Improved the representation of bi-directional exchange of ammonia at the surface Improved representation of O3 dry deposition to snow.
-* Incorporated a new deposition module – the Surface Tiled Aerosol and Gaseous Exchange (STAGE) model to estimate land-use specific deposition.
+* Updated aerosol module (AERO7) that explicitly tracks 84 particulate species.
+* Updated pathways for secondary organic aerosol formation from biogenic VOCs.
+* Harmonized treatment of water uptake to aerosol organic phase to improve representation of aerosol chemistry, mixing state, and optical properties.
+* Improved the representation of bi-directional exchange of ammonia at the surface 
+* Improved representation of O<sub>3</sub> dry deposition to snow.
+* Incorporated a new deposition module – the Surface Tiled Aerosol and Gaseous Exchange (STAGE) model – to estimate land-use specific deposition.
 #### Further information on v5.3
 * [CMAQv5.3 Fact Sheet](https://www.epa.gov/sites/production/files/2018-10/documents/cmaq_factsheet_.pdf)
 * February 27, 2019 webinar: Recent Enhancements to the CMAQ Modeling System - [Download Slides](https://www.epa.gov/research-states/recent-enhancements-cmaq-modeling-system-webinar-archive)
@@ -71,7 +72,7 @@ Please see the User's Guide [Chapter 6](../Users_Guide/CMAQ_UG_ch06_model_config
 
 <a id=diff_v521_v53></a>
 ## What differences should I expect in my model results with v5.3 compared to v5.2.1?
-The following summary is based off of our incremental testing of the science updates in CMAQv5.3 using v5.3 and v5.2.1 annual 2016 simulations over the CONUS (12km horizontal grid resolution, 35 vertical layers, cb6r3_ae7_aq chemical mechanism).
+The following summary is based on our incremental testing of the science updates in CMAQv5.3 using v5.3 and v5.2.1 annual 2016 simulations over the CONUS (12km horizontal grid resolution, 35 vertical layers, cb6r3_ae7_aq chemical mechanism).
 ### Ozone
 * Large increase in wintertime O<sub>3</sub> due to reduced deposition to snow in M3Dry. As expected, primarily affects northern latitudes with snow cover. Increases in O<sub>3</sub> in winter in 2016 over the CONUS range from 1-2 ppbV as far south as VA, TN, MO, KS, and CO to 10+ ppbV over ND, SD, WI, MN and central Canada.
 * Outside of winter, O<sub>3</sub> generally decreases across the CONUS primarily due to updates to the PX-LSM vegetation fraction and LAI, with significantly reduced vegetation fraction which in turn reduces O<sub>3</sub> dry deposition and increases O<sub>3</sub> ambient mixing ratios. Additional chemistry updates in the model had a small impact on O<sub>3</sub>. Decreases generally range between 1-6 ppbV, with the largest decrease in the western US, and similar magnitudes across spring, summer and fall.
