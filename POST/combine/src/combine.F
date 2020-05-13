@@ -162,6 +162,10 @@ C...read and load species definition file
         Stop
         endif
 
+C...check ALLOW_BADVALUES in output 
+      Allow_BadValues = ENVYN('ALLOW_BADVALUES', 'Allow Calculations to have bad results but set to -99999.9',
+     &                 .FALSE., istat )
+      
 C...  build description of output file
       TSTEP3D = TSTEP
       SDATE3D = startDate
