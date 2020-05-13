@@ -121,6 +121,7 @@ C***********************************************************************
      
        LOGICAL, ALLOCATABLE :: IS_ISAM_OX_RADICAL( : )
        LOGICAL, ALLOCATABLE :: IS_CHEM_OX_RADICAL( : )
+       LOGICAL, ALLOCATABLE :: IS_TAG_NONZERO( : )
 
        INTEGER              :: OX_RADICAL_FOUND = 0   
        INTEGER              :: OZONE_INDEX      = 0     
@@ -288,6 +289,12 @@ C...Allocate and set conversion factors for isam chemistry species
         WRITE(ISAM_LOG,'(/A)')'Final Table of ISAM chemistry species'
         WRITE(ISAM_LOG,'("SPC     ISAM_SPC     SPC PHOTOCHEM_SPC  Mol.Wei Convert Conc. Radical Spc")')
               
+        ALLOCATE( IS_TAG_NONZERO( NTAG_SA ), STAT = IOS )
+        IF ( IOS .NE. 0 ) THEN
+             MSG = 'Error allocating IS_TAG_NONZERO'
+             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        END IF 
+
         ALLOCATE( ISAM_SPECIES( NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating ISAM_SPECIES'
@@ -763,7 +770,7 @@ C..Includes:
 
          REAL( 8 ), PARAMETER  :: ONE       = 1.0D0
          REAL( 8 ), PARAMETER  :: ZERO      = 0.0D0
-         REAL( 8 ), PARAMETER  :: CUTOFF    = 1.0D-18
+         REAL( 8 ), PARAMETER  :: CUTOFF    = 1.0D-23
 !         REAL( 8 ), PARAMETER  :: LOCAL_MIN = 1.1D-34
 !         REAL,      PARAMETER  :: REAL_MIN  = 1.1E-34
 
@@ -788,8 +795,10 @@ C..Includes:
           DO JSPC = 1, ISAM_CHEMISTRY_SPC
              S       = ISAM_TO_CHEM( JSPC )
              SPC     = ISAM_SPC_MAP( JSPC )
+             IS_TAG_NONZERO = .FALSE.
              LOAD_SOLD: DO KTAG = 1, NTAG_SA
                 SOLD( KTAG, S ) = REAL( ISAM( COL,ROW,LAY,SPC,KTAG ),8 )
+                IF( SOLD( KTAG, S ) .GT. ZERO )IS_TAG_NONZERO = .TRUE.
                 IF( SOLD( KTAG,S ) .LT. CUTOFF )THEN
                     SOLD( KTAG,S ) = ZERO
                 ELSE    
@@ -799,7 +808,16 @@ C..Includes:
                     END IF
                 END IF
              END DO LOAD_SOLD ! ktag loop
-             IF( MAXVAL( SOLD( 1:NTAG_SA,S ) ) .LE. ZERO )SOLD( OTHRTAG,S ) = DCONMIN_TAG
+! prevent All SOLD equaling zero               
+             IF( MAXVAL( SOLD( 1:NTAG_SA,S ) ) .LE. ZERO )THEN
+                 IF( ANY( IS_TAG_NONZERO ) )THEN
+                    DO KTAG = 1, NTAG_SA
+                       IF( IS_TAG_NONZERO( KTAG ) )SOLD( KTAG,S ) = DCONMIN_TAG
+                    END DO
+                 ELSE
+                    SOLD( 1:NTAG_SA,S ) = DCONMIN_TAG
+                 END IF
+             END IF    
           END DO ! loop jspc
 
 #ifdef verbose_isam          
@@ -1014,6 +1032,7 @@ C..Saved Local Variables:
       REAL( 8 ), ALLOCATABLE, SAVE :: ISAM_PROBABILITY  ( :,: ) ! probability or amount that a source contributes to reaction      
       LOGICAL,   ALLOCATABLE, SAVE :: ZERO_ISAM( :           )  ! whether isam species have no effect on reaction
       LOGICAL,   ALLOCATABLE, SAVE :: REBALANCE( : )            ! renormalize tag concentration when production occurs
+      LOGICAL,   ALLOCATABLE, SAVE :: SOURCE_NONZERO( :,: )     ! fraction of species not from an isam source
       
       
 
@@ -1132,6 +1151,15 @@ C Allocate arrays:
            MSG = 'ERROR allocating SA_IRR variables'
            CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
          END IF
+
+         ALLOCATE( SOURCE_NONZERO( NTAG_SA, NUMB_MECH_SPC ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+           MSG = 'ERROR allocating SA_IRR variables'
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+         END IF
+
+         SOURCE_NONZERO = .TRUE.
+
 C...Assume that ISAM_SPECIES is fixed over the domain and simulation        
          WHERE ( ISAM_SPECIES ) 
             NOT_OUTSIDE_ISAM = 1.0D0
@@ -1193,6 +1221,13 @@ C..compute species fractions from ISAM groups and the remainder group for all me
            OUTSIDE( ISP2 ) = TERM    
            NOT_OUTSIDE_ISAM( ISP2 ) = MAX( 1.0D0 - TERM * ONE_OVER_CONC, 0.0D0 )
          END IF
+         DO KTAG = 1, NTAG_SA
+           IF( SOLD( KTAG,ISP2 ) .GE. DCONMIN_TAG )THEN
+              SOURCE_NONZERO(  KTAG,ISP2 ) = .TRUE.
+           ELSE
+              SOURCE_NONZERO(  KTAG,ISP2 ) = .FALSE.
+           END IF  
+        END DO
       END DO 
 
 C...Calculate reaction rates and source probabilties
@@ -1263,7 +1298,7 @@ C..Normalize sources probabilities for reaction
                 DO KTAG = 1, NTAG_SA
                    ISAM_PROBABILITY( KTAG,NRX ) = 0.0D0
                 END DO
-                ISAM_PROBABILITY( OTHRTAG,NRX ) = 1.0D0
+!               ISAM_PROBABILITY( OTHRTAG,NRX ) = 1.0D0
             ELSE
                 ZERO_ISAM( NRX ) = .FALSE.
                 ISAM_TOTAL_PROBABILITY = 1.0D0 / ISAM_TOTAL_PROBABILITY
@@ -1506,9 +1541,13 @@ C...update SOLD using SOURCE_DELTA
               END DO
               OUTSIDE( JSPC ) = COEFF * OUTSIDE ( JSPC )
            END IF
-! set othr tag to conmin if all tags are zero               
+! set tags to conmin if initially nonzero
            IF( MAXVAL( SOLD( 1:NTAG_SA,JSPC ) ) .LT. DCONMIN_TAG )THEN
-               SOLD( OTHRTAG,JSPC ) = DCONMIN_TAG
+              DO KTAG = 1, NTAG_SA
+                 IF( SOURCE_NONZERO( KTAG,JSPC ) )SOLD( KTAG,JSPC ) = DCONMIN_TAG
+              END DO
+! zero out ICON tag
+!             SOLD( NTAG_SA,JSPC )   = 0.0D0
            END IF    
         END DO
 
