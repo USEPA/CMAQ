@@ -8,11 +8,11 @@
 The changes allow running CCTM with ncols and nrows to equal one, i.e., one vertical column.
 
 Using a column model is accomplished by changing the GRID_NAME in the cctm run-script.
-The below gives an example for the 12SE1 Benchmark domain
+Given below is an example for the 12SE1 Benchmark domain
 
          setenv GRID_NAME CELLBENCH 
 
-where the GRIDDESC file defines CELLBENCH as the below
+where the GRIDDESC file defines CELLBENCH as below
 
       'CELLBENCH'
       'LamCon_40N_97W'    792000.000  -1080000.000     12000.000     12000.000   1   1   1
