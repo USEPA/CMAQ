@@ -6,7 +6,7 @@
 
 The changes add Sign and Gauss Error functions to available grid cell functions. 
 Sign has one argument and is not identical to the FORTRAN SIGN function that has two 
-arguments.  Changes to module_evaluate.F also attempt to accomplish to below.
+arguments.  Changes to module_evaluate.F also attempt to accomplish the following:
 
 1.   Allow the conditional `?` statement to function more like a FORTRAN `IF` statement so the below species definition does not cause combine to stop when evaluating `PH_TEST0`.
 
