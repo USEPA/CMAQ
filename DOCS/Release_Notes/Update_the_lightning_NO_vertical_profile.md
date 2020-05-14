@@ -3,12 +3,12 @@
 [Daiwen Kang](mailto:kang.daiwen@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-The vertical distribution algorithm (Kang et al., 2019) is composed of two Gaussian normal distributions centered (mean)
+The lightning NO (LNO) emission vertical distribution algorithm (Kang et al., 2019) is composed of two Gaussian normal distributions centered (mean)
 at two pressure levels with different standard deviation. The first distribution has mean of 350 hPa and standard deviation
 of 200 hpa and the second distribution has the mean of 600 hPa and a standard deviation of 50 hPa.
 
 At each model layer, the weight (W) is the combination of the PDFs from each of the distribution. To distribute the column
-LNO corrected, two conditions apply: (1) the total W across all the layers should be 1, and (2) the shape of the vertical profile
+LNO corrected, two conditions apply: (1) the sum of the weights (W) across all the layers should be 1, and (2) the shape of the vertical profile
 should be similar to those reported in literature (e.g., Allen et al., 2012).
  
 The existing vertical profile in earlier CMAQ versions (up to version 5.3) has factor of 1 from the first distribution and a factor
