@@ -31,7 +31,7 @@ New functions allows to calculate aerosol properties based on the modal distribu
 
 # Internal Records
 #### Relevant Pull Requests:
-[PR #606](https://github.com/usepa/cmaq_dev/pull/606)
+[PR #627](https://github.com/usepa/cmaq_dev/pull/627)
 
 #### Commit IDs:  
 d79037bc256492d1762a8d7232113c2e2ade8a5a   
