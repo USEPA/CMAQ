@@ -92,7 +92,7 @@ The following summary is based on our incremental testing of the science updates
 
 <a id=why_update_v53_v531></a>
 ## Do I need to update from v5.3 to v5.3.1?
-CMAQv5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes and a few feature additions. See the [v5.3.1 Release Notes](Release_Notes.md#summary-of-cmaqv531-updates) for a list of bug fixes and new features. See below for a description of the bug fixes that have an impact on model output.
+CMAQv5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes and a few feature additions. See the [v5.3.1 Release Notes](README.md#summary-of-cmaqv531-updates) for a list of bug fixes and new features. See below for a description of the bug fixes that have an impact on model output.
 
 <a id=update_v53_v531></a>
 ## What do I need to do to update from v5.3 to v5.3.1?
@@ -106,7 +106,7 @@ Two updates in v5.3.1 have the potential to change model output.
 
 <a id=why_update_v531_v532></a>
 ## Do I need to update from v5.3.1 to v5.3.2?
-CMAQv5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions. See the [v5.3.2 Release Notes](Release_Notes.md#summary-of-cmaqv532-updates) for a list of bug fixes and new features. See below for a description of the bug fixes that have an impact on model output.
+CMAQv5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions. See the [v5.3.2 Release Notes](README.md#summary-of-cmaqv532-updates) for a list of bug fixes and new features. See below for a description of the bug fixes that have an impact on model output.
 
 Several important updates have been made to the Integrated Source Apportionment Method (ISAM). Users of ISAM are strongly encouraged to update to v5.3.2.
 
