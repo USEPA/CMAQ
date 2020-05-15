@@ -92,7 +92,7 @@ The following summary is based on our incremental testing of the science updates
 
 <a id=why_update_v53_v531></a>
 ## Do I need to update from v5.3 to v5.3.1?
-CMAQv5.3.1 is a minor bug fix release.  See below for a description of the bug fixes and their impact on results.
+CMAQv5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes and a few feature additions. See the [v5.3.1 Release Notes](Release_Notes#summary-of-cmaqv531-updates) for a list of bug fixes and new features. See below for a description of the bug fixes that have an impact on model output.
 
 <a id=update_v53_v531></a>
 ## What do I need to do to update from v5.3 to v5.3.1?
@@ -104,10 +104,11 @@ Two updates in v5.3.1 have the potential to change model output.
 1. If running CMAQ with the STAGE option for dry deposition, the [STAGE bugfix ](CMAQv5.3.1_bugfixes.md#5-stage) will lead to small changes in dry deposition fluxes and concentration values. Most of the differences follow a random spatial pattern with the exception of NH<sub>3</sub> dry deposition which shows the effect of including the previously omitted deposition to water in the updated code. This omission was only written to the output file and the impact on ambient concentrations are much smaller and only due to the simplication of the numerics in the STAGE module.   
 2. In the v5.3 release there was a mismatch between the emission stream labels in the 2016 SE benchmark run script and the EmissCtrl file for cb6r3_ae7_aq. The result was that in the benchmark output files, PCSOA was not “switched off” for fire related emissions streams, including wildfires, agricultural burning, and residential wood combustion.  The emission stream labels have now been corrected.  This results in lower PM<sub>2.5</sub> for the 2016 SE benchmark case and updated benchmark output reference files have been posted on the [CMAS Data Warehouse Google Drive](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY). The other run scripts in the repository had the correct emissions stream labels, and so are not changed in this release.  
 
-
 <a id=why_update_v531_v532></a>
 ## Do I need to update from v5.3.1 to v5.3.2?
-CMAQv5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions.  Several important updates have been made to the Integrated Source Apportionment Method (ISAM). Users of ISAM are strongly encouraged to update to v5.3.2.
+CMAQv5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions. See the [v5.3.2 Release Notes](Release_Notes#summary-of-cmaqv532-updates) for a list of bug fixes and new features. See below for a description of the bug fixes that have an impact on model output.
+
+Several important updates have been made to the Integrated Source Apportionment Method (ISAM). Users of ISAM are strongly encouraged to update to v5.3.2.
 
 <a id=update_v531_v532></a>
 ## What do I need to do to update from v5.3.1 to v5.3.2?
