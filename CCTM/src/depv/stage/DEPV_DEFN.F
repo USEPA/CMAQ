@@ -610,7 +610,7 @@ C-----------------------------------------------------------------------
             N = N + 1
             NDX = GAS_DEPV_SUR( N+N_GC_DEPV )
             DEPV( V,:,: ) = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
-            PLDV( V,:,: ) = GC_DEPV_FAC( N ) * PVD( NDX,:,: )
+            PLDV( V,:,: ) = NR_DEPV_FAC( N ) * PVD( NDX,:,: )
 #ifdef Verbose
             write( logdev,1039 ) v, n, nr_depv( n ), ndx,
      &                           depvel_gas( ndx,cw,rw ), depv( v,cw,rw ),
@@ -618,7 +618,7 @@ C-----------------------------------------------------------------------
 #endif
             IF ( MOSAIC ) THEN
                DEPVJ( :,V,:,: ) = NR_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-               PLDVJ( :,V,:,: ) = GC_DEPV_FAC( N ) * Tile_Data%pol( :,NDX,:,: )
+               PLDVJ( :,V,:,: ) = NR_DEPV_FAC( N ) * Tile_Data%pol( :,NDX,:,: )
                IF ( FST )
      &            DEPVJ_FST( :,V,:,: ) = NR_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
             END IF
@@ -632,7 +632,7 @@ C-----------------------------------------------------------------------
             NDX = GAS_DEPV_SUR( N + N_GC_DEPV + N_NR_DEPV )
 
             DEPV( V,:,: ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,:,: )
-            PLDV( V,:,: ) = GC_DEPV_FAC( N ) * PVD( NDX,:,: )
+            PLDV( V,:,: ) = TR_DEPV_FAC( N ) * PVD( NDX,:,: )
 #ifdef Verbose
             write( logdev,1039 ) v, n, tr_depv( n ), ndx,
      &                           depvel_gas( ndx,cw,rw ), depv( v,cw,rw ),
@@ -640,7 +640,7 @@ C-----------------------------------------------------------------------
 #endif
             IF ( MOSAIC ) THEN
                DEPVJ( :,V,:,: ) = TR_DEPV_FAC( N ) * Tile_Data%DEPVEL_GASJ( :,NDX,:,: )
-               PLDVJ( :,V,:,: ) = GC_DEPV_FAC( N ) * Tile_Data%pol( :,NDX,:,: )
+               PLDVJ( :,V,:,: ) = TR_DEPV_FAC( N ) * Tile_Data%pol( :,NDX,:,: )
                IF ( FST )
      &            DEPVJ_FST( :,V,:,: ) = TR_DEPV_FAC( N ) * Tile_Data%VD_FST_GASJ( :,NDX,:,: )
             END IF
