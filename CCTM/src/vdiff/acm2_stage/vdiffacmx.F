@@ -561,16 +561,19 @@ c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
             EDDY( L ) = SEDDY( L,C,R ) * DZFI(L)
          END DO
 
-         RP = DFACP * Met_Data%RDEPVHT( C,R )
-         RQ = DFACQ * Met_Data%RDEPVHT( C,R )
+         RP  = DFACP * Met_Data%RDEPVHT( C,R )
+         RQ  = DFACQ * Met_Data%RDEPVHT( C,R )
+         POL = 0.0
          DO V = 1, N_SPC_DEPV
             DDBF( V )   = DDEP( V,C,R )
             DEPVCR( V ) = DEPV( V,C,R )
             DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPVCR( V )
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
-            If(DEPVCR( V ) .Eq. 0.0) Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'plvd', PLDV( V,C,R )
-            POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )            
+            If( PLDV( V,C,R ) .Gt. 0.0 ) Then
+               If(DEPVCR( V ) .Eq. 0.0) Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'plvd', PLDV( V,C,R )
+               POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )                        
+            End If
             IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                DO I = 1, LCMP          
                   CMPF( I ) = ICMP( I,C,R )
