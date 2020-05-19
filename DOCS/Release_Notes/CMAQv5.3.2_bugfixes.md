@@ -37,6 +37,8 @@ PREP/create_omi/scripts/get_toms_data.q
 
 Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration). set to T, will prompt the centralized i/o module to store the start date of the file. However, this information was never passed on to the function used to extract the data from the netCDF file causing an error, as the time is not available on file. 
 
+Note: This issue was documented in v5.3.1 as **Known Issue CMAQv5.3.1-i2**.
+
 ### Solution in CMAQv5.3.2
 
 The information is now properly passed on to the variable required to extract the data from the netCDF file.
@@ -51,6 +53,8 @@ CCTM/src/cio/centralized_io_module.F
 
 Using a 2-D and/or 3-D Gridded Emission File with representative day format specified via runscript with the environmental variable [GR_EM_SYM_DATE_XXX](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md#offline-emissions-configuration) set to T, will prompt the centralized i/o module to store the start date of the file. This, however, resulted in a memory issue in the subsequent pseudo-interpolation of the initial conditions (IC). Ideally, ICs should be extracted at the specified date and time. To linearly interpolate in time, data at the start and end of a time-step are stored in the “head and “tail”, respectively. The head was stored correctly, but the tail was not being stored correctly and was being picked up from whatever was in memory last. This resulted in an error when trying to extract the data at the second point as the IC file only has data at the head. If no emissions are present, it would pick the point from whatever file was read last whether that be a MET file, bioseason file, lightning file or IC file. 
 
+Note: This issue was documented in v5.3.1 as **Known Issue CMAQv5.3.1-i4**.
+
 ### Solution in CMAQv5.3.2
 
 The memory issue relating to the tail of the circular buffer is now correctly implemented. The head and tail of this file is now automatically set to the start date and time of the simulation for all species.
@@ -64,6 +68,8 @@ CCTM/src/cio/centralized_io_module.F
 ### Description of model issue
 
 An inconsistency was found in the use of the EMIS_SYM_DATE flag between cio and the emissions modules. The EMIS_SYM_DATE flag is no longer a default runscript environmental variable and has subsequently been removed from the runscripts to avoid confusion as the behavior of this flag is unconventional and cannot be explained in a concise manner. To learn more about this flag please visit [Appendix A](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Appendix/CMAQ_UG_appendixA_model_options.md).
+
+Note: This issue was documented in v5.3.1 as **Known Issue CMAQv5.3.1-i5**.
 
 ### Solution in CMAQv5.3.2
 
@@ -147,10 +153,14 @@ CCTM/src/util/util/cksummer.F
 [Jon Pleim](mailto:pleim.jon@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-The variable names in the DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were inconsistent with past versions of CMAQ and with the current version of STAGE.  This created some difficulties with postprocessors.
+The variable names in the CCTM_DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were inconsistent with past versions of CMAQ and with the current version of STAGE.  These differences in naming conventions could cause issues when performing post-processing of CCTM_DRYDEP outputs.
+   
+Note: This issue was documented in v5.3.1 as **Known Issue CMAQv5.3.1-i6**.
    
 ### Solution in CMAQv5.3.2
-The variable names in the DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were changed to be consistent with past versions of CMAQ and with current version of STAGE. There are 3 variables related to NH3: the dry deposition flux is in the variable named "NH3", the emission flux is in the variable "NH3_Emis", and the net flux is in the variable "NH3_Flux"
+The variable names in the DRYDEP output file for ammonia when the M3dry bidirectional NH3 model is used were changed to be consistent with the current version of STAGE. There are 3 variables related to NH3: the dry deposition flux is in the variable named "NH3", the emission flux is in the variable "NH3_Emis", and the net flux is in the variable "NH3_Flux"
+
+See the [User's Guide Chapter 7](CMAQ_UG_ch07_model_outputs.md#nh3-flux-components-in-cctm_drydep) for additional information on the the NH3 flux components available in the CCTM_DRYDEP output file. 
 
 ### Files Affected
 CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F        
