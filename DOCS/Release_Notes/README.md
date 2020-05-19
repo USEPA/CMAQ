@@ -9,6 +9,7 @@ CMAQv5.3.2 Release Notes
 The Community Multiscale Air Quality (CMAQ) Model version 5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions.  
 
 * [CMAQv5.3.2 Bugfixes](CMAQv5.3.2_bugfixes.md)
+* [Added ISAM support for bidirectional NH3 flux](ISAM_bidi_support.md)
 * [Running with Temporally Finer Meteorology](running_with_temporally_finer_MET.md)
 * [Update to the DMS chemistry with CB6r3](DMS_chemistry_update.md)
 * [Update the Lightning NO Vertical Profile](Update_the_lightning_NO_vertical_profile.md)
