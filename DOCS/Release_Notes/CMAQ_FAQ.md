@@ -132,3 +132,5 @@ A more general list of Frequent CMAQ Questions can be found on our website: http
 ## Technical support for CMAQ
 Technical support for CMAQ, including questions about model inputs, downloading, compiling, and running the model, 
 and pre- and post-processing utilities, should be directed to the [CMAS Center User Forum](https://forum.cmascenter.org/). 
+ [**Please read and follow these steps**](https://forum.cmascenter.org/t/please-read-before-posting/1321) prior to submitting new questions to the User Forum.
+
