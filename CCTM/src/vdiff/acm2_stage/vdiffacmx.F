@@ -571,7 +571,12 @@ c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
             If( PLDV( V,C,R ) .Gt. 0.0 ) Then
-               If(DEPVCR( V ) .Eq. 0.0) Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'plvd', PLDV( V,C,R )
+               If(DEPVCR( V ) .Eq. 0.0) Then
+                  Write(Logdev,*) 'Warning: A deposition velocity of 0 m/s was detected with a production term greater 
+                  Write(Logdev,*) 'than zero. Check for DEPV_FACs less than zero in the species name list for model species:'
+                  Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'plvd', PLDV( V,C,R )
+                  DEPVCR( V ) = tiny( 0.0 )
+               End If
                POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )                        
             End If
             IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
