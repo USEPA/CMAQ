@@ -2,12 +2,7 @@
 [Sergey Napelenok](mailto:napelenok.sergey@epa.gov) and [Jesse Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 
 ## Brief Description
-Support for bi-directional NH3 flux tagging with ISAM is not enabled. When ABFLUX=TRUE, in the CMAQ runscript, the ISAM code generates a new tag "-BID" where it stores the contribution from the bidi emissions.
-
-This update also requires a change to the io module in order to run the split emissions for the 2016 NADP case.
-
-The following script was used for the testing simulations:  
-/work/MOD3EVAL/nsu/isam_v531_bidi/CCTM/scripts/run_cctm_2016_12US1_NADP.csh
+Support for bi-directional NH3 flux tagging with ISAM is now enabled. When ABFLUX=TRUE in the CMAQ runscript, ISAM generates a new tag "-BID" where it stores the contribution from the bidi emissions. This tag is written out in the ISAM output file with the other user-defined and automatically generated tags.
 
 Some changes to centralized IO were also rolled into this update to enable additionally required IO. 
 
