@@ -58,4 +58,4 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 
 ***
 
-CMAQ User's Guide (c) 2019<br>
+CMAQ User's Guide (c) 2020<br>
