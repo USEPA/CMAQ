@@ -693,6 +693,6 @@ OMI ozone column data by latitude and longitude for use in the photolysis calcul
 <!-- BEGIN COMMENT -->
  [<< Previous Chapter](CMAQ_UG_ch03_preparing_compute_environment.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_a_simulation.md)
  
- CMAQ User's Guide (c) 2019<br>
+ CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->
