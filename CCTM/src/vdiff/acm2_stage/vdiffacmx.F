@@ -538,7 +538,7 @@ C-----------------------------------------------------------------------
 #ifdef isam
          SAEMIS = 0.0
 
-! modify ground emissions for bidirectional species (for bidi, PLVD > 0.0)
+! modify ground emissions for bidirectional species (for bidi, PLDV > 0.0)
          IF ( SA_BIDI ) THEN
            SA_VDEMIS_DIFF( ISAM_INDEX_NH3,1,C,R,BIDITAG )
 c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
@@ -572,9 +572,9 @@ c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
             If( PLDV( V,C,R ) .Gt. 0.0 ) Then
                If(DEPVCR( V ) .Eq. 0.0) Then
-                  Write(Logdev,*) 'Warning: A deposition velocity of 0 m/s was detected with a production term greater 
+                  Write(Logdev,*) 'Warning: A deposition velocity of 0 m/s was detected with a production term greater' 
                   Write(Logdev,*) 'than zero. Check for DEPV_FACs less than zero in the species name list for model species:'
-                  Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'plvd', PLDV( V,C,R )
+                  Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'pldv', PLDV( V,C,R )
                   DEPVCR( V ) = tiny( 0.0 )
                End If
                POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )                        
