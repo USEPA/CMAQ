@@ -156,6 +156,6 @@ Kwok, R.H.F, Baker, K.R., Napelenok, S.L., & Tonnesen, G.S. (2015). Photochemica
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch10_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_sulfur_tracking.md)<br>
-CMAQ User's Guide (c) 2019<br>
+CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->
