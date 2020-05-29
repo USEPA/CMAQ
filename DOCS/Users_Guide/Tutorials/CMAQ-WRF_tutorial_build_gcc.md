@@ -1,6 +1,6 @@
 ## CMAQ-WRF Tutorial ## 
 
-### Procedure to build and run the WRF-CMAQ two-way model using gnu compiler: ###
+### Procedure to build and run the WRF-CMAQ model using gnu compiler: ###
 
 ### Step 1: choose your compiler, and load it using the module command if it is available on your system
 
