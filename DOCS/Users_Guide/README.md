@@ -10,6 +10,7 @@ Note: While this User's Guide is packaged with the code when it is downloaded or
 [CMAQ Tutorials:](Tutorials/README.md) A series of short tutorials provide practical examples of how to set up and run CMAQ. Tutorials include: 
 * Running the CMAQ Test Case
 * Building CMAQ for GNU and Intel
+* Building WRF-CMAQ for GNU
 * Debugging tips
 * Prescribing Emissions Using the DESID Module 
 * Creating an OCEAN File
