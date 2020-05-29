@@ -1674,7 +1674,7 @@ C     aerospc_conc variables. This should be for the wet distribution.
  
 C *** Update gas-phase concentrations from Aitken and Accumulation Mode Partitioning
       PRECURSOR_CONC( SULF_IDX ) = PRECURSOR_CONC( SULF_IDX )
-     &                            +SUM( REAL( -DELSO4(:) * H2SO4RAT, 4 ))
+     &                            +SUM( -DELSO4(:) * H2SO4RAT )
       PRECURSOR_CONC( NH3_IDX )  = GNH3R8 + sum( CINORG( KNH4,1:2 )
      &                            -CFINAL( KNH4,1:2 ) ) * NH3RAT 
       PRECURSOR_CONC( HNO3_IDX ) = GNO3R8 + sum( CINORG( KNO3,1:2 )
