@@ -339,7 +339,7 @@ set make_options = "-j"                #> additional options for make command if
  endif
 
  # Retrieve git repository sha ID for this source code version
- set shaID   = `git --git-dir=${CMAQ_REPO}/.gi rev-parse --short=10 HEAD`
+ set shaID   = `git --git-dir=${CMAQ_REPO}/.git rev-parse --short=10 HEAD`
  if ( $? != 0 ) then
     set shaID   = "not_a_repo"
  endif
