@@ -138,6 +138,6 @@ Wong, D.C., Yang, C.E., Fu, J.S., Wong, K., & Gao, Y. (2015). An approach to enh
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixE_configuring_WRF.md)
-
+[<< Previous Appendix](CMAQ_UG_appendixC_spatial_data.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixE_configuring_WRF.md) <br>
+CMAQ User's Guide (c) 2020<br>
 <!-- END COMMENT -->
