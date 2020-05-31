@@ -174,12 +174,6 @@ https://cjcoats.github.io/ioapi/AVAIL.html
  ```
  ls -lrt /[your_path]/ioapi-3.2/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
  ```
- 
- ### Note: I am getting a shared object problem when I try running m3tools
- ```
- [lizadams@dogwood-login1 Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0]$ ./juldate
-./juldate: error while loading shared libraries: libimf.so: cannot open shared object file: No such file or directory
-```
 
 ### Need to edit your .cshrc to add the path to the library by setting the LD_LIBRARY_PATH environment variable
 
@@ -233,10 +227,10 @@ example {depends on the location of your WRF-4.1.1 directory}:
 cp -rp BLD_CCTM_v531_gcc ../../../WRF-4.1.1/cmaq
 ```
 
-### Step 6: Download WRF4.1.1_CMAQ5.3.1_Coupled_Model_20191220.tar.gz and unzip it. 
+### Step 6: Download WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz and unzip it. 
 A twoway directory is formed and move it inside WRFV411 as well.
 
-- The WRFv4.1.1-CMAQv5.3.1 coupled model is released as a tarball 
+- The WRFv4.1.1-CMAQv5.3.2 coupled model is released as a tarball 
 
 [Link to WRFv4.1.1-CMAQv5.3.1 Coupled_Model on Google Drive](https://drive.google.com/open?id=10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY)
 
