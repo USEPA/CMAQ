@@ -62,6 +62,7 @@
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Chapter](CMAQ_UG_ch13_WRF-CMAQ.md) - [Home](README.md) - [Appendix >>](Appendix/CMAQ_UG_appendixA_model_options.md) 
+[<< Previous Chapter](CMAQ_UG_ch13_WRF-CMAQ.md) - [Home](README.md) - [Appendix >>](Appendix/CMAQ_UG_appendixA_model_options.md)<br> 
+CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->
