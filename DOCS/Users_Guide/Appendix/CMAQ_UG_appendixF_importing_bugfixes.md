@@ -83,6 +83,6 @@ wget https://raw.githubusercontent.com/USEPA/CMAQ/master/DOCS/Known_Issues/CMAQv
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md)
-
+[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md) <br>
+CMAQ User's Guide (c) 2020<br>
 <!-- END COMMENT -->
