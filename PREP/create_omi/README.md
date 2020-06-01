@@ -34,7 +34,7 @@ sources via the wget or curl command.
 
       
    1. NASA TOMS ftp site:  
-      - ftp://toms.gsfc.nasa.gov/pub/omi/data/Level3e/ozone
+      - https://acd-ext.gsfc.nasa.gov/anonftp/toms/omi/data/Level3e/ozone
       - Lat/Lon resolution determined from first data file read
       - expected filename structure, _L3e_ozone_omi_YYYYMMDD.txt_
       - expected data format
@@ -51,9 +51,9 @@ sources via the wget or curl command.
          a.  character string then total ozone column versus longitude at fixed latitude
           
        
-Both sources were lasted accessed in March of 2019.
+Both sources were lasted accessed in May of 2020.
 
-The scripts directory contains an example for getting data from the TOMS ftp site, _scripts/get_toms_data.q_.
+The scripts directory contains an example for getting data from the NASA TOMS website, _scripts/get_toms_data.q_.
 When obtaining data files, we recommend getting files bracketing the desire peroid by several days because 
 observations may not available within given latitude/longitude ranges. The omission can occur because of the 
 satillite's orbit, polar night, or equipment failure. To go around the problem, create_omi uses 

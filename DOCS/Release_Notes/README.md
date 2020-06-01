@@ -9,8 +9,15 @@ CMAQv5.3.2 Release Notes
 The Community Multiscale Air Quality (CMAQ) Model version 5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions.  
 
 * [CMAQv5.3.2 Bugfixes](CMAQv5.3.2_bugfixes.md)
-* [Fine aerosol acidity output](specdef_ae7_pH.md)
+* [Added ISAM support for bidirectional NH3 flux](ISAM_bidi_support.md)
+* [Running with Temporally Finer Meteorology](running_with_temporally_finer_MET.md)
 * [Update to the DMS chemistry with CB6r3](DMS_chemistry_update.md)
+* [Update the Lightning NO Vertical Profile](Update_the_lightning_NO_vertical_profile.md)
+* [Fine aerosol acidity output](specdef_ae7_pH.md)
+* [Add make options to bldmake configuration file](Add_make_options_to_the_cfg_file_for_bldmake.md)
+* [Add 2019 data to CMAQ OMI input file](OMI_through_2019.md)
+* [Column Modeling](Enable_Column_Modeling.md)
+* [Add ERF and SIGN functions to COMBINE](Add_ERF_and_SIGN_to_COMBINEs_grid_cell_functions.md)
 
 # Summary of CMAQv5.3.1 Updates  
 
@@ -29,7 +36,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 ## Instrumented Models
  * [ISAM for CMAQv5.3](updates_to_CMAQ_ISAM.md)
  * [Sulfur Tracking Model (STM) for CMAQv5.3](sulfur_tracking.md)
- * CMAQv5.3-DDM-3D will be released later in 2019. 
+ * CMAQv5.3-DDM-3D will be released later in 2020. 
  * [Documentation for CMAQv5.2-DDM-3D](https://github.com/USEPA/CMAQ/blob/5.2_DDM-3D/DOCS/Instrumented_Docs/CMAQ_DDM.md)
 
  

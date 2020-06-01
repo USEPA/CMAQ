@@ -658,7 +658,7 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 -   USGS_mxtundra
 -   USGS_snowice
 
-These categories are used to determine dust source locations and canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD4 tiles. The DUST_LU_1 file corresponds to the “a” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
+These categories are used to determine dust source locations and canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_1 file corresponds to the “a” output file from the Spatial Allocator. See the chapters on [creating inputs to SMOKE biogenic processing](https://www.cmascenter.org/sa-tools/documentation/4.2/html/smoke_bio_inputs.html) and [generating BELD3 data for biogenic emissions processing](https://www.cmascenter.org/sa-tools/documentation/4.2/html/scripts_test.html) of the Spatial Allocator User’s Guide for details.
 
 <a id="dust_lu_2"></a>
 **DUST_LU_2 – BELD land use “TOT” data file**
@@ -672,7 +672,7 @@ The gridded land cover/land use (LCLU) file is an I/O API GRDDED3 file of BELD3 
 
 -   FOREST
 
-This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapter on [creating biogenic inputs to SMOKE](https://www.cmascenter.org/sa-tools/documentation/4.2/html/raster/Raster_Users_Guide_4_2.htm#_Toc389118706) of the Spatial Allocator User’s Guide for details.
+This variable is used in combination with the variables in the DUST_LU_1 file to determine canopy scavenging factors for estimating dust emission in the model. This file can be created for North America using the Spatial Allocator and BELD3 tiles. The DUST_LU_2 file corresponds to the “tot” output file from the Spatial Allocator. See the chapters on [creating inputs to SMOKE biogenic processing](https://www.cmascenter.org/sa-tools/documentation/4.2/html/smoke_bio_inputs.html) and [generating BELD3 data for biogenic emissions processing](https://www.cmascenter.org/sa-tools/documentation/4.2/html/scripts_test.html) of the Spatial Allocator User’s Guide for details. Please also note that the "tot" input file provided with the Spatial Allocator package prior to March 12, 2020 contained incorrect values for the FOREST variable. An updated file with Spatial Allocator input data containing the corrected "tot" files has been posted on the CMAS data warehouse and can be accessed at [this link](https://drive.google.com/file/d/1wUo0E45U6o_JNoxmnx1Cxv89LsvENTrI/view).
 
 ## 4.10 Photolysis Inputs
 
@@ -693,6 +693,6 @@ OMI ozone column data by latitude and longitude for use in the photolysis calcul
 <!-- BEGIN COMMENT -->
  [<< Previous Chapter](CMAQ_UG_ch03_preparing_compute_environment.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_a_simulation.md)
  
- CMAQ User's Guide (c) 2019<br>
+ CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->
