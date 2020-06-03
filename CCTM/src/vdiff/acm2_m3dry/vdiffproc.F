@@ -148,7 +148,7 @@ C Local Variables:
       REAL     :: SEDDY ( NLAYS,NCOLS,NROWS )   ! flipped EDDYV
       REAL        DTSEC                         ! model time step in seconds
 
-      REAL     :: DDEP_NH3( NCOLS,NROWS )
+      REAL     :: NH3_FLUX( NCOLS,NROWS )
 
       REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
       INTEGER, SAVE :: NH3_HIT
@@ -157,8 +157,8 @@ C Local Variables
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
-      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_EMIS'
-      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_DDEP = 'NH3_DDEP'
+      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_Emis'
+      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_FLUX = 'NH3_Flux'
 
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
@@ -408,7 +408,6 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
          ICMP = 0.0                      ! array assignment
-         DDEP_NH3 = 0.0
 #ifdef sens
          S_DDEP = 0.0
 #endif
@@ -486,7 +485,14 @@ C If last call this hour:  write accumulated depositions:
             END IF   ! .NOT. IO_PE_INCLUSIVE
          END IF
 #endif
-
+         IF ( ABFLUX ) THEN
+           DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  NH3_FLUX(C,R) = DDEP( DD2DV(NH3_HIT),C,R )
+                  DDEP( DD2DV(NH3_HIT),C,R ) = NH3_EMIS(C,R)+NH3_FLUX(C,R)
+               END DO
+            END DO
+         ENDIF
          DO V = 1, N_SPC_DDEP
             S = DD2DV( V )
             DO R = 1, NROWS
@@ -503,14 +509,9 @@ C If last call this hour:  write accumulated depositions:
          END DO 
 C Write extra arrays for NH3 emission and net flux for bidi
          IF ( ABFLUX ) THEN
-           DO R = 1, NROWS
-               DO C = 1, NCOLS
-                  DDEP_NH3(C,R) = NH3_EMIS(C,R)+DDEP( DD2DV(NH3_HIT),C,R )
-               END DO
-            END DO
 
-            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, NAME_NH3_DDEP,
-     &                 MDATE, MTIME, DDEP_NH3 ) ) THEN
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, NAME_NH3_FLUX,
+     &                 MDATE, MTIME, NH3_FLUX ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
