@@ -140,14 +140,18 @@ DOCS/Users_Guide/CMAQ_UG_ch09_process_analysis.md
 [Jesse Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
-An underflow error was found in the STAGE resulting in a deposition velocity of 0 under highly stable conditions over water/coastal grid cells. This results in a NaN in vdiffacmx.F that is then reset to the model floor value in clouds. This underflow is encountered a handful of times for a handful of grid cells in the span of an annual simulation. In all cases and several years of simulations the NaN has been reset to the model minimum once encountered in clouds.
+The STAGE deposition code is sensitive to numerical underflows because it uses the ambient concentration of pollutants to estimate concentration gradients between the atmosphere, soil and vegetation. This is done to unify surface exchange processes that can represent deposition and emission processes simultaneously. This can result in numerical underflows when ambient concentrations are low and/or there is little turbulent mixing, e.g. very stable conditions. These numerical underflows have little impact on ambient concentrations because deposition losses under these conditions are negligible, but it can lead to numerical instabilities.  
 
 ### Solution in CMAQv5.3.2
-A lower bound of the machine specific single precision value, TINY(1.0),  was set on the deposition velocity in STAGE_MOD.F.  Additionally, cksummer.F has been modified to exit when a NaN or infinity has been encountered.
+This bug fix corrects a potential underflow error in the calculation of dry deposition velocities due to dry deposition factors from the species name lists. Additionally, vdiffacmx.F was modified to estimate the production over loss term only if there was production estimated from bidirectional exchange or heterogenous chemistry eliminating the potential for most divide by zero errors. In most cases, the production and loss terms are estimated using the same modeled diffusive properties and the estimate of production over loss is likely to result in a real number. If there is a production term and the deposition velocity is numerically zero, the deposition velocity is reset to the smallest single precision number available and a warning message is printed in the log file. This warning may be triggered by heterogenous HONO production at the surface in CMAQ v5.3.2 as the processes in this parameterization are not diffusively limited. However, this is not likely to lead to model issues as the large production over loss term is negated by the exponential term when estimating the updates to the ambient concentration in vdiffacmx.F. . The dry deposition factor for ECH4 was changed to 1 as the deposition velocity for this species is now explicitly calculated.
 
-### Files Affected 
-CCTM/src/depv/stage/STAGE_MOD.F  
-CCTM/src/util/util/cksummer.F  
+### Files Affected
+CCTM/src/MECHS/cb6r3_ae6_aq/GC_cb6r3_ae6_aq.nml 
+CCTM/src/MECHS/cb6r3_ae7_aq/GC_cb6r3_ae7_aq.nml
+CCTM/src/MECHS/cb6r3_ae7_aqkmt2/GC_cb6r3_ae7_aq.nml 
+CCTM/src/MECHS/cb6r3m_ae7_kmtbr/GC_cb6r3m_ae7_kmtbr.nml 
+CCTM/src/depv/stage/STAGE_MOD.F
+CCTM/src/vdiff/acm2_stage/vdiffacmx.F
 
 ## 11. M3DRY/STAGE unified naming conventions for deposition
 [Jon Pleim](mailto:pleim.jon@epa.gov), U.S. Environmental Protection Agency
@@ -166,20 +170,3 @@ See the [User's Guide Chapter 7](CMAQ_UG_ch07_model_outputs.md#nh3-flux-componen
 CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F        
 CCTM/src/vdiff/acm2_m3dry/opddep.F  
 CCTM/src/vdiff/acm2_m3dry/vdiffproc.F   
-
-## 12. STAGE underflow error
-[Jesse Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
-
-### Description of model issue
-The STAGE deposition code is sensitive to numerical underflows because it uses the ambient concentration of pollutants to estimate concentration gradients between the atmosphere, soil and vegetation. This is done to unify surface exchange processes that can represent deposition and emission processes simultaneously. This can result in numerical underflows when ambient concentrations are low and/or there is little turbulent mixing, e.g. very stable conditions. These numerical underflows have little impact on ambient concentrations because deposition losses under these conditions are negligible, but it can lead to numerical instabilities.  
-
-### Solution in CMAQv5.3.2
-This bug fix corrects a potential underflow error in the calculation of dry deposition velocities due to dry deposition factors from the species name lists. Additionally, vdiffacmx.F was modified to estimate the production over loss term only if there was production estimated from bidirectional exchange or heterogenous chemistry eliminating the potential for most divide by zero errors. In most cases, the production and loss terms are estimated using the same modeled diffusive properties and the estimate of production over loss is likely to result in a real number. If there is a production term and the deposition velocity is numerically zero, the deposition velocity is reset to the smallest single precision number available and a warning message is printed in the log file. This warning may be triggered by heterogenous HONO production at the surface in CMAQ v5.3.2 as the processes in this parameterization are not diffusively limited. However, this is not likely to lead to model issues as the large production over loss term is negated by the exponential term when estimating the updates to the ambient concentration in vdiffacmx.F. . The dry deposition factor for ECH4 was changed to 1 as the deposition velocity for this species is now explicitly calculated.
-
-### Files Affected
-CCTM/src/MECHS/cb6r3_ae6_aq/GC_cb6r3_ae6_aq.nml 
-CCTM/src/MECHS/cb6r3_ae7_aq/GC_cb6r3_ae7_aq.nml
-CCTM/src/MECHS/cb6r3_ae7_aqkmt2/GC_cb6r3_ae7_aq.nml 
-CCTM/src/MECHS/cb6r3m_ae7_kmtbr/GC_cb6r3m_ae7_kmtbr.nml 
-CCTM/src/depv/stage/STAGE_MOD.F
-CCTM/src/vdiff/acm2_stage/vdiffacmx.F
