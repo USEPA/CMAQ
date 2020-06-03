@@ -65,7 +65,7 @@ c     REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
 
 c...Variables regarding the tag list
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: TAGNAME( : )
-      CHARACTER( 96 )                    :: TAGCLASSES
+      CHARACTER( 96 )                    :: TAGCLASSES = ' '
       CHARACTER( 96 ), ALLOCATABLE, SAVE :: TAGSTREAMS_TEMP( : )
       CHARACTER( 96 ), ALLOCATABLE, SAVE :: TAGSTREAMS( :, : )
       INTEGER, ALLOCATABLE, SAVE         :: TAGSTREAMS_NUM( : )
@@ -82,10 +82,10 @@ c...Logical values for tagging species
       LOGICAL, SAVE :: L_NITRATE = .FALSE.
       LOGICAL, SAVE :: L_NH4     = .FALSE.
       LOGICAL, SAVE :: L_PM25    = .FALSE.
-      LOGICAL, SAVE :: L_CO      = .FALSE.
       LOGICAL, SAVE :: L_OZONE   = .FALSE.
       LOGICAL, SAVE :: L_VOC     = .FALSE.
       LOGICAL, SAVE :: L_CHLORINE  = .FALSE.
+!     LOGICAL, SAVE :: L_CO      = .FALSE.
       LOGICAL, SAVE :: L_GAS_HAPS  = .FALSE.
       LOGICAL, SAVE :: L_AERO_HAPS = .FALSE.
       
@@ -143,6 +143,22 @@ C ...Tagging indices for bcon, others, icon
 ! Advection module variables
       LOGICAL, ALLOCATABLE, SAVE :: BCON_SPC( : )
 
+        INTEGER, PARAMETER, PRIVATE :: MAX_STRING     = 32  ! max length of tagclass name
+        INTEGER, PARAMETER, PRIVATE :: MAX_TAGCLASSES = 200 ! max number of tagclasses
+        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 9   ! number of defined tagclasses
+        
+        CHARACTER( MAX_STRING ), PARAMETER, PRIVATE :: DEFINED_CLASSES( NUMB_CLASSES ) = 
+     & (/ 'AMMONIUM ',
+     &    'OC       ',
+     &    'CHLORINE ',
+     &    'EC       ',
+     &    'SULFATE  ',
+     &    'OZONE    ',
+     &    'NITRATE  ',
+     &    'VOC      ',
+     &    'PM25_IONS' /)
+        
+      
       CONTAINS
 
 C============================================================
@@ -196,7 +212,7 @@ C-----------------------------------------------------------
           ENDIF ! if tag_name
 c check to see if bidirectional tag is necessary
           IF ( ABFLUX .AND. .NOT. SA_BIDI ) THEN
-            IF ( TXTLINE( 1:11 ) .EQ. 'TAG CLASSES' ) THEN
+            IF ( INDEX( TXTLINE, 'TAG CLASSES') .GT. 0 ) THEN
               IOST = INDEX( TXTLINE,'AMMONIUM', BACK = .FALSE. )
               IF ( IOST .NE. 0 ) THEN
                 SA_BIDI = .TRUE.
@@ -232,7 +248,7 @@ C arguments
         CHARACTER( 256 )   :: EQNAME 
         INTEGER INPUT_UNIT
         INTEGER IOST
-        CHARACTER( 80 ) :: XMSG   
+        CHARACTER( 120 ) :: XMSG   
 C external functions
         INTEGER LEN_TRIM
 
@@ -245,7 +261,10 @@ C...multi-sectors-for-a-single-tag 20130702
         CHARACTER( 2 )  :: CSGSTK
         CHARACTER( 16 ) :: FNAME
         LOGICAL LBACK
+        INTEGER DELIMINATOR_INDEX 
         INTEGER BGN_SG
+        INTEGER I, J ,k
+        CHARACTER(1) :: CHR
 
 C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )
@@ -257,9 +276,25 @@ C-----------------------------------------------------------
           CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
         ENDIF
         
+        CHR = CHAR(124)
 101     READ ( INPUT_UNIT, '(A)' ) TXTLINE
         IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 101
-        TAGCLASSES = TXTLINE(18:LEN_TRIM( TXTLINE ) )
+        IF( INDEX( TXTLINE, 'TAG CLASSES' ) .GE. 1 )THEN
+           DELIMINATOR_INDEX = INDEX( TXTLINE, CHAR( 124 ) ) + 1
+           IF(  DELIMINATOR_INDEX .LE. 1 )THEN
+              XMSG = 'ISAM ERROR: TAG CLASSES line missing the "|" deliminator'
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+           END IF 
+           TAGCLASSES = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
+           IF( LEN_TRIM( TAGCLASSES ) .LT. 1 )THEN
+              XMSG = "ISAM ERROR: TAGCLASSES in control file is blank. "
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+           END IF
+        ELSE   
+           XMSG = "ISAM ERROR: First Nonblank or Noncomment line "
+     &         // "in control file must define TAG CLASSES. "
+           CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+        END IF
 
         IF ( MYPE .eq. 0 ) then
           WRITE(LOGDEV, *) 'Reading ISAM control file'
@@ -274,17 +309,68 @@ C-----------------------------------------------------------
         ENDIF
 
         DO ITAG = 1, ( TAGLOOP )
+        
+          TAGNAME( ITAG )         = ' '
+          ISAMRGN_TEMP( ITAG )    = ' '
+          TAGSTREAMS_TEMP( ITAG ) = ' '
+          
 102       READ ( INPUT_UNIT, '(A)' ) TXTLINE
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 102
-          TAGNAME( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
+          IF( INDEX( TXTLINE, 'TAG NAME' ) .GE. 1 )THEN
+              DELIMINATOR_INDEX = INDEX( TXTLINE, CHAR( 124 ) ) + 1
+              IF(  DELIMINATOR_INDEX .LE. 1 )THEN
+                 XMSG = 'ISAM ERROR: "TAG NAME" line missing the "|" deliminator'
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              END IF 
+              TAGNAME( ITAG ) = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
+              IF( LEN_TRIM( TAGNAME( ITAG ) ) .LT. 1 )THEN
+                 XMSG = 'ISAM ERROR: a "TAG NAME" in control file is blank. '
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              END IF
+          ELSE   
+              XMSG = "ISAM ERROR: First line defining a TAG "
+     &            // 'in control file must contain the "TAG NAME" ' 
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+          END IF
 
 103       READ ( INPUT_UNIT, '(A)' ) TXTLINE
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 103
-          ISAMRGN_TEMP( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
+          IF( INDEX( TXTLINE, 'REGION' ) .GE. 1 )THEN
+              DELIMINATOR_INDEX = INDEX( TXTLINE, CHAR( 124 )  ) + 1
+              IF(  DELIMINATOR_INDEX .LE. 1 )THEN
+                 XMSG = 'ISAM ERROR: a "REGION(s)" line missing the "|" deliminator'
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              END IF 
+              ISAMRGN_TEMP( ITAG ) = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
+              IF( LEN_TRIM( ISAMRGN_TEMP( ITAG ) ) .LT. 1 )THEN
+                 XMSG = 'ISAM ERROR: a "REGION(s)" in control file is blank. '
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              END IF
+          ELSE   
+              XMSG = "ISAM ERROR: Second line defining a TAG "
+     &            // 'in control file must contain the "REGION(s)" ' 
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+          END IF
 
 104       READ ( INPUT_UNIT, '(A)' ) TXTLINE
           IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 104
-          TAGSTREAMS_TEMP( ITAG ) = TXTLINE(18:LEN_TRIM( TXTLINE ) )
+          IF( INDEX( TXTLINE, 'EMIS STREAM' ) .GE. 1 )THEN
+              DELIMINATOR_INDEX = INDEX( TXTLINE, CHAR( 124 )  ) + 1
+              IF(  DELIMINATOR_INDEX .LE. 1 )THEN
+                 XMSG = 'ISAM ERROR: a "EMIS STREAM(s)" line missing the "|" deliminator'
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              END IF 
+              TAGSTREAMS_TEMP( ITAG ) = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
+              IF( LEN_TRIM( TAGSTREAMS_TEMP( ITAG ) ) .LT. 1 )THEN
+                 XMSG = 'ISAM ERROR: a "EMIS STREAM(s)" in control file is blank. '
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              END IF
+          ELSE   
+              XMSG = "ISAM ERROR: Third line defining a TAG "
+     &            // 'in control file must contain the "EMIS STREAM(s)" ' 
+              CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+          END IF
+
         END DO
         
 c add a bidirectional tag if necesssary
@@ -318,11 +404,15 @@ C
         LOGICAL :: LBACK
         LOGICAL :: DEFINED 
         INTEGER :: BGN_SP
+        LOGICAL :: EFLAG = .FALSE. 
+        INTEGER :: CLASSES_FOUND  = 0
         
         CHARACTER( 132 ) :: XMSG
 
         INTEGER :: IOST
-
+        CHARACTER( MAX_STRING ), ALLOCATABLE :: CLASS_NAMES( : )
+        INTEGER :: NCLASSES = 0
+        
 c----------------------------------------------------------
 
         L_EC     = .FALSE. 
@@ -331,7 +421,7 @@ c----------------------------------------------------------
         L_NITRATE = .FALSE. 
         L_NH4     = .FALSE. 
         L_PM25    = .FALSE.   
-        L_CO      = .FALSE.   
+!       L_CO      = .FALSE.   
         L_OZONE   = .FALSE.   
         L_VOC     = .FALSE.   
         L_CHLORINE  = .FALSE.
@@ -339,6 +429,37 @@ c----------------------------------------------------------
         L_AERO_HAPS = .FALSE.
 !       L_CHEMISTRY = .FALSE.   
 
+        ALLOCATE( CLASS_NAMES( MAX_TAGCLASSES ) )
+        CALL PARSE_STRING( TAGCLASSES, NCLASSES, CLASS_NAMES )
+                
+        IF( NCLASSES .LT. 1 )THEN
+           XMSG = "ISAM ERROR: TAGCLASSES in control file incorrectly defined. "
+           CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, XSTAT2 )
+        END IF
+        
+        DO J = 1, NCLASSES
+           K = INDEX1( CLASS_NAMES( J ), NUMB_CLASSES, DEFINED_CLASSES )
+           IF( K .LT. 1 )THEN
+              XMSG = "ISAM ERROR: unknown tagclass: " // TRIM( CLASS_NAMES( J ) )
+              WRITE(LOGDEV,'(A)')TRIM(XMSG )
+              EFLAG = .TRUE. 
+           ELSE
+              CLASSES_FOUND = CLASSES_FOUND + 1   
+           END IF       
+        END DO
+        
+        IF( EFLAG .OR. CLASSES_FOUND .LT. 1 )THEN
+           XMSG = 'ISAM ERROR: problem defining tagclasses'
+           WRITE(LOGDEV,'(A)')TRIM(XMSG )
+           XMSG = 'Permitted TAGCLASSES listed below:'
+           WRITE(LOGDEV,'(A)')TRIM(XMSG )
+           DO J = 1, NUMB_CLASSES
+              WRITE(LOGDEV,'(2X,A)')TRIM( DEFINED_CLASSES( J ) )
+           END DO
+           XMSG = 'Above fatal error(s) in setting up ISAM'
+           CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, XSTAT2 )
+        END IF 
+        
         NSPC_SA = 0
 
         LBACK = .FALSE. 
@@ -375,8 +496,9 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
 
         BGN_SP = INDEX( TAGCLASSES,'SULFATE',LBACK )
         IF ( BGN_SP .NE. 0 ) THEN
-          NSPC_SA = NSPC_SA + 5  ! ASO4J, ASO4I, SO2, SULF(Fb21), SULRXN(20130529)
-          L_SFATE = .TRUE.
+          L_SFATE  = .TRUE. 
+          NSPC_SA = NSPC_SA + 5  ! ASO4J, ASO4I, SO2, SULF, SULRXN
+          IF ( MECHNAME .EQ. 'CB6R3M_AE7_KMTBR' ) NSPC_SA = NSPC_SA + 1  ! add DMS
         ENDIF
 
         BGN_SP = INDEX( TAGCLASSES,'OZONE',LBACK )
@@ -441,7 +563,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
              CASE( 'RACM2_AE6_AQ') 
                 NSPC_SA = NSPC_SA + 14   
              CASE( 'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
-                NSPC_SA = NSPC_SA + 35  
+                NSPC_SA = NSPC_SA + 33  
           END SELECT
 ! specices common to all mechanisms          
           NSPC_SA = NSPC_SA + 11  ! NO, NO2, NO3, ANO3J, ANO3I, HNO3, HONO, N2O5, PNA or HNO4, PAN, PANX or PAN2 or MPAN
@@ -450,13 +572,13 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
         IF ( L_VOC ) THEN
           SELECT CASE( MECHNAME )
              CASE( 'CB6R3_AE6_AQ' )
-                NSPC_SA = NSPC_SA + 23
+                NSPC_SA = NSPC_SA + 25
              CASE( 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
-                NSPC_SA = NSPC_SA + 24
+                NSPC_SA = NSPC_SA + 26
              CASE( 'RACM2_AE6_AQ') 
-                NSPC_SA = NSPC_SA + 36
+                NSPC_SA = NSPC_SA + 37
              CASE( 'SAPRC07TC_AE6_AQ', 'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
-                NSPC_SA = NSPC_SA + 39 
+                NSPC_SA = NSPC_SA + 40
           END SELECT
         ENDIF
 
@@ -474,12 +596,12 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
           L_PM25 = .TRUE.
         ENDIF
 
-        LBACK = .FALSE.
-        BGN_SP = INDEX( TAGCLASSES,'CO',LBACK )
-        IF ( BGN_SP .NE. 0 ) THEN
-          NSPC_SA = NSPC_SA + 1  ! CO
-          L_CO = .TRUE.
-        ENDIF
+!        LBACK = .FALSE.
+!        BGN_SP = INDEX( TAGCLASSES,'CO',LBACK )
+!        IF ( BGN_SP .NE. 0 ) THEN
+!          NSPC_SA = NSPC_SA + 1  ! CO
+!          L_CO = .TRUE.
+!        ENDIF
 
         LBACK = .FALSE.
         BGN_SP = INDEX( TAGCLASSES,'AERO_HAPS',LBACK )
@@ -500,6 +622,121 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
         ENDIF
 
         END SUBROUTINE GET_NSPC_SA
+
+! --------------------------------------------------------------------------------
+        SUBROUTINE PARSE_STRING ( ENV_VAL, NVARS, VAL_LIST, LOGDEV )
+
+! takes a string of items delimited by white space,
+! commas or semi-colons) and parse out the items into variables. Two data
+! types: character strings and integers (still represented as strings in
+! the env var vaules).
+          USE UTILIO_DEFN 
+          
+          IMPLICIT NONE
+
+          CHARACTER( * ), INTENT ( IN )           :: ENV_VAL
+          INTEGER,        INTENT ( OUT )          :: NVARS
+          CHARACTER( * ), INTENT ( OUT )          :: VAL_LIST( : )
+          INTEGER,        INTENT ( IN ), OPTIONAL :: LOGDEV
+
+          INTEGER             :: MAX_LEN
+          INTEGER             :: LEN_EVAL
+          CHARACTER( 16 )     :: PNAME = 'PARSE_STRING'
+          CHARACTER(  1 )     :: CHR
+          CHARACTER( 96 )     :: XMSG
+
+          INTEGER :: JP( MAX_STRING*SIZE( VAL_LIST ) )
+          INTEGER :: KP( MAX_STRING*SIZE( VAL_LIST ) )
+          INTEGER :: STATUS
+          INTEGER :: IP, V
+
+          INTEGER :: LOC_LOGDEV
+ 
+          IF (PRESENT(LOGDEV)) THEN
+             LOC_LOGDEV = LOGDEV
+          ELSE
+             LOC_LOGDEV = 6
+          END IF
+
+          MAX_LEN = MAX_STRING * ( SIZE( VAL_LIST ) + 1 ) ! extra character allows deliminator
+
+C Parse:
+
+           NVARS = 0
+
+C don't count until 1st char in string
+           
+           IP = 0
+           KP = 1
+           JP = 1
+           LEN_EVAL = LEN_TRIM( ENV_VAL ) 
+           IF ( LEN_EVAL .GT. MAX_LEN ) THEN
+              XMSG = TRIM( PNAME ) // ': The Environment variable, '
+     &            // TRIM( ENV_VAL ) // ',  has too long, greater than ' 
+              WRITE(LOGDEV,'(A,I8)')TRIM( XMSG ), MAX_LEN
+              XMSG = 'Above fatal error encountered '
+              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )                     
+           END IF
+101        LOOP_101: DO  ! read list
+              IP = IP + 1
+              IF ( IP .GT. LEN_EVAL ) EXIT LOOP_101
+              CHR = ENV_VAL( IP:IP )
+              IF ( CHR .EQ. ' ' .OR. ICHAR ( CHR ) .EQ. 09 ) CYCLE LOOP_101
+              IF( NVARS .GT. SIZE( VAL_LIST ) )THEN
+                 XMSG = TRIM( PNAME ) // ':ERROR: Number of values in List, ' 
+     &                //  TRIM( ENV_VAL ) 
+     &                // ', greater than the size of its storage array, '
+                  WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
+                  XMSG = 'Above fatal error encountered '
+                  CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )                     
+              END IF
+              NVARS = NVARS + 1
+              JP( NVARS ) = IP   ! 1st char
+              IF( IP .EQ. LEN_EVAL )THEN ! word one character long          
+                  KP( NVARS ) = IP
+                  V = 1
+                  EXIT LOOP_101
+              END IF     
+201           LOOP_201: DO ! read word
+                 IP = IP + 1
+                 CHR = ENV_VAL( IP:IP )
+                 IF ( CHR .NE. ' ' .AND.
+     &                CHR .NE. ',' .AND.
+     &                CHR .NE. ';' .OR.
+     &                ICHAR ( CHR ) .EQ. 09 ) THEN  ! 09 = horizontal tab
+                    CYCLE LOOP_201
+                 ELSE                               ! last char in word
+                    KP( NVARS ) = IP - 1 
+                    V = JP( NVARS ) - IP
+                    IF( V .GT. MAX_STRING )THEN
+                      XMSG =  'The word, ' // ENV_VAL( JP(NVARS):KP(NVARS) ) 
+     &                     // ', in list, ' // TRIM( ENV_VAL )
+     &                     // ', is too long, '
+                      WRITE(LOGDEV,'(A,1X,I2,A,I2)')TRIM( XMSG ), V, ' max allowed ',
+     &                MAX_STRING
+                      XMSG = 'Above fatal error encountered '
+                      CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )                     
+                    END IF
+                    EXIT LOOP_201
+                 END IF 
+                 IF ( IP .GE. LEN_EVAL ) EXIT LOOP_101
+              END DO LOOP_201
+           END DO LOOP_101
+           
+           IF( NVARS .GT. SIZE( VAL_LIST ) )THEN
+              XMSG = TRIM( PNAME ) // ':ERROR: Number of values in List, ' 
+     &             //  TRIM( ENV_VAL ) // ', greater than '
+              WRITE(LOGDEV,'(A,I4)')TRIM( XMSG ), SIZE( VAL_LIST )
+              XMSG = 'Above fatal error encountered '
+              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT2 )                     
+           END IF
+           DO V = 1, NVARS
+              VAL_LIST( V ) = ENV_VAL( JP( V ):KP( V ) )
+           END DO
+
+           RETURN
+           
+        END SUBROUTINE PARSE_STRING
 
 c===============================================================
 
@@ -530,9 +767,6 @@ C
 
         INTEGER I_SPC, K_SPC, NLIST
          
-c        CHARACTER( 16 ), ALLOCATABLE, SAVE :: CMAQ_DEPV_NAMES( : )
-c        INTEGER CMAQ_DEPV
-
         CHARACTER( 132 ) :: XMSG
 
         LOGICAL FOUND
@@ -616,6 +850,10 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
           SPC_LIST( J_SPC ) = 'SULF'    
           J_SPC = J_SPC + 1
           SPC_LIST( J_SPC ) = 'SULRXN'
+          IF ( MECHNAME .EQ. 'CB6R3M_AE7_KMTBR' ) THEN
+             J_SPC = J_SPC + 1
+             SPC_LIST( J_SPC ) = 'DMS'
+          END IF
         ENDIF
 
         IF ( L_NITRATE ) THEN
@@ -759,7 +997,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                SPC_LIST( J_SPC ) = 'RO2C'
 
                J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = 'RO2CX'
+               SPC_LIST( J_SPC ) = 'RO2XC'
                J_SPC = J_SPC + 1
                SPC_LIST( J_SPC ) = 'MECO3'
                
@@ -825,7 +1063,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                SPC_LIST( J_SPC ) = 'RO2C'
 
                J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = 'RO2CX'
+               SPC_LIST( J_SPC ) = 'RO2XC'
                J_SPC = J_SPC + 1
                SPC_LIST( J_SPC ) = 'MECO3'
                
@@ -915,6 +1153,8 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
         ENDIF ! L_NITRATE
 
         IF ( L_VOC ) THEN
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'CO'
           SELECT CASE( MECHNAME )
              CASE( 'CB6R3_AE6_AQ' )
                 J_SPC = J_SPC + 1
@@ -937,6 +1177,8 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                 SPC_LIST( J_SPC ) = 'MEOH'
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'OLE'
+                J_SPC = J_SPC + 1
+                SPC_LIST( J_SPC ) = 'ECH4'
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'PAR'
                 J_SPC = J_SPC + 1
@@ -984,6 +1226,8 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                 SPC_LIST( J_SPC ) = 'MEOH'
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'OLE'
+                J_SPC = J_SPC + 1
+                SPC_LIST( J_SPC ) = 'ECH4'
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'PAR'
                 J_SPC = J_SPC + 1
@@ -1137,11 +1381,11 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'TOL'
                 J_SPC = J_SPC + 1
-                SPC_LIST( J_SPC ) = 'XYLM'
+                SPC_LIST( J_SPC ) = 'XYM'
                 J_SPC = J_SPC + 1
-                SPC_LIST( J_SPC ) = 'XYLO'
+                SPC_LIST( J_SPC ) = 'XYO'
                 J_SPC = J_SPC + 1
-                SPC_LIST( J_SPC ) = 'XYLP'
+                SPC_LIST( J_SPC ) = 'XYP'
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'NAPH'
                 J_SPC = J_SPC + 1
@@ -1180,10 +1424,6 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
 
         IF ( L_PM25 ) THEN
           J_SPC = J_SPC + 1
-          SPC_LIST( J_SPC ) = 'ACLJ'
-          J_SPC = J_SPC + 1
-          SPC_LIST( J_SPC ) = 'ACLI'
-          J_SPC = J_SPC + 1
           SPC_LIST( J_SPC ) = 'ANAJ'
           J_SPC = J_SPC + 1
           SPC_LIST( J_SPC ) = 'ANAI' 
@@ -1209,10 +1449,10 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
           SPC_LIST( J_SPC ) = 'AOTHRI'
         ENDIF
 
-        IF ( L_CO ) THEN
-          J_SPC = J_SPC + 1
-          SPC_LIST( J_SPC ) = 'CO'
-        ENDIF
+!        IF ( L_CO ) THEN
+!          J_SPC = J_SPC + 1
+!          SPC_LIST( J_SPC ) = 'CO'
+!        ENDIF
 
         IF ( L_OZONE ) THEN
           J_SPC = J_SPC + 1
@@ -1279,6 +1519,54 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
 !       cd   J_SPC = J_SPC + NUMB_MECH_SPC 
 !       END IF
 
+!        IF ( L_GAS_HAPS ) THEN
+!          SELECT CASE( MECHNAME )
+!             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'FORM_PRIMARY'
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'ALD2_PRIMARY'
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'ACROLEIN'
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'BUTADIENE13'
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'ACRO_PRIMARY'
+!             CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ')
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'HCHO_PRIMARY'
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'CCHO_PRIMARY'
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'ACROLEIN'
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'BUTADIENE13'
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = 'ACRO_PRIMARY'
+!            END SELECT
+!            DO I_SPC = 1, NDEGRADED_FOUND
+!               J_SPC = J_SPC + 1
+!               SPC_LIST( J_SPC ) = DEGRADED_SPECIES( I_SPC )
+!            END DO
+!        END IF
+
+!        IF ( L_AERO_HAPS ) THEN          
+!          DO I_SPC = 1, N_AERO_HAPS_LIST
+!             DO K_SPC = 1, N_AE_SPC
+! find HAP aerosols in aerosol species and adjust NSPC_SA if in SPC_LIST
+!                IF ( INDEX(  AE_SPC( K_SPC ), AERO_HAPS_LIST( I_SPC ) ) .GT. 0 ) THEN 
+!                   J_SPC = J_SPC + 1
+!                   SPC_LIST( J_SPC ) = AE_SPC( K_SPC )
+!                END IF 
+!             END DO            
+!          END DO
+!        ENDIF
+        
+!       IF ( L_CHEMISTRY ) THEN
+!          SPC_LIST( ( J_SPC+1 ):( J_SPC+NUMB_MECH_SPC ) ) = CHEMISTRY_SPC( 1:NUMB_MECH_SPC )
+!          J_SPC = J_SPC + NUMB_MECH_SPC 
+!       END IF
+
 C...Check if the above adds up to number of tagging species
         IF ( J_SPC .NE. NSPC_SA ) THEN
           WRITE(LOGDEV,'(A,I4,A,I4,3A)')'Tagged species found, ', J_SPC,  
@@ -1318,23 +1606,10 @@ C...Check if the above adds up to number of tagging species
            END DO
         END DO
 
-        WRITE(LOGDEV,*)"COUNT(SPC_KEEP), J_SPC = ",COUNT(SPC_KEEP), J_SPC   
-        I_SPC = 0
-        WRITE(LOGDEV,*)'# FINAL List of ISAM species = ', NSPC_SA 
-        DO K_SPC = 1, NLIST
-           IF( SPC_KEEP( K_SPC ) )THEN
-              I_SPC = I_SPC + 1
-              WRITE(LOGDEV,*)'I_SPC, SPC_LIST( K_SPC ) = ',I_SPC, SPC_LIST( K_SPC )
-           END IF
-        END DO
-        IF( J_SPC .NE. COUNT(SPC_KEEP) )THEN
-          WRITE(LOGDEV,*)"COUNT(SPC_KEEP) .NE. J_SPC"
-          EFLAG = .TRUE.
-        END IF
-           
         IF ( EFLAG ) THEN
           CALL M3EXIT( 'GET_SPC_INDEX', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
         END IF 
+
 ! reset number of track species        
         NSPC_SA  = J_SPC
         N_SPCTAG = NSPC_SA * NTAG_SA
@@ -1354,10 +1629,10 @@ C...Check if the above adds up to number of tagging species
 
 ! set species names
         I_SPC = 0
+        WRITE(LOGDEV,*)'# FINAL List of ISAM species = ', NSPC_SA 
         DO K_SPC = 1, NLIST
            IF( SPC_KEEP( K_SPC ) )THEN
               I_SPC = I_SPC + 1
-!              WRITE(LOGDEV,*)'K_SPC, SPC_LIST( K_SPC ) = ',SPC_LIST( K_SPC )
               SPC_NAME( I_SPC,: ) = SPC_LIST( K_SPC )
            END IF
         END DO
