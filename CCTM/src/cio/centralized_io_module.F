@@ -323,7 +323,7 @@
 
           CHARACTER( 120 ) :: XMSG = ' '
           INTEGER          :: GXOFF, GYOFF, stat, n, v, d_size, begin, end, adj,
-     &                        n_bio_season_vars, n_dust_vars, idx
+     &                        n_bio_season_vars, n_dust_vars, idx, t, ldate, ltime
           character( 32 )  :: tname, fname
 
           character( 24 ), allocatable :: c2d_name(:, :), c3d_name(:, :), 
@@ -331,6 +331,7 @@
      &                                    i3d_name(:,:), is3d_name(:,:),
      &                                    l2d_name(:,:), medc_name(:,:)
           logical :: done = .false.
+          logical :: found
 
           IF ( .NOT. OPEN3( GRID_CRO_2D, FSREAD3, PNAME ) ) THEN
              XMSG = 'Could not open '// GRID_CRO_2D // ' file'
@@ -672,6 +673,24 @@
              call get_env(file_sym_date(f_emis(n)), fname, 
      &                    file_sym_date(f_emis(n)), logdev )             
              
+             found = .false.
+             ldate = sdate3d
+             ltime = stime3d
+             if (ldate == stdate) then
+                found = .true.
+             else
+                t = 1
+                do while ((t < mxrec3d) .and. (.not. found))
+                   call nextime (ldate, ltime, tstep3d)
+                   if (ldate == stdate) then
+                      found = .true.
+                   end if
+                   t = t + 1
+                end do
+             end if
+
+          write (logdev, *) ' ==d== grid ', trim(fname), ' ', (.not. found), file_sym_date(f_emis(n))
+
              cio_emis_nvars(n) = nvars3d
              if (nlays3d .eq. 1) then
                 n_e2d = n_e2d + cio_emis_nvars(n)
@@ -1154,6 +1173,9 @@
      &                            stk_gp_sdate(:), stk_gp_stime(:),
      &                            stk_gp_nlays(:)
 
+          integer :: ldate, ltime, t
+          logical :: found, done
+
           allocate (cio_stack_file_name(NPTGRPS), 
      &              n_cio_stack_emis_vars(NPTGRPS), 
      &              n_cio_stack_emis_lays(NPTGRPS), 
@@ -1318,6 +1340,24 @@
              file_sym_date(f_stk_emis(pt)) = emis_sym_date ! Master switch to change default 
              call get_env(file_sym_date(f_stk_emis(pt)), fname, 
      &                    file_sym_date(f_stk_emis(pt)), logdev)             
+
+             found = .false.
+             ldate = sdate3d
+             ltime = stime3d
+             if ((ldate == stdate) .and. (mxrec3d > 1)) then
+                found = .true.
+             else
+                t = 1
+                do while ((t < mxrec3d) .and. (.not. found))
+                   call nextime (ldate, ltime, tstep3d)
+                   if (ldate == stdate) then
+                      found = .true.
+                   end if
+                   t = t + 1
+                end do
+             end if
+
+          write (logdev, *) ' ==d== stk ', trim(fname), ' ', (.not.  found), file_sym_date(f_stk_emis(pt))
 
              if (max_nvars .lt. nvars3d) then
                 max_nvars = nvars3d
@@ -2702,7 +2742,9 @@ C Read the various categories of normalized emissions
                    deallocate (tdata)
 
                 else
+
                    call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWN Type of File',1 )
+
                 end if
 
                 cio_grid_data_tstamp(1, buf_loc, v) = data_jdate

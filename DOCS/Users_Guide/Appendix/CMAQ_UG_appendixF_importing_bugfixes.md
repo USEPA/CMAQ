@@ -20,7 +20,7 @@
   
 * Steps to porting bugfixs to your local github repo or source code directory:
 
-  - Go to the [CMAQ Issues page](https://github.com/USEPA/CMAQ/issues) and click on your issue.
+  - Go to the [CMAQ Known Issues page](https://github.com/USEPA/CMAQ/issues) and click on your issue.
   
   - Identify which files require updating by looking at the solution, a link to the file(s) should be posted. Click on the link.
   
@@ -70,7 +70,6 @@ Once the file is located use:
 
 ```
 wget https://raw.githubusercontent.com/USEPA/CMAQ/master/DOCS/Known_Issues/CMAQv5.3.1-i#/your_files .
-
 ```
   - Once you have the bugfixed files, go to your scripts directory where your BLD directory is created. 
   
@@ -84,6 +83,6 @@ wget https://raw.githubusercontent.com/USEPA/CMAQ/master/DOCS/Known_Issues/CMAQv
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md)
-
+[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md) <br>
+CMAQ User's Guide (c) 2020<br>
 <!-- END COMMENT -->
