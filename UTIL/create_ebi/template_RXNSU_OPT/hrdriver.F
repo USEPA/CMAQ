@@ -72,7 +72,12 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
+R5#ifndef isam
 R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+R5#else      
+R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT, 
+R5     &                              SA_DEGRADE_UPLOAD
+R5#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 
       IMPLICIT NONE 
@@ -148,14 +153,16 @@ R5           INTEGER, INTENT( IN )  :: JDATE        ! current model date , coded
 R5           INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
 R5           LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
 R5         END SUBROUTINE FIND_DEGRADED
-R5         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME )
+R5         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL, JDATE, JTIME )
 R5           REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
 R5           REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
 R5           REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
+R5           REAL,      INTENT( IN ) :: PRESS_CELL      !  cell Pressure  [ Pa ]
+R5           REAL,      INTENT( IN ) :: QV_CELL         !  cell water vapor mass mixing ratio  [ kg/kg ]
 R5           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
 R5           INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
 R5           INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
-R5         END SUBROUTINE INIT_DEGRADE      
+R5         END SUBROUTINE INIT_DEGRADE
 R5         SUBROUTINE FINAL_DEGRADE( CBLK )
 R5           REAL( 8 ), INTENT( INOUT ) :: CBLK( : )    !  species concentration in cell
 R5         END SUBROUTINE FINAL_DEGRADE
@@ -376,6 +383,10 @@ R5                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
 R5                  END DO
 R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
 R5     &                              JDATE, JTIME)
+R5
+R5#ifdef isam
+R5                  CALL SA_DEGRADE_EXTRACT( C,R,L,DENS(C,R,L) )
+R5#endif     
 R5               END IF
 
 c..Set physical quantities
