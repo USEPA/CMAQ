@@ -108,7 +108,7 @@ These input and output benchmark files have also been posted on the US EPA annoy
 * [ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark)
 
 #### A note about differences in the v5.3+ and v5.3 benchmark data
-CMAQv5.3.2 comes with new input and output benchmark data for the July 2016 test case over the Southeast US.  The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3.2 coupled model on the Southeast benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3.2 files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.2 is slightly different from what was released with v5.3.1 and v5.3 as described in the [CMAQv5.3.2 Rlease Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
+CMAQv5.3.2 comes with new input and output benchmark data for the July 2016 test case over the Southeast US.  The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3.2 coupled model on the Southeast benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3.2 files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.2 is slightly different from what was released with v5.3.1 and v5.3 as described in the [CMAQv5.3.2 Release Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
 
 
 
