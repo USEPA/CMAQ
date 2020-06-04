@@ -94,7 +94,7 @@ source config_cmaq.csh gcc 9.1
 
 ## Install the CMAQ input reference/benchmark data
 
-Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE531BENCH](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE532BENCH](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
