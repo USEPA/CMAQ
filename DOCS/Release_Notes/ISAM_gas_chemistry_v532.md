@@ -32,14 +32,18 @@ The update substantially chagnes the predictions of tagged secondary gaseous spe
 
 
 ## Affected Files
-CCTM/src/isam/SA_DEFN.F
-CCTM/src/isam/SA_IRR_DEFN.F
-CCTM/src/isam/op_sa.F
-CCTM/src/isam/sa_array_init.F
-CCTM/src/isam/sa_dim.F
+CCTM/src/isam/SA_DEFN.F   
+CCTM/src/isam/SA_IRR_DEFN.F  
+CCTM/src/isam/op_sa.F  
+CCTM/src/isam/sa_array_init.F  
+CCTM/src/isam/sa_dim.F  
 
 ## Relevant Pull Requests:
 [PR #644](https://github.com/USEPA/CMAQ_Dev/pull/644)
 
 ## Commit IDs:
+a283ee70b7bfcbf2c40075f99fe8f2086fd8444c   
+b9af03a5889460b56c0a1f943e6eeba75de85c3b  
+a5b4c458a0cb9518b54052bbe2ad36369a9d8b64   
+affbf95d173a5295254d9bfef4d1e2449488319e  
 
