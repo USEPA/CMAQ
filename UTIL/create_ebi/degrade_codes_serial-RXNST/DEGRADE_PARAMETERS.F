@@ -210,10 +210,7 @@ C..looping data
             ALLOCATE( LH_YIELD( N_LANHIN_LOSS, N_REACT ) )  
             ALLOCATE( LH_RHMIN( N_LANHIN_LOSS, N_REACT ) )
             ALLOCATE( LH_TAMIN( N_LANHIN_LOSS, N_REACT ) )
-            
-            ALLOCATE( RATE_CONST( N_PROCESSES, N_REACT ) )
-            ALLOCATE( RATE_YIELD( N_PROCESSES, N_REACT ) )
-            
+                        
 
             ALLOCATE( INDEX_FOUND( N_REACT ) )
             

@@ -177,7 +177,7 @@ C..initialize concentrations and their changes
                CASE ( 9995 )
                   FACTOR = NUMB_H2
                CASE ( 9994 )
-                  FACTOR = NUMB_DENS
+                  FACTOR = NUMB_H2O
                CASE DEFAULT
                   FACTOR = CONV_FACT 
              END SELECT 
@@ -202,7 +202,7 @@ C..initialize concentrations and their changes
                CASE ( 9995 )
                   FACTOR = NUMB_H2
                CASE ( 9994 )
-                  FACTOR = NUMB_DENS
+                  FACTOR = NUMB_H2O
                CASE DEFAULT
                   FACTOR = CONV_FACT 
              END SELECT 
@@ -218,7 +218,7 @@ C..initialize concentrations and their changes
                CASE ( 9995 )
                   FACTOR = FACTOR * NUMB_H2
                CASE ( 9994 )
-                  FACTOR = FACTOR * NUMB_DENS
+                  FACTOR = FACTOR * NUMB_H2O
                CASE DEFAULT
                   FACTOR = FACTOR * CONV_FACT 
              END SELECT

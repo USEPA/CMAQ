@@ -146,6 +146,9 @@ C..arrays to store indices to CGRID
          ALLOCATE( RAD2_MAP  ( 2, N_TRI_LOSS, N_REACT ) )
          ALLOCATE( PHOTO_MAP ( N_PHOTO_LOSS, N_REACT ) )
 
+         ALLOCATE( RATE_CONST( N_PROCESSES, N_REACT ) )
+         ALLOCATE( RATE_YIELD( N_PROCESSES, N_REACT ) )
+
 C..Initialize maps
 
          RXTANT_MAP    = -1
