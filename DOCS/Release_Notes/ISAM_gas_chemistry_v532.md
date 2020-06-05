@@ -7,9 +7,16 @@ Changes attempt to better estimate source contributions/concentrations for model
 
 The pull request attempts to remove two problems in results on how gas chemistry affects the jth source concentration of the sth chemical species, c(s,j), such as ozone from biogenic emissions.
 
-The other, boundary and initial contributions dominate over other sources.
-For some species, c(s,j) summed over the sources have problems matching concentration of the sth bulk or standard model species, cT(s).
-Changes to SA_IRR_DEFN.F accomplish to goal. They replace how the tracked species are updated after cT(s) values are determined at t=dt. The below algorithm is used where the current code calculates PT(s), PT(s), and P(s,j).
+
+The pull request attempts to remove two problems in results on how gas chemistry affects the  j<sup>th</sup> source concentration of the s<sup>th</sup> chemical species, c(s,j), such as ozone from biogenic emissions.    
+1.   The "other" (_i.e., not explicitly tagged sources_), boundary and initial contributions showed unrealistically large contributions that often dominated the other source contributions.      
+2.   For some species, we noticed that the sum of c(s,j) over all sources did not always match bulk concentrations, c<sub>T</sub>(s).   
+
+Modifications introduced in the ISAM algorithm to quantify and track secondary production from tagged sources now help rectify the two unrealistic behaviors. SA_IRR_DEFN.F was changed. They replace how the tracked species are updated after  c<sub>T</sub>(s) values are determined at t=dt. The below algorithm is used where the current code calculates P<sub>T</sub>(s), P<sub>T</sub>(s), and P(s,j).
+
+
+![Chem_ISAM_algorithm](https://user-images.githubusercontent.com/16845494/83574883-5f8cd380-a4fc-11ea-9b55-5bfd740c6eea.png)
+
 
 SA_DEFN.F and other files in the CCTM/src/isam are revised to accomplish the below items:
 
