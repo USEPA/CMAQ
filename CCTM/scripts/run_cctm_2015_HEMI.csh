@@ -93,7 +93,12 @@ endif
 if ( ! -e ${BLD}/CCTM_${VRSN}.cfg ) then
    set SHAID = ""
 else
-   set SHAID = "_sha="`grep "sha_ID" ${BLD}/CCTM_${VRSN}.cfg | cut -c 13-22`
+   set SHAID = `grep "sha_ID" ${BLD}/CCTM_${VRSN}.cfg | cut -c 13-22`
+   if ( $SHAID == not_a_repo ) then
+     set SHAID = ""
+   else
+     set SHAID = "_sha="$SHAID
+   endif
 endif
 setenv EXECUTION_ID "CMAQ_CCTM${VRSN}${SHAID}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
 echo ""
