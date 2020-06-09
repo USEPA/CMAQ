@@ -19,15 +19,15 @@ Alternatively, running CMAQ with ISAM enabled allows the user the ability to cal
 Note: While full model species list apportionment is in development, currently ISAM is limited to the following species classes in CMAQ:
 
 ```
-SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN
-NITRATE   - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR
-AMMONIUM  - ANH4J, ANH4I, NH3
-EC        - AECJ, AECI
-OC        - ALVPO1I, ALVPO1J, ASVPO1I, ASVPO1J, ASVPO2I, ASVPO2J, ASVPO3J, AIVPO1J, VLVPO1, VSVPO1, VSVPO2, VSVO3, VIVPO1
-VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)
-PM25_IONS - ANAI/J, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ,A TIJ, AMNJ, AOTHRI/J
-OZONE     - all NITRATE species + all VOC species
-CHLORINE  - ACLI/J, HCL
+SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN       
+NITRATE   - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR           
+AMMONIUM  - ANH4J, ANH4I, NH3       
+EC        - AECJ, AECI       
+OC        - ALVPO1I, ALVPO1J, ASVPO1I, ASVPO1J, ASVPO2I, ASVPO2J, ASVPO3J, AIVPO1J, VLVPO1, VSVPO1, VSVPO2, VSVO3, VIVPO1      
+VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)      
+PM25_IONS - ANAI/J, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ,A TIJ, AMNJ, AOTHRI/J      
+OZONE     - all NITRATE species + all VOC species     
+CHLORINE  - ACLI/J, HCL      
 ```
 
 ## 11.2 Build Instructions
@@ -129,7 +129,7 @@ For item 2), these are some secondarily produced intermidiate species that have 
 
 For item 3), these are processes in the model that create a given species but not from the emissions streams that can be specified with the control file.  For example, 'O3_OTH' includes ozone that is produced from background methane that is specified in the model as a constant.
 
-Finally, ISAM is an approximation for attribution. In the formulation, assumptions are made about which species are most important in the chemical formuation of the species being studied.  For example, all species in the gas-phase chemical mechanisms supported by CMAQ contribute to some degree to ozone formation.  The contribution to ozone from species not included in the ISAM formulation will go into 'O3_OTH', even if the emission source of these species is included in the control file.
+Finally, ISAM is an approximation for attribution. In the formulation, assumptions are made about which species are most important in the chemical formuation of the species being studied.  For example in cb6r3 based mechanisms, peroxyl radicals from aromatic compounds affect ozone production by a small amount so ISAM neglects their contribution. The contribution to ozone from species not included in the ISAM formulation will go into 'O3_OTH', even if the emission source of these species is included in the control file. 
 
 ## 11.4 ISAM Benchmark data
 The input files for the CMAQv5.3.2 ISAM benchmark case are the same as the benchmark inputs for the base model, described in the [CMAQ Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_benchmark.md).  Output source apportionment files associated with the sample `isam_control.txt` provided in this release package are included in the benchmark outputs for the base model.  
