@@ -99,8 +99,8 @@ C-----------------------------------------------------------------------
          USE AERO_DATA           ! access subroutine map_pmemis
 
 #ifdef isam
-         USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, NTAG_SA, SA_VDEMIS_DIFF_ALL, NSPC_SA,
-     &                       SA_VDEMIS_DIFF_OTHER
+         USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, NTAG_SA, SA_VDEMIS_CONV, NSPC_SA,
+     &                       SA_VDEMIS_CONV_OTHER
 #endif
 
 #ifdef sens
@@ -223,9 +223,9 @@ C Allocate Space for Master Emissions Computation
          END IF
 
 #ifdef isam
-         ALLOCATE ( SA_VDEMIS_DIFF    ( NSPC_SA,   EMLAYS,NCOLS,NROWS, NTAG_SA ),
-     &              SA_VDEMIS_DIFF_ALL( N_SPC_DIFF,EMLAYS,NCOLS,NROWS, NTAG_SA ), 
-     &              SA_VDEMIS_DIFF_OTHER( N_SPC_DIFF,EMLAYS,NCOLS,NROWS ), 
+         ALLOCATE ( SA_VDEMIS_DIFF( NSPC_SA,   EMLAYS,NCOLS,NROWS, NTAG_SA ),
+     &              SA_VDEMIS_CONV( N_SPC_DIFF,EMLAYS,NCOLS,NROWS, NTAG_SA ), 
+     &              SA_VDEMIS_CONV_OTHER( N_SPC_DIFF,EMLAYS,NCOLS,NROWS ), 
      &                                                  STAT = STATUS )
          IF ( STATUS .NE. 0 ) THEN
             XMSG = 'SA_VDEMIS_DIFF memory allocation failed'
@@ -274,8 +274,8 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
 #ifdef isam
          USE SA_DEFN, ONLY : SA_VDEMIS_DIFF, ITAG, NTAG_SA, TAGSTREAMS,
      &                       STREAM_TO_TAG, OTHRTAG, TAGSTREAMS_TEMP,
-     &                       TAGSTREAMS_NUM, SA_VDEMIS_DIFF_ALL,
-     &                       SA_VDEMIS_DIFF_OTHER,
+     &                       TAGSTREAMS_NUM, SA_VDEMIS_CONV,
+     &                       SA_VDEMIS_CONV_OTHER,
      &                       MAP_DIFFtoSA, SPC_NAME, NSPC_SA,
      &                       ISAMRGN_TEMP, ISAMRGN, ISAMRGN_NUM,
      &                       ISAMRGN_MAP, TAGS_PER_STREAM,
@@ -320,7 +320,7 @@ C Local Variables:
 #ifdef isam
          INTEGER                    :: IDX, SPC, LAYER, RGN
          CHARACTER(96)              :: TXTSTRING
-         REAL                       :: MINCHECK
+         REAL                       :: MINCHECK, TOTAL
 #endif
 C-----------------------------------------------------------------------
 
@@ -491,8 +491,6 @@ C Initialize Emissions Array
 
 #ifdef isam
          SA_VDEMIS_DIFF = 0.0
-         SA_VDEMIS_DIFF_ALL = 0.0
-         SA_VDEMIS_DIFF_OTHER = 0.0
 #endif
 
 #ifdef sens
@@ -585,8 +583,19 @@ C Retrieve Emissions from All Stream Types
            IF ( EM_FILE_LAPPLY( ISRM ) ) THEN
 
              IF ( TAGS_PER_STREAM( ISRM ) .GT. 0 ) THEN 
- 
-               SA_VDEMIS_DIFF_OTHER = VDEMIS_CONV( :,1:NL,:,: )
+
+               DO ITAG = 1,NTAG_SA
+                 DO R = 1,NROWS
+                   DO C = 1,NCOLS
+                     DO LAYER = 1,NL
+                       DO SPC = 1,N_SPC_DIFF
+                         SA_VDEMIS_CONV( SPC,LAYER,C,R,ITAG ) = 0.0
+                       END DO
+                     END DO
+                   END DO
+                 END DO
+               END DO
+               SA_VDEMIS_CONV_OTHER = VDEMIS_CONV( :,1:NL,:,: )
 
                ! Loop through all of the ISAM tags associated with this
                ! emissions stream. 
@@ -595,30 +604,25 @@ C Retrieve Emissions from All Stream Types
                  ITAG = STREAM_TO_TAG(ISRM,IDX)
 
                  IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN ! full domain 
-                   SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG ) = 
-     &                  SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,ITAG )
+                   SA_VDEMIS_CONV( :,1:NL,:,:,ITAG ) = 
+     &                  SA_VDEMIS_CONV( :,1:NL,:,:,ITAG )
      &                        + VDEMIS_CONV(:,1:NL,:,: )
-                   SA_VDEMIS_DIFF_OTHER = 0.0
+                   SA_VDEMIS_CONV_OTHER = 0.0
                  ELSE
+                   ! Loop Over Altitude, Species and Regions to Add
+                   ! emissions to corresponding tag, ITAG.
                    DO RGN = 1, ISAMRGN_NUM( ITAG )
-c                    SA_VDEMIS_DIFF_ALL( 1:N_SPC_DIFF,1:NL,:,:,ITAG ) = 
-c    &                    SA_VDEMIS_DIFF_ALL( 1:N_SPC_DIFF,1:NL,:,:,ITAG )
-c    &                       + VDEMIS_CONV( 1:N_SPC_DIFF,1:NL,:,: )
-c    &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
-c           
-c                    SA_VDEMIS_DIFF_OTHER( 1:N_SPC_DIFF,1:NL,:,: ) = 
-c    &                    SA_VDEMIS_DIFF_OTHER( 1:N_SPC_DIFF,1:NL,:,: )
-c    &                       - VDEMIS_CONV( 1:N_SPC_DIFF,1:NL,:,: )
-c    &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
                      DO LAYER = 1, NL
                        DO SPC = 1, N_SPC_DIFF
-      SA_VDEMIS_DIFF_ALL( SPC,LAYER,:,:,ITAG ) = SA_VDEMIS_DIFF_ALL( SPC,LAYER,:,:,ITAG )
-     &                                         + VDEMIS_CONV( SPC,LAYER,:,: )
-     &                                         * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+                          SA_VDEMIS_CONV( SPC,LAYER,:,:,ITAG ) = 
+     &                              SA_VDEMIS_CONV( SPC,LAYER,:,:,ITAG )
+     &                             + VDEMIS_CONV( SPC,LAYER,:,: )
+     &                               * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
 
-      SA_VDEMIS_DIFF_OTHER( SPC,LAYER,:,: ) = SA_VDEMIS_DIFF_OTHER( SPC,LAYER,:,: )
-     &                                      - VDEMIS_CONV( SPC,LAYER,:,: )
-     &                                      * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
+                          SA_VDEMIS_CONV_OTHER( SPC,LAYER,:,: ) = 
+     &                              SA_VDEMIS_CONV_OTHER( SPC,LAYER,:,: )
+     &                            - VDEMIS_CONV( SPC,LAYER,:,: )
+     &                              * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
 
                        END DO
                      END DO
@@ -626,22 +630,60 @@ c    &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
                  END IF
                END DO
                
-               MINCHECK = MINVAL( SA_VDEMIS_DIFF_OTHER( :,1:NL,:,: ) )
-               IF ( MINCHECK .LT. -1.0e-7 ) THEN
+               MINCHECK = MINVAL( SA_VDEMIS_CONV_OTHER( :,1:NL,:,: ) )
+               IF ( MINCHECK .GE. 0.0 ) THEN
+                  ! Remainder is Valid. Move it to the "OTHR" Tag
+                  SA_VDEMIS_CONV( :,1:NL,:,:,OTHRTAG ) = 
+     &                                SA_VDEMIS_CONV_OTHER( :,1:NL,:,: )
+               ELSE
+                  ! Some Part of the Remainder ("OTHER") is Invalid
                   XMSG = " ISAM mass balance error for emissions - " //
      &                     TRIM( EM_REGIONS(ISRM)%LABEL ) //
      &                    " - check isam control file. "
-                   CALL M3EXIT( 'ISAM_EMISSIONS', 1, 1, XMSG, XSTAT1 )
-                ELSE
-                  SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG ) = 
-     &                 SA_VDEMIS_DIFF_ALL  ( :,1:NL,:,:,OTHRTAG )
-     &                       + SA_VDEMIS_DIFF_OTHER( :,1:NL,:,: )
-                END IF
+                  CALL M3WARN( 'ISAM_EMISSIONS', 1, 1, XMSG )
+
+                  ! Repair OTHER By Distributing Negative Among Populated Tags
+                  DO R = 1,NROWS
+                  DO C = 1,NCOLS
+                  DO LAYER = 1,NL
+                  DO SPC = 1,N_SPC_DIFF
+                     IF ( SA_VDEMIS_CONV_OTHER( SPC,LAYER,C,R ) .LT. 0.0 ) THEN
+                        ! Find the total alloted to this (SPC,LAYER,C,R)
+                        ! and use it to distribute the error fractionally
+                        TOTAL = SUM( SA_VDEMIS_CONV( SPC,LAYER,C,R,: ) )
+                        DO ITAG = 1,NTAG_SA 
+                          SA_VDEMIS_CONV( SPC,LAYER,C,R,ITAG ) =
+     &                      SA_VDEMIS_CONV( SPC,LAYER,C,R,ITAG ) *
+     &                      ( 1.0 + SA_VDEMIS_CONV_OTHER( SPC,LAYER,C,R ) / TOTAL )
+                        END DO
+                     END IF
+                  END DO
+                  END DO
+                  END DO
+                  END DO
+               END IF
+
              ELSE ! dump all into 'OTHRTAG'
-               SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG ) = 
-     &              SA_VDEMIS_DIFF_ALL( :,1:NL,:,:,OTHRTAG )
-     &                    + VDEMIS_CONV( :,1:NL,:,: )
+               SA_VDEMIS_CONV( :,1:NL,:,:,OTHRTAG ) = 
+     &                             VDEMIS_CONV( :,1:NL,:,: )
              END IF
+
+             ! Subset the emissions array for ISAM traced species  
+             DO SPC = 1, NSPC_SA
+               IF ( MAP_DIFFtoSA( SPC ) .NE. 0 ) THEN
+                 DO ITAG = 1,NTAG_SA
+                   DO R = 1,NROWS
+                     DO C = 1,NCOLS
+                       DO LAYER = 1,NL
+                         SA_VDEMIS_DIFF( SPC,LAYER,C,R,ITAG ) =  
+     &                                SA_VDEMIS_DIFF( SPC,LAYER,C,R,ITAG )
+     &                             +  SA_VDEMIS_CONV( MAP_DIFFtoSA( SPC ),LAYER,C,R,ITAG )
+                       END DO
+                     END DO
+                   END DO
+                 END DO
+               END IF
+             END DO
 
            END IF
 #endif
@@ -657,17 +699,8 @@ c    &                          * EM_REG_FAC(:,:,ISAMRGN_MAP(ITAG,RGN))
              END DO
            END IF
 #endif
-         END DO 
 
-#ifdef isam
-         ! Subset the emissions array for ISAM traced species  
-         DO SPC = 1, NSPC_SA
-           IF ( MAP_DIFFtoSA( SPC ) .NE. 0 ) THEN
-             SA_VDEMIS_DIFF( SPC,:,:,:,: ) =  
-     &            SA_VDEMIS_DIFF_ALL( MAP_DIFFtoSA( SPC ),:,:,:,: )
-           END IF
-         END DO
-#endif 
+         END DO  ! Master Loop for Emissions Streams
 
 #ifdef sens
 C Subset the emissions array for DDM-3D (by species and region)

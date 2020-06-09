@@ -59,8 +59,8 @@ c...Define Allocatable Apportionment Arrays
 c     REAL, ALLOCATABLE :: MAPFRAC( :,:,: )
 c     REAL, ALLOCATABLE :: MFRC_P( :,:,: )
 c     REAL, ALLOCATABLE :: VOC5D ( :,:,:,:,: )
-      REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_ALL( :,:,:,:,: ) ! full emissions array mapped to diffused species
-      REAL, ALLOCATABLE :: SA_VDEMIS_DIFF_OTHER( :,:,:,: ) ! emissions left for 'OTHRTAG'
+      REAL, ALLOCATABLE :: SA_VDEMIS_CONV( :,:,:,:,: ) ! full emissions array mapped to diffused species
+      REAL, ALLOCATABLE :: SA_VDEMIS_CONV_OTHER( :,:,:,: ) ! emissions left for 'OTHRTAG'
       REAL, ALLOCATABLE :: SA_VDEMIS_DIFF( :,:,:,:,: ) 
 
 c...Variables regarding the tag list
@@ -1382,7 +1382,7 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'XYO'
                 J_SPC = J_SPC + 1
-                SPC_LIST( J_SPC ) = 'XYO'
+                SPC_LIST( J_SPC ) = 'XYP'
                 J_SPC = J_SPC + 1
                 SPC_LIST( J_SPC ) = 'NAPH'
                 J_SPC = J_SPC + 1
