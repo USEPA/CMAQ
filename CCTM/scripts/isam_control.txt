@@ -13,9 +13,8 @@
 !!!   AMMONIUM  - ANH4J, ANH4I, NH3
 !!!   EC        - AECJ, AECI
 !!!   OC        - APOCI, APOCJ, APNCOMI, APNCOMJ
-!!!   VOC       - 22 species, check CCTM/src/isam/SA_DEFN.F for species names
+!!!   VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)
 !!!   PM25_IONS - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ
-!!!   CO        - CO
 !!!   OZONE     - all NITRATE species + all VOC species
 !!!   CHLORINE  - ACLI, ACLJ, HCL
 
@@ -30,5 +29,9 @@ TAG CLASSES     |SULFATE, OZONE
 TAG NAME        |GR1
 REGION(S)       |EVERYWHERE
 EMIS STREAM(S)  |GRIDDED_EMIS
+
+TAG NAME        |NEG
+REGION(S)       |NC
+EMIS STREAM(S)  |PT_EGU
 
 ENDLIST eof 
