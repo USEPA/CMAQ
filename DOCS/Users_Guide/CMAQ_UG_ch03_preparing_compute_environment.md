@@ -110,7 +110,7 @@ Other I/O API library configuration options are available, and users can see a l
 
 https://www.cmascenter.org/ioapi/download/ioapi-3.2-large.tar.gz
 
-Installation instructions for I/O API v5.3-large are provided in README.txt in the .tar.gz file. 
+Installation instructions for I/O API v3.2-large are provided in README.txt in the .tar.gz file. 
 
 
 ## 3.4 Optional Software
