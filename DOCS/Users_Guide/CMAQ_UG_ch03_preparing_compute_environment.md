@@ -64,7 +64,7 @@ Most of the CMAQ input files and all output files are in netCDF format (the rest
 
 ### 3.3.3 I/O API library
 
-The I/O API library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The version of the I/O API library supported with CMAQv5.3.2 (version 3.2 tagged 2020111) is available for download at https://github.com/cjcoats/ioapi-3.2/archive/2020111.tar.gz. Users should note that the I/O API library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the I/O API documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Version Supported: IOAPI 3.2 tagged 2020111**
+The I/O API library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The version of the I/O API library supported with CMAQv5.3.2 (version 3.2 tagged 2020111) is available for download at https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE. Users should note that the I/O API library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the I/O API documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Version Supported: IOAPI 3.2 tagged 2020111**
 
 The general steps for installation of I/O API libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
