@@ -16,8 +16,7 @@
 #> the repository. The user may also set their own preferred 
 #> directory.
 
-
- set CMAQ_HOME = /home/bmurphy/cmaq_projects/bldrxn
+ set CMAQ_HOME = /home/username/CMAQ_Project
 
 #> This section allows users to choose explicitly which tools
 #> to make available from the repo. For each selected tool,

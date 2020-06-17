@@ -270,9 +270,9 @@ set make_options = "-j"                #> additional options for make command if
     endif
 
     #> Copy Files Back to Mechanism location
-    cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModMech}
+    cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/RXNS*MODULE.F90 ${CMAQ_REPO}/CCTM/src/${ModMech}/.
+    cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/[A,E,G,N]*.nml ${CMAQ_REPO}/CCTM/src/${ModMech}/.
     cd ${CMAQ_REPO}/CCTM/src/${ModMech}
-    rm -rf *.ext *.csv *.eqn *.html *.md *.spc wiki* Species_Table_TR_0.nml 
 
     #> Build CSQY Data Table for Inline Photolysis
     cd ${CMAQ_HOME}/UTIL/inline_phot_preproc/scripts
@@ -281,7 +281,7 @@ set make_options = "-j"                #> additional options for make command if
       echo "Preparation of CSQY Table did not build or run correctly --> Build Process Halted"
       exit 1
     endif
-    cp -f ${CMAQ_HOME}/UTIL/inline_phot_preproc/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModMech}
+    cp -f ${CMAQ_HOME}/UTIL/inline_phot_preproc/output/$Mechanism/CSQY_${MECH} ${CMAQ_REPO}/CCTM/src/${ModMech}
 
     #> if EBI Chemical Solver is set, build mechanism-dependent 
     #> EBI files and instruct build-make to look in the 
@@ -296,8 +296,7 @@ set make_options = "-j"                #> additional options for make command if
        if ( ! -e ${CMAQ_REPO}/CCTM/src/${ModGas} ) then
           mkdir -p ${CMAQ_REPO}/CCTM/src/${ModGas}
        endif
-       cp -f ${CMAQ_HOME}/UTIL/create_ebi/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModGas}
-       rm -rf ${CMAQ_REPO}/CCTM/src/${ModGas}/RXNS_DATA_MODULE.F90
+       cp -f ${CMAQ_HOME}/UTIL/create_ebi/output/ebi_$Mechanism/hr*.F ${CMAQ_REPO}/CCTM/src/${ModGas}/.
     endif
  endif
 
