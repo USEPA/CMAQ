@@ -81,6 +81,7 @@ C**********************************************************************
       USE CGRID_SPCS          ! CGRID species number and offsets
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
+      USE AERO_DATA, ONLY : EXTRACT_AERO, AEROSPC_CONC
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
@@ -217,16 +218,16 @@ C..SCRATCH LOCAL VARIABLES:
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, NUMCELLS,
-     &                         JDATE, JTIME, BLKID )
-           REAL( 8 ), INTENT( IN ) :: CBLK ( :, : )      !  species concentration in cell
-           REAL( 8 ), INTENT( IN ) :: TCELL( : )         !  cell temperature  [ k ]
-           REAL( 8 ), INTENT( IN ) :: DCELL( : )         !  cell air density  [ kg/m^3 ]
-           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :, : ) !  Photolysis table for cell [1/s]
-           INTEGER,   INTENT( IN ) :: NUMCELLS  ! number of grid cells in block
-           INTEGER,   INTENT( IN ) :: JDATE     ! current model date , coded YYYYDDD
-           INTEGER,   INTENT( IN ) :: JTIME     ! current model time , coded HHMMSS
-           INTEGER,   INTENT( IN ) :: BLKID     ! number for the block
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL,
+     &                            JDATE, JTIME )
+           REAL( 8 ), INTENT( IN ) :: CBLK( :,: )               !  species concentration in cell
+           REAL,      INTENT( IN ) :: TCELL( : )                !  cell temperature  [ k ]
+           REAL,      INTENT( IN ) :: DCELL( : )                !  cell air density  [ kg/m^3 ]
+           REAL,      INTENT( IN ) :: PRESS_CELL( : )           !  cell Pressure  [ Pa ]
+           REAL,      INTENT( IN ) :: QV_CELL( : )              !  cell water vapor mass mixing ratio  [ kg/kg ]
+           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :,: )         !  Photolysis table for cell [1/s]           
+           INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
+           INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
          END SUBROUTINE INIT_DEGRADE      
          SUBROUTINE FINAL_DEGRADE( CBLK )
            REAL( 8 ), INTENT( INOUT ) :: CBLK( :, : ) ! species conc in cell
@@ -496,11 +497,19 @@ C..WTH: Put concentrations into degradation array
                   Y_DEGRADE( NCELL,ISP ) = REAL(MAX( CONC( COL,ROW,LEV,ISP ), CONCMIN), 8 )
                ENDDO                 
             ENDDO
+               DO NCELL = 1, NUMCELLS
+                  CELLNUM = NORDCELL( OFFSET + NCELL )
+                  COL = CCOL( CELLNUM )
+                  ROW = CROW( CELLNUM )
+                  LEV = CLEV( CELLNUM )
+                  CALL EXTRACT_AERO( CONC( COL,ROW,LEV,: ), .TRUE. )
+                  AERO_BLK( ICELL, : ) = AEROSPC_CONC( : )
+               ENDDO                 
 
 C..initialize degradation routines
-              
-            CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, RJBLK, 
-     &                         NUMCELLS, JDATE, JTIME, BLKID )
+            NCELLS = NUMCELLS 
+            CALL INIT_DEGRADE( Y_DEGRADE, BLKTEMP, BLKDENS, BLKPRES, BLKCH2O, RJBLK, 
+     &                         JDATE, JTIME )
   
          ENDIF
 

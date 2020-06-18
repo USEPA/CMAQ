@@ -58,7 +58,7 @@ C.....LOCAL VARIABLES:
 
 C**********************************************************************
 
-      LOOP_BLOCK: DO I_CELL = 1, NUM_CELLS
+      LOOP_BLOCK: DO I_CELL = 1, NCELLS
 
          LOOP_REACT: DO I = 1, N_REACT  ! Loop over each reactant
 

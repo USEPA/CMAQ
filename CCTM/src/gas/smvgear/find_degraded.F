@@ -17,9 +17,8 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-
 C RCS file, release, date & time of last delta, author, state, [and locker]
-C $Header: /project/yoj/arc/CCTM/src/gas/smvgear/find_degraded.F,v 1.3 2011/10/21 16:11:13 yoj Exp $
+C $Header$
 
 C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
@@ -28,17 +27,16 @@ C %W% %P% %G% %U%
 
 C**********************************************************************
 C
-C  Function:  call routine degrade data and 
-C             Check decay and degradation rates for negative values.
+C  Function:  Set Logic Flag in whether to call degradation routines
 C
 C  CALLED BY: HRDRIVER
 C
 C**********************************************************************
-
+ 
            USE DEGRADE_SETUP_TOX
 
            IMPLICIT NONE
-
+ 
 C.....INCLUDES: NONE
 
 C.....ARGUMENTS:
@@ -55,13 +53,13 @@ C.....LOCAL VARIABLES:
            CALL DEGRADE_DATA()
 
            CALL DEGRADE_MAP( JDATE, JTIME )
-
+           
            IF( N_REACT_FOUND .GT. 0 )THEN
                CALL_DEGRADE = .TRUE.
            ELSE
                CALL_DEGRADE = .FALSE.
            ENDIF
-
+        
            RETURN
-
+         
          END SUBROUTINE FIND_DEGRADED
