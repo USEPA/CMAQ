@@ -102,9 +102,6 @@ C..looping data
       ALLOCATE( PHOTO_PROD ( N_REACT, N_PHOTO_LOSS ) )  ! name of daughter product for react(i)
       ALLOCATE( PHOTO_YIELD( N_REACT, N_PHOTO_LOSS ) )  ! yield of daughter product for react(i)
 
-      ALLOCATE( RATE_CONST( BLKSIZE, N_REACT, N_PROCESSES ) )
-      ALLOCATE( RATE_YIELD( N_REACT, N_PROCESSES ) )
-
 C..arrays to store indices to CGRID
 
       ALLOCATE( RXTANT_MAP( N_REACT ) )
@@ -135,8 +132,6 @@ C..arrays to store indices to CGRID
 
       A_PHOTO     = 0.0D0
       PHOTO_YIELD = 0.0
-
-      RATE_YIELD = 1.0D0
 
 ! product are unused aspect and results not returned cgrid 
       UNI_PROD   = BLANK

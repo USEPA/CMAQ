@@ -116,6 +116,7 @@ C**********************************************************************
          ALLOCATE( CURR_CONC( ISIZE ) )
          ALLOCATE( DELT_CONC( ISIZE ) )
          ALLOCATE( IS_AERO_ORGANIC ( N_AEROSPC ) )
+         ALLOCATE( RATE_CONST( N_PROCESSES, N_REACT ) )
          
 !         IF ( AE7ORGH2O ) THEN
             IS_AERO_ORGANIC( : ) = ( AEROSPC( : )%OM .AND. .NOT. AEROSPC( : )%TRACER )

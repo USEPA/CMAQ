@@ -82,6 +82,8 @@ C..saved cell concentrations
       INTEGER :: NCELLS
       LOGICAL, ALLOCATABLE :: IS_AERO_ORGANIC( : )  ! is aerosol species as OA and not a tracer
 
+      REAL(8), ALLOCATABLE :: RATE_CONST( :,:,: )
+      REAL(8), ALLOCATABLE :: RATE_YIELD( :,: )
 C**********************************************************************
 
       CONTAINS
@@ -145,6 +147,7 @@ C..arrays to store indices to CGRID
          ALLOCATE( RAD_MAP   ( N_BI_LOSS + N_LANHIN_LOSS, N_REACT ) )
          ALLOCATE( RAD2_MAP  ( 2, N_TRI_LOSS, N_REACT ) )
          ALLOCATE( PHOTO_MAP ( N_PHOTO_LOSS, N_REACT ) )
+         ALLOCATE( RATE_YIELD( N_REACT, N_PROCESSES ) )
 
 C..Initialize maps
 
@@ -154,6 +157,9 @@ C..Initialize maps
          RAD2_MAP    = -1
          PROD_MAP    = -1
          PHOTO_MAP   = -1
+
+         RATE_YIELD = 1.0D0
+
 
 C..save number of photolysis rates in mechanism
 

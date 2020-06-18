@@ -72,6 +72,9 @@ C..saved cell concentrations
 
       REAL(8), ALLOCATABLE :: DELT_CONC( : )   ! changes predicted by degrade routine
 
+      REAL(8), ALLOCATABLE :: RATE_CONST( :,: )
+      REAL(8), ALLOCATABLE :: RATE_YIELD( :,: )
+
 #ifdef isam
       INTEGER              :: ISAM_DEGRADED_SPC     ! number of ISAM species with degradation
       INTEGER, ALLOCATABLE :: ISAM_DEGRADE_MAP( : ) ! index in ISAM species array to extract conc
@@ -146,7 +149,6 @@ C..arrays to store indices to CGRID
          ALLOCATE( RAD2_MAP  ( 2, N_TRI_LOSS, N_REACT ) )
          ALLOCATE( PHOTO_MAP ( N_PHOTO_LOSS, N_REACT ) )
 
-         ALLOCATE( RATE_CONST( N_PROCESSES, N_REACT ) )
          ALLOCATE( RATE_YIELD( N_PROCESSES, N_REACT ) )
 
 C..Initialize maps
@@ -157,6 +159,8 @@ C..Initialize maps
          RAD2_MAP    = -1
          PROD_MAP    = -1
          PHOTO_MAP   = -1
+
+         RATE_YIELD = 1.0D0
 
 C..save number of photolysis rates in mechanism
 

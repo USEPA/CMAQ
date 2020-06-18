@@ -107,9 +107,6 @@ C..looping data
       REAL(8), ALLOCATABLE :: A_PHOTO    ( :,: ) ! multiplier of photolysis rates
       REAL,    ALLOCATABLE :: PHOTO_YIELD( :,: ) ! production yield
 
-      REAL(8), ALLOCATABLE :: RATE_CONST( :,: )
-      REAL(8), ALLOCATABLE :: RATE_YIELD( :,: )
-
 ! Heterogeneous loss of aerosol species with Relative Humidity and Temperature cut-off. It uses an
 ! Langmuir-Hinshelwood isotherm to calculate the rate 
       REAL(8), ALLOCATABLE :: LHRATE  ( :,: )  ! degradation rates for Langmuir-Hinshelwood reactions,  [1/sec]
@@ -246,8 +243,6 @@ C..looping data
             LH_RHMIN = 0.0
             LH_TAMIN = 0.0
             
-            RATE_YIELD = 0.0D0
-
 ! product are unused aspect and results not returned cgrid 
             UNI_PROD   = BLANK
             BI_PROD    = BLANK
