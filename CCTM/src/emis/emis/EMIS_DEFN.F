@@ -581,34 +581,57 @@ C Retrieve Emissions from All Stream Types
 
 #ifdef isam
            IF ( EM_FILE_LAPPLY( ISRM ) ) THEN
+             ! Populate SA_VDEMIS_CONV, array for carrying tagged
+             ! emissions contributions
 
-             IF ( TAGS_PER_STREAM( ISRM ) .GT. 0 ) THEN 
-
-               DO ITAG = 1,NTAG_SA
-                 DO R = 1,NROWS
-                   DO C = 1,NCOLS
-                     DO LAYER = 1,NL
-                       DO SPC = 1,N_SPC_DIFF
-                         SA_VDEMIS_CONV( SPC,LAYER,C,R,ITAG ) = 0.0
-                       END DO
+             ! Initialize 
+             DO ITAG = 1,NTAG_SA
+               DO R = 1,NROWS
+                 DO C = 1,NCOLS
+                   DO LAYER = 1,NL
+                     DO SPC = 1,N_SPC_DIFF
+                       SA_VDEMIS_CONV( SPC,LAYER,C,R,ITAG ) = 0.0
                      END DO
                    END DO
                  END DO
                END DO
-               SA_VDEMIS_CONV_OTHER = VDEMIS_CONV( :,1:NL,:,: )
+             END DO
+ 
+             ! Determine whether this emission stream corresponds to 
+             ! any ISAM tags
+             IF ( TAGS_PER_STREAM( ISRM ) .EQ. 0 ) THEN 
+               ! Dump all into 'OTHRTAG'
+               SA_VDEMIS_CONV( :,1:NL,:,:,OTHRTAG ) = 
+     &                             VDEMIS_CONV( :,1:NL,:,: )
+             ELSE
+               ! Initialize Array for Tracking Residual of Tagged
+               ! Emissions  
+               SA_VDEMIS_CONV_OTHER( :,1:NL,:,: ) = VDEMIS_CONV( :,1:NL,:,: )
 
                ! Loop through all of the ISAM tags associated with this
-               ! emissions stream. 
+               ! emissions stream. Generally each stream is only
+               ! associated with one tag. The exception is when
+               ! there are multiple tags corresponding to separate regions.
                DO IDX = 1, TAGS_PER_STREAM( ISRM )
 
+                 ! Retrieve A Tag Associated with this Stream
                  ITAG = STREAM_TO_TAG(ISRM,IDX)
 
-                 IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN ! full domain 
+                 IF ( ISAMRGN_NUM( ITAG ) .LT. 1 ) THEN  
+                   ! This tag is capturing 100% of every grid cell in
+                   ! the full domain for this stream. We need to assign
+                   ! all of the emissions from this stream to this tag
+                   ! and the residual is then set to 0.
                    SA_VDEMIS_CONV( :,1:NL,:,:,ITAG ) = 
      &                  SA_VDEMIS_CONV( :,1:NL,:,:,ITAG )
      &                        + VDEMIS_CONV(:,1:NL,:,: )
                    SA_VDEMIS_CONV_OTHER = 0.0
+
                  ELSE
+                   ! This tag is capturing some fraction of the stream
+                   ! in grid cells across the domain. These fractional
+                   ! contributions are applied using the EM_REG_FAC
+                   ! array with corresponding map indices.
                    ! Loop Over Altitude, Species and Regions to Add
                    ! emissions to corresponding tag, ITAG.
                    DO RGN = 1, ISAMRGN_NUM( ITAG )
@@ -630,9 +653,12 @@ C Retrieve Emissions from All Stream Types
                  END IF
                END DO
                
+               ! Now that emissions from this stream have been assigned
+               ! to all available tags, assess the remainder and assign
+               ! it to the "OTHR" tag if any exists.
                MINCHECK = MINVAL( SA_VDEMIS_CONV_OTHER( :,1:NL,:,: ) )
                IF ( MINCHECK .GE. 0.0 ) THEN
-                  ! Remainder is Valid. Move it to the "OTHR" Tag
+                  ! Remainder is Valid. Move it all to the "OTHR" Tag
                   SA_VDEMIS_CONV( :,1:NL,:,:,OTHRTAG ) = 
      &                                SA_VDEMIS_CONV_OTHER( :,1:NL,:,: )
                ELSE
@@ -642,7 +668,9 @@ C Retrieve Emissions from All Stream Types
      &                    " - check isam control file. "
                   CALL M3WARN( 'ISAM_EMISSIONS', 1, 1, XMSG )
 
-                  ! Repair OTHER By Distributing Negative Among Populated Tags
+                  ! Repair OTHER By Distributing Negative Among Populated Tags 
+                  ! and assigning positive part to the "OTHR" Tag as
+                  ! planned
                   DO R = 1,NROWS
                   DO C = 1,NCOLS
                   DO LAYER = 1,NL
@@ -656,6 +684,10 @@ C Retrieve Emissions from All Stream Types
      &                      SA_VDEMIS_CONV( SPC,LAYER,C,R,ITAG ) *
      &                      ( 1.0 + SA_VDEMIS_CONV_OTHER( SPC,LAYER,C,R ) / TOTAL )
                         END DO
+                     ELSE
+                        ! Assign the positive values to the "OTHR" Tag
+                        SA_VDEMIS_CONV( SPC,LAYER,C,R,OTHRTAG ) = 
+     &                                SA_VDEMIS_CONV_OTHER( SPC,LAYER,C,R )
                      END IF
                   END DO
                   END DO
@@ -663,10 +695,6 @@ C Retrieve Emissions from All Stream Types
                   END DO
                END IF
 
-             ELSE ! dump all into 'OTHRTAG'
-               SA_VDEMIS_CONV = 0.0
-               SA_VDEMIS_CONV( :,1:NL,:,:,OTHRTAG ) = 
-     &                             VDEMIS_CONV( :,1:NL,:,: )
              END IF
 
              ! Subset the emissions array for ISAM traced species  
