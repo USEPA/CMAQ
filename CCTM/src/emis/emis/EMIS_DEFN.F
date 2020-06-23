@@ -664,6 +664,7 @@ C Retrieve Emissions from All Stream Types
                END IF
 
              ELSE ! dump all into 'OTHRTAG'
+               SA_VDEMIS_CONV = 0.0
                SA_VDEMIS_CONV( :,1:NL,:,:,OTHRTAG ) = 
      &                             VDEMIS_CONV( :,1:NL,:,: )
              END IF
