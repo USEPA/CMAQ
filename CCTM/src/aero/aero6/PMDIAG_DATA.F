@@ -314,16 +314,16 @@ c-----------------------------------------------------------------------
      &PMDTP( 'PMF_SOC      ',ID_PMF_SOC,    5, F, 'ugC m-3','Fine-Mode Secondary Organic Carbon' ),
      &PMDTP( 'PMF_POA      ',ID_PMF_POA,    5, F, 'ug m-3', 'Fine-Mode Primary Organic Aerosol' ),
      &PMDTP( 'PMF_SOA      ',ID_PMF_SOA,    5, F, 'ug m-3', 'Fine-Mode Secondary Organic Aerosol' ),
-     &PMDTP( 'PMF_NCOM     ',ID_PMF_NCOM,   5, F, 'ug m-3', 'Fine-Mode Non-Carbon Organic Matter' ),
+     &PMDTP( 'PMF_NCOM     ',ID_PMF_NCOM,   5, F, 'ug m-3', 'Fine-Mode Non-Carbon Organic Matter in POA' ),
      &PMDTP( 'PMF_OMOC     ',ID_PMF_OMOC,   5, F, '1     ','Fine-Mode OM/OC' ),
      &PMDTP( 'PMF_OTOC     ',ID_PMF_OtoC,   5, F, '1     ','Fine-Mode O:C' ),
      &PMDTP( 'PMF_ASOA     ',ID_PMF_ASOA,   5, F, 'ug m-3', 'Fine-Mode Anthropogenic-VOC Derived OA' ),
      &PMDTP( 'PMF_BSOA     ',ID_PMF_BSOA,   5, F, 'ug m-3', 'Fine-Mode Biogenic-VOC Derived OA' ),
-     &PMDTP( 'PMF_CLDGLY   ',ID_PMF_CLDGLY, 5, F, 'ug m-3', 'Fine-Mode Cloud-Processed OA + Glyoxal SOA' ),
-     &PMDTP( 'PMF_ISOPSOA  ',ID_PMF_ISOP,   5, F, 'ug m-3', 'Fine-Mode Isoprene SOA' ),
+     &PMDTP( 'PMF_CLDGLY   ',ID_PMF_CLDGLY, 5, F, 'ug m-3', 'Fine-Mode SOA from glyoxal and methylglyoxal' ),
+     &PMDTP( 'PMF_ISOPSOA  ',ID_PMF_ISOP,   5, F, 'ug m-3', 'Fine-Mode Isoprene SOA excl IEPOX SOA' ),
      &PMDTP( 'PMF_IEPOXSOA ',ID_PMF_IEPOX,  5, F, 'ug m-3', 'Fine-Mode IEPOX SOA' ),
      &PMDTP( 'PMF_MTNSOA   ',ID_PMF_MTNSOA, 5, F, 'ug m-3', 'Fine-Mode Monoterpene Nitrate SOA' ),
-     &PMDTP( 'PMF_MTSOA    ',ID_PMF_MTSOA,  5, F, 'ug m-3', 'Fine-Mode Monoterpene SOA' ),
+     &PMDTP( 'PMF_MTSOA    ',ID_PMF_MTSOA,  5, F, 'ug m-3', 'Fine-Mode Monoterpene SOA excl Nitrates' ),
                                                             
       ! AMS Speciation                                      
      &PMDTP( 'PMAMS_SO4    ',ID_AMS_SO4,    5, F, 'ug m-3', 'Sulfate Collected by the AMS' ),
@@ -375,7 +375,7 @@ c-----------------------------------------------------------------------
      &PMDTP( 'PM25_MN      ',ID_PM25_MN,    5, F, 'ug m-3', 'PM2.5 Manganese' ),
      &PMDTP( 'PM25_AL      ',ID_PM25_AL,    5, F, 'ug m-3', 'PM2.5 Aluminum' ),
      &PMDTP( 'PM25_SOIL    ',ID_PM25_SOIL,  5, F, 'ug m-3', 'PM2.5 Recon Soil (Fine) and Explicit (Coarse)' ),
-     &PMDTP( 'PM25_UNSP1   ',ID_PM25_UNSP1, 5, F, 'ug m-3', 'PM2.5 Unspeciated Coarse Mass' ),
+     &PMDTP( 'PM25_UNSP1   ',ID_PM25_UNSP1, 5, F, 'ug m-3', 'PM2.5 Unsp. Coarse Mass based on Recon. soil for the IMPROVE method' ),
      &PMDTP( 'PM25_UNSPCRS ',ID_PM25_UN,    5, F, 'ug m-3', 'PM2.5 Unspeciated Coarse Mass' ),
      &PMDTP( 'PM25_HP      ',ID_PM25_HP,    5, F, 'ug m-3', 'PM2.5 H+ Ion' ),
 
@@ -426,8 +426,8 @@ c-----------------------------------------------------------------------
      &PMDTP( 'YIELD_CLNO2  ',ID_YCLNO2F,    5, F, '1     ', 'Fine Mode CLNO2 Heterogeneous reaction yield' ),
      &PMDTP( 'YIELD_CLNO2K ',ID_YCLNO2C,    5, F, '1     ', 'Coarse Mode CLNO2 Heterogeneous reaction yield' ),
      &PMDTP( 'GAMMA_IEPOX  ',ID_GIEPOX,     5, F, '1     ', 'IEPOX heterogeneous uptake coefficient' ),
-     &PMDTP( 'K_IEPOX      ',ID_KIEPOX,     5, F, 's-1   ', 'IEPOX pseudo particle phase reaction rate const' ),
-     &PMDTP( 'GAMMA_IMAE   ',ID_GIMAE,      5, F, '1     ', 'IMAE heterogeneous uptake coefficient' ) /)
+     &PMDTP( 'K_IEPOX      ',ID_KIEPOX,     5, F, 's-1   ', 'IEPOX 1st order particle phase reaction rate const' ),
+     &PMDTP( 'GAMMA_IMAE   ',ID_GIMAE,      5, F, '1     ', 'IMAE+HMML heterogeneous uptake coefficient' ) /)
      
 
         TYPE PMDIAG_KEY_TYPE

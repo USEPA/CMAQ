@@ -656,25 +656,25 @@
              
              !!!! Coarse-Mode Parameters !!!!  
 
-             ! Map ASO4K - Coarse-Mode Sulfate
+             ! Map PMC_SO4 - Coarse-Mode Sulfate
              CASE ( ID_PMC_SO4 ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
-             ! Map ANO3K - Coarse-Mode Nitrate
+             ! Map PMC_NO3 - Coarse-Mode Nitrate
              CASE ( ID_PMC_NO3 ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
-             ! Map ANH4K - Coarse-Mode Ammonium
+             ! Map PMC_NH4 - Coarse-Mode Ammonium
              CASE ( ID_PMC_NH4 ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
-             ! Map Coarse-Mode Sodium
+             ! Map PMC_NA - Coarse-Mode Sodium
              CASE ( ID_PMC_NA ) 
                N_VARS = 3
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
@@ -682,7 +682,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0626 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0023 )
  
-             ! Map Coarse-Mode Magnesium
+             ! Map PMC_MG - Coarse-Mode Magnesium
              CASE ( ID_PMC_MG ) 
                N_VARS = 3
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
@@ -690,7 +690,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0170 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0032 )
  
-             ! Map Coarse-Mode Potassium
+             ! Map PMC_K - Coarse-Mode Potassium
              CASE ( ID_PMC_K ) 
                N_VARS = 3
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
@@ -698,7 +698,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'ASOIL', 0.0242 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ACORS', 0.0176 )
 
-             ! Map Coarse-Mode Calcium
+             ! Map PMC_CA - Coarse-Mode Calcium
              CASE ( ID_PMC_CA ) 
                N_VARS = 3
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'COARSE' )
@@ -709,97 +709,97 @@
              
              !!!! Fine-Mode Parameters !!!!  
 
-             ! Map ASO4IJ - Fine-Mode Sulfate
+             ! Map PMF_SO4 - Fine-Mode Sulfate
              CASE ( ID_PMF_SO4 ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
-             ! Map ANO3IJ - Fine-Mode Nitrate
+             ! Map PMF_NO3 - Fine-Mode Nitrate
              CASE ( ID_PMF_NO3 ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
-             ! Map ANH4IJ - Fine-Mode Ammonium
+             ! Map PMF_NH4 - Fine-Mode Ammonium
              CASE ( ID_PMF_NH4 ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS , 'FINE')
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
-             ! Map ACLIJ - Fine-Mode Chloride
+             ! Map PMF_CL - Fine-Mode Chloride
              CASE ( ID_PMF_CL ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
-             ! Map ANAIJ - Fine-Mode Sodium
+             ! Map PMF_NA - Fine-Mode Sodium
              CASE ( ID_PMF_NA ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
-             ! Map AECIJ - Fine-Mode Elemental Carbon                                   
+             ! Map PMF_EC - Fine-Mode Elemental Carbon                                   
              CASE ( ID_PMF_EC )                                                         
                N_VARS = 1                                                               
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )                           
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AEC', 1.0 )                  
                                                                                         
-             ! Map AFEJ - Fine-Mode Iron
+             ! Map PMF_FE - Fine-Mode Iron
              CASE ( ID_PMF_FE ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AFE', 1.0 )
  
-             ! Map AALJ - Fine-Mode Aluminum
+             ! Map PMF_AL - Fine-Mode Aluminum
              CASE ( ID_PMF_AL ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AAL', 1.0 )
  
-             ! Map ASIJ - Fine-Mode Silicon
+             ! Map PMF_SI - Fine-Mode Silicon
              CASE ( ID_PMF_SI ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASI', 1.0 )
  
-             ! Map ATIJ - Fine-Mode Titanium
+             ! Map PMF_TI - Fine-Mode Titanium
              CASE ( ID_PMF_TI ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ATI', 1.0 )
  
-             ! Map ACAJ - Fine-Mode Calcium
+             ! Map PMF_CA - Fine-Mode Calcium
              CASE ( ID_PMF_CA ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACA', 1.0 )
  
-             ! Map AMGJ - Fine-Mode Magnesium
+             ! Map PMF_MG - Fine-Mode Magnesium
              CASE ( ID_PMF_MG ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMG', 1.0 )
  
-             ! Map AKJ - Fine-Mode Potassium
+             ! Map PMF_K - Fine-Mode Potassium
              CASE ( ID_PMF_K ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AK', 1.0 )
  
-             ! Map AMNJ - Fine-Mode Manganese
+             ! Map PMF_MN - Fine-Mode Manganese
              CASE ( ID_PMF_MN ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMN', 1.0 )
  
-             ! Map AH2OIJ - Fine-Mode Particle Water           
+             ! Map PMF_H2O - Fine-Mode Particle Water           
              CASE ( ID_PMF_H2O )                               
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH2O', 1.0/19.0 )
  
-             ! Map ASOILJ_IMPV - IMPROVE reconstruction of Soil PM
+             ! Map SOIL_IMPV - IMPROVE reconstruction of Soil PM
              CASE ( ID_SOIL_IMPV )
                N_VARS = 5
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ACCUMULATION' )
@@ -809,7 +809,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'AFE', 2.42 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ATI', 1.94 )
  
-             ! Map PMF_UN_IMPV1 - Retrieve Fine-Mode Unspeciated PM based 
+             ! Map PMF_UNSP1 - Retrieve Fine-Mode Unspeciated PM based 
              !   on reconstructed SOIL PM from IMPROVE method and including 
              !   NCOM in the unspeciated portion
              CASE ( ID_PMF_UNSP1 )
@@ -825,7 +825,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 8, 'AGG',  'PMF_OC', -1.0 )          
                CALL SET_PMDIAG_COEFF_MAP( IDG, 9, 'AGG',  'PMF_SOILIMPV', -1.0 )          
  
-             ! Map PMF_UN_IMPV2 - Retrieve Fine-Mode Unspeciated PM based 
+             ! Map PMF_UNSP2 - Retrieve Fine-Mode Unspeciated PM based 
              !   on reconstructed SOIL PM from IMPROVE method and EXCLUDING 
              !   NCOM in the unspeciated portion
              CASE ( ID_PMF_UNSP2 )
@@ -841,47 +841,48 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 8, 'AGG',  'PMF_OA', -1.0 )          
                CALL SET_PMDIAG_COEFF_MAP( IDG, 9, 'AGG',  'PMF_SOILIMPV', -1.0 )          
 
-             ! Map AHPLUSIJ - Fine-Mode Hydronium Ion
+             ! Map PMF_HP - Fine-Mode Hydronium Ion
              CASE ( ID_PMF_HP ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AH3OP', 1.0/19.0 )
  
-             ! Map ANCOMIJ - Fine-Mode Non-Carbon Organic Mass
+             ! Map PMF_NCOM - Fine-Mode Non-Carbon Organic Mass in POA
              CASE ( ID_PMF_NCOM ) 
                N_VARS = 2
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OA', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AGG', 'PMF_OC',-1.0 )
  
-             ! Map AORGCJ - Fine-Mode Cloud-Processed OA
+             ! Map PMF_CLDGLY - Fine-Mode SOA from glyoxal and methylglyoxal
              CASE ( ID_PMF_CLDGLY ) 
                N_VARS = 2
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AORGC', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AGLY', 1.0 )
  
-             ! Map AISOPJ - Fine-Mode Isoprene SOA
+             ! Map PMF_ISOP - Fine-Mode Isoprene SOA excluding IEPOX SOA
              CASE ( ID_PMF_ISOP ) 
                N_VARS = 2
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AISO1', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AISO2', 1.0 )
  
-             ! Map AIEPOXJ - Fine-Mode IEPOX SOA
+             ! Map PMF_IEPOX - Fine-Mode IEPOX SOA
              CASE ( ID_PMF_IEPOX ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AISO3', 1.0 )
  
-             ! Map AMTNJ - Fine-Mode Monoterpene Nitrate SOA
+             ! Map PMF_MTNSOA - Fine-Mode Monoterpene Nitrate SOA
              CASE ( ID_PMF_MTNSOA ) 
                N_VARS = 2
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'AMTNO3', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'AERO', 'AMTHYD', 1.0 )
  
-             ! Map AMTJ - Fine-Mode Monoterpene SOA
+             ! Map PMF_MTSOA - Fine-Mode Monoterpene SOA excluding
+             ! Nitrates
              CASE ( ID_PMF_MTSOA ) 
                N_VARS = 6
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
@@ -895,25 +896,25 @@
              
              !!!! AMS Parameters !!!!  
 
-             ! Map PMAMS_SO4 - AMS-Measure Sulfate
+             ! Map AMS_SO4 - AMS-Measure Sulfate
              CASE ( ID_AMS_SO4 ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
              
-             ! Map PMAMS_NO3 - AMS-Measured Nitrate
+             ! Map AMS_NO3 - AMS-Measured Nitrate
              CASE ( ID_AMS_NO3 ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
-             ! Map PMAMS_NH4 - AMS-Measured Ammonium
+             ! Map AMS_NH4 - AMS-Measured Ammonium
              CASE ( ID_AMS_NH4 ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
-             ! Map PMAMS_CL - AMS-Measured Chloride
+             ! Map AMS_CL - AMS-Measured Chloride
              CASE ( ID_AMS_CL ) 
                N_VARS = 1
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PMAMS' )
@@ -1040,7 +1041,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 8, 'AGG',  'PM1_OC', -1.0 )          
                CALL SET_PMDIAG_COEFF_MAP( IDG, 9, 'AGG',  'PM1_SOIL', -1.0 )          
   
-             ! Map PM1_UNSPCRS - PM1.0 Unspeciated Coarse Mass
+             ! Map PM1_UN - PM1.0 Unspeciated Coarse Mass
              CASE ( ID_PM1_UN ) 
                N_VARS = 3
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM1' )
@@ -1175,7 +1176,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 8, 'AGG',  'PM25_OC', -1.0 )          
                CALL SET_PMDIAG_COEFF_MAP( IDG, 9, 'AGG',  'PM25_SOIL', -1.0 )          
  
-             ! Map PM25_UNSPCRS - PM2.5 Unspeciated Coarse Mass
+             ! Map PM25_UN - PM2.5 Unspeciated Coarse Mass
              CASE ( ID_PM25_UN ) 
                N_VARS = 3
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
@@ -2652,26 +2653,6 @@
       CHARACTER( 16 ), SAVE :: PNAME = 'WRITE_PMDIAG'
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 
-      IF ( FIRSTIME ) THEN
-         FIRSTIME = .FALSE.
- 
-         IF ( .NOT. IO_PE_INCLUSIVE ) THEN
-            IF ( INST_ACTIVE ) THEN
-         !      IF ( .NOT. OPEN3( CTM_PMDIAG_1, FSREAD3, PNAME ) ) THEN
-         !         XMSG = 'Could not open ' // CTM_CONC_1 // ' file for update'
-         !         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         !      END IF
-            END IF
- 
-            IF ( AVRG_ACTIVE ) THEN
-         !      IF ( .NOT. OPEN3( CTM_APMDIAG_1, FSREAD3, PNAME ) ) THEN
-         !         XMSG = 'Could not open ' // A_CONC_1 // ' file for update'
-         !         CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         !      END IF
-            END IF
-         END IF
-
-      END IF 
 C *** If IO Proceesor, then Write Data
       !IF ( IO_PE_INCLUSIVE ) THEN
          MDATE = JDATE
