@@ -117,10 +117,20 @@ ENDLIST eof
 In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation (note, that at least one user-specified tag must be defined):
 
 ```
-ICON - contribution from initial conditions specified for the first day of the simulation
-BCON - contribution form boundary condtions throughout the simulation
-OTHR - contribution from all emissions not tagged by the user through isam control file.
+ICO - contribution from initial conditions specified for the first day of the simulation
+BCO - contribution from boundary conditions throughout the simulation
+OTH - contribution from all non-tagged emissions streams and other processes in the model.
 ```
+#### Interpretation of 'OTH' tag
+The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
+
+For item 1), this includes internally calculated emissions that a user decides to exclude from the control file (perhaps to reduce computational cost of running with tags that are not of interest to a particular application). These are things like online biogenics, online lightning, dust, etc.
+
+An example for item 2) is ozone production from CO if a user specifies only the OZONE tag class. To capture this effect in the user-defined tags rather than the 'OTH' tag, a user would have to speficy both the OZONE and CO tag classes in their control file.
+
+For item 3), these are processes in the model that create a given species but not from the emissions streams that can be specified with the control file.  For example, O3_OTHER includes ozone that is produced from background methane that is specified in the model as a constant.
+
+Finally, ISAM is an approximation for attribution. In the formulation, assumptions are made about which species are most important in the chemical formuation of the species being studied.  For example, all species in the gas-phase chemical mechanisms supported by CMAQ contribute to some degree to ozone formation.  The contribution to ozone from species not included in the ISAM formulation will go into 'O3_OTHER', even if the emission source of these species is included in the control file.
 
 ## 11.4 ISAM Benchmark data
 The input files for the CMAQv5.3 ISAM benchmark case are the same as the benchmark inputs for the base model, described in the [CMAQ Benchmark Tutorial](Tutorials/CMAQ_UG_tutorial_benchmark.md).  Output source apportionment files associated with the sample `isam_control.txt` provided in this release package are included in the benchmark outputs for the base model.  
@@ -146,6 +156,6 @@ Kwok, R.H.F, Baker, K.R., Napelenok, S.L., & Tonnesen, G.S. (2015). Photochemica
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch10_HDDM-3D.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch12_sulfur_tracking.md)<br>
-CMAQ User's Guide (c) 2019<br>
+CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->
