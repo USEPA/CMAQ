@@ -138,6 +138,6 @@ Wong, D. C., Yang, C. E., Fu, J. S., Wong, K., and Gao, Y., “An approach to en
 <!-- BEGIN COMMENT -->
 
  [<< Previous Chapter](CMAQ_UG_ch02_program_structure.md)- [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch04_model_inputs.md)<br>
-CMAQ User's Guide (c) 2019<br>
+CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->

@@ -458,7 +458,7 @@ The actual amount of dust emitted from an arid surface depends on wind speed, su
 
 CMAQ uses time-varying vegetation coverage, soil moisture and wind speed from the meteorological model, WRF. The vegetation coverage in WRF can vary depending on the configuration. In WRFv4.1+, the Pleim-Xiu land-surface model (PX LSM) was modified to provide CMAQ vegetation fraction (VEGF_PX in WRF renamed VEG in MCIP) from either the old fractional landuse weighting table lookup method (pxlsm_modis_veg = 0), or a new option where vegetation fraction is directly read from the monthly MODIS derived vegetation coverage (pxlsm_modis_veg = 1) found in the wrflowinp_d0* file(s). This was done because in recent years WRF has provided high resolution ~1 km monthly vegetation coverage that is more accurate than tables. Updates are backward compatible with older version of MCIP or WRF as long as VEG and VEGF_PX/VEGFRA are in those files. If users employ a different land surface model like the NOAH LSM, MCIP will assign the values of VEGFRA in WRF to VEG for CMAQ and the dust module will operate the same. Using the MODIS data in WRF via the new PX vegetation option provides the dust model a more accurate representation of vegetation in regions where windblown dust most occurs. 
 
-The CMAQ windblown dust module optionally requires utilizes additional land use information beyond the land use information contained in the MCIP files. This optional additional land use information is generally available for North American domains only and is provided by specifying either one (E2C_LU) or two (DUST_LU_1 and DUST_LU_2) additional input data files. See [Chapter 4](CMAQ_UG_ch04_model_inputs.md) for more information on these optional model input files. If these optional additional input files are not available (e.g. for a hemispheric modeling domain), the windblown dust module can function with only the land use information contained in the MCIP files. See [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md) on further information on how to specify the land use information for the windblown dust module.
+The CMAQ windblown dust module optionally utilizes additional land use information beyond the land use information contained in the MCIP files. This optional additional land use information is generally available for North American domains only and is provided by specifying two (DUST_LU_1 and DUST_LU_2) additional input data files. See [Chapter 4](CMAQ_UG_ch04_model_inputs.md) for more information on these optional model input files. If these optional additional input files are not available (e.g. for a hemispheric modeling domain), the windblown dust module can function with only the land use information contained in the MCIP files. See [Appendix A](Appendix/CMAQ_UG_appendixA_model_options.md) on further information on how to specify the land use information for the windblown dust module.
 
 The CMAQ windblown dust module is controlled by the following RunScript flag:
 
@@ -994,6 +994,6 @@ Yi, C. (2008). Momentum transfer within canopies. J. App. Meteor. Clim., 47, 262
 
 [<< Previous Chapter](CMAQ_UG_ch05_running_a_simulation.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch07_model_outputs.md)
 <br>
-CMAQ User's Guide (c) 2019<br>
+CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->

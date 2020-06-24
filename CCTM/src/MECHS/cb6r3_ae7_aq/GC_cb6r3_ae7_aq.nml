@@ -91,7 +91,7 @@ GC_SPECIES_DATA =
 'CAT1'         ,124.1  ,''   ,-1    ,''     ,-1     ,'VD_CAT1'         , 1   ,'PHENOL'          , 1  ,''           ,''        ,'Yes' ,'Yes' ,''    ,'Yes',
 'CRON'         ,153.1  ,''   ,-1    ,''     ,-1     ,'VD_METH_NIT_PHEN', 1   ,'6_NITRO_O_CRESOL', 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'OPAN'         ,161.0  ,''   ,-1    ,''     ,-1     ,'VD_MPAN'         , 1   ,'MPAN'            , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'ECH4'         , 16.0  ,''   ,-1    ,''     ,-1     ,'VD_METHANE'      ,0.035,'METHANE'         , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'ECH4'         , 16.0  ,''   ,-1    ,''     ,-1     ,'VD_METHANE'      , 1   ,'METHANE'         , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'CL2'          , 71.0  ,''   ,-1    ,''     ,-1     ,'VD_CL2'          , 1   ,'CL2'             , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'CL'           , 35.5  ,''   ,-1    ,''     ,-1     ,''                ,-1   ,''                ,-1  ,''           ,''        ,''    ,''    ,''    ,'Yes',
 'HOCL'         , 52.5  ,''   ,-1    ,''     ,-1     ,'VD_HOCL'         , 1   ,'HOCL'            , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
