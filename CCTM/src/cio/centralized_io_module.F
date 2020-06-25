@@ -3693,6 +3693,7 @@ C   mminlu and num_land_cat are WRF global variables
 
       USE UTILIO_DEFN
       use em_param_module
+      use util_family_module
       use RUNTIME_VARS, only : EMISSCTRL, logdev
 
       IMPLICIT NONE
@@ -3707,47 +3708,10 @@ C   mminlu and num_land_cat are WRF global variables
      &              Guard_MarineGas, Guard_LightningNO, Guard_WindBlownDust,
      &              Guard_SeaSpray
 
-         ! Define Chemical Families
-         NAMELIST / ChemicalFamilies / NChemFamilies, ChemFamilyName, 
-     &              ChemFamilyNum, ChemFamilyMembers
-
-         ! Define Stream Families
-         NAMELIST / StreamFamilies / NStreamFamilies, StreamFamilyName, 
-     &              StreamFamilyNum, StreamFamilyMembers
-
-         ! Define Region Families
-         NAMELIST / RegionFamilies / NRegionFamilies, RegionFamilyName, 
-     &              RegionFamilyNum, RegionFamilyMembers
-
          ! Define Emissions Rules Input from Emissions Control Namelist
          NAMELIST / EmissionScalingRules / EM_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
-
-         ! ALlocate and Initialize Family Variables
-         ALLOCATE( CHEMFAMILYNAME( N_CHEM_FAMILY_REG ),
-     &             CHEMFAMILYNUM( N_CHEM_FAMILY_REG ),
-     &             CHEMFAMILYMEMBERS( N_CHEM_FAMILY_REG,N_CHEM_MEMBER_REG ) )
-         NCHEMFAMILIES = 0
-         CHEMFAMILYNAME    = ''
-         CHEMFAMILYNUM     = 0
-         CHEMFAMILYMEMBERS = ''
-
-         ALLOCATE( STREAMFAMILYNAME( N_STREAM_FAMILY_REG ),
-     &             STREAMFAMILYNUM( N_STREAM_FAMILY_REG ),
-     &             STREAMFAMILYMEMBERS( N_STREAM_FAMILY_REG,N_STREAM_MEMBER_REG ) )
-         NSTREAMFAMILIES = 0
-         STREAMFAMILYNAME    = ''
-         STREAMFAMILYNUM     = 0
-         STREAMFAMILYMEMBERS = ''
-
-         ALLOCATE( REGIONFAMILYNAME( N_REGION_FAMILY_REG ),
-     &             REGIONFAMILYNUM( N_REGION_FAMILY_REG ),
-     &             REGIONFAMILYMEMBERS( N_REGION_FAMILY_REG,N_REGION_MEMBER_REG ) )
-         NREGIONFAMILIES = 0
-         REGIONFAMILYNAME    = ''
-         REGIONFAMILYNUM     = 0
-         REGIONFAMILYMEMBERS = ''
 
          ! Allocate and Initialize Namelist Variables
          ALLOCATE( EM_NML( N_EM_RULE_REG ) )
@@ -3760,11 +3724,13 @@ C   mminlu and num_land_cat are WRF global variables
          EM_NML%BASIS  = ''
          EM_NML%FAC    = 0.
 
+         ! Allocate and Initialize Size Distribution Namelist Variables
          ALLOCATE( SD_NML( N_SD_REG ) )
          SD_NML%STREAM   = ''
          SD_NML%MODE     = ''
          SD_NML%MODE_REF = ''
 
+         ! Allocate and Initalize Region Namelist Variables
          ALLOCATE( RGN_NML( N_REGIONS_REG ) )
          RGN_NML%LABEL = ''
          RGN_NML%FILE  = ''
@@ -3792,7 +3758,7 @@ C   mminlu and num_land_cat are WRF global variables
          ! Check for Error in File Open Process
          IF ( STAT .NE. 0 ) THEN
              WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
-     &              'emissions control namelist file: ',TRIM( EQNAME )
+     &              'emissions control namelist file: ',TRIM( EMISSCTRL )
              CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
          
@@ -3812,65 +3778,6 @@ C   mminlu and num_land_cat are WRF global variables
              Guard_SeaSpray      = .FALSE.
          END IF
  
-         ! Read Chemical Family Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = ChemicalFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'ChemicalFamilies section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             NChemFamilies      = 0
-             ChemFamilyName     = ''
-             ChemFamilyNum      = 0
-             ChemFamilyMembers  = ''
-         END IF
-         ! Capitalize All Family and Member Names
-         DO IFAM = 1,NChemFamilies
-             CALL UPCASE( ChemFamilyName( IFAM ) )
-             DO INUM = 1,ChemFamilyNum ( IFAM )
-                 CALL UPCASE( ChemFamilyMembers( IFAM,INUM ) )
-             END DO
-         END DO
-
-         ! Read Stream Family Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = StreamFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'StreamFamilies section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             NStreamFamilies      = 0
-             StreamFamilyName     = ''
-             StreamFamilyNum      = 0
-             StreamFamilyMembers  = ''
-         END IF
-         ! Capitalize All Family and Member Names
-         DO IFAM = 1,NStreamFamilies
-             CALL UPCASE( StreamFamilyName( IFAM ) )
-             DO INUM = 1,StreamFamilyNum( INUM )
-                 CALL UPCASE( StreamFamilyMembers( IFAM,INUM ) )
-             END DO
-         END DO
- 
-         ! Read Region Family Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = RegionFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'RegionFamilies section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             NRegionFamilies      = 0
-             RegionFamilyName     = ''
-             RegionFamilyNum      = 0
-             RegionFamilyMembers  = ''
-         END IF
-
          ! Read the Regions Registry
          REWIND( EMCTRL_NML )
          READ( NML = RegionsRegistry, UNIT = EMCTRL_NML, IOSTAT=STAT )
