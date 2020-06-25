@@ -118,11 +118,7 @@ C**********************************************************************
          ALLOCATE( IS_AERO_ORGANIC ( N_AEROSPC ) )
          ALLOCATE( RATE_CONST( N_PROCESSES, N_REACT ) )
          
-!         IF ( AE7ORGH2O ) THEN
-            IS_AERO_ORGANIC( : ) = ( AEROSPC( : )%OM .AND. .NOT. AEROSPC( : )%TRACER )
-!         ELSE
-!            IS_AERO_ORGANIC( : ) = .NOT. AEROSPC( : )%TRACER 
-!         END IF
+         IS_AERO_ORGANIC( : ) = ( AEROSPC( : )%OM .AND. .NOT. AEROSPC( : )%TRACER )
 
          FIRSTCALL = .FALSE.
 
@@ -240,6 +236,7 @@ C..initialize concentrations and their changes
 
 
          IF ( AE7ORGH2O ) THEN ! use water absorbed by organic mass
+             CALL EXTRACT_AERO( REAL( CBLK( : ),4 ), .FALSE. )
              ORG_H2O  = SUM( AEROSPC_CONC( AORGH2O_IDX, 1:2 ) ) * AEROSPC_MWINV( AORGH2O_IDX )
              ORG_AERO = SUM( SUM( AEROSPC_CONC( :,1:2 ),2 ) * AEROSPC_MWINV( : ), 
      &                            MASK=IS_AERO_ORGANIC( : ) ) 

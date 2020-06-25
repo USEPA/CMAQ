@@ -262,6 +262,26 @@ C..update current concentrations
          ENDDO LOOP_UPDATE2
 
       ENDDO LOOP_UPDATE1
+#ifdef isam
+      LOOP_ISAM: DO I = 1, ISAM_DEGRADED_SPC
+      
+         I_RXT = ISAM_TO_DEGRADED( I ) 
+         IF( I_RXT .GT. 0 )THEN 
+
+            DO J = 1,  NTAG_SA
+               DO I_CELL = 1, NCELLS
+                  IF ( DELT_CONC( ICELL, I_RXT ) .GT. CONMIN .AND. PREV_CONC( I_CELL,I_RXT ) .GT. CONMIN )THEN
+! scale loss of tag based on their fraction of the bulk
+                     FACTOR = 1.0D0 - MIN( 1.0D0,( DELT_CONC( I_CELL,I_RXT )/PREV_CONC( I_CELL,I_RXT ) )  )
+                     CONC_ISAM( I_CELL,J,I ) = MAX( CONC_ISAM( I_CELL,J,I ) * FACTOR,1.0D-30 )
+                  END IF
+              END DO
+            END DO ! ktag loop
+
+         END IF
+
+      ENDDO LOOP_ISAM
+#endif
 
       RETURN
       END

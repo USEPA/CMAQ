@@ -81,7 +81,6 @@ C**********************************************************************
       USE CGRID_SPCS          ! CGRID species number and offsets
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
-      USE AERO_DATA, ONLY : EXTRACT_AERO, AEROSPC_CONC
       USE AEROSOL_CHEMISTRY
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
@@ -497,14 +496,6 @@ C..WTH: Put concentrations into degradation array
                   Y_DEGRADE( NCELL,ISP ) = REAL(MAX( CONC( COL,ROW,LEV,ISP ), CONCMIN), 8 )
                ENDDO                 
             ENDDO
-               DO NCELL = 1, NUMCELLS
-                  CELLNUM = NORDCELL( OFFSET + NCELL )
-                  COL = CCOL( CELLNUM )
-                  ROW = CROW( CELLNUM )
-                  LEV = CLEV( CELLNUM )
-                  CALL EXTRACT_AERO( CONC( COL,ROW,LEV,: ), .TRUE. )
-                  AERO_BLK( ICELL, : ) = AEROSPC_CONC( : )
-               ENDDO                 
 
 C..initialize degradation routines
             NCELLS = NUMCELLS 

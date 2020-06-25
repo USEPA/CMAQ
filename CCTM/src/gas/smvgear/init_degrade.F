@@ -115,7 +115,6 @@ C**********************************************************************
          ALLOCATE( PREV_CONC( BLKSIZE, NSPCSD ) )
          ALLOCATE( CURR_CONC( BLKSIZE, NSPCSD ) )
          ALLOCATE( DELT_CONC( BLKSIZE, NSPCSD ) )
-         ALLOCATE( AERO_BLK ( BLKSIZE, NSPCSD ) )
          ALLOCATE( TEMP     ( BLKSIZE ) )
          ALLOCATE( INV_TEMP ( BLKSIZE ) )
          ALLOCATE( NUMB_DENS( BLKSIZE ) )
@@ -148,7 +147,6 @@ C..initialize concentrations and their changes
          CURR_CONC( :,I ) = PREV_CONC( :,I )
       END DO
          
-
       NUMB_DENS = MASS_TO_NUMBER * REAL( DCELL, 8 )
       NUMB_H2O  = MAOMW   * QV_CELL * NUMB_DENS
       
@@ -196,7 +194,7 @@ C..initialize concentrations and their changes
                 DO ICELL = NCELLS
                    RATE_CONST( ICELL, J+UNI_STOP, I  ) = NUMB_H2O( ICELL ) * BIRATE( J, I )
      &                                                 * TEMP( ICELL )**BI_TEXP( J, I )
-     &                                                * DEXP( -BI_ACT( J, I )*INV_TEMP( : ) )
+     &                                                 * DEXP( -BI_ACT( J, I )*INV_TEMP( : ) )
                 END DO
              ELSE
                 DO ICELL = NCELLS
@@ -288,7 +286,8 @@ C..initialize concentrations and their changes
 
          IF ( AE7ORGH2O ) THEN ! use water absorbed by organic mass
              DO ICELL = NCELLS
-                ORG_H2O  = SUM( AEROSPC_BLK( AORGH2O_IDX, 1:2, ICELL ) ) * AEROSPC_MWINV( AORGH2O_IDX )
+                CALL EXTRACT_AERO( REAL( CBLK(ICELL, : ),4 ), .FALSE. )
+                ORG_H2O  = SUM( AEROSPC_CONC( AORGH2O_IDX, 1:2 ) ) * AEROSPC_MWINV( AORGH2O_IDX )
                 ORG_AERO = SUM( SUM( AEROSPC_CONC( :,1:2 ),2, ICELL ) * AEROSPC_MWINV( : ), 
      &                                   MASK=IS_AERO_ORGANIC( : ) ) 
                 H2O_MOLAR_FRACTION( ICELL ) = ORG_H2O 

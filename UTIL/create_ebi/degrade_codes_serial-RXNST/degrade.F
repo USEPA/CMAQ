@@ -234,8 +234,6 @@ C..update concentrations
 
          IF ( DELT_CONC( I_RXT ) <= CONMIN .OR. CURR_CONC( I_RXT ) <= CONMIN ) CYCLE
          CURR_CONC( I_RXT ) = MAX( CURR_CONC( I_RXT ) - DELT_CONC( I_RXT ), CONMIN )
-!       write(6,'(a,12(es12.4,1x))')REACT( I ) // ':  before/after & rel. change ',
-!    &  PREV_CONC( I_RXT), CURR_CONC( I_RXT ),DELT_CONC( I_RXT )/PREV_CONC( I_RXT)
          LOOP_UPDATE2: DO J = 1, N_PROCESSES
             I_PROD = PROD_MAP( J, I )
             IF ( I_PROD < 1 ) CYCLE ! no specified product
@@ -254,13 +252,9 @@ C..update concentrations
             IF ( DELT_CONC( I_RXT ) .GT. CONMIN .AND. PREV_CONC( I_RXT ) .GT. CONMIN )THEN
 ! scale loss of tag based on their fraction of the bulk
                FACTOR = 1.0D0 - MIN( 1.0D0,( DELT_CONC( I_RXT )/PREV_CONC( I_RXT ) )  )
-!               write(6,'(a,12(es12.4,1x))')TRIM( REACT( ISAM_TO_REACTANT( I ) ) ) // ':degrade before/after ', 
-!     &         PREV_CONC( I_RXT ), CURR_CONC( I_RXT )
-!               write(6,'(a,12(es12.4,1x))')'Initial Tags and Total: ',CONC_ISAM( 1:NTAG_SA,I ),SUM( CONC_ISAM( :,I ) )
                DO J = 1,  NTAG_SA
                   CONC_ISAM( J,I ) = MAX( CONC_ISAM( J,I ) * FACTOR,1.0D-30 )
                END DO ! ktag loop
-!               write(6,'(a,12(es12.4,1x))')'Final Tags and Total: ',CONC_ISAM( 1:NTAG_SA,I ),SUM( CONC_ISAM( :,I ) )
             END IF
           
          END IF

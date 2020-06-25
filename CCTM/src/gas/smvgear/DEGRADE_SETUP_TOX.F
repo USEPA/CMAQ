@@ -147,7 +147,7 @@ C..arrays to store indices to CGRID
          ALLOCATE( RAD_MAP   ( N_BI_LOSS + N_LANHIN_LOSS, N_REACT ) )
          ALLOCATE( RAD2_MAP  ( 2, N_TRI_LOSS, N_REACT ) )
          ALLOCATE( PHOTO_MAP ( N_PHOTO_LOSS, N_REACT ) )
-         ALLOCATE( RATE_YIELD( N_REACT, N_PROCESSES ) )
+         ALLOCATE( RATE_YIELD( N_PROCESSES, N_REACT ) )
 
 C..Initialize maps
 
@@ -761,10 +761,10 @@ C..Save pointer for isam species found in chemistry species
           IMPLICIT NONE
 
 !..Arguments:
-         INTEGER,   INTENT( IN ) ::  COL        ! cell column index
-         INTEGER,   INTENT( IN ) ::  ROW        ! cell row index 
-         INTEGER,   INTENT( IN ) ::  LAY        ! cell layer index      
-         REAL,      INTENT( IN ) ::  DENS       ! air mass density, kg/m3
+         INTEGER,   INTENT( IN ) ::  COL( : )        ! cell column index
+         INTEGER,   INTENT( IN ) ::  ROW( : )        ! cell row index 
+         INTEGER,   INTENT( IN ) ::  LAY( : )        ! cell layer index      
+         REAL,      INTENT( IN ) ::  DENS( : )       ! air mass density, kg/m3
 
 C..Includes: None
 
@@ -779,17 +779,21 @@ C..Includes: None
 
          INTEGER :: JSPC, KTAG
          INTEGER :: SPC, S          ! array index
+         INTEGER :: C, R, L
+         INTEGER :: ICELL
          
           IF( ISAM_DEGRADED_SPC .LT. 1 )RETURN
           
-          INV_DENS = REAL( ONE/DENS, 8 )
+!          INV_DENS = REAL( ONE/DENS, 8 )
           
           DO JSPC = 1, ISAM_DEGRADED_SPC
              S       = ISAM_TO_DEGRADED( JSPC )
              SPC     = ISAM_DEGRADE_MAP( JSPC )
              LOAD_SOLD: DO KTAG = 1, NTAG_SA
-                 FACTOR2 = MAX( ISAM( COL,ROW,LAY,SPC,KTAG ), 1.0E-30 )
-                 CONC_ISAM( KTAG, JSPC ) = REAL( FACTOR2,8 )
+                DO ICELL = 1, NCELLS
+                   FACTOR2 = MAX( ISAM( COL(ICELL),ROW(ICELL),LAY(ICELL),SPC,KTAG ), 1.0E-30 )
+                   CONC_ISAM( ICELL, KTAG, JSPC ) = REAL( FACTOR2,8 )
+                END DO
              END DO LOAD_SOLD ! ktag loop
           END DO ! loop jspc
 
@@ -801,10 +805,10 @@ C..Includes: None
             IMPLICIT NONE
 
 !..Arguments:
-            INTEGER,   INTENT( IN ) ::  COL        ! cell column index
-            INTEGER,   INTENT( IN ) ::  ROW        ! cell row index 
-            INTEGER,   INTENT( IN ) ::  LAY        ! cell layer index      
-            REAL,      INTENT( IN ) ::  DENS       ! air mass density, kg/m3
+            INTEGER,   INTENT( IN ) ::  COL( : )        ! cell column index
+            INTEGER,   INTENT( IN ) ::  ROW( : )        ! cell row index 
+            INTEGER,   INTENT( IN ) ::  LAY( : )   ! cell layer index      
+            REAL,      INTENT( IN ) ::  DENS( : )  ! air mass density, kg/m3
 
 C..Includes: None
 
@@ -820,15 +824,18 @@ C..Includes: None
             
             INTEGER :: JSPC, KTAG
             INTEGER :: S, SPC          ! array index
-            
+            INTEGER :: ICELL
+
             IF( ISAM_DEGRADED_SPC .LT. 1 )RETURN
              
              DO JSPC = 1, ISAM_DEGRADED_SPC
                 S       = ISAM_TO_DEGRADED( JSPC )
                 SPC     = ISAM_DEGRADE_MAP( JSPC )
                 LOAD_ISAM: DO KTAG = 1, NTAG_SA
-                    FACTOR1 =  MAX( CONC_ISAM( KTAG,JSPC ),1.0D-30 )
-                    ISAM( COL,ROW,LAY,SPC,KTAG ) = REAL( FACTOR1 )
+                   DO ICELL = 1, NCELLS
+                      FACTOR1 =  MAX( CONC_ISAM( KTAG,JSPC ),1.0D-30 )
+                      ISAM( COL(ICELL),ROW(ICELL),LAY(ICELL),SPC,KTAG ) = REAL( FACTOR1 )
+                   END DO
                 END DO LOAD_ISAM ! ktag loop
              END DO ! loop jspc
 
