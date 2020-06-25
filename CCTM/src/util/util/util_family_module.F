@@ -127,17 +127,16 @@
       NAMELIST / RegionFamilies / NRegionFamilies, RegionFamilyName, 
      &           RegionFamilyNum, RegionFamilyMembers
  
+      ! Define Process Families
+      NAMELIST / ProcessFamilies / NProcessFamilies, ProcessFamilyName, 
+     &           ProcessFamilyNum, ProcessFamilyMembers
+ 
       ! Retrieve the Name of the Emission Control File
       IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
           WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A)"),
      &           'You have chosen not to indicate the location of an',
      &           'Emission Control namelist file. Default settings ',
      &           'will be assumed.'
-          Guard_BiogenicVOC   = .FALSE.
-          Guard_MarineGas     = .FALSE.
-          Guard_LightningNO   = .FALSE.
-          Guard_WindBlownDust = .FALSE.
-          Guard_SeaSpray      = .FALSE.
           RETURN
       END IF
  

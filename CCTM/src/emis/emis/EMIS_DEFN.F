@@ -1208,6 +1208,7 @@ C-----------------------------------------------------------------------
      &                         MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD,
      &                         EM_STREAM_SIZE, SD_SPLIT, EM_SD_INIT
          USE UDTYPES,   only : CARRY1, LARRY1
+         USE UTIL_FAMILY_MODULE
 
          IMPLICIT NONE
 

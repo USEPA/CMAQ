@@ -3466,6 +3466,7 @@ C   mminlu and num_land_cat are WRF global variables
       USE GRID_CONF
       USE UTILIO_DEFN
       USE em_param_module
+      USE UTIL_FAMILY_MODULE
 
 #ifdef sens
       USE DDM3D_DEFN, ONLY: NP, NPMAX, S_NRGN, S_RGNLBL, IREGION
