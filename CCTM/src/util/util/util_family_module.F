@@ -34,27 +34,27 @@
 
       ! Define Chemical Family Variables
       Integer                     :: NChemFamilies = 0
-      Character( 32 ),Allocatable :: ChemFamilyName( 50 ) = ''
-      Integer, Allocatable        :: ChemFamilyNum( 50 ) = 0
-      Character( 32 ),Allocatable :: ChemFamilyMembers( 50,100 ) = ''
+      Character( 32 )             :: ChemFamilyName( 50 ) = ''
+      Integer                     :: ChemFamilyNum( 50 ) = 0
+      Character( 32 )             :: ChemFamilyMembers( 50,100 ) = ''
 
       ! Define Stream Family Variables
       Integer                     :: NStreamFamilies = 0
-      Character( 32 ),Allocatable :: StreamFamilyName( 50 ) = ''
-      Integer, Allocatable        :: StreamFamilyNum( 50 ) = 0
-      Character( 32 ),Allocatable :: StreamFamilyMembers( 50,100 ) = ''
+      Character( 32 )             :: StreamFamilyName( 50 ) = ''
+      Integer                     :: StreamFamilyNum( 50 ) = 0
+      Character( 32 )             :: StreamFamilyMembers( 50,100 ) = ''
 
       ! Define Process Family Variables
       Integer                     :: NProcessFamilies = 0
-      Character( 32 ),Allocatable :: ProcessFamilyName( 50 ) = ''
-      Integer, Allocatable        :: ProcessFamilyNum( 50 ) = 0
-      Character( 32 ),Allocatable :: ProcessFamilyMembers( 50,100 ) = ''
+      Character( 32 )             :: ProcessFamilyName( 50 ) = ''
+      Integer                     :: ProcessFamilyNum( 50 ) = 0
+      Character( 32 )             :: ProcessFamilyMembers( 50,100 ) = ''
 
       ! Define Region Family Variables
       Integer                     :: NRegionFamilies = 0
-      Character( 32 ),Allocatable :: RegionFamilyName( 50 ) = ''
-      Integer, Allocatable        :: RegionFamilyNum( 50 ) = 0
-      Character( 32 ),Allocatable :: RegionFamilyMembers( 50,100 ) = ''
+      Character( 32 )             :: RegionFamilyName( 50 ) = ''
+      Integer                     :: RegionFamilyNum( 50 ) = 0
+      Character( 32 )             :: RegionFamilyMembers( 50,100 ) = ''
 
       ! Other Variables
       Logical                     :: linit = .FALSE.
@@ -75,7 +75,7 @@
       if ( linit ) return
       linit = .TRUE.
 
-      NChemFamlies = 0
+      NChemFamilies = 0
       ChemFamilyName = ''
       ChemFamilyNum = 0
       ChemFamilyMembers = ''
@@ -106,7 +106,8 @@
 !     
 ! ----------------------------------------------------------------------
 
-      use RUNTIME_VARS, only : EMISSCTRL, logdev
+      use RUNTIME_VARS, only : EMISSCTRL, logdev, log_message, log_subheading
+      use UTILIO_DEFN
       
       IMPLICIT NONE
       
@@ -131,12 +132,18 @@
       NAMELIST / ProcessFamilies / NProcessFamilies, ProcessFamilyName, 
      &           ProcessFamilyNum, ProcessFamilyMembers
  
+      ! Initialize Familiy Arrays
+      call init_families
+
+      CALL LOG_SUBHEADING( LOGDEV, "Reading Family Definitions from Control File" )
+
       ! Retrieve the Name of the Emission Control File
       IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
-          WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A)"),
-     &           'You have chosen not to indicate the location of an',
-     &           'Emission Control namelist file. Default settings ',
+          XMSG = 'You have chosen not to indicate the location of an' //
+     &           'Emission Control namelist file. Default settings ' //
      &           'will be assumed.'
+          CALL LOG_MESSAGE( LOGDEV, ' ' )
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
           RETURN
       END IF
  
@@ -156,11 +163,12 @@
       REWIND( EMCTRL_NML )
       READ( NML = ChemicalFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
-          WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &           'Warning! Something went wrong while reading the ',
-     &           'ChemicalFamilies section of the Emissions Control ',
-     &           'Namelist. Default values for this section will be ',
+          XMSG = 'Warning! Something went wrong while reading the ' //
+     &           'ChemicalFamilies section of the Emissions Control ' //
+     &           'Namelist. Default values for this section will be ' //
      &           'assumed.'
+          CALL LOG_MESSAGE( LOGDEV, ' ' )
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
           NChemFamilies      = 0
           ChemFamilyName     = ''
           ChemFamilyNum      = 0
@@ -178,11 +186,12 @@
       REWIND( EMCTRL_NML )
       READ( NML = StreamFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
-          WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &           'Warning! Something went wrong while reading the ',
-     &           'StreamFamilies section of the Emissions Control ',
-     &           'Namelist. Default values for this section will be ',
+          XMSG = 'Warning! Something went wrong while reading the ' //
+     &           'StreamFamilies section of the Emissions Control ' //
+     &           'Namelist. Default values for this section will be ' //
      &           'assumed.'
+          CALL LOG_MESSAGE( LOGDEV, ' ' )
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
           NStreamFamilies      = 0
           StreamFamilyName     = ''
           StreamFamilyNum      = 0
@@ -200,11 +209,12 @@
       REWIND( EMCTRL_NML )
       READ( NML = RegionFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
-          WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &           'Warning! Something went wrong while reading the ',
-     &           'RegionFamilies section of the Emissions Control ',
-     &           'Namelist. Default values for this section will be ',
+          XMSG = 'Warning! Something went wrong while reading the ' //
+     &           'RegionFamilies section of the Emissions Control ' //
+     &           'Namelist. Default values for this section will be '//
      &           'assumed.'
+          CALL LOG_MESSAGE( LOGDEV, ' ' )
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
           NRegionFamilies      = 0
           RegionFamilyName     = ''
           RegionFamilyNum      = 0
@@ -222,11 +232,12 @@
       REWIND( EMCTRL_NML )
       READ( NML = ProcessFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
       IF ( STAT .NE. 0 ) THEN
-          WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &           'Warning! Something went wrong while reading the ',
-     &           'ProcessFamilies section of the Emissions Control ',
-     &           'Namelist. Default values for this section will be ',
+          XMSG = 'Warning! Something went wrong while reading the ' //
+     &           'ProcessFamilies section of the Emissions Control '//
+     &           'Namelist. Default values for this section will be '//
      &           'assumed.'
+          CALL LOG_MESSAGE( LOGDEV, ' ' )
+          CALL LOG_MESSAGE( LOGDEV, XMSG )
           NProcessFamilies      = 0
           ProcessFamilyName     = ''
           ProcessFamilyNum      = 0
@@ -240,7 +251,10 @@
           END DO
       END DO
  
+      CLOSE( UNIT = EMCTRL_NML )
 
-      end subroutine load_families
+      CALL LOG_MESSAGE( LOGDEV, ' ' ) ! Add a buffer space in the log file
+
+      end subroutine read_families
 
       end module util_Family_module
