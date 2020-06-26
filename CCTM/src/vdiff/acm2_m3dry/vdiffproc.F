@@ -82,7 +82,7 @@ C-----------------------------------------------------------------------
       USE CGRID_SPCS          ! CGRID mechanism species
       USE GRID_CONF
       USE EMIS_VARS, ONLY : VDEMIS_DIFF, EMLAYS
-      USE EMIS_DEFN, ONLY : EMIS_INIT, GET_EMIS
+      USE EMIS_DEFN, ONLY : EMIS_INIT, GET_EMIS_DRIVER
       USE DEPV_DEFN
       USE ASX_DATA_MOD
 !      USE MPAS_DATA_MOD
@@ -377,7 +377,7 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
       END IF
 
 C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
-      CALL GET_EMIS ( MDATE, MTIME, TSTEP, CGRID )
+      CALL GET_EMIS_DRIVER ( MDATE, MTIME, TSTEP, CGRID )
 
       IF ( LIPR ) THEN
          DO S = 1, N_SPC_DIFF

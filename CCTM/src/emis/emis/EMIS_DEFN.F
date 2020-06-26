@@ -62,7 +62,7 @@ C-----------------------------------------------------------------------
 
       IMPLICIT NONE
 
-      PUBLIC EMIS_INIT, GET_EMIS, EM_GRID_LAYS
+      PUBLIC EMIS_INIT, GET_EMIS_DRIVER, EM_GRID_LAYS
       
       PRIVATE
       
@@ -248,10 +248,65 @@ C Return From Initialization
 
          END FUNCTION EMIS_INIT
 
-C-----------------------------------------------------------------------
-         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CGRID )
+!-----------------------------------------------------------------------
+         SUBROUTINE GET_EMIS_DRIVER ( JDATE, JTIME, TSTEP, CGRID )
+!-----------------------------------------------------------------------
+!        This subroutine is meant to control whether GET_EMIS will be 
+!        executed to process emissions for input back to vdiff or if 
+!        it's being run in diagnostic mode. This distinction allows 
+!        emission diagnostics to be written on the Hour instead of
+!        during a predefined time step.
+!-----------------------------------------------------------------------
 
-C NEW APPROACH:
+         USE UTILIO_DEFN
+
+         IMPLICIT NONE
+
+         INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
+         INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
+         REAL, POINTER :: CGRID( :,:,:,: )
+         
+         LOGICAL         :: LDIAG
+         LOGICAL         :: FIRST_TIME = .TRUE.
+         INTEGER, SAVE   :: WSTEP, MDATE, MTIME
+         LOGICAL         :: WRTIME
+
+
+         IF ( FIRST_TIME ) THEN
+            FIRST_TIME = .FALSE.
+
+            ! Initialize Diagnostic Write Counter
+            WSTEP = 0 
+            MDATE = STDATE
+            MTIME = STTIME
+           
+            ! Execute DESID Emission Processor in Diagnostic Mode
+            ! for the Initial Hour of the Day (Hour 0)
+            CALL GET_EMIS( MDATE, MTIME, TSTEP, CGRID, .TRUE. )
+         END IF
+         
+         ! Increment Diagnostic Counter
+         WRTIME = .FALSE.
+         WSTEP  = WSTEP + TIME2SEC( TSTEP( 2 ) )
+         
+         ! Determine whether or not this is a write step
+         WRTIME = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
+         IF ( WRTIME ) THEN 
+           WSTEP = 0
+           CALL NEXTIME( MDATE, MTIME,  TSTEP( 1 ) )
+
+           ! Execute DESID Emission Processor in Diagnostic Mode
+           CALL GET_EMIS( MDATE, MTIME, TSTEP, CGRID, .TRUE. )
+         END IF
+ 
+         ! Execute DESID Emission Processor in Real Mode
+         CALL GET_EMIS( JDATE, JTIME, TSTEP, CGRID, .FALSE. )
+
+         END SUBROUTINE GET_EMIS_DRIVER
+
+!-----------------------------------------------------------------------
+         SUBROUTINE GET_EMIS ( JDATE, JTIME, TSTEP, CGRID, LDIAG )
+
 C Apply NML factors to all *input* emissions and inline plume rise, aero emis
 C biog, SeaSalt, Dust, and Lightning NO
 C GET_AERO_EMIS has to apply factors - don`t do it at this level.
@@ -299,6 +354,7 @@ C Arguments:
          INTEGER, INTENT( IN ) :: JDATE, JTIME  ! date (YYYYDDD), time (HHMMSS)
          INTEGER, INTENT( IN ) :: TSTEP( 3 )    ! time step vector (HHMMSS)
          REAL, POINTER :: CGRID( :,:,:,: )
+         LOGICAL               :: LDIAG
 
 C Local Variables:
          REAL             DELT          ! interpolation factor
@@ -313,8 +369,7 @@ C Local Variables:
          CHARACTER( 16 ) :: PNAME = 'GET_EMIS'
          CHARACTER( 120 ):: XMSG = ' '
          INTEGER         :: ERROR_NEG
-         INTEGER, SAVE   :: WSTEP, MDATE, MTIME
-         LOGICAL         :: WRTIME
+         INTEGER, SAVE   :: WSTEP
          LOGICAL, SAVE   :: FIRST_TIME = .TRUE.
 
 #ifdef isam
@@ -472,22 +527,11 @@ C Map the user specified ISAM regions to available CMAQ regions
               END IF
             END DO
 #endif
-            ! Initialize Diagnostic Write Counter
-            WSTEP = 0 
-            MDATE = STDATE
-            MTIME = STTIME
          END IF  ! First Time
 
 C Initialize Emissions Array
          VDEMIS_DIFF = 0.0
 
-         WRTIME = .FALSE.
-         WSTEP  = WSTEP + TIME2SEC( TSTEP( 2 ) )
-         WRTIME = ( WSTEP .GE. TIME2SEC( TSTEP( 1 ) ) )
-         IF ( WRTIME ) THEN 
-           WSTEP = 0
-           CALL NEXTIME( MDATE, MTIME,  TSTEP( 1 ) )
-         END IF
 
 #ifdef isam
          SA_VDEMIS_DIFF = 0.0
@@ -575,8 +619,8 @@ C Retrieve Emissions from All Stream Types
            ! values, write out diagnostic file (if requested) and apply
            ! emissions to output array
            CALL EMISS_CONV_DIFF( VDEMIS_SCALED, NL, VDEMIS_CONV )
-           IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. WRTIME ) 
-     &                     CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_CONV, ISRM, NL )
+           IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. LDIAG ) 
+     &                     CALL WRITE_EMISS_DIAG( JDATE, JTIME, VDEMIS_CONV, ISRM, NL )
 
            IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &          VDEMIS_DIFF( :,1:NL,:,: ) = VDEMIS_DIFF( :,1:NL,:,: ) + VDEMIS_CONV( :,1:NL,:,: )
@@ -686,9 +730,9 @@ C Subset the emissions array for DDM-3D (by species and region)
          ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
          
          ! Write Out the Sum of All Emissions to Gridded Diagnostic File
-         IF ( EM_FILE_LDIAG( N_EM_SRM+1 ) .NE. 'FALSE' .AND. WRTIME ) 
-     &         CALL WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS_DIFF, N_EM_SRM+1, EMLAYS )
-
+         IF ( EM_FILE_LDIAG( N_EM_SRM+1 ) .NE. 'FALSE' .AND. LDIAG ) 
+     &         CALL WRITE_EMISS_DIAG( JDATE, JTIME, VDEMIS_DIFF, N_EM_SRM+1, EMLAYS )
+         
          END IF
 
          RETURN
@@ -1066,7 +1110,7 @@ C-----------------------------------------------------------------------
       END FUNCTION EMISS_NEG_CHECK    
 
 !-----------------------------------------------------------------------
-      SUBROUTINE WRITE_EMISS_DIAG( MDATE, MTIME, VDEMIS0, ISRM, NL ) 
+      SUBROUTINE WRITE_EMISS_DIAG( JDATE, JTIME, VDEMIS0, ISRM, NL ) 
 
 !     Write out emissions diagnostic file
 !-----------------------------------------------------------------------
@@ -1083,7 +1127,7 @@ C-----------------------------------------------------------------------
          
       INCLUDE SUBST_CONST     ! constants
 
-      INTEGER, INTENT( IN ) :: MDATE, MTIME, ISRM
+      INTEGER, INTENT( IN ) :: JDATE, JTIME, ISRM
       REAL, INTENT( In )    :: VDEMIS0( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: VDEMIS ( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: VDEMIS_OUT ( :,:,: )
@@ -1176,9 +1220,9 @@ C-----------------------------------------------------------------------
 
             ! Write out the emissions data
             IF ( .NOT. WRITE3( EM_FDIAG, DIFF_SPC( IVAR ),
-     &                 MDATE, MTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
+     &                 JDATE, JTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
                 XMSG = 'Could not write ' // TRIM( EM_FDIAG ) // ' file'
-                CALL M3EXIT( 'WRITE_EMISS_DIAG', MDATE, MTIME, XMSG, XSTAT1 )
+                CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
             END IF
       END DO
 
@@ -2840,10 +2884,10 @@ C stkemis_init.
           ! Set output file characteristics based on COORD.EXT and 
           ! open diagnostic file
           FTYPE3D = GRDDED3
-          SDATE3D = JDATE
-          STIME3D = JTIME
+          SDATE3D = STDATE
+          STIME3D = STTIME
           TSTEP3D = TSTEP
-          CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
+          !CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
           NVARS3D = 0
           DO IVAR = 1,N_SPC_DIFF
