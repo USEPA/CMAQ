@@ -1197,29 +1197,39 @@ C-----------------------------------------------------------------------
       FORALL ( I = 1:N_SPC_DIFF, DIFF_MASK_NUM( I ) )
      &    VDEMIS( I,1:NL,:,: ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,:)
 
- 
-      ! Output to Emissions Diagnostic File
-      DO IVAR = 1,N_SPC_DIFF
-            ! Skip Writing this species if this source did not
-            ! contribute to it
-            IF ( ISRM .LT. (N_EM_SRM+1) ) THEN
-              IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
-            ELSE
-              IF ( .NOT. ANY(EM_FILE_DIFF( IVAR,: )) ) CYCLE
-            END IF
 
+      ! Map Emissions Species to Emissions Diagnostic Species
+      DO IDG = 1,N_SPC_EMDIAG
+         ! Add the transported species relevant for this diagnostic species
+         DO I = 1,EMDIAG( IDG )%N
+             IVAR = EMDIAG( IDG )%MAP( I )
+
+             ! Skip Adding this species if this source did not
+             ! contribute to it
+             IF ( ISRM .LT. (N_EM_SRM+1) ) THEN
+                IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
+             ELSE
+                IF ( .NOT. ANY(EM_FILE_DIFF( IVAR,: )) ) CYCLE
+             END IF
+             VDEMIS_DIAG( IDG,:,:,: ) = VDEMIS( IDG,:,:,: ) + 
+     &            VDEMIS( IVAR,:,:,: )
+         ENDDO
+      END DO
+
+      ! Output to Emissions Diagnostic File
+      DO IDG = 1,N_SPC_EMDIAG
             ! Sum the column if requested
             IF ( EM_LDIAG .EQ. '2DSUM' ) THEN
-                 VDEMIS( IVAR,1,:,: ) = SUM( VDEMIS( IVAR,1:NL,:,: ),1 )
+                 VDEMIS_DIAG( IDG,1,:,: ) = SUM( VDEMIS_DIAG( IDG,1:NL,:,: ),1 )
                  LAYS = 1
             END IF 
    
             DO L = 1,LAYS
-                VDEMIS_OUT( :,:,L ) = VDEMIS( IVAR,L,:,: )
+                VDEMIS_OUT( :,:,L ) = VDEMIS_DIAG( IDG,L,:,: )
             END DO
 
             ! Write out the emissions data
-            IF ( .NOT. WRITE3( EM_FDIAG, DIFF_SPC( IVAR ),
+            IF ( .NOT. WRITE3( EM_FDIAG, EMDIAG( IDG )%SPCNAME,
      &                 JDATE, JTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
                 XMSG = 'Could not write ' // TRIM( EM_FDIAG ) // ' file'
                 CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
