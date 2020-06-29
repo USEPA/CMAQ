@@ -18,7 +18,7 @@ In addition to the options available in the RunScript, CMAQ now reads a dedicate
 setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
 ```
 
-If the user does not provide an Emission Control File or the path to the file in the RunScript is incorrect, then zero emissions will be assumed for every stream. However, the precise configuration of various other scientific options in the RunScript may conspire to create non-physical values for the emission rates. If the user would like all emissions set to 0, it is recommended that they use the syntax outlined here and in the DESID tutorial to do so.   
+If the user does not provide an Emission Control File or the path to the file in the RunScript is incorrect, then the model will abort and indicate the error. If the user would like all emissions set to 0, it is recommended that they use the syntax outlined here and in the DESID tutorial to do so.   
 
 The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
 
