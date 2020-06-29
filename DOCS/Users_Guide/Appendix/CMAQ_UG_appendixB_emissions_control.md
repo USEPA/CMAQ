@@ -20,7 +20,7 @@ setenv EMISSCTRL_NML ${BLD}/EmissCtrl.nml
 
 If the user does not provide an Emission Control File or the path to the file in the RunScript is incorrect, then the model will abort and indicate the error. If the user would like all emissions set to 0, it is recommended that they use the syntax outlined here and in the DESID tutorial to do so.   
 
-The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains four sections of variables that modify the behavior of the emissions module. These include ***General Specs***, ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***
+The Detailed Emissions Scaling, Isolation and Diagnostics (DESID) module included with CMAQv5.3 provides comprehensive customization and transparency of emissions manipulation to the user. The customization of emissions is accomplished via the Emission Control Namelist, which contains sections of variables that modify the behavior of the emissions module. These include ***Emission Scaling Rules***, ***Size Distributions***, and ***Regions Registry***.
 
 ## B.2 Emission Scaling Rules
 With the rules present in this section, the user is able to exert sophisticated, precise control over the scaling applied to emissions from specific streams, in specific geographic areas, and/or for specific compounds. The set of rules used by CMAQ to interpret emissions shall be provided in one array called EM_NML. It is necessary that every field (i.e. column) be populated for every rule. The fields are given and defined here and in the comment section of the Emission Control Namelist:
@@ -242,6 +242,23 @@ setenv EMIS_DIAG TRUE
 This variable sets the default behavior for all streams. If the variables for any specific streams are provided in the RunScript, they will override this default value.  
 
 The emission rates printed to the diagnostic files reflect all the scaling rules applied and are written just before the emissions are added to the CMAQ transport module. Because the model interpolates in time, it is very likely that the rates written to the diagnostic file will not correspond in time to the rates from the input files. In most cases, the rates will be one-half time step before the top of the hour, the time point of the emission inputs. For this reason, it is not entirely helpful for users to compare the scaled emissions directly to the rates on the input files. However, comparing them qualitatively can be helpful.
+
+### B.5.3 Defining and Using Chemical, Regional, and Stream Families  
+The emission control file provides an interface for defining chemical, regional, and stream families that can be used to dramatically simplify the rules a user wishes to apply to their emissions inputs. For example, NO and NO2 may be grouped into one chemical family, which the user could then call NOx. Additionally, a user could group regions defined in the RegionsRegistry together. For example, if there are already regions that represent North Carolina (let's call it NC) and South Carolina (let's call it SC), then the user could group NC and SC together and call them "CAROLINAS". Then when "CAROLINAS" is used as the region in a scaling rule, the rule will be distributed and applied to grid cells in both NC and SC. Finally, users can group specific emission streams together. This could be especially useful when defining, for example, a group emission streams relevant for electric power generation or mobile sources.  
+
+Please see the Emission Control file sections on ChemicalFamilies, StreamFamilies, and RegionFamilies for examples demonstrating how to invoke them. For example, the following lines create a family called NOX made from NO and NO2 and a family called XYLENES made from MXYL, OXYL, and PXYL.  
+```
+&ChemicalFamilies  
+  NChemFamilies         = 2          ! The total number of chemical families you want to identify   
+  ChemFamilyName(1)     = 'NOX'      ! The name for the first family  
+  ChemFamilyNum(1)      = 2          ! The number of species in the first family  
+  ChemFamilyMembers(1,:)= 'NO','NO2' ! The names of the members of the first family  
+  ChemFamilyName(2)     = 'XYLENES'  ! The name for the second family  
+  ChemFamilyNum(2)      = 3          ! The number of species in the second family  
+  ChemFamilyMembers(2,:)= 'OXYL','MXYL','PXYL' ! The names of the members of the second family  
+/  
+```
+The other types of familes can be defined similarly. One additional note, if a chemical familiy is defined for use in an emission scaling rule, the user should be careful about confirming that the members of that family are present on the emission input file or the CMAQ model species list, depending on which the user is trying to modify. Since the names on the input files are often different than those on the CMAQ model species list, care is advised. DESID will print warnings to the CMAQ log file when it can't find species that it is looking for from a chemical family on an input file or in the list of CMAQ model species. Please confirm that the model is operating as you expect.  
 
 <!-- BEGIN COMMENT -->
 
