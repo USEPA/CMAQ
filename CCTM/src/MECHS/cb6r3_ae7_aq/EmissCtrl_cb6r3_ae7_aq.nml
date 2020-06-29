@@ -433,3 +433,17 @@
 !/
  
  
+!------------------------------------------------------------------------------!
+! Emissions Diagnostic Output Parameters                                       !
+!    This seciton allows users to specify individual species for output on     !
+!    emissions diagnostic output files. In this way, users will be able to     !
+!    probe emissions magnitudes and scaling changes for specific species of    !
+!    interest while not sacrificing the hard disk space needed to save the     !
+!    emission rates of all species for every emission stream.                  !
+!------------------------------------------------------------------------------!
+
+
+
+
+
+
