@@ -3767,11 +3767,10 @@ C   mminlu and num_land_cat are WRF global variables
 
          ! Retrieve the Name of the Emission Control File
          IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A)"),
-     &              'You have chosen not to indicate the location of an',
-     &              'Emission Control namelist file. Default settings ',
-     &              'will be assumed.'
-             RETURN
+             XMSG = 'You have chosen not to indicate the location of an' //
+     &              'Emission Control namelist file. You must give a value ' //
+     &              'for the EMISSCTRL variable in the CMAQ runscript.'
+             CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
 
          ! Open Emission Control Namelist File
