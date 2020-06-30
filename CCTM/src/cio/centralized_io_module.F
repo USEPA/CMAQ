@@ -3709,11 +3709,6 @@ C   mminlu and num_land_cat are WRF global variables
          INTEGER          :: STAT, IFAM, INUM, IRULE
          CHARACTER( 200 ) :: TMPLINE
 
-         ! Define General Parameters in Emission Control Namelist
-         NAMELIST / GeneralSpecs / Guard_BiogenicVOC,
-     &              Guard_MarineGas, Guard_LightningNO, Guard_WindBlownDust,
-     &              Guard_SeaSpray
-
          ! Define Emissions Rules Input from Emissions Control Namelist
          NAMELIST / EmissionScalingRules / EM_NML
          NAMELIST / SizeDistributions    / SD_NML 
@@ -3747,17 +3742,10 @@ C   mminlu and num_land_cat are WRF global variables
 
          ! Retrieve the Name of the Emission Control File
          IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
-             XMSG = 'WARNING: You have chosen not to indicate the location of an' //
-     &              'Emission Control namelist file. Default settings '  //
-     &              'will be assumed.'
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             Guard_BiogenicVOC   = .FALSE.
-             Guard_MarineGas     = .FALSE.
-             Guard_LightningNO   = .FALSE.
-             Guard_WindBlownDust = .FALSE.
-             Guard_SeaSpray      = .FALSE.
-             RETURN
+             XMSG = 'You have chosen not to indicate the location of an' //
+     &              'Emission Control namelist file. You must give a value ' //
+     &              'for the EMISSCTRL variable in the CMAQ runscript.'
+             CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
 
          ! Open Emission Control Namelist File
@@ -3772,23 +3760,6 @@ C   mminlu and num_land_cat are WRF global variables
              CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
          
-         ! Read General Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = GeneralSpecs, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             XMSG = 'Warning! Something went wrong while reading the '  //
-     &              'GeneralSpecs section of the Emissions Control '    //
-     &              'Namelist. Default values for this section will be '//
-     &              'assumed.'
-             CALL LOG_MESSAGE( LOGDEV, ' ')
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             Guard_BiogenicVOC   = .FALSE.
-             Guard_MarineGas     = .FALSE.
-             Guard_LightningNO   = .FALSE.
-             Guard_WindBlownDust = .FALSE.
-             Guard_SeaSpray      = .FALSE.
-         END IF
- 
          ! Read the Regions Registry
          REWIND( EMCTRL_NML )
          READ( NML = RegionsRegistry, UNIT = EMCTRL_NML, IOSTAT=STAT )
