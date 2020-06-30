@@ -31,10 +31,10 @@ REGION(S)       |EVERYWHERE
 EMIS STREAM(S)  |GRIDDED_EMIS
 
 !!! The below tag definition is an example of a source with an regional emissions stream.
-!!! Its REGION(s) setting represents the US state of North Carolina. Regions are
-!!! described by netcdf files defined in the CCTM run script. For more information,
-!!! read the ISAM chapter and Appendix B in the Users Grid under the repository's DOCS 
-!!!directory.
+!!! Regions are described by netcdf files defined in the CCTM run script. They may be 
+!!! based on individual variables from those netcdf inputs or by groups of variables 
+!!! using the RegionFamilies feature. For more information, read the ISAM chapter and 
+!!! Appendix B in the Users Grid under the repository's DOCS directory.
 !!!TAG NAME        |NEG
 !!!REGION(S)       |NC
 !!!EMIS STREAM(S)  |PT_EGU
