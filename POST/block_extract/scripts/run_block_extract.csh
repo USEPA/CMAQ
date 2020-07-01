@@ -1,8 +1,8 @@
 #! /bin/csh -f
 
 
-# ====================== BLOCK_EXTRACTv5.3.1 Run Script =====================
-# Usage: run.block_extract.csh >&! block_extract_v531.log &
+# ====================== BLOCK_EXTRACTv5.3.X Run Script =====================
+# Usage: run.block_extract.csh >&! block_extract.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -21,10 +21,10 @@
  source ./config_cmaq.csh
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v531               #> Code Version
+ set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set APPL      = SE531BENCH         #> Application Name (e.g. Gridname)
+ set APPL      = 2016_12SE1        #> Application Name (e.g. Gridname)
                                                       
 #> Define RUNID as any combination of parameters above or others. By default,
 #> this information will be collected into this one string, $RUNID, for easy

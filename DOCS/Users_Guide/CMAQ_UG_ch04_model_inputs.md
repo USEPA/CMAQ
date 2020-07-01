@@ -688,7 +688,7 @@ This variable is used in combination with the variables in the DUST_LU_1 file to
 
 Used by: CCTM
 
-OMI ozone column data by latitude and longitude for use in the photolysis calculations. CMAQ is distributed with ozone columns from 1978 to 2017 (CCTM/src/phot/inline/OMI_1979_to_2017.dat). The data are 22.5°x10° gridded ozone columns in Dobson units. The [create_omi](../../PREP/create_omi/README.md) tool under the PREP folder can be used to create a data file to support simulations after 2017 or a data file with a finer spatial resolution.
+OMI ozone column data by latitude and longitude for use in the photolysis calculations. CMAQ is distributed with ozone columns from 1978 to 2019 (CCTM/src/phot/inline/OMI_1979_to_2019.dat). The data are 22.5°x10° gridded ozone columns in Dobson units. The [create_omi](../../PREP/create_omi/README.md) tool under the PREP folder can be used to create a data file to support simulations after 2019 or a data file with a finer spatial resolution.
 
 <!-- BEGIN COMMENT -->
  [<< Previous Chapter](CMAQ_UG_ch03_preparing_compute_environment.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch05_running_a_simulation.md)
