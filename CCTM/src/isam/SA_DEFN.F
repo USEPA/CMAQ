@@ -186,7 +186,7 @@ C external functions
 
         INTEGER, INTENT( OUT ) :: NTAGS
         INTEGER ILINE
-        CHARACTER( 21 ) :: TXTLINE
+        CHARACTER( 180 ) :: TXTLINE
         
 C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )

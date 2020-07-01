@@ -22,8 +22,8 @@ Note: While full model species list apportionment is in development, currently I
 SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN       
 NITRATE   - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR           
 AMMONIUM  - ANH4J, ANH4I, NH3       
-EC        - AECJ, AECI       
-OC        - ALVPO1I, ALVPO1J, ASVPO1I, ASVPO1J, ASVPO2I, ASVPO2J, ASVPO3J, AIVPO1J, VLVPO1, VSVPO1, VSVPO2, VSVO3, VIVPO1      
+EC        - AECJ, AECI          
+OC        - APOCI, APNCOMI, APOCI, APNCOMJ                
 VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)      
 PM25_IONS - ANAI/J, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ,A TIJ, AMNJ, AOTHRI/J      
 OZONE     - all NITRATE species + all VOC species     
@@ -101,7 +101,7 @@ or
 REGION(S)       |NC, SC, GA
 ```
 
-Finally, the emissions streams labels are required as the third option in the control file.  These are the labels set in the runscript for the base CMAQ simulation. Additionally, it is possible to specify 'PVO3' as an emissions stream name in order to track contribution to concentrations from upper layer injections due to potential vorticity calculations.  This option also requires model compilation with the appropriate options to support these calculations. 
+Finally, the emissions streams labels are required as the third option in the control file.  Labels correspond to emissions and other input streams set in build and run scripts for the base CMAQ simulation. Additionally, it is possible to specify 'PVO3' as a stream label in order to track contribution to concentrations from upper layer injections due to potential vorticity calculations.  This option also requires model compilation with the appropriate options to support these calculations. 
 
 ```
 EMIS STREAM(S)  |PT_EGU, PT_NONEGU
@@ -113,7 +113,7 @@ The final line in the control file needs to be kept unchanged in order to aid th
 ENDLIST eof
 ```
 
-In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation (note, that at least one valid user-specified tag must be defined):
+In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation (note, that at least one valid user-specified tag must be defined, so a minimum of 4 tags are required):
 
 ```
 ICO - contribution from initial conditions specified for the first day of the simulation
