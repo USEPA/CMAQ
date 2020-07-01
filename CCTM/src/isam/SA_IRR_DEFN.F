@@ -17,6 +17,7 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+
       MODULE SA_IRR_DEFN
 
 C***********************************************************************
@@ -50,6 +51,7 @@ C***********************************************************************
       
       REAL                   :: CONMIN_TAG               ! min tag concentration uploaded
       REAL( 8 )              :: NUMB_ISAM_CELLS = 0.0D0
+      REAL( 8 )              :: DCONCMIN                 ! internal min concentration
       REAL( 8 )              :: DCONMIN_TAG              ! internal min tag concentration
 !      REAL( 8 ), ALLOCATABLE :: SRK( : )
       REAL( 8 ), ALLOCATABLE :: UGM3_TO_PPM( : )      ! CGRID to CHEM Species conversion factor
@@ -66,6 +68,7 @@ C***********************************************************************
       LOGICAL, ALLOCATABLE :: ISAM_SPECIES( : )
       LOGICAL              :: ISAM_NOT_FOUND = .FALSE.
 !      LOGICAL              :: ISAM_SUBSET    = .FALSE.
+
 
 
       TYPE SPECIES_BUDGET
@@ -86,6 +89,9 @@ C***********************************************************************
       TYPE(SPECIES_BUDGET), ALLOCATABLE :: ISAM_SPC_BUDGET  ( : )
       
       INTEGER :: ISAM_LOG        ! Unit number of output log
+      INTEGER :: ISAM_JDATE = 0
+      INTEGER :: ISAM_JTIME = 0
+      INTEGER :: ISAM_NSTEP = 0
 #ifdef verbose_isam
       LOGICAL :: CHECK_ISAM  = .TRUE.
       LOGICAL :: WRITE_BUDGET_REPORT = .TRUE.
@@ -97,14 +103,25 @@ C***********************************************************************
       LOGICAL :: UPDATE_SOLD = .FALSE.
       LOGICAL :: UPDATE_PROBABILITIES = .FALSE.
 
-      INTEGER, PARAMETER :: N_OX_RADICALS = 3
+      INTEGER, PARAMETER :: N_OX_RADICALS = 13
       CHARACTER( 16 )    :: OX_RADICALS( N_OX_RADICALS ) = 
      &                      (/ 'O               ',      
+     &                         'O1D             ',      
+     &                         'ACO3            ',      
+     &                         'MEO3            ',      
+     &                         'C2O3            ',      
      &                         'O3P             ',      
-     &                         'HO2             ' /)
+     &                         'NO              ',
+     &                         'NO2             ',     
+     &                         'NO3             ',     
+     &                         'N2O5            ',     
+     &                         'HO2             ',
+     &                         'MEO2            ',
+     &                         'MO2             ' /)
      
        LOGICAL, ALLOCATABLE :: IS_ISAM_OX_RADICAL( : )
        LOGICAL, ALLOCATABLE :: IS_CHEM_OX_RADICAL( : )
+       LOGICAL, ALLOCATABLE :: IS_TAG_NONZERO( : )
 
        INTEGER              :: OX_RADICAL_FOUND = 0   
        INTEGER              :: OZONE_INDEX      = 0     
@@ -272,6 +289,12 @@ C...Allocate and set conversion factors for isam chemistry species
         WRITE(ISAM_LOG,'(/A)')'Final Table of ISAM chemistry species'
         WRITE(ISAM_LOG,'("SPC     ISAM_SPC     SPC PHOTOCHEM_SPC  Mol.Wei Convert Conc. Radical Spc")')
               
+        ALLOCATE( IS_TAG_NONZERO( NTAG_SA ), STAT = IOS )
+        IF ( IOS .NE. 0 ) THEN
+             MSG = 'Error allocating IS_TAG_NONZERO'
+             CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        END IF 
+
         ALLOCATE( ISAM_SPECIES( NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating ISAM_SPECIES'
@@ -314,8 +337,9 @@ C...Allocate and set conversion factors for isam chemistry species
         END IF 
         OX_INDEX = 0
 
-        DCONMIN_TAG    = 1.0D-40 / REAL( NTAG_SA+1, 8 )
-        CONMIN_TAG     = 1.0E-30 / REAL( NTAG_SA )
+        DCONMIN_TAG    = 1.0D-40 
+        DCONCMIN       = 1.0D-30 
+        CONMIN_TAG     = 1.0E-30 
 
         ALLOCATE( SOLD( NTAG_SA, NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
@@ -386,7 +410,7 @@ C...Allocate and set conversion factors for isam chemistry species
                  ELSE
                    IL = IL + 1
                    IRXN_LOSS( IL ) = R
-                   COEFF_NEG( IL ) = COEFF
+                   COEFF_NEG( IL ) = ABS( COEFF )
                  END IF
               END IF
            END DO
@@ -746,6 +770,7 @@ C..Includes:
 
          REAL( 8 ), PARAMETER  :: ONE       = 1.0D0
          REAL( 8 ), PARAMETER  :: ZERO      = 0.0D0
+         REAL( 8 ), PARAMETER  :: CUTOFF    = 1.0D-23
 !         REAL( 8 ), PARAMETER  :: LOCAL_MIN = 1.1D-34
 !         REAL,      PARAMETER  :: REAL_MIN  = 1.1E-34
 
@@ -763,29 +788,36 @@ C..Includes:
 !         INTEGER :: IOS         
 !         CHARACTER( 132 )  :: MSG
 
-!         SOLD = DCONMIN_TAG ! LOCAL_MIN
+          SOLD = ZERO
+
           INV_DENS = REAL( ONE/DENS, 8 )
           
           DO JSPC = 1, ISAM_CHEMISTRY_SPC
              S       = ISAM_TO_CHEM( JSPC )
              SPC     = ISAM_SPC_MAP( JSPC )
+             IS_TAG_NONZERO = .FALSE.
              LOAD_SOLD: DO KTAG = 1, NTAG_SA
-                 IF( ISAM( COL,ROW,LAY,SPC,KTAG ) .GT. 1.0E-18 )THEN
-                    FACTOR2 = ISAM( COL,ROW,LAY,SPC,KTAG )
-                 ELSE
-                    FACTOR2 = 0.0
-                 END IF
-!                 SOLD( KTAG, S ) = MAX( REAL( FACTOR2,8 ), DCONMIN_TAG )
-                 SOLD( KTAG, S ) = REAL( FACTOR2,8 )
-                 IF( CONVERT_ISAM( JSPC ) )THEN
-                     SOLD( KTAG, S ) = SOLD( KTAG, S )
-     &                               * INV_DENS * UGM3_TO_PPM( JSPC )
-                 END IF
-!                SOLD( KTAG,S ) = MAX( SOLD( KTAG,S ), DCONMIN_TAG )
+                SOLD( KTAG, S ) = REAL( ISAM( COL,ROW,LAY,SPC,KTAG ),8 )
+                IF( SOLD( KTAG, S ) .GT. ZERO )IS_TAG_NONZERO = .TRUE.
+                IF( SOLD( KTAG,S ) .LT. CUTOFF )THEN
+                    SOLD( KTAG,S ) = ZERO
+                ELSE    
+                    IF( CONVERT_ISAM( JSPC ) )THEN
+                       SOLD( KTAG, S ) = SOLD( KTAG, S )
+     &                                 * INV_DENS * UGM3_TO_PPM( JSPC )
+                    END IF
+                END IF
              END DO LOAD_SOLD ! ktag loop
-             IF( SUM( SOLD( 1:NTAG_SA,S ) ) .LE. 0.0D0 )THEN
-                 SOLD( OTHRTAG,S ) = 1.0D-40
-             END IF
+! prevent All SOLD equaling zero               
+             IF( MAXVAL( SOLD( 1:NTAG_SA,S ) ) .LE. ZERO )THEN
+                 IF( ANY( IS_TAG_NONZERO ) )THEN
+                    DO KTAG = 1, NTAG_SA
+                       IF( IS_TAG_NONZERO( KTAG ) )SOLD( KTAG,S ) = DCONMIN_TAG
+                    END DO
+                 ELSE
+                    SOLD( 1:NTAG_SA,S ) = DCONMIN_TAG
+                 END IF
+             END IF    
           END DO ! loop jspc
 
 #ifdef verbose_isam          
@@ -794,7 +826,6 @@ C..Includes:
                WRITE(ISAM_LOG,*)' '
                WRITE(ISAM_LOG,'(A24,2(1X,ES12.4))')'Initial MAX Values',
      &         MAXVAL(ISAM(:,:,:,:,KTAG))
-!    &         MAXVAL( ISAMB4(:,:,:,:,KTAG )), MAXVAL(ISAM(:,:,:,:,KTAG))
              END DO ! ktag loop
              DO JSPC = 1, NSPC_SA 
                   TOTAL = SUM( ISAM( COL,ROW,LAY,JSPC,1:NTAG_SA ) )
@@ -855,7 +886,7 @@ C..Includes:
             S   = ISAM_TO_CHEM( JSPC )
             SPC = ISAM_SPC_MAP( JSPC ) 
             LOAD_ISAM: DO KTAG = 1, NTAG_SA
-               IF( SOLD( KTAG,S ) .GT. DCONMIN_TAG )THEN
+               IF( SOLD( KTAG,S ) .GT. DCONCMIN )THEN
                  TEMP_VALUE = REAL( SOLD( KTAG,S ) )
                  IF( CONVERT_ISAM( JSPC ) )THEN
                      TEMP_VALUE = TEMP_VALUE
@@ -863,11 +894,7 @@ C..Includes:
                  END IF
                  ISAM( COL,ROW,LAY,SPC,KTAG ) = MAX( CONMIN_TAG, TEMP_VALUE )
                ELSE
-!                IF( ISAM( COL,ROW,LAY,SPC,KTAG ) .GT. 0.0 )THEN
-                     ISAM( COL,ROW,LAY,SPC,KTAG ) = CONMIN_TAG
-!                ELSE    
-!                    ISAM( COL,ROW,LAY,SPC,KTAG ) = 0.0
-!                END IF    
+                 ISAM( COL,ROW,LAY,SPC,KTAG ) = CONMIN_TAG
                END IF    
             END DO LOAD_ISAM ! ktag loop     
          END DO   ! jspc
@@ -878,7 +905,6 @@ C..Includes:
                WRITE(ISAM_LOG,*)' '
                WRITE(ISAM_LOG,'(A24,2(1X,ES12.4))')'Final MAX Values',
      &         MAXVAL(ISAM(:,:,:,:,KTAG))
-!    &         MAXVAL( ISAMB4(:,:,:,:,KTAG )), MAXVAL(ISAM(:,:,:,:,KTAG))
              END DO ! ktag loop
              DO JSPC = 1, NSPC_SA 
                   TOTAL = SUM( ISAM( COL,ROW,LAY,JSPC,1:NTAG_SA ) )
@@ -973,17 +999,23 @@ C..Scratch Local Variables:
       REAL(8) TOTAL_PROD              ! scratch term for total bulk production
       REAL(8) ISAM_PROD               ! scratch term for total isam production
       REAL(8) TERM                    ! scratch term for summations
+      REAL(8) TOTAL_LOSS              ! scratch term for total bulk loss
+      REAL(8) ISAM_LOSS               ! scratch term for total isam loss
+      REAL(8) LOSS_FACT               ! effective loss frequency
+      REAL(8) DELTA_BULK              ! change in bulk concentration
       REAL(8) COEFF                   ! Coefficient of IRR term
       REAL(8) TOTAL_PROBABILITY       ! normalization coefficient for SOURCE_PROBABILITY
       REAL(8) ISAM_TOTAL_PROBABILITY  ! normalization coefficient for ISAM_PROBABILITY
       
-      LOGICAL DEFICIT           ! whether species loss surpassed a source tag
-      LOGICAL BALANCE           ! whether change budget matched
-      
+      LOGICAL :: REMOVED                 = .FALSE.   ! whether initial concentrations are wiped out
+      LOGICAL, SAVE :: DISTRIBUTE_TO_ALL = .TRUE.    ! distribute extra production among all source tags 
+                                                     ! or just to the other source tag
+                                                     
       LOGICAL, ALLOCATABLE, SAVE   :: SOURCE_ZERO( : ) ! whether source concentration greater than zero 
 C..Saved Local Variables:
 
       REAL( 8 ), ALLOCATABLE, SAVE :: YCOLD  ( : )
+      REAL( 8 ), ALLOCATABLE, SAVE :: OUTSIDE( : )
       REAL( 8 ), ALLOCATABLE, SAVE :: YCMID  ( : )
       REAL( 8 ), ALLOCATABLE, SAVE :: RXRAT  ( : )       
       REAL( 8 ), ALLOCATABLE, SAVE :: INTRXN ( : )     ! Integrated reaction rates
@@ -992,11 +1024,15 @@ C..Saved Local Variables:
       REAL( 8 ), ALLOCATABLE, SAVE :: TOTAL_ISAM_CONC( : )      ! total concentrations from isam sources
       REAL( 8 ), ALLOCATABLE, SAVE :: NOT_OUTSIDE_ISAM( : )     ! fraction of species not from non-isam sources
       REAL( 8 ), ALLOCATABLE, SAVE :: NOT_ISAM_SOURCE( :,: )    ! fraction of species not from an isam source
+      REAL( 8 ), ALLOCATABLE, SAVE :: ISAM_SOURCE( :,: )        ! fraction of species from an isam source
       REAL( 8 ), ALLOCATABLE, SAVE :: SOURCE_PROBABILITY( :,: ) ! probability or amount that a source contributes to reaction
       REAL( 8 ), ALLOCATABLE, SAVE :: SOURCE_DELTA   ( :,: )    ! change in source tag species 
-      REAL( 8 ), ALLOCATABLE, SAVE :: OX_DELTA( : )
+      REAL( 8 ), ALLOCATABLE, SAVE :: SA_DELTA( : )
+      REAL( 8 ), ALLOCATABLE, SAVE :: SA_LOSS( : )
       REAL( 8 ), ALLOCATABLE, SAVE :: ISAM_PROBABILITY  ( :,: ) ! probability or amount that a source contributes to reaction      
-      LOGICAL,   ALLOCATABLE, SAVE :: ZERO_ISAM( : )  ! whether isam species have no effect on reaction
+      LOGICAL,   ALLOCATABLE, SAVE :: ZERO_ISAM( :           )  ! whether isam species have no effect on reaction
+      LOGICAL,   ALLOCATABLE, SAVE :: REBALANCE( : )            ! renormalize tag concentration when production occurs
+      LOGICAL,   ALLOCATABLE, SAVE :: SOURCE_NONZERO( :,: )     ! fraction of species not from an isam source
       
       
 
@@ -1015,13 +1051,19 @@ C Allocate arrays:
            CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
         END IF
 
-        IF( OX_RADICAL_FOUND .GT. 0 )THEN
-             ALLOCATE( YCMID( NUMB_MECH_SPC ), STAT = ASTAT )
-             IF ( ASTAT .NE. 0 ) THEN
-                MSG = 'ERROR allocating YCOLD variable'
-                CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
-             END IF
+        ALLOCATE( YCMID( NUMB_MECH_SPC ), STAT = ASTAT )
+        IF ( ASTAT .NE. 0 ) THEN
+           MSG = 'ERROR allocating YCOLD variable'
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
         END IF
+        
+        ALLOCATE( OUTSIDE( NUMB_MECH_SPC ), STAT = ASTAT )
+        IF ( ASTAT .NE. 0 ) THEN
+           MSG = 'ERROR allocating YCOLD variable'
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+        END IF
+        
+        OUTSIDE = 0.0D0
         
         ALLOCATE( RXRAT  ( NRXNS ),
      &            INTRXN ( NRXNS ), STAT = ASTAT )
@@ -1048,6 +1090,12 @@ C Allocate arrays:
            CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
          END IF
 
+         ALLOCATE( ISAM_SOURCE( NTAG_SA, NUMB_MECH_SPC ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+           MSG = 'ERROR allocating SA_IRR variables'
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+         END IF
+
          ALLOCATE( SOURCE_PROBABILITY( NTAG_SA + 1, NRXNS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SA_IRR variables'
@@ -1065,16 +1113,29 @@ C Allocate arrays:
            MSG = 'ERROR allocating ZERO_ISAM '
            CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
          END IF
+
+         ALLOCATE( REBALANCE( NUMB_MECH_SPC ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+           MSG = 'ERROR allocating REBALANCE '
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+         END IF
+         REBALANCE = .FALSE.
              
-         ALLOCATE( SOURCE_DELTA( NTAG_SA + 1, ISAM_CHEMISTRY_SPC ), STAT = ASTAT )
+         ALLOCATE( SOURCE_DELTA( NTAG_SA + 1, NUMB_MECH_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating SOURCE_DELTA '
            CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
          END IF
 
-         ALLOCATE( OX_DELTA( NTAG_SA ), STAT = ASTAT )
+         ALLOCATE( SA_DELTA( NTAG_SA ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
-           MSG = 'ERROR allocating OX_DELTA '
+           MSG = 'ERROR allocating SA_DELTA '
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+         END IF
+
+         ALLOCATE( SA_LOSS( NTAG_SA ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+           MSG = 'ERROR allocating SA_LOSS '
            CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
          END IF
 
@@ -1090,6 +1151,15 @@ C Allocate arrays:
            MSG = 'ERROR allocating SA_IRR variables'
            CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
          END IF
+
+         ALLOCATE( SOURCE_NONZERO( NTAG_SA, NUMB_MECH_SPC ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+           MSG = 'ERROR allocating SA_IRR variables'
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+         END IF
+
+         SOURCE_NONZERO = .TRUE.
+
 C...Assume that ISAM_SPECIES is fixed over the domain and simulation        
          WHERE ( ISAM_SPECIES ) 
             NOT_OUTSIDE_ISAM = 1.0D0
@@ -1104,20 +1174,20 @@ C...Assume that ISAM_SPECIES is fixed over the domain and simulation
             END IF
          END DO            
       END IF ! LFIRST
-      
+      UPDATE_PROBABILITIES = .TRUE.
       IF( LSTART )THEN
 !         UPDATE_SOLD = .FALSE.
          SOURCE_DELTA = 0.0D0
          DO NIRR = 1, NUMB_MECH_SPC 
             YCOLD( NIRR ) = CONC( NIRR )
          END DO
-         IF( OX_RADICAL_FOUND .GT. 0 ) YCMID = YCOLD
+         YCMID = YCOLD
          RETURN
       END IF
    
       IF( UPDATE_PROBABILITIES )THEN
 C...check for bad values
-         TOTAL_ISAM_CONC = 1.0D-40
+         TOTAL_ISAM_CONC = 0.0D0 ! 1.0D-40
          DO ISP2 = 1, NUMB_MECH_SPC
             DO KTAG = 1, NTAG_SA
                TOTAL_ISAM_CONC( ISP2 ) = TOTAL_ISAM_CONC( ISP2 )
@@ -1126,16 +1196,41 @@ C...check for bad values
      &         WRITE(ISAM_LOG,*)TRIM(CHEMISTRY_SPC(ISP2)) // ' bad value = ',SOLD( KTAG,ISP2 )
             END DO
          END DO
-C..compute fractions not from ISAM groups
-         DO ISP2 = 1, NUMB_MECH_SPC
-            IF( ISAM_SPECIES( ISP2 ) )THEN            
-             ONE_OVER_CONC   = 1.0D0 / TOTAL_ISAM_CONC( ISP2 )
-              DO KTAG = 1, NTAG_SA
-                NOT_ISAM_SOURCE( KTAG,ISP2 ) = MAX( 0.0D0, 1.0D0-SOLD( KTAG,ISP2 )*ONE_OVER_CONC)
-              END DO
-            END IF
-         END DO            
-C...Calculate rate of reaction and source probabilties
+C..compute species fractions from ISAM groups and the remainder group for all mechanism species
+!  Note that remainder group (NTAG_SA+1) exists to handle untracked model species 
+      DO ISP2 = 1, NUMB_MECH_SPC
+         IF( ISAM_SPECIES( ISP2 ) )THEN            
+           ONE_OVER_CONC   = 1.0D0 / MAX( TOTAL_ISAM_CONC( ISP2 ), DCONMIN_TAG )
+           DO KTAG = 1, NTAG_SA
+             ISAM_SOURCE( KTAG,ISP2 )     = SOLD( KTAG,ISP2 )*ONE_OVER_CONC
+             NOT_ISAM_SOURCE( KTAG,ISP2 ) = MAX( 0.0D0, 1.0D0-ISAM_SOURCE( KTAG,ISP2 ))
+           END DO
+           OUTSIDE( ISP2 ) = 0.0D0    
+           NOT_OUTSIDE_ISAM( ISP2 ) = 1.0D0
+         ELSE
+           ONE_OVER_CONC   = 1.0D0 / MAX( YCMID( ISP2 ), DCONMIN_TAG )
+           DO KTAG = 1, NTAG_SA
+             ISAM_SOURCE( KTAG,ISP2 )     = SOLD( KTAG,ISP2 )*ONE_OVER_CONC
+             NOT_ISAM_SOURCE( KTAG,ISP2 ) = MAX( 0.0D0, 1.0D0-ISAM_SOURCE( KTAG,ISP2 ))
+           END DO
+           IF ( TOTAL_ISAM_CONC( ISP2 ) .GT. DCONMIN_TAG ) THEN
+              TERM = MAX( (YCMID( ISP2 )-TOTAL_ISAM_CONC( ISP2 )), 0.0D0 )
+           ELSE
+              TERM =  YCMID( ISP2 )
+           END IF
+           OUTSIDE( ISP2 ) = TERM    
+           NOT_OUTSIDE_ISAM( ISP2 ) = MAX( 1.0D0 - TERM * ONE_OVER_CONC, 0.0D0 )
+         END IF
+         DO KTAG = 1, NTAG_SA
+           IF( SOLD( KTAG,ISP2 ) .GE. DCONMIN_TAG )THEN
+              SOURCE_NONZERO(  KTAG,ISP2 ) = .TRUE.
+           ELSE
+              SOURCE_NONZERO(  KTAG,ISP2 ) = .FALSE.
+           END IF  
+        END DO
+      END DO 
+
+C...Calculate reaction rates and source probabilties
         DO NRX = 1, NRXNS
             IF ( NREACT( NRX ) .EQ. 1 ) THEN
                ISP1 = IRR( NRX,1 )
@@ -1203,7 +1298,7 @@ C..Normalize sources probabilities for reaction
                 DO KTAG = 1, NTAG_SA
                    ISAM_PROBABILITY( KTAG,NRX ) = 0.0D0
                 END DO
-                ISAM_PROBABILITY( OTHRTAG,NRX ) = 1.0D0
+!               ISAM_PROBABILITY( OTHRTAG,NRX ) = 1.0D0
             ELSE
                 ZERO_ISAM( NRX ) = .FALSE.
                 ISAM_TOTAL_PROBABILITY = 1.0D0 / ISAM_TOTAL_PROBABILITY
@@ -1293,184 +1388,222 @@ C..Compute integrated reaction rates
       END DO
 
 c..Compute change in source concentrations for updating source concentrations
-       DO JSPC = 1, ISAM_CHEMISTRY_SPC
-          NIRR = ISAM_TO_CHEM( JSPC )
-          IF( .NOT. IS_ISAM_OX_RADICAL( JSPC ) )THEN
-             DO NTERM = 1, ISAM_SPC_BUDGET( JSPC )%NREACTIONS
-                NRX   = ISAM_SPC_BUDGET( JSPC )%IREACTION( NTERM )
-                COEFF = ISAM_SPC_BUDGET( JSPC )%COEFF_NET( NTERM )
+        DO JSPC = 1, NUMB_MECH_SPC
+! compute species total production and isam production 
+             ISAM_PROD  = 0.0D0
+             TOTAL_PROD = 0.0D0
+             SA_DELTA   = 0.0D0
+             DO NTERM = 1, MECHANISM_BUDGET( JSPC )%NRXNS_PROD
+                NRX   = MECHANISM_BUDGET( JSPC )%IRXN_PROD( NTERM )
+                COEFF = MECHANISM_BUDGET( JSPC )%COEFF_POS( NTERM )
      &                * INTRXN( NRX )
-! term equals the contribution from untracked species. Its value is divided among the
-! source based on the fraction that each sources has the precursor of the species. If none
-! of the source have the precursor, all the untracked contribution goes to the OTHER source
-! group or tag.
-                  TERM = SOURCE_PROBABILITY( (NTAG_SA+1),NRX ) 
-                  IF( .NOT. ZERO_ISAM( NRX ) )THEN
+                TOTAL_PROD = TOTAL_PROD + COEFF
+                IF( .NOT. ZERO_ISAM( NRX ) )THEN
+                  DO KTAG = 1, NTAG_SA
+                     TERM      = COEFF 
+     &                         * MIN( (SOURCE_PROBABILITY( KTAG,NRX ) 
+     &                         +       SOURCE_PROBABILITY((NTAG_SA+1),NRX )
+     &                         *       ISAM_PROBABILITY  ( KTAG,NRX )),
+     &                                 1.0D0 )
+                     ISAM_PROD = ISAM_PROD + TERM
+                     SA_DELTA( KTAG ) = SA_DELTA( KTAG ) + TERM
+                  END DO                    
+                END IF
+             END DO
+             IF( ISAM_PROD .GT. TOTAL_PROD )TOTAL_PROD = ISAM_PROD
+! compute species loss
+             ISAM_LOSS  = 0.0D0
+             TOTAL_LOSS = 0.0D0
+             SA_LOSS    = 0.0D0
+             DO NTERM = 1, MECHANISM_BUDGET( JSPC )%NRXNS_LOSS
+                NRX   = MECHANISM_BUDGET( JSPC )%IRXN_LOSS( NTERM )
+                COEFF = MECHANISM_BUDGET( JSPC )%COEFF_NEG( NTERM )
+     &                * INTRXN( NRX )
+                TOTAL_LOSS = TOTAL_LOSS + INTRXN( NRX )
+             END DO
+             NIRR = JSPC
+             DELTA_BULK        = (CONC( JSPC )-YCMID( JSPC ))
+             REMOVED           = .FALSE. 
+             REBALANCE( JSPC ) = .FALSE. 
+             IF( TOTAL_PROD .GT. 1.0D-30 )THEN
+! estimate net change concentration inside and outside source tags based on total loss
+                 IF( TOTAL_LOSS .GT. 1.0D-30 )THEN
+! correct outside and isam production/concentration based on the bulk average loss frequency times timestep
+                    LOSS_FACT  =  TOTAL_LOSS / CONC( JSPC )
+                    IF ( LOSS_FACT .LT. 14.0D0 ) THEN ! > one millionth of initial concentration remains
+!                    IF ( LOSS_FACT .LT. 34.5D0 ) THEN ! > one millionth of initial concentration remains
+                       REBALANCE( JSPC ) = .TRUE.
+                       TERM              = ( 1.0D0 - EXP( -LOSS_FACT ) )
+                       COEFF             = TERM / LOSS_FACT
+                       TOTAL_PROD        = TOTAL_PROD * COEFF                    
+                       DO KTAG = 1, NTAG_SA
+                          SA_LOSS ( KTAG )          = SOLD( KTAG,JSPC ) * TERM
+                          SA_DELTA( KTAG )          = SA_DELTA(  KTAG ) * COEFF
+                          SOURCE_DELTA( KTAG,JSPC ) = MAX( SA_DELTA( KTAG ) - SA_LOSS( KTAG ),
+     &                                                    -SOLD( KTAG,JSPC ) )
+                       END DO
+                       ISAM_PROD  = SUM( SA_DELTA( 1:NTAG_SA ) )
+! estimate changes in outside concentration based on surplus production 
+                       OUTSIDE( JSPC ) = OUTSIDE( JSPC ) * ( 1.0D0 - TERM )
+     &                                 + (TOTAL_PROD-ISAM_PROD) 
+                       OUTSIDE( JSPC ) = MAX(  OUTSIDE( JSPC ),0.0D0 )  
+                    ELSE 
+! tag change removes initial value and apportions bulk concentration to the tag based on its relative production
+                       REMOVED = .TRUE.
+                       COEFF = CONC( JSPC ) / MAX( TOTAL_PROD,1.0D-30 )
+                       DO KTAG = 1, NTAG_SA
+                          SOURCE_DELTA( KTAG,JSPC ) = SA_DELTA( KTAG )*COEFF - SOLD( KTAG,JSPC )
+                       END DO   
+                       OUTSIDE( JSPC ) = COEFF * MAX( TOTAL_PROD-ISAM_PROD,0.0D0 ) 
+                     END IF  
+                 ELSE
+! simply scale tag changes based their fraction of production
+                    LOSS_FACT  = -1.0D0
+                    COEFF      = DELTA_BULK / MAX( TOTAL_PROD,1.0D-30 )
                     DO KTAG = 1, NTAG_SA
-                      TOTAL = (SOURCE_PROBABILITY( KTAG,NRX ) + TERM*ISAM_PROBABILITY( KTAG,NRX ))
-                      SOURCE_DELTA( KTAG, JSPC ) = SOURCE_DELTA( KTAG, JSPC )
-     &                                           + COEFF * TOTAL
+                       SOURCE_DELTA( KTAG,JSPC ) = SA_DELTA(  KTAG ) * COEFF
                     END DO
-                 ELSE   
-                    SOURCE_DELTA( OTHRTAG, JSPC ) = SOURCE_DELTA( OTHRTAG, JSPC ) 
-     &                                         + COEFF * TERM
+! estimate changes in outside concentration based on surplus production and loss
+                    OUTSIDE( JSPC ) = OUTSIDE( JSPC ) 
+     &                              + COEFF * MAX( TOTAL_PROD-ISAM_PROD, 0.0D0 )
+                 END IF     
+! add surplus concentration to tags based on whether species is tracked
+                 IF( ISAM_SPECIES( JSPC ) )THEN
+                    IF ( ISAM_PROD .GT. 1.0D-30 ) THEN
+! add outside concentration to tag based on their production relative to the isam total
+                       TERM = 1.0D0 / ISAM_PROD
+                       DO KTAG = 1, NTAG_SA
+                          SA_DELTA( KTAG ) = TERM * SA_DELTA( KTAG )
+                          SOURCE_DELTA( KTAG,JSPC ) = SOURCE_DELTA( KTAG,JSPC )
+     &                                              + OUTSIDE( JSPC ) * SA_DELTA( KTAG )
+                       END DO
+                    ELSE  ! add to other tag
+                       TERM = 1.0D0
+                       SOURCE_DELTA( OTHRTAG,JSPC ) = SOURCE_DELTA( OTHRTAG,JSPC )
+     &                                              + OUTSIDE( JSPC )                     
+                    END IF                    
                  END IF  
-             END DO
-          ELSE ! radical species using changed directly from solver and partition based on its sign
-              ISAM_PROD  = 0.0D0
-              TOTAL_PROD = 0.0D0
-              OX_DELTA   = 0.0D0
-              DO NTERM = 1, ISAM_SPC_BUDGET( JSPC )%NRXNS_PROD
-                 NRX   = ISAM_SPC_BUDGET( JSPC )%IRXN_PROD( NTERM )
-                 COEFF = ISAM_SPC_BUDGET( JSPC )%COEFF_POS( NTERM )
-     &                 * INTRXN( NRX )
-                 TOTAL_PROD = TOTAL_PROD + COEFF
-                 IF( .NOT. ZERO_ISAM( NRX ) )THEN
-                   DO KTAG = 1, NTAG_SA
-                      TERM      = COEFF 
-     &                          * ( SOURCE_PROBABILITY( KTAG,NRX ) 
-     &                          +   SOURCE_PROBABILITY((NTAG_SA+1),NRX )
-     &                          *   ISAM_PROBABILITY  ( KTAG,NRX ) )
-                      ISAM_PROD = ISAM_PROD + TERM
-                      OX_DELTA( KTAG ) = OX_DELTA( KTAG ) + TERM
-                   END DO                    
+!                 WRITE( LOGDEV,'(A,6(ES20.10,1X))')'Surplus Changes for ' // CHEMISTRY_SPC( JSPC ) // ' = ',
+!     &           TOTAL_PROD,TOTAL_LOSS,OUTSIDE( JSPC ),COEFF,SUM( SOURCE_DELTA( :,JSPC ) ),ISAM_LOSS
+#ifdef verbose_isam
+                 IF( ISAM_SPECIES( JSPC ) )THEN
+                    IF( REMOVED )DELTA_BULK = CONC( JSPC )
+                    IF( WRITE_CELL )WRITE(ISAM_LOG,'(2A,30(1X,ES20.10))', ADVANCE = 'NO')MECHANISM_BUDGET( JSPC )%SPECIES_NAME,
+     &              ' P ',-LOSS_FACT,(SOURCE_DELTA( KTAG,JSPC ),KTAG =1, NTAG_SA), OUTSIDE( JSPC ), TERM, DELTA_BULK                 
                  END IF
-             END DO
-             COEFF = (CONC( NIRR )-YCMID( NIRR ))  
-             IF( COEFF .GE. 0.0D0 .AND. TOTAL_PROD .GT. 1.0D-30 )THEN
-                 COEFF = COEFF / TOTAL_PROD
-#ifdef verbose_isam
-                 IF( WRITE_CELL )WRITE(ISAM_LOG,*)ISAM_SPC_BUDGET( JSPC )%SPECIES_NAME,
-     &           ' has nonzero production '                 
 #endif     
-                 DO KTAG = 1, NTAG_SA
-                    SOURCE_DELTA( KTAG,JSPC ) = SOURCE_DELTA( KTAG,JSPC )
-     &                                        + OX_DELTA( KTAG ) * COEFF
-                 END DO
-                 TERM = (TOTAL_PROD-ISAM_PROD)*COEFF   
-                 SOURCE_DELTA( OTHRTAG,JSPC ) = SOURCE_DELTA( OTHRTAG,JSPC )
-     &                                        + TERM
+                 IF( ISAM_SPECIES( JSPC ) ) OUTSIDE( JSPC ) = 0.0D0
+             ELSE !!!!IF ( DELTA_BULK .LT. 0.0D0 ) THEN
+! scale by relative change in bulk and fraction of species in tag             
+               LOSS_FACT = MAX( -1.0D0, DELTA_BULK / MAX( YCMID( JSPC ),DCONMIN_TAG ) ) 
+               DO KTAG = 1, NTAG_SA
+                  SOURCE_DELTA( KTAG,JSPC ) = SOURCE_DELTA( KTAG, JSPC )
+     &                                      + SOLD( KTAG,JSPC ) * LOSS_FACT
+               END DO
+!  have to add lines for outside change?
 #ifdef verbose_isam
-                 IF( WRITE_CELL )WRITE(ISAM_LOG,'(2A,12(1X,ES20.10))')ISAM_SPC_BUDGET( JSPC )%SPECIES_NAME,
-     &           ' has nonzero production ',(SOURCE_DELTA( KTAG,JSPC ),KTAG =1, NTAG_SA),(TOTAL_PROD-ISAM_PROD)/TOTAL_PROD,
-     &          (CONC( NIRR )-YCOLD( NIRR ))                  
+                 IF( ISAM_SPECIES( JSPC ) )THEN
+                    IF( WRITE_CELL )WRITE(ISAM_LOG,'(2A,30(1X,ES20.10))',ADVANCE = 'NO')MECHANISM_BUDGET( JSPC )%SPECIES_NAME,
+     &              ' L ',-LOSS_FACT,(SOURCE_DELTA( KTAG,JSPC ),KTAG =1, NTAG_SA),OUTSIDE( JSPC ),COEFF,
+     &              DELTA_BULK            
+                 END IF
 #endif     
-             ELSE
-                 DO KTAG = 1, NTAG_SA
-                    TERM = MAX(1.0D0-NOT_ISAM_SOURCE( KTAG,NIRR ),0.0D0) * COEFF
-                    SOURCE_DELTA( KTAG,JSPC ) = SOURCE_DELTA( KTAG, JSPC )
-     &                                        + TERM  
-                 END DO
-                 IF( WRITE_CELL )WRITE(ISAM_LOG,'(2A,12(1X,ES12.4))')ISAM_SPC_BUDGET( JSPC )%SPECIES_NAME,
-     &           ' has zero production ',(SOURCE_DELTA( KTAG,JSPC ),KTAG =1, NTAG_SA),
-     &           (CONC( NIRR )-YCOLD( NIRR ))             
              END IF
-             TOTAL = SUM(   SOURCE_DELTA( 1:NTAG_SA,JSPC ))
-             TERM  = (CONC( NIRR )-YCOLD( NIRR ))            
+!
 #ifdef verbose_isam
-             IF( WRITE_CELL )WRITE(ISAM_LOG,*)ISAM_SPC_BUDGET( JSPC )%SPECIES_NAME,
-     &       ' has net change ', TOTAL,(TOTAL-TERM)
+             IF( ISAM_SPECIES( JSPC ) )THEN
+                TOTAL = SUM( SOURCE_DELTA( 1:NTAG_SA,JSPC ))
+                IF( WRITE_CELL )WRITE(ISAM_LOG,'(A,ES12.4,A,ES12.4)')
+     &          ' Net ISAM Change ', TOTAL,': Change ISAM-BULK ',( TOTAL-DELTA_BULK )
+             END IF
 #endif
-          END IF
+             DO KTAG = 1, NTAG_SA
+                IF( SOURCE_DELTA( KTAG, JSPC ) .LT. -SOLD( KTAG, JSPC ) )THEN
+                   SOURCE_DELTA( KTAG, JSPC ) = -SOLD( KTAG, JSPC )
+                END IF 
+             END DO   
        END DO
-       
+
+C...update SOLD using SOURCE_DELTA       
+        DO JSPC = 1,NUMB_MECH_SPC
+           NIRR = JSPC 
+           DO KTAG = 1, NTAG_SA
+              SOLD( KTAG, JSPC ) = SOLD( KTAG, JSPC ) + SOURCE_DELTA( KTAG, JSPC )
+               IF( SOLD( KTAG,JSPC ) .LT. DCONMIN_TAG )SOLD( KTAG,JSPC ) = 0.0D0
+           END DO           
+           IF( REBALANCE( JSPC ) )THEN 
+!     adjust tags based on final bulk concentration
+              TERM  = MAX( OUTSIDE( JSPC ) + SUM( SOLD(1:NTAG_SA,JSPC) ), DCONMIN_TAG ) 
+              COEFF = CONC( JSPC ) / TERM            
+              DO KTAG = 1, NTAG_SA
+                 SOLD( KTAG,JSPC ) = COEFF * SOLD( KTAG,JSPC )
+                 IF( SOLD( KTAG,JSPC ) .LT. DCONMIN_TAG )SOLD( KTAG,JSPC ) = 0.0D0
+              END DO
+              OUTSIDE( JSPC ) = COEFF * OUTSIDE ( JSPC )
+           END IF
+! set tags to conmin if initially nonzero
+           IF( MAXVAL( SOLD( 1:NTAG_SA,JSPC ) ) .LT. DCONMIN_TAG )THEN
+              DO KTAG = 1, NTAG_SA
+                 IF( SOURCE_NONZERO( KTAG,JSPC ) )SOLD( KTAG,JSPC ) = DCONMIN_TAG
+              END DO
+! zero out ICON tag
+!             SOLD( NTAG_SA,JSPC )   = 0.0D0
+           END IF    
+        END DO
+
 #ifdef verbose_isam
        IF( WRITE_CELL )THEN
-          WRITE(ISAM_LOG,*)'Source Delta Concentration include extra delta then last two columns, Solver Change and Sum Deltas'
-          WRITE(ISAM_LOG,'(A16,86(1X,I12))')'Species/Tag #',(KTAG,KTAG=1,NTAG_SA+1)
+          WRITE(ISAM_LOG,'(A)')'Source Delta Concentration include extra delta then last two columns, Solver Change and Sum Deltas'
+          WRITE(ISAM_LOG,'(A16,86(1X,I12))')'Species/Tag #',(KTAG,KTAG=1,NTAG_SA),0,NTAG_SA+1
 !          DO S = 1, NUMB_MECH_SPC 
           DO JSPC = 1, ISAM_CHEMISTRY_SPC
              S = ISAM_TO_CHEM( JSPC )
-             WRITE(ISAM_LOG,'(A16,86(1X,ES12.4))')CHEMISTRY_SPC(S),(SOURCE_DELTA( KTAG, JSPC ),KTAG=1,NTAG_SA+1 ),
-     &      (CONC( S )-YCOLD( S )),SUM(SOURCE_DELTA( 1:(NTAG_SA+1), JSPC ))
+             WRITE(ISAM_LOG,'(A16,86(1X,ES12.4))')CHEMISTRY_SPC(S),(SOURCE_DELTA( KTAG, JSPC ),KTAG=1,NTAG_SA ),
+     &      (CONC( S )-YCMID( S )),SUM(SOURCE_DELTA( 1:(NTAG_SA), JSPC ))
           END DO
           WRITE(ISAM_LOG,*)' '
-          WRITE(ISAM_LOG,'(A21,4(1X,A12))')'ISAM_CHEMISTRY_SPC,','  IRR Conc,  ',' True Conc,  correction ',
-     &                                    '  IRR Change,  ','  True Change  '
+          WRITE(ISAM_LOG,'(A21,5(1X,A12))')'ISAM_CHEMISTRY_SPC,','  IRR Conc,  ',' True Conc,  correction ',
+     &                                    '  IRR Change,  ','  True Change  ',' Difference '
 !          DO NIRR = 1, NUMB_MECH_SPC 
           DO JSPC = 1, ISAM_CHEMISTRY_SPC
              NIRR = ISAM_TO_CHEM( JSPC )
              COEFF = 0.0D0
-             DO KTAG = 1, NTAG_SA+1
-
+             TERM  = 0.0D0
+             DO KTAG = 1, NTAG_SA
+!                SOLD( KTAG, NIRR ) = MAX( SOLD( KTAG, NIRR ) + SOURCE_DELTA( KTAG, JSPC ), 0.0D0 )
+                TERM  = TERM  + SOLD( KTAG, NIRR )
                 COEFF = COEFF + SOURCE_DELTA( KTAG, JSPC )
              END DO
-             TOTAL =  CONC( NIRR )- YCOLD( NIRR )             
+             DELTA_BULK =  CONC( NIRR )- YCMID( NIRR )             
              WRITE(ISAM_LOG,'(A21,5(1X,",",ES12.4))')'ISAM_' // CHEMISTRY_SPC(NIRR),
-     &       MAX(0.0D0,YCOLD( NIRR )+COEFF),CONC( NIRR ),COEFF,TOTAL,(COEFF-TOTAL)
+     &       MAX(0.0D0,TERM),CONC( NIRR ),COEFF,DELTA_BULK,(DELTA_BULK-COEFF)
           END DO
        END IF
 #endif
-       IF( OX_RADICAL_FOUND .GT. 0 )THEN
-          DO NIRR = 1, NUMB_MECH_SPC 
-             YCMID( NIRR ) = CONC( NIRR )
-          END DO
-       END IF
+
+       DO NIRR = 1, NUMB_MECH_SPC 
+          YCMID( NIRR ) = CONC( NIRR )
+       END DO
           
-       IF( UPDATE_SOLD )THEN
-          DO JSPC = 1, ISAM_CHEMISTRY_SPC
-             NIRR = ISAM_TO_CHEM( JSPC )
-             DEFICIT  = .FALSE.
-             POSITIVE = 0 
-             TOTAL    = 0.0D0
-             DO KTAG = 1, NTAG_SA
-                SOLD( KTAG,NIRR ) = SOLD( KTAG,NIRR ) +  SOURCE_DELTA( KTAG,JSPC )
-                IF ( SOLD( KTAG,NIRR ) .LT. 0.0D0 ) THEN
-                   TOTAL = TOTAL + SOLD( KTAG, NIRR )
-                   SOLD( KTAG, NIRR )  = DCONMIN_TAG
-                   SOURCE_ZERO( KTAG ) = .TRUE.
-                   DEFICIT             = .TRUE.
-                ELSE 
-                   SOURCE_ZERO( KTAG ) = .FALSE.                    
-                   POSITIVE   = POSITIVE + 1 
-                END IF 
-             END DO
-             IF( POSITIVE .GT. 0 ) THEN
-C...Correct concentrations if any source delta greater than their source concentration
-                DO WHILE ( DEFICIT )
-                   TERM     = TOTAL / REAL( POSITIVE,8 )
-                   TOTAL    = 0.0D0
-                   BALANCE  = .TRUE.
-                   POSITIVE = 0 
-                   DO KTAG = 1, NTAG_SA
-                      IF( .NOT. SOURCE_ZERO( KTAG ) )THEN
-                         SOLD( KTAG, NIRR ) = SOLD( KTAG, NIRR )+TERM
-                         IF ( SOLD( KTAG, NIRR ) .LT. 0.0D0 ) THEN
-                            TOTAL = TOTAL + SOLD( KTAG, NIRR )
-                            SOLD( KTAG, NIRR )  = DCONMIN_TAG
-                            SOURCE_ZERO( KTAG ) = .TRUE.
-                            BALANCE    = .FALSE.
-                         ELSE 
-                            SOURCE_ZERO( KTAG ) = .FALSE.                    
-                            POSITIVE   = POSITIVE + 1 
-                         END IF
-                      END IF                    
-                   END DO
-                   IF( BALANCE .OR. POSITIVE .EQ. 0 )DEFICIT = .FALSE.
-                END DO
-             END IF ! POSITIVE > 0
-          END DO
-
 C..Clear source deltas
-         SOURCE_DELTA = 0.0D0
+       SOURCE_DELTA = 0.0D0
 C..Save concentrations
-         DO NIRR = 1, NUMB_MECH_SPC 
-            YCOLD( NIRR ) = CONC( NIRR )
-         END DO
+       DO NIRR = 1, NUMB_MECH_SPC 
+          YCOLD( NIRR ) = CONC( NIRR )
+       END DO
 #ifdef verbose_isam
-         IF( WRITE_CELL )THEN
-            WRITE(ISAM_LOG,*)'Final Source Concentration then New Total (Last Column) Concentrations'
-            WRITE(ISAM_LOG,'(A16,86(1X,I12))')'Species/Tag #',(KTAG,KTAG=1,NTAG_SA+1)
-!            DO S = 1, NUMB_MECH_SPC 
-            DO JSPC = 1, ISAM_CHEMISTRY_SPC
-               S = ISAM_TO_CHEM( JSPC )
-               WRITE(ISAM_LOG,'(A16,86(1X,ES12.4))')CHEMISTRY_SPC(S),(SOLD( KTAG, S ),KTAG=1,NTAG_SA ),
-     &         CONC( S ),SUM(SOLD(1:NTAG_SA,S) )
-            END DO
-         END IF
-#endif         
+       IF( WRITE_CELL )THEN
+          WRITE(ISAM_LOG,'(A,I7,1X,I6.6,1X,I3)')'At Date, Time, Nstep = ',ISAM_JDATE,ISAM_JTIME,ISAM_NSTEP
+          WRITE(ISAM_LOG,*)'Final Source Concentration then New Total (Last Column) Concentrations'
+          WRITE(ISAM_LOG,'(A16,86(1X,I12))')'Species/Tag #',(KTAG,KTAG=1,NTAG_SA),0,NTAG_SA+1
+!          DO S = 1, NUMB_MECH_SPC 
+          DO JSPC = 1, ISAM_CHEMISTRY_SPC
+             S = ISAM_TO_CHEM( JSPC )
+             WRITE(ISAM_LOG,'(A16,86(1X,ES12.4))')CHEMISTRY_SPC(S),(SOLD( KTAG, S ),KTAG=1,NTAG_SA ),
+     &       CONC( S ),SUM(SOLD(1:NTAG_SA,S) )
+          END DO
        END IF
-
+#endif        
       
 
       RETURN
