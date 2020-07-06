@@ -9,7 +9,7 @@ wget ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-c-4.7.0.tar.gz
 2. Untar
 
 ```
-tar -tzvf netcdf-c-4.7.0.tar.gz
+tar -xzvf netcdf-c-4.7.0.tar.gz
 ```
 
 3. Verify that no modules are currently loaded
@@ -40,31 +40,41 @@ more INSTALL.md
 7. Create a target installation directory that includes the loaded module environment name
 
 ```
-mkdir /home/netcdf-c-4.7.0-gcc9.1.0
+mkdir netcdf-c-4.7.0-gcc9.1.0
 ```
 
+8 Change directories to where the files were extracted 
+```
+cd netcdf-c-4.7.0
+```
 
-8. Run the configure --help command to see what settings can be used for the build.
+9. Run the configure --help command to see what settings can be used for the build.
 ```
 ./configure --help
 ```
 
-9. Set the Compiler environment variables
+10. Set the Compiler environment variables
 
+Make sure these compilers can be found.
 ```
 which gfortran
 which gcc
 which g++
+```
+If they are found, proceed to set the environment variables.
+The paths will be dependent on your compute environment
+If they are not found, reload your module (see above)
+```
 
-setenv FC /urs/local/apps/gcc/9.1.0/bin/gfortran
-setenv CC /urs/local/apps/gcc/9.1.0/bin/gcc
-setenv CXX /urs/local/apps/gcc/9.1.0/bin/g++
+setenv FC gfortran
+setenv CC gcc
+setenv CXX g++
 ```
 
 10. Run the configure command
 
 ```
-./configure --prefix=/home/netcdf-c-4.7.0-gcc9.1.0 --disable-netcdf-4 --disable-dap
+./configure --prefix=$cwd/../netcdf-c-4.7.0-gcc9.1.0 --disable-netcdf-4 --disable-dap
 ```
 
 11. Check that the configure command worked correctly
@@ -77,6 +87,11 @@ make check install
 
 ```
 | Congratulations! You have successfully installed netCDF!    |
+```
+
+13. Change directories to one level up from your current directory
+```
+cd ..
 ```
 
 ## Install netCDF-Fortran
@@ -102,7 +117,7 @@ cd netcdf-fortran-4.4.5
 4. Make an install directory that matches the name of your loaded module environment
 
 ```
-mkdir /home/netcdf-fortran-4.4.5-gcc9.1.0
+mkdir ../netcdf-fortran-4.4.5-gcc9.1.0
 ```
 
 5. Review the installation document http://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html
@@ -110,25 +125,25 @@ mkdir /home/netcdf-fortran-4.4.5-gcc9.1.0
 6. Set the environment variable NCDIR
 
 ```
-setenv NCDIR /home/netcdf-c-4.7.0-gcc9.1.0
+setenv NCDIR $cwd/../netcdf-c-4.7.0-gcc9.1.0
 ```
 
 7. Set the CC environment variable to use the gcc and gfortran compilers
 
 ```
-which gfort
+which gfortran
 which gcc
-wihch g++
+which g++
 
-setenv CC /urs/local/apps/gcc/9.1.0/bin/gfortran
-setenv FC /urs/local/apps/gcc/9.1.0/bin/gcc
-setenv CXX /urs/local/apps/gcc/9.1.0/bin/g++
+setenv FC gfortran
+setenv CC gcc
+setenv CXX g++
 ```
 
 8. Set your LD_LIBRARY_PATH to include the netcdf-C library path for netCDF build
 
 ```
-setenv NCDIR /home/netcdf-c-4.7.0-gcc9.1.0
+setenv NCDIR $cwd/../netcdf-c-4.7.0-gcc9.1.0
 setenv LD_LIBRARY_PATH ${NCDIR}/lib:${LD_LIBRARY_PATH}
 ```
 
@@ -141,7 +156,7 @@ echo $LD_LIBRARY_PATH
 10. Set the install directory for netCDF fortran
 
 ```
-setenv NFDIR /home/netcdf-fortran-4.4.5-gcc9.1.0
+setenv NFDIR $cwd/../netcdf-fortran-4.4.5-gcc9.1.0
 
 setenv CPPFLAGS -I${NCDIR}/include
 setenv LDFLAGS -L${NCDIR}/lib
@@ -185,7 +200,7 @@ Output successful if you see:
 ```
 Libraries have been installed in:
    
-   /home/netcdf-fortran-4.4.5-gcc9.1.0
+   $cwd/../netcdf-fortran-4.4.5-gcc9.1.0
 
 If you ever happen to want to link against installed libraries
 in a given directory, LIBDIR, you must either use libtool, and
@@ -202,7 +217,7 @@ flag during linking and do at least one of the following:
 15. set your LD_LIBRARY_PATH to include the netcdf-Fortran library path for netCDF build
 
 ```
-setenv NFDIR /home/netcdf-fortran-4.4.5-gcc9.1.0
+setenv NFDIR $cwd/../netcdf-fortran-4.4.5-gcc9.1.0
 setenv LD_LIBRARY_PATH ${NFDIR}/lib:${LD_LIBRARY_PATH}
 ```
 (may need to add the NCDIR and NFDIR to .cshrc)
