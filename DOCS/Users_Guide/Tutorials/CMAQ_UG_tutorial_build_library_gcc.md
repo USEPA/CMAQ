@@ -52,7 +52,7 @@ mkdir /home/netcdf-c-4.7.0-gcc9.1.0
 9. Set the Compiler environment variables
 
 ```
-which gfort
+which gfortran
 which gcc
 wihch g++
 
