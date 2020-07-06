@@ -54,7 +54,7 @@ mkdir /home/netcdf-c-4.7.0-gcc9.1.0
 ```
 which gfortran
 which gcc
-wihch g++
+which g++
 
 setenv FC /urs/local/apps/gcc/9.1.0/bin/gfortran
 setenv CC /urs/local/apps/gcc/9.1.0/bin/gcc
