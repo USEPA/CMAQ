@@ -443,7 +443,12 @@
 !    emission rates of all species for every emission stream.                  !
 !------------------------------------------------------------------------------!
 
-
+&EmissDiag
+  NEmissDiagStream     = 1
+  EmissDiagStream(1)   = 'ALL'
+  StreamDiagSpecNum(1) = 2
+  StreamDiagSpec(1,:)  = 'NO','NO2'
+/
 
 
 
