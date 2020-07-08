@@ -798,7 +798,7 @@ C..Includes:
              IS_TAG_NONZERO = .FALSE.
              LOAD_SOLD: DO KTAG = 1, NTAG_SA
                 SOLD( KTAG, S ) = REAL( ISAM( COL,ROW,LAY,SPC,KTAG ),8 )
-                IF( SOLD( KTAG, S ) .GT. ZERO )IS_TAG_NONZERO = .TRUE.
+                IF( SOLD( KTAG, S ) .GT. ZERO )IS_TAG_NONZERO( KTAG ) = .TRUE.
                 IF( SOLD( KTAG,S ) .LT. CUTOFF )THEN
                     SOLD( KTAG,S ) = ZERO
                 ELSE    

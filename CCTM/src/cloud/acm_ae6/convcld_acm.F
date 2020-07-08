@@ -954,7 +954,8 @@ C...  set minimum for aerosol species
             DO ITAG = 1, NTAG_SA
               DO LAY = 1, NLAYS
                 SA_CONC( SPC,LAY,ITAG ) = MAX( ISAM( COL,ROW,LAY,SPC,ITAG ),
-     &                                    CONCMINL( CSPC,LAY ) )
+c    &                                    CONCMINL( CSPC,LAY ) )
+     &                                    1.0E-30 )
               END DO
             END DO
           END DO
@@ -1918,7 +1919,7 @@ C...Finally, get in cloud pollutant concentrations in mol sp per mol air
 #ifdef isam
           DO SPC = 1, NSPC_SA
              CSPC = SPC_INDEX(SPC,2)
-             IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+             IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09 ) THEN
                 DO ITAG = 1, NTAG_SA
                    SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
      &                                  * CEND( CSPC )
@@ -1927,10 +1928,10 @@ C...Finally, get in cloud pollutant concentrations in mol sp per mol air
      &                                   * REMOV( CSPC )
      &                                   / POLC( CSPC )
                 END DO
-             ELSE
-                DO ITAG = 1, NTAG_SA
-                   SA_CEND( SPC, ITAG ) = 1.0E-30
-                END DO
+             ELSE ! do not update
+c               DO ITAG = 1, NTAG_SA
+c                  SA_CEND( SPC, ITAG ) = 0.0
+c               END DO
              END IF
           END DO
 #endif
@@ -1977,13 +1978,15 @@ C...  mimic this for the ASO4GASJ tracking species
               CSPC = SPC_INDEX(SPC,2)
 
               DO ITAG = 1, NTAG_SA
-                IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
+                IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09) THEN
                   SA_CEND( SPC,ITAG ) = SA_POLC( SPC,ITAG )
      &                                * CEND( CSPC )
      &                                / POLC( CSPC )
                   SA_REMOV( SPC,ITAG ) = SA_POLC( SPC, ITAG )
      &                                 * REMOV( CSPC )
      &                                 / POLC( CSPC )
+                ELSE ! do not update
+c                 SA_CEND( SPC, ITAG ) = 0.0
                 END IF
               END DO
 
@@ -1991,7 +1994,7 @@ C...  mimic this for the ASO4GASJ tracking species
 
             IF ( S_N2O5 .NE. 0 ) THEN
               DO ITAG = 1, NTAG_SA
-                SA_CEND( S_N2O5,ITAG )  = 1.0E-30
+                SA_CEND( S_N2O5,ITAG )  = 0.0
               END DO
             END IF
 
@@ -2235,7 +2238,8 @@ C...   include raining region below cld base
 #ifdef isam
               DO SPC = 1, NSPC_SA ! general case
                 CSPC = SPC_INDEX(SPC,2)
-
+ 
+                IF ( CEND( CSPC ) .GT. 1.0E-09) THEN
                 DO ITAG = 1, NTAG_SA
                   INCLOUD = SA_PCLD( SPC, LAY, ITAG )
      &                    * SA_CEND( SPC, ITAG )
@@ -2244,6 +2248,7 @@ C...   include raining region below cld base
                   ISAM( COL,ROW,LAY,SPC,ITAG ) = FRAC * INCLOUD
      &                                         + ( 1.0 - FRAC ) * OUTCLOUD
                 END DO
+                END IF
               END DO
 
               IF (S_SO4J .NE. 0 ) THEN ! sulfate case
@@ -2262,7 +2267,7 @@ C...   include raining region below cld base
                 END DO
 
                 IF ( CONDIS .NE. 0.0 ) THEN
-                  BLNC = ( CONDIS + SUM( SA_INCLOUD( : ) ) ) / MAX( SUM( SA_INCLOUD( : ) ), CONCMINL( C_SO4J,LAY ) )
+                 BLNC = ( CONDIS + SUM( SA_INCLOUD( : ) ) ) / MAX( SUM( SA_INCLOUD( : ) ), CONCMINL( C_SO4J,LAY ) )
                   DO ITAG = 1, NTAG_SA
                     IF ( SA_INCLOUD( ITAG ) .GT. 0.0 ) THEN
                       SA_INCLOUD( ITAG ) = BLNC * SA_INCLOUD( ITAG )
@@ -2270,12 +2275,14 @@ C...   include raining region below cld base
                   END DO
                 END IF
 
+                IF (PCLD( SPC_INDEX(SPC,2),LAY ) .GT. 1.0E-09) THEN
                 DO ITAG = 1, NTAG_SA
                   OUTCLOUD = SA_PCLD( S_SO4J,LAY,ITAG )
                   ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = FRAC * SA_INCLOUD( ITAG )
      &                                       + ( 1.0 - FRAC ) * OUTCLOUD
                   ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = MAX( ISAM( COL,ROW,LAY,S_SO4J,ITAG ), 1.0E-30 )
                 END DO
+                END IF
 
               END IF
 #endif
@@ -2292,9 +2299,11 @@ C...   include raining region below cld base
               END DO
 #ifdef isam
               DO SPC = 1, NSPC_SA
+                IF (PCLD( SPC_INDEX(SPC,2),LAY ) .GT. 1.0E-09) THEN
                 DO ITAG = 1, NTAG_SA
                   ISAM( COL,ROW,LAY,SPC,ITAG ) = SA_PCLD( SPC, LAY, ITAG )
                 END DO
+                END IF
               END DO
 #endif
 
@@ -2350,6 +2359,7 @@ C...Now do changes in cloudy layers:
             DO SPC = 1, NSPC_SA ! general case
               CSPC = SPC_INDEX(SPC,2)
 
+              IF (CEND( SPC_INDEX(SPC,2) ) .GT. 1.0E-09) THEN
               DO ITAG = 1, NTAG_SA
                 INCLOUD = SA_PCLD( SPC,LAY,ITAG ) * SA_CEND( SPC,ITAG )
      &                  / MAX( SA_POLC( SPC,ITAG ), CONCMINL( CSPC,LAY ) )
@@ -2361,6 +2371,7 @@ C...Now do changes in cloudy layers:
                 ISAM( COL,ROW,LAY,SPC,ITAG ) = FRAC * INCLOUD
      &                                       + ( 1.0 - FRAC ) * OUTCLOUD
               END DO
+              END IF
             END DO
 
             IF (S_SO4J .NE. 0 ) THEN ! sulfate case
