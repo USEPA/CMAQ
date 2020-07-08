@@ -10,6 +10,7 @@ The Community Multiscale Air Quality (CMAQ) Model version 5.3.2 is a minor updat
 
 * [CMAQv5.3.2 Bugfixes](CMAQv5.3.2_bugfixes.md)
 * [Added ISAM support for bidirectional NH3 flux](ISAM_bidi_support.md)
+* [Revised ISAM method on how gas chemistry affects apportionment](ISAM_gas_chemistry_v532.md)
 * [Running with Temporally Finer Meteorology](running_with_temporally_finer_MET.md)
 * [Update to the DMS chemistry with CB6r3](DMS_chemistry_update.md)
 * [Update the Lightning NO Vertical Profile](Update_the_lightning_NO_vertical_profile.md)

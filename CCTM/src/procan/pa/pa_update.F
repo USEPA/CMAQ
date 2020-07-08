@@ -382,7 +382,7 @@ C  ug/m3 sec, #/m3 sec, and m2/m3 sec, respectively.
              ELSEWHERE ( DIFF_MASK_SRF ) 
                  PA_EM_CONV( : ) = 1.0E+06 * REFAC / MGPG
              ELSEWHERE
-                 PA_EM_CONV( : ) = REFAC * DIFF_MW( : )
+                 PA_EM_CONV( 1:N_SPC_DIFF ) = REFAC * DIFF_MW( 1:N_SPC_DIFF )
              END WHERE
          END IF
 
