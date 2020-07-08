@@ -147,7 +147,7 @@ c     USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
 #ifdef parallel
       USE VERTEXT_MODULE
 #endif
-
+      USE UTIL_FAMILY_MODULE
       USE CENTRALIZED_IO_MODULE
       USE lus_data_module
 
@@ -516,6 +516,11 @@ C Initialize ddm3d calculations
 
 #endif
 
+C Initialize Global Arrays for Storing Chemical, Regional, Process,
+C and Emission Stream Families
+         call read_families
+
+C Initiliaze IO Arrays and Open Files
          call centralized_io_init
 
 C Initialize conc field: Copy IC's to CONC file as step 0
