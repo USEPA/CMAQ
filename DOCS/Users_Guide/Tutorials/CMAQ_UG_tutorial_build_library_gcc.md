@@ -292,7 +292,7 @@ setenv HOME [your directory]/LIBRARIES
 make |& tee make.log
 ```
 
-7. Change directories to the $BIN dir and verify that both the libioapi.a and the m3tools were successfully built
+7. Change directories to the $BIN dir and verify that both the libioapi.a library was successfully built
 
 ```
 cd ../$BIN
