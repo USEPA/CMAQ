@@ -238,6 +238,11 @@ https://cjcoats.github.io/ioapi/AVAIL.html
 git clone https://github.com/cjcoats/ioapi-3.2
 ```
 
+2. Change branches to 2020104 for a tagged stable version
+```
+git checkout -b 2020104
+```
+
 2. Change the BIN setting in the Makefile to include the loaded module name
 
 ```
