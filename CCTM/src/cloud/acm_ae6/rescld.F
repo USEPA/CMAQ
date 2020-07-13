@@ -19,13 +19,13 @@
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef isam
-      SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
-     &                    N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS,
+      SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
+     &                    N_SPC_WDEP, DEP, RESTRANS,
      &                    SA_DEP)
 
 #else
-      SUBROUTINE RESCLD ( CGRID, JDATE, JTIME, TSTEP,
-     &                    N_SPC_WDEP, WDEP_MAP, DEP, RESTRANS )
+      SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
+     &                    N_SPC_WDEP, DEP, RESTRANS )
 #endif
 
 C-----------------------------------------------------------------------
@@ -113,12 +113,11 @@ C...........Includes:
       INCLUDE SUBST_FILES_ID             ! file name parameters
 
 C...........Arguments:
-      REAL, POINTER            :: CGRID( :,:,:,: ) ! concentrations
+      REAL, INTENT( IN )       :: CGRD( :,:,:,: ) ! concentrations
       INTEGER, INTENT( IN )    :: JDATE            ! current model date, coded YYYYDDD
       INTEGER, INTENT( IN )    :: JTIME            ! current model time, coded HHMMSS
       INTEGER, INTENT( IN )    :: TSTEP( 3 )       ! model time steps, coded HHMMSS
       INTEGER, INTENT( IN )    :: N_SPC_WDEP       ! # of wet deposition species
-      INTEGER, INTENT( IN )    :: WDEP_MAP( : )    ! wet deposition species map to CGRID
       REAL,    INTENT( INOUT ) :: DEP( :,:,: )     ! wet deposition
       REAL,    INTENT( OUT )   :: RESTRANS( :,: )  ! resolved cloud transmissivity
 #ifdef isam
@@ -575,7 +574,7 @@ C...Finally, get in-cloud pollutant concentrations in moles sp
 C...  per mole air
 
                 DO SPC = 1, NSPCSD
-                  POLC ( SPC ) = CGRID( COL, ROW, LAY, SPC )
+                  POLC ( SPC ) = CGRD( COL, ROW, LAY, SPC )
                   CEND ( SPC ) = POLC( SPC )
                   REMOV( SPC ) = 0.0
                 END DO
@@ -634,7 +633,7 @@ C...  then perform the aqueous chemistry within the cloud and
 C...  re-adjust the ending and removed amounts for those species
 C...  that participated in cloud chemistry
 
-                IF ( WCBAR .GT. 0.00001 ) THEN
+                IF ( WCBAR .GT. 1.0E-5 ) THEN
 
 C...  calculate cosine of zenith angle for the cell and determine day or night; Golam Sarwar 
 
@@ -686,8 +685,6 @@ C...  mimic this for the ASO4GASJ tracking species
                       SA_CEND( S_SULF,ITAG )  = 1.0E-30
                     END DO
 
-c                   DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) !sulfate produced from SO2
-
                     DO ITAG = 1, NTAG_SA
                       SA_DS4( ITAG ) = SA_DS4( ITAG ) + DS4_SAVE ! total sulfate produced
      &                               * SA_POLC( S_SO2,ITAG )
@@ -715,125 +712,50 @@ c                   DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) !sulfate
 
                 END IF
 
-C...convert from moles/m**2 to kg/m**2 and kg/m**2 to kg/hectare
+C...convert removal change from moles/m**2 to kg/m**2 and kg/m**2 to kg/hectare
 
-C...  for gases
-
-                SPC = 0
-                STRT = GC_STRT
-                FINI = GC_STRT - 1 + N_GC_SPC
-                DO VAR = STRT, FINI
-                  SPC = SPC + 1
-                  REMOV( VAR ) = REMOV( VAR ) * GC_MOLWT( SPC )
-     &                         * M2PHA_OVER_GPKG
-#ifdef isam
-                  CSPC = 0
-                  CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
-                  IF ( CSPC .GT. 0 ) THEN
-                    DO ITAG = 1, NTAG_SA
-                      SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * GC_MOLWT( SPC )
-     &                                      * M2PHA_OVER_GPKG
-                    END DO
-                  END IF
-#endif
-
+                DO I = 1,N_CGRID_SPC
+                  IF ( CGRID_MASK_NUM( I ) .OR.
+     &                 CGRID_MASK_SRF( I ) ) THEN
+                     ! Aerosol Number (N m-2 -> N ha-1)
+                     ! Aerosol Surface Area (m2 m-2 -> m2 ha-1)
+                     REMOV( I ) = REMOV( I ) * M2PHA
 #ifdef sens
-                  DO NP = 1, NPMAX
-                    S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * GC_MOLWT( SPC )
-     &                                 * M2PHA_OVER_GPKG
-                  END DO
+                     DO NP = 1, NPMAX
+                       S_REMOV( NP,I ) = S_REMOV( NP,I ) * M2PHA
+                     END DO
 #endif
+                     ! ISAM does not track aerosol number or surface
+                     ! area
 
-                END DO
-
-C...  for aerosols
-
-                SPC = 0
-                STRT = AE_STRT
-                FINI = AE_STRT - 1 + N_AE_SPC
-                DO VAR = STRT, FINI
-                  SPC = SPC + 1
-                  IF (( INDEX( AE_SPC( SPC ), 'NUM' ) .EQ. 0 ) .AND.
-     &                ( INDEX( AE_SPC( SPC ), 'SRF' ) .EQ. 0 )) THEN
-                    REMOV( VAR ) = REMOV( VAR ) * AE_MOLWT( SPC )
-     &                           * M2PHA_OVER_GPKG
-#ifdef sens
-                    DO NP = 1, NPMAX
-                      S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * AE_MOLWT( SPC )
-     &                                   * M2PHA_OVER_GPKG
-                    END DO
-#endif
                   ELSE
-                    REMOV( VAR ) = REMOV( VAR ) * M2PHA
+                     ! Gas and Aerosol Mass (moles m-2 -> kg ha-1)
+                     REMOV( I ) = REMOV( I ) * CGRID_MW( I ) * M2PHA_OVER_GPKG
 #ifdef sens
-                    DO NP = 1, NPMAX
-                      S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * M2PHA
-                    END DO
+                     DO NP = 1, NPMAX
+                       S_REMOV( NP,I ) = S_REMOV( NP,I ) * CGRID_MW( I ) * M2PHA_OVER_GPKG
+                     END DO
 #endif
-                  END IF
 #ifdef isam
-                  CSPC = 0
-                  CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
-                  IF ( CSPC .GT. 0 ) THEN
-                    DO ITAG = 1, NTAG_SA
-                      SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * AE_MOLWT( SPC )
-     &                                      * M2PHA_OVER_GPKG
-                    END DO
+                     CSPC = 0
+                     CSPC = INDEXINT1(I,NSPC_SA,SPC_INDEX(:,2))
+                     IF ( CSPC .GT. 0 ) THEN
+                       DO ITAG = 1, NTAG_SA
+                         SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * CGRID_MW( I )
+     &                                          * M2PHA_OVER_GPKG
+                       END DO
+                     END IF
+#endif
                   END IF
-#endif
-                END DO
 
-C...  for non-reactives
 
-                SPC = 0
-                STRT = NR_STRT
-                FINI = NR_STRT - 1 + N_NR_SPC
-                DO VAR = STRT, FINI
-                  SPC = SPC + 1
-                  REMOV( VAR ) = REMOV( VAR ) * NR_MOLWT( SPC )
-     &                         * M2PHA_OVER_GPKG
-#ifdef isam
-                  CSPC = 0
-                  CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
-                  IF ( CSPC .GT. 0 ) THEN
-                    DO ITAG = 1, NTAG_SA
-                      SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * NR_MOLWT( SPC )
-     &                                      * M2PHA_OVER_GPKG
-                    END DO
-                  END IF
-#endif
-
-#ifdef sens
-                  DO NP = 1, NPMAX
-                    S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * NR_MOLWT( SPC )
-     &                                 * M2PHA_OVER_GPKG
-                  END DO
-#endif
-
-                END DO
-
-C...  for tracers
-
-                SPC = 0
-                STRT = TR_STRT
-                FINI = TR_STRT - 1 + N_TR_SPC
-                DO VAR = STRT, FINI
-                  SPC = SPC + 1
-                  REMOV( VAR ) = REMOV( VAR ) * TR_MOLWT( SPC )
-     &                         * M2PHA_OVER_GPKG
-#ifdef sens
-                  DO NP = 1, NPMAX
-                    S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * TR_MOLWT( SPC )
-     &                                 * M2PHA_OVER_GPKG
-                  END DO
-#endif
                 END DO
 
 C...load deposition amounts into the DEP array
 
                 DO VAR = 1, N_SPC_WDEP
                   DEP( COL, ROW, VAR ) = DEP( COL, ROW, VAR )
-     &                                 + REMOV( WDEP_MAP( VAR ) )
+     &                                 + REMOV( MAP_WDEPtoCGRID( VAR ) )
                 END DO
 
 C...load H+ concentration into the deposition array as well
@@ -845,7 +767,7 @@ C...set cgrid to the ending concentrations
 
                 DO SPC = 1, NSPCSD
                   IF ( SPC .NE. N_GC_SPCD ) THEN
-                    CGRID( COL, ROW, LAY, SPC ) = CEND( SPC )
+                    CGRD( COL, ROW, LAY, SPC ) = CEND( SPC )
                   END IF
                 END DO
 
@@ -864,7 +786,7 @@ C...set cgrid to the ending concentrations
 
                   DO VAR = 1, N_SPC_WDEP
                     S_TOTDEP( COL, ROW, NP, VAR ) = S_TOTDEP( COL, ROW, NP, VAR )
-     &                                            + S_REMOV( NP, WDEP_MAP( VAR ) )
+     &                                            + S_REMOV( NP, MAP_WDEPtoCGRID( VAR ) )
                   END DO
 
                   S_TOTDEP( COL, ROW, NP, N_SPC_WDEP+1 ) =

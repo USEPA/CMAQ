@@ -19,12 +19,12 @@
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef isam
-       SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS,
+       SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
+     &                         N_SPC_WDEP, CONV_DEP, SUBTRANS,
      &                         CONV_SADEP)
 #else
-       SUBROUTINE CONVCLD_ACM ( CGRID, JDATE, JTIME, TSTEP,
-     &                         N_SPC_WDEP, WDEP_MAP, CONV_DEP, SUBTRANS )
+       SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
+     &                         N_SPC_WDEP, CONV_DEP, SUBTRANS )
 #endif
 
 C-----------------------------------------------------------------------
@@ -173,12 +173,11 @@ C...........INCLUDES
 
 C...........Arguments
 
-      REAL, POINTER            :: CGRID( :,:,:,: )
+      REAL, INTENT( IN )       :: CGRD( :,:,:,: )
       INTEGER, INTENT( IN )    :: JDATE
       INTEGER, INTENT( IN )    :: JTIME
       INTEGER, INTENT( IN )    :: TSTEP( 3 )
       INTEGER, INTENT( IN )    :: N_SPC_WDEP
-      INTEGER, INTENT( IN )    :: WDEP_MAP( : )
       REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
       REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
 #ifdef isam
@@ -934,11 +933,11 @@ C...  set minimum for aerosol species
 
           DO LAY = 1, NLAYS
             DO SPC = 1, NSPCSD
-              CONC( SPC,LAY ) = MAX( CGRID( COL,ROW,LAY,SPC ),
+              CONC( SPC,LAY ) = MAX( CGRD( COL,ROW,LAY,SPC ),
      &                                  CONCMINL( SPC,LAY ) )
 #ifdef sens
               DO NP = 1, NPMAX
-                IF ( CGRID( COL,ROW,LAY,SPC ) .LT. CONCMINL( SPC, LAY ) ) THEN
+                IF ( CGRD( COL,ROW,LAY,SPC ) .LT. CONCMINL( SPC, LAY ) ) THEN
                   S_CONC( NP, SPC, LAY ) = 0.0D0
                 ELSE
                   S_CONC( NP, SPC, LAY ) = REAL ( SENGRID( COL, ROW, LAY, NP, SPC ), 8 )
@@ -2158,11 +2157,11 @@ C...add deposition amounts into the DEP array
 
           DO VAR = 1, N_SPC_WDEP
             CONV_DEP( COL,ROW,VAR ) = CONV_DEP( COL,ROW,VAR )
-     &                              + REMOV( WDEP_MAP( VAR ) )
+     &                              + REMOV( MAP_WDEPtoCGRID( VAR ) )
 #ifdef sens
             DO NP = 1, NPMAX
               S_CONDEP( COL, ROW, NP, VAR ) = S_CONDEP( COL, ROW, NP,VAR )
-     &                                      + S_REMOV( NP, WDEP_MAP( VAR ) )
+     &                                      + S_REMOV( NP, MAP_WDEPtoCGRID( VAR ) )
             END DO
 #endif
           END DO
@@ -2214,7 +2213,7 @@ C...   include raining region below cld base
                   END IF ! stm
 
                   OUTCLOUD = PCLD( SPC,LAY )
-                  CGRID( COL,ROW,LAY,SPC ) = FRAC * INCLOUD
+                  CGRD( COL,ROW,LAY,SPC ) = FRAC * INCLOUD
      &                                     + ( 1.0 - FRAC ) * OUTCLOUD
 #ifdef sens
                   DO NP = 1, NPMAX
@@ -2283,7 +2282,7 @@ C...   include raining region below cld base
           ELSE
             DO LAY = 1, CLBASE - 1
               DO SPC = 1, NSPCSD
-                CGRID( COL,ROW,LAY,SPC ) = PCLD( SPC,LAY )
+                CGRD( COL,ROW,LAY,SPC ) = PCLD( SPC,LAY )
 #ifdef sens
                 DO NP = 1, NPMAX
                   SENGRID( COL, ROW, LAY, NP, SPC ) = REAL ( S_PCLD( NP, SPC, LAY ), 4 )
@@ -2324,7 +2323,7 @@ C...Now do changes in cloudy layers:
                 OUTCLOUD = ( CCR( SPC,LAY ) - FRAC * PCLD( SPC,LAY ) )
      &                   / ( 1.0 - FRAC )
                 OUTCLOUD = MAX( OUTCLOUD, CONCMINL( SPC,LAY ) )
-                CGRID( COL,ROW,LAY,SPC ) = FRAC * INCLOUD 
+                CGRD( COL,ROW,LAY,SPC ) = FRAC * INCLOUD 
      &                                   + ( 1.0 - FRAC ) * OUTCLOUD
 #ifdef sens
                 DO NP = 1, NPMAX
