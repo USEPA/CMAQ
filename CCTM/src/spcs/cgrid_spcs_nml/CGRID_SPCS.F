@@ -104,6 +104,7 @@ c control species
 
 
       INTEGER, SAVE              :: N_CGRID_SPC
+      INTEGER, SAVE              :: N_SPC_WDEP
       CHARACTER( 16 ), ALLOCATABLE, SAVE :: CGRID_NAME     ( : )
       REAL,    ALLOCATABLE, SAVE :: CGRID_MW       ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_GAS ( : )
@@ -112,7 +113,7 @@ c control species
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_SRF ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_NR  ( : )
       LOGICAL, ALLOCATABLE, SAVE :: CGRID_MASK_TRAC( : )
-      INTEGER, ALLOCATABLE, SAVE :: MAP_CGRIDtoWDEP( : )
+      INTEGER, ALLOCATABLE, SAVE :: MAP_WDEPtoCGRID( : )
 
 
       type, public :: base_type
@@ -155,7 +156,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             integer, parameter :: spc_dim = 1000
             logical :: order = .true., found = .true.
             character( 120 ) :: xmsg
-            INTEGER :: ISPC, IGRID
+            INTEGER :: ISPC, IGRID, IWDEP
 
 c namelist variables
             ! Namelist Registry Format for Gases and Nonreactives
@@ -987,7 +988,7 @@ c-------------------------------------------------------------------------------
      &                CGRID_MASK_SRF( N_CGRID_SPC ),
      &                CGRID_MASK_NR( N_CGRID_SPC ),
      &                CGRID_MASK_TRAC( N_CGRID_SPC ),
-     &                MAP_CGRIDtoWDEP( N_CGRID_SPC ) )
+     &                MAP_WDEPtoCGRID( N_CGRID_SPC ) )
             CGRID_NAME = ''
             CGRID_MW   = 0.
             CGRID_MASK_GAS = .FALSE.
@@ -996,15 +997,19 @@ c-------------------------------------------------------------------------------
             CGRID_MASK_SRF = .FALSE.
             CGRID_MASK_NR  = .FALSE.
             CGRID_MASK_TRAC= .FALSE.
-            MAP_CGRIDtoWDEP= 0
+            MAP_WDEPtoCGRID= 0
 
             IGRID = 0
+            IWDEP = 0
             DO ISPC = gc_strt,n_gc_spcd
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = GC_SPC( ISPC )
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
                 CGRID_MASK_GAS( IGRID ) = .TRUE.
-                MAP_CGRIDtoWDEP( IGRID ) = GC_WDEP_MAP( ISPC )
+                IF ( GC_WDEP_MAP( ISPC ) .NE. 0 ) THEN
+                    IWDEP = IWDEP + 1
+                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
+                END IF
             END DO
             DO ISPC = 1,n_ae_spc
                 IGRID = IGRID + 1
@@ -1013,23 +1018,32 @@ c-------------------------------------------------------------------------------
                 CGRID_MASK_AERO( IGRID )   = .TRUE.
                 IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) CGRID_MASK_NUM( IGRID )   = .TRUE.
                 IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) CGRID_MASK_SRF( IGRID )   = .TRUE.
-                MAP_CGRIDtoWDEP( IGRID ) = AE_WDEP_MAP( ISPC )
+                IF ( AE_WDEP_MAP( ISPC ) .NE. 0 ) THEN
+                    IWDEP = IWDEP + 1
+                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
+                END IF
             END DO
             DO ISPC = 1,n_nr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = NR_SPC( ISPC )
                 CGRID_MW( IGRID )   = NR_MOLWT( ISPC )
                 CGRID_MASK_NR( IGRID )   = .TRUE.
-                MAP_CGRIDtoWDEP( IGRID ) = NR_WDEP_MAP( ISPC )
+                IF ( NR_WDEP_MAP( ISPC ) .NE. 0 ) THEN
+                    IWDEP = IWDEP + 1
+                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
+                END IF
             END DO
             DO ISPC = 1,n_tr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = TR_SPC( ISPC )
                 CGRID_MW( IGRID )   = TR_MOLWT( ISPC )
                 CGRID_MASK_TRAC( IGRID )   = .TRUE.
-                MAP_CGRIDtoWDEP( IGRID ) = TR_WDEP_MAP( ISPC )
+                IF ( TR_WDEP_MAP( ISPC ) .NE. 0 ) THEN
+                    IWDEP = IWDEP + 1
+                    MAP_WDEPtoCGRID( IWDEP ) = IGRID
+                END IF
             END DO
-
+            N_SPC_WDEP = IWDEP
 
          return
 

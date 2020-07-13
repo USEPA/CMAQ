@@ -88,17 +88,7 @@ C...........INCLUDES
 C...........PARAMETERS
 
 C # of wet deposition species
-      INTEGER, SAVE :: N_SPC_WDEP
-
       REAL, PARAMETER :: MWAIR_SI = MWAIR / 1.0E+3    ! kg mol-1
-      REAL, PARAMETER :: CNV1 = MWAIR * 1.0E-9
-      REAL, PARAMETER :: CNV1I = 1.0 / CNV1
-      REAL, PARAMETER :: CNV2 = MWAIR * 1.0E-3
-      REAL, PARAMETER :: CNV2I = 1.0 / CNV2
-!     REAL, PARAMETER :: CNV3 = MWAIR * 1.0E+3 / AVO  ! -> ppmV
-!     REAL, PARAMETER :: CNV3 = CNV2 / AVO            ! -> mol/mol
-      REAL, PARAMETER :: CNV3 = CNV2                  ! -> #/mol
-      REAL, PARAMETER :: CNV3I = 1.0 / CNV3
 
 C...........ARGUMENTS
 
@@ -132,22 +122,17 @@ C...........Local Variables
       INTEGER       STRT             ! starting position
       INTEGER       VAR              ! variable subscript indices
       INTEGER       ALLOCSTAT
-      INTEGER, ALLOCATABLE, SAVE :: QAE( : ) ! CGRID pointer to ug/m3 species
-      INTEGER, ALLOCATABLE, SAVE :: NAE( : ) ! CGRID pointer to #/m3 species
-      INTEGER, ALLOCATABLE, SAVE :: SAE( : ) ! CGRID pointer to m2/m3 species
+      INTEGER       I
 
-
-!     REAL          DENS    ( NCOLS,NROWS,NLAYS ) ! air density (kg/m3)
-!     REAL          CONV_DEP( NCOLS,NROWS,N_SPC_WDEP+8 ) ! convective wdep only
-!     REAL          TOT_DEP ( NCOLS,NROWS,N_SPC_WDEP+1 ) ! total wdep
       REAL, ALLOCATABLE, SAVE :: CGRD   ( :,:,:,: )! concentrations
       REAL, ALLOCATABLE, SAVE :: DENS    ( :,:,: ) ! air density (kg/m3)
+      REAL, ALLOCATABLE, SAVE :: FAC1    ( :,:,: ) ! conversion factor
+      REAL, ALLOCATABLE, SAVE :: FAC     ( :,:,: ) ! conversion factor
       REAL, ALLOCATABLE, SAVE :: CONV_DEP( :,:,: ) ! convective wdep only
       REAL, ALLOCATABLE, SAVE :: TOT_DEP ( :,:,: ) ! total wdep
       REAL, ALLOCATABLE, SAVE :: RESTRANS( :,: )   ! resolved cloud transmissivity
       REAL, ALLOCATABLE, SAVE :: SUBTRANS( :,:,: ) ! subgrid cloud transmissivity
 
-      REAL FAC                       ! temp conversion factor
       REAL CCMIN
 
 #ifdef isam
@@ -159,16 +144,15 @@ C...........EXTERNAL FUNCTIONS
       INTERFACE
 #ifdef isam
          SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
-     &                       N_SPC_WDEP, DEP, RESTRANS,
+     &                       DEP, RESTRANS,
      &                       SA_DEP )
 #else
          SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
-     &                       N_SPC_WDEP, DEP, RESTRANS )
+     &                       DEP, RESTRANS )
 #endif
             IMPLICIT NONE
             REAL, INTENT( IN )       :: CGRD( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
-            INTEGER, INTENT( IN )    :: N_SPC_WDEP
             REAL,    INTENT( INOUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT )   :: RESTRANS( :,: )
 #ifdef isam
@@ -178,16 +162,15 @@ C...........EXTERNAL FUNCTIONS
          END SUBROUTINE RESCLD
 #ifdef isam
          SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
-     &                            N_SPC_WDEP, DEP, SUBTRANS,
+     &                            DEP, SUBTRANS,
      &                            CONV_SADEP )
 #else
          SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
-     &                            N_SPC_WDEP, DEP, SUBTRANS )
+     &                            DEP, SUBTRANS )
 #endif
             IMPLICIT NONE
             REAL,    INTENT( IN )    :: CGRD( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
-            INTEGER, INTENT( IN )    :: N_SPC_WDEP
             REAL,    INTENT( INOUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
 #ifdef isam
@@ -207,8 +190,6 @@ C...Initialization
 C...first check to make sure that some species in CGRID were specified
 C...for output in the wet deposition array, otherwise notify the user
 C...and return
-
-        N_SPC_WDEP = N_GC_WDEP + N_AE_WDEP + N_NR_WDEP + N_TR_WDEP
         IF ( N_SPC_WDEP .LE. 0 ) THEN
 
           XMSG = 'No species were specified for wet deposition ' //
@@ -259,9 +240,16 @@ C...initialize the deposition array before processing clouds
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
         
+        ALLOCATE ( FAC1( NCOLS,NROWS,NLAYS ), 
+     &             FAC( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating FAC1 conversion factor'
+           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+        
         ALLOCATE ( CGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating DENS'
+           XMSG = 'Failure allocating CGRD'
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
@@ -344,7 +332,7 @@ C...convert units on cgrid and pass data to local cgrd array
            ! Gas - Convert to molar mixing ratio
            IF ( CGRID_MASK_GAS( I ) .OR.
      &          CGRID_MASK_NR( I ) .OR.
-     &          CGRID_MASK_TR( I ) .OR. ) THEN
+     &          CGRID_MASK_TRAC( I ) ) THEN
              CGRD( :, :, LAY, I ) = MAX( CGRID( :, :, LAY, I ) * 1.0E-6,  1.0E-36 )
 #ifdef sens
              DO NP = 1, NPMAX
@@ -429,22 +417,22 @@ C...compute cloud effects for the resolved clouds and resolved rainwater
 
 #ifdef isam
       CALL RESCLD ( CGRD, JDATE, JTIME, TSTEP,
-     &              N_SPC_WDEP, TOT_DEP, RESTRANS,
+     &              TOT_DEP, RESTRANS,
      &              TOT_SADEP  )
 #else
       CALL RESCLD ( CGRD, JDATE, JTIME, TSTEP,
-     &              N_SPC_WDEP, TOT_DEP, RESTRANS )
+     &              TOT_DEP, RESTRANS )
 #endif
 
 C...compute cloud effects for convective (subgrid) clouds
 
 #ifdef isam
       CALL CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
-     &                   N_SPC_WDEP, CONV_DEP, SUBTRANS,
+     &                   CONV_DEP, SUBTRANS,
      &                   CONV_SADEP )
 #else
       CALL CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
-     &                   N_SPC_WDEP, CONV_DEP, SUBTRANS )
+     &                   CONV_DEP, SUBTRANS )
 #endif
 
 C...now check to see if it's time to write the deposition file
@@ -593,7 +581,7 @@ C...  convert to ppmV gas
            ! Gas - Convert to molar mixing ratio
            IF ( CGRID_MASK_GAS( I ) .OR.
      &          CGRID_MASK_NR( I ) .OR.
-     &          CGRID_MASK_TR( I ) .OR. ) THEN
+     &          CGRID_MASK_TRAC( I ) ) THEN
              CGRD( :, :, LAY, I ) = MAX( CGRID( :, :, LAY, I ) * 1.0E+6,  1.0E-36 )
 #ifdef sens
              DO NP = 1, NPMAX
@@ -650,7 +638,6 @@ c ISAM  unit conversion
             DO LAY = 1, NLAYS
               DO ROW = 1, NROWS
                 DO COL = 1, NCOLS
-                  FAC = CNV1I * DENS( COL, ROW, LAY ) * AE_MOLWT( VAR - AE_STRT + 1 )
                   ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) / FAC( COL,ROW,LAY )
                 END DO
               END DO

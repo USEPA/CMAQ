@@ -20,12 +20,12 @@
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef isam
       SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
-     &                    N_SPC_WDEP, DEP, RESTRANS,
+     &                    DEP, RESTRANS,
      &                    SA_DEP)
 
 #else
       SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
-     &                    N_SPC_WDEP, DEP, RESTRANS )
+     &                    DEP, RESTRANS )
 #endif
 
 C-----------------------------------------------------------------------
@@ -113,11 +113,10 @@ C...........Includes:
       INCLUDE SUBST_FILES_ID             ! file name parameters
 
 C...........Arguments:
-      REAL, INTENT( IN )       :: CGRD( :,:,:,: ) ! concentrations
+      REAL, INTENT( INOUT )    :: CGRD( :,:,:,: ) ! concentrations
       INTEGER, INTENT( IN )    :: JDATE            ! current model date, coded YYYYDDD
       INTEGER, INTENT( IN )    :: JTIME            ! current model time, coded HHMMSS
       INTEGER, INTENT( IN )    :: TSTEP( 3 )       ! model time steps, coded HHMMSS
-      INTEGER, INTENT( IN )    :: N_SPC_WDEP       ! # of wet deposition species
       REAL,    INTENT( INOUT ) :: DEP( :,:,: )     ! wet deposition
       REAL,    INTENT( OUT )   :: RESTRANS( :,: )  ! resolved cloud transmissivity
 #ifdef isam
@@ -157,6 +156,7 @@ C...........Local Variables:
       INTEGER       TCLD                ! cloud lifetime (sec)
       INTEGER       VAR                 ! variable loop counter
       INTEGER       ALLOCSTAT           ! memory allocation status
+      INTEGER       I
 
       REAL          AIRM                ! total airmass (mol/m2) in cloudy air
       REAL          ALFA0               ! aitken mode number scavenging coef

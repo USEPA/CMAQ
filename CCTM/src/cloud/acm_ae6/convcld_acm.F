@@ -20,11 +20,11 @@
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef isam
        SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
-     &                         N_SPC_WDEP, CONV_DEP, SUBTRANS,
+     &                         CONV_DEP, SUBTRANS,
      &                         CONV_SADEP)
 #else
        SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
-     &                         N_SPC_WDEP, CONV_DEP, SUBTRANS )
+     &                         CONV_DEP, SUBTRANS )
 #endif
 
 C-----------------------------------------------------------------------
@@ -173,11 +173,10 @@ C...........INCLUDES
 
 C...........Arguments
 
-      REAL, INTENT( IN )       :: CGRD( :,:,:,: )
+      REAL, INTENT( INOUT )    :: CGRD( :,:,:,: )
       INTEGER, INTENT( IN )    :: JDATE
       INTEGER, INTENT( IN )    :: JTIME
       INTEGER, INTENT( IN )    :: TSTEP( 3 )
-      INTEGER, INTENT( IN )    :: N_SPC_WDEP
       REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
       REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
 #ifdef isam
@@ -269,7 +268,6 @@ C-------for ACM version - jp 2/05        REAL DPB
 C-------------------------------------------
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE. ! flag for first pass thru
-!     LOGICAL, SAVE :: CONVCLD = .TRUE.  ! flag for modeling convective clds
 
       CHARACTER( 16 ) :: PNAME = 'CONVCLD_ACM'   ! process name
       CHARACTER( 16 ) :: VARNM          ! variable name for IOAPI to get
