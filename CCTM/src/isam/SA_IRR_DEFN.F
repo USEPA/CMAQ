@@ -1201,18 +1201,42 @@ C..compute species fractions from ISAM groups and the remainder group for all me
       DO ISP2 = 1, NUMB_MECH_SPC
          IF( ISAM_SPECIES( ISP2 ) )THEN            
            ONE_OVER_CONC   = 1.0D0 / MAX( TOTAL_ISAM_CONC( ISP2 ), DCONMIN_TAG )
+c          DO KTAG = 1, NTAG_SA
+c            ISAM_SOURCE( KTAG,ISP2 )     = SOLD( KTAG,ISP2 )*ONE_OVER_CONC
+c            NOT_ISAM_SOURCE( KTAG,ISP2 ) = MAX( 0.0D0, 1.0D0-ISAM_SOURCE( KTAG,ISP2 ))
+c          END DO
            DO KTAG = 1, NTAG_SA
-             ISAM_SOURCE( KTAG,ISP2 )     = SOLD( KTAG,ISP2 )*ONE_OVER_CONC
+             IF ( SOLD( KTAG,ISP2 ) .LE. DCONMIN_TAG*10.0D0 ) THEN
+               ISAM_SOURCE( KTAG,ISP2 )     = 0.0D0
+             ELSE
+               ISAM_SOURCE( KTAG,ISP2 )     = SOLD( KTAG,ISP2 )*ONE_OVER_CONC
+             END IF
              NOT_ISAM_SOURCE( KTAG,ISP2 ) = MAX( 0.0D0, 1.0D0-ISAM_SOURCE( KTAG,ISP2 ))
            END DO
+           IF ( SUM( ISAM_SOURCE( :,ISP2 ) ) .LE. 0.0D0 ) THEN
+              ISAM_SOURCE( OTHRTAG,ISP2 ) = 1.0D0
+              NOT_ISAM_SOURCE( OTHRTAG,ISP2 ) = 0.0D0
+           END IF
            OUTSIDE( ISP2 ) = 0.0D0    
            NOT_OUTSIDE_ISAM( ISP2 ) = 1.0D0
          ELSE
            ONE_OVER_CONC   = 1.0D0 / MAX( YCMID( ISP2 ), DCONMIN_TAG )
+c          DO KTAG = 1, NTAG_SA
+c            ISAM_SOURCE( KTAG,ISP2 )     = SOLD( KTAG,ISP2 )*ONE_OVER_CONC
+c            NOT_ISAM_SOURCE( KTAG,ISP2 ) = MAX( 0.0D0, 1.0D0-ISAM_SOURCE( KTAG,ISP2 ))
+c          END DO
            DO KTAG = 1, NTAG_SA
-             ISAM_SOURCE( KTAG,ISP2 )     = SOLD( KTAG,ISP2 )*ONE_OVER_CONC
+             IF ( SOLD( KTAG,ISP2 ) .LE. DCONMIN_TAG*10.0D0 ) THEN
+               ISAM_SOURCE( KTAG,ISP2 )     = 0.0D0
+             ELSE
+               ISAM_SOURCE( KTAG,ISP2 )     = SOLD( KTAG,ISP2 )*ONE_OVER_CONC
+             END IF
              NOT_ISAM_SOURCE( KTAG,ISP2 ) = MAX( 0.0D0, 1.0D0-ISAM_SOURCE( KTAG,ISP2 ))
            END DO
+           IF ( SUM( ISAM_SOURCE( :,ISP2 ) ) .LE. 0.0D0 ) THEN
+              ISAM_SOURCE( OTHRTAG,ISP2 ) = 1.0D0
+              NOT_ISAM_SOURCE( OTHRTAG,ISP2 ) = 0.0D0
+           END IF
            IF ( TOTAL_ISAM_CONC( ISP2 ) .GT. DCONMIN_TAG ) THEN
               TERM = MAX( (YCMID( ISP2 )-TOTAL_ISAM_CONC( ISP2 )), 0.0D0 )
            ELSE
