@@ -186,7 +186,7 @@ C external functions
 
         INTEGER, INTENT( OUT ) :: NTAGS
         INTEGER ILINE
-        CHARACTER( 21 ) :: TXTLINE
+        CHARACTER( 128 ) :: TXTLINE
         
 C-----------------------------------------------------------
         CALL NAMEVAL( 'SA_IOLIST', EQNAME )
@@ -217,11 +217,14 @@ c check to see if bidirectional tag is necessary
               IF ( IOST .NE. 0 ) THEN
                 SA_BIDI = .TRUE.
                 NTAGS   = NTAGS + 1
-                BIDITAG = NTAGS ! set to last tag
+c               BIDITAG = NTAGS ! set to last tag
               END IF
             END IF
           END IF
         ENDDO COUNTTAG
+
+
+        IF ( SA_BIDI ) BIDITAG = NTAGS ! set to last tag
 
         CLOSE( INPUT_UNIT )
 
