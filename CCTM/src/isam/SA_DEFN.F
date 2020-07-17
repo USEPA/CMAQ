@@ -145,7 +145,7 @@ C ...Tagging indices for bcon, others, icon
 
         INTEGER, PARAMETER, PRIVATE :: MAX_STRING     = 32  ! max length of tagclass name
         INTEGER, PARAMETER, PRIVATE :: MAX_TAGCLASSES = 200 ! max number of tagclasses
-        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 9   ! number of defined tagclasses
+        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 11  ! number of defined tagclasses
         
         CHARACTER( MAX_STRING ), PARAMETER, PRIVATE :: DEFINED_CLASSES( NUMB_CLASSES ) = 
      & (/ 'AMMONIUM ',
@@ -153,6 +153,8 @@ C ...Tagging indices for bcon, others, icon
      &    'CHLORINE ',
      &    'EC       ',
      &    'SULFATE  ',
+     &    'GAS_HAPS ',
+     &    'AERO_HAPS',
      &    'OZONE    ',
      &    'NITRATE  ',
      &    'VOC      ',
@@ -211,17 +213,18 @@ C-----------------------------------------------------------
             IF ( MYPE .EQ. 0 ) PRINT*, TXTLINE
           ENDIF ! if tag_name
 c check to see if bidirectional tag is necessary
-          IF ( ABFLUX .AND. .NOT. SA_BIDI ) THEN
+          IF ( ABFLUX ) THEN
             IF ( INDEX( TXTLINE, 'TAG CLASSES') .GT. 0 ) THEN
               IOST = INDEX( TXTLINE,'AMMONIUM', BACK = .FALSE. )
               IF ( IOST .NE. 0 ) THEN
                 SA_BIDI = .TRUE.
                 NTAGS   = NTAGS + 1
-                BIDITAG = NTAGS ! set to last tag
               END IF
             END IF
           END IF
         ENDDO COUNTTAG
+
+        IF ( SA_BIDI ) BIDITAG = NTAGS ! set to last tag
 
         CLOSE( INPUT_UNIT )
 
