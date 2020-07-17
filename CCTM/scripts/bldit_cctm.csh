@@ -270,9 +270,15 @@ set make_options = "-j"                #> additional options for make command if
     endif
 
     #> Copy Files Back to Mechanism location
-    cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModMech}
+    if ( -e ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/RXNS_DATA_MODULE.F90 \
+             &&  -e ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/RXNS_FUNC_MODULE.F90 ) then
+       cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/RXNS*MODULE.F90 ${CMAQ_REPO}/CCTM/src/${ModMech}/.
+       cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/[A,E,G,N]*.nml ${CMAQ_REPO}/CCTM/src/${ModMech}/.
+    else
+       echo "Mechanism module not created for ${Mechanism}"
+       exit()
+    endif
     cd ${CMAQ_REPO}/CCTM/src/${ModMech}
-    rm -rf *.ext *.csv *.eqn *.html *.md *.spc wiki* Species_Table_TR_0.nml 
 
     #> Build CSQY Data Table for Inline Photolysis
     cd ${CMAQ_HOME}/UTIL/inline_phot_preproc/scripts
@@ -281,8 +287,12 @@ set make_options = "-j"                #> additional options for make command if
       echo "Preparation of CSQY Table did not build or run correctly --> Build Process Halted"
       exit 1
     endif
-    cp -f ${CMAQ_HOME}/UTIL/inline_phot_preproc/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModMech}
-
+    if (  -e ${CMAQ_HOME}/UTIL/inline_phot_preproc/output/$Mechanism/CSQY_DATA_${MECH} ) then
+        cp -f ${CMAQ_HOME}/UTIL/inline_phot_preproc/output/$Mechanism/CSQY_DATA_${MECH} ${CMAQ_REPO}/CCTM/src/${ModMech}
+    else
+        echo "CSQY_${MECH} not created"
+        exit()
+    endif
     #> if EBI Chemical Solver is set, build mechanism-dependent 
     #> EBI files and instruct build-make to look in the 
     #> create-ebi output folder for the files.
@@ -296,8 +306,12 @@ set make_options = "-j"                #> additional options for make command if
        if ( ! -e ${CMAQ_REPO}/CCTM/src/${ModGas} ) then
           mkdir -p ${CMAQ_REPO}/CCTM/src/${ModGas}
        endif
-       cp -f ${CMAQ_HOME}/UTIL/create_ebi/output/$Mechanism/* ${CMAQ_REPO}/CCTM/src/${ModGas}
-       rm -rf ${CMAQ_REPO}/CCTM/src/${ModGas}/RXNS_DATA_MODULE.F90
+       if ( ! -e ${CMAQ_HOME}/UTIL/create_ebi/output/ebi_$Mechanism/hrrates.F ) then
+          echo "EBI solver not created  for ${Mechanism}"
+          exit()
+       else
+           cp -f ${CMAQ_HOME}/UTIL/create_ebi/output/ebi_$Mechanism/hr*.F ${CMAQ_REPO}/CCTM/src/${ModGas}/.
+       endif
     endif
  endif
 
@@ -717,5 +731,41 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  mv ${CFG}.bld $Bld/${CFG}
 
 
+#> If Building WRF-CMAQ, download WRF, download auxillary files and build
+#> model
+ if ( $?build_twoway ) then
+  cd $CMAQ_HOME/CCTM/scripts
+
+  # Downlad WRF repository from GitHub and configure it
+  set WRF_BLD = BLD_WRFv4.1.1_CCTM_${VRSN}_${compilerString}
+  git clone --branch v4.1.1 https://github.com/wrf-model/WRF.git ./$WRF_BLD
+  cd $WRF_BLD
+  ./configure <<EOF
+  ${WRF_ARCH}
+  1
+EOF
+
+   # Transfer CMAQ Code to WRF Directory
+   mv $Bld ./cmaq
+
+   # Download twoway assembly code, unpackage it and run it
+#   wget ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/WRF4.1.1_CMAQ5.3_Coupled_Model_20190828.tar.gz
+#   tar -xvzf WRF4.1.1_CMAQ5.3_Coupled_Model_20190828.tar.gz
+#   rm -rf WRF4.1.1_CMAQ5.3_Coupled_Model_20190828.tar.gz
+   cp -r /work/MOD3DEV/fsidi/temp/CMAQv5.3.1/twoway .
+   ./twoway/assemble >& myassemble.log
+
+   # Compile WRF-CMAQ
+   ./compile em_real |& tee wrf-cmaq_buildlog.log
+
+   ls main/wrf.exe
+
+   if ( $? != 0) then
+     echo "Error, Unsuccesfull Build! Look at wrf-cmaq_buildlog.log"
+   else
+     echo "Successfull Build!"
+   endif
+   cd ${CMAQ_HOME}/CCTM/scripts
+ endif 
 
 exit

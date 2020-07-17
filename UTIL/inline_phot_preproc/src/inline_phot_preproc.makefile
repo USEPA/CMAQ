@@ -50,11 +50,15 @@ ifdef ERROR1
  $(error $(ERROR1))
 endif
 
+ifdef INPDIR
+ MECH_INC   = $(INPDIR)
+else
+ ERROR2 = "BuildRun script error: Input directory containing RXNS_DATA_MODULE.F90 not defined"
+endif
 
- MECH_INC   = $(GC_INC)
- TRAC_INC   = $(GC_INC)
- PROCAN_INC = $(GC_INC)
-
+ifdef ERROR2
+ $(error $(ERROR2))
+endif
 
 LIBRARIES = 
 
