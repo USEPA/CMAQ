@@ -18,15 +18,8 @@
 !------------------------------------------------------------------------!
 
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-#ifdef isam
-      SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
-     &                    DEP, RESTRANS,
-     &                    SA_DEP)
-
-#else
       SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
      &                    DEP, RESTRANS )
-#endif
 
 C-----------------------------------------------------------------------
 C  FUNCTION: Resolved-scale CLOUD processor Models-3 science process:
@@ -93,7 +86,7 @@ C-----------------------------------------------------------------------
 #ifdef isam
       USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, SPC_INDEX, OTHRTAG, 
      &                   SPC_NAME, DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
-     &                   ITAG
+     &                   ITAG,TOT_SADEP
 
 #endif
 
@@ -774,7 +767,7 @@ C...set cgrid to the ending concentrations
 #ifdef isam
                 DO SPC = 1, NSPC_SA
                   DO ITAG = 1, NTAG_SA
-                    SA_DEP( COL, ROW, SPC, ITAG ) = SA_DEP( COL, ROW, SPC, ITAG )
+                    TOT_SADEP( COL, ROW, SPC, ITAG ) = TOT_SADEP( COL, ROW, SPC, ITAG )
      &                                    + SA_REMOV( SPC, ITAG )
                     ISAM( COL,ROW,LAY,SPC,ITAG ) = SA_CEND( SPC, ITAG )
                   END DO

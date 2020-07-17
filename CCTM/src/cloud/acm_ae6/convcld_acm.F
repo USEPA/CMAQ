@@ -18,14 +18,8 @@
 !------------------------------------------------------------------------!
 
 !:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-#ifdef isam
-       SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
-     &                         CONV_DEP, SUBTRANS,
-     &                         CONV_SADEP)
-#else
        SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
      &                         CONV_DEP, SUBTRANS )
-#endif
 
 C-----------------------------------------------------------------------
 C
@@ -152,7 +146,7 @@ C-----------------------------------------------------------------------
 #ifdef isam
       USE SA_DEFN, ONLY: ISAM, NSPC_SA, NTAG_SA, SPC_INDEX, OTHRTAG,
      &                   SPC_NAME, DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE,
-     &                   ITAG
+     &                   ITAG, CONV_SADEP
 #endif
 
 #ifdef sens
@@ -179,9 +173,6 @@ C...........Arguments
       INTEGER, INTENT( IN )    :: TSTEP( 3 )
       REAL,    INTENT( INOUT ) :: CONV_DEP( :,:,: )
       REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
-#ifdef isam
-      REAL,    INTENT( INOUT ) :: CONV_SADEP( :,:,:,: )
-#endif
 
 C...........Parameters
 
@@ -214,6 +205,7 @@ C g/kg
 
 C 1 hectare = 1.0e4 m**2
       REAL, PARAMETER :: M2PHA = 1.0E+04
+      REAL, PARAMETER :: M2PHA_OVER_GPKG = 10.0
 
 C subgrid scale temp perturb (deg K)
       REAL, PARAMETER :: PERT = 1.5
@@ -294,6 +286,7 @@ C-------------------------------------------
       INTEGER          STRT             ! starting position
       INTEGER, SAVE :: STIME            ! met file start time
       INTEGER          VAR              ! variable loop counter
+      INTEGER          I                ! variable loop counter
 
       INTEGER          CLBASE           ! cld base layer
       INTEGER          CLTOPUSTBL       ! unstable cld top layer
@@ -883,8 +876,8 @@ C...  threshold
 
 C...Loop through all grid cells
 
-      DO 311 ROW = 1, NROWS
-        DO 301 COL = 1, NCOLS
+      DO ROW = 1, NROWS
+        DO COL = 1, NCOLS
 
           QLQD = 0.0
           QICE = 0.0
@@ -1064,16 +1057,10 @@ C...search loop to find CLBASE
 
           ELSE
 
-            DO LAY = 2, NLAYS
-              IF ( PRESL( LAY ) .LE. PLCL ) THEN
-                CLBASE = LAY
-                GO TO 245
-              END IF
+            CLBASE = NLAYS
+            DO LAY = NLAYS, 2, -1
+              IF ( PRESL( LAY ) .LE. PLCL ) CLBASE = LAY
             END DO
-
-            CLBASE = NLAYS   ! if you get here base never found
-
-245         CONTINUE
 
           END IF      ! if plcl < ptop or , or ...
 
@@ -1138,7 +1125,7 @@ C...  "stable" cloud. In this case, we find cloud top by relative
 C...   humidity criterion, or, not let cloud top go above 600mb.
 
           IF ( ISOUND .EQ. 0 ) THEN
-            IF ( ICLDTYPE .NE. 1 ) GO TO 299
+            IF ( ICLDTYPE .NE. 1 ) CYCLE ! Loop to next row-column coordinate
 
             DO 265 LAY = CLBASE + 1, NLAYS
               IF ( PRESL( LAY ) .LE. 60000.0 ) THEN
@@ -1170,7 +1157,7 @@ C...   humidity criterion, or, not let cloud top go above 600mb.
 
           ELSE                      !  get cloud top for either CNP or PFW
 
-            IF ( ZLCL .GT. PBL( COL,ROW ) ) GO TO 299
+            IF ( ZLCL .GT. PBL( COL,ROW ) ) CYCLE ! Loop to next row-column coordinate
 
 C...compute relative humidity at the cloud source level
 
@@ -1220,7 +1207,7 @@ C...Now based on Sunqdvist et al. 1989 DOI: 10.1175/1520-0493(1989)117<1641:CACP
             END IF
             FRAC = MAX( 0.0, MIN( FRAC, 0.95 ) )
 
-            IF ( FRAC .LT. 0.01 ) GO TO 299
+            IF ( FRAC .LT. 0.01 ) CYCLE  ! Loop to next row-column coordinate
 
             CONV_DEP( COL,ROW, N_SPC_WDEP + 5 ) = FLOAT( CLTOP ) ! store NP cloud top
             CONV_DEP( COL,ROW, N_SPC_WDEP + 8 ) = FRAC
@@ -1547,8 +1534,7 @@ C...  2 = nonraining: either CNP of PFW:)
             PRATE1 = 1.0E-30
             PRATE  = 1.0E-30
             QXS    = 1.0E-30
-            GO TO 7000       ! branch for further CNP or PFW calculations
-          END IF
+          ELSE
 
 C...continue here for raining cloud...
 
@@ -1556,63 +1542,63 @@ C...get PRATE1, storm rainout rate in mm/hour, noting that 1 kg
 C...  of water occupies a 1 mm thick layer of water in a square meter
 C...  of ground (accounts for density of water = 1000 kg/m3)
 
-          PRATE1 = STORME * QXS * 3600.0 / TCLIFE
-          IF ( PRATE1 .LE. 1.001 * PRATE ) THEN
-            FRAC = 0.999                ! Changed back to .999 - jp 6/05
-            PRATE1 = PRATE / FRAC
-          ELSE
-            FRAC = PRATE / PRATE1
-          END IF
-          IF ( FRAC .LT. 0.01 ) GO TO 299
+            PRATE1 = STORME * QXS * 3600.0 / TCLIFE
+            IF ( PRATE1 .LE. 1.001 * PRATE ) THEN
+              FRAC = 0.999                ! Changed back to .999 - jp 6/05
+              PRATE1 = PRATE / FRAC
+            ELSE
+              FRAC = PRATE / PRATE1
+            END IF
+            IF ( FRAC .LT. 0.01 ) CYCLE ! Loop to next row-column coordinate
 
 C...for raining cloud, compute water properties of interest
 C...  below cloud base. First, parameterize total water content
 
-          TWC = ( 0.067 * PRATE ** ( 0.846 ) ) / ( FRAC * 1000.0 ) ! tot wat cont kg/m3
-
-          DO LAY = 1, CLBASE - 1
-            TCLD( LAY ) = TAL( LAY )
-            RHOAIR = PRESL( LAY ) / ( RDGAS * TCLD( LAY ) )
-            QWAT( LAY ) = TWC / RHOAIR    ! kg H2O / kg air
+            TWC = ( 0.067 * PRATE ** ( 0.846 ) ) / ( FRAC * 1000.0 ) ! tot wat cont kg/m3
+         
+            DO LAY = 1, CLBASE - 1
+              TCLD( LAY ) = TAL( LAY )
+              RHOAIR = PRESL( LAY ) / ( RDGAS * TCLD( LAY ) )
+              QWAT( LAY ) = TWC / RHOAIR    ! kg H2O / kg air
 
 C...again partition into ice and liquid
 
-            IF ( TCLD( LAY ) .LT. 273.15 ) THEN
-              QICE( LAY) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0
-              IF ( TCLD( LAY ) .LE. 255.15 ) QICE( LAY ) = QWAT( LAY )
-            END IF
-
-            QLQD( LAY ) = QWAT( LAY ) - QICE( LAY )
-            LWC ( LAY ) = QLQD( LAY ) * RHOAIR
-            LWC ( LAY ) = MAX( 5.0E-06, LWC( LAY ) )         ! lower limit
-            PBARC = PBARC + PRESL( LAY ) * DZZL( LAY ) * LWC( LAY )
-            TBARC = TBARC + TCLD( LAY ) * DZZL( LAY ) * LWC( LAY )
-            WCBAR = WCBAR + DZZL( LAY ) * LWC( LAY )
-            WTBAR = WTBAR + DZZL( LAY ) * TWC
-            CTHK = CTHK + DZZL( LAY )
-            JH2O2_BAR = JH2O2_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )
-            JHNO3_BAR = JHNO3_BAR + JHNO3( LAY ) * DZZL( LAY ) * LWC( LAY )
+              IF ( TCLD( LAY ) .LT. 273.15 ) THEN
+                QICE( LAY) = -QWAT( LAY ) * ( TCLD( LAY ) - 273.15 ) / 18.0
+                IF ( TCLD( LAY ) .LE. 255.15 ) QICE( LAY ) = QWAT( LAY )
+              END IF
+       
+              QLQD( LAY ) = QWAT( LAY ) - QICE( LAY )
+              LWC ( LAY ) = QLQD( LAY ) * RHOAIR
+              LWC ( LAY ) = MAX( 5.0E-06, LWC( LAY ) )         ! lower limit
+              PBARC = PBARC + PRESL( LAY ) * DZZL( LAY ) * LWC( LAY )
+              TBARC = TBARC + TCLD( LAY ) * DZZL( LAY ) * LWC( LAY )
+              WCBAR = WCBAR + DZZL( LAY ) * LWC( LAY )
+              WTBAR = WTBAR + DZZL( LAY ) * TWC
+              CTHK = CTHK + DZZL( LAY )
+              JH2O2_BAR = JH2O2_BAR + JH2O2( LAY ) * DZZL( LAY ) * LWC( LAY )
+              JHNO3_BAR = JHNO3_BAR + JHNO3( LAY ) * DZZL( LAY ) * LWC( LAY )
 C...excess water is all rain
 
-            QXS = QXS + QWAT( LAY ) * RHOAIR * DZZL( LAY )
+              QXS = QXS + QWAT( LAY ) * RHOAIR * DZZL( LAY )
             
-          END DO
+            END DO
 
 C...Final calc of storm rainfall rate and frac area (raining clds)
 
-          PRATE1 = STORME * QXS * 3600.0 / TCLIFE
-
-          IF ( PRATE1 .LE. 1.001 * PRATE ) THEN
-            FRAC = 0.999        ! Changed back to .999 - jp 6/05
-            PRATE1 = PRATE / FRAC
-          ELSE
-            FRAC = PRATE / PRATE1
-          END IF
-          IF ( FRAC .LT. 0.01 ) GO TO 299
+            PRATE1 = STORME * QXS * 3600.0 / TCLIFE
           
-          CONV_DEP( COL,ROW, N_SPC_WDEP + 7 ) = FRAC
+            IF ( PRATE1 .LE. 1.001 * PRATE ) THEN
+              FRAC = 0.999        ! Changed back to .999 - jp 6/05
+              PRATE1 = PRATE / FRAC
+            ELSE
+              FRAC = PRATE / PRATE1
+            END IF
+            IF ( FRAC .LT. 0.01 ) CYCLE ! Loop to next row-column coordinate
+            
+            CONV_DEP( COL,ROW, N_SPC_WDEP + 7 ) = FRAC
 
-7000      CONTINUE                        ! target of cloudtype split
+          END IF                        ! target of cloudtype split
 
 
 C...Begin mixing section, perform first for raining clouds using
@@ -2028,7 +2014,7 @@ c             DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) ! sulfate prod
 
           END IF
 
-          DO SPC = 1, NSPCSD
+          DO SPC = 1, N_CGRID_SPC
             IF ( CEND( SPC ) .LT. 0.0 ) 
      &                               WRITE( LOGDEV,* ) ' CEND,R,C,SP=',
      &                               CEND( SPC ), ROW, COL, SPC
@@ -2037,119 +2023,44 @@ c             DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) ! sulfate prod
 C...weight the removed amount by the cloud fraction and convert
 C...  from mol/m2 to kg/m2 and kg/m2 to kg/hectare
 
-C...  for gases
+C...convert removal change from moles/m**2 to kg/m**2 and kg/m**2 to kg/hectare
 
-          SPC = 0
-          STRT = GC_STRT
-          FINI = GC_STRT - 1 + N_GC_SPC
-          DO VAR = STRT, FINI
-            SPC = SPC + 1
-            REMOV( VAR ) = REMOV( VAR ) * GC_MOLWT( SPC )
-     &                   * M2PHA / GPKG * FRAC
-#ifdef isam
-            CSPC = 0
-            CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
-            IF ( CSPC .GT. 0 ) THEN
-              DO ITAG = 1, NTAG_SA
-                SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * GC_MOLWT( SPC )
-     &                                * M2PHA / GPKG * FRAC
-              END DO
-            END IF
-#endif
-
+                DO I = 1,N_CGRID_SPC
+                  IF ( CGRID_MASK_NUM( I ) .OR.
+     &                 CGRID_MASK_SRF( I ) ) THEN
+                     ! Aerosol Number (N m-2 -> N ha-1)
+                     ! Aerosol Surface Area (m2 m-2 -> m2 ha-1)
+                     REMOV( I ) = REMOV( I ) * M2PHA * FRAC
 #ifdef sens
-            DO NP = 1, NPMAX
-              S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) *  REAL ( ( GC_MOLWT( SPC )
-     &                           * M2PHA / GPKG * FRAC ), 8 )
-            END DO
+                     DO NP = 1, NPMAX
+                       S_REMOV( NP,I ) = S_REMOV( NP,I ) * REAL( M2PHA * FRAC, 8 )
+                     END DO
 #endif
+                     ! ISAM does not track aerosol number or surface
+                     ! area
 
-          END DO
-
-C...  for aerosols
-
-          SPC = 0
-          STRT = AE_STRT
-          FINI = AE_STRT - 1 + N_AE_SPC
-          DO VAR = STRT, FINI
-            SPC = SPC + 1
-            IF ( ( INDEX( AE_SPC( SPC ), 'NUM' ) .EQ. 0 ) .AND.
-     &           ( INDEX( AE_SPC( SPC ), 'SRF' ) .EQ. 0 ) ) THEN
-              REMOV( VAR ) = REMOV( VAR ) * AE_MOLWT( SPC )
-     &                     * M2PHA / GPKG * FRAC
+                  ELSE
+                     ! Gas and Aerosol Mass (moles m-2 -> kg ha-1)
+                     REMOV( I ) = REMOV( I ) * CGRID_MW( I ) * M2PHA_OVER_GPKG * FRAC
+#ifdef sens
+                     DO NP = 1, NPMAX
+                       S_REMOV( NP,I ) = S_REMOV( NP,I ) * CGRID_MW( I ) * M2PHA_OVER_GPKG * FRAC
+                     END DO
+#endif
 #ifdef isam
-              CSPC = 0
-              CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
-              IF ( CSPC .GT. 0 ) THEN
-                DO ITAG = 1, NTAG_SA
-                  SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * AE_MOLWT( SPC )
-     &                                  * M2PHA / GPKG * FRAC
+                     CSPC = 0
+                     CSPC = INDEXINT1(I,NSPC_SA,SPC_INDEX(:,2))
+                     IF ( CSPC .GT. 0 ) THEN
+                       DO ITAG = 1, NTAG_SA
+                         SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * CGRID_MW( I )
+     &                                          * M2PHA_OVER_GPKG * FRAC
+                       END DO
+                     END IF
+#endif
+                  END IF
+
+
                 END DO
-              END IF
-#endif
-
-#ifdef sens
-              DO NP = 1, NPMAX
-                S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * REAL ( ( AE_MOLWT( SPC )
-     &                     * M2PHA / GPKG * FRAC ), 8 )
-              END DO
-#endif
-
-            ELSE
-              REMOV( VAR ) = REMOV( VAR ) * M2PHA * FRAC
-#ifdef sens
-              DO NP = 1, NPMAX
-                S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * REAL ( ( M2PHA * FRAC ), 8 )
-              END DO
-#endif
-            END IF
-          END DO
-
-C...  for non-reactives
-
-          SPC = 0
-          STRT = NR_STRT
-          FINI = NR_STRT - 1 + N_NR_SPC
-          DO VAR = STRT, FINI
-            SPC = SPC + 1
-            REMOV( VAR ) = REMOV( VAR ) * NR_MOLWT( SPC )
-     &                   * M2PHA / GPKG * FRAC
-#ifdef isam
-            CSPC = 0
-            CSPC = INDEXINT1(VAR,NSPC_SA,SPC_INDEX(:,2))
-            IF ( CSPC .GT. 0 ) THEN
-              DO ITAG = 1, NTAG_SA
-                SA_REMOV( CSPC,ITAG ) = SA_REMOV( CSPC,ITAG ) * NR_MOLWT( SPC )
-     &                                * M2PHA / GPKG * FRAC
-              END DO
-            END IF
-#endif
-
-#ifdef sens
-            DO NP = 1, NPMAX
-              S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * REAL ( ( NR_MOLWT( SPC )
-     &                           * M2PHA / GPKG * FRAC ), 8 )
-            END DO
-#endif
-
-          END DO
-
-C...  for tracers
-
-          SPC = 0
-          STRT = TR_STRT
-          FINI = TR_STRT - 1 + N_TR_SPC
-          DO VAR = STRT, FINI
-            SPC = SPC + 1
-            REMOV( VAR ) = REMOV( VAR ) * TR_MOLWT( SPC )
-     &                   * M2PHA / GPKG * FRAC
-#ifdef sens
-            DO NP = 1, NPMAX
-              S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * REAL ( ( TR_MOLWT( SPC )
-     &                           * M2PHA / GPKG * FRAC ), 8 )
-            END DO
-#endif
-          END DO
 
 C...add deposition amounts into the DEP array
 
@@ -2381,12 +2292,9 @@ C...Now do changes in cloudy layers:
 
 
           END DO
-        GO TO 301
 
-299     CONTINUE
-
-301     CONTINUE        !  end loop on columns COL
-311   CONTINUE        !  end loop on rows    ROW
+        END DO        !  end loop on columns COL
+      END DO        !  end loop on rows    ROW
 
       RETURN          !  from main routine CLDPROC
 

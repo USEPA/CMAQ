@@ -88,7 +88,12 @@ C...........INCLUDES
 C...........PARAMETERS
 
 C # of wet deposition species
-      REAL, PARAMETER :: MWAIR_SI = MWAIR / 1.0E+3    ! kg mol-1
+      REAL, PARAMETER :: MWAIR_SI = MWAIR * 1.0E-3    ! kg mol-1
+      REAL, PARAMETER :: CNV1 = MWAIR * 1.0E-9
+      REAL, PARAMETER :: CNV1I = 1.0 / CNV1
+      REAL, PARAMETER :: CNV2 = MWAIR_SI
+      REAL, PARAMETER :: CNV2I = 1.0 / CNV2
+
 
 C...........ARGUMENTS
 
@@ -133,7 +138,7 @@ C...........Local Variables
       REAL, ALLOCATABLE, SAVE :: RESTRANS( :,: )   ! resolved cloud transmissivity
       REAL, ALLOCATABLE, SAVE :: SUBTRANS( :,:,: ) ! subgrid cloud transmissivity
 
-      REAL CCMIN
+      REAL CCMIN, FAC2
 
 #ifdef isam
       REAL, ALLOCATABLE, SAVE :: BUFF2 ( :,: )
@@ -142,40 +147,21 @@ C...........Local Variables
 C...........EXTERNAL FUNCTIONS
 
       INTERFACE
-#ifdef isam
-         SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
-     &                       DEP, RESTRANS,
-     &                       SA_DEP )
-#else
          SUBROUTINE RESCLD ( CGRD, JDATE, JTIME, TSTEP,
      &                       DEP, RESTRANS )
-#endif
             IMPLICIT NONE
             REAL, INTENT( IN )       :: CGRD( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
             REAL,    INTENT( INOUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT )   :: RESTRANS( :,: )
-#ifdef isam
-            REAL,    INTENT( INOUT ) :: SA_DEP( :,:,:,: )
-
-#endif
          END SUBROUTINE RESCLD
-#ifdef isam
-         SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
-     &                            DEP, SUBTRANS,
-     &                            CONV_SADEP )
-#else
          SUBROUTINE CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
      &                            DEP, SUBTRANS )
-#endif
             IMPLICIT NONE
             REAL,    INTENT( IN )    :: CGRD( :,:,:,: )
             INTEGER, INTENT( IN )    :: JDATE, JTIME, TSTEP( 3 )
             REAL,    INTENT( INOUT ) :: DEP( :,:,: )
             REAL,    INTENT( OUT )   :: SUBTRANS( :,:,: )
-#ifdef isam
-            REAL,    INTENT( INOUT ) :: CONV_SADEP( :,:,:,: )
-#endif
          END SUBROUTINE CONVCLD_ACM
       END INTERFACE
 
@@ -322,8 +308,9 @@ Ckrt deposition arrays for tagged species.....
       MDATE = JDATE
       MTIME = JTIME
 
-      call interpolate_var ('DENS', mdate, mtime, DENS)
-      FAC1( :,:,: ) = MWAIR_SI / DENS( :,:,: )
+      call interpolate_var ('DENS', mdate, mtime, DENS)  ! kg m-3
+      FAC1( :,:,: ) = MWAIR_SI / DENS( :,:,: )           ! m3 mol-1
+      CGRD = CGRID
 
 C...convert units on cgrid and pass data to local cgrd array
       DO LAY = 1, NLAYS
@@ -339,8 +326,7 @@ C...convert units on cgrid and pass data to local cgrd array
                IF ( CGRD( :,:, LAY, I ) .LE. 1.0E-30 ) THEN
                  SENGRID( :,:,LAY,NP,I ) = 0.0
                ELSE
-                 SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) 
-     &                                             * 1.0E-6
+                 SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) * 1.0E-6
                END IF
              END DO
 #endif
@@ -350,7 +336,7 @@ C...convert units on cgrid and pass data to local cgrd array
            IF ( CGRID_MASK_AERO( I ) .AND.
      &           .NOT. CGRID_MASK_NUM( I ) .AND.
      &           .NOT. CGRID_MASK_SRF( I )  ) THEN
-             FAC( :,:,LAY ) = FAC1( :,:,LAY ) / CGRID_MW( I ) * 1.0E-6
+             FAC( :,:,LAY ) = CNV1 / DENS( :,:,LAY) / CGRID_MW( I )
              CGRD( :,:,LAY,I ) = MAX( CGRID( :,:,LAY,I )*FAC(:,:,LAY), 1.0E-30 )
 #ifdef sens
              DO NP = 1, NPMAX
@@ -367,7 +353,8 @@ C...convert units on cgrid and pass data to local cgrd array
            ! Aerosol Surface Area: m2 m-3 -> m2 / mol air
            IF ( CGRID_MASK_NUM( I ) .OR.
      &          CGRID_MASK_SRF( I )  ) THEN
-             CGRD( :,:,LAY,I ) = MAX( CGRID( :,:,LAY,I )*FAC1(:,:,LAY), 1.0E-30 )
+             FAC( :,:,LAY ) = CNV2 / DENS( :,:,LAY )
+             CGRD( :,:,LAY,I) = MAX( CGRID( :,:,LAY, I )*FAC(:,:,LAY),1.0E-30 )
 #ifdef sens
              DO NP = 1, NPMAX
                 IF ( CGRD( :,:,LAY,I ) .LE. 1.0E-30 ) THEN
@@ -415,25 +402,13 @@ c ISAM  unit conversion
 
 C...compute cloud effects for the resolved clouds and resolved rainwater
 
-#ifdef isam
-      CALL RESCLD ( CGRD, JDATE, JTIME, TSTEP,
-     &              TOT_DEP, RESTRANS,
-     &              TOT_SADEP  )
-#else
       CALL RESCLD ( CGRD, JDATE, JTIME, TSTEP,
      &              TOT_DEP, RESTRANS )
-#endif
 
 C...compute cloud effects for convective (subgrid) clouds
 
-#ifdef isam
-      CALL CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
-     &                   CONV_DEP, SUBTRANS,
-     &                   CONV_SADEP )
-#else
       CALL CONVCLD_ACM ( CGRD, JDATE, JTIME, TSTEP,
      &                   CONV_DEP, SUBTRANS )
-#endif
 
 C...now check to see if it's time to write the deposition file
       WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
@@ -578,11 +553,11 @@ C...  convert to ppmV gas
 
       DO LAY = 1, NLAYS
         DO I = 1,N_CGRID_SPC
-           ! Gas - Convert to molar mixing ratio
+           ! Gas - Convert to PPMV
            IF ( CGRID_MASK_GAS( I ) .OR.
      &          CGRID_MASK_NR( I ) .OR.
      &          CGRID_MASK_TRAC( I ) ) THEN
-             CGRD( :, :, LAY, I ) = MAX( CGRID( :, :, LAY, I ) * 1.0E+6,  1.0E-36 )
+             CGRID( :, :, LAY, I ) = CGRD( :, :, LAY, I ) * 1.0E+6
 #ifdef sens
              DO NP = 1, NPMAX
                SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) * 1.0E+6
@@ -590,12 +565,12 @@ C...  convert to ppmV gas
 #endif
            END IF
 
-           ! Aerosol Mass: ug m-3 -> mol / mol air
+           ! Aerosol Mass: mol / mol air -> ug m-3 
            IF ( CGRID_MASK_AERO( I ) .AND.
      &           .NOT. CGRID_MASK_NUM( I ) .AND.
      &           .NOT. CGRID_MASK_SRF( I )  ) THEN
-             FAC( :,:,LAY ) = FAC1( :,:,LAY ) / CGRID_MW( I ) * 1.0E-6
-             CGRD( :,:,LAY,I ) = MAX( CGRID( :,:,LAY,I ) / FAC(:,:,LAY), 1.0E-30 )
+            FAC(:,:,LAY) = CNV1I * DENS( :,:,LAY )
+            CGRID( :,:,LAY,I ) = CGRD( :,:,LAY,I ) * FAC(:,:,LAY) * CGRID_MW( I )
 #ifdef sens
              DO NP = 1, NPMAX
                SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) / FAC(:,:,LAY)
@@ -603,11 +578,12 @@ C...  convert to ppmV gas
 #endif
            END IF
 
-           ! Aerosol Number: N m-3 -> N / mol air
-           ! Aerosol Surface Area: m2 m-3 -> m2 / mol air
+           ! Aerosol Number: N / mol air -> N m-3
+           ! Aerosol Surface Area: m2 / mol air -> m2 m-3
            IF ( CGRID_MASK_NUM( I ) .OR.
      &          CGRID_MASK_SRF( I )  ) THEN
-             CGRD( :,:,LAY,I ) = MAX( CGRID( :,:,LAY,I ) / FAC1(:,:,LAY), 1.0E-30 )
+             FAC(:,:,LAY) = CNV2I * DENS( :,:,LAY )
+             CGRID( :,:,LAY,I ) = CGRD( :,:,LAY,I ) * FAC(:,:,LAY)
 #ifdef sens
              DO NP = 1, NPMAX
                SENGRID( :,:,LAY,NP,I ) = SENGRID( :,:,LAY,NP,I ) / FAC1(:,:,LAY)
