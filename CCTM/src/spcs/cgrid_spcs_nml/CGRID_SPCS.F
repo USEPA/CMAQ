@@ -380,7 +380,7 @@ c-------------------------------------------------------------------------------
                 IF ( LWDEP ) THEN
                     N_GC_WDEP = N_GC_WDEP + 1
                     GC_WDEP( N_GC_WDEP )     = GC_SPECIES_DATA( IGC )%SPECIES_NAME
-                    GC_WDEP_MAP( N_GC_WDEP ) = IGC
+                    GC_WDEP_MAP( IGC ) = N_GC_WDEP
                 END IF
                 
                 ! Gas - Output Concentration Field
@@ -595,7 +595,7 @@ c-------------------------------------------------------------------------------
                 IF ( LWDEP ) THEN
                     N_AE_WDEP = N_AE_WDEP + 1
                     AE_WDEP( N_AE_WDEP )     = AE_SPECIES_DATA( IAE )%SPECIES_NAME
-                    AE_WDEP_MAP( N_AE_WDEP ) = IAE
+                    AE_WDEP_MAP( IAE ) = N_AE_WDEP
                 END IF
                 
                 ! Aerosol - Output Concentration Field
@@ -785,7 +785,7 @@ c-------------------------------------------------------------------------------
                 IF ( LWDEP ) THEN
                     N_NR_WDEP = N_NR_WDEP + 1
                     NR_WDEP( N_NR_WDEP )     = NR_SPECIES_DATA( INR )%SPECIES_NAME
-                    NR_WDEP_MAP( N_NR_WDEP ) = INR
+                    NR_WDEP_MAP( INR ) = N_NR_WDEP
                 END IF
                 
                 ! Nonreactive - Output Concentration Field
@@ -958,7 +958,7 @@ c-------------------------------------------------------------------------------
                 IF ( LWDEP ) THEN
                     N_TR_WDEP = N_TR_WDEP + 1
                     TR_WDEP( N_TR_WDEP )     = TR_SPECIES_DATA( ITR )%SPECIES_NAME
-                    TR_WDEP_MAP( N_TR_WDEP ) = ITR
+                    TR_WDEP_MAP( ITR ) = N_TR_WDEP
                 END IF
                 
                 ! Tracer - Output Concentration Field
