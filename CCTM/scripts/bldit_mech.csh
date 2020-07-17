@@ -27,8 +27,6 @@
  cd ../..
  source ./config_cmaq.csh
 
- set echo
-
 # =======================================================================
 #> Begin User Input Section
 # =======================================================================
@@ -79,21 +77,21 @@
     # Manually set user preference for overwriting existing mechanism
     # files. If CLOBBER_MECH is FALSE, then if files exist, the 
     # program will halt.
-    set CLOBBER_MECH FALSE
+    set CLOBBER_MECH = FALSE
  endif
 
 
- mkdir -p ${MECH_OUT}  # Create Output Folder if it Does not Already Exist
 
 ###################### CHEMMECH Processor #############################
 
 #> Build Mechanism Files and instruct build-make to look
 #> in the CHEMMECH output folder for the files
  if ( ! -e ${MECH_SRC} ) then
-     echo "bldit_mech.csh: $Mechanism input files cannot be found. "
+     echo "bldit_mech.csh: $Mechanism input folder cannot be found. "
      echo "    Please select a valid mechanism input location."
-     exit()
+     exit 1
  endif
+ mkdir -p ${MECH_OUT}  # Create Output Folder if it Does not Already Exist
 
  cd ${CMAQ_HOME}/UTIL/chemmech/scripts
  ./bldit_chemmech.csh $compiler
@@ -128,10 +126,12 @@
    # Error out if RXNS modules already exist in destination directory
    if ( -e ${MECH_OUT}/RXNS_DATA_MODULE.F90 \
           || -e ${MECH_OUT}/RXNS_FUNC_MODULE.F90 ) then
+      echo ""
       echo "Mechanism files already exist in the destination directory."
       echo "If you would like to overwrite them, uncomment clobber_mech"
       echo "if you are using the bldit_cctm script or set CLOBBER_MECH "
       echo "to TRUE if you are using bldit_mech stand-alone."
+      echo ""
       exit 1
     endif
  endif
@@ -166,10 +166,12 @@
  if ( ${CLOBBER_MECH} == 'FALSE' ) then
    # Error out if RXNS modules already exist in destination directory
    if ( -e ${MECH_OUT}/CSQY_DATA_${MECH} ) then
+      echo ""
       echo "CSQY Data file already exists in the destination directory."
       echo "If you would like to overwrite it, uncomment clobber_mech"
       echo "if you are using the bldit_cctm script or set CLOBBER_MECH "
       echo "to TRUE if you are using bldit_mech stand-alone."
+      echo ""
       exit 1
     endif
  endif
@@ -210,10 +212,12 @@
     if ( ${CLOBBER_MECH} == 'FALSE' ) then
       # Error out if RXNS modules already exist in destination directory
       if ( -e ${EBI_SOLVER_OUT}/hrrates.F ) then
+         echo ""
          echo "EBI solver files already exist in the destination directory."
          echo "If you would like to overwrite it, uncomment clobber_mech"
          echo "if you are using the bldit_cctm script or set CLOBBER_MECH "
          echo "to TRUE if you are using bldit_mech stand-alone."
+         echo ""
          exit 1
        endif
     endif

@@ -278,8 +278,13 @@ set make_options = "-j"                #> additional options for make command if
       setenv CLOBBER_MECH FALSE
     endif
 
-    ${CMAQ_HOME}/CCTM/scripts/bldit_mech.csh ${compiler} ${compilerVrsn}
-
+    cd ${CMAQ_HOME}/CCTM/scripts
+    ./bldit_mech.csh ${compiler} ${compilerVrsn}
+    if ( $? != 0 ) then
+      echo ""
+      echo "bldit_mech did not finish correctly --> Build Process Halted"
+      exit 1
+    endif
  endif
 
 #> Cloud chemistry options

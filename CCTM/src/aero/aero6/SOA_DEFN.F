@@ -428,12 +428,13 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
-
+      Use RUNTIME_VARS, only : logdev
       Implicit None
 
       ! Arguments:
       Character( 16 ) :: vname
       Integer ndx
+      Logical required
 
       ! Local Variables:
       Character( 80 ) :: xmsg
