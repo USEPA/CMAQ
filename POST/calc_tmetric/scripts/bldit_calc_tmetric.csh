@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
-# ==================== CALC_TMETRICv5.3.1 Build Script ===================== #
-# Usage: bldit_calc_tmetric.csh >&! bldit_calc_tmetric.log                          #
+# ==================== CALC_TMETRICv5.3.X Build Script ============== #
+# Usage: bldit_calc_tmetric.csh >&! bldit_calc_tmetric.log            #
 # Requirements: I/O API & netCDF libraries; a Fortran compiler        #
 #                                                                     #
 # To report problems or request help with this script/program:        #
@@ -45,7 +45,7 @@
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v531                        #> model version
+ set VRSN     = v532                            #> model version
  set EXEC     = calc_tmetric_${VRSN}.exe        #> executable name for this application
  set CFG      = calc_tmetric_${VRSN}.cfg        #> BLDMAKE configuration file name
  setenv BLDER   ${CMAQ_HOME}/UTIL/bldmake/bldmake_${compilerString}.exe #> location of makefile builder executable 
