@@ -160,22 +160,14 @@ C-----------------------------------------------------------------------
       ! Identify Species Required for Isoprene and Monoterpene Chemistry
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SVISO1'
       Character( 16 ), Private, Parameter :: req_sviso2  = 'SVISO2'
-      Character( 16 ), Private, Parameter :: req_mtno3   = 'MTNO3'
-      Character( 16 ), Private, Parameter :: req_isopnn  = 'ISOPNN'
       Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
       Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2'
       Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3'
       Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
-      Character( 16 ), Private, Parameter :: req_amtno3  = 'AMTNO3'
-      Character( 16 ), Private, Parameter :: req_aisopnn = 'AISOPNN'
 
       ! Variables for Carrying Indices of required species
       Integer :: iso1_idx
       Integer :: iso2_idx
-      Integer :: mtno3_idx
-      Integer :: isopnn_idx
-      Integer :: amtno3_idx
-      Integer :: aisopnn_idx
       Integer :: aiso1_idx
       Integer :: aiso2_idx
       Integer :: aiso3_idx
@@ -226,7 +218,6 @@ C BM  02/19/19 Major Revision to simplify the mapping procedure and
 C              remove redundat variables.
 C-----------------------------------------------------------------------
 
-      Use rxns_data, only: mechname
       Use aero_data, only: AE_eflag, findAero, aerospc_mw, n_aerospc
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
       Use cgrid_spcs, only: n_gc_spc, gc_spc, n_gc_g2ae, gc_g2ae, gc_strt, gc_molwt, gc_g2ae_map, 
@@ -338,21 +329,13 @@ C-----------------------------------------------------------------------
          End Do
 
          ! Find indices of required species
-         iso1_idx   = findVapor( req_sviso1 )
-         iso2_idx   = findVapor( req_sviso2 )
+         iso1_idx   = findVapor( req_sviso1, .True. )
+         iso2_idx   = findVapor( req_sviso2, .True. )
          aiso1_idx  = findAero( req_aeiso1, .True. )
          aiso2_idx  = findAero( req_aeiso2, .True. )
          aiso3_idx  = findAero( req_aeiso3, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
-         ! Look for Additional Isoprene Product Species if AE6i is being
-         ! used
-         If ( INDEX( MECHNAME,"SAPRC07TIC_AE6I" ) .Ne. 0 ) Then
-           mtno3_idx  = findVapor( req_mtno3  )
-           isopnn_idx = findVapor( req_isopnn )
-           amtno3_idx  = findAero( req_amtno3, .True. )
-           aisopnn_idx = findAero( req_aisopnn,.True. )
-         End If
       End If     ! mapping condition
 
 
@@ -435,7 +418,7 @@ C-----------------------------------------------------------------------
       End Subroutine update_orgvapor
 
 C-----------------------------------------------------------------------
-      Function findVapor( vname ) Result ( ndx )
+      Function findVapor( vname, required ) Result ( ndx )
 
 C  Finds the index of 'required' semivolatile species in the oaspc list
 
@@ -464,10 +447,19 @@ C-----------------------------------------------------------------------
          End If
       End Do
 
+      If ( .Not. required ) Then
+         xmsg = 'Optional Species '
+     &       // Trim( vname ) // 
+     &       ' is not found in the G2AE or N2AE values of GC or NR namelists.'
+         write(logdev,'(5x,a)') xmsg
+         Return
+      End If
+
       xmsg = 'FATAL:' // Trim( vname )
-     &  // ' is not found in the G2AE or N2AE values of GC or namelists'
+     &  // ' is not found in the G2AE or N2AE values of GC or NR namelists.'
       OA_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
+ 
 
       Return
       End Function findVapor
@@ -761,7 +753,6 @@ C Key Subroutines/Functions called:  newt, soabisection
       Use aero_data
       Use aeromet_data
       Use utilio_defn
-      Use rxns_data, only : MECHNAME
 
       Implicit None
 

@@ -119,17 +119,6 @@
  setenv tr_matrix_nml $INPDIR/Species_Table_TR_0.nml
  #setenv tr_matrix_nml $INPDIR/trac0/Species_Table_TR_0.nml
  
- # Check for input folder and if it doesn't exists, try to find it in
- # the Repository
- if ( ! ( -e $INPDIR ) && ! ( $?offline ) )then
-     mkdir -p $INPDIR
-     if ( ! -e ${CMAQ_REPO}/CCTM/src/MECHS/${MECH} ) then
-        echo "Cannot Find Inputs for CHEMMECH. Please put them in ${INPDIR}"
-        exit 1
-     endif
-     cp -f ${CMAQ_REPO}/CCTM/src/MECHS/${MECH}/* ${INPDIR}/
-     cp -f ${CMAQ_REPO}/CCTM/src/MECHS/trac0/* ${INPDIR}/
- endif
 
 #Check if input files exist
  set input_files = ( ${MECHDEF} ${MAPPING_ROUTINE} ${gc_matrix_nml} ${nr_matrix_nml} ${tr_matrix_nml} )
