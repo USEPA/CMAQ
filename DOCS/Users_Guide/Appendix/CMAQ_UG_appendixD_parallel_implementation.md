@@ -74,7 +74,7 @@ In CMAQv5.2 and later versions, we have developed a true parallel I/O approach, 
 
 **Figure D-9. True parallel I/O approach**
 
-To invoke this feature users have to re-build CMAQ after building additional libraries not used with CMAQ traditionally as well as retaining the traditional libraries with the exception of the non-"mpi" IOAPI library downloaded in [Chapter 3](../CMAQ_UG_ch03_preparing_compute_environment.md). The additional libraries required by invoking this option include the PnetCDF library and the "mpi" version of the IOAPI library. 
+To invoke this feature users have to re-build CMAQ after building additional libraries not used with CMAQ traditionally as well as retaining the traditional libraries with the exception of the non-"mpi" IOAPI library downloaded in [Chapter 3](../CMAQ_UG_ch03_preparing_compute_environment.md). The additional libraries required by invoking this option include the PnetCDF library and the "mpi" version of the IOAPI library. It also requires installation of parallel file system, e.g. Lustre or BeeGFS, with sufficient I/O hardware such as disk drive and I/O sub-system to support parallel file system software.
 
 **PnetCDF library**
 
@@ -82,7 +82,7 @@ The PnetCDF library is the parallel I/O implementation to complement the classic
 
 **IOAPI library**
 
-The I/O API library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32.
+The I/O API library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the IOAPI library (version 3.2) is available for download at https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE   **Version Supported: IOAPI 3.2 tagged 2020111**
 
 The general steps for installation of IOAPI libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
@@ -130,7 +130,7 @@ Lastly, users must also edit the CCTM run script by inserting MPI: in front of t
 
   setenv CTM_CONC_1      "MPI:\$OUTDIR/CCTM_CONC_\${CTM_APPL}.nc -v"       #> On-Hour Concentrations
   
-For further directions on installation of PIO please contact David Wong at wong.david-c@epa.gov
+For further directions on installation of PIO or if you encounter difficulties using the PIO feature, please contact David Wong at wong.david-c@epa.gov
 
 ## D.4 Reference:
 
