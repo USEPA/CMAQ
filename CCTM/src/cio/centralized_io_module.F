@@ -154,13 +154,21 @@
      &                       GROWAGNO(:,:),     ! from B3GRD data
      &                       NGROWAGNO(:,:),    ! from B3GRD data
      &                       NONAGNO(:,:),      ! from B3GRD data
-     &                       RAINFALL(:,:,:)    ! from SOILINP data
+     &                       RAINFALL(:,:,:),   ! from SOILINP data
+     &                       HRNO_SW(:,:,:),    ! from SOILINP data
+     &                       HRNO_T2M(:,:,:),   ! from SOILINP data
+     &                       LDF(:,:,:),        ! from MEGANMAP data
+     &                       LAI_M(:,:,:),      ! from MEGANMAP data
+     &                       EFMAPS(:,:,:),     ! from MEGANMAP data
+     &                       CTF(:,:,:),        ! from MEGANMAP data
+     &                       T24y(:,:),         ! from SOILINP data
+     &                       SW24y(:,:)         ! from SOILINP data
 
         integer, allocatable :: PTYPE(:,:),        ! from SOILINP data
      &                          PULSEDATE(:,:),    ! from SOILINP data
      &                          PULSETIME(:,:)     ! from SOILINP data
 
-        character( 16 ), allocatable :: DDTTM( : ) ! for SIOLINP data, description date and time
+        character( 16 ), allocatable :: DDTTM( : ) ! for SOILINP data, description date and time
 
 ! time dependent data: 
 ! gridded 
@@ -1993,7 +2001,7 @@ C Read the various categories of normalized emissions
 
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
-          use RUNTIME_VARS, only : NEW_START
+          use RUNTIME_VARS, only : NEW_START,MEGAN_BIOGEMIS,IGNORE_SOILINP
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
@@ -2004,6 +2012,7 @@ C Read the various categories of normalized emissions
           CHARACTER( 16 )  :: var
           CHARACTER( 256 ) :: mesg
           integer :: stat, i, j, k
+          real t24sum(ncols,nrows),sw24sum(ncols,nrows) 
 
           ALLOCATE( PTYPE( NCOLS,NROWS ),
      &              PULSEDATE( NCOLS,NROWS ),
@@ -2011,6 +2020,14 @@ C Read the various categories of normalized emissions
      &              RAINFALL( NCOLS,NROWS, mxhrs ),
      &              DDTTM( mxhrs ),
      &              STAT=STAT )
+
+            if (MEGAN_BIOGEMIS) then
+             allocate (t24y  ( ncols,nrows        ),
+     &                 sw24y ( ncols,nrows        ),
+     &              HRNO_SW  ( NCOLS,NROWS, mxhrs ),
+     &              HRNO_T2M ( NCOLS,NROWS, mxhrs ),
+     &                 stat=stat)
+            end if
 
           DDTTM = ' '   ! array
 
@@ -2071,6 +2088,10 @@ C Read the various categories of normalized emissions
              END IF
 
              RAINFALL = 0.0
+             if (MEGAN_BIOGEMIS) then
+              sw24sum  = 0.0
+              t24sum   = 0.0
+             end if
              DDTTM = ' '   ! array
              DO I = 1, mxhrs
                 WRITE( VAR, '(A8,I2.2)' ) 'RAINFALL', I
@@ -2084,7 +2105,37 @@ C Read the various categories of normalized emissions
                 J = INDEX( VDESC3D( I+3 ), 'for' ) + 3
                 K = LEN_TRIM( VDESC3D( I+3 ) )
                 DDTTM( I ) = VDESC3D( I+3 )( J:K )
+
+
+             if (MEGAN_BIOGEMIS .and. .not. IGNORE_SOILINP) then
+                WRITE( VAR, '(A2,I2.2)' ) 'SW', I
+                IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+     &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                              0, 0, sw24y( :,: ) ) ) THEN
+                   MESG = 'Could not read "' // TRIM( VAR ) //
+     &                    '" from file "' // TRIM( SOILINP ) // '"'
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                END IF
+                   sw24sum = sw24y + sw24sum
+
+                WRITE( VAR, '(A3,I2.2)' ) 'T2M', I
+                IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
+     &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
+     &                              0, 0, t24y( :,: ) ) ) THEN
+                   MESG = 'Could not read "' // TRIM( VAR ) //
+     &                    '" from file "' // TRIM( SOILINP ) // '"'
+                   CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                END IF
+                   t24sum = t24y + t24sum
+             end if
+                   
+             
              END DO
+ 
+             if (MEGAN_BIOGEMIS .and. .not. IGNORE_SOILINP) then
+                sw24y = sw24sum/mxhrs
+                t24y  = t24sum/mxhrs
+             end if
 
           end if
 
@@ -3345,6 +3396,205 @@ C   mminlu and num_land_cat are WRF global variables
         end subroutine lus_setup
 
 ! -------------------------------------------------------------------------
+        subroutine megan_setup ! reads in variables from MEGAN_PARAMS (see file_inputs.txt and run script)
+          use hgrd_defn, only : ncols,nrows
+          USE UTILIO_DEFN
+          use RUNTIME_VARS, only : logdev
+        
+           integer STAT, I, fnum
+           integer megan_hr
+           character (20) :: loc_time_stamp
+           real t24sum(ncols),sw24sum(ncols) 
+           Character( 40 ), parameter :: pname = 'megan_setup'
+
+           Character( 40 ), parameter :: MEGAN_LDF = 'MEGAN_LDF'
+           Character( 40 ), parameter :: MEGAN_LAI = 'MEGAN_LAI'
+           Character( 40 ), parameter :: MEGAN_EFS = 'MEGAN_EFS'
+           Character( 40 ), parameter :: MEGAN_CTS = 'MEGAN_CTS'
+           CHARACTER( 256 ) :: mesg
+           character( 200)   :: xmsg
+           character( 40 )  ::  var
+           CHARACTER*16, PARAMETER :: EFMAP(20) =             
+     &          (/  'EF_ISOP            ',                          !  1 isoprene
+     &         'EF_MBO             ',                               !  2 MBO
+     &         'EF_MT_PINE         ',                               !  3 monoterpenes: pines (alpha and beta)
+     &         'EF_MT_ACYC         ',                               !  4 monoterpenes: acyclic, 3 = (e.g., myrcene, ocimenes)
+     &         'EF_MT_CAMP         ',                               !  5 monoterpenes: carene, camphene, others
+     &         'EF_MT_SABI         ',                               !  6 monoterpenes: sabinene, limonene, terpinenes, others
+     &         'EF_MT_AROM         ',                               !  7  aromatic: cymenes, cymenenes
+     &         'EF_MT_OXY          ',                               !  8 C8-C13 oxygenated (e.g., camphor)
+     &         'EF_SQT_HR          ',                               !  9 Highly reactive SQT (e.g., caryophyllene)
+     &         'EF_SQT_LR          ',                               ! 10 less reactive SQT  (e.g., longifolene, copaene) and salates
+     &         'EF_MEOH            ',                               ! 11 methanol
+     &         'EF_ACTO            ',                               ! 12 acetone
+     &         'EF_ETOH            ',                               ! 13 acetaldehyde and ethanol
+     &         'EF_ACID            ',                               ! 14 organic acids: formic acid, acetic acid, pyruvic acid
+     &         'EF_LVOC            ',                               ! 15 C2 to C4 HC (e.g., ethene, ethane)
+     &         'EF_OXPROD          ',                               ! 16 oxidation products: aldehydes
+     &         'EF_STRESS          ',                               ! 17 Stress compounds (e.g., linalool)
+     &         'EF_OTHER           ',                               ! 18 other VOC (e.g., indole, pentane, methyl bromide)
+     &         'EF_CO              ',                               ! 19 carbon monoxide
+     &         'EF_NO              '  /)                             ! 20 Nitric oxide
+      
+             ! Would like a more elegant way of doing this ^. Read NVARS in
+             ! IOAPI?
+
+             allocate (ctf(6,ncols,nrows),
+     &                 stat=stat)
+             allocate (efmaps(ncols,nrows,20),
+     &                 stat=stat)
+             allocate (ldf( ncols,nrows, 20),
+     &              lai_m( ncols,nrows, 46),
+     &              stat=stat )
+
+             lai_m= 0.0
+
+
+#ifdef mpas
+
+
+! MPAS MIO not included
+
+#else
+! NOT MPAS
+!            Open the CTS, LDF, LAI, and EFS files
+             IF ( .NOT. OPEN3( MEGAN_CTS, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // MEGAN_CTS
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+             n_opened_file = n_opened_file + 1
+             IF ( .NOT. OPEN3( MEGAN_EFS, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // MEGAN_EFS
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+             n_opened_file = n_opened_file + 1
+             IF ( .NOT. OPEN3( MEGAN_LAI, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // MEGAN_LAI
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+             n_opened_file = n_opened_file + 1
+             IF ( .NOT. OPEN3( MEGAN_LDF, FSREAD3, PNAME ) ) THEN
+                mesg = 'Open failure for ' // MEGAN_LDF
+                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+             END IF
+             n_opened_file = n_opened_file + 1
+
+
+! Get description of megan parameters files
+! efmaps, ctf, lai, ldf
+             IF ( .NOT. DESC3( MEGAN_CTS ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( MEGAN_CTS ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+             IF ( .NOT. DESC3( MEGAN_LAI ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( MEGAN_LAI ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+             IF ( .NOT. DESC3( MEGAN_LDF ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( MEGAN_LDF ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+             IF ( .NOT. DESC3( MEGAN_EFS ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( MEGAN_EFS ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+             END IF
+! Read variables
+#ifdef twoway
+            megan_hr = 0
+            do I=1,6 
+                   IF ( .NOT. XTRACT3( MEGAN_CTS, 'CTS', 
+     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD, 
+     &                                 0, megan_hr, ctf(I,:,:) ) ) THEN
+                      XMSG = 'Could not extract ' // MEGAN_CTS // ' file'
+                      CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
+                   END IF
+                   megan_hr = megan_hr + 10000
+            end do
+
+!!! The next 2 are 0 in time. The different records are spaced as
+            do I=1,45
+                   WRITE( VAR, '(A3,I2.2)' ) 'LAI', I
+                   IF ( .NOT. XTRACT3( MEGAN_LAI, VAR, 
+     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD, 
+     &                                 0, 0, lai_m(:,:,I) ) ) THEN
+                      XMSG = 'Could not extract ' // MEGAN_LAI // ' file'
+                      CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+                   END IF
+            end do
+
+            do I=1,20
+                   WRITE( VAR, '(A3,I2.2)' ) 'LDF', I
+                   IF ( .NOT. XTRACT3( MEGAN_LDF, VAR, 
+     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD, 
+     &                                 0, 0, LDF(:,:,I) ) ) THEN
+                      XMSG = 'Could not extract ' // MEGAN_LDF // ' file'
+                      CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+                   END IF
+            end do
+
+            do I=1,20
+                   IF ( .NOT. XTRACT3( MEGAN_EFS, EFMAP(I), 
+     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD, 
+     &                                 0, 0, efmaps(:,:,I) ) ) THEN
+                      XMSG = 'Could not extract ' // MEGAN_EFS // ' file'
+                      CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
+                   END IF
+             end do
+
+
+#else
+! NOT twoway
+            megan_hr = 0
+            do I=1,6 
+                   IF ( .NOT. XTRACT3( MEGAN_CTS, 'CTS', 
+     &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
+     &                                 0, megan_hr, ctf(I,:,:) ) ) THEN
+                      XMSG = 'Could not extract ' // MEGAN_CTS // ' file'
+                      CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
+                   END IF
+                   megan_hr = megan_hr + 10000
+            end do
+
+!!! The next 2 are 0 in time. The different records are spaced as
+            do I=1,45
+                   WRITE( VAR, '(A3,I2.2)' ) 'LAI', I
+                   IF ( .NOT. XTRACT3( MEGAN_LAI, VAR, 
+     &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
+     &                                 0, 0, lai_m(:,:,I) ) ) THEN
+                      XMSG = 'Could not extract ' // MEGAN_LAI // ' file'
+                      CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+                   END IF
+            end do
+
+            do I=1,20
+                   WRITE( VAR, '(A3,I2.2)' ) 'LDF', I
+                   IF ( .NOT. XTRACT3( MEGAN_LDF, VAR, 
+     &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
+     &                                 0, 0, LDF(:,:,I) ) ) THEN
+                      XMSG = 'Could not extract ' // MEGAN_LDF // ' file'
+                      CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+                   END IF
+            end do
+
+            do I=1,20
+                   IF ( .NOT. XTRACT3( MEGAN_EFS, EFMAP(I), 
+     &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
+     &                                 0, 0, efmaps(:,:,I) ) ) THEN
+                      XMSG = 'Could not extract ' // MEGAN_EFS // ' file'
+                      CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
+                   END IF
+             end do
+#endif
+
+
+#endif
+        end subroutine megan_setup
+       
+! -------------------------------------------------------------------------
         subroutine centralized_io_init
 
           USE UTILIO_DEFN
@@ -3405,6 +3655,9 @@ C   mminlu and num_land_cat are WRF global variables
                 call biogemis_setup
                 call b3grd_setup
              end if
+             if (MEGAN_BIOGEMIS) then
+                call megan_setup
+             end if
 
              if (ABFLUX) then
                 call depv_data_setup
@@ -3429,7 +3682,7 @@ C   mminlu and num_land_cat are WRF global variables
                 end if
              end if
 
-             if (BIOGEMIS) then
+             if (BIOGEMIS .or. MEGAN_BIOGEMIS) then
                 call soilinp_setup
              end if
 

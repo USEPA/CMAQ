@@ -158,7 +158,21 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
                              #>    velocities [ default: N ]
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
-setenv CTM_BIOGEMIS Y        #> calculate in-line biogenic emissions [ default: N ]
+setenv CTM_BIOGEMIS N        #> calculate in-line biogenic emissions [ default: N ]
+setenv CTM_MGN_BIOGEMIS Y    #> turns on MEGAN biogenic emission
+setenv IGNORE_SOILINP Y      #> Set to TRUE if no MEGAN for prev day
+setenv USE_MEGAN_LAI N
+
+       if ( $CTM_MGN_BIOGEMIS == 'Y' ) then
+         setenv MEGAN_CTS /work/MOD3DEV/jwilliso/coupled_listos/files/CT3_tceq_listos_1.33.ncf
+         setenv MEGAN_EFS /work/MOD3DEV/jwilliso/coupled_listos/files/EFMAPS31.2019b.tceq_listos_1.33.J4.ncf
+         setenv MEGAN_LAI /work/MOD3DEV/jwilliso/coupled_listos/files/LAI3_tceq_listos_1.33.ncf
+         setenv MEGAN_LDF /work/MOD3DEV/jwilliso/coupled_listos/files/LDF_tceq_listos_1.33.2019b.J4.ncf
+       endif
+
+
+
+
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -411,6 +425,11 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv PX_VERSION Y     #> MCIP is PX version? [ default: N ]
      setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
+  endif
+  if ( $CTM_MGN_BIOGEMIS == 'Y' ) then
+    setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+                             #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
+                             #>                            ; ignore if IGNORE_SOILINP = Y
   endif
 
   #> Windblown dust emissions configuration

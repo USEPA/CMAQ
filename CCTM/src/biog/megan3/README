@@ -1,0 +1,82 @@
+Adding the Model of Emissions of Gases and Aerosols from Nature (MEGAN) to CMAQ.
+
+Jeff Willison, Jon Pleim. Fahim Sidi, Frank Binkowski
+
+
+
+
+!Motivation
+
+MEGAN is a biogenic emissions model created by Alex Guenther at UCI BAI. The user guide can be found at https://drive.google.com/file/d/1caSFHBheZvrzIVxQvACPcU4ysf3jnRmh/view
+
+Website: https://bai.ess.uci.edu/megan
+
+
+
+
+!MEGAN directory
+
+The bulk of the MEGAN code resides in CCTM/src/biog/megan3.
+
+MEGAN_DEFN.F is a module that follows BEIS_DEFN.F and contains the function MEGAN_INIT and the subroutine GET_MEGAN. GET_MEGAN is the driver that calls subroutines from all_megan.f90. The code in all_megan.f90 was largely compiled by Frank Binkowski at UNC and is responsible for calculating the biogenic emissions. GET_MEGAN also calls meg_hrno_mod.F for needed precip adjustment factors, 2-m temperature from the previous day, and shortwave radiation from the previous day (added to SOILOUT). 
+
+Once biogenic emissions are computed, GET_MEGAN converts the species to a mechanism by calling mgn2mech_mod.F. This is the code that would be used if using MEGAN offline to prepare emissions for CMAQ. The resulting emissions are passed to VDEMIS_BI, which is then used in the biog emissions stream (EMIS_DEFN.F). The *.EXT files serve a similar function to the gspro.txt file for BEIS. 
+
+
+
+!CMAQ files modified
+
+ASX_DATA_MOD.F - to enable SOIM2 even if ABFLUX is off
+
+RUNTIME_VARS.F - to read in environmental variables from run script
+
+centralized_io_module.F - to read in MEGAN input fields 
+
+EMIS_DEFN.F - to add MEGAN to the BIOG stream options alongside BEIS
+
+bldit_cctm.csh - to compile MEGAN module
+
+
+!Run script changes
+
+setenv CTM_MGN_BIOGEMIS Y    #> turns on MEGAN biogenic emission
+setenv IGNORE_SOILINP TRUE   #> Set to TRUE if no MEGAN for prev day
+
+       if ( $CTM_MGN_BIOGEMIS == 'Y' ) then
+         setenv MEGAN_CTS /work/MOD3DEV/jwilliso/coupled_listos/files/CT3_tceq_listos_1.33.ncf
+         setenv MEGAN_EFS /work/MOD3DEV/jwilliso/coupled_listos/files/EFMAPS31.2019b.tceq_listos_1.33.J4.ncf
+         setenv MEGAN_LAI /work/MOD3DEV/jwilliso/coupled_listos/files/LAI3_tceq_listos_1.33.ncf
+         setenv MEGAN_LDF /work/MOD3DEV/jwilliso/coupled_listos/files/LDF_tceq_listos_1.33.2019b.J4.ncf
+       endif
+
+
+  if ( $CTM_MGN_BIOGEMIS == 'Y' ) then
+    setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
+  endif
+
+
+!Input files
+
+Aside from meteorological information, MEGAN inputs include canopy information (CTS), emission factor maps (EFS), light-dependent fraction (LDF), and leaf area index (LAI).
+As seen in the previous section, the CTS, EFS, and LDF inputs from the MEGAN preprocessor must be included in the run script. The LAI file is optional if the user would like to use an LAI dataset that is different from the one WRF uses. These MEGAN inputs are IOAPI files and nothing needs to be done to them except replacing NaNs in the CTS file. 
+
+This can be done with a variety of tools. Here is a sample NCL script:
+
+begin
+; need this or else checksum will report infinite values
+    a=addfile("CT3_tceq_listos_1.33.ncf","rw") ; open for read write
+    CTS=a->CTS ; read CTS from file 
+    replace_ieeenan (CTS, 0.0, 0) ; replace nans with 0s
+    a->CTS=(/CTS/) ; write the values to file but exclude metadata using (/xxx/)
+end
+
+
+For use with MPAS the MEGAN input fields must be put on the global mesh. Separate scripts are available for this step. 
+
+
+!Output
+
+Diagnostic output is similar to BEIS when EMISDIAG is set to T, but there is no mass emissions diagnostic file option yet (B3GTS_DIAG). 
+
+Note that the MEGAN conversion to the CB6 mechanism does not separate APIN from TERP. 
+

@@ -91,6 +91,7 @@ C-----------------------------------------------------------------------
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE BEIS_DEFN           ! biogenic emissions
+         USE MEGAN_DEFN          ! biogenic emissions from MEGAN
          USE MGEMIS              ! marine gas emissions
          USE LTNG_DEFN           ! NO emissions from lightning strikes
          USE PT3D_DEFN           ! plume rise emissions
@@ -178,14 +179,22 @@ C Initialize 3D Point Source Emissions
             XMSG = 'Failure initializing plume rise emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
- 
-C Initialize Online Biogenic Emissions
-         CALL LOG_SUBHEADING( LOGDEV, 'Initialize Biogenic Emissions' )
-         IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
+
+         IF (MEGAN_BIOGEMIS) THEN
+C Initialize Online Biogenic Emissions, MEGAN
+          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Biogenic Emissions' )
+          IF ( .NOT. MEGAN_INIT( JDATE, JTIME, TSTEP ) ) THEN
+             XMSG = 'Failure initializing biogenics emissions module'
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          END IF
+         ELSE 
+C Initialize Online Biogenic Emissions, BEIS
+          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Biogenic Emissions' )
+          IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing biogenics emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          END IF
          END IF
-
 C Initialize Online Marine Gas Emissions
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Marine Gas Emissions' )
          IF ( .NOT. MGEMIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
@@ -259,6 +268,7 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE CGRID_SPCS          ! CGRID mechanism species
          USE AERO_EMIS           ! inherits GRID_CONF
          USE BEIS_DEFN           ! biogenic emissions
+         USE MEGAN_DEFN          ! biogenic emissions from MEGAN
          USE BIOG_EMIS, ONLY: MSPCS
          USE SSEMIS
          USE DUST_EMIS
@@ -521,7 +531,11 @@ C Retrieve Emissions from All Stream Types
              
              CASE ( 4 )
                NL = 1
+              if (MEGAN_BIOGEMIS) then
+               CALL GET_MEGAN ( JDATE, JTIME, TSTEP )
+              else
                CALL GET_BEIS ( JDATE, JTIME, TSTEP )
+              end if
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_BI( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
@@ -2545,6 +2559,9 @@ C and allowing the model to proceed.
          ! Online Biogenic Emissions
          IF ( BIOGEMIS ) N_EM_SRM = N_EM_SRM + 1
 
+         ! Online Biogenic Emissions from MEGAN
+         IF ( MEGAN_BIOGEMIS ) N_EM_SRM = N_EM_SRM + 1
+
          ! Marine gas emissions; use online marine gas option only if CB6R3m is used
          IF ( USE_MARINE_GAS_EMISSION ) N_EM_SRM = N_EM_SRM + 1
 
@@ -2739,8 +2756,8 @@ C stkemis_init.
            EM_TRAC = .FALSE.
          END IF
          
-         ! Online Biogenic Emissions (BEIS)
-         IF ( BIOGEMIS ) THEN
+         ! Online Biogenic Emissions (BEIS/MEGAN)
+         IF ( BIOGEMIS .or. MEGAN_BIOGEMIS) THEN
              ISRM = ISRM + 1
              EM_FILE_TYPE( ISRM ) = 'BIOG'
              EM_FILE_ITYPE( ISRM ) = 4
