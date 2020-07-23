@@ -412,19 +412,19 @@
 !    The examples below may be uncommented and modified for your use.          !
 !------------------------------------------------------------------------------!
 
-!&ChemicalFamilies
-! NChemFamilies         = 1
-! ChemFamilyName(1)     = 'NOX'
-! ChemFamilyNum(1)      = 2
-! ChemFamilyMembers(1,:)= 'NO','NO2'
-!/
+&ChemicalFamilies
+ NChemFamilies         = 1
+ ChemFamilyName(1)     = 'NOX'
+ ChemFamilyNum(1)      = 2
+ ChemFamilyMembers(1,:)= 'NO','NO2'
+/
 
-!&StreamFamilies
-! NStreamFamilies         = 1
-! StreamFamilyName(1)     = 'PT_SOURCES'
-! StreamFamilyNum(1)      = 3
-! StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
-!/
+&StreamFamilies
+ NStreamFamilies         = 1
+ StreamFamilyName(1)     = 'PT_SOURCES'
+ StreamFamilyNum(1)      = 3
+ StreamFamilyMembers(1,:)= 'PT_NONEGU','PT_EGU','PT_OTHER'
+/
 
 !&RegionFamilies
 ! NRegionFamilies         = 1
@@ -443,11 +443,20 @@
 !    emission rates of all species for every emission stream.                  !
 !------------------------------------------------------------------------------!
 
-&EmissDiag
-  NEmissDiagStream     = 1
-  EmissDiagStream(1)   = 'ALL'
-  StreamDiagSpecNum(1) = 2
-  StreamDiagSpec(1,:)  = 'NO','NO2'
+&EmissionDiagnostic
+  NEmissDiag           = 3
+  
+  EmissDiagStreams(1)  = 'ALL'
+  EmissDiagFmt(1)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
+  EmissDiagSpec(1,:)  = 'NO','NO2','NOX'
+  
+  EmissDiagStreams(2)  = '*ALL'
+  EmissDiagFmt(2)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
+  EmissDiagSpec(2,:)  = 'AEC','AECI','*NO2'
+  
+  EmissDiagStreams(3)  = '*ANTH'
+  EmissDiagFmt(3)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
+  EmissDiagSpec(3,:)  = 'NO','NO2'
 /
 
 

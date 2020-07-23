@@ -3713,12 +3713,13 @@ C   mminlu and num_land_cat are WRF global variables
          NAMELIST / EmissionScalingRules / EM_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
+         NAMELIST / EmissionDiagnostic   / NEmissDiag, EmissDiagStreams,
+     &                                     EmissDiagFmt, EmissDiagSpec
          
          CALL LOG_MESSAGE( LOGDEV, ' ' )
          CALL LOG_SUBHEADING( LOGDEV, 'Reading Emission Control Namelist')
 
-         ! Allocate and Initialize Namelist Variables
-         ALLOCATE( EM_NML( N_EM_RULE_REG ) )
+         ! Initialize Namelist Variables
          EM_NML%REGION = ''
          EM_NML%STREAM = ''
          EM_NML%SURR   = ''
@@ -3728,17 +3729,21 @@ C   mminlu and num_land_cat are WRF global variables
          EM_NML%BASIS  = ''
          EM_NML%FAC    = 0.
 
-         ! Allocate and Initialize Size Distribution Namelist Variables
-         ALLOCATE( SD_NML( N_SD_REG ) )
+         ! Initialize Size Distribution Namelist Variables
          SD_NML%STREAM   = ''
          SD_NML%MODE     = ''
          SD_NML%MODE_REF = ''
 
-         ! Allocate and Initalize Region Namelist Variables
-         ALLOCATE( RGN_NML( N_REGIONS_REG ) )
+         ! Initalize Region Namelist Variables
          RGN_NML%LABEL = ''
          RGN_NML%FILE  = ''
          RGN_NML%VAR   = ''
+         
+         ! Initalize Emissions Diagnostic Namelist Variables
+         NEmissDiag       = 0
+         EmissDiagStreams = ''
+         EmissDiagFmt     = ''  
+         EmissDiagSpec    = ''
 
          ! Retrieve the Name of the Emission Control File
          IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
@@ -3780,7 +3785,7 @@ C   mminlu and num_land_cat are WRF global variables
          READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
              XMSG = 'Attention: Something went wrong while reading the '  //
-     &              'SizeDistReg section of the Emissions Control '     //
+     &              'SizeDistribution section of the Emissions Control '     //
      &              'Namelist. Default values for this section will be '//
      &              'assumed.'
              CALL LOG_MESSAGE( LOGDEV, ' ')
@@ -3789,7 +3794,23 @@ C   mminlu and num_land_cat are WRF global variables
              SD_NML%MODE     = ''
              SD_NML%MODE_REF = ''
          END IF
-
+ 
+         ! Read the Emissions Diagnostic Section
+         REWIND( EMCTRL_NML )
+         READ( NML = EmissionDiagnostic, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .NE. 0 ) THEN
+             XMSG = 'Attention: Something went wrong while reading the '  //
+     &              'EmissionDiagnostic section of the Emissions Control '     //
+     &              'Namelist. Default values for this section will be '//
+     &              'assumed.'
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             NEmissDiag       = 0
+             EmissDiagStreams = ''
+             EmissDiagFmt     = ''  
+             EmissDiagSpec    = ''
+         END IF
+ 
          ! Read the Emissions Rules to inform scaling operations
          REWIND( EMCTRL_NML )
          READ( NML = EmissionScalingRules, UNIT = EMCTRL_NML, IOSTAT=STAT )

@@ -57,6 +57,7 @@ C-----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE GRID_CONF           ! horizontal & vertical domain specifications      
       USE EMIS_VARS
+      USE EMIS_UTIL
       USE VDIFF_MAP, ONLY : N_SPC_DIFF
       USE UTILIO_DEFN
 
@@ -212,6 +213,7 @@ C Surrogates Identified by the User via the Namelists and Stop the model
 C or Print Warnings if Mistakes Are Made.
 
          CALL EMIS_SPC_MAP( JDATE, JTIME )
+         CALL MAP_EMISS_DIAG
          IF ( IO_PE_INCLUSIVE ) CALL OPEN_EMISS_DIAG( JDATE, JTIME, TSTEP )
 
 C Allocate Space for Master Emissions Computation
@@ -297,6 +299,7 @@ C Return From Initialization
 
            ! Execute DESID Emission Processor in Diagnostic Mode
            CALL GET_EMIS( MDATE, MTIME, TSTEP, CGRID, .TRUE. )
+
          END IF
  
          ! Execute DESID Emission Processor in Real Mode
@@ -617,8 +620,7 @@ C Retrieve Emissions from All Stream Types
            ! values, write out diagnostic file (if requested) and apply
            ! emissions to output array
            CALL EMISS_CONV_DIFF( VDEMIS_SCALED, NL, VDEMIS_CONV )
-           IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' .AND. LDIAG ) 
-     &                     CALL WRITE_EMISS_DIAG( JDATE, JTIME, VDEMIS_CONV, ISRM, NL )
+           IF ( LDIAG ) CALL SUM_EMISS_DIAG( JDATE, JTIME, VDEMIS_CONV, ISRM, NL )
 
            IF ( EM_FILE_LAPPLY( ISRM ) ) 
      &          VDEMIS_DIFF( :,1:NL,:,: ) = VDEMIS_DIFF( :,1:NL,:,: ) + VDEMIS_CONV( :,1:NL,:,: )
@@ -791,9 +793,8 @@ C Subset the emissions array for DDM-3D (by species and region)
 
          ERROR_NEG     = EMISS_NEG_CHECK( VDEMIS_DIFF, 1, EMLAYS )
          
-         ! Write Out the Sum of All Emissions to Gridded Diagnostic File
-         IF ( EM_FILE_LDIAG( N_EM_SRM+1 ) .NE. 'FALSE' .AND. LDIAG ) 
-     &         CALL WRITE_EMISS_DIAG( JDATE, JTIME, VDEMIS_DIFF, N_EM_SRM+1, EMLAYS )
+         ! Write Out the Sum of All Aggregate Diagnostic Emissions to Files
+         IF ( LDIAG ) CALL WRITE_EMISS_DIAG( JDATE, JTIME )
          
          END IF
 
@@ -1173,7 +1174,7 @@ C-----------------------------------------------------------------------
       END FUNCTION EMISS_NEG_CHECK    
 
 !-----------------------------------------------------------------------
-      SUBROUTINE WRITE_EMISS_DIAG( JDATE, JTIME, VDEMIS0, ISRM, NL ) 
+      SUBROUTINE SUM_EMISS_DIAG( JDATE, JTIME, VDEMIS0, ISRM, NL ) 
 
 !     Write out emissions diagnostic file
 !-----------------------------------------------------------------------
@@ -1204,8 +1205,7 @@ C-----------------------------------------------------------------------
       REAL,ALLOCATABLE, SAVE :: CONVN( :,:,: ) ! Aerosol Number conversion factor       
  
       INTEGER       :: LAYS, L, C, R, IVAR, NL, I
-      CHARACTER( 6 ):: EM_LDIAG
-      CHARACTER( 16):: EM_FDIAG
+      INTEGER       :: ISPEC, IDIAG, IP, JSPEC, JDIAG, KSPEC
 
       LOGICAL :: FIRST_TIME = .TRUE.
       CHARACTER( 586 ) :: XMSG
@@ -1224,13 +1224,6 @@ C-----------------------------------------------------------------------
       
       VDEMIS     = 0.0
       VDEMIS_OUT = 0.0
-      LAYS       = 1
-
-      EM_LDIAG = EM_FILE_LDIAG( ISRM )
-      EM_FDIAG = EM_DIAG_FILE( ISRM )
-
-      IF ( EM_LDIAG .EQ. '3D' .OR. 
-     &     EM_LDIAG .EQ. '2DSUM' ) LAYS = NL
 
       ! Convert All Emissions to Units Appropriate for the Dispersion Solver
       CNVTI( 1:NL ) = CNVTP * Grid_Data%RDX3F( 1:NL )
@@ -1261,46 +1254,91 @@ C-----------------------------------------------------------------------
      &    VDEMIS( I,1:NL,:,: ) = CONVN( 1:NL,:,: ) * VDEMIS0( I,1:NL,:,:)
 
 
-      ! Map Emissions Species to Emissions Diagnostic Species
-      DO IDG = 1,N_SPC_EMDIAG
-         ! Add the transported species relevant for this diagnostic species
-         DO I = 1,EMDIAG( IDG )%N
-             IVAR = EMDIAG( IDG )%MAP( I )
+      ! Write out this stream to its diagnostic file or sum emissions
+      ! for an aggregate diagnostic
+      DO IDIAG = 1,N_EMDIAG
+        IF ( EMDIAG_STREAM_MASK( ISRM,IDIAG ) ) THEN
+           ! This Stream Contributes to IDIAG diagnostic
+           LAYS = EMDIAG_LAYS( IDIAG )
 
-             ! Skip Adding this species if this source did not
-             ! contribute to it
-             IF ( ISRM .LT. (N_EM_SRM+1) ) THEN
-                IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
-             ELSE
-                IF ( .NOT. ANY(EM_FILE_DIFF( IVAR,: )) ) CYCLE
-             END IF
-             VDEMIS_DIAG( IDG,:,:,: ) = VDEMIS( IDG,:,:,: ) + 
-     &            VDEMIS( IVAR,:,:,: )
-         ENDDO
+           ! Loop over all diagnostic species
+           DO ISPEC = 1,EMDIAG_SPEC( IDIAG )%NSPEC
+
+              ! Sum up all of the diffused species relevant for this
+              ! diagnostic species
+              VDEMIS_OUT( :,:,: ) = 0.0
+              DO IP = 1,EMDIAG_SPEC( IDIAG )%NPAIRS
+                IF ( EMDIAG_SPEC( IDIAG )%MAP_toEMDIAG( IP )
+     &                .EQ. ISPEC ) THEN
+                  JSPEC = EMDIAG_SPEC( IDIAG )%MAP_toDIFF( IP )
+                  DO L = 1,LAYS
+                     VDEMIS_OUT( :,:,L ) = 
+     &                   VDEMIS_OUT( :,:,L ) + VDEMIS( JSPEC,L,:,: )
+                  END DO
+                END IF
+              END DO
+
+              IF ( EMDIAG_FORMAT( IDIAG ) .EQ. '2DCOL' )
+     &             VDEMIS_OUT(:,:,1) = SUM( VDEMIS_OUT( :,:,1:NL ),3 )
+
+              IF ( EMDIAG_NSTREAM( IDIAG ) .EQ. 1 ) THEN
+                ! Only this stream contributes. Write emisison
+                ! rates out directly
+                IF ( .NOT. WRITE3( EMDIAG_LOGICAL(IDIAG), EMDIAG_SPEC(IDIAG)%SPEC(ISPEC),
+     &               JDATE, JTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
+                   XMSG = 'Could not write ' // TRIM( EMDIAG_FILENAME(IDIAG) ) // ' file'
+                   CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
+                END IF
+              ELSE
+                ! Other streams contribute as well. Sum these emission
+                ! rates to an aggregate array, VDEMIS_EMDIAG
+                KSPEC = MAP_EMDIAGtoVDEMIS( ISPEC,IDIAG )
+                JDIAG = SUMDIAG( IDIAG )
+                VDEMIS_EMDIAG( KSPEC,:,:,1:LAYS ) = VDEMIS_EMDIAG( KSPEC,:,:,1:LAYS ) + 
+     &                                                  VDEMIS_OUT( :,:,1:LAYS )
+              END IF
+           END DO
+        END IF
       END DO
 
-      ! Output to Emissions Diagnostic File
-      DO IDG = 1,N_SPC_EMDIAG
-            ! Sum the column if requested
-            IF ( EM_LDIAG .EQ. '2DSUM' ) THEN
-                 VDEMIS_DIAG( IDG,1,:,: ) = SUM( VDEMIS_DIAG( IDG,1:NL,:,: ),1 )
-                 LAYS = 1
-            END IF 
-   
-            DO L = 1,LAYS
-                VDEMIS_OUT( :,:,L ) = VDEMIS_DIAG( IDG,L,:,: )
-            END DO
+      END SUBROUTINE SUM_EMISS_DIAG
+ 
+!-----------------------------------------------------------------------
+      SUBROUTINE WRITE_EMISS_DIAG( JDATE, JTIME ) 
 
-            ! Write out the emissions data
-            IF ( .NOT. WRITE3( EM_FDIAG, EMDIAG( IDG )%SPCNAME,
-     &                 JDATE, JTIME, VDEMIS_OUT( :,:,1:LAYS ) ) ) THEN
-                XMSG = 'Could not write ' // TRIM( EM_FDIAG ) // ' file'
-                CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
+!     Write out emissions diagnostic file
+!-----------------------------------------------------------------------
+          
+          IMPLICIT NONE
+
+          INTEGER IDIAG, JDIAG, ISPEC, JSPEC
+          INTEGER LAYS
+          INTEGER JDATE, JTIME
+          CHARACTER(200) :: XMSG
+          INTEGER XSTAT1
+
+          DO IDIAG = 1,N_EMDIAG
+
+            IF ( EMDIAG_NSTREAM( IDIAG ) .GT. 1 ) THEN
+               LAYS = EMDIAG_LAYS( IDIAG )
+               JDIAG = SUMDIAG( IDIAG )
+
+               DO ISPEC = 1,EMDIAG_SPEC( IDIAG )%NSPEC
+                  ! Write out the emissions data for this aggregate
+                  ! diagnostic
+                  JSPEC = MAP_EMDIAGtoVDEMIS( ISPEC,IDIAG )
+                  IF ( .NOT. WRITE3( EMDIAG_LOGICAL(IDIAG), EMDIAG_SPEC( IDIAG )%SPEC( ISPEC ),
+     &                     JDATE, JTIME, VDEMIS_EMDIAG( JSPEC,:,:,1:LAYS ) ) ) THEN
+                    XMSG = 'Could not write ' // TRIM( EMDIAG_FILENAME(IDIAG) ) // ' file'
+                    CALL M3EXIT( 'WRITE_EMISS_DIAG', JDATE, JTIME, XMSG, XSTAT1 )
+                  END IF
+               END DO
             END IF
-      END DO
+         END DO   
+
 
       END SUBROUTINE WRITE_EMISS_DIAG
- 
+
 C-----------------------------------------------------------------------
       SUBROUTINE EMIS_SPC_MAP( JDATE, JTIME )
 
@@ -2287,7 +2325,7 @@ C and allowing the model to proceed.
 ! Print out the Tables of CMAQ Emissions Instructions organized by each 
 ! emission stream and then by CMAQ internal species.
 
-         WRITE( LOGDEV, '(/,/,5x,A)' ),'|> EMISSIONS SCALING DIAGNOSTIC:'
+         WRITE( LOGDEV, '(/,/,5x,A)' ),'|> EMISSIONS SCALING REPORT:'
          WRITE( LOGDEV, '(5x,A)'   ),'=================================='
          WRITE( LOGDEV,'(7x,A,/,13x,A)' ),'Note: these are populated using rules from the',
      &                              'Emission Control File Supplied by the User.'
@@ -2386,179 +2424,6 @@ C and allowing the model to proceed.
       END SUBROUTINE EMIS_SPC_MAP
 
 !-----------------------------------------------------------------------
-         SUBROUTINE CHECK_EMIS_UNITS( ISRM, ISUR, SPEC, UNITS, CONV, BASIS )
-
-! This subroutine checks for invalid values of the operation parameter 
-! in the rules from the emission control list
-
-         IMPLICIT NONE
-
-         REAL, INTENT( OUT )              :: CONV
-         CHARACTER( 4 ) , INTENT( OUT )   :: BASIS
-         CHARACTER( 16 ), INTENT( INOUT ) :: UNITS
-         INTEGER, INTENT( IN )            :: ISRM
-         INTEGER, INTENT( IN )            :: ISUR
-         CHARACTER( 16 ), INTENT( IN )    :: SPEC
-         CHARACTER( 200 )      :: XMSG
-         INTEGER               :: X, SLASH_IND
-
-         CONV = 1.0
-
-         CALL UPCASE( UNITS )
-
-         ! Find Break between numerator and denominator. If it's not a
-         ! slash, then it should be the first space
-         SLASH_IND = INDEX( UNITS, '/' )
-         IF ( SLASH_IND .EQ. 0 ) SLASH_IND = INDEX( UNITS, ' ' )
-         X = SLASH_IND - 1
-
-         ! Check for Molar or Mass Units
-         IF ( UNITS(1:X) .EQ. 'MOLE' .OR. UNITS(1:X) .EQ. 'MOLES' .OR.
-     &        UNITS(1:X) .EQ. 'MOL' ) THEN
-            ! No Conversion Needed for Moles to Moles
-            CONV = 1.0 
-            BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'KMOLE' .OR. UNITS(1:X) .EQ. 'KMOLES' .OR.
-     &             UNITS(1:X) .EQ. 'KMOL' ) THEN
-            ! Convert kmol to mol
-            CONV = 1000.0
-            BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'MMOLE' .OR. UNITS(1:X) .EQ. 'MMOLES' .OR.
-     &             UNITS(1:X) .EQ. 'MMOL' ) THEN
-            ! Convert mmol to mol
-            CONV = 1.0e-3
-            BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'UMOLE' .OR. UNITS(1:X) .EQ. 'UMOLES' .OR.
-     &             UNITS(1:X) .EQ. 'UMOL' ) THEN
-            ! Convert umol to mol
-            CONV = 1.0e-6
-            BASIS = 'MOLE'
-         ELSE IF ( UNITS(1:X) .EQ. 'GRAM' .OR. UNITS(1:X) .EQ. 'GRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'G'    .OR. UNITS(1:X) .EQ. 'GM'    .OR.
-     &             UNITS(1:X) .EQ. 'GMS'  .OR. UNITS(1:X) .EQ. 'GS'  ) THEN
-            ! No Conversion Needed for Grams to Grams
-            CONV = 1.0
-            BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'KGRAM' .OR. UNITS(1:X) .EQ. 'KGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'KG'    .OR. UNITS(1:X) .EQ. 'KGM'    .OR.
-     &             UNITS(1:X) .EQ. 'KGMS'  .OR. UNITS(1:X) .EQ. 'KGS' ) THEN
-            ! Convert kg -> g
-            CONV = 1000.0
-            BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'MGRAM' .OR. UNITS(1:X) .EQ. 'MGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'MG'    .OR. UNITS(1:X) .EQ. 'MGM'    .OR.
-     &             UNITS(1:X) .EQ. 'MGMS'  .OR. UNITS(1:X) .EQ. 'MGS' ) THEN
-            ! Convert mg -> g
-            CONV = 1.0e-3
-            BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'UGRAM' .OR. UNITS(1:X) .EQ. 'UGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'UG'    .OR. UNITS(1:X) .EQ. 'UGM'    .OR.
-     &             UNITS(1:X) .EQ. 'UGMS'  .OR. UNITS(1:X) .EQ. 'UGS' ) THEN
-            ! Convert ug -> g
-            CONV = 1.0e-6
-            BASIS = 'MASS'
-         ELSE IF ( UNITS(1:X) .EQ. 'NGRAM' .OR. UNITS(1:X) .EQ. 'NGRAMS' .OR.
-     &             UNITS(1:X) .EQ. 'NG'    .OR. UNITS(1:X) .EQ. 'NGM'    .OR.
-     &             UNITS(1:X) .EQ. 'NGMS'  .OR. UNITS(1:X) .EQ. 'NGS' ) THEN
-            ! Convert ng -> g
-            CONV = 1.0e-9
-            BASIS = 'MASS'
-         ELSE
-            WRITE( XMSG,'(A,A16,A,/,I3,A11,A16,A,/,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
-     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
-     &              'Please correct them to proceed.'
-            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
-         END IF
-          
-         ! Check for Time Units
-         X = X + 2
-         IF ( UNITS(X:) .EQ. 'S' .OR. UNITS(X:) .EQ. 'S-1' .OR.
-     &        UNITS(X:) .EQ. 'SEC'.OR.UNITS(X:) .EQ. 'SEC-1' .OR.
-     &        UNITS(X:) .EQ. 'SECOND'.OR.UNITS(X:) .EQ. 'SECOND-1' .OR.
-     &        UNITS(X:) .EQ. 'SECONDS'.OR.UNITS(X:) .EQ. 'SECONDS-1' ) THEN
-            ! No Conversion Necessary for seconds -> seconds
-            CONV = CONV * 1.0
-         ELSE IF ( UNITS(X:) .EQ. 'H' .OR. UNITS(X:) .EQ. 'H-1' .OR.
-     &             UNITS(X:) .EQ. 'HR'.OR.UNITS(X:) .EQ. 'HR-1' .OR.
-     &             UNITS(X:) .EQ. 'HOUR'.OR.UNITS(X:) .EQ. 'HOUR-1' .OR.
-     &             UNITS(X:) .EQ. 'HOURS'.OR.UNITS(X:) .EQ. 'HOURS-1' ) THEN
-            ! Convert hours -> seconds
-            CONV = CONV * 3600.0
-         ELSE IF ( UNITS(X:) .EQ. 'M' .OR. UNITS(X:) .EQ. 'M-1' .OR.
-     &             UNITS(X:) .EQ. 'MIN'.OR.UNITS(X:) .EQ. 'MIN-1' .OR.
-     &             UNITS(X:) .EQ. 'MINUTE'.OR.UNITS(X:) .EQ. 'MINUTE-1' .OR.
-     &             UNITS(X:) .EQ. 'MINUTES'.OR.UNITS(X:) .EQ. 'MINUTES-1' ) THEN
-            ! Convert hours -> seconds
-            CONV = CONV * 60.0
-         ELSE
-            WRITE( XMSG,'(A,A,A,I3,A11,A,A,A)' ),
-     &              'ERROR: Surrogate Species ',TRIM(SPEC),' on emission stream ',
-     &              ISRM, ' has units ',TRIM(UNITS),' which are unkown to CMAQ. ',
-     &              'Please correct them to proceed.'
-            CALL M3EXIT( 'CHECK_EMIS_UNITS', 0, 0, XMSG, 2 )
-         END IF
-
-         END SUBROUTINE CHECK_EMIS_UNITS
- 
-!-----------------------------------------------------------------------
-         SUBROUTINE CHECK_OP( OP, IRULE )
-
-! This subroutine checks for invalid values of the operation parameter 
-! in the rules from the emission control list
-
-         IMPLICIT NONE
-
-         CHARACTER( 1 )        :: OP
-         INTEGER, INTENT( IN ) :: IRULE
-         CHARACTER( 200 )      :: XMSG
-
-         IF ( OP .EQ. 'A' .OR. OP .EQ. 'a' ) THEN
-             OP = 'a'
-         ELSE IF ( OP .EQ. 'M' .OR. OP .EQ. 'm' ) THEN
-             OP = 'm'
-         ELSE IF ( OP .EQ. 'O' .OR. OP .EQ. 'o' ) THEN
-             OP = 'o'
-         ELSE
-             WRITE( XMSG,'(A,I3,A,A1)' ),
-     &              'ERROR: OP parameter for rule ',IRULE,
-     &              ' has invalid value: ',OP
-             CALL M3EXIT( 'CHECK_OP (EMIS_DEFN)', 0, 0, XMSG, 2 )
-         END IF
-
-         END SUBROUTINE CHECK_OP
-
-!-----------------------------------------------------------------------
-         SUBROUTINE CHECK_BASIS( BASIS, IRULE )
-
-! This subroutine checks for invalid values of the operation parameter 
-! in the rules from the emission control list
-
-         IMPLICIT NONE
-
-         CHARACTER( 4 )        :: BASIS
-         INTEGER, INTENT( IN ) :: IRULE
-         CHARACTER( 200 )      :: XMSG
-
-         IF ( BASIS .EQ. 'mole' .OR. BASIS .EQ. 'MOLE' .OR.
-     &        BASIS .EQ. 'Mole' ) THEN
-             BASIS = 'MOLE'
-         ELSE IF ( BASIS .EQ. 'mass' .OR. BASIS .EQ. 'MASS' .OR.
-     &             BASIS .EQ. 'Mass' ) THEN
-             BASIS = 'MASS'
-         ELSE IF ( BASIS .EQ. 'unit' .OR. BASIS .EQ. 'UNIT' .OR.
-     &             BASIS .EQ. 'Unit' ) THEN
-             BASIS = 'UNIT'
-         ELSE
-             WRITE( XMSG,'(A,I3,A,A4)' ),
-     &              'ERROR: BASIS parameter for rule ',IRULE,
-     &              ' has invalid value: ',BASIS
-             CALL M3EXIT( 'CHECK_BASIS (EMIS_DEFN)', 0, 0, XMSG, 2 )
-         END IF
-
-         END SUBROUTINE CHECK_BASIS
-
-!-----------------------------------------------------------------------
          SUBROUTINE EM_FILE_INIT( JDATE, JTIME )
 
 ! Initialize the counter for the total nbumber of emissions files. Also
@@ -2584,19 +2449,14 @@ C and allowing the model to proceed.
          INTEGER          :: STATUS
          CHARACTER( 200 ) :: XMSG
          LOGICAL :: SUCCESS
-         CHARACTER( 200 ) :: EM_DIAG_PREFIX = 'CCTM_EMDIAG_'
-         CHARACTER( 200 ) :: EM_DIAG_SUFFIX = ''
          LOGICAL        :: VALUE
 
          SUCCESS = .TRUE.
 
-         ! Initialize Regions for Mapping Scale Factors Geographically for Base
-         ! Model (eventually apply this to DDM-3D and ISAM)
-!        CALL READ_EMISS_NAMELIST( )
-!        CALL INIT_EMIS_REGIONS( )
+         CALL LOG_SUBHEADING( LOGDEV,'Initialize Emissions Input Files' )
     
-       ! Calculate the total number of Emission Streams based on the
-       ! user options
+         ! Calculate the total number of Emission Streams based on the
+         ! user options
          ! Add the number of total Emission Streams 
          N_EM_SRM = N_FILE_GR + NPTGRPS + N_FILE_TR
 
@@ -2620,13 +2480,11 @@ C and allowing the model to proceed.
 
        ! Allocate Emission File Structure Variables
          Allocate( EM_FILE_NAME  ( N_EM_SRM ) )
-         Allocate( EM_FILE_LAB   ( N_EM_SRM+1 ) )
+         Allocate( EM_FILE_LAB   ( N_EM_SRM ) )
          Allocate( EM_FILE_TYPE  ( N_EM_SRM ) )
          Allocate( EM_FILE_ITYPE ( N_EM_SRM ) )
          Allocate( EM_FILE_DESC  ( N_EM_SRM ) )
          Allocate( EM_FILE_LAPPLY( N_EM_SRM ) )
-         Allocate( EM_FILE_LDIAG ( N_EM_SRM+1 ) )
-         Allocate( EM_DIAG_FILE  ( N_EM_SRM+1 ) )
          Allocate( EM_FILE_DATE  ( N_EM_SRM ) )
          Allocate( EM_FILE_SYM_DATE ( N_EM_SRM ) ) 
          Allocate( EM_FILE_FIRE  ( N_EM_SRM ) )
@@ -2652,23 +2510,6 @@ C stkemis_init.
          EM_FILE_FIRE   = .FALSE.
          EM_GRID_LAYS   = 0
          
-         EMISDIAG = RESOLVE_YN_TF_2D3D( EMISDIAG )
-         EM_FILE_LDIAG   = EMISDIAG 
-
-         ! Set the standard suffix for all Emissions Diagnostic Files
-         IF ( OUTDIR(1:8 ) .NE. 'OUTDIR' ) EM_DIAG_PREFIX = TRIM( OUTDIR ) // '/' // EM_DIAG_PREFIX
-         
-         EM_DIAG_SUFFIX = '.nc'
-         IF ( APPL_NAME(1:8 ) .NE. 'CTM_APPL' ) EM_DIAG_SUFFIX = '_' // TRIM(APPL_NAME) // '.nc'
- 
-         ! Set Diagnostic Type and Name for Total Emissions Diagnostic File
-         CALL GET_ENV( EM_FILE_LDIAG(N_EM_SRM+1), "EMISDIAG_SUM", EMISDIAG, LOGDEV )
-         EM_FILE_LDIAG( N_EM_SRM + 1 ) = RESOLVE_YN_TF_2D3D(EM_FILE_LDIAG(N_EM_SRM+1) )  
-         EM_DIAG_FILE( N_EM_SRM+1 ) = 'SUM_EMDGFILE'
-         VALUE = SETENVVAR( EM_DIAG_FILE( N_EM_SRM+1 ), TRIM( EM_DIAG_PREFIX ) // 
-     &           'SUM' // TRIM( EM_DIAG_SUFFIX ) )  
-         EM_FILE_LAB( N_EM_SRM+1 ) = 'TOTAL'
-
          ! Gridded Emission Files
          IF ( N_FILE_GR .GT. 0 ) THEN
            EM_FILE_TYPE( ISRM+1:ISRM+N_FILE_GR ) = 'GRID'
@@ -2704,15 +2545,6 @@ C stkemis_init.
               CALL GET_ENV( EM_FILE_SYM_DATE( ISRM ), VLAB, 
      &                      EMIS_SYM_DATE, LOGDEV )
  
-              ! Retrieve Toggle for Outputing Gridded Emissions
-              ! Diagnostic File
-              WRITE( VLAB,'( "GR_EMIS_DIAG_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, LOGDEV )
-              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-              WRITE( EM_DIAG_FILE( ISRM ),'( "GR_EMDGFILE_",I3.3 )' ) N
-              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) ) 
-
            END DO
          END IF
          
@@ -2752,15 +2584,6 @@ C stkemis_init.
               CALL GET_ENV( EM_FILE_SYM_DATE( ISRM ), VLAB, 
      &                      EMIS_SYM_DATE, LOGDEV )
  
-              ! Retrieve Toggle for Outputing Inline Emissions
-              ! Diagnostic File
-              WRITE( VLAB,'( "STK_EMIS_DIAG_",I3.3 )' ) N
-              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, LOGDEV )
-              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-              WRITE( EM_DIAG_FILE( ISRM ),'( "STK_EMDGFILE_",I3.3 )' ) N
-              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
-
            END DO
          END IF
          
@@ -2788,15 +2611,6 @@ C stkemis_init.
               ! an object of the form TR_EMIS_XXX
               WRITE( EM_FILE_NAME( ISRM ),'( "TR_EMIS_",I2.2 )' ) N
 
-              ! Retrieve Toggle for Outputing Tracer Emissions
-              ! Diagnostic File
-              WRITE( VLAB,'( "TR_EMIS_DIAG_",I2.2 )' ) N
-              CALL GET_ENV( EM_FILE_LDIAG( ISRM ), VLAB, EMISDIAG, LOGDEV )
-              EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-              WRITE( EM_DIAG_FILE( ISRM ),'( "TR_EMDGFILE_",I2.2 )' ) N
-              VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &            TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
-
            END DO
          ELSE
            EM_TRAC = .FALSE.
@@ -2810,14 +2624,6 @@ C stkemis_init.
              EM_FILE_LAB ( ISRM ) = 'BIOG'
              EM_FILE_DESC( ISRM ) = 'Biogenic Emissions'
 
-             ! Retrieve Toggle for Outputing Biogenic Emissions
-             ! Diagnostic File
-             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "BIOG_EMIS_DIAG", EMISDIAG, LOGDEV )
-             EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             EM_DIAG_FILE( ISRM ) = "BIOG_EMDGFILE"
-             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
-
              IBIOSRM = ISRM
          END IF
 
@@ -2828,14 +2634,6 @@ C stkemis_init.
              EM_FILE_ITYPE( ISRM ) = 5
              EM_FILE_LAB ( ISRM ) = 'MGEM'
              EM_FILE_DESC( ISRM ) = 'Marine Gas Emissions'
-
-             ! Retrieve Toggle for Outputing Marine Gas Emissions
-             ! Diagnostic File
-             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "MG_EMIS_DIAG", EMISDIAG, LOGDEV )
-             EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             EM_DIAG_FILE( ISRM ) = "MG_EMDGFILE"
-             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
 
              IMGSRM = ISRM
          END IF
@@ -2848,14 +2646,6 @@ C stkemis_init.
              EM_FILE_LAB ( ISRM ) = 'LTNG'
              EM_FILE_DESC( ISRM ) = 'Lightning NO Emissions'
 
-             ! Retrieve Toggle for Outputing Lightning NO Emissions
-             ! Diagnostic File
-             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "LTNG_EMIS_DIAG", EMISDIAG, LOGDEV )
-             EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             EM_DIAG_FILE( ISRM ) = "LTNG_EMDGFILE"
-             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
-
              ILTSRM = ISRM
          END IF
 
@@ -2867,14 +2657,6 @@ C stkemis_init.
              EM_FILE_LAB ( ISRM ) = 'SEASPRAY'
              EM_FILE_DESC( ISRM ) = 'Sea Spray Aerosol Emissions'
              
-             ! Retrieve Toggle for Outputing Sea Spray Aerosol Emissions
-             ! Diagnostic File
-             CALL GET_ ENV( EM_FILE_LDIAG( ISRM ), "SEASPRAY_EMIS_DIAG", EMISDIAG, LOGDEV )
-             EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             EM_DIAG_FILE( ISRM ) = "ASEA_EMDGFILE"
-             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
-
              ISEASRM = ISRM
          END IF
 
@@ -2886,46 +2668,222 @@ C stkemis_init.
              EM_FILE_LAB ( ISRM ) = 'WBDUST'
              EM_FILE_DESC( ISRM ) = 'Wind-Blown Dust Emissions'
              
-             ! Retrieve Toggle for Outputing Wind-Blown Dust Emissions
-             ! Diagnostic File
-             CALL GET_ENV( EM_FILE_LDIAG( ISRM ), "DUST_EMIS_DIAG", EMISDIAG, LOGDEV )
-             EM_FILE_LDIAG( ISRM ) = RESOLVE_YN_TF_2D3D( EM_FILE_LDIAG( ISRM ) )
-             EM_DIAG_FILE( ISRM ) = "DUST_EMDGFILE"
-             VALUE = SETENVVAR( EM_DIAG_FILE( ISRM ), TRIM( EM_DIAG_PREFIX ) // 
-     &           TRIM( EM_FILE_LAB( ISRM ) ) // TRIM( EM_DIAG_SUFFIX ) )
-
              IDUSTSRM = ISRM
          END IF
-          
+         
       END SUBROUTINE EM_FILE_INIT    
 
-
 !-----------------------------------------------------------------------
-      FUNCTION RESOLVE_YN_TF_2D3D( ARG ) RESULT( ARGOUT )
-
+      SUBROUTINE MAP_EMISS_DIAG
+!       This subroutine processes the user input in the Emission Control
+!       file and determines how the emission rates are to be output for
+!       diagnostics. Rates may be summed, specific species may be 
+!       selected or ignored, and rates may be summed into columns, among
+!       other features.
 !-----------------------------------------------------------------------
+        USE UTILIO_DEFN
+
         IMPLICIT NONE
 
-        CHARACTER( 6 ) :: ARG, ARGOUT
- 
-         IF ( ARG .EQ. 'FALSE' .OR. ARG .EQ. 'F' .OR.
-     &        ARG .EQ. 'NO'    .OR. ARG .EQ. 'N' ) THEN
-            ARGOUT = 'FALSE'
-         ELSEIF ( ARG .EQ. 'TRUE' .OR. ARG .EQ. 'T' .OR.
-     &            ARG .EQ. 'YES'  .OR. ARG .EQ. 'Y' ) THEN
-            ARGOUT = 'TRUE'
-         ELSEIF ( ARG .EQ. '2D'  .OR. ARG .EQ. '2d' ) THEN
-            ARGOUT = 'TRUE'
-         ELSEIF   ( ARG .EQ. '3D'  .OR. ARG .EQ. '3d' ) THEN
-            ARGOUT = '3D'
-         ELSEIF   ( ARG .EQ. '2DSUM' .OR. ARG .EQ. '2dSUM' .OR.
-     &              ARG .EQ. '2dsum' ) THEN
-            ARGOUT = '2DSUM'
-         END IF
- 
-         RETURN
+        CHARACTER( 200 ) :: PREFIX = 'CCTM_EMDIAG_'
+        CHARACTER( 200 ) :: SUFFIX = '.nc'
+        CHARACTER( 200 ) :: XMSG
+        INTEGER          :: VALUE
+        LOGICAL          :: stream_vector( n_em_srm )
+        INTEGER          :: IDIAG, NSTREAM, I, ISRM, J, JDIAG,
+     &                      NSUM, NSPEC, LAYS, ISPEC
+        LOGICAL          :: LREMOVE, LFOUND, EXPAND_STREAM
+        LOGICAL          :: STREAM_VECTOR_TMP( N_EM_SRM ),
+     &                      SPEC_VECTOR( N_SPC_DIFF )
 
-      END FUNCTION RESOLVE_YN_TF_2D3D
+        ALLOCATE( EMDIAG_STREAM_MASK( N_EM_SRM, N_EMDIAG_REG ) )
+        ALLOCATE( EMDIAG_SPEC ( N_EMDIAG_REG ) )
+        ALLOCATE( EMDIAG_NSTREAM ( N_EMDIAG_REG ) )
+        ALLOCATE( EMDIAG_FORMAT ( N_EMDIAG_REG ) )
+        ALLOCATE( EMDIAG_FILENAME ( N_EMDIAG_REG ) )
+        ALLOCATE( EMDIAG_LAB ( N_EMDIAG_REG ) )
+        ALLOCATE( SUMDIAG( N_EMDIAG_REG ) )
+        ALLOCATE( EMDIAG_LAYS( N_EMDIAG_REG ) )
+
+        CALL LOG_SUBHEADING( LOGDEV,'Initialize Emissions Diagnostic Files' )
+
+        EMDIAG_STREAM_MASK = .FALSE.
+        EMDIAG_FORMAT      = 'FALSE'
+        EMDIAG_FILENAME    = ''
+        EMDIAG_NSTREAM     = 0
+        EMDIAG_LAB         = ''
+        EMDIAG_LAYS        = NLAYS
+        SUMDIAG            = 0
+
+        ! Set the standard suffix for all Emissions Diagnostic Files
+        IF ( APPL_NAME(1:8 ) .NE. 'CTM_APPL' ) SUFFIX = '_' // TRIM(APPL_NAME) // SUFFIX
+ 
+        ! Find Number of Emissions Diagnostic Files Selected. 
+        N_EMDIAG = 0
+        NSUM = 0
+        DO IDIAG = 1,NEmissDiag
+           ! Determine number of stream labels to expand
+           NSTREAM = INDEX1( '', 20, EmissDiagStreams(IDIAG,:) ) - 1
+           IF ( NSTREAM .LE. 0 ) THEN
+               WRITE( LOGDEV, * )
+               WRITE( XMSG, '(A,I3,A)' ),
+     &             'No Emission Streams have been selected for group ',IDIAG,
+     &             ' of the emission diagnostic input. Please correct.'
+               CALL M3EXIT( 'Map_Emiss_Diag', 0, 0, XMSG, XSTAT1 )     
+           END IF
+
+           ! Expand EmissDiagStreams to discover all matching streams
+           STREAM_VECTOR = .FALSE.
+           Expand_Stream = .FALSE.
+           DO I = 1,NSTREAM
+             IF ( EmissDiagStreams( IDIAG,I )(1:1) .EQ. '*' ) THEN
+                 Expand_Stream = .TRUE.
+                 EmissDiagStreams( IDIAG,I )(1:31) = EmissDiagStreams( IDIAG,I )(2:32)
+             END IF
+             CALL INTERPRET_EM_RULE_STREAM( EmissDiagStreams( IDIAG,I ),IDIAG,
+     &                                    STREAM_VECTOR, LREMOVE )
+
+             ! Determine whether this diagnostic is a sum or not and
+             ! assign name accordingly
+             IF ( Expand_Stream ) THEN
+                 ! Create a separate diagnostic file for every stream
+                 ! in stream_vector
+                 DO ISRM = 1,N_EM_SRM
+                     IF ( STREAM_VECTOR( ISRM ) ) THEN
+                        ! Check for existing entries
+                        STREAM_VECTOR_TMP = .FALSE.
+                        STREAM_VECTOR_TMP( ISRM ) = .TRUE.
+                        LFOUND = .FALSE.
+                        DO J = 1,N_EMDIAG
+                           IF ( ALL( EMDIAG_STREAM_MASK( :,J ) .EQV. STREAM_VECTOR_TMP) ) THEN
+                               JDIAG = J
+                               LFOUND = .TRUE.
+                           END IF
+                        END DO
+                        IF ( .NOT. LFOUND ) THEN
+                           N_EMDIAG = N_EMDIAG + 1
+                           JDIAG = N_EMDIAG
+                        END IF
+            
+                        ! Save the number of
+                        ! streams selected for this diagnostic and a mask for
+                        ! mapping each stream to each diagnostic
+                        EMDIAG_NSTREAM( JDIAG ) = 1
+                        EMDIAG_STREAM_MASK( ISRM,JDIAG ) = .TRUE.
+                        EMDIAG_FORMAT( JDIAG ) = EmissDiagFmt( IDIAG )
+                        IF ( EMDIAG_FORMAT( JDIAG ) .EQ. '2D' .OR.
+     &                       EMDIAG_FORMAT( JDIAG ) .EQ. '2DCOL' ) 
+     &                       EMDIAG_LAYS( JDIAG ) = 1
+
+                        EMDIAG_LAB( JDIAG ) = EM_FILE_LAB( ISRM )
+                        EMDIAG_FILENAME( JDIAG ) = TRIM( PREFIX ) // 
+     &                        TRIM( EMDIAG_LAB( JDIAG ) ) // TRIM( SUFFIX )
+                        SUMDIAG( JDIAG ) = 0
+            
+                        ! Build Species Selection Array
+                        SPEC_VECTOR = EM_FILE_DIFF( :,ISRM )
+                        CALL MAP_EMISSDIAG_SPEC( EmissDiagSpec( IDIAG,: ), IDIAG, 
+     &                             SPEC_VECTOR, JDIAG )
+            
+                     END IF
+                 END DO
+             ELSE
+                 ! Check for existing entries. 
+                 LFOUND = .FALSE.
+                 DO J = 1,N_EMDIAG
+                    IF ( ALL( EMDIAG_STREAM_MASK( :,J ) .EQV. STREAM_VECTOR ) ) THEN
+                        JDIAG = J
+                        LFOUND = .TRUE.
+                    END IF
+                 END DO
+                 IF ( .NOT. LFOUND ) THEN
+                    N_EMDIAG = N_EMDIAG + 1
+                    JDIAG = N_EMDIAG
+                    NSUM = NSUM + 1
+                    SUMDIAG( JDIAG ) = NSUM
+                 END IF
+                 
+                 ! Save the number of
+                 ! streams selected for this diagnostic and a mask for
+                 ! mapping each stream to each diagnostic
+                 EMDIAG_NSTREAM( JDIAG ) = COUNT( STREAM_VECTOR )
+                 EMDIAG_STREAM_MASK( :,JDIAG ) = STREAM_VECTOR
+                 EMDIAG_FORMAT( JDIAG ) = EmissDiagFmt( IDIAG )
+                 IF ( EMDIAG_FORMAT( JDIAG ) .EQ. '2D' .OR.
+     &                EMDIAG_FORMAT( JDIAG ) .EQ. '2DCOL' ) 
+     &                EMDIAG_LAYS( JDIAG ) = 1
+
+                 EMDIAG_LAB( JDIAG ) = EmissDiagStreams( IDIAG,I )
+                 EMDIAG_FILENAME( JDIAG ) = TRIM( PREFIX ) // 
+     &                 TRIM( EMDIAG_LAB( JDIAG ) ) // TRIM( SUFFIX )
+
+                 ! Build Species Selection Array
+                 SPEC_VECTOR = .FALSE.
+                 DO ISRM = 1,N_EM_SRM
+                    SPEC_VECTOR = SPEC_VECTOR .OR. EM_FILE_DIFF( :,ISRM )
+                 END DO
+                 CALL MAP_EMISSDIAG_SPEC( EmissDiagSpec( IDIAG,: ), IDIAG, 
+     &                     SPEC_VECTOR, JDIAG )
+             END IF
+
+           END DO
+        END DO
+        
+        EMDIAG_NSTREAM     = EMDIAG_NSTREAM( 1:N_EMDIAG )
+        EMDIAG_STREAM_MASK = EMDIAG_STREAM_MASK( :,1:N_EMDIAG )
+        EMDIAG_FORMAT      = EMDIAG_FORMAT( 1:N_EMDIAG )
+        EMDIAG_FILENAME    = EMDIAG_FILENAME( 1:N_EMDIAG )
+        EMDIAG_SPEC        = EMDIAG_SPEC( 1:N_EMDIAG )
+        EMDIAG_LAB         = EMDIAG_LAB( 1:N_EMDIAG )
+        EMDIAG_LAYS        = EMDIAG_LAYS( 1:N_EMDIAG )
+        SUMDIAG            = SUMDIAG( 1:N_EMDIAG )
+
+        ! Write Details of Diagnostic Output to Log File
+        WRITE( LOGDEV, * )
+        WRITE( LOGDEV, '(/,/,5x,A)' ),'|> EMISSIONS DIAGNOSTIC REPORT:'
+        WRITE( LOGDEV, '(5x,A)'   ),'=================================='
+        DO IDIAG = 1,N_EMDIAG
+           WRITE( LOGDEV, * )
+           WRITE( LOGDEV,'(5x,A19,2x,A)' ),'Diagnostic File: ',TRIM(EMDIAG_LAB( IDIAG ))
+           WRITE( LOGDEV,'(10x,A)' ), 'Stream Members'
+           DO I = 1,N_EM_SRM
+               IF ( EMDIAG_STREAM_MASK( I,IDIAG ) ) WRITE( LOGDEV,'(15x,A32)'),EM_FILE_LAB(I)
+           END DO
+           WRITE( LOGDEV,'(10x,A)' ), 'Diagnostic Species'
+           DO I = 1,EMDIAG_SPEC( IDIAG )%NSPEC
+               WRITE( LOGDEV,'(15x,A32)'),EMDIAG_SPEC( IDIAG )%SPEC( I )
+           END DO
+        END DO
+        
+        ! Create I/O Logicals and Populate with full Filepaths
+        ALLOCATE( EMDIAG_LOGICAL( N_EMDIAG ) )
+        DO IDIAG = 1,N_EMDIAG
+           IF ( OUTDIR(1:8 ) .NE. 'OUTDIR' ) THEN
+                EMDIAG_FILENAME(IDIAG) = TRIM( OUTDIR ) // '/' // EMDIAG_FILENAME(IDIAG)
+           END IF
+           WRITE( EMDIAG_LOGICAL( IDIAG ),'( "EMDIAG_",I3.3 )' ) IDIAG
+           VALUE = SETENVVAR( EMDIAG_LOGICAL( IDIAG ), EMDIAG_FILENAME( IDIAG ) )
+        END DO
+
+        ! Allocate Minimal Necessary Space for VDEMIS_EMDIAG
+        ALLOCATE( MAP_EMDIAGtoVDEMIS( N_SPC_DIFF,N_EMDIAG ) )
+        MAP_EMDIAGtoVDEMIS = 0
+        NSPEC = 0
+        LAYS = 1
+
+        DO IDIAG = 1,N_EMDIAG
+            IF ( SUMDIAG( IDIAG ) .GT. 0 ) THEN
+              DO ISPEC = 1,EMDIAG_SPEC( IDIAG )%NSPEC
+                 NSPEC = NSPEC + 1
+                 MAP_EMDIAGtoVDEMIS( ISPEC,IDIAG ) = NSPEC
+              END DO
+              IF ( EMDIAG_FORMAT( IDIAG ) .EQ. '3D' .OR.
+     &             EMDIAG_FORMAT( IDIAG ) .EQ. 'TRUE' ) LAYS = NLAYS
+            ENDIF
+        END DO
+        ALLOCATE( VDEMIS_EMDIAG( NSPEC,NCOLS,NROWS,LAYS ) )
+
+      END SUBROUTINE MAP_EMISS_DIAG
 
 !-----------------------------------------------------------------------
       SUBROUTINE OPEN_EMISS_DIAG( JDATE, JTIME, TSTEP )
@@ -2950,17 +2908,16 @@ C stkemis_init.
       CHARACTER( 16 ) :: PNAME = 'OPEN_EMISS_DIAG'
       CHARACTER( 200 ) :: XMSG
 
-      INTEGER :: ISRM, IVAR, NLAYERS, V
-      CHARACTER( 2 ) :: CSRM
+      INTEGER :: IDIAG, IVAR, NLAYERS, V, ISPEC
       
-      DO ISRM = 1,N_EM_SRM+1
+      DO IDIAG = 1,N_EMDIAG
       
         ! Test whether or not each file should be opened
-        IF ( EM_FILE_LDIAG( ISRM ) .NE. 'FALSE' ) THEN
+        IF ( EMDIAG_FORMAT( IDIAG ) .NE. 'FALSE' ) THEN
  
           ! Make File 2D by Default, but 3D if the user requests it
           NLAYERS = 1
-          IF ( EM_FILE_LDIAG( ISRM ) .EQ. '3D' ) NLAYERS = EMLAYS
+          IF ( EMDIAG_FORMAT( IDIAG ) .EQ. '3D' ) NLAYERS = EMLAYS
 
           ! Set output file characteristics based on COORD.EXT and 
           ! open diagnostic file
@@ -2968,16 +2925,8 @@ C stkemis_init.
           SDATE3D = STDATE
           STIME3D = STTIME
           TSTEP3D = TSTEP
-          !CALL NEXTIME( SDATE3D, STIME3D, TSTEP3D ) !  start the next hour
 
-          NVARS3D = 0
-          DO IVAR = 1,N_SPC_DIFF
-              IF ( ISRM .EQ. N_EM_SRM+1 ) THEN
-                IF ( ANY(EM_FILE_DIFF( IVAR,: )) ) NVARS3D = NVARS3D + 1
-              ELSE
-                IF ( EM_FILE_DIFF( IVAR,ISRM ) ) NVARS3D = NVARS3D + 1
-              END IF
-          END DO
+          NVARS3D = EMDIAG_SPEC( IDIAG )%NSPEC
           NCOLS3D = GL_NCOLS
           NROWS3D = GL_NROWS
           NLAYS3D = NLAYERS
@@ -2998,47 +2947,28 @@ C stkemis_init.
           GDNAM3D = GRID_NAME  ! from HGRD_DEFN
 
           V = 0
-          DO IVAR = 1,N_SPC_DIFF
-              IF ( ISRM .EQ. N_EM_SRM+1 ) THEN
-                IF ( .NOT. ANY(EM_FILE_DIFF( IVAR,: )) ) CYCLE
-              ELSE
-                IF ( .NOT. EM_FILE_DIFF( IVAR,ISRM ) ) CYCLE
-              END IF
+          DO IVAR = 1,EMDIAG_SPEC( IDIAG )%NSPEC
              V = V + 1
 
              VTYPE3D( V ) = M3REAL
-             VNAME3D( V ) = DIFF_SPC( IVAR )
-             IF ( DIFF_MASK_GAS( IVAR ) ) THEN
-                    ! GAS SPECIES
-                    UNITS3D( V ) = 'mol s-1'
-             ELSE IF ( DIFF_MASK_NUM( IVAR ) ) THEN
-                    ! AEROSOL NUMBER SPECIES
-                    UNITS3D( V ) = 'particles s-1'
-             ELSE IF ( DIFF_MASK_SRF( IVAR ) ) THEN
-                    ! AEROSOL SURFACE AREA SPECIES
-                    UNITS3D( V ) = 'm2 s-1'
-             ELSE
-                    ! AEROSOL MASS SPECIES
-                    UNITS3D( V ) = 'g s-1'
-             END IF
-            
+             VNAME3D( V ) = EMDIAG_SPEC( IDIAG )%SPEC( IVAR )
+             UNITS3D( V ) = EMDIAG_SPEC( IDIAG )%UNITS( IVAR )
              VDESC3D( V ) = 'Emission Rate of ' // TRIM( VNAME3D( V ) )
-     &                       // ' from ' // TRIM(EM_FILE_LAB( ISRM )) // ' emissions'
+     &                       // ' from ' // TRIM(EMDIAG_LAB( IDIAG )) // ' emissions'
           END DO
           
-          WRITE( CSRM, '(I2.2)' ), ISRM
-          FDESC3D( 1 ) = 'Instantaneous pollutant emissions from stream ' //
-     &               TRIM( CSRM ) // ': ' // TRIM(EM_FILE_LAB( ISRM ) ) 
+          FDESC3D( 1 ) = 'Instantaneous pollutant emissions from stream: ' // 
+     &                   TRIM(EMDIAG_LAB( IDIAG ) ) 
           FDESC3D( 2:MXDESC3 ) = ''
 
           ! Open emissions stream diagnostic file
-          IF ( .NOT. OPEN3( EM_DIAG_FILE( ISRM ), FSNEW3, PNAME ) ) THEN
-             XMSG = 'Could not create the ' // TRIM( EM_DIAG_FILE( ISRM ) ) // ' file'
+          IF ( .NOT. OPEN3( EMDIAG_FILENAME( IDIAG ), FSNEW3, PNAME ) ) THEN
+             XMSG = 'Could not create the ' // TRIM( EMDIAG_FILENAME( IDIAG ) ) // ' file'
              CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
           END IF
 
         END IF   ! EM_FILE_LDIAG?
-      END DO     ! ISRM
+      END DO     ! IDIAG
 
 
       END SUBROUTINE OPEN_EMISS_DIAG
