@@ -194,6 +194,16 @@ C-------------------------------------------------------------------------------
          frac_ir = 0.0
          frac_ag = 0.0    
 
+! EPIC v1.4 does not always correctly write out m3badval in areas where there is no data. In these cases, 
+! EPIC writes out large negative values which can cause issues with the bidirectional exchange numerics. 
+! The following variables should always be positive and a floor of 0.0 is now set to mitigate numerical issues. 
+         Where( Nit1   .Lt. 0.0 ) Nit1   = 0.0
+         Where( Nit2   .Lt. 0.0 ) Nit2   = 0.0
+         Where( F1_NH4 .Lt. 0.0 ) F1_NH4 = 0.0
+         Where( F2_NH4 .Lt. 0.0 ) F2_NH4 = 0.0
+         Where( NH4ps1 .Lt. 0.0 ) NH4ps1 = 0.0
+         Where( NH4ps2 .Lt. 0.0 ) NH4ps2 = 0.0
+
 ! get fertilizer from the previous month to estimate soil NH4+        
 ! time in the files is not the same
          If ( .Not. MEDC_AVAIL ) Then
@@ -278,10 +288,8 @@ C-------------------------------------------------------------------------------
             If( GMN_AVAIL ) Then
 ! NH4 from organic N mineralization is not layer specific in Fest-C v1.4 therefore it is allocated proportionally
 ! to the organic N from which it was mineralized.
-               Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 )
+               Where( GMN .Gt. 0.0 .And. L1_ON .Gt. 0.0 .And. L2_ON .Gt. 0.0 )
                   L1_MIN = GMN * L1_ON / ( L1_ON + L2_ON )
-               End Where
-               Where( GMN .Gt. 0.0 .And. L2_ON .Gt. 0.0 )
                   L2_MIN = GMN * L2_ON / ( L1_ON + L2_ON )
                End Where
 
@@ -325,7 +333,8 @@ C-------------------------------------------------------------------------------
                   frac_ir = frac_ir + Beld_ag( :,:,l )
                End If                    
             End Do
-            Where( frac_ag .gt. 0.0 .and. fagam1 .gt. 0.0 )
+
+            Where( frac_ag .gt. 0.0 )
                MHp1 = MHp1 / frac_ag
                MHp2 = MHp2 / frac_ag
                gamma1 = max( gamma1 + fagam1 / frac_ag, 630.0 )
@@ -334,6 +343,7 @@ C-------------------------------------------------------------------------------
                BDs2   = BDs2 / frac_ag
                frac_ir = frac_ir / frac_ag
             End Where
+
 ! Eliminate unrealistically low bulk density 
             Where( BDs1 .Lt. 1.0 ) BDs1 = 1.6
             Where( BDs2 .Lt. 1.0 ) BDs2 = 1.6
@@ -650,9 +660,9 @@ C-------------------------------------------------------------------------------
          If( MHp .Eq. 0.0 .Or. frac_ag( C,R ) .Lt. 1.0e-3 ) Return
 ! Note that the kg to g and m3 to L units cancel 
          MV_air       = MWAIR / MET_DATA%DENS1( C,R )
-! convert deposition from ppmv/s to mol/l/s
-         NH3_flux     = flux_ag * 1.0e-6 / MV_air
-!         Write(logdev,*) 'MV_air', MV_air
+! convert deposition from ppmv m/s to mol/l/s
+         NH3_flux     = flux_ag * 1.0e-6 / MV_air / zsoil
+
 ! Get the soil pH
          pHsl = -log10( MHp )
 
