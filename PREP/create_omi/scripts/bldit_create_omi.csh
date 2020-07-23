@@ -1,7 +1,7 @@
 #! /bin/csh -f
 
 # ==================== Build Script ================================= #
-# Usage:  bldit_create_omi.csh COMPILER                          #
+# Usage:  bldit_create_omi.csh COMPILER                               #
 #         where the COMPILER agrument specifies brand of FORTRAN      #
 #         compiler. Available options: intel, pgi, and gcc            #
 #                                                                     #
@@ -44,7 +44,7 @@ endif
 #===============================================================================
 
 #> User choices: working directory and application ID
- set VRSN     = v53            #> version
+ set VRSN     = v532           #> version
  set EXEC     = create_omi     #> executable name for this application
  set CFG      = create_omi.cfg #> bldmake configuration file name
 

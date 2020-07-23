@@ -13,7 +13,8 @@ residential heating, etc.
 - Surrogate: A variable representing a chemical compound or group of compounds on an emission Stream.  
 
 ### Important Notes to Remember
-- Rules are applied in the order they are provided.
+- Rules are applied in the order they are provided.  
+- If you do not provide an emissions control file via providing a path in the CMAQ RunScript, DESID will set the emissions for all streams to zero. This may or may not cause errors depending on the options you have set in the RunScript.
 
 ### Example Use Cases
 - [1. Zero out emissions](#zero_out)  
@@ -44,7 +45,7 @@ For gridded or inline emissions, just reduce the value of N_EMIS_GR or N_EMIS_PT
 
 Note that if you zero out the sea-spray or wind-blown dust emissions, you should also edit the emission control file by commenting out the coarse and fine species expected from those modules. Some of these species are used by both emission streams, so if you only want to zero out the sea-spray or dust stream but not the other stream, you will need to determine which species to comment out. Please check the AERO_DATA module for the list of species produced by each stream.  
 
-Alternatively, you may set the CTM_EMISCHK variable to FALSE in the runscript to avoid crashing CMAQ if it can't find species it is looking for from emissions streams that have beed disabled.  
+Alternatively, you may set the CTM_EMISCHK variable to FALSE in the runscript to avoid crashing CMAQ if it can't find species it is looking for from emissions streams that have been disabled.  
 
 To zero Sea Spray aerosol emissions,
 ```
