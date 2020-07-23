@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ======================= CCTMv5.3.1 Build Script ========================= 
+# ======================= CCTMv5.3.X Build Script ========================= 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
@@ -702,42 +702,5 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  endif
  mv ${CFG}.bld $Bld/${CFG}
 
-
-#> If Building WRF-CMAQ, download WRF, download auxillary files and build
-#> model
- if ( $?build_twoway ) then
-  cd $CMAQ_HOME/CCTM/scripts
-
-  # Downlad WRF repository from GitHub and configure it
-  set WRF_BLD = BLD_WRFv4.1.1_CCTM_${VRSN}_${compilerString}
-  git clone --branch v4.1.1 https://github.com/wrf-model/WRF.git ./$WRF_BLD
-  cd $WRF_BLD
-  ./configure <<EOF
-  ${WRF_ARCH}
-  1
-EOF
-
-   # Transfer CMAQ Code to WRF Directory
-   mv $Bld ./cmaq
-
-   # Download twoway assembly code, unpackage it and run it
-#   wget ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/WRF4.1.1_CMAQ5.3_Coupled_Model_20190828.tar.gz
-#   tar -xvzf WRF4.1.1_CMAQ5.3_Coupled_Model_20190828.tar.gz
-#   rm -rf WRF4.1.1_CMAQ5.3_Coupled_Model_20190828.tar.gz
-   cp -r /work/MOD3DEV/fsidi/temp/CMAQv5.3.1/twoway .
-   ./twoway/assemble >& myassemble.log
-
-   # Compile WRF-CMAQ
-   ./compile em_real |& tee wrf-cmaq_buildlog.log
-
-   ls main/wrf.exe
-
-   if ( $? != 0) then
-     echo "Error, Unsuccesfull Build! Look at wrf-cmaq_buildlog.log"
-   else
-     echo "Successfull Build!"
-   endif
-   cd ${CMAQ_HOME}/CCTM/scripts
- endif 
 
 exit
