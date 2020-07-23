@@ -662,7 +662,6 @@ C-------------------------------------------------------------------------------
          MV_air       = MWAIR / MET_DATA%DENS1( C,R )
 ! convert deposition from ppmv m/s to mol/l/s
          NH3_flux     = flux_ag * 1.0e-6 / MV_air / zsoil
-
 ! Get the soil pH
          pHsl = -log10( MHp )
 
