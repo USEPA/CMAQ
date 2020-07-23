@@ -446,17 +446,17 @@
 &EmissionDiagnostic
   NEmissDiag           = 3
   
-  EmissDiagStreams(1)  = 'ALL'
+  EmissDiagStreams(1,:)= 'ALL'
   EmissDiagFmt(1)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
-  EmissDiagSpec(1,:)  = 'NO','NO2','NOX'
+  EmissDiagSpec(1,:)   = 'NO','NO2','NOX'
   
-  EmissDiagStreams(2)  = '*ALL'
-  EmissDiagFmt(2)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
-  EmissDiagSpec(2,:)  = 'AEC','AECI','*NO2'
+  EmissDiagStreams(2,:)= '*TOTAL'
+  EmissDiagFmt(2)      = '3D'    ! Options: 2D, 2DCOL, 3D
+  EmissDiagSpec(2,:)   = 'AEC','AECI','NO2'
   
-  EmissDiagStreams(3)  = '*ANTH'
+  EmissDiagStreams(3,:)= 'PT_SOURCES'
   EmissDiagFmt(3)      = '2DCOL'    ! Options: 2D, 2DCOL, 3D
-  EmissDiagSpec(3,:)  = 'NO','NO2'
+  EmissDiagSpec(3,:)   = '*ALL'
 /
 
 

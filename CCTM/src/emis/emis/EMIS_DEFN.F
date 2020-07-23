@@ -284,6 +284,7 @@ C Return From Initialization
            
             ! Execute DESID Emission Processor in Diagnostic Mode
             ! for the Initial Hour of the Day (Hour 0)
+            VDEMIS_EMDIAG = 0.0
             CALL GET_EMIS( MDATE, MTIME, TSTEP, CGRID, .TRUE. )
          END IF
          
@@ -298,6 +299,7 @@ C Return From Initialization
            CALL NEXTIME( MDATE, MTIME,  TSTEP( 1 ) )
 
            ! Execute DESID Emission Processor in Diagnostic Mode
+           VDEMIS_EMDIAG = 0.0
            CALL GET_EMIS( MDATE, MTIME, TSTEP, CGRID, .TRUE. )
 
          END IF
@@ -1293,7 +1295,6 @@ C-----------------------------------------------------------------------
                 ! Other streams contribute as well. Sum these emission
                 ! rates to an aggregate array, VDEMIS_EMDIAG
                 KSPEC = MAP_EMDIAGtoVDEMIS( ISPEC,IDIAG )
-                JDIAG = SUMDIAG( IDIAG )
                 VDEMIS_EMDIAG( KSPEC,:,:,1:LAYS ) = VDEMIS_EMDIAG( KSPEC,:,:,1:LAYS ) + 
      &                                                  VDEMIS_OUT( :,:,1:LAYS )
               END IF
@@ -1311,7 +1312,7 @@ C-----------------------------------------------------------------------
           
           IMPLICIT NONE
 
-          INTEGER IDIAG, JDIAG, ISPEC, JSPEC
+          INTEGER IDIAG, ISPEC, JSPEC
           INTEGER LAYS
           INTEGER JDATE, JTIME
           CHARACTER(200) :: XMSG
@@ -1321,7 +1322,6 @@ C-----------------------------------------------------------------------
 
             IF ( EMDIAG_NSTREAM( IDIAG ) .GT. 1 ) THEN
                LAYS = EMDIAG_LAYS( IDIAG )
-               JDIAG = SUMDIAG( IDIAG )
 
                DO ISPEC = 1,EMDIAG_SPEC( IDIAG )%NSPEC
                   ! Write out the emissions data for this aggregate
@@ -2820,7 +2820,8 @@ C stkemis_init.
                  ! Build Species Selection Array
                  SPEC_VECTOR = .FALSE.
                  DO ISRM = 1,N_EM_SRM
-                    SPEC_VECTOR = SPEC_VECTOR .OR. EM_FILE_DIFF( :,ISRM )
+                    IF ( STREAM_VECTOR( ISRM ) ) 
+     &                   SPEC_VECTOR = SPEC_VECTOR .OR. EM_FILE_DIFF( :,ISRM )
                  END DO
                  CALL MAP_EMISSDIAG_SPEC( EmissDiagSpec( IDIAG,: ), IDIAG, 
      &                     SPEC_VECTOR, JDIAG )
@@ -2851,7 +2852,7 @@ C stkemis_init.
            END DO
            WRITE( LOGDEV,'(10x,A)' ), 'Diagnostic Species'
            DO I = 1,EMDIAG_SPEC( IDIAG )%NSPEC
-               WRITE( LOGDEV,'(15x,A32)'),EMDIAG_SPEC( IDIAG )%SPEC( I )
+               WRITE( LOGDEV,'(15x,A16)'),EMDIAG_SPEC( IDIAG )%SPEC( I )
            END DO
         END DO
         
@@ -2962,7 +2963,7 @@ C stkemis_init.
           FDESC3D( 2:MXDESC3 ) = ''
 
           ! Open emissions stream diagnostic file
-          IF ( .NOT. OPEN3( EMDIAG_FILENAME( IDIAG ), FSNEW3, PNAME ) ) THEN
+          IF ( .NOT. OPEN3( EMDIAG_LOGICAL( IDIAG ), FSNEW3, PNAME ) ) THEN
              XMSG = 'Could not create the ' // TRIM( EMDIAG_FILENAME( IDIAG ) ) // ' file'
              CALL M3EXIT( PNAME, SDATE3D, STIME3D, XMSG, XSTAT1 )
           END IF

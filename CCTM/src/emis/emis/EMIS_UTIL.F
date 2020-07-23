@@ -181,6 +181,7 @@
          ! Retrieve logical vector, DIFF_VEC, indicating diffused species
          ! relevant for DiagSpec(I)
          CALL MAP_CHEM_FAMILIES( SPECIES, DIFF_SPC, N_SPC_DIFF, DIFF_VEC )
+         DIFF_VEC = DIFF_VEC .AND. SPEC_VECTOR
 
          ! Save Map to translate each pair to diffused species and
          ! diagnostic species
