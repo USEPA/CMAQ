@@ -130,10 +130,10 @@ c...Final, combined tags
       CHARACTER( 16 ), ALLOCATABLE :: VNAM_SPCTAG( : )
 
 C ...Tagging indices for bcon, others, icon
-      INTEGER :: BIDITAG = 0
-      INTEGER :: BCONTAG = 0
-      INTEGER :: OTHRTAG = 0
-      INTEGER :: ICONTAG = 0
+      INTEGER, SAVE :: BIDITAG = 0
+      INTEGER, SAVE :: BCONTAG = 0
+      INTEGER, SAVE :: OTHRTAG = 0
+      INTEGER, SAVE :: ICONTAG = 0
 
       REAL, PRIVATE, ALLOCATABLE :: BUFF2( :,: )
 
