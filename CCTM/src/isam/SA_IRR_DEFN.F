@@ -806,21 +806,8 @@ C..Includes:
              SPC     = ISAM_SPC_MAP( JSPC )
              IS_TAG_NONZERO = .FALSE.
              LOAD_SOLD: DO KTAG = 1, NTAG_SA
-<<<<<<< Updated upstream
-                SOLD( KTAG, S ) = REAL( ISAM( COL,ROW,LAY,SPC,KTAG ),8 )
-                IF( SOLD( KTAG, S ) .GT. ZERO )IS_TAG_NONZERO( KTAG ) = .TRUE.
-                IF( SOLD( KTAG,S ) .LT. CUTOFF )THEN
-                    SOLD( KTAG,S ) = ZERO
-                ELSE    
-                    IF( CONVERT_ISAM( JSPC ) )THEN
-                       SOLD( KTAG, S ) = SOLD( KTAG, S )
-     &                                 * INV_DENS * UGM3_TO_PPM( JSPC )
-                    END IF
-                END IF
-=======
                 SOLD( KTAG, S ) = MAX( ZERO,
      &                            REAL( ISAM( COL,ROW,LAY,SPC,KTAG ),8 ))
->>>>>>> Stashed changes
              END DO LOAD_SOLD ! ktag loop
 !            TAGS_TOTAL = SUM( SOLD( 1:NTAG_SA, S ) )
 !            TAGS_TOTAL = 1.0D0 / MAX( TAGS_TOTAL, DCONMIN_TAG )
