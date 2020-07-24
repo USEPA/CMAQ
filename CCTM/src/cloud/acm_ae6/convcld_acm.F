@@ -2275,14 +2275,14 @@ C...   include raining region below cld base
                   END DO
                 END IF
 
-                IF (PCLD( SPC_INDEX(SPC,2),LAY ) .GT. 1.0E-09) THEN
+c               IF (PCLD( SPC_INDEX(SPC,2),LAY ) .GT. 1.0E-09) THEN
                 DO ITAG = 1, NTAG_SA
                   OUTCLOUD = SA_PCLD( S_SO4J,LAY,ITAG )
                   ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = FRAC * SA_INCLOUD( ITAG )
      &                                       + ( 1.0 - FRAC ) * OUTCLOUD
                   ISAM( COL,ROW,LAY,S_SO4J,ITAG ) = MAX( ISAM( COL,ROW,LAY,S_SO4J,ITAG ), 1.0E-30 )
                 END DO
-                END IF
+c               END IF
 
               END IF
 #endif
