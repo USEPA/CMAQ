@@ -152,7 +152,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             VDESC3D( V ) = 'hourly dry deposition values'
          END DO
 
-         FDESC3D( 1 ) = 'hourly 1-layer cross-point RADM dry deposition data'
+         FDESC3D( 1 ) = 'hourly 1-layer cross-point STAGE dry deposition data'
          DO L = 2, MXDESC3
             FDESC3D( L ) = ' '
             END DO
