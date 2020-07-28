@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: /home/bmurphy/cmaq_projects/bldrxn/UTIL/chemmech/input/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
+! Source file: /home/gsarwar/util/MP/MECHS/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
 ! for Mechanism Name: CB6R3M_AE7_KMTBR                
 
 ! This file is used to create mechanism data and functions
