@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug  6, 2019
+C  REVISION HISTORY: Created by EBI solver program, Jul 28, 2020
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -72,7 +72,12 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
+#ifndef isam
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+#else
+      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT,
+     &                              SA_DEGRADE_UPLOAD
+#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 
       IMPLICIT NONE
@@ -147,10 +152,12 @@ C..Scratch Local Variables:
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME )
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL, JDATE, JTIME )
            REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
            REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
            REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
+           REAL,      INTENT( IN ) :: PRESS_CELL      !  cell Pressure  [ Pa ]
+           REAL,      INTENT( IN ) :: QV_CELL         !  cell water vapor mass mixing ratio  [ kg/kg ]
            REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
@@ -366,6 +373,10 @@ c..Load ICs
                   END DO
                   CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
      &                              JDATE, JTIME)
+
+#ifdef isam
+                  CALL SA_DEGRADE_EXTRACT( C,R,L,DENS(C,R,L) )
+#endif
                END IF
 
 c..Set physical quantities
