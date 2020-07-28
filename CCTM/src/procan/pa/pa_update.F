@@ -640,14 +640,20 @@ C-----------------------------------------------------------------------
 
       INTEGER JDATE, JTIME
 
-      INTEGER :: PCOAG, PCOND, PNPF, PGROWTH
+      INTEGER,SAVE :: PCOAG, PCOND, PNPF, PGROWTH
       INTEGER :: IPCOAG, IPCOND, IPNPF, IPGROWTH
       INTEGER :: NPA, NGR, ICG
+      LOGICAL,SAVE :: FIRST_TIME = .TRUE.
 
-      PCOAG  = INDEX1( 'COAG',NPRCS,PROCNAME )
-      PCOND  = INDEX1( 'COND',NPRCS,PROCNAME )
-      PNPF   = INDEX1( 'NPF' ,NPRCS,PROCNAME )
-      PGROWTH= INDEX1( 'GROW',NPRCS,PROCNAME )
+
+      IF ( FIRST_TIME ) THEN
+          FIRST_TIME = .FALSE.
+
+          PCOAG  = INDEX1( 'COAG',NPRCS,PROCNAME )
+          PCOND  = INDEX1( 'COND',NPRCS,PROCNAME )
+          PNPF   = INDEX1( 'NPF' ,NPRCS,PROCNAME )
+          PGROWTH= INDEX1( 'GROW',NPRCS,PROCNAME )
+      END IF
 
       DO NPA = 1, N_IPR_SPC              ! foreach family
           
