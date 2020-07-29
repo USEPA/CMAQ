@@ -178,6 +178,8 @@ C ACM Local Variables
       CHARACTER( 16 ) :: ISAM_SPECIES
 
       INTEGER TOP, BOT
+
+      REAL NH3_SUM
 #endif      
 
 
@@ -749,6 +751,26 @@ C Add evasion as negative dep flux
                END IF
             END DO
 
+c Recalculate bidi NH3 deposition
+            IF ( ABFLUX .AND. SA_BIDI ) THEN
+              NH3_SUM = 0.0
+              DO JSPCTAG = 1, N_SPCTAG
+                S = ISAM_DEPV( JSPCTAG )
+                IF ( S .EQ. NH3_HIT ) NH3_SUM = NH3_SUM + SACONC( JSPCTAG,1 )
+              END DO
+
+              DO JSPCTAG = 1, N_SPCTAG
+                S = ISAM_DEPV( JSPCTAG )
+                IF ( S .EQ. NH3_HIT ) THEN
+                  IF( NH3_SUM .GT. 1.0E-25  ) THEN
+                    SA_DDBF( JSPCTAG  ) = MAX( 0.0, DDBF(NH3_HIT) * ( SACONC( JSPCTAG,1 ) / NH3_SUM ) )
+                  ELSE
+                    SA_DDBF( JSPCTAG  ) = 0.0
+                  END IF
+                END IF
+              END DO
+            END IF
+
             DO L = 1, NLAYS
                DO V = 1, N_SPCTAG
                  SA_DD( V,L ) = 0.0
@@ -1019,6 +1041,26 @@ C Update ISAM Dry Deposition
                   END IF
                END IF
             END DO
+
+c Recalculate bidi NH3 deposition
+            IF ( ABFLUX .AND. SA_BIDI ) THEN
+              NH3_SUM = 0.0
+              DO JSPCTAG = 1, N_SPCTAG
+                S = ISAM_DEPV( JSPCTAG )
+                IF ( S .EQ. NH3_HIT ) NH3_SUM = NH3_SUM + SACONC( JSPCTAG,1 )
+              END DO
+
+              DO JSPCTAG = 1, N_SPCTAG
+                S = ISAM_DEPV( JSPCTAG )
+                IF ( S .EQ. NH3_HIT ) THEN
+                  IF( NH3_SUM .GT. 1.0E-25  ) THEN
+                    SA_DDBF( JSPCTAG  ) = MAX( 0.0, DDBF(NH3_HIT) * ( SACONC( JSPCTAG,1 ) / NH3_SUM ) )
+                  ELSE
+                    SA_DDBF( JSPCTAG  ) = 0.0
+                  END IF
+                END IF
+              END DO
+            END IF
 #endif
     
 
