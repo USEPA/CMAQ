@@ -187,7 +187,7 @@ WDEP_NICKLE        ,kg ha-1   ,ANII[2] + ANIJ[2] + ANIK[2]
 
 ! Total Chromium
 DDEP_CHROMIUM      ,kg ha-1   ,DDEP_CRIII[0] + DDEP_CRVI[0]
-WDEP_CHROMIUM      ,kg ha-1   ,DDEP_CRIII[0] + DDEP_CRVI[0]
+WDEP_CHROMIUM      ,kg ha-1   ,WDEP_CRIII[0] + WDEP_CRVI[0]
 
 ! Gas plus Aerosol Mercury Deposition
 DDEP_HG           ,kg ha-1   ,APHGI[1] + APHGJ[1] + APHGK[1] + HG[1] + HGIIGAS[1]
