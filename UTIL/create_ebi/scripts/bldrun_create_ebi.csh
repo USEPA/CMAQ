@@ -100,18 +100,7 @@
 # will check the output for CHEMMECH, and then check the CMAQ_REPO. If it is in 
 # neither of those places, the script aborts.
  setenv RXNS_DATA_SRC   ${INPDIR}/RXNS_DATA_MODULE.F90
- if ( ! ( -e ${RXNS_DATA_SRC} ) && ! ( $?offline ) )then
-     echo 'Cannot find RXNS_DATA_MODULE. Look in CHEMMECH Output...'
-     if ( ! -e ${INPDIR} ) then
-        mkdir -p ${INPDIR}
-     endif
-     if ( ! ( -e ${CMAQ_HOME}/UTIL/chemmech/output/${MECH}/RXNS_DATA_MODULE.F90 ) ) then
-         echo 'RXNS_DATA_MODULE not in CHEMMECH Output. Look in CMAQ Repo...'
-         cp ${CMAQ_REPO}/CCTM/src/MECHS/${MECH}/RXNS_DATA_MODULE.F90 $RXNS_DATA_SRC
-     else
-         cp ${CMAQ_HOME}/UTIL/chemmech/output/${MECH}/RXNS_DATA_MODULE.F90 $RXNS_DATA_SRC
-     endif
- endif
+
  if ( ! -e ${RXNS_DATA_SRC} ) then
      echo 'Below RXNS_DATA_MODULE input file does not exist'
      echo ${RXNS_DATA_SRC}

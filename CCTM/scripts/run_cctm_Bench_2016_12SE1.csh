@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
-# ===================== CCTMv5.3.1 Run Script ========================= 
-# Usage: run.cctm >&! cctm_v531.log &                                
+# ===================== CCTMv5.3.X Run Script ========================= 
+# Usage: run.cctm >&! cctm_Bench_2016_12SE1.log &                                
 #
 # To report problems or request help with this script/program:     
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -33,7 +33,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v531              #> Code Version
+ set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1  #> Application Name (e.g. Gridname)
@@ -90,7 +90,17 @@ else
 endif
 
 #> Define Execution ID: e.g. [CMAQ-Version-Info]_[User]_[Date]_[Time]
-setenv EXECUTION_ID "CMAQ_CCTM${VRSN}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
+if ( ! -e ${BLD}/CCTM_${VRSN}.cfg ) then
+   set SHAID = ""
+else
+   set SHAID = `grep "sha_ID" ${BLD}/CCTM_${VRSN}.cfg | cut -c 13-22`
+   if ( $SHAID == not_a_repo ) then
+     set SHAID = ""
+   else
+     set SHAID = "_sha="$SHAID
+   endif
+endif
+setenv EXECUTION_ID "CMAQ_CCTM${VRSN}${SHAID}_`id -u -n`_`date -u +%Y%m%d_%H%M%S_%N`"    #> Inform IO/API of the Execution ID
 echo ""
 echo "---CMAQ EXECUTION ID: $EXECUTION_ID ---"
 

@@ -127,7 +127,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     Set to other libraries required for compiling on your Linux system; users will likely need to change this setting in the distributed script for portability to their system.
 
 -   `EXEC_ID`<a id=EXEC_ID></a>
-    build tag, should be automatically set by config_cmaq.csh
+    Build tag, should be automatically set by config_cmaq.csh. Users who build the CMAQ model from a git repository will see the SHA ID, corresponding to the state of the repository code used to build their model, inserted into this EXEC_ID. This will support the model build and resulting output being uniquely associated with the model source code version.
 
 -   `CMAQ_REPO` <a id=CMAQ_REPO></a> This is always the location of the CMAQ repository that the user will pull from to create exectuables. If the user is building CMAQ inside the repository then it will be equal to CMAQ_HOME. If not, the user must supply an alternative folder location.
 
@@ -169,8 +169,8 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to compile the CCTM executable with Integrated Source Apportionment Method (ISAM). See [Chapter 11](../CMAQ_UG_ch11_ISAM.md) for futher information before invoking this option. 
     
 -   `build_twoway`<a id=build_twoway></a>  
-    Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. Please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
-
+    Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. During run time, if you encounter any problems, please contact David Wong (wong.david@epa.gov).
+    
 -   `potvortO3`<a id=potvort03></a>   
     Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information before invoking this option.
 
@@ -440,7 +440,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 - `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
      Landuse database for identifying dust source regions; ignore if CTM_WB_DUST = FALSE
     - BELD3: Use BELD3 landuse data for windblown dust calculations. The user needs to specify the DUST_LU_1 and DUST_LU_2 files described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). These files typically are available for North American domains only.
-    - BELD4: Use BELD4 landuse data for windblown dust calculations. The user needs to specify the E2C_LU file described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). This file typically is available for North American domains only.
     - UNKNOWN: Use landuse information provided by MCIP for windblown dust calculations
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
@@ -679,13 +678,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `DUST_LU_2 [default: Path to BELD3 Data]`<a id=DUST_LU_2></a>  
     Input BELD "TOT" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
 
--   `E2U_LU [default: path to BELD4 data file]`<a id=BELD4_LU></a>  
-    Input BELD4 landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD4.  
 
 
 <!-- BEGIN COMMENT -->
 
 [<< Tables and Figures](../CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
- CMAQ User's Guide (c) 2019<br>
- 
+ CMAQ User's Guide (c) 2020<br>
  <!-- END COMMENT -->

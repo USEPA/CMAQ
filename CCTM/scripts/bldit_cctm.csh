@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ======================= CCTMv5.3.1 Build Script ========================= 
+# ======================= CCTMv5.3.X Build Script ========================= 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
@@ -40,7 +40,7 @@
  setenv REPOROOT $CCTM_SRC
 
 #> Working directory and Version IDs
- set VRSN  = v531                      #> model configuration ID
+ set VRSN  = v532                      #> model configuration ID
  set EXEC  = CCTM_${VRSN}.exe          #> executable name
  set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
@@ -51,8 +51,12 @@ set CopySrc                            #> copy the source files into the build d
 #set CopySrcTree                       #> copy the source files and directory tree into the build directory
 #set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile; 
                                        #>   comment out to compile the model (default if not set)
-#set build_mech                         #> uncomment to build mechanism source code files using the 
+#set build_mech                        #> uncomment to build mechanism source code files using the 
                                        #>   chemmech utility.
+#set clobber_mech                      #> when commented, the bldit_mech.csh script will halt if 
+                                       #>   newly created mechanism files are attempting replace
+                                       #>   existing ones. When uncommented, the existing files
+                                       #>   will be overwritten.
 set ParOpt                             #> uncomment to build a multiple processor (MPI) executable; 
                                        #>   comment out for a single processor (serial) executable
 #set build_parallel_io                 #> uncomment to build with parallel I/O (pnetcdf); 
@@ -100,7 +104,7 @@ set make_options = "-j"                #> additional options for make command if
  set ModPhot   = phot/inline                #> photolysis calculation module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/phot)
 
- set Mechanism = cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
+ setenv Mechanism cb6r3_ae7_aq               #> chemical mechanism (see $CMAQ_MODEL/CCTM/src/MECHS)
  set ModMech   = MECHS/${Mechanism}
  
  set ChemSolver = ebi                       #> gas-phase chemistry solver (see $CMAQ_MODEL/CCTM/src/gas)
@@ -250,68 +254,36 @@ set make_options = "-j"                #> additional options for make command if
 #> Build Mechanism Files and instruct build-make to look
 #> in the CHEMMECH output folder for the files
  if ( $?build_mech ) then
-    setenv MECH $Mechanism
-    if ( ! -e ${CMAQ_REPO}/CCTM/src/${ModMech} ) then
-        echo "$Mechanism is not a valid mechanism in the CMAQ Repository. "
-        echo "    Please select a valid mechanism from CCTM/src/MECHS."
-        exit()
-    endif
-    cd ${CMAQ_HOME}/UTIL/chemmech/scripts
-    ./bldit_chemmech.csh $compiler
-    if ( $? != 0 ) then
-      echo "CHEMMECH did not build correctly --> Build Process Halted"
-      exit 1
-    endif
-    cd ${CMAQ_HOME}/UTIL/chemmech/scripts
-    ./run_chemmech.csh
-    if ( $? != 0 ) then
-      echo "CHEMMECH did not run correctly --> Build Process Halted"
-      exit 1
+
+    # Note: modifying existing or creating new chemical mechanisms
+    # can lead to unstable or highly inaccurate representations of 
+    # atmospheric chemical predictions when applying the EBI solvers.
+    # EBI solvers are highly characterized and tested before 
+    # application. The CMAQ development team recommends using the 
+    # generalized solvers, Rosenbrock or Gear, with user-defined
+    # mechanisms.
+
+    # Because the bldit_cctm script is executing the bldit_mech
+    # processor, we will assume that the source location for the new 
+    # mechanism files is in the CMAQ repo. There will also be an 
+    # error check for overwriting an existing mechanism that can be
+    # disabled using the mech_clobber variable above.
+    setenv MECH_SRC ${CMAQ_REPO}/CCTM/src/${ModMech}
+    setenv TRAC_SRC ${CMAQ_REPO}/CCTM/src/MECHS/trac0
+    setenv MECH_OUT ${CMAQ_REPO}/CCTM/src/${ModMech}
+    setenv EBI_SOLVER_OUT ${CMAQ_REPO}/CCTM/src/${ModGas}
+    if ( $?clobber_mech ) then
+      setenv CLOBBER_MECH TRUE
+    else
+      setenv CLOBBER_MECH FALSE
     endif
 
-    #> Copy Files Back to Mechanism location
-    if ( -e ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/RXNS_DATA_MODULE.F90 \
-             &&  -e ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/RXNS_FUNC_MODULE.F90 ) then
-       cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/RXNS*MODULE.F90 ${CMAQ_REPO}/CCTM/src/${ModMech}/.
-       cp -f ${CMAQ_HOME}/UTIL/chemmech/output/$Mechanism/[A,E,G,N]*.nml ${CMAQ_REPO}/CCTM/src/${ModMech}/.
-    else
-       echo "Mechanism module not created for ${Mechanism}"
-       exit()
-    endif
-    cd ${CMAQ_REPO}/CCTM/src/${ModMech}
-
-    #> Build CSQY Data Table for Inline Photolysis
-    cd ${CMAQ_HOME}/UTIL/inline_phot_preproc/scripts
-    ./bldrun.inline_phot_preproc.csh $compiler
+    cd ${CMAQ_HOME}/CCTM/scripts
+    ./bldit_mech.csh ${compiler} ${compilerVrsn}
     if ( $? != 0 ) then
-      echo "Preparation of CSQY Table did not build or run correctly --> Build Process Halted"
+      echo ""
+      echo "bldit_mech did not finish correctly --> Build Process Halted"
       exit 1
-    endif
-    if (  -e ${CMAQ_HOME}/UTIL/inline_phot_preproc/output/$Mechanism/CSQY_DATA_${MECH} ) then
-        cp -f ${CMAQ_HOME}/UTIL/inline_phot_preproc/output/$Mechanism/CSQY_DATA_${MECH} ${CMAQ_REPO}/CCTM/src/${ModMech}
-    else
-        echo "CSQY_${MECH} not created"
-        exit()
-    endif
-    #> if EBI Chemical Solver is set, build mechanism-dependent 
-    #> EBI files and instruct build-make to look in the 
-    #> create-ebi output folder for the files.
-    if ( ${ChemSolver} == ebi ) then
-       cd ${CMAQ_HOME}/UTIL/create_ebi/scripts
-       ./bldrun_create_ebi.csh $compiler
-       if ( $? != 0 ) then
-          echo "CREATE_EBI did not build or run correctly --> Build Process Halted"
-          exit 1
-       endif
-       if ( ! -e ${CMAQ_REPO}/CCTM/src/${ModGas} ) then
-          mkdir -p ${CMAQ_REPO}/CCTM/src/${ModGas}
-       endif
-       if ( ! -e ${CMAQ_HOME}/UTIL/create_ebi/output/ebi_$Mechanism/hrrates.F ) then
-          echo "EBI solver not created  for ${Mechanism}"
-          exit()
-       else
-           cp -f ${CMAQ_HOME}/UTIL/create_ebi/output/ebi_$Mechanism/hr*.F ${CMAQ_REPO}/CCTM/src/${ModGas}/.
-       endif
     endif
  endif
 
@@ -414,6 +386,11 @@ set make_options = "-j"                #> additional options for make command if
     set ModVadv = vadv/local_cons              #> Vertical advection module
  endif
 
+ # Retrieve git repository sha ID for this source code version
+ set shaID   = `git --git-dir=${CMAQ_REPO}/.git rev-parse --short=10 HEAD`
+ if ( $? != 0 ) then
+    set shaID   = "not_a_repo"
+ endif
 
 # ============================================================================
 #> Create Config File 
@@ -430,6 +407,8 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "model        $EXEC;"                                        >> $Cfile
  echo                                                              >> $Cfile
  echo "repo        $CCTM_SRC;"                                     >> $Cfile
+ echo                                                              >> $Cfile
+ echo "sha_ID      $shaID;"                                        >> $Cfile
  echo                                                              >> $Cfile
  echo "mechanism   $Mechanism;"                                    >> $Cfile
  echo                                                              >> $Cfile
@@ -730,42 +709,5 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  endif
  mv ${CFG}.bld $Bld/${CFG}
 
-
-#> If Building WRF-CMAQ, download WRF, download auxillary files and build
-#> model
- if ( $?build_twoway ) then
-  cd $CMAQ_HOME/CCTM/scripts
-
-  # Downlad WRF repository from GitHub and configure it
-  set WRF_BLD = BLD_WRFv4.1.1_CCTM_${VRSN}_${compilerString}
-  git clone --branch v4.1.1 https://github.com/wrf-model/WRF.git ./$WRF_BLD
-  cd $WRF_BLD
-  ./configure <<EOF
-  ${WRF_ARCH}
-  1
-EOF
-
-   # Transfer CMAQ Code to WRF Directory
-   mv $Bld ./cmaq
-
-   # Download twoway assembly code, unpackage it and run it
-#   wget ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model/WRF4.1.1_CMAQ5.3_Coupled_Model_20190828.tar.gz
-#   tar -xvzf WRF4.1.1_CMAQ5.3_Coupled_Model_20190828.tar.gz
-#   rm -rf WRF4.1.1_CMAQ5.3_Coupled_Model_20190828.tar.gz
-   cp -r /work/MOD3DEV/fsidi/temp/CMAQv5.3.1/twoway .
-   ./twoway/assemble >& myassemble.log
-
-   # Compile WRF-CMAQ
-   ./compile em_real |& tee wrf-cmaq_buildlog.log
-
-   ls main/wrf.exe
-
-   if ( $? != 0) then
-     echo "Error, Unsuccesfull Build! Look at wrf-cmaq_buildlog.log"
-   else
-     echo "Successfull Build!"
-   endif
-   cd ${CMAQ_HOME}/CCTM/scripts
- endif 
 
 exit

@@ -106,15 +106,15 @@ Ckrt Create variable names for tag output
                 SPECIE_NAME(N:N) = TEMP(N:N)
               ENDDO
               IF ( ITAG .EQ. BCONTAG ) THEN
-                CSUFFX = 'BCON            '
+                CSUFFX = 'BCO             '
                 CALL WR_VARNAME( SPECIE_NAME, LENGTH, NTAG_SA, NSPC_SA,
      &             CSUFFX, VNAME( JSPC,ITAG ) )
               ELSEIF ( ITAG .EQ. OTHRTAG ) THEN
-                CSUFFX = 'OTHR            '
+                CSUFFX = 'OTH             '
                 CALL WR_VARNAME( SPECIE_NAME, LENGTH, NTAG_SA, NSPC_SA,
      &             CSUFFX, VNAME( JSPC,ITAG ) )
               ELSEIF ( ITAG .EQ. ICONTAG ) THEN
-                CSUFFX = 'ICON            '
+                CSUFFX = 'ICO             '
                 CALL WR_VARNAME( SPECIE_NAME, LENGTH, NTAG_SA, NSPC_SA,
      &             CSUFFX, VNAME( JSPC,ITAG ) )
               ELSE

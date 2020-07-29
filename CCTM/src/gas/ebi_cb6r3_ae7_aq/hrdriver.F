@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, May  1, 2020
+C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -55,6 +55,7 @@ C                        dependent reactions and 2) modified the call CALC_RCONS
 C                        routine
 C   01 Feb 19 D.Wong:    Implemented centralized I/O approach, removed all MY_N
 C                        clauses
+C   27 Dec 19 S.Napelenok: DDM-3D implementation for version 5.3.1
 C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -74,10 +75,12 @@ C**********************************************************************
       USE PA_IRR_CLT
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
+
 #ifdef sens
       USE DDM3D_CHEM
       Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
-#endif
+#endif 
+
 
       IMPLICIT NONE
 
@@ -137,6 +140,8 @@ C..Scratch Local Variables:
 #ifdef hrstats
       REAL       SUMEBI       ! Sum of EBI iterations
 #endif
+
+      REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
 
       INTERFACE
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
@@ -278,6 +283,7 @@ C..Determine which cells need IRR
         NUMB_ISAM_CELLS = 1.0D0 / ( NCOLS * NROWS * NLAYS )
         CALL SA_IRR_INIT
 #endif
+         LFIRST = .FALSE.
 
 #ifdef sens
          CALL INIT_DDM3D_CHEM()
@@ -293,8 +299,6 @@ C For higher order sensitivities
             END DO
          END IF
 #endif
-
-         LFIRST = .FALSE.
 
       END IF      ! First time
 
@@ -358,7 +362,19 @@ C For reaction rate sensitivities
          END IF
       END DO
 
+C For higher order sensitivities
+c     IF ( HIGH ) THEN
+c        DO RXN = 1, NRXNS
+c           IF( NREACT( RXN ) .EQ. 1 ) THEN
+c              ORDER1( RXN ) = .TRUE.
+c           ELSE
+c              ORDER1( RXN ) = .FALSE.
+c           END IF
+c        END DO
+c     END IF
 #endif sens
+
+
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells
@@ -481,6 +497,7 @@ c..Update concentration array
 
 c..update irrout arrays if needed
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
+
 #ifdef sens
                DO RXN = 1, NRXNS
                   SRK( RXN ) = RKI( RXN )
