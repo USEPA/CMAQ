@@ -96,7 +96,8 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
 
 #ifdef isam
-      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
+      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP, SA_BIDI, ISAM, NTAG_SA, 
+     &                   VNAM_SPCTAG, NSPC_SA, SPC_NAME, OTHRTAG
 #endif
 
 #ifdef sens
@@ -159,6 +160,15 @@ C Local Variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_Emis'
       CHARACTER(LEN=8), PARAMETER :: NAME_NH3_FLUX = 'NH3_Flux'
+
+#ifdef isam
+      REAL NH3_SUM
+      REAL, ALLOCATABLE, SAVE :: NH3_TAG_FRACTION( : )
+      INTEGER :: NH3_ISAM_IDX = 0
+      INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
+      INTEGER IBGN, JTAG
+      CHARACTER( 16 ) :: ISAM_SPECIES
+#endif
 
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
@@ -335,6 +345,29 @@ C Set up for grav. settling
             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
          SNGRD = 0.0
+#endif
+
+#ifdef isam
+        IF ( SA_BIDI ) THEN
+          NH3_ISAM_IDX  = INDEX1( 'NH3', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+          ALLOCATE ( ISAM_DEPV( N_SPCTAG ), 
+     &               NH3_TAG_FRACTION( NTAG_SA ), STAT = ASTAT )
+          IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure Allocating ISAM variables in VDIFF'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          END IF
+          ISAM_DEPV     = 0
+          DO ITAG = 1, N_SPCTAG
+            DO V = 1, N_SPC_DEPV
+              IBGN         = INDEX( VNAM_SPCTAG( ITAG ), '_', .FALSE. ) - 1
+              ISAM_SPECIES = VNAM_SPCTAG( ITAG )( 1:IBGN )
+              IF ( TRIM( ISAM_SPECIES ) .EQ. DV2DF_SPC( V ) ) THEN
+                ISAM_DEPV( ITAG ) = V
+              END IF
+            END DO
+          END DO
+
+        ENDIF
 #endif
 
       END IF   !  if Firstime
@@ -647,6 +680,35 @@ C re-set dry deposition array to zero
          ICMP = 0.0
 
 #ifdef isam
+
+C recalculate bidi NH3 dry deposition if necessary
+         IF ( ABFLUX .AND. SA_BIDI ) THEN
+           DO R = 1, NROWS
+             DO C = 1, NCOLS
+               NH3_SUM = 0.0
+               DO ITAG = 1, NTAG_SA               
+                 NH3_SUM = NH3_SUM + ISAM( C,R,1,NH3_ISAM_IDX,ITAG ) 
+               END DO
+               IF ( NH3_SUM .GT. 1.0E-25 ) THEN
+                 DO ITAG = 1, NTAG_SA
+                   NH3_TAG_FRACTION( ITAG ) = ISAM( C,R,1,NH3_ISAM_IDX,ITAG ) / NH3_SUM
+                 END DO
+               ELSE
+                 NH3_TAG_FRACTION = 0.0
+               END IF
+
+               DO ITAG = 1, N_SPCTAG              
+                 V = ISAM_DEPV( ITAG ) 
+                 JTAG = 0
+                 IF ( V .EQ. NH3_HIT ) THEN
+                   JTAG = JTAG + 1
+                   SA_DDEP( C,R,ITAG ) = DDEP( DD2DV(NH3_HIT),C,R ) * NH3_TAG_FRACTION( JTAG )
+                 END IF
+               END DO
+             END DO
+           END DO
+         END IF
+
          WRDD = 0.0
          DO ITAG = 1, N_SPCTAG
             DO R = 1, NROWS
