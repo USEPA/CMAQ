@@ -168,6 +168,9 @@ C Local Variables
       INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
       INTEGER IBGN, JTAG
       CHARACTER( 16 ) :: ISAM_SPECIES
+
+      INTEGER, SAVE :: NH3_DV2DF_SPC_IDX = 0
+
 #endif
 
       INTERFACE
@@ -367,6 +370,11 @@ C Set up for grav. settling
             END DO
           END DO
 
+          DO V = 1, N_SPC_DEPV
+            IF ( DV2DF_SPC( V ) .EQ.'NH3' ) THEN
+              NH3_DV2DF_SPC_IDX = V
+            ENDIF
+          END DO
         ENDIF
 #endif
 
@@ -525,6 +533,34 @@ C If last call this hour:  write accumulated depositions:
                   DDEP( DD2DV(NH3_HIT),C,R ) = NH3_EMIS(C,R)+NH3_FLUX(C,R)
                END DO
             END DO
+#ifdef isam
+            IF ( SA_BIDI ) THEN
+              DO R = 1, NROWS
+                DO C = 1, NCOLS
+                  NH3_SUM = 0.0
+                  DO ITAG = 1, NTAG_SA
+                    NH3_SUM = NH3_SUM + ISAM( C,R,1,NH3_ISAM_IDX,ITAG )
+                  END DO
+                  IF ( NH3_SUM .GT. 1.0E-25 ) THEN
+                    DO ITAG = 1, NTAG_SA
+                      NH3_TAG_FRACTION( ITAG ) = ISAM( C,R,1,NH3_ISAM_IDX,ITAG ) / NH3_SUM
+                    END DO
+                  ELSE
+                    NH3_TAG_FRACTION = 0.0
+                  END IF
+ 
+                  JTAG = 0 
+                  DO ITAG = 1, N_SPCTAG
+                    V = ISAM_DEPV( ITAG )
+                    IF ( V .EQ. NH3_DV2DF_SPC_IDX ) THEN
+                      JTAG = JTAG + 1
+                      SA_DDEP( C,R,ITAG ) = SA_DDEP( C,R,ITAG ) + NH3_TAG_FRACTION( JTAG ) * NH3_EMIS(C,R)
+                    END IF
+                  END DO
+                END DO
+              END DO
+            END IF
+#endif
          ENDIF
          DO V = 1, N_SPC_DDEP
             S = DD2DV( V )
@@ -674,41 +710,7 @@ C Write other diagnostics
             CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
          END IF
 
-C re-set dry deposition array to zero
-
-         DDEP = 0.0
-         ICMP = 0.0
-
 #ifdef isam
-
-C recalculate bidi NH3 dry deposition if necessary
-         IF ( ABFLUX .AND. SA_BIDI ) THEN
-           DO R = 1, NROWS
-             DO C = 1, NCOLS
-               NH3_SUM = 0.0
-               DO ITAG = 1, NTAG_SA               
-                 NH3_SUM = NH3_SUM + ISAM( C,R,1,NH3_ISAM_IDX,ITAG ) 
-               END DO
-               IF ( NH3_SUM .GT. 1.0E-25 ) THEN
-                 DO ITAG = 1, NTAG_SA
-                   NH3_TAG_FRACTION( ITAG ) = ISAM( C,R,1,NH3_ISAM_IDX,ITAG ) / NH3_SUM
-                 END DO
-               ELSE
-                 NH3_TAG_FRACTION = 0.0
-               END IF
-
-               DO ITAG = 1, N_SPCTAG              
-                 V = ISAM_DEPV( ITAG ) 
-                 JTAG = 0
-                 IF ( V .EQ. NH3_HIT ) THEN
-                   JTAG = JTAG + 1
-                   SA_DDEP( C,R,ITAG ) = DDEP( DD2DV(NH3_HIT),C,R ) * NH3_TAG_FRACTION( JTAG )
-                 END IF
-               END DO
-             END DO
-           END DO
-         END IF
-
          WRDD = 0.0
          DO ITAG = 1, N_SPCTAG
             DO R = 1, NROWS
@@ -723,9 +725,13 @@ C recalculate bidi NH3 dry deposition if necessary
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
          END DO
-
          SA_DDEP = 0.0
 #endif
+
+C re-set dry deposition array to zero
+
+         DDEP = 0.0
+         ICMP = 0.0
 
 #ifdef sens
 C WT - write out dry deposition sensitivities
