@@ -9,35 +9,6 @@
 # ===================================================================  
 
 
-#> Simple Linux Utility for Resource Management System
-#> (SLURM) - The following specifications are recommended
-#> for executing the runscript on the cluster at the
-#> National Computing Center used primarily by EPA.
-#SBATCH -t 1:00:00
-#SBATCH -n 128
-#SBATCH -J meg_bench
-#SBATCH -p ord
-#SBATCH --gid=mod3dev
-#SBATCH -A mod3dev
-#SBATCH -o bench.txt
-
-#> The following commands output information from the SLURM
-#> scheduler to the log files for traceability.
-   if ( $?SLURM_JOB_ID ) then
-      echo Job ID is $SLURM_JOB_ID
-      echo "Running on nodes `printenv SLURM_JOB_NODELIST`"
-      echo Host is $SLURM_SUBMIT_HOST
-      #> Switch to the working directory. By default,
-      #>   SLURM launches processes from your home directory.
-      echo Working directory is $SLURM_SUBMIT_DIR
-      cd $SLURM_SUBMIT_DIR
-   endif
-
-#> Configure the system environment and set up the module
-#> capability
-   limit stacksize unlimited
-
-
 # ===================================================================
 #> Runtime Environment Options
 # ===================================================================
@@ -103,7 +74,7 @@ echo 'Start Model Run At ' `date`
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
  set START_DATE = "2016-07-01"     #> beginning date (July 1, 2016)
- set END_DATE   = "2016-07-05"     #> ending date    (July 14, 2016)
+ set END_DATE   = "2016-07-01"     #> ending date    (July 14, 2016)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
