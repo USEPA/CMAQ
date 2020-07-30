@@ -211,8 +211,8 @@
       INTEGER :: N_FILE_TR     = 0       ! NUmber of Tracer Emission Files
       LOGICAL :: EMISCHK       = .TRUE.  ! flag for checking that surrogate emissions 
                                                !   are present on emission files
-      LOGICAL :: BIOGEMIS      = .FALSE. ! flag to in-line biogenic VOC emissions
-      LOGICAL :: MEGAN_BIOGEMIS= .FALSE. ! flag to in-line MEGAN biogenic emissions
+      LOGICAL :: BIOGEMIS_BEIS = .FALSE. ! flag to in-line biogenic VOC emissions
+      LOGICAL :: BIOGEMIS_MEGAN= .FALSE. ! flag to in-line MEGAN biogenic emissions
       LOGICAL :: USE_MEGAN_LAI = .FALSE. ! flag to use MEGAN LAI values
       CHARACTER(16) :: SPPRO   = 'DEFAULT' ! requested speciation profile name
       LOGICAL :: BIOGEMIS_SEASON=.FALSE. ! use frost switch file
@@ -699,13 +699,12 @@
       ! present on emissions files
       CALL GET_ENV (  EMISCHK, 'CTM_EMISCHK', EMISCHK, VARDEV )
  
-      ! CTM_BIOGEMIS
-      CALL GET_ENV ( BIOGEMIS, 'CTM_BIOGEMIS', BIOGEMIS, VARDEV )
+      ! CTM_BIOGEMIS_BEIS
+      CALL GET_ENV ( BIOGEMIS_BEIS, 'CTM_BIOGEMIS_BEIS', BIOGEMIS_BEIS, VARDEV )
 
-      ! CTM_MGN_BIOGEMIS
-      CALL GET_ENV(MEGAN_BIOGEMIS, 'CTM_MGN_BIOGEMIS',MEGAN_BIOGEMIS,VARDEV )
+      ! CTM_BIOGEMIS_MEGAN
+      CALL GET_ENV(BIOGEMIS_MEGAN, 'CTM_BIOGEMIS_MEGAN', BIOGEMIS_MEGAN,VARDEV )
       CALL GET_ENV(USE_MEGAN_LAI, 'USE_MEGAN_LAI',USE_MEGAN_LAI,VARDEV )
-
 
       ! Get the speciation profile to use
       CALL GET_ENV ( SPPRO, 'BIOG_SPRO', SPPRO, VARDEV )

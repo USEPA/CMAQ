@@ -8,6 +8,36 @@
 #             http://www.cmascenter.org  (CMAS Website)
 # ===================================================================  
 
+
+#> Simple Linux Utility for Resource Management System
+#> (SLURM) - The following specifications are recommended
+#> for executing the runscript on the cluster at the
+#> National Computing Center used primarily by EPA.
+#SBATCH -t 1:00:00
+#SBATCH -n 128
+#SBATCH -J meg_bench
+#SBATCH -p ord
+#SBATCH --gid=mod3dev
+#SBATCH -A mod3dev
+#SBATCH -o bench.txt
+
+#> The following commands output information from the SLURM
+#> scheduler to the log files for traceability.
+   if ( $?SLURM_JOB_ID ) then
+      echo Job ID is $SLURM_JOB_ID
+      echo "Running on nodes `printenv SLURM_JOB_NODELIST`"
+      echo Host is $SLURM_SUBMIT_HOST
+      #> Switch to the working directory. By default,
+      #>   SLURM launches processes from your home directory.
+      echo Working directory is $SLURM_SUBMIT_DIR
+      cd $SLURM_SUBMIT_DIR
+   endif
+
+#> Configure the system environment and set up the module
+#> capability
+   limit stacksize unlimited
+
+
 # ===================================================================
 #> Runtime Environment Options
 # ===================================================================
@@ -73,7 +103,7 @@ echo 'Start Model Run At ' `date`
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
  set START_DATE = "2016-07-01"     #> beginning date (July 1, 2016)
- set END_DATE   = "2016-07-01"     #> ending date    (July 14, 2016)
+ set END_DATE   = "2016-07-05"     #> ending date    (July 14, 2016)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
@@ -158,16 +188,16 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
                              #>    velocities [ default: N ]
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
-setenv CTM_BIOGEMIS N        #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_MGN_BIOGEMIS Y    #> turns on MEGAN biogenic emission
+setenv CTM_BIOGEMIS_BEIS N   #> calculate in-line biogenic emissions [ default: N ]
+setenv CTM_BIOGEMIS_MEGAN Y  #> turns on MEGAN biogenic emission
 setenv IGNORE_SOILINP Y      #> Set to TRUE if no MEGAN for prev day
 setenv USE_MEGAN_LAI N
 
-       if ( $CTM_MGN_BIOGEMIS == 'Y' ) then
-         setenv MEGAN_CTS /work/MOD3DEV/jwilliso/coupled_listos/files/CT3_tceq_listos_1.33.ncf
-         setenv MEGAN_EFS /work/MOD3DEV/jwilliso/coupled_listos/files/EFMAPS31.2019b.tceq_listos_1.33.J4.ncf
-         setenv MEGAN_LAI /work/MOD3DEV/jwilliso/coupled_listos/files/LAI3_tceq_listos_1.33.ncf
-         setenv MEGAN_LDF /work/MOD3DEV/jwilliso/coupled_listos/files/LDF_tceq_listos_1.33.2019b.J4.ncf
+       if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
+         setenv MEGAN_CTS /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/CT3_tceq_12km.ncf
+         setenv MEGAN_EFS /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/EFMAPS31.2019b.tceq_12km.J4.ncf
+         setenv MEGAN_LAI /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/LAI3_tceq_12km.ncf
+         setenv MEGAN_LDF /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/LDF_tceq_12km.2019b.J4.ncf
        endif
 
 
@@ -185,7 +215,7 @@ setenv PROMPTFLAG F          #> turn on I/O-API PROMPT*FILE interactive mode [ o
 setenv IOAPI_OFFSET_64 YES   #> support large timestep records (>2GB/timestep record) [ options: YES | NO ]
 setenv IOAPI_CHECK_HEADERS N #> check file headers [ options: Y | N ]
 setenv CTM_EMISCHK N         #> Abort CMAQ if missing surrogates from emissions Input files
-setenv EMISDIAG F            #> Print Emission Rates at the output time step after they have been
+setenv EMISDIAG T            #> Print Emission Rates at the output time step after they have been
                              #>   scaled and modified by the user Rules [options: F | T or 2D | 3D | 2DSUM ]
                              #>   Individual streams can be modified using the variables:
                              #>       GR_EMIS_DIAG_## | STK_EMIS_DIAG_## | BIOG_EMIS_DIAG
@@ -414,7 +444,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
   #> In-line biogenic emissions configuration
-  if ( $CTM_BIOGEMIS == 'Y' ) then   
+  if ( $CTM_BIOGEMIS_BEIS == 'Y' ) then   
      set IN_BEISpath = ${INPDIR}/land
      setenv GSPRO      $BLD/gspro_biogenics.txt
      setenv B3GRD      $IN_BEISpath/b3grd_bench.nc
@@ -426,7 +456,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
      setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
   endif
-  if ( $CTM_MGN_BIOGEMIS == 'Y' ) then
+  if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
     setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
                              #>                            ; ignore if IGNORE_SOILINP = Y
@@ -731,6 +761,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> The next simulation day will, by definition, be a restart
   setenv NEW_START false
+  setenv IGNORE_SOILINP N      #> Set to TRUE if no MEGAN for prev day
 
   #> Increment both Gregorian and Julian Days
   set TODAYG = `date -ud "${TODAYG}+1days" +%Y-%m-%d` #> Add a day for tomorrow

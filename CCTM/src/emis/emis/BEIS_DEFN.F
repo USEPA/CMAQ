@@ -36,7 +36,7 @@ C-----------------------------------------------------------------------
       INTEGER,              SAVE :: N_SPC_BIOG ! biogenics emissions species
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_BI( :,:,: ) ! beis emis
       INTEGER, ALLOCATABLE, SAVE :: BEIS_MAP( : ) ! map to GC
-      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS = 'CTM_BIOGEMIS'! env var for
+      CHARACTER( 16 ),      SAVE :: CTM_BIOGEMIS_BEIS = 'CTM_BIOGEMIS_BEIS'! env var for
 
       CONTAINS
 
@@ -73,7 +73,7 @@ C In-line biogenic emissions?
          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Online Biogenic VOC Emissions Module (BEIS)' )
 
 C biogenics to gas-phase species map
-         IF ( BIOGEMIS ) THEN
+         IF ( BIOGEMIS_BEIS ) THEN
 
             XMSG = 'Using in-line biogenic emissions option'
             CALL M3MSG2( XMSG )

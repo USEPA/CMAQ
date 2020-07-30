@@ -39,10 +39,10 @@ bldit_cctm.csh - to compile MEGAN module
 
 !Run script changes
 
-setenv CTM_MGN_BIOGEMIS Y    #> turns on MEGAN biogenic emission
+setenv CTM_BIOGEMIS_MEGAN Y    #> turns on MEGAN biogenic emission
 setenv IGNORE_SOILINP TRUE   #> Set to TRUE if no MEGAN for prev day
 
-       if ( $CTM_MGN_BIOGEMIS == 'Y' ) then
+       if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
          setenv MEGAN_CTS /work/MOD3DEV/jwilliso/coupled_listos/files/CT3_tceq_listos_1.33.ncf
          setenv MEGAN_EFS /work/MOD3DEV/jwilliso/coupled_listos/files/EFMAPS31.2019b.tceq_listos_1.33.J4.ncf
          setenv MEGAN_LAI /work/MOD3DEV/jwilliso/coupled_listos/files/LAI3_tceq_listos_1.33.ncf
@@ -50,7 +50,7 @@ setenv IGNORE_SOILINP TRUE   #> Set to TRUE if no MEGAN for prev day
        endif
 
 
-  if ( $CTM_MGN_BIOGEMIS == 'Y' ) then
+  if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
     setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
   endif
 

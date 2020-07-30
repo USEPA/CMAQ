@@ -33,7 +33,7 @@
 !                     -- reorganized the code to read in certain files when
 !                        they are available as well as based on environmental 
 !                        variable setting
-!  05/02/19, D. Wong: -- added a logic to call soilinp_setup when BIOGEMIS is true
+!  05/02/19, D. Wong: -- added a logic to call soilinp_setup when BIOGEMIS_BEIS is true
 !  05/03/19, D. Wong: -- reorganized the flow of reading in LUS data
 !  05/06/19, D. Wong: -- added a new logic to read in INIT_MEDC_1 when it is not NEW_START
 !  05/07/19, D. Wong: -- removed duplicated array allocation for NH4ps1 and NH4ps2
@@ -149,8 +149,8 @@
      &                       INTERCEPT_lg(:,:), ! from LTNG parameter data
      &                       ICCG_SUM(:,:),     ! from LTNG parameter data
      &                       ICCG_WIN(:,:),     ! from LTNG parameter data
-     &                       AVGEMIS(:,:,:,:),  ! from BIOGEMIS data
-     &                       AVGLAI(:,:,:,:),   ! from BIOGEMIS data
+     &                       AVGEMIS(:,:,:,:),  ! from BIOGEMIS_BEIS data
+     &                       AVGLAI(:,:,:,:),   ! from BIOGEMIS_BEIS data
      &                       GROWAGNO(:,:),     ! from B3GRD data
      &                       NGROWAGNO(:,:),    ! from B3GRD data
      &                       NONAGNO(:,:),      ! from B3GRD data
@@ -319,7 +319,7 @@
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
           USE VGRD_DEFN, only : VGTYP_GD, nlays
-          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON,
+          USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS_BEIS, BIOGEMIS_SEASON,
      &                             STDATE, WB_DUST, ISAM_NEW_START,
      &                             local_tstep, met_tstep
           use LSM_Mod, only : LAND_SCHEME
@@ -2001,7 +2001,7 @@ C Read the various categories of normalized emissions
 
           USE UTILIO_DEFN
           use HGRD_DEFN, only : ncols, nrows
-          use RUNTIME_VARS, only : NEW_START,MEGAN_BIOGEMIS,IGNORE_SOILINP
+          use RUNTIME_VARS, only : NEW_START,BIOGEMIS_MEGAN,IGNORE_SOILINP
 
           INCLUDE SUBST_FILES_ID             ! file name parameters
 
@@ -2021,7 +2021,7 @@ C Read the various categories of normalized emissions
      &              DDTTM( mxhrs ),
      &              STAT=STAT )
 
-            if (MEGAN_BIOGEMIS) then
+            if (BIOGEMIS_MEGAN) then
              allocate (t24y  ( ncols,nrows        ),
      &                 sw24y ( ncols,nrows        ),
      &              HRNO_SW  ( NCOLS,NROWS, mxhrs ),
@@ -2088,7 +2088,7 @@ C Read the various categories of normalized emissions
              END IF
 
              RAINFALL = 0.0
-             if (MEGAN_BIOGEMIS) then
+             if (BIOGEMIS_MEGAN) then
               sw24sum  = 0.0
               t24sum   = 0.0
              end if
@@ -2107,7 +2107,7 @@ C Read the various categories of normalized emissions
                 DDTTM( I ) = VDESC3D( I+3 )( J:K )
 
 
-             if (MEGAN_BIOGEMIS .and. .not. IGNORE_SOILINP) then
+             if (BIOGEMIS_MEGAN .and. .not. IGNORE_SOILINP) then
                 WRITE( VAR, '(A2,I2.2)' ) 'SW', I
                 IF ( .NOT. XTRACT3( SOILINP, VAR, 1, 1,
      &                              STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD,  
@@ -2132,7 +2132,7 @@ C Read the various categories of normalized emissions
              
              END DO
  
-             if (MEGAN_BIOGEMIS .and. .not. IGNORE_SOILINP) then
+             if (BIOGEMIS_MEGAN .and. .not. IGNORE_SOILINP) then
                 sw24y = sw24sum/mxhrs
                 t24y  = t24sum/mxhrs
              end if
@@ -3651,11 +3651,11 @@ C   mminlu and num_land_cat are WRF global variables
 
              call stack_files_setup
 
-             if (BIOGEMIS) then
+             if (BIOGEMIS_BEIS) then
                 call biogemis_setup
                 call b3grd_setup
              end if
-             if (MEGAN_BIOGEMIS) then
+             if (BIOGEMIS_MEGAN) then
                 call megan_setup
              end if
 
@@ -3682,7 +3682,7 @@ C   mminlu and num_land_cat are WRF global variables
                 end if
              end if
 
-             if (BIOGEMIS .or. MEGAN_BIOGEMIS) then
+             if (BIOGEMIS_BEIS .or. BIOGEMIS_MEGAN) then
                 call soilinp_setup
              end if
 
