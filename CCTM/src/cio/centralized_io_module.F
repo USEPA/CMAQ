@@ -3401,7 +3401,7 @@ C   mminlu and num_land_cat are WRF global variables
           USE UTILIO_DEFN
           use RUNTIME_VARS, only : logdev
         
-           integer STAT,err, I, fnum
+           integer STAT, I, fnum
            integer megan_hr
            character (20) :: loc_time_stamp
            real t24sum(ncols),sw24sum(ncols) 
@@ -3419,7 +3419,7 @@ C   mminlu and num_land_cat are WRF global variables
              allocate (ctf(6,ncols,nrows),
      &                 efmaps(ncols,nrows,20),
      &                 lai_m(ncols,nrows, 46),
-     &                 stat=err)
+     &                 stat=stat)
 
           if (stat .ne. 0) then
              xmsg = 'Failure allocating MEGAN input arrays'
