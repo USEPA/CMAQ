@@ -50,4 +50,25 @@ C......................................................................
       INTEGER :: IPR2SAV_TMP( MAXIPRSPC,MAXTERMS )  ! Initial spcs pointer to saved concs
       REAL    :: SPCOEF_TMP ( MAXIPRSPC,MAXTERMS )  ! Initial spcs coefficient
 
+      INTEGER, PARAMETER :: NOPNAMES = 16  ! Number of IPR_OUTPUT operators
+
+      CHARACTER( 16 ) :: OPNAME( NOPNAMES ) = (/  ! IPR_OUTPUT Operator names
+     &                   'ZADV         ',  !  1
+     &                   'HADV         ',  !  2
+     &                   'HDIF         ',  !  3
+     &                   'VDIF         ',  !  4
+     &                   'EMIS         ',  !  5
+     &                   'DDEP         ',  !  6
+     &                   'CLDS         ',  !  7
+     &                   'CHEM         ',  !  8
+     &                   'COND         ',  !  9
+     &                   'COAG         ',  ! 10
+     &                   'NPF          ',  ! 11
+     &                   'GROW         ',  ! 12
+     &                   'AERO         ',  ! 13
+     &                   'MADV         ',  ! 14
+     &                   'TDIF         ',  ! 15
+     &                   'TRNM         ' /)! 16
+ 
+
       END MODULE PA_IPRVARS

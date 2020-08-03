@@ -46,7 +46,6 @@ C-----------------------------------------------------------------------
       USE PA_GLOBAL     ! Mech data used 
       USE PA_VARS, Only: NFAMLYS, FAMNAME, NUMFAMMEM, FAMMEMNAM, FAMSC
       USE PA_IPRVARS
-      USE PA_IPRDEF
       USE PA_DEFN
       USE PA_PARSE, Only: IZERO
       USE CGRID_SPCS, Only: N_CGRID_SPC, CGRID_NAME
@@ -113,6 +112,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                IPRNAME_TMP( NIPRVAR ) = 'ZADV_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Z-Advection of ' // 
      &                                   IPR_SPNAM( NIPR )
+               MAP_IPRVARtoSPC( NIPRVAR ) = NIPR
+               MAP_IPRVARtoOP( NIPRVAR
                IPROUT( NIPR,1 )   = NIPRVAR
                LPROCOUT( 1 )      = .TRUE.
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'HADV' ) THEN

@@ -47,7 +47,6 @@ C-----------------------------------------------------------------------
       USE PA_IPRVARS
       USE PA_VARS
       USE PA_PARSE
-      USE PA_IPRDEF, Only: NOPNAMES, OPNAME
       USE PA_DEFN
 
       IMPLICIT NONE
