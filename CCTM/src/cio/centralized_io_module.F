@@ -3401,7 +3401,7 @@ C   mminlu and num_land_cat are WRF global variables
           USE UTILIO_DEFN
           use RUNTIME_VARS, only : logdev
         
-           integer STAT, I, fnum
+           integer STAT,err, I, fnum
            integer megan_hr
            character (20) :: loc_time_stamp
            real t24sum(ncols),sw24sum(ncols) 
@@ -3414,38 +3414,17 @@ C   mminlu and num_land_cat are WRF global variables
            CHARACTER( 256 ) :: mesg
            character( 200)   :: xmsg
            character( 40 )  ::  var
-           CHARACTER*16, PARAMETER :: EFMAP(20) =             
-     &          (/  'EF_ISOP            ',                          !  1 isoprene
-     &         'EF_MBO             ',                               !  2 MBO
-     &         'EF_MT_PINE         ',                               !  3 monoterpenes: pines (alpha and beta)
-     &         'EF_MT_ACYC         ',                               !  4 monoterpenes: acyclic, 3 = (e.g., myrcene, ocimenes)
-     &         'EF_MT_CAMP         ',                               !  5 monoterpenes: carene, camphene, others
-     &         'EF_MT_SABI         ',                               !  6 monoterpenes: sabinene, limonene, terpinenes, others
-     &         'EF_MT_AROM         ',                               !  7  aromatic: cymenes, cymenenes
-     &         'EF_MT_OXY          ',                               !  8 C8-C13 oxygenated (e.g., camphor)
-     &         'EF_SQT_HR          ',                               !  9 Highly reactive SQT (e.g., caryophyllene)
-     &         'EF_SQT_LR          ',                               ! 10 less reactive SQT  (e.g., longifolene, copaene) and salates
-     &         'EF_MEOH            ',                               ! 11 methanol
-     &         'EF_ACTO            ',                               ! 12 acetone
-     &         'EF_ETOH            ',                               ! 13 acetaldehyde and ethanol
-     &         'EF_ACID            ',                               ! 14 organic acids: formic acid, acetic acid, pyruvic acid
-     &         'EF_LVOC            ',                               ! 15 C2 to C4 HC (e.g., ethene, ethane)
-     &         'EF_OXPROD          ',                               ! 16 oxidation products: aldehydes
-     &         'EF_STRESS          ',                               ! 17 Stress compounds (e.g., linalool)
-     &         'EF_OTHER           ',                               ! 18 other VOC (e.g., indole, pentane, methyl bromide)
-     &         'EF_CO              ',                               ! 19 carbon monoxide
-     &         'EF_NO              '  /)                             ! 20 Nitric oxide
       
-             ! Would like a more elegant way of doing this ^. Read NVARS in
-             ! IOAPI?
 
              allocate (ctf(6,ncols,nrows),
-     &                 stat=stat)
-             allocate (efmaps(ncols,nrows,20),
-     &                 stat=stat)
-             allocate (ldf( ncols,nrows, 20),
-     &              lai_m( ncols,nrows, 46),
-     &              stat=stat )
+     &                 efmaps(ncols,nrows,20),
+     &                 lai_m(ncols,nrows, 46),
+     &                 stat=err)
+
+          if (stat .ne. 0) then
+             xmsg = 'Failure allocating MEGAN input arrays'
+             call m3exit (pname, 0, 0, xmsg, xstat1 )
+          end if
 
              lai_m= 0.0
 
@@ -3536,14 +3515,12 @@ C   mminlu and num_land_cat are WRF global variables
                    END IF
             end do
 
-            do I=1,20
-                   IF ( .NOT. XTRACT3( MEGAN_EFS, EFMAP(I), 
+                   IF ( .NOT. XTRACT3( MEGAN_EFS, ALLVAR3, 
      &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD, 
-     &                                 0, 0, efmaps(:,:,I) ) ) THEN
+     &                                 0, 0, efmaps(:,:,:) ) ) THEN
                       XMSG = 'Could not extract ' // MEGAN_EFS // ' file'
                       CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
                    END IF
-             end do
 
 
 #else
@@ -3580,16 +3557,15 @@ C   mminlu and num_land_cat are WRF global variables
                    END IF
             end do
 
-            do I=1,20
-                   IF ( .NOT. XTRACT3( MEGAN_EFS, EFMAP(I), 
+                   IF ( .NOT. XTRACT3( MEGAN_EFS, ALLVAR3, 
      &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
-     &                                 0, 0, efmaps(:,:,I) ) ) THEN
+     &                                 0, 0, efmaps(:,:,:) ) ) THEN
                       XMSG = 'Could not extract ' // MEGAN_EFS // ' file'
                       CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
                    END IF
-             end do
 #endif
-
+                WHERE ( ctf .ne. ctf ) ctf = 0.0  ! ensure no NaNs
+ 
 
 #endif
         end subroutine megan_setup
