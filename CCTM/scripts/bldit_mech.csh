@@ -56,9 +56,9 @@
     setenv MECH_SRC ${CMAQ_HOME}/CCTM/scripts/${Mechanism}
  endif
 
- if ( ! $?TRAC_SRC ) then
+ if ( ! $?TRAC_NML ) then
     # Manually set location of input tracer files
-    setenv TRAC_SRC ${CMAQ_HOME}/CCTM/scripts/${Mechanism}
+    setenv TRAC_NML ${CMAQ_HOME}/CCTM/scripts/${Mechanism}/Species_Table_TR_0.nml
  endif
 
  if ( ! $?MECH_OUT ) then
@@ -83,12 +83,16 @@
 
 
 ###################### CHEMMECH Processor #############################
-
 #> Build Mechanism Files and instruct build-make to look
 #> in the CHEMMECH output folder for the files
  if ( ! -e ${MECH_SRC} ) then
      echo "bldit_mech.csh: $Mechanism input folder cannot be found. "
      echo "    Please select a valid mechanism input location."
+     exit 1
+ endif
+ if ( ! -e ${TRAC_NML} ) then
+     echo "bldit_mech.csh: ${TRAC_NML} file cannot be found. "
+     echo "    Please select a valid file."
      exit 1
  endif
  mkdir -p ${MECH_OUT}  # Create Output Folder if it Does not Already Exist
@@ -101,10 +105,10 @@
  endif
  
  # Copy files from MECH_SRC to the CHEMMECH input folder
- set CHEMMECH_INPUT = ${CMAQ_HOME}/UTIL/chemmech/input/${MECH}
+ setenv CHEMMECH_INPUT ${CMAQ_HOME}/UTIL/chemmech/input/${MECH}
  mkdir -p $CHEMMECH_INPUT
  cp -f ${MECH_SRC}/* ${CHEMMECH_INPUT}/
- cp -f ${TRAC_SRC}/* ${CHEMMECH_INPUT}/
+ cp -f ${TRAC_NML}   ${CHEMMECH_INPUT}/
  
  # Run CHEMMECH
  cd ${CMAQ_HOME}/UTIL/chemmech/scripts

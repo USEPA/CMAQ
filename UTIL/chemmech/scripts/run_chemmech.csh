@@ -60,8 +60,11 @@
  endif
  
  set WORKDIR = ${CHEMMECH_DIR}/scripts
- if ( ! $?INPDIR ) then
-   set INPDIR =  ${CHEMMECH_DIR}/input/${MECH}
+ if ( ! $?CHEMMECH_INPUT ) then
+   set CHEMMECH_INPUT =  ${CHEMMECH_DIR}/input/${MECH}
+ endif
+ if ( ! $?TRAC_NML ) then
+    set TRAC_NML  = ${CHEMMECH_INPUT}/Species_Table_TR_0.nml #> Tracer namelist ID
  endif
  if ( ! $?OUTDIR ) then
    setenv OUTDIR ${CHEMMECH_DIR}/output/${MECH}
@@ -110,15 +113,15 @@
 #> CHEMMECH Input Files
 # =====================================================================
 
- setenv MECHDEF         $INPDIR/mech_${MECH}.def
+ setenv MECHDEF         ${CHEMMECH_INPUT}/mech_${MECH}.def
  setenv MAPPING_ROUTINE "${BINDIR}/map_chemistry_spc.F90"
  
- setenv gc_matrix_nml $INPDIR/GC_${MECH}.nml
- setenv ae_matrix_nml $INPDIR/AE_${MECH}.nml
- setenv nr_matrix_nml $INPDIR/NR_${MECH}.nml
- setenv tr_matrix_nml $INPDIR/Species_Table_TR_0.nml
- #setenv tr_matrix_nml $INPDIR/trac0/Species_Table_TR_0.nml
- 
+ setenv gc_matrix_nml ${CHEMMECH_INPUT}/GC_${MECH}.nml
+ setenv ae_matrix_nml ${CHEMMECH_INPUT}/AE_${MECH}.nml
+ setenv nr_matrix_nml ${CHEMMECH_INPUT}/NR_${MECH}.nml
+ setenv tr_matrix_nml ${TRAC_NML}
+ #setenv tr_matrix_nml ${CHEMMECH_INPUT}/trac0/Species_Table_TR_0.nml
+
 
 #Check if input files exist
  set input_files = ( ${MECHDEF} ${MAPPING_ROUTINE} ${gc_matrix_nml} ${nr_matrix_nml} ${tr_matrix_nml} )
@@ -144,7 +147,7 @@
 
  # Copy input files to Output Directory
  cp -f $MECHDEF $OUTDIR/
- cp -f $INPDIR/*nml $OUTDIR/
+ cp -f ${CHEMMECH_INPUT}/*nml $OUTDIR/
 
  # Set Path for Output Files
  setenv SPCSDATX         ${OUTDIR}/SPCS.ext # lists species in mechanism
