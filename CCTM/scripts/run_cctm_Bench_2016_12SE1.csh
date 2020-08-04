@@ -159,8 +159,8 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
                              #>    velocities [ default: N ]
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
-setenv CTM_BIOGEMIS_BEIS N   #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_BIOGEMIS_MEGAN Y  #> turns on MEGAN biogenic emission
+setenv CTM_BIOGEMIS_BEIS Y   #> calculate in-line biogenic emissions [ default: N ]
+setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission
 setenv IGNORE_SOILINP Y      #> Set to TRUE if no MEGAN for prev day
 setenv USE_MEGAN_LAI N
 
