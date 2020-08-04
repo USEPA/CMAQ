@@ -127,7 +127,7 @@ Note that for multiprocessor applications it is recommended that the Fortran MPI
     Set to other libraries required for compiling on your Linux system; users will likely need to change this setting in the distributed script for portability to their system.
 
 -   `EXEC_ID`<a id=EXEC_ID></a>
-    build tag, should be automatically set by config_cmaq.csh
+    Build tag, should be automatically set by config_cmaq.csh. Users who build the CMAQ model from a git repository will see the SHA ID, corresponding to the state of the repository code used to build their model, inserted into this EXEC_ID. This will support the model build and resulting output being uniquely associated with the model source code version.
 
 -   `CMAQ_REPO` <a id=CMAQ_REPO></a> This is always the location of the CMAQ repository that the user will pull from to create exectuables. If the user is building CMAQ inside the repository then it will be equal to CMAQ_HOME. If not, the user must supply an alternative folder location.
 

@@ -72,14 +72,6 @@
             INTEGER, PARAMETER :: N_SD_REG = 200
             TYPE( SD_RULE ), ALLOCATABLE :: SD_NML( : )
 
-            ! Define General Parameters for Ignoring Online Streams when
-            ! Scaling All Streams with the "ALL" Keyword
-            LOGICAL :: Guard_BiogenicVOC   = .FALSE.
-            LOGICAL :: Guard_MarineGas     = .FALSE.
-            LOGICAL :: Guard_LightningNO   = .FALSE.
-            LOGICAL :: Guard_WindBlownDust = .FALSE.
-            LOGICAL :: Guard_SeaSpray      = .FALSE.
-
             ! Define Chemical Family Variables
             INTEGER, PARAMETER          :: N_CHEM_FAMILY_REG = 50
             INTEGER, PARAMETER          :: N_CHEM_MEMBER_REG = 100
