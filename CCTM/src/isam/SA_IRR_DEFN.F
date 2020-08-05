@@ -53,12 +53,14 @@ C***********************************************************************
       REAL( 8 )              :: NUMB_ISAM_CELLS = 0.0D0
       REAL( 8 )              :: DCONCMIN                 ! internal min concentration
       REAL( 8 )              :: DCONMIN_TAG              ! internal min tag concentration
+      REAL( 8 )              :: UNIFORM_DCONMIN_TAG      ! min tag concentration evenly distributed
 !      REAL( 8 ), ALLOCATABLE :: SRK( : )
       REAL( 8 ), ALLOCATABLE :: UGM3_TO_PPM( : )      ! CGRID to CHEM Species conversion factor
       REAL,      ALLOCATABLE :: PPM_TO_UGM3( : )      ! CHEM to CGRID Species conversion factor
       REAL( 8 ), ALLOCATABLE :: SOLD( :,: )           ! local source concentrations
-!      REAL( 8 ), ALLOCATABLE :: ISAM_FRACTION ( :,: ) ! isam tag concentration over cgrid value
-!      REAL( 8 ), ALLOCATABLE :: TOT_ISAM_RATIO( : )   ! sum of tag concentration over cgrid value
+!     REAL( 8 ), ALLOCATABLE :: FRAC_TOTAL( : )       ! tag's fraction in sum of tags;Used in SA_IRR_EXTRACT
+!     REAL( 8 ), ALLOCATABLE :: ISAM_FRACTION ( :,: ) ! isam tag concentration over cgrid value
+!     REAL( 8 ), ALLOCATABLE :: TOT_ISAM_RATIO( : )   ! sum of tag concentration over cgrid value
       
 !      REAL( 8 ), ALLOCATABLE  :: MAX_ERROR ( : )
 !      REAL( 8 ), ALLOCATABLE  :: RMSE_CONC ( : )
@@ -128,6 +130,11 @@ C***********************************************************************
        INTEGER, ALLOCATABLE :: OX_INDEX ( : )
        
        LOGICAL :: ISAM_WITH_OZONE = .FALSE.
+
+       REAL( 8 ), PARAMETER, PRIVATE :: ONE    = 1.0D0
+       REAL( 8 ), PARAMETER, PRIVATE :: ZERO   = 0.0D0
+       REAL( 8 ), PARAMETER, PRIVATE :: CUTOFF = 1.0D-23
+       REAL( 8 ), PARAMETER, PRIVATE :: BULK_CUTOFF = ZERO
        
       CONTAINS
         SUBROUTINE SA_IRR_INIT
@@ -295,6 +302,12 @@ C...Allocate and set conversion factors for isam chemistry species
              CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
         END IF 
 
+!       ALLOCATE( FRAC_TOTAL( NTAG_SA ), STAT = IOS )
+!       IF ( IOS .NE. 0 ) THEN
+!            MSG = 'Error allocating FRAC_TOTAL'
+!            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+!       END IF 
+
         ALLOCATE( ISAM_SPECIES( NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
            MSG = 'Error allocating ISAM_SPECIES'
@@ -337,9 +350,11 @@ C...Allocate and set conversion factors for isam chemistry species
         END IF 
         OX_INDEX = 0
 
-        DCONMIN_TAG    = 1.0D-40 
-        DCONCMIN       = 1.0D-30 
-        CONMIN_TAG     = 1.0E-30 
+        DCONMIN_TAG = 1.0D-40 
+        DCONCMIN    = 1.0D-30 
+        CONMIN_TAG  = 1.0E-30
+         
+        UNIFORM_DCONMIN_TAG = DCONMIN_TAG / REAL( NTAG_SA,8 ) 
 
         ALLOCATE( SOLD( NTAG_SA, NUMB_MECH_SPC ), STAT = IOS )
         IF ( IOS .NE. 0 ) THEN
@@ -768,12 +783,6 @@ C..Includes:
 !..Local:
          CHARACTER( 16 ), PARAMETER :: PNAME = 'SA_IRR_EXTRACT'     ! Program name
 
-         REAL( 8 ), PARAMETER  :: ONE       = 1.0D0
-         REAL( 8 ), PARAMETER  :: ZERO      = 0.0D0
-         REAL( 8 ), PARAMETER  :: CUTOFF    = 1.0D-23
-!         REAL( 8 ), PARAMETER  :: LOCAL_MIN = 1.1D-34
-!         REAL,      PARAMETER  :: REAL_MIN  = 1.1E-34
-
          REAL      :: FACTOR2
          REAL( 8 ) :: TOTAL, FACTOR1, FACTOR3
          REAL( 8 ) :: INV_DENS       ! one over air mass density, m3/kg
@@ -783,7 +792,7 @@ C..Includes:
          INTEGER :: I, J, RXN
          INTEGER :: C, L, R, S   ! Loop indices
          INTEGER :: SPC          ! array index
-         REAL(8) :: TAGS_TOTAL
+!        REAL(8) :: TAGS_TOTAL
          
 !         INTEGER :: IOS         
 !         CHARACTER( 132 )  :: MSG
@@ -797,27 +806,34 @@ C..Includes:
              SPC     = ISAM_SPC_MAP( JSPC )
              IS_TAG_NONZERO = .FALSE.
              LOAD_SOLD: DO KTAG = 1, NTAG_SA
-                SOLD( KTAG, S ) = REAL( ISAM( COL,ROW,LAY,SPC,KTAG ),8 )
-                IF( SOLD( KTAG, S ) .GT. ZERO )IS_TAG_NONZERO = .TRUE.
-                IF( SOLD( KTAG,S ) .LT. CUTOFF )THEN
-                    SOLD( KTAG,S ) = ZERO
-                ELSE    
-                    IF( CONVERT_ISAM( JSPC ) )THEN
-                       SOLD( KTAG, S ) = SOLD( KTAG, S )
-     &                                 * INV_DENS * UGM3_TO_PPM( JSPC )
-                    END IF
-                END IF
+                SOLD( KTAG, S ) = MAX( ZERO,
+     &                            REAL( ISAM( COL,ROW,LAY,SPC,KTAG ),8 ))
              END DO LOAD_SOLD ! ktag loop
-! prevent All SOLD equaling zero               
-             IF( MAXVAL( SOLD( 1:NTAG_SA,S ) ) .LE. ZERO )THEN
-                 IF( ANY( IS_TAG_NONZERO ) )THEN
-                    DO KTAG = 1, NTAG_SA
-                       IF( IS_TAG_NONZERO( KTAG ) )SOLD( KTAG,S ) = DCONMIN_TAG
-                    END DO
-                 ELSE
-                    SOLD( 1:NTAG_SA,S ) = DCONMIN_TAG
-                 END IF
-             END IF    
+!            TAGS_TOTAL = SUM( SOLD( 1:NTAG_SA, S ) )
+!            TAGS_TOTAL = 1.0D0 / MAX( TAGS_TOTAL, DCONMIN_TAG )
+             FILTER_SOLD: DO KTAG = 1, NTAG_SA
+!               FRAC_TOTAL( KTAG ) = SOLD( KTAG, S ) * TAGS_TOTAL
+                IF( SOLD( KTAG, S ) .GT. ZERO )THEN
+                   IS_TAG_NONZERO( KTAG ) = .TRUE.
+                   IF( CONVERT_ISAM( JSPC ) )THEN
+                      SOLD( KTAG, S ) = SOLD( KTAG, S )
+     &                                * INV_DENS * UGM3_TO_PPM( JSPC )
+                   END IF
+                   IF( SOLD( KTAG,S ) .LT. CUTOFF )THEN
+                      SOLD( KTAG,S ) = ZERO
+                   END IF
+                END IF
+             END DO FILTER_SOLD ! ktag loop
+
+! Remove bangs to prevent All SOLD equaling zero               
+!             IF( MAXVAL( SOLD( 1:NTAG_SA,S ) ) .LE. ZERO )THEN
+!                IF( ANY( IS_TAG_NONZERO ) )THEN
+!                    DO KTAG = 1, NTAG_SA                    
+!                       IF( IS_TAG_NONZERO( KTAG ) )THEN
+!                          SOLD( KTAG,S ) = FRAC_TOTAL( KTAG ) * DCONMIN_TAG
+!                       END IF
+!                    END DO
+!             END IF    
           END DO ! loop jspc
 
 #ifdef verbose_isam          
@@ -894,7 +910,7 @@ C..Includes:
                  END IF
                  ISAM( COL,ROW,LAY,SPC,KTAG ) = MAX( CONMIN_TAG, TEMP_VALUE )
                ELSE
-                 ISAM( COL,ROW,LAY,SPC,KTAG ) = CONMIN_TAG
+                 ISAM( COL,ROW,LAY,SPC,KTAG ) = ZERO
                END IF    
             END DO LOAD_ISAM ! ktag loop     
          END DO   ! jspc
@@ -931,7 +947,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SA_IRR_UNBLOCKED ( LSTART, RK, CONC, DELT )
 
 C-----------------------------------------------------------------------
-C  Function: Integrate chemical rates of reaction for an IRR/MB analysis
+C  Function: Iupdate tag concentrations
  
 C  Preconditions: None
  
@@ -1014,10 +1030,11 @@ C..Scratch Local Variables:
       LOGICAL, ALLOCATABLE, SAVE   :: SOURCE_ZERO( : ) ! whether source concentration greater than zero 
 C..Saved Local Variables:
 
-      REAL( 8 ), ALLOCATABLE, SAVE :: YCOLD  ( : )
-      REAL( 8 ), ALLOCATABLE, SAVE :: OUTSIDE( : )
-      REAL( 8 ), ALLOCATABLE, SAVE :: YCMID  ( : )
-      REAL( 8 ), ALLOCATABLE, SAVE :: RXRAT  ( : )       
+      REAL( 8 ), ALLOCATABLE, SAVE :: YCOLD  ( : )     ! bulk concentrations from previous time step
+      REAL( 8 ), ALLOCATABLE, SAVE :: OUTSIDE( : )     ! species concentration outside isam tags
+      REAL( 8 ), ALLOCATABLE, SAVE :: YCMID  ( : )     ! bulk concentrations from previous time step
+      REAL( 8 ), ALLOCATABLE, SAVE :: YCRATES( : )     ! bulk concentration used to calculate reactionvrates 
+      REAL( 8 ), ALLOCATABLE, SAVE :: RXRAT  ( : )     ! reactions rates   
       REAL( 8 ), ALLOCATABLE, SAVE :: INTRXN ( : )     ! Integrated reaction rates
 
       REAL( 8 ) :: ONE_OVER_CONC      ! reciprocal of total species concentrations
@@ -1054,6 +1071,12 @@ C Allocate arrays:
         ALLOCATE( YCMID( NUMB_MECH_SPC ), STAT = ASTAT )
         IF ( ASTAT .NE. 0 ) THEN
            MSG = 'ERROR allocating YCOLD variable'
+           CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+        END IF
+        
+        ALLOCATE( YCRATES( NUMB_MECH_SPC ), STAT = ASTAT )
+        IF ( ASTAT .NE. 0 ) THEN
+           MSG = 'ERROR allocating YCRATES variable'
            CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
         END IF
         
@@ -1175,6 +1198,7 @@ C...Assume that ISAM_SPECIES is fixed over the domain and simulation
          END DO            
       END IF ! LFIRST
       UPDATE_PROBABILITIES = .TRUE.
+      
       IF( LSTART )THEN
 !         UPDATE_SOLD = .FALSE.
          SOURCE_DELTA = 0.0D0
@@ -1184,8 +1208,14 @@ C...Assume that ISAM_SPECIES is fixed over the domain and simulation
          YCMID = YCOLD
          RETURN
       END IF
-   
-      IF( UPDATE_PROBABILITIES )THEN
+      
+C...filter bulk concentrations for concentrations used for reaction rates   
+      WHERE ( CONC .GE. BULK_CUTOFF )
+         YCRATES = CONC
+      ELSE WHERE
+         YCRATES = 0.0D0
+      END WHERE   
+
 C...check for bad values
          TOTAL_ISAM_CONC = 0.0D0 ! 1.0D-40
          DO ISP2 = 1, NUMB_MECH_SPC
@@ -1199,7 +1229,7 @@ C...check for bad values
 C..compute species fractions from ISAM groups and the remainder group for all mechanism species
 !  Note that remainder group (NTAG_SA+1) exists to handle untracked model species 
       DO ISP2 = 1, NUMB_MECH_SPC
-         IF( ISAM_SPECIES( ISP2 ) )THEN            
+         IF( ISAM_SPECIES( ISP2 ) )THEN          
            ONE_OVER_CONC   = 1.0D0 / MAX( TOTAL_ISAM_CONC( ISP2 ), DCONMIN_TAG )
            DO KTAG = 1, NTAG_SA
              ISAM_SOURCE( KTAG,ISP2 )     = SOLD( KTAG,ISP2 )*ONE_OVER_CONC
@@ -1235,7 +1265,7 @@ C...Calculate reaction rates and source probabilties
             IF ( NREACT( NRX ) .EQ. 1 ) THEN
                ISP1 = IRR( NRX,1 )
                RXRAT( NRX ) = RK( NRX )
-     &                      * CONC( ISP1 )
+     &                      * YCRATES( ISP1 )
                DO KTAG = 1, NTAG_SA
                  SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 - NOT_ISAM_SOURCE( KTAG,ISP1 ) 
                END DO
@@ -1245,8 +1275,8 @@ C...Calculate reaction rates and source probabilties
                ISP1 = IRR( NRX,1 )
                ISP2 = IRR( NRX,2 )
                RXRAT( NRX ) = RK( NRX )
-     &                      * CONC( ISP1 )
-     &                      * CONC( ISP2 ) 
+     &                      * YCRATES( ISP1 )
+     &                      * YCRATES( ISP2 ) 
                DO KTAG = 1, NTAG_SA
                  SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
      &                                          -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
@@ -1261,9 +1291,9 @@ C...Calculate reaction rates and source probabilties
                ISP2 = IRR( NRX,2 )
                ISP3 = IRR( NRX,3 )
                RXRAT( NRX ) = RK( NRX )
-     &                      * CONC( ISP1 )
-     &                      * CONC( ISP2 )
-     &                      * CONC( ISP3 ) 
+     &                      * YCRATES( ISP1 )
+     &                      * YCRATES( ISP2 )
+     &                      * YCRATES( ISP3 ) 
                DO KTAG = 1, NTAG_SA
                  SOURCE_PROBABILITY( KTAG,NRX ) = 1.0D0 
      &                                          -  NOT_ISAM_SOURCE( KTAG,ISP1 ) 
@@ -1307,7 +1337,7 @@ C..Normalize sources probabilities for reaction
      &                                          * ISAM_TOTAL_PROBABILITY
                 END DO
             END IF    
-            IF( TOTAL_PROBABILITY .LE. 0.0D0 )THEN
+            IF( TOTAL_PROBABILITY .LT. 0.0D0 )THEN
                DO JSPC = 1, ISAM_CHEMISTRY_SPC
                   S   = ISAM_TO_CHEM( JSPC )
                   SPC = ISAM_SPC_MAP( JSPC ) 
@@ -1328,9 +1358,11 @@ C..Normalize sources probabilities for reaction
                WRITE(ISAM_LOG,'(A16,86(1X,ES12.4))')RXLABEL( NRX ),
      &         (SOURCE_PROBABILITY( KTAG,NRX ),KTAG=1,NTAG_SA+1)
 
-               MSG = 'TOTAL_PROBABILITY <= zero from reaction label: ' 
+               MSG = 'TOTAL_PROBABILITY < zero from reaction label: ' 
      &             // TRIM( RXLABEL( NRX ) )
                CALL M3EXIT ( 'SA_IRR', 0, 0, MSG, XSTAT2 )
+            ELSE IF( TOTAL_PROBABILITY .EQ. 0.0D0 )THEN   
+               TOTAL_PROBABILITY = 1.0D0
             END IF
             TOTAL_PROBABILITY = 1.0D0 / TOTAL_PROBABILITY
             DO KTAG = 1, NTAG_SA + 1
@@ -1357,31 +1389,7 @@ C..Normalize sources probabilities for reaction
            END DO
          END IF ! WRITE_CELL  
 #endif         
-      ELSE  ! Just compute reaction rates
-         DO NRX = 1, NRXNS
-            IF ( NREACT( NRX ) .EQ. 1 ) THEN
-               ISP1 = IRR( NRX,1 )
-               RXRAT( NRX ) = RK( NRX )
-     &                      * CONC( ISP1 )
-            ELSE IF ( NREACT( NRX ) .EQ. 2 ) THEN
-               ISP1 = IRR( NRX,1 )
-               ISP2 = IRR( NRX,2 )
-               RXRAT( NRX ) = RK( NRX )
-     &                      * CONC( ISP1 )
-     &                      * CONC( ISP2 ) 
-            ELSE IF ( NREACT( NRX ) .EQ. 3 ) THEN
-               ISP1 = IRR( NRX,1 )
-               ISP2 = IRR( NRX,2 )
-               ISP3 = IRR( NRX,3 )
-               RXRAT( NRX ) = RK( NRX )
-     &                      * CONC( ISP1 )
-     &                      * CONC( ISP2 )
-     &                      * CONC( ISP3 ) 
-            ELSE IF (NREACT( NRX ) .EQ. 0 ) THEN
-               RXRAT( NRX ) = RK( NRX )
-            END IF
-         END DO
-      END IF       
+
 C..Compute integrated reaction rates
       DO NRX = 1, NRXNS
           INTRXN( NRX ) = DELT * RXRAT( NRX )
