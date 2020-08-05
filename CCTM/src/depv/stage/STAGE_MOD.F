@@ -708,7 +708,7 @@ C Calcuate Bare Soil Resistance
 ! Generalization of the production and deposition velocity terms
                pvd( n )        = pvd( n )        + frac_lu * Tile_Data%pol( l,s,c,r )
                depvel_gas( n ) = depvel_gas( n ) + 
-     &                           max( frac_lu * Tile_Data%depvel_gasj( l,s,c,r ), tiny(1.0) ) ! to prevent underflows error
+     &                           frac_lu * Tile_Data%depvel_gasj( l,s,c,r )
             End Do lu_loop
             If(ABFLUX .And. s .Eq. s_NH3 ) Then
                cmp( 1 ) = max( f_emis, 0.0 )

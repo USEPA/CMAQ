@@ -4660,11 +4660,6 @@ C   mminlu and num_land_cat are WRF global variables
          INTEGER          :: EMCTRL_NML
          INTEGER          :: STAT, IFAM, INUM
 
-         ! Define General Parameters in Emission Control Namelist
-         NAMELIST / GeneralSpecs / Guard_BiogenicVOC,
-     &              Guard_MarineGas, Guard_LightningNO, Guard_WindBlownDust,
-     &              Guard_SeaSpray
-
          ! Define Chemical Families
          NAMELIST / ChemicalFamilies / NChemFamilies, ChemFamilyName, 
      &              ChemFamilyNum, ChemFamilyMembers
@@ -4730,16 +4725,10 @@ C   mminlu and num_land_cat are WRF global variables
 
          ! Retrieve the Name of the Emission Control File
          IF ( EMISSCTRL .EQ. "EMISSCTRL_NML" ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A)"),
-     &              'You have chosen not to indicate the location of an',
-     &              'Emission Control namelist file. Default settings ',
-     &              'will be assumed.'
-             Guard_BiogenicVOC   = .FALSE.
-             Guard_MarineGas     = .FALSE.
-             Guard_LightningNO   = .FALSE.
-             Guard_WindBlownDust = .FALSE.
-             Guard_SeaSpray      = .FALSE.
-             RETURN
+             XMSG = 'You have chosen not to indicate the location of an' //
+     &              'Emission Control namelist file. You must give a value ' //
+     &              'for the EMISSCTRL variable in the CMAQ runscript.'
+             CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
 
          ! Open Emission Control Namelist File
@@ -4750,26 +4739,10 @@ C   mminlu and num_land_cat are WRF global variables
          ! Check for Error in File Open Process
          IF ( STAT .NE. 0 ) THEN
              WRITE( XMSG, '(A,A,A)' ),'ERROR: Could not read ',
-     &              'emissions control namelist file: ',TRIM( EQNAME )
+     &              'emissions control namelist file: ',TRIM( EMISSCTRL )
              CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
          
-         ! Read General Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = GeneralSpecs, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'GeneralSpecs section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             Guard_BiogenicVOC   = .FALSE.
-             Guard_MarineGas     = .FALSE.
-             Guard_LightningNO   = .FALSE.
-             Guard_WindBlownDust = .FALSE.
-             Guard_SeaSpray      = .FALSE.
-         END IF
- 
          ! Read Chemical Family Specification Section
          REWIND( EMCTRL_NML )
          READ( NML = ChemicalFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )

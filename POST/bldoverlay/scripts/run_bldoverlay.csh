@@ -1,8 +1,8 @@
 #!/bin/csh -f
 
 
-# ====================== BLDOVERLAYv5.3.1 Run Script ======================
-# Usage: run.bldoverlay.csh >&! bldoverlay_v531.log &
+# ====================== BLDOVERLAYv5.3.X Run Script ======================
+# Usage: run.bldoverlay.csh >&! bldoverlay.log &
 #
 # To report problems or request help with this script/program:
 #             http://www.epa.gov/cmaq    (EPA CMAQ Website)
@@ -21,7 +21,7 @@
  source ./config_cmaq.csh
 
 #> Set the model version
- set VRSN = v531
+ set VRSN = v532
 
 #> Set the build directory if this was not set above 
 #> (this is where the executable is located by default).
@@ -87,7 +87,7 @@
 #> species units
  setenv UNITS  'ppb,ug/m^3,ug/m^3,ppb,ppb,ppb,ppb,ppb,ppb'
 
-#> set input and output files.  A sample input file is provided with the CMAQv5.3.1 release.
+#> set input and output files.  A sample input file is provided with the CMAQv5.3.X release.
  setenv INFILE ${REPO_HOME}/POST/bldoverlay/inputs/AQS_overlay_input_sample.csv
  setenv OUTFILE ${POSTDIR}/AQS_overlay_${START_DATE}_${END_DATE}.nc
 
