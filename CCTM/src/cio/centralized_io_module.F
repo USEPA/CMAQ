@@ -70,6 +70,9 @@
 !                      variable the flexlible allows users to toggle the temporal
 !                      frequency of their input meterology.
 !  03/05/20, D. Wong: Expanded CIO functionalities to MPAS as well
+!  07/24/20, D. Wong: Fixed a bug, the code did not handle calling NEXTIME properly in
+!                     an extreme case, i.e. simulation runs in a hourly basis, in the
+!                     retrieve_boundary_data subroutine.
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -1461,10 +1464,10 @@
 
                    loc_mpas_time_stamp = mpas_loc_time_stamp(f_emis(fnum))
 
-                   call fread (cio_emis_file_name(fnum),
-     &                         loc_vname,
-     &                         mpas_tdata,
-     &                         loc_mpas_time_stamp)
+                   call mio_fread (cio_emis_file_name(fnum),
+     &                             loc_vname,
+     &                             mpas_tdata,
+     &                             loc_mpas_time_stamp)
 
 ! de-normalized the data 
                    mpas_tdata = 0.0
@@ -1534,14 +1537,14 @@
 
                    call julian_to_mpas_date_time (data_jdate, data_jtime, loc_mpas_time_stamp)
 
-                   call fread (cio_emis_file_name(fnum),
-     &                         loc_vname,
-     &                         temp_data_1d,
-     &                         loc_mpas_time_stamp)
+                   call mio_fread (cio_emis_file_name(fnum),
+     &                             loc_vname,
+     &                             temp_data_1d,
+     &                             loc_mpas_time_stamp)
 
                    cio_mpas_grid_data_tstamp(buf_loc, v) = loc_mpas_time_stamp
 
-                   call  mpas_date_time_to_julian (loc_mpas_time_stamp, data_jdate, data_jtime)
+                   call mpas_date_time_to_julian (loc_mpas_time_stamp, data_jdate, data_jtime)
 
 ! de-normalized the data 
                    mpas_tdata = 0.0
@@ -1865,7 +1868,7 @@
 
              allocate (tdata_1di(nsrc(n)), stat = stat)
 
-             call fread (stkgname(n), 'ROW', tdata_1di)
+             call mio_fread (stkgname(n), 'ROW', tdata_1di)
 
              my_nsrc(n) = 0
              do v = 1, nsrc(n)
@@ -1908,33 +1911,33 @@
      &                       stat=stat )
                 end if
 
-                call fread (stkgname(n), 'STKDM', tdata_1dr)
+                call mio_fread (stkgname(n), 'STKDM', tdata_1dr)
 
                 do v = 1, my_nsrc(n)
                    stkdiam( n )%arry(v) = tdata_1dr(my_nsrc_index(v, n))
                    my_nsrc_pressure(:,v,n) = g3ddata(my_nsrc_mesh_index(v, n),1,:,pres_ind)
                 end do
 
-                call fread (stkgname(n), 'STKHT', tdata_1dr)
+                call mio_fread (stkgname(n), 'STKHT', tdata_1dr)
 
                 do v = 1, my_nsrc(n)
                    stkht( n )%arry(v) = tdata_1dr(my_nsrc_index(v, n))
                 end do
 
-                call fread (stkgname(n), 'STKTK', tdata_1dr)
+                call mio_fread (stkgname(n), 'STKTK', tdata_1dr)
 
                 do v = 1, my_nsrc(n)
                    stktk( n )%arry(v) = tdata_1dr(my_nsrc_index(v, n))
                 end do
 
-                call fread (stkgname(n), 'STKVE', tdata_1dr)
+                call mio_fread (stkgname(n), 'STKVE', tdata_1dr)
 
                 do v = 1, my_nsrc(n)
                    stkvel( n )%arry(v) = tdata_1dr(my_nsrc_index(v, n))
                 end do
 
                 if ( fire_on( n ) ) then
-                   call fread (stkgname(n), 'ACRESBURNED', tdata_1dr)
+                   call mio_fread (stkgname(n), 'ACRESBURNED', tdata_1dr)
 
                    do v = 1, my_nsrc(n)
                       acres_burned( n )%arry(v) = tdata_1dr(my_nsrc_index(v, n))
@@ -2119,10 +2122,10 @@
 
                    if ((begin .gt. 0) .and. (my_nsrc(gp) .gt. 0)) then
 
-                      call fread (cio_stack_file_name(gp),
-     &                            cio_stack_var_name(v, gp), 
-     &                            tdata_1dr,
-     &                            mpas_time_stamp)
+                      call mio_fread (cio_stack_file_name(gp),
+     &                                cio_stack_var_name(v, gp), 
+     &                                tdata_1dr,
+     &                                mpas_time_stamp)
 
                       do i = 1, my_nsrc(gp)
                          cio_stack_data(begin+i-1) = tdata_1dr(my_nsrc_index(i, gp))
@@ -2177,15 +2180,15 @@
 ! if OCEAN file does not exist, g2ddata with open_ind and surf_ind have
 ! been setup in subroutne mpas_cmaq_coupler, mpas_atmchem_interface.F
              if (exist) then
-                call fread (ocean_file,
-     &                      'OPEN',
-     &                      g2ddata(:, 1, open_ind),
-     &                      mio_file_data(floc)%timestamp(1))
+                call mio_fread (ocean_file,
+     &                          'OPEN',
+     &                          g2ddata(:, 1, open_ind),
+     &                          mio_file_data(floc)%timestamp(1))
 
-                call fread (ocean_file,
-     &                      'SURF',
-     &                      g2ddata(:, 1, surf_ind),
-     &                      mio_file_data(floc)%timestamp(1))
+                call mio_fread (ocean_file,
+     &                          'SURF',
+     &                          g2ddata(:, 1, surf_ind),
+     &                          mio_file_data(floc)%timestamp(1))
              end if
           end if
 
@@ -2195,15 +2198,15 @@
                 call prog_interrupt ('reading ocean file', 0, 0, xmsg, 1)
              else
                 if (exist) then
-                   call fread (ocean_file,
-     &                         'CHLO',
-     &                         g2ddata(:, 1, chlo_ind),
-     &                         mio_file_data(floc)%timestamp(1))
+                   call mio_fread (ocean_file,
+     &                             'CHLO',
+     &                             g2ddata(:, 1, chlo_ind),
+     &                             mio_file_data(floc)%timestamp(1))
 
-                   call fread (ocean_file,
-     &                         'DMS',
-     &                         g2ddata(:, 1, dms_ind),
-     &                         mio_file_data(floc)%timestamp(1))
+                   call mio_fread (ocean_file,
+     &                             'DMS',
+     &                             g2ddata(:, 1, dms_ind),
+     &                             mio_file_data(floc)%timestamp(1))
                 else
                    XMSG = 'Ocean file doese not exist'
                    call prog_interrupt ('reading ocean file', 0, 0, xmsg, 1)
@@ -3651,7 +3654,8 @@ C Read the various categories of normalized emissions
 
           LOGICAL :: firstime = .true.
           INTEGER :: STAT, i, j, begin, end, buf_loc, iterations,
-     &               iter, loc_jdate, loc_jtime_met, loc_jtime, v, beg_v, end_v
+     &               iter, loc_jdate_met, loc_jdate, loc_jtime_met, 
+     &               loc_jtime, v, beg_v, end_v
 
           CHARACTER( 120 ) :: XMSG = ' '
 
@@ -3677,6 +3681,7 @@ C Read the various categories of normalized emissions
           end if
 
           loc_jdate     = jdate
+          loc_jdate_met = jdate
           loc_jtime     = jtime
           loc_jtime_met = jtime
 
@@ -3699,9 +3704,9 @@ C Read the various categories of normalized emissions
                    cio_bndy_data(begin:end) = 0.0
 #else
                    if (.not. read3 (MET_BDY_3D, cio_bndy_var_name(v,1), -1,
-     &                              loc_jdate, loc_jtime_met, cio_bndy_data(begin:end) ) ) THEN
+     &                              loc_jdate_met, loc_jtime_met, cio_bndy_data(begin:end) ) ) THEN
                       XMSG = 'Could not read ' // MET_BDY_3D // ' file'
-                      CALL M3EXIT ( PNAME, loc_jdate, loc_jtime_met, XMSG, XSTAT1 )
+                      CALL M3EXIT ( PNAME, loc_jdate_met, loc_jtime_met, XMSG, XSTAT1 )
                    END IF
 #endif
                 else if ((cio_bndy_var_name(v,2) == 'bc') .or.
@@ -3718,7 +3723,7 @@ C Read the various categories of normalized emissions
 
              end do
 
-             CALL NEXTIME ( loc_jdate, loc_jtime_met, file_tstep(f_met))
+             CALL NEXTIME ( loc_jdate_met, loc_jtime_met, file_tstep(f_met))
              CALL NEXTIME ( loc_jdate, loc_jtime, file_tstep(f_bcon))
 
           end do  ! end iter
@@ -4211,7 +4216,7 @@ C   mminlu and num_land_cat are WRF global variables
           USE UTILIO_DEFN, only : m3exit
 
 #ifdef mpas
-          use hgrd_defn, only : nrows
+          use hgrd_defn, only : ncols
           use RUNTIME_VARS, only : WB_DUST, ocean_chem
           use lus_defn, only : lus_init
 #else
@@ -4392,6 +4397,10 @@ C   mminlu and num_land_cat are WRF global variables
       USE util_module, only : index1, upcase
 #endif
 
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, S_NRGN, S_RGNLBL, IREGION
+#endif
+
       IMPLICIT NONE
                                                      
       TYPE( EM_REG      ) :: EM_REG_READ( N_REGIONS_REG )
@@ -4508,7 +4517,9 @@ C   mminlu and num_land_cat are WRF global variables
                            EM_REGIONS( N_EM_RGN )%FILE    = EM_REG_READ( IREAD )%FILE
                            EM_REGIONS( N_EM_RGN )%FILENUM = EM_REG_READ( IREAD )%FILENUM
 
-#ifndef mpas
+#ifdef mpas
+                           call mio_fread (FILENAMES(IFILE), lvname, EM_REG_FAC(:,1,N_EM_RGN))
+#else
                            IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME3D(IVAR), 1, 1,
      &                                         STARTROW, ENDROW, STARTCOL, ENDCOL,
      &                                         0, 0, EM_REG_FAC( 1,1,N_EM_RGN ) ) ) Then
@@ -4526,7 +4537,9 @@ C   mminlu and num_land_cat are WRF global variables
                      EM_REGIONS( N_EM_RGN ) = EM_REG_READ( IREAD )
                      VNAME = EM_REG_READ( IREAD )%VAR
 
-#ifndef mpas
+#ifdef mpas
+                     call mio_fread (FILENAMES(IFILE), VNAME, EM_REG_FAC(:,1,N_EM_RGN))
+#else
                      IF ( .NOT. XTRACT3( FILENAMES( IFILE ), VNAME, 1, 1,
      &                                   STARTROW, ENDROW, STARTCOL, ENDCOL,
      &                                   0, 0, EM_REG_FAC( 1,1,N_EM_RGN ) ) ) Then
