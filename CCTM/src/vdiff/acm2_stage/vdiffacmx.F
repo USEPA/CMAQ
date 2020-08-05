@@ -179,10 +179,11 @@ C ACM Local Variables
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_HONO( : )
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_NH3( : )
 
-
       CHARACTER( 16 ) :: ISAM_SPECIES
 
       INTEGER TOP, BOT
+
+      REAL NH3_FACTOR
 #endif      
 
       INTERFACE
@@ -688,6 +689,13 @@ C --------- END of HET HONO RX ----------
 
                ELSE
                   S = DV2DF( V )
+#ifdef isam
+                  IF ( SA_BIDI .AND. V .EQ. NH3_HIT ) THEN
+! Calculate the effective deposition velocity from the diagnostic deposition variable and the 
+! ambient concentration. Only need to do this once before the concentration is updated for deposition.
+                     NH3_FACTOR = CMP(2,C,R)/CONC( S,1 ) * DD_CONV( V ) * DTDENS1
+                  End If
+#endif
                   CONC( S,1 ) = POL( V ) + ( CONC( S,1 ) - POL( V ) ) * EFAC1( V )
                   DDBF( V ) = DDBF( V ) + THETA * DD_FAC( V ) * ( CONC( S,1 ) - POL( V ) )
 
@@ -756,14 +764,23 @@ C --------------- END of HET HONO RX ----------
             DO JSPCTAG = 1, N_SPCTAG
                S = ISAM_DEPV( JSPCTAG )
                IF ( S .GT. 0 ) THEN
-                  SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC1( S )
-     &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC1( S ) )               
-                  SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                + THETA * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
-                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                   - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                        
-                  END IF
+                 IF( ABFLUX .AND. S .EQ. NH3_HIT ) THEN
+
+                   SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC1( S )                     ! deposition
+     &                                 + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC1( S ) ) ! emission
+                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                 + THETA * NH3_FACTOR *  SACONC( JSPCTAG,1 )
+                 ELSE
+
+                   SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC1( S )
+     &                                 + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC1( S ) )               
+                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                 + THETA * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
+                   IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
+                      SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                    - THETA * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                        
+                   END IF
+                 END IF
                END IF
             END DO
 
@@ -986,14 +1003,23 @@ C Update ISAM Dry Deposition
             DO JSPCTAG = 1, N_SPCTAG
                S = ISAM_DEPV( JSPCTAG )
                IF ( S .GT. 0 ) THEN
-                  SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC2( S )
-     &                                + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) )               
-                  SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
-                  IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
+                 IF( ABFLUX .AND. S .EQ. NH3_HIT ) THEN
+                   SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC2( S )                     ! deposition
+     &                                 + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) ) ! emission
+                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                 + THBAR * NH3_FACTOR *  SACONC( JSPCTAG,1 )
+
+                 ELSE 
+
+                   SACONC( JSPCTAG,1 ) = SACONC( JSPCTAG,1 ) * EFAC2( S )
+     &                                 + SAFRAC( JSPCTAG ) * POL( S ) * ( 1.0 -  EFAC2( S ) )               
+                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                 + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
+                   IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
                      SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                   - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
-                  END IF
+                   END IF
+                 END IF
                END IF
             END DO
 #endif
