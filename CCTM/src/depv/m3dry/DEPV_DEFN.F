@@ -53,6 +53,7 @@ C                        clauses
 C   12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
+      USE CGRID_SPCS, ONLY : N_SPC_DEPV
 
 #ifdef sens
       USE DDM3D_DEFN, ONLY : NP, NPMAX, S_PVD, S_CGRIDL1, S_PLDV
@@ -64,7 +65,6 @@ C model depositon velocites array
       REAL,    ALLOCATABLE, SAVE :: DEPV( :,:,: )
 
 C no. of deposition velocity model species
-      INTEGER, SAVE :: N_SPC_DEPV
       INTEGER, SAVE :: N_GAS_DEPV
 
 C ddep spc conversion factors
@@ -82,11 +82,11 @@ C  Dry dep flux of NH3 for bidi [kg/ha hr]
 !C flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
 !      LOGICAL, SAVE :: FST = .FALSE.      
 
-!      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
+!      PUBLIC DEPV, DEPVJ, DEPVJ_FST, DD_CONV, PLDV, CMP,
 !     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, N_GAS_DEPV,
 !     &             DEPV_INIT, GET_DEPV
 
-      PUBLIC DEPV, N_SPC_DEPV, DD_CONV, PLDV, N_GAS_DEPV,
+      PUBLIC DEPV, DD_CONV, PLDV, N_GAS_DEPV,
      &             DEPV_INIT, GET_DEPV, NH3_EMIS
       
       PRIVATE
@@ -197,7 +197,6 @@ C-----------------------------------------------------------------------
          SUCCESS = .TRUE.
 
          N_GAS_DEPV = N_GC_DEPV + N_NR_DEPV + N_TR_DEPV
-         N_SPC_DEPV = N_GAS_DEPV + N_AE_DEPV
 
          ALLOCATE ( DEPV( N_SPC_DEPV+1,NCOLS,NROWS ),
      &              PLDV( N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )

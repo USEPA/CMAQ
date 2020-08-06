@@ -3,15 +3,18 @@
 
       contains
 
-      subroutine LOAD_HEADER( HEADER_TXT )
+      subroutine LOAD_HEADER( HEADER_TXT, N_TXT )
 
       IMPLICIT NONE
 
       CHARACTER( 90 ) :: HEADER_TXT( : )
+      INTEGER         :: N_TXT
 
+      N_TXT = 21
+      ALLOCATE( HEADER_TXT( N_TXT ) )
       HEADER_TXT( : ) = ''
 
-      HEADER_TXT( 1:21 ) = (/   
+      HEADER_TXT( 1:N_TXT ) = (/   
      &   '================================================================================', 
      &   '|                                                                              |', 
      &   '|               The Community Multiscale Air Quality (CMAQ) Model              |', 

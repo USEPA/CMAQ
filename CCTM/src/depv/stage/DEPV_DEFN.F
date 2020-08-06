@@ -58,6 +58,7 @@ C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C   Feb 2019 D. Wong:    removed all MY_N clauses
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
+      USE CGRID_SPCS, ONLY : N_SPC_DEPV
 
       IMPLICIT NONE
 
@@ -72,7 +73,6 @@ C model depositon velocites array by land use category
       REAL,    ALLOCATABLE, SAVE :: DEPVJ_FST( :,:,:,: )         
 
 C no. of deposition velocity model species
-      INTEGER, SAVE :: N_SPC_DEPV
       INTEGER, SAVE :: N_GAS_DEPV
 
 C ddep spc conversion factors
@@ -82,7 +82,7 @@ C model-oriented bi-directional production [ppm-m/s]
       REAL,    ALLOCATABLE, SAVE :: PLDV( :,:,: )
       REAL,    ALLOCATABLE, SAVE :: CMP ( :,:,: )
 
-      PUBLIC DEPV, DEPVJ,PLDVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
+      PUBLIC DEPV, DEPVJ,PLDVJ, DEPVJ_FST, DD_CONV, PLDV, CMP,
      &             N_GAS_DEPV, DEPV_INIT, GET_DEPV
       PRIVATE
 

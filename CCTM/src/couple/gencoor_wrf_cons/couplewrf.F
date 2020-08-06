@@ -107,7 +107,6 @@ C Local Variables:
 
       INTEGER     OFF              ! loop offset to CGRID species
       INTEGER     C, R, L, SPC, V  ! loop counters
-      INTEGER     RHOJ_LOC         ! pointer to transported RHOJ (in CGRID)
 
 #ifdef isam
       INTEGER  :: SPC_CGRID
@@ -183,7 +182,6 @@ C CGRID in mixing ratio [ppmV] -> (air density X "total" Jacobian) X mixing rati
       END IF
  
 C initialize RhoJ from MCIP - done once per sync step
-      RHOJ_LOC = GC_STRT + N_GC_SPC
       DO L = 1, NLAYS
          DO R = 1, NROWS
             DO C = 1, NCOLS
@@ -334,7 +332,6 @@ C entry DECOUPLE
       call interpolate_var ('JACOBM', jdate, jtime, JACOBM)
  
 C retrieve transported RhoJ
-      RHOJ_LOC = GC_STRT + N_GC_SPC
       DO L = 1, NLAYS
          DO R = 1, NROWS
             DO C = 1, NCOLS

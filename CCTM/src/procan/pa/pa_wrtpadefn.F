@@ -370,7 +370,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             NHI = MIN( ( NS * 10 * MAXCNT ), NCSAVE )         
             WRITE( IOUT, 96320 ) NLO, NHI
             DO NPA = NLO,  NHI
-               WRITE( BUF6( NPA ), 96080 ) SAV2GRD( NPA )
+               WRITE( BUF6( NPA ), 96080 ) MAP_SAVEtoCGRID( NPA )
             END DO
             BUF6( NHI )( 6:7 ) = ' /'
             call listout( NLO, NHI, 10, IOUT, BUF6 )
@@ -378,14 +378,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END IF
 
       IF ( N_IPR_SPC .GT. 0 ) THEN
-         DO NPA = 1, N_IPR_SPC
+         DO NPA = 1, NIPRVAR
             NSETS = ( ( NPRCS - 1 ) / ( 10 * MAXCNT ) ) + 1
             DO NS = 1, NSETS
                NLO = ( NS - 1 ) * ( 10 * MAXCNT ) + 1
                NHI = MIN( ( NS * 10 * MAXCNT ), NPRCS )         
                WRITE( IOUT, 96340 ) NPA, NLO, NHI
                DO N = NLO,  NHI
-                  WRITE( BUF6( N ), 96080 ) IPROUT( NPA, N )
+                  WRITE( BUF6( N ), 96080 ) MASK_IPR_PROC( NPA, N )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
                call listout( NLO, NHI, 10, IOUT, BUF6 )
@@ -401,7 +401,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                NHI = MIN( ( NS * 10 * MAXCNT ),  NCGRID( NPA ) )         
                WRITE( IOUT, 96360 ) NPA, NLO, NHI
                DO N = NLO, NHI
-                  WRITE( BUF6( N ), 96080 ) IPR2GRD( NPA, N )
+                  WRITE( BUF6( N ), 96080 ) MAP_IPRtoCGRID( NPA, N )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
                call listout( NLO, NHI, 10, IOUT, BUF6 )
@@ -417,7 +417,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                NHI = MIN( ( NS * 10 * MAXCNT ), NCGRID( NPA ) )         
                WRITE( IOUT, 96380 ) NPA,  NLO,  NHI
                DO N = NLO, NHI
-                  WRITE( BUF6( N ), 96080 ) IPR2SAV( NPA, N )
+                  WRITE( BUF6( N ), 96080 ) MAP_IPRtoSAVE( NPA, N )
                END DO
                BUF6( NHI )( 6:7 ) = ' /'
                call listout( NLO, NHI, 10, IOUT, BUF6 )
@@ -432,14 +432,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             NHI = MIN( ( NS * 5 * MAXCNT ), NPRCS )         
             WRITE( IOUT, 96400 ) NLO,  NHI
             DO N = NLO, NHI
-               IF ( LPROCOUT( N ) ) THEN
+               IF ( ANY( MASK_IPR_PROC( :,N )) ) THEN
                   BUF12( N ) = '     .TRUE., '
                ELSE
                   BUF12( N ) = '    .FALSE., '
                END IF
             END DO
             BUF12( NHI )( 12:13 ) = ' /'  
-!           WRITE( IOUT, 96060 ) ( BUF12( N ), N = NLO, NHI )
             call listout( NLO, NHI, 5, IOUT, BUF12 )
          END DO
       END IF

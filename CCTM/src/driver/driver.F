@@ -420,15 +420,8 @@ C Initialize stencil exchange
 C Generate the process analysis data: load PA_DEFN module
          CALL PA_DATAGEN( )
 
-C Set up horizontal domain and calculate processor-to-subdomain maps for
-C process analysis, if required
-         IF ( LIPR .OR. LIRR ) THEN
-            IF ( .NOT. PAGRD_INIT( MYPE ) ) THEN
-               XMSG = '*** Failure defining PA domain configuration'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-         END IF
-
+C Abort if the number of output variables exceeds the maximum allowed
+C by I/O-API
          IF ( NSPCSD .GT. MXVARS3 ) THEN
             WRITE( XMSG,'(5X, A, I5, A)' ) 'The number of variables,', NSPCSD,
      &      ' to be written to the State CGRID File'
@@ -708,6 +701,9 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
       END IF
 #endif
 
+C Initialize Budget Output File and Concentration Array
+      CALL BUDGET_INIT( CGRID )
+
 C science process sequence:
          
       myNREPS = myNREPS + NREPS
@@ -833,7 +829,9 @@ C write conc fields
          CALL WR_ASENS ( JDATE, JTIME, TSTEP( 1 ) )
 #endif
          IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
+         CALL WRITE_BUDGET ( CGRID, JDATE, JTIME, TSTEP )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
+         
       END IF
 
 #ifdef twoway

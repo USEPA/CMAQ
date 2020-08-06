@@ -546,21 +546,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LERROR = .FALSE.
       DO 180 NOUT = 1, N_IPR_SPC
          NOPS = N_IPR_OPS( NOUT )
-         IF ( NOPS .GT. 0 ) THEN
-            DO N = 1, NOPS
-               INDX = INDEX1( IPR_OPNAME( NOUT,N ), NOPNAMES, OPNAME )
-               IF ( INDX .EQ. 0 ) THEN
-                  WRITE( MSG, 94520 )
-                  CALL M3MESG( MSG )
-                  WRITE( MSG, 94540 ) IPR_OPNAME( NOUT,N ), 
-     &                                IPR_SPNAM( NOUT )
-                  CALL M3MESG( MSG )
-                  LERROR = .TRUE.
-               ELSE
-                  IPR_OPNAME( NOUT,N ) = OPNAME( INDX )
-               END IF
-            END DO
-         ELSE
+         IF ( NOPS .EQ. 0 ) THEN
             DO N = 1, NPRCS
                IPR_OPNAME( NOUT,N ) = PROCNAME( N )
             END DO

@@ -34,6 +34,7 @@ C----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE PA_VARS, Only: NFAMLYS, NRXSUMS, NCYCLES, NIRROUT
       USE PA_DEFN            ! Process Anaylsis control and data variables
+      USE PAGRD_DEFN, ONLY : PAGRD_INIT
 
       IMPLICIT NONE 
 
@@ -80,6 +81,15 @@ C----------------------------------------------------------------------
       NRXSUMS = 0
       NCYCLES = 0
       NIRROUT = 0
-
+ 
+! Set up horizontal domain and calculate processor-to-subdomain maps for
+! process analysis, if required
+      IF ( LIPR .OR. LIRR ) THEN
+         IF ( .NOT. PAGRD_INIT( MYPE ) ) THEN
+            XMSG = '*** Failure defining PA domain configuration'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+      END IF
+ 
       RETURN
       END SUBROUTINE PA_DATAGEN

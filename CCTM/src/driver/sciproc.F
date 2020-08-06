@@ -65,8 +65,8 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-      USE PA_DEFN, Only: LIPR   ! Process Analysis control and data variables
-
+      USE PA_DEFN, Only: LIPR, IPR_VDIF, IPR_ZADV, IPR_HDIF, IPR_CLDS, IPR_CHEM   ! Process Analysis control and data variables
+      USE PA_UPDATE
 #ifdef isam
       USE SA_DEFN, Only: ISAM
       USE GRID_CONF
@@ -118,12 +118,12 @@ C Local Variables:
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
          END SUBROUTINE CKSUMMER
-         SUBROUTINE PA_UPDATE ( PNAME, CGRID, JDATE, JTIME, TSTEP )
-            CHARACTER( * ), INTENT( IN ) :: PNAME
-            REAL, POINTER             :: CGRID( :,:,:,: )
-            INTEGER, INTENT( IN )     :: JDATE, JTIME
-            INTEGER, INTENT( IN )     :: TSTEP( 3 )
-         END SUBROUTINE PA_UPDATE
+         !SUBROUTINE PA_UPDATE_PROC ( PID, CGRID, JDATE, JTIME, TSTEP )
+         !   INTEGER, INTENT( IN )     :: PID
+         !   REAL, POINTER             :: CGRID( :,:,:,: )
+         !   INTEGER, INTENT( IN )     :: JDATE, JTIME
+         !   INTEGER, INTENT( IN )     :: TSTEP( 3 )
+         !END SUBROUTINE PA_UPDATE_PROC
          SUBROUTINE HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
             REAL, POINTER             :: CGRID( :,:,:,: )
             INTEGER, INTENT( IN )     :: JDATE, JTIME
@@ -232,7 +232,7 @@ C-----------------------------------------------------------------------
 C Synchronization Step Physical Processes Sequence
       CALL VDIFF ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'VDIFF', CGRID, JDATE, JTIME )
-      IF ( LIPR ) CALL PA_UPDATE ( 'VDIF', CGRID, JDATE, JTIME, TSTEP )
+      IF ( LIPR ) CALL PA_UPDATE_PROC ( IPR_VDIF, CGRID, JDATE, JTIME, TSTEP )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'VDIFF' )
 
 
@@ -248,17 +248,17 @@ C DECOUPLE routine converts it back to ug/m3.
          CALL SUBST_BARRIER()
          CALL HADV ( CGRID, JDATE, JTIME, TSTEP, ASTEP )
          IF ( CKSUM ) CALL CKSUMMER ( 'HADV', CGRID, JDATE, JTIME )
-         IF ( LIPR ) CALL PA_UPDATE ( 'HADV', CGRID, JDATE, JTIME, TSTEP )
+         IF ( LIPR ) CALL PA_UPDATE_HADV ( CGRID, JDATE, JTIME, TSTEP )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HADV' )
          
          CALL ZADV ( CGRID, JDATE, JTIME, TSTEP )
          IF ( CKSUM ) CALL CKSUMMER ( 'ADV', CGRID, JDATE, JTIME )
-         IF ( LIPR ) CALL PA_UPDATE ( 'ZADV', CGRID, JDATE, JTIME, TSTEP )
+         IF ( LIPR ) CALL PA_UPDATE_PROC ( IPR_ZADV, CGRID, JDATE, JTIME, TSTEP )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'ZADV' )
          
          CALL HDIFF ( CGRID, JDATE, JTIME, TSTEP )
          IF ( CKSUM ) CALL CKSUMMER ( 'HDIFF', CGRID, JDATE, JTIME )
-         IF ( LIPR ) CALL PA_UPDATE ( 'HDIF', CGRID, JDATE, JTIME, TSTEP )
+         IF ( LIPR ) CALL PA_UPDATE_PROC ( IPR_HDIF, CGRID, JDATE, JTIME, TSTEP )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'HDIFF' )
 
 C decouple CGRID for cloud and chemistry
@@ -279,20 +279,20 @@ C decouple CGRID for cloud and chemistry
 
       CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )
-      IF ( LIPR ) CALL PA_UPDATE ( 'CLDS', CGRID, JDATE, JTIME, TSTEP )
+      IF ( LIPR ) CALL PA_UPDATE_PROC ( IPR_CLDS, CGRID, JDATE, JTIME, TSTEP )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CLDPROC' )
 
       IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .TRUE. )
       CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CHEM', CGRID, JDATE, JTIME )
-      IF ( LIPR ) CALL PA_UPDATE ( 'CHEM', CGRID, JDATE, JTIME, TSTEP ) 
+      IF ( LIPR ) CALL PA_UPDATE_PROC ( IPR_CHEM, CGRID, JDATE, JTIME, TSTEP ) 
       IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .FALSE. )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CHEM' )
 
 #ifdef potvorto3
       CALL PVO3 ( CGRID, JDATE, JTIME )
       IF ( CKSUM ) CALL CKSUMMER ( 'PVO3', CGRID, JDATE, JTIME )
-      IF ( LIPR ) CALL PA_UPDATE ( 'PVO3', CGRID, JDATE, JTIME, TSTEP )
+      IF ( LIPR ) CALL PA_UPDATE_PROC ( IPR_PVO3, CGRID, JDATE, JTIME, TSTEP )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PVO3' )
 #endif
 
@@ -302,7 +302,7 @@ C decouple CGRID for cloud and chemistry
 
       CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )
-      IF ( LIPR ) CALL PA_UPDATE_AERO ( CGRID, JDATE, JTIME, TSTEP )
+      IF ( LIPR ) CALL PA_UPDATE_AERO ( CGRID, JDATE, JTIME )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
       IF ( STM ) CALL STM_WRAP_AE ( CGRID, JDATE, JTIME )
 

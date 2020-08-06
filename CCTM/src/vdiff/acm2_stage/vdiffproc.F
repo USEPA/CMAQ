@@ -95,6 +95,7 @@ C-----------------------------------------------------------------------
       USE SEDIMENTATION
       USE VDIFF_DIAG
       USE PA_DEFN, Only: LIPR ! Process Analysis control and data variables
+      USE PA_UPDATE
 
 #ifdef isam
       USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
@@ -162,18 +163,6 @@ C Local Variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
 
       INTERFACE
-         SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
-            CHARACTER( * ), INTENT( IN )  :: PNAME
-            REAL,           INTENT( IN )  :: VDEMIS_DIFF( :,:,:,: )
-            INTEGER,        INTENT( IN )  :: JDATE, JTIME
-            INTEGER,        INTENT( IN )  :: TSTEP( 3 )
-         END SUBROUTINE PA_UPDATE_EMIS
-         SUBROUTINE PA_UPDATE_DDEP ( PNAME, DDEP, JDATE, JTIME, TSTEP )
-            CHARACTER( * ), INTENT( IN )  :: PNAME
-            REAL,           INTENT( IN )  :: DDEP( :,:,: )
-            INTEGER,        INTENT( IN )  :: JDATE, JTIME
-            INTEGER,        INTENT( IN )  :: TSTEP( 3 )
-         END SUBROUTINE PA_UPDATE_DDEP
          SUBROUTINE CONV_CGRID ( CGRID, JDATE, JTIME, CNGRD )
             REAL, POINTER :: CGRID( :,:,:,: )
             INTEGER,        INTENT( IN )  :: JDATE, JTIME
@@ -382,7 +371,7 @@ C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
                EMIS_PA( :,:,L,S ) = VDEMIS_DIFF( S,L,:,: )
             END DO
          END DO
-         CALL PA_UPDATE_EMIS ( 'VDIF', EMIS_PA, JDATE, JTIME, TSTEP )
+         CALL PA_UPDATE_EMIS ( EMIS_PA, JDATE, JTIME, TSTEP )
       END IF
 
       CALL EDDYX ( EDDYV )
@@ -676,7 +665,7 @@ C Write other diagnostics
                   END DO
                END DO
             END DO
-            CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
+            CALL PA_UPDATE_DDEP ( DDEP_PA, JDATE, JTIME, TSTEP )
          END IF
          IF( ABFLUX ) THEN
 ! Swap diagnostic deposition and fluxes for NH3 to allow the same post processing scripts for

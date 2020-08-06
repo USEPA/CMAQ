@@ -17,29 +17,22 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
-C......................................................................
-      MODULE PA_IPRVARS
+!-----------------------------------------------------------------------
+      Module XY_BUDGET
 
-C Contains: data used in the Process Analysis Control Program
+!  Collects Advection Process Rates
+!
+!-----------------------------------------------------------------------
 
-C Dependent Upon: None
+      Implicit None
 
-C Revision History:
-C......................................................................
+      SAVE
 
-      USE PA_GLOBAL, Only: MXSPEC
-      USE PA_VARS, Only: MAXTERMS
+      ! These Arrays are sorted in the same manner as CGRID so they may
+      ! be directly applied in modules like Process Analysis and ISAM
+      REAL, ALLOCATABLE :: DELC_XADV  ( :,:,:,: ) ! Change in Species due to X Advection
+      REAL, ALLOCATABLE :: DELC_YADV  ( :,:,:,: )   ! Change in Species due to Y Advection
 
-      INTEGER, PARAMETER :: MAXIPRSPC = 600    ! Max no. of IPR species
+C-----------------------------------------------------------------------
 
-      INTEGER, PARAMETER :: MAXIPROUT = MAXIPRSPC * 10   ! Max no. IPR outputs
-
-
-      CHARACTER(  4 ) :: IPR_SPTYPE( MAXIPRSPC )   ! Type of mass balance species
-      CHARACTER( 16 ) :: IPR_SPNAM ( MAXIPRSPC )   ! Name of mass balance species
-      CHARACTER( 16 ) :: IPR_OPNAME( MAXIPRSPC,MAXTERMS )  ! Input IPR op names
-
-      INTEGER :: N_IPR_OPS ( MAXIPRSPC )   ! No. of input IPR operation names
-      INTEGER :: IPR_SPNUM ( MAXIPRSPC )   ! Species or family-name number
-
-      END MODULE PA_IPRVARS
+      End Module XY_BUDGET

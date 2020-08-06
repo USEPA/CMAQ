@@ -18,7 +18,7 @@
 !------------------------------------------------------------------------!
 
 C......................................................................
-      MODULE PA_IPRVARS
+      MODULE BUDGET_VARS
 
 C Contains: data used in the Process Analysis Control Program
 
@@ -27,19 +27,9 @@ C Dependent Upon: None
 C Revision History:
 C......................................................................
 
-      USE PA_GLOBAL, Only: MXSPEC
-      USE PA_VARS, Only: MAXTERMS
+      INTEGER, PARAMETER      :: BDGC0_ID = -1
+      INTEGER, PARAMETER      :: BDGC1_ID = -2
 
-      INTEGER, PARAMETER :: MAXIPRSPC = 600    ! Max no. of IPR species
+      REAL, ALLOCATABLE, SAVE :: BDG( :,: )
 
-      INTEGER, PARAMETER :: MAXIPROUT = MAXIPRSPC * 10   ! Max no. IPR outputs
-
-
-      CHARACTER(  4 ) :: IPR_SPTYPE( MAXIPRSPC )   ! Type of mass balance species
-      CHARACTER( 16 ) :: IPR_SPNAM ( MAXIPRSPC )   ! Name of mass balance species
-      CHARACTER( 16 ) :: IPR_OPNAME( MAXIPRSPC,MAXTERMS )  ! Input IPR op names
-
-      INTEGER :: N_IPR_OPS ( MAXIPRSPC )   ! No. of input IPR operation names
-      INTEGER :: IPR_SPNUM ( MAXIPRSPC )   ! Species or family-name number
-
-      END MODULE PA_IPRVARS
+      END MODULE BUDGET_VARS

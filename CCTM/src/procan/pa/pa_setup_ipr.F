@@ -62,29 +62,31 @@ C External Functions: None
 
 C Local Variables:
       INTEGER IFM    ! Family pointer 
-      INTEGER ISP    ! Species pointer
+      INTEGER ISPC   ! Species pointer
       INTEGER N      ! Loop counter
       INTEGER NIPR   ! Loop counter on IPR output commands
-      INTEGER NS     ! Loop index for species
+      INTEGER IPRSPC ! Loop counter on IPR output commands
+      INTEGER ICG    ! Loop index for species
+      INTEGER ISV    ! Loop index for species
       INTEGER ASTAT  ! Memory allocation status
 
       LOGICAL :: LSAVSP( N_CGRID_SPC )  ! Flag to save species conc for PA
 
-      CHARACTER( 120 ) :: MSG = ' '
+      CHARACTER( 16 )  :: IPRNAME_TMP( MAXIPROUT )
+      CHARACTER( 60 )  :: IPRDESC_TMP( MAXIPROUT )
+      INTEGER          :: MAP_IPRVARtoSPC_TMP( MAXIPROUT )
+      LOGICAL          :: MASK_IPR_PROC_TMP( MAXIPROUT,NPRCS )
+      INTEGER          :: MAP_IPRtoCGRID_TMP( MAXIPRSPC,MXSPEC )
+      INTEGER          :: MAP_IPRtoSAVE_TMP ( MAXIPRSPC,MXSPEC )
+      INTEGER          :: MAP_SAVEtoCGRID_TMP( MXSPEC )
+      REAL             :: SPCOEF_TMP( MAXIPRSPC,MXSPEC )
+      CHARACTER( 200 ) :: MSG = ' '
          
 C-----------------------------------------------------------------------
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set up the Process analysis output pointers 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      ALLOCATE( LPROCOUT( NPRCS ),
-     &          IPROUT( N_IPR_SPC,NPRCS ), STAT = ASTAT )
-      IF ( ASTAT .NE. 0 ) THEN
-         MSG = 'ERROR 1 allocating IPR variables'
-         CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
-      END IF
-      LPROCOUT = .FALSE.   ! array assignment
-      IPROUT = 0           !   "       "
 
       NIPRVAR = 0
       DO NIPR = 1, N_IPR_SPC
@@ -112,192 +114,231 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                IPRNAME_TMP( NIPRVAR ) = 'ZADV_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Z-Advection of ' // 
      &                                   IPR_SPNAM( NIPR )
-               MAP_IPRVARtoSPC( NIPRVAR ) = NIPR
-               MAP_IPRVARtoOP( NIPRVAR
-               IPROUT( NIPR,1 )   = NIPRVAR
-               LPROCOUT( 1 )      = .TRUE.
-            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'HADV' ) THEN
-               IPRNAME_TMP( NIPRVAR ) = 'HADV_' // IPR_SPNAM( NIPR )
-               IPRDESC_TMP( NIPRVAR ) = 'Horizontal Advection of ' //
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_ZADV ) = .TRUE.
+
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'XADV' ) THEN
+               IPRNAME_TMP( NIPRVAR ) = 'XADV_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR ) = 'Horizontal X-Advection of ' //
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,2 )   =  NIPRVAR
-               LPROCOUT( 2 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_XADV ) = .TRUE.
+
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'YADV' ) THEN
+               IPRNAME_TMP( NIPRVAR ) = 'YADV_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR ) = 'Horizontal Y-Advection of ' //
+     &                                   IPR_SPNAM( NIPR )
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_YADV ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'HDIF' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'HDIF_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Horizontal diffusion for ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,3 )   = NIPRVAR
-               LPROCOUT( 3 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_HDIF ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'VDIF' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'VDIF_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Vertical diffusion for ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,4 )   = NIPRVAR
-               LPROCOUT( 4 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_VDIF ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'EMIS' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'EMIS_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Emissions of ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,5 )   = NIPRVAR
-               LPROCOUT( 5 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_EMIS ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'DDEP' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'DDEP_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Dry deposition for ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,6 )   = NIPRVAR
-               LPROCOUT( 6 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_DDEP ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'CLDS' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'CLDS_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Clouds for ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,7 )   = NIPRVAR
-               LPROCOUT( 7 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_CLDS ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'CHEM' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'CHEM_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Chemistry of ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,8 )   = NIPRVAR
-               LPROCOUT( 8 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_CHEM ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'COND' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'COND_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Condensation for ' // 
      &                                    IPR_SPNAM( NIPR )
-               IPROUT( NIPR,9 )   = NIPRVAR
-               LPROCOUT( 9 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_COND ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'COAG' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'COAG_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Coagulation for ' // 
      &                                    IPR_SPNAM( NIPR )
-               IPROUT( NIPR,10 )   = NIPRVAR
-               LPROCOUT( 10 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_COAG ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:5 ) .EQ. 'GROW' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'GROW_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'Aerosol Growth (Renaming) for ' // 
      &                                    IPR_SPNAM( NIPR )
-               IPROUT( NIPR,11 )   = NIPRVAR
-               LPROCOUT( 11 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_GROW ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:3 ) .EQ. 'NPF' ) THEN
                IPRNAME_TMP( NIPRVAR )  = 'NPF_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR )  = 'New Particle Formation for ' // 
      &                                    IPR_SPNAM( NIPR )
-               IPROUT( NIPR,12 )   = NIPRVAR
-               LPROCOUT( 12 )      = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_NPF ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'AERO' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'AERO_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Aerosol Impact on ' // 
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,9  )  = NIPRVAR
-               IPROUT( NIPR,10 )  = NIPRVAR
-               IPROUT( NIPR,11 )  = NIPRVAR
-               IPROUT( NIPR,12 )  = NIPRVAR
-               LPROCOUT( 9  )     = .TRUE.
-               LPROCOUT( 10 )     = .TRUE.
-               LPROCOUT( 11 )     = .TRUE.
-               LPROCOUT( 12 )     = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_COND ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_COAG ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_GROW ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_NPF ) = .TRUE.
+
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'HADV' ) THEN
+               IPRNAME_TMP( NIPRVAR ) = 'HADV_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR ) = 'Horizontal Advection of ' //
+     &                                   IPR_SPNAM( NIPR )
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_XADV ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_YADV ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'MADV' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'MADV_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Horizontal and Vertical Advection of ' //
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,2 )  = NIPRVAR
-               IPROUT( NIPR,1 )  = NIPRVAR
-               LPROCOUT( 2 )     = .TRUE.
-               LPROCOUT( 1 )     = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_ZADV ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_XADV ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_YADV ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'TDIF' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'TDIF_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Total Diffusion of ' //
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,3 )  = NIPRVAR
-               IPROUT( NIPR,4 )  = NIPRVAR
-               LPROCOUT( 3 )     = .TRUE.
-               LPROCOUT( 4 )     = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_HDIF ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_VDIF ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'TRNM' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'TRNM_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Total Mass-Conserving Transport of ' //
      &                                   IPR_SPNAM( NIPR )
-               IPROUT( NIPR,2 )  = NIPRVAR
-               IPROUT( NIPR,1 )  = NIPRVAR
-               IPROUT( NIPR,3 )  = NIPRVAR
-               IPROUT( NIPR,4 )  = NIPRVAR
-               LPROCOUT( 2 )     = .TRUE.
-               LPROCOUT( 1 )     = .TRUE.
-               LPROCOUT( 3 )     = .TRUE.
-               LPROCOUT( 4 )     = .TRUE.
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_HDIF ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_VDIF ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_ZADV ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_XADV ) = .TRUE.
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_YADV ) = .TRUE.
+
+            ELSE
+               MSG = 'Unknown Process ' // TRIM(IPR_OPNAME(NIPR,N )) //
+     &               ' has been selected in Process Analysis.'
+               CALL M3EXIT( 'PA_SETUP_IPR',0,0,MSG,XSTAT2 )
             END IF
          END DO
       END DO
 
+      ! Save Name and Description Vectors for Processes
       ALLOCATE( IPRNAME( NIPRVAR ),
-     &          IPRDESC( NIPRVAR ), STAT = ASTAT )
+     &          IPRDESC( NIPRVAR ), 
+     &          MAP_IPRVARtoSPC( NIPRVAR ),
+     &          MASK_IPR_PROC( NIPRVAR,NPRCS ),
+     &          STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 2 allocating IPR variables'
          CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
       END IF
-
       IPRNAME = IPRNAME_TMP( 1:NIPRVAR )
       IPRDESC = IPRDESC_TMP( 1:NIPRVAR )
+      MAP_IPRVARtoSPC = MAP_IPRVARtoSPC_TMP( 1:NIPRVAR )
+      MASK_IPR_PROC = MASK_IPR_PROC_TMP( 1:NIPRVAR,: )
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Set up the species pointers for the IPR Outputs
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       LSAVSP = .FALSE.
 
-      ALLOCATE( NCGRID ( N_IPR_SPC ), STAT = ASTAT )
+      ALLOCATE( NCGRID ( N_IPR_SPC ), 
+     &           STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 3 allocating IPR variables'
          CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
       END IF
-
-      DO NIPR = 1, N_IPR_SPC
-         ISP = INDEX1( IPR_SPNAM( NIPR ), N_CGRID_SPC, CGRID_NAME )
-         IF ( ISP .NE. 0 ) THEN
-            LSAVSP( ISP ) = .TRUE.
-            NCGRID( NIPR ) = 1
-            IPR2GRD_TMP( NIPR,1 ) = ISP
-            SPCOEF_TMP( NIPR,1 ) = 1.0
+      
+      ! Map IPR Species Names to CGRID
+      MAP_IPRtoCGRID_TMP = 0
+      DO IPRSPC = 1, N_IPR_SPC
+         ICG = INDEX1( IPR_SPNAM( IPRSPC ), N_CGRID_SPC, CGRID_NAME )
+         IF ( ICG .NE. 0 ) THEN
+            LSAVSP( ICG ) = .TRUE.
+            NCGRID( IPRSPC ) = 1
+            MAP_IPRtoCGRID_TMP( IPRSPC,1 ) = ICG
+            SPCOEF_TMP( IPRSPC,1 ) = 1.0
          ELSE
-            IFM = INDEX1( IPR_SPNAM( NIPR ), NFAMLYS, FAMNAME )
-            NCGRID( NIPR ) = NUMFAMMEM( IFM )
+            ! This IPR Species is a Family. Find its members on CGRID
+            IFM = INDEX1( IPR_SPNAM( IPRSPC ), NFAMLYS, FAMNAME )
+            NCGRID( IPRSPC ) = NUMFAMMEM( IFM )
             DO N = 1, NUMFAMMEM( IFM )
-               ISP = INDEX1( FAMMEMNAM( IFM,N ), N_CGRID_SPC, CGRID_NAME )
-               LSAVSP( ISP ) = .TRUE.               
-               IPR2GRD_TMP( NIPR,N ) = ISP 
-               SPCOEF_TMP( NIPR,N ) = FAMSC( IFM,N )
+               ICG = INDEX1( FAMMEMNAM( IFM,N ), N_CGRID_SPC, CGRID_NAME )
+               LSAVSP( ICG ) = .TRUE.               
+               MAP_IPRtoCGRID_TMP( IPRSPC,N ) = ICG
+               SPCOEF_TMP( IPRSPC,N ) = FAMSC( IFM,N )
             END DO
          END IF
       END DO
       MXCGRID = MAX( 1, MAXVAL( NCGRID( : ) ) )
 
+      ! Create a list of only the used species and map to CGRID
       NCSAVE = 0
-      DO NS = 1, N_CGRID_SPC
-         IF ( LSAVSP( NS ) ) THEN
+      MAP_IPRtoSAVE_TMP   = 0
+      MAP_SAVEtoCGRID_TMP = 0
+
+      DO ICG = 1, N_CGRID_SPC
+         IF ( LSAVSP( ICG ) ) THEN
             NCSAVE = NCSAVE + 1
-            SAV2GRD_TMP( NCSAVE ) = NS
+            MAP_SAVEtoCGRID_TMP( NCSAVE ) = ICG
+
+            ! Map from IPR list to Saved Species
+            DO IPRSPC = 1,N_IPR_SPC
+               DO ISPC = 1,NCGRID( IPRSPC )
+                 IF ( MAP_IPRtoCGRID_TMP( IPRSPC,ISPC ) .EQ. ICG )
+     &                MAP_IPRtoSAVE_TMP ( IPRSPC,ISPC ) = NCSAVE
+               END DO
+            END DO
          END IF
       END DO
 
-      DO NIPR = 1, N_IPR_SPC
-         DO N = 1, NCGRID( NIPR )
-            DO NS = 1, NCSAVE
-               IF ( SAV2GRD_TMP( NS ) .EQ. IPR2GRD_TMP( NIPR,N ) )
-     &              IPR2SAV_TMP( NIPR,N ) = NS
-            END DO
-         END DO
-      END DO
-
       NCSAVE    = MAX( NCSAVE, 1 )
-      ALLOCATE( SAV2GRD ( NCSAVE ),
-     &          IPR2GRD( N_IPR_SPC,MXCGRID ),
-     &          IPR2SAV( N_IPR_SPC,MXCGRID ),
-     &          SPCOEF ( N_IPR_SPC,MXCGRID ), STAT = ASTAT )
+      ALLOCATE( MAP_SAVEtoCGRID( NCSAVE ),
+     &          MAP_IPRtoCGRID( N_IPR_SPC,MXCGRID ),
+     &          MAP_IPRtoSAVE( N_IPR_SPC,MXCGRID ),
+     &          SPCOEF ( N_IPR_SPC,MXCGRID ), 
+     &          STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 4 allocating IPR variables'
          CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
       END IF
-
-      SAV2GRD = SAV2GRD_TMP( 1:NCSAVE )
-      IPR2GRD = IPR2GRD_TMP( 1:N_IPR_SPC,1:MXCGRID )
-      IPR2SAV = IPR2SAV_TMP( 1:N_IPR_SPC,1:MXCGRID )
-      SPCOEF  = SPCOEF_TMP ( 1:N_IPR_SPC,1:MXCGRID )
+      MAP_SAVEtoCGRID = MAP_SAVEtoCGRID_TMP( 1:NCSAVE )
+      MAP_IPRtoCGRID  = MAP_IPRtoCGRID_TMP( 1:N_IPR_SPC,1:MXCGRID )
+      MAP_IPRtoSAVE   = MAP_IPRtoSAVE_TMP ( 1:N_IPR_SPC,1:MXCGRID )
+      SPCOEF          = MAP_IPRtoCGRID_TMP( 1:N_IPR_SPC,1:MXCGRID )
 
       RETURN
 

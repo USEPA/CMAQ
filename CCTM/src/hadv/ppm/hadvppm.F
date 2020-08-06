@@ -50,6 +50,7 @@ C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
+      USE XY_BUDGET
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
@@ -105,6 +106,7 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       LOGICAL, SAVE :: FIRST_BC = .TRUE.
       LOGICAL, ALLOCATABLE, SAVE :: XYFIRST( : )
+      REAL, ALLOCATABLE, SAVE :: CGRID0( :,:,: ), XADV(:,:,:), YADV(:,:,:)
 
 
       CHARACTER( 96 ) :: XMSG = ' '
@@ -169,6 +171,12 @@ C Get CGRID offsets
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
 
+         ALLOCATE ( DELC_XADV( NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              DELC_YADV( NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              XADV( NCOLS,NROWS,NSPCSD ),
+     &              YADV( NCOLS,NROWS,NSPCSD ),
+     &              CGRID0( NCOLS,NROWS,NSPCSD ) )
+
 #ifdef sens
          ALLOCATE ( BSEN( NBNDY,N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -181,6 +189,10 @@ C Get CGRID offsets
 
       SYNCSTEP = TIME2SEC( TSTEP( 2 ) )
 
+      ! Initialize Budget Variables
+      DELC_XADV = 0.0
+      DELC_YADV = 0.0
+
       LSTAT = .FALSE.
       DO 301 LVL = 1, NLAYS
 
@@ -189,19 +201,27 @@ C Get CGRID offsets
          FDATE = JDATE
          FTIME = JTIME
 
+         XADV = 0.0
+         YADV = 0.0
+
 101      CONTINUE
 
          CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON, LSTAT )
 
+         CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
          IF ( XYFIRST( LVL ) ) THEN
 
             XYFIRST( LVL ) = .FALSE.
 
             CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
+            XADV( :,:,: ) = XADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
+            CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
 
             CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'Y_PPM', CGRID, FDATE, FTIME, LVL )
+            YADV( :,:,: ) = YADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
+            CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
 
          ELSE
 
@@ -209,9 +229,13 @@ C Get CGRID offsets
 
             CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'Y_PPM', CGRID, FDATE, FTIME, LVL )
+            YADV( :,:,: ) = YADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
+            CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
 
             CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
+            XADV( :,:,: ) = XADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
+            CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
 
          END IF
 
@@ -221,6 +245,8 @@ C Get CGRID offsets
             GO TO 101
          END IF
 
+         DELC_XADV( :,:,LVL,: ) = XADV( :,:,: )
+         DELC_YADV( :,:,LVL,: ) = YADV( :,:,: )
 301   CONTINUE
  
       !Print warning if any aerosol BCs violated the size distribution parameters
