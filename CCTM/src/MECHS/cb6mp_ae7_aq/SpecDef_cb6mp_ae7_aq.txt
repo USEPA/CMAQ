@@ -85,6 +85,7 @@ XYL             ,ppbV      ,1000.0*XYLMN[1]
 
 !! Additional Global, Regional and Urban Toxic gases
 ACROLEIN        ,ug/m3     ,1000.0*(ACROLEIN[1]*1.9365*DENS[2]) 
+ACRO_PRIMARY    ,ug/m3     ,1000.0*(ACRO_PRIMARY[1]*1.9365*DENS[2])
 ACRY_NITRILE    ,ug/m3     ,1000.0*(ACRY_NITRILE[1]*1.8329*DENS[2])        
 ALD2_UGM3       ,ug/m3     ,1000.0*(ALD2[1]*1.5188*DENS[2])                
 ALD2_PRIMARY    ,ug/m3     ,1000.0*(ALD2_PRIMARY[1]*1.5188*DENS[2])     
