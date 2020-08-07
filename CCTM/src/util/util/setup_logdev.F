@@ -37,7 +37,6 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
 
       USE RUNTIME_VARS
       USE UTILIO_DEFN
-      USE LOG_HEADER
 
       IMPLICIT NONE
 

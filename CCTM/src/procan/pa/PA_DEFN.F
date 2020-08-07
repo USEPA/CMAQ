@@ -79,10 +79,12 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CHARACTER(16), PARAMETER :: PROCNAME( NPRCS ) =
      & (/'ZADV','XADV','YADV','HDIF','VDIF','EMIS','DDEP','CLDS',
      &   'CHEM','COND','COAG','NPF ','GROW' /)
+
+      REAL, ALLOCATABLE, SAVE :: CSAV( :,:,:,: )
+
 c this is set in pa_getiprout.F, pa_errcheck.F?
       INTEGER :: N_IPR_SPC = 0
 c these are set in pa_setup_ipr.F
-      INTEGER :: NCSAVE    = 0
       INTEGER :: MXCGRID   = 0
 
 c these are allocated in pa_setpadefn.F

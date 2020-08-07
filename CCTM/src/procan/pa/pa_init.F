@@ -194,16 +194,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          DELC = 0.0
 
-         DO ISV = 1, NCSAVE
-            ICG = MAP_SAVEtoCGRID( ISV )
-#ifdef parallel
-            CALL SUBST_DATA_COPY( CGRID, CSAV, ICG, ISV )
-#else
-            CSAV( :,:,:,ISV ) = CGRID( MY_BEGCOL:MY_ENDCOL,
-     &            MY_BEGROW:MY_ENDROW,MY_BEGLEV:MY_ENDLEV,ICG )
-#endif
-         END DO
-
       END IF   ! LIPR
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc

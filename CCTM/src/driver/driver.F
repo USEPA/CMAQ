@@ -104,6 +104,7 @@ C   21 Nov 19 S.L.Napelenok: Include DDM3D for versions 5.3.1
 C-----------------------------------------------------------------------
 
       USE RXNS_DATA             ! chemical mechanism data
+      USE BUDGET_DEFN
 #ifdef mpas
       USE CGRID_SPCS            ! CGRID mechanism species
       USE HGRD_DEFN, ONLY: MYPE
@@ -115,7 +116,6 @@ C-----------------------------------------------------------------------
       use get_env_module
       use lus_defn
       USE AERO_DATA
-
       use mio_module
 #else
       USE PCGRID_DEFN           ! inherits GRID_CONF
@@ -702,7 +702,7 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
 #endif
 
 C Initialize Budget Output File and Concentration Array
-      CALL BUDGET_INIT( CGRID )
+      CALL BUDGET_INIT( CGRID, JDATE, JTIME )
 
 C science process sequence:
          

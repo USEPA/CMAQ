@@ -18,14 +18,38 @@
 !------------------------------------------------------------------------!
       MODULE BUDGET_DEFN
 
-      PUBLIC BUDGET_INIT, STORE_BUDGET, WRITE_BUDGET
+      USE PA_DEFN               ! Process Anaylsis control and data variables
+      USE GRID_CONF             ! horizontal & vertical domain configuration
+      USE RUNTIME_VARS
+      USE UTILIO_DEFN           ! inherits PARUTILIO
+      USE CGRID_SPCS, ONLY : CGRID_MASK_GAS, CGRID_MASK_AERO,
+     &    CGRID_MASK_NUM, CGRID_MASK_SRF, CGRID_MASK_NR, CGRID_MASK_TRAC,
+     &    CGRID_MW, N_CGRID_SPC, CGRID_NAME
+      USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MW,
+     &                       DIFF_MASK_AERO, DIFF_MASK_NUM, DIFF_MASK_SRF
+      USE CENTRALIZED_IO_MODULE
 
-      PRIVATE
+      INTEGER, PARAMETER      :: BDGC0_ID = -1
 
-      REAL, ALLOCATABLE, SAVE :: CONC( :,:,:,: )
-          
+      PUBLIC BUDGET_INIT, STORE_BUDGET, STORE_BUDGET_DDEP, 
+     &       WRITE_BUDGET, BDGC0_ID
+
+
+      INTEGER         :: BDG_UNIT
+      INTEGER, PARAMETER      :: BDGCF_ID = -2
+
+      REAL, ALLOCATABLE, SAVE :: BDG( :,: )
+      REAL, ALLOCATABLE, SAVE :: BDG_MASS( :,: )
+
+      INTEGER, SAVE :: BDG_JDATE0, BDG_JTIME0
+      INTEGER, SAVE :: BDG_JDATE1, BDG_JTIME1
+ 
+      CHARACTER( 9 )  :: tab
+
+      CONTAINS
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-      SUBROUTINE BUDGET_INIT( CGRID )
+      SUBROUTINE BUDGET_INIT( CGRID, JDATE, JTIME )
 
 C-----------------------------------------------------------------------
 C Function: Initialize the budget variables and output file
@@ -36,53 +60,42 @@ C Key Subroutines/Functions Called: None
  
 C-----------------------------------------------------------------------
 
-      USE GRID_CONF             ! horizontal & vertical domain configuration
-      USE CGRID_SPCS, ONLY : N_CGRID_SPC, CGRID_NAME, CGRID_MASK_AERO,
-     &                       AE_STRT, GC_STRT, N_GC_DEPV, GC_DEPV_MAP,
-     &                       GC_MOLWT, NR_STRT, N_AE_DEPV, AE_DEPV_MAP, AE_SPC,
-     &                       TR_STRT, N_NR_DEPV, NR_DEPV_MAP, NR_MOLWT,
-     &                       TR_MOLWT, N_AE_SPC ! CGRID mechanism species
-      USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MW,
-     &                       DIFF_MASK_AERO, DIFF_MASK_NUM, DIFF_MASK_SRF
-      USE PA_DEFN               ! Process Anaylsis control and data variables
-      USE PAGRD_DEFN            ! PA horiz domain specs
-      USE EMIS_VARS
-
-      USE RUNTIME_VARS
-      USE UTILIO_DEFN           ! inherits PARUTILIO
-
       IMPLICIT NONE 
 
       ! Includes:
       INCLUDE SUBST_CONST       ! Constants
-      INCLUDE SUBST_FILES_ID    ! file name parameters
-      INCLUDE SUBST_EMISPRM     ! Emissions processing control parameters
       
+      REAL, POINTER :: CGRID(:,:,:,:)
+      INTEGER, INTENT( IN ) :: JDATE, JTIME
+
+
       ! Local Variables:
+      REAL, ALLOCATABLE :: CONC( :,:,:,: )
       CHARACTER( 90 ) :: CMAQ_HEADER( 200 )
       INTEGER         :: NCMAQ_HEAD
-      CHARACTER( 400 ):: XMSG
+      CHARACTER( 400 ):: XMSG, BDG_FILE
       CHARACTER( 50 ) :: FM
-      CHARACTER( 9 )  :: tab
+      INTEGER         :: ASTAT
+      INTEGER         :: I
 
 !-----------------------------------------------------------------------
 
       ! Initialize Variables
-      ALLOCATE( CONC( NCOLS,NROWS,NLAYS,NSPCSD ), STAT=ASTAT )
+      ALLOCATE( CONC( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT=ASTAT )
       CONC = CGRID
 
-      ALLOCATE( BDG( NSPCSD,NPRCS ),
-     &          BDG_MASS( NSPCSD,3),
+      ALLOCATE( BDG( N_CGRID_SPC,NPRCS ),
+     &          BDG_MASS( N_CGRID_SPC,3),
      &          STAT=ASTAT )
       BDG = 0
       BDG_JDATE0 = JDATE
       BDG_JTIME0 = JTIME
 
-      CALL STORE_BUDGET( BDGC0_ID, CONC )
+      CALL STORE_BUDGET( BDGC0_ID, CONC, JDATE, JTIME )
 
       ! Open Output tab-separated file and print header
       IF ( MYPE .EQ. 0 ) THEN 
-          BDG_FILE = OUTDIR // "/CCTM_BUDGET_" // TRIM(APPL_NAME) // ".txt"
+          BDG_FILE = TRIM(OUTDIR) // "/CCTM_BUDGET_" // TRIM(APPL_NAME) // ".txt"
           BDG_UNIT = JUNIT()
           OPEN( UNIT = BDG_UNIT, FILE = BDG_FILE, STATUS = "REPLACE" )
 
@@ -109,11 +122,13 @@ C-----------------------------------------------------------------------
 
           ! Write Header
           !WRITE( FM, '( )' ), 
-          WRITE( BDG_UNIT, '(41(A)' ), 'SPECIES',tab,'T_START',tab,
+          WRITE( BDG_UNIT, '(41(A))' ), 'SPECIES',tab,'T_START',tab,
      &     'T_FINAL',tab,'T_DELTA',tab,'M_START',tab,'M_FINAL',tab,
-     &     'M_DELTA',( tab, PROCNAME(i),i=1:NPRCS),tab,'RESID'
+     &     'M_DELTA',( tab, PROCNAME(i),i=1,NPRCS),tab,'RESID'
 
       END IF
+
+      DEALLOCATE( CONC )
 
       RETURN
       END SUBROUTINE BUDGET_INIT
@@ -121,28 +136,33 @@ C-----------------------------------------------------------------------
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 !  Store Budget Data
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      SUBROUTINE STORE_BUDGET( IPR_ID, CONC )
+      SUBROUTINE STORE_BUDGET( IPR_ID, CONC, JDATE, JTIME )
 
-      USE GRID_CONF
+
 
       IMPLICIT NONE
 
+      INCLUDE SUBST_CONST       ! Constants
+
+      REAL                  :: CONC( :,:,:,: )
       INTEGER, INTENT( IN ) :: IPR_ID            ! Process ID
+      INTEGER, INTENT( IN ) :: JDATE, JTIME
 
       REAL, ALLOCATABLE, SAVE :: BDG_CONC( :,:,:,: )
       REAL, PARAMETER :: MWAIR_SI = MWAIR / 1.0E+03 ! kg mol-1
-      REAL      DENS( NCOLS,NROWS,NLAYS )   ! air density (kg m-3)
-      REAL      MSFX2( NCOLS,NROWS,NLAYS )  ! map scale factor
-      REAL      ZF( NCOLS,NROWS,NLAYS )     ! height of layer top
-      REAL      CELLVOL( NCOLS,NROWS,NLAYS )! cell volume
+      REAL, ALLOCATABLE :: DENS( :,:,: )   ! air density (kg m-3)
+      REAL, ALLOCATABLE :: MSFX2( :,:,: )  ! map scale factor
+      REAL, ALLOCATABLE :: ZF( :,:,: )     ! height of layer top
+      REAL, ALLOCATABLE :: CELLVOL( :,:,: )! cell volume
       LOGICAL :: FIRST_TIME = .TRUE.
       INTEGER ASTAT
+      INTEGER L, I
 
       ! First time through, allocate Budget Concentration conversion
       ! array
       IF ( FIRST_TIME ) THEN
           FIRST_TIME = .FALSE.
-          ALLOCATE ( BDG_CONC( NCOLS,NROWS,NLAYS,NSPCSD ),
+          ALLOCATE ( BDG_CONC( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
      &                DENS( NCOLS,NROWS,NLAYS ),
      &                MSFX2( NCOLS,NROWS,NLAYS ),
      &                ZF( NCOLS,NROWS,NLAYS ),
@@ -150,12 +170,10 @@ C-----------------------------------------------------------------------
      &                STAT = ASTAT )
       END IF
 
-      CONC = CGRID
-
       ! Retrieve Cell Variables for converting concentrations to burden
       call interpolate_var ('DENS', jdate, jtime, DENS) ! kg m-3
       DENS = DENS / MWAIR_SI  ! mol m-3
-      call interpolate_var ('MSFX2', jdate, jtime, MSFX2) ! map scale factor
+      !call interpolate_var ('MSFX2', jdate, jtime, MSFX2) ! map scale factor
       call interpolate_var ('ZF', jdate, jtime, ZF) ! height of layer top
 
       CELLVOL( :,:,1 ) = XCELL_GD * YCELL_GD * ZF( :,:,1 )
@@ -172,7 +190,7 @@ C-----------------------------------------------------------------------
          IF ( CGRID_MASK_GAS( I ) .OR.
      &        CGRID_MASK_NR( I )  .OR.
      &        CGRID_MASK_TRAC( I ) )
-     &      BDG_CONC(:,:,:,I) = CONC(:,:,:,I) * DENS * CELLVOL
+     &      BDG_CONC(:,:,:,I) = CONC(:,:,:,I) * DENS(:,:,:) * CELLVOL(:,:,:)
      &                          * CGRID_MW(I) / 1000.0
 
          ! Aerosol Mass:  ug m-3
@@ -200,19 +218,107 @@ C-----------------------------------------------------------------------
 
       RETURN
       END SUBROUTINE STORE_BUDGET
+ 
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+!  Store Budget Data for Dry Deposition
+!cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+      SUBROUTINE STORE_BUDGET_DDEP( IPR_ID, DDEP, JDATE, JTIME )
+
+
+
+      IMPLICIT NONE
+
+      INCLUDE SUBST_CONST       ! Constants
+
+      REAL                  :: DDEP( :,:,: )
+      INTEGER, INTENT( IN ) :: IPR_ID            ! Process ID
+      INTEGER, INTENT( IN ) :: JDATE, JTIME
+
+      REAL, ALLOCATABLE, SAVE :: BDG_CONC( :,:,:,: )
+      REAL, PARAMETER :: MWAIR_SI = MWAIR / 1.0E+03 ! kg mol-1
+      REAL, ALLOCATABLE :: DENS( :,:,: )   ! air density (kg m-3)
+      REAL, ALLOCATABLE :: MSFX2( :,:,: )  ! map scale factor
+      REAL, ALLOCATABLE :: ZF( :,:,: )     ! height of layer top
+      REAL, ALLOCATABLE :: CELLVOL( :,: )! cell volume
+      LOGICAL :: FIRST_TIME = .TRUE.
+      INTEGER ASTAT
+      INTEGER L, I
+
+      ! First time through, allocate Budget Concentration conversion
+      ! array
+      IF ( FIRST_TIME ) THEN
+          FIRST_TIME = .FALSE.
+          ALLOCATE ( DENS( NCOLS,NROWS,NLAYS ),
+     &                MSFX2( NCOLS,NROWS,NLAYS ),
+     &                ZF( NCOLS,NROWS,NLAYS ),
+     &                CELLVOL( NCOLS,NROWS ),
+     &                STAT = ASTAT )
+      END IF
+
+      ! Retrieve Cell Variables for converting concentrations to burden
+      call interpolate_var ('DENS', jdate, jtime, DENS) ! kg m-3
+      DENS = DENS / MWAIR_SI  ! mol m-3
+      !call interpolate_var ('MSFX2', jdate, jtime, MSFX2) ! map scale factor
+      call interpolate_var ('ZF', jdate, jtime, ZF) ! height of layer top
+
+      CELLVOL( :,: ) = XCELL_GD * YCELL_GD * ZF( :,:,1 )
+
+      ! Convert Process Units to kg (mass), N (number), and m2 (surface
+      ! area). Input gases are in ppm, aerosols in ug m-3, number in N
+      ! m-3 and surface area in m2 m-3.
+      DO I = 1,N_CGRID_SPC
+         ! Gas - convert ppm to kg
+         IF ( CGRID_MASK_GAS( I ) .OR.
+     &        CGRID_MASK_NR( I )  .OR.
+     &        CGRID_MASK_TRAC( I ) )
+     &      BDG_CONC(:,:,1,I) = DDEP(:,:,I) * DENS(:,:,1) * CELLVOL
+     &                          * CGRID_MW(I) / 1000.0
+
+         ! Aerosol Mass:  ug m-3
+         IF ( CGRID_MASK_AERO( I ) .AND.
+     &        .NOT. CGRID_MASK_NUM( I ) .AND.
+     &        .NOT. CGRID_MASK_SRF( I )  )
+     &      BDG_CONC(:,:,1,I) = DDEP(:,:,I) * CELLVOL 
+
+         ! Aerosol Number: N m-3 -> N
+         ! Aerosol Surface Area: m2 m-3 -> m2
+         IF ( CGRID_MASK_NUM( I ) .OR.
+     &        CGRID_MASK_SRF( I )      )
+     &      BDG_CONC(:,:,1,I) = DDEP(:,:,I) * CELLVOL
+      
+      END DO
+
+      ! Sum and Store Process Change 
+      BDG( :,IPR_ID ) = SUM( SUM( BDG_CONC(:,:,1,:),1 ),1 )
+
+      RETURN
+      END SUBROUTINE STORE_BUDGET_DDEP
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Write Budget Output to CSV File
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-      SUBROUTINE WRITE_BUDGET( CGRID, JDATE, JTIME, TSTEP )
+      SUBROUTINE WRITE_BUDGET( CONC, JDATE, JTIME, TSTEP )
 
       IMPLICIT NONE
 
-      INTEGER I
+      INTEGER I, J
+      INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP(3)
+      REAL                  :: CONC( :,:,:,: )
+      REAL,ALLOCATABLE,SAVE :: RESID( : )
+      LOGICAL, SAVE :: FIRST_TIME = .TRUE.
+
+      INTEGER DT
+      INTEGER BDG_YEAR0, BDG_MONTH0, BDG_DAY0, BDG_YYYYMMDD0
+      INTEGER BDG_YEAR1, BDG_MONTH1, BDG_DAY1, BDG_YYYYMMDD1
+      CHARACTER(15) :: BDG_TIME0, BDG_TIME1
+
+      IF ( FIRST_TIME ) THEN
+          FIRST_TIME = .FALSE.
+          ALLOCATE ( RESID( N_CGRID_SPC ) )
+      END IF
 
 
-      CONC = CGRID
-      CALL STORE_BUDGET( BDGC1_ID, CONC )
+      CALL STORE_BUDGET( BDGCF_ID, CONC, JDATE, JTIME )
 
       ! Find Residual, Correct VDIFF
       BDG( :,IPR_VDIF ) = BDG( :,IPR_VDIF ) - BDG( :,IPR_EMIS ) + BDG( :,IPR_DDEP )

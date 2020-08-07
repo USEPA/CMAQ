@@ -77,8 +77,6 @@ C Local Variables:
       INTEGER          :: MAP_IPRVARtoSPC_TMP( MAXIPROUT )
       LOGICAL          :: MASK_IPR_PROC_TMP( MAXIPROUT,NPRCS )
       INTEGER          :: MAP_IPRtoCGRID_TMP( MAXIPRSPC,MXSPEC )
-      INTEGER          :: MAP_IPRtoSAVE_TMP ( MAXIPRSPC,MXSPEC )
-      INTEGER          :: MAP_SAVEtoCGRID_TMP( MXSPEC )
       REAL             :: SPCOEF_TMP( MAXIPRSPC,MXSPEC )
       CHARACTER( 200 ) :: MSG = ' '
          
@@ -287,7 +285,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO IPRSPC = 1, N_IPR_SPC
          ICG = INDEX1( IPR_SPNAM( IPRSPC ), N_CGRID_SPC, CGRID_NAME )
          IF ( ICG .NE. 0 ) THEN
-            LSAVSP( ICG ) = .TRUE.
             NCGRID( IPRSPC ) = 1
             MAP_IPRtoCGRID_TMP( IPRSPC,1 ) = ICG
             SPCOEF_TMP( IPRSPC,1 ) = 1.0
@@ -297,7 +294,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             NCGRID( IPRSPC ) = NUMFAMMEM( IFM )
             DO N = 1, NUMFAMMEM( IFM )
                ICG = INDEX1( FAMMEMNAM( IFM,N ), N_CGRID_SPC, CGRID_NAME )
-               LSAVSP( ICG ) = .TRUE.               
                MAP_IPRtoCGRID_TMP( IPRSPC,N ) = ICG
                SPCOEF_TMP( IPRSPC,N ) = FAMSC( IFM,N )
             END DO
@@ -305,39 +301,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END DO
       MXCGRID = MAX( 1, MAXVAL( NCGRID( : ) ) )
 
-      ! Create a list of only the used species and map to CGRID
-      NCSAVE = 0
-      MAP_IPRtoSAVE_TMP   = 0
-      MAP_SAVEtoCGRID_TMP = 0
-
-      DO ICG = 1, N_CGRID_SPC
-         IF ( LSAVSP( ICG ) ) THEN
-            NCSAVE = NCSAVE + 1
-            MAP_SAVEtoCGRID_TMP( NCSAVE ) = ICG
-
-            ! Map from IPR list to Saved Species
-            DO IPRSPC = 1,N_IPR_SPC
-               DO ISPC = 1,NCGRID( IPRSPC )
-                 IF ( MAP_IPRtoCGRID_TMP( IPRSPC,ISPC ) .EQ. ICG )
-     &                MAP_IPRtoSAVE_TMP ( IPRSPC,ISPC ) = NCSAVE
-               END DO
-            END DO
-         END IF
-      END DO
-
-      NCSAVE    = MAX( NCSAVE, 1 )
-      ALLOCATE( MAP_SAVEtoCGRID( NCSAVE ),
-     &          MAP_IPRtoCGRID( N_IPR_SPC,MXCGRID ),
-     &          MAP_IPRtoSAVE( N_IPR_SPC,MXCGRID ),
+      ALLOCATE( MAP_IPRtoCGRID( N_IPR_SPC,MXCGRID ),
      &          SPCOEF ( N_IPR_SPC,MXCGRID ), 
      &          STAT = ASTAT )
       IF ( ASTAT .NE. 0 ) THEN
          MSG = 'ERROR 4 allocating IPR variables'
          CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
       END IF
-      MAP_SAVEtoCGRID = MAP_SAVEtoCGRID_TMP( 1:NCSAVE )
       MAP_IPRtoCGRID  = MAP_IPRtoCGRID_TMP( 1:N_IPR_SPC,1:MXCGRID )
-      MAP_IPRtoSAVE   = MAP_IPRtoSAVE_TMP ( 1:N_IPR_SPC,1:MXCGRID )
       SPCOEF          = MAP_IPRtoCGRID_TMP( 1:N_IPR_SPC,1:MXCGRID )
 
       RETURN

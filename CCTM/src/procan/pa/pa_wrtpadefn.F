@@ -65,7 +65,6 @@ C Local Variables:
       INTEGER MXCGRIDD        ! Dimension for number of familys for PA
       INTEGER MXNIRRRXNSD     ! Dimension parameter for MXNIRRRXNS
       INTEGER MXTEMPTRMSD     ! Dimension parameter for MXTEMPTRMS
-      INTEGER NCSAVED         ! Dimension for NCSAVE
       INTEGER NIRRVARD        ! Dimension of IRR output variables
       INTEGER N_IPR_SPCD      ! Dimension statement for no. of PA species
       INTEGER NIPRVARD        ! Dimension of PA output variables
@@ -181,12 +180,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE( IOUT, 94000 ) CEES
 
       N_IPR_SPCD  = MAX( N_IPR_SPC, 1 )
-      NCSAVED     = MAX( NCSAVE, 1 )
       MXCGRIDD    = MAX( MXCGRID, 1 )
 
       WRITE( IOUT, 95300 ) NPRCS,
      &                     N_IPR_SPC, N_IPR_SPCD,
-     &                     NCSAVE, NCSAVED,
      &                     MXCGRID, MXCGRIDD
       WRITE( IOUT, 95320 )
       LINOUT = ''
@@ -357,20 +354,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             WRITE( IOUT, 96300 ) NLO, NHI
             DO NPA = NLO,  NHI
                WRITE( BUF6( NPA ), "( I5, ',' )" ) NCGRID( NPA )
-            END DO
-            BUF6( NHI )( 6:7 ) = ' /'
-            call listout( NLO, NHI, 10, IOUT, BUF6 )
-         END DO
-      END IF
-
-      IF ( NCSAVE .GT. 0 ) THEN
-         NSETS = ( ( NCSAVE - 1 ) / ( 10 * MAXCNT ) ) + 1
-         DO NS = 1, NSETS
-            NLO = ( NS - 1 ) * ( 10 * MAXCNT ) + 1
-            NHI = MIN( ( NS * 10 * MAXCNT ), NCSAVE )         
-            WRITE( IOUT, 96320 ) NLO, NHI
-            DO NPA = NLO,  NHI
-               WRITE( BUF6( NPA ), 96080 ) MAP_SAVEtoCGRID( NPA )
             END DO
             BUF6( NHI )( 6:7 ) = ' /'
             call listout( NLO, NHI, 10, IOUT, BUF6 )
@@ -771,10 +754,8 @@ C----------------------- FORMAT Statements -----------------------------
 95280 FORMAT( 
      & 'c    NPRCS      = No. of science processes that can be monitored' /
      & 'c    N_IPR_SPC  = Number of families for IPR' /
-     & 'c    NCSAVE     = Number of CTM species concs to save for IPR' /
      & 'c    MXCGRID    = Max number of CTM species in an IPR family' /
      & 'c    N_IPR_SPCD = Dimension for number of families for IPR' /
-     & 'c    NCSAVED    = Dimension for NCSAVE' /
      & 'c    MXCGRIDD   = Dimension for MXCGRID' /
      & 'c    NCGRID     = Array of no. of CTM species in an IPR family' /
      & 'c    IPROUT     = Array of IPR output variable indices' /
@@ -787,8 +768,6 @@ C----------------------- FORMAT Statements -----------------------------
      & 6X, 'INTEGER, PARAMETER :: NPRCS      =', I4 /
      & 6X, 'INTEGER, PARAMETER :: N_IPR_SPC  =', I4, ',',
      & 2X,                       'N_IPR_SPCD =', I4 /
-     & 6X, 'INTEGER, PARAMETER :: NCSAVE     =', I4, ',',
-     & 2X,                       'NCSAVED    =', I4 /
      & 6X, 'INTEGER, PARAMETER :: MXCGRID    =', I4, ',',
      & 2X,                       'MXCGRIDD   =', I4 / )
 
@@ -796,7 +775,6 @@ C----------------------- FORMAT Statements -----------------------------
      & 6X, 'CHARACTER( 16 ) :: PROCNAME( NPRCS )' /
      & 6X, 'LOGICAL            LPROCOUT( NPRCS )' //
      & 6X, 'INTEGER NCGRID ( N_IPR_SPCD )' /
-     & 6X, 'INTEGER SV2GRD ( NCSAVED )' /
      & 6X, 'INTEGER IPROUT ( N_IPR_SPCD,NPRCS )' /
      & 6X, 'INTEGER IPR2GRD( N_IPR_SPCD,MXCGRIDD )' /
      & 6X, 'INTEGER IPR2SAV( N_IPR_SPCD,MXCGRIDD )' //

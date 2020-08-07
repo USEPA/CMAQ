@@ -1,17 +1,12 @@
 
-      module log_header
-
-      contains
-
       subroutine LOAD_HEADER( HEADER_TXT, N_TXT )
 
       IMPLICIT NONE
 
-      CHARACTER( 90 ) :: HEADER_TXT( : )
+      CHARACTER( 90 ) :: HEADER_TXT( 200 )
       INTEGER         :: N_TXT
 
       N_TXT = 21
-      ALLOCATE( HEADER_TXT( N_TXT ) )
       HEADER_TXT( : ) = ''
 
       HEADER_TXT( 1:N_TXT ) = (/   
@@ -40,4 +35,3 @@
 
        end subroutine LOAD_HEADER 
 
-      end module log_header
