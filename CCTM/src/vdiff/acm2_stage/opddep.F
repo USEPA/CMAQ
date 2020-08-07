@@ -181,7 +181,7 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
             END DO
          END IF
 
-         FDESC3D( 1 ) = 'hourly 1-layer cross-point RADM dry deposition data'
+         FDESC3D( 1 ) = 'hourly 1-layer cross-point STAGE dry deposition data'
          DO L = 2, MXDESC3
             FDESC3D( L ) = ' '
          END DO
