@@ -275,7 +275,7 @@ C Set up for process analysis
          IF ( LIPR ) THEN
             CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
 
-            ALLOCATE ( EMIS_PA( NCOLS,NROWS,EMLAYS,N_CGRID_SPC ), STAT = ASTAT )
+            ALLOCATE ( EMIS_PA( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT = ASTAT )
             IF ( ASTAT .NE. 0 ) THEN
                XMSG = 'EMIS_PA memory allocation failed'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )

@@ -96,6 +96,9 @@ c these are allocated in pa_setpadefn.F
       REAL,    ALLOCATABLE, SAVE :: SPCOEF ( :,: )  ! ( N_IPR_SPC,MXCGRID )
       LOGICAL, ALLOCATABLE, SAVE :: MASK_IPR_PROC( :,: )
 
+      CHARACTER( 16 ), ALLOCATABLE, SAVE :: BUDGETVARIABLES( : )
+      INTEGER, PARAMETER :: N_BUDGET_VARS_REG = 200
+
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  The following variables are used in the integrated reaction rate
 c  computations.

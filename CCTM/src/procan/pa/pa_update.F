@@ -166,6 +166,7 @@ C-----------------------------------------------------------------------
             MSG = '*** ERROR allocating CNGRD'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
+         CSAV  = CGRID
       END IF
 
       CNGRD = CGRID  ! local copy (separate memory)
@@ -238,9 +239,7 @@ C-----------------------------------------------------------------------
       REAL, ALLOCATABLE, SAVE :: PA_EMIS_CONV( : )
 
       REAL :: DENS    ( NCOLS,NROWS,NLAYS )  ! Density of air
-      REAL :: TDENS   ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: TVEMIS  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
-      REAL :: EM      ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
        
       INTEGER ASTAT     ! Allocate status code
       INTEGER C, R, L   ! Loop index for columns
@@ -249,7 +248,6 @@ C-----------------------------------------------------------------------
       INTEGER IPRV      ! Index for each combination of species-process
       INTEGER ICG       ! Index for species in cgrid array
       INTEGER ISV       ! Index for species in saved array
-      INTEGER IEM       ! Index for emission species
       INTEGER I
       REAL    DT
       INTEGER MDATE     ! Date of mid-point of timestep
@@ -301,7 +299,7 @@ C-----------------------------------------------------------------------
       VEMIS = VEMIS  * DT
       DO ICG = 1,N_CGRID_SPC
          IF ( CGRID_MASK_AERO( ICG ) ) 
-     &      VEMIS(:,:,:,ICG) = VEMIS(:,:,:,ICG) * DENS( :,:,: ) * PA_EMIS_CONV( IEM )
+     &      VEMIS(:,:,:,ICG) = VEMIS(:,:,:,ICG) * DENS( :,:,: ) * PA_EMIS_CONV( ICG )
       END DO
       
       ! Save Changes in Budget Array
@@ -378,10 +376,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       REAL, PARAMETER :: CONVMW = 1.0E+06 * MWAIR ! ug mol-1
 
       REAL :: DENS    ( NCOLS,NROWS,NLAYS )  ! Density of air
-      REAL :: TDENS   ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: TDDEP   ( MY_PACOLS,MY_PAROWS )
       REAL :: ZF      ( NCOLS,NROWS,NLAYS )  ! Layer heights
-      REAL :: TZF     ( MY_PACOLS,MY_PAROWS,PALEVS )
 
       INTEGER ASTAT     ! Allocate status code
       INTEGER C, R, L   ! Loop index for columns
@@ -390,7 +386,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INTEGER IPRV      ! Index for each combination of species-process
       INTEGER ICG       ! Index for species in cgrid array
       INTEGER ISV       ! Index for species in saved array
-      INTEGER IDD       ! Index for deposition species
       INTEGER MDATE     ! Date of mid-point of timestep
       INTEGER MTIME     ! Time of mid-point of timestep
       INTEGER I
@@ -404,7 +399,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( FIRST_TIME ) THEN
          FIRST_TIME = .FALSE.           
 
-         ALLOCATE ( PA_DEPV_CONV( N_SPC_DIFF ), STAT = ASTAT )
+         ALLOCATE ( PA_DEPV_CONV( N_CGRID_SPC ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = 'Failure allocating PA_DEPV_CONV'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
@@ -421,7 +416,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &           CGRID_MASK_TRAC( ICG ) ) THEN
                ! Species is a gas
                ! ug mol-1 air / g mol -1 species
-               PA_DEPV_CONV( ICG ) = CONVMW / CGRID_MW( ICG ) !* CONVDD
+               IF ( CGRID_MW( ICG ) .GT. 0. ) 
+     &            PA_DEPV_CONV( ICG ) = CONVMW / CGRID_MW( ICG ) !* CONVDD
 
             ELSE IF ( CGRID_MASK_NUM( ICG ) .OR. 
      &                CGRID_MASK_SRF( ICG ) ) THEN
@@ -458,7 +454,9 @@ C..get density x jacobian and layer heights
       END DO
  
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET_DDEP( IPR_DDEP, DDEP, JDATE, JTIME )
+      CNGRD(:,:,1,: ) = DDEP(:,:,:)
+      CNGRD( :,:,2:NLAYS,: ) = 0.0
+      CALL STORE_BUDGET( IPR_DDEP, CNGRD, JDATE, JTIME )
 
       IF ( LIPR .AND. MY_BEGLEV .EQ. 1 ) THEN
       ! Compute delta conc due to ddep and adjust vdiff output if necessary

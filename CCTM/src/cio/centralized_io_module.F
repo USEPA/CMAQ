@@ -3694,6 +3694,7 @@ C   mminlu and num_land_cat are WRF global variables
       USE UTILIO_DEFN
       use em_param_module
       use RUNTIME_VARS, only : EMISSCTRL, logdev
+      use PA_DEFN, ONLY : BudgetVariables, N_BUDGET_VARS_REG
 
       IMPLICIT NONE
 
@@ -3718,6 +3719,7 @@ C   mminlu and num_land_cat are WRF global variables
          NAMELIST / EmissionScalingRules / EM_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
+         NAMELIST / BudgetOptions        / BudgetVariables
 
          ! ALlocate and Initialize Family Variables
          ALLOCATE( CHEMFAMILYNAME( N_CHEM_FAMILY_REG ),
@@ -3743,6 +3745,10 @@ C   mminlu and num_land_cat are WRF global variables
          REGIONFAMILYNAME    = ''
          REGIONFAMILYNUM     = 0
          REGIONFAMILYMEMBERS = ''
+
+         ! Allocate and Initialize Budget Variables
+         ALLOCATE( BudgetVariables( N_Budget_Vars_Reg ) )
+         BudgetVariables = ''
 
          ! Allocate and Initialize Namelist Variables
          ALLOCATE( EM_NML( N_EM_RULE_REG ) )
@@ -3857,7 +3863,23 @@ C   mminlu and num_land_cat are WRF global variables
              RGN_NML%FILE  = ''
              RGN_NML%VAR   = ''
          END IF
-
+ 
+         ! Read Budget Variables Specification Section
+         REWIND( EMCTRL_NML )
+         READ( NML = BudgetOptions, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .NE. 0 ) THEN
+             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
+     &              'Warning! Something went wrong while reading the ',
+     &              'BudgetVariables section of the Emissions Control ',
+     &              'Namelist. Default values for this section will be ',
+     &              'assumed.'
+             BudgetVariables  = '*ALL'
+         END IF
+         ! Capitalize All Budget Variables Names
+         DO IFAM = 1,N_Budget_Vars_Reg
+             CALL UPCASE( BudgetVariables( IFAM ) )
+         END DO
+ 
          ! Read the size distribution specification section
          REWIND( EMCTRL_NML )
          READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )

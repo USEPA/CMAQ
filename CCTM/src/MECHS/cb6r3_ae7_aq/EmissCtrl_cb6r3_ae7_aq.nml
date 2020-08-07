@@ -449,7 +449,7 @@
 !------------------------------------------------------------------------------!
 
 &BudgetOptions
-  BudgetVariables  = 'DEFAULT','AOD_550','ORGANIC'
+  BudgetVariables  = 'NO2','AECJ','*ASO4','NUMACC','ANO3'
 /
 
 
