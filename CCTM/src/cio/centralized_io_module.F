@@ -111,7 +111,7 @@
 ! stored accordingly.
 
         integer :: n_opened_file = 0
-        integer :: f_met, f_bios, f_ltng, f_bcon, f_icon, f_is_icon
+        integer :: f_met, f_bios, f_ltng, f_bcon, f_icon, f_is_icon, f_mbiog
         integer, allocatable :: f_emis(:), f_stk_emis(:)
 
         integer :: file_sdate(max_nfiles) = -1
@@ -3401,33 +3401,20 @@ C   mminlu and num_land_cat are WRF global variables
           USE UTILIO_DEFN
           use RUNTIME_VARS, only : logdev
         
-           integer STAT, I, fnum
-           integer megan_hr
-           character (20) :: loc_time_stamp
-           real t24sum(ncols),sw24sum(ncols) 
-           Character( 40 ), parameter :: pname = 'megan_setup'
+          integer                    :: stat, i, megan_hr, megan_day, strtcol,
+     &                                  endcol, strtrow, endrow, gxoff, gyoff 
 
-           Character( 40 ), parameter :: MEGAN_LDF = 'MEGAN_LDF'
-           Character( 40 ), parameter :: MEGAN_LAI = 'MEGAN_LAI'
-           Character( 40 ), parameter :: MEGAN_EFS = 'MEGAN_EFS'
-           Character( 40 ), parameter :: MEGAN_CTS = 'MEGAN_CTS'
-           CHARACTER( 256 ) :: mesg
-           character( 200)   :: xmsg
-           character( 40 )  ::  var
+          character( 20 )            :: loc_time_stamp
+          real                       :: t24sum(ncols),sw24sum(ncols) 
+          character( 40 ), parameter :: pname = 'megan_setup'
+
+          character( 40 ), parameter :: MEGAN_LDF = 'MEGAN_LDF'
+          character( 40 ), parameter :: MEGAN_LAI = 'MEGAN_LAI'
+          character( 40 ), parameter :: MEGAN_EFS = 'MEGAN_EFS'
+          character( 40 ), parameter :: MEGAN_CTS = 'MEGAN_CTS'
+          character( 256 )           :: mesg
+          character( 40 )            :: var
       
-
-             allocate (ctf(6,ncols,nrows),
-     &                 efmaps(ncols,nrows,20),
-     &                 lai_m(ncols,nrows, 46),
-     &                 stat=stat)
-
-          if (stat .ne. 0) then
-             xmsg = 'Failure allocating MEGAN input arrays'
-             call m3exit (pname, 0, 0, xmsg, xstat1 )
-          end if
-
-             lai_m= 0.0
-
 
 #ifdef mpas
 
@@ -3441,131 +3428,150 @@ C   mminlu and num_land_cat are WRF global variables
                 mesg = 'Open failure for ' // MEGAN_CTS
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
              END IF
+
              n_opened_file = n_opened_file + 1
+             f_mbiog = n_opened_file
+           
+             IF ( .NOT. DESC3( MEGAN_CTS ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( MEGAN_CTS ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+ 
+             file_sdate(f_mbiog) = sdate3d
+             file_stime(f_mbiog) = stime3d
+             file_tstep(f_mbiog) = tstep3d
+             file_xcell(f_mbiog) = xcell3d
+             file_ycell(f_mbiog) = ycell3d
+
+             allocate (ctf(mxrec3d,ncols,nrows), stat = stat)
+ 
+             if (stat .ne. 0) then
+               mesg = 'Failure allocating MEGAN input arrays'
+               call m3exit (pname, 0, 0, mesg, xstat1 )
+             end if
+
+             call subhfile( megan_cts , gxoff, gyoff, strtcol, 
+     &                     endcol, strtrow, endrow )  
+
+             megan_day = sdate3d 
+             megan_hr  = stime3d
+
+             do I=1,mxrec3d 
+
+                   IF ( .NOT. XTRACT3( MEGAN_CTS, 'CTS', 
+     &                                 1, 1, strtrow, endrow, strtcol, endcol, 
+     &                                 megan_day, megan_hr, ctf(I,:,:) ) ) THEN
+                      mesg = 'Could not extract ' // MEGAN_CTS // ' file'
+                      CALL M3EXIT ( PNAME, megan_day, megan_hr, mesg, XSTAT1 )
+                   END IF
+
+                   call nextime (megan_day, megan_hr, tstep3d)
+
+             end do
+
+             WHERE ( ctf .ne. ctf ) ctf = 0.0  ! ensure no NaNs
+
              IF ( .NOT. OPEN3( MEGAN_EFS, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // MEGAN_EFS
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
              END IF
-             n_opened_file = n_opened_file + 1
+
+             IF ( .NOT. DESC3( MEGAN_EFS ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( MEGAN_EFS ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             allocate (efmaps(ncols,nrows,nvars3d), stat = stat)
+ 
+             if (stat .ne. 0) then
+               mesg = 'Failure allocating MEGAN input arrays'
+               call m3exit (pname, 0, 0, mesg, xstat1 )
+             end if
+
+             call subhfile( megan_efs, gxoff, gyoff, strtcol, 
+     &                     endcol, strtrow, endrow )  
+
+             megan_day = sdate3d 
+             megan_hr  = stime3d
+        
+             IF ( .NOT. XTRACT3( MEGAN_EFS, 'ALL', 
+     &                           1, 1, strtrow, endrow, strtcol, endcol, 
+     &                           megan_day, megan_hr, efmaps(:,:,:) ) ) THEN
+                 mesg = 'Could not extract ' // MEGAN_EFS // ' file'
+                 CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
+             END IF
+
              IF ( .NOT. OPEN3( MEGAN_LAI, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // MEGAN_LAI
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
              END IF
-             n_opened_file = n_opened_file + 1
+
+             IF ( .NOT. DESC3( MEGAN_LAI ) ) THEN
+                MESG = 'Could not get description of file "' //
+     &                  TRIM( MEGAN_LAI ) // '"'
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+             END IF
+
+             allocate (lai_m(ncols,nrows,mxrec3d), stat = stat)
+ 
+             if (stat .ne. 0) then
+               mesg = 'Failure allocating MEGAN input arrays'
+               call m3exit (pname, 0, 0, mesg, xstat1 )
+             end if
+
+             lai_m = 0.0
+
+             call subhfile( megan_lai, gxoff, gyoff, strtcol, 
+     &                     endcol, strtrow, endrow )  
+
+             megan_day = sdate3d 
+             megan_hr  = stime3d
+
+             do I=1,mxrec3d
+                    WRITE( VAR, '(A3,I2.2)' ) 'LAI', I
+                    IF ( .NOT. XTRACT3( MEGAN_LAI, VAR, 
+     &                                  1, 1, strtrow, endrow, strtcol, endcol, 
+     &                                  megan_day, megan_hr, lai_m(:,:,I) ) ) THEN
+                       mesg = 'Could not extract ' // MEGAN_LAI // ' file'
+                       CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                    END IF
+             end do
+
              IF ( .NOT. OPEN3( MEGAN_LDF, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // MEGAN_LDF
                 Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
              END IF
-             n_opened_file = n_opened_file + 1
 
-
-! Get description of megan parameters files
-! efmaps, ctf, lai, ldf
-             IF ( .NOT. DESC3( MEGAN_CTS ) ) THEN
-                MESG = 'Could not get description of file "' //
-     &                  TRIM( MEGAN_CTS ) // '"'
-                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-             END IF
-             IF ( .NOT. DESC3( MEGAN_LAI ) ) THEN
-                MESG = 'Could not get description of file "' //
-     &                  TRIM( MEGAN_LAI ) // '"'
-                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-             END IF
              IF ( .NOT. DESC3( MEGAN_LDF ) ) THEN
                 MESG = 'Could not get description of file "' //
      &                  TRIM( MEGAN_LDF ) // '"'
-                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
+                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
              END IF
-             IF ( .NOT. DESC3( MEGAN_EFS ) ) THEN
-                MESG = 'Could not get description of file "' //
-     &                  TRIM( MEGAN_EFS ) // '"'
-                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT2 )
-             END IF
-! Read variables
-#ifdef twoway
-            megan_hr = 0
-            do I=1,6 
-                   IF ( .NOT. XTRACT3( MEGAN_CTS, 'CTS', 
-     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD, 
-     &                                 0, megan_hr, ctf(I,:,:) ) ) THEN
-                      XMSG = 'Could not extract ' // MEGAN_CTS // ' file'
-                      CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
-                   END IF
-                   megan_hr = megan_hr + 10000
-            end do
 
-!!! The next 2 are 0 in time. The different records are spaced as
-            do I=1,45
-                   WRITE( VAR, '(A3,I2.2)' ) 'LAI', I
-                   IF ( .NOT. XTRACT3( MEGAN_LAI, VAR, 
-     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD, 
-     &                                 0, 0, lai_m(:,:,I) ) ) THEN
-                      XMSG = 'Could not extract ' // MEGAN_LAI // ' file'
-                      CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-                   END IF
-            end do
-
-            do I=1,20
-                   WRITE( VAR, '(A3,I2.2)' ) 'LDF', I
-                   IF ( .NOT. XTRACT3( MEGAN_LDF, VAR, 
-     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD, 
-     &                                 0, 0, LDF(:,:,I) ) ) THEN
-                      XMSG = 'Could not extract ' // MEGAN_LDF // ' file'
-                      CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-                   END IF
-            end do
-
-                   IF ( .NOT. XTRACT3( MEGAN_EFS, ALLVAR3, 
-     &                                 1, 1, STRTROWSTD, ENDROWSTD, STRTCOLSTD,ENDCOLSTD, 
-     &                                 0, 0, efmaps(:,:,:) ) ) THEN
-                      XMSG = 'Could not extract ' // MEGAN_EFS // ' file'
-                      CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
-                   END IF
-
-
-#else
-! NOT twoway
-            megan_hr = 0
-            do I=1,6 
-                   IF ( .NOT. XTRACT3( MEGAN_CTS, 'CTS', 
-     &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
-     &                                 0, megan_hr, ctf(I,:,:) ) ) THEN
-                      XMSG = 'Could not extract ' // MEGAN_CTS // ' file'
-                      CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
-                   END IF
-                   megan_hr = megan_hr + 10000
-            end do
-
-!!! The next 2 are 0 in time. The different records are spaced as
-            do I=1,45
-                   WRITE( VAR, '(A3,I2.2)' ) 'LAI', I
-                   IF ( .NOT. XTRACT3( MEGAN_LAI, VAR, 
-     &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
-     &                                 0, 0, lai_m(:,:,I) ) ) THEN
-                      XMSG = 'Could not extract ' // MEGAN_LAI // ' file'
-                      CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-                   END IF
-            end do
-
-            do I=1,20
-                   WRITE( VAR, '(A3,I2.2)' ) 'LDF', I
-                   IF ( .NOT. XTRACT3( MEGAN_LDF, VAR, 
-     &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
-     &                                 0, 0, LDF(:,:,I) ) ) THEN
-                      XMSG = 'Could not extract ' // MEGAN_LDF // ' file'
-                      CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
-                   END IF
-            end do
-
-                   IF ( .NOT. XTRACT3( MEGAN_EFS, ALLVAR3, 
-     &                                 1, 1, STRTROWMC2, ENDROWMC2, STRTCOLMC2, ENDCOLMC2, 
-     &                                 0, 0, efmaps(:,:,:) ) ) THEN
-                      XMSG = 'Could not extract ' // MEGAN_EFS // ' file'
-                      CALL M3EXIT ( PNAME, 0, megan_hr, XMSG, XSTAT1 )
-                   END IF
-#endif
-                WHERE ( ctf .ne. ctf ) ctf = 0.0  ! ensure no NaNs
+             allocate (ldf(ncols,nrows,mxrec3d), stat = stat)
  
+             if (stat .ne. 0) then
+               mesg = 'Failure allocating MEGAN input arrays'
+               call m3exit (pname, 0, 0, mesg, xstat1 )
+             end if
+
+             call subhfile( megan_ldf, gxoff, gyoff, strtcol, 
+     &                     endcol, strtrow, endrow )  
+
+             megan_day = sdate3d 
+             megan_hr  = stime3d
+
+             do I=1,mxrec3d
+                    WRITE( VAR, '(A3,I2.2)' ) 'LDF', I
+                    IF ( .NOT. XTRACT3( MEGAN_LDF, VAR, 
+     &                                  1, 1, strtrow, endrow, strtcol, endcol, 
+     &                                  megan_day, megan_hr, LDF(:,:,I) ) ) THEN
+                       mesg = 'Could not extract ' // MEGAN_LDF // ' file'
+                       CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                    END IF
+             end do
 
 #endif
         end subroutine megan_setup
