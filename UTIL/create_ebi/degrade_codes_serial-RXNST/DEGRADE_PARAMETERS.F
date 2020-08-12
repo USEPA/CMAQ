@@ -44,7 +44,7 @@ C.....INCLUDES:
 
 C..declare and define variables used by maps and data
 
-      INTEGER, PARAMETER :: N_REACT       = 33    ! number of  species being degraded
+      INTEGER, PARAMETER :: N_REACT       = 34   ! number of  species being degraded
       INTEGER, PARAMETER :: N_UNI_LOSS    = 1     ! Number of Unimolecular Loss Processes
       INTEGER, PARAMETER :: N_BI_LOSS     = 5     ! Number of Bimolcular Loss processes
       INTEGER, PARAMETER :: N_TRI_LOSS    = 2     ! Number of Bimolcular Loss processes
@@ -488,6 +488,13 @@ C.. BENZO[A]PYRENE, Aitken mode
            LH_EQU(1,33)  = 10.1D-15  ! average between 50% and 70% Rel. Hum. Points in Zhou et al. (2013)
            LH_TAMIN(1,33)  =  275.15 ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
            LH_RHMIN(1,33)  =  0.50   ! based on New-Shield BaP heteorogeneous oxidation treatment in Shrivastava et al. (2017)
+
+C.. CARBON TETRACHLORIDE without boundary conditions
+
+            REACT(34)       = 'CARB_TET_NBC'
+            BICAUSE(1:5,34) = (/'OH ','HO ','O3 ','NO3','CL '/)
+            BIRATE(1:5,34)  = (/ 1.0D-12, 1.0D-12, 0.0D0, 0.0D0, 9.55D-11/)
+            BI_ACT(1:5,34)  = (/2300.0D0,2300.0D0, 0.0D0, 0.0D0, 7.80D+03/)
 
            NDEGRADED_FOUND = 0
            DO I = 1, N_REACT

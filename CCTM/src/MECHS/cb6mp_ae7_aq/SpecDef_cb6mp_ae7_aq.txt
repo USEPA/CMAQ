@@ -85,7 +85,7 @@ XYL             ,ppbV      ,1000.0*XYLMN[1]
 
 !! Additional Global, Regional and Urban Toxic gases
 ACROLEIN        ,ug/m3     ,1000.0*(ACROLEIN[1]*1.9365*DENS[2]) 
-ACRO_PRIMARY    ,ug/m3     ,1000.0*(ACRO_PRIMARY[1]*1.9365*DENS[2])
+ACRO_PRIMARY    ,ug/m3     ,1000.0*(ACRO_PRIMARY[1]*1.9365*DENS[2]) 
 ACRY_NITRILE    ,ug/m3     ,1000.0*(ACRY_NITRILE[1]*1.8329*DENS[2])        
 ALD2_UGM3       ,ug/m3     ,1000.0*(ALD2[1]*1.5188*DENS[2])                
 ALD2_PRIMARY    ,ug/m3     ,1000.0*(ALD2_PRIMARY[1]*1.5188*DENS[2])     
@@ -94,29 +94,30 @@ BR2_C2_12       ,ug/m3     ,1000.0*(BR2_C2_12[1]*6.4860*DENS[2])
 BUTADIENE13     ,ug/m3     ,1000.0*(BUTADIENE13[1]*1.8674*DENS[2]) 
 CHCL3           ,ug/m3     ,1000.0*(CHCL3[1]*4.1215*DENS[2])      
 CL_ETHE         ,ug/m3     ,1000.0*(CL_ETHE[1]*2.1574*DENS[2])   
-CL2             ,ppbV      ,1000.0*CL2[1]                       
+CL2             ,ug/m3     ,1000.0*(CL2[1]*2.4533*DENS[2])                       
 CL2_C2_12       ,ug/m3     ,1000.0*(CL2_C2_12[1]*3.4173*DENS[2])  
 CL2_ME          ,ug/m3     ,1000.0*(CL2_ME[1]*2.9306*DENS[2])    
 CL3_ETHE        ,ug/m3     ,1000.0*(CL3_ETHE[1]*4.5357*DENS[2]) 
 CL4_ETHE        ,ug/m3     ,1000.0*(CL4_ETHE[1]*5.7232*DENS[2])  
 CL4_ETHANE      ,ug/m3     ,1000.0*(CL4_ETHANE[1]*5.7956*DENS[2])  
 CARBONTET       ,ug/m3     ,1000.0*(CARBONTET[1]*5.3089*DENS[2])      
+CARB_TET_NBC    ,ug/m3     ,1000.0*(CARB_TET_NBC[1]*5.3089*DENS[2])
 DICL_BENZENE    ,ug/m3     ,1000.0*(DICL_BENZENE[1]*5.069*DENS[2])  
 DICL_PROPENE    ,ug/m3     ,1000.0*(DICL_PROPENE[1]*3.8316*DENS[2]) 
-ETOH            ,ppbV      ,1000.0*ETOH[1]           
+ETOH            ,ug/m3     ,1000.0*(ETOH[1]*1.5930*DENS[2])           
 ETOX            ,ug/m3     ,1000.0*(ETOX[1]*1.5223*DENS[2])  
 FORM_UGM3       ,ug/m3     ,1000.0*(FORM[1]*1.0356*DENS[2])  
 FORM_PRIMARY    ,ug/m3     ,1000.0*(FORM_PRIMARY[1]*1.0356*DENS[2])  
-HCL             ,ppbV      ,1000.0*HCL[1]                           
+HCL             ,ug/m3     ,1000.0*(HCL[1]*1.2612*DENS[2])                           
 HEXMETH_DIS     ,ug/m3     ,1000.0*(HEXMETH_DIS[1]*5.8000*DENS[2]) 
 HYDRAZINE       ,ug/m3     ,1000.0*(HYDRAZINE[1]*3.3793*DENS[2])     
-MEOH            ,ppbV      ,1000.0*MEOH[1]                          
-XYLENE		    ,ppbV      ,1000.0*XYLENE[1]                       
+MEOH            ,ug/m3     ,1000.0*(MEOH[1]*1.1057*DENS[2])                          
+XYLENE          ,ug/m3     ,1000.0*(XYLENE[1]*3.6697*DENS[2])                       
 MAL_ANHYDRID    ,ug/m3     ,1000.0*(MAL_ANHYDRID[1]*3.3843*DENS[2])  
 NAPHTHALENE     ,ug/m3     ,1000.0*(NAPHTHALENE[1]*4.4253*DENS[2])   
 PROPY_DICL      ,ug/m3     ,1000.0*(PROPYL_DICL[1]*3.9006*DENS[2])  
 QUINOLINE       ,ug/m3     ,1000.0*(QUINOLINE[1]*4.4598*DENS[2])      
-TOLU            ,ppbV      ,1000.0*TOLU[1]                           
+TOLUENE         ,ug/m3     ,1000.0*(TOLU[1]*3.1790*DENS[2])                           
 TOL_DIIS        ,ug/m3     ,1000.0*(TOL_DIIS[1]*6.0069*DENS[2])     
 TRIETHYLAMIN    ,ug/m3     ,1000.0*(TRIETHYLAMIN[1]*3.4986*DENS[2])  
 ACET_NITRILE    ,ug/m3     ,1000.0*(ACET_NITRILE[1]*1.4155*DENS[2])  
@@ -128,9 +129,20 @@ CARBSULFIDE     ,ug/m3     ,1000.0*(CARBSULFIDE[1]*2.0714*DENS[2])
 CHLOROPRENE     ,ug/m3     ,1000.0*(CHLOROPRENE[1]*3.0530*DENS[2]) 
 ETHYLBENZENE    ,ug/m3     ,1000.0*(ETHYLBENZENE[1]*3.6610*DENS[2])  
 
+!! PAHs (not in the standard NR_cb6mp_ae_aq.nml )
+PAH_000E0       ,ug/m3     ,1000.0*(PAH_000E0[1]*6.4340*DENS[2])
+PAH_176E5       ,ug/m3     ,1000.0*(PAH_176E5[1]*6.8314*DENS[2])
+PAH_880E5       ,ug/m3     ,1000.0*(PAH_880E5[1]*6.8383*DENS[2])
+PAH_176E4       ,ug/m3     ,1000.0*(PAH_176E4[1]*8.7907*DENS[2])
+PAH_176E3       ,ug/m3     ,1000.0*(PAH_176E3[1]*9.6166*DENS[2])
+PAH_192E3       ,ug/m3     ,1000.0*(PAH_192E3[1]*9.2745*DENS[2])
+PAH_101E2       ,ug/m3     ,1000.0*(PAH_101E2[1]*10.4493*DENS[2])
+PAH_176E2       ,ug/m3     ,1000.0*(PAH_176E2[1]*8.8556*DENS[2])
+PAH_114E1       ,ug/m3     ,1000.0*(PAH_114E1[1]*3.3793*DENS[2])
+
 !Mercuric gas species
-HG_0            ,ng/m3     ,1000.0*(HG[1]*8.3330*DENS[2]*1000.0)       
-HG_II           ,ng/m3     ,1000.0*(HGIIGAS[1]*8.3330*DENS[2]*1000.0) 
+HG_0            ,ng/m3     ,1000.0*1000.0*(HG[1]*8.3330*DENS[2])       
+HG_II           ,ng/m3     ,1000.0*1000.0*(HGIIGAS[1]*8.3330*DENS[2]) 
 
 !! Unused Gases. Presented Here for illustration. Users can uncomment
 !! them if they choose.

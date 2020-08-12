@@ -16,6 +16,7 @@ NR_SPECIES_DATA =
 'SVMT6'          ,168.0   ,''   ,-1      ,''   ,-1     ,'VD_SVMT6'        , 1   ,'SVMT6'           , 1  ,'SVMT6'      ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'ACRY_NITRILE'   , 53.10  ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'ACRYLONITRILE'   , 1  ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
 'CARBONTET'      ,153.80  ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'CARBONTETRACHLOR', 1  ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'CARB_TET_NBC'   ,153.80  ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'CARBONTETRACHLOR', 1  ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
 'PROPYL_DICL'    ,113.00  ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'PROPYLENE_DICHLO', 1  ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
 'DICL_PROPENE'   , 99.00  ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'13DICHLOROPROPEN', 1  ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
 'CL4_ETHANE'     ,167.90  ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'1122-CL4ETHANE'  , 1  ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
@@ -44,5 +45,14 @@ NR_SPECIES_DATA =
 'CARBSULFIDE'    , 60.10  ,''   ,-1      ,''   ,-1     ,'VD_CARBSULFIDE'  , 1   ,'CARBSULFIDE'     , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
 'CHLOROPRENE'    , 88.50  ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'CHLOROPRENE'     , 1  ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
 'ETHYLBENZENE'   ,106.00  ,''   ,-1      ,''   ,-1     ,'VD_TOL'          , 1   ,'ETHYLBENZENE'    , 1  ,''           ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
-'BENAPY'         ,252.3   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'BENAPY'          , 1  ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes'
+'BENAPY'         ,252.3   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'BENAPY'          , 1  ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'PAH_000E0'      ,186.2   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'NAPHTHALENE'     ,1.0 ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'PAH_176E5'      ,197.7   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'NAPHTHALENE'     ,1.0 ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'PAH_880E5'      ,197.9   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'NAPHTHALENE'     ,1.0 ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'PAH_176E4'      ,254.4   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'NAPHTHALENE'     ,1.0 ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'PAH_176E3'      ,259.3   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'NAPHTHALENE'     ,1.0 ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'PAH_192E3'      ,278.3   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'NAPHTHALENE'     ,1.0 ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'PAH_101E2'      ,268.4   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'NAPHTHALENE'     ,1.0 ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'PAH_176E2'      ,302.4   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'NAPHTHALENE'     ,1.0 ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'PAH_114E1'      ,256.3   ,''   ,-1      ,''   ,-1     ,''                ,-1   ,'NAPHTHALENE'     ,1.0 ,''           ,''        ,'Yes' ,''    ,'Yes' ,'Yes'
 /
