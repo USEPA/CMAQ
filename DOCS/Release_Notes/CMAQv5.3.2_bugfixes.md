@@ -171,3 +171,18 @@ See the [User's Guide Chapter 7](CMAQ_UG_ch07_model_outputs.md#nh3-flux-componen
 CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F        
 CCTM/src/vdiff/acm2_m3dry/opddep.F  
 CCTM/src/vdiff/acm2_m3dry/vdiffproc.F   
+
+## 12. Removes unnecessary request for NLDN file when it is not needed
+[Daiwen Kang](mailto:kang.daiwen@epa.glov), U.S. Environmental Protection Agency
+
+### Description of the model issue
+When inline lightning NO production is turned on, there are two options: 
+Option 1 uses hourly lightning flash data which are provided by an external imput file through the enviromental variable NLDN_STRIKES;
+Option 2 uses parameters provided in the LTNGPARMS_FILE file. However, the current code requests the NLDN_STRIKES file even when Option 2 is selected. Without the file being set, the model crashes.
+
+### Solution in CMAQv5.3.2
+In the centralized_io_module.F file, the vairable NLDNSTRIKE (logical variable controls Options 1 and 2 described above) from the RUNTIME_VARS module and added into the control statement to remove the request of the lightning flash data file when Option 2 is selected.
+
+### File Afftected
+
+CCTM/src/cio/centralized_io_module.F 
