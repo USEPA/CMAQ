@@ -855,7 +855,7 @@
 
 ! lightning file
           n_l2d = 0
-          if (cio_LTNG_NO) then
+          if (cio_LTNG_NO .and. NLDNSTRIKE) then
              IF ( .NOT. OPEN3( NLDN_STRIKES, FSREAD3, PNAME ) ) THEN
                 XMSG = 'Open failure for ' // NLDN_STRIKES
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
