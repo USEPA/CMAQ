@@ -8,7 +8,7 @@
 # 11. Integrated Source Apportionment Method (CMAQ-ISAM)
 ## 11.1 Introduction
 
-The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated in the CMAQv5.3 release, and differs significantly from previous releases.
+The Integrated Source Apportionment Method (ISAM) calculates source attribution information for user specified ozone and particulate matter precursors within the CMAQ model.  CMAQ-ISAM has been substantially updated in the CMAQv5.3 release, and differs significantly from previous releases. The major changes to the ISAM chemistry solver are detailed in the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf). 
 
 The CMAQ model provides users the concentration and deposition fields of many pollutant species. These species are usually combinations of different types of primary emissions and secondary formation that have been physically and chemically transformed in the model. However, sometimes it is desirable to know specific source attribution information for the model outputs. For example, how much of the ozone in an urban area was formed due to nitrogen oxides emitted from motor vehicles in a neighboring state?
 
@@ -23,11 +23,11 @@ SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN
 NITRATE   - ANO3J, ANO3I, HNO3, ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR           
 AMMONIUM  - ANH4J, ANH4I, NH3       
 EC        - AECJ, AECI          
-OC        - APOCI, APNCOMI, APOCI, APNCOMJ                
+OC        - APOCI, APOCJ, APNCOMI, APNCOMJ                
 VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)      
-PM25_IONS - ANAI/J, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ,A TIJ, AMNJ, AOTHRI/J      
+PM25_IONS - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ      
 OZONE     - all NITRATE species + all VOC species     
-CHLORINE  - ACLI/J, HCL      
+CHLORINE  - ACLI, ACLJ, HCL      
 ```
 
 ## 11.2 Build Instructions
@@ -120,6 +120,9 @@ ICO - contribution from initial conditions specified for the first day of the si
 BCO - contribution from boundary conditions throughout the simulation
 OTH - contribution from all non-tagged emissions streams and other processes in the model.
 ```
+
+Please, note that, currently, ISAM results for the same user defined tag may differ depending on the overall configuration and content of the ISAM control file.  This weakness of the method is detailed in the last section of the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf).  Generally, tracking a larger number of tags produces more consistent apportionment results.  
+
 #### Interpretation of 'OTH' tag
 The OTH tag (e.g.“O3_OTH” in the ISAM benchmark) represents concentrations for that species attributed to 1) all other emissions streams, 2) precursor species not included in the specified tag class(es), and 3) other processes in the model.
 
