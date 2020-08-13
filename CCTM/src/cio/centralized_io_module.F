@@ -4265,6 +4265,7 @@ C   mminlu and num_land_cat are WRF global variables
         end subroutine lus_setup
 
 ! -------------------------------------------------------------------------
+
         subroutine megan_setup ! reads in variables from MEGAN_PARAMS (see file_inputs.txt and run script)
           use hgrd_defn, only : ncols,nrows
           USE UTILIO_DEFN
@@ -4446,6 +4447,7 @@ C   mminlu and num_land_cat are WRF global variables
         end subroutine megan_setup
 
 ! -------------------------------------------------------------------------
+
         subroutine centralized_io_init (in_ncols)
 
           use lsm_mod, only: n_lufrac, init_lsm
