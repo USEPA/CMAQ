@@ -216,7 +216,7 @@
 
 !            LT_TSTEP_F = SEC2TIME (LT_TSTEP)
 
-            SQUAREKM = REAL( ( FILE_XCELL(F_LTNG) * FILE_YCELL(F_LTNG) * 1.0D-6 ), 4 )
+            SQUAREKM = REAL( ( XCELL_GD * YCELL_GD * 1.0D-6 ), 4 )
 !C Set up vertical layers
             ALLOCATE( VGLVSLT( 0:EMLAYS ), STAT = STATUS )
             CALL CHECKMEM( STATUS, 'VGLVSLT', PNAME )
