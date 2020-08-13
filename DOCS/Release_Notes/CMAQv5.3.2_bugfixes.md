@@ -183,6 +183,8 @@ Option 2 uses parameters provided in the LTNGPARMS_FILE file. However, the curre
 ### Solution in CMAQv5.3.2
 In the centralized_io_module.F file, the vairable NLDNSTRIKE (logical variable controls Options 1 and 2 described above) from the RUNTIME_VARS module and added into the control statement to remove the request of the lightning flash data file when Option 2 is selected.
 
+In addtion, the variale LTNG_FNAME is converted to all uppercase by calling UPCASE before it is used. The current used the word "InLine" to dertermine if the inline lightning NO is produced. Some users have complained that in some documentation, it says "Inline" not "InLine". With this change, it can be either uppercase or lowercase or the mixed of both when define the environmental variable LTNGNO in runscript.
 ### File Afftected
 
 CCTM/src/cio/centralized_io_module.F 
+CCTM/src/emis/emis/LTNG_DEFN.F 
