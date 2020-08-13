@@ -972,7 +972,7 @@
              cio_grid_var_name(begin:end, :) = is3d_name
           end if
 
-          if (cio_LTNG_NO) then
+          if (cio_LTNG_NO .and. NLDNSTRIKE) then
              begin = end + 1
              end = end + n_l2d
              cio_grid_var_name(begin:end, :) = l2d_name
@@ -2432,6 +2432,23 @@ C Read the various categories of normalized emissions
           END IF
           n_opened_file = n_opened_file + 1
 
+          IF (.NOT. NLDNSTRIKE) THEN
+
+              f_ltng = n_opened_file
+              IF ( .NOT. DESC3( LTNGPARMS_FILE ) ) THEN
+                 XMSG = 'Could not get description of file  '// LTNGPARMS_FILE
+                 CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
+              END IF
+
+              file_sdate(f_ltng) = sdate3d
+              file_stime(f_ltng) = stime3d
+              file_tstep(f_ltng) = tstep3d
+              file_xcell(f_ltng) = xcell3d
+              file_ycell(f_ltng) = ycell3d
+
+          END IF
+
+
           IF ( .NOT. XTRACT3( LTNGPARMS_FILE, "OCNMASK", 1, 1,
      &                        STRTROWSTD, ENDROWSTD, STRTCOLSTD, ENDCOLSTD, 
      &                        0, 0, OCEAN_MASK ) ) Then
@@ -2765,7 +2782,7 @@ C Read the various categories of normalized emissions
              if (BIOGEMIS_SEASON) then
                  CALL NEXTIME ( loc_jdate(f_bios), loc_jtime(f_bios), file_tstep(f_bios) )
              end if
-             if (cio_LTNG_NO) then
+             if (cio_LTNG_NO .and. NLDNSTRIKE) then
                  CALL NEXTIME ( loc_jdate(f_ltng), loc_jtime(f_ltng), file_tstep(f_ltng) )
              end if
              CALL NEXTIME ( loc_jdate(f_bcon), loc_jtime(f_bcon), file_tstep(f_bcon) )
