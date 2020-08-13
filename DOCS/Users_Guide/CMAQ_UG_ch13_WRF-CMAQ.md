@@ -51,6 +51,8 @@ Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse
 
 Once users have successfully completed installation and users can run a quick test to ensure model installation was truly successful. Users can setup a run base on the provided run script and a benchmark input dataset. Users should consult with the readme file which was accompanied by the test dataset or the release documentation to use the appropriate compiler flags for this quick test. Once the stimulation is completed, users can compare the newly produced result with the provided benchmark output. The comparison should return identical result if users have the same compiler version and system environment. This quick test gives users a peace of mind that the model installation was truly successful.
 
+Users should note, comparing the results of running WRF-CMAQ with the given input to the results of running CMAQ (offline) with the given input, while on the same domain, will include differences from other sources other than just the coupling of WRF and CMAQ. These differences are due to the version and nudging of WRF used to generate input files for CMAQ (offline) through MCIP, as well as the effect of windowing down to the south-east benchmark from the CONUS done for the CMAQ (offline) case. 
+
 If you have any questions, please contact David Wong at wong.david-c@epa.gov
 
 
