@@ -172,7 +172,24 @@ CCTM/src/vdiff/acm2_m3dry/VDIFF_MAP.F
 CCTM/src/vdiff/acm2_m3dry/opddep.F  
 CCTM/src/vdiff/acm2_m3dry/vdiffproc.F   
 
-## 12. fixed excessive reading of time independent boundary file data Bug CIO
+## 12. Removes unnecessary request for NLDN file when it is not needed
+[Daiwen Kang](mailto:kang.daiwen@epa.gov), U.S. Environmental Protection Agency
+
+### Description of the model issue
+When inline lightning NO production is turned on, there are two options: 
+Option 1 uses hourly lightning flash data which are provided by an external input file through the enviromental variable NLDN_STRIKES;
+Option 2 uses parameters provided in the LTNGPARMS_FILE file. However, the current code requests the NLDN_STRIKES file even when Option 2 is selected. Without the file being set, the model crashes.
+
+### Solution in CMAQv5.3.2
+In the centralized_io_module.F file, the vairable NLDNSTRIKE (logical variable controls Options 1 and 2 described above) from the RUNTIME_VARS module and added into the control statement to remove the request of the lightning flash data file when Option 2 is selected.
+
+In addtion, the variale LTNG_FNAME is converted to all uppercase by calling UPCASE before it is used. The current used the word "InLine" to dertermine if the inline lightning NO is produced. Some users have complained that in some documentation, it says "Inline" not "InLine". With this change, it can be either uppercase or lowercase or the mixed of both when define the environmental variable LTNGNO in runscript.
+### File Afftected
+
+CCTM/src/cio/centralized_io_module.F 
+CCTM/src/emis/emis/LTNG_DEFN.F 
+
+## 13. fixed excessive reading of time independent boundary file data Bug CIO
 [David Wong](mailto:wong.david-c@epa.gov), U.S. Environmental Protection Agency
 
 ### Description of model issue
@@ -191,3 +208,4 @@ In addition, the interpolation ratio checking is put in a ifdef block to elimina
 
 ### Files Affected
 CCTM/src/cio/centralized_io_module.F   
+

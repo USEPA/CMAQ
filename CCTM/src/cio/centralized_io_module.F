@@ -314,7 +314,7 @@
           USE VGRD_DEFN, only : VGTYP_GD, nlays
           USE RUNTIME_VARS, only : N_FILE_GR, BIOGEMIS, BIOGEMIS_SEASON,
      &                             STDATE, WB_DUST, ISAM_NEW_START,
-     &                             local_tstep, met_tstep
+     &                             local_tstep, met_tstep, NLDNSTRIKE
           use LSM_Mod, only : LAND_SCHEME
           use cgrid_spcs, only : n_gc_spcd, n_ae_spc
 
@@ -854,7 +854,7 @@
 
 ! lightning file
           n_l2d = 0
-          if (cio_LTNG_NO) then
+          if (NLDNSTRIKE) then
              IF ( .NOT. OPEN3( NLDN_STRIKES, FSREAD3, PNAME ) ) THEN
                 XMSG = 'Open failure for ' // NLDN_STRIKES
                 Call M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
@@ -971,7 +971,7 @@
              cio_grid_var_name(begin:end, :) = is3d_name
           end if
 
-          if (cio_LTNG_NO) then
+          if (NLDNSTRIKE) then
              begin = end + 1
              end = end + n_l2d
              cio_grid_var_name(begin:end, :) = l2d_name
@@ -2762,7 +2762,7 @@ C Read the various categories of normalized emissions
              if (BIOGEMIS_SEASON) then
                  CALL NEXTIME ( loc_jdate(f_bios), loc_jtime(f_bios), file_tstep(f_bios) )
              end if
-             if (cio_LTNG_NO) then
+             if (NLDNSTRIKE) then
                  CALL NEXTIME ( loc_jdate(f_ltng), loc_jtime(f_ltng), file_tstep(f_ltng) )
              end if
              CALL NEXTIME ( loc_jdate(f_bcon), loc_jtime(f_bcon), file_tstep(f_bcon) )
