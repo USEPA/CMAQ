@@ -188,3 +188,24 @@ In addtion, the variale LTNG_FNAME is converted to all uppercase by calling UPCA
 
 CCTM/src/cio/centralized_io_module.F 
 CCTM/src/emis/emis/LTNG_DEFN.F 
+
+## 13. fixed excessive reading of time independent boundary file data Bug CIO
+[David Wong](mailto:wong.david-c@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+Inside each interpolation routine, the following logic guides whether current time step is within the circular buffer or not.
+
+             if ((cio_bndy_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
+     &           ((cio_bndy_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
+     &            (cio_bndy_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
+
+In the time independent boundary file case, both time stamps, cio_bndy_data_tstamp(2, loc_head, :) and cio_bndy_data_tstamp(2, loc_tail, :), are the same. Hence any future time step is always falls outside the circular buffer and the block of code in this if block will be executed. The loc_tstep is 0 so reading the data, which has been read in, again. The overall execution time increases.
+
+### Solution in CMAQv5.3.2
+At the initial reading circular buffer  phrase, for time independent boundary file data, data will be read in once and stores in the head of the circular buffer, and the tail time stamp is set to 250000 which means any future will fall in the circular buffer and the body of the above if block will never be executed.
+
+In addition, the interpolation ratio checking is put in a ifdef block to eliminate non-essential check.
+
+### Files Affected
+CCTM/src/cio/centralized_io_module.F   
+

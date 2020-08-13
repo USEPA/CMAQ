@@ -69,6 +69,7 @@
 !  02/10/20, F. Sidi:- Changed file_tstep from tstep3d to met_tstep an environment
 !                      variable the flexlible allows users to toggle the temporal 
 !                      frequency of their input meterology. 
+!  08/06/20, D. Wong:- fixed excessive reading of time independent boundary file data
 !------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------!
@@ -688,8 +689,6 @@
                    t = t + 1
                 end do
              end if
-
-          write (logdev, *) ' ==d== grid ', trim(fname), ' ', (.not. found), file_sym_date(f_emis(n))
 
              cio_emis_nvars(n) = nvars3d
              if (nlays3d .eq. 1) then
@@ -1356,8 +1355,6 @@
                    t = t + 1
                 end do
              end if
-
-          write (logdev, *) ' ==d== stk ', trim(fname), ' ', (.not.  found), file_sym_date(f_stk_emis(pt))
 
              if (max_nvars .lt. nvars3d) then
                 max_nvars = nvars3d
@@ -2861,14 +2858,26 @@ C Read the various categories of normalized emissions
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jtime_met, XMSG, XSTAT1 )
                    END IF
 #endif
-                else if ((cio_bndy_var_name(v,2) == 'bc') .or.
-     &                   (cio_bndy_var_name(v,2) == 'bct')) then
+                else if (cio_bndy_var_name(v,2) == 'bct') then
 
                    if (.not. read3 (BCFILE, cio_bndy_var_name(v,1), -1,
      &                              loc_jdate, loc_jtime, cio_bndy_data(begin:end) ) ) THEN
                       XMSG = 'Could not read ' // BCFILE // ' file'
                       CALL M3EXIT ( PNAME, loc_jdate, loc_jtime, XMSG, XSTAT1 )
                    END IF
+
+                else if (cio_bndy_var_name(v,2) == 'bc') then
+
+                   if (iter == 1) then
+                      if (.not. read3 (BCFILE, cio_bndy_var_name(v,1), -1,
+     &                                 loc_jdate, loc_jtime, cio_bndy_data(begin:end) ) ) THEN
+                         XMSG = 'Could not read ' // BCFILE // ' file'
+                         CALL M3EXIT ( PNAME, loc_jdate, loc_jtime, XMSG, XSTAT1 )
+                      END IF
+                   else
+                      cio_bndy_data_tstamp(1, buf_loc, v) = jdate + 999 ! this will ensure future never falls out of the circular buffer
+                   end if
+
                 else
                    call m3exit( 'Centralized I/O',0,0,' ==d== UNKOWNi Type of File',1 )
                 end if
@@ -4002,6 +4011,7 @@ C   mminlu and num_land_cat are WRF global variables
                    prev_head_time = cio_stack_emis_data_tstamp(2, loc_head, var_loc, pt)
                    prev_tail_time = cio_stack_emis_data_tstamp(2, loc_tail, var_loc, pt)
                    
+#ifdef verbose_cio
                    if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
                       write(logdev,'(5X,a,a)'),
@@ -4019,6 +4029,7 @@ C   mminlu and num_land_cat are WRF global variables
                       write(logdev,'(5X,a)'),
      &                'ERROR: Program EXIT in subroutine r_interpolate_var_1ds in module centralized io'
                    end if 
+#endif
                 else
                    lcount = lcount + 1
                 end if
@@ -4146,6 +4157,7 @@ C   mminlu and num_land_cat are WRF global variables
                    prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
                    prev_tail_time = cio_grid_data_tstamp(2, loc_tail, var_loc)
                    
+#ifdef verbose_cio
                    if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
                       write(logdev,'(5X,a,a)'),
@@ -4165,6 +4177,7 @@ C   mminlu and num_land_cat are WRF global variables
                      
                      call m3exit( 'Centralized I/O',date,time,'',1 )
                    end if 
+#endif
                 else
                    lcount = lcount + 1
                 end if
@@ -4320,6 +4333,7 @@ C   mminlu and num_land_cat are WRF global variables
                    prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
                    prev_tail_time = cio_grid_data_tstamp(2, loc_tail, var_loc) 
 
+#ifdef verbose_cio
                    if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
                       write(logdev,'(5X,a,a)'),
@@ -4339,6 +4353,7 @@ C   mminlu and num_land_cat are WRF global variables
      &                'ERROR: Program EXIT in subroutine i_interpolate_var_2d in module centralized io'
                   
                   end if 
+#endif
                 else
                    lcount = lcount + 1
                 end if
@@ -4445,19 +4460,21 @@ C   mminlu and num_land_cat are WRF global variables
                 loc_tstep = file_tstep(f_bcon)
              end if
 
-             if ((cio_bndy_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
-     &           ((cio_bndy_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
-     &            (cio_bndy_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
+             if (cio_bndy_var_name(var_loc, 2) .ne. 'bc') then
+                if ((cio_bndy_data_tstamp(1, loc_tail, var_loc) .lt. date) .or.
+     &              ((cio_bndy_data_tstamp(2, loc_tail, var_loc) .lt. time) .and.
+     &               (cio_bndy_data_tstamp(1, loc_tail, var_loc) .eq. date))) then
 
-                loc_jdate = cio_bndy_data_tstamp(1, loc_tail, var_loc)
-                loc_jtime = cio_bndy_data_tstamp(2, loc_tail, var_loc)
+                   loc_jdate = cio_bndy_data_tstamp(1, loc_tail, var_loc)
+                   loc_jtime = cio_bndy_data_tstamp(2, loc_tail, var_loc)
 
-                CALL NEXTIME ( loc_jdate, loc_jtime, loc_tstep )
+                   CALL NEXTIME ( loc_jdate, loc_jtime, loc_tstep )
 
-                call retrieve_boundary_data (loc_jdate, loc_jtime, vname)
+                   call retrieve_boundary_data (loc_jdate, loc_jtime, vname)
 
-                loc_head = head_bndy(var_loc)
-                loc_tail = tail_bndy(var_loc)
+                   loc_head = head_bndy(var_loc)
+                   loc_tail = tail_bndy(var_loc)
+                end if
              end if
 
              if ((cio_bndy_data_tstamp(1, 2, var_loc) .eq. date) .and.
@@ -4468,9 +4485,15 @@ C   mminlu and num_land_cat are WRF global variables
                 cio_bndy_data_tstamp(1, 2, var_loc) = date
                 cio_bndy_data_tstamp(2, 2, var_loc) = time
 
+                head_beg_ind  = cio_bndy_data_inx(1,loc_head,var_loc)
+                head_end_ind  = cio_bndy_data_inx(2,loc_head,var_loc)
+                tail_beg_ind  = cio_bndy_data_inx(1,loc_tail,var_loc)
+                tail_end_ind  = cio_bndy_data_inx(2,loc_tail,var_loc)
+                store_beg_ind = cio_bndy_data_inx(1,2,var_loc)
+                store_end_ind = cio_bndy_data_inx(2,2,var_loc)
+
                 if (cio_bndy_var_name(var_loc, 2) == 'bc') then
-                   ratio1 = 1.0
-                   ratio2 = 0.0
+                   cio_bndy_data(store_beg_ind:store_end_ind) = cio_bndy_data(head_beg_ind:head_end_ind)
                 else
                    if (cio_bndy_data_tstamp(1, loc_head, var_loc) .eq. date) then
                       ratio2 =   real(time_diff(time, cio_bndy_data_tstamp(2, loc_head, var_loc))) 
@@ -4483,6 +4506,7 @@ C   mminlu and num_land_cat are WRF global variables
                    end if
                    prev_time = time
                    
+#ifdef verbose_cio
                    if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &             .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
                       write(logdev,'(5X,a)'),
@@ -4503,17 +4527,11 @@ C   mminlu and num_land_cat are WRF global variables
      &                'ERROR: Program EXIT in subroutine r_interpolate_var_2db in module centralized io'
            
                    end if 
+#endif
+                   cio_bndy_data(store_beg_ind:store_end_ind) =   cio_bndy_data(head_beg_ind:head_end_ind) * ratio1
+     &                                                          + cio_bndy_data(tail_beg_ind:tail_end_ind) * ratio2
+
                 end if
-
-                head_beg_ind  = cio_bndy_data_inx(1,loc_head,var_loc)
-                head_end_ind  = cio_bndy_data_inx(2,loc_head,var_loc)
-                tail_beg_ind  = cio_bndy_data_inx(1,loc_tail,var_loc)
-                tail_end_ind  = cio_bndy_data_inx(2,loc_tail,var_loc)
-                store_beg_ind = cio_bndy_data_inx(1,2,var_loc)
-                store_end_ind = cio_bndy_data_inx(2,2,var_loc)
-
-                cio_bndy_data(store_beg_ind:store_end_ind) =   cio_bndy_data(head_beg_ind:head_end_ind) * ratio1
-     &                                                       + cio_bndy_data(tail_beg_ind:tail_end_ind) * ratio2
 
              end if
 
@@ -4684,6 +4702,7 @@ C   mminlu and num_land_cat are WRF global variables
                       prev_head_time = cio_grid_data_tstamp(2, loc_head, var_loc)
                       prev_tail_time = cio_grid_data_tstamp(2, loc_tail, var_loc)
                    
+#ifdef verbose_cio
                       if ( (ratio1 .lt. 0) .or. (ratio2 .lt. 0) 
      &                .or. (ratio1 .gt. 1) .or. (ratio2 .gt. 1)) then
                         write(logdev,'(5X,a)'),
@@ -4703,6 +4722,7 @@ C   mminlu and num_land_cat are WRF global variables
      &                   'ERROR: Program EXIT in subroutine r_interpolate_var_3d in module centralized io'
                     
                        end if 
+#endif
                    else
                       lcount = lcount + 1
                    end if
