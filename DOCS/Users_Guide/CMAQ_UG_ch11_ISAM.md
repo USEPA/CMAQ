@@ -71,6 +71,22 @@ To begin a CMAQ simulation with source apportionment enabled, the ISAM section o
 
 Additionally, ISAM can track emissions confined to geographic regions.  This functionality can be enabled through CMAQ's `RegionsRegistry` set in the `EmissCtrl` namelist (Appendix B.4) and is discussed further below.
 
+#### ISAM and bidirectional NH<sub>3</sub> exchange
+
+ISAM in CMAQ v5.3 supports bidirectional NH<sub>3</sub> exchange using both M3Dry and STAGE deposition options. To run with this option the AMMONIUM species class must be set in the ISAM control file 
+
+```
+TAG CLASSES     |AMMONIUM
+```
+
+and the ABFLUX must be set in the run script.
+
+```
+setenv CTM_ABFLUX Y          #> ammonia bi-directional flux for in-line deposition
+```
+
+Setting these options will automatically set the BID tag for model output. Modeled species output with the BID tag represent the influence of NH<sub>3</sub> emissions from fertilizer and biogenic NH<sub>3</sub> emission sources. Biogenic NH<sub>3</sub> emissions include the evasion of NH<sub>3</sub> from non-agricultural vegetation and soil NH<sub>4</sub> pools as parameterized in the STAGE or M3Dry models.  
+
 ### 11.3.1 ISAM control file (SA_IOLIST)
 
 The ISAM `SA_IOLIST` is a text file used to configure which tag classes, emissions streams, and source regions the model will track.  An example of this file, `isam_control.txt`, is provided in $CMAQ_HOME/CCTM/scripts.  The order and formating of this file must be kept intact, but it does allow for insertion of comment lines.  
@@ -113,12 +129,13 @@ The final line in the control file needs to be kept unchanged in order to aid th
 ENDLIST eof
 ```
 
-In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation (note, that at least one valid user-specified tag must be defined, so a minimum of 4 tags are required):
+In addition to the user-specified list, ISAM will alway track and output three additional default tags with every simulation and the BID tag if the simultion includes both bidirectional NH<sub>3</sub> and the 'AMMONIUM' species class (note, that at least one valid user-specified tag must be defined, so a minimum of 4 tags are required):
 
 ```
 ICO - contribution from initial conditions specified for the first day of the simulation
 BCO - contribution from boundary conditions throughout the simulation
 OTH - contribution from all non-tagged emissions streams and other processes in the model.
+BID - contribution from bidirectional NH3 exchange 
 ```
 
 Please, note that, currently, ISAM results for the same user defined tag may differ depending on the overall configuration and content of the ISAM control file.  This weakness of the method is detailed in the last section of the [ISAM Chemistry Supplement](Supplement/CMAQ_ISAM_Chemistry_Supplemental_Equations.pdf).  Generally, tracking a larger number of tags produces more consistent apportionment results.  
