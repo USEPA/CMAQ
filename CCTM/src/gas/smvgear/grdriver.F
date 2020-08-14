@@ -82,7 +82,7 @@ C**********************************************************************
       USE UTILIO_DEFN
       USE GRVARS              ! inherits GRID_CONF
       USE AEROSOL_CHEMISTRY
-      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+      USE DEGRADE_SETUP_TOX, ONLY : NCELLS, N_REACT, RXTANT_MAP
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN,  Only: LIRR                     ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
@@ -220,10 +220,10 @@ C..SCRATCH LOCAL VARIABLES:
          SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL,
      &                            JDATE, JTIME )
            REAL( 8 ), INTENT( IN ) :: CBLK( :,: )               !  species concentration in cell
-           REAL,      INTENT( IN ) :: TCELL( : )                !  cell temperature  [ k ]
-           REAL,      INTENT( IN ) :: DCELL( : )                !  cell air density  [ kg/m^3 ]
-           REAL,      INTENT( IN ) :: PRESS_CELL( : )           !  cell Pressure  [ Pa ]
-           REAL,      INTENT( IN ) :: QV_CELL( : )              !  cell water vapor mass mixing ratio  [ kg/kg ]
+           REAL( 8 ), INTENT( IN ) :: TCELL( : )                !  cell temperature  [ k ]
+           REAL( 8 ), INTENT( IN ) :: DCELL( : )                !  cell air density  [ kg/m^3 ]
+           REAL( 8 ), INTENT( IN ) :: PRESS_CELL( : )           !  cell Pressure  [ Pa ]
+           REAL( 8 ), INTENT( IN ) :: QV_CELL( : )              !  cell water vapor mass mixing ratio  [ kg/kg ]
            REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :,: )         !  Photolysis table for cell [1/s]           
            INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
            INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS

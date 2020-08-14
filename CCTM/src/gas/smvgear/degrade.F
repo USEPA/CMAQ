@@ -186,12 +186,12 @@ C..Loop over each reactant
             L = L + 1
             I_RAD = RAD_MAP( L + N_BI_LOSS, I )
             IF ( I_RAD < 1 ) CYCLE   ! radical species is undefined
-            DO I_CELL = NCELLS
+            DO I_CELL = 1, NCELLS
                IF ( I_RAD < 9000 )THEN
                    LOSS_RATE( I_CELL, J ) = 0.5D0 * RATE_CONST( I_CELL, J, I )
      &                                    * ( PREV_CONC( I_CELL, I_RAD ) + CURR_CONC( I_CELL, I_RAD ) )
                ELSE
-                   LOSS_RATE( I_CELL, J ) = RATE_CONST( J, I ) 
+                   LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, J, I ) 
                END IF
                LOSS_RATE( I_CELL, J ) = LHRATE( L, I ) * LOSS_RATE( I_CELL, J ) 
      &                                / ( 1.0D0 + LOSS_RATE( I_CELL, J ) )

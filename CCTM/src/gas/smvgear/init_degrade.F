@@ -51,10 +51,10 @@ C**********************************************************************
 C.....ARGUMENTS:
 
       REAL( 8 ), INTENT( IN ) :: CBLK( :,: )               !  species concentration in cell
-      REAL,      INTENT( IN ) :: TCELL( : )                !  cell temperature  [ k ]
-      REAL,      INTENT( IN ) :: DCELL( : )                !  cell air density  [ kg/m^3 ]
-      REAL,      INTENT( IN ) :: PRESS_CELL( : )           !  cell Pressure  [ Pa ]
-      REAL,      INTENT( IN ) :: QV_CELL( : )              !  cell water vapor mass mixing ratio  [ kg/kg ]
+      REAL( 8 ), INTENT( IN ) :: TCELL( : )                !  cell temperature  [ k ]
+      REAL( 8 ), INTENT( IN ) :: DCELL( : )                !  cell air density  [ kg/m^3 ]
+      REAL( 8 ), INTENT( IN ) :: PRESS_CELL( : )           !  cell Pressure  [ Pa ]
+      REAL( 8 ), INTENT( IN ) :: QV_CELL( : )              !  cell water vapor mass mixing ratio  [ kg/kg ]
       REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :,: )         !  Photolysis table for cell [1/s]
 
       INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
@@ -71,7 +71,6 @@ C.....LOCAL VARIABLES:
                                        ! into number density in [molecules/cm^3]
                                        
       REAL(8)       ::  CONV_FACT      ! conversion factor from ppm to molecules/cm^3
-      REAL(8)       ::  INV_TEMP       ! reciprocal of temperature, [K^-1]
       REAL(8)       ::  FACTOR         ! scale factor
       
 
@@ -122,7 +121,6 @@ C**********************************************************************
          ALLOCATE( IS_AERO_ORGANIC ( N_AEROSPC ) )
 
          ALLOCATE( RATE_CONST( BLKSIZE, N_PROCESSES, N_REACT ) )
-         ALLOCATE( RATE_YIELD( BLKSIZE, N_PROCESSES, N_REACT ) )
 
          ALLOCATE( H2O_MOLAR_FRACTION( BLKSIZE ) )
          
@@ -166,11 +164,11 @@ C..initialize concentrations and their changes
 
          LOOP_UNIRATE: DO J = 1, N_UNI_LOSS
             IF( UNIRATE( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
-            DO ICELL = NCELLS
+            LOOP_CELL: DO ICELL = 1, NCELLS
                RATE_CONST( ICELL, J, I ) = UNIRATE( J, I )
      &                                   * TEMP( ICELL )**UNI_TEXP( J, I )
      &                                   * DEXP( -UNI_ACT( J, I )*INV_TEMP( ICELL ) )
-            END DO
+            END DO LOOP_CELL
          END DO LOOP_UNIRATE
 
          LOOP_BIRATE: DO J = 1, N_BI_LOSS
@@ -191,19 +189,18 @@ C..initialize concentrations and their changes
                   FACTOR = CONV_FACT 
              END SELECT 
              IF ( RAD_MAP( J, I ) .EQ. 9994 ) THEN
-                DO ICELL = NCELLS
-                   RATE_CONST( ICELL, J+UNI_STOP, I  ) = NUMB_H2O( ICELL ) * BIRATE( J, I )
+                DO ICELL = 1, NCELLS
+                   RATE_CONST( ICELL, J+UNI_STOP, I  ) = NUMB_H2O( ICELL ) * NUMB_DENS( ICELL ) * BIRATE( J, I )
      &                                                 * TEMP( ICELL )**BI_TEXP( J, I )
-     &                                                 * DEXP( -BI_ACT( J, I )*INV_TEMP( : ) )
+     &                                                 * DEXP( -BI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO
              ELSE
-                DO ICELL = NCELLS
+                DO ICELL = 1, NCELLS
                    RATE_CONST( ICELL, J+UNI_STOP, I  ) = FACTOR * NUMB_DENS( ICELL ) * BIRATE( J, I )
      &                                                 * TEMP( ICELL )**BI_TEXP( J, I )
      &                                                 * DEXP( -BI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO      
              END IF
-
          END DO LOOP_BIRATE
 
          LOOP_TRIRATE: DO J = 1, N_TRI_LOSS
@@ -224,6 +221,7 @@ C..initialize concentrations and their changes
                   FACTOR = 1.0D0
                CASE DEFAULT
                   FACTOR = CONV_FACT 
+             END SELECT
              SELECT CASE ( RAD2_MAP( 2, J, I ) )
                CASE ( 9999 )
                   FACTOR = FACTOR
@@ -241,28 +239,28 @@ C..initialize concentrations and their changes
                   FACTOR = FACTOR * CONV_FACT 
              END SELECT
              IF ( RAD2_MAP( 1, J, I ) .EQ. 9994 .AND. RAD2_MAP( 2, J, I ) .NE. 9994 ) THEN
-                DO ICELL = NCELLS
+                DO ICELL = 1, NCELLS
                    RATE_CONST( ICELL, J+BI_STOP, I ) = FACTOR * TRIRATE( J, I )
      &                                               * NUMB_H2O( ICELL ) * NUMB_DENS( ICELL )           
      &                                               * TEMP( ICELL )**TRI_TEXP( J, I )
      &                                               * DEXP( -TRI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO
              ELSE IF  ( RAD2_MAP( 1, J, I ) .NE. 9994 .AND. RAD2_MAP( 2, J, I ) .EQ. 9994 ) THEN
-                DO ICELL = NCELLS
+                DO ICELL = 1, NCELLS
                    RATE_CONST( ICELL, J+BI_STOP, I ) = FACTOR * TRIRATE( J, I )
      &                                               * NUMB_H2O( ICELL ) * NUMB_DENS( ICELL )           
      &                                               * TEMP( ICELL )**TRI_TEXP( J, I )
      &                                               * DEXP( -TRI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO
              ELSE IF  ( RAD2_MAP( 1, J, I ) .EQ. 9994 .AND. RAD2_MAP( 2, J, I ) .EQ. 9994 ) THEN
-                DO ICELL = NCELLS
+                DO ICELL = 1, NCELLS
                    RATE_CONST( ICELL, J+BI_STOP, I ) = FACTOR * TRIRATE( J, I )
      &                                               * NUMB_H2O( ICELL ) * NUMB_H2O( ICELL )           
      &                                               * TEMP( ICELL )**TRI_TEXP( J, I )
      &                                               * DEXP( -TRI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO
              ELSE
-                DO ICELL = NCELLS
+                DO ICELL = 1, NCELLS
                    RATE_CONST( ICELL, J+BI_STOP, I ) = FACTOR * TRIRATE( J, I )
      &                                               * NUMB_DENS( ICELL ) * NUMB_DENS( ICELL )           
      &                                               * TEMP( ICELL )**TRI_TEXP( J, I )
@@ -276,7 +274,7 @@ C..initialize concentrations and their changes
             K = PHOTO_MAP( J, I )
             IF ( K < 1 ) CYCLE
             IF( A_PHOTO( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
-            DO ICELL = NCELLS
+            DO ICELL = 1, NCELLS
                RATE_CONST( ICELL, J+TRI_STOP, I ) = A_PHOTO( J, I )
      &                                            * PHOTO_CELL( ICELL, K )
             END DO
@@ -285,19 +283,19 @@ C..initialize concentrations and their changes
 
 
          IF ( AE7ORGH2O ) THEN ! use water absorbed by organic mass
-             DO ICELL = NCELLS
+             DO ICELL = 1, NCELLS
                 CALL EXTRACT_AERO( REAL( CBLK(ICELL, : ),4 ), .FALSE. )
                 ORG_H2O  = SUM( AEROSPC_CONC( AORGH2O_IDX, 1:2 ) ) * AEROSPC_MWINV( AORGH2O_IDX )
-                ORG_AERO = SUM( SUM( AEROSPC_CONC( :,1:2 ),2, ICELL ) * AEROSPC_MWINV( : ), 
-     &                                   MASK=IS_AERO_ORGANIC( : ) ) 
+                ORG_AERO = SUM( SUM( AEROSPC_CONC( :,1:2 ),2 ) * AEROSPC_MWINV( : ),
+     &                          MASK=IS_AERO_ORGANIC( : ) )
                 H2O_MOLAR_FRACTION( ICELL ) = ORG_H2O 
-     &                                      / MAX( (ORG_H2O + ORG_AERO, EFFECTIVE_ZERO )
+     &                                      / MAX( (ORG_H2O + ORG_AERO), EFFECTIVE_ZERO ) 
              END DO
          ELSE                  ! use relative humidity as surrogate
-             DO ICELL = NCELLS
+             DO ICELL = 1, NCELLS
                 ESW  = SVP1 * EXP( SVP2  * ( TEMP( ICELL ) - STDTEMP ) / ( TEMP( ICELL ) - SVP3  ) )
                 QVSW = ( EP_2 * ESW ) / ( PRESS_CELL( ICELL ) - ESW )
-                RHUM = QV_CELL / QVSW                   
+                RHUM = QV_CELL( ICELL ) / QVSW                   
                 H2O_MOLAR_FRACTION( ICELL ) = RHUM
              END DO             
          END IF
@@ -308,7 +306,7 @@ C..initialize concentrations and their changes
             IF( LHRATE( J, I ) .GT. EFFECTIVE_ZERO )THEN
                DO ICELL = 1, NCELLS
                   IF ( TCELL( ICELL ) .GT. LH_TAMIN( J, I ) 
-     &                    .AND. H2O_MOLAR_FRACTION( ICELL ) .GT. LH_RHMIN( J, I )  )
+     &                    .AND. H2O_MOLAR_FRACTION( ICELL ) .GT. LH_RHMIN( J, I )  ) THEN
                      SELECT CASE ( RAD_MAP( J, I ) )
                        CASE ( 9999 )
                           FACTOR = 1.0D0
