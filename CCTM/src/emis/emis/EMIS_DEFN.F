@@ -302,7 +302,7 @@ C Arguments:
 
 C Local Variables:
          REAL             DELT          ! interpolation factor
-         INTEGER          C, R, L, N, S, V, ISTR, ISRM, NL ! loop induction variables
+         INTEGER          C, R, L, N, S, V, ISTR, ISRM, NL, I, J ! loop induction variables
          INTEGER          S_STRT, S_END ! substitute loop induction variables
          REAL, ALLOCATABLE, SAVE :: VDEMIS_READ  ( :,:,:,: ) ! Emissions as they are provided by each stream
          REAL, ALLOCATABLE, SAVE :: VDEMIS_SCALED( :,:,:,: ) ! Emissions after user scaling, and spatial scaling
@@ -500,7 +500,16 @@ C Initialize Emissions Array
 C Retrieve Emissions from All Stream Types
          IF ( N_EM_SRM .GT. 0 ) THEN
          DO ISRM = 1,N_EM_SRM
-           VDEMIS_READ = 0.0
+           DO R = 1,NROWS
+           DO C = 1,NCOLS
+           DO J = 1,EMLAYS
+           DO I = 1,N_EMIS_ISTR
+             VDEMIS_READ(I,J,C,R) = 0.0
+           END DO
+           END DO
+           END DO
+           END DO
+
 
            SELECT CASE ( EM_FILE_ITYPE( ISRM ) )
              
@@ -1066,11 +1075,17 @@ C-----------------------------------------------------------------------
  
       ! zero out emissions values for diffused species not included in emissions list.
       ! ...accounts for emissions species names as a subset of the vert. diffused species list
-      VDEMIS( :,1:NL,:,: ) = 0.0
-      FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoDIFF( ISTR ) .NE. 0 ) 
-     &        VDEMIS( MAP_EMtoDIFF( ISTR ),1:NL,:,: ) = 
-     &                VDEMIS( MAP_EMtoDIFF( ISTR ),1:NL,:,: ) + 
-     &                VDEMIS0( ISTR,1:NL,:,: )
+      DO L = 1,NL
+        DO ISTR = 1,N_EMIS_ISTR
+          VDEMIS( :,L,:,: ) = 0.0
+        END DO
+        DO ISTR = 1,N_EMIS_ISTR 
+          IF ( MAP_EMtoDIFF( ISTR ) .NE. 0 ) 
+     &        VDEMIS( MAP_EMtoDIFF( ISTR ),L,:,: ) = 
+     &                VDEMIS( MAP_EMtoDIFF( ISTR ),L,:,: ) + 
+     &                VDEMIS0( ISTR,L,:,: )
+        END DO
+      END DO
 
       RETURN
       END SUBROUTINE EMISS_CONV_DIFF

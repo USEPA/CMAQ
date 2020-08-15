@@ -338,6 +338,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CHARACTER(15) :: BDG_TIME0, BDG_TIME1
 
       REAL, ALLOCATABLE, SAVE :: BDG_MASS_OUT(:,:), BDG_OUT(:,:)
+      REAL :: TMP, TMP2
 
       IF ( FIRST_TIME ) THEN
           FIRST_TIME = .FALSE.
@@ -359,13 +360,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ! than net change in mass
       RESID( : ) = SUM( BDG(:,:),2 ) - BDG_MASS( :,3 )  
 
-      IF ( MYPE .EQ. 0 ) THEN
          ! Calculate Date, Time, and Length of Time Interval
          BDG_JDATE1 = JDATE
          BDG_JTIME1 = JTIME
          DTHR = TSTEP(1)/10000
-         DTMIN = ( DT - DTHR ) / 100
-         DTSEC = DT - DTHR - DTMIN
+         DTMIN = ( TSTEP(1) - DTHR ) / 100
+         DTSEC = TSTEP(1) - DTHR - DTMIN
          DT = REAL( DTHR,4) + REAL( DTMIN,4 )/60.0 + REAL( DTSEC,4 )/3600.0
         
          BDG_YEAR0 = BDG_JDATE0 / 1000
@@ -392,16 +392,21 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          ! Sum Changes Across All Processors
          DO J = 1,3
             DO I = 1,N_CGRID_SPC
-              !BDG_MASS( I,J ) = SUBST_GLOBAL_SUM( BDG_MASS(I,J) )
+              TMP = BDG_MASS_OUT( I,J ) 
+              TMP2 = SUBST_GLOBAL_SUM( TMP )
+              BDG_MASS_OUT(I,J) = TMP2
             END DO 
          END DO
          DO J = 1,NPRCS
             DO I = 1,N_CGRID_SPC
-              !BDG( I,J ) = SUBST_GLOBAL_SUM( BDG(I,J) )
+              TMP = BDG_OUT( I,J ) 
+              TMP2 = SUBST_GLOBAL_SUM( TMP )
+              BDG_OUT(I,J) = TMP2
             END DO
          END DO
 #endif
 
+      IF ( MYPE .EQ. 0 ) THEN
          ! Write Species Process Changes to tab-separated file
          DO I = 1,N_BDG_VAR
             WRITE( BDG_UNIT,'(3(A,A),F7.3,A,17(E13.6,A) )' ),TRIM(BDGSPEC(I)),tab, 

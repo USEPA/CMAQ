@@ -136,7 +136,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #ifdef twoway
      &                       , INDEX1, XSTAT3
 #endif
-      USE CGRID_SPCS, ONLY: NSPCSD
+      USE CGRID_SPCS, ONLY: NSPCSD, N_CGRID_SPC
 #ifdef twoway
      &                      , N_GC_CONC, GC_CONC, GC_STRT, GC_CONC_MAP
 #endif
@@ -144,7 +144,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &                              GAMMA_IEPOX, GAMMA_IMAE, KPARTIEPOX, AERO_CHEM_SET
       USE PMDIAG_DATA_MODULE, ONLY: NUM_PMDIAG_SPC, A_PMDIAG_SPC_MAP, PMDIAG_SPC_RECORD
       USE RUNTIME_VARS, ONLY: LOGDEV, PMDIAG, APMDIAG, APMDIAG_ZHI, END_TIME
-      USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF
+      USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF, AERO_COAG_MODE
 
 #ifdef twoway
       USE twoway_data_module
@@ -234,6 +234,7 @@ C *** visual range information
 
 C *** other internal aerosol variables
       INTEGER IND                         ! index to be used with INDEX1
+      INTEGER IM
 
 C *** synchronization time step [ s ]
       REAL DT
@@ -309,7 +310,8 @@ C ------------------ begin body of AERO_DRIVER -------------------------
      &              A_PMDIAG_SPC( NCOLS,NROWS,NLAYS,NUM_PMDIAG_SPC ),
      &              TEMP_DATA( NUM_PMDIAG_SPC ), 
      &              AERO_COND(   NCOLS,NROWS,NLAYS,NSPCSD ),
-     &              AERO_COAG(   NCOLS,NROWS,NLAYS,NSPCSD,N_MODE ),
+     &              AERO_COAG(   NCOLS,NROWS,NLAYS,NSPCSD ),
+     &              AERO_COAG_MODE(   NCOLS,NROWS,NLAYS,NSPCSD,N_MODE ),
      &              AERO_NPF (    NCOLS,NROWS,NLAYS,NSPCSD ),
      &              AERO_GROWTH ( NCOLS,NROWS,NLAYS,NSPCSD ),
      &              COND_BUDGET( NSPCSD ),
@@ -377,10 +379,11 @@ C *** air density [kg/m3]
 #endif
 
 ! *** Initialize Shared Arrays for Aerosol Budget
-      AERO_COND   = 0.
-      AERO_COAG   = 0.
-      AERO_NPF    = 0.
-      AERO_GROWTH = 0.
+      AERO_COND     = 0.
+      AERO_COAG     = 0.
+      AERO_COAG_MODE= 0.
+      AERO_NPF      = 0.
+      AERO_GROWTH   = 0.
 
 
 C --------------------- Begin loops over grid cells --------------------------
@@ -551,11 +554,15 @@ C *** Accumulate wet diameters, 2nd, and 3rd moments to average aerosol diagnost
                IF ( WRITETIME .AND. PMDIAG ) PMDIAG_SPC( C,R,L,: ) = TEMP_DATA
 
 ! *** Collect Aerosol Sub-Process Rates in shared arrays
-               AERO_COND  ( C,R,L,: ) = COND_BUDGET( : )
-               AERO_COAG  ( C,R,L,:,: )=COAG_BUDGET( :,: )
-               AERO_NPF   ( C,R,L,: ) = NPF_BUDGET( : )
-               AERO_GROWTH( C,R,L,: ) = GROWTH_BUDGET( : )
-
+               DO V = 1,N_CGRID_SPC
+                  DO IM = 1,N_MODE 
+                     AERO_COAG_MODE ( C,R,L,V,IM )=COAG_BUDGET( V,IM )
+                  END DO
+                  AERO_COAG  ( C,R,L,V ) = SUM( COAG_BUDGET( V,: ) )
+                  AERO_COND  ( C,R,L,V ) = COND_BUDGET( V )
+                  AERO_NPF   ( C,R,L,V ) = NPF_BUDGET( V )
+                  AERO_GROWTH( C,R,L,V ) = GROWTH_BUDGET( V )
+               END DO
 #ifdef twoway
                IF ( CMAQ_WRF_FEEDBACK ) THEN
                   IF ( TIME_TO_CALL_FEEDBACK_WRITE ) THEN

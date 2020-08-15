@@ -157,7 +157,7 @@ c !! NO   and to populate the allocated arrays from the stnd gc_spc.ext  !!! NO
             integer, parameter :: spc_dim = 1000
             logical :: order = .true., found = .true.
             character( 120 ) :: xmsg
-            INTEGER :: ISPC, IGRID, IDEPV
+            INTEGER :: ISPC, JSPC, IGRID, IDEPV
 
 c namelist variables
             ! Namelist Registry Format for Gases and Nonreactives
@@ -1007,10 +1007,12 @@ c-------------------------------------------------------------------------------
                 CGRID_NAME( IGRID ) = GC_SPC( ISPC )
                 CGRID_MW( IGRID )   = GC_MOLWT( ISPC )
                 CGRID_MASK_GAS( IGRID )   = .TRUE.
-                IF ( GC_DEPV_MAP( ISPC ) .NE. 0 ) THEN
-                    IDEPV = IDEPV + 1
-                    MAP_DEPVtoCGRID( IDEPV ) = IGRID
-                END IF
+                DO JSPC = 1,N_GC_DEPV
+                   IF ( GC_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
+                      IDEPV = IDEPV + 1
+                      MAP_DEPVtoCGRID( IDEPV ) = IGRID
+                   END IF
+                END DO
             END DO
             DO ISPC = 1,n_ae_spc
                 IGRID = IGRID + 1
@@ -1019,30 +1021,36 @@ c-------------------------------------------------------------------------------
                 CGRID_MASK_AERO( IGRID )   = .TRUE.
                 IF ( INDEX( AE_SPC( ISPC ),'NUM') .NE. 0 ) CGRID_MASK_NUM( IGRID )   = .TRUE.
                 IF ( INDEX( AE_SPC( ISPC ),'SRF') .NE. 0 ) CGRID_MASK_SRF( IGRID )   = .TRUE.
-                IF ( AE_DEPV_MAP( ISPC ) .NE. 0 ) THEN
-                    IDEPV = IDEPV + 1
-                    MAP_DEPVtoCGRID( IDEPV ) = IGRID
-                END IF
+                DO JSPC = 1,N_AE_DEPV
+                   IF ( AE_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
+                      IDEPV = IDEPV + 1
+                      MAP_DEPVtoCGRID( IDEPV ) = IGRID
+                   END IF
+                END DO
             END DO
             DO ISPC = 1,n_nr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = NR_SPC( ISPC )
                 CGRID_MW( IGRID )   = NR_MOLWT( ISPC )
                 CGRID_MASK_NR( IGRID )   = .TRUE.
-                IF ( NR_DEPV_MAP( ISPC ) .NE. 0 ) THEN
-                    IDEPV = IDEPV + 1
-                    MAP_DEPVtoCGRID( IDEPV ) = IGRID
-                END IF
+                DO JSPC = 1,N_NR_DEPV
+                   IF ( NR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
+                      IDEPV = IDEPV + 1
+                      MAP_DEPVtoCGRID( IDEPV ) = IGRID
+                   END IF
+                END DO
             END DO
             DO ISPC = 1,n_tr_spc
                 IGRID = IGRID + 1
                 CGRID_NAME( IGRID ) = TR_SPC( ISPC )
                 CGRID_MW( IGRID )   = TR_MOLWT( ISPC )
                 CGRID_MASK_TRAC( IGRID )   = .TRUE.
-                IF ( TR_DEPV_MAP( ISPC ) .NE. 0 ) THEN
-                    IDEPV = IDEPV + 1
-                    MAP_DEPVtoCGRID( IDEPV ) = IGRID
-                END IF
+                DO JSPC = 1,N_TR_DEPV
+                   IF ( TR_DEPV_MAP( JSPC ) .EQ. ISPC ) THEN
+                      IDEPV = IDEPV + 1
+                      MAP_DEPVtoCGRID( IDEPV ) = IGRID
+                   END IF
+                END DO
             END DO
             N_SPC_DEPV = IDEPV
 

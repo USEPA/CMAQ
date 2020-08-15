@@ -282,6 +282,8 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       ! Map IPR Species Names to CGRID
       MAP_IPRtoCGRID_TMP = 0
+      SPCOEF_TMP = 0
+
       DO IPRSPC = 1, N_IPR_SPC
          ICG = INDEX1( IPR_SPNAM( IPRSPC ), N_CGRID_SPC, CGRID_NAME )
          IF ( ICG .NE. 0 ) THEN
@@ -309,7 +311,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
          CALL M3EXIT ( 'PA_SETUP_IPR', 0, 0, MSG, XSTAT2 )
       END IF
       MAP_IPRtoCGRID  = MAP_IPRtoCGRID_TMP( 1:N_IPR_SPC,1:MXCGRID )
-      SPCOEF          = MAP_IPRtoCGRID_TMP( 1:N_IPR_SPC,1:MXCGRID )
+      SPCOEF          = SPCOEF_TMP( 1:N_IPR_SPC,1:MXCGRID )
 
       RETURN
 

@@ -273,9 +273,9 @@ C-----------------------------------------------------------------------
          ! ug/m3 sec, #/m3 sec, and m2/m3 sec, respectively.
          PA_EMIS_CONV = 1.0
          WHERE ( CGRID_MASK_NUM ) 
-             PA_EMIS_CONV( : ) = REFAC * AVO / MGPG
+             PA_EMIS_CONV( : ) = REFAC !* AVO / MGPG
          ELSEWHERE ( CGRID_MASK_SRF ) 
-             PA_EMIS_CONV( : ) = 1.0E+06 * REFAC / MGPG
+             PA_EMIS_CONV( : ) = REFAC !1.0E+06 * REFAC / MGPG
          ELSEWHERE
              PA_EMIS_CONV( : ) = REFAC * CGRID_MW( : )
          END WHERE
@@ -294,8 +294,8 @@ C-----------------------------------------------------------------------
       ! Get air density
       call interpolate_var ('DENS', mdate, mtime, DENS)
       
-      ! Convert Emissions To Correct Units and Apply Species
-      ! Coefficients
+      ! Convert Aerosol Emissions To Correct Units and Apply Species
+      ! Coefficients. ug m-3 | N m-3 | and m2 m-3
       VEMIS = VEMIS  * DT
       DO ICG = 1,N_CGRID_SPC
          IF ( CGRID_MASK_AERO( ICG ) ) 
@@ -376,6 +376,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       REAL, PARAMETER :: CONVMW = 1.0E+06 * MWAIR ! ug mol-1
 
       REAL :: DENS    ( NCOLS,NROWS,NLAYS )  ! Density of air
+      REAL :: DENSA_J ( NCOLS,NROWS,NLAYS )  ! Density of air
       REAL :: TDDEP   ( MY_PACOLS,MY_PAROWS )
       REAL :: ZF      ( NCOLS,NROWS,NLAYS )  ! Layer heights
 
@@ -417,7 +418,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                ! Species is a gas
                ! ug mol-1 air / g mol -1 species
                IF ( CGRID_MW( ICG ) .GT. 0. ) 
-     &            PA_DEPV_CONV( ICG ) = CONVMW / CGRID_MW( ICG ) !* CONVDD
+     &            PA_DEPV_CONV( ICG ) = CONVMW / CGRID_MW( ICG ) * CONVDD
 
             ELSE IF ( CGRID_MASK_NUM( ICG ) .OR. 
      &                CGRID_MASK_SRF( ICG ) ) THEN
@@ -425,7 +426,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                PA_DEPV_CONV( ICG ) = 1.0
 
             ELSEIF ( CGRID_MASK_AERO( ICG ) ) THEN
-               ! Species is an aerosol mass
+               ! Species is an aerosol mass (kg ha-1 -> ug ha-1)
                PA_DEPV_CONV( ICG ) = 1.0E+09
             END IF
          END DO
@@ -441,7 +442,9 @@ C..get midpoint of time step
 C..get density x jacobian and layer heights
       call interpolate_var ('DENS', mdate, mtime, DENS)
       call interpolate_var ('ZF', mdate, mtime, ZF)
- 
+      !call interpolate_var ('DENSA_J', mdate, mtime, DENSA_J)
+      !DENSA_J(:,:,1) = DENSA_J(:,:,1) / MSFX2(:,:)
+
       ! Convert DDEP to ppm, ug m-3, N m-3, and m2 m-3
       DDEP = DDEP * CONVH2M 
 
@@ -592,14 +595,19 @@ C..get density x jacobian and layer heights
       INTEGER :: ICG, IPRV, IPRSPC, ISPC, ISV
       LOGICAL,SAVE :: FIRST_TIME = .TRUE.
 
-      REAL :: TCOAG  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
+      REAL :: TCOAG  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission ratedd
       REAL :: TCOND  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: TNPF   ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
       REAL :: TGROW  ( MY_PACOLS,MY_PAROWS,PALEVS )  ! Computed emission rate
 
+      ! Allocate some arrays the first time through
+      IF ( FIRST_TIME ) THEN
+          FIRST_TIME = .FALSE.
+      END IF
+
       ! Save Changes in Budget Array
       CNGRD = CGRID
-      CALL STORE_BUDGET( IPR_COAG, SUM( AERO_COAG,5), JDATE, JTIME )
+      CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME )
       CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME )
       CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME )
       CALL STORE_BUDGET( IPR_GROW, AERO_GROWTH, JDATE, JTIME )
@@ -611,7 +619,7 @@ C..get density x jacobian and layer heights
             ICG = MAP_IPRtoCGRID( IPRSPC,ISPC )     ! CGRID species index 
 
 #ifdef parallel
-            CALL SUBST_DATA_COPY( SUM( AERO_COAG,5 ), TCOAG, ICG )
+            CALL SUBST_DATA_COPY( AERO_COAG, TCOAG, ICG )
             CALL SUBST_DATA_COPY( AERO_COND, TCOND, ICG )
             CALL SUBST_DATA_COPY( AERO_NPF,  TNPF,  ICG )
             CALL SUBST_DATA_COPY( AERO_GROWTH, TGROW, ICG )
