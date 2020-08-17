@@ -107,8 +107,8 @@ C Retrieve the layer range used in the concentration file
          END IF
 
          SA_NLAYS = ISAM_ELEV - ISAM_BLEV + 1
-         IF ( MYPE .EQ. 0 ) 
-     &      print*,'In SA_LAYERS.F, ISAM_BLEV, ISAM_ELEV, SA_NLAYS:',ISAM_BLEV, ISAM_ELEV, SA_NLAYS
+c        IF ( MYPE .EQ. 0 ) 
+c    &      print*,'In SA_LAYERS.F, ISAM_BLEV, ISAM_ELEV, SA_NLAYS:',ISAM_BLEV, ISAM_ELEV, SA_NLAYS
 
 C Retrieve the layer range used in the sa_aconc file
 
