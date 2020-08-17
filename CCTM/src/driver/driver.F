@@ -459,7 +459,7 @@ C Miscellaneous Configuration Operations
          CALL LOG_HEADING( LOGDEV, "Configure Scenario" )
 
 #ifdef isam
-         CALL GET_SA_LAYS ()
+c        CALL GET_SA_LAYS ()
          CALL SA_DIM()
 
          N_SPCTAG = NSPC_SA * NTAG_SA
