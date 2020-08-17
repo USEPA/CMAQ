@@ -262,12 +262,12 @@
 
 #ifdef isam
       ! ISAM
-      INTEGER, SAVE :: ISAM_BLEV  ! Beginning level saved to conc file
-      INTEGER, SAVE :: ISAM_ELEV  ! Ending level saved to conc file
-      INTEGER, SAVE :: SA_NLAYS    ! Number of layers saved to conc file
-      INTEGER, SAVE :: AISAM_BLEV  ! Beginning level saved to sa_aconc file
-      INTEGER, SAVE :: AISAM_ELEV  ! Ending level saved to sa_aconc file
-      INTEGER, SAVE :: AVGSA_LAYS    ! Number of layers saved to conc file
+      INTEGER :: ISAM_BLEV  ! Beginning level saved to conc file
+      INTEGER :: ISAM_ELEV  ! Ending level saved to conc file
+      INTEGER :: SA_NLAYS    ! Number of layers saved to conc file
+      INTEGER :: AISAM_BLEV  ! Beginning level saved to sa_aconc file
+      INTEGER :: AISAM_ELEV  ! Ending level saved to sa_aconc file
+      INTEGER :: AVGSA_LAYS    ! Number of layers saved to conc file
 #endif
 
       CONTAINS
