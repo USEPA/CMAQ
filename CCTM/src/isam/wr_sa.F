@@ -112,6 +112,9 @@ Ckrt     print*, N_SPCTAG, JDATE, JTIME
           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+        IF ( ISAM_ELEV .EQ. -1 ) ISAM_ELEV = NLAYS
+        SA_NLAYS = ISAM_ELEV - ISAM_BLEV + 1
+
 !20140306 relocated here the following five lines
          ALLOCATE ( ISAM_BUFF( NCOLS, NROWS, SA_NLAYS, N_SPCTAG ),
      &     STAT = ALLOCSTAT )
@@ -119,6 +122,8 @@ Ckrt     print*, N_SPCTAG, JDATE, JTIME
            XMSG = 'Failure allocating ISAM_BUFF'
            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          ENDIF
+
+      IF ( ISAM_ELEV .EQ. -1 ) ISAM_ELEV = NLAYS
 
       END IF ! firstime
 

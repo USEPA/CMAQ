@@ -94,6 +94,9 @@ Ckrt Create variable names for tag output
 
         LOGDEV = INIT3()
 
+        IF ( ISAM_ELEV .EQ. -1 ) ISAM_ELEV = NLAYS
+        SA_NLAYS = ISAM_ELEV - ISAM_BLEV + 1
+
         ALLOCATE( VNAME(NSPC_SA,NTAG_SA) )
         VNAME = ''
         JSPCTAG = 0

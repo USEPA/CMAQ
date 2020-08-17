@@ -123,6 +123,8 @@ C Try to open existing file for update
 
 c        CALL SUBST_BARRIER
 
+         IF ( AISAM_ELEV .EQ. -1 ) AISAM_ELEV = NLAYS
+
          A_NLYS = AISAM_ELEV - AISAM_BLEV + 1
 
          OK = OPEN3( SA_ACONC_1, FSRDWR3, PNAME )

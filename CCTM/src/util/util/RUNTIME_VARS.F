@@ -469,8 +469,6 @@
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
 
-      AVGSA_LAYS = AISAM_ELEV - AISAM_BLEV + 1
-
       ! SA_CONC File Vertical Layer Range and Speciation
       CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
@@ -486,8 +484,6 @@
          XMSG = 'Environment variable error for ISAM_BLEV_ELEV'
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
-
-      SA_NLAYS = ISAM_ELEV - ISAM_BLEV + 1
 #endif
       
       ! PWRTFLAG
