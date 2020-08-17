@@ -457,7 +457,7 @@
       CALL GET_ENV ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          AISAM_BLEV = 1
-         AISAM_ELEV = NLAYS
+         AISAM_ELEV = -1
       ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:AISAM_BLEV_ELEV
          AISAM_BLEV = 1
          READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
@@ -473,7 +473,7 @@
       CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
       IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
          ISAM_BLEV = 1
-         ISAM_ELEV = NLAYS
+         ISAM_ELEV = -1
       ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:ISAM_BLEV_ELEV
          ISAM_BLEV = 1
          READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
