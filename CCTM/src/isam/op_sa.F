@@ -31,11 +31,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 !      USE HGRD_DEFN             ! horizontal domain specifications
       USE GRID_CONF
-      USE SA_LAYERS
+c     USE SA_LAYERS
       USE SA_DEFN               ! Mc06
       USE UTILIO_DEFN           ! replaces ioparms, iofdesc, iodecl
 c     USE SUBST_MODULES         ! stenex
       USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
+      USE RUNTIME_VARS
+
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else

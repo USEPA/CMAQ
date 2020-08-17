@@ -34,8 +34,9 @@ C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
-      USE SA_LAYERS             ! 20140428 for AISAM_BLEV, AISAM_ELEV, SA_NLAYS
+c     USE SA_LAYERS             ! 20140428 for AISAM_BLEV, AISAM_ELEV, SA_NLAYS
       USE SA_DEFN
+      USE RUNTIME_VARS
 
 !     USE SUBST_MODULES         ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex

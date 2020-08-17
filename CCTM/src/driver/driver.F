@@ -133,7 +133,7 @@ C-----------------------------------------------------------------------
       USE BIDI_MOD, Only : INIT_BIDI
 
 #ifdef isam
-      USE SA_LAYERS
+c     USE SA_LAYERS
       USE SA_DEFN
       USE PISAM_DEFN            ! SA array definition (borrowed )
 c     USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )

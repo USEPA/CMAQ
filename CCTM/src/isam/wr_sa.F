@@ -35,9 +35,10 @@ C          Called by driver.F
 !      USE HGRD_DEFN             ! horizontal domain specifications
       USE GRID_CONF
       USE UTILIO_DEFN           ! 20120615
-      USE SA_LAYERS
+c     USE SA_LAYERS
       USE SA_DEFN               ! Mc06
 c     USE SUBST_MODULES         ! stenex
+      USE RUNTIME_VARS
 
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
