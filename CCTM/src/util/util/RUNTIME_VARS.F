@@ -260,15 +260,13 @@
       LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
       LOGICAL :: ADJ_STMSPC = .TRUE.  ! flag for normalizing sulfur tracking species
 
-#ifdef isam
       ! ISAM
-      INTEGER :: ISAM_BLEV  ! Beginning level saved to conc file
-      INTEGER :: ISAM_ELEV  ! Ending level saved to conc file
-      INTEGER :: SA_NLAYS    ! Number of layers saved to conc file
-      INTEGER :: AISAM_BLEV  ! Beginning level saved to sa_aconc file
-      INTEGER :: AISAM_ELEV  ! Ending level saved to sa_aconc file
-      INTEGER :: AVGSA_LAYS    ! Number of layers saved to conc file
-#endif
+      INTEGER :: ISAM_BLEV = 0  ! Beginning level saved to conc file
+      INTEGER :: ISAM_ELEV = 0  ! Ending level saved to conc file
+      INTEGER :: SA_NLAYS = 0   ! Number of layers saved to conc file
+      INTEGER :: AISAM_BLEV = 0 ! Beginning level saved to sa_aconc file
+      INTEGER :: AISAM_ELEV = 0 ! Ending level saved to sa_aconc file
+      INTEGER :: AVGSA_LAYS = 0 ! Number of layers saved to conc file
 
       CONTAINS
           
