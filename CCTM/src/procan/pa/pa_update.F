@@ -416,9 +416,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &           CGRID_MASK_NR( ICG )  .OR.
      &           CGRID_MASK_TRAC( ICG ) ) THEN
                ! Species is a gas
-               ! ug mol-1 air / g mol -1 species
+               ! g mol-1 air / g mol -1 species
                IF ( CGRID_MW( ICG ) .GT. 0. ) 
-     &            PA_DEPV_CONV( ICG ) = CONVMW / CGRID_MW( ICG ) * CONVDD
+     &            PA_DEPV_CONV( ICG ) = MWAIR / CGRID_MW( ICG ) !* CONVDD
 
             ELSE IF ( CGRID_MASK_NUM( ICG ) .OR. 
      &                CGRID_MASK_SRF( ICG ) ) THEN
@@ -442,8 +442,6 @@ C..get midpoint of time step
 C..get density x jacobian and layer heights
       call interpolate_var ('DENS', mdate, mtime, DENS)
       call interpolate_var ('ZF', mdate, mtime, ZF)
-      !call interpolate_var ('DENSA_J', mdate, mtime, DENSA_J)
-      !DENSA_J(:,:,1) = DENSA_J(:,:,1) / MSFX2(:,:)
 
       ! Convert DDEP to ppm, ug m-3, N m-3, and m2 m-3
       DDEP = DDEP * CONVH2M 
@@ -452,12 +450,12 @@ C..get density x jacobian and layer heights
          IF ( CGRID_MASK_AERO( ICG ) ) THEN
             DDEP(:,:,ICG) = DDEP(:,:,ICG) * PA_DEPV_CONV( ICG ) / ZF( :,:,1 )
          ELSE
-            DDEP(:,:,ICG) = DDEP(:,:,ICG) * PA_DEPV_CONV( ICG ) / DENS( :,:,1 ) 
+            DDEP(:,:,ICG) = 1.0E+06 * DDEP(:,:,ICG) * PA_DEPV_CONV( ICG ) / DENS( :,:,1 ) / ZF(:,:,1)
          END IF
       END DO
  
       ! Save Changes in Budget Array
-      CNGRD(:,:,1,: ) = DDEP(:,:,:)
+      CNGRD(:,:,1,: ) = -DDEP(:,:,:)
       CNGRD( :,:,2:NLAYS,: ) = 0.0
       CALL STORE_BUDGET( IPR_DDEP, CNGRD, JDATE, JTIME )
 
@@ -528,7 +526,7 @@ C..get density x jacobian and layer heights
       CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
       CALL DECOUPLE_PA( CNGRD, SDATE, STIME )
 
-      ! Convert Xand Y Advection chenges to mixing ratio and
+      ! Convert Xand Y Advection changes to mixing ratio and
       ! concentration units. The DECOUPLE_PA routine needs to have the
       ! correct RHOJ so this is passed from CNGRD
       DELC_XADV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
@@ -537,8 +535,8 @@ C..get density x jacobian and layer heights
       CALL DECOUPLE_PA( DELC_YADV, SDATE, STIME )
 
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET( IPR_XADV, CNGRD-CSAV, JDATE, JTIME )
-      CALL STORE_BUDGET( IPR_YADV, CNGRD-CSAV, JDATE, JTIME )
+      CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME )
+      CALL STORE_BUDGET( IPR_YADV, DELC_YADV, JDATE, JTIME )
 
       IF ( LIPR ) THEN
          DO IPRV = 1, NIPRVAR     ! foreach family

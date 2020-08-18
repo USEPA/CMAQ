@@ -93,7 +93,6 @@ C-----------------------------------------------------------------------
 !      USE LSM_MOD, Only: n_lufrac
       USE SEDIMENTATION
       USE VDIFF_DIAG
-      USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
       USE PA_UPDATE
 
 #ifdef isam
@@ -269,20 +268,18 @@ C Allocate and initialize emissions
          SA_DDEP = 0.0
 #endif
 
-C Set up for process analysis
-         IF ( LIPR ) THEN
-            CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
+C Set up for budget accumulation and process analysis
+         CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
 
-            ALLOCATE ( EMIS_PA( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT = ASTAT )
-            IF ( ASTAT .NE. 0 ) THEN
-               XMSG = 'EMIS_PA memory allocation failed'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-            ALLOCATE ( DDEP_PA( NCOLS,NROWS,N_CGRID_SPC ), STAT = ASTAT )
-            IF ( ASTAT .NE. 0 ) THEN
-               XMSG = 'DDEP_PA memory allocation failed'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
+         ALLOCATE ( EMIS_PA( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'EMIS_PA memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         ALLOCATE ( DDEP_PA( NCOLS,NROWS,N_CGRID_SPC ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'DDEP_PA memory allocation failed'
+            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
 C Set up for grav. settling
@@ -369,18 +366,16 @@ C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       CALL GET_EMIS ( MDATE, MTIME, TSTEP, CGRID )
 
       EMIS_PA = 0.0
-      IF ( LIPR ) THEN
-         DO S = 1, N_SPC_DIFF
-            DO L = 1, EMLAYS
-               DO R = 1, NROWS
-                  DO C = 1, NCOLS
-                     EMIS_PA( C,R,L,DIFF_MAP(S) ) = VDEMIS_DIFF( S,L,C,R )
-                  END DO
+      DO S = 1, N_SPC_DIFF
+         DO L = 1, EMLAYS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  EMIS_PA( C,R,L,DIFF_MAP(S) ) = VDEMIS_DIFF( S,L,C,R )
                END DO
             END DO
          END DO
-         CALL PA_UPDATE_EMIS ( EMIS_PA, JDATE, JTIME, TSTEP )
-      END IF
+      END DO
+      CALL PA_UPDATE_EMIS ( EMIS_PA, JDATE, JTIME, TSTEP )
 
       CALL EDDYX ( EDDYV )
 

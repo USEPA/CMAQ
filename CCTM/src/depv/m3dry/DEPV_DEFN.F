@@ -248,7 +248,7 @@ C set dry dep conversion factor (done here so that vdiff doesn`t need the includ
          DO V = 1, N_AE_DEPV
             S = S + 1
             IF ( AE_SPC( AE_DEPV_MAP( V ) )( 1:3 ) .EQ. 'NUM' ) THEN
-               DD_CONV( S ) = CNVTD * AVO * 1.0E+03    ! --> #/Ha
+               DD_CONV( S ) = M2PHA * 1.0E+3 / MWAIR   ! --> #/Ha
             ELSE IF ( AE_SPC( AE_DEPV_MAP( V ) )( 1:3 ) .EQ. 'SRF' ) THEN
                DD_CONV( S ) = M2PHA * 1.0E+03 / MWAIR  ! --> M**2/Ha
             ELSE

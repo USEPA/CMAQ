@@ -285,21 +285,21 @@ C-----------------------------------------------------------------------
          IF ( CGRID_MASK_GAS( I ) .OR.
      &        CGRID_MASK_NR( I )  .OR.
      &        CGRID_MASK_TRAC( I ) )
-     &      BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * DENS(:,:,L) * CELLVOL(:,:,L)
+     &      BDG_CONC(:,:,L,I) = 1.0E-06 * CONC(:,:,L,I) * DENS(:,:,L) * CELLVOL(:,:,L)
      &                          * CGRID_MW(I) / 1000.0
 
          ! Aerosol Mass:  ug m-3 -> kg
          IF ( CGRID_MASK_AERO( I ) .AND.
      &        .NOT. CGRID_MASK_NUM( I ) .AND.
      &        .NOT. CGRID_MASK_SRF( I )  )
-     &      BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L) 
+     &      BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L) * 1.0E-09
 
-         ! Aerosol Number: N m-3 -> N * 1.0e20
-         ! Aerosol Surface Area: m2 m-3 -> m2 * 1.0e10
+         ! Aerosol Number: N m-3 -> N 
+         ! Aerosol Surface Area: m2 m-3 -> m2 
          IF ( CGRID_MASK_NUM( I ) )
-     &      BDG_CONC(:,:,L,I) = 1.0E-20 * CONC(:,:,L,I) * CELLVOL(:,:,L)
+     &      BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L)
          IF ( CGRID_MASK_SRF( I ) )
-     &      BDG_CONC(:,:,L,I) = 1.0E-10 * CONC(:,:,L,I) * CELLVOL(:,:,L)
+     &      BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L)
       
       END DO
       END DO
@@ -352,64 +352,60 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CSAV = CONC
 
       ! Find Residual, Correct VDIFF
-      BDG( :,IPR_VDIF ) = BDG( :,IPR_VDIF ) - BDG( :,IPR_EMIS ) + BDG( :,IPR_DDEP )
+      BDG( :,IPR_VDIF ) = BDG( :,IPR_VDIF ) - BDG( :,IPR_EMIS ) - BDG( :,IPR_DDEP )
       
       BDG_MASS( :,3 ) = BDG_MASS( :,2 ) - BDG_MASS( :,1 )
 
-      ! Positive Residual means sum of processes is greater 
-      ! than net change in mass
-      RESID( : ) = SUM( BDG(:,:),2 ) - BDG_MASS( :,3 )  
-
-         ! Calculate Date, Time, and Length of Time Interval
-         BDG_JDATE1 = JDATE
-         BDG_JTIME1 = JTIME
-         DTHR = TSTEP(1)/10000
-         DTMIN = ( TSTEP(1) - DTHR ) / 100
-         DTSEC = TSTEP(1) - DTHR - DTMIN
-         DT = REAL( DTHR,4) + REAL( DTMIN,4 )/60.0 + REAL( DTSEC,4 )/3600.0
-        
-         BDG_YEAR0 = BDG_JDATE0 / 1000
-         BDG_YEAR1 = BDG_JDATE1 / 1000
-         CALL DAYMON( BDG_JDATE0, BDG_MONTH0, BDG_DAY0 )
-         CALL DAYMON( BDG_JDATE1, BDG_MONTH1, BDG_DAY1 )
-         BDG_YYYYMMDD0 = BDG_YEAR0*10000 + BDG_MONTH0*100 + BDG_DAY0
-         BDG_YYYYMMDD1 = BDG_YEAR1*10000 + BDG_MONTH1*100 + BDG_DAY1
-        
-         WRITE( BDG_TIME0, '(I8,A1,I6.6)' ), BDG_YYYYMMDD0,':',BDG_JTIME0
-         WRITE( BDG_TIME1, '(I8,A1,I6.6)' ), BDG_YYYYMMDD1,':',BDG_JTIME1
-        
-         ! Map CGRID Species to Budget Output Species
-         BDG_OUT = 0.0
-         BDG_MASS_OUT = 0.0
-         DO I = 1,N_BDG_PAIRS
-             BDG_OUT( MAP_toBDG( I ),: ) = BDG_OUT( MAP_toBDG( I ),: ) 
-     &                + BDG( MAP_toCGRID( I ),: )
-             BDG_MASS_OUT( MAP_toBDG( I ),: ) = BDG_MASS_OUT( MAP_toBDG( I ),: ) 
-     &                + BDG_MASS( MAP_toCGRID( I ),: )
-         END DO
+      ! Calculate Date, Time, and Length of Time Interval
+      BDG_JDATE1 = JDATE
+      BDG_JTIME1 = JTIME
+      DTHR = TSTEP(1)/10000
+      DTMIN = ( TSTEP(1) - DTHR*10000 ) / 100
+      DTSEC = TSTEP(1) - DTHR*10000 - DTMIN*100
+      DT = REAL( DTHR,4) + REAL( DTMIN,4 )/60.0 + REAL( DTSEC,4 )/3600.0
+      
+      BDG_YEAR0 = BDG_JDATE0 / 1000
+      BDG_YEAR1 = BDG_JDATE1 / 1000
+      CALL DAYMON( BDG_JDATE0, BDG_MONTH0, BDG_DAY0 )
+      CALL DAYMON( BDG_JDATE1, BDG_MONTH1, BDG_DAY1 )
+      BDG_YYYYMMDD0 = BDG_YEAR0*10000 + BDG_MONTH0*100 + BDG_DAY0
+      BDG_YYYYMMDD1 = BDG_YEAR1*10000 + BDG_MONTH1*100 + BDG_DAY1
+      
+      WRITE( BDG_TIME0, '(I8,A1,I6.6)' ), BDG_YYYYMMDD0,':',BDG_JTIME0
+      WRITE( BDG_TIME1, '(I8,A1,I6.6)' ), BDG_YYYYMMDD1,':',BDG_JTIME1
+      
+      ! Map CGRID Species to Budget Output Species
+      BDG_OUT = 0.0
+      BDG_MASS_OUT = 0.0
+      DO I = 1,N_BDG_PAIRS
+          BDG_OUT( MAP_toBDG( I ),: ) = BDG_OUT( MAP_toBDG( I ),: ) 
+     &             + BDG( MAP_toCGRID( I ),: )
+          BDG_MASS_OUT( MAP_toBDG( I ),: ) = BDG_MASS_OUT( MAP_toBDG( I ),: ) 
+     &             + BDG_MASS( MAP_toCGRID( I ),: )
+      END DO
 
 #ifdef parallel
-         ! Sum Changes Across All Processors
-         DO J = 1,3
-            DO I = 1,N_CGRID_SPC
-              TMP = BDG_MASS_OUT( I,J ) 
-              TMP2 = SUBST_GLOBAL_SUM( TMP )
-              BDG_MASS_OUT(I,J) = TMP2
-            END DO 
+      ! Sum Changes Across All Processors
+      DO J = 1,3
+         DO I = 1,N_BDG_VAR
+           BDG_MASS_OUT(I,J) = SUBST_GLOBAL_SUM( BDG_MASS_OUT(I,J) )
+         END DO 
+      END DO
+      DO J = 1,NPRCS
+         DO I = 1,N_BDG_VAR
+           BDG_OUT(I,J) = SUBST_GLOBAL_SUM( BDG_OUT(I,J) )
          END DO
-         DO J = 1,NPRCS
-            DO I = 1,N_CGRID_SPC
-              TMP = BDG_OUT( I,J ) 
-              TMP2 = SUBST_GLOBAL_SUM( TMP )
-              BDG_OUT(I,J) = TMP2
-            END DO
-         END DO
+      END DO
 #endif
 
       IF ( MYPE .EQ. 0 ) THEN
+         ! Positive Residual means sum of processes is greater 
+         ! than net change in mass
+         RESID( : ) = SUM( BDG(:,:),2 ) - BDG_MASS( :,3 )  
+
          ! Write Species Process Changes to tab-separated file
          DO I = 1,N_BDG_VAR
-            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,17(E13.6,A) )' ),TRIM(BDGSPEC(I)),tab, 
+            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,17(E11.4,A) )' ),TRIM(BDGSPEC(I)),tab, 
      &         BDG_TIME0,tab,BDG_TIME1,tab, DT,tab, (BDG_MASS_OUT(I,J),tab,J=1,3 ),
      &         ( BDG_OUT(I,J),tab,J=1,NPRCS ), RESID(I)
          END DO
@@ -421,6 +417,9 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       BDG_MASS( :,3 ) = 0
       BDG_MASS( :,1 ) = BDG_MASS( :,2 )
       BDG_MASS( :,2 ) = 0
+
+      BDG_JDATE0 = BDG_JDATE1
+      BDG_JTIME0 = BDG_JTIME1
 
       RETURN
 

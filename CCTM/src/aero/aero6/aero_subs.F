@@ -351,7 +351,7 @@ C *** Update size parameters (distribution is wet from ORGAER)
 !     2.1 of Bhave et al. (2004) for further discussion.
 ! *** Initialize Budget Variables
       CBUDGET0_NUM  = MOMENT0_CONC
-      CBUDGET0_SRF  = MOMENT2_CONC
+      CBUDGET0_SRF  = MOMENT2_CONC * PI
       CBUDGET0_MASS = AEROSPC_CONC
  
 ! *** set atmospheric mean free path in double precision
@@ -488,8 +488,8 @@ C *** Coarse mode: no change because coagulation of coarse particles
 C     is neglected in current model version.
 
 ! ** Update Budget Variable for Second Moment
-      COAG_BUDGET( AEROSRF_MAP( 1 ),1 ) = MOMENT2_CONC( 1 ) - CBUDGET0_SRF( 1 )
-      COAG_BUDGET( AEROSRF_MAP( 2 ),2 ) = MOMENT2_CONC( 2 ) - CBUDGET0_SRF( 2 )
+      COAG_BUDGET( AEROSRF_MAP( 1 ),1 ) = MOMENT2_CONC( 1 ) * PI - CBUDGET0_SRF( 1 )
+      COAG_BUDGET( AEROSRF_MAP( 2 ),2 ) = MOMENT2_CONC( 2 ) * PI - CBUDGET0_SRF( 2 )
 
 C *** end of update for second moment
 
@@ -605,7 +605,7 @@ C     renaming.
 
 ! *** Initialize Budget Variables
       CBUDGET0_NUM  = MOMENT0_CONC
-      CBUDGET0_SRF  = MOMENT2_CONC
+      CBUDGET0_SRF  = MOMENT2_CONC * PI
       CBUDGET0_MASS = AEROSPC_CONC
 
 #ifdef nomm
@@ -700,7 +700,7 @@ C *** Set minimum value for all concentrations in the CBLK array
 
 ! *** Propagate Mode Merging and Minimum value impacts to budget variables
       GROWTH_BUDGET( AERONUM_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
-      GROWTH_BUDGET( AEROSRF_MAP(:) ) = MOMENT0_CONC(:) - CBUDGET0_NUM(:)
+      GROWTH_BUDGET( AEROSRF_MAP(:) ) = MOMENT2_CONC(:) * PI - CBUDGET0_SRF(:)
       DO SPC = 1,N_AEROSPC
          WHERE( AEROSPC_MAP( SPC,: ) .NE. 0 )
      &          GROWTH_BUDGET( AEROSPC_MAP(SPC,:) )=
@@ -1144,8 +1144,8 @@ C *** Growth values for mode merge condition
 ! *** Initialize Budget Counter Variables         
       CBUDGET0_NUM( : ) = MOMENT0_CONC( : )
       CBUDGET0_NUM( 1 ) = CBUDGET0_NUM( 1 ) + DNDT * DELT
-      CBUDGET0_SRF( : ) = MOMENT2_CONC( : )
-      CBUDGET0_SRF( 1 ) = CBUDGET0_SRF( 1 ) + DM2DT * DELT
+      CBUDGET0_SRF( : ) = MOMENT2_CONC( : ) * PI
+      CBUDGET0_SRF( 1 ) = CBUDGET0_SRF( 1 ) + DM2DT * DELT * PI
       CBUDGET0_SO4( : ) = AEROSPC_CONC( ASO4_IDX, : )
       CBUDGET0_SO4( 1 ) = CBUDGET0_SO4( 1 ) + DMDT_SO4 * DELT
       CBUDGET0_NO3( : ) = AEROSPC_CONC( ANO3_IDX, : )
@@ -1649,7 +1649,7 @@ C     aerospc_conc variables. This should be for the wet distribution.
 ! *** Propagate Concentration Changes from Coarse-Mode Mass
 ! *** Transfer to Budget Vectors
       DELNUM( : )  = MOMENT0_CONC( : ) - CBUDGET0_NUM( : )
-      DELSRF( : )  = MOMENT2_CONC( : ) - CBUDGET0_SRF( : )
+      DELSRF( : )  = MOMENT2_CONC( : ) * PI - CBUDGET0_SRF( : )
       DELSO4( : )  = AEROSPC_CONC( ASO4_IDX, : ) - CBUDGET0_SO4( : )
       DELNH4( : )  = AEROSPC_CONC( ANH4_IDX, : ) - CBUDGET0_NH4( : )
       DELNO3( : )  = AEROSPC_CONC( ANO3_IDX, : ) - CBUDGET0_NO3( : )
