@@ -151,7 +151,7 @@ C-----------------------------------------------------------------------
       REAL    DT        ! Timestep in seconds
       INTEGER SDATE     ! Date at end of timestep
       INTEGER STIME     ! Time at end of timestep
-
+      INTEGER I
 
       REAL :: TCGRID  ( MY_PACOLS,MY_PAROWS,PALEVS )  
 
@@ -169,7 +169,15 @@ C-----------------------------------------------------------------------
          CSAV  = CGRID
       END IF
 
-      CNGRD = CGRID  ! local copy (separate memory)
+      DO I = 1,N_CGRID_SPC
+      DO L = 1,NLAYS
+      DO R = 1,NROWS
+      DO C = 1,NCOLS
+         CNGRD(C,R,L,I) = CGRID(C,R,L,I)  ! local copy (separate memory)
+      END DO
+      END DO
+      END DO
+      END DO
       
       ! Determine if concentrations need to converted from mixing
       ! ratios.
@@ -204,7 +212,15 @@ C-----------------------------------------------------------------------
          END DO
       END IF
 
-      CSAV = CNGRD
+      DO I = 1,N_CGRID_SPC
+      DO L = 1,NLAYS
+      DO R = 1,NROWS
+      DO C = 1,NCOLS
+         CSAV(C,R,L,I) = CNGRD(C,R,L,I)
+      END DO
+      END DO
+      END DO
+      END DO
 
       RETURN
       END SUBROUTINE PA_UPDATE_PROC
@@ -518,10 +534,19 @@ C..get density x jacobian and layer heights
       INTEGER :: IPRV
       INTEGER :: ICG, ISPC, IPRSPC, ISV
       LOGICAL,SAVE :: FIRST_TIME = .TRUE.
+      INTEGER I, L, R, C
 
       ! Convert scalars from trasnport process units to mixing ratio and
       ! concentration units.
-      CNGRD = CGRID
+      DO I = 1,N_CGRID_SPC
+      DO L = 1,NLAYS
+      DO R = 1,NROWS
+      DO C = 1,NCOLS
+         CNGRD(C,R,L,I) = CGRID(C,R,L,I)
+      END DO
+      END DO
+      END DO
+      END DO
       SDATE = JDATE; STIME = JTIME
       CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
       CALL DECOUPLE_PA( CNGRD, SDATE, STIME )
@@ -570,7 +595,15 @@ C..get density x jacobian and layer heights
          END DO
       END IF
  
-      CSAV = CNGRD
+      DO I = 1,N_CGRID_SPC
+      DO L = 1,NLAYS
+      DO R = 1,NROWS
+      DO C = 1,NCOLS
+         CSAV(C,R,L,I) = CNGRD(C,R,L,I)
+      END DO
+      END DO
+      END DO
+      END DO
       RETURN
  
       END SUBROUTINE PA_UPDATE_HADV
@@ -707,7 +740,7 @@ C Local Variables:
       CHARACTER( 16 ) :: VNAME
       CHARACTER( 96 ) :: XMSG = ' '
 
-      INTEGER     V  ! loop counters
+      INTEGER     V,C,R,L ! loop counters
 
 C-----------------------------------------------------------------------
 
@@ -724,14 +757,32 @@ C The CONC array is ordered like CGRID but only the DIFF species should
 C be modified. Use DIFF_MAP
       DO V = 1,N_SPC_DIFF
           IF ( DIFF_MASK_NUM( V ) .OR. DIFF_MASK_SRF( V ) ) THEN 
-            CONC( :,:,:,DIFF_MAP( V ) ) = 
-     &          CONC( :,:,:,DIFF_MAP( V ) ) * RJACOBM( :,:,: )
+            DO L = 1,NLAYS
+            DO R = 1,NROWS
+            DO C = 1,NCOLS
+               CONC( C,R,L,DIFF_MAP( V ) ) = 
+     &             CONC( C,R,L,DIFF_MAP( V ) ) * RJACOBM( C,R,L )
+            END DO
+            END DO
+            END DO
           ELSE IF ( DIFF_MASK_AERO( V ) ) THEN
-            CONC( :,:,:,DIFF_MAP( V ) ) = 
-     &          CONC( :,:,:,DIFF_MAP( V ) ) * CONV * RJACOBM( :,:,: )
+            DO L = 1,NLAYS
+            DO R = 1,NROWS
+            DO C = 1,NCOLS
+               CONC( C,R,L,DIFF_MAP( V ) ) = 
+     &             CONC( C,R,L,DIFF_MAP( V ) ) * CONV * RJACOBM( C,R,L )
+            END DO
+            END DO
+            END DO
           ELSE
-            CONC( :,:,:,DIFF_MAP( V ) ) = 
-     &          CONC( :,:,:,DIFF_MAP( V ) ) * RRHOJ( :,:,: )
+            DO L = 1,NLAYS
+            DO R = 1,NROWS
+            DO C = 1,NCOLS
+               CONC( C,R,L,DIFF_MAP( V ) ) = 
+     &             CONC( C,R,L,DIFF_MAP( V ) ) * RRHOJ( C,R,L )
+            END DO
+            END DO
+            END DO
           END IF
       END DO
 

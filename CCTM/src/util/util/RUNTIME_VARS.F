@@ -142,6 +142,7 @@
       INTEGER :: CONC_ELEV = 0       ! Ending level saved to conc file
       CHARACTER(  16 ) :: ACONC_FILE_SPCS( 900 ) = '' ! avg conc file species list
       CHARACTER(  16 ) :: CONC_FILE_SPCS(900 )   = '' ! conc file species list
+      LOGICAL :: BUDGET_DIAG=.FALSE. ! Flag for outputting budget diagnostic
       LOGICAL :: PWRTFLAG  = .TRUE.  ! Print confirmation of successful output 
                                            ! to logfile
       LOGICAL :: LVEXT = .FALSE.     ! Flag to perform vertical Extraction
@@ -447,6 +448,9 @@
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
       
+      ! BUDGET
+      CALL GET_ENV ( BUDGET_DIAG, 'CTM_BUDGET_DIAG', BUDGET_DIAG, VARDEV )
+
       ! PWRTFLAG
       CALL GET_ENV ( PWRTFLAG, 'IOAPI_LOG_WRITE', PWRTFLAG, VARDEV )
 

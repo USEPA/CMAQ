@@ -449,7 +449,7 @@
 !------------------------------------------------------------------------------!
 
 &BudgetOptions
-  BudgetVariables  = 'NO2','AECJ','*ASO4','NUMACC','ANO3'
+  BudgetVariables  = '*ALL'
 /
 
 

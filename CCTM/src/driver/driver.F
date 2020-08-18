@@ -702,7 +702,7 @@ C Get synchronization and advection time steps, TSTEP(2), ASTEP(L) and NREPS
 #endif
 
 C Initialize Budget Output File and Concentration Array
-      CALL BUDGET_INIT( CGRID, JDATE, JTIME )
+      IF ( BUDGET_DIAG .OR. LIPR ) CALL BUDGET_INIT( CGRID, JDATE, JTIME )
 
 C science process sequence:
          
@@ -829,7 +829,7 @@ C write conc fields
          CALL WR_ASENS ( JDATE, JTIME, TSTEP( 1 ) )
 #endif
          IF ( LIPR .OR. LIRR ) CALL PA_OUTPUT ( CGRID, JDATE, JTIME )
-         CALL WRITE_BUDGET ( CGRID, JDATE, JTIME, TSTEP )
+         IF ( BUDGET_DIAG ) CALL WRITE_BUDGET ( CGRID, JDATE, JTIME, TSTEP )
          IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 3 )
          
       END IF

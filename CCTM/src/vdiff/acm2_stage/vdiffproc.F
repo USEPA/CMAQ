@@ -95,6 +95,7 @@ C-----------------------------------------------------------------------
       USE SEDIMENTATION
       USE VDIFF_DIAG
       USE PA_UPDATE
+      USE PA_DEFN, ONLY : LIPR
 
 #ifdef isam
       USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
@@ -273,15 +274,17 @@ C Allocate and initialize dry deposition array
 C Set up for process analysis
          CALL LOG_HEADING( LOGDEV, "Initialize Surface Exchange for Process Analysis" )
 
-         ALLOCATE ( EMIS_PA( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT = ASTAT )
-         IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'EMIS_PA memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
-         ALLOCATE ( DDEP_PA( NCOLS,NROWS,N_CGRID_SPC ), STAT = ASTAT )
-         IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'DDEP_PA memory allocation failed'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         IF ( BUDGET_DIAG .OR. LIPR ) THEN
+            ALLOCATE ( EMIS_PA( NCOLS,NROWS,NLAYS,N_CGRID_SPC ), STAT = ASTAT )
+            IF ( ASTAT .NE. 0 ) THEN
+               XMSG = 'EMIS_PA memory allocation failed'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+            ALLOCATE ( DDEP_PA( NCOLS,NROWS,N_CGRID_SPC ), STAT = ASTAT )
+            IF ( ASTAT .NE. 0 ) THEN
+               XMSG = 'DDEP_PA memory allocation failed'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
          END IF
 
 C Set up for grav. settling
@@ -362,13 +365,15 @@ C Calculate the changes in the layer J-,K-mode aerosol concentrations
 C read & interpolate emissions data => VDEMIS_DIFF from EMIS_DEFN module
       CALL GET_EMIS ( MDATE, MTIME, TSTEP, CGRID )
 
-      EMIS_PA = 0.0
-      DO S = 1, N_SPC_DIFF
-         DO L = 1, EMLAYS
-            EMIS_PA( :,:,L,DIFF_MAP(S) ) = VDEMIS_DIFF( S,L,:,: )
+      IF ( BUDGET_DIAG .OR. LIPR ) THEN
+         EMIS_PA = 0.0
+         DO S = 1, N_SPC_DIFF
+            DO L = 1, EMLAYS
+               EMIS_PA( :,:,L,DIFF_MAP(S) ) = VDEMIS_DIFF( S,L,:,: )
+            END DO
          END DO
-      END DO
-      CALL PA_UPDATE_EMIS ( EMIS_PA, JDATE, JTIME, TSTEP )
+         CALL PA_UPDATE_EMIS ( EMIS_PA, JDATE, JTIME, TSTEP )
+      END IF
       
       CALL EDDYX ( EDDYV )
 
@@ -653,15 +658,18 @@ C Write other diagnostics
             CALL WRASX_MEDIA( MDATE, MTIME )
          END IF 
  
-         DDEP_PA = 0.0
-         DO V = 1, N_SPC_DEPV
-            DO R = 1, NROWS
-               DO C = 1, NCOLS
-                  DDEP_PA( C,R,MAP_DEPVtoCGRID( V ) ) = DDEP( V,C,R )
+         IF ( BUDGET_DIAG .OR. LIPR ) THEN
+            DDEP_PA = 0.0
+            DO V = 1, N_SPC_DEPV
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
+                     DDEP_PA( C,R,MAP_DEPVtoCGRID( V ) ) = DDEP( V,C,R )
+                  END DO
                END DO
             END DO
-         END DO
-         CALL PA_UPDATE_DDEP ( DDEP_PA, JDATE, JTIME, TSTEP )
+            CALL PA_UPDATE_DDEP ( DDEP_PA, JDATE, JTIME, TSTEP )
+         END IF
+
          IF( ABFLUX ) THEN
 ! Swap diagnostic deposition and fluxes for NH3 to allow the same post processing scripts for
 ! both bidirectional and unidirectional simulations.

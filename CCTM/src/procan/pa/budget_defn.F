@@ -247,7 +247,7 @@ C-----------------------------------------------------------------------
       REAL, ALLOCATABLE, SAVE :: CELLVOL( :,:,: )! cell volume
       LOGICAL :: FIRST_TIME = .TRUE.
       INTEGER ASTAT
-      INTEGER L, I, LAYS
+      INTEGER L, I, LAYS, R, C
 
       ! First time through, allocate Budget Concentration conversion
       ! array
@@ -272,6 +272,7 @@ C-----------------------------------------------------------------------
          CELLVOL( :,:,L ) = XCELL_GD * YCELL_GD * 
      &                        ( ZF( :,:,L ) - ZF( :,:,L-1) )
       END DO
+      DENS = DENS * CELLVOL * 1.0E-6 * 1.0E-3 ! mol air
 
       ! Convert Process Units to kg (mass), N (number), and m2 (surface
       ! area). Input gases are in ppm, aerosols in ug m-3, number in N
@@ -279,29 +280,46 @@ C-----------------------------------------------------------------------
       LAYS = NLAYS
       IF ( IPR_ID .EQ. IPR_DDEP ) LAYS = 1
 
-      DO L = 1,LAYS
       DO I = 1,N_CGRID_SPC
          ! Gas - convert ppm to kg
          IF ( CGRID_MASK_GAS( I ) .OR.
      &        CGRID_MASK_NR( I )  .OR.
-     &        CGRID_MASK_TRAC( I ) )
-     &      BDG_CONC(:,:,L,I) = 1.0E-06 * CONC(:,:,L,I) * DENS(:,:,L) * CELLVOL(:,:,L)
-     &                          * CGRID_MW(I) / 1000.0
+     &        CGRID_MASK_TRAC( I ) ) THEN
+            DO L = 1,LAYS
+            DO R = 1,NROWS
+            DO C = 1,NCOLS
+               BDG_CONC(C,R,L,I) = CONC(C,R,L,I) * DENS(C,R,L) * CGRID_MW(I)
+            END DO
+            END DO
+            END DO
+         END IF
 
          ! Aerosol Mass:  ug m-3 -> kg
          IF ( CGRID_MASK_AERO( I ) .AND.
      &        .NOT. CGRID_MASK_NUM( I ) .AND.
-     &        .NOT. CGRID_MASK_SRF( I )  )
-     &      BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L) * 1.0E-09
+     &        .NOT. CGRID_MASK_SRF( I )  ) THEN
+            DO L = 1,LAYS
+            DO R = 1,NROWS
+            DO C = 1,NCOLS
+               BDG_CONC(C,R,L,I) = CONC(C,R,L,I) * CELLVOL(C,R,L) * 1.0E-09
+            END DO
+            END DO
+            END DO
+         END IF
 
          ! Aerosol Number: N m-3 -> N 
          ! Aerosol Surface Area: m2 m-3 -> m2 
-         IF ( CGRID_MASK_NUM( I ) )
-     &      BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L)
-         IF ( CGRID_MASK_SRF( I ) )
-     &      BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L)
+         IF ( CGRID_MASK_NUM( I ) ) THEN
+            DO L = 1,LAYS
+               BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L)
+            END DO
+         END IF
+         IF ( CGRID_MASK_SRF( I ) ) THEN
+            DO L = 1,LAYS
+               BDG_CONC(:,:,L,I) = CONC(:,:,L,I) * CELLVOL(:,:,L)
+            END DO
+         END IF
       
-      END DO
       END DO
 
       ! Sum and Store Process Change 
@@ -401,7 +419,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( MYPE .EQ. 0 ) THEN
          ! Positive Residual means sum of processes is greater 
          ! than net change in mass
-         RESID( : ) = SUM( BDG(:,:),2 ) - BDG_MASS( :,3 )  
+         RESID( : ) = SUM( BDG_OUT(:,:),2 ) - BDG_MASS_OUT( :,3 )  
 
          ! Write Species Process Changes to tab-separated file
          DO I = 1,N_BDG_VAR
