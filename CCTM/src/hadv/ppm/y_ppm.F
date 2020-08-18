@@ -160,7 +160,8 @@ C Required interface for allocatable array dummy arguments
             CHARACTER( 16 ), INTENT( IN )     :: UORV
             REAL,            INTENT( OUT )    :: UHAT( :,: )
          END SUBROUTINE HCONTVEL
-         SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI )
+         SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI,
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
 ! #ifdef parallel
             INTEGER, PARAMETER                :: SWP = 3
 ! #else
@@ -172,6 +173,10 @@ C Required interface for allocatable array dummy arguments
             REAL,            INTENT( IN )     :: DT
             REAL,            INTENT( IN )     :: DS
             CHARACTER,       INTENT( IN )     :: ORI
+            REAL,                             :: F_LO_IN( : )
+            REAL,                             :: F_LO_OUT( : )
+            REAL,                             :: F_HI_IN( : )
+            REAL,                             :: F_HI_OUT( : )
          END SUBROUTINE HPPM
       END INTERFACE
 C-----------------------------------------------------------------------
@@ -450,9 +455,50 @@ C North boundary
 #endif
 
 C PPM scheme
-         CALL HPPM ( NROWS, NCOLS, CONY, VELY, DT, DX2, 'R' )
+         CALL HPPM ( NROWS, NCOLS, CONY, VELY, DT, DX2, 'R',
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
+ 
+         ! Store Boundary Fluxes for Budget Diagnostic
+         IF ( BUDGET_DIAG ) THEN
+            IF ( BNDY_PE_LOY ) THEN
+                call interpolate_var ('JACOBM', fdate, ftime, RJACOBM)
+                DO I = 1,N_SPC_ADV
+                   A2C = ADV_MAP( I )
+                   IF ( CGRID_MASK_AERO( A2C ) THEN
+                      F_SOUTH_IN( LVL,A2C )  = F_SOUTH_IN( LVL,A2C ) 
+     &                      + F_LO_IN(I) / RJACOBM( NCOLS,ROW,LVL )
+                      F_SOUTH_OUT( LVL,A2C ) = F_SOUTH_OUT( LVL,A2C ) 
+     &                      + F_LO_OUT(I) / RJACOBM( NCOLS,ROW,LVL )
+                   ELSE
+                      F_SOUTH_IN( LVL,A2C )  = F_SOUTH_IN( LVL,A2C ) 
+     &                      + F_LO_IN(I) / RHOJ( NCOLS,ROW,LVL )
+                      F_SOUTH_OUT( LVL,A2C ) = F_SOUTH_OUT( LVL,A2C ) 
+     &                      + F_LO_OUT(I) / RHOJ( NCOLS,ROW,LVL )
+                   END IF
+                END DO
+            END IF
+            IF ( BNDY_PE_HIY ) THEN
+                call interpolate_var ('JACOBM', fdate, ftime, RJACOBM)
+                DO I = 1,N_SPC_ADV
+                   A2C = ADV_MAP( I )
+                   IF ( CGRID_MASK_AERO( A2C ) THEN
+                      F_NORTH_IN( LVL,A2C )  = F_NORTH_IN( LVL,A2C ) 
+     &                      + F_HI_IN(I) / RJACOBM( NCOLS,ROW,LVL )
+                      F_NORTH_OUT( LVL,A2C ) = F_NORTH_OUT( LVL,A2C ) 
+     &                      + F_HI_OUT(I) / RJACOBM( NCOLS,ROW,LVL )
+                   ELSE
+                      F_NORTH_IN( LVL,A2C )  = F_NORTH_IN( LVL,A2C ) 
+     &                      + F_HI_IN(I) / RHOJ( NCOLS,ROW,LVL )
+                      F_NORTH_OUT( LVL,A2C ) = F_NORTH_OUT( LVL,A2C ) 
+     &                      + F_HI_OUT(I) / RHOJ( NCOLS,ROW,LVL )
+                   END IF
+                END DO
+            END IF
+         END IF
+         
 #ifdef isam
-         CALL HPPM ( NROWS, NCOLS, SA_CONY, VELY, DT, DX2, 'R' )
+         CALL HPPM ( NROWS, NCOLS, SA_CONY, VELY, DT, DX2, 'R',
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
 #endif
 
          DO SPC = 1, N_SPC_ADV

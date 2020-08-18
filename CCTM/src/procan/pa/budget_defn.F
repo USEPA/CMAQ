@@ -71,6 +71,7 @@ C Preconditions: None
 C Key Subroutines/Functions Called: None
  
 C-----------------------------------------------------------------------
+      USE XY_BUDGET
 
       IMPLICIT NONE 
 
@@ -110,10 +111,26 @@ C-----------------------------------------------------------------------
           
           ALLOCATE( BDG( N_CGRID_SPC,NPRCS ),
      &              BDG_MASS( N_CGRID_SPC,3),
+     &              F_WEST_IN( NLAYS,N_CGRID_SPC ),
+     &              F_WEST_OUT( NLAYS,N_CGRID_SPC ),
+     &              F_EAST_IN( NLAYS,N_CGRID_SPC ),
+     &              F_EAST_OUT( NLAYS,N_CGRID_SPC ),
+     &              F_SOUTH_IN( NLAYS,N_CGRID_SPC ),
+     &              F_SOUTH_OUT( NLAYS,N_CGRID_SPC ),
+     &              F_NORTH_IN( NLAYS,N_CGRID_SPC ),
+     &              F_NORTH_OUT( NLAYS,N_CGRID_SPC ),
      &              STAT=ASTAT )
           BDG = 0
           BDG_JDATE0 = JDATE
           BDG_JTIME0 = JTIME
+          F_WEST_IN = 0
+          F_WEST_OUT = 0
+          F_EAST_IN = 0
+          F_EAST_OUT = 0
+          F_SOUTH_IN = 0
+          F_SOUTH_OUT = 0
+          F_NORTH_IN = 0
+          F_NORTH_OUT = 0
           
           CALL STORE_BUDGET( BDGC0_ID, CONC, JDATE, JTIME )
           
@@ -146,9 +163,12 @@ C-----------------------------------------------------------------------
           
               ! Write Header
               !WRITE( FM, '( )' ), 
-              WRITE( BDG_UNIT, '(41(A))' ), 'SPECIES',tab,'T_START',tab,
+              WRITE( BDG_UNIT, '(53(A))' ), 'SPECIES',tab,'T_START',tab,
      &         'T_FINAL',tab,'T_DELTA',tab,'M_START',tab,'M_FINAL',tab,
-     &         'M_DELTA',( tab, TRIM(PROCNAME(i)),i=1,NPRCS),tab,'RESID'
+     &         'M_DELTA',tab,'WEST_IN',tab,'WEST_OUT',tab,'EAST_IN',tab,
+     &         'EAST_OUT',tab,'SOUTH_IN',tab,'SOUTH_OUT',tab,'NORTH_IN',tab,
+     &         'NORTH_OUT',tab, TRIM(PROCNAME(1)),
+     &         ( tab, TRIM(PROCNAME(i)),i=4,NPRCS),tab,'RESID'
           
           END IF
           
@@ -355,14 +375,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INTEGER BDG_YEAR1, BDG_MONTH1, BDG_DAY1, BDG_YYYYMMDD1
       CHARACTER(15) :: BDG_TIME0, BDG_TIME1
 
-      REAL, ALLOCATABLE, SAVE :: BDG_MASS_OUT(:,:), BDG_OUT(:,:)
+      REAL, ALLOCATABLE, SAVE :: BDG_MASS_OUT(:,:), BDG_OUT(:,:),
+     &                           ADV_FLUXES_OUT(:,:)
       REAL :: TMP, TMP2
 
       IF ( FIRST_TIME ) THEN
           FIRST_TIME = .FALSE.
           ALLOCATE ( RESID( N_CGRID_SPC ),
      &               BDG_MASS_OUT( N_BDG_VAR,3 ),
-     &               BDG_OUT( N_BDG_VAR,NPRCS ) )
+     &               BDG_OUT( N_BDG_VAR,NPRCS ),
+     &               ADV_FLUXES_OUT( N_BDG_VAR,8 ) )
       END IF
 
 
@@ -395,11 +417,14 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       ! Map CGRID Species to Budget Output Species
       BDG_OUT = 0.0
       BDG_MASS_OUT = 0.0
+      ADV_FLUXES_OUT = 0.0
       DO I = 1,N_BDG_PAIRS
           BDG_OUT( MAP_toBDG( I ),: ) = BDG_OUT( MAP_toBDG( I ),: ) 
      &             + BDG( MAP_toCGRID( I ),: )
           BDG_MASS_OUT( MAP_toBDG( I ),: ) = BDG_MASS_OUT( MAP_toBDG( I ),: ) 
      &             + BDG_MASS( MAP_toCGRID( I ),: )
+          ADV_FLUXES_OUT( MAP_toBDG( I ),: ) = ADV_FLUXES_OUT( MAP_toBDG( I ),: ) 
+     &             + ADV_FLUXES( MAP_toCGRID( I ),: )
       END DO
 
 #ifdef parallel
@@ -414,6 +439,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            BDG_OUT(I,J) = SUBST_GLOBAL_SUM( BDG_OUT(I,J) )
          END DO
       END DO
+      DO J = 1,8
+         DO I = 1,N_BDG_VAR
+           ADV_FLUXES_OUT(I,J) = SUBST_GLOBAL_SUM( ADV_FLUXES_OUT(I,J) )
+         END DO
+      END DO
 #endif
 
       IF ( MYPE .EQ. 0 ) THEN
@@ -423,9 +453,11 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
          ! Write Species Process Changes to tab-separated file
          DO I = 1,N_BDG_VAR
-            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,17(E11.4,A) )' ),TRIM(BDGSPEC(I)),tab, 
+            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,23(E11.4,A) )' ),TRIM(BDGSPEC(I)),tab, 
      &         BDG_TIME0,tab,BDG_TIME1,tab, DT,tab, (BDG_MASS_OUT(I,J),tab,J=1,3 ),
-     &         ( BDG_OUT(I,J),tab,J=1,NPRCS ), RESID(I)
+     &         ( ADV_FLUXES_OUT(I,J),tab,J=1,8 ),
+     &         BDG_OUT(I,1),tab,
+     &         ( BDG_OUT(I,J),tab,J=4,NPRCS ), RESID(I)
          END DO
       END IF
 
@@ -438,6 +470,15 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       BDG_JDATE0 = BDG_JDATE1
       BDG_JTIME0 = BDG_JTIME1
+
+      F_WEST_IN = 0
+      F_WEST_OUT = 0
+      F_EAST_IN = 0
+      F_EAST_OUT = 0
+      F_SOUTH_IN = 0
+      F_SOUTH_OUT = 0
+      F_NORTH_IN = 0
+      F_NORTH_OUT = 0
 
       RETURN
 

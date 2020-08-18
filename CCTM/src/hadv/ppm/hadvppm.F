@@ -171,11 +171,13 @@ C Get CGRID offsets
 
          ASPC = GC_STRT - 1 + N_GC_SPCD
 
-         ALLOCATE ( DELC_XADV( NCOLS,NROWS,NLAYS,NSPCSD ),
-     &              DELC_YADV( NCOLS,NROWS,NLAYS,NSPCSD ),
-     &              XADV( NCOLS,NROWS,NSPCSD ),
-     &              YADV( NCOLS,NROWS,NSPCSD ),
-     &              CGRID0( NCOLS,NROWS,NSPCSD ) )
+         IF ( LIPR ) THEN
+            ALLOCATE ( DELC_XADV( NCOLS,NROWS,NLAYS,NSPCSD ),
+     &                 DELC_YADV( NCOLS,NROWS,NLAYS,NSPCSD ),
+     &                 XADV( NCOLS,NROWS,NSPCSD ),
+     &                 YADV( NCOLS,NROWS,NSPCSD ),
+     &                 CGRID0( NCOLS,NROWS,NSPCSD ) )
+         END IF
 
 #ifdef sens
          ALLOCATE ( BSEN( NBNDY,N_SPC_ADV,NPMAX ), STAT = ALLOCSTAT )
@@ -190,8 +192,10 @@ C Get CGRID offsets
       SYNCSTEP = TIME2SEC( TSTEP( 2 ) )
 
       ! Initialize Budget Variables
-      DELC_XADV = 0.0
-      DELC_YADV = 0.0
+      IF (LIPR) THEN
+        DELC_XADV = 0.0
+        DELC_YADV = 0.0
+      END IF
 
       LSTAT = .FALSE.
       DO 301 LVL = 1, NLAYS
@@ -201,8 +205,10 @@ C Get CGRID offsets
          FDATE = JDATE
          FTIME = JTIME
 
-         XADV = 0.0
-         YADV = 0.0
+         IF ( LIPR ) THEN
+            XADV = 0.0
+            YADV = 0.0
+         END IF
 
 101      CONTINUE
 
@@ -215,13 +221,17 @@ C Get CGRID offsets
 
             CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
-            XADV( :,:,: ) = XADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
-            CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+            IF ( LIPR ) THEN
+               XADV( :,:,: ) = XADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
+               CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+            END IF
 
             CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'Y_PPM', CGRID, FDATE, FTIME, LVL )
-            YADV( :,:,: ) = YADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
-            CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+            IF ( LIPR ) THEN
+               YADV( :,:,: ) = YADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
+               CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+            END IF
 
          ELSE
 
@@ -229,13 +239,17 @@ C Get CGRID offsets
 
             CALL Y_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'Y_PPM', CGRID, FDATE, FTIME, LVL )
-            YADV( :,:,: ) = YADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
-            CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+            IF ( LIPR ) THEN
+               YADV( :,:,: ) = YADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
+               CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+            END IF
 
             CALL X_PPM ( CGRID, FDATE, FTIME, ASTEP( LVL ), LVL, BCON )
 !           CALL LCKSUMMER ( 'X_PPM', CGRID, FDATE, FTIME, LVL )
-            XADV( :,:,: ) = XADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
-            CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+            IF ( LIPR ) THEN
+               XADV( :,:,: ) = XADV( :,:,: ) + CGRID( :,:,LVL,: ) - CGRID0( :,:,: )
+               CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+            END IF
 
          END IF
 
@@ -245,8 +259,10 @@ C Get CGRID offsets
             GO TO 101
          END IF
 
-         DELC_XADV( :,:,LVL,: ) = XADV( :,:,: )
-         DELC_YADV( :,:,LVL,: ) = YADV( :,:,: )
+         IF (LIPR ) THEN
+           DELC_XADV( :,:,LVL,: ) = XADV( :,:,: )
+           DELC_YADV( :,:,LVL,: ) = YADV( :,:,: )
+         END IF
 301   CONTINUE
  
       !Print warning if any aerosol BCs violated the size distribution parameters

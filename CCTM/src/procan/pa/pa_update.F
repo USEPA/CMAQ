@@ -560,8 +560,8 @@ C..get density x jacobian and layer heights
       CALL DECOUPLE_PA( DELC_YADV, SDATE, STIME )
 
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME )
-      CALL STORE_BUDGET( IPR_YADV, DELC_YADV, JDATE, JTIME )
+      !CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME )
+      !CALL STORE_BUDGET( IPR_YADV, DELC_YADV, JDATE, JTIME )
 
       IF ( LIPR ) THEN
          DO IPRV = 1, NIPRVAR     ! foreach family

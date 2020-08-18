@@ -49,6 +49,8 @@ C-----------------------------------------------------------------------
       USE HGRD_DEFN             ! horizontal domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
+      USE RUNTIME_VARS, ONLY : BUDGET_DIAG
+      USE XY_BUDGET, ONLY : F_WEST_IN, F_WEST_OUT, F_EAST_IN, F_EAST_OUT
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
 #else
@@ -127,6 +129,10 @@ C Local Variables:
       INTEGER      A2C
 
       LOGICAL, SAVE :: BNDY_PE_LOX, BNDY_PE_HIX
+      REAL, ALLOCATABLE, SAVE :: F_LO_IN( : )
+      REAL, ALLOCATABLE, SAVE :: F_LO_OUT( : )
+      REAL, ALLOCATABLE, SAVE :: F_HI_IN( : )
+      REAL, ALLOCATABLE, SAVE :: F_HI_OUT( : )
 
 #ifdef parallel
       INTEGER EAST_COL
@@ -164,7 +170,8 @@ C Required interface for allocatable array dummy arguments
             CHARACTER( 16 ), INTENT( IN ) :: UORV
             REAL,    INTENT( OUT )        :: UHAT( :,: )
          END SUBROUTINE HCONTVEL
-         SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI )
+         SUBROUTINE HPPM ( NI, NJ, CON, VEL, DT, DS, ORI,
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
 ! #ifdef parallel
             INTEGER, PARAMETER         :: SWP = 3
 ! #else
@@ -176,6 +183,10 @@ C Required interface for allocatable array dummy arguments
             REAL,      INTENT( IN )    :: DT
             REAL,      INTENT( IN )    :: DS
             CHARACTER, INTENT( IN )    :: ORI
+            REAL,                             :: F_LO_IN( : )
+            REAL,                             :: F_LO_OUT( : )
+            REAL,                             :: F_HI_IN( : )
+            REAL,                             :: F_HI_OUT( : )
          END SUBROUTINE HPPM
       END INTERFACE
 C-----------------------------------------------------------------------
@@ -456,9 +467,53 @@ C East boundary
 #endif
 
 C PPM scheme
-         CALL HPPM ( NCOLS, NROWS, CONX, VELX, DT, DX1, 'C' )
+         CALL HPPM ( NCOLS, NROWS, CONX, VELX, DT, DX1, 'C',
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
+
+
+         ! Store Boundary Fluxes for Budget Diagnostic
+         IF ( BUDGET_DIAG ) THEN
+            IF ( BNDY_PE_LOX ) THEN
+                call interpolate_var ('JACOBM', fdate, ftime, RJACOBM)
+                call interpolate_var ('ZF', fdate, ftime, ZF)
+                DO I = 1,N_SPC_ADV
+                   A2C = ADV_MAP( I )
+                   IF ( CGRID_MASK_AERO( A2C ) THEN
+                      F_WEST_IN( LVL,A2C )  = F_WEST_IN( LVL,A2C ) 
+     &                      + F_LO_IN(I) / RJACOBM( NCOLS,ROW,LVL ) * DENS( ) * CELLVOL
+                      F_WEST_OUT( LVL,A2C ) = F_WEST_OUT( LVL,A2C ) 
+     &                      + F_LO_OUT(I) / RJACOBM( NCOLS,ROW,LVL ) * DENS( ) * CELLVOL
+                   ELSE
+                      F_WEST_IN( LVL,A2C )  = F_WEST_IN( LVL,A2C ) 
+     &                      + F_LO_IN(I) / RJACOBM  / MWAIR /1000.0 * CELLVOL
+                      F_WEST_OUT( LVL,A2C ) = F_WEST_OUT( LVL,A2C ) 
+     &                      + F_LO_OUT(I) / RJACOBM  / MWAIR /1000.0 * CELLVOL
+                   END IF
+                END DO
+            END IF
+            IF ( BNDY_PE_HIX ) THEN
+                call interpolate_var ('JACOBM', fdate, ftime, RJACOBM)
+                call interpolate_var ('ZF', fdate, ftime, ZF)
+                DO I = 1,N_SPC_ADV
+                   A2C = ADV_MAP( I )
+                   IF ( CGRID_MASK_AERO( A2C ) THEN
+                      F_EAST_IN( LVL,A2C )  = F_EAST_IN( LVL,A2C ) 
+     &                      + F_HI_IN(I) / RJACOBM( 1,ROW,LVL )
+                      F_EAST_OUT( LVL,A2C ) = F_EAST_OUT( LVL,A2C ) 
+     &                      + F_HI_OUT(I) / RJACOBM( 1,ROW,LVL )
+                   ELSE
+                      F_EAST_IN( LVL,A2C )  = F_EAST_IN( LVL,A2C ) 
+     &                      + F_HI_IN(I) / RHOJ( 1,ROW,LVL )
+                      F_EAST_OUT( LVL,A2C ) = F_EAST_OUT( LVL,A2C ) 
+     &                      + F_HI_OUT(I) / RHOJ( 1,ROW,LVL )
+                   END IF
+                END DO
+            END IF
+         END IF
+
 #ifdef isam
-         CALL HPPM ( NCOLS, NROWS, SA_CONX, VELX, DT, DX1, 'C' )
+         CALL HPPM ( NCOLS, NROWS, SA_CONX, VELX, DT, DX1, 'C',
+     &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
 #endif
 
          DO SPC = 1, N_SPC_ADV

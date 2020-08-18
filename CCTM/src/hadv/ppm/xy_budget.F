@@ -33,6 +33,15 @@
       REAL, ALLOCATABLE :: DELC_XADV  ( :,:,:,: ) ! Change in Species due to X Advection
       REAL, ALLOCATABLE :: DELC_YADV  ( :,:,:,: )   ! Change in Species due to Y Advection
 
+      REAL, ALLOCATABLE :: F_WEST_IN( :,: )
+      REAL, ALLOCATABLE :: F_WEST_OUT( :,: )
+      REAL, ALLOCATABLE :: F_EAST_IN( :,: )
+      REAL, ALLOCATABLE :: F_EAST_OUT( :,: )
+      REAL, ALLOCATABLE :: F_SOUTH_IN( :,: )
+      REAL, ALLOCATABLE :: F_SOUTH_OUT( :,: )
+      REAL, ALLOCATABLE :: F_NORTH_IN( :,: )
+      REAL, ALLOCATABLE :: F_NORTH_OUT( :,: )
+
 C-----------------------------------------------------------------------
 
       End Module XY_BUDGET
