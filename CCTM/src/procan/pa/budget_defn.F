@@ -396,6 +396,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
       BDG_MASS( :,3 ) = BDG_MASS( :,2 ) - BDG_MASS( :,1 )
 
+      ! Convert units for vapor ADV_FLUXES from 10^-6 mol to kg
+      DO I = 1,N_CGRID_SPC
+         IF ( .NOT.CGRID_MASK_AERO( I ) ) 
+     &      ADV_FLUXES( I,: ) = ADV_FLUXES( I,: ) * 1.0E-9 * CGRID_MW( I ) 
+      END DO
+
       ! Calculate Date, Time, and Length of Time Interval
       BDG_JDATE1 = JDATE
       BDG_JTIME1 = JTIME
