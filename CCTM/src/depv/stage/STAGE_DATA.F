@@ -32,8 +32,8 @@ C     26 June 2014 J.Bash: initial implementation
 !      Real, Parameter :: a0         = 8.0        ! [dim'less]
       Real, Parameter,private :: pr         = 0.709      ! [dim'less]
       Real, Parameter,private :: twothirds  = 2.0 / 3.0
-      Real            :: sm_v1cm
-      Real            :: sm_v5cm
+!      Real            :: sm_v1cm
+!      Real            :: sm_v5cm
       
       Type :: Map_Type
          Integer                    :: n_gas_dep         ! number of gas deposited species

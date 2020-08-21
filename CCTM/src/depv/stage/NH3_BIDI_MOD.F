@@ -463,15 +463,6 @@ C-------------------------------------------------------------------------------
          ldry_max = 0.02
 ! From Sakaguchi and Zeng 2009 JGR Equation 10
          ldry1 = ldry_max * ( Exp( ( 1.0 - wg_ir / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
-!         ldry1 = min(ldry1,zsoil1)
-
-!         ldry2 = ( ldry_max - zsoil1 ) * ( Exp( ( 1.0 - w5cm / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
-         
-!         dp  = diff * GRID_DATA%WSAT( c,r )**2
-!     &       * ( 1.0 - GRID_DATA%WRES( c,r ) / GRID_DATA%WSAT( c,r ) ) ** ( 2.0 + 3.0 / GRID_DATA%BSLP( c,r ) )         
-
-!         rsoil1 = ldry1 / dp
-!         rsoil2 = ldry2 / dp
 
 !> Compute compensation point. gamma is specified according to the amount of 
 !> cultivated vegetation               
@@ -594,12 +585,10 @@ C-------------------------------------------------------------------------------
 
          If( ldry1 .Le. zsoil1 ) Then
             NH3_g = cnh3g1
-!            Rg = rsoil1
             wg = wg_ir
             zsoil = zsoil1
          Else
             NH3_g = cnh3g2
-!            Rg = rsoil1 + rsoil2
             wg = w5cm
             zsoil = zsoil2
          End If
@@ -643,13 +632,13 @@ C-------------------------------------------------------------------------------
 ! get the correct soil temp
          If(zsoil .Eq. zsoil1 ) Then
             T_Soil = MET_DATA%SoiT1( C,R )
-            gam    = gamma1( C,R )
+            gam    = max( gamma1( C,R ), 630.0 )
             MHp    = MHp1( C,R )  
             Knit   = Knit1( C,R )
             gamma2( C,R ) = gamma2( C,R ) * exp( -Knit2( c,r ) * dt )
          Else
             T_Soil = MET_DATA%SoiT2( C,R )
-            gam    = gamma2( C,R )
+            gam    = max( gamma2( C,R ), 630.0 )
             MHp    = MHp2( C,R ) 
             Knit   = Knit2( C,R ) 
             gamma1( C,R ) = gamma1( C,R ) * exp( -Knit1( c,r ) * dt ) 
