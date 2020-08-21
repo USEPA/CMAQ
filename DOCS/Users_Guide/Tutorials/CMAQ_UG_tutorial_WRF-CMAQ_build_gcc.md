@@ -1,4 +1,4 @@
-## CMAQ-WRF Tutorial ## 
+## WRF-CMAQ Tutorial ## 
 
 ### Procedure to build and run the WRF-CMAQ model using gnu compiler: ###
 
@@ -37,19 +37,31 @@ module load openmpi_4.0.1/gcc_9.1.0
    
    - Follow these instructions to combine the libraries into a single combined directory
    
-   https://www2.mmm.ucar.edu/wrf/OnLineTutorial/compilation_tutorial.php
+   ```
+   cd /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES
+   mkdir netcdf_combined
+   cp -rp ./netcdf-fortran-4.4.5-gcc9.1.0/* ./netcdf_combined/
+   cp -rp ./netcdf-c-4.7.0-gcc9.1.0/* ./netcdf_combined/
+   ```
    
+   Now you should have a copy of both the netcdf C and netcdf Fortran libraries under 
+   netcdf_combined/lib
 
    - set the following environment variables including the path to your combined netcdf libraries, include files
    
    ```
-   setenv NETCDF /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0/Build_WRF/LIBRARIES/netcdf_combined
+   setenv NETCDF [your_install_path]/openmpi_4.0.1_gcc_9.1.0/Build_WRF/LIBRARIES/netcdf_combined
    setenv CC gcc
    setenv CXX g++
    setenv FC gfortran
    setenv FCFLAGS -m64
    setenv F77 gfortran
    setenv FFLAGS -m64
+   ```
+   
+   For debug option, set 
+   ```
+   setenv FCFLAGS '-m64 -g3 -O0 -fno-inline'
    ```
     
  - check to see that the path to each compiler is defined using
@@ -96,28 +108,33 @@ or
 https://cjcoats.github.io/ioapi/AVAIL.html
 
 #### Follow the instructions on how to install I/O API available
-    
-     ```
-     git clone https://github.com/cjcoats/ioapi-3.2
-     ```
-     
-#### Change branches to 2020104 for the code updates 
 
-     ```
-     git checkout -b 2020104
-     ```
+#### Method 1. Download the tar.gz file from the github site.
      
-#### Change directories to the ioapi-3.2
+     wget http://github.com/cjcoats/ioapi-3.2/archive/2020220.tar.gz
+     tar -xzvf 2020220.tar.gz
+     cd ioapi-3.2-2020220
      
-     ```
-     cd ioapi-3.2
-     ```
+
+#### Method 2. Use Git clone to obtain the code
+    
      
-#### Copy the Makefile.template to Makefile 
+     git clone https://github.com/cjcoats/ioapi-3.2
+     cd ioapi-3.2.    ! change directory to ioapi-3.2
+     git checkout -b 2020220   ! change branch to 2020220 for code updates
      
-     ```
-     cp Makefile.template Makefile
-     ```
+
+#### Change directories to the ioapi directory
+     
+     
+     cd ioapi
+     
+     
+#### Copy the Makefile.nocpl to Makefile 
+     
+     
+     cp Makefile.nocpl Makefile
+     
      
  #### Edit the Makefile to specify the BIN and INSTALL directories:
      
@@ -139,7 +156,7 @@ https://cjcoats.github.io/ioapi/AVAIL.html
  - to
  
    ```
-   NCFLIBS    = -L /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0/Build_WRF/LIBRARIES/netcdf_combined/lib/ -lnetcdff -lnetcdf
+   NCFLIBS    = -L /[your_install_path]/LIBRARIES/netcdf_combined/lib/ -lnetcdff -lnetcdf
    ```
  
  #### change into the ioapi directory and copy the existing Makeinclude.Linux2_x86_64gfort to have an extension that is the same as the BIN environment variable
@@ -172,14 +189,20 @@ https://cjcoats.github.io/ioapi/AVAIL.html
  ### Verify that the libioapi.a and the m3tools have been successfully built
  
  ```
- ls -lrt /[your_path]/ioapi-3.2/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
+ ls -lrt /[your_install_path]/LIBRARIES/ioapi-3.2/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
  ```
+ 
+ ### Note: If you get a shared object problem when trying to run m3tools such as the following:
+ ```
+ [lizadams@dogwood-login1 Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0]$ ./juldate
+./juldate: error while loading shared libraries: libimf.so: cannot open shared object file: No such file or directory
+```
 
-### Need to edit your .cshrc to add the path to the library by setting the LD_LIBRARY_PATH environment variable
+### Edit your .cshrc to add the path to the library by setting the LD_LIBRARY_PATH environment variable
 
 ```
 #for gcc WRF-CMAQ build
-setenv NCF_COMBO /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0/Build_WRF/LIBRARIES/netcdf_combined/
+setenv NCF_COMBO /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/netcdf_combined/
 setenv LD_LIBRARY_PATH ${NCF_COMBO}/lib:${LD_LIBRARY_PATH}
 ```
 
@@ -190,12 +213,12 @@ setenv LD_LIBRARY_PATH ${NCF_COMBO}/lib:${LD_LIBRARY_PATH}
 #### Set the IOAPI environment variable to the path where it has been installed
 
 ```
-setenv IOAPI /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2
+setenv IOAPI /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/ioapi-3.2
 ```
     
 
 ### Step 4: Install CMAQ
-     - follow these instructions to download the code, then use the modifications in Step 4
+     - follow these instructions to download the code, then use the modifications in Step 5
      
 https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md
 
@@ -230,28 +253,31 @@ cp -rp BLD_CCTM_v531_gcc ../../../WRF-4.1.1/cmaq
 ### Step 6: Download WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz and unzip it. 
 A twoway directory is formed and move it inside WRFV411 as well.
 
-- The WRFv4.1.1-CMAQv5.3.2 coupled model is released as a tarball 
+- The WRFv4.1.1-CMAQv5.3.2 model is released as a tarball 
 
-[Link to WRFv4.1.1-CMAQv5.3.1 Coupled_Model on Google Drive](https://drive.google.com/open?id=10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY)
+[Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/open?id=10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY)
 
-The coupled model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
+The WRF-CMAQ model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
 
 [ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Mode](https://bit.ly/3cuoDyi)
 
 The following commands must be adjusted for the paths on your system.
 ```
 cd WRF4.1.1
-tar -xzvf ../../WRF4.1.1_CMAQ5.3.1_Coupled_Model_20191220.tar.gz
+tar -xzvf ../../WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz
 ```
 
-### Step 7: Go into directory WRFV411 and execute the following command:
+### Step 7: Go into directory WRFV411
 
    ```
    cd /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0_debug/WRF-4.1.1
-   twoway/assemble
+   ```
+### Step 8: run the following command
+   ```
+   ./twoway/assemble
    ```
    
-  - This command will update all necessary files in WRF and CMAQ to create the twoway model. 
+  - This command will update all necessary files in WRF and CMAQ to create the WRF-CMAQ model. 
   - You can find the original files inside twoway/misc/orig directory.
   - Verify that the path for the I/O API library is set correctly in the configure.wrf file and modify if needed.
     
@@ -265,7 +291,15 @@ LIOAPI  = Linux2_x86_64gfort
  - I modified LIOAPI to Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
 
 
-### Step 8: Compile the WRF-CMAQ twoway model
+### Step 9: Edit the configure.wrf to link with the openmp library
+
+add -fopenmp to the the definition for LIB_EXTERNAL
+```
+LIB_EXTERNAL    = -L$(WRF_SRC_ROOT_DIR)/external/io_netcdf -lwrfio_nf -L/proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_debug/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/netcdf_combined/lib -lnetcdff -lnetcdf -fopenmp
+```
+
+
+### Step 10: Compile the WRF-CMAQ model
 
 ```
 ./compile em_real >& mylog
@@ -273,9 +307,9 @@ LIOAPI  = Linux2_x86_64gfort
 
   - If compilation is done successfully, you can find main/wrf.exe file.
   
-### Step 9: Download the input data
+### Step 10: Download the input data
 
-[Link to CMAQv5.3.1_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4/view?usp=sharing)
+[Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4/view?usp=sharing)
 
   - Use the gdrive command to download the dataset.
   - If this is the first time that you are using gdrive, or if you have an issue with your token, please read the following instructions
@@ -287,18 +321,18 @@ LIOAPI  = Linux2_x86_64gfort
   ```
   
     
-### Step 10: Run the WRF-CMAQ twoway model
+### Step 11: Run the WRF-CMAQ model
 
-  - Use the twoway_model_411_531_run_script_nf script and the CMAQv5.3.1 input benchmark dataset to run CMAQ-WRF with no feedback
+  - Use the twoway_model_411_531_run_script_nf script and the CMAQv5.3.2 input benchmark dataset to run CMAQ-WRF with no feedback
   - It is configured to run on 16 processors and for 2 days of model simulation
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
-  - Verify that the OMIfile definition matches the latest release of CMAQv5.3.1
+  - Verify that the OMIfile definition matches the latest release of CMAQv5.3.2
   
   Modify the following section to specify your local paths
   ```
 set ROOT_PATH   = /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0_debug/
 set WRF_DIR     = $ROOT_PATH/WRF-4.1.1  # WRF source code directory
-set INPDIR      = /proj/ie/proj/CMAS/WRF-CMAQ/from_EPA/from_gdrive/CMAQv5.3.1_Benchmark_2Day_Input/2016_12SE1
+set INPDIR      = /proj/ie/proj/CMAS/WRF-CMAQ/from_EPA/from_gdrive/CMAQv5.3.2_Benchmark_2Day_Input/2016_12SE1
 set OMIpath     = $WRF_DIR/cmaq                              # path optics related data files
 set OUTPUT_ROOT = $ROOT_PATH/WRF-4.1.1  # output root directory
 set NMLpath     = $WRF_DIR/cmaq                              # path with *.nml file mechanism dependent
@@ -317,7 +351,7 @@ set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions
     sbatch twoway_model_411_531_run_script_nf
     ```
 
-### Step 11: Verify that the run was successful
+### Step 12: Verify that the run was successful
    - look for the output directory
    
    ```
