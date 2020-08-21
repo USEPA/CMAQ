@@ -62,9 +62,8 @@ C-------------------------------------------------------------------------------
 
       Implicit None
 ! shared variables
-
-! Private variables used in this module and subroutines  
-      Real, Save, Allocatable, Private :: frac_ir( :,: ) ! irrigated fraction of ag    
+      Real, Save, Allocatable :: frac_ir( :,: ) ! irrigated fraction of ag 
+! Private variables used in this module and subroutines     
       Real, Save,              Private :: C_gam           ! Canadian fertilizer facter   
       Real, Parameter,         Private :: maxgam   = 2.0e5 ! maximum soil gamm. It is assumed that any excess NH4 would from salts
       Real, Parameter,         Private :: natgam   = 20.0  ! Background soil gamma
@@ -386,7 +385,7 @@ C-------------------------------------------------------------------------------
 !------------------------------------------------------------------------------
 ! Subroutine to get the soil and canopy compensation point for STAGE
 !------------------------------------------------------------------------------          
-         Subroutine Get_NH3_Comp( NH3_st, NH3_g, Rg, diff, r, c, l, s )
+         Subroutine Get_NH3_Comp( NH3_st, NH3_g, diff, r, c, l, s )
          
          Use UTILIO_DEFN
          Use Bidi_Mod, Only: gamma1, gamma2, MHp1, MHp2
@@ -401,7 +400,7 @@ C-------------------------------------------------------------------------------
          Real,    Intent( IN )  :: diff     ! NH3 diffusion in air m2/s
          Real,    Intent( OUT ) :: NH3_st   ! Stomatal Compensation point
          Real,    Intent( OUT ) :: NH3_g    ! ground Compensation point
-         Real,    Intent( OUT ) :: Rg       ! Soil diffusive resistance to soil water
+!         Real,    Intent( OUT ) :: Rg       ! Soil diffusive resistance to soil water
          
          Real                   :: cnh3g1, cnh3g2   ! NH3 compensation concentration for ground [ppm]
          Real                   :: mNH4         ! Soil total NH4+ mg N / Kg
@@ -464,15 +463,15 @@ C-------------------------------------------------------------------------------
          ldry_max = 0.02
 ! From Sakaguchi and Zeng 2009 JGR Equation 10
          ldry1 = ldry_max * ( Exp( ( 1.0 - wg_ir / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
-         ldry1 = min(ldry1,zsoil1)
+!         ldry1 = min(ldry1,zsoil1)
 
-         ldry2 = ( ldry_max - zsoil1 ) * ( Exp( ( 1.0 - w5cm / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
+!         ldry2 = ( ldry_max - zsoil1 ) * ( Exp( ( 1.0 - w5cm / GRID_DATA%WSAT( c,r ) ) ** 5 ) - 1.0 ) / 1.718
          
-         dp  = diff * GRID_DATA%WSAT( c,r )**2
-     &       * ( 1.0 - GRID_DATA%WRES( c,r ) / GRID_DATA%WSAT( c,r ) ) ** ( 2.0 + 3.0 / GRID_DATA%BSLP( c,r ) )         
+!         dp  = diff * GRID_DATA%WSAT( c,r )**2
+!     &       * ( 1.0 - GRID_DATA%WRES( c,r ) / GRID_DATA%WSAT( c,r ) ) ** ( 2.0 + 3.0 / GRID_DATA%BSLP( c,r ) )         
 
-         rsoil1 = ldry1 / dp
-         rsoil2 = ldry2 / dp
+!         rsoil1 = ldry1 / dp
+!         rsoil2 = ldry2 / dp
 
 !> Compute compensation point. gamma is specified according to the amount of 
 !> cultivated vegetation               
@@ -595,12 +594,12 @@ C-------------------------------------------------------------------------------
 
          If( ldry1 .Le. zsoil1 ) Then
             NH3_g = cnh3g1
-            Rg = rsoil1
+!            Rg = rsoil1
             wg = wg_ir
             zsoil = zsoil1
          Else
             NH3_g = cnh3g2
-            Rg = rsoil1 + rsoil2
+!            Rg = rsoil1 + rsoil2
             wg = w5cm
             zsoil = zsoil2
          End If

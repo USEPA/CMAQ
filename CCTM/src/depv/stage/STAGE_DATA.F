@@ -28,6 +28,12 @@ C     26 June 2014 J.Bash: initial implementation
 !      Use LSM_MOD             ! Land surface data
 
       Implicit None
+
+!      Real, Parameter :: a0         = 8.0        ! [dim'less]
+      Real, Parameter,private :: pr         = 0.709      ! [dim'less]
+      Real, Parameter,private :: twothirds  = 2.0 / 3.0
+      Real            :: sm_v1cm
+      Real            :: sm_v5cm
       
       Type :: Map_Type
          Integer                    :: n_gas_dep         ! number of gas deposited species
@@ -321,4 +327,5 @@ C     26 June 2014 J.Bash: initial implementation
 99902    Format(A16,1x,A16,10x,F6.2)
 
          End Subroutine Map_Stage
+
       End Module Stage_Data
