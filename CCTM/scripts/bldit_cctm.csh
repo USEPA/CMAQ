@@ -269,7 +269,7 @@ set make_options = "-j"                #> additional options for make command if
     # error check for overwriting an existing mechanism that can be
     # disabled using the mech_clobber variable above.
     setenv MECH_SRC ${CMAQ_REPO}/CCTM/src/${ModMech}
-    setenv TRAC_SRC ${CMAQ_REPO}/CCTM/src/MECHS/trac0
+    setenv TRAC_NML ${CMAQ_REPO}/CCTM/src/MECHS/trac0/Species_Table_TR_0.nml
     setenv MECH_OUT ${CMAQ_REPO}/CCTM/src/${ModMech}
     setenv EBI_SOLVER_OUT ${CMAQ_REPO}/CCTM/src/${ModGas}
     if ( $?clobber_mech ) then
@@ -708,6 +708,5 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
     mv $Bld/${CFG} $Bld/${CFG}.old
  endif
  mv ${CFG}.bld $Bld/${CFG}
-
 
 exit

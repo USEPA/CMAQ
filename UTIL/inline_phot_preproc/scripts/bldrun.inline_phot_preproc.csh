@@ -220,6 +220,14 @@ echo " "
 echo " "
 if( ( -e ${OUTDIR}/CSQY_DATA_${MECH} ) && -e ${OUTDIR}/PHOT_OPTICS.dat )then
   echo "CSQY_DATA_${MECH} and PHOT_OPTICS.dat files created. Check each in ${OUTDIR}"
+else if( ( -e ${OUTDIR}/CSQY_DATA_* ) && -e ${OUTDIR}/PHOT_OPTICS.dat )then
+  cd ${OUTDIR}
+  set OFILE = `/usr/bin/ls CSQY_DATA_* `
+  cd -
+  echo "CSQY_DATA_${MECH} file not created."
+  echo "HOWEVER, ${OFILE} FILE WAS CREATED."
+  echo "Try changing mechanism name in the mech_${MECH}.def file."
+  echo "Else check end of ${WORKDIR}/scripts/bldrun.log"
 else
   echo "CSQY_DATA_${MECH} and PHOT_OPTICS.dat files not created."
   echo "Check end of ${WORKDIR}/scripts/bldrun.log"
