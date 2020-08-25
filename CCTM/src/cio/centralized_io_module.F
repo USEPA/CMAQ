@@ -3860,7 +3860,7 @@ C   mminlu and num_land_cat are WRF global variables
          ! Capitalize All Family and Member Names
          DO IFAM = 1,NStreamFamilies
              CALL UPCASE( StreamFamilyName( IFAM ) )
-             DO INUM = 1,StreamFamilyNum( INUM )
+             DO INUM = 1,StreamFamilyNum( IFAM )
                  CALL UPCASE( StreamFamilyMembers( IFAM,INUM ) )
              END DO
          END DO
