@@ -17,8 +17,7 @@ The following support software are required for compiling and running CMAQ.
 2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
 2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
 3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built without netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
-4. [I/O API](http://www.cmascenter.org/ioapi) version 3.2 or later
-
+4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 2020111**
 
 The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
 
@@ -28,7 +27,7 @@ The suggested hardware requirements for running the CMAQ Southeast Benchmark cas
 
 ## Install CMAQ and Required Libraries 
 
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.1:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.2:
 
 ```
 git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
@@ -53,7 +52,7 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 
 In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 ```
-set CMAQ_HOME = /home/username/CMAQ_v5.3.1
+set CMAQ_HOME = /home/username/CMAQ_v5.3.2
 ```
 Now execute the script.
 ```
@@ -95,21 +94,22 @@ source config_cmaq.csh gcc 9.1
 
 ## Install the CMAQ input reference/benchmark data
 
-Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE531BENCH](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE532BENCH](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
-tar xvzf CMAQv5.3.1_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.3.1_Benchmark_2Day_Output.tar.gz
+tar xvzf CMAQv5.3.2_Benchmark_2Day_Input.tar.gz
+tar xvzf CMAQv5.3.2_Benchmark_2Day_Output.tar.gz
 ```
 
 The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  Input and output files for a two week case covering July 1-14, 2016 are also available within the same Google Drive folder. Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
 
 These input and output benchmark files have also been posted on the US EPA annoymous ftp server.  The benchmark data posted on the ftp server has been split into several .tar.gz files to allow for faster download times.  
-* [ftp://newftp.epa.gov/exposure/CMAQ/V5_3_1/Benchmark](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_1/Benchmark)
+* [ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark)
 
-#### A note about differences in the v5.3.1 and v5.3 benchmark data
-CMAQv5.3.1 comes with new input and output benchmark data for the July 2016 test case over the Southeast US.  The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3 coupled model on the Southeast benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3.1 files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.1 is slightly different from what was released with v5.3 as described in the [CMAQv5.3.1 Rlease Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
+#### A note about differences in the v5.3+ and v5.3 benchmark data
+Starting with CMAQv5.3.1, the benchmark data for the July 2016 test case over th Southeast US now comes with new input and output files.
+The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3+ coupled model on the Southeast US benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3+ files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.2 is slightly different from what was released with v5.3.1 and v5.3 as described in the [CMAQv5.3.2 Release Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
 
 
 
@@ -210,19 +210,19 @@ To confirm that the benchmark case ran to completion view the run.benchmark.log 
 Note: If you are running on multiple processors the log file for each processor is also moved from the $CMAQ_HOME/CCTM/scripts directory to the benchmark output directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]_Bench_2016_12SE1
+$CMAQ_DATA/output_CCTM_v532_[compiler]_Bench_2016_12SE1
 ```
 and these log files have the name convention: 
 
 ```
-CTM_LOG_[ProcessorID].v53_[compiler]_[APPL]_[YYYYMMDD]
-CTM_LOG_[ProcessorID].v53_gcc_Bench_2016_12SE1_20160701
+CTM_LOG_[ProcessorID].v532_[compiler]_[APPL]_[YYYYMMDD]
+CTM_LOG_[ProcessorID].v532_gcc_Bench_2016_12SE1_20160701
 ```
 
 The benchmark output results will have been placed in the directory: 
 
 ```
-$CMAQ_DATA/output_CCTM_v53_[compiler]_Bench_2016_12SE1
+$CMAQ_DATA/output_CCTM_v532_[compiler]_Bench_2016_12SE1
 ```
 
 and can include upto 23 netCDF-type files: ACONC, AOD_DIAG, APMDIAG, APMVIS, B3GTS_S, CGRID, CONC, DEPV, DRYDEP, DUSTEMIS, LTNGCOL, LTNGHRLY, MEDIA_CONC, PHOTDIAG1, PHOTDIAG2, PMDIAG, PMVIS, SOILOUT, SSEMIS, VDIFF, VSED, WETDEP1, and WETDEP2.
@@ -237,13 +237,13 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 ## Check the CMAQ Benchmark Results
 
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
-- Red Hat Enterprise Linux Server release 7.6 (Maipo)
-- Linux Kernel 3.10.0-957.12.2.el7.x86_64
-- GNU GCC compiler version 6.1.0, 8 processors with OpenMPIv4.0.1 and I/O APIv3.2
+- Red Hat Enterprise Linux Server release 7.8 (Maipo)
+- Linux Kernel 3.10.0-1062.12.1.el7.x86_64
+- GNU GCC compiler version 9.1.0, 8 processors with OpenMPIv4.0.1 and I/O APIv3.2
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
-- CMAQv5.3.1
+- CMAQv5.3.2
 
-The CMAQv5.3.1 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables.
+The CMAQv5.3.2 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables.
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 

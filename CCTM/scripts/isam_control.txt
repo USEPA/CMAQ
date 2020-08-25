@@ -1,34 +1,43 @@
 !!! CMAQ-ISAM tag definition control file
-!!!   (lines begining with !!! - three exclamaition marks - are ignored by the text parser)
+!!!   (lines begining with !!! - three exclamation marks - are ignored by the text parser)!!!
 !!!
-!!!   Example file provided with CMAQ v5.3 release
-!!!   05 June 2019: Sergey L. Napelenok
+!!!   Example file provided with CMAQ v5.3.2 release
+!!!   26 July 2020: Sergey L. Napelenok
 !!!
 !!!
-!!! The following line defines the tag classes to track for the simulation. Species in NITRATE and VOC classes depend on the
-!!! the chemical mechanism used. The below definitions apply for the cb6r3_ae7_aq mechanism.
-!!!   Choose any/all from the list of nine:  SULFATE, NITRATE, AMMONIUM, EC, OC, VOC, PM25_IONS, CO, OZONE 
+!!! The "TAG CLASSES" line defines the tag classes to track for the simulation. Species in NITRATE and VOC classes depend on the
+!!! the chemical mechanism used. The below definitions apply for the cb6r3_ae7_aq mechanism. These species will be tracked for
+!!! each user-defiend source.
+!!!   Choose any/all from the list of nine:  SULFATE, NITRATE, AMMONIUM, EC, OC, VOC, PM25_IONS, OZONE, CHLORINE 
 !!!   SULFATE   - ASO4J, ASO4I, SO2, SULF, SULRXN
 !!!   NITRATE   - ANO3J, ANO3I, HNO3, NO, NO2, NO3, HONO, N2O5, PNA, PAN, PANX, NTR1, NTR2, INTR, CLNO2, CLNO3
 !!!   AMMONIUM  - ANH4J, ANH4I, NH3
 !!!   EC        - AECJ, AECI
 !!!   OC        - APOCI, APOCJ, APNCOMI, APNCOMJ
-!!!   VOC       - 22 species, check CCTM/src/isam/SA_DEFN.F for species names
+!!!   VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)
 !!!   PM25_IONS - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ
-!!!   CO        - CO
-!!!   OZONE     - all NITRATE species + all VOC species
+!!!   OZONE     - O3, all NITRATE species, and all VOC species
 !!!   CHLORINE  - ACLI, ACLJ, HCL
 
 TAG CLASSES     |SULFATE, OZONE
 
-!!! The following are source definition text blocks in the format:
-!!!   TAG NAME        |Three character text string
+!!! The following are source definition text blocks in the format. Provide a 3-line block for each source you want to track.
+!!! Do not assign the same source of mass in more than 1 source definition block. 
+!!!   TAG NAME        |Three character text string (unique to each source definition)
 !!!   REGION(S)       |Keyword EVERYWHERE or variable names from the region file (multiple regions need to be comma delimited)
 !!!   FILENAME(S)     |Emissions labels (multiple labels need to be comma delimited)
-
 
 TAG NAME        |GR1
 REGION(S)       |EVERYWHERE
 EMIS STREAM(S)  |GRIDDED_EMIS
+
+!!! The below tag definition is an example of a source with an regional emissions stream.
+!!! Regions are described by netcdf files defined in the CCTM run script. They may be 
+!!! based on individual variables from those netcdf inputs or by groups of variables 
+!!! using the RegionFamilies feature. For more information, read the ISAM chapter and 
+!!! Appendix B in the Users Guide under the repository's DOCS directory.
+!!!TAG NAME        |NEG
+!!!REGION(S)       |NC
+!!!EMIS STREAM(S)  |PT_EGU
 
 ENDLIST eof 
