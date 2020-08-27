@@ -4294,13 +4294,12 @@ C   mminlu and num_land_cat are WRF global variables
 #else
 ! NOT MPAS
 !            Open the CTS, LDF, LAI, and EFS files
-             IF ( .NOT. OPEN3( MEGAN_CTS, FSREAD3, PNAME ) ) THEN
-                mesg = 'Open failure for ' // MEGAN_CTS
-                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
-             END IF
-
-             n_opened_file = n_opened_file + 1
-             f_mbiog = n_opened_file
+               IF ( .NOT. OPEN3( MEGAN_CTS, FSREAD3, PNAME ) ) THEN
+                  mesg = 'Open failure for ' // MEGAN_CTS
+                  Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+               END IF
+               n_opened_file = n_opened_file + 1
+               f_mbiog = n_opened_file
            
              IF ( .NOT. DESC3( MEGAN_CTS ) ) THEN
                 MESG = 'Could not get description of file "' //
@@ -4373,41 +4372,44 @@ C   mminlu and num_land_cat are WRF global variables
                  CALL M3EXIT ( PNAME, 0, megan_hr, mesg, XSTAT1 )
              END IF
 
-             IF ( .NOT. OPEN3( MEGAN_LAI, FSREAD3, PNAME ) ) THEN
-                mesg = 'Open failure for ' // MEGAN_LAI
-                Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
-             END IF
+             IF ( USE_MEGAN_LAI) THEN
+               IF ( .NOT. OPEN3( MEGAN_LAI, FSREAD3, PNAME ) ) THEN
+                  mesg = 'Open failure for ' // MEGAN_LAI
+                  Call M3EXIT( PNAME, 0, 0, mesg, XSTAT1 )
+               END IF
 
-             IF ( .NOT. DESC3( MEGAN_LAI ) ) THEN
-                MESG = 'Could not get description of file "' //
-     &                  TRIM( MEGAN_LAI ) // '"'
-                CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
-             END IF
+               IF ( .NOT. DESC3( MEGAN_LAI ) ) THEN
+                  MESG = 'Could not get description of file "' //
+     &                    TRIM( MEGAN_LAI ) // '"'
+                  CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT1 )
+               END IF
 
-             allocate (lai_m(ncols,nrows,nvars3d-2), stat = stat)
+
+               allocate (lai_m(ncols,nrows,nvars3d-2), stat = stat)
  
-             if (stat .ne. 0) then
-               mesg = 'Failure allocating MEGAN input arrays'
-               call m3exit (pname, 0, 0, mesg, xstat1 )
-             end if
+               if (stat .ne. 0) then
+                 mesg = 'Failure allocating MEGAN input arrays'
+                 call m3exit (pname, 0, 0, mesg, xstat1 )
+               end if
 
-             lai_m = 0.0
+               lai_m = 0.0
 
-             call subhfile( megan_lai, gxoff, gyoff, strtcol, 
-     &                     endcol, strtrow, endrow )  
+               call subhfile( megan_lai, gxoff, gyoff, strtcol, 
+     &                       endcol, strtrow, endrow )  
 
-             megan_day = sdate3d 
-             megan_hr  = stime3d
+               megan_day = sdate3d 
+               megan_hr  = stime3d
 
-             do I=1,nvars3d-2 ! lat/lon excluded
-                    WRITE( VAR, '(A3,I2.2)' ) 'LAI', I
-                    IF ( .NOT. XTRACT3( MEGAN_LAI, VAR, 
-     &                                  1, 1, strtrow, endrow, strtcol, endcol, 
-     &                                  megan_day, megan_hr, lai_m(:,:,I) ) ) THEN
-                       mesg = 'Could not extract ' // MEGAN_LAI // ' file'
-                       CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
-                    END IF
-             end do
+               do I=1,nvars3d-2 ! lat/lon excluded
+                      WRITE( VAR, '(A3,I2.2)' ) 'LAI', I
+                      IF ( .NOT. XTRACT3( MEGAN_LAI, VAR, 
+     &                                    1, 1, strtrow, endrow, strtcol, endcol, 
+     &                                    megan_day, megan_hr, lai_m(:,:,I) ) ) THEN
+                         mesg = 'Could not extract ' // MEGAN_LAI // ' file'
+                         CALL M3EXIT ( PNAME, 0, 0, mesg, XSTAT1 )
+                      END IF
+               end do
+             END IF
 
              IF ( .NOT. OPEN3( MEGAN_LDF, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // MEGAN_LDF

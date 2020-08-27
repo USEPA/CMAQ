@@ -108,7 +108,7 @@
 
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
-      LOGICAL :: IGNORE_SOILINP  = .TRUE.   ! In case you don't have prev day
+      LOGICAL :: IGNORE_SOILINP  = .FALSE.   ! In case you don't have prev day
       CHARACTER(1) :: ISAM_NEW_START = 'Y'  ! Start New Simulation. Not a Restart for ISAM
       CHARACTER(16) :: GRID_NAME = ''       ! grid name selected from GRIDDESC
       CHARACTER(16) :: PROGNAME  = 'DRIVER' ! Program name selected from GRIDDESC
