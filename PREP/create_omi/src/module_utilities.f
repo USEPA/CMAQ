@@ -34,7 +34,7 @@
 !190   continue
       close(7)
       return
-      end        
+      end subroutine get_OMI_listsize
 !***********************************************************************
 !***********************************************************************
       subroutine julian_date (year,month,day,julday,yrfrac)
