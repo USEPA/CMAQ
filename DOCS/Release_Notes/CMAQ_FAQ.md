@@ -108,11 +108,11 @@ Two updates in v5.3.1 have the potential to change model output.
 ## Do I need to update from v5.3.1 to v5.3.2?
 CMAQv5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions. See the [v5.3.2 Release Notes](README.md#summary-of-cmaqv532-updates) for a list of bug fixes and new features. See below for a description of the bug fixes that have an impact on model output.
 
-Several important updates have been made to the Integrated Source Apportionment Method (ISAM). Users of ISAM are strongly encouraged to update to v5.3.2.
+CMAQv5.3.2 includes significant updates to the CMAQ Integrated Source Apportionment Method (ISAM). The new CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.
 
 <a id=update_v531_v532></a>
 ## What do I need to do to update from v5.3.1 to v5.3.2?
-If you have already successfully migrated to v5.3 or v5.3.1, you will not need to do anything special to maintain default behavior in v5.3.2.  
+If you have already successfully migrated to v5.3 or v5.3.1, you will not need to do anything special to maintain default behavior in v5.3.2. A new benchmark dataset has been released with version 5.3.2, including reference input and output to run a test case of CMAQ-ISAM.  
 
 <a id=diff_v531_v532></a>
 ## What differences should I expect in my model results with v5.3.2 compared to v5.3.1?
