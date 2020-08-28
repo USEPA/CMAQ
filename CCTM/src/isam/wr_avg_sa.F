@@ -34,8 +34,9 @@ C-----------------------------------------------------------------------
 
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
-      USE SA_LAYERS             ! 20140428 for AISAM_BLEV, AISAM_ELEV, SA_NLAYS
+c     USE SA_LAYERS             ! 20140428 for AISAM_BLEV, AISAM_ELEV, SA_NLAYS
       USE SA_DEFN
+      USE RUNTIME_VARS
 
 !     USE SUBST_MODULES         ! stenex
 !     USE SUBST_UTIL_MODULE     ! stenex
@@ -121,6 +122,8 @@ c        END IF
 C Try to open existing file for update
 
 c        CALL SUBST_BARRIER
+
+         IF ( AISAM_ELEV .EQ. -1 ) AISAM_ELEV = NLAYS
 
          A_NLYS = AISAM_ELEV - AISAM_BLEV + 1
 
@@ -299,7 +302,7 @@ c        CALL SUBST_BARRIER
 
       END IF   ! FIRSTIME
     
-      IF ( .NOT. ALLOCATED( BUF4 ) ) ALLOCATE( BUF4( NCOLS, NROWS, AVGSA_LAYS, N_SPCTAG ) )
+      IF ( .NOT. ALLOCATED( BUF4 ) ) ALLOCATE( BUF4( NCOLS, NROWS, A_NLYS, N_SPCTAG ) )
 
     
       DO SPC = 1, N_SPCTAG
