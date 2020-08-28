@@ -12,7 +12,7 @@ particulates, toxics, and acid deposition.
 
 
 ## CMAQ version 5.3.2 Overview:
-CMAQ model version 5.3.2 is a minor update to CMAQv5.3 that includes multiple bug fixes and a few feature additions. Several important updates have been made to the Integrated Source Apportionment Method (ISAM). Users of ISAM are strongly encouraged to update to v5.3.2. 
+CMAQv5.3.2 includes (1) significant updates to the CMAQ Integrated Source Apportionment Method (ISAM) and (2) multiple minor fixes to address issues identified in CMAQv5.3.1. The new CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.
 * [CMAQv5.3.2 Release Notes](DOCS/Release_Notes/README.md)   
 * [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- Updated for v5.3.2 release.** 
 
