@@ -179,7 +179,6 @@ C ACM Local Variables
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_HONO( : )
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_NH3( : )
 
-
       CHARACTER( 16 ) :: ISAM_SPECIES
 
       INTEGER TOP, BOT
@@ -991,8 +990,8 @@ C Update ISAM Dry Deposition
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
                   IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
-                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                   - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
+                    SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                  - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
                   END IF
                END IF
             END DO
