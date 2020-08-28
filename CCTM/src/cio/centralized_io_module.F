@@ -4764,14 +4764,13 @@ C   mminlu and num_land_cat are WRF global variables
          REWIND( EMCTRL_NML )
          READ( NML = EmissionScalingRules, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. -1 ) THEN
-
-
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'EmissionScaling section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
+             ! The EM_NML Variable was completely missing
+             XMSG = 'WARNING: There were no valid Emission Scaling Rules specified '//
+     &              'for use by the DESID module. If you intended to specify '//
+     &              'rules in the emission control file, check the file you have '//
+     &              'provided for EMISSCTRL_NML.' 
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
              EM_NML%REGION = ''
              EM_NML%STREAM = ''
              EM_NML%SURR   = ''
@@ -4780,8 +4779,37 @@ C   mminlu and num_land_cat are WRF global variables
              EM_NML%OP     = ''
              EM_NML%BASIS  = ''
              EM_NML%FAC    = 0.
+
+         ELSE IF ( STAT .NE. 0 ) THEN
+             ! Read Error Detected for EM_NML
+             backspace( EMCTRL_NML )
+             read( EMCTRL_NML, fmt='(A)' ) tmpline
+             XMSG = 'WARNING: There was a syntax error reading Emission Scaling '//
+     &              'Rules for use by the DESID module. Please check the format of '//
+     &              'each line for syntax errors. The invalid line was likely: '
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                     'fix the Emission Scaling Rules', 1 )
          END IF
- 
+
+         CALL LOG_MESSAGE( LOGDEV,' ' )
+         CALL LOG_MESSAGE( LOGDEV,'Performing Basic Error Checks for Emission Scaling Rules' )
+         
+         ! Check that the operator field is correct since it has not so
+         ! many possible values.
+         DO IRULE = 1,N_EM_RULE_REG
+             IF( EM_NML( IRULE )%SPEC .EQ. '' ) EXIT
+             IF( EM_NML( IRULE )%OP .NE. 'a' .AND. EM_NML( IRULE )%OP .NE. 'A' .AND.
+     &            EM_NML( IRULE )%OP .NE. 'o' .AND. EM_NML( IRULE )%OP .NE. 'O'.AND.
+     &            EM_NML( IRULE )%OP .NE. 'm' .AND. EM_NML( IRULE )%OP .NE. 'M' ) THEN
+               WRITE( XMSG, '(A23,I4,A27,A3)'),'Emission Scaling Rule #',IRULE,
+     &              ' has a bad operator value: ',EM_NML(IRULE)%OP
+               call m3exit ( 'Read_Emiss_Namelist', 0, 0, XMSG, 1 )
+             END IF
+         ENDDO     
+
          CLOSE( UNIT = EMCTRL_NML )
 
       END SUBROUTINE READ_EMISS_NAMELIST  
