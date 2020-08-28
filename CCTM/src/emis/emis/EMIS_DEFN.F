@@ -2886,7 +2886,7 @@ C stkemis_init.
 !-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE GRID_CONF
-      USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MASK_GAS,
+      USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MASK_GAS, DIFF_MASK_NR,
      &                      DIFF_MASK_AERO, DIFF_MASK_NUM, DIFF_MASK_SRF
 
       IMPLICIT NONE
@@ -2956,6 +2956,9 @@ C stkemis_init.
              VNAME3D( V ) = DIFF_SPC( IVAR )
              IF ( DIFF_MASK_GAS( IVAR ) ) THEN
                     ! GAS SPECIES
+                    UNITS3D( V ) = 'mol s-1'
+             ELSE IF ( DIFF_MASK_NR( IVAR ) ) THEN
+                    ! NR SPECIES
                     UNITS3D( V ) = 'mol s-1'
              ELSE IF ( DIFF_MASK_NUM( IVAR ) ) THEN
                     ! AEROSOL NUMBER SPECIES

@@ -612,18 +612,20 @@ C...  that were scavenged or that participated in cloud chemistry
 #ifdef isam
                 DO SPC = 1, NSPC_SA
                   CSPC = SPC_INDEX(SPC,2)
+c                 IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09 ) THEN
                   IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
                     DO ITAG = 1, NTAG_SA
                       SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
-     &                                     * CEND( CSPC )
-     &                                     / POLC( CSPC )
+     &                                     * ( CEND( CSPC )
+     &                                       / POLC( CSPC ) )
                       SA_REMOV( SPC, ITAG ) = SA_POLC( SPC, ITAG )
-     &                                      * REMOV( CSPC )
-     &                                      / POLC( CSPC )
+     &                                      * ( REMOV( CSPC )
+     &                                        / POLC( CSPC ) )
                     END DO
-                  ELSE
+                  ELSE ! no update
                     DO ITAG = 1, NTAG_SA
-                      SA_CEND( SPC, ITAG ) = 1.0E-30
+                      SA_CEND( SPC, ITAG )  = 0.0
+                      SA_REMOV( SPC, ITAG ) = 0.0
                     END DO
                   END IF
                 END DO
@@ -668,13 +670,17 @@ C...  mimic this for the ASO4GASJ tracking species
                   DO SPC = 1, NSPC_SA ! general case
                     CSPC = SPC_INDEX(SPC,2)
                     DO ITAG = 1, NTAG_SA
+c                     IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09 ) THEN
                       IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
                         SA_CEND( SPC, ITAG ) = SA_POLC( SPC,ITAG )
-     &                                       * CEND( CSPC )
-     &                                       / POLC( CSPC )
+     &                                       * ( CEND( CSPC )
+     &                                         / POLC( CSPC ) )
                         SA_REMOV( SPC, ITAG ) = SA_POLC( SPC, ITAG )
-     &                                        * REMOV( CSPC )
-     &                                        / POLC( CSPC )
+     &                                        * ( REMOV( CSPC )
+     &                                          / POLC( CSPC ) )
+                      ELSE !
+                        SA_CEND( SPC, ITAG )  = 0.0
+                        SA_REMOV( SPC, ITAG ) = 0.0
                       END IF
                     END DO
                   END DO
@@ -711,8 +717,6 @@ c                   DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) !sulfate
           
                   END IF
 #endif
-
-
                 END IF
 
 C...convert from moles/m**2 to kg/m**2 and kg/m**2 to kg/hectare

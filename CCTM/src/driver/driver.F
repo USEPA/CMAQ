@@ -133,7 +133,7 @@ C-----------------------------------------------------------------------
       USE BIDI_MOD, Only : INIT_BIDI
 
 #ifdef isam
-      USE SA_LAYERS
+c     USE SA_LAYERS
       USE SA_DEFN
       USE PISAM_DEFN            ! SA array definition (borrowed )
 c     USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
@@ -459,7 +459,7 @@ C Miscellaneous Configuration Operations
          CALL LOG_HEADING( LOGDEV, "Configure Scenario" )
 
 #ifdef isam
-         CALL GET_SA_LAYS ()
+c        CALL GET_SA_LAYS ()
          CALL SA_DIM()
 
          N_SPCTAG = NSPC_SA * NTAG_SA
