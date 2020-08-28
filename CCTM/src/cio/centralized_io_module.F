@@ -4227,6 +4227,7 @@ C   mminlu and num_land_cat are WRF global variables
 
           use lsm_mod, only: n_lufrac, init_lsm
           USE UTILIO_DEFN, only : m3exit
+          USE RUNTIME_VARS, only: log_heading, logdev
 
 #ifdef mpas
           use hgrd_defn, only : ncols
@@ -4251,6 +4252,7 @@ C   mminlu and num_land_cat are WRF global variables
 
           if (first_time) then
              first_time = .false.
+             call log_heading( logdev, 'Opening CMAQ Input Files' )
 
 #ifdef mpas
              call gridded_files_setup
@@ -4406,6 +4408,7 @@ C   mminlu and num_land_cat are WRF global variables
       USE GRID_CONF
       USE UTILIO_DEFN
       USE em_param_module
+      USE UTIL_FAMILY_MODULE
 #ifdef mpas
       USE util_module, only : index1, upcase
 #endif
@@ -4662,6 +4665,8 @@ C   mminlu and num_land_cat are WRF global variables
 
       use em_param_module
       use RUNTIME_VARS, only : EMISSCTRL, logdev
+      use util_family_module
+      use RUNTIME_VARS, only: EMISSCTRL, logdev, log_message, log_subheading
 #ifdef mpas
       use util_module, only : junit, upcase
 #endif
@@ -4671,49 +4676,16 @@ C   mminlu and num_land_cat are WRF global variables
          ! Define Dummy Variables for Opening Emission Control Namelist
          CHARACTER( 300 ) :: EQNAME, XMSG
          INTEGER          :: EMCTRL_NML
-         INTEGER          :: STAT, IFAM, INUM
-
-         ! Define Chemical Families
-         NAMELIST / ChemicalFamilies / NChemFamilies, ChemFamilyName, 
-     &              ChemFamilyNum, ChemFamilyMembers
-
-         ! Define Stream Families
-         NAMELIST / StreamFamilies / NStreamFamilies, StreamFamilyName, 
-     &              StreamFamilyNum, StreamFamilyMembers
-
-         ! Define Region Families
-         NAMELIST / RegionFamilies / NRegionFamilies, RegionFamilyName, 
-     &              RegionFamilyNum, RegionFamilyMembers
+         INTEGER          :: STAT, IFAM, INUM, IRULE
+         CHARACTER( 200 ) :: TMPLINE
 
          ! Define Emissions Rules Input from Emissions Control Namelist
          NAMELIST / EmissionScalingRules / EM_NML
          NAMELIST / SizeDistributions    / SD_NML 
          NAMELIST / RegionsRegistry      / RGN_NML
 
-         ! ALlocate and Initialize Family Variables
-         ALLOCATE( CHEMFAMILYNAME( N_CHEM_FAMILY_REG ),
-     &             CHEMFAMILYNUM( N_CHEM_FAMILY_REG ),
-     &             CHEMFAMILYMEMBERS( N_CHEM_FAMILY_REG,N_CHEM_MEMBER_REG ) )
-         NCHEMFAMILIES = 0
-         CHEMFAMILYNAME    = ''
-         CHEMFAMILYNUM     = 0
-         CHEMFAMILYMEMBERS = ''
-
-         ALLOCATE( STREAMFAMILYNAME( N_STREAM_FAMILY_REG ),
-     &             STREAMFAMILYNUM( N_STREAM_FAMILY_REG ),
-     &             STREAMFAMILYMEMBERS( N_STREAM_FAMILY_REG,N_STREAM_MEMBER_REG ) )
-         NSTREAMFAMILIES = 0
-         STREAMFAMILYNAME    = ''
-         STREAMFAMILYNUM     = 0
-         STREAMFAMILYMEMBERS = ''
-
-         ALLOCATE( REGIONFAMILYNAME( N_REGION_FAMILY_REG ),
-     &             REGIONFAMILYNUM( N_REGION_FAMILY_REG ),
-     &             REGIONFAMILYMEMBERS( N_REGION_FAMILY_REG,N_REGION_MEMBER_REG ) )
-         NREGIONFAMILIES = 0
-         REGIONFAMILYNAME    = ''
-         REGIONFAMILYNUM     = 0
-         REGIONFAMILYMEMBERS = ''
+         CALL LOG_MESSAGE( LOGDEV, ' ' )
+         CALL LOG_SUBHEADING( LOGDEV, 'Reading Emission Control Namelist')
 
          ! Allocate and Initialize Namelist Variables
          ALLOCATE( EM_NML( N_EM_RULE_REG ) )
@@ -4726,11 +4698,13 @@ C   mminlu and num_land_cat are WRF global variables
          EM_NML%BASIS  = ''
          EM_NML%FAC    = 0.
 
+         ! Allocate and Initialize Size Distribution Namelist Variables
          ALLOCATE( SD_NML( N_SD_REG ) )
          SD_NML%STREAM   = ''
          SD_NML%MODE     = ''
          SD_NML%MODE_REF = ''
-
+ 
+         ! Allocate and Initialize Region Namelist Variables
          ALLOCATE( RGN_NML( N_REGIONS_REG ) )
          RGN_NML%LABEL = ''
          RGN_NML%FILE  = ''
@@ -4756,74 +4730,16 @@ C   mminlu and num_land_cat are WRF global variables
              CALL M3EXIT( 'READ_EMISS_NAMELIST',0,0,XMSG,1 )
          END IF
          
-         ! Read Chemical Family Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = ChemicalFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'ChemicalFamilies section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             NChemFamilies      = 0
-             ChemFamilyName     = ''
-             ChemFamilyNum      = 0
-             ChemFamilyMembers  = ''
-         END IF
-         ! Capitalize All Family and Member Names
-         DO IFAM = 1,NChemFamilies
-             CALL UPCASE( ChemFamilyName( IFAM ) )
-             DO INUM = 1,ChemFamilyNum ( IFAM )
-                 CALL UPCASE( ChemFamilyMembers( IFAM,INUM ) )
-             END DO
-         END DO
-
-         ! Read Stream Family Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = StreamFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'StreamFamilies section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             NStreamFamilies      = 0
-             StreamFamilyName     = ''
-             StreamFamilyNum      = 0
-             StreamFamilyMembers  = ''
-         END IF
-         ! Capitalize All Family and Member Names
-         DO IFAM = 1,NStreamFamilies
-             CALL UPCASE( StreamFamilyName( IFAM ) )
-             DO INUM = 1,StreamFamilyNum( INUM )
-                 CALL UPCASE( StreamFamilyMembers( IFAM,INUM ) )
-             END DO
-         END DO
- 
-         ! Read Region Family Specification Section
-         REWIND( EMCTRL_NML )
-         READ( NML = RegionFamilies, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'RegionFamilies section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
-     &              'assumed.'
-             NRegionFamilies      = 0
-             RegionFamilyName     = ''
-             RegionFamilyNum      = 0
-             RegionFamilyMembers  = ''
-         END IF
-
          ! Read the Regions Registry
          REWIND( EMCTRL_NML )
          READ( NML = RegionsRegistry, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'Regions_Registry section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
+             XMSG = 'Attention: Something went wrong while reading the ' //
+     &              'Regions_Registry section of the Emissions Control '//
+     &              'Interface. Default values for this section will be '//
      &              'assumed.'
+             CALL LOG_MESSAGE( LOGDEV,' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
              RGN_NML%LABEL = ''
              RGN_NML%FILE  = ''
              RGN_NML%VAR   = ''
@@ -4833,11 +4749,12 @@ C   mminlu and num_land_cat are WRF global variables
          REWIND( EMCTRL_NML )
          READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )
          IF ( STAT .NE. 0 ) THEN
-             WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
-     &              'Warning! Something went wrong while reading the ',
-     &              'SizeDistReg section of the Emissions Control ',
-     &              'Namelist. Default values for this section will be ',
+             XMSG = 'Attention: Something went wrong while reading the ' //
+     &              'SizeDistReg section of the Emissions Control '//
+     &              'Interface. Default values for this section will be '//
      &              'assumed.'
+             CALL LOG_MESSAGE( LOGDEV,' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
              SD_NML%STREAM   = ''
              SD_NML%MODE     = ''
              SD_NML%MODE_REF = ''
@@ -4846,6 +4763,9 @@ C   mminlu and num_land_cat are WRF global variables
          ! Read the Emissions Rules to inform scaling operations
          REWIND( EMCTRL_NML )
          READ( NML = EmissionScalingRules, UNIT = EMCTRL_NML, IOSTAT=STAT )
+         IF ( STAT .NE. -1 ) THEN
+
+
          IF ( STAT .NE. 0 ) THEN
              WRITE( LOGDEV, "(5x,A,/,5x,A,/,5x,A,/,5x,A)" ),
      &              'Warning! Something went wrong while reading the ',
