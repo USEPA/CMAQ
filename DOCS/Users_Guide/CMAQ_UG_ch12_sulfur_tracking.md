@@ -73,6 +73,6 @@ Note that several of the standard CMAQ output files (ACONC, CONC, CGRID, DDEP, a
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch11_ISAM.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch13_WRF-CMAQ.md) <br>
-CMAQ User's Guide (c) 2019<br>
+CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->

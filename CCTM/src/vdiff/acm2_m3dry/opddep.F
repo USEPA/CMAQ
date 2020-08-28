@@ -63,10 +63,6 @@ C Local variables:
       CHARACTER( 16 ) :: PNAME = 'OPDDEP'
       CHARACTER( 96 ) :: XMSG = ' '
 
-! component flux varialbes      
-      INTEGER, PARAMETER :: LCMP  = 8
-      CHARACTER( 16 ), SAVE :: CMPSPC( LCMP )
-
       INTEGER      V, N, L     ! loop induction variables
       INTEGER      STRT, FINI  ! loop induction variables
 
@@ -76,15 +72,6 @@ C Try to open existing file for update
 
       IF ( .NOT. OPEN3( CTM_DRY_DEP_1, FSRDWR3, PNAME ) ) THEN
       
-         CMPSPC( 1 ) = 'NH3_Emis'
-         CMPSPC( 2 ) = 'NH3_Dep '
-         CMPSPC( 3 ) = 'NH3_Stom'
-         CMPSPC( 4 ) = 'NH3_Cut '
-         CMPSPC( 5 ) = 'NH3_Soil'
-         CMPSPC( 6 ) = 'NH3_Ag  '
-         CMPSPC( 7 ) = 'NH3_Nat '
-         CMPSPC( 8 ) = 'NH3_Wat '
-
          XMSG = 'Could not open ' // CTM_DRY_DEP_1 // ' file for update - '
      &        // 'try to open new'
          CALL M3MESG( XMSG )
@@ -176,17 +163,17 @@ C Set output file characteristics based on COORD.EXT and open the dry dep file
 
          IF ( ABFLUX ) THEN
             VTYPE3D( V ) = M3REAL
-            VNAME3D( V ) = 'NH3_DDEP'
+            VNAME3D( V ) = 'NH3_Flux'
             UNITS3D( V ) = 'kg/hectare'
-            VDESC3D( V ) = 'hourly NH3_DryDep values'
+            VDESC3D( V ) = 'hourly bidi flux values'
   
             VTYPE3D( V+1 ) = M3REAL
-            VNAME3D( V+1 ) = 'NH3_EMIS'
+            VNAME3D( V+1 ) = 'NH3_Emis'
             UNITS3D( V+1 ) = 'kg/hectare'
-            VDESC3D( V+1 ) = 'hourly NH3_EMIS values'
+            VDESC3D( V+1 ) = 'hourly NH3_Emis values'
          END IF
 
-         FDESC3D( 1 ) = 'hourly 1-layer cross-point RADM dry deposition data'
+         FDESC3D( 1 ) = 'hourly 1-layer cross-point M3Dry dry deposition data'
          DO L = 2, MXDESC3
             FDESC3D( L ) = ' '
          END DO

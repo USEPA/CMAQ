@@ -90,7 +90,7 @@
 
       CHARACTER( 16 ),      SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
 
-!C allocate these if LTNG_FNAME = 'InLine'
+!C allocate these if LTNG_FNAME = 'INLINE'
       REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC     ( :,: ) ! surface pressure
       REAL,    ALLOCATABLE, SAVE :: LTNG_RC        ( :,: ) ! convective rainfall
 !C allocate these if LPARAM
@@ -186,7 +186,8 @@
          READ( SJDATE, '(4X, I3)' ) CJDATE
 
 !C Is lightning NO production inline, or from a file?
-         IF ( LTNG_FNAME .EQ. "InLine" ) THEN  ! inline lightning NO production
+         CALL UPCASE(LTNG_FNAME)
+         IF ( LTNG_FNAME .EQ. "INLINE" ) THEN  ! inline lightning NO production
             XMSG = 'Using in-line lightning NO production'
             CALL M3MSG2( XMSG )
 
@@ -216,7 +217,7 @@
 
 !            LT_TSTEP_F = SEC2TIME (LT_TSTEP)
 
-            SQUAREKM = REAL( ( FILE_XCELL(F_LTNG) * FILE_YCELL(F_LTNG) * 1.0D-6 ), 4 )
+            SQUAREKM = REAL( ( XCELL_GD * YCELL_GD * 1.0D-6 ), 4 )
 !C Set up vertical layers
             ALLOCATE( VGLVSLT( 0:EMLAYS ), STAT = STATUS )
             CALL CHECKMEM( STATUS, 'VGLVSLT', PNAME )
@@ -327,7 +328,7 @@
             OK = CHKGRID( LTNG_FNAME )
 
 
-         END IF   ! IF ( LTNG_FNAME .EQ. "InLine" ) inline or offline lightning NO production
+         END IF   ! IF ( LTNG_FNAME .EQ. "INLINE" ) inline or offline lightning NO production
 
          LTLYRS = EMLAYS
 
@@ -418,8 +419,9 @@ C statement function for ERF approximation
          REAL              :: X                  ! dummy argument for ERF
          ERF( X ) = SIGN( 1.0, X ) * SQRT( 1.0 - EXP( -4.0 * X * X / PI ) )
 !-----------------------------------------------------------------------
-
-         IF ( LTNG_FNAME .EQ. "InLine" ) THEN
+         
+         CALL UPCASE(LTNG_FNAME)
+         IF ( LTNG_FNAME .EQ. "INLINE" ) THEN
 !C case of inline lightning NO production
 !C initialize output array
             VDEMIS_LT = 0.0

@@ -31,11 +31,13 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 !      USE HGRD_DEFN             ! horizontal domain specifications
       USE GRID_CONF
-      USE SA_LAYERS
+c     USE SA_LAYERS
       USE SA_DEFN               ! Mc06
       USE UTILIO_DEFN           ! replaces ioparms, iofdesc, iodecl
 c     USE SUBST_MODULES         ! stenex
       USE RXNS_DATA, ONLY : MECHNAME !Get Chemical Mechanism Name
+      USE RUNTIME_VARS
+
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE)
 #else
@@ -92,6 +94,9 @@ Ckrt Create variable names for tag output
 
         LOGDEV = INIT3()
 
+        IF ( ISAM_ELEV .EQ. -1 ) ISAM_ELEV = NLAYS
+        SA_NLAYS = ISAM_ELEV - ISAM_BLEV + 1
+
         ALLOCATE( VNAME(NSPC_SA,NTAG_SA) )
         VNAME = ''
         JSPCTAG = 0
@@ -106,15 +111,15 @@ Ckrt Create variable names for tag output
                 SPECIE_NAME(N:N) = TEMP(N:N)
               ENDDO
               IF ( ITAG .EQ. BCONTAG ) THEN
-                CSUFFX = 'BCON            '
+                CSUFFX = 'BCO             '
                 CALL WR_VARNAME( SPECIE_NAME, LENGTH, NTAG_SA, NSPC_SA,
      &             CSUFFX, VNAME( JSPC,ITAG ) )
               ELSEIF ( ITAG .EQ. OTHRTAG ) THEN
-                CSUFFX = 'OTHR            '
+                CSUFFX = 'OTH             '
                 CALL WR_VARNAME( SPECIE_NAME, LENGTH, NTAG_SA, NSPC_SA,
      &             CSUFFX, VNAME( JSPC,ITAG ) )
               ELSEIF ( ITAG .EQ. ICONTAG ) THEN
-                CSUFFX = 'ICON            '
+                CSUFFX = 'ICO             '
                 CALL WR_VARNAME( SPECIE_NAME, LENGTH, NTAG_SA, NSPC_SA,
      &             CSUFFX, VNAME( JSPC,ITAG ) )
               ELSE

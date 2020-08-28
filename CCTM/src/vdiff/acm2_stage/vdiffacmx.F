@@ -179,7 +179,6 @@ C ACM Local Variables
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_HONO( : )
       INTEGER, ALLOCATABLE, SAVE :: INDEX_SA_NH3( : )
 
-
       CHARACTER( 16 ) :: ISAM_SPECIES
 
       INTEGER TOP, BOT
@@ -538,7 +537,7 @@ C-----------------------------------------------------------------------
 #ifdef isam
          SAEMIS = 0.0
 
-! modify ground emissions for bidirectional species (for bidi, PLVD > 0.0)
+! modify ground emissions for bidirectional species (for bidi, PLDV > 0.0)
          IF ( SA_BIDI ) THEN
            SA_VDEMIS_DIFF( ISAM_INDEX_NH3,1,C,R,BIDITAG )
 c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
@@ -561,16 +560,24 @@ c    &             = PLDV(PLDV_INDEX_NH3,C,R) * Grid_Data%RDX3F( 1 )
             EDDY( L ) = SEDDY( L,C,R ) * DZFI(L)
          END DO
 
-         RP = DFACP * Met_Data%RDEPVHT( C,R )
-         RQ = DFACQ * Met_Data%RDEPVHT( C,R )
+         RP  = DFACP * Met_Data%RDEPVHT( C,R )
+         RQ  = DFACQ * Met_Data%RDEPVHT( C,R )
+         POL = 0.0
          DO V = 1, N_SPC_DEPV
             DDBF( V )   = DDEP( V,C,R )
             DEPVCR( V ) = DEPV( V,C,R )
             DD_FAC( V ) = DTDENS1 * DD_CONV( V ) * DEPVCR( V )
             EFAC1 ( V ) = EXP( -DEPVCR( V ) * RP )
             EFAC2 ( V ) = EXP( -DEPVCR( V ) * RQ )
-            If(DEPVCR( V ) .Eq. 0.0) Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'plvd', PLDV( V,C,R )
-            POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )            
+            If( PLDV( V,C,R ) .Gt. 0.0 ) Then
+               If(DEPVCR( V ) .Eq. 0.0) Then
+                  Write(Logdev,*) 'Warning: A deposition velocity of 0 m/s was detected with a production term greater' 
+                  Write(Logdev,*) 'than zero. Check for DEPV_FACs less than zero in the species name list for model species:'
+                  Write(Logdev,*) DV2DF_SPC( V ), 'depvcr', DEPVCR( V ), 'pldv', PLDV( V,C,R )
+                  DEPVCR( V ) = tiny( 0.0 )
+               End If
+               POL   ( V ) = PLDV( V,C,R ) / DEPVCR( V )                        
+            End If
             IF ( ABFLUX .AND. V .EQ. NH3_HIT ) THEN
                DO I = 1, LCMP          
                   CMPF( I ) = ICMP( I,C,R )
@@ -983,8 +990,8 @@ C Update ISAM Dry Deposition
                   SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
      &                                + THBAR * DD_FAC( S ) *  SACONC( JSPCTAG,1 )
                   IF( S .NE. NO2_HIT .AND. S .NE. HNO3_HIT ) THEN
-                     SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
-     &                                   - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
+                    SA_DDBF( JSPCTAG  ) = SA_DDBF( JSPCTAG )
+     &                                  - THBAR * DTDENS1 * SAFRAC( JSPCTAG ) * DD_CONV( S ) * PLDV( S,C,R )                         
                   END IF
                END IF
             END DO
