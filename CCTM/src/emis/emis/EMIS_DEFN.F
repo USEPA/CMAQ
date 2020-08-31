@@ -272,8 +272,10 @@ C Return From Initialization
          LOGICAL         :: FIRST_TIME = .TRUE.
          INTEGER, SAVE   :: WSTEP, MDATE, MTIME
          LOGICAL         :: WRTIME
+         CHARACTER( 200 ):: XMSG
 
-
+         CALL LOG_MESSAGE( LOGDEV, 'Beginning Emissions' )
+         
          IF ( FIRST_TIME ) THEN
             FIRST_TIME = .FALSE.
 
@@ -285,6 +287,10 @@ C Return From Initialization
             ! Execute DESID Emission Processor in Diagnostic Mode
             ! for the Initial Hour of the Day (Hour 0)
             VDEMIS_EMDIAG = 0.0
+           WRITE( XMSG, '(A,I10,A,I10)' ),
+     &          'Calling Diagnostic Emissions at Date: ',MDATE,
+     &          '  and time: ',MTIME
+           CALL LOG_MESSAGE( LOGDEV, XMSG )
             CALL GET_EMIS( MDATE, MTIME, TSTEP, CGRID, .TRUE. )
          END IF
          
@@ -300,11 +306,19 @@ C Return From Initialization
 
            ! Execute DESID Emission Processor in Diagnostic Mode
            VDEMIS_EMDIAG = 0.0
+           WRITE( XMSG, '(A,I10,A,I10)' ),
+     &          'Calling Diagnostic Emissions at Date: ',MDATE,
+     &          '  and time: ',MTIME
+           CALL LOG_MESSAGE( LOGDEV, XMSG )
            CALL GET_EMIS( MDATE, MTIME, TSTEP, CGRID, .TRUE. )
 
          END IF
  
          ! Execute DESID Emission Processor in Real Mode
+           WRITE( XMSG, '(A,I10,A,I10)' ),
+     &          'Calling Real Emissions at Date: ',JDATE,
+     &          '  and time: ',JTIME
+           CALL LOG_MESSAGE( LOGDEV, XMSG )
          CALL GET_EMIS( JDATE, JTIME, TSTEP, CGRID, .FALSE. )
 
          END SUBROUTINE GET_EMIS_DRIVER
@@ -557,14 +571,15 @@ C Retrieve Emissions from All Stream Types
              CASE ( 1, 3 )
                NL = EM_GRID_LAYS( ISRM )
                CALL GRIDEMIS( JDATE, JTIME, TSTEP, EM_FILE_NAME( ISRM ), 
-     &                        NL, ISRM, VDEMIS_READ )
+     &                        NL, ISRM, VDEMIS_READ, LDIAG )
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
 
              ! Retrieve Point Source Emissions Streams
              CASE ( 2 )
                NL = 1
-               CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR( :,ISRM ), ISRM, VDEMIS_READ, NL )
+               CALL GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR( :,ISRM ), 
+     &                              ISRM, VDEMIS_READ, NL, LDIAG )
                CALL EMISS_SCALING( VDEMIS_READ, ISRM, NL, VDEMIS_SCALED )
                CALL EMISS_SIZE_DIST( ISRM, VDEMIS_SCALED, NL )
              
@@ -805,7 +820,8 @@ C Subset the emissions array for DDM-3D (by species and region)
          END SUBROUTINE GET_EMIS
 
 !-----------------------------------------------------------------------
-         SUBROUTINE GRIDEMIS ( JDATE, JTIME, TSTEP, EMIS_FNAME, FILE_LAYS, FSTREAM, VDEMIS )
+         SUBROUTINE GRIDEMIS ( JDATE, JTIME, TSTEP, EMIS_FNAME, FILE_LAYS, 
+     &                         FSTREAM, VDEMIS, LDIAG )
 
          USE CGRID_SPCS          ! CGRID mechanism species
          USE UTILIO_DEFN
@@ -837,6 +853,7 @@ C Subset the emissions array for DDM-3D (by species and region)
          CHARACTER( 200 ) :: XMSG = ' '
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
          INTEGER, ALLOCATABLE, SAVE :: LOC_STDATE(:)
+         LOGICAL         :: LDIAG
 
 C-----------------------------------------------------------------------
 
@@ -852,7 +869,7 @@ C-----------------------------------------------------------------------
          END IF    !FirstTime
  
 C Ensure that the model and emissions timestamp dates stay synchronized
-         IF (LOC_STDATE(FSTREAM) .NE. JDATE ) THEN
+         IF (LOC_STDATE(FSTREAM) .NE. JDATE ) THEN !.AND. .NOT.LDIAG ) THEN
             NDATE = JDATE; NTIME = JTIME
             CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
             CALL NEXTIME( EM_FILE_DATE( FSTREAM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step

@@ -518,7 +518,7 @@ C If wildfires, allocate fire parameters
 C=======================================================================
 
          SUBROUTINE GET_PT3D_EMIS ( JDATE, JTIME, TSTEP, EM_SURR_PT, ISRM,
-     &                            VDEMIS_PT, PT_LAYS )
+     &                            VDEMIS_PT, PT_LAYS, LDIAG )
 
 ! Revision History.
 !     Aug 12, 15 D. Wong: added code to handle parallel I/O implementation
@@ -580,6 +580,7 @@ C=======================================================================
          LOGICAL, SAVE :: WRTIME
          INTEGER, SAVE :: NTICS = 0      ! no. of substeps within an output tstep
          LOGICAL, SAVE :: FIRSTIME = .TRUE.
+         LOGICAL       :: LDIAG
 
          INTEGER       :: NDATE, NTIME
          INTEGER, ALLOCATABLE, SAVE :: PRE_EM_FILE_DATE(:)
@@ -679,12 +680,18 @@ C Initialize Output Array
          END IF
 
 C Ensure that the model and stack groups emissions timestamp dates stay synchronized
-         IF ( PRE_EM_FILE_DATE(ISRM) .NE. JDATE ) THEN
+         WRITE( LOGDEV, * ),'Before Stack emissions date:',PRE_EM_FILE_DATE(ISRM),
+     &                      ' NTIME: ',NTIME,'NDATE: ',NDATE,' JDATE:',
+     &                      JDATE,' JTIME: ',JTIME,' EM_FILE_DATE:',EM_FILE_DATE( ISRM )
+         IF ( PRE_EM_FILE_DATE(ISRM) .NE. JDATE ) THEN !.AND. .NOT.LDIAG ) THEN
             NDATE = JDATE; NTIME = JTIME
             CALL NEXTIME( NDATE, NTIME, -TSTEP( 1 ) )       ! go back one output tstep
             CALL NEXTIME( EM_FILE_DATE( ISRM ), NTIME, TSTEP( 1 ) ) ! advance the start date one time step
             PRE_EM_FILE_DATE(ISRM) = JDATE
          END IF
+         WRITE( LOGDEV, * ),'Stack emissions date:',PRE_EM_FILE_DATE(ISRM),
+     &                      ' NTIME: ',NTIME,'NDATE: ',NDATE,' JDATE:',
+     &                      JDATE,' JTIME: ',JTIME,' EM_FILE_DATE:',EM_FILE_DATE( ISRM )
 
 C Allocate Array to Store the Layer Heights of All Stacks (i.e. sources)
 C from this Point Group (i.e. ptgrp)
