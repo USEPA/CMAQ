@@ -429,6 +429,117 @@ C Calcuate Canopy Covered Soil Resistance Nemitz et al 2000 https://doi.org/10.1
             rgdry  = rg0 * a0 / Rx
             Rg = no_snow * ( 1.0/ ( dry / rgdry + wet / rwet ) ) + snow * Rsnow  
          End If
-
          End Function Calc_Rg
+!-------------------------------------------------------------------------------------------------
+! Aerosol surface resistance for vegitative surfaces
+!-------------------------------------------------------------------------------------------------
+         Pure Function RD_Veg(Vghat, ustar, utscale, SC,l_width, lai) Result( RD )
+                  
+         Implicit None
+
+         Include SUBST_CONST     ! constants
+
+         Real, Intent( IN ) :: Vghat
+         Real, Intent( IN ) :: ustar
+         Real, Intent( IN ) :: utscale
+         Real, Intent( IN ) :: SC
+         Real, Intent( IN ) :: l_width
+         Real, Intent( IN ) :: lai
+         Real               :: RD
+         Real               :: V_fac
+         Real               :: ST
+         Real               :: EIM
+         Real               :: EIB
+
+         V_fac   = max( lai, 1.0 )
+         ST      = Vghat * ustar / ( GRAV * l_width )
+         EIB     = Calc_EIB( SC )
+         EIM     = EIM_Veg( ST )
+         RD      = 1.0 / ( V_fac * utscale * ( EIB + EIM ) )
+
+         End Function RD_Veg
+!-------------------------------------------------------------------------------------------------
+! Aerosol surface resistance for water and bare soil surfaces
+!-------------------------------------------------------------------------------------------------
+         Pure Function RD_Smooth(Vghat, ustar, utscale, SC, nu ) Result( RD )
+                  
+         Implicit None
+
+         Include SUBST_CONST     ! constants
+
+         Real, Intent( IN ) :: Vghat
+         Real, Intent( IN ) :: ustar
+         Real, Intent( IN ) :: utscale
+         Real, Intent( IN ) :: SC
+         Real, Intent( IN ) :: nu
+         Real               :: RD
+         Real               :: ST
+         Real               :: EIM
+         Real               :: EIB
+
+         ST      = Vghat * ustar**2 / ( GRAV * nu )
+         EIB     = Calc_EIB( SC )
+         EIM     = EIM_Smooth( ST )
+         RD      = 1.0 / ( utscale * ( EIB + EIM ) )
+
+         End Function RD_Smooth
+!-------------------------------------------------------------------------------------------------
+! Aerosol Deposition Velocity
+!-------------------------------------------------------------------------------------------------
+         Pure Function aero_depv(veg, RD_Veg, Rd_Smooth, Ra, Vghat ) Result( depv )
+                  
+         Implicit None
+
+         Real, Intent( IN ) :: veg
+         Real, Intent( IN ) :: RD_Veg
+         Real, Intent( IN ) :: RD_Smooth
+         Real, Intent( IN ) :: Ra
+         Real, Intent( IN ) :: Vghat
+         Real               :: depv
+
+         depv = veg   * Vghat / ( 1.0 - EXP( -Vghat * ( Ra + RD_Veg ) ) ) + 
+     &                          ( 1.0 - veg ) * Vghat / ( 1.0 - EXP( -Vghat * ( Ra + RD_Smooth ) ) )
+
+         End Function aero_depv
+!-------------------------------------------------------------------------------------------------
+! Brownian Diffusion Collection Efficiency
+!-------------------------------------------------------------------------------------------------
+         Pure Function Calc_EIB( SC ) Result( EIB )
+
+         Implicit None
+
+         Real, Intent( IN ) :: SC
+         Real               :: EIB
+
+         EIB = SC ** (-twothirds)
+
+         End Function Calc_EIB
+!-------------------------------------------------------------------------------------------------
+! Impaction Collection Efficiency for vegetation following Slinn 1982
+!-------------------------------------------------------------------------------------------------
+         Pure Function EIM_Veg( ST ) Result( EIM )
+
+         Implicit None
+
+         Real, Intent( IN ) :: ST
+         Real               :: EIM
+
+         EIM     = ST**2 / ( 1.0 + ST**2 ) ! Slinn 1982 equation 28           
+
+         End Function EIM_Veg
+!-------------------------------------------------------------------------------------------------
+! Impaction Collection Efficiency for water and soil surfaces following Giorgi 1986
+!-------------------------------------------------------------------------------------------------
+         Pure Function EIM_Smooth( ST ) Result( EIM )
+
+         Implicit None
+
+         Real, Intent( IN ) :: ST
+         Real               :: EIM
+
+         EIM     = ST**2 / ( 400.0 + ST**2 ) ! Giorgi 1986 Equation 17     
+
+         End Function EIM_Smooth
+
+
       End Module Resist_Funcs

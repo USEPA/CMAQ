@@ -721,6 +721,7 @@ C-----------------------------------------------------------------------
          USE GRID_CONF           ! horizontal & vertical domain specifications
          USE RXNS_DATA           ! chemical mechanism data
          Use MOSAIC_MOD, Only: Tile_Data 
+         Use Resist_Funcs, Only: RD_Veg, RD_Smooth, Aero_Depv
 
          IMPLICIT NONE
 
@@ -784,8 +785,6 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
          REAL SC0                   ! Schmidt numbers for number
          REAL SC2                   ! Schmidt numbers for 2ND MOMENT
          REAL SC3                   ! Schmidt numbers for 3rd moment
-         REAL ST_VEG                ! Stokes numbers for vegetation 
-         REAL ST_SMOOTH             ! Stokes numbers for each mode following Pleim
          REAL RD0_VEG,RD0_SMOOTH    ! canopy resistance for number
          REAL RD2_VEG,RD2_SMOOTH    ! canopy resistance for 2nd moment
          REAL RD3_VEG,RD3_SMOOTH    ! canopy resisteance for 3rd moment
@@ -794,13 +793,11 @@ C modal sedimentation velocities for number, 2nd, and 3rd moment, or mass:
          REAL TWOXLM                ! 2 X atmospheric mean free path
          REAL Ra, Ustar, Wstar, lai ! Land use specific environmental variables
          REAL Lu_frac, Veg          ! Land use and vegetation coverage fraction
-         REAL V_fac                 ! Vegetation factor for deposition 
 
 C Parameters
          REAL, PARAMETER :: BHAT    = 1.246   ! Constant from Cunningham slip correction
          REAL, PARAMETER :: T0      = 288.15  ! [ K ] ! starting standard surface temp.
          REAL, PARAMETER :: THREEPI = 3.0 * PI
-         REAL, PARAMETER :: TWO3    = 2.0 / 3.0
 
 C Scalar variables for VARIABLE standard deviations.
 
@@ -821,7 +818,7 @@ C Scalar variables for VARIABLE standard deviations.
          REAL    ESM16               !        " **(-16)
          REAL    ESM20               !        " **(-20)
          REAL    ESM32               !        " **(-32)
-         REAL    EIM_VEG, EIM_SMOOTH ! Impaction efficiency
+!         REAL    EIM_VEG, EIM_SMOOTH ! Impaction efficiency
 
 C-----------------------------------------------------------------------
 
@@ -921,48 +918,27 @@ C ***    Land use paramters
 C now calculate the deposition velocities
                UTSCALE = Ustar + 0.24 * Wstar**2 / Ustar
 
-C Estimate the vegetation deposition parameters for the 0th, 2nd, and 3rd moments
-               IF( veg .gt. 0.0 ) THEN ! EIM_Veg following Slinn 1982 equation 28
-                  V_fac   = max( lai, 1.0 )
-                  ST_VEG  = VGHAT0 * Ustar / ( GRAV * l_aero( l ) )
-                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28           
-                  RD0_Veg = 1.0 / ( V_fac * UTSCALE * ( SC0 ** ( -TWO3 ) + EIM_Veg ) )
+C get surace resistance for smooth and vegetative surfaces
+               If(lai .Gt. 0.0 ) Then
+                  RD0_Veg    = RD_Veg(   VGHAT0, Ustar, UTSCALE, SC0,l_aero( l ), lai)
+                  RD2_Veg    = RD_Veg(   VGHAT2, Ustar, UTSCALE, SC2,l_aero( l ), lai)
+                  RD3_Veg    = RD_Veg(   VGHAT3, Ustar, UTSCALE, SC3,l_aero( l ), lai)
+               End If
+               
+               RD0_SMOOTH = RD_Smooth(VGHAT0, Ustar, UTSCALE, SC0, NU )
+               RD2_SMOOTH = RD_Smooth(VGHAT2, Ustar, UTSCALE, SC2, NU )
+               RD3_SMOOTH = RD_Smooth(VGHAT3, Ustar, UTSCALE, SC3, NU )
 
-                  ST_VEG  = VGHAT2 * Ustar / ( GRAV * l_aero( l ) )
-                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28           
-                  RD2_Veg = 1.0 / ( V_fac * UTSCALE * ( SC2 ** ( -TWO3 ) + EIM_Veg ) )
-
-                  ST_VEG  = VGHAT3 * Ustar / ( GRAV * l_aero( l ) ) 
-                  EIM_Veg = ST_VEG**2 / ( 1.0 + ST_VEG**2 ) ! Slinn 1982 equation 28             
-                  RD3_Veg = 1.0 / ( V_fac * UTSCALE * ( SC3 ** ( -TWO3 ) + EIM_Veg ) )
-               END IF
-C EIM_SMOOTH following Giorgi 1986 Equation 17
-               ST_SMOOTH  = VGHAT0 * Ustar**2 / ( GRAV * NU )
-               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17  
-               RD0_SMOOTH = 1.0 / ( UTSCALE * ( SC0 ** ( -TWO3 ) + EIM_SMOOTH ) )
-
-               ST_SMOOTH  = VGHAT2 * Ustar**2 / ( GRAV * NU )
-               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17
-               RD2_SMOOTH = 1.0 / ( UTSCALE * ( SC2 ** ( -TWO3 ) + EIM_SMOOTH ) )
-
-               ST_SMOOTH  = VGHAT3 * Ustar**2 / ( GRAV * NU )
-               EIM_SMOOTH = ST_SMOOTH**2 / ( 400.0 + ST_SMOOTH**2 )   ! Giorgi 1986 Equation 17
-               RD3_SMOOTH = 1.0 / ( UTSCALE * ( SC3 ** ( -TWO3 ) + EIM_SMOOTH ) )
 C Parallel conductances are additive. Thus, the vegetated and non-vegetated deposition velocities are added. 
-C first do 0th moment for the deposition of number
-               VDEPJ( L,VDN( IM ) ) = veg   * VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Ra + RD0_Veg ) ) ) + 
-     &                        ( 1.0 - veg ) * VGHAT0 / ( 1.0 - EXP( -VGHAT0 * ( Ra + RD0_Smooth ) ) )
-               VDEP( VDN( IM ) ) =  VDEP( VDN( IM ) ) + Lu_Frac * VDEPJ( L,VDN( IM ) )
+C first do 0th moment (number), second do 2nd moment (surface area), third do 3rd moment (mass)
+               VDEPJ( L,VDN( IM ) ) = aero_depv(veg, RD0_Veg, RD0_Smooth, Ra, VGHAT0 ) ! Nubmer
+               VDEPJ( L,VDS( IM ) ) = aero_depv(veg, RD2_Veg, RD2_Smooth, Ra, VGHAT2 ) ! Surface area
+               VDEPJ( L,VDM( IM ) ) = aero_depv(veg, RD3_Veg, RD3_Smooth, Ra, VGHAT3 ) ! Mass
 
-C now do 2nd moment for the deposition of surface area
-               VDEPJ( L,VDS( IM ) ) = veg   * VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Ra + RD2_Veg ) ) ) + 
-     &                        ( 1.0 - veg ) * VGHAT2 / ( 1.0 - EXP( -VGHAT2 * ( Ra + RD2_Smooth ) ) )
-               VDEP( VDS( IM ) ) =  VDEP( VDS( IM ) ) + Lu_Frac * VDEPJ( L,VDS( IM ) )
-
-C now do 3rd moment for the deposition of mass
-               VDEPJ( L,VDM( IM ) ) = veg   * VGHAT3 / ( 1.0 - EXP( -VGHAT3 * ( Ra + RD3_Veg ) ) ) + 
-     &                        ( 1.0 - veg ) * VGHAT3 / ( 1.0 - EXP( -VGHAT3 * ( Ra + RD3_Smooth ) ) )
-               VDEP( VDM( IM ) ) =  VDEP( VDM( IM ) ) + Lu_Frac * VDEPJ( L,VDM( IM ) )
+C now integrate to the aera weighted grid cell
+               VDEP( VDN( IM ) )    =  VDEP( VDN( IM ) ) + Lu_Frac * VDEPJ( L,VDN( IM ) ) ! Number
+               VDEP( VDS( IM ) )    =  VDEP( VDS( IM ) ) + Lu_Frac * VDEPJ( L,VDS( IM ) ) ! Surface area
+               VDEP( VDM( IM ) )    =  VDEP( VDM( IM ) ) + Lu_Frac * VDEPJ( L,VDM( IM ) ) ! Mass
 
             END DO lu_loop ! n_lufrac
          END DO ! aerosol mode
@@ -981,7 +957,5 @@ C Return dry deposition velocities for aerosols (first layer only).
                     
          Return
          END SUBROUTINE AERO_X
-!--------------------------------------------------------------------------------------------------
-! ------------------------------ STAGE functions --------------------------------------------------
-!--------------------------------------------------------------------------------------------------
+
       END MODULE STAGE_MOD
