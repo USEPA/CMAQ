@@ -33,6 +33,7 @@ C   01 Feb 19: D. Wong: Implemented centralized I/O approach
 C   15 May 19: D. Wong: Replaced MGEM with USE_MARINE_GAS_EMISSION which is set in RUNTIME_VARS.F
 C   16 May 19: D. Wong: * Removed initialization of OCEAN, SZONE, CHLR, and DMSL. 
 C                       * Used LON directly to save space.
+C   04 Sep 20: G. Sarwar* Fixed bug for Kw
 
       USE RUNTIME_VARS
       USE HGRD_DEFN
@@ -491,7 +492,8 @@ C.. calculate iodide in water
 
 !..    Calculate water-side DMS gas-transfer velocity following Liss and Merlivat,  1986 (unit - cm/hr)
        IF ( WSPD10 .LE. 3.6 ) THEN 
-          KW = 0.17 * WSPD10 / SQRT(SCN / 600.0)
+!         KW = 0.17 * WSPD10 / SQRT(SCN / 600.0)
+          KW = 0.17 * WSPD10 / ( (SCN / 600.0)**0.667 )
         ELSE IF ( WSPD10 .GT. 3.6 .AND. WSPD10 .LE. 13.0 ) THEN
           KW = ( 2.85 * WSPD10 - 9.65 ) / SQRT(SCN / 600.0)
         ELSE IF ( WSPD10 .GT. 13.0) THEN
