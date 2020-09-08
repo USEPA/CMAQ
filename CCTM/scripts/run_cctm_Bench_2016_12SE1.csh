@@ -21,7 +21,7 @@ echo 'Start Model Run At ' `date`
 #> Choose compiler and set up CMAQ environment with correct 
 #> libraries using config.cmaq. Options: intel | gcc | pgi
  if ( ! $?compiler ) then
-   setenv compiler intel
+   setenv compiler gcc
  endif
  if ( ! $?compilerVrsn ) then
    setenv compilerVrsn Empty
@@ -33,7 +33,7 @@ echo 'Start Model Run At ' `date`
  cd CCTM/scripts
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN      = v532              #> Code Version
+ set VRSN      = v532_ISAM         #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
  set APPL      = Bench_2016_12SE1  #> Application Name (e.g. Gridname)
@@ -54,7 +54,7 @@ echo 'Start Model Run At ' `date`
 #> Set Working, Input, and Output Directories
  setenv WORKDIR ${CMAQ_HOME}/CCTM/scripts          #> Working Directory. Where the runscript is.
  setenv OUTDIR  ${CMAQ_DATA}/output_CCTM_${RUNID}  #> Output Directory
- setenv INPDIR  /work/MOD3DATA/2016_12SE1          #Input Directory
+ setenv INPDIR  ${CMAQ_DATA}/2016_12SE1          #Input Directory
  setenv LOGDIR  ${OUTDIR}/LOGS     #> Log Directory Location
  setenv NMLpath ${BLD}             #> Location of Namelists. Common places are: 
                                    #>   ${WORKDIR} | ${CCTM_SRC}/MECHS/${MECH} | ${BLD}
@@ -73,7 +73,7 @@ echo 'Start Model Run At ' `date`
 #> Set Start and End Days for looping
  setenv NEW_START TRUE             #> Set to FALSE for model restart
  set START_DATE = "2016-07-01"     #> beginning date (July 1, 2016)
- set END_DATE   = "2016-07-01"     #> ending date    (July 14, 2016)
+ set END_DATE   = "2016-07-02"     #> ending date    (July 14, 2016)
 
 #> Set Timestepping Parameters
 set STTIME     = 000000            #> beginning GMT time (HHMMSS)
@@ -84,7 +84,7 @@ set TSTEP      = 010000            #> output time step interval (HHMMSS)
 if ( $PROC == serial ) then
    setenv NPCOL_NPROW "1 1"; set NPROCS   = 1 # single processor setting
 else
-   @ NPCOL  =  8; @ NPROW =  4
+   @ NPCOL  =  4; @ NPROW =  4
    @ NPROCS = $NPCOL * $NPROW
    setenv NPCOL_NPROW "$NPCOL $NPROW"; 
 endif
@@ -445,7 +445,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   endif
 
 #> Integrated Source Apportionment Method (ISAM) Options
- setenv CTM_ISAM N
+ setenv CTM_ISAM Y
  if ( $?CTM_ISAM ) then
     if ( $CTM_ISAM == 'Y' || $CTM_ISAM == 'T' ) then
        setenv SA_IOLIST ${WORKDIR}/isam_control.txt
@@ -469,7 +469,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
 
        #> Set optional ISAM regions files
-#      setenv ISAM_REGIONS /work/MOD3EVAL/nsu/isam_v53/CCTM/scripts/input/RGN_ISAM.nc
+       setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
 
     endif
  endif
@@ -513,8 +513,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
  setenv CTM_SWETDEP_1   "$OUTDIR/CCTM_SENWDEP_${CTM_APPL}.nc -v"
  setenv CTM_SDRYDEP_1   "$OUTDIR/CCTM_SENDDEP_${CTM_APPL}.nc -v"
  setenv CTM_NPMAX       $NPMAX
+    if ( $?CTM_DDM3D ) then
+       if ( $CTM_DDM3D == 'Y' || $CTM_DDM3D == 'T' ) then 
  setenv INIT_SENS_1     $S_ICpath/$S_ICfile
  setenv BNDY_SENS_1     $S_BCpath/$S_BCfile
+       endif
+    endif
  
 # =====================================================================
 #> Output Files
