@@ -6,7 +6,7 @@
 
 
 ! --------- Photochemical Mechanism Reactions, Rates, etc. DAT ---------
-! Source file: ../input/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
+! Source file: /home/gsarwar/util/MP/MECHS/cb6r3m_ae7_kmtbr/mech_cb6r3m_ae7_kmtbr.def
 ! for Mechanism Name: CB6R3M_AE7_KMTBR                
 
 ! This file is used to create mechanism data and functions
@@ -1701,7 +1701,7 @@
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! O   
      &      0,  166,    0,    0,    0,    0,    0,    0,    0,    0, & ! 1   
      &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 2   
-     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    8, & ! 3   
+     &      0,    0,    0,    0,    0,    0,    0,    0,    0,    0, & ! 3   
      &     27,   93,   89/     !  4   
 
       DATA ( IRR( IRXXN,  8 ), IRXXN = 1, NRXNS ) / & 
@@ -2856,7 +2856,7 @@
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 2   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! 3   
-     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 1.0000D+00, & ! +   
+     &     0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, 0.0000D+00, & ! +   
      &     1.0000D+00, 4.5000D-01, 1.0000D+00/           !        4   
 
       DATA ( SC( IRXXN,  5 ), IRXXN = 1, NRXNS ) / & 
@@ -3863,7 +3863,7 @@
      &      2,    3,    1,    2,    1,    2,    2,    1,    1,    1, & ! O   
      &      2,    4,    1,    2,    2,    1,    2,    2,    2,    2, & ! 1   
      &      2,    1,    2,    2,    2,    2,    3,    3,    0,    0, & ! 2   
-     &      0,    2,    2,    2,    2,    1,    1,    0,    3,    4, & ! 3   
+     &      0,    2,    2,    2,    2,    1,    1,    0,    3,    3, & ! 3   
      &      4,    6,    4/     !  4   
 
       INTEGER, PARAMETER :: MHETERO =  31

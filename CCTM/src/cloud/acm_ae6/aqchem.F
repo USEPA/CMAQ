@@ -117,6 +117,7 @@ C                       introducing extra mass when the coarse mode concentratio
 C                       the total amount left in the aqueous phase after redistribution between the 
 C                       phases. 
 C   26 Nov 18 S.Napelenok: ISAM implementation
+C   31 Dec 19 S.Napelenok: DDM-3D implementation for version 5.3.1
 
 C
 C  References:
@@ -159,6 +160,12 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
 #ifdef isam
       USE SA_DEFN, ONLY: DEPSUM_SAVE, DS4_SAVE, REMOV_SAVE
+#endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, S_POLC, S_CEND, S_REMOV,
+     &                       S_REMOVAC, S_HPWDEP, S_GAS, S_GASWDEP,
+     &                       S_AEROSOL, S_AERWDEP, IHIGH, IPT
 #endif
 
       IMPLICIT NONE
@@ -476,6 +483,12 @@ C...........External Functions:
       REAL( 8 ) :: HGFINE           ! mercury PM acc+akn aerosol in cloudwater (mol/liter)
       REAL( 8 ) :: HGCOR            ! mercury PM coarse aerosol in cloudwater (mol/liter)
 
+
+#ifdef sens
+      INCLUDE 'AQCHEM_DDM3D.EXT'   ! ddm-3d variables 
+#endif
+
+
 C*********************************************************************
 
 C...Initialization
@@ -623,6 +636,19 @@ C...make initializations
       DORGC  = 0.0D0
 !     DOH1   = 0.0
 
+#ifdef sens 
+      S_WETDEP = 0.0D0
+      S_LOADING = 0.0D0
+      S_INITGAS = 0.0D0
+
+      S_DSIVDT = 0.0D0
+      S_DS4    = 0.0D0
+
+      S_DGLY1  = 0.0D0
+      S_DMGLY1 = 0.0D0
+      S_DORGC  = 0.0D0
+#endif
+
 C...compute fractional weights for several species
 
       TOTNIT = GAS( LHNO3 ) + AEROSOL( LNO3, ACC )
@@ -663,6 +689,30 @@ C...compute fractional weights for several species
       ELSE
          FCLCOR = 0.0D0
       END IF
+
+#ifdef sens
+      DO NP = 1, NPMAX
+
+        S_TOTNIT( NP ) = S_GAS( NP, LHNO3 ) + S_AEROSOL( NP, LNO3, ACC )
+        IF ( S_TOTNIT( NP ) .NE. 0.0D0 ) THEN
+          S_FHNO3( NP )   = S_GAS( NP,LHNO3 ) / S_TOTNIT( NP )
+          S_FNO3ACC( NP ) = S_AEROSOL( NP,LNO3, ACC ) / S_TOTNIT( NP )
+        ELSE
+          S_FHNO3( NP )   = 1.0D0
+          S_FNO3ACC( NP ) = 0.0D0
+        END IF
+
+        S_TOTAMM( NP ) = S_GAS( NP, LNH3 ) + S_AEROSOL( NP, LNH4, ACC )
+        IF ( S_TOTAMM( NP ) .NE. 0.0D0 ) THEN
+          S_FNH3( NP )    = S_GAS( NP, LNH3 ) / S_TOTAMM( NP )
+          S_FNH4ACC( NP ) = S_AEROSOL( NP, LNH4, ACC ) / S_TOTAMM( NP )
+        ELSE
+          S_FNH3( NP )    = 1.0D0
+          S_FNH4ACC( NP ) = 0.0D0
+        END IF
+
+      END DO
+#endif
       
 C...Assign fraction partitioning of FE(III) and MN(II)
 
@@ -689,6 +739,15 @@ C...  aerosol mass in incorporated into the cloud droplets
 
       LOADING( LSO4, ACC ) = ( AEROSOL( LSO4, ACC ) + GAS( LH2SO4 ) ) * PRES_ATM_OVER_XL
 
+#ifdef sens
+      DO NP = 1, NPMAX
+        DO ISPC = 1, NAER
+           S_LOADING( NP,ISPC, ACC ) = S_AEROSOL( NP,ISPC, ACC ) * PRES_ATM_OVER_XL
+        END DO
+        S_LOADING( NP,LSO4, ACC ) = ( S_AEROSOL( NP,LSO4, ACC ) + S_GAS( NP,LH2SO4 ) ) * PRES_ATM_OVER_XL
+      END DO
+#endif
+
 C...initial concentration from coarse-mode aerosol loading (mol/liter)
 C...  an assumption is made that all of the coarse-mode
 C...  aerosol mass in incorporated into the cloud droplets
@@ -699,6 +758,14 @@ C...  aerosol mass in incorporated into the cloud droplets
 
 !     LOADING( LCACO3, COR ) = ( AEROSOL( LCACO3, COR ) + AEROSOL( LMGCO3, COR ) )
 !    &                       * PRES_ATM_OVER_XL
+
+#ifdef sens
+      DO NP = 1, NPMAX
+        DO ISPC = 1, NAER
+          S_LOADING( NP, ISPC, COR ) = S_AEROSOL( NP,ISPC, COR ) * PRES_ATM_OVER_XL
+        END DO
+      END DO
+#endif
 
 C...set constant factors that will be used in later multiplications (moles/atm)
 
@@ -740,6 +807,14 @@ C...set aitken-mode aerosol loading (mol/liter)
           LOADING( ISPC, AKN ) = AEROSOL( ISPC, AKN ) * SCAVENGED
         END DO
 
+#ifdef sens
+        DO NP = 1, NPMAX
+          DO ISPC = 1, NAER
+            S_LOADING( NP, ISPC, AKN ) = S_AEROSOL( NP, ISPC, AKN ) * SCAVENGED
+          END DO
+        END DO
+#endif
+
 C...Initial gas phase partial pressures (atm)
 C...   = initial partial pressure - amount deposited partial pressure
 
@@ -773,6 +848,38 @@ C...   = initial partial pressure - amount deposited partial pressure
         INITGAS( LHO )   = GAS( LHO ) * PRES_ATM
 !steadystate     &                   + DOH1 * XL
 !steadystate     &                   - WETDEP( LOHL ) * XC2
+
+#ifdef sens
+        DO NP = 1, NPMAX
+          S_INITGAS( NP, LSO2 )  = S_GAS( NP, LSO2  ) * PRES_ATM
+     &                           + S_DS4( NP, 0 ) * XL
+     &                           - ( S_WETDEP( NP, LSO3L ) + S_WETDEP( NP, LHSO3L ) + S_WETDEP( NP, LSO2L ) ) * XC2
+          S_INITGAS( NP, LNH3 )  = S_GAS( NP,LNH3  ) * PRES_ATM
+     &              + ( S_LOADING( NP, LNH4, ACC ) + S_LOADING( NP, LNH4, COR ) + S_LOADING( NP, LNH4, AKN ) ) * XL
+     &              - ( S_WETDEP( NP, LNH4ACCL ) + S_WETDEP( NP, LNH3L ) + S_WETDEP( NP, LNH4CORL ) ) * XC2
+          S_INITGAS( NP, LHNO3 ) = ( S_GAS( NP, LHNO3 ) + 2.0 * S_GAS( NP, LN2O5 ) ) * PRES_ATM
+     &              + ( S_LOADING( NP, LNO3, ACC ) + S_LOADING( NP, LNO3, COR ) + S_LOADING( NP, LNO3, AKN ) ) * XL
+     &              - ( S_WETDEP( NP, LNO3ACCL ) + S_WETDEP( NP, LHNO3L ) + S_WETDEP( NP, LNO3CORL ) ) * XC2
+          S_INITGAS( NP, LHCL )  = S_GAS(  NP, LHCL ) * PRES_ATM
+     &              + ( S_LOADING( NP, LCL, ACC ) + S_LOADING( NP, LCL, COR ) + S_LOADING( NP, LCL, AKN ) ) * XL ! new for sea salt
+     &              - ( S_WETDEP( NP, LCLACCL ) + S_WETDEP( NP, LHCLL ) + S_WETDEP( NP, LCLCORL ) ) * XC2
+          S_INITGAS( NP, LH2O2 ) = S_GAS( NP, LH2O2 ) * PRES_ATM - S_WETDEP( NP, LH2O2L ) * XC2
+          S_INITGAS( NP, LO3 )   = S_GAS( NP, LO3   ) * PRES_ATM - S_WETDEP( NP, LO3L   ) * XC2
+          S_INITGAS( NP, LFOA )  = S_GAS( NP, LFOA  ) * PRES_ATM
+     &                           - ( S_WETDEP( NP, LFOAL ) + S_WETDEP( NP, LHCO2L ) ) * XC2
+          S_INITGAS( NP, LMHP )  = S_GAS( NP, LMHP  ) * PRES_ATM - S_WETDEP( NP, LMHPL  ) * XC2
+          S_INITGAS( NP, LPAA )  = S_GAS( NP, LPAA  ) * PRES_ATM - S_WETDEP( NP, LPAAL  ) * XC2
+          S_INITGAS( NP, LCO2 )  = S_GAS( NP, LCO2  ) * PRES_ATM
+     &                           - ( S_WETDEP( NP, LCO3L ) + S_WETDEP( NP, LHCO3L ) + S_WETDEP( NP, LCO2L ) ) * XC2
+          S_INITGAS( NP, LGLY )  = S_GAS( NP, LGLY  ) * PRES_ATM
+     &                           + S_DGLY1( NP ) * XL
+     &                           - S_WETDEP( NP, LGLYL ) * XC2
+          S_INITGAS( NP, LMGLY ) = S_GAS( NP, LMGLY  ) * PRES_ATM
+     &                           + S_DMGLY1( NP ) * XL
+     &                           - S_WETDEP( NP, LMGLYL ) * XC2
+          S_INITGAS( NP, LHO )   = S_GAS( NP, LHO ) * PRES_ATM
+        END DO
+#endif
 
 
 C...don`t allow gas concentrations to go below zero
@@ -836,6 +943,42 @@ C...   = Initial amount - amount deposited  (mol/liter)
 !       FE_OX = 0.5D0 * 0.62D0 * FE      ! SLN 28March2011
 !       MN_OX = 1.0D0 * 0.84D0 * MN      ! SLN 28March2011
 
+# ifdef sens
+        DO NP = 1, NPMAX
+          S_TS6COR(NP)  = S_LOADING( NP, LSO4,  COR ) - S_WETDEP( NP, LTS6CORL ) * XC1
+          S_NO3COR(NP)  = S_LOADING( NP, LNO3,  COR ) - S_WETDEP( NP, LNO3CORL ) * XC1
+          S_CLCOR(NP)   = S_LOADING( NP, LCL,   COR ) - S_WETDEP( NP, LCLCORL  ) * XC1
+          S_NH4COR(NP)  = S_LOADING( NP, LNH4,  COR ) - S_WETDEP( NP, LNH4CORL ) * XC1
+          S_SOILCOR(NP) = S_LOADING( NP, LSOILC,COR ) - S_WETDEP( NP, LSOILCL  ) * XC1
+          S_ANTHCOR(NP) = S_LOADING( NP, LANTHC,COR ) - S_WETDEP( NP, LANTHCL  ) * XC1
+          S_SEASCOR(NP) = S_LOADING( NP, LSEASC,COR ) - S_WETDEP( NP, LSEASCL  ) * XC1
+          S_FECOR(NP)   = SOIL_FE_FAC * S_SOILCOR( NP ) + CORS_FE_FAC * S_ANTHCOR( NP )
+          S_MNCOR(NP)   = SOIL_MN_FAC * S_SOILCOR( NP ) + CORS_MN_FAC * S_ANTHCOR( NP )
+          S_NACOR(NP)   = SEAS_NA_FAC * S_SEASCOR( NP ) + SOIL_NA_FAC * S_SOILCOR( NP ) + CORS_NA_FAC * S_ANTHCOR( NP )
+          S_MGCOR(NP)   = SEAS_MG_FAC * S_SEASCOR( NP ) + SOIL_MG_FAC * S_SOILCOR( NP ) + CORS_MG_FAC * S_ANTHCOR( NP )
+          S_CACOR(NP)   = SEAS_CA_FAC * S_SEASCOR( NP ) + SOIL_CA_FAC * S_SOILCOR( NP ) + CORS_CA_FAC * S_ANTHCOR( NP )
+          S_KCOR(NP)    = SEAS_K_FAC  * S_SEASCOR( NP ) + SOIL_K_FAC  * S_SOILCOR( NP ) + CORS_K_FAC  * S_ANTHCOR( NP )
+
+          S_TS6(NP)     = S_LOADING( NP, LSO4,  AKN ) + S_LOADING( NP, LSO4, ACC ) + S_TS6COR( NP )
+     &            - ( S_WETDEP( NP, LSO4ACCL ) + S_WETDEP( NP, LHSO4ACCL ) ) * XC1
+     &            - S_DS4( NP, 0 )
+          S_NA(NP)      = S_LOADING( NP, LNA,   ACC ) + S_LOADING( NP, LNA, AKN ) + S_NACOR( NP )
+     &            - S_WETDEP( NP, LNAACCL ) * XC1
+          S_CA(NP)      = S_LOADING( NP, LCAACC, ACC) - S_WETDEP( NP, LCAACCL ) * XC1 + S_CACOR( NP )
+          S_MG(NP)      = S_LOADING( NP, LMGACC, ACC) - S_WETDEP( NP, LMGACCL ) * XC1 + S_MGCOR( NP )
+          S_K(NP)       = S_LOADING( NP, LKACC,  ACC) - S_WETDEP( NP, LKACCL  ) * XC1 + S_KCOR( NP )
+          S_FE(NP)      = S_LOADING( NP, LFEACC, ACC) - S_WETDEP( NP, LFEACCL ) * XC1 + S_FECOR( NP )
+          S_MN(NP)      = S_LOADING( NP, LMNACC, ACC) - S_WETDEP( NP, LMNACCL ) * XC1 + S_MNCOR( NP )
+          S_SOA(NP)     = S_LOADING( NP, LSOA,  ACC ) - S_WETDEP( NP, LSOAL  ) * XC1
+          S_ORGC(NP)    = S_LOADING( NP, LORGC, ACC ) + S_DORGC( NP ) - S_WETDEP( NP, LORGCL ) * XC1
+          S_POA(NP)     = S_LOADING( NP, LPOA,  ACC ) + S_LOADING( NP, LPOA, AKN ) - S_WETDEP( NP, LPOAL ) * XC1
+          S_EC(NP)      = S_LOADING( NP, LEC,   ACC ) + S_LOADING( NP, LEC,   AKN ) - S_WETDEP( NP, LECL   ) * XC1
+          S_PRIM(NP)    = S_LOADING( NP, LPRI,  ACC ) + S_LOADING( NP, LPRI,  AKN ) - S_WETDEP( NP, LPRIML ) * XC1
+          S_NUMCOR(NP)  = S_LOADING( NP, LNUM,  COR ) - S_WETDEP( NP, LNUMCORL  ) * XC1
+        END DO
+#endif
+
+
 C...don't allow aerosol concentrations to go below zero
 
         TS6     = MAX( TS6,     0.0D0 )
@@ -868,6 +1011,99 @@ C...don't allow aerosol concentrations to go below zero
 
         SK6TS6 = SK6 * TS6
 
+#ifdef sens
+        IF ( TS6 .EQ. 0.0D0 ) THEN
+          DO NP =1 , NPMAX
+            S_TS6( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( NA .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_NA( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( CA .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_CA( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( MG .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_MG( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( K .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_K( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( FE .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_FE( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( MN .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_MN( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( SOA .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_SOA( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( ORGC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_ORGC( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( POA .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_POA( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( EC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_EC( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( PRIM .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_PRIM( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( NUMCOR .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_NUMCOR( NP ) = 0.0D0
+          END DO
+        END IF
+
+        DO NP = 1, NPMAX
+
+          S_FE_OX( NP ) = FE_III * FE_SOL * S_FE( NP )
+          S_MN_OX( NP ) = MN_II  * MN_SOL * S_MN( NP )
+
+          S_A( NP ) = 3.0D0 * S_FE_OX( NP )
+          S_B( NP ) = 2.0D0 * S_MN_OX( NP )
+
+          S_SK6TS6( NP ) = SK6 * S_TS6( NP )
+
+        END DO
+#endif
+
+
 C...find solution of the equation using a method of reiterative
 C...  bisections Make initial guesses for pH:   between .01  to  10.
 
@@ -879,6 +1115,16 @@ C...don't allow gas concentrations to go below zero
         DO IGAS = 1, NGAS
           INITGAS( IGAS ) = MAX( INITGAS( IGAS ), 0.0D0 )
         END DO
+
+#ifdef sens
+        DO IGAS = 1, NGAS
+          IF ( INITGAS( IGAS ) .EQ. 0.0D0 ) THEN
+            DO NP = 1, NPMAX
+              S_INITGAS( NP, IGAS ) = 0.0D0
+            END DO
+          END IF
+        END DO
+#endif
 
 C...Aerosol specific to TXHG Versions
 
@@ -1090,6 +1336,35 @@ C...return an error if the pH is not in range
           CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT2 )
         END IF
 
+#ifdef sens
+        DO NP = 1, NPMAX
+C...calculate final gas phase partial pressure of SO2, NH3, HCL, HNO3
+C...  HCOOH, and CO2 (atm)
+            S_PSO2F( NP ) = S_INITGAS( NP, LSO2 ) / ( 1.0D0 + XLSO2
+     &                    * ( 1.0D0 + SO21 * RECIPA1 + SO212 * RECIPA2 ) )
+            S_PNH3F( NP ) = S_INITGAS( NP, LNH3 ) / ( 1.0D0 + XLNH3 * ( 1.0D0 + NH3DH20 * AE ) )
+            S_PHCLF( NP ) = S_INITGAS( NP, LHCL ) / ( 1.0D0 + XLHCL *  ( 1.0D0 + HCL1 * RECIPA1 ) )
+            S_PHNO3F( NP ) = S_INITGAS( NP, LHNO3 ) / ( 1.0D0 + XLHNO3 * ( 1.0D0 + HNO31 * RECIPA1 ) )
+            S_PFOAF( NP ) = S_INITGAS( NP, LFOA ) / ( 1.0D0 + XL * ( FOAH + FOA1H * RECIPA1 ) )
+            S_PCO2F( NP ) = S_INITGAS( NP, LCO2 ) / ( 1.0D0 + XLCO2 * ( 1.0D0 + CO21 * RECIPA1
+     &                    + CO212 * RECIPA2 ) )
+C...calculate liquid phase concentrations (moles/liter)
+            S_SO4( NP )  = S_SK6TS6( NP ) / ( AE * GM2 + SK6 )
+            S_HSO4( NP ) = S_TS6( NP ) - S_SO4( NP )
+            S_SO3( NP )  = SO212H  * S_PSO2F( NP )  * RECIPA2
+            S_HSO3( NP ) = SO21H   * S_PSO2F( NP )  * RECIPA1
+            S_CO3( NP )  = CO212H  * S_PCO2F( NP )  * RECIPA2
+            S_HCO3( NP ) = CO21H   * S_PCO2F( NP )  * RECIPA1
+            S_NH4( NP )  = NH31HDH * S_PNH3F( NP )  * AE
+            S_HCO2( NP ) = FOA1H   * S_PFOAF( NP )  * RECIPA1
+            S_NO3( NP )  = HNO31H  * S_PHNO3F( NP ) * RECIPA1
+            S_CL( NP )   = HCL1H   * S_PHCLF( NP )  * RECIPA1
+C...compute functional value
+c           FB = AE + NH4 + NA + K + 2.0D0 * ( CA + MG - CO3 - SO3 - SO4 )
+c    &         - OH - HCO3 - HSO3 - NO3 - HSO4 - HCO2 - CL
+        END DO
+#endif
+
 C...Make those concentration calculations which can be made outside
 C...  of the function.
 
@@ -1141,6 +1416,153 @@ C...compute modal concentrations
         KACC    = MAX( K    - KCOR,     0.0D0 ) ! AE6
         FEACC   = MAX( FE   - FECOR,    0.0D0 ) ! AE6
         MNACC   = MAX( MN   - MNCOR,    0.0D0 ) ! AE6
+
+#ifdef sens
+        DO NP = 1, NPMAX
+          S_SO2L( NP )    = SO2H * S_PSO2F( NP )
+          S_SIV( NP )     = S_SO3( NP ) + S_HSO3( NP ) + S_SO2L( NP )
+
+          S_PH2O2F( NP )  = ( S_INITGAS( NP, LH2O2 ) + XL * S_DS4( NP, 1 ) ) / ( 1.0D0 + XLH2O2 )
+          S_PO3F( NP )    = ( S_INITGAS( NP, LO3 )   + XL * S_DS4( NP, 2 ) ) / ( 1.0D0 + XLO3   )
+          S_PMHPF( NP )   = ( S_INITGAS( NP, LMHP )  + XL * S_DS4( NP, 4 ) ) / ( 1.0D0 + XLMHP  )
+          S_PPAAF( NP )   = ( S_INITGAS( NP, LPAA )  + XL * S_DS4( NP, 5 ) ) / ( 1.0D0 + XLPAA  )
+          S_PGLYF( NP )   = ( S_INITGAS( NP, LGLY ) ) / ( 1.0D0 + GLYH * XL )
+          S_PMGLYF( NP )  = ( S_INITGAS( NP, LMGLY ) ) / ( 1.0D0 + MGLYH * XL )
+          S_PHOF( NP )    = ( S_INITGAS( NP, LHO ) ) / ( 1.0D0 + HOH * XL)
+        END DO
+
+        IF ( PH2O2F .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_PH2O2F( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( PO3F .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_PO3F( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( PMHPF .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_PMHPF( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( PPAAF .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_PPAAF( NP ) = 0.0D0
+          END DO
+        END IF
+
+        DO NP = 1, NPMAX
+          S_H2O2L( NP )   = S_PH2O2F( NP ) * H2O2H
+          S_O3L( NP )     = S_PO3F( NP )   * O3H
+          S_MHPL( NP )    = S_PMHPF( NP )  * MHPH
+          S_PAAL( NP )    = S_PPAAF( NP )  * PAAH
+          S_FOAL( NP )    = S_PFOAF( NP )  * FOAH
+          S_NH3L( NP )    = S_PNH3F( NP )  * NH3H
+          S_CO2L( NP )    = S_PCO2F( NP )  * CO2H
+          S_HCLL( NP )    = S_PHCLF( NP )  * HCLH
+          S_HNO3L( NP )   = S_PHNO3F( NP ) * HNO3H
+          S_GLYL( NP )    = S_PGLYF( NP )  * GLYH
+          S_MGLYL( NP )   = S_PMGLYF( NP ) * MGLYH
+          S_OHL( NP )     = S_PHOF( NP )   * HOH
+
+          S_SO4COR( NP )  = SK6 * S_TS6COR( NP ) / ( AE * GM2 + SK6 )
+          S_HSO4COR( NP ) = S_TS6COR( NP ) - S_SO4COR( NP )
+          S_TS6ACC( NP )  = S_TS6( NP )    - S_TS6COR( NP )
+          S_SO4ACC( NP )  = S_SO4( NP )    - S_SO4COR( NP )
+          S_HSO4ACC( NP ) = S_HSO4( NP )   - S_HSO4COR( NP )
+          S_NO3ACC( NP )  = S_NO3( NP )    - S_NO3COR( NP )
+          S_NAACC( NP )   = S_NA( NP )     - S_NACOR( NP )
+          S_CLACC( NP )   = S_CL( NP )     - S_CLCOR( NP )
+          S_NH4ACC( NP )  = S_NH4( NP )    - S_NH4COR( NP )
+          S_CAACC( NP )   = S_CA( NP )     - S_CACOR( NP )
+          S_MGACC( NP )   = S_MG( NP )     - S_MGCOR( NP )
+          S_KACC( NP )    = S_K( NP )      - S_KCOR( NP )
+          S_FEACC( NP )   = S_FE( NP )     - S_FECOR( NP )
+          S_MNACC( NP )   = S_MN( NP )     - S_MNCOR( NP )
+        END DO
+
+c       IF ( HSO4COR .EQ. 0.0D0 ) THEN
+c         DO NP = 1, NPMAX
+c           S_HSO4COR( NP ) = 0.0D0
+c         END DO
+c       END IF
+
+        IF ( TS6ACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_TS6ACC( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( SO4ACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_SO4ACC( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( HSO4ACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_HSO4ACC( NP ) = 0.0D0
+          END DO
+        END IF
+
+c       IF ( NO3ACC .EQ. 0.0D0 ) THEN
+c         DO NP = 1, NPMAX
+c           S_NO3ACC( NP ) = 0.0D0
+c         END DO
+c       END IF
+
+        IF ( NAACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_NAACC( NP ) = 0.0D0
+          END DO
+        END IF
+
+c       IF ( CLACC .EQ. 0.0D0 ) THEN
+c         DO NP = 1, NPMAX
+c           S_CLACC( NP ) = 0.0D0
+c         END DO
+c       END IF
+
+c       IF ( NH4ACC .EQ. 0.0D0 ) THEN
+c         DO NP = 1, NPMAX
+c           S_NH4ACC( NP ) = 0.0D0
+c         END DO
+c       END IF
+
+        IF ( CAACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_CAACC( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( MGACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_MGACC( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( KACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_KACC( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( FEACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_FEACC( NP ) = 0.0D0
+          END DO
+        END IF
+
+        IF ( MNACC .EQ. 0.0D0 ) THEN
+          DO NP = 1, NPMAX
+            S_MNACC( NP ) = 0.0D0
+          END DO
+        END IF
+#endif
 
 C...Avoid adding mass when the coarse mode concentration is greater
 C...  than the total amount left in the aqueous phase after redistribution
@@ -1229,6 +1651,63 @@ C...load the liquid concentration array with current values
           LIQUID( LTS6AQPAAL    ) = TS6AQPAA
         END IF
 
+#ifdef sens
+        S_LIQUID = 0.0D0
+        DO NP = 1, NPMAX
+c         S_LIQUID( NP, LACL      ) = S_AC( NP )    
+          S_LIQUID( NP, LNH4ACCL  ) = S_NH4ACC( NP)
+          S_LIQUID( NP, LCACORL   ) = S_CACOR( NP )
+          S_LIQUID( NP, LNAACCL   ) = S_NAACC( NP )
+          S_LIQUID( NP, LOHL      ) = S_OHL( NP )
+          S_LIQUID( NP, LSO4ACCL  ) = S_SO4ACC( NP )
+          S_LIQUID( NP, LHSO4ACCL ) = S_HSO4ACC( NP )
+          S_LIQUID( NP, LSO3L     ) = S_SO3( NP )
+          S_LIQUID( NP, LHSO3L    ) = S_HSO3( NP )
+          S_LIQUID( NP, LSO2L     ) = S_SO2L( NP )
+          S_LIQUID( NP, LCO3L     ) = S_CO3( NP )
+          S_LIQUID( NP, LHCO3L    ) = S_HCO3( NP )
+          S_LIQUID( NP, LCO2L     ) = S_CO2L( NP )
+          S_LIQUID( NP, LNO3ACCL  ) = S_NO3ACC( NP )
+          S_LIQUID( NP, LNH3L     ) = S_NH3L( NP )
+          S_LIQUID( NP, LCLACCL   ) = S_CLACC( NP )
+          S_LIQUID( NP, LH2O2L    ) = S_H2O2L( NP )
+          S_LIQUID( NP, LO3L      ) = S_O3L( NP )
+          S_LIQUID( NP, LFECORL   ) = S_FECOR( NP )
+          S_LIQUID( NP, LMNCORL   ) = S_MNCOR( NP )
+c         S_LIQUID( NP, LAL       ) = S_A( NP )
+          S_LIQUID( NP, LFOAL     ) = S_FOAL( NP )
+          S_LIQUID( NP, LHCO2L    ) = S_HCO2( NP )
+          S_LIQUID( NP, LMHPL     ) = S_MHPL( NP )
+          S_LIQUID( NP, LPAAL     ) = S_PAAL( NP )
+          S_LIQUID( NP, LHCLL     ) = S_HCLL( NP )
+          S_LIQUID( NP, LPRIML    ) = S_PRIM( NP )
+          S_LIQUID( NP, LMGCORL   ) = S_MGCOR( NP )
+          S_LIQUID( NP, LKCORL    ) = S_KCOR( NP )
+c         S_LIQUID( NP, LBL       ) = S_B( NP )
+          S_LIQUID( NP, LHNO3L    ) = S_HNO3L( NP )
+          S_LIQUID( NP, LNUMCORL  ) = S_NUMCOR( NP )
+          S_LIQUID( NP, LTS6CORL  ) = S_TS6COR( NP )
+          S_LIQUID( NP, LNACORL   ) = S_NACOR( NP )
+          S_LIQUID( NP, LCLCORL   ) = S_CLCOR( NP )
+          S_LIQUID( NP, LNO3CORL  ) = S_NO3COR( NP )
+          S_LIQUID( NP, LNH4CORL  ) = S_NH4COR( NP )
+          S_LIQUID( NP, LPOAL     ) = S_POA( NP )
+          S_LIQUID( NP, LECL      ) = S_EC( NP )
+          S_LIQUID( NP, LSOAL     ) = S_SOA( NP )
+          S_LIQUID( NP, LORGCL    ) = S_ORGC( NP )
+          S_LIQUID( NP, LGLYL     ) = S_GLYL( NP )
+          S_LIQUID( NP, LMGLYL    ) = S_MGLYL( NP )
+          S_LIQUID( NP, LCAACCL   ) = S_CAACC( NP )
+          S_LIQUID( NP, LMGACCL   ) = S_MGACC( NP )
+          S_LIQUID( NP, LKACCL    ) = S_KACC( NP )
+          S_LIQUID( NP, LSOILCL   ) = S_SOILCOR( NP )
+          S_LIQUID( NP, LANTHCL   ) = S_ANTHCOR( NP )
+          S_LIQUID( NP, LSEASCL   ) = S_SEASCOR( NP )
+          S_LIQUID( NP, LFEACCL   ) = S_FEACC( NP )
+          S_LIQUID( NP, LMNACCL   ) = S_MNACC( NP )
+        END DO
+#endif
+
 C...Load array variable TXHG Version
 
         LIQUID( LTRACERL    )  = TRACER
@@ -1255,6 +1734,12 @@ C...Define the total S(iv) available for oxidation
 
         TSIV = INITGAS( LSO2 ) * ONE_OVER_XL
 
+#ifdef sens
+        DO NP = 1, NPMAX
+          S_TSIV( NP ) = S_INITGAS( NP,LSO2 ) * ONE_OVER_XL
+        END DO
+#endif
+
 C...Calculate sulfur iv oxidation rate due to H2O2 (Jacobson, 1997)
 
         DSIVDT( 1 ) = -RH2O2 * H2O2L * HSO3 * HPLUS / ( 1.0D0 + 13.0D0 * HPLUS )
@@ -1266,6 +1751,22 @@ C...Calculate sulfur iv oxidation rate due to H2O2 (Jacobson, 1997)
         ELSE
           DTW( 1 ) = -0.05D0 * MIN( TH2O2, TSIV ) / DSIVDT( 1 )
         END IF
+
+#ifdef sens
+C... no sensitivity to pH now
+        DO NP = 1, NPMAX
+          S_TH2O2( NP ) = S_INITGAS( NP, LH2O2 ) * ONE_OVER_XL
+          C1 = -RH2O2 * HPLUS / ( 1.0D0 + 13.0D0 * HPLUS )
+          IF ( IPT(NP) .EQ. 4 ) THEN ! hddm
+            IP1 = IHIGH(NP,1)
+            IP2 = IHIGH(NP,2)
+            S_DSIVDT( NP,1 ) = C1 * ( S_H2O2L( NP )  * HSO3          + S_H2O2L( IP1 ) * S_HSO3( IP2 )
+     &                              + S_H2O2L( IP2 ) * S_HSO3( IP1 ) + H2O2L          * S_HSO3( NP )  )
+          ELSE
+            S_DSIVDT( NP,1 ) = C1 * ( S_H2O2L( NP ) * HSO3 + H2O2L * S_HSO3( NP ) )
+          END IF
+        END DO
+#endif
 
 C...Calculate sulfur iv oxidation rate due to O3 (Jacobson, 1997)
 
@@ -1282,6 +1783,29 @@ C...Calculate sulfur iv oxidation rate due to O3 (Jacobson, 1997)
           DTW( 2 ) = -0.01D0 * MIN( TO3, TSIV ) / DSIVDT( 2 )
         END IF
 
+#ifdef sens
+        C1 = 2.4D4
+        C2 = 3.7D5 * EXP( -18.56 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) )
+        C3 = 1.5D9 * EXP( -17.72 * ( ( 298.0D0 / TEMP ) - 1.0D0 ) )
+        DO NP = 1, NPMAX
+          S_TO3( NP ) = S_INITGAS( NP, LO3 ) * ONE_OVER_XL
+          IF ( IPT(NP) .EQ. 4 ) THEN ! hddm
+            IP1 = IHIGH(NP,1)
+            IP2 = IHIGH(NP,2)
+            S_DSIVDT( NP,2 ) =  -C1 * ( S_SO2L( NP )  * O3L          + S_SO2L( IP1 ) * S_O3L( IP2 )
+     &                                + S_SO2L( IP2 ) * S_O3L( IP1 ) + SO2L          * S_O3L( NP ) )
+     &                         - C2 * ( S_HSO3( NP )  * O3L          + S_HSO3( IP1 ) * S_O3L( IP2 )
+     &                                + S_HSO3( IP2 ) * S_O3L( IP1 ) + HSO3          * S_O3L( NP ) )
+     &                         - C3 * ( S_SO3 ( NP )  * O3L          + S_SO3 ( IP1 ) * S_O3L( IP2 )
+     &                                + S_SO3 ( IP2 ) * S_O3L( IP1 ) + SO3           * S_O3L( NP ) )
+          ELSE
+            S_DSIVDT( NP,2 ) =  -C1 * ( S_SO2L( NP ) * O3L + SO2L * S_O3L( NP ) )
+     &                         - C2 * ( S_HSO3( NP ) * O3L + HSO3 * S_O3L( NP ) )
+     &                         - C3 * ( S_SO3 ( NP ) * O3L + SO3  * S_O3L( NP ) )
+          END IF
+        END DO
+#endif
+
 C...Calculate sulfur iv oxidation rate due to 02 catalyzed by Mn++ and Fe+++
 C...(Martin and Goodman, 1991)
 C...Implement sulfate inhibition based on Martin and Good, 1991
@@ -1297,6 +1821,45 @@ C...Implement sulfate inhibition based on Martin and Good, 1991
           DTW( 3 ) = -0.1D0 * TSIV / DSIVDT( 3 )
         END IF
 
+#ifdef sens
+        DO NP = 1, NPMAX
+          IF ( IPT(NP) .EQ. 4 ) THEN ! hddm
+            IP1 = IHIGH(NP,1)
+            IP2 = IHIGH(NP,2)
+            IF (TS6 .GT. 0.0) THEN
+              pwr1D = -(0.33D0*TS6**(-1.33D0)*S_TS6(IP2))
+            ELSE
+              pwr1D = 0.0
+            END IF
+            pwr1 = TS6**(-0.33D0)
+            S_DSIVDT( NP, 3 ) = -((((750.0D0*(S_MN_OX(NP)*SIV+S_MN_OX(IP1)*S_SIV(IP2)+S_MN_OX(IP2)*S_SIV(IP1)+
+     &        MN_OX*S_SIV(NP))+2600.0D0*(S_FE_OX(NP)*SIV+S_FE_OX(IP1)*S_SIV(IP2)+S_FE_OX(IP2)*S_SIV(IP1)+
+     &        FE_OX*S_SIV(NP))+1.0D10*((S_MN_OX(NP)*FE_OX+S_MN_OX(IP1)*S_FE_OX(IP2)+S_MN_OX(IP2)*
+     &        S_FE_OX(IP1)+MN_OX*S_FE_OX(NP))*SIV+(S_MN_OX(IP1)*FE_OX+MN_OX*S_FE_OX(IP1))*S_SIV(IP2)+(
+     &        S_MN_OX(IP2)*FE_OX+MN_OX*S_FE_OX(IP2))*S_SIV(IP1)+MN_OX*FE_OX*S_SIV(NP)))*(1.0D0+
+     &        75.0D0*TS6**0.67D0)+(750.0D0*(S_MN_OX(IP1)*SIV+MN_OX*S_SIV(IP1))+2600.0D0*(
+     &        S_FE_OX(IP1)*SIV+FE_OX*S_SIV(IP1))+1.0D10*((S_MN_OX(IP1)*FE_OX+MN_OX*S_FE_OX(IP1))*SIV+
+     &        MN_OX*FE_OX*S_SIV(IP1)))*75.0D0*0.67D0*TS6**(-0.33D0)*S_TS6(IP2)-75.0D0*
+     &        0.67D0*((750.0D0*(S_MN_OX(IP2)*SIV+MN_OX*S_SIV(IP2))+2600.0D0*(S_FE_OX(IP2)*SIV
+     &        +FE_OX*S_SIV(IP2))+1.0D10*((S_MN_OX(IP2)*FE_OX+MN_OX*S_FE_OX(IP2))*SIV+MN_OX*
+     &        FE_OX*S_SIV(IP2)))*pwr1*S_TS6(IP1)+(750.0D0*MN_OX*SIV+2600.0D0*FE_OX*SIV+
+     &        1.0D10*MN_OX*FE_OX*SIV)*(pwr1D*S_TS6(IP1)+pwr1*S_TS6(NP))))*(1.0D0+75.0D0*
+     &        TS6**0.67D0)**2-((750.0D0*(S_MN_OX(IP1)*SIV+MN_OX*S_SIV(IP1))+2600.0D0*(
+     &        S_FE_OX(IP1)*SIV+FE_OX*S_SIV(IP1))+1.0D10*((S_MN_OX(IP1)*FE_OX+MN_OX*S_FE_OX(IP1))*SIV+
+     &        MN_OX*FE_OX*S_SIV(IP1)))*(1.0D0+75.0D0*TS6**0.67D0)-(750.0D0*MN_OX*SIV
+     &        +2600.0D0*FE_OX*SIV+1.0D10*MN_OX*FE_OX*SIV)*75.0D0*0.67D0*pwr1*
+     &        S_TS6(IP1))*2*(1.0D0+75.0D0*TS6**0.67D0)*75.0D0*0.67D0*TS6**(-0.33D0)*
+     &        S_TS6(IP2))/((1.0D0+75.0D0*TS6**0.67D0)**2)**2)
+          ELSE
+            S_DSIVDT( NP, 3 ) = -(((750.0D0*(S_MN_OX(NP)*SIV+MN_OX*S_SIV(NP))+2600.0D0*(S_FE_OX(NP)*SIV
+     &        +FE_OX*S_SIV(NP))+1.0D10*((S_MN_OX(NP)*FE_OX+MN_OX*S_FE_OX(NP))*SIV+MN_OX*FE_OX
+     &        *S_SIV(NP)))*(1.0D0+75.0D0*TS6**0.67D0)-(750.0D0*MN_OX*SIV+2600.0D0*
+     &        FE_OX*SIV+1.0D10*MN_OX*FE_OX*SIV)*75.0D0*0.67D0*TS6**(-0.33D0)*
+     &        S_TS6(NP))/(1.0D0+75.0D0*TS6**0.67D0)**2)
+          END IF
+        END DO
+#endif
+
 C...Calculate sulfur oxidation rate due to MHP (Jacobson,  1997)
 
         DSIVDT( 4 ) = -RMHP * HPLUS * MHPL * HSO3
@@ -1308,6 +1871,22 @@ C...Calculate sulfur oxidation rate due to MHP (Jacobson,  1997)
         ELSE
           DTW( 4 ) = -0.1D0 * MIN( TMHP, TSIV ) / DSIVDT( 4 )
         END IF
+
+#ifdef sens
+c... no sensitivity to pH now
+        DO NP = 1, NPMAX
+          S_TMHP( NP ) = S_INITGAS( NP, LMHP ) * ONE_OVER_XL
+          C1 = -RMHP * HPLUS
+          IF ( IPT(NP) .EQ. 4 ) THEN ! hddm
+            IP1 = IHIGH(NP,1)
+            IP2 = IHIGH(NP,2)
+            S_DSIVDT( NP, 4 ) = C1 * ( S_MHPL( NP )  * HSO3          + S_MHPL( IP1 ) * S_HSO3( IP2 )
+     &                               + S_MHPL( IP2 ) * S_HSO3( IP1 ) + MHPL          * S_HSO3( NP )  )
+          ELSE
+            S_DSIVDT( NP, 4 ) = C1 * ( S_MHPL( NP ) * HSO3 + MHPL * S_HSO3( NP ) )
+          END IF
+        END DO
+#endif
 
 C...Calculate sulfur oxidation due to PAA (Jacobson,  1997)
 
@@ -1321,12 +1900,37 @@ C...Calculate sulfur oxidation due to PAA (Jacobson,  1997)
           DTW( 5 ) = -0.1D0 * MIN( TPAA, TSIV ) / DSIVDT( 5 )
         END IF
 
+#ifdef sens
+c... no sensitivity to pH now
+        DO NP = 1, NPMAX
+          S_TPAA( NP ) = S_INITGAS( NP, LPAA ) * ONE_OVER_XL
+          IF ( IPT(NP) .EQ. 4 ) THEN ! hddm
+            IP1 = IHIGH(NP,1)
+            IP2 = IHIGH(NP,2)
+            C1 = -( RPAA * HPLUS + 7.00D2 )
+            S_DSIVDT( NP, 5 ) = C1 * ( S_HSO3( NP )  * PAAL          + S_HSO3( IP1 ) * S_PAAL( IP2 )
+     &                               + S_HSO3( IP2 ) * S_PAAL( IP1 ) + HSO3          * S_PAAL( NP )  )
+          ELSE
+            S_DSIVDT( NP, 5 ) = C1 * ( S_HSO3( NP ) * PAAL + HSO3 * S_PAAL( NP ) )
+          END IF
+        END DO
+#endif
+
 C...Calculate total sulfur iv oxidation rate
 
         DSIVDT( 0 ) = 0.0D0
         DO IOX = 1, NUMOX
           DSIVDT( 0 ) = DSIVDT( 0 ) + DSIVDT( IOX )
         END DO
+
+#ifdef sens
+        S_DSIVDT( :, 0 ) = 0.0D0
+        DO NP = 1, NPMAX
+          DO IOX = 1, NUMOX
+            S_DSIVDT( NP,0 ) = S_DSIVDT( NP, 0 ) + S_DSIVDT( NP, IOX )
+          END DO
+        END DO
+#endif
 
 C...Calculate a minimum time step required
 
@@ -1368,6 +1972,29 @@ C...Calculate MGLY oxidation due to OH
 C...Calculate OH consumption
 
 !steadystate          DOHDT = -( RGLY3 * GLYL + RMGLY3 * MGLYL ) * OHL
+
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_TGLY( NP )  = S_INITGAS( NP, LGLY ) * ONE_OVER_XL
+            S_TMGLY( NP ) = S_INITGAS( NP, LMGLY ) * ONE_OVER_XL
+c           IF ( IPT(NP) .EQ. 4 ) THEN ! hddm
+c             IP1 = IHIGH(NP,1)
+c             IP2 = IHIGH(NP,2)
+c             S_DGLYDT( NP ) = -RGLY3 * ( S_GLYL( NP )  * OHL          + S_GLYL( IP1 ) * S_OHL( IP2 )
+c    &                                  + S_GLYL( IP2 ) * S_OHL( IP1 ) + GLYL          * S_OHL( NP ) )
+c             S_DMGLYDT( NP ) = -RMGLY3 * ( S_MGLYL( NP )  * OHL + S_MGLYL( IP1 ) * S_OHL( IP2 )
+c    &                                    + S_MGLYL( IP2 ) * S_OHL( IP1 ) + MGLYL          * S_OHL( NP ) )
+c           ELSE
+c             S_DGLYDT( NP ) = -RGLY3 * ( S_GLYL( NP ) * OHL + GLYL * S_OHL( NP ) )
+c             S_DMGLYDT( NP ) = -RMGLY3 * ( S_MGLYL( NP ) * OHL + MGLYL * S_OHL( NP ) )
+c           ENDIF
+
+c assume no OH sensitivity for now, because it causes instability in sensitvities
+            S_DGLYDT( NP ) = -RGLY3 * S_GLYL( NP ) * OHL
+            S_DMGLYDT( NP ) = -RMGLY3 * S_MGLYL( NP ) * OHL
+
+          END DO
+#endif
 
 C...calculate the change in sulfur iv for this time step
 
@@ -1429,12 +2056,71 @@ C...  for S(IV), also limit by oxidants (except assume O2 in steady state)
         DSIVDT( 4 ) = MAX( DSIVDT( 4 ), -MIN( TSIV, TMHP  ) / DTW( 0 ) )
         DSIVDT( 5 ) = MAX( DSIVDT( 5 ), -MIN( TSIV, TPAA  ) / DTW( 0 ) )
 
+#ifdef sens
+        DO NP = 1, NPMAX
+
+          IF ( DGLYDT .EQ. -TGLY  / DTW( 0 ) ) THEN
+            S_DGLYDT( NP ) = -S_TGLY( NP ) / DTW( 0 )
+          END IF
+
+          IF ( DMGLYDT .EQ. -TMGLY / DTW( 0 ) ) THEN
+            S_DMGLYDT( NP ) = - S_TMGLY( NP ) / DTW( 0 )
+          END IF
+
+          IF ( DSIVDT( 1 ) .EQ. -MIN( TSIV, TH2O2 ) / DTW( 0 ) ) THEN
+            IF ( TSIV .LT. TH2O2 ) THEN
+              S_DSIVDT( NP, 1 ) = -S_TSIV( NP ) / DTW( 0 )
+            ELSE
+              S_DSIVDT( NP, 1 ) = -S_TH2O2( NP ) / DTW( 0 )
+            END IF
+          END IF
+
+          IF ( DSIVDT( 2 ) .EQ. -MIN( TSIV, TO3   ) / DTW( 0 ) ) THEN
+            IF ( TSIV .LT. TO3 ) THEN
+              S_DSIVDT( NP, 2 ) = -S_TSIV( NP ) / DTW( 0 )
+            ELSE
+              S_DSIVDT( NP, 2 ) = -S_TO3( NP ) / DTW( 0 )
+            END IF
+          END IF
+
+          IF ( DSIVDT( 3 ) .EQ. -TSIV / DTW( 0 ) ) THEN
+            S_DSIVDT( NP, 3 ) = -S_TSIV( NP ) / DTW( 0 )
+          END IF
+
+          IF ( DSIVDT( 4 ) .EQ. -MIN( TSIV, TMHP  ) / DTW( 0 ) ) THEN
+            IF ( TSIV .LT. TMHP ) THEN
+              S_DSIVDT( NP, 4 ) = -S_TSIV( NP ) / DTW( 0 )
+            ELSE
+              S_DSIVDT( NP, 4 ) = -S_TMHP( NP ) / DTW( 0 )
+            END IF
+          END IF
+
+          IF ( DSIVDT( 5 ) .EQ. -MIN( TSIV, TPAA  ) / DTW( 0 ) ) THEN
+            IF ( TSIV .LT. TPAA ) THEN
+              S_DSIVDT( NP, 5 ) = -S_TSIV( NP ) / DTW( 0 )
+            ELSE
+              S_DSIVDT( NP, 5 ) = -S_TPAA( NP ) / DTW( 0 )
+            END IF
+          END IF
+
+        END DO
+#endif
+
 C...  recalculate the total S(iv) oxidation rate
 
         DSIVDT( 0 ) = 0.0
         DO IOX = 1, NUMOX
           DSIVDT( 0 ) = DSIVDT( 0 ) + DSIVDT( IOX )
         END DO
+
+#ifdef sens
+        S_DSIVDT( :, 0 ) = 0.0D0
+        DO NP = 1, NPMAX
+          DO IOX = 1, NUMOX
+            S_DSIVDT( NP,0 ) = S_DSIVDT( NP, 0 ) + S_DSIVDT( NP, IOX )
+          END DO
+        END DO
+#endif
 
 C...  if the total S(iv) oxidation rate over the timestep exceeds the amount of
 C...    S(iv) available then scale the rates to conserve mass
@@ -1447,6 +2133,16 @@ C...    S(iv) available then scale the rates to conserve mass
           DSIVDT( 3 ) = DSIVDT( 3 ) * DSIV_SCALE
           DSIVDT( 4 ) = DSIVDT( 4 ) * DSIV_SCALE
           DSIVDT( 5 ) = DSIVDT( 5 ) * DSIV_SCALE
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_DSIVDT( NP, 0 ) = S_DSIVDT( NP, 0 ) * DSIV_SCALE
+            S_DSIVDT( NP, 1 ) = S_DSIVDT( NP, 1 ) * DSIV_SCALE
+            S_DSIVDT( NP, 2 ) = S_DSIVDT( NP, 2 ) * DSIV_SCALE
+            S_DSIVDT( NP, 3 ) = S_DSIVDT( NP, 3 ) * DSIV_SCALE
+            S_DSIVDT( NP, 4 ) = S_DSIVDT( NP, 4 ) * DSIV_SCALE
+            S_DSIVDT( NP, 5 ) = S_DSIVDT( NP, 5 ) * DSIV_SCALE
+          END DO
+#endif
         END IF
 
 C...Set DSIV(I), I = 0,NUMOX, the amount of S(IV) oxidized by each
@@ -1467,6 +2163,22 @@ C...  and methylglyoxal is assumed
 
         DORGC = DORGC - ( 0.04D0 * ( DGLYDT + DMGLYDT ) * DTW( 0 ) )
 
+#ifdef sens
+        DO NP = 1, NPMAX
+
+          DO IOX = 0, NUMOX
+            S_DS4( NP, IOX ) = S_DS4( NP, IOX ) + DTW( 0 ) * S_DSIVDT( NP, IOX )
+          END DO
+
+          S_DGLY1( NP )  = S_DGLY1( NP )  + DTW( 0 ) * S_DGLYDT( NP )
+
+          S_DMGLY1( NP ) = S_DMGLY1( NP ) + DTW( 0 ) * S_DMGLYDT( NP )
+
+          S_DORGC( NP )  = S_DORGC( NP ) - ( 0.04D0 * ( S_DGLYDT( NP ) + S_DMGLYDT( NP ) ) * DTW( 0 ) )
+
+        END DO
+#endif
+
 C...Compute depositions and concentrations for each species
 
 !!!     WETFAC = PRCRATE * FRACLIQ * DTW( 0 ) * SEC2HR     !!!numerical integration errors with this expression
@@ -1477,6 +2189,14 @@ C...Compute depositions and concentrations for each species
         END DO
 
         TIMEW = TIMEW + DTW( 0 )
+
+#ifdef sens
+        DO NP = 1, NPMAX
+          DO LIQ = 1, NLIQS
+            S_WETDEP( NP, LIQ ) = S_WETDEP( NP, LIQ ) + S_LIQUID( NP, LIQ ) * WETFAC
+          END DO
+        END DO
+#endif
 
       END DO     ! I20C loop
 
@@ -1502,6 +2222,13 @@ C...Compute the output concentrations and wet deposition amounts
       TOTAMM = ( PNH3F  + ( NH4ACC + NH3L  ) * XL ) * RECIPAP1
       TOTNIT = ( PHNO3F + ( NO3ACC + HNO3L ) * XL ) * RECIPAP1
 
+#ifdef sens
+      DO NP = 1, NPMAX
+         S_TOTAMM( NP ) = ( S_PNH3F( NP )  + ( S_NH4ACC( NP ) + S_NH3L( NP )  ) * XL ) * RECIPAP1
+         S_TOTNIT( NP ) = ( S_PHNO3F( NP ) + ( S_NO3ACC( NP ) + S_HNO3L( NP ) ) * XL ) * RECIPAP1
+      END DO
+#endif
+
 C...gas-phase species wet deposition (mm mol/lit)
 
       GASWDEP( LSO2   ) = WETDEP( LSO3L  ) + WETDEP( LHSO3L )
@@ -1522,6 +2249,27 @@ C...gas-phase species wet deposition (mm mol/lit)
       GASWDEP( LMGLY  ) = WETDEP( LMGLYL )
 !     GASWDEP( LHO    ) = WETDEP( LOHL   )
 
+#ifdef sens
+      DO NP = 1, NPMAX
+        S_GASWDEP( NP, LSO2   ) = S_WETDEP( NP, LSO3L  ) + S_WETDEP( NP, LHSO3L )
+     &                          + S_WETDEP( NP, LSO2L  )
+        S_GASWDEP( NP, LNH3   ) = S_WETDEP( NP, LNH3L  )
+        S_GASWDEP( NP, LH2O2  ) = S_WETDEP( NP, LH2O2L )
+        S_GASWDEP( NP, LO3    ) = S_WETDEP( NP, LO3L   )
+        S_GASWDEP( NP, LCO2   ) = S_WETDEP( NP, LCO3L  ) + S_WETDEP( NP, LHCO3L )
+     &                          + S_WETDEP( NP, LCO2L  )
+        S_GASWDEP( NP, LFOA   ) = S_WETDEP( NP, LFOAL  ) + S_WETDEP( NP, LHCO2L )
+        S_GASWDEP( NP, LMHP   ) = S_WETDEP( NP, LMHPL  )
+        S_GASWDEP( NP, LPAA   ) = S_WETDEP( NP, LPAAL  )
+        S_GASWDEP( NP, LHCL   ) = S_WETDEP( NP, LHCLL  )
+        S_GASWDEP( NP, LHNO3  ) = S_WETDEP( NP, LHNO3L )
+        S_GASWDEP( NP, LN2O5  ) = 0.0D0
+        S_GASWDEP( NP, LH2SO4 ) = 0.0D0
+        S_GASWDEP( NP, LGLY   ) = S_WETDEP( NP, LGLYL  )
+        S_GASWDEP( NP, LMGLY  ) = S_WETDEP( NP, LMGLYL )
+      END DO
+#endif
+
 C...gas concentrations (mol/molV)
 
       GAS( LSO2   ) = ( PSO2F  + XL *  SIV )   * RECIPAP1
@@ -1540,6 +2288,25 @@ C...gas concentrations (mol/molV)
       GAS( LHNO3  ) = FHNO3 * TOTNIT
       GAS( LN2O5  ) = 0.0D0 ! assume all into aerosol
       GAS( LH2SO4 ) = 0.0D0 ! assume all into aerosol
+
+#ifdef sens
+      DO NP = 1, NPMAX
+        S_GAS( NP, LSO2   ) = ( S_PSO2F( NP )  + XL *  S_SIV( NP ) )   * RECIPAP1
+c       S_GAS( NP, LH2O2  ) = ( S_PH2O2F( NP ) + XL *  S_H2O2L( NP ) ) * RECIPAP1
+c       S_GAS( NP, LO3    ) = ( S_PO3F( NP )   + XL *  S_O3L( NP ) )   * RECIPAP1
+c       S_GAS( NP, LCO2   ) = ( S_PCO2F( NP )  + XL *  S_CO2L( NP ) )  * RECIPAP1
+c       S_GAS( NP, LFOA   ) = ( S_PFOAF( NP )  + XL * ( S_FOAL( NP ) + S_HCO2( NP ) ) ) * RECIPAP1
+c       S_GAS( NP, LMHP   ) = ( S_PMHPF( NP )  + XL *  S_MHPL( NP ) )  * RECIPAP1
+c       S_GAS( NP, LPAA   ) = ( S_PPAAF( NP )  + XL *  S_PAAL( NP ) )  * RECIPAP1
+c       S_GAS( NP, LHCL   ) = ( S_PHCLF( NP )  + XL *  S_HCLL( NP ) )  * RECIPAP1
+        S_GAS( NP, LGLY   ) = ( S_PGLYF( NP )  + XL *  S_GLYL( NP ) )  * RECIPAP1
+        S_GAS( NP, LMGLY  ) = ( S_PMGLYF( NP ) + XL *  S_MGLYL( NP ))  * RECIPAP1
+c       S_GAS( NP, LNH3   ) = S_FNH3( NP )  * S_TOTAMM( NP )
+c       S_GAS( NP, LHNO3  ) = S_FHNO3( NP ) * S_TOTNIT( NP )
+        S_GAS( NP, LN2O5  ) = 0.0D0 ! assume all into aerosol
+        S_GAS( NP, LH2SO4 ) = 0.0D0 ! assume all into aerosol
+      END DO
+#endif
 
 C...aerosol species wet deposition (mm mol/lit)
 C...  there is no wet deposition of aitken particles, they attached
@@ -1603,6 +2370,41 @@ C...  to the accumulation mode particles
 !     AERWDEP( LSRF, AKN ) = 0.0D0
 !     AERWDEP( LSRF, ACC ) = 0.0D0
 !     AERWDEP( LSRF, COR ) = 0.0D0
+
+#ifdef sens
+      DO NP = 1, NPMAX
+        S_AERWDEP( NP, LSO4, AKN )   = 0.0D0
+        S_AERWDEP( NP, LNH4, AKN )   = 0.0D0
+        S_AERWDEP( NP, LNO3, AKN )   = 0.0D0
+        S_AERWDEP( NP, LEC,  AKN )   = 0.0D0
+        S_AERWDEP( NP, LPRI, AKN )   = 0.0D0
+        S_AERWDEP( NP, LPOA, AKN )   = 0.0D0
+        S_AERWDEP( NP, LSO4, ACC )   = S_WETDEP( NP, LSO4ACCL ) + S_WETDEP( NP, LHSO4ACCL )
+        S_AERWDEP( NP, LNH4, ACC )   = S_WETDEP( NP, LNH4ACCL )
+        S_AERWDEP( NP, LNO3, ACC )   = S_WETDEP( NP, LNO3ACCL )
+        S_AERWDEP( NP, LEC,  ACC )   = S_WETDEP( NP, LECL     )
+        S_AERWDEP( NP, LPRI, ACC )   = S_WETDEP( NP, LPRIML   )
+        S_AERWDEP( NP, LSOA,  ACC )  = S_WETDEP( NP, LSOAL  )
+        S_AERWDEP( NP, LORGC, ACC )  = S_WETDEP( NP, LORGCL )
+        S_AERWDEP( NP, LPOA,  ACC )  = S_WETDEP( NP, LPOAL )
+        S_AERWDEP( NP, LSO4, COR )   = S_WETDEP( NP, LTS6CORL  )
+        S_AERWDEP( NP, LNO3, COR )   = S_WETDEP( NP, LNO3CORL  )
+        S_AERWDEP( NP, LNH4, COR )   = S_WETDEP( NP, LNH4CORL  )
+        S_AERWDEP( NP, LNA, AKN  )   = 0.0D0
+        S_AERWDEP( NP, LCL, AKN  )   = 0.0D0
+        S_AERWDEP( NP, LNA, ACC  )   = S_WETDEP( NP, LNAACCL )
+        S_AERWDEP( NP, LCL, ACC  )   = S_WETDEP( NP, LCLACCL )
+        S_AERWDEP( NP, LCL, COR  )   = S_WETDEP( NP, LCLCORL )
+        S_AERWDEP( NP, LCAACC, ACC ) = S_WETDEP( NP, LCAACCL )
+        S_AERWDEP( NP, LMGACC, ACC ) = S_WETDEP( NP, LMGACCL )
+        S_AERWDEP( NP, LKACC,  ACC ) = S_WETDEP( NP, LKACCL  )
+        S_AERWDEP( NP, LSOILC, COR ) = S_WETDEP( NP, LSOILCL )
+        S_AERWDEP( NP, LANTHC, COR ) = S_WETDEP( NP, LANTHCL )
+        S_AERWDEP( NP, LSEASC, COR ) = S_WETDEP( NP, LSEASCL )
+        S_AERWDEP( NP, LFEACC, ACC ) = S_WETDEP( NP, LFEACCL )
+        S_AERWDEP( NP, LMNACC, ACC ) = S_WETDEP( NP, LMNACCL )
+      END DO
+#endif
 
 C...Compute for Aerosol species in  TXHG Version
 
@@ -1671,6 +2473,44 @@ C...aerosol concentrations (mol/molV)
       AEROSOL( LFEACC, ACC ) = FEACC   * XL * RECIPAP1 ! AE6 - SLN 22March2011
       AEROSOL( LMNACC, ACC ) = MNACC   * XL * RECIPAP1 ! AE6 - SLN 22March2011
 
+#ifdef sens
+      DO NP =1, NPMAX
+        S_AEROSOL( NP, LSO4, AKN )   = S_AEROSOL( NP, LSO4, AKN ) * EALFA3T
+        S_AEROSOL( NP, LNH4, AKN )   = S_AEROSOL( NP, LNH4, AKN ) * EALFA3T
+        S_AEROSOL( NP, LNO3, AKN )   = S_AEROSOL( NP, LNO3, AKN ) * EALFA3T
+        S_AEROSOL( NP, LEC,  AKN )   = S_AEROSOL( NP, LEC,  AKN ) * EALFA3T
+        S_AEROSOL( NP, LPRI, AKN )   = S_AEROSOL( NP, LPRI, AKN ) * EALFA3T
+        S_AEROSOL( NP, LPOA, AKN )   = S_AEROSOL( NP, LPOA, AKN ) * EALFA3T
+        S_AEROSOL( NP, LSO4, ACC )   = S_TS6ACC( NP ) * XL * RECIPAP1
+        S_AEROSOL( NP, LEC,  ACC )   = S_EC( NP )     * XL * RECIPAP1
+        S_AEROSOL( NP, LPRI, ACC )   = S_PRIM( NP )   * XL * RECIPAP1
+        S_AEROSOL( NP, LSOA,  ACC )  = S_SOA( NP )  * XL * RECIPAP1
+        S_AEROSOL( NP, LORGC, ACC )  = S_ORGC( NP ) * XL * RECIPAP1
+        S_AEROSOL( NP, LPOA,  ACC )  = S_POA( NP )  * XL * RECIPAP1
+c       S_AEROSOL( NP, LNH4, ACC )   = S_FNH4ACC( NP ) * S_TOTAMM( NP )
+c       S_AEROSOL( NP, LNO3, ACC )   = S_FNO3ACC( NP ) * S_TOTNIT( NP )
+        S_AEROSOL( NP, LSO4, COR )   = S_TS6COR( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LNO3, COR )   = S_NO3COR( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LNH4, COR )   = S_NH4COR( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LNA, AKN  )   = S_AEROSOL( NP, LNA, AKN ) * EALFA3T
+c       S_AEROSOL( NP, LCL, AKN  )   = S_AEROSOL( NP, LCL, AKN ) * EALFA3T
+c       S_AEROSOL( NP, LNA, ACC  )   = S_NAACC( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LCL, ACC  )   = S_CLACC( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LCL, COR  )   = S_CLCOR( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LNUM, AKN )   = S_AEROSOL( NP, LNUM, AKN ) * EALFA0T
+c       S_AEROSOL( NP, LNUM, ACC )   = S_AEROSOL( NP, LNUM, ACC ) * EBETASO4T
+c       S_AEROSOL( NP, LNUM, COR )   = S_NUMCOR( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LCAACC, ACC ) = S_CAACC( NP )   * XL * RECIPAP1
+c       S_AEROSOL( NP, LMGACC, ACC ) = S_MGACC( NP )   * XL * RECIPAP1
+c       S_AEROSOL( NP, LKACC,  ACC ) = S_KACC( NP )    * XL * RECIPAP1
+c       S_AEROSOL( NP, LSOILC, COR ) = S_SOILCOR( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LANTHC, COR ) = S_ANTHCOR( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LSEASC, COR ) = S_SEASCOR( NP ) * XL * RECIPAP1
+c       S_AEROSOL( NP, LFEACC, ACC ) = S_FEACC( NP )   * XL * RECIPAP1
+c       S_AEROSOL( NP, LMNACC, ACC ) = S_MNACC( NP )   * XL * RECIPAP1
+      END DO
+#endif
+
 C...Compute for Aerosol species in  TXHG Version
 
       AEROSOL( LTRACER_AKN, AKN ) = AEROSOL( LTRACER_AKN, AKN ) * EALFA3T
@@ -1683,6 +2523,11 @@ C...Compute for Aerosol species in  TXHG Version
 C...store the amount of hydrogen deposition
 
       HPWDEP = REAL( WETDEP( LACL ), 4 )
+#ifdef sens
+      DO NP =1, NPMAX
+        S_HPWDEP( NP ) = S_WETDEP( NP, LACL )
+      END DO
+#endif
 
 #ifdef isam
 C... store sulfate production/loss quantities

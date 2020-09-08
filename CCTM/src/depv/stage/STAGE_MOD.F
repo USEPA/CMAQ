@@ -328,15 +328,14 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: rawmt, rad_wat, rmsv, dif_T, k_vis, dwat_T ! mass transport between the air-water droplet interface
          Real            :: rgdry, sm_func  
          Real            :: temp_g, temp_2m, q_2m, rh, ustar, lai ! column met data
+         Real            :: vd ! deposition velocity
          Real            :: Ra, Rb, Rb_leaf, Rbgc, Rst, Rcut, Rgc, Rg, Rsnow, Rinc, Rwat ! land use and species specific bulk resistances
          Real            :: snow, no_snow, wet, dry, veg, no_veg, ice_snow, melt_snow    ! fractional land coverage
          Real            :: frac_lu                                                      ! fractional land use
          Real            :: hcan, ustg, del0
-         Real            :: Flux
+         Real            :: LU_Flux, Grid_Flux
          Real            :: c_atm, c_z0, c_leaf, c_stom, c_cut, c_grnd, c_wat ! Compensation points  
-         Real            :: cs0_z0, cs0_leaf                                  ! Compensation points with zero surface concentration
-         Real            :: ca0_z0, ca0_leaf                                  ! Compensation points with zero atmospheric concentration
-         Real            :: soil_emis, soil_dep, soil_flux                    ! soil emission and deposition for soil biogeochem
+         Real            :: soil_flux                                         ! soil emission and deposition for soil biogeochem
          Real            :: f_emis, f_dep, f_stom, f_cut, f_soil, flux_ag, f_nat, f_wat ! component fluxes
          Real            :: ctemp2, lv, cp_air, tw, dw25, kvisw, dw, scw_pr_23, scn
          Real            :: pChang, kwChang, ciodide, qiodide
@@ -347,6 +346,9 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: Hg_st, Hg_cut, Hg_grnd, Hg_wat, flux_hgII
    
          effective = .TRUE.
+
+! initialize the bidi flux production term
+         Tile_Data%pol( :,:,c,r ) = 0.0  
 
 ! column met variables 
          temp_2m = Met_Data%TEMP2(c,r)
@@ -405,17 +407,16 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
             scc_pr_23( s ) = ( ( k_vis / dif_T ) / pr ) ** twothirds
 
             c_atm = max( cgridl1( n ), 1.0e-30 )
-            f_emis = 0.0
-            f_dep  = 0.0
-            f_stom = 0.0
-            f_cut  = 0.0
-            f_soil = 0.0
+            Grid_Flux = 0.0
+            f_emis    = 0.0
+            f_dep     = 0.0
+            f_stom    = 0.0
+            f_cut     = 0.0
+            f_soil    = 0.0
             flux_ag   = 0.0
             f_nat     = 0.0
             f_wat     = 0.0
-            soil_dep  = 0.0
             soil_flux = 0.0
-            soil_emis = 0.0
             heff_wat  = hlconst( H_name_all( s ), tw, effective, hplus_h2o )* 0.08205 * tw
             heff_ap   = hlconst( H_name_all( s ), temp_2m, effective, hplus_ap )
             heff      = hlconst( H_name_all( s ), temp_2m, effective, hplus )* 0.08205 * temp_2m
@@ -497,12 +498,13 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                   ELSE                     ! other chems
                      Rwat   = scw_pr_23 / ( heff_wat * d3 * ustar )
                   END IF
-                  Flux     = (c_atm-c_wat)/( Ra + Rb + Rwat )                         ! positive values for deposition
-                  If(c_wat .Gt. 0.0 ) Then 
-                     Tile_Data%depvel_gasj( l,s,c,r ) = 1.0 / ( Ra + Rb + Rwat )
+                  LU_Flux     = (c_atm-c_wat)/( Ra + Rb + Rwat )                         ! positive values for deposition
+                  If(c_wat .Gt. 0.0 ) Then
+                     vd =  1.0 / ( Ra + Rb + Rwat )
+                     Tile_Data%depvel_gasj( l,s,c,r ) = vd
                      Tile_Data%pol( l,s,c,r ) = c_wat / ( Ra + Rb + Rwat )
                   Else
-                     Tile_Data%depvel_gasj( l,s,c,r ) = Flux / c_atm
+                     Tile_Data%depvel_gasj( l,s,c,r ) = LU_Flux / c_atm
                   End If
                   f_emis = f_emis + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
                   f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
@@ -651,49 +653,34 @@ C Calcuate Bare Soil Resistance
 ! Estimate air-surface flux
 !-------------------------------------------------------------------------------------------------         
 ! positive values for deposition                 
-                  Flux     = veg    * (c_atm-c_z0)/Ra +                 ! air-vegetation flux
+                  LU_Flux     = veg * (c_atm-c_z0)/Ra +                 ! air-vegetation flux
      &                       no_veg * (c_atm-c_grnd)/( Ra + Rg )        ! air-soil flux
+!-------------------------------------------------------------------------------------------------
+! Deposition velocity
+!-------------------------------------------------------------------------------------------------                                                               
+                  vd = veg / (Ra + 1.0/(1.0/(Rb_leaf+1.0/(1.0/Rcut+1.0/Rst))+1.0/Rgc)) +
+     &              no_veg / (Ra + Rg)
 !-------------------------------------------------------------------------------------------------
 ! NH3 bidirectional exchange diagnostic fluxes
 !-------------------------------------------------------------------------------------------------                                                               
                   If(ABFLUX .And. s .Eq. s_NH3 ) Then     
-! Leaf compensation point if atmospheric conc were 0 for diagnostic emission and soil budget estiamtes
-                     ca0_leaf = (c_stom*(1.0/(Ra*Rst)+1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst))+                                                 
-     &                           c_cut*(1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rcut)+1.0/(Rgc*Rcut))+                                                
-     &                           c_grnd/(Rb_leaf*Rgc))/                                                                                  
-     &                 (1.0/(Ra*Rb_leaf)+1.0/(Ra*Rst)+1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rgc)+1.0/(Rb_leaf*Rcut)+
-     &                  1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst)+1.0/(Rgc*Rcut)) 
-                     ca0_z0     = (ca0_leaf/Rb_leaf+c_grnd/Rgc)/(1.0/Ra+1.0/Rb_leaf+1.0/Rgc)
-! Leaf compensation point if soil and vegetation  conc were 0 for diagnostic deposition and soil budget estiamtes
-                     cs0_leaf = c_atm/(Ra*Rb_leaf)/                                                                                     
-     &                 (1.0/(Ra*Rb_leaf)+1.0/(Ra*Rst)+1.0/(Ra*Rcut)+1.0/(Rb_leaf*Rgc)+1.0/(Rb_leaf*Rcut)+
-     &                  1.0/(Rb_leaf*Rst)+1.0/(Rgc*Rst)+1.0/(Rgc*Rcut)) 
-                     cs0_z0     = (c_atm/Ra+cs0_leaf/Rb_leaf)/(1.0/Ra+1.0/Rb_leaf+1.0/Rgc)
                     If( Ag( l ) ) Then
                        flux_ag = flux_ag + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra + 
-     &                                       no_veg * ( c_grnd - c_atm ) / Rg )
-                       soil_dep  = soil_dep + frac_lu * ( veg * cs0_z0 / Rgc
-     &                           + no_veg / ( Ra + Rg ) * c_atm )  ! soil layer
-                       soil_emis = soil_emis + max( frac_lu * ( veg * (c_grnd-ca0_z0) / Rgc  
-     &                           + no_veg / (Ra + Rg) * c_grnd ),0.0)             ! soil layer
+     &                                       no_veg * ( c_grnd - c_atm ) / ( Ra + Rg ) )
                        soil_flux  = soil_flux + veg * ( c_grnd - c_z0 ) / Rgc
      &                            + no_veg * ( c_grnd  - c_atm ) / ( Ra + Rg )  ! soil layer
                     Else
                        f_nat = f_nat + frac_lu * ( veg * ( c_z0 - c_atm ) / Ra - 
-     &                                            no_veg * c_atm / Rg )          
+     &                                          no_veg * ( c_grnd - c_atm ) / ( Ra + Rg ) )          
                     End If
-                    f_dep = f_dep + frac_lu * ( veg * ( c_atm - cs0_z0 ) / Ra + 
-     &                      no_veg * c_atm / ( Ra + Rg ) )
-                    f_emis = f_emis + frac_lu * ( veg * ca0_z0 / Ra +
-     &                       no_veg * c_grnd / ( Ra + Rg ) )
+                    f_dep  = f_dep  + frac_lu * vd * c_atm
                   End If ! ABFLUX and NH3
                   If( c_stom .Gt. 0.0 .Or. c_cut .Gt. 0.0 .Or. c_grnd .Gt. 0.0 ) Then
 !-------------------------------------------------------------------------------------------------
 ! Bidirectional exchange
 !-------------------------------------------------------------------------------------------------                                                               
-                     Tile_Data%pol( l,s,c,r ) = ( veg * c_z0 / Ra                        !Vegetation flux
-     &                       + no_snow * no_veg * c_grnd / ( Ra + Rg ) )                 !Bare soil flux w/ no snow emissions
-                     Tile_Data%depvel_gasj( l,s,c,r ) = veg / Ra + no_veg / ( Ra + Rg )  !Exchange velocity with compensation point
+                     Tile_Data%pol( l,s,c,r ) = max( vd * c_atm - LU_Flux, 0.0 )          ! should always be greater than 0
+                     Tile_Data%depvel_gasj( l,s,c,r ) = vd                                ! Deposition velocity
                      f_soil = f_soil + frac_lu * ( veg * ( ( c_grnd - c_z0 ) / Rgc ) + 
      &                                         no_veg * (c_grnd - c_atm)/( Ra + Rg ) )            ! air-soil flux
                      f_stom = f_stom + frac_lu * veg * ( c_stom - c_leaf ) / Rst 
@@ -702,16 +689,18 @@ C Calcuate Bare Soil Resistance
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
 !-------------------------------------------------------------------------------------------------   
-                     Tile_Data%depvel_gasj( l,s,c,r ) =  Flux / c_atm               
+                     Tile_Data%depvel_gasj( l,s,c,r ) =  vd
                   End If ! compensation points greater than 0
                End If ! Water    
 ! Generalization of the production and deposition velocity terms
+               Grid_Flux       = Grid_Flux + frac_lu * LU_Flux
                pvd( n )        = pvd( n )        + frac_lu * Tile_Data%pol( l,s,c,r )
-               depvel_gas( n ) = depvel_gas( n ) + frac_lu * Tile_Data%depvel_gasj( l,s,c,r )
+               depvel_gas( n ) = depvel_gas( n ) + 
+     &                           frac_lu * Tile_Data%depvel_gasj( l,s,c,r )
             End Do lu_loop
             If(ABFLUX .And. s .Eq. s_NH3 ) Then
-               cmp( 1 ) = max( f_emis, 0.0 )
-               cmp( 2 ) = max( f_dep, 0.0 )
+               cmp( 1 ) = pvd( n )
+               cmp( 2 ) = f_dep
                cmp( 3 ) = f_stom
                cmp( 4 ) = f_cut
                cmp( 5 ) = f_soil

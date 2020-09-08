@@ -1,7 +1,7 @@
 #!/bin/csh -f
 
-# ======================= BCONv5.3 Run Script ======================== 
-# Usage: run.bcon.csh >&! bcon_v53.log &                                
+# ======================= BCONv5.3.X Run Script ======================== 
+# Usage: run.bcon.csh >&! bcon.log &                                
 #
 # To report problems or request help with this script/program:        
 #             http://www.cmascenter.org
@@ -28,8 +28,8 @@
  echo " "; echo " Input data path, CMAQ_DATA set to $CMAQ_DATA"; echo " "
 
 #> Set General Parameters for Configuring the Simulation
- set VRSN     = v531                     #> Code Version
- set APPL     = SE53BENCH               #> Application Name
+ set VRSN     = v532                    #> Code Version
+ set APPL     = 2016_12SE1              #> Application Name
  set BCTYPE   = regrid                  #> Boundary condition type [profile|regrid]
 
 #> Set the build directory:

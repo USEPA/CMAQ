@@ -17,6 +17,13 @@
 !  subject to their copyright restrictions.                              !
 !------------------------------------------------------------------------!
 
+
+C RCS file, release, date & time of last delta, author, state, [and locker]
+C $Header: /project/yoj/arc/CCTM/src/cloud/cloud_acm_ae5/scavwdep.F,v 1.7 2011/10/21 16:10:28 yoj Exp $
+
+C what(1) key, module and SID; SCCS file; date and time of last delta:
+C %W% %P% %G% %U%
+
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE SCAVWDEP ( JDATE, JTIME, WTBAR, WCBAR, TBARC, PBARC,
      &                      CTHK1, AIRM, PRATE1, TAUCLD, POLC, CEND,
@@ -36,6 +43,7 @@ C       6 Mar 11   S.Roselle: replaced I/O API include files with UTILIO_DEFN;
 C                       removed deprecated TRIMLEN
 C       6 Mar 11   B.Hutzell: added TRACER string for AE_SPCs to omit while
 C                       computing Aitken mode mass
+C    1 Dec 15 S.L.Napelenok:  ddm-3d implementaiton for version 5.1.1
  
 C  Called by:  RADMCLD and RESCLD
  
@@ -67,6 +75,10 @@ C-----------------------------------------------------------------------
 
       USE CGRID_SPCS                    ! CGRID mechanism species
       USE UTILIO_DEFN
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, S_POLC, S_CEND, S_REMOV, S_REMOVAC
+#endif 
 
       IMPLICIT NONE
 
@@ -253,6 +265,10 @@ ccc          TWASH = AMAX1( TWASH, TAUCLD / 60.0 )   ! <different units?sec&min
       TWF = H2ODENS / ( WTBAR * RTCH )
       REMOVAC = 0.0
 
+#ifdef sens
+      S_REMOVAC = 0.0
+#endif
+
       RHOAIR = ( AIRM / CTHK1 ) * MWAIR * KGPG
 
 C...compute total Aitken mode number (#/m3)
@@ -310,10 +326,22 @@ C...gas scavenging and wet deposition
           ALFA = CGRID_SCAV_FAC( SPC ) * ONE_OVER_TWASH / ( 1.0 + TWF / KH )
           CEND ( PNTR ) = POLC( PNTR ) * EXP( -ALFA * TAUCLD )
           REMOV( PNTR ) = ( POLC( PNTR ) - CEND( PNTR ) ) * AIRM
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_CEND ( NP, PNTR ) = S_POLC( NP, PNTR ) * EXP( -ALFA * TAUCLD )
+            S_REMOV( NP, PNTR ) = ( S_POLC( NP, PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
+          END DO
+#endif
         ELSE
           ALFA = 0.0
           CEND ( PNTR ) = POLC( PNTR )
           REMOV( PNTR ) = 0.0
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_CEND( NP, PNTR )  = S_POLC( NP, PNTR )
+            S_REMOV( NP, PNTR ) = 0.0
+          END DO
+#endif
         END IF
       END DO
 
@@ -343,6 +371,13 @@ csjr          END IF
         CEND ( PNTR ) = POLC( PNTR ) * EXP( -ALFA * TAUCLD )
         REMOV( PNTR ) = ( POLC( PNTR ) - CEND( PNTR ) ) * AIRM
 
+#ifdef sens
+        DO NP = 1, NPMAX
+          S_CEND ( NP,PNTR ) = S_POLC( NP,PNTR ) * EXP( -ALFA * TAUCLD )
+          S_REMOV( NP,PNTR ) = ( S_POLC( NP,PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
+        ENDDO
+#endif
+
       END DO
 
 C...non-reactive scavenging and wet deposition
@@ -355,10 +390,22 @@ C...non-reactive scavenging and wet deposition
           ALFA = CGRID_SCAV_FAC( SPC ) * ONE_OVER_TWASH / ( 1.0 + TWF / KH )
           CEND ( PNTR ) = POLC( PNTR ) * EXP( -ALFA * TAUCLD )
           REMOV( PNTR ) = ( POLC( PNTR ) - CEND( PNTR ) ) * AIRM
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_CEND ( NP, PNTR ) = S_POLC( NP,PNTR ) * EXP( -ALFA * TAUCLD )
+            S_REMOV( NP, PNTR ) = ( S_POLC( NP,PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
+          END DO
+#endif
         ELSE
           ALFA = 0.0
           CEND ( PNTR ) = POLC( PNTR )
           REMOV( PNTR ) = 0.0
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_CEND( NP, PNTR )  = S_POLC( NP, PNTR )
+            S_REMOV( NP, PNTR ) = 0.0
+          END DO
+#endif
         END IF
       END DO
 
@@ -372,10 +419,22 @@ C...tracer scavenging and wet deposition
           ALFA = CGRID_SCAV_FAC( SPC ) * ONE_OVER_TWASH / ( 1.0 + TWF / KH )
           CEND ( PNTR ) = POLC( PNTR ) * EXP( -ALFA * TAUCLD )
           REMOV( PNTR ) = ( POLC( PNTR ) - CEND( PNTR ) ) * AIRM
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_CEND ( NP, PNTR ) = S_POLC( NP,PNTR ) * EXP( -ALFA * TAUCLD )
+            S_REMOV( NP, PNTR ) = ( S_POLC( NP,PNTR ) - S_CEND( NP, PNTR ) ) * AIRM
+          END DO
+#endif
         ELSE
           ALFA = 0.0
           CEND ( PNTR ) = POLC( PNTR )
           REMOV( PNTR ) = 0.0
+#ifdef sens
+          DO NP = 1, NPMAX
+            S_CEND( NP, PNTR )  = S_POLC( NP, PNTR )
+            S_REMOV( NP, PNTR ) = 0.0
+          END DO
+#endif
         END IF
       END DO
 

@@ -169,8 +169,8 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to compile the CCTM executable with Integrated Source Apportionment Method (ISAM). See [Chapter 11](../CMAQ_UG_ch11_ISAM.md) for futher information before invoking this option. 
     
 -   `build_twoway`<a id=build_twoway></a>  
-    Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. This option is currently not supported. Please contact David Wong (wong.david@epa.gov) for specific instructions for building WRF-CMAQ.
-
+    Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. During run time, if you encounter any problems, please contact David Wong (wong.david@epa.gov).
+    
 -   `potvortO3`<a id=potvort03></a>   
     Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information before invoking this option.
 
@@ -355,7 +355,9 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `NSTEPS [default: 240000]`<a id=NSTEPS></a>  
     Number of simulation time steps (HHMMSS)  
 -   `TSTEP [default: 010000]`<a id=TSTEP></a>   
-    Simulation output time step interval (HHMMSS)  
+    Simulation output time step interval (HHMMSS). Must be a mutiple of the run length. 
+-   `MET_TSTEP [default: time step of METCRO3D file]`<a id=MET_TSTEP></a>   
+    Meteorology input time step interval (HHMMSS). Users who wish to specify temporally coarser meteorology then their input meteorology may do so using this environment variable. The default value of MET_TSTEP is the time-step of the METCRO3D file (input meteorology data step). Users may however specify MET_TSTEP to be multiples of the input meterology time-step as long as they add up to the output time step (define as environmental variable TSTEP). Ex. If the meteorology files have data available at 10 minute intervals and a desired 1-hour output frequency, valid MET_STEPS are {10,20,30,30,60...} minutes. 
 
 <a id=CCTM_Config_Options></a>
 
@@ -438,7 +440,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 - `CTM_WBDUST_BELD [default: UNKNOWN]`<a id=CTM_WBDUST_BELD></a>  
      Landuse database for identifying dust source regions; ignore if CTM_WB_DUST = FALSE
     - BELD3: Use BELD3 landuse data for windblown dust calculations. The user needs to specify the DUST_LU_1 and DUST_LU_2 files described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). These files typically are available for North American domains only.
-    - BELD4: Use BELD4 landuse data for windblown dust calculations. The user needs to specify the E2C_LU file described in [Chapter 4](../CMAQ_UG_ch04_model_inputs.md). This file typically is available for North American domains only.
     - UNKNOWN: Use landuse information provided by MCIP for windblown dust calculations
 -   `CTM_LTNG_NO [default: Y]`<a id=CTM_LING_NO></a>  
     Y/N setting to activate lightning NO emissions. Setting this variable to Y requires additional variables to define the configuration of the lightning NO emissions calculation. See the settings for `LTNGNO`, `LTNGPARAMS`, `NLDN_STRIKES`, and `LTNGDIAG` below. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#lightning-no) for further information.
@@ -572,9 +573,6 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
--   `EMIS_SYM_DATE `<a id=EMIS_SYM_DATE></a>  
-    Master switch to allow all offline emissions to use the start date from the file instead of the internal model date. This switch maybe useful if all offline emissions are of representative day type. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
-
 -   `N_EMIS_GR `<a id=N_EMIS_GR></a>  
     The number of offline gridded streams to be used by the model. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     
@@ -600,16 +598,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
     Short label of the point emissions file for sector ###, where ### = 001, 002,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
     
  -   `STK_EM_SYM_DATE_### [default: False]`<a id=STK_EM_SYM_DATE_###></a>  
-    Switch to indicate whether point emission file is of representative day type for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.   
-
--   `LAYP_STDATE [HHMMSS]`<a id=LAYP_STDATE></a>  
-    Start date for calculating elevated-point-source emissions.  
-
--   `LAYP_STTIME [HHMMSS]`<a id=LAYP_STTIME></a>   
-    Start time for calculating elevated-point-source emissions.  
-
--   `LAYP_NSTEPS [HHHHHH]`<a id=LAYP_NSTEPS></a>  
-    Number of time steps for calculating elevated-point-source emissions.   
+    Switch to indicate whether point emission file is of representative day type for sector ###, where ### = 01, 02,…,N_EMIS_PT. Each ### refers to the one of the plume rise point-source sectors. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information. 
+    
+-   `EMIS_SYM_DATE [default: False]`<a id=EMIS_SYM_DATE></a>  
+    The default for GR_EM_SYM_DATE_### and STK_EM_SYM_DATE_### if not set explicitly is false, however users have the option to set this default by setting this environment variable. Users should note, that if this variable is set and GR_EM_SYM_DATE_### or STK_EM_SYM_DATE_### is set, the individual stream switch takes precedent over this variable. This switch maybe useful if all offline emissions are of representative day type. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#inline-stream-offline) for further information.
 
 <a id=Lightning_NOx_Config></a>
 
@@ -686,13 +678,10 @@ Sets if the CCTM will run in multi-processor or serial mode.
 -   `DUST_LU_2 [default: Path to BELD3 Data]`<a id=DUST_LU_2></a>  
     Input BELD "TOT" landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD3.  
 
--   `E2U_LU [default: path to BELD4 data file]`<a id=BELD4_LU></a>  
-    Input BELD4 landuse netCDF file gridded to the modeling domain. Used if `CTM_WBDUST_BELD` is set to BELD4.  
 
 
 <!-- BEGIN COMMENT -->
 
 [<< Tables and Figures](../CMAQ_UG_tables_figures.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixB_emissions_control.md)<br>
- CMAQ User's Guide (c) 2019<br>
- 
+ CMAQ User's Guide (c) 2020<br>
  <!-- END COMMENT -->

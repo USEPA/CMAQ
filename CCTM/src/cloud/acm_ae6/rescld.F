@@ -70,8 +70,11 @@ C      07 May 18 D. Schwede: Removed call to CZANGLE. COSZEN now calculated in A
 C      26 Nov 18 S. Napelenok: ISAM implementation
 C       1 Feb 19 D. Wong: Implemented centralized I/O approach, removed all MY_N
 C                         clauses
-C       01 AUG 19 D.Wong: Modified code to work with two-way model
-C       11 Nov 19 F. Sidi: Changed MSTEP to accomdate Centralized I/O changes
+C      01 AUG 19 D. Wong: Modified code to work with two-way model
+C      11 Nov 19 F. Sidi: Changed MSTEP to accomdate Centralized I/O changesC      
+C      30 Dec 19 S. Napelenok: ddm-3d implementaiton for version 5.3.1
+
+
 C  Called by:  CLDPROC
  
 C  Calls the following subroutines:  SCAVWDEP and AQ_MAP
@@ -93,6 +96,14 @@ C-----------------------------------------------------------------------
      &                   ITAG
 
 #endif
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: SENGRID, NP, NPMAX, S_CONDEP, S_POLC, 
+     &                      S_CEND, S_REMOV, S_REMOVAC, S_CONDEP, 
+     &                      S_TOTDEP
+#endif 
+
+
 
       IMPLICIT NONE
 
@@ -318,6 +329,32 @@ C...  the met timestep in hours
         END IF
 #endif
 
+#ifdef sens
+        IF ( .NOT. ALLOCATED( S_CEND ) ) ALLOCATE ( S_CEND ( NPMAX, MXSPCS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating S_CEND'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        IF ( .NOT. ALLOCATED( S_POLC ) ) ALLOCATE ( S_POLC ( NPMAX, MXSPCS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating S_POLC'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        IF ( .NOT. ALLOCATED( S_REMOV ) ) ALLOCATE ( S_REMOV ( NPMAX, MXSPCS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating S_REMOV'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+
+        IF ( .NOT. ALLOCATED( S_REMOVAC ) ) ALLOCATE ( S_REMOVAC ( NPMAX ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+          XMSG = 'Failure allocating S_REMOVAC'
+          CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF 
+        S_REMOVAC = 0.0
+#endif
 
       END IF  ! FIRSTIME
 
@@ -553,6 +590,16 @@ C...  per mole air
                 END DO
 #endif 
 
+#ifdef sens
+                DO NP = 1, NPMAX
+                  DO SPC = 1, NSPCSD
+                    S_POLC ( NP, SPC ) = SENGRID( COL, ROW, LAY, NP, SPC )
+                    S_CEND ( NP, SPC ) = S_POLC( NP, SPC)
+                    S_REMOV( NP, SPC ) = 0.0
+                  END DO
+                END DO
+#endif
+
 C...perform scavenging and aqueous chemistry within the cloud
 C...  and re-adjust the ending and removed amounts for those species
 C...  that were scavenged or that participated in cloud chemistry
@@ -565,18 +612,20 @@ C...  that were scavenged or that participated in cloud chemistry
 #ifdef isam
                 DO SPC = 1, NSPC_SA
                   CSPC = SPC_INDEX(SPC,2)
+c                 IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09 ) THEN
                   IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
                     DO ITAG = 1, NTAG_SA
                       SA_CEND( SPC, ITAG ) = SA_POLC( SPC, ITAG )
-     &                                     * CEND( CSPC )
-     &                                     / POLC( CSPC )
+     &                                     * ( CEND( CSPC )
+     &                                       / POLC( CSPC ) )
                       SA_REMOV( SPC, ITAG ) = SA_POLC( SPC, ITAG )
-     &                                      * REMOV( CSPC )
-     &                                      / POLC( CSPC )
+     &                                      * ( REMOV( CSPC )
+     &                                        / POLC( CSPC ) )
                     END DO
-                  ELSE
+                  ELSE ! no update
                     DO ITAG = 1, NTAG_SA
-                      SA_CEND( SPC, ITAG ) = 1.0E-30
+                      SA_CEND( SPC, ITAG )  = 0.0
+                      SA_REMOV( SPC, ITAG ) = 0.0
                     END DO
                   END IF
                 END DO
@@ -621,13 +670,17 @@ C...  mimic this for the ASO4GASJ tracking species
                   DO SPC = 1, NSPC_SA ! general case
                     CSPC = SPC_INDEX(SPC,2)
                     DO ITAG = 1, NTAG_SA
+c                     IF ( POLC( CSPC ) .GT. 1.0E-30 .AND. CEND( CSPC ) .GT. 1.0E-09 ) THEN
                       IF ( POLC( CSPC ) .GT. 1.0E-30 ) THEN
                         SA_CEND( SPC, ITAG ) = SA_POLC( SPC,ITAG )
-     &                                       * CEND( CSPC )
-     &                                       / POLC( CSPC )
+     &                                       * ( CEND( CSPC )
+     &                                         / POLC( CSPC ) )
                         SA_REMOV( SPC, ITAG ) = SA_POLC( SPC, ITAG )
-     &                                        * REMOV( CSPC )
-     &                                        / POLC( CSPC )
+     &                                        * ( REMOV( CSPC )
+     &                                          / POLC( CSPC ) )
+                      ELSE !
+                        SA_CEND( SPC, ITAG )  = 0.0
+                        SA_REMOV( SPC, ITAG ) = 0.0
                       END IF
                     END DO
                   END DO
@@ -664,8 +717,6 @@ c                   DS4_SAVE = MAX( ( DS4_SAVE - SUM( SA_DS4 ) ), 0.0 ) !sulfate
           
                   END IF
 #endif
-
-
                 END IF
 
 C...convert from moles/m**2 to kg/m**2 and kg/m**2 to kg/hectare
@@ -689,6 +740,14 @@ C...  for gases
                     END DO
                   END IF
 #endif
+
+#ifdef sens
+                  DO NP = 1, NPMAX
+                    S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * GC_MOLWT( SPC )
+     &                                 * M2PHA_OVER_GPKG
+                  END DO
+#endif
+
                 END DO
 
 C...  for aerosols
@@ -702,8 +761,19 @@ C...  for aerosols
      &                ( INDEX( AE_SPC( SPC ), 'SRF' ) .EQ. 0 )) THEN
                     REMOV( VAR ) = REMOV( VAR ) * AE_MOLWT( SPC )
      &                           * M2PHA_OVER_GPKG
+#ifdef sens
+                    DO NP = 1, NPMAX
+                      S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * AE_MOLWT( SPC )
+     &                                   * M2PHA_OVER_GPKG
+                    END DO
+#endif
                   ELSE
                     REMOV( VAR ) = REMOV( VAR ) * M2PHA
+#ifdef sens
+                    DO NP = 1, NPMAX
+                      S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * M2PHA
+                    END DO
+#endif
                   END IF
 #ifdef isam
                   CSPC = 0
@@ -736,6 +806,14 @@ C...  for non-reactives
                     END DO
                   END IF
 #endif
+
+#ifdef sens
+                  DO NP = 1, NPMAX
+                    S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * NR_MOLWT( SPC )
+     &                                 * M2PHA_OVER_GPKG
+                  END DO
+#endif
+
                 END DO
 
 C...  for tracers
@@ -747,6 +825,12 @@ C...  for tracers
                   SPC = SPC + 1
                   REMOV( VAR ) = REMOV( VAR ) * TR_MOLWT( SPC )
      &                         * M2PHA_OVER_GPKG
+#ifdef sens
+                  DO NP = 1, NPMAX
+                    S_REMOV( NP, VAR ) = S_REMOV( NP, VAR ) * TR_MOLWT( SPC )
+     &                                 * M2PHA_OVER_GPKG
+                  END DO
+#endif
                 END DO
 
 C...load deposition amounts into the DEP array
@@ -779,6 +863,25 @@ C...set cgrid to the ending concentrations
                 END DO
 #endif
 
+#ifdef sens
+                DO NP = 1, NPMAX
+
+                  DO VAR = 1, N_SPC_WDEP
+                    S_TOTDEP( COL, ROW, NP, VAR ) = S_TOTDEP( COL, ROW, NP, VAR )
+     &                                            + S_REMOV( NP, WDEP_MAP( VAR ) )
+                  END DO
+
+                  S_TOTDEP( COL, ROW, NP, N_SPC_WDEP+1 ) =
+     &                     S_TOTDEP( COL, ROW, NP, N_SPC_WDEP+1 ) + S_REMOVAC( NP )
+
+                  DO SPC = 1, NSPCSD
+                    IF ( SPC .NE. N_GC_SPCD ) THEN
+                      SENGRID( COL, ROW, LAY, NP, SPC ) = S_CEND( NP, SPC )
+                    END IF
+                  END DO
+
+                END DO
+#endif
 
               END IF        ! Sum( QC,QR,QG ) > 0.00005 ?
             END DO       ! lay

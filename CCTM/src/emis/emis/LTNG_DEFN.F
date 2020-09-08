@@ -62,6 +62,10 @@
 !C  3 Sep 2019 D. Kang: Added to scale factors for the vertical distribution and to make sure 
 !C                      the profile is similar to those reported in literature and fixed a bug 
 !C                      that was introduced two years ago for generating diagnotic 3D lightning emissions.
+!C 4 Feb 2020 D. Kang: Remove the SATLAM function call that is redundant and clean up the code to comply with 
+!C                      the implementation of CIO.Though there is no effect when run the model over the continental
+!C                      US (Lambert projection), when run over the hemisphere and turning lightning NOx on,
+!C                       the run would crash due to uncompatible projection (polar)
 !C----------------------------------------------------------------------
       USE RUNTIME_VARS
       USE EMIS_VARS
@@ -84,17 +88,9 @@
       REAL,    ALLOCATABLE, SAVE :: VDEMIS_DIAG( :,:,: ) ! lightning NO diagnostic
       REAL,    ALLOCATABLE, SAVE :: COLUMN_DIAG( :,: ) ! column total NO
 
-!C file name for off line lightning NO input; set to "InLine" for inline production
-!C file name for inline lightning parameters, (only used if LTNG_FNAME = "InLine")
-      CHARACTER( 16 ),      SAVE :: ANAME
-      CHARACTER( 16 ),      SAVE :: ONAME
-!C file name for met file for inline lightning
-      CHARACTER( 16 ),      SAVE :: MNAME
-      CHARACTER( 16 ),      SAVE :: RNAME
       CHARACTER( 16 ),      SAVE :: RC_NAME       ! RC name: old is RC and CCnew is RCA
-      CHARACTER( 16 ),      SAVE :: LT_NAME       ! LNT name: old is NLDNstrk and new is LNT
 
-!C allocate these if LTNG_FNAME = 'InLine'
+!C allocate these if LTNG_FNAME = 'INLINE'
       REAL,    ALLOCATABLE, SAVE :: LTNG_PRSFC     ( :,: ) ! surface pressure
       REAL,    ALLOCATABLE, SAVE :: LTNG_RC        ( :,: ) ! convective rainfall
 !C allocate these if LPARAM
@@ -123,7 +119,10 @@
          USE GRID_CONF ! horizontal & vertical domain specifications
          USE CGRID_SPCS         ! CGRID mechanism species
          USE UTILIO_DEFN
-         USE CENTRALIZED_IO_MODULE, only : RCA_AVAIL, ICCG_SUM, ICCG_WIN
+         USE CENTRALIZED_IO_MODULE, only : RCA_AVAIL, ICCG_SUM, ICCG_WIN,
+     &                                     FILE_TSTEP, F_MET, F_LTNG,
+     &                                     LT_NAME, FILE_XCELL, FILE_YCELL
+
 #ifdef twoway
          USE twoway_data_module
 #endif
@@ -152,7 +151,6 @@
          LOGICAL LTNGPARAM           ! env var to use lightning NO parameters file
          INTEGER LSPCS               ! no. of lightning species
          INTEGER               :: I, J, K, L, V, STATUS
-         INTEGER               :: NSTEPS
          INTEGER               :: CJDATE
          CHARACTER( 7 )        :: SJDATE
 
@@ -183,32 +181,13 @@
          EM_FILE_SURR( ILTSRM )%BASIS = 'MOLE'
  
 !C Read in scenario time/date
-         NSTEPS = RUNLEN / TSTEP           ! initscen guarantees divisibility
 
          WRITE( SJDATE, '(I7)' ) JDATE
          READ( SJDATE, '(4X, I3)' ) CJDATE
 
-!C Check grid definition (initialize if first call)
-!C Set up domain based on met file
-!C Open met file
-#ifdef twoway
-            IF ( IO_PE_INCLUSIVE ) THEN
-               MNAME = PROMPTMFILE(
-     &                 'Enter name for gridded met input file',
-     &                 FSRDWR3, CTM_CONC_1, PNAME )
-            ELSE
-               MNAME = PROMPTMFILE(
-     &                 'Enter name for gridded met input file',
-     &                 FSREAD3, CTM_CONC_1, PNAME )
-            END IF
-#else
-            MNAME = PROMPTMFILE(
-     &              'Enter name for gridded met input file',
-     &              FSREAD3, 'MET_CRO_3D', PNAME )
-#endif
-
 !C Is lightning NO production inline, or from a file?
-         IF ( LTNG_FNAME .EQ. "InLine" ) THEN  ! inline lightning NO production
+         CALL UPCASE(LTNG_FNAME)
+         IF ( LTNG_FNAME .EQ. "INLINE" ) THEN  ! inline lightning NO production
             XMSG = 'Using in-line lightning NO production'
             CALL M3MSG2( XMSG )
 
@@ -217,20 +196,6 @@
               NLDNSTRIKE = .FALSE.
            END IF
 #endif
-!C Open lightning parameters file?
-               ONAME = PROMPTMFILE(
-     &                    'Enter name for lightning parameters file',
-     &                    FSREAD3, 'LTNGPARMS_FILE', PNAME )
-               RNAME = PROMPTMFILE(
-     &                    'Enter name for gridded met input file',
-     &                    FSREAD3, 'MET_CRO_2D', PNAME )
-!C Read description of normalized emissions file
-           IF ( .NOT. DESC3( RNAME ) ) THEN
-                  XMSG = 'Could not get description of file "'
-     &                 // TRIM( RNAME ) // '"'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-           END IF
            IF ( RCA_AVAIL ) THEN
                RC_NAME = 'RCA'
            ELSE
@@ -239,43 +204,20 @@
            IF ( NLDNSTRIKE ) THEN
                   XMSG = 'Using hourly NLDN Strike data'
                   CALL M3MSG2( XMSG )
-                  ANAME = PROMPTMFILE(
-     &                    'Enter name for NLDN STRIKE Parameters',
-     &                    FSREAD3, 'NLDN_STRIKES', PNAME )
-               IF ( .NOT. DESC3( ANAME ) ) THEN
-                  XMSG = 'Could not get description of file "'
-     &                 // TRIM( ANAME ) // '"'
-                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-                  SUCCESS = .FALSE.; RETURN
-               END IF
-               SPC = INDEX1( 'NLDNstrk', NVARS3D, VNAME3D )
-               IF ( SPC .GT. 0 ) THEN
-                  LT_NAME = 'NLDNstrk'
-               ELSE
-                  LT_NAME = 'LNT'
-               END IF
 
-               LT_TSTEP = TIME2SEC ( TSTEP3D )
+               LT_TSTEP = TIME2SEC ( FILE_TSTEP(F_LTNG)  )
+               LT_TSTEP_F = FILE_TSTEP(F_LTNG) 
 
             ELSE
                  LT_TSTEP = TIME2SEC ( TSTEP )
+                 LT_TSTEP_F = TSTEP 
                  XMSG = 'Using derived parameters for KF scheme '
                  CALL M3MSG2( XMSG )
             END IF  !END if NLDNSTRIKE
 
-            LT_TSTEP_F = SEC2TIME (LT_TSTEP)
+!            LT_TSTEP_F = SEC2TIME (LT_TSTEP)
 
-!C Set Lambert projection
-            IF ( .NOT. SETLAM( SNGL( P_ALP3D ),
-     &            SNGL( P_BET3D ),
-     &            SNGL( P_GAM3D ),
-     &            SNGL( XCENT3D ),
-     &            SNGL( YCENT3D ) ) ) THEN
-                  CALL M3EXIT( 'CELL_LL', 0, 0,
-     &            'Lambert projection setup error', 2 )
-            END IF
-
-            SQUAREKM = REAL( ( XCELL3D * YCELL3D * 1.0D-6 ), 4 )
+            SQUAREKM = REAL( ( XCELL_GD * YCELL_GD * 1.0D-6 ), 4 )
 !C Set up vertical layers
             ALLOCATE( VGLVSLT( 0:EMLAYS ), STAT = STATUS )
             CALL CHECKMEM( STATUS, 'VGLVSLT', PNAME )
@@ -298,8 +240,8 @@
 !            END IF  !LPARAM
 !C Store local layer information
             DO L = EMLAYS, 0, -1
-                  VGLVSLT( L ) = VGLVS3D( L+1 )
-                  WRITE( LOGDEV,'(5X, A, I3, A, F11.7)' ) 'VGLVSLT(', L, ' ):', VGLVSLT( L )
+                  VGLVSLT( L ) = VGLVS_GD( L+1 )
+!                  WRITE( LOGDEV,'(5X, A, I3, A, F11.7)' ) 'VGLVSLT(', L, ' ):', VGLVSLT( L )
             END DO
 
 
@@ -382,24 +324,11 @@
 !C Lightning NO production from an input file
             CALL M3MSG2( 'Using lightning NO production from a file' )
 
-!C Open lightning emissions input file
-            LTNG_FNAME = PROMPTMFILE(
-     &              'Enter name for lightning emissions input file',
-     &              FSREAD3, 'LTNGNO', PNAME )
-
-!C Get description of emissions file
-            IF ( .NOT. DESC3( LTNG_FNAME ) ) THEN
-               XMSG = 'Could not get description of file "'
-     &              // TRIM( LTNG_FNAME ) // '"'
-               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-               SUCCESS = .FALSE.; RETURN
-            END IF
-
 !C Check grid definition (intialize, if first call)
             OK = CHKGRID( LTNG_FNAME )
 
 
-         END IF   ! IF ( LTNG_FNAME .EQ. "InLine" ) inline or offline lightning NO production
+         END IF   ! IF ( LTNG_FNAME .EQ. "INLINE" ) inline or offline lightning NO production
 
          LTLYRS = EMLAYS
 
@@ -411,7 +340,7 @@
             SUCCESS = .FALSE.; RETURN
          END IF
  
-         RETURN
+!         RETURN
 
          END FUNCTION LTNG_INIT
 
@@ -429,7 +358,8 @@
      &                                     SLOPE_lg,
      &                                     INTERCEPT_lg,
      &                                     ICCG_SUM,
-     &                                     ICCG_WIN
+     &                                     ICCG_WIN,
+     &                                     LT_NAME
 #ifdef twoway
          USE twoway_data_module
 #endif
@@ -475,9 +405,6 @@
          CHARACTER( 120 )  :: XMSG = ' '
          REAL, ALLOCATABLE :: COLUMN_LTNG_NO ( :,: ) ! column total NO
          
-         INTEGER,     SAVE :: GXOFF, GYOFF   ! global origin offset from file
-         INTEGER,     SAVE :: STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2
-
          INTEGER           :: cjdate
          INTEGER           :: DTSTEP
          CHARACTER( 7 )    :: SJDATE
@@ -492,8 +419,9 @@ C statement function for ERF approximation
          REAL              :: X                  ! dummy argument for ERF
          ERF( X ) = SIGN( 1.0, X ) * SQRT( 1.0 - EXP( -4.0 * X * X / PI ) )
 !-----------------------------------------------------------------------
-
-         IF ( LTNG_FNAME .EQ. "InLine" ) THEN
+         
+         CALL UPCASE(LTNG_FNAME)
+         IF ( LTNG_FNAME .EQ. "INLINE" ) THEN
 !C case of inline lightning NO production
 !C initialize output array
             VDEMIS_LT = 0.0
@@ -502,8 +430,6 @@ C statement function for ERF approximation
             !C Open me filet
 !C Get domain window info for met_cro_2d file
             IF (FIRSTIME) THEN
-                CALL SUBHFILE ( RNAME, GXOFF, GYOFF,
-     &              STRTCOLMC2, ENDCOLMC2, STRTROWMC2, ENDROWMC2 )
                 TOT_TSTEP = 0
                 FIRSTIME = .FALSE.
             END IF
