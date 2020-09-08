@@ -1538,12 +1538,12 @@ C...Check if the above adds up to number of tagging species
         DO I_SPC = 1, NSPC_SA
            IF ( .NOT. SPC_KEEP( I_SPC ) )CYCLE
            IF ( LEN_TRIM( SPC_LIST( I_SPC ) ) .LT. 1 ) THEN
-              WRITE(6,'(A,I4)')'ISAM_INIT ERROR: SPC_LIST blank at index: ',I_SPC
+c             WRITE(6,'(A,I4)')'ISAM_INIT ERROR: SPC_LIST blank at index: ',I_SPC
               WRITE(LOGDEV,'(A,I4)')'ISAM_INIT ERROR: SPC_LIST blank at index: ',I_SPC
               EFLAG = .TRUE.
               CYCLE
            ELSE                 
-              WRITE(6,'(A,I4,1X,A16)')'ISAM_INIT: SPC_LIST: ',I_SPC,SPC_LIST( I_SPC )
+c             WRITE(6,'(A,I4,1X,A16)')'ISAM_INIT: SPC_LIST: ',I_SPC,SPC_LIST( I_SPC )
               WRITE(LOGDEV,'(A,I4,1X,A16)')'ISAM_INIT: SPC_LIST: ',I_SPC,SPC_LIST( I_SPC )
            END IF
            DO K_SPC = 1, NSPC_SA
