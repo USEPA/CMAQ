@@ -25,6 +25,7 @@
 !  02/01/19, D. Wong: initial implementation
 !  08/01/19, D. Wong: modified code to work with two-way model
 !  11/20/19, F. Sidi: Modified time to sec to handle negative numbers
+!  03/05/20, D. Wong: Expanded CIO functionalities to MPAS as well
 !------------------------------------------------------------------------!
 
       module centralized_io_util_module
