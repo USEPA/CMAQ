@@ -156,7 +156,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2
  #### Make the installation directory
 
     
-     mkdir $BASEDIR/$BIN
+     mkdir $INSTALL/$BIN
       
  ### Edit the Makefile to add a path to the combined netCDF library directory
  
