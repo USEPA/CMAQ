@@ -134,6 +134,16 @@ https://cjcoats.github.io/ioapi/AVAIL.html
      
      
      cp Makefile.nocpl Makefile
+
+#### Change the BASEDIR definition from HOME to INSTALL
+
+```
+BASEDIR = ${HOME}/ioapi-3.2
+````
+change to
+```
+BASEDIR = ${INSTALL}/ioapi-3.2
+```
      
      
  #### set the BASEDIR and BIN environment variables:
