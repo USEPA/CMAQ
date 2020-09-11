@@ -136,14 +136,17 @@ https://cjcoats.github.io/ioapi/AVAIL.html
      cp Makefile.nocpl Makefile
      
      
- #### Edit the Makefile to specify the BIN and INSTALL directories:
-     
-  - example: uncomment lines 141-149 and set the following environment variables 
+ #### set the BASEDIR and BIN environment variables:
      
      ```
-     BIN        = Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
-     INSTALL    = /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2
+     setenv BASEDIR /proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0
+     setenv BIN  Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
      ```
+
+ #### Make the installation directory
+
+     ```
+     mkdir $BASEDIR/$BIN
       
  ### Edit the Makefile to add a path to the combined netCDF library directory
  
