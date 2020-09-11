@@ -120,7 +120,7 @@ https://cjcoats.github.io/ioapi/AVAIL.html
     
      
      git clone https://github.com/cjcoats/ioapi-3.2
-     cd ioapi-3.2.    ! change directory to ioapi-3.2
+     cd ioapi-3.2         ! change directory to ioapi-3.2
      git checkout -b 20200828   ! change branch to 20200828 for code updates
      
 
@@ -138,25 +138,25 @@ https://cjcoats.github.io/ioapi/AVAIL.html
      
  #### set the BASEDIR and BIN environment variables:
      
-     ```
+     
      setenv BASEDIR /proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0
      setenv BIN  Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
-     ```
+     
 
  #### Make the installation directory
 
-     ```
+    
      mkdir $BASEDIR/$BIN
       
  ### Edit the Makefile to add a path to the combined netCDF library directory
  
- - change
+ change
  
  ```
  NCFLIBS = -lnetcdff -lnetcdf
  ```
  
- - to
+ to
  
    ```
    NCFLIBS    = -L /[your_install_path]/LIBRARIES/netcdf_combined/lib/ -lnetcdff -lnetcdf
