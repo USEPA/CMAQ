@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CB6R3M_AE7_KMTBR mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Jan  9, 2020
+C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables for solution
 C*************************************************************************
@@ -65,6 +65,7 @@ c..Miscellaneous variables
       INTEGER, SAVE ::   MODEL_SPECIES ! No. of species in CGRID
 
       REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
+      REAL( 8 )    CHEMSTEP            ! Chemistry integration interval (min)
 
 c...Allocatable arrays
       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species
