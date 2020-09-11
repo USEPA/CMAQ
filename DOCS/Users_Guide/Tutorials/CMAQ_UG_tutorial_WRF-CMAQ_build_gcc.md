@@ -146,10 +146,10 @@ BASEDIR = ${INSTALL}/ioapi-3.2
 ```
      
      
- #### set the BASEDIR and BIN environment variables:
+ #### set the INSTALL and BIN environment variables:
      
      
-     setenv BASEDIR /proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0
+     setenv INSTALL /proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0
      setenv BIN  Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
      
 
