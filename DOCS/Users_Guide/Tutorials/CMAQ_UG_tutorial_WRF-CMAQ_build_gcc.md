@@ -111,9 +111,9 @@ https://cjcoats.github.io/ioapi/AVAIL.html
 
 #### Method 1. Download the tar.gz file from the github site.
      
-     wget http://github.com/cjcoats/ioapi-3.2/archive/2020220.tar.gz
-     tar -xzvf 2020220.tar.gz
-     cd ioapi-3.2-2020220
+     wget http://github.com/cjcoats/ioapi-3.2/archive/20200828.tar.gz
+     tar -xzvf 20200828.tar.gz
+     cd ioapi-3.2-20200828
      
 
 #### Method 2. Use Git clone to obtain the code
@@ -121,7 +121,7 @@ https://cjcoats.github.io/ioapi/AVAIL.html
      
      git clone https://github.com/cjcoats/ioapi-3.2
      cd ioapi-3.2.    ! change directory to ioapi-3.2
-     git checkout -b 2020220   ! change branch to 2020220 for code updates
+     git checkout -b 20200828   ! change branch to 20200828 for code updates
      
 
 #### Change directories to the ioapi directory
