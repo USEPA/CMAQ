@@ -19,7 +19,7 @@ module load openmpi_4.0.1/gcc_9.1.0
    - Method 1: clone from github
    
   ```
-  git clone --branch v4.1.1 https://github.com/wrf-model/WRF.git
+  git clone --branch v4.1.1 https://github.com/wrf-model/WRF.git WRFv4.1.1
   ```
    
    - Method 2: Downloading an archived version from github
@@ -249,18 +249,28 @@ https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tut
 set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
 ```
 
+### Edit the Bld directory to add the twoway name
+```
+ set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+```
+change to
+```
+ set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_twoway
+```
+
+
 ### Run the bldit_cctm.csh script
 ```
 ./bldit_cctm.csh gcc |& tee bldit_cctm_twoway.log
 ```
       
 
-#### After running the blidit script, copy BLD_CCTM_V531_gcc into WRFV411/cmaq directory.
+#### After running the blidit script, copy BLD_CCTM_V531_gcc_twoway into WRFV411/cmaq directory.
 
 example {depends on the location of your WRF-4.1.1 directory}:
 
 ```
-cp -rp BLD_CCTM_v531_gcc ../../../WRF-4.1.1/cmaq
+cp -rp BLD_CCTM_v531_gcc_twoway ../../../WRF-4.1.1/cmaq
 ```
 
 ### Step 6: Download WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz and unzip it. 
@@ -268,7 +278,11 @@ A twoway directory is formed and move it inside WRFV411 as well.
 
 - The WRFv4.1.1-CMAQv5.3.2 model is released as a tarball 
 
-[Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/open?id=10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY)
+[Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/open?id=1Gaunu4N7uH-oH8c6ZDOVSI6ZPIWBPURK
+If you have installed gdrive use the following command:
+```
+gdrive download 1Gaunu4N7uH-oH8c6ZDOVSI6ZPIWBPURK
+```
 
 The WRF-CMAQ model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
 
