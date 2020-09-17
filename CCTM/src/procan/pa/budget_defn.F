@@ -27,6 +27,8 @@
       USE VDIFF_MAP, ONLY : N_SPC_DIFF, DIFF_SPC, DIFF_MW,
      &                       DIFF_MASK_AERO, DIFF_MASK_NUM, DIFF_MASK_SRF
       USE CENTRALIZED_IO_MODULE
+      USE XY_BUDGET
+
 
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_UTIL_MODULE, SE_DATA_COPY_MODULE)
@@ -43,7 +45,7 @@
       INTEGER, SAVE         :: BDG_UNIT
       INTEGER, PARAMETER      :: BDGCF_ID = -2
 
-      REAL, ALLOCATABLE, SAVE :: BDG( :,: )
+      REAL, ALLOCATABLE, SAVE :: BDG_PROC( :,: )
       REAL, ALLOCATABLE, SAVE :: BDG_MASS( :,: )
 
       INTEGER, SAVE :: BDG_JDATE0, BDG_JTIME0
@@ -71,8 +73,6 @@ C Preconditions: None
 C Key Subroutines/Functions Called: None
  
 C-----------------------------------------------------------------------
-      USE XY_BUDGET
-
       IMPLICIT NONE 
 
       ! Includes:
@@ -109,7 +109,7 @@ C-----------------------------------------------------------------------
      &              CGRID_VEC( N_CGRID_SPC ), STAT=ASTAT )
           CONC = CGRID
           
-          ALLOCATE( BDG( N_CGRID_SPC,NPRCS ),
+          ALLOCATE( BDG_PROC( N_CGRID_SPC,NPRCS ),
      &              BDG_MASS( N_CGRID_SPC,3),
      &              F_WEST_IN( NLAYS,N_CGRID_SPC ),
      &              F_WEST_OUT( NLAYS,N_CGRID_SPC ),
@@ -120,7 +120,7 @@ C-----------------------------------------------------------------------
      &              F_NORTH_IN( NLAYS,N_CGRID_SPC ),
      &              F_NORTH_OUT( NLAYS,N_CGRID_SPC ),
      &              STAT=ASTAT )
-          BDG = 0
+          BDG_PROC = 0
           BDG_JDATE0 = JDATE
           BDG_JTIME0 = JTIME
           F_WEST_IN = 0
@@ -162,13 +162,18 @@ C-----------------------------------------------------------------------
           
           
               ! Write Header
-              !WRITE( FM, '( )' ), 
-              WRITE( BDG_UNIT, '(53(A))' ), 'SPECIES',tab,'T_START',tab,
+!              WRITE( BDG_UNIT, '(53(A))' ), 'SPECIES',tab,'T_START',tab,
+!     &         'T_FINAL',tab,'T_DELTA',tab,'M_START',tab,'M_FINAL',tab,
+!     &         'M_DELTA',tab,'WEST_IN',tab,'WEST_OUT',tab,'EAST_IN',tab,
+!     &         'EAST_OUT',tab,'SOUTH_IN',tab,'SOUTH_OUT',tab,'NORTH_IN',tab,
+!     &         'NORTH_OUT',tab, TRIM(PROCNAME(1)),
+!     &         ( tab, TRIM(PROCNAME(i)),i=4,NPRCS),tab,'RESID'
+          
+              ! Debugging
+              WRITE( BDG_UNIT, '(46(A))' ), 'SPECIES',tab,'T_START',tab,
      &         'T_FINAL',tab,'T_DELTA',tab,'M_START',tab,'M_FINAL',tab,
-     &         'M_DELTA',tab,'WEST_IN',tab,'WEST_OUT',tab,'EAST_IN',tab,
-     &         'EAST_OUT',tab,'SOUTH_IN',tab,'SOUTH_OUT',tab,'NORTH_IN',tab,
-     &         'NORTH_OUT',tab, TRIM(PROCNAME(1)),
-     &         ( tab, TRIM(PROCNAME(i)),i=4,NPRCS),tab,'RESID'
+     &         'M_DELTA',tab,'WEST_EAST',tab,'SOUTH_NORTH',
+     &         ( tab,TRIM(PROCNAME(i)),i=1,NPRCS),tab,'RESID_F',tab,'RESID_ADV'
           
           END IF
           
@@ -290,7 +295,7 @@ C-----------------------------------------------------------------------
       CELLVOL( :,:,1 ) = REAL( XCELL_GD * YCELL_GD, 4 ) * ZF( :,:,1 )
       DO L = 2,NLAYS
          CELLVOL( :,:,L ) = XCELL_GD * YCELL_GD * 
-     &                        ( ZF( :,:,L ) - ZF( :,:,L-1) )
+     &                        ( ZF( :,:,L ) - ZF( :,:,L-1) )  ! m3
       END DO
       DENS = DENS * CELLVOL * 1.0E-6 * 1.0E-3 ! mol air
 
@@ -348,9 +353,9 @@ C-----------------------------------------------------------------------
       ELSE IF ( IPR_ID .EQ. BDGCF_ID ) THEN
           BDG_MASS( :,2 ) = SUM( SUM( SUM( BDG_CONC(:,:,:,:),1 ),1 ),1 ) 
       ELSE IF ( IPR_ID .EQ. IPR_DDEP ) THEN
-          BDG( :,IPR_ID ) = SUM( SUM( BDG_CONC(:,:,1,:),1 ),1 )
+          BDG_PROC( :,IPR_ID ) = SUM( SUM( BDG_CONC(:,:,1,:),1 ),1 )
       ELSE
-          BDG( :,IPR_ID ) = SUM( SUM( SUM( BDG_CONC(:,:,:,:),1 ),1 ),1 )
+          BDG_PROC( :,IPR_ID ) = SUM( SUM( SUM( BDG_CONC(:,:,:,:),1 ),1 ),1 )
       END IF
 
       RETURN
@@ -366,7 +371,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INTEGER I, J
       INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP(3)
       REAL                  :: CONC( :,:,:,: )
-      REAL,ALLOCATABLE,SAVE :: RESID( : )
+      REAL,ALLOCATABLE,SAVE :: RESID( : ), RESID_F(:)
       LOGICAL, SAVE :: FIRST_TIME = .TRUE.
 
       REAL DT
@@ -375,15 +380,16 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INTEGER BDG_YEAR1, BDG_MONTH1, BDG_DAY1, BDG_YYYYMMDD1
       CHARACTER(15) :: BDG_TIME0, BDG_TIME1
 
-      REAL, ALLOCATABLE, SAVE :: BDG_MASS_OUT(:,:), BDG_OUT(:,:),
-     &                           ADV_FLUXES_OUT(:,:)
+      REAL, ALLOCATABLE, SAVE :: BDG_MASS_OUT(:,:), BDG_PROC_OUT(:,:),
+     &                           ADV_FLUXES_OUT(:,:), ADV_FLUXES(:,:)
       REAL :: TMP, TMP2
 
       IF ( FIRST_TIME ) THEN
           FIRST_TIME = .FALSE.
-          ALLOCATE ( RESID( N_CGRID_SPC ),
+          ALLOCATE ( RESID( N_CGRID_SPC ), RESID_F( N_CGRID_SPC ),
      &               BDG_MASS_OUT( N_BDG_VAR,3 ),
-     &               BDG_OUT( N_BDG_VAR,NPRCS ),
+     &               BDG_PROC_OUT( N_BDG_VAR,NPRCS ),
+     &               ADV_FLUXES( N_CGRID_SPC,8 ), 
      &               ADV_FLUXES_OUT( N_BDG_VAR,8 ) )
       END IF
 
@@ -391,12 +397,23 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       CALL STORE_BUDGET( BDGCF_ID, CONC, JDATE, JTIME )
       CSAV = CONC
 
-      ! Find Residual, Correct VDIFF
-      BDG( :,IPR_VDIF ) = BDG( :,IPR_VDIF ) - BDG( :,IPR_EMIS ) - BDG( :,IPR_DDEP )
+      ! Correct VDIFF by subtracting emissions and dry deposition
+      BDG_PROC( :,IPR_VDIF ) = BDG_PROC( :,IPR_VDIF ) - BDG_PROC( :,IPR_EMIS ) - BDG_PROC( :,IPR_DDEP )
       
+      ! Calculate total mass change across output time step
       BDG_MASS( :,3 ) = BDG_MASS( :,2 ) - BDG_MASS( :,1 )
 
       ! Convert units for vapor ADV_FLUXES from 10^-6 mol to kg
+      ! Units for aerosol mass should already be kg
+      ! Units for aerosol number and surface area should already be N and m2
+      ADV_FLUXES( :,1 ) =  SUM( F_WEST_IN, 1 )
+      ADV_FLUXES( :,2 ) = -1.0 * SUM( F_WEST_OUT, 1 )
+      ADV_FLUXES( :,3 ) =  SUM( F_EAST_IN, 1 )
+      ADV_FLUXES( :,4 ) = -1.0 * SUM( F_EAST_OUT, 1 )
+      ADV_FLUXES( :,5 ) =  SUM( F_SOUTH_IN, 1 )
+      ADV_FLUXES( :,6 ) = -1.0 * SUM( F_SOUTH_OUT, 1 )
+      ADV_FLUXES( :,7 ) =  SUM( F_NORTH_IN, 1 )
+      ADV_FLUXES( :,8 ) = -1.0 * SUM( F_NORTH_OUT, 1 )
       DO I = 1,N_CGRID_SPC
          IF ( .NOT.CGRID_MASK_AERO( I ) ) 
      &      ADV_FLUXES( I,: ) = ADV_FLUXES( I,: ) * 1.0E-9 * CGRID_MW( I ) 
@@ -421,12 +438,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       WRITE( BDG_TIME1, '(I8,A1,I6.6)' ), BDG_YYYYMMDD1,':',BDG_JTIME1
       
       ! Map CGRID Species to Budget Output Species
-      BDG_OUT = 0.0
+      BDG_PROC_OUT = 0.0
       BDG_MASS_OUT = 0.0
       ADV_FLUXES_OUT = 0.0
       DO I = 1,N_BDG_PAIRS
-          BDG_OUT( MAP_toBDG( I ),: ) = BDG_OUT( MAP_toBDG( I ),: ) 
-     &             + BDG( MAP_toCGRID( I ),: )
+          BDG_PROC_OUT( MAP_toBDG( I ),: ) = BDG_PROC_OUT( MAP_toBDG( I ),: ) 
+     &             + BDG_PROC( MAP_toCGRID( I ),: )
           BDG_MASS_OUT( MAP_toBDG( I ),: ) = BDG_MASS_OUT( MAP_toBDG( I ),: ) 
      &             + BDG_MASS( MAP_toCGRID( I ),: )
           ADV_FLUXES_OUT( MAP_toBDG( I ),: ) = ADV_FLUXES_OUT( MAP_toBDG( I ),: ) 
@@ -442,12 +459,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END DO
       DO J = 1,NPRCS
          DO I = 1,N_BDG_VAR
-           BDG_OUT(I,J) = SUBST_GLOBAL_SUM( BDG_OUT(I,J) )
+           BDG_PROC_OUT(I,J) = SUBST_GLOBAL_SUM( BDG_PROC_OUT(I,J) )
          END DO
       END DO
       DO J = 1,8
          DO I = 1,N_BDG_VAR
-           ADV_FLUXES_OUT(I,J) = SUBST_GLOBAL_SUM( ADV_FLUXES_OUT(I,J) )
+           ADV_FLUXES_OUT(I,J) = SUBST_GLOBAL_SUM( ADV_FLUXES_OUT(I,J) )/ 10.0
          END DO
       END DO
 #endif
@@ -455,24 +472,37 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( MYPE .EQ. 0 ) THEN
          ! Positive Residual means sum of processes is greater 
          ! than net change in mass
-         RESID( : ) = SUM( BDG_OUT(:,:),2 ) - BDG_MASS_OUT( :,3 )  
+         BDG_PROC_OUT( :,IPR_XADV ) = BDG_PROC_OUT( :,IPR_XADV ) * 10.0
+         BDG_PROC_OUT( :,IPR_YADV ) = BDG_PROC_OUT( :,IPR_YADV ) * 10.0
+
+         RESID( : ) = SUM( BDG_PROC_OUT(:,:),2 ) - BDG_MASS_OUT( :,3 )  
+
+         RESID_F(:) = SUM( BDG_PROC_OUT(:,3:NPRCS),2 ) + SUM( ADV_FLUXES_OUT,2)
+     &               - BDG_MASS_OUT( :,3 )
 
          ! Write Species Process Changes to tab-separated file
          DO I = 1,N_BDG_VAR
-            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,23(E11.4,A) )' ),TRIM(BDGSPEC(I)),tab, 
+            ! Default
+!            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,23(E11.4,A) )' ),TRIM(BDGSPEC(I)),tab, 
+!     &         BDG_TIME0,tab,BDG_TIME1,tab, DT,tab, (BDG_MASS_OUT(I,J),tab,J=1,3 ),
+!     &         ( ADV_FLUXES_OUT(I,J),tab,J=1,8 ),
+!     &         BDG_PROC_OUT(I,1),tab,
+!     &         ( BDG_PROC_OUT(I,J),tab,J=4,NPRCS ), RESID(I)
+
+            ! Debugging
+            WRITE( BDG_UNIT,'(3(A,A),F7.3,A,20(E11.4,A) )' ),TRIM(BDGSPEC(I)),tab, 
      &         BDG_TIME0,tab,BDG_TIME1,tab, DT,tab, (BDG_MASS_OUT(I,J),tab,J=1,3 ),
-     &         ( ADV_FLUXES_OUT(I,J),tab,J=1,8 ),
-     &         BDG_OUT(I,1),tab,
-     &         ( BDG_OUT(I,J),tab,J=4,NPRCS ), RESID(I)
+     &         SUM( ADV_FLUXES_OUT(I,1:4)),tab, SUM( ADV_FLUXES_OUT(I,5:8)),tab,
+     &         ( BDG_PROC_OUT(I,J),tab,J=1,NPRCS ), RESID_F(I), tab, RESID(I)
          END DO
       END IF
 
       ! Assign Initial Concentration
       ! and zero Out all Rates, etc
-      BDG = 0.0
-      BDG_MASS( :,3 ) = 0
+      BDG_PROC = 0.0
       BDG_MASS( :,1 ) = BDG_MASS( :,2 )
       BDG_MASS( :,2 ) = 0
+      BDG_MASS( :,3 ) = 0
 
       BDG_JDATE0 = BDG_JDATE1
       BDG_JTIME0 = BDG_JTIME1

@@ -62,9 +62,9 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       INTEGER, PARAMETER :: NPRCS = 13
  
-      INTEGER, PARAMETER :: IPR_ZADV = 1
-      INTEGER, PARAMETER :: IPR_XADV = 2
-      INTEGER, PARAMETER :: IPR_YADV = 3
+      INTEGER, PARAMETER :: IPR_XADV = 1
+      INTEGER, PARAMETER :: IPR_YADV = 2
+      INTEGER, PARAMETER :: IPR_ZADV = 3
       INTEGER, PARAMETER :: IPR_HDIF = 4
       INTEGER, PARAMETER :: IPR_VDIF = 5
       INTEGER, PARAMETER :: IPR_EMIS = 6
@@ -77,7 +77,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       INTEGER, PARAMETER :: IPR_GROW = 13
  
       CHARACTER(16), PARAMETER :: PROCNAME( NPRCS ) =
-     & (/'ZADV','XADV','YADV','HDIF','VDIF','EMIS','DDEP','CLDS',
+     & (/'XADV','YADV','ZADV','HDIF','VDIF','EMIS','DDEP','CLDS',
      &   'CHEM','COND','COAG','NPF ','GROW' /)
 
       REAL, ALLOCATABLE, SAVE :: CSAV( :,:,:,: )

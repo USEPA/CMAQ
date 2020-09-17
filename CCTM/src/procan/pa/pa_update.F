@@ -551,19 +551,19 @@ C..get density x jacobian and layer heights
       CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
       CALL DECOUPLE_PA( CNGRD, SDATE, STIME )
 
-      ! Convert Xand Y Advection changes to mixing ratio and
-      ! concentration units. The DECOUPLE_PA routine needs to have the
-      ! correct RHOJ so this is passed from CNGRD
-      DELC_XADV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
-      CALL DECOUPLE_PA( DELC_XADV, SDATE, STIME )
-      DELC_YADV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
-      CALL DECOUPLE_PA( DELC_YADV, SDATE, STIME )
-
-      ! Save Changes in Budget Array
-      !CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME )
-      !CALL STORE_BUDGET( IPR_YADV, DELC_YADV, JDATE, JTIME )
-
       IF ( LIPR ) THEN
+         ! Convert X and Y Advection changes to mixing ratio and
+         ! concentration units. The DECOUPLE_PA routine needs to have the
+         ! correct RHOJ so this is passed from CNGRD
+         DELC_XADV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
+         CALL DECOUPLE_PA( DELC_XADV, SDATE, STIME )
+         DELC_YADV( :,:,:,RHOJ_LOC ) = CNGRD( :,:,:,RHOJ_LOC )
+         CALL DECOUPLE_PA( DELC_YADV, SDATE, STIME )
+
+         ! Save Changes in Budget Array
+         CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME )
+         CALL STORE_BUDGET( IPR_YADV, DELC_YADV, JDATE, JTIME )
+
          DO IPRV = 1, NIPRVAR     ! foreach family
             IPRSPC = MAP_IPRVARtoSPC( IPRV ) 
             DO ISPC = 1,NCGRID( IPRSPC )      ! foreach species in the family
@@ -593,6 +593,9 @@ C..get density x jacobian and layer heights
                END IF
             END DO
          END DO
+
+         DELC_XADV = 0.0
+         DELC_YADV = 0.0
       END IF
  
       DO I = 1,N_CGRID_SPC
@@ -757,6 +760,7 @@ C The CONC array is ordered like CGRID but only the DIFF species should
 C be modified. Use DIFF_MAP
       DO V = 1,N_SPC_DIFF
           IF ( DIFF_MASK_NUM( V ) .OR. DIFF_MASK_SRF( V ) ) THEN 
+            ! Convert to N m-3 and m2 m-3
             DO L = 1,NLAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
@@ -766,6 +770,7 @@ C be modified. Use DIFF_MAP
             END DO
             END DO
           ELSE IF ( DIFF_MASK_AERO( V ) ) THEN
+            ! Convert to ug m-3
             DO L = 1,NLAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
@@ -775,6 +780,7 @@ C be modified. Use DIFF_MAP
             END DO
             END DO
           ELSE
+            ! Convert to ppmV
             DO L = 1,NLAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS

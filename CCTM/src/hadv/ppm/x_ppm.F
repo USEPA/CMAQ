@@ -47,10 +47,12 @@ C   11 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
 
       USE HGRD_DEFN             ! horizontal domain specifications
+      USE GRID_CONF, ONLY: NLAYS
       USE CGRID_SPCS            ! CGRID mechanism species
       USE UTILIO_DEFN
       USE RUNTIME_VARS, ONLY : BUDGET_DIAG
       USE XY_BUDGET, ONLY : F_WEST_IN, F_WEST_OUT, F_EAST_IN, F_EAST_OUT
+      use CENTRALIZED_IO_MODULE, only : interpolate_var
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
 #else
@@ -108,7 +110,7 @@ C Local Variables:
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       CHARACTER( 96 ) :: XMSG = ' '
 
-      REAL,    SAVE :: DX1                      ! dx1 (meters)
+      REAL,    SAVE :: DX1, DX2, AX             ! dx1 (meters), dx2(m), ax(m2)
       INTEGER, SAVE :: ASPC                     ! RHOJ index in CGRID
 
       REAL, ALLOCATABLE, SAVE :: VELX( : ),     ! Velocities along a row
@@ -125,8 +127,13 @@ C Local Variables:
 
       CHARACTER( 16 ) :: X1VEL = 'X1VEL'
 
-      INTEGER      COL, ROW, SPC, VAR           ! loop counters
+      INTEGER      COL, ROW, SPC, VAR, I           ! loop counters
       INTEGER      A2C
+
+      REAL     :: JACOBM( NCOLS,NROWS,NLAYS )  !"total" Jacobian
+      REAL     :: ZF( NCOLS,NROWS,NLAYS )      !Grid cell height
+      REAL     :: DENS( NCOLS,NROWS,NLAYS )    !Density
+      REAL, PARAMETER :: MWAIR_SI = 0.02897    ! kg mol-1
 
       LOGICAL, SAVE :: BNDY_PE_LOX, BNDY_PE_HIX
       REAL, ALLOCATABLE, SAVE :: F_LO_IN( : )
@@ -183,10 +190,10 @@ C Required interface for allocatable array dummy arguments
             REAL,      INTENT( IN )    :: DT
             REAL,      INTENT( IN )    :: DS
             CHARACTER, INTENT( IN )    :: ORI
-            REAL,                             :: F_LO_IN( : )
-            REAL,                             :: F_LO_OUT( : )
-            REAL,                             :: F_HI_IN( : )
-            REAL,                             :: F_HI_OUT( : )
+            REAL                       :: F_LO_IN( : )
+            REAL                       :: F_LO_OUT( : )
+            REAL                       :: F_HI_IN( : )
+            REAL                       :: F_HI_OUT( : )
          END SUBROUTINE HPPM
       END INTERFACE
 C-----------------------------------------------------------------------
@@ -202,9 +209,12 @@ C Get dx1 from HGRD_DEFN module
          IF ( GDTYP_GD .EQ. LATGRD3 ) THEN
             DX1 = DG2M * XCELL_GD
      &          * COS( PI180*( YORIG_GD + YCELL_GD*FLOAT( GL_NROWS/2 ))) ! in m.
+            DX2 = DG2M * YCELL_GD
          ELSE
             DX1 = XCELL_GD        ! in m.
+            DX2 = YCELL_GD        ! in m.
          END IF
+         AX = DX1 * DX2  ! in m2
 
          N_SPC_ADV = N_GC_TRNS + N_AE_TRNS + N_NR_TRNS + N_TR_ADV + 1
                                                   ! add 1 for advecting RHOJ
@@ -300,6 +310,13 @@ C Create global map to CGRID
          ADV_MAP( N_SPC_ADV ) = ASPC
 
          CALL SUBST_HI_LO_BND_PE ( 'C', BNDY_PE_LOX, BNDY_PE_HIX )
+
+         ! Allocate FLuxes for Budget Tool
+         ALLOCATE( F_LO_IN(N_SPC_ADV),
+     &             F_LO_OUT(N_SPC_ADV),
+     &             F_HI_IN(N_SPC_ADV),
+     &             F_HI_OUT(N_SPC_ADV) )
+
 
       END IF                    ! if firstime
 
@@ -467,45 +484,63 @@ C East boundary
 #endif
 
 C PPM scheme
+         F_LO_IN = 0.
+         F_LO_OUT= 0.
+         F_HI_IN = 0.
+         F_HI_OUT= 0.
+
          CALL HPPM ( NCOLS, NROWS, CONX, VELX, DT, DX1, 'C',
      &               F_LO_IN, F_LO_OUT, F_HI_IN, F_HI_OUT )
 
 
          ! Store Boundary Fluxes for Budget Diagnostic
+         ! Flux units are converted:
+         !     vapors: [Jacobian x rho] x [ppm] --> umol
+         !     aerosol mass: [Jacobian] x [kg m-3] --> kg
+         !     aerosol number: [Jacobian] x [N m-3] --> N
+         !     aerosol surface area: [Jacobian] x [m2 m-3] --> m2
          IF ( BUDGET_DIAG ) THEN
             IF ( BNDY_PE_LOX ) THEN
-                call interpolate_var ('JACOBM', fdate, ftime, RJACOBM)
+                call interpolate_var ('JACOBM', fdate, ftime, JACOBM)
                 call interpolate_var ('ZF', fdate, ftime, ZF)
+                call interpolate_var ('DENS', fdate, ftime, DENS)  ! kg m-3
+                DENS = DENS / MWAIR_SI ! mol m-3
                 DO I = 1,N_SPC_ADV
                    A2C = ADV_MAP( I )
-                   IF ( CGRID_MASK_AERO( A2C ) THEN
+                   IF ( CGRID_MASK_AERO( A2C ) ) THEN
                       F_WEST_IN( LVL,A2C )  = F_WEST_IN( LVL,A2C ) 
-     &                      + F_LO_IN(I) / RJACOBM( NCOLS,ROW,LVL ) * DENS( ) * CELLVOL
+     &                      + F_LO_IN(I) / JACOBM( 1,ROW,LVL ) * AX * ZF( 1,ROW,LVL )
                       F_WEST_OUT( LVL,A2C ) = F_WEST_OUT( LVL,A2C ) 
-     &                      + F_LO_OUT(I) / RJACOBM( NCOLS,ROW,LVL ) * DENS( ) * CELLVOL
+     &                      + F_LO_OUT(I) / JACOBM( 1,ROW,LVL ) * AX * ZF( 1,ROW,LVL )
                    ELSE
                       F_WEST_IN( LVL,A2C )  = F_WEST_IN( LVL,A2C ) 
-     &                      + F_LO_IN(I) / RJACOBM  / MWAIR /1000.0 * CELLVOL
+     &                      + F_LO_IN(I) / CGRID( 1,ROW,LVL,ASPC ) 
+     &                      * DENS( 1,ROW,LVL ) * AX * ZF( 1,ROW,LVL )
                       F_WEST_OUT( LVL,A2C ) = F_WEST_OUT( LVL,A2C ) 
-     &                      + F_LO_OUT(I) / RJACOBM  / MWAIR /1000.0 * CELLVOL
+     &                      + F_LO_OUT(I) / CGRID( 1,ROW,LVL,ASPC )
+     &                      * DENS( 1,ROW,LVL ) * AX * ZF( 1,ROW,LVL )
                    END IF
                 END DO
             END IF
             IF ( BNDY_PE_HIX ) THEN
-                call interpolate_var ('JACOBM', fdate, ftime, RJACOBM)
+                call interpolate_var ('JACOBM', fdate, ftime, JACOBM)
                 call interpolate_var ('ZF', fdate, ftime, ZF)
+                call interpolate_var ('DENS', fdate, ftime, DENS)  ! kg m-3
+                DENS = DENS / MWAIR_SI ! mol m-3
                 DO I = 1,N_SPC_ADV
                    A2C = ADV_MAP( I )
-                   IF ( CGRID_MASK_AERO( A2C ) THEN
+                   IF ( CGRID_MASK_AERO( A2C ) ) THEN
                       F_EAST_IN( LVL,A2C )  = F_EAST_IN( LVL,A2C ) 
-     &                      + F_HI_IN(I) / RJACOBM( 1,ROW,LVL )
+     &                      + F_HI_IN(I) / JACOBM( NCOLS,ROW,LVL ) * AX * ZF( NCOLS,ROW,LVL )
                       F_EAST_OUT( LVL,A2C ) = F_EAST_OUT( LVL,A2C ) 
-     &                      + F_HI_OUT(I) / RJACOBM( 1,ROW,LVL )
+     &                      + F_HI_OUT(I) / JACOBM( NCOLS,ROW,LVL ) * AX * ZF( NCOLS,ROW,LVL )
                    ELSE
                       F_EAST_IN( LVL,A2C )  = F_EAST_IN( LVL,A2C ) 
-     &                      + F_HI_IN(I) / RHOJ( 1,ROW,LVL )
+     &                      + F_HI_IN(I) / CGRID( NCOLS,ROW,LVL,ASPC ) 
+     &                      * DENS( NCOLS,ROW,LVL ) * AX * ZF( NCOLS,ROW,LVL )
                       F_EAST_OUT( LVL,A2C ) = F_EAST_OUT( LVL,A2C ) 
-     &                      + F_HI_OUT(I) / RHOJ( 1,ROW,LVL )
+     &                      + F_HI_OUT(I) / CGRID( NCOLS,ROW,LVL,ASPC )
+     &                      * DENS( NCOLS,ROW,LVL ) * AX * ZF( NCOLS,ROW,LVL )
                    END IF
                 END DO
             END IF

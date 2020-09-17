@@ -195,10 +195,10 @@ C Local variables:
       REAL, ALLOCATABLE, SAVE :: C6( : )   ! coefficient of second-order term
       REAL C0, C1
 
-      REAL, ALLOCATABLE, SAVE :: F_LO_IN( : )  ! influx to domain
-      REAL, ALLOCATABLE, SAVE :: F_LO_OUT(: ) ! outflux to domain
-      REAL, ALLOCATABLE, SAVE :: F_HI_IN( : )  ! influx to domain
-      REAL, ALLOCATABLE, SAVE :: F_HI_OUT(: ) ! outflux to domain
+      REAL :: F_LO_IN( : )  ! influx to domain
+      REAL :: F_LO_OUT(: ) ! outflux to domain
+      REAL :: F_HI_IN( : )  ! influx to domain
+      REAL :: F_HI_OUT(: ) ! outflux to domain
 
       LOGICAL, SAVE :: BNDY_LO_PE, BNDY_HI_PE
 
@@ -227,10 +227,6 @@ C----------------------------------------------------------------------
      &             CR(  1-X1:NMX+X1 ),
      &             DC(  0-X1:NMX+X1+1, NSPCS ),
      &             C6(  1-X1:NMX+X1 ), 
-     &             F_LO_IN( NSPCS ),
-     &             F_LO_OUT( NSPCS ),
-     &             F_HI_IN( NSPCS ),
-     &             F_HI_OUT( NSPCS ),
      &             STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             XMSG = '*** Error allocating FM, FP, CM, CL, CR, DC, or C6'
@@ -443,14 +439,15 @@ C Update concentrations as in Equation (1.13)
       END DO
 
 C Store boundary fluxes in budget variables
+C   Units: change in concentration or mixing ratio
       IF ( BUDGET_DIAG ) THEN
          IF ( BNDY_LO_PE ) THEN
              F_LO_IN( : ) = FP( 0,: ) / DS
              F_LO_OUT( : ) = FM( 1,: ) / DS
          END IF
          IF ( BNDY_HI_PE ) THEN
-             F_HI_IN( : ) = FP( NI,: ) / DS
-             F_HI_OUT( : ) = FM( NI+1,: ) / DS
+             F_HI_OUT( : ) = FP( NI,: ) / DS
+             F_HI_IN( : ) = FM( NI+1,: ) / DS
          END IF
       END IF
 

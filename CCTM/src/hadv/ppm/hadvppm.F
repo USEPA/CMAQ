@@ -51,6 +51,7 @@ C-----------------------------------------------------------------------
       USE GRID_CONF             ! horizontal & vertical domain specifications
       USE CGRID_SPCS            ! CGRID mechanism species
       USE XY_BUDGET
+      USE PA_DEFN, ONLY: LIPR
       USE UTILIO_DEFN
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
@@ -93,7 +94,6 @@ C Advected species dimension
 C File Variables:
 
       REAL, ALLOCATABLE, SAVE :: BCON( :,: )    ! boundary concentrations
-      REAL         RHOJ( NCOLS,NROWS )          ! RhoJ
 
 C Local Variables:
 
@@ -118,7 +118,7 @@ C Local Variables:
       INTEGER      FTIME                        ! interpolation time
       INTEGER      SYNCSTEP
 
-      INTEGER      COL, ROW, LVL                ! loop counters
+      INTEGER      LVL                ! loop counters
       LOGICAL      LSTAT
 
 C Required interface for allocatable array dummy arguments
@@ -214,7 +214,8 @@ C Get CGRID offsets
 
          CALL RDBCON ( FDATE, FTIME, ASTEP( LVL ), LVL, BCON, LSTAT )
 
-         CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+         IF ( LIPR ) CGRID0( :,:,: ) = CGRID( :,:,LVL,: )
+
          IF ( XYFIRST( LVL ) ) THEN
 
             XYFIRST( LVL ) = .FALSE.
@@ -260,8 +261,8 @@ C Get CGRID offsets
          END IF
 
          IF (LIPR ) THEN
-           DELC_XADV( :,:,LVL,: ) = XADV( :,:,: )
-           DELC_YADV( :,:,LVL,: ) = YADV( :,:,: )
+           DELC_XADV( :,:,LVL,: ) = DELC_XADV( :,:,LVL,: ) + XADV( :,:,: )
+           DELC_YADV( :,:,LVL,: ) = DELC_YADV( :,:,LVL,: ) + YADV( :,:,: )
          END IF
 301   CONTINUE
  
