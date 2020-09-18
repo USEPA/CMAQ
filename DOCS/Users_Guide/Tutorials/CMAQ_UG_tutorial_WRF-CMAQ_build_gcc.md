@@ -234,6 +234,27 @@ setenv IOAPI /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/ioapi-3.2
      - follow these instructions to download the code, then use the modifications in Step 5
      
 https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.1:
+
+```
+git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+```
+
+Build and run in a user-specified directory outside of the repository
+
+In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
+
+In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
+
+```
+set CMAQ_HOME = /home/username/WRF-CMAQ/CMAQ_v5.3.2
+```
+
+Now execute the script.
+
+./bldit_project.csh
+
+
 
 ### Step 5: Modify the bldit_cctm.csh 
 comment out the following option:

@@ -245,10 +245,10 @@ git clone https://github.com/cjcoats/ioapi-3.2
 cd ioapi-3.2
 ```
 
-2. Change branches to 2020104 for a tagged stable version
+2. Change branches to 20200828 for a tagged stable version
 
 ```
-git checkout -b 2020104
+git checkout -b 20200828
 ```
 
 3. Change directories to the ioapi directory
