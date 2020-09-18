@@ -207,7 +207,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2
  
  ### Note: If you get a shared object problem when trying to run m3tools such as the following:
  ```
- [lizadams@dogwood-login1 Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0]$ ./juldate
+./juldate
 ./juldate: error while loading shared libraries: libimf.so: cannot open shared object file: No such file or directory
 ```
 
@@ -235,19 +235,27 @@ setenv IOAPI /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/ioapi-3.2
      
 https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md
 
-### Step 5: Modify the bldit_cctm.csh to uncomment the following options:
+### Step 5: Modify the bldit_cctm.csh 
+comment out the following option:
+```
+#> Integrated Source Apportionment Method (ISAM)
+#set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
+```
+
+and uncomment the following options:
 
      
-      ```
-      set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile;
-      ```
+```
+set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile;
+```
       
       
       
 ```
-      #> Two-way WRF-CMAQ 
+#> Two-way WRF-CMAQ 
 set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
 ```
+
 
 ### Edit the Bld directory to add the twoway name
 ```
