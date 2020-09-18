@@ -59,11 +59,6 @@ module load openmpi_4.0.1/gcc_9.1.0
    setenv FFLAGS -m64
    ```
    
-   For debug option, set 
-   ```
-   setenv FCFLAGS '-m64 -g3 -O0 -fno-inline'
-   ```
-    
  - check to see that the path to each compiler is defined using
  
     ```
@@ -93,7 +88,7 @@ module load openmpi_4.0.1/gcc_9.1.0
 
 ####  If you have never done WRF configure before, here are some guidelines
 
-   - choose the dmpar option with the appropriate compiler platform
+   - choose the dmpar option with the appropriate compiler platform (34)
    - in the compile for nesting section, choose the default value
       
 
@@ -149,7 +144,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2
  #### set the INSTALL and BIN environment variables:
      
      
-     setenv INSTALL /proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0
+     setenv INSTALL [your_install_path]/LIBRARIES/openmpi_4.0.1_gcc_9.1.0
      setenv BIN  Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
      
 
