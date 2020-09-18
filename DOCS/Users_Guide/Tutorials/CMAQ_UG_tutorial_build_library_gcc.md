@@ -15,12 +15,12 @@ module load openmpi_4.0.1/gcc_9.1.0
 3. Create a LIBRARY directory where you would like to install the libraries required for CMAQ
 
 ```
-/[your directory]/LIBRARIES
+/[your_install_path]/LIBRARIES
 ```
 
 4. Change directories to the new LIBRARIES Directory
 
-cd /[your directory]/LIBRARIES
+cd /[your_install_path]/LIBRARIES
 
 5. Download netCDF-C from the following website https://www.unidata.ucar.edu/downloads/netcdf/index.jsp
 
@@ -283,7 +283,7 @@ mkdir ../$BIN
 
 5. Set the HOME directory to be your LIBRARY install directory
 ```
-setenv HOME [your directory]/LIBRARIES
+setenv HOME [your_install_path]/LIBRARIES
 ```
 
 6. Run the make command to compile and link the ioapi library
