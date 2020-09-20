@@ -254,20 +254,20 @@ Change directories to the CMAQ_HOME directory
 ### Step 5. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries
 
 ### Step 6: Modify the bldit_cctm.csh 
-comment out the following option:
+
+Uncomment the option to build a Makefile without compiling. 
+
+```
+set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile;
+```
+
+Comment out the following option to compile CCTM without ISAM:
 ```
 #> Integrated Source Apportionment Method (ISAM)
 #set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
 ```
 
-and uncomment the following options:
-
-     
-```
-set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile;
-```
-      
-      
+Uncomment the option to build WRF-CMAQ twoway:      
       
 ```
 #> Two-way WRF-CMAQ 
