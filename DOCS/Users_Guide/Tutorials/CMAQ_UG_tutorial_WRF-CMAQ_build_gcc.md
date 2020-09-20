@@ -304,10 +304,10 @@ A twoway directory is formed and move it inside WRFV411 as well.
 
 - The WRFv4.1.1-CMAQv5.3.2 model is released as a tarball 
 
-[Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/open?id=1Gaunu4N7uH-oH8c6ZDOVSI6ZPIWBPURK
+[Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/file/d/1XCxzKTeW0mHKYNm2EVTkoGoYOjpSiYF4/view?usp=sharing)
 If you have installed gdrive use the following command:
 ```
-gdrive download 1Gaunu4N7uH-oH8c6ZDOVSI6ZPIWBPURK
+gdrive download 1XCxzKTeW0mHKYNm2EVTkoGoYOjpSiYF4
 ```
 
 The WRF-CMAQ model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
@@ -317,7 +317,7 @@ The WRF-CMAQ model is also available as a tarball (twoway.tar.gz) from the the U
 The following commands must be adjusted for the paths on your system.
 ```
 cd WRF4.1.1
-tar -xzvf ../../WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz
+tar -xzvf ../../WRFv4.1.1-CMAQv5.3.2_twoway.tar.gz
 ```
 
 ### Step 8: Go into directory WRFV411
