@@ -304,10 +304,10 @@ A twoway directory is formed and move it inside WRFV411 as well.
 
 - The WRFv4.1.1-CMAQv5.3.2 model is released as a tarball 
 
-[Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/file/d/1XCxzKTeW0mHKYNm2EVTkoGoYOjpSiYF4/view?usp=sharing)
+[Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/file/d/1oZecf-4aRu9q0ZptNsyI63QU4KUrTFFl/view?usp=sharing)
 If you have installed gdrive use the following command:
 ```
-gdrive download 1XCxzKTeW0mHKYNm2EVTkoGoYOjpSiYF4
+gdrive download 1oZecf-4aRu9q0ZptNsyI63QU4KUrTFFl
 ```
 
 The WRF-CMAQ model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
@@ -383,7 +383,7 @@ ls main/wrf.exe
     
 ### Step 13: Run the WRF-CMAQ model
 
-  - Use the twoway_model_411_531_run_script_nf script and the CMAQv5.3.2 input benchmark dataset to run CMAQ-WRF with no feedback
+  - Use the run.twoway_model_411_532_nf_run_script.16pe.csh script and the CMAQv5.3.2 input benchmark dataset to run CMAQ-WRF with no feedback
   - It is configured to run on 16 processors and for 2 days of model simulation
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
   - Verify that the OMIfile definition matches the latest release of CMAQv5.3.2
@@ -408,7 +408,7 @@ set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions
     
   - Submit the job using the batch queueing system
     ```
-    sbatch twoway_model_411_531_run_script_nf
+    sbatch run.twoway_model_411_532_nf_run_script.16pe.csh
     ```
 
 ### Step 14: Verify that the run was successful
