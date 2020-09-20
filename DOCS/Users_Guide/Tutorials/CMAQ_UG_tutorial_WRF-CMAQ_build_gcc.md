@@ -299,7 +299,7 @@ example {depends on the location of your WRF-4.1.1 directory}:
 cp -rp BLD_CCTM_v531_gcc_twoway ../../../WRF-4.1.1/cmaq
 ```
 
-### Step 7: Download WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz and unzip it. 
+### Step 7: Download WRF4.1.1_CMAQ5.3.2_twoway.tar.gz and unzip it. 
 A twoway directory is formed and move it inside WRFV411 as well.
 
 - The WRFv4.1.1-CMAQv5.3.2 model is released as a tarball 
