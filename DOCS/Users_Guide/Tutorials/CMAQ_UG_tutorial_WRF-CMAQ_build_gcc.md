@@ -239,7 +239,7 @@ Build and run in a user-specified directory outside of the repository
 
 In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
 
-In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
+Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
 set CMAQ_HOME = /home/username/WRF-CMAQ/CMAQ_v5.3.2
@@ -249,9 +249,11 @@ Now execute the script.
 
 ./bldit_project.csh
 
+Change directories to the CMAQ_HOME directory
 
+### Step 5. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries
 
-### Step 5: Modify the bldit_cctm.csh 
+### Step 6: Modify the bldit_cctm.csh 
 comment out the following option:
 ```
 #> Integrated Source Apportionment Method (ISAM)
@@ -297,7 +299,7 @@ example {depends on the location of your WRF-4.1.1 directory}:
 cp -rp BLD_CCTM_v531_gcc_twoway ../../../WRF-4.1.1/cmaq
 ```
 
-### Step 6: Download WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz and unzip it. 
+### Step 7: Download WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz and unzip it. 
 A twoway directory is formed and move it inside WRFV411 as well.
 
 - The WRFv4.1.1-CMAQv5.3.2 model is released as a tarball 
@@ -318,12 +320,12 @@ cd WRF4.1.1
 tar -xzvf ../../WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz
 ```
 
-### Step 7: Go into directory WRFV411
+### Step 8: Go into directory WRFV411
 
    ```
    cd /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0_debug/WRF-4.1.1
    ```
-### Step 8: run the following command
+### Step 9: run the following command
    ```
    ./twoway/assemble
    ```
@@ -342,7 +344,7 @@ LIOAPI  = Linux2_x86_64gfort
  - I modified LIOAPI to Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
 
 
-### Step 9: Edit the configure.wrf to link with the openmp library
+### Step 10: Edit the configure.wrf to link with the openmp library
 
 add -fopenmp to the the definition for LIB_EXTERNAL
 ```
@@ -350,7 +352,7 @@ LIB_EXTERNAL    = -L$(WRF_SRC_ROOT_DIR)/external/io_netcdf -lwrfio_nf -L/proj/ie
 ```
 
 
-### Step 10: Compile the WRF-CMAQ model
+### Step 11: Compile the WRF-CMAQ model
 
 ```
 ./compile em_real >& mylog
@@ -358,7 +360,7 @@ LIB_EXTERNAL    = -L$(WRF_SRC_ROOT_DIR)/external/io_netcdf -lwrfio_nf -L/proj/ie
 
   - If compilation is done successfully, you can find main/wrf.exe file.
   
-### Step 10: Download the input data
+### Step 12: Download the input data
 
 [Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4/view?usp=sharing)
 
@@ -372,7 +374,7 @@ LIB_EXTERNAL    = -L$(WRF_SRC_ROOT_DIR)/external/io_netcdf -lwrfio_nf -L/proj/ie
   ```
   
     
-### Step 11: Run the WRF-CMAQ model
+### Step 13: Run the WRF-CMAQ model
 
   - Use the twoway_model_411_531_run_script_nf script and the CMAQv5.3.2 input benchmark dataset to run CMAQ-WRF with no feedback
   - It is configured to run on 16 processors and for 2 days of model simulation
@@ -402,7 +404,7 @@ set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions
     sbatch twoway_model_411_531_run_script_nf
     ```
 
-### Step 12: Verify that the run was successful
+### Step 14: Verify that the run was successful
    - look for the output directory
    
    ```
