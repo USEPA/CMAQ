@@ -336,7 +336,7 @@ tar -xzvf ../../WRFv4.1.1-CMAQv5.3.2_twoway.tar.gz
     
  ```
     #### BEGIN for WRF-CMAQ twoway model
-IOAPI   = /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2
+IOAPI   = /proj/ie/proj/CMAS/CMAQ/CMAQv5.3.2_rel/LIBRARIES/ioapi-3.2-20200828
 LIOAPI  = Linux2_x86_64gfort
     #### END for WRF-CMAQ twoway model
  ```
@@ -359,6 +359,13 @@ LIB_EXTERNAL    = -L$(WRF_SRC_ROOT_DIR)/external/io_netcdf -lwrfio_nf -L/proj/ie
 ```
 
   - If compilation is done successfully, you can find main/wrf.exe file.
+
+```
+ls main/wrf.exe
+```
+  - If not found, use vi or gedit to view the mylog file, and look for errors near the compilation step for wrf.exe
+
+
   
 ### Step 12: Download the input data
 
