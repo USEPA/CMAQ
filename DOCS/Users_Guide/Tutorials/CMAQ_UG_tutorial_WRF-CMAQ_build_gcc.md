@@ -21,6 +21,18 @@ module load openmpi_4.0.1/gcc_9.1.0
   ```
   git clone --branch v4.1.1 https://github.com/wrf-model/WRF.git WRFv4.1.1
   ```
+   - This will place the code under the directory WRFv4.1.1
+   - Note, you can see what branch was obtained by using the command
+   
+```
+git branch -vv
+```
+
+You should see the following
+
+```
+* (no branch) d154456 Finalize WRFV4.1.1 by merging bug fixes from release-v4.1.1 branch onto master.
+```
    
    - Method 2: Downloading an archived version from github
    - download version 4.1.1 from https://github.com/wrf-model/WRF/releases/tag/v4.1.1
