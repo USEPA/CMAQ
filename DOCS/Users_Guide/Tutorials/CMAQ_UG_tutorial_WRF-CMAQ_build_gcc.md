@@ -241,7 +241,7 @@ setenv IOAPI /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/ioapi-3.2
      - follow these instructions to download the code, then use the modifications in Step 5
      
 https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.1:
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.2:
 
 ```
 git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
