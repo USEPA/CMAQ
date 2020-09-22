@@ -3216,9 +3216,15 @@ C Read the various categories of normalized emissions
      &              HRNO_SW  ( NCOLS,NROWS, mxhrs ),
      &              HRNO_T2M ( NCOLS,NROWS, mxhrs ),
      &                 stat=stat)
+     
+               IF ( STAT .NE. 0 ) THEN
+                    MESG = 'Failure BIOGEMIS_MEGAN arrays'
+                    CALL M3EXIT( PNAME, 0, 0, MESG, XSTAT3 )
+               END IF
           end if
 
 
+          
           if (.not. NEW_START) then
              IF ( .NOT. OPEN3( SOILINP, FSREAD3, PNAME ) ) THEN
                 mesg = 'Open failure for ' // SOILINP
