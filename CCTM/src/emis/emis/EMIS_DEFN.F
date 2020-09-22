@@ -1648,17 +1648,17 @@ C and allowing the model to proceed.
             
             IF ( LERROR ) THEN
               IF ( .NOT. EMISCHK ) THEN
-                 WRITE( LOGDEV, '(/,5x,A,/,5x,2A,4(/,5x,A))') 
+                 WRITE( LOGDEV, '(/,5x,A,/,5x,2A,/,5x,3A,3(/,5x,A))') 
      &                  '*** ATTENTION **********************************************:',
      &                  'The emission surrogate or member of family ',TRIM( EM_NML( IRULE )%SURR ),
-     &                  'was not found in the requested emission streams but the ',
+     &                  'was not found in the emission stream(s) ',TRIM(EM_NML(IRULE)%STREAM),'  but the ',
      &                  'CTM_EMISCHK environment variable set to False so simulation ',
      &                  'will proceed.',
      &                  '*************************************************************'
                  IF ( IFAM .NE. 0 ) THEN
                     WRITE( LOGDEV, '(7x,A,/,7x,A,/,7x,A,1x,A )') 
      &                  'The surrogate label applied was a chemical family. The specific',
-     &                  'family member(s) that did not appear on any emission stream',
+     &                  'family member(s) that did not appear on requested emission stream(s)',
      &                  'inputs was:'
                     DO ICHEM = 1,NCHEM
                         IF ( LERROR3( ICHEM ) ) WRITE( LOGDEV, '(20x,A)' ) TRIM( CHEM_NAME( ICHEM ) )
@@ -1668,10 +1668,10 @@ C and allowing the model to proceed.
                  END IF
                  CYCLE
               ELSE     
-                 WRITE( LOGDEV, '(5x,A,/,5x,2A,/,8(/,5x,A))') 
+                 WRITE( LOGDEV, '(5x,A,/,5x,2A,/,5x,3A,7(/,5x,A))') 
      &                  '*** ERROR **************************************************************:',
      &                  'The emission surrogate or member of family ',TRIM( EM_NML( IRULE )%SURR ),
-     &                  ' is not found in any of the emission streams.',
+     &                  ' is not found on the stream(s) ',TRIM(EM_NML(IRULE)%STREAM),'.',
      &                  'Use one of the below options to continue.', 
      &                  '1) Change or remove this emission rule so that it refers to an existing surrogate.', 
      &                  'or',
@@ -1681,7 +1681,7 @@ C and allowing the model to proceed.
                  IF ( IFAM .NE. 0 ) THEN
                     WRITE( LOGDEV, '(7x,A,/,7x,A,/,7x,A,1x,A )') 
      &                  'The surrogate label applied was a chemical family. The specific',
-     &                  'family member(s) that did not appear on any emission stream',
+     &                  'family member(s) that did not appear on requested emission stream(s)',
      &                  'inputs was:'
                     DO ICHEM = 1,NCHEM
                         IF ( LERROR3( ICHEM ) ) WRITE( LOGDEV, '(20x,A)' ) TRIM( CHEM_NAME( ICHEM ) )

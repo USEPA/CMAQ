@@ -4733,37 +4733,60 @@ C   mminlu and num_land_cat are WRF global variables
          ! Read the Regions Registry
          REWIND( EMCTRL_NML )
          READ( NML = RegionsRegistry, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             XMSG = 'Attention: Something went wrong while reading the ' //
-     &              'Regions_Registry section of the Emissions Control '//
-     &              'Interface. Default values for this section will be '//
+         IF ( STAT .EQ. -1 ) THEN
+             XMSG = 'Note: The Regions_Registry section of the Emissions Control '//
+     &              'Interface is missing. Default values for this section will be '//
      &              'assumed.'
              CALL LOG_MESSAGE( LOGDEV,' ')
              CALL LOG_MESSAGE( LOGDEV, XMSG )
              RGN_NML%LABEL = ''
              RGN_NML%FILE  = ''
              RGN_NML%VAR   = ''
+         ELSE IF ( STAT .NE. 0 ) THEN
+             ! Read Error Detected for RGN_NML
+             backspace( EMCTRL_NML )
+             read( EMCTRL_NML, fmt='(A)' ) tmpline
+             XMSG = 'ERROR: There was a syntax error reading the RegionsRegistry '//
+     &              'variable for use by the DESID module. Please check the format of '//
+     &              'each line for syntax errors. The invalid line was likely: '
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                     'fix the Regions Registry', 1 ) 
+ 
          END IF
 
          ! Read the size distribution specification section
          REWIND( EMCTRL_NML )
          READ( NML = SizeDistributions, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. 0 ) THEN
-             XMSG = 'Attention: Something went wrong while reading the ' //
-     &              'SizeDistReg section of the Emissions Control '//
-     &              'Interface. Default values for this section will be '//
-     &              'assumed.'
+         IF ( STAT .EQ. -1 ) THEN
+             XMSG = 'Note: The SizeDistReg section of the Emissions Control '//
+     &              'Interface is missing. Default values for this section '//
+     &              'will be assumed.'
              CALL LOG_MESSAGE( LOGDEV,' ')
              CALL LOG_MESSAGE( LOGDEV, XMSG )
              SD_NML%STREAM   = ''
              SD_NML%MODE     = ''
              SD_NML%MODE_REF = ''
+         ELSE IF ( STAT .NE. 0 ) THEN
+             ! Read Error Detected for SD_NML
+             backspace( EMCTRL_NML )
+             read( EMCTRL_NML, fmt='(A)' ) tmpline
+             XMSG = 'ERROR: There was a syntax error reading the SizeDistReg '//
+     &              'variable for use by the DESID module. Please check the format of '//
+     &              'each line for syntax errors. The invalid line was likely: '
+             CALL LOG_MESSAGE( LOGDEV, ' ')
+             CALL LOG_MESSAGE( LOGDEV, XMSG )
+             WRITE( LOGDEV, '(8x,A)' ) TMPLINE
+             CALL M3EXIT ( 'Read_Emiss_Namelist', 0, 0, 'CMAQ must Crash until you '//
+     &                     'fix the Size Distribution Rule', 1 ) 
          END IF
 
          ! Read the Emissions Rules to inform scaling operations
          REWIND( EMCTRL_NML )
          READ( NML = EmissionScalingRules, UNIT = EMCTRL_NML, IOSTAT=STAT )
-         IF ( STAT .NE. -1 ) THEN
+         IF ( STAT .EQ. -1 ) THEN
              ! The EM_NML Variable was completely missing
              XMSG = 'WARNING: There were no valid Emission Scaling Rules specified '//
      &              'for use by the DESID module. If you intended to specify '//
@@ -4784,7 +4807,7 @@ C   mminlu and num_land_cat are WRF global variables
              ! Read Error Detected for EM_NML
              backspace( EMCTRL_NML )
              read( EMCTRL_NML, fmt='(A)' ) tmpline
-             XMSG = 'WARNING: There was a syntax error reading Emission Scaling '//
+             XMSG = 'ERROR: There was a syntax error reading Emission Scaling '//
      &              'Rules for use by the DESID module. Please check the format of '//
      &              'each line for syntax errors. The invalid line was likely: '
              CALL LOG_MESSAGE( LOGDEV, ' ')
