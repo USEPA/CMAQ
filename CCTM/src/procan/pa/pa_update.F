@@ -127,7 +127,7 @@ C-----------------------------------------------------------------------
                              !            step and wrf/cmaq call frequency
 
       ! Flag for couple/decouple HADV, ZADV, and HDIFF
-      LOGICAL, SAVE :: LCOUPLE
+      LOGICAL :: LCOUPLE
 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
 

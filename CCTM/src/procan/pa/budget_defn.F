@@ -254,7 +254,7 @@ C-----------------------------------------------------------------------
 !cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       SUBROUTINE STORE_BUDGET( IPR_ID, CONC, JDATE, JTIME )
 
-
+      USE CENTRALIZED_IO_MODULE, ONLY : MSFX2
 
       IMPLICIT NONE
 
@@ -267,7 +267,6 @@ C-----------------------------------------------------------------------
       REAL, ALLOCATABLE, SAVE :: BDG_CONC( :,:,:,: )
       REAL, PARAMETER :: MWAIR_SI = MWAIR / 1.0E+03 ! kg mol-1
       REAL, ALLOCATABLE, SAVE :: DENS( :,:,: )   ! air density (kg m-3)
-      REAL, ALLOCATABLE, SAVE :: MSFX2( :,:,: )  ! map scale factor
       REAL, ALLOCATABLE, SAVE :: ZF( :,:,: )     ! height of layer top
       REAL, ALLOCATABLE, SAVE :: CELLVOL( :,:,: )! cell volume
       LOGICAL :: FIRST_TIME = .TRUE.
@@ -280,7 +279,6 @@ C-----------------------------------------------------------------------
           FIRST_TIME = .FALSE.
           ALLOCATE ( BDG_CONC( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
      &                DENS( NCOLS,NROWS,NLAYS ),
-     &                MSFX2( NCOLS,NROWS,NLAYS ),
      &                ZF( NCOLS,NROWS,NLAYS ),
      &                CELLVOL( NCOLS,NROWS,NLAYS ),
      &                STAT = ASTAT )
@@ -294,7 +292,7 @@ C-----------------------------------------------------------------------
 
       CELLVOL( :,:,1 ) = REAL( XCELL_GD * YCELL_GD, 4 ) * ZF( :,:,1 )
       DO L = 2,NLAYS
-         CELLVOL( :,:,L ) = XCELL_GD * YCELL_GD * 
+         CELLVOL( :,:,L ) = XCELL_GD * YCELL_GD * MSFX2( :,: ) * 
      &                        ( ZF( :,:,L ) - ZF( :,:,L-1) )  ! m3
       END DO
       DENS = DENS * CELLVOL * 1.0E-6 * 1.0E-3 ! mol air
@@ -326,7 +324,7 @@ C-----------------------------------------------------------------------
             DO L = 1,LAYS
             DO R = 1,NROWS
             DO C = 1,NCOLS
-               BDG_CONC(C,R,L,I) = CONC(C,R,L,I) * CELLVOL(C,R,L) * 1.0E-09
+               BDG_CONC(C,R,L,I) = CONC(C,R,L,I) * 1.0E-09 * CELLVOL(C,R,L)
             END DO
             END DO
             END DO
@@ -353,9 +351,9 @@ C-----------------------------------------------------------------------
       ELSE IF ( IPR_ID .EQ. BDGCF_ID ) THEN
           BDG_MASS( :,2 ) = SUM( SUM( SUM( BDG_CONC(:,:,:,:),1 ),1 ),1 ) 
       ELSE IF ( IPR_ID .EQ. IPR_DDEP ) THEN
-          BDG_PROC( :,IPR_ID ) = SUM( SUM( BDG_CONC(:,:,1,:),1 ),1 )
+          BDG_PROC( :,IPR_ID ) = BDG_PROC( :,IPR_ID ) + SUM( SUM( BDG_CONC(:,:,1,:),1 ),1 )
       ELSE
-          BDG_PROC( :,IPR_ID ) = SUM( SUM( SUM( BDG_CONC(:,:,:,:),1 ),1 ),1 )
+          BDG_PROC( :,IPR_ID ) = BDG_PROC( :,IPR_ID ) + SUM( SUM( SUM( BDG_CONC(:,:,:,:),1 ),1 ),1 )
       END IF
 
       RETURN
