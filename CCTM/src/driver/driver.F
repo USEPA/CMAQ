@@ -133,7 +133,7 @@ C-----------------------------------------------------------------------
       USE BIDI_MOD, Only : INIT_BIDI
 
 #ifdef isam
-      USE SA_LAYERS
+c     USE SA_LAYERS
       USE SA_DEFN
       USE PISAM_DEFN            ! SA array definition (borrowed )
 c     USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
@@ -147,7 +147,7 @@ c     USE PMFRC_DEFN            ! MAPFRAC array definition ( adapted )
 #ifdef parallel
       USE VERTEXT_MODULE
 #endif
-
+      USE UTIL_FAMILY_MODULE
       USE CENTRALIZED_IO_MODULE
       USE lus_data_module
 
@@ -452,7 +452,7 @@ C Miscellaneous Configuration Operations
          CALL LOG_HEADING( LOGDEV, "Configure Scenario" )
 
 #ifdef isam
-         CALL GET_SA_LAYS ()
+c        CALL GET_SA_LAYS ()
          CALL SA_DIM()
 
          N_SPCTAG = NSPC_SA * NTAG_SA
@@ -509,6 +509,11 @@ C Initialize ddm3d calculations
 
 #endif
 
+C Initialize Global Arrays for Storing Chemical, Regional, Process,
+C and Emission Stream Families
+         call read_families
+
+C Initiliaze IO Arrays and Open Files
          call centralized_io_init
 
 C Initialize conc field: Copy IC's to CONC file as step 0

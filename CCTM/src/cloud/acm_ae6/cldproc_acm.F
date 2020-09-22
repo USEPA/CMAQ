@@ -570,7 +570,10 @@ c ISAM  unit conversion
               DO ROW = 1, NROWS
                 DO COL = 1, NCOLS
                   ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM(COL,ROW,LAY,SPC,ITAG ) * 1.0E-6
-                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM( COL,ROW,LAY,SPC, ITAG ), 1.0E-36 )
+                  ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM( COL,ROW,LAY,SPC, ITAG ), 1.0E-30 )
+c                 IF ( ISAM( COL,ROW,LAY,SPC, ITAG ) .LT. 1.0E-10 ) THEN
+c                   ISAM( COL,ROW,LAY,SPC, ITAG ) = 0.0
+c                 ENDIF
                 END DO
               END DO
             END DO
@@ -583,6 +586,9 @@ c ISAM  unit conversion
                   FAC = CNV1 / DENS( COL, ROW, LAY ) / AE_MOLWT( VAR - AE_STRT + 1 )
                   ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * FAC
                   ISAM( COL,ROW,LAY,SPC, ITAG ) = MAX ( ISAM(COL,ROW,LAY,SPC, ITAG ), 1.0E-30 )
+c                 IF ( ISAM( COL,ROW,LAY,SPC, ITAG ) .LT. 1.0E-10 ) THEN
+c                   ISAM( COL,ROW,LAY,SPC, ITAG ) = 0.0
+c                 ENDIF
                 END DO
               END DO
             END DO
@@ -890,6 +896,9 @@ c ISAM  unit conversion
               DO ROW = 1, NROWS
                 DO COL = 1, NCOLS
                   ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * 1.0E+6
+                  IF ( ISAM( COL,ROW,LAY,SPC, ITAG ) .LT. 1.0E-18 ) THEN
+                    ISAM( COL,ROW,LAY,SPC, ITAG ) = 0.0
+                  END IF
                 END DO
               END DO
             END DO
@@ -901,6 +910,9 @@ c ISAM  unit conversion
                 DO COL = 1, NCOLS
                   FAC = CNV1I * DENS( COL, ROW, LAY ) * AE_MOLWT( VAR - AE_STRT + 1 )
                   ISAM( COL,ROW,LAY,SPC, ITAG ) = ISAM( COL,ROW,LAY,SPC,ITAG ) * FAC
+                  IF ( ISAM( COL,ROW,LAY,SPC, ITAG ) .LT. 1.0E-18 ) THEN
+                    ISAM( COL,ROW,LAY,SPC, ITAG ) = 0.0
+                  END IF
                 END DO
               END DO
             END DO
