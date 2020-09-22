@@ -174,10 +174,6 @@ setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission
 setenv IGNORE_SOILINP Y      #> Set to TRUE if no MEGAN for prev day
 setenv USE_MEGAN_LAI N
 
-
-
-
-
 #> Vertical Extraction Options
 setenv VERTEXT N
 setenv VERTEXT_COORD_PATH ${WORKDIR}/lonlat.csv
