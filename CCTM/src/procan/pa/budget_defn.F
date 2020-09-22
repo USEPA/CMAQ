@@ -133,6 +133,7 @@ C-----------------------------------------------------------------------
           F_NORTH_OUT = 0
           
           CALL STORE_BUDGET( BDGC0_ID, CONC, JDATE, JTIME )
+          DEALLOCATE( CONC )
           
           ! Open Output tab-separated file and print header
           IF ( MYPE .EQ. 0 ) THEN 
@@ -176,8 +177,6 @@ C-----------------------------------------------------------------------
      &         ( tab,TRIM(PROCNAME(i)),i=1,NPRCS),tab,'RESID_F',tab,'RESID_ADV'
           
           END IF
-          
-          DEALLOCATE( CONC )
           
           ! Map Budget Variables to CGRID Species
           N_BDG_REG = INDEX1( '', N_BUDGET_VARS_REG, BudgetVariables ) - 1
