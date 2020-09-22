@@ -174,13 +174,6 @@ setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission
 setenv IGNORE_SOILINP Y      #> Set to TRUE if no MEGAN for prev day
 setenv USE_MEGAN_LAI N
 
-       if ( $CTM_BIOGEMIS_MEGAN == 'Y' ) then
-         setenv MEGAN_CTS /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/CT3_tceq_12km.ncf
-         setenv MEGAN_EFS /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/EFMAPS31.2019b.tceq_12km.J4.ncf
-         setenv MEGAN_LAI /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/LAI3_tceq_12km.ncf
-         setenv MEGAN_LDF /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/LDF_tceq_12km.2019b.J4.ncf
-       endif
-
 
 
 
@@ -441,6 +434,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
     setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
                              #>                            ; ignore if IGNORE_SOILINP = Y
+         setenv MEGAN_CTS /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/CT3_tceq_12km.ncf
+         setenv MEGAN_EFS /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/EFMAPS31.2019b.tceq_12km.J4.ncf
+         setenv MEGAN_LAI /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/LAI3_tceq_12km.ncf
+         setenv MEGAN_LDF /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/LDF_tceq_12km.2019b.J4.ncf
   endif
 
   #> Windblown dust emissions configuration
