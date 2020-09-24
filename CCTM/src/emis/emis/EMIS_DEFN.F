@@ -268,7 +268,6 @@ C GET_AERO_EMIS has to apply factors - don`t do it at this level.
          USE UTILIO_DEFN
          USE HGRD_DEFN
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
-         USE RXNS_DATA, ONLY: MECHNAME
          USE AERO_DATA, ONLY : AERONUM_MAP, AEROSRF_MAP, DUSTOUTM
 
 #ifdef isam
@@ -763,7 +762,6 @@ C Subset the emissions array for DDM-3D (by species and region)
          USE CGRID_SPCS          ! CGRID mechanism species
          USE UTILIO_DEFN
          USE ASX_DATA_MOD, ONLY: MET_DATA, GRID_DATA
-         USE RXNS_DATA, ONLY: MECHNAME
          USE CENTRALIZED_IO_MODULE, ONLY: interpolate_var
 
          IMPLICIT NONE
