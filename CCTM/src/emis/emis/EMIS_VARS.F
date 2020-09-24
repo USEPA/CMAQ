@@ -277,6 +277,7 @@
 
       USE UTILIO_DEFN
       USE em_param_module
+      USE UTIL_FAMILY_MODULE
 
 
       IMPLICIT NONE
