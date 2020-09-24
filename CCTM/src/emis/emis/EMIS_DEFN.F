@@ -1112,10 +1112,11 @@ C-----------------------------------------------------------------------
           ALOC = MINLOC( VDEMIS( :,1:NL,:,: ) )
           ISPC = ALOC( 1 )
 
-          WRITE( LOGDEV, '(/,5x,A,ES10.3,A,/,5x,3A,/,5x,A)' ),
+          WRITE( LOGDEV, '(/,5x,A,ES10.3,A,/,5x,3A,/,5x,A,/,5x,A)' ),
      &      'ERROR: Invalid Negative emission rate ', EMIS_MIN, ' has been ',
-     &      ' for CMAQ species ',TRIM(DIFF_SPC( ISPC )),'.',
-     &      'Please inspect the Emission Control Namelist File.'
+     &      ' detected for CMAQ species ',TRIM(DIFF_SPC( ISPC )),'.',
+     &      'Please inspect the Emission Control Namelist File (Search for ',
+     &      '"Reading Emission Control Namelist" in this Log File).'
           XMSG = 'Negative Emissions Detected'
           CALL M3EXIT( 'EMISS_NEG_CHECK', 0, 0, XMSG, XSTAT1 )
 
@@ -1268,6 +1269,7 @@ C-----------------------------------------------------------------------
      &                         MAP_EMtoNUM, MAP_EMtoSRF, MAP_EMtoSD,
      &                         EM_STREAM_SIZE, SD_SPLIT, EM_SD_INIT
          USE UDTYPES,   only : CARRY1, LARRY1
+         USE UTIL_FAMILY_MODULE
 
          IMPLICIT NONE
 
@@ -1528,6 +1530,8 @@ C and allowing the model to proceed.
          END IF
 
 ! Process User-Defined Emissions Scaling Rules. 
+         CALL LOG_SUBHEADING( LOGDEV, 'Reading and Storing Emission Scaling Rules' )
+
         ! Find Total Number of Rules
          N_EM_RULE = 0
          DO IRULE = 1,N_EM_RULE_REG
@@ -1642,17 +1646,17 @@ C and allowing the model to proceed.
             
             IF ( LERROR ) THEN
               IF ( .NOT. EMISCHK ) THEN
-                 WRITE( LOGDEV, '(/,5x,A,/,5x,2A,4(/,5x,A))') 
+                 WRITE( LOGDEV, '(/,5x,A,/,5x,2A,/,5x,3A,3(/,5x,A))') 
      &                  '*** ATTENTION **********************************************:',
      &                  'The emission surrogate or member of family ',TRIM( EM_NML( IRULE )%SURR ),
-     &                  'was not found in the requested emission streams but the ',
+     &                  'was not found in the emission stream(s) ',TRIM(EM_NML(IRULE)%STREAM),'  but the ',
      &                  'CTM_EMISCHK environment variable set to False so simulation ',
      &                  'will proceed.',
      &                  '*************************************************************'
                  IF ( IFAM .NE. 0 ) THEN
                     WRITE( LOGDEV, '(7x,A,/,7x,A,/,7x,A,1x,A )') 
      &                  'The surrogate label applied was a chemical family. The specific',
-     &                  'family member(s) that did not appear on any emission stream',
+     &                  'family member(s) that did not appear on requested emission stream(s)',
      &                  'inputs was:'
                     DO ICHEM = 1,NCHEM
                         IF ( LERROR3( ICHEM ) ) WRITE( LOGDEV, '(20x,A)' ) TRIM( CHEM_NAME( ICHEM ) )
@@ -1662,10 +1666,10 @@ C and allowing the model to proceed.
                  END IF
                  CYCLE
               ELSE     
-                 WRITE( LOGDEV, '(5x,A,/,5x,2A,/,8(/,5x,A))') 
+                 WRITE( LOGDEV, '(5x,A,/,5x,2A,/,5x,3A,7(/,5x,A))') 
      &                  '*** ERROR **************************************************************:',
      &                  'The emission surrogate or member of family ',TRIM( EM_NML( IRULE )%SURR ),
-     &                  ' is not found in any of the emission streams.',
+     &                  ' is not found on the stream(s) ',TRIM(EM_NML(IRULE)%STREAM),'.',
      &                  'Use one of the below options to continue.', 
      &                  '1) Change or remove this emission rule so that it refers to an existing surrogate.', 
      &                  'or',
@@ -1675,7 +1679,7 @@ C and allowing the model to proceed.
                  IF ( IFAM .NE. 0 ) THEN
                     WRITE( LOGDEV, '(7x,A,/,7x,A,/,7x,A,1x,A )') 
      &                  'The surrogate label applied was a chemical family. The specific',
-     &                  'family member(s) that did not appear on any emission stream',
+     &                  'family member(s) that did not appear on requested emission stream(s)',
      &                  'inputs was:'
                     DO ICHEM = 1,NCHEM
                         IF ( LERROR3( ICHEM ) ) WRITE( LOGDEV, '(20x,A)' ) TRIM( CHEM_NAME( ICHEM ) )
@@ -2509,7 +2513,8 @@ C and allowing the model to proceed.
 !
          USE AERO_DATA, only : MGPG, GPKG
          USE UTILIO_DEFN         ! I/O API
-         USE RUNTIME_VARS, only : LOGDEV
+         USE RXNS_DATA, ONLY: MECHNAME
+         USE RUNTIME_VARS, only : LOGDEV, LOG_MESSAGE
 
          IMPLICIT NONE
 
@@ -2579,6 +2584,11 @@ C and allowing the model to proceed.
 C Assign Attributes to Emission File Records. Other records will be 
 C populated in individual subroutines. For example, opemis and
 C stkemis_init.
+
+         CALL LOG_MESSAGE( LOGDEV, ' ' )
+         CALL LOG_MESSAGE( LOGDEV, 'Retrieving Env. Variables for Gridded and Elevated Point Emission Inputs' )
+         CALL LOG_MESSAGE( LOGDEV, ' ' )
+
          ISRM = 0
          EM_FILE_LAPPLY = .TRUE.
          EM_FILE_DATE   = JDATE
