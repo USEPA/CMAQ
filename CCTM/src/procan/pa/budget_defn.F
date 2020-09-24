@@ -119,6 +119,7 @@ C-----------------------------------------------------------------------
      &              F_SOUTH_OUT( NLAYS,N_CGRID_SPC ),
      &              F_NORTH_IN( NLAYS,N_CGRID_SPC ),
      &              F_NORTH_OUT( NLAYS,N_CGRID_SPC ),
+     &              CSAV( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
      &              STAT=ASTAT )
           BDG_PROC = 0
           BDG_JDATE0 = JDATE
@@ -131,6 +132,7 @@ C-----------------------------------------------------------------------
           F_SOUTH_OUT = 0
           F_NORTH_IN = 0
           F_NORTH_OUT = 0
+          CSAV  = CGRID
           
           CALL STORE_BUDGET( BDGC0_ID, CONC, JDATE, JTIME )
           DEALLOCATE( CONC )
@@ -291,7 +293,7 @@ C-----------------------------------------------------------------------
 
       CELLVOL( :,:,1 ) = REAL( XCELL_GD * YCELL_GD, 4 ) * ZF( :,:,1 )
       DO L = 2,NLAYS
-         CELLVOL( :,:,L ) = XCELL_GD * YCELL_GD * MSFX2( :,: ) * 
+         CELLVOL( :,:,L ) = REAL( XCELL_GD * YCELL_GD,4) * MSFX2( :,: ) * 
      &                        ( ZF( :,:,L ) - ZF( :,:,L-1) )  ! m3
       END DO
       DENS = DENS * CELLVOL * 1.0E-6 * 1.0E-3 ! mol air
@@ -461,7 +463,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       END DO
       DO J = 1,8
          DO I = 1,N_BDG_VAR
-           ADV_FLUXES_OUT(I,J) = SUBST_GLOBAL_SUM( ADV_FLUXES_OUT(I,J) )/ 10.0
+           ADV_FLUXES_OUT(I,J) = SUBST_GLOBAL_SUM( ADV_FLUXES_OUT(I,J) )
          END DO
       END DO
 #endif
@@ -469,9 +471,6 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       IF ( MYPE .EQ. 0 ) THEN
          ! Positive Residual means sum of processes is greater 
          ! than net change in mass
-         BDG_PROC_OUT( :,IPR_XADV ) = BDG_PROC_OUT( :,IPR_XADV ) * 10.0
-         BDG_PROC_OUT( :,IPR_YADV ) = BDG_PROC_OUT( :,IPR_YADV ) * 10.0
-
          RESID( : ) = SUM( BDG_PROC_OUT(:,:),2 ) - BDG_MASS_OUT( :,3 )  
 
          RESID_F(:) = SUM( BDG_PROC_OUT(:,3:NPRCS),2 ) + SUM( ADV_FLUXES_OUT,2)
@@ -529,6 +528,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       USE RUNTIME_VARS, ONLY: LOGDEV
       USE UTILIO_DEFN
       USE EM_PARAM_MODULE
+      USE UTIL_FAMILY_MODULE 
 
       IMPLICIT NONE
 

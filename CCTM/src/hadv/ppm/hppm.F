@@ -441,14 +441,10 @@ C Update concentrations as in Equation (1.13)
 C Store boundary fluxes in budget variables
 C   Units: change in concentration or mixing ratio
       IF ( BUDGET_DIAG ) THEN
-         IF ( BNDY_LO_PE ) THEN
-             F_LO_IN( : ) = FP( 0,: ) / DS
-             F_LO_OUT( : ) = FM( 1,: ) / DS
-         END IF
-         IF ( BNDY_HI_PE ) THEN
-             F_HI_OUT( : ) = FP( NI,: ) / DS
-             F_HI_IN( : ) = FM( NI+1,: ) / DS
-         END IF
+         F_LO_IN( : ) = FP( 0,: ) / DS
+         F_LO_OUT( : ) = FM( 1,: ) / DS
+         F_HI_OUT( : ) = FP( NI,: ) / DS
+         F_HI_IN( : ) = FM( NI+1,: ) / DS
       END IF
 
 #ifdef isam

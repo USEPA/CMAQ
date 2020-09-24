@@ -52,7 +52,8 @@ C-----------------------------------------------------------------------
       USE UTILIO_DEFN
       USE RUNTIME_VARS, ONLY : BUDGET_DIAG
       USE XY_BUDGET, ONLY : F_WEST_IN, F_WEST_OUT, F_EAST_IN, F_EAST_OUT
-      use CENTRALIZED_IO_MODULE, only : interpolate_var
+      use CENTRALIZED_IO_MODULE, only : interpolate_var, MSFX2
+
 #ifdef parallel
       USE SE_MODULES            ! stenex (using SE_COMM_MODULE, SE_UTIL_MODULE)
 #else
@@ -134,6 +135,7 @@ C Local Variables:
       REAL     :: ZF( NCOLS,NROWS,NLAYS )      !Grid cell height
       REAL     :: DENS( NCOLS,NROWS,NLAYS )    !Density
       REAL, PARAMETER :: MWAIR_SI = 0.02897    ! kg mol-1
+      REAL     :: VOL                          ! Grid Volume
 
       LOGICAL, SAVE :: BNDY_PE_LOX, BNDY_PE_HIX
       REAL, ALLOCATABLE, SAVE :: F_LO_IN( : )
@@ -503,44 +505,54 @@ C PPM scheme
             IF ( BNDY_PE_LOX ) THEN
                 call interpolate_var ('JACOBM', fdate, ftime, JACOBM)
                 call interpolate_var ('ZF', fdate, ftime, ZF)
+                IF ( LVL .EQ. 1 ) THEN
+                    VOL = AX * ZF( 1,ROW,1 ) !* MSFX2( 1,ROW )
+                ELSE
+                    VOL = AX * ( ZF( 1,ROW,LVL ) - ZF( 1,ROW,LVL-1 ) ) !* MSFX2(1,ROW)
+                END IF
                 call interpolate_var ('DENS', fdate, ftime, DENS)  ! kg m-3
                 DENS = DENS / MWAIR_SI ! mol m-3
                 DO I = 1,N_SPC_ADV
                    A2C = ADV_MAP( I )
                    IF ( CGRID_MASK_AERO( A2C ) ) THEN
                       F_WEST_IN( LVL,A2C )  = F_WEST_IN( LVL,A2C ) 
-     &                      + F_LO_IN(I) / JACOBM( 1,ROW,LVL ) * AX * ZF( 1,ROW,LVL )
+     &                      + F_LO_IN(I) / JACOBM( 1,ROW,LVL ) * VOL
                       F_WEST_OUT( LVL,A2C ) = F_WEST_OUT( LVL,A2C ) 
-     &                      + F_LO_OUT(I) / JACOBM( 1,ROW,LVL ) * AX * ZF( 1,ROW,LVL )
+     &                      + F_LO_OUT(I) / JACOBM( 1,ROW,LVL ) * VOL
                    ELSE
                       F_WEST_IN( LVL,A2C )  = F_WEST_IN( LVL,A2C ) 
      &                      + F_LO_IN(I) / CGRID( 1,ROW,LVL,ASPC ) 
-     &                      * DENS( 1,ROW,LVL ) * AX * ZF( 1,ROW,LVL )
+     &                      * DENS( 1,ROW,LVL ) * VOL
                       F_WEST_OUT( LVL,A2C ) = F_WEST_OUT( LVL,A2C ) 
      &                      + F_LO_OUT(I) / CGRID( 1,ROW,LVL,ASPC )
-     &                      * DENS( 1,ROW,LVL ) * AX * ZF( 1,ROW,LVL )
+     &                      * DENS( 1,ROW,LVL ) * VOL
                    END IF
                 END DO
             END IF
             IF ( BNDY_PE_HIX ) THEN
                 call interpolate_var ('JACOBM', fdate, ftime, JACOBM)
                 call interpolate_var ('ZF', fdate, ftime, ZF)
+                IF ( LVL .EQ. 1 ) THEN
+                    VOL = AX * ZF( NCOLS,ROW,1 ) !* MSFX2(NCOLS,ROW)
+                ELSE
+                    VOL = AX * (ZF( NCOLS,ROW,LVL ) - ZF( NCOLS,ROW,LVL-1 )) !* MSFX2(NCOLS,ROW)
+                END IF
                 call interpolate_var ('DENS', fdate, ftime, DENS)  ! kg m-3
                 DENS = DENS / MWAIR_SI ! mol m-3
                 DO I = 1,N_SPC_ADV
                    A2C = ADV_MAP( I )
                    IF ( CGRID_MASK_AERO( A2C ) ) THEN
                       F_EAST_IN( LVL,A2C )  = F_EAST_IN( LVL,A2C ) 
-     &                      + F_HI_IN(I) / JACOBM( NCOLS,ROW,LVL ) * AX * ZF( NCOLS,ROW,LVL )
+     &                      + F_HI_IN(I) / JACOBM( NCOLS,ROW,LVL ) * VOL
                       F_EAST_OUT( LVL,A2C ) = F_EAST_OUT( LVL,A2C ) 
-     &                      + F_HI_OUT(I) / JACOBM( NCOLS,ROW,LVL ) * AX * ZF( NCOLS,ROW,LVL )
+     &                      + F_HI_OUT(I) / JACOBM( NCOLS,ROW,LVL ) * VOL
                    ELSE
                       F_EAST_IN( LVL,A2C )  = F_EAST_IN( LVL,A2C ) 
      &                      + F_HI_IN(I) / CGRID( NCOLS,ROW,LVL,ASPC ) 
-     &                      * DENS( NCOLS,ROW,LVL ) * AX * ZF( NCOLS,ROW,LVL )
+     &                      * DENS( NCOLS,ROW,LVL ) * VOL
                       F_EAST_OUT( LVL,A2C ) = F_EAST_OUT( LVL,A2C ) 
      &                      + F_HI_OUT(I) / CGRID( NCOLS,ROW,LVL,ASPC )
-     &                      * DENS( NCOLS,ROW,LVL ) * AX * ZF( NCOLS,ROW,LVL )
+     &                      * DENS( NCOLS,ROW,LVL ) * VOL
                    END IF
                 END DO
             END IF

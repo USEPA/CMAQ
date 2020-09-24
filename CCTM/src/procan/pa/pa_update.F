@@ -160,13 +160,11 @@ C-----------------------------------------------------------------------
       IF ( FIRSTIME ) THEN
          FIRSTIME = .FALSE.
          ALLOCATE ( CNGRD( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
-     &              CSAV( NCOLS,NROWS,NLAYS,N_CGRID_SPC ),
      &              STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
             MSG = '*** ERROR allocating CNGRD'
             CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
          END IF
-         CSAV  = CGRID
       END IF
 
       DO I = 1,N_CGRID_SPC
