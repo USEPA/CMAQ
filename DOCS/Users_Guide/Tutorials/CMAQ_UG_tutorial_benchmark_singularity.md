@@ -22,7 +22,7 @@ Singularity allows users to run the container <b>without root privileges</b> as 
 To achieve this, Singularity takes advantage of the split between the user space and kernal in UNIX operating systems. Singularity containers take the user space and make it a swappable component independent of the kernal, unlike traditional operating systems. This means the that the root path ('/') will be different than that of your host.
 
 When you build a Singularity container, by default the software will try to resolve which parts are the user space and the kernal and will automatically mount some directories. By default the swappable components (i.e. the user space) is defined as the following directories:
-
+```
 · /home
 · /sys
 · /proc
@@ -31,17 +31,55 @@ When you build a Singularity container, by default the software will try to reso
 · /etc/resolv.conf
 · /etc/password
 · $PWD
+```
 
 
 However, you can mount additional directories by specifying them as a 'bind' when you BUILD THE container. 
 
 For example, the /work directory on ATMOS is not a default directory that is mounted, but additionally specified by the user building the container. Look at /home/local-rhel7/apps/singularity/singularity-3.1.1/etc/singularity/singularity.conf for an example of Singularity system configuration file, user who installed singularity can modify.
 
-On UNC systems the work directory is /proj/ie/proj/ or /21dayscratch/scr
-? Is it possible to build a container on a system that does not have  /proj or /21dayscratch to bind that directory to make it available as user space on a different compute server?
-? How do we generalize a work directory for use on other systems?
+Question 1: Is it the person who builds the container that does this modification, or the IT staff who installed Singularity on the Compute Server? (Because it is on /home, I think it is the container builder who modifies this file.)
 
-To build a Singularity Container, YOU MUST HAVE ROOT PREVELIDGES! If you have those privileges you should follow the following step in the admin documentation: https://sylabs.io/guides/3.5/admin-guide.pdf
+On UNC systems the work directory is /proj/ie/proj/ or /21dayscratch/scr
+
+Question 2: Is it possible to build a container on a system that does not have  /proj or /21dayscratch to bind that directory to make it available as user space on a different compute server?
+
+Answer from Mike Waldron:
+You should be able to map local directories when you run the containers.
+
+ 
+
+Here is an example I use for running a tensorflow container on longleaf.
+$ cat run_interactive.slurm
+#!/bin/bash
+## This is an example of a script to run  tensorflow interactively
+## using Singularity to run the tensorflow image.
+##
+## You will be dropped into an interactive shell with the tensorflow environment.
+##
+## Make a copy of this script and change reserved resources on the srun command as needed for your job.
+##
+## Just execute this script on the command line.
+
+unset OMP_NUM_THREADS
+
+# Set SIMG path
+SIMG_PATH=/nas/longleaf/apps/tensorflow/1.14.0/simg
+
+# Set SIMG name
+SIMG_NAME=tensorflow1.14.0-cuda10.0-ubuntu16.04.simg
+
+# Run interactive job to GPU node using Singularity
+
+srun --ntasks=1 --cpus-per-task=1 --mem=4G --time=4:00:00 --partition=volta-gpu --gres=gpu:1 --qos=gpu_access --pty singularity shell --nv -B /pine -B /proj $SIMG_PATH/$SIMG_NAME  
+
+Note the '-B' arguments to the singularity shell command. In this case, it is providing access to /pine and /proj to the container.
+
+Question 2: Would that work for CMAQ, would the OUTPUT directory be written to the /proj directory rather than the /home directory?
+
+Question 3: How do we create a generic work directory for use on other systems?
+
+To build a Singularity Container, YOU MUST HAVE ROOT Privileges. If you have those privileges you should follow the following step in the admin documentation below.
 
 ## System Checks
 
@@ -54,8 +92,10 @@ The following support software are required for compiling and running CMAQ using
    	- https://singularity.lbl.gov/install-linux
    - Singularity Version
         - Singularity used by Carlie to build container:  3.0.2
+        - Singularity version used on Atmos: singularity-3.1.1
         - Encountered a bug (https://github.com/hpcng/singularity/issues/2744) 
            when tried to run his container on Dogwood when the singularity version was 
+
 
 To determine the version of singularity on your machine, use the command:
 ```
@@ -63,41 +103,13 @@ singularity --version
 2.5.1-dist
 ```
  
-   -  Uniqueness between Atmos and Dogwood 
-   - Can only access singularity commands from within a SLURM queue
+   -  Uniqueness in how Singularity and SLURM is set up between Atmos and Dogwood 
+Dogwood - Can only access singularity commands from within a SLURM queue
+Atmos - Can access singularity commands from the login node
 
 2. OpenMPI
 3. Slurm
 
-1. Fortran and C compilers, e.g., [Intel](https://software.intel.com/en-us/fortran-compilers), [Portland Group](http://www.pgroup.com), [Gnu](https://gcc.gnu.org/wiki/GFortran)
-2. [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
-3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built without netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
-4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
-
-The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
-
-1. Linux environment with a 8 processors
-2. 16 GB RAM
-3. 400 GB hard drive storage
-
-## Install CMAQ and Required Libraries 
-
-In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.2:
-
-```
-git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
-```
-
-For instructions on installing CMAQ from Zip files, see [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md).
-
-## Check Out a new Branch in the CMAQ Repository 
-
-Checking out a new branch is a good idea even if you are not doing code development, per se. It is likely that you will want to retrieve new updates in the future, and an easy way to do this is through the master branch in the git repo. Thus, it is beneficial to leave it unperturbed if possible.
-```
-cd CMAQ_REPO
-git checkout -b my_branch
-```
 
 ## Configure the CMAQ build environment
 
@@ -115,79 +127,6 @@ Now execute the script.
 ./bldit_project.csh
 ```
 
-## Link the CMAQ Libraries
-The CMAQ build scripts require the following libraries and INCLUDE files to be available in the CMAQ_LIB directory (Note: the CMAQ_LIB gets set automatically by the config_cmaq.csh script, where `CMAQ_LIB = $CMAQ_HOME/lib`): 
-
-- netCDF C library files are located in the `$CMAQ_LIB/netcdf/lib` directory
-- netCDF Fortran library files are located in the `$CMAQ_LIB/netcdff/lib` directory
-- I/O API library, include files and module files are located in the `$CMAQ_LIB/ioapi` directory
-- MPI library and INCLUDE files are located in the `$CMAQ_LIB/mpi` directory
-
-The config_cmaq.csh script will automatically link the required libraries into the CMAQ_LIB directory. Set the locations of the netCDF, I/O API, and MPI installations on your Linux system with the following config_cmaq.csh environment variables:
-
-- `setenv IOAPI_INCL_DIR`: the location of the I/O API include header files on your system.
-- `setenv IOAPI_LIB_DIR`: the location of compiled I/O API libraries on your system.
-- `setenv NETCDF_LIB_DIR`: the location of the netCDF C library installation on your system.
-- `setenv NETCDF_INCL_DIR`: the location of the netCDF C include files on your system.
-- `setenv NETCDFF_LIB_DIR`: the location of the netCDF Fortran library installation on your system.
-- `setenv NETCDFF_INCL_DIR`: the location of the netCDF Fortran include files on your system.
-- `setenv MPI_LIB_DIR`: the location of the MPI (OpenMPI or MVAPICH) on your system.
-
-For example, if your netCDF C libraries are installed in /usr/local/netcdf/lib, set `NETCDF_LIB_DIR` to /usr/local/netcdf/lib. Similarly, if your I/O API library is installed in /home/cmaq/ioapi/Linux2_x86_64gfort, set `IOAPI_LIB_DIR` to /home/cmaq/ioapi/Linux2_x86_64gfort. 
-
-*1.* Check the names of the I/O API and netCDF libraries using the `ioapi_lib` and `netcdf_lib` script variables.
-
-*2.* Check the name of the MPI library using the `mpi_lib` script variable. For MVAPICH use `-lmpich`; for openMPI use `-lmpi`.
-
-Links to these libraries will automatically be created when you run any of the build or run scripts. To manually create these libraries (this is optional), execute the config_cmaq.csh script, identifying the compiler in the command line [intel | gcc | pgi]:
-```
-source config_cmaq.csh [compiler] 
-```
-You may also identify the version of the compiler if you wish it to be identified in build directory and executable names. This is optional. For example:
-```
-source config_cmaq.csh gcc 9.1
-```
-
-## Install the CMAQ input reference/benchmark data
-
-Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE532BENCH](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
-
-```
-cd $CMAQ_DATA
-tar xvzf CMAQv5.3.2_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.3.2_Benchmark_2Day_Output.tar.gz
-```
-
-The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  Input and output files for a two week case covering July 1-14, 2016 are also available within the same Google Drive folder. Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
-
-These input and output benchmark files have also been posted on the US EPA annoymous ftp server.  The benchmark data posted on the ftp server has been split into several .tar.gz files to allow for faster download times.  
-* [ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark)
-
-#### A note about differences in the v5.3+ and v5.3 benchmark data
-Starting with CMAQv5.3.1, the benchmark data for the July 2016 test case over th Southeast US now comes with new input and output files.
-The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3+ coupled model on the Southeast US benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3+ files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.2 is slightly different from what was released with v5.3.1 and v5.3 as described in the [CMAQv5.3.2 Release Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
-
-
-
-## Compiling CMAQ
-
-*Before proceeding, it should be noted that building the ICON and BCON executables are optional steps when working specifically with the benchmark data. This is because the initial condition and boundary condition files have been provided for you within the benchmark data set. For further information on these preprocessors please reference [Chapter 4](../CMAQ_UG_ch04_model_inputs.md).*   
-
-Create the model executables for CCTM using the steps shown below. 
-
-##### Configuration for multi-processor runs (default):
-
-```
-set ParOpt #>  Option for MPI Runs
-````
-
-##### Configuration for single-processor runs (optional):
-
-For single-processor computing, edit the CCTM build script (bldit_cctm.csh) to indicate a single-processor run by commenting out set ParOpt as shown below. 
-
-```
-#set ParOpt #> Option for Single Processor Runs
-````
 
 #### Configure CMAQ benchmark Science Modules:
 
@@ -250,6 +189,8 @@ CCTM Science Configuration Options set to **Y** in the RunScript for the benchma
 
 To configure these parameters, the Science Options within the $CMAQ_HOME/CCTM/scripts/run_cctm_Bench_2016_12SE1.csh need to be set. The comments within the script itself should help guide the user on the options for each variable and how to set them. Further information on variable names can be found in 
 [Appendix A](../Appendix/CMAQ_UG_appendixA_model_options.md).
+
+The Emissions Control Namelist is located in the BLD directory.
 
 After configuring the MPI settings for your Linux system, check the rest of the script to ensure the correct path, date and names are used for the input data files. Per the note above, different Linux systems have different requirements for submitting MPI jobs.  The command below is an example of how to submit the CCTM run script and may differ depending on the MPI requirements of your Linux system. 
 
