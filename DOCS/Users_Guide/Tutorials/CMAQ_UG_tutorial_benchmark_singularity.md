@@ -31,6 +31,15 @@ However, you can mount additional directories by specifying them as a 'bind' whe
 
 For example, the /work directory on ATMOS is not a default directory that is mounted, but additionally specified by the user building the container. Look at /home/local-rhel7/apps/singularity/singularity-3.1.1/etc/singularity/singularity.conf for an example of Singularity system configuration file, user who installed singularity can modify.
 
+singularity.conf on atmos:
+```
+bind path = /etc/localtime
+bind path = /etc/hosts
+bind path = /home
+bind path = /work
+```
+
+
 Question 1: Is it the person who builds the container that does this modification, or the IT staff who installed Singularity on the Compute Server? (Because it is on /home, I think it is the container builder who modifies this file.)
 
 On UNC systems the work directory is /proj/ie/proj/ or /21dayscratch/scr
@@ -40,10 +49,9 @@ Question 2: Is it possible to build a container on a system that does not have  
 Answer from Mike Waldron:
 You should be able to map local directories when you run the containers.
 
- 
-
-Here is an example I use for running a tensorflow container on longleaf.
+Here is an example of what Mike uses for running a tensorflow container on longleaf.
 $ cat run_interactive.slurm
+```
 #!/bin/bash
 ## This is an example of a script to run  tensorflow interactively
 ## using Singularity to run the tensorflow image.
@@ -65,6 +73,7 @@ SIMG_NAME=tensorflow1.14.0-cuda10.0-ubuntu16.04.simg
 # Run interactive job to GPU node using Singularity
 
 srun --ntasks=1 --cpus-per-task=1 --mem=4G --time=4:00:00 --partition=volta-gpu --gres=gpu:1 --qos=gpu_access --pty singularity shell --nv -B /pine -B /proj $SIMG_PATH/$SIMG_NAME  
+```
 
 Note the '-B' arguments to the singularity shell command. In this case, it is providing access to /pine and /proj to the container.
 
@@ -87,7 +96,18 @@ The following support software are required for compiling and running CMAQ using
         - Singularity used by Carlie to build container:  3.0.2
         - Singularity version used on Atmos: singularity-3.1.1
         - Encountered a bug (https://github.com/hpcng/singularity/issues/2744) 
-           when tried to run his container on Dogwood when the singularity version was 
+           when tried to run his container on Dogwood when the singularity version was 2.5.1-dist 
+
+2. Container Versions
+   - CMAQ Singularity Container built by Carlie
+     https://cjcoats.github.io/CMAQ-singularity/singularity-cmaq.html
+
+Issue 1
+        - I have been able to run the Atmos Singularity Container on UNC
+        - I have not been able to run Carlie Singularity Container on Atmos
+        - Does this indicate backwards compatibility, but not forward compatibility for singularity?
+
+Carlie notes in his documentation that MPI is a sticking point.
 
 
 To determine the version of singularity on your machine, use the command:
@@ -104,21 +124,15 @@ Atmos - Can access singularity commands from the login node
 3. Slurm
 
 
-## Configure the CMAQ build environment
+Commands used to run singularity container
+```
+ srun --pty --nodes=1 --ntasks-per-node=24 -p debug_queue -t 01:00:00 --wait 0 /bin/tcsh
+Then the command
+/21dayscratch/scr/l/i/lizadams/singularity/Scripts-CMAQ//21dayscratch/scr/l/i/lizadams/singularity/Scripts-CMAQ/singularity-shell.csh
+```
+ Note, I made copies of Carlie scripts, and in that script, I added the -d flag as follows:
 
-The user has two options for building an environment. She or he may build and run CMAQ components directly in the repository structure (object files and executables will be ignored with .gitignore), or they may extract the build and run scripts out of the repository and work in a separate location. If you would like to build directly in the repository, skip to "Install the CMAQ Libraries" below.
-
-### Build and run in a user-specified directory outside of the repository
-In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
-
-In bldit_project.csh, modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
-```
-set CMAQ_HOME = /home/username/CMAQ_v5.3.2
-```
-Now execute the script.
-```
-./bldit_project.csh
-```
+> singularity -d shell -s /usr/bin/tcsh  --bind ${HOSTDATA}:/opt/CMAQ_REPO/data 
 
 
 #### Configure CMAQ benchmark Science Modules:
