@@ -1,13 +1,6 @@
 # CMAQ Benchmarking Tutorial using Singularity
 
-Purpose: This guide describes how to install and run the CMAQ test case, which serves two different purposes. The first being to familiarize the user with the CMAQ suite of programs and how they work together, and secondly to verify the installation of the software on your system via benchmarking. 
-
-Benchmarking refers to a simulation that is used to verify that the software is installed correctly.  Benchmarking CMAQ is recommended in the following circumstances:
-- Installation by a new user
-- Installation on a new server     
-- Following kernel upgrades
-- Following Fortran/C compiler upgrades
-- Following netCDF or I/O API library upgrades
+Purpose: This guide describes how to install and run the CMAQ test case using Singularity. 
 
 Why use a container, and why use Singularity over other Containers such as Docker?
 
