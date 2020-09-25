@@ -30,9 +30,9 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a ne
 The mech.def file lists all of CMAQ's chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_${mechanism}.def.
 - All reactions must begin with a name in < > brackets.
 - All reactions must end with # followed by a reaction rate constant with units of cm<sup>3</sup>/(molecules s)
-- All reactions regenerate the oxidant.
+- In this tutorial, all reactions regenerate the oxidant.
 
-To add an Odum 2-product model, react a gas-phase precursor (TPROD) with OH to form two semivolatile gas-phase species (SVTPROD1,2) with alpha values of 0.15 and 0.8 and a rate constant of 4.5 x 10^<sup>-11</sup> cm<sup>3</sup>/(molecules s):
+In this example, we add an Odum 2-product model by reacting a gas-phase precursor (TPROD) with OH to form two semivolatile gas-phase species (SVTPROD1,2) with alpha values of 0.15 and 0.8 and a rate constant of 4.5 x 10^<sup>-11</sup> cm<sup>3</sup>/(molecules s):
 ```
 <TWOPROD> TPROD + OH = OH + 0.15 * SVTPROD1 + 0.80 * SVTPROD2 #4.50E-11;
 ```
@@ -135,6 +135,8 @@ hlconst.F calculates Henry's Law constants for species that participate in wet d
 Each new row corresponds to a name used in the 'WET-SCAV SURR' column of the [GC namelist](#GCnml). Increase MXSPCS by the number of species added to the list.
 
 See references listed in hlconst.F for models to calculate Henry's Law constants where experimental data is unavailable.
+
+Dry deposition surrogates may also be added, but are not covered in this tutorial.
 
 
 
