@@ -233,7 +233,7 @@ See [Chapter 5](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_
 
 <a id=github></a>
 ## Reflecting the changes in Github ##
-### 1. For CMAQ.
+### 1. Fork from USEPA CMAQ.
 On the [CMAQ Github page](https://github.com/USEPA/CMAQ), fork the master branch to your personal repository using the Fork button in the upper right.
 
 ### 2. Clone.
