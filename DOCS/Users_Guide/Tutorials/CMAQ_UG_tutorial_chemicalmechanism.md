@@ -233,25 +233,30 @@ See [Chapter 5](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_
 
 <a id=github></a>
 ## Reflecting the changes in Github ##
-### 1. On the [CMAQ Github page](https://github.com/USEPA/CMAQ), fork the master branch to your personal repository using the Fork button in the upper right.
+### 1. For CMAQ.
+On the [CMAQ Github page](https://github.com/USEPA/CMAQ), fork the master branch to your personal repository using the Fork button in the upper right.
 
-### 2. Clone your repository to your remote account. For example:
+### 2. Clone.
+Clone your repository to your remote account. For example:
 ```
 git clone https://username@github.com/username/CMAQ.git CMAQ_REPO_v532
 ```
 This will request your Github password. You will now see the entire CMAQ repository in the directory you cloned it into. If you enter the top directory (e.g. CMAQ_REPO_v532/), there should now exist a file named .git.
 
-### 3. Rename the remote link. For example:
+### 3. Rename remote.
+Rename the remote link. For example:
 ```
 git remote rename origin dev_push_repo
 ```
 
-### 4. Link the cloned repo to the USEPA Github repo.
+### 4. Link to USEPA CMAQ.
+Link the cloned repo to the USEPA Github repo.
 ```
 git remote add dev_repo https://username@github.com/USEPA/CMAQ.git
 ```
 
-### 5. When modifying your repository, it's a good idea to check out a new branch. To create the branch:
+### 5. Branching.
+When modifying your repository, it's a good idea to check out a new branch. To create the branch:
 ```
 git branch newchem
 ```
@@ -306,7 +311,8 @@ To view a summary of the changes you've made to your repo since your last commit
 ```
 To see a list of all lines that have been modified in those files, type "git diff".
 
-### 7. Commit the changes. To stage all modified files for commit:
+### 7. Commit the changes.
+To stage all modified files for commit:
 ```
 git add .
 ````
@@ -316,7 +322,9 @@ git commit
 ```
 A page indicating all changes in the commit will be displayed. Enter a description at the top and close the page using :x and Enter.
 
-### 8. Push the changes to your Github respository. Make sure you don't push the changes to the USEPA CMAQ Github!
+### 8. Push the changes to your Github respository.
+Make sure you don't push the changes to the USEPA CMAQ Github!
+
 To push your changes from your newchem branch to your Github repository:
 ```
 git push dev_push_repo newchem
