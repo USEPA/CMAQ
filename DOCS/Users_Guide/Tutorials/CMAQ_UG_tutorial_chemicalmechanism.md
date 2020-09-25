@@ -11,13 +11,13 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a ne
 5. AERO_DATA.F
 6. SOA_DEFN.F
 7. hlconst.F
-8. SpecDef_*
-9. SpecDef_Dep_*
+8. SpecDef_*.txt
+9. SpecDef_Dep_*.txt
 
 
 ### Utilities to use
-1. CHEMMECH (see [doumentation](https://github.com/USEPA/CMAQ/blob/master/UTIL/chemmech/README.md))
-2. CREATE_EBI (see [documentation](https://github.com/USEPA/CMAQ/blob/master/UTIL/create_ebi/README.md))
+1. chemmech (see [documentation](https://github.com/USEPA/CMAQ/blob/master/UTIL/chemmech/README.md))
+2. create_ebi (see [documentation](https://github.com/USEPA/CMAQ/blob/master/UTIL/create_ebi/README.md))
 
 
 <a id=modifychem></a>
@@ -27,11 +27,11 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a ne
 
 <a id=mech_def></a>
 ### 2. Edit mech.def.
-The mech.def file lists all of CMAQ's chemical reactions, including rate constants, and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_${mechanism}.def.
+The mech.def file lists all of CMAQ's chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_${mechanism}.def.
 - All reactions must begin with a name in < > brackets.
 - All reactions must end with # followed by a reaction rate constant with units of cm<sup>3</sup>/(molecules s)
 - All reactions regenerate the oxidant.
-- MIGHT WANT TO ADD SOME DESCRIPTION OF THE x/y/z TRACER(?) SPECIES FOR GAS-PHASE REACTIONS.
+
 To add an Odum 2-product model, react a gas-phase precursor (TPROD) with OH to form two semivolatile gas-phase species (SVTPROD1,2) with alpha values of 0.15 and 0.8 and a rate constant of 4.5 x 10^<sup>-11</sup> cm<sup>3</sup>/(molecules s):
 ```
 <TWOPROD> TPROD + OH = OH + 0.15 * SVTPROD1 + 0.80 * SVTPROD2 #4.50E-11;
@@ -65,22 +65,22 @@ You must add a new row for every nonreactive species added to the chemical mecha
 
 <a id=EmissCtrl></a>
 ### 6. Edit Emissions Control file.
-The Emissions Control file describes how to input emissions.
-- Located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/EmissCtrl_${mechanism}.nml
-- Any new species included in the mech.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species are given in the !> CUSTOM MAPPING EXAMPLES <! section and further description can be found in the [DESID tutorial](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_emissions.md).
+The Emissions Control file describes how to input emissions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/EmissCtrl_${mechanism}.nml. Any new species included in the mech.def or GC, AE, and NR namelists that is directly emitted should be included in this file. Examples of adding new species are given in the !> CUSTOM MAPPING EXAMPLES <! section and further description can be found in the [DESID tutorial](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_emissions.md).
 
 
 
 <a id=SpecDef></a>
 ### 7. Edit SpecDef file.
-The SpecDef file is used to aggregate CMAQ-output species (e.g. into SOA and PM<sub>2.5</sub>) and convert units of some variables. It is used to run the post-processing tool [combine](https://github.com/USEPA/CMAQ/blob/master/POST/combine/README.md) and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/SpecDef_{mechanism}.txt
-To convert the units of a gas-phase species to ppb:
+The SpecDef file is used to aggregate CMAQ output species (e.g. into PM<sub>2.5</sub>) and convert units. It is used to run the post-processing tool [combine](https://github.com/USEPA/CMAQ/blob/master/POST/combine/README.md) and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/SpecDef_{mechanism}.txt.
+To convert the units of a gas-phase species to ppb, add the following line:
 ```
 NEWGAS          ,ppbC      ,1000.*NEWGAS[1]
 ```
-To add a new species to OA mass, add it to the appropriate POA or SOA variables. For example, to add a new SOA accumulation-mode aerosol species ANEWJ, include '+ANEWJ[1]' to ASOMJ. This change will be reflected in subsequent variable definitions that use ASOMJ.
+To add a new species to OA mass, add it to the appropriate POA or SOA variables. For example, to add a new SOA accumulation-mode aerosol species ANEWJ, include '+ANEWJ[1]' in ASOMJ. This change will be reflected in subsequent variable definitions that use ASOMJ.
+
 If your simulation domain is an urban area, move AGLYJ from AORGB (biogenic VOC-derived aerosol) to AORGA (anthropogenic VOC-derived SOA).
-In some cases you may want to remove pcSOA from your SOA. In this case, you must create new variables with APCSOJ subtracted. For example, to calculate PM1 SOA without pcSOA, update the following variables:
+
+In some cases you may want to remove pcSOA from your SOA. In this case, you must create new variables with APCSOJ subtracted. For example, to calculate PM<sub>1</sub> SOA without pcSOA, update the following variables:
 ```
 AOMJ_MP         ,ug m-3    ,APOMJ[0]  + ASOMJ[0] - APCSOJ[1]
 ATOTJ_MP        ,ug m-3    ,ASO4J[1]+ANO3J[1]+ANH4J[1]+ANAJ[1]+ACLJ[1] \
@@ -95,7 +95,9 @@ To update the OC variables or the deposition of OC variables in the SpecDef_Dep_
 <a id=SOA_DEFN></a>
 ### 8. Edit SOA_DEFN.F
 SOA_DEFN.F defines all aerosol species and some of their properties. It is located at $CMAQ_REPO/CCTM/src/aero/aero6/SOA_DEFN.F. Note that the aero7 directory is linked to the aero6 directory.
+
 You must add a row for every new aerosol species and increase n_oa_list by the number of species added to the list.
+
 To add a species that partitions between the gas and aerosol phases (with a gas-phase species defined in the [GC namelist](#GCnml)) with effective saturation concentration (C*) = 0.95 ug/m3 and enthalpy of vaporization = 131 J/mol:
 ```
 & oa_type('ATPROD1', 'SVTPROD1', '        ',  0.0000,     0.95, 131.0E3,   F )
@@ -104,7 +106,6 @@ To add a nonvolatile aerosol species:
 ```
 & oa_type('ANONV  ', '        ', '        ',  0.0000,   1.E-10,   1.0E0,   T )
 ```
-- ADD AN EXAMPE OF THE RXN COUNTER SPECIES?
 Note that these aerosol definitions do not include a specification of the size bin they fall into.
 
 
@@ -112,7 +113,9 @@ Note that these aerosol definitions do not include a specification of the size b
 <a id=AERO_DATA></a>
 ### 9. Edit AERO_DATA.F
 AERO_DATA.F defines all aerosol species and some of their properties. It is located at $CMAQ_REPO/CCTM/src/aero/aero6/AERO_DATA.F. Note that the aero7 directory is linked to the aero6 directory.
+
 You must add a row for every new aerosol species and increase n_aerolist be the number of species added to the list.
+
 To add a semivolatile organic aerosol species, set OM to T, set no_M2Wet to T, calculate korg from e.g. Pye et al., ACP, 2017, and use properties that match other organic species:
 ```
 & spcs_list_type('ATPROD1 ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.09),
@@ -121,7 +124,6 @@ To add a nonvolatile organic aerosol species, set no_M2Wet to F:
 ```
 & spcs_list_type('ANONV   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07),
 ```
-- ADD EXAMPLE OF INORGANIC SPECIES?
 Note that these aerosol definitions do not include a specification of the size bin they fall into.
 
 
@@ -129,7 +131,9 @@ Note that these aerosol definitions do not include a specification of the size b
 <a id=hlconst></a>
 ### 10. Edit hlconst.F
 hlconst.F calculates Henry's Law constants for species that participate in wet deposition. It's located in the relevant cloud directory at $CMAQ_REPO/CCTM/src/cloud/*/hlconst.F.
+
 Each new row corresponds to a name used in the 'WET-SCAV SURR' column of the [GC namelist](#GCnml). Increase MXSPCS by the number of species added to the list.
+
 See references listed in hlconst.F for models to calculate Henry's Law constants where experimental data is unavailable.
 
 
@@ -140,7 +144,7 @@ See [Chapter 5](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_
 
 
 <a id=chemmech_build></a>
-### 12. Build CHEMMECH.
+### 12. Build chemmech.
 Copy the source code from CMAQ_REPO to CMAQ_PROJECT.
 ```
 cp -r $CMAQ_REPO/UTIL/chemmech/ $CMAQ_PROJECT/UTIL/
@@ -153,7 +157,7 @@ Edit $CMAQ_PROJECT/UTIL/chemmech/scripts/bldit_chemmech.csh to make sure the cor
 
 
 <a id=chemmech_run></a>
-### 13. Run CHEMMECH.
+### 13. Run chemmech.
 Edit run_chemmech.csh
 - COMPILER
 - Update correct Mechanism
@@ -162,7 +166,7 @@ Edit run_chemmech.csh
 ```
 set TR_NML = $CMAQ_REPO/CCTM/src/MECHS/trac0/Species_Table_TR_0.nml
 ```
-Run
+Run:
 ```
 ./run_chemmech.csh
 ```
@@ -177,7 +181,7 @@ and will write RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 to the output path.
 
 
 <a id=ebi_build></a>
-### 14. Build/run CREATE_EBI.
+### 14. Build+run create_ebi.
 Copy the source code from CMAQ_REPO to CMAQ_PROJECT.
 ```
 cp -r $CMAQ_REPO/UTIL/create_ebi/ $CMAQ_PROJECT/UTIL/
@@ -192,7 +196,7 @@ Move bldrun_create_ebi.csh up one directory (from $CMAQ_PROJECT/UTIL/create_ebi/
  setenv DEGRADE_SUBS    F    
  setenv SOLVER_DELT     1.25 
 ```
-Run the build script.
+Run:
 ```
 ./bldrun_create_ebi.csh
 ```
@@ -213,41 +217,41 @@ Program CR_EBI_SOLVER completed successfully
 if ( F == T ) then
 exit ( )
 ```
-and will write those hr*.F files to /work/MOD3DEV/eap/CMAQv532/UTIL/create_ebi/output/ebi_${Mechanism}-$DATE-${COMPILER}/. Copy the hr*.F files to $REPO/CCTM/src/gas/ebi_${Mechanism}/
+and will write the hr*.F files to /work/MOD3DEV/eap/CMAQv532/UTIL/create_ebi/output/ebi_${Mechanism}-$DATE-${COMPILER}/. Copy the hr*.F files to $REPO/CCTM/src/gas/ebi_${Mechanism}/.
 
 
 
 <a id=cctm_build></a>
 ### 15. Build the CCTM executable.
-See [Chapter 5](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.md) or the [Tutorials](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/README.md) for more information. This will pull all of the new files from $CMAQ_REPO/CCTM/src/ into $CMAQ_PROJECT/CCTM/BLD.
+See [Chapter 5](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.md) or the [Tutorials](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/README.md) for more information. This will include all of the new files from $CMAQ_REPO/CCTM/src/ in $CMAQ_PROJECT/CCTM/BLD.
 
 
 <a id=cmaq_run></a>
 ### 16. Run CCTM and post-processing tools.
-See [Chapter 5](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.md) for more information about running the CCTM. See [Chapter 8](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.md) for more information about running AMET, combine, sitecmp, etc. While running these post-processing tools, be sure to set file paths to the new files created in $REPO or $PROJECT/CCTM/BLD.
+See [Chapter 5](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch05_running_a_simulation.md) for more information about running the CCTM. See [Chapter 8](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch08_analysis_tools.md) for more information about running AMET, combine, sitecmp, etc. While running these post-processing tools, be sure to set file paths to the new files created in $CMAQ_REPO or $CMAQ_PROJECT/CCTM/BLD.
 
 
 <a id=github></a>
-### Reflecting the changes in Github
-1. On the [CMAQ Github page](https://github.com/USEPA/CMAQ), fork the master branch to your personal repository using the Fork button in the upper right.
+## Reflecting the changes in Github ##
+### 1. On the [CMAQ Github page](https://github.com/USEPA/CMAQ), fork the master branch to your personal repository using the Fork button in the upper right.
 
-2. Clone your repository to your remote account. For example:
+### 2. Clone your repository to your remote account. For example:
 ```
 git clone https://username@github.com/username/CMAQ.git CMAQ_REPO_v532
 ```
 This will request your Github password. You will now see the entire CMAQ repository in the directory you cloned it into. If you enter the top directory (e.g. CMAQ_REPO_v532/), there should now exist a file named .git.
 
-3. Rename the remote link. For example:
+### 3. Rename the remote link. For example:
 ```
 git remote rename origin dev_push_repo
 ```
 
-4. Link the local repo to the remote repo.
+### 4. Link the cloned repo to the USEPA Github repo.
 ```
 git remote add dev_repo https://username@github.com/USEPA/CMAQ.git
 ```
 
-5. When modifying the repo, it's a good idea to check out a new branch. To create the branch:
+### 5. When modifying your repository, it's a good idea to check out a new branch. To create the branch:
 ```
 git branch newchem
 ```
@@ -261,8 +265,8 @@ git branch
 ```
 The branch you're currently working from will have an asterisk.
 
-6. Modify the mechanism according to the [instructions](#modifychem) above.
-If the repository is updated by EPA, you will see in Github a statement such as "This branch is X commits behind USEPA:master" in Github online. You will likely want to keep your CMAQ up-to-date and will want to pull the updates to your repo. Make sure the files you've edited are backed up.
+### 6. Modify the mechanism according to the [instructions](#modifychem) above.
+If the USEPA repository is updated by EPA, you will see a statement such as "This branch is X commits behind USEPA:master" in Github online. You will likely want to keep your CMAQ up-to-date and will want to pull the updates to your repo. Make sure the files you've edited are backed up.
 Check the names of your remotes using:
 ```
 git remote -v
@@ -302,7 +306,7 @@ To view a summary of the changes you've made to your repo since your last commit
 ```
 To see a list of all lines that have been modified in those files, type "git diff".
 
-7. Commit the changes. To stage all modified files for commit:
+### 7. Commit the changes. To stage all modified files for commit:
 ```
 git add .
 ````
@@ -312,11 +316,7 @@ git commit
 ```
 A page indicating all changes in the commit will be displayed. Enter a description at the top and close the page using :x and Enter.
 
-8. Push the changes to your Github respository. Make sure you don't push the changes to the USEPA CMAQ Github! Check the names of your remotes using:
-```
-git remote -v
-```
-If you've followed these instructions, your repository should be named dev_push_repo and the USEPA's repository should be named dev_repo.
+### 8. Push the changes to your Github respository. Make sure you don't push the changes to the USEPA CMAQ Github!
 To push your changes from your newchem branch to your Github repository:
 ```
 git push dev_push_repo newchem
