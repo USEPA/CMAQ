@@ -56,7 +56,6 @@ C-----------------------------------------------------------------------
       USE GRID_CONF            ! horizontal & vertical domain specifications
       USE CGRID_SPCS           ! CGRID mechanism species
       USE UTILIO_DEFN
-      USE RXNS_DATA, ONLY : MECHNAME
       USE AERO_DATA, only : CHECK_AERO_ICBC, N_MODE
       use CENTRALIZED_IO_MODULE, only : interpolate_var, window
 

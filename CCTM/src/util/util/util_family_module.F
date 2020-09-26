@@ -224,7 +224,7 @@
       ! Capitalize All Family and Member Names
       DO IFAM = 1,NStreamFamilies
           CALL UPCASE( StreamFamilyName( IFAM ) )
-          DO INUM = 1,StreamFamilyNum( INUM )
+          DO INUM = 1,StreamFamilyNum( IFAM )
               CALL UPCASE( StreamFamilyMembers( IFAM,INUM ) )
           END DO
       END DO
@@ -259,7 +259,7 @@
       ! Capitalize All Family and Member Names
       DO IFAM = 1,NRegionFamilies
           CALL UPCASE( RegionFamilyName( IFAM ) )
-          DO INUM = 1,RegionFamilyNum( INUM )
+          DO INUM = 1,RegionFamilyNum( IFAM )
               CALL UPCASE( RegionFamilyMembers( IFAM,INUM ) )
           END DO
       END DO
@@ -294,7 +294,7 @@
       ! Capitalize All Family and Member Names
       DO IFAM = 1,NProcessFamilies
           CALL UPCASE( ProcessFamilyName( IFAM ) )
-          DO INUM = 1,ProcessFamilyNum( INUM )
+          DO INUM = 1,ProcessFamilyNum( IFAM )
               CALL UPCASE( ProcessFamilyMembers( IFAM,INUM ) )
           END DO
       END DO
