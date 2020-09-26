@@ -157,6 +157,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
                MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
                MASK_IPR_PROC_TMP( NIPRVAR,IPR_DDEP ) = .TRUE.
 
+            ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'DEFM' ) THEN
+               IPRNAME_TMP( NIPRVAR ) = 'DEFM_' // IPR_SPNAM( NIPR )
+               IPRDESC_TMP( NIPRVAR ) = 'Density Correction for ' // 
+     &                                   IPR_SPNAM( NIPR )
+               MAP_IPRVARtoSPC_TMP( NIPRVAR )= NIPR
+               MASK_IPR_PROC_TMP( NIPRVAR,IPR_DEFM ) = .TRUE.
+
             ELSE IF ( IPR_OPNAME( NIPR,N )( 1:4 ) .EQ. 'CLDS' ) THEN
                IPRNAME_TMP( NIPRVAR ) = 'CLDS_' // IPR_SPNAM( NIPR )
                IPRDESC_TMP( NIPRVAR ) = 'Clouds for ' // 

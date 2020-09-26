@@ -133,6 +133,7 @@ C Local Variables:
 
       REAL     :: JACOBM( NCOLS,NROWS,NLAYS )  !"total" Jacobian
       REAL     :: ZF( NCOLS,NROWS,NLAYS )      !Grid cell height
+      REAL     :: RHOJ( NCOLS,NROWS,NLAYS )    !Density * Jacobian
       REAL     :: DENS( NCOLS,NROWS,NLAYS )    !Density
       REAL, PARAMETER :: MWAIR_SI = 0.02897    ! kg mol-1
       REAL     :: VOL                          ! Grid Volume
@@ -511,6 +512,7 @@ C PPM scheme
                     VOL = AX * ( ZF( 1,ROW,LVL ) - ZF( 1,ROW,LVL-1 ) ) !* MSFX2(1,ROW)
                 END IF
                 call interpolate_var ('DENS', fdate, ftime, DENS)  ! kg m-3
+                call interpolate_var ('DENSA_J', fdate, ftime, RHOJ)  ! kg m-3
                 DENS = DENS / MWAIR_SI ! mol m-3
                 DO I = 1,N_SPC_ADV
                    A2C = ADV_MAP( I )
@@ -522,10 +524,16 @@ C PPM scheme
                    ELSE
                       F_WEST_IN( LVL,A2C )  = F_WEST_IN( LVL,A2C ) 
      &                      + F_LO_IN(I) / CGRID( 1,ROW,LVL,ASPC ) 
+      !&                      + F_LO_IN(I) / CONX( 1,N_SPC_ADV ) 
      &                      * DENS( 1,ROW,LVL ) * VOL
+      !&                      + F_LO_IN(I) / RHOJ( 1,ROW,LVL ) 
+      !&                      * CGRID( 1,ROW,LVL,ASPC )/JACOBM( 1,ROW,LVL )*MSFX2(1,ROW)/MWAIR_SI * VOL
                       F_WEST_OUT( LVL,A2C ) = F_WEST_OUT( LVL,A2C ) 
      &                      + F_LO_OUT(I) / CGRID( 1,ROW,LVL,ASPC )
+      !&                      + F_LO_OUT(I) / CONX( 1,N_SPC_ADV )
      &                      * DENS( 1,ROW,LVL ) * VOL
+      !&                      + F_LO_OUT(I) / RHOJ( 1,ROW,LVL ) 
+      !&                      * CGRID( 1,ROW,LVL,ASPC )/JACOBM( 1,ROW,LVL )*MSFX2(1,ROW)/MWAIR_SI * VOL
                    END IF
                 END DO
             END IF
@@ -549,10 +557,16 @@ C PPM scheme
                    ELSE
                       F_EAST_IN( LVL,A2C )  = F_EAST_IN( LVL,A2C ) 
      &                      + F_HI_IN(I) / CGRID( NCOLS,ROW,LVL,ASPC ) 
+      !&                      + F_HI_IN(I) / CONX( NCOLS,N_SPC_ADV ) 
      &                      * DENS( NCOLS,ROW,LVL ) * VOL
+      !&                      + F_HI_IN(I) / RHOJ( NCOLS,ROW,LVL ) 
+      !&                      * CGRID( NCOLS,ROW,LVL,ASPC )/JACOBM( NCOLS,ROW,LVL )*MSFX2(NCOLS,ROW)/MWAIR_SI * VOL
                       F_EAST_OUT( LVL,A2C ) = F_EAST_OUT( LVL,A2C ) 
      &                      + F_HI_OUT(I) / CGRID( NCOLS,ROW,LVL,ASPC )
+      !&                      + F_HI_OUT(I) / CONX( NCOLS,N_SPC_ADV )
      &                      * DENS( NCOLS,ROW,LVL ) * VOL
+      !&                      + F_HI_OUT(I) / RHOJ( NCOLS,ROW,LVL ) 
+      !&                      * CGRID( NCOLS,ROW,LVL,ASPC )/JACOBM( NCOLS,ROW,LVL )*MSFX2(NCOLS,ROW)/MWAIR_SI * VOL
                    END IF
                 END DO
             END IF

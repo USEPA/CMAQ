@@ -117,7 +117,7 @@ C-----------------------------------------------------------------------
       
       ! Arguments:
       INTEGER, INTENT( IN ) :: IPR_ID   ! Last process called
-      REAL, POINTER         :: CGRID( :,:,:,: )  ! Conc array
+      REAL   , INTENT( IN ) :: CGRID( :,:,:,: )  ! Conc array
       INTEGER, INTENT( IN ) :: JDATE       !  current date,    format YYYYDDD
       INTEGER, INTENT( IN ) :: JTIME       !  current time,    format HHMMSS
       INTEGER, INTENT( IN ) :: TSTEP( 3 )  ! time step vector (HHMMSS)
@@ -184,11 +184,13 @@ C-----------------------------------------------------------------------
       IF ( LCOUPLE ) THEN
          SDATE = JDATE; STIME = JTIME
          CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
-         CALL DECOUPLE_PA( CNGRD, SDATE, STIME )
+         CALL DECOUPLE_PA( CNGRD, JDATE, JTIME )
+         CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, 1 )
+      ELSE
+         CALL STORE_BUDGET( IPR_ID, CNGRD, JDATE, JTIME, 0 )
       END IF
 
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET( IPR_ID, CNGRD-CSAV, JDATE, JTIME )
 
       IF ( LIPR ) THEN
          ! Compute delta conc for this process if requested
@@ -317,7 +319,7 @@ C-----------------------------------------------------------------------
       END DO
       
       ! Save Changes in Budget Array
-      CALL STORE_BUDGET( IPR_EMIS, VEMIS, JDATE, JTIME )
+      CALL STORE_BUDGET( IPR_EMIS, VEMIS, JDATE, JTIME, 0 )
 
       ! Save Changes in Process Analysis Array
       IF ( LIPR ) THEN
@@ -471,7 +473,7 @@ C..get density x jacobian and layer heights
       ! Save Changes in Budget Array
       CNGRD(:,:,1,: ) = -DDEP(:,:,:)
       CNGRD( :,:,2:NLAYS,: ) = 0.0
-      CALL STORE_BUDGET( IPR_DDEP, CNGRD, JDATE, JTIME )
+      CALL STORE_BUDGET( IPR_DDEP, CNGRD, JDATE, JTIME, 0 )
 
       IF ( LIPR .AND. MY_BEGLEV .EQ. 1 ) THEN
       ! Compute delta conc due to ddep and adjust vdiff output if necessary
@@ -520,7 +522,7 @@ C..get density x jacobian and layer heights
 
       IMPLICIT NONE
 
-      REAL, POINTER         :: CGRID( :,:,:,: )  ! Conc array
+      REAL, INTENT( IN )    :: CGRID( :,:,:,: )  ! Conc array
       INTEGER, INTENT( IN ) :: JDATE, JTIME
       INTEGER, INTENT( IN ) :: TSTEP(3)
       INTEGER SDATE     ! Date at end of timestep
@@ -547,7 +549,8 @@ C..get density x jacobian and layer heights
       END DO
       SDATE = JDATE; STIME = JTIME
       CALL NEXTIME( SDATE, STIME, TSTEP( 2 ) )
-      CALL DECOUPLE_PA( CNGRD, SDATE, STIME )
+      CALL DECOUPLE_PA( CNGRD, JDATE, JTIME )
+      CALL STORE_BUDGET( BDGSAVE_ID, CNGRD, JDATE, JTIME, 1 )
 
       IF ( LIPR ) THEN
          ! Convert X and Y Advection changes to mixing ratio and
@@ -559,8 +562,8 @@ C..get density x jacobian and layer heights
          CALL DECOUPLE_PA( DELC_YADV, SDATE, STIME )
 
          ! Save Changes in Budget Array
-         CALL STORE_BUDGET( IPR_XADV, DELC_XADV, JDATE, JTIME )
-         CALL STORE_BUDGET( IPR_YADV, DELC_YADV, JDATE, JTIME )
+         CALL STORE_BUDGET( IPR_XADV, DELC_XADV, SDATE, STIME, 1 )
+         CALL STORE_BUDGET( IPR_YADV, DELC_YADV, SDATE, STIME, 1 )
 
          DO IPRV = 1, NIPRVAR     ! foreach family
             IPRSPC = MAP_IPRVARtoSPC( IPRV ) 
@@ -638,11 +641,13 @@ C..get density x jacobian and layer heights
       END IF
 
       ! Save Changes in Budget Array
-      CNGRD = CGRID
-      CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME )
-      CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME )
-      CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME )
-      CALL STORE_BUDGET( IPR_GROW, AERO_GROWTH, JDATE, JTIME )
+      !CSAV = CGRID
+      CALL STORE_BUDGET( IPR_COAG, AERO_COAG, JDATE, JTIME, 0 )
+      CALL STORE_BUDGET( IPR_COND, AERO_COND, JDATE, JTIME, 0 )
+      CALL STORE_BUDGET( IPR_NPF,  AERO_NPF, JDATE, JTIME, 0 )
+      CALL STORE_BUDGET( IPR_GROW, AERO_GROWTH, JDATE, JTIME, 0 )
+
+      CALL STORE_BUDGET( BDGSAVE_ID, CGRID, JDATE, JTIME, 0 )
 
       IF ( LIPR ) THEN
       DO IPRV = 1, NIPRVAR     ! foreach family
@@ -687,7 +692,6 @@ C..get density x jacobian and layer heights
       END DO
       END IF
   
-      CSAV = CNGRD
       RETURN
  
       END SUBROUTINE PA_UPDATE_AERO
@@ -777,7 +781,7 @@ C be modified. Use DIFF_MAP
             END DO
             END DO
             END DO
-          ELSE
+          ELSE IF ( DIFF_MAP( V ) .NE. RHOJ_LOC ) THEN
             ! Convert to ppmV
             DO L = 1,NLAYS
             DO R = 1,NROWS

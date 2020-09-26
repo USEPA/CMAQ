@@ -130,6 +130,7 @@ C Local Variables:
 
       REAL     :: JACOBM( NCOLS,NROWS,NLAYS )  !"total" Jacobian
       REAL     :: ZF( NCOLS,NROWS,NLAYS )      !Grid cell height
+      REAL     :: RHOJ( NCOLS,NROWS,NLAYS )    !Density * Jacobian
       REAL     :: DENS( NCOLS,NROWS,NLAYS )    !Density
       REAL, PARAMETER :: MWAIR_SI = 0.02897    ! kg mol-1
       REAL     :: VOL                          ! Grid Volume
@@ -514,10 +515,16 @@ C PPM scheme
                    ELSE
                       F_SOUTH_IN( LVL,A2C )  = F_SOUTH_IN( LVL,A2C ) 
      &                      + F_LO_IN(I) / CGRID( COL,1,LVL,ASPC ) 
+      !&                      + F_LO_IN(I) / CONY( 1,N_SPC_ADV ) 
      &                      * DENS( COL,1,LVL ) * VOL
+      !&                      + F_LO_IN(I) / RHOJ( COL,1,LVL ) 
+      !&                      * CGRID( COL,1,LVL,ASPC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
                       F_SOUTH_OUT( LVL,A2C ) = F_SOUTH_OUT( LVL,A2C ) 
      &                      + F_LO_OUT(I) / CGRID( COL,1,LVL,ASPC ) 
+      !&                      + F_LO_OUT(I) / CONY( 1,N_SPC_ADV ) 
      &                      * DENS( COL,1,LVL ) * VOL
+      !&                      + F_LO_OUT(I) / RHOJ( COL,1,LVL ) 
+      !&                      * CGRID( COL,1,LVL,ASPC )/JACOBM( COL,1,LVL )*MSFX2(COL,1)/MWAIR_SI * VOL
                    END IF
                 END DO
             END IF
@@ -541,10 +548,16 @@ C PPM scheme
                    ELSE
                       F_NORTH_IN( LVL,A2C )  = F_NORTH_IN( LVL,A2C ) 
      &                      + F_HI_IN(I) / CGRID( COL,NROWS,LVL,ASPC ) 
+      !&                      + F_HI_IN(I) / CONY( NROWS,N_SPC_ADV ) 
      &                      * DENS( COL,NROWS,LVL ) * VOL
+      !&                      + F_HI_IN(I) / RHOJ( COL,NROWS,LVL ) 
+      !&                      * CGRID( COL,NROWS,LVL,ASPC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
                       F_NORTH_OUT( LVL,A2C ) = F_NORTH_OUT( LVL,A2C ) 
      &                      + F_HI_OUT(I) / CGRID( COL,NROWS,LVL,ASPC ) 
+      !&                      + F_HI_OUT(I) / CONY( NROWS,N_SPC_ADV ) 
      &                      * DENS( COL,NROWS,LVL ) * VOL
+      !&                      + F_HI_OUT(I) / RHOJ( COL,NROWS,LVL ) 
+      !&                      * CGRID( COL,NROWS,LVL,ASPC )/JACOBM( COL,NROWS,LVL )*MSFX2(COL,NROWS)/MWAIR_SI * VOL
                    END IF
                 END DO
             END IF

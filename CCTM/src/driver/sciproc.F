@@ -65,7 +65,7 @@ C-----------------------------------------------------------------------
 #else
       USE NOOP_MODULES          ! stenex (using NOOP_UTIL_MODULE)
 #endif
-      USE PA_DEFN, Only: LIPR, IPR_VDIF, IPR_ZADV, IPR_HDIF, IPR_CLDS, IPR_CHEM   ! Process Analysis control and data variables
+      USE PA_DEFN, Only: LIPR, IPR_VDIF, IPR_ZADV, IPR_HDIF, IPR_CLDS, IPR_CHEM, IPR_DEFM   ! Process Analysis control and data variables
       USE PA_UPDATE
 #ifdef isam
       USE SA_DEFN, Only: ISAM
@@ -273,17 +273,19 @@ C decouple CGRID for cloud and chemistry
 
       END IF
       
+      IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_DEFM, CGRID, JDATE, JTIME, TSTEP )
+      
       CALL PHOT ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'PHOT', CGRID, JDATE, JTIME )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'PHOT' )
 
-      !CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
+      CALL CLDPROC ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CLDPROC', CGRID, JDATE, JTIME )
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_CLDS, CGRID, JDATE, JTIME, TSTEP )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'CLDPROC' )
 
       IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .TRUE. )
-      !CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
+      CALL CHEM ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'CHEM', CGRID, JDATE, JTIME )
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_PROC ( IPR_CHEM, CGRID, JDATE, JTIME, TSTEP ) 
       IF ( STM ) CALL STM_WRAP_GAS ( CGRID, JDATE, JTIME, .FALSE. )
@@ -300,7 +302,7 @@ C decouple CGRID for cloud and chemistry
       CGRID0  = CGRID
 #endif
 
-      !CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
+      CALL AERO ( CGRID, JDATE, JTIME, TSTEP )
       IF ( CKSUM ) CALL CKSUMMER ( 'AERO', CGRID, JDATE, JTIME )
       IF ( BUDGET_DIAG .OR. LIPR ) CALL PA_UPDATE_AERO ( CGRID, JDATE, JTIME )
       IF ( PRINT_PROC_TIME ) CALL TIMING_SPLIT ( CPU_TIME_START, 1, 'AERO' )
