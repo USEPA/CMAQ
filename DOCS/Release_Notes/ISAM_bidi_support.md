@@ -22,6 +22,7 @@ CCTM/src/vdiff/acm2_stage/vdiffacmx.F
 
 ## Relevant Pull Requests:
 [PR #620](https://github.com/USEPA/CMAQ_Dev/pull/620)
+[PR #655](https://github.com/USEPA/CMAQ_Dev/pull/655)
 
 ## Commit IDs:
 
