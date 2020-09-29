@@ -31,7 +31,6 @@ C                        removed deprecated TRIMLEN
       USE VGRD_DEFN           ! vertical layer specifications
       USE CGRID_SPCS          ! CGRID mechanism species
       USE UTILIO_DEFN
-!     USE RXNS_DATA, only : MECHNAME 
       USE EMIS_VARS
       USE EMIS_DEFN
       USE AERO_DATA, only : AEROMODE, N_MODE, MGPG, GPKG
