@@ -683,7 +683,6 @@ C...modules
 #ifdef phot_write_start
          JTIME_CHK = ( ODATE .EQ. STDATE .AND. OTIME .EQ. STTIME )
 #endif 
-         IF( JTIME_CHK )print*,'WRITE TIME',ODATE,OTIME
 
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
