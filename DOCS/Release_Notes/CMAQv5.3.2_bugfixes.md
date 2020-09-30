@@ -235,3 +235,19 @@ CCTM/src/vdiff/acm2_m3dry/opddep.F
 CCTM/src/vdiff/acm2_stage/opddep.F
 CCTM/src/vdiff/acm2_stage/opddep_fst.F
 CCTM/src/vdiff/acm2_stage/opddep_mos.F
+
+## 15. Time step fix in the m3dry dry deposition code
+[Jon Pleim](mailto:pleim.jon@epa.gov), U.S. Environmental Protection Agency
+
+### Description of model issue
+There was an error in the timestep in the subroutine m3dry.F. Previously, the second element of the array TSTEP was passed to m3dry.F where it was used assuming it was in seconds. But, TSTEP is in HHMMSS, so a 300s timestep was interpreted as 500 which created a 40% error in the NH3_Emis and NH3 dry deposition output in the DRYDEP file. The error only affected these two outputs and not the model itself and only when running NH3 bidi. This also affects HGBIDI and ISAM results for NH3.
+The timestep in m3dry was used for accumulating NH3_Emis and also was passed to subroutines ATX and ASWX which are used when HGBIDI are turned on.
+
+### Solution in CMAQv5.3.2
+
+The fix involves replacing the TSTEP(2) in the call to m3dry.F from DEPV_DEFN.F with real dtsec which is loaded with the new statement:
+DTSEC = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
+
+### Files Affected 
+CCTM/src/depv/m3dry/DEPV_DEFN.F
+CCTM/src/depv/m3dry/m3dry.F
