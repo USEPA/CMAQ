@@ -303,7 +303,7 @@ C-----------------------------------------------------------------------
       END DO
 
       ! Calculate Density for Conversion of Gases from ppm to kg
-      IF ( LCOUPLE ) THEN
+      IF ( LCOUPLE .GT. 0 ) THEN
           call interpolate_var ('JACOBM', jdate, jtime, JACOBM) ! Jacobian
           DENS = CONC(:,:,:,RHOJ_LOC) / JACOBM
      &            / MWAIR_SI * CELLVOL * 1.0E-6 * 1.0E-3 ! mol air
