@@ -276,10 +276,10 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &PMDTP( 'PMC_NO3      ',ID_PMC_NO3,    M3REAL, F, 'ug m-3', 'Coarse-Mode Nitrate' ),
      &PMDTP( 'PMC_NH4      ',ID_PMC_NH4,    M3REAL, F, 'ug m-3', 'Coarse-Mode Ammonium' ),
      &PMDTP( 'PMC_NH4      ',ID_PMC_CL,     M3REAL, F, 'ug m-3', 'Coarse-Mode Chloride' ),
-     &PMDTP( 'PMC_NA       ',ID_PMC_NA,     M3REAL, F, 'ug m-3', 'Recon Coarse-Mode Sodium (.8373*ASEACAT+.0626*ASOIL+.0023*ACORS)' ),
-     &PMDTP( 'PMC_MG       ',ID_PMC_MG,     M3REAL, F, 'ug m-3', 'Recon Coarse-Mode Magnesium (.0997*ASEACAT+.0170*ASOIL+.0032*ACORS)' ),
-     &PMDTP( 'PMC_K        ',ID_PMC_K,      M3REAL, F, 'ug m-3', 'Recon Coarse-Mode Potasium (.0310*ASEACAT+.0242*ASOIL+.0176*ACORS)' ),
-     &PMDTP( 'PMC_CA       ',ID_PMC_CA,     M3REAL, F, 'ug m-3', 'Recon Coarse-Mode Calcium (.0320*ASEACAT+.0838*ASOIL+.0562*ACORS)' ),
+     &PMDTP( 'PMC_NA       ',ID_PMC_NA,     M3REAL, F, 'ug m-3', 'Recon Crs Sodium (.8373*ASEACAT+.0626*ASOIL+.0023*ACORS)' ),
+     &PMDTP( 'PMC_MG       ',ID_PMC_MG,     M3REAL, F, 'ug m-3', 'Recon Crs Magnesium (.0997*ASEACAT+.0170*ASOIL+.0032*ACORS)'),
+     &PMDTP( 'PMC_K        ',ID_PMC_K,      M3REAL, F, 'ug m-3', 'Recon Crs Potasium (.0310*ASEACAT+.0242*ASOIL+.0176*ACORS)' ),
+     &PMDTP( 'PMC_CA       ',ID_PMC_CA,     M3REAL, F, 'ug m-3', 'Recon Crs Calcium (.0320*ASEACAT+.0838*ASOIL+.0562*ACORS)' ),
                                             
       ! Fine-Mode PM Species                               
      &PMDTP( 'PMF_SO4      ',ID_PMF_SO4,    M3REAL, F, 'ug m-3', 'Fine-Mode Sulfate' ),
@@ -349,7 +349,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &PMDTP( 'PM1_MN       ',ID_PM1_MN,     M3REAL, F, 'ug m-3', 'PM1 Manganese' ),
      &PMDTP( 'PM1_AL       ',ID_PM1_AL,     M3REAL, F, 'ug m-3', 'PM1 Aluminum' ),
      &PMDTP( 'PM1_SOIL     ',ID_PM1_SOIL,   M3REAL, F, 'ug m-3', 'PM1 Recon Soil (Fine) and Explicit (Coarse)' ),
-     &PMDTP( 'PM1_UNSP1    ',ID_PM1_UNSP1,  M3REAL, F, 'ug m-3', 'PM1 Unspeciated Coarse Mass' ),
+     &PMDTP( 'PM1_UNSP1    ',ID_PM1_UNSP1,  M3REAL, F, 'ug m-3', 'PM1 Unsp. Coarse Mass for the IMPROVE Method' ),
      &PMDTP( 'PM1_UNSPCRS  ',ID_PM1_UN,     M3REAL, F, 'ug m-3', 'PM1 Unspeciated Coarse Mass' ),
      &PMDTP( 'PM1_HP       ',ID_PM1_HP,     M3REAL, F, 'ug m-3', 'PM1 H+ Ion' ),
                                             
@@ -372,7 +372,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &PMDTP( 'PM25_MN      ',ID_PM25_MN,    M3REAL, F, 'ug m-3', 'PM2.5 Manganese' ),
      &PMDTP( 'PM25_AL      ',ID_PM25_AL,    M3REAL, F, 'ug m-3', 'PM2.5 Aluminum' ),
      &PMDTP( 'PM25_SOIL    ',ID_PM25_SOIL,  M3REAL, F, 'ug m-3', 'PM2.5 Recon Soil (Fine) and Explicit (Coarse)' ),
-     &PMDTP( 'PM25_UNSP1   ',ID_PM25_UNSP1, M3REAL, F, 'ug m-3', 'PM2.5 Unsp. Coarse Mass based on Recon. soil for the IMPROVE method' ),
+     &PMDTP( 'PM25_UNSP1   ',ID_PM25_UNSP1, M3REAL, F, 'ug m-3', 'PM2.5 Unsp. Coarse Mass for the IMPROVE method' ),
      &PMDTP( 'PM25_UNSPCRS ',ID_PM25_UN,    M3REAL, F, 'ug m-3', 'PM2.5 Unspeciated Coarse Mass' ),
      &PMDTP( 'PM25_HP      ',ID_PM25_HP,    M3REAL, F, 'ug m-3', 'PM2.5 H+ Ion' ),
 
@@ -412,8 +412,8 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &PMDTP( 'TNO3TOT      ',ID_TNO3TOT,    M3REAL, F, 'ug m-3', 'Total Nitrate including Inorganics and Organics' ),
      &PMDTP( 'PM25_FRM     ',ID_PM25_FRM,   M3REAL, F, 'ug m-3', 'Federal Reference Method PM2.5' ),
      &PMDTP( 'PMF_FRM      ',ID_PMF_FRM,    M3REAL, F, 'ug m-3', 'Federal Reference Method PMIJ' ),
-     &PMDTP( 'AOD_550      ',ID_AOD550,     M3REAL, F, '1     ', 'Aerosol Optical Depth at 550 nm (Angstrom interp)' ),
-     &PMDTP( 'PM_EXT_550   ',ID_PMEXT550,   M3REAL, F, 'Mm-1  ', 'Aerosol Extinction at 550 nm (Angstrom interp)' ),
+     &PMDTP( 'AOD_550      ',ID_AOD550,     M3REAL, F, '1     ', 'Aerosol Optical Depth at 550 nm -Angstrom interp' ),
+     &PMDTP( 'PM_EXT_550   ',ID_PMEXT550,   M3REAL, F, 'Mm-1  ', 'Aerosol Extinction at 550 nm -Angstrom interp' ),
      &PMDTP( 'RH           ',ID_RH,         M3REAL, F, '1     ', 'Relative humidity' ),
      &PMDTP( 'T            ',ID_TEMP,       M3REAL, F, 'K     ', 'Temperature' ),
      &PMDTP( 'TSURF        ',ID_SRFTEMP,    M3REAL, F, 'K     ', '2-meter Surface Temperature' ),

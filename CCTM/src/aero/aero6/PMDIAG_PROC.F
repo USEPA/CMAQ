@@ -29,7 +29,7 @@
 ! Ben Murphy 2020 Feb: Created
 !-----------------------------------------------------------------------
 
-      USE M3UTILIO
+      USE UTILIO_DEFN
       USE PMDIAG_DATA
       USE GRID_CONF, ONLY: NCOLS, NROWS, NLAYS, IO_PE_INCLUSIVE
 
@@ -2513,7 +2513,6 @@
 !-------------------------------------------------------------------------
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
-      USE UTILIO_DEFN
 
       IMPLICIT NONE
 
@@ -2640,7 +2639,6 @@
 !-------------------------------------------------------------------------
 
       USE RUNTIME_VARS
-      USE UTILIO_DEFN
 
       IMPLICIT NONE 
 
