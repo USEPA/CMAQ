@@ -48,9 +48,9 @@ C Concentration lower limit used for gas species
       Real,      Parameter :: min_gasconc = 1.0E-30        ! [ ug/m^3 ]
       Real,      Parameter :: inv_mwair   = 1.0E3 / mwair  ! [ 1/g ]
 
-C Meteorological variables (data from MET_CRO_3D file)
-      Real :: airtemp      ! air temp [ K ]
-      Real :: srftemp      ! 2-meter temp [ K ]
+C Meteorological variables 
+      Real :: airtemp      ! air temp [ K ] :from MET_CRO_3D File
+      Real :: srftemp      ! 2-meter temp [ K ] :from MET_CRO_2D File
       Real :: airpres      ! air pressure [ Pa]
       Real :: airdens      ! air density [ kg/m^3]
       Real :: airRH        ! fractional relative humidity

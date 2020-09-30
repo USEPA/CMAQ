@@ -2702,9 +2702,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 C  Calculates the volume fraction of a given aerosol mode that would enter
 C  a sharp-cut inlet, using equations from Jiang et al (2006). The
-C  subroutine calculates transmission factors for PM1, PM2.5 and PM10,
-C  after first converting those cutoffs from Aerodynamic Diameter to
-C  Stokes Diameter (used internally within CMAQ).
+C  parameters D_AD1 and D_AD2 provide the lower and upper cutoff diameters
+C  for the inlet size cut and the routine returns the fraction of the
+C  size distribution that is transmitted through the hypothetical inlet
+C  with the variable fPM. But first, those cutoffs are converted from 
+C  Aerodynamic Diameter to Stokes Diameter (used internally within CMAQ).
  
 C  CMAQ aerosols are represented with Stokes Diameter. There are many
 C  alternate forms of diameter including the following:
@@ -2779,7 +2781,8 @@ C    Input variables
       REAL   D_AD2   ! Upper aerodynamic diameter cut point [ um ]
 
 C    Output variable
-      REAL, INTENT( OUT ) :: fPM   ! fraction of particulate volume transmitted through 1
+      REAL, INTENT( OUT ) :: fPM   ! fraction of particulate volume transmitted through 
+                                   ! hypothetical inlet.
 
 C    Internal variables
       REAL, PARAMETER :: SQRT2 = 1.4142136  !  SQRT( 2 )
@@ -3290,10 +3293,10 @@ C ----------------------- Begin solution -------------------------------
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       SUBROUTINE NUM_INLET ( DGN, XXLSG, D_ST1, D_ST2, fPM )
 
-C  Calculates the number fraction of a given aerosol mode that is above
-C  a threshold diamter. The Stokes diameter used by CMAQ is assumed to
-C  be equivalent to the electrical mobility diameter, reported by most
-C  SMPS datasets. This is true for spherical particles.
+C  Calculates the number fraction of a given aerosol mode that is between
+C  cutoff diamters D_ST1 and D_ST2. The Stokes diameter used by CMAQ is 
+C  assumed to be equivalent to the electrical mobility diameter, reported 
+C  by typical SMPS datasets. This is true for spherical particles.
 C 
 C  CMAQ aerosols are represented with Stokes Diameter. There are many
 C  alternate forms of diameter including the following:
@@ -3361,7 +3364,8 @@ C    Input variables
       REAL   D_ST2   ! Upper stokes/electrical mobility diameter cut point [ um ]
 
 C    Output variable
-      REAL, INTENT( OUT ) :: fPM   ! fraction of particulate volume transmitted through 1
+      REAL, INTENT( OUT ) :: fPM   ! fraction of particulate number transmitted 
+                                   ! through size window between D_ST1 and D_ST2
 
 C    Internal variables
       REAL, PARAMETER :: SQRT2 = 1.4142136  !  SQRT( 2 )
@@ -3391,7 +3395,7 @@ C     Cutoffs
       END IF
 
       ! Calculate mass fraction with Dca < SizeCut, using ERF approximation
-      ERFARG = ERF( ( LOG( D_ST2 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) )
+      ERFARG = ( LOG( D_ST2 ) - LOG( DG ) ) / ( SQRT2 * XXLSG ) 
       ERF2 = ERF( ERFARG )
 
       ! Calculate fraction between Lower and Upper Cut Points

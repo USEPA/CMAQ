@@ -1675,49 +1675,25 @@ C Local variables:
 !-----------------------------------------------------------------------
       Subroutine CALC_AERODIST_PARAMS
 
-! Subroutine calculates the dry and wet aerosol distribution parameters
+! Subroutine calculates the wet and then dry aerosol distribution parameters
 !     and stores them in public arrays to be passed to the diagnostic 
 !     array.
 !-----------------------------------------------------------------------
  
       IMPLICIT NONE
 
-      !IF ( WET_MOMENTS_FLAG ) THEN
+      WET_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
+      WET_AERO_M2  ( : ) = MOMENT2_CONC( : )
+      WET_AERO_M3  ( : ) = MOMENT3_CONC( : )
+      WET_AERO_DENS( : ) = AEROMODE_DENS( : )
 
-         WET_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
-         WET_AERO_M2  ( : ) = MOMENT2_CONC( : )
-         WET_AERO_M3  ( : ) = MOMENT3_CONC( : )
-         WET_AERO_DENS( : ) = AEROMODE_DENS( : )
+      CALL CALCMOMENTS( .FALSE. )
+      CALL GETPAR( FIXED_sg )
 
-         CALL CALCMOMENTS( .FALSE. )
-         CALL GETPAR( FIXED_sg )
-
-         DRY_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
-         DRY_AERO_M2  ( : ) = MOMENT2_CONC( : )
-         DRY_AERO_M3  ( : ) = MOMENT3_CONC( : )
-         DRY_AERO_DENS( : ) = AEROMODE_DENS( : )
-
-       !   CALL CALCMOMENTS( .TRUE. )
-       !   CALL GETPAR( FIXED_sg )
-      
-       !ELSE
-       !   DRY_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
-       !   DRY_AERO_M2  ( : ) = MOMENT2_CONC( : )
-       !   DRY_AERO_M3  ( : ) = MOMENT3_CONC( : )
-       !   DRY_AERO_DENS( : ) = AEROMODE_DENS( : )
-      
-       !   CALL CALCMOMENTS( .TRUE. )
-       !   CALL GETPAR( FIXED_sg )
-      
-       !   WET_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
-       !   WET_AERO_M2  ( : ) = MOMENT2_CONC( : )
-       !   WET_AERO_M3  ( : ) = MOMENT3_CONC( : )
-       !   WET_AERO_DENS( : ) = AEROMODE_DENS( : )
-      
-      !    CALL CALCMOMENTS( .FALSE. )
-      !    CALL GETPAR( FIXED_sg )
-      
-      ! END IF
+      DRY_AERO_DIAM( : ) = AEROMODE_DIAM( : ) * 1.0E6 ! um
+      DRY_AERO_M2  ( : ) = MOMENT2_CONC( : )
+      DRY_AERO_M3  ( : ) = MOMENT3_CONC( : )
+      DRY_AERO_DENS( : ) = AEROMODE_DENS( : )
 
       END SUBROUTINE CALC_AERODIST_PARAMS
 
