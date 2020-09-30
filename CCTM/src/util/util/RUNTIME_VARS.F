@@ -260,6 +260,14 @@
       LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
       LOGICAL :: ADJ_STMSPC = .TRUE.  ! flag for normalizing sulfur tracking species
 
+      ! ISAM
+      INTEGER :: ISAM_BLEV = 0  ! Beginning level saved to conc file
+      INTEGER :: ISAM_ELEV = 0  ! Ending level saved to conc file
+      INTEGER :: SA_NLAYS = 0   ! Number of layers saved to conc file
+      INTEGER :: AISAM_BLEV = 0 ! Beginning level saved to sa_aconc file
+      INTEGER :: AISAM_ELEV = 0 ! Ending level saved to sa_aconc file
+      INTEGER :: AVGSA_LAYS = 0 ! Number of layers saved to conc file
+
       CONTAINS
           
 !.........................................................................
@@ -441,6 +449,40 @@
          XMSG = 'Environment variable error for CONC_BLEV_ELEV'
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
+
+#ifdef isam
+      ! SA_ACONC Layer Specification
+      CALL GET_ENV ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
+         AISAM_BLEV = 1
+         AISAM_ELEV = -1
+      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:AISAM_BLEV_ELEV
+         AISAM_BLEV = 1
+         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
+         READ( V_LIST2( 1 ), '( I4 )' ) AISAM_BLEV
+         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
+      ELSE
+         XMSG = 'Environment variable error for AISAM_BLEV_ELEV'
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
+      END IF
+
+      ! SA_CONC File Vertical Layer Range and Speciation
+      CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
+         ISAM_BLEV = 1
+         ISAM_ELEV = -1
+      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:ISAM_BLEV_ELEV
+         ISAM_BLEV = 1
+         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
+         READ( V_LIST2( 1 ), '( I4 )' ) ISAM_BLEV
+         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
+      ELSE
+         XMSG = 'Environment variable error for ISAM_BLEV_ELEV'
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
+      END IF
+#endif
       
       ! PWRTFLAG
       CALL GET_ENV ( PWRTFLAG, 'IOAPI_LOG_WRITE', PWRTFLAG, VARDEV )
