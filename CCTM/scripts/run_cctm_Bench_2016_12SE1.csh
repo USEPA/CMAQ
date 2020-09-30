@@ -193,7 +193,7 @@ setenv EMISDIAG_SUM F        #> Print Sum of Emission Rates to Gridded Diagnosti
 
 #> Diagnostic Output Flags
 setenv CTM_CKSUM Y           #> checksum report [ default: Y ]
-setenv CTM_BUDGET_DIAG Y     #> domain-wide budget [ default: Y ]
+setenv CTM_BUDGET_DIAG Y     #> domain-wide budget [ default: N ]
 setenv CLD_DIAG N            #> cloud diagnostic file [ default: N ]
 
 setenv CTM_PHOTDIAG N        #> photolysis diagnostic file [ default: N ]
@@ -549,7 +549,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv CTM_RJ_3        "$OUTDIR/CCTM_PHOTDIAG3_${CTM_APPL}.nc -v"  #> 3D Optical and Radiative Results from Photolysis
   setenv CTM_SSEMIS_1    "$OUTDIR/CCTM_SSEMIS_${CTM_APPL}.nc -v"     #> Sea Spray Emissions
   setenv CTM_DUST_EMIS_1 "$OUTDIR/CCTM_DUSTEMIS_${CTM_APPL}.nc -v"   #> Dust Emissions
-  setenv CTM_BUDGET      "$OUTDIR/CCTM_BUDGET_${CTM_APPL}.txt -v"    #> Budget
+  setenv CTM_BUDGET      "$OUTDIR/CCTM_BUDGET_${CTM_APPL}.txt -v"    #> Budget [Default Off]
   setenv CTM_IPR_1       "$OUTDIR/CCTM_PA_1_${CTM_APPL}.nc -v"       #> Process Analysis
   setenv CTM_IPR_2       "$OUTDIR/CCTM_PA_2_${CTM_APPL}.nc -v"       #> Process Analysis
   setenv CTM_IPR_3       "$OUTDIR/CCTM_PA_3_${CTM_APPL}.nc -v"       #> Process Analysis
