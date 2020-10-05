@@ -22,6 +22,8 @@ isam_control.txt
 ```
 
 The following gridmask file is provided with the benchmark inputs in the CMAQv5.3.1_Benchmark_2Day_Input/2016_12SE1 directory (see download instructions below)
+
+```
 GRIDMASK_STATES_12SE1.nc
 ```
 
