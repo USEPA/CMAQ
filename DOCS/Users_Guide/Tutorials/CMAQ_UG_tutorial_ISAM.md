@@ -86,6 +86,12 @@ cd /work/your_username/CMAQ_v5.3.2
 
 ### Step 6: Modify the bldit_cctm.csh 
 
+Change directory to CCTM/scripts
+
+```
+cd CCTM/scripts
+```
+
 Comment out the following option to compile CCTM with ISAM:
 
 ```
