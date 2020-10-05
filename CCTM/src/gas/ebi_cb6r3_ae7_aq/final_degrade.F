@@ -69,7 +69,7 @@ c..update CBLK
 
          LOOP_PROD: DO J = 1, N_PROCESSES
 
-            I_PROD = PROD_MAP( J, I )
+            I_PROD = PROD_MAP( I, J )
 
             IF( I_PROD < 1 ) CYCLE ! no specified product
 

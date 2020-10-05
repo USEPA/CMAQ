@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, Jul 28, 2020
+C  REVISION HISTORY: Created by EBI solver program, Mar 26, 2020
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -72,13 +72,12 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
-#ifndef isam
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
-#else
-      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT,
-     &                              SA_DEGRADE_UPLOAD
-#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
+#ifdef sens
+      USE DDM3D_CHEM
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
+#endif
 
       IMPLICIT NONE
 
@@ -139,8 +138,6 @@ C..Scratch Local Variables:
       REAL       SUMEBI       ! Sum of EBI iterations
 #endif
 
-      REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
-
       INTERFACE
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
@@ -152,12 +149,10 @@ C..Scratch Local Variables:
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL, JDATE, JTIME )
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME )
            REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
            REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
            REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
-           REAL,      INTENT( IN ) :: PRESS_CELL      !  cell Pressure  [ Pa ]
-           REAL,      INTENT( IN ) :: QV_CELL         !  cell water vapor mass mixing ratio  [ kg/kg ]
            REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
@@ -283,6 +278,22 @@ C..Determine which cells need IRR
         NUMB_ISAM_CELLS = 1.0D0 / ( NCOLS * NROWS * NLAYS )
         CALL SA_IRR_INIT
 #endif
+
+#ifdef sens
+         CALL INIT_DDM3D_CHEM()
+
+C For higher order sensitivities
+         IF ( HIGH ) THEN
+            DO RXN = 1, NRXNS
+               IF( NREACT( RXN ) .EQ. 1 ) THEN
+                  ORDER1( RXN ) = .TRUE.
+               ELSE
+                  ORDER1( RXN ) = .FALSE.
+               END IF
+            END DO
+         END IF
+#endif
+
          LFIRST = .FALSE.
 
       END IF      ! First time
@@ -334,6 +345,21 @@ C.. Get pressure in Pascals
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
 
+#ifdef sens
+      DATENUM = 1 + JDATE - STARTDATE !  Set the date and hour counters used in sensitivity calls
+
+C For reaction rate sensitivities
+      DO NP = 1, NPMAX
+         IF ( IPT( NP ) .EQ. 5 ) THEN
+            CALL CKTIME( JDATE,JTIME,NP,RXNFLAG(NP) ) ! Rxnflag set to true iff ipt=5 and time, date within bounds
+            IF ( IDATE( NP, DATENUM ) .NE. 1 ) RXNFLAG( NP ) = .FALSE.
+         ELSE
+            RXNFLAG( NP ) = .FALSE.
+         END IF
+      END DO
+
+#endif sens
+
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
@@ -373,10 +399,6 @@ c..Load ICs
                   END DO
                   CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
      &                              JDATE, JTIME)
-
-#ifdef isam
-                  CALL SA_DEGRADE_EXTRACT( C,R,L,DENS(C,R,L) )
-#endif
                END IF
 
 c..Set physical quantities
@@ -459,6 +481,21 @@ c..Update concentration array
 
 c..update irrout arrays if needed
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
+#ifdef sens
+               DO RXN = 1, NRXNS
+                  SRK( RXN ) = RKI( RXN )
+                  IF ( HIGH ) THEN
+                     IF ( ORDER1 (RXN ) ) THEN
+                        SRK2( RXN ) = 0.0
+                     ELSE
+                        SRK2( RXN ) = RKI( RXN )
+                     END IF
+                  END IF
+               END DO
+
+
+               CALL SOLVE_DDM3D_CHEM( C,R,L,CHEMSTEP )
+#endif
 
             END DO
          END DO

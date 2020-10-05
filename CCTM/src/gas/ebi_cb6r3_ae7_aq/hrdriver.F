@@ -27,7 +27,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C                                     FIND_DEGRADED, INIT_DEGRADE, FINAL_DEGRADE
 C
-C  REVISION HISTORY: Created by EBI solver program, May 24, 2019
+C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -55,7 +55,6 @@ C                        dependent reactions and 2) modified the call CALC_RCONS
 C                        routine
 C   01 Feb 19 D.Wong:    Implemented centralized I/O approach, removed all MY_N
 C                        clauses
-C   27 Dec 19 S.Napelenok: DDM-3D implementation for version 5.3.1
 C**********************************************************************
 
       USE HGRD_DEFN             ! horizontal domain specifications
@@ -73,19 +72,12 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
-#ifndef isam
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
-#else      
-      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT, 
-     &                              SA_DEGRADE_UPLOAD
-#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
-
 #ifdef sens
       USE DDM3D_CHEM
       Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
-#endif 
-
+#endif
 
       IMPLICIT NONE
 
@@ -146,8 +138,6 @@ C..Scratch Local Variables:
       REAL       SUMEBI       ! Sum of EBI iterations
 #endif
 
-      REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
-
       INTERFACE
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
            INTEGER, INTENT( IN ) :: JDATE    ! Current date (YYYYDDD)
@@ -159,12 +149,10 @@ C..Scratch Local Variables:
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL, JDATE, JTIME )
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME )
            REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
            REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
            REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
-           REAL,      INTENT( IN ) :: PRESS_CELL      !  cell Pressure  [ Pa ]
-           REAL,      INTENT( IN ) :: QV_CELL         !  cell water vapor mass mixing ratio  [ kg/kg ]
            REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
@@ -290,7 +278,6 @@ C..Determine which cells need IRR
         NUMB_ISAM_CELLS = 1.0D0 / ( NCOLS * NROWS * NLAYS )
         CALL SA_IRR_INIT
 #endif
-         LFIRST = .FALSE.
 
 #ifdef sens
          CALL INIT_DDM3D_CHEM()
@@ -306,6 +293,8 @@ C For higher order sensitivities
             END DO
          END IF
 #endif
+
+         LFIRST = .FALSE.
 
       END IF      ! First time
 
@@ -369,19 +358,7 @@ C For reaction rate sensitivities
          END IF
       END DO
 
-C For higher order sensitivities
-c     IF ( HIGH ) THEN
-c        DO RXN = 1, NRXNS
-c           IF( NREACT( RXN ) .EQ. 1 ) THEN
-c              ORDER1( RXN ) = .TRUE.
-c           ELSE
-c              ORDER1( RXN ) = .FALSE.
-c           END IF
-c        END DO
-c     END IF
 #endif sens
-
-
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells
@@ -414,6 +391,15 @@ c..Load ICs
                   END IF
                END DO
 
+               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
+
+                  YCCELL = 0.0D0
+                  DO S = 1, MODEL_SPECIES
+                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
+                  END DO
+                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
+     &                              JDATE, JTIME)
+               END IF
 
 c..Set physical quantities
                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
@@ -438,18 +424,6 @@ c..Get rate constants
                CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
                FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
-               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
-
-                  YCCELL = 0.0D0
-                  DO S = 1, MODEL_SPECIES
-                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
-                  END DO
-                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),PRES(C,R,L),QV(C,R,L),
-     &                              RJIN(NCELL,:), JDATE, JTIME)
-#ifdef isam
-                  CALL SA_DEGRADE_EXTRACT( C,R,L,DENS(C,R,L) )
-#endif     
-               END IF
 #ifdef isam
 #if defined(isam) || defined(verbose_isam)
 C...For diagnosing IRR calculations in log files
@@ -499,9 +473,6 @@ c..Update concentration array
                      END DO
                      CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
                   END DO UPDATE_DEGRADED
-#ifdef isam
-                  CALL SA_DEGRADE_UPLOAD( C,R,L,DENS(C,R,L) )
-#endif     
                END IF
 
 #ifdef isam
@@ -510,7 +481,6 @@ c..Update concentration array
 
 c..update irrout arrays if needed
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
-
 #ifdef sens
                DO RXN = 1, NRXNS
                   SRK( RXN ) = RKI( RXN )
