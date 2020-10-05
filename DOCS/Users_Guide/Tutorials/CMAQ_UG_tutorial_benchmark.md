@@ -243,8 +243,8 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
 - Linux Kernel 3.10.0-514.el7.x86_64
-- GPLv3+: GNU GPL version 3 
-- GNU GCC compiler version 9.1.0, 16 processors with OpenMPIv4.0.1 and I/O APIv3.2
+- Red Hat Enterprise Linux Server 7.3 (Maipo) (use command: cat /etc/os-release)
+- GNU GCC compiler version 9.1.0, 16 processors with OpenMPIv4.0.1 and I/O APIv3.2 tagged version 20200828
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
 - Debug mode turned on  (```set Debug_CCTM``` uncommented in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
 - CMAQv5.3.2
