@@ -136,21 +136,27 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
   
     
 ### Step 6: Run the CMAQ-ISAM model
-
     
   - Verify the following settings
+
     ```
     set NPROCS =    16
     set OMIfile    = OMI_1979_to_2019.dat
     ```
-
   - Change the code version to use the tag v532_ISAM
+
 ```
+gedit run_cctm_Bench_2016_12SE1.csh
+```
+
 #> Set General Parameters for Configuring the Simulation
+
+```
  set VRSN      = v532_ISAM         #> Code Version
 ```
     
   - Submit the job using the batch queueing system
+
     ```
     sbatch run_cctm_Bench_2016_12SE1.csh
     ```
