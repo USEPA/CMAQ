@@ -742,10 +742,10 @@ C Private variables for loading from and unloading to CGRID array
 ! be mapped to CGRID species order. Units for each are total
 ! concentration or mixing ratio gained or lost. These are not normalized
 ! by the time step. Ex (ppmv, ug m-3, N m-3, or m2 m-3)
-      REAL, ALLOCATABLE :: COND_BUDGET( : )
-      REAL, ALLOCATABLE :: COAG_BUDGET( :,: )
-      REAL, ALLOCATABLE :: NPF_BUDGET( : )
-      REAL, ALLOCATABLE :: GROWTH_BUDGET( : )
+      REAL, ALLOCATABLE, SAVE :: COND_BUDGET( : )
+      REAL, ALLOCATABLE, SAVE :: COAG_BUDGET( :,: )
+      REAL, ALLOCATABLE, SAVE :: NPF_BUDGET( : )
+      REAL, ALLOCATABLE, SAVE :: GROWTH_BUDGET( : )
 
 ! Initial Reference Values for M2 and M3 used for Heterogenous Chemistry
 ! Module.

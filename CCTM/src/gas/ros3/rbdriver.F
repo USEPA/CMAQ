@@ -222,6 +222,13 @@ C**********************************************************************
       CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
 #endif
 
+#ifdef sens
+      MSG = 'ERROR: Rosenbrock Chemistry Solver does not perform DDM3 calculation.'
+      WRITE(LOGDEV,'(A)')TRIM( MSG )
+      MSG = 'Must use the EBI solver for the chemical mechanism'
+      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+#endif
+
       IF ( NUMB_MECH_SPC .EQ. 0 ) THEN
          CALL M3MESG( '*** WARNING: Gas-Chemistry processing bypassed!' )
          RETURN

@@ -10,6 +10,9 @@
       CHARACTER(  5 )    :: SPLIT_OUTPUT
       CHARACTER( 13 )    :: TYPE_OUTPUTS  = 'SPLIT_OUTPUT'
 
+      INTEGER  :: STATUS
+      INTEGER  :: SYSTEM
+
       INTERFACE
        SUBROUTINE CONVERT_CASE ( BUFFER, UPPER )
            CHARACTER(LEN= *), INTENT( INOUT ) :: BUFFER
@@ -63,8 +66,9 @@
         
          CLOSE( JTABLE_UNIT )
         
-        
-        WRITE(6, *)'NORMAL STOP'
+        WRITE(6, *)'NORMAL_STOP'
+        STATUS = 0
+        CALL EXIT(STATUS)
       STOP
       END 
 

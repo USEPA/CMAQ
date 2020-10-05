@@ -170,22 +170,14 @@ C-----------------------------------------------------------------------
       ! Identify Species Required for Isoprene and Monoterpene Chemistry
       Character( 16 ), Private, Parameter :: req_sviso1  = 'SVISO1'
       Character( 16 ), Private, Parameter :: req_sviso2  = 'SVISO2'
-      Character( 16 ), Private, Parameter :: req_mtno3   = 'MTNO3'
-      Character( 16 ), Private, Parameter :: req_isopnn  = 'ISOPNN'
       Character( 16 ), Private, Parameter :: req_aeiso1  = 'AISO1'
       Character( 16 ), Private, Parameter :: req_aeiso2  = 'AISO2'
       Character( 16 ), Private, Parameter :: req_aeiso3  = 'AISO3'
       Character( 16 ), Private, Parameter :: req_aeorgc  = 'AORGC'
-      Character( 16 ), Private, Parameter :: req_amtno3  = 'AMTNO3'
-      Character( 16 ), Private, Parameter :: req_aisopnn = 'AISOPNN'
 
       ! Variables for Carrying Indices of required species
       Integer :: iso1_idx
       Integer :: iso2_idx
-      Integer :: mtno3_idx
-      Integer :: isopnn_idx
-      Integer :: amtno3_idx
-      Integer :: aisopnn_idx
       Integer :: aiso1_idx
       Integer :: aiso2_idx
       Integer :: aiso3_idx
@@ -376,21 +368,13 @@ C-----------------------------------------------------------------------
          End Do
 
          ! Find indices of required species
-         iso1_idx   = findVapor( req_sviso1 )
-         iso2_idx   = findVapor( req_sviso2 )
+         iso1_idx   = findVapor( req_sviso1, .True. )
+         iso2_idx   = findVapor( req_sviso2, .True. )
          aiso1_idx  = findAero( req_aeiso1, .True. )
          aiso2_idx  = findAero( req_aeiso2, .True. )
          aiso3_idx  = findAero( req_aeiso3, .True. )
          aorgc_idx  = findAero( req_aeorgc, .True. )
 
-         ! Look for Additional Isoprene Product Species if AE6i is being
-         ! used
-         If ( INDEX( MECHNAME,"SAPRC07TIC_AE6I" ) .Ne. 0 ) Then
-           mtno3_idx  = findVapor( req_mtno3  )
-           isopnn_idx = findVapor( req_isopnn )
-           amtno3_idx  = findAero( req_amtno3, .True. )
-           aisopnn_idx = findAero( req_aisopnn,.True. )
-         End If
       End If     ! mapping condition
 
 
@@ -437,6 +421,7 @@ C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
 
+      Use aero_data, only : cond_budget, npf_budget
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
       Use utilio_defn, only: xstat3
 
@@ -466,6 +451,11 @@ C-----------------------------------------------------------------------
          If ( n .Ne. 0 ) Then
             vtmp = og_mw( spc ) * gasconv
             conc( n ) = Max ( og_conc( spc ) / vtmp, min_gasconc )
+                  
+            ! Convert Budget Process Numbers from ug m-3 to ppmv
+            ! for application to process analysis and ISAM
+            COND_BUDGET( n )   = COND_BUDGET( n )   / vtmp
+            NPF_BUDGET( n )    = NPF_BUDGET( n )    / vtmp
          End If
       End Do
 
@@ -473,7 +463,7 @@ C-----------------------------------------------------------------------
       End Subroutine update_orgvapor
 
 C-----------------------------------------------------------------------
-      Function findVapor( vname ) Result ( ndx )
+      Function findVapor( vname, required ) Result ( ndx )
 
 C  Finds the index of 'required' semivolatile species in the oaspc list
 
@@ -483,12 +473,13 @@ C     Prakash Bhave, Jeff Young, and Sergey Napelenok.
 C
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
-
+      Use RUNTIME_VARS, only : logdev
       Implicit None
 
       ! Arguments:
       Character( 16 ) :: vname
       Integer ndx
+      Logical required
 
       ! Local Variables:
       Character( 80 ) :: xmsg
@@ -502,10 +493,19 @@ C-----------------------------------------------------------------------
          End If
       End Do
 
+      If ( .Not. required ) Then
+         xmsg = 'Optional Species '
+     &       // Trim( vname ) // 
+     &       ' is not found in the G2AE or N2AE values of GC or NR namelists.'
+         write(logdev,'(5x,a)') xmsg
+         Return
+      End If
+
       xmsg = 'FATAL:' // Trim( vname )
-     &  // ' is not found in the G2AE or N2AE values of GC or namelists'
+     &  // ' is not found in the G2AE or N2AE values of GC or NR namelists.'
       OA_eflag  = .True.
       Call m3warn( pname, 0, 0, xmsg )
+ 
 
       Return
       End Function findVapor
@@ -799,7 +799,6 @@ C Key Subroutines/Functions called:  newt, soabisection
       Use aero_data
       Use aeromet_data
       Use utilio_defn
-      Use rxns_data, only : MECHNAME
 
       Implicit None
 
@@ -883,6 +882,7 @@ C Key Subroutines/Functions called:  newt, soabisection
       REAL :: CBUDGET0_NUM ( N_MODE )
       REAL :: CBUDGET0_SRF ( N_MODE )
       REAL :: CBUDGET0_MASS( N_AEROSPC,N_MODE )
+      REAL :: CBUDGET0_VAP ( N_OA )
 
 
       ! Variables for water uptake onto organics
@@ -966,6 +966,7 @@ C-----------------------------------------------------------------------
       CBUDGET0_NUM  = MOMENT0_CONC
       CBUDGET0_SRF  = MOMENT2_CONC
       CBUDGET0_MASS = AEROSPC_CONC
+      CBUDGET0_VAP  = OG_CONC
 
       ! Initialize Local Moment Variables
       m3wet_init( : ) = moment3_conc( 1:2 )
@@ -1310,13 +1311,22 @@ C-----------------------------------------------------------------------
 
       ! Update Budget Variables
       DO IM = 1,N_MODE
+        ! Update Number and Surface Area
         COND_BUDGET( AERONUM_MAP( IM ) )  = MOMENT0_CONC( IM ) - CBUDGET0_NUM( IM )
         COND_BUDGET( AEROSRF_MAP( IM ) )  = MOMENT2_CONC( IM ) - CBUDGET0_SRF( IM )
 
+        ! Update Organic Particles
         DO ISPC = 1,N_AEROSPC
           IF ( AEROSPC_MAP( ISPC,IM ) .NE. 0 ) 
      &         COND_BUDGET( AEROSPC_MAP( ISPC,IM ) ) = 
      &              AEROSPC_CONC( ISPC,IM ) - CBUDGET0_MASS( ISPC,IM )
+        END DO
+
+        ! Update Organic Vapors
+        DO ISPC = 1,N_OA
+          IF ( MAP_OGtoCGRID( ISPC ) .NE. 0 ) 
+     &         COND_BUDGET( MAP_OGtoCGRID( ISPC ) ) = 
+     &                 OG_CONC( ISPC ) - CBUDGET0_VAP( ISPC )
         END DO
       END DO
 
