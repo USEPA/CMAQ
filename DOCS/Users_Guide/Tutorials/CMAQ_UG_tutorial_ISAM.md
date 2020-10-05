@@ -96,6 +96,7 @@ When this is set, the executable that is built will be tagged with v532_ISAM
 
 ### Step 6: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file 
 Uncomment the line with ISAM_REGIONS as the File_Label
+
 ```
 &RegionsRegistry
  RGN_NML  =
