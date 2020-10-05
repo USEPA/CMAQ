@@ -70,11 +70,13 @@ cd /work/your_username/CMAQ_v5.3.2
 
 ### Step 6: Modify the bldit_cctm.csh 
 
-
 Comment out the following option to compile CCTM with ISAM:
+
 ```
 #> Integrated Source Apportionment Method (ISAM)
 set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
+
+```
 
 When this is set, the executable that is built will be tagged with v532_ISAM
 
