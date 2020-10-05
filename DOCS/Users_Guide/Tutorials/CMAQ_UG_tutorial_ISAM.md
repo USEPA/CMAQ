@@ -75,7 +75,6 @@ Comment out the following option to compile CCTM with ISAM:
 ```
 #> Integrated Source Apportionment Method (ISAM)
 set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
-
 ```
 
 When this is set, the executable that is built will be tagged with v532_ISAM
