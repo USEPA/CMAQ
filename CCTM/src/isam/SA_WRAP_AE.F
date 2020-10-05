@@ -60,6 +60,7 @@
       REAL, PARAMETER :: MWNO3 = 62.0049
       REAL, PARAMETER :: MWCL  = 35.453
       REAL, PARAMETER :: MWSO4 = 96.0576
+      REAL, SAVE      :: MWBENAPY = 0
 
 ! ppm2mole conversion
       REAL ppm2mole( NCOLS,NROWS,NLAYS )
@@ -68,11 +69,13 @@
       INTEGER, SAVE :: JNH3, JNH4I, JNH4J, JHNO3, JNO3I, JNO3J
       INTEGER, SAVE :: JHCL, JCLI , JCLJ
       INTEGER, SAVE :: JSULF, JSO4I, JSO4J, JSRXN
+      INTEGER, SAVE :: JBENAPY, JBENAPYI, JBENAPYJ
 
       INTEGER :: ISA1, ISA2, ICG1, ICG2, IAER, IM, INDX
 
       INTEGER, SAVE :: CNH3, CNH4I, CNH4J, CHNO3, CNO3I, CNO3J
       INTEGER, SAVE :: CHCL, CCLI,  CCLJ
+      INTEGER, SAVE :: CBENAPY, CBENAPYI,  CBENAPYJ
 
 
 ! Arrays for combined ammonium, combined nitrates, and combined sulfates
@@ -81,12 +84,14 @@
       REAL, ALLOCATABLE, SAVE :: CHLORINE_TAG(:,:,:)
       REAL, ALLOCATABLE, SAVE :: SULFATE_TAG (:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTAER_TAG (:,:,:)
+      REAL, ALLOCATABLE, SAVE :: BENAPY_TAG (:,:,:)
 
       REAL, ALLOCATABLE, SAVE :: TOTNH3(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTNO3(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTCL (:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTSO4(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTAER(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: TOTBENAPY(:,:,:)
       REAL, ALLOCATABLE, SAVE :: FRAC1(:,:,:)
       REAL, ALLOCATABLE, SAVE :: FRAC2(:,:,:)
 
@@ -101,6 +106,7 @@
       LOGICAL, SAVE :: LAE_NO3 
       LOGICAL, SAVE :: LAE_CL 
       LOGICAL, SAVE :: LAE_SO4 
+      LOGICAL, SAVE :: LAE_BENAPY = .FALSE.
      
       REAL, PARAMETER :: MIN_VAL = 1.0E-25
       REAL, SAVE :: MIN_TAGTOT 
@@ -148,7 +154,7 @@ Ckrt Identify species index in ISAM array
           CCLI = SPC_INDEX( JCLI,2 )
           CCLJ = SPC_INDEX( JCLJ,2 )
         END IF
- 
+
         JSULF = INDEX1( 'SULF', NSPC_SA, SPC_NAME( :,OTHRTAG ) )  
         JSO4I = INDEX1( 'ASO4I', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
         JSO4J = INDEX1( 'ASO4J', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
@@ -224,6 +230,28 @@ Ckrt Identify species index in ISAM array
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+ 
+        JBENAPY  = INDEX1(  'BENAPY', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        JBENAPYI = INDEX1('ABENAPYI', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        JBENAPYJ = INDEX1('ABENAPYJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        CBENAPY  = INDEX1(  'BENAPY', N_NR_SPC, NR_SPC )
+        CBENAPYI = INDEX1('ABENAPYI', N_AE_SPC, AE_SPC ) 
+        CBENAPYJ = INDEX1('ABENAPYJ', N_AE_SPC, AE_SPC )
+        IF ( JBENAPY .GT. 0 .AND. JBENAPYI .GT. 0 .AND. JBENAPYJ .GT. 0 
+     &     .AND. CBENAPY .GT. 0 .AND. CBENAPYI .GT. 0 .AND. CBENAPYJ  .GT. 0  ) THEN
+          LAE_BENAPY = .TRUE.
+          MWBENAPY  = NR_MOLWT( CBENAPY ) 
+          CBENAPY   = CBENAPY + NR_STRT - 1 
+          CBENAPYI  = CBENAPYI + AE_STRT - 1 
+          CBENAPYJ  = CBENAPYJ + AE_STRT - 1 
+          ALLOCATE( TOTBENAPY ( NCOLS,NROWS,NLAYS ),
+     &              BENAPY_TAG( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+          IF ( ALLOCSTAT .NE. 0 ) THEN
+             XMSG = 'Failure allocating TOTBENAPY, BENAPY_TAG '
+             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          END IF
+        END IF
+        
       ENDIF ! firstime ?
 
       ! Extract Density for gas conversion to umol/m3
@@ -410,6 +438,29 @@ c  !>>>>> COAGULATION <<<<<!
 
           END DO
       END DO
+
+        ! Benzo[a]Pyrene
+        IF ( LAE_BENAPY ) THEN
+! commpute total bulk concentration
+          TOTBENAPY = CGRID( :,:,:,CBENAPY ) * ppm2mole
+     &              + CGRID( :,:,:,CBENAPYI )/ MWBENAPY
+     &              + CGRID( :,:,:,CBENAPYJ ) / MWBENAPY  
+    
+! compute partitioning of bulk between forms          
+          TOTBENAPY = 1.0 / TOTBENAPY 
+          CCOND( :,:,:,CBENAPY )  = CGRID( :,:,:,CBENAPY )  * ppm2mole * TOTBENAPY 
+          CCOND( :,:,:,CBENAPYI ) = CGRID( :,:,:,CBENAPYI ) / MWBENAPY * TOTBENAPY 
+          CCOND( :,:,:,CBENAPYJ ) = CGRID( :,:,:,CBENAPYJ ) / MWBENAPY * TOTBENAPY 
+
+          DO K = 1, NTAG_SA
+             BENAPY_TAG( :,:,: ) = ISAM0( :,:,:,JBENAPY,K ) * ppm2mole
+     &                           + ISAM0( :,:,:,JBENAPYI,K ) / MWBENAPY
+     &                           + ISAM0( :,:,:,JBENAPYJ,K ) / MWBENAPY  
+             ISAM1( :,:,:,JBENAPY,K )  = BENAPY_TAG( :,:,: ) * CCOND( :,:,:,CBENAPY ) / ppm2mole
+             ISAM1( :,:,:,JBENAPYI,K ) = BENAPY_TAG( :,:,: ) * CCOND( :,:,:,CBENAPYI ) * MWBENAPY
+             ISAM1( :,:,:,JBENAPYJ,K ) = BENAPY_TAG( :,:,: ) * CCOND( :,:,:,CBENAPYJ ) * MWBENAPY
+          END DO
+        ENDIF
 
       ! Update global ISAM array with modified attribution array ISAM1
       ISAM = ISAM1

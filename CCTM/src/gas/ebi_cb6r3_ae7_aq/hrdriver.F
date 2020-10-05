@@ -73,7 +73,12 @@ C**********************************************************************
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
+#ifndef isam
       USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+#else      
+      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT, 
+     &                              SA_DEGRADE_UPLOAD
+#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 
 #ifdef sens
@@ -154,10 +159,12 @@ C..Scratch Local Variables:
            INTEGER, INTENT( IN )  :: JTIME        ! current model time , coded HHMMSS
            LOGICAL, INTENT( OUT ) :: CALL_DEGRADE ! whether to call degradation routines
          END SUBROUTINE FIND_DEGRADED
-         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PHOTO_CELL, JDATE, JTIME )
+         SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL, JDATE, JTIME )
            REAL( 8 ), INTENT( IN ) :: CBLK( : )       !  species concentration in cell
            REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k ]
            REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
+           REAL,      INTENT( IN ) :: PRESS_CELL      !  cell Pressure  [ Pa ]
+           REAL,      INTENT( IN ) :: QV_CELL         !  cell water vapor mass mixing ratio  [ kg/kg ]
            REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
            INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
            INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
@@ -407,15 +414,6 @@ c..Load ICs
                   END IF
                END DO
 
-               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
-
-                  YCCELL = 0.0D0
-                  DO S = 1, MODEL_SPECIES
-                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
-                  END DO
-                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
-     &                              JDATE, JTIME)
-               END IF
 
 c..Set physical quantities
                TEMP( NCELL )     = REAL( TA( C,R,L ), 8)
@@ -440,6 +438,18 @@ c..Get rate constants
                CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
                FORALL( NPH = 1:NRXNS )RKI( NPH ) = RKI_SAV( NCELL, NPH )
 
+               IF(CALL_DEG)THEN ! INITIALIZE degradation routines
+
+                  YCCELL = 0.0D0
+                  DO S = 1, MODEL_SPECIES
+                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
+                  END DO
+                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),PRES(C,R,L),QV(C,R,L),
+     &                              RJIN(NCELL,:), JDATE, JTIME)
+#ifdef isam
+                  CALL SA_DEGRADE_EXTRACT( C,R,L,DENS(C,R,L) )
+#endif     
+               END IF
 #ifdef isam
 #if defined(isam) || defined(verbose_isam)
 C...For diagnosing IRR calculations in log files
@@ -489,6 +499,9 @@ c..Update concentration array
                      END DO
                      CGRID(C,R,L,ISP) = REAL( YCCELL(ISP), 4)
                   END DO UPDATE_DEGRADED
+#ifdef isam
+                  CALL SA_DEGRADE_UPLOAD( C,R,L,DENS(C,R,L) )
+#endif     
                END IF
 
 #ifdef isam

@@ -85,33 +85,33 @@ c...Logical values for tagging species
       LOGICAL, SAVE :: L_OZONE   = .FALSE.
       LOGICAL, SAVE :: L_VOC     = .FALSE.
       LOGICAL, SAVE :: L_CHLORINE  = .FALSE.
-!      LOGICAL, SAVE :: L_CO      = .FALSE.
-!      LOGICAL, SAVE :: L_GAS_HAPS  = .FALSE.
-!      LOGICAL, SAVE :: L_AERO_HAPS = .FALSE.
+!     LOGICAL, SAVE :: L_CO      = .FALSE.
+      LOGICAL, SAVE :: L_GAS_HAPS  = .FALSE.
+      LOGICAL, SAVE :: L_AERO_HAPS = .FALSE.
       
       LOGICAL, SAVE :: SA_BIDI = .FALSE.
 
-!      INTEGER,         PARAMETER :: N_AERO_HAPS_LIST = 16       
-!      CHARACTER( 16 ), PARAMETER :: AERO_HAPS_LIST(  N_AERO_HAPS_LIST ) =
-!     & (/ 'ANI     ',
-!     &    'ACR_VI  ',
-!     &    'ACR_III ',
-!     &    'ABE     ',
-!     &    'APB     ',
-!     &    'ADE_OTHR',
-!     &    'ADE_EC  ',
-!     &    'ADE_OC  ',
-!     &    'ADE_NO3 ',
-!     &    'ADE_SO4 ',
-!     &    'ADE_CORS',
-!     &    'ACD     ',
-!     &    'AMN_HAPS',
-!     &    'APHG    ',
-!     &    'AAS     ',
-!     &    'ABENAPY '  /)
+      INTEGER,         PARAMETER :: N_AERO_HAPS_LIST = 16       
+      CHARACTER( 16 ), PARAMETER :: AERO_HAPS_LIST(  N_AERO_HAPS_LIST ) =
+     & (/ 'ANI     ',
+     &    'ACR_VI  ',
+     &    'ACR_III ',
+     &    'ABE     ',
+     &    'APB     ',
+     &    'ADE_OTHR',
+     &    'ADE_EC  ',
+     &    'ADE_OC  ',
+     &    'ADE_NO3 ',
+     &    'ADE_SO4 ',
+     &    'ADE_CORS',
+     &    'ACD     ',
+     &    'AMN_HAPS',
+     &    'APHG    ',
+     &    'AAS     ',
+     &    'ABENAPY '  /)
      
-!      INTEGER                      :: N_AERO_HAPS = 0
-!      CHARACTER( 16 ), ALLOCATABLE :: AERO_HAPS(  : ) 
+      INTEGER                      :: N_AERO_HAPS = 0
+      CHARACTER( 16 ), ALLOCATABLE :: AERO_HAPS(  : ) 
      
       
 ! Full chemistry commented out because it produced floating
@@ -145,7 +145,7 @@ C ...Tagging indices for bcon, others, icon
 
         INTEGER, PARAMETER, PRIVATE :: MAX_STRING     = 32  ! max length of tagclass name
         INTEGER, PARAMETER, PRIVATE :: MAX_TAGCLASSES = 200 ! max number of tagclasses
-        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 9   ! number of defined tagclasses
+        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 11  ! number of defined tagclasses
         
         CHARACTER( MAX_STRING ), PARAMETER, PRIVATE :: DEFINED_CLASSES( NUMB_CLASSES ) = 
      & (/ 'AMMONIUM ',
@@ -153,6 +153,8 @@ C ...Tagging indices for bcon, others, icon
      &    'CHLORINE ',
      &    'EC       ',
      &    'SULFATE  ',
+     &    'GAS_HAPS ',
+     &    'AERO_HAPS',
      &    'OZONE    ',
      &    'NITRATE  ',
      &    'VOC      ',
@@ -212,17 +214,15 @@ C-----------------------------------------------------------
           ENDIF ! if tag_name
 c check to see if bidirectional tag is necessary
           IF ( ABFLUX ) THEN
-            IF ( TXTLINE( 1:11 ) .EQ. 'TAG CLASSES' ) THEN
+            IF ( INDEX( TXTLINE, 'TAG CLASSES') .GT. 0 ) THEN
               IOST = INDEX( TXTLINE,'AMMONIUM', BACK = .FALSE. )
               IF ( IOST .NE. 0 ) THEN
                 SA_BIDI = .TRUE.
                 NTAGS   = NTAGS + 1
-c               BIDITAG = NTAGS ! set to last tag
               END IF
             END IF
           END IF
         ENDDO COUNTTAG
-
 
         IF ( SA_BIDI ) BIDITAG = NTAGS ! set to last tag
 
@@ -396,7 +396,7 @@ C
         USE GRID_CONF    ! just for mype 20140327
         USE CGRID_SPCS, ONLY : N_AE_SPC, AE_SPC
         USE RXNS_DATA,  ONLY : MECHNAME, NUMB_MECH_SPC !Get Chemical Mechanism Name
-!       USE DEGRADE_PARAMETERS
+        USE DEGRADE_PARAMETERS
         USE UTILIO_DEFN  ! 20130627
 
         IMPLICIT NONE
@@ -418,6 +418,19 @@ C
         
 c----------------------------------------------------------
 
+        L_EC     = .FALSE. 
+        L_OC     = .FALSE. 
+        L_SFATE  = .FALSE. 
+        L_NITRATE = .FALSE. 
+        L_NH4     = .FALSE. 
+        L_PM25    = .FALSE.   
+!       L_CO      = .FALSE.   
+        L_OZONE   = .FALSE.   
+        L_VOC     = .FALSE.   
+        L_CHLORINE  = .FALSE.
+        L_GAS_HAPS  = .FALSE.
+        L_AERO_HAPS = .FALSE.
+!       L_CHEMISTRY = .FALSE.   
 
         ALLOCATE( CLASS_NAMES( MAX_TAGCLASSES ) )
         CALL PARSE_STRING( TAGCLASSES, NCLASSES, CLASS_NAMES )
@@ -450,20 +463,6 @@ c----------------------------------------------------------
            CALL M3EXIT('GET_NSPC_SA', 0, 0, XMSG, XSTAT2 )
         END IF 
         
-        L_EC     = .FALSE. 
-        L_OC     = .FALSE. 
-        L_SFATE  = .FALSE. 
-        L_NITRATE = .FALSE. 
-        L_NH4     = .FALSE. 
-        L_PM25    = .FALSE.   
-!        L_CO      = .FALSE.   
-        L_OZONE   = .FALSE.   
-        L_VOC     = .FALSE.   
-        L_CHLORINE  = .FALSE.
-!       L_GAS_HAPS  = .FALSE.
-!       L_AERO_HAPS = .FALSE.
-!       L_CHEMISTRY = .FALSE.   
-
         NSPC_SA = 0
 
         LBACK = .FALSE. 
@@ -519,20 +518,20 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
         BGN_SP = INDEX( TAGCLASSES,'VOC',LBACK )
         L_VOC = ( BGN_SP .NE. 0 .OR. L_VOC )
 
-!        BGN_SP     = INDEX( TAGCLASSES,'GAS_HAPS',LBACK )        
-!        L_GAS_HAPS = ( BGN_SP .NE. 0 .OR. L_GAS_HAPS )
-!        IF ( L_GAS_HAPS ) THEN
-!          SELECT CASE( MECHNAME )
-!             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
-!                NSPC_SA = NSPC_SA + 5  ! FORM_PRIM, ALD2_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE
-!             CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
-!                NSPC_SA = NSPC_SA + 5  ! HCHO_PRIM, CCHO_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE 
-!             CASE( 'RACM2_AE6_AQ') 
-!                NSPC_SA = NSPC_SA + 0   
-!          END SELECT
-!          CALL DEGRADE_DATA()        
-!          NSPC_SA = NSPC_SA + NDEGRADED_FOUND ! degradation species found in species namelists
-!        ENDIF
+        BGN_SP     = INDEX( TAGCLASSES,'GAS_HAPS',LBACK )        
+        L_GAS_HAPS = ( BGN_SP .NE. 0 .OR. L_GAS_HAPS )
+        IF ( L_GAS_HAPS ) THEN
+          SELECT CASE( MECHNAME )
+             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
+                NSPC_SA = NSPC_SA + 5  ! FORM_PRIM, ALD2_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE
+             CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
+                NSPC_SA = NSPC_SA + 5  ! HCHO_PRIM, CCHO_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE 
+             CASE( 'RACM2_AE6_AQ') 
+                NSPC_SA = NSPC_SA + 0   
+          END SELECT
+          CALL DEGRADE_DATA()        
+          NSPC_SA = NSPC_SA + NDEGRADED_FOUND ! degradation species found in species namelists
+        ENDIF
 
         DEFINED = .TRUE.
 
@@ -607,19 +606,23 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
 !          L_CO = .TRUE.
 !        ENDIF
 
-!        LBACK = .FALSE.
-!        BGN_SP = INDEX( TAGCLASSES,'AERO_HAPS',LBACK )
-!        IF ( BGN_SP .NE. 0 ) THEN          
-!          L_AERO_HAPS = .TRUE.
-!          DO J = 1, N_AERO_HAPS_LIST
-!             DO K = 1, N_AE_SPC
-!                IF( INDEX( AE_SPC( K ), AERO_HAPS_LIST( J ) ) .GT. 0 ) THEN
-!                   NSPC_SA     = NSPC_SA + 1
-!                   N_AERO_HAPS = N_AERO_HAPS + 1
-!                END IF  
-!             END DO           
-!          END DO
-!        ENDIF
+        LBACK = .FALSE.
+        BGN_SP = INDEX( TAGCLASSES,'AERO_HAPS',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN          
+          L_AERO_HAPS = .TRUE.
+          DO J = 1, N_AERO_HAPS_LIST
+             DO K = 1, N_AE_SPC
+                IF( INDEX( AE_SPC( K ), TRIM( AERO_HAPS_LIST( J ) ) ) .GT. 0 ) THEN
+                   NSPC_SA     = NSPC_SA + 1
+                   N_AERO_HAPS = N_AERO_HAPS + 1
+                   WRITE(LOGDEV,*)"AERO HAPS found: ",AE_SPC( K )
+!                ELSE   
+!                   WRITE(LOGDEV,*)"Not AERO HAPS: ",AE_SPC( K )
+                END IF  
+             END DO           
+          END DO
+!          WRITE(LOGDEV,*)" N_AERO_HAPS = ",N_AERO_HAPS
+        ENDIF
 
         END SUBROUTINE GET_NSPC_SA
 
@@ -748,8 +751,8 @@ C
 
         USE CGRID_SPCS     
         USE RXNS_DATA,    ONLY : MECHNAME, NUMB_MECH_SPC, CHEMISTRY_SPC 
-!        USE DEGRADE_PARAMETERS
-        USE RUNTIME_VARS, ONLY: MYPE
+        USE DEGRADE_PARAMETERS
+        USE RUNTIME_VARS, ONLY: MYPE, LOGDEV
         USE UTILIO_DEFN    
 
         IMPLICIT NONE
@@ -1470,6 +1473,54 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
           END SELECT
         ENDIF
 
+        IF ( L_GAS_HAPS ) THEN
+          SELECT CASE( MECHNAME )
+             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'FORM_PRIMARY'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ALD2_PRIMARY'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ACROLEIN'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'BUTADIENE13'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ACRO_PRIMARY'
+             CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ')
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'HCHO_PRIMARY'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'CCHO_PRIMARY'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ACROLEIN'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'BUTADIENE13'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'ACRO_PRIMARY'
+            END SELECT
+            DO I_SPC = 1, NDEGRADED_FOUND
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = DEGRADED_SPECIES( I_SPC )
+            END DO
+        END IF
+
+        IF ( L_AERO_HAPS ) THEN          
+          DO I_SPC = 1, N_AERO_HAPS_LIST
+             DO K_SPC = 1, N_AE_SPC
+! find HAP aerosols in aerosol species and adjust NSPC_SA if in SPC_LIST
+                IF ( INDEX(  AE_SPC( K_SPC ), TRIM( AERO_HAPS_LIST( I_SPC ) ) ) .GT. 0 ) THEN 
+                    J_SPC = J_SPC + 1
+                    SPC_LIST( J_SPC ) = AE_SPC( K_SPC )
+                    WRITE(LOGDEV,*)' AERO HAPS added: ',J_SPC,AE_SPC( K_SPC ) 
+                END IF 
+             END DO            
+          END DO
+        ENDIF
+        
+!       IF ( L_CHEMISTRY ) THEN
+!          SPC_LIST( ( J_SPC+1 ):( J_SPC+NUMB_MECH_SPC ) ) = CHEMISTRY_SPC( 1:NUMB_MECH_SPC )
+!       cd   J_SPC = J_SPC + NUMB_MECH_SPC 
+!       END IF
 
 !        IF ( L_GAS_HAPS ) THEN
 !          SELECT CASE( MECHNAME )

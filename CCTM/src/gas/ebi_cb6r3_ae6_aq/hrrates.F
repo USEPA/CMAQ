@@ -27,7 +27,7 @@ C  PRECONDITIONS: For the CB6R3_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Aug  6, 2019
+C  REVISION HISTORY: Created by EBI solver program, Jul 28, 2020
 C
 C***********************************************************************
       USE HRDATA

@@ -45,6 +45,7 @@ C**********************************************************************
 
       IMPLICIT NONE
 
+
 C.....ARGUMENTS:
 
       REAL( 8 ),   INTENT( INOUT ) ::  CBLK( :, : ) ! species conc in cell
@@ -58,7 +59,7 @@ C.....LOCAL VARIABLES:
 
 C**********************************************************************
 
-      LOOP_BLOCK: DO I_CELL = 1, NUM_CELLS
+      LOOP_BLOCK: DO I_CELL = 1, NCELLS
 
          LOOP_REACT: DO I = 1, N_REACT  ! Loop over each reactant
 
@@ -72,7 +73,7 @@ c..update CBLK
 
             LOOP_PROD: DO J = 1, N_PROCESSES
 
-               I_PROD = PROD_MAP( I, J )
+               I_PROD = PROD_MAP( J, I )
 
                IF( I_PROD < 1 ) CYCLE   ! no specified product
 
