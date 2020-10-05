@@ -189,16 +189,17 @@ gedit run_cctm_Bench_2016_12SE1.csh
 
 #> Set General Parameters for Configuring the Simulation
 
-Change
-```       
- set VRSN      = v532              #> Code Version
-```       
+  - Change
 
-to
+    ```       
+    set VRSN      = v532              #> Code Version
+    ```       
 
-```
- set VRSN      = v532_ISAM         #> Code Version
-```
+  - to
+
+    ```
+    set VRSN      = v532_ISAM         #> Code Version
+    ```
     
   - Submit the job using the batch queueing system
 
@@ -220,6 +221,8 @@ to
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
 ### Step 13: Compare output with the 2 day benchmark outputs provided on the google drive
+
+
     https://drive.google.com/drive/u/1/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk
 
     Note, the following ISAM output files are generated in addition to the standard CMAQ output files.
