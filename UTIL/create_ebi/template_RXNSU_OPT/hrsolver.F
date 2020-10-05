@@ -46,6 +46,10 @@ C**********************************************************************
 #ifdef isam
       USE SA_IRR_DEFN
 #endif
+#ifdef sens
+      USE DDM3D_CHEM, ONLY: YCDDM
+      USE CGRID_SPCS, ONLY: GC_SPC
+#endif 
 
 R0
 
@@ -169,6 +173,9 @@ C**********************************************************************
 
        END IF
 
+#ifdef sens
+       YCDDM = 0.0D0
+#endif
 
 c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 #ifdef hrdebug
@@ -239,7 +246,7 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
          SUBSTEP_EBI: DO NINR = 1, N_INR_STEPS   ! time substeps loop 
 !  first attempt is sub time-step equals EBI time-step
 
-            IF( LEBI_CONV ) FORALL( S = 1:NUMB_MECH_SPC )YC0( S ) = YC( S )   ! Set ICs for EBI iterations
+            IF( LEBI_CONV ) YC0 = YC   ! Set ICs for EBI iterations
 
             ITER_SUBSTEP: DO ITER = 1, NEBITER  ! iteration loop solving for sub time-step
 
@@ -357,6 +364,12 @@ R5
                  UPDATE_PROBABILITIES = .FALSE.
 #endif
 
+#ifdef sens
+C Update the sum for the average over the chemistry integration
+                 YCDDM = YCDDM
+     &                 + ( ( 0.5D0 * DTC ) * ( YC + YC0 )  )
+#endif
+
                  CYCLE SUBSTEP_EBI ! solve for next sub time-step
                  
                END IF
@@ -383,7 +396,7 @@ R5
                   END DO
                END IF
 
-               FORALL( S = 1:NUMB_MECH_SPC )YC( S ) = YC0( S )   ! Set ICs for EBI time-step
+               YC = YC0   ! Set ICs for EBI time-step
 
                DTC = 0.5D0 * DTC
 
@@ -411,7 +424,7 @@ R5
          IF( LEBI_CONV )THEN 
              NEBI        = 1 + NEBI
 ! test for completing final EBI time-step
-             IF( NEBI .GT. N_EBI_STEPS )RETURN
+             IF( NEBI .GT. N_EBI_STEPS )EXIT TSTEP_EBI
 ! test whether backups were done
              IF( NBKUPS .EQ. 0 )CYCLE TSTEP_EBI 
 ! Reset NBKUPS, N_INR_STEPS and sub-time step
@@ -421,6 +434,13 @@ R5
          END IF
          
       END DO TSTEP_EBI
+
+#ifdef sens
+! Compute average over integration and filter values
+      YCDDM = YCDDM / CHEMSTEP
+      WHERE (  YCDDM .LT. 1.0D-25 ) YCDDM = 0.0D0
+#endif
+
 
       RETURN
 

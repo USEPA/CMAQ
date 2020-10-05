@@ -65,6 +65,7 @@ R5
 R5    INTEGER, SAVE ::   MODEL_SPECIES ! No. of species in CGRID
 
       REAL( 8 )    EBI_TMSTEP          ! Time step for EBI loops (min)
+      REAL( 8 )    CHEMSTEP            ! Chemistry integration interval (min)
 
 c...Allocatable arrays
       INTEGER, ALLOCATABLE :: EBISP( : )         ! Index of EBI species

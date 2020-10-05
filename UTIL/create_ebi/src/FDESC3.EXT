@@ -1,0 +1,224 @@
+
+!.........................................................................
+! Version "@(#)$Header$"
+!    EDSS/Models-3 I/O API.  Copyright (C) 1992-2002 MCNC
+!    Distributed under the GNU LESSER GENERAL PUBLIC LICENSE version 2.1
+!    See file "LGPL.txt" for conditions of use.
+!....................................................................
+!  INCLUDE FILE  FDESC3.EXT
+!
+!  DO NOT EDIT !!
+!
+!       The EDSS/Models-3 I/O API depends in an essential manner
+!       upon the contents of this INCLUDE file.  ANY CHANGES are
+!       likely to result in very obscure, difficult-to-diagnose
+!       bugs caused by an inconsistency between standard "libioapi.a"
+!       object-libraries and whatever code is compiled with the
+!       resulting modified INCLUDE-file.
+!
+!       By making any changes to this INCLUDE file, the user
+!       explicitly agrees that in the case any assistance is 
+!       required of MCNC or of the I/O API author, Carlie J. Coats, Jr.
+!       as a result of such changes, THE USER AND/OR HIS PROJECT OR
+!       CONTRACT AGREES TO REIMBURSE MCNC AND/OR THE I/O API AUTHOR,
+!       CARLIE J. COATS, JR., AT A RATE TRIPLE THE NORMAL CONTRACT
+!       RATE FOR THE SERVICES REQUIRED.
+!
+!  CONTAINS:  Fortran data structures for a MODELS 3 file description.
+!             Used to pass data between RDDICT3, WRDICT3, OPEN3, DESC3,
+!             and their callers.  Common BDESC3 is used to store the
+!             non-character-string data, and CDESC3 is used to store
+!             the character-string data (recall that FORTRAN 77 prohibits
+!             character and non-character data in the same common)
+!
+!  SHOULD ONLY BE USED AS A NAME BASED ARGUMENT PASSING MECHANISM;
+!  the user should have local variables to/from which this data structure
+!  is copied immediately prior to or immediately after calls which set
+!  or use these COMMONs, since their values are subject to change at
+!  any time by the IOAPI.
+!
+!  DEPENDENT UPON:  PARMS3.EXT
+!
+!  REVISION HISTORY:
+!       Prototype 5/1991  by CJC
+!
+!       Revised   3/1992  by CJC for netCDF FORTRAN implementation of
+!       Models-3 I/O
+!
+!       Modified 12/1992 by CJC:  map-projection descriptive parameters
+!       P_ALP, P_BET, P_GAM.
+!
+!       Modified  2/2002 by CJC updated dates, license, compatibility with
+!       both free and fixed Fortran 9x source forms
+!
+!  SET BY:
+!          DESC3:    Everything in FDESC3.EXT
+!
+!          RDDICT3:  FTYPE3D, TSTEP3D, NCOLS3D, NROWS3D, NLAYS3D, NVARS3D,
+!                    NTHIK3D, GDTYP3D, P_ALP3D, P_BET3D, P_GAM3D,
+!                    XORIG3D, YORIG3D, XCELL3D, YCELL3D, GDNAM3D,
+!                    XCENT3D, YCENT3D, VGTYP3D, VGTOP3D, VGLVS3D,
+!                    VNAME3D, UNITS3D, VDESC3D
+!
+!  REFERENCED BY:
+!          OPEN3:    FTYPE3D, SDATE3D, STIME3D, TSTEP3D, NCOLS3D, NROWS3D,
+!                    NLAYS3D, NVARS3D, NTHIK3D, GDTYP3D, P_ALP3D, P_BET3D,
+!                    P_GAM3D, XORIG3D, YORIG3D, XCELL3D, YCELL3D, GDNAM3D,
+!                    XCENT3D, YCENT3D, VGTYP3D, VGTOP3D, VGLVS3D,
+!                    VNAME3D, UNITS3D, VDESC3D
+!
+!          WRDICT3:  FTYPE3D, TSTEP3D, NCOLS3D, NROWS3D, NLAYS3D, NVARS3D,
+!                    NTHIK3D, GDTYP3D, P_ALP3D, P_BET3D, P_GAM3D, XORIG3D,
+!                    YORIG3D, XCELL3D, YCELL3D, XCELL3D, YCELL3D, GDNAM3D, 
+!                    VGTYP3D, VGTOP3D, VGLVS3D, VNAME3D, UNITS3D, VDESC3D
+!
+!....................................................................
+
+        INTEGER      FTYPE3D      ! file type
+        INTEGER      CDATE3D      ! creation date   YYYYDDD
+        INTEGER      CTIME3D      ! creation time    HHMMSS
+        INTEGER      WDATE3D      ! update date     YYYYDDD
+        INTEGER      WTIME3D      ! update time      HHMMSS
+        INTEGER      SDATE3D      ! file start date YYYYDDD
+        INTEGER      STIME3D      ! file start time  HHMMSS
+        INTEGER      TSTEP3D      ! file time step   HHMMSS
+        INTEGER      MXREC3D      ! maximum time step record number (1,2,...)
+        INTEGER      NVARS3D      ! number of species
+        INTEGER      NCOLS3D      ! number of grid columns
+        INTEGER      NROWS3D      ! number of grid rows
+        INTEGER      NLAYS3D      ! number of layers
+        INTEGER      NTHIK3D      ! BOUNDARY:  perim thickness (cells)
+                                  ! SPARSE MATRIX:  number of matrix-cols
+        INTEGER      GDTYP3D      ! grid type:  1=LAT-LON, 2=Lambert, ...
+
+!.......   Note that horizontal grid definition information is REAL*8 in order 
+!.......   to achieve the required precision in geographic-to/from-grid
+!.......   coordinate conversions.  Meanings of the map projection
+!.......   specification parameters P_ALP3D, P_BET3D, P_GAM3D depend
+!.......   upon the projection type, as follows:
+!.......   
+!.......   If P_ALP3D < AMISS3 (=-9E36, from PARMS3.EXT), then
+!.......   the grid description is missing or invalid.
+!.......
+!.......   lat-lon:   unused.  Coordinate units are degrees, with
+!.......              -180.0 < X <= 180.0,  -90.0 <= Y <= 90.0   
+!.......              Note that Western hemisphere longitudes are taken 
+!.......              to be negative.
+!.......
+!.......   Lambert    PROJ_ALPHA <= PROJ_BETA are the two latitudes which
+!.......              determine the projection cone; PROJ_GAMMA is the
+!.......              central meridian.  Coordinate units are meters.
+!.......
+!.......   (General) Mercator   PROJ_ALPHA and PROJ_BETA are the
+!.......              latitude and longitude of the coordinate origin
+!.......              (within the tangent circle);
+!.......              PROJ_GAMMA is the angle between the cylinder axis
+!.......              and the North polar axis. Coordinate units are meters.
+!.......
+!.......   (General Tangent) Stereographic   PROJ_ALPHA and PROJ_BETA are
+!.......              the latitude and longitude of the point of tangency;
+!.......              PROJ_GAMMA is the angle from true North to the Y-axis.
+!.......              Coordinate units are meters.
+!.......   
+!.......   UTM:  PROJ_ALPHA is the UTM zone, as a double.
+!.......              PROJ_BETA and PROJ_GAMMA are unused.
+!.......              Note that for safety, PROJ_ALPHA should be
+!.......              *>rounded<* to integer.
+!.......              Coordinate units are meters.
+!.......   
+!.......   (Secant) Polar Stereographic:  PROJ_ALPHA is 1 for North Polar
+!.......              -1 for South Polar, as a double.
+!.......              PROJ_BETA is the secant latitude (latitude of
+!.......              true scale).
+!.......              PROJ_GAMMA is the Y-axis.
+!.......              Note that for safety, PROJ_ALPHA should be
+!.......              *>rounded<* to integer.
+!.......              Coordinate units are meters.
+!.......
+!.......   Transverse Mercator   PROJ_ALPHA is the latitude of the origin.
+!.......              PROJ_BETA is the scale factor at the central meridian;
+!.......              PROJ_GAMMA is the longitude of the central meridian.
+!.......              Coordinate units are meters.
+!.......
+!.......   Equatorial Mercator   PROJ_ALPHA is the latitude of true scale.
+!.......              PROJ_BETA is unused.
+!.......              PROJ_GAMMA is the longitude of the central meridian.
+!.......              Coordinate units are meters.
+!.......   
+!.......   (XCENT3D,YCENT3D):
+!.......   For Lat-Lon:  unused.
+!.......   For UTM:  these are the UTM offsets in meters (UTM coords for
+!.......   the origin relative to a UTM system with origin at the equator
+!.......   and central metidian of the UTM zone).
+!.......   For other projectionss (e.g., Lambert, Mercator, and Stereographic),
+!.......   these are the longitude, -180 < X <= 180, and the
+!.......   latitude, -90 <= Y <= 90, for the center (0,0) of the
+!.......   respective Cartesian coordinate system.
+!.......   
+!.......   (XORIG3D,YORIG3D) are the location in map units (deg. for lat-lon,
+!.......   meters otherwise) of the  lower-right corner of the origin (1,1) 
+!.......   cell of the horizontal grid.
+!.......   
+!.......   (XCELL3D,YCELL3D) are the X-direction and Y-direction lengths
+!.......   ((deg. for lat-lon, meters otherwise) of side for cells in a 
+!.......   regular grid.  If zero, the grid is taken to be an irregular
+!.......   grid described by other means (e.g. a grid-geometry file).
+!.......   
+!.......   VGTYP3D is the vertical grid type token, VGSIGP3 for sigma-P
+!.......   coordinates, VGSIGZ3 for sigma-Z, etc., or IMISS3 for vertical
+!.......   coordinates not stored in VGLVS3D (e.g., temporally or spatially
+!.......   changing vertical coordinates.
+!.......   
+!.......   VGTOP3D is the model-top used in the definition of the sigma
+!.......   coordinate systems (e.g., for hydrostatic sigma-P, the 
+!.......   relationship between P and sigma is given by the following:
+!.......   S = ( P - VGTOP3D ) / (P_ref - VGTOP3D )
+!.......   
+!.......   VGLVS3D( 1, ..., NLAYS3D+1 ) is the list of vertical coordinate 
+!.......   values which specify the layers of the file.  In principle, 
+!.......   layer K goes from VGLVS3D( K ) to VGLVS3D( K+1 ).
+
+        REAL*8       P_ALP3D      ! first, second, third map
+        REAL*8       P_BET3D      ! projection descriptive
+        REAL*8       P_GAM3D      ! parameters.
+
+        REAL*8       XCENT3D      ! lon for coord-system X=0
+        REAL*8       YCENT3D      ! lat for coord-system Y=0
+        REAL*8       XORIG3D      ! X-coordinate origin of grid (map units)
+        REAL*8       YORIG3D      ! Y-coordinate origin of grid
+        REAL*8       XCELL3D      ! X-coordinate cell dimension
+        REAL*8       YCELL3D      ! Y-coordinate cell dimension
+
+        INTEGER      VGTYP3D      !  vertical coordinate type (VGSIGP3, ...)
+        REAL         VGTOP3D      !  model-top, for sigma coord types.
+        REAL         VGLVS3D( MXLAYS3 + 1 )  !  vertical coord values.
+
+        CHARACTER*16   GDNAM3D      ! grid name             (length NAMLEN3=16)
+        CHARACTER*16   UPNAM3D      ! last program writing to file (NAMLEN3=16)
+        CHARACTER*80   EXECN3D      ! value of env vble EXECUTION_ID
+
+        CHARACTER*80   FDESC3D( MXDESC3 ) ! file description (MXDLEN3=80)
+        CHARACTER*80   UPDSC3D( MXDESC3 ) ! update   "       (MXDLEN3=80)
+
+        INTEGER        VTYPE3D( MXVARS3 ) ! variable type:  M3(INT|REAL|DBLE)
+        CHARACTER*16   VNAME3D( MXVARS3 ) ! variable names (length MXDLEN3=80)
+        CHARACTER*16   UNITS3D( MXVARS3 ) !   "   units or 'none' (MXDLEN3=80)
+        CHARACTER*80   VDESC3D( MXVARS3 ) !   "      descriptions (MXDLEN3=80)
+
+        !!  non-character file description data
+        COMMON  / BDESC3 /
+     &      P_ALP3D, P_BET3D, P_GAM3D, XCENT3D, YCENT3D,
+     &      XORIG3D, YORIG3D, XCELL3D, YCELL3D,
+     &      FTYPE3D, CDATE3D, CTIME3D, WDATE3D, WTIME3D,
+     &      SDATE3D, STIME3D, TSTEP3D, MXREC3D,
+     &      NVARS3D, NCOLS3D, NROWS3D, NLAYS3D, NTHIK3D,
+     &      GDTYP3D, VGTYP3D, VGTOP3D, VGLVS3D, VTYPE3D
+
+        !!  character-string file description data
+
+        COMMON  / CDESC3 /
+     &      GDNAM3D, UPNAM3D, EXECN3D, FDESC3D, UPDSC3D,
+     &      VNAME3D, UNITS3D, VDESC3D
+
+!................   end   FDESC3D.EXT   ....................................
+

@@ -1,0 +1,28 @@
+
+!.........................................................................
+! Version "@(#)$Header$"
+!    EDSS/Models-3 I/O API.
+!    Copyright (C) 1992-2002 MCNC and Carlie J. Coats, Jr., and
+!    copyright (C) 2002-2004 Baron Advanced Meteorological Systems, LLC
+!
+!    Distributed under the GNU LESSER GENERAL PUBLIC LICENSE version 2.1
+!
+!    DO NOT EDIT !!
+!
+!       The EDSS/Models-3 I/O API depends in an essential manner
+!       upon the I/O API source code.  ANY CHANGES to INCLUDE files
+!       are likely to result in very obscure, difficult-to-diagnose
+!       bugs caused by an inconsistency between standard "libioapi.a"
+!       object-libraries and whatever code is compiled with the
+!       resulting modified INCLUDE-file.
+!
+!       By making any changes to any of these INCLUDE files, the user
+!       explicitly agrees that in the case any assistance is required
+!       of MCNC or of the I/O API author, Carlie J. Coats, Jr., as
+!       a result of such changes, THE USER AND/OR HIS PROJECT OR
+!       CONTRACT AGREES TO REIMBURSE MCNC AND/OR THE I/O API AUTHOR,
+!       CARLIE J. COATS, JR., AT A RATE TRIPLE THE NORMAL CONTRACT
+!       RATE FOR THE SERVICES REQUIRED.
+!
+!    See file "LGPL.txt" for additional conditions of use.
+!.........................................................................
