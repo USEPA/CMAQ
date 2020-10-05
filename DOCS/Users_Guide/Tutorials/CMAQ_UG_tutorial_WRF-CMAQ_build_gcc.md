@@ -453,4 +453,4 @@ set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions
 
    - Both debug and optimized benchmark outputs are provided for your comparisons.
 
-   - Note, the CMAQv5.3.2 output results will not directly compare to WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.2 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.2 ICON and BCON inputs.
+   - Note, the CMAQv5.3.2 output results will not directly compare to the no feedback (nf) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.2 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.2 ICON and BCON inputs.
