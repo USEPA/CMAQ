@@ -18,10 +18,12 @@ The following support software are required for compiling and running CMAQ.
 2. Message Passing Interface (MPI), e.g., [OpenMPI](https://www.open-mpi.org) or [MVAPICH2](http://www.mcs.anl.gov/research/projects/mpich2).
 3. Latest release of [netCDF-C](https://www.unidata.ucar.edu/software/netcdf/docs/getting_and_building_netcdf.html) and [netCDF-Fortran](https://www.unidata.ucar.edu/software/netcdf/docs/building_netcdf_fortran.html) **built without netCDF4, HDF5, HDF4, DAP client, PnetCDF, or zlib support** 
 4. [I/O API](https://www.cmascenter.org/download/software/ioapi/ioapi_3-2.cfm?DB=TRUE) version 3.2 **tagged 20200828**
+(note: if you have not installed the above libraries, please see the CMAQ_UG_tutorial_build_[gcc/intel/pgi].md tutorials available here: 
+https://github.com/USEPA/CMAQ/tree/master/DOCS/Users_Guide/Tutorials
 
 The suggested hardware requirements for running the CMAQ Southeast Benchmark case on a Linux workstation are:
 
-1. Linux environment with a 8 processors
+1. Linux environment with a 16 processors
 2. 16 GB RAM
 3. 400 GB hard drive storage
 
@@ -94,23 +96,26 @@ source config_cmaq.csh gcc 9.1
 
 ## Install the CMAQ input reference/benchmark data
 
-Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE532BENCH](https://drive.google.com/drive/folders/10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
+Download the CMAQ two day reference data from the [CMAS Center Data Warehouse SE532BENCH](https://drive.google.com/drive/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk?usp=sharing) Google Drive folder and copy to `$CMAQ_DATA`. Navigate to the `$CMAQ_DATA` directory, unzip and untar the two day benchmark input and output files:
 
 ```
 cd $CMAQ_DATA
 tar xvzf CMAQv5.3.2_Benchmark_2Day_Input.tar.gz
-tar xvzf CMAQv5.3.2_Benchmark_2Day_Output.tar.gz
+tar xvzf CMAQv5.3.2_Benchmark_2Day_Output_Optimized.tar.gz
+tar xzvf CMAQv5.3.2_Benchmark_2Day_Output_Debug.tar.gz
 ```
 
-The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  Input and output files for a two week case covering July 1-14, 2016 are also available within the same Google Drive folder. Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
+The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  
+Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
 
 These input and output benchmark files have also been posted on the US EPA annoymous ftp server.  The benchmark data posted on the ftp server has been split into several .tar.gz files to allow for faster download times.  
 * [ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark)
 
 #### A note about differences in the v5.3+ and v5.3 benchmark data
-Starting with CMAQv5.3.1, the benchmark data for the July 2016 test case over th Southeast US now comes with new input and output files.
-The input datasets are identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3+ coupled model on the Southeast US benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3+ files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.2 is slightly different from what was released with v5.3.1 and v5.3 as described in the [CMAQv5.3.2 Release Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
-
+Starting with CMAQv5.3.2, the benchmark data contains a grid mask file for the United States  GRIDMASK_STATES_12SE1.nc, and new input tar file, but the only difference for the input tar file is the gridmask file.  
+The CMAQv5.3.2 output tar files are provided for the CMAQ-ISAM Benmark case, which includes the standard CMAQv5.3.2 output in addition to the new _SA_ output files.
+For CMAQv5.3.1, the benchmark data for the July 2016 test case over the Southeast US provided both input and output files.
+The CMAQv5.3.1 input datasets were identical to those released wtih v5.3 but additional files are now included in the .tar.gz files that will allow users to test the WRFv4.1.1-CMAQv5.3+ coupled model on the Southeast US benchmark domain. As a result, there is no need for users who have already downloaded the v5.3 Southeast benchmark input data to download the v5.3+ files unless they are planning to run the coupled model.  The Southeast benchmark output data for v5.3.2 is slightly different from what was released with v5.3.1 and v5.3 as described in the [CMAQv5.3.2 Release Notes FAQ](../../Release_Notes/CMAQ_FAQ.md).
 
 
 ## Compiling CMAQ
@@ -161,7 +166,7 @@ cd $CMAQ_HOME/CCTM/scripts
 
 ## Configure the CCTM script 
 
-For an MPI configuration with 8 processors,
+For an MPI configuration with 16 processors,
 
 ```
 cd $CMAQ_HOME/CCTM/scripts
@@ -237,15 +242,20 @@ Check the last few lines of the CCTM output log for messages to help diagnose wh
 ## Check the CMAQ Benchmark Results
 
 To determine if CMAQ is correctly installed on your Linux system compare the results from your benchmark simulation to the reference output data downloaded from the CMAS Center. This data was generated on a Linux system with the following specifications:
-- Red Hat Enterprise Linux Server release 7.8 (Maipo)
-- Linux Kernel 3.10.0-1062.12.1.el7.x86_64
-- GNU GCC compiler version 9.1.0, 8 processors with OpenMPIv4.0.1 and I/O APIv3.2
+- Linux Kernel 3.10.0-514.el7.x86_64
+- GPLv3+: GNU GPL version 3 
+- GNU GCC compiler version 9.1.0, 16 processors with OpenMPIv4.0.1 and I/O APIv3.2
 - Debug mode turned off (```set Debug_CCTM``` commented out in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
+- Debug mode turned on  (```set Debug_CCTM``` uncommented in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
 - CMAQv5.3.2
 
-The CMAQv5.3.2 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables.
+CMAQv.5.3.2 output for a two day benchmark case is provided for both the debug mode turned off (Optimized) and the debug mode turned on (Debug) version to allow the user to compare their answers to either. To reduce the impact of compiler flags on the model output, it is preferrable to use the debug version. To compare model results obtained while achieving faster run times due to compiler optimization, the Optimized version output is also provided.
+
+The CMAQv5.3.2 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. The CCTM_SA_ACONC_\*.nc, CCTM_SA_CGRID_\*.nc, CCTM_SA_CONC_\*.nc, CCTM_SA_WETDEP_\*.nc and CCTM_SA_DRYDEP_\*.nc are generated when you run the CMAQ-ISAM benchmark. see [CMAQ-ISAM Tutorial](../Tutorials/CMAQ_UG_tutorial_ISAM.md)
+
+
 
 Use your netCDF evaluation tool of choice to evaluate your benchmark results. For example, [VERDI](https://www.verdi-tool.org/) is a visualization tool to view CCTM results as tile plots. Statistical comparison of the results can be made with the I/O API Tools or R. 
 
-Note, even with a successful installation and run of the benchmark case, some differences between your simulation and the reference data can occur due to differences in domain decomposition for multi-processor simulations as well as differences in compiler optimization.  These differences tend to manifest in upper layers of the model and are mostly found in predicting aerosol water (AH2O) and aerosol acidity (AH3OP), while differences are smaller for other key species like ASO4, ANO3, ACL, ALOO1, etc. These species have short atmospheric lifetimes with large changes in time and space derivatives or have model physics sensitive to small changes in concentration. Predicting these species is more sensitivity to small changes in machine precision and accuracy.
+Note, even with a successful installation and run of the benchmark case, some differences between your simulation and the reference data can occur due to differences in domain decomposition for multi-processor simulations as well as differences in compiler.  These differences tend to manifest in upper layers of the model and are mostly found in predicting aerosol water (AH2O) and aerosol acidity (AH3OP), while differences are smaller for other key species like ASO4, ANO3, ACL, ALOO1, etc. These species have short atmospheric lifetimes with large changes in time and space derivatives or have model physics sensitive to small changes in concentration. Predicting these species is more sensitivity to small changes in machine precision and accuracy.
 
