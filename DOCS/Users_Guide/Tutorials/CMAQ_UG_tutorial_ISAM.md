@@ -77,14 +77,15 @@ Comment out the following option to compile CCTM with ISAM:
 set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
 
 When this is set, the executable that is built will be tagged with v532_ISAM
-#> Working directory and Version IDs
+
 ```
+#> Working directory and Version IDs
  if ( $?ISAM_CCTM ) then
      set VRSN  = v532_ISAM                      #> model configuration ID
     else if ( $?DDM3D_CCTM ) then
      set VRSN = v532_DDM3D
     else
-     set VRSN = v532               #> model configuration ID
+     set VRSN = v532                            #> model configuration ID
  endif
 ```
 
