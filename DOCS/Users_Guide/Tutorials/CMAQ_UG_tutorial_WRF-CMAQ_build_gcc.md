@@ -303,12 +303,12 @@ change to
 ```
       
 
-#### After running the blidit script, copy BLD_CCTM_V531_gcc_twoway into WRFV411/cmaq directory.
+#### After running the blidit script, copy BLD_CCTM_V532_gcc_twoway into WRFV411/cmaq directory.
 
 example {depends on the location of your WRF-4.1.1 directory}:
 
 ```
-cp -rp BLD_CCTM_v531_gcc_twoway ../../../WRF-4.1.1/cmaq
+cp -rp BLD_CCTM_v532_gcc_twoway ../../../WRF-4.1.1/cmaq
 ```
 
 ### Step 7: Download WRF4.1.1_CMAQ5.3.2_twoway.tar.gz and unzip it. 
@@ -427,7 +427,7 @@ set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions
    - look for the output directory
    
    ```
-   cd output_12km_nf_rrtmg_20_5_1_v411531_debug
+   cd output_12km_nf_rrtmg_20_5_1_v411532_debug
    ```
    If the run was successful you will see the following output
    
