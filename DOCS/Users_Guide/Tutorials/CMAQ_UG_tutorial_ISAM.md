@@ -147,7 +147,7 @@ Uncomment the line with ISAM_REGIONS as the File_Label
    - look for the output directory
    
    ```
-   cd ../data/output_CCTM_v532_ISAM_gcc_Bench_2016_12SE1
+   cd ../../data/output_CCTM_v532_ISAM_gcc_Bench_2016_12SE1
    ```
    If the run was successful you will see the following output
    
@@ -156,11 +156,16 @@ Uncomment the line with ISAM_REGIONS as the File_Label
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
-### Step 8: Compare output with the 2 day benchmark output provided
+### Step 8: Compare output with the 2 day benchmark outputs provided on the google drive
+    https://drive.google.com/drive/u/1/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk
+
     Note, the following ISAM output files are generated in addition to the standard CMAQ output files.
+
+```
     CCTM_SA_CONC_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
     CCTM_SA_WETDEP_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
     CCTM_SA_DRYDEP_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
     CCTM_SA_ACONC_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
     CCTM_SA_CGRID_v532_ISAM_gcc_Bench_2016_12SE1_20160701.nc
+```
 
