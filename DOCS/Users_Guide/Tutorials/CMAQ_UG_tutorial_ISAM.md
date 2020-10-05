@@ -151,6 +151,13 @@ gedit run_cctm_Bench_2016_12SE1.csh
 
 #> Set General Parameters for Configuring the Simulation
 
+Change
+```       
+ set VRSN      = v532              #> Code Version
+```       
+
+to
+
 ```
  set VRSN      = v532_ISAM         #> Code Version
 ```
