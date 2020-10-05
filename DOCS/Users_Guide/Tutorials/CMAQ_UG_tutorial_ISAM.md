@@ -50,14 +50,21 @@ In the top level of CMAQ_REPO, the bldit_project.csh script will automatically r
 Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
 
 ```
-set CMAQ_HOME = /home/username/CMAQ_v5.3.2
+set CMAQ_HOME = /work/your_username/CMAQ_v5.3.2
 ```
 
 Now execute the script.
 
+```
 ./bldit_project.csh
+```
 
 Change directories to the CMAQ_HOME directory
+
+```
+cd /work/your_username/CMAQ_v5.3.2
+```
+
 
 ### Step 5. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries
 
