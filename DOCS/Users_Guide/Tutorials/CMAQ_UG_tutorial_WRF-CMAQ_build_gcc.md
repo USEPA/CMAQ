@@ -435,3 +435,15 @@ set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions
    tail ./2016183/rsl.out.0000
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
+
+### Step 15: Compare results to the WRF-CMAQ 2 day benchmark results
+ 
+   - Download WRF-CMAQ bencmark output data from the google drive folder
+
+     https://drive.google.com/drive/u/1/folders/1poigGFlABCfepaIjDw-6JOyznJ6xz1ck
+
+   - Compare CCTM_ACONC_v411532_20160702.nc files to your benchmark results
+
+   - We provide both debug and optimized benchmark outputs for your comparisons.
+
+   - Note, the CMAQv5.3.2 output results will not directly compare to WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.2 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.2 ICON and BCON inputs.
