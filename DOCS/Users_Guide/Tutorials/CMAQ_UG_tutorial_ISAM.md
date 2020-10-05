@@ -27,7 +27,7 @@ The following gridmask file is provided with the benchmark inputs in the CMAQv5.
 GRIDMASK_STATES_12SE1.nc
 ```
 
-The instructions require the user to edit the emissions control namelist file in the BLD directory.
+The instructions require the user to edit the emissions control namelist file in the BLD directory (see step 9 below).
 
 ```
 EmissCtrl_cb6r3_ae7_aq.nml
