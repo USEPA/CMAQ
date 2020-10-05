@@ -129,6 +129,7 @@ https://cjcoats.github.io/ioapi/AVAIL.html
      git clone https://github.com/cjcoats/ioapi-3.2
      cd ioapi-3.2         ! change directory to ioapi-3.2
      git checkout -b 20200828   ! change branch to 20200828 for code updates
+     ln -s ioapi-3.2-20200828 ./ioapi-3.2  ! create a symbolic link to specify the tagged version
      
 
 #### Change directories to the ioapi directory
@@ -149,7 +150,7 @@ BASEDIR = ${HOME}/ioapi-3.2
 ````
 change to
 ```
-BASEDIR = ${INSTALL}/ioapi-3.2
+BASEDIR = ${INSTALL}/ioapi-3.2-20200828
 ```
      
      
@@ -209,7 +210,7 @@ BASEDIR = ${INSTALL}/ioapi-3.2
  ### Verify that the libioapi.a and the m3tools have been successfully built
  
  ```
- ls -lrt /[your_install_path]/LIBRARIES/ioapi-3.2/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
+ ls -lrt /[your_install_path]/LIBRARIES/ioapi-3.2-20200828/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
  ```
  
  ### Note: If you get a shared object problem when trying to run m3tools such as the following:
@@ -233,7 +234,7 @@ setenv LD_LIBRARY_PATH ${NCF_COMBO}/lib:${LD_LIBRARY_PATH}
 #### Set the IOAPI environment variable to the path where it has been installed
 
 ```
-setenv IOAPI /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/ioapi-3.2
+setenv IOAPI /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/ioapi-3.2-20200828
 ```
     
 
@@ -348,7 +349,7 @@ tar -xzvf ../../WRFv4.1.1-CMAQv5.3.2_twoway.tar.gz
     
  ```
     #### BEGIN for WRF-CMAQ twoway model
-IOAPI   = /proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2
+IOAPI   = /proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2-20200820
 LIOAPI  = Linux2_x86_64gfort
     #### END for WRF-CMAQ twoway model
  ```
