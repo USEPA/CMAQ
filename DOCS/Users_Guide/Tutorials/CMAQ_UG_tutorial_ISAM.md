@@ -48,10 +48,10 @@ module load openmpi_4.0.1/gcc_9.1.0
 
 I/O APIv3.2 supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. ISAM applications configured to calculate source attribution of a large number of sources may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in Chapter 3. Note, using this ioapi-large version is <b>NOT REQUIRED</b> for the CMAQ-ISAM Benchmark Case. If a user needs to use these larger setting for MXFILE3 and MXVAR3 to support their application, the memory requirements will be increased. If needed, this version is available as a zip file from the following address:
 
-https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-2020220.tar.gz
+https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz
 
 Otherwise, use the I/O API version available here:
-https://www.cmascenter.org/ioapi/download/ioapi-3.2-2020220.tar.gz
+https://www.cmascenter.org/ioapi/download/ioapi-3.2-20200828.tar.gz
 
 ### Step 5: Install CMAQ
 
