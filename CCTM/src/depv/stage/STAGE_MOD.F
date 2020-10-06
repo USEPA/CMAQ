@@ -335,7 +335,9 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          O3_hit = .FALSE.
          Hg_hit = .FALSE.
 
-         Tile_Data%pol( :,:,c,r ) = 0.0
+! initialize the bidi flux production term
+         Tile_Data%pol( :,:,c,r ) = 0.0  
+
 ! column met variables 
          temp_2m = Met_Data%TEMP2(c,r)
          q_2m    = MET_DATA%Q2( c,r )

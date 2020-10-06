@@ -74,6 +74,10 @@ C**********************************************************************
       USE PA_IRR_CLT
 R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
+#ifdef sens
+      USE DDM3D_CHEM
+      Use DDM3D_DEFN, Only: DATENUM, STARTDATE, IPT, IDATE, HIGH, NP, NPMAX, CKTIME
+#endif 
 
       IMPLICIT NONE 
 
@@ -133,8 +137,6 @@ C..Scratch Local Variables:
 #ifdef hrstats 
       REAL       SUMEBI       ! Sum of EBI iterations
 #endif
-
-      REAL( 8 )  CHEMSTEP     ! Chemistry integration interval (min)
 
       INTERFACE  
         SUBROUTINE HRSOLVER( JDATE, JTIME, C, R, L )
@@ -286,6 +288,22 @@ C..Determine which cells need IRR
         NUMB_ISAM_CELLS = 1.0D0 / ( NCOLS * NROWS * NLAYS )
         CALL SA_IRR_INIT  
 #endif
+
+#ifdef sens
+         CALL INIT_DDM3D_CHEM()
+
+C For higher order sensitivities
+         IF ( HIGH ) THEN
+            DO RXN = 1, NRXNS
+               IF( NREACT( RXN ) .EQ. 1 ) THEN
+                  ORDER1( RXN ) = .TRUE.
+               ELSE
+                  ORDER1( RXN ) = .FALSE.
+               END IF
+            END DO
+         END IF
+#endif
+
          LFIRST = .FALSE.
 
       END IF      ! First time
@@ -336,6 +354,21 @@ C.. Get pressure in Pascals
 
 C.. Get Heteorogeneous rates and Update Aerosol Distribution Properties 
       CALL HETCHEM_RATES( TA, PRES, QV, CGRID, DENS )
+
+#ifdef sens
+      DATENUM = 1 + JDATE - STARTDATE !  Set the date and hour counters used in sensitivity calls
+
+C For reaction rate sensitivities
+      DO NP = 1, NPMAX
+         IF ( IPT( NP ) .EQ. 5 ) THEN
+            CALL CKTIME( JDATE,JTIME,NP,RXNFLAG(NP) ) ! Rxnflag set to true iff ipt=5 and time, date within bounds
+            IF ( IDATE( NP, DATENUM ) .NE. 1 ) RXNFLAG( NP ) = .FALSE.
+         ELSE
+            RXNFLAG( NP ) = .FALSE.
+         END IF
+      END DO
+
+#endif sens
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Top of loop over cells 
@@ -395,7 +428,7 @@ c..Get rate constants
                LSUNLIGHT = .FALSE.
                FORALL( NPH = 1:NPHOTAB ) RJIN( NCELL,NPH ) = REAL( RJ( C,R,L,NPH ), 8)
                IF( MAXVAL(RJIN) .GT. 0.0D0 ) LSUNLIGHT = .TRUE.
-                                     
+
                FORALL ( NPH = 1:NHETERO )HET( NCELL,NPH ) = REAL( KHETERO( NPH,C,R,L ), 8)
 
                CALL CALC_RCONST( TEMP, ATMPRES, H2O, RJIN, HET, LSUNLIGHT, LAND, RKI_SAV, NCELL )
@@ -458,6 +491,21 @@ R5               END IF
 
 c..update irrout arrays if needed               
                IF ( LFLAGIRR( C,R,L ) )CALL PA_IRR_CELLENDF( C, R, L )
+#ifdef sens
+               DO RXN = 1, NRXNS
+                  SRK( RXN ) = RKI( RXN )
+                  IF ( HIGH ) THEN
+                     IF ( ORDER1 (RXN ) ) THEN
+                        SRK2( RXN ) = 0.0
+                     ELSE
+                        SRK2( RXN ) = RKI( RXN )
+                     END IF
+                  END IF
+               END DO
+
+
+               CALL SOLVE_DDM3D_CHEM( C,R,L,CHEMSTEP )
+#endif
 
             END DO
          END DO

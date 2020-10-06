@@ -44,7 +44,6 @@ C                      - renamed the procedure name from OPDIAM to OPPMDIAG
 
       USE GRID_CONF           ! horizontal & vertical domain specifications
       USE UTILIO_DEFN
-      USE RXNS_DATA, ONLY : MECHNAME
       USE PMDIAG_DATA_MODULE
 
         IMPLICIT NONE

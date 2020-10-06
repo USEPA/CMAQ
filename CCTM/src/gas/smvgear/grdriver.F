@@ -248,6 +248,13 @@ C**********************************************************************
       CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
 #endif
 
+#ifdef sens
+      MSG = 'ERROR: SMVGEAR Chemistry Solver does not perform DDM3D calculations.'
+      WRITE(LOGDEV,'(A)')TRIM( MSG )
+      MSG = 'Must use the EBI solver for the chemical mechanism'
+      CALL M3EXIT( PNAME, JDATE, JTIME, MSG, XSTAT1 )
+#endif
+
       IF ( NUMB_MECH_SPC .EQ. 0 ) RETURN
 
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
