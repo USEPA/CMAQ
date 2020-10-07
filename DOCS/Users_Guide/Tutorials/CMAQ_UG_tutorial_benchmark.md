@@ -246,7 +246,7 @@ To determine if CMAQ is correctly installed on your Linux system compare the res
 - Debug mode turned on  (```set Debug_CCTM``` uncommented in $CMAQ_HOME/CCTM/scripts/bldit_cctm.csh)
 - CMAQv5.3.2
 
-CMAQv.5.3.2 output for a two day benchmark case is provided for both the debug mode turned off (Optimized) and the debug mode turned on (Debug) version to allow the user to compare their answers to either. To reduce the impact of compiler flags on the model output, it is preferrable to use the debug version. To compare model results obtained while achieving faster run times due to compiler optimization, the Optimized version output is also provided.
+CMAQv.5.3.2 output for a two day benchmark case is provided for both the debug mode turned off (Optimized) and the debug mode turned on (Debug) version to allow the user to compare their answers to either. To reduce the impact of compiler flags on the model output, it is preferable to use the debug version. To compare model results obtained while achieving faster run times due to compiler optimization, the Optimized version output is also provided.
 
 The CMAQv5.3.2 reference output data includes a set of CCTM_ACONC_\*.nc files with layer 1 average model species concentrations for each model hour for 226 variables and a set of CCTM_WETDEP1_\*.nc files with cumulative hourly wet deposition fluxes for an additional 136 variables. The CCTM_SA_ACONC_\*.nc, CCTM_SA_CGRID_\*.nc, CCTM_SA_CONC_\*.nc, CCTM_SA_WETDEP_\*.nc and CCTM_SA_DRYDEP_\*.nc are generated when you run the CMAQ-ISAM benchmark. see [CMAQ-ISAM Tutorial](../Tutorials/CMAQ_UG_tutorial_ISAM.md)
 
