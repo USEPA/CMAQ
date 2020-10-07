@@ -30,22 +30,18 @@ Hemispheric WRF-CMAQ model simulation over two decades (1990−2010) shows enhan
 
 ## 13.4 Latest WRF-CMAQ Release
 
-The new WRF-CMAQ coupling model is based on WRFv4.1.1 and CMAQv5.3.2. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculations rather than volume mixing technique as in the previous version of the WRF-CMAQ model. 
+The new WRF-CMAQ model is based on WRFv4.1.1 and CMAQv5.3.2. It supports only RRTMG radiation scheme for short wave aerosol direct effect. It uses core-shell model to perform aerosol optics calculations rather than volume mixing technique as in the previous version of the WRF-CMAQ model. 
 
-The coupling code used to prepare the WRFv4.1.1-CMAQv5.3.2 model is released as a tarball (WRFv4.1.1-CMAQv5.3.2_twoway.tar.gz) from the CMAS Center Data Warehouse Google Drive.
-- [Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/file/d/1XCxzKTeW0mHKYNm2EVTkoGoYOjpSiYF4/view?usp=sharing)
+The code used to prepare the WRFv4.1.1-CMAQv5.3.2 model is released as a tarball (WRFv4.1.1-CMAQv5.3.2_twoway.tar.gz) from the CMAS Center Data Warehouse Google Drive.
+- [Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/file/d/1oZecf-4aRu9q0ZptNsyI63QU4KUrTFFl/view?usp=sharing)
 
-The WRF-CMAQ coupling model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
-[ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark)
-
-Build and run instructions are provided in the top level **readme** file in the tarball and also in a benchmark tutorial.
-https://github.com/lizadams/CMAQ/blob/20200820/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md
+Build and run instructions are provided in the top level **readme** file in the tarball and also in the [WRF-CMAQ Tutorial](Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md).
 
 ## 13.5 Benchmarking WRF-CMAQ
 
 Benchmark input and output datasets are available from the CMAS Center Data Warehouse Google Drive.  Beginning with CMAQv5.3.1, the .tar.gz file with benchmark inputs for the base (uncoupled) model also contains a folder (WRF-CMAQ) with the additional input files needed to run the WRF-CMAQ model and sample WRF-CMAQ runscripts (run.twoway_model_411_532_sf_run_script.16pe.csh) to run with short-wave radiation calculations and run.twoway_model_411_532_sf_run_script.16pe.csh to run without feedback).  Similarly, the .tar.gz file with benchmark output for the base model also contains a folder (WRFv4.1.1_CMAQv5.3.2_outputs) with reference output for the WRF-CMAQ model with short-wave radiation calculations (files ending with "sf.nc") and without short-wave radiation (files ending with "nf.nc").  
 
-- [Link to WRF-CMAQ Benchmark input and output datasets on Google Drive](https://drive.google.com/open?id=10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY)
+- [Link to WRF-CMAQ Benchmark input and output datasets on Google Drive](https://drive.google.com/drive/folders/1poigGFlABCfepaIjDw-6JOyznJ6xz1ck?usp=sharing)
 
 WRF-CMAQ output for a two day benchmark case is provided for both the debug mode turned off (files containing "opt") and the debug mode turned on (files containing "debug") version to allow the user to compare their answers to either. To reduce the impact of compiler flags on the model output, it is preferrable to use the debug version. To compare model results obtained while achieving faster run times due to compiler optimization, the Optimized version output is also provided.
 
