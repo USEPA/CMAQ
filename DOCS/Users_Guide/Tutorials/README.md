@@ -4,6 +4,7 @@ CMAQ Tutorials
 A series of short tutorials provide practical examples of how to set up and run CMAQ, exercise different features in the software, and better understand the software system. Community members are encouraged to both suggest ideas for new tutorials and to contribute tutorials directly to this repository. [Contact the CMAS Center](cmas@unc.edu) with new tutorial ideas.
 
 - [Running the CMAQ Test Case](CMAQ_UG_tutorial_benchmark.md): This tutorial describes how to prepare your Linux system for installing and running the CMAQ test case.
+- [Running the CMAQ-ISAM Test Case](CMAQ_UG_tutorial_ISAM.md): This tutorial describes how to build and run the CMAQ-ISAM model using GNU GCC compiler.
 - [Building CMAQ for GNU](CMAQ_UG_tutorial_build_library_gcc.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the GNU GCC compiler version 9.1.0. 
 - [Building CMAQ for Intel](CMAQ_UG_tutorial_build_library_intel.md): This tutorial describes how to install netCDF and I/O API libraries and build CMAQ using the Intel compiler version 18.2. 
 - [Building WRF-CMAQ for GNU](CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md) This tutorial describes how to build and run the WRF-CMAQ model using the GNU GCC compiler 9.1.0.
