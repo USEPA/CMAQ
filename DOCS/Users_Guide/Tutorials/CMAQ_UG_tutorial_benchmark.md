@@ -106,7 +106,8 @@ tar xzvf CMAQv5.3.2_Benchmark_2Day_Output_Debug.tar.gz
 ```
 
 The CMAQ benchmark test case is a two day simulation for July 1-2 2016 on a 100 column x 80 row x 35 layer 12-km resolution domain over the southeast U.S.  
-Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
+- The benchmark data is also available form the US EPA annoymous ftp server: ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/
+- Metadata for the CMAQ benchmark test case is posted on the CMAS Center Dataverse site: https://doi.org/10.15139/S3/IQVABD 
 
 #### A note about differences in the v5.3+ and v5.3 benchmark data
 Starting with CMAQv5.3.2, the benchmark data contains a grid mask file for the United States  GRIDMASK_STATES_12SE1.nc, and new input tar file, but the only difference for the input tar file is the gridmask file.  
