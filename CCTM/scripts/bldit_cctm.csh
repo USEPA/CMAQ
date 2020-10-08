@@ -56,7 +56,7 @@ set make_options = "-j"                #> additional options for make command if
                                        #>   comment out if no additional options are wanted.
 
 #> Integrated Source Apportionment Method (ISAM)
-set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
+#set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
                                        #>   comment out to use standard process
 
 #set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
