@@ -3,15 +3,14 @@
 ### Procedure to build and run the CMAQ-ISAM model using gnu compiler: ###
 
 ### Step 1: Download and run the CMAQv5.3.2 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
-
-https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md
+- [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
 
 If you encounter any errors, try running the model in debug mode and refer to the CMAS User Forum to determine if any issues have been reported.
 
 https://forum.cmascenter.org/
 
 ### Step 2: Read the User Guide Chapter on Integrated Source Apportionment Method.
-https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch11_ISAM.md
+- [CMAQ User's Guide Chapter on ISAM](../CMAQ_UG_ch11_ISAM.md)
 
 Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM with the provided input files:
 
@@ -53,7 +52,7 @@ https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz
 Otherwise, use the I/O API version available here:
 https://www.cmascenter.org/ioapi/download/ioapi-3.2-20200828.tar.gz
 
-### Step 5: Install CMAQ
+### Step 5: Install CMAQ with ISAM
 
 ```
 git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
@@ -82,9 +81,9 @@ cd /work/your_username/CMAQ_v5.3.2
 ```
 
 
-### Step 5. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries
+### Step 6. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries
 
-### Step 6: Modify the bldit_cctm.csh 
+### Step 7: Modify the bldit_cctm.csh 
 
 Change directory to CCTM/scripts
 
@@ -99,7 +98,7 @@ Comment out the following option to compile CCTM with ISAM:
 set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
 ```
 
-### Step 7: Tag the executable with v532_ISAM
+### Step 8: Tag the executable with v532_ISAM
 
 Change the following section of the bldit_cctm.csh 
 
@@ -128,12 +127,12 @@ to
  endif
 ```
 
-### Step 8: Run the bldit_cctm.csh script
+### Step 9: Run the bldit_cctm.csh script
 ```
 ./bldit_cctm.csh gcc |& tee bldit_cctm_isam.log
 ```
 
-### Step 9: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file 
+### Step 10: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file 
 
 Change directories to the build directory
 ```
@@ -158,7 +157,7 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
                'ALL'         ,'ISAM_REGIONS','ALL',
 ```
       
-### Step 10: Download the benchmark input data
+### Step 11: Download the benchmark input data
 
 [Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on the following Google Drive Folder](https://drive.google.com/drive/u/1/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk)
 
@@ -173,7 +172,7 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
   ```
   
     
-### Step 11: Run the CMAQ-ISAM model
+### Step 12: Run the CMAQ-ISAM model
     
   - Verify the following settings
 
@@ -207,7 +206,7 @@ gedit run_cctm_Bench_2016_12SE1.csh
     sbatch run_cctm_Bench_2016_12SE1.csh
     ```
 
-### Step 12: Verify that the run was successful
+### Step 13: Verify that the run was successful
    - look for the output directory
    
    ```
@@ -220,7 +219,7 @@ gedit run_cctm_Bench_2016_12SE1.csh
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
-### Step 13: Compare output with the 2 day benchmark outputs provided on the google drive
+### Step 14: Compare output with the 2 day benchmark outputs provided on the google drive
 
 
     https://drive.google.com/drive/u/1/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk
