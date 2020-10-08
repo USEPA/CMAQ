@@ -63,7 +63,7 @@ Benchmark/tutorial data for each CMAQ release version are available from the CMA
 |v5.3, v5.3.1|Output| Southeast US| July 1 - 14, 2016|https://doi.org/10.15139/S3/PDE4SS |
 |v5.3.2|Output| Southeast US| July 1 - 2, 2016|https://doi.org/10.15139/S3/PDE4SS |
 
-
+The benchmark data is also available form the US EPA annoymous ftp server: ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/
 
 ## Previous CMAQ Versions
 The followoing release versions of CMAQ are currently available on GitHub.  DOI values from Zenodo can be used when referencing a specific version.
