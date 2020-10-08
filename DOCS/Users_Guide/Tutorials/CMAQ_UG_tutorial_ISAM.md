@@ -3,15 +3,14 @@
 ### Procedure to build and run the CMAQ-ISAM model using gnu compiler: ###
 
 ### Step 1: Download and run the CMAQv5.3.2 benchmark case (without ISAM) to confirm that your model run is consistent with the provided benchmark output.
-
-https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md
+- [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
 
 If you encounter any errors, try running the model in debug mode and refer to the CMAS User Forum to determine if any issues have been reported.
 
 https://forum.cmascenter.org/
 
 ### Step 2: Read the User Guide Chapter on Integrated Source Apportionment Method.
-https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch11_ISAM.md
+- [CMAQ User's Guide Chapter on ISAM](../CMAQ_UG_ch11_ISAM.md)
 
 Note: This benchmark is intended to demonstrate how to build and run CMAQ-ISAM with the provided input files:
 
