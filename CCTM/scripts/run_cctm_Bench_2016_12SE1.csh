@@ -469,7 +469,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
        setenv SA_CGRID_1      "$OUTDIR/CCTM_SA_CGRID_${CTM_APPL}.nc -v"
 
        #> Set optional ISAM regions files
-       setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
+       #setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
 
 
     endif
