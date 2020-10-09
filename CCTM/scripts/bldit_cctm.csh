@@ -70,14 +70,15 @@ set make_options = "-j"                #> additional options for make command if
 
 #> Working directory and Version IDs
  if ( $?ISAM_CCTM ) then
-     set VRSN  = v532_ISAM                      #> model configuration ID
-    else if ( $?DDM3D_CCTM ) then
-     set VRSN = v532_DDM3D
-    else
-     set VRSN = v532               #> model configuration ID
+     set VRSN  = v532_ISAM             #> model configuration ID for CMAQ_ISAM
+ else if ( $?DDM3D_CCTM ) then
+     set VRSN = v532_DDM3D             #> model configuration ID for CMAQ_DDM
+ else
+     set VRSN = v532                   #> model configuration ID for CMAQ
  endif
-   set EXEC  = CCTM_${VRSN}.exe          #> executable name
-   set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
+ 
+ set EXEC  = CCTM_${VRSN}.exe          #> executable name
+ set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
 
 
 #========================================================================
