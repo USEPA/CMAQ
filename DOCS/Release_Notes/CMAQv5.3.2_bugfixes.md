@@ -202,21 +202,21 @@ Inside each interpolation routine, the following logic guides whether current ti
 In the time independent boundary file case, both time stamps, cio_bndy_data_tstamp(2, loc_head, :) and cio_bndy_data_tstamp(2, loc_tail, :), are the same. Hence any future time step is always falls outside the circular buffer and the block of code in this if block will be executed. The loc_tstep is 0 so reading the data, which has been read in, again. The overall execution time increases.
 
 ### Solution in CMAQv5.3.2
-At the initial reading circular buffer  phrase, for time independent boundary file data, data will be read in once and stores in the head of the circular buffer, and the tail time stamp is set to 250000 which means any future will fall in the circular buffer and the body of the above if block will never be executed.
+At the initial reading circular buffer  phase, for time independent boundary file data, data will be read in once and stored in the head of the circular buffer, and the tail time stamp is set to 250000 which means any future will fall in the circular buffer and the body of the above if block will never be executed.
 
 In addition, the interpolation ratio checking is put in a ifdef block to eliminate non-essential check.
 
 ### Files Affected
 CCTM/src/cio/centralized_io_module.F   
 
-##14. STAGE NH3 bidi bugfix
+## 14. STAGE NH3 bidi bugfix
 [Jesse Bash](mailto:bash.jesse@epa.gov), U.S. Environmental Protection Agency
 
-###Description of model issue
+### Description of model issue
 
 This bugfix corrects four issues in CMAQ using the STAGE deposition option. 
 
-1) EPIC model data processed by FEST-C does not always correctly wright bad value tags for missing data. In the STAGE deposition option, there is code to determine when a grid cell has valid EPIC data. 
+1) EPIC model data processed by FEST-C does not always correctly write bad value tags for missing data. In the STAGE deposition option, there is code to determine when a grid cell has valid EPIC data. 
 
 2) These routines failed when the bad value tag was not correctly identified and there were errors in identifying valid data when reading the STAGE bidi restart file, INIT_MEDC_1, that resulted in errors in estimating soil pH. 
 
@@ -224,11 +224,11 @@ This bugfix corrects four issues in CMAQ using the STAGE deposition option.
 
 4) The dry deposition and deposition velocity output files global attributes were changed to tag the deposition option used.
 
-###Solution in CMAQv5.3.2
+### Solution in CMAQv5.3.2
 
 The logic identifying bad values in EPIC files in NH3_BIDI_MOD.F was revised to omit data tagged with bad values and values that are out of the expected range of the variables, e.g. negative concentrations. The unit conversion error was corrected in NH3_BIDI_MOD.F. Overall, this resulted in up to 10% reduction in modeled NH3 concentrations on the CONUS domain after several months of simulation but can have larger local impacts. This updated has reduced spuriously large emissions in areas where evasion is a sizable part of the soil NH4 budget, typically isolated grid cells in Western US with high soil pH in the CONUS domain.  
 
-###Files Affected
+### Files Affected
 
 CCTM/src/depv/stage/NH3_BIDI_MOD.F
 CCTM/src/vdiff/acm2_m3dry/opddep.F
