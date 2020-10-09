@@ -98,41 +98,12 @@ Comment out the following option to compile CCTM with ISAM:
 set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
 ```
 
-### Step 8: Tag the executable with v532_ISAM
-
-Change the following section of the bldit_cctm.csh 
-
-```
-#> Working directory and Version IDs
- if ( $?ISAM_CCTM ) then
-     set VRSN  = v532                           #> model configuration ID
-    else if ( $?DDM3D_CCTM ) then
-     set VRSN = v532_DDM3D
-    else
-     set VRSN = v532                            #> model configuration ID
- endif
-```
-
-to
-
-
-```
-#> Working directory and Version IDs
- if ( $?ISAM_CCTM ) then
-     set VRSN  = v532_ISAM                      #> model configuration ID
-    else if ( $?DDM3D_CCTM ) then
-     set VRSN = v532_DDM3D
-    else
-     set VRSN = v532                            #> model configuration ID
- endif
-```
-
-### Step 9: Run the bldit_cctm.csh script
+### Step 8: Run the bldit_cctm.csh script
 ```
 ./bldit_cctm.csh gcc |& tee bldit_cctm_isam.log
 ```
 
-### Step 10: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file 
+### Step 9: Edit the Emission Control Namelist to recognize the CMAQ_REGIONS file 
 
 Change directories to the build directory
 ```
@@ -156,8 +127,8 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
  !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
                'ALL'         ,'ISAM_REGIONS','ALL',
 ```
-      
-### Step 11: Download the benchmark input data
+  
+### Step 10: Download the benchmark input data
 
 [Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on the following Google Drive Folder](https://drive.google.com/drive/u/1/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk)
 
@@ -172,41 +143,39 @@ Uncomment the line that contains ISAM_REGIONS as the File Label
   ```
   
     
-### Step 12: Run the CMAQ-ISAM model
-    
-  - Verify the following settings
-
-    ```
-    set NPROCS =    16
-    set OMIfile    = OMI_1979_to_2019.dat
-    ```
-  - Change the code version to use the tag v532_ISAM
+### Step 11: Edit the CMAQ-ISAM runscript
 
 ```
 gedit run_cctm_Bench_2016_12SE1.csh
 ```
 
-#> Set General Parameters for Configuring the Simulation
+Set General Parameters for Configuring the Simulation
 
-  - Change
+```
+set VRSN = v532_ISAM
+```
 
-    ```       
-    set VRSN      = v532              #> Code Version
-    ```       
 
-  - to
+Turn on ISAM and uncomment ISAM regions file
 
-    ```
-    set VRSN      = v532_ISAM         #> Code Version
-    ```
-    
-  - Submit the job using the batch queueing system
+```
+setenv CTM_ISAM Y
+setenv ISAM_REGIONS $INPDIR/GRIDMASK_STATES_12SE1.nc
+```
+   
+Run or Submit the script to the batch queueing system
 
-    ```
-    sbatch run_cctm_Bench_2016_12SE1.csh
-    ```
+```
+./run_cctm_Bench_2016_12SE1.csh
+```
 
-### Step 13: Verify that the run was successful
+OR (If using SLRUM)
+
+```
+sbatch run_cctm_Bench_2016_12SE1.csh
+```
+
+### Step 12: Verify that the run was successful
    - look for the output directory
    
    ```
@@ -219,7 +188,7 @@ gedit run_cctm_Bench_2016_12SE1.csh
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
 
-### Step 14: Compare output with the 2 day benchmark outputs provided on the google drive
+### Step 13: Compare output with the 2 day benchmark outputs provided on the google drive
 
 
     https://drive.google.com/drive/u/1/folders/1jAKw1EeEzxLSsmalMplNwYtUv08pwUYk
