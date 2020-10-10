@@ -284,8 +284,8 @@ C-----------------------------------------------------------------------
          END IF
 
          ! Get conversion factors for aero emissions; as of sep 03 release, incoming
-         ! units are in ppmV/sec for ae species, # aer x 10**6/ # molec air / sec for
-         ! NUM, and m2/mol sec for SRF.  Conversion factors convert to 
+         ! units are in ppmV/sec for ae species, #/mol/sec for
+         ! NUM, and m2/mol/sec for SRF.  Conversion factors convert to 
          ! ug/m3 sec, #/m3 sec, and m2/m3 sec, respectively.
          PA_EMIS_CONV = 1.0
          WHERE ( CGRID_MASK_NUM ) 
