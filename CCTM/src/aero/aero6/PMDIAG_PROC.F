@@ -80,6 +80,7 @@
 
       CHARACTER( 16 ), SAVE :: PNAME = 'READ_PMDIAG_NML'
       CHARACTER( 200 )   :: XMSG
+      INTEGER ALLOCSTAT
 
       NAMELIST / PMDIAG_ACTIVATE / INSTANT, AVERAGE !, OLDNAMES
       NAMELIST / PMDIAG_INST / INST_LAYER_TOP, 
@@ -87,7 +88,12 @@
       NAMELIST / PMDIAG_AVRG / AVRG_LAYER_TOP, 
      &                         AVRG_LAYER_BOT, AVRG_PARS_REG
 
-      ALLOCATE( INST_PARS_REG( N_REG ), AVRG_PARS_REG( N_REG ) )
+      ALLOCATE( INST_PARS_REG( N_REG ), AVRG_PARS_REG( N_REG ), STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating INST_PARS_REG or AVRG_PARS_REG'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+ 
 
       INST_ACTIVE      = .TRUE.
       INST_LAYER_TOP   = 1
@@ -198,7 +204,11 @@
 
       ! Populate INST_PARS parameters list
       N_PMDIAG_INST = INDEX1( '', N_REG, INST_PARS_REG ) - 1
-      ALLOCATE( INST_PARS( N_PMDIAG_INST ) )
+      ALLOCATE( INST_PARS( N_PMDIAG_INST ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating INST_PARS'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
       INST_PARS = INST_PARS_REG( 1:N_PMDIAG_INST )
 
       ! Check Top-Layer Specification
@@ -267,6 +277,10 @@
       ! Populate INST_PARS parameters list
       N_PMDIAG_AVRG = INDEX1( '', N_REG, AVRG_PARS_REG ) - 1
       ALLOCATE( AVRG_PARS( N_PMDIAG_AVRG ) )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating AVRG_PARS'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
       AVRG_PARS = AVRG_PARS_REG( 1:N_PMDIAG_AVRG )
  
       ! Check Top-Layer Specification
@@ -285,13 +299,26 @@
 
       IMPLICIT NONE
 
+      INTEGER ALLOCSTAT
+      CHARACTER(200) :: XMSG
+      CHARACTER(16), SAVE :: PNAME = 'PMDIAG_KEY'
+
       N_KEY = 20
-      ALLOCATE( PMDIAG_KEY( N_KEY ) )
+      ALLOCATE( PMDIAG_KEY( N_KEY ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
 
       ! Define AMET Variables
       PMDIAG_KEY( 1 )%WORD = 'DEFAULT'
       PMDIAG_KEY( 1 )%N = 12
-      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 12 ) )
+      ALLOCATE( PMDIAG_KEY( 1 )%LIST( 12 ),STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(1)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 1 )%LIST = (/'AMET            ','CUTOFF_FRACTIONS',
      &      'MASS            ','PM_NUM          ','PMF_NUM         ',
      &      'PMC_NUM         ','MET             ','CHEM            ', 
@@ -300,7 +327,12 @@
 
       PMDIAG_KEY( 2 )%WORD = 'AMET'
       PMDIAG_KEY( 2 )%N = 35
-      ALLOCATE( PMDIAG_KEY( 2 )%LIST( 35 ) )
+      ALLOCATE( PMDIAG_KEY( 2 )%LIST( 35 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(2)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 2 )%LIST = (/'PMF_MASS    ','PMF_FRM     ','PMC_MASS    ',
      &          'PMF_OC      ','PMF_EC      ','PMF_NA      ','PMF_CL      ',
      &          'PMF_SO4     ','PMF_NO3     ','PMF_NH4     ','PM25        ',
@@ -313,47 +345,87 @@
 
       PMDIAG_KEY( 3 )%WORD = 'MASS'
       PMDIAG_KEY( 3 )%N = 9
-      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 9 ) )
+      ALLOCATE( PMDIAG_KEY( 3 )%LIST( 9 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(3)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS','PMC_MASS','PM01    ','PM1     ',
      &              'PM25    ','PM10    ','PM25to10','PMU_MASS','PMAMS   ' /)
      
       PMDIAG_KEY( 4 )%WORD = 'NUMBER'
       PMDIAG_KEY( 4 )%N = 7
-      ALLOCATE( PMDIAG_KEY( 4 )%LIST( 7 ) )
+      ALLOCATE( PMDIAG_KEY( 4 )%LIST( 7 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(4)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 4 )%LIST = (/'PM_NUM ','PMF_NUM','PMC_NUM','N10    ',
      &                         'N20    ','N40    ','N100   ' /)
      
       PMDIAG_KEY( 5 )%WORD = 'SIZE'
       PMDIAG_KEY( 5 )%N = 9
-      ALLOCATE( PMDIAG_KEY( 5 )%LIST( 9 ) )
+      ALLOCATE( PMDIAG_KEY( 5 )%LIST( 9 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(5)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 5 )%LIST = (/'NUMBER  ','DRY_DG  ','WET_DG  ','STDEV   ',
      &              'DRY_M3  ','WET_M3  ','WET_M2  ','DRY_DENS','WET_DENS' /)
      
       PMDIAG_KEY( 6 )%WORD = 'SURFACE'
       PMDIAG_KEY( 6 )%N = 5
-      ALLOCATE( PMDIAG_KEY( 6 )%LIST( 5 ) )
+      ALLOCATE( PMDIAG_KEY( 6 )%LIST( 5 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(6)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 6 )%LIST = (/'PM_SRF ','PMU_SRF','PMF_SRF','PMC_SRF','WET_M2 '/)
      
       PMDIAG_KEY( 7 )%WORD = 'ORGANIC'
       PMDIAG_KEY( 7 )%N = 6
-      ALLOCATE( PMDIAG_KEY( 7 )%LIST( 6 ) )
+      ALLOCATE( PMDIAG_KEY( 7 )%LIST( 6 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(7)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 7 )%LIST = (/'FINE_ORG  ','PM1_OC    ','PM1_OA    ',
      &                         'PMAMS_OA  ','PMAMS_OTOC','PM25_OA   '/)
 
       PMDIAG_KEY( 8 )%WORD = 'MET'
       PMDIAG_KEY( 8 )%N = 3
-      ALLOCATE( PMDIAG_KEY( 8 )%LIST( 3 ) )
+      ALLOCATE( PMDIAG_KEY( 8 )%LIST( 3 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(8)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 8 )%LIST = (/'T ','P ','RH' /) 
 
       PMDIAG_KEY( 9 )%WORD = 'CHEM'
       PMDIAG_KEY( 9 )%N = 7
-      ALLOCATE( PMDIAG_KEY( 9 )%LIST( 7 ) )
+      ALLOCATE( PMDIAG_KEY( 9 )%LIST( 7 ),STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(9)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 9 )%LIST = (/'GAMMA_N2O5  ','GAMMA_N2O5K ','YIELD_CLNO2 ',
      &          'YIELD_CLNO2K','GAMMA_IEPOX ','K_IEPOX     ','GAMMA_IMAE  ' /)
 
       PMDIAG_KEY( 10 )%WORD = 'FINE_SPECIES'
       PMDIAG_KEY( 10 )%N = 17
-      ALLOCATE( PMDIAG_KEY( 10 )%LIST( 17 ) )
+      ALLOCATE( PMDIAG_KEY( 10 )%LIST( 17 ),STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(10)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 10 )%LIST = (/'PMF_SO4     ','PMF_NO3     ','PMF_NH4     ',
      &           'PMF_CL      ','PMF_NA      ','PMF_EC      ','PMF_OC      ',
      &           'PMF_OA      ','PMF_H2O     ','PMF_SOILIMPV','PMF_UN_IMPV1',
@@ -362,19 +434,34 @@
 
       PMDIAG_KEY( 11 )%WORD = 'COARSE_SPECIES'
       PMDIAG_KEY( 11 )%N = 8
-      ALLOCATE( PMDIAG_KEY( 11 )%LIST( 8 ) )
+      ALLOCATE( PMDIAG_KEY( 11 )%LIST( 8 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(11)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 11 )%LIST = (/'PMC_MASS','PMC_SO4 ','PMC_NO3 ','PMC_NH4 ',
      &                          'PMC_NA  ','PMC_MG  ','PMC_K   ','PMC_CA  ' /)
 
       PMDIAG_KEY( 12 )%WORD = 'AMS_SPECIES'
       PMDIAG_KEY( 12 )%N = 7
-      ALLOCATE( PMDIAG_KEY( 12 )%LIST( 7 ) )
+      ALLOCATE( PMDIAG_KEY( 12 )%LIST( 7 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(12)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 12 )%LIST = (/'PMAMS     ','PMAMS_SO4 ','PMAMS_NO3 ',
      &             'PMAMS_NH4 ','PMAMS_CL  ','PMAMS_OA  ','PMAMS_OTOC' /)
 
       PMDIAG_KEY( 13 )%WORD = 'PM1_SPECIES'
       PMDIAG_KEY( 13 )%N = 21
-      ALLOCATE( PMDIAG_KEY( 13 )%LIST( 21 ) )
+      ALLOCATE( PMDIAG_KEY( 13 )%LIST( 21 ),STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(13)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 13 )%LIST = (/'PM1        ','PM1_SO4    ','PM1_NO3    ',
      &            'PM1_NH4    ','PM1_CL     ','PM1_NA     ','PM1_EC     ',
      &            'PM1_OC     ','PM1_OA     ','PM1_MG     ','PM1_K      ',
@@ -384,7 +471,12 @@
 
       PMDIAG_KEY( 14 )%WORD = 'PM25_SPECIES'
       PMDIAG_KEY( 14 )%N = 22
-      ALLOCATE( PMDIAG_KEY( 14 )%LIST( 22 ) )
+      ALLOCATE( PMDIAG_KEY( 14 )%LIST( 22 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(14)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 14 )%LIST = (/'PM25        ','PM25_SO4    ','PM25_NO3    ',
      &           'PM25_NH4    ','PM25_CL     ','PM25_NA     ','PM25_EC     ',
      &           'PM25_OC     ','PM25_OA     ','PM25_MG     ','PM25_K      ',
@@ -394,18 +486,33 @@
 
       PMDIAG_KEY( 15 )%WORD = 'PM25to10_SPECIES'
       PMDIAG_KEY( 15 )%N = 6
-      ALLOCATE( PMDIAG_KEY( 15 )%LIST( 6 ) )
+      ALLOCATE( PMDIAG_KEY( 15 )%LIST( 6 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(15)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 15 )%LIST = (/'PM25to10    ','PM25to10_SO4','PM25to10_NO3',
      &                          'PM25to10_NH4','PM25to10_CL ','PM25to10_NA ' /)
 
       PMDIAG_KEY( 16 )%WORD = 'OPTICAL'
       PMDIAG_KEY( 16 )%N = 2
-      ALLOCATE( PMDIAG_KEY( 16 )%LIST( 2 ) )
+      ALLOCATE( PMDIAG_KEY( 16 )%LIST( 2 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(16)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 16 )%LIST = (/'AOD_550   ','PM_EXT_550'/)
 
       PMDIAG_KEY( 17 )%WORD = 'FINE_ORG'
       PMDIAG_KEY( 17 )%N = 16
-      ALLOCATE( PMDIAG_KEY( 17 )%LIST( 16 ) )
+      ALLOCATE( PMDIAG_KEY( 17 )%LIST( 16 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(17)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 17 )%LIST = (/'PMF_POC     ','PMF_SOC     ','PMF_POA     ',
      &           'PMF_SOA     ','PMF_NCOM    ','PMF_OMOC    ','PMF_OTOC    ',
      &           'PMF_ASOA    ','PMF_BSOA    ','PMF_CLDGLY  ','PMF_ISOPSOA ',
@@ -414,13 +521,23 @@
 
       PMDIAG_KEY( 18 )%WORD = 'CUTOFF_FRACTIONS'
       PMDIAG_KEY( 18 )%N = 6
-      ALLOCATE( PMDIAG_KEY( 18 )%LIST( 6 ) )
+      ALLOCATE( PMDIAG_KEY( 18 )%LIST( 6 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(18)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 18 )%LIST = (/'FPM01    ','FPM1     ','FPM25    ',
      &                          'FPM10    ','FPM25to10','FAMS     ' /)
 
       PMDIAG_KEY( 19 )%WORD = 'TOXICS'
       PMDIAG_KEY( 19 )%N = 26
-      ALLOCATE( PMDIAG_KEY( 19 )%LIST( 26 ) )
+      ALLOCATE( PMDIAG_KEY( 19 )%LIST( 26 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(19)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 19 )%LIST = (/'PM25_HDIESEL','PM25_HBE    ','PM25_HCD    ',
      &           'PM25_HCR 3  ','PM25_HCR6   ','PM25_HCR    ','PM25_HPB    ',
      &           'PM25_HMN    ','PM25_HMN    ','PM25_HNI    ','PM25_HNI    ',
@@ -431,7 +548,12 @@
 
       PMDIAG_KEY( 20 )%WORD = 'SIMPLE'
       PMDIAG_KEY( 20 )%N = 2
-      ALLOCATE( PMDIAG_KEY( 20 )%LIST( 2 ) )
+      ALLOCATE( PMDIAG_KEY( 20 )%LIST( 2 ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_KEY(20)'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_KEY( 20 )%LIST = (/'PM25','PM10'/)
 
       END SUBROUTINE POPULATE_PMDIAG_KEY
@@ -451,6 +573,7 @@
       INTEGER N, M, P, J, IM, ILIST
       CHARACTER( 16 ), SAVE :: PNAME = 'MAP_PMDIAG'
       CHARACTER( 300 ) :: XMSG
+      INTEGER ALLOCSTAT
 
       ! Read User-Input from Namelist input file (Emission Control File
       ! For Now)
@@ -463,7 +586,13 @@
       
       ALLOCATE( USED_PMDIAG_MODE( N_PMDIAG_LIST*N_MODE ),
      &          USED_PMDIAG_PARS( N_PMDIAG_LIST*N_MODE ),
-     &          MAP_ID2USED( N_PMDIAG_LIST,N_MODE ) )
+     &          MAP_ID2USED( N_PMDIAG_LIST,N_MODE ),
+     &          STAT = ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating USED_PMDIAG_MODE, USED_PMDIAG_PARS, ' // 
+     &            'or MAP_ID2USED'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
       USED_PMDIAG_MODE = 0
       USED_PMDIAG_PARS = 0
       MAP_ID2USED = 0
@@ -479,8 +608,12 @@
      &             INST_PARS_OUT( N_PMDIAG_INST*N_MODE ) ,
      &             INST_TYPE_OUT( N_PMDIAG_INST*N_MODE ) ,
      &             INST_UNIT_OUT( N_PMDIAG_INST*N_MODE ) ,
-     &             INST_DESC_OUT( N_PMDIAG_INST*N_MODE ) )
-
+     &             INST_DESC_OUT( N_PMDIAG_INST*N_MODE ),
+     &             STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+              XMSG = 'Failure allocating MAP_INST2USED, etc., '
+              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         END IF
          N_PMDIAG_INST_OUT = 0
          DO J = 1,N_PMDIAG_INST
              N = INDEX1( INST_PARS( J ), N_PMDIAG_LIST, PMDIAG_LIST%NAME )
@@ -528,7 +661,11 @@
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
-         ALLOCATE( PMDIAG_INST( NCOLS,NROWS,NLAY_PMDIAG_INST,N_PMDIAG_INST_OUT ) )
+         ALLOCATE( PMDIAG_INST( NCOLS,NROWS,NLAY_PMDIAG_INST,N_PMDIAG_INST_OUT),STAT=ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+              XMSG = 'Failure allocating PMDIAG_INST' 
+              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         END IF
          PMDIAG_INST = 0.0
       END IF
       
@@ -537,7 +674,12 @@
      &             AVRG_PARS_OUT( N_PMDIAG_AVRG*N_MODE ) ,
      &             AVRG_TYPE_OUT( N_PMDIAG_AVRG*N_MODE ) ,
      &             AVRG_UNIT_OUT( N_PMDIAG_AVRG*N_MODE ) ,
-     &             AVRG_DESC_OUT( N_PMDIAG_AVRG*N_MODE ) )
+     &             AVRG_DESC_OUT( N_PMDIAG_AVRG*N_MODE ),
+     &             STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+              XMSG = 'Failure allocating MAP_AVRG2USED, etc.' 
+              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         END IF
 
          N_PMDIAG_AVRG_OUT = 0
          DO J = 1,N_PMDIAG_AVRG
@@ -612,16 +754,32 @@
                 CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
              END IF
          END DO
-         ALLOCATE( PMDIAG_AVRG( NCOLS,NROWS,NLAY_PMDIAG_AVRG,N_PMDIAG_AVRG_OUT ) )
+         ALLOCATE( PMDIAG_AVRG( NCOLS,NROWS,NLAY_PMDIAG_AVRG,N_PMDIAG_AVRG_OUT ), STAT=ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+              XMSG = 'Failure allocating PMDIAG_AVRG' 
+              CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+         END IF
          PMDIAG_AVRG = 0.0
       END IF
       
       ! Allocate Local PMDIAG Array
-      ALLOCATE( PMDIAG_LOCAL( N_PMDIAG ) )
-      ALLOCATE( L_CALC( N_PMDIAG ) )
+      ALLOCATE( PMDIAG_LOCAL( N_PMDIAG ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_LOCAL' 
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+      ALLOCATE( L_CALC( N_PMDIAG ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating L_CALC'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
 
       ! Allocate local image of CGRID so it can be used each time step
-      ALLOCATE( CONC_VEC( N_CGRID_SPC ) )
+      ALLOCATE( CONC_VEC( N_CGRID_SPC ), STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating CONC_VEC' 
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
 
       ! Map Diagnostic Variables to Model Species and Coefficients
       CALL MAP_PMDIAG_COEFFS
@@ -1419,6 +1577,8 @@
       CHARACTER( * )  AEROTYPE_TMP
       CHARACTER( 20 ) AEROTYPE
       CHARACTER( 200 ) XMSG
+      CHARACTER(16), SAVE :: PNAME = 'INIT_PMDIAG_COEF'
+      INTEGER ALLOCSTAT
 
       ! Initialize All Components of PMDIAG_COEFFS
       PMDIAG_COEFFS( IDG )%L_MAPPED = .TRUE.
@@ -1428,7 +1588,13 @@
      &          PMDIAG_COEFFS( IDG )%L_PREC( N_VARS ),
      &          PMDIAG_COEFFS( IDG )%L_AGG ( N_VARS ),
      &          PMDIAG_COEFFS( IDG )%I_SPEC( N_VARS ),
-     &          PMDIAG_COEFFS( IDG )%COEFF ( N_VARS ) )
+     &          PMDIAG_COEFFS( IDG )%COEFF ( N_VARS ),
+     &          STAT=ALLOCSTAT )
+      IF ( ALLOCSTAT .NE. 0 ) THEN
+           XMSG = 'Failure allocating PMDIAG_COEFFS' 
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+
       PMDIAG_COEFFS( IDG )%L_GAS  ( : )   = .FALSE.
       PMDIAG_COEFFS( IDG )%L_PREC ( : )   = .FALSE.
       PMDIAG_COEFFS( IDG )%L_AGG  ( : )   = .FALSE.

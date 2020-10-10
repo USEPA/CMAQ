@@ -165,15 +165,9 @@
       REAL    :: GLBL_RTOL = 1.0E-3  ! Relative Tolerance for Rosenbrock Solver
 
       ! Aerosols
-      LOGICAL :: AVISDIAG  = .FALSE. ! flag for PMDIAG and APMDIAG file [F], default
+      LOGICAL :: AVISDIAG  = .FALSE. ! flag for Average Visibility File [F], default
       LOGICAL :: ZERO_PCSOA= .FALSE. ! flag for Zeroing out pcSOA formation
       LOGICAL :: AOD       = .FALSE. ! flag for printing AOD file
-      LOGICAL :: PMDIAG    = .FALSE. ! flag for Instantaneous PM Diagnostic file
-      LOGICAL :: APMDIAG   = .FALSE. ! flag for Average PM Diagnostic file
-      INTEGER :: APMDIAG_ZLO  = 0    ! PM Diagnostic File Lower Layer
-      INTEGER :: APMDIAG_ZHI  = 0    ! PM Diagnostic File Upper Layer
-      INTEGER :: N_APMDIAG_SPC= 0    ! PM Diagnostic File Number of Species
-      CHARACTER(  16 ) :: APMDIAG_SPC( 200 ) = '' !PM Diagnostic File Species Names
 
       ! Cloud Parameters
       LOGICAL :: CLD_DIAG  = .FALSE. ! flag to output cloud diagnostic files
@@ -573,31 +567,6 @@
 
       ! Get AOD diagnostic file flag.
       CALL GET_ENV ( AOD, 'CTM_AOD', AOD, VARDEV )
-
-      ! Get flag for instantaneous PM diagnostic file.
-      CALL GET_ENV ( PMDIAG, 'CTM_PMDIAG', PMDIAG, VARDEV )
-
-      ! Get flag for average PM diagnostic file.
-      CALL GET_ENV ( APMDIAG, 'CTM_APMDIAG', APMDIAG, VARDEV )
-
-      ! APMDIAG Layer Specification 
-      CALL GET_ENV ( 'APMDIAG_BLEV_ELEV', NV, V_LIST2, VARDEV )
-      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
-         APMDIAG_ZLO = 1
-         APMDIAG_ZHI = -1
-      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:CONC_BLEV_ELEV
-         APMDIAG_ZLO = 1
-         READ( V_LIST2( 2 ), '( I4 )' ) APMDIAG_ZHI
-      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
-         READ( V_LIST2( 1 ), '( I4 )' ) APMDIAG_ZLO
-         READ( V_LIST2( 2 ), '( I4 )' ) APMDIAG_ZHI
-      ELSE 
-         XMSG = 'Environment variable error for APMDIAG_BLEV_ELEV'
-         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
-      END IF
-       
-      ! APMDIAG File Species List 
-      CALL GET_ENV ( 'AVG_PMDIAG_SPCS', N_APMDIAG_SPC, APMDIAG_SPC, VARDEV )
 
       !-------------------------------------------------------------------------------------------------------
       !>> sulfur tracking option

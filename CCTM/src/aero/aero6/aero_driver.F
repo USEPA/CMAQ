@@ -142,7 +142,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #endif
       USE PMDIAG_DATA, ONLY: L_PMDIAG, PMDIAG_AVRG_STEP
       USE PMDIAG_PROC
-      USE RUNTIME_VARS, ONLY: LOGDEV, PMDIAG, APMDIAG, APMDIAG_ZHI, END_TIME
+      USE RUNTIME_VARS, ONLY: LOGDEV, END_TIME
       USE AERO_BUDGET, ONLY: AERO_COAG, AERO_COND, AERO_GROWTH, AERO_NPF
 
 #ifdef twoway
