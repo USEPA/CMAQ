@@ -1,18 +1,23 @@
 ## CMAQ Tutorial ##
+
+Author: Elyse Pennington (epenning@caltech.edu)
+
 ### Modifying a Chemical Mechanism in CMAQ ###
 
-Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a new solver, and reflect all the changes in Github.
+
+Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a new solver, and reflect all the changes in Github. This tutorial includes examples impacting SOA precursors and products, and does not include impacts on ozone or other radical chemistry.
 
 ### Files to edit ##
 1. mech_*.def
 2. AE namelist
 3. GC namelist
-4. EmissCtrl namelist
-5. AERO_DATA.F
-6. SOA_DEFN.F
-7. hlconst.F
-8. SpecDef_*.txt
-9. SpecDef_Dep_*.txt
+4. NR namelist
+5. EmissCtrl namelist
+6. AERO_DATA.F
+7. SOA_DEFN.F
+8. hlconst.F
+9. SpecDef_*.txt
+10. SpecDef_Dep_*.txt
 
 
 ### Utilities to use
@@ -27,16 +32,16 @@ Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a ne
 
 <a id=mech_def></a>
 ### 2. Edit mech.def.
-The mech.def file lists all of CMAQ's chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_${mechanism}.def.
+The mech.def file lists all of CMAQ's chemical reactions and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/mech_${mechanism}.def. The [chemmech documentation](https://github.com/USEPA/CMAQ/blob/master/UTIL/chemmech/README.md) describes formats for reaction rate constants dependent on temperature, atmospheric number density, water vapor, sunlight, model species and constants such as oxygen and methane mixing ratios. The documentation also gives a more detailed explanation of the mech.def (mechanism definitions) sections and formatting rules.
 - All reactions must begin with a name in < > brackets.
 - All reactions must end with # followed by a reaction rate constant with units of cm<sup>3</sup>/(molecules s)
 - In this tutorial, all reactions regenerate the oxidant.
 
-In this example, we add an Odum 2-product model by reacting a gas-phase precursor (TPROD) with OH to form two semivolatile gas-phase species (SVTPROD1,2) with alpha values of 0.15 and 0.8 and a rate constant of 4.5 x 10^<sup>-11</sup> cm<sup>3</sup>/(molecules s):
+In this example, we add an Odum 2-product model by reacting a gas-phase precursor (TPROD) with OH to form two semivolatile gas-phase species (SVTPROD1, SVTPROD2) with alpha values of 0.15 and 0.8 by mole and a rate constant of 4.5 x 10^<sup>-11</sup> cm<sup>3</sup>/(molecules s):
 ```
 <TWOPROD> TPROD + OH = OH + 0.15 * SVTPROD1 + 0.80 * SVTPROD2 #4.50E-11;
 ```
-To create a nonvolatile, accumulation mode SOA species (ANONVJ) formed from a gas-phase species (NONVG) with an SOA yield of 5% and a rate constant of 2 x 10<sup>-11</sup> cm<sup>3</sup>/(molecules s):
+To form a nonvolatile, accumulation mode SOA species (ANONVJ) from a gas-phase species (NONVG) with an SOA yield of 5% by mole and a rate constant of 2 x 10<sup>-11</sup> cm<sup>3</sup>/(molecules s):
 ```
 <NONV> NONVG + OH = OH + 0.05 * ANONVJ #2.00E-11;
 ```
@@ -59,7 +64,7 @@ You must add a new row for every aerosol-phase species added to [AERO_DATA.F](#A
 <a id=NRnml></a>
 ### 5. Edit NR namelist.
 The NR namelist defines gas-phase species that are not in the mech.def file, and their physical and chemical properties. Species in this file are typically the semivolatile gases that partition between the gas- and aerosol-phases. It's located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/NR_${mechanism}.nml.
-You must add a new row for every nonreactive species added to the chemical mechanism that is not explicitly modeled in [mech.def](#mech_def). See [Chapter 4](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md) for more information.
+You must add a new row for every nonreactive species, if any, added to the chemical mechanism that is not explicitly modeled in [mech.def](#mech_def). See [Chapter 4](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md) for more information.
 
 
 
@@ -74,7 +79,7 @@ The Emissions Control file describes how to input emissions and is located at $C
 The SpecDef file is used to aggregate CMAQ output species (e.g. into PM<sub>2.5</sub>) and convert units. It is used to run the post-processing tool [combine](https://github.com/USEPA/CMAQ/blob/master/POST/combine/README.md) and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/SpecDef_{mechanism}.txt.
 To convert the units of a gas-phase species to ppb, add the following line:
 ```
-NEWGAS          ,ppbC      ,1000.*NEWGAS[1]
+NEWGAS          ,ppbV      ,1000.*NEWGAS[1]
 ```
 To add a new species to OA mass, add it to the appropriate POA or SOA variables. For example, to add a new SOA accumulation-mode aerosol species ANEWJ, include '+ANEWJ[1]' in ASOMJ. This change will be reflected in subsequent variable definitions that use ASOMJ.
 
@@ -94,19 +99,20 @@ To update the OC variables or the deposition of OC variables in the SpecDef_Dep_
 
 <a id=SOA_DEFN></a>
 ### 8. Edit SOA_DEFN.F
-SOA_DEFN.F defines all aerosol species and some of their properties. It is located at $CMAQ_REPO/CCTM/src/aero/aero6/SOA_DEFN.F. Note that the aero7 directory is linked to the aero6 directory.
+SOA_DEFN.F describes SOA precursors, SOA species and their properties dealing with gas to particle partitioning. It is located at $CMAQ_REPO/CCTM/src/aero/aero6/SOA_DEFN.F. Note that the aero7 directory is linked to the aero6 directory.
 
 You must add a row for every new aerosol species and increase n_oa_list by the number of species added to the list.
 
-To add a species that partitions between the gas and aerosol phases (with a gas-phase species defined in the [GC namelist](#GCnml)) with effective saturation concentration (C*) = 0.95 ug/m3 and enthalpy of vaporization = 131 J/mol:
+To add semivolatile species that partition between the gas and aerosol phases (with a gas-phase species defined in the [GC namelist](#GCnml)), include their effective saturation concentrations (C*) and enthalpies of vaporization. In this example, ATPROD1 has the corresponding gas-phase species SVTPROD1 and has C* = 0.95 ug/m<sup>3</sup> and enthalpy of vaporization = 131 J/mol. ATPROD2 has the corresponding gas-phase species SVTPROD2 and has C* = 485 ug/m<sup>3</sup> and enthalpy of vaporization = 101 J/mol:
 ```
-& oa_type('ATPROD1', 'SVTPROD1', '        ',  0.0000,     0.95, 131.0E3,   F )
+& oa_type('ATPROD1', 'SVTPROD1', '        ',  0.0000,     0.95, 131.0E3,   F ),
+& oa_type('ATPROD2', 'SVTPROD2', '        ',  0.0000,   485.00, 101.0E3,   F )
 ```
 To add a nonvolatile aerosol species:
 ```
 & oa_type('ANONV  ', '        ', '        ',  0.0000,   1.E-10,   1.0E0,   T )
 ```
-Note that these aerosol definitions do not include a specification of the size bin they fall into.
+Note that these aerosol definitions do not include a specification of the size bin they fall into. That is instead defined in the [AE namelist](#AEnml) by I, J, or K (for Aitken, accumulation, or coarse mode aerosol, respectively) at the end of the variable name.
 
 
 
@@ -119,12 +125,13 @@ You must add a row for every new aerosol species and increase n_aerolist be the 
 To add a semivolatile organic aerosol species, set OM to T, set no_M2Wet to T, calculate korg from e.g. Pye et al., ACP, 2017, and use properties that match other organic species:
 ```
 & spcs_list_type('ATPROD1 ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.09),
+& spcs_list_type('ATPROD2 ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.05),
 ```
 To add a nonvolatile organic aerosol species, set no_M2Wet to F:
 ```
 & spcs_list_type('ANONV   ', cm_set, 1400.0, F,F,  0,  2.8, 6.1,T, 'DUST  ', 0.07),
 ```
-Note that these aerosol definitions do not include a specification of the size bin they fall into.
+Note that these aerosol definitions do not include a specification of the size bin they fall into. That is instead defined in the [AE namelist](#AEnml) by I, J, or K (for Aitken, accumulation, or coarse mode aerosol, respectively) at the end of the variable name.
 
 
 
@@ -178,7 +185,7 @@ Normal Completion of CHEMMECH
 Author is NAME
 output written to ../output/saprc07tic_ae7i_aq-Sep-02-2020
 ```
-and will write RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 to the output path. Copy these two Fortran files to $CMAQ_REPO/CCTM/src/MECHS/${Mechanism}/.
+and will write RXNS_DATA_MODULE.F90 and RXNS_FUNC_MODULE.F90 to the output path. Check the output mechanism csv, html, and markdown files to confirm that chemmech ran correctly. Copy the two Fortran files to $CMAQ_REPO/CCTM/src/MECHS/${Mechanism}/.
 
 
 
@@ -192,12 +199,13 @@ Move bldrun_create_ebi.csh up one directory (from $CMAQ_PROJECT/UTIL/create_ebi/
 - COMPILER
 - Update MECH for your mechanism.
 - Set RXNS_DATA to the location of your chemmech output files.
-- Set PAR_NEG_FLAG, DEGRADE_SUBS, SOLVER_DELT, and all MECH_*(species) variables to the setting that matches your mechanism. E.g. for saprc07tic_ae7_aq:
+- Set PAR_NEG_FLAG, DEGRADE_SUBS, SOLVER_DELT, and all MECH_*(species) variables to the setting that matches your mechanism. E.g. for saprc07tic_ae7i_aq:
 ```
  setenv PAR_NEG_FLAG    F    
  setenv DEGRADE_SUBS    F    
  setenv SOLVER_DELT     1.25 
 ```
+The reactions added in this tutorial do not affect radical species in ozone chemistry. If it did, we recommend checking predictions using the EBI solver against an alternative gas solver listed in the cctm build script such as ros3 and smvgear. Check Table 1 in the [create_ebi documentation](https://github.com/USEPA/CMAQ/blob/master/UTIL/create_ebi/README.md) as an initial list of radical species that may require such benchmarking. The list grows if new radical cycles are added to a mechanism such as radicals from halogen compounds.
 Run:
 ```
 ./bldrun_create_ebi.csh
