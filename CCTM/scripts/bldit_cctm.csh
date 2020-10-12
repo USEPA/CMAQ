@@ -1,6 +1,6 @@
 #!/bin/csh -f
 
-# ======================= CCTMv5.3.1 Build Script ========================= 
+# ======================= CCTMv5.3.X Build Script ========================= 
 # Usage: bldit.cctm >&! bldit.cctm.log                                   
 # Requirements: I/O API & netCDF libraries, a Fortran compiler,               
 #               and MPI for multiprocessor computing                     
@@ -39,11 +39,6 @@
  set Mechs   = $CCTM_SRC/MECHS         #> location of the chemistry mechanism include files
  setenv REPOROOT $CCTM_SRC
 
-#> Working directory and Version IDs
- set VRSN  = v531                       #> model configuration ID
- set EXEC  = CCTM_${VRSN}.exe          #> executable name
- set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
-
 #> Controls for managing the source code and MPI compilation
 set CompileBLDMAKE                     #> Recompile the BLDMAKE utility from source
                                        #>   comment out to use an existing BLDMAKE executable
@@ -57,9 +52,14 @@ set ParOpt                             #> uncomment to build a multiple processo
                                        #>   comment out to use standard netCDF I/O
 #set Debug_CCTM                        #> uncomment to compile CCTM with debug option equal to TRUE
                                        #>   comment out to use standard, optimized compile process
+set make_options = "-j"                #> additional options for make command if MakeFileOnly is not set
+                                       #>   comment out if no additional options are wanted.
 
 #> Integrated Source Apportionment Method (ISAM)
 #set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
+                                       #>   comment out to use standard process
+
+#set DDM3D_CCTM                        #> uncomment to compile CCTM with DD3D activated
                                        #>   comment out to use standard process
 #> Two-way WRF-CMAQ 
 #set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
@@ -67,6 +67,19 @@ set ParOpt                             #> uncomment to build a multiple processo
 
 #> Potential vorticity free-troposphere O3 scaling
 #set potvortO3
+
+#> Working directory and Version IDs
+ if ( $?ISAM_CCTM ) then
+     set VRSN  = v532_ISAM             #> model configuration ID for CMAQ_ISAM
+ else if ( $?DDM3D_CCTM ) then
+     set VRSN = v532_DDM3D             #> model configuration ID for CMAQ_DDM
+ else
+     set VRSN = v532                   #> model configuration ID for CMAQ
+ endif
+ 
+ set EXEC  = CCTM_${VRSN}.exe          #> executable name
+ set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
+
 
 #========================================================================
 #> CCTM Science Modules
@@ -106,6 +119,7 @@ set ParOpt                             #> uncomment to build a multiple processo
  set ModPa     = procan/pa                  #> CCTM process analysis
  set ModPvO3   = pv_o3                      #> potential vorticity from the free troposphere
  set ModISAM   = isam                       #> CCTM Integrated Source Apportionment Method
+ set ModDDM3D  = ddm3d                      #> Decoupled Direct Method in 3D
 
 #============================================================================================
 #> Computing System Configuration:
@@ -222,6 +236,13 @@ set ParOpt                             #> uncomment to build a multiple processo
     set Str1 =
     set Str2 =
  endif 
+
+#> if DDM-3D is set, add the pre-processor flag for it.
+ if ( $?DDM3D_CCTM ) then
+    set SENS = ( -Dsens )
+ else
+    set SENS = ""
+ endif
  
 #> Mechanism location
  set ModMech = MECHS/$Mechanism        #> chemical mechanism module
@@ -334,7 +355,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  set quote = '"'
 
  echo                                                               > $Cfile
- echo "model       $EXEC;"                                         >> $Cfile
+ if ( $?make_options ) then
+    echo "make_options $quote$make_options$quote;"                 >> $Cfile
+    echo                                                           >> $Cfile
+ endif
+ echo "model        $EXEC;"                                        >> $Cfile
  echo                                                              >> $Cfile
  echo "repo        $CCTM_SRC;"                                     >> $Cfile
  echo                                                              >> $Cfile
@@ -353,7 +378,7 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo                                                              >> $Cfile
  echo "lib_4       ioapi/lib;"                                     >> $Cfile
  echo                                                              >> $Cfile
- set text = "$quote$CPP_FLAGS $PAR $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
+ set text = "$quote$CPP_FLAGS $PAR $SENS $PIO $cpp_depmod $POT $STX1 $STX2$quote;"
  echo "cpp_flags   $text"                                          >> $Cfile
  echo                                                              >> $Cfile
  echo "f_compiler  $FC;"                                           >> $Cfile
@@ -538,6 +563,13 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "Module ${ModISAM};"                                         >> $Cfile
  echo                                                              >> $Cfile
 
+ if ( $?DDM3D_CCTM ) then
+   set text = "// compile for decoupled direct method in 3d"
+   echo $text                                                        >> $Cfile
+   echo "Module ${ModDDM3D};"                                        >> $Cfile
+   echo                                                              >> $Cfile
+ endif
+
  set text = "util"
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModUtil};"                                         >> $Cfile
@@ -603,11 +635,12 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  if ( $?Debug_CCTM ) then
     set bld_flags = "${bld_flags} -debug_cctm"
  endif
+
  if ( $?ISAM_CCTM ) then
     set bld_flags = "${bld_flags} -isam_cctm"
  endif
- 
- # Run BLDMAKE with source code in build directory
+
+#> Run BLDMAKE with source code in build directory
  $Blder $bld_flags $Cfile   
 
 #> Rename Makefile to specify compiler option and link back to Makefile

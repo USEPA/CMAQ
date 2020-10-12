@@ -54,6 +54,9 @@
 !  22 Nov 2019 (F. Sidi) 
 !     -- Re-introduced master switch to overide emissions file date for
 !        representative day files
+!  10 Feb 2020 (D. Wong) 
+!     -- Added new environmental variable, MET_TSTEP, to enable
+!        running with temporally finer meteorology
 !....................................................................
 
       MODULE RUNTIME_VARS
@@ -100,6 +103,8 @@
 
       ! Convective scheme in met model
       LOGICAL :: CONVECTIVE_SCHEME = .TRUE.
+      ! Flag for column model
+      LOGICAL :: COLUMN_MODEL      = .FALSE.
 
       ! Grid and High-Level Model Parameters
       LOGICAL :: NEW_START       = .TRUE.   ! Start New Simulation. Not a Restart
@@ -110,6 +115,7 @@
       INTEGER :: STDATE          = 1995192  ! Start Date
       INTEGER :: STTIME          = 000000   ! Start Time
       INTEGER :: LOCAL_TSTEP     = 010000   ! set to TSTEP( 1 ) in initscen.F
+      INTEGER :: MET_TSTEP                  ! set meterology input temporal frequency
       INTEGER :: NPCOL           = 1        ! no. of processors across grid columns
       INTEGER :: NPROW           = 1        ! no. of processors across grid rows
       INTEGER :: MAXSYNC         = 720      ! force max TSTEP(2) (sec)
@@ -253,6 +259,14 @@
       ! Sulfur tracking
       LOGICAL :: STM        = .FALSE. ! flag for sulfur tracking option
       LOGICAL :: ADJ_STMSPC = .TRUE.  ! flag for normalizing sulfur tracking species
+
+      ! ISAM
+      INTEGER :: ISAM_BLEV = 0  ! Beginning level saved to conc file
+      INTEGER :: ISAM_ELEV = 0  ! Ending level saved to conc file
+      INTEGER :: SA_NLAYS = 0   ! Number of layers saved to conc file
+      INTEGER :: AISAM_BLEV = 0 ! Beginning level saved to sa_aconc file
+      INTEGER :: AISAM_ELEV = 0 ! Ending level saved to sa_aconc file
+      INTEGER :: AVGSA_LAYS = 0 ! Number of layers saved to conc file
 
       CONTAINS
           
@@ -435,6 +449,40 @@
          XMSG = 'Environment variable error for CONC_BLEV_ELEV'
          CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
       END IF
+
+#ifdef isam
+      ! SA_ACONC Layer Specification
+      CALL GET_ENV ( 'AISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
+         AISAM_BLEV = 1
+         AISAM_ELEV = -1
+      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:AISAM_BLEV_ELEV
+         AISAM_BLEV = 1
+         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
+         READ( V_LIST2( 1 ), '( I4 )' ) AISAM_BLEV
+         READ( V_LIST2( 2 ), '( I4 )' ) AISAM_ELEV
+      ELSE
+         XMSG = 'Environment variable error for AISAM_BLEV_ELEV'
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
+      END IF
+
+      ! SA_CONC File Vertical Layer Range and Speciation
+      CALL GET_ENV ( 'ISAM_BLEV_ELEV', NV, V_LIST2, VARDEV )
+      IF ( NV .LE. 0 ) THEN   ! assume 1:NLAYS
+         ISAM_BLEV = 1
+         ISAM_ELEV = -1
+      ELSE IF ( NV .EQ. 1 ) THEN ! Assume 1:ISAM_BLEV_ELEV
+         ISAM_BLEV = 1
+         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
+      ELSE IF ( NV .EQ. 2 ) THEN ! Correct Input
+         READ( V_LIST2( 1 ), '( I4 )' ) ISAM_BLEV
+         READ( V_LIST2( 2 ), '( I4 )' ) ISAM_ELEV
+      ELSE
+         XMSG = 'Environment variable error for ISAM_BLEV_ELEV'
+         CALL M3EXIT( 'INIT_ENV_VARS', JDATE, JTIME, XMSG, EXIT_STATUS )
+      END IF
+#endif
       
       ! PWRTFLAG
       CALL GET_ENV ( PWRTFLAG, 'IOAPI_LOG_WRITE', PWRTFLAG, VARDEV )
@@ -850,6 +898,18 @@
          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
+      ! Get environ. variable met_tstep to control meteorology frequency
+      CALL GET_ENV ( MET_TSTEP, 'MET_TSTEP', TSTEP3D, VARDEV)
+
+      ! Ensure users cannot pick a met_tstep that is not smaller than the
+      ! file time step and something that is not a multiple of that tstep
+          
+      IF (MOD(TIME2SEC(MET_TSTEP), TIME2SEC(TSTEP3D)) .NE. 0) then
+          XMSG = 'MET_TSTEP environmental variable not equal to or a 
+     & multiple greater than time step of met file ' // MET_CRO_3D
+          CALL M3EXIT(PNAME, 0, 0, XMSG, XSTAT1)
+      end if 
+
       FOUND = .FALSE.
       NV = 0
       Do WHILE ((.NOT. FOUND) .AND. (NV .LT. MXDESC3))
@@ -865,7 +925,7 @@
          END IF
       END DO
 
-      XMSG = 'MET data determined based on WRF ARM version '
+      XMSG = 'MET data determined based on WRF ARW version '
       IF( MYPE .EQ. 0 ) THEN
           WRITE(OUTDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ), TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )
           WRITE(LOGDEV,'(/,5X,2(A,1X),/)')TRIM( XMSG ), TRIM( FDESC3D(NV)(LOC+9:STR_LEN) )

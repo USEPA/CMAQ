@@ -45,23 +45,25 @@ Formular expressions support operators ^+-\*/ and are evaluated based on mathema
 
 Table 1. Grid Cell Functions per Output Time Step 
 
-| Name         |Result                     |    
-|:-------------|:-------------------------:|    
-| LOG(X[n])    |Natural Logarithm of X[n]   |    
-| LOG10(X[n])  |Logarithm Base 10 of X[n]  |    
-| EXP(X[n])    |Exponential of X[n]        |    
-| SIN(X[n])    |Sine of X[n]               |    
-| COS(X[n])    |Cosine of X[n]             |     
-| TAN(X[n])    |Tangent of X[n]            |     
-| ASIN(X[n])   |Arcsine of X[n]            |     
-| ACOS(X[n])   |Arccosine of X[n]          |     
-| ATAN(X[n])   |Acrtangent of X[n]         |    
-| ABS(X[n])    |Absolute Value of X[n]     |    
-| SINH(X[n])   |Hyperbolic Sine of X[n]    |    
-| COSH(X[n])   |Hyperbolic Cosine of X[n]  |    
-| TANH(X[n])   |Hyperbolic Tangent of X[n] |   
-| INT(X[n])    |Integer Truncation of X[n] |  
-| SQRT(X[n])   |Square Root of X[n]        | 
+| Name         |Result                       |    
+|:-------------|:---------------------------:|    
+| LOG(X[n])    |Natural Logarithm of X[n]    |    
+| LOG10(X[n])  |Logarithm Base 10 of X[n]    |    
+| EXP(X[n])    |Exponential of X[n]          |    
+| SIN(X[n])    |Sine of X[n]                 |    
+| COS(X[n])    |Cosine of X[n]               |     
+| TAN(X[n])    |Tangent of X[n]              |     
+| ASIN(X[n])   |Arcsine of X[n]              |     
+| ACOS(X[n])   |Arccosine of X[n]            |     
+| ATAN(X[n])   |Acrtangent of X[n]           |    
+| ABS(X[n])    |Absolute Value of X[n]       |    
+| SINH(X[n])   |Hyperbolic Sine of X[n]      |    
+| COSH(X[n])   |Hyperbolic Cosine of X[n]    |    
+| TANH(X[n])   |Hyperbolic Tangent of X[n]   |   
+| INT(X[n])    |Integer Truncation of X[n]   |  
+| SQRT(X[n])   |Square Root of X[n]          | 
+| SIGN(X[n])   |Sign of X[n]                 | 
+| ERF(X[n])    |Gauss Error Function of X[n] | 
  
  <sup> 0 </sup> Value of n equals an input file number or zero if X is a derived variable.
 

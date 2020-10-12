@@ -44,7 +44,7 @@ C                        beginning, and ending data)
 C
 C*********************************************************************
 
-      USE M3UTILIO
+      USE GET_ENV_VARS
       USE RXNS_DATA
 
       IMPLICIT NONE
@@ -96,7 +96,7 @@ C...loop over the number of reactions, reading each file
 C...open input file
 
         CQFILE = PHOTAB( IPHOT )
-        CALL NAMEVAL ( CQDIR, EQNAME )
+        CALL VALUE_NAME ( CQDIR, EQNAME )
         CQFILE = TRIM( EQNAME ) // '/' // TRIM( CQFILE )
 
         OPEN( UNIT = CQUNIT,
@@ -108,7 +108,8 @@ C...check for open errors
 
         IF ( IOST .NE. 0) THEN
           MSG = 'Could not open ' // PHOTAB( IPHOT ) // ' data file'
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
         END IF
 
         WRITE( 6, 2001 ) CQUNIT, CQFILE
@@ -122,7 +123,8 @@ C...check for read errors
         IF ( IOST .NE. 0) THEN
           MSG = 'Errors occurred while reading PHOTID for ' //
      &           PHOTAB( IPHOT )
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
         END IF
 
 C...get type of data (e.g. centered, beginning, ending, or point wavelen
@@ -136,7 +138,8 @@ C...check for read errors
         IF ( IOST .NE. 0) THEN
           MSG = 'Errors occurred while reading TYPE for ' //
      &           PHOTAB( IPHOT )
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
         END IF
 
         IF ( TYPE .EQ. '!' ) GO TO 101
@@ -150,7 +153,8 @@ C...check for read errors
         IF ( IOST .NE. 0) THEN
           MSG = 'Errors occurred while reading FACTOR for ' //
      &           PHOTAB( IPHOT )
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
         END IF
 
 C...reinitialize arrays
@@ -176,7 +180,8 @@ C...check for read errors
           IF ( IOST .GT. 0) THEN
             MSG = 'Errors occurred while reading WL,CS,QY for ' //
      &             PHOTAB( IPHOT )
-            CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+            WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+            STOP
           END IF
 
 C...end loop if we reach EOF, otherwise continue looping

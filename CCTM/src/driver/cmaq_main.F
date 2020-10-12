@@ -22,13 +22,16 @@
 
 ! Revision History:
 !  02/01/19, D. Wong: initial implementation
+!  02/10/20, D. Wong: Added new environmental variable MET_TSTEP
+!                     to allow running with temporally fine 
+!                     meteorology
 !------------------------------------------------------------------------!
 
       PROGRAM CMAQ
 
         USE RUNTIME_VARS
         USE UTILIO_DEFN
- 
+
         IMPLICIT NONE
 
 #ifdef parallel
@@ -70,19 +73,14 @@ C processes (NPROCS)
         MYPE = 0
         CALL CPU_TIME( BEGTIME )
 #endif
-
+        ! Initialize all runscript environmental variables
         CALL INIT_ENV_VARS( 0, 0 )
 
         MODEL_TSTEP = LOCAL_TSTEP
 
-        IF ( RUNLEN .LT. 1000000 ) THEN
-           TOTSECS  = TIME2SEC( RUNLEN )
-        ELSE
-           RUNLEN = RUNLEN - 1000000
-           TOTSECS  = TIME2SEC( RUNLEN )
-           TOTSECS  = TOTSECS + 360000
-        END IF
-        STEPSECS = TIME2SEC( MODEL_TSTEP  )
+        TOTSECS  = TIME2SEC( RUNLEN )
+
+        STEPSECS = TIME2SEC( MIN( MODEL_TSTEP, MET_TSTEP) )
 
         IF ( MOD( TOTSECS, STEPSECS ) .EQ. 0 ) THEN
            NSTEPS = TOTSECS / STEPSECS
@@ -91,6 +89,9 @@ C processes (NPROCS)
      &           ' does not divide duration ' // HHMMSS( RUNLEN )
            CALL M3EXIT( 'CMAQ_MAIN', STDATE, STTIME, MSG, XSTAT1 )
         END IF
+        
+        ! Call to driver, for nsteps or how often the model synchronization step
+        ! needs to be recalculated (RUNLEN = 60*(NSTEPS*NREPS*TSTEP(2))
 
         DO ISTEP = 1, NSTEPS
            CALL CMAQ_DRIVER (STDATE, STTIME, MODEL_TSTEP, JDATE, JTIME, (ISTEP .EQ. NSTEPS))
@@ -113,7 +114,8 @@ C processes (NPROCS)
 C Shut down MPI
         CALL MPI_FINALIZE ( PAR_ERR )
         IF ( PAR_ERR .NE. 0 ) THEN
-           STOP 'Error terminating MPI'
+           MSG = 'Error terminating MPI'
+           CALL M3EXIT( 'CMAQ_MAIN', STDATE, STTIME, MSG, XSTAT1 )
         END IF
 #endif
 

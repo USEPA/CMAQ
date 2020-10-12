@@ -1,20 +1,34 @@
-CMAQv5.3.1 Release Notes 
+CMAQv5.3.2 Release Notes
 =====================================
-
-The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes and a few  feature additions.  
-
 [Tutorial on installing and running the CMAQ test case](../Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)  
-[CMAQv5.3.1 User's Guide](../Users_Guide/README.md)  
-[Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md) **- NEW with v5.3.1 release!** 
+[CMAQv5.3.2 User's Guide](../Users_Guide/README.md)  
+[Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md)  **- Updated for v5.3.2 release.**  
+[CMAQv5.3.2 Known Issues](../Known_Issues/README.md) - Updated after the v5.3.2 release to alert users of issues that will be addressed with the next release. 
+
+# Summary of CMAQv5.3.2 Updates 
+
+CMAQv5.3.2 includes significant updates to the CMAQ Integrated Source Apportionment Method (ISAM) and multiple minor fixes to address issues identified in CMAQv5.3.1. The new CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.
+
+* [CMAQv5.3.2 Bugfixes](CMAQv5.3.2_bugfixes.md)
+* [Added ISAM support for bidirectional NH3 flux](ISAM_bidi_support.md)
+* [Revised ISAM method on how gas chemistry affects apportionment](ISAM_gas_chemistry_v532.md)
+* [Running with Temporally Finer Meteorology](running_with_temporally_finer_MET.md)
+* [Update to the DMS chemistry with CB6r3](DMS_chemistry_update.md)
+* [Update the Lightning NO Vertical Profile](Update_the_lightning_NO_vertical_profile.md)
+* [Fine aerosol acidity output](specdef_ae7_pH.md)
+* [Add make options to bldmake configuration file](Add_make_options_to_the_cfg_file_for_bldmake.md)
+* [Add 2019 data to CMAQ OMI input file](OMI_through_2019.md)
+* [Column Modeling](Enable_Column_Modeling.md)
+* [Add ERF and SIGN functions to COMBINE](Add_ERF_and_SIGN_to_COMBINEs_grid_cell_functions.md)
 
 # Summary of CMAQv5.3.1 Updates  
+
+The Community Multiscale Air Quality (CMAQ) Model version 5.3.1 is a minor update to CMAQv5.3 that includes multiple bug fixes and a few  feature additions.
+
 * [CMAQv5.3.1 Bugfixes](CMAQv5.3.1_bugfixes.md)
 * [MCIPv5.1 Bugfixes](MCIPv5.1_bugfixes.md)
 * [Add support for defining chemical, region and stream families in DESID](DESID_families.md)
 * [New  grid mask files to support regional analysis with DESID and ISAM](regional_12US1_gridmask.md)
-
-
------
 
 # Summary of CMAQv5.3 Updates
 
@@ -24,7 +38,7 @@ The Community Multiscale Air Quality (CMAQ) Modeling System, version 5.3, is a m
 ## Instrumented Models
  * [ISAM for CMAQv5.3](updates_to_CMAQ_ISAM.md)
  * [Sulfur Tracking Model (STM) for CMAQv5.3](sulfur_tracking.md)
- * CMAQv5.3-DDM-3D will be released later in 2019. 
+ * CMAQv5.3-DDM-3D will be released later in 2020. 
  * [Documentation for CMAQv5.2-DDM-3D](https://github.com/USEPA/CMAQ/blob/5.2_DDM-3D/DOCS/Instrumented_Docs/CMAQ_DDM.md)
 
  

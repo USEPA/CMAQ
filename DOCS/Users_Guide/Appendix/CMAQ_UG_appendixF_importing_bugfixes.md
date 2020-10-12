@@ -27,6 +27,7 @@
   - You should now be in the specific issue page, under the Known_Issues folder. Here you should be able to see all the files that need to be updated.
   
   - Download these files to your system storing them in a scratch folder, for those on Unix Systems the following commands can be used:
+
 ```
 wget https://raw.githubusercontent.com/USEPA/CMAQ/master/DOCS/Known_Issues/CMAQv5.3.1-i#/your_files .
 
@@ -82,6 +83,6 @@ wget https://raw.githubusercontent.com/USEPA/CMAQ/master/DOCS/Known_Issues/CMAQv
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md)
-
+[<< Previous Appendix](CMAQ_UG_appendixE_configuring_WRF.md) - [Home](../README.md) <br>
+CMAQ User's Guide (c) 2020<br>
 <!-- END COMMENT -->

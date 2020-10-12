@@ -121,7 +121,8 @@ C**********************************************************************
       USE GRID_CONF
       USE UTILIO_DEFN   ! replaces ioparms, iofdesc, iodecl
       USE SA_DEFN   ! Mc06
-
+      USE RUNTIME_VARS
+      
       IMPLICIT NONE 
 
       
@@ -146,7 +147,11 @@ c.....local variables:
       INTEGER       :: IBGN, JSPCTAG, NSPCTAG
       
       CHARACTER( 16 )    :: SPCNAME1( NSPC_SA ) 
- 
+      CHARACTER( 16 )    :: NAME_TAG
+      CHARACTER( 99 )    :: XMSG
+      
+      LOGICAL            :: EFLAG = .FALSE.
+      
       REAL, ALLOCATABLE  :: TEMP( :,:,: )      
 
 C**********************************************************************
@@ -158,14 +163,17 @@ C Get domain decomp info from the emissions file
      &                   STARTCOL, ENDCOL, STARTROW, ENDROW )
       END IF                    ! FIRSTIME
       
+      EFLAG = .FALSE.
+      
       IF ( .NOT. OPEN3( INNAME, FSREAD3, PNAME) )THEN 
-         WRITE(*, *) 'Error: open file failed', INNAME
+         WRITE(LOGDEV, *) 'Error: open file failed', INNAME
+         CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
       ENDIF 
       
       
       IF ( .NOT. DESC3( INNAME ) ) THEN
-         WRITE(*, *) 'Error: read', INNAME, 'failed'
-         STOP 'Bad exit'
+         WRITE(LOGDEV, *) 'Error: read', INNAME, 'failed'
+         CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
       ENDIF 
 
 cyqwang...begin  Get The last step data
@@ -186,8 +194,7 @@ Ckrt....assign spc_name( nspc_sa, ntag_sa ) to spcname1( nspc_sa )
       ENDDO ! s
 
 Ckrt allocate data-loading array 
-      IF ( .NOT. ALLOCATED( TEMP ) ) 
-     &  ALLOCATE( TEMP( NCOLS, NROWS, NLAYS3D ) )
+      ALLOCATE( TEMP( NCOLS, NROWS, NLAYS3D ) )
       TEMP = 0.0
       
       DO JSPCTAG = 1, NSPCTAG
@@ -195,16 +202,19 @@ Ckrt allocate data-loading array
         IF ( .NOT. XTRACT3( INNAME, VNAME3D( JSPCTAG ), 
      &       1, NLAYS3D, STARTROW, ENDROW, STARTCOL, ENDCOL,
      &       JDATE, JTIME, TEMP ) ) THEN
-          Print*,  PNAME, JDATE, JTIME,
-     &       'Read failure:  file ' // INNAME //
-     &       ' variable ' // VNAME3D( JSPCTAG ) 
-          stop ' end of file...'
+               XMSG = 'Read failure:  file ' // INNAME // 
+     &         ' variable ' // VNAME3D( JSPCTAG ) //
+     &         ' end of file...'
+                WRITE(LOGDEV,*) PNAME, JDATE, JTIME,
+     &          TRIM( XMSG )
+             CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )             
         END IF
         !KRT: identify isam indices from input species names
-        IBGN = INDEX( VNAME3D( JSPCTAG ),'_', .FALSE. )
+        IBGN = INDEX( VNAME3D( JSPCTAG ),'_', BACK = .TRUE. )
         S = INDEX1( VNAME3D( JSPCTAG )( 1:IBGN-1 ),NSPC_SA,SPCNAME1 )
         K = INDEX1( VNAME3D( JSPCTAG )( IBGN+1:LEN_TRIM(VNAME3D(JSPCTAG))),
      &        NTAG_SA, TAGNAME )
+        NAME_TAG = VNAME3D(JSPCTAG)(IBGN+1:LEN_TRIM(VNAME3D(JSPCTAG)))
         IF ( S .GT. 0 ) THEN
           IF ( K .GT. 0 ) THEN
             DO C = 1, NCOLS
@@ -214,27 +224,37 @@ Ckrt allocate data-loading array
                 END DO
               END DO
             END DO
-          ELSE ! bcon, othr, or icon tags
-            CK_SUFFX: SELECT CASE ( VNAME3D(JSPCTAG)(IBGN+1:LEN_TRIM(VNAME3D(JSPCTAG))) )
-            CASE ( 'BCON' )
+          ELSE ! bcon, othr, or icon tags            
+            CK_SUFFX: SELECT CASE ( NAME_TAG )
+            CASE ( 'BCON', 'BCO' )
               K = NTAG_SA - 2
-            CASE ( 'OTHR' )
+            CASE ( 'OTHR', 'OTH' )
               K = NTAG_SA - 1
-            CASE ( 'ICON' )
+            CASE ( 'ICON', 'ICO' )
               K = NTAG_SA
             END SELECT CK_SUFFX
-            DO L = 1, NLAYS3D
-              DO R = 1, NROWS
-                DO C = 1, NCOLS
-                  ISAM( C,R,L,S,K ) = TEMP( C,R,L )
-                END DO
-              END DO
-            END DO
+            IF ( K .LE. 0 ) THEN
+              WRITE(LOGDEV,*)'ISAM ICON Species ', TRIM( VNAME3D(JSPCTAG) ), ' has bad tagname set to ',
+     &        TRIM( NAME_TAG )            
+              EFLAG = .TRUE.      
+            ELSE
+               DO L = 1, NLAYS3D
+                  DO R = 1, NROWS
+                     DO C = 1, NCOLS
+                        ISAM( C,R,L,S,K ) = TEMP( C,R,L )
+                     END DO
+                  END DO
+               END DO
+            END IF
           ENDIF ! emission tags
         ENDIF ! species exist in tags
       END DO ! jspctag
 
-      IF ( ALLOCATED( TEMP ) ) DEALLOCATE(TEMP)
+      IF ( EFLAG ) THEN
+         CALL M3EXIT( 'READ_ISAM_ICON', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
+      END IF
+      
+      DEALLOCATE(TEMP)
 
       If ( .NOT. CLOSE3( INNAME ) ) Then
          WRITE ( *,* )
