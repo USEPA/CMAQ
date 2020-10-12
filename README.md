@@ -28,7 +28,7 @@ To clone code from the CMAQ Git archive, specify the branch (i.e. version number
 a working directory on your server:
 
 ```
-git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b 5.3 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## CMAQ Repository Guide
