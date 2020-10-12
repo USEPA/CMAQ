@@ -72,7 +72,7 @@ C   12 Aug 15 D.Wong:   Replaced SUBST_MPI with mpif.h
       IOLOGEQ = PRESTR // CMYPE // '.' // TRIM( APPL_NAME )
       IF ( .NOT. SETENVVAR ( 'LOGFILE', IOLOGEQ ) ) THEN
          WRITE( *,* ) '*** Could not set environment variable for ' // IOLOGEQ
-         STOP
+         CALL M3EXIT( 'SETUP_LOGDEV', 0, 0, '', 2 )
       END IF
 
 #ifndef twoway

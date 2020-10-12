@@ -36,7 +36,7 @@ C     O3ABS - absorption cross sections for molecular oxygen
 C
 C*********************************************************************
 
-      USE M3UTILIO
+      USE GET_ENV_VARS
 
       IMPLICIT NONE
 
@@ -73,7 +73,7 @@ C     begin body of subroutine
 
 C...get a unit number for CSQY files
 
-      CALL NAMEVAL ( O3FILE, EQNAME )
+      CALL VALUE_NAME ( O3FILE, EQNAME )
       O3UNIT = JUNIT( )
 
 C...open input file
@@ -87,7 +87,8 @@ C...check for open errors
 
       IF ( IOST .NE. 0) THEN
         MSG = 'Could not open the O3ABS data file'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       WRITE( 6, 2001 ) O3UNIT, EQNAME
@@ -100,7 +101,8 @@ C...check for read errors
 
       IF ( IOST .NE. 0 ) THEN
         MSG = 'Errors occurred while reading PHOTID from O3ABS file'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
 C...get type of data (e.g. centered, beginning, ending, or point wavelen
@@ -113,7 +115,8 @@ C...check for read errors
 
       IF ( IOST .NE. 0) THEN
         MSG = 'Errors occurred while reading TYPE from O3ABS file'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
       IF ( TYPE .EQ. '!' ) GO TO 101
@@ -126,7 +129,8 @@ C...check for read errors
 
       IF ( IOST .NE. 0 ) THEN
         MSG = 'Errors occurred while reading FACTOR from O3ABS file'
-        CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+        WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+        STOP
       END IF
 
 C...reinitialize arrays
@@ -149,7 +153,8 @@ C...check for read errors
 
         IF ( IOST .GT. 0 ) THEN
           MSG = 'Errors occurred while reading WL,CS from O3ABS file'
-          CALL M3EXIT( PNAME, 0, 0, MSG, XSTAT1 )
+          WRITE(6,'(A)')TRIM( PNAME ) // ': ', TRIM( MSG )
+          STOP
         END IF
 
 C...end loop if we reach EOF, otherwise continue looping

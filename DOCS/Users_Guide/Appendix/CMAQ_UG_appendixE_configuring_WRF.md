@@ -1,6 +1,6 @@
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixD_parallel_implementation.md) - [Home](../README.md)  - [Next Appendix >>](CMAQ_UG_appendixF_importing_bugfixes.md)
+[<< Previous Appendix](CMAQ_UG_appendixD_parallel_implementation.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixF_importing_bugfixes.md)
 
 <!-- END COMMENT -->
 
@@ -36,6 +36,6 @@ Noilhan, J., & Mahfouf, J. F. (1996). The ISBA land surface parameterization sch
 
 <!-- BEGIN COMMENT -->
 
-[<< Previous Appendix](CMAQ_UG_appendixD_parallel_implementation.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixF_importing_bugfixes.md)
-
+[<< Previous Appendix](CMAQ_UG_appendixD_parallel_implementation.md) - [Home](../README.md) - [Next Appendix >>](CMAQ_UG_appendixF_importing_bugfixes.md) <br>
+CMAQ User's Guide (c) 2020<br>
 <!-- END COMMENT -->

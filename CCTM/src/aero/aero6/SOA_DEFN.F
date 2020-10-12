@@ -1775,7 +1775,6 @@ C    all dimensions now depend upon N only
          END DO
          IF ( AAMAX .EQ. 0.0 ) THEN
             WRITE( *,'(a)' ) '*** Singular matrix in ludcmp!'
-!           STOP
          END IF
          VV( I ) = 1.0 / AAMAX
       END DO

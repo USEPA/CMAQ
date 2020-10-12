@@ -31,11 +31,7 @@ The migration of DDM-3D to the more recent CMAQ release is currently in developm
 
 **A note about I/O API installation for DDM applications**
 
-I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. DDM applications configured to calculate sensitivity to a large number of parameters may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. This version is available as a zip file from the following address:
-
-https://www.cmascenter.org/ioapi/download/ioapi-3.2-large.tar.gz
-
-Installation instructions for I/O API v5.3-large are provided in README.txt in the .tar.gz file. 
+I/O APIv3.2  supports up to MXFILE3=64 open files, each with up to MXVARS3=2048. DDM applications configured to calculate sensitivity to a large number of parameters may exceed this upper limit of model variables, leading to a model crash. To avoid this issue, users may use I/O API version 3.2 "large" that increases MXFILE3 to 512 and MXVARS3 to 16384. Instructions to build this version are found in [Chapter 3](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch03_preparing_compute_environment.md#333-io-api-library).
 
 ## 10.3 References
 
@@ -52,6 +48,6 @@ Napelenok, S.L., Cohan, D.S., Hu, Y.T., & Russell, A.G. (2006). Decoupled direct
 <!-- BEGIN COMMENT -->
 
 [<< Previous Chapter](CMAQ_UG_ch09_process_analysis.md) - [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch11_ISAM.md)<br>
-CMAQ User's Guide (c) 2019<br>
+CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->

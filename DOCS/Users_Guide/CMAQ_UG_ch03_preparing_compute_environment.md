@@ -64,7 +64,7 @@ Most of the CMAQ input files and all output files are in netCDF format (the rest
 
 ### 3.3.3 I/O API library
 
-The I/O API library provides an interface between the netCDF libraries and CMAQ to handle input and output (I/O) calls throughout the CMAQ code. The latest version of the I/O API library (version 3.2) is available for download at https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#v32. Users should note that the I/O API library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the I/O API documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Minimum version: IOAPI 3.1**
+The I/O API library provides an interface between the netCDF libraries and CMAQ, as well as WRF-CMAQ, to handle input and output (I/O) calls throughout the CMAQ code. The version of the I/O API library supported with CMAQv5.3.2 (version 3.2 tagged 20200828) is available for download at https://github.com/cjcoats/ioapi-3.2/releases/tag/20200828. Users should note that the I/O API library requires netCDF files to be adhere to a strict formatting guidelines that can be found in the I/O API documentation. For simplicity, files following the IOAPI-netCDF formatting guidelines will be called "IOAPI FILES" from now on. **Version Supported: IOAPI 3.2 tagged 20200828**
 
 The general steps for installation of I/O API libraries on a Linux system (with C-shell and GNU compilers) are below. These instructions are an example and we recommend using the latest release available at the time of your CMAQ installation.
 
@@ -72,18 +72,22 @@ The following is a procedure to install "basic" I/O API libraries (this is based
 
 ```
 mkdir ioapi_3.2
-cd IOAPI_3.2
+cd ioapi_3.2
 
 ## Download IOAPI Libraries and untar downloaded source code in this directory
-tar xvzf ioapi-3.2.tar.gz 
+wget http://github.com/cjcoats/ioapi-3.2/archive/20200828.tar.gz
+tar -xzvf 20200828.tar.gz
+cd ioapi-3.2-20200828
 
 ### Set up your Linux system environment
 setenv BIN Linux2_x86_64gfort
+setenv BASEDIR $cwd
+setenv CPLMODE nocpl
 ```
 
 Edit the top level Makefile with the following steps:
 
-1. comment out the line with BIN ="
+1. comment out the line with NCFLIBS=
 2. Add explicit netCDF C and Fortran library paths in front of -lnetcdf -lnetcdff, respectively, the following is an example:
 
 ```
@@ -104,11 +108,23 @@ make configure
 make
 ```
 
-Other I/O API library configuration options are available, and users can see a list of these options within the I/O API documentation. For example, I/O API can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" I/O API libraries (Wong et al. 2015). More information about how to enable PIO within CMAQ can be found in [Appendix D](Appendix/CMAQ_UG_appendixD_parallel_implementation.md). There is a  also an I/O API version 3.2 "large" that is designed for applications with a large number of model output files (e.g. utilizing all of CMAQv5.3 optional diagnostic output files) and/or a large number of model variables (e.g. CMAQ-HDDM or CMAQ-ISAM applications).  I/O API v3.2-large increases the MXFILE3 variable from 64 to 512 and increases the MXVARS3 varialbe from 2048 to 16384. This version is available as a zip file from the following address:
+Other I/O API library configuration options are available, and users can see a list of these options within the I/O API documentation. For example, I/O API can be configured in a manner that allows the CMAQ model to be run with the parallel I/O (PIO) feature turned on called the "mpi" I/O API libraries (Wong et al. 2015). More information about how to enable PIO within CMAQ can be found in [Appendix D.3](Appendix/CMAQ_UG_appendixD_parallel_implementation.md#d3-parallel-io). 
 
-https://www.cmascenter.org/ioapi/download/ioapi-3.2-large.tar.gz
+There is also an I/O API version 3.2 "large" that is designed for applications with a large number of model output files (e.g. utilizing all of CMAQv5.3+ optional diagnostic output files) and/or a large number of model variables (e.g. CMAQ-HDDM or CMAQ-ISAM applications). I/O API v3.2-large increases the MXFILE3 variable from 64 to 512 and increases the MXVARS3 varialbe from 2048 to 16384, both found in PARAMS3.EXT, as noted in the [I/O API documentation](https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#build). Users can [build](https://www.cmascenter.org/ioapi/documentation/all_versions/html/AVAIL.html#build) a copy of the large version by using: 
 
-Installation instructions for I/O API v5.3-large are provided in README.txt in the .tar.gz file. 
+```
+cp -r ioapi-3.2-20200828 ioapi-3.2-20200828_large
+cd ioapi-3.2-20200828_large/ioapi/fixed_src
+cp ../PARMS3-LARGE.EXT ./PARMS3.EXT
+```
+
+This version is also available as a zip file from the following address:
+
+https://www.cmascenter.org/ioapi/download/ioapi-3.2-large-20200828.tar.gz
+
+Installation instructions for I/O API v3.2-large are provided in README.txt in the .tar.gz file. 
+
+**Note: Users using the I/O API v3.2-large will require additional computional resources during compile and runtime to account for the increase in memory footprint. Additionally, users may encounter upward and backwards compatability issues using different versions of I/O API, if the files are produced with this version of I/O API.**
 
 
 ## 3.4 Optional Software
@@ -138,6 +154,6 @@ Wong, D. C., Yang, C. E., Fu, J. S., Wong, K., and Gao, Y., “An approach to en
 <!-- BEGIN COMMENT -->
 
  [<< Previous Chapter](CMAQ_UG_ch02_program_structure.md)- [Home](README.md) - [Next Chapter >>](CMAQ_UG_ch04_model_inputs.md)<br>
-CMAQ User's Guide (c) 2019<br>
+CMAQ User's Guide (c) 2020<br>
 
 <!-- END COMMENT -->

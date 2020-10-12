@@ -76,6 +76,7 @@ C 03 Mar 16 G.Sarwar: updated for halogen emissions
 C 16 Sep 16 J.Young: update for inline procan (IPR)
 C 02 Nov 2018: L.Zhou, S.Napelenok: isam implementation
 C  1 Feb 19 D.Wong: removed all MY_N clauses
+C 12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
 C-----------------------------------------------------------------------
 
       USE CGRID_SPCS          ! CGRID mechanism species
@@ -95,10 +96,13 @@ C-----------------------------------------------------------------------
       USE PA_DEFN, Only: LIPR ! Process Anaylsis control and data variables
 
 #ifdef isam
-      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP
+      USE SA_DEFN, Only: ITAG, N_SPCTAG, VNAM_SPCTAG, SA_DDEP, SA_BIDI, ISAM, NTAG_SA, 
+     &                   VNAM_SPCTAG, NSPC_SA, SPC_NAME, OTHRTAG
 #endif
 
-
+#ifdef sens
+      USE DDM3D_DEFN, ONLY: NP, NPMAX, SENGRID, SPCNAME, S_DDEP, SNGRD, SENGRID_TEMP, SEN_PAR
+#endif 
 
       IMPLICIT NONE
 
@@ -145,7 +149,7 @@ C Local Variables:
       REAL     :: SEDDY ( NLAYS,NCOLS,NROWS )   ! flipped EDDYV
       REAL        DTSEC                         ! model time step in seconds
 
-      REAL     :: DDEP_NH3( NCOLS,NROWS )
+      REAL     :: NH3_FLUX( NCOLS,NROWS )
 
       REAL, ALLOCATABLE, SAVE :: VSED_AE( :,:,:,: )
       INTEGER, SAVE :: NH3_HIT
@@ -154,8 +158,20 @@ C Local Variables
       INTEGER     ASTAT
       INTEGER     C, R, L, S, V, I, J, OFF      ! loop induction variables
       INTEGER     MDATE, MTIME, MSTEP           ! internal simulation date&time
-      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_EMIS'
-      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_DDEP = 'NH3_DDEP'
+      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_EMIS = 'NH3_Emis'
+      CHARACTER(LEN=8), PARAMETER :: NAME_NH3_FLUX = 'NH3_Flux'
+
+#ifdef isam
+      REAL NH3_SUM
+      REAL, ALLOCATABLE, SAVE :: NH3_TAG_FRACTION( : )
+      INTEGER :: NH3_ISAM_IDX = 0
+      INTEGER, ALLOCATABLE, SAVE :: ISAM_DEPV( : )
+      INTEGER IBGN, JTAG
+      CHARACTER( 16 ) :: ISAM_SPECIES
+
+      INTEGER, SAVE :: NH3_DV2DF_SPC_IDX = 0
+
+#endif
 
       INTERFACE
          SUBROUTINE PA_UPDATE_EMIS ( PNAME, VDEMIS_DIFF, JDATE, JTIME, TSTEP )
@@ -318,6 +334,50 @@ C Set up for grav. settling
             IF ( DDEP_SPC( V ) .EQ. 'NH3' ) NH3_HIT = V
          END DO
 
+#ifdef sens
+         ALLOCATE ( S_DDEP( N_SPC_DEPV,NCOLS,NROWS,NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_DDEP'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+         S_DDEP = 0.0
+
+         ALLOCATE ( SNGRD( N_SPC_CGRID,NLAYS,NCOLS,NROWS,NPMAX ), STAT = ASTAT )
+         IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating SNGRD'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         SNGRD = 0.0
+#endif
+
+#ifdef isam
+        IF ( SA_BIDI ) THEN
+          NH3_ISAM_IDX  = INDEX1( 'NH3', NSPC_SA, SPC_NAME(:,OTHRTAG) )
+          ALLOCATE ( ISAM_DEPV( N_SPCTAG ), 
+     &               NH3_TAG_FRACTION( NTAG_SA ), STAT = ASTAT )
+          IF ( ASTAT .NE. 0 ) THEN
+            XMSG = 'Failure Allocating ISAM variables in VDIFF'
+            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          END IF
+          ISAM_DEPV     = 0
+          DO ITAG = 1, N_SPCTAG
+            DO V = 1, N_SPC_DEPV
+              IBGN         = INDEX( VNAM_SPCTAG( ITAG ), '_', .FALSE. ) - 1
+              ISAM_SPECIES = VNAM_SPCTAG( ITAG )( 1:IBGN )
+              IF ( TRIM( ISAM_SPECIES ) .EQ. DV2DF_SPC( V ) ) THEN
+                ISAM_DEPV( ITAG ) = V
+              END IF
+            END DO
+          END DO
+
+          DO V = 1, N_SPC_DEPV
+            IF ( DV2DF_SPC( V ) .EQ.'NH3' ) THEN
+              NH3_DV2DF_SPC_IDX = V
+            ENDIF
+          END DO
+        ENDIF
+#endif
+
       END IF   !  if Firstime
 
       MDATE = JDATE
@@ -328,6 +388,21 @@ C Set up for grav. settling
 
 C Convert non-molar mixing ratio species and re-order CGRID
       CALL CONV_CGRID ( CGRID, MDATE, MTIME, CNGRD )
+
+#ifdef sens
+      DO NP = 1, NPMAX
+         DO L = 1, NLAYS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  DO S = 1, N_SPC_CGRID
+                     SENGRID_TEMP( C,R,L,S ) = SENGRID( C,R,L,NP,S )
+                  END DO
+               END DO
+            END DO
+         END DO
+         CALL CONV_CGRID ( SENGRID_TEMP,MDATE, MTIME, SNGRD(:,:,:,:,NP) )
+      END DO
+#endif
 
 C read & interpolate met data
       CALL GET_MET ( MDATE, MTIME, MSTEP )
@@ -374,7 +449,9 @@ C EDDYV returned = Kz, where Kz is in m**2/sec
       IF ( WSTEP .EQ. 0 ) THEN
          DDEP = 0.0                      ! array assignment
          ICMP = 0.0                      ! array assignment
-         DDEP_NH3 = 0.0
+#ifdef sens
+         S_DDEP = 0.0
+#endif
       END IF
 
 C Calculate the change in concentration and dry dep from vertical diffusion and vsed
@@ -405,6 +482,21 @@ C Note: cngrd is the argument keyword (from the INTERFACE); CNGRD is the actual 
 C Revert non-molar mixing ratio species and re-order CGRID
       CALL REV_CGRID ( CNGRD, MDATE, MTIME, CGRID )
 
+#ifdef sens
+      DO NP = 1, NPMAX
+         CALL REV_CGRID ( SNGRD(:,:,:,:,NP), MDATE, MTIME, SENGRID_TEMP )
+         DO L = 1, NLAYS
+            DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  DO S = 1, N_SPC_CGRID
+                     SENGRID( C,R,L,NP,S ) = SENGRID_TEMP( C,R,L,S )
+                  END DO
+               END DO
+            END DO
+         END DO
+      END DO
+#endif
+
 C If last call this hour:  write accumulated depositions:
 
       WSTEP = WSTEP + TIME2SEC( TSTEP( 2 ) )
@@ -423,10 +515,53 @@ C If last call this hour:  write accumulated depositions:
                   XMSG = 'Could not open ' // TRIM(CTM_DRY_DEP_1)
                   CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
                END IF
+
+#ifdef sens
+               IF ( .NOT. OPEN3( CTM_SDRYDEP_1, FSNONIO, PNAME ) ) THEN
+                  XMSG = 'Could not open ' // TRIM(CTM_SDRYDEP_1`)
+                  CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+               END IF
+#endif 
+
             END IF   ! .NOT. IO_PE_INCLUSIVE
          END IF
 #endif
-
+         IF ( ABFLUX ) THEN
+           DO R = 1, NROWS
+               DO C = 1, NCOLS
+                  NH3_FLUX(C,R) = DDEP( DD2DV(NH3_HIT),C,R )
+                  DDEP( DD2DV(NH3_HIT),C,R ) = NH3_EMIS(C,R)+NH3_FLUX(C,R)
+               END DO
+            END DO
+#ifdef isam
+            IF ( SA_BIDI ) THEN
+              DO R = 1, NROWS
+                DO C = 1, NCOLS
+                  NH3_SUM = 0.0
+                  DO ITAG = 1, NTAG_SA
+                    NH3_SUM = NH3_SUM + ISAM( C,R,1,NH3_ISAM_IDX,ITAG )
+                  END DO
+                  IF ( NH3_SUM .GT. 1.0E-25 ) THEN
+                    DO ITAG = 1, NTAG_SA
+                      NH3_TAG_FRACTION( ITAG ) = ISAM( C,R,1,NH3_ISAM_IDX,ITAG ) / NH3_SUM
+                    END DO
+                  ELSE
+                    NH3_TAG_FRACTION = 0.0
+                  END IF
+ 
+                  JTAG = 0 
+                  DO ITAG = 1, N_SPCTAG
+                    V = ISAM_DEPV( ITAG )
+                    IF ( V .EQ. NH3_DV2DF_SPC_IDX ) THEN
+                      JTAG = JTAG + 1
+                      SA_DDEP( C,R,ITAG ) = SA_DDEP( C,R,ITAG ) + NH3_TAG_FRACTION( JTAG ) * NH3_EMIS(C,R)
+                    END IF
+                  END DO
+                END DO
+              END DO
+            END IF
+#endif
+         ENDIF
          DO V = 1, N_SPC_DDEP
             S = DD2DV( V )
             DO R = 1, NROWS
@@ -443,14 +578,9 @@ C If last call this hour:  write accumulated depositions:
          END DO 
 C Write extra arrays for NH3 emission and net flux for bidi
          IF ( ABFLUX ) THEN
-           DO R = 1, NROWS
-               DO C = 1, NCOLS
-                  DDEP_NH3(C,R) = NH3_EMIS(C,R)+DDEP( DD2DV(NH3_HIT),C,R )
-               END DO
-            END DO
 
-            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, NAME_NH3_DDEP,
-     &                 MDATE, MTIME, DDEP_NH3 ) ) THEN
+            IF ( .NOT. WRITE3( CTM_DRY_DEP_1, NAME_NH3_FLUX,
+     &                 MDATE, MTIME, NH3_FLUX ) ) THEN
                XMSG = 'Could not write ' // CTM_DRY_DEP_1 // ' file'
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
@@ -580,11 +710,6 @@ C Write other diagnostics
             CALL PA_UPDATE_DDEP ( 'VDIF', DDEP_PA, JDATE, JTIME, TSTEP )
          END IF
 
-C re-set dry deposition array to zero
-
-         DDEP = 0.0
-         ICMP = 0.0
-
 #ifdef isam
          WRDD = 0.0
          DO ITAG = 1, N_SPCTAG
@@ -600,8 +725,40 @@ C re-set dry deposition array to zero
                CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
             END IF
          END DO
-
          SA_DDEP = 0.0
+#endif
+
+C re-set dry deposition array to zero
+
+         DDEP = 0.0
+         ICMP = 0.0
+
+#ifdef sens
+C WT - write out dry deposition sensitivities
+         DO V = 1, N_SPC_DDEP
+            S = DD2DV( V )
+            SPCNAME = DDEP_SPC( V )( 1:12 )                       ! <- these lines have to
+            DO NP = 1, NPMAX
+               SPCNAME = TRIM( SPCNAME ) //'_' // SEN_PAR( NP )   ! <- match what is in opddep.F
+               DO R = 1, NROWS
+                  DO C = 1, NCOLS
+                     WRDD( C,R ) = S_DDEP( S, C, R, NP )
+                  ENDDO
+               ENDDO
+
+               IF ( .NOT. WRITE3( CTM_SDRYDEP_1, SPCNAME,
+     &                 MDATE, MTIME, WRDD ) ) THEN
+                  XMSG = 'Could not write ' // CTM_SDRYDEP_1 // ' file'
+                  CALL M3EXIT( PNAME, MDATE, MTIME, XMSG, XSTAT1 )
+               END IF
+
+            ENDDO
+         ENDDO
+         WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
+     &         'Timestep written to', CTM_SDRYDEP_1,
+     &         'for date and time', MDATE, MTIME
+
+         S_DDEP = 0.0
 #endif
 
       END IF

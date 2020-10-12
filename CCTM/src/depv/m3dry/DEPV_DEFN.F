@@ -50,8 +50,14 @@ C                        Added a block of code to let non I/O processors to
 C                          open CTM_DEPV_DIAG in parallel I/O implementation
 C   1 Feb 19 David Wong: Implemented centralized I/O approach, removed all MY_N
 C                        clauses
+C   12 Dec 19 S.L.Napelenok: ddm-3d implementation for version 5.3.1
+C   August 2020 J Pleim: Fixed timestep in call to m3dry. Corrects NH3 bidi emis, dep outputs
 C-------------------------------------------------------------------------------
       USE RUNTIME_VARS
+
+#ifdef sens
+      USE DDM3D_DEFN, ONLY : NP, NPMAX, S_PVD, S_CGRIDL1, S_PLDV
+#endif
 
       IMPLICIT NONE
 
@@ -201,6 +207,17 @@ C-----------------------------------------------------------------------
             CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
             SUCCESS = .FALSE.; RETURN
          END IF
+
+#ifdef sens
+         ALLOCATE ( S_PLDV( NPMAX,N_SPC_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+            XMSG = 'Failure allocating S_PLDV array'
+            CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+            SUCCESS = .FALSE.; RETURN
+         END IF
+         S_PLDV = 0.0   ! array assignment
+#endif
+
 
 C DEPVEL_GAS is used also for non-ILDEPV in the sgtot calculation
          ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
@@ -405,6 +422,17 @@ C Identify and remove multiple occurrences of aerosol deposition velocities
             CGRIDL1 = 0.0   ! array assignment (PVD initalized in m3dry)
             NH3_EMIS = 0.0
 
+#ifdef sens
+               ALLOCATE ( S_CGRIDL1( NPMAX,N_GAS_DEPV,NCOLS,NROWS ),
+     &                    S_PVD    ( NPMAX,N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
+               IF ( ALLOCSTAT .NE. 0 ) THEN
+                  XMSG = 'Failure allocating S_CGRIDL1 or S_PVD arrays'
+                  CALL M3WARN( PNAME, JDATE, JTIME, XMSG )
+                  SUCCESS = .FALSE.; RETURN
+               END IF
+               S_CGRIDL1 = 0.0
+#endif
+
          END IF INIT_GAS_DV
 
          WRITE( LOGDEV,'( 5X, A / )' ) 'DEPV_INIT: completed INIT_GAS_DV block '
@@ -468,7 +496,7 @@ C Local variables:
          INTEGER, SAVE :: WSTEP_MOS = 0  ! local write counter [HHMMSS]
          INTEGER       :: CDATE, CTIME   ! step beginning date and time
          INTEGER       :: WDATE, WTIME   ! write date and time
-
+         REAL   DTSEC
          CHARACTER( 16 )  :: PNAME = 'GET_DEPV        '
          CHARACTER( 120 ) :: XMSG = ' '
 
@@ -491,9 +519,10 @@ C Local variables:
                REAL,    POINTER       :: CGRID( :,:,:,: )
                REAL,    INTENT( OUT ) :: CGRIDL1( :,:,: )
             END SUBROUTINE CGRID_DEPV
-            SUBROUTINE M3DRY ( JDATE, JTIME, TSTEP, 
+            SUBROUTINE M3DRY ( JDATE, JTIME, DTSEC, 
      &                         CGRIDL1, DEPVEL_GAS, PVD, NH3_EMIS)
-               INTEGER, INTENT( IN )  :: JDATE, JTIME, TSTEP(3)
+               INTEGER, INTENT( IN )  :: JDATE, JTIME
+               REAL,    INTENT( IN )  :: dtsec
                REAL,    INTENT( IN )  :: CGRIDL1( :,:,: )
                REAL,    INTENT( OUT ) :: DEPVEL_GAS( :,:,: ), PVD( :,:,: ),NH3_EMIS(:,:)
             END SUBROUTINE M3DRY
@@ -510,7 +539,8 @@ C-----------------------------------------------------------------------
 ! Made default for Hg bidi JOB 9/12/11
          CALL CGRID_DEPV( GAS_DEPV_FOUND, GAS_DEPV_SUR, CGRID, CGRIDL1 )
 
-         CALL M3DRY ( JDATE, JTIME, TSTEP, 
+         DTSEC = FLOAT( TIME2SEC( TSTEP( 2 ) ) )
+         CALL M3DRY ( JDATE, JTIME, DTSEC, 
      &                CGRIDL1, DEPVEL_GAS, PVD, NH3_EMIS )
 
 #ifdef Verbose
@@ -532,6 +562,11 @@ C-----------------------------------------------------------------------
                DO C = 1, NCOLS
                   DEPV( V,C,R ) = GC_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                   PLDV( V,C,R ) = PVD( NDX,C,R )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_PLDV( NP,V,C,R ) = S_PVD( NP,NDX,C,R )
+                  END DO
+#endif
 #ifdef Verbose
                   if ( c .eq. cw .and. r .eq. rw ) then
                      write( logdev,1039 ) v, n, gc_depv( n ), ndx,
@@ -555,6 +590,12 @@ C-----------------------------------------------------------------------
                DO C = 1, NCOLS
                   DEPV( V,C,R ) = NR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                   PLDV( V,C,R ) = PVD( NDX,C,R )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_PLDV( NP,V,C,R ) = S_PVD( NP,NDX,C,R )
+                  END DO
+#endif
+
 #ifdef Verbose
                   if ( c == cw .and. r == rw ) then
                      write( logdev,1039 ) v, n, nr_depv( n ), ndx,
@@ -577,6 +618,11 @@ C-----------------------------------------------------------------------
                DO C = 1, NCOLS
                   DEPV( V,C,R ) = TR_DEPV_FAC( N ) * DEPVEL_GAS( NDX,C,R )
                   PLDV( V,C,R ) = PVD( NDX,C,R )
+#ifdef sens
+                  DO NP = 1, NPMAX
+                     S_PLDV( NP,V,C,R ) = S_PVD( NP,NDX,C,R )
+                  END DO
+#endif
 #ifdef Verbose
                   if ( c == cw .and. r == rw ) then
                      write( logdev,1039 ) v, n, tr_depv( n ), ndx,
