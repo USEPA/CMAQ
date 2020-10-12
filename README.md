@@ -33,7 +33,7 @@ This CMAQ Git archive is organized with each official public release stored as a
 a working directory on your server:
 
 ```
-git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+git clone -b 5.3.1 https://github.com/USEPA/CMAQ.git CMAQ_REPO
 ```
 
 ## CMAQ Repository Guide
