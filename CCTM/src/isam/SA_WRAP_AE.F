@@ -16,7 +16,8 @@
       USE UTILIO_DEFN
       USE AERO_BUDGET
       USE AERO_DATA, ONLY : AERO_MISSING, AEROSPC_MAP, N_MODE,
-     &                      N_AEROSPC, AEROSPC
+     &                      N_AEROSPC, AEROSPC, AEROSPC_MWINV,
+     &                      AEROSPC_MW
       USE CENTRALIZED_IO_MODULE, only : interpolate_var
 
       IMPLICIT NONE
@@ -33,75 +34,44 @@
 
 ! Scratch
       CHARACTER( 16 ), SAVE :: PNAME = 'SA_WRAP_AE'
-      INTEGER S,V,K
-      INTEGER JSPCTAG
-      INTEGER IBGN
-      REAL    TOTAL_OLD, TOTAL_NEW
-      CHARACTER( 16 ) :: PRECUR
-      REAL, ALLOCATABLE, SAVE :: TTLB4( :,:,:,: )
-      REAL, ALLOCATABLE, SAVE :: SULFCOND( :,:,: )
-      REAL, ALLOCATABLE, SAVE :: SULFCOND_AIT( :,:,: )
-      REAL, ALLOCATABLE, SAVE :: SULFCOND_ACC( :,:,: )
+      REAL, ALLOCATABLE, SAVE :: BULK0( :,:,:,: )
       REAL, ALLOCATABLE, SAVE :: CCOND( :,:,:,: )
 
 ! for interpx
-      REAL DX1, DX2
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
       REAL DENS ( NCOLS,NROWS,NLAYS )
       INTEGER MDATE, MTIME, MSTEP
       CHARACTER( 96 ) :: XMSG = ' '
 
-! Constants of Gas Law
-      REAL, PARAMETER :: SLP0 = 101325.0 ! standard atm (centibars) * 1000
-      REAL, PARAMETER :: GAS_CONST = 8.2057E-05 ! gas const (L-atm/mole-k) / 1000
-      REAL, PARAMETER :: MWNH3 = 17.03061
-      REAL, PARAMETER :: MWNH4 = 18.03858
-      REAL, PARAMETER :: MWHNO3 = 63.01287
-      REAL, PARAMETER :: MWNO3 = 62.0049
-      REAL, PARAMETER :: MWCL  = 35.453
-      REAL, PARAMETER :: MWSO4 = 96.0576
-
 ! ppm2mole conversion
       REAL ppm2mole( NCOLS,NROWS,NLAYS )
 
 ! Identify ISAM species indices 20130529
-      INTEGER, SAVE :: JNH3, JNH4I, JNH4J, JHNO3, JNO3I, JNO3J
-      INTEGER, SAVE :: JHCL, JCLI , JCLJ
-      INTEGER, SAVE :: JSULF, JSO4I, JSO4J, JSRXN
-
-      INTEGER :: ISA1, ISA2, ICG1, ICG2, IAER, IM, INDX
-
-      INTEGER, SAVE :: CNH3, CNH4I, CNH4J, CHNO3, CNO3I, CNO3J
-      INTEGER, SAVE :: CHCL, CCLI,  CCLJ
-
+      INTEGER :: ISA1, ISA2, ICG1, ICG2, IAER, IM, K, C, R, L
+      INTEGER :: JGAS, CGAS, JCTR, CCTR, JAER
+      LOGICAL :: OMH2O
 
 ! Arrays for combined ammonium, combined nitrates, and combined sulfates
-      REAL, ALLOCATABLE, SAVE :: AMMONIA_TAG (:,:,:)
-      REAL, ALLOCATABLE, SAVE :: NITRATE_TAG (:,:,:)
-      REAL, ALLOCATABLE, SAVE :: CHLORINE_TAG(:,:,:)
-      REAL, ALLOCATABLE, SAVE :: SULFATE_TAG (:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTAER_TAG (:,:,:)
 
-      REAL, ALLOCATABLE, SAVE :: TOTNH3(:,:,:)
-      REAL, ALLOCATABLE, SAVE :: TOTNO3(:,:,:)
-      REAL, ALLOCATABLE, SAVE :: TOTCL (:,:,:)
-      REAL, ALLOCATABLE, SAVE :: TOTSO4(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTAER(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: GASPM_BULK0(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: GASPM_TAG(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: AERO_TAG(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: AERO_BULK(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: BULKFRAC(:,:,:,:)
+      REAL, ALLOCATABLE, SAVE :: BULKCOND(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: BULKH2O(:,:,:)
       REAL, ALLOCATABLE, SAVE :: FRAC1(:,:,:)
       REAL, ALLOCATABLE, SAVE :: FRAC2(:,:,:)
 
       REAL, ALLOCATABLE, SAVE :: ISAM0(:,:,:,:,:)
       REAL, ALLOCATABLE, SAVE :: ISAM1(:,:,:,:,:)
 
-      REAL ::  FRAC( NCOLS,NROWS,NLAYS )
-      REAL ::  A(3)
+      LOGICAL, ALLOCATABLE, SAVE :: L_MASK_AERO( : ), L_MASK_OM( : )
+      CHARACTER( 3 ), ALLOCATABLE, SAVE :: L_MASK_TYPE( : )
+      INTEGER, ALLOCATABLE, SAVE :: L_MASK_IM( : )
 
-! Logicals for determining presence of inorganic ions
-      LOGICAL, SAVE :: LAE_NH4 
-      LOGICAL, SAVE :: LAE_NO3 
-      LOGICAL, SAVE :: LAE_CL 
-      LOGICAL, SAVE :: LAE_SO4 
-     
       REAL, PARAMETER :: MIN_VAL = 1.0E-25
       REAL, SAVE :: MIN_TAGTOT 
 
@@ -110,91 +80,28 @@
 
 
 Ckrt Identify species index in ISAM array
-      ! Decompose domain for Density
       IF ( FIRSTIME ) THEN
         FIRSTIME = .FALSE.
 
-        LAE_NH4 = .FALSE.
-        LAE_NO3 = .FALSE.
-        LAE_CL  = .FALSE.
-        LAE_SO4 = .FALSE.
-
-        JNH3  = INDEX1( 'NH3', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        JNH4I = INDEX1( 'ANH4I', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        JNH4J = INDEX1( 'ANH4J', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        IF ( JNH3 .GT. 0 .AND. JNH4I .GT. 0 .AND. JNH4J .GT. 0 ) THEN
-          LAE_NH4 = .TRUE.
-          CNH3  = MAP_SAtoCGR( JNH3 )
-          CNH4I = MAP_SAtoCGR( JNH4I )
-          CNH4J = MAP_SAtoCGR( JNH4J )
-        END IF
-
-        JHNO3 = INDEX1( 'HNO3', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        JNO3I = INDEX1( 'ANO3I', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        JNO3J = INDEX1( 'ANO3J', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        IF ( JHNO3 .GT. 0 .AND. JNO3I .GT. 0 .AND. JNO3J .GT. 0 ) THEN
-          LAE_NO3 = .TRUE.
-          CHNO3 = MAP_SAtoCGR( JHNO3 )
-          CNO3I = MAP_SAtoCGR( JNO3I )
-          CNO3J = MAP_SAtoCGR( JNO3J )
-        END IF
- 
-        JHCL = INDEX1( 'HCL',  NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        JCLI = INDEX1( 'ACLI', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        JCLJ = INDEX1( 'ACLJ', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        IF ( JHCL .GT. 0 .AND. JCLI .GT. 0 .AND. JCLJ .GT. 0 ) THEN
-          LAE_CL = .TRUE.
-          CHCL = MAP_SAtoCGR( JHCL )
-          CCLI = MAP_SAtoCGR( JCLI )
-          CCLJ = MAP_SAtoCGR( JCLJ )
-        END IF
- 
-        JSULF = INDEX1( 'SULF', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )  
-        JSO4I = INDEX1( 'ASO4I', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        JSO4J = INDEX1( 'ASO4J', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )
-        JSRXN = INDEX1( 'SULRXN', NSPC_SA, ISAM_SPEC( :,OTHRTAG ) )  
-        IF ( JSULF .GT. 0 .AND. JSO4I .GT. 0 .AND. JSO4J .GT. 0 
-     &       .AND. JSRXN .GT. 0 ) LAE_SO4 = .TRUE.
-
-        ! Map Aerosol Modes and Names to Source Apportionment Species
-        ALLOCATE( MAP_AEROtoSA( N_AEROSPC, N_MODE ), STAT = ALLOCSTAT )
-        IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating MAP_AEROtoSA'
-           CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
-        MAP_AEROtoSA( :,: ) = 0
-        DO IM = 1,N_MODE
-            DO IAER = 1,N_AEROSPC
-                INDX = INDEX1( AEROSPC( IAER )%NAME( IM ), NSPC_SA, ISAM_SPEC( :,2 ) )
-                IF ( INDX .NE. 0 ) MAP_AEROtoSA( IAER,IM ) = INDX
-            END DO
-        END DO
-
         MIN_TAGTOT = MIN_VAL * NTAG_SA
   
-        IF ( .NOT. OPEN3( MET_CRO_3D, FSREAD3, PNAME ) ) THEN
-          XMSG = 'Could not open  MET_CRO_3D  file '
-          CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-        END IF
-
         ALLOCATE( CCOND( NCOLS,NROWS,NLAYS,NSPCSD ),
-     &     TTLB4( NCOLS,NROWS,NLAYS,NSPC_SA ),
-     &     SULFCOND( NCOLS,NROWS,NLAYS ), 
-     &     SULFCOND_AIT( NCOLS,NROWS,NLAYS ),
-     &     SULFCOND_ACC( NCOLS,NROWS,NLAYS ),
+     &     BULK0( NCOLS,NROWS,NLAYS,NSPC_SA ),
+     &     GASPM_BULK0( NCOLS,NROWS,NLAYS ),
+     &     GASPM_TAG( NCOLS,NROWS,NLAYS ),
      &     STAT = ALLOCSTAT ) 
         IF ( ALLOCSTAT .NE. 0 ) THEN
-           XMSG = 'Failure allocating TTLB4, SULFCOND, SULFCOND_AIT, '
+           XMSG = 'Failure allocating BULK0, SULFCOND, SULFCOND_AIT, '
      &          //'or SULFCOND_ACC'
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        ALLOCATE( AMMONIA_TAG( NCOLS,NROWS,NLAYS ),
-     &     NITRATE_TAG ( NCOLS,NROWS,NLAYS ),
-     &     CHLORINE_TAG( NCOLS,NROWS,NLAYS ),
-     &     SULFATE_TAG ( NCOLS,NROWS,NLAYS ),
-     &     TOTAER_TAG  ( NCOLS,NROWS,NLAYS ),
+        ALLOCATE( TOTAER_TAG  ( NCOLS,NROWS,NLAYS ),
+     &     AERO_TAG( NCOLS,NROWS,NLAYS ),
+     &     AERO_BULK( NCOLS,NROWS,NLAYS ),
+     &     BULKFRAC( NCOLS,NROWS,NLAYS,N_MODE ),
+     &     BULKCOND( NCOLS,NROWS,NLAYS ),
+     &     BULKH2O( NCOLS,NROWS,NLAYS ),
      &     STAT = ALLOCSTAT )
         IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating AMMONIA_TAG, NITRATE_TAG, '
@@ -202,11 +109,7 @@ Ckrt Identify species index in ISAM array
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
-        ALLOCATE( TOTNH3( NCOLS,NROWS,NLAYS ),
-     &     TOTNO3( NCOLS,NROWS,NLAYS ),
-     &     TOTCL ( NCOLS,NROWS,NLAYS ),
-     &     TOTSO4( NCOLS,NROWS,NLAYS ),
-     &     TOTAER( NCOLS,NROWS,NLAYS ),
+        ALLOCATE( TOTAER( NCOLS,NROWS,NLAYS ),
      &     FRAC1( NCOLS,NROWS,NLAYS ),
      &     FRAC2( NCOLS,NROWS,NLAYS ),
      &     STAT = ALLOCSTAT )
@@ -224,6 +127,25 @@ Ckrt Identify species index in ISAM array
            CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
         END IF
 
+        ! Store Masks for Aerosol features in vectors of length NSPC_SA
+        ALLOCATE( L_MASK_AERO( NSPC_SA ), L_MASK_TYPE( NSPC_SA ), 
+     &            L_MASK_OM( NSPC_SA )  , L_MASK_IM( NSPC_SA ) )
+        L_MASK_AERO = .FALSE.
+        L_MASK_TYPE = ''
+        L_MASK_OM   = .FALSE.
+        L_MASK_IM   = 0
+        DO IAER = 1,N_AEROSPC
+        DO IM = 1,N_MODE
+           JAER = MAP_AEROtoSA( IAER,IM ) 
+           IF ( JAER  .NE. 0 ) THEN 
+              L_MASK_AERO( JAER ) = .TRUE.
+              L_MASK_TYPE( JAER ) = AEROSPC( IAER )%VOLTYPE
+              L_MASK_OM  ( JAER ) = AEROSPC( IAER )%OM
+              L_MASK_IM  ( JAER ) = IM
+           END IF
+        END DO
+        END DO   
+
       ENDIF ! firstime ?
 
       ! Extract Density for gas conversion to umol/m3
@@ -238,144 +160,174 @@ Ckrt Identify species index in ISAM array
       ! Conversion factor to move gases from ppmv to umol/m3
       ppm2mole( :,:,: ) = MAX( DENS( :,:,: ) * 1000. / MWAIR, 1e-10 )
       
-      ! Create 1D array of combined ammonium tags and combined nitrate tags
-      AMMONIA_TAG  = 0.0
-      NITRATE_TAG  = 0.0
-      CHLORINE_TAG = 0.0
-      SULFATE_TAG  = 0.0
-
       ! Sum up pre-process tags for each species at each grid cell
-c     ISAM = MAX( ISAM, MIN_VAL )
       CGRID0 = MAX( CGRID0, MIN_TAGTOT )
       ISAM0(:,:,:,:,:) = ISAM(:,:,:,:,:)
       ISAM1(:,:,:,:,:) = ISAM(:,:,:,:,:)
-      TTLB4( :,:,:,: ) = SUM( ISAM( :,:,:,:,: ),5 )
+      BULK0( :,:,:,: ) = SUM( ISAM( :,:,:,:,: ),5 )
 
-      CCOND = MAX( CGRID0 + AERO_COND, MIN_TAGTOT )
+      CCOND = MAX( CGRID0 + AERO_COND + AERO_NPF, MIN_TAGTOT )
 
-      IF ( LAE_SO4 ) THEN
-         SULFCOND = MAX( ( AERO_COND( :,:,:,MAP_SAtoCGR(JSO4I) ) 
-     &            + AERO_COND( :,:,:,MAP_SAtoCGR(JSO4J) ) 
-     &            + AERO_NPF ( :,:,:,MAP_SAtoCGR(JSO4I) ) ), MIN_VAL )
-         SULFCOND_AIT = (AERO_COND( :,:,:,MAP_SAtoCGR( JSO4I ))  
-     &                + AERO_NPF( :,:,:,MAP_SAtoCGR(JSO4I)) ) / SULFCOND  
-         SULFCOND_ACC = 1.0 - SULFCOND_AIT
-      END IF
-
-      ! Preprocess total - ammonium and ammonia
-      IF ( LAE_NH4 ) THEN
-        CCOND( :,:,:,CNH3 )  = CCOND( :,:,:,CNH3 ) * ppm2mole ! umol / m3
-        CCOND( :,:,:,CNH4I ) = CCOND( :,:,:,CNH4I ) / MWNH4   ! umol / m3
-        CCOND( :,:,:,CNH4J ) = CCOND( :,:,:,CNH4J ) / MWNH4   ! umol / m3
-        TOTNH3 = TTLB4( :,:,:,JNH3 ) * ppm2mole + TTLB4( :,:,:,JNH4I ) / MWNH4 
-     &          +TTLB4( :,:,:,JNH4J ) / MWNH4
-      ENDIF 
-
-      ! Preprocess total nitrate
-      IF ( LAE_NO3 ) THEN
-        CCOND( :,:,:,CHNO3 ) = CCOND( :,:,:,CHNO3 ) * ppm2mole
-        CCOND( :,:,:,CNO3I ) = CCOND( :,:,:,CNO3I ) / MWNO3
-        CCOND( :,:,:,CNO3J ) = CCOND( :,:,:,CNO3J ) / MWNO3
-        TOTNO3 = TTLB4( :,:,:,JHNO3 ) * ppm2mole + TTLB4( :,:,:,JNO3I ) / MWNO3 
-     &          +TTLB4( :,:,:,JNO3J ) / MWNO3
-      ENDIF 
  
-      ! Preprocess total chlorine
-      IF ( LAE_CL ) THEN
-        CCOND( :,:,:,CHCL ) = CCOND( :,:,:,CHCL ) * ppm2mole
-        CCOND( :,:,:,CCLI ) = CCOND( :,:,:,CCLI ) / MWCL
-        CCOND( :,:,:,CCLJ ) = CCOND( :,:,:,CCLJ ) / MWCL
-        TOTCL = TTLB4( :,:,:,JHCL ) * ppm2mole + TTLB4( :,:,:,JCLI ) / MWCL
-     &         +TTLB4( :,:,:,JCLJ ) / MWCL
-      ENDIF 
- 
-      ! Preprocess total sulfate
-      IF ( LAE_SO4 ) THEN
-        TTLB4( :,:,:,JSULF ) = TTLB4( :,:,:,JSULF ) * ppm2mole
-        TTLB4( :,:,:,JSRXN ) = TTLB4( :,:,:,JSRXN ) * ppm2mole
-        TTLB4( :,:,:,JSO4I ) = TTLB4( :,:,:,JSO4I ) / MWSO4
-        TTLB4( :,:,:,JSO4J ) = TTLB4( :,:,:,JSO4J ) / MWSO4
-      ENDIF 
-
 c  !------------------------!
 c  !>>>>> CONDENSATION <<<<<!
-      ! Find preprocess bulk fraction for condensable species and
-      ! propagate source apporitonment through aerosol condensation changes
-      DO K = 1, NTAG_SA
-
-        ! Ammonium
-        IF ( LAE_NH4 ) THEN
+      DO IAER = 1,N_AEROSPC
+          IF ( .NOT.L_ISAM_AERO( IAER ) ) CYCLE
           
-          AMMONIA_TAG( :,:,: ) = (  ISAM0( :,:,:,JNH3,K ) * ppm2mole
-     &                              + ISAM0( :,:,:,JNH4I,K )/ MWNH4
-     &                              + ISAM0( :,:,:,JNH4J,K )/ MWNH4 ) /
-     &                                MAX( TOTNH3, MIN_TAGTOT*3.0 )
-c     &                            (    TTLB4( :,:,:,JNH4I ) / MWNH4
-c     &                              + TTLB4( :,:,:,JNH4J ) / MWNH4
-c     &                              + TTLB4( :,:,:,JNH3 ) * ppm2mole )     
+          ! Reversible Partitioning
+          IF ( AEROSPC( IAER )%VOLTYPE .EQ. 'REV' ) THEN
+             ! Load Indices for Vapor-Phase Species and Reaction
+             ! Counter, if present
 
-          ISAM1( :,:,:,JNH3,K )  = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,CNH3 ) / ppm2mole
-          ISAM1( :,:,:,JNH4I,K ) = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,CNH4I ) * MWNH4
-          ISAM1( :,:,:,JNH4J,K ) = AMMONIA_TAG( :,:,: ) * CCOND( :,:,:,CNH4J ) * MWNH4
-        ENDIF 
+             !!! WATER MAY POSE A PROBLEM HERE - IT'S REV but it doesn't
+             !have a gas-phase species !!!
+             JGAS = MAP_AEROGAStoSA( IAER )
+             CGAS = MAP_SAtoCGR( JGAS )
+             JCTR = MAP_AEROCTRtoSA( IAER )
+             CCTR = 0
+             IF ( JCTR .GT. 0 ) CCTR = MAP_SAtoCGR( JCTR )
 
-        ! Nitrate
-        IF ( LAE_NO3 ) THEN
-           NITRATE_TAG( :,:,: ) = ( ISAM0( :,:,:,JHNO3,K ) * ppm2mole
-     &                              + ISAM0( :,:,:,JNO3I,K )/ MWNO3
-     &                              + ISAM0( :,:,:,JNO3J,K )/ MWNO3 ) /
-     &                                MAX( TOTNO3, MIN_TAGTOT*3.0 )
-c     &                            (    TTLB4( :,:,:,JNO3I ) / MWNO3
-c     &                              + TTLB4( :,:,:,JNO3J ) / MWNO3
-c     &                              + TTLB4( :,:,:,JHNO3 ) * ppm2mole )
+             ! Sum up Total Gas plus particle initially
+             GASPM_BULK0 = 0.0
+             DO IM = 1,N_MODE
+                IF ( MAP_AEROtoSA( IAER,IM ) .NE. 0 ) 
+     &             GASPM_BULK0 = GASPM_BULK0 
+     &                 + BULK0( :,:,:,MAP_AEROtoSA( IAER,IM )) * AEROSPC_MWINV( IAER )
+             END DO
+             GASPM_BULK0 = BULK0( :,:,:,JGAS ) * ppm2mole + GASPM_BULK0( :,:,: )  ! umol m-3
+             IF ( JCTR .GT. 0 ) 
+     &          GASPM_BULK0 = GASPM_BULK0 + BULK0( :,:,:,JCTR ) * ppm2mole * AEROSPC( IAER )%CTR_YIELD
 
-          ISAM1( :,:,:,JHNO3,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CHNO3 ) / ppm2mole
-          ISAM1( :,:,:,JNO3I,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CNO3I ) * MWNO3
-          ISAM1( :,:,:,JNO3J,K ) = NITRATE_TAG( :,:,: ) * CCOND( :,:,:,CNO3J ) * MWNO3
-        ENDIF
+             ! Find bulk fraction for condensable species and
+             DO K = 1,NTAG_SA
+                AERO_TAG = 0.0
+                DO IM = 1,N_MODE
+                   IF ( MAP_AEROtoSA( IAER,IM ) .NE. 0 ) 
+     &                AERO_TAG( :,:,: ) = AERO_TAG( :,:,: ) +
+     &                    ISAM0( :,:,:,MAP_AEROtoSA( IAER,IM ),K )
+                END DO
+                AERO_TAG( :,:,: ) = AERO_TAG( :,:,: ) * AEROSPC_MWINV( IAER ) ! umol m-3
 
-        ! Chlorine
-        IF ( LAE_CL ) THEN
-           CHLORINE_TAG( :,:,: ) = ( ISAM0( :,:,:,JHCL,K ) * ppm2mole
-     &                             + ISAM0( :,:,:,JCLI,K )/ MWCL
-     &                             + ISAM0( :,:,:,JCLJ,K )/ MWCL ) /
-     &                                MAX( TOTCL, MIN_TAGTOT*3.0 )
-c     &                            (    TTLB4( :,:,:,JNO3I ) / MWNO3
-c     &                              + TTLB4( :,:,:,JNO3J ) / MWNO3
-c     &                              + TTLB4( :,:,:,JHNO3 ) * ppm2mole )
+                GASPM_TAG = 0.0
+                
+                ! Add condensation from reaction counter, if applicable
+                IF ( JCTR .GT. 0 ) 
+     &               GASPM_TAG( :,:,: ) = ISAM0( :,:,:,JCTR,K ) * ppm2mole * AEROSPC(IAER)%CTR_YIELD
 
-          ISAM1( :,:,:,JHCL,K ) = CHLORINE_TAG( :,:,: ) * CCOND( :,:,:,CHCL ) / ppm2mole
-          ISAM1( :,:,:,JCLI,K ) = CHLORINE_TAG( :,:,: ) * CCOND( :,:,:,CCLI ) * MWCL
-          ISAM1( :,:,:,JCLJ,K ) = CHLORINE_TAG( :,:,: ) * CCOND( :,:,:,CCLJ ) * MWCL
-        ENDIF
- 
-        ! Sulfate
-        IF ( LAE_SO4 ) THEN
-          ! Use Source Distribution of Sulfuric Acid Produced and apply
-          ! that profile to the mass that was condensed to each mode.
-          ISAM1( :,:,:,JSO4I,K ) = ISAM0( :,:,:,JSO4I,K ) + 
-     &                             ISAM0( :,:,:,JSRXN,K ) * SULFCOND_AIT( :,:,: )
-     &                             * ppm2mole ( :,:,: ) * 98.0
+                ! Add condensable vapor and aerosol species
+                GASPM_TAG( :,:,: ) = ( GASPM_TAG + ISAM0( :,:,:,JGAS,K ) * ppm2mole 
+     &                                +AERO_TAG( :,:,: )  ) /                           ! umol m-3 /
+     &                                MAX( GASPM_BULK0, MIN_TAGTOT*(REAL(N_MODE)+1.0) ) ! umol m-3
 
-          ISAM1( :,:,:,JSO4J,K ) = ISAM0( :,:,:,JSO4J,K ) + 
-     &                             ISAM0( :,:,:,JSRXN,K ) * SULFCOND_ACC( :,:,: )
-     &                             * ppm2mole ( :,:,: ) * 98.0
+                ! Propagate source apportionment through aerosol condensation changes
+                IF ( JCTR .GT. 0 ) ISAM1( :,:,:,JCTR,K ) = MIN_VAL
 
-          ISAM1( :,:,:,JSRXN,K ) = MIN_VAL
-        ENDIF 
+                ISAM1( :,:,:,JGAS,K ) = GASPM_TAG( :,:,: ) * CCOND( :,:,:,CGAS ) ! ppmv
+                DO IM = 1,N_MODE
+                   IF ( MAP_AEROtoSA( IAER,IM ) .NE. 0 ) 
+     &                ISAM1( :,:,:,MAP_AEROtoSA( IAER,IM ),K ) = 
+     &                    GASPM_TAG( :,:,: ) * CCOND( :,:,:,AEROSPC_MAP( IAER,IM ) ) ! ug m-3
+                END DO
+             END DO
 
-      ENDDO ! k tags
+          ! Irreversible Partitioning
+          ELSE IF ( AEROSPC( IAER )%VOLTYPE .EQ. 'IRV' ) THEN
+             JCTR = MAP_AEROCTRtoSA( IAER )
 
-      ! Let the Sulfuric Acid Vapor Source Distribution equal that of the
-      ! total condensed sulfate
-      IF ( LAE_SO4 ) THEN
-         TOTSO4 = MAX( SUM( ISAM1( :,:,:,JSO4I,: ),4 ) 
-     &          + SUM( ISAM1(:,:,:,JSO4J,: ),4 ), MIN_TAGTOT*2.0 )
-         DO K = 1,NTAG_SA
-            FRAC( :,:,: ) = ( ISAM1( :,:,:,JSO4I,K ) + ISAM1( :,:,:,JSO4J,K ) ) / TOTSO4
-            ISAM1( :,:,:,JSULF,K ) = FRAC( :,:,: ) * CGRID( :,:,:,MAP_SAtoCGR(JSULF) )
-         END DO
-      END IF
+             ! Find fractional condensation of mass to each aerosol mode
+             BULKFRAC = 0.0
+             DO IM = 1,N_MODE
+                IF ( MAP_AEROtoSA( IAER,IM ) .NE. 0 ) 
+     &             BULKFRAC( :,:,:,IM ) = BULKFRAC( :,:,:,IM ) 
+     &                              + AERO_COND( :,:,:,AEROSPC_MAP( IAER,IM ) )
+     &                              + AERO_NPF ( :,:,:,AEROSPC_MAP( IAER,IM ) )
+             END DO
+             BULKFRAC = MAX( BULKFRAC, MIN_VAL )
+             BULKCOND = SUM( BULKFRAC,4 )
+             DO IM = 1,N_MODE
+                BULKFRAC( :,:,:,IM ) = BULKFRAC( :,:,:,IM ) / BULKCOND
+             END DO
+
+             ! Apportion mass based on contributions from sources to
+             ! condensable vapors
+             DO K = 1,NTAG_SA
+               DO IM = 1,N_MODE
+                 IF ( MAP_AEROtoSA( IAER,IM ) .NE. 0 ) 
+     &              ISAM1( :,:,:,MAP_AEROtoSA( IAER,IM ),K ) = 
+     &                    ISAM0( :,:,:,MAP_AEROtoSA( IAER,IM ),K )
+     &                  + ISAM0( :,:,:,JCTR,K )
+     &                     * BULKFRAC( :,:,:,IM ) * ppm2mole * AEROSPC_MW( IAER )
+               END DO
+                 ISAM1( :,:,:,JCTR,K ) = MIN_VAL
+             END DO
+
+             ! Let low-volatility vapor species apportionment equal that
+             ! of the particle-phase mass
+             IF ( MAP_AEROGAStoSA( IAER ) .GT. 0 ) THEN
+                AERO_BULK = 0.0
+                DO IM = 1,N_MODE
+                   IF ( MAP_AEROtoSA( IAER,IM ) .NE. 0 ) 
+     &                AERO_BULK = AERO_BULK 
+     &                   + SUM( ISAM1( :,:,:,MAP_AEROtoSA( IAER,IM ),: ),4 )
+                END DO
+                AERO_BULK = MAX( AERO_BULK, MIN_TAGTOT * REAL( N_MODE ) )
+
+                JGAS = MAP_AEROGAStoSA( IAER )
+                CGAS = MAP_SAtoCGR( JGAS )
+                DO K = 1,NTAG_SA
+                   FRAC1 = 0.0
+                   DO IM = 1,N_MODE
+                      IF ( MAP_AEROtoSA( IAER,IM ) ) 
+     &                   FRAC1( :,:,: ) = FRAC1( :,:,: ) + ISAM1( :,:,:,MAP_AEROtoSA( IAER,IM ),K )
+                   END DO
+                   ISAM1( :,:,:,JGAS,K ) = FRAC1 * CGRID( :,:,:,CGAS ) / AERO_BULK(:,:,:)
+                END DO
+             END IF
+
+          ! Water Species
+          ELSE IF ( AEROSPC( IAER )%VOLTYPE .EQ. 'H2O' ) THEN
+             ! Water Vapor Species is not explicitly tracked so special
+             ! care must be taken for this species.
+             DO IM = 1,N_MODE
+                JAER = MAP_AEROtoSA( IAER,IM )
+                BULKH2O = 0.0
+                IF ( JAER .NE. 0 ) THEN
+                   BULKH2O( :,:,: ) = AERO_COND( :,:,:,AEROSPC_MAP( IAER,IM ) )
+     &                              + AERO_NPF ( :,:,:,AEROSPC_MAP( IAER,IM ) )
+                   OMH2O = .FALSE.
+                   IF ( ISAM_SPEC( JAER,1 )(1:4) .EQ. 'AORG' ) OMH2O = .TRUE.
+                END IF
+
+                ! Assume that net losses pull proportionally from water species
+                FORALL ( C=1:NCOLS, R=1:NROWS, L=1:NLAYS, BULKH2O( C,R,L ) .LT. 0.0 )
+                   AERO_BULK( C,R,L ) = MAX( SUM( ISAM0( C,R,L,JAER,: ) ), MIN_TAGTOT )
+                   ISAM1( C,R,L,JAER,: ) = ISAM0( C,R,L,JAER,: ) *
+     &                     ( 1.0 + 1.0/AERO_BULK( C,R,L ) * BULKH2O( C,R,L ) )
+                END FORALL
+
+                ! Assume that net gains are apportioned like current non-water aerosol
+                FORALL ( C=1:NCOLS, R=1:NROWS, L=1:NLAYS, BULKH2O( C,R,L ) .GT. 0.0 )
+                   ! Determine the total non-water mass separating
+                   ! inorganic and organic
+                   AERO_BULK( C,R,L ) = MAX( SUM( SUM( ISAM0( C,R,L,:,: ), DIM=2),
+     &                    MASK = (L_MASK_AERO .EQ. .TRUE. .AND. 
+     &                            L_MASK_TYPE .NE. 'H2O'  .AND.
+     &                            OMH2O .EQ. L_MASK_OM    .AND.
+     &                            L_MASK_IM . EQ. IM  ) ), MIN_TAGTOT )
+                   ISAM1( C,R,L,JAER,: ) = ISAM0( C,R,L,JAER,: ) +
+     &                 SUM( SUM( ISAM0( C,R,L,:,: ),DIM=2),
+     &                     MASK = (L_MASK_AERO .EQ. .TRUE. .AND. 
+     &                             L_MASK_TYPE .NE. 'H2O'  .AND.
+     &                             OMH2O .EQ. L_MASK_OM    .AND. 
+     &                             L_MASK_IM . EQ. IM  ) )
+     &                     /AERO_BULK( C,R,L ) * BULKH2O( C,R,L )
+                END FORALL
+             END DO
+          ! Nonvolatile Species (VOLTYPE = 'NVL')
+          ELSE
+             ! Nothing to be done for Nonvolatile Species
+          END IF
+      END DO
 
 c  !-----------------------!
 c  !>>>>> COAGULATION <<<<<!
