@@ -74,8 +74,24 @@ C...Assign Tag Indices To ICON, BCON, OTHER *in that order*
           TAGNAME( OTHRTAG ) = "OTH"
           TAGNAME( ICONTAG ) = "ICO"
 
-           
           CALL GET_NSPC_SA 
 
+          N_SPCTAG = NSPC_SA * NTAG_SA
+
+          CALL GET_MAP_SAtoCGR ()
+
+          ! Allocate arrays of species indices, tagging indices, and
+          ! variable names for the combined species-tags
+          ! i.e. set s_spctag, t_spctag, and vnam_spctag
+          ALLOCATE ( S_SPCTAG( N_SPCTAG ) )
+          ALLOCATE ( T_SPCTAG( N_SPCTAG ) )
+          ALLOCATE ( VNAM_SPCTAG( N_SPCTAG ) )
+          ALLOCATE ( BCON_SPC( N_SPCTAG ) )
+
+          ! Assign BCON tag indicies used in advection
+          BCON_SPC = .FALSE.
+          BCON_SPC( ((BCONTAG - 1)*NSPC_SA+1) : (NSPC_SA*BCONTAG) ) = .TRUE.
+
+           
         END SUBROUTINE SA_DIM
 
