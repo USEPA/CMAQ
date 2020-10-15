@@ -15,6 +15,8 @@
 !!!   EC        - AECJ, AECI
 !!!   OC        - APOCI, APOCJ, APNCOMI, APNCOMJ
 !!!   VOC       - Various species depending on mechanism. Now includes CO. (see CCTM/src/isam/SA_DEFN.F for complete list)
+!!!   PM25      - ACLI/J,ANAI/J,AMGJ,AKJ,ACAJ,AFEJ,AALJ,ASIJ,ATIJ,AMNJ,AOTHRI/J
+!!!                 and TAGCLASSES SULFATE, NITRATE, AMMONIUM, EC, OC, and VOC
 !!!   PM25_IONS - ANAI, ANAJ, AMGJ, AKJ, ACAJ, AFEJ, AALJ, ASIJ, ATIJ, AMNJ, AOTHRI, AOTHRJ
 !!!   OZONE     - O3, all NITRATE species, and all VOC species
 !!!   CHLORINE  - ACLI, ACLJ, HCL
