@@ -369,7 +369,7 @@ C         Called by sa_dim.F
 C
 
         USE RUNTIME_VARS
-        USE RXNS_DATA,  ONLY : MECHNAME, NUMB_MECH_SPC !Get Chemical Mechanism Name
+        USE RXNS_DATA,  ONLY : MECHNAME  !Get Chemical Mechanism Name
         USE CGRID_SPCS, ONLY : NSPCSD, CGRID_NAME, N_AE_SPC, AE_SPC
      &                         CGRID_MASK_GAS, CGRID_MASK_NR
         USE AERO_DATA
@@ -1027,8 +1027,6 @@ C         Called by driver.F
 C
 
         USE CGRID_SPCS     
-        USE RXNS_DATA,    ONLY : MECHNAME, NUMB_MECH_SPC, CHEMISTRY_SPC 
-        USE RUNTIME_VARS, ONLY: MYPE
         USE UTILIO_DEFN    
 
         IMPLICIT NONE
