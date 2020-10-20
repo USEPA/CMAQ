@@ -26,7 +26,7 @@ C  PRECONDITIONS: For the SAPRC07TIC_AE6I_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRINIT, HRCALCKS, HRSOLVER
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
+C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2020
 C                       Based on the algorithm in "Test of Two Numerical
 C                       Schemes for Use in Atmospheric Transport-Chemistry
 C                       Models", O. Hertel, R. Berkowicz, J. Christensen,
@@ -343,6 +343,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO L = 1, NLAYS
          DO R = 1, NROWS
             DO C = 1, NCOLS
+
 
 c..reset CALL_IRR based on cell's values
                CALL_IRR = LFLAGIRR( C,R,L )

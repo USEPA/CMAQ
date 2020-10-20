@@ -49,6 +49,9 @@ C**********************************************************************
 
       USE RXNS_DATA
       USE DEGRADE_SETUP_TOX
+#ifdef isam
+      USE SA_DEFN
+#endif      
 
       IMPLICIT NONE
 
@@ -76,20 +79,35 @@ C.....LOCAL VARIABLES:
       INTEGER        :: I_RXT, I_RAD, J_RAD, I_PROD ! indices
       INTEGER        :: I, J, K, L                  ! loop counters
       INTEGER, SAVE  :: I_SIZE                      ! scratch
+      
+      integer        :: icount
 
+  
       LOGICAL, SAVE  :: FIRSTCALL  = .TRUE.
-
+      LOGICAL, SAVE  :: ANY_PRODUCTS( N_REACT )  ! does degraded species have any daughter products
+      
       REAL(8)        :: TRANS                    ! molecules/cm^3 transferred to products
       REAL(8)        :: LOSS_RATE( N_PROCESSES ) ! individual loss rates  [sec^-1]
       REAL(8)        :: NET_RATE                 ! net rate of transfer   [sec^-1]
-      REAL(8)        :: NET_LIFE                 ! lifetime based on net transfer rate  [sec]
+      REAL(8)        :: NET_LIFE( N_REACT)       ! lifetime based on net transfer rate  [sec]
       REAL(8)        :: TSTEP                    ! degradation time step, sec
-
+      REAL(8)       ::  EQU_FACTOR               ! equilibrium concentration, [ dimensionaless ] 
+#ifdef isam
+      REAL(8)        :: FACTOR                   ! relative change in bulk concentration
+#endif      
 C**********************************************************************
 
       IF ( FIRSTCALL ) THEN  ! initialize maps
          I_SIZE = SIZE( CBLK )
          FIRSTCALL = .FALSE.
+ 
+         DO I = 1, N_REACT
+           IF( ANY( PROD_MAP( 1:N_PROCESSES, I ) > 0 ) )THEN
+              ANY_PRODUCTS( I ) = .TRUE.
+           ELSE
+              ANY_PRODUCTS( I ) = .FALSE.
+           END IF
+         END DO
       ENDIF
 
 C..Update concentrations except degraded species
@@ -103,7 +121,7 @@ C..Update concentrations except degraded species
          CURR_CONC( I ) = CBLK( I ) 
       ENDDO LOOP_NEW
       
-      DELT_CONC = 0.0D0
+      DELT_CONC = ZERO
 
 C..Quality Control on time step
 
@@ -117,10 +135,9 @@ C..Loop over each reactant
 
       LOOP_REACT: DO I = 1, N_REACT
       
-
-         LOSS_RATE = 0.0D0
-         NET_RATE  = 0.0D0
-         NET_LIFE  = 0.0D0
+         LOSS_RATE = ZERO
+         NET_RATE  = ZERO
+         NET_LIFE( I ) = ZERO
 
          I_RXT = RXTANT_MAP( I )
          IF( I_RXT < 0 )CYCLE LOOP_REACT
@@ -128,63 +145,92 @@ C..Loop over each reactant
 
          IF( CURR_CONC( I_RXT ) <= CONMIN )CYCLE LOOP_REACT
 
+
          LOOP_UNIRATE: DO J = UNI_START, UNI_STOP
-             LOSS_RATE( J ) = RATE_CONST( I, J )
+             LOSS_RATE( J ) = RATE_CONST( J, I )
          ENDDO LOOP_UNIRATE
 
          L = 0
 
          LOOP_BIRATE: DO J = BI_START, BI_STOP
             L = L + 1
-            I_RAD = RAD_MAP( I, L )
+            I_RAD = RAD_MAP( L, I )
             IF ( I_RAD < 1 ) CYCLE   ! radical species is undefined
-            IF ( I_RAD > 900 ) THEN
-               LOSS_RATE( J ) = RATE_CONST( I, J )
-     &                        * NUMB_DENS
+            IF( I_RAD < 9000 )THEN
+                LOSS_RATE( J ) = 0.5D0 * RATE_CONST( J, I )
+     &                         * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
             ELSE
-               LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
-     &                        * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
-            ENDIF
+                LOSS_RATE( J ) = RATE_CONST( J, I )
+            END IF
          ENDDO LOOP_BIRATE
 
          L = 0
 
          LOOP_TRIRATE: DO J = TRI_START, TRI_STOP
             L = L + 1
-            I_RAD = RAD2_MAP( I, L, 1 )
-            J_RAD = RAD2_MAP( I, L, 2 )
+            I_RAD = RAD2_MAP( 1, L, I )
+            J_RAD = RAD2_MAP( 2, L, I )
             IF ( I_RAD < 1 .OR. J_RAD < 1 ) CYCLE   ! radical species are undefined
-            LOSS_RATE( J ) = 0.5D0 * RATE_CONST( I, J )
-     &                     * ( PREV_CONC( I_RAD ) * PREV_CONC( J_RAD )
-     &                     +   CURR_CONC( I_RAD ) * CURR_CONC( J_RAD ) )
+            IF ( I_RAD > 9000 .AND. J_RAD < 9000 ) THEN
+               LOSS_RATE( J ) = 0.5D0 * RATE_CONST( J, I )
+     &                        * ( PREV_CONC( J_RAD ) + CURR_CONC( J_RAD ) )
+            ELSE IF ( J_RAD > 9000 .AND. I_RAD < 9000 ) THEN
+               LOSS_RATE( J ) = 0.5D0 * RATE_CONST( J, I )
+     &                        * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
+            ELSE IF ( J_RAD < 9000 .AND. I_RAD < 9000 ) THEN
+               LOSS_RATE( J ) = 0.5D0 * RATE_CONST( J, I )
+     &                        * ( PREV_CONC( I_RAD ) * PREV_CONC( J_RAD )
+     &                        +   CURR_CONC( I_RAD ) * CURR_CONC( J_RAD ) )
+            ELSE 
+               LOSS_RATE( J ) = RATE_CONST( J, I )
+            END IF
          ENDDO LOOP_TRIRATE
 
          L = 0
          LOOP_PHOTORATE: DO J = PHOTO_START, PHOTO_STOP
             L = L + 1
-            LOSS_RATE( J ) = RATE_CONST( I, J )
+            LOSS_RATE( J ) = RATE_CONST( J, I )
          ENDDO LOOP_PHOTORATE
+
+         L = 0 
+
+         LOOP_LHRATE: DO J = LANHIN_START, LANHIN_STOP
+            L = L + 1
+            I_RAD = RAD_MAP( L + N_BI_LOSS, I )
+            IF ( I_RAD < 1 ) CYCLE   ! radical species is undefined
+            IF ( I_RAD < 9000 )THEN
+               EQU_FACTOR = 0.5D0 * RATE_CONST( J, I )
+     &                    * ( PREV_CONC( I_RAD ) + CURR_CONC( I_RAD ) )
+            ELSE
+               EQU_FACTOR = RATE_CONST( J, I ) 
+            END IF
+            LOSS_RATE( J ) = LHRATE( L, I ) * EQU_FACTOR 
+     &                     / ( 1.0D0 + EQU_FACTOR )
+         ENDDO LOOP_LHRATE
 
          LOOP_RATE :  DO J = 1, N_PROCESSES
                NET_RATE = NET_RATE + LOSS_RATE( J )
          ENDDO LOOP_RATE
                   
-         IF ( NET_RATE * DT .LE. 1.0D-20 ) CYCLE LOOP_REACT
-
-         NET_LIFE = 1.0D0 / NET_RATE         
          
-         TRANS = CURR_CONC( I_RXT ) * ( 1.0D0 - DEXP( -NET_RATE * DT ) )
+         IF ( NET_RATE * DT .LE. EFFECTIVE_ZERO ) THEN
+            TRANS = 0.0D0
+         ELSE
+            NET_LIFE( I ) = 1.0D0 / NET_RATE         
+            TRANS = CURR_CONC( I_RXT ) * ( 1.0D0 - DEXP( -NET_RATE * DT ) )
+         END IF
 
-         IF ( TRANS <= CONMIN ) CYCLE LOOP_REACT
-
-         DELT_CONC( I_RXT ) = TRANS
-
-         LOOP_PROD: DO J = 1, N_PROCESSES
-            I_PROD = PROD_MAP( I, J )
-            IF ( I_PROD < 1 ) CYCLE ! no specified product
-            DELT_CONC( I_PROD ) = ( LOSS_RATE( J ) * NET_LIFE )
-     &                          * TRANS
-         ENDDO LOOP_PROD
+         IF ( TRANS > CONMIN ) THEN
+             DELT_CONC( I_RXT ) = TRANS    
+             IF( ANY( PROD_MAP( 1:N_PROCESSES, I ) > 0 ) )THEN
+               LOOP_PROD: DO J = 1, N_PROCESSES
+                  I_PROD = PROD_MAP( J, I )
+                  IF( I_PROD > 0 )THEN
+                    DELT_CONC( I_PROD ) = ( LOSS_RATE( J ) * NET_LIFE( I ) )
+                  END IF
+                END DO LOOP_PROD
+             END IF
+          END IF
 
       ENDDO LOOP_REACT
 
@@ -197,18 +243,51 @@ C..update concentrations
          I_RXT = RXTANT_MAP( I )
          IF( I_RXT < 0 )CYCLE LOOP_UPDATE1
 
-         IF ( DELT_CONC( I_RXT ) <= CONMIN .OR. CURR_CONC( I_RXT ) <= CONMIN ) CYCLE
-         CURR_CONC( I_RXT ) = MAX( CURR_CONC( I_RXT ) - DELT_CONC( I_RXT ), CONMIN )
-
-         LOOP_UPDATE2: DO J = 1, N_PROCESSES
-            I_PROD = PROD_MAP( I, J )
-            IF ( I_PROD < 1 ) CYCLE ! no specified product
-            CURR_CONC( I_PROD ) = CURR_CONC( I_PROD )
-     &                          + RATE_YIELD( I, J )
-     &                          * MAX( DELT_CONC( I_PROD ), CONMIN )
-         ENDDO LOOP_UPDATE2
-
+         IF ( DELT_CONC( I_RXT ) <= EFFECTIVE_ZERO .OR. CURR_CONC( I_RXT ) <= CONMIN ) CYCLE
+         IF( ANY_PRODUCTS( I ) )THEN
+            LOOP_UPDATE2: DO J = 1, N_PROCESSES
+               I_PROD = PROD_MAP( J, I )
+               IF ( I_PROD > 0 ) THEN ! specified product
+                  DELT_CONC( I_PROD ) =  DELT_CONC( I_PROD )
+     &                                *  MAX( PREV_CONC( I_RXT )-CURR_CONC( I_RXT ),
+     &                                        ZERO ) 
+                  CURR_CONC( I_PROD ) = CURR_CONC( I_PROD )
+     &                                + RATE_YIELD( J, I )
+     &                                * MAX( DELT_CONC( I_PROD ), CONMIN )
+               END IF
+            ENDDO LOOP_UPDATE2
+         END IF
       ENDDO LOOP_UPDATE1
+#if defined(isam) || defined(verbose_isam)
+      IF( DEG_LAY .EQ. 1 .AND. DEG_ROW .EQ. 1 .AND. DEG_COL .EQ. 1 )THEN
+         WRITE(LOGDEV,'(/,A,I3)')'SA_DEGRADE_STEP: ',SA_DEGRADE_STEP
+         WRITE(LOGDEV,'(/A18,(1X,A12),1X,A18,4(1X,A18))')'S ISAM_DEGRADED', 'FACTOR', 'REACT',
+     &   'PREV_CONC','CURR_CONC','ISAM_INIT','LIFE (days)'
+      END IF
+#endif      
+#ifdef isam
+      LOOP_ISAM: DO I = 1, ISAM_DEGRADED_SPC
+      
+         I_RXT = ISAM_TO_DEGRADED( I )
+         I_RAD = ISAM_TO_REACTANT( I )
+         IF( I_RXT .GT. 0 )THEN 
+
+#if defined(isam) || defined(verbose_isam)
+             IF ( DELT_CONC( I_RXT ) .GT. EFFECTIVE_ZERO .AND. PREV_CONC( I_RXT ) .GT. CONMIN )THEN
+! scale loss of tag based on their fraction of the bulk
+               FACTOR = 1.0D0 - MIN( 1.0D0,( DELT_CONC( I_RXT )/PREV_CONC( I_RXT ) )  )
+               IF( DEG_LAY .EQ. 1 .AND. DEG_ROW .EQ. 1 .AND. DEG_COL .EQ. 1 )THEN
+                  WRITE(LOGDEV,'(A2,A16,1X,ES18.10,1X,A16,4(1X,ES18.10))')'S ',ISAM_DEGRADED( I ), FACTOR, REACT( I_RAD ),
+     &            PREV_CONC( I_RXT ),CURR_CONC( I_RXT ),SUM(CONC_ISAM( 1:NTAG_SA,I)),1.15741D-5*NET_LIFE( I_RAD )
+               END IF
+               DO J = 1,  NTAG_SA
+                  CONC_ISAM( J,I ) = MAX( CONC_ISAM( J,I ) * FACTOR,0.0D0 )
+               END DO ! ktag loop
+             END IF
+#endif          
+         END IF
+      ENDDO LOOP_ISAM
+#endif
 
       RETURN
       END

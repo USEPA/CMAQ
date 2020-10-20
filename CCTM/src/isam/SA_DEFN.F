@@ -195,13 +195,13 @@ C-----------------------------------------------------------
         INPUT_UNIT = JUNIT()
          
         OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, STATUS = 'OLD', IOSTAT = IOST )
-        XMSG = 'Error Opening SA_IO_LIST file'
+        XMSG = 'Error Opening ' // TRIM( EQNAME ) // ', the SA_IOLIST file'
         IF ( IOST .NE. 0 ) THEN
-          CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
+          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
         ENDIF
 
         IF ( MYPE .EQ. 0 ) THEN        
-          WRITE(LOGDEV, *) 'SA_IO_LIST Sucessfully Opened'
+          WRITE(LOGDEV, *) TRIM( EQNAME ) // ': Sucessfully Opened'
           WRITE(LOGDEV, *) 'Start counting the list...'
         ENDIF
         NTAGS = 0
@@ -274,11 +274,11 @@ C-----------------------------------------------------------
         INPUT_UNIT = JUNIT()
 
         OPEN ( UNIT = INPUT_UNIT, FILE = EQNAME, STATUS = 'OLD', IOSTAT = IOST )
-        XMSG = 'Error Opening SA_IO_LIST file'
+        XMSG = 'Error Opening ' // TRIM( EQNAME ) // ', the SA_IOLIST file'
         IF ( IOST .NE. 0 ) THEN
-          CALL M3EXIT ( 'SA_IOLIST', 0, 0, XMSG, XSTAT1 )
+          CALL M3EXIT ( PNAME, 0, 0, XMSG, XSTAT1 )
         ENDIF
-        
+
         CHR = CHAR(124)
 101     READ ( INPUT_UNIT, '(A)' ) TXTLINE
         IF ( TXTLINE(1:3) .EQ. '!!!' .OR. TXTLINE(1:3) .EQ. '' ) GOTO 101
@@ -328,6 +328,11 @@ C-----------------------------------------------------------
               TAGNAME( ITAG ) = TXTLINE( DELIMINATOR_INDEX:LEN_TRIM( TXTLINE ) )
               IF( LEN_TRIM( TAGNAME( ITAG ) ) .LT. 1 )THEN
                  XMSG = 'ISAM ERROR: a "TAG NAME" in control file is blank. '
+                 CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
+              END IF
+              IF( INDEX( TAGNAME( ITAG ), "_", BACK = .FALSE. ) .GT. 0 )THEN
+                 XMSG = 'ISAM ERROR: TAG NAME: ' // TRIM( TAGNAME( ITAG ) ) 
+     &               // ' cannot use the underscore character.'
                  CALL M3EXIT('SA_IOLIST', 0, 0, XMSG, XSTAT2 )
               END IF
           ELSE   
@@ -477,6 +482,24 @@ c----------------------------------------------------------
 !         L_CHLORINE  = .TRUE.
 !       ENDIF
 
+        BGN_SP     = INDEX( TAGCLASSES,'GAS_HAPS',LBACK )
+        L_GAS_HAPS = ( BGN_SP .NE. 0 .OR. L_GAS_HAPS )
+        IF ( L_GAS_HAPS ) THEN
+          L_OZONE    = .TRUE.
+          L_CHLORINE = .TRUE.
+          SELECT CASE( MECHNAME )
+             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
+                NSPC_SA = NSPC_SA + 10  ! FORM_PRIM, ALD2_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE, TOLU, CL2,
+                                        ! HG, HGIIGAS, HGIIAER
+             CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ')
+                NSPC_SA = NSPC_SA + 6  ! HCHO_PRIM, CCHO_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE, CL2
+             CASE( 'RACM2_AE6_AQ')
+                NSPC_SA = NSPC_SA + 0
+          END SELECT
+          CALL DEGRADE_DATA()
+          NSPC_SA = NSPC_SA + NDEGRADED_FOUND ! degradation species found in species namelists
+        ENDIF
+
         BGN_SP = INDEX( TAGCLASSES,'CHLORINE',LBACK )        
         L_CHLORINE = ( BGN_SP .NE. 0 .OR. L_CHLORINE )
         IF ( L_CHLORINE ) THEN
@@ -505,7 +528,7 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
         ENDIF
 
         BGN_SP = INDEX( TAGCLASSES,'OZONE',LBACK )
-        IF ( BGN_SP .NE. 0 ) THEN
+        IF ( BGN_SP .NE. 0 .OR. L_OZONE ) THEN
           NSPC_SA = NSPC_SA + 4  ! O3, O1D, O or O3P, HO2
           L_OZONE   = .TRUE.
           L_NITRATE = .TRUE.
@@ -517,21 +540,6 @@ c          NSPC_SA = NSPC_SA + 13  ! ALVPO1I,ALVPO1J,ASVPO1I,ASVPO1J,ASVPO2I,ASV
 
         BGN_SP = INDEX( TAGCLASSES,'VOC',LBACK )
         L_VOC = ( BGN_SP .NE. 0 .OR. L_VOC )
-
-        BGN_SP     = INDEX( TAGCLASSES,'GAS_HAPS',LBACK )        
-        L_GAS_HAPS = ( BGN_SP .NE. 0 .OR. L_GAS_HAPS )
-        IF ( L_GAS_HAPS ) THEN
-          SELECT CASE( MECHNAME )
-             CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
-                NSPC_SA = NSPC_SA + 5  ! FORM_PRIM, ALD2_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE
-             CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
-                NSPC_SA = NSPC_SA + 5  ! HCHO_PRIM, CCHO_PRIM, ACRO, ACRO_PRIM, 13BUTADIENE 
-             CASE( 'RACM2_AE6_AQ') 
-                NSPC_SA = NSPC_SA + 0   
-          END SELECT
-          CALL DEGRADE_DATA()        
-          NSPC_SA = NSPC_SA + NDEGRADED_FOUND ! degradation species found in species namelists
-        ENDIF
 
         DEFINED = .TRUE.
 
@@ -781,7 +789,7 @@ c----------------------------------------------------------
         NLIST = NSPC_SA
         ALLOCATE ( SPC_LIST( NLIST ), STAT = ALLOCSTAT )
         ALLOCATE ( SPC_KEEP( NLIST ), STAT = ALLOCSTAT )
-        SPC_LIST = ' '
+        SPC_LIST = 'XundefinedY'
         SPC_KEEP = .TRUE.
         
         J_SPC = 0
@@ -1476,16 +1484,29 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
         IF ( L_GAS_HAPS ) THEN
           SELECT CASE( MECHNAME )
              CASE( 'CB6R3_AE6_AQ', 'CB6R3_AE7_AQ', 'CB6R3M_AE7_KMTBR' )
+!               NSPC_SA = NSPC_SA + 10  ! FORM_PRIM, ALD2_PRIM, ACRO, ACRO_PRIM,
+!                                       ! 13BUTADIENE, TOLU, CL2, HG, HGIIGAS, HGIIAER
+ 
                J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = 'FORM_PRIMARY'
+               SPC_LIST( J_SPC ) = 'FORM_PRIMARY' ! 1
                J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = 'ALD2_PRIMARY'
+               SPC_LIST( J_SPC ) = 'ALD2_PRIMARY' ! 2
                J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = 'ACROLEIN'
+               SPC_LIST( J_SPC ) = 'ACROLEIN'     ! 3
                J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = 'BUTADIENE13'
+               SPC_LIST( J_SPC ) = 'ACRO_PRIMARY' ! 4
                J_SPC = J_SPC + 1
-               SPC_LIST( J_SPC ) = 'ACRO_PRIMARY'
+               SPC_LIST( J_SPC ) = 'BUTADIENE13'  ! 5
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'TOLU'         ! 6 
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'CL2'          ! 7
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'HG'           ! 8
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'HGIIGAS'      ! 9
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'HGIIAER'      ! 10
              CASE( 'SAPRC07TC_AE6_AQ','SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ')
                J_SPC = J_SPC + 1
                SPC_LIST( J_SPC ) = 'HCHO_PRIMARY'
@@ -1497,6 +1518,8 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
                SPC_LIST( J_SPC ) = 'BUTADIENE13'
                J_SPC = J_SPC + 1
                SPC_LIST( J_SPC ) = 'ACRO_PRIMARY'
+               J_SPC = J_SPC + 1
+               SPC_LIST( J_SPC ) = 'CL2'
             END SELECT
             DO I_SPC = 1, NDEGRADED_FOUND
                J_SPC = J_SPC + 1

@@ -49,6 +49,7 @@ C.....INCLUDES:
       INCLUDE SUBST_CONST         ! constants
 
       REAL(8)              :: EFFECTIVE_ZERO
+      REAL(8)              :: INFINITY
 
 C..arrays to store indices to CGRID
 
@@ -65,11 +66,13 @@ C..saved cell concentrations
       REAL( 8 ), ALLOCATABLE :: CURR_CONC( :,: )
       REAL( 4 ), ALLOCATABLE :: AERO_BLK ( :,: )
       REAL( 8 ), ALLOCATABLE :: TEMP( : )           ! cell temperature [ K ]
+      REAL( 8 ), ALLOCATABLE :: PRESS( : )          ! cell Pressure    [ Pa ]
       REAL( 8 ), ALLOCATABLE :: INV_TEMP( : )       ! cell inverse temperature [ 1/K ]
       REAL( 8 ), ALLOCATABLE :: NUMB_DENS( : )      ! cell air number density [ 1/CM^3 ]
       REAL( 8 ), ALLOCATABLE :: NUMB_H2O( : )       ! cell H2O number density [ 1/CM^3 ]
+      REAL( 8 ), ALLOCATABLE :: CONV_FACT( : )      ! conversion factor from ppm to molecules/cm^3
 
-      REAL(8), ALLOCATABLE :: DELT_CONC( :,: )   ! changes predicted by degrade routine
+      REAL( 8 ), ALLOCATABLE :: DELT_CONC( :,: )    ! changes predicted by degrade routine
 
 #ifdef isam
       INTEGER              :: ISAM_DEGRADED_SPC     ! number of ISAM species with degradation
@@ -80,6 +83,10 @@ C..saved cell concentrations
 #endif
 
       INTEGER :: NCELLS
+      INTEGER :: DEGRADE_STEP
+      INTEGER :: ICELL_WRITE = 1
+      LOGICAL :: WRITE_BLOCK = .FALSE.
+      LOGICAL, ALLOCATABLE :: WRITE_CELL( : )       ! write cell value used for debugging and QA
       LOGICAL, ALLOCATABLE :: IS_AERO_ORGANIC( : )  ! is aerosol species as OA and not a tracer
 
       REAL(8), ALLOCATABLE :: RATE_CONST( :,:,: )
@@ -148,6 +155,9 @@ C..arrays to store indices to CGRID
          ALLOCATE( RAD2_MAP  ( 2, N_TRI_LOSS, N_REACT ) )
          ALLOCATE( PHOTO_MAP ( N_PHOTO_LOSS, N_REACT ) )
          ALLOCATE( RATE_YIELD( N_PROCESSES, N_REACT ) )
+
+         ALLOCATE( WRITE_CELL( BLKSIZE ) )
+         WRITE_CELL = .FALSE.
 
 C..Initialize maps
 

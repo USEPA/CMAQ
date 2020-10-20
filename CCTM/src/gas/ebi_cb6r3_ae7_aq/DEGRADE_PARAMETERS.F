@@ -411,7 +411,7 @@ C.. STYRENE
             REACT(23)       = 'STYRENE        '
             BICAUSE(1:4,23) = (/'OH','OH','O3','CL'/)
             BIRATE(1:4,23)  = (/1.02D-11, 1.02D-11, 1.51D-13, 3.6D-10/)
-            BI_ACT(1:2,23)  = (/    532.0D0,   532.0D0/)
+            BI_ACT(1:2,23)  = (/    -532.0D0,   -532.0D0/)
 
 C.. ACETONITRILE
 

@@ -75,7 +75,8 @@ C**********************************************************************
       USE UTILIO_DEFN
       USE PHOT_MOD, Only: INIT_PHOT_SHARED, RJ     ! photolysis rate, in-line module
       USE AEROSOL_CHEMISTRY
-      USE DEGRADE_SETUP_TOX, ONLY : NCELLS, N_REACT, RXTANT_MAP
+      USE DEGRADE_SETUP_TOX, ONLY : NCELLS, N_REACT, RXTANT_MAP, 
+     &                              ICELL_WRITE, WRITE_CELL, WRITE_BLOCK
       USE PA_DEFN, Only: LIRR   ! Process Anaylsis control and data variable
       USE PA_IRR_CLT
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
@@ -518,6 +519,25 @@ C  update cell concentrations for degradation routines
                   Y_DEGRADE( NCELL,ISP ) = REAL(MAX( CONC( COL,ROW,LEV,ISP ), CONCMIN), 8 )
                END DO
             END DO
+
+! Use FPP flag to check results from species degrade routines
+#ifdef verbose_gas
+            WRITE_BLOCK = .FALSE.
+            ICELL_WRITE = 1
+            DO NCELL = 1, NUMCELLS
+                CELLNUM = NORDCELL( OFFSET + NCELL )
+                COL = CCOL( CELLNUM )
+                ROW = CROW( CELLNUM )
+                LEV = CLEV( CELLNUM )
+                IF( LEV .EQ. 1 .AND. ROW .EQ. 1 .AND. COL .EQ. 1 )THEN
+                    WRITE_BLOCK = .TRUE.
+                    ICELL_WRITE = NCELL
+                    WRITE_CELL( NCELL ) = .TRUE.
+                ELSE
+                    WRITE_CELL( NCELL ) = .FALSE.
+                END IF
+            END DO
+#endif
 
 C..initialize degradation routines
             NCELLS = NUMCELLS 

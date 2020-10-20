@@ -55,7 +55,7 @@ C.....ARGUMENTS:
       REAL,      INTENT( IN ) :: DCELL                     !  cell air density  [ kg/m^3 ]
       REAL,      INTENT( IN ) :: PRESS_CELL                !  cell Pressure  [ Pa ]
       REAL,      INTENT( IN ) :: QV_CELL                   !  cell water vapor mass mixing ratio  [ kg/kg ]
-      REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : )           !  Photolysis table for cell [1/s]
+      REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : )           !  Photolysis table for cell [ 1/min ]
 
       INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
       INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
@@ -228,7 +228,7 @@ C..initialize concentrations and their changes
             K = PHOTO_MAP( J, I )
             IF ( K < 1 ) CYCLE
             IF( A_PHOTO( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
-            RATE_CONST( J+TRI_STOP, I ) = A_PHOTO( J, I )
+            RATE_CONST( J+TRI_STOP, I ) = 60.0D0 * A_PHOTO( J, I )
      &                                  * PHOTO_CELL( K )
 
          END DO LOOP_PHOTORATE
@@ -265,7 +265,7 @@ C..initialize concentrations and their changes
                CASE ( 9995 )
                   FACTOR = NUMB_H2
                CASE ( 9994 )
-                  FACTOR = NUMB_DENS
+                  FACTOR = NUMB_H2O
                CASE DEFAULT
                   FACTOR = CONV_FACT 
              END SELECT 

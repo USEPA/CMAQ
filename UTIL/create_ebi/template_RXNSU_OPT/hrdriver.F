@@ -73,10 +73,10 @@ C**********************************************************************
       USE PA_DEFN, Only: LIRR                      ! Process Analysis control and data variable
       USE PA_IRR_CLT
 R5#ifndef isam
-R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP
+R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, DEG_LAY, DEG_COL, DEG_ROW
 R5#else      
 R5      USE DEGRADE_SETUP_TOX, ONLY : N_REACT, RXTANT_MAP, SA_DEGRADE_EXTRACT, 
-R5     &                              SA_DEGRADE_UPLOAD
+R5     &                              SA_DEGRADE_UPLOAD, DEG_LAY, DEG_COL, DEG_ROW
 R5#endif
       USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, OCEAN, SZONE
 #ifdef sens
@@ -161,7 +161,7 @@ R5           REAL,      INTENT( IN ) :: TCELL           !  cell temperature  [ k
 R5           REAL,      INTENT( IN ) :: DCELL           !  cell air density  [ kg/m^3 ]
 R5           REAL,      INTENT( IN ) :: PRESS_CELL      !  cell Pressure  [ Pa ]
 R5           REAL,      INTENT( IN ) :: QV_CELL         !  cell water vapor mass mixing ratio  [ kg/kg ]
-R5           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/s]
+R5           REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( : ) !  Photolysis table for cell [1/min]
 R5           INTEGER,   INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
 R5           INTEGER,   INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
 R5         END SUBROUTINE INIT_DEGRADE
@@ -392,6 +392,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       DO L = 1, NLAYS
          DO R = 1, NROWS
             DO C = 1, NCOLS
+
+R5               DEG_LAY = L
+R5               DEG_ROW = R
+R5               DEG_COL = C
 
 c..reset CALL_IRR based on cell's values            
                CALL_IRR = LFLAGIRR( C,R,L )

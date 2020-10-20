@@ -65,13 +65,15 @@ C.....PARAMETERS:
       INTEGER, PARAMETER :: LOCAL_DT = 3     ! minimum time step, mili-seconds
 
       REAL(8), PARAMETER :: CONMIN = 1.0D-30 ! concentration lower limit
+      REAL(8), PARAMETER :: ZERO   = 0.00D00 ! concentration lower limit
 
 C.....LOCAL VARIABLES:
 
       CHARACTER(16)  ::  VNAME                   ! variable name
       CHARACTER(120) ::  XMSG
 
-      LOGICAL, SAVE  ::  FIRSTCALL  = .TRUE.
+      LOGICAL, SAVE  :: FIRSTCALL  = .TRUE.
+      LOGICAL, SAVE  :: ANY_PRODUCTS( N_REACT )  ! does degraded species have any daughter products
 
       INTEGER        :: TIME_SECONDS                ! TIME, sec
       INTEGER        :: I_RXT, I_RAD, J_RAD, I_PROD ! indices
@@ -83,12 +85,22 @@ C.....LOCAL VARIABLES:
       REAL(8)        ::  NET_RATE ( BLKSIZE )              ! net rate of transfer   [sec^-1]
       REAL(8)        ::  NET_LIFE ( BLKSIZE )              ! lifetime based on net transfer rate  [sec]
       REAL(8)        ::  LOSS_RATE( BLKSIZE, N_PROCESSES ) ! individual loss rates  [sec^-1]
+      
+      REAL(8)        ::  FACTOR
+      REAL(8)        ::  LIFETIME( N_REACT ) = 0.0D0
 
 C***********************************************************************
 
       IF ( FIRSTCALL ) THEN  ! initialize maps
          I_SIZE = SIZE( CURR_CONC, 2 )
          FIRSTCALL = .FALSE.
+         DO I = 1, N_REACT
+           IF( ANY( PROD_MAP( 1:N_PROCESSES, I ) > 0 ) )THEN
+              ANY_PRODUCTS( I ) = .TRUE.
+           ELSE
+              ANY_PRODUCTS( I ) = .FALSE.
+           END IF
+         END DO
       ENDIF
 
 C..Initialize concentrations changes
@@ -130,7 +142,7 @@ C..Loop over each reactant
          LOOP_UNIRATE: DO J = UNI_START, UNI_STOP
             DO I_CELL = 1, NCELLS
                IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
-               LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, I, J )
+               LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, J, I )
             ENDDO
          ENDDO LOOP_UNIRATE
 
@@ -138,18 +150,18 @@ C..Loop over each reactant
 
          LOOP_BIRATE: DO J = BI_START, BI_STOP
             L = L + 1
-            I_RAD = RAD_MAP( I, L )
+            I_RAD = RAD_MAP( L, I )
             IF ( I_RAD < 1 ) CYCLE   ! radical species is undefined
-            IF ( I_RAD > 900 ) THEN
+            IF ( I_RAD > 9000 ) THEN
                DO I_CELL = 1, NCELLS
                   IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
-                  LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, I, J )
+                  LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, J, I )
      &                                   * NUMB_DENS( I_CELL )
                ENDDO
             ELSE
                DO I_CELL = 1, NCELLS
                   IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
-                  LOSS_RATE( I_CELL, J ) = 0.5D0 * RATE_CONST( I_CELL, I, J )
+                  LOSS_RATE( I_CELL, J ) = 0.5D0 * RATE_CONST( I_CELL, J, I )
      &                                   * ( PREV_CONC( I_CELL, I_RAD )
      &                                   +   CURR_CONC( I_CELL, I_RAD ) )
                ENDDO
@@ -160,28 +172,44 @@ C..Loop over each reactant
 
          LOOP_TRIRATE: DO J = TRI_START, TRI_STOP
             L = L + 1
-            I_RAD = RAD2_MAP( I, L, 1 )
-            J_RAD = RAD2_MAP( I, L, 2 )
+            I_RAD = RAD2_MAP( 1, L, I )
+            J_RAD = RAD2_MAP( 2, L, I )
             IF ( I_RAD < 1 .OR. J_RAD < 1 ) CYCLE   ! radical species are undefined
-            DO I_CELL = 1, NCELLS
-               IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
-               LOSS_RATE( I_CELL, J ) =  0.5D0 * RATE_CONST( I_CELL, I, J )
-     &                                * ( PREV_CONC( I_CELL, I_RAD )
-     &                                *   PREV_CONC( I_CELL, J_RAD )
-     &                                +   CURR_CONC( I_CELL, I_RAD )
-     &                                *   CURR_CONC( I_CELL, J_RAD ) )
-            ENDDO
+            IF ( I_RAD < 9000 .AND. J_RAD < 9000 ) THEN
+               DO I_CELL = 1, NCELLS
+                  IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
+                  LOSS_RATE( I_CELL, J ) =  0.5D0 * RATE_CONST( I_CELL, J, I )
+     &                                   * ( PREV_CONC( I_CELL, I_RAD )
+     &                                   *   PREV_CONC( I_CELL, J_RAD )
+     &                                   +   CURR_CONC( I_CELL, I_RAD )
+     &                                   *   CURR_CONC( I_CELL, J_RAD ) )
+               ENDDO
+            ELSE IF ( J_RAD > 9000 .AND. I_RAD < 9000 ) THEN
+               DO I_CELL = 1, NCELLS
+                  IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
+                  LOSS_RATE( I_CELL, J ) =  0.5D0 * RATE_CONST( I_CELL, J, I )
+     &                                   * ( PREV_CONC( I_CELL, I_RAD )
+     &                                   +   CURR_CONC( I_CELL, I_RAD ) )
+               ENDDO
+            ELSE IF ( J_RAD < 9000 .AND. I_RAD > 9000 ) THEN
+               DO I_CELL = 1, NCELLS
+                  IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
+                  LOSS_RATE( I_CELL, J ) =  0.5D0 * RATE_CONST( I_CELL, J, I )
+     &                                   * ( PREV_CONC( I_CELL, J_RAD )
+     &                                   +   CURR_CONC( I_CELL, J_RAD ) )
+               ENDDO
+            END IF
          ENDDO LOOP_TRIRATE
 
          L = 0
          LOOP_PHOTORATE: DO J = PHOTO_START, PHOTO_STOP
             L = L + 1
             DO I_CELL = 1, NCELLS
-               IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
-               LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, I, J )
+               LOSS_RATE( I_CELL, J ) = RATE_CONST( I_CELL, J, I )
             ENDDO
          ENDDO LOOP_PHOTORATE
 
+         L = 0
          LOOP_LHRATE: DO J = LANHIN_START, LANHIN_STOP
             L = L + 1
             I_RAD = RAD_MAP( L + N_BI_LOSS, I )
@@ -201,35 +229,37 @@ C..Loop over each reactant
 
          LOOP_RATE :  DO J = 1, N_PROCESSES
             DO I_CELL = 1, NCELLS
-               IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
                NET_RATE( I_CELL ) = NET_RATE( I_CELL )
      &                            + LOSS_RATE( I_CELL, J )
             ENDDO
          ENDDO LOOP_RATE
 
          LOOP_LIFE: DO I_CELL = 1, NCELLS
-            IF( CURR_CONC( I_CELL, I_RXT ) <= CONMIN )CYCLE 
-            IF ( NET_RATE( I_CELL ) * DT .LE. 1.0D-20 ) CYCLE
-            NET_LIFE( I_CELL ) = 1.0D0 / NET_RATE( I_CELL )
-            TRANS( I_CELL ) = CURR_CONC( I_CELL, I_RXT )
-     &                      * ( 1.0D0 - DEXP( - NET_RATE( I_CELL )*DT ) )
-     &                      - CONMIN
-            DELT_CONC( I_CELL, I_RXT ) = - MAX( TRANS( I_CELL ), 0.0D0 )
-         ENDDO LOOP_LIFE
-
-         LOOP_PROD: DO J = 1, N_PROCESSES
-            I_PROD = PROD_MAP( I, J )
-            IF ( I_PROD < 1 ) CYCLE    !  No specified product
-            DO I_CELL = 1, NCELLS
-              IF ( DELT_CONC( I_CELL, I_RXT ) >=  -CONMIN ) THEN
-                  DELT_CONC( I_CELL, I_PROD ) = -(LOSS_RATE( I_CELL, J ) * NET_LIFE ( I_CELL ))
-     &                                        *  DELT_CONC( I_CELL, I_RXT )
-              ELSE
-                  DELT_CONC( I_CELL, I_PROD ) = 0.0D0
-              ENDIF
-            ENDDO
-         ENDDO LOOP_PROD
-
+            IF ( NET_RATE( I_CELL ) * DT .LE. EFFECTIVE_ZERO .OR. CURR_CONC( I_CELL, I_RXT ) <=  CONMIN ) THEN
+               TRANS( I_CELL ) = ZERO
+               IF( WRITE_CELL( I_CELL ) )LIFETIME( I ) = INFINITY
+            ELSE
+               NET_LIFE( I_CELL ) = 1.0D0 / NET_RATE( I_CELL )
+               IF( WRITE_CELL( I_CELL ) )LIFETIME( I ) = NET_LIFE( I_CELL ) 
+               TRANS( I_CELL ) = CURR_CONC( I_CELL, I_RXT )
+     &                         * ( 1.0D0 - DEXP( - NET_RATE( I_CELL )*DT ) )
+               DELT_CONC( I_CELL, I_RXT ) = - MAX( TRANS( I_CELL ), ZERO )
+            END IF
+         END DO LOOP_LIFE
+         
+         IF( ANY( PROD_MAP( 1:N_PROCESSES, I ) > 0 ) )THEN
+            IF( ANY( DELT_CONC( :, I_RXT ) > -CONMIN ) )THEN
+               LOOP_PROD: DO J = 1, N_PROCESSES
+                  I_PROD = PROD_MAP( J, I )
+                  IF( I_PROD > 0 )THEN
+                    DO I_CELL = 1, NCELLS
+                       DELT_CONC( I_CELL, I_PROD ) = ( LOSS_RATE( I_CELL, J ) * NET_LIFE( I_CELL ) )
+                    END DO
+                  END IF
+               END DO LOOP_PROD
+             END IF
+          END IF
+         
       ENDDO LOOP_REACT
 
 C..update previous concentrations
@@ -241,25 +271,47 @@ C..update previous concentrations
       ENDDO
 
 C..update current concentrations
+#ifdef verbose_gas
+      IF( WRITE_BLOCK )THEN
+         DEGRADE_STEP = DEGRADE_STEP + 1
+         WRITE(LOGDEV,'(/,A,I3)')'DEGRADE_STEP: ',DEGRADE_STEP
+         WRITE(LOGDEV,'(/A18,4(1X,A18))')'S DEGRADED', 'FACTOR', 
+     &   'PREV_CONC','CURR_CONC','LIFE (days)'
+      END IF
+#endif
 
       LOOP_UPDATE1: DO I = 1, N_REACT
       
          I_RXT = RXTANT_MAP( I )
          IF( I_RXT < 0 )CYCLE LOOP_UPDATE1
          DO I_CELL = 1, NCELLS
-            IF ( DELT_CONC( I_CELL, I_RXT ) >= -CONMIN .OR. CURR_CONC( I_CELL, I_RXT ) <= CONMIN ) CYCLE
-            CURR_CONC( I_CELL, I_RXT  ) = PREV_CONC( I_CELL, I_RXT  )
-     &                                  + DELT_CONC( I_CELL, I_RXT  )
+            IF( -DELT_CONC( I_CELL, I_RXT ) > CONMIN .AND. CURR_CONC( I_CELL, I_RXT ) > CONMIN )THEN
+              CURR_CONC( I_CELL, I_RXT  ) = MAX( (PREV_CONC( I_CELL, I_RXT  ) + DELT_CONC( I_CELL, I_RXT )),
+     &                                            CONMIN )
+            END IF
+#ifdef verbose_gas
+            IF( WRITE_CELL( I_CELL ) )THEN
+                FACTOR = 1.0D0 + MIN( -1.0D0,( DELT_CONC( I_CELL,I_RXT )/PREV_CONC( I_CELL,I_RXT ) )  )
+                WRITE(LOGDEV,'(A2,A16,5(1X,ES18.10))')'S ',REACT( I ), FACTOR, 
+     &          PREV_CONC( I_CELL,I_RXT ),CURR_CONC( I_CELL,I_RXT ),1.15741D-5*LIFETIME( I ),DELT_CONC( I_CELL,I_RXT )
+            END IF
+#endif
          ENDDO
 
-         LOOP_UPDATE2: DO J = 1, N_PROCESSES
-            I_PROD = PROD_MAP( I, J )
-            IF ( I_PROD < 1 ) CYCLE ! no specified product
-            DO I_CELL = 1, NCELLS
-                 CURR_CONC( I_CELL, I_PROD ) = CURR_CONC( I_CELL, I_PROD )
-     &                                       + RATE_YIELD( I, J ) * DELT_CONC( I_CELL, I_PROD )
-            ENDDO
-         ENDDO LOOP_UPDATE2
+         IF( ANY_PRODUCTS( I ) )THEN
+            LOOP_UPDATE2: DO J = 1, N_PROCESSES
+               I_PROD = PROD_MAP( I, J )
+               IF ( I_PROD > 0 ) THEN ! a specified product
+                  DO I_CELL = 1, NCELLS
+                       DELT_CONC( I_CELL, I_PROD ) = DELT_CONC( I_CELL, I_PROD )
+     &                                             * MAX( PREV_CONC(I_CELL, I_RXT )-CURR_CONC( I_CELL, I_RXT ),
+     &                                                    ZERO ) 
+                       CURR_CONC( I_CELL, I_PROD ) = CURR_CONC( I_CELL, I_PROD )
+     &                                             + RATE_YIELD( I, J ) * DELT_CONC( I_CELL, I_PROD )
+                  ENDDO
+               END IF
+            END DO LOOP_UPDATE2
+         END IF
 
       ENDDO LOOP_UPDATE1
 #ifdef isam
@@ -270,7 +322,7 @@ C..update current concentrations
 
             DO J = 1,  NTAG_SA
                DO I_CELL = 1, NCELLS
-                  IF ( DELT_CONC( ICELL, I_RXT ) .GT. CONMIN .AND. PREV_CONC( I_CELL,I_RXT ) .GT. CONMIN )THEN
+                  IF ( DELT_CONC( I_CELL, I_RXT ) .GT. CONMIN .AND. PREV_CONC( I_CELL,I_RXT ) .GT. CONMIN )THEN
 ! scale loss of tag based on their fraction of the bulk
                      FACTOR = 1.0D0 - MIN( 1.0D0,( DELT_CONC( I_CELL,I_RXT )/PREV_CONC( I_CELL,I_RXT ) )  )
                      CONC_ISAM( I_CELL,J,I ) = MAX( CONC_ISAM( I_CELL,J,I ) * FACTOR,1.0D-30 )

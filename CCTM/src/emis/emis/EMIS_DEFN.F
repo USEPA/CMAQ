@@ -479,6 +479,7 @@ C Map the user specified ISAM regions to available CMAQ regions
 
 C Initialize Emissions Array
          VDEMIS_DIFF = 0.0
+         VDEMIS_CONV = 0.0
 
          WRTIME = .FALSE.
          WSTEP  = WSTEP + TIME2SEC( TSTEP( 2 ) )
@@ -490,6 +491,7 @@ C Initialize Emissions Array
 
 #ifdef isam
          SA_VDEMIS_DIFF = 0.0
+         SA_VDEMIS_CONV = 0.0
 #endif
 
 #ifdef sens

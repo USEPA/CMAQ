@@ -48,6 +48,7 @@ C.....INCLUDES:
       INCLUDE SUBST_CONST         ! constants
 
       REAL(8)              :: EFFECTIVE_ZERO
+      REAL(8)              :: LOG_EFFECTIVE_ZERO
 
 C..arrays to store indices to CGRID
 
@@ -57,6 +58,11 @@ C..arrays to store indices to CGRID
       INTEGER, ALLOCATABLE :: RAD_MAP( :,: )
       INTEGER, ALLOCATABLE :: RAD2_MAP( :,:,: )
       INTEGER, ALLOCATABLE :: PHOTO_MAP( :,: )
+      
+      INTEGER :: DEG_LAY = 0
+      INTEGER :: DEG_ROW = 0
+      INTEGER :: DEG_COL = 0
+      INTEGER :: SA_DEGRADE_STEP = 0      
 
 C..saved cell concentrations
 
@@ -76,11 +82,12 @@ C..saved cell concentrations
       REAL(8), ALLOCATABLE :: RATE_YIELD( :,: )
 
 #ifdef isam
-      INTEGER              :: ISAM_DEGRADED_SPC     ! number of ISAM species with degradation
-      INTEGER, ALLOCATABLE :: ISAM_DEGRADE_MAP( : ) ! index in ISAM species array to extract conc
-      INTEGER, ALLOCATABLE :: ISAM_TO_DEGRADED( : ) ! index in REACT concentation array
-      INTEGER, ALLOCATABLE :: ISAM_TO_REACTANT( : ) ! index in REACT data array to determine degradation
-      REAL(8), ALLOCATABLE :: CONC_ISAM( :,: )      ! concentrations apportioned to sources
+      INTEGER                      :: ISAM_DEGRADED_SPC     ! number of ISAM species with degradation
+      INTEGER,         ALLOCATABLE :: ISAM_DEGRADE_MAP( : ) ! index in ISAM species array to extract conc
+      INTEGER,         ALLOCATABLE :: ISAM_TO_DEGRADED( : ) ! index in REACT concentation array
+      INTEGER,         ALLOCATABLE :: ISAM_TO_REACTANT( : ) ! index in REACT data array to determine degradation
+      REAL(8),         ALLOCATABLE :: CONC_ISAM( :,: )      ! concentrations apportioned to sources
+      CHARACTER( 16 ), ALLOCATABLE :: ISAM_DEGRADED( : )    ! names of degraded isam species
 #endif
 
       LOGICAL, ALLOCATABLE :: IS_AERO_ORGANIC( : )  ! is aerosol species as OA and not a tracer
@@ -709,8 +716,10 @@ C..Save pointer for isam species found in chemistry species
                ALLOCATE( ISAM_TO_DEGRADED( ISAM_DEGRADED_SPC ) )
                ALLOCATE( ISAM_DEGRADE_MAP( ISAM_DEGRADED_SPC ) )
                ALLOCATE( ISAM_TO_REACTANT( ISAM_DEGRADED_SPC ) )
+               ALLOCATE( ISAM_DEGRADED   ( ISAM_DEGRADED_SPC ) )
                ISAM_TO_DEGRADED = -1
                ISAM_DEGRADE_MAP = -1
+               ISAM_DEGRADED    = "XundefinedX"
                
                WRITE(LOGDEV,'(/A)')'Below isam species have a linear decay based on photochemistry '
                WRITE(LOGDEV,'("IDX, ISAM_SPC, IDX, DEGRADE_SPC  ")')
@@ -724,6 +733,7 @@ C..Save pointer for isam species found in chemistry species
                        ISAM_DEGRADE_MAP( L ) = ISAM_SPC_IDX( S )
                        ISAM_TO_DEGRADED( L ) = ISAM_2_DEGRAD( S )
                        ISAM_TO_REACTANT( L ) = REACT_INDEX( S )     
+                       ISAM_DEGRADED   ( L ) = REACT( SPC )
                        WRITE(LOGDEV,'(I3,1X,A16,1x,I3,1X,A16)') 
      &                   C, FIND_IN_ISAM( S ), R, REACT( SPC )
                    END IF
@@ -789,7 +799,7 @@ C..Includes: None
              S       = ISAM_TO_DEGRADED( JSPC )
              SPC     = ISAM_DEGRADE_MAP( JSPC )
              LOAD_SOLD: DO KTAG = 1, NTAG_SA
-                 FACTOR2 = MAX( ISAM( COL,ROW,LAY,SPC,KTAG ), 1.0E-30 )
+                 FACTOR2 = ISAM( COL,ROW,LAY,SPC,KTAG )
                  CONC_ISAM( KTAG, JSPC ) = REAL( FACTOR2,8 )
              END DO LOAD_SOLD ! ktag loop
           END DO ! loop jspc
@@ -816,19 +826,37 @@ C..Includes: None
             REAL( 8 ), PARAMETER  :: ZERO      = 0.0D0
             
             REAL      :: FACTOR2
-            REAL( 8 ) :: TOTAL, FACTOR1, FACTOR3
+            REAL( 8 ) :: TOTAL, FACTOR1, FACTOR3, FACTOR
 !            REAL( 8 ) :: INV_DENS       ! one over air mass density, m3/kg
             
-            INTEGER :: JSPC, KTAG
+            INTEGER :: JSPC, KTAG, I_RAD, I_RXT
             INTEGER :: S, SPC          ! array index
             
             IF( ISAM_DEGRADED_SPC .LT. 1 )RETURN
              
+#ifdef verbose_isam
+      IF( DEG_LAY .EQ. 1 .AND. DEG_ROW .EQ. 1 .AND. DEG_COL .EQ. 1 )THEN
+         WRITE(LOGDEV,'(6x,A)')'SA_DEGRADE_UPLOAD'
+         WRITE(LOGDEV,'(//,6X,A16,(1X,A12),1X,A18,2(1X,A18))')'isam_degraded', 'factor', 'react',
+     &   'INIT_CONC','FINAL_CONC'
+      END IF
+#endif
              DO JSPC = 1, ISAM_DEGRADED_SPC
                 S       = ISAM_TO_DEGRADED( JSPC )
                 SPC     = ISAM_DEGRADE_MAP( JSPC )
+#ifdef verbose_isam
+               IF( DEG_LAY .EQ. 1 .AND. DEG_ROW .EQ. 1 .AND. DEG_COL .EQ. 1)THEN 
+                    I_RXT = ISAM_TO_DEGRADED( JSPC )
+                    I_RAD = ISAM_TO_REACTANT( JSPC )
+                    FACTOR2 = SUM(ISAM( COL,ROW,LAY,SPC,1:NTAG_SA ))
+                    FACTOR3 = SUM(CONC_ISAM( 1:NTAG_SA,JSPC ))
+                    FACTOR  = 1.0 + (FACTOR3-FACTOR2)/MAX(FACTOR2,1.0E-30)
+                  WRITE(LOGDEV,'(6X,A16,1X,ES18.10,1X,A16,2(1X,ES18.10))')ISAM_DEGRADED( JSPC ), FACTOR, REACT( I_RAD ),
+     &            FACTOR2, FACTOR3
+               END IF
+#endif               
                 LOAD_ISAM: DO KTAG = 1, NTAG_SA
-                    FACTOR1 =  MAX( CONC_ISAM( KTAG,JSPC ),1.0D-30 )
+                    FACTOR1 =  CONC_ISAM( KTAG,JSPC )
                     ISAM( COL,ROW,LAY,SPC,KTAG ) = REAL( FACTOR1 )
                 END DO LOAD_ISAM ! ktag loop
              END DO ! loop jspc

@@ -30,7 +30,7 @@ C
 C  KEY SUBROUTINES/FUNCTIONS CALLED:  HRRATES, HRG1, HRG2, HRG3
 C                                     HRG4, HRPRODLOSS
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 24, 2020
+C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2020
 C   21 Jun 10 J.Young: convert for Namelist redesign
 C   18 Jul 14 B.Hutzell: revised 1) to use the RXNS_DATA and RXNS_FUNCTION
 C                        modules instead of include files and 2) to use
@@ -338,6 +338,8 @@ c++++++++++++++++++++++++Debug section++++++++++++++++++++++++++++++++++
 
                IF( LEBI_CONV ) THEN
 
+#if defined(isam) || defined(verbose_isam)
+#endif
                  IF( CALL_IRR ) CALL PA_IRR ( .FALSE., RKI, YC, DTC )
 #ifdef isam
                  IF( NEBI .EQ. N_EBI_STEPS )UPDATE_SOLD = .TRUE.

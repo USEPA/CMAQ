@@ -60,7 +60,8 @@
       REAL, PARAMETER :: MWNO3 = 62.0049
       REAL, PARAMETER :: MWCL  = 35.453
       REAL, PARAMETER :: MWSO4 = 96.0576
-      REAL, SAVE      :: MWBENAPY = 0
+      REAL, SAVE      :: MWBENAPY = 0.0
+      REAL, SAVE      :: MWMERCURY= 0.0
 
 ! ppm2mole conversion
       REAL ppm2mole( NCOLS,NROWS,NLAYS )
@@ -70,11 +71,13 @@
       INTEGER, SAVE :: JHCL, JCLI , JCLJ
       INTEGER, SAVE :: JSULF, JSO4I, JSO4J, JSRXN
       INTEGER, SAVE :: JBENAPY, JBENAPYI, JBENAPYJ
+      INTEGER, SAVE :: JMERCURY, JMERCURYI, JMERCURYJ
 
       INTEGER :: ISA1, ISA2, ICG1, ICG2, IAER, IM, INDX
 
       INTEGER, SAVE :: CNH3, CNH4I, CNH4J, CHNO3, CNO3I, CNO3J
       INTEGER, SAVE :: CHCL, CCLI,  CCLJ
+      INTEGER, SAVE :: CMERCURY, CMERCURYI,  CMERCURYJ
       INTEGER, SAVE :: CBENAPY, CBENAPYI,  CBENAPYJ
 
 
@@ -85,6 +88,7 @@
       REAL, ALLOCATABLE, SAVE :: SULFATE_TAG (:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTAER_TAG (:,:,:)
       REAL, ALLOCATABLE, SAVE :: BENAPY_TAG (:,:,:)
+      REAL, ALLOCATABLE, SAVE :: MERCURY_TAG (:,:,:)
 
       REAL, ALLOCATABLE, SAVE :: TOTNH3(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTNO3(:,:,:)
@@ -92,6 +96,7 @@
       REAL, ALLOCATABLE, SAVE :: TOTSO4(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTAER(:,:,:)
       REAL, ALLOCATABLE, SAVE :: TOTBENAPY(:,:,:)
+      REAL, ALLOCATABLE, SAVE :: TOTMERCURY(:,:,:)
       REAL, ALLOCATABLE, SAVE :: FRAC1(:,:,:)
       REAL, ALLOCATABLE, SAVE :: FRAC2(:,:,:)
 
@@ -106,7 +111,8 @@
       LOGICAL, SAVE :: LAE_NO3 
       LOGICAL, SAVE :: LAE_CL 
       LOGICAL, SAVE :: LAE_SO4 
-      LOGICAL, SAVE :: LAE_BENAPY = .FALSE.
+      LOGICAL, SAVE :: LAE_BENAPY  = .FALSE.
+      LOGICAL, SAVE :: LAE_MERCURY = .FALSE.
      
       REAL, PARAMETER :: MIN_VAL = 1.0E-25
       REAL, SAVE :: MIN_TAGTOT 
@@ -240,8 +246,8 @@ Ckrt Identify species index in ISAM array
         IF ( JBENAPY .GT. 0 .AND. JBENAPYI .GT. 0 .AND. JBENAPYJ .GT. 0 
      &     .AND. CBENAPY .GT. 0 .AND. CBENAPYI .GT. 0 .AND. CBENAPYJ  .GT. 0  ) THEN
           LAE_BENAPY = .TRUE.
-          MWBENAPY  = NR_MOLWT( CBENAPY ) 
           CBENAPY   = CBENAPY + NR_STRT - 1 
+          MWBENAPY  = AE_MOLWT( CBENAPYJ ) 
           CBENAPYI  = CBENAPYI + AE_STRT - 1 
           CBENAPYJ  = CBENAPYJ + AE_STRT - 1 
           ALLOCATE( TOTBENAPY ( NCOLS,NROWS,NLAYS ),
@@ -252,6 +258,28 @@ Ckrt Identify species index in ISAM array
           END IF
         END IF
         
+        JMERCURY  = INDEX1('HGAERII', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        JMERCURYI = INDEX1(  'APHGI', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        JMERCURYJ = INDEX1(  'APHGJ', NSPC_SA, SPC_NAME( :,OTHRTAG ) )
+        CMERCURY  = INDEX1('HGIIAER', N_GC_SPC, GC_SPC )
+        CMERCURYI = INDEX1(  'APHGI', N_AE_SPC, AE_SPC )
+        CMERCURYJ = INDEX1(  'APHGJ', N_AE_SPC, AE_SPC )
+        IF ( JMERCURY .GT. 0 .AND. JMERCURYI .GT. 0 .AND. JMERCURYJ .GT. 0
+     &     .AND. CMERCURY .GT. 0 .AND. CMERCURYI .GT. 0 .AND. CMERCURYJ  .GT. 0  ) THEN
+          LAE_MERCURY = .TRUE.
+          CMERCURY   = CMERCURY + GC_STRT - 1
+          MWMERCURY  = AE_MOLWT( CMERCURYJ )
+          CMERCURYI  = CMERCURYI + AE_STRT - 1
+          CMERCURYJ  = CMERCURYJ + AE_STRT - 1
+          ALLOCATE( TOTMERCURY ( NCOLS,NROWS,NLAYS ),
+     &              MERCURY_TAG( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+          IF ( ALLOCSTAT .NE. 0 ) THEN
+             XMSG = 'Failure allocating TOTMERCURY, MERCURY_TAG '
+             CALL M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+          END IF
+        END IF
+
+
       ENDIF ! firstime ?
 
       ! Extract Density for gas conversion to umol/m3
@@ -459,6 +487,29 @@ c  !>>>>> COAGULATION <<<<<!
              ISAM1( :,:,:,JBENAPY,K )  = BENAPY_TAG( :,:,: ) * CCOND( :,:,:,CBENAPY ) / ppm2mole
              ISAM1( :,:,:,JBENAPYI,K ) = BENAPY_TAG( :,:,: ) * CCOND( :,:,:,CBENAPYI ) * MWBENAPY
              ISAM1( :,:,:,JBENAPYJ,K ) = BENAPY_TAG( :,:,: ) * CCOND( :,:,:,CBENAPYJ ) * MWBENAPY
+          END DO
+        ENDIF
+
+        ! mercury
+        IF ( LAE_MERCURY ) THEN
+! commpute total bulk concentration
+          TOTMERCURY = CGRID( :,:,:,CMERCURY ) * ppm2mole
+     &              + CGRID( :,:,:,CMERCURYI ) / MWMERCURY
+     &              + CGRID( :,:,:,CMERCURYJ ) / MWMERCURY
+
+! compute partitioning of bulk between forms
+          TOTMERCURY = 1.0 / TOTMERCURY
+          CCOND( :,:,:,CMERCURY )  = CGRID( :,:,:,CMERCURY )  * ppm2mole * TOTMERCURY
+          CCOND( :,:,:,CMERCURYI ) = CGRID( :,:,:,CMERCURYI ) / MWMERCURY * TOTMERCURY
+          CCOND( :,:,:,CMERCURYJ ) = CGRID( :,:,:,CMERCURYJ ) / MWMERCURY * TOTMERCURY
+
+          DO K = 1, NTAG_SA
+             MERCURY_TAG( :,:,: ) = ISAM0( :,:,:,JMERCURY,K )  * ppm2mole
+     &                            + ISAM0( :,:,:,JMERCURYI,K ) / MWMERCURY
+     &                            + ISAM0( :,:,:,JMERCURYJ,K ) / MWMERCURY
+             ISAM1( :,:,:,JMERCURY,K )  = MERCURY_TAG( :,:,: ) * CCOND( :,:,:,CMERCURY ) / ppm2mole
+             ISAM1( :,:,:,JMERCURYI,K ) = MERCURY_TAG( :,:,: ) * CCOND( :,:,:,CMERCURYI ) * MWMERCURY
+             ISAM1( :,:,:,JMERCURYJ,K ) = MERCURY_TAG( :,:,: ) * CCOND( :,:,:,CMERCURYJ ) * MWMERCURY
           END DO
         ENDIF
 

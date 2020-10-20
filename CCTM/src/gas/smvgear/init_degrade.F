@@ -24,7 +24,7 @@ C what(1) key, module and SID; SCCS file; date and time of last delta:
 C %W% %P% %G% %U%
 
 
-      SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, QV_CELL, PHOTO_CELL,
+      SUBROUTINE INIT_DEGRADE( CBLK, TCELL, DCELL, PRESS_CELL, H2O_CELL, PHOTO_CELL,
      &                         JDATE, JTIME )
 C**********************************************************************
 C
@@ -53,9 +53,9 @@ C.....ARGUMENTS:
       REAL( 8 ), INTENT( IN ) :: CBLK( :,: )               !  species concentration in cell
       REAL( 8 ), INTENT( IN ) :: TCELL( : )                !  cell temperature  [ k ]
       REAL( 8 ), INTENT( IN ) :: DCELL( : )                !  cell air density  [ kg/m^3 ]
-      REAL( 8 ), INTENT( IN ) :: PRESS_CELL( : )           !  cell Pressure  [ Pa ]
-      REAL( 8 ), INTENT( IN ) :: QV_CELL( : )              !  cell water vapor mass mixing ratio  [ kg/kg ]
-      REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :,: )         !  Photolysis table for cell [1/s]
+      REAL( 8 ), INTENT( IN ) :: PRESS_CELL( : )           !  cell Pressure  [ atm ]
+      REAL( 8 ), INTENT( IN ) :: H2O_CELL( : )             !  cell water vapor mass mixing ratio  [ ppm ]
+      REAL( 8 ), INTENT( IN ) :: PHOTO_CELL( :,: )         !  Photolysis table for cell [1/min]
 
       INTEGER, INTENT( IN ) :: JDATE  ! current model date , coded YYYYDDD
       INTEGER, INTENT( IN ) :: JTIME  ! current model time , coded HHMMSS
@@ -70,7 +70,6 @@ C.....LOCAL VARIABLES:
       REAL(8), SAVE ::  CONV_M2N       ! factor to convert ppm times mass density in [kg/m^3]
                                        ! into number density in [molecules/cm^3]
                                        
-      REAL(8)       ::  CONV_FACT      ! conversion factor from ppm to molecules/cm^3
       REAL(8)       ::  FACTOR         ! scale factor
       
 
@@ -79,7 +78,9 @@ C.....LOCAL VARIABLES:
       
       LOGICAL, SAVE ::  FIRSTCALL = .TRUE. 
 
-      REAL, PARAMETER :: MAOMW   =  MWAIR / MWWAT ! Mol Wt of air over Mol Wt of water 
+      REAL,      PARAMETER :: MAOMW     =  MWAIR / MWWAT           ! Mol Wt of air over Mol Wt of water 
+      REAL( 8 ), PARAMETER :: MWOMA     =  REAL( MWWAT / MWAIR,8 ) ! Mol Wt of water over Mol Wt of air 
+      REAL( 8 ), PARAMETER :: ATM_TO_PA =  REAL( STDATMPA,8 )      ! Pascals per Atmosphere
       
 !   Murray, F.W. 1966. ``On the computation of Saturation Vapor Pressure,'
 !   J. Appl. Meteor.,  6, p. 204.
@@ -111,46 +112,44 @@ C**********************************************************************
          
          CONV_M2N       = 1.0D-6 * MASS_TO_NUMBER
 
-         ALLOCATE( PREV_CONC( BLKSIZE, NSPCSD ) )
-         ALLOCATE( CURR_CONC( BLKSIZE, NSPCSD ) )
-         ALLOCATE( DELT_CONC( BLKSIZE, NSPCSD ) )
-         ALLOCATE( TEMP     ( BLKSIZE ) )
-         ALLOCATE( INV_TEMP ( BLKSIZE ) )
-         ALLOCATE( NUMB_DENS( BLKSIZE ) )
-         ALLOCATE( NUMB_H2O ( BLKSIZE ) )
+         ALLOCATE( PREV_CONC ( BLKSIZE, NSPCSD ) )
+         ALLOCATE( CURR_CONC ( BLKSIZE, NSPCSD ) )
+         ALLOCATE( DELT_CONC ( BLKSIZE, NSPCSD ) )
+         ALLOCATE( TEMP      ( BLKSIZE ) )
+         ALLOCATE( INV_TEMP  ( BLKSIZE ) )
+         ALLOCATE( NUMB_DENS ( BLKSIZE ) )
+         ALLOCATE( NUMB_H2O  ( BLKSIZE ) )
+         ALLOCATE( CONV_FACT ( BLKSIZE ) )
          ALLOCATE( IS_AERO_ORGANIC ( N_AEROSPC ) )
 
          ALLOCATE( RATE_CONST( BLKSIZE, N_PROCESSES, N_REACT ) )
 
          ALLOCATE( H2O_MOLAR_FRACTION( BLKSIZE ) )
          
-!         IF ( AE7ORGH2O ) THEN
-            IS_AERO_ORGANIC( : ) = ( AEROSPC( : )%OM .AND. .NOT. AEROSPC( : )%TRACER )
-!         ELSE
-!            IS_AERO_ORGANIC( : ) = .NOT. AEROSPC( : )%TRACER 
-!         END IF
+         IS_AERO_ORGANIC( : ) = ( AEROSPC( : )%OM .AND. .NOT. AEROSPC( : )%TRACER )
 
-         FIRSTCALL = .FALSE.
-
+         INFINITY  = HUGE( CONV_M2N )
          EFFECTIVE_ZERO  = TINY( CONV_M2N )
 
+         FIRSTCALL = .FALSE.
       ENDIF
 
 C..initialize concentrations and their changes
       DELT_CONC  = 0.0D0
       RATE_CONST = 0.0D0
-
+      DEGRADE_STEP = 0
+      
       DO I = 1, NSPCSD
          PREV_CONC( :,I ) = MAX( CBLK( :,I ), 0.0D0 )
          CURR_CONC( :,I ) = PREV_CONC( :,I )
       END DO
          
       NUMB_DENS = MASS_TO_NUMBER * REAL( DCELL, 8 )
-      NUMB_H2O  = MAOMW   * QV_CELL * NUMB_DENS
+      NUMB_H2O  = 1.0D-6 * H2O_CELL * NUMB_DENS
+      CONV_FACT = CONV_M2N * REAL( DCELL, 8 )
       
-      TEMP = REAL( TCELL, 8 )
-
-      CONV_FACT  = CONV_M2N ! * REAL( DCELL, 8 )
+      TEMP =  REAL( TCELL, 8 )
+      PRESS = ATM_TO_PA * PRESS_CELL
 
       WHERE( TEMP .GT. 0 )
          INV_TEMP = 1.0D0 / TEMP
@@ -170,13 +169,23 @@ C..initialize concentrations and their changes
      &                                   * DEXP( -UNI_ACT( J, I )*INV_TEMP( ICELL ) )
             END DO LOOP_CELL
          END DO LOOP_UNIRATE
+#ifdef verbose_gas
+         IF( WRITE_BLOCK )THEN
+            WRITE(LOGDEV,'(A,6(1X,ES12.4))')'TEMP,NUMB,PRESS = ',TCELL(ICELL_WRITE),NUMB_DENS(ICELL_WRITE),
+     &      PRESS(ICELL_WRITE)
+            WRITE(LOGDEV,*)'UNIRATES for ',REACT(I)
+            DO J = 1, N_UNI_LOSS
+               WRITE(LOGDEV,*)J,RATE_CONST( ICELL_WRITE, J, I  )
+            END DO
+         END IF
+#endif
 
          LOOP_BIRATE: DO J = 1, N_BI_LOSS
             IF( BIRATE( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
              IF ( RAD_MAP( J, I ) < 0 ) CYCLE
              SELECT CASE ( RAD_MAP( J, I ) )
                CASE ( 9999 )
-                  FACTOR = 1.0D0
+                  FACTOR = ATM_AIR 
                CASE ( 9998 )
                   FACTOR = ATM_N2
                CASE ( 9997 )
@@ -186,29 +195,39 @@ C..initialize concentrations and their changes
                CASE ( 9995 )
                   FACTOR = ATM_H2
                CASE DEFAULT
-                  FACTOR = CONV_FACT 
+                  FACTOR = 1.0D0 
              END SELECT 
              IF ( RAD_MAP( J, I ) .EQ. 9994 ) THEN
                 DO ICELL = 1, NCELLS
-                   RATE_CONST( ICELL, J+UNI_STOP, I  ) = NUMB_H2O( ICELL ) * NUMB_DENS( ICELL ) * BIRATE( J, I )
+                   RATE_CONST( ICELL, J+UNI_STOP, I  ) = NUMB_H2O( ICELL ) * BIRATE( J, I )
      &                                                 * TEMP( ICELL )**BI_TEXP( J, I )
      &                                                 * DEXP( -BI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO
              ELSE
                 DO ICELL = 1, NCELLS
-                   RATE_CONST( ICELL, J+UNI_STOP, I  ) = FACTOR * NUMB_DENS( ICELL ) * BIRATE( J, I )
+                   RATE_CONST( ICELL, J+UNI_STOP, I  ) = FACTOR * CONV_FACT( ICELL ) * BIRATE( J, I )
      &                                                 * TEMP( ICELL )**BI_TEXP( J, I )
      &                                                 * DEXP( -BI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO      
              END IF
          END DO LOOP_BIRATE
+#ifdef verbose_gas
+         IF( WRITE_BLOCK )THEN
+            WRITE(LOGDEV,'(A,6(1X,ES12.4))')'TEMP,NUMB,PRESS = ',TCELL(ICELL_WRITE),NUMB_DENS(ICELL_WRITE),
+     &      PRESS(ICELL_WRITE)
+            WRITE(LOGDEV,*)'BIRATES for ',REACT(I)
+            DO J = 1, N_BI_LOSS
+               WRITE(LOGDEV,*)J+UNI_STOP,RATE_CONST( ICELL_WRITE, J+UNI_STOP, I  )
+            END DO
+         END IF
+#endif
 
          LOOP_TRIRATE: DO J = 1, N_TRI_LOSS
             IF( TRIRATE( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
              IF ( RAD2_MAP( 1, J, I ) < 0 .OR. RAD2_MAP( 2, J, I ) < 0 ) CYCLE
              SELECT CASE ( RAD2_MAP( 1, J, I ) )
                CASE ( 9999 )
-                  FACTOR = 1.0D0
+                  FACTOR = ATM_AIR
                CASE ( 9998 )
                   FACTOR = ATM_N2
                CASE ( 9997 )
@@ -217,10 +236,8 @@ C..initialize concentrations and their changes
                   FACTOR = ATM_CH4
                CASE ( 9995 )
                   FACTOR = ATM_H2
-               CASE ( 9994 )
-                  FACTOR = 1.0D0
                CASE DEFAULT
-                  FACTOR = CONV_FACT 
+                  FACTOR = 1.0D0
              END SELECT
              SELECT CASE ( RAD2_MAP( 2, J, I ) )
                CASE ( 9999 )
@@ -233,28 +250,26 @@ C..initialize concentrations and their changes
                   FACTOR = FACTOR * ATM_CH4
                CASE ( 9995 )
                   FACTOR = FACTOR * ATM_H2
-               CASE ( 9994 )
-                  FACTOR = FACTOR
                CASE DEFAULT
-                  FACTOR = FACTOR * CONV_FACT 
+                  FACTOR = FACTOR 
              END SELECT
              IF ( RAD2_MAP( 1, J, I ) .EQ. 9994 .AND. RAD2_MAP( 2, J, I ) .NE. 9994 ) THEN
                 DO ICELL = 1, NCELLS
                    RATE_CONST( ICELL, J+BI_STOP, I ) = FACTOR * TRIRATE( J, I )
-     &                                               * NUMB_H2O( ICELL ) * NUMB_DENS( ICELL )           
+     &                                               * NUMB_H2O( ICELL ) * CONV_FACT( ICELL )           
      &                                               * TEMP( ICELL )**TRI_TEXP( J, I )
      &                                               * DEXP( -TRI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO
              ELSE IF  ( RAD2_MAP( 1, J, I ) .NE. 9994 .AND. RAD2_MAP( 2, J, I ) .EQ. 9994 ) THEN
                 DO ICELL = 1, NCELLS
                    RATE_CONST( ICELL, J+BI_STOP, I ) = FACTOR * TRIRATE( J, I )
-     &                                               * NUMB_H2O( ICELL ) * NUMB_DENS( ICELL )           
+     &                                               * NUMB_H2O( ICELL ) * CONV_FACT( ICELL )           
      &                                               * TEMP( ICELL )**TRI_TEXP( J, I )
      &                                               * DEXP( -TRI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO
              ELSE IF  ( RAD2_MAP( 1, J, I ) .EQ. 9994 .AND. RAD2_MAP( 2, J, I ) .EQ. 9994 ) THEN
                 DO ICELL = 1, NCELLS
-                   RATE_CONST( ICELL, J+BI_STOP, I ) = FACTOR * TRIRATE( J, I )
+                   RATE_CONST( ICELL, J+BI_STOP, I ) = TRIRATE( J, I )
      &                                               * NUMB_H2O( ICELL ) * NUMB_H2O( ICELL )           
      &                                               * TEMP( ICELL )**TRI_TEXP( J, I )
      &                                               * DEXP( -TRI_ACT( J, I )*INV_TEMP( ICELL ) )
@@ -262,12 +277,22 @@ C..initialize concentrations and their changes
              ELSE
                 DO ICELL = 1, NCELLS
                    RATE_CONST( ICELL, J+BI_STOP, I ) = FACTOR * TRIRATE( J, I )
-     &                                               * NUMB_DENS( ICELL ) * NUMB_DENS( ICELL )           
+     &                                               * CONV_FACT( ICELL ) * CONV_FACT( ICELL )           
      &                                               * TEMP( ICELL )**TRI_TEXP( J, I )
      &                                               * DEXP( -TRI_ACT( J, I )*INV_TEMP( ICELL ) )
                 END DO
              END IF
          END DO LOOP_TRIRATE
+#ifdef verbose_gas
+         IF( WRITE_BLOCK )THEN
+            WRITE(LOGDEV,'(A,6(1X,ES12.4))')'TEMP,NUMB,PRESS = ',TCELL(ICELL_WRITE),NUMB_DENS(ICELL_WRITE),
+     &      PRESS(ICELL_WRITE)
+            WRITE(LOGDEV,*)'TRI_RATES for ',REACT(I)
+            DO J = 1, N_TRI_LOSS
+               WRITE(LOGDEV,*)J+BI_STOP,RATE_CONST( ICELL_WRITE, J+BI_STOP, I  )
+            END DO
+         END IF
+#endif
 
          LOOP_PHOTORATE: DO J = 1, N_PHOTO_LOSS
 
@@ -275,11 +300,22 @@ C..initialize concentrations and their changes
             IF ( K < 1 ) CYCLE
             IF( A_PHOTO( J, I ) .LT. EFFECTIVE_ZERO )CYCLE
             DO ICELL = 1, NCELLS
-               RATE_CONST( ICELL, J+TRI_STOP, I ) = A_PHOTO( J, I )
+               RATE_CONST( ICELL, J+TRI_STOP, I ) = 60.0D0 * A_PHOTO( J, I )
      &                                            * PHOTO_CELL( ICELL, K )
             END DO
 
          END DO LOOP_PHOTORATE
+#ifdef verbose_gas
+         IF( WRITE_BLOCK )THEN
+            WRITE(LOGDEV,'(A,6(1X,ES12.4))')'TEMP,NUMB,PRESS = ',TCELL(ICELL_WRITE),NUMB_DENS(ICELL_WRITE),
+     &      PRESS(ICELL_WRITE)
+            WRITE(LOGDEV,*)'PHOTO_RATES for ',REACT(I)
+            DO J = 1, N_PHOTO_LOSS
+               WRITE(LOGDEV,*)J+TRI_STOP,RATE_CONST( ICELL_WRITE,J+TRI_STOP, I  )
+            END DO
+         END IF
+#endif
+
 
 
          IF ( AE7ORGH2O ) THEN ! use water absorbed by organic mass
@@ -289,13 +325,19 @@ C..initialize concentrations and their changes
                 ORG_AERO = SUM( SUM( AEROSPC_CONC( :,1:2 ),2 ) * AEROSPC_MWINV( : ),
      &                          MASK=IS_AERO_ORGANIC( : ) )
                 H2O_MOLAR_FRACTION( ICELL ) = ORG_H2O 
-     &                                      / MAX( (ORG_H2O + ORG_AERO), EFFECTIVE_ZERO ) 
+     &                                      / MAX( (ORG_H2O + ORG_AERO), EFFECTIVE_ZERO )
+#ifdef verbose_gas
+                IF( ICELL .EQ. ICELL_WRITE )THEN
+                  WRITE(LOGDEV,'(A,6(1X,ES12.4))')'ORG_H2O, ORG_H2O,H2O_MOLAR_FRACTION = ',  
+     &            ORG_H2O, ORG_H2O,H2O_MOLAR_FRACTION(ICELL)                    
+                END IF 
+ endif
              END DO
          ELSE                  ! use relative humidity as surrogate
              DO ICELL = 1, NCELLS
                 ESW  = SVP1 * EXP( SVP2  * ( TEMP( ICELL ) - STDTEMP ) / ( TEMP( ICELL ) - SVP3  ) )
-                QVSW = ( EP_2 * ESW ) / ( PRESS_CELL( ICELL ) - ESW )
-                RHUM = QV_CELL( ICELL ) / QVSW                   
+                QVSW = ( EP_2 * ESW ) / ( PRESS( ICELL ) - ESW )
+                RHUM = ( 1.0D-6 * MWOMA * H2O_CELL( ICELL ) ) / QVSW                   
                 H2O_MOLAR_FRACTION( ICELL ) = RHUM
              END DO             
          END IF
@@ -309,7 +351,7 @@ C..initialize concentrations and their changes
      &                    .AND. H2O_MOLAR_FRACTION( ICELL ) .GT. LH_RHMIN( J, I )  ) THEN
                      SELECT CASE ( RAD_MAP( J, I ) )
                        CASE ( 9999 )
-                          FACTOR = 1.0D0
+                          FACTOR = ATM_AIR
                        CASE ( 9998 )
                           FACTOR = ATM_N2
                        CASE ( 9997 )
@@ -319,18 +361,28 @@ C..initialize concentrations and their changes
                        CASE ( 9995 )
                          FACTOR = ATM_H2
                        CASE DEFAULT
-                         FACTOR = CONV_FACT 
+                         FACTOR = 1.0D0 
                      END SELECT 
                      IF ( RAD_MAP( J, I ) .EQ. 9994 ) THEN
-                        RATE_CONST( :, J+UNI_STOP, I  ) = NUMB_H2O( ICELL ) * LH_EQU( J, I )
+                        RATE_CONST( ICELL, J+PHOTO_STOP, I  ) = NUMB_H2O( ICELL ) * LH_EQU( J, I )
                      ELSE
-                        RATE_CONST( ICELL, J+UNI_STOP, I  ) = FACTOR * NUMB_DENS( ICELL ) * LH_EQU( J, I )
+                        RATE_CONST( ICELL, J+PHOTO_STOP, I  ) = FACTOR * CONV_FACT( ICELL ) * LH_EQU( J, I )
                      END IF
                   END IF                  
                END DO 
             END IF
 
          END DO LOOP_LHRATE
+#ifdef verbose_gas
+         IF( WRITE_BLOCK )THEN
+            WRITE(LOGDEV,'(A,6(1X,ES12.4))')'TEMP,NUMB,PRESS,H2O = ',TCELL(ICELL_WRITE),NUMB_DENS(ICELL_WRITE),
+     &      PRESS(ICELL_WRITE),NUMB_H2O(ICELL_WRITE)
+            WRITE(LOGDEV,*)'LH_RATES for ',REACT(I)
+            DO J = 1, N_LANHIN_LOSS
+               WRITE(LOGDEV,'(A,1X,I3,6(1X,ES12.4))')'LH_RCONST:', J+PHOTO_STOP,RATE_CONST( ICELL_WRITE, J+PHOTO_STOP, I  )
+            END DO
+         END IF
+#endif
 
       END DO LOOP_REACT
 

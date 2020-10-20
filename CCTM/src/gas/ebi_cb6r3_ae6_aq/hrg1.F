@@ -29,7 +29,7 @@ C  PRECONDITIONS: For the CB6R3_AE6_AQ mechanism
 C
 C  KEY SUBROUTINES/FUNCTIONS CALLED: None
 C
-C  REVISION HISTORY: Created by EBI solver program, Mar 26, 2020
+C  REVISION HISTORY: Created by EBI solver program, Oct 19, 2020
 C
 C   18 Jul 14 B.Hutzell: revised to use real(8) variables
 C   01 Jun 18 B.Hutzell: replaced steady solution for O1D with backward Euler
