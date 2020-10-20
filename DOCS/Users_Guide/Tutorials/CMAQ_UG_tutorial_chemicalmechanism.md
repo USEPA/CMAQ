@@ -5,7 +5,7 @@ Author: Elyse Pennington (epenning@caltech.edu)
 ### Modifying a Chemical Mechanism in CMAQ ###
 
 
-Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a new solver, and reflect all the changes in Github. This tutorial includes examples impacting SOA precursors and products, and does not include impacts on ozone or other radical chemistry.
+Goal: Modify the gas- and aerosol-phase chemical mechanisms in CMAQ, create a new solver, and reflect all the changes in Github. This tutorial includes examples impacting SOA precursors and products, and does not include impacts on ozone or other radical chemistry. Caution: If significant modifications are made to the gas-phase mechanism that alter the radical balance, the ebi implementation of the modified mechanism should be checked against an alternative solver such as ros3 or smvgear. This example does not include extensive modifications.
 
 ### Files to edit ##
 1. mech_*.def
@@ -41,7 +41,7 @@ In this example, we add an Odum 2-product model by reacting a gas-phase precurso
 ```
 <TWOPROD> TPROD + OH = OH + 0.15 * SVTPROD1 + 0.80 * SVTPROD2 #4.50E-11;
 ```
-To form a nonvolatile, accumulation mode SOA species (ANONVJ) from a gas-phase species (NONVG) with an SOA yield of 5% by mole and a rate constant of 2 x 10<sup>-11</sup> cm<sup>3</sup>/(molecules s):
+To form a nonvolatile, accumulation mode SOA species (ANONVJ) from a gas-phase IVOC species (NONVG) with an SOA yield of 5% by mole and a rate constant of 2 x 10<sup>-11</sup> cm<sup>3</sup>/(molecules s):
 ```
 <NONV> NONVG + OH = OH + 0.05 * ANONVJ #2.00E-11;
 ```
@@ -51,6 +51,14 @@ To form a nonvolatile, accumulation mode SOA species (ANONVJ) from a gas-phase s
 ### 3. Edit GC namelist.
 The GC namelist defines gas-phase species and their physical and chemical properties. It's located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/GC_${mechanism}.nml.
 You must add a new row for every gas-phase species that was added to [mech.def](#mech_def). See [Chapter 4](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md) for more information.
+TPROD, SVTPROD1, SVTPROD2, and NONVG from the examples above must be added to the GC namelist because they're gas-phase species. Column descriptions can be found in [Chapter 4](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md). In this example, TPROD does not participate in dry deposition - similar to many other VOCs in CMAQ - so 'DRYDEP SURR' and 'DDEP' are empty and FAC is -1. NONVG (an IVOC as defined above), SVTPROD1, and SVTPROD2 do participate in dry deposition because of their low volatilities. This tutorial does not explain the process of creating new dry deposition surrogates, but it is possible to do so and replace 'VD_GEN_ALD'. The WET-SCAV SURR are described in the [hlconst.F](#hlconst) section below. 'GC2AE SURR' lists the species that partition between gas and aerosol phases in [SOA_DEFN.F](#SOA_DEFN).
+```
+!SPECIES        ,MOLWT   ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR       ,FAC  ,WET-SCAV SURR     ,FAC ,GC2AE SURR     ,GC2AQ SURR,TRNS  ,DDEP  ,WDEP  ,CONC
+'SVTPROD1'      ,216.66  ,''     ,-1     ,''     ,-1     ,'VD_GEN_ALD'      , 1   ,'SVTPROD1'        , 1  ,'SVTPROD1'     ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'SVTPROD2'      ,182.66  ,''     ,-1     ,''     ,-1     ,'VD_GEN_ALD'      , 1   ,'SVTPROD2'        , 1  ,'SVTPROD2'     ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes',
+'TPROD'         ,168.66  ,''     ,-1     ,''     ,-1     ,''                ,-1   ,'TPROD'           , 1  ,''             ,''        ,'Yes' ,''    ,'Yes' ,'Yes',
+'NONVG'         ,119.54  ,''     ,-1     ,''     ,-1     ,'VD_GEN_ALD'      , 1   ,'NONVG'           , 1  ,''             ,''        ,'Yes' ,'Yes' ,'Yes' ,'Yes'
+```
 
 
 
@@ -58,13 +66,21 @@ You must add a new row for every gas-phase species that was added to [mech.def](
 ### 4. Edit AE namelist.
 The AE namelist defines all aerosol-phase species and their physical and chemical properties and is located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/AE_${mechanism}.nml
 You must add a new row for every aerosol-phase species added to [AERO_DATA.F](#AERO_DATA). See [Chapter 4](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md) for more information.
+ANONVJ and the aerosol products from the Odum 2-product model must be added to the AE namelist. The semivolatile Odum 2-product species (SVTPROD1 and SVTPROD2) partition between the gas and accumulation mode aerosol phase with ATPROD1J and ATPROD2J. Column descriptions can be found in [Chapter 4](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md). 
+```
+!SPECIES   ,MOLWT   ,IC     ,IC_FAC ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC
+'ATPROD1J' ,216.66  ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ATPROD2J' ,182.66  ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+'ANONVJ'   ,135.54  ,''     ,-1     ,''     ,-1     ,'VMASSJ'    , 1  ,'ORG_ACCUM'    , 1  ,'SOA_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
+```
 
 
 
 <a id=NRnml></a>
 ### 5. Edit NR namelist.
 The NR namelist defines gas-phase species that are not in the mech.def file, and their physical and chemical properties. Species in this file are typically the semivolatile gases that partition between the gas- and aerosol-phases. It's located at $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/NR_${mechanism}.nml.
-You must add a new row for every nonreactive species, if any, added to the chemical mechanism that is not explicitly modeled in [mech.def](#mech_def). See [Chapter 4](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md) for more information.
+You must add a new row for every nonreactive species, if any, added to the chemical mechanism that is not explicitly modeled in [mech.def](#mech_def). See [Chapter 4](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/CMAQ_UG_ch04_model_inputs.md) for descriptions of the information in each column.
+The examples used in this tutorial do not include species that need to be added to the NR namelist. Follow the sesquiterpene SOA formation mechanism as an example of NR species (e.g. follow SESQRXN, SVSQT, and ASQTJ in $CMAQ_REPO/CCTM/src/MECHS/${mechanism}/ and $CMAQ_REPO/CCTM/src/aero/aero6/).
 
 
 
@@ -101,7 +117,7 @@ To update the OC variables or the deposition of OC variables in the SpecDef_Dep_
 ### 8. Edit SOA_DEFN.F
 SOA_DEFN.F describes SOA precursors, SOA species and their properties dealing with gas to particle partitioning. It is located at $CMAQ_REPO/CCTM/src/aero/aero6/SOA_DEFN.F. Note that the aero7 directory is linked to the aero6 directory.
 
-You must add a row for every new aerosol species and increase n_oa_list by the number of species added to the list.
+You must add a row for every new SOA species and increase n_oa_list by the number of species added to the list.
 
 To add semivolatile species that partition between the gas and aerosol phases (with a gas-phase species defined in the [GC namelist](#GCnml)), include their effective saturation concentrations (C*) and enthalpies of vaporization. In this example, ATPROD1 has the corresponding gas-phase species SVTPROD1 and has C* = 0.95 ug/m<sup>3</sup> and enthalpy of vaporization = 131 J/mol. ATPROD2 has the corresponding gas-phase species SVTPROD2 and has C* = 485 ug/m<sup>3</sup> and enthalpy of vaporization = 101 J/mol:
 ```
@@ -141,8 +157,14 @@ hlconst.F calculates Henry's Law constants for species that participate in wet d
 
 Each new row corresponds to a name used in the 'WET-SCAV SURR' column of the [GC namelist](#GCnml). Increase MXSPCS by the number of species added to the list.
 
-See references listed in hlconst.F for models to calculate Henry's Law constants where experimental data is unavailable.
+Based on the additions to the [GC namelist](#GCnml) in these examples, wet deposition surrogates must be added for TPROD, SVTPROD1, SVTPROD2, and NONVG. The first 3 columns are row numbers in the data matrix. Column 4 is the name of the wet deposition surrogate used in the [GC namelist](#GCnml) and will often be the same as the species name. Column 5 is the Henry's law constant at 298.15 K (M/atm). Column 6 is the enthalpy; for organic semivolatile species with unknown enthalpy, 6.0E+03 may be used. See references listed in hlconst.F for models to calculate Henry's Law constants where experimental data is unavailable.
+```
+      DATA SUBNAME(217), A(217), E(217) / 'TPROD           ', 3.87E+02,  6.0E+03 /
+      DATA SUBNAME(218), A(218), E(218) / 'SVTPROD1        ', 2.97E+06,  6.0E+03 /
+      DATA SUBNAME(219), A(219), E(219) / 'SVTPROD2        ', 7.99E+05,  6.0E+03 /
+      DATA SUBNAME(220), A(220), E(220) / 'NONVG           ', 2.22E+03,  6.0E+03 /
 
+```
 Dry deposition surrogates may also be added, but are not covered in this tutorial.
 
 
