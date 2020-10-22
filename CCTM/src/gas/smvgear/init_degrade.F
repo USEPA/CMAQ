@@ -331,7 +331,7 @@ C..initialize concentrations and their changes
                   WRITE(LOGDEV,'(A,6(1X,ES12.4))')'ORG_H2O, ORG_H2O,H2O_MOLAR_FRACTION = ',  
      &            ORG_H2O, ORG_H2O,H2O_MOLAR_FRACTION(ICELL)                    
                 END IF 
- endif
+#endif
              END DO
          ELSE                  ! use relative humidity as surrogate
              DO ICELL = 1, NCELLS

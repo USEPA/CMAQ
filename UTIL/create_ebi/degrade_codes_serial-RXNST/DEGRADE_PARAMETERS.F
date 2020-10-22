@@ -415,7 +415,7 @@ C.. STYRENE
 
 C.. ACETONITRILE
 
-            REACT(24)       = 'ACETONITRILE   '
+            REACT(24)       = 'ACET_NITRILE   '
             BICAUSE(1:3,24) = (/'OH','OH','CL'/)
             BIRATE(1:3,24)  = (/          8.31D-13,          8.31D-13,          1.60D-11/)
             BI_ACT(1:3,24)  = (/          1080.0D0,          1080.0D0,          2140.0D0/)
