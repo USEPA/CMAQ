@@ -213,6 +213,19 @@
 
       ! Check Top-Layer Specification
       IF ( INST_LAYER_TOP .EQ. -1 ) INST_LAYER_TOP = NLAYS
+      IF ( INST_LAYER_TOP .LE. 0 .OR. INST_LAYER_TOP .GT. NLAYS ) THEN
+           XMSG = 'INST_LAYER_TOP must be prescribed between 1 and NLAYS,' //
+     &            ' or set to -1 to automatically choose NLAYS.'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+      IF ( INST_LAYER_BOT .LE. 0 .OR. INST_LAYER_BOT .GT. NLAYS ) THEN
+           XMSG = 'INST_LAYER_BOT must be prescribed between 1 and NLAYS.'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+      IF ( INST_LAYER_BOT .GT. INST_LAYER_TOP ) THEN
+           XMSG = 'INST_LAYER_BOT must be less than or equal to INST_LAYER_TOP.'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
       NLAY_PMDIAG_INST = INST_LAYER_TOP - INST_LAYER_BOT + 1
 
       ! Read Desired PMDIAG_AVRG parameters from input namelist
@@ -285,6 +298,19 @@
  
       ! Check Top-Layer Specification
       IF ( AVRG_LAYER_TOP .EQ. -1 ) AVRG_LAYER_TOP = NLAYS
+      IF ( AVRG_LAYER_TOP .LE. 0 .OR. AVRG_LAYER_TOP .GT. NLAYS ) THEN
+           XMSG = 'AVRG_LAYER_TOP must be prescribed between 1 and NLAYS,' //
+     &            ' or set to -1 to automatically choose NLAYS.'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+      IF ( AVRG_LAYER_BOT .LE. 0 .OR. AVRG_LAYER_BOT .GT. NLAYS ) THEN
+           XMSG = 'AVRG_LAYER_BOT must be prescribed between 1 and NLAYS.'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
+      IF ( AVRG_LAYER_BOT .GT. AVRG_LAYER_TOP ) THEN
+           XMSG = 'AVRG_LAYER_BOT must be less than or equal to AVRG_LAYER_TOP.'
+           CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
+      END IF
       NLAY_PMDIAG_AVRG = AVRG_LAYER_TOP - AVRG_LAYER_BOT + 1
  
       END SUBROUTINE READ_PMDIAG_NML
@@ -1671,11 +1697,11 @@
       USE RUNTIME_VARS
       IMPLICIT NONE
 
-      INTEGER  IDG, IVAR
-      CHARACTER( * ) :: CSPEC
-      CHARACTER( * ) :: TSPEC_TMP  ! AERO, PREC, GAS, or AGG
+      INTEGER, INTENT( IN ) ::  IDG, IVAR
+      CHARACTER( * ), INTENT( IN ) :: CSPEC
+      CHARACTER( * ), INTENT( IN ) :: TSPEC_TMP  ! AERO, PREC, GAS, or AGG
       CHARACTER( 4 ) :: TSPEC  ! AERO, PREC, GAS, or AGG
-      REAL COEFF
+      REAL, INTENT( INOUT ) :: COEFF
       INTEGER  ISPEC, IUSED, JSPEC
       LOGICAL  USED
       CHARACTER( 1000 ) :: XMSG
@@ -1813,8 +1839,9 @@
 
       IMPLICIT NONE
 
-      INTEGER IDG
-      REAL    VAL, VAL2
+      INTEGER, INTENT( IN ) :: IDG
+      REAL, INTENT( INOUT ) :: VAL
+      REAL VAL2
       INTEGER IVAR, ILIST
       LOGICAL L_CALC( N_PMDIAG )
       REAl    COEFF
@@ -1922,8 +1949,8 @@
       USE PHOT_MOD, ONLY : TAU_AERO_550, AERO_EXT_550
       USE RUNTIME_VARS, ONLY : PHOTDIAG
 
-      INTEGER IDG, IM
-      REAL OUTVAL
+      INTEGER, INTENT( IN ) :: IDG, IM
+      REAL, INTENT( INOUT ) :: OUTVAL
       INTEGER IUSED, IMODE, IVAR, IOA
       REAL VAL4, VAL3, VAL2, VAL, FRAC( N_MODE )
       REAL PM01, PM1, PM25, PM10, PMAMS, PM25to10, POM, POC, OtoC
@@ -2585,12 +2612,12 @@
 
       IMPLICIT NONE
 
-      INTEGER C, R, L
+      INTEGER, INTENT( IN ) :: C, R, L
       INTEGER IDG, IM, AL, IL, IUSED, IAVRG, IINST
 
-      REAL :: CONC( : )
+      REAL, INTENT( IN ) :: CONC( : )
 
-      LOGICAL :: WRITETIME
+      LOGICAL, INTENT( IN ) :: WRITETIME
 
       ! Initalize Local Parameters
       PMDIAG_LOCAL( : ) = 0.0
@@ -2811,7 +2838,7 @@
 
       INCLUDE SUBST_FILES_ID
 
-      INTEGER JDATE, JTIME, TSTEP(3)
+      INTEGER, INTENT( IN ) :: JDATE, JTIME, TSTEP(3)
       INTEGER MDATE, MTIME
       CHARACTER( 300 ) XMSG
 
