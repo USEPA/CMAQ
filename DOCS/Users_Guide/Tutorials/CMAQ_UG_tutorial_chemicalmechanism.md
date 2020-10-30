@@ -344,10 +344,14 @@ To view a summary of the changes you've made to your repo since your last commit
 To see a list of all lines that have been modified in those files, type "git diff".
 
 ### 7. Commit the changes.
-To stage all modified files for commit:
+To stage all modified files in current directory for commit:
 ```
-git add .
-````
+git add -u
+```
+To stage specific files for commit:
+```
+git add [filename1] [filename2]
+```
 To commit:
 ```
 git commit
