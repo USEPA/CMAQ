@@ -1,0 +1,84 @@
+#!/bin/csh
+
+set tfile = `ls -1 configure.wrf `
+
+# to determine FC
+set tline = `cat $tfile | grep fixed | sed 's/;/ /' `
+if (`echo $tline | grep Mfixed | wc -l`) then
+   setenv FC pgi
+else if (`echo $tline | grep ffixed | wc -l`) then
+   setenv FC gfort
+else
+   setenv FC ifort
+endif
+
+# to determine mpi include
+# set tline = `cat $tfile | grep f_flags \
+#                          | sed 's/-I/ /g' \
+#                          | sed 's/"/ /g' \
+#                          | sed 's/;/ /' \
+#                          | sed 's/./ /' \
+#                          | sed 's/f_flags/ /' `
+
+# to determine IOAPI
+# set tline1 = `cat cmaq/Makefile | grep "LIB =" `
+# set tline2 = `cat cmaq/Makefile | grep "include_path =" | sed 's/\// /g' `
+# set IOAPI = "$tline1[3]/$tline2[5]"
+  set IOAPI = $IOAPI
+
+# to determine MPI/include
+# set tline2 = `grep mpi cmaq/Makefile | grep include | grep = | sed 's/\// /g' `
+# set MPI_INC = "$tline1[3]/$tline2[6]/$tline2[7]"
+# set MPI_INC = $MPI_INC
+
+if ($FC == ifort) then
+   cat configure.wrf | sed 's/-O3/-O2/' \
+                     | sed 's/-FI/-FI -132/' \
+                     > configure.wrf.new
+else if ($FC == pgi) then
+   set found_fix = `grep Mfixed configure.wrf | grep Mextend | wc -l`
+   if (! $found_fix) then
+      cat configure.wrf | sed 's/-O3/-O2/' \
+                        | sed 's/-Mfixed/-Mfixed -Mextend/' \
+                        > configure.wrf.new
+   endif
+else if ($FC == gfort) then
+   cat configure.wrf | sed 's/-O3/-O2/' \
+                     | sed 's/-ffixed-form/-ffixed-form -ffixed-line-length-132/' \
+                     | sed 's/SFC             =       gfortran/SFC             =       mpifort/' \
+                     > configure.wrf.new
+else
+   echo 'Please make sure environment variable FC is set to one of these: ifort, pgi, gfort'
+   exit
+endif
+
+set first_line  = `grep -n LIB_BUNDLED configure.wrf.new | head -n 1 | sed 's/:/ /' `
+
+@ n = $first_line[1] - 1
+set nl = `wc -l configure.wrf.new`
+@ t = $nl[1] - $first_line[1]
+
+head -n $n configure.wrf.new > __temp
+
+echo ' ' >> __temp
+echo '##### BEGIN for WRF-CMAQ twoway model ####' >> __temp
+echo "IOAPI   = $IOAPI" >> __temp
+if ($FC == ifort) then
+   echo "LIOAPI  = Linux2_x86_64ifort" >> __temp
+else if ($FC == pgi) then
+   echo "LIOAPI  = Linux2_x86_64pg" >> __temp
+else if ($FC == gfort) then
+   echo "LIOAPI  = Linux2_x86_64gfort" >> __temp
+endif
+# echo "MPI_INC = $MPI_INC" >> __temp
+echo '##### END for WRF-CMAQ twoway model #### ' >> __temp
+echo ' ' >> __temp
+echo ' LIB_BUNDLED     = \' >> __temp
+echo '           -L$(IOAPI)/$(LIOAPI) -lioapi \' >> __temp
+
+cat configure.wrf.new | tail -n $t >> __temp
+
+mv configure.wrf wrfcmaq_twoway_coupler/misc/orig
+
+rm -f configure.wrf.new
+mv __temp configure.wrf

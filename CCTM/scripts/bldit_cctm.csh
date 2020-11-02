@@ -663,5 +663,54 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  mv ${CFG}.bld $Bld/${CFG}
 
 
+#> If Building WRF-CMAQ, download WRF, download auxillary files and build
+#> model
+ if ( $?build_twoway ) then
+
+#> Check if the user has git installed on their system
+  git --version >& /dev/null
+  
+  if ($? == 0) then
+   set git_check
+  endif
+ 
+  if ($?git_check) then
+
+    cd $CMAQ_HOME/CCTM/scripts
+  
+    # Downlad WRF repository from GitHub and configure it
+    set WRF_BLD = BLD_WRFv4.1.1_CCTM_${VRSN}_${compilerString}
+    git clone --branch v4.1.1 https://github.com/wrf-model/WRF.git ./$WRF_BLD >& /dev/null
+    cd $WRF_BLD
+    ./configure <<EOF
+    ${WRF_ARCH}
+    1
+EOF
+
+     # Transfer CMAQ Code to WRF Directory
+     mv $Bld ./cmaq
+
+     # Download twoway assembly code, unpackage it and run it
+     cp -r ${CMAQ_REPO}/UTIL/wrfcmaq_twoway_coupler .
+     ./wrfcmaq_twoway_coupler/assemble >& myassemble.log
+
+     # Compile WRF-CMAQ
+     ./compile em_real |& tee wrf-cmaq_buildlog.log
+
+     ls main/wrf.exe
+
+     if ( $? != 0) then
+       echo "Error, Unsuccesfull Build! Look at wrf-cmaq_buildlog.log"
+     else
+       echo "Successfull WRF-CMAQ Build!"
+     endif
+
+     cd ${CMAQ_HOME}/CCTM/scripts
+
+   endif
+
+ endif 
+
+
 
 exit

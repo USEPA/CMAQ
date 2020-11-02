@@ -1,0 +1,49 @@
+twoway_init.o: 
+		$(FC) $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_init.F90
+
+twoway_aqprep.o: twoway_util_module.o \
+		twoway_header_data_module.o \
+		twoway_met_param_module.o \
+		../frame/module_domain.o \
+		HGRD_DEFN.o \
+		UTILIO_DEFN.o \
+		twoway_data_module.o \
+		$(BASE_INC)/CONST.EXT
+		$(FC) $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_aqprep.F90
+
+twoway_aqprep_util.o:	../frame/module_domain.o \
+			$(BASE_INC)/CONST.EXT
+			$(FC) $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_aqprep_util.F90
+
+twoway_cgrid_aerosol_spc_map_module.o: AERO_DATA.o
+					$(FC) $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) twoway_cgrid_aerosol_spc_map_module.F90
+
+twoway_feedback.o: twoway_header_data_module.o \
+		twoway_met_param_module.o \
+		twoway_data_module.o \
+		twoway_util_module.o \
+		twoway_cgrid_aerosol_spc_map_module.o \
+		../frame/module_domain.o \
+		UTILIO_DEFN.o \
+		HGRD_DEFN.o \
+		AERO_DATA.o \
+		CGRID_SPCS.o
+		$(FC) $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_feedback.F90
+
+twoway_sd_time_series.o: HGRD_DEFN.F UTILIO_DEFN.o $(BASE_INC)/FILES_CTM.EXT
+			$(FC) $(F90_FLAGS) $(INCLUDES) twoway_sd_time_series.F90
+
+twoway_util_module.o:   twoway_header_data_module.o \
+			../frame/module_domain.o \
+			UTILIO_DEFN.o
+			$(FC) $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) -I. twoway_util_module.F90
+
+twoway_header_data_module.o: 	../frame/module_domain.o
+			$(FC) $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) twoway_header_data_module.F90
+
+twoway_met_param_module.o:  ../frame/module_domain.o
+			$(FC) $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_met_param_module.F90
+
+twoway_rrtmg_aero_optics.o:  ../phys/complex_number_module.o
+			$(FC) $(F90_FLAGS) $(CPP_FLAGS) $(INCLUDES) $(WRF_MODULE) twoway_rrtmg_aero_optics.F90
+

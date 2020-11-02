@@ -1,0 +1,91 @@
+Release notes:
+
+   The new twoway coupled WRF-CMAQ model is based on WRF 4.1.1 and 
+CMAQ 5.3.2 (backward compatible with CMAQv5.3 & CMAQv5.3.1).It supports 
+only RRTMG radiation scheme for short wave aerosol direct effect. 
+It uses core-shell model to perform aerosol optics calculation rather 
+than volume mixing technique as in the previous version of the twoway model. 
+It is required to use version IOAPI 3.2 tagged as of 20200828 which also 
+supports true parallel I/O within CMAQ (make sure you have the appropriate 
+option build_parallel_io turn on if you want to utilize this feature).
+
+   WRF model does not depend on a particular version of netCDF library.
+However, if you have built a version of netCDF library that splits C
+and Fortran portion of the netCDF library into two distinctive paths, 
+you need to create a brand new netCDF library with combining all the
+contents in each of the following four subdirectories: bin, include, 
+lib, and share from C and Fortran portion, respectively. 
+
+Procdedure to build the WRF-CMAQ model:
+
+* Note: The following instructions can also be found on the CMAQ Github Webpage: 
+
+https://github.com/USEPA/CMAQ/tree/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_WRF-CMAQ_build_gcc.md
+
+ 1. Download WRF 4.1.1 and unzip it 
+    (recommend command: tar xfz the_zip_file)
+    At the end of this step, you will see a new directory WRFV4 and
+    rename it to WRFV411.
+
+    Configure WRF by typing ./configure (this creates a configure.wrf file)
+
+    If you have never done WRF configure before, here are some 
+    guidelines:
+
+      * if the configure step indicating "No environment variable NETCDF
+        set", then type
+
+           setenv NETCDF netcdf_library_path_on_your_machine
+
+      * choose the dmpar option with the appropriate compiler platform
+
+      * in the compile for nesting section, choose the default value
+
+ 2. Download IOAPI_3.2 tagged 20200828 and install it.
+
+	* https://github.com/cjcoats/ioapi-3.2/archive/20200828.tar.gz
+
+ 3. Go through regular building CMAQ model process. Make sure bldit have: 
+
+      * "set MakeFileOnly" line uncomment out
+      * "set build_twoway" line uncomment out
+
+    After running the blidit script, rename BLD_* as cmaq and move it 
+    into WRFV411 directory.  
+
+ 4. Download twoway.tar.gz and unzip it. A twoway directory is formed 
+    and move it inside WRFV411 as well.
+
+ 5. Go into directory WRFV411 and execute the following command:
+    twoway/assemble
+    This command will update all necessary files in WRF and CMAQ to 
+    create the twoway model. You can find the original files inside 
+    twoway/misc/orig directory.
+
+ 6. Compile the twoway model by typing "./compile em_real >& mylog"
+    If compilation is done successfully, you can find main/wrf.exe file.
+
+Running the model:
+
+   Two run scripts are included in the testing dataset package under the
+   twoway folder. You can download the test dataset either from:
+
+  * https://www.epa.gov/cmaq/cmaq-inputs-and-test-case-data
+
+or
+
+  * ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Model
+
+to conduct a test run. Feel free to change any options, such as wrf options, 
+in the script but the main area is bounded by:
+
+# ##### begin user define area #####
+# ##### end user define area #####
+
+If you have any questions or encountering any problems, please contact David 
+Wong at wong.david-c@epa.gov or post a question to the CMAS Forum here: 
+https://forum.cmascenter.org/c/wrf-cmaq
+
+WRF NOTICE: 
+
+"The WRF Model is open-source code in the public domain, and its use is unrestricted. The name "WRF", however, is a registered trademark of the University Corporation for Atmospheric Research. The WRF public domain notice and related information may be found here: http://www2.mmm.ucar.edu/wrf/users/public.html."

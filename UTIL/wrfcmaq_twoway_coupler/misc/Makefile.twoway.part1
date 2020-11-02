@@ -1,0 +1,22 @@
+
+ IOAPI_LIB = $(IOAPI)/$(LIOAPI)
+ IOAPI_INC_PATH = $(IOAPI)/ioapi/fixed_src
+
+#   Compiler flags
+f_FLAGS       = $(FORMAT_FIXED) \
+                $(FCOPTIM) -I $(IOAPI_LIB) -I $(IOAPI_INC_PATH) -I.
+F_FLAGS       = $(FORMAT_FIXED) \
+                $(FCOPTIM) -I $(IOAPI_LIB) -I $(IOAPI_INC_PATH) -I.
+F90_FLAGS     = -c $(FORMAT_FREE) $(FCOPTIM) \
+                -I $(IOAPI_LIB) -I $(IOAPI_INC_PATH) -I.
+f90_FLAGS     = -c $(FORMAT_FREE) $(FCOPTIM) \
+                -I $(IOAPI_LIB) -I $(IOAPI_INC_PATH) -I.
+C_FLAGS       = -O2  -DFLDMN -I /usr/include
+
+ WRF_MODULE = -I ../frame \
+              -I ../share \
+              -I ../phys  \
+              -I ../main  \
+              -I ../dyn_em  \
+              -I ../external/esmf_time_f90 -I.
+

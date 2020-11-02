@@ -88,6 +88,11 @@
         setenv NETCDFF_INCL_DIR netcdff_inc_intel  #> netCDF Fortran directory path
         setenv MPI_LIB_DIR      mpi_lib_intel      #> MPI directory path
     
+        #> I/O API and netCDF for WRF-CMAQ 
+         setenv NETCDF netcdf_root_intel # Note please combine netCDF-C & Fortran Libraries 
+         setenv IOAPI  ioapi_root_intel  
+         setenv WRF_ARCH # [1-75]  
+ 
         #> Compiler Aliases and Flags
         #> set the compiler flag -qopt-report=5 to get a model optimization report in the build directory with the optrpt extension
         setenv myFC mpiifort
@@ -117,6 +122,11 @@
         setenv NETCDFF_LIB_DIR  netcdff_lib_pgi #> netCDF Fortran directory path
         setenv NETCDFF_INCL_DIR netcdff_inc_pgi #> netCDF Fortran directory path
         setenv MPI_LIB_DIR      mpi_lib_pgi     #> MPI directory path
+ 
+        #> I/O API and netCDF for WRF-CMAQ 
+        setenv NETCDF netcdf_root_pgi # Note please combine netCDF-C & Fortran Libraries 
+        setenv IOAPI  ioapi_root_pgi  
+        setenv WRF_ARCH # [1-75]  
     
         #> Compiler Aliases and Flags
         setenv myFC mpifort 
@@ -145,6 +155,11 @@
         setenv NETCDFF_LIB_DIR  netcdff_lib_gcc #> netCDF Fortran directory path
         setenv NETCDFF_INCL_DIR netcdff_inc_gcc #> netCDF Fortran directory path
         setenv MPI_LIB_DIR      mpi_lib_gcc     #> MPI directory path
+
+        #> I/O API and netCDF for WRF-CMAQ 
+        setenv NETCDF netcdf_root_gcc # Note please combine netCDF-C & Fortran Libraries 
+        setenv IOAPI  ioapi_root_gcc  
+        setenv WRF_ARCH # [1-75]  
     
         #> Compiler Aliases and Flags
         #> set the compiler flag -fopt-info-missed to generate a missed optimization report in the bldit logfile
