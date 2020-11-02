@@ -286,7 +286,6 @@ set build_twoway                      #> uncomment to build WRF-CMAQ twoway;
 
 ```
 if ( 0 != 0) then
-else
 echo "Successfull WRF-CMAQ Build!"
 Sucessfull WRF-CMAQ Build!
 endif
