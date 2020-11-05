@@ -17,6 +17,7 @@ particulates, toxics, and acid deposition.
 CMAQv5.3.2 includes significant updates to the CMAQ Integrated Source Apportionment Method (ISAM) and multiple minor fixes to address issues identified in CMAQv5.3.1. The new CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.
 * [CMAQv5.3.2 Release Notes](DOCS/Release_Notes/README.md)   
 * [Frequently asked questions for upgrading to the latest CMAQ version](DOCS/Release_Notes/CMAQ_FAQ.md) **- Updated for v5.3.2 release.** 
+* [Tutorials for setting up and running CMAQ](DOCS/Users_Guide/Tutorials/README.md) **- New tutorials on WRF-CMAQ, ISAM, and modifying a chemical mechanism.**
 * [CMAQv5.3.2 Known Issues](DOCS/Known_Issues/README.md) - Updated after the v5.3.2 release to alert users of issues that will be addressed with the next release. 
 
 ## New features in CMAQ version 5.3 include:
