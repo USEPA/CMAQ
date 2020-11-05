@@ -266,7 +266,7 @@ See [Chapter 5](../CMAQ_UG_ch05_running_a_simulation.md) for more information ab
 <a id=github></a>
 ## Reflecting the changes in Github ##
 ### 1. Fork from USEPA CMAQ.
-On the [CMAQ Github page](../../../), fork the master branch to your personal repository using the Fork button in the upper right.
+On the [CMAQ Github page](../../../README.md), fork the master branch to your personal repository using the Fork button in the upper right.
 
 ### 2. Clone.
 Clone your repository to your remote account. For example:
