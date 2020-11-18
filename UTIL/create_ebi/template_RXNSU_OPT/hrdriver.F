@@ -418,7 +418,7 @@ R5                  YCCELL = 0.0D0
 R5                  DO S = 1, MODEL_SPECIES
 R5                     YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
 R5                  END DO
-R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
+R5                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),PRES(C,R,L),QV(C,R,L),RJIN(NCELL,:),
 R5     &                              JDATE, JTIME)
 R5
 R5#ifdef isam

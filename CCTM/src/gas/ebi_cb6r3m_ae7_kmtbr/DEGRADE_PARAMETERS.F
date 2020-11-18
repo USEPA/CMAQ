@@ -403,61 +403,61 @@ C.. P-DICHLOROBENZENE
 C.. XYLENE
 
             REACT(22)       = 'XYLENE         '
-            BICAUSE(1:3,22) = (/'OH','OH','CL'/)
+            BICAUSE(1:3,22) = (/'OH','HO','CL'/)
             BIRATE(1:3,22)  = (/1.717D-11, 1.717D-11, 1.433D-10/)
 
 C.. STYRENE
 
             REACT(23)       = 'STYRENE        '
-            BICAUSE(1:4,23) = (/'OH','OH','O3','CL'/)
+            BICAUSE(1:4,23) = (/'OH','HO','O3','CL'/)
             BIRATE(1:4,23)  = (/1.02D-11, 1.02D-11, 1.51D-13, 3.6D-10/)
             BI_ACT(1:2,23)  = (/    -532.0D0,   -532.0D0/)
 
 C.. ACETONITRILE
 
             REACT(24)       = 'ACET_NITRILE   '
-            BICAUSE(1:3,24) = (/'OH','OH','CL'/)
+            BICAUSE(1:3,24) = (/'OH','HO','CL'/)
             BIRATE(1:3,24)  = (/          8.31D-13,          8.31D-13,          1.60D-11/)
             BI_ACT(1:3,24)  = (/          1080.0D0,          1080.0D0,          2140.0D0/)
 
 C.. ACRYACID
 
             REACT(25)       = 'ACRYACID       '
-            BICAUSE(1:4,25) = (/'OH','OH','O3','CL'/)
+            BICAUSE(1:4,25) = (/'OH','HO','O3','CL'/)
             BIRATE(1:4,25)  = (/1.75D-11, 1.75D-11, 6.50D-19, 4.00D-10/)
 
 C.. HEXANE 
  
             REACT(26)       = 'HEXANE         '
-            BICAUSE(1:3,26) = (/'OH','OH','CL'/)
+            BICAUSE(1:3,26) = (/'OH','HO','CL'/)
             BIRATE(1:3,26)  = (/          1.98D-11,          1.91D-11,          3.30D-10/)
             BI_ACT(1:2,26)  = (/           394.0D0,           394.0D0/)
 
 C.. METHCHLORIDE
  
             REACT(27)       = 'METHCHLORIDE   '
-            BICAUSE(1:3,27) = (/'OH','OH','CL'/)
+            BICAUSE(1:3,27) = (/'OH','HO','CL'/)
             BIRATE(1:3,27)  = (/          2.10D-12,          2.10D-12,          1.80D-11/)
             BI_ACT(1:3,27)  = (/          1210.0D0,          1210.0D0,            1081D0/)
 
 C.. CARBSULFIDE
 
             REACT(28)       = 'CARBSULFIDE    '
-            BICAUSE(1:3,28) = (/'OH','OH','O3'/)
+            BICAUSE(1:3,28) = (/'OH','HO','O3'/)
             BIRATE(1:3,28)  = (/          1.10D-13,          1.10D-13,           3.01D-16/)
             BI_ACT(1:2,28)  = (/          1200.0D0,          1200.0D0/)
 
 C.. CHLOROPRENE
 
            REACT(29)       = 'CHLOROPRENE    '
-           BICAUSE(1:5,29) = (/'OH ','OH ','O3 ','NO3','CL '/)
+           BICAUSE(1:5,29) = (/'OH ','HO ','O3 ','NO3','CL '/)
            BIRATE(1:5,29)  = (/          6.20D-11,          6.20D-11,          1.40D-16,
      &                                   3.60D-13,          3.62D-10/)
 
 C.. ETHYLBENZENE
 
            REACT(30)       = 'ETHYLBENZENE   '
-           BICAUSE(1:4,30) = (/'OH ','OH ','NO3','CL '/)
+           BICAUSE(1:4,30) = (/'OH ','HO ','NO3','CL '/)
            BIRATE(1:4,30)  = (/          7.00D-12,          7.00D-12,          5.70D-16,
      &                                   1.15D-10/)
 

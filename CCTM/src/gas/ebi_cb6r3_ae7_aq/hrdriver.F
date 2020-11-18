@@ -408,8 +408,8 @@ c..Load ICs
                   DO S = 1, MODEL_SPECIES
                      YCCELL( S ) = REAL( CGRID(C,R,L,S), 8)
                   END DO
-                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),RJIN(NCELL,:),
-     &                              JDATE, JTIME)
+                  CALL INIT_DEGRADE(YCCELL,TA(C,R,L),DENS(C,R,L),PRES(C,R,L),QV(C,R,L),
+     &                              RJIN(NCELL,:), JDATE, JTIME)
 
 #ifdef isam
                   CALL SA_DEGRADE_EXTRACT( C,R,L,DENS(C,R,L) )

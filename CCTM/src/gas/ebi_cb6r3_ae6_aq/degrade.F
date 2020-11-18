@@ -69,6 +69,9 @@ C.....PARAMETERS:
       INTEGER, PARAMETER :: LOCAL_DT = 3     ! minimum time step, mili-seconds
 
       REAL(8), PARAMETER :: CONMIN = 1.0D-30 ! concentration lower limit
+      REAL(8), PARAMETER :: ONE    = 1.0D0
+      REAL(8), PARAMETER :: ZERO   = 0.0D0
+
 
 C.....LOCAL VARIABLES:
 
@@ -244,6 +247,7 @@ C..update concentrations
          IF( I_RXT < 0 )CYCLE LOOP_UPDATE1
 
          IF ( DELT_CONC( I_RXT ) <= EFFECTIVE_ZERO .OR. CURR_CONC( I_RXT ) <= CONMIN ) CYCLE
+         CURR_CONC( I_RXT ) = MAX( CURR_CONC( I_RXT )- DELT_CONC( I_RXT ),CONMIN )
          IF( ANY_PRODUCTS( I ) )THEN
             LOOP_UPDATE2: DO J = 1, N_PROCESSES
                I_PROD = PROD_MAP( J, I )
@@ -258,7 +262,7 @@ C..update concentrations
             ENDDO LOOP_UPDATE2
          END IF
       ENDDO LOOP_UPDATE1
-#if defined(isam) || defined(verbose_isam)
+#if defined(isam) && defined(verbose_isam)
       IF( DEG_LAY .EQ. 1 .AND. DEG_ROW .EQ. 1 .AND. DEG_COL .EQ. 1 )THEN
          WRITE(LOGDEV,'(/,A,I3)')'SA_DEGRADE_STEP: ',SA_DEGRADE_STEP
          WRITE(LOGDEV,'(/A18,(1X,A12),1X,A18,4(1X,A18))')'S ISAM_DEGRADED', 'FACTOR', 'REACT',
@@ -272,7 +276,7 @@ C..update concentrations
          I_RAD = ISAM_TO_REACTANT( I )
          IF( I_RXT .GT. 0 )THEN 
 
-#if defined(isam) || defined(verbose_isam)
+#if defined(isam) && defined(verbose_isam)
              IF ( DELT_CONC( I_RXT ) .GT. EFFECTIVE_ZERO .AND. PREV_CONC( I_RXT ) .GT. CONMIN )THEN
 ! scale loss of tag based on their fraction of the bulk
                FACTOR = 1.0D0 - MIN( 1.0D0,( DELT_CONC( I_RXT )/PREV_CONC( I_RXT ) )  )

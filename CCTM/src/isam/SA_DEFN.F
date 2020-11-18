@@ -88,6 +88,7 @@ c...Logical values for tagging species
 !     LOGICAL, SAVE :: L_CO      = .FALSE.
       LOGICAL, SAVE :: L_GAS_HAPS  = .FALSE.
       LOGICAL, SAVE :: L_AERO_HAPS = .FALSE.
+      LOGICAL, SAVE :: L_PAH_TRACERS = .FALSE.
       
       LOGICAL, SAVE :: SA_BIDI = .FALSE.
 
@@ -145,20 +146,21 @@ C ...Tagging indices for bcon, others, icon
 
         INTEGER, PARAMETER, PRIVATE :: MAX_STRING     = 32  ! max length of tagclass name
         INTEGER, PARAMETER, PRIVATE :: MAX_TAGCLASSES = 200 ! max number of tagclasses
-        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 11  ! number of defined tagclasses
+        INTEGER, PARAMETER, PRIVATE :: NUMB_CLASSES   = 12  ! number of defined tagclasses
         
         CHARACTER( MAX_STRING ), PARAMETER, PRIVATE :: DEFINED_CLASSES( NUMB_CLASSES ) = 
-     & (/ 'AMMONIUM ',
-     &    'OC       ',
-     &    'CHLORINE ',
-     &    'EC       ',
-     &    'SULFATE  ',
-     &    'GAS_HAPS ',
-     &    'AERO_HAPS',
-     &    'OZONE    ',
-     &    'NITRATE  ',
-     &    'VOC      ',
-     &    'PM25_IONS' /)
+     & (/ 'AMMONIUM   ',
+     &    'OC         ',
+     &    'CHLORINE   ',
+     &    'EC         ',
+     &    'SULFATE    ',
+     &    'GAS_HAPS   ',
+     &    'AERO_HAPS  ',
+     &    'PAH_TRACERS',
+     &    'OZONE      ',
+     &    'NITRATE    ',
+     &    'VOC        ',
+     &    'PM25_IONS  ' /)
         
       
       CONTAINS
@@ -432,10 +434,11 @@ c----------------------------------------------------------
 !       L_CO      = .FALSE.   
         L_OZONE   = .FALSE.   
         L_VOC     = .FALSE.   
-        L_CHLORINE  = .FALSE.
-        L_GAS_HAPS  = .FALSE.
-        L_AERO_HAPS = .FALSE.
-!       L_CHEMISTRY = .FALSE.   
+        L_CHLORINE    = .FALSE.
+        L_GAS_HAPS    = .FALSE.
+        L_AERO_HAPS   = .FALSE.
+        L_PAH_TRACERS = .FALSE.
+!       L_CHEMISTRY    = .FALSE.   
 
         ALLOCATE( CLASS_NAMES( MAX_TAGCLASSES ) )
         CALL PARSE_STRING( TAGCLASSES, NCLASSES, CLASS_NAMES )
@@ -481,6 +484,12 @@ c----------------------------------------------------------
 !         L_VOC       = .TRUE.
 !         L_CHLORINE  = .TRUE.
 !       ENDIF
+
+        BGN_SP = INDEX( TAGCLASSES,'PAH_TRACERS',LBACK )
+        IF ( BGN_SP .NE. 0 ) THEN
+          NSPC_SA = NSPC_SA + 9 
+          L_PAH_TRACERS = .TRUE.
+        ENDIF
 
         BGN_SP     = INDEX( TAGCLASSES,'GAS_HAPS',LBACK )
         L_GAS_HAPS = ( BGN_SP .NE. 0 .OR. L_GAS_HAPS )
@@ -1479,6 +1488,27 @@ c            SPC_LIST( J_SPC ) = 'VIVPO1'
              CASE( 'SAPRC07TC_AE6_AQ', 'RACM2_AE6_AQ', 'SAPRC07TIC_AE6I_AQ', 'SAPRC07TIC_AE7I_AQ' ) 
                 SPC_LIST( J_SPC ) = 'O3P'
           END SELECT
+        ENDIF
+
+        IF (  L_PAH_TRACERS ) THEN
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'PAH_000E0'
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'PAH_176E5'   
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'PAH_880E5'   
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'PAH_176E4'   
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'PAH_176E3'   
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'PAH_192E3'   
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'PAH_101E2'   
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'PAH_176E2'   
+          J_SPC = J_SPC + 1
+          SPC_LIST( J_SPC ) = 'PAH_114E1'   
         ENDIF
 
         IF ( L_GAS_HAPS ) THEN

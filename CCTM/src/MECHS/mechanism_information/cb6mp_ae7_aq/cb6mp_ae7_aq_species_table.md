@@ -246,18 +246,31 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 |  METHCHLORIDE      |  methyl chloride                 |  50.40  |  E  |
 |  NAPHTHALENE       |  Naphthalene                     | 128.20  |  E  |   
 |  NH3               |  ammonia                         |  17.00  |  E  |      
+| PAH_000E0          | Lumped POM or PAHs Inert Tracer with a 0.0 Unit Risk Exposure</sup>1<sup>           | 186.2                | L                      |
+| PAH_176E5          | Lumped POM or PAHs Inert Tracer with a 0.0000096 Unit Risk Exposure     | 197.7                | L                      |
+| PAH_880E5          | Lumped POM or PAHs Inert Tracer with a 0.000048 Risk Exposure           | 197.9                | L                      |
+| PAH_176E4          | Lumped POM or PAHs Inert Tracer with a 0.000096 zero Unit Risk Exposure | 254.4                | L                      |
+| PAH_176E3          | Lumped POM or PAHs Inert Tracer with a 0.00096 Unit Risk Exposure       | 259.3                | L                      |
+| PAH_192E3          | Lumped POM or PAHs Inert Tracer with a 0.00099 Unit Risk Exposure       | 278.3                | L                      |
+| PAH_101E2          | Lumped POM or PAHs Inert Tracer with a 0.01008 Unit Risk Exposure       | 268.4                | L                      |
+| PAH_176E2          | Lumped POM or PAHs Inert Tracer with a 0.0096 Unit Risk Exposure        | 302.4                | L                      |
+| PAH_114E1          | Lumped POM or PAHs Inert Tracer with a 0.1136 Unit Risk Exposure        | 256.3                | L                      |
 |  PROPYL_DICL       |  Propylene Dichloride            | 113.00  |  E  |   
 |  QUINOLINE         |  Quinoline                       | 129.20  |  E  |   
 |  STYRENE           |  sytrene                         | 104.15  |  E  |
-|  SVMT1            |  low volatility gas from monoterpene photoxidation | 300.0     |  L  |
-|  SVMT2            |  low volatility gas from monoterpene photoxidation | 200.0     |  L  |
-|  SVMT3            |  semivolatile gas from monoterpene photoxidation   | 186.0     |  L  |
-|  SVMT4            |  semivolatile gas from monoterpene photoxidation   | 184.0     |  L  |
-|  SVMT5            |  semivolatile gas from monoterpene photoxidation   | 170.0     |  L  |
-|  SVMT6            |  semivolatile gas from monoterpene photoxidation   | 168.0     |  L  |
-|  SVISO1           |  semivolatile gas of secondary aerosol material from isoprene         | 132.0  |  L  |  
-|  SVISO2           |  semivolatile gas of secondary aerosol material from isoprene         | 133.0  |  L  |  
-|  SVSQT            |  semivolatile gas of secondary aerosol material from sesquiterpenes   | 273.0  |  L  |         
+|  SVMT1             |  low volatility gas from monoterpene photoxidation | 300.0     |  L  |
+|  SVMT2             |  low volatility gas from monoterpene photoxidation | 200.0     |  L  |
+|  SVMT3             |  semivolatile gas from monoterpene photoxidation   | 186.0     |  L  |
+|  SVMT4             |  semivolatile gas from monoterpene photoxidation   | 184.0     |  L  |
+|  SVMT5             |  semivolatile gas from monoterpene photoxidation   | 170.0     |  L  |
+|  SVMT6             |  semivolatile gas from monoterpene photoxidation   | 168.0     |  L  |
+|  SVISO1            |  semivolatile gas of secondary aerosol material from isoprene         | 132.0  |  L  |  
+|  SVISO2            |  semivolatile gas of secondary aerosol material from isoprene         | 133.0  |  L  |  
+|  SVSQT             |  semivolatile gas of secondary aerosol material from sesquiterpenes   | 273.0  |  L  |         
 |  TOL_DIIS          |  2,4-Toluene Diisocyanate        |  32.00  |  E  |   
 |  TRIETHYLAMIN      |  Triethylamine                   | 101.20  |  E  |   
 |  XYLENE            |  O-,M-, and P-xylene isomers     | 106.20  |  L  |
+
+1.  The Unit Risk Exposure respresents excess lifetime risk of cancer from continuous exposure to an agent at an air concentration of 1 µg/m<sup>3</sup>.
+Interp the URE asth if a URE of 1.5 x 10<sup>-6</sup>, produces 1.5 excess tumors to develop per 1,000,000 people when they are exposed daily to 1 µg/m<sup>3</sup> over a lifetime.
+UREs are considered a plausible upper limit to the true value. (Note that URE is usually not a statistical confidence limit. The true limit is likely to be less, but could be greater.)   
