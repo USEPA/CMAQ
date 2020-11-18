@@ -246,7 +246,7 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 |  METHCHLORIDE      |  methyl chloride                 |  50.40  |  E  |
 |  NAPHTHALENE       |  Naphthalene                     | 128.20  |  E  |   
 |  NH3               |  ammonia                         |  17.00  |  E  |      
-| PAH_000E0          | Lumped POM or PAHs Inert Tracer with a 0.0 Unit Risk Exposure</sup>1<sup>           | 186.2                | L                      |
+| PAH_000E0          | Lumped POM or PAHs Inert Tracer with a 0.0 Unit Risk Exposure<sup>1<\sup>           | 186.2                | L                      |
 | PAH_176E5          | Lumped POM or PAHs Inert Tracer with a 0.0000096 Unit Risk Exposure     | 197.7                | L                      |
 | PAH_880E5          | Lumped POM or PAHs Inert Tracer with a 0.000048 Risk Exposure           | 197.9                | L                      |
 | PAH_176E4          | Lumped POM or PAHs Inert Tracer with a 0.000096 zero Unit Risk Exposure | 254.4                | L                      |
@@ -272,5 +272,5 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 |  XYLENE            |  O-,M-, and P-xylene isomers     | 106.20  |  L  |
 
 1.  The Unit Risk Exposure respresents excess lifetime risk of cancer from continuous exposure to an agent at an air concentration of 1 µg/m<sup>3</sup>.
-Interp the URE asth if a URE of 1.5 x 10<sup>-6</sup>, produces 1.5 excess tumors to develop per 1,000,000 people when they are exposed daily to 1 µg/m<sup>3</sup> over a lifetime.
-UREs are considered a plausible upper limit to the true value. (Note that URE is usually not a statistical confidence limit. The true limit is likely to be less, but could be greater.)   
+Interpret the URE as if an URE of 1.5 x 10<sup>-6</sup>, produces 1.5 excess tumors to develop per 1,000,000 people when they are exposed daily to 1 µg/m<sup>3</sup> over a lifetime.
+ Note that URE is usually not a statistical confidence limit and is considered a plausible upper limit to the true value. The true limit is likely to be less, but could be greater.   
