@@ -6,7 +6,7 @@
 ! NATIONAL EXPOSURE RESEARCH LABORATORY, OFFICE OF RESEARCH AND DEVELOPMENT    !
 ! UNITED STATES ENVIRONMENTAL PROTECTION AGENCY                                !
 !                                                                              !
-! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (August 2019)           !
+! THIS VERSION CONSISTENT WITH THE RELEASE OF CMAQv5.3 (AUGUST 2019)           !
 !------------------------------------------------------------------------------!
 
 !------------------------------------------------------------------------------!
@@ -90,7 +90,14 @@
 !                          'o' - find existing scaling instructions matching   !
 !                                this rule and overwrite them.                 !
 !                                                                              !
-!                                                                              !
+!    You may confirm the effect of the (default and custom) rules below by     !
+!       inspecting the processor-dependent log files ("CTM_LOG_XXX...") in the !
+!       section titled "EMISSIONS SCALING DIAGNOSTIC" or by outputting the     !
+!       gridded emission diagnostic files for each or all the streams. The     !
+!       latter is accomplished by setting the environment variables EMISDIAG   !
+!       (sum of all streams) or GR_EMIS_DIAG_XXX, STK_EMIS_DIAG_XXX,           !
+!       BIOG_EMIS_DIAG, etc (stream-specific). Please see runscript for        !
+!       output options.                                                        !
 !------------------------------------------------------------------------------!
 
 &EmissionScalingRules
@@ -126,6 +133,7 @@
    'EVERYWHERE', 'ALL'         ,'OLE'    ,'OLE'         ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'IOLE'   ,'IOLE'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'ISOP'   ,'ISOP'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'APIN'   ,'APIN'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'TERP'   ,'TERP'        ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'BENZ'   ,'BENZENE'     ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'TOL'    ,'TOL'         ,'GAS'  ,1.  ,'UNIT','a', 
@@ -142,6 +150,9 @@
    'EVERYWHERE', 'ALL'        ,'ACROLEIN','ACRO_PRIMARY','GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'     ,'BUTADIENE13','BUTADIENE13' ,'GAS'  ,1.  ,'UNIT','a', 
    'EVERYWHERE', 'ALL'         ,'TOLU'   ,'TOLU'        ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HGNRVA' ,'HG'          ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'HGIIGAS','HGIIGAS'     ,'GAS'  ,1.  ,'UNIT','a', 
+   'EVERYWHERE', 'ALL'         ,'SULF'   ,'SULF'        ,'GAS'  ,0.  ,'UNIT','a', 
 
    ! Optional Air Toxics in NR namelist, comment out species if the NR namelist
    ! does not include one or more of them.
@@ -175,6 +186,17 @@
    'EVERYWHERE', 'ALL' ,'CARBSULFIDE','CARBSULFIDE',        'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'CHLOROPRENE','CHLOROPRENE',        'GAS'  ,1.  ,'UNIT','a',
    'EVERYWHERE', 'ALL' ,'ETHYLBENZ','ETHYLBENZENE',         'GAS'  ,1.  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' ,'BENZOAPYRNE','BENAPY',             'GAS'  ,1.  ,'UNIT','a',
+! Inert Tracers of PAH congeners for simple exposure assessments
+   'EVERYWHERE', 'ALL' , 'PAH_000E0', 'PAH_000E0',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_176E5', 'PAH_176E5',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_880E5', 'PAH_880E5',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_176E4', 'PAH_176E4',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_176E3', 'PAH_176E3',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_192E3', 'PAH_192E3',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_101E2', 'PAH_101E2',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_176E2', 'PAH_176E2',          'GAS',1.0  ,'UNIT','a',
+   'EVERYWHERE', 'ALL' , 'PAH_114E1', 'PAH_114E1',          'GAS',1.0  ,'UNIT','a',
 
    ! Default Aerosols
    'EVERYWHERE', 'ALL'         ,'SULF'   ,'ASO4'        ,'FINE' ,1.  ,'MASS','a', 
@@ -262,45 +284,46 @@
    !           parameters.
    !
    ! --> Nonvolatile POA
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'       ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'APOC'       ,'FINE',0.   ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'APNCOM'     ,'FINE',0.   ,'MASS','a',
    ! --> Semivolatile POA
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'VLVPO1'     ,'GAS' ,0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VLVPO1'     ,'GAS' ,0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1'     ,'FINE',0.045,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO2'     ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO2'     ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO3'     ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO3'     ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'POC'    ,'AIVPO1'     ,'FINE',0.   ,'MASS','a', 
-    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AIVPO1'     ,'FINE',0.   ,'MASS','a', 
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VLVPO1'     ,'GAS' ,0.   ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VLVPO1'     ,'GAS' ,0.   ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO1'     ,'GAS' ,0.045,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO2'     ,'GAS' ,0.14 ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VSVPO3'     ,'GAS' ,0.18 ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'VIVPO1'     ,'GAS' ,0.50 ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ALVPO1'     ,'FINE',0.09 ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO1'     ,'FINE',0.045,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO1'     ,'FINE',0.045,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO2'     ,'FINE',0.   ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO2'     ,'FINE',0.   ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'ASVPO3'     ,'FINE',0.   ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'ASVPO3'     ,'FINE',0.   ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'POC'    ,'AIVPO1'     ,'FINE',0.   ,'MASS','a',
+    'EVERYWHERE', 'ALL'         ,'PNCOM'  ,'AIVPO1'     ,'FINE',0.   ,'MASS','a',
    
    ! pcSOA is a CMAQ species introduced to account for missing pathways for SOA
    ! formation from combustion sources. It includes IVOC oxidation as well as other
    ! phenomena (Murphy et al., ACP, 2017). It was parameterized primarily in LA,
    ! where vehicle exhaust continues to dominate.
-    'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
-    'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+     'EVERYWHERE', 'ALL'          ,'POC'   ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+     'EVERYWHERE', 'ALL'          ,'PNCOM' ,'PCVOC'      ,'GAS' ,6.579,'MASS','a', 
+
    ! However, the added pcSOA is probably inappropriate for Fire sources, especially
    ! in its current configuration. This pathway should be zeroed out for all fire
    ! and wood-burning related sources.
-    'EVERYWHERE', 'PT_FIRES'     ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'PT_RXFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'PT_AGFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
-    'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+     'EVERYWHERE', 'PT_FIRES'     ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+     'EVERYWHERE', 'PT_RXFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+     'EVERYWHERE', 'PT_AGFIRES'   ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+     'EVERYWHERE', 'PT_OTHFIRES'  ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+     'EVERYWHERE', 'PT_FIRES_MXCA','ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
+     'EVERYWHERE', 'GR_RES_FIRES' ,'ALL'   ,'PCVOC'      ,'GAS' ,0.0  ,'MASS','o', 
    
    ! Wind-Blown Dust and Sea Spray Scaling
    ! Fine Components
@@ -319,10 +342,6 @@
    'EVERYWHERE', 'ALL'    ,'PMFINE_MN'   ,'AMN'         ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_H2O'  ,'AH2O'        ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_OTHR' ,'AOTHR'       ,'FINE',1.   ,'UNIT','a', 
-
-   ! Dust and SeaSpray Particulate Hazardous Air Pollutants (HAPs), can comment individual aerosol 
-   ! components across mode if AE namelist does not contain them
-
    'EVERYWHERE', 'ALL'    ,'PMFINE_CR_III'  ,'ACR_III'  ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_CR_VI'   ,'ACR_VI'   ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_NI'      ,'ANI'      ,'FINE',1.   ,'UNIT','a', 
@@ -333,15 +352,15 @@
    'EVERYWHERE', 'ALL'    ,'PMFINE_CD'      ,'ACD'      ,'FINE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMFINE_MN_HAPS' ,'AMN_HAPS' ,'FINE',1.   ,'UNIT','a', 
 
-   ! :Scaling of Fine-Mode POA from Wind-Blown Dust or Sea Spray. Either the 
-   ! :Nonvolatile POA should be propagated to the transport model, or the Low 
+   ! :Scaling of Fine-Mode POA from Wind-Blown Dust or Sea Spray. Either the
+   ! :Nonvolatile POA should be propagated to the transport model, or the Low
    ! :Volatility POA should be propagated, not both.
    ! :  --> Nonvolatile POA
-      !'EVERYWHERE', 'ALL'    ,'PMFINE_POC' ,'APOC'         ,'FINE',1.   ,'UNIT','a', 
-      !'EVERYWHERE', 'ALL'   ,'PMFINE_PNCOM','APNCOM'       ,'FINE',1.   ,'UNIT','a', 
+      !'EVERYWHERE', 'ALL'    ,'PMFINE_POC' ,'APOC'         ,'FINE',1.   ,'UNIT','a',
+      !'EVERYWHERE', 'ALL'   ,'PMFINE_PNCOM','APNCOM'       ,'FINE',1.   ,'UNIT','a',
    ! :  --> Semivolatile POA
-      'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a', 
-      'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a', 
+      'EVERYWHERE', 'ALL'    ,'PMFINE_LVPO1','ALVPO1'      ,'FINE',1.   ,'UNIT','a',
+      'EVERYWHERE', 'ALL'    ,'PMFINE_LVOO1','ALVOO1'      ,'FINE',1.   ,'UNIT','a',
 
    ! Wind-Blown Dust and Sea Spray Scaling
    ! Coarse Components                                               
@@ -351,9 +370,6 @@
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_H2O','AH2O'      ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'   ,'PMCOARSE_SOIL','ASOIL'     ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL' ,'PMCOARSE_SEACAT','ASEACAT'   ,'COARSE',1.   ,'UNIT','a', 
-   ! Dust and SeaSpray Particulate Hazardous Air Pollutants (HAPs), can comment individual aerosol 
-   ! components across mode if AE namelist does not contain them
-
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_CR_III'  ,'ACR_III'  ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_CR_VI'   ,'ACR_VI'   ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_NI'      ,'ANI'      ,'COARSE',1.   ,'UNIT','a', 
@@ -364,7 +380,6 @@
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_CD'      ,'ACD'      ,'COARSE',1.   ,'UNIT','a', 
    'EVERYWHERE', 'ALL'    ,'PMCOARSE_MN_HAPS' ,'AMN_HAPS' ,'COARSE',1.   ,'UNIT','a', 
    
-                                                                    
                             !> CUSTOM MAPPING EXAMPLES <!              
                                                                     
  ! 'WATER'     , 'All'         ,'All'    ,'All'         ,'All' ,0.   ,'MASS','o',!Zero out all emissions over 
@@ -470,7 +485,6 @@
  !<Default>    'EVERYWHERE'  ,'N/A'        ,'N/A',
  !<Example>    'WATER'       ,'CMAQ_MASKS' ,'OPEN',
  !<Example>    'ALL'         ,'CMAQ_MASKS' ,'ALL',
- !<Example>    'ALL'         ,'ISAM_REGIONS','ALL',
 /
 
 !------------------------------------------------------------------------------!
@@ -508,4 +522,5 @@
 ! RegionFamilyNum(1)      = 2
 ! RegionFamilyMembers(1,:)= 'SURF','OPEN'
 !/
+ 
  
