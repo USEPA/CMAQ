@@ -246,7 +246,7 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 |  METHCHLORIDE      |  methyl chloride                 |  50.40  |  E  |
 |  NAPHTHALENE       |  Naphthalene                     | 128.20  |  E  |   
 |  NH3               |  ammonia                         |  17.00  |  E  |      
-| PAH_000E0          | Lumped POM or PAHs Inert Tracer with a 0.0 Unit Risk Exposure<sup>1<\sup>           | 186.2                | L                      |
+| PAH_000E0          | Lumped POM or PAHs Inert Tracer with a 0.0 Unit Risk Exposure<sup>1</sup>           | 186.2                | L                      |
 | PAH_176E5          | Lumped POM or PAHs Inert Tracer with a 0.0000096 Unit Risk Exposure     | 197.7                | L                      |
 | PAH_880E5          | Lumped POM or PAHs Inert Tracer with a 0.000048 Risk Exposure           | 197.9                | L                      |
 | PAH_176E4          | Lumped POM or PAHs Inert Tracer with a 0.000096 zero Unit Risk Exposure | 254.4                | L                      |
