@@ -395,8 +395,8 @@ C.. ETHYLBENZENE
 C.. BENZO[A]PYRENE    
 
       REACT(31)       = 'BENAPY          '
-      BICAUSE(1:2,31) = (/'OH ','HO '/)
-      BIRATE(1:2,31)  = (/ 5.00D-11,   5.00D-11/)
+      BICAUSE(31,1:2) = (/'OH ','HO '/)
+      BIRATE(31,1:2)  = (/ 5.00D-11,   5.00D-11/)
 
       RETURN
       END
