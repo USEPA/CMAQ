@@ -58,18 +58,6 @@ module load openmpi_4.0.1/gcc_9.1.0
     setenv CC /nas/longleaf/apps/gcc/9.1.0/bin/gcc
     ```
 
-   -  Configure WRF by typing ./configure (this creates a configure.wrf file)
-   
-      ```
-      ./configure |& tee ./configure.log
-      ```
-   
-   -  Note: to configure WRF for debug mode add the '-d' option
-   
-      ```
-      ./configure -d |& tee ./configure.log
-      ```
-
 ### Edit your .cshrc to add the path to the library by setting the LD_LIBRARY_PATH environment variable
 
 ```
