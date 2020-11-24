@@ -213,8 +213,8 @@ Change directories to the CMAQ_HOME directory
    
 ```
 #> I/O API and netCDF for WRF-CMAQ 
-setenv NETCDF netcdf_root_intel # Note please combine netCDF-C & Fortran Libraries 
-setenv IOAPI  ioapi_root_intel  
+setenv NETCDF netcdf_root_gcc # Note please combine netCDF-C & Fortran Libraries (e.g. /usr/local/netcdf-4.7.0)
+setenv IOAPI  ioapi_root_gcc  (e.g. /usr/local/ioapi-3.2)
 setenv WRF_ARCH 34              # [1-75]  64 Bit Linux_x86 Compiler/Architecture options
 ```
 
