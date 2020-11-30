@@ -2232,7 +2232,7 @@
             CALL CALC_PMDIAG( ID_PMF_H2O, 1, VAL2 )
 
             !PMF_PH = -1*LOG10(HPMOLAL)
-            OUTVAL = -999999.0
+            OUTVAL = BADVAL3
             IF ( VAL2 .GT. 0.01 )
      &           OUTVAL = -1.0 * LOG10( VAL )
 
