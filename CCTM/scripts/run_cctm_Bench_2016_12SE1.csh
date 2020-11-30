@@ -169,9 +169,8 @@ setenv CTM_HGBIDI N          #> mercury bi-directional flux for in-line depositi
 setenv CTM_SFC_HONO Y        #> surface HONO interaction [ default: Y ]
 setenv CTM_GRAV_SETL Y       #> vdiff aerosol gravitational sedimentation [ default: Y ]
 setenv CTM_BIOGEMIS_BEIS Y   #> calculate in-line biogenic emissions [ default: N ]
-setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission
-setenv IGNORE_SOILINP Y      #> Set to TRUE if no MEGAN for prev day
-setenv USE_MEGAN_LAI N
+setenv CTM_BIOGEMIS_MEGAN N  #> turns on MEGAN biogenic emission [ default: N ]
+setenv USE_MEGAN_LAI N       #> use separate LAI input file [ default: N ]
 
 #> Vertical Extraction Options
 setenv VERTEXT N
@@ -429,10 +428,10 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
     setenv SOILINP    $OUTDIR/CCTM_SOILOUT_${RUNID}_${YESTERDAY}.nc
                              #> Biogenic NO soil input file; ignore if INITIAL_RUN = Y
                              #>                            ; ignore if IGNORE_SOILINP = Y
-         setenv MEGAN_CTS /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/CT3_tceq_12km.ncf
-         setenv MEGAN_EFS /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/EFMAPS31.2019b.tceq_12km.J4.ncf
-         setenv MEGAN_LAI /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/LAI3_tceq_12km.ncf
-         setenv MEGAN_LDF /work/MOD3DEV/jwilliso/benchmark_megan/CMAQ_Dev/files/LDF_tceq_12km.2019b.J4.ncf
+         setenv MEGAN_CTS /work/MOD3DATA/2016_12SE1/land/megan/CT3_SEBENCH.ncf
+         setenv MEGAN_EFS /work/MOD3DATA/2016_12SE1/land/megan/EFMAPS31_SEBENCH.ncf
+         setenv MEGAN_LAI /work/MOD3DATA/2016_12SE1/land/megan/LAI3_SEBENCH.ncf
+         setenv MEGAN_LDF /work/MOD3DATA/2016_12SE1/land/megan/LDF_SEBENCH.ncf
   endif
 
   #> Windblown dust emissions configuration
@@ -734,7 +733,6 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> The next simulation day will, by definition, be a restart
   setenv NEW_START false
-  setenv IGNORE_SOILINP N      #> Set to TRUE if no MEGAN for prev day
 
   #> Increment both Gregorian and Julian Days
   set TODAYG = `date -ud "${TODAYG}+1days" +%Y-%m-%d` #> Add a day for tomorrow

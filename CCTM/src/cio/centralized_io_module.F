@@ -4275,7 +4275,7 @@ C   mminlu and num_land_cat are WRF global variables
         subroutine megan_setup ! reads in variables from MEGAN_PARAMS (see file_inputs.txt and run script)
           use hgrd_defn, only : ncols,nrows
           USE UTILIO_DEFN
-          use RUNTIME_VARS, only : logdev
+          use RUNTIME_VARS, only : logdev, USE_MEGAN_LAI
         
           integer                    :: stat, i, megan_hr, megan_day, strtcol,
      &                                  endcol, strtrow, endrow, gxoff, gyoff 
