@@ -301,7 +301,7 @@ CMAQv5.3 has introduced new features that make the process of mapping emissions 
 Depending on the nature of any stream and the information used to quantify its emissions, it may be treated as one of three types:
 
 #### Online Stream:
-CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams that can be run online in CMAQ are: [biogenics (BEIS)](#BEIS),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
+CMAQ will calculate the emission rates from this source using information about local meteorology, land characteristics, etc. The streams that can be run online in CMAQ are: [biogenics (BEIS/MEGAN)](#BEIS/MEGAN),[ wind-blown dust](#Wind_Blown_Dust), [sea spray](#Sea_Spray), and [lightning NO](#Lightning_NO).
 
 #### Gridded Stream (offline):
 CMAQ will read emission rates from an input file, which is organized into an array that is identical in shape to the CMAQ model grid. Typically, these rates are stored at hourly time points and are then interpolated within CMAQ to each time step. These files may be 2D to represent just the surface layer emissions or they may be 3D. If 3D, the file may have the same number or fewer number of layers as the CMAQ grid. Some common examples of Gridded emissions include:
@@ -312,7 +312,7 @@ CMAQ will read emission rates from an input file, which is organized into an arr
 - Consumer product use (e.g. adhesives, personal care products, pesticides, etc.)
 - Agricultural (e.g. burning, dust, animal waste, etc.)
 - Road, Construction and mechanically generated dust
-- Biogenic VOCs (if not calculated online with BEIS)
+- Biogenic VOCs (if not calculated online with BEIS or MEGAN)
 
 Users add Gridded emissions to a simulation via the RunScript. First the variable N_EMIS_GR must be set to the number of Gridded Streams to be used:
 
@@ -404,20 +404,24 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 
 <!-- END COMMENT -->
 
-<a id=BEIS></a>
+<a id=BEIS/MEGAN></a>
 #### Biogenics
-To calculate online biogenic emissions, CMAQ uses the [Biogenic Emission Inventory System (BEIS)](https://www.epa.gov/air-emissions-modeling/biogenic-emission-inventory-system-beis). BEIS calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types.
+To calculate online biogenic emissions, CMAQ uses the [Biogenic Emission Inventory System (BEIS)](https://www.epa.gov/air-emissions-modeling/biogenic-emission-inventory-system-beis) and the [Model of Emissions of Gases and Aerosols from Nature (MEGAN)](https://bai.ess.uci.edu/megan). Before using the CMAQ online version of BEIS or MEGAN users should confirm that biogenic emissions are not already included in their emissions files from SMOKE to avoid double counting biogenic emissions.
 
-This biogenic model is based on the same model that is included in SMOKE. Before using the CMAQ online version of BEIS users should confirm that biogenic emissions are not already included in their emissions files from SMOKE to avoid double counting biogenic emissions.  User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
+####BEIS
 
-Speciation of biogenic emissions is controlled by gspro_biogenics.txt under CCTM/src/biog/beis.
+BEIS calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types. This biogenic model is based on the same model that is included in SMOKE. User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
 
-Running CMAQ with online biogenics is controlled by the following RunScript flag:
+Speciation of biogenic emissions for BEIS is controlled by gspro_biogenics.txt under CCTM/src/biog/beis.
+
+Running CMAQ with BEIS is controlled by the following RunScript flag:
+
 
 ```
-setenv CTM_BIOGEMIS Y
+setenv CTM_BIOGEMIS_BEIS Y
 ```
-Running CMAQ with online biogenic emissions requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. The location of the B3GRD file is set in the RunScript:
+
+Running CMAQ with online BEIS requires a user-supplied, gridded normalized biogenic emissions input netCDF file, B3GRD.  This file is created with the [normbeis3](https://www.cmascenter.org/smoke/documentation/4.6/html/ch06s12.html) program in SMOKE prior to running the inline biogenic option in CMAQ and contains winter and summer normalized emissions and Leaf Area Indices. The location of the B3GRD file is set in the RunScript:
 
 ```
 setenv B3GRD /home/user/path-to-file/b3grd.nc
@@ -453,8 +457,43 @@ setenv INITIAL_RUN N
 ```
 
 ```
-setenv SOILNP /home/user/path-to-file/cctm_soilout.nc
+setenv SOILINP /home/user/path-to-file/cctm_soilout.nc
 ```
+
+####MEGAN
+
+MEGAN also calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types.  
+
+Speciation of biogenic emissions for MEGAN is controlled by mechanism specific *.EXT files under CCTM/src/biog/megan3.
+
+Running CMAQ with MEGAN is controlled by the following RunScript flag:
+
+
+```
+setenv CTM_BIOGEMIS_MEGAN Y
+```
+
+Running CMAQ with online MEGAN requires user-supplied input netCDF files that can be created with the [MEGAN preprocessor](https://bai.ess.uci.edu/megan/data-and-code). Three files are required:
+
+
+```
+setenv MEGAN_CTS /home/user/path-to-file/CTS.nc
+```
+
+```
+setenv MEGAN_EFS /home/user/path-to-file/EFS.nc
+```
+
+```
+setenv MEGAN_LDF /home/user/path-to-file/LDF.nc
+```
+
+These files describe the canopy type, the emission factors for each MEGAN species, and the light dependent fraction of each grid cell. The user may also choose to set MEGAN_LAI to use a MEGAN-formatted leaf area index dataset that they might prefer. 
+
+
+The SOILINP and SOILOUT functionality is the same as for BEIS (see above), with the addition of shortwave radiation and surface temperature values to the buffer files. The IGNORE_SOILINP option gives similar control to the user as the INITAL_RUN option described above.
+
+
 
 <a id=Wind_Blown_Dust></a>
 #### Wind-Blown Dust
