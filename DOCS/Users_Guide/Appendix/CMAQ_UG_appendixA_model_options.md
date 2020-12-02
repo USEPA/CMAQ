@@ -696,9 +696,6 @@ Options for use with MEGAN:
 -   `MEGAN_LAI`<a id=MEGAN_CTS></a>
     Optional. Points to leaf area index file that was created using the MEGAN preprocessor.
 
--   `MEGAN_LAI`<a id=MEGAN_CTS></a>
-    Points to leaf area index file that was created using the MEGAN preprocessor.
-
 -   `MEGAN_ARID`<a id=MEGAN_ARID></a>
     For BDSNP. Points to the ARID file that was created using the MEGAN preprocessor.
 

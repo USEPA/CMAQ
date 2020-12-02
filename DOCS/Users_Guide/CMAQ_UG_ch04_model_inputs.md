@@ -121,9 +121,18 @@ This section describes each of the input files required by the various CMAQ prog
 |[LTNGPARMS_FILE](#ltngparm_file) <a id=ltngparm_file_t></a>| GRDDED3 | Time-invariant | XY |CMAS|required for including NO from lightning|
 |**Biogenic and Land Surface Inputs**||||||
 |[OCEAN_1](#ocean_1) <a id=ocean_1_t></a>| GRDDED3 | Time-invariant | XY |Spatial Allocator|required|
-|[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required for running CMAQ with online biogenics|
-|[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with online biogenics|
-|[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | SMOKE|run-time option for running CMAQ with online biogenics|
+|[GSPRO](#gspro) <a id=gspro_t></a>| ASCII | Time-invariant | N/a | CMAQ repo|required for running CMAQ with online BEIS biogenics|
+|[B3GRD](#b3grd) <a id=b3grd_t></a>| GRDDED3 | Time-invariant | XY | SMOKE|required for running CMAQ with online BEIS biogenics|
+|[BIOSEASON](#bioseason) <a id=bioseason_t></a>|GRDDED3 |Time-invariant | XY | SMOKE|run-time option for running CMAQ with online BEIS biogenics|
+|[MEGAN_CTS](#MEGAN_CTS) <a id=megan_cts_t></a>| GRDDED3 | Time-invariant | XYZ | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
+|[MEGAN_LDF](#MEGAN_LDF) <a id=megan_ldf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
+|[MEGAN_EFS](#MEGAN_EFS) <a id=megan_efs_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics|
+|[MEGAN_LAI](#MEGAN_LAI) <a id=megan_lai_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|optional for running CMAQ with online MEGAN biogenics|
+|[MEGAN_ARID](#MEGAN_ARID) <a id=megan_arid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
+|[MEGAN_NONARID](#MEGAN_NONARID) <a id=megan_nonarid_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
+|[MEGAN_LANDTYPE](#MEGAN_LANDTYPE) <a id=megan_landtype_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
+|[MEGAN_FERT](#MEGAN_FERT) <a id=megan_fert_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
+|[MEGAN_NDF](#MEGAN_NDF) <a id=megan_ndf_t></a>| GRDDED3 | Time-invariant | XY | MEGAN preprocessor|required for running CMAQ with online MEGAN biogenics and BDSNP soil NO|
 |[E2C_LU](#e2c_lu) <a id=e2c_lu_t></a>| GRDDED3 | Time-invariant |XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_SOIL](#e2c_soil) <a id=e2c_soil_t></a>| GRDDED3 | Time-invariant | XY|EPIC|required for running CMAQ with bidirectional NH3|
 |[E2C_CHEM](#e2c_chem) <a id=e2c_chem_t></a>| GRDDED3 | Daily |XY|EPIC|optional|
@@ -573,7 +582,7 @@ See the [CMAQ Ocean File Tutorial](Tutorials/CMAQ_UG_tutorial_oceanfile.md) for 
 [Return to Table 4-1](#gspro_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online biogenics emissions version only
+Used by: CCTM – online BEIS biogenics emissions version only
 
 The speciation profile file, GSPRO, contains the factors that are used to separate aggregated inventory pollutant emissions totals into emissions of model species in the form required by CMAQ. If only biogenic emissions are being calculated online in CMAQ, the GSPRO file used by CCTM needs to contain split factors only for the biogenic VOC emissions that are input in the B3GRD file. If other emissions sources are being calculated by CCTM, VOC split factors for these other sources must be included in the GSPRO file. The GSPRO file format is listed in the SMOKE user’s manual, see: [GSPRO documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch08s05s02.html).
 
@@ -583,7 +592,7 @@ The speciation profile file, GSPRO, contains the factors that are used to separa
 [Return to Table 4-1](#b3grd_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online biogenics emissions version only
+Used by: CCTM – online BEIS biogenics emissions version only
 
 An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of carbon or nitrogen per hour, depending on the species) and leaf area index. The B3GRD file contains normalized emissions calculated with both summer and winter emissions factors. The B3GRD file is generated with the SMOKE program NORMBEIS3 using gridded land use data. For additional information about creating the B3GRD file, see the [NORMBEIS3 documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch06s12.html) in the SMOKE users’ manual.
 
@@ -593,9 +602,104 @@ An I/O API GRDDED3 file of gridded, normalized biogenic emissions (in grams of c
 [Return to Table 4-1](#bioseason_t)
 <!-- END COMMENT -->
 
-Used by: CCTM – online biogenics emissions version only
+Used by: CCTM – online BEIS biogenics emissions version only
 
 The BIOSEASON switch file is an I/O API GRDDED3 file used to indicate which biogenic emissions factor to use on each day in a given year for every grid cell in the modeling domain. This file can be created using the Metscan utility program that is distributed with SMOKE. The BIOSEASON file is time-dependent and usually contains data for an entire year (365 or 366 days). It uses one variable, SEASON, which is either 0 (grid cell should use winter factors for current day) or 1 (grid cell should use summer factors for current day). For additional information about creating the BIOSEASON file, see the [Metscan documentation](https://www.cmascenter.org/smoke/documentation/4.0/html/ch05s03s10.html) in the SMOKE user’s manual.
+
+
+<a id=megan_cts></a>
+**MEGAN_CTS: canopy types**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#megan_cts_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – online MEGAN biogenics emissions version only
+
+The MEGAN_CTS file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains canopy fraction information for six canopy types in one variable, CTS, which is nondimensional and ranges from 0-100. The vegetation types are needleleaf trees, tropical forest trees, temperate broadleaf trees, shrubs, herbaceous plants, and crops. 
+
+<a id=megan_ldf></a>
+**MEGAN_LDF: canopy types**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#megan_ldf_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – online MEGAN biogenics emissions version only
+
+The MEGAN_LDF file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains nondimensional light dependence fractions for 20 MEGAN chemical species. 
+
+<a id=megan_efs></a>
+**MEGAN_EFS: canopy types**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#megan_efs_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – online MEGAN biogenics emissions version only
+
+The MEGAN_EFS file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains emission factors for the 20 MEGAN chemical species. 
+
+<a id=megan_lai></a>
+**MEGAN_LAI: canopy types**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#megan_lai_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – online MEGAN biogenics emissions version only
+
+The MEGAN_LAI file is an optional I/O API GRDDED3 file that is created using the MEGAN preprocessor. It contains leaf area index that is separate from LAI values used in the rest of CMAQ. 
+
+<a id=megan_arid></a>
+**MEGAN_ARID: canopy types**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#megan_arid_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+
+The MEGAN_ARID file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically arid grid cells with 1s and 0s. 
+
+
+<a id=megan_nonarid></a>
+**MEGAN_NONARID: canopy types**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#megan_nonarid_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+
+The MEGAN_NONARID file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It identifies climatically non-arid grid cells with 1s and 0s. 
+
+
+<a id=megan_landtype></a>
+**MEGAN_LANDTYPE: canopy types**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#megan_landtype_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+
+The MEGAN_LANDTYPE file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It assigns each grid cell to one of 24 land types.
+
+<a id=megan_fert></a>
+**MEGAN_FERT: canopy types**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#megan_fert_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+
+The MEGAN_FERT file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains daily fertilizer information in ng/m3 using 366 variables. 
+
+
+<a id=megan_ndf></a>
+**MEGAN_NDF: canopy types**
+<!-- BEGIN COMMENT -->
+[Return to Table 4-1](#megan_ndf_t)
+<!-- END COMMENT -->
+
+Used by: CCTM – online MEGAN biogenics emissions' BDSNP soil nitrogen model option
+
+The MEGAN_NDF file is an I/O API GRDDED3 file that is created using the MEGAN preprocessor for use with the BDSNP soil nitrogen option. It contains monthly average total nitrogen deposition values in ng/m2/s using 12 variables. 
+
 
 <a id=e2c_lu></a>
 **E2C_LU – Fractional crop distributions**

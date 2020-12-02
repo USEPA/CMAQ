@@ -408,7 +408,7 @@ If N_EMIS_PT is set 0, then CMAQ will run with no Inline emissions even if the v
 #### Biogenics
 To calculate online biogenic emissions, CMAQ uses the [Biogenic Emission Inventory System (BEIS)](https://www.epa.gov/air-emissions-modeling/biogenic-emission-inventory-system-beis) and the [Model of Emissions of Gases and Aerosols from Nature (MEGAN)](https://bai.ess.uci.edu/megan). Before using the CMAQ online version of BEIS or MEGAN users should confirm that biogenic emissions are not already included in their emissions files from SMOKE to avoid double counting biogenic emissions.
 
-####BEIS
+#### BEIS
 
 BEIS calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types. This biogenic model is based on the same model that is included in SMOKE. User documentation for BEIS can be found in [Chapter 6.17 of the SMOKE manual](https://www.cmascenter.org/help/documentation.cfm?model=smoke&version=4.6). 
 
@@ -460,7 +460,7 @@ setenv INITIAL_RUN N
 setenv SOILINP /home/user/path-to-file/cctm_soilout.nc
 ```
 
-####MEGAN
+#### MEGAN
 
 MEGAN also calculates emissions resulting from biological activity from land-based vegetative species as well as nitric oxide emissions produced by microbial activity from certain soil types.  
 
