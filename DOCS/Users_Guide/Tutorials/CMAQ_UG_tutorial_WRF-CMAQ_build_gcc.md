@@ -19,8 +19,20 @@ module load openmpi_4.0.1/gcc_9.1.0
    - Method 1: clone from github
    
   ```
-  git clone --branch v4.1.1 https://github.com/wrf-model/WRF.git
+  git clone --branch v4.1.1 https://github.com/wrf-model/WRF.git WRFv4.1.1
   ```
+   - This will place the code under the directory WRFv4.1.1
+   - Note, you can see what branch was obtained by using the command
+   
+```
+git branch -vv
+```
+
+You should see the following
+
+```
+* (no branch) d154456 Finalize WRFV4.1.1 by merging bug fixes from release-v4.1.1 branch onto master.
+```
    
    - Method 2: Downloading an archived version from github
    - download version 4.1.1 from https://github.com/wrf-model/WRF/releases/tag/v4.1.1
@@ -59,11 +71,6 @@ module load openmpi_4.0.1/gcc_9.1.0
    setenv FFLAGS -m64
    ```
    
-   For debug option, set 
-   ```
-   setenv FCFLAGS '-m64 -g3 -O0 -fno-inline'
-   ```
-    
  - check to see that the path to each compiler is defined using
  
     ```
@@ -93,7 +100,7 @@ module load openmpi_4.0.1/gcc_9.1.0
 
 ####  If you have never done WRF configure before, here are some guidelines
 
-   - choose the dmpar option with the appropriate compiler platform
+   - choose the dmpar option with the appropriate compiler platform (34)
    - in the compile for nesting section, choose the default value
       
 
@@ -111,17 +118,18 @@ https://cjcoats.github.io/ioapi/AVAIL.html
 
 #### Method 1. Download the tar.gz file from the github site.
      
-     wget http://github.com/cjcoats/ioapi-3.2/archive/2020220.tar.gz
-     tar -xzvf 2020220.tar.gz
-     cd ioapi-3.2-2020220
+     wget http://github.com/cjcoats/ioapi-3.2/archive/20200828.tar.gz
+     tar -xzvf 20200828.tar.gz
+     cd ioapi-3.2-20200828
      
 
 #### Method 2. Use Git clone to obtain the code
     
      
      git clone https://github.com/cjcoats/ioapi-3.2
-     cd ioapi-3.2.    ! change directory to ioapi-3.2
-     git checkout -b 2020220   ! change branch to 2020220 for code updates
+     cd ioapi-3.2         ! change directory to ioapi-3.2
+     git checkout -b 20200828   ! change branch to 20200828 for code updates
+     ln -s ioapi-3.2-20200828 ./ioapi-3.2  ! create a symbolic link to specify the tagged version
      
 
 #### Change directories to the ioapi directory
@@ -134,26 +142,39 @@ https://cjcoats.github.io/ioapi/AVAIL.html
      
      
      cp Makefile.nocpl Makefile
+
+#### Change the BASEDIR definition from HOME to INSTALL
+
+```
+BASEDIR = ${HOME}/ioapi-3.2
+````
+change to
+```
+BASEDIR = ${INSTALL}/ioapi-3.2-20200828
+```
      
      
- #### Edit the Makefile to specify the BIN and INSTALL directories:
+ #### set the INSTALL and BIN environment variables:
      
-  - example: uncomment lines 141-149 and set the following environment variables 
      
-     ```
-     BIN        = Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
-     INSTALL    = /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2
-     ```
+     setenv INSTALL [your_install_path]/LIBRARIES/openmpi_4.0.1_gcc_9.1.0
+     setenv BIN  Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
+     
+
+ #### Make the installation directory
+
+    
+     mkdir $INSTALL/$BIN
       
  ### Edit the Makefile to add a path to the combined netCDF library directory
  
- - change
+ change
  
  ```
  NCFLIBS = -lnetcdff -lnetcdf
  ```
  
- - to
+ to
  
    ```
    NCFLIBS    = -L /[your_install_path]/LIBRARIES/netcdf_combined/lib/ -lnetcdff -lnetcdf
@@ -189,12 +210,12 @@ https://cjcoats.github.io/ioapi/AVAIL.html
  ### Verify that the libioapi.a and the m3tools have been successfully built
  
  ```
- ls -lrt /[your_install_path]/LIBRARIES/ioapi-3.2/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
+ ls -lrt /[your_install_path]/LIBRARIES/ioapi-3.2-20200828/Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0/libioapi.a
  ```
  
  ### Note: If you get a shared object problem when trying to run m3tools such as the following:
  ```
- [lizadams@dogwood-login1 Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0]$ ./juldate
+./juldate
 ./juldate: error while loading shared libraries: libimf.so: cannot open shared object file: No such file or directory
 ```
 
@@ -213,28 +234,67 @@ setenv LD_LIBRARY_PATH ${NCF_COMBO}/lib:${LD_LIBRARY_PATH}
 #### Set the IOAPI environment variable to the path where it has been installed
 
 ```
-setenv IOAPI /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/ioapi-3.2
+setenv IOAPI /[your_install_path]/openmpi_4.0.1_gcc_9.1.0/LIBRARIES/ioapi-3.2-20200828
 ```
     
 
 ### Step 4: Install CMAQ
-     - follow these instructions to download the code, then use the modifications in Step 5
-     
-https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md
+     - follow these instructions to download the code, then use the modifications in Step 5:  [CMAQ Benchmark Tutorial](CMAQ_UG_tutorial_benchmark.md)
+In the directory where you would like to install CMAQ, create the directory issue the following command to clone the EPA GitHub repository for CMAQv5.3.2:
 
-### Step 5: Modify the bldit_cctm.csh to uncomment the following options:
+```
+git clone -b master https://github.com/USEPA/CMAQ.git CMAQ_REPO
+```
 
-     
-      ```
-      set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile;
-      ```
-      
-      
+Build and run in a user-specified directory outside of the repository
+
+In the top level of CMAQ_REPO, the bldit_project.csh script will automatically replicate the CMAQ folder structure and copy every build and run script out of the repository so that you may modify them freely without version control.
+
+Edit bldit_project.csh, to modify the variable $CMAQ_HOME to identify the folder that you would like to install the CMAQ package under. For example:
+
+```
+set CMAQ_HOME = /home/username/WRF-CMAQ/CMAQ_v5.3.2
+```
+
+Now execute the script.
+
+./bldit_project.csh
+
+Change directories to the CMAQ_HOME directory
+
+### Step 5. Edit the config_cmaq.csh to specify the paths of the ioapi and netCDF libraries
+
+### Step 6: Modify the bldit_cctm.csh 
+
+Uncomment the option to build a Makefile without compiling. 
+
+```
+set MakeFileOnly                      #> uncomment to build a Makefile, but do not compile;
+```
+
+Comment out the following option to compile CCTM without ISAM:
+```
+#> Integrated Source Apportionment Method (ISAM)
+#set ISAM_CCTM                         #> uncomment to compile CCTM with ISAM activated
+```
+
+Uncomment the option to build WRF-CMAQ twoway:      
       
 ```
-      #> Two-way WRF-CMAQ 
+#> Two-way WRF-CMAQ 
 set build_twoway                      #> uncomment to build WRF-CMAQ twoway; 
 ```
+
+
+### Edit the Bld directory to add the twoway name
+```
+ set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}
+```
+change to
+```
+ set Bld = $CMAQ_HOME/CCTM/scripts/BLD_CCTM_${VRSN}_${compilerString}_twoway
+```
+
 
 ### Run the bldit_cctm.csh script
 ```
@@ -242,37 +302,41 @@ set build_twoway                      #> uncomment to build WRF-CMAQ twoway;
 ```
       
 
-#### After running the blidit script, copy BLD_CCTM_V531_gcc into WRFV411/cmaq directory.
+#### After running the blidit script, copy BLD_CCTM_V532_gcc_twoway into WRFV411/cmaq directory.
 
 example {depends on the location of your WRF-4.1.1 directory}:
 
 ```
-cp -rp BLD_CCTM_v531_gcc ../../../WRF-4.1.1/cmaq
+cp -rp BLD_CCTM_v532_gcc_twoway ../../../WRF-4.1.1/cmaq
 ```
 
-### Step 6: Download WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz and unzip it. 
+### Step 7: Download WRF4.1.1_CMAQ5.3.2_twoway.tar.gz and unzip it. 
 A twoway directory is formed and move it inside WRFV411 as well.
 
 - The WRFv4.1.1-CMAQv5.3.2 model is released as a tarball 
 
-[Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/open?id=10wFNch1MkI49ZjD2XD6wK2xzDWOav2zY)
+[Link to WRFv4.1.1-CMAQv5.3.2 Model on Google Drive](https://drive.google.com/file/d/1oZecf-4aRu9q0ZptNsyI63QU4KUrTFFl/view?usp=sharing)
+If you have installed gdrive use the following command:
+```
+gdrive download 1oZecf-4aRu9q0ZptNsyI63QU4KUrTFFl
+```
 
 The WRF-CMAQ model is also available as a tarball (twoway.tar.gz) from the the US EPA annoymous ftp server:
 
-[ftp://newftp.epa.gov/exposure/CMAQ/V5_3/WRF-CMAQ_Coupled_Mode](https://bit.ly/3cuoDyi)
+[ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/](ftp://newftp.epa.gov/exposure/CMAQ/V5_3_2/Benchmark/WRFv4.1.1-CMAQv5.3.2/)
 
 The following commands must be adjusted for the paths on your system.
 ```
 cd WRF4.1.1
-tar -xzvf ../../WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz
+tar -xzvf ../../WRFv4.1.1-CMAQv5.3.2_twoway.tar.gz
 ```
 
-### Step 7: Go into directory WRFV411
+### Step 8: Go into directory WRFV411
 
    ```
    cd /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0_debug/WRF-4.1.1
    ```
-### Step 8: run the following command
+### Step 9: run the following command
    ```
    ./twoway/assemble
    ```
@@ -283,7 +347,7 @@ tar -xzvf ../../WRF4.1.1_CMAQ5.3.2_Coupled_Model_20191220.tar.gz
     
  ```
     #### BEGIN for WRF-CMAQ twoway model
-IOAPI   = /proj/ie/proj/CMAS/WRF-CMAQ/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2
+IOAPI   = /proj/ie/proj/CMAS/WRFv4.1.1-CMAQv5.3.2_rel_debug/LIBRARIES/openmpi_4.0.1_gcc_9.1.0/ioapi-3.2-20200820
 LIOAPI  = Linux2_x86_64gfort
     #### END for WRF-CMAQ twoway model
  ```
@@ -291,7 +355,7 @@ LIOAPI  = Linux2_x86_64gfort
  - I modified LIOAPI to Linux2_x86_64gfort_openmpi_4.0.1_gcc_9.1.0
 
 
-### Step 9: Edit the configure.wrf to link with the openmp library
+### Step 10: Edit the configure.wrf to link with the openmp library
 
 add -fopenmp to the the definition for LIB_EXTERNAL
 ```
@@ -299,15 +363,28 @@ LIB_EXTERNAL    = -L$(WRF_SRC_ROOT_DIR)/external/io_netcdf -lwrfio_nf -L/proj/ie
 ```
 
 
-### Step 10: Compile the WRF-CMAQ model
+### Step 11: Compile the WRF-CMAQ model
 
 ```
 ./compile em_real >& mylog
 ```
 
   - If compilation is done successfully, you can find main/wrf.exe file.
+
+```
+ls main/wrf.exe
+```
+  - If not found, use vi or gedit to view the mylog file, and look for errors near the compilation step for wrf.exe
+
+### Step 12: If you have to rebuild the model, but want to keep the configure.wrf file use:
+
+```
+./clean -a
+```
+
+
   
-### Step 10: Download the input data
+### Step 13: Download the input data
 
 [Link to CMAQv5.3.2_Benchmark_2Day_Input.tar.gz input data on Google Drive](https://drive.google.com/file/d/1fp--3dVvQHUyB_BodpU2aHBv5LjlC6E4/view?usp=sharing)
 
@@ -321,9 +398,9 @@ LIB_EXTERNAL    = -L$(WRF_SRC_ROOT_DIR)/external/io_netcdf -lwrfio_nf -L/proj/ie
   ```
   
     
-### Step 11: Run the WRF-CMAQ model
+### Step 14: Run the WRF-CMAQ model
 
-  - Use the twoway_model_411_531_run_script_nf script and the CMAQv5.3.2 input benchmark dataset to run CMAQ-WRF with no feedback
+  - Use the run.twoway_model_411_532_nf_run_script.16pe.csh script and the CMAQv5.3.2 input benchmark dataset to run CMAQ-WRF with no feedback
   - It is configured to run on 16 processors and for 2 days of model simulation
   - Edit the script to specify the paths, modify the number of processors and batch queue commands
   - Verify that the OMIfile definition matches the latest release of CMAQv5.3.2
@@ -348,14 +425,14 @@ set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions
     
   - Submit the job using the batch queueing system
     ```
-    sbatch twoway_model_411_531_run_script_nf
+    sbatch run.twoway_model_411_532_nf_run_script.16pe.csh
     ```
 
-### Step 12: Verify that the run was successful
+### Step 15: Verify that the run was successful
    - look for the output directory
    
    ```
-   cd output_12km_nf_rrtmg_20_5_1_v411531_debug
+   cd output_12km_nf_rrtmg_20_5_1_v411532_debug
    ```
    If the run was successful you will see the following output
    
@@ -363,3 +440,15 @@ set EMISSCTRL   = $WRF_DIR/cmaq                              # path of Emissions
    tail ./2016183/rsl.out.0000
    ```
    |>---   PROGRAM COMPLETED SUCCESSFULLY   ---<|
+
+### Step 15: Compare results to the WRF-CMAQ 2 day benchmark results
+ 
+   - Download WRF-CMAQ bencmark output data from the google drive folder
+
+     https://drive.google.com/drive/u/1/folders/1poigGFlABCfepaIjDw-6JOyznJ6xz1ck
+
+   - Compare CCTM_ACONC_v411532_20160702.nc files to your benchmark results
+
+   - Both debug and optimized benchmark outputs are provided for your comparisons.
+
+   - Note, the CMAQv5.3.2 output results will not directly compare to the no feedback (nf) WRF-CMAQ output, as different meterology and timesteps were used.  To do a comparison between CMAQv5.3.2 and WRF-CMAQ, use WRF-CMAQ to output the MCIP meteorology files, and then use those MCIP inputs with the CMAQv5.3.2 ICON and BCON inputs.
