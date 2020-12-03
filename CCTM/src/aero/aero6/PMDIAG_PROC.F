@@ -239,7 +239,7 @@
      &           'assumed.'
       END IF
  
-      ! Expand INST list Using Keywords
+      ! Expand AVRG list Using Keywords
       N_END = INDEX1( '', N_REG, AVRG_PARS_REG ) - 1
       INUM = 1
       DO WHILE ( INUM .LE. N_END )
@@ -378,7 +378,7 @@
       END IF
 
       PMDIAG_KEY( 3 )%LIST = (/'PMF_MASS','PMC_MASS','PM01    ','PM1     ',
-     &              'PM25    ','PM10    ','PM25to10','PMU_MASS','PMAMS   ' /)
+     &              'PM25    ','PM10    ','PM25TO10','PMU_MASS','PMAMS   ' /)
      
       PMDIAG_KEY( 4 )%WORD = 'NUMBER'
       PMDIAG_KEY( 4 )%N = 7
@@ -510,7 +510,7 @@
      &           'PM25_TI     ','PM25_MN     ','PM25_AL     ','PM25_SOIL   ',
      &           'PM25_UNSP1  ','PM25_UNSPCRS','PM25_HP     ' /)
 
-      PMDIAG_KEY( 15 )%WORD = 'PM25to10_SPECIES'
+      PMDIAG_KEY( 15 )%WORD = 'PM25TO10_SPECIES'
       PMDIAG_KEY( 15 )%N = 6
       ALLOCATE( PMDIAG_KEY( 15 )%LIST( 6 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
@@ -518,8 +518,8 @@
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
-      PMDIAG_KEY( 15 )%LIST = (/'PM25to10    ','PM25to10_SO4','PM25to10_NO3',
-     &                          'PM25to10_NH4','PM25to10_CL ','PM25to10_NA ' /)
+      PMDIAG_KEY( 15 )%LIST = (/'PM25TO10    ','PM25TO10_SO4','PM25TO10_NO3',
+     &                          'PM25TO10_NH4','PM25TO10_CL ','PM25TO10_NA ' /)
 
       PMDIAG_KEY( 16 )%WORD = 'OPTICAL'
       PMDIAG_KEY( 16 )%N = 2
@@ -554,7 +554,7 @@
       END IF
 
       PMDIAG_KEY( 18 )%LIST = (/'FPM01    ','FPM1     ','FPM25    ',
-     &                          'FPM10    ','FPM25to10','FAMS     ' /)
+     &                          'FPM10    ','FPM25TO10','FAMS     ' /)
 
       PMDIAG_KEY( 19 )%WORD = 'TOXICS'
       PMDIAG_KEY( 19 )%N = 26
@@ -1381,31 +1381,31 @@
              ! Map PM25to10_SO4 - PM2.5-10.0 Sulfate
              CASE ( ID_PM25to10_SO4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ASO4', 1.0 )
  
              ! Map PM25to10_NO3 - PM2.5-10.0 Nitrate
              CASE ( ID_PM25to10_NO3 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
  
              ! Map PM25to10_NH4 - PM2.5-10.0 Ammonium
              CASE ( ID_PM25to10_NH4 ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANH4', 1.0 )
  
              ! Map PM25to10_CL - PM2.5-10.0 Chloride
              CASE ( ID_PM25to10_CL ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ACL', 1.0 )
  
              ! Map PM25to10_NA - PM2.5-10.0 Sodium
              CASE ( ID_PM25to10_NA ) 
                N_VARS = 1
-               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25to10' )
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25TO10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANA', 1.0 )
  
              !!!! Toxics !!!!  
