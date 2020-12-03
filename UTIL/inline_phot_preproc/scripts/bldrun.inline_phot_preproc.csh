@@ -167,13 +167,16 @@ setenv N_WAVEBANDS_OUT 7
 #> define files for aerosol refractive indices; result output to PHOT_OPTICS.dat
  # maximum number of indices that the processor attempts to read, 
  # the number can change.  
- setenv MAX_NUMB_REFRACT 6 
+#setenv MAX_NUMB_REFRACT 6 
+ setenv MAX_NUMB_REFRACT 15
+
 
  # set the list of indices to process, 
  # Their number can be less than MAX_NUMB_REFRACT.
  # The below list contains names used as optical surrogates in the CCTM source
  # code, AERO_DATA.F. To use other names requires changing AERO_DATA.F.
- setenv AE_REFRAC_LIST "WATER SOLUTE DUST SEASALT SOOT"
+#setenv AE_REFRAC_LIST "WATER SOLUTE DUST SEASALT SOOT"
+ setenv AE_REFRAC_LIST "WATER SOLUTE DUST SEASALT SOOT ISOP_NOX ISOP_SOX LIMONENE_SOA APINENE_SOA NAPTH_SOA MXYL_HIGH_NOX MXYL_LOW_NOX TOLU_HIGH_NOX TOLU_LOW_NOX ORGCARB"
 
 #Set environment variables for the paths to each refractive index in
 #AE_REFRAC_LIST 
@@ -182,6 +185,17 @@ setenv N_WAVEBANDS_OUT 7
  setenv SOLUTE    $REFRACT_DIR/OPAC_water_clouds/waso00                    
  setenv SOOT      $REFRACT_DIR/OPAC_water_clouds/soot00-two_way-Oct_21_2012
  setenv SEASALT   $REFRACT_DIR/OPAC_water_clouds/ssam00                    
+ setenv ISOP_NOX        ${REFRACT_DIR}"/IE_refractive_indices/nakayama_2018_isoprene_NOX_SOA_refractive_indices.txt"
+ setenv ISOP_SOX        ${REFRACT_DIR}"/IE_refractive_indices/nakayama_2018_isoprene_SOX_SOA_refractive_indices.txt"
+ setenv LIMONENE_SOA    ${REFRACT_DIR}"/IE_refractive_indices/Lui_2013_Limonene_SOA_refractive_indices.txt"
+ setenv APINENE_SOA     ${REFRACT_DIR}"/IE_refractive_indices/Lui_2013_APIN_SOA_refractive_indices.txt"
+ setenv NAPTH_SOA       ${REFRACT_DIR}"/IE_refractive_indices/Lambe_2013-naphthalene_SOA_refractive_indices.txt"
+ setenv MXYL_HIGH_NOX   ${REFRACT_DIR}"/IE_refractive_indices/Lui_2015_refractive_indices_mxylene_SOA_high_NOX.txt"
+ setenv MXYL_LOW_NOX    ${REFRACT_DIR}"/IE_refractive_indices/Lui_2015_refractive_indices_mxylene_SOA_low_NOX.txt"
+ setenv TOLU_HIGH_NOX   ${REFRACT_DIR}"/IE_refractive_indices/Lui_2015_refractive_indices_toluene_SOA_high_NOX.txt"
+ setenv TOLU_LOW_NOX    ${REFRACT_DIR}"/IE_refractive_indices/Lui_2015_refractive_indices_toluene_SOA_low_NOX.txt"
+ setenv ORGCARB         ${REFRACT_DIR}/adient_aerosol_refrac_indx/refract_organicc_new.txt
+
 
 #Define output directory variable and create
  if( ( -d $OUTDIR ) )then
