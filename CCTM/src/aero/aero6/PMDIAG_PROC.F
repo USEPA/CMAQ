@@ -557,8 +557,8 @@
      &                          'FPM10    ','FPM25TO10','FAMS     ' /)
 
       PMDIAG_KEY( 19 )%WORD = 'TOXICS'
-      PMDIAG_KEY( 19 )%N = 22
-      ALLOCATE( PMDIAG_KEY( 19 )%LIST( 22 ), STAT=ALLOCSTAT )
+      PMDIAG_KEY( 19 )%N = 21
+      ALLOCATE( PMDIAG_KEY( 19 )%LIST( 21 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY(19)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
