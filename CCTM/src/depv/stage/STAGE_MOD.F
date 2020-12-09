@@ -324,7 +324,7 @@ C Parameters specific to gas_x. Currently based on m3dry but subject to change
          Real            :: heff_ap, heff_wat, heff
          Real            :: hplus
          Real            :: w10cm
-         Real            :: rwet, rcdry
+         Real            :: rwet, rcwet, rcdry
          Real            :: rawmt, rad_wat, rmsv, dif_T, k_vis, dwat_T ! mass transport between the air-water droplet interface
          Real            :: rgdry, sm_func  
          Real            :: temp_g, temp_2m, q_2m, rh, ustar, lai ! column met data
@@ -548,18 +548,20 @@ C Calcuate Rcut
          ! If the surface is cold and wet, use dry snow.
                      IF ( temp_g .GE. stdtemp ) THEN                    
                         IF ( s .EQ. s_O3 ) THEN 
-         ! Canopy level wet resistence Rwet to ozone was found to be about 200 s/m on basis of Keysburg exp
-         ! Using LAI(1-sided) of about 6.25 measured at Keysburg gives leaf level rwet about 1250 s/m
-                           rwet = 1250.0    ! s/m
-         ! Leaf level rwet estimated from Altimir et al 2006 gives about 1350 s/m                           
-                        End If ! O3
+         ! Canopy level wet resistence Rcwet to ozone was found to be about 200 s/m on basis of Keysburg exp
+         ! Using LAI(1-sided) of about 6.25 measured at Keysburg gives leaf level rcwet about 1250 s/m
+                           rcwet = 1250.0    ! s/m
+         ! Leaf level rcwet estimated from Altimir et al 2006 gives about 1350 s/m                           
+                        Else ! All other species
+                           rcwet = rwet
+                        End If
                      ELSE
-                        rwet = Rsnow
+                        rcwet = Rsnow
                      END IF ! temp 
          ! Dry Cuticle
                      IF( s .Eq. s_O3 ) THEN
-         ! Leaf level rwet estimated from Altimir et al 2006 gives about 1350 s/m
-                        rcdry = 1.0 / ( ( 1.0 -rh_func) / ( rcut0 * a0 / rel_rx( s ) )  + rh_func / rwet )
+         ! Leaf level rcwet estimated from Altimir et al 2006 gives about 1350 s/m
+                        rcdry = 1.0 / ( ( 1.0 -rh_func) / ( rcut0 * a0 / rel_rx( s ) )  + rh_func / rcwet )
                      ELSE IF ( s .Eq. s_NH3 .And. ABFLUX ) THEN  
          ! Massad et al. 2010 Cuticular resistance
                         rcdry    = rwm * EXP( a_cut( l ) * ( 100.0 - rh ) )
@@ -568,7 +570,7 @@ C Calcuate Rcut
                      END IF ! O3 or NH3
 
                      Rcut = no_snow / ( lai * ( dry / rcdry +  ! Dry Cuticle 
-     &                                       wet / rwet ) ) +                      ! Wet Cuticle 
+     &                                       wet / rcwet ) ) +                      ! Wet Cuticle 
      &                                       snow * Rsnow                           ! Snow
 !-------------------------------------------------------------------------------------------------
 ! Resistance to in-canopy exchange
