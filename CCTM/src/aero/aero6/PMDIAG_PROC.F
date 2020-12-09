@@ -557,20 +557,19 @@
      &                          'FPM10    ','FPM25TO10','FAMS     ' /)
 
       PMDIAG_KEY( 19 )%WORD = 'TOXICS'
-      PMDIAG_KEY( 19 )%N = 26
-      ALLOCATE( PMDIAG_KEY( 19 )%LIST( 26 ), STAT=ALLOCSTAT )
+      PMDIAG_KEY( 19 )%N = 22
+      ALLOCATE( PMDIAG_KEY( 19 )%LIST( 22 ), STAT=ALLOCSTAT )
       IF ( ALLOCSTAT .NE. 0 ) THEN
            XMSG = 'Failure allocating PMDIAG_KEY(19)'
            CALL M3EXIT( PNAME, 0, 0, XMSG, XSTAT1 )
       END IF
 
       PMDIAG_KEY( 19 )%LIST = (/'PM25_HDIESEL','PM25_HBE    ','PM25_HCD    ',
-     &           'PM25_HCR 3  ','PM25_HCR6   ','PM25_HCR    ','PM25_HPB    ',
-     &           'PM25_HMN    ','PM25_HMN    ','PM25_HNI    ','PM25_HNI    ',
-     &           'PM25_HAS    ','PM25_HG     ','PM10_HDIESEL','PM10_HBE    ',
-     &           'PM10_HCD    ','PM10_HCR3   ','PM10_HCR6   ','PM10_HCR    ',
-     &           'PM10_HPB    ','PM10_HMN    ','PM10_HMN    ','PM10_HNI    ',
-     &           'PM10_HNI    ','PM10_HAS    ','PM10_HG     '  /)
+     &           'PM25_HCR3   ','PM25_HCR6   ','PM25_HCR    ','PM25_HPB    ',
+     &           'PM25_HMN    ','PM25_HNI    ','PM25_HAS    ','PM25_HG     ',
+     &           'PM10_HDIESEL','PM10_HBE    ','PM10_HCD    ','PM10_HCR3   ',
+     &           'PM10_HCR6   ','PM10_HCR    ','PM10_HPB    ','PM10_HMN    ',
+     &           'PM10_HAS    ','PM10_HG     '  /)
 
       PMDIAG_KEY( 20 )%WORD = 'SIMPLE'
       PMDIAG_KEY( 20 )%N = 2
