@@ -290,6 +290,11 @@ C Calcuate Rcut
          ! wet Cuticle
          ! If the surface is cold and wet, use dry snow.                   
          rcdry = rcut0 * a0 / Rx
+         IF ( temp_g .GE. stdtemp ) THEN 
+            rwet= Rwet0          
+         ELSE ! temp_g .Lt. stdtemp
+            rwet = Rice
+         END IF ! temp 
          IF ( O3_hit ) THEN 
          ! Canopy level wet resistence Rwet to ozone was found to be about 200 s/m on basis of Keysburg exp
          ! Using LAI(1-sided) of about 6.25 measured at Keysburg gives leaf level rwet about 1250 s/m
@@ -303,16 +308,10 @@ C Calcuate Rcut
          ! Massad et al. 2010 Cuticular resistance
             rcdry = rwm * EXP( a_cut * ( 100.0 - rh ) )    
          End If ! O3
-         IF ( temp_g .GE. stdtemp ) THEN 
-            rwet= Rwet0          
-         ELSE ! temp_g .Lt. stdtemp
-            rwet = Rice
-         END IF ! temp 
-! this should be Calc_Rsnow
 
          Rcut = no_snow / ( lai * ( dry / rcdry     +  ! Dry Cuticle 
      &                               wet / rwet ) ) +  ! Wet Cuticle 
-     &           snow * Rsnow                          ! Snow
+     &          snow * Rsnow                           ! Snow
 
          End Function Calc_Rcut
 !-------------------------------------------------------------------------------------------------
