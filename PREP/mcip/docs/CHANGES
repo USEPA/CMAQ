@@ -1,5 +1,20 @@
 CHANGES for MCIP
 
+
+MCIP Version 5.1.1 (6 March 2020)
+
+- Removed reliance on reading F (Coriolis parameter) from WRF output for
+  PV scaling in CMAQ.  Instead, calculate F from latitude.
+
+  Changed files:  mcip5/rdwrfem.f90
+
+
+- Updated version stamp.
+
+  Changed files:  mcip5/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
 MCIP Version 5.1 (25 November 2019)
 
 - Expanded options to allow for surface analysis nudging option 2 (FASDAS),

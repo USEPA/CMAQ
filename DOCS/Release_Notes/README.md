@@ -2,11 +2,12 @@ CMAQv5.3.2 Release Notes
 =====================================
 [Tutorial on installing and running the CMAQ test case](../Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md)  
 [CMAQv5.3.2 User's Guide](../Users_Guide/README.md)  
-[Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md)  
+[Frequently asked questions for upgrading to the latest CMAQ version](CMAQ_FAQ.md)  **- Updated for v5.3.2 release.**  
+[CMAQv5.3.2 Known Issues](../Known_Issues/README.md) - Updated after the v5.3.2 release to alert users of issues that will be addressed with the next release. 
 
 # Summary of CMAQv5.3.2 Updates 
 
-The Community Multiscale Air Quality (CMAQ) Model version 5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions.  
+CMAQv5.3.2 includes significant updates to the CMAQ Integrated Source Apportionment Method (ISAM) and multiple minor fixes to address issues identified in CMAQv5.3.1. The new CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.
 
 * [CMAQv5.3.2 Bugfixes](CMAQv5.3.2_bugfixes.md)
 * [Added ISAM support for bidirectional NH3 flux](ISAM_bidi_support.md)
