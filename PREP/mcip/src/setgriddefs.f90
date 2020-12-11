@@ -161,6 +161,9 @@ SUBROUTINE setgriddefs
 !                        write for IOFORM to log.  Added flag for optional
 !                        variable with KF convective scheme with radiative
 !                        feedbacks.  (T. Spero)
+!           21 Sep 2020  Corrected error in logic for processing meteorology
+!                        data at a time interval that is coarser than the
+!                        available data in the file.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE mcipparm
@@ -536,7 +539,7 @@ SUBROUTINE setgriddefs
 ! Check user-defined MCIP output time info against input meteorology.
 !-------------------------------------------------------------------------------
 
-  IF ( ABS( intvl - NINT(met_tapfrq) ) > ttol_min ) THEN
+  IF ( intvl < NINT(met_tapfrq) ) THEN
     WRITE (*,f9300) TRIM(pname), intvl, met_tapfrq
     CALL graceful_stop (pname)
   ENDIF
