@@ -36,7 +36,7 @@ echo 'Start Model Run At ' `date`
  set VRSN      = v532              #> Code Version
  set PROC      = mpi               #> serial or mpi
  set MECH      = cb6r3_ae7_aq      #> Mechanism ID
- set EMIS      = 2016ff            #> Emission Inventory Details
+ set EMIS      = 2016fh            #> Emission Inventory Details
  set APPL      = 2016_CONUS        #> Application Name (e.g. Gridname)
 
 #> Define RUNID as any combination of parameters above or others. By default,
@@ -213,9 +213,9 @@ setenv CTM_WVEL Y            #> save derived vertical velocity component to conc
 
 set ICpath    = $INPDIR/icbc              #> initial conditions input directory
 set BCpath    = $INPDIR/icbc              #> boundary conditions input directory
-set EMISpath  = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/gridded #> surface emissions input directory
-set EMISpath2 = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready/rwc	#> surface residential wood combustion emissions directory
-set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20190221/cmaq_ready  #> elevated emissions input directory (in-line point only)
+set EMISpath  = $INPDIR/emis/cb6r3_ae6_20191121_compressed/cmaq_ready/gridded_nobeis_norwc #> surface emissions input directory
+set EMISpath2 = $INPDIR/emis/cb6r3_ae6_20191121_compressed/cmaq_ready/gridded_rwc          #> surface residential wood combustion emissions directory
+set IN_PTpath = $INPDIR/emis/cb6r3_ae6_20191121_compressed/cmaq_ready                      #> elevated emissions input directory (in-line point only)
 set IN_LTpath = $INPDIR/met/lightning     #> lightning NOx input directory
 set METpath   = $INPDIR/met/mcip_v43_wrf_v381_ltng              #> meteorology input directory
 #set JVALpath  = $INPDIR/jproc            #> offline photolysis rate table directory
@@ -337,12 +337,12 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
 
   #> Gridded Emissions files
   setenv N_EMIS_GR 2
-  set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_nobeis_2016ff_16j.ncf
+  set EMISfile  = emis_mole_all_${YYYYMMDD}_12US1_nobeis_norwc_2016fh_16j.nc4
   setenv GR_EMIS_001 ${EMISpath}/${EMISfile}
   setenv GR_EMIS_LAB_001 GRIDDED_EMIS
   setenv GR_EM_SYM_DATE_001 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
 
-  set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016ff_16j.ncf
+  set EMISfile  = emis_mole_rwc_${YYYYMMDD}_12US1_cmaq_cb6_2016fh_16j.nc4
   setenv GR_EMIS_002 ${EMISpath2}/${EMISfile}
   setenv GR_EMIS_LAB_002 GRIDDED_RWC
   setenv GR_EM_SYM_DATE_002 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
@@ -350,26 +350,26 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   #> In-Line Point Emissions Files
   setenv N_EMIS_PT 8          #> Number of elevated source groups
 
-  set STKCASEE = 12US1_cmaq_cb6_2016ff_16j  # In-line Emission Rate File Suffix
-  set STKCASEG = 12US1_2016ff_16j                 # Stack parameter File Suffix
+  set STKCASEE = 12US1_cmaq_cb6_2016fh_16j        # In-line Emission Rate File Suffix
+  set STKCASEG = 12US1_2016fh_16j                 # Stack parameter File Suffix
 
-  setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.ncf
-  setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.ncf
-  setenv STK_GRPS_003 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.ncf
-  setenv STK_GRPS_004 $IN_PTpath/ptagfire/stack_groups_ptagfire_${YYYYMMDD}_${STKCASEG}.ncf
-  setenv STK_GRPS_005 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.ncf
-  setenv STK_GRPS_006 $IN_PTpath/ptfire_othna/stack_groups_ptfire_othna_${YYYYMMDD}_${STKCASEG}.ncf
-  setenv STK_GRPS_007 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.ncf
-  setenv STK_GRPS_008 $IN_PTpath/cmv_c3/stack_groups_cmv_c3_${STKCASEG}.ncf
+  setenv STK_GRPS_001 $IN_PTpath/ptnonipm/stack_groups_ptnonipm_${STKCASEG}.nc4
+  setenv STK_GRPS_002 $IN_PTpath/ptegu/stack_groups_ptegu_${STKCASEG}.nc4
+  setenv STK_GRPS_003 $IN_PTpath/othpt/stack_groups_othpt_${STKCASEG}.nc4
+  setenv STK_GRPS_004 $IN_PTpath/ptagfire/stack_groups_ptagfire_${YYYYMMDD}_${STKCASEG}.nc4
+  setenv STK_GRPS_005 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc4
+  setenv STK_GRPS_006 $IN_PTpath/ptfire_othna/stack_groups_ptfire_othna_${YYYYMMDD}_${STKCASEG}.nc4
+  setenv STK_GRPS_007 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.nc4
+  setenv STK_GRPS_008 $IN_PTpath/cmv_c3/stack_groups_cmv_c3_${STKCASEG}.nc4
 
-  setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.ncf
-  setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.ncf
-  setenv STK_EMIS_004 $IN_PTpath/ptagfire/inln_mole_ptagfire_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_005 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_006 $IN_PTpath/ptfire_othna/inln_mole_ptfire_othna_${YYYYMMDD}_${STKCASEE}.ncf
-  setenv STK_EMIS_007 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.ncf
-  setenv STK_EMIS_008 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${aveday_N}_${STKCASEE}.ncf
+  setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.nc4
+  setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_003 $IN_PTpath/othpt/inln_mole_othpt_${mwdss_N}_${STKCASEE}.nc4
+  setenv STK_EMIS_004 $IN_PTpath/ptagfire/inln_mole_ptagfire_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_005 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_006 $IN_PTpath/ptfire_othna/inln_mole_ptfire_othna_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_007 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.nc4
+  setenv STK_EMIS_008 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${aveday_N}_${STKCASEE}.nc4
 
   # Label Each Emissions Stream
   setenv STK_EMIS_LAB_001 PT_NONEGU
