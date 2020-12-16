@@ -544,14 +544,15 @@ C Calculate Rst
 C Calcuate Rcut
          ! wet Cuticle
          ! If the surface is cold and wet, use dry snow.
-                     rcwet = rwet
                      IF ( temp_g .GE. stdtemp ) THEN                    
                         IF ( s .EQ. s_O3 ) THEN 
          ! Canopy level wet resistence Rcwet to ozone was found to be about 200 s/m on basis of Keysburg exp
          ! Using LAI(1-sided) of about 6.25 measured at Keysburg gives leaf level rcwet about 1250 s/m
                            rcwet = 1250.0    ! s/m
          ! Leaf level rcwet estimated from Altimir et al 2006 gives about 1350 s/m                           
-                        End If ! O3
+                        Else ! All other species
+                           rcwet = rwet
+                        End If
                      ELSE
                         rcwet = Rsnow
                      END IF ! temp 

@@ -311,7 +311,7 @@ MODULE mcipparm
 
   CHARACTER(LEN=80)                 :: fdesc      ( mxdesc3 )
   CHARACTER(LEN=16),  PARAMETER     :: progname   = 'MCIP'
-  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '03/06/2020'
-  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V5.1.1'
+  CHARACTER(LEN=10),  PARAMETER     :: vdate      = '09/21/2020'
+  CHARACTER(LEN=8),   PARAMETER     :: ver        = 'V5.1.2'
 
 END MODULE mcipparm

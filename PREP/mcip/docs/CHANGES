@@ -1,6 +1,20 @@
 CHANGES for MCIP
 
 
+MCIP Version 5.1.2 (21 September 2020)
+
+- Corrected error in logic for processing meteorology data at a time interval
+  that is coarser than the available data in the file.
+
+  Changed files:  mcip5/setgriddefs.f90
+
+
+- Updated version stamp.
+
+  Changed files:  mcip5/mcipparm_mod.f90
+
+--------------------------------------------------------------------------------
+
 MCIP Version 5.1.1 (6 March 2020)
 
 - Removed reliance on reading F (Coriolis parameter) from WRF output for
