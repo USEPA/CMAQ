@@ -499,13 +499,11 @@ c        Iodide in sea-water based on SST  (mol /dm-3)
                      Rwat   = scw_pr_23 / ( heff_wat * d3 * ustar )
                   END IF
                   LU_Flux     = (c_atm-c_wat)/( Ra + Rb + Rwat )                         ! positive values for deposition
+                  vd =  1.0 / ( Ra + Rb + Rwat )
                   If(c_wat .Gt. 0.0 ) Then
-                     vd =  1.0 / ( Ra + Rb + Rwat )
-                     Tile_Data%depvel_gasj( l,s,c,r ) = vd
-                     Tile_Data%pol( l,s,c,r ) = c_wat / ( Ra + Rb + Rwat )
-                  Else
-                     Tile_Data%depvel_gasj( l,s,c,r ) = LU_Flux / c_atm
+                     Tile_Data%pol( l,n,c,r ) = c_wat / ( Ra + Rb + Rwat )
                   End If
+                  Tile_Data%depvel_gasj( l,n,c,r ) = vd
                   f_emis = f_emis + frac_lu *  c_wat / ( Ra + Rb + Rwat ) 
                   f_dep  = f_dep  + frac_lu *  c_atm / ( Ra + Rb + Rwat ) 
                   f_wat  = f_wat  + frac_lu * ( c_wat - c_atm ) / ( Ra + Rb + Rwat )   
@@ -681,8 +679,8 @@ C Calcuate Bare Soil Resistance
 !-------------------------------------------------------------------------------------------------
 ! Bidirectional exchange
 !-------------------------------------------------------------------------------------------------                                                               
-                     Tile_Data%pol( l,s,c,r ) = max( vd * c_atm - LU_Flux, 0.0 )          ! should always be greater than 0
-                     Tile_Data%depvel_gasj( l,s,c,r ) = vd                                ! Deposition velocity
+                     Tile_Data%pol( l,n,c,r ) = max( vd * c_atm - LU_Flux, 0.0 )          ! should always be greater than 0
+                     Tile_Data%depvel_gasj( l,n,c,r ) = vd                                ! Deposition velocity
                      f_soil = f_soil + frac_lu * ( veg * ( ( c_grnd - c_z0 ) / Rgc ) + 
      &                                         no_veg * (c_grnd - c_atm)/( Ra + Rg ) )            ! air-soil flux
                      f_stom = f_stom + frac_lu * veg * ( c_stom - c_leaf ) / Rst 
@@ -691,14 +689,14 @@ C Calcuate Bare Soil Resistance
 !-------------------------------------------------------------------------------------------------
 ! Non bidirectional exchange
 !-------------------------------------------------------------------------------------------------   
-                     Tile_Data%depvel_gasj( l,s,c,r ) =  vd
+                     Tile_Data%depvel_gasj( l,n,c,r ) =  vd
                   End If ! compensation points greater than 0
                End If ! Water    
 ! Generalization of the production and deposition velocity terms
                Grid_Flux       = Grid_Flux + frac_lu * LU_Flux
-               pvd( n )        = pvd( n )        + frac_lu * Tile_Data%pol( l,s,c,r )
+               pvd( n )        = pvd( n )        + frac_lu * Tile_Data%pol( l,n,c,r )
                depvel_gas( n ) = depvel_gas( n ) + 
-     &                           frac_lu * Tile_Data%depvel_gasj( l,s,c,r )
+     &                           frac_lu * Tile_Data%depvel_gasj( l,n,c,r )
             End Do lu_loop
             If(ABFLUX .And. s .Eq. s_NH3 ) Then
                cmp( 1 ) = pvd( n )
@@ -716,7 +714,7 @@ C Calcuate Bare Soil Resistance
             If(HGBIDI .And. s .Eq. s_HG ) Then
                flux_hgII = 0.0 
 ! negative values are deposition fluxes
-               flux_hgII = -Sum( Tile_Data%depvel_gasj( :,s_HgII,c,r ) * GRID_DATA%LUFRAC( c,r,: ), mask = WATER)
+               flux_hgII = -Sum( Tile_Data%depvel_gasj( :,n_HgII,c,r ) * GRID_DATA%LUFRAC( c,r,: ), mask = WATER)
 
                Call Hg_Surf_Update ( f_stom, f_cut, f_soil, f_wat, flux_hgII, 
      &                               Heff_wat, Heff, TStep, c, r, Jdate, Jtime )
