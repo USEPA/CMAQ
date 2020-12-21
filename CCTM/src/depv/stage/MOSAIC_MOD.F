@@ -135,9 +135,9 @@ C...include files
 ! placeholder to read namelist for lu agrigation and dep species output
 !---------------------------------------------------------------------------------------------------
 
-         Allocate ( Tile_Data%depvel_gasj( n_lufrac,dep_gas_all,ncols,nrows ),
+         Allocate ( Tile_Data%depvel_gasj( n_lufrac,N_GC_DEPV + N_NR_DEPV + N_TR_DEPV,ncols,nrows ),
      &              Tile_Data%adepvj     ( n_lufrac,N_AE_DEPV,ncols,nrows   ), 
-     &              Tile_Data%pol        ( n_lufrac,dep_gas_all,ncols,nrows ), STAT = ALLOCSTAT )   
+     &              Tile_Data%pol        ( n_lufrac,N_GC_DEPV + N_NR_DEPV + N_TR_DEPV,ncols,nrows ), STAT = ALLOCSTAT )   
          If ( ALLOCSTAT .Ne. 0 ) Then
             XMSG = 'Failure allocating MOSAIC deposition velocities'
             Call M3EXIT( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
