@@ -177,6 +177,13 @@ SUBROUTINE rdwrfem (mcip_now)
 !                        improve dust simulation in CCTM.  Added optional
 !                        variables from KF convective scheme with radiative
 !                        feedbacks.  (T. Spero)
+!           06 Mar 2020  Removed need to read "F" (Coriolis parameter) from WRF
+!                        output for potential vorticity scaling.  Instead,
+!                        calculate F inside this routine (called "CORIOLIS"
+!                        here) from latitude.  Value of angular momentum of
+!                        earth (omega in new variable TWOOMEGA) is from WRF
+!                        variable "EOMEG" in WRF routine:
+!                        share/module_model_constants.f90.  (T. Spero)
 !-------------------------------------------------------------------------------
 
   USE date_pack
@@ -249,6 +256,7 @@ SUBROUTINE rdwrfem (mcip_now)
   INTEGER                           :: nxm
   INTEGER                           :: nym
   INTEGER                           :: nzp
+  REAL,               PARAMETER     :: twoomega   = 2.0 * 7.2921e-5 ! [s-1]
   CHARACTER(LEN=16),  PARAMETER     :: pname      = 'RDWRFEM'
   INTEGER                           :: rcode
   REAL,               PARAMETER     :: rdovcp     = 2.0 / 7.0
@@ -1721,18 +1729,6 @@ SUBROUTINE rdwrfem (mcip_now)
         WRITE (*,f9400) TRIM(pname), 'FRC_URB2D', TRIM(nf90_strerror(rcode))
       ENDIF
     ENDIF
-    IF ( lpv > 0 ) THEN
-      CALL get_var_2d_real_cdf (cdfid, 'F', dum2d, it, rcode)
-      IF ( rcode == nf90_noerr ) THEN
-        coriolis(1:nxm,1:nym) = dum2d(:,:)
-        coriolis(met_nx,:) = coriolis(nxm,:)
-        coriolis(:,met_ny) = coriolis(:,nym)
-        WRITE (*,f6000) 'F        ', coriolis(lprt_metx, lprt_mety), 's-1'
-      ELSE
-        WRITE (*,f9400) TRIM(pname), 'F      ', TRIM(nf90_strerror(rcode))
-        CALL graceful_stop (pname)
-      ENDIF
-    ENDIF
   ENDIF
 
   IF ( ifznt ) THEN  ! expecting roughness length in file
@@ -2242,6 +2238,24 @@ SUBROUTINE rdwrfem (mcip_now)
 
 
     END SELECT
+
+  ENDIF
+
+!-------------------------------------------------------------------------------
+! If this is the first time in this routine and potential vorticity scaling
+! will be used in CMAQ, then calculate the Coriolis parameter.
+!-------------------------------------------------------------------------------
+
+  IF ( first .AND. lpv > 0 ) THEN
+
+    DO j = 1, nym
+      DO i = 1, nxm
+        coriolis(i,j) = twoomega * SIND(latcrs(i,j))
+      ENDDO
+    ENDDO
+
+    coriolis(met_nx,:) = coriolis(nxm,:)
+    coriolis(:,met_ny) = coriolis(:,nym)
 
   ENDIF
 
