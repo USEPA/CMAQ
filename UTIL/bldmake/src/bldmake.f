@@ -38,6 +38,8 @@
 !                        consistant with IOAPI library format.
 !     July 2019 F. Sidi: Added netCDF Fortran Library Path. Makefile generated 
 !                        consistent with netCDF library format. 
+!     Nov 2020 D. Wong: moified the code to build Makefile.twoay automatically
+!                       when build_twoway is turned on
 !-------------------------------------------------------------------------------
 
       Program bldmake
@@ -69,7 +71,11 @@
       Call git_export( status )
 
 ! create Makefile
-      Open ( unit=lfn, file='Makefile', iostat=status )
+      if (twoway) then
+         Open ( unit=lfn, file='Makefile.twoway', iostat=status )
+      else
+         Open ( unit=lfn, file='Makefile', iostat=status )
+      end if
       If ( status .ne. 0 ) Call error_msg( 'Cannot create FILE [Makefile]' )
 
       Call makefile( lfn, cfgFile )
@@ -289,142 +295,177 @@
       End If
 
 ! print header lines
-      If ( serial ) Then
-         Write( lfn, '("#   Makefile generated for serial execution using program bldmake")' )
-      Else
-         Write( lfn, '("#   Makefile generated for parallel execution using program bldmake")' )
-      End If
-      Write( lfn, '("#")' )
-      Write( lfn, '("#   Generation date [",a,"]")' )      Trim( currentDate )
-      Write( lfn, '("#   Configuration file [",a,"]")' )   Trim( cfgFile )
-      Write( lfn, '("#   Using GIT repository [",a,"]")' ) Trim( repo )
-      If ( Trim( mechanism ) .Ne. 'X' )
-     &   Write( lfn, '("#   With mechanism [",a,"]")' )    Trim( mechanism )
+      if ( twoway) then
+         write( lfn, *) 'IOAPI_PATH = $(IOAPI)/$(LIOAPI)'
+         write( lfn, *) 'IOAPI_INC_PATH = $(IOAPI)/ioapi/fixed_src'
+         write( lfn, *)
+         if ( Index( f_flags, '-Mfixed') > 0) then
+            write( lfn, *) 'EXTEND_FLAG = -Mextend'
+         else if ( Index( f_flags, '-ffixed-form') > 0) then
+            write( lfn, *) 'EXTEND_FLAG = -ffixed-line-length-132'
+         else if ( Index( f_flags, '-fixed') > 0) then
+            write( lfn, *) 'EXTEND_FLAG = -132'
+         end if
+         write( lfn, *)
+         write( lfn, *) 'WRF_MODULE = -I ../frame \'
+         write( lfn, *) '             -I ../share \'
+         write( lfn, *) '             -I ../phys  \'
+         write( lfn, *) '             -I ../main  \'
+         write( lfn, *) '             -I ../dyn_em  \'
+         write( lfn, *) '             -I ../external/esmf_time_f90'
+         write( lfn, *)
+         write( lfn, *) '#   Compiler flags'
+         write( lfn, *) 'f_FLAGS    = $(FORMAT_FIXED) $(EXTEND_FLAG) \'
+         write( lfn, *) '             $(FCOPTIM) -I $(IOAPI_PATH) -I $(IOAPI_INC_PATH) $(WRF_MODULE) -I.'
+         write( lfn, *) 'F_FLAGS    = $(FORMAT_FIXED) $(EXTEND_FLAG) \'
+         write( lfn, *) '             $(FCOPTIM) -I $(IOAPI_PATH) -I $(IOAPI_INC_PATH) $(WRF_MODULE) -I.'
+         write( lfn, *) 'F90_FLAGS  = -c $(FORMAT_FREE) $(FCOPTIM) \'
+         write( lfn, *) '             -I $(IOAPI_PATH) -I $(IOAPI_INC_PATH) $(WRF_MODULE) -I.'
+         write( lfn, *) 'f90_FLAGS  = -c $(FORMAT_FREE) $(FCOPTIM) \'
+         write( lfn, *) '             -I $(IOAPI_PATH) -I $(IOAPI_INC_PATH) $(WRF_MODULE) -I.'
+         write( lfn, *) 'C_FLAGS    = -O2  -DFLDMN -I /usr/include'
+         write( lfn, *)
+      else
+         If ( serial ) Then
+            Write( lfn, '("#   Makefile generated for serial execution using program bldmake")' )
+         Else
+            Write( lfn, '("#   Makefile generated for parallel execution using program bldmake")' )
+         End If
+         Write( lfn, '("#")' )
+         Write( lfn, '("#   Generation date [",a,"]")' )      Trim( currentDate )
+         Write( lfn, '("#   Configuration file [",a,"]")' )   Trim( cfgFile )
+         Write( lfn, '("#   Using GIT repository [",a,"]")' ) Trim( repo )
+         If ( Trim( mechanism ) .Ne. 'X' )
+     &      Write( lfn, '("#   With mechanism [",a,"]")' )    Trim( mechanism )
 
-      ! Document Explicit Compiler Execution Paths if not given explicitly
-      If( Trim( f_compiler ) .Ne. Trim( f_compiler_path ) 
-     &     .Or.  Trim( c_compiler ) .Ne. Trim( c_compiler_path ) )Then
-         Write( lfn, '("#   Full Compiler Paths when Makefile was Built:")' ) 
-         Write( lfn, '("#       FC = ",a)' ) Trim( f_compiler_path )
-         Write( lfn, '("#       CC = ",a)' ) Trim( c_compiler_path )
-      End If 
+         ! Document Explicit Compiler Execution Paths if not given explicitly
+         If( Trim( f_compiler ) .Ne. Trim( f_compiler_path ) 
+     &        .Or.  Trim( c_compiler ) .Ne. Trim( c_compiler_path ) )Then
+            Write( lfn, '("#   Full Compiler Paths when Makefile was Built:")' ) 
+            Write( lfn, '("#       FC = ",a)' ) Trim( f_compiler_path )
+            Write( lfn, '("#       CC = ",a)' ) Trim( c_compiler_path )
+         End If 
 
-      ! Document Explicit Library Paths
-      Call GETENV( 'IOAPI_INCL_DIR', ioapi_incl_dir )
-      Call GETENV( 'IOAPI_LIB_DIR',  ioapi_lib_dir )
-      Call GETENV( 'NETCDF_LIB_DIR', netcdf_lib_dir )
-      Call GETENV( 'NETCDFF_LIB_DIR', netcdff_lib_dir )
-      Call GETENV( 'MPI_LIB_DIR',    mpi_lib_dir )
-      Write( lfn, '("#   Library Paths:")' ) 
-      Write( lfn, '("#      $(LIB)/ioapi/include_files -> ",a)' ) Trim( ioapi_incl_dir )
-      Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
-      Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
-      Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
-      Write( lfn, '("#      $(LIB)/netcdff -> ",a)' ) Trim( netcdff_lib_dir )
-      Write( lfn, '("#",/,"#   Command-Line Options:      ")' ) 
+         ! Document Explicit Library Paths
+         Call GETENV( 'IOAPI_INCL_DIR', ioapi_incl_dir )
+         Call GETENV( 'IOAPI_LIB_DIR',  ioapi_lib_dir )
+         Call GETENV( 'NETCDF_LIB_DIR', netcdf_lib_dir )
+         Call GETENV( 'NETCDFF_LIB_DIR', netcdff_lib_dir )
+         Call GETENV( 'MPI_LIB_DIR',    mpi_lib_dir )
+         Write( lfn, '("#   Library Paths:")' ) 
+         Write( lfn, '("#      $(LIB)/ioapi/include_files -> ",a)' ) Trim( ioapi_incl_dir )
+         Write( lfn, '("#      $(LIB)/ioapi/lib -> ",a)' ) Trim( ioapi_lib_dir )
+         Write( lfn, '("#      $(LIB)/mpi -> ",a)' ) Trim( mpi_lib_dir )
+         Write( lfn, '("#      $(LIB)/netcdf -> ",a)' ) Trim( netcdf_lib_dir )
+         Write( lfn, '("#      $(LIB)/netcdff -> ",a)' ) Trim( netcdff_lib_dir )
+         Write( lfn, '("#",/,"#   Command-Line Options:      ")' ) 
       
-      If( debug_cctm )Then
-         Write( lfn, '("#      DEBUG = FALSE or false -- turn off debug flags ")' )
-         Write( lfn, '("#  OR  debug = false or FALSE -- turn off debug flags ")' )
-         Write( lfn, '("#  Can set either variable by using the setenv command to")' )
-         Write( lfn, '("#  turn off debugging session with multiple compilations")' )
-      Else
-         Write( lfn, '("#      DEBUG = TRUE or true -- turn on debug flags ")' ) 
-         Write( lfn, '("#  OR  debug = true or TRUE -- turn on debug flags ")' ) 
-         Write( lfn, '("#  Can set either variable by using the setenv command for")' ) 
-         Write( lfn, '("#  a debugging session with multiple compilations")' ) 
-      End if
-      Write( lfn, '("#")' ) 
-      Write( lfn, '("#------------------------------------------------- ")' ) 
+         If( debug_cctm )Then
+            Write( lfn, '("#      DEBUG = FALSE or false -- turn off debug flags ")' )
+            Write( lfn, '("#  OR  debug = false or FALSE -- turn off debug flags ")' )
+            Write( lfn, '("#  Can set either variable by using the setenv command to")' )
+            Write( lfn, '("#  turn off debugging session with multiple compilations")' )
+         Else
+            Write( lfn, '("#      DEBUG = TRUE or true -- turn on debug flags ")' ) 
+            Write( lfn, '("#  OR  debug = true or TRUE -- turn on debug flags ")' ) 
+            Write( lfn, '("#  Can set either variable by using the setenv command for")' ) 
+            Write( lfn, '("#  a debugging session with multiple compilations")' ) 
+         End if
+         Write( lfn, '("#")' ) 
+         Write( lfn, '("#------------------------------------------------- ")' ) 
 
-      ! Begin Makefile Commands
-      Write( lfn, '(/" EXEC = ",a)' ) Trim( model )
+         ! Begin Makefile Commands
+         Write( lfn, '(/" EXEC = ",a)' ) Trim( model )
 
-      Write( lfn, '(/" FC = ",a)' ) Trim( f_compiler )
-      Write( lfn, '( " CC = ",a)' ) Trim( c_compiler )
+         Write( lfn, '(/" FC = ",a)' ) Trim( f_compiler )
+         Write( lfn, '( " CC = ",a)' ) Trim( c_compiler )
 
-      Write( lfn, '(/" LIB = ",a)' ) Trim( lib_base )
-      Write( lfn, '( " include_path = -I $(LIB)/",a,1x,a)' ) Trim( lib_1 ), backslash 
-      If ( l_lib_5) Then
-         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 ), backslash 
-         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_3 ), backslash
-         Write( lfn, '( "                -I $(LIB)/",a)' )      Trim( lib_5 )
-      Else if ( l_lib_3 ) Then
-         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 ), backslash 
-         Write( lfn, '( "                -I $(LIB)/",a)' )      Trim( lib_3 )
-      Else
-         Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 )
-      End If
+         Write( lfn, '(/" LIB = ",a)' ) Trim( lib_base )
+         Write( lfn, '( " include_path = -I $(LIB)/",a,1x,a)' ) Trim( lib_1 ), backslash 
+         If ( l_lib_5) Then
+            Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 ), backslash 
+            Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_3 ), backslash
+            Write( lfn, '( "                -I $(LIB)/",a)' )      Trim( lib_5 )
+         Else if ( l_lib_3 ) Then
+            Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 ), backslash 
+            Write( lfn, '( "                -I $(LIB)/",a)' )      Trim( lib_3 )
+         Else
+            Write( lfn, '( "                -I $(LIB)/",a,1x,a)' ) Trim( lib_2 )
+         End If
 
-      Write( lfn, '(/" WARN = ")' )
-      Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
-      Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
+         Write( lfn, '(/" WARN = ")' )
+         Write( lfn, '( " FSTD = ",a)' ) Trim( fstd )
+         Write( lfn, '( " DBG  = ",a)' ) Trim( dbg )
 
-      If( debug_cctm )Then
-         Write( lfn, '(/" ifndef debug")')
-         Write( lfn, '( "   debug = true")')
-         Write( lfn, '( " endif")')
-      End If
+         If( debug_cctm )Then
+            Write( lfn, '(/" ifndef debug")')
+            Write( lfn, '( "   debug = true")')
+            Write( lfn, '( " endif")')
+         End If
 
-      Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true True T ))")')
-      Write( lfn, '( "     DEBUG = TRUE")' )
-      Write( lfn, '( " endif")' )
-      
-      Write( lfn, '(/" ifneq (,$(filter $(DEBUG), TRUE true ))")')
-      Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
-      Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
+         Write( lfn, '(/" ifneq (,$(filter $(debug), TRUE true True T ))")')
+         Write( lfn, '( "     DEBUG = TRUE")' )
+         Write( lfn, '( " endif")' )
+         
+         Write( lfn, '(/" ifneq (,$(filter $(DEBUG), TRUE true ))")')
+         Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(DBG) $(include_path)"
+         Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(DBG) $(include_path)"
 
-      Write( lfn, '( " else")' )
-      Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(FSTD) $(include_path)"
-      Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(FSTD) $(include_path)"
+         Write( lfn, '( " else")' )
+         Write( lfn, '( "     f_FLAGS   = ",a)' ) Trim( f_flags ) // " $(FSTD) $(include_path)"
+         Write( lfn, '( "     f90_FLAGS = ",a)' ) Trim( f90_flags ) // " $(FSTD) $(include_path)"
 
-      Write( lfn, '( " endif")' )
+         Write( lfn, '( " endif")' )
 
-      Write( lfn, '(/" F_FLAGS   = $(f_FLAGS)")' )
-      Write( lfn, '( " F90_FLAGS = $(f90_FLAGS)")' )
+         Write( lfn, '(/" F_FLAGS   = $(f_FLAGS)")' )
+         Write( lfn, '( " F90_FLAGS = $(f90_FLAGS)")' )
 
-      If ( serial ) Then
-         Write( lfn, '( " C_FLAGS   = ",a)' ) Trim( c_flags ) // "-I."
-      Else
-         Write( lfn, '( " C_FLAGS   = ",a)' ) Trim( c_flags ) // "$(LIB)/mpi/include -I."
-      End If
+         If ( serial ) Then
+            Write( lfn, '( " C_FLAGS   = ",a)' ) Trim( c_flags ) // "-I."
+         Else
+            Write( lfn, '( " C_FLAGS   = ",a)' ) Trim( c_flags ) // "$(LIB)/mpi/include -I."
+         End If
 
-      If ( verbose ) Then
-        Write( *, '("  Compilers defined")' )
-      End If
+         If ( verbose ) Then
+           Write( *, '("  Compilers defined")' )
+         End If
 
-      Write( lfn, '(/" LINKER     = ",a)' ) Trim( linker )
-      Write( lfn, '( " LINK_FLAGS = ",a)' ) Trim( link_flags )
+         Write( lfn, '(/" LINKER     = ",a)' ) Trim( linker )
+         Write( lfn, '( " LINK_FLAGS = ",a)' ) Trim( link_flags )
 
-      If ( Len_Trim( reporoot ) .Gt. 0 ) Then
-        Write( lfn, '(/" REPOROOT = ",a)' ) Trim( reporoot )
-      End If
+         If ( Len_Trim( reporoot ) .Gt. 0 ) Then
+           Write( lfn, '(/" REPOROOT = ",a)' ) Trim( reporoot )
+         End If
 
-      If ( Len_Trim( VPATH ) .Gt. 0 ) Then
-        Call writeVPATH( lfn )
-      End If
+         If ( Len_Trim( VPATH ) .Gt. 0 ) Then
+           Call writeVPATH( lfn )
+         End If
+      end if
 
       Call writeCPP( lfn )
-      If ( verbose ) Then
-        Write( *, '("  CPP Flags defined")' )
-      End If
 
-      Write( lfn, '(/" IOAPI  = -L$(LIB)/",a,1x,a)' ) Trim( lib_4 ), Trim( ioapi )
-      Write( lfn, '( " NETCDF = -L$(LIB)/",a,1x,a, " -L$(LIB)/",a,1x,a)' ) 
-     &  ,"netcdff/lib", Trim( netcdff ), "netcdf/lib", Trim(netcdf)
+      if ( .not. twoway) then
+         If ( verbose ) Then
+           Write( *, '("  CPP Flags defined")' )
+         End If
+
+         Write( lfn, '(/" IOAPI  = -L$(LIB)/",a,1x,a)' ) Trim( lib_4 ), Trim( ioapi )
+         Write( lfn, '( " NETCDF = -L$(LIB)/",a,1x,a, " -L$(LIB)/",a,1x,a)' ) 
+     &     ,"netcdff/lib", Trim( netcdff ), "netcdf/lib", Trim(netcdf)
       
-      If ( serial ) Then
-         Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
-      Else
-!         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpich/lib", Trim( mpich )
-!         Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
-         Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) ")' )
-      End If
+         If ( serial ) Then
+            Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF)")' )
+         Else
+!            Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpich/lib", Trim( mpich )
+!            Write( lfn, '( " MPICH  = -L$(LIB)/",a,1x,a)' ) "mpi/lib", Trim( mpich )
+            Write( lfn, '( " LIBRARIES = $(IOAPI) $(NETCDF) ")' )
+         End If
 
-!     Call writeLIB( lfn )
-      If ( verbose ) Then
-        Write( *, '("  Libraries defined")' )
-      End If
+!        Call writeLIB( lfn )
+         If ( verbose ) Then
+           Write( *, '("  Libraries defined")' )
+         End If
+      end if
 
       Call writeINC( lfn )
       If ( verbose ) Then
@@ -510,7 +551,9 @@
       Integer n
       Character( EXT_LEN ) :: field
 
-      Write( lfn, '(/" CPP = "a)' ) Trim( cpp )
+      if (.not. twoway) then
+         Write( lfn, '(/" CPP = "a)' ) Trim( cpp )
+      end if
 
       nfields = getFieldCount( cpp_flags, ' ' )
 
@@ -519,6 +562,10 @@
       Else
 
         Write( lfn, '(" cpp_flags =",$)')
+
+        if (twoway) then
+           Write( lfn, '(1x,a,/,2x,a,$)' ) backslash, '-Dtwoway'
+        end if
 
         ! print each field at a time
         Do n = 1, nfields
@@ -676,17 +723,12 @@
       pathStr = ' '
       hasPaths = .False.
 
-      If ( serial ) Then
-         n_M = n_Mac - 1
-      Else
-         n_M = n_Mac
-      End If
-
       If ( twoway ) Then
+        n_M = n_Mac - 1
 
 ! find path strings
         Do n = 1, n_includes
-          Do i = 1, n_Mac
+          Do i = 1, n_M
             If ( include( n )%name .Eq. pathChk( i ) ) Then
               path = include( n )%path
               If ( pathInd( i ) .Gt. 1 ) Then
@@ -716,6 +758,11 @@
         End If
 
       Else
+        If ( serial ) Then
+           n_M = n_Mac - 1
+        Else
+           n_M = n_Mac
+        End If
 
 ! find path strings
         Do n = 1, n_includes
@@ -772,7 +819,11 @@
           If ( pos .Gt. 0 .And. pathStr( i ) .Ne. ' ' ) Then
             pos2 = pos + Len_Trim( pathStr( i ) )
             If ( pos .Eq. 1 ) Then
-              path = '$(' // Trim( pathMacro( Map ) ) // ')' // path( pos2: )
+              if (twoway .and. (pathMacro(Map) == 'MPI_INC')) then
+                 path = path( 3: )
+              else
+                 path = '$(' // Trim( pathMacro( Map ) ) // ')' // path( pos2: )
+              end if
               Exit
             Else
               If ( twoway ) Then
@@ -843,7 +894,11 @@
         Do i = 1, nfiles
           pos = Index( filename(i), '.' )
           If ( pos .Le. 0 ) Cycle
-          obj = filename(i)(1:pos) // 'o'
+          if (twoway .and. filename(i)(1:21) == 'complex_number_module') then
+             obj = ''
+          else
+             obj = filename(i)(1:pos) // 'o'
+          end if
           Write( lfn, '(1x,a/2x,a,$)' ) backslash, Trim( obj )
         End Do
       End If
@@ -1056,6 +1111,15 @@
       Character( FLD_LEN ) :: record
       Character( 1 )       :: tab = char( 9 )
 
+      if (twoway) then
+         Write( lfn, *)
+         Write( lfn, *) 'LIBTARGET    = cmaq'
+         Write( lfn, *) 'TARGETDIR    = ./'
+         Write( lfn, *) '$(LIBTARGET) : $(OBJS)'
+         Write( lfn, '(a,a, "$(AR) $(ARFLAGS) ../main/libcmaqlib.a $(OBJS)"/)' ) tab, tab
+         Write( lfn, *) 'include ../configure.wrf'
+      end if
+
 ! build SUFFIXES record
       record = '.SUFFIXES:'
 
@@ -1065,8 +1129,10 @@
 
       Write( lfn, '(/,a)') Trim( record )
 
-      Write( lfn, '(/"$(EXEC): $(OBJS)")' )
-      Write( lfn, '(a,"$(LINKER) $(LINK_FLAGS) $(OBJS) $(LIBRARIES) -o $@"/)' ) tab
+      if (.not. twoway) then
+         Write( lfn, '(/"$(EXEC): $(OBJS)")' )
+         Write( lfn, '(a,"$(LINKER) $(LINK_FLAGS) $(OBJS) $(LIBRARIES) -o $@"/)' ) tab
+      end if
 
       Write( lfn, '(".F.o:")' )
       Write( lfn, '(a,"$(FC) -c $(F_FLAGS) $(CPP_FLAGS) $(INCLUDES) $<"/)' ) tab
