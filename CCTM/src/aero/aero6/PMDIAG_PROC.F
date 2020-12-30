@@ -197,7 +197,7 @@
          JNUM = INUM + 1
          DO WHILE ( JNUM .LE. N_END )
             IF ( INST_PARS_REG( INUM ) .EQ. '' ) THEN
-               JNUM + N_END + 1
+               JNUM = N_END + 1
             ELSEIF ( INST_PARS_REG( INUM ) .EQ. INST_PARS_REG( JNUM ) ) THEN
                INST_PARS_REG( JNUM:N_END-1 ) = INST_PARS_REG( JNUM+1:N_END )
                INST_PARS_REG( N_END ) = ''
@@ -287,10 +287,12 @@
          JNUM = INUM + 1
          DO WHILE ( JNUM .LE. N_END )
             IF ( AVRG_PARS_REG( INUM ) .EQ. '' ) THEN
-               JNUM + N_END + 1
+               JNUM = N_END + 1
             ELSEIF ( AVRG_PARS_REG( INUM ) .EQ. AVRG_PARS_REG( JNUM ) ) THEN
                AVRG_PARS_REG( JNUM:N_END-1 ) = AVRG_PARS_REG( JNUM+1:N_END )
                AVRG_PARS_REG( N_END ) = ''
+            ELSE
+               JNUM = JNUM + 1
             END IF
          END DO
       END DO
