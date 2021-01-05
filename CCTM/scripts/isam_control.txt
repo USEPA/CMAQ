@@ -29,17 +29,21 @@ TAG CLASSES     |SULFATE, OZONE
 !!!   REGION(S)       |Keyword EVERYWHERE or variable names from the region file (multiple regions need to be comma delimited)
 !!!   FILENAME(S)     |Emissions labels (multiple labels need to be comma delimited)
 
-TAG NAME        |GR1
-REGION(S)       |EVERYWHERE
-EMIS STREAM(S)  |GRIDDED_EMIS
+TAG NAME        |GAE
+REGION(S)       |GA
+EMIS STREAM(S)  |PT_EGU
 
-!!! The below tag definition is an example of a source with an regional emissions stream.
-!!! Regions are described by netcdf files defined in the CCTM run script. They may be 
-!!! based on individual variables from those netcdf inputs or by groups of variables 
-!!! using the RegionFamilies feature. For more information, read the ISAM chapter and 
-!!! Appendix B in the Users Guide under the repository's DOCS directory.
-!!!TAG NAME        |NEG
-!!!REGION(S)       |NC
-!!!EMIS STREAM(S)  |PT_EGU
+TAG NAME        |GAF
+REGION(S)       |GA
+EMIS STREAM(S)  |PT_FIRES
+
+TAG NAME        |NCE
+REGION(S)       |NC
+EMIS STREAM(S)  |PT_EGU
+
+TAG NAME        |NCF
+REGION(S)       |NC
+EMIS STREAM(S)  |PT_FIRES
+
 
 ENDLIST eof 

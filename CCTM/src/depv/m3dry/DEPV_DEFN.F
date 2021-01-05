@@ -77,16 +77,6 @@ C model-oriented bi-directional production [ppm-m/s]
 C  Dry dep flux of NH3 for bidi [kg/ha hr]
       REAL,    ALLOCATABLE, SAVE :: NH3_EMIS( :,: )
 
-!C flag for mosaic - luc specific deposition - within in-lining depv
-!      LOGICAL, SAVE :: MOSAIC = .FALSE.
-
-!C flag for mosaic - luc specific deposition - stomatal flux only - within in-lining depv
-!      LOGICAL, SAVE :: FST = .FALSE.      
-
-!      PUBLIC DEPV, DEPVJ, DEPVJ_FST, N_SPC_DEPV, DD_CONV, PLDV, CMP,
-!     &             ILDEPV, SFC_HONO, ABFLUX, MOSAIC, FST, N_GAS_DEPV,
-!     &             DEPV_INIT, GET_DEPV
-
       PUBLIC DEPV, N_SPC_DEPV, DD_CONV, PLDV, N_GAS_DEPV,
      &             DEPV_INIT, GET_DEPV, NH3_EMIS
       
@@ -218,8 +208,6 @@ C-----------------------------------------------------------------------
          S_PLDV = 0.0   ! array assignment
 #endif
 
-
-C DEPVEL_GAS is used also for non-ILDEPV in the sgtot calculation
          ALLOCATE ( DEPVEL_GAS( N_GAS_DEPV,NCOLS,NROWS ), STAT = ALLOCSTAT )
          IF ( ALLOCSTAT .NE. 0 ) THEN
             XMSG = 'Failure allocating DEPVEL_GAS array'
@@ -277,12 +265,6 @@ C Initialize
                SUCCESS = .FALSE.; RETURN
             END IF
          END IF
-
-         !IF ( ILDEPV ) THEN
-         !
-         !   CALL INIT_LSM( JDATE, JTIME )
-         !   CALL INIT_BIDI( )
-         !END IF   ! in-line depv
 
          INIT_GAS_DV:
      &   IF ( N_GAS_DEPV .GT. 0 ) THEN
