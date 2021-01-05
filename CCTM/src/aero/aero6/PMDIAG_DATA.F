@@ -499,7 +499,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &        PMDIAG_INLET_TYPE( 'PM1     ', 0.0,  1.0 ),
      &        PMDIAG_INLET_TYPE( 'PM25    ', 0.0,  2.5 ),
      &        PMDIAG_INLET_TYPE( 'PM10    ', 0.0, 10.0 ),
-     &        PMDIAG_INLET_TYPE( 'PM25to10', 2.5, 10.0 ),
+     &        PMDIAG_INLET_TYPE( 'PM25TO10', 2.5, 10.0 ),
      &        PMDIAG_INLET_TYPE( 'PMAMS   ', 0.0,  0.0 ),
      &        PMDIAG_INLET_TYPE( 'INUM10  ', 0.01,1.0e3),
      &        PMDIAG_INLET_TYPE( 'INUM20  ', 0.02,1.0e3),

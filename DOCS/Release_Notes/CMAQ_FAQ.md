@@ -108,11 +108,11 @@ Two updates in v5.3.1 have the potential to change model output.
 ## Do I need to update from v5.3.1 to v5.3.2?
 CMAQv5.3.2 is a minor update to CMAQv5.3.1 that includes multiple bug fixes and a few feature additions. See the [v5.3.2 Release Notes](README.md#summary-of-cmaqv532-updates) for a list of bug fixes and new features. See below for a description of the bug fixes that have an impact on model output.
 
-Several important updates have been made to the Integrated Source Apportionment Method (ISAM). Users of ISAM are strongly encouraged to update to v5.3.2.
+CMAQv5.3.2 includes significant updates to the CMAQ Integrated Source Apportionment Method (ISAM). The new CMAQ-ISAM version includes substantial updates to the gas-phase chemistry apportionment algorithms that improves both physical and numerical aspects of the method. Users of ISAM are strongly encouraged to update to CMAQv5.3.2.
 
 <a id=update_v531_v532></a>
 ## What do I need to do to update from v5.3.1 to v5.3.2?
-If you have already successfully migrated to v5.3 or v5.3.1, you will not need to do anything special to maintain default behavior in v5.3.2.  
+If you have already successfully migrated to v5.3 or v5.3.1, you will not need to do anything special to maintain default behavior in v5.3.2. A new benchmark dataset has been released with version 5.3.2, including reference input and output to run a test case of CMAQ-ISAM.  
 
 <a id=diff_v531_v532></a>
 ## What differences should I expect in my model results with v5.3.2 compared to v5.3.1?
@@ -121,7 +121,7 @@ Five updates in v5.3.2 have the potential to change model output.
 2. In the v5.3 and subsequent v5.3.1 release, running with the CB6r3m mechanism (Dimethyl Sulfide (DMS) chemistry combined with CB6r3) resulted in a double counting of HO2 in one of the chemical reactions. This mainly resulted in an overprediction of ozone over large areas of seawater in the modeling domain. For more information please visit the [DMS Chemistry Update Release Note](DMS_chemistry_update.md).
 3. If running v5.3.2 with the Inline Lightning Option, users should expect to see changes of less than a ppb for species such as ozone. The vertical distribution of lightning NO has been modified to better represent what has been reported in literature. For more information please visit the [Lightning NO Vertical Profile Release Notes](Update_the_lightning_NO_vertical_profile.md). 
 4. The v5.3.2 release also features an update to the Ozone Monitoring Instrument (OMI) Column Data through 2019. Most users should observe no changes, however, those working with modeling data in 2018 could see a difference between their v5.3.1 and v5.3.2 simulations caused by a 1% difference in a few grid cells in the new OMI data compared to the older OMI data for overlapping time periods in 2018. For more information please visit the [OMI data Release Notes](OMI_through_2019.md).
-5. The v5.3.2 release dramatically changes the chemistry algorithms governing the propogation of tagged concentrations through the various chemical mechanisms in CMAQ. This release addresses the previously identified issue with ISAM where the method was ersoneously overattributing tagged math into the "OTHER" tag at the expense of user-specified tags.  ISAM applications using this release should expect drastically different and much more realistic tagged predictions of secondary gaseous polluants such as ozone.  For additional information, please refer the the [ISAM release notes](ISAM.md).
+5. The v5.3.2 release dramatically changes the chemistry algorithms governing the propogation of tagged concentrations through the various chemical mechanisms in CMAQ. This release addresses the previously identified issue with ISAM where the method was ersoneously overattributing tagged math into the "OTHER" tag at the expense of user-specified tags.  ISAM applications using this release should expect drastically different and much more realistic tagged predictions of secondary gaseous polluants such as ozone.  For additional information, please refer the the [ISAM release notes](ISAM_gas_chemistry_v532.md).
 
 
 <a id=additional_faq></a>

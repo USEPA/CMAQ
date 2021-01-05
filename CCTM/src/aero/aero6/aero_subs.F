@@ -2776,11 +2776,11 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_CONST    ! for PI
 
 C    Input variables
-      REAL   DGN     ! geometric mean Stokes diameter by number [ m ]
-      REAL   XXLSG   ! natural log of geometric standard deviation
-      REAL   RHOP    ! average particle density [ kg/m**3 ]
-      REAL   D_AD1   ! Lower aerodynamic diameter cut point [ um ]
-      REAL   D_AD2   ! Upper aerodynamic diameter cut point [ um ]
+      REAL, INTENT( IN ) :: DGN     ! geometric mean Stokes diameter by number [ m ]
+      REAL, INTENT( IN ) :: XXLSG   ! natural log of geometric standard deviation
+      REAL, INTENT( IN ) :: RHOP    ! average particle density [ kg/m**3 ]
+      REAL, INTENT( IN ) :: D_AD1   ! Lower aerodynamic diameter cut point [ um ]
+      REAL, INTENT( IN ) :: D_AD2   ! Upper aerodynamic diameter cut point [ um ]
 
 C    Output variable
       REAL, INTENT( OUT ) :: fPM   ! fraction of particulate volume transmitted through 
@@ -3173,9 +3173,9 @@ C  Called by: Gas-Phase Chemistry Driver
       IMPLICIT NONE
 
       ! Input variables
-      INTEGER INLET             ! Integer prescribing the inlet type
-                                !   (see PMDIAG_INLET table in PMDIAG_DATA module)
-      INTEGER WETNESS           ! 1 = Wet Aerosol; 2 = Dry Aerosol
+      INTEGER, INTENT( INOUT ) :: INLET ! Integer prescribing the inlet type
+                                        !   (see PMDIAG_INLET table in PMDIAG_DATA module)
+      INTEGER, INTENT( INOUT ) :: WETNESS ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
       ! Output variable
       REAL, INTENT( OUT ) :: PM   ! PM Mass below cut point
@@ -3214,10 +3214,10 @@ C ----------------------- Begin solution -------------------------------
       IMPLICIT NONE
 
       ! Input variables
-      INTEGER INLET             ! Integer prescribing the inlet type
-                                !   (see PMDIAG_INLET table in PMDIAG_DATA module)
-      INTEGER IMODE             ! Aerosol Mode of interest
-      INTEGER WETNESS           ! 1 = Wet Aerosol; 2 = Dry Aerosol
+      INTEGER, INTENT( INOUT ) :: INLET ! Integer prescribing the inlet type
+                                        !   (see PMDIAG_INLET table in PMDIAG_DATA module)
+      INTEGER, INTENT( INOUT ) ::  IMODE   ! Aerosol Mode of interest
+      INTEGER, INTENT( INOUT ) ::  WETNESS ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
       ! Output variable
       REAL, INTENT( OUT ) :: FRAC ! Fraction of aerosol mode IM
@@ -3261,9 +3261,9 @@ C ----------------------- Begin solution -------------------------------
       IMPLICIT NONE
 
       ! Input variables
-      INTEGER INLET             ! Integer prescribing the inlet type
-                                !   (see PMDIAG_INLET table in PMDIAG_DATA module)
-      INTEGER WETNESS           ! 1 = Wet Aerosol; 2 = Dry Aerosol
+      INTEGER, INTENT( INOUT ) :: INLET ! Integer prescribing the inlet type
+                                        !   (see PMDIAG_INLET table in PMDIAG_DATA module)
+      INTEGER, INTENT( INOUT ) ::  WETNESS ! 1 = Wet Aerosol; 2 = Dry Aerosol
 
       ! Output variable
       REAL, INTENT( OUT ) :: NUM   ! PM Mass below cut point
@@ -3358,12 +3358,12 @@ C-----------------------------------------------------------------------
       INCLUDE SUBST_CONST    ! for PI
 
 C    Input variables
-      REAL   DGN     ! geometric mean Stokes diameter by NUMBER [ m ]
-                     !  Remeber that geometric mean and median are
-                     !  identical for log-normal distributions.
-      REAL   XXLSG   ! natural log of geometric standard deviation
-      REAL   D_ST1   ! Lower stokes/electricla mobility diameter cut point [ um ]
-      REAL   D_ST2   ! Upper stokes/electrical mobility diameter cut point [ um ]
+      REAL, INTENT( IN ) :: DGN     ! geometric mean Stokes diameter by NUMBER [ m ]
+                                    !  Remeber that geometric mean and median are
+                                    !  identical for log-normal distributions.
+      REAL, INTENT( IN ) :: XXLSG   ! natural log of geometric standard deviation
+      REAL, INTENT( IN ) :: D_ST1   ! Lower stokes/electricla mobility diameter cut point [ um ]
+      REAL, INTENT( IN ) :: D_ST2   ! Upper stokes/electrical mobility diameter cut point [ um ]
 
 C    Output variable
       REAL, INTENT( OUT ) :: fPM   ! fraction of particulate number transmitted 
