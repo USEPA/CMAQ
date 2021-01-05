@@ -40,6 +40,7 @@
 !                        consistent with netCDF library format. 
 !     Nov 2020 D. Wong: moified the code to build Makefile.twoay automatically
 !                       when build_twoway is turned on
+!     jan 2020 D. Wong: indlucded a help message for option -twoway
 !-------------------------------------------------------------------------------
 
       Program bldmake
@@ -257,6 +258,7 @@
       Write( *,'("  -help       Displays help screen")' )
       Write( *,'("  -debug_cctm Execute make with DEBUG option set to TRUE")' )
       Write( *,'("  -isam_cctm  Execute make with ISAM option set to TRUE")' )
+      Write( *,'("  -twoway     Creates Makefile.twoway for coupled model purposes")' )
       Write( *,'(//)' )
 
       End Subroutine help_msg
