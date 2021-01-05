@@ -182,7 +182,7 @@ C Initialize 3D Point Source Emissions
 
          IF ( BIOGEMIS_MEGAN ) THEN
 C Initialize Online Biogenic Emissions, MEGAN
-          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Biogenic Emissions' )
+          CALL LOG_SUBHEADING( LOGDEV, 'Initialize BEIS Biogenic Emissions' )
 !          IF ( .NOT. MEGAN_INIT( JDATE, JTIME, TSTEP ) ) THEN
 !             XMSG = 'Failure initializing biogenics emissions module'
 !             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -190,7 +190,7 @@ C Initialize Online Biogenic Emissions, MEGAN
          END IF
          IF ( BIOGEMIS_BEIS ) THEN 
 C Initialize Online Biogenic Emissions, BEIS
-          CALL LOG_SUBHEADING( LOGDEV, 'Initialize Biogenic Emissions' )
+          CALL LOG_SUBHEADING( LOGDEV, 'Initialize MEGAN Biogenic Emissions' )
           IF ( .NOT. BEIS_INIT( JDATE, JTIME, TSTEP ) ) THEN
             XMSG = 'Failure initializing biogenics emissions module'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -532,9 +532,7 @@ C Retrieve Emissions from All Stream Types
              
              CASE ( 4 )
                NL = 1
-              if (BIOGEMIS_BEIS) then
                CALL GET_BEIS ( JDATE, JTIME, TSTEP )
-              end if
                FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
                   VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_BI( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
                END FORALL
@@ -582,9 +580,7 @@ C Retrieve Emissions from All Stream Types
 
              CASE ( 9 )
                NL = 1
-              if (BIOGEMIS_MEGAN) then
 !               CALL GET_MEGAN ( JDATE, JTIME, TSTEP )
-              end if
 !               FORALL( ISTR = 1:N_EMIS_ISTR, MAP_EMtoSURR( ISTR,ISRM ) .GT. 0 )
 !                  VDEMIS_READ( ISTR,1,:,: ) = VDEMIS_ME( MAP_EMtoSURR( ISTR,ISRM ),:,: ) 
 !               END FORALL
