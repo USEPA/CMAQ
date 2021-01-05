@@ -131,8 +131,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       USE SOA_DEFN, ONLY: EXTRACT_SOA, UPDATE_ORGVAPOR
       USE AEROMET_DATA, ONLY: AIRTEMP, AIRPRES, AIRQV, AIRDENS, AIRRH, 
      &                        H2OSATVP, H2OVP, MWWAT, MWAIR, SRFTEMP
-      USE UTILIO_DEFN, ONLY: OPEN3, INTERPX, FSREAD3, ALLVAR3,
-     &                       XSTAT1, TIME2SEC, SEC2TIME
+      USE UTILIO_DEFN, ONLY: XSTAT1, TIME2SEC, SEC2TIME
 #ifdef twoway
      &                       , INDEX1, XSTAT3
 #endif

@@ -39,11 +39,6 @@
  set Mechs   = $CCTM_SRC/MECHS         #> location of the chemistry mechanism include files
  setenv REPOROOT $CCTM_SRC
 
-#> Working directory and Version IDs
- set VRSN  = v532                      #> model configuration ID
- set EXEC  = CCTM_${VRSN}.exe          #> executable name
- set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
-
 #> Controls for managing the source code and MPI compilation
 set CompileBLDMAKE                     #> Recompile the BLDMAKE utility from source
                                        #>   comment out to use an existing BLDMAKE executable
@@ -78,6 +73,19 @@ set make_options = "-j"                #> additional options for make command if
 
 #> Potential vorticity free-troposphere O3 scaling
 #set potvortO3
+
+#> Working directory and Version IDs
+ if ( $?ISAM_CCTM ) then
+     set VRSN  = v532_ISAM             #> model configuration ID for CMAQ_ISAM
+ else if ( $?DDM3D_CCTM ) then
+     set VRSN = v532_DDM3D             #> model configuration ID for CMAQ_DDM
+ else
+     set VRSN = v532                   #> model configuration ID for CMAQ
+ endif
+ 
+ set EXEC  = CCTM_${VRSN}.exe          #> executable name
+ set CFG   = CCTM_${VRSN}.cfg          #> configuration file name
+
 
 #========================================================================
 #> CCTM Science Modules

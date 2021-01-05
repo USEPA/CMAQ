@@ -257,9 +257,14 @@ https://cjcoats.github.io/ioapi/AVAIL.html
 
 ```
 git clone https://github.com/cjcoats/ioapi-3.2
+cd ioapi-3.2         ! change directory to ioapi-3.2
+git checkout -b 20200828   ! change branch to 20200828 for a tagged release version
 ```
 
 2. Change the BIN setting on line 133 of the Makefile to include the loaded module name
+
+cd ioapi
+gedit Makefile
 
 ```
 BIN        = Linux2_x86_64ifort_openmpi_3.1.4_intel18.2
