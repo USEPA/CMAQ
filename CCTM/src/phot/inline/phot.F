@@ -112,6 +112,7 @@
 
 C...modules
 
+      USE RUNTIME_VARS, ONLY : START_DATE => STDATE, START_TIME => STTIME
       USE RXNS_DATA            ! chemistry varaibles and data
       USE GRID_CONF            ! horizontal & vertical domain specifications
       USE CGRID_SPCS           ! CGRID species number and offsets
@@ -194,9 +195,11 @@ C...modules
       INTEGER IWL
       INTEGER L
       INTEGER V, N, MODE
-      LOGICAL JTIME_CHK            ! To check for JTIME to write RJ values
-      INTEGER ODATE                ! output date
-      INTEGER OTIME                ! output time
+      
+      LOGICAL :: JTIME_CHK   ! To check for JTIME to write RJ values
+      INTEGER, SAVE :: ODATE ! output date
+      INTEGER, SAVE :: OTIME ! output time
+      INTEGER, SAVE :: OSTEP ! time since last write diagnostics  
 
       INTEGER ALLOCSTAT
 
@@ -592,13 +595,17 @@ C...modules
                WRITE(LOGDEV,95101)
             END IF
          END IF
-!...open the photolysis rate diagnostic files
-
-            ODATE = JDATE; OTIME = JTIME
-#ifndef phot_extra_tstep
-            CALL NEXTIME ( ODATE, OTIME, DTSTEP( 1 ) )  ! output timestamp ending time
-#endif
+         
+!...open the photolysis diagnostic files
+            ODATE = START_DATE; OTIME = START_TIME; OSTEP = 0
+#ifdef phot_write_start
             IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
+#else
+            CALL NEXTIME ( ODATE, OTIME, DTSTEP( 1 ) )  ! output timestamp ending time
+            IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
+! reset ODATE and OTIME for counting 
+            ODATE = START_DATE; OTIME = START_TIME
+#endif
 
             CALL SUBST_BARRIER
 
@@ -621,14 +628,6 @@ C...modules
          END IF
 
 
-
-#ifdef phot_extra_tstep
-      ELSE
-         IF ( PHOTDIAG ) THEN
-            ODATE = JDATE; OTIME = JTIME
-            CALL NEXTIME ( ODATE, OTIME, DTSTEP( 2 ) )  ! sync time step
-         END IF
-#endif
       END IF  ! firstime
 
       IF ( INT ( JD_STRAT_O3MIN ) .NE. JDATE ) THEN
@@ -673,11 +672,16 @@ C...modules
 !...SA  Write COSINE_ZENITH array at the end of each output tstep
 
       IF ( PHOTDIAG ) THEN
-#ifndef phot_extra_tstep
-         ODATE = JDATE; OTIME = JTIME
-         CALL NEXTIME ( ODATE, OTIME, DTSTEP( 2 ) )  ! sync time step
-#endif
-         JTIME_CHK = ( MOD( TIME2SEC( OTIME ), TSTEP ) .EQ. 0 )
+         OSTEP  = OSTEP + TIME2SEC( DTSTEP( 2 ) )
+         JTIME_CHK = ( OSTEP .GE. TIME2SEC( DTSTEP( 1 ) ) )
+         IF ( JTIME_CHK ) THEN 
+           OSTEP = 0
+           CALL NEXTIME( ODATE, OTIME, DTSTEP( 1 ) )
+         END IF
+#ifdef phot_write_start
+         JTIME_CHK = ( ODATE .EQ. STDATE .AND. OTIME .EQ. STTIME )
+#endif 
+
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_RJ_1, FSREAD3, PNAME ) ) THEN

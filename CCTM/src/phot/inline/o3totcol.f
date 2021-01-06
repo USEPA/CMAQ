@@ -50,8 +50,6 @@
 
 ! parameters
 
-!      integer, parameter :: nlat = 17 ! or 19
-!      integer, parameter :: nlon = 17
        real,    parameter :: sec2day = 1.0 / 8.64E+4
 ! local variables
 
@@ -109,8 +107,13 @@
 
         tmunit = getefile( tmfile, .true., .true., pname )
 
-        read( tmunit, '(5x,i7)')nlat
-        read( tmunit, '(5x,i7)')nlon
+        if ( tmunit .lt. 0 ) then
+          xmsg = 'Error opening ' // tmfile
+          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
+        end if
+
+        read( tmunit, '(5x,i7)') nlat
+        read( tmunit, '(5x,i7)') nlon
 
         write(logdev,'(a,i7,a,i7)')'OMI Ozone column data has Lat by Lon Resolution: ',
      &  nlat,'X',nlon
@@ -132,11 +135,6 @@
         do ilon = 1, nlon
           lon( ilon ) = -180.0 + x2 * real( ilon - 1 )
         end do
-
-        if ( tmunit .lt. 0 ) then
-          xmsg = 'Error opening ' // tmfile
-          call m3exit ( pname, jdate, 0, xmsg, xstat1 )
-        end if
 
         nrecs = 0
         read( tmunit, * ) ! skip header record
