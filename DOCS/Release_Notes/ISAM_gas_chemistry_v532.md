@@ -28,7 +28,7 @@ SA_DEFN.F and other files in the CCTM/src/isam are revised to accomplish the bel
 6) Add error checking and messaging in routines that read the isam control file. The checks determine whether tag classes and tagged sources are correctly defined. The model stops with error messages if not. Checks on tagged sources only determine if their name, region(s) and emission stream(s) are given.
 
 ## Significance and Impact
-The update substantially changes the predictions of tagged secondary gaseous species (particularly ozone).  The new estimates do a much better job at assigning secondary mass to appropriate sources rather than to "OTHER" and boundary/initial conditions. 
+The update substantially changes the predictions of tagged secondary gaseous species (particularly ozone).  The new estimates do a much better job at assigning secondary mass to appropriate sources rather than to "OTHER" and boundary/initial conditions. See the [CMAQ User's Guide Chapter 11](../Users_Guide/CMAQ_UG_ch11_ISAM.md) for additional information on CMAQ-ISAM, including build and run instructions. 
 
 
 ## Affected Files
