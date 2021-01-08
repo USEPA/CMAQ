@@ -1955,7 +1955,7 @@
      &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
       USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
       USE SOA_DEFN, ONLY : N_OA, OASPC, MAP_OAtoAERO
-      USE PHOT_MOD, ONLY : TAU_AERO_550, AERO_EXT_550
+      USE PHOT_MOD, ONLY : ELMO_AOD_550, ELMO_EXT_550
       USE RUNTIME_VARS, ONLY : PHOTDIAG
 
       INTEGER, INTENT( IN ) :: IDG, IM
@@ -2566,11 +2566,11 @@
 
          ! Retrieve AOD at 550 nm
          CASE ( ID_AOD550 )
-            IF ( PHOTDIAG ) OUTVAL = TAU_AERO_550( C1,R1 )
+            IF ( PHOTDIAG ) OUTVAL = ELMO_AOD_550( C1,R1 )
 
          ! Retrieve Aerosol Extinction at 550 nm
          CASE ( ID_PMEXT550 )
-            IF ( PHOTDIAG ) OUTVAL = AERO_EXT_550( C1,R1,L1 )
+            IF ( PHOTDIAG ) OUTVAL = ELMO_EXT_550( C1,R1,L1 )
 
          ! Retrieve Relative Humidity
          CASE ( ID_RH )

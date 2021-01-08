@@ -411,6 +411,7 @@ C...modules
             ALLOCATE( TAU_AERO_550    ( NCOLS,NROWS ) )
             ALLOCATE( TAU_AERO_WL     ( NCOLS,NROWS,NWL ) )
             ALLOCATE( TAU_CLOUD_WL    ( NCOLS,NROWS,NWL ) )
+            ALLOCATE( ELMO_AOD_550    ( NCOLS,NROWS ) )
 #ifdef phot_debug
             ALLOCATE( SSA_CLOUD_WL( NCOLS,NROWS,NWL ) )
             ALLOCATE( ASY_CLOUD_WL( NCOLS,NROWS,NWL ) )
@@ -422,6 +423,7 @@ C...modules
             TROPO_O3_EXCEED = 0.0
             TSTEP_COUNT     = 0
             TAU_AERO_550    = 0.0
+            ELMO_AOD_550    = 0.0
             TROPO_OC        = 0.0
             CO_COLUMN       = 0.0
             SO2_COLUMN      = 0.0
@@ -540,6 +542,12 @@ C...modules
             ALLOCATE ( AERO_EXT_550( NCOLS,NROWS,NLAYS_DIAG ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D AERO_EXT_550'
+               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+            END IF
+            
+            ALLOCATE ( ELMO_EXT_550( NCOLS,NROWS,NLAYS_DIAG ), STAT = ALLOCSTAT )
+            IF ( ALLOCSTAT .NE. 0 ) THEN
+               XMSG = 'Failure allocating 3D ELMO_EXT_550'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
@@ -703,6 +711,8 @@ C...modules
       END IF
 
       CALCULATE_EXT_550 = JTIME_CHK
+      ELMO_AOD_550 = 0.0
+      ELMO_EXT_550 = 0.0
 
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
@@ -723,8 +733,6 @@ C...modules
 
             TAUO3_TOP_WL = 0.0
             TAU_AERO_WL  = 0.0
-! commented out because TAU_AERO_550 is set to zero after allocation and after written to PHOTDIAG1
-!           TAU_AERO_550 = 0.0
             TAU_CLOUD_WL = 0.0
 #ifdef phot_debug
             SSA_CLOUD_WL = 0.0
@@ -1157,6 +1165,9 @@ C...modules
             END DO LOOP_COLS
          END DO LOOP_ROWS
 
+         ! Store PM Diagnostic AOD and extinction
+         ELMO_AOD_550 = TAU_AERO_550
+         ELMO_EXT_550 = AERO_EXT_550
       END IF
 
 !...report on whether stratospheric ozone column satisfies climatological minimums
