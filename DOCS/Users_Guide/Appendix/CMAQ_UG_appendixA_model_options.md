@@ -169,8 +169,8 @@ The following options are invoked by uncommenting the line in the CCTM build scr
     Uncomment to compile the CCTM executable with Integrated Source Apportionment Method (ISAM). See [Chapter 11](../CMAQ_UG_ch11_ISAM.md) for futher information before invoking this option. 
     
 -   `build_twoway`<a id=build_twoway></a>  
-    Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out.  During run time, if you encounter any problems, please contact David Wong (wong.david@epa.gov).
-
+    Uncomment to build WRF-CMAQ two way model with explicit meteorological-chemical feedbacks - to build a stand-alone CMAQ, comment this option out. During run time, if you encounter any problems, please contact David Wong (wong.david@epa.gov).
+    
 -   `potvortO3`<a id=potvort03></a>   
     Uncomment to build CMAQ with potential vorticity free-troposphere O<sub>3</sub> scaling. See [Chapter 6](../CMAQ_UG_ch06_model_configuration_options.md#613-potential-vorticity-scaling) for futher information before invoking this option.
 
