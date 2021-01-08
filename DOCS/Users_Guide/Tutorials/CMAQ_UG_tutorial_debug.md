@@ -28,13 +28,13 @@ tail bldit_cctm.log
 If you don’t find an answer that solves the issue that you are having, create a new topic on the CMAS Center Forum.
 Submit a new topic issue, even if you are having an issue similar to another user.
 
-
 **See the instructions at the bottom of this tutorial for creating a new topic on the CMAS User Forum.**
+
 ## Running CMAQ:
 ### Prerequisite: Run the CMAQ Benchmark case
-
 [Follow Benchmark Tutorial instructions](https://github.com/USEPA/CMAQ/blob/master/DOCS/Users_Guide/Tutorials/CMAQ_UG_tutorial_benchmark.md) 
 (does not require running ICON/BCON as inputs are provided in the Benchmark Input Data):
+
 
 ### Inspect the CMAQ  run log files:
 
