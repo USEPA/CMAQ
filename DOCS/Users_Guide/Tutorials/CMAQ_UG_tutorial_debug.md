@@ -44,7 +44,7 @@ cd $CMAQ_HOME/CCTM/scripts
 ```
 
 **The type of output log file that is created depends on how you submit the job.** If you use slurm, with the sbatch command to submit the job, the standard error and output is logged to a slurm-\*.out file.
-
+ 
 Use grep to verify how many processors were used to run cmaq.  
 ```
 grep -i ‘Number of Processors’ slurm-*.out
