@@ -125,7 +125,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 110    ! number of aero species
+      Integer, Parameter :: n_aerolist = 111    ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
@@ -310,6 +310,7 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
      & spcs_list_type('AMN_HAPS', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Manganese               #90
      & spcs_list_type('APHG    ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Mercury
      & spcs_list_type('AAS     ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Arsenic                 #92
+     & spcs_list_type('ABENAPY ', cm_set, 1400.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Benzo[a]pyrene          #93
 
       ! The following species are associated with the marine chemistry code
      & spcs_list_type('ABR     ', cm_set, 2200.0, F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Bromide 

@@ -65,8 +65,15 @@ C----------------------------------------------------------------------
       USE RXNS_DATA           ! chemical mechanism data
       USE UTILIO_DEFN         ! IO and other utility routines
       USE PHOT_MOD            ! Module with photolysis rate arrays and pointers
-      Use CENTRALIZED_IO_MODULE, only : interpolate_var, LAT, LON, HT
-      Use RUNTIME_VARS , only : PHOTDIAG
+      
+      USE CENTRALIZED_IO_MODULE, ONLY : INTERPOLATE_VAR, LAT, LON, HT
+      USE RUNTIME_VARS,          ONLY : PHOTDIAG, START_DATE => STDATE, START_TIME => STTIME
+
+#ifdef parallel
+      USE SE_MODULES           ! stenex (using SE_UTIL_MODULE)
+#else
+      USE NOOP_MODULES         ! stenex (using NOOP_UTIL_MODULE)
+#endif
 
       IMPLICIT NONE
 
@@ -147,7 +154,6 @@ C scratch local variables:
       INTEGER      KHTA               ! altitude interpolation index
       INTEGER      IOST               ! i/o status code
       INTEGER      ALLOCSTAT
-      INTEGER      JTIME_CHK          ! To check for JTIME to write RJ values
       INTEGER      ESTAT              ! status from environment var check
 
       INTEGER      ITMSTEP            ! one half synchronization timestep (sec)
@@ -189,6 +195,13 @@ C scratch local variables:
       REAL         DUMP                  ! dump unwanted data read
 
       INTEGER, SAVE :: TSTEP     ! current timestep
+
+! variables determining whether to write output diagnostics
+
+      LOGICAL :: JTIME_CHK   ! To check for JTIME to write RJ values
+      INTEGER, SAVE :: ODATE ! output date
+      INTEGER, SAVE :: OTIME ! output time
+      INTEGER, SAVE :: OSTEP ! time since last write diagnostics  
 
 C internal functions:
 
@@ -415,7 +428,16 @@ C...close the jvalue file
 
         IF ( PHOTDIAG ) THEN
 C...open the photolysis rate diagnostic files
-          IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( JDATE, JTIME, TSTEP )
+
+            ODATE = START_DATE; OTIME = START_TIME; OSTEP = 0
+#ifdef phot_write_start
+            IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
+#else
+            CALL NEXTIME ( ODATE, OTIME, DTSTEP( 1 ) )  ! output timestamp ending time
+            IF ( IO_PE_INCLUSIVE ) CALL OPPHOT ( ODATE, OTIME, DTSTEP( 1 ) )
+! reset ODATE and OTIME for counting 
+            ODATE = START_DATE; OTIME = START_TIME
+#endif
         END IF  ! photdiag
 
 #ifdef parallel_io
@@ -427,13 +449,27 @@ C...open the photolysis rate diagnostic files
          END IF
 #endif
 
+         CALL SUBST_BARRIER
+
       END IF  ! FIRSTIME
 
 C...compute XLHA (local hr angle) deviation from noon
 C...  correct for current *positive* West longitude convention
 
-      JTIME_CHK = MOD( JTIME, 10000 )
-
+      IF ( PHOTDIAG ) THEN
+         OSTEP  = OSTEP + TIME2SEC( DTSTEP( 2 ) )
+         JTIME_CHK = ( OSTEP .GE. TIME2SEC( DTSTEP( 1 ) ) )
+         IF ( JTIME_CHK ) THEN 
+           OSTEP = 0
+           CALL NEXTIME( ODATE, OTIME, DTSTEP( 1 ) )
+         END IF
+#ifdef phot_write_start
+         JTIME_CHK = ( ODATE .EQ. STDATE .AND. OTIME .EQ. STTIME )
+#endif         
+      ELSE
+         JTIME_CHK = .FALSE.
+      END IF
+      
       CURRHR = STRTHR
      &       + FLOAT ( SECSDIFF ( LOC_STDATE, LOC_STTIME, JDATE, JTIME ) )
      &       / 3600.0
@@ -464,7 +500,7 @@ C...  (assumes sun below horizon at *all* levels!)
 1003    FORMAT( 8X, 'In darkness at ', I8.7, ':', I6.6,
      &          1X, 'GMT - no photolysis')
 
-        IF ( PHOTDIAG .AND. JTIME_CHK .EQ. 0 ) THEN
+        IF ( PHOTDIAG .AND. JTIME_CHK ) THEN
 
           DO JP = 1, NPHOTAB
             IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( JP ), JDATE,
@@ -683,11 +719,10 @@ C...  in cloud - linearly interpolate between base and top value
 
       END IF
 
-      IF ( PHOTDIAG .AND. JTIME_CHK .EQ. 0 ) THEN
+      IF ( PHOTDIAG .AND. JTIME_CHK ) THEN
 
         DO JP = 1, NPHOTAB
-          IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( JP ), JDATE,
-     &                       JTIME, RJ( :,:,:,JP ) ) ) THEN
+          IF ( .NOT. WRITE3( CTM_RJ_2, PHOTAB( JP ), ODATE, OTIME, RJ( :,:,:,JP ) ) ) THEN
             XMSG = 'Could not write ' // CTM_RJ_2 // ' file'
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
           END IF
