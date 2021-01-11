@@ -1428,7 +1428,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ADE_SO4', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ADE_NO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_K', 1.0 )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_CORS', 1.0 )
  
              ! Map PM25_HBE - HAP inventory Beryllium
              CASE ( ID_PM25_HBE ) 
@@ -1500,7 +1500,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ADE_SO4', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ADE_NO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_K', 1.0 )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_CORS', 1.0 )
  
              ! Map PM10_HBE - HAP inventory Beryllium
              CASE ( ID_PM10_HBE ) 
