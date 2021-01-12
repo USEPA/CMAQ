@@ -11,7 +11,7 @@
 #> Recompile BLDMAKE from source if requested or if it does not exist
   if ( $?CompileBLDMAKE || ! -f $BLDER ) then
 
-     if (${compilerString} == pgi) then
+     if (${compiler} == pgi) then
         # this addition flag is for handling backslash in quoted string properly
         set add_flags = -Mbackslash
      else
