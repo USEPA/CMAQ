@@ -11,6 +11,13 @@
 #> Recompile BLDMAKE from source if requested or if it does not exist
   if ( $?CompileBLDMAKE || ! -f $BLDER ) then
 
+     if (${compilerString} == pgi) then
+        # this addition flag is for handling backslash in quoted string properly
+        set add_flags = -Mbackslash
+     else
+        set add_flags = 
+     endif
+
      #> Set BLDER to Default Path
      set BLDEXE = "bldmake_${compilerString}.exe"
      set BLDDIR = "$CMAQ_HOME/UTIL/bldmake"
@@ -34,7 +41,7 @@
      #> Create Object Files
      cd $BLDSRCDIR
      foreach file ( $flist )
-        $myFC -c $myFFLAGS $file.f -o $BLDDIR/$file.o
+        $myFC -c $add_flags $myFFLAGS $file.f -o $BLDDIR/$file.o
      end
   
      #> Compile BLDMAKE
