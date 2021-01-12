@@ -348,7 +348,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv GR_EM_SYM_DATE_002 F # To change default behaviour please see Users Guide for EMIS_SYM_DATE
   
   #> In-Line Point Emissions Files
-  setenv N_EMIS_PT 8          #> Number of elevated source groups
+  setenv N_EMIS_PT 9          #> Number of elevated source groups
 
   set STKCASEE = 12US1_cmaq_cb6_2016fh_16j        # In-line Emission Rate File Suffix
   set STKCASEG = 12US1_2016fh_16j                 # Stack parameter File Suffix
@@ -360,7 +360,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_GRPS_005 $IN_PTpath/ptfire/stack_groups_ptfire_${YYYYMMDD}_${STKCASEG}.nc4
   setenv STK_GRPS_006 $IN_PTpath/ptfire_othna/stack_groups_ptfire_othna_${YYYYMMDD}_${STKCASEG}.nc4
   setenv STK_GRPS_007 $IN_PTpath/pt_oilgas/stack_groups_pt_oilgas_${STKCASEG}.nc4
-  setenv STK_GRPS_008 $IN_PTpath/cmv_c3/stack_groups_cmv_c3_${STKCASEG}.nc4
+  setenv STK_GRPS_008 $IN_PTpath/cmv_c3_12/stack_groups_cmv_c3_12_${STKCASEG}.nc4
+  setenv STK_GRPS_009 $IN_PTpath/cmv_c1c2_12/stack_groups_cmv_c1c2_12_${STKCASEG}.nc4
 
   setenv STK_EMIS_001 $IN_PTpath/ptnonipm/inln_mole_ptnonipm_${mwdss_Y}_${STKCASEE}.nc4
   setenv STK_EMIS_002 $IN_PTpath/ptegu/inln_mole_ptegu_${YYYYMMDD}_${STKCASEE}.nc4
@@ -369,7 +370,8 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_005 $IN_PTpath/ptfire/inln_mole_ptfire_${YYYYMMDD}_${STKCASEE}.nc4
   setenv STK_EMIS_006 $IN_PTpath/ptfire_othna/inln_mole_ptfire_othna_${YYYYMMDD}_${STKCASEE}.nc4
   setenv STK_EMIS_007 $IN_PTpath/pt_oilgas/inln_mole_pt_oilgas_${mwdss_Y}_${STKCASEE}.nc4
-  setenv STK_EMIS_008 $IN_PTpath/cmv_c3/inln_mole_cmv_c3_${aveday_N}_${STKCASEE}.nc4
+  setenv STK_EMIS_008 $IN_PTpath/cmv_c3_12/inln_mole_cmv_c3_12_${YYYYMMDD}_${STKCASEE}.nc4
+  setenv STK_EMIS_009 $IN_PTpath/cmv_c1c2_12/inln_mole_cmv_c1c2_12_${YYYYMMDD}_${STKCASEE}.nc4
 
   # Label Each Emissions Stream
   setenv STK_EMIS_LAB_001 PT_NONEGU
@@ -380,6 +382,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EMIS_LAB_006 PT_OTHFIRES
   setenv STK_EMIS_LAB_007 PT_OILGAS
   setenv STK_EMIS_LAB_008 PT_CMV
+  setenv STK_EMIS_LAB_009 PT_CMV_C1C2
 
   #setenv STK_EMIS_DIAG_001 2DSUM
   #setenv STK_EMIS_DIAG_002 2DSUM
@@ -398,6 +401,7 @@ while ($TODAYJ <= $STOP_DAY )  #>Compare dates in terms of YYYYJJJ
   setenv STK_EM_SYM_DATE_006 T
   setenv STK_EM_SYM_DATE_007 T
   setenv STK_EM_SYM_DATE_008 T
+  setenv STK_EM_SYM_DATE_009 T
 
   #> Lightning NOx configuration
   if ( $CTM_LTNG_NO == 'Y' ) then
