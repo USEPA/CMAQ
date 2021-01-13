@@ -2566,11 +2566,11 @@
 
          ! Retrieve AOD at 550 nm
          CASE ( ID_AOD550 )
-            IF ( PHOTDIAG ) OUTVAL = ELMO_AOD_550( C1,R1 )
+            OUTVAL = ELMO_AOD_550( C1,R1 )
 
          ! Retrieve Aerosol Extinction at 550 nm
          CASE ( ID_PMEXT550 )
-            IF ( PHOTDIAG ) OUTVAL = ELMO_EXT_550( C1,R1,L1 )
+            OUTVAL = ELMO_EXT_550( C1,R1,L1 )
 
          ! Retrieve Relative Humidity
          CASE ( ID_RH )

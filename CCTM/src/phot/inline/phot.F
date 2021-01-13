@@ -339,7 +339,7 @@ C...modules
          TSTEP  = TIME2SEC( DTSTEP( 1 ) ) ! output timestep for phot diagnostic files
 
 !...Set flag to initialize calculating aerosol extinction at 550 nm via Angstrom Exponents
-         CALCULATE_EXT_550 = PHOTDIAG
+         CALCULATE_EXT_550 = .TRUE. !PHOTDIAG
 
          PECOL_OFFSET = COLSD_PE( 1, MYPE+1 ) - 1
          PEROW_OFFSET = ROWSD_PE( 1, MYPE+1 ) - 1
@@ -393,7 +393,7 @@ C...modules
 
          ALLOCATE( TOTAL_OC ( NCOLS,NROWS ) )
 
-         IF ( PHOTDIAG ) THEN
+         !IF ( PHOTDIAG ) THEN
 
             ALLOCATE( TROPO_OC   ( NCOLS,NROWS ) )
             ALLOCATE( CO_COLUMN  ( NCOLS,NROWS ) )
@@ -604,6 +604,7 @@ C...modules
             END IF
          END IF
          
+         IF ( PHOTDIAG ) THEN
 !...open the photolysis diagnostic files
             ODATE = START_DATE; OTIME = START_TIME; OSTEP = 0
 #ifdef phot_write_start
@@ -615,9 +616,9 @@ C...modules
             ODATE = START_DATE; OTIME = START_TIME
 #endif
 
-            CALL SUBST_BARRIER
 
          END IF  ! photdiag
+         CALL SUBST_BARRIER
 
 !...set pointers to species O3 and NO2 in CGRID
 
@@ -679,7 +680,8 @@ C...modules
 
 !...SA  Write COSINE_ZENITH array at the end of each output tstep
 
-      IF ( PHOTDIAG ) THEN
+         JTIME_CHK         = .FALSE.
+      !IF ( PHOTDIAG ) THEN
          OSTEP  = OSTEP + TIME2SEC( DTSTEP( 2 ) )
          JTIME_CHK = ( OSTEP .GE. TIME2SEC( DTSTEP( 1 ) ) )
          IF ( JTIME_CHK ) THEN 
@@ -706,9 +708,8 @@ C...modules
             END IF
          END IF
 #endif
-      ELSE
-         JTIME_CHK         = .FALSE.
-      END IF
+      !ELSE
+      !END IF
 
       CALCULATE_EXT_550 = JTIME_CHK
       ELMO_AOD_550 = 0.0
@@ -1182,6 +1183,7 @@ C...modules
 !...write diagnostic data to output file at the end of every output tstep
 
       IF ( JTIME_CHK ) THEN
+        IF ( PHOTDIAG ) THEN
 
          VARNM = 'COSZENS'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME,
@@ -1266,15 +1268,12 @@ C...modules
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         TROPO_O3_EXCEED = 0.0 ! reset sum and counter
-         TSTEP_COUNT     = 0
 
          VARNM = 'N_EXCEED_TROPO3'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, N_EXCEED_TROPO3 ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         N_EXCEED_TROPO3 = 0.0 ! reset counter
 
          VARNM = 'JNO2'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, RJ( :,:,1, LNO2 ) ) ) THEN
@@ -1380,7 +1379,6 @@ C...modules
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
-         TAU_AERO_550 = 0.0
 
          WRITE( LOGDEV, '( /5X, 3( A, :, 1X ), I8, ":", I6.6 )' )
      &          'Photolysis Surface Summary written to', CTM_RJ_1,
@@ -1456,6 +1454,11 @@ C...modules
      &          'Radiative and Optical Data written to', CTM_RJ_3,
      &          'for date and time', ODATE, OTIME
 
+        END IF   ! PHOTDIAG
+        TROPO_O3_EXCEED = 0.0 ! reset sum and counter
+        TSTEP_COUNT     = 0
+        N_EXCEED_TROPO3 = 0.0 ! reset counter
+        TAU_AERO_550 = 0.0
       END IF   ! if JTIME_CHK
 
 1003  FORMAT( 8X, 'Processor ',I4.4,' is in darkness at ', I8.7, ':', I6.6,
