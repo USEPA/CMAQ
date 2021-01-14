@@ -1086,6 +1086,18 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'AMT5', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'AMT6', 1.0 )
  
+             ! Map PMF_BENAPY - Fine-Mode Benzo-a-Pyrene
+             CASE ( ID_PMF_BENAPY ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'FINE' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABENAPY', 1.0 )
+ 
+             ! Map GAS_BENAPY - Gas-Phase Benzo-a-Pyrene
+             CASE ( ID_GAS_BENAPY ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'GAS', 'BENAPY',8701.7 ) ! Scale by 1000*MW_BENAPY/MW_Air
+ 
              
              !!!! AMS Parameters !!!!  
 
@@ -1428,7 +1440,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ADE_SO4', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ADE_NO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_K', 1.0 )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_CORS', 1.0 )
  
              ! Map PM25_HBE - HAP inventory Beryllium
              CASE ( ID_PM25_HBE ) 
@@ -1491,6 +1503,12 @@
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APHG', 1.0 )
  
+             ! Map PM25_BENAPY - Benzo-a-Pyrene
+             CASE ( ID_PM25_BENAPY ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM25' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABENAPY', 1.0 )
+ 
              ! Map PM10_HDSL - HAP inventory PM2.5 diesel mass
              CASE ( ID_PM10_HDSL ) 
                N_VARS = 6
@@ -1500,7 +1518,7 @@
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'ADE_OC', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'ADE_SO4', 1.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 5, 'AERO', 'ADE_NO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_K', 1.0 )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 6, 'AERO', 'ADE_CORS', 1.0 )
  
              ! Map PM10_HBE - HAP inventory Beryllium
              CASE ( ID_PM10_HBE ) 
@@ -1563,6 +1581,12 @@
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'APHG', 1.0 )
  
+             ! Map PM10_BENAPY - Benzo-a-Pyrene
+             CASE ( ID_PM10_BENAPY ) 
+               N_VARS = 1
+               CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'PM10' )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ABENAPY', 1.0 )
+ 
              !!!! Other Parameters !!!!  
 
              ! Map TNO3 - Total Inorganic Nitrate
@@ -1570,14 +1594,14 @@
                N_VARS = 2
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 ) ! Scale by 1000*MW_HNO3/MW_Air
  
              ! Map TNO3TOT - Total Inorganic+Organic Nitrate
              CASE ( ID_TNO3TOT ) 
                N_VARS = 4
                CALL INIT_PMDIAG_COEFFS( IDG, N_VARS, 'ALL' )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 1, 'AERO', 'ANO3', 1.0 )
-               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 )
+               CALL SET_PMDIAG_COEFF_MAP( IDG, 2, 'GAS', 'HNO3', 2175.6 ) ! Scale by 1000*MW_HNO3/MW_Air
                CALL SET_PMDIAG_COEFF_MAP( IDG, 3, 'AERO', 'AISOPNN', 2.0*62.0/226.0 )
                CALL SET_PMDIAG_COEFF_MAP( IDG, 4, 'AERO', 'AMTNO3', 62.0/231.0 )
  
@@ -1955,7 +1979,7 @@
      &                     AEROMODE, DRY_AERO_DENS, APOC_IDX, APNCOM_IDX
       USE AEROMET_DATA, ONLY: AIRRH, PI, AIRTEMP, SRFTEMP, AIRPRES
       USE SOA_DEFN, ONLY : N_OA, OASPC, MAP_OAtoAERO
-      USE PHOT_MOD, ONLY : TAU_AERO_550, AERO_EXT_550
+      USE PHOT_MOD, ONLY : ELMO_AOD_550, ELMO_EXT_550
       USE RUNTIME_VARS, ONLY : PHOTDIAG
 
       INTEGER, INTENT( IN ) :: IDG, IM
@@ -2484,6 +2508,12 @@
             END DO
             OUTVAL = ( VAL2 + VAL4 ) / ( VAL + TINY(0.0))
  
+         ! Calculate Aerosol Fraction of Benzo-a-Pyrene
+         CASE ( ID_BENAPY_FAERO )
+            CALL CALC_PMDIAG( ID_PMF_BENAPY, 1, VAL  )
+            CALL CALC_PMDIAG( ID_GAS_BENAPY, 1, VAL2  )
+            OUTVAL = VAL / ( VAL + VAL2 + TINY( 0.0 ) )
+
          ! Retrieve Fine-Mode Particle Mass Collected by the Federal
          ! Reference Method compliant sampler
          CASE ( ID_PMF_FRM )
@@ -2566,11 +2596,11 @@
 
          ! Retrieve AOD at 550 nm
          CASE ( ID_AOD550 )
-            IF ( PHOTDIAG ) OUTVAL = TAU_AERO_550( C1,R1 )
+            OUTVAL = ELMO_AOD_550( C1,R1 )
 
          ! Retrieve Aerosol Extinction at 550 nm
          CASE ( ID_PMEXT550 )
-            IF ( PHOTDIAG ) OUTVAL = AERO_EXT_550( C1,R1,L1 )
+            OUTVAL = ELMO_EXT_550( C1,R1,L1 )
 
          ! Retrieve Relative Humidity
          CASE ( ID_RH )

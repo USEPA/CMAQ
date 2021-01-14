@@ -130,6 +130,9 @@ C-----------------------------------------------------------------------
       ! Summary Aerosol Metrics Needed by the PM Diagnostic Module
       REAL, ALLOCATABLE, SAVE :: TAU_AERO_550( :,: )   ! total aerosol optical depth at 550 nm (Angstrom Interpolation)
       REAL, ALLOCATABLE, SAVE :: AERO_EXT_550( :,:,: ) ! aerosol extinction at 550 nm for layer [1/m]
+      ! Variables passed to the PM diagnostic output module, ELMO
+      REAL, ALLOCATABLE, SAVE :: ELMO_AOD_550( :,: )   ! total aerosol optical depth at 550 nm (Angstrom Interpolation)
+      REAL, ALLOCATABLE, SAVE :: ELMO_EXT_550( :,:,: ) ! aerosol extinction at 550 nm for layer [1/m]
 
       LOGICAL            :: ONLY_SOLVE_RAD             ! only compute fluxes     
       LOGICAL            :: OBEY_STRATO3_MINS = .TRUE. ! Has stratospheric O3 column not violated 
