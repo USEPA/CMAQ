@@ -370,7 +370,7 @@ C
 
         USE RUNTIME_VARS
         USE RXNS_DATA,  ONLY : MECHNAME  !Get Chemical Mechanism Name
-        USE CGRID_SPCS, ONLY : NSPCSD, CGRID_NAME, N_AE_SPC, AE_SPC
+        USE CGRID_SPCS, ONLY : NSPCSD, CGRID_NAME, N_AE_SPC, AE_SPC,
      &                         CGRID_MASK_GAS, CGRID_MASK_NR
         USE AERO_DATA
         USE SOA_DEFN
@@ -1045,6 +1045,7 @@ C
         INTEGER I_SPC, K_SPC, NLIST
          
         CHARACTER( 132 ) :: XMSG
+        INTEGER ALLOCSTAT
 
         LOGICAL FOUND
         LOGICAL TRANS_WARN
@@ -1101,31 +1102,12 @@ c----------------------------------------------------------
         MAP_CGRtoSA = 0
 
         DO N = 1, NSPCSD
-          IF ( N .GE. GC_STRT .AND. N .LE. GC_FINI ) THEN
-            DO J_SPC = 1, NSPC_SA
-              IF ( ISAM_SPEC( J_SPC,ICONTAG ) .EQ. GC_SPC( N ) ) THEN  
-                MAP_SAtoCGR( J_SPC ) = N
-                MAP_CGRtoSA( N ) = J_SPC
-                CYCLE LOOP_FIND
-              END IF ! ISAM_SPEC and gc_spc match
-            END DO
-          ELSE IF ( N .GE. AE_STRT .AND. N .LE. AE_FINI ) THEN
-            DO J_SPC = 1, NSPC_SA
-              IF ( ISAM_SPEC( J_SPC,ICONTAG ) .EQ. AE_SPC( N-AE_STRT+1 ) ) THEN
-                MAP_SAtoCGR( J_SPC ) = N
-                MAP_CGRtoSA( N ) = J_SPC
-                CYCLE LOOP_FIND
-              END IF ! ISAM_SPEC and ae_spc match
-            END DO
-          ELSE IF ( N .GE. NR_STRT .AND. N .LE. NR_FINI ) THEN
-            DO J_SPC = 1, NSPC_SA
-              IF ( ISAM_SPEC( J_SPC,ICONTAG ) .EQ. NR_SPC( N-NR_STRT+1 ) ) THEN
-                MAP_SAtoCGR( J_SPC ) = N
-                MAP_CGRtoSA( N ) = J_SPC
-                CYCLE LOOP_FIND
-              END IF
-            END DO          
-          END IF
+           DO J_SPC = 1, NSPC_SA
+             IF ( ISAM_SPEC( J_SPC,ICONTAG ) .EQ. CGRID_NAME( N ) ) THEN  
+               MAP_SAtoCGR( J_SPC ) = N
+               MAP_CGRtoSA( N ) = J_SPC
+             END IF ! ISAM_SPEC and gc_spc match
+           END DO
         END DO ! number of tagging species
 
         DO J_SPC = 1, NSPC_SA
