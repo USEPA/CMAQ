@@ -591,31 +591,31 @@ c----------------------------------------------------------
         !PRESCRIBE SULFATE SPECIES
         !CB6R3_AE6_AQ
         ALLOCATE( ISAM_SPEC_SO4( 1 )%LIST( 1 ) )
-        ISAM_SPEC_NO3( 1 )%LIST = (/'SO2'/ )
+        ISAM_SPEC_SO4( 1 )%LIST = (/'SO2'/ )
         
         !CB6R3_AE7_AQ
         ALLOCATE( ISAM_SPEC_SO4( 2 )%LIST( 1 ) )
-        ISAM_SPEC_NO3( 2 )%LIST = (/'SO2'/ )
+        ISAM_SPEC_SO4( 2 )%LIST = (/'SO2'/ )
         
         !CB6R3M_AE7_KMTBR
         ALLOCATE( ISAM_SPEC_SO4( 3 )%LIST( 2 ) )
-        ISAM_SPEC_NO3( 3 )%LIST = (/'SO2','DMS'/ )
+        ISAM_SPEC_SO4( 3 )%LIST = (/'SO2','DMS'/ )
 
         !SAPRC07TC_AE6_AQ
         ALLOCATE( ISAM_SPEC_SO4( 4 )%LIST( 1 ) )
-        ISAM_SPEC_NO3( 4 )%LIST = (/'SO2'/ )
+        ISAM_SPEC_SO4( 4 )%LIST = (/'SO2'/ )
 
         !SAPRC07TIC_AE6I_AQ
         ALLOCATE( ISAM_SPEC_SO4( 5 )%LIST( 1 ) )
-        ISAM_SPEC_NO3( 5 )%LIST = (/'SO2'/ )
+        ISAM_SPEC_SO4( 5 )%LIST = (/'SO2'/ )
         
         !SAPRC07TIC_AE7I_AQ
         ALLOCATE( ISAM_SPEC_SO4( 6 )%LIST( 1 ) )
-        ISAM_SPEC_NO3( 6 )%LIST = (/'SO2'/ )
+        ISAM_SPEC_SO4( 6 )%LIST = (/'SO2'/ )
 
         !RACM2_AE6_AQ
         ALLOCATE( ISAM_SPEC_SO4( 7 )%LIST( 1 ) )
-        ISAM_SPEC_NO3( 7 )%LIST = (/'SO2'/ )
+        ISAM_SPEC_SO4( 7 )%LIST = (/'SO2'/ )
 
 
         ! Allocate Vecotrs for Species Names and Aerosol Precursors
@@ -624,7 +624,7 @@ c----------------------------------------------------------
         ISAM_SPEC = ''
 
         ALLOCATE ( MAP_ISAMtoAERO( NSPCSD ), STAT = IOST )
-        CALL CHECKMEM( IOST, 'MAP_AEROtoSA', 'GET_NSPC_SA' )
+        CALL CHECKMEM( IOST, 'MAP_ISAMtoAERO', 'GET_NSPC_SA' )
         MAP_ISAMtoAERO = 0
 
         ALLOCATE ( MAP_AEROtoSA( N_AEROSPC, N_MODE ), STAT = IOST )
@@ -1110,6 +1110,7 @@ c----------------------------------------------------------
            END DO
         END DO ! number of tagging species
 
+        EFLAG = .FALSE.
         DO J_SPC = 1, NSPC_SA
           IF ( MAP_SAtoCGR( J_SPC ) .LT. 1 ) THEN
              write(logdev,'(A,A,A)')'Tracked species '
@@ -1118,6 +1119,9 @@ c----------------------------------------------------------
              EFLAG = .TRUE.
           END IF
         END DO 
+        IF ( EFLAG ) THEN
+          CALL M3EXIT( 'GET_MAP_SAtoCGR', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
+        END IF 
 
 C...Map SA species for Advection
         ALLOCATE( MAP_ADVtoSA ( N_SPCTAG ) )
@@ -1168,11 +1172,8 @@ C...Map SA species for Advection
         END DO
         
         IF ( TRANS_WARN ) THEN
-          CALL M3WARN( 'GET_MAP_SAtoCGR', 0, 0, 'Above Problems Encountered' )
+          CALL M3WARN( 'GET_MAP_SAtoCGR', 0, 0, 'Species above are not transported.' )
         END IF
-        IF ( EFLAG ) THEN
-          CALL M3EXIT( 'GET_MAP_SAtoCGR', 0, 0, 'Above Fatal Error Encountered', XSTAT2 )
-        END IF 
 
 95000    FORMAT(2(I3,1X),A,L4,1X,I4)
 
