@@ -125,6 +125,17 @@ CARBSULFIDE     ,ug m-3    ,1000.0*(CARBSULFIDE[1]*2.0714*DENS[2])
 CHLOROPRENE     ,ug m-3    ,1000.0*(CHLOROPRENE[1]*3.0530*DENS[2]) 
 ETHYLBENZENE    ,ug m-3    ,1000.0*(ETHYLBENZENE[1]*3.6610*DENS[2])  
 
+!! Inert PAH tracers
+PAH_000E0       ,ug/m3     ,1000.0*(PAH_000E0[1]*6.4340*DENS[2])
+PAH_176E5       ,ug/m3     ,1000.0*(PAH_176E5[1]*6.8314*DENS[2])
+PAH_880E5       ,ug/m3     ,1000.0*(PAH_880E5[1]*6.8383*DENS[2])
+PAH_176E4       ,ug/m3     ,1000.0*(PAH_176E4[1]*8.7907*DENS[2])
+PAH_176E3       ,ug/m3     ,1000.0*(PAH_176E3[1]*9.6166*DENS[2])
+PAH_192E3       ,ug/m3     ,1000.0*(PAH_192E3[1]*9.2745*DENS[2])
+PAH_101E2       ,ug/m3     ,1000.0*(PAH_101E2[1]*10.4493*DENS[2])
+PAH_176E2       ,ug/m3     ,1000.0*(PAH_176E2[1]*8.8556*DENS[2])
+PAH_114E1       ,ug/m3     ,1000.0*(PAH_114E1[1]*3.3793*DENS[2])
+
 !Mercuric gas species
 HG_0            ,ng m-3    ,1000.0*(HG[1]*8.3330*DENS[2]*1000.0)       
 HG_II           ,ng m-3    ,1000.0*(HGIIGAS[1]*8.3330*DENS[2]*1000.0) 
