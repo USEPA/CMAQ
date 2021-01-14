@@ -1112,7 +1112,7 @@ c----------------------------------------------------------
 
         DO J_SPC = 1, NSPC_SA
           IF ( MAP_SAtoCGR( J_SPC ) .LT. 1 ) THEN
-             write(logdev,'(A)')'Tracked species '
+             write(logdev,'(A,A,A)')'Tracked species '
      &       // TRIM( ISAM_SPEC( J_SPC,ICONTAG ) ) //
      &          ' not found among model species '
              EFLAG = .TRUE.
