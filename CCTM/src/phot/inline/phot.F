@@ -539,13 +539,13 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( AERO_EXT_550( NCOLS,NROWS,NLAYS_DIAG ), STAT = ALLOCSTAT )
+            ALLOCATE ( AERO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D AERO_EXT_550'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
             
-            ALLOCATE ( ELMO_EXT_550( NCOLS,NROWS,NLAYS_DIAG ), STAT = ALLOCSTAT )
+            ALLOCATE ( ELMO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D ELMO_EXT_550'
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
@@ -711,9 +711,11 @@ C...modules
       !ELSE
       !END IF
 
-      CALCULATE_EXT_550 = JTIME_CHK
+      CALCULATE_EXT_550 = .TRUE. !JTIME_CHK
       ELMO_AOD_550 = 0.0
       ELMO_EXT_550 = 0.0
+      AERO_EXT_550 = 0.0
+      TAU_AERO_550 = 0.0
 
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
@@ -724,8 +726,6 @@ C...modules
          RJ_SUB = 0.0
          RJ_RES = 0.0
          ETOT_SFC_WL  = 0.0
-         AERO_EXT_550 = 0.0
-         TAU_AERO_550 = 0.0
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
 
@@ -794,8 +794,6 @@ C...modules
                   RJ_RES( COL,ROW, :,: ) = 0.0
                   RJ_SUB( COL,ROW, :,: ) = 0.0
                   ETOT_SFC_WL ( COL,ROW, : ) = 0.0
-                  AERO_EXT_550( COL,ROW, : ) = 0.0
-                  TAU_AERO_550( COL,ROW )    = 0.0
 
                   IF ( JTIME_CHK ) THEN
                      TAUO3_TOP_WL( COL,ROW, : ) = 0.0
@@ -1463,8 +1461,8 @@ C...modules
         TROPO_O3_EXCEED = 0.0 ! reset sum and counter
         TSTEP_COUNT     = 0
         N_EXCEED_TROPO3 = 0.0 ! reset counter
-        TAU_AERO_550 = 0.0
       END IF   ! if JTIME_CHK
+      TAU_AERO_550 = 0.0
 
 1003  FORMAT( 8X, 'Processor ',I4.4,' is in darkness at ', I8.7, ':', I6.6,
      &        1X, 'GMT - no photolysis')
