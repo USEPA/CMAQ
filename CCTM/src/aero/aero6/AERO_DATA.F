@@ -325,7 +325,7 @@ C                     ---------- -------- ------- ------------------------------
      & spcs_list_type('APHG    ', cm_set, 2200.0, '      ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Mercury
      & spcs_list_type('AAS     ', cm_set, 2200.0, '      ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Arsenic                 #92
      & spcs_list_type('ABENAPY ', cm_set, 1400.0, '      ','       ',0.0  ,'NVL',F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Benzo[a]pyrene          #93
-                                                  
+
       ! The following species are associated with the marine chemistry code
      & spcs_list_type('ABR     ', cm_set, 2200.0, '      ','       ',0.0  ,'NVL',F,F, -1,  1.7, 1.7,F, 'SOLUTE', 0.00), ! Bromide 
 
