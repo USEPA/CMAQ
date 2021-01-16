@@ -36,7 +36,19 @@ WDEP_NH3           ,kg/ha     ,NH3[2]
 DDEP_SO2           ,kg/ha     ,SO2[1]
 DDEP_O3            ,kg/ha     ,O3[1]
 WDEP_O3            ,kg/ha     ,O3[2]
-WDEP_PNA           ,kg/ha     ,PNA[2]   ! Peroxy-Nitric Acid
+WDEP_PNA           ,kg/ha     ,PNA[2]     ! Peroxy-Nitric Acid
+DDEP_BENZENE       ,kg/ha     ,BENZENE[1] 
+WDEP_BENZENE       ,kg/ha     ,BENZENE[2] 
+DDEP_TOLUENE       ,kg/ha     ,TOLU[1] 
+WDEP_TOLUENE       ,kg/ha     ,TOLU[2] 
+DDEP_ETHYLBENZENE  ,kg/ha     ,ETHYLBENZENE[1] 
+WDEP_ETHYLBENZENE  ,kg/ha     ,ETHYLBENZENE[2] 
+DDEP_DICLORBENZENE ,kg/ha     ,DICL_BENZENE[1] 
+WDEP_DICLORBENZENE ,kg/ha     ,DICL_BENZENE[2] 
+DDEP_STYRENE       ,kg/ha     ,STYRENE[1] 
+WDEP_STYRENE       ,kg/ha     ,STYRENE[2] 
+DDEP_XYLENE        ,kg/ha     ,XYLENE[1] 
+WDEP_XYLENE        ,kg/ha     ,XYLENE[2] 
 
 !---------------------------------------------------!
 !------------- Aerosol Deposition ------------------!
@@ -145,6 +157,10 @@ WDEP_MNJ           ,kg/ha     ,AMNJ[2]
 DDEP_LEAD          ,kg/ha     ,APBI[1] + APBJ[1] + APBK[1]
 WDEP_LEAD          ,kg/ha     ,APBI[2] + APBJ[2] + APBK[2]
 
+! Manganese for Air Toxics Inventory
+DDEP_MN_HAPS       ,kg/ha     ,AMN_HAPSI[1] + AMN_HAPSJ[1] + AMN_HAPSK[1]
+WDEP_MN_HAPS       ,kg/ha     ,AMN_HAPSI[2] + AMN_HAPSJ[2] + AMN_HAPSK[2]
+
 ! Arsenic
 DDEP_ARSENIC        ,kg/ha     ,AASI[1] + AASJ[1] + AASK[1]
 WDEP_ARSENIC        ,kg/ha     ,AASI[2] + AASJ[2] + AASK[2]
@@ -156,6 +172,23 @@ WDEP_CRIII         ,kg/ha     ,ACR_IIII[2] + ACR_IIIJ[2] + ACR_IIIK[2]
 ! Hexavalent Chromium
 DDEP_CRVI          ,kg/ha     ,ACR_VII[1] + ACR_VIJ[1] + ACR_VIK[1]
 WDEP_CRVI          ,kg/ha     ,ACR_VII[2] + ACR_VIJ[2] + ACR_VIK[2]
+
+! BERYLLIUM
+DDEP_BERYLLIUM     ,kg/ha     ,ABEI[1] + ABEJ[1] + ABEK[1]
+WDEP_BERYLLIUM     ,kg/ha     ,ABEI[2] + ABEJ[2] + ABEK[2]
+
+! CADMIUM
+DDEP_CADMIUM        ,kg/ha     ,ACDI[1] + ACDJ[1] + ACDK[1]
+WDEP_CADMIUM        ,kg/ha     ,ACDI[2] + ACDJ[2] + ACDK[2]
+
+! NICKLE
+DDEP_NICKLE        ,kg/ha     ,ANII[1] + ANIJ[1] + ANIK[1]
+WDEP_NICKLE        ,kg/ha     ,ANII[2] + ANIJ[2] + ANIK[2]
+
+! Total Chromium
+DDEP_CHROMIUM      ,kg/ha     ,DDEP_CRIII[0] + DDEP_CRVI[0]
+WDEP_CHROMIUM      ,kg/ha     ,WDEP_CRIII[0] + WDEP_CRVI[0]
+
 
 ! Gas plus Aerosol Mercury Deposition
 DDEP_HG           ,kg/ha     ,APHGI[1] + APHGJ[1] + APHGK[1] + HG[1] + HGIIGAS[1]

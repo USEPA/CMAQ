@@ -106,6 +106,9 @@ set make_options = "-j"                #> additional options for make command if
                                             #>     (see $CMAQ_MODEL/CCTM/src/depv)
  set ModEmis   = emis/emis                  #> in-line emissions module
  set ModBiog   = biog/beis3                 #> BEIS3 in-line emissions module 
+
+ set ModMegBiog   = biog/megan3                #> MEGAN3 in-line emissions module
+
  set ModPlmrs  = plrise/smoke               #> in-line emissions plume rise
  set ModCgrds  = spcs/cgrid_spcs_nml        #> chemistry species configuration module 
                                             #>     (see $CMAQ_MODEL/CCTM/src/spcs)
@@ -554,6 +557,11 @@ set Cfile = ${Bld}/${CFG}.bld      # Config Filename
  echo "// options are" $text                                       >> $Cfile
  echo "Module ${ModBiog};"                                         >> $Cfile
  echo                                                              >> $Cfile
+
+ set text = "megan3"
+ echo "// options are" $text                                       >> $Cfile
+ echo "Module ${ModMegBiog};"                                      >> $Cfile
+ echo  
 
  set text = "smoke"
  echo "// options are" $text                                       >> $Cfile
