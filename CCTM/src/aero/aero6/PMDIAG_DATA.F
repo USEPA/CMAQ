@@ -201,23 +201,28 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       INTEGER, PARAMETER :: ID_PM10_HNI    =157
       INTEGER, PARAMETER :: ID_PM10_HAS    =158
       INTEGER, PARAMETER :: ID_PM10_HG     =159
-      INTEGER, PARAMETER :: ID_TNO3 =       160
-      INTEGER, PARAMETER :: ID_TNO3TOT =    161
-      INTEGER, PARAMETER :: ID_PM25_FRM =   162
-      INTEGER, PARAMETER :: ID_PMF_FRM =    163
-      INTEGER, PARAMETER :: ID_AOD550 =     164
-      INTEGER, PARAMETER :: ID_PMEXT550 =   165
-      INTEGER, PARAMETER :: ID_RH =         166
-      INTEGER, PARAMETER :: ID_TEMP =       167
-      INTEGER, PARAMETER :: ID_SRFTEMP =    168
-      INTEGER, PARAMETER :: ID_PRES =       169
-      INTEGER, PARAMETER :: ID_GN2O5F =     170
-      INTEGER, PARAMETER :: ID_GN2O5C =     171
-      INTEGER, PARAMETER :: ID_YCLNO2F =    172
-      INTEGER, PARAMETER :: ID_YCLNO2C =    173
-      INTEGER, PARAMETER :: ID_GIEPOX =     174
-      INTEGER, PARAMETER :: ID_KIEPOX =     175
-      INTEGER, PARAMETER :: ID_GIMAE =      176
+      INTEGER, PARAMETER :: ID_PM25_BENAPY =160
+      INTEGER, PARAMETER :: ID_PM10_BENAPY =161
+      INTEGER, PARAMETER :: ID_PMF_BENAPY  =162
+      INTEGER, PARAMETER :: ID_GAS_BENAPY  =163
+      INTEGER, PARAMETER :: ID_BENAPY_FAERO=164
+      INTEGER, PARAMETER :: ID_TNO3 =       165                     
+      INTEGER, PARAMETER :: ID_TNO3TOT =    166                     
+      INTEGER, PARAMETER :: ID_PM25_FRM =   167                     
+      INTEGER, PARAMETER :: ID_PMF_FRM =    168                     
+      INTEGER, PARAMETER :: ID_AOD550 =     169                     
+      INTEGER, PARAMETER :: ID_PMEXT550 =   170
+      INTEGER, PARAMETER :: ID_RH =         171
+      INTEGER, PARAMETER :: ID_TEMP =       172
+      INTEGER, PARAMETER :: ID_SRFTEMP =    173
+      INTEGER, PARAMETER :: ID_PRES =       174
+      INTEGER, PARAMETER :: ID_GN2O5F =     175
+      INTEGER, PARAMETER :: ID_GN2O5C =     176
+      INTEGER, PARAMETER :: ID_YCLNO2F =    177
+      INTEGER, PARAMETER :: ID_YCLNO2C =    178
+      INTEGER, PARAMETER :: ID_GIEPOX =     179
+      INTEGER, PARAMETER :: ID_KIEPOX =     180
+      INTEGER, PARAMETER :: ID_GIMAE =      181
 
       TYPE PMDTP
         CHARACTER (LEN = 16) :: NAME      !Parameter Name
@@ -228,7 +233,7 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
         CHARACTER (LEN = 80) :: DESC      !Description
       END TYPE PMDTP
 
-      INTEGER, PARAMETER :: N_PMDIAG_LIST = 176
+      INTEGER, PARAMETER :: N_PMDIAG_LIST = 181
 
       TYPE (PMDTP), PARAMETER :: PMDIAG_LIST( N_PMDIAG_LIST ) = (/
      &PMDTP( 'STDEV        ',ID_STDEV,      M3REAL, T, '      ', 'Mode standard deviation (dry and wet)' ),
@@ -406,6 +411,11 @@ c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
      &PMDTP( 'PM10_HNI     ',ID_PM10_HNI,    M3REAL,F, 'ug m-3', 'PM10.0 Nickel from HAP inventory' ),
      &PMDTP( 'PM10_HAS     ',ID_PM10_HAS,    M3REAL,F, 'ug m-3', 'PM10.0 Arsenic from HAP inventory' ),
      &PMDTP( 'PM10_HG      ',ID_PM10_HG,     M3REAL,F, 'ug m-3', 'PM10.0 Mercury from HAP inventory' ),
+     &PMDTP( 'PM25_BENAPY  ',ID_PM25_BENAPY, M3REAL,F, 'ug m-3', 'PM2.5 Benzo-a-Pyrene' ),
+     &PMDTP( 'PM10_BENAPY  ',ID_PM10_BENAPY, M3REAL,F, 'ug m-3', 'PM10.0 Benzo-a-Pyrene' ),
+     &PMDTP( 'PMF_BENAPY   ',ID_PMF_BENAPY,  M3REAL,F, 'ug m-3', 'Fine-Mode Benzo-a-Pyrene' ),
+     &PMDTP( 'GAS_BENAPY   ',ID_GAS_BENAPY,  M3REAL,F, 'ug m-3', 'Gas-Phase Benzo-a-Pyrene' ),
+     &PMDTP( 'BENAPY_FAERO ',ID_BENAPY_FAERO,M3REAL,F, '',       'Benzo-a-Pyrene Aerosol-Phase Fraction' ),
 
       ! Other Special Variables and Properties
      &PMDTP( 'TNO3         ',ID_TNO3,       M3REAL, F, 'ug m-3', 'Total Nitrate only Including Inorganics' ),

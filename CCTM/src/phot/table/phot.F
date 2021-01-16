@@ -426,6 +426,21 @@ C...close the jvalue file
 
         CALL INIT_PHOT_SHARED()
 
+
+        ALLOCATE( ELMO_AOD_550    ( NCOLS,NROWS ) )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+             XMSG = 'Failure allocating 2D ELMO_AOD_550. Note that it is not used by this phot_table module'
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+        ELMO_AOD_550 = 0.0
+        
+        ALLOCATE ( ELMO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+        IF ( ALLOCSTAT .NE. 0 ) THEN
+             XMSG = 'Failure allocating 3D ELMO_EXT_550. Note that it is not used by this phot_table module'
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+        END IF
+        ELMO_EXT_550 = 0.0
+
         IF ( PHOTDIAG ) THEN
 C...open the photolysis rate diagnostic files
 

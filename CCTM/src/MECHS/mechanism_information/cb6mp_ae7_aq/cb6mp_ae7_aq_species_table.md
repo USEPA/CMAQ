@@ -1,4 +1,4 @@
-**The GC namelist for cb6r3_ae6_aq has the following gas phase species.**
+**The GC namelist for cb6mp_ae7_aq has the following gas phase species.**
 
 | **Model Species** | **Definition**                                                                     | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------------------------------- | -------------------- | ---------------------- |
@@ -9,11 +9,9 @@
 | ALD2              | acetaldehyde                                                                 | 44                   | E                      |
 | ALD2_PRIMARY      | acetaldehyde from emissions only                                             | 44                   | E                      |
 | ALDX              | aldehydes with 3 or more carbons                                             | 58.1                 | L                      |
-| ALKRXN            | counter species for aerosol from SOAALK                                      | 112                  | L                      |
+| APIN              | alpha pinene                                                                 | 136.2                | E                      |
 | BENZENE           | benzene                                                                      | 78.1                 | E                      |
 | BENZRO2           | counter species for aerosol from benzene+OH                                  | 127                  | L                      |
-| BNZHRXN           | counter species for aerosol from hydroperoxybenzene                          | 127                  | L                      |
-| BNZNRXN           | counter species for aerosol from nitrobenzene                                | 127                  | L                      |
 | BUTADIENE13       | 1,3-butadiene                                                                | 54                   | E                      |
 | BZO2              | peroxy radical from beneze reactions with OH                                 | 159.1                | L                      |
 | C2O3              | acetylperoxy radical                                                         | 75                   | E                      |
@@ -66,6 +64,7 @@
 | MEOH              | methanol                                                                     | 32                   | E                      |
 | MEPX              | methylhydroperoxide                                                          | 48                   | E                      |
 | MGLY              | methyl glyoxal                                                               | 72                   | E                      |
+| MMTNO3            | organic nitrates from monoterpene oxidation (Should not to be included for tracking nitrogen)                                       | 231.0                   | L                      |
 | N2O5              | dinitrogen pentoxide                                                         | 108                  | E                      |
 | NAPH              | naphthalene                                                                  | 128.2                | E                      |
 | NO                | nitric oxide                                                                 | 30                   | E                      |
@@ -82,8 +81,6 @@
 | OPEN              | aromatic ring opening product (an alkene and aldehyde)                       | 84                   | L                      |
 | OPO3              | peroxyacyl radical from OPEN                                                 | 115                  | L                      |
 | PACD              | peroxycarboxylic acids                                                       | 76                   | L                      |
-| PAHHRXN           | counter species for aerosol from hydroperoxy-PAHs                            | 187.2                | L                      |
-| PAHNRXN           | counter species for aerosol from nitro-PAHs                                  | 187.2                | L                      |
 | PAHRO2            | counter species for aerosol from NAPH+OH                                     | 187.2                | L                      |
 | PAN               | peroxyacylnitrate                                                            | 121                  | E                      |
 | PANX              | peroxyacylnitrates with 3 or more carbons                                    | 135                  | L                      |
@@ -101,11 +98,14 @@
 | SOAALK            | tracer for alkanes that can form secondary organic aerosol                   | 112                  | L                      |
 | SULF              | sulfuric acid (gaseous)                                                      | 98                   | E                      |
 | SULRXN            | sulfate aerosol precursor                                                    | 98                   | E                      |
+| SVAVB1	        | low volatility organic gas from oxidation of anthropogenic VOCs              | 179.0                | L |
+| SVAVB2            | semivolatile organic gas from oxidation of anthropogenic VOCs                | 169.0                | L |
+| SVAVB3            | semivolatile organic gas from oxidation of anthropogenic VOCs                | 158.0                | L |
+| SVAVB4            | semivolatile organic gas from oxidation of anthropogenic VOCs                | 198.0                | L |
 | TERP              | monoterpenes                                                                 | 136.2                | L                      |
+| TERPNRO2          | counter species for aerosol from TERP + NO3                                  | 197.0                | L                      |
 | TO2               | toluene peroxy radical                                                       | 173.1                | L                      |
 | TOL               | toluene and other monoalkyl aromatics                                        | 92.1                 | L                      |
-| TOLHRXN           | counter species for aerosol from hydroperoxytoluene                          | 141                  | L                      |
-| TOLNRXN           | counter species for aerosol from nitrotoluene                                | 141                  | L                      |
 | TOLRO2            | counter species for aerosol from TOL+OH                                      | 141                  | L                      |
 | TOLU              | toluene                                                                      | 92                   | E                      |
 | TRPRXN            | counter species for aerosol precursor from monoterpenes                      | 136.2                | L                      |
@@ -126,26 +126,23 @@
 | XOPN              | product of aromatic ring-opening reaction                                    | 98.1                 | L                      |
 | XPAR              | organic nitrate production from PAR                                          | 117.1                | L                      |
 | XPRP              | organic nitrate production from PRPA                                         | 89.1                 | L                      |
-| XYLHRXN           | counter species for aerosol from hydroperoxy xylene                          | 155                  | L                      |
 | XYLMN             | xylene and other polyalkyl aromatics except naphthalene                      | 106.2                | L                      |
-| XYLNRXN           | counter species for aerosol from nitroxylene                                 | 155                  | L                      |
 | XYLRO2            | counter species for aerosol from XYLMN+OH                                    | 155                  | L                      |
 
 
-**The AE namelist for cb6mp_ae6_aq has the following aerosol species.**
+**The AE namelist for cb6mp_ae7_aq has the following aerosol species.**
 
 | **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
-|--------|-----------------------------------------------------------------|----------------------|------------------------|
+| ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
 | AAL               | Aluminum                                             | 27                   | E                      |
-| AALK1             | Semivolaitle SOA Product from Alkane VOCs            | 225.0                | L                      |
-| AALK2             | Semivolatile SOA Product from Alkane VOCs            | 205.1                | L                      |
 | AAS               | Arsenic                                              | 74.92                | E                      |
+| AAVB1 | low volatility organic particulate matter from oxidation of anthropogenic VOCs  | 198.0 |  L |
+| AAVB2 | semivolailte organic particulate matter from oxidation of anthropogenic VOCs  | 179.0 |  L |
+| AAVB3 | semivolailte organic particulate matter from oxidation of anthropogenic VOCs | 169.0 |  L |
+| AAVB4 | semivolailte organic particulate matter from oxidation of anthropogenic VOCs | 158.0 |  L |
 | ABE               | Beryllium                                            | 9.0                  | E                      |
-| ABNZ1             | Semivolatile High-NOx SOA Product from Benzene       | 161.0                | L                      |
-| ABNZ2             | Semivolatile High-NOx SOA Product from Benzene       | 134.0                | L                      |
-| ABNZ3             | Low-Volatility Low-NOx SOA Product from Benzene      | 180.0                | L                      |
+| ABENAPY           | Aerosol Phase Benzo-a-Pyrene                         | 252.30               | E                      |
 | ACA               | Calcium                                              | 40.1                 | E                      |
-| ACD               | Cadmium                                              | 112.4                | E                      |
 | ACL               | Chloride                                             | 35.5                 | E                      |
 | ACORS             | Anthropogenic Coarse-mode particle mass              | 100.0                | L                      |
 | ACR_III           | Trivalent Chromium                                   | 52.0                 | E                      |
@@ -158,7 +155,7 @@
 | ADE_SO4           | Diesel Sulfate                                       | 96.0                 | E                      |
 | AEC               | Elemental Carbon                                     | 12                   | E                      |
 | AFE               | Iron                                                 | 55.8                 | E                      |
-| AGLY              | Glyoxal and Methylglyoxal SOA in aqueous aerosol material                       | 66.4                 | L                      |
+| AGLY              | Glyoxal and Methylglyoxal SOA  in aqueous aerosol material                      | 66.4                 | L                      |
 | AH2O              | Water                                                | 18                   | E                      |
 | AH3OP             | Hydronium Ion                                        | 19                   | E                      |
 | AISO1             | Semivolatile SOA Product from Isoprene               | 132.0                | L                      |
@@ -172,6 +169,14 @@
 | AMG               | Magnesium                                            | 24.3                 | E                      |
 | AMN               | Manganese                                            | 54.9                 | E                      |
 | AMN_HAPS          | Manganese based on the Hazardous Air Pollutant Emissions          | 54.9                 | E                      |
+| AMT1 | low volatility particulate matter from monoterpene photoxidation, C*=0.01 ug/m3 | 200.0   | L |
+| AMT2 | low volatility particulate matter from monoterpene photoxidation, C*=0.1 ug/m3 |  300.0  | L |
+| AMT3 | semivolailte particulate matter from monoterpene photoxidation, C*=1 ug/m3 | 186.0   | L |
+| AMT4 | semivolatile particulate matter from monoterpene photoxidation, C*=10 ug/m3 |  184.0  | L |
+| AMT5 | semivolatile particulate matter from monoterpene photoxidation, C*=100 ug/m3 |  170.0  | L |
+| AMT6 | semivolatile particulate matter from monoterpene photoxidation, C*=1000 ug/m3 | 168.0   | L |
+| AMTNO3J | semivolatile organic nitrates from monoterpene oxidation (Should not to be included for tracking nitrogen) | 231.0 | L |
+| AMTHYDJ | organic pseudo-hydrolysis accretion product from monoterpene organic nitrates (AMTNO3J) | 168.0| L |
 | ANA               | Sodium                                               | 23                   | E                      |
 | ANH4              | Ammonium                                             | 18                   | E                      |
 | ANI               | Nickel                                               | 58.7                 | E                      |
@@ -179,10 +184,11 @@
 | AOLGA             | Oligomer products of anthropogenic SOA compounds     | 206.0                | L                      |
 | AOLGB             | Oligomer products of biogenic SOA compounds          | 248.0                | L                      |
 | AORGC             | Glyoxal and methylglyoxal SOA produced in cloud water                        | 177.0                | L                      |
+| AORGH2O           | Water associated with organic species of particulate matter | 18.0                | E                      |
 | AOTHR             | Other Particulate Mass                               | 200                  | L                      |
-| APAH1             | Semivolatile High-NOx SOA Product from PAHs          | 195.6                | L                      |
-| APAH2             | Semivolatile High-NOx  SOA Product from PAHs         | 178.7                | L                      |
-| APAH3             | Low-Volatility Low-NOx SOA Product from PAHs         | 212.2                | L                      |
+| APB               | Lead                                                 | 207.2                | E                      |
+| APCSO             | Potential Combustion SOA                             | 170                  | L                      |
+| APHG              | Mercury                                              | 200.5                | E                      |
 | APB               | Lead                                                 | 207.2                | E                      |
 | APCSO             | Potential Combustion SOA                             | 170                  | L                      |
 | APHG              | Mercury                                              | 200.5                | E                      |
@@ -200,14 +206,6 @@
 | ASVPO2            | Semivolatile Primary Organic Compounds               | 241                  | L                      |
 | ASVPO3            | Semivolatile Primary Organic Compounds               | 253                  | L                      |
 | ATI               | Titanium                                             | 47.9                 | E                      |
-| ATOL1             | Semivolatile High-NOx SOA Product from Toluene       | 163.0                | L                      |
-| ATOL2             | Semivolaitle High-NOx SOA Product from Toluene       | 175.0                | L                      |
-| ATOL3             | Low-Volatility Low-NOx SOA Product from Toluene      | 194.0                | L                      |
-| ATRP1             | Semivolatile SOA Product from Monoterpenes           | 177.0                | L                      |
-| ATRP2             | High-Volatility SOA Product from Monoterpenes        | 198.0                | L                      |
-| AXYL1             | Semivolatile High-NOx SOA Product from Xylene        | 174.0                | L                      |
-| AXYL2             | Semivolaitle High-NOx SOA Product from Xylene        | 185.0                | L                      |
-| AXYL3             | Low-Volatility Low-NOx SOA Product from Xylene       | 218.0                | L                      |
 | NUMACC            | Accum. Mode Number Conc                              | NA                   | NA                     |
 | NUMAIT            | Aitken Mode Number Conc                              | NA                   | NA                     |
 | NUMCOR            | Coarse Mode Number Conc                              | NA                   | NA                     |
@@ -217,8 +215,7 @@
 
 Note that for each aerosol mass species, a letter will be appended to the names below in order to designate the size, or mode, of the aerosol being represented: I = Aitken mode, J = Accumulation mode, K = Coarse mode.  
 
-
-**The NR namelist for cb6mp_ae6_aq has the following gas phase species.**
+**The NR namelist for cb6mp_ae7_aq has the following gas phase species.**
 
 | **Model Species** | **Definition**                                             | **Molecular Weight** | **Explicit or Lumped** |
 | ----------------- | ---------------------------------------------------- | -------------------- | ---------------------- |
@@ -249,24 +246,31 @@ Note that for each aerosol mass species, a letter will be appended to the names 
 |  METHCHLORIDE      |  methyl chloride                 |  50.40  |  E  |
 |  NAPHTHALENE       |  Naphthalene                     | 128.20  |  E  |   
 |  NH3               |  ammonia                         |  17.00  |  E  |      
+| PAH_000E0          | Lumped POM or PAHs Inert Tracer with a 0.0 Unit Risk Exposure<sup>1</sup>           | 186.2                | L                      |
+| PAH_176E5          | Lumped POM or PAHs Inert Tracer with a 0.0000096 Unit Risk Exposure     | 197.7                | L                      |
+| PAH_880E5          | Lumped POM or PAHs Inert Tracer with a 0.000048 Risk Exposure           | 197.9                | L                      |
+| PAH_176E4          | Lumped POM or PAHs Inert Tracer with a 0.000096 zero Unit Risk Exposure | 254.4                | L                      |
+| PAH_176E3          | Lumped POM or PAHs Inert Tracer with a 0.00096 Unit Risk Exposure       | 259.3                | L                      |
+| PAH_192E3          | Lumped POM or PAHs Inert Tracer with a 0.00099 Unit Risk Exposure       | 278.3                | L                      |
+| PAH_101E2          | Lumped POM or PAHs Inert Tracer with a 0.01008 Unit Risk Exposure       | 268.4                | L                      |
+| PAH_176E2          | Lumped POM or PAHs Inert Tracer with a 0.0096 Unit Risk Exposure        | 302.4                | L                      |
+| PAH_114E1          | Lumped POM or PAHs Inert Tracer with a 0.1136 Unit Risk Exposure        | 256.3                | L                      |
 |  PROPYL_DICL       |  Propylene Dichloride            | 113.00  |  E  |   
 |  QUINOLINE         |  Quinoline                       | 129.20  |  E  |   
 |  STYRENE           |  sytrene                         | 104.15  |  E  |
-|  SVALK1            |  vapors of secondary aerosol material from alkane VOCs      | 225.00  |  L  |     
-|  SVALK2            |  vapors of secondary aerosol material from alkane VOCs      | 205.10  |  L  |     
-|  SVXYL1            |  vapors of secondary aerosol material from xylenes          | 174.00  |  L  |  
-|  SVXYL2            |  vapors of secondary aerosol material from xylenes          | 185.00  |  L  |  
-|  SVTOL1            |  vapors of secondary aerosol material from toluene          | 163.00  |  L  |  
-|  SVTOL2            |  vapors of secondary aerosol material from toluene          | 175.00  |  L  |  
-|  SVBNZ1            |  vapors of secondary aerosol material from benzene          | 161.00  |  L  |  
-|  SVBNZ2            |  vapors of secondary aerosol material from benzene          | 134.00  |  L  |  
-|  SVPAH1            |  vapors of secondary aerosol material from PAHs             | 195.60  |  L  |  
-|  SVPAH2            |  vapors of secondary aerosol material from PAHs             | 178.70  |  L  |  
-|  SVTRP1            |  vapors of secondary aerosol material from monoterpenes     | 177.00  |  L  |      
-|  SVTRP2            |  vapors of secondary aerosol material from monoterpenes     | 198.00  |  L  |      
-|  SVISO1            |  vapors of secondary aerosol material from isoprene         | 132.00  |  L  |  
-|  SVISO2            |  vapors of secondary aerosol material from isoprene         | 133.00  |  L  |  
-|  SVSQT             |  vapors of secondary aerosol material from sesquiterpenes   | 273.00  |  L  |         
+|  SVMT1             |  low volatility gas from monoterpene photoxidation | 300.0     |  L  |
+|  SVMT2             |  low volatility gas from monoterpene photoxidation | 200.0     |  L  |
+|  SVMT3             |  semivolatile gas from monoterpene photoxidation   | 186.0     |  L  |
+|  SVMT4             |  semivolatile gas from monoterpene photoxidation   | 184.0     |  L  |
+|  SVMT5             |  semivolatile gas from monoterpene photoxidation   | 170.0     |  L  |
+|  SVMT6             |  semivolatile gas from monoterpene photoxidation   | 168.0     |  L  |
+|  SVISO1            |  semivolatile gas of secondary aerosol material from isoprene         | 132.0  |  L  |  
+|  SVISO2            |  semivolatile gas of secondary aerosol material from isoprene         | 133.0  |  L  |  
+|  SVSQT             |  semivolatile gas of secondary aerosol material from sesquiterpenes   | 273.0  |  L  |         
 |  TOL_DIIS          |  2,4-Toluene Diisocyanate        |  32.00  |  E  |   
 |  TRIETHYLAMIN      |  Triethylamine                   | 101.20  |  E  |   
 |  XYLENE            |  O-,M-, and P-xylene isomers     | 106.20  |  L  |
+
+1.  The Unit Risk Exposure respresents excess lifetime risk of cancer from continuous exposure to an agent at an air concentration of 1 µg/m<sup>3</sup>.
+Interpret the URE as if an URE of 1.5 x 10<sup>-6</sup>, produces 1.5 excess tumors to develop per 1,000,000 people when they are exposed daily to 1 µg/m<sup>3</sup> over a lifetime.
+ Note that URE is usually not a statistical confidence limit and is considered a plausible upper limit to the true value. The true limit is likely to be less, but could be greater.   
