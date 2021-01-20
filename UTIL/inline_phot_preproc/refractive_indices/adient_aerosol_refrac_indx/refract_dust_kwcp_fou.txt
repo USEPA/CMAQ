@@ -1,5 +1,6 @@
- Refractive indices for Dust from Kinne, WCP and Fou
-Wvelen(um) Real Part  Imag Part
+DUST_KWCP_FOU
+! Refractive indices for Dust from Kinne, WCP and Fou
+!Wvelen(um) Real Part  Imag Part
 2.0000E-01 0.1530E+01 0.5455E-02
 2.5000E-01 0.1530E+01 0.5455E-02
 3.0000E-01 0.1530E+01 0.5455E-02
