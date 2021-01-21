@@ -1,7 +1,7 @@
 &AE_nml
 
 AE_SPECIES_DATA = 
-!SPECIES   ,MOLWT    ,OPTICS ,IC     ,IC_FAC  ,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC
+!SPECIES   ,MOLWT   ,OPTICS ,IC     ,IC_FAC,BC     ,BC_FAC ,DRYDEP SURR ,FAC ,WET-SCAV SURR  ,FAC ,AE2AQ SURR     ,TRNS    ,DDEP    ,WDEP    ,CONC
 'ASO4J'    , 96.00  ,''     ,''     ,-1    ,''     ,-1     ,'VMASSJ'    , 1  ,'SO4_ACCUM'    , 1  ,'SO4_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ASO4I'    , 96.00  ,''     ,''     ,-1    ,''     ,-1     ,'VMASSI'    , 1  ,'SO4_AITKEN'   , 1  ,'SO4_AITKEN'   ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
 'ANH4J'    , 18.00  ,''     ,''     ,-1    ,''     ,-1     ,'VMASSJ'    , 1  ,'NH4_ACCUM'    , 1  ,'NH4_ACCUM'    ,'Yes'   ,'Yes'   ,'Yes'   ,'Yes',
