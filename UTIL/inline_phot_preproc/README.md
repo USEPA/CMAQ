@@ -65,13 +65,10 @@ To use the utility follow the below instructions.
  | index<sub>2</sub> | Full path to file containing the refractive index 2 | ${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indices/OPAC_water_clouds/inso00, DUST |
  | index<sub>3</sub> | Full path to file containing the refractive index 3 | ${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indices/OPAC_water_clouds/waso00, SOLUTE |
  | index<sub>n</sub> | Full path to file containing the refractive index n | ${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indicesadient_aerosol_refrac_indx/refract_biomass_new.txt, BIOMASS |
- | SOLUTE | Full path to file containing the refractive index for soluble inorganic aerosol material | ${CMAQ_REPO}/inline_phot_preproc/OPAC_water_clouds/waso00, index<sub>3</sub> |
- | SOOT | Full path to file containing the refractive index for elemental carbon aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/soot00-two_way-Oct_21_2012, index<sub>4</sub> |
- | SEASALT | Full path to file containing the refractive index for sea spray material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/ssam00, index<sub>5</sub> |
  |   OUT_DIR    | Full path to output directory | Value is the user's preference | 
  
- 1. CMAQ version 5.3 and lower are hardwired to use only these refractive indices based on information set in AERO_DATA.F. The model will read additional refractive indices but not use them.
-
+ 1. CMAQ version 5.32 and lower are hardwired to use only these refractive indices based on information set in AERO_DATA.F. Models higher than versions allows change default
+ value by change the _OPTICS_ entries in the aerosol species name list.
 
 <center> Table 2. INLINE_PHOT_PREPROC output files </center>
 
@@ -128,6 +125,8 @@ If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the s
 
  |  Names | Definition or aerosol material | Source |      
  |:-----|:-----|:------|     
+ | WATER | water in the aqueous aerosol component | !Segelstein, D., 1981 |
+ | DUST | insoluble mineral and unidentified material | OPAC software package (M. Hess et. al, 1998) |     
  | SOLUTE | inorganic solutes in aqueous aerosol component such as SO<sub>4</sub>, NH<sub>4</sub>, NO<sub>3</sub> and CL ions | OPAC software package (M. Hess et. al, 1998) |
  | SOOT | insoluble elemental carbon | Chang,H & T.T. Charalmpopoulos (1990), Bond, T.C. & R.W. Bergstrom (2006), Personal Communication from Tami Bond.  |
  | SEASALT | material from sea spray  | OPAC software package (M. Hess et. al, 1998) |
@@ -135,6 +134,8 @@ If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the s
 ### References 
 
 Bian H. and Prather M. J. (2002). Fast-J2: Accurate Simulation of Stratospheric Photolysis in Global Chemical Models, J. Atmos. Chem., 41, 281-296. (Table I & II corrected, June 2008).
+
+Bond, T.C. (2012), personal communication.
 
 Bond, T.C. & R.W. Bergstrom (2006) Light absorption by
 Carbonaceous Particles: An investigative review,
@@ -146,3 +147,4 @@ Proceeding of the Royal Society of London A, Vol. 430, pp 577-591.
 
 Hess M., Koepke P., and I. (1998): Optical Properties of Aerosols and clouds: The software package OPAC, Bull. Am. Met. Soc., 79, 831-844.
 
+Segelstein, D., (1981), The Complex Refractive Index of Water, M.S. Thesis, University of Missouri--Kansas City, MO.
