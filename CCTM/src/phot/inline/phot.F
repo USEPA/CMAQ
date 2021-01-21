@@ -790,7 +790,7 @@ C...modules
                   RJ_SUB( COL,ROW, :,: ) = 0.0
                   ETOT_SFC_WL ( COL,ROW, : ) = 0.0
 
-                  IF ( JTIME_CHK ) THEN
+                  IF ( JTIME_CHK .AND. PHOTDIAG ) THEN
                      TAUO3_TOP_WL( COL,ROW, : ) = 0.0
                      TAU_AERO_WL ( COL,ROW, : ) = 0.0
                      TAU_CLOUD_WL( COL,ROW, : ) = 0.0
@@ -1266,12 +1266,15 @@ C...modules
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+         TROPO_O3_EXCEED = 0.0 ! reset sum and counter
+         TSTEP_COUNT     = 0
 
          VARNM = 'N_EXCEED_TROPO3'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, N_EXCEED_TROPO3 ) ) THEN
             XMSG = 'Error writing variable ' // VARNM
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
+         N_EXCEED_TROPO3 = 0.0 ! reset counter
 
          VARNM = 'JNO2'
          IF ( .NOT. WRITE3( CTM_RJ_1, VARNM, ODATE, OTIME, RJ( :,:,1, LNO2 ) ) ) THEN
@@ -1453,9 +1456,6 @@ C...modules
      &          'for date and time', ODATE, OTIME
 
         END IF   ! PHOTDIAG
-        TROPO_O3_EXCEED = 0.0 ! reset sum and counter
-        TSTEP_COUNT     = 0
-        N_EXCEED_TROPO3 = 0.0 ! reset counter
       END IF   ! if JTIME_CHK
       TAU_AERO_550 = 0.0
 
