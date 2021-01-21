@@ -50,7 +50,7 @@ To use the utility follow the below instructions.
  |  Names | Definition | Notes or Recommeded Value |      
  |:-----|:-----|:------|     
  |  COMPILER        | FORTRAN compiler to building create_ebi | the utility's makefile, _src/inline_phot_preproc.makefile_, is step up for the Intel (INTEL), Portland Group (PGF90) and GCC gfortran (GFORT) compilers. If a separate compiler is to be used, the user has to modify the makefile to define the compiler and its compile flags, recommend including debugging flags| 
- |   GC_INC  | Full path to mechanism's RXNS_DATA_MODULE.F90 or mechanism include files | Produced by CHEMMECH utility | 
+ |   RXNS_DATA_SRC  | Full path to mechanism's RXNS_DATA_MODULE.F90 or mechanism include files | Produced by CHEMMECH utility | 
  |   USE_RXNS_MODULES  | whether FORTRAN 90 describe the photochemical mechanism | T if CMAQ v5.1 or higher but comment out if CMAQ v5.02 and lower |   
  |   WVL_AE_REFRAC  | Whether to include spectral values of refractive indices for aerosol species | T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
  |   SPLIT_OUTPUT   | whether optical and CSQY data written to two separate files | T if CMAQ v5.1 or higher and  if CMAQ lower than version 5.1 |   
@@ -59,11 +59,13 @@ To use the utility follow the below instructions.
  |   WVBIN_FILE | Full path to file defining the wavelength bins | ${CMAQ_REPO}/UTIL/inline_phot_preproc/flux_data/wavel-bins.dat |
  |   FLUX_FILE  | Full path to solar flux file used for averaging over the wavelength bins  |  ${CMAQ_REPO}/UTIL/inline_phot_preproc/flux_data/solar-p05nm-UCI.dat | 
  | CSQY_DATA_RAW | Path to directory with ASCII files containing cross-section and quantum yield versus wavelength for photolysis rates in the photochemical mechanism | ${CMAQ_REPO}/inline_phot_preproc/photolysis_CSQY_data; individual file names correspond to values of the PHOTAB array in the RXNS_DATA_MODULE.F90 file |  
- | MAX_NUMB_REFRACT | maximum number of aerosol refractive indices to be use | 6, the value can be greater than the actual number used  |
- | AE_REFRAC_LIST | Lists names of environment variable defining file paths to each aerosol refractive index | **"WATER SOLUTE DUST SEASALT SOOT"**<sup>1</sup>; in general "index<sub>1</sub> index<sub>2</sub> ... index<sub>n</sub>" where index<sub>i</sub> defines from 1 to a maxmim of MAX_NUMB_REFRACT file paths | 
- | WATER | Full path to file containing the refractive index for water | ${CMAQ_REPO}/water_clouds/inline_phot_preproc/water_refractive_index.dat, index<sub>1</sub> |
- | DUST | Full path to file containing the refractive index for insoluble mineral and unidentified aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/inso00, index<sub>2</sub> |
- | SOLUTE | Full path to file containing the refractive index for soluble inorganic aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/waso00, index<sub>3</sub> |
+ | MAX_NUMB_REFRACT | maximum number of aerosol refractive indices to be use | 16, the value can be greater than the actual number used  |
+ | AE_REFRAC_LIST | Lists names of environment variable defining file paths to each aerosol refractive index | "index<sub>1</sub> index<sub>2</sub> ... index<sub>n</sub>" in general where index<sub>i</sub> defines from 1 to MAX_NUMB_REFRACT file paths. The current build-runscript use **"WATER SOLUTE DUST SEASALT SOOT ISOP_NOX ISOP_SOX LIMONENE_SOA APINENE_SOA NAPTH_SOA MXYL_HIGH_NOX MXYL_LOW_NOX TOLU_HIGH_NOX TOLU_LOW_NOX ORGCARB BIOMASS"** but can be changed. Read the section on aerosol refractive indices. | 
+ | index<sub>1</sub> | Full path to file containing the refractive index 1 | ${CMAQ_REPO}/inline_phot_preproc/refractive_indices/water_refractive_index.dat, WATER |
+ | index<sub>2</sub> | Full path to file containing the refractive index 2 | ${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indices/OPAC_water_clouds/inso00, DUST |
+ | index<sub>3</sub> | Full path to file containing the refractive index 3 | ${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indices/OPAC_water_clouds/waso00, SOLUTE |
+ | index<sub>n</sub> | Full path to file containing the refractive index n | ${CMAQ_REPO}/inline_phot_preproc/inline_phot_preproc/refractive_indicesadient_aerosol_refrac_indx/refract_biomass_new.txt, BIOMASS |
+ | SOLUTE | Full path to file containing the refractive index for soluble inorganic aerosol material | ${CMAQ_REPO}/inline_phot_preproc/OPAC_water_clouds/waso00, index<sub>3</sub> |
  | SOOT | Full path to file containing the refractive index for elemental carbon aerosol material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/soot00-two_way-Oct_21_2012, index<sub>4</sub> |
  | SEASALT | Full path to file containing the refractive index for sea spray material | ${CMAQ_REPO}/inline_phot_preproc/water_clouds/ssam00, index<sub>5</sub> |
  |   OUT_DIR    | Full path to output directory | Value is the user's preference | 
@@ -120,8 +122,27 @@ To make the CMAQ CCTM use a new CSQY_DATA_**mechanism**, modify the value of CSQ
 
 If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the standard value, 7, the CCTM run-script has use the new CSQY_DATA_**mechanism** and PHOT_OPTICS.dat files. 
 
+#### Aerosol Refractive Indices
+
+<center> Table 3. Aerosol Refractive defined in build-run script </center>
+
+ |  Names | Definition or aerosol material | Source |      
+ |:-----|:-----|:------|     
+ | SOLUTE | inorganic solutes in aqueous aerosol component such as SO<sub>4</sub>, NH<sub>4</sub>, NO<sub>3</sub> and CL ions | OPAC software package (M. Hess et. al, 1998) |
+ | SOOT | insoluble elemental carbon | Chang,H & T.T. Charalmpopoulos (1990), Bond, T.C. & R.W. Bergstrom (2006), Personal Communication from Tami Bond.  |
+ | SEASALT | material from sea spray  | OPAC software package (M. Hess et. al, 1998) |
 
 ### References 
 
 Bian H. and Prather M. J. (2002). Fast-J2: Accurate Simulation of Stratospheric Photolysis in Global Chemical Models, J. Atmos. Chem., 41, 281-296. (Table I & II corrected, June 2008).
+
+Bond, T.C. & R.W. Bergstrom (2006) Light absorption by
+Carbonaceous Particles: An investigative review,
+Aerosol Science and Technology. Vol. 40. pp 27-67
+
+Chang,H and T.T. Charalmpopoulos (1990) Determination of the
+wavelength dependence of refractive indices of flame soot,
+Proceeding of the Royal Society of London A, Vol. 430, pp 577-591.
+
+Hess M., Koepke P., and I. (1998): Optical Properties of Aerosols and clouds: The software package OPAC, Bull. Am. Met. Soc., 79, 831-844.
 
