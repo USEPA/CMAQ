@@ -392,8 +392,12 @@ C...modules
          ALLOCATE( TAU_TOT  ( NLAYS,NWL ) )
 
          ALLOCATE( TOTAL_OC ( NCOLS,NROWS ) )
+         ALLOCATE( TAU_AERO_550    ( NCOLS,NROWS ) )
+         ALLOCATE( ELMO_AOD_550    ( NCOLS,NROWS ) )
+         TAU_AERO_550  = 0.0
+         ELMO_AOD_550  = 0.0
 
-         !IF ( PHOTDIAG ) THEN
+         IF ( PHOTDIAG ) THEN
 
             ALLOCATE( TROPO_OC   ( NCOLS,NROWS ) )
             ALLOCATE( CO_COLUMN  ( NCOLS,NROWS ) )
@@ -408,10 +412,8 @@ C...modules
             ALLOCATE( CLR_TRANSMISSION( NCOLS,NROWS ) )
             ALLOCATE( CLR_TRANS_DIRECT( NCOLS,NROWS ) )
             ALLOCATE( CLR_REFLECTION  ( NCOLS,NROWS ) )
-            ALLOCATE( TAU_AERO_550    ( NCOLS,NROWS ) )
             ALLOCATE( TAU_AERO_WL     ( NCOLS,NROWS,NWL ) )
             ALLOCATE( TAU_CLOUD_WL    ( NCOLS,NROWS,NWL ) )
-            ALLOCATE( ELMO_AOD_550    ( NCOLS,NROWS ) )
 #ifdef phot_debug
             ALLOCATE( SSA_CLOUD_WL( NCOLS,NROWS,NWL ) )
             ALLOCATE( ASY_CLOUD_WL( NCOLS,NROWS,NWL ) )
@@ -422,8 +424,6 @@ C...modules
             N_EXCEED_TROPO3 = 0.0
             TROPO_O3_EXCEED = 0.0
             TSTEP_COUNT     = 0
-            TAU_AERO_550    = 0.0
-            ELMO_AOD_550    = 0.0
             TROPO_OC        = 0.0
             CO_COLUMN       = 0.0
             SO2_COLUMN      = 0.0
@@ -539,18 +539,6 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-            ALLOCATE ( AERO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating 3D AERO_EXT_550'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-            
-            ALLOCATE ( ELMO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
-            IF ( ALLOCSTAT .NE. 0 ) THEN
-               XMSG = 'Failure allocating 3D ELMO_EXT_550'
-               CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-            END IF
-
             ALLOCATE ( TOT_EXT( NCOLS,NROWS,NLAYS_DIAG,N_DIAG_WVL ), STAT = ALLOCSTAT )
             IF ( ALLOCSTAT .NE. 0 ) THEN
                XMSG = 'Failure allocating 3D TOT_EXT'
@@ -575,36 +563,34 @@ C...modules
                CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
             END IF
 
-
-         VARNM = 'CO'
-         LGC_CO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-         IF ( LGC_CO .LE. 0 ) THEN
-            XMSG = 'Could not find ' // VARNM // 'in species table'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            WRITE(LOGDEV,95101)
-         END IF
-
-         VARNM = 'SO2'
-         LGC_SO2 = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-         IF ( LGC_SO2 .LE. 0 ) THEN
-            XMSG = 'Could not find ' // VARNM // 'in species table'
-            CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
-            WRITE(LOGDEV,95101)
-         END IF
-
-         VARNM = 'HCHO'
-         LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-         IF ( LGC_HCHO .LE. 0 ) THEN
-            VARNM = 'FORM'
-            LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
-            IF ( LGC_HCHO .LE. 0 ) THEN
-               XMSG = 'Could not find HCHO or FORM, i.e., formaldehyde, in species table'
+            VARNM = 'CO'
+            LGC_CO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+            IF ( LGC_CO .LE. 0 ) THEN
+               XMSG = 'Could not find ' // VARNM // 'in species table'
                CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
                WRITE(LOGDEV,95101)
             END IF
-         END IF
+            
+            VARNM = 'SO2'
+            LGC_SO2 = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+            IF ( LGC_SO2 .LE. 0 ) THEN
+               XMSG = 'Could not find ' // VARNM // 'in species table'
+               CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+               WRITE(LOGDEV,95101)
+            END IF
+            
+            VARNM = 'HCHO'
+            LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+            IF ( LGC_HCHO .LE. 0 ) THEN
+               VARNM = 'FORM'
+               LGC_HCHO = INDEX1( VARNM, N_GC_SPC, GC_SPC )
+               IF ( LGC_HCHO .LE. 0 ) THEN
+                  XMSG = 'Could not find HCHO or FORM, i.e., formaldehyde, in species table'
+                  CALL M3WARN ( PNAME, JDATE, JTIME, XMSG )
+                  WRITE(LOGDEV,95101)
+               END IF
+            END IF
          
-         IF ( PHOTDIAG ) THEN
 !...open the photolysis diagnostic files
             ODATE = START_DATE; OTIME = START_TIME; OSTEP = 0
 #ifdef phot_write_start
@@ -616,10 +602,20 @@ C...modules
             ODATE = START_DATE; OTIME = START_TIME
 #endif
 
-
          END IF  ! photdiag
          CALL SUBST_BARRIER
 
+         ALLOCATE ( AERO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+             XMSG = 'Failure allocating 3D AERO_EXT_550'
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
+         
+         ALLOCATE ( ELMO_EXT_550( NCOLS,NROWS,NLAYS ), STAT = ALLOCSTAT )
+         IF ( ALLOCSTAT .NE. 0 ) THEN
+             XMSG = 'Failure allocating 3D ELMO_EXT_550'
+             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         END IF
 !...set pointers to species O3 and NO2 in CGRID
 
          VARNM = 'O3'
@@ -680,18 +676,18 @@ C...modules
 
 !...SA  Write COSINE_ZENITH array at the end of each output tstep
 
-         JTIME_CHK         = .FALSE.
-      !IF ( PHOTDIAG ) THEN
-         OSTEP  = OSTEP + TIME2SEC( DTSTEP( 2 ) )
-         JTIME_CHK = ( OSTEP .GE. TIME2SEC( DTSTEP( 1 ) ) )
-         IF ( JTIME_CHK ) THEN 
-           OSTEP = 0
-           CALL NEXTIME( ODATE, OTIME, DTSTEP( 1 ) )
-         END IF
+      JTIME_CHK         = .FALSE.
+      OSTEP  = OSTEP + TIME2SEC( DTSTEP( 2 ) )
+      JTIME_CHK = ( OSTEP .GE. TIME2SEC( DTSTEP( 1 ) ) )
+      IF ( JTIME_CHK ) THEN 
+        OSTEP = 0
+        CALL NEXTIME( ODATE, OTIME, DTSTEP( 1 ) )
+      END IF
 #ifdef phot_write_start
-         JTIME_CHK = ( ODATE .EQ. STDATE .AND. OTIME .EQ. STTIME )
+      JTIME_CHK = ( ODATE .EQ. STDATE .AND. OTIME .EQ. STTIME )
 #endif 
 
+      IF ( PHOTDIAG ) THEN
 #ifdef parallel_io
          IF ( .NOT. IO_PE_INCLUSIVE ) THEN
             IF ( .NOT. OPEN3( CTM_RJ_1, FSREAD3, PNAME ) ) THEN
@@ -708,14 +704,9 @@ C...modules
             END IF
          END IF
 #endif
-      !ELSE
-      !END IF
+      END IF
 
       CALCULATE_EXT_550 = .TRUE. !JTIME_CHK
-      ELMO_AOD_550 = 0.0
-      ELMO_EXT_550 = 0.0
-      AERO_EXT_550 = 0.0
-      TAU_AERO_550 = 0.0
 
 !...If sun below horizon at all cells, zero photolysis rates & exit
 !...  (assumes sun below horizon at *all* levels!)
@@ -726,12 +717,14 @@ C...modules
          RJ_SUB = 0.0
          RJ_RES = 0.0
          ETOT_SFC_WL  = 0.0
+         AERO_EXT_550 = 0.0
+         TAU_AERO_550 = 0.0
 
 !...Initialize ETOT_SFC, TAU_AERO, TAU_TOT, TAUO3_TOP to 0.0
 
 !...Write data to output diagnostic file
 
-         IF ( JTIME_CHK ) THEN
+         IF ( JTIME_CHK .AND. PHOTDIAG ) THEN
 
             TAUO3_TOP_WL = 0.0
             TAU_AERO_WL  = 0.0
@@ -775,7 +768,7 @@ C...modules
                END DO
             END DO   
 
-         END IF  ! if JTIME_CHK
+         END IF  ! if JTIME_CHK and PHOTDIAG
 
       ELSE  ! all cells not dark
 
@@ -788,6 +781,8 @@ C...modules
 
                COSZEN = COSINE_ZENITH( COL,ROW ) ! local cosine of solar zenith angle
 
+               TAU_AERO_550( COL,ROW ) = 0.0
+               AERO_EXT_550( COL,ROW,: ) = 0.0
                IF ( COSZEN .LE. 0.0 ) THEN
 !...the cell is dark: set variables to zero and cycle
                   RJ( COL,ROW, :,: ) = 0.0
@@ -1137,7 +1132,7 @@ C...modules
                   END IF
                END IF ! not USE_ACM_CLOUD and  ACM_CLOUDS > 0
 
-               IF ( JTIME_CHK .AND. PHOTDIAG) THEN ! compute clear sky reflection and transmission coefficients
+               IF ( JTIME_CHK .AND. PHOTDIAG ) THEN ! compute clear sky reflection and transmission coefficients
                   IF ( ANY( CLOUDS ) ) THEN
                      IF ( CFRAC_2D( COL,ROW ) .GT. 0.0 ) THEN ! resolved and subgrid clouds exist
                         CLOUDS         = .FALSE.

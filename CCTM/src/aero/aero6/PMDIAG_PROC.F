@@ -1761,8 +1761,8 @@
      &           "incorporated in the precursor array though. Please check that the table "//
      &           "in PRECURSOR_DATA is compatible with the PM diagnostics you have called "//
      &           "for in the Emissions Control Namelist."
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
+             !CALL LOG_MESSAGE( LOGDEV, XMSG )
+             !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
           END IF 
       ELSE IF ( TSPEC .EQ. 'GAS' ) THEN 
           ! Map to Generic Gas Species
@@ -1797,8 +1797,8 @@
      &           "incorporated in the GC namelist though. Please check that your "//
      &           "GC_namelist is compatible with the PM diagnostics you have called "//
      &           "for in the Emmissions Control Namelist."
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
+             !CALL LOG_MESSAGE( LOGDEV, XMSG )
+             !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
           END IF
       
       ELSE IF ( TSPEC .EQ. 'AGG' ) THEN 
@@ -1848,8 +1848,8 @@
      &           "incorporated in the AE namelist though. Please check that your "//
      &           "AE_namelist is compatible with the PM diagnostics you have called "//
      &           "for in the Emmissions Control Namelist."
-             CALL LOG_MESSAGE( LOGDEV, XMSG )
-             CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
+             !CALL LOG_MESSAGE( LOGDEV, XMSG )
+             !CALL M3WARN( 'MAP_PMDIAG_COEFFS', 0, 0, '' )
           END IF
       END IF
       PMDIAG_COEFFS( IDG )%COEFF( IVAR ) = COEFF
