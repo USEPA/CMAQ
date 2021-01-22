@@ -530,12 +530,7 @@ Sets if the CCTM will run in multi-processor or serial mode.
 
 <!-- END COMMENT -->
 
--   `CTM_PMDIAG [default: False]`<a id=CTM_PMDIAG></a>  
-    Output aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.  
--   `CTM_APMDIAG [default: False]`<a id=CTM_APMDIAG></a>  
-    Output hourly average aerosol diagnostics and properties file. These data are required for post-processing the fraction of aerosol mass is in various size ranges (e.g. PM2.5, PM10, etc.). The file also includes physical parameters describing the aerosol size distribution like the following: dry diameter, wet diameter, standard deviation, wet second moment, dry second moment, wet thrid moment, dry third moment, and density.   
--   `APMDIAG_BLEV_ELEV [default: 0]`<a id=APMDIAG_BLEV_ELEV></a>  
-    Modeling grid domain layer range for the hourly average aerosol diagnostics and properties file. Set to the two digits representing the bottom and top layer numbers to bound the output domain. Comment out this variable or set it to 0 to output all layers. Set the value to "1 1" to output just the surface layer.
+    Aerosol Diagnostics are now handled by the Explicit and Lumped Model Output module (ELMO), which is directed by the Emission Control Interface (ECI). See [Appendix B.6: ELMO](Appendix/CMAQ_UG_appendixB_emissions_control.md) 
 
 <a id=Diagnostic_Output_Flags></a>
 
