@@ -178,9 +178,6 @@ c  !>>>>> CONDENSATION <<<<<!
           IF ( AEROSPC( IAER )%VOLTYPE .EQ. 'REV' ) THEN
              ! Load Indices for Vapor-Phase Species and Reaction
              ! Counter, if present
-
-             !!! WATER MAY POSE A PROBLEM HERE - IT'S REV but it doesn't
-             !have a gas-phase species !!!
              JGAS = MAP_AEROGAStoSA( IAER )
              CGAS = MAP_SAtoCGR( JGAS )
              JCTR = MAP_AEROCTRtoSA( IAER )
@@ -232,6 +229,9 @@ c  !>>>>> CONDENSATION <<<<<!
 
           ! Irreversible Partitioning
           ELSE IF ( AEROSPC( IAER )%VOLTYPE .EQ. 'IRV' ) THEN
+             ! Retrieve index of reaction counter relevant for this
+             ! irreversible partioning species. This index is in terms
+             ! of the location of the counter in the ISAM array.
              JCTR = MAP_AEROCTRtoSA( IAER )
 
              ! Find fractional condensation of mass to each aerosol mode
@@ -258,7 +258,9 @@ c  !>>>>> CONDENSATION <<<<<!
      &                  + ISAM0( :,:,:,JCTR,K )
      &                     * BULKFRAC( :,:,:,IM ) * ppm2mole * AEROSPC_MW( IAER )
                END DO
-                 ISAM1( :,:,:,JCTR,K ) = MIN_VAL
+               ! 'Zero out' the reaction counter after apportioning it
+               ! to the aerosol species
+               ISAM1( :,:,:,JCTR,K ) = MIN_VAL
              END DO
 
              ! Let low-volatility vapor species apportionment equal that
