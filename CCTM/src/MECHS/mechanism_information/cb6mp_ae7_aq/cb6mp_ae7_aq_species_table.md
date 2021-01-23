@@ -148,7 +148,7 @@
 | ACR_III           | Trivalent Chromium                                   | 52.0                 | E                      |
 | ACR_VI            | Hexavalent Chromium                                  | 52.0                 | E                      |
 | ADE_EC            | Diesel Elemental Carbon                              | 12.0                 | L                      |
-| ADE_K             | Diesel Coarse Primary Particles                      | 100.0                | L                      |
+| ADE_CORS          | Diesel Coarse Primary Particles                      | 100.0                | L                      |
 | ADE_NO3           | Diesel Nitrate                                       | 62.0                 | E                      |
 | ADE_OC            | Diesel Organic Carbon                                | 220.0                | L                      |
 | ADE_OTHR          | Other Diesel Fine Primary Particles                  | 200.0                | L                      |
