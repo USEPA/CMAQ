@@ -123,15 +123,37 @@ If an applications of inline_phot_preproc changes the N_WAVEBANDS_OUT from the s
 
 <center> Table 3. Aerosol Refractive defined in build-run script </center>
 
- |  Names | Definition or aerosol material | Source |      
- |:-----|:-----|:------|     
- | WATER | water in the aqueous aerosol component | !Segelstein, D., 1981 |
- | DUST | insoluble mineral and unidentified material | OPAC software package (M. Hess et. al, 1998) |     
- | SOLUTE | inorganic solutes in aqueous aerosol component such as SO<sub>4</sub>, NH<sub>4</sub>, NO<sub>3</sub> and CL ions | OPAC software package (M. Hess et. al, 1998) |
- | SOOT | insoluble elemental carbon | Chang,H & T.T. Charalmpopoulos (1990), Bond, T.C. & R.W. Bergstrom (2006), Personal Communication from Tami Bond.  |
- | SEASALT | material from sea spray  | OPAC software package (M. Hess et. al, 1998) |
+The current build-run script uses Table 3's refractive indices. Their raw data files are located
+under the _refractive indices_ subdirectory. After processing this data, inline_phot_preproc
+writes results to the PHOT_OPTICS.dat file read by the CCTM model. A user may
+change refractive indices written to PHOT_OPTICS.dat by changing **AE_REFRAC_LIST** then setting
+new environment variables in the new list and/or by changing values of environment variables in
+the existing list. The _refractive indices_ subdirectory also contain data files that can be used.
+If a user wants to use their own data, the files have to use the same format as the current repository's files. 
+Note that wavelengths have to use nanometers as their units.
+
+ |  Names        | Definition or aerosol material | Source |      
+ |:--------------|:---------------------------------------------|:---------------------|     
+ | WATER         | water in the aqueous aerosol component       | Segelstein, D., 1981 |
+ | DUST          | insoluble mineral and unidentified material  | OPAC software package (M. Hess et. al, 1998) |     
+ | SOLUTE        | inorganic solutes in aqueous aerosol component such as SO<sub>4</sub>, NH<sub>4</sub>, NO<sub>3</sub> and CL ions | OPAC software package (M. Hess et. al, 1998) |
+ | SOOT          | insoluble elemental carbon | Chang,H & T.T. Charalmpopoulos (1990), Bond, T.C. & R.W. Bergstrom (2006), Personal Communication from Tami Bond.  |
+ | SEASALT       | material from sea spray    | OPAC software package (M. Hess et. al, 1998)        |
+ | ISOP_NOX      | organic material from isoprene oxidation and later reactions with NO<sub>x</sub> | Nakayama et. al (2018) |
+ | ISOP_SOX      | organic material from isoprene oxidation and later reactions with SO<sub>x</sub> | Nakayama et. al (2018) |
+ | LIMONENE_SOA  | organic material from limonene oxidation similar biogenic gases     | Lui et. al (2013)   |
+ | APINENE_SOA   | organic material from alpha-pinene oxidation similar biogenic gases | Lui et. al (2013)   |
+ | NAPTH_SOA     | organic material from polycyclic aromatic hydrocarbon oxidation     | Lambe et. al (2013) |
+ | MXYL_HIGH_NOX | organic material from xylenes oxidation under high NO<sub>x</sub>   | Lui et. al (2015)   |
+ | MXYL_LOW_NOX  | organic material from xylenes oxidation under low NO<sub>x</sub>    | Lui et. al (2015)   |
+ | TOLU_HIGH_NOX | organic material from toluene oxidation under high NO<sub>x</sub>   | Lui et. al (2015)   |
+ | TOLU_LOW_LOW  | organic material from toluene oxidation under low NO<sub>x</sub>    | Lui et. al (2015)   |
+ | ORGCARB       | general organic material                                            | Assembled from numerous sources by Adient review (McMeeking et. al, 2010) |
+ | BIOMASS       | organic material from biomass combustion                            | Assembled from numerous sources by Adient review (McMeeking et. al, 2010) |
 
 ### References 
+
+ADIENT database: http://www.met.rdg.ac.uk/~adient/refractiveindices.html, last accessed on January 22, 2021.
 
 Bian H. and Prather M. J. (2002). Fast-J2: Accurate Simulation of Stratospheric Photolysis in Global Chemical Models, J. Atmos. Chem., 41, 281-296. (Table I & II corrected, June 2008).
 
@@ -147,4 +169,28 @@ Proceeding of the Royal Society of London A, Vol. 430, pp 577-591.
 
 Hess M., Koepke P., and I. (1998): Optical Properties of Aerosols and clouds: The software package OPAC, Bull. Am. Met. Soc., 79, 831-844.
 
+Andrew T. Lambe, Christopher D. Cappa, Paola Massoli, Timothy B. Onasch, Sara D. Forestieri, Alexander T. Martin, Molly J. Cummings,
+David R. Croasdale, William H. Brune, Douglas R. Worsnop, and Paul Davidovits (2013).
+Environmental Science & Technology, 47(12), 6349-6357, DOI: 10.1021/es401043j.
+
+Liu P.F., Yue Zhang, and Scot T. Martin (2013).
+Complex Refractive Indices of Thin Films of Secondary Organic Materials by Spectroscopic Ellipsometry from 220 to 1200 nm
+Environmental Science & Technology 47(23), 13594-13601, DOI: 10.1021/es403411e.
+
+Liu P.F., N. Abdelmalki, H.-M. Hung, Y. Wang, W. H. Brune and S. T. Martin (2015).
+Ultraviolet and visible complex refractive indices of secondary organic 
+material produced by photooxidation of the aromatic compounds toluene and m-xylene
+Atmos. Chem. Phys., 15, 1435-1446, doi:10.5194/acp-15-1435-2015.
+
+McMeeking, G. R., Hamburger, T., Liu, D., Flynn, M., Morgan, W. T., Northway, M., Highwood,
+5 E. J., Krejci, R., Allan, J. D., Minikin, A., and Coe, H. (2010). Black carbon measurements in the
+boundary layer over western and northern Europe, Atmos. Chem. Phys., 10, 93939414,
+doi:10.5194/acp-10-9393-2010.
+
+Nakayama T., Kei Sato, Takashi Imamura, and Yutaka Matsumi (2018).
+Effect of Oxidation Process on Complex Refractive Index of Secondary Organic Aerosol Generated from Isoprene.
+Environmental Science & Technology 52(5), 2566-2574. DOI: 10.1021/acs.est.7b05852
+
 Segelstein, D., (1981), The Complex Refractive Index of Water, M.S. Thesis, University of Missouri--Kansas City, MO.
+
+/
