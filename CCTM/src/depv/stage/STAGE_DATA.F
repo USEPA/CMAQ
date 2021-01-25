@@ -55,7 +55,7 @@ C     26 June 2014 J.Bash: initial implementation
 
       Type( Map_Type ), Save :: Map_Data 
 
-      INTEGER, PARAMETER :: dep_gas_all = 177
+      INTEGER, PARAMETER :: dep_gas_all = 207
       INTEGER, PARAMETER :: LCMP = 8
       Character( 16 ), Save :: vd_name     ( dep_gas_all )       ! Deposition species name
       Real,            Save :: rel_rx      ( dep_gas_all )       ! reactivity relative to HNO3
@@ -248,6 +248,36 @@ C     26 June 2014 J.Bash: initial implementation
       DATA vd_name(175), rel_rx(175), f0(175), LeBasM(175), M_ac(175) / 'MBC2         ',     2.0, 0.0,   94.5, 0.420/ ! MBC2
       DATA vd_name(176), rel_rx(176), f0(176), LeBasM(176), M_ac(176) / 'MBC          ',     2.0, 0.0,   77.0, 0.420/ ! MBC
       DATA vd_name(177), rel_rx(177), f0(177), LeBasM(177), M_ac(177) / 'CLO          ',     8.0, 0.0,   31.5, 0.420/ ! CLO
+      DATA vd_name(178), rel_rx(178), f0(178), LeBasM(178), M_ac(178) / 'HFPODA       ',     1.0, 0.0,  188.7, 0.420/ !HFPODA- new pfas species
+      DATA vd_name(179), rel_rx(179), f0(179), LeBasM(179), M_ac(179) / 'HFPODAF      ',     1.0, 0.0,  196.7, 0.420/ !new pfas species
+      DATA vd_name(180), rel_rx(180), f0(180), LeBasM(180), M_ac(180) / 'TFE          ',     1.0, 0.0,   76.6, 0.420/ !new pfas species
+      DATA vd_name(181), rel_rx(181), f0(181), LeBasM(181), M_ac(181) / 'HFPO         ',     1.0, 0.0,   98.9, 0.420/ !new pfas species
+      DATA vd_name(182), rel_rx(182), f0(182), LeBasM(182), M_ac(182) / 'HFP          ',     1.0, 0.0,  104.0, 0.420/ !new pfas species
+      DATA vd_name(183), rel_rx(183), f0(183), LeBasM(183), M_ac(183) / 'E2           ',     1.0, 0.0,  266.6, 0.420/ !new pfas species
+      DATA vd_name(184), rel_rx(184), f0(184), LeBasM(184), M_ac(184) / 'PSEPVE       ',     1.0, 0.0,  247.6, 0.420/ !new pfas species
+      DATA vd_name(185), rel_rx(185), f0(185), LeBasM(185), M_ac(185) / 'PAF          ',     1.0, 0.0,   80.5, 0.420/ !new pfas species
+      DATA vd_name(186), rel_rx(186), f0(186), LeBasM(186), M_ac(186) / 'CH3F         ',     1.0, 0.0,   50.5, 0.420/ !new pfas species
+      DATA vd_name(187), rel_rx(187), f0(187), LeBasM(187), M_ac(187) / 'PPVE         ',     1.0, 0.0,  165.3, 0.420/ !new pfas species
+      DATA vd_name(188), rel_rx(188), f0(188), LeBasM(188), M_ac(188) / 'PMVE         ',     1.0, 0.0,  110.4, 0.420/ !new pfas species
+      DATA vd_name(189), rel_rx(189), f0(189), LeBasM(189), M_ac(189) / 'PEVE         ',     1.0, 0.0,  137.8, 0.420/ !new pfas species
+      DATA vd_name(190), rel_rx(190), f0(190), LeBasM(190), M_ac(190) / 'PFB          ',     1.0, 0.0,  131.5, 0.420/ !new pfas species
+      DATA vd_name(191), rel_rx(191), f0(191), LeBasM(191), M_ac(191) / 'PMPF         ',     1.0, 0.0,  141.8, 0.420/ !new pfas species
+      DATA vd_name(192), rel_rx(192), f0(192), LeBasM(192), M_ac(192) / 'TAF2         ',     1.0, 0.0,  141.8, 0.420/ !new pfas species
+      DATA vd_name(193), rel_rx(193), f0(193), LeBasM(193), M_ac(193) / 'EVE          ',     1.0, 0.0,  257.6, 0.420/ !new pfas species
+      DATA vd_name(194), rel_rx(194), f0(194), LeBasM(194), M_ac(194) / 'COF2         ',     1.0, 0.0,   53.1, 0.420/ !new pfas species
+      DATA vd_name(195), rel_rx(195), f0(195), LeBasM(195), M_ac(195) / 'E1           ',     1.0, 0.0,  177.9, 0.420/ !new pfas species
+      DATA vd_name(196), rel_rx(196), f0(196), LeBasM(196), M_ac(196) / 'PEPF         ',     1.0, 0.0,  169.2, 0.420/ !new pfas species
+      DATA vd_name(197), rel_rx(197), f0(197), LeBasM(197), M_ac(197) / 'DA           ',     1.0, 0.0,  279.0, 0.420/ !new pfas species
+      DATA vd_name(198), rel_rx(198), f0(198), LeBasM(198), M_ac(198) / 'HFPOTA       ',     1.0, 0.0,  285.4, 0.420/ !new pfas species
+      DATA vd_name(199), rel_rx(199), f0(199), LeBasM(199), M_ac(199) / 'TAF          ',     1.0, 0.0,   86.9, 0.420/ !new pfas species
+      DATA vd_name(200), rel_rx(200), f0(200), LeBasM(200), M_ac(200) / 'MA           ',     1.0, 0.0,  190.3, 0.420/ !new pfas species
+      DATA vd_name(201), rel_rx(201), f0(201), LeBasM(201), M_ac(201) / 'F113         ',     1.0, 0.0,  112.1, 0.420/ !new pfas species
+      DATA vd_name(202), rel_rx(202), f0(202), LeBasM(202), M_ac(202) / 'TFF4         ',     1.0, 0.0,  249.6, 0.420/ !new pfas species
+      DATA vd_name(203), rel_rx(203), f0(203), LeBasM(203), M_ac(203) / 'CF3H         ',     1.0, 0.0,   61.8, 0.420/ !new pfas species
+      DATA vd_name(204), rel_rx(204), f0(204), LeBasM(204), M_ac(204) / 'PFASOTHER    ',     1.0, 0.0,  164.8, 0.420/ !new pfas species, sum of all "other" species <100 lbs/yr
+      DATA vd_name(205), rel_rx(205), f0(205), LeBasM(205), M_ac(205) / 'PFASGAS      ',     1.0, 0.0,   95.4, 0.420/ !new pfas species, sum of all species
+      DATA vd_name(206), rel_rx(206), f0(206), LeBasM(206), M_ac(206) / 'PFASGP       ',     1.0, 0.0,   95.4, 0.420/ !new pfas species, sum of all specieS
+      DATA vd_name(207), rel_rx(207), f0(207), LeBasM(207), M_ac(207) / 'PFASGASOTHER ',     1.0, 0.0,  128.8, 0.420/ !new pfas species, sum of all gas species in "other"
 
       Contains
          SUBROUTINE Map_STAGE 

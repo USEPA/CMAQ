@@ -227,11 +227,12 @@ C              remove redundat variables.
 C-----------------------------------------------------------------------
 
       Use rxns_data, only: mechname
-      Use aero_data, only: AE_eflag, findAero, aerospc_mw, n_aerospc
+      Use aero_data, only: AE_eflag, findAero, aerospc_mw, n_aerospc,
+     &                     npfas, MAP_PFAStoGAS, PFASGAS_CONC
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
       Use cgrid_spcs, only: n_gc_spc, gc_spc, n_gc_g2ae, gc_g2ae, gc_strt, gc_molwt, gc_g2ae_map, 
      &                      n_nr_spc, nr_spc, n_nr_n2ae, nr_n2ae, nr_strt, nr_molwt, nr_n2ae_map,
-     &                      n_ae_spc, ae_spc
+     &                      n_ae_spc, ae_spc, cgrid_mw
       Use runtime_vars, only: logdev
       Use utilio_defn, only: index1, xstat3
 
@@ -374,6 +375,16 @@ C-----------------------------------------------------------------------
          End If
       End Do
 
+      ! Copy PFAS Gas-Phase Compounds to Local Array
+      pfasgas_conc = 0.0
+      Do spc = 1,npfas
+         n = map_PFAStoGAS( spc )
+         if ( n.Ne. 0 ) then
+            vtmp = gasconv * cgrid_mw( n )
+            pfasgas_conc( spc ) = Max( conc( n ) * vtmp, min_gasconc )
+         End If
+      End Do
+
 99902 Format('FATAL: SOA Vapor, ', a, 
      &       ', is not found among the species in '
      &     / 'the NR or GC namelist used. Required for modeling ', a / )
@@ -398,9 +409,10 @@ C
 C SH  03/10/11 Renamed met_data to aeromet_data
 C SR  03/25/11 Replaced I/O API include files with UTILIO_DEFN
 C-----------------------------------------------------------------------
-
+      Use aero_data, only   : npfas, map_PFAStoGAS, PFASGAS_CONC
       Use aeromet_data, only: airdens, inv_mwair, min_gasconc
-      Use utilio_defn, only: xstat3
+      Use utilio_defn, only : xstat3
+      Use cgrid_spcs, only  : cgrid_mw
 
       Implicit None
 
@@ -428,6 +440,15 @@ C-----------------------------------------------------------------------
          If ( n .Ne. 0 ) Then
             vtmp = og_mw( spc ) * gasconv
             conc( n ) = Max ( og_conc( spc ) / vtmp, min_gasconc )
+         End If
+      End Do
+      
+      ! Copy PFAS compounds back to grid cell concentrations
+      Do spc = 1, npfas
+         n = map_PFAStoGAS( spc )
+         If ( n .Ne. 0 ) Then
+            vtmp = cgrid_mw( n ) * gasconv
+            conc( n ) = Max ( pfasgas_conc( spc ) / vtmp, min_gasconc )
          End If
       End Do
 

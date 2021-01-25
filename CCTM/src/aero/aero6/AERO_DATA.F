@@ -125,7 +125,7 @@ C----------------------------------------------------------------------
 
 C Number of aerosol species and modes
 
-      Integer, Parameter :: n_aerolist = 110    ! number of aero species
+      Integer, Parameter :: n_aerolist = 141    ! number of aero species
       Integer, Parameter :: n_mode = 3          ! number of modes:
                                                 ! 1 = Aitken
                                                 ! 2 = accumulation
@@ -294,7 +294,41 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
      & spcs_list_type('AAVB3   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.14),
      & spcs_list_type('AAVB4   ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,T, 'DUST  ', 0.12),
 
-       ! The following species are associated with the Multi-Pollutant code
+
+       ! adding PFAS species
+     & spcs_list_type('AHFPODA ', cm_set, 1300.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('AHFPODAF', cm_set, 1850.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('ATFE    ', cm_set, 1300.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('AHFPO   ', cm_set, 1300.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('AHFP    ', cm_set, 1583.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('AE2     ', cm_set, 1659.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('APSEPVE ', cm_set, 1700.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('APAF    ', cm_set, 1400.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('ACH3F   ', cm_set, 1167.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('APPVE   ', cm_set, 1530.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('APMVE   ', cm_set, 1430.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('APEVE   ', cm_set, 1445.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('APFB    ', cm_set, 1530.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('APMPF   ', cm_set, 1600.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('ATAF2   ', cm_set, 1600.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),  !assume density of 1.6 based on EVE, E1&2, and HFPOTA which are ~similar structures
+     & spcs_list_type('AEVE    ', cm_set, 1592.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('ACOF2   ', cm_set, 1139.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('AE1     ', cm_set, 1538.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('APEPF   ', cm_set, 1700.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('ADA     ', cm_set, 1800.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('AHFPOTA ', cm_set, 1700.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('ATAF    ', cm_set, 1500.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), 
+     & spcs_list_type('AMA     ', cm_set, 1800.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('AF113   ', cm_set, 1700.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('ACF3H   ', cm_set, 1100.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('ATFF4   ', cm_set, 1800.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('AHF     ', cm_set, 1160.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02),
+     & spcs_list_type('APFASOTHER',cm_set,1570.0, T,F,  0,  2.8, 6.1,F, 'DUST  ', 0.02), !average density of all "other" compounds <100lbs/2017
+     & spcs_list_type('APFASGP ',cm_set,  1370.0, T,T,  0,  2.8, 6.1,F, 'DUST  ', 0.02), !average density of all compounds
+     & spcs_list_type('APFASAERO',cm_set, 1370.0, T,T,  0,  2.8, 6.1,F, 'DUST  ', 0.02), !average density of all compounds
+     & spcs_list_type('APFAS_EXPTDAERO',cm_set, 1600.0, T,T, 0,2.8, 6.1,F, 'DUST', 0.02), !average density of all compounds expected to be in particle phase
+ 
+        ! The following species are associated with the Multi-Pollutant code
      & spcs_list_type('ANI     ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Nickel
      & spcs_list_type('ACR_VI  ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Chromium 6
      & spcs_list_type('ACR_III ', cm_set, 2200.0, F,T,  0,  0.0, 0.0,F, 'DUST  ', 0.00), ! Chromium 3              #80
@@ -347,7 +381,7 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
           Real            :: dgvem( n_mode )  ! meters
           Real            :: sgem ( n_mode )  ! dimensionless
       END TYPE em_aero
-      INTEGER, PARAMETER  :: n_em_aero_ref = 9
+      INTEGER, PARAMETER  :: n_em_aero_ref = 11
 
       TYPE( em_aero ), Parameter :: em_aero_ref( n_em_aero_ref ) = (/
 
@@ -356,6 +390,8 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
      & em_aero('ACC_REF        ',(/0.0,1.0,0.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Accumulation Mode
      & em_aero('COARSE_REF     ',(/0.0,0.0,1.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Just Coarse Mode
      & em_aero('UNITY_REF      ',(/1.0,1.0,1.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Used for online sectors (e.g. SeaSpray)
+     & em_aero('PFAS_REF       ',(/0.329,0.671,0.0/),(/0.1E-6,5.0E-6 ,6.0E-6 /),(/1.6,2.1,2.1/)), ! Default Accum and Aitken Mode
+     & em_aero('PFAS_REF_UF    ',(/1.0,0.0,0.0/),(/0.02E-6,5.0E-6 ,6.0E-6 /),(/1.3,2.1,2.1/)), ! Default Accum and Aitken Mode
      & em_aero('ZERO_REF       ',(/0.0,0.0,0.0/),(/0.06E-6,0.28E-6 ,6.0E-6 /),(/1.7,1.7,2.2/)), ! Zero out the emissions
      & em_aero('FINE_WBDUST    ',(/0.0,1.0,0.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Default Fine Wind-Blown Dust Parameterization
      & em_aero('COARSE_WBDUST  ',(/0.0,0.0,1.0/),(/0.06E-6,1.391E-6,5.26E-6/),(/1.7,2.0,2.0/)), ! Default Coarse Wind-Blown Dust Param.
@@ -365,6 +401,61 @@ C                     ---------- -------- ------- + +   + ------ --- +  --------
                                                                                                 !  are replaced in SSEMIS when FACNUM and FACSRF
                                                                                                 !  are calculated online.
      & /)
+
+      ! List of PFAS Properties for Use in Partitioning Calculations
+      Type pfas_type
+         Character( 16 ) :: gasname             ! gaseous vapor species name
+         Character( 16 ) :: aername             ! mode-independent names of aerosol species
+         Real            :: pKa                 ! acid dissociation constant, pKa 
+         Real            :: Cstar               ! Saturation Concentration (C*) [ug m-3]
+         Real            :: dHvap               ! Enthalpy of Vaporization [J/mol]
+      End Type pfas_type
+
+      Integer, Parameter :: npfas = 33
+      Type( pfas_type ), Save :: pfas( npfas ) = (/
+
+C                GasName     | AerName     | pKa   | Cstar   | Hvap
+C                ----------   ------------  ------- --------- --------
+     & pfas_type('HFPODA   ' , 'AHFPODA   ', -0.73 ,   9.8E+5,  46.7E3), ! HFPO-Dimer Acid
+     & pfas_type('HFPODAF  ' , 'AHFPODAF  ', -999. ,  3.07E+9,  34.5E3), ! HFPO-Dimer Acid
+     & pfas_type('TFE      ' , 'ATFE      ', -999. , 2.66E+10,  17.8E3), ! HFPO-Dimer Acid
+     & pfas_type('HFPO     ' , 'AHFPO     ', -999. , 1.14E+10,  20.5E3), ! HFPO-Dimer Acid
+     & pfas_type('HFP      ' , 'AHFP      ', -999. , 4.03E+10,  21.5E3), ! HFPO-Dimer Acid
+     & pfas_type('E2       ' , 'AE2       ', -999. , 3.941E+9,  37.4E3), ! HFPO-Dimer Acid
+     & pfas_type('PSEPVE   ' , 'APSEPVE   ', -999. , 1.906E+7,  43.5E3), ! HFPO-Dimer Acid
+     & pfas_type('PAF      ' , 'APAF      ', -999. , 3.98E+10,  25.9E3), ! HFPO-Dimer Acid
+     & pfas_type('CH3F     ' , 'ACH3F     ', -999. , 8.606E+9,  17.7E3), ! HFPO-Dimer Acid
+     & pfas_type('PPVE     ' , 'APPVE     ', -999. , 3.035E+9,  28.3E3), ! HFPO-Dimer Acid
+     & pfas_type('PMVE     ' , 'APMVE     ', -999. , 1.15E+10,  25.1E3), ! HFPO-Dimer Acid
+     & pfas_type('PEVE     ' , 'APEVE     ', -999. , 1.24E+10,  26.7E3), ! HFPO-Dimer Acid
+     & pfas_type('PFB      ' , 'APFB      ', -999. , 2.69E+10,  24.6E3), ! HFPO-Dimer Acid
+     & pfas_type('PMPF     ' , 'APMPF     ', -999. , 3.958E+9,  29.3E3), ! HFPO-Dimer Acid
+     & pfas_type('TAF2     ' , 'ATAF2     ', -999. ,   1.1E+8,    30E3), ! HFPO-Dimer Acid
+     & pfas_type('EVE      ' , 'AEVE      ', -999. , 1.669E+6,  50.3E3), ! HFPO-Dimer Acid
+     & pfas_type('COF2     ' , 'ACOF2     ', -999. , 9.63E+10,  18.0E3), ! HFPO-Dimer Acid
+     & pfas_type('E1       ' , 'AE1       ', -999. , 4.433E+9,  28.3E3), ! HFPO-Dimer Acid
+     & pfas_type('PEPF     ' , 'APEPF     ', -999. , 5.949E+9,  33.3E3), ! HFPO-Dimer Acid
+     & pfas_type('DA       ' , 'ADA       ', -999. , 1.097E+7,  49.6E3), ! HFPO-Dimer Acid
+     & pfas_type('HFPOTA   ' , 'AHFPOTA   ', -999. , 3.082E+9,  43.3E3), ! HFPO-Dimer Acid
+     & pfas_type('TAF      ' , 'ATAF      ', -999. , 1.05E+10,  24.9E3), ! HFPO-Dimer Acid
+     & pfas_type('MA       ' , 'AMA       ', -999. , 8.436E+8,  41.8E3), ! HFPO-Dimer Acid
+     & pfas_type('F113     ' , 'AF113     ', -999. ,  4.86E+9,    27E3), ! HFPO-Dimer Acid
+     & pfas_type('CF3H     ' , 'ACF3H     ', -999. ,  8.7E+10,  17.2E3), ! HFPO-Dimer Acid
+     & pfas_type('TFF4     ' , 'ATFF4     ', -999. ,  3.96E+7,  36.9E3), ! HFPO-Dimer Acid
+     & pfas_type('         ' , 'AHF       ', -999. ,    -999.,   -999.), ! HFPO-Dimer Acid
+     & pfas_type('PFASOTHER' , 'APFASOTHER', -999. , 6.636E+5,  35.6E3), ! HFPO-Dimer Acid
+     & pfas_type('PFASGP   ' , 'APFASGP   ', -999. , 3.637E+7,  20.7E3), ! HFPO-Dimer Acid
+     & pfas_type('PFASGAS  ' , '          ', -999. ,    -999.,   -999.), ! if one of the names is blank, code won't read the pKa, Cstar, Hvap values so doesn't matter what they are
+     & pfas_type('         ' , 'APFASAERO ', -999. ,    -999.,   -999.), !1.098E+8,  20.7E3), ! HFPO-Dimer Acid
+     & pfas_type(' ',    'APFAS_EXPTDAERO ', -999. ,    -999.,   -999.), ! 1.12E+7,  35.7E3), !HFPO-Dimer Acid
+     & pfas_type('PFASGASOTHER' , '       ', -999. , 8.974E+8,  27.6E3)/)!HFPO-Dimer Acid
+
+       Integer, Save :: MAP_PFAStoAERO( NPFAS )
+       Integer, Save :: MAP_PFAStoGAS ( NPFAS )
+       Logical, Parameter :: LPFAS_PARTITIONING = .TRUE. ! Flag for turning on/off online 
+                                                         ! partitioning of PFAS compounds to
+                                                         ! aerosol water
+       REAL, SAVE    :: PFASGAS_CONC( NPFAS )
 
 ! Primary Organic Aerosol Volatility Distributions
       Integer, Parameter :: n_vbs_bin = 5
@@ -785,7 +876,7 @@ C Local Variables:
 
       Integer, Allocatable :: aerospc_in_dustlist( : )
 
-      Integer l, m, n, spc, isea, idust
+      Integer l, m, n, spc, isea, idust, ipfas
       Real    so4fac
       Real    anthfac
 
@@ -1082,6 +1173,22 @@ C compute aeromode_minNum and aeromode_minM2
      &    //  'the log of exiting processor if more details are needed.'
          Call m3exit( pname, 0, 0, xmsg, xstat3 )
       End If 
+
+      ! Map PFAS Compounds to the Aerosol and Gas Arrays
+      MAP_PFAStoAERO = 0
+      MAP_PFAStoGAS  = 0
+      do ipfas = 1,npfas
+         ! Map PFAS to Aerosol Array
+         n = index1( pfas(ipfas)%aername, n_aerospc, aerospc(:)%bulkname )
+         if ( n .ne. 0 ) MAP_PFAStoAERO( IPFAS ) = n
+         if ( pfas(ipfas)%aername .eq. '' ) MAP_PFAStoAERO( ipfas ) = 0
+
+         ! Map PFAS to CGRID Array for Gases
+         n = index1( pfas(ipfas)%gasname, nspcsd, cgrid_name )
+         if ( n .ne. 0 ) MAP_PFAStoGAS( IPFAS ) = n
+         if ( pfas(ipfas)%gasname .eq. '' ) MAP_PFAStoGAS( ipfas ) = 0
+
+      enddo 
 
       mapped = .True.
 

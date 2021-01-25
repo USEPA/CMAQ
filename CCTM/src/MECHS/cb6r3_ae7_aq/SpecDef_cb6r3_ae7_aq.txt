@@ -273,10 +273,10 @@ PM25_UNSPEC1    ,ug m-3     ,PM25_TOT[0]-(PM25_CL[0]+PM25_EC[0]+PM25_NA[0]+PM25_
 !! Fine particle acidity (pH). pH is undefined if there is no aerosol water. 
 !Do not trust predictions when hourly water is <0.01 ug m-3. FINEPHF will 
 !have large negative value (-9.999E36) when pH is not to be trusted.
-!AH2OIJ         ,ug m-3     ,AH2OI[1]+AH2OJ[1]
-!HPMOLAL        ,mol kg-1   ,AHPLUSIJ[0]/AH2OIJ[0]*1000.0
-!ACIDITYTEMP    ,           ,-1*LOG10(HPMOLAL[0])
-!FINEPHF        ,           ,AH2OIJ[0]>0.01 ? ACIDITYTEMP[0] : -9.999E36
+AH2OIJ         ,ug m-3     ,AH2OI[1]+AH2OJ[1]
+HPMOLAL        ,mol kg-1   ,AHPLUSIJ[0]/AH2OIJ[0]*1000.0
+ACIDITYTEMP    ,           ,-1*LOG10(HPMOLAL[0])
+FINEPHF        ,           ,AH2OIJ[0]>0.01 ? ACIDITYTEMP[0] : -9.999E36
 
 !! PM10.0 and Coarse-Sized Species
 PM10            ,ug m-3     ,ATOTI[0]*PM10AT[3]+ATOTJ[0]*PM10AC[3]+ATOTK[0]*PM10CO[3]
@@ -308,3 +308,77 @@ PMIJ_FRM        ,ug m-3     ,ATOTIJ[0]-(ANO3IJ_loss[0]+ANH4IJ_loss[0]) \
                             +0.24*(ASO4IJ[0]+ANH4IJ[0]-ANH4IJ_loss[0])+0.5
 PM25_FRM        ,ug m-3     ,PM25_TOT[0]-(PM25_NO3_loss[0]+PM25_NH4_loss[0]) \
                             +0.24*(PM25_SO4[0]+PM25_NH4[0]-PM25_NH4_loss[0])+0.5
+
+!-------------------------------------------!
+!---------------- PFAS ---------------------!
+!-------------------------------------------!
+HFPODA          ,ppbV      ,1000.0*HFPODA[1]
+HFPODAF         ,ppbV      ,1000.0*HFPODAF[1]
+TFE             ,ppbV      ,1000.0*TFE[1]
+HFPO            ,ppbV      ,1000.0*HFPO[1]
+HFP             ,ppbV      ,1000.0*HFP[1]
+E2              ,ppbV      ,1000.0*E2[1]
+PSEPVE          ,ppbV      ,1000.0*PSEPVE[1]
+PAF             ,ppbV      ,1000.0*PAF[1]
+CH3F            ,ppbV      ,1000.0*CH3F[1]
+PPVE            ,ppbV      ,1000.0*PPVE[1]
+PMVE            ,ppbV      ,1000.0*PMVE[1]
+PEVE            ,ppbV      ,1000.0*PEVE[1]
+PFB             ,ppbV      ,1000.0*PFB[1]
+PMPF            ,ppbV      ,1000.0*PMPF[1]
+TAF2            ,ppbV      ,1000.0*TAF2[1]
+EVE             ,ppbV      ,1000.0*EVE[1]
+COF2            ,ppbV      ,1000.0*COF2[1]
+E1              ,ppbV      ,1000.0*E1[1]
+PEPF            ,ppbV      ,1000.0*PEPF[1]
+DA              ,ppbV      ,1000.0*DA[1]
+HFPOTA          ,ppbV      ,1000.0*HFPOTA[1]
+TAF             ,ppbV      ,1000.0*TAF[1]
+MA              ,ppbV      ,1000.0*MA[1]
+F113            ,ppbV      ,1000*F113[1]
+TFF4            ,ppbV      ,1000*TFF4[1]
+CF3H            ,ppbV      ,1000*CF3H[1]
+PFASOTHER       ,ppbV      ,1000.0*PFASOTHER[1]
+PFASGAS         ,ppbV      ,1000.0*PFASGAS[1]
+PFASGP          ,ppbV      ,1000.0*PFASGP[1]
+PFASGASOTHER    ,ppbV      ,1000.0*PFASGASOTHER[1]
+
+AHFPODAJ        ,ug m-3    ,AHFPODAJ[1]
+AHFPODAFJ       ,ug m-3    ,AHFPODAFJ[1]
+ATFEJ           ,ug m-3    ,ATFEJ[1]
+AHFPOJ          ,ug m-3    ,AHFPOJ[1]
+AHFPJ           ,ug m-3    ,AHFPJ[1]
+AE2J            ,ug m-3    ,AE2J[1]
+APSEPVEJ        ,ug m-3    ,APSEPVEJ[1]
+APAFJ           ,ug m-3    ,APAFJ[1]
+ACH3FJ          ,ug m-3    ,ACH3FJ[1]
+APPVEJ          ,ug m-3    ,APPVEJ[1]
+APMVEJ          ,ug m-3    ,APMVEJ[1]
+APEVEJ          ,ug m-3    ,APEVEJ[1]
+APFBJ           ,ug m-3    ,APFBJ[1]
+APMPFJ          ,ug m-3    ,APMPFJ[1]
+ATAF2J          ,ug m-3    ,ATAF2J[1]
+AEVEJ           ,ug m-3    ,AEVEJ[1]
+ACOF2J          ,ug m-3    ,ACOF2J[1]
+AE1J            ,ug m-3    ,AE1J[1]
+APEPFJ          ,ug m-3    ,APEPFJ[1]
+ADAJ            ,ug m-3    ,ADAJ[1]
+AHFPOTAJ        ,ug m-3    ,AHFPOTAJ[1]
+ATAFJ           ,ug m-3    ,ATAFJ[1]
+AMAJ            ,ug m-3    ,AMAJ[1]
+AHFJ            ,ug m-3    ,AHFJ[1]
+AF113J          ,ug m-3    ,AF113J[1]
+ATFF4J          ,ug m-3    ,ATFF4J[1]
+ACF3HJ          ,ug m-3    ,ACF3HJ[1]
+APFASOTHERJ     ,ug m-3    ,APFASOTHERJ[1]
+APFASGPJ        ,ug m-3    ,APFASGPJ[1]
+APFASAEROJ      ,ug m-3    ,APFASAEROJ[1]
+APFAS_EXPTDAEROJ,ug m-3    ,APFAS_EXPTDAEROJ[1]
+
+! all PFAS, ie sum of individual species > 100 lbs/2017 emissions, and lumped "other" group, excluding HF which isn't really a PFAS, separated by gas & particle phase
+TOTCONC_GASPFAS      ,ppbV     , (HFPODA[1]+ HFPODAF[1]+ TFE[1]+ HFPO[1]+ HFP[1]+ E2[1]+ PSEPVE[1]+ PAF[1]+ CH3F[1]+ PPVE[1]+ PMVE[1]+ PEVE[1]+ PFB[1]+ PMPF[1]+ TAF2[1]+ EVE[1]+ COF2[1]+ E1[1]+ PEPF[1]+ DA[1]+ HFPOTA[1]+ TAF[1]+ MA[1]+ F113[1]+ TFF4[1]+ CF3H[1]+ PFASOTHER[1] ) *1000
+
+TOTCONC_AEROPFAS      ,ug m-3     , AHFPODAJ[1]+ AHFPODAFJ[1]+ ATFEJ[1]+ AHFPOJ[1]+ AHFPJ[1]+ AE2J[1]+ APSEPVEJ[1]+ APAFJ[1]+ ACH3FJ[1]+ APPVEJ[1]+ APMVEJ[1]+ APEVEJ[1]+ APFBJ[1]+ APMPFJ[1]+ ATAF2J[1]+ AEVEJ[1]+ ACOF2J[1]+ AE1J[1]+ APEPFJ[1]+ ADAJ[1]+ AHFPOTAJ[1]+ ATAFJ[1]+ AMAJ[1]+ AF113J[1]+ ATFF4J[1]+ ACF3HJ[1]+ APFASOTHERJ[1] 
+
+
+

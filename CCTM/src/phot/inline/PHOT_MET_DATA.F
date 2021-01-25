@@ -171,11 +171,11 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
             CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
          END IF
 
-         ALLOCATE ( CFRAC( NCOLS,NROWS ), STAT = ASTAT )
-         IF ( ASTAT .NE. 0 ) THEN
-            XMSG = 'Failure allocating CFRAC'
-            CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
-         END IF
+         !ALLOCATE ( CFRAC( NCOLS,NROWS ), STAT = ASTAT )
+         !IF ( ASTAT .NE. 0 ) THEN
+         !   XMSG = 'Failure allocating CFRAC'
+         !   CALL M3EXIT ( PNAME, JDATE, JTIME, XMSG, XSTAT1 )
+         !END IF
 
          ALLOCATE ( DENS( NCOLS,NROWS,NLAYS ), STAT = ASTAT )
          IF ( ASTAT .NE. 0 ) THEN
@@ -421,7 +421,7 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 !...Get resolved cloud fractions
 
          VARNM = 'CFRAC'
-         call interpolate_var (VARNM, mdate, mtime, CFRAC)
+         !call interpolate_var (VARNM, mdate, mtime, CFRAC)
 
 !...Get resolved water vapor mixing ratio (kg H2O / kg air)
 

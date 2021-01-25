@@ -759,6 +759,7 @@ C    aerosols. ATMOSPHERIC CHEMISTRY AND PHYSICS. 7, 4639-4659
       USE SOA_DEFN
       USE AEROMET_DATA
       USE UTILIO_DEFN
+      USE CGRID_SPCS
 
       IMPLICIT NONE
 
@@ -884,6 +885,7 @@ C     mass partitioning between the modes
       REAL( 8 ) :: J( NVOLINORG )         ! condensation/evaporation flux [mol/m**3-s]
       REAL( 8 ) :: CFINAL( NVOLINORG,N_MODE ) ! conc after mass xfer step [ug/m**3]
       REAL( 8 ) :: H2O                    ! Scratch LWC variable for output
+      REAL( 8 ) :: COA                    ! Total Organic Aerosol Moles for Partitioning
       REAL( 8 ) :: H2O_NEW                ! Update of LWC after condensation 
       REAL( 8 ) :: SO4                    ! modal SO4 after condensation or cond + nucl
       REAL( 8 ) :: DDRYM3DT               ! rate of 3rd moment transfer - dry inorg spcs
@@ -911,11 +913,12 @@ C     mass partitioning between the modes
       REAL( 8 ) :: CBUDGET0_H3OP( N_MODE )! Initial Proton before some process
 
       REAL( 8 ) :: TMP
-      INTEGER I, N                        ! loop and array indices
+      INTEGER I, N, K, C                  ! loop and array indices
       INTEGER IMODE                       ! mode loop index  
       INTEGER ISTEP                       ! loop index, mass transfer time step loop
       INTEGER ISP                         ! loop index, species loop
       LOGICAL TrustIso                    ! For negative vap. press., TrustIso = F
+      INTEGER IPFAS                       ! Loop Counter for PFAS partitioning
 
 C *** Local Saved Variables 
       LOGICAL, SAVE :: FIRSTIME = .TRUE.
@@ -949,9 +952,25 @@ C *** Local Saved Variables
       REAL( 8 ), SAVE :: M3FAC_ANO3
       REAL( 8 ), SAVE :: M3FAC_ACL
       REAL( 8 ), SAVE :: M3FAC_H2O
+      REAL( 8 ), SAVE :: M3FAC_PFAS
 
+      REAL( 4 )       :: HLAW, ACIDITY, HEFF, PFASGAS, PFASTOT, 
+     &                   FPFAS, PFASNEW, DPFAS, fPFAS_AqsPhase,
+     &                   fPFAS_OrgPhase, TT1, TT2, CSTAR
 
       logical, save :: write1 = .true.
+
+C *** External functions
+      Interface
+         Real Function hlconst ( cname, temp, effective, hplus )
+           Use utilio_defn
+           Implicit None
+           Character*(*), Intent ( In ) :: cname
+           Real,          Intent ( In ) :: temp
+           Logical,       Intent ( In ) :: effective
+           Real,          Intent ( In ) :: hplus
+        End Function hlconst
+      End Interface
 
 C-----------------------------------------------------------------------
  
@@ -981,6 +1000,7 @@ C-----------------------------------------------------------------------
          M3FAC_ANO3 = 1.0D-9 * F6DPI / REAL( AEROSPC( ANO3_IDX )%DENSITY, 8 )
          M3FAC_ACL  = 1.0D-9 * F6DPI / REAL( AEROSPC( ACL_IDX )%DENSITY, 8 )
          M3FAC_H2O  = 1.0D-9 * F6DPI / REAL( AEROSPC( AH2O_IDX )%DENSITY, 8 )
+         M3FAC_PFAS = 1.0D-9 * F6DPI / REAL( 1500.0, 8 )
 
          MWH2SO4 = PRECURSOR_MW( SULF_IDX ) ! molecular weight for H2SO4
          FAERH2SO4 = 1.0E-6 / MWH2SO4
@@ -1364,6 +1384,7 @@ C *** Equilibrate aerosol LWC with CFINAL by calling CALC_H2O
 
             H2O = H2O_NEW * DFH2OR8 
 
+
 C *** Update all Local Aerosol Mass and Vapor Concentrations 
             !Aerosol
             AEROSPC_CONC( ANH4_IDX,IMODE ) = REAL( CFINAL( KNH4,IMODE ),4 )
@@ -1371,6 +1392,7 @@ C *** Update all Local Aerosol Mass and Vapor Concentrations
             AEROSPC_CONC( ACL_IDX,IMODE )  = REAL( CFINAL( KCL, IMODE ),4 )
             AEROSPC_CONC( ASO4_IDX,IMODE ) = REAL( SO4,4 )
             AEROSPC_CONC( AH2O_IDX,IMODE ) = REAL( H2O,4 )
+            AEROSPC_CONC( AH3OP_IDX,IMODE )   = REAL( HPLUS( 3 ),4 ) * AEROSPC_MW( ah3op_idx ) ! Coarse mode H+ concentration in ug/m3
 
             !Gas
             PRECURSOR_CONC( NH3_IDX ) = GNH3R8 + ( CINORG( KNH4,IMODE )
@@ -1529,7 +1551,7 @@ C *** Apply modal partitioning of equilibrium aerosol mass
             PHI( ISP, IMODE ) = CINORG( ISP,IMODE ) / TOTAER( ISP )
          ENDDO
       ENDDO
-
+      
       ! Initialize Final Concentrations
       CFINAL = 0.0
 
@@ -1545,7 +1567,8 @@ C *** Apply modal partitioning of equilibrium aerosol mass
      &                        + OMEGA( 1:2 ) * DVOLINORG( ISP ) * DF( ISP )
          END IF
       END DO
-
+       
+      
 C *** Apply Final Concentrations to Moment Variables in Aerosol Scheme
       ! Store Initial Wet Moments
       M3WET_INIT( : ) = MOMENT3_CONC( : )
@@ -1571,7 +1594,7 @@ C *** Apply Final Concentrations to Moment Variables in Aerosol Scheme
             SO4 = CINORG( KSO4,IMODE ) + CONDSO4( IMODE ) * DELT * H2SO4RATM1
          END IF
 
-C *** Double precision vars for CALC_H2O
+         ! Double precision vars for CALC_H2O
          WI( 1 ) = CINORG( KNA, IMODE ) * CFAC_ANA
          WI( 2 ) =                  SO4 * CFAC_ASO4
          WI( 3 ) = CFINAL( KNH4,IMODE ) * CFAC_ANH4
@@ -1589,12 +1612,82 @@ C *** Double precision vars for CALC_H2O
          AEROSPC_CONC( ANO3_IDX, IMODE ) = REAL( CFINAL( KNO3,IMODE ),4 )
          AEROSPC_CONC( ACL_IDX, IMODE )  = REAL( CFINAL( KCL ,IMODE ),4 )
          AEROSPC_CONC( ASO4_IDX, IMODE ) = REAL( SO4,4 )
+          
+         ! Calculate Uptake of PFAS Compounds
+         DPFAS = 0.0
+         IF ( IMODE .EQ. 2 ) THEN
+            ! Assign H+ Concentration to each Mode
+            !HPLUS( 1:2 ) = 0.0
+            !DO I = 1, N_AEROSPC
+            !   IF(  AEROSPC( I )%tracer )CYCLE
+            !   HPLUS( 1:2 ) = HPLUS( 1:2 )
+     &      !                  - AEROSPC( I )%CHARGE * AEROSPC_CONC( I,1:2 ) / AEROSPC_MW( I )
+            !END DO
+            H2O = AEROSPC_CONC( AH2O_IDX, 1 ) + AEROSPC_CONC( AH2O_IDX, 2 )
+            IF(  H2O .GT. CONMIN )THEN
+                H2O = 1.0 / H2O
+                AEROSPC_CONC( AH3OP_IDX, 1:2 ) = REAL( EQLBHIJ * H2O, 4 ) * AEROSPC_CONC( AH2O_IDX, 1:2 ) 
+            ELSE
+                AEROSPC_CONC( AH3OP_IDX, 1:2 ) = CONMIN
+            END IF
+ 
+            ! Calculate Environmental Conditions
+            H2O = AEROSPC_CONC( AH2O_IDX, IMODE )
 
+            ACIDITY = AEROSPC_CONC( AH3OP_IDX,IMODE ) * 1.0e3 / aerospc_mw( AH3OP_IDX ) / H2O
+
+            ACIDITY = MAX ( ACIDITY, CONMIN ) 
+
+
+            ! Calculate Total Organic Moles (this is non-PFAS
+            ! compounds). PFAS compounds will partition into this
+            ! medium and the aqueous phase
+            COA = SUM( SUM( AEROSPC_CONC( :,1:2 ),2 )
+     &                    * AEROSPC_MWINV(:), MASK = AEROSPC( : )%OM )
+            IF ( AORGH2O_IDX .GT. 0 ) COA = COA + AEROSPC_CONC( AORGH2O_IDX,IMODE )
+     &                                           *AEROSPC_MWINV( AORGH2O_IDX ) 
+            TT1 = 298.0 / REAL( TEMPI, 4 )
+            TT2 = 1.0 / 298.0 - 1.0 / REAL( TEMPI, 4 )
+
+            ! Loop over PFAS compounds
+            DO IPFAS = 1,NPFAS
+               C = MAP_PFAStoAERO( IPFAS )
+               K = MAP_PFAStoGAS( IPFAS )
+
+               IF ( C .NE. 0 .AND. K .NE. 0 .AND. LPFAS_PARTITIONING ) THEN
+                 ! Calculate Effective Henry's Law
+                 HEFF = HLCONST( CGRID_NAME( K ), REAL(TEMPI,4), .TRUE., ACIDITY )
+
+                 ! Calculate Temperature-Dependent Cstar
+                 CSTAR = PFAS( IPFAS )%Cstar * TT1 * Exp( PFAS(IPFAS)%DHVAP * TT2 / RGASUNIV )
+
+                 ! Calculate the Fraction of each PFAS in the aerosol
+                 ! phase.
+                 fPFAS_OrgPhase = ( 1.0 + CSTAR * AEROSPC_MWINV(C) / COA ) ** (-1)
+                 fPFAS_AqsPhase =   2.45e-11 * H2O * HEFF / ( 1.0 + 2.45e-11 * H2O * HEFF )
+                 fPFAS = 1.0 - min( ( 1.0 + fPFAS_OrgPhase / ( 1.0 - fPFAS_OrgPhase ) 
+     &                                    + fPFAS_AqsPhase / ( 1.0 - fPFAS_AqsPhase )
+     &                                )**(-1), 1.0 )    
+
+                 ! Apply Gas-Particle Partitioning Estimation to
+                 ! distribute mass between phases (ug m-3)
+                 PFASTOT = AEROSPC_CONC( C,IMODE ) + PFASGAS_CONC( IPFAS )
+                 PFASNEW = MAX( fPFAS * PFASTOT, CONMIN )  
+                 IF ( AEROSPC( C )%TRACER .EQ. .FALSE. ) 
+     &                DPFAS   = DPFAS + PFASNEW - AEROSPC_CONC( C,IMODE )
+                                                  
+                 AEROSPC_CONC( C,IMODE ) = PFASNEW
+                 PFASGAS_CONC( IPFAS )   = MAX( PFASTOT - AEROSPC_CONC( C,IMODE ), CONMIN )
+               END IF
+            END DO
+         END IF
+ 
 C *** Compute net change in 3rd moment due to dry inorganic mass transfer
 C     (includes nucleated sulfate mass). This is for projecting the
 C     change to the second moment due to dry inorganic condensation
          
-         DDRYM3DT = ( ( CFINAL( KNH4,IMODE ) - CINORG( KNH4,IMODE ) ) * M3FAC_ANH4
+         DDRYM3DT = ( DPFAS * M3FAC_PFAS
+     &              + ( CFINAL( KNH4,IMODE ) - CINORG( KNH4,IMODE ) ) * M3FAC_ANH4
      &              + ( CFINAL( KNO3,IMODE ) - CINORG( KNO3,IMODE ) ) * M3FAC_ANO3
      &              + ( CFINAL( KCL, IMODE ) - CINORG( KCL,IMODE ) )  * M3FAC_ACL
      &              + ( SO4                  - CINORG( KSO4,IMODE ) ) * M3FAC_ASO4 ) 
@@ -1621,22 +1714,6 @@ C *** Add water and SOA to 2nd moment while preserving standard deviation
       M3WET_FINAL = moment3_conc
       M2WET_FINAL = moment2_conc
 
-C *** Assign H+ Concentration to each Mode
-      HPLUS( 1:2 ) = 0.0
-      DO I = 1, N_AEROSPC
-         IF(  AEROSPC( I )%tracer )CYCLE
-         HPLUS( 1:2 ) = HPLUS( 1:2 )
-     &                  - AEROSPC( I )%CHARGE * AEROSPC_CONC( I,1:2 ) / AEROSPC_MW( I )
-      END DO
-
-      H2O = AEROSPC_CONC( AH2O_IDX, 1 ) + AEROSPC_CONC( AH2O_IDX, 2 )
-      IF(  H2O .GT. CONMIN )THEN
-          H2O = 1.0 / H2O
-          AEROSPC_CONC( AH3OP_IDX, 1:2 ) = REAL( EQLBHIJ * H2O, 4 ) * AEROSPC_CONC( AH2O_IDX, 1:2 ) 
-      ELSE
-          AEROSPC_CONC( AH3OP_IDX, 1:2 ) = CONMIN
-      END IF
-      AEROSPC_CONC( AH3OP_IDX, 3 ) = REAL( HPLUS( 3 ),4 ) * AEROSPC_MW( ah3op_idx ) ! Coarse mode H+ concentration in ug/m3
 
 C *** Update the third moments, geometric mean diameters, geometric 
 C     standard deviations, modal mass totals, and modal particle 

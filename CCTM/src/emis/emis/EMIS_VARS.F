@@ -110,7 +110,7 @@
           REAL            :: MW    ! Emissions Surrogate Molecular Weight [g mol-1]
       End Type emis_legend
       
-      Integer, Parameter :: N_EMIS_SURR_TABLE = 150
+      Integer, Parameter :: N_EMIS_SURR_TABLE = 151
       Type ( emis_legend ), Parameter :: 
      &  EMIS_SURR_TABLE( N_EMIS_SURR_TABLE ) = (/
      &    emis_legend( 'NO2          ' ,046.0 ),
@@ -262,7 +262,8 @@
      &    emis_legend( 'MANGANESE_C  ' ,054.9 ),
      &    emis_legend( 'ARSENIC_F    ' ,074.92),
      &    emis_legend( 'ARSENIC_C    ' ,074.92),
-     &    emis_legend( 'PHGI         ' ,200.5 )  /)
+     &    emis_legend( 'PHGI         ' ,200.5 ),
+     %    emis_legend( 'HF           ' ,020.1 ) /)
 
       CONTAINS
 

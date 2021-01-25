@@ -111,8 +111,8 @@ C...........INCLUDES and their descriptions
 
 C...........PARAMETERS and their descriptions:
 
-      INTEGER, PARAMETER :: MXSPCS = 216     ! Number of substances
-      INTEGER, PARAMETER :: MXDSPCS = 19     ! Number of dissociating species
+      INTEGER, PARAMETER :: MXSPCS = 246     ! Number of substances
+      INTEGER, PARAMETER :: MXDSPCS = 20     ! Number of dissociating species
 
 C...pointers for the dissociation constants (array B and D)
 
@@ -135,6 +135,7 @@ C...pointers for the dissociation constants (array B and D)
       INTEGER, PARAMETER :: LHBR       = 17  ! HBR
       INTEGER, PARAMETER :: LHI        = 18  ! HI
       INTEGER, PARAMETER :: LACRYACID  = 19  ! CCH3COOH
+      INTEGER, PARAMETER :: LHFPODA    = 20  ! HFPODA (GENx)
 
 
 C...........SCRATCH LOCAL VARIABLES and their descriptions:
@@ -395,7 +396,39 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA SUBNAME(214), A(214), E(214) / 'IBR             ', 2.43E+01, 4.9E+03 /   ! Sherwen et al., 2016
       DATA SUBNAME(215), A(215), E(215) / 'FMBR            ', 7.40E+01, 0.0E+00 /   ! Sander, R. ACP (2015), krysztofiak et al. (2012)
       DATA SUBNAME(216), A(216), E(216) / 'CLO             ', 7.00E-03, 0.0E+00 /   ! Sander et al., ACP, 2015
+      DATA SUBNAME(217), A(217), E(217) / 'HFPODA          ', 4.22E+06, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(218), A(218), E(218) / 'HFPODAF         ', 4.95E-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(219), A(219), E(219) / 'TFE             ', 6.17E+00, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(220), A(220), E(220) / 'HFPO            ', 8.62E-03, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(221), A(221), E(221) / 'HFP             ', 6.54E+00, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(222), A(222), E(222) / 'E2              ', 1.07E+00, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(223), A(223), E(223) / 'PSEPVE          ', 5.15E+02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(224), A(224), E(224) / 'PAF             ', 2.49E+00, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(225), A(225), E(225) / 'CH3F            ', 6.38E-01, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(226), A(226), E(226) / 'PPVE            ', 2.08E-01, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(227), A(227), E(227) / 'PMVE            ', 1.02E+00, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(228), A(228), E(228) / 'PEVE            ', 7.52E-01, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(229), A(229), E(229) / 'PFB             ', 1.55E+00, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(230), A(230), E(230) / 'PMPF            ', 1.87E-01, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(231), A(231), E(231) / 'TAF2            ', 5.05E-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(232), A(232), E(232) / 'EVE             ', 7.04E+04, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(233), A(233), E(233) / 'COF2            ', 7.25E-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(234), A(234), E(234) / 'E1              ', 7.81E-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(235), A(235), E(235) / 'PEPF            ', 4.95E-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(236), A(236), E(236) / 'DA              ', 3.24E+04, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(237), A(237), E(237) / 'HFPOTA          ', 1.70E+02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(238), A(238), E(238) / 'TAF             ', 2.62E-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(239), A(239), E(239) / 'MA              ', 1.32E+02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(240), A(240), E(240) / 'F113            ', 1.21E-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(241), A(241), E(241) / 'TFF4            ', 1.14E+00, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(242), A(242), E(242) / 'CF3H            ', 1.24E-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(243), A(243), E(243) / 'PFASOTHER       ', 2.09E-01, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(244), A(244), E(244) / 'PFASGAS         ', 3.29E-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(245), A(245), E(245) / 'PFASGP          ', 3.29e-02, 0.0E+00 /   ! Estimated from OPERA
+      DATA SUBNAME(246), A(246), E(246) / 'PFASGASOTHER    ', 5.93e-02, 0.0E+00 /   ! Estimated from OPERA
+   
 
+      
       DATA B( LSO2   ), D( LSO2   ) / 1.30E-02,  1.96E+03 /  ! SO2*H2O<=>HSO3+H     : Smith and Martell (1976)
       DATA B( LHSO3  ), D( LHSO3  ) / 6.60E-08,  1.50E+03 /  ! HSO3<=>SO3+H         : Smith and Martell (1976)
       DATA B( LHNO2  ), D( LHNO2  ) / 5.10E-04, -1.26E+03 /  ! HNO2(aq)<=>NO2+H     : Schwartz and White (1981)
@@ -415,6 +448,7 @@ C...  Atmospheric Chemistry and Physics, 1997
       DATA B( LHBR   ), D( LHBR   ) / 1.00E+09,  0.00E+00 /  ! HBR <=> H + BR       : Schweitzer et al. (2000)
       DATA B( LHI    ), D( LHI    ) / 3.20E+09,  0.00E+00 /  ! HI <=> H + I         : Schweitzer et al. (2000)
       DATA B( LACRYACID ), D( LACRYACID ) / 5.62E-05,  0.00E+00 /  ! CH3C(O)OH <=> H + CH3C(O)O  : Riddick et al. (1985)
+      DATA B( LHFPODA), D( LHFPODA) / 5.37E+00,  0.00E+00 /  ! R(O)OH <=> H + R(O)O-       
 
 !-------------------------------------------------------------------------------
 ! Note for dissociation constant for equation 14: CL2*H2O <=> HOCL + H + CL
@@ -559,6 +593,11 @@ C...assign a value for clminus.  use 2.0 mM based on Lin and Pehkonene, 1998, JG
         CASE ( 'ACRYACID' )    ! CH3C(O)OH <=> H + CH3C(O)O 
 
           AKEQ1   = B( LACRYACID ) * EXP( D( LACRYACID ) * TFAC )
+          HLCONST = KH * ( 1.0 + AKEQ1 * HPLUSI )
+
+        CASE ( 'HFPODA' )      ! HFPODA <=> H+ + R(O)O-
+
+          AKEQ1   = B( LHFPODA ) * EXP( D( LHFPODA ) * TFAC )
           HLCONST = KH * ( 1.0 + AKEQ1 * HPLUSI )
 
         END SELECT CHECK_NAME
